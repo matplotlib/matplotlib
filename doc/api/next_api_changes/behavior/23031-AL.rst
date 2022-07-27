@@ -1,0 +1,5 @@
+The encoding of style file is now specified to be utf-8
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It has been impossible to import Matplotlib with a non UTF-8 compatible locale
+encoding because we read the style library at import time.  This change is
+formalizing and documenting the status quo so there is no deprecation period.

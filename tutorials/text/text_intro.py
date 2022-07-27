@@ -31,11 +31,11 @@ math symbols and commands, supporting :doc:`mathematical expressions
 Basic text commands
 ===================
 
-The following commands are used to create text in the pyplot
-interface and the object-oriented API:
+The following commands are used to create text in the implicit and explicit
+interfaces (see :ref:`api_interfaces` for an explanation of the tradeoffs):
 
 =================== =================== ======================================
-`.pyplot` API       OO API              description
+implicit API        explicit API        description
 =================== =================== ======================================
 `~.pyplot.text`     `~.Axes.text`       Add text at an arbitrary location of
                                         the `~matplotlib.axes.Axes`.
@@ -63,6 +63,7 @@ All of these functions create and return a `.Text` instance, which can be
 configured with a variety of font and other properties.  The example below
 shows all of these commands in action, and more detail is provided in the
 sections that follow.
+
 """
 
 import matplotlib
@@ -211,8 +212,8 @@ for ax, loc in zip(axs, locs):
 plt.show()
 
 ##############################################################################
-# Vertical spacing for titles is controlled via :rc:`axes.titlepad`, which
-# defaults to 5 points.  Setting to a different value moves the title.
+# Vertical spacing for titles is controlled via :rc:`axes.titlepad`.
+# Setting to a different value moves the title.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(top=0.8)
@@ -282,7 +283,7 @@ plt.show()
 # Tick Locators and Formatters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Instead of making a list of all the tickalbels, we could have
+# Instead of making a list of all the ticklabels, we could have
 # used `matplotlib.ticker.StrMethodFormatter` (new-style ``str.format()``
 # format string) or `matplotlib.ticker.FormatStrFormatter` (old-style '%'
 # format string) and passed it to the ``ax.xaxis``.  A

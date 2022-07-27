@@ -11,8 +11,8 @@ class RendererGTK4Cairo(backend_cairo.RendererCairo):
         self.gc.ctx = backend_cairo._to_context(ctx)
 
 
-class FigureCanvasGTK4Cairo(backend_gtk4.FigureCanvasGTK4,
-                            backend_cairo.FigureCanvasCairo):
+class FigureCanvasGTK4Cairo(backend_cairo.FigureCanvasCairo,
+                            backend_gtk4.FigureCanvasGTK4):
     _context_is_scaled = True
 
     def on_draw_event(self, widget, ctx):
@@ -27,8 +27,6 @@ class FigureCanvasGTK4Cairo(backend_gtk4.FigureCanvasGTK4,
                 self.get_style_context(), ctx,
                 allocation.x, allocation.y,
                 allocation.width, allocation.height)
-            self._renderer.set_width_height(
-                allocation.width * scale, allocation.height * scale)
             self._renderer.dpi = self.figure.dpi
             self.figure.draw(self._renderer)
 

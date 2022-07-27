@@ -6,11 +6,10 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 
 import matplotlib
-from matplotlib import _api, cm
+from matplotlib import _api, cm, patches
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
-import matplotlib.patches as patches
 
 
 __all__ = ['streamplot']
@@ -19,7 +18,8 @@ __all__ = ['streamplot']
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                minlength=0.1, transform=None, zorder=None, start_points=None,
-               maxlength=4.0, integration_direction='both'):
+               maxlength=4.0, integration_direction='both',
+               broken_streamlines=True):
     """
     Draw streamlines of a vector flow.
 
@@ -46,12 +46,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         The streamline color. If given an array, its values are converted to
         colors using *cmap* and *norm*.  The array must have the same shape
         as *u* and *v*.
-    cmap : `~matplotlib.colors.Colormap`
-        Colormap used to plot streamlines and arrows. This is only used if
-        *color* is an array.
-    norm : `~matplotlib.colors.Normalize`
-        Normalize object used to scale luminance data to 0, 1. If ``None``,
-        stretch (min, max) to (0, 1). This is only used if *color* is an array.
+    cmap, norm
+        Data normalization and colormapping parameters for *color*; only used
+        if *color* is an array of floats. See `~.Axes.imshow` for a detailed
+        description.
     arrowsize : float
         Scaling factor for the arrow size.
     arrowstyle : str
@@ -71,6 +69,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Integrate the streamline in forward, backward or both directions.
     data : indexable object, optional
         DATA_PARAMETER_PLACEHOLDER
+    broken_streamlines : boolean, default: True
+        If False, forces streamlines to continue until they
+        leave the plot domain.  If True, they may be terminated if they
+        come too close to another streamline.
 
     Returns
     -------
@@ -150,7 +152,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         for xm, ym in _gen_starting_points(mask.shape):
             if mask[ym, xm] == 0:
                 xg, yg = dmap.mask2grid(xm, ym)
-                t = integrate(xg, yg)
+                t = integrate(xg, yg, broken_streamlines)
                 if t is not None:
                     trajectories.append(t)
     else:
@@ -178,7 +180,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             xg = np.clip(xg, 0, grid.nx - 1)
             yg = np.clip(yg, 0, grid.ny - 1)
 
-            t = integrate(xg, yg)
+            t = integrate(xg, yg, broken_streamlines)
             if t is not None:
                 trajectories.append(t)
 
@@ -295,19 +297,19 @@ class DomainMap:
     def grid2data(self, xg, yg):
         return xg / self.x_data2grid, yg / self.y_data2grid
 
-    def start_trajectory(self, xg, yg):
+    def start_trajectory(self, xg, yg, broken_streamlines=True):
         xm, ym = self.grid2mask(xg, yg)
-        self.mask._start_trajectory(xm, ym)
+        self.mask._start_trajectory(xm, ym, broken_streamlines)
 
     def reset_start_point(self, xg, yg):
         xm, ym = self.grid2mask(xg, yg)
         self.mask._current_xy = (xm, ym)
 
-    def update_trajectory(self, xg, yg):
+    def update_trajectory(self, xg, yg, broken_streamlines=True):
         if not self.grid.within_grid(xg, yg):
             raise InvalidIndexError
         xm, ym = self.grid2mask(xg, yg)
-        self.mask._update_trajectory(xm, ym)
+        self.mask._update_trajectory(xm, ym, broken_streamlines)
 
     def undo_trajectory(self):
         self.mask._undo_trajectory()
@@ -397,17 +399,17 @@ class StreamMask:
     def __getitem__(self, args):
         return self._mask[args]
 
-    def _start_trajectory(self, xm, ym):
+    def _start_trajectory(self, xm, ym, broken_streamlines=True):
         """Start recording streamline trajectory"""
         self._traj = []
-        self._update_trajectory(xm, ym)
+        self._update_trajectory(xm, ym, broken_streamlines)
 
     def _undo_trajectory(self):
         """Remove current trajectory from mask"""
         for t in self._traj:
             self._mask[t] = 0
 
-    def _update_trajectory(self, xm, ym):
+    def _update_trajectory(self, xm, ym, broken_streamlines=True):
         """
         Update current trajectory position in mask.
 
@@ -419,7 +421,10 @@ class StreamMask:
                 self._mask[ym, xm] = 1
                 self._current_xy = (xm, ym)
             else:
-                raise InvalidIndexError
+                if broken_streamlines:
+                    raise InvalidIndexError
+                else:
+                    pass
 
 
 class InvalidIndexError(Exception):
@@ -458,9 +463,9 @@ def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
         dxi, dyi = forward_time(xi, yi)
         return -dxi, -dyi
 
-    def integrate(x0, y0):
+    def integrate(x0, y0, broken_streamlines=True):
         """
-        Return (N, 2) grid-coordinates of trajectory based on starting point.
+        Return x, y grid-coordinates of trajectory based on starting point.
 
         Integrate both forward and backward in time from starting point in
         grid coordinates.
@@ -473,17 +478,19 @@ def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
         stotal, xy_traj = 0., []
 
         try:
-            dmap.start_trajectory(x0, y0)
+            dmap.start_trajectory(x0, y0, broken_streamlines)
         except InvalidIndexError:
             return None
         if integration_direction in ['both', 'backward']:
-            s, xyt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength)
+            s, xyt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength,
+                                     broken_streamlines)
             stotal += s
             xy_traj += xyt[::-1]
 
         if integration_direction in ['both', 'forward']:
             dmap.reset_start_point(x0, y0)
-            s, xyt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength)
+            s, xyt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength,
+                                     broken_streamlines)
             stotal += s
             xy_traj += xyt[1:]
 
@@ -509,7 +516,7 @@ class OutOfBounds(IndexError):
     pass
 
 
-def _integrate_rk12(x0, y0, dmap, f, maxlength):
+def _integrate_rk12(x0, y0, dmap, f, maxlength, broken_streamlines=True):
     """
     2nd-order Runge-Kutta algorithm with adaptive step size.
 
@@ -589,7 +596,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
             xi += dx2
             yi += dy2
             try:
-                dmap.update_trajectory(xi, yi)
+                dmap.update_trajectory(xi, yi, broken_streamlines)
             except InvalidIndexError:
                 break
             if stotal + ds > maxlength:

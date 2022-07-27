@@ -1,0 +1,13 @@
+New algorithm keyword argument to contour and contourf
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The contouring functions `~matplotlib.axes.Axes.contour` and
+`~matplotlib.axes.Axes.contourf` have a new keyword argument *algorithm* to
+control which algorithm is used to calculate the contours. There is a choice
+of four algorithms to use, and the default is to use ``algorithm='mpl2014'``
+which is the same algorithm that Matplotlib has been using since 2014.
+
+Other possible values of the *algorithm* keyword argument are ``'mpl2005'``,
+``'serial'`` and ``'threaded'``; see the
+`ContourPy documentation <https://contourpy.readthedocs.io>`_ for further
+details.

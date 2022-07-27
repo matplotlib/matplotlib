@@ -1,0 +1,4 @@
+``BoxStyle._Base`` and ``transmute`` method of boxstyles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... have been removed.  Boxstyles implemented as classes no longer need to
+inherit from a base class.

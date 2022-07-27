@@ -19,18 +19,8 @@ ax1 = fig.add_axes([0.1, 0.3, 0.4, 0.4])
 rect = ax1.patch
 rect.set_facecolor('lightslategray')
 
-
-for label in ax1.xaxis.get_ticklabels():
-    # label is a Text instance
-    label.set_color('tab:red')
-    label.set_rotation(45)
-    label.set_fontsize(16)
-
-for line in ax1.yaxis.get_ticklines():
-    # line is a Line2D instance
-    line.set_color('tab:green')
-    line.set_markersize(25)
-    line.set_markeredgewidth(3)
+ax1.tick_params(axis='x', labelcolor='tab:red', labelrotation=45, labelsize=16)
+ax1.tick_params(axis='y', color='tab:green', size=25, width=3)
 
 plt.show()
 
@@ -47,7 +37,7 @@ plt.show()
 #    - `matplotlib.text.Text.set_fontsize`
 #    - `matplotlib.text.Text.set_color`
 #    - `matplotlib.lines.Line2D`
-#    - `matplotlib.lines.Line2D.set_color`
+#    - `matplotlib.lines.Line2D.set_markeredgecolor`
 #    - `matplotlib.lines.Line2D.set_markersize`
 #    - `matplotlib.lines.Line2D.set_markeredgewidth`
 #    - `matplotlib.patches.Patch.set_facecolor`

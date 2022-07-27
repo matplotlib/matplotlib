@@ -33,9 +33,16 @@
 ## Colors: for the color values below, you can either use
 ##     - a Matplotlib color string, such as r, k, or b
 ##     - an RGB tuple, such as (1.0, 0.5, 0.0)
-##     - a hex string, such as ff00ff
+##     - a double-quoted hex string, such as "#ff00ff".
+##       The unquoted string ff00ff is also supported for backward
+##       compatibility, but is discouraged.
 ##     - a scalar grayscale intensity such as 0.75
 ##     - a legal html color name, e.g., red, blue, darkslategray
+##
+## String values may optionally be enclosed in double quotes, which allows
+## using the comment character # in the string.
+##
+## This file (and other style files) must be encoded as utf-8.
 ##
 ## Matplotlib configuration are currently divided into following parts:
 ##     - BACKENDS
@@ -141,7 +148,7 @@
 ## Patches are graphical objects that fill 2D space, like polygons or circles.
 ## See https://matplotlib.org/api/artist_api.html#module-matplotlib.patches
 ## for more information on patch properties.
-#patch.linewidth:       1      # edge width in points.
+#patch.linewidth:       1.0    # edge width in points.
 #patch.facecolor:       C0
 #patch.edgecolor:       black  # if forced, or patch is not filled
 #patch.force_edgecolor: False  # True to always use edgecolor
@@ -296,6 +303,8 @@
                          # Values  other than 0 or 6 have no defined meaning.
 #text.antialiased: True  # If True (default), the text will be antialiased.
                          # This only affects raster outputs.
+#text.parse_math: True  # Use mathtext if there is an even number of unescaped
+                        # dollar signs.
 
 
 ## ***************************************************************************
@@ -506,10 +515,10 @@
 ## ***************************************************************************
 ## * GRIDS                                                                   *
 ## ***************************************************************************
-#grid.color:     b0b0b0  # grid color
-#grid.linestyle: -       # solid
-#grid.linewidth: 0.8     # in points
-#grid.alpha:     1.0     # transparency, between 0.0 and 1.0
+#grid.color:     "#b0b0b0"  # grid color
+#grid.linestyle: -          # solid
+#grid.linewidth: 0.8        # in points
+#grid.alpha:     1.0        # transparency, between 0.0 and 1.0
 
 
 ## ***************************************************************************
@@ -584,7 +593,7 @@
 ## ***************************************************************************
 #image.aspect:          equal        # {equal, auto} or a number
 #image.interpolation:   antialiased  # see help(imshow) for options
-#image.cmap:            viridis      # A colormap name, gray etc...
+#image.cmap:            viridis      # A colormap name (plasma, magma, etc.)
 #image.lut:             256          # the size of the colormap lookup table
 #image.origin:          upper        # {lower, upper}
 #image.resample:        True
@@ -598,10 +607,11 @@
 ## * CONTOUR PLOTS                                                           *
 ## ***************************************************************************
 #contour.negative_linestyle: dashed  # string or on-off ink sequence
-#contour.corner_mask:        True    # {True, False, legacy}
+#contour.corner_mask:        True    # {True, False}
 #contour.linewidth:          None    # {float, None} Size of the contour line
                                      # widths. If set to None, it falls back to
                                      # `line.linewidth`.
+#contour.algorithm:          mpl2014 # {mpl2005, mpl2014, serial, threaded}
 
 
 ## ***************************************************************************
@@ -674,12 +684,14 @@
                                 # 'tight' is incompatible with pipe-based animation
                                 # backends (e.g. 'ffmpeg') but will work with those
                                 # based on temporary files (e.g. 'ffmpeg_file')
-#savefig.pad_inches:   0.1      # Padding to be used when bbox is set to 'tight'
-#savefig.directory:    ~        # default directory in savefig dialog box,
-                                # leave empty to always use current working directory
-#savefig.transparent: False     # setting that controls whether figures are saved with a
-                                # transparent background by default
-#savefig.orientation: portrait  # Orientation of saved figure
+#savefig.pad_inches:  0.1       # padding to be used, when bbox is set to 'tight'
+#savefig.directory:   ~         # default directory in savefig dialog, gets updated after
+                                # interactive saves, unless set to the empty string (i.e.
+                                # the current directory); use '.' to start at the current
+                                # directory but update after interactive saves
+#savefig.transparent: False     # whether figures are saved with a transparent
+                                # background by default
+#savefig.orientation: portrait  # orientation of saved figure, for PostScript output only
 
 ### tk backend params
 #tk.window_focus:   False  # Maintain shell focus for TkAgg
@@ -756,12 +768,18 @@
 #animation.bitrate: -1            # Controls size/quality trade-off for movie.
                                   # -1 implies let utility auto-determine
 #animation.frame_format: png      # Controls frame format used by temp files
-#animation.ffmpeg_path:  ffmpeg   # Path to ffmpeg binary. Without full path
-                                  # $PATH is searched
-#animation.ffmpeg_args:           # Additional arguments to pass to ffmpeg
-#animation.convert_path: convert  # Path to ImageMagick's convert binary.
-                                  # On Windows use the full path since convert
-                                  # is also the name of a system tool.
-#animation.convert_args:          # Additional arguments to pass to convert
+
+## Path to ffmpeg binary.  Unqualified paths are resolved by subprocess.Popen.
+#animation.ffmpeg_path:  ffmpeg
+## Additional arguments to pass to ffmpeg.
+#animation.ffmpeg_args:
+
+## Path to ImageMagick's convert binary.  Unqualified paths are resolved by
+## subprocess.Popen, except that on Windows, we look up an install of
+## ImageMagick in the registry (as convert is also the name of a system tool).
+#animation.convert_path: convert
+## Additional arguments to pass to convert.
+#animation.convert_args: -layers, OptimizePlus
+#
 #animation.embed_limit:  20.0     # Limit, in MB, of size of base64 encoded
                                   # animation in HTML (i.e. IPython notebook)

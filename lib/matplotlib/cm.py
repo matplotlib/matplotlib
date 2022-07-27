@@ -15,13 +15,14 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
   normalization.
 """
 
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Mapping
+import functools
 
 import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-from matplotlib import _api, colors, cbook
+from matplotlib import _api, colors, cbook, scale
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
@@ -52,50 +53,8 @@ def _gen_cmap_registry():
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
-        cmap._global = True
-        rmap._global = True
         cmap_d[rmap.name] = rmap
     return cmap_d
-
-
-class _DeprecatedCmapDictWrapper(MutableMapping):
-    """Dictionary mapping for deprecated _cmap_d access."""
-
-    def __init__(self, cmap_registry):
-        self._cmap_registry = cmap_registry
-
-    def __delitem__(self, key):
-        self._warn_deprecated()
-        self._cmap_registry.__delitem__(key)
-
-    def __getitem__(self, key):
-        self._warn_deprecated()
-        return self._cmap_registry.__getitem__(key)
-
-    def __iter__(self):
-        self._warn_deprecated()
-        return self._cmap_registry.__iter__()
-
-    def __len__(self):
-        self._warn_deprecated()
-        return self._cmap_registry.__len__()
-
-    def __setitem__(self, key, val):
-        self._warn_deprecated()
-        self._cmap_registry.__setitem__(key, val)
-
-    def get(self, key, default=None):
-        self._warn_deprecated()
-        return self._cmap_registry.get(key, default)
-
-    def _warn_deprecated(self):
-        _api.warn_deprecated(
-            "3.3",
-            message="The global colormaps dictionary is no longer "
-                    "considered public API.",
-            alternative="Please use register_cmap() and get_cmap() to "
-                        "access the contents of the dictionary."
-        )
 
 
 class ColormapRegistry(Mapping):
@@ -125,12 +84,15 @@ class ColormapRegistry(Mapping):
     """
     def __init__(self, cmaps):
         self._cmaps = cmaps
+        self._builtin_cmaps = tuple(cmaps)
+        # A shim to allow register_cmap() to force an override
+        self._allow_override_builtin = False
 
     def __getitem__(self, item):
         try:
             return self._cmaps[item].copy()
         except KeyError:
-            raise KeyError(f"{item!r} is not a known colormap name")
+            raise KeyError(f"{item!r} is not a known colormap name") from None
 
     def __iter__(self):
         return iter(self._cmaps)
@@ -146,7 +108,7 @@ class ColormapRegistry(Mapping):
         """
         Return a list of the registered colormap names.
 
-        This exists only for backward-compatibilty in `.pyplot` which had a
+        This exists only for backward-compatibility in `.pyplot` which had a
         ``plt.colormaps()`` method. The recommended way to get this list is
         now ``list(colormaps)``.
         """
@@ -172,28 +134,71 @@ class ColormapRegistry(Mapping):
         name : str, optional
             The name for the colormap. If not given, ``cmap.name`` is used.
 
-        force: bool, default: False
+        force : bool, default: False
             If False, a ValueError is raised if trying to overwrite an already
             registered name. True supports overwriting registered colormaps
             other than the builtin colormaps.
         """
+        _api.check_isinstance(colors.Colormap, cmap=cmap)
+
         name = name or cmap.name
-        if name in self and not force:
-            raise ValueError(
-                f'A colormap named "{name}" is already registered.')
-        register_cmap(name, cmap.copy())
+        if name in self:
+            if not force:
+                # don't allow registering an already existing cmap
+                # unless explicitly asked to
+                raise ValueError(
+                    f'A colormap named "{name}" is already registered.')
+            elif (name in self._builtin_cmaps
+                    and not self._allow_override_builtin):
+                # We don't allow overriding a builtin unless privately
+                # coming from register_cmap()
+                raise ValueError("Re-registering the builtin cmap "
+                                 f"{name!r} is not allowed.")
 
+            # Warn that we are updating an already existing colormap
+            _api.warn_external(f"Overwriting the cmap {name!r} "
+                               "that was already in the registry.")
 
-_cmap_registry = _gen_cmap_registry()
-globals().update(_cmap_registry)
-# This is no longer considered public API
-cmap_d = _DeprecatedCmapDictWrapper(_cmap_registry)
-__builtin_cmaps = tuple(_cmap_registry)
+        self._cmaps[name] = cmap.copy()
+
+    def unregister(self, name):
+        """
+        Remove a colormap from the registry.
+
+        You cannot remove built-in colormaps.
+
+        If the named colormap is not registered, returns with no error, raises
+        if you try to de-register a default colormap.
+
+        .. warning::
+
+            Colormap names are currently a shared namespace that may be used
+            by multiple packages. Use `unregister` only if you know you
+            have registered that name before. In particular, do not
+            unregister just in case to clean the name before registering a
+            new colormap.
+
+        Parameters
+        ----------
+        name : str
+            The name of the colormap to be removed.
+
+        Raises
+        ------
+        ValueError
+            If you try to remove a default built-in colormap.
+        """
+        if name in self._builtin_cmaps:
+            raise ValueError(f"cannot unregister {name!r} which is a builtin "
+                             "colormap.")
+        self._cmaps.pop(name, None)
+
 
 # public access to the colormaps should be via `matplotlib.colormaps`. For now,
 # we still create the registry here, but that should stay an implementation
 # detail.
-_colormaps = ColormapRegistry(_cmap_registry)
+_colormaps = ColormapRegistry(_gen_cmap_registry())
+globals().update(_colormaps)
 
 
 def register_cmap(name=None, cmap=None, *, override_builtin=False):
@@ -223,14 +228,6 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
         colormap.
 
         Please do not use this unless you are sure you need it.
-
-    Notes
-    -----
-    Registering a colormap stores a reference to the colormap object
-    which can currently be modified and inadvertently change the global
-    colormap state. This behavior is deprecated and in Matplotlib 3.5
-    the registered colormap will be immutable.
-
     """
     _api.check_isinstance((str, None), name=name)
     if name is None:
@@ -239,21 +236,12 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
         except AttributeError as err:
             raise ValueError("Arguments must include a name or a "
                              "Colormap") from err
-    if name in _cmap_registry:
-        if not override_builtin and name in __builtin_cmaps:
-            msg = f"Trying to re-register the builtin cmap {name!r}."
-            raise ValueError(msg)
-        else:
-            msg = f"Trying to register the cmap {name!r} which already exists."
-            _api.warn_external(msg)
-
-    if not isinstance(cmap, colors.Colormap):
-        raise ValueError("You must pass a Colormap instance. "
-                         f"You passed {cmap} a {type(cmap)} object.")
-
-    cmap._global = True
-    _cmap_registry[name] = cmap
-    return
+    # override_builtin is allowed here for backward compatibility
+    # this is just a shim to enable that to work privately in
+    # the global ColormapRegistry
+    _colormaps._allow_override_builtin = override_builtin
+    _colormaps.register(cmap, name=name, force=override_builtin)
+    _colormaps._allow_override_builtin = False
 
 
 def get_cmap(name=None, lut=None):
@@ -262,12 +250,6 @@ def get_cmap(name=None, lut=None):
 
     Colormaps added with :func:`register_cmap` take precedence over
     built-in colormaps.
-
-    Notes
-    -----
-    Currently, this returns the global colormap object. This is undesired
-    because users could accidentally modify the global colormap.
-    From Matplotlib 3.6 on, this will return a copy instead.
 
     Parameters
     ----------
@@ -283,11 +265,11 @@ def get_cmap(name=None, lut=None):
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
         return name
-    _api.check_in_list(sorted(_cmap_registry), name=name)
+    _api.check_in_list(sorted(_colormaps), name=name)
     if lut is None:
-        return _cmap_registry[name]
+        return _colormaps[name]
     else:
-        return _cmap_registry[name]._resample(lut)
+        return _colormaps[name]._resample(lut)
 
 
 def unregister_cmap(name):
@@ -321,14 +303,38 @@ def unregister_cmap(name):
     ------
     ValueError
        If you try to de-register a default built-in colormap.
-
     """
-    if name not in _cmap_registry:
-        return
-    if name in __builtin_cmaps:
-        raise ValueError(f"cannot unregister {name!r} which is a builtin "
-                         "colormap.")
-    return _cmap_registry.pop(name)
+    cmap = _colormaps.get(name, None)
+    _colormaps.unregister(name)
+    return cmap
+
+
+def _auto_norm_from_scale(scale_cls):
+    """
+    Automatically generate a norm class from *scale_cls*.
+
+    This differs from `.colors.make_norm_from_scale` in the following points:
+
+    - This function is not a class decorator, but directly returns a norm class
+      (as if decorating `.Normalize`).
+    - The scale is automatically constructed with ``nonpositive="mask"``, if it
+      supports such a parameter, to work around the difference in defaults
+      between standard scales (which use "clip") and norms (which use "mask").
+
+    Note that ``make_norm_from_scale`` caches the generated norm classes
+    (not the instances) and reuses them for later calls.  For example,
+    ``type(_auto_norm_from_scale("log")) == LogNorm``.
+    """
+    # Actually try to construct an instance, to verify whether
+    # ``nonpositive="mask"`` is supported.
+    try:
+        norm = colors.make_norm_from_scale(
+            functools.partial(scale_cls, nonpositive="mask"))(
+            colors.Normalize)()
+    except TypeError:
+        norm = colors.make_norm_from_scale(scale_cls)(
+            colors.Normalize)()
+    return type(norm)
 
 
 class ScalarMappable:
@@ -341,12 +347,13 @@ class ScalarMappable:
 
     def __init__(self, norm=None, cmap=None):
         """
-
         Parameters
         ----------
-        norm : `matplotlib.colors.Normalize` (or subclass thereof)
+        norm : `.Normalize` (or subclass thereof) or str or None
             The normalizing object which scales data, typically into the
             interval ``[0, 1]``.
+            If a `str`, a `.Normalize` subclass is dynamically generated based
+            on the scale with the corresponding name.
             If *None*, *norm* defaults to a *colors.Normalize* object which
             initializes its scaling based on the first data processed.
         cmap : str or `~matplotlib.colors.Colormap`
@@ -376,11 +383,11 @@ class ScalarMappable:
         """
         if vmin is not None or vmax is not None:
             self.set_clim(vmin, vmax)
-            if norm is not None:
+            if isinstance(norm, colors.Normalize):
                 raise ValueError(
-                    "Passing parameters norm and vmin/vmax simultaneously is "
-                    "not supported. Please pass vmin/vmax directly to the "
-                    "norm when creating it.")
+                    "Passing a Normalize instance simultaneously with "
+                    "vmin/vmax is not supported.  Please pass vmin/vmax "
+                    "directly to the norm when creating it.")
 
         # always resolve the autoscaling so we have concrete limits
         # rather than deferring to draw time.
@@ -405,7 +412,7 @@ class ScalarMappable:
         If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
         will be used to fill in the transparency.  If the last dimension
         is 4, the *alpha* kwarg is ignored; it does not
-        replace the pre-existing alpha.  A ValueError will be raised
+        replace the preexisting alpha.  A ValueError will be raised
         if the third dimension is other than 3 or 4.
 
         In either case, if *bytes* is *False* (default), the rgba
@@ -554,9 +561,18 @@ class ScalarMappable:
 
     @norm.setter
     def norm(self, norm):
-        _api.check_isinstance((colors.Normalize, None), norm=norm)
+        _api.check_isinstance((colors.Normalize, str, None), norm=norm)
         if norm is None:
             norm = colors.Normalize()
+        elif isinstance(norm, str):
+            try:
+                scale_cls = scale._scale_mapping[norm]
+            except KeyError:
+                raise ValueError(
+                    "Invalid norm str name; the following values are "
+                    "supported: {}".format(", ".join(scale._scale_mapping))
+                ) from None
+            norm = _auto_norm_from_scale(scale_cls)()
 
         if norm is self.norm:
             # We aren't updating anything
@@ -578,7 +594,7 @@ class ScalarMappable:
 
         Parameters
         ----------
-        norm : `.Normalize` or None
+        norm : `.Normalize` or str or None
 
         Notes
         -----
@@ -617,3 +633,33 @@ class ScalarMappable:
         """
         self.callbacks.process('changed', self)
         self.stale = True
+
+
+# The docstrings here must be generic enough to apply to all relevant methods.
+mpl._docstring.interpd.update(
+    cmap_doc="""\
+cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+    The Colormap instance or registered colormap name used to map scalar data
+    to colors.""",
+    norm_doc="""\
+norm : str or `~matplotlib.colors.Normalize`, optional
+    The normalization method used to scale scalar data to the [0, 1] range
+    before mapping to colors using *cmap*. By default, a linear scaling is
+    used, mapping the lowest value to 0 and the highest to 1.
+
+    If given, this can be one of the following:
+
+    - An instance of `.Normalize` or one of its subclasses
+      (see :doc:`/tutorials/colors/colormapnorms`).
+    - A scale name, i.e. one of "linear", "log", "symlog", "logit", etc.  For a
+      list of available scales, call `matplotlib.scale.get_scale_names()`.
+      In that case, a suitable `.Normalize` subclass is dynamically generated
+      and instantiated.""",
+    vmin_vmax_doc="""\
+vmin, vmax : float, optional
+    When using scalar data and no explicit *norm*, *vmin* and *vmax* define
+    the data range that the colormap covers. By default, the colormap covers
+    the complete value range of the supplied data. It is an error to use
+    *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
+    name together with *vmin*/*vmax* is acceptable).""",
+)

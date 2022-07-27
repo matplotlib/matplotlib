@@ -1,0 +1,12 @@
+Deprecation of helper functions in backends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following functions are considered private and deprecated. Vendor the code
+of the similarly named private functions if you rely on these functions.
+
+* ``backend_pdf.fill``
+* ``backend_ps.quote_ps_string``
+* ``backend_svg.escape_attrib``
+* ``backend_svg.escape_cdata``
+* ``backend_svg.escape_comment``
+* ``backend_svg.short_float_fmt``

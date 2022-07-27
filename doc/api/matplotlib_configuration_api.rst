@@ -52,10 +52,13 @@ Logging
 
 .. autofunction:: set_loglevel
 
-Colormaps
-=========
+Colormaps and color sequences
+=============================
 
 .. autodata:: colormaps
+   :no-value:
+
+.. autodata:: color_sequences
    :no-value:
 
 Miscellaneous

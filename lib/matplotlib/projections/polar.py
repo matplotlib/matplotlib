@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import math
 import types
 
@@ -12,7 +11,7 @@ import matplotlib.patches as mpatches
 from matplotlib.path import Path
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
-import matplotlib.spines as mspines
+from matplotlib.spines import Spine
 
 
 class PolarTransform(mtransforms.Transform):
@@ -358,13 +357,7 @@ class ThetaAxis(maxis.XAxis):
     """
     __name__ = 'thetaaxis'
     axis_name = 'theta'  #: Read-only name identifying the axis.
-
-    def _get_tick(self, major):
-        if major:
-            tick_kw = self._major_tick_kw
-        else:
-            tick_kw = self._minor_tick_kw
-        return ThetaTick(self.axes, 0, major=major, **tick_kw)
+    _tick_class = ThetaTick
 
     def _wrap_locator_formatter(self):
         self.set_major_locator(ThetaLocator(self.get_major_locator()))
@@ -373,13 +366,10 @@ class ThetaAxis(maxis.XAxis):
         self.isDefault_majfmt = True
 
     def clear(self):
+        # docstring inherited
         super().clear()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
-
-    @_api.deprecated("3.4", alternative="ThetaAxis.clear()")
-    def cla(self):
-        self.clear()
 
     def _set_scale(self, value, **kwargs):
         if value != 'linear':
@@ -653,17 +643,11 @@ class RadialAxis(maxis.YAxis):
     """
     __name__ = 'radialaxis'
     axis_name = 'radius'  #: Read-only name identifying the axis.
+    _tick_class = RadialTick
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sticky_edges.y.append(0)
-
-    def _get_tick(self, major):
-        if major:
-            tick_kw = self._major_tick_kw
-        else:
-            tick_kw = self._minor_tick_kw
-        return RadialTick(self.axes, 0, major=major, **tick_kw)
 
     def _wrap_locator_formatter(self):
         self.set_major_locator(RadialLocator(self.get_major_locator(),
@@ -671,13 +655,10 @@ class RadialAxis(maxis.YAxis):
         self.isDefault_majloc = True
 
     def clear(self):
+        # docstring inherited
         super().clear()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
-
-    @_api.deprecated("3.4", alternative="RadialAxis.clear()")
-    def cla(self):
-        self.clear()
 
     def _set_scale(self, value, **kwargs):
         super()._set_scale(value, **kwargs)
@@ -776,10 +757,11 @@ class PolarAxes(Axes):
         super().__init__(*args, **kwargs)
         self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
-        self.cla()
+        self.clear()
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        # docstring inherited
+        super().clear()
 
         self.title.set_y(1.05)
 
@@ -981,14 +963,12 @@ class PolarAxes(Axes):
         return mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
 
     def _gen_axes_spines(self):
-        spines = OrderedDict([
-            ('polar', mspines.Spine.arc_spine(self, 'top',
-                                              (0.5, 0.5), 0.5, 0.0, 360.0)),
-            ('start', mspines.Spine.linear_spine(self, 'left')),
-            ('end', mspines.Spine.linear_spine(self, 'right')),
-            ('inner', mspines.Spine.arc_spine(self, 'bottom',
-                                              (0.5, 0.5), 0.0, 0.0, 360.0))
-        ])
+        spines = {
+            'polar': Spine.arc_spine(self, 'top', (0.5, 0.5), 0.5, 0, 360),
+            'start': Spine.linear_spine(self, 'left'),
+            'end': Spine.linear_spine(self, 'right'),
+            'inner': Spine.arc_spine(self, 'bottom', (0.5, 0.5), 0.0, 0, 360),
+        }
         spines['polar'].set_transform(self.transWedge + self.transAxes)
         spines['inner'].set_transform(self.transWedge + self.transAxes)
         spines['start'].set_transform(self._yaxis_transform)

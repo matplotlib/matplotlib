@@ -9,21 +9,16 @@ import json
 import pathlib
 import uuid
 
+from ipykernel.comm import Comm
 from IPython.display import display, Javascript, HTML
-try:
-    # Jupyter/IPython 4.x or later
-    from ipykernel.comm import Comm
-except ImportError:
-    # Jupyter/IPython 3.x or earlier
-    from IPython.kernel.comm import Comm
 
 from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import _Backend, NavigationToolbar2
-from matplotlib.backends.backend_webagg_core import (
-    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
-    TimerTornado, TimerAsyncio
-)
+from .backend_webagg_core import (
+    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg)
+from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
+    TimerTornado, TimerAsyncio)
 
 
 def connection_info():
@@ -44,18 +39,13 @@ def connection_info():
     return '\n'.join(result)
 
 
-# Note: Version 3.2 and 4.x icons
-# https://fontawesome.com/v3.2/icons/
-# https://fontawesome.com/v4.7/icons/
-# the `fa fa-xxx` part targets font-awesome 4, (IPython 3.x)
-# the icon-xxx targets font awesome 3.21 (IPython 2.x)
-_FONT_AWESOME_CLASSES = {
-    'home': 'fa fa-home icon-home',
-    'back': 'fa fa-arrow-left icon-arrow-left',
-    'forward': 'fa fa-arrow-right icon-arrow-right',
-    'zoom_to_rect': 'fa fa-square-o icon-check-empty',
-    'move': 'fa fa-arrows icon-move',
-    'download': 'fa fa-floppy-o icon-save',
+_FONT_AWESOME_CLASSES = {  # font-awesome 4 names
+    'home': 'fa fa-home',
+    'back': 'fa fa-arrow-left',
+    'forward': 'fa fa-arrow-right',
+    'zoom_to_rect': 'fa fa-square-o',
+    'move': 'fa fa-arrows',
+    'download': 'fa fa-floppy-o',
     None: None
 }
 
@@ -78,6 +68,21 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         self._shown = False
         super().__init__(canvas, num)
 
+    @classmethod
+    def create_with_canvas(cls, canvas_class, figure, num):
+        canvas = canvas_class(figure)
+        manager = cls(canvas, num)
+        if is_interactive():
+            manager.show()
+            canvas.draw_idle()
+
+        def destroy(event):
+            canvas.mpl_disconnect(cid)
+            Gcf.destroy(manager)
+
+        cid = canvas.mpl_connect('close_event', destroy)
+        return manager
+
     def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
         # browser instances using the same kernel (require.js - but the
@@ -91,6 +96,15 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         else:
             self.canvas.draw_idle()
         self._shown = True
+        # plt.figure adds an event which makes the figure in focus the active
+        # one. Disable this behaviour, as it results in figures being put as
+        # the active figure after they have been shown, even in non-interactive
+        # mode.
+        if hasattr(self, '_cidgcf'):
+            self.canvas.mpl_disconnect(self._cidgcf)
+        if not is_interactive():
+            from matplotlib._pylab_helpers import Gcf
+            Gcf.figs.pop(self.num, None)
 
     def reshow(self):
         """
@@ -143,7 +157,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    pass
+    manager_class = FigureManagerNbAgg
 
 
 class CommSocket:
@@ -227,42 +241,3 @@ class CommSocket:
 class _BackendNbAgg(_Backend):
     FigureCanvas = FigureCanvasNbAgg
     FigureManager = FigureManagerNbAgg
-
-    @staticmethod
-    def new_figure_manager_given_figure(num, figure):
-        canvas = FigureCanvasNbAgg(figure)
-        manager = FigureManagerNbAgg(canvas, num)
-        if is_interactive():
-            manager.show()
-            figure.canvas.draw_idle()
-
-        def destroy(event):
-            canvas.mpl_disconnect(cid)
-            Gcf.destroy(manager)
-
-        cid = canvas.mpl_connect('close_event', destroy)
-        return manager
-
-    @staticmethod
-    def show(block=None):
-        ## TODO: something to do when keyword block==False ?
-        from matplotlib._pylab_helpers import Gcf
-
-        managers = Gcf.get_all_fig_managers()
-        if not managers:
-            return
-
-        interactive = is_interactive()
-
-        for manager in managers:
-            manager.show()
-
-            # plt.figure adds an event which makes the figure in focus the
-            # active one. Disable this behaviour, as it results in
-            # figures being put as the active figure after they have been
-            # shown, even in non-interactive mode.
-            if hasattr(manager, '_cidgcf'):
-                manager.canvas.mpl_disconnect(manager._cidgcf)
-
-            if not interactive:
-                Gcf.figs.pop(manager.num, None)

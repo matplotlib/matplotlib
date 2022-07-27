@@ -23,11 +23,11 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _blocking_input, docstring, projections
+from matplotlib import _blocking_input, backend_bases, _docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
+    DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -377,27 +377,27 @@ default: %(va)s
         self.stale = True
         return suplab
 
-    @docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
-                            va='top')
-    @docstring.copy(_suplabels)
+    @_docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
+                             va='top')
+    @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
                 'ha': 'center', 'va': 'top', 'rotation': 0}
         return self._suplabels(t, info, **kwargs)
 
-    @docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
-                            va='bottom')
-    @docstring.copy(_suplabels)
+    @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
+                             va='bottom')
+    @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_supxlabel', 'x0': 0.5, 'y0': 0.01,
                 'ha': 'center', 'va': 'bottom', 'rotation': 0}
         return self._suplabels(t, info, **kwargs)
 
-    @docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
-                            va='center')
-    @docstring.copy(_suplabels)
+    @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
+                             va='center')
+    @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_supylabel', 'x0': 0.02, 'y0': 0.5,
@@ -507,7 +507,7 @@ default: %(va)s
         self.stale = True
         return artist
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def add_axes(self, *args, **kwargs):
         """
         Add an Axes to the figure.
@@ -519,8 +519,8 @@ default: %(va)s
 
         Parameters
         ----------
-        rect : sequence of float
-            The dimensions [left, bottom, width, height] of the new Axes. All
+        rect : tuple (left, bottom, width, height)
+            The dimensions (left, bottom, width, height) of the new Axes. All
             quantities are in fractions of figure width and height.
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
@@ -620,7 +620,7 @@ default: %(va)s
             key = (projection_class, pkw)
         return self._add_axes_internal(a, key)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
         """
         Add an `~.axes.Axes` to the figure as part of a subplot arrangement.
@@ -764,7 +764,8 @@ default: %(va)s
         return ax
 
     def subplots(self, nrows=1, ncols=1, *, sharex=False, sharey=False,
-                 squeeze=True, subplot_kw=None, gridspec_kw=None):
+                 squeeze=True, width_ratios=None, height_ratios=None,
+                 subplot_kw=None, gridspec_kw=None):
         """
         Add a set of subplots to this figure.
 
@@ -806,6 +807,18 @@ default: %(va)s
             - If False, no squeezing at all is done: the returned Axes object
               is always a 2D array containing Axes instances, even if it ends
               up being 1x1.
+
+        width_ratios : array-like of length *ncols*, optional
+            Defines the relative widths of the columns. Each column gets a
+            relative width of ``width_ratios[i] / sum(width_ratios)``.
+            If not given, all columns will have the same width.  Equivalent
+            to ``gridspec_kw={'width_ratios': [...]}``.
+
+        height_ratios : array-like of length *nrows*, optional
+            Defines the relative heights of the rows. Each row gets a
+            relative height of ``height_ratios[i] / sum(height_ratios)``.
+            If not given, all rows will have the same height. Equivalent
+            to ``gridspec_kw={'height_ratios': [...]}``.
 
         subplot_kw : dict, optional
             Dict with keywords passed to the `.Figure.add_subplot` call used to
@@ -871,6 +884,17 @@ default: %(va)s
         """
         if gridspec_kw is None:
             gridspec_kw = {}
+        if height_ratios is not None:
+            if 'height_ratios' in gridspec_kw:
+                raise ValueError("'height_ratios' must not be defined both as "
+                                 "parameter and as key in 'gridspec_kw'")
+            gridspec_kw['height_ratios'] = height_ratios
+        if width_ratios is not None:
+            if 'width_ratios' in gridspec_kw:
+                raise ValueError("'width_ratios' must not be defined both as "
+                                 "parameter and as key in 'gridspec_kw'")
+            gridspec_kw['width_ratios'] = width_ratios
+
         gs = self.add_gridspec(nrows, ncols, figure=self, **gridspec_kw)
         axs = gs.subplots(sharex=sharex, sharey=sharey, squeeze=squeeze,
                           subplot_kw=subplot_kw)
@@ -913,11 +937,62 @@ default: %(va)s
         # Break link between any twinned axes
         _break_share_link(ax, ax._twinned_axes)
 
+    def clear(self, keep_observers=False):
+        """
+        Clear the figure.
+
+        Parameters
+        ----------
+        keep_observers: bool, default: False
+            Set *keep_observers* to True if, for example,
+            a gui widget is tracking the Axes in the figure.
+        """
+        self.suppressComposite = None
+
+        # first clear the axes in any subfigures
+        for subfig in self.subfigs:
+            subfig.clear(keep_observers=keep_observers)
+        self.subfigs = []
+
+        for ax in tuple(self.axes):  # Iterate over the copy.
+            ax.clear()
+            self.delaxes(ax)  # Remove ax from self._axstack.
+
+        self.artists = []
+        self.lines = []
+        self.patches = []
+        self.texts = []
+        self.images = []
+        self.legends = []
+        if not keep_observers:
+            self._axobservers = cbook.CallbackRegistry()
+        self._suptitle = None
+        self._supxlabel = None
+        self._supylabel = None
+
+        self.stale = True
+
+    # synonym for `clear`.
+    def clf(self, keep_observers=False):
+        """
+        Alias for the `clear()` method.
+
+        .. admonition:: Discouraged
+
+            The use of ``clf()`` is discouraged. Use ``clear()`` instead.
+
+        Parameters
+        ----------
+        keep_observers: bool, default: False
+            Set *keep_observers* to True if, for example,
+            a gui widget is tracking the Axes in the figure.
+        """
+        return self.clear(keep_observers=keep_observers)
+
     # Note: in the docstring below, the newlines in the examples after the
     # calls to legend() allow replacing it with figlegend() to generate the
     # docstring of pyplot.figlegend.
-
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
         Place a legend on the figure.
@@ -1052,7 +1127,7 @@ default: %(va)s
         self.stale = True
         return l
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to figure.
@@ -1102,7 +1177,7 @@ default: %(va)s
         self.stale = True
         return text
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def colorbar(
             self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
         """%(colorbar_doc)s"""
@@ -1458,8 +1533,7 @@ default: %(va)s
         self._axobservers.process("_axes_change_event", self)
         return a
 
-    @docstring.dedent_interpd
-    def gca(self, **kwargs):
+    def gca(self):
         """
         Get the current Axes.
 
@@ -1468,25 +1542,9 @@ default: %(va)s
         Axes on a Figure, check whether ``figure.axes`` is empty.  To test
         whether there is currently a Figure on the pyplot figure stack, check
         whether `.pyplot.get_fignums()` is empty.)
-
-        The following kwargs are supported for ensuring the returned Axes
-        adheres to the given projection etc., and for Axes creation if
-        the active Axes does not exist:
-
-        %(Axes:kwdoc)s
         """
-        if kwargs:
-            _api.warn_deprecated(
-                "3.4",
-                message="Calling gca() with keyword arguments was deprecated "
-                "in Matplotlib %(since)s. Starting %(removal)s, gca() will "
-                "take no keyword arguments. The gca() function should only be "
-                "used to get the current axes, or if no axes exist, create "
-                "new axes with default keyword arguments. To create a new "
-                "axes with non-default arguments, use plt.axes() or "
-                "plt.subplot().")
         ax = self._axstack.current()
-        return ax if ax is not None else self.add_subplot(**kwargs)
+        return ax if ax is not None else self.add_subplot()
 
     def _gci(self):
         # Helper for `~matplotlib.pyplot.gci`.  Do not use elsewhere.
@@ -1567,7 +1625,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
-    def get_tightbbox(self, renderer, bbox_extra_artists=None):
+    def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
 
@@ -1593,6 +1651,9 @@ default: %(va)s
         `.BboxBase`
             containing the bounding box (in figure inches).
         """
+
+        if renderer is None:
+            renderer = self.figure._get_renderer()
 
         bb = []
         if bbox_extra_artists is None:
@@ -1646,7 +1707,8 @@ default: %(va)s
             return [list(ln) for ln in layout.strip('\n').split('\n')]
 
     def subplot_mosaic(self, mosaic, *, sharex=False, sharey=False,
-                       subplot_kw=None, gridspec_kw=None, empty_sentinel='.'):
+                       width_ratios=None, height_ratios=None,
+                       empty_sentinel='.', subplot_kw=None, gridspec_kw=None):
         """
         Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1702,6 +1764,18 @@ default: %(va)s
             units behave as for `subplots`.  If False, each subplot's x- or
             y-axis will be independent.
 
+        width_ratios : array-like of length *ncols*, optional
+            Defines the relative widths of the columns. Each column gets a
+            relative width of ``width_ratios[i] / sum(width_ratios)``.
+            If not given, all columns will have the same width.  Equivalent
+            to ``gridspec_kw={'width_ratios': [...]}``.
+
+        height_ratios : array-like of length *nrows*, optional
+            Defines the relative heights of the rows. Each row gets a
+            relative height of ``height_ratios[i] / sum(height_ratios)``.
+            If not given, all rows will have the same height. Equivalent
+            to ``gridspec_kw={'height_ratios': [...]}``.
+
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
             used to create each subplot.
@@ -1726,6 +1800,17 @@ default: %(va)s
         """
         subplot_kw = subplot_kw or {}
         gridspec_kw = gridspec_kw or {}
+        if height_ratios is not None:
+            if 'height_ratios' in gridspec_kw:
+                raise ValueError("'height_ratios' must not be defined both as "
+                                 "parameter and as key in 'gridspec_kw'")
+            gridspec_kw['height_ratios'] = height_ratios
+        if width_ratios is not None:
+            if 'width_ratios' in gridspec_kw:
+                raise ValueError("'width_ratios' must not be defined both as "
+                                 "parameter and as key in 'gridspec_kw'")
+            gridspec_kw['width_ratios'] = width_ratios
+
         # special-case string input
         if isinstance(mosaic, str):
             mosaic = self._normalize_grid_string(mosaic)
@@ -1907,7 +1992,7 @@ default: %(va)s
         a.set_transform(self.transSubfigure)
 
 
-@docstring.interpd
+@_docstring.interpd
 class SubFigure(FigureBase):
     """
     Logical figure that can be placed inside a figure.
@@ -1925,6 +2010,10 @@ class SubFigure(FigureBase):
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
     """
+    callbacks = _api.deprecated(
+            "3.6", alternative=("the 'resize_event' signal in "
+                                "Figure.canvas.callbacks")
+            )(property(lambda self: self._fig_callbacks))
 
     def __init__(self, parent, subplotspec, *,
                  facecolor=None,
@@ -1973,6 +2062,8 @@ class SubFigure(FigureBase):
         self._subplotspec = subplotspec
         self._parent = parent
         self.figure = parent.figure
+        self._fig_callbacks = parent._fig_callbacks
+
         # subfigures use the parent axstack
         self._axstack = parent._axstack
         self.subplotpars = parent.subplotpars
@@ -2002,6 +2093,26 @@ class SubFigure(FigureBase):
     @dpi.setter
     def dpi(self, value):
         self._parent.dpi = value
+
+    def get_dpi(self):
+        """
+        Return the resolution of the parent figure in dots-per-inch as a float.
+        """
+        return self._parent.dpi
+
+    def set_dpi(self, val):
+        """
+        Set the resolution of parent figure in dots-per-inch.
+
+        Parameters
+        ----------
+        val : float
+        """
+        self._parent.dpi = val
+        self.stale = True
+
+    def _get_renderer(self):
+        return self._parent._get_renderer()
 
     def _redo_transform_rel_fig(self, bbox=None):
         """
@@ -2098,15 +2209,10 @@ class SubFigure(FigureBase):
             self.stale = False
 
 
-@docstring.interpd
+@_docstring.interpd
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
-
-    The Figure instance supports callbacks through a *callbacks* attribute
-    which is a `.CallbackRegistry` instance.  The events you can connect to
-    are 'dpi_changed', and the callback will be called with ``func(fig)`` where
-    fig is the `Figure` instance.
 
     Attributes
     ----------
@@ -2118,6 +2224,12 @@ class Figure(FigureBase):
         depending on the renderer option_image_nocomposite function.  If
         *suppressComposite* is a boolean, this will override the renderer.
     """
+    # Remove the self._fig_callbacks properties on figure and subfigure
+    # after the deprecation expires.
+    callbacks = _api.deprecated(
+        "3.6", alternative=("the 'resize_event' signal in "
+                            "Figure.canvas.callbacks")
+        )(property(lambda self: self._fig_callbacks))
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
@@ -2187,7 +2299,7 @@ class Figure(FigureBase):
                 The use of this parameter is discouraged. Please use
                 ``layout='constrained'`` instead.
 
-        layout : {'constrained', 'tight', `.LayoutEngine`, None}, optional
+        layout : {'constrained', 'compressed', 'tight', `.LayoutEngine`, None}
             The layout mechanism for positioning of plot elements to avoid
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
@@ -2199,6 +2311,10 @@ class Figure(FigureBase):
 
               See :doc:`/tutorials/intermediate/constrainedlayout_guide`
               for examples.
+
+            - 'compressed': uses the same algorithm as 'constrained', but
+              removes extra space between fixed-aspect-ratio Axes.  Best for
+              simple grids of axes.
 
             - 'tight': Use the tight layout mechanism. This is a relatively
               simple algorithm that adjusts the subplot parameters so that
@@ -2250,16 +2366,26 @@ class Figure(FigureBase):
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)
 
-        self.callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
+        self._fig_callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
         # Callbacks traditionally associated with the canvas (and exposed with
         # a proxy property), but that actually need to be on the figure for
         # pickling.
         self._canvas_callbacks = cbook.CallbackRegistry(
             signals=FigureCanvasBase.events)
-        self._button_pick_id = self._canvas_callbacks.connect(
-            'button_press_event', lambda event: self.canvas.pick(event))
-        self._scroll_pick_id = self._canvas_callbacks.connect(
-            'scroll_event', lambda event: self.canvas.pick(event))
+        self._button_pick_id = self._canvas_callbacks._connect_picklable(
+            'button_press_event', self.pick)
+        self._scroll_pick_id = self._canvas_callbacks._connect_picklable(
+            'scroll_event', self.pick)
+        connect = self._canvas_callbacks._connect_picklable
+        self._mouse_key_ids = [
+            connect('key_press_event', backend_bases._key_handler),
+            connect('key_release_event', backend_bases._key_handler),
+            connect('key_release_event', backend_bases._key_handler),
+            connect('button_press_event', backend_bases._mouse_handler),
+            connect('button_release_event', backend_bases._mouse_handler),
+            connect('scroll_event', backend_bases._mouse_handler),
+            connect('motion_notify_event', backend_bases._mouse_handler),
+        ]
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']
@@ -2301,11 +2427,15 @@ class Figure(FigureBase):
         self.subplotpars = subplotpars
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
-        self.clf()
+        self.clear()
         self._cachedRenderer = None
 
         # list of child gridspecs for this figure
         self._gridspecs = []
+
+    def pick(self, mouseevent):
+        if not self.canvas.widgetlock.locked():
+            super().pick(mouseevent)
 
     def _check_layout_engines_compat(self, old, new):
         """
@@ -2320,7 +2450,7 @@ class Figure(FigureBase):
         # figure...
         for ax in self.axes:
             if hasattr(ax, '_colorbar'):
-                # colorbars list themselvs as a colorbar.
+                # colorbars list themselves as a colorbar.
                 return False
         return True
 
@@ -2330,10 +2460,12 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        layout: {'constrained', 'tight'} or `~.LayoutEngine`
-            'constrained' will use `~.ConstrainedLayoutEngine`, 'tight' will
-            use `~.TightLayoutEngine`.  Users and libraries can define their
-            own layout engines as well.
+        layout: {'constrained', 'compressed', 'tight'} or `~.LayoutEngine`
+            'constrained' will use `~.ConstrainedLayoutEngine`,
+            'compressed' will also use ConstrainedLayoutEngine, but with a
+            correction that attempts to make a good layout for fixed-aspect
+            ratio Axes. 'tight' uses `~.TightLayoutEngine`.  Users and
+            libraries can define their own layout engines as well.
         kwargs: dict
             The keyword arguments are passed to the layout engine to set things
             like padding and margin sizes.  Only used if *layout* is a string.
@@ -2350,6 +2482,9 @@ class Figure(FigureBase):
             new_layout_engine = TightLayoutEngine(**kwargs)
         elif layout == 'constrained':
             new_layout_engine = ConstrainedLayoutEngine(**kwargs)
+        elif layout == 'compressed':
+            new_layout_engine = ConstrainedLayoutEngine(compress=True,
+                                                        **kwargs)
         elif isinstance(layout, LayoutEngine):
             new_layout_engine = layout
         else:
@@ -2430,6 +2565,14 @@ class Figure(FigureBase):
 
     get_axes = axes.fget
 
+    def _get_renderer(self):
+        if self._cachedRenderer is not None:
+            return self._cachedRenderer
+        elif hasattr(self.canvas, 'get_renderer'):
+            return self.canvas.get_renderer()
+        else:
+            return _get_renderer(self)
+
     def _get_dpi(self):
         return self._dpi
 
@@ -2449,7 +2592,7 @@ class Figure(FigureBase):
         self.dpi_scale_trans.clear().scale(dpi)
         w, h = self.get_size_inches()
         self.set_size_inches(w, h, forward=forward)
-        self.callbacks.process('dpi_changed', self)
+        self._fig_callbacks.process('dpi_changed', self)
 
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
@@ -2578,7 +2721,7 @@ class Figure(FigureBase):
         hspace = info['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer = _get_renderer(self)
+            renderer = self._get_renderer()
             dpi = renderer.dpi
             w_pad = w_pad * dpi / renderer.width
             h_pad = h_pad * dpi / renderer.height
@@ -2595,6 +2738,7 @@ class Figure(FigureBase):
         """
         self.canvas = canvas
 
+    @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
                  vmin=None, vmax=None, origin=None, resize=False, **kwargs):
         """
@@ -2608,9 +2752,11 @@ class Figure(FigureBase):
         X
             The image data. This is an array of one of the following shapes:
 
-            - MxN: luminance (grayscale) values
-            - MxNx3: RGB values
-            - MxNx4: RGBA values
+            - (M, N): an image with scalar data.  Color-mapping is controlled
+              by *cmap*, *norm*, *vmin*, and *vmax*.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
 
         xo, yo : int
             The *x*/*y* image offset in pixels.
@@ -2618,16 +2764,17 @@ class Figure(FigureBase):
         alpha : None or float
             The alpha blending value.
 
-        norm : `matplotlib.colors.Normalize`
-            A `.Normalize` instance to map the luminance to the
-            interval [0, 1].
+        %(cmap_doc)s
 
-        cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            The colormap to use.
+            This parameter is ignored if *X* is RGB(A).
 
-        vmin, vmax : float
-            If *norm* is not given, these values set the data limits for the
-            colormap.
+        %(norm_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
+
+        %(vmin_vmax_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left
@@ -2668,7 +2815,9 @@ class Figure(FigureBase):
             figsize = [x / dpi for x in (X.shape[1], X.shape[0])]
             self.set_size_inches(figsize, forward=True)
 
-        im = mimage.FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
+        im = mimage.FigureImage(self, cmap=cmap, norm=norm,
+                                offsetx=xo, offsety=yo,
+                                origin=origin, **kwargs)
         im.stale_callback = _stale_figure_callback
 
         im.set_array(X)
@@ -2800,41 +2949,14 @@ class Figure(FigureBase):
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
-    def clf(self, keep_observers=False):
-        """
-        Clear the figure.
-
-        Set *keep_observers* to True if, for example,
-        a gui widget is tracking the Axes in the figure.
-        """
-        self.suppressComposite = None
-        self.callbacks = cbook.CallbackRegistry()
-
-        for ax in tuple(self.axes):  # Iterate over the copy.
-            ax.cla()
-            self.delaxes(ax)  # Remove ax from self._axstack.
-
+    def clear(self, keep_observers=False):
+        # docstring inherited
+        super().clear(keep_observers=keep_observers)
+        # FigureBase.clear does not clear toolbars, as
+        # only Figure can have toolbars
         toolbar = self.canvas.toolbar
         if toolbar is not None:
             toolbar.update()
-        self._axstack = _AxesStack()
-        self.artists = []
-        self.lines = []
-        self.patches = []
-        self.texts = []
-        self.images = []
-        self.legends = []
-        if not keep_observers:
-            self._axobservers = cbook.CallbackRegistry()
-        self._suptitle = None
-        self._supxlabel = None
-        self._supylabel = None
-
-        self.stale = True
-
-    def clear(self, keep_observers=False):
-        """Clear the figure -- synonym for `clf`."""
-        self.clf(keep_observers=keep_observers)
 
     @_finalize_rasterization
     @allow_rasterization
@@ -2867,7 +2989,7 @@ class Figure(FigureBase):
         finally:
             self.stale = False
 
-        self.canvas.draw_event(renderer)
+        DrawEvent("draw_event", self.canvas, renderer)._process()
 
     def draw_without_rendering(self):
         """
@@ -2901,6 +3023,9 @@ class Figure(FigureBase):
         # Set cached renderer to None -- it can't be pickled.
         state["_cachedRenderer"] = None
 
+        # discard any changes to the dpi due to pixel ratio changes
+        state["_dpi"] = state.get('_original_dpi', state['_dpi'])
+
         # add version information to the state
         state['__mpl_version__'] = mpl.__version__
 
@@ -2930,7 +3055,8 @@ class Figure(FigureBase):
             import matplotlib._pylab_helpers as pylab_helpers
             allnums = plt.get_fignums()
             num = max(allnums) + 1 if allnums else 1
-            mgr = plt._backend_mod.new_figure_manager_given_figure(num, self)
+            backend = plt._get_backend_mod()
+            mgr = backend.new_figure_manager_given_figure(num, self)
             pylab_helpers.Gcf._set_new_active_manager(mgr)
             plt.draw_if_interactive()
 

@@ -1,0 +1,13 @@
+``stem(..., markerfmt=...)`` behavior
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The behavior of the *markerfmt* parameter of `~.Axes.stem` has changed:
+
+- If *markerfmt* does not contain a color, the color is taken from *linefmt*.
+- If *markerfmt* does not contain a marker, the default is 'o'.
+
+Before, *markerfmt* was passed unmodified to ``plot(..., fmt)``, which had
+a number of unintended side-effects; e.g. only giving a color switched to
+a solid line without markers.
+
+For a simple call ``stem(x, y)`` without parameters, the new rules still
+reproduce the old behavior.

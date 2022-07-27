@@ -82,7 +82,7 @@ original location:
 
 * The artist used to draw the outline of a `.Figure.colorbar` has been changed
   from a `matplotlib.lines.Line2D` to `matplotlib.patches.Polygon`, thus
-  `.colorbar.ColorbarBase.outline` is now a `matplotlib.patches.Polygon`
+  ``colorbar.ColorbarBase.outline`` is now a `matplotlib.patches.Polygon`
   object.
 
 * The legend handler interface has changed from a callable, to any object

@@ -21,8 +21,8 @@ Changes beyond 0.99.x
     on or off, and applies it.
 
   + :meth:`matplotlib.axes.Axes.margins` sets margins used to
-    autoscale the :attr:`matplotlib.axes.Axes.viewLim` based on
-    the :attr:`matplotlib.axes.Axes.dataLim`.
+    autoscale the ``matplotlib.axes.Axes.viewLim`` based on
+    the ``matplotlib.axes.Axes.dataLim``.
 
   + :meth:`matplotlib.axes.Axes.locator_params` allows one to
     adjust axes locator parameters such as *nbins*.

@@ -2,8 +2,7 @@
 
 import numpy as np
 
-from matplotlib import cbook
-import matplotlib.units as units
+from matplotlib import cbook, units
 import matplotlib.projections.polar as polar
 
 __all__ = ['UnitDblConverter']

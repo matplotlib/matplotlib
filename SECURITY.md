@@ -19,7 +19,7 @@ versions.
 If you have found a security vulnerability, in order to keep it confidential,
 please do not report an issue on GitHub.
 
-Please email us details of the vulnerability at matplotlib@numfocus.org;
+Please email us details of the vulnerability at matplotlib-steering-council@numfocus.org;
 include a description and proof-of-concept that is [short and
 self-contained](http://www.sscce.org/).
 

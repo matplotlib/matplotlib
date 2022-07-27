@@ -41,7 +41,6 @@ Inheritance
    :nosignatures:
 
    Axis.clear
-   Axis.cla
    Axis.get_scale
 
 

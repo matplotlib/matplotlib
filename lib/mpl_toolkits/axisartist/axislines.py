@@ -214,12 +214,12 @@ class AxisArtistHelperRectlinear:
                 angle_normal, angle_tangent = 0, 90
 
             major = self.axis.major
-            majorLocs = major.locator()
-            majorLabels = major.formatter.format_ticks(majorLocs)
+            major_locs = major.locator()
+            major_labels = major.formatter.format_ticks(major_locs)
 
             minor = self.axis.minor
-            minorLocs = minor.locator()
-            minorLabels = minor.formatter.format_ticks(minorLocs)
+            minor_locs = minor.locator()
+            minor_labels = minor.formatter.format_ticks(minor_locs)
 
             tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
 
@@ -233,7 +233,7 @@ class AxisArtistHelperRectlinear:
                             (0, 1), c2[self.nth_coord]):
                         yield c, angle_normal, angle_tangent, l
 
-            return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
+            return _f(major_locs, major_labels), _f(minor_locs, minor_labels)
 
     class Floating(AxisArtistHelper.Floating):
         def __init__(self, axes, nth_coord,
@@ -287,12 +287,12 @@ class AxisArtistHelperRectlinear:
                 angle_normal, angle_tangent = 0, 90
 
             major = self.axis.major
-            majorLocs = major.locator()
-            majorLabels = major.formatter.format_ticks(majorLocs)
+            major_locs = major.locator()
+            major_labels = major.formatter.format_ticks(major_locs)
 
             minor = self.axis.minor
-            minorLocs = minor.locator()
-            minorLabels = minor.formatter.format_ticks(minorLocs)
+            minor_locs = minor.locator()
+            minor_labels = minor.formatter.format_ticks(minor_locs)
 
             data_to_axes = axes.transData - axes.transAxes
 
@@ -304,7 +304,7 @@ class AxisArtistHelperRectlinear:
                     if 0 <= c1 <= 1 and 0 <= c2 <= 1:
                         yield c, angle_normal, angle_tangent, l
 
-            return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
+            return _f(major_locs, major_labels), _f(minor_locs, minor_labels)
 
 
 class GridHelperBase:
@@ -499,12 +499,13 @@ class Axes(maxes.Axes):
         # It is done inside the cla.
         self.gridlines = self.new_gridlines(grid_helper)
 
-    def cla(self):
-        # gridlines need to b created before cla() since cla calls grid()
+    def clear(self):
+        # docstring inherited
+        # gridlines need to be created before clear() since clear calls grid()
         self._init_gridlines()
-        super().cla()
+        super().clear()
 
-        # the clip_path should be set after Axes.cla() since that's
+        # the clip_path should be set after Axes.clear() since that's
         # when a patch is created.
         self.gridlines.set_clip_path(self.axes.patch)
 

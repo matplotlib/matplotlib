@@ -1,0 +1,4 @@
+``backend_pdf.Operator`` and ``backend_pdf.Op.op``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated in favor of a single standard `enum.Enum` interface on
+`.backend_pdf.Op`.

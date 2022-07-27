@@ -21,11 +21,6 @@ class MatplotlibDeprecationWarning(DeprecationWarning):
     """A class for issuing deprecation warnings for Matplotlib users."""
 
 
-# mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead.
-# remove when removing the re-import from cbook
-mplDeprecation = MatplotlibDeprecationWarning
-
-
 def _generate_deprecation_warning(
         since, message='', name='', alternative='', pending=False, obj_type='',
         addendum='', *, removal=''):
@@ -37,7 +32,7 @@ def _generate_deprecation_warning(
         removal = f"in {removal}" if removal else "two minor releases later"
     if not message:
         message = (
-            ("\nThe %(name)s %(obj_type)s" if obj_type else "%(name)s")
+            ("The %(name)s %(obj_type)s" if obj_type else "%(name)s")
             + (" will be deprecated in a future version"
                if pending else
                (" was deprecated in Matplotlib %(since)s"

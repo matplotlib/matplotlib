@@ -12,6 +12,7 @@ import numpy as np
 
 import matplotlib as mpl
 from . import _api, cbook
+from .colors import BoundaryNorm
 from .cm import ScalarMappable
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
@@ -241,7 +242,7 @@ class Artist:
         """
         Convert *x* using the unit type of the xaxis.
 
-        If the artist is not in contained in an Axes or if the xaxis does not
+        If the artist is not contained in an Axes or if the xaxis does not
         have units, *x* itself is returned.
         """
         ax = getattr(self, 'axes', None)
@@ -253,7 +254,7 @@ class Artist:
         """
         Convert *y* using the unit type of the yaxis.
 
-        If the artist is not in contained in an Axes or if the yaxis does not
+        If the artist is not contained in an Axes or if the yaxis does not
         have units, *y* itself is returned.
         """
         ax = getattr(self, 'axes', None)
@@ -298,7 +299,7 @@ class Artist:
         if val and self.stale_callback is not None:
             self.stale_callback(self, val)
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
         """
         Get the artist's bounding box in display space.
 
@@ -318,7 +319,7 @@ class Artist:
         """
         return Bbox([[0, 0], [0, 0]])
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         """
         Like `.Artist.get_window_extent`, but includes any clipping.
 
@@ -497,6 +498,7 @@ class Artist:
         --------
         set_picker, get_picker, pickable
         """
+        from .backend_bases import PickEvent  # Circular import.
         # Pick self
         if self.pickable():
             picker = self.get_picker()
@@ -505,7 +507,8 @@ class Artist:
             else:
                 inside, prop = self.contains(mouseevent)
             if inside:
-                self.figure.canvas.pick_event(mouseevent, self, **prop)
+                PickEvent("pick_event", self.figure.canvas,
+                          mouseevent, self, **prop)._process()
 
         # Pick children
         for a in self.get_children():
@@ -934,11 +937,13 @@ class Artist:
         Parameters
         ----------
         filter_func : callable
-            A filter function, which takes a (m, n, 3) float array and a dpi
-            value, and returns a (m, n, 3) array.
+            A filter function, which takes a (m, n, depth) float array
+            and a dpi value, and returns a (m, n, depth) array and two
+            offsets from the bottom left corner of the image
 
             .. ACCEPTS: a filter function, which takes a (m, n, 3) float array
-                and a dpi value, and returns a (m, n, 3) array
+                and a dpi value, and returns a (m, n, 3) array and two offsets
+                from the bottom left corner of the image
         """
         self._agg_filter = filter_func
         self.stale = True
@@ -1303,10 +1308,20 @@ class Artist:
                 return "[]"
             normed = self.norm(data)
             if np.isfinite(normed):
-                # Midpoints of neighboring color intervals.
-                neighbors = self.norm.inverse(
-                    (int(self.norm(data) * n) + np.array([0, 1])) / n)
-                delta = abs(neighbors - data).max()
+                if isinstance(self.norm, BoundaryNorm):
+                    # not an invertible normalization mapping
+                    cur_idx = np.argmin(np.abs(self.norm.boundaries - data))
+                    neigh_idx = max(0, cur_idx - 1)
+                    # use max diff to prevent delta == 0
+                    delta = np.diff(
+                        self.norm.boundaries[neigh_idx:cur_idx + 2]
+                    ).max()
+
+                else:
+                    # Midpoints of neighboring color intervals.
+                    neighbors = self.norm.inverse(
+                        (int(normed * n) + np.array([0, 1])) / n)
+                    delta = abs(neighbors - data).max()
                 g_sig_digits = cbook._g_sig_digits(data, delta)
             else:
                 g_sig_digits = 3  # Consistent with default below.

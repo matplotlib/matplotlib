@@ -1,0 +1,20 @@
+Removal of deprecations in ``backends``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The parameter ``resize_callback`` is removed from the Tk backend. Instead,
+use ``get_tk_widget().bind('<Configure>', ..., True)``.
+
+The ``get_content_extents()`` and ``tostring_rgba_minimized()`` methods are
+removed from the Agg backend with no replacements.
+
+The parameter ``dpi`` is removed from ``print_ps()`` in the PS backend and
+``print_pdf()`` in the PDF backend. Instead, the methods obtain the DPI from
+the ``savefig`` machinery.
+
+The classes ``TmpDirCleaner`` and ``GraphicsContextPS`` are removed from the
+PGF and PS backends, respectively. For the latter, ``GraphicsContextBase`` can
+be used as a replacement.
+
+In the WX backend, the property ``IDLE_DELAY`` is removed. In addition, the
+parameter ``origin`` of ``gui_repaint()`` is removed, as well as the method
+``get_canvas()``. No replacements are provided.

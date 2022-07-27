@@ -135,10 +135,10 @@ def figure_edit(axes, parent=None):
             continue
         labeled_mappables.append((label, mappable))
     mappables = []
-    cmaps = [(cmap, name) for name, cmap in sorted(cm._cmap_registry.items())]
+    cmaps = [(cmap, name) for name, cmap in sorted(cm._colormaps.items())]
     for label, mappable in labeled_mappables:
         cmap = mappable.get_cmap()
-        if cmap not in cm._cmap_registry.values():
+        if cmap not in cm._colormaps.values():
             cmaps = [(cmap, cmap.name), *cmaps]
         low, high = mappable.get_clim()
         mappabledata = [
@@ -230,12 +230,12 @@ def figure_edit(axes, parent=None):
         # re-generate legend, if checkbox is checked
         if generate_legend:
             draggable = None
-            ncol = 1
+            ncols = 1
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
-                ncol = old_legend._ncol
-            new_legend = axes.legend(ncol=ncol)
+                ncols = old_legend._ncols
+            new_legend = axes.legend(ncols=ncols)
             if new_legend:
                 new_legend.set_draggable(draggable)
 

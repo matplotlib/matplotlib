@@ -7,11 +7,11 @@ import matplotlib as mpl
 from matplotlib import dviread
 from matplotlib.testing import _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing._markers import needs_usetex
 import matplotlib.pyplot as plt
 
 
-if not mpl.checkdep_usetex(True):
-    pytestmark = pytest.mark.skip('Missing TeX of Ghostscript or dvipng')
+pytestmark = needs_usetex
 
 
 @image_comparison(
@@ -74,7 +74,7 @@ def test_minus_no_descent(fontsize):
     heights = {}
     fig = plt.figure()
     for vals in [(1,), (-1,), (-1, 1)]:
-        fig.clf()
+        fig.clear()
         for x in vals:
             fig.text(.5, .5, f"${x}$", usetex=True)
         fig.canvas.draw()
@@ -131,7 +131,7 @@ def test_missing_psfont(fmt, monkeypatch):
     monkeypatch.setattr(
         dviread.PsfontsMap, '__getitem__',
         lambda self, k: dviread.PsFont(
-            texname='texfont', psname='Some Font',
+            texname=b'texfont', psname=b'Some Font',
             effects=None, encoding=None, filename=None))
     mpl.rcParams['text.usetex'] = True
     fig, ax = plt.subplots()

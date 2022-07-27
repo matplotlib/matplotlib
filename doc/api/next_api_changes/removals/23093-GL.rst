@@ -1,0 +1,50 @@
+Get/set window title methods have been removed from the canvas
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the corresponding methods on the FigureManager if using pyplot,
+or GUI-specific methods if embedding.
+
+``ContourLabeler.get_label_coords()`` has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is no replacement, it was considered an internal helper.
+
+The **return_all** keyword argument has been removed from ``gridspec.get_position()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The **minimum_descent** has been removed from ``TextArea``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The minimum_descent is now effectively always True.
+
+Extra parameters to Axes constructor
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Parameters of the Axes constructor other than *fig* and *rect* are now keyword only.
+
+``sphinext.plot_directive.align`` has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``docutils.parsers.rst.directives.images.Image.align`` instead.
+
+``imread()`` no longer accepts URLs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing a URL to `~.pyplot.imread()` has been removed. Please open the URL for
+reading and directly use the Pillow API
+(``PIL.Image.open(urllib.request.urlopen(url))``, or
+``PIL.Image.open(io.BytesIO(requests.get(url).content))``) instead.
+
+Deprecated properties of widgets have been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These include ``cids``, ``cnt``, ``observers``, ``change_observers``,
+and ``submit_observers``.
+
+Removal of methods and properties of ``Subplot``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These include ``get_geometry()``, ``change_geometry()``, ``figbox``,
+``numRows``, ``numCols``, ``update_params()``, ``is_first_row()``,
+``is_first_col()``, ``is_last_row()``, ``is_last_col()``. The subplotspec
+contains this information and can be used to replace these methods and properties.

@@ -2,8 +2,8 @@ import wx.lib.wxcairo as wxcairo
 
 from .. import _api
 from .backend_cairo import cairo, FigureCanvasCairo
-from .backend_wx import (
-    _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
+from .backend_wx import _BackendWx, _FigureCanvasWxBase, FigureFrameWx
+from .backend_wx import (  # noqa: F401 # pylint: disable=W0611
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
 
 
@@ -14,7 +14,7 @@ class FigureFrameWxCairo(FigureFrameWx):
         return FigureCanvasWxCairo(self, -1, fig)
 
 
-class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
+class FigureCanvasWxCairo(FigureCanvasCairo, _FigureCanvasWxBase):
     """
     The FigureCanvas contains the figure and does event handling.
 
@@ -27,8 +27,7 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
     def draw(self, drawDC=None):
         size = self.figure.bbox.size.astype(int)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, *size)
-        self._renderer.set_ctx_from_surface(surface)
-        self._renderer.set_width_height(*size)
+        self._renderer.set_context(cairo.Context(surface))
         self._renderer.dpi = self.figure.dpi
         self.figure.draw(self._renderer)
         self.bitmap = wxcairo.BitmapFromImageSurface(surface)

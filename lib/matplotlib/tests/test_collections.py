@@ -7,12 +7,13 @@ import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.backend_bases import MouseEvent
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors
+import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
-                                    EventCollection, PolyCollection)
+                                    EventCollection, PolyCollection,
+                                    QuadMesh)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
@@ -292,6 +293,17 @@ def test_null_collection_datalim():
                        mtransforms.Bbox.null().get_points())
 
 
+def test_no_offsets_datalim():
+    # A collection with no offsets and a non transData
+    # transform should return a null bbox
+    ax = plt.axes()
+    coll = mcollections.PathCollection([mpath.Path([(0, 0), (1, 0)])])
+    ax.add_collection(coll)
+    coll_data_lim = coll.get_datalim(mtransforms.IdentityTransform())
+    assert_array_equal(coll_data_lim.get_points(),
+                       mtransforms.Bbox.null().get_points())
+
+
 def test_add_collection():
     # Test if data limits are unchanged by adding an empty collection.
     # GitHub issue #1490, pull #1497.
@@ -470,6 +482,81 @@ def test_picking():
     found, indices = col.contains(mouse_event)
     assert found
     assert_array_equal(indices['ind'], [0])
+
+
+def test_quadmesh_contains():
+    x = np.arange(4)
+    X = x[:, None] * x[None, :]
+
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(X)
+    fig.draw_without_rendering()
+    xdata, ydata = 0.5, 0.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    found, indices = mesh.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
+
+    xdata, ydata = 1.5, 1.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    found, indices = mesh.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [5])
+
+
+def test_quadmesh_contains_concave():
+    # Test a concave polygon, V-like shape
+    x = [[0, -1], [1, 0]]
+    y = [[0, 1], [1, -1]]
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(x, y, [[0]])
+    fig.draw_without_rendering()
+    # xdata, ydata, expected
+    points = [(-0.5, 0.25, True),  # left wing
+              (0, 0.25, False),  # between the two wings
+              (0.5, 0.25, True),  # right wing
+              (0, -0.25, True),  # main body
+              ]
+    for point in points:
+        xdata, ydata, expected = point
+        x, y = mesh.get_transform().transform((xdata, ydata))
+        mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+        found, indices = mesh.contains(mouse_event)
+        assert found is expected
+
+
+def test_quadmesh_cursor_data():
+    x = np.arange(4)
+    X = x[:, None] * x[None, :]
+
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(X)
+    # Empty array data
+    mesh._A = None
+    fig.draw_without_rendering()
+    xdata, ydata = 0.5, 0.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    # Empty collection should return None
+    assert mesh.get_cursor_data(mouse_event) is None
+
+    # Now test adding the array data, to make sure we do get a value
+    mesh.set_array(np.ones((X.shape)))
+    assert_array_equal(mesh.get_cursor_data(mouse_event), [1])
+
+
+def test_quadmesh_cursor_data_multiple_points():
+    x = [1, 2, 1, 2]
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(x, x, np.ones((3, 3)))
+    fig.draw_without_rendering()
+    xdata, ydata = 1.5, 1.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    # All quads are covering the same square
+    assert_array_equal(mesh.get_cursor_data(mouse_event), np.ones(9))
 
 
 def test_linestyle_single_dashes():
@@ -738,8 +825,6 @@ def test_quadmesh_deprecated_signature(
         fig_test, fig_ref, flat_ref, kwargs):
     # test that the new and old quadmesh signature produce the same results
     # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
-    from matplotlib.collections import QuadMesh
-
     x = [0, 1, 2, 3.]
     y = [1, 2, 3.]
     X, Y = np.meshgrid(x, y)
@@ -954,7 +1039,7 @@ def test_color_logic(pcfunc):
     # Define 2 reference "colors" here for multiple use.
     face_default = mcolors.to_rgba_array(pc._get_default_facecolor())
     mapped = pc.get_cmap()(pc.norm((z.ravel())))
-    # Github issue #1302:
+    # GitHub issue #1302:
     assert mcolors.same_color(pc.get_edgecolor(), 'red')
     # Check setting attributes after initialization:
     pc = pcfunc(z)
@@ -1015,12 +1100,12 @@ def test_color_logic(pcfunc):
 
 
 def test_LineCollection_args():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        lc = LineCollection(None, 2.2, 'r', zorder=3, facecolors=[0, 1, 0, 1])
-        assert lc.get_linewidth()[0] == 2.2
-        assert mcolors.same_color(lc.get_edgecolor(), 'r')
-        assert lc.get_zorder() == 3
-        assert mcolors.same_color(lc.get_facecolor(), [[0, 1, 0, 1]])
+    lc = LineCollection(None, linewidth=2.2, edgecolor='r',
+                        zorder=3, facecolors=[0, 1, 0, 1])
+    assert lc.get_linewidth()[0] == 2.2
+    assert mcolors.same_color(lc.get_edgecolor(), 'r')
+    assert lc.get_zorder() == 3
+    assert mcolors.same_color(lc.get_facecolor(), [[0, 1, 0, 1]])
     # To avoid breaking mplot3d, LineCollection internally sets the facecolor
     # kwarg if it has not been specified.  Hence we need the following test
     # for LineCollection._set_default().
@@ -1037,26 +1122,6 @@ def test_array_wrong_dimensions():
     pc = plt.pcolormesh(z)
     pc.set_array(z)  # 2D is OK for Quadmesh
     pc.update_scalarmappable()
-
-
-def test_quadmesh_cursor_data():
-    fig, ax = plt.subplots()
-    *_, qm = ax.hist2d(
-        np.arange(11)**2, 100 + np.arange(11)**2)  # width-10 bins
-
-    x, y = ax.transData.transform([1, 101])
-    event = MouseEvent('motion_notify_event', fig.canvas, x, y)
-
-    assert qm.get_show_cursor_data() is False
-    assert qm.get_cursor_data(event) is None
-
-    qm.set_show_cursor_data(True)
-    assert qm.get_cursor_data(event) == 4  # (0**2, 1**2, 2**2, 3**2)
-
-    # Outside the quadmesh bounds
-    x, y = ax.transData.transform([-1, 101])
-    event = MouseEvent('motion_notify_event', fig.canvas, x, y)
-    assert qm.get_cursor_data(event) is None
 
 
 def test_get_segments():
@@ -1091,9 +1156,9 @@ def test_set_offsets_late():
 
 def test_set_offset_transform():
     skew = mtransforms.Affine2D().skew(2, 2)
-    init = mcollections.Collection([], offset_transform=skew)
+    init = mcollections.Collection(offset_transform=skew)
 
-    late = mcollections.Collection([])
+    late = mcollections.Collection()
     late.set_offset_transform(skew)
 
     assert skew == init.get_offset_transform() == late.get_offset_transform()

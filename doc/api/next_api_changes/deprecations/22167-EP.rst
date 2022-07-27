@@ -1,0 +1,4 @@
+Selector widget state internals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *visible* attribute has been deprecated, use *set_visible* or
+*get_visible* instead.

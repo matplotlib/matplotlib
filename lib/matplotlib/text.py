@@ -5,13 +5,13 @@ Classes for including text in a figure.
 import functools
 import logging
 import math
-import numbers
+from numbers import Real
 import weakref
 
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, artist, cbook, docstring
+from . import _api, artist, cbook, _docstring
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -23,7 +23,7 @@ from .transforms import (
 _log = logging.getLogger(__name__)
 
 
-# Extracted from Text's method to serve as a function
+@_api.deprecated("3.6")
 def get_rotation(rotation):
     """
     Return *rotation* normalized to an angle between 0 and 360 degrees.
@@ -105,7 +105,7 @@ def _get_text_metrics_with_cache_impl(
     return renderer_ref().get_text_width_height_descent(text, fontprop, ismath)
 
 
-@docstring.interpd
+@_docstring.interpd
 @_api.define_aliases({
     "color": ["c"],
     "fontfamily": ["family"],
@@ -128,6 +128,7 @@ class Text(Artist):
     def __repr__(self):
         return "Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
 
+    @_api.make_keyword_only("3.6", name="color")
     def __init__(self,
                  x=0, y=0, text='',
                  color=None,           # defaults to rc params
@@ -142,11 +143,19 @@ class Text(Artist):
                  wrap=False,
                  transform_rotates_text=False,
                  *,
-                 parse_math=True,
+                 parse_math=None,    # defaults to rcParams['text.parse_math']
                  **kwargs
                  ):
         """
         Create a `.Text` instance at *x*, *y* with string *text*.
+
+        The text is aligned relative to the anchor point (*x*, *y*) according
+        to ``horizontalalignment`` (default: 'left') and ``verticalalignment``
+        (default: 'bottom'). See also
+        :doc:`/gallery/text_labels_and_annotations/text_alignment`.
+
+        While Text accepts the 'label' keyword argument, by default it is not
+        added to the handles of a legend.
 
         Valid keyword arguments are:
 
@@ -160,7 +169,8 @@ class Text(Artist):
             color if color is not None else mpl.rcParams["text.color"])
         self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
-        self.set_parse_math(parse_math)
+        self.set_parse_math(parse_math if parse_math is not None else
+                            mpl.rcParams['text.parse_math'])
         self.set_wrap(wrap)
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
@@ -171,7 +181,7 @@ class Text(Artist):
         self._renderer = None
         if linespacing is None:
             linespacing = 1.2  # Maybe use rcParam later.
-        self._linespacing = linespacing
+        self.set_linespacing(linespacing)
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
 
@@ -240,13 +250,10 @@ class Text(Artist):
     def get_rotation(self):
         """Return the text angle in degrees between 0 and 360."""
         if self.get_transform_rotates_text():
-            angle = get_rotation(self._rotation)
-            x, y = self.get_unitless_position()
-            angles = [angle, ]
-            pts = [[x, y]]
-            return self.get_transform().transform_angles(angles, pts).item(0)
+            return self.get_transform().transform_angles(
+                [self._rotation], [self.get_unitless_position()]).item(0)
         else:
-            return get_rotation(self._rotation)  # string_or_number -> number
+            return self._rotation
 
     def get_transform_rotates_text(self):
         """
@@ -295,7 +302,8 @@ class Text(Artist):
         of a rotated text when necessary.
         """
         thisx, thisy = 0.0, 0.0
-        lines = self.get_text().split("\n")  # Ensures lines is not empty.
+        text = self.get_text()
+        lines = [text] if self.get_usetex() else text.split("\n")  # Not empty.
 
         ws = []
         hs = []
@@ -898,7 +906,7 @@ class Text(Artist):
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.figure._cachedRenderer
+            self._renderer = self.figure._get_renderer()
         if self._renderer is None:
             raise RuntimeError(
                 "Cannot get window extent of text w/o renderer. You likely "
@@ -954,11 +962,13 @@ class Text(Artist):
 
     def set_horizontalalignment(self, align):
         """
-        Set the horizontal alignment to one of
+        Set the horizontal alignment relative to the anchor point.
+
+        See also :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         Parameters
         ----------
-        align : {'center', 'right', 'left'}
+        align : {'left', 'center', 'right'}
         """
         _api.check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
@@ -990,6 +1000,7 @@ class Text(Artist):
         ----------
         spacing : float (multiple of font size)
         """
+        _api.check_isinstance(Real, spacing=spacing)
         self._linespacing = spacing
         self.stale = True
 
@@ -1176,12 +1187,15 @@ class Text(Artist):
             The rotation angle in degrees in mathematically positive direction
             (counterclockwise). 'horizontal' equals 0, 'vertical' equals 90.
         """
-        if (s is not None and
-                not isinstance(s, numbers.Real) and
-                s not in ['vertical', 'horizontal']):
+        if isinstance(s, Real):
+            self._rotation = float(s) % 360
+        elif cbook._str_equal(s, 'horizontal') or s is None:
+            self._rotation = 0.
+        elif cbook._str_equal(s, 'vertical'):
+            self._rotation = 90.
+        else:
             raise ValueError("rotation must be 'vertical', 'horizontal' or "
                              f"a number, not {s}")
-        self._rotation = s
         self.stale = True
 
     def set_transform_rotates_text(self, t):
@@ -1197,11 +1211,13 @@ class Text(Artist):
 
     def set_verticalalignment(self, align):
         """
-        Set the vertical alignment.
+        Set the vertical alignment relative to the anchor point.
+
+        See also :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         Parameters
         ----------
-        align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
+        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}
         """
         _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
@@ -1440,7 +1456,7 @@ class _AnnotationBase:
             elif isinstance(tr, Transform):
                 return tr
             else:
-                raise RuntimeError("unknown return type ...")
+                raise RuntimeError("Unknown return type")
         elif isinstance(s, Artist):
             bbox = s.get_window_extent(renderer)
             return BboxTransformTo(bbox)
@@ -1449,7 +1465,7 @@ class _AnnotationBase:
         elif isinstance(s, Transform):
             return s
         elif not isinstance(s, str):
-            raise RuntimeError("unknown coordinate type : %s" % s)
+            raise RuntimeError(f"Unknown coordinate type: {s!r}")
 
         if s == 'data':
             return self.axes.transData
@@ -1461,7 +1477,7 @@ class _AnnotationBase:
 
         s_ = s.split()
         if len(s_) != 2:
-            raise ValueError("%s is not a recognized coordinate" % s)
+            raise ValueError(f"{s!r} is not a recognized coordinate")
 
         bbox0, xy0 = None, None
 
@@ -1489,24 +1505,24 @@ class _AnnotationBase:
             ref_x, ref_y = xy0
             if unit == "points":
                 # dots per points
-                dpp = self.figure.get_dpi() / 72.
+                dpp = self.figure.dpi / 72
                 tr = Affine2D().scale(dpp)
             elif unit == "pixels":
                 tr = Affine2D()
             elif unit == "fontsize":
                 fontsize = self.get_size()
-                dpp = fontsize * self.figure.get_dpi() / 72.
+                dpp = fontsize * self.figure.dpi / 72
                 tr = Affine2D().scale(dpp)
             elif unit == "fraction":
                 w, h = bbox0.size
                 tr = Affine2D().scale(w, h)
             else:
-                raise ValueError("%s is not a recognized coordinate" % s)
+                raise ValueError(f"{unit!r} is not a recognized unit")
 
             return tr.translate(ref_x, ref_y)
 
         else:
-            raise ValueError("%s is not a recognized coordinate" % s)
+            raise ValueError(f"{s!r} is not a recognized coordinate")
 
     def _get_ref_xy(self, renderer):
         """
@@ -1532,12 +1548,11 @@ class _AnnotationBase:
         Parameters
         ----------
         b : bool or None
-            - True: the annotation will only be drawn when ``self.xy`` is
-              inside the axes.
-            - False: the annotation will always be drawn regardless of its
-              position.
-            - None: the ``self.xy`` will be checked only if *xycoords* is
-              "data".
+            - True: The annotation will be clipped when ``self.xy`` is
+              outside the axes.
+            - False: The annotation will always be drawn.
+            - None: The annotation will be clipped when ``self.xy`` is
+              outside the axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
 
@@ -1554,8 +1569,10 @@ class _AnnotationBase:
         x, y = self.xy
         return self._get_xy(renderer, x, y, self.xycoords)
 
-    def _check_xy(self, renderer):
+    def _check_xy(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
+        if renderer is None:
+            renderer = self.figure._get_renderer()
         b = self.get_annotation_clip()
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the axes.
@@ -1767,14 +1784,14 @@ class Annotation(Text, _AnnotationBase):
             centered in the text box.
 
         annotation_clip : bool or None, default: None
-            Whether to draw the annotation when the annotation point *xy* is
-            outside the axes area.
+            Whether to clip (i.e. not draw) the annotation when the annotation
+            point *xy* is outside the axes area.
 
-            - If *True*, the annotation will only be drawn when *xy* is
-              within the axes.
+            - If *True*, the annotation will be clipped when *xy* is outside
+              the axes.
             - If *False*, the annotation will always be drawn.
-            - If *None*, the annotation will only be drawn when *xy* is
-              within the axes and *xycoords* is 'data'.
+            - If *None*, the annotation will be clipped when *xy* is outside
+              the axes and *xycoords* is 'data'.
 
         **kwargs
             Additional kwargs are passed to `~matplotlib.text.Text`.
@@ -1893,32 +1910,30 @@ class Annotation(Text, _AnnotationBase):
         """
         Update the pixel positions of the annotation text and the arrow patch.
         """
-        x1, y1 = self._get_position_xy(renderer)  # Annotated position.
-        # generate transformation,
+        # generate transformation
         self.set_transform(self._get_xy_transform(renderer, self.anncoords))
 
-        if self.arrowprops is None:
+        arrowprops = self.arrowprops
+        if arrowprops is None:
             return
 
         bbox = Text.get_window_extent(self, renderer)
 
-        d = self.arrowprops.copy()
-        ms = d.pop("mutation_scale", self.get_size())
+        arrow_end = x1, y1 = self._get_position_xy(renderer)  # Annotated pos.
+
+        ms = arrowprops.get("mutation_scale", self.get_size())
         self.arrow_patch.set_mutation_scale(ms)
 
-        if "arrowstyle" not in d:
+        if "arrowstyle" not in arrowprops:
             # Approximately simulate the YAArrow.
-            # Pop its kwargs:
-            shrink = d.pop('shrink', 0.0)
-            width = d.pop('width', 4)
-            headwidth = d.pop('headwidth', 12)
-            # Ignore frac--it is useless.
-            frac = d.pop('frac', None)
-            if frac is not None:
+            shrink = arrowprops.get('shrink', 0.0)
+            width = arrowprops.get('width', 4)
+            headwidth = arrowprops.get('headwidth', 12)
+            if 'frac' in arrowprops:
                 _api.warn_external(
                     "'frac' option in 'arrowprops' is no longer supported;"
                     " use 'headlength' to set the head length in points.")
-            headlength = d.pop('headlength', 12)
+            headlength = arrowprops.get('headlength', 12)
 
             # NB: ms is in pts
             stylekw = dict(head_length=headlength / ms,
@@ -1940,29 +1955,25 @@ class Annotation(Text, _AnnotationBase):
 
         # adjust the starting point of the arrow relative to the textbox.
         # TODO : Rotation needs to be accounted.
-        relposx, relposy = self._arrow_relpos
-        x0 = bbox.x0 + bbox.width * relposx
-        y0 = bbox.y0 + bbox.height * relposy
-
-        # The arrow will be drawn from (x0, y0) to (x1, y1). It will be first
+        arrow_begin = bbox.p0 + bbox.size * self._arrow_relpos
+        # The arrow is drawn from arrow_begin to arrow_end.  It will be first
         # clipped by patchA and patchB.  Then it will be shrunk by shrinkA and
-        # shrinkB (in points).  If patch A is not set, self.bbox_patch is used.
-        self.arrow_patch.set_positions((x0, y0), (x1, y1))
+        # shrinkB (in points).  If patchA is not set, self.bbox_patch is used.
+        self.arrow_patch.set_positions(arrow_begin, arrow_end)
 
-        if "patchA" in d:
-            self.arrow_patch.set_patchA(d.pop("patchA"))
+        if "patchA" in arrowprops:
+            patchA = arrowprops["patchA"]
+        elif self._bbox_patch:
+            patchA = self._bbox_patch
+        elif self.get_text() == "":
+            patchA = None
         else:
-            if self._bbox_patch:
-                self.arrow_patch.set_patchA(self._bbox_patch)
-            else:
-                if self.get_text() == "":
-                    self.arrow_patch.set_patchA(None)
-                    return
-                pad = renderer.points_to_pixels(4)
-                r = Rectangle(xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
-                              width=bbox.width + pad, height=bbox.height + pad,
-                              transform=IdentityTransform(), clip_on=False)
-                self.arrow_patch.set_patchA(r)
+            pad = renderer.points_to_pixels(4)
+            patchA = Rectangle(
+                xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
+                width=bbox.width + pad, height=bbox.height + pad,
+                transform=IdentityTransform(), clip_on=False)
+        self.arrow_patch.set_patchA(patchA)
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -1992,7 +2003,7 @@ class Annotation(Text, _AnnotationBase):
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.figure._cachedRenderer
+            self._renderer = self.figure._get_renderer()
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
 
@@ -2006,11 +2017,11 @@ class Annotation(Text, _AnnotationBase):
 
         return Bbox.union(bboxes)
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         # docstring inherited
         if not self._check_xy(renderer):
             return Bbox.null()
         return super().get_tightbbox(renderer)
 
 
-docstring.interpd.update(Annotation=Annotation.__init__.__doc__)
+_docstring.interpd.update(Annotation=Annotation.__init__.__doc__)

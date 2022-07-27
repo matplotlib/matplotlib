@@ -7,7 +7,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib.patches import (Annulus, Ellipse, Patch, Polygon, Rectangle,
-                                FancyArrowPatch)
+                                FancyArrowPatch, FancyArrow, BoxStyle)
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
@@ -547,7 +547,7 @@ def test_datetime_datetime_fails():
 
 
 def test_contains_point():
-    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0, 0)
+    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0)
     points = [(0.0, 0.5), (0.2, 0.5), (0.25, 0.5), (0.5, 0.5)]
     path = ell.get_path()
     transform = ell.get_transform()
@@ -560,7 +560,7 @@ def test_contains_point():
 
 
 def test_contains_points():
-    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0, 0)
+    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0)
     points = [(0.0, 0.5), (0.2, 0.5), (0.25, 0.5), (0.5, 0.5)]
     path = ell.get_path()
     transform = ell.get_transform()
@@ -690,6 +690,20 @@ def test_rotated_arcs():
         ax.axvline(0, color="k")
         ax.set_axis_off()
         ax.set_aspect("equal")
+
+
+def test_fancyarrow_shape_error():
+    with pytest.raises(ValueError, match="Got unknown shape: 'foo'"):
+        FancyArrow(0, 0, 0.2, 0.2, shape='foo')
+
+
+@pytest.mark.parametrize('fmt, match', (
+    ("foo", "Unknown style: 'foo'"),
+    ("Round,foo", "Incorrect style argument: 'Round,foo'"),
+))
+def test_boxstyle_errors(fmt, match):
+    with pytest.raises(ValueError, match=match):
+        BoxStyle(fmt)
 
 
 @image_comparison(baseline_images=['annulus'], extensions=['png'])

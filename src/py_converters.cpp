@@ -191,21 +191,28 @@ int convert_rect(PyObject *rectobj, void *rectp)
 int convert_rgba(PyObject *rgbaobj, void *rgbap)
 {
     agg::rgba *rgba = (agg::rgba *)rgbap;
-
+    PyObject *rgbatuple = NULL;
+    int success = 1;
     if (rgbaobj == NULL || rgbaobj == Py_None) {
         rgba->r = 0.0;
         rgba->g = 0.0;
         rgba->b = 0.0;
         rgba->a = 0.0;
     } else {
+        if (!(rgbatuple = PySequence_Tuple(rgbaobj))) {
+            success = 0;
+            goto exit;
+        }
         rgba->a = 1.0;
         if (!PyArg_ParseTuple(
-                 rgbaobj, "ddd|d:rgba", &(rgba->r), &(rgba->g), &(rgba->b), &(rgba->a))) {
-            return 0;
+                 rgbatuple, "ddd|d:rgba", &(rgba->r), &(rgba->g), &(rgba->b), &(rgba->a))) {
+            success = 0;
+            goto exit;
         }
     }
-
-    return 1;
+exit:
+    Py_XDECREF(rgbatuple);
+    return success;
 }
 
 int convert_dashes(PyObject *dashobj, void *dashesp)

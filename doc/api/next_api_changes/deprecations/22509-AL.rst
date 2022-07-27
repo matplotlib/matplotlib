@@ -1,0 +1,4 @@
+``ToolBase.destroy``
+~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  To run code upon tool removal, connect to the
+``tool_removed_event`` event.

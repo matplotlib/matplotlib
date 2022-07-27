@@ -60,9 +60,9 @@ papersize = {'letter': (8.5, 11),
              'a5': (5.83, 8.27),
              'a6': (4.13, 5.83),
              'a7': (2.91, 4.13),
-             'a8': (2.07, 2.91),
-             'a9': (1.457, 2.05),
-             'a10': (1.02, 1.457),
+             'a8': (2.05, 2.91),
+             'a9': (1.46, 2.05),
+             'a10': (1.02, 1.46),
              'b0': (40.55, 57.32),
              'b1': (28.66, 40.55),
              'b2': (20.27, 28.66),
@@ -89,6 +89,7 @@ def _nums_to_str(*args):
     return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def quote_ps_string(s):
     """
     Quote dangerous characters of S for use in a PostScript string constant.
@@ -442,17 +443,7 @@ newpath
         h, w = im.shape[:2]
         imagecmd = "false 3 colorimage"
         data = im[::-1, :, :3]  # Vertically flipped rgb values.
-        # data.tobytes().hex() has no spaces, so can be linewrapped by simply
-        # splitting data every nchars. It's equivalent to textwrap.fill only
-        # much faster.
-        nchars = 128
-        data = data.tobytes().hex()
-        hexlines = "\n".join(
-            [
-                data[n * nchars:(n + 1) * nchars]
-                for n in range(math.ceil(len(data) / nchars))
-            ]
-        )
+        hexdata = data.tobytes().hex("\n", -64)  # Linewrap to 128 chars.
 
         if transform is None:
             matrix = "1 0 0 1 0 0"
@@ -474,7 +465,7 @@ gsave
 {{
 currentfile DataString readhexstring pop
 }} bind {imagecmd}
-{hexlines}
+{hexdata}
 grestore
 """)
 
@@ -732,13 +723,13 @@ grestore
         xmin, ymin = points_min
         xmax, ymax = points_max
 
-        streamarr = np.empty(
+        data = np.empty(
             shape[0] * shape[1],
             dtype=[('flags', 'u1'), ('points', '2>u4'), ('colors', '3u1')])
-        streamarr['flags'] = 0
-        streamarr['points'] = (flat_points - points_min) * factor
-        streamarr['colors'] = flat_colors[:, :3] * 255.0
-        stream = quote_ps_string(streamarr.tobytes())
+        data['flags'] = 0
+        data['points'] = (flat_points - points_min) * factor
+        data['colors'] = flat_colors[:, :3] * 255.0
+        hexdata = data.tobytes().hex("\n", -64)  # Linewrap to 128 chars.
 
         self._pswriter.write(f"""\
 gsave
@@ -749,7 +740,9 @@ gsave
    /BitsPerFlag 8
    /AntiAlias true
    /Decode [ {xmin:g} {xmax:g} {ymin:g} {ymax:g} 0 1 0 1 0 1 ]
-   /DataSource ({stream})
+   /DataSource <
+{hexdata}
+>
 >>
 shfill
 grestore
@@ -778,6 +771,7 @@ grestore
             self.set_linejoin(gc.get_joinstyle())
             self.set_linecap(gc.get_capstyle())
             self.set_linedash(*gc.get_dashes())
+        if mightstroke or hatch:
             self.set_color(*gc.get_rgb()[:3])
         write('gsave\n')
 
@@ -806,15 +800,6 @@ grestore
         write("grestore\n")
 
 
-@_api.deprecated("3.4", alternative="GraphicsContextBase")
-class GraphicsContextPS(GraphicsContextBase):
-    def get_capstyle(self):
-        return {'butt': 0, 'round': 1, 'projecting': 2}[super().get_capstyle()]
-
-    def get_joinstyle(self):
-        return {'miter': 0, 'round': 1, 'bevel': 2}[super().get_joinstyle()]
-
-
 class _Orientation(Enum):
     portrait, landscape = range(2)
 
@@ -830,16 +815,14 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
-    @_api.delete_parameter("3.4", "dpi")
     @_api.delete_parameter("3.5", "args")
     def _print_ps(
             self, fmt, outfile, *args,
-            dpi=None, metadata=None, papertype=None, orientation='portrait',
+            metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 
-        if dpi is None:  # always use this branch after deprecation elapses.
-            dpi = self.figure.get_dpi()
-        self.figure.set_dpi(72)  # Override the dpi kwarg
+        dpi = self.figure.dpi
+        self.figure.dpi = 72  # Override the dpi kwarg
 
         dsc_comments = {}
         if isinstance(outfile, (str, os.PathLike)):

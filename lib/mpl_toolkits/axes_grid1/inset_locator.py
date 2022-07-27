@@ -2,7 +2,7 @@
 A collection of functions and objects for creating or placing inset axes.
 """
 
-from matplotlib import _api, docstring
+from matplotlib import _api, _docstring
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
@@ -14,7 +14,7 @@ from .parasite_axes import HostAxes
 
 
 class InsetPosition:
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, parent, lbwh):
         """
         An object for positioning an inset axes.
@@ -135,7 +135,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
 
 
 class BboxPatch(Patch):
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, bbox, **kwargs):
         """
         Patch showing the shape bounded by a Bbox.
@@ -160,8 +160,7 @@ class BboxPatch(Patch):
     def get_path(self):
         # docstring inherited
         x0, y0, x1, y1 = self.bbox.extents
-        return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)],
-                    closed=True)
+        return Path._create_closed([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
 
 
 class BboxConnector(Patch):
@@ -198,7 +197,7 @@ class BboxConnector(Patch):
         x2, y2 = BboxConnector.get_bbox_edge_pos(bbox2, loc2)
         return Path([[x1, y1], [x2, y2]])
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):
         """
         Connect two bboxes with a straight line.
@@ -244,7 +243,7 @@ class BboxConnector(Patch):
 
 
 class BboxConnectorPatch(BboxConnector):
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1a, loc2a, loc1b, loc2b, **kwargs):
         """
         Connect two bboxes with a quadrilateral.
@@ -295,7 +294,7 @@ def _add_inset_axes(parent_axes, inset_axes):
     inset_axes.set_navigate(False)
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
                axes_class=None, axes_kwargs=None,
@@ -435,7 +434,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     return inset_axes
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
                       axes_class=None, axes_kwargs=None,
@@ -538,7 +537,7 @@ class _TransformedBboxWithCallback(TransformedBbox):
         return super().get_points()
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     Draw a box to mark the location of an area represented by an inset axes.

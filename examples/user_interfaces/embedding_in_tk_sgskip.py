@@ -37,7 +37,7 @@ canvas.mpl_connect(
     "key_press_event", lambda event: print(f"you pressed {event.key}"))
 canvas.mpl_connect("key_press_event", key_press_handler)
 
-button_quit = tkinter.Button(master=root, text="Quit", command=root.quit)
+button_quit = tkinter.Button(master=root, text="Quit", command=root.destroy)
 
 
 def update_frequency(new_val):
@@ -62,6 +62,6 @@ slider_update = tkinter.Scale(root, from_=1, to=5, orient=tkinter.HORIZONTAL,
 button_quit.pack(side=tkinter.BOTTOM)
 slider_update.pack(side=tkinter.BOTTOM)
 toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
-canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
+canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=True)
 
 tkinter.mainloop()

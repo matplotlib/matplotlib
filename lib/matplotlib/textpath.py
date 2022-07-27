@@ -1,15 +1,15 @@
 from collections import OrderedDict
-import functools
 import logging
 import urllib.parse
 
 import numpy as np
 
-from matplotlib import _text_helpers, dviread, font_manager
+from matplotlib import _api, _text_helpers, dviread, font_manager
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
+from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 
 _log = logging.getLogger(__name__)
@@ -44,14 +44,11 @@ class TextToPath:
         return urllib.parse.quote(f"{font.postscript_name}-{ccode:x}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        if ismath == "TeX":
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=None)
-            return w, h, d
-
         fontsize = prop.get_size_in_points()
+
+        if ismath == "TeX":
+            return TexManager().get_text_width_height_descent(s, fontsize)
+
         scale = fontsize / self.FONT_SCALE
 
         if ismath:
@@ -119,17 +116,18 @@ class TextToPath:
             glyph_info, glyph_map, rects = self.get_glyphs_mathtext(prop, s)
 
         verts, codes = [], []
-
         for glyph_id, xposition, yposition, scale in glyph_info:
             verts1, codes1 = glyph_map[glyph_id]
-            if len(verts1):
-                verts1 = np.array(verts1) * scale + [xposition, yposition]
-                verts.extend(verts1)
-                codes.extend(codes1)
-
+            verts.extend(verts1 * scale + [xposition, yposition])
+            codes.extend(codes1)
         for verts1, codes1 in rects:
             verts.extend(verts1)
             codes.extend(codes1)
+
+        # Make sure an empty string or one with nothing to print
+        # (e.g. only spaces & newlines) will be valid/empty path
+        if not verts:
+            verts = np.empty((0, 2))
 
         return verts, codes
 
@@ -215,10 +213,10 @@ class TextToPath:
         return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
 
+    @_api.deprecated("3.6", alternative="TexManager()")
     def get_texmanager(self):
         """Return the cached `~.texmanager.TexManager` instance."""
         if self._texmanager is None:
-            from matplotlib.texmanager import TexManager
             self._texmanager = TexManager()
         return self._texmanager
 
@@ -227,7 +225,7 @@ class TextToPath:
         """Convert the string *s* to vertices and codes using usetex mode."""
         # Mostly borrowed from pdf backend.
 
-        dvifile = self.get_texmanager().make_dvi(s, self.FONT_SCALE)
+        dvifile = TexManager().make_dvi(s, self.FONT_SCALE)
         with dviread.Dvi(dvifile, self.DPI) as dvi:
             page, = dvi
 
@@ -243,25 +241,29 @@ class TextToPath:
 
         # Gather font information and do some setup for combining
         # characters into strings.
-        for x1, y1, dvifont, glyph, width in page.text:
-            font, enc = self._get_ps_font_and_encoding(dvifont.texname)
-            char_id = self._get_char_id(font, glyph)
-
+        for text in page.text:
+            font = get_font(text.font_path)
+            char_id = self._get_char_id(font, text.glyph)
             if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                # See comments in _get_ps_font_and_encoding.
-                if enc is not None:
-                    index = font.get_name_index(enc[glyph])
+                glyph_name_or_index = text.glyph_name_or_index
+                if isinstance(glyph_name_or_index, str):
+                    index = font.get_name_index(glyph_name_or_index)
                     font.load_glyph(index, flags=LOAD_TARGET_LIGHT)
-                else:
-                    font.load_char(glyph, flags=LOAD_TARGET_LIGHT)
+                elif isinstance(glyph_name_or_index, int):
+                    self._select_native_charmap(font)
+                    font.load_char(
+                        glyph_name_or_index, flags=LOAD_TARGET_LIGHT)
+                else:  # Should not occur.
+                    raise TypeError(f"Glyph spec of unexpected type: "
+                                    f"{glyph_name_or_index!r}")
                 glyph_map_new[char_id] = font.get_path()
 
             glyph_ids.append(char_id)
-            xpositions.append(x1)
-            ypositions.append(y1)
-            sizes.append(dvifont.size / self.FONT_SCALE)
+            xpositions.append(text.x)
+            ypositions.append(text.y)
+            sizes.append(text.font_size / self.FONT_SCALE)
 
         myrects = []
 
@@ -277,48 +279,21 @@ class TextToPath:
                 glyph_map_new, myrects)
 
     @staticmethod
-    @functools.lru_cache(50)
-    def _get_ps_font_and_encoding(texname):
-        tex_font_map = dviread.PsfontsMap(dviread._find_tex_file('pdftex.map'))
-        psfont = tex_font_map[texname]
-        if psfont.filename is None:
-            raise ValueError(
-                f"No usable font file found for {psfont.psname} ({texname}). "
-                f"The font may lack a Type-1 version.")
-
-        font = get_font(psfont.filename)
-
-        if psfont.encoding:
-            # If psfonts.map specifies an encoding, use it: it gives us a
-            # mapping of glyph indices to Adobe glyph names; use it to convert
-            # dvi indices to glyph names and use the FreeType-synthesized
-            # Unicode charmap to convert glyph names to glyph indices (with
-            # FT_Get_Name_Index/get_name_index), and load the glyph using
-            # FT_Load_Glyph/load_glyph.  (That charmap has a coverage at least
-            # as good as, and possibly better than, the native charmaps.)
-            enc = dviread._parse_enc(psfont.encoding)
-        else:
-            # If psfonts.map specifies no encoding, the indices directly
-            # map to the font's "native" charmap; so don't use the
-            # FreeType-synthesized charmap but the native ones (we can't
-            # directly identify it but it's typically an Adobe charmap), and
-            # directly load the dvi glyph indices using FT_Load_Char/load_char.
-            for charmap_code in [
-                    1094992451,  # ADOBE_CUSTOM.
-                    1094995778,  # ADOBE_STANDARD.
-            ]:
-                try:
-                    font.select_charmap(charmap_code)
-                except (ValueError, RuntimeError):
-                    pass
-                else:
-                    break
+    def _select_native_charmap(font):
+        # Select the native charmap. (we can't directly identify it but it's
+        # typically an Adobe charmap).
+        for charmap_code in [
+                1094992451,  # ADOBE_CUSTOM.
+                1094995778,  # ADOBE_STANDARD.
+        ]:
+            try:
+                font.select_charmap(charmap_code)
+            except (ValueError, RuntimeError):
+                pass
             else:
-                _log.warning("No supported encoding in font (%s).",
-                             psfont.filename)
-            enc = None
-
-        return font, enc
+                break
+        else:
+            _log.warning("No supported encoding in font (%s).", font.fname)
 
 
 text_to_path = TextToPath()

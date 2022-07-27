@@ -4,8 +4,7 @@ from pathlib import Path
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
-from matplotlib import pyplot as plt
-import matplotlib.cm as cm
+from matplotlib import cm, pyplot as plt
 
 
 @image_comparison(['pngsuite.png'], tol=0.03)

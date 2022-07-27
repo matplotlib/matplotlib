@@ -4,7 +4,7 @@ import functools
 import numpy as np
 
 import matplotlib
-from matplotlib import _api, docstring, rcParams
+from matplotlib import _api, _docstring, rcParams
 from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
@@ -27,11 +27,12 @@ class Spine(mpatches.Patch):
     `~.Spine.set_patch_line`, `~.Spine.set_patch_circle`, or
     `~.Spine.set_patch_arc` has been called. Line-like is the default.
 
+    For examples see :ref:`spines_examples`.
     """
     def __str__(self):
         return "Spine"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, axes, spine_type, path, **kwargs):
         """
         Parameters
@@ -221,10 +222,6 @@ class Spine(mpatches.Patch):
         self._position = None  # clear position
         if self.axis is not None:
             self.axis.clear()
-
-    @_api.deprecated("3.4", alternative="`.Spine.clear`")
-    def cla(self):
-        self.clear()
 
     def _adjust_location(self):
         """Automatically set spine bounds to the view interval."""

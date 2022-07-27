@@ -9,7 +9,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
-from matplotlib.backend_bases import MouseButton
+from matplotlib.backend_bases import MouseButton, MouseEvent
 
 from matplotlib.offsetbox import (
     AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea, OffsetBox,
@@ -117,7 +117,7 @@ def test_expand_with_tight_layout():
     d2 = [2, 1]
     ax.plot(d1, label='series 1')
     ax.plot(d2, label='series 2')
-    ax.legend(ncol=2, mode='expand')
+    ax.legend(ncols=2, mode='expand')
 
     fig.tight_layout()  # where the crash used to happen
 
@@ -228,7 +228,8 @@ def test_picking(child_type, boxcoords):
         x, y = ax.transAxes.transform_point((0.5, 0.5))
     fig.canvas.draw()
     calls.clear()
-    fig.canvas.button_press_event(x, y, MouseButton.LEFT)
+    MouseEvent(
+        "button_press_event", fig.canvas, x, y, MouseButton.LEFT)._process()
     assert len(calls) == 1 and calls[0].artist == ab
 
     # Annotation should *not* be picked by an event at its original center
@@ -237,7 +238,8 @@ def test_picking(child_type, boxcoords):
     ax.set_ylim(-1, 0)
     fig.canvas.draw()
     calls.clear()
-    fig.canvas.button_press_event(x, y, MouseButton.LEFT)
+    MouseEvent(
+        "button_press_event", fig.canvas, x, y, MouseButton.LEFT)._process()
     assert len(calls) == 0
 
 

@@ -89,9 +89,7 @@ def doall():
         baseline = 1 - i_line * line_axesfrac
         baseline_next = baseline - line_axesfrac
         fill_color = ['white', 'tab:blue'][i_line % 2]
-        ax.fill_between([0, 1], [baseline, baseline],
-                        [baseline_next, baseline_next],
-                        color=fill_color, alpha=0.2)
+        ax.axhspan(baseline, baseline_next, color=fill_color, alpha=0.2)
         ax.annotate(f'{title}:',
                     xy=(0.06, baseline - 0.3 * line_axesfrac),
                     color=mpl_grey_rgb, weight='bold')

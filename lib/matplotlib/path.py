@@ -188,6 +188,17 @@ class Path:
             pth._interpolation_steps = 1
         return pth
 
+    @classmethod
+    def _create_closed(cls, vertices):
+        """
+        Create a closed polygonal path going through *vertices*.
+
+        Unlike ``Path(..., closed=True)``, *vertices* should **not** end with
+        an entry for the CLOSEPATH; this entry is added by `._create_closed`.
+        """
+        v = _to_unmasked_float_array(vertices)
+        return cls(np.concatenate([v, v[:1]]), closed=True)
+
     def _update_values(self):
         self._simplify_threshold = mpl.rcParams['path.simplify_threshold']
         self._should_simplify = (
@@ -218,7 +229,7 @@ class Path:
         code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4`
         or `CLOSEPOLY`.  For codes that correspond to more than one
         vertex (`CURVE3` and `CURVE4`), that code will be repeated so
-        that the length of `self.vertices` and `self.codes` is always
+        that the length of `vertices` and `codes` is always
         the same.
         """
         return self._codes

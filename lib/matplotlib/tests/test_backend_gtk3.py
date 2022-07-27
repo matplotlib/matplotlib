@@ -6,7 +6,7 @@ import pytest
 pytest.importorskip("matplotlib.backends.backend_gtk3agg")
 
 
-@pytest.mark.backend("gtk3agg")
+@pytest.mark.backend("gtk3agg", skip_on_importerror=True)
 def test_correct_key():
     pytest.xfail("test_widget_send_event is not triggering key_press_event")
 

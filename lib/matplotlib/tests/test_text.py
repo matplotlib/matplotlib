@@ -13,12 +13,8 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing._markers import needs_usetex
 from matplotlib.text import Text
-
-
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
 
 
 @image_comparison(['font_styles'])
@@ -251,6 +247,21 @@ def test_annotation_contains():
     assert ann.contains(event) == (False, {})
 
 
+@pytest.mark.parametrize('err, xycoords, match', (
+    (RuntimeError, print, "Unknown return type"),
+    (RuntimeError, [0, 0], r"Unknown coordinate type: \[0, 0\]"),
+    (ValueError, "foo", "'foo' is not a recognized coordinate"),
+    (ValueError, "foo bar", "'foo bar' is not a recognized coordinate"),
+    (ValueError, "offset foo", "xycoords cannot be an offset coordinate"),
+    (ValueError, "axes foo", "'foo' is not a recognized unit"),
+))
+def test_annotate_errors(err, xycoords, match):
+    fig, ax = plt.subplots()
+    with pytest.raises(err, match=match):
+        ax.annotate('xy', (0, 0), xytext=(0.5, 0.5), xycoords=xycoords)
+        fig.canvas.draw()
+
+
 @image_comparison(['titles'])
 def test_titles():
     # left and right side titles
@@ -345,33 +356,32 @@ def test_non_default_dpi(text):
 
 
 def test_get_rotation_string():
-    assert mpl.text.get_rotation('horizontal') == 0.
-    assert mpl.text.get_rotation('vertical') == 90.
-    assert mpl.text.get_rotation('15.') == 15.
+    assert Text(rotation='horizontal').get_rotation() == 0.
+    assert Text(rotation='vertical').get_rotation() == 90.
 
 
 def test_get_rotation_float():
     for i in [15., 16.70, 77.4]:
-        assert mpl.text.get_rotation(i) == i
+        assert Text(rotation=i).get_rotation() == i
 
 
 def test_get_rotation_int():
     for i in [67, 16, 41]:
-        assert mpl.text.get_rotation(i) == float(i)
+        assert Text(rotation=i).get_rotation() == float(i)
 
 
 def test_get_rotation_raises():
     with pytest.raises(ValueError):
-        mpl.text.get_rotation('hozirontal')
+        Text(rotation='hozirontal')
 
 
 def test_get_rotation_none():
-    assert mpl.text.get_rotation(None) == 0.0
+    assert Text(rotation=None).get_rotation() == 0.0
 
 
 def test_get_rotation_mod360():
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
-        assert_almost_equal(mpl.text.get_rotation(i), j)
+        assert_almost_equal(Text(rotation=i).get_rotation(), j)
 
 
 @pytest.mark.parametrize("ha", ["center", "right", "left"])
@@ -509,8 +519,8 @@ def test_two_2line_texts(spacing1, spacing2):
     fig = plt.figure()
     renderer = fig.canvas.get_renderer()
 
-    text1 = plt.text(0.25, 0.5, text_string, linespacing=spacing1)
-    text2 = plt.text(0.25, 0.5, text_string, linespacing=spacing2)
+    text1 = fig.text(0.25, 0.5, text_string, linespacing=spacing1)
+    text2 = fig.text(0.25, 0.5, text_string, linespacing=spacing2)
     fig.canvas.draw()
 
     box1 = text1.get_window_extent(renderer=renderer)
@@ -522,6 +532,11 @@ def test_two_2line_texts(spacing1, spacing2):
         assert box1.height == box2.height
     else:
         assert box1.height != box2.height
+
+
+def test_validate_linespacing():
+    with pytest.raises(TypeError):
+        plt.text(.25, .5, "foo", linespacing="abc")
 
 
 def test_nonfinite_pos():
@@ -756,6 +771,20 @@ def test_parse_math():
         fig.canvas.draw()
 
 
+def test_parse_math_rcparams():
+    # Default is True
+    fig, ax = plt.subplots()
+    ax.text(0, 0, r"$ \wrong{math} $")
+    with pytest.raises(ValueError, match='Unknown symbol'):
+        fig.canvas.draw()
+
+    # Setting rcParams to False
+    with mpl.rc_context({'text.parse_math': False}):
+        fig, ax = plt.subplots()
+        ax.text(0, 0, r"$ \wrong{math} $")
+        fig.canvas.draw()
+
+
 @image_comparison(['text_pdf_font42_kerning.pdf'], style='mpl20')
 def test_pdf_font42_kerning():
     plt.rcParams['pdf.fonttype'] = 42
@@ -777,26 +806,11 @@ def test_metrics_cache():
 
     fig = plt.figure()
     fig.text(.3, .5, "foo\nbar")
+    fig.text(.5, .5, "foo\nbar")
     fig.text(.3, .5, "foo\nbar", usetex=True)
     fig.text(.5, .5, "foo\nbar", usetex=True)
     fig.canvas.draw()
-    renderer = fig._cachedRenderer
-    ys = {}  # mapping of strings to where they were drawn in y with draw_tex.
-
-    def call(*args, **kwargs):
-        renderer, x, y, s, *_ = args
-        ys.setdefault(s, set()).add(y)
-
-    renderer.draw_tex = call
-    fig.canvas.draw()
-    assert [*ys] == ["foo", "bar"]
-    # Check that both TeX strings were drawn with the same y-position for both
-    # single-line substrings.  Previously, there used to be an incorrect cache
-    # collision with the non-TeX string (drawn first here) whose metrics would
-    # get incorrectly reused by the first TeX string.
-    assert len(ys["foo"]) == len(ys["bar"]) == 1
 
     info = mpl.text._get_text_metrics_with_cache_impl.cache_info()
-    # Every string gets a miss for the first layouting (extents), then a hit
-    # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
-    assert info.hits > info.misses
+    # Each string gets drawn twice, so the second draw results in a hit.
+    assert info.hits == info.misses

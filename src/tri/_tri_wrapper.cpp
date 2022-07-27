@@ -180,7 +180,7 @@ static PyObject* PyTriangulation_set_mask(PyTriangulation* self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-static PyTypeObject* PyTriangulation_init_type(PyObject* m, PyTypeObject* type)
+static PyTypeObject *PyTriangulation_init_type()
 {
     static PyMethodDef methods[] = {
         {"calculate_plane_coefficients",
@@ -201,26 +201,16 @@ static PyTypeObject* PyTriangulation_init_type(PyObject* m, PyTypeObject* type)
          PyTriangulation_set_mask__doc__},
         {NULL}
     };
+    PyTriangulationType.tp_name = "matplotlib._tri.Triangulation";
+    PyTriangulationType.tp_doc = PyTriangulation_init__doc__;
+    PyTriangulationType.tp_basicsize = sizeof(PyTriangulation);
+    PyTriangulationType.tp_dealloc = (destructor)PyTriangulation_dealloc;
+    PyTriangulationType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyTriangulationType.tp_methods = methods;
+    PyTriangulationType.tp_new = PyTriangulation_new;
+    PyTriangulationType.tp_init = (initproc)PyTriangulation_init;
 
-    memset(type, 0, sizeof(PyTypeObject));
-    type->tp_name = "matplotlib._tri.Triangulation";
-    type->tp_doc = PyTriangulation_init__doc__;
-    type->tp_basicsize = sizeof(PyTriangulation);
-    type->tp_dealloc = (destructor)PyTriangulation_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT;
-    type->tp_methods = methods;
-    type->tp_new = PyTriangulation_new;
-    type->tp_init = (initproc)PyTriangulation_init;
-
-    if (PyType_Ready(type) < 0) {
-        return NULL;
-    }
-
-    if (PyModule_AddObject(m, "Triangulation", (PyObject*)type)) {
-        return NULL;
-    }
-
-    return type;
+    return &PyTriangulationType;
 }
 
 
@@ -329,33 +319,29 @@ static PyObject* PyTriContourGenerator_create_filled_contour(PyTriContourGenerat
     return result;
 }
 
-static PyTypeObject* PyTriContourGenerator_init_type(PyObject* m, PyTypeObject* type)
+static PyTypeObject *PyTriContourGenerator_init_type()
 {
     static PyMethodDef methods[] = {
-        {"create_contour", (PyCFunction)PyTriContourGenerator_create_contour, METH_VARARGS, PyTriContourGenerator_create_contour__doc__},
-        {"create_filled_contour", (PyCFunction)PyTriContourGenerator_create_filled_contour, METH_VARARGS, PyTriContourGenerator_create_filled_contour__doc__},
+        {"create_contour",
+         (PyCFunction)PyTriContourGenerator_create_contour,
+         METH_VARARGS,
+         PyTriContourGenerator_create_contour__doc__},
+        {"create_filled_contour",
+         (PyCFunction)PyTriContourGenerator_create_filled_contour,
+         METH_VARARGS,
+         PyTriContourGenerator_create_filled_contour__doc__},
         {NULL}
     };
+    PyTriContourGeneratorType.tp_name = "matplotlib._tri.TriContourGenerator";
+    PyTriContourGeneratorType.tp_doc = PyTriContourGenerator_init__doc__;
+    PyTriContourGeneratorType.tp_basicsize = sizeof(PyTriContourGenerator);
+    PyTriContourGeneratorType.tp_dealloc = (destructor)PyTriContourGenerator_dealloc;
+    PyTriContourGeneratorType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyTriContourGeneratorType.tp_methods = methods;
+    PyTriContourGeneratorType.tp_new = PyTriContourGenerator_new;
+    PyTriContourGeneratorType.tp_init = (initproc)PyTriContourGenerator_init;
 
-    memset(type, 0, sizeof(PyTypeObject));
-    type->tp_name = "matplotlib._tri.TriContourGenerator";
-    type->tp_doc = PyTriContourGenerator_init__doc__;
-    type->tp_basicsize = sizeof(PyTriContourGenerator);
-    type->tp_dealloc = (destructor)PyTriContourGenerator_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT;
-    type->tp_methods = methods;
-    type->tp_new = PyTriContourGenerator_new;
-    type->tp_init = (initproc)PyTriContourGenerator_init;
-
-    if (PyType_Ready(type) < 0) {
-        return NULL;
-    }
-
-    if (PyModule_AddObject(m, "TriContourGenerator", (PyObject*)type)) {
-        return NULL;
-    }
-
-    return type;
+    return &PyTriContourGeneratorType;
 }
 
 
@@ -470,35 +456,37 @@ static PyObject* PyTrapezoidMapTriFinder_print_tree(PyTrapezoidMapTriFinder* sel
     Py_RETURN_NONE;
 }
 
-static PyTypeObject* PyTrapezoidMapTriFinder_init_type(PyObject* m, PyTypeObject* type)
+static PyTypeObject *PyTrapezoidMapTriFinder_init_type()
 {
     static PyMethodDef methods[] = {
-        {"find_many", (PyCFunction)PyTrapezoidMapTriFinder_find_many, METH_VARARGS, PyTrapezoidMapTriFinder_find_many__doc__},
-        {"get_tree_stats", (PyCFunction)PyTrapezoidMapTriFinder_get_tree_stats, METH_NOARGS, PyTrapezoidMapTriFinder_get_tree_stats__doc__},
-        {"initialize", (PyCFunction)PyTrapezoidMapTriFinder_initialize, METH_NOARGS, PyTrapezoidMapTriFinder_initialize__doc__},
-        {"print_tree", (PyCFunction)PyTrapezoidMapTriFinder_print_tree, METH_NOARGS, PyTrapezoidMapTriFinder_print_tree__doc__},
+        {"find_many",
+         (PyCFunction)PyTrapezoidMapTriFinder_find_many,
+         METH_VARARGS,
+         PyTrapezoidMapTriFinder_find_many__doc__},
+        {"get_tree_stats",
+         (PyCFunction)PyTrapezoidMapTriFinder_get_tree_stats,
+         METH_NOARGS,
+         PyTrapezoidMapTriFinder_get_tree_stats__doc__},
+        {"initialize",
+         (PyCFunction)PyTrapezoidMapTriFinder_initialize,
+         METH_NOARGS,
+         PyTrapezoidMapTriFinder_initialize__doc__},
+        {"print_tree",
+         (PyCFunction)PyTrapezoidMapTriFinder_print_tree,
+         METH_NOARGS,
+         PyTrapezoidMapTriFinder_print_tree__doc__},
         {NULL}
     };
+    PyTrapezoidMapTriFinderType.tp_name = "matplotlib._tri.TrapezoidMapTriFinder";
+    PyTrapezoidMapTriFinderType.tp_doc = PyTrapezoidMapTriFinder_init__doc__;
+    PyTrapezoidMapTriFinderType.tp_basicsize = sizeof(PyTrapezoidMapTriFinder);
+    PyTrapezoidMapTriFinderType.tp_dealloc = (destructor)PyTrapezoidMapTriFinder_dealloc;
+    PyTrapezoidMapTriFinderType.tp_flags = Py_TPFLAGS_DEFAULT;
+    PyTrapezoidMapTriFinderType.tp_methods = methods;
+    PyTrapezoidMapTriFinderType.tp_new = PyTrapezoidMapTriFinder_new;
+    PyTrapezoidMapTriFinderType.tp_init = (initproc)PyTrapezoidMapTriFinder_init;
 
-    memset(type, 0, sizeof(PyTypeObject));
-    type->tp_name = "matplotlib._tri.TrapezoidMapTriFinder";
-    type->tp_doc = PyTrapezoidMapTriFinder_init__doc__;
-    type->tp_basicsize = sizeof(PyTrapezoidMapTriFinder);
-    type->tp_dealloc = (destructor)PyTrapezoidMapTriFinder_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT;
-    type->tp_methods = methods;
-    type->tp_new = PyTrapezoidMapTriFinder_new;
-    type->tp_init = (initproc)PyTrapezoidMapTriFinder_init;
-
-    if (PyType_Ready(type) < 0) {
-        return NULL;
-    }
-
-    if (PyModule_AddObject(m, "TrapezoidMapTriFinder", (PyObject*)type)) {
-        return NULL;
-    }
-
-    return type;
+    return &PyTrapezoidMapTriFinderType;
 }
 
 static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_tri" };
@@ -507,29 +495,15 @@ static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_tri" };
 
 PyMODINIT_FUNC PyInit__tri(void)
 {
-    PyObject *m;
-
     import_array();
-
-    m = PyModule_Create(&moduledef);
-
-    if (m == NULL) {
+    PyObject *m;
+    if (!(m = PyModule_Create(&moduledef))
+        || prepare_and_add_type(PyTriangulation_init_type(), m)
+        || prepare_and_add_type(PyTriContourGenerator_init_type(), m)
+        || prepare_and_add_type(PyTrapezoidMapTriFinder_init_type(), m)) {
+        Py_XDECREF(m);
         return NULL;
     }
-
-    if (!PyTriangulation_init_type(m, &PyTriangulationType)) {
-        Py_DECREF(m);
-        return NULL;
-    }
-    if (!PyTriContourGenerator_init_type(m, &PyTriContourGeneratorType)) {
-        Py_DECREF(m);
-        return NULL;
-    }
-    if (!PyTrapezoidMapTriFinder_init_type(m, &PyTrapezoidMapTriFinderType)) {
-        Py_DECREF(m);
-        return NULL;
-    }
-
     return m;
 }
 

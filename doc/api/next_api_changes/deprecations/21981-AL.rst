@@ -1,4 +1,8 @@
 ``RendererGTK3Cairo`` and ``RendererGTK4Cairo``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... have been deprecated.  Use ``RendererCairo`` instead, which has gained the
-``set_context`` method.
+... have been deprecated.  Use ``RendererCairo`` instead, which has gained
+the ``set_context`` method, which also auto-infers the size of the underlying
+surface.
+
+``RendererCairo.set_ctx_from_surface`` and ``RendererCairo.set_width_height``
+have likewise been deprecated, in favor of ``set_context``.

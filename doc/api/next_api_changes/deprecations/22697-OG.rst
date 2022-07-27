@@ -1,0 +1,9 @@
+Deprecations in ``testing.decorators``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The unused class ``CleanupTestCase`` and decorator ``cleanup`` are deprecated
+and will be removed. Vendor the code, including the private function
+``_cleanup_cm``.
+
+The function ``check_freetype_version`` is considered internal and deprecated.
+Vendor the code of the private function ``_check_freetype_version``.

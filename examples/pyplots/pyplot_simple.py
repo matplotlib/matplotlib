@@ -3,7 +3,7 @@
 Pyplot Simple
 =============
 
-A very simple pyplot where a list of numbers are ploted against their
+A very simple pyplot where a list of numbers are plotted against their
 index. Creates a straight line due to the rate of change being 1 for
 both the X and Y axis.
 """

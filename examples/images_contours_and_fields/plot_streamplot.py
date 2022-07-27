@@ -11,6 +11,8 @@ example shows a few features of the `~.axes.Axes.streamplot` function:
 * Varying the line width along a streamline.
 * Controlling the starting points of streamlines.
 * Streamlines skipping masked regions and NaN values.
+* Unbroken streamlines even when exceeding the limit of lines within a single
+  grid cell.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -61,12 +63,16 @@ mask[40:60, 40:60] = True
 U[:20, :20] = np.nan
 U = np.ma.array(U, mask=mask)
 
-ax4 = fig.add_subplot(gs[2:, :])
+ax4 = fig.add_subplot(gs[2, 0])
 ax4.streamplot(X, Y, U, V, color='r')
 ax4.set_title('Streamplot with Masking')
 
 ax4.imshow(~mask, extent=(-w, w, -w, w), alpha=0.5, cmap='gray', aspect='auto')
 ax4.set_aspect('equal')
+
+ax5 = fig.add_subplot(gs[2, 1])
+ax5.streamplot(X, Y, U, V, broken_streamlines=False)
+ax5.set_title('Streamplot with unbroken streamlines')
 
 plt.tight_layout()
 plt.show()

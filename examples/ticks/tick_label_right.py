@@ -3,10 +3,9 @@
 Set default y-axis tick labels on the right
 ============================================
 
-We can use :rc:`ytick.labelright` (default False) and :rc:`ytick.right`
-(default False) and :rc:`ytick.labelleft` (default True) and :rc:`ytick.left`
-(default True) to control where on the axes ticks and their labels appear.
-These properties can also be set in the ``.matplotlib/matplotlibrc``.
+We can use :rc:`ytick.labelright`, :rc:`ytick.right`, :rc:`ytick.labelleft`,
+and :rc:`ytick.left` to control where on the axes ticks and their labels
+appear. These properties can also be set in ``.matplotlib/matplotlibrc``.
 
 """
 import matplotlib.pyplot as plt

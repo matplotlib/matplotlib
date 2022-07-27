@@ -1,8 +1,7 @@
 """
 =============
-Pgf Texsystem
+PGF texsystem
 =============
-
 """
 
 import matplotlib.pyplot as plt

@@ -14,6 +14,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
+from matplotlib.testing import subprocess_run_helper as _run_helper
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
@@ -58,7 +59,15 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
-        envs.append(pytest.param(env, marks=marks, id=str(env)))
+        elif env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin':
+            marks.append(  # GitHub issue #23094
+                pytest.mark.xfail(reason="Tk version mismatch on OSX CI"))
+        envs.append(
+            pytest.param(
+                {**env, 'BACKEND_DEPS': ','.join(deps)},
+                marks=marks, id=str(env)
+            )
+        )
     return envs
 
 
@@ -73,6 +82,7 @@ _test_timeout = 60  # A reasonably safe value for slower architectures.
 # early.  Also, gtk3 redefines key_press_event with a different signature, so
 # we directly invoke it from the superclass instead.
 def _test_interactive_impl():
+    import importlib
     import importlib.util
     import io
     import json
@@ -81,14 +91,13 @@ def _test_interactive_impl():
 
     import matplotlib as mpl
     from matplotlib import pyplot as plt, rcParams
-    from matplotlib.backend_bases import FigureCanvasBase
-
+    from matplotlib.backend_bases import KeyEvent
     rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
     })
-    if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
-        rcParams.update(json.loads(sys.argv[1]))
+
+    rcParams.update(json.loads(sys.argv[1]))
     backend = plt.rcParams["backend"].lower()
     assert_equal = TestCase().assertEqual
     assert_raises = TestCase().assertRaises
@@ -131,8 +140,8 @@ def _test_interactive_impl():
     if fig.canvas.toolbar:  # i.e toolbar2.
         fig.canvas.toolbar.draw_rubberband(None, 1., 1, 2., 2)
 
-    timer = fig.canvas.new_timer(1.)  # Test floats casting to int as needed.
-    timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
+    timer = fig.canvas.new_timer(1.)  # Test that floats are cast to int.
+    timer.add_callback(KeyEvent("key_press_event", fig.canvas, "q")._process)
     # Trigger quitting upon draw.
     fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
     fig.canvas.mpl_connect("close_event", print)
@@ -163,27 +172,16 @@ def test_interactive_backend(env, toolbar):
     if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
+    proc = _run_helper(_test_interactive_impl,
+                       json.dumps({"toolbar": toolbar}),
+                       timeout=_test_timeout,
+                       extra_env=env)
 
-    proc = subprocess.run(
-        [sys.executable, "-c",
-         inspect.getsource(_test_interactive_impl)
-         + "\n_test_interactive_impl()",
-         json.dumps({"toolbar": toolbar})],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
-        timeout=_test_timeout,
-        stdout=subprocess.PIPE, universal_newlines=True)
-    if proc.returncode:
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
     assert proc.stdout.count("CloseEvent") == 1
 
 
-# The source of this function gets extracted and run in another process, so it
-# must be fully self-contained.
 def _test_thread_impl():
     from concurrent.futures import ThreadPoolExecutor
-    import json
-    import sys
 
     from matplotlib import pyplot as plt, rcParams
 
@@ -191,8 +189,6 @@ def _test_thread_impl():
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
     })
-    if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
-        rcParams.update(json.loads(sys.argv[1]))
 
     # Test artist creation and drawing does not crash from thread
     # No other guarantees!
@@ -207,8 +203,10 @@ def _test_thread_impl():
     future = ThreadPoolExecutor().submit(fig.canvas.draw)
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
-    plt.close()
-    fig.canvas.flush_events()  # pause doesn't process events after close
+    plt.close()  # backend is responsible for flushing any events here
+    if plt.rcParams["backend"].startswith("WX"):
+        # TODO: debug why WX needs this only on py3.8
+        fig.canvas.flush_events()
 
 
 _thread_safe_backends = _get_testable_interactive_backends()
@@ -241,18 +239,141 @@ for param in _thread_safe_backends:
                 reason='PyPy does not support Tkinter threading: '
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
+    elif backend == "tkagg" and sys.platform == "darwin":
+        param.marks.append(  # GitHub issue #23094
+            pytest.mark.xfail("Tk version mismatch on OSX CI"))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
 @pytest.mark.flaky(reruns=3)
 def test_interactive_thread_safety(env):
-    proc = subprocess.run(
-        [sys.executable, "-c",
-         inspect.getsource(_test_thread_impl) + "\n_test_thread_impl()"],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
-        timeout=_test_timeout, check=True,
-        stdout=subprocess.PIPE, universal_newlines=True)
+    proc = _run_helper(_test_thread_impl, timeout=_test_timeout, extra_env=env)
     assert proc.stdout.count("CloseEvent") == 1
+
+
+def _impl_test_lazy_auto_backend_selection():
+    import matplotlib
+    import matplotlib.pyplot as plt
+    # just importing pyplot should not be enough to trigger resolution
+    bk = dict.__getitem__(matplotlib.rcParams, 'backend')
+    assert not isinstance(bk, str)
+    assert plt._backend_mod is None
+    # but actually plotting should
+    plt.plot(5)
+    assert plt._backend_mod is not None
+    bk = dict.__getitem__(matplotlib.rcParams, 'backend')
+    assert isinstance(bk, str)
+
+
+def test_lazy_auto_backend_selection():
+    _run_helper(_impl_test_lazy_auto_backend_selection,
+                timeout=_test_timeout)
+
+
+def _implqt5agg():
+    import matplotlib.backends.backend_qt5agg  # noqa
+    import sys
+
+    assert 'PyQt6' not in sys.modules
+    assert 'pyside6' not in sys.modules
+    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+
+    import matplotlib.backends.backend_qt5
+    with pytest.warns(DeprecationWarning,
+                      match="QtWidgets.QApplication.instance"):
+        matplotlib.backends.backend_qt5.qApp
+
+
+def _implcairo():
+    import matplotlib.backends.backend_qt5cairo # noqa
+    import sys
+
+    assert 'PyQt6' not in sys.modules
+    assert 'pyside6' not in sys.modules
+    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+
+    import matplotlib.backends.backend_qt5
+    with pytest.warns(DeprecationWarning,
+                      match="QtWidgets.QApplication.instance"):
+        matplotlib.backends.backend_qt5.qApp
+
+
+def _implcore():
+    import matplotlib.backends.backend_qt5
+    import sys
+
+    assert 'PyQt6' not in sys.modules
+    assert 'pyside6' not in sys.modules
+    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+
+    with pytest.warns(DeprecationWarning,
+                      match="QtWidgets.QApplication.instance"):
+        matplotlib.backends.backend_qt5.qApp
+
+
+def test_qt5backends_uses_qt5():
+    qt5_bindings = [
+        dep for dep in ['PyQt5', 'pyside2']
+        if importlib.util.find_spec(dep) is not None
+    ]
+    qt6_bindings = [
+        dep for dep in ['PyQt6', 'pyside6']
+        if importlib.util.find_spec(dep) is not None
+    ]
+    if len(qt5_bindings) == 0 or len(qt6_bindings) == 0:
+        pytest.skip('need both QT6 and QT5 bindings')
+    _run_helper(_implqt5agg, timeout=_test_timeout)
+    if importlib.util.find_spec('pycairo') is not None:
+        _run_helper(_implcairo, timeout=_test_timeout)
+    _run_helper(_implcore, timeout=_test_timeout)
+
+
+def _impl_test_cross_Qt_imports():
+    import sys
+    import importlib
+    import pytest
+
+    _, host_binding, mpl_binding = sys.argv
+    # import the mpl binding.  This will force us to use that binding
+    importlib.import_module(f'{mpl_binding}.QtCore')
+    mpl_binding_qwidgets = importlib.import_module(f'{mpl_binding}.QtWidgets')
+    import matplotlib.backends.backend_qt
+    host_qwidgets = importlib.import_module(f'{host_binding}.QtWidgets')
+
+    host_app = host_qwidgets.QApplication(["mpl testing"])
+    with pytest.warns(UserWarning, match="Mixing Qt major"):
+        matplotlib.backends.backend_qt._create_qApp()
+
+
+def test_cross_Qt_imports():
+    qt5_bindings = [
+        dep for dep in ['PyQt5', 'PySide2']
+        if importlib.util.find_spec(dep) is not None
+    ]
+    qt6_bindings = [
+        dep for dep in ['PyQt6', 'PySide6']
+        if importlib.util.find_spec(dep) is not None
+    ]
+    if len(qt5_bindings) == 0 or len(qt6_bindings) == 0:
+        pytest.skip('need both QT6 and QT5 bindings')
+
+    for qt5 in qt5_bindings:
+        for qt6 in qt6_bindings:
+            for pair in ([qt5, qt6], [qt6, qt5]):
+                try:
+                    _run_helper(_impl_test_cross_Qt_imports,
+                                *pair,
+                                timeout=_test_timeout)
+                except subprocess.CalledProcessError as ex:
+                    # if segfault, carry on.  We do try to warn the user they
+                    # are doing something that we do not expect to work
+                    if ex.returncode == -signal.SIGSEGV:
+                        continue
+                    # We got the abort signal which is likely because the Qt5 /
+                    # Qt6 cross import is unhappy, carry on.
+                    elif ex.returncode == -signal.SIGABRT:
+                        continue
+                    raise
 
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
@@ -263,7 +384,7 @@ def test_webagg():
     proc = subprocess.Popen(
         [sys.executable, "-c",
          inspect.getsource(_test_interactive_impl)
-         + "\n_test_interactive_impl()"],
+         + "\n_test_interactive_impl()", "{}"],
         env={**os.environ, "MPLBACKEND": "webagg", "SOURCE_DATE_EPOCH": "0"})
     url = "http://{}:{}".format(
         mpl.rcParams["webagg.address"], mpl.rcParams["webagg.port"])
@@ -285,37 +406,188 @@ def test_webagg():
     assert proc.wait(timeout=_test_timeout) == 0
 
 
+def _lazy_headless():
+    import os
+    import sys
+
+    backend, deps = sys.argv[1:]
+    deps = deps.split(',')
+
+    # make it look headless
+    os.environ.pop('DISPLAY', None)
+    os.environ.pop('WAYLAND_DISPLAY', None)
+    for dep in deps:
+        assert dep not in sys.modules
+
+    # we should fast-track to Agg
+    import matplotlib.pyplot as plt
+    assert plt.get_backend() == 'agg'
+    for dep in deps:
+        assert dep not in sys.modules
+
+    # make sure we really have dependencies installed
+    for dep in deps:
+        importlib.import_module(dep)
+        assert dep in sys.modules
+
+    # try to switch and make sure we fail with ImportError
+    try:
+        plt.switch_backend(backend)
+    except ImportError:
+        ...
+    else:
+        sys.exit(1)
+
+
 @pytest.mark.skipif(sys.platform != "linux", reason="this a linux-only test")
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+def test_lazy_linux_headless(env):
+    proc = _run_helper(
+        _lazy_headless,
+        env.pop('MPLBACKEND'), env.pop("BACKEND_DEPS"),
+        timeout=_test_timeout,
+        extra_env={**env, 'DISPLAY': '', 'WAYLAND_DISPLAY': ''}
+    )
+
+
+def _qApp_warn_impl():
+    import matplotlib.backends.backend_qt
+    import pytest
+
+    with pytest.warns(
+            DeprecationWarning, match="QtWidgets.QApplication.instance"):
+        matplotlib.backends.backend_qt.qApp
+
+
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_lazy_linux_headless():
-    test_script = """
-import os
-import sys
+def test_qApp_warn():
+    _run_helper(_qApp_warn_impl, timeout=_test_timeout)
 
-# make it look headless
-os.environ.pop('DISPLAY', None)
-os.environ.pop('WAYLAND_DISPLAY', None)
 
-# we should fast-track to Agg
-import matplotlib.pyplot as plt
-plt.get_backend() == 'agg'
-assert 'PyQt5' not in sys.modules
+def _test_number_of_draws_script():
+    import matplotlib.pyplot as plt
 
-# make sure we really have pyqt installed
-import PyQt5
-assert 'PyQt5' in sys.modules
+    fig, ax = plt.subplots()
 
-# try to switch and make sure we fail with ImportError
-try:
-    plt.switch_backend('qt5agg')
-except ImportError:
-    ...
-else:
-    sys.exit(1)
+    # animated=True tells matplotlib to only draw the artist when we
+    # explicitly request it
+    ln, = ax.plot([0, 1], [1, 2], animated=True)
 
-"""
-    proc = subprocess.run([sys.executable, "-c", test_script],
-                          env={**os.environ, "MPLBACKEND": ""})
-    if proc.returncode:
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
+    # make sure the window is raised, but the script keeps going
+    plt.show(block=False)
+    plt.pause(0.3)
+    # Connect to draw_event to count the occurrences
+    fig.canvas.mpl_connect('draw_event', print)
+
+    # get copy of entire figure (everything inside fig.bbox)
+    # sans animated artist
+    bg = fig.canvas.copy_from_bbox(fig.bbox)
+    # draw the animated artist, this uses a cached renderer
+    ax.draw_artist(ln)
+    # show the result to the screen
+    fig.canvas.blit(fig.bbox)
+
+    for j in range(10):
+        # reset the background back in the canvas state, screen unchanged
+        fig.canvas.restore_region(bg)
+        # Create a **new** artist here, this is poor usage of blitting
+        # but good for testing to make sure that this doesn't create
+        # excessive draws
+        ln, = ax.plot([0, 1], [1, 2])
+        # render the artist, updating the canvas state, but not the screen
+        ax.draw_artist(ln)
+        # copy the image to the GUI state, but screen might not changed yet
+        fig.canvas.blit(fig.bbox)
+        # flush any pending GUI events, re-painting the screen if needed
+        fig.canvas.flush_events()
+
+    # Let the event loop process everything before leaving
+    plt.pause(0.1)
+
+
+_blit_backends = _get_testable_interactive_backends()
+for param in _blit_backends:
+    backend = param.values[0]["MPLBACKEND"]
+    if backend == "gtk3cairo":
+        # copy_from_bbox only works when rendering to an ImageSurface
+        param.marks.append(
+            pytest.mark.skip("gtk3cairo does not support blitting"))
+    elif backend == "gtk4cairo":
+        # copy_from_bbox only works when rendering to an ImageSurface
+        param.marks.append(
+            pytest.mark.skip("gtk4cairo does not support blitting"))
+    elif backend == "wx":
+        param.marks.append(
+            pytest.mark.skip("wx does not support blitting"))
+    elif backend == "tkagg" and sys.platform == "darwin":
+        param.marks.append(  # GitHub issue #23094
+            pytest.mark.xfail("Tk version mismatch on OSX CI")
+        )
+
+
+@pytest.mark.parametrize("env", _blit_backends)
+# subprocesses can struggle to get the display, so rerun a few times
+@pytest.mark.flaky(reruns=4)
+def test_blitting_events(env):
+    proc = _run_helper(
+        _test_number_of_draws_script, timeout=_test_timeout, extra_env=env)
+    # Count the number of draw_events we got. We could count some initial
+    # canvas draws (which vary in number by backend), but the critical
+    # check here is that it isn't 10 draws, which would be called if
+    # blitting is not properly implemented
+    ndraws = proc.stdout.count("DrawEvent")
+    assert 0 < ndraws < 5
+
+
+# The source of this function gets extracted and run in another process, so it
+# must be fully self-contained.
+def _test_figure_leak():
+    import gc
+    import sys
+
+    import psutil
+    from matplotlib import pyplot as plt
+    # Second argument is pause length, but if zero we should skip pausing
+    t = float(sys.argv[1])
+    p = psutil.Process()
+
+    # Warmup cycle, this reasonably allocates a lot
+    for _ in range(2):
+        fig = plt.figure()
+        if t:
+            plt.pause(t)
+        plt.close(fig)
+    mem = p.memory_info().rss
+    gc.collect()
+
+    for _ in range(5):
+        fig = plt.figure()
+        if t:
+            plt.pause(t)
+        plt.close(fig)
+        gc.collect()
+    growth = p.memory_info().rss - mem
+
+    print(growth)
+
+
+# TODO: "0.1" memory threshold could be reduced 10x by fixing tkagg
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.parametrize("time_mem", [(0.0, 2_000_000), (0.1, 30_000_000)])
+def test_figure_leak_20490(env, time_mem):
+    pytest.importorskip("psutil", reason="psutil needed to run this test")
+
+    # We haven't yet directly identified the leaks so test with a memory growth
+    # threshold.
+    pause_time, acceptable_memory_leakage = time_mem
+    if env["MPLBACKEND"] == "macosx" or (
+            env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin'
+    ):
+        acceptable_memory_leakage += 11_000_000
+
+    result = _run_helper(
+        _test_figure_leak, str(pause_time),
+        timeout=_test_timeout, extra_env=env)
+
+    growth = int(result.stdout)
+    assert growth <= acceptable_memory_leakage

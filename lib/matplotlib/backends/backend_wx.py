@@ -19,17 +19,15 @@ import PIL
 
 import matplotlib as mpl
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    MouseButton, NavigationToolbar2, RendererBase, TimerBase,
-    ToolContainerBase, cursors)
+    _Backend, FigureCanvasBase, FigureManagerBase,
+    GraphicsContextBase, MouseButton, NavigationToolbar2, RendererBase,
+    TimerBase, ToolContainerBase, cursors,
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 from matplotlib import _api, cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_managers import ToolManager
-from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-from matplotlib.widgets import SubplotTool
 
 import wx
 
@@ -43,8 +41,6 @@ PIXELS_PER_INCH = 75
 
 @_api.caching_module_getattr  # module-level deprecations
 class __getattr__:
-    IDLE_DELAY = _api.deprecated("3.1", obj_type="", removal="3.6")(property(
-        lambda self: 5))
     cursord = _api.deprecated("3.5", obj_type="")(property(lambda self: {
         cursors.MOVE: wx.CURSOR_HAND,
         cursors.HAND: wx.CURSOR_HAND,
@@ -66,6 +62,15 @@ def error_msg_wx(msg, parent=None):
     dialog.ShowModal()
     dialog.Destroy()
     return None
+
+
+# lru_cache holds a reference to the App and prevents it from being gc'ed.
+@functools.lru_cache(1)
+def _create_wxapp():
+    wxapp = wx.App(False)
+    wxapp.SetExitOnFrameDelete(True)
+    cbook._setup_new_guiapp()
+    return wxapp
 
 
 class TimerWx(TimerBase):
@@ -304,7 +309,7 @@ class RendererWx(RendererBase):
 
 class GraphicsContextWx(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...
+    The graphics context provides the color, line styles, etc.
 
     This class stores a reference to a wxMemoryDC, and a
     wxGraphicsContext that draws to it.  Creating a wxGraphicsContext
@@ -423,6 +428,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     required_interactive_framework = "wx"
     _timer_cls = TimerWx
+    manager_class = _api.classproperty(lambda cls: FigureManagerWx)
 
     keyvald = {
         wx.WXK_CONTROL: 'control',
@@ -524,8 +530,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self.Bind(wx.EVT_MOUSE_AUX2_DCLICK, self._on_mouse_button)
         self.Bind(wx.EVT_MOUSEWHEEL, self._on_mouse_wheel)
         self.Bind(wx.EVT_MOTION, self._on_motion)
-        self.Bind(wx.EVT_LEAVE_WINDOW, self._on_leave)
         self.Bind(wx.EVT_ENTER_WINDOW, self._on_enter)
+        self.Bind(wx.EVT_LEAVE_WINDOW, self._on_leave)
 
         self.Bind(wx.EVT_MOUSE_CAPTURE_CHANGED, self._on_capture_lost)
         self.Bind(wx.EVT_MOUSE_CAPTURE_LOST, self._on_capture_lost)
@@ -596,8 +602,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wildcards = '|'.join(wildcards)
         return wildcards, extensions, filter_index
 
-    @_api.delete_parameter("3.4", "origin")
-    def gui_repaint(self, drawDC=None, origin='WX'):
+    def gui_repaint(self, drawDC=None):
         """
         Update the displayed image on the GUI canvas, using the supplied
         wx.PaintDC device context.
@@ -699,7 +704,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # so no need to do anything here except to make sure
         # the whole background is repainted.
         self.Refresh(eraseBackground=False)
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
+        self.draw_idle()
 
     def _get_key(self, event):
 
@@ -726,17 +732,32 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         return key
 
+    def _mpl_coords(self, pos=None):
+        """
+        Convert a wx position, defaulting to the current cursor position, to
+        Matplotlib coordinates.
+        """
+        if pos is None:
+            pos = wx.GetMouseState()
+            x, y = self.ScreenToClient(pos.X, pos.Y)
+        else:
+            x, y = pos.X, pos.Y
+        # flip y so y=0 is bottom of canvas
+        return x, self.figure.bbox.height - y
+
     def _on_key_down(self, event):
         """Capture key press."""
-        key = self._get_key(event)
-        FigureCanvasBase.key_press_event(self, key, guiEvent=event)
+        KeyEvent("key_press_event", self,
+                 self._get_key(event), *self._mpl_coords(),
+                 guiEvent=event)._process()
         if self:
             event.Skip()
 
     def _on_key_up(self, event):
         """Release key."""
-        key = self._get_key(event)
-        FigureCanvasBase.key_release_event(self, key, guiEvent=event)
+        KeyEvent("key_release_event", self,
+                 self._get_key(event), *self._mpl_coords(),
+                 guiEvent=event)._process()
         if self:
             event.Skip()
 
@@ -752,7 +773,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
         }, cursor=cursor))
         self.SetCursor(cursor)
-        self.Update()
+        self.Refresh()
 
     def _set_capture(self, capture=True):
         """Control wx mouse capture."""
@@ -769,8 +790,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """Start measuring on an axis."""
         event.Skip()
         self._set_capture(event.ButtonDown() or event.ButtonDClick())
-        x = event.X
-        y = self.figure.bbox.height - event.Y
+        x, y = self._mpl_coords(event)
         button_map = {
             wx.MOUSE_BTN_LEFT: MouseButton.LEFT,
             wx.MOUSE_BTN_MIDDLE: MouseButton.MIDDLE,
@@ -781,18 +801,18 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         button = event.GetButton()
         button = button_map.get(button, button)
         if event.ButtonDown():
-            self.button_press_event(x, y, button, guiEvent=event)
+            MouseEvent("button_press_event", self,
+                       x, y, button, guiEvent=event)._process()
         elif event.ButtonDClick():
-            self.button_press_event(x, y, button, dblclick=True,
-                                    guiEvent=event)
+            MouseEvent("button_press_event", self,
+                       x, y, button, dblclick=True, guiEvent=event)._process()
         elif event.ButtonUp():
-            self.button_release_event(x, y, button, guiEvent=event)
+            MouseEvent("button_release_event", self,
+                       x, y, button, guiEvent=event)._process()
 
     def _on_mouse_wheel(self, event):
         """Translate mouse wheel events into matplotlib events"""
-        # Determine mouse location
-        x = event.GetX()
-        y = self.figure.bbox.height - event.GetY()
+        x, y = self._mpl_coords(event)
         # Convert delta/rotation/rate into a floating point step size
         step = event.LinesPerAction * event.WheelRotation / event.WheelDelta
         # Done handling event
@@ -806,26 +826,29 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 return  # Return without processing event
             else:
                 self._skipwheelevent = True
-        FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
+        MouseEvent("scroll_event", self,
+                   x, y, step=step, guiEvent=event)._process()
 
     def _on_motion(self, event):
         """Start measuring on an axis."""
-        x = event.GetX()
-        y = self.figure.bbox.height - event.GetY()
         event.Skip()
-        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
+        MouseEvent("motion_notify_event", self,
+                   *self._mpl_coords(event),
+                   guiEvent=event)._process()
+
+    def _on_enter(self, event):
+        """Mouse has entered the window."""
+        event.Skip()
+        LocationEvent("figure_enter_event", self,
+                      *self._mpl_coords(event),
+                      guiEvent=event)._process()
 
     def _on_leave(self, event):
         """Mouse has left the window."""
         event.Skip()
-        FigureCanvasBase.leave_notify_event(self, guiEvent=event)
-
-    def _on_enter(self, event):
-        """Mouse has entered the window."""
-        x = event.GetX()
-        y = self.figure.bbox.height - event.GetY()
-        event.Skip()
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
+        LocationEvent("figure_leave_event", self,
+                      *self._mpl_coords(event),
+                      guiEvent=event)._process()
 
 
 class FigureCanvasWx(_FigureCanvasWxBase):
@@ -941,7 +964,7 @@ class FigureFrameWx(wx.Frame):
 
     def _on_close(self, event):
         _log.debug("%s - on_close()", type(self))
-        self.canvas.close_event()
+        CloseEvent("close_event", self.canvas)._process()
         self.canvas.stop_event_loop()
         # set FigureManagerWx.frame to None to prevent repeated attempts to
         # close this frame from FigureManagerWx.destroy()
@@ -975,6 +998,17 @@ class FigureManagerWx(FigureManagerBase):
         _log.debug("%s - __init__()", type(self))
         self.frame = self.window = frame
         super().__init__(canvas, num)
+
+    @classmethod
+    def create_with_canvas(cls, canvas_class, figure, num):
+        # docstring inherited
+        wxapp = wx.GetApp() or _create_wxapp()
+        frame = FigureFrameWx(num, figure, canvas_class=canvas_class)
+        manager = figure.canvas.manager
+        if mpl.is_interactive():
+            manager.frame.Show()
+            figure.canvas.draw_idle()
+        return manager
 
     def show(self):
         # docstring inherited
@@ -1086,10 +1120,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             image[black_mask, :3] = (fg.Red(), fg.Green(), fg.Blue())
         return wx.Bitmap.FromBufferRGBA(
             image.shape[1], image.shape[0], image.tobytes())
-
-    @_api.deprecated("3.4")
-    def get_canvas(self, frame, fig):
-        return type(self.canvas)(frame, -1, fig)
 
     def _update_buttons_checked(self):
         if "Pan" in self.wx_ids:
@@ -1252,8 +1282,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
 @backend_tools._register_tool_class(_FigureCanvasWxBase)
 class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        NavigationToolbar2Wx.configure_subplots(
-            self._make_classic_style_pseudo_toolbar())
+        NavigationToolbar2Wx.configure_subplots(self)
 
 
 @backend_tools._register_tool_class(_FigureCanvasWxBase)
@@ -1354,24 +1383,6 @@ FigureManagerWx._toolmanager_toolbar_class = ToolbarWx
 class _BackendWx(_Backend):
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
-
-    @classmethod
-    def new_figure_manager_given_figure(cls, num, figure):
-        # Create a wx.App instance if it has not been created so far.
-        wxapp = wx.GetApp()
-        if wxapp is None:
-            wxapp = wx.App()
-            wxapp.SetExitOnFrameDelete(True)
-            cbook._setup_new_guiapp()
-            # Retain a reference to the app object so that it does not get
-            # garbage collected.
-            _BackendWx._theWxApp = wxapp
-        # Attaches figure.canvas, figure.canvas.manager.
-        frame = FigureFrameWx(num, figure, canvas_class=cls.FigureCanvas)
-        if mpl.is_interactive():
-            frame.Show()
-            figure.canvas.draw_idle()
-        return figure.canvas.manager
 
     @staticmethod
     def mainloop():

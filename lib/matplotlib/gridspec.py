@@ -460,10 +460,10 @@ class GridSpec(GridSpecBase):
         h_pad, w_pad : float, optional
             Padding (height/width) between edges of adjacent subplots.
             Defaults to *pad*.
-        rect : tuple of 4 floats, default: (0, 0, 1, 1), i.e. the whole figure
+        rect : tuple (left, bottom, right, top), default: None
             (left, bottom, right, top) rectangle in normalized figure
             coordinates that the whole subplots area (including labels) will
-            fit into.
+            fit into. Default (None) is the whole figure.
         """
 
         subplotspec_list = _tight_layout.get_subplotspec_list(
@@ -474,7 +474,7 @@ class GridSpec(GridSpecBase):
                                "might be incorrect.")
 
         if renderer is None:
-            renderer = _tight_layout.get_renderer(figure)
+            renderer = figure._get_renderer()
 
         kwargs = _tight_layout.get_tight_layout_figure(
             figure, figure.axes, subplotspec_list, renderer,
@@ -664,8 +664,7 @@ class SubplotSpec:
     def is_last_col(self):
         return self.colspan.stop == self.get_gridspec().ncols
 
-    @_api.delete_parameter("3.4", "return_all")
-    def get_position(self, figure, return_all=False):
+    def get_position(self, figure):
         """
         Update the subplot position from ``figure.subplotpars``.
         """
@@ -679,12 +678,7 @@ class SubplotSpec:
         fig_top = fig_tops[rows].max()
         fig_left = fig_lefts[cols].min()
         fig_right = fig_rights[cols].max()
-        figbox = Bbox.from_extents(fig_left, fig_bottom, fig_right, fig_top)
-
-        if return_all:
-            return figbox, rows[0], cols[0], nrows, ncols
-        else:
-            return figbox
+        return Bbox.from_extents(fig_left, fig_bottom, fig_right, fig_top)
 
     def get_topmost_subplotspec(self):
         """

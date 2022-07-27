@@ -9,16 +9,12 @@ from matplotlib.transforms import Bbox
 from .qt_compat import QT_API, _enum, _setDevicePixelRatio
 from .. import cbook
 from .backend_agg import FigureCanvasAgg
-from .backend_qt import (
-    QtCore, QtGui, QtWidgets, _BackendQT, FigureCanvasQT, FigureManagerQT,
-    NavigationToolbar2QT, backend_version)
+from .backend_qt import QtCore, QtGui, _BackendQT, FigureCanvasQT
+from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
+    FigureManagerQT, NavigationToolbar2QT, backend_version)
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
-
-    def __init__(self, figure=None):
-        # Must pass 'figure' as kwarg to Qt base class.
-        super().__init__(figure=figure)
 
     def paintEvent(self, event):
         """

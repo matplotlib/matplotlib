@@ -1,0 +1,10 @@
+Removal of deprecated methods in `matplotlib.projections.polar`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``cla`` method in both ``ThetaAxis`` and ``RadialAxis`` has been removed
+after being deprecated in 3.4. Use ``clear`` instead.
+
+Removal of deprecated methods in `matplotlib.spines`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``cla`` method in ``Spine`` is removed after being deprecated in 3.4.
+Use ``clear`` instead.

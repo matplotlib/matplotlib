@@ -105,7 +105,7 @@ print(ax_dict)
 # String short-hand
 # =================
 #
-# By restricting our axes labels to single characters we can use Using we can
+# By restricting our axes labels to single characters we can
 # "draw" the Axes we want as "ASCII art".  The following
 
 
@@ -123,14 +123,30 @@ fig = plt.figure(constrained_layout=True)
 ax_dict = fig.subplot_mosaic(mosaic)
 identify_axes(ax_dict)
 
+###############################################################################
+# Alternatively, you can use the more compact string notation
+mosaic = "AB;CD"
 
 ###############################################################################
+# will give you the same composition, where the ``";"`` is used
+# as the row separator instead of newline.
+
+fig = plt.figure(constrained_layout=True)
+ax_dict = fig.subplot_mosaic(mosaic)
+identify_axes(ax_dict)
+
+###############################################################################
+# Axes spanning multiple rows/columns
+# ===================================
+#
 # Something we can do with `.Figure.subplot_mosaic` that you can not
 # do with `.Figure.subplots` is specify that an Axes should span
 # several rows or columns.
-#
-# If we want to re-arrange our four Axes to have C be a horizontal
-# span on the bottom and D be a vertical span on the right we would do
+
+
+###############################################################################
+# If we want to re-arrange our four Axes to have ``"C"`` be a horizontal
+# span on the bottom and ``"D"`` be a vertical span on the right we would do
 
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
     """
@@ -203,12 +219,10 @@ axd = plt.figure(constrained_layout=True).subplot_mosaic(
     bAc
     .d.
     """,
-    gridspec_kw={
-        # set the height ratios between the rows
-        "height_ratios": [1, 3.5, 1],
-        # set the width ratios between the columns
-        "width_ratios": [1, 3.5, 1],
-    },
+    # set the height ratios between the rows
+    height_ratios=[1, 3.5, 1],
+    # set the width ratios between the columns
+    width_ratios=[1, 3.5, 1],
 )
 identify_axes(axd)
 
@@ -285,7 +299,7 @@ axd = plt.figure(constrained_layout=True).subplot_mosaic(
         ["main", "BLANK"],
     ],
     empty_sentinel="BLANK",
-    gridspec_kw={"width_ratios": [2, 1]},
+    width_ratios=[2, 1],
 )
 identify_axes(axd)
 

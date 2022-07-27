@@ -14,7 +14,8 @@ from packaging.version import parse as parse_version
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
-from matplotlib import cbook, ft2font, pyplot as plt, ticker, _pylab_helpers
+from matplotlib import (_api, _pylab_helpers, cbook, ft2font, pyplot as plt,
+                        ticker)
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -31,6 +32,8 @@ def _cleanup_cm():
         plt.close("all")
 
 
+@_api.deprecated("3.6", alternative="Vendor the existing code, "
+                 "including the private function _cleanup_cm.")
 class CleanupTestCase(unittest.TestCase):
     """A wrapper for unittest.TestCase that includes cleanup operations."""
     @classmethod
@@ -42,6 +45,8 @@ class CleanupTestCase(unittest.TestCase):
         cls._cm.__exit__(None, None, None)
 
 
+@_api.deprecated("3.6", alternative="Vendor the existing code, "
+                 "including the private function _cleanup_cm.")
 def cleanup(style=None):
     """
     A decorator to ensure that any global state is reset before
@@ -83,7 +88,13 @@ def cleanup(style=None):
         return make_cleanup
 
 
+@_api.deprecated("3.6", alternative="Vendor the existing code "
+                 "of _check_freetype_version.")
 def check_freetype_version(ver):
+    return _check_freetype_version(ver)
+
+
+def _check_freetype_version(ver):
     if ver is None:
         return True
 
@@ -98,7 +109,7 @@ def check_freetype_version(ver):
 def _checked_on_freetype_version(required_freetype_version):
     import pytest
     return pytest.mark.xfail(
-        not check_freetype_version(required_freetype_version),
+        not _check_freetype_version(required_freetype_version),
         reason=f"Mismatched version of freetype. "
                f"Test requires '{required_freetype_version}', "
                f"you have '{ft2font.__freetype_version__}'",

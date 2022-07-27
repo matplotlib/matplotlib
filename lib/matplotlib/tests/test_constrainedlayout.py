@@ -3,9 +3,8 @@ import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 import matplotlib.transforms as mtransforms
-from matplotlib import ticker, rcParams
+from matplotlib import gridspec, ticker, rcParams
 
 
 def example_plot(ax, fontsize=12, nodec=False):
@@ -131,7 +130,7 @@ def test_identical_subgridspec():
         axb += [fig.add_subplot(GSB[i])]
 
     fig.draw_without_rendering()
-    # chech first row above second
+    # check first row above second
     assert axa[0].get_position().y0 > axb[0].get_position().y1
 
 
@@ -466,8 +465,7 @@ def test_colorbar_align():
                                        cbs[3].ax.get_position().y0)
 
 
-@image_comparison(['test_colorbars_no_overlapV.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['test_colorbars_no_overlapV.png'], style='mpl20')
 def test_colorbars_no_overlapV():
     fig = plt.figure(figsize=(2, 4), layout="constrained")
     axs = fig.subplots(2, 1, sharex=True, sharey=True)
@@ -479,8 +477,7 @@ def test_colorbars_no_overlapV():
     fig.suptitle("foo")
 
 
-@image_comparison(['test_colorbars_no_overlapH.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['test_colorbars_no_overlapH.png'], style='mpl20')
 def test_colorbars_no_overlapH():
     fig = plt.figure(figsize=(4, 2), layout="constrained")
     fig.suptitle("foo")
@@ -609,3 +606,52 @@ def test_discouraged_api():
 def test_kwargs():
     fig, ax = plt.subplots(constrained_layout={'h_pad': 0.02})
     fig.draw_without_rendering()
+
+
+def test_rect():
+    fig, ax = plt.subplots(layout='constrained')
+    fig.get_layout_engine().set(rect=[0, 0, 0.5, 0.5])
+    fig.draw_without_rendering()
+    ppos = ax.get_position()
+    assert ppos.x1 < 0.5
+    assert ppos.y1 < 0.5
+
+    fig, ax = plt.subplots(layout='constrained')
+    fig.get_layout_engine().set(rect=[0.2, 0.2, 0.3, 0.3])
+    fig.draw_without_rendering()
+    ppos = ax.get_position()
+    assert ppos.x1 < 0.5
+    assert ppos.y1 < 0.5
+    assert ppos.x0 > 0.2
+    assert ppos.y0 > 0.2
+
+
+def test_compressed1():
+    fig, axs = plt.subplots(3, 2, layout='compressed',
+                            sharex=True, sharey=True)
+    for ax in axs.flat:
+        pc = ax.imshow(np.random.randn(20, 20))
+
+    fig.colorbar(pc, ax=axs)
+    fig.draw_without_rendering()
+
+    pos = axs[0, 0].get_position()
+    np.testing.assert_allclose(pos.x0, 0.2344, atol=1e-3)
+    pos = axs[0, 1].get_position()
+    np.testing.assert_allclose(pos.x1, 0.7024, atol=1e-3)
+
+    # wider than tall
+    fig, axs = plt.subplots(2, 3, layout='compressed',
+                            sharex=True, sharey=True, figsize=(5, 4))
+    for ax in axs.flat:
+        pc = ax.imshow(np.random.randn(20, 20))
+
+    fig.colorbar(pc, ax=axs)
+    fig.draw_without_rendering()
+
+    pos = axs[0, 0].get_position()
+    np.testing.assert_allclose(pos.x0, 0.06195, atol=1e-3)
+    np.testing.assert_allclose(pos.y1, 0.8537, atol=1e-3)
+    pos = axs[1, 2].get_position()
+    np.testing.assert_allclose(pos.x1, 0.8618, atol=1e-3)
+    np.testing.assert_allclose(pos.y0, 0.1934, atol=1e-3)

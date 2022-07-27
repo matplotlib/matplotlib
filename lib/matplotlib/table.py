@@ -24,7 +24,7 @@ The cell (0, 0) is positioned at the top left.
 Thanks to John Gill for providing the class and table.
 """
 
-from . import _api, docstring
+from . import _api, _docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
 from .text import Text
@@ -51,6 +51,7 @@ class Cell(Rectangle):
                      'vertical':     'RL'
                      }
 
+    @_api.make_keyword_only("3.6", name="edgecolor")
     def __init__(self, xy, width, height,
                  edgecolor='k', facecolor='w',
                  fill=True,
@@ -175,7 +176,7 @@ class Cell(Rectangle):
         l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def set_text_props(self, **kwargs):
         """
         Update the text properties.
@@ -398,7 +399,7 @@ class Table(Artist):
         # Need a renderer to do hit tests on mouseevent; assume the last one
         # will do
         if renderer is None:
-            renderer = self.figure._cachedRenderer
+            renderer = self.figure._get_renderer()
         if renderer is None:
             raise RuntimeError('No renderer defined')
 
@@ -432,7 +433,7 @@ class Table(Artist):
             return inside, info
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
-        renderer = self.figure._cachedRenderer
+        renderer = self.figure._get_renderer()
         if renderer is not None:
             boxes = [cell.get_window_extent(renderer)
                      for (row, col), cell in self._cells.items()
@@ -446,8 +447,10 @@ class Table(Artist):
         """Return the Artists contained by the table."""
         return list(self._cells.values())
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
         # docstring inherited
+        if renderer is None:
+            renderer = self.figure._get_renderer()
         self._update_positions(renderer)
         boxes = [cell.get_window_extent(renderer)
                  for cell in self._cells.values()]
@@ -644,7 +647,7 @@ class Table(Artist):
         return self._cells
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def table(ax,
           cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,

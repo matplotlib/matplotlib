@@ -551,8 +551,8 @@ void FT2Font::get_bitmap_offset(long *x, long *y)
 
 void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
 {
-    size_t width = (bbox.xMax - bbox.xMin) / 64 + 2;
-    size_t height = (bbox.yMax - bbox.yMin) / 64 + 2;
+    long width = (bbox.xMax - bbox.xMin) / 64 + 2;
+    long height = (bbox.yMax - bbox.yMin) / 64 + 2;
 
     image.resize(width, height);
 

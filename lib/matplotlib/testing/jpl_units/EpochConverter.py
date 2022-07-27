@@ -1,7 +1,6 @@
 """EpochConverter module containing class EpochConverter."""
 
-from matplotlib import cbook
-import matplotlib.units as units
+from matplotlib import cbook, units
 import matplotlib.dates as date_ticker
 
 __all__ = ['EpochConverter']

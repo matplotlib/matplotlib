@@ -1,11 +1,13 @@
+import os
+
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backends import _macosx
-from matplotlib.backends.backend_agg import FigureCanvasAgg
+from . import _macosx
+from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase)
+    ResizeEvent, TimerBase)
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
@@ -15,42 +17,80 @@ class TimerMac(_macosx.Timer, TimerBase):
     # completely implemented at the C-level (in _macosx.Timer)
 
 
-class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
+class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
     # docstring inherited
 
-    # Events such as button presses, mouse movements, and key presses
-    # are handled in the C code and the base class methods
-    # button_press_event, button_release_event, motion_notify_event,
-    # key_press_event, and key_release_event are called from there.
+    # Ideally this class would be `class FCMacAgg(FCAgg, FCMac)`
+    # (FC=FigureCanvas) where FCMac would be an ObjC-implemented mac-specific
+    # class also inheriting from FCBase (this is the approach with other GUI
+    # toolkits).  However, writing an extension type inheriting from a Python
+    # base class is slightly tricky (the extension type must be a heap type),
+    # and we can just as well lift the FCBase base up one level, keeping it *at
+    # the end* to have the right method resolution order.
+
+    # Events such as button presses, mouse movements, and key presses are
+    # handled in C and events (MouseEvent, etc.) are triggered from there.
 
     required_interactive_framework = "macosx"
     _timer_cls = TimerMac
+    manager_class = _api.classproperty(lambda cls: FigureManagerMac)
 
     def __init__(self, figure):
-        FigureCanvasBase.__init__(self, figure)
-        width, height = self.get_width_height()
-        _macosx.FigureCanvas.__init__(self, width, height)
-
-    def set_cursor(self, cursor):
-        # docstring inherited
-        _macosx.set_cursor(cursor)
-
-    def _draw(self):
-        renderer = self.get_renderer()
-        if self.figure.stale:
-            renderer.clear()
-            self.figure.draw(renderer)
-        return renderer
+        super().__init__(figure=figure)
+        self._draw_pending = False
+        self._is_drawing = False
 
     def draw(self):
-        # docstring inherited
-        self._draw()
-        self.flush_events()
+        """Render the figure and update the macosx canvas."""
+        # The renderer draw is done here; delaying causes problems with code
+        # that uses the result of the draw() to update plot elements.
+        if self._is_drawing:
+            return
+        with cbook._setattr_cm(self, _is_drawing=True):
+            super().draw()
+        self.update()
 
-    # draw_idle is provided by _macosx.FigureCanvas
+    def draw_idle(self):
+        # docstring inherited
+        if not (getattr(self, '_draw_pending', False) or
+                getattr(self, '_is_drawing', False)):
+            self._draw_pending = True
+            # Add a singleshot timer to the eventloop that will call back
+            # into the Python method _draw_idle to take care of the draw
+            self._single_shot_timer(self._draw_idle)
+
+    def _single_shot_timer(self, callback):
+        """Add a single shot timer with the given callback"""
+        # We need to explicitly stop (called from delete) the timer after
+        # firing, otherwise segfaults will occur when trying to deallocate
+        # the singleshot timers.
+        def callback_func(callback, timer):
+            callback()
+            del timer
+        timer = self.new_timer(interval=0)
+        timer.add_callback(callback_func, callback, timer)
+        timer.start()
+
+    def _draw_idle(self):
+        """
+        Draw method for singleshot timer
+
+        This draw method can be added to a singleshot timer, which can
+        accumulate draws while the eventloop is spinning. This method will
+        then only draw the first time and short-circuit the others.
+        """
+        with self._idle_draw_cntx():
+            if not self._draw_pending:
+                # Short-circuit because our draw request has already been
+                # taken care of
+                return
+            self._draw_pending = False
+            self.draw()
 
     def blit(self, bbox=None):
-        self.draw_idle()
+        # docstring inherited
+        super().blit(bbox)
+        self.update()
 
     def resize(self, width, height):
         # Size from macOS is logical pixels, dpi is physical.
@@ -58,7 +98,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         width /= scale
         height /= scale
         self.figure.set_size_inches(width, height, forward=False)
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
         self.draw_idle()
 
 
@@ -81,10 +121,15 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         self.canvas.remove_rubberband()
 
     def save_figure(self, *args):
+        directory = os.path.expanduser(mpl.rcParams['savefig.directory'])
         filename = _macosx.choose_save_file('Save the figure',
+                                            directory,
                                             self.canvas.get_default_filename())
         if filename is None:  # Cancel
             return
+        # Save dir for next time, unless empty str (which means use cwd).
+        if mpl.rcParams['savefig.directory']:
+            mpl.rcParams['savefig.directory'] = os.path.dirname(filename)
         self.canvas.figure.savefig(filename)
 
     def prepare_configure_subplots(self):
@@ -95,14 +140,12 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         _tool = SubplotTool(self.canvas.figure, toolfig)
         return canvas
 
-    def set_message(self, message):
-        _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
-
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
 
     def __init__(self, canvas, num):
+        self._shown = False
         _macosx.FigureManager.__init__(self, canvas)
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
@@ -113,8 +156,20 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             self.show()
             self.canvas.draw_idle()
 
-    def close(self):
+    def _close_button_pressed(self):
         Gcf.destroy(self)
+        self.canvas.flush_events()
+
+    @_api.deprecated("3.6")
+    def close(self):
+        return self._close_button_pressed()
+
+    def show(self):
+        if not self._shown:
+            self._show()
+            self._shown = True
+        if mpl.rcParams["figure.raise_window"]:
+            self._raise()
 
 
 @_Backend.export

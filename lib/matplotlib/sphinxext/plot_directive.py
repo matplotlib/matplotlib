@@ -162,9 +162,6 @@ import matplotlib.pyplot as plt
 from matplotlib import _api, _pylab_helpers, cbook
 
 matplotlib.use("agg")
-align = _api.deprecated(
-    "3.4", alternative="docutils.parsers.rst.directives.images.Image.align")(
-        Image.align)
 
 __version__ = 2
 
@@ -183,7 +180,7 @@ def _option_boolean(arg):
     elif arg.strip().lower() in ('yes', '1', 'true'):
         return True
     else:
-        raise ValueError('"%s" unknown boolean' % arg)
+        raise ValueError(f'{arg!r} unknown boolean')
 
 
 def _option_context(arg):

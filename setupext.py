@@ -12,6 +12,7 @@ import subprocess
 import sys
 import sysconfig
 import tarfile
+from tempfile import TemporaryDirectory
 import textwrap
 import urllib.request
 
@@ -167,12 +168,20 @@ _freetype_hashes = {
         '955e17244e9b38adb0c98df66abb50467312e6bb70eac07e49ce6bd1a20e809a',
     '2.10.1':
         '3a60d391fd579440561bf0e7f31af2222bc610ad6ce4d9d7bd2165bca8669110',
+    '2.11.1':
+        'f8db94d307e9c54961b39a1cc799a67d46681480696ed72ecf78d4473770f09b'
 }
 # This is the version of FreeType to use when building a local version.  It
-# must match the value in lib/matplotlib.__init__.py and also needs to be
-# changed below in the embedded windows build script (grep for "REMINDER" in
-# this file). Also update the cache path in `.circleci/config.yml`.
-LOCAL_FREETYPE_VERSION = '2.6.1'
+# must match the value in lib/matplotlib.__init__.py, and the cache path in
+# `.circleci/config.yml`.
+TESTING_VERSION_OF_FREETYPE = '2.6.1'
+if sys.platform.startswith('win') and platform.machine() == 'ARM64':
+    # older versions of freetype are not supported for win/arm64
+    # Matplotlib tests will not pass
+    LOCAL_FREETYPE_VERSION = '2.11.1'
+else:
+    LOCAL_FREETYPE_VERSION = TESTING_VERSION_OF_FREETYPE
+
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 # Also update the cache path in `.circleci/config.yml`.
@@ -390,16 +399,6 @@ class Matplotlib(SetupPackage):
                 "win32": ["ole32", "shell32", "user32"],
             }.get(sys.platform, [])))
         yield ext
-        # contour
-        ext = Extension(
-            "matplotlib._contour", [
-                "src/_contour.cpp",
-                "src/_contour_wrapper.cpp",
-                "src/py_converters.cpp",
-            ])
-        add_numpy_flags(ext)
-        add_libagg_flags(ext)
-        yield ext
         # ft2font
         ext = Extension(
             "matplotlib.ft2font", [
@@ -431,7 +430,7 @@ class Matplotlib(SetupPackage):
         yield ext
         # qhull
         ext = Extension(
-            "matplotlib._qhull", ["src/qhull_wrap.cpp"],
+            "matplotlib._qhull", ["src/_qhull_wrapper.cpp"],
             define_macros=[("MPL_DEVNULL", os.devnull)])
         add_numpy_flags(ext)
         Qhull.add_flags(ext)
@@ -480,6 +479,7 @@ class Tests(OptionalPackage):
                 *_pkg_data_helper('matplotlib', 'tests/baseline_images'),
                 *_pkg_data_helper('matplotlib', 'tests/tinypages'),
                 'tests/cmr10.pfb',
+                'tests/Courier10PitchBT-Bold.pfb',
                 'tests/mpltest.ttf',
                 'tests/test_*.ipynb',
             ],
@@ -619,6 +619,13 @@ class FreeType(SetupPackage):
                 },
                 **env,
             }
+            configure_ac = Path(src_path, "builds/unix/configure.ac")
+            if ((src_path / "autogen.sh").exists()
+                    and not configure_ac.exists()):
+                print(f"{configure_ac} does not exist. "
+                      f"Using sh autogen.sh to generate.")
+                subprocess.check_call(
+                    ["sh", "./autogen.sh"], env=env, cwd=src_path)
             env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             configure = [
                 "./configure", "--with-zlib=no", "--with-bzip2=no",
@@ -646,13 +653,21 @@ class FreeType(SetupPackage):
             subprocess.check_call([make], env=env, cwd=src_path)
         else:  # compilation on windows
             shutil.rmtree(src_path / "objs", ignore_errors=True)
-            msbuild_platform = (
-                'x64' if platform.architecture()[0] == '64bit' else 'Win32')
-            base_path = Path("build/freetype-2.6.1/builds/windows")
+            is_x64 = platform.architecture()[0] == '64bit'
+            if platform.machine() == 'ARM64':
+                msbuild_platform = 'ARM64'
+            elif is_x64:
+                msbuild_platform = 'x64'
+            else:
+                msbuild_platform = 'Win32'
+            base_path = Path(
+                f"build/freetype-{LOCAL_FREETYPE_VERSION}/builds/windows"
+            )
             vc = 'vc2010'
             sln_path = base_path / vc / "freetype.sln"
             # https://developercommunity.visualstudio.com/comments/190992/view.html
             (sln_path.parent / "Directory.Build.props").write_text(
+                "<?xml version='1.0' encoding='utf-8'?>"
                 "<Project>"
                 "<PropertyGroup>"
                 # WindowsTargetPlatformVersion must be given on a single line.
@@ -661,8 +676,8 @@ class FreeType(SetupPackage):
                 "::GetLatestSDKTargetPlatformVersion('Windows', '10.0')"
                 ")</WindowsTargetPlatformVersion>"
                 "</PropertyGroup>"
-                "</Project>"
-            )
+                "</Project>",
+                encoding="utf-8")
             # It is not a trivial task to determine PlatformToolset to plug it
             # into msbuild command, and Directory.Build.props will not override
             # the value in the project file.
@@ -678,15 +693,46 @@ class FreeType(SetupPackage):
                 f.write(vcxproj)
 
             cc = get_ccompiler()
-            cc.initialize()  # Get msbuild in the %PATH% of cc.spawn.
-            cc.spawn(["msbuild", str(sln_path),
+            cc.initialize()
+            # On setuptools versions that use "local" distutils,
+            # ``cc.spawn(["msbuild", ...])`` no longer manages to locate the
+            # right executable, even though they are correctly on the PATH,
+            # because only the env kwarg to Popen() is updated, and not
+            # os.environ["PATH"]. Instead, use shutil.which to walk the PATH
+            # and get absolute executable paths.
+            with TemporaryDirectory() as tmpdir:
+                dest = Path(tmpdir, "path")
+                cc.spawn([
+                    sys.executable, "-c",
+                    "import pathlib, shutil, sys\n"
+                    "dest = pathlib.Path(sys.argv[1])\n"
+                    "dest.write_text(shutil.which('msbuild'))\n",
+                    str(dest),
+                ])
+                msbuild_path = dest.read_text()
+            # Freetype 2.10.0+ support static builds.
+            msbuild_config = (
+                "Release Static"
+                if [*map(int, LOCAL_FREETYPE_VERSION.split("."))] >= [2, 10]
+                else "Release"
+            )
+
+            cc.spawn([msbuild_path, str(sln_path),
                       "/t:Clean;Build",
-                      f"/p:Configuration=Release;Platform={msbuild_platform}"])
+                      f"/p:Configuration={msbuild_config};"
+                      f"Platform={msbuild_platform}"])
             # Move to the corresponding Unix build path.
             (src_path / "objs" / ".libs").mkdir()
             # Be robust against change of FreeType version.
-            lib_path, = (src_path / "objs" / vc / msbuild_platform).glob(
-                "freetype*.lib")
+            lib_paths = Path(src_path / "objs").rglob('freetype*.lib')
+            # Select FreeType library for required platform
+            lib_path, = [
+                p for p in lib_paths
+                if msbuild_platform in p.resolve().as_uri()
+            ]
+            print(
+                f"Copying {lib_path} to {src_path}/objs/.libs/libfreetype.lib"
+            )
             shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
 
 
@@ -734,7 +780,7 @@ class BackendMacOSX(OptionalPackage):
             'matplotlib.backends._macosx', [
                 'src/_macosx.m'
             ])
-        ext.extra_compile_args.extend(['-Werror'])
+        ext.extra_compile_args.extend(['-Werror', '-fobjc-arc'])
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')

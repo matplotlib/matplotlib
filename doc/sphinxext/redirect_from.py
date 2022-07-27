@@ -17,6 +17,7 @@ that contains a relative refresh::
 
     <html>
       <head>
+        <meta charset="utf-8">
         <meta http-equiv="refresh" content="0; url=new-page.html">
       </head>
     </html>
@@ -38,8 +39,10 @@ from sphinx.util import logging
 logger = logging.getLogger(__name__)
 
 
-HTML_TEMPLATE = """<html>
+HTML_TEMPLATE = """\
+<html>
   <head>
+    <meta charset="utf-8">
     <meta http-equiv="refresh" content="0; url={v}">
   </head>
 </html>
@@ -66,7 +69,7 @@ class RedirectFromDomain(Domain):
 
     @property
     def redirects(self):
-        """The mapping of the redirectes."""
+        """The mapping of the redirects."""
         return self.data.setdefault('redirects', {})
 
     def clear_doc(self, docnames):
@@ -115,4 +118,4 @@ def _generate_redirects(app, exception):
         else:
             logger.info(f'making refresh html file: {k} redirect to {v}')
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(html)
+            p.write_text(html, encoding='utf-8')

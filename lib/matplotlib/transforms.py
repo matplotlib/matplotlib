@@ -27,6 +27,9 @@ assumed to occur after the non-affine.  For any transform::
 
 The backends are not expected to handle non-affine transformations
 themselves.
+
+See the tutorial :doc:`/tutorials/advanced/transforms_tutorial` for examples
+of how to use transforms.
 """
 
 # Note: There are a number of places in the code where we use `np.min` or
@@ -1474,7 +1477,7 @@ class Transform(TransformNode):
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`input_dims` or
+            The output values as NumPy array of length :attr:`output_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
         # Ensure that values is a 2d array (but remember whether
@@ -1519,7 +1522,7 @@ class Transform(TransformNode):
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`input_dims` or
+            The output values as NumPy array of length :attr:`output_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
@@ -1544,7 +1547,7 @@ class Transform(TransformNode):
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`input_dims` or
+            The output values as NumPy array of length :attr:`output_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
         return values

@@ -92,7 +92,7 @@ class _Converter:
         while True:
             c = self._proc.stdout.read(1)
             if not c:
-                raise _ConverterError
+                raise _ConverterError(os.fsdecode(bytes(buf)))
             buf.extend(c)
             if buf.endswith(terminator):
                 return bytes(buf)
@@ -109,7 +109,8 @@ class _GSConverter(_Converter):
             try:
                 self._read_until(b"\nGS")
             except _ConverterError as err:
-                raise OSError("Failed to start Ghostscript") from err
+                raise OSError(
+                    "Failed to start Ghostscript:\n\n" + err.args[0]) from None
 
         def encode_and_escape(name):
             return (os.fsencode(name)
@@ -146,6 +147,11 @@ class _SVGConverter(_Converter):
             weakref.finalize(self._tmpdir, self.__del__)
         if (not self._proc  # First run.
                 or self._proc.poll() is not None):  # Inkscape terminated.
+            if self._proc is not None and self._proc.poll() is not None:
+                for stream in filter(None, [self._proc.stdin,
+                                            self._proc.stdout,
+                                            self._proc.stderr]):
+                    stream.close()
             env = {
                 **os.environ,
                 # If one passes e.g. a png file to Inkscape, it will try to
@@ -155,7 +161,7 @@ class _SVGConverter(_Converter):
                 # just be reported as a regular exception below).
                 "DISPLAY": "",
                 # Do not load any user options.
-                "INKSCAPE_PROFILE_DIR": os.devnull,
+                "INKSCAPE_PROFILE_DIR": self._tmpdir.name,
             }
             # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
             # deadlock when stderr is redirected to a pipe, so we redirect it
@@ -172,8 +178,9 @@ class _SVGConverter(_Converter):
             try:
                 self._read_until(terminator)
             except _ConverterError as err:
-                raise OSError("Failed to start Inkscape in interactive "
-                              "mode") from err
+                raise OSError(
+                    "Failed to start Inkscape in interactive mode:\n\n"
+                    + err.args[0]) from err
 
         # Inkscape's shell mode does not support escaping metacharacters in the
         # filename ("\n", and ":;" for inkscape>=1).  Avoid any problems by
@@ -207,6 +214,21 @@ class _SVGConverter(_Converter):
             self._tmpdir.cleanup()
 
 
+class _SVGWithMatplotlibFontsConverter(_SVGConverter):
+    """
+    A SVG converter which explicitly adds the fonts shipped by Matplotlib to
+    Inkspace's font search path, to better support `svg.fonttype = "none"`
+    (which is in particular used by certain mathtext tests).
+    """
+
+    def __call__(self, orig, dest):
+        if not hasattr(self, "_tmpdir"):
+            self._tmpdir = TemporaryDirectory()
+            shutil.copytree(cbook._get_data_path("fonts/ttf"),
+                            Path(self._tmpdir.name, "fonts"))
+        return super().__call__(orig, dest)
+
+
 def _update_converter():
     try:
         mpl._get_executable_info("gs")
@@ -228,6 +250,7 @@ def _update_converter():
 #: extension to png format.
 converter = {}
 _update_converter()
+_svg_with_matplotlib_fonts_converter = _SVGWithMatplotlibFontsConverter()
 
 
 def comparable_formats():
@@ -277,7 +300,14 @@ def convert(filename, cache):
                 return str(newpath)
 
         _log.debug("For %s: converting to png.", filename)
-        converter[path.suffix[1:]](path, newpath)
+        convert = converter[path.suffix[1:]]
+        if path.suffix == ".svg":
+            contents = path.read_text()
+            if 'style="font:' in contents:
+                # for svg.fonttype = none, we explicitly patch the font search
+                # path so that fonts shipped by Matplotlib are found.
+                convert = _svg_with_matplotlib_fonts_converter
+        convert(path, newpath)
 
         if cache_dir is not None:
             _log.debug("For %s: caching conversion result.", filename)
@@ -339,6 +369,16 @@ def calculate_rms(expected_image, actual_image):
 
 # NOTE: compare_image and save_diff_image assume that the image does not have
 # 16-bit depth, as Pillow converts these to RGB incorrectly.
+
+
+def _load_image(path):
+    img = Image.open(path)
+    # In an RGBA image, if the smallest value in the alpha channel is 255, all
+    # values in it must be 255, meaning that the image is opaque. If so,
+    # discard the alpha channel so that it may compare equal to an RGB image.
+    if img.mode != "RGBA" or img.getextrema()[3][0] == 255:
+        img = img.convert("RGB")
+    return np.asarray(img)
 
 
 def compare_images(expected, actual, tol, in_decorator=False):
@@ -405,9 +445,9 @@ def compare_images(expected, actual, tol, in_decorator=False):
         actual = convert(actual, cache=True)
         expected = convert(expected, cache=True)
 
-    # open the image files and remove the alpha channel (if it exists)
-    expected_image = np.asarray(Image.open(expected).convert("RGB"))
-    actual_image = np.asarray(Image.open(actual).convert("RGB"))
+    # open the image files
+    expected_image = _load_image(expected)
+    actual_image = _load_image(actual)
 
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
@@ -456,9 +496,8 @@ def save_diff_image(expected, actual, output):
     output : str
         File path to save difference image to.
     """
-    # Drop alpha channels, similarly to compare_images.
-    expected_image = np.asarray(Image.open(expected).convert("RGB"))
-    actual_image = np.asarray(Image.open(actual).convert("RGB"))
+    expected_image = _load_image(expected)
+    actual_image = _load_image(actual)
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
     expected_image = np.array(expected_image).astype(float)

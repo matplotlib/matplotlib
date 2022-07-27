@@ -10,12 +10,10 @@ import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cycler
+from matplotlib import cbook, cm, cycler
 import matplotlib
 import matplotlib.colors as mcolors
-import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
-import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -66,7 +64,7 @@ def test_resample():
 
 
 def test_register_cmap():
-    new_cm = copy.copy(cm.get_cmap("viridis"))
+    new_cm = cm.get_cmap("viridis")
     target = "viridis2"
     cm.register_cmap(target, new_cm)
     assert plt.get_cmap(target) == new_cm
@@ -75,9 +73,6 @@ def test_register_cmap():
                        match="Arguments must include a name or a Colormap"):
         cm.register_cmap()
 
-    with pytest.warns(UserWarning):
-        cm.register_cmap(target, new_cm)
-
     cm.unregister_cmap(target)
     with pytest.raises(ValueError,
                        match=f'{target!r} is not a valid value for name;'):
@@ -85,14 +80,18 @@ def test_register_cmap():
     # test that second time is error free
     cm.unregister_cmap(target)
 
-    with pytest.raises(ValueError, match="You must pass a Colormap instance."):
+    with pytest.raises(TypeError, match="'cmap' must be"):
         cm.register_cmap('nome', cmap='not a cmap')
 
 
 def test_double_register_builtin_cmap():
     name = "viridis"
-    match = f"Trying to re-register the builtin cmap {name!r}."
+    match = f"Re-registering the builtin cmap {name!r}."
     with pytest.raises(ValueError, match=match):
+        matplotlib.colormaps.register(
+            cm.get_cmap(name), name=name, force=True
+        )
+    with pytest.raises(ValueError, match='A colormap named "viridis"'):
         cm.register_cmap(name, cm.get_cmap(name))
     with pytest.warns(UserWarning):
         cm.register_cmap(name, cm.get_cmap(name), override_builtin=True)
@@ -103,42 +102,6 @@ def test_unregister_builtin_cmap():
     match = f'cannot unregister {name!r} which is a builtin colormap.'
     with pytest.raises(ValueError, match=match):
         cm.unregister_cmap(name)
-
-
-def test_colormap_global_set_warn():
-    new_cm = plt.get_cmap('viridis')
-    # Store the old value so we don't override the state later on.
-    orig_cmap = copy.copy(new_cm)
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
-                      match="You are modifying the state of a globally"):
-        # This should warn now because we've modified the global state
-        new_cm.set_under('k')
-
-    # This shouldn't warn because it is a copy
-    copy.copy(new_cm).set_under('b')
-
-    # Test that registering and then modifying warns
-    plt.register_cmap(name='test_cm', cmap=copy.copy(orig_cmap))
-    new_cm = plt.get_cmap('test_cm')
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
-                      match="You are modifying the state of a globally"):
-        # This should warn now because we've modified the global state
-        new_cm.set_under('k')
-
-    # Re-register the original
-    with pytest.warns(UserWarning):
-        plt.register_cmap(cmap=orig_cmap, override_builtin=True)
-
-
-def test_colormap_dict_deprecate():
-    # Make sure we warn on get and set access into cmap_d
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
-                      match="The global colormaps dictionary is no longer"):
-        cmap = plt.cm.cmap_d['viridis']
-
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
-                      match="The global colormaps dictionary is no longer"):
-        plt.cm.cmap_d['test'] = cmap
 
 
 def test_colormap_copy():
@@ -1255,8 +1218,7 @@ def test_to_rgba_array_single_str():
 
     # single char color sequence is invalid
     with pytest.raises(ValueError,
-                       match="Using a string of single character colors as "
-                             "a color sequence is not supported."):
+                       match="'rgb' is not a valid color value."):
         array = mcolors.to_rgba_array("rgb")
 
 
@@ -1513,3 +1475,43 @@ def test_make_norm_from_scale_name():
     logitnorm = mcolors.make_norm_from_scale(
         mscale.LogitScale, mcolors.Normalize)
     assert logitnorm.__name__ == logitnorm.__qualname__ == "LogitScaleNorm"
+
+
+def test_color_sequences():
+    # basic access
+    assert plt.color_sequences is matplotlib.color_sequences  # same registry
+    assert list(plt.color_sequences) == [
+        'tab10', 'tab20', 'tab20b', 'tab20c', 'Pastel1', 'Pastel2', 'Paired',
+        'Accent', 'Dark2', 'Set1', 'Set2', 'Set3']
+    assert len(plt.color_sequences['tab10']) == 10
+    assert len(plt.color_sequences['tab20']) == 20
+
+    tab_colors = [
+        'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple',
+        'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan']
+    for seq_color, tab_color in zip(plt.color_sequences['tab10'], tab_colors):
+        assert mcolors.same_color(seq_color, tab_color)
+
+    # registering
+    with pytest.raises(ValueError, match="reserved name"):
+        plt.color_sequences.register('tab10', ['r', 'g', 'b'])
+    with pytest.raises(ValueError, match="not a valid color specification"):
+        plt.color_sequences.register('invalid', ['not a color'])
+
+    rgb_colors = ['r', 'g', 'b']
+    plt.color_sequences.register('rgb', rgb_colors)
+    assert plt.color_sequences['rgb'] == ['r', 'g', 'b']
+    # should not affect the registered sequence because input is copied
+    rgb_colors.append('c')
+    assert plt.color_sequences['rgb'] == ['r', 'g', 'b']
+    # should not affect the registered sequence because returned list is a copy
+    plt.color_sequences['rgb'].append('c')
+    assert plt.color_sequences['rgb'] == ['r', 'g', 'b']
+
+    # unregister
+    plt.color_sequences.unregister('rgb')
+    with pytest.raises(KeyError):
+        plt.color_sequences['rgb']  # rgb is gone
+    plt.color_sequences.unregister('rgb')  # multiple unregisters are ok
+    with pytest.raises(ValueError, match="Cannot unregister builtin"):
+        plt.color_sequences.unregister('tab10')

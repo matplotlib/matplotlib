@@ -9,7 +9,8 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors, ToolContainerBase, MouseButton)
+    TimerBase, cursors, ToolContainerBase, MouseButton,
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
@@ -92,87 +93,72 @@ cursord = {
 }
 
 
-# make place holder
-qApp = None
+@_api.caching_module_getattr
+class __getattr__:
+    qApp = _api.deprecated(
+        "3.6", alternative="QtWidgets.QApplication.instance()")(
+            property(lambda self: QtWidgets.QApplication.instance()))
 
 
+# lru_cache keeps a reference to the QApplication instance, keeping it from
+# being GC'd.
+@functools.lru_cache(1)
 def _create_qApp():
-    """
-    Only one qApp can exist at a time, so check before creating one.
-    """
-    global qApp
+    app = QtWidgets.QApplication.instance()
 
-    if qApp is None:
-        app = QtWidgets.QApplication.instance()
-        if app is None:
-            # display_is_valid returns False only if on Linux and neither X11
-            # nor Wayland display can be opened.
-            if not mpl._c_internal_utils.display_is_valid():
-                raise RuntimeError('Invalid DISPLAY variable')
-            try:
-                QtWidgets.QApplication.setAttribute(
-                    QtCore.Qt.AA_EnableHighDpiScaling)
-            except AttributeError:  # Only for Qt>=5.6, <6.
-                pass
-            try:
-                QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
-                    QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-            except AttributeError:  # Only for Qt>=5.14.
-                pass
-            qApp = QtWidgets.QApplication(["matplotlib"])
-            if sys.platform == "darwin":
-                image = str(cbook._get_data_path('images/matplotlib.svg'))
-                icon = QtGui.QIcon(image)
-                qApp.setWindowIcon(icon)
-            qApp.lastWindowClosed.connect(qApp.quit)
-            cbook._setup_new_guiapp()
+    # Create a new QApplication and configure if if non exists yet, as only one
+    # QApplication can exist at a time.
+    if app is None:
+        # display_is_valid returns False only if on Linux and neither X11
+        # nor Wayland display can be opened.
+        if not mpl._c_internal_utils.display_is_valid():
+            raise RuntimeError('Invalid DISPLAY variable')
+
+        # Check to make sure a QApplication from a different major version
+        # of Qt is not instantiated in the process
+        if QT_API in {'PyQt6', 'PySide6'}:
+            other_bindings = ('PyQt5', 'PySide2')
+        elif QT_API in {'PyQt5', 'PySide2'}:
+            other_bindings = ('PyQt6', 'PySide6')
         else:
-            qApp = app
+            raise RuntimeError("Should never be here")
+
+        for binding in other_bindings:
+            mod = sys.modules.get(f'{binding}.QtWidgets')
+            if mod is not None and mod.QApplication.instance() is not None:
+                other_core = sys.modules.get(f'{binding}.QtCore')
+                _api.warn_external(
+                    f'Matplotlib is using {QT_API} which wraps '
+                    f'{QtCore.qVersion()} however an instantiated '
+                    f'QApplication from {binding} which wraps '
+                    f'{other_core.qVersion()} exists.  Mixing Qt major '
+                    'versions may not work as expected.'
+                )
+                break
+        try:
+            QtWidgets.QApplication.setAttribute(
+                QtCore.Qt.AA_EnableHighDpiScaling)
+        except AttributeError:  # Only for Qt>=5.6, <6.
+            pass
+        try:
+            QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
+                QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        except AttributeError:  # Only for Qt>=5.14.
+            pass
+        app = QtWidgets.QApplication(["matplotlib"])
+        if sys.platform == "darwin":
+            image = str(cbook._get_data_path('images/matplotlib.svg'))
+            icon = QtGui.QIcon(image)
+            app.setWindowIcon(icon)
+        app.lastWindowClosed.connect(app.quit)
+        cbook._setup_new_guiapp()
 
     try:
-        qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)  # Only for Qt<6.
+        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)  # Only for Qt<6.
     except AttributeError:
         pass
 
-
-def _allow_super_init(__init__):
-    """
-    Decorator for ``__init__`` to allow ``super().__init__`` on PySide2.
-    """
-
-    if QT_API in ["PyQt5", "PyQt6"]:
-
-        return __init__
-
-    else:
-        # To work around lack of cooperative inheritance in PySide2 and
-        # PySide6, when calling FigureCanvasQT.__init__, we temporarily patch
-        # QWidget.__init__ by a cooperative version, that first calls
-        # QWidget.__init__ with no additional arguments, and then finds the
-        # next class in the MRO with an __init__ that does support cooperative
-        # inheritance (i.e., not defined by the PyQt4 or sip, or PySide{,2,6}
-        # or Shiboken packages), and manually call its `__init__`, once again
-        # passing the additional arguments.
-
-        qwidget_init = QtWidgets.QWidget.__init__
-
-        def cooperative_qwidget_init(self, *args, **kwargs):
-            qwidget_init(self)
-            mro = type(self).__mro__
-            next_coop_init = next(
-                cls for cls in mro[mro.index(QtWidgets.QWidget) + 1:]
-                if cls.__module__.split(".")[0] not in [
-                    "PySide2", "PySide6", "Shiboken",
-                ])
-            next_coop_init.__init__(self, *args, **kwargs)
-
-        @functools.wraps(__init__)
-        def wrapper(self, *args, **kwargs):
-            with cbook._setattr_cm(QtWidgets.QWidget,
-                                   __init__=cooperative_qwidget_init):
-                __init__(self, *args, **kwargs)
-
-        return wrapper
+    return app
 
 
 class TimerQT(TimerBase):
@@ -204,9 +190,10 @@ class TimerQT(TimerBase):
         self._timer.stop()
 
 
-class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
+class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     required_interactive_framework = "qt"
     _timer_cls = TimerQT
+    manager_class = _api.classproperty(lambda cls: FigureManagerQT)
 
     buttond = {
         getattr(_enum("QtCore.Qt.MouseButton"), k): v for k, v in [
@@ -218,7 +205,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         ]
     }
 
-    @_allow_super_init
     def __init__(self, figure=None):
         _create_qApp()
         super().__init__(figure=figure)
@@ -261,18 +247,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # docstring inherited
         self.setCursor(_api.check_getitem(cursord, cursor=cursor))
 
-    def enterEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
-
-    def leaveEvent(self, event):
-        QtWidgets.QApplication.restoreOverrideCursor()
-        FigureCanvasBase.leave_notify_event(self, guiEvent=event)
-
-    _get_position = operator.methodcaller(
-        "position" if QT_API in ["PyQt6", "PySide6"] else "pos")
-
-    def mouseEventCoords(self, pos):
+    def mouseEventCoords(self, pos=None):
         """
         Calculate mouse coordinates in physical pixels.
 
@@ -282,39 +257,56 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
         Also, the origin is different and needs to be corrected.
         """
+        if pos is None:
+            pos = self.mapFromGlobal(QtGui.QCursor.pos())
+        elif hasattr(pos, "position"):  # qt6 QtGui.QEvent
+            pos = pos.position()
+        elif hasattr(pos, "pos"):  # qt5 QtCore.QEvent
+            pos = pos.pos()
+        # (otherwise, it's already a QPoint)
         x = pos.x()
         # flip y so y=0 is bottom of canvas
         y = self.figure.bbox.height / self.device_pixel_ratio - pos.y()
         return x * self.device_pixel_ratio, y * self.device_pixel_ratio
 
+    def enterEvent(self, event):
+        LocationEvent("figure_enter_event", self,
+                      *self.mouseEventCoords(event),
+                      guiEvent=event)._process()
+
+    def leaveEvent(self, event):
+        QtWidgets.QApplication.restoreOverrideCursor()
+        LocationEvent("figure_leave_event", self,
+                      *self.mouseEventCoords(),
+                      guiEvent=event)._process()
+
     def mousePressEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
         button = self.buttond.get(event.button())
         if button is not None:
-            FigureCanvasBase.button_press_event(self, x, y, button,
-                                                guiEvent=event)
+            MouseEvent("button_press_event", self,
+                       *self.mouseEventCoords(event), button,
+                       guiEvent=event)._process()
 
     def mouseDoubleClickEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
         button = self.buttond.get(event.button())
         if button is not None:
-            FigureCanvasBase.button_press_event(self, x, y,
-                                                button, dblclick=True,
-                                                guiEvent=event)
+            MouseEvent("button_press_event", self,
+                       *self.mouseEventCoords(event), button, dblclick=True,
+                       guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
-        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
+        MouseEvent("motion_notify_event", self,
+                   *self.mouseEventCoords(event),
+                   guiEvent=event)._process()
 
     def mouseReleaseEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
         button = self.buttond.get(event.button())
         if button is not None:
-            FigureCanvasBase.button_release_event(self, x, y, button,
-                                                  guiEvent=event)
+            MouseEvent("button_release_event", self,
+                       *self.mouseEventCoords(event), button,
+                       guiEvent=event)._process()
 
     def wheelEvent(self, event):
-        x, y = self.mouseEventCoords(self._get_position(event))
         # from QWheelEvent::pixelDelta doc: pixelDelta is sometimes not
         # provided (`isNull()`) and is unreliable on X11 ("xcb").
         if (event.pixelDelta().isNull()
@@ -323,18 +315,23 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         else:
             steps = event.pixelDelta().y()
         if steps:
-            FigureCanvasBase.scroll_event(
-                self, x, y, steps, guiEvent=event)
+            MouseEvent("scroll_event", self,
+                       *self.mouseEventCoords(event), step=steps,
+                       guiEvent=event)._process()
 
     def keyPressEvent(self, event):
         key = self._get_key(event)
         if key is not None:
-            FigureCanvasBase.key_press_event(self, key, guiEvent=event)
+            KeyEvent("key_press_event", self,
+                     key, *self.mouseEventCoords(),
+                     guiEvent=event)._process()
 
     def keyReleaseEvent(self, event):
         key = self._get_key(event)
         if key is not None:
-            FigureCanvasBase.key_release_event(self, key, guiEvent=event)
+            KeyEvent("key_release_event", self,
+                     key, *self.mouseEventCoords(),
+                     guiEvent=event)._process()
 
     def resizeEvent(self, event):
         frame = sys._getframe()
@@ -343,7 +340,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             return
         w = event.size().width() * self.device_pixel_ratio
         h = event.size().height() * self.device_pixel_ratio
-
         dpival = self.figure.dpi
         winch = w / dpival
         hinch = h / dpival
@@ -351,7 +347,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # pass back into Qt to let it finish
         QtWidgets.QWidget.resizeEvent(self, event)
         # emit our resize events
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
+        self.draw_idle()
 
     def sizeHint(self):
         w, h = self.get_width_height()
@@ -397,7 +394,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     def flush_events(self):
         # docstring inherited
-        qApp.processEvents()
+        QtWidgets.QApplication.instance().processEvents()
 
     def start_event_loop(self, timeout=0):
         # docstring inherited
@@ -405,8 +402,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
         if timeout > 0:
-            timer = QtCore.QTimer.singleShot(int(timeout * 1000),
-                                             event_loop.quit)
+            _ = QtCore.QTimer.singleShot(int(timeout * 1000), event_loop.quit)
 
         with _maybe_allow_interrupt(event_loop):
             qt_compat._exec(event_loop)
@@ -519,7 +515,9 @@ class FigureManagerQT(FigureManagerBase):
     def __init__(self, canvas, num):
         self.window = MainWindow()
         super().__init__(canvas, num)
-        self.window.closing.connect(canvas.close_event)
+        self.window.closing.connect(
+            # The lambda prevents the event from being immediately gc'd.
+            lambda: CloseEvent("close_event", self.canvas)._process())
         self.window.closing.connect(self._widgetclosed)
 
         if sys.platform != "darwin":
@@ -961,9 +959,12 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
 
 @backend_tools._register_tool_class(FigureCanvasQT)
 class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._subplot_dialog = None
+
     def trigger(self, *args):
-        NavigationToolbar2QT.configure_subplots(
-            self._make_classic_style_pseudo_toolbar())
+        NavigationToolbar2QT.configure_subplots(self)
 
 
 @backend_tools._register_tool_class(FigureCanvasQT)
@@ -1001,7 +1002,7 @@ class HelpQt(backend_tools.ToolHelpBase):
 class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
     def trigger(self, *args, **kwargs):
         pixmap = self.canvas.grab()
-        qApp.clipboard().setPixmap(pixmap)
+        QtWidgets.QApplication.instance().clipboard().setPixmap(pixmap)
 
 
 FigureManagerQT._toolbar2_class = NavigationToolbar2QT
@@ -1015,5 +1016,6 @@ class _BackendQT(_Backend):
 
     @staticmethod
     def mainloop():
-        with _maybe_allow_interrupt(qApp):
-            qt_compat._exec(qApp)
+        qapp = QtWidgets.QApplication.instance()
+        with _maybe_allow_interrupt(qapp):
+            qt_compat._exec(qapp)

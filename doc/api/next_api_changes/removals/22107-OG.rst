@@ -2,6 +2,7 @@ Removal of deprecated ``mathtext`` APIs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following `matplotlib.mathtext` APIs have been removed:
+
 - ``Fonts`` and all its subclasses,
 - ``FontConstantsBase`` and all its subclasses,
 - ``Node`` and all its subclasses,
@@ -18,15 +19,19 @@ Removal of various ``mathtext`` helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following `matplotlib.mathtext` classes:
+
 - ``MathtextBackendPdf``,
 - ``MathtextBackendPs``,
 - ``MathtextBackendSvg``,
 - ``MathtextBackendCairo``,
+
 and the ``.mathtext_parser`` attributes on
+
 - `.RendererPdf`,
 - `.RendererPS`,
 - `.RendererSVG`,
 - `.RendererCairo`
+
 have been removed. The `.MathtextBackendPath` class can be used instead.
 
 The methods ``get_depth``, ``parse``, ``to_mask``, ``to_rgba``, and ``to_png``

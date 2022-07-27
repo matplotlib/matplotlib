@@ -1,0 +1,5 @@
+MarkerStyle is immutable
+~~~~~~~~~~~~~~~~~~~~~~~~
+The methods ``MarkerStyle.set_fillstyle()`` and ``MarkerStyle.set_marker()``
+have been removed. Create a new `.MarkerStyle` with the respective parameters
+instead.

@@ -18,7 +18,7 @@ import textwrap
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, docstring
+from matplotlib import _api, _docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
@@ -505,9 +505,9 @@ class AsinhScale(ScaleBase):
     :math:`a \\rightarrow a_0 \\sinh^{-1} (a / a_0)` where :math:`a_0`
     is the effective width of the linear region of the transformation.
     In that region, the transformation is
-    :math:`a \\rightarrow a + {\\cal O}(a^3)`.
+    :math:`a \\rightarrow a + \\mathcal{O}(a^3)`.
     For large values of :math:`a` the transformation behaves as
-    :math:`a \\rightarrow a_0 \\, {\\rm sgn}(a) \\ln |a| + {\\cal O}(1)`.
+    :math:`a \\rightarrow a_0 \\, \\mathrm{sgn}(a) \\ln |a| + \\mathcal{O}(1)`.
 
     .. note::
 
@@ -537,7 +537,7 @@ class AsinhScale(ScaleBase):
             The scale parameter (elsewhere referred to as :math:`a_0`)
             defining the extent of the quasi-linear region,
             and the coordinate values beyond which the transformation
-            becomes asympotically logarithmic.
+            becomes asymptotically logarithmic.
         base : int, default: 10
             The number base used for rounding tick locations
             on a logarithmic scale. If this is less than one,
@@ -747,7 +747,7 @@ def _get_scale_docs():
     return "\n".join(docs)
 
 
-docstring.interpd.update(
+_docstring.interpd.update(
     scale_type='{%s}' % ', '.join([repr(x) for x in get_scale_names()]),
     scale_docs=_get_scale_docs().rstrip(),
     )

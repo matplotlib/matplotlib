@@ -100,7 +100,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(5.5, 3.5),
-                        constrained_layout=True)
+                        layout="constrained")
 # add an artist, in this case a nice label in the middle...
 for row in range(2):
     for col in range(2):
@@ -129,10 +129,40 @@ def annotate_axes(ax, text, fontsize=18):
 
 fig, axd = plt.subplot_mosaic([['upper left', 'upper right'],
                                ['lower left', 'lower right']],
-                              figsize=(5.5, 3.5), constrained_layout=True)
+                              figsize=(5.5, 3.5), layout="constrained")
 for k in axd:
     annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
+
+#############################################################################
+#
+# Grids of fixed-aspect ratio Axes
+# --------------------------------
+#
+# Fixed-aspect ratio axes are common for images or maps.  However, they
+# present a challenge to layout because two sets of constraints are being
+# imposed on the size of the Axes - that they fit in the figure and that they
+# have a set aspect ratio.  This leads to large gaps between Axes by default:
+#
+
+fig, axs = plt.subplots(2, 2, layout="constrained", figsize=(5.5, 3.5))
+for ax in axs.flat:
+    ax.set_aspect(1)
+fig.suptitle('Fixed aspect Axes')
+
+############################################################################
+# One way to address this is to change the aspect of the figure to be close
+# to the aspect ratio of the Axes, however that requires trial and error.
+# Matplotlib also supplies ``layout="compressed"``, which will work with
+# simple grids to reduce the gaps between Axes.  (The ``mpl_toolkits`` also
+# provides `~.mpl_toolkits.axes_grid1.axes_grid.ImageGrid` to accomplish
+# a similar effect, but with a non-standard Axes class).
+
+fig, axs = plt.subplots(2, 2, layout="compressed", figsize=(5.5, 3.5))
+for ax in axs.flat:
+    ax.set_aspect(1)
+fig.suptitle('Fixed aspect Axes: compressed')
+
 
 ############################################################################
 # Axes spanning rows or columns in a grid
@@ -145,7 +175,7 @@ fig.suptitle('plt.subplot_mosaic()')
 
 fig, axd = plt.subplot_mosaic([['upper left', 'right'],
                                ['lower left', 'right']],
-                              figsize=(5.5, 3.5), constrained_layout=True)
+                              figsize=(5.5, 3.5), layout="constrained")
 for k in axd:
     annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
@@ -168,7 +198,7 @@ gs_kw = dict(width_ratios=[1.4, 1], height_ratios=[1, 2])
 fig, axd = plt.subplot_mosaic([['upper left', 'right'],
                                ['lower left', 'right']],
                               gridspec_kw=gs_kw, figsize=(5.5, 3.5),
-                              constrained_layout=True)
+                              layout="constrained")
 for k in axd:
     annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
@@ -184,7 +214,7 @@ fig.suptitle('plt.subplot_mosaic()')
 # necessarily aligned.  See below for a more verbose way to achieve the same
 # effect with `~.gridspec.GridSpecFromSubplotSpec`.
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout="constrained")
 subfigs = fig.subfigures(1, 2, wspace=0.07, width_ratios=[1.5, 1.])
 axs0 = subfigs[0].subplots(2, 2)
 subfigs[0].set_facecolor('0.9')
@@ -207,7 +237,7 @@ inner = [['innerA'],
 outer = [['upper left',  inner],
           ['lower left', 'lower right']]
 
-fig, axd = plt.subplot_mosaic(outer, constrained_layout=True)
+fig, axd = plt.subplot_mosaic(outer, layout="constrained")
 for k in axd:
     annotate_axes(axd[k], f'axd["{k}"]')
 
@@ -227,10 +257,10 @@ for k in axd:
 # Basic 2x2 grid
 # --------------
 #
-# We can accopmplish a 2x2 grid in the same manner as
+# We can accomplish a 2x2 grid in the same manner as
 # ``plt.subplots(2, 2)``:
 
-fig = plt.figure(figsize=(5.5, 3.5), constrained_layout=True)
+fig = plt.figure(figsize=(5.5, 3.5), layout="constrained")
 spec = fig.add_gridspec(ncols=2, nrows=2)
 
 ax0 = fig.add_subplot(spec[0, 0])
@@ -256,7 +286,7 @@ fig.suptitle('Manually added subplots using add_gridspec')
 # and the new Axes will span the slice.  This would be the same
 # as ``fig, axd = plt.subplot_mosaic([['ax0', 'ax0'], ['ax1', 'ax2']], ...)``:
 
-fig = plt.figure(figsize=(5.5, 3.5), constrained_layout=True)
+fig = plt.figure(figsize=(5.5, 3.5), layout="constrained")
 spec = fig.add_gridspec(2, 2)
 
 ax0 = fig.add_subplot(spec[0, :])
@@ -284,7 +314,7 @@ fig.suptitle('Manually added subplots, spanning a column')
 # These spacing parameters can also be passed to `~.pyplot.subplots` and
 # `~.pyplot.subplot_mosaic` as the *gridspec_kw* argument.
 
-fig = plt.figure(constrained_layout=False, facecolor='0.9')
+fig = plt.figure(layout=None, facecolor='0.9')
 gs = fig.add_gridspec(nrows=3, ncols=3, left=0.05, right=0.75,
                       hspace=0.1, wspace=0.05)
 ax0 = fig.add_subplot(gs[:-1, :])
@@ -306,7 +336,7 @@ fig.suptitle('Manual gridspec with right=0.75')
 # Note this is also available from the more verbose
 # `.gridspec.GridSpecFromSubplotSpec`.
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout="constrained")
 gs0 = fig.add_gridspec(1, 2)
 
 gs00 = gs0[0].subgridspec(2, 2)

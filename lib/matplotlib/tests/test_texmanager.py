@@ -3,21 +3,19 @@ import re
 
 import matplotlib.pyplot as plt
 from matplotlib.texmanager import TexManager
+from matplotlib.testing._markers import needs_usetex
 import pytest
 
 
 def test_fontconfig_preamble():
-    """Test that the preamble is included in _fontconfig."""
+    """Test that the preamble is included in the source."""
     plt.rcParams['text.usetex'] = True
 
-    tm1 = TexManager()
-    font_config1 = tm1.get_font_config()
-
+    src1 = TexManager()._get_tex_source("", fontsize=12)
     plt.rcParams['text.latex.preamble'] = '\\usepackage{txfonts}'
-    tm2 = TexManager()
-    font_config2 = tm2.get_font_config()
+    src2 = TexManager()._get_tex_source("", fontsize=12)
 
-    assert font_config1 != font_config2
+    assert src1 != src2
 
 
 @pytest.mark.parametrize(
@@ -42,3 +40,20 @@ def test_font_selection(rc, preamble, family):
     src = Path(tm.make_tex("hello, world", fontsize=12)).read_text()
     assert preamble in src
     assert [*re.findall(r"\\\w+family", src)] == [family]
+
+
+@needs_usetex
+def test_unicode_characters():
+    # Smoke test to see that Unicode characters does not cause issues
+    # See #23019
+    plt.rcParams['text.usetex'] = True
+    fig, ax = plt.subplots()
+    ax.set_ylabel('\\textit{Velocity (\N{DEGREE SIGN}/sec)}')
+    ax.set_xlabel('\N{VULGAR FRACTION ONE QUARTER}Öøæ')
+    fig.canvas.draw()
+
+    # But not all characters.
+    # Should raise RuntimeError, not UnicodeDecodeError
+    with pytest.raises(RuntimeError):
+        ax.set_title('\N{SNOWMAN}')
+        fig.canvas.draw()

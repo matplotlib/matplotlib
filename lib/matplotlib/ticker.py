@@ -33,7 +33,7 @@ The Locator subclasses defined here are:
 `IndexLocator`          Locator for index plots (e.g., where
                         ``x = range(len(y))``).
 `NullLocator`           No ticks.
-`SymmetricalLogLocator` Locator for use with with the symlog norm; works like
+`SymmetricalLogLocator` Locator for use with the symlog norm; works like
                         `LogLocator` for the part outside of the threshold and
                         adds 0 if inside the limits.
 `AsinhLocator`          Locator for use with the asinh norm, attempting to
@@ -154,25 +154,32 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
 class _DummyAxis:
     __name__ = "dummy"
 
+    # Once the deprecation elapses, replace dataLim and viewLim by plain
+    # _view_interval and _data_interval private tuples.
+    dataLim = _api.deprecate_privatize_attribute(
+        "3.6", alternative="get_data_interval() and set_data_interval()")
+    viewLim = _api.deprecate_privatize_attribute(
+        "3.6", alternative="get_view_interval() and set_view_interval()")
+
     def __init__(self, minpos=0):
-        self.dataLim = mtransforms.Bbox.unit()
-        self.viewLim = mtransforms.Bbox.unit()
+        self._dataLim = mtransforms.Bbox.unit()
+        self._viewLim = mtransforms.Bbox.unit()
         self._minpos = minpos
 
     def get_view_interval(self):
-        return self.viewLim.intervalx
+        return self._viewLim.intervalx
 
     def set_view_interval(self, vmin, vmax):
-        self.viewLim.intervalx = vmin, vmax
+        self._viewLim.intervalx = vmin, vmax
 
     def get_minpos(self):
         return self._minpos
 
     def get_data_interval(self):
-        return self.dataLim.intervalx
+        return self._dataLim.intervalx
 
     def set_data_interval(self, vmin, vmax):
-        self.dataLim.intervalx = vmin, vmax
+        self._dataLim.intervalx = vmin, vmax
 
     def get_tick_space(self):
         # Just use the long-standing default of nbins==9
@@ -347,7 +354,7 @@ class FormatStrFormatter(Formatter):
     It will be applied to the value (not the position) of the tick.
 
     Negative numeric values will use a dash, not a Unicode minus; use mathtext
-    to get a Unicode minus by wrappping the format specifier with $ (e.g.
+    to get a Unicode minus by wrapping the format specifier with $ (e.g.
     "$%g$").
     """
     def __init__(self, fmt):
@@ -439,33 +446,12 @@ class ScalarFormatter(Formatter):
             mpl.rcParams['axes.formatter.offset_threshold']
         self.set_useOffset(useOffset)
         self._usetex = mpl.rcParams['text.usetex']
-        if useMathText is None:
-            useMathText = mpl.rcParams['axes.formatter.use_mathtext']
-            if useMathText is False:
-                try:
-                    from matplotlib import font_manager
-                    ufont = font_manager.findfont(
-                        font_manager.FontProperties(
-                            mpl.rcParams["font.family"]
-                        ),
-                        fallback_to_default=False,
-                    )
-                except ValueError:
-                    ufont = None
-
-                if ufont == str(cbook._get_data_path("fonts/ttf/cmr10.ttf")):
-                    _api.warn_external(
-                        "cmr10 font should ideally be used with "
-                        "mathtext, set axes.formatter.use_mathtext to True"
-                    )
         self.set_useMathText(useMathText)
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
         self._powerlimits = mpl.rcParams['axes.formatter.limits']
-        if useLocale is None:
-            useLocale = mpl.rcParams['axes.formatter.use_locale']
-        self._useLocale = useLocale
+        self.set_useLocale(useLocale)
 
     def get_useOffset(self):
         """
@@ -572,6 +558,23 @@ class ScalarFormatter(Formatter):
         """
         if val is None:
             self._useMathText = mpl.rcParams['axes.formatter.use_mathtext']
+            if self._useMathText is False:
+                try:
+                    from matplotlib import font_manager
+                    ufont = font_manager.findfont(
+                        font_manager.FontProperties(
+                            mpl.rcParams["font.family"]
+                        ),
+                        fallback_to_default=False,
+                    )
+                except ValueError:
+                    ufont = None
+
+                if ufont == str(cbook._get_data_path("fonts/ttf/cmr10.ttf")):
+                    _api.warn_external(
+                        "cmr10 font should ideally be used with "
+                        "mathtext, set axes.formatter.use_mathtext to True"
+                    )
         else:
             self._useMathText = val
 
@@ -883,8 +886,8 @@ class LogFormatter(Formatter):
                  minor_thresholds=None,
                  linthresh=None):
 
-        self._base = float(base)
-        self.labelOnlyBase = labelOnlyBase
+        self.set_base(base)
+        self.set_label_minor(labelOnlyBase)
         if minor_thresholds is None:
             if mpl.rcParams['_internal.classic_mode']:
                 minor_thresholds = (0, 0)
@@ -894,6 +897,7 @@ class LogFormatter(Formatter):
         self._sublabels = None
         self._linthresh = linthresh
 
+    @_api.deprecated("3.6", alternative='set_base()')
     def base(self, base):
         """
         Change the *base* for labeling.
@@ -901,9 +905,30 @@ class LogFormatter(Formatter):
         .. warning::
            Should always match the base used for :class:`LogLocator`
         """
-        self._base = base
+        self.set_base(base)
 
+    def set_base(self, base):
+        """
+        Change the *base* for labeling.
+
+        .. warning::
+           Should always match the base used for :class:`LogLocator`
+        """
+        self._base = float(base)
+
+    @_api.deprecated("3.6", alternative='set_label_minor()')
     def label_minor(self, labelOnlyBase):
+        """
+        Switch minor tick labeling on or off.
+
+        Parameters
+        ----------
+        labelOnlyBase : bool
+            If True, label ticks only at integer powers of base.
+        """
+        self.set_label_minor(labelOnlyBase)
+
+    def set_label_minor(self, labelOnlyBase):
         """
         Switch minor tick labeling on or off.
 
@@ -1093,12 +1118,11 @@ class LogFormatterMathtext(LogFormatter):
             base = '%s' % b
 
         if abs(fx) < min_exp:
-            s = r'$\mathdefault{%s%g}$' % (sign_string, x)
+            return r'$\mathdefault{%s%g}$' % (sign_string, x)
         elif not is_x_decade:
-            s = self._non_decade_format(sign_string, base, fx, usetex)
+            return self._non_decade_format(sign_string, base, fx, usetex)
         else:
-            s = r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
-        return self.fix_minus(s)
+            return r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
 
 
 class LogFormatterSciNotation(LogFormatterMathtext):
@@ -1301,7 +1325,7 @@ class LogitFormatter(Formatter):
             s = self._one_minus(self._format_value(1-x, 1-self.locs))
         else:
             s = self._format_value(x, self.locs, sci_notation=False)
-        return r"$\mathdefault{%s}$" % self.fix_minus(s)
+        return r"$\mathdefault{%s}$" % s
 
     def format_data_short(self, value):
         # docstring inherited
@@ -2243,7 +2267,8 @@ class LogLocator(Locator):
         Parameters
         ----------
         base : float, default: 10.0
-            The base of the log used, so ticks are placed at ``base**n``.
+            The base of the log used, so major ticks are placed at
+            ``base**n``, n integer.
         subs : None or str or sequence of float, default: (1.0,)
             Gives the multiples of integer powers of the base at which
             to place ticks.  The default places ticks only at
@@ -2266,30 +2291,35 @@ class LogLocator(Locator):
                 numticks = 15
             else:
                 numticks = 'auto'
-        self.base(base)
-        self.subs(subs)
+        self._base = float(base)
+        self._set_subs(subs)
         self.numdecs = numdecs
         self.numticks = numticks
 
     def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
         """Set parameters within this locator."""
         if base is not None:
-            self.base(base)
+            self._base = float(base)
         if subs is not None:
-            self.subs(subs)
+            self._set_subs(subs)
         if numdecs is not None:
             self.numdecs = numdecs
         if numticks is not None:
             self.numticks = numticks
 
-    # FIXME: these base and subs functions are contrary to our
-    # usual and desired API.
-
+    @_api.deprecated("3.6", alternative='set_params(base=...)')
     def base(self, base):
         """Set the log base (major tick every ``base**i``, i integer)."""
         self._base = float(base)
 
+    @_api.deprecated("3.6", alternative='set_params(subs=...)')
     def subs(self, subs):
+        """
+        Set the minor ticks for the log scaling every ``base**i*subs[j]``.
+        """
+        self._set_subs(subs)
+
+    def _set_subs(self, subs):
         """
         Set the minor ticks for the log scaling every ``base**i*subs[j]``.
         """

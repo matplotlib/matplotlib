@@ -153,16 +153,17 @@ mpl_SetProcessDpiAwareness_max(PyObject* module)
     SetProcessDpiAwarenessContext_t SetProcessDpiAwarenessContextPtr =
         (SetProcessDpiAwarenessContext_t)GetProcAddress(
             user32, "SetProcessDpiAwarenessContext");
-    if (IsValidDpiAwarenessContextPtr != NULL && SetProcessDpiAwarenessContextPtr != NULL) {
-        if (IsValidDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)) {
-            // Added in Creators Update of Windows 10.
-            SetProcessDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-        } else if (IsValidDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
-            // Added in Windows 10.
-            SetProcessDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
-        } else if (IsValidDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE)) {
-            // Added in Windows 10.
-            SetProcessDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+    DPI_AWARENESS_CONTEXT ctxs[3] = {
+        DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2,  // Win10 Creators Update
+        DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE,     // Win10
+        DPI_AWARENESS_CONTEXT_SYSTEM_AWARE};         // Win10
+    if (IsValidDpiAwarenessContextPtr != NULL
+            && SetProcessDpiAwarenessContextPtr != NULL) {
+        for (int i = 0; i < sizeof(ctxs) / sizeof(DPI_AWARENESS_CONTEXT); ++i) {
+            if (IsValidDpiAwarenessContextPtr(ctxs[i])) {
+                SetProcessDpiAwarenessContextPtr(ctxs[i]);
+                break;
+            }
         }
     } else {
         // Added in Windows Vista.

@@ -45,7 +45,7 @@ def colorfunc(label):
 radio2.on_clicked(colorfunc)
 
 rax = fig.add_axes([0.05, 0.1, 0.15, 0.15], facecolor=axcolor)
-radio3 = RadioButtons(rax, ('-', '--', '-.', 'steps', ':'))
+radio3 = RadioButtons(rax, ('-', '--', '-.', ':'))
 
 
 def stylefunc(label):

@@ -1,0 +1,5 @@
+Module ``docstring`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The module ``matplotlib.docstring`` is considered internal and public access
+is deprecated.

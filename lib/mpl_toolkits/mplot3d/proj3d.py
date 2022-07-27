@@ -14,14 +14,18 @@ def _line2d_seg_dist(p1, p2, p0):
     p0[1] = y(s)
 
     intersection point p = p1 + u*(p2-p1)
-    and intersection point lies within segment if u is between 0 and 1
+    and intersection point lies within segment if u is between 0 and 1.
+
+    If p1 and p2 are identical, the distance between them and p0 is returned.
     """
+
+    x01 = np.asarray(p0[0]) - p1[0]
+    y01 = np.asarray(p0[1]) - p1[1]
+    if np.all(p1[0:2] == p2[0:2]):
+        return np.hypot(x01, y01)
 
     x21 = p2[0] - p1[0]
     y21 = p2[1] - p1[1]
-    x01 = np.asarray(p0[0]) - p1[0]
-    y01 = np.asarray(p0[1]) - p1[1]
-
     u = (x01*x21 + y01*y21) / (x21**2 + y21**2)
     u = np.clip(u, 0, 1)
     d = np.hypot(x01 - u*x21, y01 - u*y21)

@@ -11,21 +11,20 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
    End-users most likely won't need to directly use this module's API.
 """
 
-import copy
 import logging
 import textwrap
 
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, collections, cm, colors, contour, ticker
+from matplotlib import _api, cbook, collections, cm, colors, contour, ticker
 import matplotlib.artist as martist
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.scale as mscale
 import matplotlib.spines as mspines
 import matplotlib.transforms as mtransforms
-from matplotlib import docstring
+from matplotlib import _docstring
 
 _log = logging.getLogger(__name__)
 
@@ -118,7 +117,7 @@ boundaries, values : None or a sequence
     unusual circumstances.
 """
 
-docstring.interpd.update(colorbar_doc="""
+_docstring.interpd.update(colorbar_doc="""
 Add a colorbar to a plot.
 
 Parameters
@@ -196,8 +195,7 @@ def _set_ticks_on_axis_warn(*args, **kwargs):
 class _ColorbarSpine(mspines.Spine):
     def __init__(self, axes):
         self._ax = axes
-        super().__init__(axes, 'colorbar',
-                         mpath.Path(np.empty((0, 2)), closed=True))
+        super().__init__(axes, 'colorbar', mpath.Path(np.empty((0, 2))))
         mpatches.Patch.set_transform(self, axes.transAxes)
 
     def get_window_extent(self, renderer=None):
@@ -263,15 +261,13 @@ class _ColorbarAxesLocator:
         # make tight_layout happy..
         ss = getattr(self._cbar.ax, 'get_subplotspec', None)
         if ss is None:
-            if self._orig_locator is None:
+            if not hasattr(self._orig_locator, "get_subplotspec"):
                 return None
-            ss = self._orig_locator.get_subplotspec()
-        else:
-            ss = ss()
-        return ss
+            ss = self._orig_locator.get_subplotspec
+        return ss()
 
 
-@docstring.Substitution(_colormap_kw_doc)
+@_docstring.Substitution(_colormap_kw_doc)
 class Colorbar:
     r"""
     Draw a colorbar in an existing axes.
@@ -420,6 +416,7 @@ class Colorbar:
         self._filled = filled
         self.extendfrac = extendfrac
         self.extendrect = extendrect
+        self._extend_patches = []
         self.solids = None
         self.solids_patches = []
         self.lines = []
@@ -456,7 +453,7 @@ class Colorbar:
         if np.iterable(ticks):
             self._locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
-            self._locator = ticks  # Handle default in _ticker()
+            self._locator = ticks
 
         if isinstance(format, str):
             # Check format between FormatStrFormatter and StrMethodFormatter
@@ -486,6 +483,11 @@ class Colorbar:
             setattr(self.ax, x, getattr(self, x))
         # Set the cla function to the cbar's method to override it
         self.ax.cla = self._cbar_cla
+        # Callbacks for the extend calculations to handle inverting the axis
+        self._extend_cid1 = self.ax.callbacks.connect(
+            "xlim_changed", self._do_extends)
+        self._extend_cid2 = self.ax.callbacks.connect(
+            "ylim_changed", self._do_extends)
 
     @property
     def locator(self):
@@ -601,17 +603,20 @@ class Colorbar:
         # extensions:
         self.vmin, self.vmax = self._boundaries[self._inside][[0, -1]]
         # Compute the X/Y mesh.
-        X, Y, extendlen = self._mesh()
+        X, Y = self._mesh()
         # draw the extend triangles, and shrink the inner axes to accommodate.
         # also adds the outline path to self.outline spine:
-        self._do_extends(extendlen)
-
+        self._do_extends()
+        lower, upper = self.vmin, self.vmax
+        if self._long_axis().get_inverted():
+            # If the axis is inverted, we need to swap the vmin/vmax
+            lower, upper = upper, lower
         if self.orientation == 'vertical':
             self.ax.set_xlim(0, 1)
-            self.ax.set_ylim(self.vmin, self.vmax)
+            self.ax.set_ylim(lower, upper)
         else:
             self.ax.set_ylim(0, 1)
-            self.ax.set_xlim(self.vmin, self.vmax)
+            self.ax.set_xlim(lower, upper)
 
         # set up the tick locators and formatters.  A bit complicated because
         # boundary norms + uniform spacing requires a manual locator.
@@ -645,8 +650,12 @@ class Colorbar:
             if not self.drawedges:
                 if len(self._y) >= self.n_rasterize:
                     self.solids.set_rasterized(True)
-        self.dividers.set_segments(
-            np.dstack([X, Y])[1:-1] if self.drawedges else [])
+        if self.drawedges:
+            start_idx = 0 if self._extend_lower() else 1
+            end_idx = len(X) if self._extend_upper() else -1
+            self.dividers.set_segments(np.dstack([X, Y])[start_idx:end_idx])
+        else:
+            self.dividers.set_segments([])
 
     def _add_solids_patches(self, X, Y, C, mappable):
         hatches = mappable.hatches * len(C)  # Have enough hatches.
@@ -664,12 +673,19 @@ class Colorbar:
             patches.append(patch)
         self.solids_patches = patches
 
-    def _do_extends(self, extendlen):
+    def _do_extends(self, ax=None):
         """
         Add the extend tri/rectangles on the outside of the axes.
+
+        ax is unused, but required due to the callbacks on xlim/ylim changed
         """
+        # Clean up any previous extend patches
+        for patch in self._extend_patches:
+            patch.remove()
+        self._extend_patches = []
         # extend lengths are fraction of the *inner* part of colorbar,
         # not the total colorbar:
+        _, extendlen = self._proportional_y()
         bot = 0 - (extendlen[0] if self._extend_lower() else 0)
         top = 1 + (extendlen[1] if self._extend_upper() else 0)
 
@@ -711,12 +727,18 @@ class Colorbar:
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
-            color = self.cmap(self.norm(self._values[0]))
+            val = -1 if self._long_axis().get_inverted() else 0
+            color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
-                mpath.Path(xy), facecolor=color, linewidth=0,
-                antialiased=False, transform=self.ax.transAxes,
-                hatch=hatches[0], clip_on=False)
+                mpath.Path(xy), facecolor=color, alpha=self.alpha,
+                linewidth=0, antialiased=False,
+                transform=self.ax.transAxes,
+                hatch=hatches[0], clip_on=False,
+                # Place it right behind the standard patches, which is
+                # needed if we updated the extends
+                zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
             self.ax.add_patch(patch)
+            self._extend_patches.append(patch)
         if self._extend_upper():
             if not self.extendrect:
                 # triangle
@@ -727,12 +749,17 @@ class Colorbar:
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
-            color = self.cmap(self.norm(self._values[-1]))
+            val = 0 if self._long_axis().get_inverted() else -1
+            color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
-                mpath.Path(xy), facecolor=color,
+                mpath.Path(xy), facecolor=color, alpha=self.alpha,
                 linewidth=0, antialiased=False,
-                transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False)
+                transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False,
+                # Place it right behind the standard patches, which is
+                # needed if we updated the extends
+                zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
             self.ax.add_patch(patch)
+            self._extend_patches.append(patch)
         return
 
     def add_lines(self, *args, **kwargs):
@@ -1052,6 +1079,9 @@ class Colorbar:
         self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
         self.mappable.colorbar = None
         self.mappable.colorbar_cid = None
+        # Remove the extension callbacks
+        self.ax.callbacks.disconnect(self._extend_cid1)
+        self.ax.callbacks.disconnect(self._extend_cid2)
 
         try:
             ax = self.mappable.axes
@@ -1067,32 +1097,6 @@ class Colorbar:
         else:
             # use_gridspec was True
             ax.set_subplotspec(subplotspec)
-
-    def _ticker(self, locator, formatter):
-        """
-        Return the sequence of ticks (colorbar data locations),
-        ticklabels (strings), and the corresponding offset string.
-        """
-        if isinstance(self.norm, colors.NoNorm) and self.boundaries is None:
-            intv = self._values[0], self._values[-1]
-        else:
-            intv = self.vmin, self.vmax
-        locator.create_dummy_axis(minpos=intv[0])
-        locator.axis.set_view_interval(*intv)
-        locator.axis.set_data_interval(*intv)
-        formatter.set_axis(locator.axis)
-
-        b = np.array(locator())
-        if isinstance(locator, ticker.LogLocator):
-            eps = 1e-10
-            b = b[(b <= intv[1] * (1 + eps)) & (b >= intv[0] * (1 - eps))]
-        else:
-            eps = (intv[1] - intv[0]) * 1e-10
-            b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
-        ticks = self._locate(b)
-        ticklabels = formatter.format_ticks(b)
-        offset_string = formatter.get_offset()
-        return ticks, ticklabels, offset_string
 
     def _process_values(self):
         """
@@ -1154,26 +1158,30 @@ class Colorbar:
         These are scaled between vmin and vmax, and already handle colorbar
         orientation.
         """
-        # copy the norm and change the vmin and vmax to the vmin and
-        # vmax of the colorbar, not the norm.  This allows the situation
-        # where the colormap has a narrower range than the colorbar, to
-        # accommodate extra contours:
-        norm = copy.deepcopy(self.norm)
-        norm.vmin = self.vmin
-        norm.vmax = self.vmax
-        y, extendlen = self._proportional_y()
-        # invert:
-        if (isinstance(norm, (colors.BoundaryNorm, colors.NoNorm)) or
-                self.boundaries is not None):
-            y = y * (self.vmax - self.vmin) + self.vmin  # not using a norm.
+        y, _ = self._proportional_y()
+        # Use the vmin and vmax of the colorbar, which may not be the same
+        # as the norm. There are situations where the colormap has a
+        # narrower range than the colorbar and we want to accommodate the
+        # extra contours.
+        if (isinstance(self.norm, (colors.BoundaryNorm, colors.NoNorm))
+                or self.boundaries is not None):
+            # not using a norm.
+            y = y * (self.vmax - self.vmin) + self.vmin
         else:
-            y = norm.inverse(y)
+            # Update the norm values in a context manager as it is only
+            # a temporary change and we don't want to propagate any signals
+            # attached to the norm (callbacks.blocked).
+            with self.norm.callbacks.blocked(), \
+                    cbook._setattr_cm(self.norm,
+                                      vmin=self.vmin,
+                                      vmax=self.vmax):
+                y = self.norm.inverse(y)
         self._y = y
         X, Y = np.meshgrid([0., 1.], y)
         if self.orientation == 'vertical':
-            return (X, Y, extendlen)
+            return (X, Y)
         else:
-            return (Y, X, extendlen)
+            return (Y, X)
 
     def _forward_boundaries(self, x):
         # map boundaries equally between 0 and 1...
@@ -1321,11 +1329,13 @@ class Colorbar:
 
     def _extend_lower(self):
         """Return whether the lower limit is open ended."""
-        return self.extend in ('both', 'min')
+        minmax = "max" if self._long_axis().get_inverted() else "min"
+        return self.extend in ('both', minmax)
 
     def _extend_upper(self):
         """Return whether the upper limit is open ended."""
-        return self.extend in ('both', 'max')
+        minmax = "min" if self._long_axis().get_inverted() else "max"
+        return self.extend in ('both', minmax)
 
     def _long_axis(self):
         """Return the long axis"""
@@ -1394,7 +1404,7 @@ def _normalize_location_orientation(location, orientation):
     return loc_settings
 
 
-@docstring.Substitution(_make_axes_kw_doc)
+@_docstring.Substitution(_make_axes_kw_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kwargs):
     """
@@ -1496,7 +1506,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     return cax, kwargs
 
 
-@docstring.Substitution(_make_axes_kw_doc)
+@_docstring.Substitution(_make_axes_kw_doc)
 def make_axes_gridspec(parent, *, location=None, orientation=None,
                        fraction=0.15, shrink=1.0, aspect=20, **kwargs):
     """
@@ -1585,7 +1595,8 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
             aspect = 1 / aspect
 
     parent.set_subplotspec(ss_main)
-    parent.set_anchor(panchor)
+    if panchor is not False:
+        parent.set_anchor(panchor)
 
     fig = parent.get_figure()
     cax = fig.add_subplot(ss_cb, label="<colorbar>")

@@ -43,10 +43,11 @@ and the capabilities they provide.
 * Tk_ (>= 8.4, != 8.6.0 or 8.6.1) [#]_: for the Tk-based backends.
 * PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
 * PyGObject_: for the GTK-based backends [#]_.
-* wxPython_ (>= 4) [#]_: for the wx-based backends.
 * pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK and/or cairo-based
   backends.
+* wxPython_ (>= 4) [#]_: for the wx-based backends.
 * Tornado_ (>=5): for the WebAgg backend.
+* ipykernel_: for the nbagg backend.
 * macOS (>=10.12): for the macosx backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
@@ -59,6 +60,7 @@ and the capabilities they provide.
 .. _pycairo: https://pycairo.readthedocs.io/en/latest/
 .. _cairocffi: https://cairocffi.readthedocs.io/en/latest/
 .. _Tornado: https://pypi.org/project/tornado/
+.. _ipykernel: https://pypi.org/project/ipykernel/
 
 .. [#] Tk is part of most standard Python installations, but it's not part of
        Python itself and thus may not be present in rare cases.
@@ -184,20 +186,28 @@ Required:
 - Ghostscript_ (>= 9.0, to render PDF files)
 - Inkscape_ (to render SVG files)
 
+  .. note::
+
+    When installing Inkscape on Windows, make sure that you select Add
+    Inkscape to system PATH, either for all users or current user, or the
+    tests will not find it.
+
 Optional:
 
 - pytest-cov_ (>=2.3.1) to collect coverage information
 - pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel
+- pytest-xvfb_ to run tests without windows popping up (Linux)
 
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-flake8: https://pypi.org/project/pytest-flake8/
-.. _pytest-xdist: https://pypi.org/project/pytest-xdist/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
+.. _pytest-xdist: https://pypi.org/project/pytest-xdist/
+.. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
 .. _flake8: https://pypi.org/project/flake8/
 
 

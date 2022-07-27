@@ -181,7 +181,7 @@ The ``Polar`` class has moved to :mod:`matplotlib.projections.polar`.
 .. [3] :meth:`matplotlib.axes.Axes.set_position` now accepts either
    four scalars or a :class:`matplotlib.transforms.Bbox` instance.
 
-.. [4] Since the recfactoring allows for more than two scale types
+.. [4] Since the refactoring allows for more than two scale types
    ('log' or 'linear'), it no longer makes sense to have a toggle.
    ``Axes.toggle_log_lineary()`` has been removed.
 

@@ -18,8 +18,7 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.backends.backend_pdf import (
@@ -71,6 +70,8 @@ def _get_preamble():
                 path = pathlib.Path(fm.findfont(family))
                 preamble.append(r"\%s{%s}[Path=\detokenize{%s/}]" % (
                     command, path.name, path.parent.as_posix()))
+    preamble.append(mpl.texmanager._usepackage_if_not_loaded(
+        "underscore", option="strings"))  # Documented as "must come last".
     return "\n".join(preamble)
 
 
@@ -85,9 +86,8 @@ mpl_in_to_pt = 1. / mpl_pt_to_in
 _NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
 _split_math = re.compile(_NO_ESCAPE + r"\$").split
 _replace_escapetext = functools.partial(
-    # When the next character is _, ^, $, or % (not preceded by an escape),
-    # insert a backslash.
-    re.compile(_NO_ESCAPE + "(?=[_^$%])").sub, "\\\\")
+    # When the next character is an unescaped % or ^, insert a backslash.
+    re.compile(_NO_ESCAPE + "(?=[%^])").sub, "\\\\")
 _replace_mathdefault = functools.partial(
     # Replace \mathdefault (when not preceded by an escape) by empty string.
     re.compile(_NO_ESCAPE + r"(\\mathdefault)").sub, "")
@@ -107,7 +107,7 @@ def _tex_escape(text):
     ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
     are ignored.
 
-    The following characters are escaped in text segments: ``_^$%``
+    The following characters are escaped in text segments: ``^%``
     """
     # Sometimes, matplotlib adds the unknown command \mathdefault.
     # Not using \mathnormal instead since this looks odd for the latex cm font.
@@ -230,11 +230,8 @@ class LatexManager:
 
     @staticmethod
     def _build_latex_header():
-        # Create LaTeX header with some content, else LaTeX will load some math
-        # fonts later when we don't expect the additional output on stdout.
-        # TODO: is this sufficient?
         latex_header = [
-            r"\documentclass{minimal}",
+            r"\documentclass{article}",
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
@@ -242,7 +239,6 @@ class LatexManager:
             r"\usepackage{graphicx}",
             _get_preamble(),
             r"\begin{document}",
-            r"text $math \mu$",  # force latex to load fonts now
             r"\typeout{pgf_backend_query_start}",
         ]
         return "\n".join(latex_header)
@@ -310,8 +306,10 @@ class LatexManager:
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input)
         if latex.returncode != 0:
-            raise LatexError("LaTeX returned an error, probably missing font "
-                             "or error in preamble.", stdout)
+            raise LatexError(
+                f"LaTeX errored (probably missing font or error in preamble) "
+                f"while processing the following input:\n{test_input}",
+                stdout)
 
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
@@ -359,14 +357,16 @@ class LatexManager:
         try:
             answer = self._expect_prompt()
         except LatexError as err:
-            raise ValueError("Error measuring {!r}\nLaTeX Output:\n{}"
+            # Here and below, use '{}' instead of {!r} to avoid doubling all
+            # backslashes.
+            raise ValueError("Error measuring {}\nLaTeX Output:\n{}"
                              .format(tex, err.latex_output)) from err
         try:
             # Parse metrics from the answer string.  Last line is prompt, and
             # next-to-last-line is blank line from \typeout.
             width, height, offset = answer.splitlines()[-3].split(",")
         except Exception as err:
-            raise ValueError("Error measuring {!r}\nLaTeX Output:\n{}"
+            raise ValueError("Error measuring {}\nLaTeX Output:\n{}"
                              .format(tex, answer)) from err
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
         # The height returned from LaTeX goes from base to top;
@@ -772,31 +772,6 @@ class RendererPgf(RendererBase):
         return points * mpl_pt_to_in * self.dpi
 
 
-@_api.deprecated("3.4")
-class TmpDirCleaner:
-    _remaining_tmpdirs = set()
-
-    @_api.classproperty
-    @_api.deprecated("3.4")
-    def remaining_tmpdirs(cls):
-        return cls._remaining_tmpdirs
-
-    @staticmethod
-    @_api.deprecated("3.4")
-    def add(tmpdir):
-        TmpDirCleaner._remaining_tmpdirs.add(tmpdir)
-
-    @staticmethod
-    @_api.deprecated("3.4")
-    @atexit.register
-    def cleanup_remaining_tmpdirs():
-        for tmpdir in TmpDirCleaner._remaining_tmpdirs:
-            error_message = "error deleting tmp directory {}".format(tmpdir)
-            shutil.rmtree(
-                tmpdir,
-                onerror=lambda *args: _log.error(error_message))
-
-
 class FigureCanvasPgf(FigureCanvasBase):
     filetypes = {"pgf": "LaTeX PGF picture",
                  "pdf": "LaTeX compiled PGF picture",
@@ -838,7 +813,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # get figure size in inch
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
-        dpi = self.figure.get_dpi()
+        dpi = self.figure.dpi
 
         # create pgfpicture environment and write the pgf code
         fh.write(header_text)
@@ -885,13 +860,12 @@ class FigureCanvasPgf(FigureCanvasBase):
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
-                    r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
-                    r"\RequirePackage{hyperref}",
-                    r"\documentclass[12pt]{minimal}",
+                    r"\documentclass[12pt]{article}",
+                    r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
-                    _get_preamble(),
                     r"\usepackage{pgf}",
+                    _get_preamble(),
                     r"\begin{document}",
                     r"\centering",
                     r"\input{figure.pgf}",
@@ -996,13 +970,12 @@ class PdfPages:
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
-            r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
-            r"\RequirePackage{hyperref}",
-            r"\documentclass[12pt]{minimal}",
+            r"\documentclass[12pt]{article}",
+            r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
-            _get_preamble(),
             r"\usepackage{pgf}",
+            _get_preamble(),
             r"\setlength{\parindent}{0pt}",
             r"\begin{document}%",
         ])

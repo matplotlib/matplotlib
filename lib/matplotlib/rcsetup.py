@@ -146,7 +146,7 @@ def validate_bool(b):
     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
         return False
     else:
-        raise ValueError('Could not convert "%s" to bool' % b)
+        raise ValueError(f'Cannot convert {b!r} to bool')
 
 
 def validate_axisbelow(s):
@@ -156,8 +156,8 @@ def validate_axisbelow(s):
         if isinstance(s, str):
             if s == 'line':
                 return 'line'
-    raise ValueError('%s cannot be interpreted as'
-                     ' True, False, or "line"' % s)
+    raise ValueError(f'{s!r} cannot be interpreted as'
+                     ' True, False, or "line"')
 
 
 def validate_dpi(s):
@@ -385,6 +385,20 @@ def validate_fontweight(s):
         return int(s)
     except (ValueError, TypeError) as e:
         raise ValueError(f'{s} is not a valid font weight.') from e
+
+
+def validate_fontstretch(s):
+    stretchvalues = [
+        'ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed',
+        'normal', 'semi-expanded', 'expanded', 'extra-expanded',
+        'ultra-expanded']
+    # Note: Historically, stretchvalues have been case-sensitive in Matplotlib
+    if s in stretchvalues:
+        return s
+    try:
+        return int(s)
+    except (ValueError, TypeError) as e:
+        raise ValueError(f'{s} is not a valid font stretch.') from e
 
 
 def validate_font_properties(s):
@@ -725,14 +739,14 @@ def validate_cycler(s):
             _DunderChecker().visit(ast.parse(s))
             s = eval(s, {'cycler': cycler, '__builtins__': {}})
         except BaseException as e:
-            raise ValueError("'%s' is not a valid cycler construction: %s" %
-                             (s, e)) from e
+            raise ValueError(f"{s!r} is not a valid cycler construction: {e}"
+                             ) from e
     # Should make sure what comes from the above eval()
     # is a Cycler object.
     if isinstance(s, Cycler):
         cycler_inst = s
     else:
-        raise ValueError("object was not a string or Cycler instance: %s" % s)
+        raise ValueError(f"Object is not a string or Cycler instance: {s!r}")
 
     unknowns = cycler_inst.keys - (set(_prop_validators) | set(_prop_aliases))
     if unknowns:
@@ -900,7 +914,7 @@ _validators = {
     "font.family":     validate_stringlist,  # used by text object
     "font.style":      validate_string,
     "font.variant":    validate_string,
-    "font.stretch":    validate_string,
+    "font.stretch":    validate_fontstretch,
     "font.weight":     validate_fontweight,
     "font.size":       validate_float,  # Base font size in points
     "font.serif":      validate_stringlist,
@@ -918,6 +932,7 @@ _validators = {
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
     "text.antialiased":    validate_bool,
+    "text.parse_math":     validate_bool,
 
     "mathtext.cal":            validate_font_properties,
     "mathtext.rm":             validate_font_properties,
@@ -945,6 +960,7 @@ _validators = {
     "contour.negative_linestyle": _validate_linestyle,
     "contour.corner_mask":        validate_bool,
     "contour.linewidth":          validate_float_or_None,
+    "contour.algorithm":          ["mpl2005", "mpl2014", "serial", "threaded"],
 
     # errorbar props
     "errorbar.capsize": validate_float,

@@ -1,6 +1,7 @@
 import functools
 
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
@@ -67,8 +68,7 @@ def test_rectangle_selector():
 @pytest.mark.parametrize('spancoords', ['data', 'pixels'])
 @pytest.mark.parametrize('minspanx, x1', [[0, 10], [1, 10.5], [1, 11]])
 @pytest.mark.parametrize('minspany, y1', [[0, 10], [1, 10.5], [1, 11]])
-def test_rectangle_minspan(spancoords, minspanx, x1, minspany, y1):
-    ax = get_ax()
+def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
     # attribute to track number of onselect calls
     ax._n_onselect = 0
 
@@ -94,8 +94,8 @@ def test_rectangle_minspan(spancoords, minspanx, x1, minspany, y1):
     assert tool._selection_completed
     assert ax._n_onselect == 1
 
-    # Too small to create a selector. Should clear exising selector, and
-    # trigger onselect because there was a pre-exisiting selector
+    # Too small to create a selector. Should clear existing selector, and
+    # trigger onselect because there was a preexisting selector
     click_and_drag(tool, start=(x0, y0), end=(x1, y1))
     assert not tool._selection_completed
     assert ax._n_onselect == 2
@@ -103,6 +103,19 @@ def test_rectangle_minspan(spancoords, minspanx, x1, minspany, y1):
     assert ax._epress.ydata == y0
     assert ax._erelease.xdata == x1
     assert ax._erelease.ydata == y1
+
+
+def test_deprecation_selector_visible_attribute():
+    ax = get_ax()
+    tool = widgets.RectangleSelector(ax, lambda *args: None)
+
+    assert tool.get_visible()
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="was deprecated in Matplotlib 3.6"):
+        tool.visible = False
+    assert not tool.get_visible()
 
 
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
@@ -446,7 +459,7 @@ def test_rectangle_rotate(ax, selector_class):
             tool._selection_artist.rotation_point = 'unvalid_value'
 
 
-def test_rectange_add_remove_set(ax):
+def test_rectangle_add_remove_set(ax):
     tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
     # Draw rectangle
     click_and_drag(tool, start=(100, 100), end=(130, 140))
@@ -790,18 +803,18 @@ def test_selector_clear_method(ax, selector):
         tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
     click_and_drag(tool, start=(10, 10), end=(100, 120))
     assert tool._selection_completed
-    assert tool.visible
+    assert tool.get_visible()
     if selector == 'span':
         assert tool.extents == (10, 100)
 
     tool.clear()
     assert not tool._selection_completed
-    assert not tool.visible
+    assert not tool.get_visible()
 
     # Do another cycle of events to make sure we can
     click_and_drag(tool, start=(10, 10), end=(50, 120))
     assert tool._selection_completed
-    assert tool.visible
+    assert tool.get_visible()
     if selector == 'span':
         assert tool.extents == (10, 50)
 
@@ -922,6 +935,37 @@ def test_span_selector_animated_artists_callback():
     do_event(span, 'release', xdata=release_data[0],
              ydata=release_data[1], button=1)
     assert ln2.stale is False
+
+
+def test_snapping_values_span_selector(ax):
+    def onselect(*args):
+        pass
+
+    tool = widgets.SpanSelector(ax, onselect, direction='horizontal',)
+    snap_function = tool._snap
+
+    snap_values = np.linspace(0, 5, 11)
+    values = np.array([-0.1, 0.1, 0.2, 0.5, 0.6, 0.7, 0.9, 4.76, 5.0, 5.5])
+    expect = np.array([00.0, 0.0, 0.0, 0.5, 0.5, 0.5, 1.0, 5.00, 5.0, 5.0])
+    values = snap_function(values, snap_values)
+    assert_allclose(values, expect)
+
+
+def test_span_selector_snap(ax):
+    def onselect(vmin, vmax):
+        ax._got_onselect = True
+
+    snap_values = np.arange(50) * 4
+
+    tool = widgets.SpanSelector(ax, onselect, direction='horizontal',
+                                snap_values=snap_values)
+    tool.extents = (17, 35)
+    assert tool.extents == (16, 36)
+
+    tool.snap_values = None
+    assert tool.snap_values is None
+    tool.extents = (17, 35)
+    assert tool.extents == (17, 35)
 
 
 def check_lasso_selector(**kwargs):
@@ -1105,19 +1149,47 @@ def test_range_slider(orientation):
     # Check initial value is set correctly
     assert_allclose(slider.val, (0.1, 0.34))
 
+    def handle_positions(slider):
+        if orientation == "vertical":
+            return [h.get_ydata()[0] for h in slider._handles]
+        else:
+            return [h.get_xdata()[0] for h in slider._handles]
+
     slider.set_val((0.2, 0.6))
     assert_allclose(slider.val, (0.2, 0.6))
+    assert_allclose(handle_positions(slider), (0.2, 0.6))
+
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
     assert_allclose(box.get_points().flatten()[idx], [0.2, .25, 0.6, .75])
 
     slider.set_val((0.2, 0.1))
     assert_allclose(slider.val, (0.1, 0.2))
+    assert_allclose(handle_positions(slider), (0.1, 0.2))
 
     slider.set_val((-1, 10))
     assert_allclose(slider.val, (0, 1))
+    assert_allclose(handle_positions(slider), (0, 1))
 
     slider.reset()
-    assert_allclose(slider.val, [0.1, 0.34])
+    assert_allclose(slider.val, (0.1, 0.34))
+    assert_allclose(handle_positions(slider), (0.1, 0.34))
+
+
+@pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
+def test_range_slider_same_init_values(orientation):
+    if orientation == "vertical":
+        idx = [1, 0, 3, 2]
+    else:
+        idx = [0, 1, 2, 3]
+
+    fig, ax = plt.subplots()
+
+    slider = widgets.RangeSlider(
+         ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation,
+         valinit=[0, 0]
+     )
+    box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
+    assert_allclose(box.get_points().flatten()[idx], [0, 0.25, 0, 0.75])
 
 
 def check_polygon_selector(event_sequence, expected_result, selections_count,
@@ -1415,16 +1487,22 @@ def test_polygon_selector_box(ax):
     canvas = ax.figure.canvas
 
     # Scale to half size using the top right corner of the bounding box
-    canvas.button_press_event(*t.transform((40, 40)), 1)
-    canvas.motion_notify_event(*t.transform((20, 20)))
-    canvas.button_release_event(*t.transform((20, 20)), 1)
+    MouseEvent(
+        "button_press_event", canvas, *t.transform((40, 40)), 1)._process()
+    MouseEvent(
+        "motion_notify_event", canvas, *t.transform((20, 20)))._process()
+    MouseEvent(
+        "button_release_event", canvas, *t.transform((20, 20)), 1)._process()
     np.testing.assert_allclose(
         tool.verts, [(10, 0), (0, 10), (10, 20), (20, 10)])
 
     # Move using the center of the bounding box
-    canvas.button_press_event(*t.transform((10, 10)), 1)
-    canvas.motion_notify_event(*t.transform((30, 30)))
-    canvas.button_release_event(*t.transform((30, 30)), 1)
+    MouseEvent(
+        "button_press_event", canvas, *t.transform((10, 10)), 1)._process()
+    MouseEvent(
+        "motion_notify_event", canvas, *t.transform((30, 30)))._process()
+    MouseEvent(
+        "button_release_event", canvas, *t.transform((30, 30)), 1)._process()
     np.testing.assert_allclose(
         tool.verts, [(30, 20), (20, 30), (30, 40), (40, 30)])
 
@@ -1432,8 +1510,10 @@ def test_polygon_selector_box(ax):
     np.testing.assert_allclose(
         tool._box.extents, (20.0, 40.0, 20.0, 40.0))
 
-    canvas.button_press_event(*t.transform((30, 20)), 3)
-    canvas.button_release_event(*t.transform((30, 20)), 3)
+    MouseEvent(
+        "button_press_event", canvas, *t.transform((30, 20)), 3)._process()
+    MouseEvent(
+        "button_release_event", canvas, *t.transform((30, 20)), 3)._process()
     np.testing.assert_allclose(
         tool.verts, [(20, 30), (30, 40), (40, 30)])
     np.testing.assert_allclose(
@@ -1445,11 +1525,12 @@ def test_polygon_selector_box(ax):
     [(True, True), (True, False), (False, True)],
 )
 def test_MultiCursor(horizOn, vertOn):
-    fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+    (ax1, ax3) = plt.figure().subplots(2, sharex=True)
+    ax2 = plt.figure().subplots()
 
     # useblit=false to avoid having to draw the figure to cache the renderer
     multi = widgets.MultiCursor(
-        fig.canvas, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+        None, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
     )
 
     # Only two of the axes should have a line drawn on them.

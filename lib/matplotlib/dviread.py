@@ -58,8 +58,69 @@ _dvistate = enum.Enum('DviState', 'pre outer inpage post_post finale')
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
-Text = namedtuple('Text', 'x y font glyph width')
 Box = namedtuple('Box', 'x y height width')
+
+
+# Also a namedtuple, for backcompat.
+class Text(namedtuple('Text', 'x y font glyph width')):
+    """
+    A glyph in the dvi file.
+
+    The *x* and *y* attributes directly position the glyph.  The *font*,
+    *glyph*, and *width* attributes are kept public for back-compatibility,
+    but users wanting to draw the glyph themselves are encouraged to instead
+    load the font specified by `font_path` at `font_size`, warp it with the
+    effects specified by `font_effects`, and load the glyph specified by
+    `glyph_name_or_index`.
+    """
+
+    def _get_pdftexmap_entry(self):
+        return PsfontsMap(find_tex_file("pdftex.map"))[self.font.texname]
+
+    @property
+    def font_path(self):
+        """The `~pathlib.Path` to the font for this glyph."""
+        psfont = self._get_pdftexmap_entry()
+        if psfont.filename is None:
+            raise ValueError("No usable font file found for {} ({}); "
+                             "the font may lack a Type-1 version"
+                             .format(psfont.psname.decode("ascii"),
+                                     psfont.texname.decode("ascii")))
+        return Path(psfont.filename)
+
+    @property
+    def font_size(self):
+        """The font size."""
+        return self.font.size
+
+    @property
+    def font_effects(self):
+        """
+        The "font effects" dict for this glyph.
+
+        This dict contains the values for this glyph of SlantFont and
+        ExtendFont (if any), read off :file:`pdftex.map`.
+        """
+        return self._get_pdftexmap_entry().effects
+
+    @property
+    def glyph_name_or_index(self):
+        """
+        Either the glyph name or the native charmap glyph index.
+
+        If :file:`pdftex.map` specifies an encoding for this glyph's font, that
+        is a mapping of glyph indices to Adobe glyph names; use it to convert
+        dvi indices to glyph names.  Callers can then convert glyph names to
+        glyph indices (with FT_Get_Name_Index/get_name_index), and load the
+        glyph using FT_Load_Glyph/load_glyph.
+
+        If :file:`pdftex.map` specifies no encoding, the indices directly map
+        to the font's "native" charmap; glyphs should directly loaded using
+        FT_Load_Char/load_char after selecting the native charmap.
+        """
+        entry = self._get_pdftexmap_entry()
+        return (_parse_enc(entry.encoding)[self.glyph]
+                if entry.encoding is not None else self.glyph)
 
 
 # Opcode argument parsing
@@ -291,40 +352,11 @@ class Dvi:
         Read one page from the file. Return True if successful,
         False if there were no more pages.
         """
-        # Pages appear to start with the sequence
-        #   bop (begin of page)
-        #   xxx comment
-        #   <push, ..., pop>  # if using chemformula
-        #   down
-        #   push
-        #     down
-        #     <push, push, xxx, right, xxx, pop, pop>  # if using xcolor
-        #     down
-        #     push
-        #       down (possibly multiple)
-        #       push  <=  here, v is the baseline position.
-        #         etc.
-        # (dviasm is useful to explore this structure.)
-        # Thus, we use the vertical position at the first time the stack depth
-        # reaches 3, while at least three "downs" have been executed (excluding
-        # those popped out (corresponding to the chemformula preamble)), as the
-        # baseline (the "down" count is necessary to handle xcolor).
-        down_stack = [0]
         self._baseline_v = None
         while True:
             byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
             name = self._dtable[byte].__name__
-            if name == "_push":
-                down_stack.append(down_stack[-1])
-            elif name == "_pop":
-                down_stack.pop()
-            elif name == "_down":
-                down_stack[-1] += 1
-            if (self._baseline_v is None
-                    and len(getattr(self, "stack", [])) == 3
-                    and down_stack[-1] >= 4):
-                self._baseline_v = self.v
             if byte == 140:                         # end of page
                 return True
             if self.state is _dvistate.post_post:   # end of file
@@ -457,6 +489,8 @@ class Dvi:
     @_dispatch(min=239, max=242, args=('ulen1',))
     def _xxx(self, datalen):
         special = self.file.read(datalen)
+        if special == b'matplotlibbaselinemarker':
+            self._baseline_v = self.v
         _log.debug(
             'Dvi._xxx: encountered special: %s',
             ''.join([chr(ch) if 32 <= ch < 127 else '<%02x>' % ch
@@ -1114,6 +1148,6 @@ if __name__ == '__main__':
                           else ".",
                           text.width, sep="\t")
             if page.boxes:
-                print("x", "y", "w", "h", "", "(boxes)", sep="\t")
-                for x, y, w, h in page.boxes:
-                    print(x, y, w, h, sep="\t")
+                print("x", "y", "h", "w", "", "(boxes)", sep="\t")
+                for box in page.boxes:
+                    print(box.x, box.y, box.height, box.width, sep="\t")

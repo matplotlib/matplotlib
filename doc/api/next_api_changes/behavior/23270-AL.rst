@@ -1,0 +1,5 @@
+The *math* parameter of ``mathtext.get_unicode_index`` is deprecated and defaults to False
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In math mode, ASCII hyphens (U+002D) are now replaced by unicode minus signs
+(U+2212) at the parsing stage.

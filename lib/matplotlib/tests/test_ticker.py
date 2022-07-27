@@ -510,8 +510,8 @@ class TestAsinhLocator:
     def test_fallback(self):
         lctr = mticker.AsinhLocator(1.0, numticks=11)
 
-        assert_almost_equal(lctr.tick_values(100, 101),
-                            np.arange(100, 101.01, 0.1))
+        assert_almost_equal(lctr.tick_values(101, 102),
+                            np.arange(101, 102.01, 0.1))
 
     def test_symmetrizing(self):
         class DummyAxis:
@@ -585,6 +585,8 @@ class TestScalarFormatter:
 
     use_offset_data = [True, False]
 
+    useMathText_data = [True, False]
+
     #  (sci_type, scilimits, lim, orderOfMag, fewticks)
     scilimits_data = [
         (False, (0, 0), (10.0, 20.0), 0, False),
@@ -643,6 +645,19 @@ class TestScalarFormatter:
         with mpl.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
             assert use_offset == tmp_form.get_useOffset()
+            assert tmp_form.offset == 0
+
+    @pytest.mark.parametrize('use_math_text', useMathText_data)
+    def test_useMathText(self, use_math_text):
+        with mpl.rc_context({'axes.formatter.use_mathtext': use_math_text}):
+            tmp_form = mticker.ScalarFormatter()
+            assert use_math_text == tmp_form.get_useMathText()
+
+    def test_set_use_offset_float(self):
+        tmp_form = mticker.ScalarFormatter()
+        tmp_form.set_useOffset(0.5)
+        assert not tmp_form.get_useOffset()
+        assert tmp_form.offset == 0.5
 
     def test_use_locale(self):
         conv = locale.localeconv()
@@ -695,6 +710,8 @@ class TestScalarFormatter:
         sf.axis.set_view_interval(0, 10)
         fmt = sf.format_data_short
         assert fmt(data) == expected
+        assert sf.axis.get_tick_space() == 9
+        assert sf.axis.get_minpos() == 0
 
     def test_mathtext_ticks(self):
         mpl.rcParams.update({
@@ -707,6 +724,11 @@ class TestScalarFormatter:
             fig, ax = plt.subplots()
             ax.set_xticks([-1, 0, 1])
             fig.canvas.draw()
+
+    def test_empty_locs(self):
+        sf = mticker.ScalarFormatter()
+        sf.set_locs([])
+        assert sf(0.5) == ''
 
 
 class FakeAxis:
@@ -769,7 +791,7 @@ class TestLogFormatterMathtext:
     @pytest.mark.parametrize('min_exponent, value, expected', test_data)
     def test_min_exponent(self, min_exponent, value, expected):
         with mpl.rc_context({'axes.formatter.min_exponent': min_exponent}):
-            assert self.fmt(value) == expected.replace('-', '\N{Minus Sign}')
+            assert self.fmt(value) == expected
 
 
 class TestLogFormatterSciNotation:
@@ -798,7 +820,7 @@ class TestLogFormatterSciNotation:
         formatter = mticker.LogFormatterSciNotation(base=base)
         formatter.sublabel = {1, 2, 5, 1.2}
         with mpl.rc_context({'text.usetex': False}):
-            assert formatter(value) == expected.replace('-', '\N{Minus Sign}')
+            assert formatter(value) == expected
 
 
 class TestLogFormatter:
@@ -1016,18 +1038,17 @@ class TestLogitFormatter:
         """
         match = re.match(
             r"[^\d]*"
-            r"(?P<comp>1[-\N{Minus Sign}])?"
+            r"(?P<comp>1-)?"
             r"(?P<mant>\d*\.?\d*)?"
             r"(?:\\cdot)?"
-            r"(?:10\^\{(?P<expo>[-\N{Minus Sign}]?\d*)})?"
+            r"(?:10\^\{(?P<expo>-?\d*)})?"
             r"[^\d]*$",
             string,
         )
         if match:
             comp = match["comp"] is not None
             mantissa = float(match["mant"]) if match["mant"] else 1
-            expo = (int(match["expo"].replace("\N{Minus Sign}", "-"))
-                    if match["expo"] is not None else 0)
+            expo = int(match["expo"]) if match["expo"] is not None else 0
             value = mantissa * 10 ** expo
             if match["mant"] or match["expo"] is not None:
                 if comp:
@@ -1152,8 +1173,8 @@ class TestLogitFormatter:
         Test the parameter use_overline
         """
         x = 1 - 1e-2
-        fx1 = "$\\mathdefault{1\N{Minus Sign}10^{\N{Minus Sign}2}}$"
-        fx2 = "$\\mathdefault{\\overline{10^{\N{Minus Sign}2}}}$"
+        fx1 = r"$\mathdefault{1-10^{-2}}$"
+        fx2 = r"$\mathdefault{\overline{10^{-2}}}$"
         form = mticker.LogitFormatter(use_overline=False)
         assert form(x) == fx1
         form.use_overline(True)
@@ -1485,7 +1506,7 @@ def test_remove_overlap(remove_overlapping_locs, expected_num):
 def test_bad_locator_subs(sub):
     ll = mticker.LogLocator()
     with pytest.raises(ValueError):
-        ll.subs(sub)
+        ll.set_params(subs=sub)
 
 
 @pytest.mark.parametrize('numticks', [1, 2, 3, 9])
@@ -1496,3 +1517,19 @@ def test_small_range_loglocator(numticks):
     for top in [5, 7, 9, 11, 15, 50, 100, 1000]:
         ticks = ll.tick_values(.5, top)
         assert (np.diff(np.log10(ll.tick_values(6, 150))) == 1).all()
+
+
+def test_NullFormatter():
+    formatter = mticker.NullFormatter()
+    assert formatter(1.0) == ''
+    assert formatter.format_data(1.0) == ''
+    assert formatter.format_data_short(1.0) == ''
+
+
+@pytest.mark.parametrize('formatter', (
+    mticker.FuncFormatter(lambda a: f'val: {a}'),
+    mticker.FixedFormatter(('foo', 'bar'))))
+def test_set_offset_string(formatter):
+    assert formatter.get_offset() == ''
+    formatter.set_offset_string('mpl')
+    assert formatter.get_offset() == 'mpl'

@@ -21,19 +21,14 @@ Still TODO:
 .. _Anti-Grain Geometry: http://agg.sourceforge.net/antigrain.com
 """
 
-try:
-    import threading
-except ImportError:
-    import dummy_threading as threading
 from contextlib import nullcontext
 from math import radians, cos, sin
+import threading
 
 import numpy as np
-from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
-from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
@@ -114,21 +109,6 @@ class RendererAgg(RendererBase):
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
 
-    @_api.deprecated("3.4")
-    def get_content_extents(self):
-        orig_img = np.asarray(self.buffer_rgba())
-        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
-        return (slice_x.start, slice_y.start,
-                slice_x.stop - slice_x.start, slice_y.stop - slice_y.start)
-
-    @_api.deprecated("3.4")
-    def tostring_rgba_minimized(self):
-        extents = self.get_content_extents()
-        bbox = [[extents[0], self.height - (extents[1] + extents[3])],
-                [extents[0] + extents[2], self.height - extents[1]]]
-        region = self.copy_from_bbox(bbox)
-        return np.array(region), extents
-
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
         nmax = mpl.rcParams['agg.path.chunksize']  # here at least for testing
@@ -152,7 +132,7 @@ class RendererAgg(RendererBase):
                 p.simplify_threshold = path.simplify_threshold
                 try:
                     self._renderer.draw_path(gc, p, transform, rgbFace)
-                except OverflowError as err:
+                except OverflowError:
                     msg = (
                         "Exceeded cell block limit in Agg.\n\n"
                         "Please reduce the value of "
@@ -167,7 +147,7 @@ class RendererAgg(RendererBase):
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
-            except OverflowError as err:
+            except OverflowError:
                 cant_chunk = ''
                 if rgbFace is not None:
                     cant_chunk += "- can not split filled path\n"
@@ -407,6 +387,8 @@ class RendererAgg(RendererBase):
 class FigureCanvasAgg(FigureCanvasBase):
     # docstring inherited
 
+    _lastKey = None  # Overwritten per-instance on the first draw.
+
     def copy_from_bbox(self, bbox):
         renderer = self.get_renderer()
         return renderer.copy_from_bbox(bbox)
@@ -432,8 +414,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     def get_renderer(self, cleared=False):
         w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
-        reuse_renderer = (hasattr(self, "renderer")
-                          and getattr(self, "_lastKey", None) == key)
+        reuse_renderer = (self._lastKey == key)
         if not reuse_renderer:
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key

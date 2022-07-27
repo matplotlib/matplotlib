@@ -42,7 +42,7 @@ ax.add_artist(high_contrast_part_2)
 # Rotated arrow
 fontprops = fm.FontProperties(family='serif')
 
-roatated_arrow = AnchoredDirectionArrows(
+rotated_arrow = AnchoredDirectionArrows(
                     ax.transAxes,
                     '30', '120',
                     loc='center',
@@ -50,7 +50,7 @@ roatated_arrow = AnchoredDirectionArrows(
                     angle=30,
                     fontproperties=fontprops
                     )
-ax.add_artist(roatated_arrow)
+ax.add_artist(rotated_arrow)
 
 # Altering arrow directions
 a1 = AnchoredDirectionArrows(

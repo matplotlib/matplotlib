@@ -9,4 +9,5 @@
 .. automodule:: matplotlib.dates
    :members:
    :undoc-members:
+   :exclude-members: rrule
    :show-inheritance:

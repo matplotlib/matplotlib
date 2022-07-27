@@ -13,7 +13,7 @@ from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, colors, image as mimage, patches, pyplot as plt, style, rcParams)
+    colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -342,6 +342,7 @@ def test_cursor_data():
         ([[.123, .987]], "[0.123]"),
         ([[np.nan, 1, 2]], "[]"),
         ([[1, 1+1e-15]], "[1.0000000000000000]"),
+        ([[-1, -1]], "[-1.0000000000000000]"),
     ])
 def test_format_cursor_data(data, text):
     from matplotlib.backend_bases import MouseEvent
@@ -720,7 +721,7 @@ def test_load_from_url():
     url = ('file:'
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())
-    with _api.suppress_matplotlib_deprecation_warning():
+    with pytest.raises(ValueError, match="Please open the URL"):
         plt.imread(url)
     with urllib.request.urlopen(url) as file:
         plt.imread(file)
@@ -1139,13 +1140,6 @@ def test_exact_vmin():
     assert np.all(from_image == direct_computation)
 
 
-@pytest.mark.network
-@pytest.mark.flaky
-def test_https_imread_smoketest():
-    with _api.suppress_matplotlib_deprecation_warning():
-        v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
-
-
 # A basic ndarray subclass that implements a quantity
 # It does not implement an entire unit system or all quantity math.
 # There is just enough implemented to test handling of ndarray
@@ -1416,3 +1410,25 @@ def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
                        extent=(0, 1, 0, 1),
                        interpolation='none',
                        origin=origin)
+
+
+@check_figures_equal(extensions=["png"])
+def test_str_norms(fig_test, fig_ref):
+    t = np.random.rand(10, 10) * .8 + .1  # between 0 and 1
+    axts = fig_test.subplots(1, 5)
+    axts[0].imshow(t, norm="log")
+    axts[1].imshow(t, norm="log", vmin=.2)
+    axts[2].imshow(t, norm="symlog")
+    axts[3].imshow(t, norm="symlog", vmin=.3, vmax=.7)
+    axts[4].imshow(t, norm="logit", vmin=.3, vmax=.7)
+    axrs = fig_ref.subplots(1, 5)
+    axrs[0].imshow(t, norm=colors.LogNorm())
+    axrs[1].imshow(t, norm=colors.LogNorm(vmin=.2))
+    # same linthresh as SymmetricalLogScale's default.
+    axrs[2].imshow(t, norm=colors.SymLogNorm(linthresh=2))
+    axrs[3].imshow(t, norm=colors.SymLogNorm(linthresh=2, vmin=.3, vmax=.7))
+    axrs[4].imshow(t, norm="logit", clim=(.3, .7))
+
+    assert type(axts[0].images[0].norm) == colors.LogNorm  # Exactly that class
+    with pytest.raises(ValueError):
+        axts[0].imshow(t, norm="foobar")

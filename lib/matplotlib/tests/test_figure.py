@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 import io
 from pathlib import Path
+import pickle
 import platform
 from threading import Timer
 from types import SimpleNamespace
@@ -12,17 +13,15 @@ import pytest
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import rcParams
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+from matplotlib import gridspec, rcParams
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
+from matplotlib.figure import Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
                                       TightLayoutEngine)
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import matplotlib.gridspec as gridspec
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
@@ -190,64 +189,29 @@ def test_figure_legend():
 def test_gca():
     fig = plt.figure()
 
-    with pytest.raises(TypeError):
-        assert fig.add_axes() is None
-
+    # test that gca() picks up Axes created via add_axes()
     ax0 = fig.add_axes([0, 0, 1, 1])
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(projection='rectilinear') is ax0
     assert fig.gca() is ax0
 
-    ax1 = fig.add_axes(rect=[0.1, 0.1, 0.8, 0.8])
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(projection='rectilinear') is ax1
+    # test that gca() picks up Axes created via add_subplot()
+    ax1 = fig.add_subplot(111)
     assert fig.gca() is ax1
-
-    ax2 = fig.add_subplot(121, projection='polar')
-    assert fig.gca() is ax2
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(polar=True) is ax2
-
-    ax3 = fig.add_subplot(122)
-    assert fig.gca() is ax3
-
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(polar=True) is ax3
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(polar=True) is not ax2
-    assert fig.gca().get_subplotspec().get_geometry() == (1, 2, 1, 1)
 
     # add_axes on an existing Axes should not change stored order, but will
     # make it current.
     fig.add_axes(ax0)
-    assert fig.axes == [ax0, ax1, ax2, ax3]
+    assert fig.axes == [ax0, ax1]
     assert fig.gca() is ax0
+
+    # sca() should not change stored order of Axes, which is order added.
+    fig.sca(ax0)
+    assert fig.axes == [ax0, ax1]
 
     # add_subplot on an existing Axes should not change stored order, but will
     # make it current.
-    fig.add_subplot(ax2)
-    assert fig.axes == [ax0, ax1, ax2, ax3]
-    assert fig.gca() is ax2
-
-    fig.sca(ax1)
-    with pytest.warns(
-            MatplotlibDeprecationWarning,
-            match=r'Calling gca\(\) with keyword arguments was deprecated'):
-        assert fig.gca(projection='rectilinear') is ax1
+    fig.add_subplot(ax1)
+    assert fig.axes == [ax0, ax1]
     assert fig.gca() is ax1
-
-    # sca() should not change stored order of Axes, which is order added.
-    assert fig.axes == [ax0, ax1, ax2, ax3]
 
 
 def test_add_subplot_subclass():
@@ -477,6 +441,10 @@ def test_invalid_figure_size(width, height):
 
 def test_invalid_figure_add_axes():
     fig = plt.figure()
+    with pytest.raises(TypeError,
+                       match="missing 1 required positional argument: 'rect'"):
+        fig.add_axes()
+
     with pytest.raises(ValueError):
         fig.add_axes((.1, .1, .5, np.nan))
 
@@ -623,8 +591,8 @@ def test_invalid_layouts():
 
 @check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
-    fig_test.set_dpi(100)
-    fig_ref.set_dpi(100)
+    fig_test.dpi = 100
+    fig_ref.dpi = 100
 
     fig_test.subplots()
     l1 = plt.Line2D([.2, .7], [.7, .7], gid='l1')
@@ -708,6 +676,94 @@ def test_removed_axis():
     fig, axs = plt.subplots(2, sharex=True)
     axs[0].remove()
     fig.canvas.draw()
+
+
+@pytest.mark.parametrize('clear_meth', ['clear', 'clf'])
+def test_figure_clear(clear_meth):
+    # we test the following figure clearing scenarios:
+    fig = plt.figure()
+
+    # a) an empty figure
+    fig.clear()
+    assert fig.axes == []
+
+    # b) a figure with a single unnested axes
+    ax = fig.add_subplot(111)
+    getattr(fig, clear_meth)()
+    assert fig.axes == []
+
+    # c) a figure multiple unnested axes
+    axes = [fig.add_subplot(2, 1, i+1) for i in range(2)]
+    getattr(fig, clear_meth)()
+    assert fig.axes == []
+
+    # d) a figure with a subfigure
+    gs = fig.add_gridspec(ncols=2, nrows=1)
+    subfig = fig.add_subfigure(gs[0])
+    subaxes = subfig.add_subplot(111)
+    getattr(fig, clear_meth)()
+    assert subfig not in fig.subfigs
+    assert fig.axes == []
+
+    # e) a figure with a subfigure and a subplot
+    subfig = fig.add_subfigure(gs[0])
+    subaxes = subfig.add_subplot(111)
+    mainaxes = fig.add_subplot(gs[1])
+
+    # e.1) removing just the axes leaves the subplot
+    mainaxes.remove()
+    assert fig.axes == [subaxes]
+
+    # e.2) removing just the subaxes leaves the subplot
+    # and subfigure
+    mainaxes = fig.add_subplot(gs[1])
+    subaxes.remove()
+    assert fig.axes == [mainaxes]
+    assert subfig in fig.subfigs
+
+    # e.3) clearing the subfigure leaves the subplot
+    subaxes = subfig.add_subplot(111)
+    assert mainaxes in fig.axes
+    assert subaxes in fig.axes
+    getattr(subfig, clear_meth)()
+    assert subfig in fig.subfigs
+    assert subaxes not in subfig.axes
+    assert subaxes not in fig.axes
+    assert mainaxes in fig.axes
+
+    # e.4) clearing the whole thing
+    subaxes = subfig.add_subplot(111)
+    getattr(fig, clear_meth)()
+    assert fig.axes == []
+    assert fig.subfigs == []
+
+    # f) multiple subfigures
+    subfigs = [fig.add_subfigure(gs[i]) for i in [0, 1]]
+    subaxes = [sfig.add_subplot(111) for sfig in subfigs]
+    assert all(ax in fig.axes for ax in subaxes)
+    assert all(sfig in fig.subfigs for sfig in subfigs)
+
+    # f.1) clearing only one subfigure
+    getattr(subfigs[0], clear_meth)()
+    assert subaxes[0] not in fig.axes
+    assert subaxes[1] in fig.axes
+    assert subfigs[1] in fig.subfigs
+
+    # f.2) clearing the whole thing
+    getattr(subfigs[1], clear_meth)()
+    subfigs = [fig.add_subfigure(gs[i]) for i in [0, 1]]
+    subaxes = [sfig.add_subplot(111) for sfig in subfigs]
+    assert all(ax in fig.axes for ax in subaxes)
+    assert all(sfig in fig.subfigs for sfig in subfigs)
+    getattr(fig, clear_meth)()
+    assert fig.subfigs == []
+    assert fig.axes == []
+
+
+def test_clf_not_redefined():
+    for klass in FigureBase.__subclasses__():
+        # check that subclasses do not get redefined in our Figure subclasses
+        assert 'clf' not in klass.__dict__
 
 
 @mpl.style.context('mpl20')
@@ -1023,8 +1079,7 @@ def test_reused_gridspec():
 
 
 @image_comparison(['test_subfigure.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'},
-                  remove_text=False)
+                  savefig_kwarg={'facecolor': 'teal'})
 def test_subfigure():
     np.random.seed(19680801)
     fig = plt.figure(layout='constrained')
@@ -1055,9 +1110,18 @@ def test_subfigure_tightbbox():
             8.0)
 
 
+def test_subfigure_dpi():
+    fig = plt.figure(dpi=100)
+    sub_fig = fig.subfigures()
+    assert sub_fig.get_dpi() == fig.get_dpi()
+
+    sub_fig.set_dpi(200)
+    assert sub_fig.get_dpi() == 200
+    assert fig.get_dpi() == 200
+
+
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'},
-                  remove_text=False)
+                  savefig_kwarg={'facecolor': 'teal'})
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
@@ -1080,8 +1144,7 @@ def test_subfigure_ss():
 
 
 @image_comparison(['test_subfigure_double.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'},
-                  remove_text=False)
+                  savefig_kwarg={'facecolor': 'teal'})
 def test_subfigure_double():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
@@ -1170,10 +1233,10 @@ def test_subfigure_ticks():
     ax2.scatter(x=[-126.5357270050049, 94.68456736755368], y=[1500, 3600])
     ax3 = subfig_bl.add_subplot(gs[0, 3:14], sharey=ax1)
 
-    fig.set_dpi(120)
+    fig.dpi = 120
     fig.draw_without_rendering()
     ticks120 = ax2.get_xticks()
-    fig.set_dpi(300)
+    fig.dpi = 300
     fig.draw_without_rendering()
     ticks300 = ax2.get_xticks()
     np.testing.assert_allclose(ticks120, ticks300)
@@ -1194,6 +1257,16 @@ def test_subfigure_scatter_size():
     for ax in [ax0, axs[0]]:
         ax.scatter([1, 2, 3], [1, 2, 3], s=30, marker='s', color='r')
         ax.scatter([3, 4, 5], [1, 2, 3], s=[20, 30, 40], marker='s', color='g')
+
+
+def test_subfigure_pdf():
+    fig = plt.figure(layout='constrained')
+    sub_fig = fig.subfigures()
+    ax = sub_fig.add_subplot(111)
+    b = ax.bar(1, 1)
+    ax.bar_label(b)
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='pdf')
 
 
 def test_add_subplot_kwargs():
@@ -1308,3 +1381,11 @@ def test_deepcopy():
 
     assert ax.get_xlim() == (1e-1, 1e2)
     assert fig2.axes[0].get_xlim() == (0, 1)
+
+
+def test_unpickle_with_device_pixel_ratio():
+    fig = Figure(dpi=42)
+    fig.canvas._set_device_pixel_ratio(7)
+    assert fig.dpi == 42*7
+    fig2 = pickle.loads(pickle.dumps(fig))
+    assert fig2.dpi == 42

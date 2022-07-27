@@ -19,7 +19,7 @@ import re
 import warnings
 
 import matplotlib as mpl
-from matplotlib import _api, docstring, rc_params_from_file, rcParamsDefault
+from matplotlib import _api, _docstring, rc_params_from_file, rcParamsDefault
 
 _log = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ STYLE_EXTENSION = 'mplstyle'
 STYLE_BLACKLIST = {
     'interactive', 'backend', 'webagg.port', 'webagg.address',
     'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
-    'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
+    'toolbar', 'timezone', 'figure.max_open_warning',
     'figure.raise_window', 'savefig.directory', 'tk.window_focus',
     'docstring.hardcopy', 'date.epoch'}
 
@@ -62,7 +62,7 @@ def _apply_style(d, warn=True):
     mpl.rcParams.update(_remove_blacklisted_style_params(d, warn=warn))
 
 
-@docstring.Substitution(
+@_docstring.Substitution(
     "\n".join(map("- {}".format, sorted(STYLE_BLACKLIST, key=str.lower)))
 )
 def use(style):

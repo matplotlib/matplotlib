@@ -12,10 +12,16 @@ from matplotlib.backend_bases import (
     _Backend, FigureManagerBase, NavigationToolbar2, TimerBase)
 from matplotlib.backend_tools import Cursors
 
+import gi
 # The GTK3/GTK4 backends will have already called `gi.require_version` to set
 # the desired GTK.
 from gi.repository import Gdk, Gio, GLib, Gtk
 
+
+try:
+    gi.require_foreign("cairo")
+except ImportError as e:
+    raise ImportError("Gtk-based backends require cairo") from e
 
 _log = logging.getLogger(__name__)
 
@@ -295,8 +301,7 @@ class RubberbandGTK(backend_tools.RubberbandBase):
 
 class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        _NavigationToolbar2GTK.configure_subplots(
-            self._make_classic_style_pseudo_toolbar(), None)
+        _NavigationToolbar2GTK.configure_subplots(self, None)
 
 
 class _BackendGTK(_Backend):

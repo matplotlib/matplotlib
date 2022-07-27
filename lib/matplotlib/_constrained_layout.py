@@ -11,21 +11,7 @@ using `~matplotlib.gridspec.GridSpecFromSubplotSpec`).  Axes placed using
 layout.  Axes manually placed via ``figure.add_axes()`` will not.
 
 See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
-"""
 
-import logging
-
-import numpy as np
-
-from matplotlib import _api, artist as martist
-from matplotlib.backend_bases import _get_renderer
-import matplotlib.transforms as mtransforms
-import matplotlib._layoutgrid as mlayoutgrid
-
-
-_log = logging.getLogger(__name__)
-
-"""
 General idea:
 -------------
 
@@ -61,10 +47,22 @@ See the tutorial doc:`/tutorials/intermediate/constrainedlayout_guide`
 for more discussion of the algorithm with examples.
 """
 
+import logging
+
+import numpy as np
+
+from matplotlib import _api, artist as martist
+import matplotlib.transforms as mtransforms
+import matplotlib._layoutgrid as mlayoutgrid
+
+
+_log = logging.getLogger(__name__)
+
 
 ######################################################
 def do_constrained_layout(fig, h_pad, w_pad,
-                          hspace=None, wspace=None):
+                          hspace=None, wspace=None, rect=(0, 0, 1, 1),
+                          compress=False):
     """
     Do the constrained_layout.  Called at draw time in
      ``figure.constrained_layout()``
@@ -87,14 +85,23 @@ def do_constrained_layout(fig, h_pad, w_pad,
        of 0.1 of the figure width between each column.
        If h/wspace < h/w_pad, then the pads are used instead.
 
+    rect : tuple of 4 floats
+        Rectangle in figure coordinates to perform constrained layout in
+        [left, bottom, width, height], each from 0-1.
+
+    compress : bool
+        Whether to shift Axes so that white space in between them is
+        removed. This is useful for simple grids of fixed-aspect Axes (e.g.
+        a grid of images).
+
     Returns
     -------
     layoutgrid : private debugging structure
     """
 
-    renderer = _get_renderer(fig)
+    renderer = fig._get_renderer()
     # make layoutgrid tree...
-    layoutgrids = make_layoutgrids(fig, None)
+    layoutgrids = make_layoutgrids(fig, None, rect=rect)
     if not layoutgrids['hasgrids']:
         _api.warn_external('There are no gridspecs with layoutgrids. '
                            'Possibly did not call parent GridSpec with the'
@@ -122,18 +129,27 @@ def do_constrained_layout(fig, h_pad, w_pad,
         # update all the variables in the layout.
         layoutgrids[fig].update_variables()
 
+        warn_collapsed = ('constrained_layout not applied because '
+                          'axes sizes collapsed to zero.  Try making '
+                          'figure larger or axes decorations smaller.')
         if check_no_collapsed_axes(layoutgrids, fig):
             reposition_axes(layoutgrids, fig, renderer, h_pad=h_pad,
                             w_pad=w_pad, hspace=hspace, wspace=wspace)
+            if compress:
+                layoutgrids = compress_fixed_aspect(layoutgrids, fig)
+                layoutgrids[fig].update_variables()
+                if check_no_collapsed_axes(layoutgrids, fig):
+                    reposition_axes(layoutgrids, fig, renderer, h_pad=h_pad,
+                                    w_pad=w_pad, hspace=hspace, wspace=wspace)
+                else:
+                    _api.warn_external(warn_collapsed)
         else:
-            _api.warn_external('constrained_layout not applied because '
-                               'axes sizes collapsed to zero.  Try making '
-                               'figure larger or axes decorations smaller.')
+            _api.warn_external(warn_collapsed)
         reset_margins(layoutgrids, fig)
     return layoutgrids
 
 
-def make_layoutgrids(fig, layoutgrids):
+def make_layoutgrids(fig, layoutgrids, rect=(0, 0, 1, 1)):
     """
     Make the layoutgrid tree.
 
@@ -147,8 +163,9 @@ def make_layoutgrids(fig, layoutgrids):
         layoutgrids = dict()
         layoutgrids['hasgrids'] = False
     if not hasattr(fig, '_parent'):
-        # top figure
-        layoutgrids[fig] = mlayoutgrid.LayoutGrid(parent=None, name='figlb')
+        # top figure;  pass rect as parent to allow user-specified
+        # margins
+        layoutgrids[fig] = mlayoutgrid.LayoutGrid(parent=rect, name='figlb')
     else:
         # subfigure
         gs = fig._subplotspec.get_gridspec()
@@ -243,6 +260,43 @@ def check_no_collapsed_axes(layoutgrids, fig):
                         if bb.width <= 0 or bb.height <= 0:
                             return False
     return True
+
+
+def compress_fixed_aspect(layoutgrids, fig):
+    gs = None
+    for ax in fig.axes:
+        if not hasattr(ax, 'get_subplotspec'):
+            continue
+        ax.apply_aspect()
+        sub = ax.get_subplotspec()
+        _gs = sub.get_gridspec()
+        if gs is None:
+            gs = _gs
+            extraw = np.zeros(gs.ncols)
+            extrah = np.zeros(gs.nrows)
+        elif _gs != gs:
+            raise ValueError('Cannot do compressed layout if axes are not'
+                                'all from the same gridspec')
+        orig = ax.get_position(original=True)
+        actual = ax.get_position(original=False)
+        dw = orig.width - actual.width
+        if dw > 0:
+            extraw[sub.colspan] = np.maximum(extraw[sub.colspan], dw)
+        dh = orig.height - actual.height
+        if dh > 0:
+            extrah[sub.rowspan] = np.maximum(extrah[sub.rowspan], dh)
+
+    if gs is None:
+        raise ValueError('Cannot do compressed layout if no axes '
+                         'are part of a gridspec.')
+    w = np.sum(extraw) / 2
+    layoutgrids[fig].edit_margin_min('left', w)
+    layoutgrids[fig].edit_margin_min('right', w)
+
+    h = np.sum(extrah) / 2
+    layoutgrids[fig].edit_margin_min('top', h)
+    layoutgrids[fig].edit_margin_min('bottom', h)
+    return layoutgrids
 
 
 def get_margin_from_padding(obj, *, w_pad=0, h_pad=0,
