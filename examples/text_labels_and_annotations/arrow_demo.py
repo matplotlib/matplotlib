@@ -116,6 +116,7 @@ def make_arrow_graph(ax, data, size=4, display='length', shape='right',
             fc=fc, ec=ec or fc, alpha=alpha, width=width,
             head_width=head_width, head_length=head_length, shape=shape,
             length_includes_head=True,
+            **kwargs
         )
 
         # figure out coordinates for text:
