@@ -682,8 +682,6 @@ class Text(Artist):
         if self.get_text() == '':
             return
 
-        renderer.open_group('text', self.get_gid())
-
         with self._cm_set(text=self._get_wrapped_text()):
             bbox, info, descent = self._get_layout(renderer)
             trans = self.get_transform()
@@ -712,6 +710,9 @@ class Text(Artist):
 
             angle = self.get_rotation()
 
+            if len(info) > 1:
+                renderer.open_group('text', self.get_gid())
+
             for line, wh, x, y in info:
 
                 mtext = self if len(info) == 1 else None
@@ -737,8 +738,9 @@ class Text(Artist):
                                            self._fontproperties, angle,
                                            ismath=ismath, mtext=mtext)
 
+            if len(info) > 1:
+                renderer.close_group('text')
         gc.restore()
-        renderer.close_group('text')
         self.stale = False
 
     def get_color(self):
