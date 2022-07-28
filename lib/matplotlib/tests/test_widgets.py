@@ -97,8 +97,7 @@ def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
     assert kwargs == {}
 
 
-def test_deprecation_selector_visible_attribute():
-    ax = get_ax()
+def test_deprecation_selector_visible_attribute(ax):
     tool = widgets.RectangleSelector(ax, lambda *args: None)
 
     assert tool.get_visible()
@@ -856,8 +855,8 @@ def test_span_selector_animated_artists_callback():
     values = np.sin(x)
 
     fig, ax = plt.subplots()
-    (ln,) = ax.plot(x, values, animated=True)
-    (ln2, ) = ax.plot([], animated=True)
+    ln, = ax.plot(x, values, animated=True)
+    ln2, = ax.plot([], animated=True)
 
     # spin the event loop to let the backend process any pending operations
     # before drawing artists
@@ -996,8 +995,7 @@ def test_TextBox(ax, toolbar):
 
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
-def test_check_radio_buttons_image():
-    ax = get_ax()
+def test_check_radio_buttons_image(ax):
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
