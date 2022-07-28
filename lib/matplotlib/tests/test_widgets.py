@@ -1494,10 +1494,8 @@ def test_polygon_selector_box(ax):
         tool._box.extents, (20.0, 40.0, 30.0, 40.0))
 
 
-@pytest.mark.parametrize(
-    "horizOn, vertOn",
-    [(True, True), (True, False), (False, True)],
-)
+@pytest.mark.parametrize("horizOn", [False, True])
+@pytest.mark.parametrize("vertOn", [False, True])
 def test_MultiCursor(horizOn, vertOn):
     (ax1, ax3) = plt.figure().subplots(2, sharex=True)
     ax2 = plt.figure().subplots()
@@ -1508,10 +1506,8 @@ def test_MultiCursor(horizOn, vertOn):
     )
 
     # Only two of the axes should have a line drawn on them.
-    if vertOn:
-        assert len(multi.vlines) == 2
-    if horizOn:
-        assert len(multi.hlines) == 2
+    assert len(multi.vlines) == (2 if vertOn else 0)
+    assert len(multi.hlines) == (2 if horizOn else 0)
 
     # mock a motion_notify_event
     # Can't use `do_event` as that helper requires the widget
