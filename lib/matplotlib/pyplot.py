@@ -815,7 +815,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
                 f"Figures created through the pyplot interface "
                 f"(`matplotlib.pyplot.figure`) are retained until explicitly "
                 f"closed and may consume too much memory. (To control this "
-                f"warning, see the rcParam `figure.max_open_warning`).",
+                f"warning, see the rcParam `figure.max_open_warning`). "
+                f"Consider using `matplotlib.pyplot.close()`.",
                 RuntimeWarning)
 
         manager = new_figure_manager(
