@@ -10,11 +10,13 @@ Compare the ellipse generated with arcs versus a polygonal approximation.
    This example requires :download:`basic_units.py <basic_units.py>`
 """
 
-from basic_units import cm
+from basic_units import register_units, cm
 import numpy as np
 from matplotlib import patches
 import matplotlib.pyplot as plt
 
+
+register_units()
 
 xcenter, ycenter = 0.38*cm, 0.52*cm
 width, height = 1e-1*cm, 3e-1*cm

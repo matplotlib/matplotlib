@@ -380,4 +380,17 @@ def cos(x):
         return math.cos(x.convert_to(radians).get_value())
 
 
-units.registry[BasicUnit] = units.registry[TaggedValue] = BasicUnitConverter()
+def register_units():
+    """
+    Explicitly register units provided here.
+
+    Normally, this will not be needed as units are registered on import.
+    However, if you reset the Matplotlib unit registry (as is done by
+    sphinx-gallery between running each example), then you will need to
+    explicitly re-register units from this module by calling this function.
+    """
+    converter = BasicUnitConverter()
+    units.registry[BasicUnit] = units.registry[TaggedValue] = converter
+
+
+register_units()

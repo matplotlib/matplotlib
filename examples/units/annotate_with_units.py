@@ -12,7 +12,10 @@ annotations using a centimeter-scale plot.
 """
 
 import matplotlib.pyplot as plt
-from basic_units import cm
+from basic_units import register_units, cm
+
+
+register_units()
 
 fig, ax = plt.subplots()
 

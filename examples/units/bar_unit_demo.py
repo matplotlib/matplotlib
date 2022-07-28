@@ -13,9 +13,11 @@ centimeters.
 """
 
 import numpy as np
-from basic_units import cm, inch
+from basic_units import register_units, cm, inch
 import matplotlib.pyplot as plt
 
+
+register_units()
 
 N = 5
 men_means = [150*cm, 160*cm, 146*cm, 172*cm, 155*cm]

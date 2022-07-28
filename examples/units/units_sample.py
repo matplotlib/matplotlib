@@ -13,9 +13,12 @@ to correct units.
    This example requires :download:`basic_units.py <basic_units.py>`
 
 """
-from basic_units import cm, inch
+from basic_units import register_units, cm, inch
 import matplotlib.pyplot as plt
 import numpy as np
+
+
+register_units()
 
 cms = cm * np.arange(0, 10, 2)
 

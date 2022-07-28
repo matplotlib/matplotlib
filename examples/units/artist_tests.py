@@ -20,9 +20,12 @@ import matplotlib.patches as patches
 import matplotlib.text as text
 import matplotlib.collections as collections
 
-from basic_units import cm, inch
+from basic_units import register_units, cm, inch
 import numpy as np
 import matplotlib.pyplot as plt
+
+
+register_units()
 
 fig, ax = plt.subplots()
 ax.xaxis.set_units(cm)

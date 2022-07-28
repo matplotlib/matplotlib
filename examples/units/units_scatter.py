@@ -12,7 +12,10 @@ arrays.
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from basic_units import secs, hertz, minutes
+from basic_units import register_units, secs, hertz, minutes
+
+
+register_units()
 
 # create masked array
 data = (1, 2, 3, 4, 5, 6, 7, 8)

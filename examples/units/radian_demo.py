@@ -17,7 +17,10 @@ formatting and axis labeling.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from basic_units import radians, degrees, cos
+from basic_units import register_units, radians, degrees, cos
+
+
+register_units()
 
 x = [val*radians for val in np.arange(0, 15, 0.01)]
 
