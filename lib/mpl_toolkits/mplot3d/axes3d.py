@@ -26,7 +26,6 @@ import matplotlib.colors as mcolors
 import matplotlib.image as mimage
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
-import matplotlib.scale as mscale
 import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
@@ -672,12 +671,7 @@ class Axes3D(Axes):
         """Get 3D z limits."""
         return tuple(self.zz_viewLim.intervalx)
 
-    def get_zscale(self):
-        """
-        Return the zaxis scale string %s
-
-        """ % (", ".join(mscale.get_scale_names()))
-        return self.zaxis.get_scale()
+    get_zscale = _axis_method_wrapper("zaxis", "get_scale")
 
     # We need to slightly redefine these to pass scalez=False
     # to their calls of autoscale_view.
