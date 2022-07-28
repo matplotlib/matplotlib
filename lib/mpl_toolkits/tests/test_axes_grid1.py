@@ -124,7 +124,6 @@ def test_inset_locator():
     ny, nx = Z.shape
     Z2[30:30+ny, 30:30+nx] = Z
 
-    # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
@@ -166,7 +165,6 @@ def test_inset_axes():
     ny, nx = Z.shape
     Z2[30:30+ny, 30:30+nx] = Z
 
-    # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
