@@ -155,6 +155,7 @@ class TimerAsyncio(backend_bases.TimerBase):
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
+    manager_class = _api.classproperty(lambda cls: FigureManagerWebAgg)
     _timer_cls = TimerAsyncio
     # Webagg and friends having the right methods, but still
     # having bugs in practice.  Do not advertise that it works until
@@ -426,7 +427,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
-    ToolbarCls = NavigationToolbar2WebAgg
+    _toolbar2_class = ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
         self.web_sockets = set()
