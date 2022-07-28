@@ -20,23 +20,14 @@ The actual positioning depends on the additional parameters
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 
-def test_rotation_mode(fig, mode, subplot_location):
+def test_rotation_mode(fig, mode):
     ha_list = ["left", "center", "right"]
     va_list = ["top", "center", "baseline", "bottom"]
-    axs = np.empty((len(va_list), len(ha_list)), object)
-    gs = subplot_location.subgridspec(*axs.shape, hspace=0, wspace=0)
-    axs[0, 0] = fig.add_subplot(gs[0, 0])
-    for i in range(len(va_list)):
-        for j in range(len(ha_list)):
-            if (i, j) == (0, 0):
-                continue  # Already set.
-            axs[i, j] = fig.add_subplot(
-                gs[i, j], sharex=axs[0, 0], sharey=axs[0, 0])
-    for ax in axs.flat:
-        ax.set(aspect=1)
+    axs = fig.subplots(len(va_list), len(ha_list), sharex=True, sharey=True,
+                       subplot_kw=dict(aspect=1),
+                       gridspec_kw=dict(hspace=0, wspace=0))
 
     # labels and title
     for ha, ax in zip(ha_list, axs[-1, :]):
@@ -79,9 +70,9 @@ def test_rotation_mode(fig, mode, subplot_location):
 
 
 fig = plt.figure(figsize=(8, 5))
-gs = fig.add_gridspec(1, 2)
-test_rotation_mode(fig, "default", gs[0])
-test_rotation_mode(fig, "anchor", gs[1])
+subfigs = fig.subfigures(1, 2)
+test_rotation_mode(subfigs[0], "default")
+test_rotation_mode(subfigs[1], "anchor")
 plt.show()
 
 
