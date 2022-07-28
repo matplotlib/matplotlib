@@ -38,7 +38,7 @@ class BaseFilter:
     def get_pad(self, dpi):
         return 0
 
-    def process_image(padded_src, dpi):
+    def process_image(self, padded_src, dpi):
         raise NotImplementedError("Should be overridden by subclasses")
 
     def __call__(self, im, dpi):

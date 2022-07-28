@@ -736,7 +736,7 @@ class HTMLWriter(FileMovieWriter):
 
         super().__init__(fps, codec, bitrate, extra_args, metadata)
 
-    def setup(self, fig, outfile, dpi, frame_dir=None):
+    def setup(self, fig, outfile, dpi=None, frame_dir=None):
         outfile = Path(outfile)
         _api.check_in_list(['.html', '.htm'], outfile_extension=outfile.suffix)
 
