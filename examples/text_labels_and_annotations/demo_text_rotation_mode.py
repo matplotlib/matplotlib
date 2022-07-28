@@ -50,6 +50,8 @@ def test_rotation_mode(fig, mode, subplot_location):
         {"bbox": dict(boxstyle="square,pad=0.", ec="none", fc="C1", alpha=0.3)}
     )
 
+    texts = {}
+
     # use a different text alignment in each axes
     for i, va in enumerate(va_list):
         for j, ha in enumerate(ha_list):
@@ -64,12 +66,12 @@ def test_rotation_mode(fig, mode, subplot_location):
                          size="x-large", rotation=40,
                          horizontalalignment=ha, verticalalignment=va,
                          rotation_mode=mode, **kw)
+            texts[ax] = tx
 
     if mode == "default":
         # highlight bbox
         fig.canvas.draw()
-        for ax in axs.flat:
-            text, = ax.texts
+        for ax, text in texts.items():
             bb = text.get_window_extent().transformed(ax.transData.inverted())
             rect = plt.Rectangle((bb.x0, bb.y0), bb.width, bb.height,
                                  facecolor="C1", alpha=0.3, zorder=2)
