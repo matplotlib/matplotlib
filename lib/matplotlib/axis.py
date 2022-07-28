@@ -689,7 +689,6 @@ class Axis(martist.Artist):
         self._minor_tick_kw = dict()
 
         self.clear()
-        self._set_scale('linear')
         self._autoscale_on = True
 
     @property

@@ -1212,34 +1212,22 @@ class _AxesBase(martist.Artist):
         xaxis_visible = self.xaxis.get_visible()
         yaxis_visible = self.yaxis.get_visible()
 
-        self.xaxis.clear()
-        self.yaxis.clear()
-
-        for name, spine in self.spines.items():
+        for axis in self._axis_map.values():
+            axis.clear()  # Also resets the scale to linear.
+        for spine in self.spines.values():
             spine.clear()
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(
             signals=["xlim_changed", "ylim_changed", "zlim_changed"])
 
-        if self._sharex is not None:
-            self.sharex(self._sharex)
-        else:
-            self.xaxis._set_scale('linear')
-            try:
-                self.set_xlim(0, 1)
-            except TypeError:
-                pass
-            self.set_autoscalex_on(True)
-        if self._sharey is not None:
-            self.sharey(self._sharey)
-        else:
-            self.yaxis._set_scale('linear')
-            try:
-                self.set_ylim(0, 1)
-            except TypeError:
-                pass
-            self.set_autoscaley_on(True)
+        for name, axis in self._axis_map.items():
+            share = getattr(self, f"_share{name}")
+            if share is not None:
+                getattr(self, f"share{name}")(share)
+            else:
+                axis._set_scale("linear")
+                axis._set_lim(0, 1, auto=True)
 
         # update the minor locator for x and y axis based on rcParams
         if mpl.rcParams['xtick.minor.visible']:
