@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 import functools
 from unittest import mock
 
@@ -21,12 +22,22 @@ def ax():
     return get_ax()
 
 
-def check_rectangle(**kwargs):
-    ax = get_ax()
-
+@pytest.mark.parametrize('kwargs, warning_msg', [
+    (dict(), None),
+    (dict(drawtype='line', useblit=False),
+     "Support for drawtype='line' is deprecated"),
+    (dict(useblit=True, button=1), None),
+    (dict(drawtype='none', minspanx=10, minspany=10),
+     "Support for drawtype='none' is deprecated"),
+    (dict(minspanx=10, minspany=10, spancoords='pixels'), None),
+    (dict(props=dict(fill=True)), None),
+])
+def test_rectangle_selector(ax, kwargs, warning_msg):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect, **kwargs)
+    with (pytest.warns(MatplotlibDeprecationWarning, match=warning_msg)
+            if warning_msg else nullcontext()):
+        tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
 
@@ -46,25 +57,6 @@ def check_rectangle(**kwargs):
     assert erelease.xdata == 199
     assert erelease.ydata == 199
     assert kwargs == {}
-
-
-def test_rectangle_selector():
-    check_rectangle()
-
-    with pytest.warns(
-        MatplotlibDeprecationWarning,
-            match="Support for drawtype='line' is deprecated"):
-        check_rectangle(drawtype='line', useblit=False)
-
-    check_rectangle(useblit=True, button=1)
-
-    with pytest.warns(
-        MatplotlibDeprecationWarning,
-            match="Support for drawtype='none' is deprecated"):
-        check_rectangle(drawtype='none', minspanx=10, minspany=10)
-
-    check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
-    check_rectangle(props=dict(fill=True))
 
 
 @pytest.mark.parametrize('spancoords', ['data', 'pixels'])
@@ -607,15 +599,19 @@ def test_rectangle_selector_ignore_outside(ax, ignore_event_outside):
         assert tool.extents == (150.0, 160.0, 150.0, 160.0)
 
 
-def check_span(*args, onmove_callback=True, **kwargs):
-    ax = get_ax()
-
+@pytest.mark.parametrize('orientation, onmove_callback, kwargs', [
+    ('horizontal', False, dict(minspan=10, useblit=True)),
+    ('vertical', True, dict(button=1)),
+    ('horizontal', False, dict(props=dict(fill=True))),
+    ('horizontal', False, dict(interactive=True)),
+])
+def test_span_selector(ax, orientation, onmove_callback, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
     onmove = mock.Mock(spec=noop, return_value=None)
     if onmove_callback:
         kwargs['onmove_callback'] = onmove
 
-    tool = widgets.SpanSelector(ax, onselect, *args, **kwargs)
+    tool = widgets.SpanSelector(ax, onselect, orientation, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     # move outside of axis
     do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
@@ -624,13 +620,6 @@ def check_span(*args, onmove_callback=True, **kwargs):
     onselect.assert_called_once_with(100, 199)
     if onmove_callback:
         onmove.assert_called_once_with(100, 199)
-
-
-def test_span_selector():
-    check_span('horizontal', minspan=10, useblit=True)
-    check_span('vertical', onmove_callback=True, button=1)
-    check_span('horizontal', props=dict(fill=True))
-    check_span('horizontal', interactive=True)
 
 
 @pytest.mark.parametrize('interactive', [True, False])
@@ -948,9 +937,12 @@ def test_span_selector_snap(ax):
     assert tool.extents == (17, 35)
 
 
-def check_lasso_selector(**kwargs):
-    ax = get_ax()
-
+@pytest.mark.parametrize('kwargs', [
+    dict(),
+    dict(useblit=False, props=dict(color='red')),
+    dict(useblit=True, button=1),
+])
+def test_lasso_selector(ax, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
 
     tool = widgets.LassoSelector(ax, onselect, **kwargs)
@@ -959,12 +951,6 @@ def check_lasso_selector(**kwargs):
     do_event(tool, 'release', xdata=150, ydata=150, button=1)
 
     onselect.assert_called_once_with([(100, 100), (125, 125), (150, 150)])
-
-
-def test_lasso_selector():
-    check_lasso_selector()
-    check_lasso_selector(useblit=False, props=dict(color='red'))
-    check_lasso_selector(useblit=True, button=1)
 
 
 def test_CheckButtons(ax):
