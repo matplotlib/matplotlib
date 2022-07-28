@@ -890,7 +890,7 @@ class FontProperties:
             return
         try:
             stretch = int(stretch)
-        except ValueError as err:
+        except ValueError:
             pass
         else:
             if 0 <= stretch <= 1000:

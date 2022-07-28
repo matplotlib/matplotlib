@@ -40,7 +40,6 @@ def test_divider_append_axes():
         "right": divider.append_axes("right", 1.2, pad=0.1, sharey=ax),
     }
     fig.canvas.draw()
-    renderer = fig.canvas.get_renderer()
     bboxes = {k: axs[k].get_window_extent() for k in axs}
     dpi = fig.dpi
     assert bboxes["top"].height == pytest.approx(1.2 * dpi)

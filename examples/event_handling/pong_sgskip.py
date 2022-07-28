@@ -190,7 +190,7 @@ class Game:
                                   animated=False)
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
 
-    def draw(self, event):
+    def draw(self):
         draw_artist = self.ax.draw_artist
         if self.background is None:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
@@ -318,7 +318,7 @@ def start_anim(event):
 
     def local_draw():
         if animation.ax.get_renderer_cache():
-            animation.draw(None)
+            animation.draw()
     start_anim.timer.add_callback(local_draw)
     start_anim.timer.start()
     canvas.mpl_connect('draw_event', on_redraw)

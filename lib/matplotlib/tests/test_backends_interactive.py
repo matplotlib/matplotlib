@@ -80,7 +80,6 @@ _test_timeout = 60  # A reasonably safe value for slower architectures.
 # also necessary on gtk3 and wx, where directly processing a KeyEvent() for "q"
 # from draw_event causes breakage as the canvas widget gets deleted too early.
 def _test_interactive_impl():
-    import importlib
     import importlib.util
     import io
     import json

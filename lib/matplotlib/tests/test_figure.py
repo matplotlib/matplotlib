@@ -769,7 +769,7 @@ def test_clf_not_redefined():
 @mpl.style.context('mpl20')
 def test_picking_does_not_stale():
     fig, ax = plt.subplots()
-    col = ax.scatter([0], [0], [1000], picker=True)
+    ax.scatter([0], [0], [1000], picker=True)
     fig.canvas.draw()
     assert not fig.stale
 

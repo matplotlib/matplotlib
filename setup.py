@@ -133,7 +133,7 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
                                         stdout=subprocess.PIPE,
                                         stderr=subprocess.STDOUT,
                                         universal_newlines=True)
-            except Exception as e:
+            except Exception:
                 pass
             else:
                 version = result.stdout.lower()
