@@ -1,4 +1,5 @@
 from io import BytesIO
+import ast
 import pickle
 
 import numpy as np
@@ -6,6 +7,9 @@ import pytest
 
 from matplotlib import cm
 from matplotlib.testing.decorators import image_comparison
+import matplotlib as mpl
+from matplotlib.testing import subprocess_run_helper
+from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
@@ -108,6 +112,103 @@ def test_complete():
     assert plt._pylab_helpers.Gcf.figs != {}
 
     assert fig.get_label() == 'Figure with a label?'
+
+
+def _pickle_load_subprocess():
+    import os
+    import pickle
+
+    path = os.environ['PICKLE_FILE_PATH']
+
+    with open(path, 'rb') as blob:
+        fig = pickle.load(blob)
+
+    print(str(pickle.dumps(fig)))
+
+
+def _generate_complete_test_figure(fig_ref):
+    fig_ref.set_size_inches((10, 6))
+    plt.figure(fig_ref)
+
+    plt.suptitle('Can you fit any more in a figure?')
+
+    # make some arbitrary data
+    x, y = np.arange(8), np.arange(10)
+    data = u = v = np.linspace(0, 10, 80).reshape(10, 8)
+    v = np.sin(v * -0.6)
+
+    # Ensure lists also pickle correctly.
+    plt.subplot(3, 3, 1)
+    plt.plot(list(range(10)))
+
+    plt.subplot(3, 3, 2)
+    plt.contourf(data, hatches=['//', 'ooo'])
+    plt.colorbar()
+
+    plt.subplot(3, 3, 3)
+    plt.pcolormesh(data)
+
+    plt.subplot(3, 3, 4)
+    plt.imshow(data)
+
+    plt.subplot(3, 3, 5)
+    plt.pcolor(data)
+
+    ax = plt.subplot(3, 3, 6)
+    ax.set_xlim(0, 7)
+    ax.set_ylim(0, 9)
+    plt.streamplot(x, y, u, v)
+
+    ax = plt.subplot(3, 3, 7)
+    ax.set_xlim(0, 7)
+    ax.set_ylim(0, 9)
+    plt.quiver(x, y, u, v)
+
+    plt.subplot(3, 3, 8)
+    plt.scatter(x, x ** 2, label='$x^2$')
+    plt.legend(loc='upper left')
+
+    plt.subplot(3, 3, 9)
+    plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
+
+
+@mpl.style.context("default")
+@check_figures_equal(extensions=['png'])
+def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
+    _generate_complete_test_figure(fig_ref)
+
+    fp = tmp_path / 'sinus.pickle'
+    assert not fp.exists()
+
+    with fp.open('wb') as file:
+        pickle.dump(fig_ref, file, pickle.HIGHEST_PROTOCOL)
+    assert fp.exists()
+
+    proc = subprocess_run_helper(
+        _pickle_load_subprocess,
+        timeout=60,
+        PICKLE_FILE_PATH=str(fp),
+    )
+
+    loaded_fig = pickle.loads(ast.literal_eval(proc.stdout))
+
+    loaded_fig.canvas.draw()
+
+    fig_test.set_size_inches(loaded_fig.get_size_inches())
+    fig_test.figimage(loaded_fig.canvas.renderer.buffer_rgba())
+
+    plt.close(loaded_fig)
+
+
+def test_gcf():
+    fig = plt.figure("a label")
+    buf = BytesIO()
+    pickle.dump(fig, buf, pickle.HIGHEST_PROTOCOL)
+    plt.close("all")
+    assert plt._pylab_helpers.Gcf.figs == {}  # No figures must be left.
+    fig = pickle.loads(buf.getbuffer())
+    assert plt._pylab_helpers.Gcf.figs != {}  # A manager is there again.
+    assert fig.get_label() == "a label"
 
 
 def test_no_pyplot():
