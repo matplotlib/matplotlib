@@ -172,30 +172,28 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
 
 
 sphinx_gallery_conf = {
+    'backreferences_dir': Path('api') / Path('_as_gen'),
+    # Compression is a significant effort that we skip for local and CI builds.
+    'compress_images': ('thumbnails', 'images') if is_release_build else (),
+    'doc_module': ('matplotlib', 'mpl_toolkits'),
     'examples_dirs': ['../examples', '../tutorials', '../plot_types'],
     'filename_pattern': '^((?!sgskip).)*$',
     'gallery_dirs': ['gallery', 'tutorials', 'plot_types'],
-    'doc_module': ('matplotlib', 'mpl_toolkits'),
-    'reference_url': {
-        'matplotlib': None,
-    },
-    'backreferences_dir': Path('api') / Path('_as_gen'),
-    'subsection_order': gallery_order.sectionorder,
-    'within_subsection_order': gallery_order.subsectionorder,
-    'remove_config_comments': True,
-    'min_reported_time': 1,
-    'thumbnail_size': (320, 224),
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
-    # Compression is a significant effort that we skip for local and CI builds.
-    'compress_images': ('thumbnails', 'images') if is_release_build else (),
-    'matplotlib_animations': True,
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
+    'matplotlib_animations': True,
+    'min_reported_time': 1,
+    'reference_url': {'matplotlib': None},
+    'remove_config_comments': True,
     'reset_modules': (
         'matplotlib',
         # clear basic_units module to re-register with unit registry on import
         lambda gallery_conf, fname: sys.modules.pop('basic_units', None)
     ),
+    'subsection_order': gallery_order.sectionorder,
+    'thumbnail_size': (320, 224),
+    'within_subsection_order': gallery_order.subsectionorder,
 }
 
 mathmpl_fontsize = 11.0
