@@ -191,6 +191,11 @@ sphinx_gallery_conf = {
     'matplotlib_animations': True,
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
+    'reset_modules': (
+        'matplotlib',
+        # clear basic_units module to re-register with unit registry on import
+        lambda gallery_conf, fname: sys.modules.pop('basic_units', None)
+    ),
 }
 
 mathmpl_fontsize = 11.0
