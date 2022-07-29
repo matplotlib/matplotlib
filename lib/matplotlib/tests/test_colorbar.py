@@ -280,7 +280,7 @@ def test_remove_from_figure(use_gridspec):
     Test `remove` with the specified ``use_gridspec`` setting
     """
     fig, ax = plt.subplots()
-    sc = ax.scatter([1, 2], [3, 4], cmap="spring")
+    sc = ax.scatter([1, 2], [3, 4])
     sc.set_array(np.array([5, 6]))
     pre_position = ax.get_position()
     cb = fig.colorbar(sc, use_gridspec=use_gridspec)
@@ -296,7 +296,7 @@ def test_remove_from_figure_cl():
     Test `remove` with constrained_layout
     """
     fig, ax = plt.subplots(constrained_layout=True)
-    sc = ax.scatter([1, 2], [3, 4], cmap="spring")
+    sc = ax.scatter([1, 2], [3, 4])
     sc.set_array(np.array([5, 6]))
     fig.draw_without_rendering()
     pre_position = ax.get_position()
