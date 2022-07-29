@@ -199,8 +199,7 @@ options = {
     'backend': config.get('rc_options', 'backend', fallback=None),
     'system_freetype': config.getboolean(
         'libs', 'system_freetype',
-        fallback=(sys.platform.startswith('aix') or
-                  sys.platform.startswith('os400'))),
+        fallback=sys.platform.startswith(('aix', 'os400')),
     'system_qhull': config.getboolean(
         'libs', 'system_qhull', fallback=sys.platform.startswith('os400')),
 }
