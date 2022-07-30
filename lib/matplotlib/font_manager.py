@@ -626,10 +626,10 @@ class FontProperties:
     specification and *math_fontfamily* for math fonts:
 
     - family: A list of font names in decreasing order of priority.
-      The items may include a generic font family name, either
-      'sans-serif', 'serif', 'cursive', 'fantasy', or 'monospace'.
-      In that case, the actual font to be used will be looked up
-      from the associated rcParam. Default: :rc:`font.family`
+      The items may include a generic font family name, either 'sans-serif',
+      'serif', 'cursive', 'fantasy', or 'monospace'.  In that case, the actual
+      font to be used will be looked up from the associated rcParam during the
+      search process in `.findfont`. Default: :rc:`font.family`
 
     - style: Either 'normal', 'italic' or 'oblique'.
       Default: :rc:`font.style`
@@ -741,7 +741,11 @@ class FontProperties:
 
     def get_family(self):
         """
-        Return a list of font names that comprise the font family.
+        Return a list of individual font family names or generic family names.
+
+        The font families or generic font families (which will be resolved
+        from their respective rcParams when searching for a matching font) in
+        the order of preference.
         """
         return self._family
 
