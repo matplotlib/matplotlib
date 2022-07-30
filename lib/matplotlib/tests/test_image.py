@@ -1163,7 +1163,7 @@ class QuantityND(np.ndarray):
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         func = getattr(ufunc, method)
         if "out" in kwargs:
-            raise NotImplementedError
+            return NotImplemented
         if len(inputs) == 1:
             i0 = inputs[0]
             unit = getattr(i0, "units", "dimensionless")
@@ -1184,10 +1184,10 @@ class QuantityND(np.ndarray):
             elif ufunc == np.divide:
                 unit = f"{u0}/({u1})"
             else:
-                raise NotImplementedError
+                return NotImplemented
             out_arr = func(i0.view(np.ndarray), i1.view(np.ndarray), **kwargs)
         else:
-            raise NotImplementedError
+            return NotImplemented
         if unit is None:
             out_arr = np.array(out_arr)
         else:
