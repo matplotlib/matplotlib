@@ -2236,6 +2236,10 @@ class Axes(_AxesBase):
             To align the bars on the right edge pass a negative *width* and
             ``align='edge'``.
 
+        labels : str or list of str, optional
+            A sequence of labels to assign to each data series.
+            If unspecified, then ``'_nolegend_'`` will be applied to each bar.
+
         Returns
         -------
         `.BarContainer`
@@ -2302,8 +2306,6 @@ class Axes(_AxesBase):
         """
         kwargs = cbook.normalize_kwargs(kwargs, mpatches.Patch)
         color = kwargs.pop('color', None)
-        if color is None:
-            color = self._get_patches_for_fill.get_next_color()
         edgecolor = kwargs.pop('edgecolor', None)
         linewidth = kwargs.pop('linewidth', None)
         hatch = kwargs.pop('hatch', None)
@@ -2381,6 +2383,18 @@ class Axes(_AxesBase):
             tick_label_axis = self.yaxis
             tick_label_position = y
 
+        patch_labels = kwargs.pop('labels', ['_nolegend_'] * len(x))
+        if len(patch_labels) != len(x):
+            raise ValueError(f'number of labels ({len(patch_labels)}) '
+                             f'does not match number of bars ({len(x)}).')
+        if patch_labels[0] != '_nolegend_' and color is None:
+            color = [
+                self._get_patches_for_fill.get_next_color()
+                for _ in patch_labels
+            ]
+        elif color is None:
+            color = self._get_patches_for_fill.get_next_color()
+
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         hatch = itertools.cycle(np.atleast_1d(hatch))
         color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
@@ -2420,14 +2434,14 @@ class Axes(_AxesBase):
 
         patches = []
         args = zip(left, bottom, width, height, color, edgecolor, linewidth,
-                   hatch)
-        for l, b, w, h, c, e, lw, htch in args:
+                   hatch, patch_labels)
+        for l, b, w, h, c, e, lw, htch, lbl in args:
             r = mpatches.Rectangle(
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
                 edgecolor=e,
                 linewidth=lw,
-                label='_nolegend_',
+                label=lbl,
                 hatch=htch,
                 )
             r._internal_update(kwargs)

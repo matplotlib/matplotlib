@@ -1886,6 +1886,22 @@ def test_bar_hatches(fig_test, fig_ref):
     ax_test.bar(x, y, hatch=hatches)
 
 
+@pytest.mark.parametrize(
+    ("x", "width", "labels", "color"),
+    [
+        ("x", 1, "x", None),
+        ("x", 1, "x", "black"),
+        (["a", "b", "c"], [10, 20, 15], ["A", "B", "C"], None),
+        (["a", "b", "c"], [10, 20, 15], ["A", "B", "C"],
+         ["black", "blue", "orange"]),
+    ]
+)
+def test_bar_labels(x, width, labels, color):
+    _, ax = plt.subplots()
+    ax.bar(x, width, labels=labels, color=color)
+    ax.legend()
+
+
 def test_pandas_minimal_plot(pd):
     # smoke test that series and index objects do not warn
     for x in [pd.Series([1, 2], dtype="float64"),
