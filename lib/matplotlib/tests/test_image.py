@@ -1183,6 +1183,11 @@ class QuantityND(np.ndarray):
                 unit = f"{u0}*{u1}"
             elif ufunc == np.divide:
                 unit = f"{u0}/({u1})"
+            elif ufunc in (np.greater, np.greater_equal,
+                           np.equal, np.not_equal,
+                           np.less, np.less_equal):
+                # Comparisons produce unitless booleans for output
+                unit = None
             else:
                 return NotImplemented
             out_arr = func(i0.view(np.ndarray), i1.view(np.ndarray), **kwargs)
