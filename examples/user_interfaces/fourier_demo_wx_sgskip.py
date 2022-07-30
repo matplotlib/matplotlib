@@ -75,10 +75,10 @@ class SliderGroup(Knob):
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.sliderLabel, 0,
-                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL,
+                  wx.EXPAND | wx.ALL,
                   border=2)
         sizer.Add(self.sliderText, 0,
-                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL,
+                  wx.EXPAND | wx.ALL,
                   border=2)
         sizer.Add(self.slider, 1, wx.EXPAND)
         self.sizer = sizer
@@ -115,9 +115,9 @@ class FourierDemoFrame(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.canvas, 1, wx.EXPAND)
         sizer.Add(self.frequencySliderGroup.sizer, 0,
-                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
+                  wx.EXPAND | wx.ALL, border=5)
         sizer.Add(self.amplitudeSliderGroup.sizer, 0,
-                  wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, border=5)
+                  wx.EXPAND | wx.ALL, border=5)
         panel.SetSizer(sizer)
 
     def createCanvas(self, parent):
