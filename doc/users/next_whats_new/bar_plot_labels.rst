@@ -1,7 +1,7 @@
 Easier labelling of bars in bar plot
 ------------------------------------
 
-The new ``labels`` argument of `~matplotlib.axes.Axes.bar` can now 
+The new ``labels`` argument of `~matplotlib.axes.Axes.bar` can now
 be used to label each of the bars.
 
 .. code-block:: python
