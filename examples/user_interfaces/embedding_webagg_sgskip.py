@@ -16,6 +16,7 @@ import io
 import json
 import mimetypes
 from pathlib import Path
+import signal
 import socket
 
 try:
@@ -259,4 +260,17 @@ if __name__ == "__main__":
         print(f"Listening on http://{addr}:{port}/")
     print("Press Ctrl+C to quit")
 
-    tornado.ioloop.IOLoop.instance().start()
+    ioloop = tornado.ioloop.IOLoop.instance()
+
+    def shutdown():
+        ioloop.stop()
+        print("Server stopped")
+
+    old_handler = signal.signal(
+        signal.SIGINT,
+        lambda sig, frame: ioloop.add_callback_from_signal(shutdown))
+
+    try:
+        ioloop.start()
+    finally:
+        signal.signal(signal.SIGINT, old_handler)
