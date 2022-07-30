@@ -2369,6 +2369,15 @@ class Axes(_AxesBase):
             if yerr is not None:
                 yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
 
+        x = np.atleast_1d(x)
+        if x.size:
+            data_empty = False
+        else:
+            # if no data, add nan-values to keep legend entries correct
+            # see issue #21506
+            height = x = np.array([np.nan])
+            data_empty = True
+
         x, height, width, y, linewidth, hatch = np.broadcast_arrays(
             # Make args iterable too.
             np.atleast_1d(x), height, width, y, linewidth, hatch)
@@ -2465,8 +2474,12 @@ class Axes(_AxesBase):
         else:  # horizontal
             datavalues = width
 
-        bar_container = BarContainer(patches, errorbar, datavalues=datavalues,
-                                     orientation=orientation, label=label)
+        if data_empty:
+            bar_container = BarContainer([], [], datavalues=[],
+                                         orientation=orientation, label=label)
+        else:
+            bar_container = BarContainer(patches, errorbar, datavalues=datavalues,
+                                         orientation=orientation, label=label)
         self.add_container(bar_container)
 
         if tick_labels is not None:
