@@ -4,6 +4,11 @@
 
 .. py:currentmodule:: matplotlib
 
+.. automodule:: matplotlib
+   :no-members:
+   :no-undoc-members:
+   :noindex:
+
 Backend management
 ==================
 
