@@ -1902,6 +1902,12 @@ def test_bar_labels(x, width, labels, color):
     ax.legend()
 
 
+def test_bar_labels_length():
+    _, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.bar(["x", "y"], [1, 2], labels="X")
+
+
 def test_pandas_minimal_plot(pd):
     # smoke test that series and index objects do not warn
     for x in [pd.Series([1, 2], dtype="float64"),
