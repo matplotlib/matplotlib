@@ -1887,25 +1887,26 @@ def test_bar_hatches(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize(
-    ("x", "width", "labels", "color"),
+    ("x", "width", "label", "expected_labels"),
     [
-        ("x", 1, "x", None),
-        ("x", 1, "x", "black"),
-        (["a", "b", "c"], [10, 20, 15], ["A", "B", "C"], None),
+        ("x", 1, "x", ["x"]),
         (["a", "b", "c"], [10, 20, 15], ["A", "B", "C"],
-         ["black", "blue", "orange"]),
+         ["A", "B", "C"]),
+        (["a", "b", "c"], [10, 20, 15], "bars",
+         ["_nolegend_", "_nolegend_", "_nolegend_"]),
     ]
 )
-def test_bar_labels(x, width, labels, color):
+def test_bar_labels(x, width, label, expected_labels):
     _, ax = plt.subplots()
-    ax.bar(x, width, labels=labels, color=color)
-    ax.legend()
+    bar_container = ax.bar(x, width, label=label)
+    bar_labels = [bar.get_label() for bar in bar_container]
+    assert expected_labels == bar_labels
 
 
 def test_bar_labels_length():
     _, ax = plt.subplots()
     with pytest.raises(ValueError):
-        ax.bar(["x", "y"], [1, 2], labels="X")
+        ax.bar(["x", "y"], [1, 2], label=["X", "Y", "Z"])
 
 
 def test_pandas_minimal_plot(pd):

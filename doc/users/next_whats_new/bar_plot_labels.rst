@@ -1,8 +1,8 @@
 Easier labelling of bars in bar plot
 ------------------------------------
 
-The new ``labels`` argument of `~matplotlib.axes.Axes.bar` can now
-be used to label each of the bars.
+The ``label`` argument of `~matplotlib.axes.Axes.bar` can now
+be passed a list of labels for the bars.
 
 .. code-block:: python
 
@@ -12,5 +12,5 @@ be used to label each of the bars.
     y = [10, 20, 15]
 
     fig, ax = plt.subplots()
-    _ = ax.barh(x, y, labels=x)
-    ax.legend()
+    bar_container = ax.barh(x, y, label=x)
+    [bar.get_label() for bar in bar_container]
