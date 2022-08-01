@@ -2705,7 +2705,7 @@ class _AxesBase(martist.Artist):
         before calling :meth:`margins`.
         """
 
-        if margins and x is not None and y is not None:
+        if margins and (x is not None or y is not None):
             raise TypeError('Cannot pass both positional and keyword '
                             'arguments for x and/or y.')
         elif len(margins) == 1:
