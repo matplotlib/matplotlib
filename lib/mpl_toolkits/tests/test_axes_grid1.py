@@ -18,6 +18,7 @@ from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
 from mpl_toolkits.axes_grid1.axes_divider import (
     HBoxDivider, make_axes_area_auto_adjustable)
+from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
 import mpl_toolkits.axes_grid1.mpl_axes
@@ -536,3 +537,14 @@ def test_auto_adjustable():
     assert tbb.x1 == pytest.approx(fig.bbox.width - pad * fig.dpi)
     assert tbb.y0 == pytest.approx(pad * fig.dpi)
     assert tbb.y1 == pytest.approx(fig.bbox.height - pad * fig.dpi)
+
+
+@image_comparison(['rgb_axes.png'], remove_text=True)
+def test_rgb_axes():
+    fig = plt.figure()
+    ax = RGBAxes(fig, (0.1, 0.1, 0.8, 0.8), pad=0.1)
+    rng = np.random.default_rng(19680801)
+    r = rng.random((5, 5))
+    g = rng.random((5, 5))
+    b = rng.random((5, 5))
+    ax.imshow_rgb(r, g, b, interpolation='none')
