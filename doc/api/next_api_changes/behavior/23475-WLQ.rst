@@ -1,0 +1,5 @@
+The markerfacecoloralt parameter to Line2D is now supported by axes.errorbar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- markerfacecoloralt is now passed to the line plotter from axes.errorbar
+- Documentation for axes.errorbar how accurately lists which properties are
+  passed on to Line2D, rather than claiming that all kwargs are passed on
