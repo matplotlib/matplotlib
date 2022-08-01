@@ -332,6 +332,7 @@ class GridHelperBase:
         """
         return []
 
+    @_api.deprecated("3.6")
     def new_gridlines(self, ax):
         """
         Create and return a new GridlineCollection instance.
@@ -462,25 +463,11 @@ class Axes(maxes.Axes):
             self.xaxis.set_visible(True)
             self.yaxis.set_visible(True)
 
-    def _init_axis_artists(self, axes=None):
-        if axes is None:
-            axes = self
-
-        self._axislines = mpl_axes.Axes.AxisDict(self)
-        new_fixed_axis = self.get_grid_helper().new_fixed_axis
-        for loc in ["bottom", "top", "left", "right"]:
-            self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes,
-                                                  axis_direction=loc)
-
-        for axisline in [self._axislines["top"], self._axislines["right"]]:
-            axisline.label.set_visible(False)
-            axisline.major_ticklabels.set_visible(False)
-            axisline.minor_ticklabels.set_visible(False)
-
     @property
     def axis(self):
         return self._axislines
 
+    @_api.deprecated("3.6")
     def new_gridlines(self, grid_helper=None):
         """
         Create and return a new GridlineCollection instance.
@@ -495,21 +482,33 @@ class Axes(maxes.Axes):
         gridlines = grid_helper.new_gridlines(self)
         return gridlines
 
-    def _init_gridlines(self, grid_helper=None):
-        # It is done inside the cla.
-        self.gridlines = self.new_gridlines(grid_helper)
-
     def clear(self):
         # docstring inherited
-        # gridlines need to be created before clear() since clear calls grid()
-        self._init_gridlines()
+
+        # Init gridlines before clear() as clear() calls grid().
+        self.gridlines = gridlines = GridlinesCollection(
+            None, transform=self.transData,
+            colors=rcParams['grid.color'],
+            linestyles=rcParams['grid.linestyle'],
+            linewidths=rcParams['grid.linewidth'])
+        self._set_artist_props(gridlines)
+        gridlines.set_grid_helper(self.get_grid_helper())
+
         super().clear()
 
-        # the clip_path should be set after Axes.clear() since that's
-        # when a patch is created.
-        self.gridlines.set_clip_path(self.axes.patch)
+        # clip_path is set after Axes.clear(): that's when a patch is created.
+        gridlines.set_clip_path(self.axes.patch)
 
-        self._init_axis_artists()
+        # Init axis artists.
+        self._axislines = mpl_axes.Axes.AxisDict(self)
+        new_fixed_axis = self.get_grid_helper().new_fixed_axis
+        self._axislines.update({
+            loc: new_fixed_axis(loc=loc, axes=self, axis_direction=loc)
+            for loc in ["bottom", "top", "left", "right"]})
+        for axisline in [self._axislines["top"], self._axislines["right"]]:
+            axisline.label.set_visible(False)
+            axisline.major_ticklabels.set_visible(False)
+            axisline.minor_ticklabels.set_visible(False)
 
     def get_grid_helper(self):
         return self._grid_helper
@@ -564,27 +563,18 @@ Subplot = maxes.subplot_class_factory(Axes)
 
 class AxesZero(Axes):
 
-    def _init_axis_artists(self):
-        super()._init_axis_artists()
-
-        new_floating_axis = self._grid_helper.new_floating_axis
-        xaxis_zero = new_floating_axis(nth_coord=0,
-                                       value=0.,
-                                       axis_direction="bottom",
-                                       axes=self)
-
-        xaxis_zero.line.set_clip_path(self.patch)
-        xaxis_zero.set_visible(False)
-        self._axislines["xzero"] = xaxis_zero
-
-        yaxis_zero = new_floating_axis(nth_coord=1,
-                                       value=0.,
-                                       axis_direction="left",
-                                       axes=self)
-
-        yaxis_zero.line.set_clip_path(self.patch)
-        yaxis_zero.set_visible(False)
-        self._axislines["yzero"] = yaxis_zero
+    def clear(self):
+        super().clear()
+        new_floating_axis = self.get_grid_helper().new_floating_axis
+        self._axislines.update(
+            xzero=new_floating_axis(
+                nth_coord=0, value=0., axis_direction="bottom", axes=self),
+            yzero=new_floating_axis(
+                nth_coord=1, value=0., axis_direction="left", axes=self),
+        )
+        for k in ["xzero", "yzero"]:
+            self._axislines[k].line.set_clip_path(self.patch)
+            self._axislines[k].set_visible(False)
 
 
 SubplotZero = maxes.subplot_class_factory(AxesZero)
