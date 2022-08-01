@@ -76,7 +76,7 @@ class Text3D(mtext.Text):
 
     Parameters
     ----------
-    x, y, z
+    x, y, z : float
         The position of the text.
     text : str
         The text string to display.
@@ -107,8 +107,8 @@ class Text3D(mtext.Text):
         xyz : (float, float, float)
             The position in 3D space.
         zdir : {'x', 'y', 'z', None, 3-tuple}
-            The direction of the text. If unspecified, the zdir will not be
-            changed.
+            The direction of the text. If unspecified, the *zdir* will not be
+            changed. See `.get_dir_vector` for a description of the values.
         """
         super().set_position(xyz[:2])
         self.set_z(xyz[2])
@@ -127,6 +127,17 @@ class Text3D(mtext.Text):
         self.stale = True
 
     def set_3d_properties(self, z=0, zdir='z'):
+        """
+        Set the *z* position and direction of the text.
+
+        Parameters
+        ----------
+        z : float
+            The z-position in 3D space.
+        zdir : {'x', 'y', 'z', 3-tuple}
+            The direction of the text. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        """
         self._z = z
         self._dir_vec = get_dir_vector(zdir)
         self.stale = True
@@ -151,7 +162,17 @@ class Text3D(mtext.Text):
 
 
 def text_2d_to_3d(obj, z=0, zdir='z'):
-    """Convert a Text to a Text3D object."""
+    """
+    Convert a `.Text` to a `.Text3D` object.
+
+    Parameters
+    ----------
+    z : float
+        The z-position in 3D space.
+    zdir : {'x', 'y', 'z', 3-tuple}
+        The direction of the text. Default: 'z'.
+        See `.get_dir_vector` for a description of the values.
+    """
     obj.__class__ = Text3D
     obj.set_3d_properties(z, zdir)
 
@@ -163,12 +184,34 @@ class Line3D(lines.Line2D):
 
     def __init__(self, xs, ys, zs, *args, **kwargs):
         """
-        Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
+
+        Parameters
+        ----------
+        xs : array-like
+            The x-data to be plotted.
+        ys : array-like
+            The y-data to be plotted.
+        zs : array-like
+            The z-data to be plotted.
+
+        Additional arguments are passed onto :func:`~matplotlib.lines.Line2D`.
         """
         super().__init__([], [], *args, **kwargs)
         self._verts3d = xs, ys, zs
 
     def set_3d_properties(self, zs=0, zdir='z'):
+        """
+        Set the *z* position and direction of the line.
+
+        Parameters
+        ----------
+        zs : float or array of floats
+            The location along the *zdir* axis in 3D space to position the
+            line.
+        zdir : {'x', 'y', 'z'}
+            Plane to plot line orthogonal to. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        """
         xs = self.get_xdata()
         ys = self.get_ydata()
         zs = cbook._to_unmasked_float_array(zs).ravel()
@@ -220,7 +263,17 @@ class Line3D(lines.Line2D):
 
 
 def line_2d_to_3d(line, zs=0, zdir='z'):
-    """Convert a 2D line to 3D."""
+    """
+    Convert a `.Line2D` to a `.Line3D` object.
+
+    Parameters
+    ----------
+    zs : float
+        The location along the *zdir* axis in 3D space to position the line.
+    zdir : {'x', 'y', 'z'}
+        Plane to plot line orthogonal to. Default: 'z'.
+        See `.get_dir_vector` for a description of the values.
+    """
 
     line.__class__ = Line3D
     line.set_3d_properties(zs, zdir)
@@ -314,7 +367,7 @@ class Line3DCollection(LineCollection):
 
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
-    """Convert a LineCollection to a Line3DCollection object."""
+    """Convert a `.LineCollection` to a `.Line3DCollection` object."""
     segments3d = _paths_to_3d_segments(col.get_paths(), zs, zdir)
     col.__class__ = Line3DCollection
     col.set_segments(segments3d)
@@ -326,10 +379,34 @@ class Patch3D(Patch):
     """
 
     def __init__(self, *args, zs=(), zdir='z', **kwargs):
+        """
+        Parameters
+        ----------
+        verts :
+        zs : float
+            The location along the *zdir* axis in 3D space to position the
+            patch.
+        zdir : {'x', 'y', 'z'}
+            Plane to plot patch orthogonal to. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        """
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
+        """
+        Set the *z* position and direction of the patch.
+
+        Parameters
+        ----------
+        verts :
+        zs : float
+            The location along the *zdir* axis in 3D space to position the
+            patch.
+        zdir : {'x', 'y', 'z'}
+            Plane to plot patch orthogonal to. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        """
         zs = np.broadcast_to(zs, len(verts))
         self._segment3d = [juggle_axes(x, y, z, zdir)
                            for ((x, y), z) in zip(verts, zs)]
@@ -352,11 +429,35 @@ class PathPatch3D(Patch3D):
     """
 
     def __init__(self, path, *, zs=(), zdir='z', **kwargs):
+        """
+        Parameters
+        ----------
+        path :
+        zs : float
+            The location along the *zdir* axis in 3D space to position the
+            path patch.
+        zdir : {'x', 'y', 'z', 3-tuple}
+            Plane to plot path patch orthogonal to. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        """
         # Not super().__init__!
         Patch.__init__(self, **kwargs)
         self.set_3d_properties(path, zs, zdir)
 
     def set_3d_properties(self, path, zs=0, zdir='z'):
+        """
+        Set the *z* position and direction of the path patch.
+
+        Parameters
+        ----------
+        path :
+        zs : float
+            The location along the *zdir* axis in 3D space to position the
+            path patch.
+        zdir : {'x', 'y', 'z', 3-tuple}
+            Plane to plot path patch orthogonal to. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        """
         Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir)
         self._code3d = path.codes
 
@@ -378,14 +479,14 @@ def _get_patch_verts(patch):
 
 
 def patch_2d_to_3d(patch, z=0, zdir='z'):
-    """Convert a Patch to a Patch3D object."""
+    """Convert a `.Patch` to a `.Patch3D` object."""
     verts = _get_patch_verts(patch)
     patch.__class__ = Patch3D
     patch.set_3d_properties(verts, z, zdir)
 
 
 def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
-    """Convert a PathPatch to a PathPatch3D object."""
+    """Convert a `.PathPatch` to a `.PathPatch3D` object."""
     path = pathpatch.get_path()
     trans = pathpatch.get_patch_transform()
 
@@ -441,6 +542,19 @@ class Patch3DCollection(PatchCollection):
         self.stale = True
 
     def set_3d_properties(self, zs, zdir):
+        """
+        Set the *z* positions and direction of the patches.
+
+        Parameters
+        ----------
+        zs : float or array of floats
+            The location or locations to place the patches in the collection
+            along the *zdir* axis.
+        zdir : {'x', 'y', 'z'}
+            Plane to plot patches orthogonal to.
+            All patches must have the same direction.
+            See `.get_dir_vector` for a description of the values.
+        """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
@@ -525,6 +639,19 @@ class Path3DCollection(PathCollection):
         self.stale = True
 
     def set_3d_properties(self, zs, zdir):
+        """
+        Set the *z* positions and direction of the paths.
+
+        Parameters
+        ----------
+        zs : float or array of floats
+            The location or locations to place the paths in the collection
+            along the *zdir* axis.
+        zdir : {'x', 'y', 'z'}
+            Plane to plot paths orthogonal to.
+            All paths must have the same direction.
+            See `.get_dir_vector` for a description of the values.
+        """
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
@@ -636,18 +763,17 @@ class Path3DCollection(PathCollection):
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z', depthshade=True):
     """
-    Convert a :class:`~matplotlib.collections.PatchCollection` into a
-    :class:`Patch3DCollection` object
-    (or a :class:`~matplotlib.collections.PathCollection` into a
-    :class:`Path3DCollection` object).
+    Convert a `.PatchCollection` into a `.Patch3DCollection` object
+    (or a `.PathCollection` into a `.Path3DCollection` object).
 
     Parameters
     ----------
-    za
+    zs : float or array of floats
         The location or locations to place the patches in the collection along
         the *zdir* axis. Default: 0.
-    zdir
+    zdir : {'x', 'y', 'z'}
         The axis in which to place the patches. Default: "z".
+        See `.get_dir_vector` for a description of the values.
     depthshade
         Whether to shade the patches to give a sense of depth. Default: *True*.
 
@@ -687,8 +813,9 @@ class Poly3DCollection(PolyCollection):
         Parameters
         ----------
         verts : list of (N, 3) array-like
-            Each element describes a polygon as a sequence of ``N_i`` points
-            ``(x, y, z)``.
+            The sequence of polygons [*verts0*, *verts1*, ...] where each
+            element *verts_i* defines the vertices of polygon *i* as a 2D
+            array-like of shape (N, 3).
         zsort : {'average', 'min', 'max'}, default: 'average'
             The calculation method for the z-order.
             See `~.Poly3DCollection.set_zsort` for details.
@@ -743,7 +870,19 @@ class Poly3DCollection(PolyCollection):
         self._segslices = [*map(slice, indices[:-1], indices[1:])]
 
     def set_verts(self, verts, closed=True):
-        """Set 3D vertices."""
+        """
+        Set 3D vertices.
+
+        Parameters
+        ----------
+        verts : list of (N, 3) array-like
+            The sequence of polygons [*verts0*, *verts1*, ...] where each
+            element *verts_i* defines the vertices of polygon *i* as a 2D
+            array-like of shape (N, 3).
+        closed : bool, default: True
+            Whether the polygon should be closed by adding a CLOSEPOLY
+            connection at the end.
+        """
         self.get_vector(verts)
         # 2D verts will be updated at draw time
         super().set_verts([], False)
@@ -885,7 +1024,18 @@ class Poly3DCollection(PolyCollection):
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
-    """Convert a PolyCollection to a Poly3DCollection object."""
+    """
+    Convert a `.PolyCollection` into a `.Poly3DCollection` object.
+
+    Parameters
+    ----------
+    zs : float or array of floats
+        The location or locations to place the polygons in the collection along
+        the *zdir* axis. Default: 0.
+    zdir : {'x', 'y', 'z'}
+        The axis in which to place the patches. Default: 'z'.
+        See `.get_dir_vector` for a description of the values.
+    """
     segments_3d, codes = _paths_to_3d_segments_with_codes(
             col.get_paths(), zs, zdir)
     col.__class__ = Poly3DCollection
@@ -895,9 +1045,10 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
 
 def juggle_axes(xs, ys, zs, zdir):
     """
-    Reorder coordinates so that 2D xs, ys can be plotted in the plane
-    orthogonal to zdir. zdir is normally x, y or z. However, if zdir
-    starts with a '-' it is interpreted as a compensation for rotate_axes.
+    Reorder coordinates so that 2D *xs*, *ys* can be plotted in the plane
+    orthogonal to *zdir*. *zdir* is normally 'x', 'y' or 'z'. However, if
+    *zdir* starts with a '-' it is interpreted as a compensation for
+    `rotate_axes`.
     """
     if zdir == 'x':
         return zs, xs, ys
@@ -911,20 +1062,14 @@ def juggle_axes(xs, ys, zs, zdir):
 
 def rotate_axes(xs, ys, zs, zdir):
     """
-    Reorder coordinates so that the axes are rotated with zdir along
+    Reorder coordinates so that the axes are rotated with *zdir* along
     the original z axis. Prepending the axis with a '-' does the
-    inverse transform, so zdir can be x, -x, y, -y, z or -z
+    inverse transform, so *zdir* can be 'x', '-x', 'y', '-y', 'z' or '-z'.
     """
-    if zdir == 'x':
+    if zdir in ('x', '-y'):
         return ys, zs, xs
-    elif zdir == '-x':
+    elif zdir in ('-x', 'y'):
         return zs, xs, ys
-
-    elif zdir == 'y':
-        return zs, xs, ys
-    elif zdir == '-y':
-        return ys, zs, xs
-
     else:
         return xs, ys, zs
 

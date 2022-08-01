@@ -108,7 +108,7 @@ class HostAxesBase:
 
         Parameters
         ----------
-        tr : `.Transform` or None, default: None
+        tr : `~matplotlib.transforms.Transform` or None, default: None
             If a `.Transform`, the following relation will hold:
             ``parasite.transData = tr + host.transData``.
             If None, the parasite's and the host's ``transData`` are unrelated.
@@ -116,8 +116,8 @@ class HostAxesBase:
             How the parasite's view limits are set: directly equal to the
             parent axes ("equal"), equal after application of *tr*
             ("transform"), or independently (None).
-        axes_class : subclass type of `~.axes.Axes`, optional
-            The `.axes.Axes` subclass that is instantiated.  If None, the base
+        axes_class : subclass type of `~matplotlib.axes.Axes`, optional
+            The `~.axes.Axes` subclass that is instantiated.  If None, the base
             class of the host axes is used.
         kwargs
             Other parameters are forwarded to the parasite axes constructor.
@@ -251,12 +251,12 @@ def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
 
     Parameters
     ----------
-    figure : `matplotlib.figure.Figure`
+    figure : `~matplotlib.figure.Figure`
         Figure to which the axes will be added. Defaults to the current figure
         `.pyplot.gcf()`.
 
     *args, **kwargs
-        Will be passed on to the underlying ``Axes`` object creation.
+        Will be passed on to the underlying `~.axes.Axes` object creation.
     """
     import matplotlib.pyplot as plt
     host_axes_class = host_axes_class_factory(axes_class)

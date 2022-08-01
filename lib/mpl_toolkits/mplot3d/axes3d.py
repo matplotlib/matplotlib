@@ -299,7 +299,7 @@ class Axes3D(Axes):
         anchor : None or str or 2-tuple of float, optional
             If not *None*, this defines where the Axes will be drawn if there
             is extra space due to aspect constraints. The most common way to
-            to specify the anchor are abbreviations of cardinal directions:
+            specify the anchor are abbreviations of cardinal directions:
 
             =====   =====================
             value   description
@@ -402,7 +402,7 @@ class Axes3D(Axes):
         aspect : 3-tuple of floats or None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
-            If None, defaults to (4,4,3).
+            If None, defaults to (4, 4, 3).
 
         zoom : float, default: 1
             Control overall size of the Axes3D in the figure. Must be > 0.
@@ -1205,7 +1205,8 @@ class Axes3D(Axes):
                             mode=None, twinx=False, twiny=False):
         """
         Zoom in or out of the bounding box.
-        Will center the view on the center of the bounding box, and zoom by
+
+        Will center the view in the center of the bounding box, and zoom by
         the ratio of the size of the bounding box to the size of the Axes3D.
         """
         (start_x, start_y, stop_x, stop_y) = bbox
@@ -1251,6 +1252,7 @@ class Axes3D(Axes):
     def _zoom_data_limits(self, scale_u, scale_v, scale_w):
         """
         Zoom in or out of a 3D plot.
+
         Will scale the data limits by the scale factors. These will be
         transformed to the x, y, z data axes based on the current view angles.
         A scale factor > 1 zooms out and a scale factor < 1 zooms in.
@@ -1441,9 +1443,11 @@ class Axes3D(Axes):
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
         """
-        Add text to the plot. kwargs will be passed on to Axes.text,
-        except for the *zdir* keyword, which sets the direction to be
-        used as the z direction.
+        Add text to the plot.
+
+        Keyword arguments will be passed on to `.Axes.text`, except for the
+        *zdir* keyword, which sets the direction to be used as the z
+        direction.
         """
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
@@ -1466,7 +1470,7 @@ class Axes3D(Axes):
             z coordinates of vertices; either one for all points or one for
             each point.
         zdir : {'x', 'y', 'z'}, default: 'z'
-            When plotting 2D data, the direction to use as z ('x', 'y' or 'z').
+            When plotting 2D data, the direction to use as z.
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
         """
@@ -1500,7 +1504,7 @@ class Axes3D(Axes):
         """
         Create a surface plot.
 
-        By default it will be colored in shades of a solid color, but it also
+        By default, it will be colored in shades of a solid color, but it also
         supports colormapping by supplying the *cmap* argument.
 
         .. note::
@@ -1910,7 +1914,7 @@ class Axes3D(Axes):
           plot_trisurf(X, Y, triangles=triangles, ...)
 
         in which case a Triangulation object will be created.  See
-        `.Triangulation` for a explanation of these possibilities.
+        `.Triangulation` for an explanation of these possibilities.
 
         The remaining arguments are::
 
@@ -2063,7 +2067,7 @@ class Axes3D(Axes):
         """
         Returns
         -------
-        levels : numpy.ndarray
+        levels : `numpy.ndarray`
             Levels at which the filled contours are added.
         """
         zdir = '-' + zdir
@@ -2102,7 +2106,7 @@ class Axes3D(Axes):
             The direction to use.
         offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir.
+            position in a plane normal to *zdir*.
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -2146,7 +2150,7 @@ class Axes3D(Axes):
             The direction to use.
         offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir.
+            position in a plane normal to *zdir*.
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
@@ -2200,7 +2204,7 @@ class Axes3D(Axes):
             The direction to use.
         offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir.
+            position in a plane normal to *zdir*.
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs

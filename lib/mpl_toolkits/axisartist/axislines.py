@@ -20,8 +20,8 @@ a dictionary of these artists, i.e., ax.axis["left"] is a AxisArtist
 instance responsible to draw left y-axis. The default Axes.axis contains
 "bottom", "left", "top" and "right".
 
-AxisArtist can be considered as a container artist and
-has following children artists which will draw ticks, labels, etc.
+AxisArtist can be considered as a container artist and has the following
+children artists which will draw ticks, labels, etc.
 
 * line
 * major_ticks, major_ticklabels
@@ -111,7 +111,7 @@ class AxisArtistHelper:
             if nth_coord is None:
                 if loc in ["left", "right"]:
                     nth_coord = 1
-                elif loc in ["bottom", "top"]:
+                else:  # "bottom", "top"
                     nth_coord = 0
 
             self.nth_coord = nth_coord
@@ -194,7 +194,7 @@ class AxisArtistHelperRectlinear:
             """tick_loc, tick_angle, tick_label"""
             if self._loc in ["bottom", "top"]:
                 angle_normal, angle_tangent = 90, 0
-            else:
+            else:  # "left", "right"
                 angle_normal, angle_tangent = 0, 90
 
             major = self.axis.major
@@ -311,8 +311,10 @@ class GridHelperBase:
         """
         Return list of grid lines as a list of paths (list of points).
 
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"both", "major", "minor"}
+        axis : {"both", "x", "y"}
         """
         return []
 
@@ -391,23 +393,27 @@ class GridHelperRectlinear(GridHelperBase):
         """
         Return list of gridline coordinates in data coordinates.
 
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"both", "major", "minor"}
+        axis : {"both", "x", "y"}
         """
+        _api.check_in_list(["both", "major", "minor"], which=which)
+        _api.check_in_list(["both", "x", "y"], axis=axis)
         gridlines = []
 
-        if axis in ["both", "x"]:
+        if axis in ("both", "x"):
             locs = []
             y1, y2 = self.axes.get_ylim()
-            if which in ["both", "major"]:
+            if which in ("both", "major"):
                 locs.extend(self.axes.xaxis.major.locator())
-            if which in ["both", "minor"]:
+            if which in ("both", "minor"):
                 locs.extend(self.axes.xaxis.minor.locator())
 
             for x in locs:
                 gridlines.append([[x, x], [y1, y2]])
 
-        if axis in ["both", "y"]:
+        if axis in ("both", "y"):
             x1, x2 = self.axes.get_xlim()
             locs = []
             if self.axes.yaxis._major_tick_kw["gridOn"]:
