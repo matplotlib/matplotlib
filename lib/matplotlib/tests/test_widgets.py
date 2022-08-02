@@ -995,7 +995,8 @@ def test_TextBox(ax, toolbar):
 
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
-def test_check_radio_buttons_image(ax):
+def test_check_radio_buttons_image():
+    ax = get_ax()
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
