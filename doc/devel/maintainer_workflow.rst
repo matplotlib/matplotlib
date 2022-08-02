@@ -6,7 +6,7 @@
 Maintainer workflow
 ###################
 
-This page is for maintainers |emdash| those of us who merge our own or other
+This page is for maintainers — those of us who merge our own or other
 peoples' changes into the upstream repository.
 
 Being as how you're a maintainer, you are completely on top of the basic stuff
@@ -94,5 +94,3 @@ Push to trunk
 
 This pushes the ``my-new-feature`` branch in this repository to the ``main``
 branch in the ``upstream-rw`` repository.
-
-.. include:: links.inc

@@ -15,7 +15,7 @@ Retrieve the latest version of the code
 Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git.
 
 You can retrieve the latest sources with the command (see
-:ref:`set-up-fork` for more details)
+`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details)::
 
 .. tab-set::
 
@@ -69,6 +69,11 @@ The simplest way to do this is to use either Python's virtual environment
         <file folder location>\Scripts\activate.bat  # Windows cmd.exe
         <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
 
+Conda dev environment
+---------------------
+
+After you have cloned the repo change into the matplotlib directory.
+
    .. tab-item:: conda environment
 
       Create a new `conda`_ environment with ::
@@ -86,12 +91,30 @@ The simplest way to do this is to use either Python's virtual environment
 
 Remember to activate the environment whenever you start working on Matplotlib.
 
+<<<<<<< HEAD
 Install additional development dependencies
 ===========================================
 See :ref:`development-dependencies`.
 
+=======
+<<<<<<< HEAD
+>>>>>>> e998d58f3c (Refactoring gitwash)
 Install Matplotlib in editable mode
 ===================================
+=======
+.. seealso::
+
+  * `Git documentation <https://git-scm.com/doc>`_
+  * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+  * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
+  * :ref:`using-git`
+  * :ref:`git-resources`
+  * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
+
+
+Installing Matplotlib in editable mode
+======================================
+>>>>>>> 0e759d3ee8 (Refactoring gitwash)
 Install Matplotlib in editable mode from the :file:`matplotlib` directory
 using the command ::
 

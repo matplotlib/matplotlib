@@ -6,10 +6,6 @@
 Development workflow
 ####################
 
-You already have your own forked copy of the `Matplotlib`_ repository, by
-following :ref:`forking`. You have :ref:`set-up-fork`. You have configured
-git by following :ref:`configure-git`.  Now you are ready for some real work.
-
 Workflow summary
 ================
 
@@ -17,30 +13,26 @@ In what follows we'll refer to the upstream Matplotlib ``main`` branch, as
 "trunk".
 
 * Don't use your ``main`` branch for anything.  Consider deleting it.
-* When you are starting a new set of changes, fetch any changes from trunk,
+* When you are starting a new set of changes, fetch any changes from ``main``,
   and start a new *feature branch* from that.
-* Make a new branch for each separable set of changes |emdash| "one task, one
-  branch" (`ipython git workflow`_).
+* Make a new branch for each separable set of changes — "one task, one
+  branch".
 * Name your branch for the purpose of the changes - e.g.
   ``bugfix-for-issue-14`` or ``refactor-database-code``.
-* If you can possibly avoid it, avoid merging trunk or any other branches into
-  your feature branch while you are working.
-* If you do find yourself merging from trunk, consider :ref:`rebase-on-trunk`
-* Ask on the `Matplotlib mailing list`_ if you get stuck.
+* If you get stuck, reach out on Gitter or the Mailing list.
 * Ask for code review!
 
 This way of working helps to keep work well organized, with readable history.
 This in turn makes it easier for project maintainers (that might be you) to see
 what you've done, and why you did it.
 
-See `linux git workflow`_ and `ipython git workflow`_ for some explanation.
+.. note::
 
-Consider deleting your main branch
-==================================
+   It may sound strange, but deleting your own ``main`` branch can help reduce
+   confusion about which branch you are on.  See `deleting main on github`_ for
+   details.
 
-It may sound strange, but deleting your own ``main`` branch can help reduce
-confusion about which branch you are on.  See `deleting main on github`_ for
-details.
+.. _deleting main on github: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
 
 .. _update-mirror-trunk:
 
@@ -82,8 +74,8 @@ what the changes in the branch are for.  For example ``add-ability-to-fly``, or
     git branch my-new-feature upstream/main
     git checkout my-new-feature
 
-Generally, you will want to keep your feature branches on your public github_
-fork of `Matplotlib`_.  To do this, you `git push`_ this new branch up to your
+Generally, you will want to keep your feature branches on your public GitHub
+fork of Matplotlib.  To do this, you ``git push`` this new branch up to your
 github repo.  Generally (if you followed the instructions in these pages, and by
 default), git will have a link to your github repo, called ``origin``.  You push
 up to your own repo on github with::
@@ -117,7 +109,7 @@ In more detail
 --------------
 
 #. Make some changes
-#. See which files have changed with ``git status`` (see `git status`_).
+#. See which files have changed with ``git status``.
    You'll see a listing like this one:
 
    .. code-block:: none
@@ -135,89 +127,39 @@ In more detail
      #	INSTALL
      no changes added to commit (use "git add" and/or "git commit -a")
 
-#. Check what the actual changes are with ``git diff`` (`git diff`_).
-#. Add any new files to version control ``git add new_file_name`` (see
-   `git add`_).
+#. Check what the actual changes are with ``git diff``.
+#. Add any new files to version control ``git add new_file_name``.
 #. To commit all modified files into the local copy of your repo,, do
    ``git commit -am 'A commit message'``.  Note the ``-am`` options to
    ``commit``. The ``m`` flag just signals that you're going to type a
-   message on the command line.  The ``a`` flag |emdash| you can just take on
-   faith |emdash| or see `why the -a flag?`_ |emdash| and the helpful use-case
-   description in the `tangled working copy problem`_. The `git commit`_ manual
-   page might also be useful.
+   message on the command line.  The ``a`` flag — you can just take on
+   faith — or see `why the -a flag?`_ — and the helpful use-case
+   description in the `tangled working copy problem`_. The
+   `git commit <https://git-scm.com/docs/git-commit>`_ manual page might also be
+   useful.
 #. To push the changes up to your forked repo on github, do a ``git
-   push`` (see `git push`_).
+   push``.
+
+.. _why the -a flag?: http://gitready.com/beginner/2009/01/18/the-staging-area.html
+.. _tangled working copy problem: http://2ndscale.com/rtomayko/2008/the-thing-about-git
+
 
 Ask for your changes to be reviewed or merged
 =============================================
 
-When you are ready to ask for someone to review your code and consider a merge:
+When you are ready to ask for someone to review your code and consider a merge,
+`submit your Pull Request (PR) <https://docs.github.com/pull-requests>`_.
 
-#. Go to the URL of your forked repo, say
-   ``https://github.com/your-user-name/matplotlib``.
-#. Use the 'Switch Branches' dropdown menu near the top left of the page to
-   select the branch with your changes:
+Enter a title for the set of changes, and some explanation of what you've done.
+Say if there is anything you'd like particular attention for - like a
+complicated change or some code you are not happy with.
 
-   .. image:: branch_dropdown.png
-
-#. Click on the 'Pull request' button:
-
-   .. image:: pull_button.png
-
-   Enter a title for the set of changes, and some explanation of what you've
-   done.  Say if there is anything you'd like particular attention for - like a
-   complicated change or some code you are not happy with.
-
-   If you don't think your request is ready to be merged, just say so in your
-   pull request message.  This is still a good way of getting some preliminary
-   code review.
+If you don't think your request is ready to be merged, just say so in your pull
+request message.  This is still a good way of getting some preliminary code
+review.
 
 Some other things you might want to do
 ======================================
-
-Delete a branch on github
--------------------------
-
-::
-
-   git checkout main
-   # delete branch locally
-   git branch -D my-unwanted-branch
-   # delete branch on github
-   git push origin :my-unwanted-branch
-
-Note the colon ``:`` before ``my-unwanted-branch``.  See also:
-https://help.github.com/articles/pushing-to-a-remote/#deleting-a-remote-branch-or-tag
-
-Several people sharing a single repository
-------------------------------------------
-
-If you want to work on some stuff with other people, where you are all
-committing into the same repository, or even the same branch, then just
-share it via github.
-
-First fork Matplotlib into your account, as from :ref:`forking`.
-
-Then, go to your forked repository github page, say
-``https://github.com/your-user-name/matplotlib``
-
-Click on the 'Admin' button, and add anyone else to the repo as a
-collaborator:
-
-   .. image:: pull_button.png
-
-Now all those people can do::
-
-    git clone https://github.com/your-user-name/matplotlib.git
-
-Remember that links starting with ``https`` or ``git@`` are read-write, and that
-``git@`` uses the ssh protocol.
-
-Your collaborators can then commit directly into that repo with the
-usual::
-
-     git commit -am 'ENH - much better code'
-     git push origin main # pushes directly into your repo
 
 Explore your repository
 -----------------------
@@ -231,11 +173,8 @@ To see a linear list of commits for this branch::
 
    git log
 
-You can also look at the `network graph visualizer`_ for your github
+You can also look at the `network graph visualizer <https://github.com/matplotlib/matplotlib/network>`_ for your github
 repo.
-
-Finally the :ref:`fancy-log` ``lg`` alias will give you a reasonable text-based
-graph of the repository.
 
 .. _rebase-on-trunk:
 
@@ -275,6 +214,8 @@ your history will look like this:
 
 See `rebase without tears`_ for more detail.
 
+.. _rebase without tears: https://matthew-brett.github.io/pydagogue/rebase_without_tears.html
+
 To do a rebase on trunk::
 
     # Update the mirror of trunk
@@ -302,6 +243,10 @@ If you have made changes to files that have also changed in trunk, this may
 generate merge conflicts that you need to resolve - see the `git rebase`_ man
 page for some instructions at the end of the "Description" section. There is
 some related help on merging in the git user manual - see `resolving a merge`_.
+
+.. _git rebase: https://git-scm.com/docs/git-rebase
+.. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
+
 
 .. _recovering-from-mess-up:
 
@@ -419,5 +364,3 @@ and the history looks now like this::
 
 If it went wrong, recovery is again possible as explained :ref:`above
 <recovering-from-mess-up>`.
-
-.. include:: links.inc
