@@ -1,19 +1,11 @@
 from contextlib import nullcontext
 
-from .. import _api
-from . import backend_cairo, backend_gtk3
-from .backend_gtk3 import Gtk, _BackendGTK3
+from .backend_cairo import (
+    FigureCanvasCairo, _RendererGTKCairo as RendererGTK3Cairo)
+from .backend_gtk3 import Gtk, FigureCanvasGTK3, _BackendGTK3
 
 
-@_api.deprecated("3.6")
-class RendererGTK3Cairo(backend_cairo.RendererCairo):
-    def set_context(self, ctx):
-        self.gc.ctx = backend_cairo._to_context(ctx)
-
-
-class FigureCanvasGTK3Cairo(backend_cairo.FigureCanvasCairo,
-                            backend_gtk3.FigureCanvasGTK3):
-
+class FigureCanvasGTK3Cairo(FigureCanvasCairo, FigureCanvasGTK3):
     def on_draw_event(self, widget, ctx):
         with (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
               else nullcontext()):
