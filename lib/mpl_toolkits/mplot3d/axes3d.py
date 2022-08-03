@@ -353,7 +353,7 @@ class Axes3D(Axes):
         aspect : {'auto', 'equal', 'equalxy', 'equalxz', 'equalyz'}
             See descriptions in docstring for `.set_aspect()`.
         """
-        ax_indices = [] # aspect == 'auto'
+        ax_indices = []  # aspect == 'auto'
         if aspect == 'equal':
             ax_indices = [0, 1, 2]
         elif aspect == 'equalxy':
