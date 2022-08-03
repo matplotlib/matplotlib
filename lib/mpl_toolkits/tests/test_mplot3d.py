@@ -857,7 +857,9 @@ def test_axes3d_labelpad():
     ax.set_xlabel('X LABEL', labelpad=10)
     assert ax.xaxis.labelpad == 10
     ax.set_ylabel('Y LABEL')
-    ax.set_zlabel('Z LABEL')
+    ax.set_zlabel('Z LABEL', labelpad=20)
+    assert ax.zaxis.labelpad == 20
+    assert ax.get_zlabel() == 'Z LABEL'
     # or manually
     ax.yaxis.labelpad = 20
     ax.zaxis.labelpad = -40
@@ -1048,6 +1050,7 @@ def test_lines_dists_nowarning():
 
 def test_autoscale():
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    assert ax.get_zscale() == 'linear'
     ax.margins(x=0, y=.1, z=.2)
     ax.plot([0, 1], [0, 1], [0, 1])
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.2, 1.2)
@@ -1492,6 +1495,9 @@ def test_equal_box_aspect():
     ax.axis('off')
     ax.set_box_aspect((1, 1, 1))
 
+    with pytest.raises(ValueError, match="Argument zoom ="):
+        ax.set_box_aspect((1, 1, 1), zoom=-1)
+
 
 def test_colorbar_pos():
     num_plots = 2
@@ -1507,6 +1513,55 @@ def test_colorbar_pos():
     fig.canvas.draw()
     # check that actually on the bottom
     assert cbar.ax.get_position().extents[1] < 0.2
+
+
+def test_inverted_zaxis():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    assert not ax.zaxis_inverted()
+    assert ax.get_zlim() == (0, 1)
+    assert ax.get_zbound() == (0, 1)
+
+    # Change bound
+    ax.set_zbound((0, 2))
+    assert not ax.zaxis_inverted()
+    assert ax.get_zlim() == (0, 2)
+    assert ax.get_zbound() == (0, 2)
+
+    # Change invert
+    ax.invert_zaxis()
+    assert ax.zaxis_inverted()
+    assert ax.get_zlim() == (2, 0)
+    assert ax.get_zbound() == (0, 2)
+
+    # Set upper bound
+    ax.set_zbound(upper=1)
+    assert ax.zaxis_inverted()
+    assert ax.get_zlim() == (1, 0)
+    assert ax.get_zbound() == (0, 1)
+
+    # Set lower bound
+    ax.set_zbound(lower=2)
+    assert ax.zaxis_inverted()
+    assert ax.get_zlim() == (2, 1)
+    assert ax.get_zbound() == (1, 2)
+
+
+def test_set_zlim():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    assert ax.get_zlim() == (0, 1)
+    ax.set_zlim(zmax=2)
+    assert ax.get_zlim() == (0, 2)
+    ax.set_zlim(zmin=1)
+    assert ax.get_zlim() == (1, 2)
+
+    with pytest.raises(
+            TypeError, match="Cannot pass both 'bottom' and 'zmin'"):
+        ax.set_zlim(bottom=0, zmin=1)
+    with pytest.raises(
+            TypeError, match="Cannot pass both 'top' and 'zmax'"):
+        ax.set_zlim(top=0, zmax=1)
 
 
 def test_shared_axes_retick():
