@@ -1112,7 +1112,7 @@ class Axes3D(Axes):
         elif self.button_pressed in self._zoom_btn:
             # zoom view (dragging down zooms in)
             scale = h/(h - dy)
-            self._zoom_data_limits(scale, scale, scale)
+            self._scale_axis_limits(scale, scale, scale)
 
         # Store the event coordinates for the next time through.
         self.sx, self.sy = x, y
@@ -1228,16 +1228,37 @@ class Axes3D(Axes):
         These will be transformed to the x, y, z data axes based on the current
         view angles. A scale factor > 1 zooms out and a scale factor < 1 zooms
         in.
+        For an axes that has had its aspect ratio set to 'equal', 'equalxy',
+        'equalyz', or 'equalxz', the relevant axes are constrained to zoom
+        equally.
         """
         # Convert from the scale factors in the view frame to the data frame
         R = np.array([self._view_u, self._view_v, self._view_w])
         S = np.array([scale_u, scale_v, scale_w]) * np.eye(3)
         scale = np.linalg.norm(R.T @ S, axis=1)
 
+        # Set the constrained scale factors to the factor closest to 1
+        if self._aspect == 'equal':
+            scale = np.ones(3) * scale[np.argmin(np.abs(scale - 1))]
+        elif self._aspect == 'equalxy':
+            scale[[0, 1]] = scale[[0, 1]][np.argmin(np.abs(scale[[0, 1]] - 1))]
+        elif self._aspect == 'equalyz':
+            scale[[1, 2]] = scale[[1, 2]][np.argmin(np.abs(scale[[1, 2]] - 1))]
+        elif self._aspect == 'equalxz':
+            scale[[0, 2]] = scale[[0, 2]][np.argmin(np.abs(scale[[0, 2]] - 1))]
+
+        self._scale_axis_limits(scale[0], scale[1], scale[2])
+
+    def _scale_axis_limits(self, scale_x, scale_y, scale_z):
+        """
+        Keeping the center of the x, y, and z data axes fixed, scale their
+        limits by scale factors. A scale factor > 1 zooms out and a scale
+        factor < 1 zooms in.
+        """
         # Scale the data range
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
         dxyz = np.array([maxx - minx, maxy - miny, maxz - minz])
-        dxyz_scaled = dxyz*scale
+        dxyz_scaled = dxyz*np.array([scale_x, scale_y, scale_z])
 
         # Set the axis limits
         cx = (maxx + minx)/2
