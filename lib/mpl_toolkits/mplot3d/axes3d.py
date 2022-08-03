@@ -1255,18 +1255,21 @@ class Axes3D(Axes):
         limits by scale factors. A scale factor > 1 zooms out and a scale
         factor < 1 zooms in.
         """
-        # Scale the data range
+        # Get the axis limits and centers
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
-        dxyz = np.array([maxx - minx, maxy - miny, maxz - minz])
-        dxyz_scaled = dxyz*np.array([scale_x, scale_y, scale_z])
-
-        # Set the axis limits
         cx = (maxx + minx)/2
         cy = (maxy + miny)/2
         cz = (maxz + minz)/2
-        self.set_xlim3d(cx - dxyz_scaled[0]/2, cx + dxyz_scaled[0]/2)
-        self.set_ylim3d(cy - dxyz_scaled[1]/2, cy + dxyz_scaled[1]/2)
-        self.set_zlim3d(cz - dxyz_scaled[2]/2, cz + dxyz_scaled[2]/2)
+
+        # Scale the data range
+        dx = (maxx - minx)*scale_x
+        dy = (maxy - miny)*scale_y
+        dz = (maxz - minz)*scale_z
+
+        # Set the scaled axis limits
+        self.set_xlim3d(cx - dx/2, cx + dx/2)
+        self.set_ylim3d(cy - dy/2, cy + dy/2)
+        self.set_zlim3d(cz - dz/2, cz + dz/2)
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """
