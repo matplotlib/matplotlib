@@ -1,7 +1,10 @@
+import io
 import os
+import shutil
 import sys
 from unittest.mock import MagicMock
 
+from PIL import Image
 import pytest
 
 import matplotlib.backends.backend_webagg_core
@@ -10,10 +13,24 @@ from matplotlib.backends.backend_webagg_core import (
 )
 from matplotlib.testing import subprocess_run_for_testing
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_webagg import WebAggApplication
+from matplotlib.testing.decorators import _image_directories, _raise_on_image_difference
+
+
+pytest.importorskip('tornado')
+
+
+try:
+    import pytest_playwright  # noqa
+except ImportError:
+    @pytest.fixture
+    def page():
+        pytest.skip(reason='Missing pytest-playwright')
+
 
 @pytest.mark.parametrize("backend", ["webagg", "nbagg"])
 def test_webagg_fallback(backend):
-    pytest.importorskip("tornado")
     if backend == "nbagg":
         pytest.importorskip("IPython")
     env = dict(os.environ)
@@ -71,10 +88,61 @@ def test_toolbar_button_dispatch_allowlist():
 ])
 def test_websocket_rejects_cross_origin(host, origin, allowed):
     """Verify Tornado's default check_origin rejects cross-origin requests."""
-    pytest.importorskip("tornado")
     from matplotlib.backends.backend_webagg import WebAggApplication
 
     ws = WebAggApplication.WebSocket.__new__(WebAggApplication.WebSocket)
     ws.request = MagicMock()
     ws.request.headers = {"Host": host}
     assert ws.check_origin(origin) is allowed
+
+
+@pytest.mark.backend('webagg')
+def test_webagg_general(page, request):
+    from playwright.sync_api import expect
+
+    # Only macOS is well-supported by Playwright and other platforms are inconsistent.
+    # https://github.com/microsoft/playwright/issues/31017
+    if page.context.browser.browser_type.name == 'webkit' and sys.platform != 'darwin':
+        request.applymarker(
+            pytest.mark.xfail(reason="Playwright's WebKit is flaky"))
+
+    # Listen for all console logs.
+    page.on('console', lambda msg: print(f'CONSOLE: {msg.text}'))
+
+    fig, ax = plt.subplots(facecolor='w')
+
+    # Don't start the Tornado event loop, but use the existing event loop
+    # started by the `page` fixture.
+    WebAggApplication.initialize()
+    WebAggApplication.started = True
+
+    page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')
+    expect(page).to_have_title('MPL | WebAgg current figures')
+
+    # Check title.
+    expect(page.locator('div.ui-dialog-title')).to_have_text('Figure 1')
+
+    # Force a draw and ensure that it actually happened. The ack message handler
+    # currently does nothing, so re-purpose it to make a change that Playwright can then
+    # wait for.
+    fig.canvas.handle_ack = lambda message: \
+        fig.canvas.manager.set_window_title('Figure 1 DRAWN')
+    fig.canvas.draw()
+    expect(page.locator('div.ui-dialog-title')).to_have_text('Figure 1 DRAWN')
+
+    # Check canvas actually contains something.
+    baseline_dir, result_dir = _image_directories(test_webagg_general)
+    browser = page.context.browser.browser_type.name
+    actual = result_dir / f'{browser}.png'
+    expected = result_dir / f'{browser}-expected.png'
+
+    canvas = page.locator('canvas.mpl-canvas')
+    actual_bytes = canvas.screenshot()
+    im = Image.open(io.BytesIO(actual_bytes))
+    # Hide the resize grip, which varies across OS/browser.
+    im.paste((255, 255, 255),
+             box=(im.width - 20, im.height - 20, im.width, im.height))
+    im.save(actual)
+    shutil.copyfile(baseline_dir / f'{browser}.png', expected)
+
+    _raise_on_image_difference(expected, actual, tol=0)
