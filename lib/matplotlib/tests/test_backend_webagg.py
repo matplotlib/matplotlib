@@ -319,3 +319,118 @@ def test_webagg_toolbar_pan(random_port, page):
     # Contracts in y-direction.
     assert ax.viewLim.y1 == orig_lim.y1
     assert ax.viewLim.y0 < orig_lim.y0 - orig_lim.height / 2
+
+
+@pytest.mark.backend('webagg')
+def test_webagg_toolbar_zoom(random_port, page):
+    from playwright.sync_api import expect
+
+    # Listen for all console logs.
+    page.on('console', lambda msg: print(f'CONSOLE: {msg.text}'))
+
+    fig, ax = plt.subplots(facecolor='w')
+    ax.plot([3, 2, 1])
+    orig_lim = ax.viewLim.frozen()
+    # Make figure coords ~= axes coords, with ticks visible for inspection.
+    ax.set_position([0, 0, 1, 1])
+    ax.tick_params(axis='y', direction='in', pad=-22)
+    ax.tick_params(axis='x', direction='in', pad=-15)
+
+    # Don't start the Tornado event loop, but use the existing event loop
+    # started by the `page` fixture.
+    WebAggApplication.initialize()
+    WebAggApplication.started = True
+
+    page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')
+
+    canvas = page.locator('canvas.mpl-canvas')
+    expect(canvas).to_be_visible()
+    home = page.locator('button.mpl-widget').nth(0)
+    expect(home).to_be_visible()
+    pan = page.locator('button.mpl-widget').nth(3)
+    expect(pan).to_be_visible()
+    zoom = page.locator('button.mpl-widget').nth(4)
+    expect(zoom).to_be_visible()
+
+    active_re = re.compile(r'active')
+    expect(pan).not_to_have_class(active_re)
+    expect(zoom).not_to_have_class(active_re)
+    assert ax.get_navigate_mode() is None
+    zoom.click()
+    expect(pan).not_to_have_class(active_re)
+    expect(zoom).to_have_class(active_re)
+    assert ax.get_navigate_mode() == 'ZOOM'
+
+    # Zoom 25% in on each side.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] / 4, bbox['y'] + bbox['height'] / 4
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.mouse.move(x + bbox['width'] / 2, y + bbox['height'] / 2,
+                    steps=20)
+    page.mouse.up()
+
+    assert ax.get_xlim() == (orig_lim.x0 + orig_lim.width / 4,
+                             orig_lim.x1 - orig_lim.width / 4)
+    assert ax.get_ylim() == (orig_lim.y0 + orig_lim.height / 4,
+                             orig_lim.y1 - orig_lim.height / 4)
+
+    # Reset.
+    home.click()
+
+    # Zoom 25% in on each side, while holding 'x' key, to constrain the zoom
+    # horizontally..
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] / 4, bbox['y'] + bbox['height'] / 4
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.keyboard.down('x')
+    page.mouse.move(x + bbox['width'] / 2, y + bbox['height'] / 2,
+                    steps=20)
+    page.mouse.up()
+    page.keyboard.up('x')
+
+    assert ax.get_xlim() == (orig_lim.x0 + orig_lim.width / 4,
+                             orig_lim.x1 - orig_lim.width / 4)
+    assert ax.get_ylim() == (orig_lim.y0, orig_lim.y1)
+
+    # Reset.
+    home.click()
+
+    # Zoom 25% in on each side, while holding 'y' key, to constrain the zoom
+    # vertically.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] / 4, bbox['y'] + bbox['height'] / 4
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.keyboard.down('y')
+    page.mouse.move(x + bbox['width'] / 2, y + bbox['height'] / 2,
+                    steps=20)
+    page.mouse.up()
+    page.keyboard.up('y')
+
+    assert ax.get_xlim() == (orig_lim.x0, orig_lim.x1)
+    assert ax.get_ylim() == (orig_lim.y0 + orig_lim.height / 4,
+                             orig_lim.y1 - orig_lim.height / 4)
+
+    # Reset.
+    home.click()
+
+    # Zoom 25% out on each side.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] / 4, bbox['y'] + bbox['height'] / 4
+    page.mouse.move(x, y)
+    page.mouse.down(button='right')
+    page.mouse.move(x + bbox['width'] / 2, y + bbox['height'] / 2,
+                    steps=20)
+    page.mouse.up(button='right')
+
+    # Limits were doubled, but based on the central point.
+    cx = orig_lim.x0 + orig_lim.width / 2
+    x0 = cx - orig_lim.width
+    x1 = cx + orig_lim.width
+    assert ax.get_xlim() == (x0, x1)
+    cy = orig_lim.y0 + orig_lim.height / 2
+    y0 = cy - orig_lim.height
+    y1 = cy + orig_lim.height
+    assert ax.get_ylim() == (y0, y1)
