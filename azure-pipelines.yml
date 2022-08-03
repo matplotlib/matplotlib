@@ -138,6 +138,9 @@ stages:
             [[ "$PYTHON_VERSION" = 'Pre' ]]
         displayName: 'Install dependencies with pip'
 
+      - bash: playwright install --with-deps
+        displayName: 'Install browsers for testing'
+
       - bash: |
           python -m pip install \
             --no-build-isolation --config-settings=setup-args="--vsenv" \
