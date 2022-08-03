@@ -53,7 +53,7 @@ def test_webagg_core_no_toolbar():
 
 
 @pytest.mark.backend('webagg')
-def test_webagg_general(page):
+def test_webagg_general(random_port, page):
     from playwright.sync_api import expect
 
     # Listen for all console logs.
@@ -63,7 +63,7 @@ def test_webagg_general(page):
 
     # Don't start the Tornado event loop, but use the existing event loop
     # started by the `page` fixture.
-    WebAggApplication.initialize()
+    WebAggApplication.initialize(port=random_port)
     WebAggApplication.started = True
 
     page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')
@@ -89,7 +89,7 @@ def test_webagg_general(page):
 
 @pytest.mark.backend('webagg')
 @pytest.mark.parametrize('toolbar', ['toolbar2', 'toolmanager'])
-def test_webagg_toolbar(page, toolbar):
+def test_webagg_toolbar(random_port, page, toolbar):
     from playwright.sync_api import expect
 
     # Listen for all console logs.
@@ -104,7 +104,7 @@ def test_webagg_toolbar(page, toolbar):
 
     # Don't start the Tornado event loop, but use the existing event loop
     # started by the `page` fixture.
-    WebAggApplication.initialize()
+    WebAggApplication.initialize(port=random_port)
     WebAggApplication.started = True
 
     page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')
@@ -150,7 +150,7 @@ def test_webagg_toolbar(page, toolbar):
 
 
 @pytest.mark.backend('webagg')
-def test_webagg_toolbar_save(page):
+def test_webagg_toolbar_save(random_port, page):
     from playwright.sync_api import expect
 
     # Listen for all console logs.
@@ -160,7 +160,7 @@ def test_webagg_toolbar_save(page):
 
     # Don't start the Tornado event loop, but use the existing event loop
     # started by the `page` fixture.
-    WebAggApplication.initialize()
+    WebAggApplication.initialize(port=random_port)
     WebAggApplication.started = True
 
     page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')

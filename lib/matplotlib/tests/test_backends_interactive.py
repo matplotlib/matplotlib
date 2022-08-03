@@ -479,14 +479,15 @@ def test_cross_Qt_imports(host, mpl):
 @pytest.mark.skipif('TF_BUILD' in os.environ,
                     reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(sys.platform == "win32", reason="Cannot send SIGINT on Windows.")
-def test_webagg():
+def test_webagg(random_port):
     pytest.importorskip("tornado")
     proc = subprocess.Popen(
         [sys.executable, "-c",
          inspect.getsource(_test_interactive_impl)
-         + "\n_test_interactive_impl()", "{}"],
+         + "\n_test_interactive_impl()",
+         json.dumps({'webagg.port': random_port})],
         env={**os.environ, "MPLBACKEND": "webagg", "SOURCE_DATE_EPOCH": "0"})
-    url = f'http://{mpl.rcParams["webagg.address"]}:{mpl.rcParams["webagg.port"]}'
+    url = f'http://{mpl.rcParams["webagg.address"]}:{random_port}'
     timeout = time.perf_counter() + _test_timeout
     try:
         while True:
