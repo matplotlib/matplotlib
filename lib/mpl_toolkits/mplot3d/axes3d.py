@@ -328,27 +328,27 @@ class Axes3D(Axes):
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
             if aspect == 'equal':
-                ax_indices = [0, 1, 2]
+                ax_idx = [0, 1, 2]
             elif aspect == 'equalxy':
-                ax_indices = [0, 1]
+                ax_idx = [0, 1]
             elif aspect == 'equalxz':
-                ax_indices = [0, 2]
+                ax_idx = [0, 2]
             elif aspect == 'equalyz':
-                ax_indices = [1, 2]
+                ax_idx = [1, 2]
 
             view_intervals = np.array([self.xaxis.get_view_interval(),
                                        self.yaxis.get_view_interval(),
                                        self.zaxis.get_view_interval()])
             mean = np.mean(view_intervals, axis=1)
             ptp = np.ptp(view_intervals, axis=1)
-            delta = max(ptp[ax_indices])
+            delta = max(ptp[ax_idx])
             scale = self._box_aspect[ptp == delta][0]
             deltas = delta * self._box_aspect / scale
 
             for i, set_lim in enumerate((self.set_xlim3d,
                                          self.set_ylim3d,
                                          self.set_zlim3d)):
-                if i in ax_indices:
+                if i in ax_idx:
                     set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
 
     def set_box_aspect(self, aspect, *, zoom=1):
@@ -1240,14 +1240,16 @@ class Axes3D(Axes):
         scale = np.linalg.norm(R.T @ S, axis=1)
 
         # Set the constrained scale factors to the factor closest to 1
-        if self._aspect == 'equal':
-            scale = np.ones(3) * scale[np.argmin(np.abs(scale - 1))]
-        elif self._aspect == 'equalxy':
-            scale[[0, 1]] = scale[[0, 1]][np.argmin(np.abs(scale[[0, 1]] - 1))]
-        elif self._aspect == 'equalyz':
-            scale[[1, 2]] = scale[[1, 2]][np.argmin(np.abs(scale[[1, 2]] - 1))]
-        elif self._aspect == 'equalxz':
-            scale[[0, 2]] = scale[[0, 2]][np.argmin(np.abs(scale[[0, 2]] - 1))]
+        if self._aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
+            if self._aspect == 'equal':
+                ax_idx = [0, 1, 2]
+            elif self._aspect == 'equalxy':
+                ax_idx = [0, 1]
+            elif self._aspect == 'equalxz':
+                ax_idx = [0, 2]
+            elif self._aspect == 'equalyz':
+                ax_idx = [1, 2]
+            scale[ax_idx] = scale[ax_idx][np.argmin(np.abs(scale[ax_idx] - 1))]
 
         self._scale_axis_limits(scale[0], scale[1], scale[2])
 
