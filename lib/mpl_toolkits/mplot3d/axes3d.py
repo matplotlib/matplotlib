@@ -816,7 +816,7 @@ class Axes3D(Axes):
                 raise ValueError(f"focal_length = {focal_length} must be "
                                  "greater than 0")
             self._focal_length = focal_length
-        elif proj_type == 'ortho':
+        else:  # 'ortho'
             if focal_length not in (None, np.inf):
                 raise ValueError(f"focal_length = {focal_length} must be "
                                  f"None for proj_type = {proj_type}")
@@ -3212,8 +3212,6 @@ pivot='tail', normalize=False, **kwargs)
 
         # Determine style for stem lines.
         linestyle, linemarker, linecolor = _process_plot_format(linefmt)
-        if linestyle is None:
-            linestyle = rcParams['lines.linestyle']
 
         # Plot everything in required order.
         baseline, = self.plot(basex, basey, basefmt, zs=bottom,
