@@ -147,3 +147,30 @@ def test_webagg_toolbar(page, toolbar):
     page.mouse.move(x, y, steps=2)
     message = page.locator('span.mpl-message')
     expect(message).to_have_text('x=0.500 y=0.500')
+
+
+@pytest.mark.backend('webagg')
+def test_webagg_toolbar_save(page):
+    from playwright.sync_api import expect
+
+    # Listen for all console logs.
+    page.on('console', lambda msg: print(f'CONSOLE: {msg.text}'))
+
+    fig, ax = plt.subplots(facecolor='w')
+
+    # Don't start the Tornado event loop, but use the existing event loop
+    # started by the `page` fixture.
+    WebAggApplication.initialize()
+    WebAggApplication.started = True
+
+    page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')
+
+    save = page.locator('button.mpl-widget').nth(5)
+    expect(save).to_be_visible()
+
+    with page.context.expect_page() as new_page_info:
+        save.click()
+    new_page = new_page_info.value
+
+    new_page.wait_for_load_state()
+    assert new_page.url.endswith('download.png')
