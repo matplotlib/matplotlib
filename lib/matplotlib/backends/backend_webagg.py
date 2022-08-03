@@ -234,9 +234,9 @@ class WebAggApplication(tornado.web.Application):
             cls.address = mpl.rcParams['webagg.address']
         else:
             cls.address = address
-        cls.port = mpl.rcParams['webagg.port']
-        for port in random_ports(cls.port,
-                                 mpl.rcParams['webagg.port_retries']):
+        if port is None:
+            port = mpl.rcParams['webagg.port']
+        for port in random_ports(port, mpl.rcParams['webagg.port_retries']):
             try:
                 app.listen(port, cls.address)
             except OSError as e:
