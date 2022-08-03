@@ -327,14 +327,7 @@ class Axes3D(Axes):
         self._aspect = aspect
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
-            if aspect == 'equal':
-                ax_idx = [0, 1, 2]
-            elif aspect == 'equalxy':
-                ax_idx = [0, 1]
-            elif aspect == 'equalxz':
-                ax_idx = [0, 2]
-            elif aspect == 'equalyz':
-                ax_idx = [1, 2]
+            ax_idx = self._equal_aspect_axis_indices(aspect)
 
             view_intervals = np.array([self.xaxis.get_view_interval(),
                                        self.yaxis.get_view_interval(),
@@ -350,6 +343,27 @@ class Axes3D(Axes):
                                          self.set_zlim3d)):
                 if i in ax_idx:
                     set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
+
+    def _equal_aspect_axis_indices(self, aspect):
+        """
+        Get the indices for which of the x, y, z axes are constrained to have
+        equal aspect ratios.
+
+        Parameters
+        ----------
+        aspect : {'auto', 'equal', 'equalxy', 'equalxz', 'equalyz'}
+            See descriptions in docstring for `.set_aspect()`.
+        """
+        ax_indices = [] # aspect == 'auto'
+        if aspect == 'equal':
+            ax_indices = [0, 1, 2]
+        elif aspect == 'equalxy':
+            ax_indices = [0, 1]
+        elif aspect == 'equalxz':
+            ax_indices = [0, 2]
+        elif aspect == 'equalyz':
+            ax_indices = [1, 2]
+        return ax_indices
 
     def set_box_aspect(self, aspect, *, zoom=1):
         """
@@ -1241,14 +1255,7 @@ class Axes3D(Axes):
 
         # Set the constrained scale factors to the factor closest to 1
         if self._aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
-            if self._aspect == 'equal':
-                ax_idx = [0, 1, 2]
-            elif self._aspect == 'equalxy':
-                ax_idx = [0, 1]
-            elif self._aspect == 'equalxz':
-                ax_idx = [0, 2]
-            elif self._aspect == 'equalyz':
-                ax_idx = [1, 2]
+            ax_idx = self._equal_aspect_axis_indices(self._aspect)
             scale[ax_idx] = scale[ax_idx][np.argmin(np.abs(scale[ax_idx] - 1))]
 
         self._scale_axis_limits(scale[0], scale[1], scale[2])
