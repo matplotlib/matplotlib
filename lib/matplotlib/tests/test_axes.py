@@ -5732,21 +5732,17 @@ def test_set_margin_updates_limits():
     assert ax.get_xlim() == (1, 2)
 
 
-@pytest.mark.parametrize('err, args, kwargs, match',
-                         ((ValueError, (-1,), {},
-                           'margin must be greater than -0.5'),
-                          (ValueError, (1, -1), {},
-                           'margin must be greater than -0.5'),
-                          (ValueError, tuple(), {'x': -1},
-                           'margin must be greater than -0.5'),
-                          (ValueError, tuple(), {'y': -1},
-                           'margin must be greater than -0.5'),
-                          (TypeError, (1, ), {'x': 1, 'y': 1},
-                           'Cannot pass both positional and keyword '
-                           'arguments for x and/or y.'),
-                          (TypeError, (1, 1, 1), {},
-                           'Must pass a single positional argument for all*'),
-                          ))
+@pytest.mark.parametrize('err, args, kwargs, match', (
+        (ValueError, (-1,), {}, r'margin must be greater than -0\.5'),
+        (ValueError, (1, -1), {}, r'margin must be greater than -0\.5'),
+        (ValueError, tuple(), {'x': -1}, r'margin must be greater than -0\.5'),
+        (ValueError, tuple(), {'y': -1}, r'margin must be greater than -0\.5'),
+        (TypeError, (1, ), {'x': 1, 'y': 1},
+         'Cannot pass both positional and keyword arguments for x and/or y'),
+        (TypeError, (1, ), {'x': 1},
+         'Cannot pass both positional and keyword arguments for x and/or y'),
+        (TypeError, (1, 1, 1), {}, 'Must pass a single positional argument'),
+))
 def test_margins_errors(err, args, kwargs, match):
     with pytest.raises(err, match=match):
         fig = plt.figure()

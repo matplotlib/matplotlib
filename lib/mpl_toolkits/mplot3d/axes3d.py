@@ -488,7 +488,7 @@ class Axes3D(Axes):
         applies to 3D Axes, it also takes a *z* argument, and returns
         ``(xmargin, ymargin, zmargin)``.
         """
-        if margins and x is not None and y is not None and z is not None:
+        if margins and (x is not None or y is not None or z is not None):
             raise TypeError('Cannot pass both positional and keyword '
                             'arguments for x, y, and/or z.')
         elif len(margins) == 1:
