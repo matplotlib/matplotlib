@@ -1,0 +1,3 @@
+``$\doteq \doteqdot \dotminus \dotplus \dots$`` are now surrounded by extra space
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... because they are correctly treated as relational or binary operators.
