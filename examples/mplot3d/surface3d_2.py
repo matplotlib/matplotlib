@@ -23,4 +23,7 @@ z = 10 * np.outer(np.ones(np.size(u)), np.cos(v))
 # Plot the surface
 ax.plot_surface(x, y, z)
 
+# Set an equal aspect ratio
+ax.set_aspect('equal')
+
 plt.show()

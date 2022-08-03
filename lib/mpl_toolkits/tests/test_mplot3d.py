@@ -29,11 +29,22 @@ def test_invisible_axes(fig_test, fig_ref):
     ax.set_visible(False)
 
 
-def test_aspect_equal_error():
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    with pytest.raises(NotImplementedError):
-        ax.set_aspect('equal')
+@mpl3d_image_comparison(['aspects.png'], remove_text=False)
+def test_aspects():
+    aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz')
+    fig, axs = plt.subplots(1, len(aspects), subplot_kw={'projection': '3d'})
+
+    # Draw rectangular cuboid with side lengths [1, 1, 5]
+    r = [0, 1]
+    scale = np.array([1, 1, 5])
+    pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
+    for start, end in pts:
+        if np.sum(np.abs(start - end)) == r[1] - r[0]:
+            for ax in axs:
+                ax.plot3D(*zip(start*scale, end*scale))
+    for i, ax in enumerate(axs):
+        ax.set_box_aspect((3, 4, 5))
+        ax.set_aspect(aspects[i])
 
 
 def test_axes3d_repr():
