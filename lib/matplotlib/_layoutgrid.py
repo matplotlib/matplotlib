@@ -507,13 +507,7 @@ def seq_id():
     return '%06d' % next(_layoutboxobjnum)
 
 
-def print_children(lb):
-    """Print the children of the layoutbox."""
-    for child in lb.children:
-        print_children(child)
-
-
-def plot_children(fig, lg=None, level=0, printit=False):
+def plot_children(fig, lg=None, level=0):
     """Simple plotting to show where boxes are."""
     import matplotlib.pyplot as plt
     import matplotlib.patches as mpatches

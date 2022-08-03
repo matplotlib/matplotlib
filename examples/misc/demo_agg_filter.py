@@ -38,7 +38,7 @@ class BaseFilter:
     def get_pad(self, dpi):
         return 0
 
-    def process_image(padded_src, dpi):
+    def process_image(self, padded_src, dpi):
         raise NotImplementedError("Should be overridden by subclasses")
 
     def __call__(self, im, dpi):
@@ -233,20 +233,19 @@ def drop_shadow_line(ax):
 def drop_shadow_patches(ax):
     # Copied from barchart_demo.py
     N = 5
-    men_means = [20, 35, 30, 35, 27]
+    group1_means = [20, 35, 30, 35, 27]
 
     ind = np.arange(N)  # the x locations for the groups
     width = 0.35  # the width of the bars
 
-    rects1 = ax.bar(ind, men_means, width, color='r', ec="w", lw=2)
+    rects1 = ax.bar(ind, group1_means, width, color='r', ec="w", lw=2)
 
-    women_means = [25, 32, 34, 20, 25]
-    rects2 = ax.bar(ind + width + 0.1, women_means, width,
+    group2_means = [25, 32, 34, 20, 25]
+    rects2 = ax.bar(ind + width + 0.1, group2_means, width,
                     color='y', ec="w", lw=2)
 
-    # gauss = GaussianFilter(1.5, offsets=(1, 1))
-    gauss = DropShadowFilter(5, offsets=(1, 1))
-    shadow = FilteredArtistList(rects1 + rects2, gauss)
+    drop = DropShadowFilter(5, offsets=(1, 1))
+    shadow = FilteredArtistList(rects1 + rects2, drop)
     ax.add_artist(shadow)
     shadow.set_zorder(rects1[0].get_zorder() - 0.1)
 

@@ -35,6 +35,7 @@ See :ref:`api_interfaces` for an explanation of the tradeoffs between the
 implicit and explicit interfaces.
 """
 
+from contextlib import ExitStack
 from enum import Enum
 import functools
 import importlib
@@ -438,58 +439,6 @@ def isinteractive():
     return matplotlib.is_interactive()
 
 
-class _IoffContext:
-    """
-    Context manager for `.ioff`.
-
-    The state is changed in ``__init__()`` instead of ``__enter__()``. The
-    latter is a no-op. This allows using `.ioff` both as a function and
-    as a context.
-    """
-
-    def __init__(self):
-        self.wasinteractive = isinteractive()
-        matplotlib.interactive(False)
-        uninstall_repl_displayhook()
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if self.wasinteractive:
-            matplotlib.interactive(True)
-            install_repl_displayhook()
-        else:
-            matplotlib.interactive(False)
-            uninstall_repl_displayhook()
-
-
-class _IonContext:
-    """
-    Context manager for `.ion`.
-
-    The state is changed in ``__init__()`` instead of ``__enter__()``. The
-    latter is a no-op. This allows using `.ion` both as a function and
-    as a context.
-    """
-
-    def __init__(self):
-        self.wasinteractive = isinteractive()
-        matplotlib.interactive(True)
-        install_repl_displayhook()
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        if not self.wasinteractive:
-            matplotlib.interactive(False)
-            uninstall_repl_displayhook()
-        else:
-            matplotlib.interactive(True)
-            install_repl_displayhook()
-
-
 def ioff():
     """
     Disable interactive mode.
@@ -519,11 +468,15 @@ def ioff():
             fig2 = plt.figure()
             # ...
 
-    To enable usage as a context manager, this function returns an
-    ``_IoffContext`` object. The return value is not intended to be stored
-    or accessed by the user.
+    To enable optional usage as a context manager, this function returns a
+    `~contextlib.ExitStack` object, which is not intended to be stored or
+    accessed by the user.
     """
-    return _IoffContext()
+    stack = ExitStack()
+    stack.callback(ion if isinteractive() else ioff)
+    matplotlib.interactive(False)
+    uninstall_repl_displayhook()
+    return stack
 
 
 def ion():
@@ -555,11 +508,15 @@ def ion():
             fig2 = plt.figure()
             # ...
 
-    To enable usage as a context manager, this function returns an
-    ``_IonContext`` object. The return value is not intended to be stored
-    or accessed by the user.
+    To enable optional usage as a context manager, this function returns a
+    `~contextlib.ExitStack` object, which is not intended to be stored or
+    accessed by the user.
     """
-    return _IonContext()
+    stack = ExitStack()
+    stack.callback(ion if isinteractive() else ioff)
+    matplotlib.interactive(True)
+    install_repl_displayhook()
+    return stack
 
 
 def pause(interval):
@@ -658,46 +615,38 @@ def xkcd(scale=1, length=100, randomness=2):
         # This figure will be in regular style
         fig2 = plt.figure()
     """
-    return _xkcd(scale, length, randomness)
+    # This cannot be implemented in terms of contextmanager() or rc_context()
+    # because this needs to work as a non-contextmanager too.
 
+    if rcParams['text.usetex']:
+        raise RuntimeError(
+            "xkcd mode is not compatible with text.usetex = True")
 
-class _xkcd:
-    # This cannot be implemented in terms of rc_context() because this needs to
-    # work as a non-contextmanager too.
+    stack = ExitStack()
+    stack.callback(dict.update, rcParams, rcParams.copy())
 
-    def __init__(self, scale, length, randomness):
-        self._orig = rcParams.copy()
+    from matplotlib import patheffects
+    rcParams.update({
+        'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
+                        'Comic Sans MS'],
+        'font.size': 14.0,
+        'path.sketch': (scale, length, randomness),
+        'path.effects': [
+            patheffects.withStroke(linewidth=4, foreground="w")],
+        'axes.linewidth': 1.5,
+        'lines.linewidth': 2.0,
+        'figure.facecolor': 'white',
+        'grid.linewidth': 0.0,
+        'axes.grid': False,
+        'axes.unicode_minus': False,
+        'axes.edgecolor': 'black',
+        'xtick.major.size': 8,
+        'xtick.major.width': 3,
+        'ytick.major.size': 8,
+        'ytick.major.width': 3,
+    })
 
-        if rcParams['text.usetex']:
-            raise RuntimeError(
-                "xkcd mode is not compatible with text.usetex = True")
-
-        from matplotlib import patheffects
-        rcParams.update({
-            'font.family': ['xkcd', 'xkcd Script', 'Humor Sans', 'Comic Neue',
-                            'Comic Sans MS'],
-            'font.size': 14.0,
-            'path.sketch': (scale, length, randomness),
-            'path.effects': [
-                patheffects.withStroke(linewidth=4, foreground="w")],
-            'axes.linewidth': 1.5,
-            'lines.linewidth': 2.0,
-            'figure.facecolor': 'white',
-            'grid.linewidth': 0.0,
-            'axes.grid': False,
-            'axes.unicode_minus': False,
-            'axes.edgecolor': 'black',
-            'xtick.major.size': 8,
-            'xtick.major.width': 3,
-            'ytick.major.size': 8,
-            'ytick.major.width': 3,
-        })
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        dict.update(rcParams, self._orig)
+    return stack
 
 
 ## Figures ##

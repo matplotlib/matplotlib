@@ -3822,8 +3822,6 @@ def test_errorbar_nan(fig_test, fig_ref):
     es = np.array([4, 5, np.nan, np.nan, 6])
     ax.errorbar(xs, ys, es)
     ax = fig_ref.add_subplot()
-    ys = np.array([1, 2, np.nan, np.nan, 3])
-    es = np.array([4, 5, np.nan, np.nan, 6])
     ax.errorbar([0, 1], [1, 2], [4, 5])
     ax.errorbar([4], [3], [6], fmt="C0")
 
@@ -5734,21 +5732,17 @@ def test_set_margin_updates_limits():
     assert ax.get_xlim() == (1, 2)
 
 
-@pytest.mark.parametrize('err, args, kwargs, match',
-                         ((ValueError, (-1,), {},
-                           'margin must be greater than -0.5'),
-                          (ValueError, (1, -1), {},
-                           'margin must be greater than -0.5'),
-                          (ValueError, tuple(), {'x': -1},
-                           'margin must be greater than -0.5'),
-                          (ValueError, tuple(), {'y': -1},
-                           'margin must be greater than -0.5'),
-                          (TypeError, (1, ), {'x': 1, 'y': 1},
-                           'Cannot pass both positional and keyword '
-                           'arguments for x and/or y.'),
-                          (TypeError, (1, 1, 1), {},
-                           'Must pass a single positional argument for all*'),
-                          ))
+@pytest.mark.parametrize('err, args, kwargs, match', (
+        (ValueError, (-1,), {}, r'margin must be greater than -0\.5'),
+        (ValueError, (1, -1), {}, r'margin must be greater than -0\.5'),
+        (ValueError, tuple(), {'x': -1}, r'margin must be greater than -0\.5'),
+        (ValueError, tuple(), {'y': -1}, r'margin must be greater than -0\.5'),
+        (TypeError, (1, ), {'x': 1, 'y': 1},
+         'Cannot pass both positional and keyword arguments for x and/or y'),
+        (TypeError, (1, ), {'x': 1},
+         'Cannot pass both positional and keyword arguments for x and/or y'),
+        (TypeError, (1, 1, 1), {}, 'Must pass a single positional argument'),
+))
 def test_margins_errors(err, args, kwargs, match):
     with pytest.raises(err, match=match):
         fig = plt.figure()
@@ -7787,10 +7781,7 @@ def test_patch_bounds():  # PR 19078
 def test_warn_ignored_scatter_kwargs():
     with pytest.warns(UserWarning,
                       match=r"You passed a edgecolor/edgecolors"):
-
-        c = plt.scatter(
-            [0], [0], marker="+", s=500, facecolor="r", edgecolor="b"
-        )
+        plt.scatter([0], [0], marker="+", s=500, facecolor="r", edgecolor="b")
 
 
 def test_artist_sublists():

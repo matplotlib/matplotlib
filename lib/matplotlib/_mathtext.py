@@ -8,6 +8,7 @@ import enum
 import functools
 import logging
 import os
+import re
 import types
 import unicodedata
 
@@ -1648,7 +1649,8 @@ class Parser:
       \cdot           \bigtriangledown         \bigcirc
       \cap            \triangleleft            \dagger
       \cup            \triangleright           \ddagger
-      \uplus          \lhd                     \amalg'''.split())
+      \uplus          \lhd                     \amalg
+      \dotplus        \dotminus'''.split())
 
     _relation_symbols = set(r'''
       = < > :
@@ -1661,7 +1663,7 @@ class Parser:
       \sqsubset   \sqsupset   \neq     \smile
       \sqsubseteq \sqsupseteq \doteq   \frown
       \in         \ni         \propto  \vdash
-      \dashv      \dots       \dotplus \doteqdot'''.split())
+      \dashv      \dots       \doteqdot'''.split())
 
     _arrow_symbols = set(r'''
       \leftarrow              \longleftarrow           \uparrow
@@ -1717,24 +1719,36 @@ class Parser:
 
         # Root definitions.
 
+        # In TeX parlance, a csname is a control sequence name (a "\foo").
+        def csnames(group, names):
+            ends_with_alpha = []
+            ends_with_nonalpha = []
+            for name in names:
+                if name[-1].isalpha():
+                    ends_with_alpha.append(name)
+                else:
+                    ends_with_nonalpha.append(name)
+            return Regex(r"\\(?P<{}>(?:{})(?![A-Za-z]){})".format(
+                group,
+                "|".join(map(re.escape, ends_with_alpha)),
+                "".join(f"|{s}" for s in map(re.escape, ends_with_nonalpha)),
+            ))
+
         p.float_literal  = Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
         p.space          = oneOf(self._space_widths)("space")
 
         p.style_literal  = oneOf(
             [str(e.value) for e in self._MathStyle])("style_literal")
 
-        p.single_symbol  = Regex(
-            r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
-            "\U00000080-\U0001ffff"  # unicode range
-        )("sym")
-        p.accentprefixed = "\\" + oneOf(self._accentprefixed)("sym")
-        p.symbol_name    = (
-            oneOf([rf"\{sym}" for sym in tex2uni])("sym")
-            + Regex("(?=[^A-Za-z]|$)").leaveWhitespace())
-        p.symbol         = (p.single_symbol | p.symbol_name).leaveWhitespace()
+        p.symbol         = Regex(
+            r"[a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|\U00000080-\U0001ffff]"
+            r"|\\[%${}\[\]_|]"
+            + r"|\\(?:{})(?![A-Za-z])".format(
+                "|".join(map(re.escape, tex2uni)))
+        )("sym").leaveWhitespace()
         p.unknown_symbol = Regex(r"\\[A-Za-z]*")("name")
 
-        p.font           = "\\" + oneOf(self._fontnames)("font")
+        p.font           = csnames("font", self._fontnames)
         p.start_group    = (
             Optional(r"\math" + oneOf(self._fontnames)("font")) + "{")
         p.end_group      = Literal("}")
@@ -1771,11 +1785,10 @@ class Parser:
         p.customspace <<= cmd(r"\hspace", "{" + p.float_literal("space") + "}")
 
         p.accent <<= (
-            "\\"
-            + oneOf([*self._accent_map, *self._wide_accents])("accent")
+            csnames("accent", [*self._accent_map, *self._wide_accents])
             - p.placeable("sym"))
 
-        p.function     <<= "\\" + oneOf(self._function_names)("name")
+        p.function <<= csnames("name", self._function_names)
         p.operatorname <<= cmd(
             r"\operatorname",
             "{" + ZeroOrMore(p.simple | p.unknown_symbol)("name") + "}")
@@ -1816,10 +1829,8 @@ class Parser:
             p.optional_group("annotation") + p.optional_group("body"))
 
         p.placeable     <<= (
-            p.accentprefixed  # Must be before accent so named symbols that are
-                              # prefixed with an accent name work
-            | p.accent   # Must be before symbol as all accents are symbols
-            | p.symbol   # Must be third to catch all named symbols and single
+            p.accent     # Must be before symbol as all accents are symbols
+            | p.symbol   # Must be second to catch all named symbols and single
                          # chars not in a group
             | p.function
             | p.operatorname
@@ -2019,8 +2030,6 @@ class Parser:
                 return [Hlist([char, self._make_space(0.2)], do_kern=True)]
         return [char]
 
-    accentprefixed = symbol
-
     def unknown_symbol(self, s, loc, toks):
         raise ParseFatalException(s, loc, f"Unknown symbol: {toks['name']}")
 
@@ -2048,12 +2057,6 @@ class Parser:
     }
 
     _wide_accents = set(r"widehat widetilde widebar".split())
-
-    # make a lambda and call it to get the namespace right
-    _accentprefixed = (lambda am: [
-        p for p in tex2uni
-        if any(p.startswith(a) and a != p for a in am)
-    ])(set(_accent_map))
 
     def accent(self, s, loc, toks):
         state = self.get_state()

@@ -375,7 +375,7 @@ def test_default_thetalocator():
 
 def test_axvspan():
     ax = plt.subplot(projection="polar")
-    span = plt.axvspan(0, np.pi/4)
+    span = ax.axvspan(0, np.pi/4)
     assert span.get_path()._interpolation_steps > 1
 
 

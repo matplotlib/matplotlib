@@ -2705,7 +2705,7 @@ class _AxesBase(martist.Artist):
         before calling :meth:`margins`.
         """
 
-        if margins and x is not None and y is not None:
+        if margins and (x is not None or y is not None):
             raise TypeError('Cannot pass both positional and keyword '
                             'arguments for x and/or y.')
         elif len(margins) == 1:
@@ -3669,47 +3669,7 @@ class _AxesBase(martist.Artist):
         return self.xaxis._set_lim(left, right, emit=emit, auto=auto)
 
     get_xscale = _axis_method_wrapper("xaxis", "get_scale")
-
-    def set_xscale(self, value, **kwargs):
-        """
-        Set the x-axis scale.
-
-        Parameters
-        ----------
-        value : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
-            The axis scale type to apply.
-
-        **kwargs
-            Different keyword arguments are accepted, depending on the scale.
-            See the respective class keyword arguments:
-
-            - `matplotlib.scale.LinearScale`
-            - `matplotlib.scale.LogScale`
-            - `matplotlib.scale.SymmetricalLogScale`
-            - `matplotlib.scale.LogitScale`
-            - `matplotlib.scale.FuncScale`
-
-        Notes
-        -----
-        By default, Matplotlib supports the above mentioned scales.
-        Additionally, custom scales may be registered using
-        `matplotlib.scale.register_scale`. These scales can then also
-        be used here.
-        """
-        old_default_lims = (self.xaxis.get_major_locator()
-                            .nonsingular(-np.inf, np.inf))
-        g = self.get_shared_x_axes()
-        for ax in g.get_siblings(self):
-            ax.xaxis._set_scale(value, **kwargs)
-            ax._update_transScale()
-            ax.stale = True
-        new_default_lims = (self.xaxis.get_major_locator()
-                            .nonsingular(-np.inf, np.inf))
-        if old_default_lims != new_default_lims:
-            # Force autoscaling now, to take advantage of the scale locator's
-            # nonsingular() before it possibly gets swapped out by the user.
-            self.autoscale_view(scaley=False)
-
+    set_xscale = _axis_method_wrapper("xaxis", "_set_axes_scale")
     get_xticks = _axis_method_wrapper("xaxis", "get_ticklocs")
     set_xticks = _axis_method_wrapper("xaxis", "set_ticks")
     get_xmajorticklabels = _axis_method_wrapper("xaxis", "get_majorticklabels")
@@ -3941,47 +3901,7 @@ class _AxesBase(martist.Artist):
         return self.yaxis._set_lim(bottom, top, emit=emit, auto=auto)
 
     get_yscale = _axis_method_wrapper("yaxis", "get_scale")
-
-    def set_yscale(self, value, **kwargs):
-        """
-        Set the y-axis scale.
-
-        Parameters
-        ----------
-        value : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
-            The axis scale type to apply.
-
-        **kwargs
-            Different keyword arguments are accepted, depending on the scale.
-            See the respective class keyword arguments:
-
-            - `matplotlib.scale.LinearScale`
-            - `matplotlib.scale.LogScale`
-            - `matplotlib.scale.SymmetricalLogScale`
-            - `matplotlib.scale.LogitScale`
-            - `matplotlib.scale.FuncScale`
-
-        Notes
-        -----
-        By default, Matplotlib supports the above mentioned scales.
-        Additionally, custom scales may be registered using
-        `matplotlib.scale.register_scale`. These scales can then also
-        be used here.
-        """
-        old_default_lims = (self.yaxis.get_major_locator()
-                            .nonsingular(-np.inf, np.inf))
-        g = self.get_shared_y_axes()
-        for ax in g.get_siblings(self):
-            ax.yaxis._set_scale(value, **kwargs)
-            ax._update_transScale()
-            ax.stale = True
-        new_default_lims = (self.yaxis.get_major_locator()
-                            .nonsingular(-np.inf, np.inf))
-        if old_default_lims != new_default_lims:
-            # Force autoscaling now, to take advantage of the scale locator's
-            # nonsingular() before it possibly gets swapped out by the user.
-            self.autoscale_view(scalex=False)
-
+    set_yscale = _axis_method_wrapper("yaxis", "_set_axes_scale")
     get_yticks = _axis_method_wrapper("yaxis", "get_ticklocs")
     set_yticks = _axis_method_wrapper("yaxis", "set_ticks")
     get_ymajorticklabels = _axis_method_wrapper("yaxis", "get_majorticklabels")

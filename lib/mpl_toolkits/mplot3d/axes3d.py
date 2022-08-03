@@ -26,7 +26,6 @@ import matplotlib.colors as mcolors
 import matplotlib.image as mimage
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
-import matplotlib.scale as mscale
 import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes, rcParams
@@ -525,7 +524,7 @@ class Axes3D(Axes):
         applies to 3D Axes, it also takes a *z* argument, and returns
         ``(xmargin, ymargin, zmargin)``.
         """
-        if margins and x is not None and y is not None and z is not None:
+        if margins and (x is not None or y is not None or z is not None):
             raise TypeError('Cannot pass both positional and keyword '
                             'arguments for x, y, and/or z.')
         elif len(margins) == 1:
@@ -708,34 +707,12 @@ class Axes3D(Axes):
         """Get 3D z limits."""
         return tuple(self.zz_viewLim.intervalx)
 
-    def get_zscale(self):
-        """
-        Return the zaxis scale string %s
+    get_zscale = _axis_method_wrapper("zaxis", "get_scale")
 
-        """ % (", ".join(mscale.get_scale_names()))
-        return self.zaxis.get_scale()
-
-    # We need to slightly redefine these to pass scalez=False
-    # to their calls of autoscale_view.
-
-    def set_xscale(self, value, **kwargs):
-        self.xaxis._set_scale(value, **kwargs)
-        self.autoscale_view(scaley=False, scalez=False)
-        self._update_transScale()
-        self.stale = True
-
-    def set_yscale(self, value, **kwargs):
-        self.yaxis._set_scale(value, **kwargs)
-        self.autoscale_view(scalex=False, scalez=False)
-        self._update_transScale()
-        self.stale = True
-
-    def set_zscale(self, value, **kwargs):
-        self.zaxis._set_scale(value, **kwargs)
-        self.autoscale_view(scalex=False, scaley=False)
-        self._update_transScale()
-        self.stale = True
-
+    # Redefine all three methods to overwrite their docstrings.
+    set_xscale = _axis_method_wrapper("xaxis", "_set_axes_scale")
+    set_yscale = _axis_method_wrapper("yaxis", "_set_axes_scale")
+    set_zscale = _axis_method_wrapper("zaxis", "_set_axes_scale")
     set_xscale.__doc__, set_yscale.__doc__, set_zscale.__doc__ = map(
         """
         Set the {}-axis scale.

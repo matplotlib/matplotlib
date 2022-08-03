@@ -337,6 +337,30 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+@mpl3d_image_comparison(['scatter3d_linewidth.png'])
+def test_scatter3d_linewidth():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    # Check that array-like linewidth can be set
+    ax.scatter(np.arange(10), np.arange(10), np.arange(10),
+               marker='o', linewidth=np.arange(10))
+
+
+@check_figures_equal(extensions=['png'])
+def test_scatter3d_linewidth_modification(fig_ref, fig_test):
+    # Changing Path3DCollection linewidths with array-like post-creation
+    # should work correctly.
+    ax_test = fig_test.add_subplot(projection='3d')
+    c = ax_test.scatter(np.arange(10), np.arange(10), np.arange(10),
+                        marker='o')
+    c.set_linewidths(np.arange(10))
+
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.scatter(np.arange(10), np.arange(10), np.arange(10), marker='o',
+                   linewidths=np.arange(10))
+
+
 @check_figures_equal(extensions=['png'])
 def test_scatter3d_modification(fig_ref, fig_test):
     # Changing Path3DCollection properties post-creation should work correctly.
@@ -1038,8 +1062,10 @@ def test_lines_dists():
     ys = (100, 150, 30, 200)
     ax.scatter(xs, ys)
 
-    dist = proj3d._line2d_seg_dist(p0, p1, (xs[0], ys[0]))
+    dist0 = proj3d._line2d_seg_dist(p0, p1, (xs[0], ys[0]))
     dist = proj3d._line2d_seg_dist(p0, p1, np.array((xs, ys)))
+    assert dist0 == dist[0]
+
     for x, y, d in zip(xs, ys, dist):
         c = Circle((x, y), d, fill=0)
         ax.add_patch(c)
@@ -1786,13 +1812,26 @@ def test_margins():
     assert ax.margins() == (0, 0.1, 0)
 
 
-def test_margins_errors():
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    with pytest.raises(TypeError, match="Cannot pass"):
-        ax.margins(0.2, x=0.4, y=0.4, z=0.4)
-    with pytest.raises(TypeError, match="Must pass"):
-        ax.margins(0.2, 0.4)
+@pytest.mark.parametrize('err, args, kwargs, match', (
+        (ValueError, (-1,), {}, r'margin must be greater than -0\.5'),
+        (ValueError, (1, -1, 1), {}, r'margin must be greater than -0\.5'),
+        (ValueError, (1, 1, -1), {}, r'margin must be greater than -0\.5'),
+        (ValueError, tuple(), {'x': -1}, r'margin must be greater than -0\.5'),
+        (ValueError, tuple(), {'y': -1}, r'margin must be greater than -0\.5'),
+        (ValueError, tuple(), {'z': -1}, r'margin must be greater than -0\.5'),
+        (TypeError, (1, ), {'x': 1},
+         'Cannot pass both positional and keyword'),
+        (TypeError, (1, ), {'x': 1, 'y': 1, 'z': 1},
+         'Cannot pass both positional and keyword'),
+        (TypeError, (1, ), {'x': 1, 'y': 1},
+         'Cannot pass both positional and keyword'),
+        (TypeError, (1, 1), {}, 'Must pass a single positional argument for'),
+))
+def test_margins_errors(err, args, kwargs, match):
+    with pytest.raises(err, match=match):
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.margins(*args, **kwargs)
 
 
 @check_figures_equal(extensions=["png"])

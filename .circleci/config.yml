@@ -87,7 +87,7 @@ commands:
             python -m pip install --upgrade --user wheel
             python -m pip install --upgrade --user 'setuptools!=60.6.0'
 
-  deps-install:
+  doc-deps-install:
     parameters:
       numpy_version:
         type: string
@@ -175,8 +175,8 @@ jobs:
       - fonts-install
       - pip-install
 
-      - deps-install
       - mpl-install
+      - doc-deps-install
 
       - doc-build
 

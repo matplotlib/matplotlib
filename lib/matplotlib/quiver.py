@@ -304,9 +304,8 @@ class QuiverKey(martist.Artist):
         self.fontproperties = fontproperties or dict()
         self.kw = kwargs
         _fp = self.fontproperties
-        # boxprops = dict(facecolor='red')
         self.text = mtext.Text(
-            text=label,  # bbox=boxprops,
+            text=label,
             horizontalalignment=self.halign[self.labelpos],
             verticalalignment=self.valign[self.labelpos],
             fontproperties=font_manager.FontProperties._from_any(_fp))

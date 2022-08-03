@@ -355,7 +355,7 @@ class ToolCursorPosition(ToolBase):
 
 class RubberbandBase(ToolBase):
     """Draw and remove a rubberband."""
-    def trigger(self, sender, event, data):
+    def trigger(self, sender, event, data=None):
         """Call `draw_rubberband` or `remove_rubberband` based on data."""
         if not self.figure.canvas.widgetlock.available(sender):
             return
@@ -449,11 +449,11 @@ class AxisScaleBase(ToolToggleBase):
             return
         super().trigger(sender, event, data)
 
-    def enable(self, event):
+    def enable(self, event=None):
         self.set_scale(event.inaxes, 'log')
         self.figure.canvas.draw_idle()
 
-    def disable(self, event):
+    def disable(self, event=None):
         self.set_scale(event.inaxes, 'linear')
         self.figure.canvas.draw_idle()
 
@@ -676,7 +676,7 @@ class ZoomPanBase(ToolToggleBase):
         self.scrollthresh = .5  # .5 second scroll threshold
         self.lastscroll = time.time()-self.scrollthresh
 
-    def enable(self, event):
+    def enable(self, event=None):
         """Connect press/release events and lock the canvas."""
         self.figure.canvas.widgetlock(self)
         self._idPress = self.figure.canvas.mpl_connect(
@@ -686,7 +686,7 @@ class ZoomPanBase(ToolToggleBase):
         self._idScroll = self.figure.canvas.mpl_connect(
             'scroll_event', self.scroll_zoom)
 
-    def disable(self, event):
+    def disable(self, event=None):
         """Release the canvas and disconnect press/release events."""
         self._cancel_action()
         self.figure.canvas.widgetlock.release(self)

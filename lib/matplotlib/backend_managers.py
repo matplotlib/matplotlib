@@ -284,7 +284,7 @@ class ToolManager:
 
             # If initially toggled
             if tool_obj.toggled:
-                self._handle_toggle(tool_obj, None, None, None)
+                self._handle_toggle(tool_obj, None, None)
         tool_obj.set_figure(self.figure)
 
         event = ToolEvent('tool_added_event', self, tool_obj)
@@ -292,7 +292,7 @@ class ToolManager:
 
         return tool_obj
 
-    def _handle_toggle(self, tool, sender, canvasevent, data):
+    def _handle_toggle(self, tool, canvasevent, data):
         """
         Toggle tools, need to untoggle prior to using other Toggle tool.
         Called from trigger_tool.
@@ -300,8 +300,6 @@ class ToolManager:
         Parameters
         ----------
         tool : `.ToolBase`
-        sender : object
-            Object that wishes to trigger the tool.
         canvasevent : Event
             Original Canvas event or None.
         data : object
@@ -360,7 +358,7 @@ class ToolManager:
             sender = self
 
         if isinstance(tool, backend_tools.ToolToggleBase):
-            self._handle_toggle(tool, sender, canvasevent, data)
+            self._handle_toggle(tool, canvasevent, data)
 
         tool.trigger(sender, canvasevent, data)  # Actually trigger Tool.
 

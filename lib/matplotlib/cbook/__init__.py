@@ -1158,6 +1158,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         med        50th percentile
         q1         first quartile (25th percentile)
         q3         third quartile (75th percentile)
+        iqr        interquartile range
         cilo       lower notch around the median
         cihi       upper notch around the median
         whislo     end of the lower whisker
@@ -1239,11 +1240,11 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             stats['med'] = np.nan
             stats['q1'] = np.nan
             stats['q3'] = np.nan
+            stats['iqr'] = np.nan
             stats['cilo'] = np.nan
             stats['cihi'] = np.nan
             stats['whislo'] = np.nan
             stats['whishi'] = np.nan
-            stats['med'] = np.nan
             continue
 
         # up-convert to an array, just to be safe
