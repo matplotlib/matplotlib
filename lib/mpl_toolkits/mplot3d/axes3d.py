@@ -322,6 +322,7 @@ class Axes3D(Axes):
                            aspect=aspect)
         super().set_aspect(
             aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
+        self._aspect = aspect
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
             if aspect == 'equal':
