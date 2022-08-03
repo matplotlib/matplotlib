@@ -88,6 +88,35 @@ def test_webagg_general(random_port, page):
 
 
 @pytest.mark.backend('webagg')
+def test_webagg_resize(random_port, page):
+    # Listen for all console logs.
+    page.on('console', lambda msg: print(f'CONSOLE: {msg.text}'))
+
+    fig, ax = plt.subplots(facecolor='w')
+    orig_bbox = fig.bbox.frozen()
+
+    # Don't start the Tornado event loop, but use the existing event loop
+    # started by the `page` fixture.
+    WebAggApplication.initialize(port=random_port)
+    WebAggApplication.started = True
+
+    page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')
+
+    canvas = page.locator('canvas.mpl-canvas')
+
+    # Resize the canvas to be twice as big.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] - 1, bbox['y'] + bbox['height'] - 1
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.mouse.move(x + bbox['width'], y + bbox['height'])
+    page.mouse.up()
+
+    assert fig.bbox.height == orig_bbox.height * 2
+    assert fig.bbox.width == orig_bbox.width * 2
+
+
+@pytest.mark.backend('webagg')
 @pytest.mark.parametrize('toolbar', ['toolbar2', 'toolmanager'])
 def test_webagg_toolbar(random_port, page, toolbar):
     from playwright.sync_api import expect
