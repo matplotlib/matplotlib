@@ -163,6 +163,9 @@ stages:
                 --verbose --editable .[dev]
             displayName: "Install self"
 
+          - bash: playwright install --with-deps
+            displayName: 'Install browsers for testing'
+
           - script: env
             displayName: 'print env'
 
