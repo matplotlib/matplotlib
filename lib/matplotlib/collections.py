@@ -131,13 +131,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         offset_transform : `~.Transform`, default: `.IdentityTransform`
             A single transform which will be applied to each *offsets* vector
             before it is used.
-        norm : `~.colors.Normalize`, optional
-            Forwarded to `.ScalarMappable`. The default of
-            ``None`` means that the first draw call will set ``vmin`` and
-            ``vmax`` using the minimum and maximum values of the data.
-        cmap : `~.colors.Colormap`, optional
-            Forwarded to `.ScalarMappable`. The default of
-            ``None`` will result in :rc:`image.cmap` being used.
+        cmap, norm
+            Data normalization and colormapping parameters. See
+            `.ScalarMappable` for a detailed description.
         hatch : str, optional
             Hatching pattern to use in filled paths, if any. Valid strings are
             ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']. See

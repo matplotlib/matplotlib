@@ -1,0 +1,4 @@
+``FigureCanvasBase.pick``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  Directly call `.Figure.pick`, which has taken over the
+responsibility of checking the canvas widgetlock as well.

@@ -1,0 +1,2 @@
+The pgf backend now uses the article documentclass as basis for compilation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -2825,6 +2825,8 @@ class Axes(_AxesBase):
 
         The *locs*-positions are optional. The formats may be provided either
         as positional or as keyword-arguments.
+        Passing *markerfmt* and *basefmt* positionally is deprecated since
+        Matplotlib 3.5.
 
         Parameters
         ----------
@@ -2857,8 +2859,8 @@ class Axes(_AxesBase):
 
         markerfmt : str, optional
             A string defining the color and/or shape of the markers at the stem
-            heads.  Default: 'C0o', i.e. filled circles with the first color of
-            the color cycle.
+            heads. If the marker is not given, use the marker 'o', i.e. filled
+            circles. If the color is not given, use the color from *linefmt*.
 
         basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
@@ -2923,16 +2925,27 @@ class Axes(_AxesBase):
         else:  # horizontal
             heads, locs = self._process_unit_info([("x", heads), ("y", locs)])
 
-        # defaults for formats
+        # resolve line format
         if linefmt is None:
             linefmt = args[0] if len(args) > 0 else "C0-"
         linestyle, linemarker, linecolor = _process_plot_format(linefmt)
 
+        # resolve marker format
         if markerfmt is None:
-            markerfmt = args[1] if len(args) > 1 else "C0o"
+            # if not given as kwarg, check for positional or fall back to 'o'
+            markerfmt = args[1] if len(args) > 1 else "o"
+        if markerfmt == '':
+            markerfmt = ' '  # = empty line style; '' would resolve rcParams
         markerstyle, markermarker, markercolor = \
             _process_plot_format(markerfmt)
+        if markermarker is None:
+            markermarker = 'o'
+        if markerstyle is None:
+            markerstyle = 'None'
+        if markercolor is None:
+            markercolor = linecolor
 
+        # resolve baseline format
         if basefmt is None:
             basefmt = (args[2] if len(args) > 2 else
                        "C2-" if rcParams["_internal.classic_mode"] else "C3-")
@@ -3354,7 +3367,25 @@ class Axes(_AxesBase):
             property names, *markerfacecolor*, *markeredgecolor*, *markersize*
             and *markeredgewidth*.
 
-            Valid kwargs for the marker properties are `.Line2D` properties:
+            Valid kwargs for the marker properties are:
+
+            - *dashes*
+            - *dash_capstyle*
+            - *dash_joinstyle*
+            - *drawstyle*
+            - *fillstyle*
+            - *linestyle*
+            - *marker*
+            - *markeredgecolor*
+            - *markeredgewidth*
+            - *markerfacecolor*
+            - *markerfacecoloralt*
+            - *markersize*
+            - *markevery*
+            - *solid_capstyle*
+            - *solid_joinstyle*
+
+            Refer to the corresponding `.Line2D` property for more details:
 
             %(Line2D:kwdoc)s
         """
@@ -3454,6 +3485,7 @@ class Axes(_AxesBase):
         # Eject any line-specific information from format string, as it's not
         # needed for bars or caps.
         for key in ['marker', 'markersize', 'markerfacecolor',
+                    'markerfacecoloralt',
                     'markeredgewidth', 'markeredgecolor', 'markevery',
                     'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
                     'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle',
@@ -4322,6 +4354,7 @@ class Axes(_AxesBase):
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
                       label_namer="y")
+    @_docstring.interpd
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None, *,
                 edgecolors=None, plotnonfinite=False, **kwargs):
@@ -4368,21 +4401,17 @@ class Axes(_AxesBase):
             See :mod:`matplotlib.markers` for more information about marker
             styles.
 
-        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            A `.Colormap` instance or registered colormap name. *cmap* is only
-            used if *c* is an array of floats.
+        %(cmap_doc)s
 
-        norm : `~matplotlib.colors.Normalize`, default: None
-            If *c* is an array of floats, *norm* is used to scale the color
-            data, *c*, in the range 0 to 1, in order to map into the colormap
-            *cmap*.
-            If *None*, use the default `.colors.Normalize`.
+            This parameter is ignored if *c* is RGB(A).
 
-        vmin, vmax : float, default: None
-            *vmin* and *vmax* are used in conjunction with the default norm to
-            map the color array *c* to the colormap *cmap*. If None, the
-            respective min and max of the color array is used.
-            It is an error to use *vmin*/*vmax* when *norm* is given.
+        %(norm_doc)s
+
+            This parameter is ignored if *c* is RGB(A).
+
+        %(vmin_vmax_doc)s
+
+            This parameter is ignored if *c* is RGB(A).
 
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -4655,21 +4684,11 @@ default: :rc:`scatter.edgecolors`
 
         Other Parameters
         ----------------
-        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            The Colormap instance or registered colormap name used to map
-            the bin values to colors.
+        %(cmap_doc)s
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The Normalize instance scales the bin values to the canonical
-            colormap range [0, 1] for mapping to colors. By default, the data
-            range is mapped to the colorbar range using linear scaling.
+        %(norm_doc)s
 
-        vmin, vmax : float, default: None
-            The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `.Normalize` instance (defaults to
-            the respective min/max values of the bins in case of the default
-            linear scaling).
-            It is an error to use *vmin*/*vmax* when *norm* is given.
+        %(vmin_vmax_doc)s
 
         alpha : float between 0 and 1, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -5295,8 +5314,13 @@ default: :rc:`scatter.edgecolors`
         replace_names=["y", "x1", "x2", "where"])
 
     #### plotting z(x, y): imshow, pcolor and relatives, contour
+
+    # Once this deprecation elapses, also move vmin, vmax right after norm, to
+    # match the signature of other methods returning ScalarMappables and keep
+    # the documentation for *norm*, *vmax* and *vmin* together.
     @_api.make_keyword_only("3.5", "aspect")
     @_preprocess_data()
+    @_docstring.interpd
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None,
                vmin=None, vmax=None, origin=None, extent=None, *,
@@ -5335,15 +5359,17 @@ default: :rc:`scatter.edgecolors`
 
             Out-of-range RGB(A) values are clipped.
 
-        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            The Colormap instance or registered colormap name used to map
-            scalar data to colors. This parameter is ignored for RGB(A) data.
+        %(cmap_doc)s
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The `.Normalize` instance used to scale scalar data to the [0, 1]
-            range before mapping to colors using *cmap*. By default, a linear
-            scaling mapping the lowest value to 0 and the highest to 1 is used.
-            This parameter is ignored for RGB(A) data.
+            This parameter is ignored if *X* is RGB(A).
+
+        %(norm_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
+
+        %(vmin_vmax_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
 
         aspect : {'equal', 'auto'} or float, default: :rc:`image.aspect`
             The aspect ratio of the Axes.  This parameter is particularly
@@ -5402,13 +5428,6 @@ default: :rc:`scatter.edgecolors`
             The alpha blending value, between 0 (transparent) and 1 (opaque).
             If *alpha* is an array, the alpha blending values are applied pixel
             by pixel, and *alpha* must have the same shape as *X*.
-
-        vmin, vmax : float, optional
-            When using scalar data and no explicit *norm*, *vmin* and *vmax*
-            define the data range that the colormap covers. By default,
-            the colormap covers the complete value range of the supplied
-            data. It is an error to use *vmin*/*vmax* when *norm* is given.
-            When using RGB(A) data, parameters *vmin*/*vmax* are ignored.
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Place the [0, 0] index of the array in the upper left or lower
@@ -5673,7 +5692,8 @@ default: :rc:`scatter.edgecolors`
         Parameters
         ----------
         C : 2D array-like
-            The color-mapped values.
+            The color-mapped values.  Color-mapping is controlled by *cmap*,
+            *norm*, *vmin*, and *vmax*.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -5720,21 +5740,11 @@ default: :rc:`scatter.edgecolors`
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
 
-        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors.
+        %(cmap_doc)s
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The Normalize instance scales the data values to the canonical
-            colormap range [0, 1] for mapping to colors. By default, the data
-            range is mapped to the colorbar range using linear scaling.
+        %(norm_doc)s
 
-        vmin, vmax : float, default: None
-            The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `.Normalize` instance (defaults to
-            the respective min/max values of *C* in case of the default linear
-            scaling).
-            It is an error to use *vmin*/*vmax* when *norm* is given.
+        %(vmin_vmax_doc)s
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -5915,7 +5925,8 @@ default: :rc:`scatter.edgecolors`
         Parameters
         ----------
         C : 2D array-like
-            The color-mapped values.
+            The color-mapped values.  Color-mapping is controlled by *cmap*,
+            *norm*, *vmin*, and *vmax*.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -5946,21 +5957,11 @@ default: :rc:`scatter.edgecolors`
             expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
 
-        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors.
+        %(cmap_doc)s
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The Normalize instance scales the data values to the canonical
-            colormap range [0, 1] for mapping to colors. By default, the data
-            range is mapped to the colorbar range using linear scaling.
+        %(norm_doc)s
 
-        vmin, vmax : float, default: None
-            The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `.Normalize` instance (defaults to
-            the respective min/max values of *C* in case of the default linear
-            scaling).
-            It is an error to use *vmin*/*vmax* when *norm* is given.
+        %(vmin_vmax_doc)s
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -6150,8 +6151,8 @@ default: :rc:`scatter.edgecolors`
         C : array-like
             The image data. Supported array shapes are:
 
-            - (M, N): an image with scalar data. The data is visualized
-              using a colormap.
+            - (M, N): an image with scalar data.  Color-mapping is controlled
+              by *cmap*, *norm*, *vmin*, and *vmax*.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -6194,21 +6195,17 @@ default: :rc:`scatter.edgecolors`
 
             These arguments can only be passed positionally.
 
-        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            A Colormap instance or registered colormap name. The colormap
-            maps the *C* values to colors.
+        %(cmap_doc)s
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            The Normalize instance scales the data values to the canonical
-            colormap range [0, 1] for mapping to colors. By default, the data
-            range is mapped to the colorbar range using linear scaling.
+            This parameter is ignored if *C* is RGB(A).
 
-        vmin, vmax : float, default: None
-            The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `.Normalize` instance (defaults to
-            the respective min/max values of *C* in case of the default linear
-            scaling).
-            It is an error to use *vmin*/*vmax* when *norm* is given.
+        %(norm_doc)s
+
+            This parameter is ignored if *C* is RGB(A).
+
+        %(vmin_vmax_doc)s
+
+            This parameter is ignored if *C* is RGB(A).
 
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -6963,16 +6960,11 @@ such objects
 
         Other Parameters
         ----------------
-        cmap : Colormap or str, optional
-            A `.colors.Colormap` instance.  If not set, use rc settings.
+        %(cmap_doc)s
 
-        norm : Normalize, optional
-            A `.colors.Normalize` instance is used to
-            scale luminance data to ``[0, 1]``. If not set, defaults to
-            `.colors.Normalize()`.
+        %(norm_doc)s
 
-        vmin/vmax : None or scalar, optional
-            Arguments passed to the `~.colors.Normalize` instance.
+        %(vmin_vmax_doc)s
 
         alpha : ``0 <= scalar <= 1`` or ``None``, optional
             The alpha blending value.

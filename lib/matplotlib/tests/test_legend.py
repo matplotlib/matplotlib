@@ -607,6 +607,25 @@ def test_legend_title_fontprop_fontsize():
     assert leg5.get_title().get_fontsize() == 20
 
 
+@pytest.mark.parametrize('alignment', ('center', 'left', 'right'))
+def test_legend_alignment(alignment):
+    fig, ax = plt.subplots()
+    ax.plot(range(10), label='test')
+    leg = ax.legend(title="Aardvark", alignment=alignment)
+    assert leg.get_children()[0].align == alignment
+    assert leg.get_alignment() == alignment
+
+
+@pytest.mark.parametrize('alignment', ('center', 'left', 'right'))
+def test_legend_set_alignment(alignment):
+    fig, ax = plt.subplots()
+    ax.plot(range(10), label='test')
+    leg = ax.legend()
+    leg.set_alignment(alignment)
+    assert leg.get_children()[0].align == alignment
+    assert leg.get_alignment() == alignment
+
+
 @pytest.mark.parametrize('color', ('red', 'none', (.5, .5, .5)))
 def test_legend_labelcolor_single(color):
     # test labelcolor for a single color

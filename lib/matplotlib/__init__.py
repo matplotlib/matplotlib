@@ -81,7 +81,7 @@ Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
 
 Occasionally the internal documentation (python docstrings) will refer
-to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
+to MATLAB®, a registered trademark of The MathWorks, Inc.
 
 """
 

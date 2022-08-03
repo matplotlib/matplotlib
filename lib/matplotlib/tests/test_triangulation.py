@@ -273,7 +273,7 @@ def test_tripcolor_clim():
     ax = plt.figure().add_subplot()
     clim = (0.25, 0.75)
     norm = ax.tripcolor(a, b, c, clim=clim).norm
-    assert((norm.vmin, norm.vmax) == clim)
+    assert (norm.vmin, norm.vmax) == clim
 
 
 def test_tripcolor_warnings():

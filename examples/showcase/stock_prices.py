@@ -102,7 +102,7 @@ ax.tick_params(axis='both', which='both', labelsize='large',
 # Finally, save the figure as a PNG.
 # You can also save it as a PDF, JPEG, etc.
 # Just change the file extension in this call.
-# fig.savefig('percent-bachelors-degrees-women-usa.png', bbox_inches='tight')
+# fig.savefig('stock-prices.png', bbox_inches='tight')
 plt.show()
 
 #############################################################################

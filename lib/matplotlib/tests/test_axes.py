@@ -59,6 +59,17 @@ def test_get_labels():
     assert ax.get_ylabel() == 'y label'
 
 
+def test_repr():
+    fig, ax = plt.subplots()
+    ax.set_label('label')
+    ax.set_title('title')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    assert repr(ax) == (
+        "<AxesSubplot: "
+        "label='label', title={'center': 'title'}, xlabel='x', ylabel='y'>")
+
+
 @check_figures_equal()
 def test_label_loc_vertical(fig_test, fig_ref):
     ax = fig_test.subplots()
@@ -995,8 +1006,8 @@ def test_imshow_norm_vminvmax():
     a = [[1, 2], [3, 4]]
     ax = plt.axes()
     with pytest.raises(ValueError,
-                       match="Passing parameters norm and vmin/vmax "
-                             "simultaneously is not supported."):
+                       match="Passing a Normalize instance simultaneously "
+                             "with vmin/vmax is not supported."):
         ax.imshow(a, norm=mcolors.Normalize(-10, 10), vmin=0, vmax=5)
 
 
@@ -2444,8 +2455,8 @@ class TestScatter:
         x = [1, 2, 3]
         ax = plt.axes()
         with pytest.raises(ValueError,
-                           match="Passing parameters norm and vmin/vmax "
-                                 "simultaneously is not supported."):
+                           match="Passing a Normalize instance simultaneously "
+                                 "with vmin/vmax is not supported."):
             ax.scatter(x, x, c=x, norm=mcolors.Normalize(-10, 10),
                        vmin=0, vmax=5)
 
@@ -3892,6 +3903,7 @@ def test_stem(use_line_collection):
 
 
 def test_stem_args():
+    """Test that stem() correctly identifies x and y values."""
     def _assert_equal(stem_container, expected):
         x, y = map(list, stem_container.markerline.get_data())
         assert x == expected[0]
@@ -3910,6 +3922,71 @@ def test_stem_args():
     _assert_equal(ax.stem(x, y, linefmt='r--', basefmt='b--'), expected=(x, y))
     _assert_equal(ax.stem(y, linefmt='r--'), expected=([0, 1, 2], y))
     _assert_equal(ax.stem(y, 'r--'), expected=([0, 1, 2], y))
+
+
+def test_stem_markerfmt():
+    """Test that stem(..., markerfmt=...) produces the intended markers."""
+    def _assert_equal(stem_container, linecolor=None, markercolor=None,
+                      marker=None):
+        """
+        Check that the given StemContainer has the properties listed as
+        keyword-arguments.
+        """
+        if linecolor is not None:
+            assert mcolors.same_color(
+                stem_container.stemlines.get_color(),
+                linecolor)
+        if markercolor is not None:
+            assert mcolors.same_color(
+                stem_container.markerline.get_color(),
+                markercolor)
+        if marker is not None:
+            assert stem_container.markerline.get_marker() == marker
+        assert stem_container.markerline.get_linestyle() == 'None'
+
+    fig, ax = plt.subplots()
+
+    x = [1, 3, 5]
+    y = [9, 8, 7]
+
+    # no linefmt
+    _assert_equal(ax.stem(x, y), markercolor='C0', marker='o')
+    _assert_equal(ax.stem(x, y, markerfmt='x'), markercolor='C0', marker='x')
+    _assert_equal(ax.stem(x, y, markerfmt='rx'), markercolor='r', marker='x')
+
+    # positional linefmt
+    _assert_equal(
+        ax.stem(x, y, 'r'),  # marker color follows linefmt if not given
+        linecolor='r', markercolor='r', marker='o')
+    _assert_equal(
+        ax.stem(x, y, 'rx'),  # the marker is currently not taken from linefmt
+        linecolor='r', markercolor='r', marker='o')
+    _assert_equal(
+        ax.stem(x, y, 'r', markerfmt='x'),  # only marker type specified
+        linecolor='r', markercolor='r', marker='x')
+    _assert_equal(
+        ax.stem(x, y, 'r', markerfmt='g'),  # only marker color specified
+        linecolor='r', markercolor='g', marker='o')
+    _assert_equal(
+        ax.stem(x, y, 'r', markerfmt='gx'),  # marker type and color specified
+        linecolor='r', markercolor='g', marker='x')
+    _assert_equal(
+        ax.stem(x, y, 'r', markerfmt=' '),  # markerfmt=' ' for no marker
+        linecolor='r', markercolor='r', marker='None')
+    _assert_equal(
+        ax.stem(x, y, 'r', markerfmt=''),  # markerfmt='' for no marker
+        linecolor='r', markercolor='r', marker='None')
+
+    # with linefmt kwarg
+    _assert_equal(
+        ax.stem(x, y, linefmt='r'),
+        linecolor='r', markercolor='r', marker='o')
+    _assert_equal(
+        ax.stem(x, y, linefmt='r', markerfmt='x'),
+        linecolor='r', markercolor='r', marker='x')
+    _assert_equal(
+        ax.stem(x, y, linefmt='r', markerfmt='gx'),
+        linecolor='r', markercolor='g', marker='x')
 
 
 def test_stem_dates():
@@ -6970,7 +7047,7 @@ def test_secondary_formatter():
 def test_secondary_repr():
     fig, ax = plt.subplots()
     secax = ax.secondary_xaxis("top")
-    assert repr(secax) == '<SecondaryAxis:>'
+    assert repr(secax) == '<SecondaryAxis: >'
 
 
 def color_boxes(fig, ax):

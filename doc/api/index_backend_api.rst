@@ -2,6 +2,8 @@
 ``matplotlib.backends``
 ***********************
 
+.. module:: matplotlib.backends
+
 .. toctree::
    :maxdepth: 1
 
