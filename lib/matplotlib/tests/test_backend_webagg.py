@@ -139,6 +139,39 @@ def test_webagg_general(page):
         raise ImageComparisonFailure(err)
 
 
+@pytest.mark.backend('webagg')
+def test_webagg_resize(page):
+    # Listen for all console logs.
+    page.on('console', lambda msg: print(f'CONSOLE: {msg.text}'))
+    # Increase the viewport to at least twice the size of the default figure.
+    # Playwright seems to have a bug with mouse movement in Firefox that places the
+    # cursor somewhere near the origin when outside the viewport size.
+    page.set_viewport_size({'width': 1600, 'height': 1200})
+
+    fig, ax = plt.subplots(facecolor='w')
+    orig_bbox = fig.bbox.frozen()
+
+    # Don't start the Tornado event loop, but use the existing event loop
+    # started by the `page` fixture.
+    WebAggApplication.initialize()
+    WebAggApplication.started = True
+
+    page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')
+
+    canvas = page.locator('canvas.mpl-canvas')
+
+    # Resize the canvas to be twice as big.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] - 1, bbox['y'] + bbox['height'] - 1
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.mouse.move(x + bbox['width'], y + bbox['height'])
+    page.mouse.up()
+
+    assert fig.bbox.height == orig_bbox.height * 2
+    assert fig.bbox.width == orig_bbox.width * 2
+
+
 @pytest.mark.filterwarnings('ignore:Treat the new Tool classes:UserWarning')
 @pytest.mark.backend('webagg')
 @pytest.mark.parametrize('toolbar', ['toolbar2', 'toolmanager'])
