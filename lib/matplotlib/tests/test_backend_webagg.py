@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -203,3 +204,118 @@ def test_webagg_toolbar_save(random_port, page):
 
     new_page.wait_for_load_state()
     assert new_page.url.endswith('download.png')
+
+
+@pytest.mark.backend('webagg')
+def test_webagg_toolbar_pan(random_port, page):
+    from playwright.sync_api import expect
+
+    # Listen for all console logs.
+    page.on('console', lambda msg: print(f'CONSOLE: {msg.text}'))
+
+    fig, ax = plt.subplots(facecolor='w')
+    ax.plot([3, 2, 1])
+    orig_lim = ax.viewLim.frozen()
+    # Make figure coords ~= axes coords, with ticks visible for inspection.
+    ax.set_position([0, 0, 1, 1])
+    ax.tick_params(axis='y', direction='in', pad=-22)
+    ax.tick_params(axis='x', direction='in', pad=-15)
+
+    # Don't start the Tornado event loop, but use the existing event loop
+    # started by the `page` fixture.
+    WebAggApplication.initialize()
+    WebAggApplication.started = True
+
+    page.goto(f'http://{WebAggApplication.address}:{WebAggApplication.port}/')
+
+    canvas = page.locator('canvas.mpl-canvas')
+    expect(canvas).to_be_visible()
+    home = page.locator('button.mpl-widget').nth(0)
+    expect(home).to_be_visible()
+    pan = page.locator('button.mpl-widget').nth(3)
+    expect(pan).to_be_visible()
+    zoom = page.locator('button.mpl-widget').nth(4)
+    expect(zoom).to_be_visible()
+
+    active_re = re.compile(r'active')
+    expect(pan).not_to_have_class(active_re)
+    expect(zoom).not_to_have_class(active_re)
+    assert ax.get_navigate_mode() is None
+    pan.click()
+    expect(pan).to_have_class(active_re)
+    expect(zoom).not_to_have_class(active_re)
+    assert ax.get_navigate_mode() == 'PAN'
+
+    # Pan 50% of the figure diagonally toward bottom-right.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] / 4, bbox['y'] + bbox['height'] / 4
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.mouse.move(x + bbox['width'] / 2, y + bbox['height'] / 2,
+                    steps=20)
+    page.mouse.up()
+
+    assert ax.get_xlim() == (orig_lim.x0 - orig_lim.width / 2,
+                             orig_lim.x1 - orig_lim.width / 2)
+    assert ax.get_ylim() == (orig_lim.y0 + orig_lim.height / 2,
+                             orig_lim.y1 + orig_lim.height / 2)
+
+    # Reset.
+    home.click()
+    assert ax.viewLim.bounds == orig_lim.bounds
+
+    # Pan 50% of the figure diagonally toward bottom-right, while holding 'x'
+    # key, to constrain the pan horizontally.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] / 4, bbox['y'] + bbox['height'] / 4
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.keyboard.down('x')
+    page.mouse.move(x + bbox['width'] / 2, y + bbox['height'] / 2,
+                    steps=20)
+    page.mouse.up()
+    page.keyboard.up('x')
+
+    assert ax.get_xlim() == (orig_lim.x0 - orig_lim.width / 2,
+                             orig_lim.x1 - orig_lim.width / 2)
+    assert ax.get_ylim() == (orig_lim.y0, orig_lim.y1)
+
+    # Reset.
+    home.click()
+    assert ax.viewLim.bounds == orig_lim.bounds
+
+    # Pan 50% of the figure diagonally toward bottom-right, while holding 'y'
+    # key, to constrain the pan vertically.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'] + bbox['width'] / 4, bbox['y'] + bbox['height'] / 4
+    page.mouse.move(x, y)
+    page.mouse.down()
+    page.keyboard.down('y')
+    page.mouse.move(x + bbox['width'] / 2, y + bbox['height'] / 2,
+                    steps=20)
+    page.mouse.up()
+    page.keyboard.up('y')
+
+    assert ax.get_xlim() == (orig_lim.x0, orig_lim.x1)
+    assert ax.get_ylim() == (orig_lim.y0 + orig_lim.height / 2,
+                             orig_lim.y1 + orig_lim.height / 2)
+
+    # Reset.
+    home.click()
+    assert ax.viewLim.bounds == orig_lim.bounds
+
+    # Zoom 50% of the figure diagonally toward bottom-right.
+    bbox = canvas.bounding_box()
+    x, y = bbox['x'], bbox['y']
+    page.mouse.move(x, y)
+    page.mouse.down(button='right')
+    page.mouse.move(x + bbox['width'] / 2, y + bbox['height'] / 2,
+                    steps=20)
+    page.mouse.up(button='right')
+
+    # Expands in x-direction.
+    assert ax.viewLim.x0 == orig_lim.x0
+    assert ax.viewLim.x1 < orig_lim.x1 - orig_lim.width / 2
+    # Contracts in y-direction.
+    assert ax.viewLim.y1 == orig_lim.y1
+    assert ax.viewLim.y0 < orig_lim.y0 - orig_lim.height / 2
