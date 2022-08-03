@@ -356,7 +356,6 @@ class Dvi:
         while True:
             byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
-            name = self._dtable[byte].__name__
             if byte == 140:                         # end of page
                 return True
             if self.state is _dvistate.post_post:   # end of file

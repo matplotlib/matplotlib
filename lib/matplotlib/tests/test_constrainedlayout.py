@@ -165,7 +165,7 @@ def test_constrained_layout8():
         for i in ilist:
             ax = fig.add_subplot(gs[j, i])
             axs += [ax]
-            pcm = example_pcolor(ax, fontsize=9)
+            example_pcolor(ax, fontsize=9)
             if i > 0:
                 ax.set_ylabel('')
             if j < 1:

@@ -1188,7 +1188,7 @@ def test_warn_notintervals():
     locator.create_dummy_axis()
     locator.axis.set_view_interval(mdates.date2num(dates[0]),
                                    mdates.date2num(dates[-1]))
-    with pytest.warns(UserWarning, match="AutoDateLocator was unable") as rec:
+    with pytest.warns(UserWarning, match="AutoDateLocator was unable"):
         locs = locator()
 
 

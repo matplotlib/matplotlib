@@ -1024,8 +1024,10 @@ def test_lines_dists():
     ys = (100, 150, 30, 200)
     ax.scatter(xs, ys)
 
-    dist = proj3d._line2d_seg_dist(p0, p1, (xs[0], ys[0]))
+    dist0 = proj3d._line2d_seg_dist(p0, p1, (xs[0], ys[0]))
     dist = proj3d._line2d_seg_dist(p0, p1, np.array((xs, ys)))
+    assert dist0 == dist[0]
+
     for x, y, d in zip(xs, ys, dist):
         c = Circle((x, y), d, fill=0)
         ax.add_patch(c)

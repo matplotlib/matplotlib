@@ -91,7 +91,6 @@ class RedirectFrom(Directive):
     def run(self):
         redirected_doc, = self.arguments
         env = self.app.env
-        builder = self.app.builder
         domain = env.get_domain('redirect_from')
         current_doc = env.path2doc(self.state.document.current_source)
         redirected_reldoc, _ = env.relfn2path(redirected_doc, current_doc)

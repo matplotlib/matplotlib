@@ -286,17 +286,17 @@ def test_url():
 
     # collections
     s = ax.scatter([1, 2, 3], [4, 5, 6])
-    s.set_urls(['http://example.com/foo', 'http://example.com/bar', None])
+    s.set_urls(['https://example.com/foo', 'https://example.com/bar', None])
 
     # Line2D
     p, = plt.plot([1, 3], [6, 5])
-    p.set_url('http://example.com/baz')
+    p.set_url('https://example.com/baz')
 
     b = BytesIO()
     fig.savefig(b, format='svg')
     b = b.getvalue()
     for v in [b'foo', b'bar', b'baz']:
-        assert b'http://example.com/' + v in b
+        assert b'https://example.com/' + v in b
 
 
 def test_url_tick(monkeypatch):
@@ -305,13 +305,13 @@ def test_url_tick(monkeypatch):
     fig1, ax = plt.subplots()
     ax.scatter([1, 2, 3], [4, 5, 6])
     for i, tick in enumerate(ax.yaxis.get_major_ticks()):
-        tick.set_url(f'http://example.com/{i}')
+        tick.set_url(f'https://example.com/{i}')
 
     fig2, ax = plt.subplots()
     ax.scatter([1, 2, 3], [4, 5, 6])
     for i, tick in enumerate(ax.yaxis.get_major_ticks()):
-        tick.label1.set_url(f'http://example.com/{i}')
-        tick.label2.set_url(f'http://example.com/{i}')
+        tick.label1.set_url(f'https://example.com/{i}')
+        tick.label2.set_url(f'https://example.com/{i}')
 
     b1 = BytesIO()
     fig1.savefig(b1, format='svg')
@@ -322,7 +322,7 @@ def test_url_tick(monkeypatch):
     b2 = b2.getvalue()
 
     for i in range(len(ax.yaxis.get_major_ticks())):
-        assert f'http://example.com/{i}'.encode('ascii') in b1
+        assert f'https://example.com/{i}'.encode('ascii') in b1
     assert b1 == b2
 
 

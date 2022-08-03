@@ -33,7 +33,7 @@ class Substitution:
     def __init__(self, *args, **kwargs):
         if args and kwargs:
             raise TypeError("Only positional or keyword args are allowed")
-        self.params = params = args or kwargs
+        self.params = args or kwargs
 
     def __call__(self, func):
         if func.__doc__:
