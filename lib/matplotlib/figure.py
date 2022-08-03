@@ -23,11 +23,11 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _blocking_input, _docstring, projections
+from matplotlib import _blocking_input, backend_bases, _docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
+    DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -2372,10 +2372,20 @@ class Figure(FigureBase):
         # pickling.
         self._canvas_callbacks = cbook.CallbackRegistry(
             signals=FigureCanvasBase.events)
-        self._button_pick_id = self._canvas_callbacks.connect(
-            'button_press_event', lambda event: self.canvas.pick(event))
-        self._scroll_pick_id = self._canvas_callbacks.connect(
-            'scroll_event', lambda event: self.canvas.pick(event))
+        self._button_pick_id = self._canvas_callbacks._connect_picklable(
+            'button_press_event', self.pick)
+        self._scroll_pick_id = self._canvas_callbacks._connect_picklable(
+            'scroll_event', self.pick)
+        connect = self._canvas_callbacks._connect_picklable
+        self._mouse_key_ids = [
+            connect('key_press_event', backend_bases._key_handler),
+            connect('key_release_event', backend_bases._key_handler),
+            connect('key_release_event', backend_bases._key_handler),
+            connect('button_press_event', backend_bases._mouse_handler),
+            connect('button_release_event', backend_bases._mouse_handler),
+            connect('scroll_event', backend_bases._mouse_handler),
+            connect('motion_notify_event', backend_bases._mouse_handler),
+        ]
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']
@@ -2422,6 +2432,10 @@ class Figure(FigureBase):
 
         # list of child gridspecs for this figure
         self._gridspecs = []
+
+    def pick(self, mouseevent):
+        if not self.canvas.widgetlock.locked():
+            super().pick(mouseevent)
 
     def _check_layout_engines_compat(self, old, new):
         """
@@ -2724,6 +2738,7 @@ class Figure(FigureBase):
         """
         self.canvas = canvas
 
+    @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
                  vmin=None, vmax=None, origin=None, resize=False, **kwargs):
         """
@@ -2737,9 +2752,11 @@ class Figure(FigureBase):
         X
             The image data. This is an array of one of the following shapes:
 
-            - MxN: luminance (grayscale) values
-            - MxNx3: RGB values
-            - MxNx4: RGBA values
+            - (M, N): an image with scalar data.  Color-mapping is controlled
+              by *cmap*, *norm*, *vmin*, and *vmax*.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
 
         xo, yo : int
             The *x*/*y* image offset in pixels.
@@ -2747,16 +2764,17 @@ class Figure(FigureBase):
         alpha : None or float
             The alpha blending value.
 
-        norm : `matplotlib.colors.Normalize`
-            A `.Normalize` instance to map the luminance to the
-            interval [0, 1].
+        %(cmap_doc)s
 
-        cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            The colormap to use.
+            This parameter is ignored if *X* is RGB(A).
 
-        vmin, vmax : float
-            If *norm* is not given, these values set the data limits for the
-            colormap.
+        %(norm_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
+
+        %(vmin_vmax_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left
@@ -2971,7 +2989,7 @@ class Figure(FigureBase):
         finally:
             self.stale = False
 
-        self.canvas.draw_event(renderer)
+        DrawEvent("draw_event", self.canvas, renderer)._process()
 
     def draw_without_rendering(self):
         """
@@ -3005,6 +3023,9 @@ class Figure(FigureBase):
         # Set cached renderer to None -- it can't be pickled.
         state["_cachedRenderer"] = None
 
+        # discard any changes to the dpi due to pixel ratio changes
+        state["_dpi"] = state.get('_original_dpi', state['_dpi'])
+
         # add version information to the state
         state['__mpl_version__'] = mpl.__version__
 
@@ -3034,7 +3055,8 @@ class Figure(FigureBase):
             import matplotlib._pylab_helpers as pylab_helpers
             allnums = plt.get_fignums()
             num = max(allnums) + 1 if allnums else 1
-            mgr = plt._backend_mod.new_figure_manager_given_figure(num, self)
+            backend = plt._get_backend_mod()
+            mgr = backend.new_figure_manager_given_figure(num, self)
             pylab_helpers.Gcf._set_new_active_manager(mgr)
             plt.draw_if_interactive()
 

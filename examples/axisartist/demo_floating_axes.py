@@ -41,6 +41,7 @@ def setup_axes1(fig, rect):
 
     ax1 = fig.add_subplot(
         rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
+    ax1.grid()
 
     aux_ax = ax1.get_aux_axes(tr)
 
@@ -72,6 +73,7 @@ def setup_axes2(fig, rect):
 
     ax1 = fig.add_subplot(
         rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
+    ax1.grid()
 
     # create a parasite axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
@@ -129,6 +131,7 @@ def setup_axes3(fig, rect):
 
     ax1.axis["left"].label.set_text(r"cz [km$^{-1}$]")
     ax1.axis["top"].label.set_text(r"$\alpha_{1950}$")
+    ax1.grid()
 
     # create a parasite axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)

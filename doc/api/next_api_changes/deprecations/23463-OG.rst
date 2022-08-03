@@ -1,0 +1,5 @@
+``Tick.label``
+~~~~~~~~~~~~~~
+
+... has been pending deprecation since 3.1 and is now deprecated.
+Use ``Tick.label1`` instead.

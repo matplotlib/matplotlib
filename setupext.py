@@ -198,9 +198,12 @@ if os.path.exists(mplsetup_cfg):
 options = {
     'backend': config.get('rc_options', 'backend', fallback=None),
     'system_freetype': config.getboolean(
-        'libs', 'system_freetype', fallback=sys.platform.startswith('aix')),
+        'libs', 'system_freetype',
+        fallback=sys.platform.startswith(('aix', 'os400'))
+    ),
     'system_qhull': config.getboolean(
-        'libs', 'system_qhull', fallback=False),
+        'libs', 'system_qhull', fallback=sys.platform.startswith('os400')
+    ),
 }
 
 
@@ -479,6 +482,7 @@ class Tests(OptionalPackage):
                 *_pkg_data_helper('matplotlib', 'tests/baseline_images'),
                 *_pkg_data_helper('matplotlib', 'tests/tinypages'),
                 'tests/cmr10.pfb',
+                'tests/Courier10PitchBT-Bold.pfb',
                 'tests/mpltest.ttf',
                 'tests/test_*.ipynb',
             ],

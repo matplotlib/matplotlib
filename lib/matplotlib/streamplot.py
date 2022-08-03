@@ -46,12 +46,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         The streamline color. If given an array, its values are converted to
         colors using *cmap* and *norm*.  The array must have the same shape
         as *u* and *v*.
-    cmap : `~matplotlib.colors.Colormap`
-        Colormap used to plot streamlines and arrows. This is only used if
-        *color* is an array.
-    norm : `~matplotlib.colors.Normalize`
-        Normalize object used to scale luminance data to 0, 1. If ``None``,
-        stretch (min, max) to (0, 1). This is only used if *color* is an array.
+    cmap, norm
+        Data normalization and colormapping parameters for *color*; only used
+        if *color* is an array of floats. See `~.Axes.imshow` for a detailed
+        description.
     arrowsize : float
         Scaling factor for the arrow size.
     arrowstyle : str

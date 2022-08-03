@@ -23,7 +23,8 @@ from PIL import Image
 
 from matplotlib import _api, backend_bases, backend_tools
 from matplotlib.backends import backend_agg
-from matplotlib.backend_bases import _Backend
+from matplotlib.backend_bases import (
+    _Backend, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 _log = logging.getLogger(__name__)
 
@@ -154,6 +155,7 @@ class TimerAsyncio(backend_bases.TimerBase):
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
+    manager_class = _api.classproperty(lambda cls: FigureManagerWebAgg)
     _timer_cls = TimerAsyncio
     # Webagg and friends having the right methods, but still
     # having bugs in practice.  Do not advertise that it works until
@@ -162,23 +164,21 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         # Set to True when the renderer contains data that is newer
         # than the PNG buffer.
         self._png_is_old = True
-
         # Set to True by the `refresh` message so that the next frame
         # sent to the clients will be a full frame.
         self._force_full = True
-
         # The last buffer, for diff mode.
         self._last_buff = np.empty((0, 0))
-
         # Store the current image mode so that at any point, clients can
         # request the information. This should be changed by calling
         # self.set_image_mode(mode) so that the notification can be given
         # to the connected clients.
         self._current_image_mode = 'full'
+        # Track mouse events to fill in the x, y position of key events.
+        self._last_mouse_xy = (None, None)
 
     def show(self):
         # show the figure window
@@ -285,40 +285,35 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         x = event['x']
         y = event['y']
         y = self.get_renderer().height - y
-
-        # JavaScript button numbers and matplotlib button numbers are
-        # off by 1
+        self._last_mouse_xy = x, y
+        # JavaScript button numbers and Matplotlib button numbers are off by 1.
         button = event['button'] + 1
 
         e_type = event['type']
-        guiEvent = event.get('guiEvent', None)
-        if e_type == 'button_press':
-            self.button_press_event(x, y, button, guiEvent=guiEvent)
+        guiEvent = event.get('guiEvent')
+        if e_type in ['button_press', 'button_release']:
+            MouseEvent(e_type + '_event', self, x, y, button,
+                       guiEvent=guiEvent)._process()
         elif e_type == 'dblclick':
-            self.button_press_event(x, y, button, dblclick=True,
-                                    guiEvent=guiEvent)
-        elif e_type == 'button_release':
-            self.button_release_event(x, y, button, guiEvent=guiEvent)
-        elif e_type == 'motion_notify':
-            self.motion_notify_event(x, y, guiEvent=guiEvent)
-        elif e_type == 'figure_enter':
-            self.enter_notify_event(xy=(x, y), guiEvent=guiEvent)
-        elif e_type == 'figure_leave':
-            self.leave_notify_event()
+            MouseEvent('button_press_event', self, x, y, button, dblclick=True,
+                       guiEvent=guiEvent)._process()
         elif e_type == 'scroll':
-            self.scroll_event(x, y, event['step'], guiEvent=guiEvent)
+            MouseEvent('scroll_event', self, x, y, step=event['step'],
+                       guiEvent=guiEvent)._process()
+        elif e_type == 'motion_notify':
+            MouseEvent(e_type + '_event', self, x, y,
+                       guiEvent=guiEvent)._process()
+        elif e_type in ['figure_enter', 'figure_leave']:
+            LocationEvent(e_type + '_event', self, x, y,
+                          guiEvent=guiEvent)._process()
     handle_button_press = handle_button_release = handle_dblclick = \
         handle_figure_enter = handle_figure_leave = handle_motion_notify = \
         handle_scroll = _handle_mouse
 
     def _handle_key(self, event):
-        key = _handle_key(event['key'])
-        e_type = event['type']
-        guiEvent = event.get('guiEvent', None)
-        if e_type == 'key_press':
-            self.key_press_event(key, guiEvent=guiEvent)
-        elif e_type == 'key_release':
-            self.key_release_event(key, guiEvent=guiEvent)
+        KeyEvent(event['type'] + '_event', self,
+                 _handle_key(event['key']), *self._last_mouse_xy,
+                 guiEvent=event.get('guiEvent'))._process()
     handle_key_press = handle_key_release = _handle_key
 
     def handle_toolbar_button(self, event):
@@ -348,7 +343,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # identical or within a pixel or so).
         self._png_is_old = True
         self.manager.resize(*fig.bbox.size, forward=False)
-        self.resize_event()
+        ResizeEvent('resize_event', self)._process()
+        self.draw_idle()
 
     def handle_send_image_mode(self, event):
         # The client requests notification of what the current image mode is.
@@ -431,7 +427,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
-    ToolbarCls = NavigationToolbar2WebAgg
+    _toolbar2_class = ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
         self.web_sockets = set()

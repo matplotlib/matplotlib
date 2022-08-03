@@ -77,11 +77,10 @@ _test_timeout = 60  # A reasonably safe value for slower architectures.
 # The source of this function gets extracted and run in another process, so it
 # must be fully self-contained.
 # Using a timer not only allows testing of timers (on other backends), but is
-# also necessary on gtk3 and wx, where a direct call to key_press_event("q")
-# from draw_event causes breakage due to the canvas widget being deleted too
-# early.  Also, gtk3 redefines key_press_event with a different signature, so
-# we directly invoke it from the superclass instead.
+# also necessary on gtk3 and wx, where directly processing a KeyEvent() for "q"
+# from draw_event causes breakage as the canvas widget gets deleted too early.
 def _test_interactive_impl():
+    import importlib
     import importlib.util
     import io
     import json
@@ -90,8 +89,7 @@ def _test_interactive_impl():
 
     import matplotlib as mpl
     from matplotlib import pyplot as plt, rcParams
-    from matplotlib.backend_bases import FigureCanvasBase
-
+    from matplotlib.backend_bases import KeyEvent
     rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
@@ -140,8 +138,8 @@ def _test_interactive_impl():
     if fig.canvas.toolbar:  # i.e toolbar2.
         fig.canvas.toolbar.draw_rubberband(None, 1., 1, 2., 2)
 
-    timer = fig.canvas.new_timer(1.)  # Test floats casting to int as needed.
-    timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
+    timer = fig.canvas.new_timer(1.)  # Test that floats are cast to int.
+    timer.add_callback(KeyEvent("key_press_event", fig.canvas, "q")._process)
     # Trigger quitting upon draw.
     fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
     fig.canvas.mpl_connect("close_event", print)

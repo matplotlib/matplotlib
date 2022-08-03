@@ -16,12 +16,13 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 """
 
 from collections.abc import Mapping
+import functools
 
 import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-from matplotlib import _api, colors, cbook
+from matplotlib import _api, colors, cbook, scale
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
@@ -308,6 +309,34 @@ def unregister_cmap(name):
     return cmap
 
 
+def _auto_norm_from_scale(scale_cls):
+    """
+    Automatically generate a norm class from *scale_cls*.
+
+    This differs from `.colors.make_norm_from_scale` in the following points:
+
+    - This function is not a class decorator, but directly returns a norm class
+      (as if decorating `.Normalize`).
+    - The scale is automatically constructed with ``nonpositive="mask"``, if it
+      supports such a parameter, to work around the difference in defaults
+      between standard scales (which use "clip") and norms (which use "mask").
+
+    Note that ``make_norm_from_scale`` caches the generated norm classes
+    (not the instances) and reuses them for later calls.  For example,
+    ``type(_auto_norm_from_scale("log")) == LogNorm``.
+    """
+    # Actually try to construct an instance, to verify whether
+    # ``nonpositive="mask"`` is supported.
+    try:
+        norm = colors.make_norm_from_scale(
+            functools.partial(scale_cls, nonpositive="mask"))(
+            colors.Normalize)()
+    except TypeError:
+        norm = colors.make_norm_from_scale(scale_cls)(
+            colors.Normalize)()
+    return type(norm)
+
+
 class ScalarMappable:
     """
     A mixin class to map scalar data to RGBA.
@@ -318,12 +347,13 @@ class ScalarMappable:
 
     def __init__(self, norm=None, cmap=None):
         """
-
         Parameters
         ----------
-        norm : `matplotlib.colors.Normalize` (or subclass thereof)
+        norm : `.Normalize` (or subclass thereof) or str or None
             The normalizing object which scales data, typically into the
             interval ``[0, 1]``.
+            If a `str`, a `.Normalize` subclass is dynamically generated based
+            on the scale with the corresponding name.
             If *None*, *norm* defaults to a *colors.Normalize* object which
             initializes its scaling based on the first data processed.
         cmap : str or `~matplotlib.colors.Colormap`
@@ -353,11 +383,11 @@ class ScalarMappable:
         """
         if vmin is not None or vmax is not None:
             self.set_clim(vmin, vmax)
-            if norm is not None:
+            if isinstance(norm, colors.Normalize):
                 raise ValueError(
-                    "Passing parameters norm and vmin/vmax simultaneously is "
-                    "not supported. Please pass vmin/vmax directly to the "
-                    "norm when creating it.")
+                    "Passing a Normalize instance simultaneously with "
+                    "vmin/vmax is not supported.  Please pass vmin/vmax "
+                    "directly to the norm when creating it.")
 
         # always resolve the autoscaling so we have concrete limits
         # rather than deferring to draw time.
@@ -531,9 +561,18 @@ class ScalarMappable:
 
     @norm.setter
     def norm(self, norm):
-        _api.check_isinstance((colors.Normalize, None), norm=norm)
+        _api.check_isinstance((colors.Normalize, str, None), norm=norm)
         if norm is None:
             norm = colors.Normalize()
+        elif isinstance(norm, str):
+            try:
+                scale_cls = scale._scale_mapping[norm]
+            except KeyError:
+                raise ValueError(
+                    "Invalid norm str name; the following values are "
+                    "supported: {}".format(", ".join(scale._scale_mapping))
+                ) from None
+            norm = _auto_norm_from_scale(scale_cls)()
 
         if norm is self.norm:
             # We aren't updating anything
@@ -555,7 +594,7 @@ class ScalarMappable:
 
         Parameters
         ----------
-        norm : `.Normalize` or None
+        norm : `.Normalize` or str or None
 
         Notes
         -----
@@ -594,3 +633,33 @@ class ScalarMappable:
         """
         self.callbacks.process('changed', self)
         self.stale = True
+
+
+# The docstrings here must be generic enough to apply to all relevant methods.
+mpl._docstring.interpd.update(
+    cmap_doc="""\
+cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+    The Colormap instance or registered colormap name used to map scalar data
+    to colors.""",
+    norm_doc="""\
+norm : str or `~matplotlib.colors.Normalize`, optional
+    The normalization method used to scale scalar data to the [0, 1] range
+    before mapping to colors using *cmap*. By default, a linear scaling is
+    used, mapping the lowest value to 0 and the highest to 1.
+
+    If given, this can be one of the following:
+
+    - An instance of `.Normalize` or one of its subclasses
+      (see :doc:`/tutorials/colors/colormapnorms`).
+    - A scale name, i.e. one of "linear", "log", "symlog", "logit", etc.  For a
+      list of available scales, call `matplotlib.scale.get_scale_names()`.
+      In that case, a suitable `.Normalize` subclass is dynamically generated
+      and instantiated.""",
+    vmin_vmax_doc="""\
+vmin, vmax : float, optional
+    When using scalar data and no explicit *norm*, *vmin* and *vmax* define
+    the data range that the colormap covers. By default, the colormap covers
+    the complete value range of the supplied data. It is an error to use
+    *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
+    name together with *vmin*/*vmax* is acceptable).""",
+)

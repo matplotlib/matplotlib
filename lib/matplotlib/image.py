@@ -865,7 +865,7 @@ class AxesImage(_ImageBase):
     cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors.
-    norm : `~matplotlib.colors.Normalize`
+    norm : str or `~matplotlib.colors.Normalize`
         Maps luminance to 0-1.
     interpolation : str, default: :rc:`image.interpolation`
         Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
@@ -1216,7 +1216,7 @@ class PcolorImage(AxesImage):
         cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
             The Colormap instance or registered colormap name used to map
             scalar data to colors.
-        norm : `~matplotlib.colors.Normalize`
+        norm : str or `~matplotlib.colors.Normalize`
             Maps luminance to 0-1.
         **kwargs : `.Artist` properties
         """

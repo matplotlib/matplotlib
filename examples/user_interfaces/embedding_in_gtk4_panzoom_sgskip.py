@@ -39,7 +39,7 @@ def on_activate(app):
     vbox.append(canvas)
 
     # Create toolbar
-    toolbar = NavigationToolbar(canvas, win)
+    toolbar = NavigationToolbar(canvas)
     vbox.append(toolbar)
 
     win.show()

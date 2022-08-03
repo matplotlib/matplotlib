@@ -12,7 +12,9 @@ from matplotlib import colors as mcolors
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.testing.widgets import mock_event
 from matplotlib.collections import LineCollection, PolyCollection
-from matplotlib.patches import Circle
+from matplotlib.patches import Circle, PathPatch
+from matplotlib.path import Path
+from matplotlib.text import Text
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -44,6 +46,19 @@ def test_aspects():
     for i, ax in enumerate(axs):
         ax.set_box_aspect((3, 4, 5))
         ax.set_aspect(aspects[i])
+
+
+def test_axes3d_repr():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_label('label')
+    ax.set_title('title')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    assert repr(ax) == (
+        "<Axes3DSubplot: label='label', "
+        "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 
 @mpl3d_image_comparison(['bar3d.png'])
@@ -141,6 +156,17 @@ def test_contour3d():
     ax.set_xlim(-40, 40)
     ax.set_ylim(-40, 40)
     ax.set_zlim(-100, 100)
+
+
+@mpl3d_image_comparison(['contour3d_extend3d.png'])
+def test_contour3d_extend3d():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    X, Y, Z = axes3d.get_test_data(0.05)
+    ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm, extend3d=True)
+    ax.set_xlim(-30, 30)
+    ax.set_ylim(-20, 40)
+    ax.set_zlim(-80, 80)
 
 
 @mpl3d_image_comparison(['contourf3d.png'])
@@ -1043,6 +1069,9 @@ def test_autoscale():
     ax.set_autoscalez_on(True)
     ax.plot([0, 2], [0, 2], [0, 2])
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.4, 2.4)
+    ax.autoscale(axis='x')
+    ax.plot([0, 2], [0, 2], [0, 2])
+    assert ax.get_w_lims() == (0, 2, -.1, 1.1, -.4, 2.4)
 
 
 @pytest.mark.parametrize('axis', ('x', 'y', 'z'))
@@ -1714,6 +1743,83 @@ def test_computed_zorder():
                 zorder=4)
         ax.view_init(elev=20, azim=-20, roll=0)
         ax.axis('off')
+
+
+def test_format_coord():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    x = np.arange(10)
+    ax.plot(x, np.sin(x))
+    fig.canvas.draw()
+    assert ax.format_coord(0, 0) == 'x=1.8066, y=1.0367, z=−0.0553'
+    # Modify parameters
+    ax.view_init(roll=30, vertical_axis="y")
+    fig.canvas.draw()
+    assert ax.format_coord(0, 0) == 'x=9.1651, y=−0.9215, z=−0.0359'
+    # Reset parameters
+    ax.view_init()
+    fig.canvas.draw()
+    assert ax.format_coord(0, 0) == 'x=1.8066, y=1.0367, z=−0.0553'
+
+
+def test_get_axis_position():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    x = np.arange(10)
+    ax.plot(x, np.sin(x))
+    fig.canvas.draw()
+    assert ax.get_axis_position() == (False, True, False)
+
+
+def test_margins():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.margins(0.2)
+    assert ax.margins() == (0.2, 0.2, 0.2)
+    ax.margins(0.1, 0.2, 0.3)
+    assert ax.margins() == (0.1, 0.2, 0.3)
+    ax.margins(x=0)
+    assert ax.margins() == (0, 0.2, 0.3)
+    ax.margins(y=0.1)
+    assert ax.margins() == (0, 0.1, 0.3)
+    ax.margins(z=0)
+    assert ax.margins() == (0, 0.1, 0)
+
+
+def test_margins_errors():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    with pytest.raises(TypeError, match="Cannot pass"):
+        ax.margins(0.2, x=0.4, y=0.4, z=0.4)
+    with pytest.raises(TypeError, match="Must pass"):
+        ax.margins(0.2, 0.4)
+
+
+@check_figures_equal(extensions=["png"])
+def test_text_3d(fig_test, fig_ref):
+    ax = fig_ref.add_subplot(projection="3d")
+    txt = Text(0.5, 0.5, r'Foo bar $\int$')
+    art3d.text_2d_to_3d(txt, z=1)
+    ax.add_artist(txt)
+    assert txt.get_position_3d() == (0.5, 0.5, 1)
+
+    ax = fig_test.add_subplot(projection="3d")
+    t3d = art3d.Text3D(0.5, 0.5, 1, r'Foo bar $\int$')
+    ax.add_artist(t3d)
+    assert t3d.get_position_3d() == (0.5, 0.5, 1)
+
+
+@check_figures_equal(extensions=["png"])
+def test_pathpatch_3d(fig_test, fig_ref):
+    ax = fig_ref.add_subplot(projection="3d")
+    path = Path.unit_rectangle()
+    patch = PathPatch(path)
+    art3d.pathpatch_2d_to_3d(patch, z=(0, 0.5, 0.7, 1, 0), zdir='y')
+    ax.add_artist(patch)
+
+    ax = fig_test.add_subplot(projection="3d")
+    pp3d = art3d.PathPatch3D(path, zs=(0, 0.5, 0.7, 1, 0), zdir='y')
+    ax.add_artist(pp3d)
 
 
 @image_comparison(baseline_images=['scatter_spiral.png'],

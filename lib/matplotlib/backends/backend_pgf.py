@@ -230,11 +230,8 @@ class LatexManager:
 
     @staticmethod
     def _build_latex_header():
-        # Create LaTeX header with some content, else LaTeX will load some math
-        # fonts later when we don't expect the additional output on stdout.
-        # TODO: is this sufficient?
         latex_header = [
-            r"\documentclass{minimal}",
+            r"\documentclass{article}",
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
@@ -242,7 +239,6 @@ class LatexManager:
             r"\usepackage{graphicx}",
             _get_preamble(),
             r"\begin{document}",
-            r"text $math \mu$",  # force latex to load fonts now
             r"\typeout{pgf_backend_query_start}",
         ]
         return "\n".join(latex_header)
@@ -864,9 +860,8 @@ class FigureCanvasPgf(FigureCanvasBase):
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
-                    r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
-                    r"\RequirePackage{hyperref}",
-                    r"\documentclass[12pt]{minimal}",
+                    r"\documentclass[12pt]{article}",
+                    r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
                     r"\usepackage{pgf}",
@@ -975,9 +970,8 @@ class PdfPages:
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
-            r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
-            r"\RequirePackage{hyperref}",
-            r"\documentclass[12pt]{minimal}",
+            r"\documentclass[12pt]{article}",
+            r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
             r"\usepackage{pgf}",

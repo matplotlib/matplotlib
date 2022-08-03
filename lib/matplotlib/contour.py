@@ -1592,7 +1592,8 @@ X, Y : array-like, optional
     ``X = range(N)``, ``Y = range(M)``.
 
 Z : (M, N) array-like
-    The height values over which the contour is drawn.
+    The height values over which the contour is drawn.  Color-mapping is
+    controlled by *cmap*, *norm*, *vmin*, and *vmax*.
 
 levels : int or array-like, optional
     Determines the number and positions of the contour lines / regions.
@@ -1635,21 +1636,20 @@ colors : color string or sequence of colors, optional
 alpha : float, default: 1
     The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-cmap : str or `.Colormap`, default: :rc:`image.cmap`
-    A `.Colormap` instance or registered colormap name. The colormap
-    maps the level values to colors.
+%(cmap_doc)s
 
-    If both *colors* and *cmap* are given, an error is raised.
+    This parameter is ignored if *colors* is set.
 
-norm : `~matplotlib.colors.Normalize`, optional
-    If a colormap is used, the `.Normalize` instance scales the level
-    values to the canonical colormap range [0, 1] for mapping to
-    colors. If not given, the default linear scaling is used.
+%(norm_doc)s
 
-vmin, vmax : float, optional
-    If not *None*, either or both of these values will be supplied to
-    the `.Normalize` instance, overriding the default color scaling
-    based on *levels*.
+    This parameter is ignored if *colors* is set.
+
+%(vmin_vmax_doc)s
+
+    If *vmin* or *vmax* are not given, the default color scaling is based on
+    *levels*.
+
+    This parameter is ignored if *colors* is set.
 
 origin : {*None*, 'upper', 'lower', 'image'}, default: None
     Determines the orientation and exact position of *Z* by specifying
@@ -1805,4 +1805,4 @@ Notes
    <https://en.wikipedia.org/wiki/Marching_squares>`_ algorithm to
    compute contour locations.  More information can be found in
    `ContourPy documentation <https://contourpy.readthedocs.io>`_.
-""")
+""" % _docstring.interpd.params)

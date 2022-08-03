@@ -188,7 +188,7 @@ class Tick(martist.Artist):
         self.update_position(loc)
 
     @property
-    @_api.deprecated("3.1", alternative="Tick.label1", pending=True)
+    @_api.deprecated("3.1", alternative="Tick.label1", removal="3.8")
     def label(self):
         return self.label1
 
@@ -689,7 +689,6 @@ class Axis(martist.Artist):
         self._minor_tick_kw = dict()
 
         self.clear()
-        self._set_scale('linear')
         self._autoscale_on = True
 
     @property

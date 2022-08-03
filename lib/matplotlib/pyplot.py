@@ -329,8 +329,11 @@ def switch_backend(newbackend):
 
 
 def _warn_if_gui_out_of_main_thread():
-    if (_get_required_interactive_framework(_get_backend_mod())
-            and threading.current_thread() is not threading.main_thread()):
+    # This compares native thread ids because even if python-level Thread
+    # objects match, the underlying OS thread (which is what really matters)
+    # may be different on Python implementations with green threads.
+    if (_get_required_interactive_framework(_get_backend_mod()) and
+            threading.get_native_id() != threading.main_thread().native_id):
         _api.warn_external(
             "Starting a Matplotlib GUI outside of the main thread will likely "
             "fail.")
@@ -812,7 +815,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
                 f"Figures created through the pyplot interface "
                 f"(`matplotlib.pyplot.figure`) are retained until explicitly "
                 f"closed and may consume too much memory. (To control this "
-                f"warning, see the rcParam `figure.max_open_warning`).",
+                f"warning, see the rcParam `figure.max_open_warning`). "
+                f"Consider using `matplotlib.pyplot.close()`.",
                 RuntimeWarning)
 
         manager = new_figure_manager(

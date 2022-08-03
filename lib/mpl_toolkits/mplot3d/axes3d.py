@@ -227,11 +227,11 @@ class Axes3D(Axes):
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
-    w_xaxis = _api.deprecated("3.1", alternative="xaxis", pending=True)(
+    w_xaxis = _api.deprecated("3.1", alternative="xaxis", removal="3.8")(
         property(lambda self: self.xaxis))
-    w_yaxis = _api.deprecated("3.1", alternative="yaxis", pending=True)(
+    w_yaxis = _api.deprecated("3.1", alternative="yaxis", removal="3.8")(
         property(lambda self: self.yaxis))
-    w_zaxis = _api.deprecated("3.1", alternative="zaxis", pending=True)(
+    w_zaxis = _api.deprecated("3.1", alternative="zaxis", removal="3.8")(
         property(lambda self: self.zaxis))
 
     def unit_cube(self, vals=None):
@@ -952,30 +952,32 @@ class Axes3D(Axes):
         """
         return True
 
+    def sharez(self, other):
+        """
+        Share the z-axis with *other*.
+
+        This is equivalent to passing ``sharex=other`` when constructing the
+        Axes, and cannot be used if the z-axis is already being shared with
+        another Axes.
+        """
+        _api.check_isinstance(maxes._base._AxesBase, other=other)
+        if self._sharez is not None and other is not self._sharez:
+            raise ValueError("z-axis is already shared")
+        self._shared_axes["z"].join(self, other)
+        self._sharez = other
+        self.zaxis.major = other.zaxis.major  # Ticker instances holding
+        self.zaxis.minor = other.zaxis.minor  # locator and formatter.
+        z0, z1 = other.get_zlim()
+        self.set_zlim(z0, z1, emit=False, auto=other.get_autoscalez_on())
+        self.zaxis._scale = other.zaxis._scale
+
     def clear(self):
         # docstring inherited.
         super().clear()
-        self.zaxis.clear()
-
-        if self._sharez is not None:
-            self.zaxis.major = self._sharez.zaxis.major
-            self.zaxis.minor = self._sharez.zaxis.minor
-            z0, z1 = self._sharez.get_zlim()
-            self.set_zlim(z0, z1, emit=False, auto=None)
-            self.zaxis._set_scale(self._sharez.zaxis.get_scale())
-        else:
-            self.zaxis._set_scale('linear')
-            try:
-                self.set_zlim(0, 1)
-            except TypeError:
-                pass
-
-        self.set_autoscalez_on(True)
         if self._focal_length == np.inf:
             self._zmargin = rcParams['axes.zmargin']
         else:
             self._zmargin = 0.
-
         self.grid(rcParams['axes3d.grid'])
 
     def _button_press(self, event):

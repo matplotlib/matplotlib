@@ -257,6 +257,10 @@ title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     to set the fontsize alongside other font properties, use the *size*
     parameter in *title_fontproperties*.
 
+alignment : {'center', 'left', 'right'}, default: 'center'
+    The alignment of the legend title and the box of entries. The entries
+    are aligned as a single block, so that markers always lined up.
+
 borderpad : float, default: :rc:`legend.borderpad`
     The fractional whitespace inside the legend border, in font-size units.
 
@@ -336,6 +340,7 @@ class Legend(Artist):
         frameon=None,         # draw frame
         handler_map=None,
         title_fontproperties=None,  # properties for the legend title
+        alignment="center",       # control the alignment within the legend box
         *,
         ncol=1  # synonym for ncols (backward compatibility)
     ):
@@ -504,6 +509,9 @@ class Legend(Artist):
                      else mpl.rcParams["legend.frameon"])
         )
         self._set_artist_props(self.legendPatch)
+
+        _api.check_in_list(["center", "left", "right"], alignment=alignment)
+        self._alignment = alignment
 
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
@@ -804,7 +812,7 @@ class Legend(Artist):
         self._legend_title_box = TextArea("")
         self._legend_box = VPacker(pad=self.borderpad * fontsize,
                                    sep=self.labelspacing * fontsize,
-                                   align="center",
+                                   align=self._alignment,
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
         self._legend_box.set_figure(self.figure)
@@ -867,10 +875,41 @@ class Legend(Artist):
         r"""Return the list of `~.text.Text`\s in the legend."""
         return silent_list('Text', self.texts)
 
+    def set_alignment(self, alignment):
+        """
+        Set the alignment of the legend title and the box of entries.
+
+        The entries are aligned as a single block, so that markers always
+        lined up.
+
+        Parameters
+        ----------
+        alignment : {'center', 'left', 'right'}.
+
+        """
+        _api.check_in_list(["center", "left", "right"], alignment=alignment)
+        self._alignment = alignment
+        self._legend_box.align = alignment
+
+    def get_alignment(self):
+        """Get the alignment value of the legend box"""
+        return self._legend_box.align
+
     def set_title(self, title, prop=None):
         """
-        Set the legend title. Fontproperties can be optionally set
-        with *prop* parameter.
+        Set legend title and title style.
+
+        Parameters
+        ----------
+        title : str
+            The legend title.
+
+        prop : `.font_manager.FontProperties` or `str` or `pathlib.Path`
+            The font properties of the legend title.
+            If a `str`, it is interpreted as a fontconfig pattern parsed by
+            `.FontProperties`.  If a `pathlib.Path`, it is interpreted as the
+            absolute path to a font file.
+
         """
         self._legend_title_box._text.set_text(title)
         if title:
