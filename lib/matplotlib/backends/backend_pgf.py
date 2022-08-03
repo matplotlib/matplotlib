@@ -287,28 +287,22 @@ class LatexManager:
         self._finalize_tmpdir = weakref.finalize(self, self._tmpdir.cleanup)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        self.texcommand = mpl.rcParams["pgf.texsystem"]
-        self.latex_header = LatexManager._build_latex_header()
-        latex_end = "\n\\makeatletter\n\\@@end\n"
         try:
-            latex = subprocess.Popen(
-                [self.texcommand, "-halt-on-error"],
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                encoding="utf-8", cwd=self.tmpdir)
+            self._setup_latex_process(expect_reply=False)
         except FileNotFoundError as err:
             raise RuntimeError(
-                f"{self.texcommand} not found.  Install it or change "
+                f"{self.latex.args[0]!r} not found.  Install it or change "
                 f"rcParams['pgf.texsystem'] to an available TeX "
                 f"implementation.") from err
         except OSError as err:
-            raise RuntimeError("Error starting process %r" %
-                               self.texcommand) from err
-        test_input = self.latex_header + latex_end
-        stdout, stderr = latex.communicate(test_input)
-        if latex.returncode != 0:
+            raise RuntimeError(
+                f"Error starting process {self.latex.args[0]!r}") from err
+        stdout, stderr = self.latex.communicate("\n\\makeatletter\\@@end\n")
+        if self.latex.returncode != 0:
             raise LatexError(
                 f"LaTeX errored (probably missing font or error in preamble) "
-                f"while processing the following input:\n{test_input}",
+                f"while processing the following input:\n"
+                f"{self._build_latex_header()}",
                 stdout)
 
         self.latex = None  # Will be set up on first use.
@@ -316,14 +310,18 @@ class LatexManager:
         self._get_box_metrics = functools.lru_cache()(self._get_box_metrics)
 
     str_cache = _api.deprecated("3.5")(property(lambda self: {}))
+    texcommand = _api.deprecated("3.6")(
+        property(lambda self: mpl.rcParams["pgf.texsystem"]))
+    latex_header = _api.deprecated("3.6")(
+        property(lambda self: self._build_latex_header()))
 
-    def _setup_latex_process(self):
+    def _setup_latex_process(self, *, expect_reply=True):
         # Open LaTeX process for real work; register it for deletion.  On
         # Windows, we must ensure that the subprocess has quit before being
         # able to delete the tmpdir in which it runs; in order to do so, we
         # must first `kill()` it, and then `communicate()` with it.
         self.latex = subprocess.Popen(
-            [self.texcommand, "-halt-on-error"],
+            [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             encoding="utf-8", cwd=self.tmpdir)
 
@@ -335,9 +333,9 @@ class LatexManager:
             self, finalize_latex, self.latex)
         # write header with 'pgf_backend_query_start' token
         self._stdin_writeln(self._build_latex_header())
-        # read all lines until our 'pgf_backend_query_start' token appears
-        self._expect("*pgf_backend_query_start")
-        self._expect_prompt()
+        if expect_reply:  # read until 'pgf_backend_query_start' token appears
+            self._expect("*pgf_backend_query_start")
+            self._expect_prompt()
 
     def get_width_height_descent(self, text, prop):
         """
