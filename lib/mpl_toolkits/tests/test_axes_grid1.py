@@ -376,10 +376,9 @@ def test_image_grid():
 
     fig = plt.figure(1, (4, 4))
     grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
-
+    assert grid.get_axes_pad() == (0.1, 0.1)
     for i in range(4):
         grid[i].imshow(im, interpolation='nearest')
-        grid[i].set_title('test {0}{0}'.format(i))
 
 
 def test_gettightbbox():
@@ -492,6 +491,7 @@ def test_grid_axes_lists():
     assert_array_equal(grid, grid.axes_all)
     assert_array_equal(grid.axes_row, np.transpose(grid.axes_column))
     assert_array_equal(grid, np.ravel(grid.axes_row), "row")
+    assert grid.get_geometry() == (2, 3)
     grid = Grid(fig, 111, (2, 3), direction="column")
     assert_array_equal(grid, np.ravel(grid.axes_column), "column")
 
@@ -505,6 +505,17 @@ def test_grid_axes_position(direction):
     assert loc[1]._nx > loc[0]._nx and loc[2]._ny < loc[0]._ny
     assert loc[0]._nx == loc[2]._nx and loc[0]._ny == loc[1]._ny
     assert loc[3]._nx == loc[1]._nx and loc[3]._ny == loc[2]._ny
+
+
+@pytest.mark.parametrize('rect, ngrids, error, message', (
+    ((1, 1), None, TypeError, "Incorrect rect format"),
+    (111, -1, ValueError, "ngrids must be positive"),
+    (111, 7, ValueError, "ngrids must be positive"),
+))
+def test_grid_errors(rect, ngrids, error, message):
+    fig = plt.figure()
+    with pytest.raises(error, match=message):
+        Grid(fig, rect, (2, 3), ngrids=ngrids)
 
 
 @check_figures_equal(extensions=["png"])
