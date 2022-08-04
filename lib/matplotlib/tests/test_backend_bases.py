@@ -28,8 +28,7 @@ def test_uses_per_path():
         gc = rb.new_gc()
         ids = [path_id for xo, yo, path_id, gc0, rgbFace in
                rb._iter_collection(
-                   gc, master_transform, all_transforms,
-                   range(len(raw_paths)), offsets,
+                   gc, range(len(raw_paths)), offsets,
                    transforms.AffineDeltaTransform(master_transform),
                    facecolors, edgecolors, [], [], [False],
                    [], 'screen')]
