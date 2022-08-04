@@ -123,7 +123,8 @@ class Grid:
             ngrids = self._nrows * self._ncols
         else:
             if not 0 < ngrids <= self._nrows * self._ncols:
-                raise Exception("")
+                raise ValueError(
+                    "ngrids must be positive and not larger than nrows*ncols")
 
         self.ngrids = ngrids
 
@@ -147,7 +148,7 @@ class Grid:
         elif len(rect) == 4:
             self._divider = Divider(fig, rect, **kw)
         else:
-            raise Exception("")
+            raise TypeError("Incorrect rect format")
 
         rect = self._divider.get_position()
 

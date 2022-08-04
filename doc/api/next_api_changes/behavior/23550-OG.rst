@@ -1,0 +1,10 @@
+Specified exception types in Grid
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In a few cases an `Exception` was thrown when an incorrect argument value
+was set in the `mpl_toolkits.axes_grid1.axes_grid.Grid`
+(= `mpl_toolkits.axisartist.axes_grid.Grid`) constructor. These are replaced
+as follows:
+
+* Providing an incorrect value for *ngrids* now raises a `ValueError`
+* Providing an incorrect type for *rect* now raises a `TypeError`
