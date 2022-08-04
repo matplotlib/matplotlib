@@ -1,4 +1,3 @@
-import atexit
 import codecs
 import datetime
 import functools
