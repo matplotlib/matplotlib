@@ -591,11 +591,10 @@ def test_invalid_layouts():
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("constrained")
     fig.set_layout_engine("none")
+    assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
+
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("constrained")
-
-    fig.set_layout_engine("none")
-    assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
 
 
 @check_figures_equal(extensions=["png", "pdf"])

@@ -2414,8 +2414,8 @@ class Figure(FigureBase):
 
             If `None`, the behavior is controlled by :rc:`figure.autolayout`
             (which if `True` behaves as if 'tight' were passed) and
-            :rc:`figure.constrained_layout.use` (which if true behaves as if
-            'constrained' were passed).  If both are true,
+            :rc:`figure.constrained_layout.use` (which if `True` behaves as if
+            'constrained' were passed).  If both are `True`,
             :rc:`figure.autolayout` takes priority.
 
             Users and libraries can define their own layout engines and pass
