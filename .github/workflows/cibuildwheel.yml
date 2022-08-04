@@ -35,7 +35,7 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: "10.12"
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-latest, macos-10.15]
+        os: [ubuntu-20.04, windows-latest, macos-11]
         cibw_archs: ["auto"]
         include:
           - os: ubuntu-20.04
