@@ -70,8 +70,8 @@ jobs:
         env:
           CIBW_BUILD: "cp39-*"
           CIBW_SKIP: "*-musllinux*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
-          CIBW_MANYLINUX_I686_IMAGE: manylinux1
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
           CIBW_BEFORE_BUILD: >-
             pip install certifi oldest-supported-numpy &&
             git clean -fxd build
@@ -83,8 +83,8 @@ jobs:
         env:
           CIBW_BUILD: "cp38-*"
           CIBW_SKIP: "*-musllinux*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
-          CIBW_MANYLINUX_I686_IMAGE: manylinux1
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2010
           CIBW_BEFORE_BUILD: >-
             pip install certifi numpy==1.19.2 &&
             git clean -fxd build
