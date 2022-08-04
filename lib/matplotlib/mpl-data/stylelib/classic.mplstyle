@@ -307,6 +307,8 @@ legend.edgecolor     : inherit   # legend edge color (when 'inherit' uses axes.e
 # See https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 figure.titlesize : medium     # size of the figure title
 figure.titleweight : normal   # weight of the figure title
+figure.labelsize:   medium    # size of the figure label
+figure.labelweight: normal    # weight of the figure label
 figure.figsize   : 8, 6    # figure size in inches
 figure.dpi       : 80      # figure dots per inch
 figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray

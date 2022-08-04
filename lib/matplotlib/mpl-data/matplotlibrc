@@ -555,6 +555,8 @@
 ## See https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 #figure.titlesize:   large     # size of the figure title (``Figure.suptitle()``)
 #figure.titleweight: normal    # weight of the figure title
+#figure.labelsize:   large     # size of the figure label (``Figure.sup[x|y]label()``)
+#figure.labelweight: normal    # weight of the figure label
 #figure.figsize:     6.4, 4.8  # figure size in inches
 #figure.dpi:         100       # figure dots per inch
 #figure.facecolor:   white     # figure face color
