@@ -167,6 +167,7 @@ jobs:
   docs-python38:
     docker:
       - image: cimg/python:3.8
+    resource_class: large
     steps:
       - checkout
       - check-skip
