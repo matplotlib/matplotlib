@@ -716,10 +716,7 @@ FigureManager_set_window_title(FigureManager* self,
     if (!PyArg_ParseTuple(args, "s", &title)) {
         return NULL;
     }
-    NSString* ns_title = [[NSString alloc]
-                          initWithCString: title
-                          encoding: NSUTF8StringEncoding];
-    [self->window setTitle: ns_title];
+    [self->window setTitle: [NSString stringWithUTF8String: title]];
     Py_RETURN_NONE;
 }
 
@@ -946,10 +943,8 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.origin.y = 0.5*(height - rect.size.height);
 
     for (int i = 0; i < 7; i++) {
-        NSString* filename = [NSString stringWithCString: images[i]
-                                                encoding: NSUTF8StringEncoding];
-        NSString* tooltip = [NSString stringWithCString: tooltips[i]
-                                               encoding: NSUTF8StringEncoding];
+        NSString* filename = [NSString stringWithUTF8String: images[i]];
+        NSString* tooltip = [NSString stringWithUTF8String: tooltips[i]];
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
