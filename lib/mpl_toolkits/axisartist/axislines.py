@@ -46,7 +46,7 @@ from matplotlib import _api, rcParams
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes
-from .axisline_style import AxislineStyle
+from .axisline_style import AxislineStyle  # noqa
 from .axis_artist import AxisArtist, GridlinesCollection
 
 
