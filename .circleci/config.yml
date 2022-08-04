@@ -55,6 +55,7 @@ commands:
               texlive-latex-recommended \
               texlive-pictures \
               texlive-xetex \
+              ttf-wqy-zenhei \
               graphviz \
               fonts-crosextra-carlito \
               fonts-freefont-otf \
