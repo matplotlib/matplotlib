@@ -434,7 +434,8 @@ class Colorbar:
         self.dividers = collections.LineCollection(
             [],
             colors=[mpl.rcParams['axes.edgecolor']],
-            linewidths=[0.5 * mpl.rcParams['axes.linewidth']])
+            linewidths=[0.5 * mpl.rcParams['axes.linewidth']],
+            clip_on=False)
         self.ax.add_collection(self.dividers)
 
         self._locator = None
