@@ -83,9 +83,11 @@ class Grid:
         ----------
         fig : `.Figure`
             The parent figure.
-        rect : (float, float, float, float) or int
-            The axes position, as a ``(left, bottom, width, height)`` tuple or
-            as a three-digit subplot position code (e.g., "121").
+        rect : (float, float, float, float), (int, int, int), int, or \
+    `~.SubplotSpec`
+            The axes position, as a ``(left, bottom, width, height)`` tuple,
+            as a three-digit subplot position code (e.g., ``(1, 2, 1)`` or
+            ``121``), or as a `~.SubplotSpec`.
         nrows_ncols : (int, int)
             Number of rows and columns in the grid.
         ngrids : int or None, default: None
@@ -141,7 +143,7 @@ class Grid:
             axes_class = functools.partial(cls, **kwargs)
 
         kw = dict(horizontal=[], vertical=[], aspect=aspect)
-        if isinstance(rect, (str, Number, SubplotSpec)):
+        if isinstance(rect, (Number, SubplotSpec)):
             self._divider = SubplotDivider(fig, rect, **kw)
         elif len(rect) == 3:
             self._divider = SubplotDivider(fig, *rect, **kw)
