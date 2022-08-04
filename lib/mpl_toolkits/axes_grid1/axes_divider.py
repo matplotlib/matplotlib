@@ -250,6 +250,8 @@ class Divider:
             ny1 if ny1 is not None else ny + 1)
 
     def append_size(self, position, size):
+        _api.check_in_list(["left", "right", "bottom", "top"],
+                           position=position)
         if position == "left":
             self._horizontal.insert(0, size)
             self._xrefindex += 1
@@ -258,11 +260,8 @@ class Divider:
         elif position == "bottom":
             self._vertical.insert(0, size)
             self._yrefindex += 1
-        elif position == "top":
+        else:  # 'top'
             self._vertical.append(size)
-        else:
-            _api.check_in_list(["left", "right", "bottom", "top"],
-                               position=position)
 
     def add_auto_adjustable_area(self, use_axes, pad=0.1, adjust_dirs=None):
         """
@@ -512,6 +511,8 @@ class AxesDivider(Divider):
         **kwargs
             All extra keywords arguments are passed to the created axes.
         """
+        _api.check_in_list(["left", "right", "bottom", "top"],
+                           position=position)
         if position == "left":
             ax = self.new_horizontal(
                 size, pad, pack_start=True, axes_class=axes_class, **kwargs)
@@ -521,12 +522,9 @@ class AxesDivider(Divider):
         elif position == "bottom":
             ax = self.new_vertical(
                 size, pad, pack_start=True, axes_class=axes_class, **kwargs)
-        elif position == "top":
+        else:  # "top"
             ax = self.new_vertical(
                 size, pad, pack_start=False, axes_class=axes_class, **kwargs)
-        else:
-            _api.check_in_list(["left", "right", "bottom", "top"],
-                               position=position)
         if add_to_figure:
             self._fig.add_axes(ax)
         return ax
