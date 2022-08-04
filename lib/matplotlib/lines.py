@@ -390,11 +390,11 @@ class Line2D(Artist):
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
         self._internal_update(kwargs)
-        self.pickradius = pickradius
+        self._pickradius = pickradius
         self.ind_offset = 0
         if (isinstance(self._picker, Number) and
                 not isinstance(self._picker, bool)):
-            self.pickradius = self._picker
+            self._pickradius = self._picker
 
         self._xorig = np.asarray([])
         self._yorig = np.asarray([])
@@ -455,9 +455,9 @@ class Line2D(Artist):
         # Convert pick radius from points to pixels
         if self.figure is None:
             _log.warning('no figure set when check if mouse is on line')
-            pixels = self.pickradius
+            pixels = self._pickradius
         else:
-            pixels = self.figure.dpi / 72. * self.pickradius
+            pixels = self.figure.dpi / 72. * self._pickradius
 
         # The math involved in checking for containment (here and inside of
         # segment_hits) assumes that it is OK to overflow, so temporarily set
@@ -488,7 +488,8 @@ class Line2D(Artist):
         """
         return self._pickradius
 
-    def set_pickradius(self, d):
+    @_api.rename_parameter("3.6", "d", "pickradius")
+    def set_pickradius(self, pickradius):
         """
         Set the pick radius used for containment tests.
 
@@ -496,12 +497,12 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        d : float
+        pickradius : float
             Pick radius, in points.
         """
-        if not isinstance(d, Number) or d < 0:
+        if not isinstance(pickradius, Number) or pickradius < 0:
             raise ValueError("pick radius should be a distance")
-        self._pickradius = d
+        self._pickradius = pickradius
 
     pickradius = property(get_pickradius, set_pickradius)
 
@@ -612,7 +613,7 @@ class Line2D(Artist):
         if callable(p):
             self._contains = p
         else:
-            self.pickradius = p
+            self.set_pickradius(p)
         self._picker = p
 
     def get_bbox(self):
