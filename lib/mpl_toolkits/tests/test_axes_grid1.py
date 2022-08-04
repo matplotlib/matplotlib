@@ -17,7 +17,7 @@ from mpl_toolkits.axes_grid1 import (
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
 from mpl_toolkits.axes_grid1.axes_divider import (
-    HBoxDivider, make_axes_area_auto_adjustable)
+    Divider, HBoxDivider, make_axes_area_auto_adjustable)
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
@@ -516,6 +516,18 @@ def test_grid_errors(rect, ngrids, error, message):
     fig = plt.figure()
     with pytest.raises(error, match=message):
         Grid(fig, rect, (2, 3), ngrids=ngrids)
+
+
+@pytest.mark.parametrize('anchor, error, message', (
+    (None, TypeError, "anchor must be str"),
+    ("CC", ValueError, "'CC' is not a valid value for anchor"),
+    ((1, 1, 1), TypeError, "anchor must be str"),
+))
+def test_divider_errors(anchor, error, message):
+    fig = plt.figure()
+    with pytest.raises(error, match=message):
+        Divider(fig, [0, 0, 1, 1], [Size.Fixed(1)], [Size.Fixed(1)],
+                anchor=anchor)
 
 
 @check_figures_equal(extensions=["png"])

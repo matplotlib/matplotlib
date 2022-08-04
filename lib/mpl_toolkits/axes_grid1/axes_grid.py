@@ -271,6 +271,7 @@ class Grid:
             - "1": Only the bottom left axes is labelled.
             - "all": all axes are labelled.
         """
+        _api.check_in_list(["all", "L", "1"], mode=mode)
         if mode == "all":
             for ax in self.axes_all:
                 _tick_only(ax, False, False)
@@ -291,7 +292,7 @@ class Grid:
                 ax = col[-1]
                 _tick_only(ax, bottom_on=False, left_on=True)
 
-        elif mode == "1":
+        else:  # "1"
             for ax in self.axes_all:
                 _tick_only(ax, bottom_on=True, left_on=True)
 
@@ -379,6 +380,10 @@ class ImageGrid(Grid):
             to associated *cbar_axes*.
         axes_class : subclass of `matplotlib.axes.Axes`, default: None
         """
+        _api.check_in_list(["each", "single", "edge", None],
+                           cbar_mode=cbar_mode)
+        _api.check_in_list(["left", "right", "bottom", "top"],
+                           cbar_location=cbar_location)
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         self._colorbar_pad = cbar_pad

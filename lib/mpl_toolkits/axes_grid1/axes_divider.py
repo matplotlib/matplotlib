@@ -39,7 +39,8 @@ class Divider:
         aspect : bool
             Whether overall rectangular area is reduced so that the relative
             part of the horizontal and vertical scales have the same scale.
-        anchor : {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W'}
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
+'NW', 'W'}
             Placement of the reduced rectangle, when *aspect* is True.
         """
 
@@ -48,6 +49,7 @@ class Divider:
         self._horizontal = horizontal
         self._vertical = vertical
         self._anchor = anchor
+        self.set_anchor(anchor)
         self._aspect = aspect
         self._xrefindex = 0
         self._yrefindex = 0
@@ -106,7 +108,8 @@ class Divider:
         """
         Parameters
         ----------
-        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', ...}
+        anchor : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', \
+'NW', 'W'}
             Either an (*x*, *y*) pair of relative coordinates (0 is left or
             bottom, 1 is right or top), 'C' (center), or a cardinal direction
             ('SW', southwest, is bottom left, etc.).
@@ -115,8 +118,10 @@ class Divider:
         --------
         .Axes.set_anchor
         """
-        if len(anchor) != 2:
+        if isinstance(anchor, str):
             _api.check_in_list(mtransforms.Bbox.coefs, anchor=anchor)
+        elif not isinstance(anchor, (tuple, list)) or len(anchor) != 2:
+            raise TypeError("anchor must be str or 2-tuple")
         self._anchor = anchor
 
     def get_anchor(self):
@@ -511,20 +516,14 @@ class AxesDivider(Divider):
         **kwargs
             All extra keywords arguments are passed to the created axes.
         """
-        _api.check_in_list(["left", "right", "bottom", "top"],
-                           position=position)
-        if position == "left":
-            ax = self.new_horizontal(
-                size, pad, pack_start=True, axes_class=axes_class, **kwargs)
-        elif position == "right":
-            ax = self.new_horizontal(
-                size, pad, pack_start=False, axes_class=axes_class, **kwargs)
-        elif position == "bottom":
-            ax = self.new_vertical(
-                size, pad, pack_start=True, axes_class=axes_class, **kwargs)
-        else:  # "top"
-            ax = self.new_vertical(
-                size, pad, pack_start=False, axes_class=axes_class, **kwargs)
+        create_axes, pack_start = _api.check_getitem({
+            "left": (self.new_horizontal, True),
+            "right": (self.new_horizontal, False),
+            "bottom": (self.new_vertical, True),
+            "top": (self.new_vertical, False),
+        }, position=position)
+        ax = create_axes(
+            size, pad, pack_start=pack_start, axes_class=axes_class, **kwargs)
         if add_to_figure:
             self._fig.add_axes(ax)
         return ax
