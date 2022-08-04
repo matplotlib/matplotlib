@@ -2039,7 +2039,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file.output(self.gc.paint())
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
+                             offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         # We can only reuse the objects if the presence of fill and
@@ -2081,7 +2081,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         if (not can_do_optimization) or (not should_do_optimization):
             return RendererBase.draw_path_collection(
                 self, gc, master_transform, paths, all_transforms,
-                offsets, offsetTrans, facecolors, edgecolors,
+                offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
 
@@ -2097,7 +2097,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         output(*self.gc.push())
         lastx, lasty = 0, 0
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, path_codes, offsets, offsetTrans,
+                gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
 
