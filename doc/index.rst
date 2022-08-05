@@ -95,20 +95,10 @@ Live example
 
 Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute code)! Alternatively, you can try the gallery examples in `our JupyterLite deployment <./lite/lab>`__.
 
-.. replite::
+.. retrolite:: matplotlib.ipynb
    :kernel: xeus-python
    :height: 600px
    :prompt: Try Matplotlib!
-
-   %matplotlib inline
-
-   import matplotlib.pyplot as plt
-   import numpy as np
-
-   fig = plt.figure()
-   plt.plot(np.sin(np.linspace(0, 20, 100)))
-   plt.show();
-
 
 ********************
 Third-party packages
