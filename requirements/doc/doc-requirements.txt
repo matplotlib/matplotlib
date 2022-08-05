@@ -20,4 +20,4 @@ sphinx-gallery>=0.10
 sphinx-copybutton
 sphinx-design
 jupyterlite-sphinx>=0.7.0
-jupyterlite-xeus-python>=0.5.0
+jupyterlite-xeus-python>=0.5.3
