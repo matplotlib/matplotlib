@@ -51,7 +51,7 @@ dependencies:
       - sphinxcontrib-video>=0.2.1
       - pikepdf
       - jupyterlite-sphinx>=0.7.0
-      - jupyterlite-xeus-python>=0.5.0
+      - jupyterlite-xeus-python>=0.5.3
   # testing
   - black<24
   - coverage
