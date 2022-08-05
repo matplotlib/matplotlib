@@ -96,7 +96,6 @@ Live example
 Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute code)! Alternatively, you can try the gallery examples in `our JupyterLite deployment <./lite/lab>`__.
 
 .. retrolite:: matplotlib.ipynb
-   :kernel: xeus-python
    :height: 600px
    :prompt: Try Matplotlib!
 
