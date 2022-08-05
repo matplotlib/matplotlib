@@ -4567,8 +4567,8 @@ default: :rc:`scatter.edgecolors`
             if any(extra_keys):
                 keys_str = ", ".join(f"'{k}'" for k in extra_keys)
                 _api.warn_external(
-                        "'c' is empty or not given, "
-                        f"kwargs {keys_str} will be ignored")
+                    "No data for colormapping provided via 'c'. "
+                    f"Parameters {keys_str} will be ignored")
         collection._internal_update(kwargs)
 
         # Classic mode only:
