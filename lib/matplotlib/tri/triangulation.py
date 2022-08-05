@@ -80,17 +80,13 @@ class Triangulation:
                     f'range 0 <= i < {len(self.x)} but found value '
                     f'{self.triangles.min()}')
 
-        if mask is not None:
-            self.mask = np.asarray(mask, dtype=bool)
-            if self.mask.shape != (self.triangles.shape[0],):
-                raise ValueError('mask array must have same length as '
-                                 'triangles array')
-
         # Underlying C++ object is not created until first needed.
         self._cpp_triangulation = None
 
         # Default TriFinder not created until needed.
         self._trifinder = None
+
+        self.set_mask(mask)
 
     def calculate_plane_coefficients(self, z):
         """

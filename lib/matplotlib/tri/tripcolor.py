@@ -123,7 +123,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
                 "are specified at the points, not at the faces.")
         collection = TriMesh(tri, alpha=alpha, array=point_colors,
                              cmap=cmap, norm=norm, **kwargs)
-    else:
+    else:  # 'flat'
         # Vertices of triangles.
         maskedTris = tri.get_masked_triangles()
         verts = np.stack((tri.x[maskedTris], tri.y[maskedTris]), axis=-1)
