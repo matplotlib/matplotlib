@@ -15,12 +15,18 @@ from . import _api, artist, cbook, _docstring
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
-from .textpath import TextPath  # Unused, but imported by others.
+from .textpath import TextPath as _TextPath  # Unused, but imported by others.
 from .transforms import (
     Affine2D, Bbox, BboxBase, BboxTransformTo, IdentityTransform, Transform)
 
 
 _log = logging.getLogger(__name__)
+
+
+@_api.deprecated("3.6", message="Since %(since)s, %(name)s should be imported "
+                 "from its correct module: matplotlib.textpath")
+class TextPath(_TextPath):
+    pass
 
 
 @_api.deprecated("3.6")

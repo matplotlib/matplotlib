@@ -3,7 +3,7 @@ from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox,
                                   DrawingArea, TextArea, VPacker)
 from matplotlib.patches import (Rectangle, Ellipse, ArrowStyle,
                                 FancyArrowPatch, PathPatch)
-from matplotlib.text import TextPath
+from matplotlib.textpath import TextPath
 
 __all__ = ['AnchoredDrawingArea', 'AnchoredAuxTransformBox',
            'AnchoredEllipse', 'AnchoredSizeBar', 'AnchoredDirectionArrows']

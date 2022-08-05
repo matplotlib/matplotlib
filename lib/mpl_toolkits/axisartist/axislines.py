@@ -46,8 +46,15 @@ from matplotlib import _api, rcParams
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes
-from .axisline_style import AxislineStyle
+from .axisline_style import AxislineStyle as _AxislineStyle
 from .axis_artist import AxisArtist, GridlinesCollection
+
+
+@_api.deprecated("3.6", message="Since %(since)s, %(name)s should be imported "
+                                "from its correct module: "
+                                "mpl_toolkits.axisartist.axisline_style")
+class AxislineStyle(_AxislineStyle):
+    pass
 
 
 class AxisArtistHelper:

@@ -1,0 +1,7 @@
+Alternative import location for ``TextPath`` and ``AxislineStyle``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These two classes have historically sometimes been imported from incorrect
+locations. This is now deprecated and `.TextPath` should be imported from
+`matplotlib.textpath`, while `AxislineStyle` should be imported from
+`mpl_toolkit.axisartist.axisline_style`.
