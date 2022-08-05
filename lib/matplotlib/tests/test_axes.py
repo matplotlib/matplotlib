@@ -2391,7 +2391,7 @@ class TestScatter:
                                     {'vmax': 0}
                                 ])
     def test_scatter_color_warning(self, kwargs):
-        warn_match = "'c' is empty or not given, "
+        warn_match = "No data for colormapping provided "
         # Warn for cases where 'cmap', 'norm', 'vmin', 'vmax'
         # kwargs are being overridden
         with pytest.warns(Warning, match=warn_match):
