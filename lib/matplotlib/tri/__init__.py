@@ -3,7 +3,7 @@ Unstructured triangular grid functions.
 """
 
 from .triangulation import Triangulation
-from .tricontour import TriContourSet,  tricontour, tricontourf
+from .tricontour import TriContourSet, tricontour, tricontourf
 from .trifinder import TriFinder, TrapezoidMapTriFinder
 from .triinterpolate import (TriInterpolator, LinearTriInterpolator,
                              CubicTriInterpolator)
