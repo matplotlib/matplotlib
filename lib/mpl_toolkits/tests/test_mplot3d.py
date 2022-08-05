@@ -1786,6 +1786,13 @@ def test_text_3d(fig_test, fig_ref):
     assert t3d.get_position_3d() == (0.5, 0.5, 1)
 
 
+def test_draw_single_lines_from_Nx1():
+    # Smoke test for GH#23459
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.plot([[0], [1]], [[0], [1]], [[0], [1]])
+
+
 @check_figures_equal(extensions=["png"])
 def test_pathpatch_3d(fig_test, fig_ref):
     ax = fig_ref.add_subplot(projection="3d")
