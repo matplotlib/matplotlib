@@ -587,8 +587,7 @@ class Patch(artist.Artist):
         if not self.get_visible():
             return
 
-        with cbook._setattr_cm(
-                 self, _dash_pattern=(self._dash_pattern)), \
+        with cbook._setattr_cm(self, _dash_pattern=(self._dash_pattern)), \
              self._bind_draw_path_function(renderer) as draw_path:
             path = self.get_path()
             transform = self.get_transform()
