@@ -142,6 +142,7 @@ class GridSpecBase:
         """
         return self._row_height_ratios
 
+    @_api.delete_parameter("3.7", "raw")
     def get_grid_positions(self, fig, raw=False):
         """
         Return the positions of the grid cells in figure coordinates.
