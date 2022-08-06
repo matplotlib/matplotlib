@@ -586,9 +586,7 @@ class Patch(artist.Artist):
         # docstring inherited
         if not self.get_visible():
             return
-
-        with cbook._setattr_cm(self, _dash_pattern=(self._dash_pattern)), \
-             self._bind_draw_path_function(renderer) as draw_path:
+        with self._bind_draw_path_function(renderer) as draw_path:
             path = self.get_path()
             transform = self.get_transform()
             tpath = transform.transform_path_non_affine(path)
