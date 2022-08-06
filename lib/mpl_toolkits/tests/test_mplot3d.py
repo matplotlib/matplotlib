@@ -56,7 +56,7 @@ def test_axes3d_repr():
     ax.set_ylabel('y')
     ax.set_zlabel('z')
     assert repr(ax) == (
-        "<Axes3DSubplot: label='label', "
+        "<Axes3D: label='label', "
         "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 

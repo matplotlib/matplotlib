@@ -29,8 +29,8 @@ represent the standard graphical objects we want to paint onto our canvas:
 the containers are places to put them (:class:`~matplotlib.axis.Axis`,
 :class:`~matplotlib.axes.Axes` and :class:`~matplotlib.figure.Figure`).  The
 standard use is to create a :class:`~matplotlib.figure.Figure` instance, use
-the ``Figure`` to create one or more :class:`~matplotlib.axes.Axes` or
-:class:`~matplotlib.axes.Subplot` instances, and use the ``Axes`` instance
+the ``Figure`` to create one or more :class:`~matplotlib.axes.Axes`
+instances, and use the ``Axes`` instance
 helper methods to create the primitives.  In the example below, we create a
 ``Figure`` instance using :func:`matplotlib.pyplot.figure`, which is a
 convenience method for instantiating ``Figure`` instances and connecting them
@@ -59,10 +59,7 @@ graphics primitives (:class:`~matplotlib.lines.Line2D`,
 :class:`~matplotlib.image.AxesImage`, respectively).  These helper methods
 will take your data (e.g., ``numpy`` arrays and strings) and create
 primitive ``Artist`` instances as needed (e.g., ``Line2D``), add them to
-the relevant containers, and draw them when requested.  Most of you
-are probably familiar with the :class:`~matplotlib.axes.Subplot`,
-which is just a special case of an ``Axes`` that lives on a regular
-rows by columns grid of ``Subplot`` instances.  If you want to create
+the relevant containers, and draw them when requested.  If you want to create
 an ``Axes`` at an arbitrary location, simply use the
 :meth:`~matplotlib.figure.Figure.add_axes` method which takes a list
 of ``[left, bottom, width, height]`` values in 0-1 relative figure
@@ -79,8 +76,8 @@ Continuing with our example::
     line, = ax.plot(t, s, color='blue', lw=2)
 
 In this example, ``ax`` is the ``Axes`` instance created by the
-``fig.add_subplot`` call above (remember ``Subplot`` is just a subclass of
-``Axes``) and when you call ``ax.plot``, it creates a ``Line2D`` instance and
+``fig.add_subplot`` call above and when you call ``ax.plot``, it creates a
+``Line2D`` instance and
 adds it to the ``Axes``.  In the interactive `IPython <https://ipython.org/>`_
 session below, you can see that the ``Axes.lines`` list is length one and
 contains the same line that was returned by the ``line, = ax.plot...`` call:
@@ -298,10 +295,10 @@ plt.show()
 #     In [158]: ax2 = fig.add_axes([0.1, 0.1, 0.7, 0.3])
 #
 #     In [159]: ax1
-#     Out[159]: <AxesSubplot:>
+#     Out[159]: <Axes:>
 #
 #     In [160]: print(fig.axes)
-#     [<AxesSubplot:>, <matplotlib.axes._axes.Axes object at 0x7f0768702be0>]
+#     [<Axes:>, <matplotlib.axes._axes.Axes object at 0x7f0768702be0>]
 #
 # Because the figure maintains the concept of the "current Axes" (see
 # :meth:`Figure.gca <matplotlib.figure.Figure.gca>` and
@@ -348,7 +345,7 @@ plt.show()
 # ================ ============================================================
 # Figure attribute Description
 # ================ ============================================================
-# axes             A list of `~.axes.Axes` instances (includes Subplot)
+# axes             A list of `~.axes.Axes` instances
 # patch            The `.Rectangle` background
 # images           A list of `.FigureImage` patches -
 #                  useful for raw pixel display

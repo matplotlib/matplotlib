@@ -558,9 +558,6 @@ class Axes(maxes.Axes):
         return axis
 
 
-Subplot = maxes.subplot_class_factory(Axes)
-
-
 class AxesZero(Axes):
 
     def clear(self):
@@ -577,4 +574,5 @@ class AxesZero(Axes):
             self._axislines[k].set_visible(False)
 
 
-SubplotZero = maxes.subplot_class_factory(AxesZero)
+Subplot = Axes
+SubplotZero = AxesZero

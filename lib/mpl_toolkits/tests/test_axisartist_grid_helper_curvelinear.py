@@ -8,7 +8,7 @@ from matplotlib.testing.decorators import image_comparison
 
 from mpl_toolkits.axes_grid1.parasite_axes import ParasiteAxes
 from mpl_toolkits.axisartist import SubplotHost
-from mpl_toolkits.axes_grid1.parasite_axes import host_subplot_class_factory
+from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory
 from mpl_toolkits.axisartist import angle_helper
 from mpl_toolkits.axisartist.axislines import Axes
 from mpl_toolkits.axisartist.grid_helper_curvelinear import \
@@ -59,7 +59,7 @@ def test_custom_transform():
 
     fig = plt.figure()
 
-    SubplotHost = host_subplot_class_factory(Axes)
+    SubplotHost = host_axes_class_factory(Axes)
 
     tr = MyTransform(1)
     grid_helper = GridHelperCurveLinear(tr)

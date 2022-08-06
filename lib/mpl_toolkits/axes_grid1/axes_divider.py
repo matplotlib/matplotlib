@@ -6,7 +6,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api
-from matplotlib.axes import SubplotBase
 from matplotlib.gridspec import SubplotSpec
 import matplotlib.transforms as mtransforms
 from . import axes_size as Size
@@ -343,10 +342,7 @@ class AxesLocator:
                                          renderer)
 
     def get_subplotspec(self):
-        if hasattr(self._axes_divider, "get_subplotspec"):
-            return self._axes_divider.get_subplotspec()
-        else:
-            return None
+        return self._axes_divider.get_subplotspec()
 
 
 class SubplotDivider(Divider):
@@ -421,10 +417,7 @@ class AxesDivider(Divider):
     def _get_new_axes(self, *, axes_class=None, **kwargs):
         axes = self._axes
         if axes_class is None:
-            if isinstance(axes, SubplotBase):
-                axes_class = axes._axes_class
-            else:
-                axes_class = type(axes)
+            axes_class = type(axes)
         return axes_class(axes.get_figure(), axes.get_position(original=True),
                           **kwargs)
 
@@ -552,10 +545,7 @@ class AxesDivider(Divider):
             return self._anchor
 
     def get_subplotspec(self):
-        if hasattr(self._axes, "get_subplotspec"):
-            return self._axes.get_subplotspec()
-        else:
-            return None
+        return self._axes.get_subplotspec()
 
 
 # Helper for HBoxDivider/VBoxDivider.

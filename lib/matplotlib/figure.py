@@ -33,7 +33,7 @@ import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
-from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
+from matplotlib.axes import Axes
 from matplotlib.gridspec import GridSpec
 from matplotlib.layout_engine import (
     ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
@@ -237,7 +237,7 @@ class FigureBase(Artist):
             Selects which ticklabels to rotate.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        allsubplots = all(hasattr(ax, 'get_subplotspec') for ax in self.axes)
+        allsubplots = all(ax.get_subplotspec() for ax in self.axes)
         if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels(which=which):
                 label.set_ha(ha)
@@ -675,13 +675,11 @@ default: %(va)s
 
         Returns
         -------
-        `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+        `~.axes.Axes`
 
-            The Axes of the subplot. The returned Axes base class depends on
-            the projection used. It is `~.axes.Axes` if rectilinear projection
-            is used and `.projections.polar.PolarAxes` if polar projection
-            is used. The returned Axes is then a subplot subclass of the
-            base class.
+            The Axes of the subplot. The returned Axes can actually be an
+            instance of a subclass, such as `.projections.polar.PolarAxes` for
+            polar projections.
 
         Other Parameters
         ----------------
@@ -725,11 +723,13 @@ default: %(va)s
             raise TypeError(
                 "add_subplot() got an unexpected keyword argument 'figure'")
 
-        if len(args) == 1 and isinstance(args[0], SubplotBase):
+        if (len(args) == 1
+                and isinstance(args[0], mpl.axes._base._AxesBase)
+                and args[0].get_subplotspec()):
             ax = args[0]
             key = ax._projection_init
             if ax.get_figure() is not self:
-                raise ValueError("The Subplot must have been created in "
+                raise ValueError("The Axes must have been created in "
                                  "the present figure")
         else:
             if not args:
@@ -742,7 +742,7 @@ default: %(va)s
                 args = tuple(map(int, str(args[0])))
             projection_class, pkw = self._process_projection_requirements(
                 *args, **kwargs)
-            ax = subplot_class_factory(projection_class)(self, *args, **pkw)
+            ax = projection_class(self, *args, **pkw)
             key = (projection_class, pkw)
         return self._add_axes_internal(ax, key)
 
@@ -1204,9 +1204,8 @@ default: %(va)s
 
         use_gridspec : bool, optional
             If *cax* is ``None``, a new *cax* is created as an instance of
-            Axes.  If *ax* is an instance of Subplot and *use_gridspec* is
-            ``True``, *cax* is created as an instance of Subplot using the
-            :mod:`.gridspec` module.
+            Axes.  If *ax* is positioned with a subplotspec and *use_gridspec*
+            is ``True``, then *cax* is also positioned with a subplotspec.
 
         Returns
         -------
@@ -1254,7 +1253,9 @@ default: %(va)s
         if cax is None:
             current_ax = self.gca()
             userax = False
-            if (use_gridspec and isinstance(ax, SubplotBase)):
+            if (use_gridspec
+                    and isinstance(ax, mpl.axes._base._AxesBase)
+                    and ax.get_subplotspec()):
                 cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
@@ -1312,7 +1313,7 @@ default: %(va)s
             return
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
-            if hasattr(ax, 'get_subplotspec'):
+            if ax.get_subplotspec() is not None:
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
@@ -1359,9 +1360,7 @@ default: %(va)s
         """
         if axs is None:
             axs = self.axes
-        axs = np.ravel(axs)
-        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
-
+        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_xlabel())
             rowspan = ax.get_subplotspec().rowspan
@@ -1421,9 +1420,7 @@ default: %(va)s
         """
         if axs is None:
             axs = self.axes
-        axs = np.ravel(axs)
-        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
-
+        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_ylabel())
             colspan = ax.get_subplotspec().colspan
