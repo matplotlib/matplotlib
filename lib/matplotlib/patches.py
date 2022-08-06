@@ -2,7 +2,6 @@ r"""
 Patches are `.Artist`\s with a face color and an edge color.
 """
 
-import contextlib
 import functools
 import inspect
 import math
@@ -529,15 +528,15 @@ class Patch(artist.Artist):
         """Return the hatching pattern."""
         return self._hatch
 
-    @contextlib.contextmanager
-    def _bind_draw_path_function(self, renderer):
+    def _draw_paths_with_artist_properties(
+            self, renderer, draw_path_args_list):
         """
         ``draw()`` helper factored out for sharing with `FancyArrowPatch`.
 
-        Yields a callable ``dp`` such that calling ``dp(*args, **kwargs)`` is
-        equivalent to calling ``renderer1.draw_path(gc, *args, **kwargs)``
-        where ``renderer1`` and ``gc`` have been suitably set from ``renderer``
-        and the artist's properties.
+        Configure *renderer* and the associated graphics context *gc*
+        from the artist properties, then repeatedly call
+        ``renderer.draw_path(gc, *draw_path_args)`` for each tuple
+        *draw_path_args* in *draw_path_args_list*.
         """
 
         renderer.open_group('patch', self.get_gid())
@@ -571,11 +570,8 @@ class Patch(artist.Artist):
             from matplotlib.patheffects import PathEffectRenderer
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
-        # In `with _bind_draw_path_function(renderer) as draw_path: ...`
-        # (in the implementations of `draw()` below), calls to `draw_path(...)`
-        # will occur as if they took place here with `gc` inserted as
-        # additional first argument.
-        yield functools.partial(renderer.draw_path, gc)
+        for draw_path_args in draw_path_args_list:
+            renderer.draw_path(gc, *draw_path_args)
 
         gc.restore()
         renderer.close_group('patch')
@@ -586,16 +582,17 @@ class Patch(artist.Artist):
         # docstring inherited
         if not self.get_visible():
             return
-        with self._bind_draw_path_function(renderer) as draw_path:
-            path = self.get_path()
-            transform = self.get_transform()
-            tpath = transform.transform_path_non_affine(path)
-            affine = transform.get_affine()
-            draw_path(tpath, affine,
-                      # Work around a bug in the PDF and SVG renderers, which
-                      # do not draw the hatches if the facecolor is fully
-                      # transparent, but do if it is None.
-                      self._facecolor if self._facecolor[3] else None)
+        path = self.get_path()
+        transform = self.get_transform()
+        tpath = transform.transform_path_non_affine(path)
+        affine = transform.get_affine()
+        self._draw_paths_with_artist_properties(
+            renderer,
+            [(tpath, affine,
+              # Work around a bug in the PDF and SVG renderers, which
+              # do not draw the hatches if the facecolor is fully
+              # transparent, but do if it is None.
+              self._facecolor if self._facecolor[3] else None)])
 
     def get_path(self):
         """Return the path of this patch."""
@@ -4415,25 +4412,22 @@ default: 'arc3'
         if not self.get_visible():
             return
 
-        with self._bind_draw_path_function(renderer) as draw_path:
+        # FIXME: dpi_cor is for the dpi-dependency of the linewidth.  There
+        # could be room for improvement.  Maybe _get_path_in_displaycoord could
+        # take a renderer argument, but get_path should be adapted too.
+        self._dpi_cor = renderer.points_to_pixels(1.)
+        path, fillable = self._get_path_in_displaycoord()
 
-            # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
-            # could be room for improvement.  Maybe _get_path_in_displaycoord
-            # could take a renderer argument, but get_path should be adapted
-            # too.
-            self._dpi_cor = renderer.points_to_pixels(1.)
-            path, fillable = self._get_path_in_displaycoord()
+        if not np.iterable(fillable):
+            path = [path]
+            fillable = [fillable]
 
-            if not np.iterable(fillable):
-                path = [path]
-                fillable = [fillable]
+        affine = transforms.IdentityTransform()
 
-            affine = transforms.IdentityTransform()
-
-            for p, f in zip(path, fillable):
-                draw_path(
-                    p, affine,
-                    self._facecolor if f and self._facecolor[3] else None)
+        self._draw_paths_with_artist_properties(
+            renderer,
+            [(p, affine, self._facecolor if f and self._facecolor[3] else None)
+             for p, f in zip(path, fillable)])
 
 
 class ConnectionPatch(FancyArrowPatch):
