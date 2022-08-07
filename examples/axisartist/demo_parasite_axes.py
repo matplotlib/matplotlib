@@ -17,17 +17,15 @@ and :mod:`mpl_toolkits.axisartist` is found in the
 :doc:`/gallery/axisartist/demo_parasite_axes2` example.
 """
 
-from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
+from mpl_toolkits.axisartist.parasite_axes import HostAxes
 import matplotlib.pyplot as plt
 
 
 fig = plt.figure()
 
 host = fig.add_axes([0.15, 0.1, 0.65, 0.8], axes_class=HostAxes)
-par1 = ParasiteAxes(host, sharex=host)
-par2 = ParasiteAxes(host, sharex=host)
-host.parasites.append(par1)
-host.parasites.append(par2)
+par1 = host.get_aux_axes(viewlim_mode=None, sharex=host)
+par2 = host.get_aux_axes(viewlim_mode=None, sharex=host)
 
 host.axis["right"].set_visible(False)
 

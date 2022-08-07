@@ -6,7 +6,6 @@ from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D, Transform
 from matplotlib.testing.decorators import image_comparison
 
-from mpl_toolkits.axes_grid1.parasite_axes import ParasiteAxes
 from mpl_toolkits.axisartist import SubplotHost
 from mpl_toolkits.axes_grid1.parasite_axes import host_subplot_class_factory
 from mpl_toolkits.axisartist import angle_helper
@@ -66,8 +65,7 @@ def test_custom_transform():
     ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
     fig.add_subplot(ax1)
 
-    ax2 = ParasiteAxes(ax1, tr, viewlim_mode="equal")
-    ax1.parasites.append(ax2)
+    ax2 = ax1.get_aux_axes(tr, viewlim_mode="equal")
     ax2.plot([3, 6], [5.0, 10.])
 
     ax1.set_aspect(1.)
@@ -127,10 +125,9 @@ def test_polar_box():
     axis.get_helper().set_extremes(-180, 90)
 
     # A parasite axes with given transform
-    ax2 = ParasiteAxes(ax1, tr, viewlim_mode="equal")
+    ax2 = ax1.get_aux_axes(tr, viewlim_mode="equal")
     assert ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.
-    ax1.parasites.append(ax2)
     ax2.plot(np.linspace(0, 30, 50), np.linspace(10, 10, 50))
 
     ax1.set_aspect(1.)
