@@ -420,11 +420,7 @@ class Axes3D(Axes):
         # it adjusts the view limits and the size of the bounding box
         # of the Axes
         locator = self.get_axes_locator()
-        if locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
+        self.apply_aspect(locator(self, renderer) if locator else None)
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()

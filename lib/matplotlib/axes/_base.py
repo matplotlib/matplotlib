@@ -2947,11 +2947,7 @@ class _AxesBase(martist.Artist):
         axs = self._twinned_axes.get_siblings(self) + self.child_axes
         for ax in self.child_axes:  # Child positions must be updated first.
             locator = ax.get_axes_locator()
-            if locator:
-                pos = locator(self, renderer)
-                ax.apply_aspect(pos)
-            else:
-                ax.apply_aspect()
+            ax.apply_aspect(locator(self, renderer) if locator else None)
 
         for title in titles:
             x, _ = title.get_position()
@@ -3014,11 +3010,7 @@ class _AxesBase(martist.Artist):
 
         # loop over self and child Axes...
         locator = self.get_axes_locator()
-        if locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
+        self.apply_aspect(locator(self, renderer) if locator else None)
 
         artists = self.get_children()
         artists.remove(self.patch)
@@ -4394,11 +4386,8 @@ class _AxesBase(martist.Artist):
             return None
 
         locator = self.get_axes_locator()
-        if locator and call_axes_locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
+        self.apply_aspect(
+            locator(self, renderer) if locator and call_axes_locator else None)
 
         for axis in self._axis_map.values():
             if self.axison and axis.get_visible():
