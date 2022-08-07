@@ -2943,23 +2943,21 @@ class _AxesBase(martist.Artist):
 
         titles = (self.title, self._left_title, self._right_title)
 
+        # Need to check all our twins too, and all the children as well.
+        axs = self._twinned_axes.get_siblings(self) + self.child_axes
+        for ax in self.child_axes:  # Child positions must be updated first.
+            locator = ax.get_axes_locator()
+            if locator:
+                pos = locator(self, renderer)
+                ax.apply_aspect(pos)
+            else:
+                ax.apply_aspect()
+
         for title in titles:
             x, _ = title.get_position()
             # need to start again in case of window resizing
             title.set_position((x, 1.0))
-            # need to check all our twins too...
-            axs = self._twinned_axes.get_siblings(self)
-            # and all the children
-            for ax in self.child_axes:
-                if ax is not None:
-                    locator = ax.get_axes_locator()
-                    if locator:
-                        pos = locator(self, renderer)
-                        ax.apply_aspect(pos)
-                    else:
-                        ax.apply_aspect()
-                    axs = axs + [ax]
-            top = -np.Inf
+            top = -np.inf
             for ax in axs:
                 bb = None
                 if (ax.xaxis.get_ticks_position() in ['top', 'unknown']
