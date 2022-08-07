@@ -59,7 +59,7 @@ def test_fallback_smoke():
                          [("WenQuanYi Zen Hei",  "wqy-zenhei.ttc"),
                           ("Noto Sans CJK JP", "NotoSansCJK-Regular.ttc")]
                          )
-@check_figures_equal(extensions=["png"])
+@check_figures_equal(extensions=["png", "pdf", "eps", "svg"])
 def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
     fp = fm.FontProperties(family=[family_name])
     if Path(fm.findfont(fp)).name != file_name:
