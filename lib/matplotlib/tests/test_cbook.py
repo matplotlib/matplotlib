@@ -4,7 +4,7 @@ import pickle
 from weakref import ref
 from unittest.mock import patch, Mock
 
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 import numpy as np
 from numpy.testing import (assert_array_equal, assert_approx_equal,
@@ -602,7 +602,7 @@ def test_flatiter():
     it = x.flat
     assert 0 == next(it)
     assert 1 == next(it)
-    ret = cbook.safe_first_element(it)
+    ret = cbook._safe_first_non_none(it)
     assert ret == 0
 
     assert 0 == next(it)
@@ -758,7 +758,7 @@ def test_contiguous_regions():
 def test_safe_first_element_pandas_series(pd):
     # deliberately create a pandas series with index not starting from 0
     s = pd.Series(range(5), index=range(10, 15))
-    actual = cbook.safe_first_element(s)
+    actual = cbook._safe_first_non_none(s)
     assert actual == 0
 
 
@@ -888,3 +888,10 @@ def test_format_approx():
     assert f(0.0012345600001, 5) == '0.00123'
     assert f(-0.0012345600001, 5) == '-0.00123'
     assert f(0.0012345600001, 8) == f(0.0012345600001, 10) == '0.00123456'
+
+
+def test_safe_first_element_with_none():
+    datetime_lst = [date.today() + timedelta(days=i) for i in range(10)]
+    datetime_lst[0] = None
+    actual = cbook._safe_first_non_none(datetime_lst)
+    assert actual is not None and actual == datetime_lst[1]
