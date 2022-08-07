@@ -153,9 +153,9 @@ def test_label_shift():
 
 @check_figures_equal(extensions=["png"])
 def test_acorr(fig_test, fig_ref):
-    np.random.seed(19680801)
+    rng = np.random.default_rng(19680801)
     Nx = 512
-    x = np.random.normal(0, 1, Nx).cumsum()
+    x = rng.normal(0, 1, Nx).cumsum()
     maxlags = Nx-1
 
     ax_test = fig_test.subplots()
@@ -172,10 +172,10 @@ def test_acorr(fig_test, fig_ref):
 
 @check_figures_equal(extensions=["png"])
 def test_spy(fig_test, fig_ref):
-    np.random.seed(19680801)
+    rng = np.random.default_rng(19680801)
     a = np.ones(32 * 32)
     a[:16 * 32] = 0
-    np.random.shuffle(a)
+    rng.shuffle(a)
     a = a.reshape((32, 32))
 
     axs_test = fig_test.subplots(2)
@@ -1362,7 +1362,6 @@ def test_pcolorflaterror():
     fig, ax = plt.subplots()
     x = np.arange(0, 9)
     y = np.arange(0, 3)
-    np.random.seed(19680801)
     Z = np.random.randn(3, 9)
     with pytest.raises(TypeError, match='Dimensions of C'):
         ax.pcolormesh(x, y, Z, shading='flat')
@@ -1941,9 +1940,9 @@ def test_hist_bar_empty():
 
 
 def test_hist_float16():
-    np.random.seed(19680801)
+    rng = np.random.default_rng(19680801)
     values = np.clip(
-        np.random.normal(0.5, 0.3, size=1000), 0, 1).astype(np.float16)
+        rng.normal(0.5, 0.3, size=1000), 0, 1).astype(np.float16)
     h = plt.hist(values, bins=3, alpha=0.5)
     bc = h[2]
     # Check that there are no overlapping rectangles
@@ -3473,8 +3472,8 @@ def test_violinplot_outofrange_quantiles():
 def test_violinplot_single_list_quantiles(fig_test, fig_ref):
     # Ensures quantile list for 1D can be passed in as single list
     # First 9 digits of frac(sqrt(83))
-    np.random.seed(110433579)
-    data = [np.random.normal(size=100)]
+    rng = np.random.default_rng(110433579)
+    data = [rng.normal(size=100)]
 
     # Test image
     ax = fig_test.subplots()
@@ -3487,10 +3486,10 @@ def test_violinplot_single_list_quantiles(fig_test, fig_ref):
 
 @check_figures_equal(extensions=["png"])
 def test_violinplot_pandas_series(fig_test, fig_ref, pd):
-    np.random.seed(110433579)
-    s1 = pd.Series(np.random.normal(size=7), index=[9, 8, 7, 6, 5, 4, 3])
-    s2 = pd.Series(np.random.normal(size=9), index=list('ABCDEFGHI'))
-    s3 = pd.Series(np.random.normal(size=11))
+    rng = np.random.default_rng(110433579)
+    s1 = pd.Series(rng.normal(size=7), index=[9, 8, 7, 6, 5, 4, 3])
+    s2 = pd.Series(rng.normal(size=9), index=list('ABCDEFGHI'))
+    s3 = pd.Series(rng.normal(size=11))
     fig_test.subplots().violinplot([s1, s2, s3])
     fig_ref.subplots().violinplot([s1.values, s2.values, s3.values])
 

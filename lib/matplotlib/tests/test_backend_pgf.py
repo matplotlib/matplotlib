@@ -151,7 +151,7 @@ def test_rcupdate():
 @mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_pathclip():
-    np.random.seed(19680801)
+    rng = np.random.default_rng(19680801)
     mpl.rcParams.update({'font.family': 'serif', 'pgf.rcfonts': False})
     fig, axs = plt.subplots(1, 2)
 
@@ -160,7 +160,7 @@ def test_pathclip():
     axs[0].set_ylim(0, 1)
 
     axs[1].scatter([0, 1], [1, 1])
-    axs[1].hist(np.random.normal(size=1000), bins=20, range=[-10, 10])
+    axs[1].hist(rng.normal(size=1000), bins=20, range=[-10, 10])
     axs[1].set_xscale('log')
 
     fig.savefig(BytesIO(), format="pdf")  # No image comparison.
