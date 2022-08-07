@@ -3,7 +3,7 @@
 Using a text as a Path
 ======================
 
-`~matplotlib.textpath.TextPath` creates a `.Path` that is the outline of the
+`~matplotlib.text.TextPath` creates a `.Path` that is the outline of the
 characters of a text. The resulting path can be employed e.g. as a clip path
 for an image.
 """

@@ -516,11 +516,11 @@ class MarkerStyle:
 
     def _set_mathtext_path(self):
         """
-        Draw mathtext markers '$...$' using TextPath object.
+        Draw mathtext markers '$...$' using `.TextPath` object.
 
         Submitted by tcb
         """
-        from matplotlib.textpath import TextPath
+        from matplotlib.text import TextPath
 
         # again, the properties could be initialised just once outside
         # this function

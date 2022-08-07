@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.markers import MarkerStyle
 from matplotlib.transforms import Affine2D
-from matplotlib.textpath import TextPath
+from matplotlib.text import TextPath
 from matplotlib.colors import Normalize
 
 SUCCESS_SYMBOLS = [
