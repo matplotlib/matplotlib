@@ -7,6 +7,9 @@
 // From Python
 #include <structmember.h>
 
+#include <set>
+#include <algorithm>
+
 #define STRINGIFY(s) XSTRINGIFY(s)
 #define XSTRINGIFY(s) #s
 
@@ -551,6 +554,76 @@ static PyObject *PyFT2Font_get_kerning(PyFT2Font *self, PyObject *args)
 
     return PyLong_FromLong(result);
 }
+
+const char *PyFT2Font_get_fontmap__doc__ =
+    "_get_fontmap(self, string)\n"
+    "--\n\n"
+    "Get a mapping between characters and the font that includes them.\n"
+    "A dictionary mapping unicode characters to PyFT2Font objects.";
+static PyObject *PyFT2Font_get_fontmap(PyFT2Font *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *textobj;
+    const char *names[] = { "string", NULL };
+
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwds, "O:_get_fontmap", (char **)names, &textobj)) {
+        return NULL;
+    }
+
+    std::set<FT_ULong> codepoints;
+    size_t size;
+
+    if (PyUnicode_Check(textobj)) {
+        size = PyUnicode_GET_LENGTH(textobj);
+#if defined(PYPY_VERSION) && (PYPY_VERSION_NUM < 0x07040000)
+        // PyUnicode_ReadChar is available from PyPy 7.3.2, but wheels do not
+        // specify the micro-release version, so put the version bound at 7.4
+        // to prevent generating wheels unusable on PyPy 7.3.{0,1}.
+        Py_UNICODE *unistr = PyUnicode_AsUnicode(textobj);
+        for (size_t i = 0; i < size; ++i) {
+            codepoints.insert(unistr[i]);
+        }
+#else
+        for (size_t i = 0; i < size; ++i) {
+            codepoints.insert(PyUnicode_ReadChar(textobj, i));
+        }
+#endif
+    } else {
+        PyErr_SetString(PyExc_TypeError, "String must be str");
+        return NULL;
+    }
+    PyObject *char_to_font;
+    if (!(char_to_font = PyDict_New())) {
+        return NULL;
+    }
+    for (auto it = codepoints.begin(); it != codepoints.end(); ++it) {
+        auto x = *it;
+        PyObject* target_font;
+        int index;
+        if (self->x->get_char_fallback_index(x, index)) {
+            if (index >= 0) {
+                target_font = self->fallbacks[index];
+            } else {
+                target_font = (PyObject *)self;
+            }
+        } else {
+            // TODO Handle recursion!
+            target_font = (PyObject *)self;
+        }
+
+        PyObject *key = NULL;
+        bool error = (!(key = PyUnicode_FromFormat("%c", x))
+                      || (PyDict_SetItem(char_to_font, key, target_font) == -1));
+        Py_XDECREF(key);
+        if (error) {
+            Py_DECREF(char_to_font);
+            PyErr_SetString(PyExc_ValueError, "Something went very wrong");
+            return NULL;
+        }
+    }
+    return char_to_font;
+}
+
 
 const char *PyFT2Font_set_text__doc__ =
     "set_text(self, string, angle, flags=32)\n"
@@ -1525,6 +1598,7 @@ static PyTypeObject *PyFT2Font_init_type()
         {"select_charmap", (PyCFunction)PyFT2Font_select_charmap, METH_VARARGS, PyFT2Font_select_charmap__doc__},
         {"get_kerning", (PyCFunction)PyFT2Font_get_kerning, METH_VARARGS, PyFT2Font_get_kerning__doc__},
         {"set_text", (PyCFunction)PyFT2Font_set_text, METH_VARARGS|METH_KEYWORDS, PyFT2Font_set_text__doc__},
+        {"_get_fontmap", (PyCFunction)PyFT2Font_get_fontmap, METH_VARARGS|METH_KEYWORDS, PyFT2Font_get_fontmap__doc__},
         {"get_num_glyphs", (PyCFunction)PyFT2Font_get_num_glyphs, METH_NOARGS, PyFT2Font_get_num_glyphs__doc__},
         {"load_char", (PyCFunction)PyFT2Font_load_char, METH_VARARGS|METH_KEYWORDS, PyFT2Font_load_char__doc__},
         {"load_glyph", (PyCFunction)PyFT2Font_load_glyph, METH_VARARGS|METH_KEYWORDS, PyFT2Font_load_glyph__doc__},

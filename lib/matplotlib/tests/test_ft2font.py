@@ -76,3 +76,30 @@ def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
     ):
         fig_ref.text(0.05, .85 - 0.15*j, txt, family=ref_font)
         fig_test.text(0.05, .85 - 0.15*j, txt, family=test_font)
+
+
+@pytest.mark.parametrize(
+    "family_name, file_name",
+    [
+        ("WenQuanYi Zen Hei", "wqy-zenhei.ttc"),
+        ("Noto Sans CJK JP", "NotoSansCJK-Regular.ttc"),
+    ],
+)
+def test__get_fontmap(family_name, file_name):
+    fp = fm.FontProperties(family=[family_name])
+    if Path(fm.findfont(fp)).name != file_name:
+        pytest.skip(f"Font {family_name} ({file_name}) is missing")
+
+    text = "There are 几个汉字 in between!"
+    ft = fm.get_font(
+        fm.fontManager._find_fonts_by_props(
+            fm.FontProperties(family=["DejaVu Sans", family_name])
+        )
+    )
+
+    fontmap = ft._get_fontmap(text)
+    for char, font in fontmap.items():
+        if ord(char) > 127:
+            assert Path(font.fname).name == file_name
+        else:
+            assert Path(font.fname).name == "DejaVuSans.ttf"
