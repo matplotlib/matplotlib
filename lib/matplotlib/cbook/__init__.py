@@ -1688,22 +1688,16 @@ def safe_first_element(obj):
     """
     Return the first element in *obj*.
 
-    This is an type-independent way of obtaining the first element, supporting
+    This is an type-independent way of obtaining the first element(using flatiter from the numpy library), supporting
     both index access and the iterator protocol.
     """
-    if isinstance(obj, collections.abc.Iterator):
-        # needed to accept `array.flat` as input.
-        # np.flatiter reports as an instance of collections.Iterator
-        # but can still be indexed via [].
-        # This has the side effect of re-setting the iterator, but
-        # that is acceptable.
-        try:
-            return obj[0]
-        except TypeError:
-            pass
-        raise RuntimeError("matplotlib does not support generators "
-                           "as input")
-    return next(iter(obj))
+    if isinstance(obj, np.flatiter):
+        return obj[0]
+    elif isinstance(obj, collections.abc.Iterator):
+        raise RuntimeError("matplotlib does not support generators as input")
+    else:
+        #filter out None values
+        return next(val for val in obj if val is not None)
 
 
 def sanitize_sequence(data):

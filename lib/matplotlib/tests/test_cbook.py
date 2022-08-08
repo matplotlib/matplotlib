@@ -761,6 +761,17 @@ def test_safe_first_element_pandas_series(pd):
     actual = cbook.safe_first_element(s)
     assert actual == 0
 
+def test_safe_first_element_none_value():
+    #check if None value(s) are skipped over when computing the first element
+    y = [6, 2, 8, 3, 1, 8, 5, 3, 0, 7]
+    x = [date.today() + timedelta(days=i) for i in range(10)]
+    x[0] = None
+    x[5] = None
+    x[-1] = None
+    actual = cbook.safe_first_element(x)
+    assert actual is not None and actual == x[1]
+
+
 
 def test_warn_external(recwarn):
     _api.warn_external("oops")
@@ -888,3 +899,4 @@ def test_format_approx():
     assert f(0.0012345600001, 5) == '0.00123'
     assert f(-0.0012345600001, 5) == '-0.00123'
     assert f(0.0012345600001, 8) == f(0.0012345600001, 10) == '0.00123456'
+
