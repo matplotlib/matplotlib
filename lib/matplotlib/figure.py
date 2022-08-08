@@ -206,20 +206,13 @@ class FigureBase(Artist):
             key=lambda artist: artist.get_zorder())
         for ax in self._localaxes:
             locator = ax.get_axes_locator()
-            if locator:
-                pos = locator(ax, renderer)
-                ax.apply_aspect(pos)
-            else:
-                ax.apply_aspect()
+            ax.apply_aspect(locator(ax, renderer) if locator else None)
 
             for child in ax.get_children():
                 if hasattr(child, 'apply_aspect'):
                     locator = child.get_axes_locator()
-                    if locator:
-                        pos = locator(child, renderer)
-                        child.apply_aspect(pos)
-                    else:
-                        child.apply_aspect()
+                    child.apply_aspect(
+                        locator(child, renderer) if locator else None)
         return artists
 
     def autofmt_xdate(
