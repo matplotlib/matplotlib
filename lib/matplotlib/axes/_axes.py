@@ -4578,6 +4578,16 @@ default: :rc:`scatter.edgecolors`
             collection.set_cmap(cmap)
             collection.set_norm(norm)
             collection._scale_norm(norm, vmin, vmax)
+        else:
+            extra_kwargs = {
+                    'cmap': cmap, 'norm': norm, 'vmin': vmin, 'vmax': vmax
+                    }
+            extra_keys = [k for k, v in extra_kwargs.items() if v is not None]
+            if any(extra_keys):
+                keys_str = ", ".join(f"'{k}'" for k in extra_keys)
+                _api.warn_external(
+                    "No data for colormapping provided via 'c'. "
+                    f"Parameters {keys_str} will be ignored")
         collection._internal_update(kwargs)
 
         # Classic mode only:

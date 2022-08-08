@@ -1,0 +1,6 @@
+Warning when scatter plot color settings discarded
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When making an animation of a scatter plot, if you don't set *c* (the color
+value parameter) when initializing the artist, the color settings are ignored.
+`.Axes.scatter` now raises a warning if color-related settings are changed
+without setting *c*.
