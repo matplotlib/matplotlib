@@ -1130,7 +1130,8 @@ class RendererSVG(RendererBase):
                 font_parts.append(f'{weight}')
             font_parts.extend([
                 f'{_short_float_fmt(prop.get_size())}px',
-                f'{prop.get_family()[0]!r}',  # ensure quoting
+                # ensure quoting
+                f'{", ".join(repr(f) for f in prop.get_family())}',
             ])
             style['font'] = ' '.join(font_parts)
             if prop.get_stretch() != 'normal':

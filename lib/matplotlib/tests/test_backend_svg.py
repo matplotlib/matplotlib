@@ -1,9 +1,13 @@
 import datetime
 from io import BytesIO
+from pathlib import Path
 import xml.etree.ElementTree
 import xml.parsers.expat
 
+import pytest
+
 import numpy as np
+
 
 import matplotlib as mpl
 from matplotlib.figure import Figure
@@ -11,6 +15,7 @@ from matplotlib.text import Text
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
+from matplotlib import font_manager as fm
 
 
 def test_visibility():
@@ -464,3 +469,29 @@ def test_svg_metadata():
     values = [node.text for node in
               rdf.findall(f'./{CCNS}Work/{DCNS}subject/{RDFNS}Bag/{RDFNS}li')]
     assert values == metadata['Keywords']
+
+
+@image_comparison(["multi_font_aspath.svg"])
+def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('svg', fonttype='path')
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["multi_font_astext.svg"])
+def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    fig = plt.figure()
+    plt.rc('svg', fonttype='none')
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
