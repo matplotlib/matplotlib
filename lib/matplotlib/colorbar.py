@@ -467,7 +467,8 @@ class Colorbar:
         self.dividers = collections.LineCollection(
             [],
             colors=[mpl.rcParams['axes.edgecolor']],
-            linewidths=[0.5 * mpl.rcParams['axes.linewidth']])
+            linewidths=[0.5 * mpl.rcParams['axes.linewidth']],
+            clip_on=False)
         self.ax.add_collection(self.dividers)
 
         self.locator = None
@@ -627,12 +628,31 @@ class Colorbar:
             if not self.drawedges:
                 if len(self._y) >= self.n_rasterize:
                     self.solids.set_rasterized(True)
-        if self.drawedges:
-            start_idx = 0 if self._extend_lower() else 1
-            end_idx = len(X) if self._extend_upper() else -1
-            self.dividers.set_segments(np.dstack([X, Y])[start_idx:end_idx])
-        else:
+        self._update_dividers()
+
+    def _update_dividers(self):
+        if not self.drawedges:
             self.dividers.set_segments([])
+            return
+        # Place all *internal* dividers.
+        if self.orientation == 'vertical':
+            lims = self.ax.get_ylim()
+            bounds = (lims[0] < self._y) & (self._y < lims[1])
+        else:
+            lims = self.ax.get_xlim()
+            bounds = (lims[0] < self._y) & (self._y < lims[1])
+        y = self._y[bounds]
+        # And then add outer dividers if extensions are on.
+        if self._extend_lower():
+            y = np.insert(y, 0, lims[0])
+        if self._extend_upper():
+            y = np.append(y, lims[1])
+        X, Y = np.meshgrid([0, 1], y)
+        if self.orientation == 'vertical':
+            segments = np.dstack([X, Y])
+        else:
+            segments = np.dstack([Y, X])
+        self.dividers.set_segments(segments)
 
     def _add_solids_patches(self, X, Y, C, mappable):
         hatches = mappable.hatches * len(C)  # Have enough hatches.
@@ -737,7 +757,8 @@ class Colorbar:
                 zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
             self.ax.add_patch(patch)
             self._extend_patches.append(patch)
-        return
+
+        self._update_dividers()
 
     def add_lines(self, *args, **kwargs):
         """
