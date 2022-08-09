@@ -18,7 +18,8 @@ from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
-                                      TightLayoutEngine)
+                                      TightLayoutEngine,
+                                      PlaceHolderLayoutEngine)
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -581,10 +582,18 @@ def test_invalid_layouts():
     fig.colorbar(pc)
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("tight")
+    fig.set_layout_engine("none")
+    with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
+        fig.set_layout_engine("tight")
 
     fig, ax = plt.subplots(layout="tight")
     pc = ax.pcolormesh(np.random.randn(2, 2))
     fig.colorbar(pc)
+    with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
+        fig.set_layout_engine("constrained")
+    fig.set_layout_engine("none")
+    assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
+
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("constrained")
 
