@@ -37,8 +37,15 @@ particularly suited for new contributors by the label
 These are well documented issues, that do not require a deep understanding of
 the internals of Matplotlib. The issues may additionally be tagged with a
 difficulty. ``Difficulty: Easy`` is suited for people with little Python experience.
-``Difficulty: Medium`` and ``Difficulty: Hard`` are not trivial to solve and
-require more thought and programming experience.
+``Difficulty: Medium`` and ``Difficulty: Hard`` require more programming experience.
+This could be for a variety of reasons, among them:
+ - The issue might be in areas of the code base which have more interdependencies,
+   or legacy code.
+ - It could involve code for which the current maintainers can't offer much guidance,
+   or expertise.
+ - It could also be less clearly defined tasks, which require some independent
+   exploration, making suggestions, or follow-up discussions to clarify a good path
+   to resolve the issue.
 
 In general, the Matplotlib project does not assign issues. Issues are
 "assigned" or "claimed" by opening a PR; there is no other assignment
