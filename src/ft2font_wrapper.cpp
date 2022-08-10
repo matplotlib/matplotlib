@@ -596,22 +596,8 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
             codepoints[i] = PyUnicode_ReadChar(textobj, i);
         }
 #endif
-    } else if (PyBytes_Check(textobj)) {
-        if (PyErr_WarnEx(
-            PyExc_FutureWarning,
-            "Passing bytes to FTFont.set_text is deprecated since Matplotlib "
-            "3.4 and support will be removed in Matplotlib 3.6; pass str instead",
-            1)) {
-            return NULL;
-        }
-        size = PyBytes_Size(textobj);
-        codepoints.resize(size);
-        char *bytestr = PyBytes_AsString(textobj);
-        for (size_t i = 0; i < size; ++i) {
-            codepoints[i] = bytestr[i];
-        }
     } else {
-        PyErr_SetString(PyExc_TypeError, "String must be str or bytes");
+        PyErr_SetString(PyExc_TypeError, "set_text requires str-input.");
         return NULL;
     }
 
