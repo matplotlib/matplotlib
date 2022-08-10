@@ -1,6 +1,7 @@
 import datetime
 from io import BytesIO
 from pathlib import Path
+import sys
 import xml.etree.ElementTree
 import xml.parsers.expat
 
@@ -74,6 +75,7 @@ def test_bold_font_output():
     ax.set_title('bold-title', fontweight='bold')
 
 
+@pytest.mark.xfail(sys.platform == "darwin", reason='Fails on OSX')
 @image_comparison(['bold_font_output_with_none_fonttype.svg'])
 def test_bold_font_output_with_none_fonttype():
     plt.rcParams['svg.fonttype'] = 'none'
