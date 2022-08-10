@@ -13,7 +13,7 @@ axes.prop_cycle: cycler('color', ['8dd3c7', 'feffb3', 'bfbbd9', 'fa8174', '81b1d
 xtick.color: white
 ytick.color: white
 
-grid.color: white
+grid.color: 555555
 
 figure.facecolor: black
 figure.edgecolor: black
