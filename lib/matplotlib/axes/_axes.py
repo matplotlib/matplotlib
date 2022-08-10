@@ -3573,10 +3573,11 @@ class Axes(_AxesBase):
         eb_cap_style['color'] = ecolor
 
         barcols = []
-        caplines = []
+        caplines = {'x': [], 'y': []}
 
         # Vectorized fancy-indexer.
-        def apply_mask(arrays, mask): return [array[mask] for array in arrays]
+        def apply_mask(arrays, mask):
+            return [array[mask] for array in arrays]
 
         # dep: dependent dataset, indep: independent dataset
         for (dep_axis, dep, err, lolims, uplims, indep, lines_func,
@@ -3607,9 +3608,12 @@ class Axes(_AxesBase):
             #     return dep - elow * ~lolims, dep + ehigh * ~uplims
             # except that broadcast_to would strip units.
             low, high = dep + np.row_stack([-(1 - lolims), 1 - uplims]) * err
-
             barcols.append(lines_func(
                 *apply_mask([indep, low, high], everymask), **eb_lines_style))
+            if self.name == "polar" and dep_axis == "x":
+                for b in barcols:
+                    for p in b.get_paths():
+                        p._interpolation_steps = 2
             # Normal errorbars for points without upper/lower limits.
             nolims = ~(lolims | uplims)
             if nolims.any() and capsize > 0:
@@ -3622,7 +3626,7 @@ class Axes(_AxesBase):
                     line = mlines.Line2D(indep_masked, indep_masked,
                                          marker=marker, **eb_cap_style)
                     line.set(**{f"{dep_axis}data": lh_masked})
-                    caplines.append(line)
+                    caplines[dep_axis].append(line)
             for idx, (lims, hl) in enumerate([(lolims, high), (uplims, low)]):
                 if not lims.any():
                     continue
@@ -3636,15 +3640,29 @@ class Axes(_AxesBase):
                 line = mlines.Line2D(x_masked, y_masked,
                                      marker=hlmarker, **eb_cap_style)
                 line.set(**{f"{dep_axis}data": hl_masked})
-                caplines.append(line)
+                caplines[dep_axis].append(line)
                 if capsize > 0:
-                    caplines.append(mlines.Line2D(
+                    caplines[dep_axis].append(mlines.Line2D(
                         x_masked, y_masked, marker=marker, **eb_cap_style))
-
-        for l in caplines:
-            self.add_line(l)
+        if self.name == 'polar':
+            for axis in caplines:
+                for l in caplines[axis]:
+                    # Rotate caps to be perpendicular to the error bars
+                    for theta, r in zip(l.get_xdata(), l.get_ydata()):
+                        rotation = mtransforms.Affine2D().rotate(theta)
+                        if axis == 'y':
+                            rotation.rotate(-np.pi / 2)
+                        ms = mmarkers.MarkerStyle(marker=marker,
+                                                  transform=rotation)
+                        self.add_line(mlines.Line2D([theta], [r], marker=ms,
+                                                    **eb_cap_style))
+        else:
+            for axis in caplines:
+                for l in caplines[axis]:
+                    self.add_line(l)
 
         self._request_autoscale_view()
+        caplines = caplines['x'] + caplines['y']
         errorbar_container = ErrorbarContainer(
             (data_line, tuple(caplines), tuple(barcols)),
             has_xerr=(xerr is not None), has_yerr=(yerr is not None),
