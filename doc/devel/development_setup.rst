@@ -4,12 +4,33 @@
 Setting up Matplotlib for development
 =====================================
 
+Retrieving the latest version of the code
+=========================================
+
+Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git.
+
+You can retrieve the latest sources with the command (see
+:ref:`set-up-fork` for more details)::
+
+    git clone https://github.com/matplotlib/matplotlib.git
+
+This will place the sources in a directory :file:`matplotlib` below your
+current working directory.
+
+If you have the proper privileges, you can use ``git@`` instead of
+``https://``, which works through the ssh protocol and might be easier to use
+if you are using 2-factor authentication.
+
 .. _dev-environment:
 
 Creating a dedicated environment
 ================================
 You should set up a dedicated environment to decouple your Matplotlib
 development from other Python and Matplotlib installations on your system.
+
+Using virtual environments
+--------------------------
+
 Here we use python's virtual environment `venv`_, but you may also use others
 such as conda.
 
@@ -28,22 +49,27 @@ and activated with one of the following::
 Whenever you plan to work on Matplotlib, remember to activate the development
 environment in your shell.
 
-Retrieving the latest version of the code
-=========================================
+Conda dev environment
+---------------------
+After you have cloned the repo change into the matplotlib directory.
 
-Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git.
+A new conda environment can be set-up with::
 
-You can retrieve the latest sources with the command (see
-:ref:`set-up-fork` for more details)::
+    conda env create -f environment.yml
 
-    git clone https://github.com/matplotlib/matplotlib.git
+Note that if you have mamba installed you can replace conda with mamba in
+the above command.
 
-This will place the sources in a directory :file:`matplotlib` below your
-current working directory.
+To activate your environment::
 
-If you have the proper privileges, you can use ``git@`` instead of
-``https://``, which works through the ssh protocol and might be easier to use
-if you are using 2-factor authentication.
+    conda activate mpl-dev
+
+Finish the install by the following command::
+
+    pip install -e .
+
+Whenever you plan to work on Matplotlib, remember to ``conda activate mpl-dev``
+in your shell.
 
 Installing Matplotlib in editable mode
 ======================================
