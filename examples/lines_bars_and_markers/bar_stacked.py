@@ -22,7 +22,8 @@ width = 0.25       # the width of the bars: can also be len(x) sequence
 fig, ax = plt.subplots()
 
 ax.bar(labels, tea_means, width, yerr=tea_std, label='Tea')
-ax.bar(labels, coffee_means, width, yerr=coffee_std, bottom=tea_means, label='Coffee')
+ax.bar(labels, coffee_means, width, yerr=coffee_std, bottom=tea_means,
+ label='Coffee')
 
 ax.set_ylabel('Scores')
 ax.set_title('Scores by group and beverage preferences')
