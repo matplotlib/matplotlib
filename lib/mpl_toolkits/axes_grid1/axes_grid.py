@@ -20,7 +20,6 @@ def _tick_only(ax, bottom_on, left_on):
 class CbarAxesBase:
     def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
-        self._default_label_on = True
         self._locator = None  # deprecated.
         super().__init__(*args, **kwargs)
 
@@ -33,7 +32,6 @@ class CbarAxesBase:
         return cb
 
     def toggle_label(self, b):
-        self._default_label_on = b
         axis = self.axis[self.orientation]
         axis.toggle(ticklabels=b, label=b)
 
