@@ -589,7 +589,7 @@ static PyObject *PyFT2Font_get_fontmap(PyFT2Font *self, PyObject *args, PyObject
         }
 #endif
     } else {
-        PyErr_SetString(PyExc_TypeError, "String must be str");
+        PyErr_SetString(PyExc_TypeError, "string must be str");
         return NULL;
     }
     PyObject *char_to_font;
