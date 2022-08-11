@@ -304,9 +304,9 @@ at the Terminal.app command line::
 
 You should see something like ::
 
-  3.0.0 /Library/Frameworks/Python.framework/Versions/3.6/lib/python3.6/site-packages/matplotlib/__init__.py
+  3.6.0 /Library/Frameworks/Python.framework/Versions/3.9/lib/python3.9/site-packages/matplotlib/__init__.py
 
-where ``3.0.0`` is the Matplotlib version you just installed, and the path
+where ``3.6.0`` is the Matplotlib version you just installed, and the path
 following depends on whether you are using Python.org Python, Homebrew or
 Macports.  If you see another version, or you get an error like ::
 
