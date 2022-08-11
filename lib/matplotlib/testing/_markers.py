@@ -8,6 +8,7 @@ import shutil
 import pytest
 
 import matplotlib.testing
+import matplotlib.testing.compare
 from matplotlib import _get_executable_info, ExecutableNotFoundError
 
 

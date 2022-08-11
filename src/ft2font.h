@@ -108,6 +108,7 @@ class FT2Font
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
     void get_cbox(FT_BBox &bbox);
     PyObject* get_path();
+    bool get_char_fallback_index(FT_ULong charcode, int& index) const;
 
     FT_Face const &get_face() const
     {

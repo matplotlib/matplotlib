@@ -32,7 +32,9 @@ from matplotlib.backend_bases import (
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, get_font
+from matplotlib.font_manager import (
+    findfont, get_font, fontManager as _fontManager
+)
 from matplotlib._afm import AFM
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
@@ -925,20 +927,28 @@ class PdfFile:
         """
 
         if isinstance(fontprop, str):
-            filename = fontprop
+            filenames = [fontprop]
         elif mpl.rcParams['pdf.use14corefonts']:
-            filename = findfont(
-                fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
+            filenames = _fontManager._find_fonts_by_props(
+                fontprop, fontext='afm', directory=RendererPdf._afm_font_dir
+            )
         else:
-            filename = findfont(fontprop)
+            filenames = _fontManager._find_fonts_by_props(fontprop)
+        first_Fx = None
+        for fname in filenames:
+            Fx = self.fontNames.get(fname)
+            if not first_Fx:
+                first_Fx = Fx
+            if Fx is None:
+                Fx = next(self._internal_font_seq)
+                self.fontNames[fname] = Fx
+                _log.debug('Assigning font %s = %r', Fx, fname)
+                if not first_Fx:
+                    first_Fx = Fx
 
-        Fx = self.fontNames.get(filename)
-        if Fx is None:
-            Fx = next(self._internal_font_seq)
-            self.fontNames[filename] = Fx
-            _log.debug('Assigning font %s = %r', Fx, filename)
-
-        return Fx
+        # find_fontsprop's first value always adheres to
+        # findfont's value, so technically no behaviour change
+        return first_Fx
 
     def dviFontName(self, dvifont):
         """
@@ -1204,7 +1214,6 @@ end"""
                 width = font.load_char(
                     s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
                 return cvt(width)
-
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
                 # from ft2font: here we're just building the widths table, but
@@ -2389,22 +2398,27 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # the regular text show command (TJ) with appropriate kerning between
         # chunks, whereas multibyte characters use the XObject command (Do).
         else:
-            # List of (start_x, [prev_kern, char, char, ...]), w/o zero kerns.
+            # List of (ft_object, start_x, [prev_kern, char, char, ...]),
+            # w/o zero kerns.
             singlebyte_chunks = []
-            # List of (start_x, glyph_index).
+            # List of (ft_object, start_x, glyph_index).
             multibyte_glyphs = []
             prev_was_multibyte = True
+            prev_font = font
             for item in _text_helpers.layout(
                     s, font, kern_mode=KERNING_UNFITTED):
                 if _font_supports_glyph(fonttype, ord(item.char)):
-                    if prev_was_multibyte:
-                        singlebyte_chunks.append((item.x, []))
+                    if prev_was_multibyte or item.ft_object != prev_font:
+                        singlebyte_chunks.append((item.ft_object, item.x, []))
+                        prev_font = item.ft_object
                     if item.prev_kern:
-                        singlebyte_chunks[-1][1].append(item.prev_kern)
-                    singlebyte_chunks[-1][1].append(item.char)
+                        singlebyte_chunks[-1][2].append(item.prev_kern)
+                    singlebyte_chunks[-1][2].append(item.char)
                     prev_was_multibyte = False
                 else:
-                    multibyte_glyphs.append((item.x, item.glyph_idx))
+                    multibyte_glyphs.append(
+                        (item.ft_object, item.x, item.glyph_idx)
+                    )
                     prev_was_multibyte = True
             # Do the rotation and global translation as a single matrix
             # concatenation up front
@@ -2414,10 +2428,12 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                              -math.sin(a), math.cos(a),
                              x, y, Op.concat_matrix)
             # Emit all the 1-byte characters in a BT/ET group.
-            self.file.output(Op.begin_text,
-                             self.file.fontName(prop), fontsize, Op.selectfont)
+
+            self.file.output(Op.begin_text)
             prev_start_x = 0
-            for start_x, kerns_or_chars in singlebyte_chunks:
+            for ft_object, start_x, kerns_or_chars in singlebyte_chunks:
+                ft_name = self.file.fontName(ft_object.fname)
+                self.file.output(ft_name, fontsize, Op.selectfont)
                 self._setup_textpos(start_x, 0, 0, prev_start_x, 0, 0)
                 self.file.output(
                     # See pdf spec "Text space details" for the 1000/fontsize
@@ -2429,8 +2445,10 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 prev_start_x = start_x
             self.file.output(Op.end_text)
             # Then emit all the multibyte characters, one at a time.
-            for start_x, glyph_idx in multibyte_glyphs:
-                self._draw_xobject_glyph(font, fontsize, glyph_idx, start_x, 0)
+            for ft_object, start_x, glyph_idx in multibyte_glyphs:
+                self._draw_xobject_glyph(
+                    ft_object, fontsize, glyph_idx, start_x, 0
+                )
             self.file.output(Op.grestore)
 
     def _draw_xobject_glyph(self, font, fontsize, glyph_idx, x, y):
