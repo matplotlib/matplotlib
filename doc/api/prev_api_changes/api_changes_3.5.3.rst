@@ -1,3 +1,10 @@
+API Changes for 3.5.3
+=====================
+
+.. contents::
+   :local:
+   :depth: 1
+
 Passing *linefmt* positionally is undeprecated
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
