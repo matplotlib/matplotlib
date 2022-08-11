@@ -2176,12 +2176,12 @@ class Axes(_AxesBase):
             # removes the units from unit packages like `pint` that
             # wrap numpy arrays.
             try:
-                x0 = cbook.safe_first_element(x0)
+                x0 = cbook._safe_first_non_none(x0)
             except (TypeError, IndexError, KeyError):
                 pass
 
             try:
-                x = cbook.safe_first_element(xconv)
+                x = cbook._safe_first_non_none(xconv)
             except (TypeError, IndexError, KeyError):
                 x = xconv
 
@@ -2779,11 +2779,11 @@ class Axes(_AxesBase):
         """
         # process the unit information
         if len(xranges):
-            xdata = cbook.safe_first_element(xranges)
+            xdata = cbook._safe_first_non_none(xranges)
         else:
             xdata = None
         if len(yrange):
-            ydata = cbook.safe_first_element(yrange)
+            ydata = cbook._safe_first_non_none(yrange)
         else:
             ydata = None
         self._process_unit_info(
@@ -3424,10 +3424,10 @@ class Axes(_AxesBase):
                     # safe_first_element because getitem is index-first not
                     # location first on pandas objects so err[0] almost always
                     # fails.
-                    isinstance(cbook.safe_first_element(err), np.ndarray)
+                    isinstance(cbook._safe_first_non_none(err), np.ndarray)
             ):
                 # Get the type of the first element
-                atype = type(cbook.safe_first_element(err))
+                atype = type(cbook._safe_first_non_none(err))
                 # Promote the outer container to match the inner container
                 if atype is np.ndarray:
                     # Converts using np.asarray, because data cannot
@@ -4290,7 +4290,7 @@ class Axes(_AxesBase):
         c_is_string_or_strings = (
             isinstance(c, str)
             or (np.iterable(c) and len(c) > 0
-                and isinstance(cbook.safe_first_element(c), str)))
+                and isinstance(cbook._safe_first_non_none(c), str)))
 
         def invalid_shape_exception(csize, xsize):
             return ValueError(
