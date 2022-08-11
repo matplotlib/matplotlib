@@ -19,7 +19,7 @@
 ##         $HOME/.matplotlib/matplotlibrc
 ## and edit that copy.
 ##
-## See https://matplotlib.org/users/customizing.html#the-matplotlibrc-file
+## See https://matplotlib.org/stable/tutorials/introductory/customizing.html#customizing-with-matplotlibrc-files
 ## for more details on the paths which are checked for the configuration file.
 ##
 ## Blank lines, or lines starting with a comment symbol, are ignored, as are
@@ -218,9 +218,9 @@
 ## on font properties.  The 6 font properties used for font matching are
 ## given below with their default values.
 ##
-## The font.family property can take either a concrete font name (not supported
-## when rendering text with usetex), or one of the following five generic
-## values:
+## The font.family property can take either a single or multiple entries of any
+## combination of concrete font names (not supported when rendering text with
+## usetex) or the following five generic values:
 ##     - 'serif' (e.g., Times),
 ##     - 'sans-serif' (e.g., Helvetica),
 ##     - 'cursive' (e.g., Zapf-Chancery),
