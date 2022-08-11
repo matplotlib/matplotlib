@@ -104,7 +104,7 @@ class Triangulation:
         Return integer array of shape (nedges, 2) containing all edges of
         non-masked triangles.
 
-        Each row defines an edge by it's start point index and end point
+        Each row defines an edge by its start point index and end point
         index.  Each edge appears only once, i.e. for an edge between points
         *i*  and *j*, there will only be either *(i, j)* or *(j, i)*.
         """
@@ -126,7 +126,7 @@ class Triangulation:
 
     def get_masked_triangles(self):
         """
-        Return an array of triangles that are not masked.
+        Return an array of triangles taking the mask into account.
         """
         if self.mask is not None:
             return self.triangles[~self.mask]
