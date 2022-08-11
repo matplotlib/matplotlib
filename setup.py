@@ -263,7 +263,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
     author="John D. Hunter, Michael Droettboom",
     author_email="matplotlib-users@python.org",
     url="https://matplotlib.org",
-    download_url="https://matplotlib.org/users/installing.html",
+    download_url="https://matplotlib.org/stable/users/installing/index.html",
     project_urls={
         'Documentation': 'https://matplotlib.org',
         'Source Code': 'https://github.com/matplotlib/matplotlib',

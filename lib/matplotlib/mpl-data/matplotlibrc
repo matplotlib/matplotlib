@@ -738,9 +738,10 @@
 ## * INTERACTIVE KEYMAPS                                                     *
 ## ***************************************************************************
 ## Event keys to interact with figures/plots via keyboard.
-## See https://matplotlib.org/users/navigation_toolbar.html for more details on
-## interactive navigation.  Customize these settings according to your needs.
-## Leave the field(s) empty if you don't need a key-map. (i.e., fullscreen : '')
+## See https://matplotlib.org/stable/users/explain/interactive.html for more
+## details on interactive navigation.  Customize these settings according to
+## your needs. Leave the field(s) empty if you don't need a key-map. (i.e.,
+## fullscreen : '')
 #keymap.fullscreen: f, ctrl+f   # toggling
 #keymap.home: h, r, home        # home or reset mnemonic
 #keymap.back: left, c, backspace, MouseButton.BACK  # forward / backward keys
