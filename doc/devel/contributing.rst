@@ -46,7 +46,7 @@ the same time:
 - It has less clearly defined tasks, which require some independent
   exploration, making suggestions, or follow-up discussions to clarify a good path
   to resolve the issue.
-- It involves python features such as decorators and context managers, which
+- It involves Python features such as decorators and context managers, which
   have subtleties due to our implementation decisions.
 
 In general, the Matplotlib project does not assign issues. Issues are
