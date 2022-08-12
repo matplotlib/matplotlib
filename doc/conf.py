@@ -23,6 +23,9 @@ import matplotlib
 from datetime import datetime
 import time
 
+# debug that building expected version
+print(f"Building Documentation for Matplotlib: {matplotlib.__version__}")
+
 # Release mode enables optimizations and other related options.
 is_release_build = tags.has('release')  # noqa
 
