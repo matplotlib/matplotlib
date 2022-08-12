@@ -65,9 +65,7 @@ def plot_linestyles(ax, linestyles, title):
                     color="blue", fontsize=8, ha="right", family="monospace")
 
 
-ax0, ax1 = (plt.figure(figsize=(10, 8))
-            .add_gridspec(2, 1, height_ratios=[1, 3])
-            .subplots())
+fig, (ax0, ax1) = plt.subplots(2, 1, figsize=(10, 8), height_ratios=[1, 3])
 
 plot_linestyles(ax0, linestyle_str[::-1], title='Named linestyles')
 plot_linestyles(ax1, linestyle_tuple[::-1], title='Parametrized linestyles')
