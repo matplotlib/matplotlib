@@ -56,13 +56,13 @@ def test_fallback_smoke():
 
 
 @pytest.mark.parametrize('family_name, file_name',
-                         [("WenQuanYi Zen Hei",  "wqy-zenhei.ttc"),
-                          ("Noto Sans CJK JP", "NotoSansCJK-Regular.ttc")]
+                         [("WenQuanYi Zen Hei",  "wqy-zenhei"),
+                          ("Noto Sans CJK JP", "NotoSansCJK")]
                          )
 @check_figures_equal(extensions=["png", "pdf", "eps", "svg"])
 def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
     fp = fm.FontProperties(family=[family_name])
-    if Path(fm.findfont(fp)).name != file_name:
+    if file_name not in Path(fm.findfont(fp)).name:
         pytest.skip(f"Font {family_name} ({file_name}) is missing")
 
     text = ["There are", "几个汉字", "in between!"]
@@ -81,13 +81,14 @@ def test_font_fallback_chinese(fig_test, fig_ref, family_name, file_name):
 @pytest.mark.parametrize(
     "family_name, file_name",
     [
-        ("WenQuanYi Zen Hei", "wqy-zenhei.ttc"),
-        ("Noto Sans CJK JP", "NotoSansCJK-Regular.ttc"),
+        ("WenQuanYi Zen Hei", "wqy-zenhei"),
+        ("Noto Sans CJK JP", "NotoSansCJK"),
     ],
 )
 def test__get_fontmap(family_name, file_name):
     fp = fm.FontProperties(family=[family_name])
-    if Path(fm.findfont(fp)).name != file_name:
+    found_file_name = Path(fm.findfont(fp)).name
+    if file_name not in found_file_name:
         pytest.skip(f"Font {family_name} ({file_name}) is missing")
 
     text = "There are 几个汉字 in between!"
@@ -100,6 +101,6 @@ def test__get_fontmap(family_name, file_name):
     fontmap = ft._get_fontmap(text)
     for char, font in fontmap.items():
         if ord(char) > 127:
-            assert Path(font.fname).name == file_name
+            assert Path(font.fname).name == found_file_name
         else:
             assert Path(font.fname).name == "DejaVuSans.ttf"
