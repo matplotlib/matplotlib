@@ -18,21 +18,21 @@ import matplotlib.pyplot as plt
 
 
 N = 5
-men_means = [150*cm, 160*cm, 146*cm, 172*cm, 155*cm]
-men_std = [20*cm, 30*cm, 32*cm, 10*cm, 20*cm]
+bream_fish_length_means = [26*cm, 27*cm, 28*cm, 29*cm, 29*cm]
+bream_fish_length_std = [2*cm, 3*cm, 1*cm, 1*cm, 4*cm]
 
 fig, ax = plt.subplots()
 
 ind = np.arange(N)    # the x locations for the groups
-width = 0.35         # the width of the bars
-ax.bar(ind, men_means, width, bottom=0*cm, yerr=men_std, label='Men')
+width = 0.25         # the width of the bars
+ax.bar(ind, bream_fish_length_means, width, bottom=0*cm, yerr=bream_fish_length_std, label='Bream_Fish')
 
-women_means = (145*cm, 149*cm, 172*cm, 165*cm, 200*cm)
-women_std = (30*cm, 25*cm, 20*cm, 31*cm, 22*cm)
-ax.bar(ind + width, women_means, width, bottom=0*cm, yerr=women_std,
-       label='Women')
+parkki_fish_length_means = (14*cm, 13*cm, 17*cm, 16*cm, 20*cm)
+parkki_fish_length_std = (1*cm, 2*cm, 2*cm, 3*cm, 4*cm)
+ax.bar(ind + width, parkki_fish_length_means, width, bottom=0*cm, yerr=parkki_fish_length_std,
+       label='Parkki_Fish')
 
-ax.set_title('Scores by group and gender')
+ax.set_title('Scores by group and length of each fish type')
 ax.set_xticks(ind + width / 2, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 
 ax.legend()
