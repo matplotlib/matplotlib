@@ -15,6 +15,7 @@ directive in ``doc/topic/new-page.rst``::
 This creates in the build directory a file ``build/html/topic/old-page.html``
 that contains a relative refresh::
 
+    <!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8">
@@ -39,7 +40,7 @@ from sphinx.util import logging
 logger = logging.getLogger(__name__)
 
 
-HTML_TEMPLATE = """\
+HTML_TEMPLATE = """<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
