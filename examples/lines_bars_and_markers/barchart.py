@@ -12,7 +12,7 @@ import numpy as np
 
 
 labels = ['G1', 'G2', 'G3', 'G4', 'G5']
-tea_means = [20, 34, 30, 35, 27]
+tea_means = [20, 34, 31, 35, 27]
 coffee_means = [25, 32, 34, 20, 25]
 
 x = np.arange(len(labels))  # the label locations
