@@ -23,7 +23,7 @@ fig, ax = plt.subplots()
 
 ax.bar(labels, tea_means, width, yerr=tea_std, label='Tea')
 ax.bar(labels, coffee_means, width, yerr=coffee_std, bottom=tea_means,
- label='Coffee')
+       label='Coffee')
 
 ax.set_ylabel('Scores')
 ax.set_title('Scores by group and beverage preferences')
