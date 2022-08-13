@@ -44,7 +44,7 @@ def hello():
 #############################################################################
 #
 # Since the above code is a Flask application, it should be run using the
-# `flask command-line tool <https://flask.palletsprojects.com/en/master/cli/>`_
+# `flask command-line tool <https://flask.palletsprojects.com/en/latest/cli/>`_
 # Assuming that the working directory contains this script:
 #
 # Unix-like systems
