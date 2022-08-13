@@ -16,7 +16,7 @@ labels = ['G1', 'G2', 'G3', 'G4', 'G5']
 tea_means = [20, 35, 30, 35, 27]
 coffee_means = [25, 32, 34, 20, 25]
 tea_std = [2, 3, 4, 1, 2]
-coffee_std = [3, 5, 2, 3, 3]
+coffee_std = [3, 5, 5, 3, 3]
 width = 0.25       # the width of the bars: can also be len(x) sequence
 
 fig, ax = plt.subplots()
