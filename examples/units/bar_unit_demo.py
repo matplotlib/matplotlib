@@ -24,14 +24,15 @@ fig, ax = plt.subplots()
 
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars
-ax.bar(ind, bream_means, width, bottom=0*cm, yerr=bream_std, label='Bream')
+ax.bar(ind, bream_means, width, bottom=0*cm, yerr=bream_std, 
+       label='Bream')
 
 parkki_means = (14*cm, 13*cm, 17*cm, 16*cm, 20*cm)
 parkki_std = (1*cm, 2*cm, 4*cm, 3*cm, 2*cm)
 ax.bar(ind + width, parkki_means, width, bottom=0*cm, yerr=parkki_std,
        label='Parkki')
 
-ax.set_title('Scores by group and length of Bream and Parkki fish type')
+ax.set_title('Scores by group and length of Bream and Parkki fish')
 ax.set_xticks(ind + width / 2, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 
 ax.legend()
