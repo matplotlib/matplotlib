@@ -129,7 +129,7 @@ colors : color string or sequence of colors, optional
     The colors of the levels, i.e., the contour %%(type)s.
 
     The sequence is cycled for the levels in ascending order. If the sequence
-    is shorter than the number of levels, it's repeated.
+    is shorter than the number of levels, it is repeated.
 
     As a shortcut, single color strings may be used in place of one-element
     lists, i.e. ``'red'`` instead of ``['red']`` to color all levels with the

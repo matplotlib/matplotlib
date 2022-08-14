@@ -27,6 +27,7 @@ Interactive
 -----------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -48,6 +49,7 @@ Clipping
 --------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -62,6 +64,7 @@ Bulk Properties
 ---------------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -74,6 +77,7 @@ Drawing
 -------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -107,6 +111,7 @@ Figure and Axes
 ---------------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -121,6 +126,7 @@ Children
 --------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -131,6 +137,7 @@ Transform
 ---------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -142,6 +149,7 @@ Units
 -----
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -153,6 +161,7 @@ Metadata
 --------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -167,6 +176,7 @@ Miscellaneous
 -------------
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
@@ -179,6 +189,7 @@ Functions
 =========
 
 .. autosummary::
+   :template: autosummary.rst
    :toctree: _as_gen
    :nosignatures:
 
