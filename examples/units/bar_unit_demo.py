@@ -38,5 +38,4 @@ ax.set_xticks(ind + width / 2, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 ax.legend()
 ax.yaxis.set_units(inch)
 ax.autoscale_view()
-
 plt.show()
