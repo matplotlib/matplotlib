@@ -190,6 +190,20 @@ In all cases the required version of pip is embedded in the CPython source.
 Additional dependencies for development
 =======================================
 
+.. _setup-dependencies:
+
+Setup Dependencies
+------------------
+
+- `certifi <https://pypi.org/project/certifi/>`_ (>= 2020.06.20).  Used while
+  downloading the freetype and QHull source during build.  This is not a
+  runtime dependency.
+- `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
+  update the reported ``mpl.__version__`` based on the current git commit.
+  Also a runtime dependency for editable installs.
+- `NumPy <https://numpy.org>`_ (>= 1.19).  Also a runtime dependency.
+
+
 .. _compile-dependencies:
 
 C++ Compiler
