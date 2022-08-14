@@ -27,7 +27,7 @@ ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars
 ax.bar(ind, tea_means, width, bottom=0*cm, yerr=tea_std, label='Tea')
 
-coffee_means = (14*cm, 19*cm, 17*cm, 5*cm, 10*cm)
+coffee_means = (14*cm, 19*cm, 7*cm, 5*cm, 10*cm)
 coffee_std = (3*cm, 5*cm, 2*cm, 1*cm, 2*cm)
 ax.bar(ind + width, coffee_means, width, bottom=0*cm, yerr=coffee_std,
        label='Coffee')
