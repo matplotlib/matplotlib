@@ -16,14 +16,16 @@ mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.8)
-* `NumPy <https://numpy.org>`_ (>= 1.19)
-* `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
+* `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
+* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>=4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.1)
+* `NumPy <https://numpy.org>`_ (>= 1.19)
+* `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.2.1)
-* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>=4.22.0)
+* `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 
 
 .. _optional_dependencies:
@@ -81,7 +83,8 @@ Font handling and rendering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
-  <https://ctan.org/pkg/cm-super>`__ ) and `GhostScript (>=9.0)
+  <https://ctan.org/pkg/cm-super>`__ and `underscore
+  <https://ctan.org/pkg/underscore>`__ ) and `GhostScript (>=9.0)
   <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
