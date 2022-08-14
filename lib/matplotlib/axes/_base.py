@@ -1862,7 +1862,7 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         position : None or .Bbox
-            If not ``None`, this defines the position of the 
+            If not ``None`, this defines the position of the
             Axes within the figure as a Bbox. See `.get_position`
             for further details.
 
