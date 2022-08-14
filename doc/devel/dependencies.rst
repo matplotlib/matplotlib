@@ -7,6 +7,7 @@ Dependencies
 Runtime dependencies
 ====================
 
+
 Mandatory dependencies
 ----------------------
 
@@ -168,10 +169,37 @@ remember to clear your artifacts before re-building::
   git clean -xfd
 
 
+Minimum pip / manylinux support (linux)
+---------------------------------------
+
+Matplotlib publishes `manylinux wheels <https://github.com/pypa/manylinux>`_
+which have a minimum version of pip which will recognize the wheels
+
+- Python 3.8: ``manylinx2010`` / pip >=19.0
+- Python 3.9+: ``manylinx2014`` / pip >=19.3
+
+In all cases the required version of pip is embedded in the CPython source.
+
+
+
 .. _development-dependencies:
 
 Additional dependencies for development
 =======================================
+
+.. _compile-dependencies:
+
+C++ Compiler
+------------
+
+Matplotlib requires a C++ compiler that supports C++11.
+
+- `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_ or higher
+- `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_ or higher
+- `Visual Studio 2015
+  <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-140>`_
+  (aka VS 14.0) or higher
+
 
 .. _test-dependencies:
 
