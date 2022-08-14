@@ -1770,6 +1770,7 @@ class Parser:
         p.group            = Forward()
         p.operatorname     = Forward()
         p.overline         = Forward()
+        p.underline        = Forward()
         p.overset          = Forward()
         p.placeable        = Forward()
         p.required_group   = Forward()
@@ -1820,6 +1821,7 @@ class Parser:
             + p.required_group("value"))
 
         p.overline <<= cmd(r"\overline", p.required_group("body"))
+        p.underline <<= cmd(r"\underline", p.required_group("body"))
 
         p.overset  <<= cmd(
             r"\overset",
@@ -1843,6 +1845,7 @@ class Parser:
             | p.underset
             | p.sqrt
             | p.overline
+            | p.underline
         )
 
         p.simple        <<= (
@@ -2476,6 +2479,20 @@ class Parser:
                         'exactly', depth)
 
         hlist = Hlist([rightside])
+        return [hlist]
+
+    def underline(self, s, loc, toks):
+        body = toks["body"]
+
+        state = self.get_state()
+        thickness = state.get_current_underline_thickness()
+
+        # Place underline below body (loosely based on node735).
+        kern = 3 * thickness
+        vlist = Vlist([Hlist([body]), Kern(kern), Hrule(state, thickness)])
+        vlist.shift_amount = kern + thickness / 2 + body.depth
+
+        hlist = Hlist([vlist])
         return [hlist]
 
     def _auto_sized_delimiter(self, front, middle, back):
