@@ -1863,6 +1863,13 @@ class _AxesBase(martist.Artist):
         Axes box (position) or the view limits. In the former case,
         `~matplotlib.axes.Axes.get_anchor` will affect the position.
 
+        Parameters
+        ----------
+        position : None or .Bbox
+            If not ``None``, this defines the position of the
+            Axes within the figure as a Bbox. See `~.Axes.get_position`
+            for further details.
+
         Notes
         -----
         This is called automatically when each Axes is drawn.  You may need
