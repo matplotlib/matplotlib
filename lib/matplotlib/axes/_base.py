@@ -1862,8 +1862,8 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         position : None or .Bbox
-            Possible values:
-            - If not ``None`, this defines the position of the Axes within the figure as a Bbox. See `.get_position` for further details.
+            If not ``None`, this defines the position of the Axes within the figure as a Bbox.
+            See `.get_position` for further details.
         
         Depending on `.get_adjustable` this will modify either the
         Axes box (position) or the view limits. In the former case,
