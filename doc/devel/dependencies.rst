@@ -106,6 +106,10 @@ necessary to run the test suite, because different versions of FreeType
 rasterize characters differently) and of Qhull.  As an exception, Matplotlib
 defaults to the system version of FreeType on AIX.
 
+When on Windows and using the Microsoft Build tools,
+`Visual C++ 14.0 or greater <https://visualstudio.microsoft.com/visual-cpp-build-tools>`_
+is required.
+
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
 your system, create a :file:`mplsetup.cfg` file with the following contents:
 
@@ -167,7 +171,6 @@ remember to clear your artifacts before re-building::
 
   git clean -xfd
 
-
 .. _development-dependencies:
 
 Additional dependencies for development
@@ -194,6 +197,7 @@ Required:
 
 Optional:
 
+- pikepdf_ test pdf and pgf backends
 - pytest-cov_ (>=2.3.1) to collect coverage information
 - pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
@@ -203,6 +207,7 @@ Optional:
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org
+.. _pikepdf: https://pikepdf.readthedocs.io/en/latest/
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-flake8: https://pypi.org/project/pytest-flake8/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
