@@ -16,23 +16,23 @@ import numpy as np
 from basic_units import cm, inch
 import matplotlib.pyplot as plt
 
-N=5
-bream_means = [26*cm, 27*cm, 28*cm, 29*cm, 29*cm]
-bream_std = [2*cm, 3*cm, 1*cm, 1*cm, 4*cm]
+
+N = 5
+tea_means = [15*cm, 10*cm, 8*cm, 12*cm, 5*cm]
+tea_std = [2*cm, 1*cm, 1*cm, 4*cm, 2*cm]
 
 fig, ax = plt.subplots()
 
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars
-ax.bar(ind, bream_means, width, bottom=0*cm, yerr=bream_std, 
-       label='Bream')
+ax.bar(ind, tea_means, width, bottom=0*cm, yerr=tea_std, label='Tea')
 
-parkki_means = (14*cm, 13*cm, 17*cm, 16*cm, 20*cm)
-parkki_std = (1*cm, 2*cm, 4*cm, 3*cm, 2*cm)
-ax.bar(ind + width, parkki_means, width, bottom=0*cm, yerr=parkki_std,
-       label='Parkki')
+coffee_means = (14*cm, 19*cm, 17*cm, 5*cm, 10*cm)
+coffee_std = (3*cm, 5*cm, 2*cm, 1*cm, 2*cm)
+ax.bar(ind + width, coffee_means, width, bottom=0*cm, yerr=coffee_std,
+       label='Coffee')
 
-ax.set_title('Scores by group and length of Bream and Parkki fish')
+ax.set_title('Scores by group and cup length of beverage choice')
 ax.set_xticks(ind + width / 2, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 
 ax.legend()
