@@ -24,7 +24,7 @@ tea_std = [2*cm, 1*cm, 1*cm, 4*cm, 2*cm]
 fig, ax = plt.subplots()
 
 ind = np.arange(N)    # the x locations for the groups
-width = 0.35         # the width of the bars
+width = 0.25         # the width of the bars
 ax.bar(ind, tea_means, width, bottom=0*cm, yerr=tea_std, label='Tea')
 
 coffee_means = (14*cm, 19*cm, 7*cm, 5*cm, 10*cm)
