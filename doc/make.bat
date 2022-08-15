@@ -11,7 +11,7 @@ set SOURCEDIR=.
 set BUILDDIR=build
 set SPHINXPROJ=matplotlib
 if defined SPHINXOPTS goto skipopts
-set SPHINXOPTS=-W
+set SPHINXOPTS=-W --keep-going
 :skipopts
 
 %SPHINXBUILD% >NUL 2>NUL
