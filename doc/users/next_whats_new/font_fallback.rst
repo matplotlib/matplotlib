@@ -1,4 +1,4 @@
-Font Fallback in Agg
+Font fallback in Agg
 --------------------
 
 It is now possible to specify a list of fonts families and the Agg renderer

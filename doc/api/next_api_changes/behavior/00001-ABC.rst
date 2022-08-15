@@ -1,4 +1,4 @@
-Behavior Change template
+Behavior change template
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Enter description here....

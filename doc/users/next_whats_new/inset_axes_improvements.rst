@@ -1,4 +1,4 @@
-Axes.inset_axes Flexibility
+Axes.inset_axes flexibility
 ---------------------------
 
 `matplotlib.axes.Axes.inset_axes` now accepts the *projection*, *polar* and
