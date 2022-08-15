@@ -187,12 +187,12 @@ In all cases the required version of pip is embedded in the CPython source.
 
 .. _development-dependencies:
 
-Additional dependencies for development
-=======================================
+Dependencies for building Matplotlib
+====================================
 
 .. _setup-dependencies:
 
-Setup Dependencies
+Setup dependencies
 ------------------
 
 - `certifi <https://pypi.org/project/certifi/>`_ (>= 2020.06.20).  Used while
@@ -206,7 +206,7 @@ Setup Dependencies
 
 .. _compile-dependencies:
 
-C++ Compiler
+C++ compiler
 ------------
 
 Matplotlib requires a C++ compiler that supports C++11.
@@ -220,7 +220,7 @@ Matplotlib requires a C++ compiler that supports C++11.
 
 .. _test-dependencies:
 
-Additional dependencies for testing
+Dependencies for testing Matplotlib
 ===================================
 This section lists the additional software required for
 :ref:`running the tests <testing>`.
@@ -281,8 +281,8 @@ will be skipped by pytest.
 
 .. _doc-dependencies:
 
-Additional dependencies for building documentation
-==================================================
+Dependencies for building Matplotlib's documentation
+====================================================
 
 Python packages
 ---------------
