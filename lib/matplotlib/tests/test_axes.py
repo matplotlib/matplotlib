@@ -5700,7 +5700,7 @@ def test_shared_with_aspect_2():
     axs[0].set_aspect(2, share=True)
     axs[0].plot([1, 2], [3, 4])
     axs[1].plot([3, 4], [1, 2])
-    plt.draw()  # Trigger apply_aspect().
+    plt.draw()  # Trigger _apply_aspect().
     assert axs[0].get_xlim() == axs[1].get_xlim()
     assert axs[0].get_ylim() == axs[1].get_ylim()
 
@@ -5713,7 +5713,7 @@ def test_shared_with_aspect_3():
         axs[1].set_aspect(0.5, adjustable=adjustable)
         axs[0].plot([1, 2], [3, 4])
         axs[1].plot([3, 4], [1, 2])
-        plt.draw()  # Trigger apply_aspect().
+        plt.draw()  # Trigger _apply_aspect().
         assert axs[0].get_xlim() != axs[1].get_xlim()
         assert axs[0].get_ylim() == axs[1].get_ylim()
         fig_aspect = fig.bbox_inches.height / fig.bbox_inches.width

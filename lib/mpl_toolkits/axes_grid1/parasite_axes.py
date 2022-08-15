@@ -126,13 +126,13 @@ class HostAxesBase:
         if locator:
             pos = locator(self, renderer)
             self.set_position(pos, which="active")
-            self.apply_aspect(pos)
+            self._apply_aspect(pos)
         else:
-            self.apply_aspect()
+            self._apply_aspect()
 
         rect = self.get_position()
         for ax in self.parasites:
-            ax.apply_aspect(rect)
+            ax._apply_aspect(rect)
             self._children.extend(ax.get_children())
 
         super().draw(renderer)

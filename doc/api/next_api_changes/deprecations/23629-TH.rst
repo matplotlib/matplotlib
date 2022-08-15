@@ -1,0 +1,3 @@
+The parameter *position* in ``Axes.apply_aspect()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated. It is considered internal API and now public use case is known.
