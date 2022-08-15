@@ -26,7 +26,7 @@ teaMeans = (30, 13, -14, 21, 17)
 coffeeStd = (3, 2, 4, 1, 2)
 teaStd = (4, 3, 2, 3, 5)
 ind = np.arange(N)    # the x locations for the groups
-width = 0.35       # the width of the bars: can also be len(x) sequence
+width = 0.25       # the width of the bars: can also be len(x) sequence
 
 ###############################################################################
 # Stacked bar plot with error bars
