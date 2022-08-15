@@ -1,0 +1,5 @@
+Changed exception type for incorrect SVG date metadata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Providing date metadata with incorrect type to the SVG backend earlier
+resulted in a ``ValueError``. Now, a ``TypeError`` is raised instead.
