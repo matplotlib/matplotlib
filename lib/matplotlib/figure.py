@@ -973,7 +973,7 @@ default: %(va)s
     # synonym for `clear`.
     def clf(self, keep_observers=False):
         """
-        Alias for the `clear()` method.
+        [*Discouraged*] Alias for the `clear()` method.
 
         .. admonition:: Discouraged
 
@@ -2689,7 +2689,8 @@ class Figure(FigureBase):
                      pending=True)
     def set_tight_layout(self, tight):
         """
-        Set whether and how `.tight_layout` is called when drawing.
+        [*Discouraged*] Set whether and how `.tight_layout` is called when
+        drawing.
 
         .. admonition:: Discouraged
 
@@ -2722,8 +2723,10 @@ class Figure(FigureBase):
                      pending=True)
     def set_constrained_layout(self, constrained):
         """
-        Set whether ``constrained_layout`` is used upon drawing. If None,
-        :rc:`figure.constrained_layout.use` value will be used.
+        [*Discouraged*] Set whether ``constrained_layout`` is used upon
+        drawing.
+
+        If None, :rc:`figure.constrained_layout.use` value will be used.
 
         When providing a dict containing the keys ``w_pad``, ``h_pad``
         the default ``constrained_layout`` paddings will be

@@ -1670,7 +1670,7 @@ class Axes(_AxesBase):
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
-        Plot coercing the axis to treat floats as dates.
+        [*Discouraged*] Plot coercing the axis to treat floats as dates.
 
         .. admonition:: Discouraged
 

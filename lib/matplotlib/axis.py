@@ -1851,7 +1851,7 @@ class Axis(martist.Artist):
 
     def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         r"""
-        Set the text values of the tick labels.
+        [*Discouraged*] Set the text values of the tick labels.
 
         .. admonition:: Discouraged
 

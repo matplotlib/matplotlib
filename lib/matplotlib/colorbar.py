@@ -895,7 +895,7 @@ class Colorbar:
     def set_ticklabels(self, ticklabels, update_ticks=True, *, minor=False,
                        **kwargs):
         """
-        Set tick labels.
+        [*Discouraged*] Set tick labels.
 
         .. admonition:: Discouraged
 
