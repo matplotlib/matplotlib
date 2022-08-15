@@ -10,8 +10,9 @@ if "%SPHINXBUILD%" == "" (
 set SOURCEDIR=.
 set BUILDDIR=build
 set SPHINXPROJ=matplotlib
+if defined SPHINXOPTS goto skipopts
 set SPHINXOPTS=-W
-set O=
+:skipopts
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
