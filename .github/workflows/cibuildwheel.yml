@@ -52,6 +52,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Build wheels for CPython 3.11
+        uses: pypa/cibuildwheel@v2.9.0
+        env:
+          CIBW_BUILD: "cp311-*"
+          CIBW_SKIP: "*-musllinux*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          CIBW_BEFORE_BUILD: >-
+            pip install certifi oldest-supported-numpy &&
+            git clean -fxd build
+          MPL_DISABLE_FH4: "yes"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
       - name: Build wheels for CPython 3.10
         uses: pypa/cibuildwheel@v2.9.0
         env:
