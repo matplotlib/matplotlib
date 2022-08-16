@@ -619,7 +619,7 @@ texinfo_documents = [
 # jupyterlite config
 jupyterlite_config = "jupyter_lite_config.json"
 jupyterlite_dir = "."
-jupyterlite_contents = ["gallery"]
+jupyterlite_contents = ["gallery/**"]
 jupyterlite_bind_ipynb_suffix = False
 
 # numpydoc config

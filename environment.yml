@@ -42,7 +42,7 @@ dependencies:
       - mpl-sphinx-theme
       - sphinxcontrib-svg2pdfconverter
       - pikepdf
-      - jupyterlite-sphinx>=0.7.0
+      - jupyterlite-sphinx>=0.7.1
       - jupyterlite-xeus-python>=0.5.3
   # testing
   - coverage
