@@ -2128,19 +2128,23 @@ class _AxesBase(martist.Artist):
 
     def get_xaxis(self):
         """
-        Return the XAxis instance.
+        [*Discouraged*] Return the XAxis instance.
 
-        The use of this function is discouraged. You should instead directly
-        access the attribute ``ax.xaxis``.
+        .. admonition:: Discouraged
+
+            The use of this function is discouraged. You should instead
+            directly access the attribute ``ax.xaxis``.
         """
         return self.xaxis
 
     def get_yaxis(self):
         """
-        Return the YAxis instance.
+        [*Discouraged*] Return the YAxis instance.
 
-        The use of this function is discouraged. You should instead directly
-        access the attribute ``ax.yaxis``.
+        .. admonition:: Discouraged
+
+            The use of this function is discouraged. You should instead
+            directly access the attribute ``ax.yaxis``.
         """
         return self.yaxis
 
