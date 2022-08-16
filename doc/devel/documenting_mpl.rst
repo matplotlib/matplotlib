@@ -91,7 +91,7 @@ You can use the ``O`` variable to set additional options:
 Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
 
-On Windows, edit the :file:`doc/make.bat` to enable flags. 
+On Windows, edit the :file:`doc/make.bat` to enable flags.
 
 
 Showing locally built docs
