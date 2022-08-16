@@ -82,12 +82,6 @@ it, use
 
    make SPHINXOPTS= html
 
-On Windows the arguments must be at the end of the statement:
-
-.. code-block:: bat
-
-   make html SPHINXOPTS=
-
 You can use the ``O`` variable to set additional options:
 
 * ``make O=-j4 html`` runs a parallel build with 4 processes.
@@ -97,12 +91,8 @@ You can use the ``O`` variable to set additional options:
 Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
 
-On Windows, either put the arguments at the end of the statement or set the options as environment variables, e.g.:
+On Windows, edit the :file:`doc/make.bat` to enable flags. 
 
-.. code-block:: bat
-
-   set O=-W --keep-going -j4
-   make html
 
 Showing locally built docs
 --------------------------
