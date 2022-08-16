@@ -50,7 +50,7 @@ dependencies:
       - sphinxcontrib-svg2pdfconverter>=1.1.0
       - sphinxcontrib-video>=0.2.1
       - pikepdf
-      - jupyterlite-sphinx>=0.7.0
+      - jupyterlite-sphinx>=0.7.1
       - jupyterlite-xeus-python>=0.5.3
   # testing
   - black<24
