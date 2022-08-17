@@ -107,14 +107,13 @@ jobs:
       - name: Build wheels for PyPy
         uses: pypa/cibuildwheel@v2.9.0
         env:
-          CIBW_BUILD: "pp38-*"
+          CIBW_BUILD: "pp38-* pp39-*"
           CIBW_SKIP: "*-musllinux*"
           CIBW_BEFORE_BUILD: >-
             pip install certifi oldest-supported-numpy &&
             git clean -fxd build
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-          PIP_USE_FEATURE: in-tree-build
-        if: false && matrix.cibw_archs != 'aarch64'
+        if: matrix.cibw_archs != 'aarch64'
 
       - name: Validate that LICENSE files are included in wheels
         run: |
