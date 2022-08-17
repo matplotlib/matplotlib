@@ -15,7 +15,7 @@ Matplotlib also provides an option to offload text rendering to a TeX engine
 (``usetex=True``), see :doc:`Text rendering with LaTeX
 </tutorials/text/usetex>`.
 
-Fonts in PDF and postscript
+Fonts in PDF and PostScript
 ---------------------------
 
 Fonts have a long (and sometimes incompatible) history in computing, leading to
@@ -66,9 +66,9 @@ Other font specifications which Matplotlib supports:
 Font Subsetting
 ~~~~~~~~~~~~~~~
 
-PDF and postscript support embedded fonts in the output files allowing the
+The PDF and PostScript formats support embedding fonts in files allowing the
 display program to correctly render the text, independent of what fonts are
-installed on the viewer's computer, without the need to pre-rasterize the text.
+installed on the viewer's computer and without the need to pre-rasterize the text.
 This ensures that if the output is zoomed or resized the text does not become
 pixelated.  However, embedding full fonts in the file can lead to large output
 files, particularly with fonts with many glyphs such as those that support CJK
@@ -87,7 +87,7 @@ Currently Type 3, Type 42, and TrueType fonts are subseted.  Type 1 fonts are no
 Core Fonts
 ~~~~~~~~~~
 
-In addition to the ability to embed fonts, as part of the `postscript
+In addition to the ability to embed fonts, as part of the `PostScript
 <https://en.wikipedia.org/wiki/PostScript_fonts#Core_Font_Set>`_ and `PDF
 specification
 <https://docs.oracle.com/cd/E96927_01/TSG/FAQ/What%20are%20the%2014%20base%20fonts%20distributed%20with%20Acroba.html>`_
@@ -113,8 +113,7 @@ This is especially helpful to generate *really lightweight* documents.::
 Fonts in SVG
 ------------
 
-Text can output to SVG in two ways controlled by the :rc:`svg.fonttype`
-rcparam:
+Text can output to SVG in two ways controlled by :rc:`svg.fonttype`:
 
 - as a path (``'path'``) in the SVG
 - as string in the SVG with font styling on the element (``'none'``)
@@ -131,8 +130,8 @@ based on the SVG viewer and what fonts are available.
 Fonts in Agg
 ------------
 
-To output text to raster formats via Agg Matplotlib relies on `FreeType
-<https://www.freetype.org/>`_.  Because the exactly rendering of the glyphs
+To output text to raster formats via Agg, Matplotlib relies on `FreeType
+<https://www.freetype.org/>`_.  Because the exact rendering of the glyphs
 changes between FreeType versions we pin to a specific version for our image
 comparison tests.
 
@@ -144,7 +143,7 @@ Internally using a Font in Matplotlib is a three step process:
 
 1. a `.FontProperties` object is created (explicitly or implicitly)
 2. based on the `.FontProperties` object the methods on `.FontManager` are used
-   to select the closest the "best" font Matplotlib is aware of (except for
+   to select the closest "best" font Matplotlib is aware of (except for
    ``'none'`` mode of SVG).
 3. the Python proxy for the font object is used by the backend code to render
    the text -- the exact details depend on the backend via `.font_manager.get_font`.
@@ -160,13 +159,13 @@ mapped to any one of a set of fonts.
 
 Currently the public API for doing step 2 is `.FontManager.findfont` (and that
 method on the global `.FontManager` instance is aliased at the module level as
-`.font_manager.findfont`) will only find a single font and return the absolute
+`.font_manager.findfont`), which will only find a single font and return the absolute
 path to the font on the filesystem.
 
 Font Fallback
 -------------
 
-There is no font that covers the unicode space thus it is possible for the
+There is no font that covers the entire Unicode space thus it is possible for the
 users to require a mix of glyphs that can not be satisfied from a single font.
 While it has been possible to use multiple fonts within a Figure, on distinct
 `.Text` instances, it was not previous possible to use multiple fonts in the
@@ -188,9 +187,9 @@ SVG, PDF, and PS backends will "fallback" through multiple fonts in a single
 
 
 Internally this is implemented by setting The "font family" on
-`.FontProperties` objects to a list of font families.  Using a (currently)
-private API extract a list of paths to all of the fonts found and then
-construct a single `.ft2font.FT2Font` object that is aware of all of the fonts.
+`.FontProperties` objects to a list of font families.  A (currently)
+private API extracts a list of paths to all of the fonts found and then
+constructs a single `.ft2font.FT2Font` object that is aware of all of the fonts.
 Each glyph of the string is rendered using the first font in the list that
 contains that glyph.
 
