@@ -78,7 +78,7 @@ Font handling and rendering
 
 * `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
   <https://ctan.org/pkg/cm-super>`__ ) and `GhostScript (>=9.0)
-  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
+  <https://ghostscript.com/releases/>`_ : for rendering text with LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
 
@@ -191,7 +191,7 @@ Optional:
 - pytest-xdist_ to run tests in parallel
 
 .. _pytest: http://doc.pytest.org/en/latest/
-.. _Ghostscript: https://www.ghostscript.com/
+.. _Ghostscript: https://ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-flake8: https://pypi.org/project/pytest-flake8/

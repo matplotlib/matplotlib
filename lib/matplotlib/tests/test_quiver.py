@@ -91,7 +91,7 @@ def test_no_warnings():
 
 def test_zero_headlength():
     # Based on report by Doug McNeil:
-    # http://matplotlib.1069221.n5.nabble.com/quiver-warnings-td28107.html
+    # https://discourse.matplotlib.org/t/quiver-warnings/16722
     fig, ax = plt.subplots()
     X, Y = np.meshgrid(np.arange(10), np.arange(10))
     U, V = np.cos(X), np.sin(Y)

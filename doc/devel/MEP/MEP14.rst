@@ -78,8 +78,8 @@ number of other projects:
 - `Microsoft DirectWrite`_
 - `Apple Core Text`_
 
-.. _pango: https://www.pango.org/
-.. _harfbuzz: https://www.freedesktop.org/wiki/Software/HarfBuzz/
+.. _pango: https://pango.gnome.org
+.. _harfbuzz: https://github.com/harfbuzz/harfbuzz
 .. _QtTextLayout: https://doc.qt.io/archives/qt-4.8/qtextlayout.html
 .. _Microsoft DirectWrite: https://docs.microsoft.com/en-ca/windows/win32/directwrite/introducing-directwrite
 .. _Apple Core Text: https://developer.apple.com/library/archive/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html
