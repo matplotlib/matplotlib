@@ -232,7 +232,6 @@ class SimplePatchShadow(AbstractPathEffect):
             The shadow color.
         alpha : float, default: 0.3
             The alpha transparency of the created shadow patch.
-            http://matplotlib.1069221.n5.nabble.com/path-effects-question-td27630.html
         rho : float, default: 0.3
             A scale factor to apply to the rgbFace color if *shadow_rgbFace*
             is not specified.
