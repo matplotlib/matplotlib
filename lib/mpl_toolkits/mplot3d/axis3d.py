@@ -8,7 +8,7 @@ import numpy as np
 
 from matplotlib import (
     _api, artist, lines as mlines, axis as maxis, patches as mpatches,
-    transforms as mtransforms, rcParams)
+    transforms as mtransforms, rcParams, colors as mcolors)
 from . import art3d, proj3d
 
 
@@ -191,8 +191,18 @@ class Axis(maxis.XAxis):
         self.pane.xy = xys
         self.stale = True
 
-    def set_pane_color(self, color):
-        """Set pane color to a RGBA tuple."""
+    def set_pane_color(self, color, alpha=None):
+        """
+        Set pane color.
+
+        Parameters
+        ----------
+        color : color
+            Color for axis pane.
+        alpha : float, optional
+            Alpha value for axis pane. If None, base it on *color*.
+        """
+        color = mcolors.to_rgba(color, alpha)
         self._axinfo['color'] = color
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
