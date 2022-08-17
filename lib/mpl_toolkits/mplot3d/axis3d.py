@@ -231,11 +231,23 @@ class Axis(maxis.XAxis):
         bounds_proj = self.axes.tunit_cube(bounds, self.axes.M)
 
         # Determine which one of the parallel planes are higher up:
-        highs = np.zeros(3, dtype=bool)
+        means_z0 = np.zeros(3)
+        means_z1 = np.zeros(3)
         for i in range(3):
-            mean_z0 = np.mean(bounds_proj[self._PLANES[2 * i], 2])
-            mean_z1 = np.mean(bounds_proj[self._PLANES[2 * i + 1], 2])
-            highs[i] = mean_z0 < mean_z1
+            means_z0[i] = np.mean(bounds_proj[self._PLANES[2 * i], 2])
+            means_z1[i] = np.mean(bounds_proj[self._PLANES[2 * i + 1], 2])
+        highs = means_z0 < means_z1
+
+        # Special handling for edge-on views
+        equals = np.abs(means_z0 - means_z1) <= np.finfo(float).eps
+        if np.sum(equals) == 2:
+            vertical = np.where(np.invert(equals))[0][0]
+            if vertical == 2:  # looking at XY plane
+                highs = np.array([True, True, highs[2]])
+            elif vertical == 1:  # looking at XZ plane
+                highs = np.array([True, highs[1], False])
+            elif vertical == 0:  # looking at YZ plane
+                highs = np.array([highs[0], False, False])
 
         return mins, maxs, centers, deltas, bounds_proj, highs
 

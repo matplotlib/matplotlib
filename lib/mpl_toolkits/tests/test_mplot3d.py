@@ -60,6 +60,26 @@ def test_axes3d_repr():
         "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 
+@mpl3d_image_comparison(['axes3d_primary_views.png'])
+def test_axes3d_primary_views():
+    # (elev, azim, roll)
+    views = [(90, -90, 0),  # XY
+             (0, -90, 0),   # XZ
+             (0, 0, 0),     # YZ
+             (-90, 90, 0),  # -XY
+             (0, 90, 0),    # -XZ
+             (0, 180, 0)]   # -YZ
+    # When viewing primary planes, draw the two other axes on left and bottom
+    fig, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'})
+    for i, ax in enumerate([ax for ax_row in axs for ax in ax_row]):
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+        ax.set_proj_type('ortho')
+        ax.view_init(elev=views[i][0], azim=views[i][1], roll=views[i][2])
+    plt.tight_layout()
+
+
 @mpl3d_image_comparison(['bar3d.png'])
 def test_bar3d():
     fig = plt.figure()
@@ -1839,9 +1859,9 @@ def test_scatter_spiral():
                 [0.0, 0.0, -1.142857, 10.571429],
             ],
             [
-                ([0.06329114, -0.06329114], [-0.04746835, -0.04746835]),
-                ([-0.06329114, -0.06329114], [0.04746835, -0.04746835]),
-                ([0.05617978, 0.06329114], [-0.04213483, -0.04746835]),
+                ([-0.06329114, 0.06329114], [0.04746835, 0.04746835]),
+                ([0.06329114, 0.06329114], [-0.04746835, 0.04746835]),
+                ([-0.05617978, -0.06329114], [0.04213483, 0.04746835]),
             ],
             [2, 2, 0],
         ),
@@ -1854,9 +1874,9 @@ def test_scatter_spiral():
                 [0.0, -1.142857, 0.0, 10.571429],
             ],
             [
-                ([-0.06329114, -0.06329114], [-0.04746835, 0.04746835]),
-                ([0.06329114, 0.05617978], [-0.04746835, -0.04213483]),
-                ([0.06329114, -0.06329114], [-0.04746835, -0.04746835]),
+                ([-0.06329114, -0.06329114], [0.04746835, -0.04746835]),
+                ([0.06329114, 0.05617978], [0.04746835, 0.04213483]),
+                ([0.06329114, -0.06329114], [0.04746835, 0.04746835]),
             ],
             [1, 2, 1],
         ),
