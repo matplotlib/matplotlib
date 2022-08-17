@@ -76,6 +76,7 @@ jobs:
 
           if [ -s remove-package-versions.txt ]; then
               while LANG=C IFS= read -r package_version ; do
+                  echo "# Removing scipy-wheels-nightly/matplotlib/${package_version}"
                   anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} remove \
                     --force \
                     "scipy-wheels-nightly/matplotlib/${package_version}"
