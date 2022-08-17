@@ -109,7 +109,7 @@ jobs:
           macOS)
             brew install ccache
             brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk-sc
+            brew install font-noto-sans-cjk
             ;;
           esac
 
