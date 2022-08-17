@@ -77,9 +77,9 @@ files, particularly with fonts with many glyphs such as those that support CJK
 The solution to this problem is to subset the fonts used in the document and
 only embed the glyphs actually used.  This gets both vector text and small
 files sizes.  Computing the subset of the font required and writing the new
-(reduced) font are both complex problem and thus Matplotlib relies on a
-vendored fork of `ttconv <https://github.com/sandflow/ttconv>`_ and `fontTools
-<https://fonttools.readthedocs.io/en/latest/>`__.
+(reduced) font are both complex problem and thus Matplotlib relies on
+`fontTools <https://fonttools.readthedocs.io/en/latest/>`__ and a vendored fork
+of `ttconv <https://github.com/sandflow/ttconv>`_.
 
 Currently Type 3, Type 42, and TrueType fonts are subseted.  Type 1 fonts are not.
 
