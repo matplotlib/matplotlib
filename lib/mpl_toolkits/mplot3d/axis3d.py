@@ -182,7 +182,11 @@ class Axis(maxis.XAxis):
                 obj.set_transform(self.axes.transData)
         return ticks
 
+    @_api.deprecated("3.6")
     def set_pane_pos(self, xys):
+        self._set_pane_pos(xys)
+
+    def _set_pane_pos(self, xys):
         xys = np.asarray(xys)
         xys = xys[:, :2]
         self.pane.xy = xys
@@ -290,7 +294,7 @@ class Axis(maxis.XAxis):
         else:
             plane = self._PLANES[2 * index + 1]
         xys = [tc[p] for p in plane]
-        self.set_pane_pos(xys)
+        self._set_pane_pos(xys)
         self.pane.draw(renderer)
 
         renderer.close_group('pane3d')
