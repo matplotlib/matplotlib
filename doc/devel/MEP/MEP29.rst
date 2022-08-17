@@ -34,7 +34,7 @@ one has to look at the gallery where one such example is provided:
 This example takes a list of strings as well as a list of colors which makes it
 cumbersome to use. An alternative would be to use a restricted set of pango_-like markup and to interpret this markup.
 
-.. _pango: https://developer.gnome.org/pygtk/stable/pango-markup-language.html
+.. _pango: https://docs.gtk.org/Pango/pango_markup.html#pango-markup
 
 Some markup examples::
 
