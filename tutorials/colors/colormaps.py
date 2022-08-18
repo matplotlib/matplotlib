@@ -4,7 +4,7 @@ Choosing Colormaps in Matplotlib
 ********************************
 
 Matplotlib has a number of built-in colormaps accessible via
-`.matplotlib.cm.get_cmap`.  There are also external libraries that
+`.matplotlib.colormaps`.  There are also external libraries that
 have many extra colormaps, which can be viewed in the
 `Third-party colormaps`_ section of the Matplotlib documentation.
 Here we briefly discuss how to choose between the many options.  For
@@ -80,7 +80,6 @@ Colormaps are often split into several categories based on their function (see,
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib import cm
 from colorspacious import cspace_converter
 
 
@@ -105,7 +104,7 @@ def plot_color_gradients(category, cmap_list):
     axs[0].set_title(f'{category} colormaps', fontsize=14)
 
     for ax, name in zip(axs, cmap_list):
-        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
+        ax.imshow(gradient, aspect='auto', cmap=mpl.colormaps[name])
         ax.text(-0.01, 0.5, name, va='center', ha='right', fontsize=10,
                 transform=ax.transAxes)
 
@@ -277,7 +276,7 @@ for cmap_category, cmap_list in cmaps.items():
 
             # Get RGB values for colormap and convert the colormap in
             # CAM02-UCS colorspace.  lab[0, :, 0] is the lightness.
-            rgb = cm.get_cmap(cmap)(x)[np.newaxis, :, :3]
+            rgb = mpl.colormaps[cmap](x)[np.newaxis, :, :3]
             lab = cspace_converter("sRGB1", "CAM02-UCS")(rgb)
 
             # Plot colormap L values.  Do separately for each category
@@ -380,14 +379,14 @@ def plot_color_gradients(cmap_category, cmap_list):
     for ax, name in zip(axs, cmap_list):
 
         # Get RGB values for colormap.
-        rgb = cm.get_cmap(plt.get_cmap(name))(x)[np.newaxis, :, :3]
+        rgb = mpl.colormaps[name](x)[np.newaxis, :, :3]
 
         # Get colormap in CAM02-UCS colorspace. We want the lightness.
         lab = cspace_converter("sRGB1", "CAM02-UCS")(rgb)
         L = lab[0, :, 0]
         L = np.float32(np.vstack((L, L, L)))
 
-        ax[0].imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
+        ax[0].imshow(gradient, aspect='auto', cmap=mpl.colormaps[name])
         ax[1].imshow(L, aspect='auto', cmap='binary_r', vmin=0., vmax=100.)
         pos = list(ax[0].get_position().bounds)
         x_text = pos[0] - 0.01

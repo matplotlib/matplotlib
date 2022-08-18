@@ -41,7 +41,7 @@ fig.subplots_adjust(hspace=0.3)
 axs = _axs.flatten()
 
 cset1 = axs[0].contourf(X, Y, Z, levels, norm=norm,
-                        cmap=cm.get_cmap(cmap, len(levels) - 1))
+                        cmap=cmap.resampled(len(levels) - 1))
 # It is not necessary, but for the colormap, we need only the
 # number of levels minus 1.  To avoid discretization error, use
 # either this number or a large number such as the default (256).
