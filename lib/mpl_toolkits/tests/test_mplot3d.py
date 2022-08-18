@@ -206,7 +206,7 @@ def test_contourf3d_extend(fig_test, fig_ref, extend, levels):
     Z = X**2 + Y**2
 
     # Manually set the over/under colors to be the end of the colormap
-    cmap = plt.get_cmap('viridis').copy()
+    cmap = mpl.colormaps['viridis'].copy()
     cmap.set_under(cmap(0))
     cmap.set_over(cmap(255))
     # Set vmin/max to be the min/max values plotted on the reference image
@@ -546,7 +546,7 @@ def test_surface3d_masked():
     )
     z = np.ma.masked_less(matrix, 0)
     norm = mcolors.Normalize(vmax=z.max(), vmin=z.min())
-    colors = plt.get_cmap("plasma")(norm(z))
+    colors = mpl.colormaps["plasma"](norm(z))
     ax.plot_surface(x, y, z, facecolors=colors)
     ax.view_init(30, -80, 0)
 

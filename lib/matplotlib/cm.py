@@ -269,7 +269,7 @@ def get_cmap(name=None, lut=None):
     if lut is None:
         return _colormaps[name]
     else:
-        return _colormaps[name].resample(lut)
+        return _colormaps[name].resampled(lut)
 
 
 def unregister_cmap(name):
@@ -550,8 +550,8 @@ class ScalarMappable:
         cmap : `.Colormap` or str or None
         """
         in_init = self.cmap is None
-        cmap = get_cmap(cmap)
-        self.cmap = cmap
+
+        self.cmap = _ensure_cmap(cmap)
         if not in_init:
             self.changed()  # Things are not set up properly yet.
 
@@ -663,3 +663,26 @@ vmin, vmax : float, optional
     *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
     name together with *vmin*/*vmax* is acceptable).""",
 )
+
+
+def _ensure_cmap(cmap):
+    """
+    Ensure that we have a `.Colormap` object.
+
+    Parameters
+    ----------
+    cmap : None, str, Colormap
+
+        - if a `Colormap`, return it
+        - if a string, look it up in mpl.colormaps
+        - if None, look up the default color map in mpl.colormaps
+
+    Returns
+    -------
+    Colormap
+    """
+    if isinstance(cmap, colors.Colormap):
+        return cmap
+    return mpl.colormaps[
+        cmap if cmap is not None else mpl.rcParams['image.cmap']
+    ]

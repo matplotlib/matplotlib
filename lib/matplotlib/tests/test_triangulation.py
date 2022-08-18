@@ -5,7 +5,6 @@ import numpy.ma.testutils as matest
 import pytest
 
 import matplotlib as mpl
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 from matplotlib.path import Path
@@ -925,7 +924,7 @@ def test_tri_smooth_gradient():
     plt.triplot(triang, color='0.8')
 
     levels = np.arange(0., 1., 0.01)
-    cmap = cm.get_cmap(name='hot', lut=None)
+    cmap = mpl.colormaps['hot']
     plt.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
                    linewidths=[2.0, 1.0, 1.0, 1.0])
     # Plots direction of the electrical vector field

@@ -2084,7 +2084,7 @@ def set_cmap(cmap):
     matplotlib.cm.register_cmap
     matplotlib.cm.get_cmap
     """
-    cmap = cm.get_cmap(cmap)
+    cmap = colormaps[cmap]
 
     rc('image', cmap=cmap.name)
     im = gci()
