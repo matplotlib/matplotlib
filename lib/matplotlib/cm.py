@@ -201,6 +201,11 @@ _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
 
 
+@_api.deprecated(
+    '3.6',
+    pending=True,
+    alternative="``matplotlib.colormaps.register_cmap(name)``"
+)
 def register_cmap(name=None, cmap=None, *, override_builtin=False):
     """
     Add a colormap to the set recognized by :func:`get_cmap`.
@@ -244,7 +249,7 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
     _colormaps._allow_override_builtin = False
 
 
-def get_cmap(name=None, lut=None):
+def _get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.
 
@@ -260,6 +265,10 @@ def get_cmap(name=None, lut=None):
     lut : int or None, default: None
         If *name* is not already a Colormap instance and *lut* is not None, the
         colormap will be resampled to have *lut* entries in the lookup table.
+
+    Returns
+    -------
+    Colormap
     """
     if name is None:
         name = mpl.rcParams['image.cmap']
@@ -271,7 +280,18 @@ def get_cmap(name=None, lut=None):
     else:
         return _colormaps[name].resampled(lut)
 
+# do it in two steps like this so we can have an un-deprecated version in
+# pyplot.
+get_cmap = _api.deprecated(
+    '3.6', pending=True, alternative="``matplotlib.colormaps[name]``"
+)(_get_cmap)
 
+
+@_api.deprecated(
+    '3.6',
+    pending=True,
+    alternative="``matplotlib.colormaps.unregister_cmap(name)``"
+)
 def unregister_cmap(name):
     """
     Remove a colormap recognized by :func:`get_cmap`.

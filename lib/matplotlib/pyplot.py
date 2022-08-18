@@ -68,7 +68,7 @@ from matplotlib import mlab  # for detrend_none, window_hanning
 from matplotlib.scale import get_scale_names
 
 from matplotlib import cm
-from matplotlib.cm import _colormaps as colormaps, get_cmap, register_cmap
+from matplotlib.cm import _colormaps as colormaps, register_cmap
 from matplotlib.colors import _color_sequences as color_sequences
 
 import numpy as np
@@ -2022,7 +2022,7 @@ def get_plot_commands():
     # This works by searching for all functions in this module and removing
     # a few hard-coded exclusions, as well as all of the colormap-setting
     # functions, and anything marked as private with a preceding underscore.
-    exclude = {'colormaps', 'colors', 'get_plot_commands',
+    exclude = {'colormaps', 'colors', 'get_plot_commands', 'get_cmap',
                *_NON_PLOT_COMMANDS, *colormaps}
     this_module = inspect.getmodule(get_plot_commands)
     return sorted(
@@ -2069,6 +2069,11 @@ def clim(vmin=None, vmax=None):
     im.set_clim(vmin, vmax)
 
 
+def get_cmap(name=None, lut=None):
+    return cm._get_cmap(name=name, lut=lut)
+get_cmap.__doc__ = cm._get_cmap.__doc__
+
+
 def set_cmap(cmap):
     """
     Set the default colormap, and applies it to the current image if any.
@@ -2084,7 +2089,7 @@ def set_cmap(cmap):
     matplotlib.cm.register_cmap
     matplotlib.cm.get_cmap
     """
-    cmap = colormaps[cmap]
+    cmap = get_cmap(cmap)
 
     rc('image', cmap=cmap.name)
     im = gci()

@@ -65,24 +65,48 @@ def test_resampled():
 
 
 def test_register_cmap():
-    new_cm = cm.get_cmap("viridis")
+    new_cm = mpl.colormaps["viridis"]
     target = "viridis2"
-    cm.register_cmap(target, new_cm)
-    assert plt.get_cmap(target) == new_cm
+    with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+    ):
+        cm.register_cmap(target, new_cm)
+    assert mpl.colormaps[target] == new_cm
 
     with pytest.raises(ValueError,
                        match="Arguments must include a name or a Colormap"):
-        cm.register_cmap()
+        with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+        ):
+            cm.register_cmap()
 
-    cm.unregister_cmap(target)
+    with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.unregister_cmap\(name\)"
+    ):
+        cm.unregister_cmap(target)
     with pytest.raises(ValueError,
                        match=f'{target!r} is not a valid value for name;'):
-        cm.get_cmap(target)
-    # test that second time is error free
-    cm.unregister_cmap(target)
+        with pytest.warns(
+                PendingDeprecationWarning,
+                match=r"matplotlib\.colormaps\[name\]"
+        ):
+            cm.get_cmap(target)
+    with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.unregister_cmap\(name\)"
+    ):
+        # test that second time is error free
+        cm.unregister_cmap(target)
 
     with pytest.raises(TypeError, match="'cmap' must be"):
-        cm.register_cmap('nome', cmap='not a cmap')
+        with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+        ):
+            cm.register_cmap('nome', cmap='not a cmap')
 
 
 def test_double_register_builtin_cmap():
@@ -90,19 +114,22 @@ def test_double_register_builtin_cmap():
     match = f"Re-registering the builtin cmap {name!r}."
     with pytest.raises(ValueError, match=match):
         matplotlib.colormaps.register(
-            cm.get_cmap(name), name=name, force=True
+            mpl.colormaps[name], name=name, force=True
         )
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
-        cm.register_cmap(name, cm.get_cmap(name))
+        with pytest.warns():
+            cm.register_cmap(name, mpl.colormaps[name])
     with pytest.warns(UserWarning):
-        cm.register_cmap(name, cm.get_cmap(name), override_builtin=True)
+        # TODO is warning more than once!
+        cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
 
 
 def test_unregister_builtin_cmap():
     name = "viridis"
     match = f'cannot unregister {name!r} which is a builtin colormap.'
     with pytest.raises(ValueError, match=match):
-        cm.unregister_cmap(name)
+        with pytest.warns():
+            cm.unregister_cmap(name)
 
 
 def test_colormap_copy():
