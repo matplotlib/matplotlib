@@ -178,8 +178,6 @@ class FigureBase(Artist):
         self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
 
         self.figure = self
-        # list of child gridspecs for this figure
-        self._gridspecs = []
         self._localaxes = []  # track all axes
         self.artists = []
         self.lines = []
@@ -1508,7 +1506,6 @@ default: %(va)s
 
         _ = kwargs.pop('figure', None)  # pop in case user has added this...
         gs = GridSpec(nrows=nrows, ncols=ncols, figure=self, **kwargs)
-        self._gridspecs.append(gs)
         return gs
 
     def subfigures(self, nrows=1, ncols=1, squeeze=True,
@@ -2492,9 +2489,6 @@ class Figure(FigureBase):
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clear()
-
-        # list of child gridspecs for this figure
-        self._gridspecs = []
 
     def pick(self, mouseevent):
         if not self.canvas.widgetlock.locked():
