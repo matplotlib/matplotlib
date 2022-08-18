@@ -274,7 +274,7 @@ def test_no_duplicate_definition():
     assert max(Counter(wds).values()) == 1
 
 
-@image_comparison(["multi_font_type3.eps"])
+@image_comparison(["multi_font_type3.eps"], tol=0.51)
 def test_multi_font_type3():
     fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
@@ -287,7 +287,7 @@ def test_multi_font_type3():
     fig.text(0.15, 0.475, "There are 几个汉字 in between!")
 
 
-@image_comparison(["multi_font_type42.eps"])
+@image_comparison(["multi_font_type42.eps"], tol=1.6)
 def test_multi_font_type42():
     fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":

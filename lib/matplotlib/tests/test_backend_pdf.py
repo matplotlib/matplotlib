@@ -387,7 +387,7 @@ def test_glyphs_subset():
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
 
 
-@image_comparison(["multi_font_type3.pdf"])
+@image_comparison(["multi_font_type3.pdf"], tol=4.6)
 def test_multi_font_type3():
     fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
@@ -400,7 +400,7 @@ def test_multi_font_type3():
     fig.text(0.15, 0.475, "There are 几个汉字 in between!")
 
 
-@image_comparison(["multi_font_type42.pdf"])
+@image_comparison(["multi_font_type42.pdf"], tol=2.2)
 def test_multi_font_type42():
     fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":

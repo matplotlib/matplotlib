@@ -470,7 +470,7 @@ def test_svg_metadata():
     assert values == metadata['Keywords']
 
 
-@image_comparison(["multi_font_aspath.svg"])
+@image_comparison(["multi_font_aspath.svg"], tol=1.8)
 def test_multi_font_type3():
     fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
