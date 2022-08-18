@@ -1,5 +1,4 @@
 import functools
-import operator
 import os
 import sys
 import traceback

@@ -22,7 +22,6 @@ import sys
 import time
 import traceback
 import types
-import warnings
 import weakref
 
 import numpy as np

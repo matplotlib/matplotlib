@@ -21,7 +21,7 @@ from ._enums import JoinStyle, CapStyle
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from . import _path
-from .markers import (
+from .markers import (  # noqa
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)

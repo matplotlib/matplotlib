@@ -2,7 +2,9 @@
 ``matplotlib.tri``
 ******************
 
-.. automodule:: matplotlib.tri
+Unstructured triangular grid functions.
+
+.. py:module:: matplotlib.tri
 
 .. autoclass:: matplotlib.tri.Triangulation
     :members:

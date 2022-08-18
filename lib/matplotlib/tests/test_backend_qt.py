@@ -18,7 +18,7 @@ from matplotlib import _c_internal_utils
 
 
 try:
-    from matplotlib.backends.qt_compat import QtGui, QtWidgets
+    from matplotlib.backends.qt_compat import QtGui, QtWidgets  # noqa
     from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt bindings')
@@ -87,7 +87,7 @@ def _test_sigint_impl(backend, target_name, kwargs):
     import threading
 
     plt.switch_backend(backend)
-    from matplotlib.backends.qt_compat import QtCore
+    from matplotlib.backends.qt_compat import QtCore  # noqa
 
     def interrupter():
         if sys.platform == 'win32':
@@ -138,10 +138,9 @@ def test_sigint(target, kwargs):
 
 def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
     import signal
-    import sys
     import matplotlib.pyplot as plt
     plt.switch_backend(backend)
-    from matplotlib.backends.qt_compat import QtCore
+    from matplotlib.backends.qt_compat import QtCore  # noqa
 
     target = getattr(plt, target_name)
 
@@ -498,7 +497,7 @@ def test_form_widget_get_with_datetime_and_date_fields():
 def _test_enums_impl():
     import sys
 
-    from matplotlib.backends.qt_compat import _enum, _to_int, QtCore
+    from matplotlib.backends.qt_compat import _enum, _to_int
     from matplotlib.backend_bases import cursors, MouseButton
 
     _enum("QtGui.QDoubleValidator.State").Acceptable
