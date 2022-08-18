@@ -269,7 +269,7 @@ def get_cmap(name=None, lut=None):
     if lut is None:
         return _colormaps[name]
     else:
-        return _colormaps[name]._resample(lut)
+        return _colormaps[name].resample(lut)
 
 
 def unregister_cmap(name):

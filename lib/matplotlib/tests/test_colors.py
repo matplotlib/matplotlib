@@ -31,7 +31,7 @@ def test_create_lookup_table(N, result):
 
 def test_resample():
     """
-    GitHub issue #6025 pointed to incorrect ListedColormap._resample;
+    GitHub issue #6025 pointed to incorrect ListedColormap.resample;
     here we test the method for LinearSegmentedColormap as well.
     """
     n = 101
@@ -47,8 +47,8 @@ def test_resample():
         cmap.set_under('r')
         cmap.set_over('g')
         cmap.set_bad('b')
-    lsc3 = lsc._resample(3)
-    lc3 = lc._resample(3)
+    lsc3 = lsc.resample(3)
+    lc3 = lc.resample(3)
     expected = np.array([[0.0, 0.2, 1.0, 0.7],
                          [0.5, 0.2, 0.5, 0.7],
                          [1.0, 0.2, 0.0, 0.7]], float)
