@@ -46,7 +46,7 @@ BASELINE_IMAGES = [
 
 # Non-png image extensions
 
-exts = ['pdf', 'svg']
+exts = ['pdf', 'svg', 'eps']
 
 
 class Thumbnail(QtWidgets.QFrame):
