@@ -218,8 +218,7 @@ class TruetypeFonts(Fonts):
 
     # The return value of _get_info is cached per-instance.
     def _get_info(self, fontname, font_class, sym, fontsize, dpi):
-        font, num, slanted = self._get_glyph(
-            fontname, font_class, sym, fontsize)
+        font, num, slanted = self._get_glyph(fontname, font_class, sym)
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
             num, flags=self.mathtext_backend.get_hinting_type())
@@ -307,7 +306,7 @@ class BakomaFonts(TruetypeFonts):
 
     _slanted_symbols = set(r"\int \oint".split())
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize):
+    def _get_glyph(self, fontname, font_class, sym):
         font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
@@ -321,8 +320,7 @@ class BakomaFonts(TruetypeFonts):
         if font is not None and font.get_char_index(num) != 0:
             return font, num, slanted
         else:
-            return self._stix_fallback._get_glyph(
-                fontname, font_class, sym, fontsize)
+            return self._stix_fallback._get_glyph(fontname, font_class, sym)
 
     # The Bakoma fonts contain many pre-sized alternatives for the
     # delimiters.  The AutoSizedChar class will use these alternatives
@@ -435,7 +433,7 @@ class UnicodeFonts(TruetypeFonts):
     def _map_virtual_font(self, fontname, font_class, uniindex):
         return fontname, uniindex
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize):
+    def _get_glyph(self, fontname, font_class, sym):
         try:
             uniindex = get_unicode_index(sym)
             found_symbol = True
@@ -477,8 +475,7 @@ class UnicodeFonts(TruetypeFonts):
                         and isinstance(self._fallback_font, StixFonts)):
                     fontname = 'rm'
 
-                g = self._fallback_font._get_glyph(fontname, font_class,
-                                                   sym, fontsize)
+                g = self._fallback_font._get_glyph(fontname, font_class, sym)
                 family = g[0].family_name
                 if family in list(BakomaFonts._fontmap.values()):
                     family = "Computer Modern"
@@ -488,7 +485,7 @@ class UnicodeFonts(TruetypeFonts):
             else:
                 if (fontname in ('it', 'regular')
                         and isinstance(self, StixFonts)):
-                    return self._get_glyph('rm', font_class, sym, fontsize)
+                    return self._get_glyph('rm', font_class, sym)
                 _log.warning("Font {!r} does not have a glyph for {!a} "
                              "[U+{:x}], substituting with a dummy "
                              "symbol.".format(new_fontname, sym, uniindex))
@@ -529,10 +526,10 @@ class DejaVuFonts(UnicodeFonts):
             self.fontmap[key] = fullpath
             self.fontmap[name] = fullpath
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize):
+    def _get_glyph(self, fontname, font_class, sym):
         # Override prime symbol to use Bakoma.
         if sym == r'\prime':
-            return self.bakoma._get_glyph(fontname, font_class, sym, fontsize)
+            return self.bakoma._get_glyph(fontname, font_class, sym)
         else:
             # check whether the glyph is available in the display font
             uniindex = get_unicode_index(sym)
@@ -540,9 +537,9 @@ class DejaVuFonts(UnicodeFonts):
             if font is not None:
                 glyphindex = font.get_char_index(uniindex)
                 if glyphindex != 0:
-                    return super()._get_glyph('ex', font_class, sym, fontsize)
+                    return super()._get_glyph('ex', font_class, sym)
             # otherwise return regular glyph
-            return super()._get_glyph(fontname, font_class, sym, fontsize)
+            return super()._get_glyph(fontname, font_class, sym)
 
 
 class DejaVuSerifFonts(DejaVuFonts):
