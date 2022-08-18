@@ -32,9 +32,7 @@ from matplotlib.backend_bases import (
     RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
-from matplotlib.font_manager import (
-    findfont, get_font, fontManager as _fontManager
-)
+from matplotlib.font_manager import get_font, fontManager as _fontManager
 from matplotlib._afm import AFM
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
