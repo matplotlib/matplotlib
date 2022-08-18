@@ -2257,10 +2257,10 @@ class Axes(_AxesBase):
             Default: None (Use default numeric labels.)
 
         label : str or list of str, optional
-            A single label is attached to the resulting BarContainer as a
+            A single label is attached to the resulting `.BarContainer` as a
             label for the whole dataset.
-            If a list is given, it must be the same length as *x* and
-            labels the individual bars. For example this may used with
+            If a list is provided, it must be the same length as *x* and
+            labels the individual bars. For example, this may used with
             lists of *color*.
 
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
