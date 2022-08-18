@@ -2166,21 +2166,31 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.draw(renderer)
 
 
-def _simpleprint_styles(_styles):
-    """
-    A helper function for the _Style class.  Given the dictionary of
-    {stylename: styleclass}, return a string rep of the list of keys.
-    Used to update the documentation.
-    """
-    return "[{}]".format("|".join(map(" '{}' ".format, _styles)))
-
-
 class _Style:
     """
     A base class for the Styles. It is meant to be a container class,
     where actual styles are declared as subclass of it, and it
     provides some helper functions.
     """
+
+    def __init_subclass__(cls):
+        # Automatically perform docstring interpolation on the subclasses:
+        # This allows listing the supported styles via
+        # - %(BoxStyle:table)s
+        # - %(ConnectionStyle:table)s
+        # - %(ArrowStyle:table)s
+        # and additionally adding .. ACCEPTS: blocks via
+        # - %(BoxStyle:table_and_accepts)s
+        # - %(ConnectionStyle:table_and_accepts)s
+        # - %(ArrowStyle:table_and_accepts)s
+        _docstring.interpd.update({
+            f"{cls.__name__}:table": cls.pprint_styles(),
+            f"{cls.__name__}:table_and_accepts": (
+                cls.pprint_styles()
+                + "\n\n    .. ACCEPTS: ["
+                + "|".join(map(" '{}' ".format, cls._style_list))
+                + "]")
+        })
 
     def __new__(cls, stylename, **kwargs):
         """Return the instance of the subclass with the given style name."""
@@ -2226,7 +2236,6 @@ class _Style:
             *['  '.join(cell.ljust(cl) for cell, cl in zip(row, col_len))
               for row in table[1:]],
             table_formatstr,
-            '',
         ])
         return textwrap.indent(rst_table, prefix=' ' * 4)
 
@@ -2247,6 +2256,7 @@ def _register_style(style_list, cls=None, *, name=None):
     return cls
 
 
+@_docstring.dedent_interpd
 class BoxStyle(_Style):
     """
     `BoxStyle` is a container class which defines several
@@ -2266,7 +2276,7 @@ class BoxStyle(_Style):
 
     The following boxstyle classes are defined.
 
-    %(AvailableBoxstyles)s
+    %(BoxStyle:table)s
 
     An instance of a boxstyle class is a callable object, with the signature ::
 
@@ -2624,6 +2634,7 @@ class BoxStyle(_Style):
             return Path(saw_vertices, codes)
 
 
+@_docstring.dedent_interpd
 class ConnectionStyle(_Style):
     """
     `ConnectionStyle` is a container class which defines
@@ -2644,7 +2655,7 @@ class ConnectionStyle(_Style):
 
     The following classes are defined
 
-    %(AvailableConnectorstyles)s
+    %(ConnectionStyle:table)s
 
     An instance of any connection style class is an callable object,
     whose call signature is::
@@ -3060,6 +3071,7 @@ def _point_along_a_line(x0, y0, x1, y1, d):
     return x2, y2
 
 
+@_docstring.dedent_interpd
 class ArrowStyle(_Style):
     """
     `ArrowStyle` is a container class which defines several
@@ -3080,7 +3092,7 @@ class ArrowStyle(_Style):
 
     The following classes are defined
 
-    %(AvailableArrowstyles)s
+    %(ArrowStyle:table)s
 
     An instance of any arrow style class is a callable object,
     whose call signature is::
@@ -3810,17 +3822,6 @@ class ArrowStyle(_Style):
             return path, True
 
 
-_docstring.interpd.update(
-    AvailableBoxstyles=BoxStyle.pprint_styles(),
-    ListBoxstyles=_simpleprint_styles(BoxStyle._style_list),
-    AvailableArrowstyles=ArrowStyle.pprint_styles(),
-    AvailableConnectorstyles=ConnectionStyle.pprint_styles(),
-)
-_docstring.dedent_interpd(BoxStyle)
-_docstring.dedent_interpd(ArrowStyle)
-_docstring.dedent_interpd(ConnectionStyle)
-
-
 class FancyBboxPatch(Patch):
     """
     A fancy box around a rectangle with lower left at *xy* = (*x*, *y*)
@@ -3865,7 +3866,7 @@ class FancyBboxPatch(Patch):
 
             The following box styles are available:
 
-            %(AvailableBoxstyles)s
+            %(BoxStyle:table)s
 
         mutation_scale : float, default: 1
             Scaling factor applied to the attributes of the box style
@@ -3911,9 +3912,8 @@ class FancyBboxPatch(Patch):
     @_docstring.dedent_interpd
     def set_boxstyle(self, boxstyle=None, **kwargs):
         """
-        Set the box style.
+        Set the box style, possibly with further attributes.
 
-        Most box styles can be further configured using attributes.
         Attributes from the previous box style are not reused.
 
         Without argument (or with ``boxstyle=None``), the available box styles
@@ -3922,17 +3922,14 @@ class FancyBboxPatch(Patch):
         Parameters
         ----------
         boxstyle : str or `matplotlib.patches.BoxStyle`
-            The style of the fancy box. This can either be a `.BoxStyle`
-            instance or a string of the style name and optionally comma
-            separated attributes (e.g. "Round, pad=0.2"). This string is
-            passed to `.BoxStyle` to construct a `.BoxStyle` object. See
-            there for a full documentation.
+            The style of the box: either a `.BoxStyle` instance, or a string,
+            which is the style name and optionally comma separated attributes
+            (e.g. "Round,pad=0.2"). Such a string is used to construct a
+            `.BoxStyle` object, as documented in that class.
 
             The following box styles are available:
 
-            %(AvailableBoxstyles)s
-
-            .. ACCEPTS: %(ListBoxstyles)s
+            %(BoxStyle:table_and_accepts)s
 
         **kwargs
             Additional attributes for the box style. See the table above for
@@ -3942,16 +3939,19 @@ class FancyBboxPatch(Patch):
         --------
         ::
 
-            set_boxstyle("round,pad=0.2")
+            set_boxstyle("Round,pad=0.2")
             set_boxstyle("round", pad=0.2)
-
         """
         if boxstyle is None:
             return BoxStyle.pprint_styles()
         self._bbox_transmuter = (
-            BoxStyle(boxstyle, **kwargs) if isinstance(boxstyle, str)
-            else boxstyle)
+            BoxStyle(boxstyle, **kwargs)
+            if isinstance(boxstyle, str) else boxstyle)
         self.stale = True
+
+    def get_boxstyle(self):
+        """Return the boxstyle object."""
+        return self._bbox_transmuter
 
     def set_mutation_scale(self, scale):
         """
@@ -3983,10 +3983,6 @@ class FancyBboxPatch(Patch):
         """Return the aspect ratio of the bbox mutation."""
         return (self._mutation_aspect if self._mutation_aspect is not None
                 else 1)  # backcompat.
-
-    def get_boxstyle(self):
-        """Return the boxstyle object."""
-        return self._bbox_transmuter
 
     def get_path(self):
         """Return the mutated path of the rectangle."""
@@ -4163,7 +4159,7 @@ class FancyArrowPatch(Patch):
             meant to be scaled with the *mutation_scale*.  The following arrow
             styles are available:
 
-            %(AvailableArrowstyles)s
+            %(ArrowStyle:table)s
 
         connectionstyle : str or `.ConnectionStyle` or None, optional, \
 default: 'arc3'
@@ -4172,7 +4168,7 @@ default: 'arc3'
             names, with optional comma-separated attributes.  The following
             connection styles are available:
 
-            %(AvailableConnectorstyles)s
+            %(ConnectionStyle:table)s
 
         patchA, patchB : `.Patch`, default: None
             Head and tail patches, respectively.
@@ -4269,34 +4265,44 @@ default: 'arc3'
         self.patchB = patchB
         self.stale = True
 
-    def set_connectionstyle(self, connectionstyle, **kwargs):
+    @_docstring.dedent_interpd
+    def set_connectionstyle(self, connectionstyle=None, **kwargs):
         """
-        Set the connection style. Old attributes are forgotten.
+        Set the connection style, possibly with further attributes.
+
+        Attributes from the previous connection style are not reused.
+
+        Without argument (or with ``connectionstyle=None``), the available box
+        styles are returned as a human-readable string.
 
         Parameters
         ----------
-        connectionstyle : str or `.ConnectionStyle` or None, optional
-            Can be a string with connectionstyle name with
-            optional comma-separated attributes, e.g.::
+        connectionstyle : str or `matplotlib.patches.ConnectionStyle`
+            The style of the connection: either a `.ConnectionStyle` instance,
+            or a string, which is the style name and optionally comma separated
+            attributes (e.g. "Arc,armA=30,rad=10"). Such a string is used to
+            construct a `.ConnectionStyle` object, as documented in that class.
 
-                set_connectionstyle("arc,angleA=0,armA=30,rad=10")
+            The following connection styles are available:
 
-            Alternatively, the attributes can be provided as keywords, e.g.::
+            %(ConnectionStyle:table_and_accepts)s
 
-                set_connectionstyle("arc", angleA=0,armA=30,rad=10)
+        **kwargs
+            Additional attributes for the connection style. See the table above
+            for supported parameters.
 
-            Without any arguments (or with ``connectionstyle=None``), return
-            available styles as a list of strings.
+        Examples
+        --------
+        ::
+
+            set_connectionstyle("Arc,armA=30,rad=10")
+            set_connectionstyle("arc", armA=30, rad=10)
         """
-
         if connectionstyle is None:
             return ConnectionStyle.pprint_styles()
-
-        if (isinstance(connectionstyle, ConnectionStyle._Base) or
-                callable(connectionstyle)):
-            self._connector = connectionstyle
-        else:
-            self._connector = ConnectionStyle(connectionstyle, **kwargs)
+        self._connector = (
+            ConnectionStyle(connectionstyle, **kwargs)
+            if isinstance(connectionstyle, str) else connectionstyle)
         self.stale = True
 
     def get_connectionstyle(self):
@@ -4305,31 +4311,41 @@ default: 'arc3'
 
     def set_arrowstyle(self, arrowstyle=None, **kwargs):
         """
-        Set the arrow style. Old attributes are forgotten. Without arguments
-        (or with ``arrowstyle=None``) returns available box styles as a list of
-        strings.
+        Set the arrow style, possibly with further attributes.
+
+        Attributes from the previous arrow style are not reused.
+
+        Without argument (or with ``arrowstyle=None``), the available box
+        styles are returned as a human-readable string.
 
         Parameters
         ----------
-        arrowstyle : None or ArrowStyle or str, default: None
-            Can be a string with arrowstyle name with optional comma-separated
-            attributes, e.g.::
+        arrowstyle : str or `matplotlib.patches.ArrowStyle`
+            The style of the arrow: either a `.ArrowStyle` instance, or a
+            string, which is the style name and optionally comma separated
+            attributes (e.g. "Fancy,head_length=0.2"). Such a string is used to
+            construct a `.ArrowStyle` object, as documented in that class.
 
-                set_arrowstyle("Fancy,head_length=0.2")
+            The following arrow styles are available:
 
-            Alternatively attributes can be provided as keywords, e.g.::
+            %(ArrowStyle:table_and_accepts)s
 
-                set_arrowstyle("fancy", head_length=0.2)
+        **kwargs
+            Additional attributes for the arrow style. See the table above for
+            supported parameters.
 
+        Examples
+        --------
+        ::
+
+            set_arrowstyle("Fancy,head_length=0.2")
+            set_arrowstyle("fancy", head_length=0.2)
         """
-
         if arrowstyle is None:
             return ArrowStyle.pprint_styles()
-
-        if isinstance(arrowstyle, ArrowStyle._Base):
-            self._arrow_transmuter = arrowstyle
-        else:
-            self._arrow_transmuter = ArrowStyle(arrowstyle, **kwargs)
+        self._arrow_transmuter = (
+            ArrowStyle(arrowstyle, **kwargs)
+            if isinstance(arrowstyle, str) else arrowstyle)
         self.stale = True
 
     def get_arrowstyle(self):
