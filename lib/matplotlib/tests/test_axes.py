@@ -1887,26 +1887,41 @@ def test_bar_hatches(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize(
-    ("x", "width", "label", "expected_labels"),
+    ("x", "width", "label", "expected_labels", "container_label"),
     [
-        ("x", 1, "x", ["x"]),
+        ("x", 1, "x", ["_nolegend_"], "x"),
         (["a", "b", "c"], [10, 20, 15], ["A", "B", "C"],
-         ["A", "B", "C"]),
+         ["A", "B", "C"], "_nolegend_"),
+        (["a", "b", "c"], [10, 20, 15], ["R", "Y", "R"],
+         ["R", "Y", "_nolegend_"], "_nolegend_"),
         (["a", "b", "c"], [10, 20, 15], "bars",
-         ["_nolegend_", "_nolegend_", "_nolegend_"]),
+         ["_nolegend_", "_nolegend_", "_nolegend_"], "bars"),
     ]
 )
-def test_bar_labels(x, width, label, expected_labels):
+def test_bar_labels(x, width, label, expected_labels, container_label):
     _, ax = plt.subplots()
     bar_container = ax.bar(x, width, label=label)
     bar_labels = [bar.get_label() for bar in bar_container]
     assert expected_labels == bar_labels
+    assert bar_container.get_label() == container_label
 
 
 def test_bar_labels_length():
     _, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.bar(["x", "y"], [1, 2], label=["X", "Y", "Z"])
+    _, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.bar(["x", "y"], [1, 2], label=["X"])
+
+
+def test_duplicate_bar_labels_in_legend():
+    _, ax = plt.subplots()
+    x = ["a", "b", "c"]
+    y = [2, 1, 3]
+    labels = ["Red", "Yellow", "Red"]
+    ax.bar(x, y, label=labels)
+    assert [text.get_text() for text in ax.legend().texts] == labels[:2]
 
 
 def test_pandas_minimal_plot(pd):
