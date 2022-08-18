@@ -506,21 +506,13 @@ def save_diff_image(expected, actual, output):
         raise ImageComparisonFailure(
             "Image sizes do not match expected size: {} "
             "actual size {}".format(expected_image.shape, actual_image.shape))
-    abs_diff_image = np.abs(expected_image - actual_image)
+    abs_diff = np.abs(expected_image - actual_image)
 
     # expand differences in luminance domain
-    abs_diff_image *= 255 * 10
-    save_image_np = np.clip(abs_diff_image, 0, 255).astype(np.uint8)
-    height, width, depth = save_image_np.shape
+    abs_diff *= 10
+    abs_diff = np.clip(abs_diff, 0, 255).astype(np.uint8)
 
-    # The PDF renderer doesn't produce an alpha channel, but the
-    # matplotlib PNG writer requires one, so expand the array
-    if depth == 3:
-        with_alpha = np.empty((height, width, 4), dtype=np.uint8)
-        with_alpha[:, :, 0:3] = save_image_np
-        save_image_np = with_alpha
+    if abs_diff.shape[2] == 4:  # Hard-code the alpha channel to fully solid
+        abs_diff[:, :, 3] = 255
 
-    # Hard-code the alpha channel to fully solid
-    save_image_np[:, :, 3] = 255
-
-    Image.fromarray(save_image_np).save(output, format="png")
+    Image.fromarray(abs_diff).save(output, format="png")
