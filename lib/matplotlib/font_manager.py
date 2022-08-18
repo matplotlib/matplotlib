@@ -1396,30 +1396,21 @@ class FontManager:
         which closely match the given font properties.  Since this internally
         uses the original API, there's no change to the logic of performing the
         nearest neighbor search.  See `findfont` for more details.
-
         """
-
-        rc_params = tuple(tuple(rcParams[key]) for key in [
-            "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
-            "font.monospace"])
 
         prop = FontProperties._from_any(prop)
 
         fpaths = []
         for family in prop.get_family():
             cprop = prop.copy()
+            cprop.set_family(family)  # set current prop's family
 
-            # set current prop's family
-            cprop.set_family(family)
-
-            # do not fall back to default font
             try:
                 fpaths.append(
-                    self._findfont_cached(
+                    self.findfont(
                         cprop, fontext, directory,
-                        fallback_to_default=False,
+                        fallback_to_default=False,  # don't fallback to default
                         rebuild_if_missing=rebuild_if_missing,
-                        rc_params=rc_params,
                     )
                 )
             except ValueError:
@@ -1427,13 +1418,10 @@ class FontManager:
                     _log.warning(
                         "findfont: Generic family %r not found because "
                         "none of the following families were found: %s",
-                        family,
-                        ", ".join(self._expand_aliases(family))
+                        family, ", ".join(self._expand_aliases(family))
                     )
                 else:
-                    _log.warning(
-                        'findfont: Font family \'%s\' not found.', family
-                    )
+                    _log.warning("findfont: Font family %r not found.", family)
 
         # only add default family if no other font was found and
         # fallback_to_default is enabled
@@ -1443,16 +1431,15 @@ class FontManager:
                 cprop = prop.copy()
                 cprop.set_family(dfamily)
                 fpaths.append(
-                    self._findfont_cached(
+                    self.findfont(
                         cprop, fontext, directory,
                         fallback_to_default=True,
                         rebuild_if_missing=rebuild_if_missing,
-                        rc_params=rc_params,
                     )
                 )
             else:
                 raise ValueError("Failed to find any font, and fallback "
-                                 "to the default font was disabled.")
+                                 "to the default font was disabled")
 
         return fpaths
 
