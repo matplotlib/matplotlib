@@ -2256,6 +2256,14 @@ class Axes(_AxesBase):
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
+        label : str or list of str, optional
+            A single label is attached to the resulting `.BarContainer` as a
+            label for the whole dataset.
+            If a list is provided, it must be the same length as *x* and
+            labels the individual bars. Repeated labels are not de-duplicated
+            and will cause repeated label entries, so this is best used when
+            bars also differ in style (e.g., by passing a list to *color*.)
+
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
             The values are +/- sizes relative to the data:
@@ -2381,6 +2389,16 @@ class Axes(_AxesBase):
             tick_label_axis = self.yaxis
             tick_label_position = y
 
+        if not isinstance(label, str) and np.iterable(label):
+            bar_container_label = '_nolegend_'
+            patch_labels = label
+        else:
+            bar_container_label = label
+            patch_labels = ['_nolegend_'] * len(x)
+        if len(patch_labels) != len(x):
+            raise ValueError(f'number of labels ({len(patch_labels)}) '
+                             f'does not match number of bars ({len(x)}).')
+
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         hatch = itertools.cycle(np.atleast_1d(hatch))
         color = itertools.chain(itertools.cycle(mcolors.to_rgba_array(color)),
@@ -2420,14 +2438,14 @@ class Axes(_AxesBase):
 
         patches = []
         args = zip(left, bottom, width, height, color, edgecolor, linewidth,
-                   hatch)
-        for l, b, w, h, c, e, lw, htch in args:
+                   hatch, patch_labels)
+        for l, b, w, h, c, e, lw, htch, lbl in args:
             r = mpatches.Rectangle(
                 xy=(l, b), width=w, height=h,
                 facecolor=c,
                 edgecolor=e,
                 linewidth=lw,
-                label='_nolegend_',
+                label=lbl,
                 hatch=htch,
                 )
             r._internal_update(kwargs)
@@ -2466,7 +2484,8 @@ class Axes(_AxesBase):
             datavalues = width
 
         bar_container = BarContainer(patches, errorbar, datavalues=datavalues,
-                                     orientation=orientation, label=label)
+                                     orientation=orientation,
+                                     label=bar_container_label)
         self.add_container(bar_container)
 
         if tick_labels is not None:

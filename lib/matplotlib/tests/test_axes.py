@@ -1886,6 +1886,35 @@ def test_bar_hatches(fig_test, fig_ref):
     ax_test.bar(x, y, hatch=hatches)
 
 
+@pytest.mark.parametrize(
+    ("x", "width", "label", "expected_labels", "container_label"),
+    [
+        ("x", 1, "x", ["_nolegend_"], "x"),
+        (["a", "b", "c"], [10, 20, 15], ["A", "B", "C"],
+         ["A", "B", "C"], "_nolegend_"),
+        (["a", "b", "c"], [10, 20, 15], ["R", "Y", "_nolegend_"],
+         ["R", "Y", "_nolegend_"], "_nolegend_"),
+        (["a", "b", "c"], [10, 20, 15], "bars",
+         ["_nolegend_", "_nolegend_", "_nolegend_"], "bars"),
+    ]
+)
+def test_bar_labels(x, width, label, expected_labels, container_label):
+    _, ax = plt.subplots()
+    bar_container = ax.bar(x, width, label=label)
+    bar_labels = [bar.get_label() for bar in bar_container]
+    assert expected_labels == bar_labels
+    assert bar_container.get_label() == container_label
+
+
+def test_bar_labels_length():
+    _, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.bar(["x", "y"], [1, 2], label=["X", "Y", "Z"])
+    _, ax = plt.subplots()
+    with pytest.raises(ValueError):
+        ax.bar(["x", "y"], [1, 2], label=["X"])
+
+
 def test_pandas_minimal_plot(pd):
     # smoke test that series and index objects do not warn
     for x in [pd.Series([1, 2], dtype="float64"),
