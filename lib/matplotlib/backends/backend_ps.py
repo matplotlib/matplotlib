@@ -1215,7 +1215,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         tmppdf = pathlib.Path(tmpdir, "tmp.pdf")
         tmpps = pathlib.Path(tmpdir, "tmp.ps")
         # Pass options as `-foo#bar` instead of `-foo=bar` to keep Windows
-        # happy (https://www.ghostscript.com/doc/9.22/Use.htm#MS_Windows).
+        # happy (https://ghostscript.com/doc/9.56.1/Use.htm#MS_Windows).
         cbook._check_and_log_subprocess(
             ["ps2pdf",
              "-dAutoFilterColorImages#false",

@@ -208,7 +208,7 @@ The following workflow [1]_ is a good way to approach issue triaging:
 
 
 .. [1] Adapted from the pandas project `maintainers guide
-       <https://dev.pandas.io/docs/development/maintaining.html>`_ and
+       <https://pandas.pydata.org/docs/development/maintaining.html>`_ and
        `the scikit-learn project
        <https://scikit-learn.org/dev/developers/bug_triaging.html>`_ .
 

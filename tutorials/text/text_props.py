@@ -215,6 +215,8 @@ plt.show()
 #    matplotlib.rcParams['font.family'] = ['Family1', 'SerifFamily1', 'SerifFamily2', 'Family2']
 #
 #
+# .. _font-nonlatin:
+#
 # Text with non-latin glyphs
 # ==========================
 #

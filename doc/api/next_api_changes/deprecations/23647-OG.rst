@@ -1,0 +1,6 @@
+``mplot3d.axis3d.Axis.set_pane_pos``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is deprecated. This is an internal method where the provided values are
+overwritten during drawing. Hence, it does not serve any purpose to be
+directly accessible.

@@ -85,7 +85,7 @@ Font handling and rendering
 * `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
   <https://ctan.org/pkg/cm-super>`__ and `underscore
   <https://ctan.org/pkg/underscore>`__ ) and `GhostScript (>=9.0)
-  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
+  <https://ghostscript.com/releases/>`_ : for rendering text with LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
 
@@ -260,7 +260,7 @@ will be skipped by pytest.
   Inkscape to system PATH”, either for all users or current user, or the
   tests will not find it.
 
-.. _Ghostscript: https://www.ghostscript.com/
+.. _Ghostscript: https://ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _flake8: https://pypi.org/project/flake8/
 .. _nbconvert: https://pypi.org/project/nbconvert/

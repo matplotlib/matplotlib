@@ -8,7 +8,7 @@ import numpy as np
 
 from matplotlib import (
     _api, artist, lines as mlines, axis as maxis, patches as mpatches,
-    transforms as mtransforms, rcParams)
+    transforms as mtransforms, rcParams, colors as mcolors)
 from . import art3d, proj3d
 
 
@@ -148,8 +148,7 @@ class Axis(maxis.XAxis):
 
         # Store dummy data in Polygon object
         self.pane = mpatches.Polygon(
-            np.array([[0, 0], [0, 1], [1, 0], [0, 0]]),
-            closed=False, alpha=0.8, facecolor='k', edgecolor='k')
+            np.array([[0, 0], [0, 1]]), closed=False)
         self.set_pane_color(self._axinfo['color'])
 
         self.axes._set_artist_props(self.line)
@@ -182,14 +181,28 @@ class Axis(maxis.XAxis):
                 obj.set_transform(self.axes.transData)
         return ticks
 
+    @_api.deprecated("3.6")
     def set_pane_pos(self, xys):
+        self._set_pane_pos(xys)
+
+    def _set_pane_pos(self, xys):
         xys = np.asarray(xys)
         xys = xys[:, :2]
         self.pane.xy = xys
         self.stale = True
 
-    def set_pane_color(self, color):
-        """Set pane color to a RGBA tuple."""
+    def set_pane_color(self, color, alpha=None):
+        """
+        Set pane color.
+
+        Parameters
+        ----------
+        color : color
+            Color for axis pane.
+        alpha : float, optional
+            Alpha value for axis pane. If None, base it on *color*.
+        """
+        color = mcolors.to_rgba(color, alpha)
         self._axinfo['color'] = color
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
@@ -302,7 +315,7 @@ class Axis(maxis.XAxis):
         else:
             plane = self._PLANES[2 * index + 1]
         xys = [tc[p] for p in plane]
-        self.set_pane_pos(xys)
+        self._set_pane_pos(xys)
         self.pane.draw(renderer)
 
         renderer.close_group('pane3d')
