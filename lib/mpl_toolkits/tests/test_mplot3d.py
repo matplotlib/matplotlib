@@ -72,7 +72,7 @@ def test_axes3d_primary_views():
     # When viewing primary planes, draw the two visible axes so they intersect
     # at their low values
     fig, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'})
-    for i, ax in enumerate([ax for ax_row in axs for ax in ax_row]):
+    for i, ax in enumerate(axs.flat):
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_zlabel('z')
