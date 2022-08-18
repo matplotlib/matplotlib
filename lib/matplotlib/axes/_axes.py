@@ -2256,6 +2256,13 @@ class Axes(_AxesBase):
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
+        label : str or list of str, optional
+            A single label is attached to the resulting BarContainer as a
+            label for the whole dataset.
+            If a list is given, it must be the same length as *x* and
+            labels the individual bars. For example this may used with
+            lists of *color*.
+
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
             The values are +/- sizes relative to the data:
@@ -2381,13 +2388,21 @@ class Axes(_AxesBase):
             tick_label_axis = self.yaxis
             tick_label_position = y
 
-        patch_labels = np.atleast_1d(label)
+        if not isinstance(label, str) and np.iterable(label):
+            bar_container_label = '_nolegend_'
+            seen_labels = set()
+            patch_labels = label
+            for i, patch_label in enumerate(patch_labels):
+                if patch_label in seen_labels:
+                    patch_labels[i] = '_nolegend_'
+                else:
+                    seen_labels.add(patch_label)
+        else:
+            bar_container_label = label
+            patch_labels = ['_nolegend_'] * len(x)
         if len(patch_labels) != len(x):
-            if len(patch_labels) == 1:
-                patch_labels = ['_nolegend_'] * len(x)
-            else:
-                raise ValueError(f'number of labels ({len(patch_labels)}) '
-                                 f'does not match number of bars ({len(x)}).')
+            raise ValueError(f'number of labels ({len(patch_labels)}) '
+                             f'does not match number of bars ({len(x)}).')
 
         linewidth = itertools.cycle(np.atleast_1d(linewidth))
         hatch = itertools.cycle(np.atleast_1d(hatch))
@@ -2474,7 +2489,8 @@ class Axes(_AxesBase):
             datavalues = width
 
         bar_container = BarContainer(patches, errorbar, datavalues=datavalues,
-                                     orientation=orientation, label=label)
+                                     orientation=orientation,
+                                     label=bar_container_label)
         self.add_container(bar_container)
 
         if tick_labels is not None:
