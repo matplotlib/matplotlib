@@ -2261,7 +2261,8 @@ class Axes(_AxesBase):
             label for the whole dataset.
             If a list is provided, it must be the same length as *x* and
             labels the individual bars. For example, this may used with
-            lists of *color*.
+            lists of *color*. Note that behavior for repeated labels is
+            not defined and may change in the future.
 
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
