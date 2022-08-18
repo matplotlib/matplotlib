@@ -2390,13 +2390,7 @@ class Axes(_AxesBase):
 
         if not isinstance(label, str) and np.iterable(label):
             bar_container_label = '_nolegend_'
-            seen_labels = set()
             patch_labels = label
-            for i, patch_label in enumerate(patch_labels):
-                if patch_label in seen_labels:
-                    patch_labels[i] = '_nolegend_'
-                else:
-                    seen_labels.add(patch_label)
         else:
             bar_container_label = label
             patch_labels = ['_nolegend_'] * len(x)
