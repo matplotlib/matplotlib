@@ -64,6 +64,7 @@ Plotting commands
    gcf
    gci
    get
+   get_cmap
    get_figlabels
    get_fignums
    getp

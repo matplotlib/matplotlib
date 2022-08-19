@@ -19,4 +19,4 @@ following functions have been marked for pending deprecation:
 - `matplotlib.cm.unregister_cmap` - use ``matplotlib.colormaps.unregister`` instead
 - ``matplotlib.pyplot.register_cmap`` - use ``matplotlib.colormaps.register`` instead
 
-The ``matplotlib.pyplot.get_cmap`` function will stay available for backward compatibility.
+The `matplotlib.pyplot.get_cmap` function will stay available for backward compatibility.

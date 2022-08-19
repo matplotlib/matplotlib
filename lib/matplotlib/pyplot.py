@@ -2022,7 +2022,7 @@ def get_plot_commands():
     # This works by searching for all functions in this module and removing
     # a few hard-coded exclusions, as well as all of the colormap-setting
     # functions, and anything marked as private with a preceding underscore.
-    exclude = {'colormaps', 'colors', 'get_plot_commands', 'get_cmap',
+    exclude = {'colormaps', 'colors', 'get_plot_commands',
                *_NON_PLOT_COMMANDS, *colormaps}
     this_module = inspect.getmodule(get_plot_commands)
     return sorted(
@@ -2069,6 +2069,8 @@ def clim(vmin=None, vmax=None):
     im.set_clim(vmin, vmax)
 
 
+# eventually this implementation should move here, use indirection for now to
+# avoid having two copies of the code floating around.
 def get_cmap(name=None, lut=None):
     return cm._get_cmap(name=name, lut=lut)
 get_cmap.__doc__ = cm._get_cmap.__doc__
