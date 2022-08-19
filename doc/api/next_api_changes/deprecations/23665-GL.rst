@@ -1,0 +1,4 @@
+The macosx backend toolbar ``prepare_configure_subplots``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ has been replaced by ``configure_subplots()``.
