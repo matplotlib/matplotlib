@@ -47,8 +47,9 @@ generate entries for the resulting legend - it is worth noting however that
 not all artists can be added to a legend, at which point a "proxy" will have
 to be created (see :ref:`proxy_legend_handles` for further details).
 
-Those artists with an empty string as label or with a label starting with
-"_" will be ignored.
+.. note::
+    Artists with an empty string as label or with a label starting with an
+    underscore, "_", will be ignored.
 
 For full control of what is being added to the legend, it is common to pass
 the appropriate handles directly to :func:`legend`::
