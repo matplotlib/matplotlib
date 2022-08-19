@@ -254,7 +254,7 @@ class Axis(maxis.XAxis):
         # Special handling for edge-on views
         equals = np.abs(means_z0 - means_z1) <= np.finfo(float).eps
         if np.sum(equals) == 2:
-            vertical = np.where(np.invert(equals))[0][0]
+            vertical = np.where(~equals)[0][0]
             if vertical == 2:  # looking at XY plane
                 highs = np.array([True, True, highs[2]])
             elif vertical == 1:  # looking at XZ plane
