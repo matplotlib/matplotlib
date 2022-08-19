@@ -31,7 +31,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, dviread, rcParams
+from matplotlib import _api, cbook, dviread
 
 _log = logging.getLogger(__name__)
 
@@ -122,7 +122,7 @@ class TexManager:
     @classmethod
     def _get_font_family_and_reduced(cls):
         """Return the font family name and whether the font is reduced."""
-        ff = rcParams['font.family']
+        ff = mpl.rcParams['font.family']
         ff_val = ff[0].lower() if len(ff) == 1 else None
         if len(ff) == 1 and ff_val in cls._font_families:
             return ff_val, False
@@ -142,9 +142,9 @@ class TexManager:
         for font_family in cls._font_families:
             if is_reduced_font and font_family == requested_family:
                 preambles[font_family] = cls._font_preambles[
-                    rcParams['font.family'][0].lower()]
+                    mpl.rcParams['font.family'][0].lower()]
             else:
-                for font in rcParams['font.' + font_family]:
+                for font in mpl.rcParams['font.' + font_family]:
                     if font.lower() in cls._font_preambles:
                         preambles[font_family] = \
                             cls._font_preambles[font.lower()]
@@ -195,7 +195,7 @@ class TexManager:
     @classmethod
     def get_custom_preamble(cls):
         """Return a string containing user additions to the tex preamble."""
-        return rcParams['text.latex.preamble']
+        return mpl.rcParams['text.latex.preamble']
 
     @classmethod
     def _get_tex_source(cls, tex, fontsize):
@@ -327,9 +327,9 @@ class TexManager:
     def get_grey(cls, tex, fontsize=None, dpi=None):
         """Return the alpha channel."""
         if not fontsize:
-            fontsize = rcParams['font.size']
+            fontsize = mpl.rcParams['font.size']
         if not dpi:
-            dpi = rcParams['savefig.dpi']
+            dpi = mpl.rcParams['savefig.dpi']
         key = cls._get_tex_source(tex, fontsize), dpi
         alpha = cls._grey_arrayd.get(key)
         if alpha is None:

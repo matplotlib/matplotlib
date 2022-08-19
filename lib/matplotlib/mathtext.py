@@ -21,7 +21,8 @@ import logging
 
 import numpy as np
 
-from matplotlib import _api, rcParams, _mathtext
+import matplotlib as mpl
+from matplotlib import _api, _mathtext
 from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
 
@@ -120,7 +121,7 @@ class MathtextBackendAgg(MathtextBackend):
         else:
             info.font.draw_glyph_to_bitmap(
                 self.image, ox, oy - info.metrics.iceberg, info.glyph,
-                antialiased=rcParams['text.antialiased'])
+                antialiased=mpl.rcParams['text.antialiased'])
 
     def render_rect_filled(self, x1, y1, x2, y2):
         if self.mode == 'bbox':
