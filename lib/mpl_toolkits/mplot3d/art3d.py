@@ -171,6 +171,7 @@ class Line3D(lines.Line2D):
     def set_3d_properties(self, zs=0, zdir='z'):
         xs = self.get_xdata()
         ys = self.get_ydata()
+        zs = cbook._to_unmasked_float_array(zs).ravel()
         zs = np.broadcast_to(zs, len(xs))
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
