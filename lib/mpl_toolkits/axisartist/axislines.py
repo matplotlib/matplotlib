@@ -42,7 +42,7 @@ from the axis as some gridlines can never pass any axis.
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, rcParams
+from matplotlib import _api
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes
@@ -341,10 +341,10 @@ class GridHelperBase:
         *axis* : "both", "x" or "y"
 
         """
-        gridlines = GridlinesCollection(None, transform=ax.transData,
-                                        colors=rcParams['grid.color'],
-                                        linestyles=rcParams['grid.linestyle'],
-                                        linewidths=rcParams['grid.linewidth'])
+        gridlines = GridlinesCollection(
+            None, transform=ax.transData, colors=mpl.rcParams['grid.color'],
+            linestyles=mpl.rcParams['grid.linestyle'],
+            linewidths=mpl.rcParams['grid.linewidth'])
         ax._set_artist_props(gridlines)
         gridlines.set_grid_helper(self)
 
@@ -488,9 +488,9 @@ class Axes(maxes.Axes):
         # Init gridlines before clear() as clear() calls grid().
         self.gridlines = gridlines = GridlinesCollection(
             None, transform=self.transData,
-            colors=rcParams['grid.color'],
-            linestyles=rcParams['grid.linestyle'],
-            linewidths=rcParams['grid.linewidth'])
+            colors=mpl.rcParams['grid.color'],
+            linestyles=mpl.rcParams['grid.linestyle'],
+            linewidths=mpl.rcParams['grid.linewidth'])
         self._set_artist_props(gridlines)
         gridlines.set_grid_helper(self.get_grid_helper())
 

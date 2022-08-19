@@ -288,8 +288,7 @@ def to_rgba(c, alpha=None):
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
-        from matplotlib import rcParams
-        prop_cycler = rcParams['axes.prop_cycle']
+        prop_cycler = mpl.rcParams['axes.prop_cycle']
         colors = prop_cycler.by_key().get('color', ['k'])
         c = colors[int(c[1:]) % len(colors)]
     try:

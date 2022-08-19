@@ -84,14 +84,14 @@ def _test_interactive_impl():
     from unittest import TestCase
 
     import matplotlib as mpl
-    from matplotlib import pyplot as plt, rcParams
+    from matplotlib import pyplot as plt
     from matplotlib.backend_bases import KeyEvent
-    rcParams.update({
+    mpl.rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
     })
 
-    rcParams.update(json.loads(sys.argv[1]))
+    mpl.rcParams.update(json.loads(sys.argv[1]))
     backend = plt.rcParams["backend"].lower()
     assert_equal = TestCase().assertEqual
     assert_raises = TestCase().assertRaises
@@ -177,9 +177,10 @@ def test_interactive_backend(env, toolbar):
 def _test_thread_impl():
     from concurrent.futures import ThreadPoolExecutor
 
-    from matplotlib import pyplot as plt, rcParams
+    import matplotlib as mpl
+    from matplotlib import pyplot as plt
 
-    rcParams.update({
+    mpl.rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
     })

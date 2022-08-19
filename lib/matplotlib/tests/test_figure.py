@@ -13,7 +13,7 @@ import pytest
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import gridspec, rcParams
+from matplotlib import gridspec
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure, FigureBase
@@ -299,7 +299,7 @@ def test_alpha():
 
 def test_too_many_figures():
     with pytest.warns(RuntimeWarning):
-        for i in range(rcParams['figure.max_open_warning'] + 1):
+        for i in range(mpl.rcParams['figure.max_open_warning'] + 1):
             plt.figure()
 
 

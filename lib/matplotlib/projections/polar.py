@@ -3,7 +3,8 @@ import types
 
 import numpy as np
 
-from matplotlib import _api, cbook, rcParams
+import matplotlib as mpl
+from matplotlib import _api, cbook
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 import matplotlib.markers as mmarkers
@@ -773,7 +774,7 @@ class PolarAxes(Axes):
             end.set_visible(False)
         self.set_xlim(0.0, 2 * np.pi)
 
-        self.grid(rcParams['polaraxes.grid'])
+        self.grid(mpl.rcParams['polaraxes.grid'])
         inner = self.spines.get('inner', None)
         if inner:
             inner.set_visible(False)

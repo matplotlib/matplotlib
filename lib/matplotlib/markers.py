@@ -139,7 +139,8 @@ import inspect
 
 import numpy as np
 
-from . import _api, cbook, rcParams
+import matplotlib as mpl
+from . import _api, cbook
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
 from ._enums import JoinStyle, CapStyle
@@ -309,7 +310,7 @@ class MarkerStyle:
             markerfacecolor.
         """
         if fillstyle is None:
-            fillstyle = rcParams['markers.fillstyle']
+            fillstyle = mpl.rcParams['markers.fillstyle']
         _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
         self._recache()
@@ -524,7 +525,7 @@ class MarkerStyle:
         # again, the properties could be initialised just once outside
         # this function
         text = TextPath(xy=(0, 0), s=self.get_marker(),
-                        usetex=rcParams['text.usetex'])
+                        usetex=mpl.rcParams['text.usetex'])
         if len(text.vertices) == 0:
             return
 

@@ -9,7 +9,8 @@ import logging
 
 import numpy as np
 
-from . import _api, cbook, colors as mcolors, _docstring, rcParams
+import matplotlib as mpl
+from . import _api, cbook, colors as mcolors, _docstring
 from .artist import Artist, allow_rasterization
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
@@ -41,7 +42,7 @@ def _get_dash_pattern(style):
     # dashed styles
     elif style in ['dashed', 'dashdot', 'dotted']:
         offset = 0
-        dashes = tuple(rcParams['lines.{}_pattern'.format(style)])
+        dashes = tuple(mpl.rcParams['lines.{}_pattern'.format(style)])
     #
     elif isinstance(style, tuple):
         offset, dashes = style
@@ -60,7 +61,7 @@ def _get_dash_pattern(style):
 
 
 def _scale_dashes(offset, dashes, lw):
-    if not rcParams['lines.scale_dashes']:
+    if not mpl.rcParams['lines.scale_dashes']:
         return offset, dashes
     scaled_offset = offset * lw
     scaled_dashes = ([x * lw if x is not None else None for x in dashes]
@@ -313,27 +314,27 @@ class Line2D(Artist):
             raise RuntimeError('ydata must be a sequence')
 
         if linewidth is None:
-            linewidth = rcParams['lines.linewidth']
+            linewidth = mpl.rcParams['lines.linewidth']
 
         if linestyle is None:
-            linestyle = rcParams['lines.linestyle']
+            linestyle = mpl.rcParams['lines.linestyle']
         if marker is None:
-            marker = rcParams['lines.marker']
+            marker = mpl.rcParams['lines.marker']
         if color is None:
-            color = rcParams['lines.color']
+            color = mpl.rcParams['lines.color']
 
         if markersize is None:
-            markersize = rcParams['lines.markersize']
+            markersize = mpl.rcParams['lines.markersize']
         if antialiased is None:
-            antialiased = rcParams['lines.antialiased']
+            antialiased = mpl.rcParams['lines.antialiased']
         if dash_capstyle is None:
-            dash_capstyle = rcParams['lines.dash_capstyle']
+            dash_capstyle = mpl.rcParams['lines.dash_capstyle']
         if dash_joinstyle is None:
-            dash_joinstyle = rcParams['lines.dash_joinstyle']
+            dash_joinstyle = mpl.rcParams['lines.dash_joinstyle']
         if solid_capstyle is None:
-            solid_capstyle = rcParams['lines.solid_capstyle']
+            solid_capstyle = mpl.rcParams['lines.solid_capstyle']
         if solid_joinstyle is None:
-            solid_joinstyle = rcParams['lines.solid_joinstyle']
+            solid_joinstyle = mpl.rcParams['lines.solid_joinstyle']
 
         if drawstyle is None:
             drawstyle = 'default'
@@ -939,7 +940,7 @@ class Line2D(Artist):
         """
         mec = self._markeredgecolor
         if cbook._str_equal(mec, 'auto'):
-            if rcParams['_internal.classic_mode']:
+            if mpl.rcParams['_internal.classic_mode']:
                 if self._marker.get_marker() in ('.', ','):
                     return self._color
                 if (self._marker.is_filled()
@@ -1196,7 +1197,7 @@ class Line2D(Artist):
 
     def _set_markercolor(self, name, has_rcdefault, val):
         if val is None:
-            val = rcParams[f"lines.{name}"] if has_rcdefault else "auto"
+            val = mpl.rcParams[f"lines.{name}"] if has_rcdefault else "auto"
         attr = f"_{name}"
         current = getattr(self, attr)
         if current is None:
@@ -1248,7 +1249,7 @@ class Line2D(Artist):
              Marker edge width, in points.
         """
         if ew is None:
-            ew = rcParams['lines.markeredgewidth']
+            ew = mpl.rcParams['lines.markeredgewidth']
         if self._markeredgewidth != ew:
             self.stale = True
         self._markeredgewidth = ew

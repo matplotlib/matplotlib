@@ -39,7 +39,7 @@ import sys
 import threading
 
 import matplotlib as mpl
-from matplotlib import _api, _afm, cbook, ft2font, rcParams
+from matplotlib import _api, _afm, cbook, ft2font
 from matplotlib._fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 from matplotlib.rcsetup import _validators
@@ -810,7 +810,7 @@ class FontProperties:
         :rc:`text.usetex` is `True`. Default: :rc:`font.family`
         """
         if family is None:
-            family = rcParams['font.family']
+            family = mpl.rcParams['font.family']
         if isinstance(family, str):
             family = [family]
         self._family = family
@@ -824,7 +824,7 @@ class FontProperties:
         style : {'normal', 'italic', 'oblique'}, default: :rc:`font.style`
         """
         if style is None:
-            style = rcParams['font.style']
+            style = mpl.rcParams['font.style']
         _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
         self._slant = style
 
@@ -837,7 +837,7 @@ class FontProperties:
         variant : {'normal', 'small-caps'}, default: :rc:`font.variant`
         """
         if variant is None:
-            variant = rcParams['font.variant']
+            variant = mpl.rcParams['font.variant']
         _api.check_in_list(['normal', 'small-caps'], variant=variant)
         self._variant = variant
 
@@ -853,7 +853,7 @@ class FontProperties:
             If int, must be in the range  0-1000.
         """
         if weight is None:
-            weight = rcParams['font.weight']
+            weight = mpl.rcParams['font.weight']
         if weight in weight_dict:
             self._weight = weight
             return
@@ -879,7 +879,7 @@ class FontProperties:
             If int, must be in the range  0-1000.
         """
         if stretch is None:
-            stretch = rcParams['font.stretch']
+            stretch = mpl.rcParams['font.stretch']
         if stretch in stretch_dict:
             self._stretch = stretch
             return
@@ -905,7 +905,7 @@ class FontProperties:
             relative to the default font size.
         """
         if size is None:
-            size = rcParams['font.size']
+            size = mpl.rcParams['font.size']
         try:
             size = float(size)
         except ValueError:
@@ -971,7 +971,7 @@ class FontProperties:
         .text.Text.get_math_fontfamily
         """
         if fontfamily is None:
-            fontfamily = rcParams['mathtext.fontset']
+            fontfamily = mpl.rcParams['mathtext.fontset']
         else:
             valid_fonts = _validators['mathtext.fontset'].valid.values()
             # _check_in_list() Validates the parameter math_fontfamily as
@@ -1152,7 +1152,7 @@ class FontManager:
         """
         Return the default font size.
         """
-        return rcParams['font.size']
+        return mpl.rcParams['font.size']
 
     def set_default_weight(self, weight):
         """
@@ -1164,7 +1164,7 @@ class FontManager:
     def _expand_aliases(family):
         if family in ('sans', 'sans serif'):
             family = 'sans-serif'
-        return rcParams['font.' + family]
+        return mpl.rcParams['font.' + family]
 
     # Each of the scoring functions below should return a value between
     # 0.0 (perfect match) and 1.0 (terrible match)
@@ -1342,7 +1342,7 @@ class FontManager:
         # Pass the relevant rcParams (and the font manager, as `self`) to
         # _findfont_cached so to prevent using a stale cache entry after an
         # rcParam was changed.
-        rc_params = tuple(tuple(rcParams[key]) for key in [
+        rc_params = tuple(tuple(mpl.rcParams[key]) for key in [
             "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
             "font.monospace"])
         return self._findfont_cached(
@@ -1595,13 +1595,13 @@ def get_font(font_filepaths, hinting_factor=None):
         paths = tuple(_cached_realpath(fname) for fname in font_filepaths)
 
     if hinting_factor is None:
-        hinting_factor = rcParams['text.hinting_factor']
+        hinting_factor = mpl.rcParams['text.hinting_factor']
 
     return _get_font(
         # must be a tuple to be cached
         paths,
         hinting_factor,
-        _kerning_factor=rcParams['text.kerning_factor'],
+        _kerning_factor=mpl.rcParams['text.kerning_factor'],
         # also key on the thread ID to prevent segfaults with multi-threading
         thread_id=threading.get_ident()
     )
