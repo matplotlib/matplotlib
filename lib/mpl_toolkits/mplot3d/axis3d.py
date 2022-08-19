@@ -6,9 +6,10 @@ import inspect
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import (
     _api, artist, lines as mlines, axis as maxis, patches as mpatches,
-    transforms as mtransforms, rcParams, colors as mcolors)
+    transforms as mtransforms, colors as mcolors)
 from . import art3d, proj3d
 
 
@@ -81,15 +82,15 @@ class Axis(maxis.XAxis):
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[name].copy()
-        if rcParams['_internal.classic_mode']:
+        if mpl.rcParams['_internal.classic_mode']:
             self._axinfo.update({
                 'label': {'va': 'center', 'ha': 'center'},
                 'tick': {
                     'inward_factor': 0.2,
                     'outward_factor': 0.1,
                     'linewidth': {
-                        True: rcParams['lines.linewidth'],  # major
-                        False: rcParams['lines.linewidth'],  # minor
+                        True: mpl.rcParams['lines.linewidth'],  # major
+                        False: mpl.rcParams['lines.linewidth'],  # minor
                     }
                 },
                 'axisline': {'linewidth': 0.75, 'color': (0, 0, 0, 1)},
@@ -107,21 +108,21 @@ class Axis(maxis.XAxis):
                     'outward_factor': 0.1,
                     'linewidth': {
                         True: (  # major
-                            rcParams['xtick.major.width'] if name in 'xz' else
-                            rcParams['ytick.major.width']),
+                            mpl.rcParams['xtick.major.width'] if name in 'xz'
+                            else mpl.rcParams['ytick.major.width']),
                         False: (  # minor
-                            rcParams['xtick.minor.width'] if name in 'xz' else
-                            rcParams['ytick.minor.width']),
+                            mpl.rcParams['xtick.minor.width'] if name in 'xz'
+                            else mpl.rcParams['ytick.minor.width']),
                     }
                 },
                 'axisline': {
-                    'linewidth': rcParams['axes.linewidth'],
-                    'color': rcParams['axes.edgecolor'],
+                    'linewidth': mpl.rcParams['axes.linewidth'],
+                    'color': mpl.rcParams['axes.edgecolor'],
                 },
                 'grid': {
-                    'color': rcParams['grid.color'],
-                    'linewidth': rcParams['grid.linewidth'],
-                    'linestyle': rcParams['grid.linestyle'],
+                    'color': mpl.rcParams['grid.color'],
+                    'linewidth': mpl.rcParams['grid.linewidth'],
+                    'linestyle': mpl.rcParams['grid.linestyle'],
                 },
             })
 
