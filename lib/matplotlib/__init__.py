@@ -232,11 +232,21 @@ def _ensure_handler():
 
 def set_loglevel(level):
     """
-    Set Matplotlib's root logger and root logger handler level, creating
-    the handler if it does not exist yet.
+    Configure Matplotlib's logging levels.
+
+    Matplotlib uses the standard library `logging` framework under the root
+    logger 'matplotlib'.  This is a helper function to:
+
+    - set Matplotlib's root logger level
+    - set the root logger handler's level, creating the handler
+      if it does not exist yet
 
     Typically, one should call ``set_loglevel("info")`` or
     ``set_loglevel("debug")`` to get additional debugging information.
+
+    Users or applications that are installing their own logging handlers
+    may want to directly manipulate ``logging.getLogger('matplotlib')`` rather
+    than use this function.
 
     Parameters
     ----------
@@ -248,6 +258,7 @@ def set_loglevel(level):
     The first time this function is called, an additional handler is attached
     to Matplotlib's root handler; this handler is reused every time and this
     function simply manipulates the logger and handler's level.
+
     """
     _log.setLevel(level.upper())
     _ensure_handler().setLevel(level.upper())
