@@ -1,6 +1,14 @@
-Make the resample method on `.Colormap` instances public
---------------------------------------------------------
+Colormap method for creating a different lookup table size
+----------------------------------------------------------
+The new method `.Colormap.resampled` creates a new `.Colormap` instance
+with the specified lookup table size. This is a replacement for manipulating
+the lookup table size via ``get_cmap``.
 
-On `.LinearSegmentedColormap` and `.ListedColormap` the previously private
-``_resample`` method is made public as `.Colormap.resampled`.  This method
-creates a new `.Colormap` instance with the specified lookup table size.
+Use::
+
+    get_cmap(name).resampled(N)
+
+instead of::
+
+    get_cmap(name, lut=N)
+
