@@ -215,11 +215,13 @@ class Axes(_AxesBase):
             line.set_label('Label via method')
             ax.legend()
 
-        Specific lines can be excluded from the automatic legend element
-        selection by defining a label starting with an underscore.
-        This is default for all artists, so calling `.Axes.legend` without
-        any arguments and without setting the labels manually will result in
-        no legend being drawn.
+        .. note::
+            Specific artists can be excluded from the automatic legend element
+            selection by using a label starting with an underscore, "_".
+            A string starting with an underscore is the default label for all
+            artists, so calling `.Axes.legend` without any arguments and
+            without setting the labels manually will result in no legend being
+            drawn.
 
 
         **2. Explicitly listing the artists and labels in the legend**
