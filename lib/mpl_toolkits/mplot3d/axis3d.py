@@ -13,7 +13,16 @@ from matplotlib import (
 from . import art3d, proj3d
 
 
+@_api.deprecated("3.6", alternative="Vendor the code of _move_from_center")
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
+    """
+    For each coordinate where *axmask* is True, move *coord* away from
+    *centers* by *deltas*.
+    """
+    return _move_from_center(coord, centers, deltas, axmask=axmask)
+
+
+def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     """
     For each coordinate where *axmask* is True, move *coord* away from
     *centers* by *deltas*.
@@ -22,7 +31,13 @@ def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
+@_api.deprecated("3.6", alternative="Vendor the code of _tick_update_position")
 def tick_update_position(tick, tickxs, tickys, labelpos):
+    """Update tick line and label position and style."""
+    _tick_update_position(tick, tickxs, tickys, labelpos)
+
+
+def _tick_update_position(tick, tickxs, tickys, labelpos):
     """Update tick line and label position and style."""
 
     tick.label1.set_position(labelpos)
@@ -371,7 +386,7 @@ class Axis(maxis.XAxis):
             (self.labelpad + default_offset) * deltas_per_point * deltas)
         axmask = [True, True, True]
         axmask[index] = False
-        lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
+        lxyz = _move_from_center(lxyz, centers, labeldeltas, axmask)
         tlx, tly, tlz = proj3d.proj_transform(*lxyz, self.axes.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
@@ -392,7 +407,7 @@ class Axis(maxis.XAxis):
             outeredgep = edgep2
             outerindex = 1
 
-        pos = move_from_center(outeredgep, centers, labeldeltas, axmask)
+        pos = _move_from_center(outeredgep, centers, labeldeltas, axmask)
         olx, oly, olz = proj3d.proj_transform(*pos, self.axes.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
@@ -492,10 +507,10 @@ class Axis(maxis.XAxis):
             labeldeltas = (tick.get_pad() + default_label_offset) * points
 
             pos[tickdir] = edgep1_tickdir
-            pos = move_from_center(pos, centers, labeldeltas, axmask)
+            pos = _move_from_center(pos, centers, labeldeltas, axmask)
             lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
 
-            tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
+            _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(tick_lw[tick._major])
             tick.draw(renderer)
 
