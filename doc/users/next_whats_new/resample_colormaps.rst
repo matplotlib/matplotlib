@@ -11,4 +11,3 @@ Use::
 instead of::
 
     get_cmap(name, lut=N)
-
