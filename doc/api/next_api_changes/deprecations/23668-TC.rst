@@ -14,10 +14,9 @@ In Matplotlib 3.6 we have marked those top level functions as pending
 deprecation with the intention of deprecation in Matplotlib 3.7.  The
 following functions have been marked for pending deprecation:
 
-- `matplotlib.cm.get_cmap`
-- `matplotlib.cm.register_cmap`
-- `matplotlib.cm.unregister_cmap`
-- ``matplotlib.pyplot.register_cmap``
+- `matplotlib.cm.get_cmap` - use ``matplotlib.colormaps[name]`` instead
+- `matplotlib.cm.register_cmap` - use ``matplotlib.colormaps.register`` instead
+- `matplotlib.cm.unregister_cmap` - use ``matplotlib.colormaps.unregister`` instead
+- ``matplotlib.pyplot.register_cmap`` - use ``matplotlib.colormaps.register`` instead
 
-The ``matplotlib.pyplot.get_cmap`` function is intentionally exempted from this
-deprecation process.
+The ``matplotlib.pyplot.get_cmap`` function will stay available for backward compatibility.
