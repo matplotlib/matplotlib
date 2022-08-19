@@ -11,9 +11,11 @@ A module for parsing and generating `fontconfig patterns`_.
 
 from functools import lru_cache
 import re
+
 import numpy as np
-from pyparsing import (Literal, ZeroOrMore, Optional, Regex, StringEnd,
-                       ParseException, Suppress)
+from pyparsing import (
+    Literal, Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore,
+)
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub
@@ -125,14 +127,11 @@ class FontconfigPatternParser:
         props = self._properties = {}
         try:
             self._parser.parseString(pattern)
-        except self.ParseException as e:
-            raise ValueError(
-                "Could not parse font string: '%s'\n%s" % (pattern, e)) from e
-
+        except ParseException as err:
+            # explain becomes a plain method on pyparsing 3 (err.explain(0)).
+            raise ValueError("\n" + ParseException.explain(err, 0)) from None
         self._properties = None
-
         self._parser.resetCache()
-
         return props
 
     def _family(self, s, loc, tokens):

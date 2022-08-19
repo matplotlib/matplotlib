@@ -15,8 +15,9 @@ import unicodedata
 import numpy as np
 from pyparsing import (
     Empty, Forward, Literal, NotAny, oneOf, OneOrMore, Optional,
-    ParseBaseException, ParseExpression, ParseFatalException, ParserElement,
-    ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore, pyparsing_common)
+    ParseBaseException, ParseException, ParseExpression, ParseFatalException,
+    ParserElement, ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore,
+    pyparsing_common)
 
 import matplotlib as mpl
 from . import _api, cbook
@@ -1990,10 +1991,8 @@ class Parser:
         try:
             result = self._expression.parseString(s)
         except ParseBaseException as err:
-            raise ValueError("\n".join(["",
-                                        err.line,
-                                        " " * (err.column - 1) + "^",
-                                        str(err)])) from err
+            # explain becomes a plain method on pyparsing 3 (err.explain(0)).
+            raise ValueError("\n" + ParseException.explain(err, 0)) from None
         self._state_stack = None
         self._in_subscript_or_superscript = False
         # prevent operator spacing from leaking into a new expression
