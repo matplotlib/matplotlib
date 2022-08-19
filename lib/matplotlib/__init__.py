@@ -230,7 +230,7 @@ def _ensure_handler():
     return handler
 
 
-def set_loglevel(level):
+def set_loglevel(level, *, ensure_handler=True):
     """
     Configure Matplotlib's logging levels.
 
@@ -238,7 +238,7 @@ def set_loglevel(level):
     logger 'matplotlib'.  This is a helper function to:
 
     - set Matplotlib's root logger level
-    - set the root logger handler's level, creating the handler
+    - optionally set the root logger handler's level, creating the handler
       if it does not exist yet
 
     Typically, one should call ``set_loglevel("info")`` or
@@ -253,6 +253,10 @@ def set_loglevel(level):
     level : {"notset", "debug", "info", "warning", "error", "critical"}
         The log level of the handler.
 
+    ensure_handler : bool
+        If True will ensure that there is a `logging.StreamHandler` added to
+        the matplotlib root logger and that its level matches the logger level.
+
     Notes
     -----
     The first time this function is called, an additional handler is attached
@@ -261,7 +265,8 @@ def set_loglevel(level):
 
     """
     _log.setLevel(level.upper())
-    _ensure_handler().setLevel(level.upper())
+    if ensure_handler:
+        _ensure_handler().setLevel(level.upper())
 
 
 def _logged_cached(fmt, func=None):
