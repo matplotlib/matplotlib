@@ -26,8 +26,8 @@ Getting colormaps and accessing their values
 First, getting a named colormap, most of which are listed in
 :doc:`/tutorials/colors/colormaps`, may be done using `.matplotlib.colormaps`,
 which returns a colormap object.  The length of the list of colors used
-internally to define the colormap and be adjusted via `.Colormap.resampled`.
-Blow we use a modest value of 8 so there are not a lot of values to look at.
+internally to define the colormap can be adjusted via `.Colormap.resampled`.
+Below we use a modest value of 8 so there are not a lot of values to look at.
 
 """
 
