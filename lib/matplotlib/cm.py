@@ -253,9 +253,6 @@ def _get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.
 
-    Colormaps added with :func:`register_cmap` take precedence over
-    built-in colormaps.
-
     Parameters
     ----------
     name : `matplotlib.colors.Colormap` or str or None, default: None
