@@ -97,7 +97,7 @@ stages:
               graphviz \
               inkscape \
               libcairo2 \
-              libgirepository-1.0.1 \
+              libgirepository-1.0-1 \
               lmodern \
               fonts-freefont-otf \
               poppler-utils \
