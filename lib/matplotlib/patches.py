@@ -1958,6 +1958,9 @@ class Arc(Ellipse):
 
         self.theta1 = theta1
         self.theta2 = theta2
+        (self._theta1, self._theta2, self._stretched_width,
+         self._stretched_height) = self._theta_stretch()
+        self._path = Path.arc(self._theta1, self._theta2)
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -2010,36 +2013,7 @@ class Arc(Ellipse):
 
         self._recompute_transform()
 
-        width = self.convert_xunits(self.width)
-        height = self.convert_yunits(self.height)
-
-        # If the width and height of ellipse are not equal, take into account
-        # stretching when calculating angles to draw between
-        def theta_stretch(theta, scale):
-            theta = np.deg2rad(theta)
-            x = np.cos(theta)
-            y = np.sin(theta)
-            stheta = np.rad2deg(np.arctan2(scale * y, x))
-            # arctan2 has the range [-pi, pi], we expect [0, 2*pi]
-            return (stheta + 360) % 360
-
-        theta1 = self.theta1
-        theta2 = self.theta2
-
-        if (
-            # if we need to stretch the angles because we are distorted
-            width != height
-            # and we are not doing a full circle.
-            #
-            # 0 and 360 do not exactly round-trip through the angle
-            # stretching (due to both float precision limitations and
-            # the difference between the range of arctan2 [-pi, pi] and
-            # this method [0, 360]) so avoid doing it if we don't have to.
-            and not (theta1 != theta2 and theta1 % 360 == theta2 % 360)
-        ):
-            theta1 = theta_stretch(self.theta1, width / height)
-            theta2 = theta_stretch(self.theta2, width / height)
-
+        self._update_path()
         # Get width and height in pixels we need to use
         # `self.get_data_transform` rather than `self.get_transform`
         # because we want the transform from dataspace to the
@@ -2048,12 +2022,13 @@ class Arc(Ellipse):
         # `self.get_transform()` goes from an idealized unit-radius
         # space to screen space).
         data_to_screen_trans = self.get_data_transform()
-        pwidth, pheight = (data_to_screen_trans.transform((width, height)) -
-                           data_to_screen_trans.transform((0, 0)))
+        pwidth, pheight = (
+            data_to_screen_trans.transform((self._stretched_width,
+                                            self._stretched_height)) -
+            data_to_screen_trans.transform((0, 0)))
         inv_error = (1.0 / 1.89818e-6) * 0.5
 
         if pwidth < inv_error and pheight < inv_error:
-            self._path = Path.arc(theta1, theta2)
             return Patch.draw(self, renderer)
 
         def line_circle_intersect(x0, y0, x1, y1):
@@ -2107,10 +2082,11 @@ class Arc(Ellipse):
             # arctan2 return [-pi, pi), the rest of our angles are in
             # [0, 360], adjust as needed.
             theta = (np.rad2deg(np.arctan2(y, x)) + 360) % 360
-            thetas.update(theta[(theta1 < theta) & (theta < theta2)])
-        thetas = sorted(thetas) + [theta2]
-        last_theta = theta1
-        theta1_rad = np.deg2rad(theta1)
+            thetas.update(
+                theta[(self._theta1 < theta) & (theta < self._theta2)])
+        thetas = sorted(thetas) + [self._theta2]
+        last_theta = self._theta1
+        theta1_rad = np.deg2rad(self._theta1)
         inside = box_path.contains_point(
             (np.cos(theta1_rad), np.sin(theta1_rad))
         )
@@ -2128,6 +2104,46 @@ class Arc(Ellipse):
 
         # restore original path
         self._path = path_original
+
+    def _update_path(self):
+        # Compute new values and update and set new _path if any value changed
+        stretched = self._theta_stretch()
+        if any(a != b for a, b in zip(
+                stretched, (self._theta1, self._theta2, self._stretched_width,
+                            self._stretched_height))):
+            (self._theta1, self._theta2, self._stretched_width,
+             self._stretched_height) = stretched
+            self._path = Path.arc(self._theta1, self._theta2)
+
+    def _theta_stretch(self):
+        # If the width and height of ellipse are not equal, take into account
+        # stretching when calculating angles to draw between
+        def theta_stretch(theta, scale):
+            theta = np.deg2rad(theta)
+            x = np.cos(theta)
+            y = np.sin(theta)
+            stheta = np.rad2deg(np.arctan2(scale * y, x))
+            # arctan2 has the range [-pi, pi], we expect [0, 2*pi]
+            return (stheta + 360) % 360
+
+        width = self.convert_xunits(self.width)
+        height = self.convert_yunits(self.height)
+        if (
+            # if we need to stretch the angles because we are distorted
+            width != height
+            # and we are not doing a full circle.
+            #
+            # 0 and 360 do not exactly round-trip through the angle
+            # stretching (due to both float precision limitations and
+            # the difference between the range of arctan2 [-pi, pi] and
+            # this method [0, 360]) so avoid doing it if we don't have to.
+            and not (self.theta1 != self.theta2 and
+                     self.theta1 % 360 == self.theta2 % 360)
+        ):
+            theta1 = theta_stretch(self.theta1, width / height)
+            theta2 = theta_stretch(self.theta2, width / height)
+            return theta1, theta2, width, height
+        return self.theta1, self.theta2, width, height
 
 
 def bbox_artist(artist, renderer, props=None, fill=True):

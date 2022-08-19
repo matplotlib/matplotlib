@@ -7,7 +7,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib.patches import (Annulus, Ellipse, Patch, Polygon, Rectangle,
-                                FancyArrowPatch, FancyArrow, BoxStyle)
+                                FancyArrowPatch, FancyArrow, BoxStyle, Arc)
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
@@ -676,7 +676,7 @@ def test_large_arc():
     y = -2115
     diameter = 4261
     for ax in [ax1, ax2]:
-        a = mpatches.Arc((x, y), diameter, diameter, lw=2, color='k')
+        a = Arc((x, y), diameter, diameter, lw=2, color='k')
         ax.add_patch(a)
         ax.set_axis_off()
         ax.set_aspect('equal')
@@ -703,7 +703,7 @@ def test_rotated_arcs():
         for prescale, centers in zip((1 - .0001, (1 - .0001) / np.sqrt(2)),
                                       (on_axis_centers, diag_centers)):
             for j, (x_sign, y_sign) in enumerate(centers, start=k):
-                a = mpatches.Arc(
+                a = Arc(
                     (x_sign * scale * prescale,
                      y_sign * scale * prescale),
                     scale * sx,
@@ -842,3 +842,41 @@ def test_default_capstyle():
 def test_default_joinstyle():
     patch = Patch()
     assert patch.get_joinstyle() == 'miter'
+
+
+@image_comparison(["autoscale_arc"], extensions=['png', 'svg'],
+                  style="mpl20", remove_text=True)
+def test_autoscale_arc():
+    fig, axs = plt.subplots(1, 3, figsize=(4, 1))
+    arc_lists = (
+        [Arc((0, 0), 1, 1, theta1=0, theta2=90)],
+        [Arc((0.5, 0.5), 1.5, 0.5, theta1=10, theta2=20)],
+        [Arc((0.5, 0.5), 1.5, 0.5, theta1=10, theta2=20),
+         Arc((0.5, 0.5), 2.5, 0.5, theta1=110, theta2=120),
+         Arc((0.5, 0.5), 3.5, 0.5, theta1=210, theta2=220),
+         Arc((0.5, 0.5), 4.5, 0.5, theta1=310, theta2=320)])
+
+    for ax, arcs in zip(axs, arc_lists):
+        for arc in arcs:
+            ax.add_patch(arc)
+        ax.autoscale()
+
+
+@check_figures_equal(extensions=["png", 'svg', 'pdf', 'eps'])
+def test_arc_in_collection(fig_test, fig_ref):
+    arc1 = Arc([.5, .5], .5, 1, theta1=0, theta2=60, angle=20)
+    arc2 = Arc([.5, .5], .5, 1, theta1=0, theta2=60, angle=20)
+    col = mcollections.PatchCollection(patches=[arc2], facecolors='none',
+                                       edgecolors='k')
+    fig_ref.subplots().add_patch(arc1)
+    fig_test.subplots().add_collection(col)
+
+
+@check_figures_equal(extensions=["png", 'svg', 'pdf', 'eps'])
+def test_modifying_arc(fig_test, fig_ref):
+    arc1 = Arc([.5, .5], .5, 1, theta1=0, theta2=60, angle=20)
+    arc2 = Arc([.5, .5], 1.5, 1, theta1=0, theta2=60, angle=10)
+    fig_ref.subplots().add_patch(arc1)
+    fig_test.subplots().add_patch(arc2)
+    arc2.set_width(.5)
+    arc2.set_angle(20)
