@@ -1782,7 +1782,7 @@ class Parser:
 
     _ambi_delims = set(r"""
       | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
-      \Downarrow \Updownarrow . \vert \Vert""".split())
+      \Downarrow \Updownarrow . \vert \Vert \mid""".split())
     _left_delims = set(r"( [ \{ < \lfloor \langle \lceil".split())
     _right_delims = set(r") ] \} > \rfloor \rangle \rceil".split())
     _delims = _left_delims | _right_delims | _ambi_delims
@@ -1950,7 +1950,10 @@ class Parser:
 
         p.auto_delim    <<= (
             r"\left" - (p.delim("left") | Error("Expected a delimiter"))
-            + ZeroOrMore(p.simple | p.auto_delim)("mid")
+            + ZeroOrMore(p.simple | p.auto_delim)("mid1")
+            + Optional(r"\middle" - (p.delim("mid") |
+                                     Error("Expected a delimiter")))("middle")
+            + ZeroOrMore(p.simple | p.auto_delim)("mid2")
             + r"\right" - (p.delim("right") | Error("Expected a delimiter"))
         )
 
@@ -2560,11 +2563,14 @@ class Parser:
         hlist = Hlist([rightside])
         return [hlist]
 
-    def _auto_sized_delimiter(self, front, middle, back):
+    def _auto_sized_delimiter(self, front, mid1, back, middle=".", mid2=None):
+        if mid2 is None:
+            mid2 = []
         state = self.get_state()
-        if len(middle):
-            height = max(x.height for x in middle)
-            depth = max(x.depth for x in middle)
+        content = mid1 + mid2
+        if len(content):
+            height = max(x.height for x in content)
+            depth = max(x.depth for x in content)
             factor = None
         else:
             height = 0
@@ -2575,7 +2581,11 @@ class Parser:
         if front != '.':
             parts.append(
                 AutoHeightChar(front, height, depth, state, factor=factor))
-        parts.extend(middle)
+        parts.extend(mid1)
+        if middle != ".":
+            parts.append(
+                AutoHeightChar(middle, height, depth, state, factor=factor))
+        parts.extend(mid2)
         if back != '.':
             parts.append(
                 AutoHeightChar(back, height, depth, state, factor=factor))
@@ -2585,6 +2595,9 @@ class Parser:
     def auto_delim(self, s, loc, toks):
         return self._auto_sized_delimiter(
             toks["left"],
-            # if "mid" in toks ... can be removed when requiring pyparsing 3.
-            toks["mid"].asList() if "mid" in toks else [],
-            toks["right"])
+            # if "mid*" in toks ... can be removed when requiring pyparsing 3.
+            toks["mid1"].asList() if "mid1" in toks else [],
+            toks["right"],
+            toks["mid"] if "mid" in toks else ".",
+            toks["mid2"].asList() if "mid2" in toks else []
+            )

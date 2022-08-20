@@ -124,6 +124,14 @@ the parser that those brackets encompass the entire object.::
 
     \left(\frac{5 - \frac{1}{x}}{4}\right)
 
+There is also a ``\middle`` version for using with a middle delimiter.::
+
+    r'$\left\{x  \middle \mid \frac{x^2} < \frac{3}{4} \right\}$'
+
+.. math::
+
+    \left\{x  \middle \mid \frac{x^2} < \frac{3}{4} \right\}
+
 Radicals
 --------
 Radicals can be produced with the ``\sqrt[]{}`` command.  For example::
