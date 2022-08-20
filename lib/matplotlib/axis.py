@@ -895,7 +895,9 @@ class Axis(martist.Artist):
 
         This does not reset tick and tick label visibility.
         """
+        self.label.set_text('')
         self.label._reset_visual_defaults()
+        self.offsetText.set_text('')
         self.offsetText._reset_visual_defaults()
         self.labelpad = mpl.rcParams['axes.labelpad']
 
