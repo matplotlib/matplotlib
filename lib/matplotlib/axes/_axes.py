@@ -2745,7 +2745,13 @@ class Axes(_AxesBase):
             if np.isnan(dat):
                 lbl = ''
 
-            annotation = self.annotate(fmt % value if lbl is None else lbl,
+            if lbl is None:
+                formatted_value = (
+                    fmt.format(value) if fmt.startswith('{') else fmt % value
+                )
+            else:
+                formatted_value = lbl
+            annotation = self.annotate(formatted_value,
                                        xy, xytext, textcoords="offset points",
                                        ha=ha, va=va, **kwargs)
             annotations.append(annotation)
