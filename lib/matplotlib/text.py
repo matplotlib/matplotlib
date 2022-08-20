@@ -164,8 +164,8 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
-        self.set_text(text)
         self._reset_visual_defaults(
+            text=text,
             color=color,
             fontproperties=fontproperties,
             usetex=usetex,
@@ -183,6 +183,7 @@ class Text(Artist):
 
     def _reset_visual_defaults(
         self,
+        text='',
         color=None,
         fontproperties=None,
         usetex=None,
@@ -196,6 +197,7 @@ class Text(Artist):
         linespacing=None,
         rotation_mode=None,
     ):
+        self.set_text(text)
         self.set_color(
             color if color is not None else mpl.rcParams["text.color"])
         self.set_fontproperties(fontproperties)
