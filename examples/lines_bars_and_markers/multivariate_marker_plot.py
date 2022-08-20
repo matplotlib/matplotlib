@@ -31,7 +31,7 @@ successful = np.random.randint(0, 3, size=N)
 positions = np.random.normal(size=(N, 2)) * 5
 data = zip(skills, takeoff_angles, thrusts, successful, positions)
 
-cmap = plt.cm.get_cmap("plasma")
+cmap = plt.colormaps["plasma"]
 fig, ax = plt.subplots()
 fig.suptitle("Throwing success", size=14)
 for skill, takeoff, thrust, mood, pos in data:

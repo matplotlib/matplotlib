@@ -187,7 +187,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if use_multicolor_lines:
         if norm is None:
             norm = mcolors.Normalize(color.min(), color.max())
-        cmap = cm.get_cmap(cmap)
+        cmap = cm._ensure_cmap(cmap)
 
     streamlines = []
     arrows = []

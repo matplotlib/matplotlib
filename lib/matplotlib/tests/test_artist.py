@@ -5,7 +5,6 @@ import numpy as np
 
 import pytest
 
-from matplotlib import cm
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -14,6 +13,7 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 import matplotlib.artist as martist
+import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
@@ -415,7 +415,7 @@ def test_format_cursor_data_BoundaryNorm():
     # map range -1..1 to 0..256 in 0.01 steps
     fig, ax = plt.subplots()
     fig.suptitle("-1..1 to 0..256 in 0.01")
-    cmap = cm.get_cmap('RdBu_r', 200)
+    cmap = mpl.colormaps['RdBu_r'].resampled(200)
     norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 200), 200)
     img = ax.imshow(X, cmap=cmap, norm=norm)
 
@@ -439,7 +439,7 @@ def test_format_cursor_data_BoundaryNorm():
     # map range -1..1 to 0..256 in 0.01 steps
     fig, ax = plt.subplots()
     fig.suptitle("-1..1 to 0..256 in 0.001")
-    cmap = cm.get_cmap('RdBu_r', 2000)
+    cmap = mpl.colormaps['RdBu_r'].resampled(2000)
     norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 2000), 2000)
     img = ax.imshow(X, cmap=cmap, norm=norm)
 

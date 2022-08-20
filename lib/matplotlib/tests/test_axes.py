@@ -1220,7 +1220,7 @@ def test_pcolormesh_alpha():
     Qy = Y + np.sin(X)
     Z = np.hypot(X, Y) / 5
     Z = (Z - Z.min()) / Z.ptp()
-    vir = plt.get_cmap("viridis", 16)
+    vir = mpl.colormaps["viridis"].resampled(16)
     # make another colormap with varying alpha
     colors = vir(np.arange(16))
     colors[:, 3] = 0.5 + 0.5*np.sin(np.arange(16))
@@ -2279,7 +2279,7 @@ def test_contour_hatching():
     x, y, z = contour_dat()
     fig, ax = plt.subplots()
     ax.contourf(x, y, z, 7, hatches=['/', '\\', '//', '-'],
-                cmap=plt.get_cmap('gray'),
+                cmap=mpl.colormaps['gray'],
                 extend='both', alpha=0.5)
 
 
@@ -2289,7 +2289,7 @@ def test_contour_colorbar():
 
     fig, ax = plt.subplots()
     cs = ax.contourf(x, y, z, levels=np.arange(-1.8, 1.801, 0.2),
-                     cmap=plt.get_cmap('RdBu'),
+                     cmap=mpl.colormaps['RdBu'],
                      vmin=-0.6,
                      vmax=0.6,
                      extend='both')
@@ -2473,7 +2473,7 @@ class TestScatter:
     @check_figures_equal(extensions=["png"])
     def test_scatter_invalid_color(self, fig_test, fig_ref):
         ax = fig_test.subplots()
-        cmap = plt.get_cmap("viridis", 16)
+        cmap = mpl.colormaps["viridis"].resampled(16)
         cmap.set_bad("k", 1)
         # Set a nonuniform size to prevent the last call to `scatter` (plotting
         # the invalid points separately in fig_ref) from using the marker
@@ -2482,7 +2482,7 @@ class TestScatter:
                    c=[1, np.nan, 2, np.nan], s=[1, 2, 3, 4],
                    cmap=cmap, plotnonfinite=True)
         ax = fig_ref.subplots()
-        cmap = plt.get_cmap("viridis", 16)
+        cmap = mpl.colormaps["viridis"].resampled(16)
         ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
         ax.scatter([1, 3], [1, 3], s=[2, 4], color="k")
 
@@ -2490,7 +2490,7 @@ class TestScatter:
     def test_scatter_no_invalid_color(self, fig_test, fig_ref):
         # With plotnonfinite=False we plot only 2 points.
         ax = fig_test.subplots()
-        cmap = plt.get_cmap("viridis", 16)
+        cmap = mpl.colormaps["viridis"].resampled(16)
         cmap.set_bad("k", 1)
         ax.scatter(range(4), range(4),
                    c=[1, np.nan, 2, np.nan], s=[1, 2, 3, 4],

@@ -3,6 +3,7 @@ import pytest
 
 from matplotlib import cm
 import matplotlib.colors as mcolors
+import matplotlib as mpl
 
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
@@ -24,7 +25,7 @@ def _get_cmap_norms():
     colorbar_extension_length.
     """
     # Create a colormap and specify the levels it represents.
-    cmap = cm.get_cmap("RdBu", lut=5)
+    cmap = mpl.colormaps["RdBu"].resampled(5)
     clevs = [-5., -2.5, -.5, .5, 1.5, 3.5]
     # Define norms for the colormaps.
     norms = dict()
@@ -132,8 +133,8 @@ def test_colorbar_extension_inverted_axis(orientation, extend, expected):
     """Test extension color with an inverted axis"""
     data = np.arange(12).reshape(3, 4)
     fig, ax = plt.subplots()
-    cmap = plt.get_cmap("viridis").with_extremes(under=(0, 0, 0, 1),
-                                                 over=(1, 1, 1, 1))
+    cmap = mpl.colormaps["viridis"].with_extremes(under=(0, 0, 0, 1),
+                                                  over=(1, 1, 1, 1))
     im = ax.imshow(data, cmap=cmap)
     cbar = fig.colorbar(im, orientation=orientation, extend=extend)
     if orientation == "horizontal":
@@ -268,7 +269,7 @@ def test_colorbar_single_scatter():
     plt.figure()
     x = y = [0]
     z = [50]
-    cmap = plt.get_cmap('jet', 16)
+    cmap = mpl.colormaps['jet'].resampled(16)
     cs = plt.scatter(x, y, z, c=z, cmap=cmap)
     plt.colorbar(cs)
 
@@ -326,7 +327,7 @@ def test_colorbar_closed_patch():
     ax4 = fig.add_axes([0.05, 0.25, 0.9, 0.1])
     ax5 = fig.add_axes([0.05, 0.05, 0.9, 0.1])
 
-    cmap = cm.get_cmap("RdBu", lut=5)
+    cmap = mpl.colormaps["RdBu"].resampled(5)
 
     im = ax1.pcolormesh(np.linspace(0, 10, 16).reshape((4, 4)), cmap=cmap)
 
@@ -957,7 +958,7 @@ def test_colorbar_extend_drawedges():
         fig.subplots_adjust(left=0.05, bottom=0.05, right=0.95, top=0.95)
 
         for ax, (extend, coloroffset, res) in zip(axs, params):
-            cmap = plt.get_cmap("viridis")
+            cmap = mpl.colormaps["viridis"]
             bounds = np.arange(5)
             nb_colors = len(bounds) + coloroffset
             colors = cmap(np.linspace(100, 255, nb_colors).astype(int))
@@ -980,7 +981,7 @@ def test_colorbar_extend_drawedges():
 
 def test_negative_boundarynorm():
     fig, ax = plt.subplots(figsize=(1, 3))
-    cmap = plt.get_cmap("viridis")
+    cmap = mpl.colormaps["viridis"]
 
     clevs = np.arange(-94, -85)
     norm = BoundaryNorm(clevs, cmap.N)
@@ -1016,7 +1017,7 @@ def test_nonorm():
     fig.subplots_adjust(bottom=0.5)
 
     norm = NoNorm(vmin=min(data), vmax=max(data))
-    cmap = cm.get_cmap("viridis", len(data))
+    cmap = mpl.colormaps["viridis"].resampled(len(data))
     mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
     cbar = fig.colorbar(mappable, cax=ax, orientation="horizontal")
 

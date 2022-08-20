@@ -12,6 +12,7 @@ from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 from matplotlib import cbook, cm, cycler
 import matplotlib
+import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.colorbar as mcolorbar
 import matplotlib.pyplot as plt
@@ -29,9 +30,9 @@ def test_create_lookup_table(N, result):
     assert_array_almost_equal(mcolors._create_lookup_table(N, data), result)
 
 
-def test_resample():
+def test_resampled():
     """
-    GitHub issue #6025 pointed to incorrect ListedColormap._resample;
+    GitHub issue #6025 pointed to incorrect ListedColormap.resampled;
     here we test the method for LinearSegmentedColormap as well.
     """
     n = 101
@@ -47,8 +48,8 @@ def test_resample():
         cmap.set_under('r')
         cmap.set_over('g')
         cmap.set_bad('b')
-    lsc3 = lsc._resample(3)
-    lc3 = lc._resample(3)
+    lsc3 = lsc.resampled(3)
+    lc3 = lc.resampled(3)
     expected = np.array([[0.0, 0.2, 1.0, 0.7],
                          [0.5, 0.2, 0.5, 0.7],
                          [1.0, 0.2, 0.0, 0.7]], float)
@@ -64,24 +65,48 @@ def test_resample():
 
 
 def test_register_cmap():
-    new_cm = cm.get_cmap("viridis")
+    new_cm = mpl.colormaps["viridis"]
     target = "viridis2"
-    cm.register_cmap(target, new_cm)
-    assert plt.get_cmap(target) == new_cm
+    with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+    ):
+        cm.register_cmap(target, new_cm)
+    assert mpl.colormaps[target] == new_cm
 
     with pytest.raises(ValueError,
                        match="Arguments must include a name or a Colormap"):
-        cm.register_cmap()
+        with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+        ):
+            cm.register_cmap()
 
-    cm.unregister_cmap(target)
+    with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.unregister_cmap\(name\)"
+    ):
+        cm.unregister_cmap(target)
     with pytest.raises(ValueError,
                        match=f'{target!r} is not a valid value for name;'):
-        cm.get_cmap(target)
-    # test that second time is error free
-    cm.unregister_cmap(target)
+        with pytest.warns(
+                PendingDeprecationWarning,
+                match=r"matplotlib\.colormaps\[name\]"
+        ):
+            cm.get_cmap(target)
+    with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.unregister_cmap\(name\)"
+    ):
+        # test that second time is error free
+        cm.unregister_cmap(target)
 
     with pytest.raises(TypeError, match="'cmap' must be"):
-        cm.register_cmap('nome', cmap='not a cmap')
+        with pytest.warns(
+            PendingDeprecationWarning,
+            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+        ):
+            cm.register_cmap('nome', cmap='not a cmap')
 
 
 def test_double_register_builtin_cmap():
@@ -89,19 +114,22 @@ def test_double_register_builtin_cmap():
     match = f"Re-registering the builtin cmap {name!r}."
     with pytest.raises(ValueError, match=match):
         matplotlib.colormaps.register(
-            cm.get_cmap(name), name=name, force=True
+            mpl.colormaps[name], name=name, force=True
         )
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
-        cm.register_cmap(name, cm.get_cmap(name))
+        with pytest.warns():
+            cm.register_cmap(name, mpl.colormaps[name])
     with pytest.warns(UserWarning):
-        cm.register_cmap(name, cm.get_cmap(name), override_builtin=True)
+        # TODO is warning more than once!
+        cm.register_cmap(name, mpl.colormaps[name], override_builtin=True)
 
 
 def test_unregister_builtin_cmap():
     name = "viridis"
     match = f'cannot unregister {name!r} which is a builtin colormap.'
     with pytest.raises(ValueError, match=match):
-        cm.unregister_cmap(name)
+        with pytest.warns():
+            cm.unregister_cmap(name)
 
 
 def test_colormap_copy():
@@ -127,7 +155,7 @@ def test_colormap_copy():
 
 
 def test_colormap_equals():
-    cmap = plt.get_cmap("plasma")
+    cmap = mpl.colormaps["plasma"]
     cm_copy = cmap.copy()
     # different object id's
     assert cm_copy is not cmap
@@ -155,7 +183,7 @@ def test_colormap_endian():
     mapping of 1.0 when input from a non-native-byteorder
     array.
     """
-    cmap = cm.get_cmap("jet")
+    cmap = mpl.colormaps["jet"]
     # Test under, over, and invalid along with values 0 and 1.
     a = [-0.5, 0, 0.5, 1, 1.5, np.nan]
     for dt in ["f2", "f4", "f8"]:
@@ -170,7 +198,7 @@ def test_colormap_invalid():
     rather than bad. This tests to make sure all invalid values
     (-inf, nan, inf) are mapped respectively to (under, bad, over).
     """
-    cmap = cm.get_cmap("plasma")
+    cmap = mpl.colormaps["plasma"]
     x = np.array([-np.inf, -1, 0, np.nan, .7, 2, np.inf])
 
     expected = np.array([[0.050383, 0.029803, 0.527975, 1.],
@@ -203,7 +231,7 @@ def test_colormap_return_types():
     Make sure that tuples are returned for scalar input and
     that the proper shapes are returned for ndarrays.
     """
-    cmap = cm.get_cmap("plasma")
+    cmap = mpl.colormaps["plasma"]
     # Test return types and shapes
     # scalar input needs to return a tuple of length 4
     assert isinstance(cmap(0.5), tuple)
@@ -318,7 +346,7 @@ def test_BoundaryNorm():
 
     # Testing extend keyword, with interpolation (large cmap)
     bounds = [1, 2, 3]
-    cmap = cm.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     mynorm = mcolors.BoundaryNorm(bounds, cmap.N, extend='both')
     refnorm = mcolors.BoundaryNorm([0] + bounds + [4], cmap.N)
     x = np.random.randn(100) * 10 + 2
@@ -789,7 +817,7 @@ def test_boundarynorm_and_colorbarbase():
 
     # Set the colormap and bounds
     bounds = [-1, 2, 5, 7, 12, 15]
-    cmap = cm.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
 
     # Default behavior
     norm = mcolors.BoundaryNorm(bounds, cmap.N)
@@ -1134,13 +1162,13 @@ def test_pandas_iterable(pd):
     assert_array_equal(cm1.colors, cm2.colors)
 
 
-@pytest.mark.parametrize('name', sorted(plt.colormaps()))
+@pytest.mark.parametrize('name', sorted(mpl.colormaps()))
 def test_colormap_reversing(name):
     """
     Check the generated _lut data of a colormap and corresponding reversed
     colormap if they are almost the same.
     """
-    cmap = plt.get_cmap(name)
+    cmap = mpl.colormaps[name]
     cmap_r = cmap.reversed()
     if not cmap_r._isinit:
         cmap._init()
@@ -1307,7 +1335,7 @@ def test_hex_shorthand_notation():
 
 
 def test_repr_png():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     png = cmap._repr_png_()
     assert len(png) > 0
     img = Image.open(BytesIO(png))
@@ -1320,7 +1348,7 @@ def test_repr_png():
 
 
 def test_repr_html():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     html = cmap._repr_html_()
     assert len(html) > 0
     png = cmap._repr_png_()
@@ -1331,7 +1359,7 @@ def test_repr_html():
 
 
 def test_get_under_over_bad():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     assert_array_equal(cmap.get_under(), cmap(-np.inf))
     assert_array_equal(cmap.get_over(), cmap(np.inf))
     assert_array_equal(cmap.get_bad(), cmap(np.nan))
@@ -1339,7 +1367,7 @@ def test_get_under_over_bad():
 
 @pytest.mark.parametrize('kind', ('over', 'under', 'bad'))
 def test_non_mutable_get_values(kind):
-    cmap = copy.copy(plt.get_cmap('viridis'))
+    cmap = copy.copy(mpl.colormaps['viridis'])
     init_value = getattr(cmap, f'get_{kind}')()
     getattr(cmap, f'set_{kind}')('k')
     black_value = getattr(cmap, f'get_{kind}')()
@@ -1348,7 +1376,7 @@ def test_non_mutable_get_values(kind):
 
 
 def test_colormap_alpha_array():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     vals = [-1, 0.5, 2]  # under, valid, over
     with pytest.raises(ValueError, match="alpha is array-like but"):
         cmap(vals, alpha=[1, 1, 1, 1])
@@ -1360,7 +1388,7 @@ def test_colormap_alpha_array():
 
 
 def test_colormap_bad_data_with_alpha():
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     c = cmap(np.nan, alpha=0.5)
     assert c == (0, 0, 0, 0)
     c = cmap([0.5, np.nan], alpha=0.5)

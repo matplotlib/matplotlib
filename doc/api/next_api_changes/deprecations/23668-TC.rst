@@ -1,0 +1,22 @@
+Pending deprecation top-level cmap registration and access functions in ``mpl.cm``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As part of a `multi-step process
+<https://github.com/matplotlib/matplotlib/issues/20853>`_ we are refactoring
+the global state for managing the registered colormaps.
+
+In Matplotlib 3.5 we added a `.ColormapRegistry` class and exposed an
+instance at the top level as ``matplotlib.colormaps``.  The existing
+top level functions in `matplotlib.cm` (``get_cmap``, ``register_cmap``,
+``unregister_cmap``) were changed to be aliases around the same instance.
+
+In Matplotlib 3.6 we have marked those top level functions as pending
+deprecation with the intention of deprecation in Matplotlib 3.7.  The
+following functions have been marked for pending deprecation:
+
+- `matplotlib.cm.get_cmap` - use ``matplotlib.colormaps[name]`` instead
+- `matplotlib.cm.register_cmap` - use ``matplotlib.colormaps.register`` instead
+- `matplotlib.cm.unregister_cmap` - use ``matplotlib.colormaps.unregister`` instead
+- ``matplotlib.pyplot.register_cmap`` - use ``matplotlib.colormaps.register`` instead
+
+The `matplotlib.pyplot.get_cmap` function will stay available for backward compatibility.
