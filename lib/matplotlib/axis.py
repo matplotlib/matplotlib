@@ -973,6 +973,18 @@ class Axis(martist.Artist):
 
         self.stale = True
 
+    def get_tick_params(self, which='major'):
+        """
+        Get appearance parameters for ticks, ticklabels, and gridlines.
+
+        For documentation of keyword arguments, see
+        :meth:`matplotlib.axes.Axes.get_tick_params`.
+        """
+        _api.check_in_list(['major', 'minor'], which=which)
+        if which == 'major':
+            return self._major_tick_kw
+        return self._minor_tick_kw
+
     @staticmethod
     def _translate_tick_params(kw):
         """
