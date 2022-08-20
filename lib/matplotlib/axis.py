@@ -895,12 +895,11 @@ class Axis(martist.Artist):
 
         This does not reset tick and tick label visibility.
         """
-
         self.label._reset_visual_defaults()
         self.offsetText._reset_visual_defaults()
         self.labelpad = mpl.rcParams['axes.labelpad']
 
-        self._set_default()
+        self._init()
 
         self._set_scale('linear')
 
@@ -2197,9 +2196,13 @@ class XAxis(Axis):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._set_default()
+        self._init()
 
-    def _set_default(self):
+    def _init(self):
+        """
+        Initialize the label and offsetText instance values and
+        `label_position` / `offset_text_position`.
+        """
         # x in axes coords, y in display coords (to be updated at draw time by
         # _update_label_positions and _update_offset_text_position).
         self.label.set(
@@ -2209,6 +2212,7 @@ class XAxis(Axis):
                 self.axes.transAxes, mtransforms.IdentityTransform()),
         )
         self.label_position = 'bottom'
+
         self.offsetText.set(
             x=1, y=0,
             verticalalignment='top', horizontalalignment='right',
@@ -2451,9 +2455,13 @@ class YAxis(Axis):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._set_default()
+        self._init()
 
-    def _set_default(self):
+    def _init(self):
+        """
+        Initialize the label and offsetText instance values and
+        `label_position` / `offset_text_position`.
+        """
         # x in display coords, y in axes coords (to be updated at draw time by
         # _update_label_positions and _update_offset_text_position).
         self.label.set(
