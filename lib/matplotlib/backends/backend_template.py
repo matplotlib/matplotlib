@@ -63,7 +63,7 @@ class RendererTemplate(RendererBase):
     # relative timings by leaving it out. backend implementers concerned with
     # performance will probably want to implement it
 #     def draw_path_collection(self, gc, master_transform, paths,
-#                              all_transforms, offsets, offsetTrans,
+#                              all_transforms, offsets, offset_trans,
 #                              facecolors, edgecolors, linewidths, linestyles,
 #                              antialiaseds):
 #         pass
