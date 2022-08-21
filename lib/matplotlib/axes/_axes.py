@@ -2712,7 +2712,13 @@ class Axes(_AxesBase):
                 value = extrema
 
             if label_type == "center":
-                xy = xc, yc
+                xy = (0.5, 0.5)
+                kwargs["xycoords"] = (
+                    lambda r, b=bar:
+                        mtransforms.Bbox.intersection(
+                            b.get_window_extent(r), b.get_clip_box()
+                        )
+                )
             else:  # edge
                 if orientation == "vertical":
                     xy = xc, endpt
