@@ -2622,8 +2622,9 @@ class Axes(_AxesBase):
             A list of label texts, that should be displayed. If not given, the
             label texts will be the data values formatted with *fmt*.
 
-        fmt : str, default: '%g'
-            A format string for the label.
+        fmt : str or callable, default: '%g'
+            A format string for the label or a function to call with the value
+            as the first argument.
 
         label_type : {'edge', 'center'}, default: 'edge'
             The label type. Possible values:
@@ -2746,9 +2747,18 @@ class Axes(_AxesBase):
                 lbl = ''
 
             if lbl is None:
-                formatted_value = (
-                    fmt.format(value) if fmt.startswith('{') else fmt % value
-                )
+                if callable(fmt):
+                    formatted_value = fmt(value)
+                elif isinstance(fmt, str):
+                    if fmt.count('{:') == fmt.count('}') == 1:
+                        formatted_value = fmt.format(value)
+                    else:
+                        formatted_value = fmt % value
+                else:
+                    raise ValueError(
+                        'fmt expected to be a callable or a format string. '
+                        f'Got "{fmt}".'
+                    )
             else:
                 formatted_value = lbl
             annotation = self.annotate(formatted_value,
