@@ -164,6 +164,39 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
+        self._reset_visual_defaults(
+            text=text,
+            color=color,
+            fontproperties=fontproperties,
+            usetex=usetex,
+            parse_math=parse_math,
+            wrap=wrap,
+            verticalalignment=verticalalignment,
+            horizontalalignment=horizontalalignment,
+            multialignment=multialignment,
+            rotation=rotation,
+            transform_rotates_text=transform_rotates_text,
+            linespacing=linespacing,
+            rotation_mode=rotation_mode,
+        )
+        self.update(kwargs)
+
+    def _reset_visual_defaults(
+        self,
+        text='',
+        color=None,
+        fontproperties=None,
+        usetex=None,
+        parse_math=None,
+        wrap=False,
+        verticalalignment='baseline',
+        horizontalalignment='left',
+        multialignment=None,
+        rotation=None,
+        transform_rotates_text=False,
+        linespacing=None,
+        rotation_mode=None,
+    ):
         self.set_text(text)
         self.set_color(
             color if color is not None else mpl.rcParams["text.color"])
@@ -183,7 +216,6 @@ class Text(Artist):
             linespacing = 1.2  # Maybe use rcParam later.
         self.set_linespacing(linespacing)
         self.set_rotation_mode(rotation_mode)
-        self.update(kwargs)
 
     def update(self, kwargs):
         # docstring inherited
