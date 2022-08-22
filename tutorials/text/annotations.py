@@ -440,8 +440,8 @@ ax.add_artist(box)
 # Using ConnectionPatch
 # ~~~~~~~~~~~~~~~~~~~~~
 #
-# ConnectionPatch is like an annotation without text. While `~.Axes.annotate`
-# is sufficient in most situations, ConnectionPatch is useful when you want to
+# `.ConnectionPatch` is like an annotation without text. While `~.Axes.annotate`
+# is sufficient in most situations, ``ConnectionPatch`` is useful when you want to
 # connect points in different axes. ::
 #
 #   from matplotlib.patches import ConnectionPatch
@@ -457,7 +457,7 @@ ax.add_artist(box)
 #    :target: ../../gallery/userdemo/connect_simple01.html
 #    :align: center
 #
-# Here, we added the ConnectionPatch to the *figure* (with `~.Figure.add_artist`)
+# Here, we added the ``ConnectionPatch`` to the *figure* (with `~.Figure.add_artist`)
 # rather than to either axes: this ensures that it is drawn on top of both axes,
 # and is also necessary if using :doc:`constrained_layout
 # </tutorials/intermediate/constrainedlayout_guide>` for positioning the axes.
