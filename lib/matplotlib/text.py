@@ -1347,6 +1347,7 @@ class Text(Artist):
         """Return whether mathtext parsing is considered for this `Text`."""
         return self._parse_math
 
+    @_api.artist_property(is_alias=True)
     def set_fontname(self, fontname):
         """
         Alias for `set_family`.

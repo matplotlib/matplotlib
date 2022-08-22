@@ -722,7 +722,7 @@ gets interpolated into the docstring.
 Note that this scheme does not work for decorating an Artist's ``__init__``, as
 the subclass and its properties are not defined yet at that point.  Instead,
 ``@_docstring.interpd`` can be used to decorate the class itself -- at that
-point, `.kwdoc` can list the properties and interpolate them into
+point, `.artist.kwdoc` can list the properties and interpolate them into
 ``__init__.__doc__``.
 
 

@@ -9,7 +9,7 @@ This documentation is only relevant for Matplotlib developers, not for users.
     in your own code.  We may change the API at any time with no warning.
 
 """
-
+from collections import namedtuple
 import functools
 import itertools
 import re
@@ -56,6 +56,16 @@ class classproperty:
     @property
     def fget(self):
         return self._fget
+
+
+ArtistPropertyInfo = namedtuple('ArtistPropertyInfo', 'kwdoc, is_alias')
+
+
+def artist_property(kwdoc=None, is_alias=False):
+    def decorator(func):
+        func._artist_property = ArtistPropertyInfo(kwdoc, is_alias)
+        return func
+    return decorator
 
 
 # In the following check_foo() functions, the first parameter starts with an
@@ -263,6 +273,8 @@ def define_aliases(alias_d, cls=None):
                     method = make_alias(prefix + prop)
                     method.__name__ = prefix + alias
                     method.__doc__ = "Alias for `{}`.".format(prefix + prop)
+                    method._artist_property = \
+                        ArtistPropertyInfo(kwdoc=None, is_alias=True)
                     setattr(cls, prefix + alias, method)
         if not exists:
             raise ValueError(
