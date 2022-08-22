@@ -475,7 +475,7 @@ Pull Requests (807):
 * :ghpull:`23090`: Derive new_figure_manager from FigureCanvas.new_manager.
 * :ghpull:`23099`: Remove unneeded cutout for webagg in show().
 * :ghpull:`23097`: Tweak check for IPython pylab mode.
-* :ghpull:`23088`: Improve error for invalid format strings / mispelled data keys.
+* :ghpull:`23088`: Improve error for invalid format strings / misspelled data keys.
 * :ghpull:`23092`: Ensure updated monkey-patching of sphinx-gallery EXAMPLE_HEADER
 * :ghpull:`23087`: Fix width/height inversion in dviread debug helper.
 * :ghpull:`23089`: Normalize tk load failures to ImportErrors.
@@ -618,7 +618,7 @@ Pull Requests (807):
 * :ghpull:`22276`: Merge "Scatter Symbol" and "Scatter Custom Symbol" examples
 * :ghpull:`22658`: Remove reference to now-deleted reminder note.
 * :ghpull:`22652`: Update documentation example and fix See also
-* :ghpull:`22587`: Refactor handling of tick and ticklabel visiblity in Axis.clear()
+* :ghpull:`22587`: Refactor handling of tick and ticklabel visibility in Axis.clear()
 * :ghpull:`22148`: MNT: Deprecate ``docstring``
 * :ghpull:`22170`: Add example to polygon selector docstring showing how to set vertices programmatically
 * :ghpull:`22650`: Fix new leak in ft2font introduced in #22604
@@ -1004,7 +1004,7 @@ Issues (183):
 * :ghissue:`21107`: [MNT]: Should plt.xticks() get a minor keyword argument
 * :ghissue:`23679`: [Doc]: Deprecated modules not in docs
 * :ghissue:`19550`: Arc and pathpatch_2d_to_3d plots full ellipse
-* :ghissue:`23329`: [Bug]: ``plt.autoscale()`` failes for partial ``Arc``
+* :ghissue:`23329`: [Bug]: ``plt.autoscale()`` fails for partial ``Arc``
 * :ghissue:`11266`: Arc patch ignoring theta1/theta2 when added to Axes via PatchCollection
 * :ghissue:`4067`: 'Poly3DCollection' object has no attribute '_facecolors2d'
 * :ghissue:`23622`: [MNT]: make.bat not parsing sphinxopt
@@ -1149,7 +1149,7 @@ Issues (183):
 * :ghissue:`20249`: MatplotlibDeprecationWarning when updating rcparams
 * :ghissue:`15781`: MatplotlibDeprecationWarning examples.directory is deprecated
 * :ghissue:`13118`: No MatplotlibDeprecationWarning for default rcParams
-* :ghissue:`21978`: Remove loggin debug of loaded modules
+* :ghissue:`21978`: Remove logging debug of loaded modules
 * :ghissue:`11738`: pgf backend doesn't make background transparent
 * :ghissue:`18039`: Add ``_repr_html_`` for fonts
 * :ghissue:`21970`: [Bug]: tight layout breaks with toolbar.push_current()
@@ -1179,7 +1179,7 @@ Issues (183):
 * :ghissue:`16581`: Can't not refresh new font in running interpreter
 * :ghissue:`21162`: [ENH]: saving images in webp format
 * :ghissue:`18168`: The example of the testing decorator does not work.
-* :ghissue:`20943`: [Bug]: Deepcopy of TextPath failes
+* :ghissue:`20943`: [Bug]: Deepcopy of TextPath fails
 * :ghissue:`21101`: [Bug]: Errorbars separated from markers with negative errors
 * :ghissue:`17986`: MEP22 per-backend tool registration
 * :ghissue:`4938`: Feature request: add option to disable mathtext parsing
