@@ -280,7 +280,8 @@ def _get_cmap(name=None, lut=None):
 # do it in two steps like this so we can have an un-deprecated version in
 # pyplot.
 get_cmap = _api.deprecated(
-    '3.6', pending=True, alternative="``matplotlib.colormaps[name]``"
+    '3.6',
+    name='get_cmap', pending=True, alternative="``matplotlib.colormaps[name]``"
 )(_get_cmap)
 
 
