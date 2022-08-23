@@ -69,7 +69,7 @@ def test_register_cmap():
     target = "viridis2"
     with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.register\(name\)"
     ):
         cm.register_cmap(target, new_cm)
     assert mpl.colormaps[target] == new_cm
@@ -78,13 +78,13 @@ def test_register_cmap():
                        match="Arguments must include a name or a Colormap"):
         with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.register\(name\)"
         ):
             cm.register_cmap()
 
     with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.unregister_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.unregister\(name\)"
     ):
         cm.unregister_cmap(target)
     with pytest.raises(ValueError,
@@ -96,7 +96,7 @@ def test_register_cmap():
             cm.get_cmap(target)
     with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.unregister_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.unregister\(name\)"
     ):
         # test that second time is error free
         cm.unregister_cmap(target)
@@ -104,7 +104,7 @@ def test_register_cmap():
     with pytest.raises(TypeError, match="'cmap' must be"):
         with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.register\(name\)"
         ):
             cm.register_cmap('nome', cmap='not a cmap')
 
