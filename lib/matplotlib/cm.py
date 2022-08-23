@@ -204,7 +204,7 @@ globals().update(_colormaps)
 @_api.deprecated(
     '3.6',
     pending=True,
-    alternative="``matplotlib.colormaps.register_cmap(name)``"
+    alternative="``matplotlib.colormaps.register(name)``"
 )
 def register_cmap(name=None, cmap=None, *, override_builtin=False):
     """
@@ -288,7 +288,7 @@ get_cmap = _api.deprecated(
 @_api.deprecated(
     '3.6',
     pending=True,
-    alternative="``matplotlib.colormaps.unregister_cmap(name)``"
+    alternative="``matplotlib.colormaps.unregister(name)``"
 )
 def unregister_cmap(name):
     """
