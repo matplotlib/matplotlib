@@ -567,7 +567,7 @@ def test_Normalize():
     norm = plt.Normalize(1, 1 + 100 * eps)
     # This returns exactly 0.5 when longdouble is extended precision (80-bit),
     # but only a value close to it when it is quadruple precision (128-bit).
-    np.testing.assert_array_almost_equal_nulp(norm(1 + 50 * eps), 0.5)
+    assert_array_almost_equal(norm(1 + 50 * eps), 0.5, decimal=3)
 
 
 def test_FuncNorm():
