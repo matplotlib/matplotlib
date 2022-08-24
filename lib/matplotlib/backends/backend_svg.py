@@ -66,7 +66,7 @@ backend_version = mpl.__version__
 # --------------------------------------------------------------------
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_cdata")
 def escape_cdata(s):
     return _escape_cdata(s)
 
@@ -81,7 +81,7 @@ def _escape_cdata(s):
 _escape_xml_comment = re.compile(r'-(?=-)')
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_comment")
 def escape_comment(s):
     return _escape_comment.sub(s)
 
@@ -91,7 +91,7 @@ def _escape_comment(s):
     return _escape_xml_comment.sub('- ', s)
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_attrib")
 def escape_attrib(s):
     return _escape_attrib(s)
 
@@ -111,7 +111,7 @@ def _quote_escape_attrib(s):
             '"' + _escape_attrib(s) + '"')
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _short_float_fmt")
 def short_float_fmt(x):
     return _short_float_fmt(x)
 

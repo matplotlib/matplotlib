@@ -13,7 +13,7 @@ from matplotlib import (
 from . import art3d, proj3d
 
 
-@_api.deprecated("3.6", alternative="Vendor the code of _move_from_center")
+@_api.deprecated("3.6", alternative="a vendored copy of _move_from_center")
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     """
     For each coordinate where *axmask* is True, move *coord* away from
@@ -31,7 +31,7 @@ def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
-@_api.deprecated("3.6", alternative="Vendor the code of _tick_update_position")
+@_api.deprecated("3.6", alternative="a vendored copy of _tick_update_position")
 def tick_update_position(tick, tickxs, tickys, labelpos):
     """Update tick line and label position and style."""
     _tick_update_position(tick, tickxs, tickys, labelpos)

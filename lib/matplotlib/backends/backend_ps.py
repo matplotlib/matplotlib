@@ -87,7 +87,7 @@ def _nums_to_str(*args):
     return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of this function")
 def quote_ps_string(s):
     """
     Quote dangerous characters of S for use in a PostScript string constant.
