@@ -39,6 +39,7 @@ def plot_colored_lines(ax):
     amplitudes = np.linspace(1, 1.5, nb_colors)
     for t0, a in zip(shifts, amplitudes):
         ax.plot(t, a * sigmoid(t, t0), '-')
+    ax.grid(linewidth=1)
     ax.set_xlim(-10, 10)
     return ax
 
