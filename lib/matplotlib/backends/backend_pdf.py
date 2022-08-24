@@ -92,7 +92,7 @@ _log = logging.getLogger(__name__)
 # * draw_quad_mesh
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _fill")
 def fill(strings, linelen=75):
     return _fill(strings, linelen=linelen)
 
