@@ -69,4 +69,6 @@ Colormaps and color sequences
 Miscellaneous
 =============
 
+.. autoclass:: MatplotlibDeprecationWarning
+
 .. autofunction:: get_cachedir

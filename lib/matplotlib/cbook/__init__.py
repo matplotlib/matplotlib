@@ -30,6 +30,19 @@ import matplotlib
 from matplotlib import _api, _c_internal_utils
 
 
+@_api.caching_module_getattr
+class __getattr__:
+    # module-level deprecations
+    MatplotlibDeprecationWarning = _api.deprecated(
+        "3.6", obj_type="",
+        alternative="matplotlib.MatplotlibDeprecationWarning")(
+        property(lambda self: _api.deprecation.MatplotlibDeprecationWarning))
+    mplDeprecation = _api.deprecated(
+        "3.6", obj_type="",
+        alternative="matplotlib.MatplotlibDeprecationWarning")(
+        property(lambda self: _api.deprecation.MatplotlibDeprecationWarning))
+
+
 def _get_running_interactive_framework():
     """
     Return the interactive framework whose event loop is currently running, if

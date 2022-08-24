@@ -1,0 +1,13 @@
+Deprecation aliases in cbook
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The module ``matplotlib.cbook.deprecation`` was previously deprecated in
+Matplotlib 3.4, along with deprecation-related API in ``matplotlib.cbook``. Due
+to technical issues, ``matplotlib.cbook.MatplotlibDeprecationWarning`` and
+``matplotlib.cbook.mplDeprecation`` did not raise deprecation warnings on use.
+Changes in Python have now made it possible to warn when these aliases are
+being used.
+
+In order to avoid downstream breakage, these aliases will now warn, and their
+removal has been pushed from 3.6 to 3.8 to give time to notice said warnings.
+As replacement, please use `matplotlib.MatplotlibDeprecationWarning`.
