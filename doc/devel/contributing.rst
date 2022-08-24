@@ -322,8 +322,8 @@ Introducing
 1. Announce the deprecation in a new file
    :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
    is the pull request number and ``ABC`` are the contributor's initials.
-2. If possible, issue a `.MatplotlibDeprecationWarning` when the deprecated
-   API is used. There are a number of helper tools for this:
+2. If possible, issue a `~matplotlib.MatplotlibDeprecationWarning` when the
+   deprecated API is used. There are a number of helper tools for this:
 
    - Use ``_api.warn_deprecated()`` for general deprecation warnings
    - Use the decorator ``@_api.deprecated`` to deprecate classes, functions,
