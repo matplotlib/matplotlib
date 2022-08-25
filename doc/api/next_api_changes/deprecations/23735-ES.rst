@@ -1,0 +1,13 @@
+``AXes`` subclasses should override ``clear`` instead of ``cla``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For clarity, `.axes.Axes.clear` is now preferred over `.Axes.cla`. However, for
+backwards compatibility, the latter will remain as an alias for the former.
+
+For additional compatibility with third-party libraries, Matplotlib will
+continue to call the ``cla`` method of any `~.axes.Axes` subclasses if they
+define it. In the future, this will no longer occur, and Matplotlib will only
+call the ``clear`` method in `~.axes.Axes` subclasses.
+
+It is recommended to define only the ``clear`` method when on Matplotlib 3.6,
+and only ``cla`` for older versions.
