@@ -1245,13 +1245,19 @@ default: %(va)s
         """
 
         if ax is None:
-            ax = getattr(mappable, "axes", self.gca())
+            ax = getattr(mappable, "axes", None)
 
         if (self.get_layout_engine() is not None and
                 not self.get_layout_engine().colorbar_gridspec):
             use_gridspec = False
         # Store the value of gca so that we can set it back later on.
         if cax is None:
+            if ax is None:
+                raise ValueError(
+                    'Unable to determine Axes to steal space for Colorbar. '
+                    'Either provide the *cax* argument to use as the Axes for '
+                    'the Colorbar, provide the *ax* argument to steal space '
+                    'from it, or add *mappable* to an Axes.')
             current_ax = self.gca()
             userax = False
             if (use_gridspec and isinstance(ax, SubplotBase)):

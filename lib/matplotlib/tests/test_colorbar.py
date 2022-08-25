@@ -315,6 +315,14 @@ def test_colorbarbase():
     Colorbar(ax, cmap=plt.cm.bone)
 
 
+def test_parentless_mappable():
+    pc = mpl.collections.PatchCollection([], cmap=plt.get_cmap('viridis'))
+    pc.set_array([])
+
+    with pytest.raises(ValueError, match='Unable to determine Axes to steal'):
+        plt.colorbar(pc)
+
+
 @image_comparison(['colorbar_closed_patch.png'], remove_text=True)
 def test_colorbar_closed_patch():
     # Remove this line when this test image is regenerated.
@@ -675,7 +683,7 @@ def test_colorbar_inverted_ticks():
 def test_mappable_no_alpha():
     fig, ax = plt.subplots()
     sm = cm.ScalarMappable(norm=mcolors.Normalize(), cmap='viridis')
-    fig.colorbar(sm)
+    fig.colorbar(sm, ax=ax)
     sm.set_cmap('plasma')
     plt.draw()
 
