@@ -36,9 +36,10 @@ works, technical questions about the code, what makes for good documentation
 or a blog post, how to get involved in community work, or get
 "pre-review" on your PR.
 
-To join, please go to our public `gitter <https://gitter
-.im/matplotlib/matplotlib>`_ community channel, and ask to be added to
-'#incubator'. One of our core developers will see your message and will add you.
+To join, please go to our public `gitter
+<https://gitter.im/matplotlib/matplotlib>`_ community channel, and ask to be
+added to '#incubator'. One of our core developers will see your message and will
+add you.
 
 New Contributors meeting
 ------------------------
@@ -49,13 +50,14 @@ Among our attendees are fellow new contributors, as well as maintainers, and
 veteran contributors, who are keen to support onboarding of new folks and
 share their experience. You can find our community calendar link at the
 `Scientific Python website <https://scientific-python.org/calendars/>`_, and
-you can browse previous meeting notes on `github <https://github
-.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_. We
-recommend joining the meeting to clarify any doubts, or lingering questions
-you might have, and to get to know a few of the people behind the GitHub
-handles 😉. You can reach out to @noatamir on `gitter <https://gitter
-.im/matplotlib/matplotlib>`_. For any clarifications or suggestions. We <3
-feedback!
+you can browse previous meeting notes on `github
+<https://github.com/matplotlib/ProjectManagement/tree/master/
+new_contributor_meeting>`_.
+We recommend joining the meeting to clarify any doubts, or lingering
+questions you might have, and to get to know a few of the people behind the
+GitHub handles 😉. You can reach out to @noatamir on `gitter
+<https://gitter.im/matplotlib/matplotlib>`_ for any clarifications or
+suggestions. We <3 feedback!
 
 .. _new_contributors:
 
@@ -63,15 +65,14 @@ Issues for new contributors
 ---------------------------
 
 While any contributions are welcome, we have marked some issues as
-particularly suited for new contributors by the label
-`good first issue <https://github
-.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ These are well
-documented issues, that do not require a deep understanding of the internals
-of Matplotlib. The issues may additionally be tagged with a difficulty.
-``Difficulty: Easy`` is suited for people with little Python experience.
-``Difficulty: Medium`` and ``Difficulty: Hard`` require more programming
-experience. This could be for a variety of reasons, among them, though not
-necessarily all at the same time:
+particularly suited for new contributors by the label `good first issue
+<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_. These
+are well documented issues, that do not require a deep understanding of the
+internals of Matplotlib. The issues may additionally be tagged with a
+difficulty. ``Difficulty: Easy`` is suited for people with little Python
+experience. ``Difficulty: Medium`` and ``Difficulty: Hard`` require more
+programming experience. This could be for a variety of reasons, among them,
+though not necessarily all at the same time:
 
 - The issue is in areas of the code base which have more interdependencies,
   or legacy code.
@@ -617,4 +618,3 @@ example code you can load it into a file handle with::
 
     import matplotlib.cbook as cbook
     fh = cbook.get_sample_data('mydata.dat')
-
