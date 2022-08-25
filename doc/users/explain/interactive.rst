@@ -170,7 +170,7 @@ and run the GUI event loop for the specified period of time.
 The GUI event loop being integrated with your command prompt and
 the figures being in interactive mode are independent of each other.
 If you use `pyplot.ion` but have not arranged for the event loop integration,
-your figures will appear but will not be interactive while the prompt is waiting for input.
+your figures will appear, but will not be interactive while the prompt is waiting for input.
 You will not be able to pan/zoom and the figure may not even render
 (the window might appear black, transparent, or as a snapshot of the
 desktop under it).  Conversely, if you configure the event loop
