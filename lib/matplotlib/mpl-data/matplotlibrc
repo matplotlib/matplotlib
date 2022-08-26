@@ -5,10 +5,7 @@
 ## This is a sample Matplotlib configuration file - you can find a copy
 ## of it on your system in site-packages/matplotlib/mpl-data/matplotlibrc
 ## (relative to your Python installation location).
-##
-## You should find a copy of it on your system at
-## site-packages/matplotlib/mpl-data/matplotlibrc (relative to your Python
-## installation location).  DO NOT EDIT IT!
+## DO NOT EDIT IT!
 ##
 ## If you wish to change your default style, copy this file to one of the
 ## following locations:
