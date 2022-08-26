@@ -559,6 +559,8 @@ class _AxesBase(martist.Artist):
     _shared_axes = {name: cbook.Grouper() for name in _axis_names}
     _twinned_axes = cbook.Grouper()
 
+    _subclass_uses_cla = False
+
     @property
     def _axis_map(self):
         """A mapping of axis names, e.g. 'x', to `Axis` instances."""
@@ -698,6 +700,20 @@ class _AxesBase(martist.Artist):
             labelright=(rcParams['ytick.labelright'] and
                         rcParams['ytick.major.right']),
             which='major')
+
+    def __init_subclass__(cls, **kwargs):
+        parent_uses_cla = super(cls, cls)._subclass_uses_cla
+        if 'cla' in cls.__dict__:
+            _api.warn_deprecated(
+                '3.6',
+                pending=True,
+                message=f'Overriding `Axes.cla` in {cls.__qualname__} is '
+                'pending deprecation in %(since)s and will be fully '
+                'deprecated in favor of `Axes.clear` in the future. '
+                'Please report '
+                f'this to the {cls.__module__!r} author.')
+        cls._subclass_uses_cla = 'cla' in cls.__dict__ or parent_uses_cla
+        super().__init_subclass__(**kwargs)
 
     def __getstate__(self):
         state = super().__getstate__()
@@ -1199,9 +1215,12 @@ class _AxesBase(martist.Artist):
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
 
-    def clear(self):
+    def __clear(self):
         """Clear the Axes."""
-        # Note: this is called by Axes.__init__()
+        # The actual implementation of clear() as long as clear() has to be
+        # an adapter delegating to the correct implementation.
+        # The implementation can move back into clear() when the
+        # deprecation on cla() subclassing expires.
 
         # stash the current visibility state
         if hasattr(self, 'patch'):
@@ -1317,6 +1336,24 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
+
+    def clear(self):
+        """Clear the Axes."""
+        # Act as an alias, or as the superclass implementation depending on the
+        # subclass implementation.
+        if self._subclass_uses_cla:
+            self.cla()
+        else:
+            self.__clear()
+
+    def cla(self):
+        """Clear the Axes."""
+        # Act as an alias, or as the superclass implementation depending on the
+        # subclass implementation.
+        if self._subclass_uses_cla:
+            self.__clear()
+        else:
+            self.clear()
 
     class ArtistList(MutableSequence):
         """
@@ -1480,10 +1517,6 @@ class _AxesBase(martist.Artist):
     def texts(self):
         return self.ArtistList(self, 'texts', 'add_artist',
                                valid_types=mtext.Text)
-
-    def cla(self):
-        """Clear the Axes."""
-        self.clear()
 
     def get_facecolor(self):
         """Get the facecolor of the Axes."""
