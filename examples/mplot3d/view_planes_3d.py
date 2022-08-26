@@ -16,7 +16,7 @@ def annotate_axes(ax, text, fontsize=18):
     ax.text(x=0.5, y=0.5, z=0.5, s=text,
             va="center", ha="center", fontsize=fontsize, color="black")
 
-# (view, (elev, azim, roll))
+# (plane, (elev, azim, roll))
 views = [('XY',   (90, -90, 0)),
          ('XZ',    (0, -90, 0)),
          ('YZ',    (0,   0, 0)),
@@ -29,18 +29,15 @@ layout = [['XY',  '.',   'L',   '.'],
           ['.',   '.', '-XY',   '.']]
 fig, axd = plt.subplot_mosaic(layout, subplot_kw={'projection': '3d'},
                               figsize=(12, 8.5))
-for i in range(len(axd) - 1):
-    plane = views[i][0]
+for plane, angles in views:
     axd[plane].set_xlabel('x')
     axd[plane].set_ylabel('y')
     axd[plane].set_zlabel('z')
     axd[plane].set_proj_type('ortho')
-    axd[plane].view_init(elev=views[i][1][0],
-                         azim=views[i][1][1],
-                         roll=views[i][1][2])
+    axd[plane].view_init(elev=angles[0], azim=angles[1], roll=angles[2])
     axd[plane].set_box_aspect(None, zoom=1.25)
 
-    label = f'{plane}\n{views[i][1]}'
+    label = f'{plane}\n{angles}'
     annotate_axes(axd[plane], label, fontsize=14)
 
 for plane in ('XY', '-XY'):

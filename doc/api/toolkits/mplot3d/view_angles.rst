@@ -8,9 +8,9 @@ How to define the view angle
 ============================
 
 The position of the viewport "camera" in a 3D plot is defined by three angles:
-elevation, azimuth, and roll. From the resulting position, it always points
-towards the center of the plot box volume. The angle direction convention is
-shared with
+*elevation*, *azimuth*, and *roll*. From the resulting position, it always
+points towards the center of the plot box volume. The angle direction is a
+common convention, and is shared with
 `PyVista <https://docs.pyvista.org/api/core/camera.html>`_ and
 `MATLAB <https://www.mathworks.com/help/matlab/ref/view.html>`_
 (though MATLAB lacks a roll angle). Note that a positive roll angle rotates the
