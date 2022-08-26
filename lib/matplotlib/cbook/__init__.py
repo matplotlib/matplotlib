@@ -2312,3 +2312,35 @@ def _unpack_to_numpy(x):
         if isinstance(xtmp, np.ndarray):
             return xtmp
     return x
+
+
+def _auto_format_str(fmt, value):
+    """
+    Apply *value* to the format string *fmt*.
+
+    This works both with unnamed %-style formatting and
+    unnamed {}-style formatting. %-style formatting has priority.
+    If *fmt* is %-style formattable that will be used. Otherwise,
+    {}-formatting is applied. Strings without formatting placeholders
+    are passed through as is.
+
+    Examples
+    --------
+    >>> _auto_format_str('%.2f m', 0.2)
+    '0.20 m'
+    >>> _auto_format_str('{} m', 0.2)
+    '0.2 m'
+    >>> _auto_format_str('const', 0.2)
+    'const'
+    >>> _auto_format_str('%d or {}', 0.2)
+    '0 or {}'
+    """
+    try:
+        lbl = fmt % value
+        # when used in `Axes.bar_label()`` this doesn't always raise an error
+        # when the {}-style formatting should be used instead of %-style
+        if lbl == fmt:
+            raise TypeError
+        return lbl
+    except (TypeError, ValueError):
+        return fmt.format(value)

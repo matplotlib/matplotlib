@@ -895,3 +895,18 @@ def test_safe_first_element_with_none():
     datetime_lst[0] = None
     actual = cbook._safe_first_non_none(datetime_lst)
     assert actual is not None and actual == datetime_lst[1]
+
+
+@pytest.mark.parametrize('fmt, value, result', [
+    ('%.2f m', 0.2, '0.20 m'),
+    ('{:.2f} m', 0.2, '0.20 m'),
+    ('{} m', 0.2, '0.2 m'),
+    ('const', 0.2, 'const'),
+    ('%d or {}', 0.2, '0 or {}'),
+    ('{{{:,.0f}}}', 2e5, '{200,000}'),
+    ('{:.2%}', 2/3, '66.67%'),
+    ('$%g', 2.54, '$2.54'),
+])
+def test_auto_format_str(fmt, value, result):
+    """Apply *value* to the format string *fmt*."""
+    assert cbook._auto_format_str(fmt, value) == result
