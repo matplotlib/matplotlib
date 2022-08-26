@@ -709,7 +709,7 @@ class _AxesBase(martist.Artist):
                 pending=True,
                 message=f'Overriding `Axes.cla` in {cls.__qualname__} is '
                 'pending deprecation in %(since)s and will be fully '
-                'deprecated for `Axes.clear` in the future. Please report '
+                'deprecated in favor of `Axes.clear` in the future. Please report '
                 f'this to the {cls.__module__!r} author.')
         cls._subclass_uses_cla = 'cla' in cls.__dict__ or parent_uses_cla
         super().__init_subclass__(**kwargs)
@@ -1216,7 +1216,11 @@ class _AxesBase(martist.Artist):
 
     def _clear(self):
         """Clear the Axes."""
-        # Note: this is called by Axes.__init__()
+        # The actual implementation of clear() as long as clear() has to be
+        # an adapter delegating to the correct implementation.
+        # The implementation can move back into clear() when the
+        # deprecation on cla() subclassing expires.
+        
 
         # stash the current visibility state
         if hasattr(self, 'patch'):
