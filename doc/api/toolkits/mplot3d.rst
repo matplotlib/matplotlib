@@ -20,13 +20,15 @@ more information.
 
 The interactive backends also provide the ability to rotate and zoom the 3D
 scene.  One can rotate the 3D scene by simply clicking-and-dragging the scene.
-Zooming is done by right-clicking the scene and dragging the mouse up and down
-(unlike 2D plots, the toolbar zoom button is not used).
+Panning is done by clicking the middle mouse button, and zooming is done by
+right-clicking the scene and dragging the mouse up and down. Unlike 2D plots,
+the toolbar pan and zoom buttons are not used.
 
 .. toctree::
    :maxdepth: 2
 
    mplot3d/faq.rst
+   mplot3d/view_angles.rst
 
 .. note::
    `.pyplot` cannot be used to add content to 3D plots, because its function
