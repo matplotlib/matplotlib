@@ -134,7 +134,7 @@ def demo(sty):
 
 
 demo('default')
-demo('seaborn0.8')
+demo('seaborn-v0_8')
 
 ###############################################################################
 # The first color ``'C0'`` is the title. Each plot uses the second and third
