@@ -135,9 +135,9 @@ def use(style):
                     "3.6", message="The seaborn styles shipped by Matplotlib "
                     "are deprecated since %(since)s, as they no longer "
                     "correspond to the styles shipped by seaborn. However, "
-                    "they will remain available as 'seaborn0.8-<style>'. "
+                    "they will remain available as 'seaborn-v0_8-<style>'. "
                     "Alternatively, directly use the seaborn API instead.")
-                s = s.replace("seaborn", "seaborn0.8")
+                s = s.replace("seaborn", "seaborn-v0_8")
         return s
 
     for style in map(fix_style, styles):
