@@ -1703,10 +1703,10 @@ def safe_first_element(obj):
     This is an type-independent way of obtaining the first element,
     supporting both index access and the iterator protocol.
     """
-    return _safe_first_non_none(obj, skip_none=False)
+    return _safe_first_finite(obj, skip_nonfinite=False)
 
 
-def _safe_first_non_none(obj, skip_none=True):
+def _safe_first_finite(obj, *, skip_nonfinite=True):
     """
     Return the first non-None element in *obj*.
     This is a method for internal use.
@@ -1715,7 +1715,14 @@ def _safe_first_non_none(obj, skip_none=True):
     supporting both index access and the iterator protocol.
     The first non-None element will be obtained when skip_none is True.
     """
-    if skip_none is False:
+    def safe_isfinite(val):
+        try:
+            return np.isfinite(val) if np.isscalar(val) else True
+        except TypeError:
+            # This is something that numpy can not make heads or tails
+            # of, assume "finite"
+            return True
+    if skip_nonfinite is False:
         if isinstance(obj, collections.abc.Iterator):
             # needed to accept `array.flat` as input.
             # np.flatiter reports as an instance of collections.Iterator
@@ -1730,12 +1737,16 @@ def _safe_first_non_none(obj, skip_none=True):
                                "as input")
         return next(iter(obj))
     elif isinstance(obj, np.flatiter):
+        # TODO do the finite filtering on this
         return obj[0]
     elif isinstance(obj, collections.abc.Iterator):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        return next(val for val in obj if val is not None)
+        return next(
+            val for val in obj
+            if val is not None and safe_isfinite(val)
+        )
 
 
 def sanitize_sequence(data):
