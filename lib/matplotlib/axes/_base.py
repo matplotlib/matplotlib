@@ -709,7 +709,8 @@ class _AxesBase(martist.Artist):
                 pending=True,
                 message=f'Overriding `Axes.cla` in {cls.__qualname__} is '
                 'pending deprecation in %(since)s and will be fully '
-                'deprecated in favor of `Axes.clear` in the future. Please report '
+                'deprecated in favor of `Axes.clear` in the future. '
+                'Please report '
                 f'this to the {cls.__module__!r} author.')
         cls._subclass_uses_cla = 'cla' in cls.__dict__ or parent_uses_cla
         super().__init_subclass__(**kwargs)
@@ -1214,13 +1215,12 @@ class _AxesBase(martist.Artist):
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
 
-    def _clear(self):
+    def __clear(self):
         """Clear the Axes."""
         # The actual implementation of clear() as long as clear() has to be
         # an adapter delegating to the correct implementation.
         # The implementation can move back into clear() when the
         # deprecation on cla() subclassing expires.
-        
 
         # stash the current visibility state
         if hasattr(self, 'patch'):
@@ -1344,14 +1344,14 @@ class _AxesBase(martist.Artist):
         if self._subclass_uses_cla:
             self.cla()
         else:
-            self._clear()
+            self.__clear()
 
     def cla(self):
         """Clear the Axes."""
         # Act as an alias, or as the superclass implementation depending on the
         # subclass implementation.
         if self._subclass_uses_cla:
-            self._clear()
+            self.__clear()
         else:
             self.clear()
 
