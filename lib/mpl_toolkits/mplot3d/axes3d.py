@@ -1213,19 +1213,21 @@ class Axes3D(Axes):
         dy = abs(start_y - stop_y)
         scale_u = dx / (self.bbox.max[0] - self.bbox.min[0])
         scale_v = dy / (self.bbox.max[1] - self.bbox.min[1])
-        scale_w = max(scale_u, scale_v)
 
         # Limit box zoom to reasonable range, protect for divide by zero below
-        scale_u = np.clip(scale_u, 1e-2, 1e2)
-        scale_v = np.clip(scale_v, 1e-2, 1e2)
+        scale_u = np.clip(scale_u, 1e-2, 1)
+        scale_v = np.clip(scale_v, 1e-2, 1)
 
+        # Keep aspect ratios equal
+        scale = max(scale_u, scale_v)
+
+        # Zoom out
         if direction == 'out':
-            scale_u = 1 / scale_u
-            scale_v = 1 / scale_v
+            scale = 1 / scale
 
-        self._zoom_data_limits(scale_u, scale_v, scale_w)
+        self.zoom_data_limits(scale, scale, scale)
 
-    def _zoom_data_limits(self, scale_u, scale_v, scale_w):
+    def zoom_data_limits(self, scale_u, scale_v, scale_w):
         """
         Zoom in or out of a 3D plot.
         Will scale the data limits by the scale factors, where scale_u,
@@ -1237,19 +1239,23 @@ class Axes3D(Axes):
         'equalyz', or 'equalxz', the relevant axes are constrained to zoom
         equally.
         """
-        # Convert from the scale factors in the view frame to the data frame
-        R = np.array([self._view_u, self._view_v, self._view_w])
-        S = np.array([scale_u, scale_v, scale_w]) * np.eye(3)
-        scale = np.linalg.norm(R.T @ S, axis=1)
+        scale = np.array([scale_u, scale_v, scale_w])
 
-        # Set the constrained scale factors to the factor closest to 1
-        if self._aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
-            ax_idx = self._equal_aspect_axis_indices(self._aspect)
-            scale[ax_idx] = scale[ax_idx][np.argmin(np.abs(scale[ax_idx] - 1))]
+        # Only perform frame conversion if unequal scale factors
+        if not np.allclose(scale, scale_u):
+            # Convert from the scale factors in the view frame to the data frame
+            R = np.array([self._view_u, self._view_v, self._view_w])
+            S = scale * np.eye(3)
+            scale = np.linalg.norm(R.T @ S, axis=1)
 
-        self._scale_axis_limits(scale[0], scale[1], scale[2])
+            # Set the constrained scale factors to the factor closest to 1
+            if self._aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
+                ax_idx = self._equal_aspect_axis_indices(self._aspect)
+                scale[ax_idx] = scale[ax_idx][np.argmin(np.abs(scale[ax_idx] - 1))]
 
-    def _scale_axis_limits(self, scale_x, scale_y, scale_z):
+        self.scale_axis_limits(scale[0], scale[1], scale[2])
+
+    def scale_axis_limits(self, scale_x, scale_y, scale_z):
         """
         Keeping the center of the x, y, and z data axes fixed, scale their
         limits by scale factors. A scale factor > 1 zooms out and a scale
