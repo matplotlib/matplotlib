@@ -18,6 +18,7 @@ import textwrap
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api, cbook, _docstring, _preprocess_data
 import matplotlib.artist as martist
 import matplotlib.axes as maxes
@@ -28,7 +29,7 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
-from matplotlib.axes import Axes, rcParams
+from matplotlib.axes import Axes
 from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
@@ -436,11 +437,7 @@ class Axes3D(Axes):
         # it adjusts the view limits and the size of the bounding box
         # of the Axes
         locator = self.get_axes_locator()
-        if locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
+        self.apply_aspect(locator(self, renderer) if locator else None)
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
@@ -758,6 +755,21 @@ class Axes3D(Axes):
 
         This can be used to rotate the axes programmatically.
 
+        To look normal to the primary planes, the following elevation and
+        azimuth angles can be used. A roll angle of 0, 90, 180, or 270 deg
+        will rotate these views while keeping the axes at right angles.
+
+        ==========   ====  ====
+        view plane   elev  azim
+        ==========   ====  ====
+        XY           90    -90
+        XZ           0     -90
+        YZ           0     0
+        -XY          -90   90
+        -XZ          0     90
+        -YZ          0     180
+        ==========   ====  ====
+
         Parameters
         ----------
         elev : float, default: None
@@ -829,7 +841,7 @@ class Axes3D(Axes):
                 raise ValueError(f"focal_length = {focal_length} must be "
                                  "greater than 0")
             self._focal_length = focal_length
-        elif proj_type == 'ortho':
+        else:  # 'ortho':
             if focal_length not in (None, np.inf):
                 raise ValueError(f"focal_length = {focal_length} must be "
                                  f"None for proj_type = {proj_type}")
@@ -966,10 +978,10 @@ class Axes3D(Axes):
         # docstring inherited.
         super().clear()
         if self._focal_length == np.inf:
-            self._zmargin = rcParams['axes.zmargin']
+            self._zmargin = mpl.rcParams['axes.zmargin']
         else:
             self._zmargin = 0.
-        self.grid(rcParams['axes3d.grid'])
+        self.grid(mpl.rcParams['axes3d.grid'])
 
     def _button_press(self, event):
         if event.inaxes == self:
@@ -1528,7 +1540,7 @@ class Axes3D(Axes):
         rcount = kwargs.pop('rcount', 50)
         ccount = kwargs.pop('ccount', 50)
 
-        if rcParams['_internal.classic_mode']:
+        if mpl.rcParams['_internal.classic_mode']:
             # Strides have priority over counts in classic mode.
             # So, only compute strides from counts
             # if counts were explicitly given
@@ -1774,7 +1786,7 @@ class Axes3D(Axes):
         rcount = kwargs.pop('rcount', 50)
         ccount = kwargs.pop('ccount', 50)
 
-        if rcParams['_internal.classic_mode']:
+        if mpl.rcParams['_internal.classic_mode']:
             # Strides have priority over counts in classic mode.
             # So, only compute strides from counts
             # if counts were explicitly given
@@ -3099,7 +3111,7 @@ pivot='tail', normalize=False, **kwargs)
         # Make the style dict for caps (the "hats").
         eb_cap_style = {**base_style, 'linestyle': 'None'}
         if capsize is None:
-            capsize = rcParams["errorbar.capsize"]
+            capsize = mpl.rcParams["errorbar.capsize"]
         if capsize > 0:
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
@@ -3140,7 +3152,7 @@ pivot='tail', normalize=False, **kwargs)
         # scene is rotated, they are given a standard size based on viewing
         # them directly in planar form.
         quiversize = eb_cap_style.get('markersize',
-                                      rcParams['lines.markersize']) ** 2
+                                      mpl.rcParams['lines.markersize']) ** 2
         quiversize *= self.figure.dpi / 72
         quiversize = self.transAxes.inverted().transform([
             (0, 0), (quiversize, quiversize)])
@@ -3355,7 +3367,7 @@ pivot='tail', normalize=False, **kwargs)
         # Determine style for stem lines.
         linestyle, linemarker, linecolor = _process_plot_format(linefmt)
         if linestyle is None:
-            linestyle = rcParams['lines.linestyle']
+            linestyle = mpl.rcParams['lines.linestyle']
 
         # Plot everything in required order.
         baseline, = self.plot(basex, basey, basefmt, zs=bottom,

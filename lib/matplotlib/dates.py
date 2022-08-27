@@ -1908,7 +1908,7 @@ class DateConverter(units.ConversionInterface):
             x = x.ravel()
 
         try:
-            x = cbook.safe_first_element(x)
+            x = cbook._safe_first_non_none(x)
         except (TypeError, StopIteration):
             pass
 

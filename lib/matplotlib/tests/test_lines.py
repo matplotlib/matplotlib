@@ -12,6 +12,7 @@ from numpy.testing import assert_array_equal
 import pytest
 
 import matplotlib
+import matplotlib as mpl
 import matplotlib.lines as mlines
 from matplotlib.markers import MarkerStyle
 from matplotlib.path import Path
@@ -365,7 +366,7 @@ def test_markevery_prop_cycle(fig_test, fig_ref):
              slice(100, 200, 3), 0.1, 0.3, 1.5,
              (0.0, 0.1), (0.45, 0.1)]
 
-    cmap = plt.get_cmap('jet')
+    cmap = mpl.colormaps['jet']
     colors = cmap(np.linspace(0.2, 0.8, len(cases)))
 
     x = np.linspace(-1, 1)

@@ -201,6 +201,11 @@ _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
 
 
+@_api.deprecated(
+    '3.6',
+    pending=True,
+    alternative="``matplotlib.colormaps.register(name)``"
+)
 def register_cmap(name=None, cmap=None, *, override_builtin=False):
     """
     Add a colormap to the set recognized by :func:`get_cmap`.
@@ -244,12 +249,9 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
     _colormaps._allow_override_builtin = False
 
 
-def get_cmap(name=None, lut=None):
+def _get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.
-
-    Colormaps added with :func:`register_cmap` take precedence over
-    built-in colormaps.
 
     Parameters
     ----------
@@ -260,6 +262,10 @@ def get_cmap(name=None, lut=None):
     lut : int or None, default: None
         If *name* is not already a Colormap instance and *lut* is not None, the
         colormap will be resampled to have *lut* entries in the lookup table.
+
+    Returns
+    -------
+    Colormap
     """
     if name is None:
         name = mpl.rcParams['image.cmap']
@@ -269,9 +275,21 @@ def get_cmap(name=None, lut=None):
     if lut is None:
         return _colormaps[name]
     else:
-        return _colormaps[name]._resample(lut)
+        return _colormaps[name].resampled(lut)
+
+# do it in two steps like this so we can have an un-deprecated version in
+# pyplot.
+get_cmap = _api.deprecated(
+    '3.6',
+    name='get_cmap', pending=True, alternative="``matplotlib.colormaps[name]``"
+)(_get_cmap)
 
 
+@_api.deprecated(
+    '3.6',
+    pending=True,
+    alternative="``matplotlib.colormaps.unregister(name)``"
+)
 def unregister_cmap(name):
     """
     Remove a colormap recognized by :func:`get_cmap`.
@@ -550,8 +568,8 @@ class ScalarMappable:
         cmap : `.Colormap` or str or None
         """
         in_init = self.cmap is None
-        cmap = get_cmap(cmap)
-        self.cmap = cmap
+
+        self.cmap = _ensure_cmap(cmap)
         if not in_init:
             self.changed()  # Things are not set up properly yet.
 
@@ -663,3 +681,26 @@ vmin, vmax : float, optional
     *vmin*/*vmax* when a *norm* instance is given (but using a `str` *norm*
     name together with *vmin*/*vmax* is acceptable).""",
 )
+
+
+def _ensure_cmap(cmap):
+    """
+    Ensure that we have a `.Colormap` object.
+
+    Parameters
+    ----------
+    cmap : None, str, Colormap
+
+        - if a `Colormap`, return it
+        - if a string, look it up in mpl.colormaps
+        - if None, look up the default color map in mpl.colormaps
+
+    Returns
+    -------
+    Colormap
+    """
+    if isinstance(cmap, colors.Colormap):
+        return cmap
+    return mpl.colormaps[
+        cmap if cmap is not None else mpl.rcParams['image.cmap']
+    ]

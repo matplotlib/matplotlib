@@ -65,7 +65,9 @@ class CharacterTracker:
 
     def track(self, font, s):
         """Record that string *s* is being typeset using font *font*."""
-        self.used.setdefault(font.fname, set()).update(map(ord, s))
+        char_to_font = font._get_fontmap(s)
+        for _c, _f in char_to_font.items():
+            self.used.setdefault(_f.fname, set()).add(ord(_c))
 
     def track_glyph(self, font, glyph):
         """Record that codepoint *glyph* is being typeset using font *font*."""
@@ -135,8 +137,8 @@ class RendererPDFPSBase(RendererBase):
         return _cached_get_afm_from_fname(fname)
 
     def _get_font_ttf(self, prop):
-        fname = font_manager.findfont(prop)
-        font = font_manager.get_font(fname)
+        fnames = font_manager.fontManager._find_fonts_by_props(prop)
+        font = font_manager.get_font(fnames)
         font.clear()
         font.set_size(prop.get_size_in_points(), 72)
         return font

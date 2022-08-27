@@ -12,19 +12,52 @@ is expected to abide by our
 The project is hosted on
 https://github.com/matplotlib/matplotlib
 
+Get Connected
+=============
+
+Do I really have something to contribute to Matplotlib?
+-------------------------------------------------------
+
+100% yes. There are so many ways to contribute to our community.
+
+When in doubt, we recommend going together! Get connected with our community of
+active contributors, many of whom felt just like you when they started out and
+are happy to welcome you and support you as you get to know how we work, and
+where things are. Take a look at the next sections to learn more.
+
 Contributor incubator
-=====================
+---------------------
 
-If you are interested in becoming a regular contributor to Matplotlib, but
-don't know where to start or feel insecure about it, you can join our non-public
-communication channel for new contributors. To do so, please go to `gitter
-<https://gitter.im/matplotlib/matplotlib>`_ and ask to be added to '#incubator'.
-This is a private gitter room moderated by core Matplotlib developers where you can
-get guidance and support for your first few PRs.  This is a place you can ask questions
-about anything: how to use git, github, how our PR review process works, technical questions
-about the code, what makes for good documentation or a blog post, how to get involved involved
-in community work, or get "pre-review" on your PR.
+The incubator is our non-public communication channel for new contributors. It
+is a private gitter room moderated by core Matplotlib developers where you can
+get guidance and support for your first few PRs. It's a place you can ask
+questions about anything: how to use git, github, how our PR review process
+works, technical questions about the code, what makes for good documentation
+or a blog post, how to get involved in community work, or get
+"pre-review" on your PR.
 
+To join, please go to our public `gitter
+<https://gitter.im/matplotlib/matplotlib>`_ community channel, and ask to be
+added to '#incubator'. One of our core developers will see your message and will
+add you.
+
+New Contributors meeting
+------------------------
+
+Once a month, we host a meeting to discuss topics that interest new
+contributors. Anyone can attend, present, or sit in and listen to the call.
+Among our attendees are fellow new contributors, as well as maintainers, and
+veteran contributors, who are keen to support onboarding of new folks and
+share their experience. You can find our community calendar link at the
+`Scientific Python website <https://scientific-python.org/calendars/>`_, and
+you can browse previous meeting notes on `github
+<https://github.com/matplotlib/ProjectManagement/tree/master/
+new_contributor_meeting>`_.
+We recommend joining the meeting to clarify any doubts, or lingering
+questions you might have, and to get to know a few of the people behind the
+GitHub handles 😉. You can reach out to @noatamir on `gitter
+<https://gitter.im/matplotlib/matplotlib>`_ for any clarifications or
+suggestions. We <3 feedback!
 
 .. _new_contributors:
 
@@ -32,13 +65,22 @@ Issues for new contributors
 ---------------------------
 
 While any contributions are welcome, we have marked some issues as
-particularly suited for new contributors by the label
-`good first issue <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_
-These are well documented issues, that do not require a deep understanding of
-the internals of Matplotlib. The issues may additionally be tagged with a
-difficulty. ``Difficulty: Easy`` is suited for people with little Python experience.
-``Difficulty: Medium`` and ``Difficulty: Hard`` are not trivial to solve and
-require more thought and programming experience.
+particularly suited for new contributors by the label `good first issue
+<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_. These
+are well documented issues, that do not require a deep understanding of the
+internals of Matplotlib. The issues may additionally be tagged with a
+difficulty. ``Difficulty: Easy`` is suited for people with little Python
+experience. ``Difficulty: Medium`` and ``Difficulty: Hard`` require more
+programming experience. This could be for a variety of reasons, among them,
+though not necessarily all at the same time:
+
+- The issue is in areas of the code base which have more interdependencies,
+  or legacy code.
+- It has less clearly defined tasks, which require some independent
+  exploration, making suggestions, or follow-up discussions to clarify a good
+  path to resolve the issue.
+- It involves Python features such as decorators and context managers, which
+  have subtleties due to our implementation decisions.
 
 In general, the Matplotlib project does not assign issues. Issues are
 "assigned" or "claimed" by opening a PR; there is no other assignment
@@ -313,8 +355,8 @@ Introducing
 1. Announce the deprecation in a new file
    :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
    is the pull request number and ``ABC`` are the contributor's initials.
-2. If possible, issue a `.MatplotlibDeprecationWarning` when the deprecated
-   API is used. There are a number of helper tools for this:
+2. If possible, issue a `~matplotlib.MatplotlibDeprecationWarning` when the
+   deprecated API is used. There are a number of helper tools for this:
 
    - Use ``_api.warn_deprecated()`` for general deprecation warnings
    - Use the decorator ``@_api.deprecated`` to deprecate classes, functions,

@@ -3,8 +3,8 @@ import functools
 
 import numpy as np
 
-import matplotlib
-from matplotlib import _api, _docstring, rcParams
+import matplotlib as mpl
+from matplotlib import _api, _docstring
 from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
@@ -56,8 +56,8 @@ class Spine(mpatches.Patch):
         self.set_figure(self.axes.figure)
         self.spine_type = spine_type
         self.set_facecolor('none')
-        self.set_edgecolor(rcParams['axes.edgecolor'])
-        self.set_linewidth(rcParams['axes.linewidth'])
+        self.set_edgecolor(mpl.rcParams['axes.edgecolor'])
+        self.set_linewidth(mpl.rcParams['axes.linewidth'])
         self.set_capstyle('projecting')
         self.axis = None
 
@@ -70,7 +70,7 @@ class Spine(mpatches.Patch):
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        _api.check_isinstance(matplotlib.path.Path, path=path)
+        _api.check_isinstance(mpath.Path, path=path)
         self._path = path
 
         # To support drawing both linear and circular spines, this
@@ -432,7 +432,7 @@ class Spine(mpatches.Patch):
         else:
             raise ValueError('unable to make path for spine "%s"' % spine_type)
         result = cls(axes, spine_type, path, **kwargs)
-        result.set_visible(rcParams['axes.spines.{0}'.format(spine_type)])
+        result.set_visible(mpl.rcParams['axes.spines.{0}'.format(spine_type)])
 
         return result
 

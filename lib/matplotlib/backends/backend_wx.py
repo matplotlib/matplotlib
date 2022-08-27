@@ -620,7 +620,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # DC (see GraphicsContextWx._cache).
         bmp = (self.bitmap.ConvertToImage().ConvertToBitmap()
                if wx.Platform == '__WXMSW__'
-                  and isinstance(self.figure._cachedRenderer, RendererWx)
+                  and isinstance(self.figure.canvas.get_renderer(), RendererWx)
                else self.bitmap)
         drawDC.DrawBitmap(bmp, 0, 0)
         if self._rubberband_rect is not None:

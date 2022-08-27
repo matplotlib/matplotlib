@@ -60,8 +60,8 @@ math_tests = [
     '$\\Gamma \\Delta \\Theta \\Lambda \\Xi \\Pi \\Sigma \\Upsilon \\Phi \\Psi \\Omega$',
     '$\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota \\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon \\phi \\chi \\psi$',
 
-    # The examples prefixed by 'mmltt' are from the MathML torture test here:
-    # https://developer.mozilla.org/en-US/docs/Mozilla/MathML_Project/MathML_Torture_Test
+    # The following examples are from the MathML torture test here:
+    # https://www-archive.mozilla.org/projects/mathml/demo/texvsmml.xhtml
     r'${x}^{2}{y}^{2}$',
     r'${}_{2}F_{3}$',
     r'$\frac{x+{y}^{2}}{k+1}$',

@@ -883,7 +883,7 @@ def test_imshow_endianess():
                   remove_text=True, style='mpl20')
 def test_imshow_masked_interpolation():
 
-    cmap = plt.get_cmap('viridis').with_extremes(over='r', under='b', bad='k')
+    cmap = mpl.colormaps['viridis'].with_extremes(over='r', under='b', bad='k')
 
     N = 20
     n = colors.Normalize(vmin=0, vmax=N*N-1)
@@ -984,7 +984,7 @@ def test_empty_imshow(make_norm):
     fig.canvas.draw()
 
     with pytest.raises(RuntimeError):
-        im.make_image(fig._cachedRenderer)
+        im.make_image(fig.canvas.get_renderer())
 
 
 def test_imshow_float16():
@@ -1096,7 +1096,7 @@ def test_image_array_alpha(fig_test, fig_ref):
     zz = np.exp(- 3 * ((xx - 0.5) ** 2) + (yy - 0.7 ** 2))
     alpha = zz / zz.max()
 
-    cmap = plt.get_cmap('viridis')
+    cmap = mpl.colormaps['viridis']
     ax = fig_test.add_subplot()
     ax.imshow(zz, alpha=alpha, cmap=cmap, interpolation='nearest')
 
@@ -1113,7 +1113,7 @@ def test_image_array_alpha_validation():
 
 @mpl.style.context('mpl20')
 def test_exact_vmin():
-    cmap = copy(plt.cm.get_cmap("autumn_r"))
+    cmap = copy(mpl.colormaps["autumn_r"])
     cmap.set_under(color="lightgrey")
 
     # make the image exactly 190 pixels wide
@@ -1234,7 +1234,7 @@ def test_norm_change(fig_test, fig_ref):
     masked_data = np.ma.array(data, mask=False)
     masked_data.mask[0:2, 0:2] = True
 
-    cmap = plt.get_cmap('viridis').with_extremes(under='w')
+    cmap = mpl.colormaps['viridis'].with_extremes(under='w')
 
     ax = fig_test.subplots()
     im = ax.imshow(data, norm=colors.LogNorm(vmin=0.5, vmax=1),
@@ -1268,7 +1268,7 @@ def test_huge_range_log(fig_test, fig_ref, x):
     data[0:2, :] = 1000
 
     ax = fig_ref.subplots()
-    cmap = plt.get_cmap('viridis').with_extremes(under='w')
+    cmap = mpl.colormaps['viridis'].with_extremes(under='w')
     ax.imshow(data, norm=colors.Normalize(vmin=1, vmax=data.max()),
               interpolation='nearest', cmap=cmap)
 

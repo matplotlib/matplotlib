@@ -5,6 +5,7 @@ Classes for the ticks and x and y axis.
 import datetime
 import functools
 import logging
+from numbers import Number
 
 import numpy as np
 
@@ -894,8 +895,11 @@ class Axis(martist.Artist):
 
         This does not reset tick and tick label visibility.
         """
+        self.label._reset_visual_defaults()
+        self.offsetText._reset_visual_defaults()
+        self.labelpad = mpl.rcParams['axes.labelpad']
 
-        self.label.set_text('')  # self.set_label_text would change isDefault_
+        self._init()
 
         self._set_scale('linear')
 
@@ -1357,7 +1361,7 @@ class Axis(martist.Artist):
 
     def get_pickradius(self):
         """Return the depth of the axis used by the picker."""
-        return self.pickradius
+        return self._pickradius
 
     def get_majorticklabels(self):
         """Return this Axis' major tick labels, as a list of `~.text.Text`."""
@@ -1453,7 +1457,22 @@ class Axis(martist.Artist):
         return minor_locs
 
     def get_ticklocs(self, *, minor=False):
-        """Return this Axis' tick locations in data coordinates."""
+        """
+        Return this Axis' tick locations in data coordinates.
+
+        The locations are not clipped to the current axis limits and hence
+        may contain locations that are not visible in the output.
+
+        Parameters
+        ----------
+        minor : bool, default: False
+            True to return the minor tick directions,
+            False to return the major tick directions.
+
+        Returns
+        -------
+        numpy array of tick locations
+        """
         return self.get_minorticklocs() if minor else self.get_majorticklocs()
 
     def get_ticks_direction(self, minor=False):
@@ -1831,9 +1850,17 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        pickradius :  float
+        pickradius : float
+            The acceptance radius for containment tests.
+            See also `.Axis.contains`.
         """
-        self.pickradius = pickradius
+        if not isinstance(pickradius, Number) or pickradius < 0:
+            raise ValueError("pick radius should be a distance")
+        self._pickradius = pickradius
+
+    pickradius = property(
+        get_pickradius, set_pickradius, doc="The acceptance radius for "
+        "containment tests. See also `.Axis.contains`.")
 
     # Helper for set_ticklabels. Defining it here makes it picklable.
     @staticmethod
@@ -1842,7 +1869,7 @@ class Axis(martist.Artist):
 
     def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         r"""
-        Set the text values of the tick labels.
+        [*Discouraged*] Set the text values of the tick labels.
 
         .. admonition:: Discouraged
 
@@ -2184,6 +2211,13 @@ class XAxis(Axis):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._init()
+
+    def _init(self):
+        """
+        Initialize the label and offsetText instance values and
+        `label_position` / `offset_text_position`.
+        """
         # x in axes coords, y in display coords (to be updated at draw time by
         # _update_label_positions and _update_offset_text_position).
         self.label.set(
@@ -2193,6 +2227,7 @@ class XAxis(Axis):
                 self.axes.transAxes, mtransforms.IdentityTransform()),
         )
         self.label_position = 'bottom'
+
         self.offsetText.set(
             x=1, y=0,
             verticalalignment='top', horizontalalignment='right',
@@ -2217,8 +2252,8 @@ class XAxis(Axis):
             return False, {}
         (l, b), (r, t) = self.axes.transAxes.transform([(0, 0), (1, 1)])
         inaxis = 0 <= xaxes <= 1 and (
-            b - self.pickradius < y < b or
-            t < y < t + self.pickradius)
+            b - self._pickradius < y < b or
+            t < y < t + self._pickradius)
         return inaxis, {}
 
     def set_label_position(self, position):
@@ -2435,6 +2470,13 @@ class YAxis(Axis):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._init()
+
+    def _init(self):
+        """
+        Initialize the label and offsetText instance values and
+        `label_position` / `offset_text_position`.
+        """
         # x in display coords, y in axes coords (to be updated at draw time by
         # _update_label_positions and _update_offset_text_position).
         self.label.set(
@@ -2470,8 +2512,8 @@ class YAxis(Axis):
             return False, {}
         (l, b), (r, t) = self.axes.transAxes.transform([(0, 0), (1, 1)])
         inaxis = 0 <= yaxes <= 1 and (
-            l - self.pickradius < x < l or
-            r < x < r + self.pickradius)
+            l - self._pickradius < x < l or
+            r < x < r + self._pickradius)
         return inaxis, {}
 
     def set_label_position(self, position):

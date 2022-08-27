@@ -15,7 +15,7 @@ Please avoid using references in section titles, as it causes links to be
 confusing in the table of contents.  Instead, ensure that a reference is
 included in the descriptive text.  Include contents of the form: ::
 
-    Section Title for Feature
+    Section title for feature
     -------------------------
 
     A bunch of text about how awesome the new feature is and examples of how

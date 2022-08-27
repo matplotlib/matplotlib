@@ -35,8 +35,10 @@ import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.gridspec import GridSpec
-from matplotlib.layout_engine import (ConstrainedLayoutEngine,
-                                      TightLayoutEngine, LayoutEngine)
+from matplotlib.layout_engine import (
+    ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
+    PlaceHolderLayoutEngine
+)
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
@@ -176,8 +178,6 @@ class FigureBase(Artist):
         self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
 
         self.figure = self
-        # list of child gridspecs for this figure
-        self._gridspecs = []
         self._localaxes = []  # track all axes
         self.artists = []
         self.lines = []
@@ -206,20 +206,13 @@ class FigureBase(Artist):
             key=lambda artist: artist.get_zorder())
         for ax in self._localaxes:
             locator = ax.get_axes_locator()
-            if locator:
-                pos = locator(ax, renderer)
-                ax.apply_aspect(pos)
-            else:
-                ax.apply_aspect()
+            ax.apply_aspect(locator(ax, renderer) if locator else None)
 
             for child in ax.get_children():
                 if hasattr(child, 'apply_aspect'):
                     locator = child.get_axes_locator()
-                    if locator:
-                        pos = locator(child, renderer)
-                        child.apply_aspect(pos)
-                    else:
-                        child.apply_aspect()
+                    child.apply_aspect(
+                        locator(child, renderer) if locator else None)
         return artists
 
     def autofmt_xdate(
@@ -314,10 +307,10 @@ class FigureBase(Artist):
         verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
 default: %(va)s
             The vertical alignment of the text relative to (*x*, *y*).
-        fontsize, size : default: :rc:`figure.titlesize`
+        fontsize, size : default: :rc:`figure.%(rc)ssize`
             The font size of the text. See `.Text.set_size` for possible
             values.
-        fontweight, weight : default: :rc:`figure.titleweight`
+        fontweight, weight : default: :rc:`figure.%(rc)sweight`
             The font weight of the text. See `.Text.set_weight` for possible
             values.
 
@@ -331,8 +324,8 @@ default: %(va)s
         fontproperties : None or dict, optional
             A dict of font properties. If *fontproperties* is given the
             default values for font size and weight are taken from the
-            `.FontProperties` defaults. :rc:`figure.titlesize` and
-            :rc:`figure.titleweight` are ignored in this case.
+            `.FontProperties` defaults. :rc:`figure.%(rc)ssize` and
+            :rc:`figure.%(rc)sweight` are ignored in this case.
 
         **kwargs
             Additional kwargs are `matplotlib.text.Text` properties.
@@ -360,9 +353,9 @@ default: %(va)s
 
         if 'fontproperties' not in kwargs:
             if 'fontsize' not in kwargs and 'size' not in kwargs:
-                kwargs['size'] = mpl.rcParams['figure.titlesize']
+                kwargs['size'] = mpl.rcParams[info['size']]
             if 'fontweight' not in kwargs and 'weight' not in kwargs:
-                kwargs['weight'] = mpl.rcParams['figure.titleweight']
+                kwargs['weight'] = mpl.rcParams[info['weight']]
 
         sup = self.text(x, y, t, **kwargs)
         if suplab is not None:
@@ -378,31 +371,34 @@ default: %(va)s
         return suplab
 
     @_docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
-                             va='top')
+                             va='top', rc='title')
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
-                'ha': 'center', 'va': 'top', 'rotation': 0}
+                'ha': 'center', 'va': 'top', 'rotation': 0,
+                'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
     @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
-                             va='bottom')
+                             va='bottom', rc='label')
     @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_supxlabel', 'x0': 0.5, 'y0': 0.01,
-                'ha': 'center', 'va': 'bottom', 'rotation': 0}
+                'ha': 'center', 'va': 'bottom', 'rotation': 0,
+                'size': 'figure.labelsize', 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
 
     @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
-                             va='center')
+                             va='center', rc='label')
     @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_supylabel', 'x0': 0.02, 'y0': 0.5,
                 'ha': 'left', 'va': 'center', 'rotation': 'vertical',
-                'rotation_mode': 'anchor'}
+                'rotation_mode': 'anchor', 'size': 'figure.labelsize',
+                'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
 
     def get_edgecolor(self):
@@ -975,7 +971,7 @@ default: %(va)s
     # synonym for `clear`.
     def clf(self, keep_observers=False):
         """
-        Alias for the `clear()` method.
+        [*Discouraged*] Alias for the `clear()` method.
 
         .. admonition:: Discouraged
 
@@ -1180,15 +1176,88 @@ default: %(va)s
     @_docstring.dedent_interpd
     def colorbar(
             self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
-        """%(colorbar_doc)s"""
+        """
+        Add a colorbar to a plot.
+
+        Parameters
+        ----------
+        mappable
+            The `matplotlib.cm.ScalarMappable` (i.e., `.AxesImage`,
+            `.ContourSet`, etc.) described by this colorbar.  This argument is
+            mandatory for the `.Figure.colorbar` method but optional for the
+            `.pyplot.colorbar` function, which sets the default to the current
+            image.
+
+            Note that one can create a `.ScalarMappable` "on-the-fly" to
+            generate colorbars not attached to a previously drawn artist, e.g.
+            ::
+
+                fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
+
+        cax : `~matplotlib.axes.Axes`, optional
+            Axes into which the colorbar will be drawn.
+
+        ax : `~matplotlib.axes.Axes`, list of Axes, optional
+            One or more parent axes from which space for a new colorbar axes
+            will be stolen, if *cax* is None.  This has no effect if *cax* is
+            set.
+
+        use_gridspec : bool, optional
+            If *cax* is ``None``, a new *cax* is created as an instance of
+            Axes.  If *ax* is an instance of Subplot and *use_gridspec* is
+            ``True``, *cax* is created as an instance of Subplot using the
+            :mod:`.gridspec` module.
+
+        Returns
+        -------
+        colorbar : `~matplotlib.colorbar.Colorbar`
+
+        Other Parameters
+        ----------------
+        %(_make_axes_kw_doc)s
+        %(_colormap_kw_doc)s
+
+        Notes
+        -----
+        If *mappable* is a `~.contour.ContourSet`, its *extend* kwarg is
+        included automatically.
+
+        The *shrink* kwarg provides a simple way to scale the colorbar with
+        respect to the axes. Note that if *cax* is specified, it determines the
+        size of the colorbar and *shrink* and *aspect* kwargs are ignored.
+
+        For more precise control, you can manually specify the positions of the
+        axes objects in which the mappable and the colorbar are drawn.  In this
+        case, do not use any of the axes properties kwargs.
+
+        It is known that some vector graphics viewers (svg and pdf) renders
+        white gaps between segments of the colorbar.  This is due to bugs in
+        the viewers, not Matplotlib.  As a workaround, the colorbar can be
+        rendered with overlapping segments::
+
+            cbar = colorbar()
+            cbar.solids.set_edgecolor("face")
+            draw()
+
+        However this has negative consequences in other circumstances, e.g.
+        with semi-transparent images (alpha < 1) and colorbar extensions;
+        therefore, this workaround is not used by default (see issue #1188).
+        """
+
         if ax is None:
-            ax = getattr(mappable, "axes", self.gca())
+            ax = getattr(mappable, "axes", None)
 
         if (self.get_layout_engine() is not None and
                 not self.get_layout_engine().colorbar_gridspec):
             use_gridspec = False
         # Store the value of gca so that we can set it back later on.
         if cax is None:
+            if ax is None:
+                raise ValueError(
+                    'Unable to determine Axes to steal space for Colorbar. '
+                    'Either provide the *cax* argument to use as the Axes for '
+                    'the Colorbar, provide the *ax* argument to steal space '
+                    'from it, or add *mappable* to an Axes.')
             current_ax = self.gca()
             userax = False
             if (use_gridspec and isinstance(ax, SubplotBase)):
@@ -1443,7 +1512,6 @@ default: %(va)s
 
         _ = kwargs.pop('figure', None)  # pop in case user has added this...
         gs = GridSpec(nrows=nrows, ncols=ncols, figure=self, **kwargs)
-        self._gridspecs.append(gs)
         return gs
 
     def subfigures(self, nrows=1, ncols=1, squeeze=True,
@@ -2188,7 +2256,6 @@ class SubFigure(FigureBase):
 
     def draw(self, renderer):
         # docstring inherited
-        self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
@@ -2428,10 +2495,6 @@ class Figure(FigureBase):
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clear()
-        self._cachedRenderer = None
-
-        # list of child gridspecs for this figure
-        self._gridspecs = []
 
     def pick(self, mouseevent):
         if not self.canvas.widgetlock.locked():
@@ -2444,7 +2507,9 @@ class Figure(FigureBase):
         If the figure has used the old engine and added a colorbar then the
         value of colorbar_gridspec must be the same on the new engine.
         """
-        if old is None or old.colorbar_gridspec == new.colorbar_gridspec:
+        if old is None or new is None:
+            return True
+        if old.colorbar_gridspec == new.colorbar_gridspec:
             return True
         # colorbar layout different, so check if any colorbars are on the
         # figure...
@@ -2460,15 +2525,29 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        layout: {'constrained', 'compressed', 'tight'} or `~.LayoutEngine`
-            'constrained' will use `~.ConstrainedLayoutEngine`,
-            'compressed' will also use ConstrainedLayoutEngine, but with a
-            correction that attempts to make a good layout for fixed-aspect
-            ratio Axes. 'tight' uses `~.TightLayoutEngine`.  Users and
-            libraries can define their own layout engines as well.
+        layout: {'constrained', 'compressed', 'tight', 'none'} or \
+`LayoutEngine` or None
+
+            - 'constrained' will use `~.ConstrainedLayoutEngine`
+            - 'compressed' will also use `~.ConstrainedLayoutEngine`, but with
+              a correction that attempts to make a good layout for fixed-aspect
+              ratio Axes.
+            - 'tight' uses `~.TightLayoutEngine`
+            - 'none' removes layout engine.
+
+            If `None`, the behavior is controlled by :rc:`figure.autolayout`
+            (which if `True` behaves as if 'tight' were passed) and
+            :rc:`figure.constrained_layout.use` (which if `True` behaves as if
+            'constrained' were passed).  If both are `True`,
+            :rc:`figure.autolayout` takes priority.
+
+            Users and libraries can define their own layout engines and pass
+            the instance directly as well.
+
         kwargs: dict
             The keyword arguments are passed to the layout engine to set things
             like padding and margin sizes.  Only used if *layout* is a string.
+
         """
         if layout is None:
             if mpl.rcParams['figure.autolayout']:
@@ -2485,6 +2564,14 @@ class Figure(FigureBase):
         elif layout == 'compressed':
             new_layout_engine = ConstrainedLayoutEngine(compress=True,
                                                         **kwargs)
+        elif layout == 'none':
+            if self._layout_engine is not None:
+                new_layout_engine = PlaceHolderLayoutEngine(
+                    self._layout_engine.adjust_compatible,
+                    self._layout_engine.colorbar_gridspec
+                )
+            else:
+                new_layout_engine = None
         elif isinstance(layout, LayoutEngine):
             new_layout_engine = layout
         else:
@@ -2566,9 +2653,7 @@ class Figure(FigureBase):
     get_axes = axes.fget
 
     def _get_renderer(self):
-        if self._cachedRenderer is not None:
-            return self._cachedRenderer
-        elif hasattr(self.canvas, 'get_renderer'):
+        if hasattr(self.canvas, 'get_renderer'):
             return self.canvas.get_renderer()
         else:
             return _get_renderer(self)
@@ -2604,7 +2689,8 @@ class Figure(FigureBase):
                      pending=True)
     def set_tight_layout(self, tight):
         """
-        Set whether and how `.tight_layout` is called when drawing.
+        [*Discouraged*] Set whether and how `.tight_layout` is called when
+        drawing.
 
         .. admonition:: Discouraged
 
@@ -2637,8 +2723,10 @@ class Figure(FigureBase):
                      pending=True)
     def set_constrained_layout(self, constrained):
         """
-        Set whether ``constrained_layout`` is used upon drawing. If None,
-        :rc:`figure.constrained_layout.use` value will be used.
+        [*Discouraged*] Set whether ``constrained_layout`` is used upon
+        drawing.
+
+        If None, :rc:`figure.constrained_layout.use` value will be used.
 
         When providing a dict containing the keys ``w_pad``, ``h_pad``
         the default ``constrained_layout`` paddings will be
@@ -2962,7 +3050,6 @@ class Figure(FigureBase):
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited
-        self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
@@ -3003,14 +3090,8 @@ class Figure(FigureBase):
     def draw_artist(self, a):
         """
         Draw `.Artist` *a* only.
-
-        This method can only be used after an initial draw of the figure,
-        because that creates and caches the renderer needed here.
         """
-        if self._cachedRenderer is None:
-            raise AttributeError("draw_artist can only be used after an "
-                                 "initial draw which caches the renderer")
-        a.draw(self._cachedRenderer)
+        a.draw(self.canvas.get_renderer())
 
     def __getstate__(self):
         state = super().__getstate__()
@@ -3019,9 +3100,6 @@ class Figure(FigureBase):
         # of meaning that a figure can be detached from one canvas, and
         # re-attached to another.
         state.pop("canvas")
-
-        # Set cached renderer to None -- it can't be pickled.
-        state["_cachedRenderer"] = None
 
         # discard any changes to the dpi due to pixel ratio changes
         state["_dpi"] = state.get('_original_dpi', state['_dpi'])

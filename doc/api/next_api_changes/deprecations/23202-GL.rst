@@ -1,0 +1,5 @@
+``Axes.get_renderer_cache``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The canvas now takes care of the renderer and whether to cache it
+or not. The alternative is to call ``axes.figure.canvas.get_renderer()``.

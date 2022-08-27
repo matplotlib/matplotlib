@@ -1,7 +1,10 @@
 colorbar defaults to stealing space from the mappable's axes rather than the current axes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pass ``ax=plt.gca()`` to restore the previous behavior.
+If the mappable does not have an Axes, then an error will be raised.
+
+Pass the *cax* or *ax* argument to be explicit about where the colorbar will be
+placed. Passing ``ax=plt.gca()`` will restore the previous behavior.
 
 Removal of deprecated ``colorbar`` APIs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

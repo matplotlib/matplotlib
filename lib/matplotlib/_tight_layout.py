@@ -11,7 +11,8 @@ such cases as when left or right margin are affected by xlabel.
 
 import numpy as np
 
-from matplotlib import _api, artist as martist, rcParams
+import matplotlib as mpl
+from matplotlib import _api, artist as martist
 from matplotlib.font_manager import FontProperties
 from matplotlib.transforms import Bbox
 
@@ -46,8 +47,8 @@ def _auto_adjust_subplotpars(
     """
     rows, cols = shape
 
-    font_size_inch = (
-        FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72)
+    font_size_inch = (FontProperties(
+        size=mpl.rcParams["font.size"]).get_size_in_points() / 72)
     pad_inch = pad * font_size_inch
     vpad_inch = h_pad * font_size_inch if h_pad is not None else pad_inch
     hpad_inch = w_pad * font_size_inch if w_pad is not None else pad_inch

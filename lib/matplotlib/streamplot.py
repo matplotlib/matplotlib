@@ -5,7 +5,7 @@ Streamline plotting for 2D vector fields.
 
 import numpy as np
 
-import matplotlib
+import matplotlib as mpl
 from matplotlib import _api, cm, patches
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
@@ -103,7 +103,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         color = axes._get_lines.get_next_color()
 
     if linewidth is None:
-        linewidth = matplotlib.rcParams['lines.linewidth']
+        linewidth = mpl.rcParams['lines.linewidth']
 
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
@@ -187,7 +187,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if use_multicolor_lines:
         if norm is None:
             norm = mcolors.Normalize(color.min(), color.max())
-        cmap = cm.get_cmap(cmap)
+        cmap = cm._ensure_cmap(cmap)
 
     streamlines = []
     arrows = []
@@ -231,7 +231,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         lc.set_norm(norm)
     axes.add_collection(lc)
 
-    ac = matplotlib.collections.PatchCollection(arrows)
+    ac = mcollections.PatchCollection(arrows)
     # Adding the collection itself is broken; see #2341.
     for p in arrows:
         axes.add_patch(p)

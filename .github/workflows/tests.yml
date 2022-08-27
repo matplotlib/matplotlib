@@ -33,12 +33,12 @@ jobs:
       matrix:
         include:
           - name-suffix: "(Minimum Versions)"
-            os: ubuntu-18.04
+            os: ubuntu-20.04
             python-version: 3.8
             extra-requirements: '-c requirements/testing/minver.txt'
             pyqt5-ver: '==5.11.2 sip==5.0.0'  # oldest versions with a Py3.8 wheel.
             delete-font-cache: true
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             python-version: 3.8
             extra-requirements: '-r requirements/testing/extra.txt'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
@@ -109,7 +109,7 @@ jobs:
           macOS)
             brew install ccache
             brew tap homebrew/cask-fonts
-            brew install font-noto-sans-cjk-sc
+            brew install font-noto-sans-cjk
             ;;
           esac
 
@@ -192,7 +192,6 @@ jobs:
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          # Qt6 crashes on Github's ubuntu 18.04 runner.
           if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
             python -mpip install --upgrade pyqt6 &&
               python -c 'import PyQt6.QtCore' &&

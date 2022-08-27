@@ -4,7 +4,7 @@ Creating Colormaps in Matplotlib
 ********************************
 
 Matplotlib has a number of built-in colormaps accessible via
-`.matplotlib.cm.get_cmap`.  There are also external libraries like
+`.matplotlib.colormaps`.  There are also external libraries like
 palettable_ that have many extra colormaps.
 
 .. _palettable: https://jiffyclub.github.io/palettable/
@@ -24,19 +24,19 @@ Getting colormaps and accessing their values
 ============================================
 
 First, getting a named colormap, most of which are listed in
-:doc:`/tutorials/colors/colormaps`, may be done using
-`.matplotlib.cm.get_cmap`, which returns a colormap object.
-The second argument gives the size of the list of colors used to define the
-colormap, and below we use a modest value of 8 so there are not a lot of
-values to look at.
+:doc:`/tutorials/colors/colormaps`, may be done using `.matplotlib.colormaps`,
+which returns a colormap object.  The length of the list of colors used
+internally to define the colormap can be adjusted via `.Colormap.resampled`.
+Below we use a modest value of 8 so there are not a lot of values to look at.
+
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import cm
+import matplotlib as mpl
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
-viridis = cm.get_cmap('viridis', 8)
+viridis = mpl.colormaps['viridis'].resampled(8)
 
 ##############################################################################
 # The object ``viridis`` is a callable, that when passed a float between
@@ -72,7 +72,7 @@ print('viridis(np.linspace(0, 1, 12))', viridis(np.linspace(0, 1, 12)))
 # However, one may still call the colormap with an integer array, or with a
 # float array between 0 and 1.
 
-copper = cm.get_cmap('copper', 8)
+copper = mpl.colormaps['copper'].resampled(8)
 
 print('copper(range(8))', copper(range(8)))
 print('copper(np.linspace(0, 1, 8))', copper(np.linspace(0, 1, 8)))
@@ -123,7 +123,7 @@ plot_examples([cmap])
 # For example, suppose we want to make the first 25 entries of a 256-length
 # "viridis" colormap pink for some reason:
 
-viridis = cm.get_cmap('viridis', 256)
+viridis = mpl.colormaps['viridis'].resampled(256)
 newcolors = viridis(np.linspace(0, 1, 256))
 pink = np.array([248/256, 24/256, 148/256, 1])
 newcolors[:25, :] = pink
@@ -138,15 +138,15 @@ plot_examples([viridis, newcmp])
 # values that were in the original colormap. This method does not interpolate
 # in color-space to add new colors.
 
-viridis_big = cm.get_cmap('viridis')
+viridis_big = mpl.colormaps['viridis']
 newcmp = ListedColormap(viridis_big(np.linspace(0.25, 0.75, 128)))
 plot_examples([viridis, newcmp])
 
 ##############################################################################
 # and we can easily concatenate two colormaps:
 
-top = cm.get_cmap('Oranges_r', 128)
-bottom = cm.get_cmap('Blues', 128)
+top = mpl.colormaps['Oranges_r'].resampled(128)
+bottom = mpl.colormaps['Blues'].resampled(128)
 
 newcolors = np.vstack((top(np.linspace(0, 1, 128)),
                        bottom(np.linspace(0, 1, 128))))
@@ -268,4 +268,4 @@ plot_examples([cmap1, cmap2])
 #    - `matplotlib.colors.LinearSegmentedColormap`
 #    - `matplotlib.colors.ListedColormap`
 #    - `matplotlib.cm`
-#    - `matplotlib.cm.get_cmap`
+#    - `matplotlib.colormaps`

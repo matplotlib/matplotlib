@@ -422,6 +422,9 @@ class FigureCanvasCairo(FigureCanvasBase):
             self._cached_renderer = RendererCairo(self.figure.dpi)
         return self._cached_renderer
 
+    def get_renderer(self):
+        return self._renderer
+
     def copy_from_bbox(self, bbox):
         surface = self._renderer.gc.ctx.get_target()
         if not isinstance(surface, cairo.ImageSurface):

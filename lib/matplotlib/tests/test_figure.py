@@ -13,12 +13,13 @@ import pytest
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import gridspec, rcParams
+from matplotlib import gridspec
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
-                                      TightLayoutEngine)
+                                      TightLayoutEngine,
+                                      PlaceHolderLayoutEngine)
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -298,7 +299,7 @@ def test_alpha():
 
 def test_too_many_figures():
     with pytest.warns(RuntimeWarning):
-        for i in range(rcParams['figure.max_open_warning'] + 1):
+        for i in range(mpl.rcParams['figure.max_open_warning'] + 1):
             plt.figure()
 
 
@@ -581,10 +582,18 @@ def test_invalid_layouts():
     fig.colorbar(pc)
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("tight")
+    fig.set_layout_engine("none")
+    with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
+        fig.set_layout_engine("tight")
 
     fig, ax = plt.subplots(layout="tight")
     pc = ax.pcolormesh(np.random.randn(2, 2))
     fig.colorbar(pc)
+    with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
+        fig.set_layout_engine("constrained")
+    fig.set_layout_engine("none")
+    assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
+
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("constrained")
 
@@ -1121,7 +1130,7 @@ def test_subfigure_dpi():
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'})
+                  savefig_kwarg={'facecolor': 'teal'}, tol=0.02)
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
@@ -1356,6 +1365,20 @@ def test_kwargs_pass():
 
     assert fig.get_label() == 'whole Figure'
     assert sub_fig.get_label() == 'sub figure'
+
+
+@check_figures_equal(extensions=["png"])
+def test_rcparams(fig_test, fig_ref):
+    fig_ref.supxlabel("xlabel", weight='bold', size=15)
+    fig_ref.supylabel("ylabel", weight='bold', size=15)
+    fig_ref.suptitle("Title", weight='light', size=20)
+    with mpl.rc_context({'figure.labelweight': 'bold',
+                         'figure.labelsize': 15,
+                         'figure.titleweight': 'light',
+                         'figure.titlesize': 20}):
+        fig_test.supxlabel("xlabel")
+        fig_test.supylabel("ylabel")
+        fig_test.suptitle("Title")
 
 
 def test_deepcopy():

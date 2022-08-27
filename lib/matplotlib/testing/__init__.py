@@ -91,7 +91,7 @@ def _check_for_pgf(texsystem):
     with TemporaryDirectory() as tmpdir:
         tex_path = Path(tmpdir, "test.tex")
         tex_path.write_text(r"""
-            \documentclass{minimal}
+            \documentclass{article}
             \usepackage{pgf}
             \begin{document}
             \typeout{pgfversion=\pgfversion}

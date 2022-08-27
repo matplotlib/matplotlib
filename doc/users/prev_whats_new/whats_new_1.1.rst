@@ -51,7 +51,7 @@ Tight Layout
 A frequent issue raised by users of matplotlib is the lack of a layout
 engine to nicely space out elements of the plots. While matplotlib still
 adheres to the philosophy of giving users complete control over the placement
-of plot elements, Jae-Joon Lee created the :mod:`~matplotlib.tight_layout`
+of plot elements, Jae-Joon Lee created the ``matplotlib.tight_layout``
 module and introduced a new
 command :func:`~matplotlib.pyplot.tight_layout`
 to address the most common layout issues.

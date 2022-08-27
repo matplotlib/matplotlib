@@ -18,7 +18,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _pylab_helpers, _tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, _tight_layout
 from matplotlib.transforms import Bbox
 
 _log = logging.getLogger(__name__)
@@ -142,6 +142,7 @@ class GridSpecBase:
         """
         return self._row_height_ratios
 
+    @_api.delete_parameter("3.7", "raw")
     def get_grid_positions(self, fig, raw=False):
         """
         Return the positions of the grid cells in figure coordinates.
@@ -429,7 +430,8 @@ class GridSpec(GridSpecBase):
         - :rc:`figure.subplot.*`
         """
         if figure is None:
-            kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
+            kw = {k: mpl.rcParams["figure.subplot."+k]
+                  for k in self._AllowedKeys}
             subplotpars = mpl.figure.SubplotParams(**kw)
         else:
             subplotpars = copy.copy(figure.subplotpars)
@@ -519,10 +521,10 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         """Return a dictionary of subplot layout parameters."""
         hspace = (self._hspace if self._hspace is not None
                   else figure.subplotpars.hspace if figure is not None
-                  else rcParams["figure.subplot.hspace"])
+                  else mpl.rcParams["figure.subplot.hspace"])
         wspace = (self._wspace if self._wspace is not None
                   else figure.subplotpars.wspace if figure is not None
-                  else rcParams["figure.subplot.wspace"])
+                  else mpl.rcParams["figure.subplot.wspace"])
 
         figbox = self._subplot_spec.get_position(figure)
         left, bottom, right, top = figbox.extents

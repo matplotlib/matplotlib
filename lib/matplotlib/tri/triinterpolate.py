@@ -272,16 +272,15 @@ class LinearTriInterpolator(TriInterpolator):
     gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
+        _api.check_in_list(['z', 'dzdx', 'dzdy'], return_key=return_key)
         if return_key == 'z':
             return (self._plane_coefficients[tri_index, 0]*x +
                     self._plane_coefficients[tri_index, 1]*y +
                     self._plane_coefficients[tri_index, 2])
         elif return_key == 'dzdx':
             return self._plane_coefficients[tri_index, 0]
-        elif return_key == 'dzdy':
+        else:  # 'dzdy'
             return self._plane_coefficients[tri_index, 1]
-        else:
-            raise ValueError("Invalid return_key: " + return_key)
 
 
 class CubicTriInterpolator(TriInterpolator):
@@ -413,6 +412,7 @@ class CubicTriInterpolator(TriInterpolator):
         # Computing eccentricities
         self._eccs = self._compute_tri_eccentricities(self._tris_pts)
         # Computing dof estimations for HCT triangle shape function
+        _api.check_in_list(['user', 'geom', 'min_E'], kind=kind)
         self._dof = self._compute_dof(kind, dz=dz)
         # Loading HCT element
         self._ReferenceElement = _ReducedHCT_Element()
@@ -428,6 +428,7 @@ class CubicTriInterpolator(TriInterpolator):
     gradient.__doc__ = TriInterpolator._docstringgradient
 
     def _interpolate_single_key(self, return_key, tri_index, x, y):
+        _api.check_in_list(['z', 'dzdx', 'dzdy'], return_key=return_key)
         tris_pts = self._tris_pts[tri_index]
         alpha = self._get_alpha_vec(x, y, tris_pts)
         ecc = self._eccs[tri_index]
@@ -435,7 +436,7 @@ class CubicTriInterpolator(TriInterpolator):
         if return_key == 'z':
             return self._ReferenceElement.get_function_values(
                 alpha, ecc, dof)
-        elif return_key in ['dzdx', 'dzdy']:
+        else:  # 'dzdx', 'dzdy'
             J = self._get_jacobian(tris_pts)
             dzdx = self._ReferenceElement.get_function_derivatives(
                 alpha, J, ecc, dof)
@@ -443,8 +444,6 @@ class CubicTriInterpolator(TriInterpolator):
                 return dzdx[:, 0, 0]
             else:
                 return dzdx[:, 1, 0]
-        else:
-            raise ValueError("Invalid return_key: " + return_key)
 
     def _compute_dof(self, kind, dz=None):
         """
@@ -472,10 +471,8 @@ class CubicTriInterpolator(TriInterpolator):
             TE = _DOF_estimator_user(self, dz=dz)
         elif kind == 'geom':
             TE = _DOF_estimator_geom(self)
-        elif kind == 'min_E':
+        else:  # 'min_E', checked in __init__
             TE = _DOF_estimator_min_E(self)
-        else:
-            _api.check_in_list(['user', 'geom', 'min_E'], kind=kind)
         return TE.compute_dof_from_df()
 
     @staticmethod
@@ -1510,7 +1507,7 @@ def _roll_vectorized(M, roll_indices, axis):
         for ir in range(r):
             for ic in range(c):
                 M_roll[:, ir, ic] = M[vec_indices, (-roll_indices+ir) % r, ic]
-    elif axis == 1:
+    else:  # 1
         for ir in range(r):
             for ic in range(c):
                 M_roll[:, ir, ic] = M[vec_indices, ir, (-roll_indices+ic) % c]
@@ -1562,7 +1559,7 @@ def _extract_submatrices(M, block_indices, block_size, axis):
     r, c = M.shape
     if axis == 0:
         sh = [block_indices.shape[0], block_size, c]
-    elif axis == 1:
+    else:  # 1
         sh = [block_indices.shape[0], r, block_size]
 
     dt = M.dtype
@@ -1570,7 +1567,7 @@ def _extract_submatrices(M, block_indices, block_size, axis):
     if axis == 0:
         for ir in range(block_size):
             M_res[:, ir, :] = M[(block_indices*block_size+ir), :]
-    elif axis == 1:
+    else:  # 1
         for ic in range(block_size):
             M_res[:, :, ic] = M[:, (block_indices*block_size+ic)]
 

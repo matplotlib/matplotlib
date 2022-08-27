@@ -383,3 +383,18 @@ def test_doc_pyplot_summary():
             f"The following functions are listed in the pyplot documentation, "
             f"but they do not exist in pyplot. "
             f"Please remove them from doc/api/pyplot_summary.rst: {extra!r}")
+
+
+def test_minor_ticks():
+    plt.figure()
+    plt.plot(np.arange(1, 10))
+    tick_pos, tick_labels = plt.xticks(minor=True)
+    assert np.all(tick_labels == np.array([], dtype=np.float64))
+    assert tick_labels == []
+
+    plt.yticks(ticks=[3.5, 6.5], labels=["a", "b"], minor=True)
+    ax = plt.gca()
+    tick_pos = ax.get_yticks(minor=True)
+    tick_labels = ax.get_yticklabels(minor=True)
+    assert np.all(tick_pos == np.array([3.5, 6.5]))
+    assert [l.get_text() for l in tick_labels] == ['a', 'b']

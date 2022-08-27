@@ -21,17 +21,20 @@ import logging
 
 import numpy as np
 
-from matplotlib import _api, rcParams, _mathtext
+import matplotlib as mpl
+from matplotlib import _api, _mathtext
 from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
+from ._mathtext import (  # noqa: reexported API
+    RasterParse, VectorParse, get_unicode_index)
 
 _log = logging.getLogger(__name__)
 
 
-get_unicode_index = _mathtext.get_unicode_index
 get_unicode_index.__module__ = __name__
 
 
+@_api.deprecated("3.6")
 class MathtextBackend:
     """
     The base class for the mathtext backend-specific code.  `MathtextBackend`
@@ -87,6 +90,7 @@ class MathtextBackend:
         return LOAD_NO_HINTING
 
 
+@_api.deprecated("3.6")
 class MathtextBackendAgg(MathtextBackend):
     """
     Render glyphs and rectangles to an FTImage buffer, which is later
@@ -120,7 +124,7 @@ class MathtextBackendAgg(MathtextBackend):
         else:
             info.font.draw_glyph_to_bitmap(
                 self.image, ox, oy - info.metrics.iceberg, info.glyph,
-                antialiased=rcParams['text.antialiased'])
+                antialiased=mpl.rcParams['text.antialiased'])
 
     def render_rect_filled(self, x1, y1, x2, y2):
         if self.mode == 'bbox':
@@ -135,32 +139,16 @@ class MathtextBackendAgg(MathtextBackend):
             self.image.draw_rect_filled(int(x1), y, np.ceil(x2), y + height)
 
     def get_results(self, box):
-        self.mode = 'bbox'
-        orig_height = box.height
-        orig_depth  = box.depth
-        _mathtext.ship(0, 0, box)
-        bbox = self.bbox
-        bbox = [bbox[0] - 1, bbox[1] - 1, bbox[2] + 1, bbox[3] + 1]
-        self.mode = 'render'
-        self.set_canvas_size(
-            bbox[2] - bbox[0],
-            (bbox[3] - bbox[1]) - orig_depth,
-            (bbox[3] - bbox[1]) - orig_height)
-        _mathtext.ship(-bbox[0], -bbox[1], box)
-        result = (self.ox,
-                  self.oy,
-                  self.width,
-                  self.height + self.depth,
-                  self.depth,
-                  self.image)
         self.image = None
-        return result
+        self.mode = 'render'
+        return _mathtext.ship(box).to_raster()
 
     def get_hinting_type(self):
         from matplotlib.backends import backend_agg
         return backend_agg.get_hinting_flag()
 
 
+@_api.deprecated("3.6")
 class MathtextBackendPath(MathtextBackend):
     """
     Store information to write a mathtext rendering to the text path
@@ -182,14 +170,10 @@ class MathtextBackendPath(MathtextBackend):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
     def get_results(self, box):
-        _mathtext.ship(0, 0, box)
-        return self._Result(self.width,
-                            self.height + self.depth,
-                            self.depth,
-                            self.glyphs,
-                            self.rects)
+        return _mathtext.ship(box).to_vector()
 
 
+@_api.deprecated("3.6")
 class MathTextWarning(Warning):
     pass
 
@@ -200,12 +184,6 @@ class MathTextWarning(Warning):
 
 class MathTextParser:
     _parser = None
-
-    _backend_mapping = {
-        'agg':    MathtextBackendAgg,
-        'path':   MathtextBackendPath,
-        'macosx': MathtextBackendAgg,
-    }
     _font_type_mapping = {
         'cm':          _mathtext.BakomaFonts,
         'dejavuserif': _mathtext.DejaVuSerifFonts,
@@ -216,8 +194,18 @@ class MathTextParser:
     }
 
     def __init__(self, output):
-        """Create a MathTextParser for the given backend *output*."""
-        self._output = output.lower()
+        """
+        Create a MathTextParser for the given backend *output*.
+
+        Parameters
+        ----------
+        output : {"path", "agg"}
+            Whether to return a `VectorParse` ("path") or a
+            `RasterParse` ("agg", or its synonym "macosx").
+        """
+        self._output_type = _api.check_getitem(
+            {"path": "vector", "agg": "raster", "macosx": "raster"},
+            output=output.lower())
 
     def parse(self, s, dpi=72, prop=None):
         """
@@ -227,6 +215,9 @@ class MathTextParser:
 
         The results are cached, so multiple calls to `parse`
         with the same expression should be fast.
+
+        Depending on the *output* type, this returns either a `VectorParse` or
+        a `RasterParse`.
         """
         # lru_cache can't decorate parse() directly because prop
         # is mutable; key the cache using an internal copy (see
@@ -236,24 +227,29 @@ class MathTextParser:
 
     @functools.lru_cache(50)
     def _parse_cached(self, s, dpi, prop):
+        from matplotlib.backends import backend_agg
+
         if prop is None:
             prop = FontProperties()
-
         fontset_class = _api.check_getitem(
-                self._font_type_mapping, fontset=prop.get_math_fontfamily())
-        backend = self._backend_mapping[self._output]()
-        font_output = fontset_class(prop, backend)
+            self._font_type_mapping, fontset=prop.get_math_fontfamily())
+        load_glyph_flags = {
+            "vector": LOAD_NO_HINTING,
+            "raster": backend_agg.get_hinting_flag(),
+        }[self._output_type]
+        fontset = fontset_class(prop, load_glyph_flags)
 
         fontsize = prop.get_size_in_points()
 
-        # This is a class variable so we don't rebuild the parser
-        # with each request.
-        if self._parser is None:
+        if self._parser is None:  # Cache the parser globally.
             self.__class__._parser = _mathtext.Parser()
 
-        box = self._parser.parse(s, font_output, fontsize, dpi)
-        backend.set_canvas_size(*np.ceil([box.width, box.height, box.depth]))
-        return backend.get_results(box)
+        box = self._parser.parse(s, fontset, fontsize, dpi)
+        output = _mathtext.ship(box)
+        if self._output_type == "vector":
+            return output.to_vector()
+        elif self._output_type == "raster":
+            return output.to_raster()
 
 
 def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None,

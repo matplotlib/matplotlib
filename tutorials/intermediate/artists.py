@@ -353,7 +353,7 @@ plt.show()
 # images           A list of `.FigureImage` patches -
 #                  useful for raw pixel display
 # legends          A list of Figure `.Legend` instances
-#                  (different from ``Axes.legends``)
+#                  (different from ``Axes.get_legend()``)
 # lines            A list of Figure `.Line2D` instances
 #                  (rarely used, see ``Axes.lines``)
 # patches          A list of Figure `.Patch`\s
@@ -543,7 +543,7 @@ plt.show()
 # `~.axes.Axes.fill` - shared area           `.Polygon`         ax.patches
 # `~.axes.Axes.hist` - histograms            `.Rectangle`       ax.patches
 # `~.axes.Axes.imshow` - image data          `.AxesImage`       ax.images
-# `~.axes.Axes.legend` - Axes legends        `.Legend`          ax.legends
+# `~.axes.Axes.legend` - Axes legend         `.Legend`          ax.get_legend()
 # `~.axes.Axes.plot` - xy plots              `.Line2D`          ax.lines
 # `~.axes.Axes.scatter` - scatter charts     `.PolyCollection`  ax.collections
 # `~.axes.Axes.text` - text                  `.Text`            ax.texts
@@ -563,25 +563,25 @@ plt.show()
 # the font color of the ``XAxis`` ticklabels using the ``Axes`` helper
 # method::
 #
-#     for label in ax.get_xticklabels():
-#         label.set_color('orange')
+#     ax.tick_params(axis='x', labelcolor='orange')
 #
-# Below is a summary of the Artists that the Axes contains
+# Below is a summary of the Artists that the `~.axes.Axes` contains
 #
 # ==============    =========================================
 # Axes attribute    Description
 # ==============    =========================================
-# artists           A list of `.Artist` instances
+# artists           An `.ArtistList` of `.Artist` instances
 # patch             `.Rectangle` instance for Axes background
-# collections       A list of `.Collection` instances
-# images            A list of `.AxesImage`
-# legends           A list of `.Legend` instances
-# lines             A list of `.Line2D` instances
-# patches           A list of `.Patch` instances
-# texts             A list of `.Text` instances
+# collections       An `.ArtistList` of `.Collection` instances
+# images            An `.ArtistList` of `.AxesImage`
+# lines             An `.ArtistList` of `.Line2D` instances
+# patches           An `.ArtistList` of `.Patch` instances
+# texts             An `.ArtistList` of `.Text` instances
 # xaxis             A `matplotlib.axis.XAxis` instance
 # yaxis             A `matplotlib.axis.YAxis` instance
 # ==============    =========================================
+#
+# The legend can be accessed by `~.axes.Axes.get_legend`,
 #
 # .. _axis-container:
 #

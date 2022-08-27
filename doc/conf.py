@@ -23,6 +23,9 @@ import matplotlib
 from datetime import datetime
 import time
 
+# debug that building expected version
+print(f"Building Documentation for Matplotlib: {matplotlib.__version__}")
+
 # Release mode enables optimizations and other related options.
 is_release_build = tags.has('release')  # noqa
 
@@ -150,7 +153,7 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
-    'xarray': ('https://xarray.pydata.org/en/stable/', None),
+    'xarray': ('https://docs.xarray.dev/en/stable/', None),
 }
 
 
@@ -331,7 +334,7 @@ html_theme = "mpl_sphinx_theme"
 # the sidebar.
 html_logo = "_static/logo2.svg"
 html_theme_options = {
-    "native_site": True,
+    "navbar_links": "internal",
     # collapse_navigation in pydata-sphinx-theme is slow, so skipped for local
     # and CI builds https://github.com/pydata/pydata-sphinx-theme/pull/386
     "collapse_navigation": not is_release_build,

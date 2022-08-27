@@ -3,6 +3,6 @@ seaborn styles renamed
 Matplotlib currently ships many style files inspired from the seaborn
 library ("seaborn", "seaborn-bright", "seaborn-colorblind", etc.) but they
 have gone out of sync with the library itself since the release of seaborn
-0.9.  To prevent confusion, the style files have been renamed "seaborn0.8",
-"seaborn0.8-bright", "seaborn0.8-colorblind", etc.  Users are encouraged to
+0.9.  To prevent confusion, the style files have been renamed "seaborn-v0_8",
+"seaborn-v0_8-bright", "seaborn-v0_8-colorblind", etc.  Users are encouraged to
 directly use seaborn to access the up-to-date styles.

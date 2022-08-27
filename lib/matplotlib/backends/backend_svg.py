@@ -66,7 +66,7 @@ backend_version = mpl.__version__
 # --------------------------------------------------------------------
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_cdata")
 def escape_cdata(s):
     return _escape_cdata(s)
 
@@ -81,7 +81,7 @@ def _escape_cdata(s):
 _escape_xml_comment = re.compile(r'-(?=-)')
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_comment")
 def escape_comment(s):
     return _escape_comment.sub(s)
 
@@ -91,7 +91,7 @@ def _escape_comment(s):
     return _escape_xml_comment.sub('- ', s)
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_attrib")
 def escape_attrib(s):
     return _escape_attrib(s)
 
@@ -111,7 +111,7 @@ def _quote_escape_attrib(s):
             '"' + _escape_attrib(s) + '"')
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of _short_float_fmt")
 def short_float_fmt(x):
     return _short_float_fmt(x)
 
@@ -298,6 +298,23 @@ def generate_css(attrib=None):
 _capstyle_d = {'projecting': 'square', 'butt': 'butt', 'round': 'round'}
 
 
+def _check_is_str(info, key):
+    if not isinstance(info, str):
+        raise TypeError(f'Invalid type for {key} metadata. Expected str, not '
+                        f'{type(info)}.')
+
+
+def _check_is_iterable_of_str(infos, key):
+    if np.iterable(infos):
+        for info in infos:
+            if not isinstance(info, str):
+                raise TypeError(f'Invalid type for {key} metadata. Expected '
+                                f'iterable of str, not {type(info)}.')
+    else:
+        raise TypeError(f'Invalid type for {key} metadata. Expected str or '
+                        f'iterable of str, not {type(infos)}.')
+
+
 class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72,
                  *, metadata=None):
@@ -359,7 +376,9 @@ class RendererSVG(RendererBase):
         writer = self.writer
 
         if 'Title' in metadata:
-            writer.element('title', text=metadata['Title'])
+            title = metadata['Title']
+            _check_is_str(title, 'Title')
+            writer.element('title', text=title)
 
         # Special handling.
         date = metadata.get('Date', None)
@@ -376,14 +395,14 @@ class RendererSVG(RendererBase):
                     elif isinstance(d, (datetime.datetime, datetime.date)):
                         dates.append(d.isoformat())
                     else:
-                        raise ValueError(
-                            'Invalid type for Date metadata. '
-                            'Expected iterable of str, date, or datetime, '
-                            'not {!r}.'.format(type(d)))
+                        raise TypeError(
+                            f'Invalid type for Date metadata. '
+                            f'Expected iterable of str, date, or datetime, '
+                            f'not {type(d)}.')
             else:
-                raise ValueError('Invalid type for Date metadata. '
-                                 'Expected str, date, datetime, or iterable '
-                                 'of the same, not {!r}.'.format(type(date)))
+                raise TypeError(f'Invalid type for Date metadata. '
+                                f'Expected str, date, datetime, or iterable '
+                                f'of the same, not {type(date)}.')
             metadata['Date'] = '/'.join(dates)
         elif 'Date' not in metadata:
             # Do not add `Date` if the user explicitly set `Date` to `None`
@@ -415,36 +434,40 @@ class RendererSVG(RendererBase):
             writer.element('dc:type', attrib={'rdf:resource': uri})
 
         # Single value only.
-        for key in ['title', 'coverage', 'date', 'description', 'format',
-                    'identifier', 'language', 'relation', 'source']:
-            info = metadata.pop(key.title(), None)
+        for key in ['Title', 'Coverage', 'Date', 'Description', 'Format',
+                    'Identifier', 'Language', 'Relation', 'Source']:
+            info = metadata.pop(key, None)
             if info is not None:
                 mid = ensure_metadata(mid)
-                writer.element(f'dc:{key}', text=info)
+                _check_is_str(info, key)
+                writer.element(f'dc:{key.lower()}', text=info)
 
         # Multiple Agent values.
-        for key in ['creator', 'contributor', 'publisher', 'rights']:
-            agents = metadata.pop(key.title(), None)
+        for key in ['Creator', 'Contributor', 'Publisher', 'Rights']:
+            agents = metadata.pop(key, None)
             if agents is None:
                 continue
 
             if isinstance(agents, str):
                 agents = [agents]
 
+            _check_is_iterable_of_str(agents, key)
+            # Now we know that we have an iterable of str
             mid = ensure_metadata(mid)
-            writer.start(f'dc:{key}')
+            writer.start(f'dc:{key.lower()}')
             for agent in agents:
                 writer.start('cc:Agent')
                 writer.element('dc:title', text=agent)
                 writer.end('cc:Agent')
-            writer.end(f'dc:{key}')
+            writer.end(f'dc:{key.lower()}')
 
         # Multiple values.
         keywords = metadata.pop('Keywords', None)
         if keywords is not None:
             if isinstance(keywords, str):
                 keywords = [keywords]
-
+            _check_is_iterable_of_str(keywords, 'Keywords')
+            # Now we know that we have an iterable of str
             mid = ensure_metadata(mid)
             writer.start('dc:subject')
             writer.start('rdf:Bag')
@@ -719,7 +742,7 @@ class RendererSVG(RendererBase):
         writer.end('g')
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
+                             offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         # Is the optimization worth it? Rough calculation:
@@ -735,7 +758,7 @@ class RendererSVG(RendererBase):
         if not should_do_optimization:
             return super().draw_path_collection(
                 gc, master_transform, paths, all_transforms,
-                offsets, offsetTrans, facecolors, edgecolors,
+                offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
 
@@ -753,8 +776,8 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, master_transform, all_transforms, path_codes, offsets,
-                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+                gc, path_codes, offsets, offset_trans,
+                facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             url = gc0.get_url()
             if url is not None:
@@ -1130,7 +1153,8 @@ class RendererSVG(RendererBase):
                 font_parts.append(f'{weight}')
             font_parts.extend([
                 f'{_short_float_fmt(prop.get_size())}px',
-                f'{prop.get_family()[0]!r}',  # ensure quoting
+                # ensure quoting
+                f'{", ".join(repr(f) for f in prop.get_family())}',
             ])
             style['font'] = ' '.join(font_parts)
             if prop.get_stretch() != 'normal':

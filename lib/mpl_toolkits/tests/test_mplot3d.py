@@ -8,7 +8,7 @@ import matplotlib as mpl
 from matplotlib.backend_bases import (MouseButton, MouseEvent,
                                       NavigationToolbar2)
 from matplotlib import cm
-from matplotlib import colors as mcolors
+from matplotlib import colors as mcolors, patches as mpatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.testing.widgets import mock_event
 from matplotlib.collections import LineCollection, PolyCollection
@@ -59,6 +59,27 @@ def test_axes3d_repr():
     assert repr(ax) == (
         "<Axes3DSubplot: label='label', "
         "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
+
+
+@mpl3d_image_comparison(['axes3d_primary_views.png'])
+def test_axes3d_primary_views():
+    # (elev, azim, roll)
+    views = [(90, -90, 0),  # XY
+             (0, -90, 0),   # XZ
+             (0, 0, 0),     # YZ
+             (-90, 90, 0),  # -XY
+             (0, 90, 0),    # -XZ
+             (0, 180, 0)]   # -YZ
+    # When viewing primary planes, draw the two visible axes so they intersect
+    # at their low values
+    fig, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'})
+    for i, ax in enumerate(axs.flat):
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+        ax.set_proj_type('ortho')
+        ax.view_init(elev=views[i][0], azim=views[i][1], roll=views[i][2])
+    plt.tight_layout()
 
 
 @mpl3d_image_comparison(['bar3d.png'])
@@ -207,7 +228,7 @@ def test_contourf3d_extend(fig_test, fig_ref, extend, levels):
     Z = X**2 + Y**2
 
     # Manually set the over/under colors to be the end of the colormap
-    cmap = plt.get_cmap('viridis').copy()
+    cmap = mpl.colormaps['viridis'].copy()
     cmap.set_under(cmap(0))
     cmap.set_over(cmap(255))
     # Set vmin/max to be the min/max values plotted on the reference image
@@ -547,7 +568,7 @@ def test_surface3d_masked():
     )
     z = np.ma.masked_less(matrix, 0)
     norm = mcolors.Normalize(vmax=z.max(), vmin=z.min())
-    colors = plt.get_cmap("plasma")(norm(z))
+    colors = mpl.colormaps["plasma"](norm(z))
     ax.plot_surface(x, y, z, facecolors=colors)
     ax.view_init(30, -80, 0)
 
@@ -1848,6 +1869,13 @@ def test_text_3d(fig_test, fig_ref):
     assert t3d.get_position_3d() == (0.5, 0.5, 1)
 
 
+def test_draw_single_lines_from_Nx1():
+    # Smoke test for GH#23459
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.plot([[0], [1]], [[0], [1]], [[0], [1]])
+
+
 @check_figures_equal(extensions=["png"])
 def test_pathpatch_3d(fig_test, fig_ref):
     ax = fig_ref.add_subplot(projection="3d")
@@ -1872,6 +1900,28 @@ def test_scatter_spiral():
 
     # force at least 1 draw!
     fig.canvas.draw()
+
+
+def test_Poly3DCollection_get_facecolor():
+    # Smoke test to see that get_facecolor does not raise
+    # See GH#4067
+    y, x = np.ogrid[1:10:100j, 1:10:100j]
+    z2 = np.cos(x) ** 3 - np.sin(y) ** 2
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    r = ax.plot_surface(x, y, z2, cmap='hot')
+    r.get_facecolor()
+
+
+def test_Poly3DCollection_get_edgecolor():
+    # Smoke test to see that get_edgecolor does not raise
+    # See GH#4067
+    y, x = np.ogrid[1:10:100j, 1:10:100j]
+    z2 = np.cos(x) ** 3 - np.sin(y) ** 2
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    r = ax.plot_surface(x, y, z2, cmap='hot')
+    r.get_edgecolor()
 
 
 @pytest.mark.parametrize(
@@ -1901,9 +1951,9 @@ def test_scatter_spiral():
                 [0.0, 0.0, -1.142857, 10.571429],
             ],
             [
-                ([0.06329114, -0.06329114], [-0.04746835, -0.04746835]),
-                ([-0.06329114, -0.06329114], [0.04746835, -0.04746835]),
-                ([0.05617978, 0.06329114], [-0.04213483, -0.04746835]),
+                ([-0.06329114, 0.06329114], [0.04746835, 0.04746835]),
+                ([0.06329114, 0.06329114], [-0.04746835, 0.04746835]),
+                ([-0.05617978, -0.06329114], [0.04213483, 0.04746835]),
             ],
             [2, 2, 0],
         ),
@@ -1916,9 +1966,9 @@ def test_scatter_spiral():
                 [0.0, -1.142857, 0.0, 10.571429],
             ],
             [
-                ([-0.06329114, -0.06329114], [-0.04746835, 0.04746835]),
-                ([0.06329114, 0.05617978], [-0.04746835, -0.04213483]),
-                ([0.06329114, -0.06329114], [-0.04746835, -0.04746835]),
+                ([-0.06329114, -0.06329114], [0.04746835, -0.04746835]),
+                ([0.06329114, 0.05617978], [0.04746835, 0.04213483]),
+                ([0.06329114, -0.06329114], [0.04746835, 0.04746835]),
             ],
             [1, 2, 1],
         ),
@@ -1962,3 +2012,14 @@ def test_view_init_vertical_axis(
         tickdir_expected = tickdirs_expected[i]
         tickdir_actual = axis._get_tickdir()
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
+
+
+@image_comparison(baseline_images=['arc_pathpatch.png'],
+                  remove_text=True,
+                  style='default')
+def test_arc_pathpatch():
+    ax = plt.subplot(1, 1, 1, projection="3d")
+    a = mpatch.Arc((0.5, 0.5), width=0.5, height=0.9,
+                   angle=20, theta1=10, theta2=130)
+    ax.add_patch(a)
+    art3d.pathpatch_2d_to_3d(a, z=0, zdir='z')

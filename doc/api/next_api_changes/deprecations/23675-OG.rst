@@ -1,0 +1,7 @@
+Helper functions in ``mplot3d.axis3d``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The two helper functions ``move_from_center`` and ``tick_update_position`` are
+considered internal and deprecated. If these are required, please vendor the
+code from the corresponding private methods ``_move_from_center`` and
+``_tick_update_position``.

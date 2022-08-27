@@ -1,4 +1,4 @@
-Windows on Arm Support
+Windows on Arm support
 ----------------------
 
 Preliminary support for windows on arm64 target added.

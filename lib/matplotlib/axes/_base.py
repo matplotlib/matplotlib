@@ -559,6 +559,8 @@ class _AxesBase(martist.Artist):
     _shared_axes = {name: cbook.Grouper() for name in _axis_names}
     _twinned_axes = cbook.Grouper()
 
+    _subclass_uses_cla = False
+
     @property
     def _axis_map(self):
         """A mapping of axis names, e.g. 'x', to `Axis` instances."""
@@ -698,6 +700,20 @@ class _AxesBase(martist.Artist):
             labelright=(rcParams['ytick.labelright'] and
                         rcParams['ytick.major.right']),
             which='major')
+
+    def __init_subclass__(cls, **kwargs):
+        parent_uses_cla = super(cls, cls)._subclass_uses_cla
+        if 'cla' in cls.__dict__:
+            _api.warn_deprecated(
+                '3.6',
+                pending=True,
+                message=f'Overriding `Axes.cla` in {cls.__qualname__} is '
+                'pending deprecation in %(since)s and will be fully '
+                'deprecated in favor of `Axes.clear` in the future. '
+                'Please report '
+                f'this to the {cls.__module__!r} author.')
+        cls._subclass_uses_cla = 'cla' in cls.__dict__ or parent_uses_cla
+        super().__init_subclass__(**kwargs)
 
     def __getstate__(self):
         state = super().__getstate__()
@@ -1199,9 +1215,12 @@ class _AxesBase(martist.Artist):
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
 
-    def clear(self):
+    def __clear(self):
         """Clear the Axes."""
-        # Note: this is called by Axes.__init__()
+        # The actual implementation of clear() as long as clear() has to be
+        # an adapter delegating to the correct implementation.
+        # The implementation can move back into clear() when the
+        # deprecation on cla() subclassing expires.
 
         # stash the current visibility state
         if hasattr(self, 'patch'):
@@ -1317,6 +1336,24 @@ class _AxesBase(martist.Artist):
             self.patch.set_visible(patch_visible)
 
         self.stale = True
+
+    def clear(self):
+        """Clear the Axes."""
+        # Act as an alias, or as the superclass implementation depending on the
+        # subclass implementation.
+        if self._subclass_uses_cla:
+            self.cla()
+        else:
+            self.__clear()
+
+    def cla(self):
+        """Clear the Axes."""
+        # Act as an alias, or as the superclass implementation depending on the
+        # subclass implementation.
+        if self._subclass_uses_cla:
+            self.__clear()
+        else:
+            self.clear()
 
     class ArtistList(MutableSequence):
         """
@@ -1480,10 +1517,6 @@ class _AxesBase(martist.Artist):
     def texts(self):
         return self.ArtistList(self, 'texts', 'add_artist',
                                valid_types=mtext.Text)
-
-    def cla(self):
-        """Clear the Axes."""
-        self.clear()
 
     def get_facecolor(self):
         """Get the facecolor of the Axes."""
@@ -1863,6 +1896,13 @@ class _AxesBase(martist.Artist):
         Axes box (position) or the view limits. In the former case,
         `~matplotlib.axes.Axes.get_anchor` will affect the position.
 
+        Parameters
+        ----------
+        position : None or .Bbox
+            If not ``None``, this defines the position of the
+            Axes within the figure as a Bbox. See `~.Axes.get_position`
+            for further details.
+
         Notes
         -----
         This is called automatically when each Axes is drawn.  You may need
@@ -2121,19 +2161,23 @@ class _AxesBase(martist.Artist):
 
     def get_xaxis(self):
         """
-        Return the XAxis instance.
+        [*Discouraged*] Return the XAxis instance.
 
-        The use of this function is discouraged. You should instead directly
-        access the attribute ``ax.xaxis``.
+        .. admonition:: Discouraged
+
+            The use of this function is discouraged. You should instead
+            directly access the attribute ``ax.xaxis``.
         """
         return self.xaxis
 
     def get_yaxis(self):
         """
-        Return the YAxis instance.
+        [*Discouraged*] Return the YAxis instance.
 
-        The use of this function is discouraged. You should instead directly
-        access the attribute ``ax.yaxis``.
+        .. admonition:: Discouraged
+
+            The use of this function is discouraged. You should instead
+            directly access the attribute ``ax.yaxis``.
         """
         return self.yaxis
 
@@ -2943,23 +2987,17 @@ class _AxesBase(martist.Artist):
 
         titles = (self.title, self._left_title, self._right_title)
 
+        # Need to check all our twins too, and all the children as well.
+        axs = self._twinned_axes.get_siblings(self) + self.child_axes
+        for ax in self.child_axes:  # Child positions must be updated first.
+            locator = ax.get_axes_locator()
+            ax.apply_aspect(locator(self, renderer) if locator else None)
+
         for title in titles:
             x, _ = title.get_position()
             # need to start again in case of window resizing
             title.set_position((x, 1.0))
-            # need to check all our twins too...
-            axs = self._twinned_axes.get_siblings(self)
-            # and all the children
-            for ax in self.child_axes:
-                if ax is not None:
-                    locator = ax.get_axes_locator()
-                    if locator:
-                        pos = locator(self, renderer)
-                        ax.apply_aspect(pos)
-                    else:
-                        ax.apply_aspect()
-                    axs = axs + [ax]
-            top = -np.Inf
+            top = -np.inf
             for ax in axs:
                 bb = None
                 if (ax.xaxis.get_ticks_position() in ['top', 'unknown']
@@ -3016,11 +3054,7 @@ class _AxesBase(martist.Artist):
 
         # loop over self and child Axes...
         locator = self.get_axes_locator()
-        if locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
+        self.apply_aspect(locator(self, renderer) if locator else None)
 
         artists = self.get_children()
         artists.remove(self.patch)
@@ -3078,33 +3112,22 @@ class _AxesBase(martist.Artist):
     def draw_artist(self, a):
         """
         Efficiently redraw a single artist.
-
-        This method can only be used after an initial draw of the figure,
-        because that creates and caches the renderer needed here.
         """
-        if self.figure._cachedRenderer is None:
-            raise AttributeError("draw_artist can only be used after an "
-                                 "initial draw which caches the renderer")
-        a.draw(self.figure._cachedRenderer)
+        a.draw(self.figure.canvas.get_renderer())
 
     def redraw_in_frame(self):
         """
         Efficiently redraw Axes data, but not axis ticks, labels, etc.
-
-        This method can only be used after an initial draw which caches the
-        renderer.
         """
-        if self.figure._cachedRenderer is None:
-            raise AttributeError("redraw_in_frame can only be used after an "
-                                 "initial draw which caches the renderer")
         with ExitStack() as stack:
             for artist in [*self._axis_map.values(),
                            self.title, self._left_title, self._right_title]:
                 stack.enter_context(artist._cm_set(visible=False))
-            self.draw(self.figure._cachedRenderer)
+            self.draw(self.figure.canvas.get_renderer())
 
+    @_api.deprecated("3.6", alternative="Axes.figure.canvas.get_renderer()")
     def get_renderer_cache(self):
-        return self.figure._cachedRenderer
+        return self.figure.canvas.get_renderer()
 
     # Axes rectangle characteristics
 
@@ -4396,11 +4419,8 @@ class _AxesBase(martist.Artist):
             return None
 
         locator = self.get_axes_locator()
-        if locator and call_axes_locator:
-            pos = locator(self, renderer)
-            self.apply_aspect(pos)
-        else:
-            self.apply_aspect()
+        self.apply_aspect(
+            locator(self, renderer) if locator and call_axes_locator else None)
 
         for axis in self._axis_map.values():
             if self.axison and axis.get_visible():

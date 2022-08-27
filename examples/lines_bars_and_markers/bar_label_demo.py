@@ -21,25 +21,25 @@ import numpy as np
 # Define the data
 
 N = 5
-menMeans = (20, 35, 30, 35, -27)
-womenMeans = (25, 32, 34, 20, -25)
-menStd = (2, 3, 4, 1, 2)
-womenStd = (3, 5, 2, 3, 3)
+coffee_means = (20, 25, -10, 32, 10)
+tea_means = (30, 13, -14, 21, 17)
+coffee_std = (3, 2, 4, 1, 2)
+tea_std = (4, 3, 2, 3, 5)
 ind = np.arange(N)    # the x locations for the groups
-width = 0.35       # the width of the bars: can also be len(x) sequence
+width = 0.25       # the width of the bars: can also be len(x) sequence
 
 ###############################################################################
 # Stacked bar plot with error bars
 
 fig, ax = plt.subplots()
 
-p1 = ax.bar(ind, menMeans, width, yerr=menStd, label='Men')
-p2 = ax.bar(ind, womenMeans, width,
-            bottom=menMeans, yerr=womenStd, label='Women')
+p1 = ax.bar(ind, coffee_means, width, yerr=coffee_std, label='Coffee')
+p2 = ax.bar(ind, tea_means, width,
+            bottom=coffee_means, yerr=tea_std, label='Tea')
 
 ax.axhline(0, color='grey', linewidth=0.8)
 ax.set_ylabel('Scores')
-ax.set_title('Scores by group and gender')
+ax.set_title('Scores by group and their beverage choices')
 ax.set_xticks(ind, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 ax.legend()
 

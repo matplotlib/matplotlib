@@ -22,13 +22,25 @@ import sys
 import time
 import traceback
 import types
-import warnings
 import weakref
 
 import numpy as np
 
 import matplotlib
 from matplotlib import _api, _c_internal_utils
+
+
+@_api.caching_module_getattr
+class __getattr__:
+    # module-level deprecations
+    MatplotlibDeprecationWarning = _api.deprecated(
+        "3.6", obj_type="",
+        alternative="matplotlib.MatplotlibDeprecationWarning")(
+        property(lambda self: _api.deprecation.MatplotlibDeprecationWarning))
+    mplDeprecation = _api.deprecated(
+        "3.6", obj_type="",
+        alternative="matplotlib.MatplotlibDeprecationWarning")(
+        property(lambda self: _api.deprecation.MatplotlibDeprecationWarning))
 
 
 def _get_running_interactive_framework():
@@ -1688,22 +1700,42 @@ def safe_first_element(obj):
     """
     Return the first element in *obj*.
 
-    This is an type-independent way of obtaining the first element, supporting
-    both index access and the iterator protocol.
+    This is an type-independent way of obtaining the first element,
+    supporting both index access and the iterator protocol.
     """
-    if isinstance(obj, collections.abc.Iterator):
-        # needed to accept `array.flat` as input.
-        # np.flatiter reports as an instance of collections.Iterator
-        # but can still be indexed via [].
-        # This has the side effect of re-setting the iterator, but
-        # that is acceptable.
-        try:
-            return obj[0]
-        except TypeError:
-            pass
-        raise RuntimeError("matplotlib does not support generators "
-                           "as input")
-    return next(iter(obj))
+    return _safe_first_non_none(obj, skip_none=False)
+
+
+def _safe_first_non_none(obj, skip_none=True):
+    """
+    Return the first non-None element in *obj*.
+    This is a method for internal use.
+
+    This is an type-independent way of obtaining the first non-None element,
+    supporting both index access and the iterator protocol.
+    The first non-None element will be obtained when skip_none is True.
+    """
+    if skip_none is False:
+        if isinstance(obj, collections.abc.Iterator):
+            # needed to accept `array.flat` as input.
+            # np.flatiter reports as an instance of collections.Iterator
+            # but can still be indexed via [].
+            # This has the side effect of re-setting the iterator, but
+            # that is acceptable.
+            try:
+                return obj[0]
+            except TypeError:
+                pass
+            raise RuntimeError("matplotlib does not support generators "
+                               "as input")
+        return next(iter(obj))
+    elif isinstance(obj, np.flatiter):
+        return obj[0]
+    elif isinstance(obj, collections.abc.Iterator):
+        raise RuntimeError("matplotlib does not "
+                           "support generators as input")
+    else:
+        return next(val for val in obj if val is not None)
 
 
 def sanitize_sequence(data):

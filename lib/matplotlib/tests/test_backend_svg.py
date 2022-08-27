@@ -1,7 +1,10 @@
 import datetime
 from io import BytesIO
+from pathlib import Path
 import xml.etree.ElementTree
 import xml.parsers.expat
+
+import pytest
 
 import numpy as np
 
@@ -11,6 +14,7 @@ from matplotlib.text import Text
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
+from matplotlib import font_manager as fm
 
 
 def test_visibility():
@@ -421,7 +425,7 @@ def test_svg_metadata():
         **{k: [f'{k} bar', f'{k} baz'] for k in multi_value},
     }
 
-    fig, ax = plt.subplots()
+    fig = plt.figure()
     with BytesIO() as fd:
         fig.savefig(fd, format='svg', metadata=metadata)
         buf = fd.getvalue().decode()
@@ -464,3 +468,62 @@ def test_svg_metadata():
     values = [node.text for node in
               rdf.findall(f'./{CCNS}Work/{DCNS}subject/{RDFNS}Bag/{RDFNS}li')]
     assert values == metadata['Keywords']
+
+
+@image_comparison(["multi_font_aspath.svg"], tol=1.8)
+def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('svg', fonttype='path')
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["multi_font_astext.svg"])
+def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    fig = plt.figure()
+    plt.rc('svg', fonttype='none')
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@pytest.mark.parametrize('metadata,error,message', [
+    ({'Date': 1}, TypeError, "Invalid type for Date metadata. Expected str"),
+    ({'Date': [1]}, TypeError,
+     "Invalid type for Date metadata. Expected iterable"),
+    ({'Keywords': 1}, TypeError,
+     "Invalid type for Keywords metadata. Expected str"),
+    ({'Keywords': [1]}, TypeError,
+     "Invalid type for Keywords metadata. Expected iterable"),
+    ({'Creator': 1}, TypeError,
+     "Invalid type for Creator metadata. Expected str"),
+    ({'Creator': [1]}, TypeError,
+     "Invalid type for Creator metadata. Expected iterable"),
+    ({'Title': 1}, TypeError,
+     "Invalid type for Title metadata. Expected str"),
+    ({'Format': 1}, TypeError,
+     "Invalid type for Format metadata. Expected str"),
+    ({'Foo': 'Bar'}, ValueError, "Unknown metadata key"),
+    ])
+def test_svg_incorrect_metadata(metadata, error, message):
+    with pytest.raises(error, match=message), BytesIO() as fd:
+        fig = plt.figure()
+        fig.savefig(fd, format='svg', metadata=metadata)
+
+
+def test_svg_escape():
+    fig = plt.figure()
+    fig.text(0.5, 0.5, "<\'\"&>", gid="<\'\"&>")
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
+        assert '&lt;&apos;&quot;&amp;&gt;"' in buf

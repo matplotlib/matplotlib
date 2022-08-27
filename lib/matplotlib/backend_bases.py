@@ -221,7 +221,7 @@ class RendererBase:
                                rgbFace)
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
+                             offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         """
@@ -230,7 +230,7 @@ class RendererBase:
         Each path is first transformed by the corresponding entry
         in *all_transforms* (a list of (3, 3) matrices) and then by
         *master_transform*.  They are then translated by the corresponding
-        entry in *offsets*, which has been first transformed by *offsetTrans*.
+        entry in *offsets*, which has been first transformed by *offset_trans*.
 
         *facecolors*, *edgecolors*, *linewidths*, *linestyles*, and
         *antialiased* are lists that set the corresponding properties.
@@ -251,8 +251,8 @@ class RendererBase:
                                                    paths, all_transforms)
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, master_transform, all_transforms, list(path_ids), offsets,
-                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+                gc, list(path_ids), offsets, offset_trans,
+                facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             path, transform = path_id
             # Only apply another translation if we have an offset, else we
@@ -367,8 +367,7 @@ class RendererBase:
         N = max(Npath_ids, len(offsets))
         return (N + Npath_ids - 1) // Npath_ids
 
-    def _iter_collection(self, gc, master_transform, all_transforms,
-                         path_ids, offsets, offsetTrans, facecolors,
+    def _iter_collection(self, gc, path_ids, offsets, offset_trans, facecolors,
                          edgecolors, linewidths, linestyles,
                          antialiaseds, urls, offset_position):
         """
@@ -414,7 +413,7 @@ class RendererBase:
                     else itertools.repeat(default))
 
         pathids = cycle_or_default(path_ids)
-        toffsets = cycle_or_default(offsetTrans.transform(offsets), (0, 0))
+        toffsets = cycle_or_default(offset_trans.transform(offsets), (0, 0))
         fcs = cycle_or_default(facecolors)
         ecs = cycle_or_default(edgecolors)
         lws = cycle_or_default(linewidths)
@@ -1536,8 +1535,7 @@ def _mouse_handler(event):
 
 def _get_renderer(figure, print_method=None):
     """
-    Get the renderer that would be used to save a `.Figure`, and cache it on
-    the figure.
+    Get the renderer that would be used to save a `.Figure`.
 
     If you need a renderer without any active draw methods use
     renderer._draw_disabled to temporary patch them out at your call site.
@@ -1560,7 +1558,7 @@ def _get_renderer(figure, print_method=None):
         try:
             print_method(io.BytesIO())
         except Done as exc:
-            renderer, = figure._cachedRenderer, = exc.args
+            renderer, = exc.args
             return renderer
         else:
             raise RuntimeError(f"{print_method} did not call Figure.draw, so "

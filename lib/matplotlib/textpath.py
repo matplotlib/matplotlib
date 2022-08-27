@@ -4,8 +4,10 @@ import urllib.parse
 
 import numpy as np
 
-from matplotlib import _api, _text_helpers, dviread, font_manager
-from matplotlib.font_manager import FontProperties, get_font
+from matplotlib import _api, _text_helpers, dviread
+from matplotlib.font_manager import (
+    FontProperties, get_font, fontManager as _fontManager
+)
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
@@ -29,8 +31,8 @@ class TextToPath:
         """
         Find the `FT2Font` matching font properties *prop*, with its size set.
         """
-        fname = font_manager.findfont(prop)
-        font = get_font(fname)
+        filenames = _fontManager._find_fonts_by_props(prop)
+        font = get_font(filenames)
         font.set_size(self.FONT_SCALE, self.DPI)
         return font
 
@@ -148,11 +150,11 @@ class TextToPath:
         xpositions = []
         glyph_ids = []
         for item in _text_helpers.layout(s, font):
-            char_id = self._get_char_id(font, ord(item.char))
+            char_id = self._get_char_id(item.ft_object, ord(item.char))
             glyph_ids.append(char_id)
             xpositions.append(item.x)
             if char_id not in glyph_map:
-                glyph_map_new[char_id] = font.get_path()
+                glyph_map_new[char_id] = item.ft_object.get_path()
 
         ypositions = [0] * len(xpositions)
         sizes = [1.] * len(xpositions)

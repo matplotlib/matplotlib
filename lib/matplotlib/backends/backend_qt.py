@@ -1,5 +1,4 @@
 import functools
-import operator
 import os
 import sys
 import traceback
@@ -212,6 +211,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         self._draw_pending = False
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
+        self._in_resize_event = False
 
         self.setAttribute(
             _enum("QtCore.Qt.WidgetAttribute").WA_OpaquePaintEvent)
@@ -334,21 +334,23 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
                      guiEvent=event)._process()
 
     def resizeEvent(self, event):
-        frame = sys._getframe()
-        # Prevent PyQt6 recursion, but sometimes frame.f_back is None
-        if frame.f_code is getattr(frame.f_back, 'f_code', None):
+        if self._in_resize_event:  # Prevent PyQt6 recursion
             return
-        w = event.size().width() * self.device_pixel_ratio
-        h = event.size().height() * self.device_pixel_ratio
-        dpival = self.figure.dpi
-        winch = w / dpival
-        hinch = h / dpival
-        self.figure.set_size_inches(winch, hinch, forward=False)
-        # pass back into Qt to let it finish
-        QtWidgets.QWidget.resizeEvent(self, event)
-        # emit our resize events
-        ResizeEvent("resize_event", self)._process()
-        self.draw_idle()
+        self._in_resize_event = True
+        try:
+            w = event.size().width() * self.device_pixel_ratio
+            h = event.size().height() * self.device_pixel_ratio
+            dpival = self.figure.dpi
+            winch = w / dpival
+            hinch = h / dpival
+            self.figure.set_size_inches(winch, hinch, forward=False)
+            # pass back into Qt to let it finish
+            QtWidgets.QWidget.resizeEvent(self, event)
+            # emit our resize events
+            ResizeEvent("resize_event", self)._process()
+            self.draw_idle()
+        finally:
+            self._in_resize_event = False
 
     def sizeHint(self):
         w, h = self.get_width_height()

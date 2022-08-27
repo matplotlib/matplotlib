@@ -6,7 +6,7 @@ import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
     FigureCanvasBase, ToolContainerBase,
-    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 try:
     import gi
@@ -22,7 +22,7 @@ except ValueError as e:
     # auto-backend selection logic correctly skips.
     raise ImportError from e
 
-from gi.repository import Gio, GLib, GObject, Gtk, Gdk, GdkPixbuf
+from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
 from ._backend_gtk import (
     _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,

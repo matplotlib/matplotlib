@@ -8,7 +8,6 @@ from enum import Enum
 import functools
 from io import StringIO
 import logging
-import math
 import os
 import pathlib
 import re
@@ -22,11 +21,10 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
 from matplotlib._afm import AFM
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
-    RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
-from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE, FT2Font
+from matplotlib.ft2font import LOAD_NO_SCALE, FT2Font
 from matplotlib._ttconv import convert_ttf_to_ps
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
@@ -89,7 +87,7 @@ def _nums_to_str(*args):
     return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of this function")
 def quote_ps_string(s):
     """
     Quote dangerous characters of S for use in a PostScript string constant.
@@ -532,7 +530,7 @@ grestore
 
     @_log_if_debug_on
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
+                             offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         # Is the optimization worth it? Rough calculation:
@@ -548,7 +546,7 @@ grestore
         if not should_do_optimization:
             return RendererBase.draw_path_collection(
                 self, gc, master_transform, paths, all_transforms,
-                offsets, offsetTrans, facecolors, edgecolors,
+                offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
 
@@ -567,8 +565,8 @@ translate
             path_codes.append(name)
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, master_transform, all_transforms, path_codes, offsets,
-                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+                gc, path_codes, offsets, offset_trans,
+                facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             ps = "%g %g %s" % (xo, yo, path_id)
             self._draw_ps(ps, gc0, rgbFace)
@@ -631,7 +629,7 @@ grestore
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
             scale = 0.001 * prop.get_size_in_points()
-
+            stream = []
             thisx = 0
             last_name = None  # kerns returns 0 for None.
             xs_names = []
@@ -647,21 +645,36 @@ grestore
                 thisx += kern * scale
                 xs_names.append((thisx, name))
                 thisx += width * scale
+            ps_name = (font.postscript_name
+                       .encode("ascii", "replace").decode("ascii"))
+            stream.append((ps_name, xs_names))
 
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0, flags=LOAD_NO_HINTING)
             self._character_tracker.track(font, s)
-            xs_names = [(item.x, font.get_glyph_name(item.glyph_idx))
-                        for item in _text_helpers.layout(s, font)]
+            stream = []
+            prev_font = curr_stream = None
+            for item in _text_helpers.layout(s, font):
+                ps_name = (item.ft_object.postscript_name
+                           .encode("ascii", "replace").decode("ascii"))
+                if item.ft_object is not prev_font:
+                    if curr_stream:
+                        stream.append(curr_stream)
+                    prev_font = item.ft_object
+                    curr_stream = [ps_name, []]
+                curr_stream[1].append(
+                    (item.x, item.ft_object.get_glyph_name(item.glyph_idx))
+                )
+            # append the last entry
+            stream.append(curr_stream)
 
         self.set_color(*gc.get_rgb())
-        ps_name = (font.postscript_name
-                   .encode("ascii", "replace").decode("ascii"))
-        self.set_font(ps_name, prop.get_size_in_points())
-        thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
-                            for x, name in xs_names)
-        self._pswriter.write(f"""\
+
+        for ps_name, xs_names in stream:
+            self.set_font(ps_name, prop.get_size_in_points(), False)
+            thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
+                                for x, name in xs_names)
+            self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
 {x:g} {y:g} translate
@@ -1200,7 +1213,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
         tmppdf = pathlib.Path(tmpdir, "tmp.pdf")
         tmpps = pathlib.Path(tmpdir, "tmp.ps")
         # Pass options as `-foo#bar` instead of `-foo=bar` to keep Windows
-        # happy (https://www.ghostscript.com/doc/9.22/Use.htm#MS_Windows).
+        # happy (https://ghostscript.com/doc/9.56.1/Use.htm#MS_Windows).
         cbook._check_and_log_subprocess(
             ["ps2pdf",
              "-dAutoFilterColorImages#false",

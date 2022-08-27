@@ -49,39 +49,21 @@ per-file-ignores =
     lib/matplotlib/_cm.py: E122, E202, E203, E302
     lib/matplotlib/_mathtext.py: E221, E251
     lib/matplotlib/_mathtext_data.py: E122, E203, E261
-    lib/matplotlib/animation.py: F401
     lib/matplotlib/_animation_data.py: E501
     lib/matplotlib/axes/__init__.py: F401, F403
-    lib/matplotlib/axes/_axes.py: F401
-    lib/matplotlib/backends/backend_*.py: F401
+    lib/matplotlib/backends/backend_template.py: F401
     lib/matplotlib/backends/qt_editor/formlayout.py: F401, F403
-    lib/matplotlib/cbook/__init__.py: F401
-    lib/matplotlib/cbook/deprecation.py: F401
     lib/matplotlib/font_manager.py: E501
     lib/matplotlib/image.py: F401, F403
-    lib/matplotlib/lines.py: F401
     lib/matplotlib/mathtext.py: E221, E251
     lib/matplotlib/pylab.py: F401, F403
     lib/matplotlib/pyplot.py: F401, F811
-    lib/matplotlib/style/__init__.py: F401
-    lib/matplotlib/testing/conftest.py: F401
-    lib/matplotlib/tests/conftest.py: F401
-    lib/matplotlib/tests/test_backend_qt.py: F401
     lib/matplotlib/tests/test_mathtext.py: E501
-    lib/matplotlib/text.py: F401
     lib/matplotlib/transforms.py: E201, E202, E203
-    lib/matplotlib/tri/__init__.py: F401, F403
     lib/matplotlib/tri/triinterpolate.py: E201, E221
-    lib/mpl_toolkits/axes_grid/*: F401, F403
-    lib/mpl_toolkits/axes_grid1/__init__.py: F401
     lib/mpl_toolkits/axes_grid1/axes_size.py: E272
     lib/mpl_toolkits/axisartist/__init__.py: F401
     lib/mpl_toolkits/axisartist/angle_helper.py: E221
-    lib/mpl_toolkits/axisartist/axes_divider.py: F401
-    lib/mpl_toolkits/axisartist/axes_rgb.py: F401
-    lib/mpl_toolkits/axisartist/axislines.py: F401
-    lib/mpl_toolkits/mplot3d/__init__.py: F401
-    lib/mpl_toolkits/tests/conftest.py: F401
     lib/pylab.py: F401, F403
 
     doc/conf.py: E402

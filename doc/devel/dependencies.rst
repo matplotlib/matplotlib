@@ -7,6 +7,7 @@ Dependencies
 Runtime dependencies
 ====================
 
+
 Mandatory dependencies
 ----------------------
 
@@ -15,14 +16,16 @@ mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.8)
-* `NumPy <https://numpy.org>`_ (>= 1.19)
-* `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
+* `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
+* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.1)
+* `NumPy <https://numpy.org>`_ (>= 1.19)
+* `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.2.1)
-* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>=4.22.0)
+* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.2.1)
+* `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 
 
 .. _optional_dependencies:
@@ -40,15 +43,22 @@ Matplotlib figures can be rendered to various user interfaces. See
 :ref:`what-is-a-backend` for more details on the optional Matplotlib backends
 and the capabilities they provide.
 
-* Tk_ (>= 8.4, != 8.6.0 or 8.6.1) [#]_: for the Tk-based backends.
+* Tk_ (>= 8.4, != 8.6.0 or 8.6.1): for the Tk-based backends. Tk is part of
+  most standard Python installations, but it's not part of Python itself and
+  thus may not be present in rare cases.
 * PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
-* PyGObject_: for the GTK-based backends [#]_.
+* PyGObject_: for the GTK-based backends. If using pip (but not conda or system
+  package manager) PyGObject must be built from source; see `pygobject
+  documentation
+  <https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html>`_.
 * pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK and/or cairo-based
   backends.
-* wxPython_ (>= 4) [#]_: for the wx-based backends.
-* Tornado_ (>=5): for the WebAgg backend.
+* wxPython_ (>= 4): for the wx-based backends.  If using pip (but not conda or
+  system package manager) on Linux wxPython wheels must be manually downloaded
+  from https://wxpython.org/pages/downloads/.
+* Tornado_ (>= 5): for the WebAgg backend.
 * ipykernel_: for the nbagg backend.
-* macOS (>=10.12): for the macosx backend.
+* macOS (>= 10.12): for the macosx backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt5: https://pypi.org/project/PyQt5/
@@ -62,13 +72,6 @@ and the capabilities they provide.
 .. _Tornado: https://pypi.org/project/tornado/
 .. _ipykernel: https://pypi.org/project/ipykernel/
 
-.. [#] Tk is part of most standard Python installations, but it's not part of
-       Python itself and thus may not be present in rare cases.
-.. [#] If using pip (and not conda), PyGObject must be built from source; see
-       https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html.
-.. [#] If using pip (and not conda) on Linux, wxPython wheels must be manually
-       downloaded from https://wxpython.org/pages/downloads/.
-
 Animations
 ~~~~~~~~~~
 
@@ -80,8 +83,9 @@ Font handling and rendering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
-  <https://ctan.org/pkg/cm-super>`__ ) and `GhostScript (>=9.0)
-  <https://ghostscript.com/download/>`_ : for rendering text with LaTeX.
+  <https://ctan.org/pkg/cm-super>`__ and `underscore
+  <https://ctan.org/pkg/underscore>`__) and `GhostScript (>= 9.0)
+  <https://ghostscript.com/releases/>`_: for rendering text with LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
 
@@ -168,53 +172,117 @@ remember to clear your artifacts before re-building::
   git clean -xfd
 
 
+Minimum pip / manylinux support (linux)
+---------------------------------------
+
+Matplotlib publishes `manylinux wheels <https://github.com/pypa/manylinux>`_
+which have a minimum version of pip which will recognize the wheels
+
+- Python 3.8: ``manylinx2010`` / pip >= 19.0
+- Python 3.9+: ``manylinx2014`` / pip >= 19.3
+
+In all cases the required version of pip is embedded in the CPython source.
+
+
+
 .. _development-dependencies:
 
-Additional dependencies for development
-=======================================
+Dependencies for building Matplotlib
+====================================
+
+.. _setup-dependencies:
+
+Setup dependencies
+------------------
+
+- `certifi <https://pypi.org/project/certifi/>`_ (>= 2020.06.20).  Used while
+  downloading the freetype and QHull source during build.  This is not a
+  runtime dependency.
+- `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
+  update the reported ``mpl.__version__`` based on the current git commit.
+  Also a runtime dependency for editable installs.
+- `NumPy <https://numpy.org>`_ (>= 1.19).  Also a runtime dependency.
+
+
+.. _compile-dependencies:
+
+C++ compiler
+------------
+
+Matplotlib requires a C++ compiler that supports C++11.
+
+- `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_ or higher
+- `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_ or higher
+- `Visual Studio 2015
+  <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-140>`_
+  (aka VS 14.0) or higher
+
 
 .. _test-dependencies:
 
-Additional dependencies for testing
+Dependencies for testing Matplotlib
 ===================================
 This section lists the additional software required for
 :ref:`running the tests <testing>`.
 
 Required:
 
-- pytest_ (>=3.6)
-- Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (to render SVG files)
-
-  .. note::
-
-    When installing Inkscape on Windows, make sure that you select Add
-    Inkscape to system PATH, either for all users or current user, or the
-    tests will not find it.
+- pytest_ (>= 3.6)
 
 Optional:
 
-- pytest-cov_ (>=2.3.1) to collect coverage information
+In addition to all of the optional dependencies on the main library, for
+testing the following will be used if they are installed.
+
+- Ghostscript_ (>= 9.0, to render PDF files)
+- Inkscape_ (to render SVG files)
+- nbformat_ and nbconvert_ used to test the notebook backend
+- pandas_ used to test compatibility with Pandas
+- pikepdf_ used in some tests for the pgf and pdf backends
+- psutil_ used in testing the interactive backends
+- pytest-cov_ (>= 2.3.1) to collect coverage information
 - pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel
 - pytest-xvfb_ to run tests without windows popping up (Linux)
+- pytz_ used to test pytz int
+- sphinx_ used to test our sphinx extensions
+- WenQuanYi Zen Hei and `Noto Sans CJK <https://fonts.google.com/noto/use>`_
+  fonts for testing font fallback and non-western fonts
+- xarray_ used to test compatibility with xarray
 
-.. _pytest: http://doc.pytest.org/en/latest/
-.. _Ghostscript: https://www.ghostscript.com/
+If any of these dependencies are not discovered the tests that rely on them
+will be skipped by pytest.
+
+.. note::
+
+  When installing Inkscape on Windows, make sure that you select “Add
+  Inkscape to system PATH”, either for all users or current user, or the
+  tests will not find it.
+
+.. _Ghostscript: https://ghostscript.com/
 .. _Inkscape: https://inkscape.org
+.. _flake8: https://pypi.org/project/flake8/
+.. _nbconvert: https://pypi.org/project/nbconvert/
+.. _nbformat: https://pypi.org/project/nbformat/
+.. _pandas: https://pypi.org/project/pandas/
+.. _pikepdf: https://pypi.org/project/pikepdf/
+.. _psutil: https://pypi.org/project/psuitl/
+.. _pytz: https://fonts.google.com/noto/use#faq
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-flake8: https://pypi.org/project/pytest-flake8/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
 .. _pytest-xdist: https://pypi.org/project/pytest-xdist/
 .. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
-.. _flake8: https://pypi.org/project/flake8/
+.. _pytest: http://doc.pytest.org/en/latest/
+.. _sphinx: https://pypi.org/project/Sphinx/
+.. _xarray: https://pypi.org/project/xarray/
 
 
 .. _doc-dependencies:
 
-Additional dependencies for building documentation
-==================================================
+Dependencies for building Matplotlib's documentation
+====================================================
 
 Python packages
 ---------------

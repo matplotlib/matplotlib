@@ -150,6 +150,7 @@ Interactive
    :nosignatures:
 
    Axis.contains
+   Axis.pickradius
    Axis.get_pickradius
    Axis.set_pickradius
 

@@ -1,0 +1,64 @@
+name: Build CI sdist and wheel
+
+on:
+  # Save CI by only running this on release branches or tags.
+  push:
+    branches:
+      - main
+      - v[0-9]+.[0-9]+.x
+    tags:
+      - v*
+  # Also allow running this action on PRs if requested by applying the
+  # "Run cibuildwheel" label.
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+
+jobs:
+  build_sdist:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' && (
+        (
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'Run cibuildwheel'
+        ) ||
+        contains(github.event.pull_request.labels.*.name, 'Run cibuildwheel')
+      )
+    name: Build sdist and wheel on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+        python-version: ['3.8', '3.9', '3.10', '3.11.0-alpha - 3.11']
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v4
+        name: Install Python
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install build
+        run: pip install build
+
+      - name: Build sdist and wheel
+        run: python -m build .
+
+      - name: Install built matplotlib sdist
+        run: pip install dist/matplotlib*.tar.gz
+
+      - name: Check version number is not 0
+        run: python ./ci/check_version_number.py
+
+      - name: Install built matplotlib wheel
+        run: pip install dist/matplotlib*.whl --force-reinstall
+
+      - name: Check version number is not 0
+        run: python ./ci/check_version_number.py

@@ -132,6 +132,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
             mpl.rcParams['savefig.directory'] = os.path.dirname(filename)
         self.canvas.figure.savefig(filename)
 
+    @_api.deprecated("3.6", alternative='configure_subplots()')
     def prepare_configure_subplots(self):
         toolfig = Figure(figsize=(6, 3))
         canvas = FigureCanvasMac(toolfig)

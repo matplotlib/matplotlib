@@ -1,0 +1,3 @@
+``GridSpecBase.get_grid_positions(..., raw=True)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.

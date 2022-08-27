@@ -6,8 +6,9 @@ Linestyles
 Simple linestyles can be defined using the strings "solid", "dotted", "dashed"
 or "dashdot". More refined control can be achieved by providing a dash tuple
 ``(offset, (on_off_seq))``. For example, ``(0, (3, 10, 1, 15))`` means
-(3pt line, 10pt space, 1pt line, 15pt space) with no offset. See also
-`.Line2D.set_linestyle`.
+(3pt line, 10pt space, 1pt line, 15pt space) with no offset, while
+``(5, (10, 3))``, means (10pt line, 3pt space), but skip the first 5pt line.
+See also `.Line2D.set_linestyle`.
 
 *Note*: The dash style can also be configured via `.Line2D.set_dashes`
 as shown in :doc:`/gallery/lines_bars_and_markers/line_demo_dash_control`
@@ -27,7 +28,7 @@ linestyle_tuple = [
      ('loosely dotted',        (0, (1, 10))),
      ('dotted',                (0, (1, 1))),
      ('densely dotted',        (0, (1, 1))),
-
+     ('long dash with offset', (5, (10, 3))),
      ('loosely dashed',        (0, (5, 10))),
      ('dashed',                (0, (5, 5))),
      ('densely dashed',        (0, (5, 1))),
@@ -65,9 +66,7 @@ def plot_linestyles(ax, linestyles, title):
                     color="blue", fontsize=8, ha="right", family="monospace")
 
 
-ax0, ax1 = (plt.figure(figsize=(10, 8))
-            .add_gridspec(2, 1, height_ratios=[1, 3])
-            .subplots())
+fig, (ax0, ax1) = plt.subplots(2, 1, figsize=(10, 8), height_ratios=[1, 3])
 
 plot_linestyles(ax0, linestyle_str[::-1], title='Named linestyles')
 plot_linestyles(ax1, linestyle_tuple[::-1], title='Parametrized linestyles')

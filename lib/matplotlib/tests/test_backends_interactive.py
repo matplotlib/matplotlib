@@ -59,9 +59,6 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
-        elif env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin':
-            marks.append(  # GitHub issue #23094
-                pytest.mark.xfail(reason="Tk version mismatch on OSX CI"))
         envs.append(
             pytest.param(
                 {**env, 'BACKEND_DEPS': ','.join(deps)},
@@ -87,14 +84,14 @@ def _test_interactive_impl():
     from unittest import TestCase
 
     import matplotlib as mpl
-    from matplotlib import pyplot as plt, rcParams
+    from matplotlib import pyplot as plt
     from matplotlib.backend_bases import KeyEvent
-    rcParams.update({
+    mpl.rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
     })
 
-    rcParams.update(json.loads(sys.argv[1]))
+    mpl.rcParams.update(json.loads(sys.argv[1]))
     backend = plt.rcParams["backend"].lower()
     assert_equal = TestCase().assertEqual
     assert_raises = TestCase().assertRaises
@@ -180,9 +177,10 @@ def test_interactive_backend(env, toolbar):
 def _test_thread_impl():
     from concurrent.futures import ThreadPoolExecutor
 
-    from matplotlib import pyplot as plt, rcParams
+    import matplotlib as mpl
+    from matplotlib import pyplot as plt
 
-    rcParams.update({
+    mpl.rcParams.update({
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
     })
@@ -236,9 +234,6 @@ for param in _thread_safe_backends:
                 reason='PyPy does not support Tkinter threading: '
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
-    elif backend == "tkagg" and sys.platform == "darwin":
-        param.marks.append(  # GitHub issue #23094
-            pytest.mark.xfail("Tk version mismatch on OSX CI"))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
@@ -516,10 +511,6 @@ for param in _blit_backends:
     elif backend == "wx":
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))
-    elif backend == "tkagg" and sys.platform == "darwin":
-        param.marks.append(  # GitHub issue #23094
-            pytest.mark.xfail("Tk version mismatch on OSX CI")
-        )
 
 
 @pytest.mark.parametrize("env", _blit_backends)

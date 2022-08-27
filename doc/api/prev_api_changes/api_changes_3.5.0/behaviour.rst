@@ -47,16 +47,16 @@ corresponding ``Axes.add_*`` method.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Historically, it has not been possible to filter
-`.MatplotlibDeprecationWarning`\s by checking for `DeprecationWarning`, since we
-subclass `UserWarning` directly.
+`~matplotlib.MatplotlibDeprecationWarning`\s by checking for
+`DeprecationWarning`, since we subclass `UserWarning` directly.
 
 The decision to not subclass `DeprecationWarning` has to do with a decision
 from core Python in the 2.x days to not show `DeprecationWarning`\s to users.
 However, there is now a more sophisticated filter in place (see
 https://www.python.org/dev/peps/pep-0565/).
 
-Users will now see `.MatplotlibDeprecationWarning` only during interactive
-sessions, and these can be silenced by the standard mechanism:
+Users will now see `~matplotlib.MatplotlibDeprecationWarning` only during
+interactive sessions, and these can be silenced by the standard mechanism:
 
 .. code:: python
 

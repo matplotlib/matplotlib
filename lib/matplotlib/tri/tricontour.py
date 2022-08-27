@@ -19,7 +19,7 @@ class TriContourSet(ContourSet):
     def __init__(self, ax, *args, **kwargs):
         """
         Draw triangular grid contour lines or filled regions,
-        depending on whether keyword arg 'filled' is False
+        depending on whether keyword arg *filled* is False
         (default) or True.
 
         The first argument of the initializer must be an `~.axes.Axes`
@@ -51,10 +51,6 @@ class TriContourSet(ContourSet):
         return kwargs
 
     def _contour_args(self, args, kwargs):
-        if self.filled:
-            fn = 'contourf'
-        else:
-            fn = 'contour'
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args,
                                                                    **kwargs)
         z = np.ma.asarray(args[0])
@@ -76,7 +72,8 @@ class TriContourSet(ContourSet):
         self.zmax = float(z_check.max())
         self.zmin = float(z_check.min())
         if self.logscale and self.zmin <= 0:
-            raise ValueError('Cannot %s log of negative values.' % fn)
+            func = 'contourf' if self.filled else 'contour'
+            raise ValueError(f'Cannot {func} log of negative values.')
         self._process_contour_level_args(args[1:])
         return (tri, z)
 
@@ -132,7 +129,7 @@ colors : color string or sequence of colors, optional
     The colors of the levels, i.e., the contour %%(type)s.
 
     The sequence is cycled for the levels in ascending order. If the sequence
-    is shorter than the number of levels, it's repeated.
+    is shorter than the number of levels, it is repeated.
 
     As a shortcut, single color strings may be used in place of one-element
     lists, i.e. ``'red'`` instead of ``['red']`` to color all levels with the
