@@ -1213,7 +1213,7 @@ class Axes3D(Axes):
         dy = abs(start_y - stop_y)
         scale_u = dx / (self.bbox.max[0] - self.bbox.min[0])
         scale_v = dy / (self.bbox.max[1] - self.bbox.min[1])
-        scale_w = 1
+        scale_w = max(scale_u, scale_v)
 
         # Limit box zoom to reasonable range, protect for divide by zero below
         scale_u = np.clip(scale_u, 1e-2, 1e2)
