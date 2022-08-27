@@ -40,6 +40,12 @@ def plot_colored_lines(ax):
     for t0, a in zip(shifts, amplitudes):
         ax.plot(t, a * sigmoid(t, t0), '-')
     ax.grid(visible=True)
+    # Add annotation for enabling grid
+    ax.annotate('ax.grid(True)', xy=(-5.0, 0.5),
+                xytext=(1.4, 1.4),
+                va="top", ha="right",
+                bbox=dict(boxstyle="round", alpha=0.2),
+                )
     ax.set_xlim(-10, 10)
     return ax
 
