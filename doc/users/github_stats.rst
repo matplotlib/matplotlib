@@ -1,16 +1,16 @@
 .. _github-stats:
 
-GitHub statistics for 3.6.0 (Aug 20, 2022)
+GitHub statistics for 3.6.0 (Aug 27, 2022)
 ==========================================
 
-GitHub statistics for 2021/11/16 (tag: v3.5.0) - 2022/08/20
+GitHub statistics for 2021/11/16 (tag: v3.5.0) - 2022/08/27
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 183 issues and merged 807 pull requests.
+We closed 195 issues and merged 844 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/65?closed=1>`__
 
-The following 174 authors contributed 4336 commits.
+The following 176 authors contributed 4386 commits.
 
 * Abhishek K M
 * Adeel Hassan
@@ -22,6 +22,7 @@ The following 174 authors contributed 4336 commits.
 * andrzejnovak
 * Anna Mastori
 * AnnaMastori
+* Ante Sikic
 * Antony Lee
 * arndRemy
 * Ben Root
@@ -91,6 +92,7 @@ The following 174 authors contributed 4336 commits.
 * Jeff Beck
 * Jody Klymak
 * Joel Frederico
+* Joseph Fox-Rabinovitz
 * Josh Soref
 * Jouni K. Seppänen
 * Kayran Schmidt
@@ -189,8 +191,45 @@ The following 174 authors contributed 4336 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (807):
+Pull Requests (844):
 
+* :ghpull:`23756`: Backport PR #23569 on branch v3.6.x (Fix hidden xlabel bug in colorbar)
+* :ghpull:`23755`: Backport PR #23742 on branch v3.6.x (FIX: unbreak ipympl)
+* :ghpull:`23569`: Fix hidden xlabel bug in colorbar
+* :ghpull:`23742`: FIX: unbreak ipympl
+* :ghpull:`23752`: Backport PR #23750 on branch v3.6.x (Fix rcParams documentation)
+* :ghpull:`23749`: Backport PR #23735 on branch v3.6.x (Correctly handle Axes subclasses that override cla)
+* :ghpull:`23735`: Correctly handle Axes subclasses that override cla
+* :ghpull:`23748`: Backport PR #23746 on branch v3.6.x (DOC: add numpydoc docstring + commentary to Axis.get_ticklocs)
+* :ghpull:`23747`: Backport PR #23721 on branch v3.6.x (3d plot view angle documentation)
+* :ghpull:`23746`: DOC: add numpydoc docstring + commentary to Axis.get_ticklocs
+* :ghpull:`23721`: 3d plot view angle documentation
+* :ghpull:`23744`: Backport PR #23740 on branch v3.6.x (Clarify error for colorbar with unparented mappable)
+* :ghpull:`23741`: Backport PR #23674 on branch v3.6.x (Re-rename builtin seaborn styles to not include a dot.)
+* :ghpull:`23740`: Clarify error for colorbar with unparented mappable
+* :ghpull:`23674`: Re-rename builtin seaborn styles to not include a dot.
+* :ghpull:`23738`: Backport PR #23639 on branch v3.6.x (Adding the new contributor meeting)
+* :ghpull:`23739`: Backport PR #23712 on branch v3.6.x (FIX: do not try to help CPython with garbage collection)
+* :ghpull:`23712`: FIX: do not try to help CPython with garbage collection
+* :ghpull:`23639`: Adding the new contributor meeting
+* :ghpull:`23732`: Backport PR #23729 on branch v3.6.x (Use cleaner recursion check in PyQt FigureCanvas' resizeEvent.)
+* :ghpull:`23734`: Backport PR #23733 on branch v3.6.x (DOC: Update theme configuration for upcoming changes)
+* :ghpull:`23733`: DOC: Update theme configuration for upcoming changes
+* :ghpull:`23728`: Backport PR #23722 on branch v3.6.x (Restore deprecation class aliases in cbook)
+* :ghpull:`23729`: Use cleaner recursion check in PyQt FigureCanvas' resizeEvent.
+* :ghpull:`23726`: Backport PR #23711 on branch v3.6.x (Fix deprecation messages for vendoring unused things)
+* :ghpull:`23722`: Restore deprecation class aliases in cbook
+* :ghpull:`23727`: Backport PR #23724 on branch v3.6.x (Fix/harmonize spacing in dependencies.rst.)
+* :ghpull:`23724`: Fix/harmonize spacing in dependencies.rst.
+* :ghpull:`23711`: Fix deprecation messages for vendoring unused things
+* :ghpull:`23715`: Backport PR #23708 on branch v3.6.x (Loosen up test_Normalize test)
+* :ghpull:`23713`: Backport PR #23710 on branch v3.6.x (Fix cmap deprecations)
+* :ghpull:`23708`: Loosen up test_Normalize test
+* :ghpull:`23710`: Fix cmap deprecations
+* :ghpull:`23696`: Backport PR #23695 on branch v3.6.x (Document polar handling of _interpolation_steps.)
+* :ghpull:`23706`: Backport PR #23705 on branch v3.6.x (DOC: Added link to class under discussion)
+* :ghpull:`23705`: DOC: Added link to class under discussion
+* :ghpull:`23695`: Document polar handling of _interpolation_steps.
 * :ghpull:`23668`: Api deprecate cmap functions
 * :ghpull:`23049`: Add ``minor`` keyword argument to ``plt.x/yticks``
 * :ghpull:`23665`: Harmonize docstrings for boxstyle/connectionstyle/arrowstyle.
@@ -999,8 +1038,20 @@ Pull Requests (807):
 * :ghpull:`20955`: Remove unused HostAxes._get_legend_handles.
 * :ghpull:`20851`: Try to install the Noto Sans CJK font
 
-Issues (183):
+Issues (195):
 
+* :ghissue:`23398`: [Bug]: Newer versions of matplotlib ignore xlabel on colorbar axis
+* :ghissue:`23699`: [Bug]: Bug with toolbar instantiation in notebook
+* :ghissue:`23745`: [Doc]: Minor rcParams/matplotlibrc doc issues
+* :ghissue:`23717`: [Bug]: AxesSubplot.get_yticks not returning the actual printed ticks
+* :ghissue:`21508`: [Doc]: Create diagram to show rotation directions for 3D plots
+* :ghissue:`23709`: [Bug]: colorbar with unattached mappables can't steal space
+* :ghissue:`23701`: [Bug]: plt.figure(), plt.close() leaks memory
+* :ghissue:`22409`: [Bug]: AttributeError: 'QResizeEvent' object has no attribute 'pos'
+* :ghissue:`19609`: DeprecationWarning when changing color maps
+* :ghissue:`23716`: MatplotlibDeprecationWarning removal hard-breaks seaborn in 3.6rc1
+* :ghissue:`23719`: [Bug]: register_cmap deprecation message seems wrong
+* :ghissue:`23707`: test_Normalize fails on aarch64/ppc64le/s390x
 * :ghissue:`21107`: [MNT]: Should plt.xticks() get a minor keyword argument
 * :ghissue:`23679`: [Doc]: Deprecated modules not in docs
 * :ghissue:`19550`: Arc and pathpatch_2d_to_3d plots full ellipse
