@@ -353,7 +353,6 @@ class Colorbar:
         for spine in self.ax.spines.values():
             spine.set_visible(False)
         self.outline = self.ax.spines['outline'] = _ColorbarSpine(self.ax)
-        self._short_axis().set_visible(False)
         # Only kept for backcompat; remove after deprecation of .patch elapses.
         self._patch = mpatches.Polygon(
             np.empty((0, 2)),

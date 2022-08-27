@@ -721,6 +721,17 @@ def test_colorbar_label():
     assert cbar3.ax.get_xlabel() == 'horizontal cbar'
 
 
+@image_comparison(['colorbar_keeping_xlabel.png'], style='mpl20')
+def test_keeping_xlabel():
+    # github issue #23398 - xlabels being ignored in colorbar axis
+    arr = np.arange(25).reshape((5, 5))
+    fig, ax = plt.subplots()
+    im = ax.imshow(arr)
+    cbar = plt.colorbar(im)
+    cbar.ax.set_xlabel('Visible Xlabel')
+    cbar.set_label('YLabel')
+
+
 @pytest.mark.parametrize("clim", [(-20000, 20000), (-32768, 0)])
 def test_colorbar_int(clim):
     # Check that we cast to float early enough to not
