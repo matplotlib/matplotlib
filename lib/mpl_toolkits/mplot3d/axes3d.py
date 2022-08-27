@@ -1243,15 +1243,16 @@ class Axes3D(Axes):
 
         # Only perform frame conversion if unequal scale factors
         if not np.allclose(scale, scale_u):
-            # Convert from the scale factors in the view frame to the data frame
+            # Convert the scale factors from the view frame to the data frame
             R = np.array([self._view_u, self._view_v, self._view_w])
             S = scale * np.eye(3)
             scale = np.linalg.norm(R.T @ S, axis=1)
 
             # Set the constrained scale factors to the factor closest to 1
             if self._aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
-                ax_idx = self._equal_aspect_axis_indices(self._aspect)
-                scale[ax_idx] = scale[ax_idx][np.argmin(np.abs(scale[ax_idx] - 1))]
+                ax_idxs = self._equal_aspect_axis_indices(self._aspect)
+                min_ax_idxs = np.argmin(np.abs(scale[ax_idxs] - 1))
+                scale[ax_idxs] = scale[ax_idxs][min_ax_idxs]
 
         self.scale_axis_limits(scale[0], scale[1], scale[2])
 
