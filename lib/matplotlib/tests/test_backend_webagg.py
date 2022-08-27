@@ -2,6 +2,7 @@ import subprocess
 import os
 import sys
 import pytest
+import matplotlib.backends.backend_webagg_core
 
 
 @pytest.mark.parametrize("backend", ["webagg", "nbagg"])
@@ -25,3 +26,8 @@ def test_webagg_fallback(backend):
     ret = subprocess.call([sys.executable, "-c", test_code], env=env)
 
     assert ret == 0
+
+
+def test_webagg_core_no_toolbar():
+    fm = matplotlib.backends.backend_webagg_core.FigureManagerWebAgg
+    assert fm._toolbar2_class is None
