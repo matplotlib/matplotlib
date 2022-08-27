@@ -32,7 +32,7 @@ coffee_std = (3*cm, 5*cm, 2*cm, 1*cm, 2*cm)
 ax.bar(ind + width, coffee_means, width, bottom=0*cm, yerr=coffee_std,
        label='Coffee')
 
-ax.set_title('Scores by group and cup length of beverage choice')
+ax.set_title('Cup height by group and beverage choice')
 ax.set_xticks(ind + width / 2, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 
 ax.legend()
