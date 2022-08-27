@@ -35,6 +35,28 @@ cases = [
     (0.2, 0.4)
 ]
 
+
+def plot_with_markevery(
+            x, y, shape="o", ls="-", ms=4, scale=None,
+            x_lim=None, y_lim=None, **kwargs
+        ):
+    fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True, subplot_kw=kwargs)
+    
+    for ax, markevery in zip(axs.flat, cases):
+        ax.set_title(f"{markevery=}")
+        ax.plot(x, y, shape, ls=ls, ms=ms, markevery=markevery)
+        
+        if scale:
+            ax.set_xscale(scale)
+            ax.set_yscale(scale)
+        
+        if x_lim:
+            ax.set_xlim(x_lim)
+        
+        if y_lim:
+            ax.set_ylim(y_lim)
+
+
 # data points
 delta = 0.11
 x = np.linspace(0, 10 - 2 * delta, 200) + delta
@@ -43,11 +65,8 @@ y = np.sin(x) + 1.0 + delta
 ###############################################################################
 # markevery with linear scales
 # ----------------------------
+plot_with_markevery(x, y)
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True)
-for ax, markevery in zip(axs.flat, cases):
-    ax.set_title(f'markevery={markevery}')
-    ax.plot(x, y, 'o', ls='-', ms=4, markevery=markevery)
 
 ###############################################################################
 # markevery with log scales
@@ -58,12 +77,7 @@ for ax, markevery in zip(axs.flat, cases):
 # fraction of figure size creates even distributions, because it's based on
 # fractions of the Axes diagonal, not on data coordinates or data indices.
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True)
-for ax, markevery in zip(axs.flat, cases):
-    ax.set_title(f'markevery={markevery}')
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.plot(x, y, 'o', ls='-', ms=4, markevery=markevery)
+plot_with_markevery(x, y, scale="log")
 
 ###############################################################################
 # markevery on zoomed plots
@@ -75,12 +89,7 @@ for ax, markevery in zip(axs.flat, cases):
 # diagonal, it changes the displayed data range, and more points will be
 # displayed when zooming.
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True)
-for ax, markevery in zip(axs.flat, cases):
-    ax.set_title(f'markevery={markevery}')
-    ax.plot(x, y, 'o', ls='-', ms=4, markevery=markevery)
-    ax.set_xlim((6, 6.7))
-    ax.set_ylim((1.1, 1.7))
+plot_with_markevery(x, y, x_lim=(6, 6.7), y_lim=(1.1, 1.7))
 
 ###############################################################################
 # markevery on polar plots
@@ -89,10 +98,6 @@ for ax, markevery in zip(axs.flat, cases):
 r = np.linspace(0, 3.0, 200)
 theta = 2 * np.pi * r
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True,
-                        subplot_kw={'projection': 'polar'})
-for ax, markevery in zip(axs.flat, cases):
-    ax.set_title(f'markevery={markevery}')
-    ax.plot(theta, r, 'o', ls='-', ms=4, markevery=markevery)
+plot_with_markevery(theta, r, projection="polar")
 
 plt.show()
