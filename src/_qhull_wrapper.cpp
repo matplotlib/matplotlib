@@ -5,9 +5,9 @@
  * triangulation, construct an instance of the matplotlib.tri.Triangulation
  * class without specifying a triangles array.
  */
-#define PY_SSIZE_T_CLEAN
-#include "Python.h"
-#include "numpy_cpp.h"
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+
 #ifdef _MSC_VER
 /* The Qhull header does not declare this as extern "C", but only MSVC seems to
  * do name mangling on global variables. We thus need to declare this before
@@ -16,10 +16,10 @@ extern "C" {
 extern const char qh_version[];
 }
 #endif
+
 #include "libqhull_r/qhull_ra.h"
 #include <cstdio>
 #include <vector>
-
 
 #ifndef MPL_DEVNULL
 #error "MPL_DEVNULL must be defined as the OS-equivalent of /dev/null"
@@ -27,6 +27,16 @@ extern const char qh_version[];
 
 #define STRINGIFY(x) STR(x)
 #define STR(x) #x
+
+namespace py = pybind11;
+using namespace pybind11::literals;
+
+// Input numpy array class.
+typedef py::array_t<double, py::array::c_style | py::array::forcecast> CoordArray;
+
+// Output numpy array class.
+typedef py::array_t<int> IndexArray;
+
 
 
 static const char* qhull_error_msg[6] = {
@@ -64,17 +74,16 @@ get_facet_neighbours(const facetT* facet, std::vector<int>& tri_indices,
 /* Return true if the specified points arrays contain at least 3 unique points,
  * or false otherwise. */
 static bool
-at_least_3_unique_points(npy_intp npoints, const double* x, const double* y)
+at_least_3_unique_points(py::ssize_t npoints, const double* x, const double* y)
 {
-    int i;
-    const int unique1 = 0;  /* First unique point has index 0. */
-    int unique2 = 0;        /* Second unique point index is 0 until set. */
+    const py::ssize_t unique1 = 0;  /* First unique point has index 0. */
+    py::ssize_t unique2 = 0;        /* Second unique point index is 0 until set. */
 
     if (npoints < 3) {
         return false;
     }
 
-    for (i = 1; i < npoints; ++i) {
+    for (py::ssize_t i = 1; i < npoints; ++i) {
         if (unique2 == 0) {
             /* Looking for second unique point. */
             if (x[i] != x[unique1] || y[i] != y[unique1]) {
@@ -125,8 +134,8 @@ private:
 /* Delaunay implementation method.
  * If hide_qhull_errors is true then qhull error messages are discarded;
  * if it is false then they are written to stderr. */
-static PyObject*
-delaunay_impl(npy_intp npoints, const double* x, const double* y,
+static py::tuple
+delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
               bool hide_qhull_errors)
 {
     qhT qh_qh;                  /* qh variable type and name must be like */
@@ -179,11 +188,13 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     exitcode = qh_new_qhull(qh, ndim, (int)npoints, points.data(), False,
                             (char*)"qhull d Qt Qbb Qc Qz", NULL, error_file);
     if (exitcode != qh_ERRnone) {
-        PyErr_Format(PyExc_RuntimeError,
-                     "Error in qhull Delaunay triangulation calculation: %s (exitcode=%d)%s",
-                     qhull_error_msg[exitcode], exitcode,
-                     hide_qhull_errors ? "; use python verbose option (-v) to see original qhull error." : "");
-        return NULL;
+        std::string msg =
+            py::str("Error in qhull Delaunay triangulation calculation: {} (exitcode={})")
+            .format(qhull_error_msg[exitcode], exitcode).cast<std::string>();
+        if (hide_qhull_errors) {
+            msg += "; use python verbose option (-v) to see original qhull error.";
+        }
+        throw std::runtime_error(msg);
     }
 
     /* Split facets so that they only have 3 points each. */
@@ -204,12 +215,12 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
     std::vector<int> tri_indices(max_facet_id+1);
 
     /* Allocate Python arrays to return. */
-    npy_intp dims[2] = {ntri, 3};
-    numpy::array_view<int, ndim> triangles(dims);
-    int* triangles_ptr = triangles.data();
+    int dims[2] = {ntri, 3};
+    IndexArray triangles(dims);
+    int* triangles_ptr = triangles.mutable_data();
 
-    numpy::array_view<int, ndim> neighbors(dims);
-    int* neighbors_ptr = neighbors.data();
+    IndexArray neighbors(dims);
+    int* neighbors_ptr = neighbors.mutable_data();
 
     /* Determine triangles array and set tri_indices array. */
     i = 0;
@@ -238,103 +249,54 @@ delaunay_impl(npy_intp npoints, const double* x, const double* y,
         }
     }
 
-    PyObject* tuple = PyTuple_New(2);
-    if (tuple == 0) {
-        throw std::runtime_error("Failed to create Python tuple");
-    }
-
-    PyTuple_SET_ITEM(tuple, 0, triangles.pyobj());
-    PyTuple_SET_ITEM(tuple, 1, neighbors.pyobj());
-    return tuple;
+    return py::make_tuple(triangles, neighbors);
 }
 
 /* Process Python arguments and call Delaunay implementation method. */
-static PyObject*
-delaunay(PyObject *self, PyObject *args)
+static py::tuple
+delaunay(const CoordArray& x, const CoordArray& y, int verbose)
 {
-    numpy::array_view<double, 1> xarray;
-    numpy::array_view<double, 1> yarray;
-    PyObject* ret;
-    npy_intp npoints;
-    const double* x;
-    const double* y;
-    int verbose = 0;
-
-    if (!PyArg_ParseTuple(args, "O&O&i:delaunay",
-                          &xarray.converter_contiguous, &xarray,
-                          &yarray.converter_contiguous, &yarray,
-                          &verbose)) {
-        return NULL;
+    if (x.ndim() != 1 || y.ndim() != 1) {
+        throw std::invalid_argument("x and y must be 1D arrays");
     }
 
-    npoints = xarray.shape(0);
-    if (npoints != yarray.shape(0)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "x and y must be 1D arrays of the same length");
-        return NULL;
+    auto npoints = x.shape(0);
+    if (npoints != y.shape(0)) {
+        throw std::invalid_argument("x and y must be 1D arrays of the same length");
     }
 
     if (npoints < 3) {
-        PyErr_SetString(PyExc_ValueError,
-                        "x and y arrays must have a length of at least 3");
-        return NULL;
+        throw std::invalid_argument("x and y arrays must have a length of at least 3");
     }
 
-    x = xarray.data();
-    y = yarray.data();
-
-    if (!at_least_3_unique_points(npoints, x, y)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "x and y arrays must consist of at least 3 unique points");
-        return NULL;
+    if (!at_least_3_unique_points(npoints, x.data(), y.data())) {
+        throw std::invalid_argument("x and y arrays must consist of at least 3 unique points");
     }
 
-    CALL_CPP("qhull.delaunay",
-             (ret = delaunay_impl(npoints, x, y, verbose == 0)));
-
-    return ret;
+    return delaunay_impl(npoints, x.data(), y.data(), verbose == 0);
 }
 
-/* Return qhull version string for assistance in debugging. */
-static PyObject*
-version(PyObject *self, PyObject *arg)
-{
-    return PyBytes_FromString(qh_version);
-}
+PYBIND11_MODULE(_qhull, m) {
+    m.doc() = "Computing Delaunay triangulations.\n";
 
-static PyMethodDef qhull_methods[] = {
-    {"delaunay", delaunay, METH_VARARGS,
-     "delaunay(x, y, verbose, /)\n"
-     "--\n\n"
-     "Compute a Delaunay triangulation.\n"
-     "\n"
-     "Parameters\n"
-     "----------\n"
-     "x, y : 1d arrays\n"
-     "    The coordinates of the point set, which must consist of at least\n"
-     "    three unique points.\n"
-     "verbose : int\n"
-     "    Python's verbosity level.\n"
-     "\n"
-     "Returns\n"
-     "-------\n"
-     "triangles, neighbors : int arrays, shape (ntri, 3)\n"
-     "    Indices of triangle vertices and indices of triangle neighbors.\n"
-    },
-    {"version", version, METH_NOARGS,
-     "version()\n--\n\n"
-     "Return the qhull version string."},
-    {NULL, NULL, 0, NULL}
-};
+    m.def("delaunay", &delaunay, "x"_a, "y"_a, "verbose"_a,
+        "--\n\n"
+        "Compute a Delaunay triangulation.\n"
+        "\n"
+        "Parameters\n"
+        "----------\n"
+        "x, y : 1d arrays\n"
+        "    The coordinates of the point set, which must consist of at least\n"
+        "    three unique points.\n"
+        "verbose : int\n"
+        "    Python's verbosity level.\n"
+        "\n"
+        "Returns\n"
+        "-------\n"
+        "triangles, neighbors : int arrays, shape (ntri, 3)\n"
+        "    Indices of triangle vertices and indices of triangle neighbors.\n");
 
-static struct PyModuleDef qhull_module = {
-    PyModuleDef_HEAD_INIT,
-    "qhull", "Computing Delaunay triangulations.\n", -1, qhull_methods
-};
-
-PyMODINIT_FUNC
-PyInit__qhull(void)
-{
-    import_array();
-    return PyModule_Create(&qhull_module);
+    m.def("version", []() { return qh_version; },
+        "version()\n--\n\n"
+        "Return the qhull version string.");
 }
