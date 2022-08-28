@@ -302,6 +302,8 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
     setup_requires=[
         "certifi>=2020.06.20",
         "numpy>=1.19",
+        "pybind11>=2.6",
+        "setuptools>=42",
         "setuptools_scm>=7",
     ],
     install_requires=[

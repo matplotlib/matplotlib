@@ -16,6 +16,7 @@ from tempfile import TemporaryDirectory
 import textwrap
 import urllib.request
 
+from pybind11.setup_helpers import Pybind11Extension
 from setuptools import Distribution, Extension
 
 _log = logging.getLogger(__name__)
@@ -432,10 +433,10 @@ class Matplotlib(SetupPackage):
         add_libagg_flags_and_sources(ext)
         yield ext
         # qhull
-        ext = Extension(
+        ext = Pybind11Extension(
             "matplotlib._qhull", ["src/_qhull_wrapper.cpp"],
+            cxx_std=11,
             define_macros=[("MPL_DEVNULL", os.devnull)])
-        add_numpy_flags(ext)
         Qhull.add_flags(ext)
         yield ext
         # tkagg
