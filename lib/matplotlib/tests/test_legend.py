@@ -1,6 +1,7 @@
 import collections
 import platform
 from unittest import mock
+import warnings
 
 import numpy as np
 import pytest
@@ -514,6 +515,13 @@ def test_text_nohandler_warning():
     with pytest.warns(UserWarning) as record:
         ax.legend()
     assert len(record) == 1
+
+    # this should _not_ warn:
+    f, ax = plt.subplots()
+    ax.pcolormesh(np.random.uniform(0, 1, (10, 10)))
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        ax.get_legend_handles_labels()
 
 
 def test_empty_bar_chart_with_legend():
