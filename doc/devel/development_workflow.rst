@@ -19,8 +19,9 @@ In what follows we'll refer to the upstream Matplotlib ``main`` branch, as
   branch".
 * Name your branch for the purpose of the changes - e.g.
   ``bugfix-for-issue-14`` or ``refactor-database-code``.
-* If you get stuck, reach out on Gitter or the Mailing list.
-* Ask for code review!
+* If you get stuck, reach out on Gitter or
+  `discourse <https://discourse.matplotlib.org>`__.
+* Ask for a code review!
 
 This way of working helps to keep work well organized, with readable history.
 This in turn makes it easier for project maintainers (that might be you) to see
@@ -155,8 +156,8 @@ Say if there is anything you'd like particular attention for - like a
 complicated change or some code you are not happy with.
 
 If you don't think your request is ready to be merged, just say so in your pull
-request message.  This is still a good way of getting some preliminary code
-review.
+request message and use the "Draft PR" feature of GitHub. This is a good way of
+getting some preliminary code review.
 
 Some other things you might want to do
 ======================================
@@ -172,9 +173,6 @@ commits::
 To see a linear list of commits for this branch::
 
    git log
-
-You can also look at the `network graph visualizer <https://github.com/matplotlib/matplotlib/network>`_ for your github
-repo.
 
 .. _rebase-on-trunk:
 

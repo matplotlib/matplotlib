@@ -13,19 +13,19 @@
 Pull request guidelines
 ***********************
 
-Pull requests (PRs) are the mechanism for contributing to Matplotlib's code and
-documentation.
+`Pull requests (PRs) on GitHub <https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
+are the mechanism for contributing to Matplotlib's code and documentation.
 
 It is recommended to check that your contribution complies with the following
 rules before submitting a pull request:
 
 * If your pull request addresses an issue, please use the title to describe the
-  issue and mention the issue number in the pull request description to ensure
-  that a link is created to the original issue.
-
-* All public methods should have informative docstrings with sample usage when
-  appropriate. Use the `numpy docstring standard
-  <https://numpydoc.readthedocs.io/en/latest/format.html>`_.
+  issue (e.g. "Add ability to plot timedeltas") and mention the issue number
+  in the pull request description to ensure that a link is created to the
+  original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
+  original issue mentioned is automatically closed when your PR is merged. See
+  `the GitHub documentation <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__
+  for more details.
 
 * Formatting should follow the recommendations of PEP8_, as enforced by
   flake8_.  You can check flake8 compliance from the command line with ::
@@ -44,6 +44,9 @@ rules before submitting a pull request:
   .. __: https://github.com/matplotlib/matplotlib/issues/18796
   .. __: https://github.com/psf/black/issues/148
   .. __: https://github.com/psf/black/issues/1984
+
+* All public methods should have informative docstrings with sample usage when
+  appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
 
 * Each high-level plotting function should have a simple example in the
   ``Example`` section of the docstring.  This should be as simple as possible
