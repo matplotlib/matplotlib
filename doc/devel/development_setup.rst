@@ -37,10 +37,24 @@ You can retrieve the latest sources with the command (see
       .. _SSH key: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
 
 This will place the sources in a directory :file:`matplotlib` below your
-current working directory. Change into this directory::
+current working directory, and set up the `upstream remote <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__
+to point to the Matplotlib main repository. Change into this directory before
+continuing::
 
     cd matplotlib
 
+.. note::
+
+   For more information on ``git`` and ``GitHub``, check the following resources.
+
+  * `Git documentation <https://git-scm.com/doc>`_
+  * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+  * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
+  * :ref:`using-git`
+  * :ref:`git-resources`
+  * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
+  * https://tacaswell.github.io/think-like-git.html
+  * https://tom.preston-werner.com/2009/05/19/the-git-parable.html
 
 .. _dev-environment:
 
@@ -91,30 +105,8 @@ After you have cloned the repo change into the matplotlib directory.
 
 Remember to activate the environment whenever you start working on Matplotlib.
 
-<<<<<<< HEAD
-Install additional development dependencies
-===========================================
-See :ref:`development-dependencies`.
-
-=======
-<<<<<<< HEAD
->>>>>>> e998d58f3c (Refactoring gitwash)
-Install Matplotlib in editable mode
-===================================
-=======
-.. seealso::
-
-  * `Git documentation <https://git-scm.com/doc>`_
-  * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
-  * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
-  * :ref:`using-git`
-  * :ref:`git-resources`
-  * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
-
-
 Installing Matplotlib in editable mode
 ======================================
->>>>>>> 0e759d3ee8 (Refactoring gitwash)
 Install Matplotlib in editable mode from the :file:`matplotlib` directory
 using the command ::
 
@@ -127,6 +119,10 @@ of Matplotlib without re-installing after every change. Note that this is only
 true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
+
+Install additional development dependencies
+===========================================
+See :ref:`development-dependencies`.
 
 Install pre-commit hooks (optional)
 ===================================

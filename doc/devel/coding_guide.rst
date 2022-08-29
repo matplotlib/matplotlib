@@ -48,10 +48,9 @@ rules before submitting a pull request:
 * All public methods should have informative docstrings with sample usage when
   appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
 
-* Each high-level plotting function should have a simple example in the
-  ``Example`` section of the docstring.  This should be as simple as possible
-  to demonstrate the method.  More complex examples should go in the
-  ``examples`` tree.
+* For high-level plotting functions, consider adding a simple example either in
+  the ``Example`` section of the docstring or the
+  :ref:`examples gallery <gallery>`.
 
 * Changes (both new features and bugfixes) should have good test coverage. See
   :ref:`testing` for more details.

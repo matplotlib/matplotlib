@@ -9,23 +9,21 @@ Development workflow
 Workflow summary
 ================
 
-In what follows we'll refer to the upstream Matplotlib ``main`` branch, as
-"trunk".
+To keep your work well organized, with readable history, and in turn make it
+easier for project maintainers (that might be you) to see what you've done, and
+why you did it, we recommend the following:
 
 * Don't use your ``main`` branch for anything.  Consider deleting it.
-* When you are starting a new set of changes, fetch any changes from ``main``,
-  and start a new *feature branch* from that.
-* Make a new branch for each separable set of changes — "one task, one
-  branch".
+* Before starting a new set of changes, fetch all changes from
+  ``upstream/main``, and start a new *feature branch* from that.
+* Make a new branch for each feature or bug fix — "one task, one branch".
 * Name your branch for the purpose of the changes - e.g.
   ``bugfix-for-issue-14`` or ``refactor-database-code``.
 * If you get stuck, reach out on Gitter or
   `discourse <https://discourse.matplotlib.org>`__.
-* Ask for a code review!
-
-This way of working helps to keep work well organized, with readable history.
-This in turn makes it easier for project maintainers (that might be you) to see
-what you've done, and why you did it.
+* When your ready or need feedback on your code, open a pull-request so that the
+  Matplotlib developers can give feedback and eventually include your suggested
+  code into the ``main`` branch.
 
 .. note::
 
@@ -35,21 +33,19 @@ what you've done, and why you did it.
 
 .. _deleting main on github: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
 
-.. _update-mirror-trunk:
+.. _update-mirror-main:
 
-Update the mirror of trunk
-==========================
+Update the mirror of main
+=========================
 
 First make sure you have done :ref:`linking-to-upstream`.
 
-From time to time you should fetch the upstream (trunk) changes from github::
+From time to time you should fetch the upstream changes from github::
 
    git fetch upstream
 
 This will pull down any commits you don't have, and set the remote branches to
-point to the right commit.  For example, 'trunk' is the branch referred to by
-(remote/branchname) ``upstream/main`` - and if there have been commits since
-you last checked, ``upstream/main`` will change after you do the fetch.
+point to the right commit.
 
 .. _make-feature-branch:
 
@@ -69,17 +65,17 @@ what the changes in the branch are for.  For example ``add-ability-to-fly``, or
 
 ::
 
-    # Update the mirror of trunk
+    # Update the mirror of main
     git fetch upstream
-    # Make new feature branch starting at current trunk
+    # Make new feature branch starting at current main
     git branch my-new-feature upstream/main
     git checkout my-new-feature
 
 Generally, you will want to keep your feature branches on your public GitHub
 fork of Matplotlib.  To do this, you ``git push`` this new branch up to your
-github repo.  Generally (if you followed the instructions in these pages, and by
-default), git will have a link to your github repo, called ``origin``.  You push
-up to your own repo on github with::
+GitHub repo.  Generally (if you followed the instructions in these pages, and by
+default), git will have a link to your fork of the GitHub repo, called
+``origin``.  You push up to your own fork with::
 
    git push origin my-new-feature
 
@@ -89,7 +85,7 @@ In git >= 1.7 you can ensure that the link is correctly set by using the
    git push --set-upstream origin my-new-feature
 
 From now on git will know that ``my-new-feature`` is related to the
-``my-new-feature`` branch in the github repo.
+``my-new-feature`` branch in the GitHub repo.
 
 .. _edit-flow:
 
@@ -145,8 +141,8 @@ In more detail
 .. _tangled working copy problem: http://2ndscale.com/rtomayko/2008/the-thing-about-git
 
 
-Ask for your changes to be reviewed or merged
-=============================================
+Open a pull request
+===================
 
 When you are ready to ask for someone to review your code and consider a merge,
 `submit your Pull Request (PR) <https://docs.github.com/pull-requests>`_.
@@ -174,55 +170,55 @@ To see a linear list of commits for this branch::
 
    git log
 
-.. _rebase-on-trunk:
+.. _rebase-on-main:
 
-Rebasing on trunk
------------------
+Rebasing on ``upstream/main``
+-----------------------------
 
 Let's say you thought of some work you'd like to do. You
-:ref:`update-mirror-trunk` and :ref:`make-feature-branch` called
-``cool-feature``. At this stage trunk is at some commit, let's call it E. Now
-you make some new commits on your ``cool-feature`` branch, let's call them A, B,
-C.  Maybe your changes take a while, or you come back to them after a while.  In
-the meantime, trunk has progressed from commit E to commit (say) G:
+:ref:`update-mirror-main` and :ref:`make-feature-branch` called
+``cool-feature``. At this stage, ``main`` is at some commit, let's call it E.
+Now you make some new commits on your ``cool-feature`` branch, let's call them
+A, B, C. Maybe your changes take a while, or you come back to them after a
+while. In the meantime, ``main`` has progressed from commit E to commit (say) G:
 
 .. code-block:: none
 
           A---B---C cool-feature
          /
-    D---E---F---G trunk
+    D---E---F---G main
 
-At this stage you consider merging trunk into your feature branch, and you
+At this stage you consider merging ``main`` into your feature branch, and you
 remember that this here page sternly advises you not to do that, because the
 history will get messy. Most of the time you can just ask for a review, and not
-worry that trunk has got a little ahead.  But sometimes, the changes in trunk
-might affect your changes, and you need to harmonize them.  In this situation
-you may prefer to do a rebase.
+worry that ``main`` has got a little ahead.  But sometimes, the changes in
+``main`` might affect your changes, and you need to harmonize them.  In this
+situation you may prefer to do a rebase.
 
-rebase takes your changes (A, B, C) and replays them as if they had been made to
-the current state of ``trunk``.  In other words, in this case, it takes the
-changes represented by A, B, C and replays them on top of G. After the rebase,
-your history will look like this:
+``rebase`` takes your changes (A, B, C) and replays them as if they had been
+made to the current state of ``main``.  In other words, in this case, it takes
+the changes represented by A, B, C and replays them on top of G. After the
+rebase, your history will look like this:
 
 .. code-block:: none
 
                   A'--B'--C' cool-feature
                  /
-    D---E---F---G trunk
+    D---E---F---G main
 
 See `rebase without tears`_ for more detail.
 
 .. _rebase without tears: https://matthew-brett.github.io/pydagogue/rebase_without_tears.html
 
-To do a rebase on trunk::
+To do a rebase on ``upstream/main``::
 
-    # Update the mirror of trunk
+    # Fetch changes from upstream/main
     git fetch upstream
     # go to the feature branch
     git checkout cool-feature
     # make a backup in case you mess up
     git branch tmp cool-feature
-    # rebase cool-feature onto trunk
+    # rebase cool-feature onto main
     git rebase --onto upstream/main upstream/main cool-feature
 
 In this situation, where you are already on branch ``cool-feature``, the last
@@ -237,7 +233,7 @@ When all looks good you can delete your backup branch::
 If it doesn't look good you may need to have a look at
 :ref:`recovering-from-mess-up`.
 
-If you have made changes to files that have also changed in trunk, this may
+If you have made changes to files that have also changed in ``main``, this may
 generate merge conflicts that you need to resolve - see the `git rebase`_ man
 page for some instructions at the end of the "Description" section. There is
 some related help on merging in the git user manual - see `resolving a merge`_.
