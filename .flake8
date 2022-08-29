@@ -113,3 +113,4 @@ per-file-ignores =
     examples/user_interfaces/pylab_with_gtk4_sgskip.py: E402
     examples/user_interfaces/toolmanager_sgskip.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402
+force-check = True
