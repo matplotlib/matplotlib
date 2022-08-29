@@ -286,9 +286,7 @@ class Axes3D(Axes):
             'equalyz'   adapt the y and z axes to have equal aspect ratios.
             =========   ==================================================
 
-        adjustable : None
-            Currently ignored by Axes3D
-
+        adjustable : None or {'box', 'datalim'}, optional
             If not *None*, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
@@ -319,34 +317,65 @@ class Axes3D(Axes):
         """
         _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
                            aspect=aspect)
+        if adjustable is None:
+            adjustable = self._adjustable
+        _api.check_in_list(('box', 'datalim'), adjustable=adjustable)
         super().set_aspect(
             aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
         self._aspect = aspect
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
-            if aspect == 'equal':
-                ax_indices = [0, 1, 2]
-            elif aspect == 'equalxy':
-                ax_indices = [0, 1]
-            elif aspect == 'equalxz':
-                ax_indices = [0, 2]
-            elif aspect == 'equalyz':
-                ax_indices = [1, 2]
+            ax_idx = self._equal_aspect_axis_indices(aspect)
 
             view_intervals = np.array([self.xaxis.get_view_interval(),
                                        self.yaxis.get_view_interval(),
                                        self.zaxis.get_view_interval()])
-            mean = np.mean(view_intervals, axis=1)
             ptp = np.ptp(view_intervals, axis=1)
-            delta = max(ptp[ax_indices])
-            scale = self._box_aspect[ptp == delta][0]
-            deltas = delta * self._box_aspect / scale
+            if adjustable == 'datalim':
+                mean = np.mean(view_intervals, axis=1)
+                delta = max(ptp[ax_idx])
+                scale = self._box_aspect[ptp == delta][0]
+                deltas = delta * self._box_aspect / scale
 
-            for i, set_lim in enumerate((self.set_xlim3d,
-                                         self.set_ylim3d,
-                                         self.set_zlim3d)):
-                if i in ax_indices:
-                    set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
+                for i, set_lim in enumerate((self.set_xlim3d,
+                                             self.set_ylim3d,
+                                             self.set_zlim3d)):
+                    if i in ax_idx:
+                        set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
+            else:  # 'box'
+                # Change the box aspect such that the ratio of the length of
+                # the unmodified axis to the length of the diagonal
+                # perpendicular to it remains unchanged.
+                box_aspect = np.array(self._box_aspect)
+                box_aspect[ax_idx] = ptp[ax_idx]
+                remaining_ax_idx = {0, 1, 2}.difference(ax_idx)
+                if remaining_ax_idx:
+                    remaining = remaining_ax_idx.pop()
+                    old_diag = np.linalg.norm(self._box_aspect[ax_idx])
+                    new_diag = np.linalg.norm(box_aspect[ax_idx])
+                    box_aspect[remaining] *= new_diag / old_diag
+                self.set_box_aspect(box_aspect)
+
+    def _equal_aspect_axis_indices(self, aspect):
+        """
+        Get the indices for which of the x, y, z axes are constrained to have
+        equal aspect ratios.
+
+        Parameters
+        ----------
+        aspect : {'auto', 'equal', 'equalxy', 'equalxz', 'equalyz'}
+            See descriptions in docstring for `.set_aspect()`.
+        """
+        ax_indices = []  # aspect == 'auto'
+        if aspect == 'equal':
+            ax_indices = [0, 1, 2]
+        elif aspect == 'equalxy':
+            ax_indices = [0, 1]
+        elif aspect == 'equalxz':
+            ax_indices = [0, 2]
+        elif aspect == 'equalyz':
+            ax_indices = [1, 2]
+        return ax_indices
 
     def set_box_aspect(self, aspect, *, zoom=1):
         """
