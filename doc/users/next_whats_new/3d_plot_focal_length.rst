@@ -19,13 +19,13 @@ The focal length can be calculated from a desired FOV via the equation:
 
     from mpl_toolkits.mplot3d import axes3d
     import matplotlib.pyplot as plt
-    fig, axs = plt.subplots(1, 3, subplot_kw={'projection': '3d'},
-                            constrained_layout=True)
+    from numpy import inf
+    fig, axs = plt.subplots(1, 3, subplot_kw={'projection': '3d'})
     X, Y, Z = axes3d.get_test_data(0.05)
-    focal_lengths = [0.25, 1, 4]
+    focal_lengths = [0.2, 1, inf]
     for ax, fl in zip(axs, focal_lengths):
         ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
         ax.set_proj_type('persp', focal_length=fl)
         ax.set_title(f"focal_length = {fl}")
-    plt.tight_layout()
+    fig.set_size_inches(10, 4)
     plt.show()
