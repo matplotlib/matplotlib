@@ -18,4 +18,5 @@ existing 3D plots.
     X, Y, Z = axes3d.get_test_data(0.05)
     ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
     ax.view_init(elev=0, azim=0, roll=30)
+    ax.set_title('elev=0, azim=0, roll=30')
     plt.show()
