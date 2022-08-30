@@ -254,6 +254,22 @@ def test_linedash():
     assert buf.tell() > 0
 
 
+def test_noembed_fonts():
+    """Test that fonts are not embedded when no text is used"""
+    mpl.rcParams["text.usetex"] = True
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+
+    # About 160k with embedded fonts
+    buf = io.BytesIO()
+    fig.savefig(buf, format="ps")
+    assert buf.getbuffer().nbytes < 1000
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="eps")
+    assert buf.getbuffer().nbytes < 1000
+
+
 def test_no_duplicate_definition():
 
     fig = Figure()
