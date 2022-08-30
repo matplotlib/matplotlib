@@ -27,6 +27,7 @@ Users can set the aspect ratio for the X, Y, Z axes of a 3D plot to be 'equal',
     for i, ax in enumerate(axs):
         ax.set_box_aspect((3, 4, 5))
         ax.set_aspect(aspects[i])
-        ax.set_title("set_aspect('{aspects[i]}')")
+        ax.set_title(f"set_aspect('{aspects[i]}')")
 
+    fig.set_size_inches(13, 3)
     plt.show()
