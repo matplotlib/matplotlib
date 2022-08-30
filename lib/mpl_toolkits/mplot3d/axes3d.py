@@ -51,9 +51,11 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
 
-    dist = _api.deprecate_privatize_attribute("3.6")
-    vvec = _api.deprecate_privatize_attribute("3.6")
-    eye = _api.deprecate_privatize_attribute("3.6")
+    dist = _api.deprecate_privatize_attribute("3.7")
+    vvec = _api.deprecate_privatize_attribute("3.7")
+    eye = _api.deprecate_privatize_attribute("3.7")
+    sx = _api.deprecate_privatize_attribute("3.7")
+    sy = _api.deprecate_privatize_attribute("3.7")
 
     def __init__(
             self, fig, rect=None, *args,
@@ -158,8 +160,6 @@ class Axes3D(Axes):
         self.fmt_zdata = None
 
         self.mouse_init()
-        self._move_cid = self.figure.canvas.callbacks._connect_picklable(
-            'motion_notify_event', self._on_move)
         self.figure.canvas.callbacks._connect_picklable(
             'button_press_event', self._button_press)
         self.figure.canvas.callbacks._connect_picklable(
@@ -327,21 +327,21 @@ class Axes3D(Axes):
         self._aspect = aspect
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
-            ax_idx = self._equal_aspect_axis_indices(aspect)
+            ax_indices = self._equal_aspect_axis_indices(aspect)
 
             view_intervals = np.array([self.xaxis.get_view_interval(),
                                        self.yaxis.get_view_interval(),
                                        self.zaxis.get_view_interval()])
             mean = np.mean(view_intervals, axis=1)
             ptp = np.ptp(view_intervals, axis=1)
-            delta = max(ptp[ax_idx])
+            delta = max(ptp[ax_indices])
             scale = self._box_aspect[ptp == delta][0]
             deltas = delta * self._box_aspect / scale
 
             for i, set_lim in enumerate((self.set_xlim3d,
                                          self.set_ylim3d,
                                          self.set_zlim3d)):
-                if i in ax_idx:
+                if i in ax_indices:
                     set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
 
     def _equal_aspect_axis_indices(self, aspect):
@@ -986,7 +986,7 @@ class Axes3D(Axes):
     def _button_press(self, event):
         if event.inaxes == self:
             self.button_pressed = event.button
-            self.sx, self.sy = event.xdata, event.ydata
+            self._sx, self._sy = event.xdata, event.ydata
             toolbar = getattr(self.figure.canvas, "toolbar")
             if toolbar and toolbar._nav_stack() is None:
                 self.figure.canvas.toolbar.push_current()
@@ -1087,7 +1087,7 @@ class Axes3D(Axes):
         if x is None or event.inaxes != self:
             return
 
-        dx, dy = x - self.sx, y - self.sy
+        dx, dy = x - self._sx, y - self._sy
         w = self._pseudo_w
         h = self._pseudo_h
 
@@ -1107,7 +1107,7 @@ class Axes3D(Axes):
 
         elif self.button_pressed in self._pan_btn:
             # Start the pan event with pixel coordinates
-            px, py = self.transData.transform([self.sx, self.sy])
+            px, py = self.transData.transform([self._sx, self._sy])
             self.start_pan(px, py, 2)
             # pan view (takes pixel coordinate input)
             self.drag_pan(2, None, event.x, event.y)
@@ -1120,7 +1120,7 @@ class Axes3D(Axes):
             self._scale_axis_limits(scale, scale, scale)
 
         # Store the event coordinates for the next time through.
-        self.sx, self.sy = x, y
+        self._sx, self._sy = x, y
         # Always request a draw update at the end of interaction
         self.figure.canvas.draw_idle()
 
@@ -1131,7 +1131,7 @@ class Axes3D(Axes):
         p = self._pan_start
         (xdata, ydata), (xdata_start, ydata_start) = p.trans_inverse.transform(
             [(x, y), (p.x, p.y)])
-        self.sx, self.sy = xdata, ydata
+        self._sx, self._sy = xdata, ydata
         # Calling start_pan() to set the x/y of this event as the starting
         # move location for the next event
         self.start_pan(x, y, button)
