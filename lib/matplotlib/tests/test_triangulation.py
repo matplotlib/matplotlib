@@ -1167,43 +1167,43 @@ def test_internal_cpp_api():
     # C++ Triangulation.
     with pytest.raises(
             TypeError,
-            match=r'function takes exactly 7 arguments \(0 given\)'):
+            match=r'__init__\(\): incompatible constructor arguments.'):
         mpl._tri.Triangulation()
 
     with pytest.raises(
             ValueError, match=r'x and y must be 1D arrays of the same length'):
-        mpl._tri.Triangulation([], [1], [[]], None, None, None, False)
+        mpl._tri.Triangulation([], [1], [[]], (), (), (), False)
 
     x = [0, 1, 1]
     y = [0, 0, 1]
     with pytest.raises(
             ValueError,
             match=r'triangles must be a 2D array of shape \(\?,3\)'):
-        mpl._tri.Triangulation(x, y, [[0, 1]], None, None, None, False)
+        mpl._tri.Triangulation(x, y, [[0, 1]], (), (), (), False)
 
     tris = [[0, 1, 2]]
     with pytest.raises(
             ValueError,
             match=r'mask must be a 1D array with the same length as the '
                   r'triangles array'):
-        mpl._tri.Triangulation(x, y, tris, [0, 1], None, None, False)
+        mpl._tri.Triangulation(x, y, tris, [0, 1], (), (), False)
 
     with pytest.raises(
             ValueError, match=r'edges must be a 2D array with shape \(\?,2\)'):
-        mpl._tri.Triangulation(x, y, tris, None, [[1]], None, False)
+        mpl._tri.Triangulation(x, y, tris, (), [[1]], (), False)
 
     with pytest.raises(
             ValueError,
             match=r'neighbors must be a 2D array with the same shape as the '
                   r'triangles array'):
-        mpl._tri.Triangulation(x, y, tris, None, None, [[-1]], False)
+        mpl._tri.Triangulation(x, y, tris, (), (), [[-1]], False)
 
-    triang = mpl._tri.Triangulation(x, y, tris, None, None, None, False)
+    triang = mpl._tri.Triangulation(x, y, tris, (), (), (), False)
 
     with pytest.raises(
             ValueError,
-            match=r'z array must have same length as triangulation x and y '
-                  r'array'):
+            match=r'z must be a 1D array with the same length as the '
+                  r'triangulation x and y arrays'):
         triang.calculate_plane_coefficients([])
 
     with pytest.raises(
@@ -1215,7 +1215,7 @@ def test_internal_cpp_api():
     # C++ TriContourGenerator.
     with pytest.raises(
             TypeError,
-            match=r'function takes exactly 2 arguments \(0 given\)'):
+            match=r'__init__\(\): incompatible constructor arguments.'):
         mpl._tri.TriContourGenerator()
 
     with pytest.raises(
@@ -1233,7 +1233,8 @@ def test_internal_cpp_api():
 
     # C++ TrapezoidMapTriFinder.
     with pytest.raises(
-            TypeError, match=r'function takes exactly 1 argument \(0 given\)'):
+            TypeError,
+            match=r'__init__\(\): incompatible constructor arguments.'):
         mpl._tri.TrapezoidMapTriFinder()
 
     trifinder = mpl._tri.TrapezoidMapTriFinder(triang)
