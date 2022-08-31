@@ -153,7 +153,12 @@ commands:
     steps:
       - run:
           name: Bundle sphinx-gallery documentation artifacts
-          command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
+          command: >
+            tar cf doc/build/sphinx-gallery-files.tar.gz
+            doc/api/_as_gen
+            doc/gallery
+            doc/plot_types
+            doc/tutorials
           when: always
       - store_artifacts:
           path: doc/build/sphinx-gallery-files.tar.gz
