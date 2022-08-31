@@ -1,7 +1,7 @@
-Font fallback in Agg
---------------------
+Font fallback
+-------------
 
-It is now possible to specify a list of fonts families and the Agg renderer
+It is now possible to specify a list of fonts families and Matplotlib
 will try them in order to locate a required glyph.
 
 .. plot::
@@ -23,5 +23,5 @@ will try them in order to locate a required glyph.
    plt.show()
 
 
-This currently only works with the Agg backend, but support for the vector
-backends is planned for Matplotlib 3.7.
+This currently works with the Agg (and all of the GUI embeddings), svg, pdf,
+ps, and inline backends.
