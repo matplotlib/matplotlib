@@ -1,7 +1,7 @@
 #include "_tri.h"
 
 PYBIND11_MODULE(_tri, m) {
-    py::class_<Triangulation>(m, "Triangulation",
+    py::class_<Triangulation>(m, "Triangulation")
         .def(py::init<const Triangulation::CoordinateArray&,
                       const Triangulation::CoordinateArray&,
                       const Triangulation::TriangleArray&,
@@ -38,7 +38,7 @@ PYBIND11_MODULE(_tri, m) {
             "--\n\n"
             "Set or clear the mask array.");
 
-    py::class_<TriContourGenerator>(m, "TriContourGenerator",
+    py::class_<TriContourGenerator>(m, "TriContourGenerator")
         .def(py::init<Triangulation&,
                       const TriContourGenerator::CoordinateArray&>(),
             py::arg("triangulation"),
@@ -57,7 +57,7 @@ PYBIND11_MODULE(_tri, m) {
             "--\n\n"
             "Create and return a filled contour.");
 
-    py::class_<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder",
+    py::class_<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder")
         .def(py::init<Triangulation&>(),
             py::arg("triangulation"),
             "TrapezoidMapTriFinder(triangulation)\n"
