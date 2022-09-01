@@ -865,13 +865,13 @@ class AutoDateFormatter(ticker.Formatter):
     defaults to ::
 
         self.scaled = {
-            DAYS_PER_YEAR: rcParams['date.autoformat.year'],
-            DAYS_PER_MONTH: rcParams['date.autoformat.month'],
-            1: rcParams['date.autoformat.day'],
-            1 / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
-            1 / MINUTES_PER_DAY: rcParams['date.autoformat.minute'],
-            1 / SEC_PER_DAY: rcParams['date.autoformat.second'],
-            1 / MUSECONDS_PER_DAY: rcParams['date.autoformat.microsecond'],
+            DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
+            DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
+            1: rcParams['date.autoformatter.day'],
+            1 / HOURS_PER_DAY: rcParams['date.autoformatter.hour'],
+            1 / MINUTES_PER_DAY: rcParams['date.autoformatter.minute'],
+            1 / SEC_PER_DAY: rcParams['date.autoformatter.second'],
+            1 / MUSECONDS_PER_DAY: rcParams['date.autoformatter.microsecond'],
         }
 
     The formatter uses the format string corresponding to the lowest key in
