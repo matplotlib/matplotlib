@@ -2336,11 +2336,6 @@ def _auto_format_str(fmt, value):
     '0 or {}'
     """
     try:
-        lbl = fmt % value
-        # when used in `Axes.bar_label()`` this doesn't always raise an error
-        # when the {}-style formatting should be used instead of %-style
-        if lbl == fmt:
-            raise TypeError
-        return lbl
+        return fmt % (value,)
     except (TypeError, ValueError):
         return fmt.format(value)
