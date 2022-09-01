@@ -837,8 +837,8 @@ class Axes(_AxesBase):
         # Helper method to check that vals are not unitized
         for val, name in zip(vals, names):
             if not munits._is_natively_supported(val):
-                raise ValueError(f"{name} must be a single scalar value, "
-                                 f"but got {val}")
+                raise ValueError(f"{repr(name)} must be a single scalar value,"
+                                 f" but got {repr(val)}")
 
     @_docstring.dedent_interpd
     def axline(self, xy1, xy2=None, *, slope=None, **kwargs):
@@ -2061,7 +2061,7 @@ class Axes(_AxesBase):
 
         if maxlags >= Nx or maxlags < 1:
             raise ValueError('maxlags must be None or strictly '
-                             'positive < %d' % Nx)
+                             f'positive < {repr(Nx)}')
 
         lags = np.arange(-maxlags, maxlags + 1)
         correls = correls[Nx - 1 - maxlags:Nx + maxlags]
@@ -2423,9 +2423,10 @@ class Axes(_AxesBase):
                 try:
                     left = x - width / 2
                 except TypeError as e:
-                    raise TypeError(f'the dtypes of parameters x ({x.dtype}) '
-                                    f'and width ({width.dtype}) '
-                                    f'are incompatible') from e
+                    raise TypeError('the dtypes of parameters x'
+                                    f' ({repr(x.dtype)}) '
+                                    f'and width ({repr(width.dtype)}) '
+                                    'are incompatible') from e
                 bottom = y
             else:  # horizontal
                 try:
@@ -2923,7 +2924,7 @@ class Axes(_AxesBase):
         """
         if not 1 <= len(args) <= 5:
             raise TypeError('stem expected between 1 and 5 positional '
-                            'arguments, got {}'.format(args))
+                            f'arguments, got {repr(args)}')
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         if len(args) == 1:
@@ -3160,7 +3161,8 @@ class Axes(_AxesBase):
 
         _api.check_isinstance(Number, radius=radius, startangle=startangle)
         if radius <= 0:
-            raise ValueError(f'radius must be a positive number, not {radius}')
+            raise ValueError('radius must be a positive number, not'
+                            f' {repr(radius)}')
 
         # Starting theta1 is the start fraction of the circle
         theta1 = startangle / 360
@@ -3566,14 +3568,16 @@ class Axes(_AxesBase):
                 np.broadcast_to(err, (2, len(dep)))
             except ValueError:
                 raise ValueError(
-                    f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
-                    f"scalar or a 1D or (2, n) array-like whose shape matches "
-                    f"'{dep_axis}' (shape: {np.shape(dep)})") from None
+                    f"'{repr(dep_axis)}err' (shape: {repr(np.shape(err))}) must"
+                    " be a "
+                    "scalar or a 1D or (2, n) array-like whose shape matches "
+                    f"'{repr(dep_axis)}'"
+                    f" (shape: {repr(np.shape(dep))})") from None
             res = np.zeros(err.shape, dtype=bool)  # Default in case of nan
             if np.any(np.less(err, -err, out=res, where=(err == err))):
                 # like err<0, but also works for timedelta and nan.
                 raise ValueError(
-                    f"'{dep_axis}err' must not contain negative values")
+                    f"'{repr(dep_axis)}err' must not contain negative values")
             # This is like
             #     elow, ehigh = np.broadcast_to(...)
             #     return dep - elow * ~lolims, dep + ehigh * ~uplims
@@ -4317,8 +4321,8 @@ class Axes(_AxesBase):
 
         def invalid_shape_exception(csize, xsize):
             return ValueError(
-                f"'c' argument has {csize} elements, which is inconsistent "
-                f"with 'x' and 'y' with size {xsize}.")
+                f"'c' argument has {repr(csize)} elements, which is"
+                f"inconsistent with 'x' and 'y' with size {repr(xsize)}.")
 
         c_is_mapped = False  # Unless proven otherwise below.
         valid_shape = True  # Unless proven otherwise below.
@@ -4362,8 +4366,8 @@ class Axes(_AxesBase):
                     # Both the mapping *and* the RGBA conversion failed: pretty
                     # severe failure => one may appreciate a verbose feedback.
                     raise ValueError(
-                        f"'c' argument must be a color, a sequence of colors, "
-                        f"or a sequence of numbers, not {c}") from err
+                        "'c' argument must be a color, a sequence of colors, "
+                        f"or a sequence of numbers, not {repr(c)}") from err
             else:
                 if len(colors) not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
@@ -5239,8 +5243,9 @@ default: :rc:`scatter.edgecolors`
         else:
             where = np.asarray(where, dtype=bool)
             if where.size != ind.size:
-                raise ValueError(f"where size ({where.size}) does not match "
-                                 f"{ind_dir} size ({ind.size})")
+                raise ValueError(f"where size ({repr(where.size)})"
+                                " does not match "
+                                 f"{repr(ind_dir)} size ({repr(ind.size)})")
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
 
@@ -5621,8 +5626,8 @@ default: :rc:`scatter.edgecolors`
                     Y = Y.data
             nrows, ncols = C.shape
         else:
-            raise TypeError(f'{funcname}() takes 1 or 3 positional arguments '
-                            f'but {len(args)} were given')
+            raise TypeError(f'{repr(funcname)}() takes 1 or 3 positional'
+                            f' arguments but {len(args)} were given')
 
         Nx = X.shape[-1]
         Ny = Y.shape[0]
@@ -5633,8 +5638,8 @@ default: :rc:`scatter.edgecolors`
             y = Y.reshape(Ny, 1)
             Y = y.repeat(Nx, axis=1)
         if X.shape != Y.shape:
-            raise TypeError(f'Incompatible X, Y inputs to {funcname}; '
-                            f'see help({funcname})')
+            raise TypeError(f'Incompatible X, Y inputs to {repr(funcname)}; '
+                            f'see help({repr(funcname)})')
 
         if shading == 'auto':
             if ncols == Nx and nrows == Ny:
@@ -5644,14 +5649,16 @@ default: :rc:`scatter.edgecolors`
 
         if shading == 'flat':
             if (Nx, Ny) != (ncols + 1, nrows + 1):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
+                raise TypeError(f'Dimensions of C {repr(C.shape)} are'
+                                ' incompatible with'
+                                f' X ({repr(Nx)}) and/or Y ({repr(Ny)});'
+                                ' see help({repr(funcname)})')
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
+                raise TypeError(f'Dimensions of C {repr(C.shape)}'
+                                ' are incompatible with'
+                                f' X ({repr(Nx)}) and/or Y ({repr(Ny)});'
+                                ' see help({repr(funcname)})')
             if shading == 'nearest':
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
@@ -6646,8 +6653,9 @@ such objects
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
-                                 f"color per dataset, but {nx} datasets and "
-                                 f"{len(color)} colors were provided")
+                                 f"color per dataset, but {repr(nx)}"
+                                 " datasets and "
+                                 f"{repr(len(color))} colors were provided")
 
         hist_kwargs = dict()
 
