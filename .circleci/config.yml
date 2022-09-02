@@ -102,6 +102,7 @@ commands:
             python -m pip install --user \
                 numpy<< parameters.numpy_version >> codecov coverage \
                 -r requirements/doc/doc-requirements.txt
+            python -m pip install pybind11
 
   mpl-install:
     steps:
