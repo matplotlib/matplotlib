@@ -678,7 +678,7 @@ else:
 # Sphinx setup
 # -----------------------------------------------------------------------------
 def setup(app):
-    if any(st in version for st in ('post', 'alpha', 'beta')):
+    if any(st in version for st in ('post', 'dev', 'alpha', 'beta')):
         bld_type = 'dev'
     else:
         bld_type = 'rel'
