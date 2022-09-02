@@ -19,7 +19,6 @@ extern const char qh_version[];
 
 #include "libqhull_r/qhull_ra.h"
 #include <cstdio>
-#include <sstream>
 #include <vector>
 
 #ifndef MPL_DEVNULL
@@ -135,7 +134,7 @@ private:
 /* Delaunay implementation method.
  * If hide_qhull_errors is true then qhull error messages are discarded;
  * if it is false then they are written to stderr. */
-py::tuple
+static py::tuple
 delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
               bool hide_qhull_errors)
 {
@@ -189,12 +188,12 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
     exitcode = qh_new_qhull(qh, ndim, (int)npoints, points.data(), False,
                             (char*)"qhull d Qt Qbb Qc Qz", NULL, error_file);
     if (exitcode != qh_ERRnone) {
-        std::ostringstream oss;
-        oss << "Error in qhull Delaunay triangulation calculation: " <<
-            qhull_error_msg[exitcode] << " (exitcode=" << exitcode << ")";
+        std::string msg =
+            py::str("Error in qhull Delaunay triangulation calculation: {} (exitcode={})")
+            .format(qhull_error_msg[exitcode], exitcode).cast<std::string>();
         if (hide_qhull_errors)
-            oss << "; use python verbose option (-v) to see original qhull error.";
-        throw std::runtime_error(oss.str());
+            msg += "; use python verbose option (-v) to see original qhull error.";
+        throw std::runtime_error(msg);
     }
 
     /* Split facets so that they only have 3 points each. */
@@ -253,7 +252,7 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
 }
 
 /* Process Python arguments and call Delaunay implementation method. */
-py::tuple
+static py::tuple
 delaunay(const CoordArray& x, const CoordArray& y)
 {
     if (x.ndim() != 1 || y.ndim() != 1)
@@ -272,17 +271,10 @@ delaunay(const CoordArray& x, const CoordArray& y)
     return delaunay_impl(npoints, x.data(), y.data(), Py_VerboseFlag == 0);
 }
 
-/* Return qhull version string for assistance in debugging. */
-std::string
-version()
-{
-    return std::string(qh_version);
-}
-
 PYBIND11_MODULE(_qhull, m) {
     m.doc() = "Computing Delaunay triangulations.\n";
 
-    m.def("delaunay", &delaunay,
+    m.def("delaunay", &delaunay, py::arg("x"), py::arg("y"),
         "delaunay(x, y, /)\n"
         "--\n\n"
         "Compute a Delaunay triangulation.\n"
@@ -298,7 +290,7 @@ PYBIND11_MODULE(_qhull, m) {
         "triangles, neighbors : int arrays, shape (ntri, 3)\n"
         "    Indices of triangle vertices and indices of triangle neighbors.\n");
 
-    m.def("version", &version,
+    m.def("version", []() { return qh_version; },
         "version()\n--\n\n"
         "Return the qhull version string.");
 }
