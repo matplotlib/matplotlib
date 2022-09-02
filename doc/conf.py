@@ -16,6 +16,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+from urllib.parse import urlsplit, urlunsplit
 import warnings
 
 import matplotlib
@@ -248,10 +249,6 @@ try:
 except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__
 
-html_context = {
-    "sha": SHA,
-}
-
 project = 'Matplotlib'
 copyright = (
     '2002–2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom '
@@ -312,16 +309,50 @@ plot_formats = [formats[target] for target in ['html', 'latex']
 
 github_project_url = "https://github.com/matplotlib/matplotlib/"
 
+
 # Options for HTML output
 # -----------------------
+
+def add_html_cache_busting(app, pagename, templatename, context, doctree):
+    """
+    Add cache busting query on CSS and JavaScript assets.
+
+    This adds the Matplotlib version as a query to the link reference in the
+    HTML, if the path is not absolute (i.e., it comes from the `_static`
+    directory) and doesn't already have a query.
+    """
+    from sphinx.builders.html import Stylesheet, JavaScript
+
+    css_tag = context['css_tag']
+    js_tag = context['js_tag']
+
+    def css_tag_with_cache_busting(css):
+        if isinstance(css, Stylesheet) and css.filename is not None:
+            url = urlsplit(css.filename)
+            if not url.netloc and not url.query:
+                url = url._replace(query=SHA)
+                css = Stylesheet(urlunsplit(url), priority=css.priority,
+                                 **css.attributes)
+        return css_tag(css)
+
+    def js_tag_with_cache_busting(js):
+        if isinstance(js, JavaScript) and js.filename is not None:
+            url = urlsplit(js.filename)
+            if not url.netloc and not url.query:
+                url = url._replace(query=SHA)
+                js = JavaScript(urlunsplit(url), priority=js.priority,
+                                **js.attributes)
+        return js_tag(js)
+
+    context['css_tag'] = css_tag_with_cache_busting
+    context['js_tag'] = js_tag_with_cache_busting
+
 
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-# html_style = 'matplotlib.css'
-# html_style = f"mpl.css?{SHA}"
 html_css_files = [
-    f"mpl.css?{SHA}",
+    "mpl.css",
 ]
 
 html_theme = "mpl_sphinx_theme"
@@ -574,14 +605,6 @@ graphviz_dot = shutil.which('dot')
 # https://github.com/sphinx-doc/sphinx/issues/3176
 # graphviz_output_format = 'svg'
 
-
-def setup(app):
-    if any(st in version for st in ('post', 'alpha', 'beta')):
-        bld_type = 'dev'
-    else:
-        bld_type = 'rel'
-    app.add_config_value('releaselevel', bld_type, 'env')
-
 # -----------------------------------------------------------------------------
 # Source code links
 # -----------------------------------------------------------------------------
@@ -649,3 +672,15 @@ if link_github:
                 f"/{tag}/lib/{fn}{linespec}")
 else:
     extensions.append('sphinx.ext.viewcode')
+
+
+# -----------------------------------------------------------------------------
+# Sphinx setup
+# -----------------------------------------------------------------------------
+def setup(app):
+    if any(st in version for st in ('post', 'dev', 'alpha', 'beta')):
+        bld_type = 'dev'
+    else:
+        bld_type = 'rel'
+    app.add_config_value('releaselevel', bld_type, 'env')
+    app.connect('html-page-context', add_html_cache_busting, priority=1000)
