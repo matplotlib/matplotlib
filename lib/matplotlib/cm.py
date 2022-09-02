@@ -701,6 +701,8 @@ def _ensure_cmap(cmap):
     """
     if isinstance(cmap, colors.Colormap):
         return cmap
-    return mpl.colormaps[
-        cmap if cmap is not None else mpl.rcParams['image.cmap']
-    ]
+    cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
+    # use check_in_list to ensure type stability of the exception raised by
+    # the internal usage of this (ValueError vs KeyError)
+    _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
+    return mpl.colormaps[cmap_name]
