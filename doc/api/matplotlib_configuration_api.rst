@@ -31,6 +31,7 @@ Default values and styling
    :no-members:
 
    .. automethod:: find_all
+   .. automethod:: copy
 
 .. autofunction:: rc_context
 
