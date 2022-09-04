@@ -8,7 +8,7 @@ The ``fmt`` argument of `~matplotlib.axes.Axes.bar_label` now accepts
 
     import matplotlib.pyplot as plt
 
-    fruit_names = ["Coffee", "Salted Caramel", "Pistachio"]
+    fruit_names = ['Coffee', 'Salted Caramel', 'Pistachio']
     fruit_counts = [4000, 2000, 7000]
 
     fig, ax = plt.subplots()
@@ -20,7 +20,7 @@ It also accepts callables:
 
 .. code-block:: python
 
-    animal_names = ["Lion", "Gazelle", "Cheetah"]
+    animal_names = ['Lion', 'Gazelle', 'Cheetah']
     mph_speed = [50, 60, 75]
 
     fig, ax = plt.subplots()
