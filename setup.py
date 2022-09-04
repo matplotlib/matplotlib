@@ -66,6 +66,15 @@ def has_flag(self, flagname):
     return True
 
 
+# Wrapper for distutils.ccompiler.CCompiler._compile to remove C++-specific
+# flags when compiling C files.
+def compile_wrapper(compiler, obj, src, ext, cc_args, extra_postargs, pp_opts):
+    if src.lower().endswith(".c"):
+        extra_postargs = list(filter(lambda x: x[1:4] != "std",
+                                     extra_postargs))
+    compiler._compile_old(obj, src, ext, cc_args, extra_postargs, pp_opts)
+
+
 class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
     def finalize_options(self):
         self.distribution.ext_modules[:] = [
@@ -184,9 +193,20 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
         orig_build_temp = self.build_temp
         self.build_temp = os.path.join(self.build_temp, ext.name)
         try:
+            if ext.name == "matplotlib._qhull":
+                # For qhull extension some C++ flags must be removed before
+                # compiling C files.
+                from distutils.ccompiler import CCompiler
+                self.compiler._compile_old = self.compiler._compile
+                self.compiler._compile = compile_wrapper.__get__(
+                    self.compiler, CCompiler)
             super().build_extension(ext)
         finally:
             self.build_temp = orig_build_temp
+            if ext.name == "matplotlib._qhull" and hasattr(
+                    self.compiler, "_compile_old"):
+                self.compiler._compile = self.compiler._compile_old
+                delattr(self.compiler, "_compile_old")
 
 
 def update_matplotlibrc(path):

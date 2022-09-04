@@ -435,7 +435,7 @@ class Matplotlib(SetupPackage):
         # qhull
         ext = Pybind11Extension(
             "matplotlib._qhull", ["src/_qhull_wrapper.cpp"],
-            # Do not set cxx_std as C compilers do not recognise it.
+            cxx_std=11,
             define_macros=[("MPL_DEVNULL", os.devnull)])
         Qhull.add_flags(ext)
         yield ext
