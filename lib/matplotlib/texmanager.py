@@ -291,12 +291,16 @@ class TexManager:
             # and thus replace() works atomically.  It also allows referring to
             # the texfile with a relative path (for pathological MPLCONFIGDIRs,
             # the absolute path may contain characters (e.g. ~) that TeX does
-            # not support.)
-            with TemporaryDirectory(dir=Path(dvifile).parent) as tmpdir:
+            # not support; n.b. relative paths cannot traverse parents, or it
+            # will be blocked when `openin_any = p` in texmf.cnf).
+            cwd = Path(dvifile).parent
+            with TemporaryDirectory(dir=cwd) as tmpdir:
+                tmppath = Path(tmpdir)
                 cls._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
-                     f"../{texfile.name}"], tex, cwd=tmpdir)
-                (Path(tmpdir) / Path(dvifile).name).replace(dvifile)
+                     f"--output-directory={tmppath.name}",
+                     f"{texfile.name}"], tex, cwd=cwd)
+                (tmppath / Path(dvifile).name).replace(dvifile)
         return dvifile
 
     @classmethod
