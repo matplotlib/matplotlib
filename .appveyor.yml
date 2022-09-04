@@ -62,6 +62,7 @@ install:
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   # Install dependencies from PyPI.
   - python -m pip install --upgrade -r requirements/testing/all.txt %EXTRAREQS% %PINNEDVERS%
+  - python -m pip install "pybind11<2.10"
   # Install optional dependencies from PyPI.
   # Sphinx is needed to run sphinxext tests
   - python -m pip install --upgrade sphinx

@@ -87,6 +87,7 @@ commands:
             python -m pip install --upgrade --user pip
             python -m pip install --upgrade --user wheel
             python -m pip install --upgrade --user 'setuptools!=60.6.0'
+            python -m pip install pybind11
 
   doc-deps-install:
     parameters:
