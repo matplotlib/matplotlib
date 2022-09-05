@@ -7773,6 +7773,13 @@ def test_bar_label_fmt(fmt):
     assert labels[1].get_text() == '-4.00'
 
 
+def test_bar_label_fmt_error():
+    ax = plt.gca()
+    rects = ax.bar([1, 2], [3, -4])
+    with pytest.raises(TypeError, match='str or callable'):
+        _ = ax.bar_label(rects, fmt=10)
+
+
 def test_bar_label_labels():
     ax = plt.gca()
     rects = ax.bar([1, 2], [3, -4])
