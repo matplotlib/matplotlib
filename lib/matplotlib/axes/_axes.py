@@ -2625,7 +2625,8 @@ class Axes(_AxesBase):
         fmt : str or callable, default: '%g'
             An unnamed %-style or {}-style format string for the label or a
             function to call with the value as the first argument.
-            When *fmt* is a string, %-style takes precedence over {}-style.
+            When *fmt* is a string and can be interpreted in both formats,
+            %-style takes precedence over {}-style.
 
         label_type : {'edge', 'center'}, default: 'edge'
             The label type. Possible values:
@@ -2748,10 +2749,12 @@ class Axes(_AxesBase):
                 lbl = ''
 
             if lbl is None:
-                try:
-                    lbl = fmt(value)
-                except TypeError:
+                if isinstance(fmt, str):
                     lbl = cbook._auto_format_str(fmt, value)
+                elif callable(fmt):
+                    lbl = fmt(value)
+                else:
+                    raise TypeError("fmt must be a str or callable")
             annotation = self.annotate(lbl,
                                        xy, xytext, textcoords="offset points",
                                        ha=ha, va=va, **kwargs)
