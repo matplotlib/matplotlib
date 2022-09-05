@@ -940,6 +940,12 @@ class Axis(martist.Artist):
 
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
+
+        See Also
+        --------
+        :meth:`.Axis.get_tick_params`
+            View the current style defaults for ticks, ticklabels, and
+            gridlines.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
         kwtrans = self._translate_tick_params(kwargs)
@@ -977,8 +983,18 @@ class Axis(martist.Artist):
         """
         Get appearance parameters for ticks, ticklabels, and gridlines.
 
-        For documentation of keyword arguments, see
-        :meth:`matplotlib.axes.Axes.get_tick_params`.
+        Parameters
+        ----------
+        which : {'major', 'minor'}, default: 'major'
+            The group of ticks to which the parameters are applied.
+
+        Notes
+        -----
+        This method returns the default values for styling *new* elements
+        added to this axis and may be different from the values on current
+        elements, if they were modified directly by the user (e.g., via
+        ``set_*`` methods on individual tick objects).
+
         """
         _api.check_in_list(['major', 'minor'], which=which)
         if which == 'major':

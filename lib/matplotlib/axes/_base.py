@@ -3326,7 +3326,8 @@ class _AxesBase(martist.Artist):
         Change the appearance of ticks, tick labels, and gridlines.
 
         Tick properties that are not explicitly set using the keyword
-        arguments remain unchanged unless *reset* is True.
+        arguments remain unchanged unless *reset* is True. For the current
+        style defaults, see :meth:`matplotlib.axis.Axis.get_tick_params`.
 
         Parameters
         ----------
@@ -3399,23 +3400,6 @@ class _AxesBase(martist.Artist):
             ykw.pop('labeltop', None)
             ykw.pop('labelbottom', None)
             self.yaxis.set_tick_params(**ykw)
-
-    def get_tick_params(self, axis, which='major'):
-        """
-        Get the appearance of ticks, tick labels, and gridlines.
-
-        Parameters
-        ----------
-        axis : {'x', 'y'}
-            The axis to which the parameters are applied.
-        which : {'major', 'minor'}, default: 'major'
-            The group of ticks to which the parameters are applied.
-
-        """
-        _api.check_in_list(['x', 'y'], axis=axis)
-        if axis == 'x':
-            return self.xaxis.get_tick_params(which=which)
-        return self.yaxis.get_tick_params(which=which)
 
     def set_axis_off(self):
         """

@@ -6377,6 +6377,24 @@ def test_tick_apply_tickdir_deprecation():
         tick.apply_tickdir('out')
 
 
+def test_axis_get_tick_params():
+    axis = plt.subplot().yaxis
+    initial_major_style = {**axis.get_tick_params(which='major')}
+    initial_minor_style = {**axis.get_tick_params(which='minor')}
+
+    assert axis._major_tick_kw == initial_major_style
+    assert axis._minor_tick_kw == initial_minor_style
+    axis.set_tick_params(labelsize=30, labelcolor='red',
+                         direction='out', which='both')
+
+    new_major_style = {**axis.get_tick_params(which='major')}
+    new_minor_style = {**axis.get_tick_params(which='minor')}
+    assert initial_major_style != new_major_style
+    assert axis._major_tick_kw == new_major_style
+    assert initial_minor_style != new_minor_style
+    assert axis._minor_tick_kw == new_minor_style
+
+
 def test_axis_set_tick_params_labelsize_labelcolor():
     # Tests fix for issue 4346
     axis_1 = plt.subplot()
