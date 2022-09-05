@@ -7666,6 +7666,17 @@ def test_2dcolor_plot(fig_test, fig_ref):
 
 
 @check_figures_equal(extensions=['png'])
+def test_tickdir_axes_clear(fig_test, fig_ref):
+    # see https://github.com/matplotlib/matplotlib/issues/23806
+    ax = fig_ref.subplots(1, 1)
+    ax.tick_params(which='both', axis='both', direction='in')
+
+    ax = fig_test.subplots(1, 1)
+    ax.tick_params(which='both', axis='both', direction='in')
+    ax.clear()
+
+
+@check_figures_equal(extensions=['png'])
 def test_shared_axes_clear(fig_test, fig_ref):
     x = np.arange(0.0, 2*np.pi, 0.01)
     y = np.sin(x)
