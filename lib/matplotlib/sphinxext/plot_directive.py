@@ -264,7 +264,8 @@ def _copy_css_file(app, exc):
         src = cbook._get_data_path('plot_directive/plot_directive.css')
         dst = app.outdir / Path('_static')
         dst.mkdir(exist_ok=True)
-        shutil.copy(src, dst)
+        # Use copyfile because we do not want to copy src's permissions.
+        shutil.copyfile(src, dst / Path('plot_directive.css'))
 
 
 def setup(app):
