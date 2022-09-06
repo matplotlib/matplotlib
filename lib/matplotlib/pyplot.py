@@ -209,16 +209,20 @@ def _get_backend_mod():
 
 def switch_backend(newbackend):
     """
-    Close all open figures and set the Matplotlib backend.
+    Set the pyplot backend.
 
-    The argument is case-insensitive.  Switching to an interactive backend is
-    possible only if no event loop for another interactive backend has started.
-    Switching to and from non-interactive backends is always possible.
+    Switching to an interactive backend is possible only if no event loop for
+    another interactive backend has started.  Switching to and from
+    non-interactive backends is always possible.
+
+    If the new backend is different than the current backend then all open
+    Figures will be closed via ``plt.close('all')``.
 
     Parameters
     ----------
     newbackend : str
-        The name of the backend to use.
+        The case-insensitive name of the backend to use.
+
     """
     global _backend_mod
     # make sure the init is pulled up so we can assign to it later
