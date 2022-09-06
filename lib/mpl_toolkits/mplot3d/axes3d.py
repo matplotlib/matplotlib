@@ -289,9 +289,7 @@ class Axes3D(Axes):
             'equalyz'   adapt the y and z axes to have equal aspect ratios.
             =========   ==================================================
 
-        adjustable : None
-            Currently ignored by Axes3D
-
+        adjustable : None or {'box', 'datalim'}, optional
             If not *None*, this defines which parameter will be adjusted to
             meet the required aspect. See `.set_adjustable` for further
             details.
@@ -322,6 +320,9 @@ class Axes3D(Axes):
         """
         _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
                            aspect=aspect)
+        if adjustable is None:
+            adjustable = self._adjustable
+        _api.check_in_list(('box', 'datalim'), adjustable=adjustable)
         super().set_aspect(
             aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
         self._aspect = aspect
@@ -332,17 +333,31 @@ class Axes3D(Axes):
             view_intervals = np.array([self.xaxis.get_view_interval(),
                                        self.yaxis.get_view_interval(),
                                        self.zaxis.get_view_interval()])
-            mean = np.mean(view_intervals, axis=1)
             ptp = np.ptp(view_intervals, axis=1)
-            delta = max(ptp[ax_indices])
-            scale = self._box_aspect[ptp == delta][0]
-            deltas = delta * self._box_aspect / scale
+            if adjustable == 'datalim':
+                mean = np.mean(view_intervals, axis=1)
+                delta = max(ptp[ax_indices])
+                scale = self._box_aspect[ptp == delta][0]
+                deltas = delta * self._box_aspect / scale
 
-            for i, set_lim in enumerate((self.set_xlim3d,
-                                         self.set_ylim3d,
-                                         self.set_zlim3d)):
-                if i in ax_indices:
-                    set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
+                for i, set_lim in enumerate((self.set_xlim3d,
+                                             self.set_ylim3d,
+                                             self.set_zlim3d)):
+                    if i in ax_indices:
+                        set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
+            else:  # 'box'
+                # Change the box aspect such that the ratio of the length of
+                # the unmodified axis to the length of the diagonal
+                # perpendicular to it remains unchanged.
+                box_aspect = np.array(self._box_aspect)
+                box_aspect[ax_indices] = ptp[ax_indices]
+                remaining_ax_indices = {0, 1, 2}.difference(ax_indices)
+                if remaining_ax_indices:
+                    remaining = remaining_ax_indices.pop()
+                    old_diag = np.linalg.norm(self._box_aspect[ax_indices])
+                    new_diag = np.linalg.norm(box_aspect[ax_indices])
+                    box_aspect[remaining] *= new_diag / old_diag
+                self.set_box_aspect(box_aspect)
 
     def _equal_aspect_axis_indices(self, aspect):
         """

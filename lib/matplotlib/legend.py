@@ -1140,7 +1140,7 @@ def _get_legend_handles(axs, legend_handler_map=None):
         label = handle.get_label()
         if label != '_nolegend_' and has_handler(handler_map, handle):
             yield handle
-        elif (label not in ['_nolegend_', ''] and
+        elif (label and not label.startswith('_') and
                 not has_handler(handler_map, handle)):
             _api.warn_external(
                              "Legend does not support handles for {0} "

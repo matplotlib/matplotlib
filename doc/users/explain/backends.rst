@@ -107,7 +107,7 @@ allows both interactive work and plotting from scripts, with output to the
 screen and/or to a file, so at least initially, you will not need to worry
 about the backend.  The most common exception is if your Python distribution
 comes without :mod:`tkinter` and you have no other GUI toolkit installed.
-This happens on certain Linux distributions, where you need to install a
+This happens with certain Linux distributions, where you need to install a
 Linux package named ``python-tk`` (or similar).
 
 If, however, you want to write graphical user interfaces, or a web
