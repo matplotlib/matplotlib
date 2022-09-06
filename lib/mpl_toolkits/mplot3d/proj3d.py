@@ -4,6 +4,7 @@ Various transforms used for by the 3D code
 
 import numpy as np
 import numpy.linalg as linalg
+from matplotlib import _api
 
 
 def _line2d_seg_dist(p1, p2, p0):
@@ -72,7 +73,7 @@ def rotation_about_vector(v, angle):
     return R
 
 
-def view_axes(E, R, V, roll):
+def _view_axes(E, R, V, roll):
     """
     Get the unit viewing axes in data coordinates.
 
@@ -111,7 +112,7 @@ def view_axes(E, R, V, roll):
     return u, v, w
 
 
-def view_transformation_uvw(u, v, w, E):
+def _view_transformation_uvw(u, v, w, E):
     """
     Return the view transformation matrix.
 
@@ -134,6 +135,7 @@ def view_transformation_uvw(u, v, w, E):
     return M
 
 
+@_api.deprecated("3.7")
 def view_transformation(E, R, V, roll):
     """
     Return the view transformation matrix.
@@ -149,8 +151,8 @@ def view_transformation(E, R, V, roll):
     roll : float
         The roll angle in radians.
     """
-    u, v, w = view_axes(E, R, V, roll)
-    M = view_transformation_uvw(u, v, w, E)
+    u, v, w = _view_axes(E, R, V, roll)
+    M = _view_transformation_uvw(u, v, w, E)
     return M
 
 
