@@ -75,9 +75,26 @@ def rotation_about_vector(v, angle):
 def view_axes(E, R, V, roll):
     """
     Get the unit viewing axes in data coordinates.
-    `u` is towards the right of the screen
-    `v` is towards the top of the screen
-    `w` is out of the screen
+
+    Parameters
+    ----------
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    R : 3-element numpy array
+        The coordinates of the center of the view box.
+    V : 3-element numpy array
+        Unit vector in the direction of the vertical axis.
+    roll : float
+        The roll angle in radians.
+
+    Returns
+    -------
+    u : 3-element numpy array
+        Unit vector pointing towards the right of the screen.
+    v : 3-element numpy array
+        Unit vector pointing towards the top of the screen.
+    w : 3-element numpy array
+        Unit vector pointing out of the screen.
     """
     w = (E - R)
     w = w/np.linalg.norm(w)
@@ -94,12 +111,47 @@ def view_axes(E, R, V, roll):
     return u, v, w
 
 
-def view_transformation(u, v, w, E):
+def view_transformation_uvw(u, v, w, E):
+    """
+    Return the view transformation matrix.
+
+    Parameters
+    ----------
+    u : 3-element numpy array
+        Unit vector pointing towards the right of the screen.
+    v : 3-element numpy array
+        Unit vector pointing towards the top of the screen.
+    w : 3-element numpy array
+        Unit vector pointing out of the screen.
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    """
     Mr = np.eye(4)
     Mt = np.eye(4)
     Mr[:3, :3] = [u, v, w]
     Mt[:3, -1] = -E
-    return np.dot(Mr, Mt)
+    M = np.dot(Mr, Mt)
+    return M
+
+
+def view_transformation(E, R, V, roll):
+    """
+    Return the view transformation matrix.
+
+    Parameters
+    ----------
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    R : 3-element numpy array
+        The coordinates of the center of the view box.
+    V : 3-element numpy array
+        Unit vector in the direction of the vertical axis.
+    roll : float
+        The roll angle in radians.
+    """
+    u, v, w = view_axes(E, R, V, roll)
+    M = view_transformation_uvw(u, v, w, E)
+    return M
 
 
 def persp_transformation(zfront, zback, focal_length):

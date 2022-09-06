@@ -51,7 +51,7 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
 
-    dist = _api.deprecate_privatize_attribute("3.7")
+    dist = _api.deprecate_privatize_attribute("3.6")
     vvec = _api.deprecate_privatize_attribute("3.7")
     eye = _api.deprecate_privatize_attribute("3.7")
     sx = _api.deprecate_privatize_attribute("3.7")
@@ -160,6 +160,8 @@ class Axes3D(Axes):
         self.fmt_zdata = None
 
         self.mouse_init()
+        self.figure.canvas.callbacks._connect_picklable(
+            'motion_notify_event', self._on_move)
         self.figure.canvas.callbacks._connect_picklable(
             'button_press_event', self._button_press)
         self.figure.canvas.callbacks._connect_picklable(
@@ -917,13 +919,13 @@ class Axes3D(Axes):
         # Generate the view and projection transformation matrices
         if self._focal_length == np.inf:
             # Orthographic projection
-            viewM = proj3d.view_transformation(u, v, w, eye)
+            viewM = proj3d.view_transformation_uvw(u, v, w, eye)
             projM = proj3d.ortho_transformation(-self._dist, self._dist)
         else:
             # Perspective projection
             # Scale the eye dist to compensate for the focal length zoom effect
             eye_focal = R + self._dist * ps * self._focal_length
-            viewM = proj3d.view_transformation(u, v, w, eye_focal)
+            viewM = proj3d.view_transformation_uvw(u, v, w, eye_focal)
             projM = proj3d.persp_transformation(-self._dist,
                                                 self._dist,
                                                 self._focal_length)
@@ -1245,14 +1247,22 @@ class Axes3D(Axes):
     def zoom_data_limits(self, scale_u, scale_v, scale_w):
         """
         Zoom in or out of a 3D plot.
-        Will scale the data limits by the scale factors, where scale_u,
-        scale_v, and scale_w refer to the scale factors for the viewing axes.
-        These will be transformed to the x, y, z data axes based on the current
-        view angles. A scale factor > 1 zooms out and a scale factor < 1 zooms
-        in.
+        Will scale the data limits by the scale factors. These will be
+        transformed to the x, y, z data axes based on the current view angles.
+        A scale factor > 1 zooms out and a scale factor < 1 zooms in.
+
         For an axes that has had its aspect ratio set to 'equal', 'equalxy',
         'equalyz', or 'equalxz', the relevant axes are constrained to zoom
         equally.
+
+        Parameters
+        ----------
+        scale_u : float
+            Scale factor for the u view axis (view screen horizontal).
+        scale_v : float
+            Scale factor for the v view axis (view screen vertical).
+        scale_w : float
+            Scale factor for the w view axis (view screen depth).
         """
         scale = np.array([scale_u, scale_v, scale_w])
 
@@ -1276,6 +1286,15 @@ class Axes3D(Axes):
         Keeping the center of the x, y, and z data axes fixed, scale their
         limits by scale factors. A scale factor > 1 zooms out and a scale
         factor < 1 zooms in.
+
+        Parameters
+        ----------
+        scale_x : float
+            Scale factor for the x data axis.
+        scale_y : float
+            Scale factor for the y data axis.
+        scale_z : float
+            Scale factor for the z data axis.
         """
         # Get the axis limits and centers
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
