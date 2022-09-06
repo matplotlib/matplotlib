@@ -1660,6 +1660,7 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
     ax = fig.add_subplot(projection='3d')
     ax.scatter(0, 0, 0)
     fig.canvas.draw()
+    xlim0, ylim0, zlim0 = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
 
     # Mouse from (0, 0) to (1, 1)
     d0 = (0, 0)
@@ -1693,6 +1694,22 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
     assert ax.get_xlim3d() == pytest.approx(xlim, abs=0.01)
     assert ax.get_ylim3d() == pytest.approx(ylim, abs=0.01)
     assert ax.get_zlim3d() == pytest.approx(zlim, abs=0.01)
+
+    # Ensure that back, forward, and home buttons work
+    tb.back()
+    assert ax.get_xlim3d() == pytest.approx(xlim0, abs=0.0001)
+    assert ax.get_ylim3d() == pytest.approx(ylim0, abs=0.0001)
+    assert ax.get_zlim3d() == pytest.approx(zlim0, abs=0.0001)
+
+    tb.forward()
+    assert ax.get_xlim3d() == pytest.approx(xlim, abs=0.01)
+    assert ax.get_ylim3d() == pytest.approx(ylim, abs=0.01)
+    assert ax.get_zlim3d() == pytest.approx(zlim, abs=0.01)
+
+    tb.home()
+    assert ax.get_xlim3d() == pytest.approx(xlim0, abs=0.0001)
+    assert ax.get_ylim3d() == pytest.approx(ylim0, abs=0.0001)
+    assert ax.get_zlim3d() == pytest.approx(zlim0, abs=0.0001)
 
 
 @mpl.style.context('default')
