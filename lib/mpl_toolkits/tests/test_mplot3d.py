@@ -1638,13 +1638,13 @@ def test_pan():
 
 @pytest.mark.parametrize("tool,button,key,expected",
                          [("zoom", MouseButton.LEFT, None,  # zoom in
-                          ((0.26, 0.38), (0.43, 0.55), (0.54, 0.66))),
+                          ((0.00, 0.06), (0.01, 0.07), (0.02, 0.08))),
                           ("zoom", MouseButton.LEFT, 'x',  # zoom in
-                          ((0.39, 0.51), (0.20, 0.32), (-0.06, 0.06))),
+                          ((-0.01, 0.10), (-0.03, 0.08), (-0.06, 0.06))),
                           ("zoom", MouseButton.LEFT, 'y',  # zoom in
-                          ((-0.19, -0.07), (0.16, 0.28), (0.54, 0.66))),
+                          ((-0.07, 0.04), (-0.03, 0.08), (0.00, 0.11))),
                           ("zoom", MouseButton.RIGHT, None,  # zoom out
-                          ((0.26, 0.38), (0.43, 0.55), (0.54, 0.66))),
+                          ((-0.09, 0.15), (-0.07, 0.17), (-0.06, 0.18))),
                           ("pan", MouseButton.LEFT, None,
                           ((-0.70, -0.58), (-1.03, -0.91), (-1.27, -1.15))),
                           ("pan", MouseButton.LEFT, 'x',

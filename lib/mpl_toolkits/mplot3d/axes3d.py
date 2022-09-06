@@ -1215,6 +1215,12 @@ class Axes3D(Axes):
             start_x = self.bbox.min[0]
             stop_x = self.bbox.max[0]
 
+        # Clip to bounding box limits
+        start_x, stop_x = np.clip(sorted([start_x, stop_x]),
+                                  self.bbox.min[0], self.bbox.max[0])
+        start_y, stop_y = np.clip(sorted([start_y, stop_y]),
+                                  self.bbox.min[1], self.bbox.max[1])
+
         # Move the center of the view to the center of the bbox
         zoom_center_x = (start_x + stop_x)/2
         zoom_center_y = (start_y + stop_y)/2
