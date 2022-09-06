@@ -31,6 +31,7 @@ import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes
 from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
+from matplotlib.backend_bases import _Mode
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
 
@@ -1011,7 +1012,7 @@ class Axes3D(Axes):
     def _button_release(self, event):
         self.button_pressed = None
         toolbar = getattr(self.figure.canvas, "toolbar")
-        if toolbar:
+        if toolbar and toolbar.mode not in (_Mode.PAN, _Mode.ZOOM):
             self.figure.canvas.toolbar.push_current()
 
     def _get_view(self):
@@ -1230,10 +1231,6 @@ class Axes3D(Axes):
         dy = abs(start_y - stop_y)
         scale_u = dx / (self.bbox.max[0] - self.bbox.min[0])
         scale_v = dy / (self.bbox.max[1] - self.bbox.min[1])
-
-        # Limit box zoom to reasonable range, protect for divide by zero below
-        scale_u = np.clip(scale_u, 1e-2, 1)
-        scale_v = np.clip(scale_v, 1e-2, 1)
 
         # Keep aspect ratios equal
         scale = max(scale_u, scale_v)
