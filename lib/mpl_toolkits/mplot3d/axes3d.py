@@ -1245,9 +1245,9 @@ class Axes3D(Axes):
         if direction == 'out':
             scale = 1 / scale
 
-        self.zoom_data_limits(scale, scale, scale)
+        self._zoom_data_limits(scale, scale, scale)
 
-    def zoom_data_limits(self, scale_u, scale_v, scale_w):
+    def _zoom_data_limits(self, scale_u, scale_v, scale_w):
         """
         Zoom in or out of a 3D plot.
         Will scale the data limits by the scale factors. These will be
@@ -1282,9 +1282,9 @@ class Axes3D(Axes):
                 min_ax_idxs = np.argmin(np.abs(scale[ax_idxs] - 1))
                 scale[ax_idxs] = scale[ax_idxs][min_ax_idxs]
 
-        self.scale_axis_limits(scale[0], scale[1], scale[2])
+        self._scale_axis_limits(scale[0], scale[1], scale[2])
 
-    def scale_axis_limits(self, scale_x, scale_y, scale_z):
+    def _scale_axis_limits(self, scale_x, scale_y, scale_z):
         """
         Keeping the center of the x, y, and z data axes fixed, scale their
         limits by scale factors. A scale factor > 1 zooms out and a scale
