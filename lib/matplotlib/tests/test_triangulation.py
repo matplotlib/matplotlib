@@ -1310,3 +1310,4 @@ def test_triplot_label(fig_test, fig_ref):
     fig_test.axes[0].legend()
     fig_ref.subplots().triplot(x, y, data)
     fig_ref.axes[0].legend(['label'])
+    
