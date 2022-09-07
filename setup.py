@@ -29,7 +29,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from setuptools import setup, find_namespace_packages, Distribution, Extension
+from setuptools import setup, Distribution, Extension
 import setuptools.command.build_ext
 import setuptools.command.build_py
 import setuptools.command.sdist
@@ -277,89 +277,11 @@ if not (any('--' + opt in sys.argv
             package_data[key] = list(set(val + package_data[key]))
 
 setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
-    name="matplotlib",
-    description="Python plotting package",
-    author="John D. Hunter, Michael Droettboom",
-    author_email="matplotlib-users@python.org",
-    url="https://matplotlib.org",
-    download_url="https://matplotlib.org/stable/users/installing/index.html",
-    project_urls={
-        'Documentation': 'https://matplotlib.org',
-        'Source Code': 'https://github.com/matplotlib/matplotlib',
-        'Bug Tracker': 'https://github.com/matplotlib/matplotlib/issues',
-        'Forum': 'https://discourse.matplotlib.org/',
-        'Donate': 'https://numfocus.org/donate-to-matplotlib'
-    },
-    long_description=Path("README.md").read_text(encoding="utf-8"),
-    long_description_content_type="text/markdown",
-    license="PSF",
-    platforms="any",
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Framework :: Matplotlib',
-        'Intended Audience :: Science/Research',
-        'Intended Audience :: Education',
-        'License :: OSI Approved :: Python Software Foundation License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Programming Language :: Python :: 3.12',
-        'Topic :: Scientific/Engineering :: Visualization',
-    ],
-
-    package_dir={"": "lib"},
-    packages=find_namespace_packages(
-        where="lib",
-        exclude=["*baseline_images*", "*tinypages*", "*mpl-data*", "*web_backend*"],
-    ),
-    py_modules=["pylab"],
     # Dummy extension to trigger build_ext, which will swap it out with
     # real extensions that can depend on numpy for the build.
     ext_modules=[Extension("", [])],
     package_data=package_data,
 
-    python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
-    # When updating the list of dependencies, add an api_changes/development
-    # entry and also update the following places:
-    # - lib/matplotlib/__init__.py (matplotlib._check_versions())
-    # - requirements/testing/minver.txt
-    # - doc/devel/dependencies.rst
-    # - .github/workflows/tests.yml
-    # - environment.yml
-    install_requires=[
-        "contourpy>=1.0.1",
-        "cycler>=0.10",
-        "fonttools>=4.22.0",
-        "kiwisolver>=1.3.1",
-        "numpy>=1.21",
-        "packaging>=20.0",
-        "pillow>=8",
-        "pyparsing>=2.3.1",
-        "python-dateutil>=2.7",
-    ] + (
-        # Installing from a git checkout that is not producing a wheel.
-        # setuptools_scm warns with older setuptools, which turns into errors for our
-        # test suite. However setuptools_scm does not themselves pin the version of
-        # setuptools.
-        ["setuptools_scm>=7", "setuptools>=64"] if (
-            Path(__file__).with_name(".git").exists() and
-            os.environ.get("CIBUILDWHEEL", "0") != "1"
-        ) else []
-    ),
-    extras_require={
-        ':python_version<"3.10"': [
-            "importlib-resources>=3.2.0",
-        ],
-    },
-    use_scm_version={
-        "version_scheme": "release-branch-semver",
-        "local_scheme": "node-and-date",
-        "write_to": "lib/matplotlib/_version.py",
-        "parentdir_prefix_version": "matplotlib-",
-        "fallback_version": "0.0+UNKNOWN",
-    },
     cmdclass={
         "build_ext": BuildExtraLibraries,
         "build_py": BuildPy,
