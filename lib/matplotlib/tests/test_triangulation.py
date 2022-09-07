@@ -1299,8 +1299,8 @@ def test_triplot_with_ls(fig_test, fig_ref):
     data = [[0, 1, 2]]
     fig_test.subplots().triplot(x, y, data, ls='--')
     fig_ref.subplots().triplot(x, y, data, linestyle='--')
-    
-    
+
+
 @check_figures_equal()
 def test_triplot_label(fig_test, fig_ref):
     x = [0, 2, 1]
@@ -1310,4 +1310,3 @@ def test_triplot_label(fig_test, fig_ref):
     fig_test.axes[0].legend()
     fig_ref.subplots().triplot(x, y, data)
     fig_ref.axes[0].legend(['label'])
-    
