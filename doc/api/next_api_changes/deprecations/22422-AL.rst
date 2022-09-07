@@ -1,3 +1,0 @@
-``backend_ps.convert_psfrags``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... is deprecated.

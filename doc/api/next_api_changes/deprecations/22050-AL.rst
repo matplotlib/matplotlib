@@ -1,4 +1,0 @@
-``FigureCanvasBase.resize``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This method has no effect and is deprecated.  Use ``FigureManagerBase.resize``
-instead.

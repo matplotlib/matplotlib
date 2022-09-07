@@ -1,4 +1,0 @@
-``lastrect``
-~~~~~~~~~~~~
-The ``lastrect`` attribute of ``NavigationToolbar2Tk`` and ``RubberbandTk`` is
-deprecated.
