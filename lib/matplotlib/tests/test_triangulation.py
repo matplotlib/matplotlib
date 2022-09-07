@@ -1301,12 +1301,13 @@ def test_triplot_with_ls(fig_test, fig_ref):
     fig_ref.subplots().triplot(x, y, data, linestyle='--')
 
 
-@check_figures_equal()
-def test_triplot_label(fig_test, fig_ref):
+def test_triplot_label():
     x = [0, 2, 1]
     y = [0, 0, 1]
     data = [[0, 1, 2]]
-    fig_test.subplots().triplot(x, y, data, label='label')
-    fig_test.axes[0].legend()
-    fig_ref.subplots().triplot(x, y, data)
-    fig_ref.axes[0].legend(['label'])
+    fig, ax = plt.subplots()
+    lines, markers = ax.triplot(x, y, data, label='label')
+    handles, labels = ax.get_legend_handles_labels()
+    assert labels == ['label']
+    assert len(handles) == 1
+    assert handles[0] is lines
