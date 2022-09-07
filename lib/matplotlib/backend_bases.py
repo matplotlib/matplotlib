@@ -158,7 +158,7 @@ class RendererBase:
 
     * `draw_path`
     * `draw_image`
-    * `draw_gouraud_triangle`
+    * `draw_gouraud_triangle` or `draw_gouraud_triangles`
 
     The following methods *should* be implemented in the backend for
     optimization reasons:
@@ -300,6 +300,11 @@ class RendererBase:
             RGBA colors for each point of the triangle.
         transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
+
+        .. note::
+            It is enough to implement one of `draw_gouraud_triangle` and
+            `draw_gouraud_triangles`. Any `Artist` must call
+            `draw_gouraud_triangles`.
         """
         raise NotImplementedError
 
@@ -316,6 +321,11 @@ class RendererBase:
             Array of *N* RGBA colors for each point of the triangles.
         transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
+
+        .. note::
+            It is enough to implement one of `draw_gouraud_triangle` and
+            `draw_gouraud_triangles`. Any `Artist` must call
+            `draw_gouraud_triangles`.
         """
         transform = transform.frozen()
         for tri, col in zip(triangles_array, colors_array):

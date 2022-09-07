@@ -422,47 +422,6 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
 }
 
 static PyObject *
-PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args)
-{
-    GCAgg gc;
-    numpy::array_view<const double, 2> points;
-    numpy::array_view<const double, 2> colors;
-    agg::trans_affine trans;
-
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&O&|O:draw_gouraud_triangle",
-                          &convert_gcagg,
-                          &gc,
-                          &points.converter,
-                          &points,
-                          &colors.converter,
-                          &colors,
-                          &convert_trans_affine,
-                          &trans)) {
-        return NULL;
-    }
-
-    if (points.dim(0) != 3 || points.dim(1) != 2) {
-        PyErr_Format(PyExc_ValueError,
-                     "points must be a 3x2 array, got %" NPY_INTP_FMT "x%" NPY_INTP_FMT,
-                     points.dim(0), points.dim(1));
-        return NULL;
-    }
-
-    if (colors.dim(0) != 3 || colors.dim(1) != 4) {
-        PyErr_Format(PyExc_ValueError,
-                     "colors must be a 3x4 array, got %" NPY_INTP_FMT "x%" NPY_INTP_FMT,
-                     colors.dim(0), colors.dim(1));
-        return NULL;
-    }
-
-
-    CALL_CPP("draw_gouraud_triangle", (self->x->draw_gouraud_triangle(gc, points, colors, trans)));
-
-    Py_RETURN_NONE;
-}
-
-static PyObject *
 PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
@@ -594,7 +553,6 @@ static PyTypeObject *PyRendererAgg_init_type()
         {"draw_image", (PyCFunction)PyRendererAgg_draw_image, METH_VARARGS, NULL},
         {"draw_path_collection", (PyCFunction)PyRendererAgg_draw_path_collection, METH_VARARGS, NULL},
         {"draw_quad_mesh", (PyCFunction)PyRendererAgg_draw_quad_mesh, METH_VARARGS, NULL},
-        {"draw_gouraud_triangle", (PyCFunction)PyRendererAgg_draw_gouraud_triangle, METH_VARARGS, NULL},
         {"draw_gouraud_triangles", (PyCFunction)PyRendererAgg_draw_gouraud_triangles, METH_VARARGS, NULL},
 
         {"clear", (PyCFunction)PyRendererAgg_clear, METH_NOARGS, NULL},
