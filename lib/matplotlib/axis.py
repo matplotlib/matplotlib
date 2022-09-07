@@ -846,6 +846,13 @@ class Axis(martist.Artist):
         return [self.label, self.offsetText,
                 *self.get_major_ticks(), *self.get_minor_ticks()]
 
+    # style parameters that should be preserved by reset operations
+    _style_tick_params = [
+        'tick1On', 'tick2On', 'tickdir',
+        'label1On', 'label2On', 'labelsize', 'labelcolor', 'labelrotation',
+        'size', 'width', 'color', 'pad'
+    ]
+
     def _reset_major_tick_kw(self, keep_tick_and_label_visibility=False):
         """
         Reset major tick params to defaults.
@@ -855,8 +862,7 @@ class Axis(martist.Artist):
         *keep_tick_and_label_visibility*.
         """
         backup = {name: value for name, value in self._major_tick_kw.items()
-                  if name in ['tick1On', 'tick2On', 'tickdir',
-                              'label1On', 'label2On']}
+                  if name in self.__class__._style_tick_params}
         self._major_tick_kw.clear()
         if keep_tick_and_label_visibility:
             self._major_tick_kw.update(backup)
@@ -873,7 +879,7 @@ class Axis(martist.Artist):
         *keep_tick_and_label_visibility*.
         """
         backup = {name: value for name, value in self._minor_tick_kw.items()
-                  if name in ['tick1On', 'tick2On', 'label1On', 'label2On']}
+                  if name in self.__class__._style_tick_params}
         self._minor_tick_kw.clear()
         if keep_tick_and_label_visibility:
             self._minor_tick_kw.update(backup)
