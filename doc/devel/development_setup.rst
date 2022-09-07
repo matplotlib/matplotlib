@@ -4,8 +4,13 @@
 Setting up Matplotlib for development
 =====================================
 
-Retrieving the latest version of the code
-=========================================
+To set up Matplotlib for development follow these steps:
+
+.. contents::
+   :local:
+
+Retrieve the latest version of the code
+=======================================
 
 Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git.
 
@@ -23,8 +28,8 @@ if you are using 2-factor authentication.
 
 .. _dev-environment:
 
-Creating a dedicated environment
-================================
+Create a dedicated environment
+==============================
 You should set up a dedicated environment to decouple your Matplotlib
 development from other Python and Matplotlib installations on your system.
 
@@ -68,11 +73,8 @@ Finish the install by the following command::
 
     pip install -e .
 
-Whenever you plan to work on Matplotlib, remember to ``conda activate mpl-dev``
-in your shell.
-
-Installing Matplotlib in editable mode
-======================================
+Install Matplotlib in editable mode
+===================================
 Install Matplotlib in editable mode from the :file:`matplotlib` directory
 using the command ::
 
@@ -86,8 +88,8 @@ true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
 
-Installing pre-commit hooks
-===========================
+Install pre-commit hooks (optional)
+===================================
 You can optionally install `pre-commit <https://pre-commit.com/>`_ hooks.
 These will automatically check flake8 and other style issues when you run
 ``git commit``. The hooks are defined in the top level
@@ -105,6 +107,6 @@ To run a particular hook manually, run ``pre-commit run`` with the hook id ::
 
     pre-commit run <hook id> --all-files
 
-Installing additional dependencies for development
-==================================================
+Install additional development dependencies
+===========================================
 See :ref:`development-dependencies`.
