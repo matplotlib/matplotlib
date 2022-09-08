@@ -31,7 +31,6 @@ import matplotlib.container as mcontainer
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes
 from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
-from matplotlib.backend_bases import _Mode
 from matplotlib.transforms import Bbox
 from matplotlib.tri.triangulation import Triangulation
 
@@ -1012,7 +1011,9 @@ class Axes3D(Axes):
     def _button_release(self, event):
         self.button_pressed = None
         toolbar = getattr(self.figure.canvas, "toolbar")
-        if toolbar and toolbar.mode not in (_Mode.PAN, _Mode.ZOOM):
+        # backend_bases.release_zoom and backend_bases.release_pan call
+        # push_current, so check the navigation mode so we don't call it twice
+        if toolbar and self.get_navigate_mode() is None:
             self.figure.canvas.toolbar.push_current()
 
     def _get_view(self):
@@ -1162,7 +1163,7 @@ class Axes3D(Axes):
         if du == 0 and dv == 0:
             return
 
-        # Transform the pan from the view axes to the data axees
+        # Transform the pan from the view axes to the data axes
         R = np.array([self._view_u, self._view_v, self._view_w])
         R = -R / self._box_aspect * self._dist
         duvw_projected = R.T @ np.array([du, dv, dw])
