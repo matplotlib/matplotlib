@@ -801,7 +801,9 @@ class RendererSVG(RendererBase):
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
         # docstring inherited
+        self._draw_gouraud_triangle(gc, points, colors, trans)
 
+    def _draw_gouraud_triangle(self, gc, points, colors, trans):
         # This uses a method described here:
         #
         #   http://www.svgopen.org/2005/papers/Converting3DFaceToSVG/index.html
@@ -936,7 +938,7 @@ class RendererSVG(RendererBase):
         self.writer.start('g', **self._get_clip_attrs(gc))
         transform = transform.frozen()
         for tri, col in zip(triangles_array, colors_array):
-            self.draw_gouraud_triangle(gc, tri, col, transform)
+            self._draw_gouraud_triangle(gc, tri, col, transform)
         self.writer.end('g')
 
     def option_scale_image(self):
