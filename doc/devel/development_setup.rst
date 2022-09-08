@@ -4,8 +4,13 @@
 Setting up Matplotlib for development
 =====================================
 
-Retrieving the latest version of the code
-=========================================
+To set up Matplotlib for development follow these steps:
+
+.. contents::
+   :local:
+
+Retrieve the latest version of the code
+=======================================
 
 Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git.
 
@@ -15,7 +20,9 @@ You can retrieve the latest sources with the command (see
     git clone https://github.com/matplotlib/matplotlib.git
 
 This will place the sources in a directory :file:`matplotlib` below your
-current working directory.
+current working directory. Change into this directory::
+
+    cd matplotlib
 
 If you have the proper privileges, you can use ``git@`` instead of
 ``https://``, which works through the ssh protocol and might be easier to use
@@ -23,56 +30,50 @@ if you are using 2-factor authentication.
 
 .. _dev-environment:
 
-Creating a dedicated environment
-================================
+Create a dedicated environment
+==============================
 You should set up a dedicated environment to decouple your Matplotlib
 development from other Python and Matplotlib installations on your system.
 
-Using virtual environments
---------------------------
-
-Here we use python's virtual environment `venv`_, but you may also use others
-such as conda.
+The simplest way to do this is to use either Python's virtual environment
+`venv`_ or `conda`_.
 
 .. _venv: https://docs.python.org/3/library/venv.html
+.. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 
-A new environment can be set up with ::
+.. tab-set::
 
-   python -m venv <file folder location>
+   .. tab-item:: venv environment
 
-and activated with one of the following::
+      Create a new `venv`_ environment with ::
 
-   source <file folder location>/bin/activate  # Linux/macOS
-   <file folder location>\Scripts\activate.bat  # Windows cmd.exe
-   <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
+        python -m venv <file folder location>
 
-Whenever you plan to work on Matplotlib, remember to activate the development
-environment in your shell.
+      and activate it with one of the following ::
 
-Conda dev environment
----------------------
-After you have cloned the repo change into the matplotlib directory.
+        source <file folder location>/bin/activate  # Linux/macOS
+        <file folder location>\Scripts\activate.bat  # Windows cmd.exe
+        <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
 
-A new conda environment can be set-up with::
+   .. tab-item:: conda environment
 
-    conda env create -f environment.yml
+      Create a new `conda`_ environment with ::
 
-Note that if you have mamba installed you can replace conda with mamba in
-the above command.
+        conda env create -f environment.yml
 
-To activate your environment::
+      You can use ``mamba`` instead of ``conda`` in the above command if
+      you have `mamba`_ installed.
 
-    conda activate mpl-dev
+      .. _mamba: https://mamba.readthedocs.io/en/latest/
 
-Finish the install by the following command::
+      Activate the environment using ::
 
-    pip install -e .
+        conda activate mpl-dev
 
-Whenever you plan to work on Matplotlib, remember to ``conda activate mpl-dev``
-in your shell.
+Remember to activate the environment whenever you start working on Matplotlib.
 
-Installing Matplotlib in editable mode
-======================================
+Install Matplotlib in editable mode
+===================================
 Install Matplotlib in editable mode from the :file:`matplotlib` directory
 using the command ::
 
@@ -86,8 +87,8 @@ true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
 
-Installing pre-commit hooks
-===========================
+Install pre-commit hooks (optional)
+===================================
 You can optionally install `pre-commit <https://pre-commit.com/>`_ hooks.
 These will automatically check flake8 and other style issues when you run
 ``git commit``. The hooks are defined in the top level
@@ -105,6 +106,6 @@ To run a particular hook manually, run ``pre-commit run`` with the hook id ::
 
     pre-commit run <hook id> --all-files
 
-Installing additional dependencies for development
-==================================================
+Install additional development dependencies
+===========================================
 See :ref:`development-dependencies`.
