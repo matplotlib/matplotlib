@@ -7666,17 +7666,16 @@ def test_2dcolor_plot(fig_test, fig_ref):
 
 
 @pytest.mark.parametrize(
-    # separate colliding parameters into 2 sets
+    # separate tested parameters into two collision-free sets
+    # (e.g. avoid supplying *color*  and *colors* at the same time)
     'params',
     [
         dict(
-            which='both', axis='both',
             direction='in', length=2, width=5, color="red", pad=0.4,
             bottom=False, top=True, left=False, right=True,
             labelrotation=90, labelsize=20,
         ),
         dict(
-            which='both', axis='both',
             colors="red",
             bottom=True, top=True, left=True, right=True,
             labelbottom=False, labeltop=True, labelleft=False, labelright=True,
@@ -7686,17 +7685,12 @@ def test_2dcolor_plot(fig_test, fig_ref):
 @check_figures_equal(extensions=['png'])
 def test_persistent_style_axes_clear(fig_test, fig_ref, params):
     # see https://github.com/matplotlib/matplotlib/issues/23806
-    prng = np.random.RandomState(0)
-    img = prng.random_sample((8, 8))
-
     ax = fig_ref.subplots(1, 1)
-    ax.tick_params(**params)
-    ax.imshow(img)
+    ax.tick_params(which='both', axis='both', **params)
 
     ax = fig_test.subplots(1, 1)
-    ax.tick_params(**params)
+    ax.tick_params(which='both', axis='both', **params)
     ax.clear()
-    ax.imshow(img)
 
 
 @check_figures_equal(extensions=['png'])
