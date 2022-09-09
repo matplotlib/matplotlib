@@ -47,12 +47,11 @@ and the capabilities they provide.
   most standard Python installations, but it's not part of Python itself and
   thus may not be present in rare cases.
 * PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
-* PyGObject_: for the GTK-based backends. If using pip (but not conda or system
-  package manager) PyGObject must be built from source; see `pygobject
-  documentation
+* PyGObject_ and pycairo_ (>= 1.14.0): for the GTK-based backends. If using pip
+  (but not conda or system package manager) PyGObject must be built from
+  source; see `pygobject documentation
   <https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html>`_.
-* pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK and/or cairo-based
-  backends.
+* pycairo_ (>= 1.14.0) or cairocffi_ (>= 0.8): for cairo-based backends.
 * wxPython_ (>= 4): for the wx-based backends.  If using pip (but not conda or
   system package manager) on Linux wxPython wheels must be manually downloaded
   from https://wxpython.org/pages/downloads/.
