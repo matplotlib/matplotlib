@@ -88,7 +88,7 @@ You can use the ``O`` variable to set additional options:
 * ``make O=-Dplot_formats=png:100 html`` saves figures in low resolution.
 * ``make O=-Dplot_gallery=0 html`` skips the gallery build.
 
-Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
+Multiple options can be combined, e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
 
 On Windows, set the options as environment variables, e.g.:
