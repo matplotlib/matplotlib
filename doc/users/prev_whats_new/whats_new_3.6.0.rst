@@ -22,6 +22,13 @@ The relative width and height of columns and rows in `~.Figure.subplots` and
 *width_ratios* keyword arguments to the methods. Previously, this required
 passing the ratios in *gridspec_kws* arguments.
 
+Constrained layout is no longer considered experimental
+-------------------------------------------------------
+
+The constrained layout engine and API is no longer considered experimental.
+Arbitrary changes to behaviour and API are no longer permitted without a
+deprecation period.
+
 New ``layout_engine`` module
 ----------------------------
 
@@ -30,12 +37,64 @@ engines.  A new `.layout_engine` module is provided to allow downstream
 libraries to write their own layout engines and `~.figure.Figure` objects can
 now take a `.LayoutEngine` subclass as an argument to the *layout* parameter.
 
+Compressed layout for fixed-aspect ratio Axes
+---------------------------------------------
+
+Simple arrangements of Axes with fixed aspect ratios can now be packed together
+with ``fig, axs = plt.subplots(2, 3, layout='compressed')``. With
+``layout='tight'`` or ``'constrained'``, Axes with a fixed aspect ratio can
+leave large gaps between each other. Using the ``layout='compressed'`` layout
+reduces the space between the Axes, and adds the extra space to the outer
+margins. See :ref:`compressed_layout`.
+
+Layout engines may now be removed
+---------------------------------
+
+The layout engine on a Figure may now be removed by calling
+`.Figure.set_layout_engine` with ``'none'``. This may be useful after computing
+layout in order to reduce computations, e.g., for subsequent animation loops.
+
+A different layout engine may be set afterwards, so long as it is compatible
+with the previous layout engine.
+
 ``Axes.inset_axes`` flexibility
 -------------------------------
 
 `matplotlib.axes.Axes.inset_axes` now accepts the *projection*, *polar* and
 *axes_class* keyword arguments, so that subclasses of `matplotlib.axes.Axes`
 may be returned.
+
+WebP is now a supported output format
+-------------------------------------
+
+Figures may now be saved in WebP format by using the ``.webp`` file extension,
+or passing ``format='webp'`` to `~.Figure.savefig`. This relies on `Pillow
+<https://pillow.readthedocs.io/en/latest/>`_ support for WebP.
+
+Garbage collection is no longer run on figure close
+---------------------------------------------------
+
+Matplotlib has a large number of circular references (between Figure and
+Manager, between Axes and Figure, Axes and Artist, Figure and Canvas, etc.) so
+when the user drops their last reference to a Figure (and clears it from
+pyplot's state), the objects will not immediately be deleted.
+
+To account for this we have long (since before 2004) had a `gc.collect` (of the
+lowest two generations only) in the closing code in order to promptly clean up
+after ourselves. However this is both not doing what we want (as most of our
+objects will actually survive) and due to clearing out the first generation
+opened us up to having unbounded memory usage.
+
+In cases with a very tight loop between creating the figure and destroying it
+(e.g. ``plt.figure(); plt.close()``) the first generation will never grow large
+enough for Python to consider running the collection on the higher generations.
+This will lead to unbounded memory usage as the long-lived objects are never
+re-considered to look for reference cycles and hence are never deleted.
+
+We now no longer do any garbage collection when a figure is closed, and rely on
+Python automatically deciding to run garbage collection periodically. If you
+have strict memory requirements, you can call `gc.collect` yourself but this
+may have performance impacts in a tight computation loop.
 
 Plotting methods
 ================
@@ -86,8 +145,21 @@ bars.
     bar_container = ax.barh(x, y, label=x)
     [bar.get_label() for bar in bar_container]
 
-New external dependency ContourPy used for quad contour calculations
---------------------------------------------------------------------
+New style format string for colorbar ticks
+------------------------------------------
+
+The *format* argument of `~.Figure.colorbar` (and other colorbar methods) now
+accepts ``{}``-style format strings.
+
+Linestyles for negative contours may be set individually
+--------------------------------------------------------
+
+The line style of negative contours may be set by passing the
+*negative_linestyles* argument to `.Axes.contour`. Previously, this style could
+only be set globally via :rc:`contour.negative_linestyles`.
+
+ContourPy used for quad contour calculations
+--------------------------------------------
 
 Previously Matplotlib shipped its own C++ code for calculating the contours of
 quad grids. Now the external library `ContourPy
@@ -112,6 +184,14 @@ further details of the different algorithms.
 
    The locations of contour labels obtained by using `~.axes.Axes.clabel` may
    also be different.
+
+``errorbar`` supports *markerfacecoloralt*
+------------------------------------------
+
+The *markerfacecoloralt* parameter is now passed to the line plotter from
+`.Axes.errorbar`. The documentation now accurately lists which properties are
+passed to `.Line2D`, rather than claiming that all keyword arguments are passed
+on.
 
 ``streamplot`` can disable streamline breaks
 --------------------------------------------
@@ -190,6 +270,14 @@ The rotation point of the `~matplotlib.patches.Rectangle` can now be set to
 
 Colors and colormaps
 ====================
+
+Color sequence registry
+-----------------------
+
+The color sequence registry, `.ColorSequenceRegistry`, contains sequences
+(i.e., simple lists) of colors that are known to Matplotlib by name. This will
+not normally be used directly, but through the universal instance at
+`matplotlib.color_sequences`.
 
 Colormap method for creating a different lookup table size
 ----------------------------------------------------------
@@ -350,6 +438,12 @@ Note that if you have changed :rc:`figure.titlesize` or
 :rc:`figure.titleweight`, you must now also change the introduced parameters
 for a result consistent with past behaviour.
 
+Mathtext parsing can be disabled globally
+-----------------------------------------
+
+The :rc:`text.parse_math` setting may be used to disable parsing of mathtext in
+all `.Text` objects (most notably from the `.Axes.text` method).
+
 Double-quoted strings in matplotlibrc
 -------------------------------------
 
@@ -363,6 +457,14 @@ In particular, you can now define hex-colors:
 
 3D Axes improvements
 ====================
+
+Standardized views for primary plane viewing angles
+---------------------------------------------------
+
+When viewing a 3D plot in one of the primary view planes (i.e., perpendicular
+to the XY, XZ, or YZ planes), the Axis will be displayed in a standard
+location. For further information on 3D views, see
+:ref:`toolkit_mplot3d-view-angles` and :doc:`/gallery/mplot3d/view_planes_3d`.
 
 Custom focal length for 3D camera
 ---------------------------------
@@ -517,8 +619,62 @@ selector, and create a new complete selector with the supplied vertices.
 The `.SpanSelector` widget can now be snapped to values specified by the
 *snap_values* argument.
 
+More toolbar icons are styled for dark themes
+---------------------------------------------
+
+On the macOS and Tk backends, toolbar icons will now be inverted when using a
+dark theme.
+
 Platform-specific changes
 =========================
+
+Wx backend uses standard toolbar
+--------------------------------
+
+Instead of a custom sizer, the toolbar is set on Wx windows as a standard
+toolbar.
+
+Improvements to macosx backend
+------------------------------
+
+Modifier keys handled more consistently
+.......................................
+
+The macosx backend now handles modifier keys in a manner more consistent with
+other backends. See the table in :ref:`event-connections` for further
+information.
+
+``savefig.directory`` rcParam support
+.....................................
+
+The macosx backend will now obey the :rc:`savefig.directory` setting. If set to
+a non-empty string, then the save dialog will default to this directory, and
+preserve subsequent save directories as they are changed.
+
+``figure.raise_window`` rcParam support
+.......................................
+
+The macosx backend will now obey the :rc:`figure.raise_window` setting. If set
+to False, figure windows will not be raised to the top on update.
+
+Full-screen toggle support
+..........................
+
+As supported on other backends, the macosx backend now supports toggling
+fullscreen view. By default, this view can be toggled by pressing the :kbd:`f`
+key.
+
+Improved animation and blitting support
+.......................................
+
+The macosx backend has been improved to fix blitting, animation frames with new
+artists, and to reduce unnecessary draw calls.
+
+macOS application icon applied on Qt backend
+--------------------------------------------
+
+When using the Qt-based backends on macOS, the application icon will now be
+set, as is done on other backends/platforms.
 
 New minimum macOS version
 -------------------------
