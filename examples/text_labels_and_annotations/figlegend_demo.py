@@ -23,8 +23,8 @@ y4 = np.exp(-2 * x)
 l3, = axs[1].plot(x, y3, color='tab:green')
 l4, = axs[1].plot(x, y4, color='tab:red', marker='^')
 
-fig.legend((l1, l2), ('Line 1', 'Line 2'), 'upper left')
-fig.legend((l3, l4), ('Line 3', 'Line 4'), 'upper right')
+fig.legend((l1, l2), ('Line 1', 'Line 2'), loc='upper left')
+fig.legend((l3, l4), ('Line 3', 'Line 4'), loc='upper right')
 
 plt.tight_layout()
 plt.show()
