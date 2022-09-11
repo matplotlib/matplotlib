@@ -164,7 +164,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
             Ellipse patch drawn.
         """
         self._box = AuxTransformBox(transform)
-        self.ellipse = Ellipse((0, 0), width, height, angle)
+        self.ellipse = Ellipse((0, 0), width, height, angle=angle)
         self._box.add_artist(self.ellipse)
 
         super().__init__(loc, pad=pad, borderpad=borderpad, child=self._box,
