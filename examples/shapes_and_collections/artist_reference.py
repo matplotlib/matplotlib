@@ -45,7 +45,7 @@ patches.append(wedge)
 label(grid[2], "Wedge")
 
 # add a Polygon
-polygon = mpatches.RegularPolygon(grid[3], 5, 0.1)
+polygon = mpatches.RegularPolygon(grid[3], 5, radius=0.1)
 patches.append(polygon)
 label(grid[3], "Polygon")
 

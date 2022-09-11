@@ -67,9 +67,9 @@ ax.set(
     zticks=[0, -150, -300, -450],
 )
 
-# Set distance and angle view
+# Set zoom and angle view
 ax.view_init(40, -30, 0)
-ax.dist = 11
+ax.set_box_aspect(None, zoom=0.9)
 
 # Colorbar
 fig.colorbar(C, ax=ax, fraction=0.02, pad=0.1, label='Name [units]')
