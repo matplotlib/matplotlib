@@ -188,6 +188,7 @@ sphinx_gallery_conf = {
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
     'matplotlib_animations': True,
     'min_reported_time': 1,
+    'plot_gallery': 'True',  # sphinx-gallery/913
     'reference_url': {'matplotlib': None},
     'remove_config_comments': True,
     'reset_modules': (
