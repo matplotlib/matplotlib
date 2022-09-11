@@ -3853,11 +3853,8 @@ class FancyBboxPatch(Patch):
 
     @_docstring.dedent_interpd
     @_api.make_keyword_only("3.6", name="mutation_scale")
-    @_api.delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
-    def __init__(self, xy, width, height,
-                 boxstyle="round", bbox_transmuter=None,
-                 mutation_scale=1, mutation_aspect=1,
-                 **kwargs):
+    def __init__(self, xy, width, height, boxstyle="round", mutation_scale=1,
+                 mutation_aspect=1, **kwargs):
         """
         Parameters
         ----------
@@ -3905,17 +3902,7 @@ class FancyBboxPatch(Patch):
         self._width = width
         self._height = height
 
-        if boxstyle == "custom":
-            _api.warn_deprecated(
-                "3.4", message="Support for boxstyle='custom' is deprecated "
-                "since %(since)s and will be removed %(removal)s; directly "
-                "pass a boxstyle instance as the boxstyle parameter instead.")
-            if bbox_transmuter is None:
-                raise ValueError("bbox_transmuter argument is needed with "
-                                 "custom boxstyle")
-            self._bbox_transmuter = bbox_transmuter
-        else:
-            self.set_boxstyle(boxstyle)
+        self.set_boxstyle(boxstyle)
 
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
@@ -4435,10 +4422,6 @@ default: 'arc3'
             self.get_mutation_aspect())
 
         return _path, fillable
-
-    get_path_in_displaycoord = _api.deprecate_privatize_attribute(
-        "3.5",
-        alternative="self.get_transform().transform_path(self.get_path())")
 
     def draw(self, renderer):
         if not self.get_visible():

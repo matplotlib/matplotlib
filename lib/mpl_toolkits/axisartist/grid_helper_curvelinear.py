@@ -66,8 +66,6 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
 
 
 class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
-    grid_info = _api.deprecate_privatize_attribute("3.5")
-
     def __init__(self, grid_helper, nth_coord, value, axis_direction=None):
         """
         nth_coord = along which coordinate value varies.
@@ -252,8 +250,6 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
 
 class GridHelperCurveLinear(GridHelperBase):
-    grid_info = _api.deprecate_privatize_attribute("3.5")
-
     def __init__(self, aux_trans,
                  extreme_finder=None,
                  grid_locator1=None,

@@ -3195,7 +3195,6 @@ class _AxesBase(martist.Artist):
         self.stale = True
 
     @_docstring.dedent_interpd
-    @_api.rename_parameter("3.5", "b", "visible")
     def grid(self, visible=None, which='major', axis='both', **kwargs):
         """
         Configure the grid lines.

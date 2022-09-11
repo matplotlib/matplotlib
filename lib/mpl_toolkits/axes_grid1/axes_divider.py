@@ -492,8 +492,7 @@ class AxesDivider(Divider):
         ax.set_axes_locator(locator)
         return ax
 
-    @_api.delete_parameter("3.5", "add_to_figure", alternative="ax.remove()")
-    def append_axes(self, position, size, pad=None, add_to_figure=True, *,
+    def append_axes(self, position, size, pad=None, *,
                     axes_class=None, **kwargs):
         """
         Add a new axes on a given side of the main axes.
@@ -524,8 +523,6 @@ class AxesDivider(Divider):
         }, position=position)
         ax = create_axes(
             size, pad, pack_start=pack_start, axes_class=axes_class, **kwargs)
-        if add_to_figure:
-            self._fig.add_axes(ax)
         return ax
 
     def get_aspect(self):

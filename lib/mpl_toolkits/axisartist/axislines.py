@@ -513,7 +513,6 @@ class Axes(maxes.Axes):
     def get_grid_helper(self):
         return self._grid_helper
 
-    @_api.rename_parameter("3.5", "b", "visible")
     def grid(self, visible=None, which='major', axis="both", **kwargs):
         """
         Toggle the gridlines, and optionally set the properties of the lines.

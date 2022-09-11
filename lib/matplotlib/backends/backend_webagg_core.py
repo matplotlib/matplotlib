@@ -389,8 +389,6 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         if name_of_method in _ALLOWED_TOOL_ITEMS
     ]
 
-    cursor = _api.deprecate_privatize_attribute("3.5")
-
     def __init__(self, canvas):
         self.message = ''
         self._cursor = None  # Remove with deprecation.

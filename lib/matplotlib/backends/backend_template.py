@@ -197,8 +197,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
     # you should add it to the class-scope filetypes dictionary as follows:
     filetypes = {**FigureCanvasBase.filetypes, 'foo': 'My magic Foo format'}
 
-    @_api.delete_parameter("3.5", "args")
-    def print_foo(self, filename, *args, **kwargs):
+    def print_foo(self, filename, **kwargs):
         """
         Write out format foo.
 

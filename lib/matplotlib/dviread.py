@@ -1028,8 +1028,7 @@ class _LuatexKpsewhich:
 
 
 @lru_cache()
-@_api.delete_parameter("3.5", "format")
-def _find_tex_file(filename, format=None):
+def _find_tex_file(filename):
     """
     Find a file in the texmf tree using kpathsea_.
 
@@ -1057,15 +1056,13 @@ def _find_tex_file(filename, format=None):
     # out of caution
     if isinstance(filename, bytes):
         filename = filename.decode('utf-8', errors='replace')
-    if isinstance(format, bytes):
-        format = format.decode('utf-8', errors='replace')
 
     try:
         lk = _LuatexKpsewhich()
     except FileNotFoundError:
         lk = None  # Fallback to directly calling kpsewhich, as below.
 
-    if lk and format is None:
+    if lk:
         path = lk.search(filename)
 
     else:
@@ -1079,10 +1076,7 @@ def _find_tex_file(filename, format=None):
             kwargs = {'encoding': sys.getfilesystemencoding(),
                       'errors': 'surrogateescape'}
 
-        cmd = ['kpsewhich']
-        if format is not None:
-            cmd += ['--format=' + format]
-        cmd += [filename]
+        cmd = ['kpsewhich', filename]
         try:
             path = (cbook._check_and_log_subprocess(cmd, _log, **kwargs)
                     .rstrip('\n'))
@@ -1099,11 +1093,9 @@ def _find_tex_file(filename, format=None):
 
 # After the deprecation period elapses, delete this shim and rename
 # _find_tex_file to find_tex_file everywhere.
-@_api.delete_parameter("3.5", "format")
-def find_tex_file(filename, format=None):
+def find_tex_file(filename):
     try:
-        return (_find_tex_file(filename, format) if format is not None else
-                _find_tex_file(filename))
+        return _find_tex_file(filename)
     except FileNotFoundError as exc:
         _api.warn_deprecated(
             "3.6", message=f"{exc.args[0]}; in the future, this will raise a "

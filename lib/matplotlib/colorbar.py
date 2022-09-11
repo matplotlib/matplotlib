@@ -353,11 +353,6 @@ class Colorbar:
         for spine in self.ax.spines.values():
             spine.set_visible(False)
         self.outline = self.ax.spines['outline'] = _ColorbarSpine(self.ax)
-        # Only kept for backcompat; remove after deprecation of .patch elapses.
-        self._patch = mpatches.Polygon(
-            np.empty((0, 2)),
-            color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
-        ax.add_artist(self._patch)
 
         self.dividers = collections.LineCollection(
             [],
@@ -465,9 +460,6 @@ class Colorbar:
         # We now restore the old cla() back and can call it directly
         del self.ax.cla
         self.ax.cla()
-
-    # Also remove ._patch after deprecation elapses.
-    patch = _api.deprecate_privatize_attribute("3.5", alternative="ax")
 
     filled = _api.deprecate_privatize_attribute("3.6")
 
@@ -849,8 +841,7 @@ class Colorbar:
         self._minorlocator = minorlocator
         _log.debug('locator: %r', locator)
 
-    @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticks(self, ticks, update_ticks=True, labels=None, *,
+    def set_ticks(self, ticks, labels=None, *,
                   minor=False, **kwargs):
         """
         Set tick locations.
@@ -890,8 +881,7 @@ class Colorbar:
         else:
             return self._long_axis().get_majorticklocs()
 
-    @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticklabels(self, ticklabels, update_ticks=True, *, minor=False,
+    def set_ticklabels(self, ticklabels, *, minor=False,
                        **kwargs):
         """
         [*Discouraged*] Set tick labels.
