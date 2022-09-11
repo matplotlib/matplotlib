@@ -15,18 +15,32 @@ Retrieve the latest version of the code
 Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git.
 
 You can retrieve the latest sources with the command (see
-:ref:`set-up-fork` for more details)::
+:ref:`set-up-fork` for more details)
 
-    git clone https://github.com/matplotlib/matplotlib.git
+.. tab-set::
+
+   .. tab-item:: https
+
+      .. code-block:: bash
+
+         git clone https://github.com/matplotlib/matplotlib.git
+
+   .. tab-item:: ssh
+
+      .. code-block:: bash
+
+         git clone git@github.com:matplotlib/matplotlib.git
+
+      This requires you to setup an `SSH key`_ in advance, but saves you from
+      typing your password at every connection.
+
+      .. _SSH key: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
 
 This will place the sources in a directory :file:`matplotlib` below your
 current working directory. Change into this directory::
 
     cd matplotlib
 
-If you have the proper privileges, you can use ``git@`` instead of
-``https://``, which works through the ssh protocol and might be easier to use
-if you are using 2-factor authentication.
 
 .. _dev-environment:
 
@@ -87,12 +101,15 @@ true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
 
+Install additional development dependencies
+===========================================
+See :ref:`development-dependencies`.
+
 Install pre-commit hooks (optional)
 ===================================
-You can optionally install `pre-commit <https://pre-commit.com/>`_ hooks.
-These will automatically check flake8 and other style issues when you run
-``git commit``. The hooks are defined in the top level
-``.pre-commit-config.yaml`` file. To install the hooks ::
+`pre-commit <https://pre-commit.com/>`_ hooks automatically check flake8 and
+other style issues when you run ``git commit``. The hooks are defined in the
+top level ``.pre-commit-config.yaml`` file. To install the hooks ::
 
     python -m pip install pre-commit
     pre-commit install
@@ -105,7 +122,3 @@ listed in ``.pre-commit-config.yaml``, against the full codebase with ::
 To run a particular hook manually, run ``pre-commit run`` with the hook id ::
 
     pre-commit run <hook id> --all-files
-
-Install additional development dependencies
-===========================================
-See :ref:`development-dependencies`.
