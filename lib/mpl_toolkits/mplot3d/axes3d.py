@@ -1733,7 +1733,7 @@ class Axes3D(Axes):
         return linec
 
     def plot_trisurf(self, *args, color=None, norm=None, vmin=None, vmax=None,
-                     lightsource=None, **kwargs):
+                     values=None, lightsource=None, **kwargs):
         """
         Plot a triangulated surface.
 
@@ -1770,6 +1770,9 @@ class Axes3D(Axes):
             An instance of Normalize to map values to colors.
         vmin, vmax : float, default: None
             Minimum and maximum value to map.
+        values : array-like, default: None
+            Values used to determine the colors via the colormap. Only works
+            if cmap is specified. Defaults to z-positions of the vertices.
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
             *cmap* is specified.
@@ -1813,9 +1816,16 @@ class Axes3D(Axes):
         polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
 
         if cmap:
-            # average over the three points of each triangle
-            avg_z = verts[:, :, 2].mean(axis=1)
-            polyc.set_array(avg_z)
+            if values is None: # Use z-pos as default
+                # average over the three points of each triangle
+                avg_z = verts[:, :, 2].mean(axis=1)
+                polyc.set_array(avg_z)
+            else:
+                values = np.asarray(values)
+                if values.shape[0] != z.shape[0]:
+                    raise ValueError("You must provide one value per vertex")
+                values_tri = values[triangles]
+                polyc.set_array(values_tri.mean(axis=1))
             if vmin is not None or vmax is not None:
                 polyc.set_clim(vmin, vmax)
             if norm is not None:
