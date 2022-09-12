@@ -141,13 +141,31 @@ commands:
                [ "$CIRCLE_PR_NUMBER" = "" ]; then
               export RELEASE_TAG='-t release'
             fi
-            make html O="-T $RELEASE_TAG -j4"
+            make html O="-T $RELEASE_TAG -j4 -w /tmp/sphinxerrorswarnings.log"
             rm -r build/html/_sources
           working_directory: doc
       - save_cache:
           key: sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
           paths:
             - doc/build/doctrees
+
+  doc-show-errors-warnings:
+    steps:
+      - run:
+          name: Extract possible build errors and warnings
+          command: |
+           (grep "WARNING\|ERROR" /tmp/sphinxerrorswarnings.log ||
+            echo "No errors or warnings")
+
+  doc-show-deprecations:
+    steps:
+      - run:
+          name: Extract possible deprecation warnings in examples and tutorials
+          command: |
+           (grep DeprecationWarning -r -l doc/build/html/gallery ||
+            echo "No deprecation warnings in gallery")
+           (grep DeprecationWarning -r -l doc/build/html/tutorials ||
+            echo "No deprecation warnings in tutorials")
 
   doc-bundle:
     steps:
@@ -186,6 +204,8 @@ jobs:
       - doc-deps-install
 
       - doc-build
+      - doc-show-errors-warnings
+      - doc-show-deprecations
 
       - doc-bundle
 
