@@ -6399,23 +6399,33 @@ default: :rc:`scatter.edgecolors`
              orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False, **kwargs):
         """
-        Plot a histogram.
+        Compute and plot a histogram.
 
-        Compute and draw the histogram of *x*.  The return value is a tuple
-        (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*, [*patches0*,
-        *patches1*, ...]) if the input contains multiple data.  See the
-        documentation of the *weights* parameter to draw a histogram of
-        already-binned data.
+        This method uses `numpy.histogram` to bin the data in *x* and count the
+        number of values in each bin, then draws the distribution either as a
+        `.BarContainer` or `.Polygon`. The *bins*, *range*, *density*, and
+        *weights* parameters are forwarded to `numpy.histogram`.
 
-        Multiple data can be provided via *x* as a list of datasets
-        of potentially different length ([*x0*, *x1*, ...]), or as
-        a 2D ndarray in which each column is a dataset.  Note that
-        the ndarray form is transposed relative to the list form.
+        If the data has already been binned and counted, use `~.bar` or
+        `~.stairs` to plot the distribution::
+
+            counts, bins = np.histogram(x)
+            plt.stairs(bins, counts)
+
+        Alternatively, plot pre-computed bins and counts using ``hist()`` by
+        treating each bin as a single point with a weight equal to its count::
+
+            plt.hist(bins[:-1], bins, weights=counts)
+
+        The data input *x* can be a singular array, a list of datasets of
+        potentially different lengths ([*x0*, *x1*, ...]), or a 2D ndarray in
+        which each column is a dataset. Note that the ndarray form is
+        transposed relative to the list form. If the input is an array, then
+        the return value is a tuple (*n*, *bins*, *patches*); if the input is a
+        sequence of arrays, then the return value is a tuple
+        ([*n0*, *n1*, ...], *bins*, [*patches0*, *patches1*, ...]).
 
         Masked arrays are not supported.
-
-        The *bins*, *range*, *weights*, and *density* parameters behave as in
-        `numpy.histogram`.
 
         Parameters
         ----------
@@ -6468,15 +6478,6 @@ default: :rc:`scatter.edgecolors`
             (instead of 1).  If *density* is ``True``, the weights are
             normalized, so that the integral of the density over the range
             remains 1.
-
-            This parameter can be used to draw a histogram of data that has
-            already been binned, e.g. using `numpy.histogram` (by treating each
-            bin as a single point with a weight equal to its count) ::
-
-                counts, bins = np.histogram(data)
-                plt.hist(bins[:-1], bins, weights=counts)
-
-            (or you may alternatively use `~.bar()`).
 
         cumulative : bool or -1, default: False
             If ``True``, then a histogram is computed where each bin gives the
@@ -6578,9 +6579,9 @@ such objects
 
         Notes
         -----
-        For large numbers of bins (>1000), 'step' and 'stepfilled' can be
-        significantly faster than 'bar' and 'barstacked'.
-
+        For large numbers of bins (>1000), plotting can be significantly faster
+        if *histtype* is set to 'step' or 'stepfilled' rather than 'bar' or
+        'barstacked'.
         """
         # Avoid shadowing the builtin.
         bin_range = range
