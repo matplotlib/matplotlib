@@ -525,6 +525,8 @@ class RendererBase:
             The font properties.
         angle : float
             The rotation angle in degrees anti-clockwise.
+        ismath : bool or "TeX"
+            If True, use mathtext parser. If "TeX", use *usetex* mode.
         mtext : `matplotlib.text.Text`
             The original text object to be rendered.
 
