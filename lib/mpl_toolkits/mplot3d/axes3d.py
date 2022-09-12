@@ -1816,7 +1816,7 @@ class Axes3D(Axes):
         polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
 
         if cmap:
-            if values is None: # Use z-pos as default
+            if values is None:  # Use z-pos as default
                 # average over the three points of each triangle
                 avg_z = verts[:, :, 2].mean(axis=1)
                 polyc.set_array(avg_z)
