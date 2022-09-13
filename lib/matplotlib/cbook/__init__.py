@@ -1708,7 +1708,8 @@ def safe_first_element(obj):
 
 def _safe_first_finite(obj, *, skip_nonfinite=True):
     """
-    Return the first non-None element in *obj*.
+    Return the first non-None (and optionally finite) element in *obj*.
+
     This is a method for internal use.
 
     This is an type-independent way of obtaining the first non-None element,
@@ -1716,6 +1717,8 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
     The first non-None element will be obtained when skip_none is True.
     """
     def safe_isfinite(val):
+        if val is None:
+            return False
         try:
             return np.isfinite(val) if np.isscalar(val) else True
         except TypeError:
@@ -1743,10 +1746,7 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        return next(
-            val for val in obj
-            if val is not None and safe_isfinite(val)
-        )
+        return next(val for val in obj if safe_isfinite(val))
 
 
 def sanitize_sequence(data):
