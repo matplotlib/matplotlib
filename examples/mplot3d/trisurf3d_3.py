@@ -28,7 +28,7 @@ ax = fig.add_subplot(projection='3d')
 ax.plot_trisurf(x, y, z,
                 triangles=tri.triangles,
                 cmap=plt.colormaps['terrain'],
-                c=np.sin(2*phi)*(r - np.pi/2),
+                C=np.sin(2*phi)*(r - np.pi/2),
                 shade=True)
 
 fig.tight_layout()

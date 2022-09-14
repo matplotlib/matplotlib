@@ -1733,7 +1733,7 @@ class Axes3D(Axes):
         return linec
 
     def plot_trisurf(self, *args, color=None, norm=None, vmin=None, vmax=None,
-                     c=None, facecolors=None, lightsource=None, **kwargs):
+                     C=None, facecolors=None, lightsource=None, **kwargs):
         """
         Plot a triangulated surface.
 
@@ -1771,19 +1771,17 @@ class Axes3D(Axes):
             An instance of Normalize to map values to colors.
         vmin, vmax : float, default: None
             Minimum and maximum value to map.
-        c : array-like, default: None
+        C : array-like, default: None
             Values or colors used to determine face colors. If cmap is
             specified the values will be color-mapped before the faces are
             painted. If there is one value/color per vertex, these will be
             averaged over each triangle to determine face colors. Defaults to
             the z-coordinate of vertices. This keyword argument resembles the
-            functionality of ``C`` in  `matplotlib.axes.Axes.tripcolor`, but
-            adds the feature that values are first color-mapped if ``cmap`` is
-            specified, like the ``c`` in `matplotlib.pyplot.scatter`.
+            functionality of ``C`` in  `matplotlib.axes.Axes.tripcolor`.
         facecolors: array-like, shape (n, 3/4), default None
             Individual face colors. Must be of shape *(#faces, 3)* for
             RBG or *(#faces, 4)* for RGBA with the colors in the rows.
-            Overrides everything from the ``c`` keyword argument.
+            Overrides everything from the ``C`` keyword argument.
             This works like the ``facecolors`` keyword argument in
             '~matplotlib.axes.Axes.tripcolor'.
         shade : bool, default: True
@@ -1826,28 +1824,28 @@ class Axes3D(Axes):
 
         if facecolors is None:
             if cmap:
-                if c is None:
-                    c = z
+                if C is None:
+                    C = z
 
                 if vmin is not None or vmax is not None:
                     polyc.set_clim(vmin, vmax)
                 if norm is not None:
                     polyc.set_norm(norm)
 
-                if c.shape[0] == z.shape[0]:
-                    face_values = c[triangles].mean(axis=1)
-                elif c.shape[0] == triangles.shape[0]:
-                    face_values = c
+                if C.shape[0] == z.shape[0]:
+                    face_values = C[triangles].mean(axis=1)
+                elif C.shape[0] == triangles.shape[0]:
+                    face_values = C
                 else:
                     raise ValueError("c needs either one value per vertex or "
                                      "per face")
 
                 facecolors = polyc.to_rgba(face_values)
-            elif c is not None:
-                if c.shape[0] == z.shape[0]:
-                    facecolors = c[triangles].mean(axis=1)
-                elif c.shape[0] == triangles.shape[0]:
-                    facecolors = c
+            elif C is not None:
+                if C.shape[0] == z.shape[0]:
+                    facecolors = C[triangles].mean(axis=1)
+                elif C.shape[0] == triangles.shape[0]:
+                    facecolors = C
                 else:
                     raise ValueError("c needs either one color per vertex or "
                                      "per face")

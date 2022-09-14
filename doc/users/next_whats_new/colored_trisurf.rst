@@ -31,5 +31,5 @@ colored meshes. This might not be what you want on colormaps, so the default is 
     z = np.cos(r)
 
     ax = fig.add_subplot(projection='3d')
-    ax.plot_trisurf(x, y, z, triangles=tri.triangles, c=phi, cmap=plt.cm.get_cmap('terrain'))
+    ax.plot_trisurf(x, y, z, triangles=tri.triangles, C=phi, cmap=plt.cm.get_cmap('terrain'))
     plt.show()

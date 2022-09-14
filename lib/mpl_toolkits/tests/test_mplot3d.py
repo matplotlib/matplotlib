@@ -695,7 +695,7 @@ def test_colorcoded_trisurf3d(fig_ref, fig_test):
     ax_test.plot_trisurf(x, y, z,
                          triangles=tri.triangles,
                          cmap=cm.Spectral,
-                         c=z)
+                         C=z)
 
 
 @check_figures_equal(extensions=['png'])
@@ -723,7 +723,7 @@ def test_value_per_vertex_vs_value_per_face(fig_ref, fig_test):
 
     ax_test.plot_trisurf(x, y, z,
                          triangles=tri.triangles,
-                         c=phi,
+                         C=phi,
                          cmap=cmap,
                          norm=norm)
 
