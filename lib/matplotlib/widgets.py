@@ -4177,6 +4177,12 @@ class PolygonSelector(_SelectorWidget):
             self._add_box()
         self._draw_polygon()
 
+    def clear(self):
+        super().clear()
+        self._xys = [(0, 0)]
+        self.set_visible(True)
+        self._draw_polygon()
+
 
 class Lasso(AxesWidget):
     """
