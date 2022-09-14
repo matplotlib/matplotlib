@@ -45,7 +45,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
         number of points and triangles in the triangulation it is assumed that
         color values are defined at points; to force the use of color values at
         triangles use the keyword argument ``facecolors=C`` instead of just
-        ``C``.
+        ``C``. The values in C will be color-mapped.
         This parameter is position-only.
     facecolors : array-like, optional
         Can be used alternatively to *C* to specify colors at the triangle
