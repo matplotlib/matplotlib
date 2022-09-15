@@ -49,7 +49,8 @@ For now, let's get on with the implicit approach:
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+import numpy as np
+from PIL import Image
 
 ###############################################################################
 # .. _importing_data:
@@ -72,23 +73,14 @@ import matplotlib.image as mpimg
 # <https://raw.githubusercontent.com/matplotlib/matplotlib/main/doc/_static/stinkbug.png>`_
 # to your computer for the rest of this tutorial.
 #
-# And here we go...
+# We use Pillow to open an image (with `PIL.Image.open`), and immediately
+# convert the `PIL.Image.Image` object into an 8-bit (``dtype=uint8``) numpy
+# array.
 
-img = mpimg.imread('../../doc/_static/stinkbug.png')
-print(img)
+img = np.asarray(Image.open('../../doc/_static/stinkbug.png'))
+print(repr(img))
 
 ###############################################################################
-# Note the dtype there - float32.  Matplotlib has rescaled the 8 bit
-# data from each channel to floating point data between 0.0 and 1.0.  As
-# a side note, the only datatype that Pillow can work with is uint8.
-# Matplotlib plotting can handle float32 and uint8, but image
-# reading/writing for any format other than PNG is limited to uint8
-# data.  Why 8 bits? Most displays can only render 8 bits per channel
-# worth of color gradation.  Why can they only render 8 bits/channel?
-# Because that's about all the human eye can see.  More here (from a
-# photography standpoint): `Luminous Landscape bit depth tutorial
-# <https://luminous-landscape.com/bit-depth/>`_.
-#
 # Each inner list represents a pixel.  Here, with an RGB image, there
 # are 3 values.  Since it's a black and white image, R, G, and B are all
 # similar.  An RGBA (where A is alpha, or transparency), has 4 values
@@ -188,7 +180,7 @@ plt.colorbar()
 # interesting regions is the histogram.  To create a histogram of our
 # image data, we use the :func:`~matplotlib.pyplot.hist` function.
 
-plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
+plt.hist(lum_img.ravel(), bins=range(256), fc='k', ec='k')
 
 ###############################################################################
 # Most often, the "interesting" part of the image is around the peak,
@@ -196,29 +188,23 @@ plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
 # below the peak.  In our histogram, it looks like there's not much
 # useful information in the high end (not many white things in the
 # image).  Let's adjust the upper limit, so that we effectively "zoom in
-# on" part of the histogram.  We do this by passing the clim argument to
-# imshow.  You could also do this by calling the
-# :meth:`~matplotlib.cm.ScalarMappable.set_clim` method of the image plot
-# object, but make sure that you do so in the same cell as your plot
-# command when working with the Jupyter Notebook - it will not change
-# plots from earlier cells.
+# on" part of the histogram.  We do this by setting *clim*, the colormap
+# limits.
 #
-# You can specify the clim in the call to ``plot``.
+# This can be done by passing a *clim* keyword argument in the call to
+# ``imshow``.
 
-imgplot = plt.imshow(lum_img, clim=(0.0, 0.7))
+plt.imshow(lum_img, clim=(0, 175))
 
 ###############################################################################
-# You can also specify the clim using the returned object
-fig = plt.figure()
-ax = fig.add_subplot(1, 2, 1)
+# This can also be done by calling the
+# :meth:`~matplotlib.cm.ScalarMappable.set_clim` method of the returned image
+# plot object, but make sure that you do so in the same cell as your plot
+# command when working with the Jupyter Notebook - it will not change
+# plots from earlier cells.
+
 imgplot = plt.imshow(lum_img)
-ax.set_title('Before')
-plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
-ax = fig.add_subplot(1, 2, 2)
-imgplot = plt.imshow(lum_img)
-imgplot.set_clim(0.0, 0.7)
-ax.set_title('After')
-plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
+imgplot.set_clim(0, 175)
 
 ###############################################################################
 # .. _Interpolation:
@@ -242,19 +228,17 @@ plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
 # We'll use the Pillow library that we used to load the image also to resize
 # the image.
 
-from PIL import Image
-
 img = Image.open('../../doc/_static/stinkbug.png')
 img.thumbnail((64, 64))  # resizes image in-place
 imgplot = plt.imshow(img)
 
 ###############################################################################
-# Here we have the default interpolation, bilinear, since we did not
+# Here we use the default interpolation ("nearest"), since we did not
 # give :func:`~matplotlib.pyplot.imshow` any interpolation argument.
 #
-# Let's try some others. Here's "nearest", which does no interpolation.
+# Let's try some others. Here's "bilinear":
 
-imgplot = plt.imshow(img, interpolation="nearest")
+imgplot = plt.imshow(img, interpolation="bilinear")
 
 ###############################################################################
 # and bicubic:
