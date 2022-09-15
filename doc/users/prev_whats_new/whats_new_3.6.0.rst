@@ -234,19 +234,22 @@ only be set globally via :rc:`contour.negative_linestyles`.
     axs[1].clabel(CS, fontsize=9, inline=True)
     axs[1].set_title('Dotted negative contours')
 
-ContourPy used for quad contour calculations
---------------------------------------------
+Imrpoved quad contour calculations via ContourPy
+------------------------------------------------
+
+The contouring functions `~.axes.Axes.contour` and `~.axes.Axes.contourf` have
+a new keyword argument *algorithm* to control which algorithm is used to
+calculate the contours. There is a choice of four algorithms to use, and the
+default is to use ``algorithm='mpl2014'`` which is the same algorithm that
+Matplotlib has been using since 2014.
 
 Previously Matplotlib shipped its own C++ code for calculating the contours of
 quad grids. Now the external library `ContourPy
-<https://github.com/contourpy/contourpy>`_ is used instead. There is a choice
-of four algorithms to use, controlled by the *algorithm* keyword argument to
-the functions `~.axes.Axes.contour` and `~.axes.Axes.contourf`. The default
-behaviour is to use ``algorithm='mpl2014'`` which is the same algorithm that
-Matplotlib has been using since 2014.
+<https://github.com/contourpy/contourpy>`_ is used instead.
 
-See the `ContourPy documentation <https://contourpy.readthedocs.io>`_ for
-further details of the different algorithms.
+Other possible values of the *algorithm* keyword argument at this time are
+``'mpl2005'``, ``'serial'`` and ``'threaded'``; see the `ContourPy
+documentation <https://contourpy.readthedocs.io>`_ for further details.
 
 .. note::
 

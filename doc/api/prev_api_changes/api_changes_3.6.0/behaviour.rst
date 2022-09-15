@@ -19,19 +19,6 @@ AGG renderer. Previously such a large image would be shown incorrectly. To
 prevent this downsampling and the warning it raises, manually downsample your
 data before handing it to `~matplotlib.axes.Axes.imshow`.
 
-New *algorithm* keyword argument to ``contour`` and ``contourf``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The contouring functions `~matplotlib.axes.Axes.contour` and
-`~matplotlib.axes.Axes.contourf` have a new keyword argument *algorithm* to
-control which algorithm is used to calculate the contours. There is a choice of
-four algorithms to use, and the default is to use ``algorithm='mpl2014'`` which
-is the same algorithm that Matplotlib has been using since 2014.
-
-Other possible values of the *algorithm* keyword argument are ``'mpl2005'``,
-``'serial'`` and ``'threaded'``; see the `ContourPy documentation
-<https://contourpy.readthedocs.io>`_ for further details.
-
 Default date limits changed to 1970-01-01 – 1970-01-02
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -63,14 +50,6 @@ Previously `.Axis.get_ticklabels` (and `.Axes.get_xticklabels`,
 `.Axes.get_yticklabels`) would only return empty strings unless a draw had
 already been performed. Now the ticks and their labels are updated when the
 labels are requested.
-
-Added *markerfacecoloralt* parameter to ``Axes.errorbar``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The *markerfacecoloralt* parameter is now passed to the line plotter from
-`.Axes.errorbar`. The documentation now accurately lists which properties are
-passed to `.Line2D`, rather than claiming that all keyword arguments are passed
-on.
 
 Warning when scatter plot color settings discarded
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
