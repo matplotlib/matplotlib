@@ -38,7 +38,10 @@ dependencies:
   - pip:
       - mpl-sphinx-theme
       - sphinxcontrib-svg2pdfconverter
-      - pikepdf
+      # Pin pikepdf for Windows and OSX, waiting for qpdf fixes
+      # See https://github.com/pikepdf/pikepdf/issues/390
+      - pikepdf!=6.0.*; sys.platform == 'win32' or sys.platform == 'darwin'
+      - pikepdf; sys.platform != 'win32' and sys.platform != 'darwin'
   # testing
   - coverage
   - flake8>=3.8
