@@ -381,7 +381,7 @@ html_theme_options = {
     "logo": {"link": "index",
              "image_light": "images/logo2.svg",
              "image_dark": "images/logo_dark.svg"},
-    "navbar_end": ["version-switcher", "mpl_icon_links", "theme-switcher"]
+    "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"]
 }
 include_analytics = is_release_build
 if include_analytics:
