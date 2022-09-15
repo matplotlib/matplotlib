@@ -245,7 +245,7 @@ plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
 from PIL import Image
 
 img = Image.open('../../doc/_static/stinkbug.png')
-img.thumbnail((64, 64), Image.Resampling.LANCZOS)  # resizes image in-place
+img.thumbnail((64, 64))  # resizes image in-place
 imgplot = plt.imshow(img)
 
 ###############################################################################
