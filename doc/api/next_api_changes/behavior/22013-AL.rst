@@ -1,5 +1,0 @@
-``FigureFrameWx.sizer``
-~~~~~~~~~~~~~~~~~~~~~~~
-... has been removed.  The frame layout is no longer based on a sizer, as the
-canvas is now the sole child widget; the toolbar is now a regular toolbar
-added using ``SetToolBar``.

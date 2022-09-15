@@ -720,6 +720,7 @@ class RcParams(MutableMapping, dict):
                         if pattern_re.search(key))
 
     def copy(self):
+        """Copy this RcParams instance."""
         rccopy = RcParams()
         for k in self:  # Skip deprecations and revalidation.
             dict.__setitem__(rccopy, k, dict.__getitem__(self, k))

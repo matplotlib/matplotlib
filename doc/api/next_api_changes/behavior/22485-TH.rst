@@ -1,5 +1,0 @@
-``AxesImage`` string representation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The string representation of `.AxesImage` changes from
-stating the position in the figure ``"AxesImage(80,52.8;496x369.6)"`` to
-giving the number of pixels ``"AxesImage(size=(300, 200))"``.
