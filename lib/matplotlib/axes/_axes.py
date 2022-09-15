@@ -2228,7 +2228,7 @@ class Axes(_AxesBase):
             The width(s) of the bars.
 
         bottom : float or array-like, default: 0
-            The y coordinate(s) of the bars bases.
+            The y coordinate(s) of the bottom side(s) of the bars.
 
         align : {'center', 'edge'}, default: 'center'
             Alignment of the bars to the *x* coordinates:
@@ -2278,8 +2278,8 @@ class Axes(_AxesBase):
               errors.
             - *None*: No errorbar. (Default)
 
-            See :doc:`/gallery/statistics/errorbar_features`
-            for an example on the usage of ``xerr`` and ``yerr``.
+            See :doc:`/gallery/statistics/errorbar_features` for an example on
+            the usage of *xerr* and *yerr*.
 
         ecolor : color or list of color, default: 'black'
             The line color of the errorbars.
@@ -2288,9 +2288,9 @@ class Axes(_AxesBase):
            The length of the error bar caps in points.
 
         error_kw : dict, optional
-            Dictionary of kwargs to be passed to the `~.Axes.errorbar`
-            method. Values of *ecolor* or *capsize* defined here take
-            precedence over the independent kwargs.
+            Dictionary of keyword arguments to be passed to the
+            `~.Axes.errorbar` method. Values of *ecolor* or *capsize* defined
+            here take precedence over the independent keyword arguments.
 
         log : bool, default: False
             If *True*, set the y-axis to be log scale.
@@ -2498,9 +2498,10 @@ class Axes(_AxesBase):
 
         return bar_container
 
+    # @_preprocess_data() # let 'bar' do the unpacking..
     @_docstring.dedent_interpd
     def barh(self, y, width, height=0.8, left=None, *, align="center",
-             **kwargs):
+             data=None, **kwargs):
         r"""
         Make a horizontal bar plot.
 
@@ -2524,7 +2525,7 @@ class Axes(_AxesBase):
             The heights of the bars.
 
         left : float or array-like, default: 0
-            The x coordinates of the left sides of the bars.
+            The x coordinates of the left side(s) of the bars.
 
         align : {'center', 'edge'}, default: 'center'
             Alignment of the base to the *y* coordinates*:
@@ -2556,9 +2557,17 @@ class Axes(_AxesBase):
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
+        label : str or list of str, optional
+            A single label is attached to the resulting `.BarContainer` as a
+            label for the whole dataset.
+            If a list is provided, it must be the same length as *y* and
+            labels the individual bars. Repeated labels are not de-duplicated
+            and will cause repeated label entries, so this is best used when
+            bars also differ in style (e.g., by passing a list to *color*.)
+
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
-            If not ``None``, add horizontal / vertical errorbars to the
-            bar tips. The values are +/- sizes relative to the data:
+            If not *None*, add horizontal / vertical errorbars to the bar tips.
+            The values are +/- sizes relative to the data:
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
@@ -2567,8 +2576,8 @@ class Axes(_AxesBase):
               errors.
             - *None*: No errorbar. (default)
 
-            See :doc:`/gallery/statistics/errorbar_features`
-            for an example on the usage of ``xerr`` and ``yerr``.
+            See :doc:`/gallery/statistics/errorbar_features` for an example on
+            the usage of *xerr* and *yerr*.
 
         ecolor : color or list of color, default: 'black'
             The line color of the errorbars.
@@ -2577,12 +2586,16 @@ class Axes(_AxesBase):
            The length of the error bar caps in points.
 
         error_kw : dict, optional
-            Dictionary of kwargs to be passed to the `~.Axes.errorbar`
-            method. Values of *ecolor* or *capsize* defined here take
-            precedence over the independent kwargs.
+            Dictionary of keyword arguments to be passed to the
+            `~.Axes.errorbar` method. Values of *ecolor* or *capsize* defined
+            here take precedence over the independent keyword arguments.
 
         log : bool, default: False
             If ``True``, set the x-axis to be log scale.
+
+        data : indexable object, optional
+            If given, all parameters also accept a string ``s``, which is
+            interpreted as ``data[s]`` (unless this raises an exception).
 
         **kwargs : `.Rectangle` properties
 
@@ -2596,12 +2609,11 @@ class Axes(_AxesBase):
         -----
         Stacked bars can be achieved by passing individual *left* values per
         bar. See
-        :doc:`/gallery/lines_bars_and_markers/horizontal_barchart_distribution`
-        .
+        :doc:`/gallery/lines_bars_and_markers/horizontal_barchart_distribution`.
         """
         kwargs.setdefault('orientation', 'horizontal')
         patches = self.bar(x=left, height=height, width=width, bottom=y,
-                           align=align, **kwargs)
+                           align=align, data=data, **kwargs)
         return patches
 
     def bar_label(self, container, labels=None, *, fmt="%g", label_type="edge",
