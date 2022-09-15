@@ -870,13 +870,13 @@ class Colormap:
         """
         Return a reversed instance of the Colormap.
 
-        .. note:: This function is not implemented for base class.
+        .. note:: This function is not implemented for the base class.
 
         Parameters
         ----------
         name : str, optional
-            The name for the reversed colormap. If it's None the
-            name will be the name of the parent colormap + "_r".
+            The name for the reversed colormap. If None, the
+            name is set to ``self.name + "_r"``.
 
         See Also
         --------
@@ -1079,8 +1079,8 @@ class LinearSegmentedColormap(Colormap):
         Parameters
         ----------
         name : str, optional
-            The name for the reversed colormap. If it's None the
-            name will be the name of the parent colormap + "_r".
+            The name for the reversed colormap. If None, the
+            name is set to ``self.name + "_r"``.
 
         Returns
         -------
@@ -1179,8 +1179,8 @@ class ListedColormap(Colormap):
         Parameters
         ----------
         name : str, optional
-            The name for the reversed colormap. If it's None the
-            name will be the name of the parent colormap + "_r".
+            The name for the reversed colormap. If None, the
+            name is set to ``self.name + "_r"``.
 
         Returns
         -------
