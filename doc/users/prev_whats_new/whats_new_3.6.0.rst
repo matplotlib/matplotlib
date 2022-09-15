@@ -19,8 +19,19 @@ Figure and Axes creation / management
 
 The relative width and height of columns and rows in `~.Figure.subplots` and
 `~.Figure.subplot_mosaic` can be controlled by passing *height_ratios* and
-*width_ratios* keyword arguments to the methods. Previously, this required
-passing the ratios in *gridspec_kws* arguments.
+*width_ratios* keyword arguments to the methods:
+
+.. plot::
+    :include-source: true
+
+    fig = plt.figure()
+    axs = fig.subplots(3, 1, sharex=True, height_ratios=[3, 1, 1])
+
+Previously, this required passing the ratios in *gridspec_kw* arguments::
+
+    fig = plt.figure()
+    axs = fig.subplots(3, 1, sharex=True,
+                       gridspec_kw=dict(height_ratios=[3, 1, 1]))
 
 Constrained layout is no longer considered experimental
 -------------------------------------------------------
@@ -41,11 +52,31 @@ Compressed layout for fixed-aspect ratio Axes
 ---------------------------------------------
 
 Simple arrangements of Axes with fixed aspect ratios can now be packed together
-with ``fig, axs = plt.subplots(2, 3, layout='compressed')``. With
-``layout='tight'`` or ``'constrained'``, Axes with a fixed aspect ratio can
-leave large gaps between each other. Using the ``layout='compressed'`` layout
-reduces the space between the Axes, and adds the extra space to the outer
-margins. See :ref:`compressed_layout`.
+with ``fig, axs = plt.subplots(2, 3, layout='compressed')``.
+
+With ``layout='tight'`` or ``'constrained'``, Axes with a fixed aspect ratio
+can leave large gaps between each other:
+
+.. plot::
+
+    fig, axs = plt.subplots(2, 2, figsize=(5, 3),
+                            sharex=True, sharey=True, layout="constrained")
+    for ax in axs.flat:
+        ax.imshow([[0, 1], [2, 3]])
+    fig.suptitle("fixed-aspect plots, layout='constrained'")
+
+Using the ``layout='compressed'`` layout reduces the space between the Axes,
+and adds the extra space to the outer margins:
+
+.. plot::
+
+    fig, axs = plt.subplots(2, 2, figsize=(5, 3),
+                            sharex=True, sharey=True, layout='compressed')
+    for ax in axs.flat:
+        ax.imshow([[0, 1], [2, 3]])
+    fig.suptitle("fixed-aspect plots, layout='compressed'")
+
+See :ref:`compressed_layout` for further details.
 
 Layout engines may now be removed
 ---------------------------------
@@ -63,6 +94,16 @@ with the previous layout engine.
 `matplotlib.axes.Axes.inset_axes` now accepts the *projection*, *polar* and
 *axes_class* keyword arguments, so that subclasses of `matplotlib.axes.Axes`
 may be returned.
+
+.. plot::
+    :include-source: true
+
+    fig, ax = plt.subplots()
+
+    ax.plot([0, 2], [1, 2])
+
+    polar_ax = ax.inset_axes([0.75, 0.25, 0.2, 0.2], projection='polar')
+    polar_ax.plot([0, 2], [1, 2])
 
 WebP is now a supported output format
 -------------------------------------
@@ -127,23 +168,31 @@ controlling the widths of the caps in box and whisker plots.
 
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
+    capwidths = [0.01, 0.2]
+
     fig, ax = plt.subplots()
-    ax.boxplot([x, x], notch=True, capwidths=[0.01, 0.2])
+    ax.boxplot([x, x], notch=True, capwidths=capwidths)
+    ax.set_title(f'{capwidths=}')
 
 Easier labelling of bars in bar plot
 ------------------------------------
 
-The *label* argument of `~.Axes.bar` can now be passed a list of labels for the
-bars.
+The *label* argument of `~.Axes.bar` and `~.Axes.barh` can now be passed a list
+of labels for the bars. The list must be the same length as *x* and labels the
+individual bars. Repeated labels are not de-duplicated and will cause repeated
+label entries, so this is best used when bars also differ in style (e.g., by
+passing a list to *color*, as below.)
 
-.. code-block:: python
+.. plot::
+    :include-source: true
 
     x = ["a", "b", "c"]
     y = [10, 20, 15]
+    color = ['C0', 'C1', 'C2']
 
     fig, ax = plt.subplots()
-    bar_container = ax.barh(x, y, label=x)
-    [bar.get_label() for bar in bar_container]
+    ax.bar(x, y, color=color, label=x)
+    ax.legend()
 
 New style format string for colorbar ticks
 ------------------------------------------
@@ -151,12 +200,39 @@ New style format string for colorbar ticks
 The *format* argument of `~.Figure.colorbar` (and other colorbar methods) now
 accepts ``{}``-style format strings.
 
+.. code-block:: python
+
+    fig, ax = plt.subplots()
+    im = ax.imshow(z)
+    fig.colorbar(im, format='{x:.2e}')  # Instead of '%.2e'
+
 Linestyles for negative contours may be set individually
 --------------------------------------------------------
 
 The line style of negative contours may be set by passing the
 *negative_linestyles* argument to `.Axes.contour`. Previously, this style could
 only be set globally via :rc:`contour.negative_linestyles`.
+
+.. plot::
+    :include-source: true
+
+    delta = 0.025
+    x = np.arange(-3.0, 3.0, delta)
+    y = np.arange(-2.0, 2.0, delta)
+    X, Y = np.meshgrid(x, y)
+    Z1 = np.exp(-X**2 - Y**2)
+    Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+    Z = (Z1 - Z2) * 2
+
+    fig, axs = plt.subplots(1, 2)
+
+    CS = axs[0].contour(X, Y, Z, 6, colors='k')
+    axs[0].clabel(CS, fontsize=9, inline=True)
+    axs[0].set_title('Default negative contours')
+
+    CS = axs[1].contour(X, Y, Z, 6, colors='k', negative_linestyles='dotted')
+    axs[1].clabel(CS, fontsize=9, inline=True)
+    axs[1].set_title('Dotted negative contours')
 
 ContourPy used for quad contour calculations
 --------------------------------------------
@@ -192,6 +268,19 @@ The *markerfacecoloralt* parameter is now passed to the line plotter from
 `.Axes.errorbar`. The documentation now accurately lists which properties are
 passed to `.Line2D`, rather than claiming that all keyword arguments are passed
 on.
+
+.. plot::
+    :include-source: true
+
+    x = np.arange(0.1, 4, 0.5)
+    y = np.exp(-x)
+
+    fig, ax = plt.subplots()
+    ax.errorbar(x, y, xerr=0.2, yerr=0.4,
+                linestyle=':', color='darkgrey',
+                marker='o', markersize=20, fillstyle='left',
+                markerfacecolor='tab:blue', markerfacecoloralt='tab:orange',
+                markeredgecolor='tab:brown', markeredgewidth=2)
 
 ``streamplot`` can disable streamline breaks
 --------------------------------------------
@@ -266,7 +355,40 @@ Rectangle patch rotation point
 ------------------------------
 
 The rotation point of the `~matplotlib.patches.Rectangle` can now be set to
-'xy', 'center' or a 2-tuple of numbers.
+'xy', 'center' or a 2-tuple of numbers using the *rotation_point* argument.
+
+.. plot::
+
+    fig, ax = plt.subplots()
+
+    rect = plt.Rectangle((0, 0), 1, 1, facecolor='none', edgecolor='C0')
+    ax.add_patch(rect)
+    ax.annotate('Unrotated', (1, 0), color='C0',
+                horizontalalignment='right', verticalalignment='top',
+                xytext=(0, -3), textcoords='offset points')
+
+    for rotation_point, color in zip(['xy', 'center', (0.75, 0.25)],
+                                     ['C1', 'C2', 'C3']):
+        ax.add_patch(
+            plt.Rectangle((0, 0), 1, 1, facecolor='none', edgecolor=color,
+                          angle=45, rotation_point=rotation_point))
+
+        if rotation_point == 'center':
+            point = 0.5, 0.5
+        elif rotation_point == 'xy':
+            point = 0, 0
+        else:
+            point = rotation_point
+        ax.plot(point[:1], point[1:], color=color, marker='o')
+
+        label = f'{rotation_point}'
+        if label == 'xy':
+            label += ' (default)'
+        ax.annotate(label, point, color=color,
+                    xytext=(3, 3), textcoords='offset points')
+
+    ax.set_aspect(1)
+    ax.set_title('rotation_point options')
 
 Colors and colormaps
 ====================
@@ -317,7 +439,7 @@ It is now possible to set or get minor ticks using `.pyplot.xticks` and
     plt.figure()
     plt.plot([1, 2, 3, 3.5], [2, 1, 0, -0.5])
     plt.xticks([1, 2, 3], ["One", "Zwei", "Trois"])
-    plt.xticks([1.414, 2.5, 3.142],
+    plt.xticks([np.sqrt(2), 2.5, np.pi],
                [r"$\sqrt{2}$", r"$\frac{5}{2}$", r"$\pi$"], minor=True)
 
 Legends
@@ -329,6 +451,14 @@ Legend can control alignment of title and handles
 `.Legend` now supports controlling the alignment of the title and handles via
 the keyword argument *alignment*. You can also use `.Legend.set_alignment` to
 control the alignment on existing Legends.
+
+.. plot::
+    :include-source: true
+
+    fig, axs = plt.subplots(3, 1)
+    for i, alignment in enumerate(['left', 'center', 'right']):
+        axs[i].plot(range(10), label='test')
+        axs[i].legend(title=f'{alignment=}', alignment=alignment)
 
 *ncol* keyword argument to ``legend`` renamed to *ncols*
 --------------------------------------------------------
@@ -358,15 +488,40 @@ rotation).
 .. plot::
     :include-source: true
 
-    from matplotlib.markers import MarkerStyle
+    from matplotlib.markers import CapStyle, JoinStyle, MarkerStyle
     from matplotlib.transforms import Affine2D
-    fig, ax = plt.subplots(figsize=(6, 1))
-    fig.suptitle('New markers', fontsize=14)
-    for col, (size, rot) in enumerate(zip([2, 5, 10], [0, 45, 90])):
+
+    fig, axs = plt.subplots(3, 1, layout='constrained')
+    for ax in axs:
+        ax.axis('off')
+        ax.set_xlim(-0.5, 2.5)
+
+    axs[0].set_title('Cap styles', fontsize=14)
+    for col, cap in enumerate(CapStyle):
+        axs[0].plot(col, 0, markersize=32, markeredgewidth=8,
+                    marker=MarkerStyle('1', capstyle=cap))
+        # Show the marker edge for comparison with the cap.
+        axs[0].plot(col, 0, markersize=32, markeredgewidth=1,
+                    markerfacecolor='none', markeredgecolor='lightgrey',
+                    marker=MarkerStyle('1'))
+        axs[0].annotate(cap.name, (col, 0),
+                        xytext=(20, -5), textcoords='offset points')
+
+    axs[1].set_title('Join styles', fontsize=14)
+    for col, join in enumerate(JoinStyle):
+        axs[1].plot(col, 0, markersize=32, markeredgewidth=8,
+                    marker=MarkerStyle('*', joinstyle=join))
+        # Show the marker edge for comparison with the join.
+        axs[1].plot(col, 0, markersize=32, markeredgewidth=1,
+                    markerfacecolor='none', markeredgecolor='lightgrey',
+                    marker=MarkerStyle('*'))
+        axs[1].annotate(join.name, (col, 0),
+                        xytext=(20, -5), textcoords='offset points')
+
+    axs[2].set_title('Arbitrary transforms', fontsize=14)
+    for col, (size, rot) in enumerate(zip([2, 5, 7], [0, 45, 90])):
         t = Affine2D().rotate_deg(rot).scale(size)
-        ax.plot(col, 0, marker=MarkerStyle("*", transform=t))
-    ax.axis("off")
-    ax.set_xlim(-0.1, 2.4)
+        axs[2].plot(col, 0, marker=MarkerStyle('*', transform=t))
 
 Fonts and Text
 ==============
@@ -382,10 +537,10 @@ them in order to locate a required glyph.
    :alt: The phrase "There are 几个汉字 in between!" rendered in various fonts.
    :include-source: True
 
-   text = "There are 几个汉字 in between!"
-
    plt.rcParams["font.size"] = 20
    fig = plt.figure(figsize=(4.75, 1.85))
+
+   text = "There are 几个汉字 in between!"
    fig.text(0.05, 0.85, text, family=["WenQuanYi Zen Hei"])
    fig.text(0.05, 0.65, text, family=["Noto Sans CJK JP"])
    fig.text(0.05, 0.45, text, family=["DejaVu Sans", "Noto Sans CJK JP"])
@@ -433,6 +588,25 @@ Allow setting figure label size and weight globally and separately from title
 For figure labels, ``Figure.supxlabel`` and ``Figure.supylabel``, the size and
 weight can be set separately from the figure title using :rc:`figure.labelsize`
 and :rc:`figure.labelweight`.
+
+.. plot::
+    :include-source: true
+
+    # Original (previously combined with below) rcParams:
+    plt.rcParams['figure.titlesize'] = 64
+    plt.rcParams['figure.titleweight'] = 'bold'
+
+    # New rcParams:
+    plt.rcParams['figure.labelsize'] = 32
+    plt.rcParams['figure.labelweight'] = 'bold'
+
+    fig, axs = plt.subplots(2, 2, layout='constrained')
+    for ax in axs.flat:
+        ax.set(xlabel='xlabel', ylabel='ylabel')
+
+    fig.suptitle('suptitle')
+    fig.supxlabel('supxlabel')
+    fig.supylabel('supylabel')
 
 Note that if you have changed :rc:`figure.titlesize` or
 :rc:`figure.titleweight`, you must now also change the introduced parameters
@@ -487,14 +661,15 @@ The focal length can be calculated from a desired FOV via the equation:
 
     from mpl_toolkits.mplot3d import axes3d
 
-    fig, axs = plt.subplots(1, 3, subplot_kw={'projection': '3d'})
     X, Y, Z = axes3d.get_test_data(0.05)
-    focal_lengths = [0.2, 1, np.inf]
-    for ax, fl in zip(axs, focal_lengths):
+
+    fig, axs = plt.subplots(1, 3, figsize=(7, 4),
+                            subplot_kw={'projection': '3d'})
+
+    for ax, focal_length in zip(axs, [0.2, 1, np.inf]):
         ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
-        ax.set_proj_type('persp', focal_length=fl)
-        ax.set_title(f"focal_length = {fl}")
-    fig.set_size_inches(10, 4)
+        ax.set_proj_type('persp', focal_length=focal_length)
+        ax.set_title(f"{focal_length=}")
 
 3D plots gained a 3rd "roll" viewing angle
 ------------------------------------------
@@ -510,9 +685,11 @@ existing 3D plots.
     :include-source: true
 
     from mpl_toolkits.mplot3d import axes3d
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+
     X, Y, Z = axes3d.get_test_data(0.05)
+
+    fig, ax = plt.subplots(subplot_kw={'projection': '3d'})
+
     ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
     ax.view_init(elev=0, azim=0, roll=30)
     ax.set_title('elev=0, azim=0, roll=30')
@@ -528,8 +705,12 @@ Users can set the aspect ratio for the X, Y, Z axes of a 3D plot to be 'equal',
 
     from itertools import combinations, product
 
-    aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz')
-    fig, axs = plt.subplots(1, len(aspects), subplot_kw={'projection': '3d'})
+    aspects = [
+        ['auto', 'equal', '.'],
+        ['equalxy', 'equalyz', 'equalxz'],
+    ]
+    fig, axs = plt.subplot_mosaic(aspects, figsize=(7, 6),
+                                  subplot_kw={'projection': '3d'})
 
     # Draw rectangular cuboid with side lengths [1, 1, 5]
     r = [0, 1]
@@ -537,16 +718,14 @@ Users can set the aspect ratio for the X, Y, Z axes of a 3D plot to be 'equal',
     pts = combinations(np.array(list(product(r, r, r))), 2)
     for start, end in pts:
         if np.sum(np.abs(start - end)) == r[1] - r[0]:
-            for ax in axs:
+            for ax in axs.values():
                 ax.plot3D(*zip(start*scale, end*scale), color='C0')
 
     # Set the aspect ratios
-    for i, ax in enumerate(axs):
+    for aspect, ax in axs.items():
         ax.set_box_aspect((3, 4, 5))
-        ax.set_aspect(aspects[i])
-        ax.set_title(f"set_aspect('{aspects[i]}')")
-
-    fig.set_size_inches(13, 3)
+        ax.set_aspect(aspect)
+        ax.set_title(f'set_aspect({aspect!r})')
 
 Interactive tool improvements
 =============================
