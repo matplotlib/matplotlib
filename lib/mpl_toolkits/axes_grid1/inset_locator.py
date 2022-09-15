@@ -43,7 +43,7 @@ class InsetPosition:
 
         >>> parent_axes = plt.gca()
         >>> ax_ins = plt.axes([0, 0, 1, 1])
-        >>> ip = InsetPosition(ax, [0.5, 0.1, 0.4, 0.2])
+        >>> ip = InsetPosition(parent_axes, [0.5, 0.1, 0.4, 0.2])
         >>> ax_ins.set_axes_locator(ip)
         """
         self.parent = parent
