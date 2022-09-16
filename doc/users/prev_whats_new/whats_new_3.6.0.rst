@@ -234,7 +234,7 @@ only be set globally via :rc:`contour.negative_linestyles`.
     axs[1].clabel(CS, fontsize=9, inline=True)
     axs[1].set_title('Dotted negative contours')
 
-Imrpoved quad contour calculations via ContourPy
+Improved quad contour calculations via ContourPy
 ------------------------------------------------
 
 The contouring functions `~.axes.Axes.contour` and `~.axes.Axes.contourf` have
