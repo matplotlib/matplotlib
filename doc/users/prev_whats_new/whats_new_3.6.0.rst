@@ -1,6 +1,6 @@
-==============================
-What's new in Matplotlib 3.6.0
-==============================
+=============================================
+What's new in Matplotlib 3.6.0 (Sep 15, 2022)
+=============================================
 
 For a list of all of the issues and pull requests since the last revision, see
 the :ref:`github-stats`.
