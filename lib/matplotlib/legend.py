@@ -287,7 +287,7 @@ handler_map : dict or None
     handler. This *handler_map* updates the default handler map
     found at `matplotlib.legend.Legend.get_legend_handler_map`.
 
-draggable : bool or None
+draggable : bool, default: False
     Whether the legend can be dragged with the mouse.
 """)
 
@@ -346,7 +346,7 @@ class Legend(Artist):
         alignment="center",       # control the alignment within the legend box
         *,
         ncol=1,  # synonym for ncols (backward compatibility)
-        draggable=None  # whether the legend can be dragged with the mouse
+        draggable=False  # whether the legend can be dragged with the mouse
     ):
         """
         Parameters
