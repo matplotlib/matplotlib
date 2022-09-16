@@ -665,8 +665,9 @@ grestore
                 curr_stream[1].append(
                     (item.x, item.ft_object.get_glyph_name(item.glyph_idx))
                 )
-            # append the last entry
-            stream.append(curr_stream)
+            if curr_stream is not None:
+                # append the last entry
+                stream.append(curr_stream)
 
         self.set_color(*gc.get_rgb())
 
