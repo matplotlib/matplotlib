@@ -342,7 +342,8 @@ class Legend(Artist):
         title_fontproperties=None,  # properties for the legend title
         alignment="center",       # control the alignment within the legend box
         *,
-        ncol=1  # synonym for ncols (backward compatibility)
+        ncol=1,  # synonym for ncols (backward compatibility)
+        draggable=None  # whether the legend can be dragged with the mouse
     ):
         """
         Parameters
@@ -537,7 +538,9 @@ class Legend(Artist):
             title_prop_fp.set_size(title_fontsize)
 
         self.set_title(title, prop=title_prop_fp)
+
         self._draggable = None
+        self.set_draggable(state=draggable)
 
         # set the text color
 
