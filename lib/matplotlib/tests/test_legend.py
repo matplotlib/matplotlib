@@ -783,6 +783,14 @@ def test_get_set_draggable():
     assert not legend.get_draggable()
 
 
+@pytest.mark.parametrize('draggable', (True, False))
+def test_legend_draggable(draggable):
+    fig, ax = plt.subplots()
+    ax.plot(range(10), label='shabnams')
+    leg = ax.legend(draggable=draggable)
+    assert leg.get_draggable() is draggable
+
+
 def test_alpha_handles():
     x, n, hh = plt.hist([1, 2, 3], alpha=0.25, label='data', color='red')
     legend = plt.legend()
