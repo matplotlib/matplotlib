@@ -1663,15 +1663,13 @@ class Axes3D(Axes):
 
         # note that the striding causes some polygons to have more coordinates
         # than others
-        polyc = art3d.Poly3DCollection(polys, **kwargs)
 
         if fcolors is not None:
-            if shade:
-                colset = self._shade_colors(
-                    colset, self._generate_normals(polys), lightsource)
-            polyc.set_facecolors(colset)
-            polyc.set_edgecolors(colset)
+            polyc = art3d.Poly3DCollection(
+                polys, edgecolors=colset, facecolors=colset, shade=shade,
+                lightsource=lightsource, **kwargs)
         elif cmap:
+            polyc = art3d.Poly3DCollection(polys, **kwargs)
             # can't always vectorize, because polys might be jagged
             if isinstance(polys, np.ndarray):
                 avg_z = polys[..., 2].mean(axis=-1)
@@ -1683,96 +1681,14 @@ class Axes3D(Axes):
             if norm is not None:
                 polyc.set_norm(norm)
         else:
-            if shade:
-                colset = self._shade_colors(
-                    color, self._generate_normals(polys), lightsource)
-            else:
-                colset = color
-            polyc.set_facecolors(colset)
+            polyc = art3d.Poly3DCollection(
+                polys, facecolors=color, shade=shade,
+                lightsource=lightsource, **kwargs)
 
         self.add_collection(polyc)
         self.auto_scale_xyz(X, Y, Z, had_data)
 
         return polyc
-
-    def _generate_normals(self, polygons):
-        """
-        Compute the normals of a list of polygons.
-
-        Normals point towards the viewer for a face with its vertices in
-        counterclockwise order, following the right hand rule.
-
-        Uses three points equally spaced around the polygon.
-        This normal of course might not make sense for polygons with more than
-        three points not lying in a plane, but it's a plausible and fast
-        approximation.
-
-        Parameters
-        ----------
-        polygons : list of (M_i, 3) array-like, or (..., M, 3) array-like
-            A sequence of polygons to compute normals for, which can have
-            varying numbers of vertices. If the polygons all have the same
-            number of vertices and array is passed, then the operation will
-            be vectorized.
-
-        Returns
-        -------
-        normals : (..., 3) array
-            A normal vector estimated for the polygon.
-        """
-        if isinstance(polygons, np.ndarray):
-            # optimization: polygons all have the same number of points, so can
-            # vectorize
-            n = polygons.shape[-2]
-            i1, i2, i3 = 0, n//3, 2*n//3
-            v1 = polygons[..., i1, :] - polygons[..., i2, :]
-            v2 = polygons[..., i2, :] - polygons[..., i3, :]
-        else:
-            # The subtraction doesn't vectorize because polygons is jagged.
-            v1 = np.empty((len(polygons), 3))
-            v2 = np.empty((len(polygons), 3))
-            for poly_i, ps in enumerate(polygons):
-                n = len(ps)
-                i1, i2, i3 = 0, n//3, 2*n//3
-                v1[poly_i, :] = ps[i1, :] - ps[i2, :]
-                v2[poly_i, :] = ps[i2, :] - ps[i3, :]
-        return np.cross(v1, v2)
-
-    def _shade_colors(self, color, normals, lightsource=None):
-        """
-        Shade *color* using normal vectors given by *normals*.
-        *color* can also be an array of the same length as *normals*.
-        """
-        if lightsource is None:
-            # chosen for backwards-compatibility
-            lightsource = mcolors.LightSource(azdeg=225, altdeg=19.4712)
-
-        with np.errstate(invalid="ignore"):
-            shade = ((normals / np.linalg.norm(normals, axis=1, keepdims=True))
-                     @ lightsource.direction)
-        mask = ~np.isnan(shade)
-
-        if mask.any():
-            # convert dot product to allowed shading fractions
-            in_norm = mcolors.Normalize(-1, 1)
-            out_norm = mcolors.Normalize(0.3, 1).inverse
-
-            def norm(x):
-                return out_norm(in_norm(x))
-
-            shade[~mask] = 0
-
-            color = mcolors.to_rgba_array(color)
-            # shape of color should be (M, 4) (where M is number of faces)
-            # shape of shade should be (M,)
-            # colors should have final shape of (M, 4)
-            alpha = color[:, 3]
-            colors = norm(shade)[:, np.newaxis] * color
-            colors[:, 3] = alpha
-        else:
-            colors = np.asanyarray(color).copy()
-
-        return colors
 
     def plot_wireframe(self, X, Y, Z, **kwargs):
         """
@@ -1970,9 +1886,8 @@ class Axes3D(Axes):
         zt = z[triangles]
         verts = np.stack((xt, yt, zt), axis=-1)
 
-        polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
-
         if cmap:
+            polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
             # average over the three points of each triangle
             avg_z = verts[:, :, 2].mean(axis=1)
             polyc.set_array(avg_z)
@@ -1981,12 +1896,9 @@ class Axes3D(Axes):
             if norm is not None:
                 polyc.set_norm(norm)
         else:
-            if shade:
-                normals = self._generate_normals(verts)
-                colset = self._shade_colors(color, normals, lightsource)
-            else:
-                colset = color
-            polyc.set_facecolors(colset)
+            polyc = art3d.Poly3DCollection(
+                verts, *args, shade=shade, lightsource=lightsource,
+                facecolors=color, **kwargs)
 
         self.add_collection(polyc)
         self.auto_scale_xyz(tri.x, tri.y, z, had_data)
@@ -2011,8 +1923,6 @@ class Axes3D(Axes):
 
             color = linec.get_edgecolor()[0]
 
-            polyverts = []
-            normals = []
             nsteps = round(len(topverts[0]) / stride)
             if nsteps <= 1:
                 if len(topverts[0]) > 1:
@@ -2020,6 +1930,7 @@ class Axes3D(Axes):
                 else:
                     continue
 
+            polyverts = []
             stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
             for i in range(round(nsteps) - 1):
                 i1 = round(i * stepsize)
@@ -2031,13 +1942,10 @@ class Axes3D(Axes):
 
             # all polygons have 4 vertices, so vectorize
             polyverts = np.array(polyverts)
-            normals = self._generate_normals(polyverts)
-
-            colors = self._shade_colors(color, normals)
-            colors2 = self._shade_colors(color, normals)
             polycol = art3d.Poly3DCollection(polyverts,
-                                             facecolors=colors,
-                                             edgecolors=colors2)
+                                             facecolors=color,
+                                             edgecolors=color,
+                                             shade=True)
             polycol.set_sort_zpos(z)
             self.add_collection3d(polycol)
 
@@ -2582,15 +2490,11 @@ class Axes3D(Axes):
             if len(facecolors) < len(x):
                 facecolors *= (6 * len(x))
 
-        if shade:
-            normals = self._generate_normals(polys)
-            sfacecolors = self._shade_colors(facecolors, normals, lightsource)
-        else:
-            sfacecolors = facecolors
-
         col = art3d.Poly3DCollection(polys,
                                      zsort=zsort,
-                                     facecolor=sfacecolors,
+                                     facecolors=facecolors,
+                                     shade=shade,
+                                     lightsource=lightsource,
                                      *args, **kwargs)
         self.add_collection(col)
 
@@ -2958,16 +2862,10 @@ pivot='tail', normalize=False, **kwargs)
             # shade the faces
             facecolor = facecolors[coord]
             edgecolor = edgecolors[coord]
-            if shade:
-                normals = self._generate_normals(faces)
-                facecolor = self._shade_colors(facecolor, normals, lightsource)
-                if edgecolor is not None:
-                    edgecolor = self._shade_colors(
-                        edgecolor, normals, lightsource
-                    )
 
             poly = art3d.Poly3DCollection(
-                faces, facecolors=facecolor, edgecolors=edgecolor, **kwargs)
+                faces, facecolors=facecolor, edgecolors=edgecolor,
+                shade=shade, lightsource=lightsource, **kwargs)
             self.add_collection3d(poly)
             polygons[coord] = poly
 
