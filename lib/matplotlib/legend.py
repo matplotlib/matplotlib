@@ -286,6 +286,9 @@ handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
     handler. This *handler_map* updates the default handler map
     found at `matplotlib.legend.Legend.get_legend_handler_map`.
+
+draggable : bool or None
+    Whether the legend can be dragged with the mouse.
 """)
 
 
