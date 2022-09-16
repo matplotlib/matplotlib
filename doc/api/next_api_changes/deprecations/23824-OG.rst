@@ -1,7 +1,7 @@
 ``draw_gouraud_triangle``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-... is deprecated as this in most backends is a redundant call. Use
+... is deprecated as in most backends this is a redundant call. Use
 `~.RendererBase.draw_gouraud_triangles` instead. A ``draw_gouraud_triangle``
 call in a custom `~matplotlib.artist.Artist` can readily be replaced as::
 
