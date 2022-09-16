@@ -1,6 +1,6 @@
 """
 ================
-Parametric Curve
+Parametric curve
 ================
 
 This example demonstrates plotting a parametric curve in 3D.

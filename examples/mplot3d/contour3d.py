@@ -1,7 +1,7 @@
 """
-==================================================
-Demonstrates plotting contour (level) curves in 3D
-==================================================
+=================================
+Plot contour (level) curves in 3D
+=================================
 
 This is like a contour plot in 2D except that the ``f(x, y)=c`` curve is
 plotted on the plane ``z=c``.

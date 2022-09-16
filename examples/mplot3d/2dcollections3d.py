@@ -3,7 +3,7 @@
 Plot 2D data on 3D plot
 =======================
 
-Demonstrates using ax.plot's zdir keyword to plot 2D data on
+Demonstrates using ax.plot's *zdir* keyword to plot 2D data on
 selective axes of a 3D plot.
 """
 
