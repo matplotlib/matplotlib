@@ -11,6 +11,7 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+import logging
 import os
 from pathlib import Path
 import shutil
@@ -200,6 +201,25 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order.subsectionorder,
 }
+
+if 'plot_gallery=0' in sys.argv:
+    # Gallery images are not created.  Suppress warnings triggered where other
+    # parts of the documentation link to these images.
+
+    def gallery_image_warning_filter(record):
+        msg = record.msg
+        for gallery_dir in sphinx_gallery_conf['gallery_dirs']:
+            if msg.startswith(f'image file not readable: {gallery_dir}'):
+                return False
+
+        if msg == 'Could not obtain image size. :scale: option is ignored.':
+            return False
+
+        return True
+
+    logger = logging.getLogger('sphinx')
+    logger.addFilter(gallery_image_warning_filter)
+
 
 mathmpl_fontsize = 11.0
 mathmpl_srcset = ['2x']
