@@ -1,12 +1,12 @@
 """
-========================================
-Projecting contour profiles onto a graph
-========================================
+=====================================
+Project contour profiles onto a graph
+=====================================
 
 Demonstrates displaying a 3D surface while also projecting contour 'profiles'
 onto the 'walls' of the graph.
 
-See contourf3d_demo2 for the filled version.
+See :doc:`contourf3d_2` for the filled version.
 """
 
 from mpl_toolkits.mplot3d import axes3d
@@ -17,7 +17,7 @@ ax = plt.figure().add_subplot(projection='3d')
 X, Y, Z = axes3d.get_test_data(0.05)
 
 # Plot the 3D surface
-ax.plot_surface(X, Y, Z, rstride=8, cstride=8, alpha=0.3)
+ax.plot_surface(X, Y, Z, edgecolor='black', rstride=8, cstride=8, alpha=0.3)
 
 # Plot projections of the contours for each dimension.  By choosing offsets
 # that match the appropriate axes limits, the projected contours will sit on
