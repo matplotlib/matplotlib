@@ -15,11 +15,6 @@
         "url": "https://matplotlib.org/3.5.3"
     },
     {
-        "name": "3.5",
-        "version": "3.5.3",
-        "url": "https://matplotlib.org/3.5.3/"
-    },
-    {
         "name": "3.4",
         "version": "3.4.3",
         "url": "https://matplotlib.org/3.4.3"
