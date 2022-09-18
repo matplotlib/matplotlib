@@ -41,7 +41,7 @@ This tutorial will use Matplotlib's implicit plotting interface, pyplot.  This
 interface maintains global state, and is very useful for quickly and easily
 experimenting with various plot settings.  The alternative is the explicit,
 which is more suitable for large application development.  For an explanation
-of the tradeoffs between the implicit and explicit interfaces See
+of the tradeoffs between the implicit and explicit interfaces see
 :ref:`api_interfaces` and the :doc:`Quick start guide
 </tutorials/introductory/quick_start>` to start using the explicit interface.
 For now, let's get on with the implicit approach:
@@ -83,7 +83,7 @@ print(repr(img))
 ###############################################################################
 # Each inner list represents a pixel.  Here, with an RGB image, there
 # are 3 values.  Since it's a black and white image, R, G, and B are all
-# similar.  An RGBA (where A is alpha, or transparency), has 4 values
+# similar.  An RGBA (where A is alpha, or transparency) has 4 values
 # per inner list, and a simple luminance image just has one value (and
 # is thus only a 2-D array, not a 3-D array).  For RGB and RGBA images,
 # Matplotlib supports float32 and uint8 data types.  For grayscale,
@@ -119,13 +119,11 @@ imgplot = plt.imshow(img)
 # Pseudocolor is only relevant to single-channel, grayscale, luminosity
 # images.  We currently have an RGB image.  Since R, G, and B are all
 # similar (see for yourself above or in your data), we can just pick one
-# channel of our data:
+# channel of our data using array slicing (you can read more in the
+# `Numpy tutorial <https://numpy.org/doc/stable/user/quickstart.html
+# #indexing-slicing-and-iterating>`_):
 
 lum_img = img[:, :, 0]
-
-# This is array slicing.  You can read more in the `Numpy tutorial
-# <https://numpy.org/doc/stable/user/quickstart.html>`_.
-
 plt.imshow(lum_img)
 
 ###############################################################################
