@@ -4943,7 +4943,7 @@ default: :rc:`scatter.edgecolors`
         # autoscale the norm with current accum values if it hasn't been set
         if norm is not None:
             if norm.vmin is None and norm.vmax is None:
-                norm.autoscale(accum)
+                norm.autoscale_None(accum)
 
         if bins is not None:
             if not np.iterable(bins):
