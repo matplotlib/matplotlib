@@ -67,6 +67,10 @@ Other useful invocations include
 
 .. code-block:: sh
 
+   # Build the html documentation, but skip generation of the gallery images to
+   # save time.
+   make html-noplot
+
    # Delete built files.  May help if you get errors about missing paths or
    # broken links.
    make clean
@@ -86,7 +90,6 @@ You can use the ``O`` variable to set additional options:
 
 * ``make O=-j4 html`` runs a parallel build with 4 processes.
 * ``make O=-Dplot_formats=png:100 html`` saves figures in low resolution.
-* ``make O=-Dplot_gallery=0 html`` skips the gallery build.
 
 Multiple options can be combined, e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
