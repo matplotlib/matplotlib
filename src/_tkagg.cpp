@@ -237,7 +237,7 @@ bool load_tcl_tk(T lib)
     if (auto ptr = dlsym(lib, "Tk_FindPhoto")) {
         TK_FIND_PHOTO = (Tk_FindPhoto_t)ptr;
     }
-    if (auto* ptr = dlsym(lib, "Tk_PhotoPutBlock")) {
+    if (auto ptr = dlsym(lib, "Tk_PhotoPutBlock")) {
         TK_PHOTO_PUT_BLOCK = (Tk_PhotoPutBlock_t)ptr;
     }
     return TCL_SETVAR && TK_FIND_PHOTO && TK_PHOTO_PUT_BLOCK;
