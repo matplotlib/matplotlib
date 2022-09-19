@@ -225,11 +225,11 @@ Pull Requests (894):
 * :ghpull:`23848`: Backport PR #23843 on branch v3.6.x (Clarify that pycairo>=1.14.0 is needed.)
 * :ghpull:`23843`: Clarify that pycairo>=1.14.0 is needed.
 * :ghpull:`23842`: Backport PR #23840 on branch v3.6.x (Remove documentation for axes_grid)
-* :ghpull:`23838`: Backport PR #23834 on branch v3.6.x (Revert "Refactor handling of tick and ticklabel visiblity in Axis.clear")
+* :ghpull:`23838`: Backport PR #23834 on branch v3.6.x (Revert "Refactor handling of tick and ticklabel visibility in Axis.clear")
 * :ghpull:`23840`: Remove documentation for axes_grid
 * :ghpull:`23837`: Backport PR #23833 on branch v3.6.x (Remove search field from sidebar)
 * :ghpull:`23836`: Backport PR #23823 on branch v3.6.x ([DOC] Improve dev setup description)
-* :ghpull:`23834`: Revert "Refactor handling of tick and ticklabel visiblity in Axis.clear"
+* :ghpull:`23834`: Revert "Refactor handling of tick and ticklabel visibility in Axis.clear"
 * :ghpull:`23833`: Remove search field from sidebar
 * :ghpull:`23823`: [DOC] Improve dev setup description
 * :ghpull:`23822`: Backport PR #23813 on branch v3.6.x (Triplot duplicated label)
