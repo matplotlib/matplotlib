@@ -1680,7 +1680,7 @@ class _AxesBase(martist.Artist):
             aspect = 1
         if not cbook._str_equal(aspect, 'auto'):
             aspect = float(aspect)  # raise ValueError if necessary
-            if aspect<0:
+            if aspect <= 0:
                 raise ValueError("aspect must be positive")
 
         if share:
