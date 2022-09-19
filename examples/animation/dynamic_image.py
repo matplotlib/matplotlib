@@ -23,8 +23,8 @@ y = np.linspace(0, 2 * np.pi, 100).reshape(-1, 1)
 # each frame
 ims = []
 for i in range(60):
-    x += np.pi / 15.
-    y += np.pi / 20.
+    x += np.pi / 15
+    y += np.pi / 30
     im = ax.imshow(f(x, y), animated=True)
     if i == 0:
         ax.imshow(f(x, y))  # show an initial one first
