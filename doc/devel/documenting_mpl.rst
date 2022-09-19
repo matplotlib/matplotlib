@@ -961,41 +961,6 @@ found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
 For clarity, do not use relative links.
 
 
-Adding animations
------------------
-
-Animations are scraped automatically by Sphinx-gallery. If this is not
-desired,
-there is also a Matplotlib Google/Gmail account with username ``mplgithub``
-which was used to setup the github account but can be used for other
-purposes, like hosting Google docs or Youtube videos.  You can embed a
-Matplotlib animation in the docs by first saving the animation as a
-movie using :meth:`matplotlib.animation.Animation.save`, and then
-uploading to `Matplotlib's Youtube
-channel <https://www.youtube.com/user/matplotlib>`_ and inserting the
-embedding string youtube provides like:
-
-.. code-block:: rst
-
-  .. raw:: html
-
-     <iframe width="420" height="315"
-       src="https://www.youtube.com/embed/32cjc6V0OZY"
-       frameborder="0" allowfullscreen>
-     </iframe>
-
-An example save command to generate a movie looks like this
-
-.. code-block:: python
-
-    ani = animation.FuncAnimation(fig, animate, np.arange(1, len(y)),
-        interval=25, blit=True, init_func=init)
-
-    ani.save('double_pendulum.mp4', fps=15)
-
-Contact Michael Droettboom for the login password to upload youtube videos of
-google docs to the mplgithub account.
-
 .. _inheritance-diagrams:
 
 Generating inheritance diagrams
