@@ -1063,6 +1063,13 @@ showpage
 """,
                 encoding="latin-1")
 
+            if len(ps_renderer.psfrag) == 0:
+                # No text, so no need to distill
+                if is_eps:
+                    pstoeps(str(tmppath))
+                _move_path_to_path_or_stream(tmppath, outfile)
+                return
+
             if orientation is _Orientation.landscape:  # now, ready to rotate
                 width, height = height, width
                 bbox = (lly, llx, ury, urx)
