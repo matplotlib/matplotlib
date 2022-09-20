@@ -21,7 +21,8 @@ from mpl_toolkits.axes_grid1.axes_divider import (
     Divider, HBoxDivider, make_axes_area_auto_adjustable)
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
-    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
+    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
+    InsetPosition)
 import mpl_toolkits.axes_grid1.mpl_axes
 
 import pytest
@@ -569,6 +570,14 @@ def test_rgb_axes():
     g = rng.random((5, 5))
     b = rng.random((5, 5))
     ax.imshow_rgb(r, g, b, interpolation='none')
+
+
+@image_comparison(['insetposition.png'], remove_text=True)
+def test_insetposition():
+    fig, ax = plt.subplots(figsize=(2, 2))
+    ax_ins = plt.axes([0, 0, 1, 1])
+    ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
+    ax_ins.set_axes_locator(ip)
 
 
 # The original version of this test relied on mpl_toolkits's slightly different

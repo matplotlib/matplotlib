@@ -1,12 +1,15 @@
 """
-===================
-Inset Locator Demo2
-===================
+====================
+Inset Locator Demo 2
+====================
 
 This Demo shows how to create a zoomed inset via `.zoomed_inset_axes`.
 In the first subplot an `.AnchoredSizeBar` shows the zoom effect.
 In the second subplot a connection to the region of interest is
 created via `.mark_inset`.
+
+A version of the second subplot, not using the toolkit, is available in
+:doc:`/gallery/subplots_axes_and_figures/zoom_inset_axes`.
 """
 
 from matplotlib import cbook
