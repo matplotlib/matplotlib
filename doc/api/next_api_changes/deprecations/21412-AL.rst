@@ -1,3 +1,0 @@
-``backend_svg.generate_transform`` and ``backend_svg.generate_css``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... are deprecated with no replacement.
