@@ -1,9 +1,9 @@
 """
-============================================================================
-Demonstrates plotting contour (level) curves in 3D using the extend3d option
-============================================================================
+===========================================================
+Plot contour (level) curves in 3D using the extend3d option
+===========================================================
 
-This modification of the contour3d_demo example uses extend3d=True to
+This modification of the :doc:`contour3d` example uses ``extend3d=True`` to
 extend the curves vertically into 'ribbons'.
 """
 

@@ -1,6 +1,6 @@
 """
 ================
-Lorenz Attractor
+Lorenz attractor
 ================
 
 This is an example of plotting Edward Lorenz's 1963 `"Deterministic Nonperiodic
