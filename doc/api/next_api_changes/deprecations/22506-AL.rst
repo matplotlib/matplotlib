@@ -1,3 +1,0 @@
-``MathtextBackend``, ``MathtextBackendAgg``, ``MathtextBackendPath``, ``MathTextWarning``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... are deprecated with no replacement.

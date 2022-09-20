@@ -1,3 +1,0 @@
-The ``texcommand`` and ``latex_header`` attributes of ``backend_pgf.LatexManager``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... are deprecated.

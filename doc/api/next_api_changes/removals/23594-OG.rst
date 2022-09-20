@@ -1,4 +1,0 @@
-Passing bytes to ``FT2Font.set_text``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... is no longer supported. Pass str instead.

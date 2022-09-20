@@ -1,2 +1,0 @@
-``gui_support.macosx`` setup option has been renamed to ``packages.macosx``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
