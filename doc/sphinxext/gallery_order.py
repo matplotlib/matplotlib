@@ -50,9 +50,9 @@ class MplExplicitOrder(ExplicitOrder):
 list_all = [
     #  **Tutorials**
     #  introductory
-    "usage", "pyplot", "sample_plots", "images", "lifecycle", "customizing",
+    "quick_start", "pyplot", "images", "lifecycle", "customizing",
     #  intermediate
-    "artists", "legend_guide", "color_cycle", "gridspec",
+    "artists", "legend_guide", "color_cycle",
     "constrainedlayout_guide", "tight_layout_guide",
     #  advanced
     #  text
