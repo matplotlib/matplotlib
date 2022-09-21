@@ -26,7 +26,7 @@ ax.plot(x, y)
 # -------
 # The default margin around the data limits is 5%:
 
-ax.margins()
+print(ax.margins())
 
 ###############################################################################
 # The margins can be made larger using `~matplotlib.axes.Axes.margins`:

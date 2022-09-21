@@ -199,6 +199,7 @@ sphinx_gallery_conf = {
     'subsection_order': gallery_order.sectionorder,
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order.subsectionorder,
+    'capture_repr': (),
 }
 
 if 'plot_gallery=0' in sys.argv:
