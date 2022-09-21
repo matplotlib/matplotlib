@@ -1,6 +1,6 @@
 """
 =========================
-Automatic Text Offsetting
+Automatic text offsetting
 =========================
 
 This example demonstrates mplot3d's offset text display.

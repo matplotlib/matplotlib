@@ -3,7 +3,7 @@
 Create 3D histogram of 2D data
 ==============================
 
-Demo of a histogram for 2 dimensional data as a bar graph in 3D.
+Demo of a histogram for 2D data as a bar graph in 3D.
 """
 
 import matplotlib.pyplot as plt
