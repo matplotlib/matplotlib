@@ -1681,7 +1681,7 @@ class _AxesBase(martist.Artist):
         if not cbook._str_equal(aspect, 'auto'):
             aspect = float(aspect)  # raise ValueError if necessary
             if aspect <= 0 or ~np.isfinite(aspect):
-                raise ValueError(f"aspect must be finite and positive: aspect = {aspect}")
+                raise ValueError("aspect must be finite and positive ")
 
         if share:
             axes = {sibling for name in self._axis_names
