@@ -26,7 +26,7 @@ explicit and implicit interfaces see :ref:`api_interfaces`.
 In the explicit object-oriented (OO) interface we directly utilize instances of
 :class:`axes.Axes` to build up the visualization in an instance of
 :class:`figure.Figure`.  In the implicit interface, inspired by and modeled on
-MATLAB, uses an global state-based interface which is is encapsulated in the
+MATLAB, uses an global state-based interface which is encapsulated in the
 :mod:`.pyplot` module to plot to the "current Axes".  See the :doc:`pyplot
 tutorials </tutorials/introductory/pyplot>` for a more in-depth look at the
 pyplot interface.
