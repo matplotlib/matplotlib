@@ -241,10 +241,12 @@ def test_contour_colorbar():
     fig.colorbar(CS, orientation='horizontal', extend='both')
     fig.colorbar(CS, orientation='vertical')
 
+
 def test_contour_uniformfield_colorbar():
     fig, ax = plt.subplots()
     cs = ax.contour([[1, 1], [1, 1]])
     fig.colorbar(cs, ax=ax)
+
 
 @image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
