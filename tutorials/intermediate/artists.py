@@ -115,6 +115,7 @@ drawing of the ticks, tick labels and axis labels.
 
 Try creating the figure below.
 """
+# sphinx_gallery_capture_repr = ('__repr__',)
 
 import numpy as np
 import matplotlib.pyplot as plt
