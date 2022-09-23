@@ -901,6 +901,14 @@ def test_hexbin_empty():
     ax.hexbin([], [])
 
 
+@image_comparison(['hexbin_empty.png'], remove_text=True)
+def test_hexbin_log_empty():
+    # From #23922: creating hexbin with log scaling from empty
+    # dataset raises ValueError
+    ax = plt.gca()
+    ax.hexbin([], [], bins='log')
+
+
 def test_hexbin_pickable():
     # From #1973: Test that picking a hexbin collection works
     fig, ax = plt.subplots()
