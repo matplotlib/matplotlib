@@ -656,3 +656,14 @@ def test_compressed1():
     pos = axs[1, 2].get_position()
     np.testing.assert_allclose(pos.x1, 0.8618, atol=1e-3)
     np.testing.assert_allclose(pos.y0, 0.1934, atol=1e-3)
+
+
+@pytest.mark.parametrize('arg, state', [
+    (True, True),
+    (False, False),
+    ({}, True),
+    ({'rect': None}, True)
+])
+def test_set_constrained_layout(arg, state):
+    fig, ax = plt.subplots(constrained_layout=arg)
+    assert fig.get_constrained_layout() is state

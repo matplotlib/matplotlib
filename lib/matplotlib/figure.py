@@ -2426,9 +2426,12 @@ class Figure(FigureBase):
             if isinstance(tight_layout, dict):
                 self.get_layout_engine().set(**tight_layout)
         elif constrained_layout is not None:
-            self.set_layout_engine(layout='constrained')
             if isinstance(constrained_layout, dict):
+                self.set_layout_engine(layout='constrained')
                 self.get_layout_engine().set(**constrained_layout)
+            elif constrained_layout:
+                self.set_layout_engine(layout='constrained')
+
         else:
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)
