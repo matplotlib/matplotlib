@@ -263,7 +263,6 @@ def switch_backend(newbackend):
 
     backend_mod = importlib.import_module(
         cbook._backend_module_name(newbackend))
-    canvas_class = backend_mod.FigureCanvas
 
     required_framework = _get_required_interactive_framework(backend_mod)
     if required_framework is not None:
@@ -293,6 +292,8 @@ def switch_backend(newbackend):
     # also update backend_mod accordingly; also, per-backend customization of
     # draw_if_interactive is disabled.
     if new_figure_manager is None:
+        # only try to get the canvas class if have opted into the new scheme
+        canvas_class = backend_mod.FigureCanvas
         def new_figure_manager_given_figure(num, figure):
             return canvas_class.new_manager(figure, num)
 
