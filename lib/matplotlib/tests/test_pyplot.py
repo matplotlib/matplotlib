@@ -1,5 +1,4 @@
 import difflib
-import re
 
 import numpy as np
 import subprocess
@@ -367,10 +366,42 @@ def test_doc_pyplot_summary():
     if not pyplot_docs.exists():
         pytest.skip("Documentation sources not available")
 
-    lines = pyplot_docs.read_text()
-    m = re.search(r':nosignatures:\n\n(.*?)\n\n', lines, re.DOTALL)
-    doc_functions = set(line.strip() for line in m.group(1).split('\n'))
-    plot_commands = set(plt.get_plot_commands())
+    def extract_documented_functions(lines):
+        """
+        Return a list of all the functions that are mentioned in the
+        autosummary blocks contained in *lines*.
+
+        An autosummary block looks like this::
+
+            .. autosummary::
+               :toctree: _as_gen
+               :template: autosummary.rst
+               :nosignatures:
+
+               plot
+               plot_date
+
+        """
+        functions = []
+        in_autosummary = False
+        for line in lines:
+            if not in_autosummary:
+                if line.startswith(".. autosummary::"):
+                    in_autosummary = True
+            else:
+                if not line or line.startswith("   :"):
+                    # empty line or autosummary parameter
+                    continue
+                if not line[0].isspace():
+                    # no more indentation: end of autosummary block
+                    in_autosummary = False
+                    continue
+                functions.append(line.strip())
+        return functions
+
+    lines = pyplot_docs.read_text().split("\n")
+    doc_functions = set(extract_documented_functions(lines))
+    plot_commands = set(plt._get_pyplot_commands())
     missing = plot_commands.difference(doc_functions)
     if missing:
         raise AssertionError(
