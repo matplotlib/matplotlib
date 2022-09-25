@@ -48,9 +48,9 @@ ax.set_facecolor('#eafff5')
 # 3) gray level string:
 ax.set_title('Voltage vs. time chart', color='0.7')
 # 4) single letter color string
-ax.set_xlabel('time (s)', color='c')
+ax.set_xlabel('Time [s]', color='c')
 # 5) a named color:
-ax.set_ylabel('voltage (mV)', color='peachpuff')
+ax.set_ylabel('Voltage [mV]', color='peachpuff')
 # 6) a named xkcd color:
 ax.plot(t, s, 'xkcd:crimson')
 # 7) Cn notation:
