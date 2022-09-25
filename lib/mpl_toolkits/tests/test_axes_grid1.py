@@ -18,7 +18,7 @@ from mpl_toolkits.axes_grid1 import (
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
 from mpl_toolkits.axes_grid1.axes_divider import (
-    Divider, HBoxDivider, make_axes_area_auto_adjustable)
+    Divider, HBoxDivider, make_axes_area_auto_adjustable, SubplotDivider)
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
@@ -367,6 +367,40 @@ def test_axes_locatable_position():
     fig.canvas.draw()
     assert np.isclose(cax.get_position(original=False).width,
                       0.03621495327102808)
+
+
+@image_comparison(['image_grid_each_left_label_mode_all.png'], style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid_each_left_label_mode_all():
+    imdata = np.arange(100).reshape((10, 10))
+
+    fig = plt.figure(1, (3, 3))
+    grid = ImageGrid(fig, (1, 1, 1), nrows_ncols=(3, 2), axes_pad=(0.5, 0.3),
+                     cbar_mode="each", cbar_location="left", cbar_size="15%",
+                     label_mode="all")
+    # 3-tuple rect => SubplotDivider
+    assert isinstance(grid.get_divider(), SubplotDivider)
+    assert grid.get_axes_pad() == (0.5, 0.3)
+    assert grid.get_aspect()  # True by default for ImageGrid
+    for ax, cax in zip(grid, grid.cbar_axes):
+        im = ax.imshow(imdata, interpolation='none')
+        cax.colorbar(im)
+
+
+@image_comparison(['image_grid_single_bottom_label_mode_1.png'], style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid_single_bottom():
+    imdata = np.arange(100).reshape((10, 10))
+
+    fig = plt.figure(1, (2.5, 1.5))
+    grid = ImageGrid(fig, (0, 0, 1, 1), nrows_ncols=(1, 3),
+                     axes_pad=(0.2, 0.15), cbar_mode="single",
+                     cbar_location="bottom", cbar_size="10%", label_mode="1")
+    # 4-tuple rect => Divider, isinstance will give True for SubplotDivider
+    assert type(grid.get_divider()) is Divider
+    for i in range(3):
+        im = grid[i].imshow(imdata, interpolation='none')
+    grid.cbar_axes[0].colorbar(im)
 
 
 @image_comparison(['image_grid.png'],
