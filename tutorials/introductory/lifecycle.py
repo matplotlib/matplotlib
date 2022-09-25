@@ -34,16 +34,16 @@ pyplot interface.
 Most of the terms are straightforward but the main thing to remember
 is that:
 
-* The `.Figure` is the final image that may contain one or more `.Axes`.
-* The `.Axes` represent an individual plot (don't confuse this with the word
-  "axis", which refers to the x/y axis of a plot).
+* The `.Figure` is the final image, and may contain one or more `~.axes.Axes`.
+* The `~.axes.Axes` represents an individual plot (not to be confused with 
+   `.Axis`, which refers to the x/y axis of a plot).
 
 We call methods that do the plotting directly from the Axes, which gives
 us much more flexibility and power in customizing our plot.
 
 .. note::
 
-   In general, prefer the explicit interface over the implicit pyplot interface
+   In general, use the explicit interface over the implicit pyplot interface
    for plotting.
 
 Our data
