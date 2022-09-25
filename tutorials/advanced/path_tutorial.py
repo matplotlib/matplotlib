@@ -76,11 +76,11 @@ plt.show()
 # ==============
 #
 # Some of the path components require multiple vertices to specify them:
-# for example CURVE 3 is a `bézier
+# for example CURVE 3 is a `Bézier
 # <https://en.wikipedia.org/wiki/B%C3%A9zier_curve>`_ curve with one
 # control point and one end point, and CURVE4 has three vertices for the
 # two control points and the end point.  The example below shows a
-# CURVE4 Bézier spline -- the bézier curve will be contained in the
+# CURVE4 Bézier spline -- the Bézier curve will be contained in the
 # convex hull of the start point, the two control points, and the end
 # point
 
@@ -139,8 +139,8 @@ plt.show()
 # for each histogram bar: the rectangle width is the bin width and the
 # rectangle height is the number of datapoints in that bin.  First we'll
 # create some random normally distributed data and compute the
-# histogram.  Because numpy returns the bin edges and not centers, the
-# length of ``bins`` is 1 greater than the length of ``n`` in the
+# histogram.  Because NumPy returns the bin edges and not centers, the
+# length of ``bins`` is one greater than the length of ``n`` in the
 # example below::
 #
 #     # histogram our data with numpy
@@ -159,10 +159,10 @@ plt.show()
 #
 # Now we have to construct our compound path, which will consist of a
 # series of ``MOVETO``, ``LINETO`` and ``CLOSEPOLY`` for each rectangle.
-# For each rectangle, we need 5 vertices: 1 for the ``MOVETO``, 3 for
-# the ``LINETO``, and 1 for the ``CLOSEPOLY``.  As indicated in the
-# table above, the vertex for the closepoly is ignored but we still need
-# it to keep the codes aligned with the vertices::
+# For each rectangle, we need five vertices: one for the ``MOVETO``,
+# three for the ``LINETO``, and one for the ``CLOSEPOLY``.  As indicated
+# in the table above, the vertex for the closepoly is ignored but we still
+# need it to keep the codes aligned with the vertices::
 #
 #     nverts = nrects*(1+3+1)
 #     verts = np.zeros((nverts, 2))
