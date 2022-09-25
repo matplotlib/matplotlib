@@ -42,7 +42,7 @@ half.  Then you would use::
 
 If, as in this example, there are no discontinuities in the r, g, and b
 components, then it is quite simple: the second and third element of
-each tuple, above, is the same--call it "``y``".  The first element ("``x``")
+each tuple, above, is the same -- call it "``y``".  The first element ("``x``")
 defines interpolation intervals over the full range of 0 to 1, and it
 must span that whole range.  In other words, the values of ``x`` divide the
 0-to-1 range into a set of segments, and ``y`` gives the end-point color
