@@ -32,7 +32,7 @@ import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes
 from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
 from matplotlib.transforms import Bbox
-from matplotlib.tri.triangulation import Triangulation
+from matplotlib.tri._triangulation import Triangulation
 
 from . import art3d
 from . import proj3d
@@ -2153,7 +2153,7 @@ class Axes3D(Axes):
 
         Returns
         -------
-        matplotlib.tri.tricontour.TriContourSet
+        matplotlib.tri._tricontour.TriContourSet
         """
         had_data = self.has_data()
 
@@ -2246,7 +2246,7 @@ class Axes3D(Axes):
 
         Returns
         -------
-        matplotlib.tri.tricontour.TriContourSet
+        matplotlib.tri._tricontour.TriContourSet
         """
         had_data = self.has_data()
 

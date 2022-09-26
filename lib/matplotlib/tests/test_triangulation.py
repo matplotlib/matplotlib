@@ -614,7 +614,7 @@ def test_triinterpcubic_cg_solver():
 
     # Instantiating a sparse Poisson matrix of size 48 x 48:
     (n, m) = (12, 4)
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(*poisson_sparse_matrix(n, m))
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(*poisson_sparse_matrix(n, m))
     mat.compress_csc()
     mat_dense = mat.to_dense()
     # Testing a sparse solve for all 48 basis vector
@@ -635,16 +635,16 @@ def test_triinterpcubic_cg_solver():
     rows = np.concatenate([rows, [i_zero, i_zero-1, j_zero, j_zero-1]])
     cols = np.concatenate([cols, [i_zero-1, i_zero, j_zero-1, j_zero]])
     vals = np.concatenate([vals, [1., 1., 1., 1.]])
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(vals, rows, cols,
-                                                 (n*m + 2, n*m + 2))
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(vals, rows, cols,
+                                                  (n*m + 2, n*m + 2))
     mat.compress_csc()
     mat_dense = mat.to_dense()
     # Testing a sparse solve for all 50 basis vec
     for itest in range(n*m + 2):
         b = np.zeros(n*m + 2, dtype=np.float64)
         b[itest] = 1.
-        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.ones(n*m + 2),
-                                       tol=1.e-10)
+        x, _ = mtri._triinterpolate._cg(A=mat, b=b, x0=np.ones(n * m + 2),
+                                        tol=1.e-10)
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
     # 3) Now a simple test that summation of duplicate (i.e. with same rows,
@@ -655,7 +655,7 @@ def test_triinterpcubic_cg_solver():
     cols = np.array([0, 1, 2, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
                     dtype=np.int32)
     dim = (3, 3)
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(vals, rows, cols, dim)
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(vals, rows, cols, dim)
     mat.compress_csc()
     mat_dense = mat.to_dense()
     assert_array_almost_equal(mat_dense, np.array([
@@ -678,7 +678,7 @@ def test_triinterpcubic_geom_weights():
         y_rot = -np.sin(theta)*x + np.cos(theta)*y
         triang = mtri.Triangulation(x_rot, y_rot, triangles)
         cubic_geom = mtri.CubicTriInterpolator(triang, z, kind='geom')
-        dof_estimator = mtri.triinterpolate._DOF_estimator_geom(cubic_geom)
+        dof_estimator = mtri._triinterpolate._DOF_estimator_geom(cubic_geom)
         weights = dof_estimator.compute_geom_weights()
         # Testing for the 4 possibilities...
         sum_w[0, :] = np.sum(weights, 1) - 1

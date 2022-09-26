@@ -6,8 +6,8 @@ import numpy as np
 
 from matplotlib import _api
 from matplotlib.tri import Triangulation
-from matplotlib.tri.trifinder import TriFinder
-from matplotlib.tri.tritools import TriAnalyzer
+from matplotlib.tri._trifinder import TriFinder
+from matplotlib.tri._tritools import TriAnalyzer
 
 __all__ = ('TriInterpolator', 'LinearTriInterpolator', 'CubicTriInterpolator')
 

@@ -192,7 +192,7 @@ class Triangulation:
         """
         if self._trifinder is None:
             # Default TriFinder class.
-            from matplotlib.tri.trifinder import TrapezoidMapTriFinder
+            from matplotlib.tri._trifinder import TrapezoidMapTriFinder
             self._trifinder = TrapezoidMapTriFinder(self)
         return self._trifinder
 

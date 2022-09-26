@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib import _api
 from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.colors import Normalize
-from matplotlib.tri.triangulation import Triangulation
+from matplotlib.tri._triangulation import Triangulation
 
 
 def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,

@@ -2,15 +2,15 @@
 Unstructured triangular grid functions.
 """
 
-from .triangulation import Triangulation
-from .tricontour import TriContourSet, tricontour, tricontourf
-from .trifinder import TriFinder, TrapezoidMapTriFinder
-from .triinterpolate import (TriInterpolator, LinearTriInterpolator,
-                             CubicTriInterpolator)
-from .tripcolor import tripcolor
-from .triplot import triplot
-from .trirefine import TriRefiner, UniformTriRefiner
-from .tritools import TriAnalyzer
+from ._triangulation import Triangulation
+from ._tricontour import TriContourSet, tricontour, tricontourf
+from ._trifinder import TriFinder, TrapezoidMapTriFinder
+from ._triinterpolate import (TriInterpolator, LinearTriInterpolator,
+                              CubicTriInterpolator)
+from ._tripcolor import tripcolor
+from ._triplot import triplot
+from ._trirefine import TriRefiner, UniformTriRefiner
+from ._tritools import TriAnalyzer
 
 
 __all__ = ["Triangulation",

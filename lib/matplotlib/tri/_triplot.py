@@ -1,5 +1,5 @@
 import numpy as np
-from matplotlib.tri.triangulation import Triangulation
+from matplotlib.tri._triangulation import Triangulation
 import matplotlib.cbook as cbook
 import matplotlib.lines as mlines
 
