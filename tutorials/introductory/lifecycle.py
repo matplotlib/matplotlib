@@ -35,7 +35,7 @@ Most of the terms are straightforward but the main thing to remember
 is that:
 
 * The `.Figure` is the final image, and may contain one or more `~.axes.Axes`.
-* The `~.axes.Axes` represents an individual plot (not to be confused with 
+* The `~.axes.Axes` represents an individual plot (not to be confused with
    `.Axis`, which refers to the x/y axis of a plot).
 
 We call methods that do the plotting directly from the Axes, which gives
