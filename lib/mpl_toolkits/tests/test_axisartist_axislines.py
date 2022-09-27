@@ -4,7 +4,7 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import IdentityTransform
 
 from mpl_toolkits.axisartist.axislines import SubplotZero, Subplot
-from mpl_toolkits.axisartist import Axes, SubplotHost, ParasiteAxes
+from mpl_toolkits.axisartist import Axes, SubplotHost
 
 
 @image_comparison(['SubplotZero.png'], style='default')
@@ -81,8 +81,7 @@ def test_ParasiteAxesAuxTrans():
         ax1 = SubplotHost(fig, 1, 3, i+1)
         fig.add_subplot(ax1)
 
-        ax2 = ParasiteAxes(ax1, IdentityTransform())
-        ax1.parasites.append(ax2)
+        ax2 = ax1.get_aux_axes(IdentityTransform(), viewlim_mode=None)
         if name.startswith('pcolor'):
             getattr(ax2, name)(xx, yy, data[:-1, :-1])
         else:
