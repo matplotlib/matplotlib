@@ -233,7 +233,7 @@ class _FigureManagerGTK(FigureManagerBase):
         width = int(width / self.canvas.device_pixel_ratio)
         height = int(height / self.canvas.device_pixel_ratio)
         if self.toolbar:
-            toolbar_size = self.toolbar.size_request()
+            toolbar_size = self.toolbar.get_size_request()
             height += toolbar_size.height
         canvas_size = self.canvas.get_allocation()
         if self._gtk_ver >= 4 or canvas_size.width == canvas_size.height == 1:
