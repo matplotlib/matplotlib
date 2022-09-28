@@ -256,6 +256,48 @@ cmap2 = LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors)))
 plot_examples([cmap1, cmap2])
 
 #############################################################################
+# .. _reversing-colormap:
+#
+# Reversing a colormap
+# ====================
+#
+# `.Colormap.reversed` creates a new colormap that is a reversed version of
+# the original colormap.
+
+colors = ["#ffffcc", "#a1dab4", "#41b6c4", "#2c7fb8", "#253494"]
+my_cmap = ListedColormap(colors, name="my_cmap")
+
+my_cmap_r = my_cmap.reversed()
+
+plot_examples([my_cmap, my_cmap_r])
+# %%
+# If no name is passed in, ``.reversed`` also names the copy by
+# :ref:`appending '_r' <registering-colormap>` to the original colormap's
+# name.
+
+##############################################################################
+# .. _registering-colormap:
+#
+# Registering a colormap
+# ======================
+#
+# Colormaps can be added to the `matplotlib.colormaps` list of named colormaps.
+# This allows the colormaps to be accessed by name in plotting functions:
+
+# my_cmap, my_cmap_r from reversing a colormap
+mpl.colormaps.register(cmap=my_cmap)
+mpl.colormaps.register(cmap=my_cmap_r)
+
+data = [[1, 2, 3, 4, 5]]
+
+fig, (ax1, ax2) = plt.subplots(nrows=2)
+
+ax1.imshow(data, cmap='my_cmap')
+ax2.imshow(data, cmap='my_cmap_r')
+
+plt.show()
+
+#############################################################################
 #
 # .. admonition:: References
 #
