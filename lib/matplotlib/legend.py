@@ -38,7 +38,7 @@ from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
                                 StepPatch)
 from matplotlib.collections import (
     Collection, CircleCollection, LineCollection, PathCollection,
-    PolyCollection, RegularPolyCollection)
+    PolyCollection, PatchCollection, RegularPolyCollection)
 from matplotlib.text import Text
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
@@ -792,6 +792,7 @@ class Legend(Artist):
         Patch: legend_handler.HandlerPatch(),
         StepPatch: legend_handler.HandlerStepPatch(),
         LineCollection: legend_handler.HandlerLineCollection(),
+        PatchCollection: legend_handler.HandlerPatchCollection(),
         RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
         CircleCollection: legend_handler.HandlerCircleCollection(),
         BarContainer: legend_handler.HandlerPatch(
