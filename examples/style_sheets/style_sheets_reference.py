@@ -67,13 +67,10 @@ def plot_colored_circles(ax, prng, nb_samples=15):
         ax.add_patch(plt.Circle(prng.normal(scale=3, size=2),
                                 radius=1.0, color=sty_dict['color']))
     ax.grid(visible=True)
-    # Add annotation for enabling grid
-    ax.annotate('ax.grid(True)', xy=(1, 1),
-                xytext=(5, 8),
-                va="top", ha="right",
-                )
-    # Force the limits to be the same across the styles (because different
-    # styles may have different numbers of available colors).
+
+    # Add title for enabling grid
+    plt.title('ax.grid(True)', family='monospace', y=1.075)
+
     ax.set_xlim([-4, 8])
     ax.set_ylim([-5, 6])
     ax.set_aspect('equal', adjustable='box')  # to plot circles as circles
