@@ -328,6 +328,38 @@ class HandlerPatch(HandlerBase):
         super().__init__(**kwargs)
         self._patch_func = patch_func
 
+
+    def _create_patch(self, legend, orig_handle,
+                      xdescent, ydescent, width, height, fontsize):
+        if self._patch_func is None:
+            p = Rectangle(xy=(-xdescent, -ydescent),
+                          width=width, height=height)
+        else:
+            p = self._patch_func(legend=legend, orig_handle=orig_handle,
+                                 xdescent=xdescent, ydescent=ydescent,
+                                 width=width, height=height, fontsize=fontsize)
+        return p
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        p = self._create_patch(legend, orig_handle,
+                               xdescent, ydescent, width, height, fontsize)
+        self.update_prop(p, orig_handle, legend)
+        p.set_transform(trans)
+        return [p]
+#I added this (emmamastro)
+class HandlerPatchCollection(HandlerBase):
+    """
+    Handler for Collection of `.Patch` instances.
+    """
+    def _default_update_prop(self, legend_handle, orig_handle):
+            lw = orig_handle.get_linewidths()[0]
+            dashes = orig_handle._us_linestyles[0]
+            color = orig_handle.get_colors()[0]
+            legend_handle.set_color(color)
+            legend_handle.set_linestyle(dashes)
+            legend_handle.set_linewidth(lw)
+
     def _create_patch(self, legend, orig_handle,
                       xdescent, ydescent, width, height, fontsize):
         if self._patch_func is None:

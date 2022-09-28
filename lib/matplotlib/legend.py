@@ -665,6 +665,8 @@ class Legend(Artist):
         ErrorbarContainer: legend_handler.HandlerErrorbar(),
         Line2D: legend_handler.HandlerLine2D(),
         Patch: legend_handler.HandlerPatch(),
+        #I added this (emma mastro)
+        PathCollection: legend_handler.HandlerPatchCollection(),
         StepPatch: legend_handler.HandlerStepPatch(),
         LineCollection: legend_handler.HandlerLineCollection(),
         RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
