@@ -621,8 +621,8 @@ def test_triinterpcubic_cg_solver():
     for itest in range(n*m):
         b = np.zeros(n*m, dtype=np.float64)
         b[itest] = 1.
-        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.zeros(n*m),
-                                       tol=1.e-10)
+        x, _ = mtri._triinterpolate._cg(A=mat, b=b, x0=np.zeros(n*m),
+                                        tol=1.e-10)
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
     # 2) Same matrix with inserting 2 rows - cols with null diag terms
