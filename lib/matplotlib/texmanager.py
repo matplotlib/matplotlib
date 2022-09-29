@@ -231,7 +231,6 @@ class TexManager:
             rf"\fontsize{{{fontsize}}}{{{baselineskip}}}%",
             r"\ifdefined\psfrag\else\hbox{}\fi%",
             rf"{{{fontcmd} {tex}}}%",
-            r"\special{matplotlibbaselinemarker}%",
             r"\end{document}",
         ])
 
