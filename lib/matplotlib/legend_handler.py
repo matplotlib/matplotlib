@@ -347,7 +347,7 @@ class HandlerPatch(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
-#I added this (emmamastro)
+
 class HandlerPatchCollection(HandlerBase):
     """
     Handler for Collection of `.Patch` instances.
