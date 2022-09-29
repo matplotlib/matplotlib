@@ -7,6 +7,8 @@ This example shows how to create an annotation on a polar graph.
 
 For a complete overview of the annotation capabilities, also see the
 :doc:`annotation tutorial</tutorials/text/annotations>`.
+
+.. redirect-from:: /gallery/pyplots/annotation_polar
 """
 import numpy as np
 import matplotlib.pyplot as plt
