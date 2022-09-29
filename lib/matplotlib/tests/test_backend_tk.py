@@ -53,11 +53,14 @@ def _isolated_tk_test(success_count, func=None):
                         + str(e.stderr))
         else:
             # macOS may actually emit irrelevant errors about Accelerated
-            # OpenGL vs. software OpenGL, so suppress them.
+            # OpenGL vs. software OpenGL, or some permission error on Azure, so
+            # suppress them.
             # Asserting stderr first (and printing it on failure) should be
             # more helpful for debugging that printing a failed success count.
+            ignored_lines = ["OpenGL", "CFMessagePort: bootstrap_register",
+                             "/usr/include/servers/bootstrap_defs.h"]
             assert not [line for line in proc.stderr.splitlines()
-                        if "OpenGL" not in line]
+                        if all(msg not in line for msg in ignored_lines)]
             assert proc.stdout.count("success") == success_count
 
     return test_func
