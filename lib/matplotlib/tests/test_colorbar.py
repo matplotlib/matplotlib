@@ -243,11 +243,10 @@ def test_contour_colorbar():
 
 
 def test_contour_uniformfield_colorbar():
-	# Smoke test for gh#23817
+    # Smoke test for gh#23817
     fig, ax = plt.subplots()
     with pytest.warns(Warning) as record:
         cs = ax.contour([[1, 1], [1, 1]])
-        fig.colorbar(cs, ax=ax)
     assert len(record) == 1
 
 
