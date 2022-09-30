@@ -68,15 +68,15 @@ Here is a detailed description of the configuration methods:
 
    On Unix::
 
-        > export MPLBACKEND=qtagg
-        > python simple_plot.py
+        >>> export MPLBACKEND=qtagg
+        >>> python simple_plot.py
 
-        > MPLBACKEND=qtagg python simple_plot.py
+        >>> MPLBACKEND=qtagg python simple_plot.py
 
    On Windows, only the former is possible::
 
-        > set MPLBACKEND=qtagg
-        > python simple_plot.py
+        >>> set MPLBACKEND=qtagg
+        >>> python simple_plot.py
 
    Setting this environment variable will override the ``backend`` parameter
    in *any* :file:`matplotlibrc`, even if there is a :file:`matplotlibrc` in
