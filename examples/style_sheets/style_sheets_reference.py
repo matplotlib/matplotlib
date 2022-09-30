@@ -69,7 +69,7 @@ def plot_colored_circles(ax, prng, nb_samples=15):
     ax.grid(visible=True)
 
     # Add title for enabling grid
-    plt.title('ax.grid(True)', family='monospace', fonstize='small')
+    plt.title('ax.grid(True)', family='monospace', fontsize='small')
 
     ax.set_xlim([-4, 8])
     ax.set_ylim([-5, 6])
