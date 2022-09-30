@@ -3,9 +3,18 @@
 Span Selector
 =============
 
-The SpanSelector is a mouse widget to select a xmin/xmax range and plot the
-detail view of the selected region in the lower axes
+The `.SpanSelector` is a mouse widget that enables selecting a range on an
+axis.
+
+Here, an x-range can be selected on the upper axis; a detailed view of the
+selected range is then plotted on the lower axis.
+
+.. note::
+
+    If the SpanSelector object is garbage collected you will lose the
+    interactivity.  You must keep a hard reference to it to prevent this.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import SpanSelector
@@ -38,14 +47,6 @@ def onselect(xmin, xmax):
         ax2.set_xlim(region_x[0], region_x[-1])
         ax2.set_ylim(region_y.min(), region_y.max())
         fig.canvas.draw_idle()
-
-
-#############################################################################
-# .. note::
-#
-#    If the SpanSelector object is garbage collected you will lose the
-#    interactivity.  You must keep a hard reference to it to prevent this.
-#
 
 
 span = SpanSelector(
