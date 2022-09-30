@@ -8,6 +8,7 @@ from matplotlib import dviread
 from matplotlib.testing import _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
+from matplotlib.texmanager import TexManager
 import matplotlib.pyplot as plt
 
 
@@ -138,3 +139,10 @@ def test_missing_psfont(fmt, monkeypatch):
     ax.text(0.5, 0.5, 'hello')
     with TemporaryFile() as tmpfile, pytest.raises(ValueError):
         fig.savefig(tmpfile, format=fmt)
+
+
+def test_ends_with_displaymath():
+    # Check that we do not include extra vspace after displaymath.
+    text = r'\begin{eqnarray*} foo \\ bar \end{eqnarray*}'
+    w, h, d = TexManager().get_text_width_height_descent(text, 12)
+    assert d == 0  # no extra descent on the last line.
