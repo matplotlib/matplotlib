@@ -1260,6 +1260,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     elif len(args) >= 2:
         handles, labels = args[:2]
         extra_args = args[2:]
+    elif len(handles)!= len(labels):
+        raise ValueError("fewer handles than labels or vice versa")
 
     else:
         raise TypeError('Invalid arguments to legend.')
