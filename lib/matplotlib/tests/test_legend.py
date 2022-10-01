@@ -970,3 +970,11 @@ def test_ncol_ncols(fig_test, fig_ref):
     ncols = 3
     fig_test.legend(strings, ncol=ncols)
     fig_ref.legend(strings, ncols=ncols)
+
+
+def test_handles_labels_length(self):
+    l1 = plt.plot(range(10))
+    l2 = plt.plot(range(11))
+    with pytest.raises(ValueError, match="Number of handles not equal "
+                                        "to number of labels."):
+        plt.legend([l1, l2], ['l1', 'l2', 'l3'])
