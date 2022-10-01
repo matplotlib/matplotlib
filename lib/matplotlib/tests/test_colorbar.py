@@ -248,6 +248,7 @@ def test_contour_uniformfield_colorbar():
     with pytest.warns(Warning) as record:
         cs = ax.contour([[1, 1], [1, 1]])
     assert len(record) == 1
+    fig.colorbar(cs, ax=ax)
 
 
 @image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,
