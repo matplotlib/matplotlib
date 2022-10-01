@@ -1345,9 +1345,12 @@ class FontManager:
         rc_params = tuple(tuple(mpl.rcParams[key]) for key in [
             "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
             "font.monospace"])
-        return self._findfont_cached(
+        ret = self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
+        if isinstance(ret, Exception):
+            raise ret
+        return ret
 
     def get_font_names(self):
         """Return the list of available fonts."""
@@ -1496,8 +1499,11 @@ class FontManager:
                 return self.findfont(default_prop, fontext, directory,
                                      fallback_to_default=False)
             else:
-                raise ValueError(f"Failed to find font {prop}, and fallback "
-                                 f"to the default font was disabled")
+                # This return instead of raise is intentional, as we wish to
+                # cache the resulting exception, which will not occur if it was
+                # actually raised.
+                return ValueError(f"Failed to find font {prop}, and fallback "
+                                  f"to the default font was disabled")
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
                        prop, best_font.name, best_font.fname, best_score)
@@ -1516,7 +1522,10 @@ class FontManager:
                 return self.findfont(
                     prop, fontext, directory, rebuild_if_missing=False)
             else:
-                raise ValueError("No valid font could be found")
+                # This return instead of raise is intentional, as we wish to
+                # cache the resulting exception, which will not occur if it was
+                # actually raised.
+                return ValueError("No valid font could be found")
 
         return _cached_realpath(result)
 

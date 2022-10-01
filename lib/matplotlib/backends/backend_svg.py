@@ -1151,10 +1151,48 @@ class RendererSVG(RendererBase):
             weight = fm.weight_dict[prop.get_weight()]
             if weight != 400:
                 font_parts.append(f'{weight}')
+
+            def _format_font_name(fn):
+                normalize_names = {
+                    'sans': 'sans-serif',
+                    'sans serif': 'sans-serif'
+                }
+                # A generic font family.  We need to do two things:
+                #  1. list all of the configured fonts with quoted names
+                #  2. append the generic name unquoted
+                if fn in fm.font_family_aliases:
+                    # fix spelling of sans-serif
+                    # we accept 3 ways CSS only supports 1
+                    fn = normalize_names.get(fn, fn)
+                    # get all of the font names and fix spelling of sans-serif
+                    # if it comes back
+                    aliases = [
+                        normalize_names.get(_, _) for _ in
+                        fm.FontManager._expand_aliases(fn)
+                    ]
+                    # make sure the generic name appears at least once
+                    # duplicate is OK, next layer will deduplicate
+                    aliases.append(fn)
+
+                    for a in aliases:
+                        # generic font families must not be quoted
+                        if a in fm.font_family_aliases:
+                            yield a
+                        # specific font families must be quoted
+                        else:
+                            yield repr(a)
+                # specific font families must be quoted
+                else:
+                    yield repr(fn)
+
+            def _get_all_names(prop):
+                for f in prop.get_family():
+                    yield from _format_font_name(f)
+
             font_parts.extend([
                 f'{_short_float_fmt(prop.get_size())}px',
-                # ensure quoting
-                f'{", ".join(repr(f) for f in prop.get_family())}',
+                # ensure quoting and expansion of font names
+                ", ".join(dict.fromkeys(_get_all_names(prop)))
             ])
             style['font'] = ' '.join(font_parts)
             if prop.get_stretch() != 'normal':
