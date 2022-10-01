@@ -1260,6 +1260,10 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     elif len(args) >= 2:
         handles, labels = args[:2]
         extra_args = args[2:]
+    
+    #Check length of handles and labels is consistent
+    elif len(handles) != len(labels):
+        raise ValueError("Number of handles not equal to number of labels.")
 
     else:
         raise TypeError('Invalid arguments to legend.')
