@@ -4418,7 +4418,7 @@ class Axes(_AxesBase):
             The data positions.
 
         s : float or array-like, shape (n, ), optional
-            The marker size in points**2.
+            The marker size in points**2 (typographic points are 1/72 in.).
             Default is ``rcParams['lines.markersize'] ** 2``.
 
         c : array-like or list of colors or color, optional
