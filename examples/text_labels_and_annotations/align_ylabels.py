@@ -6,6 +6,7 @@ Align y-labels
 Two methods are shown here, one using a short call to `.Figure.align_ylabels`
 and the second a manual way to align the labels.
 
+.. redirect-from:: /gallery/pyplots/align_ylabels
 """
 import numpy as np
 import matplotlib.pyplot as plt

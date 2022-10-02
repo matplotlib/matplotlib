@@ -4,6 +4,8 @@ Text Commands
 =============
 
 Plotting text of many different kinds.
+
+.. redirect-from:: /gallery/pyplots/text_commands
 """
 
 import matplotlib.pyplot as plt
