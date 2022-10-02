@@ -27,25 +27,25 @@ formats and interactive environments across platforms. Matplotlib can be
 used in Python scripts, Python/IPython shells, web application servers,
 and various graphical user interface toolkits.
 
-## **Install** 
+## Install
 
 See the [install
 documentation](https://matplotlib.org/stable/users/installing/index.html),
 which is generated from `/doc/users/installing/index.rst`
 
-## **Contribute**
+## Contribute
 
-You\'ve discovered a bug or something else you want to change -
+You've discovered a bug or something else you want to change -
 excellent!
 
-You\'ve worked out a way to fix it -- even better!
+You've worked out a way to fix it -- even better!
 
 You want to tell us about it -- best of all!
 
 Start at the [contributing
 guide](https://matplotlib.org/devdocs/devel/contributing.html)!
 
-## **Contact**
+## Contact
 
 [Discourse](https://discourse.matplotlib.org/) is the discussion forum
 for general questions and discussions and our recommended starting
@@ -64,7 +64,7 @@ Our active mailing lists (which are mirrored on Discourse) are:
 development and asking questions directly related to contributing to
 matplotlib.
 
-## **Citing Matplotlib**
+## Citing Matplotlib
 
 If Matplotlib contributes to a project that leads to publication, please
 acknowledge this by citing Matplotlib.
@@ -73,7 +73,7 @@ acknowledge this by citing Matplotlib.
 entry](https://matplotlib.org/stable/users/project/citing.html) is
 available.
 
-### **Research notice**
+### Research notice
 
 Please note that this repository is participating in a study into
 sustainability of open source projects. Data will be gathered about this
