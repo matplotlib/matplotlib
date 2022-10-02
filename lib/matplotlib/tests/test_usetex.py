@@ -64,6 +64,21 @@ def test_mathdefault():
     fig.canvas.draw()
 
 
+@image_comparison(['eqnarray.png'])
+def test_multiline_eqnarray():
+    text = (
+        r'\begin{eqnarray*}'
+        r'foo\\'
+        r'bar\\'
+        r'baz\\'
+        r'\end{eqnarray*}'
+    )
+
+    fig = plt.figure(figsize=(1, 1))
+    fig.text(0.5, 0.5, text, usetex=True,
+             horizontalalignment='center', verticalalignment='center')
+
+
 @pytest.mark.parametrize("fontsize", [8, 10, 12])
 def test_minus_no_descent(fontsize):
     # Test special-casing of minus descent in DviFont._height_depth_of, by
