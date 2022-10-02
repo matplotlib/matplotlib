@@ -1221,8 +1221,10 @@ class Colorbar:
         if (isinstance(self.norm, colors.BoundaryNorm) or
                 self.boundaries is not None):
             y = (self._boundaries - self._boundaries[self._inside][0])
-            y = y / (self._boundaries[self._inside][-1] -
-                     self._boundaries[self._inside][0])
+            if (self._boundaries[self._inside][-1]
+                    != self._boundaries[self._inside][0]):
+                y = y / (self._boundaries[self._inside][-1] -
+                         self._boundaries[self._inside][0])
             # need yscaled the same as the axes scale to get
             # the extend lengths.
             if self.spacing == 'uniform':
