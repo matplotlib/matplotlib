@@ -1352,6 +1352,17 @@ def test_engformatter_usetex_useMathText():
         assert x_tick_label_text == ['$0$', '$500$', '$1$ k']
 
 
+def test_locale_comma():
+    import locale
+    currentLocale = locale.getlocale()
+    locale.setlocale(locale.LC_ALL, 'deu_deu')
+    ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
+    fmt = '$\\mathdefault{%1.1f}$'
+    formatted = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    locale.setlocale(locale.LC_ALL, currentLocale)
+    assert formatted == '$\\mathdefault{0{,}5}$'
+
+
 class TestPercentFormatter:
     percent_data = [
         # Check explicitly set decimals over different intervals and values

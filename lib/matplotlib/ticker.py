@@ -532,8 +532,11 @@ class ScalarFormatter(Formatter):
         """
         Format *arg* with *fmt*, applying Unicode minus and locale if desired.
         """
-        return self.fix_minus(locale.format_string(fmt, (arg,), True)
-                              if self._useLocale else fmt % arg)
+        formatted = self.fix_minus(locale.format_string(fmt, (arg,), True)
+                                   if self._useLocale else fmt % arg)
+        if (self.get_useMathText()):  # removed unintended space after comma
+            formatted = formatted.replace(',', '{,}')
+        return formatted
 
     def get_useMathText(self):
         """
