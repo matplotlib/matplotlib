@@ -1225,7 +1225,15 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
 
     # if got both handles and labels as kwargs, make same length
     if handles and labels:
-        handles, labels = zip(*zip(handles, labels))
+        lengthOfHandles = []
+        lengthOfLabels = []
+        lengthOfHandles, LengthOfLabels = _get_legend_handles_labels(axs, handlers)
+        if len(lengthOfHandles) != len(lengthOfLabels):
+            log.warning("The amount of labels do not match the number of legends."
+                        "Please note that they have to be the same size in order to"
+                        "produce accurate graph representations.")
+        else:
+            handles, labels = zip(*zip(handles, labels))
 
     elif handles is not None and labels is None:
         labels = [handle.get_label() for handle in handles]
