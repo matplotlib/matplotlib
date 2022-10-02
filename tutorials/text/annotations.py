@@ -25,8 +25,8 @@ from matplotlib import pyplot as plt
 # *xy* and the location of the text *xytext*.  Both of these
 # arguments are ``(x, y)`` tuples.
 #
-# .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
-#    :target: ../../gallery/pyplots/annotation_basic.html
+# .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_annotation_basic_001.png
+#    :target: ../../gallery/text_labels_and_annotations/annotation_basic.html
 #    :align: center
 #
 # In this example, both the *xy* (arrow tip) and *xytext* locations
@@ -86,8 +86,8 @@ from matplotlib import pyplot as plt
 # *fontsize* are passed from `~matplotlib.axes.Axes.annotate` to the
 # ``Text`` instance.
 #
-# .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
-#    :target: ../../gallery/pyplots/annotation_polar.html
+# .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_annotation_polar_001.png
+#    :target: ../../gallery/text_labels_and_annotations/annotation_polar.html
 #    :align: center
 #
 # For more on all the wild and wonderful things you can do with

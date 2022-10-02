@@ -8,6 +8,8 @@ Visualizing boxplots with matplotlib.
 The following examples show off how to visualize boxplots with
 Matplotlib. There are many options to control their appearance and
 the statistics that they use to summarize the data.
+
+.. redirect-from:: /gallery/pyplots/boxplot_demo_pyplot
 """
 
 import matplotlib.pyplot as plt

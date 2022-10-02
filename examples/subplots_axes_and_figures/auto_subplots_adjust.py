@@ -36,6 +36,8 @@ A solution to this is putting the adjustment logic in a draw callback.
 This function is executed after the figure has been drawn. It can now check
 if the subplot leaves enough room for the text. If not, the subplot parameters
 are updated and second draw is triggered.
+
+.. redirect-from:: /gallery/pyplots/auto_subplots_adjust
 """
 
 import matplotlib.pyplot as plt

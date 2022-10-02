@@ -4,6 +4,8 @@ Fig Axes Customize Simple
 =========================
 
 Customize the background, labels and ticks of a simple plot.
+
+.. redirect-from:: /gallery/pyplots/fig_axes_customize_simple
 """
 
 import matplotlib.pyplot as plt
