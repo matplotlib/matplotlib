@@ -187,7 +187,7 @@ multiple ways to fix this:
   - tight layout (:doc:`/tutorials/intermediate/tight_layout_guide`)
 
 - Calculate good values from the size of the plot elements yourself
-  (:doc:`/gallery/pyplots/auto_subplots_adjust`)
+  (:doc:`/gallery/subplots_axes_and_figures/auto_subplots_adjust`)
 
 .. _howto-align-label:
 
@@ -203,8 +203,8 @@ behavior by specifying the coordinates of the label.  The example
 below shows the default behavior in the left subplots, and the manual
 setting in the right subplots.
 
-.. figure:: ../../gallery/pyplots/images/sphx_glr_align_ylabels_001.png
-   :target: ../../gallery/pyplots/align_ylabels.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_align_ylabels_001.png
+   :target: ../../gallery/text_labels_and_annotations/align_ylabels.html
    :align: center
    :scale: 50
 

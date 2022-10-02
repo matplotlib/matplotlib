@@ -4,6 +4,8 @@ Dollar Ticks
 ============
 
 Use a `~.ticker.FormatStrFormatter` to prepend dollar signs on y axis labels.
+
+.. redirect-from:: /gallery/pyplots/dollar_ticks
 """
 import numpy as np
 import matplotlib.pyplot as plt

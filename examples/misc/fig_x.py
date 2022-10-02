@@ -4,6 +4,8 @@ Adding lines to figures
 =======================
 
 Adding lines to a figure without any axes.
+
+.. redirect-from:: /gallery/pyplots/fig_x
 """
 
 import matplotlib.pyplot as plt

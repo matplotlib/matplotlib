@@ -719,6 +719,6 @@ plt.show()
 # dollar signs and colors them green on the right side of the yaxis.
 #
 #
-# .. include:: ../../gallery/pyplots/dollar_ticks.rst
+# .. include:: ../../gallery/ticks/dollar_ticks.rst
 #    :start-after: y axis labels.
 #    :end-before: .. admonition:: References
