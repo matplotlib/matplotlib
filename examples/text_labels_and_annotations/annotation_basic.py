@@ -8,6 +8,8 @@ coordinates. We modify the defaults of the arrow, to "shrink" it.
 
 For a complete overview of the annotation capabilities, also see the
 :doc:`annotation tutorial</tutorials/text/annotations>`.
+
+.. redirect-from:: /gallery/pyplots/annotation_basic
 """
 import numpy as np
 import matplotlib.pyplot as plt
