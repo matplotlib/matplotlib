@@ -474,11 +474,22 @@ class Axes(_AxesBase):
                 if self.yaxis.get_inverted():
                     ey = 1 - ey
                 xy_data = x + ex * width, y + ey * height
+
+                blacklist = {
+                    'alpha', 'rasterized', 'transform',
+                    'color', 'facecolor', 'url',
+                    'hatch', 'in_layout', 'path_effects'}
+
+                patch_kwargs = {
+                    key: val for key, val in kwargs.items()
+                    if key not in blacklist}
+
                 p = mpatches.ConnectionPatch(
                     xyA=xy_inset_ax, coordsA=inset_ax.transAxes,
                     xyB=xy_data, coordsB=self.transData,
                     arrowstyle="-", zorder=zorder,
-                    edgecolor=edgecolor, alpha=alpha)
+                    edgecolor=edgecolor, alpha=alpha,
+                    **patch_kwargs)
                 connects.append(p)
                 self.add_patch(p)
 
