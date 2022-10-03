@@ -269,7 +269,6 @@ class Grid:
             - "1": Only the bottom left axes is labelled.
             - "all": all axes are labelled.
         """
-        _api.check_in_list(["all", "L", "1"], mode=mode)
         if mode == "all":
             for ax in self.axes_all:
                 _tick_only(ax, False, False)
@@ -290,7 +289,7 @@ class Grid:
                 ax = col[-1]
                 _tick_only(ax, bottom_on=False, left_on=True)
 
-        else:  # "1"
+        elif mode == "1":
             for ax in self.axes_all:
                 _tick_only(ax, bottom_on=True, left_on=True)
 
