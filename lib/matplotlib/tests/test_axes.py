@@ -894,18 +894,14 @@ def test_hexbin_extent():
     ax.hexbin("x", "y", extent=[.1, .3, .6, .7], data=data)
 
 
-@image_comparison(['hexbin_empty.png'], remove_text=True)
+@image_comparison(['hexbin_empty.png', 'hexbin_empty.png'], remove_text=True)
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
-    ax = plt.gca()
+    fig, ax = plt.subplots()
     ax.hexbin([], [])
-
-
-@image_comparison(['hexbin_empty.png'], remove_text=True)
-def test_hexbin_log_empty():
+    fig, ax = plt.subplots()
     # From #23922: creating hexbin with log scaling from empty
     # dataset raises ValueError
-    ax = plt.gca()
     ax.hexbin([], [], bins='log')
 
 
