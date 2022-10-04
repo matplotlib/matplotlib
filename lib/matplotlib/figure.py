@@ -1197,7 +1197,7 @@ default: %(va)s
         cax : `~matplotlib.axes.Axes`, optional
             Axes into which the colorbar will be drawn.
 
-        ax : `~matplotlib.axes.Axes`, list of Axes, optional
+        ax : `~.axes.Axes` or list or `numpy.ndarray` of Axes, optional
             One or more parent axes from which space for a new colorbar axes
             will be stolen, if *cax* is None.  This has no effect if *cax* is
             set.
@@ -2426,9 +2426,12 @@ class Figure(FigureBase):
             if isinstance(tight_layout, dict):
                 self.get_layout_engine().set(**tight_layout)
         elif constrained_layout is not None:
-            self.set_layout_engine(layout='constrained')
             if isinstance(constrained_layout, dict):
+                self.set_layout_engine(layout='constrained')
                 self.get_layout_engine().set(**constrained_layout)
+            elif constrained_layout:
+                self.set_layout_engine(layout='constrained')
+
         else:
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)

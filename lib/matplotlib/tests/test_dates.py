@@ -322,13 +322,13 @@ def test_date_formatter_callable():
 
 @pytest.mark.parametrize('delta, expected', [
     (datetime.timedelta(weeks=52 * 200),
-     range(1990, 2171, 20)),
+     [r'$\mathdefault{%d}$' % year for year in range(1990, 2171, 20)]),
     (datetime.timedelta(days=30),
-     ['1990-01-%02d' % day for day in range(1, 32, 3)]),
+     [r'$\mathdefault{1990{-}01{-}%02d}$' % day for day in range(1, 32, 3)]),
     (datetime.timedelta(hours=20),
-     ['01-01 %02d' % hour for hour in range(0, 21, 2)]),
+     [r'$\mathdefault{01{-}01\;%02d}$' % hour for hour in range(0, 21, 2)]),
     (datetime.timedelta(minutes=10),
-     ['01 00:%02d' % minu for minu in range(0, 11)]),
+     [r'$\mathdefault{01\;00{:}%02d}$' % minu for minu in range(0, 11)]),
 ])
 def test_date_formatter_usetex(delta, expected):
     style.use("default")
@@ -341,8 +341,7 @@ def test_date_formatter_usetex(delta, expected):
     locator.axis.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
 
     formatter = mdates.AutoDateFormatter(locator, usetex=True)
-    assert [formatter(loc) for loc in locator()] == [
-        r'{\fontfamily{\familydefault}\selectfont %s}' % s for s in expected]
+    assert [formatter(loc) for loc in locator()] == expected
 
 
 def test_drange():
@@ -645,14 +644,24 @@ def test_offset_changes():
 
 @pytest.mark.parametrize('t_delta, expected', [
     (datetime.timedelta(weeks=52 * 200),
-     range(1980, 2201, 20)),
+     ['$\\mathdefault{%d}$' % (t, ) for t in range(1980, 2201, 20)]),
     (datetime.timedelta(days=40),
-     ['Jan', '05', '09', '13', '17', '21', '25', '29', 'Feb', '05', '09']),
+     ['Jan', '$\\mathdefault{05}$', '$\\mathdefault{09}$',
+      '$\\mathdefault{13}$', '$\\mathdefault{17}$', '$\\mathdefault{21}$',
+      '$\\mathdefault{25}$', '$\\mathdefault{29}$', 'Feb',
+      '$\\mathdefault{05}$', '$\\mathdefault{09}$']),
     (datetime.timedelta(hours=40),
-     ['Jan-01', '04:00', '08:00', '12:00', '16:00', '20:00',
-      'Jan-02', '04:00', '08:00', '12:00', '16:00']),
+     ['Jan$\\mathdefault{{-}01}$', '$\\mathdefault{04{:}00}$',
+      '$\\mathdefault{08{:}00}$', '$\\mathdefault{12{:}00}$',
+      '$\\mathdefault{16{:}00}$', '$\\mathdefault{20{:}00}$',
+      'Jan$\\mathdefault{{-}02}$', '$\\mathdefault{04{:}00}$',
+      '$\\mathdefault{08{:}00}$', '$\\mathdefault{12{:}00}$',
+      '$\\mathdefault{16{:}00}$']),
     (datetime.timedelta(seconds=2),
-     ['59.5', '00:00', '00.5', '01.0', '01.5', '02.0', '02.5']),
+     ['$\\mathdefault{59.5}$', '$\\mathdefault{00{:}00}$',
+      '$\\mathdefault{00.5}$', '$\\mathdefault{01.0}$',
+      '$\\mathdefault{01.5}$', '$\\mathdefault{02.0}$',
+      '$\\mathdefault{02.5}$']),
 ])
 def test_concise_formatter_usetex(t_delta, expected):
     d1 = datetime.datetime(1997, 1, 1)
@@ -663,8 +672,7 @@ def test_concise_formatter_usetex(t_delta, expected):
     locator.axis.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
 
     formatter = mdates.ConciseDateFormatter(locator, usetex=True)
-    assert formatter.format_ticks(locator()) == [
-        r'{\fontfamily{\familydefault}\selectfont %s}' % s for s in expected]
+    assert formatter.format_ticks(locator()) == expected
 
 
 def test_concise_formatter_formats():
@@ -1345,12 +1353,6 @@ def test_date_ticker_factory(span, expected_locator):
     with pytest.warns(_api.MatplotlibDeprecationWarning):
         locator, _ = mdates.date_ticker_factory(span)
         assert isinstance(locator, expected_locator)
-
-
-def test_usetex_newline():
-    fig, ax = plt.subplots()
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m\n%Y'))
-    fig.canvas.draw()
 
 
 def test_datetime_masked():

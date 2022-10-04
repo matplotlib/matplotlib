@@ -43,7 +43,7 @@ class InsetPosition:
 
         >>> parent_axes = plt.gca()
         >>> ax_ins = plt.axes([0, 0, 1, 1])
-        >>> ip = InsetPosition(ax, [0.5, 0.1, 0.4, 0.2])
+        >>> ip = InsetPosition(parent_axes, [0.5, 0.1, 0.4, 0.2])
         >>> ax_ins.set_axes_locator(ip)
         """
         self.parent = parent
@@ -70,18 +70,11 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
 
     def __call__(self, ax, renderer):
         self.axes = ax
-
-        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
-        self._update_offset_func(renderer, fontsize)
-
-        width, height, xdescent, ydescent = self.get_extent(renderer)
-
-        px, py = self.get_offset(width, height, 0, 0, renderer)
-        bbox_canvas = Bbox.from_bounds(px, py, width, height)
+        bbox = self.get_window_extent(renderer)
+        px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)
+        bbox_canvas = Bbox.from_bounds(px, py, bbox.width, bbox.height)
         tr = ax.figure.transFigure.inverted()
-        bb = TransformedBbox(bbox_canvas, tr)
-
-        return bb
+        return TransformedBbox(bbox_canvas, tr)
 
 
 class AnchoredSizeLocator(AnchoredLocatorBase):

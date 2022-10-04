@@ -21,7 +21,7 @@ There are a variety of meanings of the picker property:
   of the data within epsilon of the pick event
 
 * function - if picker is callable, it is a user supplied function which
-  determines whether the artist is hit by the mouse event.
+  determines whether the artist is hit by the mouse event. ::
 
      hit, props = picker(artist, mouseevent)
 
@@ -31,7 +31,7 @@ There are a variety of meanings of the picker property:
 
 After you have enabled an artist for picking by setting the "picker"
 property, you need to connect to the figure canvas pick_event to get
-pick callbacks on mouse press events.  For example,
+pick callbacks on mouse press events.  For example, ::
 
   def pick_handler(event):
       mouseevent = event.mouseevent
@@ -42,15 +42,18 @@ pick callbacks on mouse press events.  For example,
 The pick event (matplotlib.backend_bases.PickEvent) which is passed to
 your callback is always fired with two attributes:
 
-  mouseevent - the mouse event that generate the pick event.  The
-    mouse event in turn has attributes like x and y (the coordinates in
-    display space, such as pixels from left, bottom) and xdata, ydata (the
-    coords in data space).  Additionally, you can get information about
-    which buttons were pressed, which keys were pressed, which Axes
-    the mouse is over, etc.  See matplotlib.backend_bases.MouseEvent
-    for details.
+mouseevent
+  the mouse event that generate the pick event.
 
-  artist - the matplotlib.artist that generated the pick event.
+  The mouse event in turn has attributes like x and y (the coordinates in
+  display space, such as pixels from left, bottom) and xdata, ydata (the
+  coords in data space).  Additionally, you can get information about
+  which buttons were pressed, which keys were pressed, which Axes
+  the mouse is over, etc.  See matplotlib.backend_bases.MouseEvent
+  for details.
+
+artist
+  the matplotlib.artist that generated the pick event.
 
 Additionally, certain artists like Line2D and PatchCollection may
 attach additional meta data like the indices into the data that meet

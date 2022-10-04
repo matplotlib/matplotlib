@@ -7,6 +7,7 @@ Tick formatters define how the numeric value associated with a tick on an axis
 is formatted as a string.
 
 This example illustrates the usage and effect of the most common formatters.
+
 """
 
 import matplotlib.pyplot as plt

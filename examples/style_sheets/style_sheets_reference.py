@@ -12,6 +12,7 @@ line plot and histogram,
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from matplotlib.patches import Rectangle
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -65,8 +66,11 @@ def plot_colored_circles(ax, prng, nb_samples=15):
     for sty_dict, j in zip(plt.rcParams['axes.prop_cycle'], range(nb_samples)):
         ax.add_patch(plt.Circle(prng.normal(scale=3, size=2),
                                 radius=1.0, color=sty_dict['color']))
-    # Force the limits to be the same across the styles (because different
-    # styles may have different numbers of available colors).
+    ax.grid(visible=True)
+
+    # Add title for enabling grid
+    plt.title('ax.grid(True)', family='monospace', fontsize='small')
+
     ax.set_xlim([-4, 8])
     ax.set_ylim([-5, 6])
     ax.set_aspect('equal', adjustable='box')  # to plot circles as circles
@@ -91,6 +95,7 @@ def plot_histograms(ax, prng, nb_samples=10000):
         values = prng.beta(a, b, size=nb_samples)
         ax.hist(values, histtype="stepfilled", bins=30,
                 alpha=0.8, density=True)
+
     # Add a small annotation.
     ax.annotate('Annotation', xy=(0.25, 4.25),
                 xytext=(0.9, 0.9), textcoords=ax.transAxes,
@@ -110,7 +115,7 @@ def plot_figure(style_label=""):
     prng = np.random.RandomState(96917002)
 
     fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
-                            figsize=(14.8, 2.7), constrained_layout=True)
+                            figsize=(14.8, 2.8), constrained_layout=True)
 
     # make a suptitle, in the same style for all subfigures,
     # except those with dark backgrounds, which get a lighter color:
@@ -126,10 +131,15 @@ def plot_figure(style_label=""):
     plot_scatter(axs[0], prng)
     plot_image_and_patch(axs[1], prng)
     plot_bar_graphs(axs[2], prng)
-    plot_colored_circles(axs[3], prng)
-    plot_colored_lines(axs[4])
-    plot_histograms(axs[5], prng)
+    plot_colored_lines(axs[3])
+    plot_histograms(axs[4], prng)
+    plot_colored_circles(axs[5], prng)
 
+    # add divider
+    rec = Rectangle((1 + 0.025, -2), 0.05, 16,
+                    clip_on=False, color='gray')
+
+    axs[4].add_artist(rec)
 
 if __name__ == "__main__":
 

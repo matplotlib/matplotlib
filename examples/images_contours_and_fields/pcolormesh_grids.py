@@ -54,11 +54,10 @@ _annotate(ax, x, y, "shading='flat'")
 # -----------------------------
 #
 # Often, however, data is provided where *X* and *Y* match the shape of *Z*.
-# While this makes sense for other ``shading`` types, it is no longer permitted
-# when ``shading='flat'`` (and will raise a MatplotlibDeprecationWarning as of
-# Matplotlib v3.3). Historically, Matplotlib silently dropped the last row and
-# column of *Z* in this case, to match Matlab's behavior. If this behavior is
-# still desired, simply drop the last row and column manually:
+# While this makes sense for other ``shading`` types, it is not permitted
+# when ``shading='flat'``. Historically, Matplotlib silently dropped the last
+# row and column of *Z* in this case, to match Matlab's behavior. If this
+# behavior is still desired, simply drop the last row and column manually:
 
 x = np.arange(ncols)  # note *not* ncols + 1 as before
 y = np.arange(nrows)

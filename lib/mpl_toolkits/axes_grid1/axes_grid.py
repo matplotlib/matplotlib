@@ -81,9 +81,11 @@ class Grid:
         ----------
         fig : `.Figure`
             The parent figure.
-        rect : (float, float, float, float) or int
-            The axes position, as a ``(left, bottom, width, height)`` tuple or
-            as a three-digit subplot position code (e.g., "121").
+        rect : (float, float, float, float), (int, int, int), int, or \
+    `~.SubplotSpec`
+            The axes position, as a ``(left, bottom, width, height)`` tuple,
+            as a three-digit subplot position code (e.g., ``(1, 2, 1)`` or
+            ``121``), or as a `~.SubplotSpec`.
         nrows_ncols : (int, int)
             Number of rows and columns in the grid.
         ngrids : int or None, default: None
@@ -139,7 +141,7 @@ class Grid:
             axes_class = functools.partial(cls, **kwargs)
 
         kw = dict(horizontal=[], vertical=[], aspect=aspect)
-        if isinstance(rect, (str, Number, SubplotSpec)):
+        if isinstance(rect, (Number, SubplotSpec)):
             self._divider = SubplotDivider(fig, rect, **kw)
         elif len(rect) == 3:
             self._divider = SubplotDivider(fig, *rect, **kw)
@@ -269,7 +271,6 @@ class Grid:
             - "1": Only the bottom left axes is labelled.
             - "all": all axes are labelled.
         """
-        _api.check_in_list(["all", "L", "1"], mode=mode)
         if mode == "all":
             for ax in self.axes_all:
                 _tick_only(ax, False, False)
@@ -290,7 +291,7 @@ class Grid:
                 ax = col[-1]
                 _tick_only(ax, bottom_on=False, left_on=True)
 
-        else:  # "1"
+        elif mode == "1":
             for ax in self.axes_all:
                 _tick_only(ax, bottom_on=True, left_on=True)
 

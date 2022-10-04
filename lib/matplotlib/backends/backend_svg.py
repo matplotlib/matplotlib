@@ -801,7 +801,9 @@ class RendererSVG(RendererBase):
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
         # docstring inherited
+        self._draw_gouraud_triangle(gc, points, colors, trans)
 
+    def _draw_gouraud_triangle(self, gc, points, colors, trans):
         # This uses a method described here:
         #
         #   http://www.svgopen.org/2005/papers/Converting3DFaceToSVG/index.html
@@ -936,7 +938,7 @@ class RendererSVG(RendererBase):
         self.writer.start('g', **self._get_clip_attrs(gc))
         transform = transform.frozen()
         for tri, col in zip(triangles_array, colors_array):
-            self.draw_gouraud_triangle(gc, tri, col, transform)
+            self._draw_gouraud_triangle(gc, tri, col, transform)
         self.writer.end('g')
 
     def option_scale_image(self):
@@ -1151,10 +1153,32 @@ class RendererSVG(RendererBase):
             weight = fm.weight_dict[prop.get_weight()]
             if weight != 400:
                 font_parts.append(f'{weight}')
+
+            def _normalize_sans(name):
+                return 'sans-serif' if name in ['sans', 'sans serif'] else name
+
+            def _expand_family_entry(fn):
+                fn = _normalize_sans(fn)
+                # prepend generic font families with all configured font names
+                if fn in fm.font_family_aliases:
+                    # get all of the font names and fix spelling of sans-serif
+                    # (we accept 3 ways CSS only supports 1)
+                    for name in fm.FontManager._expand_aliases(fn):
+                        yield _normalize_sans(name)
+                # whether a generic name or a family name, it must appear at
+                # least once
+                yield fn
+
+            def _get_all_quoted_names(prop):
+                # only quote specific names, not generic names
+                return [name if name in fm.font_family_aliases else repr(name)
+                        for entry in prop.get_family()
+                        for name in _expand_family_entry(entry)]
+
             font_parts.extend([
                 f'{_short_float_fmt(prop.get_size())}px',
-                # ensure quoting
-                f'{", ".join(repr(f) for f in prop.get_family())}',
+                # ensure expansion, quoting, and dedupe of font names
+                ", ".join(dict.fromkeys(_get_all_quoted_names(prop)))
             ])
             style['font'] = ' '.join(font_parts)
             if prop.get_stretch() != 'normal':

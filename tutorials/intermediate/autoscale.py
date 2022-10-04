@@ -26,7 +26,7 @@ ax.plot(x, y)
 # -------
 # The default margin around the data limits is 5%:
 
-ax.margins()
+print(ax.margins())
 
 ###############################################################################
 # The margins can be made larger using `~matplotlib.axes.Axes.margins`:
@@ -164,7 +164,7 @@ print(ax.margins())
 
 fig, ax = plt.subplots()
 collection = mpl.collections.StarPolygonCollection(
-    5, 0, [250, ],  # five point star, zero angle, size 250px
+    5, rotation=0, sizes=(250,),  # five point star, zero angle, size 250px
     offsets=np.column_stack([x, y]),  # Set the positions
     offset_transform=ax.transData,  # Propagate transformations of the Axes
 )

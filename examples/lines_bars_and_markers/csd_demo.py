@@ -33,7 +33,7 @@ s2 = 0.01 * np.sin(2 * np.pi * 10 * t) + cnse2
 
 ax1.plot(t, s1, t, s2)
 ax1.set_xlim(0, 5)
-ax1.set_xlabel('time')
+ax1.set_xlabel('Time')
 ax1.set_ylabel('s1 and s2')
 ax1.grid(True)
 

@@ -11,6 +11,7 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+import logging
 import os
 from pathlib import Path
 import shutil
@@ -57,7 +58,6 @@ warnings.filterwarnings('error', append=True)
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
-    'sphinx.ext.doctest',
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
     'sphinx.ext.ifconfig',
@@ -188,6 +188,7 @@ sphinx_gallery_conf = {
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
     'matplotlib_animations': True,
     'min_reported_time': 1,
+    'plot_gallery': 'True',  # sphinx-gallery/913
     'reference_url': {'matplotlib': None},
     'remove_config_comments': True,
     'reset_modules': (
@@ -198,7 +199,27 @@ sphinx_gallery_conf = {
     'subsection_order': gallery_order.sectionorder,
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order.subsectionorder,
+    'capture_repr': (),
 }
+
+if 'plot_gallery=0' in sys.argv:
+    # Gallery images are not created.  Suppress warnings triggered where other
+    # parts of the documentation link to these images.
+
+    def gallery_image_warning_filter(record):
+        msg = record.msg
+        for gallery_dir in sphinx_gallery_conf['gallery_dirs']:
+            if msg.startswith(f'image file not readable: {gallery_dir}'):
+                return False
+
+        if msg == 'Could not obtain image size. :scale: option is ignored.':
+            return False
+
+        return True
+
+    logger = logging.getLogger('sphinx')
+    logger.addFilter(gallery_image_warning_filter)
+
 
 mathmpl_fontsize = 11.0
 mathmpl_srcset = ['2x']
@@ -381,7 +402,8 @@ html_theme_options = {
     "logo": {"link": "index",
              "image_light": "images/logo2.svg",
              "image_dark": "images/logo_dark.svg"},
-    "navbar_end": ["version-switcher", "mpl_icon_links", "theme-switcher"]
+    "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
+    "page_sidebar_items": "page-toc.html",
 }
 include_analytics = is_release_build
 if include_analytics:
@@ -412,7 +434,6 @@ html_index = 'index.html'
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
     "index": [
-        'search-field.html',
         # 'sidebar_announcement.html',
         "sidebar_versions.html",
         "cheatsheet_sidebar.html",

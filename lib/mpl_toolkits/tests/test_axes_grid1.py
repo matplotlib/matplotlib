@@ -3,6 +3,7 @@ import platform
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 from matplotlib import cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
@@ -17,10 +18,11 @@ from mpl_toolkits.axes_grid1 import (
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
 from mpl_toolkits.axes_grid1.axes_divider import (
-    Divider, HBoxDivider, make_axes_area_auto_adjustable)
+    Divider, HBoxDivider, make_axes_area_auto_adjustable, SubplotDivider)
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
-    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
+    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
+    InsetPosition)
 import mpl_toolkits.axes_grid1.mpl_axes
 
 import pytest
@@ -367,6 +369,40 @@ def test_axes_locatable_position():
                       0.03621495327102808)
 
 
+@image_comparison(['image_grid_each_left_label_mode_all.png'], style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid_each_left_label_mode_all():
+    imdata = np.arange(100).reshape((10, 10))
+
+    fig = plt.figure(1, (3, 3))
+    grid = ImageGrid(fig, (1, 1, 1), nrows_ncols=(3, 2), axes_pad=(0.5, 0.3),
+                     cbar_mode="each", cbar_location="left", cbar_size="15%",
+                     label_mode="all")
+    # 3-tuple rect => SubplotDivider
+    assert isinstance(grid.get_divider(), SubplotDivider)
+    assert grid.get_axes_pad() == (0.5, 0.3)
+    assert grid.get_aspect()  # True by default for ImageGrid
+    for ax, cax in zip(grid, grid.cbar_axes):
+        im = ax.imshow(imdata, interpolation='none')
+        cax.colorbar(im)
+
+
+@image_comparison(['image_grid_single_bottom_label_mode_1.png'], style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid_single_bottom():
+    imdata = np.arange(100).reshape((10, 10))
+
+    fig = plt.figure(1, (2.5, 1.5))
+    grid = ImageGrid(fig, (0, 0, 1, 1), nrows_ncols=(1, 3),
+                     axes_pad=(0.2, 0.15), cbar_mode="single",
+                     cbar_location="bottom", cbar_size="10%", label_mode="1")
+    # 4-tuple rect => Divider, isinstance will give True for SubplotDivider
+    assert type(grid.get_divider()) is Divider
+    for i in range(3):
+        im = grid[i].imshow(imdata, interpolation='none')
+    grid.cbar_axes[0].colorbar(im)
+
+
 @image_comparison(['image_grid.png'],
                   remove_text=True, style='mpl20',
                   savefig_kwarg={'bbox_inches': 'tight'})
@@ -568,3 +604,60 @@ def test_rgb_axes():
     g = rng.random((5, 5))
     b = rng.random((5, 5))
     ax.imshow_rgb(r, g, b, interpolation='none')
+
+
+@image_comparison(['insetposition.png'], remove_text=True)
+def test_insetposition():
+    fig, ax = plt.subplots(figsize=(2, 2))
+    ax_ins = plt.axes([0, 0, 1, 1])
+    ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
+    ax_ins.set_axes_locator(ip)
+
+
+# The original version of this test relied on mpl_toolkits's slightly different
+# colorbar implementation; moving to matplotlib's own colorbar implementation
+# caused the small image comparison error.
+@image_comparison(['imagegrid_cbar_mode.png'],
+                  remove_text=True, style='mpl20', tol=0.3)
+def test_imagegrid_cbar_mode_edge():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
+    X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))
+    arr = np.sin(X) * np.cos(Y) + 1j*(np.sin(3*Y) * np.cos(Y/2.))
+
+    fig = plt.figure(figsize=(18, 9))
+
+    positions = (241, 242, 243, 244, 245, 246, 247, 248)
+    directions = ['row']*4 + ['column']*4
+    cbar_locations = ['left', 'right', 'top', 'bottom']*2
+
+    for position, direction, location in zip(
+            positions, directions, cbar_locations):
+        grid = ImageGrid(fig, position,
+                         nrows_ncols=(2, 2),
+                         direction=direction,
+                         cbar_location=location,
+                         cbar_size='20%',
+                         cbar_mode='edge')
+        ax1, ax2, ax3, ax4, = grid
+
+        ax1.imshow(arr.real, cmap='nipy_spectral')
+        ax2.imshow(arr.imag, cmap='hot')
+        ax3.imshow(np.abs(arr), cmap='jet')
+        ax4.imshow(np.arctan2(arr.imag, arr.real), cmap='hsv')
+
+        # In each row/column, the "first" colorbars must be overwritten by the
+        # "second" ones.  To achieve this, clear out the axes first.
+        for ax in grid:
+            ax.cax.cla()
+            cb = ax.cax.colorbar(ax.images[0])
+
+
+def test_imagegrid():
+    fig = plt.figure()
+    grid = ImageGrid(fig, 111, nrows_ncols=(1, 1))
+    ax = grid[0]
+    im = ax.imshow([[1, 2]], norm=mpl.colors.LogNorm())
+    cb = ax.cax.colorbar(im)
+    assert isinstance(cb.locator, mticker.LogLocator)

@@ -602,7 +602,7 @@ def test_flatiter():
     it = x.flat
     assert 0 == next(it)
     assert 1 == next(it)
-    ret = cbook._safe_first_non_none(it)
+    ret = cbook._safe_first_finite(it)
     assert ret == 0
 
     assert 0 == next(it)
@@ -758,7 +758,7 @@ def test_contiguous_regions():
 def test_safe_first_element_pandas_series(pd):
     # deliberately create a pandas series with index not starting from 0
     s = pd.Series(range(5), index=range(10, 15))
-    actual = cbook._safe_first_non_none(s)
+    actual = cbook._safe_first_finite(s)
     assert actual == 0
 
 
@@ -893,5 +893,21 @@ def test_format_approx():
 def test_safe_first_element_with_none():
     datetime_lst = [date.today() + timedelta(days=i) for i in range(10)]
     datetime_lst[0] = None
-    actual = cbook._safe_first_non_none(datetime_lst)
+    actual = cbook._safe_first_finite(datetime_lst)
     assert actual is not None and actual == datetime_lst[1]
+
+
+@pytest.mark.parametrize('fmt, value, result', [
+    ('%.2f m', 0.2, '0.20 m'),
+    ('{:.2f} m', 0.2, '0.20 m'),
+    ('{} m', 0.2, '0.2 m'),
+    ('const', 0.2, 'const'),
+    ('%d or {}', 0.2, '0 or {}'),
+    ('{{{:,.0f}}}', 2e5, '{200,000}'),
+    ('{:.2%}', 2/3, '66.67%'),
+    ('$%g', 2.54, '$2.54'),
+])
+def test_auto_format_str(fmt, value, result):
+    """Apply *value* to the format string *fmt*."""
+    assert cbook._auto_format_str(fmt, value) == result
+    assert cbook._auto_format_str(fmt, np.float64(value)) == result

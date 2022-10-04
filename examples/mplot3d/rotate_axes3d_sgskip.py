@@ -3,7 +3,7 @@
 Rotating a 3D plot
 ==================
 
-A very simple animation of a rotating 3D plot about all 3 axes.
+A very simple animation of a rotating 3D plot about all three axes.
 
 See :doc:`wire3d_animation_sgskip` for another example of animating a 3D plot.
 

@@ -105,6 +105,7 @@ Drawing
 
    Artist.get_agg_filter
    Artist.get_window_extent
+   Artist.get_tightbbox
    Artist.get_transformed_clip_path_and_affine
 
 Figure and Axes

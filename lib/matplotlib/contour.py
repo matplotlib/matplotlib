@@ -785,8 +785,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._transform = transform
 
         self.negative_linestyles = negative_linestyles
-        # If negative_linestyles was not defined as a kwarg,
-        # define negative_linestyles with rcParams
+        # If negative_linestyles was not defined as a keyword argument, define
+        # negative_linestyles with rcParams
         if self.negative_linestyles is None:
             self.negative_linestyles = \
                 mpl.rcParams['contour.negative_linestyle']
@@ -1746,26 +1746,27 @@ linewidths : float or array-like, default: :rc:`contour.linewidth`
 linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
     *Only applies to* `.contour`.
 
-    If *linestyles* is *None*, the default is 'solid' unless the lines
-    are monochrome.  In that case, negative contours will take their
-    linestyle from :rc:`contour.negative_linestyle` setting.
+    If *linestyles* is *None*, the default is 'solid' unless the lines are
+    monochrome. In that case, negative contours will instead take their
+    linestyle from the *negative_linestyles* argument.
 
-    *linestyles* can also be an iterable of the above strings
-    specifying a set of linestyles to be used. If this
-    iterable is shorter than the number of contour levels
-    it will be repeated as necessary.
+    *linestyles* can also be an iterable of the above strings specifying a set
+    of linestyles to be used. If this iterable is shorter than the number of
+    contour levels it will be repeated as necessary.
 
 negative_linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, \
                        optional
     *Only applies to* `.contour`.
 
-    If *negative_linestyles* is None, the default is 'dashed' for
-    negative contours.
+    If *linestyles* is *None* and the lines are monochrome, this argument
+    specifies the line style for negative contours.
 
-    *negative_linestyles* can also be an iterable of the above
-    strings specifying a set of linestyles to be used. If this
-    iterable is shorter than the number of contour levels
-    it will be repeated as necessary.
+    If *negative_linestyles* is *None*, the default is taken from
+    :rc:`contour.negative_linestyles`.
+
+    *negative_linestyles* can also be an iterable of the above strings
+    specifying a set of linestyles to be used. If this iterable is shorter than
+    the number of contour levels it will be repeated as necessary.
 
 hatches : list[str], optional
     *Only applies to* `.contourf`.

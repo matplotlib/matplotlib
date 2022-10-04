@@ -1,6 +1,6 @@
 """
 ==========================================
-3D voxel / volumetric plot with rgb colors
+3D voxel / volumetric plot with RGB colors
 ==========================================
 
 Demonstrates using `.Axes3D.voxels` to visualize parts of a color space.

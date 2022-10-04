@@ -54,13 +54,12 @@ formats and interactive environments across platforms. Matplotlib can be used
 in Python scripts, Python/IPython shells, web application servers, and
 various graphical user interface toolkits.
 
-
 Install
 =======
 
-For installation instructions and requirements, see the `install documentation
-<https://matplotlib.org/stable/users/installing/index.html>`_ or
-`installing.rst <doc/users/installing/index.rst>`_ in the source.
+See the `install documentation
+<https://matplotlib.org/stable/users/installing/index.html>`_, which is
+generated from ``/doc/users/installing/index.rst``
 
 Contribute
 ==========

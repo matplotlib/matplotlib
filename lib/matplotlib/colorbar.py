@@ -916,7 +916,7 @@ class Colorbar:
             of locations.
 
         update_ticks : bool, default: True
-            This keyword argument is ignored and will be be removed.
+            This keyword argument is ignored and will be removed.
             Deprecated
 
          minor : bool
@@ -1364,7 +1364,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     Parameters
     ----------
-    parents : `~.axes.Axes` or list of `~.axes.Axes`
+    parents : `~.axes.Axes` or list or `numpy.ndarray` of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
     %(_make_axes_kw_doc)s
 

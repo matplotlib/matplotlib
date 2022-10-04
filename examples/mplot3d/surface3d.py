@@ -4,9 +4,9 @@
 =====================
 
 Demonstrates plotting a 3D surface colored with the coolwarm colormap.
-The surface is made opaque by using antialiased=False.
+The surface is made opaque by using ``antialiased=False``.
 
-Also demonstrates using the LinearLocator and custom formatting for the
+Also demonstrates using the `.LinearLocator` and custom formatting for the
 z axis tick labels.
 """
 
