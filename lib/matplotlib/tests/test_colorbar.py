@@ -1,9 +1,11 @@
 import numpy as np
 import pytest
 
+from matplotlib import _api
 from matplotlib import cm
 import matplotlib.colors as mcolors
 import matplotlib as mpl
+
 
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
@@ -319,7 +321,8 @@ def test_parentless_mappable():
     pc = mpl.collections.PatchCollection([], cmap=plt.get_cmap('viridis'))
     pc.set_array([])
 
-    with pytest.raises(ValueError, match='Unable to determine Axes to steal'):
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
+                      match='Unable to determine Axes to steal'):
         plt.colorbar(pc)
 
 
