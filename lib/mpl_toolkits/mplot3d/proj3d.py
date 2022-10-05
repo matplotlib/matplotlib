@@ -4,7 +4,6 @@ Various transforms used for by the 3D code
 
 import numpy as np
 import numpy.linalg as linalg
-from matplotlib import _api
 
 
 def _line2d_seg_dist(p1, p2, p0):
@@ -135,7 +134,6 @@ def _view_transformation_uvw(u, v, w, E):
     return M
 
 
-@_api.deprecated("3.7")
 def view_transformation(E, R, V, roll):
     """
     Return the view transformation matrix.

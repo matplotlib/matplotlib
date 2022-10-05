@@ -1,5 +1,3 @@
-``plot3d.view_transformation``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... is deprecated. The private functions `plot3d._view_transformation_uvw` and
-`plot3d._view_axes` can be used instead, though with no guarantee of API
-stability.
+In ``axes3d``, the variables `vvec`, `eye`, `sx`, and `sy`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated without replacement.
