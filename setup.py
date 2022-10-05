@@ -34,6 +34,8 @@ import setuptools.command.build_ext
 import setuptools.command.build_py
 import setuptools.command.sdist
 
+sys.path.append(str(Path(__file__).resolve().parent))
+
 import setupext
 from setupext import print_raw, print_status
 
@@ -300,11 +302,6 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
     package_data=package_data,
 
     python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
-    setup_requires=[
-        "certifi>=2020.06.20",
-        "numpy>=1.19",
-        "setuptools_scm>=7",
-    ],
     install_requires=[
         "contourpy>=1.0.1",
         "cycler>=0.10",
