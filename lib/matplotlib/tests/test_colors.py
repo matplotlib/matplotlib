@@ -109,6 +109,21 @@ def test_register_cmap():
             cm.register_cmap('nome', cmap='not a cmap')
 
 
+def test_ensure_cmap():
+    cr = mpl.colormaps
+    new_cm = mcolors.ListedColormap(cr["viridis"].colors, name='v2')
+
+    # check None, str, and Colormap pass
+    assert cr.get_cmap('plasma') == cr["plasma"]
+    assert cr.get_cmap(cr["magma"]) == cr["magma"]
+
+    # check default default
+    assert cr.get_cmap(None) == cr[mpl.rcParams['image.cmap']]
+    bad_cmap = 'AardvarksAreAwkward'
+    with pytest.raises(KeyError, match=bad_cmap):
+        cr.get_cmap(bad_cmap)
+
+
 def test_double_register_builtin_cmap():
     name = "viridis"
     match = f"Re-registering the builtin cmap {name!r}."

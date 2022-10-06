@@ -193,6 +193,39 @@ class ColormapRegistry(Mapping):
                              "colormap.")
         self._cmaps.pop(name, None)
 
+    def get_cmap(self, cmap):
+        """
+        Ensure that at given object is a converted to a color map.
+
+        If *cmap* in `None`, returns the Colormap named by :rc:`image.cmap`.
+
+        Parameters
+        ----------
+        cmap : str, Colormap, None
+
+            - if a `~matplotlib.colors.Colormap`, return it
+            - if a string, look it up in mpl.colormaps
+            - if None, look up the default color map in mpl.colormaps
+
+        Returns
+        -------
+        Colormap
+
+        Raises
+        ------
+        KeyError
+        """
+        # get the default color map
+        if cmap is None:
+            return self[mpl.rcParams["image.cmap"]]
+
+        # if the user passed in a Colormap, simply return it
+        if isinstance(cmap, colors.Colormap):
+            return cmap
+
+        # otherwise, it must be a string so look it up
+        return self[cmap]
+
 
 # public access to the colormaps should be via `matplotlib.colormaps`. For now,
 # we still create the registry here, but that should stay an implementation
@@ -281,7 +314,12 @@ def _get_cmap(name=None, lut=None):
 # pyplot.
 get_cmap = _api.deprecated(
     '3.6',
-    name='get_cmap', pending=True, alternative="``matplotlib.colormaps[name]``"
+    name='get_cmap',
+    pending=True,
+    alternative=(
+        "``matplotlib.colormaps[name]`` " +
+        "or ``matplotlib.colormaps.get_cmap(obj)``"
+    )
 )(_get_cmap)
 
 
@@ -687,6 +725,8 @@ def _ensure_cmap(cmap):
     """
     Ensure that we have a `.Colormap` object.
 
+    For internal use to preserve type stability of errors.
+
     Parameters
     ----------
     cmap : None, str, Colormap
@@ -698,6 +738,7 @@ def _ensure_cmap(cmap):
     Returns
     -------
     Colormap
+
     """
     if isinstance(cmap, colors.Colormap):
         return cmap
