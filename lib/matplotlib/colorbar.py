@@ -606,10 +606,13 @@ class Colorbar:
         self.dividers.set_segments(segments)
 
     def _add_solids_patches(self, X, Y, C, mappable):
-        hatches = mappable.hatches * len(C)  # Have enough hatches.
+        hatches = mappable.hatches * (len(C) + 1)  # Have enough hatches.
+        if self._extend_lower():
+            # remove first hatch that goes into the extend patch
+            hatches = hatches[1:]
         patches = []
         for i in range(len(X) - 1):
-            xy = np.array([[X[i, 0], Y[i, 0]],
+            xy = np.array([[X[i, 0], Y[i, 1]],
                            [X[i, 1], Y[i, 0]],
                            [X[i + 1, 1], Y[i + 1, 0]],
                            [X[i + 1, 0], Y[i + 1, 1]]])
@@ -661,9 +664,9 @@ class Colorbar:
         mappable = getattr(self, 'mappable', None)
         if (isinstance(mappable, contour.ContourSet)
                 and any(hatch is not None for hatch in mappable.hatches)):
-            hatches = mappable.hatches
+            hatches = mappable.hatches * (len(self._y) + 1)
         else:
-            hatches = [None]
+            hatches = [None] * (len(self._y) + 1)
 
         if self._extend_lower():
             if not self.extendrect:
@@ -687,6 +690,8 @@ class Colorbar:
                 zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
             self.ax.add_patch(patch)
             self._extend_patches.append(patch)
+            # remove first hatch that goes into the extend patch
+            hatches = hatches[1:]
         if self._extend_upper():
             if not self.extendrect:
                 # triangle
@@ -699,10 +704,12 @@ class Colorbar:
             # add the patch
             val = 0 if self._long_axis().get_inverted() else -1
             color = self.cmap(self.norm(self._values[val]))
+            hatch_idx = len(self._y) - 1
             patch = mpatches.PathPatch(
                 mpath.Path(xy), facecolor=color, alpha=self.alpha,
                 linewidth=0, antialiased=False,
-                transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False,
+                transform=self.ax.transAxes, hatch=hatches[hatch_idx],
+                clip_on=False,
                 # Place it right behind the standard patches, which is
                 # needed if we updated the extends
                 zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
