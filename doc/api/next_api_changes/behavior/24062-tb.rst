@@ -1,3 +1,3 @@
 Change in TrapezoidMapTriFinder, triangulation interpolation, and refinement output due to change in shuffle.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-With std::random_shuffle removed from C++17, TrapezoidMapTriFinder, triangular grid interpolation and refinement now use std::shuffle with a new random generator which may yield altered outputs due to the differently randomized edges.
+With std::random_shuffle removed from C++17, TrapezoidMapTriFinder, triangular grid interpolation and refinement now use std::shuffle with a new random generator which will serve the same purpose but may yield altered outputs compared to previous versions due to the differently randomized edges.
