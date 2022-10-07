@@ -109,7 +109,7 @@ def test_register_cmap():
             cm.register_cmap('nome', cmap='not a cmap')
 
 
-def test_ensure_cmap():
+def test_colormaps_get_cmap():
     cr = mpl.colormaps
     new_cm = mcolors.ListedColormap(cr["viridis"].colors, name='v2')
 
