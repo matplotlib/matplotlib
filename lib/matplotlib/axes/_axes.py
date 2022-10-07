@@ -5272,7 +5272,7 @@ default: :rc:`scatter.edgecolors`
                 raise ValueError(f"where size ({where.size}) does not match "
                                  f"{ind_dir} size ({ind.size})")
         where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
+            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
 
         ind, dep1, dep2 = np.broadcast_arrays(
             np.atleast_1d(ind), dep1, dep2, subok=True)
