@@ -224,8 +224,9 @@ jobs:
           git describe
 
           # Set flag in a delayed manner to avoid issues with installing other
-          # packages
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+          # packages. Only enabling coverage on minimum versions run as both
+          # need building using --no-build-isolation.
+          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
             if [[ "$(lsb_release -r -s)" == "20.04" ]]; then
               export CPPFLAGS='--coverage -fprofile-abs-path'
             else
@@ -242,9 +243,13 @@ jobs:
 
           # All dependencies must have been pre-installed, so that the minver
           # constraints are held.
-          python -m pip install --no-deps -ve .
+          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
+            python -m pip install --no-deps --no-build-isolation -ve .
+          else
+            python -m pip install --no-deps -ve .
+          fi
 
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
             unset CPPFLAGS
           fi
 
@@ -266,7 +271,7 @@ jobs:
             --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
           lcov --list coverage.info
           find . -name '*.gc*' -delete
-        if: ${{ runner.os != 'macOS' }}
+        if: ${{ matrix.name-suffix == '(Minimum Versions)' }}
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
 
