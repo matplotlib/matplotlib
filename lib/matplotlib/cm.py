@@ -189,17 +189,15 @@ class ColormapRegistry(Mapping):
 
     def get_cmap(self, cmap):
         """
-        Ensure that at given object is a converted to a color map.
-
-        If *cmap* in `None`, returns the Colormap named by :rc:`image.cmap`.
+        Return a color map specified through *cmap*.
 
         Parameters
         ----------
-        cmap : str, Colormap, None
+        cmap : str or `~matplotlib.colors.Colormap` or None
 
-            - if a `~matplotlib.colors.Colormap`, return it
-            - if a string, look it up in mpl.colormaps
-            - if None, look up the default color map in mpl.colormaps
+            - if a `.Colormap`, return it
+            - if a string, look it up in ``mpl.colormaps``
+            - if None, return the Colormap defined in :rc:`image.cmap`
 
         Returns
         -------
