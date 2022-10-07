@@ -57,8 +57,7 @@ functions have been marked for pending deprecation:
 
   **Added 3.6.1** Use `matplotlib.cm.ColormapRegistry.get_cmap` if you
   have a string, `None` or a `matplotlib.colors.Colormap` object that you want
-  to convert to a `matplotlib.colors.Colormap` instance.  Raises `KeyError`
-  rather than `ValueError` for missing strings.
+  to convert to a `matplotlib.colors.Colormap` instance.
 - ``matplotlib.cm.register_cmap``; use `matplotlib.colormaps.register
   <.ColormapRegistry.register>` instead
 - ``matplotlib.cm.unregister_cmap``; use `matplotlib.colormaps.unregister
