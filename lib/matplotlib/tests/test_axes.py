@@ -491,13 +491,15 @@ def test_subclass_clear_cla():
     # Note, we cannot use mocking here as we want to be sure that the
     # superclass fallback does not recurse.
 
-    with pytest.warns(match='Overriding `Axes.cla`'):
+    with pytest.warns(PendingDeprecationWarning,
+                      match='Overriding `Axes.cla`'):
         class ClaAxes(Axes):
             def cla(self):
                 nonlocal called
                 called = True
 
-    with pytest.warns(match='Overriding `Axes.cla`'):
+    with pytest.warns(PendingDeprecationWarning,
+                      match='Overriding `Axes.cla`'):
         class ClaSuperAxes(Axes):
             def cla(self):
                 nonlocal called

@@ -117,7 +117,7 @@ def test_double_register_builtin_cmap():
             mpl.colormaps[name], name=name, force=True
         )
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
-        with pytest.warns():
+        with pytest.warns(PendingDeprecationWarning):
             cm.register_cmap(name, mpl.colormaps[name])
     with pytest.warns(UserWarning):
         # TODO is warning more than once!
@@ -128,7 +128,7 @@ def test_unregister_builtin_cmap():
     name = "viridis"
     match = f'cannot unregister {name!r} which is a builtin colormap.'
     with pytest.raises(ValueError, match=match):
-        with pytest.warns():
+        with pytest.warns(PendingDeprecationWarning):
             cm.unregister_cmap(name)
 
 
