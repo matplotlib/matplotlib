@@ -291,7 +291,6 @@ class WebAggApplication(tornado.web.Application):
 
 
 def ipython_inline_display(figure):
-
     import tornado.template
 
     WebAggApplication.initialize()
