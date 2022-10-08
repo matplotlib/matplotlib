@@ -52,7 +52,12 @@ In Matplotlib 3.6 we have marked those top level functions as pending
 deprecation with the intention of deprecation in Matplotlib 3.7. The following
 functions have been marked for pending deprecation:
 
-- ``matplotlib.cm.get_cmap``; use ``matplotlib.colormaps[name]`` instead
+- ``matplotlib.cm.get_cmap``; use ``matplotlib.colormaps[name]`` instead if you
+  have a `str`.
+
+  **Added 3.6.1** Use `matplotlib.cm.ColormapRegistry.get_cmap` if you
+  have a string, `None` or a `matplotlib.colors.Colormap` object that you want
+  to convert to a `matplotlib.colors.Colormap` instance.
 - ``matplotlib.cm.register_cmap``; use `matplotlib.colormaps.register
   <.ColormapRegistry.register>` instead
 - ``matplotlib.cm.unregister_cmap``; use `matplotlib.colormaps.unregister
@@ -305,7 +310,7 @@ Backend-specific deprecations
   private functions if you rely on it.
 - ``backend_svg.generate_transform`` and ``backend_svg.generate_css``
 - ``backend_tk.NavigationToolbar2Tk.lastrect`` and
-  ``backend_tk.RubberbandTk.lastrect`` 
+  ``backend_tk.RubberbandTk.lastrect``
 - ``backend_tk.NavigationToolbar2Tk.window``; use ``toolbar.master`` instead.
 - ``backend_tools.ToolBase.destroy``; To run code upon tool removal, connect to
   the ``tool_removed_event`` event.
