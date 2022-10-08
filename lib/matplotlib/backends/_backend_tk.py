@@ -910,13 +910,6 @@ class RubberbandTk(backend_tools.RubberbandBase):
         property(lambda self: self.figure.canvas._rubberband_rect))
 
 
-@_api.deprecated("3.5", alternative="ToolSetCursor")
-class SetCursorTk(backend_tools.SetCursorBase):
-    def set_cursor(self, cursor):
-        NavigationToolbar2Tk.set_cursor(
-            self._make_classic_style_pseudo_toolbar(), cursor)
-
-
 class ToolbarTk(ToolContainerBase, tk.Frame):
     def __init__(self, toolmanager, window=None):
         ToolContainerBase.__init__(self, toolmanager)
