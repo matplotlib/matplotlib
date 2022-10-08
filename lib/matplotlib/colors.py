@@ -1517,27 +1517,43 @@ class CenteredNorm(Normalize):
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
 
-    def _set_vmin_vmax(self):
-        """
-        Set *vmin* and *vmax* based on *vcenter* and *halfrange*.
-        """
-        self.vmax = self._vcenter + self._halfrange
-        self.vmin = self._vcenter - self._halfrange
-
     def autoscale(self, A):
         """
         Set *halfrange* to ``max(abs(A-vcenter))``, then set *vmin* and *vmax*.
         """
         A = np.asanyarray(A)
-        self._halfrange = max(self._vcenter-A.min(),
-                              A.max()-self._vcenter)
-        self._set_vmin_vmax()
+        self.halfrange = max(self._vcenter-A.min(),
+                             A.max()-self._vcenter)
 
     def autoscale_None(self, A):
         """Set *vmin* and *vmax*."""
         A = np.asanyarray(A)
-        if self._halfrange is None and A.size:
+        if self.halfrange is None and A.size:
             self.autoscale(A)
+
+    @property
+    def vmin(self):
+        return self._vmin
+
+    @vmin.setter
+    def vmin(self, value):
+        value = _sanitize_extrema(value)
+        if value != self._vmin:
+            self._vmin = value
+            self._vmax = 2*self.vcenter - value
+            self._changed()
+
+    @property
+    def vmax(self):
+        return self._vmax
+
+    @vmax.setter
+    def vmax(self, value):
+        value = _sanitize_extrema(value)
+        if value != self._vmax:
+            self._vmax = value
+            self._vmin = 2*self.vcenter - value
+            self._changed()
 
     @property
     def vcenter(self):
@@ -1547,32 +1563,24 @@ class CenteredNorm(Normalize):
     def vcenter(self, vcenter):
         if vcenter != self._vcenter:
             self._vcenter = vcenter
+            # Trigger an update of the vmin/vmax values through the setter
+            self.halfrange = self.halfrange
             self._changed()
-        if self.vmax is not None:
-            # recompute halfrange assuming vmin and vmax represent
-            # min and max of data
-            self._halfrange = max(self._vcenter-self.vmin,
-                                  self.vmax-self._vcenter)
-            self._set_vmin_vmax()
 
     @property
     def halfrange(self):
-        return self._halfrange
+        if self.vmin is None or self.vmax is None:
+            return None
+        return (self.vmax - self.vmin) / 2
 
     @halfrange.setter
     def halfrange(self, halfrange):
         if halfrange is None:
-            self._halfrange = None
             self.vmin = None
             self.vmax = None
         else:
-            self._halfrange = abs(halfrange)
-
-    def __call__(self, value, clip=None):
-        if self._halfrange is not None:
-            # enforce symmetry, reset vmin and vmax
-            self._set_vmin_vmax()
-        return super().__call__(value, clip=clip)
+            self.vmin = self.vcenter - abs(halfrange)
+            self.vmax = self.vcenter + abs(halfrange)
 
 
 def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
