@@ -155,7 +155,7 @@ jobs:
         run: |
           # Upgrade pip and setuptools and wheel to get as clean an install as
           # possible.
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip 'setuptools<64' wheel
 
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
