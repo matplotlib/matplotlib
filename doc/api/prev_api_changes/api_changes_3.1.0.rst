@@ -389,9 +389,9 @@ consistent with the behavior on Py2, where a buffer object was
 returned.
 
 
-`matplotlib.font_manager.win32InstalledFonts` return type
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-`matplotlib.font_manager.win32InstalledFonts` returns an empty list instead
+``matplotlib.font_manager.win32InstalledFonts`` return type
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``matplotlib.font_manager.win32InstalledFonts`` returns an empty list instead
 of None if no fonts are found.
 
 ``Axes.fmt_xdata`` and ``Axes.fmt_ydata`` error handling

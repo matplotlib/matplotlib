@@ -192,7 +192,7 @@ Code changes
   by ``self.vline`` for vertical cursors lines and ``self.hline`` is added
   for the horizontal cursors lines.
 
-* On POSIX platforms, the :func:`~matplotlib.cbook.report_memory` function
+* On POSIX platforms, the ``matplotlib.cbook.report_memory`` function
   raises :class:`NotImplementedError` instead of :class:`OSError` if the
   :command:`ps` command cannot be run.
 

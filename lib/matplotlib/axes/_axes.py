@@ -2881,10 +2881,9 @@ class Axes(_AxesBase):
 
           stem([locs,] heads, linefmt=None, markerfmt=None, basefmt=None)
 
-        The *locs*-positions are optional. The formats may be provided either
-        as positional or as keyword-arguments.
-        Passing *markerfmt* and *basefmt* positionally is deprecated since
-        Matplotlib 3.5.
+        The *locs*-positions are optional. *linefmt* may be provided as
+        positional, but all other formats must be provided as keyword
+        arguments.
 
         Parameters
         ----------
@@ -2957,8 +2956,8 @@ class Axes(_AxesBase):
             `stem <https://www.mathworks.com/help/matlab/ref/stem.html>`_
             which inspired this method.
         """
-        if not 1 <= len(args) <= 5:
-            raise TypeError('stem expected between 1 and 5 positional '
+        if not 1 <= len(args) <= 3:
+            raise TypeError('stem expected between 1 or 3 positional '
                             'arguments, got {}'.format(args))
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
@@ -2971,12 +2970,6 @@ class Axes(_AxesBase):
             locs = np.arange(len(heads))
         else:
             locs, heads, *args = args
-        if len(args) > 1:
-            _api.warn_deprecated(
-                "3.5",
-                message="Passing the markerfmt parameter positionally is "
-                        "deprecated since Matplotlib %(since)s; the "
-                        "parameter will become keyword-only %(removal)s.")
 
         if orientation == 'vertical':
             locs, heads = self._process_unit_info([("x", locs), ("y", heads)])
@@ -2990,8 +2983,8 @@ class Axes(_AxesBase):
 
         # resolve marker format
         if markerfmt is None:
-            # if not given as kwarg, check for positional or fall back to 'o'
-            markerfmt = args[1] if len(args) > 1 else "o"
+            # if not given as kwarg, fall back to 'o'
+            markerfmt = "o"
         if markerfmt == '':
             markerfmt = ' '  # = empty line style; '' would resolve rcParams
         markerstyle, markermarker, markercolor = \
@@ -3005,8 +2998,7 @@ class Axes(_AxesBase):
 
         # resolve baseline format
         if basefmt is None:
-            basefmt = (args[2] if len(args) > 2 else
-                       "C2-" if mpl.rcParams["_internal.classic_mode"] else
+            basefmt = ("C2-" if mpl.rcParams["_internal.classic_mode"] else
                        "C3-")
         basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
@@ -5428,15 +5420,11 @@ default: :rc:`scatter.edgecolors`
 
     #### plotting z(x, y): imshow, pcolor and relatives, contour
 
-    # Once this deprecation elapses, also move vmin, vmax right after norm, to
-    # match the signature of other methods returning ScalarMappables and keep
-    # the documentation for *norm*, *vmax* and *vmin* together.
-    @_api.make_keyword_only("3.5", "aspect")
     @_preprocess_data()
     @_docstring.interpd
-    def imshow(self, X, cmap=None, norm=None, aspect=None,
+    def imshow(self, X, cmap=None, norm=None, *, aspect=None,
                interpolation=None, alpha=None,
-               vmin=None, vmax=None, origin=None, extent=None, *,
+               vmin=None, vmax=None, origin=None, extent=None,
                interpolation_stage=None, filternorm=True, filterrad=4.0,
                resample=None, url=None, **kwargs):
         """

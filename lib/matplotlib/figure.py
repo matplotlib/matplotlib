@@ -121,26 +121,21 @@ class SubplotParams:
             The height of the padding between subplots,
             as a fraction of the average Axes height.
         """
-        self._validate = True
         for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
             setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
         self.update(left, bottom, right, top, wspace, hspace)
-
-    # Also remove _validate after deprecation elapses.
-    validate = _api.deprecate_privatize_attribute("3.5")
 
     def update(self, left=None, bottom=None, right=None, top=None,
                wspace=None, hspace=None):
         """
         Update the dimensions of the passed parameters. *None* means unchanged.
         """
-        if self._validate:
-            if ((left if left is not None else self.left)
-                    >= (right if right is not None else self.right)):
-                raise ValueError('left cannot be >= right')
-            if ((bottom if bottom is not None else self.bottom)
-                    >= (top if top is not None else self.top)):
-                raise ValueError('bottom cannot be >= top')
+        if ((left if left is not None else self.left)
+                >= (right if right is not None else self.right)):
+            raise ValueError('left cannot be >= right')
+        if ((bottom if bottom is not None else self.bottom)
+                >= (top if top is not None else self.top)):
+            raise ValueError('bottom cannot be >= top')
         if left is not None:
             self.left = left
         if right is not None:

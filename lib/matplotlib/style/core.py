@@ -15,7 +15,6 @@ import contextlib
 import logging
 import os
 from pathlib import Path
-import re
 import warnings
 
 import matplotlib as mpl
@@ -24,12 +23,6 @@ from matplotlib import _api, _docstring, rc_params_from_file, rcParamsDefault
 _log = logging.getLogger(__name__)
 
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
-
-
-@_api.caching_module_getattr  # module-level deprecations
-class __getattr__:
-    STYLE_FILE_PATTERN = _api.deprecated("3.5", obj_type="")(property(
-        lambda self: re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)))
 
 
 BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
@@ -193,21 +186,6 @@ def context(style, after_reset=False):
             mpl.rcdefaults()
         use(style)
         yield
-
-
-@_api.deprecated("3.5")
-def load_base_library():
-    """Load style library defined in this package."""
-    library = read_style_directory(BASE_LIBRARY_PATH)
-    return library
-
-
-@_api.deprecated("3.5")
-def iter_user_libraries():
-    for stylelib_path in USER_LIBRARY_PATHS:
-        stylelib_path = os.path.expanduser(stylelib_path)
-        if os.path.exists(stylelib_path) and os.path.isdir(stylelib_path):
-            yield stylelib_path
 
 
 def update_user_library(library):

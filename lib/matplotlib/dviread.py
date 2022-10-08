@@ -267,8 +267,6 @@ class Dvi:
         self.fonts = {}
         self.state = _dvistate.pre
 
-    baseline = _api.deprecated("3.5")(property(lambda self: None))
-
     def __enter__(self):
         """Context manager enter method, does nothing."""
         return self
@@ -1056,8 +1054,7 @@ class _LuatexKpsewhich:
 
 
 @lru_cache()
-@_api.delete_parameter("3.5", "format")
-def _find_tex_file(filename, format=None):
+def _find_tex_file(filename):
     """
     Find a file in the texmf tree using kpathsea_.
 
@@ -1070,10 +1067,6 @@ def _find_tex_file(filename, format=None):
     Parameters
     ----------
     filename : str or path-like
-    format : str or bytes
-        Used as the value of the ``--format`` option to :program:`kpsewhich`.
-        Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
-        Deprecated.
 
     Raises
     ------
@@ -1085,17 +1078,14 @@ def _find_tex_file(filename, format=None):
     # out of caution
     if isinstance(filename, bytes):
         filename = filename.decode('utf-8', errors='replace')
-    if isinstance(format, bytes):
-        format = format.decode('utf-8', errors='replace')
 
     try:
         lk = _LuatexKpsewhich()
     except FileNotFoundError:
         lk = None  # Fallback to directly calling kpsewhich, as below.
 
-    if lk and format is None:
+    if lk:
         path = lk.search(filename)
-
     else:
         if os.name == 'nt':
             # On Windows only, kpathsea can use utf-8 for cmd args and output.
@@ -1107,12 +1097,9 @@ def _find_tex_file(filename, format=None):
             kwargs = {'encoding': sys.getfilesystemencoding(),
                       'errors': 'surrogateescape'}
 
-        cmd = ['kpsewhich']
-        if format is not None:
-            cmd += ['--format=' + format]
-        cmd += [filename]
         try:
-            path = (cbook._check_and_log_subprocess(cmd, _log, **kwargs)
+            path = (cbook._check_and_log_subprocess(['kpsewhich', filename],
+                                                    _log, **kwargs)
                     .rstrip('\n'))
         except (FileNotFoundError, RuntimeError):
             path = None
@@ -1127,11 +1114,9 @@ def _find_tex_file(filename, format=None):
 
 # After the deprecation period elapses, delete this shim and rename
 # _find_tex_file to find_tex_file everywhere.
-@_api.delete_parameter("3.5", "format")
-def find_tex_file(filename, format=None):
+def find_tex_file(filename):
     try:
-        return (_find_tex_file(filename, format) if format is not None else
-                _find_tex_file(filename))
+        return _find_tex_file(filename)
     except FileNotFoundError as exc:
         _api.warn_deprecated(
             "3.6", message=f"{exc.args[0]}; in the future, this will raise a "
