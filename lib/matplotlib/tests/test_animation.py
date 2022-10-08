@@ -87,7 +87,7 @@ def test_null_movie_writer(anim):
     # output to an opaque background
     for k, v in savefig_kwargs.items():
         assert writer.savefig_kwargs[k] == v
-    assert writer._count == anim.save_count
+    assert writer._count == anim._save_count
 
 
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
