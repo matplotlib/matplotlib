@@ -15,7 +15,7 @@ reverts the deprecation.
 Functions ``epoch2num`` and ``dates.julian2num`` use ``date.epoch`` rcParam
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now `~.dates.epoch2num` and (undocumented) ``julian2num`` return floating point
+Now ``epoch2num`` and (undocumented) ``julian2num`` return floating point
 days since `~.dates.get_epoch` as set by :rc:`date.epoch`, instead of
 floating point days since the old epoch of "0000-12-31T00:00:00".  If
 needed, you can translate from the new to old values as
