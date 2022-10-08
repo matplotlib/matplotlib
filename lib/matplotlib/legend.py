@@ -562,10 +562,24 @@ class Legend(Artist):
         if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legendHandles, self.texts):
+                try:
+                    if isinstance(handle.cmap, colors.LinearSegmentedColormap):
+                        continue
+                except AttributeError:
+                    pass
                 for getter_name in getter_names:
                     try:
                         color = getattr(handle, getter_name)()
-                        text.set_color(color)
+                        if isinstance(color, np.ndarray):
+                            if (
+                                    color.shape[0] == 1
+                                    or np.isclose(color, color[0]).all()
+                            ):
+                                text.set_color(color[0])
+                            else:
+                                pass
+                        else:
+                            text.set_color(color)
                         break
                     except AttributeError:
                         pass
