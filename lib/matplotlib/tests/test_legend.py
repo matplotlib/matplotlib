@@ -671,6 +671,47 @@ def test_legend_labelcolor_linecolor():
         assert mpl.colors.same_color(text.get_color(), color)
 
 
+def test_legend_pathcollection_labelcolor_linecolor():
+    # test the labelcolor for labelcolor='linecolor' on PathCollection
+    fig, ax = plt.subplots()
+    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', c='r')
+    ax.scatter(np.arange(10), np.arange(10)*2, label='#2', c='g')
+    ax.scatter(np.arange(10), np.arange(10)*3, label='#3', c='b')
+
+    leg = ax.legend(labelcolor='linecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_pathcollection_labelcolor_linecolor_iterable():
+    # test the labelcolor for labelcolor='linecolor' on PathCollection
+    # with iterable colors
+    fig, ax = plt.subplots()
+    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
+    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', c=colors)
+
+    leg = ax.legend(labelcolor='linecolor')
+    for text, color in zip(leg.get_texts(), ['k']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_pathcollection_labelcolor_linecolor_cmap():
+    # test the labelcolor for labelcolor='linecolor' on PathCollection
+    # with a colormap
+    fig, ax = plt.subplots()
+    ax.scatter(
+        np.arange(10),
+        np.arange(10),
+        label='#1',
+        c=np.arange(10),
+        cmap="Reds"
+    )
+
+    leg = ax.legend(labelcolor='linecolor')
+    for text, color in zip(leg.get_texts(), ['k']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
 def test_legend_labelcolor_markeredgecolor():
     # test the labelcolor for labelcolor='markeredgecolor'
     fig, ax = plt.subplots()
@@ -683,6 +724,49 @@ def test_legend_labelcolor_markeredgecolor():
         assert mpl.colors.same_color(text.get_color(), color)
 
 
+def test_legend_pathcollection_labelcolor_markeredgecolor():
+    # test the labelcolor for labelcolor='markeredgecolor' on PathCollection
+    fig, ax = plt.subplots()
+    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', edgecolor='r')
+    ax.scatter(np.arange(10), np.arange(10)*2, label='#2', edgecolor='g')
+    ax.scatter(np.arange(10), np.arange(10)*3, label='#3', edgecolor='b')
+
+    leg = ax.legend(labelcolor='markeredgecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_pathcollection_labelcolor_markeredgecolor_iterable():
+    # test the labelcolor for labelcolor='markeredgecolor' on PathCollection
+    # with iterable colors
+    fig, ax = plt.subplots()
+    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
+    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', edgecolor=colors)
+
+    leg = ax.legend(labelcolor='markeredgecolor')
+    for text, color in zip(leg.get_texts(), ['k']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_pathcollection_labelcolor_markeredgecolor_cmap():
+    # test the labelcolor for labelcolor='markeredgecolor' on PathCollection
+    # with a colormap
+    fig, ax = plt.subplots()
+    edgecolors = mpl.cm.viridis(np.random.rand(10))
+    ax.scatter(
+        np.arange(10),
+        np.arange(10),
+        label='#1',
+        c=np.arange(10),
+        edgecolor=edgecolors,
+        cmap="Reds"
+    )
+
+    leg = ax.legend(labelcolor='markeredgecolor')
+    for text, color in zip(leg.get_texts(), ['k']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
 def test_legend_labelcolor_markerfacecolor():
     # test the labelcolor for labelcolor='markerfacecolor'
     fig, ax = plt.subplots()
@@ -692,6 +776,48 @@ def test_legend_labelcolor_markerfacecolor():
 
     leg = ax.legend(labelcolor='markerfacecolor')
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_pathcollection_labelcolor_markerfacecolor():
+    # test the labelcolor for labelcolor='markerfacecolor' on PathCollection
+    fig, ax = plt.subplots()
+    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', facecolor='r')
+    ax.scatter(np.arange(10), np.arange(10)*2, label='#2', facecolor='g')
+    ax.scatter(np.arange(10), np.arange(10)*3, label='#3', facecolor='b')
+
+    leg = ax.legend(labelcolor='markerfacecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_pathcollection_labelcolor_markerfacecolor_iterable():
+    # test the labelcolor for labelcolor='markerfacecolor' on PathCollection
+    # with iterable colors
+    fig, ax = plt.subplots()
+    colors = np.random.default_rng().choice(['r', 'g', 'b'], 10)
+    ax.scatter(np.arange(10), np.arange(10)*1, label='#1', facecolor=colors)
+
+    leg = ax.legend(labelcolor='markerfacecolor')
+    for text, color in zip(leg.get_texts(), ['k']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_pathcollection_labelcolor_markfacecolor_cmap():
+    # test the labelcolor for labelcolor='markerfacecolor' on PathCollection
+    # with colormaps
+    fig, ax = plt.subplots()
+    facecolors = mpl.cm.viridis(np.random.rand(10))
+    ax.scatter(
+        np.arange(10),
+        np.arange(10),
+        label='#1',
+        c=np.arange(10),
+        facecolor=facecolors
+    )
+
+    leg = ax.legend(labelcolor='markerfacecolor')
+    for text, color in zip(leg.get_texts(), ['k']):
         assert mpl.colors.same_color(text.get_color(), color)
 
 
