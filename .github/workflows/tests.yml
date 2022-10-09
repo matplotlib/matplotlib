@@ -155,7 +155,7 @@ jobs:
         run: |
           # Upgrade pip and setuptools and wheel to get as clean an install as
           # possible.
-          python -m pip install --upgrade pip 'setuptools<64' wheel
+          python -m pip install --upgrade pip setuptools wheel
 
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
@@ -224,9 +224,8 @@ jobs:
           git describe
 
           # Set flag in a delayed manner to avoid issues with installing other
-          # packages. Only enabling coverage on minimum versions run as both
-          # need building using --no-build-isolation.
-          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
+          # packages
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
             if [[ "$(lsb_release -r -s)" == "20.04" ]]; then
               export CPPFLAGS='--coverage -fprofile-abs-path'
             else
@@ -241,15 +240,15 @@ jobs:
 
           cat mplsetup.cfg
 
-          # All dependencies must have been pre-installed, so that the minver
-          # constraints are held.
           if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
+            # Minimum versions run does not use build isolation so that it
+            # builds against the pre-installed minver dependencies.
             python -m pip install --no-deps --no-build-isolation -ve .
           else
             python -m pip install --no-deps -ve .
           fi
 
-          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS
           fi
 
@@ -271,7 +270,7 @@ jobs:
             --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
           lcov --list coverage.info
           find . -name '*.gc*' -delete
-        if: ${{ matrix.name-suffix == '(Minimum Versions)' }}
+        if: ${{ runner.os != 'macOS' }}
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
 
