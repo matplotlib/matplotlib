@@ -563,7 +563,7 @@ class Legend(Artist):
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legendHandles, self.texts):
                 try:
-                    if isinstance(handle.cmap, colors.LinearSegmentedColormap):
+                    if handle.get_array() is not None:
                         continue
                 except AttributeError:
                     pass
