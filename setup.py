@@ -216,8 +216,9 @@ def update_matplotlibrc(path):
 class BuildPy(setuptools.command.build_py.build_py):
     def run(self):
         super().run()
+        base_dir = "lib" if self.editable_mode else self.build_lib
         update_matplotlibrc(
-            Path(self.build_lib, "matplotlib/mpl-data/matplotlibrc"))
+            Path(base_dir, "matplotlib/mpl-data/matplotlibrc"))
 
 
 class Sdist(setuptools.command.sdist.sdist):
