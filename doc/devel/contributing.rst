@@ -222,7 +222,7 @@ rules before submitting a pull request:
 
   or your editor may provide integration with it.  Note that Matplotlib
   intentionally does not use the black_ auto-formatter (1__), in particular due
-  to its unability to understand the semantics of mathematical expressions
+  to its inability to understand the semantics of mathematical expressions
   (2__, 3__).
 
   .. _PEP8: https://www.python.org/dev/peps/pep-0008/
