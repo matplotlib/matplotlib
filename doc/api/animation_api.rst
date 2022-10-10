@@ -97,6 +97,11 @@ this hopefully minimalist example gives a sense of how ``init_func``
 and ``func`` are used inside of `FuncAnimation` and the theory of how
 'blitting' works.
 
+.. note::
+
+    Note that the zorder of artists is not taken into account when 'blitting'
+    as the artists are always 'blit' on top.
+
 The expected signature on ``func`` and ``init_func`` is very simple to
 keep `FuncAnimation` out of your book keeping and plotting logic, but
 this means that the callable objects you pass in must know what
