@@ -271,8 +271,8 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         'Forum': 'https://discourse.matplotlib.org/',
         'Donate': 'https://numfocus.org/donate-to-matplotlib'
     },
-    long_description=Path("README.rst").read_text(encoding="utf-8"),
-    long_description_content_type="text/x-rst",
+    long_description=Path("README.md").read_text(encoding="utf-8"),
+    long_description_content_type="text/markdown",
     license="PSF",
     platforms="any",
     classifiers=[

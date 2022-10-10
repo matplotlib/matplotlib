@@ -1253,11 +1253,13 @@ default: %(va)s
         # Store the value of gca so that we can set it back later on.
         if cax is None:
             if ax is None:
-                raise ValueError(
+                _api.warn_deprecated("3.6", message=(
                     'Unable to determine Axes to steal space for Colorbar. '
+                    'Using gca(), but will raise in the future. '
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
-                    'from it, or add *mappable* to an Axes.')
+                    'from it, or add *mappable* to an Axes.'))
+                ax = self.gca()
             current_ax = self.gca()
             userax = False
             if (use_gridspec and isinstance(ax, SubplotBase)):

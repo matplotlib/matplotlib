@@ -1154,47 +1154,31 @@ class RendererSVG(RendererBase):
             if weight != 400:
                 font_parts.append(f'{weight}')
 
-            def _format_font_name(fn):
-                normalize_names = {
-                    'sans': 'sans-serif',
-                    'sans serif': 'sans-serif'
-                }
-                # A generic font family.  We need to do two things:
-                #  1. list all of the configured fonts with quoted names
-                #  2. append the generic name unquoted
+            def _normalize_sans(name):
+                return 'sans-serif' if name in ['sans', 'sans serif'] else name
+
+            def _expand_family_entry(fn):
+                fn = _normalize_sans(fn)
+                # prepend generic font families with all configured font names
                 if fn in fm.font_family_aliases:
-                    # fix spelling of sans-serif
-                    # we accept 3 ways CSS only supports 1
-                    fn = normalize_names.get(fn, fn)
                     # get all of the font names and fix spelling of sans-serif
-                    # if it comes back
-                    aliases = [
-                        normalize_names.get(_, _) for _ in
-                        fm.FontManager._expand_aliases(fn)
-                    ]
-                    # make sure the generic name appears at least once
-                    # duplicate is OK, next layer will deduplicate
-                    aliases.append(fn)
+                    # (we accept 3 ways CSS only supports 1)
+                    for name in fm.FontManager._expand_aliases(fn):
+                        yield _normalize_sans(name)
+                # whether a generic name or a family name, it must appear at
+                # least once
+                yield fn
 
-                    for a in aliases:
-                        # generic font families must not be quoted
-                        if a in fm.font_family_aliases:
-                            yield a
-                        # specific font families must be quoted
-                        else:
-                            yield repr(a)
-                # specific font families must be quoted
-                else:
-                    yield repr(fn)
-
-            def _get_all_names(prop):
-                for f in prop.get_family():
-                    yield from _format_font_name(f)
+            def _get_all_quoted_names(prop):
+                # only quote specific names, not generic names
+                return [name if name in fm.font_family_aliases else repr(name)
+                        for entry in prop.get_family()
+                        for name in _expand_family_entry(entry)]
 
             font_parts.extend([
                 f'{_short_float_fmt(prop.get_size())}px',
-                # ensure quoting and expansion of font names
-                ", ".join(dict.fromkeys(_get_all_names(prop)))
+                # ensure expansion, quoting, and dedupe of font names
+                ", ".join(dict.fromkeys(_get_all_quoted_names(prop)))
             ])
             style['font'] = ' '.join(font_parts)
             if prop.get_stretch() != 'normal':
