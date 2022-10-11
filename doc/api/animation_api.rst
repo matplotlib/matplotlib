@@ -99,7 +99,7 @@ and ``func`` are used inside of `FuncAnimation` and the theory of how
 
 .. note::
 
-    Note that the zorder of artists is not taken into account when 'blitting'
+    The zorder of artists is not taken into account when 'blitting'
     as the artists are always 'blit' on top.
 
 The expected signature on ``func`` and ``init_func`` is very simple to
