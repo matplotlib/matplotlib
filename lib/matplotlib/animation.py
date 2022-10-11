@@ -1518,7 +1518,8 @@ class FuncAnimation(TimedAnimation):
     func : callable
         The function to call at each frame.  The first argument will
         be the next value in *frames*.   Any additional positional
-        arguments can be supplied via the *fargs* parameter.
+        arguments can be supplied via the *fargs* parameter. See *fargs* for
+        how to use `functools.partial` to supply keyword arguments.
 
         The required signature is::
 
@@ -1563,6 +1564,14 @@ class FuncAnimation(TimedAnimation):
 
     fargs : tuple or None, optional
         Additional arguments to pass to each call to *func*.
+
+        An option to *fargs* is to use `functools.partial`, with the added
+        benefit of also supporting keyword arguments. An example is to pass
+        something like::
+
+            partial(func, **kwargs)
+
+        as *func*.
 
     save_count : int, default: 100
         Fallback for the number of values from *frames* to cache. This is
