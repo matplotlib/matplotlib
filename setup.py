@@ -34,6 +34,7 @@ import setuptools.command.build_ext
 import setuptools.command.build_py
 import setuptools.command.sdist
 
+# sys.path modified to find setupext.py during pyproject.toml builds.
 sys.path.append(str(Path(__file__).resolve().parent))
 
 import setupext
@@ -71,7 +72,7 @@ def has_flag(self, flagname):
 class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
     def finalize_options(self):
         # If coverage is enabled then need to keep the .o and .gcno files in a
-        # non-temporary directory otherwise coverage info is not collected.
+        # non-temporary directory otherwise coverage info not collected.
         cppflags = os.getenv('CPPFLAGS')
         if cppflags and '--coverage' in cppflags:
             self.build_temp = 'build'
