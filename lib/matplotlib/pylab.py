@@ -16,8 +16,7 @@ from matplotlib.cbook import flatten, silent_list
 import matplotlib as mpl
 
 from matplotlib.dates import (
-    date2num, num2date, datestr2num, drange, epoch2num,
-    num2epoch, DateFormatter, DateLocator,
+    date2num, num2date, datestr2num, drange, DateFormatter, DateLocator,
     RRuleLocator, YearLocator, MonthLocator, WeekdayLocator, DayLocator,
     HourLocator, MinuteLocator, SecondLocator, rrule, MO, TU, WE, TH, FR,
     SA, SU, YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY,

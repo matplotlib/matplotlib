@@ -11,13 +11,13 @@ from numpy import ma
 import matplotlib as mpl
 from matplotlib import _api, _docstring
 from matplotlib.backend_bases import MouseButton
+from matplotlib.text import Text
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
-import matplotlib.text as text
 import matplotlib.cbook as cbook
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
@@ -31,7 +31,8 @@ import matplotlib.transforms as mtransforms
 # per level.
 
 
-class ClabelText(text.Text):
+@_api.deprecated("3.7", alternative="Text.set_transform_rotates_text")
+class ClabelText(Text):
     """
     Unlike the ordinary text, the get_rotation returns an updated
     angle in the pixel coordinate assuming that the input rotation is
@@ -150,10 +151,8 @@ class ContourLabeler:
             or minus 90 degrees from level.
 
         use_clabeltext : bool, default: False
-            If ``True``, `.ClabelText` class (instead of `.Text`) is used to
-            create labels. `ClabelText` recalculates rotation angles
-            of texts during the drawing time, therefore this can be used if
-            aspect of the axes changes.
+            If ``True``, use `.Text.set_transform_rotates_text` to ensure that
+            label rotation is updated whenever the axes aspect changes.
 
         zorder : float or None, default: ``(2 + contour.get_zorder())``
             zorder of the contour labels.
@@ -253,11 +252,10 @@ class ContourLabeler:
         fig = self.axes.figure
         renderer = fig._get_renderer()
         return (
-            text.Text(0, 0,
-                      self.get_text(self.labelLevelList[nth], self.labelFmt),
-                      figure=fig,
-                      size=self.labelFontSizeList[nth],
-                      fontproperties=self.labelFontProps)
+            Text(0, 0, self.get_text(self.labelLevelList[nth], self.labelFmt),
+                 figure=fig,
+                 size=self.labelFontSizeList[nth],
+                 fontproperties=self.labelFontProps)
             .get_window_extent(renderer).width)
 
     @_api.deprecated("3.5")
@@ -267,12 +265,13 @@ class ContourLabeler:
             lev = self.get_text(lev, fmt)
         fig = self.axes.figure
         renderer = fig._get_renderer()
-        width = (text.Text(0, 0, lev, figure=fig,
-                           size=fsize, fontproperties=self.labelFontProps)
+        width = (Text(0, 0, lev, figure=fig,
+                      size=fsize, fontproperties=self.labelFontProps)
                  .get_window_extent(renderer).width)
         width *= 72 / fig.dpi
         return width
 
+    @_api.deprecated("3.7", alternative="Artist.set")
     def set_label_props(self, label, text, color):
         """Set the label properties - color, fontsize, text."""
         label.set_text(text)
@@ -417,57 +416,32 @@ class ContourLabeler:
 
         return rotation, nlc
 
-    def _get_label_text(self, x, y, rotation):
-        dx, dy = self.axes.transData.inverted().transform((x, y))
-        t = text.Text(dx, dy, rotation=rotation,
-                      horizontalalignment='center',
-                      verticalalignment='center', zorder=self._clabel_zorder)
-        return t
-
-    def _get_label_clabeltext(self, x, y, rotation):
-        # x, y, rotation is given in pixel coordinate. Convert them to
-        # the data coordinate and create a label using ClabelText
-        # class. This way, the rotation of the clabel is along the
-        # contour line always.
-        transDataInv = self.axes.transData.inverted()
-        dx, dy = transDataInv.transform((x, y))
-        drotation = transDataInv.transform_angles(np.array([rotation]),
-                                                  np.array([[x, y]]))
-        t = ClabelText(dx, dy, rotation=drotation[0],
-                       horizontalalignment='center',
-                       verticalalignment='center', zorder=self._clabel_zorder)
-
-        return t
-
-    def _add_label(self, t, x, y, lev, cvalue):
-        color = self.labelMappable.to_rgba(cvalue, alpha=self.alpha)
-
-        _text = self.get_text(lev, self.labelFmt)
-        self.set_label_props(t, _text, color)
+    def add_label(self, x, y, rotation, lev, cvalue):
+        """Add contour label without `.Text.set_transform_rotates_text`."""
+        data_x, data_y = self.axes.transData.inverted().transform((x, y))
+        t = Text(
+            data_x, data_y,
+            text=self.get_text(lev, self.labelFmt),
+            rotation=rotation,
+            horizontalalignment='center', verticalalignment='center',
+            zorder=self._clabel_zorder,
+            color=self.labelMappable.to_rgba(cvalue, alpha=self.alpha),
+            fontproperties=self.labelFontProps,
+            clip_box=self.axes.bbox)
         self.labelTexts.append(t)
         self.labelCValues.append(cvalue)
         self.labelXYs.append((x, y))
-
         # Add label to plot here - useful for manual mode label selection
         self.axes.add_artist(t)
 
-    def add_label(self, x, y, rotation, lev, cvalue):
-        """
-        Add contour label using :class:`~matplotlib.text.Text` class.
-        """
-        t = self._get_label_text(x, y, rotation)
-        self._add_label(t, x, y, lev, cvalue)
-
     def add_label_clabeltext(self, x, y, rotation, lev, cvalue):
-        """
-        Add contour label using :class:`ClabelText` class.
-        """
-        # x, y, rotation is given in pixel coordinate. Convert them to
-        # the data coordinate and create a label using ClabelText
-        # class. This way, the rotation of the clabel is along the
-        # contour line always.
-        t = self._get_label_clabeltext(x, y, rotation)
-        self._add_label(t, x, y, lev, cvalue)
+        """Add contour label with `.Text.set_transform_rotates_text`."""
+        self.add_label(x, y, rotation, lev, cvalue)
+        # Grab the last added text, and reconfigure its rotation.
+        t = self.labelTexts[-1]
+        data_rotation, = self.axes.transData.inverted().transform_angles(
+            [rotation], [[x, y]])
+        t.set(rotation=data_rotation, transform_rotates_text=True)
 
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
@@ -584,6 +558,10 @@ class ContourLabeler:
             # by new ones if inlining.
             if inline:
                 paths[:] = additions
+
+    def remove(self):
+        for text in self.labelTexts:
+            text.remove()
 
 
 def _is_closed_polygon(X):
@@ -1388,6 +1366,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     ymin = xc[1]
 
         return (conmin, segmin, imin, xmin, ymin, d2min)
+
+    def remove(self):
+        super().remove()
+        for coll in self.collections:
+            coll.remove()
 
 
 @_docstring.dedent_interpd
