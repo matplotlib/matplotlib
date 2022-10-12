@@ -41,10 +41,10 @@ def figure_edit(axes, parent=None):
 
     axis_map = axes._axis_map
     axis_limits = {
-        axname: tuple(convert_limits(
-            getattr(axes, f'get_{axname}lim')(), axis.converter
+        name: tuple(convert_limits(
+            getattr(axes, f'get_{name}lim')(), axis.converter
         ))
-        for axname, axis in axis_map.items()
+        for name, axis in axis_map.items()
     }
     general = [
         ('Title', axes.get_title()),
@@ -52,23 +52,23 @@ def figure_edit(axes, parent=None):
     ]
     axes_info = [
         (
-            (None, f"<b>{axis.upper()}-Axis</b>"),
-            ('Min', axis_limits[axis][0]),
-            ('Max', axis_limits[axis][1]),
-            ('Label', getattr(axes, f"get_{axis}label")()),
-            ('Scale', [getattr(axes, f"get_{axis}scale")(),
+            (None, f"<b>{name.upper()}-Axis</b>"),
+            ('Min', axis_limits[name][0]),
+            ('Max', axis_limits[name][1]),
+            ('Label', axis.get_label().get_text()),
+            ('Scale', [axis.get_scale(),
                        'linear', 'log', 'symlog', 'logit']),
             sep,
         )
-        for axis in axis_map.keys()
+        for name, axis in axis_map.items()
     ]
     general.extend(chain.from_iterable(axes_info))
     general.append(('(Re-)Generate automatic legend', False))
 
     # Save the unit data
     axis_units = {
-        axis: getattr(getattr(axes, f"{axis}axis"), "get_units")()
-        for axis in axis_map.keys()
+        name: axis.get_units()
+        for name, axis in axis_map.items()
     }
 
     # Get / Curves
@@ -174,8 +174,8 @@ def figure_edit(axes, parent=None):
     def apply_callback(data):
         """A callback to apply changes."""
         orig_limits = {
-            axis: getattr(axes, f"get_{axis}lim")()
-            for axis in axis_map.keys()
+            name: getattr(axes, f"get_{name}lim")()
+            for name in axis_map.keys()
         }
 
         general = data.pop(0)
@@ -188,19 +188,19 @@ def figure_edit(axes, parent=None):
         axes.set_title(title)
         generate_legend = general.pop()
 
-        for i, (axname, ax) in enumerate(axis_map.items()):
-            axmin = general[4*i]
-            axmax = general[4*i + 1]
-            axlabel = general[4*i + 2]
-            axscale = general[4*i + 3]
-            if getattr(axes, f"get_{axname}scale")() != axscale:
-                getattr(axes, f"set_{axname}scale")(axscale)
+        for i, (name, axis) in enumerate(axis_map.items()):
+            axis_min = general[4*i]
+            axis_max = general[4*i + 1]
+            axis_label = general[4*i + 2]
+            axis_scale = general[4*i + 3]
+            if getattr(axes, f"get_{name}scale")() != axis_scale:
+                getattr(axes, f"set_{name}scale")(axis_scale)
 
-            getattr(axes, f"set_{axname}lim")(axmin, axmax)
-            getattr(axes, f"set_{axname}label")(axlabel)
-            setattr(ax, 'converter', ax.converter)
-            getattr(ax, 'set_units')(axis_units[axname])
-            ax._update_axisinfo()
+            getattr(axes, f"set_{name}lim")(axis_min, axis_max)
+            axis.set_label_text(axis_label)
+            setattr(axis, 'converter', axis.converter)
+            axis.set_units(axis_units[name])
+            axis._update_axisinfo()
 
         # Set / Curves
         for index, curve in enumerate(curves):
@@ -247,8 +247,8 @@ def figure_edit(axes, parent=None):
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
-        for axis in axis_map.keys():
-            if getattr(axes, f"get_{axis}lim")() != orig_limits[axis]:
+        for name in axis_map.keys():
+            if getattr(axes, f"get_{name}lim")() != orig_limits[name]:
                 figure.canvas.toolbar.push_current()
                 break
 
