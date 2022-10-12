@@ -40,15 +40,11 @@ def figure_edit(axes, parent=None):
         return map(float, lim)
 
     axis_map = axes._axis_map
-    axis_converter = {
-        axis: getattr(getattr(axes, f'{axis}axis'), 'converter')
-        for axis in axis_map.keys()
-    }
     axis_limits = {
-        axis: tuple(convert_limits(
-            getattr(axes, f'get_{axis}lim')(), axis_converter[axis]
+        axname: tuple(convert_limits(
+            getattr(axes, f'get_{axname}lim')(), axis.converter
         ))
-        for axis in axis_map.keys()
+        for axname, axis in axis_map.items()
     }
     general = [
         ('Title', axes.get_title()),
@@ -192,19 +188,18 @@ def figure_edit(axes, parent=None):
         axes.set_title(title)
         generate_legend = general.pop()
 
-        for i, axis in enumerate(axis_map.keys()):
-            ax = getattr(axes, f"{axis}axis")
+        for i, (axname, ax) in enumerate(axis_map.items()):
             axmin = general[4*i]
             axmax = general[4*i + 1]
             axlabel = general[4*i + 2]
             axscale = general[4*i + 3]
-            if getattr(axes, f"get_{axis}scale")() != axscale:
-                getattr(axes, f"set_{axis}scale")(axscale)
+            if getattr(axes, f"get_{axname}scale")() != axscale:
+                getattr(axes, f"set_{axname}scale")(axscale)
 
-            getattr(axes, f"set_{axis}lim")(axmin, axmax)
-            getattr(axes, f"set_{axis}label")(axlabel)
-            setattr(ax, 'converter', axis_converter[axis])
-            getattr(ax, 'set_units')(axis_units[axis])
+            getattr(axes, f"set_{axname}lim")(axmin, axmax)
+            getattr(axes, f"set_{axname}label")(axlabel)
+            setattr(ax, 'converter', ax.converter)
+            getattr(ax, 'set_units')(axis_units[axname])
             ax._update_axisinfo()
 
         # Set / Curves
