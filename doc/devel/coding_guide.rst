@@ -45,7 +45,7 @@ When making a PR, pay attention to:
   on GitHub.
 * When updating your PR, instead of adding new commits to fix something, please
   consider amending your initial commit(s) to keep the history clean.
-  You can achieve this using
+  You can achieve this by using
 
   .. code-block:: bash
 
