@@ -1089,6 +1089,9 @@ class Colorbar:
         if not self.norm.scaled():
             self.norm.vmin = 0
             self.norm.vmax = 1
+        if (isinstance(self.norm, colors.CenteredNorm) and
+                (self.norm.halfrange == 0.)):
+            self.norm.halfrange = 0.1
         self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
             self.norm.vmin, self.norm.vmax, expander=0.1)
         if (not isinstance(self.norm, colors.BoundaryNorm) and
