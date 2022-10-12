@@ -62,3 +62,9 @@ jobs:
 
       - name: Check version number is not 0
         run: python ./ci/check_version_number.py
+
+      - name: Install twine
+        run: pip install twine
+
+      - name: Check README rendering for PyPI
+        run: twine check dist/*

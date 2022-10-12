@@ -187,10 +187,9 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, ticker, units
 
 __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
-           'epoch2num', 'num2epoch', 'set_epoch', 'get_epoch', 'DateFormatter',
-           'ConciseDateFormatter', 'AutoDateFormatter',
-           'DateLocator', 'RRuleLocator', 'AutoDateLocator', 'YearLocator',
-           'MonthLocator', 'WeekdayLocator',
+           'set_epoch', 'get_epoch', 'DateFormatter', 'ConciseDateFormatter',
+           'AutoDateFormatter', 'DateLocator', 'RRuleLocator',
+           'AutoDateLocator', 'YearLocator', 'MonthLocator', 'WeekdayLocator',
            'DayLocator', 'HourLocator', 'MinuteLocator',
            'SecondLocator', 'MicrosecondLocator',
            'rrule', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU',
@@ -1737,16 +1736,6 @@ class MicrosecondLocator(DateLocator):
         self._wrapped_locator.set_axis(axis)
         return super().set_axis(axis)
 
-    @_api.deprecated("3.5", alternative="`.Axis.set_view_interval`")
-    def set_view_interval(self, vmin, vmax):
-        self._wrapped_locator.set_view_interval(vmin, vmax)
-        return super().set_view_interval(vmin, vmax)
-
-    @_api.deprecated("3.5", alternative="`.Axis.set_data_interval`")
-    def set_data_interval(self, vmin, vmax):
-        self._wrapped_locator.set_data_interval(vmin, vmax)
-        return super().set_data_interval(vmin, vmax)
-
     def __call__(self):
         # if no data have been set, this will tank with a ValueError
         try:
@@ -1776,52 +1765,6 @@ class MicrosecondLocator(DateLocator):
     def _get_interval(self):
         # docstring inherited
         return self._interval
-
-
-@_api.deprecated(
-    "3.5",
-    alternative="``[date2num(datetime.utcfromtimestamp(t)) for t in e]`` or "
-                "numpy.datetime64 types")
-def epoch2num(e):
-    """
-    Convert UNIX time to days since Matplotlib epoch.
-
-    Parameters
-    ----------
-    e : list of floats
-        Time in seconds since 1970-01-01.
-
-    Returns
-    -------
-    `numpy.array`
-        Time in days since Matplotlib epoch (see `~.dates.get_epoch()`).
-    """
-
-    dt = (np.datetime64('1970-01-01T00:00:00', 's') -
-          np.datetime64(get_epoch(), 's')).astype(float)
-
-    return (dt + np.asarray(e)) / SEC_PER_DAY
-
-
-@_api.deprecated("3.5", alternative="`num2date(e).timestamp()<.num2date>`")
-def num2epoch(d):
-    """
-    Convert days since Matplotlib epoch to UNIX time.
-
-    Parameters
-    ----------
-    d : list of floats
-        Time in days since Matplotlib epoch (see `~.dates.get_epoch()`).
-
-    Returns
-    -------
-    `numpy.array`
-        Time in seconds since 1970-01-01.
-    """
-    dt = (np.datetime64('1970-01-01T00:00:00', 's') -
-          np.datetime64(get_epoch(), 's')).astype(float)
-
-    return np.asarray(d) * SEC_PER_DAY - dt
 
 
 @_api.deprecated("3.6", alternative="`AutoDateLocator` and `AutoDateFormatter`"
