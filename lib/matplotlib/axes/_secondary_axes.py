@@ -1,3 +1,5 @@
+import numbers
+
 import numpy as np
 
 from matplotlib import _api, _docstring
@@ -17,7 +19,7 @@ class SecondaryAxis(_AxesBase):
         While there is no need for this to be private, it should really be
         called by those higher level functions.
         """
-
+        _api.check_in_list(["x", "y"], orientation=orientation)
         self._functions = functions
         self._parent = parent
         self._orientation = orientation
@@ -28,7 +30,7 @@ class SecondaryAxis(_AxesBase):
             self._axis = self.xaxis
             self._locstrings = ['top', 'bottom']
             self._otherstrings = ['left', 'right']
-        elif self._orientation == 'y':
+        else:  # 'y'
             super().__init__(self._parent.figure, [0, 1., 0.0001, 1], **kwargs)
             self._axis = self.yaxis
             self._locstrings = ['right', 'left']
@@ -40,11 +42,7 @@ class SecondaryAxis(_AxesBase):
         self.set_functions(functions)
 
         # styling:
-        if self._orientation == 'x':
-            otheraxis = self.yaxis
-        else:
-            otheraxis = self.xaxis
-
+        otheraxis = self.yaxis if self._orientation == 'x' else self.xaxis
         otheraxis.set_major_locator(mticker.NullLocator())
         otheraxis.set_ticks_position('none')
 
@@ -63,8 +61,8 @@ class SecondaryAxis(_AxesBase):
 
         Parameters
         ----------
-        align : str
-            either 'top' or 'bottom' for orientation='x' or
+        align : {'top', 'bottom', 'left', 'right'}
+            Either 'top' or 'bottom' for orientation='x' or
             'left' or 'right' for orientation='y' axis.
         """
         _api.check_in_list(self._locstrings, align=align)
@@ -92,23 +90,22 @@ class SecondaryAxis(_AxesBase):
 
         # This puts the rectangle into figure-relative coordinates.
         if isinstance(location, str):
-            if location in ['top', 'right']:
-                self._pos = 1.
-            elif location in ['bottom', 'left']:
-                self._pos = 0.
-            else:
-                raise ValueError(
-                    f"location must be {self._locstrings[0]!r}, "
-                    f"{self._locstrings[1]!r}, or a float, not {location!r}")
-        else:
+            _api.check_in_list(self._locstrings, location=location)
+            self._pos = 1. if location in ('top', 'right') else 0.
+        elif isinstance(location, numbers.Real):
             self._pos = location
+        else:
+            raise ValueError(
+                f"location must be {self._locstrings[0]!r}, "
+                f"{self._locstrings[1]!r}, or a float, not {location!r}")
+
         self._loc = location
 
         if self._orientation == 'x':
             # An x-secondary axes is like an inset axes from x = 0 to x = 1 and
             # from y = pos to y = pos + eps, in the parent's transAxes coords.
             bounds = [0, self._pos, 1., 1e-10]
-        else:
+        else:  # 'y'
             bounds = [self._pos, 0, 1e-10, 1]
 
         # this locator lets the axes move in the parent axes coordinates.
@@ -161,9 +158,7 @@ class SecondaryAxis(_AxesBase):
                              'and the second being the inverse')
         self._set_scale()
 
-    # Should be changed to draw(self, renderer) once the deprecation of
-    # renderer=None and of inframe expires.
-    def draw(self, *args, **kwargs):
+    def draw(self, renderer):
         """
         Draw the secondary axes.
 
@@ -175,7 +170,7 @@ class SecondaryAxis(_AxesBase):
         self._set_lims()
         # this sets the scale in case the parent has set its scale.
         self._set_scale()
-        super().draw(*args, **kwargs)
+        super().draw(renderer)
 
     def _set_scale(self):
         """
@@ -185,22 +180,18 @@ class SecondaryAxis(_AxesBase):
         if self._orientation == 'x':
             pscale = self._parent.xaxis.get_scale()
             set_scale = self.set_xscale
-        if self._orientation == 'y':
+        else:  # 'y'
             pscale = self._parent.yaxis.get_scale()
             set_scale = self.set_yscale
         if pscale == self._parentscale:
             return
 
-        if pscale == 'log':
-            defscale = 'functionlog'
-        else:
-            defscale = 'function'
-
         if self._ticks_set:
             ticks = self._axis.get_ticklocs()
 
         # need to invert the roles here for the ticks to line up.
-        set_scale(defscale, functions=self._functions[::-1])
+        set_scale('functionlog' if pscale == 'log' else 'function',
+                  functions=self._functions[::-1])
 
         # OK, set_scale sets the locators, but if we've called
         # axsecond.set_ticks, we want to keep those.
@@ -218,7 +209,7 @@ class SecondaryAxis(_AxesBase):
         if self._orientation == 'x':
             lims = self._parent.get_xlim()
             set_lim = self.set_xlim
-        if self._orientation == 'y':
+        else:  # 'y'
             lims = self._parent.get_ylim()
             set_lim = self.set_ylim
         order = lims[0] < lims[1]
@@ -249,7 +240,7 @@ class SecondaryAxis(_AxesBase):
             self.spines.bottom.set_color(color)
             self.spines.top.set_color(color)
             self.xaxis.label.set_color(color)
-        else:
+        else:  # 'y'
             self.tick_params(axis='y', colors=color)
             self.spines.left.set_color(color)
             self.spines.right.set_color(color)
