@@ -11,13 +11,13 @@ from numpy import ma
 import matplotlib as mpl
 from matplotlib import _api, _docstring
 from matplotlib.backend_bases import MouseButton
+from matplotlib.text import Text
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
-import matplotlib.text as text
 import matplotlib.cbook as cbook
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
@@ -31,7 +31,7 @@ import matplotlib.transforms as mtransforms
 # per level.
 
 
-class ClabelText(text.Text):
+class ClabelText(Text):
     """
     Unlike the ordinary text, the get_rotation returns an updated
     angle in the pixel coordinate assuming that the input rotation is
@@ -253,11 +253,10 @@ class ContourLabeler:
         fig = self.axes.figure
         renderer = fig._get_renderer()
         return (
-            text.Text(0, 0,
-                      self.get_text(self.labelLevelList[nth], self.labelFmt),
-                      figure=fig,
-                      size=self.labelFontSizeList[nth],
-                      fontproperties=self.labelFontProps)
+            Text(0, 0, self.get_text(self.labelLevelList[nth], self.labelFmt),
+                 figure=fig,
+                 size=self.labelFontSizeList[nth],
+                 fontproperties=self.labelFontProps)
             .get_window_extent(renderer).width)
 
     @_api.deprecated("3.5")
@@ -267,8 +266,8 @@ class ContourLabeler:
             lev = self.get_text(lev, fmt)
         fig = self.axes.figure
         renderer = fig._get_renderer()
-        width = (text.Text(0, 0, lev, figure=fig,
-                           size=fsize, fontproperties=self.labelFontProps)
+        width = (Text(0, 0, lev, figure=fig,
+                      size=fsize, fontproperties=self.labelFontProps)
                  .get_window_extent(renderer).width)
         width *= 72 / fig.dpi
         return width
@@ -419,10 +418,9 @@ class ContourLabeler:
 
     def _get_label_text(self, x, y, rotation):
         dx, dy = self.axes.transData.inverted().transform((x, y))
-        t = text.Text(dx, dy, rotation=rotation,
-                      horizontalalignment='center',
-                      verticalalignment='center', zorder=self._clabel_zorder)
-        return t
+        return Text(dx, dy, rotation=rotation,
+                    horizontalalignment='center',
+                    verticalalignment='center', zorder=self._clabel_zorder)
 
     def _get_label_clabeltext(self, x, y, rotation):
         # x, y, rotation is given in pixel coordinate. Convert them to
@@ -584,6 +582,10 @@ class ContourLabeler:
             # by new ones if inlining.
             if inline:
                 paths[:] = additions
+
+    def remove(self):
+        for text in self.labelTexts:
+            text.remove()
 
 
 def _is_closed_polygon(X):
@@ -1388,6 +1390,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     ymin = xc[1]
 
         return (conmin, segmin, imin, xmin, ymin, d2min)
+
+    def remove(self):
+        super().remove()
+        for coll in self.collections:
+            coll.remove()
 
 
 @_docstring.dedent_interpd
