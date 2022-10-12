@@ -1,7 +1,7 @@
 """
-======================
-Animated scatter plot
-======================
+=============================
+Animated Scatter Saved as Gif
+=============================
 
 """
 import numpy as np
