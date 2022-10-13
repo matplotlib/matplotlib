@@ -92,7 +92,10 @@ def _setup_pyqt5plus():
         _isdeleted = sip.isdeleted
     elif QT_API == QT_API_PYSIDE2:
         from PySide2 import QtCore, QtGui, QtWidgets, __version__
-        import shiboken2
+        try:
+            from PySide2 import shiboken2
+        except ImportError:
+            import shiboken2
         def _isdeleted(obj):
             return not shiboken2.isValid(obj)
     else:
