@@ -2648,6 +2648,9 @@ class Axes(_AxesBase):
             When *fmt* is a string and can be interpreted in both formats,
             %-style takes precedence over {}-style.
 
+            .. versionadded:: 3.7
+               Support for {}-style format string and callables.
+
         label_type : {'edge', 'center'}, default: 'edge'
             The label type. Possible values:
 
@@ -3328,6 +3331,10 @@ class Axes(_AxesBase):
         *x*, *y* define the data locations, *xerr*, *yerr* define the errorbar
         sizes. By default, this draws the data markers/lines as well the
         errorbars. Use fmt='none' to draw errorbars without any data markers.
+
+        .. versionadded:: 3.7
+           Caps and error lines are drawn in polar coordinates on polar plots.
+
 
         Parameters
         ----------
