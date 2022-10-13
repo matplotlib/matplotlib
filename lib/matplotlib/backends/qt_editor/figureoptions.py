@@ -49,21 +49,20 @@ def figure_edit(axes, parent=None):
     general = [
         ('Title', axes.get_title()),
         sep,
+        *chain.from_iterable([
+            (
+                (None, f"<b>{name.upper()}-Axis</b>"),
+                ('Min', axis_limits[name][0]),
+                ('Max', axis_limits[name][1]),
+                ('Label', axis.get_label().get_text()),
+                ('Scale', [axis.get_scale(),
+                           'linear', 'log', 'symlog', 'logit']),
+                sep,
+            )
+            for name, axis in axis_map.items()
+        ]),
+        ('(Re-)Generate automatic legend', False),
     ]
-    axes_info = [
-        (
-            (None, f"<b>{name.upper()}-Axis</b>"),
-            ('Min', axis_limits[name][0]),
-            ('Max', axis_limits[name][1]),
-            ('Label', axis.get_label().get_text()),
-            ('Scale', [axis.get_scale(),
-                       'linear', 'log', 'symlog', 'logit']),
-            sep,
-        )
-        for name, axis in axis_map.items()
-    ]
-    general.extend(chain.from_iterable(axes_info))
-    general.append(('(Re-)Generate automatic legend', False))
 
     # Save the unit data
     axis_units = {
@@ -175,7 +174,7 @@ def figure_edit(axes, parent=None):
         """A callback to apply changes."""
         orig_limits = {
             name: getattr(axes, f"get_{name}lim")()
-            for name in axis_map.keys()
+            for name in axis_map
         }
 
         general = data.pop(0)
