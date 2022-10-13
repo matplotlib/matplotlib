@@ -240,9 +240,13 @@ jobs:
 
           cat mplsetup.cfg
 
-          # All dependencies must have been pre-installed, so that the minver
-          # constraints are held.
-          python -m pip install --no-deps -ve .
+          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
+            # Minimum versions run does not use build isolation so that it
+            # builds against the pre-installed minver dependencies.
+            python -m pip install --no-deps --no-build-isolation -ve .
+          else
+            python -m pip install --no-deps -ve .
+          fi
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS
