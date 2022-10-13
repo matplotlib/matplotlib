@@ -1,6 +1,6 @@
 """
 =============================
-Animated Scatter Saved as Gif
+Animated scatter saved as GIF
 =============================
 
 """
