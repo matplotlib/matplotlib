@@ -108,13 +108,60 @@ Documentation
 
 * See :ref:`documenting-matplotlib` for our documentation style guide.
 
-* If your change is a major new feature, add an entry to
-  :file:`doc/users/whats_new.rst`.
+.. _release_notes:
 
-* If you change the API in a backward-incompatible way, please
-  document it by adding a file in the relevant subdirectory of
-  :file:`doc/api/next_api_changes/`, probably in the ``behavior/``
-  subdirectory.
+New features and API changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+When adding a major new feature or changing the API in a backward incompatible
+way, please document it by including a versioning directive in the docstring
+and adding an entry to the folder for either the what's new or API change notes.
+
++-------------------+-----------------------------+----------------------------------+
+| for this addition | include this directive      | create entry in this folder      |
++===================+=============================+==================================+
+| new feature       | ``.. versionadded:: 3.N``   | :file:`doc/users/next_whats_new/`|
++-------------------+-----------------------------+----------------------------------+
+| API change        | ``.. versionchanged:: 3.N`` | :file:`doc/api/next_api_changes/`|
+|                   |                             |                                  |
+|                   |                             | probably in ``behavior/``        |
++-------------------+-----------------------------+----------------------------------+
+
+The directives should be placed at the end of a description block. For example::
+
+  class Foo:
+      """
+      This is the summary.
+
+      Followed by a longer description block.
+
+      Consisting of multiple lines and paragraphs.
+
+      .. versionadded:: 3.5
+
+      Parameters
+      ----------
+      a : int
+          The first parameter.
+      b: bool, default: False
+          This was added later.
+
+          .. versionadded:: 3.6
+      """
+
+      def set_b(b):
+          """
+          Set b.
+
+          .. versionadded:: 3.6
+
+          Parameters
+          ----------
+          b: bool
+
+For classes and functions, the directive should be placed before the
+*Parameters* section. For parameters, the directive should be placed at the
+end of the parameter description. The patch release version is omitted and
+the directive should not be added to entire modules.
 
 .. _pr-labels:
 
