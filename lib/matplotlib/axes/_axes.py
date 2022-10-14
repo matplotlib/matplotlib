@@ -6466,7 +6466,7 @@ default: :rc:`scatter.edgecolors`
         `~.stairs` to plot the distribution::
 
             counts, bins = np.histogram(x)
-            plt.stairs(bins, counts)
+            plt.stairs(counts, bins)
 
         Alternatively, plot pre-computed bins and counts using ``hist()`` by
         treating each bin as a single point with a weight equal to its count::
