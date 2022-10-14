@@ -1426,7 +1426,7 @@ class TimedAnimation(Animation):
 
 class ArtistAnimation(TimedAnimation):
     """
-    `TimedAnimation` subclass that creates an animation by using a fixed 
+    `TimedAnimation` subclass that creates an animation by using a fixed
     set of `.Artist` objects.
 
     Before creating an instance, all plotting should have taken place
@@ -1503,7 +1503,7 @@ class ArtistAnimation(TimedAnimation):
 
 class FuncAnimation(TimedAnimation):
     """
-    `TimedAnimation` subclass that makes an animation by repeatedly calling 
+    `TimedAnimation` subclass that makes an animation by repeatedly calling
     a function *func*.
 
     .. note::
