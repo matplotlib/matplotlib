@@ -40,6 +40,10 @@ def figure_edit(axes, parent=None):
         return map(float, lim)
 
     axis_map = axes._axis_map
+    axis_converter = {
+        name: axis.converter
+        for name, axis in axis_map.items()
+    }
     axis_limits = {
         name: tuple(convert_limits(
             getattr(axes, f'get_{name}lim')(), axis.converter
@@ -197,7 +201,7 @@ def figure_edit(axes, parent=None):
 
             getattr(axes, f"set_{name}lim")(axis_min, axis_max)
             axis.set_label_text(axis_label)
-            setattr(axis, 'converter', axis.converter)
+            axis.converter = axis_converter[name]
             axis.set_units(axis_units[name])
             axis._update_axisinfo()
 
@@ -246,7 +250,7 @@ def figure_edit(axes, parent=None):
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
-        for name in axis_map.keys():
+        for name in axis_map:
             if getattr(axes, f"get_{name}lim")() != orig_limits[name]:
                 figure.canvas.toolbar.push_current()
                 break
