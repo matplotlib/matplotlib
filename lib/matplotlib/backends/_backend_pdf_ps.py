@@ -104,11 +104,7 @@ class RendererPDFPSBase(RendererBase):
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
         if ismath == "TeX":
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(
-                s, fontsize, renderer=self)
-            return w, h, d
+            return super().get_text_width_height_descent(s, prop, ismath)
         elif ismath:
             parse = self._text2path.mathtext_parser.parse(s, 72, prop)
             return parse.width, parse.height, parse.depth

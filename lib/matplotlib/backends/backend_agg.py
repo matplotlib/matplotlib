@@ -226,12 +226,7 @@ class RendererAgg(RendererBase):
 
         _api.check_in_list(["TeX", True, False], ismath=ismath)
         if ismath == "TeX":
-            # todo: handle props
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(
-                s, fontsize, renderer=self)
-            return w, h, d
+            return super().get_text_width_height_descent(s, prop, ismath)
 
         if ismath:
             ox, oy, width, height, descent, font_image = \
