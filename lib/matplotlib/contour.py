@@ -201,10 +201,7 @@ class ContourLabeler:
         self.labelLevelList = levels
         self.labelIndiceList = indices
 
-        self.labelFontProps = font_manager.FontProperties()
-        self.labelFontProps.set_size(fontsize)
-        font_size_pts = self.labelFontProps.get_size_in_points()
-        self.labelFontSizeList = [font_size_pts] * len(levels)
+        self._label_font_props = font_manager.FontProperties(size=fontsize)
 
         if colors is None:
             self.labelMappable = self
@@ -217,10 +214,10 @@ class ContourLabeler:
 
         self.labelXYs = []
 
-        if np.iterable(self.labelManual):
-            for x, y in self.labelManual:
+        if np.iterable(manual):
+            for x, y in manual:
                 self.add_label_near(x, y, inline, inline_spacing)
-        elif self.labelManual:
+        elif manual:
             print('Select label locations manually using first mouse button.')
             print('End manual selection with second mouse button.')
             if not inline:
@@ -233,8 +230,23 @@ class ContourLabeler:
         else:
             self.labels(inline, inline_spacing)
 
-        self.labelTextsList = cbook.silent_list('text.Text', self.labelTexts)
-        return self.labelTextsList
+        return cbook.silent_list('text.Text', self.labelTexts)
+
+    @_api.deprecated("3.7", alternative="cs.labelTexts[0].get_font()")
+    @property
+    def labelFontProps(self):
+        return self._label_font_props
+
+    @_api.deprecated("3.7", alternative=(
+        "[cs.labelTexts[0].get_font().get_size()] * len(cs.labelLevelList)"))
+    @property
+    def labelFontSizeList(self):
+        return [self._label_font_props.get_size()] * len(self.labelLevelList)
+
+    @_api.deprecated("3.7", alternative="cs.labelTexts")
+    @property
+    def labelTextsList(self):
+        return cbook.silent_list('text.Text', self.labelTexts)
 
     def print_label(self, linecontour, labelwidth):
         """Return whether a contour is long enough to hold a label."""
@@ -251,12 +263,10 @@ class ContourLabeler:
         """Return the width of the *nth* label, in pixels."""
         fig = self.axes.figure
         renderer = fig._get_renderer()
-        return (
-            Text(0, 0, self.get_text(self.labelLevelList[nth], self.labelFmt),
-                 figure=fig,
-                 size=self.labelFontSizeList[nth],
-                 fontproperties=self.labelFontProps)
-            .get_window_extent(renderer).width)
+        return (Text(0, 0,
+                     self.get_text(self.labelLevelList[nth], self.labelFmt),
+                     figure=fig, fontproperties=self._label_font_props)
+                .get_window_extent(renderer).width)
 
     @_api.deprecated("3.5")
     def get_label_width(self, lev, fmt, fsize):
@@ -266,7 +276,7 @@ class ContourLabeler:
         fig = self.axes.figure
         renderer = fig._get_renderer()
         width = (Text(0, 0, lev, figure=fig,
-                      size=fsize, fontproperties=self.labelFontProps)
+                      size=fsize, fontproperties=self._label_font_props)
                  .get_window_extent(renderer).width)
         width *= 72 / fig.dpi
         return width
@@ -276,7 +286,7 @@ class ContourLabeler:
         """Set the label properties - color, fontsize, text."""
         label.set_text(text)
         label.set_color(color)
-        label.set_fontproperties(self.labelFontProps)
+        label.set_fontproperties(self._label_font_props)
         label.set_clip_box(self.axes.bbox)
 
     def get_text(self, lev, fmt):
@@ -426,7 +436,7 @@ class ContourLabeler:
             horizontalalignment='center', verticalalignment='center',
             zorder=self._clabel_zorder,
             color=self.labelMappable.to_rgba(cvalue, alpha=self.alpha),
-            fontproperties=self.labelFontProps,
+            fontproperties=self._label_font_props,
             clip_box=self.axes.bbox)
         self.labelTexts.append(t)
         self.labelCValues.append(cvalue)
