@@ -51,7 +51,7 @@ class Test_delete_masked_points:
 
 
 class Test_boxplot_stats:
-    def setup(self):
+    def setup_method(self):
         np.random.seed(937)
         self.nrows = 37
         self.ncols = 4
@@ -177,7 +177,7 @@ class Test_boxplot_stats:
 
 
 class Test_callback_registry:
-    def setup(self):
+    def setup_method(self):
         self.signal = 'test'
         self.callbacks = cbook.CallbackRegistry()
 
