@@ -69,7 +69,8 @@ else:
 
 
 def _setup_pyqt5plus():
-    global QtCore, QtGui, QtWidgets, __version__, _isdeleted, _getSaveFileName
+    global QtCore, QtGui, QtWidgets, __version__
+    global _getSaveFileName, _isdeleted, _to_int
 
     if QT_API == QT_API_PYQT6:
         from PyQt6 import QtCore, QtGui, QtWidgets, sip
@@ -78,10 +79,15 @@ def _setup_pyqt5plus():
         QtCore.Slot = QtCore.pyqtSlot
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
+        _to_int = operator.attrgetter('value')
     elif QT_API == QT_API_PYSIDE6:
         from PySide6 import QtCore, QtGui, QtWidgets, __version__
         import shiboken6
         def _isdeleted(obj): return not shiboken6.isValid(obj)
+        if parse_version(__version__) >= parse_version('6.4'):
+            _to_int = operator.attrgetter('value')
+        else:
+            _to_int = int
     elif QT_API == QT_API_PYQT5:
         from PyQt5 import QtCore, QtGui, QtWidgets
         import sip
@@ -90,11 +96,16 @@ def _setup_pyqt5plus():
         QtCore.Slot = QtCore.pyqtSlot
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
+        _to_int = int
     elif QT_API == QT_API_PYSIDE2:
         from PySide2 import QtCore, QtGui, QtWidgets, __version__
-        import shiboken2
+        try:
+            from PySide2 import shiboken2
+        except ImportError:
+            import shiboken2
         def _isdeleted(obj):
             return not shiboken2.isValid(obj)
+        _to_int = int
     else:
         raise AssertionError(f"Unexpected QT_API: {QT_API}")
     _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
@@ -139,9 +150,6 @@ if (sys.platform == 'darwin' and
 
 
 # PyQt6 enum compat helpers.
-
-
-_to_int = operator.attrgetter("value") if QT_API == "PyQt6" else int
 
 
 @functools.lru_cache(None)
