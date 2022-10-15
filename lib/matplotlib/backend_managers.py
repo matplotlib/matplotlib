@@ -185,7 +185,7 @@ class ToolManager:
             Keys to associate with the tool.
         """
         if name not in self._tools:
-            raise KeyError(f'{name} not in Tools')
+            raise KeyError(f'{name!r} not in Tools')
         self._remove_keys(name)
         if isinstance(key, str):
             key = [key]
@@ -404,6 +404,7 @@ class ToolManager:
             return name
         if name not in self._tools:
             if warn:
-                _api.warn_external(f"ToolManager does not control tool {name}")
+                _api.warn_external(
+                    f"ToolManager does not control tool {name!r}")
             return None
         return self._tools[name]
