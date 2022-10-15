@@ -627,7 +627,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         drawDC.DrawBitmap(bmp, 0, 0)
         if self._rubberband_rect is not None:
             # Some versions of wx+python don't support numpy.float64 here.
-            x0, y0, x1, y1 = map(int, self._rubberband_rect)
+            x0, y0, x1, y1 = map(round, self._rubberband_rect)
             rect = [(x0, y0, x1, y0), (x1, y0, x1, y1),
                     (x0, y0, x0, y1), (x0, y1, x1, y1)]
             drawDC.DrawLineList(rect, self._rubberband_pen_white)
