@@ -475,7 +475,7 @@ class Axes(_AxesBase):
                     ey = 1 - ey
                 xy_data = x + ex * width, y + ey * height
 
-                blacklist = {
+                disallowed_keys = {
                     'alpha', 'rasterized', 'transform',
                     'color', 'facecolor', 'url',
                     'hatch', 'in_layout', 'path_effects'}
