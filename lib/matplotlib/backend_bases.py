@@ -2330,7 +2330,7 @@ class FigureCanvasBase:
                 _bbox_inches_restore = None
 
             # we have already done layout above, so turn it off:
-            stack.enter_context(self.figure._cm_set(layout_engine=None))
+            stack.enter_context(self.figure._cm_set(layout_engine='none'))
             try:
                 # _get_renderer may change the figure dpi (as vector formats
                 # force the figure dpi to 72), so we need to set it again here.
