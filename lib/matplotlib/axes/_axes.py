@@ -482,7 +482,7 @@ class Axes(_AxesBase):
 
                 patch_kwargs = {
                     key: val for key, val in kwargs.items()
-                    if key not in blacklist}
+                    if key not in disallowed_keys}
 
                 p = mpatches.ConnectionPatch(
                     xyA=xy_inset_ax, coordsA=inset_ax.transAxes,
