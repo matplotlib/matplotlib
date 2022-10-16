@@ -1838,13 +1838,17 @@ default: %(va)s
             Defines the relative widths of the columns. Each column gets a
             relative width of ``width_ratios[i] / sum(width_ratios)``.
             If not given, all columns will have the same width.  Equivalent
-            to ``gridspec_kw={'width_ratios': [...]}``.
+            to ``gridspec_kw={'width_ratios': [...]}``. This argument applies
+            only to the outer layout and will not be passed to the inner
+            layout.
 
         height_ratios : array-like of length *nrows*, optional
             Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height. Equivalent
-            to ``gridspec_kw={'height_ratios': [...]}``.
+            to ``gridspec_kw={'height_ratios': [...]}``. This argument
+            applies only to the outer layout and will not be passed to the
+            inner layout.
 
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
@@ -1852,7 +1856,9 @@ default: %(va)s
 
         gridspec_kw : dict, optional
             Dictionary with keywords passed to the `.GridSpec` constructor used
-            to create the grid the subplots are placed on.
+            to create the grid the subplots are placed on. The 'width_ratios'
+            and 'height_ratios' keys, if present, will be removed from this
+            dictionary before it is passed to any inner layouts.
 
         empty_sentinel : object, optional
             Entry in the layout to mean "leave this space empty".  Defaults
@@ -1999,6 +2005,13 @@ default: %(va)s
             for (j, k), nested_mosaic in nested.items():
                 this_level[(j, k)] = (None, nested_mosaic, 'nested')
 
+            # must remove these two options from the kwargs passed to the
+            # nested items, otherwise an error occurs if *any* of the inner
+            # layouts are not compatible with these ratios
+            nested_gs_kw = dict([(k, v) for k, v in gridspec_kw.items()
+                                 if k != "width_ratios"
+                                 and k != "height_ratios"])
+
             # now go through the things in this level and add them
             # in order left-to-right top-to-bottom
             for key in sorted(this_level):
@@ -2022,7 +2035,7 @@ default: %(va)s
                     # recursively add the nested mosaic
                     rows, cols = nested_mosaic.shape
                     nested_output = _do_layout(
-                        gs[j, k].subgridspec(rows, cols, **gridspec_kw),
+                        gs[j, k].subgridspec(rows, cols, **nested_gs_kw),
                         nested_mosaic,
                         *_identify_keys_and_nested(nested_mosaic)
                     )
