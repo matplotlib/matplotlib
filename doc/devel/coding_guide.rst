@@ -137,7 +137,7 @@ Milestones
     ``v3.N.0``.
 
   * *Bugfixes, tests for released code, and docstring changes* are milestoned
-  for the next patch release ``v3.N.M``.
+    for the next patch release ``v3.N.M``.
 
   * *Documentation changes* (all .rst files and examples) are milestoned
     ``v3.N-doc``.
