@@ -2028,20 +2028,23 @@ def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     return lines, labels
 
 
-_NON_PLOT_COMMANDS = {
-    'connect', 'disconnect', 'get_current_fig_manager', 'ginput',
-    'new_figure_manager', 'waitforbuttonpress'}
-
-
+@_api.deprecated("3.7", pending=True)
 def get_plot_commands():
     """
     Get a sorted list of all of the plotting commands.
     """
+    NON_PLOT_COMMANDS = {
+        'connect', 'disconnect', 'get_current_fig_manager', 'ginput',
+        'new_figure_manager', 'waitforbuttonpress'}
+    return (name for name in _get_pyplot_commands()
+            if name not in NON_PLOT_COMMANDS)
+
+
+def _get_pyplot_commands():
     # This works by searching for all functions in this module and removing
     # a few hard-coded exclusions, as well as all of the colormap-setting
     # functions, and anything marked as private with a preceding underscore.
-    exclude = {'colormaps', 'colors', 'get_plot_commands',
-               *_NON_PLOT_COMMANDS, *colormaps}
+    exclude = {'colormaps', 'colors', 'get_plot_commands', *colormaps}
     this_module = inspect.getmodule(get_plot_commands)
     return sorted(
         name for name, obj in globals().items()
