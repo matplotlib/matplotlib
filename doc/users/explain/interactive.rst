@@ -8,9 +8,6 @@
 Interactive figures
 ===================
 
-.. toctree::
-
-
 When working with data, interactivity can be invaluable. The pan/zoom and
 mouse-location tools built into the Matplotlib GUI windows are often sufficient, but
 you can also use the event system to build customized data exploration tools.
