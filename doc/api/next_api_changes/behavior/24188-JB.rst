@@ -1,0 +1,9 @@
+`fig.subplot_mosaic` no longer passes the `width_ratios` or `height_ratios` args to the nested gridspecs.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, the entirety of the `gridspec_kw` dictionary was passed to
+the nested gridspecs. This caused an error if the inner layout was
+incompatible with one of these ratios. A new dictionary is now made,
+`nested_gs_kw`, where the `"width_ratios"` and `"height_ratios"` keys
+have been removed, which is passed to any nested gridspecs. This
+prevents such errors.
