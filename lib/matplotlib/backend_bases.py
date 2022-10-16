@@ -609,8 +609,8 @@ class RendererBase:
         fontsize = prop.get_size_in_points()
 
         if ismath == 'TeX':
-            # todo: handle props
-            return TexManager().get_text_width_height_descent(
+            # todo: handle properties
+            return self.get_texmanager().get_text_width_height_descent(
                 s, fontsize, renderer=self)
 
         dpi = self.points_to_pixels(72)
