@@ -217,7 +217,7 @@ def update_matplotlibrc(path):
 class BuildPy(setuptools.command.build_py.build_py):
     def run(self):
         super().run()
-        if not self.editable_mode:
+        if not getattr(self, 'editable_mode', False):
             update_matplotlibrc(
                 Path(self.build_lib, "matplotlib/mpl-data/matplotlibrc"))
 
