@@ -2006,13 +2006,6 @@ default: %(va)s
             for (j, k), nested_mosaic in nested.items():
                 this_level[(j, k)] = (None, nested_mosaic, 'nested')
 
-            # must remove these two options from the kwargs passed to the
-            # nested items, otherwise an error occurs if *any* of the inner
-            # layouts are not compatible with these ratios
-            nested_gs_kw = dict([(k, v) for k, v in gridspec_kw.items()
-                                 if k != "width_ratios"
-                                 and k != "height_ratios"])
-
             # now go through the things in this level and add them
             # in order left-to-right top-to-bottom
             for key in sorted(this_level):
