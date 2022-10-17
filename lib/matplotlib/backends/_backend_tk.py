@@ -24,9 +24,6 @@ from . import _tkagg
 
 
 _log = logging.getLogger(__name__)
-
-backend_version = tk.TkVersion
-
 cursord = {
     cursors.MOVE: "fleur",
     cursors.HAND: "hand2",
@@ -1017,6 +1014,7 @@ FigureManagerTk._toolmanager_toolbar_class = ToolbarTk
 
 @_Backend.export
 class _BackendTk(_Backend):
+    backend_version = tk.TkVersion
     FigureManager = FigureManagerTk
 
     @staticmethod

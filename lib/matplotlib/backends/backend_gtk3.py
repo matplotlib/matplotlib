@@ -31,7 +31,6 @@ from ._backend_gtk import (
     _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK3,
 )
-from ._backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
 
 
 _log = logging.getLogger(__name__)

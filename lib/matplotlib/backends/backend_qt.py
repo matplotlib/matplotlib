@@ -20,8 +20,6 @@ from .qt_compat import (
 )
 
 
-backend_version = __version__
-
 # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
 # instead they have manually specified names.
 SPECIAL_KEYS = {
@@ -1013,6 +1011,7 @@ FigureManagerQT._toolmanager_toolbar_class = ToolbarQt
 
 @_Backend.export
 class _BackendQT(_Backend):
+    backend_version = __version__
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
 
