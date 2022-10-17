@@ -2,10 +2,13 @@
 A directive for including a Matplotlib plot in a Sphinx document
 ================================================================
 
-By default, in HTML output, `plot` will include a .png file with a link to a
-high-res .png and .pdf.  In LaTeX output, it will include a .pdf.
+This is a Sphinx extension providing a reStructuredText directive
+``.. plot::`` for including a plot in a Sphinx document.
 
-The source code for the plot may be included in one of three ways:
+In HTML output, ``.. plot::`` will include a .png file with a link
+to a high-res .png and .pdf.  In LaTeX output, it will include a .pdf.
+
+The plot content may be defined in one of three ways:
 
 1. **A path to a source file** as the argument to the directive::
 
@@ -28,10 +31,8 @@ The source code for the plot may be included in one of three ways:
      .. plot::
 
         import matplotlib.pyplot as plt
-        import matplotlib.image as mpimg
-        import numpy as np
-        img = mpimg.imread('_static/stinkbug.png')
-        imgplot = plt.imshow(img)
+        plt.plot([1, 2, 3], [4, 5, 6])
+        plt.title("A plotting exammple")
 
 3. Using **doctest** syntax::
 
@@ -44,22 +45,22 @@ The source code for the plot may be included in one of three ways:
 Options
 -------
 
-The ``plot`` directive supports the following options:
+The ``.. plot::`` directive supports the following options:
 
-    format : {'python', 'doctest'}
+    ``:format:`` : {'python', 'doctest'}
         The format of the input.  If unset, the format is auto-detected.
 
-    include-source : bool
+    ``:include-source:`` : bool
         Whether to display the source code. The default can be changed using
-        the `plot_include_source` variable in :file:`conf.py` (which itself
+        the ``plot_include_source`` variable in :file:`conf.py` (which itself
         defaults to False).
 
-    encoding : str
+    ``:encoding:`` : str
         If this source file is in a non-UTF8 or non-ASCII encoding, the
         encoding must be specified using the ``:encoding:`` option.  The
         encoding will not be inferred using the ``-*- coding -*-`` metacomment.
 
-    context : bool or str
+    ``:context:`` : bool or str
         If provided, the code will be run in the context of all previous plot
         directives for which the ``:context:`` option was specified.  This only
         applies to inline code plot directives, not those run from files. If
@@ -68,18 +69,19 @@ The ``plot`` directive supports the following options:
         running the code. ``:context: close-figs`` keeps the context but closes
         previous figures before running the code.
 
-    nofigs : bool
+    ``:nofigs:`` : bool
         If specified, the code block will be run, but no figures will be
         inserted.  This is usually useful with the ``:context:`` option.
 
-    caption : str
+    ``:caption:`` : str
         If specified, the option's argument will be used as a caption for the
         figure. This overwrites the caption given in the content, when the plot
         is generated from a file.
 
-Additionally, this directive supports all of the options of the `image`
-directive, except for *target* (since plot will add its own target).  These
-include *alt*, *height*, *width*, *scale*, *align* and *class*.
+Additionally, this directive supports all the options of the `image directive
+<https://docutils.sourceforge.io/docs/ref/rst/directives.html#image>`_,
+except for ``:target:`` (since plot will add its own target).  These include
+``:alt:``, ``:height:``, ``:width:``, ``:scale:``, ``:align:`` and ``:class:``.
 
 Configuration options
 ---------------------
