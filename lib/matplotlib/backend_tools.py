@@ -252,12 +252,12 @@ class ToolToggleBase(ToolBase):
                 self._toggled = True
 
 
-class SetCursorBase(ToolBase):
+class ToolSetCursor(ToolBase):
     """
     Change to the current cursor while inaxes.
 
-    This tool, keeps track of all `ToolToggleBase` derived tools, and calls
-    `set_cursor` when a tool gets triggered.
+    This tool, keeps track of all `ToolToggleBase` derived tools, and updates
+    the cursor when a tool gets triggered.
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -309,18 +309,6 @@ class SetCursorBase(ToolBase):
         elif self._last_cursor != self._default_cursor:
             self.canvas.set_cursor(self._default_cursor)
             self._last_cursor = self._default_cursor
-
-    @_api.deprecated("3.5", alternative="`.FigureCanvasBase.set_cursor`")
-    def set_cursor(self, cursor):
-        """
-        Set the cursor.
-        """
-        self.canvas.set_cursor(cursor)
-
-
-# This exists solely for deprecation warnings; remove with
-# SetCursorBase.set_cursor.
-ToolSetCursor = SetCursorBase
 
 
 class ToolCursorPosition(ToolBase):
@@ -979,7 +967,7 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'yscale': ToolYScale,
                  'position': ToolCursorPosition,
                  _views_positions: ToolViewsPositions,
-                 'cursor': SetCursorBase,
+                 'cursor': ToolSetCursor,
                  'rubberband': RubberbandBase,
                  'help': ToolHelpBase,
                  'copy': ToolCopyToClipboardBase,

@@ -257,16 +257,6 @@ class ToolManager:
                                'exists, not added')
             return self._tools[name]
 
-        if name == 'cursor' and tool_cls != backend_tools.SetCursorBase:
-            _api.warn_deprecated("3.5",
-                                 message="Overriding ToolSetCursor with "
-                                 f"{tool_cls.__qualname__} was only "
-                                 "necessary to provide the .set_cursor() "
-                                 "method, which is deprecated since "
-                                 "%(since)s and will be removed "
-                                 "%(removal)s. Please report this to the "
-                                 f"{tool_cls.__module__} author.")
-
         tool_obj = tool_cls(self, name, *args, **kwargs)
         self._tools[name] = tool_obj
 

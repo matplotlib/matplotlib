@@ -976,13 +976,6 @@ class SaveFigureQt(backend_tools.SaveFigureBase):
             self._make_classic_style_pseudo_toolbar())
 
 
-@_api.deprecated("3.5", alternative="ToolSetCursor")
-class SetCursorQt(backend_tools.SetCursorBase):
-    def set_cursor(self, cursor):
-        NavigationToolbar2QT.set_cursor(
-            self._make_classic_style_pseudo_toolbar(), cursor)
-
-
 @backend_tools._register_tool_class(FigureCanvasQT)
 class RubberbandQt(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
