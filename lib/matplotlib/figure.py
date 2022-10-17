@@ -1856,9 +1856,10 @@ default: %(va)s
 
         gridspec_kw : dict, optional
             Dictionary with keywords passed to the `.GridSpec` constructor used
-            to create the grid the subplots are placed on. The 'width_ratios'
-            and 'height_ratios' keys, if present, will be removed from this
-            dictionary before it is passed to any inner layouts.
+            to create the grid the subplots are placed on. This argument
+            applies only to the outer layout and will not be passed to the
+            inner layouts. For more complex layouts, one should use
+            `.subfigure` and `.subplots` directly.
 
         empty_sentinel : object, optional
             Entry in the layout to mean "leave this space empty".  Defaults
@@ -2035,7 +2036,7 @@ default: %(va)s
                     # recursively add the nested mosaic
                     rows, cols = nested_mosaic.shape
                     nested_output = _do_layout(
-                        gs[j, k].subgridspec(rows, cols, **nested_gs_kw),
+                        gs[j, k].subgridspec(rows, cols),
                         nested_mosaic,
                         *_identify_keys_and_nested(nested_mosaic)
                     )
