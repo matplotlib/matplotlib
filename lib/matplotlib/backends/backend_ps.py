@@ -39,12 +39,17 @@ backend_version = 'Level II'
 debugPS = False
 
 
+@_api.deprecated("3.7")
 class PsBackendHelper:
     def __init__(self):
         self._cached = {}
 
 
-ps_backend_helper = PsBackendHelper()
+@_api.caching_module_getattr
+class __getattr__:
+    # module-level deprecations
+    ps_backend_helper = _api.deprecated("3.7", obj_type="")(
+        property(lambda self: PsBackendHelper()))
 
 
 papersize = {'letter': (8.5, 11),
