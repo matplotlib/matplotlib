@@ -4681,7 +4681,31 @@ default: :rc:`scatter.edgecolors`
             the hexagons are approximately regular.
 
             Alternatively, if a tuple (*nx*, *ny*), the number of hexagons
-            in the *x*-direction and the *y*-direction.
+            in the *x*-direction and the *y*-direction. In the
+            *y*-direction, counting is done along vertically aligned
+            hexagons, not along the zig-zag chains of hexagons; see the
+            following illustration.
+
+            .. plot::
+
+               import numpy
+               import matplotlib.pyplot as plt
+
+               np.random.seed(19680801)
+               n= 300
+               x = np.random.standard_normal(n)
+               y = np.random.standard_normal(n)
+
+               fig, ax = plt.subplots(figsize=(4, 4))
+               h = ax.hexbin(x, y, gridsize=(5, 3))
+               hx, hy = h.get_offsets().T
+               ax.plot(hx[24::3], hy[24::3], 'ro-')
+               ax.plot(hx[-3:], hy[-3:], 'ro-')
+               ax.set_title('gridsize=(5, 3)')
+               ax.axis('off')
+
+            To get approximately regular hexagons, choose
+            :math:`n_x = \\sqrt{3}\\,n_y`.
 
         bins : 'log' or int or sequence, default: None
             Discretization of the hexagon values.
