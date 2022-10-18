@@ -1,0 +1,3 @@
+``backend_webagg.ServerThread`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... with no replacement.
