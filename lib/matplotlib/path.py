@@ -293,15 +293,15 @@ class Path:
     @classmethod
     def make_compound_path_from_polys(cls, XY):
         """
-        Make a compound path object to draw a number
-        of polygons with equal numbers of sides XY is a (numpolys x
-        numsides x 2) numpy array of vertices.  Return object is a
-        :class:`Path`.
+        Make a compound `Path` object to draw a number of polygons with equal
+        numbers of sides.
 
         .. plot:: gallery/misc/histogram_path.py
 
+        Parameters
+        ----------
+        XY : (numpolys, numsides, 2) array
         """
-
         # for each poly: 1 for the MOVETO, (numsides-1) for the LINETO, 1 for
         # the CLOSEPOLY; the vert for the closepoly is ignored but we still
         # need it to keep the codes aligned with the vertices
@@ -316,7 +316,6 @@ class Path:
         codes[numsides::stride] = cls.CLOSEPOLY
         for i in range(numsides):
             verts[i::stride] = XY[:, i]
-
         return cls(verts, codes)
 
     @classmethod
