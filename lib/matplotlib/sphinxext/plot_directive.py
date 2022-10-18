@@ -55,6 +55,11 @@ The ``.. plot::`` directive supports the following options:
         the ``plot_include_source`` variable in :file:`conf.py` (which itself
         defaults to False).
 
+    ``:show-source-link:`` : bool
+        Whether to show a link to the source in HTML. The default can be
+        changed using the ``plot_html_show_source_link`` variable in
+        :file:`conf.py` (which itself defaults to True).
+
     ``:encoding:`` : str
         If this source file is in a non-UTF8 or non-ASCII encoding, the
         encoding must be specified using the ``:encoding:`` option.  The
@@ -245,6 +250,7 @@ class PlotDirective(Directive):
         'align': Image.align,
         'class': directives.class_option,
         'include-source': _option_boolean,
+        'show-source-link': _option_boolean,
         'format': _option_format,
         'context': _option_context,
         'nofigs': directives.flag,
@@ -666,6 +672,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     default_fmt = formats[0][0]
 
     options.setdefault('include-source', config.plot_include_source)
+    options.setdefault('show-source-link', config.plot_html_show_source_link)
     if 'class' in options:
         # classes are parsed into a list of string, and output by simply
         # printing the list, abusing the fact that RST guarantees to strip
@@ -832,7 +839,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
         # Not-None src_link signals the need for a source link in the generated
         # html
-        if j == 0 and config.plot_html_show_source_link:
+        if j == 0 and options['show-source-link']:
             src_link = source_link
         else:
             src_link = None
@@ -866,7 +873,7 @@ def run(arguments, content, options, state_machine, state, lineno):
                     shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
-    if config.plot_html_show_source_link:
+    if options['show-source-link']:
         Path(dest_dir, output_base + source_ext).write_text(
             doctest.script_from_examples(code)
             if source_file_name == rst_file and is_doctest
