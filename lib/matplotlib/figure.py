@@ -1855,9 +1855,8 @@ default: %(va)s
         gridspec_kw : dict, optional
             Dictionary with keywords passed to the `.GridSpec` constructor used
             to create the grid the subplots are placed on. This argument
-            applies only to the outer layout and will not be passed to the
-            inner layouts. For more complex layouts, one should use
-            `.subfigure` and `.subplots` directly.
+            applies only to the outer layout. For more complex layouts, users
+            should use `.subfigure` to create the nesting.
 
         empty_sentinel : object, optional
             Entry in the layout to mean "leave this space empty".  Defaults
