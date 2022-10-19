@@ -4,6 +4,6 @@
 For nested `.Figure.subplot_mosaic` layouts, *gridspec_kw* arguments
 are not necessarily compatible between nest levels.  This dictionary
 is no longer passed to the inner layouts. Users who need to modify
-*gridspec_kw* at multiple levels should use `.Figure.subfigure` to get
+*gridspec_kw* at multiple levels should use `.Figure.subfigures` to get
 nesting, and construct the inner layouts with `.Figure.subplots` or
 `.Figure.subplot_mosaic`.

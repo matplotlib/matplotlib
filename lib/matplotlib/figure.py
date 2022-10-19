@@ -1856,7 +1856,7 @@ default: %(va)s
             Dictionary with keywords passed to the `.GridSpec` constructor used
             to create the grid the subplots are placed on. This argument
             applies only to the outer layout. For more complex layouts, users
-            should use `.subfigure` to create the nesting.
+            should use `.Figure.subfigures` to create the nesting.
 
         empty_sentinel : object, optional
             Entry in the layout to mean "leave this space empty".  Defaults
