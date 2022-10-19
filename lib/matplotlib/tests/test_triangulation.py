@@ -243,7 +243,7 @@ def test_tripcolor_color():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError, match=r"tripcolor\(\) missing 1 required "):
         ax.tripcolor(x, y)
-    with pytest.raises(ValueError, match="The length of C must match either"):
+    with pytest.raises(ValueError, match="The length of c must match either"):
         ax.tripcolor(x, y, [1, 2, 3])
     with pytest.raises(ValueError,
                        match="length of facecolors must match .* triangles"):
@@ -255,7 +255,7 @@ def test_tripcolor_color():
                        match="'gouraud' .* at the points.* not at the faces"):
         ax.tripcolor(x, y, [1, 2], shading='gouraud')  # faces
     with pytest.raises(TypeError,
-                       match="positional.*'C'.*keyword-only.*'facecolors'"):
+                       match="positional.*'c'.*keyword-only.*'facecolors'"):
         ax.tripcolor(x, y, C=[1, 2, 3, 4])
 
     # smoke test for valid color specifications (via C or facecolors)
@@ -278,16 +278,16 @@ def test_tripcolor_clim():
 def test_tripcolor_warnings():
     x = [-1, 0, 1, 0]
     y = [0, -1, 0, 1]
-    C = [0.4, 0.5]
+    c = [0.4, 0.5]
     fig, ax = plt.subplots()
     # additional parameters
     with pytest.warns(DeprecationWarning, match="Additional positional param"):
-        ax.tripcolor(x, y, C, 'unused_positional')
-    # facecolors takes precedence over C
-    with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):
-        ax.tripcolor(x, y, C, facecolors=C)
-    with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):
-        ax.tripcolor(x, y, 'interpreted as C', facecolors=C)
+        ax.tripcolor(x, y, c, 'unused_positional')
+    # facecolors takes precedence over c
+    with pytest.warns(UserWarning, match="Positional parameter c .*no effect"):
+        ax.tripcolor(x, y, c, facecolors=c)
+    with pytest.warns(UserWarning, match="Positional parameter c .*no effect"):
+        ax.tripcolor(x, y, 'interpreted as c', facecolors=c)
 
 
 def test_no_modify():
