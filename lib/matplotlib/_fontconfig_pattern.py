@@ -9,21 +9,28 @@ A module for parsing and generating `fontconfig patterns`_.
 # there would have created cyclical dependency problems, because it also needs
 # to be available from `matplotlib.rcsetup` (for parsing matplotlibrc files).
 
-from functools import lru_cache
+from functools import lru_cache, partial
 import re
 
 import numpy as np
 from pyparsing import (
-    Literal, Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore,
-)
+    Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore)
+
+from matplotlib import _api
+
 
 family_punc = r'\\\-:,'
-family_unescape = re.compile(r'\\([%s])' % family_punc).sub
+_family_unescape = partial(re.compile(r'\\(?=[%s])' % family_punc).sub, '')
 family_escape = re.compile(r'([%s])' % family_punc).sub
 
 value_punc = r'\\=_:,'
-value_unescape = re.compile(r'\\([%s])' % value_punc).sub
+_value_unescape = partial(re.compile(r'\\(?=[%s])' % value_punc).sub, '')
 value_escape = re.compile(r'([%s])' % value_punc).sub
+
+# Remove after module deprecation elapses (3.8); then remove underscores
+# from _family_unescape and _value_unescape.
+family_unescape = re.compile(r'\\([%s])' % family_punc).sub
+value_unescape = re.compile(r'\\([%s])' % value_punc).sub
 
 
 class FontconfigPatternParser:
@@ -58,63 +65,27 @@ class FontconfigPatternParser:
         'semicondensed':  ('width', 'semi-condensed'),
         'expanded':       ('width', 'expanded'),
         'extraexpanded':  ('width', 'extra-expanded'),
-        'ultraexpanded':  ('width', 'ultra-expanded')
-        }
+        'ultraexpanded':  ('width', 'ultra-expanded'),
+    }
 
     def __init__(self):
+        def comma_separated(elem):
+            return elem + ZeroOrMore(Suppress(",") + elem)
 
-        family = Regex(
-            r'([^%s]|(\\[%s]))*' % (family_punc, family_punc)
-        ).setParseAction(self._family)
-
-        size = Regex(
-            r"([0-9]+\.?[0-9]*|\.[0-9]+)"
-        ).setParseAction(self._size)
-
-        name = Regex(
-            r'[a-z]+'
-        ).setParseAction(self._name)
-
-        value = Regex(
-            r'([^%s]|(\\[%s]))*' % (value_punc, value_punc)
-        ).setParseAction(self._value)
-
-        families = (
-            family
-            + ZeroOrMore(
-                Literal(',')
-                + family)
-        ).setParseAction(self._families)
-
-        point_sizes = (
-            size
-            + ZeroOrMore(
-                Literal(',')
-                + size)
-        ).setParseAction(self._point_sizes)
-
-        property = (
-            (name
-             + Suppress(Literal('='))
-             + value
-             + ZeroOrMore(
-                 Suppress(Literal(','))
-                 + value))
-            | name
-        ).setParseAction(self._property)
-
+        family = Regex(r"([^%s]|(\\[%s]))*" % (family_punc, family_punc))
+        size = Regex(r"([0-9]+\.?[0-9]*|\.[0-9]+)")
+        name = Regex(r"[a-z]+")
+        value = Regex(r"([^%s]|(\\[%s]))*" % (value_punc, value_punc))
+        prop = (
+            (name + Suppress("=") + comma_separated(value))
+            | name  # replace by oneOf(self._constants) in mpl 3.9.
+        )
         pattern = (
-            Optional(
-                families)
-            + Optional(
-                Literal('-')
-                + point_sizes)
-            + ZeroOrMore(
-                Literal(':')
-                + property)
+            Optional(comma_separated(family)("families"))
+            + Optional("-" + comma_separated(size)("sizes"))
+            + ZeroOrMore(":" + prop("properties*"))
             + StringEnd()
         )
-
         self._parser = pattern
         self.ParseException = ParseException
 
@@ -124,46 +95,29 @@ class FontconfigPatternParser:
         of key/value pairs useful for initializing a
         `.font_manager.FontProperties` object.
         """
-        props = self._properties = {}
         try:
-            self._parser.parseString(pattern)
+            parse = self._parser.parseString(pattern)
         except ParseException as err:
             # explain becomes a plain method on pyparsing 3 (err.explain(0)).
             raise ValueError("\n" + ParseException.explain(err, 0)) from None
-        self._properties = None
         self._parser.resetCache()
+        props = {}
+        if "families" in parse:
+            props["family"] = [*map(_family_unescape, parse["families"])]
+        if "sizes" in parse:
+            props["size"] = [*parse["sizes"]]
+        for prop in parse.get("properties", []):
+            if len(prop) == 1:
+                if prop[0] not in self._constants:
+                    _api.warn_deprecated(
+                        "3.7", message=f"Support for unknown constants "
+                        f"({prop[0]!r}) is deprecated since %(since)s and "
+                        f"will be removed %(removal)s.")
+                    continue
+                prop = self._constants[prop[0]]
+            k, *v = prop
+            props.setdefault(k, []).extend(map(_value_unescape, v))
         return props
-
-    def _family(self, s, loc, tokens):
-        return [family_unescape(r'\1', str(tokens[0]))]
-
-    def _size(self, s, loc, tokens):
-        return [float(tokens[0])]
-
-    def _name(self, s, loc, tokens):
-        return [str(tokens[0])]
-
-    def _value(self, s, loc, tokens):
-        return [value_unescape(r'\1', str(tokens[0]))]
-
-    def _families(self, s, loc, tokens):
-        self._properties['family'] = [str(x) for x in tokens]
-        return []
-
-    def _point_sizes(self, s, loc, tokens):
-        self._properties['size'] = [str(x) for x in tokens]
-        return []
-
-    def _property(self, s, loc, tokens):
-        if len(tokens) == 1:
-            if tokens[0] in self._constants:
-                key, val = self._constants[tokens[0]]
-                self._properties.setdefault(key, []).append(val)
-        else:
-            key = tokens[0]
-            val = tokens[1:]
-            self._properties.setdefault(key, []).extend(val)
-        return []
 
 
 # `parse_fontconfig_pattern` is a bottleneck during the tests because it is

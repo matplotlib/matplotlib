@@ -1,3 +1,5 @@
+import pytest
+
 from matplotlib.font_manager import FontProperties
 
 
@@ -60,7 +62,7 @@ def test_fontconfig_str():
         assert getattr(font, k)() == getattr(right, k)(), test + k
 
     test = "full "
-    s = ("serif:size=24:style=oblique:variant=small-caps:weight=bold"
+    s = ("serif-24:style=oblique:variant=small-caps:weight=bold"
          ":stretch=expanded")
     font = FontProperties(s)
     right = FontProperties(family="serif", size=24, weight="bold",
@@ -68,3 +70,8 @@ def test_fontconfig_str():
                            stretch="expanded")
     for k in keys:
         assert getattr(font, k)() == getattr(right, k)(), test + k
+
+
+def test_fontconfig_unknown_constant():
+    with pytest.warns(DeprecationWarning):
+        FontProperties(":unknown")
