@@ -15,6 +15,7 @@ from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.text import Text
+from matplotlib.tri import Triangulation
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -668,6 +669,64 @@ def test_trisurf3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
+
+
+@check_figures_equal(extensions=['png'])
+def test_colorcoded_trisurf3d(fig_ref, fig_test):
+    ax = fig_ref.add_subplot(projection='3d')
+    ax_test = fig_test.add_subplot(projection='3d')
+
+    # Create a parametric unit sphere
+    r = np.linspace(0, np.pi, 20)
+    phi = np.linspace(-np.pi, np.pi, 20)
+    r, phi = np.meshgrid(r, phi)
+    r, phi = r.flatten(), phi.flatten()
+    tri = Triangulation(r, phi)
+
+    x = np.sin(r)*np.cos(phi)
+    y = np.sin(r)*np.sin(phi)
+    z = np.cos(r)
+
+    # Old implementation uses z-coordinates for color code
+    ax.plot_trisurf(x, y, z,
+                    triangles=tri.triangles,
+                    cmap=cm.Spectral)
+
+    # Manually specify z-value as custom color-source
+    ax_test.plot_trisurf(x, y, z,
+                         triangles=tri.triangles,
+                         cmap=cm.Spectral,
+                         C=z)
+
+
+@check_figures_equal(extensions=['png'])
+def test_value_per_vertex_vs_value_per_face(fig_ref, fig_test):
+    ax = fig_ref.add_subplot(projection='3d')
+    ax_test = fig_test.add_subplot(projection='3d')
+
+    # Create a parametric unit sphere
+    r = np.linspace(0, np.pi, 20)
+    phi = np.linspace(-np.pi, np.pi, 20)
+    r, phi = np.meshgrid(r, phi)
+    r, phi = r.flatten(), phi.flatten()
+    tri = Triangulation(r, phi)
+
+    x = np.sin(r)*np.cos(phi)
+    y = np.sin(r)*np.sin(phi)
+    z = np.cos(r)
+
+    norm = plt.Normalize(vmin=phi.min(), vmax=phi.max())
+    cmap = plt.colormaps['jet']
+    expected_facecolors = cmap(norm(phi[tri.triangles].mean(axis=1)))
+    ax.plot_trisurf(x, y, z,
+                    triangles=tri.triangles,
+                    facecolors=expected_facecolors)
+
+    ax_test.plot_trisurf(x, y, z,
+                         triangles=tri.triangles,
+                         C=phi,
+                         cmap=cmap,
+                         norm=norm)
 
 
 @mpl3d_image_comparison(['trisurf3d_shaded.png'], tol=0.03)

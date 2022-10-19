@@ -1894,7 +1894,7 @@ class Axes3D(Axes):
         return linec
 
     def plot_trisurf(self, *args, color=None, norm=None, vmin=None, vmax=None,
-                     lightsource=None, **kwargs):
+                     C=None, facecolors=None, lightsource=None, **kwargs):
         """
         Plot a triangulated surface.
 
@@ -1924,16 +1924,30 @@ class Axes3D(Axes):
         X, Y, Z : array-like
             Data values as 1D arrays.
         color
-            Color of the surface patches.
+            Color of the surface patches. This is only a single color vector
+            applied to every face.
         cmap
             A colormap for the surface patches.
         norm : Normalize
             An instance of Normalize to map values to colors.
         vmin, vmax : float, default: None
             Minimum and maximum value to map.
+        C : array-like, default: None
+            Values or colors used to determine face colors. If cmap is
+            specified the values will be color-mapped before the faces are
+            painted. If there is one value/color per vertex, these will be
+            averaged over each triangle to determine face colors. Defaults to
+            the z-coordinate of vertices. This keyword argument resembles the
+            functionality of ``C`` in  `matplotlib.axes.Axes.tripcolor`.
+        facecolors: array-like, shape (n, 3/4), default None
+            Individual face colors. Must be of shape *(#faces, 3)* for
+            RBG or *(#faces, 4)* for RGBA with the colors in the rows.
+            Overrides everything from the ``C`` keyword argument.
+            This works like the ``facecolors`` keyword argument in
+            '~matplotlib.axes.Axes.tripcolor'.
         shade : bool, default: True
             Whether to shade the facecolors.  Shading is always disabled when
-            *cmap* is specified.
+            *facecolors* is specified.
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
         **kwargs
@@ -1944,17 +1958,13 @@ class Axes3D(Axes):
         --------
         .. plot:: gallery/mplot3d/trisurf3d.py
         .. plot:: gallery/mplot3d/trisurf3d_2.py
+        .. plot:: gallery/mplot3d/trisurf3d_3.py
         """
 
         had_data = self.has_data()
 
-        # TODO: Support custom face colours
-        if color is None:
-            color = self._get_lines.get_next_color()
-        color = np.array(mcolors.to_rgba(color))
-
         cmap = kwargs.get('cmap', None)
-        shade = kwargs.pop('shade', cmap is None)
+        shade = kwargs.pop('shade', (cmap is None) and (facecolors is None))
 
         tri, args, kwargs = \
             Triangulation.get_from_args_and_kwargs(*args, **kwargs)
@@ -1973,21 +1983,55 @@ class Axes3D(Axes):
 
         polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
 
-        if cmap:
-            # average over the three points of each triangle
-            avg_z = verts[:, :, 2].mean(axis=1)
-            polyc.set_array(avg_z)
-            if vmin is not None or vmax is not None:
-                polyc.set_clim(vmin, vmax)
-            if norm is not None:
-                polyc.set_norm(norm)
-        else:
+        if facecolors is None:
+            if cmap:
+                if C is None:
+                    C = z
+
+                if vmin is not None or vmax is not None:
+                    polyc.set_clim(vmin, vmax)
+                if norm is not None:
+                    polyc.set_norm(norm)
+
+                if C.shape[0] == z.shape[0]:
+                    face_values = C[triangles].mean(axis=1)
+                elif C.shape[0] == triangles.shape[0]:
+                    face_values = C
+                else:
+                    raise ValueError("c needs either one value per vertex or "
+                                     "per face")
+
+                facecolors = polyc.to_rgba(face_values)
+            elif C is not None:
+                if C.shape[0] == z.shape[0]:
+                    facecolors = C[triangles].mean(axis=1)
+                elif C.shape[0] == triangles.shape[0]:
+                    facecolors = C
+                else:
+                    raise ValueError("c needs either one color per vertex or "
+                                     "per face")
+            else:
+                if color is None:
+                    color = self._get_lines.get_next_color()
+                color = np.array(mcolors.to_rgba(color))
+                if shade:
+                    normals = self._generate_normals(verts)
+                    colset = self._shade_colors(color, normals, lightsource)
+                else:
+                    colset = color
+                polyc.set_facecolors(colset)
+
+        if facecolors is not None:
+            if facecolors.shape[0] != triangles.shape[0]:
+                raise ValueError("As many colors as faces required for "
+                                 "facecolors keyword argument")
             if shade:
                 normals = self._generate_normals(verts)
-                colset = self._shade_colors(color, normals, lightsource)
+                polyc.set_facecolor(
+                    self._shade_colors(facecolors, normals, lightsource)
+                )
             else:
-                colset = color
-            polyc.set_facecolors(colset)
+                polyc.set_facecolor(facecolors)
 
         self.add_collection(polyc)
         self.auto_scale_xyz(tri.x, tri.y, z, had_data)
