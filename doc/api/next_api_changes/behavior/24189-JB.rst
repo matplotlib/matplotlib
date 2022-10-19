@@ -1,10 +1,9 @@
 ``fig.subplot_mosaic`` no longer passes the ``gridspec_kw`` args to nested gridspecs.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously, the ``gridspec_kw`` dictionary was passed to the nested
-gridspecs, as well as the outer gridspec. This caused errors with many
-options, such as the ``"width_ratios"`` and ``"height_ratios"``
-options if the inner layout was incompatible with either of these
-ratios. This dictionary is no longer passed to the inner layouts, and
-users are directed by the docstring to construct the layout manually
-if the inner layouts require any of these args.
+For nested `.Figure.subplot_mosaic` layouts, *gridspec_kw* arguments
+are not necessarily compatible between nest levels.  This dictionary
+is no longer passed to the inner layouts. Users who need to modify
+*gridspec_kw* at multiple levels should use `.Figure.subfigure` to get
+nesting, and construct the inner layouts with `.Figure.subplots` or
+`.Figure.subplot_mosaic`.
