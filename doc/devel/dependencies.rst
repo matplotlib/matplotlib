@@ -24,7 +24,7 @@ reference.
 * `NumPy <https://numpy.org>`_ (>= 1.19)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.2.1)
+* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 
 

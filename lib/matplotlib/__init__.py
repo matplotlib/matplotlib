@@ -203,7 +203,7 @@ def _check_versions():
             ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
             ("numpy", "1.19"),
-            ("pyparsing", "2.2.1"),
+            ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)
         if parse_version(module.__version__) < parse_version(minver):
