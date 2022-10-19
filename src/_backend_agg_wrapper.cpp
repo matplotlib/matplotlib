@@ -46,6 +46,12 @@ static void PyBufferRegion_dealloc(PyBufferRegion *self)
 
 static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args)
 {
+    char const* msg =
+        "BufferRegion.to_string is deprecated since Matplotlib 3.7 and will "
+        "be removed two minor releases later; use np.asarray(region) instead.";
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
+        return NULL;
+    }
     return PyBytes_FromStringAndSize((const char *)self->x->get_data(),
                                      self->x->get_height() * self->x->get_stride());
 }
@@ -83,6 +89,13 @@ static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args
 
 static PyObject *PyBufferRegion_to_string_argb(PyBufferRegion *self, PyObject *args)
 {
+    char const* msg =
+        "BufferRegion.to_string_argb is deprecated since Matplotlib 3.7 and "
+        "will be removed two minor releases later; use "
+        "np.take(region, [2, 1, 0, 3], axis=2) instead.";
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
+        return NULL;
+    }
     PyObject *bufobj;
     uint8_t *buf;
 
