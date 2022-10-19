@@ -1839,16 +1839,14 @@ default: %(va)s
             relative width of ``width_ratios[i] / sum(width_ratios)``.
             If not given, all columns will have the same width.  Equivalent
             to ``gridspec_kw={'width_ratios': [...]}``. This argument applies
-            only to the outer layout and will not be passed to the inner
-            layout.
+            only to the outer layout.
 
         height_ratios : array-like of length *nrows*, optional
             Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height. Equivalent
             to ``gridspec_kw={'height_ratios': [...]}``. This argument
-            applies only to the outer layout and will not be passed to the
-            inner layout.
+            applies only to the outer layout.
 
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
