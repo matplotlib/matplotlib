@@ -331,6 +331,12 @@ API consistency and stability are of great value. Therefore, API changes
 (e.g. signature changes, behavior changes, removals) will only be conducted
 if the added benefit is worth the user effort for adapting.
 
+Because we are a visualization library our primary output is the final
+visualization the user sees.  Thus it is our :ref:`long standing
+<color_changes>` policy that the appearance of the figure is part of the API
+and any changes, either semantic or esthetic, will be treated as a
+backwards-incompatible API change.
+
 API changes in Matplotlib have to be performed following the deprecation process
 below, except in very rare circumstances as deemed necessary by the development team.
 This ensures that users are notified before the change will take effect and thus
