@@ -1,0 +1,7 @@
+All Axes have ``get_subplotspec`` and ``get_gridspec`` methods now, which returns None for Axes not positioned via a gridspec
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, this method was only present for Axes positioned via a gridspec.
+Following this change, checking ``hasattr(ax, "get_gridspec")`` should now be
+replaced by ``ax.get_gridspec() is not None``.  For compatibility with older
+Matplotlib releases, one can also check
+``hasattr(ax, "get_gridspec") and ax.get_gridspec() is not None``.

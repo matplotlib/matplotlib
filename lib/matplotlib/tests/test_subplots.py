@@ -3,9 +3,9 @@ import itertools
 import numpy as np
 import pytest
 
+from matplotlib.axes import Axes, SubplotBase
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-import matplotlib.axes as maxes
 
 
 def check_shared(axs, x_shared, y_shared):
@@ -122,6 +122,12 @@ def test_label_outer_span():
         fig.axes, [False, True, False, True], [True, True, False, False])
 
 
+def test_label_outer_non_gridspec():
+    ax = plt.axes([0, 0, 1, 1])
+    ax.label_outer()  # Does nothing.
+    check_visible([ax], [True], [True])
+
+
 def test_shared_and_moved():
     # test if sharey is on, but then tick_left is called that labels don't
     # re-appear.  Seaborn does this just to be sure yaxis is on left...
@@ -209,11 +215,6 @@ def test_dont_mutate_kwargs():
     assert gridspec_kw == {'width_ratios': [1, 2]}
 
 
-def test_subplot_factory_reapplication():
-    assert maxes.subplot_class_factory(maxes.Axes) is maxes.Subplot
-    assert maxes.subplot_class_factory(maxes.Subplot) is maxes.Subplot
-
-
 @pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
 @pytest.mark.parametrize("height_ratios", [None, [1, 2]])
 @check_figures_equal(extensions=['png'])
@@ -251,3 +252,11 @@ def test_ratio_overlapping_kws(method, args):
     with pytest.raises(ValueError, match='width_ratios'):
         getattr(plt, method)(*args, width_ratios=[1, 2, 3],
                              gridspec_kw={'width_ratios': [1, 2, 3]})
+
+
+def test_old_subplot_compat():
+    fig = plt.figure()
+    assert isinstance(fig.add_subplot(), SubplotBase)
+    assert not isinstance(fig.add_axes(rect=[0, 0, 1, 1]), SubplotBase)
+    with pytest.raises(TypeError):
+        Axes(fig, [0, 0, 1, 1], rect=[0, 0, 1, 1])

@@ -26,10 +26,7 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, **kwargs):
 
     ax_rgb = []
     if axes_class is None:
-        try:
-            axes_class = ax._axes_class
-        except AttributeError:
-            axes_class = type(ax)
+        axes_class = type(ax)
 
     for ny in [4, 2, 0]:
         ax1 = axes_class(ax.get_figure(), ax.get_position(original=True),

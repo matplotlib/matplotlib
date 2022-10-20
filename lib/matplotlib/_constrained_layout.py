@@ -187,8 +187,8 @@ def make_layoutgrids(fig, layoutgrids, rect=(0, 0, 1, 1)):
 
     # for each axes at the local level add its gridspec:
     for ax in fig._localaxes:
-        if hasattr(ax, 'get_subplotspec'):
-            gs = ax.get_subplotspec().get_gridspec()
+        gs = ax.get_gridspec()
+        if gs is not None:
             layoutgrids = make_layoutgrids_gs(layoutgrids, gs)
 
     return layoutgrids
@@ -248,24 +248,22 @@ def check_no_collapsed_axes(layoutgrids, fig):
         ok = check_no_collapsed_axes(layoutgrids, sfig)
         if not ok:
             return False
-
     for ax in fig.axes:
-        if hasattr(ax, 'get_subplotspec'):
-            gs = ax.get_subplotspec().get_gridspec()
-            if gs in layoutgrids:
-                lg = layoutgrids[gs]
-                for i in range(gs.nrows):
-                    for j in range(gs.ncols):
-                        bb = lg.get_inner_bbox(i, j)
-                        if bb.width <= 0 or bb.height <= 0:
-                            return False
+        gs = ax.get_gridspec()
+        if gs in layoutgrids:  # also implies gs is not None.
+            lg = layoutgrids[gs]
+            for i in range(gs.nrows):
+                for j in range(gs.ncols):
+                    bb = lg.get_inner_bbox(i, j)
+                    if bb.width <= 0 or bb.height <= 0:
+                        return False
     return True
 
 
 def compress_fixed_aspect(layoutgrids, fig):
     gs = None
     for ax in fig.axes:
-        if not hasattr(ax, 'get_subplotspec'):
+        if ax.get_subplotspec() is None:
             continue
         ax.apply_aspect()
         sub = ax.get_subplotspec()
@@ -357,7 +355,7 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
         layoutgrids[sfig].parent.edit_outer_margin_mins(margins, ss)
 
     for ax in fig._localaxes:
-        if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
+        if not ax.get_subplotspec() or not ax.get_in_layout():
             continue
 
         ss = ax.get_subplotspec()
@@ -488,8 +486,8 @@ def match_submerged_margins(layoutgrids, fig):
     for sfig in fig.subfigs:
         match_submerged_margins(layoutgrids, sfig)
 
-    axs = [a for a in fig.get_axes() if (hasattr(a, 'get_subplotspec')
-                                         and a.get_in_layout())]
+    axs = [a for a in fig.get_axes()
+           if a.get_subplotspec() is not None and a.get_in_layout()]
 
     for ax1 in axs:
         ss1 = ax1.get_subplotspec()
@@ -620,7 +618,7 @@ def reposition_axes(layoutgrids, fig, renderer, *,
                         wspace=wspace, hspace=hspace)
 
     for ax in fig._localaxes:
-        if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
+        if ax.get_subplotspec() is None or not ax.get_in_layout():
             continue
 
         # grid bbox is in Figure coordinates, but we specify in panel
@@ -742,10 +740,9 @@ def reset_margins(layoutgrids, fig):
     for sfig in fig.subfigs:
         reset_margins(layoutgrids, sfig)
     for ax in fig.axes:
-        if hasattr(ax, 'get_subplotspec') and ax.get_in_layout():
-            ss = ax.get_subplotspec()
-            gs = ss.get_gridspec()
-            if gs in layoutgrids:
+        if ax.get_in_layout():
+            gs = ax.get_gridspec()
+            if gs in layoutgrids:  # also implies gs is not None.
                 layoutgrids[gs].reset_margins()
     layoutgrids[fig].reset_margins()
 

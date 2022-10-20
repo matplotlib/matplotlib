@@ -66,7 +66,7 @@ def test_repr():
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     assert repr(ax) == (
-        "<AxesSubplot: "
+        "<Axes: "
         "label='label', title={'center': 'title'}, xlabel='x', ylabel='y'>")
 
 
@@ -2769,7 +2769,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == mpl.axes._subplots.subplot_class_factory(PolarAxes)
+    assert type(ax) == PolarAxes
     plt.close()
 
 

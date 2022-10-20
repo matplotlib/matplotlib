@@ -2,7 +2,6 @@ from matplotlib import _api, cbook
 import matplotlib.artist as martist
 import matplotlib.image as mimage
 import matplotlib.transforms as mtransforms
-from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
 
@@ -241,16 +240,9 @@ class HostAxesBase:
         return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 
-host_axes_class_factory = cbook._make_class_factory(
-    HostAxesBase, "{}HostAxes", "_base_axes_class")
-HostAxes = host_axes_class_factory(Axes)
-SubplotHost = subplot_class_factory(HostAxes)
-
-
-def host_subplot_class_factory(axes_class):
-    host_axes_class = host_axes_class_factory(axes_class)
-    subplot_host_class = subplot_class_factory(host_axes_class)
-    return subplot_host_class
+host_axes_class_factory = host_subplot_class_factory = \
+    cbook._make_class_factory(HostAxesBase, "{}HostAxes", "_base_axes_class")
+HostAxes = SubplotHost = host_axes_class_factory(Axes)
 
 
 def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
@@ -275,23 +267,4 @@ def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
     return ax
 
 
-def host_subplot(*args, axes_class=Axes, figure=None, **kwargs):
-    """
-    Create a subplot that can act as a host to parasitic axes.
-
-    Parameters
-    ----------
-    figure : `matplotlib.figure.Figure`
-        Figure to which the subplot will be added. Defaults to the current
-        figure `.pyplot.gcf()`.
-
-    *args, **kwargs
-        Will be passed on to the underlying ``Axes`` object creation.
-    """
-    import matplotlib.pyplot as plt
-    host_subplot_class = host_subplot_class_factory(axes_class)
-    if figure is None:
-        figure = plt.gcf()
-    ax = host_subplot_class(figure, *args, **kwargs)
-    figure.add_subplot(ax)
-    return ax
+host_subplot = host_axes

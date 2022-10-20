@@ -1142,13 +1142,11 @@ def subplot(*args, **kwargs):
 
     Returns
     -------
-    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+    `~.axes.Axes`
 
-        The axes of the subplot. The returned axes base class depends on
-        the projection used. It is `~.axes.Axes` if rectilinear projection
-        is used and `.projections.polar.PolarAxes` if polar projection
-        is used. The returned axes is then a subplot subclass of the
-        base class.
+        The Axes of the subplot. The returned Axes can actually be an instance
+        of a subclass, such as `.projections.polar.PolarAxes` for polar
+        projections.
 
     Other Parameters
     ----------------
@@ -1265,7 +1263,7 @@ def subplot(*args, **kwargs):
 
     for ax in fig.axes:
         # if we found an Axes at the position sort out if we can re-use it
-        if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key:
+        if ax.get_subplotspec() == key:
             # if the user passed no kwargs, re-use
             if kwargs == {}:
                 break
@@ -1572,12 +1570,11 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     Returns
     -------
-    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+    `~.axes.Axes`
 
-        The axes of the subplot.  The returned axes base class depends on the
-        projection used.  It is `~.axes.Axes` if rectilinear projection is used
-        and `.projections.polar.PolarAxes` if polar projection is used.  The
-        returned axes is then a subplot subclass of the base class.
+        The Axes of the subplot. The returned Axes can actually be an instance
+        of a subclass, such as `.projections.polar.PolarAxes` for polar
+        projections.
 
     Notes
     -----

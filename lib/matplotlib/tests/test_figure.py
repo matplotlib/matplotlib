@@ -262,7 +262,7 @@ def test_add_subplot_invalid():
         fig.add_subplot(2, 2.0, 1)
     _, ax = plt.subplots()
     with pytest.raises(ValueError,
-                       match='The Subplot must have been created in the '
+                       match='The Axes must have been created in the '
                              'present figure'):
         fig.add_subplot(ax)
 
