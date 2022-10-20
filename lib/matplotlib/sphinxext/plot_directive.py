@@ -579,7 +579,6 @@ def render_figures(code, code_path, output_dir, output_base, context,
     is_doctest, code_pieces = _split_code_at_show(code, function_name)
 
     # Look for single-figure output files first
-    all_exists = True
     img = ImageFile(output_base, output_dir)
     for format, dpi in formats:
         if context or out_of_date(code_path, img.filename(format),
@@ -587,13 +586,14 @@ def render_figures(code, code_path, output_dir, output_base, context,
             all_exists = False
             break
         img.formats.append(format)
+    else:
+        all_exists = True
 
     if all_exists:
         return [(code, [img])]
 
     # Then look for multi-figure output files
     results = []
-    all_exists = True
     for i, code_piece in enumerate(code_pieces):
         images = []
         for j in itertools.count():
@@ -617,6 +617,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
         if not all_exists:
             break
         results.append((code_piece, images))
+    else:
+        all_exists = True
 
     if all_exists:
         return results
