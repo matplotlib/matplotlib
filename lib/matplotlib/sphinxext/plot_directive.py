@@ -60,11 +60,6 @@ The ``.. plot::`` directive supports the following options:
         changed using the ``plot_html_show_source_link`` variable in
         :file:`conf.py` (which itself defaults to True).
 
-    ``:encoding:`` : str
-        If this source file is in a non-UTF8 or non-ASCII encoding, the
-        encoding must be specified using the ``:encoding:`` option.  The
-        encoding will not be inferred using the ``-*- coding -*-`` metacomment.
-
     ``:context:`` : bool or str
         If provided, the code will be run in the context of all previous plot
         directives for which the ``:context:`` option was specified.  This only
@@ -166,7 +161,7 @@ import jinja2  # Sphinx dependency.
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
 import matplotlib.pyplot as plt
-from matplotlib import _api, _pylab_helpers, cbook
+from matplotlib import _pylab_helpers, cbook
 
 matplotlib.use("agg")
 
@@ -198,11 +193,6 @@ def _option_context(arg):
 
 def _option_format(arg):
     return directives.choice(arg, ('python', 'doctest'))
-
-
-def _deprecated_option_encoding(arg):
-    _api.warn_deprecated("3.5", name="encoding", obj_type="option")
-    return directives.encoding(arg)
 
 
 def mark_plot_labels(app, document):
@@ -254,7 +244,6 @@ class PlotDirective(Directive):
         'format': _option_format,
         'context': _option_context,
         'nofigs': directives.flag,
-        'encoding': _deprecated_option_encoding,
         'caption': directives.unchanged,
         }
 
@@ -314,32 +303,6 @@ def contains_doctest(text):
     r = re.compile(r'^\s*>>>', re.M)
     m = r.search(text)
     return bool(m)
-
-
-@_api.deprecated("3.5", alternative="doctest.script_from_examples")
-def unescape_doctest(text):
-    """
-    Extract code from a piece of text, which contains either Python code
-    or doctests.
-    """
-    if not contains_doctest(text):
-        return text
-    code = ""
-    for line in text.split("\n"):
-        m = re.match(r'^\s*(>>>|\.\.\.) (.*)$', line)
-        if m:
-            code += m.group(2) + "\n"
-        elif line.strip():
-            code += "# " + line.strip() + "\n"
-        else:
-            code += "\n"
-    return code
-
-
-@_api.deprecated("3.5")
-def split_code_at_show(text):
-    """Split code at plt.show()."""
-    return _split_code_at_show(text)[1]
 
 
 def _split_code_at_show(text, function_name):
@@ -471,15 +434,6 @@ def out_of_date(original, derived, includes=None):
 
 class PlotError(RuntimeError):
     pass
-
-
-@_api.deprecated("3.5")
-def run_code(code, code_path, ns=None, function_name=None):
-    """
-    Import a Python module from a path, and run the function given by
-    name, if function_name is not None.
-    """
-    _run_code(unescape_doctest(code), code_path, ns, function_name)
 
 
 def _run_code(code, code_path, ns=None, function_name=None):
