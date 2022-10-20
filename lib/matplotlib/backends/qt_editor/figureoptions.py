@@ -199,7 +199,7 @@ def figure_edit(axes, parent=None):
             if axis.get_scale() != axis_scale:
                 getattr(axes, f"set_{name}scale")(axis_scale)
 
-            getattr(axes, f"set_{name}lim")(axis_min, axis_max)
+            axis._set_lim(axis_min, axis_max, auto=False)
             axis.set_label_text(axis_label)
 
             # Restore the unit data
