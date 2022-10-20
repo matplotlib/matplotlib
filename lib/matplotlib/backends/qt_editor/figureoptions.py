@@ -40,10 +40,6 @@ def figure_edit(axes, parent=None):
         return map(float, lim)
 
     axis_map = axes._axis_map
-    axis_converter = {
-        name: axis.converter
-        for name, axis in axis_map.items()
-    }
     axis_limits = {
         name: tuple(convert_limits(
             getattr(axes, f'get_{name}lim')(), axis.converter
@@ -68,7 +64,11 @@ def figure_edit(axes, parent=None):
         ('(Re-)Generate automatic legend', False),
     ]
 
-    # Save the unit data
+    # Save the converter and unit data
+    axis_converter = {
+        name: axis.converter
+        for name, axis in axis_map.items()
+    }
     axis_units = {
         name: axis.get_units()
         for name, axis in axis_map.items()
@@ -196,11 +196,13 @@ def figure_edit(axes, parent=None):
             axis_max = general[4*i + 1]
             axis_label = general[4*i + 2]
             axis_scale = general[4*i + 3]
-            if getattr(axes, f"get_{name}scale")() != axis_scale:
+            if axis.get_scale() != axis_scale:
                 getattr(axes, f"set_{name}scale")(axis_scale)
 
             getattr(axes, f"set_{name}lim")(axis_min, axis_max)
             axis.set_label_text(axis_label)
+
+            # Restore the unit data
             axis.converter = axis_converter[name]
             axis.set_units(axis_units[name])
             axis._update_axisinfo()
