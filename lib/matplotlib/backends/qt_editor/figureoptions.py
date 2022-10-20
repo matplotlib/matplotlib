@@ -205,7 +205,6 @@ def figure_edit(axes, parent=None):
             # Restore the unit data
             axis.converter = axis_converter[name]
             axis.set_units(axis_units[name])
-            axis._update_axisinfo()
 
         # Set / Curves
         for index, curve in enumerate(curves):
