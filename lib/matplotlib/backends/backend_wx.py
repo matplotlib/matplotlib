@@ -508,6 +508,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         _log.debug("%s - __init__() - bitmap w:%d h:%d", type(self), w, h)
         self._isDrawn = False
         self._rubberband_rect = None
+        self._rubberband_pen_black = wx.Pen('BLACK', 1, wx.PENSTYLE_SHORT_DASH)
+        self._rubberband_pen_white = wx.Pen('WHITE', 1, wx.PENSTYLE_SOLID)
 
         self.Bind(wx.EVT_SIZE, self._on_size)
         self.Bind(wx.EVT_PAINT, self._on_paint)
@@ -625,11 +627,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         drawDC.DrawBitmap(bmp, 0, 0)
         if self._rubberband_rect is not None:
             # Some versions of wx+python don't support numpy.float64 here.
-            x0, y0, x1, y1 = map(int, self._rubberband_rect)
-            drawDC.DrawLineList(
-                [(x0, y0, x1, y0), (x1, y0, x1, y1),
-                 (x0, y0, x0, y1), (x0, y1, x1, y1)],
-                wx.Pen('BLACK', 1, wx.PENSTYLE_SHORT_DASH))
+            x0, y0, x1, y1 = map(round, self._rubberband_rect)
+            rect = [(x0, y0, x1, y0), (x1, y0, x1, y1),
+                    (x0, y0, x0, y1), (x0, y1, x1, y1)]
+            drawDC.DrawLineList(rect, self._rubberband_pen_white)
+            drawDC.DrawLineList(rect, self._rubberband_pen_black)
 
     filetypes = {
         **FigureCanvasBase.filetypes,
