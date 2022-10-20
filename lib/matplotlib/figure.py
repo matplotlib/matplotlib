@@ -878,8 +878,7 @@ default: %(va)s
             # Note that this is the same as
             fig.subplots(2, 2, sharex=True, sharey=True)
         """
-        if gridspec_kw is None:
-            gridspec_kw = {}
+        gridspec_kw = dict(gridspec_kw or {})
         if height_ratios is not None:
             if 'height_ratios' in gridspec_kw:
                 raise ValueError("'height_ratios' must not be defined both as "
@@ -1869,7 +1868,7 @@ default: %(va)s
 
         """
         subplot_kw = subplot_kw or {}
-        gridspec_kw = gridspec_kw or {}
+        gridspec_kw = dict(gridspec_kw or {})
         if height_ratios is not None:
             if 'height_ratios' in gridspec_kw:
                 raise ValueError("'height_ratios' must not be defined both as "
