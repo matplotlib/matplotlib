@@ -703,7 +703,7 @@ def test_legend_pathcollection_labelcolor_linecolor_cmap():
 
     leg = ax.legend(labelcolor='linecolor')
     text, = leg.get_texts()
-    assert mpl.colors.same_color(text, 'black')
+    assert mpl.colors.same_color(text.get_text(), 'black')
 
 
 def test_legend_labelcolor_markeredgecolor():
