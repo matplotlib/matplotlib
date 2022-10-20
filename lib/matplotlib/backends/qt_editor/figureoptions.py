@@ -51,7 +51,7 @@ def figure_edit(axes, parent=None):
         sep,
         *chain.from_iterable([
             (
-                (None, f"<b>{name.upper()}-Axis</b>"),
+                (None, f"<b>{name.title()}-Axis</b>"),
                 ('Min', axis_limits[name][0]),
                 ('Max', axis_limits[name][1]),
                 ('Label', axis.get_label().get_text()),
