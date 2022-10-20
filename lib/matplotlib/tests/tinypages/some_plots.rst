@@ -168,8 +168,11 @@ scenario:
 
    plt.figure()
    plt.plot(range(4))
- 
+
 Plot 21 is generated via an include directive:
 
 .. include:: included_plot_21.rst
 
+Plot 22 uses a different specific function in a file with plot commands:
+
+.. plot:: range6.py range10

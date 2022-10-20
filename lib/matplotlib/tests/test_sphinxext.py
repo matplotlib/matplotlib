@@ -77,7 +77,7 @@ def test_tinypages(tmp_path):
     assert b'# Only a comment' in html_contents
     # check plot defined in external file.
     assert filecmp.cmp(range_4, img_dir / 'range4.png')
-    assert filecmp.cmp(range_6, img_dir / 'range6.png')
+    assert filecmp.cmp(range_6, img_dir / 'range6_range6.png')
     # check if figure caption made it into html file
     assert b'This is the caption for plot 15.' in html_contents
     # check if figure caption using :caption: made it into html file
@@ -91,6 +91,8 @@ def test_tinypages(tmp_path):
     # Plot 21 is range(6) plot via an include directive. But because some of
     # the previous plots are repeated, the argument to plot_file() is only 17.
     assert filecmp.cmp(range_6, plot_file(17))
+    # plot 22 is from the range6.py file again, but a different function
+    assert filecmp.cmp(range_10, img_dir / 'range6_range10.png')
 
     # Modify the included plot
     contents = (tmp_path / 'included_plot_21.rst').read_bytes()
