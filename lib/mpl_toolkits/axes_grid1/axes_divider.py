@@ -236,14 +236,14 @@ class Divider:
 
     def new_locator(self, nx, ny, nx1=None, ny1=None):
         """
-        Return a new `AxesLocator` for the specified cell.
+        Return a new `.AxesLocator` for the specified cell.
 
         Parameters
         ----------
         nx, nx1 : int
             Integers specifying the column-position of the
             cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
+            specified. Otherwise, location of columns spanning between *nx*
             to *nx1* (but excluding *nx1*-th column) is specified.
         ny, ny1 : int
             Same as *nx* and *nx1*, but for row positions.
@@ -274,7 +274,7 @@ class Divider:
 
         Parameters
         ----------
-        use_axes : `~.axes.Axes` or list of `~.axes.Axes`
+        use_axes : `~matplotlib.axes.Axes` or list of `~matplotlib.axes.Axes`
             The Axes whose decorations are taken into account.
         pad : float, optional
             Additional padding in inches.
@@ -290,18 +290,18 @@ class Divider:
 class AxesLocator:
     """
     A callable object which returns the position and size of a given
-    AxesDivider cell.
+    `.AxesDivider` cell.
     """
 
     def __init__(self, axes_divider, nx, ny, nx1=None, ny1=None):
         """
         Parameters
         ----------
-        axes_divider : AxesDivider
+        axes_divider : `~mpl_toolkits.axes_grid1.axes_divider.AxesDivider`
         nx, nx1 : int
             Integers specifying the column-position of the
             cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
+            specified. Otherwise, location of columns spanning between *nx*
             to *nx1* (but excluding *nx1*-th column) is specified.
         ny, ny1 : int
             Same as *nx* and *nx1*, but for row positions.
@@ -355,7 +355,7 @@ class SubplotDivider(Divider):
         """
         Parameters
         ----------
-        fig : `matplotlib.figure.Figure`
+        fig : `~matplotlib.figure.Figure`
 
         *args : tuple (*nrows*, *ncols*, *index*) or int
             The array of subplots in the figure has dimensions ``(nrows,
@@ -601,7 +601,7 @@ def _locate(x, y, w, h, summed_widths, equal_heights, fig_w, fig_h, anchor):
 
 class HBoxDivider(SubplotDivider):
     """
-    A `SubplotDivider` for laying out axes horizontally, while ensuring that
+    A `.SubplotDivider` for laying out axes horizontally, while ensuring that
     they have equal heights.
 
     Examples
@@ -611,14 +611,14 @@ class HBoxDivider(SubplotDivider):
 
     def new_locator(self, nx, nx1=None):
         """
-        Create a new `AxesLocator` for the specified cell.
+        Create a new `.AxesLocator` for the specified cell.
 
         Parameters
         ----------
         nx, nx1 : int
             Integers specifying the column-position of the
             cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
+            specified. Otherwise, location of columns spanning between *nx*
             to *nx1* (but excluding *nx1*-th column) is specified.
         """
         return AxesLocator(self, nx, 0, nx1 if nx1 is not None else nx + 1, 1)
@@ -644,20 +644,20 @@ class HBoxDivider(SubplotDivider):
 
 class VBoxDivider(SubplotDivider):
     """
-    A `SubplotDivider` for laying out axes vertically, while ensuring that they
-    have equal widths.
+    A `.SubplotDivider` for laying out axes vertically, while ensuring that
+    they have equal widths.
     """
 
     def new_locator(self, ny, ny1=None):
         """
-        Create a new `AxesLocator` for the specified cell.
+        Create a new `.AxesLocator` for the specified cell.
 
         Parameters
         ----------
         ny, ny1 : int
             Integers specifying the row-position of the
             cell. When *ny1* is None, a single *ny*-th row is
-            specified. Otherwise location of rows spanning between *ny*
+            specified. Otherwise, location of rows spanning between *ny*
             to *ny1* (but excluding *ny1*-th row) is specified.
         """
         return AxesLocator(self, 0, ny, 1, ny1 if ny1 is not None else ny + 1)
@@ -694,7 +694,7 @@ def make_axes_area_auto_adjustable(
     """
     Add auto-adjustable padding around *ax* to take its decorations (title,
     labels, ticks, ticklabels) into account during layout, using
-    `Divider.add_auto_adjustable_area`.
+    `.Divider.add_auto_adjustable_area`.
 
     By default, padding is determined from the decorations of *ax*.
     Pass *use_axes* to consider the decorations of other Axes instead.

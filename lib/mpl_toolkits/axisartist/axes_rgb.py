@@ -4,4 +4,8 @@ from .axislines import Axes
 
 
 class RGBAxes(_RGBAxes):
+    """
+    Subclass of `~.axes_grid1.axes_rgb.RGBAxes` with
+    ``_defaultAxesClass`` = `.axislines.Axes`.
+    """
     _defaultAxesClass = Axes

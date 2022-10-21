@@ -197,6 +197,9 @@ def _proj_transform_vec_clip(vec, M):
 
 
 def inv_transform(xs, ys, zs, M):
+    """
+    Transform the points by the inverse of the projection matrix *M*.
+    """
     iM = linalg.inv(M)
     vec = _vec_pad_ones(xs, ys, zs)
     vecr = np.dot(iM, vec)
@@ -213,7 +216,7 @@ def _vec_pad_ones(xs, ys, zs):
 
 def proj_transform(xs, ys, zs, M):
     """
-    Transform the points by the projection matrix
+    Transform the points by the projection matrix *M*.
     """
     vec = _vec_pad_ones(xs, ys, zs)
     return _proj_transform_vec(vec, M)
