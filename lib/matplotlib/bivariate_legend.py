@@ -5,7 +5,7 @@ from matplotlib.cm import get_cmap
 import math
 
 
-def bivariateLegend(ax, data1, data2, cmap='red_blue', d1norm=matplotlib.colors.Normalize(vmin=0, vmax=1),
+def bivariate_legend(ax, data1, data2, cmap='red_blue', d1norm=matplotlib.colors.Normalize(vmin=0, vmax=1),
                     d2norm=matplotlib.colors.Normalize(vmin=0, vmax=1), d1num_bins=1, d2num_bins=1, mode='both', d1category_labels=None,
                     d2category_labels=None, darkenWhite=False, title=None, title_fontproperties=None, label_fontproperties=None,
                     legend_loc=None, legend_padding=None, d1label=None, d2label=None, d1minimum=None, d1maximum=None,

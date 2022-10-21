@@ -151,23 +151,8 @@ def install_repl_displayhook():
         ip.enable_gui(ipython_gui_name)
 
 
-@_copy_docstring_and_deprecators(Figure.bivariateLegend)
+@_copy_docstring_and_deprecators(Figure.bivariate_legend)
 def bivariate_legend(*args, ax= None, subplot_adjust=None, legend_padding=None, **kwargs):
-    #if (subplot_adjust is None):
-    #    subplots_adjust(left=0.005, right=0.65, top=0.85)
-    #else:
-    #    subplots_adjust(**subplot_adjust)
-    # position the Legend according to the other axes's dimensions and position or based on a position specified by the user
-    #adjust = gca().get_position()
-    #if (legend_padding == None):
-    #    legend_padding = 0.4
-    #cax = gcf().add_axes([adjust.x0 + adjust.x1/2 + legend_padding,
-    #                      adjust.y0 + adjust.y1/2, adjust.x1/3, adjust.y1/3])
-
-    #try:
-    #    xcmap, ycmap = get_cmap(cmap[0]), get_cmap(cmap[1])
-    #    return cax.bivariateLegend(*args, cmap=[xcmap, ycmap], customcmap=True, **kwargs)
-    #except:
     ret =  gcf().bivariate_legend(*args, ax=ax, legend_padding=legend_padding, subplot_adjust = subplot_adjust, **kwargs)
     return ret
 
