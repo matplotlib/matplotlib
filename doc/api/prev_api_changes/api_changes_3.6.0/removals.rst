@@ -154,8 +154,8 @@ The following class methods have been removed:
 
 - ``ParasiteAxesBase.update_viewlim()``; use `.ParasiteAxesBase.apply_aspect`
   instead.
-- ``Subplot.get_geometry()``; use `.SubplotBase.get_subplotspec` instead.
-- ``Subplot.change_geometry()``; use `.SubplotBase.set_subplotspec` instead.
+- ``Subplot.get_geometry()``; use ``SubplotBase.get_subplotspec`` instead.
+- ``Subplot.change_geometry()``; use ``SubplotBase.set_subplotspec`` instead.
 - ``Subplot.update_params()``; this method did nothing.
 - ``Subplot.is_first_row()``; use ``ax.get_subplotspec().is_first_row``
   instead.
