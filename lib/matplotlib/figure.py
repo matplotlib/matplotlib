@@ -1855,7 +1855,7 @@ default: %(va)s
         gridspec_kw : dict, optional
             Dictionary with keywords passed to the `.GridSpec` constructor used
             to create the grid the subplots are placed on. In the case of
-            nested layouts, this argument applies only to the outer layout.            
+            nested layouts, this argument applies only to the outer layout.
             For more complex layouts, users should use `.Figure.subfigures`
             to create the nesting.
 
