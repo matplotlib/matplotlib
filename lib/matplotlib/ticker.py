@@ -1708,7 +1708,7 @@ class IndexLocator(Locator):
 class FixedLocator(Locator):
     """
     Tick locations are fixed at *locs*.  If *nbins* is not None,
-    the array *locs* of possible positions will be subsampled to
+    the *locs* array of possible positions will be subsampled to
     keep the number of ticks <= *nbins* +1.
     The subsampling will be done to include the smallest
     absolute value; for example, if zero is included in the
