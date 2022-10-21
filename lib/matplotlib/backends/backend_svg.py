@@ -24,9 +24,9 @@ from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 
+
 _log = logging.getLogger(__name__)
 
-backend_version = mpl.__version__
 
 # ----------------------------------------------------------------------
 # SimpleXMLWriter class
@@ -1426,4 +1426,5 @@ svgProlog = """\
 
 @_Backend.export
 class _BackendSVG(_Backend):
+    backend_version = mpl.__version__
     FigureCanvas = FigureCanvasSVG

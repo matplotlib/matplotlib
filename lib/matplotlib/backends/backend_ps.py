@@ -33,9 +33,8 @@ from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from . import _backend_pdf_ps
 
-_log = logging.getLogger(__name__)
 
-backend_version = 'Level II'
+_log = logging.getLogger(__name__)
 debugPS = False
 
 
@@ -1364,4 +1363,5 @@ psDefs = [
 
 @_Backend.export
 class _BackendPS(_Backend):
+    backend_version = 'Level II'
     FigureCanvas = FigureCanvasPS
