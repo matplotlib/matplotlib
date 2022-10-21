@@ -840,7 +840,8 @@ class Animation:
         system notifications.
 
     blit : bool, default: False
-        Whether blitting is used to optimize drawing.
+        Whether blitting is used to optimize drawing.  If the backend does not
+        support blitting, then this parameter has no effect.
 
     See Also
     --------
@@ -956,7 +957,7 @@ class Animation:
         extra_anim : list, default: []
             Additional `Animation` objects that should be included
             in the saved movie file. These need to be from the same
-            `matplotlib.figure.Figure` instance. Also, animation frames will
+            `.Figure` instance. Also, animation frames will
             just be simply combined, so there should be a 1:1 correspondence
             between the frames from the different animations.
 
@@ -977,8 +978,7 @@ class Animation:
 
             Example code to write the progress to stdout::
 
-                progress_callback =\
-                    lambda i, n: print(f'Saving frame {i} of {n}')
+                progress_callback = lambda i, n: print(f'Saving frame {i}/{n}')
 
         Notes
         -----
@@ -1025,9 +1025,8 @@ class Animation:
 
         all_anim = [self]
         if extra_anim is not None:
-            all_anim.extend(anim
-                            for anim
-                            in extra_anim if anim._fig is self._fig)
+            all_anim.extend(anim for anim in extra_anim
+                            if anim._fig is self._fig)
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
