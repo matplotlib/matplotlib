@@ -1834,13 +1834,15 @@ default: %(va)s
             Defines the relative widths of the columns. Each column gets a
             relative width of ``width_ratios[i] / sum(width_ratios)``.
             If not given, all columns will have the same width.  Equivalent
-            to ``gridspec_kw={'width_ratios': [...]}``.
+            to ``gridspec_kw={'width_ratios': [...]}``. In the case of nested
+            layouts, this argument applies only to the outer layout.
 
         height_ratios : array-like of length *nrows*, optional
             Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height. Equivalent
-            to ``gridspec_kw={'height_ratios': [...]}``.
+            to ``gridspec_kw={'height_ratios': [...]}``. In the case of nested
+            layouts, this argument applies only to the outer layout.
 
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
@@ -1848,7 +1850,10 @@ default: %(va)s
 
         gridspec_kw : dict, optional
             Dictionary with keywords passed to the `.GridSpec` constructor used
-            to create the grid the subplots are placed on.
+            to create the grid the subplots are placed on. In the case of
+            nested layouts, this argument applies only to the outer layout.
+            For more complex layouts, users should use `.Figure.subfigures`
+            to create the nesting.
 
         empty_sentinel : object, optional
             Entry in the layout to mean "leave this space empty".  Defaults
@@ -2018,7 +2023,7 @@ default: %(va)s
                     # recursively add the nested mosaic
                     rows, cols = nested_mosaic.shape
                     nested_output = _do_layout(
-                        gs[j, k].subgridspec(rows, cols, **gridspec_kw),
+                        gs[j, k].subgridspec(rows, cols),
                         nested_mosaic,
                         *_identify_keys_and_nested(nested_mosaic)
                     )
