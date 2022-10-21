@@ -1,7 +1,7 @@
 .. _whats-new-3-0-0:
 
-New in Matplotlib 3.0
-=====================
+What's new in Matplotlib 3.0 (Sep 18, 2018)
+===========================================
 
 Improved default backend selection
 ----------------------------------
@@ -60,11 +60,11 @@ frame. Padding and separation parameters can be adjusted.
 Add ``minorticks_on()/off()`` methods for colorbar
 --------------------------------------------------
 
-A new method :meth:`.colorbar.Colobar.minorticks_on` has been added to
+A new method ``ColorbarBase.minorticks_on`` has been added to
 correctly display minor ticks on a colorbar. This method doesn't allow the
 minor ticks to extend into the regions beyond vmin and vmax when the *extend*
 keyword argument (used while creating the colorbar) is set to 'both', 'max' or
-'min'. A complementary method :meth:`.colorbar.Colobar.minorticks_off` has
+'min'. A complementary method ``ColorbarBase.minorticks_off`` has
 also been added to remove the minor ticks on the colorbar.
 
 
@@ -90,7 +90,7 @@ behaviour has been removed. Now if the file name exists on
 disk, the user is prompted whether or not to overwrite it.
 This eliminates guesswork, and allows intentional
 overwriting, especially when the figure name has been
-manually set using `.figure.Figure.canvas.set_window_title()`.
+manually set using ``figure.canvas.set_window_title()``.
 
 
 Legend now has a *title_fontsize* keyword argument (and rcParam)
@@ -108,9 +108,8 @@ Support for axes.prop_cycle property *markevery* in rcParams
 ------------------------------------------------------------
 
 The Matplotlib ``rcParams`` settings object now supports configuration
-of the attribute :rc:`axes.prop_cycle` with cyclers using the `markevery`
-Line2D object property. An example of this feature is provided at
-:doc:`/gallery/lines_bars_and_markers/markevery_prop_cycle`.
+of the attribute :rc:`axes.prop_cycle` with cyclers using the *markevery*
+Line2D object property. 
 
 Multi-page PDF support for pgf backend
 --------------------------------------
@@ -142,10 +141,10 @@ independent on the axes size or units. To revert to the previous behaviour
 set the axes' aspect ratio to automatic by using ``ax.set_aspect("auto")`` or
 ``plt.axis("auto")``.
 
-Add ``ax.get_gridspec`` to `.SubplotBase`
------------------------------------------
+Add ``ax.get_gridspec`` to ``SubplotBase``
+------------------------------------------
 
-New method `.SubplotBase.get_gridspec` is added so that users can
+New method ``SubplotBase.get_gridspec`` is added so that users can
 easily get the gridspec that went into making an axes:
 
   .. code::

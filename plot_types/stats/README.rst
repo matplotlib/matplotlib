@@ -1,6 +1,6 @@
 .. _stats_plots:
 
-Specialized statistics plots
-----------------------------
+Statistics plots
+----------------
 
-Matplotlib has some specialized plots for statistical analysis.  
+Plots for statistical analysis.

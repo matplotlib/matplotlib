@@ -20,8 +20,7 @@ for i in range(len(data[0])):
     y = [d[i] for d in data]
     b = ax.bar(x + i * dimw, y, dimw, bottom=0.001)
 
-ax.set_xticks(x + dimw / 2)
-ax.set_xticklabels(map(str, x))
+ax.set_xticks(x + dimw / 2, labels=map(str, x))
 ax.set_yscale('log')
 
 ax.set_xlabel('x')

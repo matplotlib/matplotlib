@@ -5,14 +5,15 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-from matplotlib.patches import (Annulus, Patch, Polygon, Rectangle,
-                                FancyArrowPatch)
+import matplotlib as mpl
+from matplotlib.patches import (Annulus, Ellipse, Patch, Polygon, Rectangle,
+                                FancyArrowPatch, FancyArrow, BoxStyle, Arc)
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
-    path as mpath, style as mstyle, transforms as mtransforms, rcParams)
+    path as mpath, transforms as mtransforms, rcParams)
 
 import sys
 on_win = (sys.platform == 'win32')
@@ -30,6 +31,7 @@ def test_Polygon_close():
 
     # start with open path and close it:
     p = Polygon(xy, closed=True)
+    assert p.get_closed()
     assert_array_equal(p.get_xy(), xyclosed)
     p.set_xy(xy)
     assert_array_equal(p.get_xy(), xyclosed)
@@ -42,6 +44,7 @@ def test_Polygon_close():
 
     # start with open path and leave it open:
     p = Polygon(xy, closed=False)
+    assert not p.get_closed()
     assert_array_equal(p.get_xy(), xy)
     p.set_xy(xy)
     assert_array_equal(p.get_xy(), xy)
@@ -51,6 +54,54 @@ def test_Polygon_close():
     assert_array_equal(p.get_xy(), xyclosed)
     p.set_xy(xyclosed)
     assert_array_equal(p.get_xy(), xyclosed)
+
+
+def test_corner_center():
+    loc = [10, 20]
+    width = 1
+    height = 2
+
+    # Rectangle
+    # No rotation
+    corners = ((10, 20), (11, 20), (11, 22), (10, 22))
+    rect = Rectangle(loc, width, height)
+    assert_array_equal(rect.get_corners(), corners)
+    assert_array_equal(rect.get_center(), (10.5, 21))
+
+    # 90 deg rotation
+    corners_rot = ((10, 20), (10, 21), (8, 21), (8, 20))
+    rect.set_angle(90)
+    assert_array_equal(rect.get_corners(), corners_rot)
+    assert_array_equal(rect.get_center(), (9, 20.5))
+
+    # Rotation not a multiple of 90 deg
+    theta = 33
+    t = mtransforms.Affine2D().rotate_around(*loc, np.deg2rad(theta))
+    corners_rot = t.transform(corners)
+    rect.set_angle(theta)
+    assert_almost_equal(rect.get_corners(), corners_rot)
+
+    # Ellipse
+    loc = [loc[0] + width / 2,
+           loc[1] + height / 2]
+    ellipse = Ellipse(loc, width, height)
+
+    # No rotation
+    assert_array_equal(ellipse.get_corners(), corners)
+
+    # 90 deg rotation
+    corners_rot = ((11.5, 20.5), (11.5, 21.5), (9.5, 21.5), (9.5, 20.5))
+    ellipse.set_angle(90)
+    assert_array_equal(ellipse.get_corners(), corners_rot)
+    # Rotation shouldn't change ellipse center
+    assert_array_equal(ellipse.get_center(), loc)
+
+    # Rotation not a multiple of 90 deg
+    theta = 33
+    t = mtransforms.Affine2D().rotate_around(*loc, np.deg2rad(theta))
+    corners_rot = t.transform(corners)
+    ellipse.set_angle(theta)
+    assert_almost_equal(ellipse.get_corners(), corners_rot)
 
 
 def test_rotate_rect():
@@ -89,13 +140,47 @@ def test_rotate_rect_draw(fig_test, fig_ref):
     ax_ref.add_patch(rect_ref)
     assert rect_ref.get_angle() == angle
 
-    # Check that when the angle is updated after adding to an axes, that the
+    # Check that when the angle is updated after adding to an Axes, that the
     # patch is marked stale and redrawn in the correct location
     rect_test = Rectangle(loc, width, height)
     assert rect_test.get_angle() == 0
     ax_test.add_patch(rect_test)
     rect_test.set_angle(angle)
     assert rect_test.get_angle() == angle
+
+
+@check_figures_equal(extensions=['png'])
+def test_dash_offset_patch_draw(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+
+    loc = (0.1, 0.1)
+    width, height = (0.8, 0.8)
+    rect_ref = Rectangle(loc, width, height, linewidth=3, edgecolor='b',
+                                                linestyle=(0, [6, 6]))
+    # fill the line gaps using a linestyle (0, [0, 6, 6, 0]), which is
+    # equivalent to (6, [6, 6]) but has 0 dash offset
+    rect_ref2 = Rectangle(loc, width, height, linewidth=3, edgecolor='r',
+                                            linestyle=(0, [0, 6, 6, 0]))
+    assert rect_ref.get_linestyle() == (0, [6, 6])
+    assert rect_ref2.get_linestyle() == (0, [0, 6, 6, 0])
+
+    ax_ref.add_patch(rect_ref)
+    ax_ref.add_patch(rect_ref2)
+
+    # Check that the dash offset of the rect is the same if we pass it in the
+    # init method and if we create two rects with appropriate onoff sequence
+    # of linestyle.
+
+    rect_test = Rectangle(loc, width, height, linewidth=3, edgecolor='b',
+                                                    linestyle=(0, [6, 6]))
+    rect_test2 = Rectangle(loc, width, height, linewidth=3, edgecolor='r',
+                                                    linestyle=(6, [6, 6]))
+    assert rect_test.get_linestyle() == (0, [6, 6])
+    assert rect_test2.get_linestyle() == (6, [6, 6])
+
+    ax_test.add_patch(rect_test)
+    ax_test.add_patch(rect_test2)
 
 
 def test_negative_rect():
@@ -197,7 +282,7 @@ def test_patch_alpha_override():
     ax.set_ylim([-1, 2])
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_patch_color_none():
     # Make sure the alpha kwarg does not override 'none' facecolor.
     # Addresses issue #7478.
@@ -373,6 +458,9 @@ def test_patch_str():
     p = mpatches.PathPatch(path)
     assert str(p) == "PathPatch3((1, 2) ...)"
 
+    p = mpatches.Polygon(np.empty((0, 2)))
+    assert str(p) == "Polygon0()"
+
     data = [[1, 2], [2, 2], [1, 2]]
     p = mpatches.Polygon(data)
     assert str(p) == "Polygon3((1, 2) ...)"
@@ -407,7 +495,7 @@ def test_multi_color_hatch():
     ax.autoscale(False)
 
     for i in range(5):
-        with mstyle.context({'hatch.color': 'C{}'.format(i)}):
+        with mpl.style.context({'hatch.color': 'C{}'.format(i)}):
             r = Rectangle((i - .8 / 2, 5), .8, 1, hatch='//', fc='none')
         ax.add_patch(r)
 
@@ -483,7 +571,7 @@ def test_datetime_datetime_fails():
     from datetime import datetime
 
     start = datetime(2017, 1, 1, 0, 0, 0)
-    dt_delta = datetime(1970, 1, 5)    # Will be 5 days if units are done wrong
+    dt_delta = datetime(1970, 1, 5)  # Will be 5 days if units are done wrong.
 
     with pytest.raises(TypeError):
         mpatches.Rectangle((start, 0), dt_delta, 1)
@@ -493,7 +581,7 @@ def test_datetime_datetime_fails():
 
 
 def test_contains_point():
-    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0, 0)
+    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0)
     points = [(0.0, 0.5), (0.2, 0.5), (0.25, 0.5), (0.5, 0.5)]
     path = ell.get_path()
     transform = ell.get_transform()
@@ -506,7 +594,7 @@ def test_contains_point():
 
 
 def test_contains_points():
-    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0, 0)
+    ell = mpatches.Ellipse((0.5, 0.5), 0.5, 1.0)
     points = [(0.0, 0.5), (0.2, 0.5), (0.25, 0.5), (0.5, 0.5)]
     path = ell.get_path()
     transform = ell.get_transform()
@@ -588,7 +676,7 @@ def test_large_arc():
     y = -2115
     diameter = 4261
     for ax in [ax1, ax2]:
-        a = mpatches.Arc((x, y), diameter, diameter, lw=2, color='k')
+        a = Arc((x, y), diameter, diameter, lw=2, color='k')
         ax.add_patch(a)
         ax.set_axis_off()
         ax.set_aspect('equal')
@@ -615,7 +703,7 @@ def test_rotated_arcs():
         for prescale, centers in zip((1 - .0001, (1 - .0001) / np.sqrt(2)),
                                       (on_axis_centers, diag_centers)):
             for j, (x_sign, y_sign) in enumerate(centers, start=k):
-                a = mpatches.Arc(
+                a = Arc(
                     (x_sign * scale * prescale,
                      y_sign * scale * prescale),
                     scale * sx,
@@ -636,6 +724,20 @@ def test_rotated_arcs():
         ax.axvline(0, color="k")
         ax.set_axis_off()
         ax.set_aspect("equal")
+
+
+def test_fancyarrow_shape_error():
+    with pytest.raises(ValueError, match="Got unknown shape: 'foo'"):
+        FancyArrow(0, 0, 0.2, 0.2, shape='foo')
+
+
+@pytest.mark.parametrize('fmt, match', (
+    ("foo", "Unknown style: 'foo'"),
+    ("Round,foo", "Incorrect style argument: 'Round,foo'"),
+))
+def test_boxstyle_errors(fmt, match):
+    with pytest.raises(ValueError, match=match):
+        BoxStyle(fmt)
 
 
 @image_comparison(baseline_images=['annulus'], extensions=['png'])
@@ -667,6 +769,31 @@ def test_annulus_setters():
 
     ell.center = (0.5, 0.5)
     ell.radii = (0.5, 0.3)
+    ell.width = 0.1
+    ell.angle = 45
+
+
+@image_comparison(baseline_images=['annulus'], extensions=['png'])
+def test_annulus_setters2():
+
+    fig, ax = plt.subplots()
+    cir = Annulus((0., 0.), 0.2, 0.01, fc='g')   # circular annulus
+    ell = Annulus((0., 0.), (1, 2), 0.1, 0,      # elliptical
+                  fc='m', ec='b', alpha=0.5, hatch='xxx')
+    ax.add_patch(cir)
+    ax.add_patch(ell)
+    ax.set_aspect('equal')
+
+    cir.center = (0.5, 0.5)
+    cir.set_semimajor(0.2)
+    cir.set_semiminor(0.2)
+    assert cir.radii == (0.2, 0.2)
+    cir.width = 0.05
+
+    ell.center = (0.5, 0.5)
+    ell.set_semimajor(0.5)
+    ell.set_semiminor(0.3)
+    assert ell.radii == (0.5, 0.3)
     ell.width = 0.1
     ell.angle = 45
 
@@ -715,3 +842,41 @@ def test_default_capstyle():
 def test_default_joinstyle():
     patch = Patch()
     assert patch.get_joinstyle() == 'miter'
+
+
+@image_comparison(["autoscale_arc"], extensions=['png', 'svg'],
+                  style="mpl20", remove_text=True)
+def test_autoscale_arc():
+    fig, axs = plt.subplots(1, 3, figsize=(4, 1))
+    arc_lists = (
+        [Arc((0, 0), 1, 1, theta1=0, theta2=90)],
+        [Arc((0.5, 0.5), 1.5, 0.5, theta1=10, theta2=20)],
+        [Arc((0.5, 0.5), 1.5, 0.5, theta1=10, theta2=20),
+         Arc((0.5, 0.5), 2.5, 0.5, theta1=110, theta2=120),
+         Arc((0.5, 0.5), 3.5, 0.5, theta1=210, theta2=220),
+         Arc((0.5, 0.5), 4.5, 0.5, theta1=310, theta2=320)])
+
+    for ax, arcs in zip(axs, arc_lists):
+        for arc in arcs:
+            ax.add_patch(arc)
+        ax.autoscale()
+
+
+@check_figures_equal(extensions=["png", 'svg', 'pdf', 'eps'])
+def test_arc_in_collection(fig_test, fig_ref):
+    arc1 = Arc([.5, .5], .5, 1, theta1=0, theta2=60, angle=20)
+    arc2 = Arc([.5, .5], .5, 1, theta1=0, theta2=60, angle=20)
+    col = mcollections.PatchCollection(patches=[arc2], facecolors='none',
+                                       edgecolors='k')
+    fig_ref.subplots().add_patch(arc1)
+    fig_test.subplots().add_collection(col)
+
+
+@check_figures_equal(extensions=["png", 'svg', 'pdf', 'eps'])
+def test_modifying_arc(fig_test, fig_ref):
+    arc1 = Arc([.5, .5], .5, 1, theta1=0, theta2=60, angle=20)
+    arc2 = Arc([.5, .5], 1.5, 1, theta1=0, theta2=60, angle=10)
+    fig_ref.subplots().add_patch(arc1)
+    fig_test.subplots().add_patch(arc2)
+    arc2.set_width(.5)
+    arc2.set_angle(20)

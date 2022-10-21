@@ -2,11 +2,14 @@
 Common functionality between the PDF and PS backends.
 """
 
+from io import BytesIO
 import functools
+
+from fontTools import subset
 
 import matplotlib as mpl
 from .. import font_manager, ft2font
-from ..afm import AFM
+from .._afm import AFM
 from ..backend_bases import RendererBase
 
 
@@ -14,6 +17,39 @@ from ..backend_bases import RendererBase
 def _cached_get_afm_from_fname(fname):
     with open(fname, "rb") as fh:
         return AFM(fh)
+
+
+def get_glyphs_subset(fontfile, characters):
+    """
+    Subset a TTF font
+
+    Reads the named fontfile and restricts the font to the characters.
+    Returns a serialization of the subset font as file-like object.
+
+    Parameters
+    ----------
+    symbol : str
+        Path to the font file
+    characters : str
+        Continuous set of characters to include in subset
+    """
+
+    options = subset.Options(glyph_names=True, recommended_glyphs=True)
+
+    # prevent subsetting FontForge Timestamp and other tables
+    options.drop_tables += ['FFTM', 'PfEd', 'BDF']
+
+    # if fontfile is a ttc, specify font number
+    if fontfile.endswith(".ttc"):
+        options.font_number = 0
+
+    with subset.load_font(fontfile, options) as font:
+        subsetter = subset.Subsetter(options=options)
+        subsetter.populate(text=characters)
+        subsetter.subset(font)
+        fh = BytesIO()
+        font.save(fh, reorderTables=False)
+        return fh
 
 
 class CharacterTracker:
@@ -29,18 +65,13 @@ class CharacterTracker:
 
     def track(self, font, s):
         """Record that string *s* is being typeset using font *font*."""
-        if isinstance(font, str):
-            # Unused, can be removed after removal of track_characters.
-            fname = font
-        else:
-            fname = font.fname
-        self.used.setdefault(fname, set()).update(map(ord, s))
+        char_to_font = font._get_fontmap(s)
+        for _c, _f in char_to_font.items():
+            self.used.setdefault(_f.fname, set()).add(ord(_c))
 
-    # Not public, can be removed when pdf/ps merge_used_characters is removed.
-    def merge(self, other):
-        """Update self with a font path to character codepoints."""
-        for fname, charset in other.items():
-            self.used.setdefault(fname, set()).update(charset)
+    def track_glyph(self, font, glyph):
+        """Record that codepoint *glyph* is being typeset using font *font*."""
+        self.used.setdefault(font.fname, set()).add(glyph)
 
 
 class RendererPDFPSBase(RendererBase):
@@ -73,18 +104,9 @@ class RendererPDFPSBase(RendererBase):
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
         if ismath == "TeX":
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(
-                s, fontsize, renderer=self)
-            return w, h, d
+            return super().get_text_width_height_descent(s, prop, ismath)
         elif ismath:
-            # Circular import.
-            from matplotlib.backends.backend_ps import RendererPS
-            parse = self._text2path.mathtext_parser.parse(
-                s, 72, prop,
-                _force_standard_ps_fonts=(isinstance(self, RendererPS)
-                                          and mpl.rcParams["ps.useafm"]))
+            parse = self._text2path.mathtext_parser.parse(s, 72, prop)
             return parse.width, parse.height, parse.depth
         elif mpl.rcParams[self._use_afm_rc_name]:
             font = self._get_font_afm(prop)
@@ -111,8 +133,8 @@ class RendererPDFPSBase(RendererBase):
         return _cached_get_afm_from_fname(fname)
 
     def _get_font_ttf(self, prop):
-        fname = font_manager.findfont(prop)
-        font = font_manager.get_font(fname)
+        fnames = font_manager.fontManager._find_fonts_by_props(prop)
+        font = font_manager.get_font(fnames)
         font.clear()
         font.set_size(prop.get_size_in_points(), 72)
         return font

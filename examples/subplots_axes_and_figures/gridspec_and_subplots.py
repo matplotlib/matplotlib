@@ -8,7 +8,10 @@ Sometimes we want to combine two subplots in an axes layout created with
 and then remove the covered axes and fill the gap with a new bigger axes.
 Here we create a layout with the bottom two axes in the last column combined.
 
-See also :doc:`/tutorials/intermediate/gridspec`.
+To start with this layout (rather than removing the overlapping axes) use
+`~.pyplot.subplot_mosaic`.
+
+See also :doc:`/tutorials/intermediate/arranging_axes`.
 """
 
 import matplotlib.pyplot as plt

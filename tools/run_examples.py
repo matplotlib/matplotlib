@@ -10,6 +10,7 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 import time
+import tokenize
 
 
 _preamble = """\
@@ -73,8 +74,9 @@ def main():
                 cwd.mkdir(parents=True)
             else:
                 cwd = stack.enter_context(TemporaryDirectory())
-            Path(cwd, relpath.name).write_text(
-                _preamble + (root / relpath).read_text())
+            with tokenize.open(root / relpath) as src:
+                Path(cwd, relpath.name).write_text(
+                    _preamble + src.read(), encoding="utf-8")
             for backend in args.backend or [None]:
                 env = {**os.environ}
                 if backend is not None:

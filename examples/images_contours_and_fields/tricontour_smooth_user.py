@@ -8,7 +8,6 @@ with `matplotlib.tri.UniformTriRefiner`.
 """
 import matplotlib.tri as tri
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import numpy as np
 
 
@@ -66,8 +65,7 @@ ax.set_aspect('equal')
 ax.triplot(triang, lw=0.5, color='white')
 
 levels = np.arange(0., 1., 0.025)
-cmap = cm.get_cmap(name='terrain', lut=None)
-ax.tricontourf(tri_refi, z_test_refi, levels=levels, cmap=cmap)
+ax.tricontourf(tri_refi, z_test_refi, levels=levels, cmap='terrain')
 ax.tricontour(tri_refi, z_test_refi, levels=levels,
               colors=['0.25', '0.5', '0.5', '0.5', '0.5'],
               linewidths=[1.0, 0.5, 0.5, 0.5, 0.5])

@@ -9,14 +9,17 @@ import numpy as np
 import pytest
 
 import matplotlib as mpl
-from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
+from matplotlib import (
+    pyplot as plt, rcParams, font_manager as fm
+)
+from matplotlib.cbook import _get_data_path
+from matplotlib.ft2font import FT2Font
+from matplotlib.font_manager import findfont, FontProperties
+from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
 from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-
-
-needs_usetex = pytest.mark.skipif(
-    not checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+from matplotlib.testing._markers import needs_usetex
 
 
 @image_comparison(['pdf_use14corefonts.pdf'])
@@ -39,12 +42,20 @@ and containing some French characters and the euro symbol:
     ax.axhline(0.5, linewidth=0.5)
 
 
-def test_type42():
-    rcParams['pdf.fonttype'] = 42
+@pytest.mark.parametrize('fontname, fontfile', [
+    ('DejaVu Sans', 'DejaVuSans.ttf'),
+    ('WenQuanYi Zen Hei', 'wqy-zenhei.ttc'),
+])
+@pytest.mark.parametrize('fonttype', [3, 42])
+def test_embed_fonts(fontname, fontfile, fonttype):
+    if Path(findfont(FontProperties(family=[fontname]))).name != fontfile:
+        pytest.skip(f'Font {fontname!r} may be missing')
 
+    rcParams['pdf.fonttype'] = fonttype
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
-    fig.savefig(io.BytesIO())
+    ax.set_title('Axes Title', font=fontname)
+    fig.savefig(io.BytesIO(), format='pdf')
 
 
 def test_multipage_pagecount():
@@ -234,8 +245,35 @@ def test_text_urls():
                     (a for a in annots if a.A.URI == f'{test_url}{fragment}'),
                     None)
                 assert annot is not None
+                assert getattr(annot, 'QuadPoints', None) is None
                 # Positions in points (72 per inch.)
                 assert annot.Rect[1] == decimal.Decimal(y) * 72
+
+
+def test_text_rotated_urls():
+    pikepdf = pytest.importorskip('pikepdf')
+
+    test_url = 'https://test_text_urls.matplotlib.org/'
+
+    fig = plt.figure(figsize=(1, 1))
+    fig.text(0.1, 0.1, 'N', rotation=45, url=f'{test_url}')
+
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format='pdf')
+
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == f'{test_url}'),
+                None)
+            assert annot is not None
+            assert getattr(annot, 'QuadPoints', None) is not None
+            # Positions in points (72 per inch)
+            assert annot.Rect[0] == \
+               annot.QuadPoints[6] - decimal.Decimal('0.00001')
 
 
 @needs_usetex
@@ -273,8 +311,8 @@ def test_hatching_legend():
     """Test for correct hatching on patches in legend"""
     fig = plt.figure(figsize=(1, 2))
 
-    a = plt.Rectangle([0, 0], 0, 0, facecolor="green", hatch="XXXX")
-    b = plt.Rectangle([0, 0], 0, 0, facecolor="blue", hatch="XXXX")
+    a = Rectangle([0, 0], 0, 0, facecolor="green", hatch="XXXX")
+    b = Rectangle([0, 0], 0, 0, facecolor="blue", hatch="XXXX")
 
     fig.legend([a, b, a, b], ["", "", "", ""])
 
@@ -291,24 +329,7 @@ def test_grayscale_alpha():
     ax.set_yticks([])
 
 
-# This tests tends to hit a TeX cache lock on AppVeyor.
-@pytest.mark.flaky(reruns=3)
-@needs_usetex
-def test_missing_psfont(monkeypatch):
-    """An error is raised if a TeX font lacks a Type-1 equivalent"""
-    def psfont(*args, **kwargs):
-        return dviread.PsFont(texname='texfont', psname='Some Font',
-                              effects=None, encoding=None, filename=None)
-
-    monkeypatch.setattr(dviread.PsfontsMap, '__getitem__', psfont)
-    rcParams['text.usetex'] = True
-    fig, ax = plt.subplots()
-    ax.text(0.5, 0.5, 'hello')
-    with NamedTemporaryFile() as tmpfile, pytest.raises(ValueError):
-        fig.savefig(tmpfile, format='pdf')
-
-
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @check_figures_equal(extensions=["pdf", "eps"])
 def test_pdf_eps_savefig_when_color_is_none(fig_test, fig_ref):
     ax_test = fig_test.add_subplot()
@@ -339,3 +360,54 @@ def test_kerning():
     s = "AVAVAVAVAVAVAVAV€AAVV"
     fig.text(0, .25, s, size=5)
     fig.text(0, .75, s, size=20)
+
+
+def test_glyphs_subset():
+    fpath = str(_get_data_path("fonts/ttf/DejaVuSerif.ttf"))
+    chars = "these should be subsetted! 1234567890"
+
+    # non-subsetted FT2Font
+    nosubfont = FT2Font(fpath)
+    nosubfont.set_text(chars)
+
+    # subsetted FT2Font
+    subfont = FT2Font(get_glyphs_subset(fpath, chars))
+    subfont.set_text(chars)
+
+    nosubcmap = nosubfont.get_charmap()
+    subcmap = subfont.get_charmap()
+
+    # all unique chars must be available in subsetted font
+    assert set(chars) == set(chr(key) for key in subcmap.keys())
+
+    # subsetted font's charmap should have less entries
+    assert len(subcmap) < len(nosubcmap)
+
+    # since both objects are assigned same characters
+    assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
+
+
+@image_comparison(["multi_font_type3.pdf"], tol=4.6)
+def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('pdf', fonttype=3)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["multi_font_type42.pdf"], tol=2.2)
+def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('pdf', fonttype=42)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")

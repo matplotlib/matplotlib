@@ -2,7 +2,9 @@
 ``matplotlib.tri``
 ******************
 
-.. automodule:: matplotlib.tri
+Unstructured triangular grid functions.
+
+.. py:module:: matplotlib.tri
 
 .. autoclass:: matplotlib.tri.Triangulation
     :members:
@@ -17,7 +19,7 @@
     :show-inheritance:
 
 .. autoclass:: matplotlib.tri.TriInterpolator
-   
+
 .. autoclass:: matplotlib.tri.LinearTriInterpolator
     :members: __call__, gradient
     :show-inheritance:
@@ -30,7 +32,7 @@
 
 .. autoclass:: matplotlib.tri.UniformTriRefiner
     :show-inheritance:
-    :members: 
+    :members:
 
 .. autoclass:: matplotlib.tri.TriAnalyzer
-    :members: 
+    :members:

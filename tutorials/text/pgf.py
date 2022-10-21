@@ -1,9 +1,7 @@
 r"""
-*********************************
-Typesetting With XeLaTeX/LuaLaTeX
-*********************************
-
-How to typeset text with the ``pgf`` backend in Matplotlib.
+************************************************************
+Text rendering with XeLaTeX/LuaLaTeX via the ``pgf`` backend
+************************************************************
 
 Using the ``pgf`` backend, Matplotlib can export figures as pgf drawing
 commands that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and
@@ -53,7 +51,13 @@ for all applications must be located on your :envvar:`PATH`.
 
    Generally, these characters must be escaped correctly. For convenience,
    some characters (_, ^, %) are automatically escaped outside of math
-   environments.
+   environments. Other characters are not escaped as they are commonly needed
+   in actual TeX expressions. However, one can configure TeX to treat them as
+   "normal" characters (known as "catcode 12" to TeX) via a custom preamble,
+   such as::
+
+     plt.rcParams["pgf.preamble"] = (
+         r"\AtBeginDocument{\catcode`\&=12\catcode`\#=12}")
 
 .. _pgf-rcfonts:
 
@@ -150,11 +154,6 @@ Troubleshooting
   executables. See :ref:`environment-variables` and
   :ref:`setting-windows-environment-variables` for details.
 
-* A limitation on Windows causes the backend to keep file handles that have
-  been opened by your application open. As a result, it may not be possible
-  to delete the corresponding files until the application closes (see
-  `#1324 <https://github.com/matplotlib/matplotlib/issues/1324>`_).
-
 * Sometimes the font rendering in figures that are saved to png images is
   very bad. This happens when the pdftocairo tool is not available and
   ghostscript is used for the pdf to png conversion.
@@ -175,7 +174,7 @@ Troubleshooting
   alternatively make the fonts available to your OS. See this
   `tex.stackexchange.com question`__ for more details.
 
-  __ http://tex.stackexchange.com/questions/43642
+  __ https://tex.stackexchange.com/q/43642/
 
 * If the font configuration used by Matplotlib differs from the font setting
   in yout LaTeX document, the alignment of text elements in imported figures
@@ -187,10 +186,16 @@ Troubleshooting
   big scatter graphs.  In an extreme case this can cause TeX to run out of
   memory: "TeX capacity exceeded, sorry"  You can configure latex to increase
   the amount of memory available to generate the ``.pdf`` image as discussed on
-  `tex.stackexchange.com <http://tex.stackexchange.com/questions/7953>`_.
+  `tex.stackexchange.com <https://tex.stackexchange.com/q/7953/>`_.
   Another way would be to "rasterize" parts of the graph causing problems
   using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as
   per :doc:`this example </gallery/misc/rasterization_demo>`.
+
+* Various math fonts are compiled and rendered only if corresponding font
+  packages are loaded. Specifically, when using ``\mathbf{}`` on Greek letters,
+  the default computer modern font may not contain them, in which case the
+  letter is not rendered. In such scenarios, the ``lmodern`` package should be
+  loaded.
 
 * If you still need help, please see :ref:`reporting-problems`
 

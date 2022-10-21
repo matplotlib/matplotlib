@@ -1,5 +1,5 @@
-Changes in 1.2.x
-================
+API Changes in 1.2.x
+====================
 
 * The ``classic`` option of the rc parameter ``toolbar`` is deprecated
   and will be removed in the next release.

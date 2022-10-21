@@ -26,6 +26,7 @@ from matplotlib import _api
 from matplotlib.backend_bases import MouseButton
 import matplotlib.lines as mlines
 
+_api.warn_deprecated("3.5", name=__name__, obj_type="module")
 _log = logging.getLogger(__name__)
 
 
@@ -82,7 +83,7 @@ class BlockingInput:
         self.n = n
         self.events = []
 
-        if hasattr(self.fig.canvas, "manager"):
+        if self.fig.canvas.manager:
             # Ensure that the figure is shown, if we are managing it.
             self.fig.show()
         # Connect the events to the on_event function call.

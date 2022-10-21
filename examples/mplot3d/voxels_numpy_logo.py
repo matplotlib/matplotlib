@@ -1,6 +1,6 @@
 """
 ===============================
-3D voxel plot of the numpy logo
+3D voxel plot of the NumPy logo
 ===============================
 
 Demonstrates using `.Axes3D.voxels` with uneven coordinates.
@@ -42,5 +42,6 @@ z[:, :, 1::2] += 0.95
 
 ax = plt.figure().add_subplot(projection='3d')
 ax.voxels(x, y, z, filled_2, facecolors=fcolors_2, edgecolors=ecolors_2)
+ax.set_aspect('equal')
 
 plt.show()

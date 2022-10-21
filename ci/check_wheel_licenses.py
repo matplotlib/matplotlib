@@ -5,7 +5,6 @@ Check that all .whl files in the dist folder have the correct LICENSE files
 included.
 
 To run:
-    $ cp setup.cfg.template setup.cfg
     $ python3 setup.py bdist_wheel
     $ ./ci/check_wheel_licenses.py
 """

@@ -1,7 +1,7 @@
 .. _whats-new-0-99:
 
-New in matplotlib 0.99
-======================
+What's new in Matplotlib 0.99 (Aug 29, 2009)
+============================================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -26,7 +26,7 @@ Reinier Heeres has ported John Porter's mplot3d over to the new
 matplotlib transformations framework, and it is now available as a
 toolkit mpl_toolkits.mplot3d (which now comes standard with all mpl
 installs).  See :ref:`mplot3d-examples-index` and
-:ref:`toolkit_mplot3d-tutorial`
+:doc:`/tutorials/toolkits/mplot3d`.
 
 .. plot::
 
@@ -112,7 +112,7 @@ that denote the data limits -- in various arbitrary locations.  No
 longer are your axis lines constrained to be a simple rectangle around
 the figure -- you can turn on or off left, bottom, right and top, as
 well as "detach" the spine to offset it away from the data.  See
-:doc:`/gallery/ticks_and_spines/spine_placement_demo` and
+:doc:`/gallery/spines/spine_placement_demo` and
 :class:`matplotlib.spines.Spine`.
 
 .. plot::

@@ -21,6 +21,11 @@
 #include "_backend_agg_basic_types.h"
 #include "numpy_cpp.h"
 
+/* Compatibility for PyPy3.7 before 7.3.4. */
+#ifndef Py_DTSF_ADD_DOT_0
+#define Py_DTSF_ADD_DOT_0 0x2
+#endif
+
 struct XY
 {
     double x;
@@ -254,7 +259,7 @@ inline void points_in_path(PointArray &points,
     }
 
     transformed_path_t trans_path(path, trans);
-    no_nans_t no_nans_path(trans_path, true, path.has_curves());
+    no_nans_t no_nans_path(trans_path, true, path.has_codes());
     curve_t curved_path(no_nans_path);
     if (r != 0.0) {
         contour_t contoured_path(curved_path);
@@ -300,7 +305,7 @@ void points_on_path(PointArray &points,
     }
 
     transformed_path_t trans_path(path, trans);
-    no_nans_t nan_removed_path(trans_path, true, path.has_curves());
+    no_nans_t nan_removed_path(trans_path, true, path.has_codes());
     curve_t curved_path(nan_removed_path);
     stroke_t stroked_path(curved_path);
     stroked_path.width(r * 2.0);
@@ -373,7 +378,7 @@ void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_li
     unsigned code;
 
     transformed_path_t tpath(path, trans);
-    nan_removed_t nan_removed(tpath, true, path.has_curves());
+    nan_removed_t nan_removed(tpath, true, path.has_codes());
 
     nan_removed.rewind(0);
 
@@ -442,7 +447,6 @@ void point_in_path_collection(double x,
                               OffsetArray &offsets,
                               agg::trans_affine &offset_trans,
                               bool filled,
-                              e_offset_position offset_position,
                               std::vector<int> &result)
 {
     size_t Npaths = paths.size();
@@ -478,11 +482,7 @@ void point_in_path_collection(double x,
             double xo = offsets(i % Noffsets, 0);
             double yo = offsets(i % Noffsets, 1);
             offset_trans.transform(&xo, &yo);
-            if (offset_position == OFFSET_POSITION_DATA) {
-                trans = agg::trans_affine_translation(xo, yo) * trans;
-            } else {
-                trans *= agg::trans_affine_translation(xo, yo);
-            }
+            trans *= agg::trans_affine_translation(xo, yo);
         }
 
         if (filled) {
@@ -512,7 +512,7 @@ bool path_in_path(PathIterator1 &a,
     }
 
     transformed_path_t b_path_trans(b, btrans);
-    no_nans_t b_no_nans(b_path_trans, true, b.has_curves());
+    no_nans_t b_no_nans(b_path_trans, true, b.has_codes());
     curve_t b_curved(b_no_nans);
 
     double x, y;
@@ -529,7 +529,7 @@ bool path_in_path(PathIterator1 &a,
 /** The clip_path_to_rect code here is a clean-room implementation of
     the Sutherland-Hodgman clipping algorithm described here:
 
-  http://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
+  https://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
 */
 
 namespace clip_to_rect_filters
@@ -838,21 +838,26 @@ inline bool segments_intersect(const double &x1,
     // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
 
-    if (isclose(den, 0.0)) {  // collinear segments
-        if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
-                                    // and lie on the same line
-            return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
-                   (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
-        }
-        else {
-            double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
-            if (isclose(intercept, 0.0)) { // segments lie on the same line
+    // If den == 0 we have two possibilities:
+    if (isclose(den, 0.0)) {
+        double t_area = (x2*y3 - x3*y2) - x1*(y3 - y2) + y1*(x3 - x2);
+        // 1 - If the area of the triangle made by the 3 first points (2 from the first segment
+        // plus one from the second) is zero, they are collinear
+        if (isclose(t_area, 0.0)) {
+            if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
+                                        // and lie on the same line
+                return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
+                    (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
+            }
+            else {
                 return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
-                       (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
+                        (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
             }
         }
-
-        return false;
+        // 2 - If t_area is not zero, the segments are parallel, but not collinear
+        else {
+            return false;
+        }
     }
 
     const double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
@@ -877,8 +882,8 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
         return false;
     }
 
-    no_nans_t n1(p1, true, p1.has_curves());
-    no_nans_t n2(p2, true, p2.has_curves());
+    no_nans_t n1(p1, true, p1.has_codes());
+    no_nans_t n2(p2, true, p2.has_codes());
 
     curve_t c1(n1);
     curve_t c2(n2);
@@ -900,6 +905,7 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
             if ((isclose((x21 - x22) * (x21 - x22) + (y21 - y22) * (y21 - y22), 0))){
                 continue;
             }
+
             if (segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22)) {
                 return true;
             }
@@ -940,7 +946,7 @@ bool path_intersects_rectangle(PathIterator &path,
         return false;
     }
 
-    no_nans_t no_nans(path, true, path.has_curves());
+    no_nans_t no_nans(path, true, path.has_codes());
     curve_t curve(no_nans);
 
     double cx = (rect_x1 + rect_x2) * 0.5, cy = (rect_y1 + rect_y2) * 0.5;
@@ -989,8 +995,8 @@ void convert_path_to_polygons(PathIterator &path,
     bool simplify = path.should_simplify();
 
     transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, true, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), width, height);
+    nan_removal_t nan_removed(tpath, true, path.has_codes());
+    clipped_t clipped(nan_removed, do_clip, width, height);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
     curve_t curve(simplified);
 
@@ -1054,8 +1060,8 @@ void cleanup_path(PathIterator &path,
     typedef Sketch<curve_t> sketch_t;
 
     transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, remove_nans, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), rect);
+    nan_removal_t nan_removed(tpath, remove_nans, path.has_codes());
+    clipped_t clipped(nan_removed, do_clip, rect);
     snapped_t snapped(clipped, snap_mode, path.total_vertices(), stroke_width);
     simplify_t simplified(snapped, do_simplify, path.simplify_threshold());
 
@@ -1138,16 +1144,15 @@ bool __convert_to_string(PathIterator &path,
     double last_x = 0.0;
     double last_y = 0.0;
 
-    int size = 0;
     unsigned code;
 
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
         if (code == CLOSEPOLY) {
             buffer += codes[4];
         } else if (code < 5) {
-            size = NUM_VERTICES[code];
+            size_t size = NUM_VERTICES[code];
 
-            for (int i = 1; i < size; ++i) {
+            for (size_t i = 1; i < size; ++i) {
                 unsigned subcode = path.vertex(&x[i], &y[i]);
                 if (subcode != code) {
                     return false;
@@ -1167,7 +1172,7 @@ bool __convert_to_string(PathIterator &path,
                 buffer += ' ';
             }
 
-            for (int i = 0; i < size; ++i) {
+            for (size_t i = 0; i < size; ++i) {
                 __add_number(x[i], format_code, precision, buffer);
                 buffer += ' ';
                 __add_number(y[i], format_code, precision, buffer);
@@ -1213,8 +1218,8 @@ bool convert_to_string(PathIterator &path,
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
 
     transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, true, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), clip_rect);
+    nan_removal_t nan_removed(tpath, true, path.has_codes());
+    clipped_t clipped(nan_removed, do_clip, clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 
     buffersize = path.total_vertices() * (precision + 5) * 4;

@@ -5,10 +5,10 @@ Basic Units
 
 """
 
-from distutils.version import LooseVersion
 import math
 
 import numpy as np
+from packaging.version import parse as parse_version
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
@@ -79,8 +79,8 @@ class ConvertAllProxy(PassThroughProxy):
         arg_units = [self.unit]
         for a in args:
             if hasattr(a, 'get_unit') and not hasattr(a, 'convert_to'):
-                # if this arg has a unit type but no conversion ability,
-                # this operation is prohibited
+                # If this argument has a unit type but no conversion ability,
+                # this operation is prohibited.
                 return NotImplemented
 
             if hasattr(a, 'convert_to'):
@@ -132,6 +132,9 @@ class TaggedValue(metaclass=TaggedValueMeta):
         self.unit = unit
         self.proxy_target = self.value
 
+    def __copy__(self):
+        return TaggedValue(self.value, self.unit)
+
     def __getattribute__(self, name):
         if name.startswith('__'):
             return object.__getattribute__(self, name)
@@ -155,7 +158,7 @@ class TaggedValue(metaclass=TaggedValueMeta):
     def __len__(self):
         return len(self.value)
 
-    if LooseVersion(np.__version__) >= '1.20':
+    if parse_version(np.__version__) >= parse_version('1.20'):
         def __getitem__(self, key):
             return TaggedValue(self.value[key], self.unit)
 
@@ -343,8 +346,6 @@ class BasicUnitConverter(units.ConversionInterface):
 
     @staticmethod
     def convert(val, unit, axis):
-        if units.ConversionInterface.is_numlike(val):
-            return val
         if np.iterable(val):
             if isinstance(val, np.ma.MaskedArray):
                 val = val.astype(float).filled(np.nan)

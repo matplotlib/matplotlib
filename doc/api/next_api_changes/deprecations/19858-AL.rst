@@ -1,4 +1,0 @@
-"units finalize" signal
-~~~~~~~~~~~~~~~~~~~~~~~
-This signal (previously emitted by Axis instances) is deprecated.  Connect to
-"units" instead.

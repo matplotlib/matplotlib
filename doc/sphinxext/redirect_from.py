@@ -15,8 +15,10 @@ directive in ``doc/topic/new-page.rst``::
 This creates in the build directory a file ``build/html/topic/old-page.html``
 that contains a relative refresh::
 
+    <!DOCTYPE html>
     <html>
       <head>
+        <meta charset="utf-8">
         <meta http-equiv="refresh" content="0; url=new-page.html">
       </head>
     </html>
@@ -38,8 +40,10 @@ from sphinx.util import logging
 logger = logging.getLogger(__name__)
 
 
-HTML_TEMPLATE = """<html>
+HTML_TEMPLATE = """<!DOCTYPE html>
+<html>
   <head>
+    <meta charset="utf-8">
     <meta http-equiv="refresh" content="0; url={v}">
   </head>
 </html>
@@ -66,7 +70,7 @@ class RedirectFromDomain(Domain):
 
     @property
     def redirects(self):
-        """The mapping of the redirectes."""
+        """The mapping of the redirects."""
         return self.data.setdefault('redirects', {})
 
     def clear_doc(self, docnames):
@@ -88,7 +92,6 @@ class RedirectFrom(Directive):
     def run(self):
         redirected_doc, = self.arguments
         env = self.app.env
-        builder = self.app.builder
         domain = env.get_domain('redirect_from')
         current_doc = env.path2doc(self.state.document.current_source)
         redirected_reldoc, _ = env.relfn2path(redirected_doc, current_doc)
@@ -115,4 +118,4 @@ def _generate_redirects(app, exception):
         else:
             logger.info(f'making refresh html file: {k} redirect to {v}')
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(html)
+            p.write_text(html, encoding='utf-8')

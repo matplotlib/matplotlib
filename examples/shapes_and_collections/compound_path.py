@@ -23,7 +23,7 @@ vertices += [(4, 4), (5, 5), (5, 4), (0, 0)]
 
 path = Path(vertices, codes)
 
-pathpatch = PathPatch(path, facecolor='None', edgecolor='green')
+pathpatch = PathPatch(path, facecolor='none', edgecolor='green')
 
 fig, ax = plt.subplots()
 ax.add_patch(pathpatch)

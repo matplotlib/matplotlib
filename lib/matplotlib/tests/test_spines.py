@@ -35,6 +35,8 @@ def test_spine_class():
     spines[:].set_val('y')
     assert all(spine.val == 'y' for spine in spines.values())
 
+    with pytest.raises(AttributeError, match='foo'):
+        spines.foo
     with pytest.raises(KeyError, match='foo'):
         spines['foo']
     with pytest.raises(KeyError, match='foo, bar'):

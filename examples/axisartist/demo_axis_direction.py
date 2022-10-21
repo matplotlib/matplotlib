@@ -1,8 +1,7 @@
 """
 ===================
-Demo Axis Direction
+axis_direction demo
 ===================
-
 """
 
 import numpy as np

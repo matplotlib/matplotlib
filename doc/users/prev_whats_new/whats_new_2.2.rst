@@ -1,7 +1,7 @@
 .. _whats-new-2-2-0:
 
-New in Matplotlib 2.2
-=====================
+What's new in Matplotlib 2.2 (Mar 06, 2018)
+===========================================
 
 Constrained Layout Manager
 --------------------------
@@ -60,7 +60,7 @@ New ``figure`` kwarg for ``GridSpec``
 In order to facilitate ``constrained_layout``, ``GridSpec`` now accepts a
 ``figure`` keyword.  This is backwards compatible, in that not supplying this
 will simply cause ``constrained_layout`` to not operate on the subplots
-orgainzed by this ``GridSpec`` instance.  Routines that use ``GridSpec`` (e.g.
+organized by this ``GridSpec`` instance.  Routines that use ``GridSpec`` (e.g.
 ``fig.subplots``) have been modified to pass the figure to ``GridSpec``.
 
 

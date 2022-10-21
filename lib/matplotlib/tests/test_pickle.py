@@ -1,15 +1,20 @@
 from io import BytesIO
+import ast
 import pickle
 
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib import cm
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing import subprocess_run_helper
+from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper
+from matplotlib.lines import VertexSelector
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
+from mpl_toolkits.axes_grid1 import parasite_axes
 
 
 def test_simple():
@@ -39,13 +44,9 @@ def test_simple():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@image_comparison(
-    ['multi_pickle.png'], remove_text=True, style='mpl20', tol=0.082)
-def test_complete():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
-    fig = plt.figure('Figure with a label?', figsize=(10, 6))
+def _generate_complete_test_figure(fig_ref):
+    fig_ref.set_size_inches((10, 6))
+    plt.figure(fig_ref)
 
     plt.suptitle('Can you fit any more in a figure?')
 
@@ -82,31 +83,78 @@ def test_complete():
     plt.quiver(x, y, u, v)
 
     plt.subplot(3, 3, 8)
-    plt.scatter(x, x**2, label='$x^2$')
+    plt.scatter(x, x ** 2, label='$x^2$')
     plt.legend(loc='upper left')
 
     plt.subplot(3, 3, 9)
     plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
 
-    #
+
+@mpl.style.context("default")
+@check_figures_equal(extensions=["png"])
+def test_complete(fig_test, fig_ref):
+    _generate_complete_test_figure(fig_ref)
     # plotting is done, now test its pickle-ability
-    #
-    result_fh = BytesIO()
-    pickle.dump(fig, result_fh, pickle.HIGHEST_PROTOCOL)
+    pkl = BytesIO()
+    pickle.dump(fig_ref, pkl, pickle.HIGHEST_PROTOCOL)
+    loaded = pickle.loads(pkl.getbuffer())
+    loaded.canvas.draw()
 
-    plt.close('all')
+    fig_test.set_size_inches(loaded.get_size_inches())
+    fig_test.figimage(loaded.canvas.renderer.buffer_rgba())
 
-    # make doubly sure that there are no figures left
-    assert plt._pylab_helpers.Gcf.figs == {}
+    plt.close(loaded)
 
-    # wind back the fh and load in the figure
-    result_fh.seek(0)
-    fig = pickle.load(result_fh)
 
-    # make sure there is now a figure manager
-    assert plt._pylab_helpers.Gcf.figs != {}
+def _pickle_load_subprocess():
+    import os
+    import pickle
 
-    assert fig.get_label() == 'Figure with a label?'
+    path = os.environ['PICKLE_FILE_PATH']
+
+    with open(path, 'rb') as blob:
+        fig = pickle.load(blob)
+
+    print(str(pickle.dumps(fig)))
+
+
+@mpl.style.context("default")
+@check_figures_equal(extensions=['png'])
+def test_pickle_load_from_subprocess(fig_test, fig_ref, tmp_path):
+    _generate_complete_test_figure(fig_ref)
+
+    fp = tmp_path / 'sinus.pickle'
+    assert not fp.exists()
+
+    with fp.open('wb') as file:
+        pickle.dump(fig_ref, file, pickle.HIGHEST_PROTOCOL)
+    assert fp.exists()
+
+    proc = subprocess_run_helper(
+        _pickle_load_subprocess,
+        timeout=60,
+        extra_env={'PICKLE_FILE_PATH': str(fp)}
+    )
+
+    loaded_fig = pickle.loads(ast.literal_eval(proc.stdout))
+
+    loaded_fig.canvas.draw()
+
+    fig_test.set_size_inches(loaded_fig.get_size_inches())
+    fig_test.figimage(loaded_fig.canvas.renderer.buffer_rgba())
+
+    plt.close(loaded_fig)
+
+
+def test_gcf():
+    fig = plt.figure("a label")
+    buf = BytesIO()
+    pickle.dump(fig, buf, pickle.HIGHEST_PROTOCOL)
+    plt.close("all")
+    assert plt._pylab_helpers.Gcf.figs == {}  # No figures must be left.
+    fig = pickle.loads(buf.getbuffer())
+    assert plt._pylab_helpers.Gcf.figs != {}  # A manager is there again.
+    assert fig.get_label() == "a label"
 
 
 def test_no_pyplot():
@@ -199,7 +247,7 @@ def test_inset_and_secondary():
     pickle.loads(pickle.dumps(fig))
 
 
-@pytest.mark.parametrize("cmap", cm._cmap_registry.values())
+@pytest.mark.parametrize("cmap", cm._colormaps.values())
 def test_cmap(cmap):
     pickle.dumps(cmap)
 
@@ -212,3 +260,25 @@ def test_unpickle_canvas():
     out.seek(0)
     fig2 = pickle.load(out)
     assert fig2.canvas is not None
+
+
+def test_mpl_toolkits():
+    ax = parasite_axes.host_axes([0, 0, 1, 1])
+    assert type(pickle.loads(pickle.dumps(ax))) == parasite_axes.HostAxes
+
+
+def test_standard_norm():
+    assert type(pickle.loads(pickle.dumps(mpl.colors.LogNorm()))) \
+        == mpl.colors.LogNorm
+
+
+def test_dynamic_norm():
+    logit_norm_instance = mpl.colors.make_norm_from_scale(
+        mpl.scale.LogitScale, mpl.colors.Normalize)()
+    assert type(pickle.loads(pickle.dumps(logit_norm_instance))) \
+        == type(logit_norm_instance)
+
+
+def test_vertexselector():
+    line, = plt.plot([0, 1], picker=True)
+    pickle.loads(pickle.dumps(VertexSelector(line)))

@@ -26,14 +26,14 @@ N = 128
 img = np.random.randn(N, N)
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-plt.subplots_adjust(bottom=0.25)
+fig.subplots_adjust(bottom=0.25)
 
 im = axs[0].imshow(img)
 axs[1].hist(img.flatten(), bins='auto')
 axs[1].set_title('Histogram of pixel intensities')
 
 # Create the RangeSlider
-slider_ax = plt.axes([0.20, 0.1, 0.60, 0.03])
+slider_ax = fig.add_axes([0.20, 0.1, 0.60, 0.03])
 slider = RangeSlider(slider_ax, "Threshold", img.min(), img.max())
 
 # Create the Vertical lines on the histogram

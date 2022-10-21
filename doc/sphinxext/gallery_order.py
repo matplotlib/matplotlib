@@ -50,9 +50,9 @@ class MplExplicitOrder(ExplicitOrder):
 list_all = [
     #  **Tutorials**
     #  introductory
-    "usage", "pyplot", "sample_plots", "images", "lifecycle", "customizing",
+    "quick_start", "pyplot", "images", "lifecycle", "customizing",
     #  intermediate
-    "artists", "legend_guide", "color_cycle", "gridspec",
+    "artists", "legend_guide", "color_cycle",
     "constrainedlayout_guide", "tight_layout_guide",
     #  advanced
     #  text
@@ -68,14 +68,15 @@ list_all = [
 
     # **Plot Types
     # Basic
-    "plot", "scatter_plot", "bar", "stem", "step", "pie", "fill_between",
+    "plot", "scatter_plot", "bar", "stem", "step", "fill_between",
     # Arrays
-    "imshow", "pcolormesh", "contourf", "quiver", "streamplot",
+    "imshow", "pcolormesh", "contour", "contourf",
+    "barbs", "quiver", "streamplot",
     # Stats
     "hist_plot", "boxplot_plot", "errorbar_plot", "violin",
-    "barbs", "eventplot", "hist2d", "hexbin",
+    "eventplot", "hist2d", "hexbin", "pie",
     # Unstructured
-    "tricontour", "tripcolor", "triplot",
+    "tricontour", "tricontourf", "tripcolor", "triplot",
     ]
 explicit_subsection_order = [item + ".py" for item in list_all]
 

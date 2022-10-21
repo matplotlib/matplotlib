@@ -1,6 +1,6 @@
 from docutils.parsers.rst import Directive
 
-from matplotlib import mathtext
+from matplotlib import _mathtext, _mathtext_data
 
 
 symbols = [
@@ -103,9 +103,9 @@ def run(state_machine):
     def render_symbol(sym):
         if sym.startswith("\\"):
             sym = sym[1:]
-            if sym not in {*mathtext.Parser._overunder_functions,
-                           *mathtext.Parser._function_names}:
-                sym = chr(mathtext.tex2uni[sym])
+            if sym not in (_mathtext.Parser._overunder_functions |
+                           _mathtext.Parser._function_names):
+                sym = chr(_mathtext_data.tex2uni[sym])
         return f'\\{sym}' if sym in ('\\', '|') else sym
 
     lines = []
@@ -149,7 +149,6 @@ def setup(app):
 
 if __name__ == "__main__":
     # Do some verification of the tables
-    from matplotlib import _mathtext_data
 
     print("SYMBOLS NOT IN STIX:")
     all_symbols = {}

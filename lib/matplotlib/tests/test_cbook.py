@@ -4,15 +4,14 @@ import pickle
 from weakref import ref
 from unittest.mock import patch, Mock
 
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 import numpy as np
 from numpy.testing import (assert_array_equal, assert_approx_equal,
                            assert_array_almost_equal)
 import pytest
 
-from matplotlib import _api
-import matplotlib.cbook as cbook
+from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points
 
@@ -52,7 +51,7 @@ class Test_delete_masked_points:
 
 
 class Test_boxplot_stats:
-    def setup(self):
+    def setup_method(self):
         np.random.seed(937)
         self.nrows = 37
         self.ncols = 4
@@ -143,7 +142,7 @@ class Test_boxplot_stats:
             assert_array_almost_equal(res[key], value)
 
     def test_results_withlabels(self):
-        labels = ['Test1', 2, 'ardvark', 4]
+        labels = ['Test1', 2, 'Aardvark', 4]
         results = cbook.boxplot_stats(self.data, labels=labels)
         for lab, res in zip(labels, results):
             assert res['label'] == lab
@@ -178,15 +177,15 @@ class Test_boxplot_stats:
 
 
 class Test_callback_registry:
-    def setup(self):
+    def setup_method(self):
         self.signal = 'test'
         self.callbacks = cbook.CallbackRegistry()
 
     def connect(self, s, func, pickle):
-        cid = self.callbacks.connect(s, func)
         if pickle:
-            self.callbacks._pickled_cids.add(cid)
-        return cid
+            return self.callbacks.connect(s, func)
+        else:
+            return self.callbacks._connect_picklable(s, func)
 
     def disconnect(self, cid):
         return self.callbacks.disconnect(cid)
@@ -198,11 +197,13 @@ class Test_callback_registry:
         return count1
 
     def is_empty(self):
+        np.testing.break_cycles()
         assert self.callbacks._func_cid_map == {}
         assert self.callbacks.callbacks == {}
         assert self.callbacks._pickled_cids == set()
 
     def is_not_empty(self):
+        np.testing.break_cycles()
         assert self.callbacks._func_cid_map != {}
         assert self.callbacks.callbacks != {}
 
@@ -361,6 +362,73 @@ def test_callbackregistry_custom_exception_handler(monkeypatch, cb, excp):
         cb.process('foo')
 
 
+def test_callbackregistry_signals():
+    cr = cbook.CallbackRegistry(signals=["foo"])
+    results = []
+    def cb(x): results.append(x)
+    cr.connect("foo", cb)
+    with pytest.raises(ValueError):
+        cr.connect("bar", cb)
+    cr.process("foo", 1)
+    with pytest.raises(ValueError):
+        cr.process("bar", 1)
+    assert results == [1]
+
+
+def test_callbackregistry_blocking():
+    # Needs an exception handler for interactive testing environments
+    # that would only print this out instead of raising the exception
+    def raise_handler(excp):
+        raise excp
+    cb = cbook.CallbackRegistry(exception_handler=raise_handler)
+    def test_func1():
+        raise ValueError("1 should be blocked")
+    def test_func2():
+        raise ValueError("2 should be blocked")
+    cb.connect("test1", test_func1)
+    cb.connect("test2", test_func2)
+
+    # block all of the callbacks to make sure they aren't processed
+    with cb.blocked():
+        cb.process("test1")
+        cb.process("test2")
+
+    # block individual callbacks to make sure the other is still processed
+    with cb.blocked(signal="test1"):
+        # Blocked
+        cb.process("test1")
+        # Should raise
+        with pytest.raises(ValueError, match="2 should be blocked"):
+            cb.process("test2")
+
+    # Make sure the original callback functions are there after blocking
+    with pytest.raises(ValueError, match="1 should be blocked"):
+        cb.process("test1")
+    with pytest.raises(ValueError, match="2 should be blocked"):
+        cb.process("test2")
+
+
+@pytest.mark.parametrize('line, result', [
+    ('a : no_comment', 'a : no_comment'),
+    ('a : "quoted str"', 'a : "quoted str"'),
+    ('a : "quoted str" # comment', 'a : "quoted str"'),
+    ('a : "#000000"', 'a : "#000000"'),
+    ('a : "#000000" # comment', 'a : "#000000"'),
+    ('a : ["#000000", "#FFFFFF"]', 'a : ["#000000", "#FFFFFF"]'),
+    ('a : ["#000000", "#FFFFFF"] # comment', 'a : ["#000000", "#FFFFFF"]'),
+    ('a : val  # a comment "with quotes"', 'a : val'),
+    ('# only comment "with quotes" xx', ''),
+])
+def test_strip_comment(line, result):
+    """Strip everything from the first unquoted #."""
+    assert cbook._strip_comment(line) == result
+
+
+def test_strip_comment_invalid():
+    with pytest.raises(ValueError, match="Missing closing quote"):
+        cbook._strip_comment('grid.color: "aa')
+
+
 def test_sanitize_sequence():
     d = {'a': 1, 'b': 2, 'c': 3}
     k = ['a', 'b', 'c']
@@ -374,32 +442,14 @@ def test_sanitize_sequence():
 
 
 fail_mapping = (
-    ({'a': 1}, {'forbidden': ('a')}),
-    ({'a': 1}, {'required': ('b')}),
-    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
-    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-    ({'a': 1, 'b': 2, 'c': 3},
-     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}),
 )
 
 pass_mapping = (
     (None, {}, {}),
     ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
     ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-    ({'b': 2}, {'a': 2},
-     {'alias_mapping': {'a': ['b']}, 'forbidden': ('b', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', ), 'allowed': ('c', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ('c', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ('a', 'c')}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ()}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c')}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'allowed': ('a', 'c')}),
 )
 
 
@@ -552,7 +602,7 @@ def test_flatiter():
     it = x.flat
     assert 0 == next(it)
     assert 1 == next(it)
-    ret = cbook.safe_first_element(it)
+    ret = cbook._safe_first_finite(it)
     assert ret == 0
 
     assert 0 == next(it)
@@ -592,6 +642,13 @@ def test_reshape2d():
     assert isinstance(xnew[0], np.ndarray) and xnew[0].shape == (1,)
     assert isinstance(xnew[1], np.ndarray) and xnew[1].shape == (1,)
     assert isinstance(xnew[2], np.ndarray) and xnew[2].shape == (1,)
+
+    # Test a list of zero-dimensional arrays
+    x = [np.array(0), np.array(1), np.array(2)]
+    xnew = cbook._reshape_2D(x, 'x')
+    assert isinstance(xnew, list)
+    assert len(xnew) == 1
+    assert isinstance(xnew[0], np.ndarray) and xnew[0].shape == (3,)
 
     # Now test with a list of lists with different lengths, which means the
     # array will internally be converted to a 1D object array of lists
@@ -644,12 +701,35 @@ def test_reshape2d_pandas(pd):
     for x, xnew in zip(X.T, Xnew):
         np.testing.assert_array_equal(x, xnew)
 
+
+def test_reshape2d_xarray(xr):
+    # separate to allow the rest of the tests to run if no xarray...
     X = np.arange(30).reshape(10, 3)
-    x = pd.DataFrame(X, columns=["a", "b", "c"])
+    x = xr.DataArray(X, dims=["x", "y"])
     Xnew = cbook._reshape_2D(x, 'x')
     # Need to check each row because _reshape_2D returns a list of arrays:
     for x, xnew in zip(X.T, Xnew):
         np.testing.assert_array_equal(x, xnew)
+
+
+def test_index_of_pandas(pd):
+    # separate to allow the rest of the tests to run if no pandas...
+    X = np.arange(30).reshape(10, 3)
+    x = pd.DataFrame(X, columns=["a", "b", "c"])
+    Idx, Xnew = cbook.index_of(x)
+    np.testing.assert_array_equal(X, Xnew)
+    IdxRef = np.arange(10)
+    np.testing.assert_array_equal(Idx, IdxRef)
+
+
+def test_index_of_xarray(xr):
+    # separate to allow the rest of the tests to run if no xarray...
+    X = np.arange(30).reshape(10, 3)
+    x = xr.DataArray(X, dims=["x", "y"])
+    Idx, Xnew = cbook.index_of(x)
+    np.testing.assert_array_equal(X, Xnew)
+    IdxRef = np.arange(10)
+    np.testing.assert_array_equal(Idx, IdxRef)
 
 
 def test_contiguous_regions():
@@ -678,7 +758,7 @@ def test_contiguous_regions():
 def test_safe_first_element_pandas_series(pd):
     # deliberately create a pandas series with index not starting from 0
     s = pd.Series(range(5), index=range(10, 15))
-    actual = cbook.safe_first_element(s)
+    actual = cbook._safe_first_finite(s)
     assert actual == 0
 
 
@@ -808,3 +888,26 @@ def test_format_approx():
     assert f(0.0012345600001, 5) == '0.00123'
     assert f(-0.0012345600001, 5) == '-0.00123'
     assert f(0.0012345600001, 8) == f(0.0012345600001, 10) == '0.00123456'
+
+
+def test_safe_first_element_with_none():
+    datetime_lst = [date.today() + timedelta(days=i) for i in range(10)]
+    datetime_lst[0] = None
+    actual = cbook._safe_first_finite(datetime_lst)
+    assert actual is not None and actual == datetime_lst[1]
+
+
+@pytest.mark.parametrize('fmt, value, result', [
+    ('%.2f m', 0.2, '0.20 m'),
+    ('{:.2f} m', 0.2, '0.20 m'),
+    ('{} m', 0.2, '0.2 m'),
+    ('const', 0.2, 'const'),
+    ('%d or {}', 0.2, '0 or {}'),
+    ('{{{:,.0f}}}', 2e5, '{200,000}'),
+    ('{:.2%}', 2/3, '66.67%'),
+    ('$%g', 2.54, '$2.54'),
+])
+def test_auto_format_str(fmt, value, result):
+    """Apply *value* to the format string *fmt*."""
+    assert cbook._auto_format_str(fmt, value) == result
+    assert cbook._auto_format_str(fmt, np.float64(value)) == result

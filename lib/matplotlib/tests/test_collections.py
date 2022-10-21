@@ -9,9 +9,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors
+import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
-                                    EventCollection, PolyCollection)
+                                    EventCollection, PolyCollection,
+                                    QuadMesh)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
@@ -291,19 +293,29 @@ def test_null_collection_datalim():
                        mtransforms.Bbox.null().get_points())
 
 
+def test_no_offsets_datalim():
+    # A collection with no offsets and a non transData
+    # transform should return a null bbox
+    ax = plt.axes()
+    coll = mcollections.PathCollection([mpath.Path([(0, 0), (1, 0)])])
+    ax.add_collection(coll)
+    coll_data_lim = coll.get_datalim(mtransforms.IdentityTransform())
+    assert_array_equal(coll_data_lim.get_points(),
+                       mtransforms.Bbox.null().get_points())
+
+
 def test_add_collection():
     # Test if data limits are unchanged by adding an empty collection.
     # GitHub issue #1490, pull #1497.
     plt.figure()
     ax = plt.axes()
-    coll = ax.scatter([0, 1], [0, 1])
-    ax.add_collection(coll)
+    ax.scatter([0, 1], [0, 1])
     bounds = ax.dataLim.bounds
-    coll = ax.scatter([], [])
+    ax.scatter([], [])
     assert ax.dataLim.bounds == bounds
 
 
-@pytest.mark.style('mpl20')
+@mpl.style.context('mpl20')
 @check_figures_equal(extensions=['png'])
 def test_collection_log_datalim(fig_test, fig_ref):
     # Data limits should respect the minimum x/y when using log scale.
@@ -373,11 +385,9 @@ def test_EllipseCollection():
     hh = Y / y[-1]
     aa = np.ones_like(ww) * 20  # first axis is 20 degrees CCW from x axis
 
-    ec = mcollections.EllipseCollection(ww, hh, aa,
-                                        units='x',
-                                        offsets=XY,
-                                        transOffset=ax.transData,
-                                        facecolors='none')
+    ec = mcollections.EllipseCollection(
+        ww, hh, aa, units='x', offsets=XY, offset_transform=ax.transData,
+        facecolors='none')
     ax.add_collection(ec)
     ax.autoscale_view()
 
@@ -429,7 +439,7 @@ def test_regularpolycollection_rotate():
     for xy, alpha in zip(xy_points, rotations):
         col = mcollections.RegularPolyCollection(
             4, sizes=(100,), rotation=alpha,
-            offsets=[xy], transOffset=ax.transData)
+            offsets=[xy], offset_transform=ax.transData)
         ax.add_collection(col, autolim=True)
     ax.autoscale_view()
 
@@ -457,8 +467,8 @@ def test_regularpolycollection_scale():
     xy = [(0, 0)]
     # Unit square has a half-diagonal of `1/sqrt(2)`, so `pi * r**2` equals...
     circle_areas = [np.pi / 2]
-    squares = SquareCollection(sizes=circle_areas, offsets=xy,
-                               transOffset=ax.transData)
+    squares = SquareCollection(
+        sizes=circle_areas, offsets=xy, offset_transform=ax.transData)
     ax.add_collection(squares, autolim=True)
     ax.axis([-1, 1, -1, 1])
 
@@ -471,6 +481,81 @@ def test_picking():
     found, indices = col.contains(mouse_event)
     assert found
     assert_array_equal(indices['ind'], [0])
+
+
+def test_quadmesh_contains():
+    x = np.arange(4)
+    X = x[:, None] * x[None, :]
+
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(X)
+    fig.draw_without_rendering()
+    xdata, ydata = 0.5, 0.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    found, indices = mesh.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
+
+    xdata, ydata = 1.5, 1.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    found, indices = mesh.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [5])
+
+
+def test_quadmesh_contains_concave():
+    # Test a concave polygon, V-like shape
+    x = [[0, -1], [1, 0]]
+    y = [[0, 1], [1, -1]]
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(x, y, [[0]])
+    fig.draw_without_rendering()
+    # xdata, ydata, expected
+    points = [(-0.5, 0.25, True),  # left wing
+              (0, 0.25, False),  # between the two wings
+              (0.5, 0.25, True),  # right wing
+              (0, -0.25, True),  # main body
+              ]
+    for point in points:
+        xdata, ydata, expected = point
+        x, y = mesh.get_transform().transform((xdata, ydata))
+        mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+        found, indices = mesh.contains(mouse_event)
+        assert found is expected
+
+
+def test_quadmesh_cursor_data():
+    x = np.arange(4)
+    X = x[:, None] * x[None, :]
+
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(X)
+    # Empty array data
+    mesh._A = None
+    fig.draw_without_rendering()
+    xdata, ydata = 0.5, 0.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    # Empty collection should return None
+    assert mesh.get_cursor_data(mouse_event) is None
+
+    # Now test adding the array data, to make sure we do get a value
+    mesh.set_array(np.ones((X.shape)))
+    assert_array_equal(mesh.get_cursor_data(mouse_event), [1])
+
+
+def test_quadmesh_cursor_data_multiple_points():
+    x = [1, 2, 1, 2]
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(x, x, np.ones((3, 3)))
+    fig.draw_without_rendering()
+    xdata, ydata = 1.5, 1.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    # All quads are covering the same square
+    assert_array_equal(mesh.get_cursor_data(mouse_event), np.ones(9))
 
 
 def test_linestyle_single_dashes():
@@ -486,10 +571,8 @@ def test_size_in_xy():
     widths = 10, 10
     coords = [(10, 10), (15, 15)]
     e = mcollections.EllipseCollection(
-        widths, heights, angles,
-        units='xy',
-        offsets=coords,
-        transOffset=ax.transData)
+        widths, heights, angles, units='xy',
+        offsets=coords, offset_transform=ax.transData)
 
     ax.add_collection(e)
 
@@ -514,7 +597,7 @@ def test_pandas_indexing(pd):
     Collection(antialiaseds=aa)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_lslw_bcast():
     col = mcollections.PathCollection([])
     col.set_linestyles(['-', '-'])
@@ -528,7 +611,7 @@ def test_lslw_bcast():
     assert (col.get_linewidths() == [1, 2, 3]).all()
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_capstyle():
     col = mcollections.PathCollection([], capstyle='round')
     assert col.get_capstyle() == 'round'
@@ -536,7 +619,7 @@ def test_capstyle():
     assert col.get_capstyle() == 'butt'
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_joinstyle():
     col = mcollections.PathCollection([], joinstyle='round')
     assert col.get_joinstyle() == 'round'
@@ -677,6 +760,22 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._codes, atp._codes)
 
 
+def test_collection_set_array():
+    vals = [*range(10)]
+
+    # Test set_array with list
+    c = Collection()
+    c.set_array(vals)
+
+    # Test set_array with wrong dtype
+    with pytest.raises(TypeError, match="^Image data of dtype"):
+        c.set_array("wrong_input")
+
+    # Test if array kwarg is copied
+    vals[5] = 45
+    assert np.not_equal(vals, c.get_array()).any()
+
+
 def test_blended_collection_autolim():
     a = [1, 2, 4]
     height = .2
@@ -698,6 +797,131 @@ def test_singleton_autolim():
     np.testing.assert_allclose(ax.get_xlim(), [-0.06, 0.06])
 
 
+@pytest.mark.parametrize("transform, expected", [
+    ("transData", (-0.5, 3.5)),
+    ("transAxes", (2.8, 3.2)),
+])
+def test_autolim_with_zeros(transform, expected):
+    # 1) Test that a scatter at (0, 0) data coordinates contributes to
+    # autoscaling even though any(offsets) would be False in that situation.
+    # 2) Test that specifying transAxes for the transform does not contribute
+    # to the autoscaling.
+    fig, ax = plt.subplots()
+    ax.scatter(0, 0, transform=getattr(ax, transform))
+    ax.scatter(3, 3)
+    np.testing.assert_allclose(ax.get_ylim(), expected)
+    np.testing.assert_allclose(ax.get_xlim(), expected)
+
+
+@pytest.mark.parametrize('flat_ref, kwargs', [
+    (True, {}),
+    (False, {}),
+    (True, dict(antialiased=False)),
+    (False, dict(transform='__initialization_delayed__')),
+])
+@check_figures_equal(extensions=['png'])
+def test_quadmesh_deprecated_signature(
+        fig_test, fig_ref, flat_ref, kwargs):
+    # test that the new and old quadmesh signature produce the same results
+    # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
+    x = [0, 1, 2, 3.]
+    y = [1, 2, 3.]
+    X, Y = np.meshgrid(x, y)
+    X += 0.2 * Y
+    coords = np.stack([X, Y], axis=-1)
+    assert coords.shape == (3, 4, 2)
+    C = np.linspace(0, 2, 6).reshape(2, 3)
+
+    ax = fig_test.add_subplot()
+    ax.set(xlim=(0, 5), ylim=(0, 4))
+    if 'transform' in kwargs:
+        kwargs['transform'] = mtransforms.Affine2D().scale(1.2) + ax.transData
+    qmesh = QuadMesh(coords, **kwargs)
+    qmesh.set_array(C)
+    ax.add_collection(qmesh)
+    assert qmesh._shading == 'flat'
+
+    ax = fig_ref.add_subplot()
+    ax.set(xlim=(0, 5), ylim=(0, 4))
+    if 'transform' in kwargs:
+        kwargs['transform'] = mtransforms.Affine2D().scale(1.2) + ax.transData
+    with pytest.warns(MatplotlibDeprecationWarning):
+        qmesh = QuadMesh(4 - 1, 3 - 1,
+                         coords.copy().reshape(-1, 2) if flat_ref else coords,
+                         **kwargs)
+    qmesh.set_array(C.flatten() if flat_ref else C)
+    ax.add_collection(qmesh)
+    assert qmesh._shading == 'flat'
+
+
+@check_figures_equal(extensions=['png'])
+def test_quadmesh_deprecated_positional(fig_test, fig_ref):
+    # test that positional parameters are still accepted with the old signature
+    # and work correctly
+    # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
+    from matplotlib.collections import QuadMesh
+
+    x = [0, 1, 2, 3.]
+    y = [1, 2, 3.]
+    X, Y = np.meshgrid(x, y)
+    X += 0.2 * Y
+    coords = np.stack([X, Y], axis=-1)
+    assert coords.shape == (3, 4, 2)
+    C = np.linspace(0, 2, 12).reshape(3, 4)
+
+    ax = fig_test.add_subplot()
+    ax.set(xlim=(0, 5), ylim=(0, 4))
+    qmesh = QuadMesh(coords, antialiased=False, shading='gouraud')
+    qmesh.set_array(C)
+    ax.add_collection(qmesh)
+
+    ax = fig_ref.add_subplot()
+    ax.set(xlim=(0, 5), ylim=(0, 4))
+    with pytest.warns(MatplotlibDeprecationWarning):
+        qmesh = QuadMesh(4 - 1, 3 - 1, coords.copy().reshape(-1, 2),
+                         False, 'gouraud')
+    qmesh.set_array(C)
+    ax.add_collection(qmesh)
+
+
+def test_quadmesh_set_array_validation():
+    x = np.arange(11)
+    y = np.arange(8)
+    z = np.random.random((7, 10))
+    fig, ax = plt.subplots()
+    coll = ax.pcolormesh(x, y, z)
+
+    # Test deprecated warning when faulty shape is passed.
+    with pytest.warns(MatplotlibDeprecationWarning):
+        coll.set_array(z.reshape(10, 7))
+
+    z = np.arange(54).reshape((6, 9))
+    with pytest.raises(TypeError, match=r"Dimensions of A \(6, 9\) "
+                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+        coll.set_array(z)
+    with pytest.raises(TypeError, match=r"Dimensions of A \(54,\) "
+                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+        coll.set_array(z.ravel())
+
+    x = np.arange(10)
+    y = np.arange(7)
+    z = np.random.random((7, 10))
+    fig, ax = plt.subplots()
+    coll = ax.pcolormesh(x, y, z, shading='gouraud')
+
+
+def test_quadmesh_get_coordinates():
+    x = [0, 1, 2]
+    y = [2, 4, 6]
+    z = np.ones(shape=(2, 2))
+    xx, yy = np.meshgrid(x, y)
+    coll = plt.pcolormesh(xx, yy, z)
+
+    # shape (3, 3, 2)
+    coords = np.stack([xx.T, yy.T]).T
+    assert_array_equal(coll.get_coordinates(), coords)
+
+
 def test_quadmesh_set_array():
     x = np.arange(4)
     y = np.arange(4)
@@ -714,11 +938,24 @@ def test_quadmesh_set_array():
     fig.canvas.draw()
     assert np.array_equal(coll.get_array(), np.ones(9))
 
+    z = np.arange(16).reshape((4, 4))
+    fig, ax = plt.subplots()
+    coll = ax.pcolormesh(x, y, np.ones(z.shape), shading='gouraud')
+    # Test that the collection is able to update with a 2d array
+    coll.set_array(z)
+    fig.canvas.draw()
+    assert np.array_equal(coll.get_array(), z)
+
+    # Check that pre-flattened arrays work too
+    coll.set_array(np.ones(16))
+    fig.canvas.draw()
+    assert np.array_equal(coll.get_array(), np.ones(16))
+
 
 def test_quadmesh_vmin_vmax():
     # test when vmin/vmax on the norm changes, the quadmesh gets updated
     fig, ax = plt.subplots()
-    cmap = mpl.cm.get_cmap('plasma')
+    cmap = mpl.colormaps['plasma']
     norm = mpl.colors.Normalize(vmin=0, vmax=1)
     coll = ax.pcolormesh([[1]], cmap=cmap, norm=norm)
     fig.canvas.draw()
@@ -791,7 +1028,7 @@ def test_legend_inverse_size_label_relationship():
     assert_array_almost_equal(handle_sizes, legend_sizes, decimal=1)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.parametrize('pcfunc', [plt.pcolor, plt.pcolormesh])
 def test_color_logic(pcfunc):
     z = np.arange(12).reshape(3, 4)
@@ -801,7 +1038,7 @@ def test_color_logic(pcfunc):
     # Define 2 reference "colors" here for multiple use.
     face_default = mcolors.to_rgba_array(pc._get_default_facecolor())
     mapped = pc.get_cmap()(pc.norm((z.ravel())))
-    # Github issue #1302:
+    # GitHub issue #1302:
     assert mcolors.same_color(pc.get_edgecolor(), 'red')
     # Check setting attributes after initialization:
     pc = pcfunc(z)
@@ -862,12 +1099,12 @@ def test_color_logic(pcfunc):
 
 
 def test_LineCollection_args():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        lc = LineCollection(None, 2.2, 'r', zorder=3, facecolors=[0, 1, 0, 1])
-        assert lc.get_linewidth()[0] == 2.2
-        assert mcolors.same_color(lc.get_edgecolor(), 'r')
-        assert lc.get_zorder() == 3
-        assert mcolors.same_color(lc.get_facecolor(), [[0, 1, 0, 1]])
+    lc = LineCollection(None, linewidth=2.2, edgecolor='r',
+                        zorder=3, facecolors=[0, 1, 0, 1])
+    assert lc.get_linewidth()[0] == 2.2
+    assert mcolors.same_color(lc.get_edgecolor(), 'r')
+    assert lc.get_zorder() == 3
+    assert mcolors.same_color(lc.get_facecolor(), [[0, 1, 0, 1]])
     # To avoid breaking mplot3d, LineCollection internally sets the facecolor
     # kwarg if it has not been specified.  Hence we need the following test
     # for LineCollection._set_default().
@@ -884,3 +1121,63 @@ def test_array_wrong_dimensions():
     pc = plt.pcolormesh(z)
     pc.set_array(z)  # 2D is OK for Quadmesh
     pc.update_scalarmappable()
+
+
+def test_get_segments():
+    segments = np.tile(np.linspace(0, 1, 256), (2, 1)).T
+    lc = LineCollection([segments])
+
+    readback, = lc.get_segments()
+    # these should comeback un-changed!
+    assert np.all(segments == readback)
+
+
+def test_set_offsets_late():
+    identity = mtransforms.IdentityTransform()
+    sizes = [2]
+
+    null = mcollections.CircleCollection(sizes=sizes)
+
+    init = mcollections.CircleCollection(sizes=sizes, offsets=(10, 10))
+
+    late = mcollections.CircleCollection(sizes=sizes)
+    late.set_offsets((10, 10))
+
+    # Bbox.__eq__ doesn't compare bounds
+    null_bounds = null.get_datalim(identity).bounds
+    init_bounds = init.get_datalim(identity).bounds
+    late_bounds = late.get_datalim(identity).bounds
+
+    # offsets and transform are applied when set after initialization
+    assert null_bounds != init_bounds
+    assert init_bounds == late_bounds
+
+
+def test_set_offset_transform():
+    skew = mtransforms.Affine2D().skew(2, 2)
+    init = mcollections.Collection(offset_transform=skew)
+
+    late = mcollections.Collection()
+    late.set_offset_transform(skew)
+
+    assert skew == init.get_offset_transform() == late.get_offset_transform()
+
+
+def test_set_offset_units():
+    # passing the offsets in initially (i.e. via scatter)
+    # should yield the same results as `set_offsets`
+    x = np.linspace(0, 10, 5)
+    y = np.sin(x)
+    d = x * np.timedelta64(24, 'h') + np.datetime64('2021-11-29')
+
+    sc = plt.scatter(d, y)
+    off0 = sc.get_offsets()
+    sc.set_offsets(list(zip(d, y)))
+    np.testing.assert_allclose(off0, sc.get_offsets())
+
+    # try the other way around
+    fig, ax = plt.subplots()
+    sc = ax.scatter(y, d)
+    off0 = sc.get_offsets()
+    sc.set_offsets(list(zip(y, d)))
+    np.testing.assert_allclose(off0, sc.get_offsets())

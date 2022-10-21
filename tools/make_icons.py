@@ -46,8 +46,8 @@ def save_icon(fig, dest_dir, name):
 def make_icon(font_path, ccode):
     fig = plt.figure(figsize=(1, 1))
     fig.patch.set_alpha(0.0)
-    text = fig.text(0.5, 0.48, chr(ccode), ha='center', va='center',
-                    font=font_path, fontsize=68)
+    fig.text(0.5, 0.48, chr(ccode), ha='center', va='center',
+             font=font_path, fontsize=68)
     return fig
 
 

@@ -1,8 +1,9 @@
 import base64
+import codecs
 import datetime
 import gzip
 import hashlib
-from io import BytesIO, StringIO, TextIOWrapper
+from io import BytesIO
 import itertools
 import logging
 import os
@@ -13,23 +14,19 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, cbook
+from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
-     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-     RendererBase)
+     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
-from matplotlib.font_manager import findfont, get_font
-from matplotlib.ft2font import LOAD_NO_HINTING
-from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 
+
 _log = logging.getLogger(__name__)
 
-backend_version = mpl.__version__
 
 # ----------------------------------------------------------------------
 # SimpleXMLWriter class
@@ -69,7 +66,12 @@ backend_version = mpl.__version__
 # --------------------------------------------------------------------
 
 
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_cdata")
 def escape_cdata(s):
+    return _escape_cdata(s)
+
+
+def _escape_cdata(s):
     s = s.replace("&", "&amp;")
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
@@ -79,12 +81,22 @@ def escape_cdata(s):
 _escape_xml_comment = re.compile(r'-(?=-)')
 
 
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_comment")
 def escape_comment(s):
-    s = escape_cdata(s)
+    return _escape_comment.sub(s)
+
+
+def _escape_comment(s):
+    s = _escape_cdata(s)
     return _escape_xml_comment.sub('- ', s)
 
 
+@_api.deprecated("3.6", alternative="a vendored copy of _escape_attrib")
 def escape_attrib(s):
+    return _escape_attrib(s)
+
+
+def _escape_attrib(s):
     s = s.replace("&", "&amp;")
     s = s.replace("'", "&apos;")
     s = s.replace('"', "&quot;")
@@ -93,7 +105,18 @@ def escape_attrib(s):
     return s
 
 
+def _quote_escape_attrib(s):
+    return ('"' + _escape_cdata(s) + '"' if '"' not in s else
+            "'" + _escape_cdata(s) + "'" if "'" not in s else
+            '"' + _escape_attrib(s) + '"')
+
+
+@_api.deprecated("3.6", alternative="a vendored copy of _short_float_fmt")
 def short_float_fmt(x):
+    return _short_float_fmt(x)
+
+
+def _short_float_fmt(x):
     """
     Create a short string representation of a float, which is %f
     formatting with trailing zeros and the decimal point removed.
@@ -127,7 +150,7 @@ class XMLWriter:
             self.__open = 0
         if self.__data:
             data = ''.join(self.__data)
-            self.__write(escape_cdata(data))
+            self.__write(_escape_cdata(data))
             self.__data = []
 
     def start(self, tag, attrib={}, **extra):
@@ -150,16 +173,16 @@ class XMLWriter:
         An element identifier.
         """
         self.__flush()
-        tag = escape_cdata(tag)
+        tag = _escape_cdata(tag)
         self.__data = []
         self.__tags.append(tag)
         self.__write(self.__indentation[:len(self.__tags) - 1])
         self.__write("<%s" % tag)
         for k, v in {**attrib, **extra}.items():
             if v:
-                k = escape_cdata(k)
-                v = escape_attrib(v)
-                self.__write(' %s="%s"' % (k, v))
+                k = _escape_cdata(k)
+                v = _quote_escape_attrib(v)
+                self.__write(' %s=%s' % (k, v))
         self.__open = 1
         return len(self.__tags) - 1
 
@@ -174,7 +197,7 @@ class XMLWriter:
         """
         self.__flush()
         self.__write(self.__indentation[:len(self.__tags)])
-        self.__write("<!-- %s -->\n" % escape_comment(comment))
+        self.__write("<!-- %s -->\n" % _escape_comment(comment))
 
     def data(self, text):
         """
@@ -200,7 +223,7 @@ class XMLWriter:
         """
         if tag:
             assert self.__tags, "unbalanced end(%s)" % tag
-            assert escape_cdata(tag) == self.__tags[-1], \
+            assert _escape_cdata(tag) == self.__tags[-1], \
                 "expected end(%s), got %s" % (self.__tags[-1], tag)
         else:
             assert self.__tags, "unbalanced end()"
@@ -244,35 +267,52 @@ class XMLWriter:
         pass  # replaced by the constructor
 
 
-def generate_transform(transform_list=[]):
-    if len(transform_list):
-        output = StringIO()
-        for type, value in transform_list:
-            if (type == 'scale' and (value == (1,) or value == (1, 1))
-                    or type == 'translate' and value == (0, 0)
-                    or type == 'rotate' and value == (0,)):
-                continue
-            if type == 'matrix' and isinstance(value, Affine2DBase):
-                value = value.to_values()
-            output.write('%s(%s)' % (
-                type, ' '.join(short_float_fmt(x) for x in value)))
-        return output.getvalue()
-    return ''
+def _generate_transform(transform_list):
+    parts = []
+    for type, value in transform_list:
+        if (type == 'scale' and (value == (1,) or value == (1, 1))
+                or type == 'translate' and value == (0, 0)
+                or type == 'rotate' and value == (0,)):
+            continue
+        if type == 'matrix' and isinstance(value, Affine2DBase):
+            value = value.to_values()
+        parts.append('%s(%s)' % (
+            type, ' '.join(_short_float_fmt(x) for x in value)))
+    return ' '.join(parts)
 
 
-def generate_css(attrib={}):
-    if attrib:
-        output = StringIO()
-        attrib = attrib.items()
-        for k, v in attrib:
-            k = escape_attrib(k)
-            v = escape_attrib(v)
-            output.write("%s:%s;" % (k, v))
-        return output.getvalue()
-    return ''
+@_api.deprecated("3.6")
+def generate_transform(transform_list=None):
+    return _generate_transform(transform_list or [])
+
+
+def _generate_css(attrib):
+    return "; ".join(f"{k}: {v}" for k, v in attrib.items())
+
+
+@_api.deprecated("3.6")
+def generate_css(attrib=None):
+    return _generate_css(attrib or {})
 
 
 _capstyle_d = {'projecting': 'square', 'butt': 'butt', 'round': 'round'}
+
+
+def _check_is_str(info, key):
+    if not isinstance(info, str):
+        raise TypeError(f'Invalid type for {key} metadata. Expected str, not '
+                        f'{type(info)}.')
+
+
+def _check_is_iterable_of_str(infos, key):
+    if np.iterable(infos):
+        for info in infos:
+            if not isinstance(info, str):
+                raise TypeError(f'Invalid type for {key} metadata. Expected '
+                                f'iterable of str, not {type(info)}.')
+    else:
+        raise TypeError(f'Invalid type for {key} metadata. Expected str or '
+                        f'iterable of str, not {type(infos)}.')
 
 
 class RendererSVG(RendererBase):
@@ -283,8 +323,13 @@ class RendererSVG(RendererBase):
         self.writer = XMLWriter(svgwriter)
         self.image_dpi = image_dpi  # actual dpi at which we rasterize stuff
 
-        self._groupd = {}
+        if basename is None:
+            basename = getattr(svgwriter, "name", "")
+            if not isinstance(basename, str):
+                basename = ""
         self.basename = basename
+
+        self._groupd = {}
         self._image_counter = itertools.count()
         self._clipd = {}
         self._markers = {}
@@ -295,8 +340,8 @@ class RendererSVG(RendererBase):
 
         super().__init__()
         self._glyph_map = dict()
-        str_height = short_float_fmt(height)
-        str_width = short_float_fmt(width)
+        str_height = _short_float_fmt(height)
+        str_width = _short_float_fmt(width)
         svgwriter.write(svgProlog)
         self._start_id = self.writer.start(
             'svg',
@@ -308,11 +353,6 @@ class RendererSVG(RendererBase):
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
-
-    @_api.deprecated("3.4")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser('SVG')
 
     def finalize(self):
         self._write_clips()
@@ -336,7 +376,9 @@ class RendererSVG(RendererBase):
         writer = self.writer
 
         if 'Title' in metadata:
-            writer.element('title', text=metadata['Title'])
+            title = metadata['Title']
+            _check_is_str(title, 'Title')
+            writer.element('title', text=title)
 
         # Special handling.
         date = metadata.get('Date', None)
@@ -353,14 +395,14 @@ class RendererSVG(RendererBase):
                     elif isinstance(d, (datetime.datetime, datetime.date)):
                         dates.append(d.isoformat())
                     else:
-                        raise ValueError(
-                            'Invalid type for Date metadata. '
-                            'Expected iterable of str, date, or datetime, '
-                            'not {!r}.'.format(type(d)))
+                        raise TypeError(
+                            f'Invalid type for Date metadata. '
+                            f'Expected iterable of str, date, or datetime, '
+                            f'not {type(d)}.')
             else:
-                raise ValueError('Invalid type for Date metadata. '
-                                 'Expected str, date, datetime, or iterable '
-                                 'of the same, not {!r}.'.format(type(date)))
+                raise TypeError(f'Invalid type for Date metadata. '
+                                f'Expected str, date, datetime, or iterable '
+                                f'of the same, not {type(date)}.')
             metadata['Date'] = '/'.join(dates)
         elif 'Date' not in metadata:
             # Do not add `Date` if the user explicitly set `Date` to `None`
@@ -392,36 +434,40 @@ class RendererSVG(RendererBase):
             writer.element('dc:type', attrib={'rdf:resource': uri})
 
         # Single value only.
-        for key in ['title', 'coverage', 'date', 'description', 'format',
-                    'identifier', 'language', 'relation', 'source']:
-            info = metadata.pop(key.title(), None)
+        for key in ['Title', 'Coverage', 'Date', 'Description', 'Format',
+                    'Identifier', 'Language', 'Relation', 'Source']:
+            info = metadata.pop(key, None)
             if info is not None:
                 mid = ensure_metadata(mid)
-                writer.element(f'dc:{key}', text=info)
+                _check_is_str(info, key)
+                writer.element(f'dc:{key.lower()}', text=info)
 
         # Multiple Agent values.
-        for key in ['creator', 'contributor', 'publisher', 'rights']:
-            agents = metadata.pop(key.title(), None)
+        for key in ['Creator', 'Contributor', 'Publisher', 'Rights']:
+            agents = metadata.pop(key, None)
             if agents is None:
                 continue
 
             if isinstance(agents, str):
                 agents = [agents]
 
+            _check_is_iterable_of_str(agents, key)
+            # Now we know that we have an iterable of str
             mid = ensure_metadata(mid)
-            writer.start(f'dc:{key}')
+            writer.start(f'dc:{key.lower()}')
             for agent in agents:
                 writer.start('cc:Agent')
                 writer.element('dc:title', text=agent)
                 writer.end('cc:Agent')
-            writer.end(f'dc:{key}')
+            writer.end(f'dc:{key.lower()}')
 
         # Multiple values.
         keywords = metadata.pop('Keywords', None)
         if keywords is not None:
             if isinstance(keywords, str):
                 keywords = [keywords]
-
+            _check_is_iterable_of_str(keywords, 'Keywords')
+            # Now we know that we have an iterable of str
             mid = ensure_metadata(mid)
             writer.start('dc:subject')
             writer.start('rdf:Bag')
@@ -439,7 +485,7 @@ class RendererSVG(RendererBase):
 
     def _write_default_style(self):
         writer = self.writer
-        default_style = generate_css({
+        default_style = _generate_css({
             'stroke-linejoin': 'round',
             'stroke-linecap': 'butt'})
         writer.start('defs')
@@ -456,18 +502,7 @@ class RendererSVG(RendererBase):
         return '%s%s' % (type, m.hexdigest()[:10])
 
     def _make_flip_transform(self, transform):
-        return (transform +
-                Affine2D()
-                .scale(1.0, -1.0)
-                .translate(0.0, self.height))
-
-    def _get_font(self, prop):
-        fname = findfont(prop)
-        font = get_font(fname)
-        font.clear()
-        size = prop.get_size_in_points()
-        font.set_size(size, 72.0)
-        return font
+        return transform + Affine2D().scale(1, -1).translate(0, self.height)
 
     def _get_hatch(self, gc, rgbFace):
         """
@@ -526,7 +561,7 @@ class RendererSVG(RendererBase):
             writer.element(
                 'path',
                 d=path_data,
-                style=generate_css(hatch_style)
+                style=_generate_css(hatch_style)
                 )
             writer.end('pattern')
         writer.end('defs')
@@ -541,7 +576,7 @@ class RendererSVG(RendererBase):
             attrib['fill'] = "url(#%s)" % self._get_hatch(gc, rgbFace)
             if (rgbFace is not None and len(rgbFace) == 4 and rgbFace[3] != 1.0
                     and not forced_alpha):
-                attrib['fill-opacity'] = short_float_fmt(rgbFace[3])
+                attrib['fill-opacity'] = _short_float_fmt(rgbFace[3])
         else:
             if rgbFace is None:
                 attrib['fill'] = 'none'
@@ -550,25 +585,25 @@ class RendererSVG(RendererBase):
                     attrib['fill'] = rgb2hex(rgbFace)
                 if (len(rgbFace) == 4 and rgbFace[3] != 1.0
                         and not forced_alpha):
-                    attrib['fill-opacity'] = short_float_fmt(rgbFace[3])
+                    attrib['fill-opacity'] = _short_float_fmt(rgbFace[3])
 
         if forced_alpha and gc.get_alpha() != 1.0:
-            attrib['opacity'] = short_float_fmt(gc.get_alpha())
+            attrib['opacity'] = _short_float_fmt(gc.get_alpha())
 
         offset, seq = gc.get_dashes()
         if seq is not None:
             attrib['stroke-dasharray'] = ','.join(
-                short_float_fmt(val) for val in seq)
-            attrib['stroke-dashoffset'] = short_float_fmt(float(offset))
+                _short_float_fmt(val) for val in seq)
+            attrib['stroke-dashoffset'] = _short_float_fmt(float(offset))
 
         linewidth = gc.get_linewidth()
         if linewidth:
             rgb = gc.get_rgb()
             attrib['stroke'] = rgb2hex(rgb)
             if not forced_alpha and rgb[3] != 1.0:
-                attrib['stroke-opacity'] = short_float_fmt(rgb[3])
+                attrib['stroke-opacity'] = _short_float_fmt(rgb[3])
             if linewidth != 1.0:
-                attrib['stroke-width'] = short_float_fmt(linewidth)
+                attrib['stroke-width'] = _short_float_fmt(linewidth)
             if gc.get_joinstyle() != 'round':
                 attrib['stroke-linejoin'] = gc.get_joinstyle()
             if gc.get_capstyle() != 'butt':
@@ -577,7 +612,7 @@ class RendererSVG(RendererBase):
         return attrib
 
     def _get_style(self, gc, rgbFace):
-        return generate_css(self._get_style_dict(gc, rgbFace))
+        return _generate_css(self._get_style_dict(gc, rgbFace))
 
     def _get_clip_attrs(self, gc):
         cliprect = gc.get_clip_rectangle()
@@ -618,10 +653,10 @@ class RendererSVG(RendererBase):
                 x, y, w, h = clip
                 writer.element(
                     'rect',
-                    x=short_float_fmt(x),
-                    y=short_float_fmt(y),
-                    width=short_float_fmt(w),
-                    height=short_float_fmt(h))
+                    x=_short_float_fmt(x),
+                    y=_short_float_fmt(y),
+                    width=_short_float_fmt(w),
+                    height=_short_float_fmt(h))
             writer.end('clipPath')
         writer.end('defs')
 
@@ -680,9 +715,9 @@ class RendererSVG(RendererBase):
             marker_trans + Affine2D().scale(1.0, -1.0),
             simplify=False)
         style = self._get_style_dict(gc, rgbFace)
-        dictkey = (path_data, generate_css(style))
+        dictkey = (path_data, _generate_css(style))
         oid = self._markers.get(dictkey)
-        style = generate_css({k: v for k, v in style.items()
+        style = _generate_css({k: v for k, v in style.items()
                               if k.startswith('stroke')})
 
         if oid is None:
@@ -700,14 +735,14 @@ class RendererSVG(RendererBase):
                 trans_and_flip, clip=clip, simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
-                attrib['x'] = short_float_fmt(x)
-                attrib['y'] = short_float_fmt(y)
+                attrib['x'] = _short_float_fmt(x)
+                attrib['y'] = _short_float_fmt(y)
                 attrib['style'] = self._get_style(gc, rgbFace)
                 writer.element('use', attrib=attrib)
         writer.end('g')
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
+                             offsets, offset_trans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         # Is the optimization worth it? Rough calculation:
@@ -723,7 +758,7 @@ class RendererSVG(RendererBase):
         if not should_do_optimization:
             return super().draw_path_collection(
                 gc, master_transform, paths, all_transforms,
-                offsets, offsetTrans, facecolors, edgecolors,
+                offsets, offset_trans, facecolors, edgecolors,
                 linewidths, linestyles, antialiaseds, urls,
                 offset_position)
 
@@ -741,8 +776,8 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-                gc, master_transform, all_transforms, path_codes, offsets,
-                offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+                gc, path_codes, offsets, offset_trans,
+                facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
             url = gc0.get_url()
             if url is not None:
@@ -752,8 +787,8 @@ class RendererSVG(RendererBase):
                 writer.start('g', **clip_attrs)
             attrib = {
                 'xlink:href': '#%s' % path_id,
-                'x': short_float_fmt(xo),
-                'y': short_float_fmt(self.height - yo),
+                'x': _short_float_fmt(xo),
+                'y': _short_float_fmt(self.height - yo),
                 'style': self._get_style(gc0, rgbFace)
                 }
             writer.element('use', attrib=attrib)
@@ -766,7 +801,9 @@ class RendererSVG(RendererBase):
 
     def draw_gouraud_triangle(self, gc, points, colors, trans):
         # docstring inherited
+        self._draw_gouraud_triangle(gc, points, colors, trans)
 
+    def _draw_gouraud_triangle(self, gc, points, colors, trans):
         # This uses a method described here:
         #
         #   http://www.svgopen.org/2005/papers/Converting3DFaceToSVG/index.html
@@ -835,18 +872,18 @@ class RendererSVG(RendererBase):
                 'linearGradient',
                 id="GR%x_%d" % (self._n_gradients, i),
                 gradientUnits="userSpaceOnUse",
-                x1=short_float_fmt(x1), y1=short_float_fmt(y1),
-                x2=short_float_fmt(xb), y2=short_float_fmt(yb))
+                x1=_short_float_fmt(x1), y1=_short_float_fmt(y1),
+                x2=_short_float_fmt(xb), y2=_short_float_fmt(yb))
             writer.element(
                 'stop',
                 offset='1',
-                style=generate_css({
+                style=_generate_css({
                     'stop-color': rgb2hex(avg_color),
-                    'stop-opacity': short_float_fmt(rgba_color[-1])}))
+                    'stop-opacity': _short_float_fmt(rgba_color[-1])}))
             writer.element(
                 'stop',
                 offset='0',
-                style=generate_css({'stop-color': rgb2hex(rgba_color),
+                style=_generate_css({'stop-color': rgb2hex(rgba_color),
                                     'stop-opacity': "0"}))
 
             writer.end('linearGradient')
@@ -854,9 +891,9 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
         # triangle formation using "path"
-        dpath = "M " + short_float_fmt(x1)+',' + short_float_fmt(y1)
-        dpath += " L " + short_float_fmt(x2) + ',' + short_float_fmt(y2)
-        dpath += " " + short_float_fmt(x3) + ',' + short_float_fmt(y3) + " Z"
+        dpath = "M " + _short_float_fmt(x1)+',' + _short_float_fmt(y1)
+        dpath += " L " + _short_float_fmt(x2) + ',' + _short_float_fmt(y2)
+        dpath += " " + _short_float_fmt(x3) + ',' + _short_float_fmt(y3) + " Z"
 
         writer.element(
             'path',
@@ -901,7 +938,7 @@ class RendererSVG(RendererBase):
         self.writer.start('g', **self._get_clip_attrs(gc))
         transform = transform.frozen()
         for tri, col in zip(triangles_array, colors_array):
-            self.draw_gouraud_triangle(gc, tri, col, transform)
+            self._draw_gouraud_triangle(gc, tri, col, transform)
         self.writer.end('g')
 
     def option_scale_image(self):
@@ -956,16 +993,16 @@ class RendererSVG(RendererBase):
 
             self.writer.element(
                 'image',
-                transform=generate_transform([
+                transform=_generate_transform([
                     ('scale', (1, -1)), ('translate', (0, -h))]),
-                x=short_float_fmt(x),
-                y=short_float_fmt(-(self.height - y - h)),
-                width=short_float_fmt(w), height=short_float_fmt(h),
+                x=_short_float_fmt(x),
+                y=_short_float_fmt(-(self.height - y - h)),
+                width=_short_float_fmt(w), height=_short_float_fmt(h),
                 attrib=attrib)
         else:
             alpha = gc.get_alpha()
             if alpha != 1.0:
-                attrib['opacity'] = short_float_fmt(alpha)
+                attrib['opacity'] = _short_float_fmt(alpha)
 
             flipped = (
                 Affine2D().scale(1.0 / w, 1.0 / h) +
@@ -975,14 +1012,14 @@ class RendererSVG(RendererBase):
                 .scale(1.0, -1.0)
                 .translate(0.0, self.height))
 
-            attrib['transform'] = generate_transform(
+            attrib['transform'] = _generate_transform(
                 [('matrix', flipped.frozen())])
             attrib['style'] = (
                 'image-rendering:crisp-edges;'
                 'image-rendering:pixelated')
             self.writer.element(
                 'image',
-                width=short_float_fmt(w), height=short_float_fmt(h),
+                width=_short_float_fmt(w), height=_short_float_fmt(h),
                 attrib=attrib)
 
         if url is not None:
@@ -1005,7 +1042,7 @@ class RendererSVG(RendererBase):
                     Path(vertices * 64, codes), simplify=False)
                 writer.element(
                     'path', id=char_id, d=path_data,
-                    transform=generate_transform([('scale', (1 / 64,))]))
+                    transform=_generate_transform([('scale', (1 / 64,))]))
             writer.end('defs')
             self._glyph_map.update(glyph_map_new)
 
@@ -1040,11 +1077,11 @@ class RendererSVG(RendererBase):
             style['fill'] = color
         alpha = gc.get_alpha() if gc.get_forced_alpha() else gc.get_rgb()[3]
         if alpha != 1:
-            style['opacity'] = short_float_fmt(alpha)
+            style['opacity'] = _short_float_fmt(alpha)
         font_scale = fontsize / text2path.FONT_SCALE
         attrib = {
-            'style': generate_css(style),
-            'transform': generate_transform([
+            'style': _generate_css(style),
+            'transform': _generate_transform([
                 ('translate', (x, y)),
                 ('rotate', (-angle,)),
                 ('scale', (font_scale, -font_scale))]),
@@ -1061,9 +1098,9 @@ class RendererSVG(RendererBase):
             for glyph_id, xposition, yposition, scale in glyph_info:
                 attrib = {'xlink:href': '#%s' % glyph_id}
                 if xposition != 0.0:
-                    attrib['x'] = short_float_fmt(xposition)
+                    attrib['x'] = _short_float_fmt(xposition)
                 if yposition != 0.0:
-                    attrib['y'] = short_float_fmt(yposition)
+                    attrib['y'] = _short_float_fmt(yposition)
                 writer.element('use', attrib=attrib)
 
         else:
@@ -1080,7 +1117,7 @@ class RendererSVG(RendererBase):
                 char_id = self._adjust_char_id(char_id)
                 writer.element(
                     'use',
-                    transform=generate_transform([
+                    transform=_generate_transform([
                         ('translate', (xposition, yposition)),
                         ('scale', (scale,)),
                         ]),
@@ -1103,20 +1140,50 @@ class RendererSVG(RendererBase):
 
         alpha = gc.get_alpha() if gc.get_forced_alpha() else gc.get_rgb()[3]
         if alpha != 1:
-            style['opacity'] = short_float_fmt(alpha)
+            style['opacity'] = _short_float_fmt(alpha)
 
         if not ismath:
-            font = self._get_font(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-
             attrib = {}
-            style['font-family'] = str(font.family_name)
-            style['font-weight'] = str(prop.get_weight()).lower()
-            style['font-stretch'] = str(prop.get_stretch()).lower()
-            style['font-style'] = prop.get_style().lower()
-            # Must add "px" to workaround a Firefox bug
-            style['font-size'] = short_float_fmt(prop.get_size()) + 'px'
-            attrib['style'] = generate_css(style)
+
+            font_parts = []
+            if prop.get_style() != 'normal':
+                font_parts.append(prop.get_style())
+            if prop.get_variant() != 'normal':
+                font_parts.append(prop.get_variant())
+            weight = fm.weight_dict[prop.get_weight()]
+            if weight != 400:
+                font_parts.append(f'{weight}')
+
+            def _normalize_sans(name):
+                return 'sans-serif' if name in ['sans', 'sans serif'] else name
+
+            def _expand_family_entry(fn):
+                fn = _normalize_sans(fn)
+                # prepend generic font families with all configured font names
+                if fn in fm.font_family_aliases:
+                    # get all of the font names and fix spelling of sans-serif
+                    # (we accept 3 ways CSS only supports 1)
+                    for name in fm.FontManager._expand_aliases(fn):
+                        yield _normalize_sans(name)
+                # whether a generic name or a family name, it must appear at
+                # least once
+                yield fn
+
+            def _get_all_quoted_names(prop):
+                # only quote specific names, not generic names
+                return [name if name in fm.font_family_aliases else repr(name)
+                        for entry in prop.get_family()
+                        for name in _expand_family_entry(entry)]
+
+            font_parts.extend([
+                f'{_short_float_fmt(prop.get_size())}px',
+                # ensure expansion, quoting, and dedupe of font names
+                ", ".join(dict.fromkeys(_get_all_quoted_names(prop)))
+            ])
+            style['font'] = ' '.join(font_parts)
+            if prop.get_stretch() != 'normal':
+                style['font-stretch'] = prop.get_stretch()
+            attrib['style'] = _generate_css(style)
 
             if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
                 # If text anchoring can be supported, get the original
@@ -1140,20 +1207,18 @@ class RendererSVG(RendererBase):
                                  'center': 'middle'}
                 style['text-anchor'] = ha_mpl_to_svg[mtext.get_ha()]
 
-                attrib['x'] = short_float_fmt(ax)
-                attrib['y'] = short_float_fmt(ay)
-                attrib['style'] = generate_css(style)
-                attrib['transform'] = "rotate(%s, %s, %s)" % (
-                    short_float_fmt(-angle),
-                    short_float_fmt(ax),
-                    short_float_fmt(ay))
-                writer.element('text', s, attrib=attrib)
+                attrib['x'] = _short_float_fmt(ax)
+                attrib['y'] = _short_float_fmt(ay)
+                attrib['style'] = _generate_css(style)
+                attrib['transform'] = _generate_transform([
+                    ("rotate", (-angle, ax, ay))])
+
             else:
-                attrib['transform'] = generate_transform([
+                attrib['transform'] = _generate_transform([
                     ('translate', (x, y)),
                     ('rotate', (-angle,))])
 
-                writer.element('text', s, attrib=attrib)
+            writer.element('text', s, attrib=attrib)
 
         else:
             writer.comment(s)
@@ -1164,8 +1229,8 @@ class RendererSVG(RendererBase):
             # Apply attributes to 'g', not 'text', because we likely have some
             # rectangles as well with the same style and transformation.
             writer.start('g',
-                         style=generate_css(style),
-                         transform=generate_transform([
+                         style=_generate_css(style),
+                         transform=_generate_transform([
                              ('translate', (x, y)),
                              ('rotate', (-angle,))]),
                          )
@@ -1175,11 +1240,22 @@ class RendererSVG(RendererBase):
             # Sort the characters by font, and output one tspan for each.
             spans = {}
             for font, fontsize, thetext, new_x, new_y in glyphs:
-                style = generate_css({
-                    'font-size': short_float_fmt(fontsize) + 'px',
-                    'font-family': font.family_name,
-                    'font-style': font.style_name.lower(),
-                    'font-weight': font.style_name.lower()})
+                entry = fm.ttfFontProperty(font)
+                font_parts = []
+                if entry.style != 'normal':
+                    font_parts.append(entry.style)
+                if entry.variant != 'normal':
+                    font_parts.append(entry.variant)
+                if entry.weight != 400:
+                    font_parts.append(f'{entry.weight}')
+                font_parts.extend([
+                    f'{_short_float_fmt(fontsize)}px',
+                    f'{entry.name!r}',  # ensure quoting
+                ])
+                style = {'font': ' '.join(font_parts)}
+                if entry.stretch != 'normal':
+                    style['font-stretch'] = entry.stretch
+                style = _generate_css(style)
                 if thetext == 32:
                     thetext = 0xa0  # non-breaking space
                 spans.setdefault(style, []).append((new_x, -new_y, thetext))
@@ -1194,7 +1270,7 @@ class RendererSVG(RendererBase):
 
                 attrib = {
                     'style': style,
-                    'x': ' '.join(short_float_fmt(c[0]) for c in chars),
+                    'x': ' '.join(_short_float_fmt(c[0]) for c in chars),
                     'y': ys
                     }
 
@@ -1208,17 +1284,13 @@ class RendererSVG(RendererBase):
             for x, y, width, height in rects:
                 writer.element(
                     'rect',
-                    x=short_float_fmt(x),
-                    y=short_float_fmt(-y-1),
-                    width=short_float_fmt(width),
-                    height=short_float_fmt(height)
+                    x=_short_float_fmt(x),
+                    y=_short_float_fmt(-y-1),
+                    width=_short_float_fmt(width),
+                    height=_short_float_fmt(height)
                     )
 
             writer.end('g')
-
-    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
-        # docstring inherited
-        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
@@ -1263,7 +1335,8 @@ class FigureCanvasSVG(FigureCanvasBase):
     fixed_dpi = 72
 
     @_api.delete_parameter("3.5", "args")
-    def print_svg(self, filename, *args, **kwargs):
+    def print_svg(self, filename, *args, bbox_inches_restore=None,
+                  metadata=None):
         """
         Parameters
         ----------
@@ -1296,53 +1369,30 @@ class FigureCanvasSVG(FigureCanvasBase):
             __ DC_
         """
         with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
-
-            filename = getattr(fh, 'name', '')
-            if not isinstance(filename, str):
-                filename = ''
-
-            if cbook.file_requires_unicode(fh):
-                detach = False
-            else:
-                fh = TextIOWrapper(fh, 'utf-8')
-                detach = True
-
-            self._print_svg(filename, fh, **kwargs)
-
-            # Detach underlying stream from wrapper so that it remains open in
-            # the caller.
-            if detach:
-                fh.detach()
+            if not cbook.file_requires_unicode(fh):
+                fh = codecs.getwriter('utf-8')(fh)
+            dpi = self.figure.dpi
+            self.figure.dpi = 72
+            width, height = self.figure.get_size_inches()
+            w, h = width * 72, height * 72
+            renderer = MixedModeRenderer(
+                self.figure, width, height, dpi,
+                RendererSVG(w, h, fh, image_dpi=dpi, metadata=metadata),
+                bbox_inches_restore=bbox_inches_restore)
+            self.figure.draw(renderer)
+            renderer.finalize()
 
     @_api.delete_parameter("3.5", "args")
     def print_svgz(self, filename, *args, **kwargs):
         with cbook.open_file_cm(filename, "wb") as fh, \
                 gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
-            return self.print_svg(gzipwriter)
-
-    @_check_savefig_extra_args
-    @_api.delete_parameter("3.4", "dpi")
-    def _print_svg(self, filename, fh, *, dpi=None, bbox_inches_restore=None,
-                   metadata=None):
-        if dpi is None:  # always use this branch after deprecation elapses.
-            dpi = self.figure.get_dpi()
-        self.figure.set_dpi(72)
-        width, height = self.figure.get_size_inches()
-        w, h = width * 72, height * 72
-
-        renderer = MixedModeRenderer(
-            self.figure, width, height, dpi,
-            RendererSVG(w, h, fh, filename, dpi, metadata=metadata),
-            bbox_inches_restore=bbox_inches_restore)
-
-        self.figure.draw(renderer)
-        renderer.finalize()
+            return self.print_svg(gzipwriter, **kwargs)
 
     def get_default_filetype(self):
         return 'svg'
 
     def draw(self):
-        self.figure.draw_no_output()
+        self.figure.draw_without_rendering()
         return super().draw()
 
 
@@ -1358,4 +1408,5 @@ svgProlog = """\
 
 @_Backend.export
 class _BackendSVG(_Backend):
+    backend_version = mpl.__version__
     FigureCanvas = FigureCanvasSVG

@@ -1,7 +1,7 @@
 .. _whats-new-1-3:
 
-New in matplotlib 1.3
-=====================
+What's new in Matplotlib 1.3 (Aug 01, 2013)
+===========================================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -96,21 +96,17 @@ to modify each artist's sketch parameters individually with
    :align: center
    :scale: 50
 
-   xkcd
-
 Updated Axes3D.contour methods
 ------------------------------
 Damon McDougall updated the
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontour` and
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontourf` methods to allow 3D
-contour plots on abitrary unstructured user-specified triangulations.
+contour plots on arbitrary unstructured user-specified triangulations.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_tricontour3d_001.png
    :target: ../../gallery/mplot3d/tricontour3d.html
    :align: center
    :scale: 50
-
-   Tricontour3d
 
 New eventplot plot type
 ```````````````````````
@@ -121,8 +117,6 @@ create multiple rows or columns of identical line segments
    :target: ../../gallery/lines_bars_and_markers/eventplot_demo.html
    :align: center
    :scale: 50
-
-   Eventplot Demo
 
 As part of this feature, there is a new
 :class:`~matplotlib.collections.EventCollection` class that allows for
@@ -146,8 +140,6 @@ added (:class:`~matplotlib.tri.TriAnalyzer`).
    :align: center
    :scale: 50
 
-   Tricontour Smooth User
-
 Baselines for stackplot
 ```````````````````````
 Till Stensitzki added non-zero baselines to
@@ -158,8 +150,6 @@ weighted.
    :target: ../../gallery/lines_bars_and_markers/stackplot_demo.html
    :align: center
    :scale: 50
-
-   Stackplot Demo2
 
 Rectangular colorbar extensions
 ```````````````````````````````
@@ -203,8 +193,6 @@ Thanks to Jae-Joon Lee, path effects now also work on plot lines.
    :target: ../../gallery/misc/patheffect_demo.html
    :align: center
    :scale: 50
-
-   Patheffect Demo
 
 Easier creation of colormap and normalizer for levels with colors
 `````````````````````````````````````````````````````````````````
@@ -299,7 +287,7 @@ hard-coded to default to 0, default value of both rcParam values is 0.
 
 Changes to font rcParams
 ````````````````````````
-The `font.*` rcParams now affect only text objects created after the
+The ``font.*`` rcParams now affect only text objects created after the
 rcParam has been set, and will not retroactively affect already
 existing text objects.  This brings their behavior in line with most
 other rcParams.
@@ -389,7 +377,7 @@ information.
 XDG base directory support
 ``````````````````````````
 On Linux, matplotlib now uses the `XDG base directory specification
-<http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_ to
+<https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_ to
 find the :file:`matplotlibrc` configuration file. :file:`matplotlibrc` should
 now be kept in :file:`~/.config/matplotlib`, rather than :file:`~/.matplotlib`.
 If your configuration is found in the old location, it will still be used, but

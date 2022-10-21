@@ -36,19 +36,26 @@ import matplotlib as mpl
 from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
-from .backend_webagg_core import TimerTornado
+from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
+    TimerAsyncio, TimerTornado)
 
 
+@mpl._api.deprecated("3.7")
 class ServerThread(threading.Thread):
     def run(self):
         tornado.ioloop.IOLoop.instance().start()
 
 
-webagg_server_thread = ServerThread()
+webagg_server_thread = threading.Thread(
+    target=lambda: tornado.ioloop.IOLoop.instance().start())
+
+
+class FigureManagerWebAgg(core.FigureManagerWebAgg):
+    _toolbar2_class = core.NavigationToolbar2WebAgg
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
-    pass
+    manager_class = FigureManagerWebAgg
 
 
 class WebAggApplication(tornado.web.Application):
@@ -299,10 +306,10 @@ def ipython_inline_display(figure):
 @_Backend.export
 class _BackendWebAgg(_Backend):
     FigureCanvas = FigureCanvasWebAgg
-    FigureManager = core.FigureManagerWebAgg
+    FigureManager = FigureManagerWebAgg
 
     @staticmethod
-    def show():
+    def show(*, block=None):
         WebAggApplication.initialize()
 
         url = "http://{address}:{port}{prefix}".format(

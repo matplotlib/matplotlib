@@ -1,6 +1,6 @@
 """
 ============
-MRI With EEG
+MRI with EEG
 ============
 
 Displays a set of subplots with an MRI image, its intensity
@@ -64,12 +64,11 @@ for i in range(n_rows):
 offsets = np.zeros((n_rows, 2), dtype=float)
 offsets[:, 1] = ticklocs
 
-lines = LineCollection(segs, offsets=offsets, transOffset=None)
+lines = LineCollection(segs, offsets=offsets, offset_transform=None)
 ax2.add_collection(lines)
 
 # Set the yticks to use axes coordinates on the y axis
-ax2.set_yticks(ticklocs)
-ax2.set_yticklabels(['PG3', 'PG5', 'PG7', 'PG9'])
+ax2.set_yticks(ticklocs, labels=['PG3', 'PG5', 'PG7', 'PG9'])
 
 ax2.set_xlabel('Time (s)')
 

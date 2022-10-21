@@ -18,18 +18,15 @@ environment:
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib --log-level=DEBUG
-    PINNEDVERS: "pyzmq!=21.0.0 pyzmq!=22.0.0"
+    PINNEDVERS: "pyzmq!=21.0.0,!=22.0.0"
 
   matrix:
-    # In theory we could use a single CONDA_INSTALL_LOCN because we construct
-    # the envs anyway. But using one for the right python version hopefully
-    # making things faster due to package caching.
-    - PYTHON_VERSION: "3.7"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
+    - PYTHON_VERSION: "3.8"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
       TEST_ALL: "no"
       EXTRAREQS: "-r requirements/testing/extra.txt"
-    - PYTHON_VERSION: "3.8"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
+    - PYTHON_VERSION: "3.9"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
       TEST_ALL: "no"
       EXTRAREQS: "-r requirements/testing/extra.txt"
 
@@ -55,11 +52,13 @@ install:
   - conda config --prepend channels conda-forge
 
   # For building, use a new environment
-  - conda create -q -n test-environment python=%PYTHON_VERSION% tk
+  - conda create -q -n test-environment python=%PYTHON_VERSION% tk "pip<22.0"
   - activate test-environment
   # pull pywin32 from conda because on py38 there is something wrong with finding
-  # the dlls when insalled from pip
+  # the dlls when installed from pip
   - conda install -c conda-forge pywin32
+  # install pyqt from conda-forge
+  - conda install -c conda-forge pyqt
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   # Install dependencies from PyPI.
   - python -m pip install --upgrade -r requirements/testing/all.txt %EXTRAREQS% %PINNEDVERS%

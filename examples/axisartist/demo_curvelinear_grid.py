@@ -27,24 +27,17 @@ def curvelinear_test1(fig):
     Grid for custom transform.
     """
 
-    def tr(x, y):
-        x, y = np.asarray(x), np.asarray(y)
-        return x, y - x
-
-    def inv_tr(x, y):
-        x, y = np.asarray(x), np.asarray(y)
-        return x, y + x
+    def tr(x, y): return x, y - x
+    def inv_tr(x, y): return x, y + x
 
     grid_helper = GridHelperCurveLinear((tr, inv_tr))
 
     ax1 = fig.add_subplot(1, 2, 1, axes_class=Axes, grid_helper=grid_helper)
-    # ax1 will have a ticks and gridlines defined by the given
-    # transform (+ transData of the Axes). Note that the transform of
-    # the Axes itself (i.e., transData) is not affected by the given
-    # transform.
-
-    xx, yy = tr([3, 6], [5, 10])
-    ax1.plot(xx, yy, linewidth=2.0)
+    # ax1 will have ticks and gridlines defined by the given transform (+
+    # transData of the Axes).  Note that the transform of the Axes itself
+    # (i.e., transData) is not affected by the given transform.
+    xx, yy = tr(np.array([3, 6]), np.array([5, 10]))
+    ax1.plot(xx, yy)
 
     ax1.set_aspect(1)
     ax1.set_xlim(0, 10)
@@ -102,7 +95,6 @@ def curvelinear_test2(fig):
     ax2 = ax1.get_aux_axes(tr)
     # note that ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.
-    ax1.parasites.append(ax2)
     ax2.plot(np.linspace(0, 30, 51), np.linspace(10, 10, 51), linewidth=2)
 
     ax2.pcolor(np.linspace(0, 90, 4), np.linspace(0, 10, 4),

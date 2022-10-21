@@ -322,15 +322,13 @@ def test_polar_interpolation_steps_constant_r(fig_test, fig_ref):
     # Check that an extra half-turn doesn't make any difference -- modulo
     # antialiasing, which we disable here.
     p1 = (fig_test.add_subplot(121, projection="polar")
-          .bar([0], [1], 3*np.pi, edgecolor="none"))
+          .bar([0], [1], 3*np.pi, edgecolor="none", antialiased=False))
     p2 = (fig_test.add_subplot(122, projection="polar")
-          .bar([0], [1], -3*np.pi, edgecolor="none"))
+          .bar([0], [1], -3*np.pi, edgecolor="none", antialiased=False))
     p3 = (fig_ref.add_subplot(121, projection="polar")
-          .bar([0], [1], 2*np.pi, edgecolor="none"))
+          .bar([0], [1], 2*np.pi, edgecolor="none", antialiased=False))
     p4 = (fig_ref.add_subplot(122, projection="polar")
-          .bar([0], [1], -2*np.pi, edgecolor="none"))
-    for p in [p1, p2, p3, p4]:
-        plt.setp(p, antialiased=False)
+          .bar([0], [1], -2*np.pi, edgecolor="none", antialiased=False))
 
 
 @check_figures_equal(extensions=["png"])
@@ -377,7 +375,7 @@ def test_default_thetalocator():
 
 def test_axvspan():
     ax = plt.subplot(projection="polar")
-    span = plt.axvspan(0, np.pi/4)
+    span = ax.axvspan(0, np.pi/4)
     assert span.get_path()._interpolation_steps > 1
 
 
@@ -394,3 +392,38 @@ def test_remove_shared_polar(fig_ref, fig_test):
         2, 2, sharey=True, subplot_kw={"projection": "polar"})
     for i in [0, 1, 3]:
         axs.flat[i].remove()
+
+
+def test_shared_polar_keeps_ticklabels():
+    fig, axs = plt.subplots(
+        2, 2, subplot_kw={"projection": "polar"}, sharex=True, sharey=True)
+    fig.canvas.draw()
+    assert axs[0, 1].xaxis.majorTicks[0].get_visible()
+    assert axs[0, 1].yaxis.majorTicks[0].get_visible()
+    fig, axs = plt.subplot_mosaic(
+        "ab\ncd", subplot_kw={"projection": "polar"}, sharex=True, sharey=True)
+    fig.canvas.draw()
+    assert axs["b"].xaxis.majorTicks[0].get_visible()
+    assert axs["b"].yaxis.majorTicks[0].get_visible()
+
+
+def test_axvline_axvspan_do_not_modify_rlims():
+    ax = plt.subplot(projection="polar")
+    ax.axvspan(0, 1)
+    ax.axvline(.5)
+    ax.plot([.1, .2])
+    assert ax.get_ylim() == (0, .2)
+
+
+def test_cursor_precision():
+    ax = plt.subplot(projection="polar")
+    # Higher radii correspond to higher theta-precisions.
+    assert ax.format_coord(0, 0) == "θ=0π (0°), r=0.000"
+    assert ax.format_coord(0, .1) == "θ=0.00π (0°), r=0.100"
+    assert ax.format_coord(0, 1) == "θ=0.000π (0.0°), r=1.000"
+    assert ax.format_coord(1, 0) == "θ=0.3π (57°), r=0.000"
+    assert ax.format_coord(1, .1) == "θ=0.32π (57°), r=0.100"
+    assert ax.format_coord(1, 1) == "θ=0.318π (57.3°), r=1.000"
+    assert ax.format_coord(2, 0) == "θ=0.6π (115°), r=0.000"
+    assert ax.format_coord(2, .1) == "θ=0.64π (115°), r=0.100"
+    assert ax.format_coord(2, 1) == "θ=0.637π (114.6°), r=1.000"

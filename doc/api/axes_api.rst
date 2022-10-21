@@ -27,18 +27,6 @@ The Axes class
    :no-undoc-members:
    :show-inheritance:
 
-
-Subplots
-========
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   SubplotBase
-   subplot_class_factory
-
 Plotting
 ========
 
@@ -295,7 +283,6 @@ Axis limits and direction
    Axes.get_ylim
 
    Axes.update_datalim
-   Axes.update_datalim_bounds
 
    Axes.set_xbound
    Axes.get_xbound
@@ -314,6 +301,7 @@ Axis labels, title, and legend
    Axes.get_xlabel
    Axes.set_ylabel
    Axes.get_ylabel
+   Axes.label_outer
 
    Axes.set_title
    Axes.get_title
@@ -485,6 +473,9 @@ Axes position
    Axes.get_axes_locator
    Axes.set_axes_locator
 
+   Axes.get_subplotspec
+   Axes.set_subplotspec
+
    Axes.reset_position
 
    Axes.get_position
@@ -607,3 +598,6 @@ Other
    Axes.get_default_bbox_extra_artists
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
+   Axes.set
+
+.. autoclass:: matplotlib.axes.Axes.ArtistList

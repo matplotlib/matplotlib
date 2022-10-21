@@ -2,7 +2,7 @@ from io import BytesIO
 import pytest
 import logging
 
-from matplotlib import afm
+from matplotlib import _afm
 from matplotlib import font_manager as fm
 
 
@@ -39,13 +39,13 @@ def test_nonascii_str():
     inp_str = "привет"
     byte_str = inp_str.encode("utf8")
 
-    ret = afm._to_str(byte_str)
+    ret = _afm._to_str(byte_str)
     assert ret == inp_str
 
 
 def test_parse_header():
     fh = BytesIO(AFM_TEST_DATA)
-    header = afm._parse_header(fh)
+    header = _afm._parse_header(fh)
     assert header == {
         b'StartFontMetrics': 2.0,
         b'FontName': 'MyFont-Bold',
@@ -66,8 +66,8 @@ def test_parse_header():
 
 def test_parse_char_metrics():
     fh = BytesIO(AFM_TEST_DATA)
-    afm._parse_header(fh)  # position
-    metrics = afm._parse_char_metrics(fh)
+    _afm._parse_header(fh)  # position
+    metrics = _afm._parse_char_metrics(fh)
     assert metrics == (
         {0: (250.0, 'space', [0, 0, 0, 0]),
          42: (1141.0, 'foo', [40, 60, 800, 360]),
@@ -81,13 +81,13 @@ def test_parse_char_metrics():
 
 def test_get_familyname_guessed():
     fh = BytesIO(AFM_TEST_DATA)
-    font = afm.AFM(fh)
+    font = _afm.AFM(fh)
     del font._header[b'FamilyName']  # remove FamilyName, so we have to guess
     assert font.get_familyname() == 'My Font'
 
 
 def test_font_manager_weight_normalization():
-    font = afm.AFM(BytesIO(
+    font = _afm.AFM(BytesIO(
         AFM_TEST_DATA.replace(b"Weight Bold\n", b"Weight Custom\n")))
     assert fm.afmFontProperty("", font).weight == "normal"
 
@@ -107,7 +107,7 @@ EncodingScheme FontSpecific""",
 def test_bad_afm(afm_data):
     fh = BytesIO(afm_data)
     with pytest.raises(RuntimeError):
-        afm._parse_header(fh)
+        _afm._parse_header(fh)
 
 
 @pytest.mark.parametrize(
@@ -132,6 +132,6 @@ StartCharMetrics 3""",
 def test_malformed_header(afm_data, caplog):
     fh = BytesIO(afm_data)
     with caplog.at_level(logging.ERROR):
-        afm._parse_header(fh)
+        _afm._parse_header(fh)
 
     assert len(caplog.records) == 1

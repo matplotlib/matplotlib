@@ -1,7 +1,7 @@
 """
-====================
-Demo Fixed Size Axes
-====================
+===============================
+Axes with a fixed physical size
+===============================
 """
 
 import matplotlib.pyplot as plt

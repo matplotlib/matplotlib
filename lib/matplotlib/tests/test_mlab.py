@@ -3,7 +3,7 @@ from numpy.testing import (assert_allclose, assert_almost_equal,
 import numpy as np
 import pytest
 
-import matplotlib.mlab as mlab
+from matplotlib import mlab, _api
 
 
 class TestStride:
@@ -12,6 +12,11 @@ class TestStride:
         while y.base is not None:
             y = y.base
         return y
+
+    @pytest.fixture(autouse=True)
+    def stride_is_deprecated(self):
+        with _api.suppress_matplotlib_deprecation_warning():
+            yield
 
     def calc_window_target(self, x, NFFT, noverlap=0, axis=0):
         """
@@ -92,7 +97,7 @@ def test_window():
 
 
 class TestDetrend:
-    def setup(self):
+    def setup_method(self):
         np.random.seed(0)
         n = 1000
         x = np.linspace(0., 100, n)
@@ -262,7 +267,7 @@ class TestDetrend:
         ([], 255, 33, -1, -1, None),
         ([], 256, 128, -1, 256, 256),
         ([], None, -1, 32, -1, -1),
-   ],
+    ],
     ids=[
         'nosig',
         'Fs4',
@@ -354,7 +359,7 @@ class TestSpectral:
                                              num=pad_to_spectrum_real // 2 + 1)
         else:
             # frequencies for specgram, psd, and csd
-            # need to handle even and odd differentl
+            # need to handle even and odd differently
             if pad_to_density_real % 2:
                 freqs_density = np.linspace(-Fs / 2, Fs / 2,
                                             num=2 * pad_to_density_real,

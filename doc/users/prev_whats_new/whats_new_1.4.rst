@@ -1,8 +1,8 @@
 .. _whats-new-1-4:
 
 
-New in matplotlib 1.4
-=====================
+What's new in Matplotlib 1.4 (Aug 25, 2014)
+===========================================
 
 Thomas A. Caswell served as the release manager for the 1.4 release.
 
@@ -20,7 +20,7 @@ New colormap
 ------------
 In heatmaps, a green-to-red spectrum is often used to indicate intensity of
 activity, but this can be problematic for the red/green colorblind. A new,
-colorblind-friendly colormap is now available at :class:`matplotlib.cm.Wistia`.
+colorblind-friendly colormap is now available at ``matplotlib.cm.Wistia``.
 This colormap maintains the red/green symbolism while achieving deuteranopic
 legibility through brightness variations. See
 `here <https://github.com/wistia/heatmap-palette>`__
@@ -142,7 +142,7 @@ Added the kwarg 'which' to `.Axes.get_xticklabels`,
 `.Axes.get_yticklabels` and
 `.Axis.get_ticklabels`.  'which' can be 'major', 'minor', or
 'both' select which ticks to return, like
-:func:`~matplotlib.Axis.set_ticks_position`.  If 'which' is `None` then the old
+`~.XAxis.set_ticks_position`.  If 'which' is `None` then the old
 behaviour (controlled by the bool *minor*).
 
 Separate horizontal/vertical axes padding support in ImageGrid
@@ -164,8 +164,6 @@ specifically the Skew-T used in meteorology.
    :target: ../../gallery/specialty_plots/skewt.html
    :align: center
    :scale: 50
-
-   Skewt
 
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
@@ -209,9 +207,9 @@ to their liking.
 This feature was implemented for a software engineering course at the
 University of Toronto, Scarborough, run in Winter 2014 by Anya Tafliovich.
 
-More `markevery` options to show only a subset of markers
+More *markevery* options to show only a subset of markers
 `````````````````````````````````````````````````````````
-Rohan Walker extended the `markevery` property in
+Rohan Walker extended the *markevery* property in
 :class:`~matplotlib.lines.Line2D`.  You can now specify a subset of markers to
 show with an int, slice object, numpy fancy indexing, or float. Using a float
 shows markers at approximately equal display-coordinate-distances along the
@@ -220,7 +218,7 @@ line.
 Added size related functions to specialized `.Collection`\s
 ```````````````````````````````````````````````````````````
 
-Added the `get_size` and `set_size` functions to control the size of
+Added the ``get_size`` and ``set_size`` functions to control the size of
 elements of specialized collections (
 :class:`~matplotlib.collections.AsteriskPolygonCollection`
 :class:`~matplotlib.collections.BrokenBarHCollection`
@@ -234,7 +232,7 @@ elements of specialized collections (
 Fixed the mouse coordinates giving the wrong theta value in Polar graph
 ```````````````````````````````````````````````````````````````````````
 Added code to
-:func:`~matplotlib.InvertedPolarTransform.transform_non_affine`
+`~.polar.InvertedPolarTransform.transform_non_affine`
 to ensure that the calculated theta value was between the range of 0 and 2 * pi
 since the problem was that the value can become negative after applying the
 direction and rotation to the theta calculation.
@@ -244,7 +242,7 @@ Simple quiver plot for mplot3d toolkit
 A team of students in an *Engineering Large Software Systems* course, taught
 by Prof. Anya Tafliovich at the University of Toronto, implemented a simple
 version of a quiver plot in 3D space for the mplot3d toolkit as one of their
-term project. This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.quiver`.
+term project. This feature is documented in `~.Axes3D.quiver`.
 The team members are: Ryan Steve D'Souza, Victor B, xbtsw, Yang Wang, David,
 Caradec Bisesar and Vlad Vassilovski.
 
@@ -252,8 +250,6 @@ Caradec Bisesar and Vlad Vassilovski.
    :target: ../../gallery/mplot3d/quiver3d.html
    :align: center
    :scale: 50
-
-   Quiver3d
 
 polar-plot r-tick locations
 ```````````````````````````

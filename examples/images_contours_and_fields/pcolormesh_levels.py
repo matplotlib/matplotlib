@@ -52,9 +52,8 @@ ax.pcolormesh(X, Y, Z)
 # Often a user wants to pass *X* and *Y* with the same sizes as *Z* to
 # `.axes.Axes.pcolormesh`. This is also allowed if ``shading='auto'`` is
 # passed (default set by :rc:`pcolor.shading`). Pre Matplotlib 3.3,
-# ``shading='flat'`` would drop the last column and row of *Z*; while that
-# is still allowed for back compatibility purposes, a DeprecationWarning is
-# raised. If this is really what you want, then simply drop the last row and
+# ``shading='flat'`` would drop the last column and row of *Z*, but now gives
+# an error. If this is really what you want, then simply drop the last row and
 # column of Z manually:
 
 x = np.arange(10)  # len = 10
@@ -94,7 +93,7 @@ levels = MaxNLocator(nbins=15).tick_values(z.min(), z.max())
 
 # pick the desired colormap, sensible levels, and define a normalization
 # instance which takes data values and translates those into levels.
-cmap = plt.get_cmap('PiYG')
+cmap = plt.colormaps['PiYG']
 norm = BoundaryNorm(levels, ncolors=cmap.N, clip=True)
 
 fig, (ax0, ax1) = plt.subplots(nrows=2)

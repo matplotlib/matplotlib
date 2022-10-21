@@ -1,6 +1,7 @@
+.. _whats-new-3-1-0:
 
-What's new in Matplotlib 3.1
-============================
+What's new in Matplotlib 3.1 (May 18, 2019)
+===========================================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
@@ -168,7 +169,7 @@ Return type of ArtistInspector.get_aliases changed
 was used to simulate a set in earlier versions of Python.  It has now been
 replaced by a set, i.e. ``{fullname: {alias1, alias2, ...}}``.
 
-This value is also stored in `.ArtistInspector.aliasd`, which has likewise
+This value is also stored in ``ArtistInspector.aliasd``, which has likewise
 changed.
 
 
@@ -332,7 +333,7 @@ were previously displayed as ``1e+04``.
 MouseEvent button attribute is now an IntEnum
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :attr:`button` attribute of `~.MouseEvent` instances can take the values
+The ``button`` attribute of `~.MouseEvent` instances can take the values
 None, 1 (left button), 2 (middle button), 3 (right button), "up" (scroll), and
 "down" (scroll).  For better legibility, the 1, 2, and 3 values are now
 represented using the `enum.IntEnum` class `matplotlib.backend_bases.MouseButton`,

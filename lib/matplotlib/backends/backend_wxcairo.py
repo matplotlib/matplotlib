@@ -1,17 +1,20 @@
 import wx.lib.wxcairo as wxcairo
 
-from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
-from .backend_wx import (
-    _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
+from .. import _api
+from .backend_cairo import cairo, FigureCanvasCairo
+from .backend_wx import _BackendWx, _FigureCanvasWxBase, FigureFrameWx
+from .backend_wx import (  # noqa: F401 # pylint: disable=W0611
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
 
 
+@_api.deprecated(
+    "3.6", alternative="FigureFrameWx(..., canvas_class=FigureCanvasWxCairo)")
 class FigureFrameWxCairo(FigureFrameWx):
     def get_canvas(self, fig):
         return FigureCanvasWxCairo(self, -1, fig)
 
 
-class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
+class FigureCanvasWxCairo(FigureCanvasCairo, _FigureCanvasWxBase):
     """
     The FigureCanvas contains the figure and does event handling.
 
@@ -21,20 +24,11 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
     we give a hint as to our preferred minimum size.
     """
 
-    def __init__(self, parent, id, figure):
-        # _FigureCanvasWxBase should be fixed to have the same signature as
-        # every other FigureCanvas and use cooperative inheritance, but in the
-        # meantime the following will make do.
-        _FigureCanvasWxBase.__init__(self, parent, id, figure)
-        FigureCanvasCairo.__init__(self, figure)
-        self._renderer = RendererCairo(self.figure.dpi)
-
     def draw(self, drawDC=None):
-        width = int(self.figure.bbox.width)
-        height = int(self.figure.bbox.height)
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-        self._renderer.set_ctx_from_surface(surface)
-        self._renderer.set_width_height(width, height)
+        size = self.figure.bbox.size.astype(int)
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, *size)
+        self._renderer.set_context(cairo.Context(surface))
+        self._renderer.dpi = self.figure.dpi
         self.figure.draw(self._renderer)
         self.bitmap = wxcairo.BitmapFromImageSurface(surface)
         self._isDrawn = True
@@ -44,4 +38,3 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
 @_BackendWx.export
 class _BackendWxCairo(_BackendWx):
     FigureCanvas = FigureCanvasWxCairo
-    _frame_class = FigureFrameWxCairo

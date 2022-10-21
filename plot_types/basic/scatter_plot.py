@@ -1,24 +1,27 @@
 """
-==================
-scatter(X, Y, ...)
-==================
+=============
+scatter(x, y)
+=============
+
+See `~matplotlib.axes.Axes.scatter`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use('mpl_plot_gallery')
+plt.style.use('_mpl-gallery')
 
 # make the data
 np.random.seed(3)
-X = 4 + np.random.normal(0, 2, 24)
-Y = 4 + np.random.normal(0, 2, len(X))
+x = 4 + np.random.normal(0, 2, 24)
+y = 4 + np.random.normal(0, 2, len(x))
 # size and color:
-S = np.random.uniform(15, 80, len(X))
+sizes = np.random.uniform(15, 80, len(x))
+colors = np.random.uniform(15, 80, len(x))
 
 # plot
 fig, ax = plt.subplots()
 
-ax.scatter(X, Y, s=S, c=-S, cmap=plt.get_cmap('Blues'), vmin=-100, vmax=0)
+ax.scatter(x, y, s=sizes, c=colors, vmin=0, vmax=100)
 
 ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
        ylim=(0, 8), yticks=np.arange(1, 8))

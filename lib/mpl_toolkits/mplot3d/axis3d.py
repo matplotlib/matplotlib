@@ -2,15 +2,27 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
+import inspect
+
 import numpy as np
 
-import matplotlib.transforms as mtransforms
+import matplotlib as mpl
 from matplotlib import (
-    artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
+    _api, artist, lines as mlines, axis as maxis, patches as mpatches,
+    transforms as mtransforms, colors as mcolors)
 from . import art3d, proj3d
 
 
+@_api.deprecated("3.6", alternative="a vendored copy of _move_from_center")
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
+    """
+    For each coordinate where *axmask* is True, move *coord* away from
+    *centers* by *deltas*.
+    """
+    return _move_from_center(coord, centers, deltas, axmask=axmask)
+
+
+def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     """
     For each coordinate where *axmask* is True, move *coord* away from
     *centers* by *deltas*.
@@ -19,7 +31,13 @@ def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
+@_api.deprecated("3.6", alternative="a vendored copy of _tick_update_position")
 def tick_update_position(tick, tickxs, tickys, labelpos):
+    """Update tick line and label position and style."""
+    _tick_update_position(tick, tickxs, tickys, labelpos)
+
+
+def _tick_update_position(tick, tickxs, tickys, labelpos):
     """Update tick line and label position and style."""
 
     tick.label1.set_position(labelpos)
@@ -36,9 +54,9 @@ class Axis(maxis.XAxis):
     """An Axis class for the 3D plots."""
     # These points from the unit cube make up the x, y and z-planes
     _PLANES = (
-        (0, 3, 7, 4), (1, 2, 6, 5),     # yz planes
-        (0, 1, 5, 4), (3, 2, 6, 7),     # xz planes
-        (0, 1, 2, 3), (4, 5, 6, 7),     # xy planes
+        (0, 3, 7, 4), (1, 2, 6, 5),  # yz planes
+        (0, 1, 5, 4), (3, 2, 6, 7),  # xz planes
+        (0, 1, 2, 3), (4, 5, 6, 7),  # xy planes
     )
 
     # Some properties for the axes
@@ -51,23 +69,43 @@ class Axis(maxis.XAxis):
               'color': (0.925, 0.925, 0.925, 0.5)},
     }
 
-    def __init__(self, adir, v_intervalx, d_intervalx, axes, *args,
-                 rotate_label=None, **kwargs):
-        # adir identifies which axes this is
-        self.adir = adir
+    def _old_init(self, adir, v_intervalx, d_intervalx, axes, *args,
+                  rotate_label=None, **kwargs):
+        return locals()
+
+    def _new_init(self, axes, *, rotate_label=None, **kwargs):
+        return locals()
+
+    def __init__(self, *args, **kwargs):
+        params = _api.select_matching_signature(
+            [self._old_init, self._new_init], *args, **kwargs)
+        if "adir" in params:
+            _api.warn_deprecated(
+                "3.6", message=f"The signature of 3D Axis constructors has "
+                f"changed in %(since)s; the new signature is "
+                f"{inspect.signature(type(self).__init__)}", pending=True)
+            if params["adir"] != self.axis_name:
+                raise ValueError(f"Cannot instantiate {type(self).__name__} "
+                                 f"with adir={params['adir']!r}")
+        axes = params["axes"]
+        rotate_label = params["rotate_label"]
+        args = params.get("args", ())
+        kwargs = params["kwargs"]
+
+        name = self.axis_name
 
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
-        self._axinfo = self._AXINFO[adir].copy()
-        if rcParams['_internal.classic_mode']:
+        self._axinfo = self._AXINFO[name].copy()
+        if mpl.rcParams['_internal.classic_mode']:
             self._axinfo.update({
                 'label': {'va': 'center', 'ha': 'center'},
                 'tick': {
                     'inward_factor': 0.2,
                     'outward_factor': 0.1,
                     'linewidth': {
-                        True: rcParams['lines.linewidth'],  # major
-                        False: rcParams['lines.linewidth'],  # minor
+                        True: mpl.rcParams['lines.linewidth'],  # major
+                        False: mpl.rcParams['lines.linewidth'],  # minor
                     }
                 },
                 'axisline': {'linewidth': 0.75, 'color': (0, 0, 0, 1)},
@@ -85,32 +123,39 @@ class Axis(maxis.XAxis):
                     'outward_factor': 0.1,
                     'linewidth': {
                         True: (  # major
-                            rcParams['xtick.major.width'] if adir in 'xz' else
-                            rcParams['ytick.major.width']),
+                            mpl.rcParams['xtick.major.width'] if name in 'xz'
+                            else mpl.rcParams['ytick.major.width']),
                         False: (  # minor
-                            rcParams['xtick.minor.width'] if adir in 'xz' else
-                            rcParams['ytick.minor.width']),
+                            mpl.rcParams['xtick.minor.width'] if name in 'xz'
+                            else mpl.rcParams['ytick.minor.width']),
                     }
                 },
                 'axisline': {
-                    'linewidth': rcParams['axes.linewidth'],
-                    'color': rcParams['axes.edgecolor'],
+                    'linewidth': mpl.rcParams['axes.linewidth'],
+                    'color': mpl.rcParams['axes.edgecolor'],
                 },
                 'grid': {
-                    'color': rcParams['grid.color'],
-                    'linewidth': rcParams['grid.linewidth'],
-                    'linestyle': rcParams['grid.linestyle'],
+                    'color': mpl.rcParams['grid.color'],
+                    'linewidth': mpl.rcParams['grid.linewidth'],
+                    'linestyle': mpl.rcParams['grid.linestyle'],
                 },
             })
 
         super().__init__(axes, *args, **kwargs)
 
         # data and viewing intervals for this direction
-        self.d_interval = d_intervalx
-        self.v_interval = v_intervalx
+        if "d_intervalx" in params:
+            self.set_data_interval(*params["d_intervalx"])
+        if "v_intervalx" in params:
+            self.set_view_interval(*params["v_intervalx"])
         self.set_rotate_label(rotate_label)
+        self._init3d()  # Inline after init3d deprecation elapses.
 
-    def init3d(self):
+    __init__.__signature__ = inspect.signature(_new_init)
+    adir = _api.deprecated("3.6", pending=True)(
+        property(lambda self: self.axis_name))
+
+    def _init3d(self):
         self.line = mlines.Line2D(
             xdata=(0, 0), ydata=(0, 0),
             linewidth=self._axinfo['axisline']['linewidth'],
@@ -119,8 +164,7 @@ class Axis(maxis.XAxis):
 
         # Store dummy data in Polygon object
         self.pane = mpatches.Polygon(
-            np.array([[0, 0], [0, 1], [1, 0], [0, 0]]),
-            closed=False, alpha=0.8, facecolor='k', edgecolor='k')
+            np.array([[0, 0], [0, 1]]), closed=False)
         self.set_pane_color(self._axinfo['color'])
 
         self.axes._set_artist_props(self.line)
@@ -132,6 +176,10 @@ class Axis(maxis.XAxis):
         # Need to be able to place the label at the correct location
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
+
+    @_api.deprecated("3.6", pending=True)
+    def init3d(self):  # After deprecation elapses, inline _init3d to __init__.
+        self._init3d()
 
     def get_major_ticks(self, numticks=None):
         ticks = super().get_major_ticks(numticks)
@@ -149,14 +197,28 @@ class Axis(maxis.XAxis):
                 obj.set_transform(self.axes.transData)
         return ticks
 
+    @_api.deprecated("3.6")
     def set_pane_pos(self, xys):
+        self._set_pane_pos(xys)
+
+    def _set_pane_pos(self, xys):
         xys = np.asarray(xys)
         xys = xys[:, :2]
         self.pane.xy = xys
         self.stale = True
 
-    def set_pane_color(self, color):
-        """Set pane color to a RGBA tuple."""
+    def set_pane_color(self, color, alpha=None):
+        """
+        Set pane color.
+
+        Parameters
+        ----------
+        color : color
+            Color for axis pane.
+        alpha : float, optional
+            Alpha value for axis pane. If None, base it on *color*.
+        """
+        color = mcolors.to_rgba(color, alpha)
         self._axinfo['color'] = color
         self.pane.set_edgecolor(color)
         self.pane.set_facecolor(color)
@@ -183,18 +245,79 @@ class Axis(maxis.XAxis):
             self.axes.get_ybound(),
             self.axes.get_zbound(),
         ]).T
-        centers = (maxs + mins) / 2.
-        deltas = (maxs - mins) / 12.
-        mins = mins - deltas / 4.
-        maxs = maxs + deltas / 4.
 
-        vals = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
-        tc = self.axes.tunit_cube(vals, self.axes.M)
-        avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2]
-                for p1, p2, p3, p4 in self._PLANES]
-        highs = np.array([avgz[2*i] < avgz[2*i+1] for i in range(3)])
+        # Get the mean value for each bound:
+        centers = 0.5 * (maxs + mins)
 
-        return mins, maxs, centers, deltas, tc, highs
+        # Add a small offset between min/max point and the edge of the
+        # plot:
+        deltas = (maxs - mins) / 12
+        mins -= 0.25 * deltas
+        maxs += 0.25 * deltas
+
+        # Project the bounds along the current position of the cube:
+        bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
+        bounds_proj = self.axes.tunit_cube(bounds, self.axes.M)
+
+        # Determine which one of the parallel planes are higher up:
+        means_z0 = np.zeros(3)
+        means_z1 = np.zeros(3)
+        for i in range(3):
+            means_z0[i] = np.mean(bounds_proj[self._PLANES[2 * i], 2])
+            means_z1[i] = np.mean(bounds_proj[self._PLANES[2 * i + 1], 2])
+        highs = means_z0 < means_z1
+
+        # Special handling for edge-on views
+        equals = np.abs(means_z0 - means_z1) <= np.finfo(float).eps
+        if np.sum(equals) == 2:
+            vertical = np.where(~equals)[0][0]
+            if vertical == 2:  # looking at XY plane
+                highs = np.array([True, True, highs[2]])
+            elif vertical == 1:  # looking at XZ plane
+                highs = np.array([True, highs[1], False])
+            elif vertical == 0:  # looking at YZ plane
+                highs = np.array([highs[0], False, False])
+
+        return mins, maxs, centers, deltas, bounds_proj, highs
+
+    def _get_axis_line_edge_points(self, minmax, maxmin):
+        """Get the edge points for the black bolded axis line."""
+        # When changing vertical axis some of the axes has to be
+        # moved to the other plane so it looks the same as if the z-axis
+        # was the vertical axis.
+        mb = [minmax, maxmin]
+        mb_rev = mb[::-1]
+        mm = [[mb, mb_rev, mb_rev], [mb_rev, mb_rev, mb], [mb, mb, mb]]
+        mm = mm[self.axes._vertical_axis][self._axinfo["i"]]
+
+        juggled = self._axinfo["juggled"]
+        edge_point_0 = mm[0].copy()
+        edge_point_0[juggled[0]] = mm[1][juggled[0]]
+
+        edge_point_1 = edge_point_0.copy()
+        edge_point_1[juggled[1]] = mm[1][juggled[1]]
+
+        return edge_point_0, edge_point_1
+
+    def _get_tickdir(self):
+        """
+        Get the direction of the tick.
+
+        Returns
+        -------
+        tickdir : int
+            Index which indicates which coordinate the tick line will
+            align with.
+        """
+        # TODO: Move somewhere else where it's triggered less:
+        tickdirs_base = [v["tickdir"] for v in self._AXINFO.values()]
+        info_i = [v["i"] for v in self._AXINFO.values()]
+
+        i = self._axinfo["i"]
+        j = self.axes._vertical_axis - 2
+        # tickdir = [[1, 2, 1], [2, 2, 0], [1, 0, 0]][i]
+        tickdir = np.roll(info_i, -j)[np.roll(tickdirs_base, j)][i]
+        return tickdir
 
     def draw_pane(self, renderer):
         renderer.open_group('pane3d', gid=self.get_gid())
@@ -208,7 +331,7 @@ class Axis(maxis.XAxis):
         else:
             plane = self._PLANES[2 * index + 1]
         xys = [tc[p] for p in plane]
-        self.set_pane_pos(xys)
+        self._set_pane_pos(xys)
         self.pane.draw(renderer)
 
         renderer.close_group('pane3d')
@@ -216,35 +339,29 @@ class Axis(maxis.XAxis):
     @artist.allow_rasterization
     def draw(self, renderer):
         self.label._transform = self.axes.transData
-        renderer.open_group('axis3d', gid=self.get_gid())
+        renderer.open_group("axis3d", gid=self.get_gid())
 
         ticks = self._update_ticks()
 
+        # Get general axis information:
         info = self._axinfo
-        index = info['i']
+        index = info["i"]
+        juggled = info["juggled"]
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
-        # Determine grid lines
         minmax = np.where(highs, maxs, mins)
-        maxmin = np.where(highs, mins, maxs)
+        maxmin = np.where(~highs, maxs, mins)
 
-        # Draw main axis line
-        juggled = info['juggled']
-        edgep1 = minmax.copy()
-        edgep1[juggled[0]] = maxmin[juggled[0]]
+        # Create edge points for the black bolded axis line:
+        edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
 
-        edgep2 = edgep1.copy()
-        edgep2[juggled[1]] = maxmin[juggled[1]]
-        pep = np.asarray(
-            proj3d.proj_trans_points([edgep1, edgep2], self.axes.M))
-        centpt = proj3d.proj_transform(*centers, self.axes.M)
+        # Project the edge points along the current position and
+        # create the line:
+        pep = proj3d.proj_trans_points([edgep1, edgep2], self.axes.M)
+        pep = np.asarray(pep)
         self.line.set_data(pep[0], pep[1])
         self.line.draw(renderer)
-
-        # Grid points where the planes meet
-        xyz0 = np.tile(minmax, (len(ticks), 1))
-        xyz0[:, index] = [tick.get_loc() for tick in ticks]
 
         # Draw labels
         # The transAxes transform is used because the Text object
@@ -269,7 +386,7 @@ class Axis(maxis.XAxis):
             (self.labelpad + default_offset) * deltas_per_point * deltas)
         axmask = [True, True, True]
         axmask[index] = False
-        lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
+        lxyz = _move_from_center(lxyz, centers, labeldeltas, axmask)
         tlx, tly, tlz = proj3d.proj_transform(*lxyz, self.axes.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
@@ -290,7 +407,7 @@ class Axis(maxis.XAxis):
             outeredgep = edgep2
             outerindex = 1
 
-        pos = move_from_center(outeredgep, centers, labeldeltas, axmask)
+        pos = _move_from_center(outeredgep, centers, labeldeltas, axmask)
         olx, oly, olz = proj3d.proj_transform(*pos, self.axes.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
@@ -300,7 +417,7 @@ class Axis(maxis.XAxis):
         # the alignment point is used as the "fulcrum" for rotation.
         self.offsetText.set_rotation_mode('anchor')
 
-        #----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         # Note: the following statement for determining the proper alignment of
         # the offset text. This was determined entirely by trial-and-error
         # and should not be in any way considered as "the way".  There are
@@ -315,6 +432,7 @@ class Axis(maxis.XAxis):
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
+        centpt = proj3d.proj_transform(*centers, self.axes.M)
         if centpt[info['tickdir']] > pep[info['tickdir'], outerindex]:
             # if FT and if highs has an even number of Trues
             if (centpt[index] <= pep[index, outerindex]
@@ -333,10 +451,7 @@ class Axis(maxis.XAxis):
             if (centpt[index] > pep[index, outerindex]
                     and np.count_nonzero(highs) % 2 == 0):
                 # Usually mean align left, except if it is axis 2
-                if index == 2:
-                    align = 'right'
-                else:
-                    align = 'left'
+                align = 'right' if index == 2 else 'left'
             else:
                 # The TT case
                 align = 'right'
@@ -346,6 +461,10 @@ class Axis(maxis.XAxis):
         self.offsetText.draw(renderer)
 
         if self.axes._draw_grid and len(ticks):
+            # Grid points where the planes meet
+            xyz0 = np.tile(minmax, (len(ticks), 1))
+            xyz0[:, index] = [tick.get_loc() for tick in ticks]
+
             # Grid lines go from the end of one plane through the plane
             # intersection (at xyz0) to the end of the other plane.  The first
             # point (0) differs along dimension index-2 and the last (2) along
@@ -354,47 +473,45 @@ class Axis(maxis.XAxis):
             lines[:, 0, index - 2] = maxmin[index - 2]
             lines[:, 2, index - 1] = maxmin[index - 1]
             self.gridlines.set_segments(lines)
-            self.gridlines.set_color(info['grid']['color'])
-            self.gridlines.set_linewidth(info['grid']['linewidth'])
-            self.gridlines.set_linestyle(info['grid']['linestyle'])
+            gridinfo = info['grid']
+            self.gridlines.set_color(gridinfo['color'])
+            self.gridlines.set_linewidth(gridinfo['linewidth'])
+            self.gridlines.set_linestyle(gridinfo['linestyle'])
             self.gridlines.do_3d_projection()
             self.gridlines.draw(renderer)
 
-        # Draw ticks
-        tickdir = info['tickdir']
-        tickdelta = deltas[tickdir]
-        if highs[tickdir]:
-            ticksign = 1
-        else:
-            ticksign = -1
+        # Draw ticks:
+        tickdir = self._get_tickdir()
+        tickdelta = deltas[tickdir] if highs[tickdir] else -deltas[tickdir]
 
+        tick_info = info['tick']
+        tick_out = tick_info['outward_factor'] * tickdelta
+        tick_in = tick_info['inward_factor'] * tickdelta
+        tick_lw = tick_info['linewidth']
+        edgep1_tickdir = edgep1[tickdir]
+        out_tickdir = edgep1_tickdir + tick_out
+        in_tickdir = edgep1_tickdir - tick_in
+
+        default_label_offset = 8.  # A rough estimate
+        points = deltas_per_point * deltas
         for tick in ticks:
             # Get tick line positions
             pos = edgep1.copy()
             pos[index] = tick.get_loc()
-            pos[tickdir] = (
-                edgep1[tickdir]
-                + info['tick']['outward_factor'] * ticksign * tickdelta)
+            pos[tickdir] = out_tickdir
             x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
-            pos[tickdir] = (
-                edgep1[tickdir]
-                - info['tick']['inward_factor'] * ticksign * tickdelta)
+            pos[tickdir] = in_tickdir
             x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
 
             # Get position of label
-            default_offset = 8.  # A rough estimate
-            labeldeltas = (
-                (tick.get_pad() + default_offset) * deltas_per_point * deltas)
+            labeldeltas = (tick.get_pad() + default_label_offset) * points
 
-            axmask = [True, True, True]
-            axmask[index] = False
-            pos[tickdir] = edgep1[tickdir]
-            pos = move_from_center(pos, centers, labeldeltas, axmask)
+            pos[tickdir] = edgep1_tickdir
+            pos = _move_from_center(pos, centers, labeldeltas, axmask)
             lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
 
-            tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
-            tick.tick1line.set_linewidth(
-                info['tick']['linewidth'][tick._major])
+            _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
+            tick.tick1line.set_linewidth(tick_lw[tick._major])
             tick.draw(renderer)
 
         renderer.close_group('axis3d')
@@ -402,8 +519,8 @@ class Axis(maxis.XAxis):
 
     # TODO: Get this to work (more) properly when mplot3d supports the
     #       transforms framework.
-    def get_tightbbox(self, renderer, *, for_layout_only=False):
-        # inherited docstring
+    def get_tightbbox(self, renderer=None, *, for_layout_only=False):
+        # docstring inherited
         if not self.get_visible():
             return
         # We have to directly access the internal data structures
@@ -437,7 +554,7 @@ class Axis(maxis.XAxis):
 
         ticks = ticks_to_draw
 
-        bb_1, bb_2 = self._get_tick_bboxes(ticks, renderer)
+        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer)
         other = []
 
         if self.line.get_visible():
@@ -448,27 +565,18 @@ class Axis(maxis.XAxis):
 
         return mtransforms.Bbox.union([*bb_1, *bb_2, *other])
 
-    @property
-    def d_interval(self):
-        return self.get_data_interval()
-
-    @d_interval.setter
-    def d_interval(self, minmax):
-        self.set_data_interval(*minmax)
-
-    @property
-    def v_interval(self):
-        return self.get_view_interval()
-
-    @v_interval.setter
-    def v_interval(self, minmax):
-        self.set_view_interval(*minmax)
-
-
-# Use classes to look at different data limits
+    d_interval = _api.deprecated(
+        "3.6", alternative="get_data_interval", pending=True)(
+            property(lambda self: self.get_data_interval(),
+                     lambda self, minmax: self.set_data_interval(*minmax)))
+    v_interval = _api.deprecated(
+        "3.6", alternative="get_view_interval", pending=True)(
+            property(lambda self: self.get_view_interval(),
+                     lambda self, minmax: self.set_view_interval(*minmax)))
 
 
 class XAxis(Axis):
+    axis_name = "x"
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "xy_viewLim", "intervalx")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
@@ -476,6 +584,7 @@ class XAxis(Axis):
 
 
 class YAxis(Axis):
+    axis_name = "y"
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "xy_viewLim", "intervaly")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
@@ -483,6 +592,7 @@ class YAxis(Axis):
 
 
 class ZAxis(Axis):
+    axis_name = "z"
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "zz_viewLim", "intervalx")
     get_data_interval, set_data_interval = maxis._make_getset_interval(

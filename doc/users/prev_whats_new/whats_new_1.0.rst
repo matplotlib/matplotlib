@@ -1,7 +1,7 @@
 .. _whats-new-1-0:
 
-New in matplotlib 1.0
-=====================
+What's new in Matplotlib 1.0 (Jul 06, 2010)
+===========================================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -12,7 +12,7 @@ HTML5/Canvas backend
 --------------------
 
 Simon Ratcliffe and Ludwig Schwardt have released an `HTML5/Canvas
-<http://code.google.com/p/mplh5canvas/>`__ backend for matplotlib.  The
+<https://code.google.com/archive/p/mplh5canvas>`__ backend for matplotlib.  The
 backend is almost feature complete, and they have done a lot of work
 comparing their html5 rendered images with our core renderer Agg.  The
 backend features client/server interactive navigation of matplotlib
@@ -23,14 +23,13 @@ Sophisticated subplot grid layout
 
 Jae-Joon Lee has written :mod:`~matplotlib.gridspec`, a new module for
 doing complex subplot layouts, featuring row and column spans and
-more.  See :doc:`/tutorials/intermediate/gridspec` for a tutorial overview.
+more.  See :doc:`/tutorials/intermediate/arranging_axes` for a tutorial
+overview.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_demo_gridspec01_001.png
    :target: ../../gallery/userdemo/demo_gridspec01.html
    :align: center
    :scale: 50
-
-   Demo Gridspec01
 
 Easy pythonic subplots
 -----------------------
@@ -44,9 +43,9 @@ indexing (starts with 0).  e.g.::
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
 
-See :doc:`/gallery/subplots_axes_and_figures/subplot_demo` for several code examples.
+See :doc:`/gallery/subplots_axes_and_figures/subplot` for several code examples.
 
-Contour fixes and and triplot
+Contour fixes and triplot
 -----------------------------
 
 Ian Thomas has fixed a long-standing bug that has vexed our most
@@ -62,8 +61,6 @@ plotting unstructured triangular grids.
    :target: ../../gallery/images_contours_and_fields/triplot_demo.html
    :align: center
    :scale: 50
-
-   Triplot Demo
 
 multiple calls to show supported
 --------------------------------

@@ -1,5 +1,5 @@
-Changes in 1.4.x
-================
+API Changes in 1.4.x
+====================
 
 Code changes
 ------------
@@ -82,7 +82,7 @@ original location:
 
 * The artist used to draw the outline of a `.Figure.colorbar` has been changed
   from a `matplotlib.lines.Line2D` to `matplotlib.patches.Polygon`, thus
-  `.colorbar.ColorbarBase.outline` is now a `matplotlib.patches.Polygon`
+  ``colorbar.ColorbarBase.outline`` is now a `matplotlib.patches.Polygon`
   object.
 
 * The legend handler interface has changed from a callable, to any object
@@ -149,9 +149,9 @@ original location:
   ``drawRect`` from ``FigureCanvasQTAgg``; they were always an
   implementation detail of the (preserved) ``drawRectangle()`` function.
 
-* The function signatures of `.tight_bbox.adjust_bbox` and
-  `.tight_bbox.process_figure_for_rasterizing` have been changed. A new
-  *fixed_dpi* parameter allows for overriding the ``figure.dpi`` setting
+* The function signatures of ``matplotlib.tight_bbox.adjust_bbox`` and
+  ``matplotlib.tight_bbox.process_figure_for_rasterizing`` have been changed.
+  A new *fixed_dpi* parameter allows for overriding the ``figure.dpi`` setting
   instead of trying to deduce the intended behaviour from the file format.
 
 * Added support for horizontal/vertical axes padding to

@@ -9,9 +9,7 @@ from matplotlib.path import Path
 
 class _FancyAxislineStyle:
     class SimpleArrow(FancyArrowPatch):
-        """
-        The artist class that will be returned for SimpleArrow style.
-        """
+        """The artist class that will be returned for SimpleArrow style."""
         _ARROW_STYLE = "->"
 
         def __init__(self, axis_artist, line_path, transform,
@@ -69,9 +67,7 @@ class _FancyAxislineStyle:
             FancyArrowPatch.draw(self, renderer)
 
     class FilledArrow(SimpleArrow):
-        """
-        The artist class that will be returned for SimpleArrow style.
-        """
+        """The artist class that will be returned for SimpleArrow style."""
         _ARROW_STYLE = "-|>"
 
 

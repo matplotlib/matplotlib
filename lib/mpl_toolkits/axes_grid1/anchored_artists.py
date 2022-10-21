@@ -23,9 +23,9 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         Parameters
         ----------
         width, height : float
-            width and height of the container, in pixels.
+            Width and height of the container, in pixels.
         xdescent, ydescent : float
-            descent of the container in the x- and y- direction, in pixels.
+            Descent of the container in the x- and y- direction, in pixels.
         loc : str
             Location of this artist.  Valid locations are
             'upper left', 'upper center', 'upper right',
@@ -52,7 +52,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         Examples
         --------
         To display blue and red circles of different sizes in the upper right
-        of an axes *ax*:
+        of an Axes *ax*:
 
         >>> ada = AnchoredDrawingArea(20, 20, 0, 0,
         ...                           loc='upper right', frameon=False)
@@ -141,7 +141,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
         angle : float
             Rotation of the ellipse, in degrees, anti-clockwise.
         loc : str
-            Location of this ellipse.  Valid locations are
+            Location of the ellipse.  Valid locations are
             'upper left', 'upper center', 'upper right',
             'center left', 'center', 'center right',
             'lower left', 'lower center, 'lower right'.
@@ -164,7 +164,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
             Ellipse patch drawn.
         """
         self._box = AuxTransformBox(transform)
-        self.ellipse = Ellipse((0, 0), width, height, angle)
+        self.ellipse = Ellipse((0, 0), width, height, angle=angle)
         self._box.add_artist(self.ellipse)
 
         super().__init__(loc, pad=pad, borderpad=borderpad, child=self._box,
@@ -191,7 +191,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         label : str
             Label to display.
         loc : str
-            Location of this ellipse.  Valid locations are
+            Location of the size bar.  Valid locations are
             'upper left', 'upper center', 'upper right',
             'center left', 'center', 'center right',
             'lower left', 'lower center, 'lower right'.
@@ -216,7 +216,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         fontproperties : `matplotlib.font_manager.FontProperties`, optional
             Font properties for the label text.
         fill_bar : bool, optional
-            If True and if size_vertical is nonzero, the size bar will
+            If True and if *size_vertical* is nonzero, the size bar will
             be filled in with the color specified by the size bar.
             Defaults to True if *size_vertical* is greater than
             zero and False otherwise.
@@ -311,7 +311,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         fontsize : float, default: 0.08
             Size of label strings, given in coordinates of *transform*.
         loc : str, default: 'upper left'
-            Location of this ellipse.  Valid locations are
+            Location of the arrow.  Valid locations are
             'upper left', 'upper center', 'upper right',
             'center left', 'center', 'center right',
             'lower left', 'lower center, 'lower right'.

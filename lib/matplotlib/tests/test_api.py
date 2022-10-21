@@ -37,14 +37,19 @@ def test_classproperty_deprecation():
 def test_deprecate_privatize_attribute():
     class C:
         def __init__(self): self._attr = 1
-        def _meth(self, arg): pass
+        def _meth(self, arg): return arg
         attr = _api.deprecate_privatize_attribute("0.0")
         meth = _api.deprecate_privatize_attribute("0.0")
 
+    c = C()
     with pytest.warns(_api.MatplotlibDeprecationWarning):
-        C().attr
+        assert c.attr == 1
     with pytest.warns(_api.MatplotlibDeprecationWarning):
-        C().meth(42)
+        c.attr = 2
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        assert c.attr == 2
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        assert c.meth(42) == 42
 
 
 def test_delete_parameter():
@@ -80,3 +85,16 @@ def test_make_keyword_only():
         func(1, 2)
     with pytest.warns(_api.MatplotlibDeprecationWarning):
         func(1, 2, 3)
+
+
+def test_deprecation_alternative():
+    alternative = "`.f1`, `f2`, `f3(x) <.f3>` or `f4(x)<f4>`"
+    @_api.deprecated("1", alternative=alternative)
+    def f():
+        pass
+    assert alternative in f.__doc__
+
+
+def test_empty_check_in_list():
+    with pytest.raises(TypeError, match="No argument to check!"):
+        _api.check_in_list(["a"])

@@ -8,6 +8,8 @@ Visualizing boxplots with matplotlib.
 The following examples show off how to visualize boxplots with
 Matplotlib. There are many options to control their appearance and
 the statistics that they use to summarize the data.
+
+.. redirect-from:: /gallery/pyplots/boxplot_demo_pyplot
 """
 
 import matplotlib.pyplot as plt
@@ -105,7 +107,7 @@ fig, ax1 = plt.subplots(figsize=(10, 6))
 fig.canvas.manager.set_window_title('A Boxplot Example')
 fig.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
-bp = ax1.boxplot(data, notch=0, sym='+', vert=1, whis=1.5)
+bp = ax1.boxplot(data, notch=False, sym='+', vert=True, whis=1.5)
 plt.setp(bp['boxes'], color='black')
 plt.setp(bp['whiskers'], color='black')
 plt.setp(bp['fliers'], color='red', marker='+')
@@ -221,7 +223,7 @@ conf_intervals = [None, None, ci1, ci2]
 fig, ax = plt.subplots()
 pos = np.arange(len(treatments)) + 1
 bp = ax.boxplot(treatments, sym='k+', positions=pos,
-                notch=1, bootstrap=5000,
+                notch=True, bootstrap=5000,
                 usermedians=medians,
                 conf_intervals=conf_intervals)
 
@@ -229,6 +231,18 @@ ax.set_xlabel('treatment')
 ax.set_ylabel('response')
 plt.setp(bp['whiskers'], color='k', linestyle='-')
 plt.setp(bp['fliers'], markersize=3.0)
+plt.show()
+
+
+###############################################################################
+# Here we customize the widths of the caps .
+
+x = np.linspace(-7, 7, 140)
+x = np.hstack([-25, x, 25])
+fig, ax = plt.subplots()
+
+ax.boxplot([x, x], notch=True, capwidths=[0.01, 0.2])
+
 plt.show()
 
 #############################################################################

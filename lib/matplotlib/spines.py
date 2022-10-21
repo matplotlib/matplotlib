@@ -3,8 +3,8 @@ import functools
 
 import numpy as np
 
-import matplotlib
-from matplotlib import _api, docstring, rcParams
+import matplotlib as mpl
+from matplotlib import _api, _docstring
 from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
@@ -27,11 +27,12 @@ class Spine(mpatches.Patch):
     `~.Spine.set_patch_line`, `~.Spine.set_patch_circle`, or
     `~.Spine.set_patch_arc` has been called. Line-like is the default.
 
+    For examples see :ref:`spines_examples`.
     """
     def __str__(self):
         return "Spine"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, axes, spine_type, path, **kwargs):
         """
         Parameters
@@ -48,15 +49,15 @@ class Spine(mpatches.Patch):
         **kwargs
             Valid keyword arguments are:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self.axes = axes
         self.set_figure(self.axes.figure)
         self.spine_type = spine_type
         self.set_facecolor('none')
-        self.set_edgecolor(rcParams['axes.edgecolor'])
-        self.set_linewidth(rcParams['axes.linewidth'])
+        self.set_edgecolor(mpl.rcParams['axes.edgecolor'])
+        self.set_linewidth(mpl.rcParams['axes.linewidth'])
         self.set_capstyle('projecting')
         self.axis = None
 
@@ -69,7 +70,7 @@ class Spine(mpatches.Patch):
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        _api.check_isinstance(matplotlib.path.Path, path=path)
+        _api.check_isinstance(mpath.Path, path=path)
         self._path = path
 
         # To support drawing both linear and circular spines, this
@@ -221,10 +222,6 @@ class Spine(mpatches.Patch):
         self._position = None  # clear position
         if self.axis is not None:
             self.axis.clear()
-
-    @_api.deprecated("3.4", alternative="Spine.clear()")
-    def cla(self):
-        self.clear()
 
     def _adjust_location(self):
         """Automatically set spine bounds to the view interval."""
@@ -435,7 +432,7 @@ class Spine(mpatches.Patch):
         else:
             raise ValueError('unable to make path for spine "%s"' % spine_type)
         result = cls(axes, spine_type, path, **kwargs)
-        result.set_visible(rcParams['axes.spines.{0}'.format(spine_type)])
+        result.set_visible(mpl.rcParams['axes.spines.{0}'.format(spine_type)])
 
         return result
 
@@ -550,7 +547,7 @@ class Spines(MutableMapping):
         try:
             return self._dict[name]
         except KeyError:
-            raise ValueError(
+            raise AttributeError(
                 f"'Spines' object does not contain a '{name}' spine")
 
     def __getitem__(self, key):

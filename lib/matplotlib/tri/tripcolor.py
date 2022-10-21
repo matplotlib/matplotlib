@@ -11,65 +11,92 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     """
     Create a pseudocolor plot of an unstructured triangular grid.
 
-    The triangulation can be specified in one of two ways; either::
+    Call signatures::
 
-      tripcolor(triangulation, ...)
+      tripcolor(triangulation, c, *, ...)
+      tripcolor(x, y, c, *, [triangles=triangles], [mask=mask], ...)
 
-    where triangulation is a `.Triangulation` object, or
+    The triangular grid can be specified either by passing a `.Triangulation`
+    object as the first parameter, or by passing the points *x*, *y* and
+    optionally the *triangles* and a *mask*. See `.Triangulation` for an
+    explanation of these parameters.
 
-    ::
+    It is possible to pass the triangles positionally, i.e.
+    ``tripcolor(x, y, triangles, c, ...)``. However, this is discouraged.
+    For more clarity, pass *triangles* via keyword argument.
 
-      tripcolor(x, y, ...)
-      tripcolor(x, y, triangles, ...)
-      tripcolor(x, y, triangles=triangles, ...)
-      tripcolor(x, y, mask=mask, ...)
-      tripcolor(x, y, triangles, mask=mask, ...)
+    If neither of *triangulation* or *triangles* are given, the triangulation
+    is calculated on the fly. In this case, it does not make sense to provide
+    colors at the triangle faces via *c* or *facecolors* because there are
+    multiple possible triangulations for a group of points and you don't know
+    which triangles will be constructed.
 
-    in which case a Triangulation object will be created.  See `.Triangulation`
-    for a explanation of these possibilities.
-
-    The next argument must be *C*, the array of color values, either
-    one per point in the triangulation if color values are defined at
-    points, or one per triangle in the triangulation if color values
-    are defined at triangles. If there are the same number of points
-    and triangles in the triangulation it is assumed that color
-    values are defined at points; to force the use of color values at
-    triangles use the kwarg ``facecolors=C`` instead of just ``C``.
-
-    *shading* may be 'flat' (the default) or 'gouraud'. If *shading*
-    is 'flat' and C values are defined at points, the color values
-    used for each triangle are from the mean C of the triangle's
-    three points. If *shading* is 'gouraud' then color values must be
-    defined at points.
-
-    The remaining kwargs are the same as for `~.Axes.pcolor`.
+    Parameters
+    ----------
+    triangulation : `.Triangulation`
+        An already created triangular grid.
+    x, y, triangles, mask
+        Parameters defining the triangular grid. See `.Triangulation`.
+        This is mutually exclusive with specifying *triangulation*.
+    c : array-like
+        The color values, either for the points or for the triangles. Which one
+        is automatically inferred from the length of *c*, i.e. does it match
+        the number of points or the number of triangles. If there are the same
+        number of points and triangles in the triangulation it is assumed that
+        color values are defined at points; to force the use of color values at
+        triangles use the keyword argument ``facecolors=c`` instead of just
+        ``c``.
+        This parameter is position-only.
+    facecolors : array-like, optional
+        Can be used alternatively to *c* to specify colors at the triangle
+        faces. This parameter takes precedence over *c*.
+    shading : {'flat', 'gouraud'}, default: 'flat'
+        If  'flat' and the color values *c* are defined at points, the color
+        values used for each triangle are from the mean c of the triangle's
+        three points. If *shading* is 'gouraud' then color values must be
+        defined at points.
+    other_parameters
+        All other parameters are the same as for `~.Axes.pcolor`.
     """
     _api.check_in_list(['flat', 'gouraud'], shading=shading)
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
 
-    # C is the colors array defined at either points or faces (i.e. triangles).
-    # If facecolors is None, C are defined at points.
-    # If facecolors is not None, C are defined at faces.
+    # Parse the color to be in one of (the other variable will be None):
+    # - facecolors: if specified at the triangle faces
+    # - point_colors: if specified at the points
     if facecolors is not None:
-        C = facecolors
+        if args:
+            _api.warn_external(
+                "Positional parameter c has no effect when the keyword "
+                "facecolors is given")
+        point_colors = None
+        if len(facecolors) != len(tri.triangles):
+            raise ValueError("The length of facecolors must match the number "
+                             "of triangles")
     else:
-        C = np.asarray(args[0])
-
-    # If there are a different number of points and triangles in the
-    # triangulation, can omit facecolors kwarg as it is obvious from
-    # length of C whether it refers to points or faces.
-    # Do not do this for gouraud shading.
-    if (facecolors is None and len(C) == len(tri.triangles) and
-            len(C) != len(tri.x) and shading != 'gouraud'):
-        facecolors = C
-
-    # Check length of C is OK.
-    if ((facecolors is None and len(C) != len(tri.x)) or
-            (facecolors is not None and len(C) != len(tri.triangles))):
-        raise ValueError('Length of color values array must be the same '
-                         'as either the number of triangulation points '
-                         'or triangles')
+        # Color from positional parameter c
+        if not args:
+            raise TypeError(
+                "tripcolor() missing 1 required positional argument: 'c'; or "
+                "1 required keyword-only argument: 'facecolors'")
+        elif len(args) > 1:
+            _api.warn_deprecated(
+                "3.6", message=f"Additional positional parameters "
+                f"{args[1:]!r} are ignored; support for them is deprecated "
+                f"since %(since)s and will be removed %(removal)s")
+        c = np.asarray(args[0])
+        if len(c) == len(tri.x):
+            # having this before the len(tri.triangles) comparison gives
+            # precedence to nodes if there are as many nodes as triangles
+            point_colors = c
+            facecolors = None
+        elif len(c) == len(tri.triangles):
+            point_colors = None
+            facecolors = c
+        else:
+            raise ValueError('The length of c must match either the number '
+                             'of points or the number of triangles')
 
     # Handling of linewidths, shading, edgecolors and antialiased as
     # in Axes.pcolor
@@ -88,16 +115,15 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     if 'antialiaseds' not in kwargs and ec.lower() == "none":
         kwargs['antialiaseds'] = False
 
+    _api.check_isinstance((Normalize, None), norm=norm)
     if shading == 'gouraud':
         if facecolors is not None:
-            raise ValueError('Gouraud shading does not support the use '
-                             'of facecolors kwarg')
-        if len(C) != len(tri.x):
-            raise ValueError('For gouraud shading, the length of color '
-                             'values array must be the same as the '
-                             'number of triangulation points')
-        collection = TriMesh(tri, **kwargs)
-    else:
+            raise ValueError(
+                "shading='gouraud' can only be used when the colors "
+                "are specified at the points, not at the faces.")
+        collection = TriMesh(tri, alpha=alpha, array=point_colors,
+                             cmap=cmap, norm=norm, **kwargs)
+    else:  # 'flat'
         # Vertices of triangles.
         maskedTris = tri.get_masked_triangles()
         verts = np.stack((tri.x[maskedTris], tri.y[maskedTris]), axis=-1)
@@ -105,18 +131,15 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
         # Color values.
         if facecolors is None:
             # One color per triangle, the mean of the 3 vertex color values.
-            C = C[maskedTris].mean(axis=1)
+            colors = point_colors[maskedTris].mean(axis=1)
         elif tri.mask is not None:
             # Remove color values of masked triangles.
-            C = C[~tri.mask]
+            colors = facecolors[~tri.mask]
+        else:
+            colors = facecolors
+        collection = PolyCollection(verts, alpha=alpha, array=colors,
+                                    cmap=cmap, norm=norm, **kwargs)
 
-        collection = PolyCollection(verts, **kwargs)
-
-    collection.set_alpha(alpha)
-    collection.set_array(C)
-    _api.check_isinstance((Normalize, None), norm=norm)
-    collection.set_cmap(cmap)
-    collection.set_norm(norm)
     collection._scale_norm(norm, vmin, vmax)
     ax.grid(False)
 

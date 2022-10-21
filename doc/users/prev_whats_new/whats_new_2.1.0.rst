@@ -1,7 +1,7 @@
 .. _whats-new-2-1-0:
 
-New in Matplotlib 2.1.0
-=======================
+What's new in Matplotlib 2.1.0 (Oct 7, 2017)
+============================================
 
 Documentation
 +++++++++++++
@@ -391,11 +391,11 @@ time and can enhance the visibility of the flow pattern in some use
 cases.
 
 
-`Axis.set_tick_params` now responds to ``rotation``
+``Axis.set_tick_params`` now responds to *rotation*
 ---------------------------------------------------
 
 Bulk setting of tick label rotation is now possible via
-:func:`~matplotlib.axes.Axes.tick_params` using the ``rotation``
+:func:`~matplotlib.axes.Axes.tick_params` using the *rotation*
 keyword.
 
 ::
@@ -406,7 +406,7 @@ keyword.
 Ticklabels are turned off instead of being invisible
 ----------------------------------------------------
 
-Internally, the `.Tick`'s :func:`~matplotlib.axis.Tick.label1On` attribute
+Internally, the `.Tick`'s ``matplotlib.axis.Tick.label1On`` attribute
 is now used to hide tick labels instead of setting the visibility on the tick
 label objects.
 This improves overall performance and fixes some issues.

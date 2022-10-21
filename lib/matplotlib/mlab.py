@@ -1,8 +1,11 @@
 """
-Numerical python functions written for compatibility with MATLAB
-commands with the same names. Most numerical python functions can be found in
-the `numpy` and `scipy` libraries. What remains here is code for performing
-spectral computations.
+Numerical Python functions written for compatibility with MATLAB
+commands with the same names. Most numerical Python functions can be found in
+the `NumPy`_ and `SciPy`_ libraries. What remains here is code for performing
+spectral computations and kernel density estimations.
+
+.. _NumPy: https://numpy.org
+.. _SciPy: https://www.scipy.org
 
 Spectral functions
 ------------------
@@ -52,14 +55,12 @@ from numbers import Number
 
 import numpy as np
 
-from matplotlib import _api
-import matplotlib.cbook as cbook
-from matplotlib import docstring
+from matplotlib import _api, _docstring, cbook
 
 
 def window_hanning(x):
     """
-    Return x times the hanning window of len(x).
+    Return *x* times the Hanning (or Hann) window of len(*x*).
 
     See Also
     --------
@@ -70,7 +71,7 @@ def window_hanning(x):
 
 def window_none(x):
     """
-    No window function; simply return x.
+    No window function; simply return *x*.
 
     See Also
     --------
@@ -81,7 +82,7 @@ def window_none(x):
 
 def detrend(x, key=None, axis=None):
     """
-    Return x with its trend removed.
+    Return *x* with its trend removed.
 
     Parameters
     ----------
@@ -130,7 +131,7 @@ def detrend(x, key=None, axis=None):
 
 def detrend_mean(x, axis=None):
     """
-    Return x minus the mean(x).
+    Return *x* minus the mean(*x*).
 
     Parameters
     ----------
@@ -139,7 +140,7 @@ def detrend_mean(x, axis=None):
         Can have any dimensionality
 
     axis : int
-        The axis along which to take the mean.  See numpy.mean for a
+        The axis along which to take the mean.  See `numpy.mean` for a
         description of this argument.
 
     See Also
@@ -158,7 +159,7 @@ def detrend_mean(x, axis=None):
 
 def detrend_none(x, axis=None):
     """
-    Return x: no detrending.
+    Return *x*: no detrending.
 
     Parameters
     ----------
@@ -180,7 +181,7 @@ def detrend_none(x, axis=None):
 
 def detrend_linear(y):
     """
-    Return x minus best fit line; 'linear' detrending.
+    Return *x* minus best fit line; 'linear' detrending.
 
     Parameters
     ----------
@@ -212,9 +213,10 @@ def detrend_linear(y):
     return y - (b*x + a)
 
 
+@_api.deprecated("3.6")
 def stride_windows(x, n, noverlap=None, axis=0):
     """
-    Get all windows of x with length n as a single array,
+    Get all windows of *x* with length *n* as a single array,
     using strides to avoid data duplication.
 
     .. warning::
@@ -237,12 +239,24 @@ def stride_windows(x, n, noverlap=None, axis=0):
     References
     ----------
     `stackoverflow: Rolling window for 1D arrays in Numpy?
-    <http://stackoverflow.com/a/6811241>`_
+    <https://stackoverflow.com/a/6811241>`_
     `stackoverflow: Using strides for an efficient moving average filter
-    <http://stackoverflow.com/a/4947453>`_
+    <https://stackoverflow.com/a/4947453>`_
     """
     if noverlap is None:
         noverlap = 0
+    if np.ndim(x) != 1:
+        raise ValueError('only 1-dimensional arrays can be used')
+    return _stride_windows(x, n, noverlap, axis)
+
+
+def _stride_windows(x, n, noverlap=0, axis=0):
+    # np>=1.20 provides sliding_window_view, and we only ever use axis=0.
+    if hasattr(np.lib.stride_tricks, "sliding_window_view") and axis == 0:
+        if noverlap >= n:
+            raise ValueError('noverlap must be less than n')
+        return np.lib.stride_tricks.sliding_window_view(
+            x, n, axis=0)[::n - noverlap].T
 
     if noverlap >= n:
         raise ValueError('noverlap must be less than n')
@@ -251,13 +265,11 @@ def stride_windows(x, n, noverlap=None, axis=0):
 
     x = np.asarray(x)
 
-    if x.ndim != 1:
-        raise ValueError('only 1-dimensional arrays can be used')
     if n == 1 and noverlap == 0:
         if axis == 0:
             return x[np.newaxis]
         else:
-            return x[np.newaxis].transpose()
+            return x[np.newaxis].T
     if n > x.size:
         raise ValueError('n cannot be greater than the length of x')
 
@@ -367,7 +379,7 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         raise ValueError(
             "The window length must match the data's first dimension")
 
-    result = stride_windows(x, NFFT, noverlap, axis=0)
+    result = _stride_windows(x, NFFT, noverlap)
     result = detrend(result, detrend_func, axis=0)
     result = result * window.reshape((-1, 1))
     result = np.fft.fft(result, n=pad_to, axis=0)[:numFreqs, :]
@@ -375,7 +387,7 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 
     if not same_data:
         # if same_data is False, mode must be 'psd'
-        resultY = stride_windows(y, NFFT, noverlap)
+        resultY = _stride_windows(y, NFFT, noverlap)
         resultY = detrend(resultY, detrend_func, axis=0)
         resultY = resultY * window.reshape((-1, 1))
         resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]
@@ -461,7 +473,7 @@ def _single_spectrum_helper(
 
 
 # Split out these keyword docs so that they can be used elsewhere
-docstring.interpd.update(
+_docstring.interpd.update(
     Spectral="""\
 Fs : float, default: 2
     The sampling frequency (samples per time unit).  It is used to calculate
@@ -485,8 +497,8 @@ pad_to : int, optional
     the FFT.  While not increasing the actual resolution of the spectrum (the
     minimum distance between resolvable peaks), this can give more points in
     the plot, allowing for more detail. This corresponds to the *n* parameter
-    in the call to fft().  The default is None, which sets *pad_to* equal to
-    the length of the input signal (i.e. no padding).""",
+    in the call to `~numpy.fft.fft`.  The default is None, which sets *pad_to*
+    equal to the length of the input signal (i.e. no padding).""",
 
     PSD="""\
 pad_to : int, optional
@@ -495,8 +507,8 @@ pad_to : int, optional
     of data points used.  While not increasing the actual resolution of the
     spectrum (the minimum distance between resolvable peaks), this can give
     more points in the plot, allowing for more detail. This corresponds to
-    the *n* parameter in the call to fft(). The default is None, which sets
-    *pad_to* equal to *NFFT*
+    the *n* parameter in the call to `~numpy.fft.fft`. The default is None,
+    which sets *pad_to* equal to *NFFT*
 
 NFFT : int, default: 256
     The number of data points used in each block for the FFT.  A power 2 is
@@ -514,12 +526,12 @@ detrend : {'none', 'mean', 'linear'} or callable, default: 'none'
 
 scale_by_freq : bool, default: True
     Whether the resulting density values should be scaled by the scaling
-    frequency, which gives density in units of Hz^-1.  This allows for
+    frequency, which gives density in units of 1/Hz.  This allows for
     integration over the returned frequency values.  The default is True for
     MATLAB compatibility.""")
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     r"""
@@ -575,7 +587,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
     return Pxx.real, freqs
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     """
@@ -680,33 +692,33 @@ specgram
 complex_spectrum = functools.partial(_single_spectrum_helper, "complex")
 complex_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="complex-valued frequency spectrum",
-    **docstring.interpd.params)
+    **_docstring.interpd.params)
 magnitude_spectrum = functools.partial(_single_spectrum_helper, "magnitude")
 magnitude_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="magnitude (absolute value) of the frequency spectrum",
-    **docstring.interpd.params)
+    **_docstring.interpd.params)
 angle_spectrum = functools.partial(_single_spectrum_helper, "angle")
 angle_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="angle of the frequency spectrum (wrapped phase spectrum)",
-    **docstring.interpd.params)
+    **_docstring.interpd.params)
 phase_spectrum = functools.partial(_single_spectrum_helper, "phase")
 phase_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="phase of the frequency spectrum (unwrapped phase spectrum)",
-    **docstring.interpd.params)
+    **_docstring.interpd.params)
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
              noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
              mode=None):
     """
     Compute a spectrogram.
 
-    Compute and plot a spectrogram of data in x.  Data are split into
-    NFFT length segments and the spectrum of each section is
-    computed.  The windowing function window is applied to each
+    Compute and plot a spectrogram of data in *x*.  Data are split into
+    *NFFT* length segments and the spectrum of each section is
+    computed.  The windowing function *window* is applied to each
     segment, and the amount of overlap of each segment is
-    specified with noverlap.
+    specified with *noverlap*.
 
     Parameters
     ----------
@@ -748,13 +760,13 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     --------
     psd : differs in the overlap and in the return values.
     complex_spectrum : similar, but with complex valued frequencies.
-    magnitude_spectrum : similar single segment when mode is 'magnitude'.
-    angle_spectrum : similar to single segment when mode is 'angle'.
-    phase_spectrum : similar to single segment when mode is 'phase'.
+    magnitude_spectrum : similar single segment when *mode* is 'magnitude'.
+    angle_spectrum : similar to single segment when *mode* is 'angle'.
+    phase_spectrum : similar to single segment when *mode* is 'phase'.
 
     Notes
     -----
-    detrend and scale_by_freq only apply when *mode* is set to 'psd'.
+    *detrend* and *scale_by_freq* only apply when *mode* is set to 'psd'.
 
     """
     if noverlap is None:
@@ -778,7 +790,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     return spec, freqs, t
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
            noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     r"""
@@ -837,7 +849,6 @@ class GaussianKDE:
     dataset : array-like
         Datapoints to estimate from. In case of univariate data this is a 1-D
         array, otherwise a 2D array with shape (# of dims, # of data).
-
     bw_method : str, scalar or callable, optional
         The method used to calculate the estimator bandwidth.  This can be
         'scott', 'silverman', a scalar constant or a callable.  If a
@@ -848,22 +859,17 @@ class GaussianKDE:
     Attributes
     ----------
     dataset : ndarray
-        The dataset with which `gaussian_kde` was initialized.
-
+        The dataset passed to the constructor.
     dim : int
         Number of dimensions.
-
     num_dp : int
         Number of datapoints.
-
     factor : float
         The bandwidth factor, obtained from `kde.covariance_factor`, with which
         the covariance matrix is multiplied.
-
     covariance : ndarray
         The covariance matrix of *dataset*, scaled by the calculated bandwidth
         (`kde.factor`).
-
     inv_cov : ndarray
         The inverse of *covariance*.
 
@@ -871,10 +877,8 @@ class GaussianKDE:
     -------
     kde.evaluate(points) : ndarray
         Evaluate the estimated pdf on a provided set of points.
-
     kde(points) : ndarray
         Same as kde.evaluate(points)
-
     """
 
     # This implementation with minor modification was too good to pass up.

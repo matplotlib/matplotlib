@@ -19,7 +19,6 @@ Overview of :mod:`mpl_toolkits.axes_grid1`
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
    :target: ../../gallery/axes_grid1/demo_axes_grid.html
    :align: center
-   :scale: 50
 
 axes_grid1
 ==========
@@ -36,12 +35,11 @@ its docs for detailed API information.
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid_001.png
    :target: ../../gallery/axes_grid1/simple_axesgrid.html
    :align: center
-   :scale: 50
 
 * The position of each axes is determined at the drawing time (see
   AxesDivider_), so that the size of the entire grid fits in the
   given rectangle (like the aspect of axes). Note that in this example,
-  the paddings between axes are fixed even if you changes the figure
+  the paddings between axes are fixed even if you change the figure
   size.
 
 * Axes in the same column share their x-axis, and axes in the same row share
@@ -53,14 +51,12 @@ its docs for detailed API information.
   .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid2_001.png
      :target: ../../gallery/axes_grid1/simple_axesgrid2.html
      :align: center
-     :scale: 50
 
 The examples below show what you can do with ImageGrid.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
    :target: ../../gallery/axes_grid1/demo_axes_grid.html
    :align: center
-   :scale: 50
 
 AxesDivider Class
 -----------------
@@ -72,7 +68,7 @@ location of the axes at drawing time.
 Users typically do not need to directly instantiate dividers
 by calling `~.axes_grid1.axes_divider.AxesDivider`; instead,
 `~.axes_grid1.axes_divider.make_axes_locatable` can be used to create a divider
-for an axes::
+for an Axes::
 
   ax = subplot(1, 1, 1)
   divider = make_axes_locatable(ax)
@@ -80,13 +76,12 @@ for an axes::
 `.AxesDivider.append_axes` can then be used to create a new axes on a given
 side ("left", "right", "top", "bottom") of the original axes.
 
-colorbar whose height (or width) in sync with the master axes
--------------------------------------------------------------
+colorbar whose height (or width) is in sync with the main axes
+--------------------------------------------------------------
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
    :target: ../../gallery/axes_grid1/simple_colorbar.html
    :align: center
-   :scale: 50
 
 scatter_hist.py with AxesDivider
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,7 +109,6 @@ See the full source code below.
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_scatter_hist_locatable_axes_001.png
    :target: ../../gallery/axes_grid1/scatter_hist_locatable_axes.html
    :align: center
-   :scale: 50
 
 The :doc:`/gallery/axes_grid1/scatter_hist_locatable_axes` using the
 AxesDivider has some advantages over the
@@ -125,24 +119,24 @@ x-axis or y-axis is shared accordingly.
 ParasiteAxes
 ------------
 
-The ParasiteAxes is an axes whose location is identical to its host
+The ParasiteAxes is an Axes whose location is identical to its host
 axes. The location is adjusted in the drawing time, thus it works even
 if the host change its location (e.g., images).
 
 In most cases, you first create a host axes, which provides a few
-method that can be used to create parasite axes. They are *twinx*,
-*twiny* (which are similar to twinx and twiny in the matplotlib) and
-*twin*. *twin* takes an arbitrary transformation that maps between the
-data coordinates of the host axes and the parasite axes.  *draw*
+methods that can be used to create parasite axes. They are ``twinx``,
+``twiny`` (which are similar to ``twinx`` and ``twiny`` in the matplotlib) and
+``twin``. ``twin`` takes an arbitrary transformation that maps between the
+data coordinates of the host axes and the parasite axes. The ``draw``
 method of the parasite axes are never called. Instead, host axes
-collects artists in parasite axes and draw them as if they belong to
+collects artists in parasite axes and draws them as if they belong to
 the host axes, i.e., artists in parasite axes are merged to those of
 the host axes and then drawn according to their zorder.  The host and
 parasite axes modifies some of the axes behavior. For example, color
 cycle for plot lines are shared between host and parasites. Also, the
 legend command in host, creates a legend that includes lines in the
-parasite axes.  To create a host axes, you may use *host_subplot* or
-*host_axes* command.
+parasite axes.  To create a host axes, you may use ``host_subplot`` or
+``host_axes`` command.
 
 Example 1. twinx
 ~~~~~~~~~~~~~~~~
@@ -150,25 +144,23 @@ Example 1. twinx
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple_001.png
    :target: ../../gallery/axes_grid1/parasite_simple.html
    :align: center
-   :scale: 50
 
 Example 2. twin
 ~~~~~~~~~~~~~~~
 
-*twin* without a transform argument assumes that the parasite axes has the
+``twin`` without a transform argument assumes that the parasite axes has the
 same data transform as the host. This can be useful when you want the
 top(or right)-axis to have different tick-locations, tick-labels, or
 tick-formatter for bottom(or left)-axis. ::
 
   ax2 = ax.twin() # now, ax2 is responsible for "top" axis and "right" axis
-  ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi])
-  ax2.set_xticklabels(["0", r"$\frac{1}{2}\pi$",
-                       r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
+  ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi],
+                 labels=["0", r"$\frac{1}{2}\pi$",
+                         r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axisline4_001.png
    :target: ../../gallery/axes_grid1/simple_axisline4.html
    :align: center
-   :scale: 50
 
 A more sophisticated example using twin. Note that if you change the
 x-limit in the host axes, the x-limit of the parasite axes will change
@@ -177,7 +169,6 @@ accordingly.
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple2_001.png
    :target: ../../gallery/axes_grid1/parasite_simple2.html
    :align: center
-   :scale: 50
 
 AnchoredArtists
 ---------------
@@ -186,12 +177,11 @@ AnchoredArtists
 is anchored to the (axes) bbox, similarly to legends.  These artists derive
 from `.offsetbox.OffsetBox`, and the artist need to be drawn in canvas
 coordinates.  There is limited support for arbitrary transforms.  For example,
-the ellipse in the example below will have width and height in data coordinate.
+the ellipse in the example below will have width and height in data coordinates.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_anchored_artists_001.png
    :target: ../../gallery/axes_grid1/simple_anchored_artists.html
    :align: center
-   :scale: 50
 
 InsetLocator
 ------------
@@ -227,7 +217,6 @@ useful to mark the zoomed area on the parent axes:
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo_001.png
    :target: ../../gallery/axes_grid1/inset_locator_demo.html
    :align: center
-   :scale: 50
 
 `.inset_locator.mark_inset` allows marking the location of the area represented
 by the inset axes:
@@ -235,7 +224,6 @@ by the inset axes:
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo2_001.png
    :target: ../../gallery/axes_grid1/inset_locator_demo2.html
    :align: center
-   :scale: 50
 
 RGBAxes
 -------
@@ -255,7 +243,6 @@ yaxis of each axes are shared. ::
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_rgb_001.png
    :target: ../../gallery/axes_grid1/demo_axes_rgb.html
    :align: center
-   :scale: 50
 
 AxesDivider
 ===========
@@ -331,10 +318,9 @@ Locators that spans over multiple cells can be created with, e.g.::
 
 See the example,
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider1_002.png
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider1_001.png
    :target: ../../gallery/axes_grid1/simple_axes_divider1.html
    :align: center
-   :scale: 50
 
 You can also adjust the size of each axes according to its x or y
 data limits (AxesX and AxesY).
@@ -342,5 +328,4 @@ data limits (AxesX and AxesY).
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider3_001.png
    :target: ../../gallery/axes_grid1/simple_axes_divider3.html
    :align: center
-   :scale: 50
 """

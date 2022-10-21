@@ -1,0 +1,86 @@
+name: Bug Report
+description: Report a bug or issue with Matplotlib.
+title: "[Bug]: "
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Bug summary
+      description:  Describe the bug in 1-2 short sentences
+      placeholder:
+      value:
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Code for reproduction
+      description: |
+        If possible, please provide a minimum self-contained example.
+      placeholder: Paste your code here. This field is automatically formatted as Python code.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual outcome
+      description: |
+        Paste the output produced by the code provided above, e.g.
+        console output, images/videos produced by the code, any relevant screenshots/screencasts, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected outcome
+      description: Describe (or provide a visual example of) the expected outcome from the code snippet.
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Additional information
+      description: |
+        - What are the conditions under which this bug happens? input parameters, edge cases, etc?
+        - Has this worked in earlier versions?
+        - Do you know why this bug is happening?
+        - Do you maybe even know a fix?
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating system
+      description: Windows, OS/X, Arch, Debian, Ubuntu, etc.
+  - type: input
+    id: matplotlib-version
+    attributes:
+      label: Matplotlib Version
+      description: "From Python prompt: `import matplotlib; print(matplotlib.__version__)`"
+    validations:
+      required: true
+  - type: input
+    id: matplotlib-backend
+    attributes:
+      label: Matplotlib Backend
+      description: "From Python prompt: `import matplotlib; print(matplotlib.get_backend())`"
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: "In console: `python --version`"
+  - type: input
+    id: jupyter-version
+    attributes:
+      label: Jupyter version
+      description: "In console: `jupyter notebook --version` or `jupyter lab --version`"
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation
+      description: How did you install matplotlib?
+      options:
+        - pip
+        - conda
+        - Linux package manager
+        - from source (.tar.gz)
+        - git checkout

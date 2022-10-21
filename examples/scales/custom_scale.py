@@ -6,7 +6,7 @@ Custom scale
 Create a custom scale, by implementing the scaling use for latitude data in a
 Mercator Projection.
 
-Unless you are making special use of the `~.Transform` class, you probably
+Unless you are making special use of the `.Transform` class, you probably
 don't need to use this verbose method, and instead can use `~.scale.FuncScale`
 and the ``'function'`` option of `~.Axes.set_xscale` and `~.Axes.set_yscale`.
 See the last example in :doc:`/gallery/scales/scales`.
@@ -34,12 +34,12 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     there is user-defined threshold, above and below which nothing
     will be plotted.  This defaults to +/- 85 degrees.
 
-    __ http://en.wikipedia.org/wiki/Mercator_projection
+    __ https://en.wikipedia.org/wiki/Mercator_projection
     """
 
     # The scale class must have a member ``name`` that defines the string used
-    # to select the scale.  For example, ``gca().set_yscale("mercator")`` would
-    # be used to select this scale.
+    # to select the scale.  For example, ``ax.set_yscale("mercator")`` would be
+    # used to select this scale.
     name = 'mercator'
 
     def __init__(self, axis, *, thresh=np.deg2rad(85), **kwargs):
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     s = np.radians(t)/2.
 
     plt.plot(t, s, '-', lw=2)
-    plt.gca().set_yscale('mercator')
+    plt.yscale('mercator')
 
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')

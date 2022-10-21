@@ -24,7 +24,7 @@ The solution below is modified from Paul Ivanov's original answer.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.transforms import Affine2D
+from matplotlib.transforms import Affine2D, offset_copy
 
 
 def rainbow_text(x, y, strings, colors, orientation='horizontal',
@@ -51,7 +51,8 @@ def rainbow_text(x, y, strings, colors, orientation='horizontal',
     if ax is None:
         ax = plt.gca()
     t = ax.transData
-    canvas = ax.figure.canvas
+    fig = ax.figure
+    canvas = fig.canvas
 
     assert orientation in ['horizontal', 'vertical']
     if orientation == 'vertical':
@@ -63,10 +64,16 @@ def rainbow_text(x, y, strings, colors, orientation='horizontal',
         # Need to draw to update the text position.
         text.draw(canvas.get_renderer())
         ex = text.get_window_extent()
+        # Convert window extent from pixels to inches
+        # to avoid issues displaying at different dpi
+        ex = fig.dpi_scale_trans.inverted().transform_bbox(ex)
+
         if orientation == 'horizontal':
-            t = text.get_transform() + Affine2D().translate(ex.width, 0)
+            t = text.get_transform() + \
+                offset_copy(Affine2D(), fig=fig, x=ex.width, y=0)
         else:
-            t = text.get_transform() + Affine2D().translate(0, ex.height)
+            t = text.get_transform() + \
+                offset_copy(Affine2D(), fig=fig, x=0, y=ex.height)
 
 
 words = "all unicorns poop rainbows ! ! !".split()

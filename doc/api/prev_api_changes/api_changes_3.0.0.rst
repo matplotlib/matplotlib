@@ -197,7 +197,7 @@ Contour color autoscaling improvements
 Selection of contour levels is now the same for contour and
 contourf; previously, for contour, levels outside the data range were
 deleted.  (Exception: if no contour levels are found within the
-data range, the `levels` attribute is replaced with a list holding
+data range, the ``levels`` attribute is replaced with a list holding
 only the minimum of the data range.)
 
 When contour is called with levels specified as a target number rather
@@ -297,7 +297,7 @@ Blacklisted rcparams no longer updated by `~matplotlib.rcdefaults`, `~matplotlib
 
 The rc modifier functions `~matplotlib.rcdefaults`,
 `~matplotlib.rc_file_defaults` and `~matplotlib.rc_file`
-now ignore rcParams in the `matplotlib.style.core.STYLE_BLACKLIST` set.  In
+now ignore rcParams in the ``matplotlib.style.core.STYLE_BLACKLIST`` set.  In
 particular, this prevents the ``backend`` and ``interactive`` rcParams from
 being incorrectly modified by these functions.
 
@@ -324,12 +324,12 @@ instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 Return type of ArtistInspector.get_aliases changed
 --------------------------------------------------
 
-`ArtistInspector.get_aliases` previously returned the set of aliases as
+``ArtistInspector.get_aliases`` previously returned the set of aliases as
 ``{fullname: {alias1: None, alias2: None, ...}}``.  The dict-to-None mapping
 was used to simulate a set in earlier versions of Python.  It has now been
 replaced by a set, i.e. ``{fullname: {alias1, alias2, ...}}``.
 
-This value is also stored in `.ArtistInspector.aliasd`, which has likewise
+This value is also stored in ``ArtistInspector.aliasd``, which has likewise
 changed.
 
 
@@ -471,7 +471,7 @@ Hold machinery
 Setting or unsetting ``hold`` (:ref:`deprecated in version 2.0<v200_deprecate_hold>`) has now
 been completely removed. Matplotlib now always behaves as if ``hold=True``.
 To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
-or to clear an entire figure use :meth:`~.figure.Figure.clf()`.
+or to clear an entire figure use :meth:`~.figure.Figure.clear()`.
 
 
 Removal of deprecated backends

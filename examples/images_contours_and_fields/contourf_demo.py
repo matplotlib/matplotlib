@@ -33,18 +33,20 @@ Z[:nr // 6, :nc // 6] = np.ma.masked
 interior = np.sqrt(X**2 + Y**2) < 0.5
 Z[interior] = np.ma.masked
 
-# We are using automatic selection of contour levels;
-# this is usually not such a good idea, because they don't
-# occur on nice boundaries, but we do it here for purposes
-# of illustration.
+#############################################################################
+# Automatic contour levels
+# ------------------------
+# We are using automatic selection of contour levels; this is usually not such
+# a good idea, because they don't occur on nice boundaries, but we do it here
+# for purposes of illustration.
 
 fig1, ax2 = plt.subplots(constrained_layout=True)
 CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
 
-# Note that in the following, we explicitly pass in a subset of
-# the contour levels used for the filled contours.  Alternatively,
-# We could pass in additional levels to provide extra resolution,
-# or leave out the levels kwarg to use all of the original levels.
+# Note that in the following, we explicitly pass in a subset of the contour
+# levels used for the filled contours.  Alternatively, we could pass in
+# additional levels to provide extra resolution, or leave out the *levels*
+# keyword argument to use all of the original levels.
 
 CS2 = ax2.contour(CS, levels=CS.levels[::2], colors='r', origin=origin)
 
@@ -58,10 +60,13 @@ cbar.ax.set_ylabel('verbosity coefficient')
 # Add the contour line levels to the colorbar
 cbar.add_lines(CS2)
 
+#############################################################################
+# Explicit contour levels
+# -----------------------
+# Now make a contour plot with the levels specified, and with the colormap
+# generated automatically from a list of colors.
+
 fig2, ax2 = plt.subplots(constrained_layout=True)
-# Now make a contour plot with the levels specified,
-# and with the colormap generated automatically from a list
-# of colors.
 levels = [-1.5, -1, -0.5, 0, 0.5, 1]
 CS3 = ax2.contourf(X, Y, Z, levels,
                    colors=('r', 'g', 'b'),
@@ -84,10 +89,12 @@ ax2.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 # needs from the ContourSet object, CS3.
 fig2.colorbar(CS3)
 
+#############################################################################
+# Extension settings
+# ------------------
 # Illustrate all 4 possible "extend" settings:
 extends = ["neither", "both", "min", "max"]
-cmap = plt.cm.get_cmap("winter")
-cmap = cmap.with_extremes(under="magenta", over="yellow")
+cmap = plt.colormaps["winter"].with_extremes(under="magenta", over="yellow")
 # Note: contouring simply excludes masked or nan regions, so
 # instead of using the "bad" colormap value for them, it draws
 # nothing at all in them.  Therefore the following would have
@@ -96,7 +103,7 @@ cmap = cmap.with_extremes(under="magenta", over="yellow")
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 
-for ax, extend in zip(axs.ravel(), extends):
+for ax, extend in zip(axs.flat, extends):
     cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)
     fig.colorbar(cs, ax=ax, shrink=0.9)
     ax.set_title("extend = %s" % extend)

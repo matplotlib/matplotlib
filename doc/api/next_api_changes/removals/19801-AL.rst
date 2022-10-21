@@ -1,3 +1,0 @@
-The ``mathtext.fallback_to_cm`` rcParams
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... has been removed.  Use :rc:`mathtext.fallback` instead.

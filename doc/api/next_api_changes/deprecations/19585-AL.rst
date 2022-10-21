@@ -1,4 +1,0 @@
-matplotlib.style.core deprecations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``STYLE_FILE_PATTERN``, ``load_base_library``, and ``iter_user_libraries`` are
-deprecated.

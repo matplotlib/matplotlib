@@ -22,7 +22,7 @@ def demo_simple_image(ax):
 
     im = ax.imshow(Z, extent=extent)
     cb = plt.colorbar(im)
-    plt.setp(cb.ax.get_yticklabels(), visible=False)
+    cb.ax.yaxis.set_tick_params(labelright=False)
 
 
 def demo_locatable_axes_hard(fig):
@@ -60,7 +60,7 @@ def demo_locatable_axes_hard(fig):
 
     im = ax.imshow(Z, extent=extent)
     plt.colorbar(im, cax=ax_cb)
-    plt.setp(ax_cb.get_yticklabels(), visible=False)
+    ax_cb.yaxis.set_tick_params(labelright=False)
 
 
 def demo_locatable_axes_easy(ax):
@@ -68,7 +68,7 @@ def demo_locatable_axes_easy(ax):
 
     divider = make_axes_locatable(ax)
 
-    ax_cb = divider.new_horizontal(size="5%", pad=0.05)
+    ax_cb = divider.append_axes("right", size="5%", pad=0.05)
     fig = ax.get_figure()
     fig.add_axes(ax_cb)
 
@@ -86,7 +86,7 @@ def demo_images_side_by_side(ax):
     divider = make_axes_locatable(ax)
 
     Z, extent = get_demo_image()
-    ax2 = divider.new_horizontal(size="100%", pad=0.05)
+    ax2 = divider.append_axes("right", size="100%", pad=0.05)
     fig1 = ax.get_figure()
     fig1.add_axes(ax2)
 

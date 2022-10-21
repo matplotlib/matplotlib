@@ -175,7 +175,7 @@ class PathIterator
         return m_simplify_threshold;
     }
 
-    inline bool has_curves() const
+    inline bool has_codes() const
     {
         return m_codes != NULL;
     }
@@ -194,12 +194,7 @@ class PathGenerator
   public:
     typedef PathIterator path_iterator;
 
-    PathGenerator(PyObject *obj) : m_paths(NULL), m_npaths(0)
-    {
-        if (!set(obj)) {
-            throw py::exception();
-        }
-    }
+    PathGenerator() : m_paths(NULL), m_npaths(0) {}
 
     ~PathGenerator()
     {
@@ -212,6 +207,7 @@ class PathGenerator
             return 0;
         }
 
+        Py_XDECREF(m_paths);
         m_paths = obj;
         Py_INCREF(m_paths);
 

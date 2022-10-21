@@ -46,9 +46,9 @@ example_plot(ax, fontsize=24)
 
 ###############################################################################
 # To prevent this, the location of axes needs to be adjusted. For
-# subplots, this can be done by adjusting the subplot params
-# (:ref:`howto-subplots-adjust`). Matplotlib v1.1 introduced
-# `.Figure.tight_layout` that does this automatically for you.
+# subplots, this can be done manually by adjusting the subplot parameters
+# using `.Figure.subplots_adjust`. `.Figure.tight_layout` does this
+# automatically.
 
 fig, ax = plt.subplots()
 example_plot(ax, fontsize=24)
@@ -117,7 +117,7 @@ plt.tight_layout()
 ###############################################################################
 # It works with subplots created with
 # :func:`~matplotlib.pyplot.subplot2grid`. In general, subplots created
-# from the gridspec (:doc:`/tutorials/intermediate/gridspec`) will work.
+# from the gridspec (:doc:`/tutorials/intermediate/arranging_axes`) will work.
 
 plt.close('all')
 fig = plt.figure()
@@ -276,7 +276,7 @@ plt.tight_layout()
 
 ###############################################################################
 # Another option is to use the AxesGrid1 toolkit to
-# explicitly create an axes for the colorbar.
+# explicitly create an Axes for the colorbar.
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 

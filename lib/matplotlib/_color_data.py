@@ -29,11 +29,11 @@ TABLEAU_COLORS = {
 # a survey run by Randall Munroe see:
 # https://blog.xkcd.com/2010/05/03/color-survey-results/
 # for more details.  The results are hosted at
-# https://xkcd.com/color/rgb
+# https://xkcd.com/color/rgb/
 # and also available as a text file at
 # https://xkcd.com/color/rgb.txt
 #
-# License: http://creativecommons.org/publicdomain/zero/1.0/
+# License: https://creativecommons.org/publicdomain/zero/1.0/
 XKCD_COLORS = {
     'cloudy blue': '#acc2d9',
     'dark pastel green': '#56ae57',

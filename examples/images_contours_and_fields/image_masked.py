@@ -50,8 +50,7 @@ im = ax1.imshow(Zm, interpolation='bilinear',
 ax1.set_title('Green=low, Red=high, Blue=masked')
 cbar = fig.colorbar(im, extend='both', shrink=0.9, ax=ax1)
 cbar.set_label('uniform')
-for ticklabel in ax1.xaxis.get_ticklabels():
-    ticklabel.set_visible(False)
+ax1.tick_params(axis='x', labelbottom=False)
 
 # Plot using a small number of colors, with unevenly spaced boundaries.
 im = ax2.imshow(Zm, interpolation='nearest',
@@ -79,4 +78,4 @@ plt.show()
 #    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
 #    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
 #    - `matplotlib.colors.BoundaryNorm`
-#    - `matplotlib.colorbar.ColorbarBase.set_label`
+#    - `matplotlib.colorbar.Colorbar.set_label`

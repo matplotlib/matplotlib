@@ -17,6 +17,7 @@ import ast
 from functools import lru_cache, reduce
 from numbers import Number
 import operator
+import os
 import re
 
 import numpy as np
@@ -24,7 +25,7 @@ import numpy as np
 from matplotlib import _api, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
-from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
+from matplotlib._fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib._enums import JoinStyle, CapStyle
 
 # Don't let the original cycler collide with our validating cycler
@@ -33,13 +34,15 @@ from cycler import Cycler, cycler as ccycler
 
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
-interactive_bk = ['GTK3Agg', 'GTK3Cairo',
-                  'MacOSX',
-                  'nbAgg',
-                  'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
-                  'TkAgg', 'TkCairo',
-                  'WebAgg',
-                  'WX', 'WXAgg', 'WXCairo']
+interactive_bk = [
+    'GTK3Agg', 'GTK3Cairo', 'GTK4Agg', 'GTK4Cairo',
+    'MacOSX',
+    'nbAgg',
+    'QtAgg', 'QtCairo', 'Qt5Agg', 'Qt5Cairo',
+    'TkAgg', 'TkCairo',
+    'WebAgg',
+    'WX', 'WXAgg', 'WXCairo',
+]
 non_interactive_bk = ['agg', 'cairo',
                       'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
@@ -143,27 +146,7 @@ def validate_bool(b):
     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
         return False
     else:
-        raise ValueError('Could not convert "%s" to bool' % b)
-
-
-def _validate_date_converter(s):
-    if s is None:
-        return
-    s = validate_string(s)
-    if s not in ['auto', 'concise']:
-        _api.warn_external(f'date.converter string must be "auto" or '
-                           f'"concise", not "{s}".  Check your matplotlibrc')
-        return
-    import matplotlib.dates as mdates
-    mdates._rcParam_helper.set_converter(s)
-
-
-def _validate_date_int_mult(s):
-    if s is None:
-        return
-    s = validate_bool(s)
-    import matplotlib.dates as mdates
-    mdates._rcParam_helper.set_int_mult(s)
+        raise ValueError(f'Cannot convert {b!r} to bool')
 
 
 def validate_axisbelow(s):
@@ -173,8 +156,8 @@ def validate_axisbelow(s):
         if isinstance(s, str):
             if s == 'line':
                 return 'line'
-    raise ValueError('%s cannot be interpreted as'
-                     ' True, False, or "line"' % s)
+    raise ValueError(f'{s!r} cannot be interpreted as'
+                     ' True, False, or "line"')
 
 
 def validate_dpi(s):
@@ -198,6 +181,11 @@ def _make_type_validator(cls, *, allow_none=False):
         if (allow_none and
                 (s is None or isinstance(s, str) and s.lower() == "none")):
             return None
+        if cls is str and not isinstance(s, str):
+            _api.warn_deprecated(
+                "3.5", message="Support for setting an rcParam that expects a "
+                "str value to a non-str value is deprecated since %(since)s "
+                "and support will be removed %(removal)s.")
         try:
             return cls(s)
         except (TypeError, ValueError) as e:
@@ -222,6 +210,15 @@ validate_float = _make_type_validator(float)
 validate_float_or_None = _make_type_validator(float, allow_none=True)
 validate_floatlist = _listify_validator(
     validate_float, doc='return a list of floats')
+
+
+def _validate_pathlike(s):
+    if isinstance(s, (str, os.PathLike)):
+        # Store value as str because savefig.directory needs to distinguish
+        # between "" (cwd) and "." (cwd, but gets updated by user selections).
+        return os.fsdecode(s)
+    else:
+        return validate_string(s)  # Emit deprecation warning.
 
 
 def validate_fonttype(s):
@@ -287,6 +284,27 @@ def validate_color_for_prop_cycle(s):
     if isinstance(s, str) and re.match("^C[0-9]$", s):
         raise ValueError(f"Cannot put cycle reference ({s!r}) in prop_cycler")
     return validate_color(s)
+
+
+def _validate_color_or_linecolor(s):
+    if cbook._str_equal(s, 'linecolor'):
+        return s
+    elif cbook._str_equal(s, 'mfc') or cbook._str_equal(s, 'markerfacecolor'):
+        return 'markerfacecolor'
+    elif cbook._str_equal(s, 'mec') or cbook._str_equal(s, 'markeredgecolor'):
+        return 'markeredgecolor'
+    elif s is None:
+        return None
+    elif isinstance(s, str) and len(s) == 6 or len(s) == 8:
+        stmp = '#' + s
+        if is_color_like(stmp):
+            return stmp
+        if s.lower() == 'none':
+            return None
+    elif is_color_like(s):
+        return s
+
+    raise ValueError(f'{s!r} does not look like a color arg')
 
 
 def validate_color(s):
@@ -369,6 +387,20 @@ def validate_fontweight(s):
         raise ValueError(f'{s} is not a valid font weight.') from e
 
 
+def validate_fontstretch(s):
+    stretchvalues = [
+        'ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed',
+        'normal', 'semi-expanded', 'expanded', 'extra-expanded',
+        'ultra-expanded']
+    # Note: Historically, stretchvalues have been case-sensitive in Matplotlib
+    if s in stretchvalues:
+        return s
+    try:
+        return int(s)
+    except (ValueError, TypeError) as e:
+        raise ValueError(f'{s} is not a valid font stretch.') from e
+
+
 def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
@@ -396,7 +428,7 @@ def validate_whiskers(s):
         try:
             return float(s)
         except ValueError as e:
-            raise ValueError("Not a valid whisker value ['range', float, "
+            raise ValueError("Not a valid whisker value [float, "
                              "(float, float)]") from e
 
 
@@ -467,14 +499,11 @@ def validate_markevery(s):
 
     Parameters
     ----------
-    s : None, int, float, slice, length-2 tuple of ints,
-        length-2 tuple of floats, list of ints
+    s : None, int, (int, int), slice, float, (float, float), or list[int]
 
     Returns
     -------
-    None, int, float, slice, length-2 tuple of ints,
-        length-2 tuple of floats, list of ints
-
+    None, int, (int, int), slice, float, (float, float), or list[int]
     """
     # Validate s against type slice float int and None
     if isinstance(s, (slice, float, int, type(None))):
@@ -685,6 +714,13 @@ def cycler(*args, **kwargs):
     return reduce(operator.add, (ccycler(k, v) for k, v in validated))
 
 
+class _DunderChecker(ast.NodeVisitor):
+    def visit_Attribute(self, node):
+        if node.attr.startswith("__") and node.attr.endswith("__"):
+            raise ValueError("cycler strings with dunders are forbidden")
+        self.generic_visit(node)
+
+
 def validate_cycler(s):
     """Return a Cycler object from a string repr or the object itself."""
     if isinstance(s, str):
@@ -696,23 +732,21 @@ def validate_cycler(s):
         # I locked it down by only having the 'cycler()' function available.
         # UPDATE: Partly plugging a security hole.
         # I really should have read this:
-        # http://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
+        # https://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
         # We should replace this eval with a combo of PyParsing and
         # ast.literal_eval()
         try:
-            if '.__' in s.replace(' ', ''):
-                raise ValueError("'%s' seems to have dunder methods. Raising"
-                                 " an exception for your safety")
+            _DunderChecker().visit(ast.parse(s))
             s = eval(s, {'cycler': cycler, '__builtins__': {}})
         except BaseException as e:
-            raise ValueError("'%s' is not a valid cycler construction: %s" %
-                             (s, e)) from e
+            raise ValueError(f"{s!r} is not a valid cycler construction: {e}"
+                             ) from e
     # Should make sure what comes from the above eval()
     # is a Cycler object.
     if isinstance(s, Cycler):
         cycler_inst = s
     else:
-        raise ValueError("object was not a string or Cycler instance: %s" % s)
+        raise ValueError(f"Object is not a string or Cycler instance: {s!r}")
 
     unknowns = cycler_inst.keys - (set(_prop_validators) | set(_prop_aliases))
     if unknowns:
@@ -724,12 +758,11 @@ def validate_cycler(s):
     for prop in cycler_inst.keys:
         norm_prop = _prop_aliases.get(prop, prop)
         if norm_prop != prop and norm_prop in cycler_inst.keys:
-            raise ValueError("Cannot specify both '{0}' and alias '{1}'"
-                             " in the same prop_cycle".format(norm_prop, prop))
+            raise ValueError(f"Cannot specify both {norm_prop!r} and alias "
+                             f"{prop!r} in the same prop_cycle")
         if norm_prop in checker:
-            raise ValueError("Another property was already aliased to '{0}'."
-                             " Collision normalizing '{1}'.".format(norm_prop,
-                                                                    prop))
+            raise ValueError(f"Another property was already aliased to "
+                             f"{norm_prop!r}. Collision normalizing {prop!r}.")
         checker.update([norm_prop])
 
     # This is just an extra-careful check, just in case there is some
@@ -881,7 +914,7 @@ _validators = {
     "font.family":     validate_stringlist,  # used by text object
     "font.style":      validate_string,
     "font.variant":    validate_string,
-    "font.stretch":    validate_string,
+    "font.stretch":    validate_fontstretch,
     "font.weight":     validate_fontweight,
     "font.size":       validate_float,  # Base font size in points
     "font.serif":      validate_stringlist,
@@ -899,6 +932,7 @@ _validators = {
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
     "text.antialiased":    validate_bool,
+    "text.parse_math":     validate_bool,
 
     "mathtext.cal":            validate_font_properties,
     "mathtext.rm":             validate_font_properties,
@@ -926,6 +960,7 @@ _validators = {
     "contour.negative_linestyle": _validate_linestyle,
     "contour.corner_mask":        validate_bool,
     "contour.linewidth":          validate_float_or_None,
+    "contour.algorithm":          ["mpl2005", "mpl2014", "serial", "threaded"],
 
     # errorbar props
     "errorbar.capsize": validate_float,
@@ -998,10 +1033,9 @@ _validators = {
     "date.autoformatter.second":      validate_string,
     "date.autoformatter.microsecond": validate_string,
 
-    # 'auto', 'concise', 'auto-noninterval'
-    'date.converter': _validate_date_converter,
+    'date.converter':          ['auto', 'concise'],
     # for auto date locator, choose interval_multiples
-    'date.interval_multiples': _validate_date_int_mult,
+    'date.interval_multiples': validate_bool,
 
     # legend properties
     "legend.fancybox": validate_bool,
@@ -1017,12 +1051,14 @@ _validators = {
     "legend.scatterpoints":  validate_int,
     "legend.fontsize":       validate_fontsize,
     "legend.title_fontsize": validate_fontsize_None,
-     # the relative size of legend markers vs. original
+    # color of the legend
+    "legend.labelcolor":     _validate_color_or_linecolor,
+    # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
     "legend.shadow":         validate_bool,
-     # whether or not to draw a frame around legend
+    # whether or not to draw a frame around legend
     "legend.frameon":        validate_bool,
-     # alpha value of the legend frame
+    # alpha value of the legend frame
     "legend.framealpha":     validate_float_or_None,
 
     ## the following dimensions are in fraction of the font size
@@ -1096,6 +1132,10 @@ _validators = {
     "figure.titlesize":   validate_fontsize,
     "figure.titleweight": validate_fontweight,
 
+    # figure labels
+    "figure.labelsize":   validate_fontsize,
+    "figure.labelweight": validate_fontweight,
+
     # figure size in inches: width by height
     "figure.figsize":          _listify_validator(validate_float, n=2),
     "figure.dpi":              validate_float,
@@ -1131,7 +1171,7 @@ _validators = {
     "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
     "savefig.pad_inches":   validate_float,
     # default directory in savefig dialog box
-    "savefig.directory":    validate_string,
+    "savefig.directory":    _validate_pathlike,
     "savefig.transparent":  validate_bool,
 
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
@@ -1198,18 +1238,12 @@ _validators = {
     # Controls image format when frames are written to disk
     "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba", "ppm",
                                "sgi", "bmp", "pbm", "svg"],
-    # Additional arguments for HTML writer
-    "animation.html_args":    validate_stringlist,
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
-    "animation.ffmpeg_path":  validate_string,
+    "animation.ffmpeg_path":  _validate_pathlike,
     # Additional arguments for ffmpeg movie writer (using pipes)
     "animation.ffmpeg_args":  validate_stringlist,
-    # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    "animation.avconv_path":  validate_string,
-    # Additional arguments for avconv movie writer (using pipes)
-    "animation.avconv_args":  validate_stringlist,
      # Path to convert binary. If just binary name, subprocess uses $PATH.
-    "animation.convert_path": validate_string,
+    "animation.convert_path": _validate_pathlike,
      # Additional arguments for convert movie writer (using pipes)
     "animation.convert_args": validate_stringlist,
 
@@ -1223,9 +1257,7 @@ _hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
     # ... because they are private:
     "_internal.classic_mode": False,
     # ... because they are deprecated:
-    "animation.avconv_path": "avconv",
-    "animation.avconv_args": [],
-    "animation.html_args": [],
+    # No current deprecations.
     # backend is handled separately when constructing rcParamsDefault.
 }
 _validators = {k: _convert_validator_spec(k, conv)

@@ -6,15 +6,16 @@ Colormap reference
 Reference for colormaps included with Matplotlib.
 
 A reversed version of each of these colormaps is available by appending
-``_r`` to the name, e.g., ``viridis_r``.
+``_r`` to the name, as shown in :ref:`reverse-cmap`.
 
 See :doc:`/tutorials/colors/colormaps` for an in-depth discussion about
-colormaps, including colorblind-friendliness.
+colormaps, including colorblind-friendliness, and
+:doc:`/tutorials/colors/colormap-manipulation` for a guide to creating
+colormaps.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-
 
 cmaps = [('Perceptually Uniform Sequential', [
             'viridis', 'plasma', 'inferno', 'magma', 'cividis']),
@@ -40,7 +41,6 @@ cmaps = [('Perceptually Uniform Sequential', [
             'gist_rainbow', 'rainbow', 'jet', 'turbo', 'nipy_spectral',
             'gist_ncar'])]
 
-
 gradient = np.linspace(0, 1, 256)
 gradient = np.vstack((gradient, gradient))
 
@@ -52,11 +52,11 @@ def plot_color_gradients(cmap_category, cmap_list):
     fig, axs = plt.subplots(nrows=nrows, figsize=(6.4, figh))
     fig.subplots_adjust(top=1-.35/figh, bottom=.15/figh, left=0.2, right=0.99)
 
-    axs[0].set_title(cmap_category + ' colormaps', fontsize=14)
+    axs[0].set_title(f"{cmap_category} colormaps", fontsize=14)
 
-    for ax, name in zip(axs, cmap_list):
-        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
-        ax.text(-.01, .5, name, va='center', ha='right', fontsize=10,
+    for ax, cmap_name in zip(axs, cmap_list):
+        ax.imshow(gradient, aspect='auto', cmap=cmap_name)
+        ax.text(-.01, .5, cmap_name, va='center', ha='right', fontsize=10,
                 transform=ax.transAxes)
 
     # Turn off *all* ticks & spines, not just the ones with colormaps.
@@ -67,7 +67,21 @@ def plot_color_gradients(cmap_category, cmap_list):
 for cmap_category, cmap_list in cmaps:
     plot_color_gradients(cmap_category, cmap_list)
 
-plt.show()
+
+###############################################################################
+# .. _reverse-cmap:
+#
+# Reversed colormaps
+# ------------------
+#
+# Append ``_r`` to the name of any built-in colormap to get the reversed
+# version:
+
+plot_color_gradients("Original and reversed ", ['viridis', 'viridis_r'])
+
+# %%
+# The built-in reversed colormaps are generated using `.Colormap.reversed`.
+# For an example, see :ref:`reversing-colormap`
 
 #############################################################################
 #

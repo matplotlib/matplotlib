@@ -14,14 +14,18 @@ def _line2d_seg_dist(p1, p2, p0):
     p0[1] = y(s)
 
     intersection point p = p1 + u*(p2-p1)
-    and intersection point lies within segment if u is between 0 and 1
+    and intersection point lies within segment if u is between 0 and 1.
+
+    If p1 and p2 are identical, the distance between them and p0 is returned.
     """
+
+    x01 = np.asarray(p0[0]) - p1[0]
+    y01 = np.asarray(p0[1]) - p1[1]
+    if np.all(p1[0:2] == p2[0:2]):
+        return np.hypot(x01, y01)
 
     x21 = p2[0] - p1[0]
     y21 = p2[1] - p1[1]
-    x01 = np.asarray(p0[0]) - p1[0]
-    y01 = np.asarray(p0[1]) - p1[1]
-
     u = (x01*x21 + y01*y21) / (x21**2 + y21**2)
     u = np.clip(u, 0, 1)
     d = np.hypot(x01 - u*x21, y01 - u*y21)
@@ -51,55 +55,126 @@ def world_transformation(xmin, xmax,
                      [0,    0,    0,    1]])
 
 
-def view_transformation(E, R, V):
-    n = (E - R)
-    ## new
-#    n /= np.linalg.norm(n)
-#    u = np.cross(V, n)
-#    u /= np.linalg.norm(u)
-#    v = np.cross(n, u)
-#    Mr = np.diag([1.] * 4)
-#    Mt = np.diag([1.] * 4)
-#    Mr[:3,:3] = u, v, n
-#    Mt[:3,-1] = -E
-    ## end new
+def rotation_about_vector(v, angle):
+    """
+    Produce a rotation matrix for an angle in radians about a vector.
+    """
+    vx, vy, vz = v / np.linalg.norm(v)
+    s = np.sin(angle)
+    c = np.cos(angle)
+    t = 2*np.sin(angle/2)**2  # more numerically stable than t = 1-c
 
-    ## old
-    n = n / np.linalg.norm(n)
-    u = np.cross(V, n)
-    u = u / np.linalg.norm(u)
-    v = np.cross(n, u)
-    Mr = [[u[0], u[1], u[2], 0],
-          [v[0], v[1], v[2], 0],
-          [n[0], n[1], n[2], 0],
-          [0,    0,    0,    1]]
-    #
-    Mt = [[1, 0, 0, -E[0]],
-          [0, 1, 0, -E[1]],
-          [0, 0, 1, -E[2]],
-          [0, 0, 0, 1]]
-    ## end old
+    R = np.array([
+        [t*vx*vx + c,    t*vx*vy - vz*s, t*vx*vz + vy*s],
+        [t*vy*vx + vz*s, t*vy*vy + c,    t*vy*vz - vx*s],
+        [t*vz*vx - vy*s, t*vz*vy + vx*s, t*vz*vz + c]])
 
-    return np.dot(Mr, Mt)
+    return R
 
 
-def persp_transformation(zfront, zback):
-    a = (zfront+zback)/(zfront-zback)
-    b = -2*(zfront*zback)/(zfront-zback)
-    return np.array([[1, 0, 0, 0],
-                     [0, 1, 0, 0],
-                     [0, 0, a, b],
-                     [0, 0, -1, 0]])
+def _view_axes(E, R, V, roll):
+    """
+    Get the unit viewing axes in data coordinates.
+
+    Parameters
+    ----------
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    R : 3-element numpy array
+        The coordinates of the center of the view box.
+    V : 3-element numpy array
+        Unit vector in the direction of the vertical axis.
+    roll : float
+        The roll angle in radians.
+
+    Returns
+    -------
+    u : 3-element numpy array
+        Unit vector pointing towards the right of the screen.
+    v : 3-element numpy array
+        Unit vector pointing towards the top of the screen.
+    w : 3-element numpy array
+        Unit vector pointing out of the screen.
+    """
+    w = (E - R)
+    w = w/np.linalg.norm(w)
+    u = np.cross(V, w)
+    u = u/np.linalg.norm(u)
+    v = np.cross(w, u)  # Will be a unit vector
+
+    # Save some computation for the default roll=0
+    if roll != 0:
+        # A positive rotation of the camera is a negative rotation of the world
+        Rroll = rotation_about_vector(w, -roll)
+        u = np.dot(Rroll, u)
+        v = np.dot(Rroll, v)
+    return u, v, w
+
+
+def _view_transformation_uvw(u, v, w, E):
+    """
+    Return the view transformation matrix.
+
+    Parameters
+    ----------
+    u : 3-element numpy array
+        Unit vector pointing towards the right of the screen.
+    v : 3-element numpy array
+        Unit vector pointing towards the top of the screen.
+    w : 3-element numpy array
+        Unit vector pointing out of the screen.
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    """
+    Mr = np.eye(4)
+    Mt = np.eye(4)
+    Mr[:3, :3] = [u, v, w]
+    Mt[:3, -1] = -E
+    M = np.dot(Mr, Mt)
+    return M
+
+
+def view_transformation(E, R, V, roll):
+    """
+    Return the view transformation matrix.
+
+    Parameters
+    ----------
+    E : 3-element numpy array
+        The coordinates of the eye/camera.
+    R : 3-element numpy array
+        The coordinates of the center of the view box.
+    V : 3-element numpy array
+        Unit vector in the direction of the vertical axis.
+    roll : float
+        The roll angle in radians.
+    """
+    u, v, w = _view_axes(E, R, V, roll)
+    M = _view_transformation_uvw(u, v, w, E)
+    return M
+
+
+def persp_transformation(zfront, zback, focal_length):
+    e = focal_length
+    a = 1  # aspect ratio
+    b = (zfront+zback)/(zfront-zback)
+    c = -2*(zfront*zback)/(zfront-zback)
+    proj_matrix = np.array([[e,   0,  0, 0],
+                            [0, e/a,  0, 0],
+                            [0,   0,  b, c],
+                            [0,   0, -1, 0]])
+    return proj_matrix
 
 
 def ortho_transformation(zfront, zback):
     # note: w component in the resulting vector will be (zback-zfront), not 1
     a = -(zfront + zback)
     b = -(zfront - zback)
-    return np.array([[2, 0, 0, 0],
-                     [0, 2, 0, 0],
-                     [0, 0, -2, 0],
-                     [0, 0, a, b]])
+    proj_matrix = np.array([[2, 0,  0, 0],
+                            [0, 2,  0, 0],
+                            [0, 0, -2, 0],
+                            [0, 0,  a, b]])
+    return proj_matrix
 
 
 def _proj_transform_vec(vec, M):

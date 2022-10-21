@@ -1,6 +1,5 @@
-
-:mod:`matplotlib.backends.backend_ps`
-=====================================
+:mod:`.backend_ps`
+==================
 
 .. automodule:: matplotlib.backends.backend_ps
    :members:

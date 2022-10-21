@@ -38,8 +38,8 @@ Subplot-related attributes and methods
 Some ``SubplotBase`` methods and attributes have been deprecated and/or moved
 to `.SubplotSpec`:
 
-- ``get_geometry`` (use `.SubplotBase.get_subplotspec` instead),
-- ``change_geometry`` (use `.SubplotBase.set_subplotspec` instead),
+- ``get_geometry`` (use ``SubplotBase.get_subplotspec`` instead),
+- ``change_geometry`` (use ``SubplotBase.set_subplotspec`` instead),
 - ``is_first_row``, ``is_last_row``, ``is_first_col``, ``is_last_col`` (use the
   corresponding methods on the `.SubplotSpec` instance instead),
 - ``update_params`` (now a no-op),
@@ -62,12 +62,6 @@ similar replacements.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``STYLE_FILE_PATTERN``, ``load_base_library``, and ``iter_user_libraries`` are
 deprecated.
-
-``Tick.apply_tickdir`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``apply_tickdir`` didn't actually update the tick markers on the existing
-Line2D objects used to draw the ticks; use `.Axis.set_tick_params` instead.
 
 ``dpi_cor`` property of `.FancyArrowPatch`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

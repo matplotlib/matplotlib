@@ -93,7 +93,7 @@ Parameters *norm* and *vmin*/*vmax* should not be used simultaneously
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Passing parameters *norm* and *vmin*/*vmax* simultaneously to functions using
 colormapping such as ``scatter()`` and ``imshow()`` is deprecated.
-Inestead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
+Instead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
 ``norm=LogNorm(min_val, max_val)``. *vmin* and *vmax* should only be used
 without setting *norm*.
 
@@ -328,7 +328,7 @@ are deprecated.  Panning and zooming are now implemented using the
 
 Passing None to various Axes subclass factories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Support for passing ``None`` as base class to `.axes.subplot_class_factory`,
+Support for passing ``None`` as base class to ``axes.subplot_class_factory``,
 ``axes_grid1.parasite_axes.host_axes_class_factory``,
 ``axes_grid1.parasite_axes.host_subplot_class_factory``,
 ``axes_grid1.parasite_axes.parasite_axes_class_factory``, and
@@ -545,8 +545,8 @@ experimental and may change in the future.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... is deprecated.
 
-`.epoch2num` and `.num2epoch` are deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``epoch2num`` and ``num2epoch`` are deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These are unused and can be easily reproduced by other date tools.
 `.get_epoch` will return Matplotlib's epoch.
 
@@ -609,8 +609,8 @@ accepted.
 Qt modifier keys
 ~~~~~~~~~~~~~~~~
 The ``MODIFIER_KEYS``, ``SUPER``, ``ALT``, ``CTRL``, and ``SHIFT``
-global variables of the :mod:`matplotlib.backends.backend_qt4agg`,
-:mod:`matplotlib.backends.backend_qt4cairo`,
+global variables of the ``matplotlib.backends.backend_qt4agg``,
+``matplotlib.backends.backend_qt4cairo``,
 :mod:`matplotlib.backends.backend_qt5agg` and
 :mod:`matplotlib.backends.backend_qt5cairo` modules are deprecated.
 

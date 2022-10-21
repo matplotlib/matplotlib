@@ -86,14 +86,24 @@ typedef struct Tk_PhotoImageBlock
     int offset[4];
 } Tk_PhotoImageBlock;
 
+#define TK_PHOTO_COMPOSITE_OVERLAY  0  // apply transparency rules pixel-wise
+#define TK_PHOTO_COMPOSITE_SET      1  // set image buffer directly
+#define TCL_OK     0
+#define TCL_ERROR  1
+
 /* Typedefs derived from function signatures in Tk header */
 /* Tk_FindPhoto typedef */
 typedef Tk_PhotoHandle (*Tk_FindPhoto_t) (Tcl_Interp *interp, const char
         *imageName);
-/* Tk_PhotoPutBLock_NoComposite typedef */
-typedef void (*Tk_PhotoPutBlock_NoComposite_t) (Tk_PhotoHandle handle,
+/* Tk_PhotoPutBLock typedef */
+typedef int (*Tk_PhotoPutBlock_t) (Tcl_Interp *interp, Tk_PhotoHandle handle,
         Tk_PhotoImageBlock *blockPtr, int x, int y,
-        int width, int height);
+        int width, int height, int compRule);
+
+/* Typedefs derived from function signatures in Tcl header */
+/* Tcl_SetVar typedef */
+typedef const char *(*Tcl_SetVar_t)(Tcl_Interp *interp, const char *varName,
+                                    const char *newValue, int flags);
 
 #ifdef __cplusplus
 }

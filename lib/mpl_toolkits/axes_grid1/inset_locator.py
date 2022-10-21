@@ -2,7 +2,7 @@
 A collection of functions and objects for creating or placing inset axes.
 """
 
-from matplotlib import _api, docstring
+from matplotlib import _api, _docstring
 from matplotlib.offsetbox import AnchoredOffsetbox
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.path import Path
@@ -14,7 +14,7 @@ from .parasite_axes import HostAxes
 
 
 class InsetPosition:
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, parent, lbwh):
         """
         An object for positioning an inset axes.
@@ -43,7 +43,7 @@ class InsetPosition:
 
         >>> parent_axes = plt.gca()
         >>> ax_ins = plt.axes([0, 0, 1, 1])
-        >>> ip = InsetPosition(ax, [0.5, 0.1, 0.4, 0.2])
+        >>> ip = InsetPosition(parent_axes, [0.5, 0.1, 0.4, 0.2])
         >>> ax_ins.set_axes_locator(ip)
         """
         self.parent = parent
@@ -70,18 +70,11 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
 
     def __call__(self, ax, renderer):
         self.axes = ax
-
-        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
-        self._update_offset_func(renderer, fontsize)
-
-        width, height, xdescent, ydescent = self.get_extent(renderer)
-
-        px, py = self.get_offset(width, height, 0, 0, renderer)
-        bbox_canvas = Bbox.from_bounds(px, py, width, height)
+        bbox = self.get_window_extent(renderer)
+        px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)
+        bbox_canvas = Bbox.from_bounds(px, py, bbox.width, bbox.height)
         tr = ax.figure.transFigure.inverted()
-        bb = TransformedBbox(bbox_canvas, tr)
-
-        return bb
+        return TransformedBbox(bbox_canvas, tr)
 
 
 class AnchoredSizeLocator(AnchoredLocatorBase):
@@ -126,7 +119,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
             bbox_transform=bbox_transform)
 
     def get_extent(self, renderer):
-        bb = TransformedBbox(self.axes.viewLim, self.parent_axes.transData)
+        bb = self.parent_axes.transData.transform_bbox(self.axes.viewLim)
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         pad = self.pad * fontsize
         return (abs(bb.width * self.zoom) + 2 * pad,
@@ -135,7 +128,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
 
 
 class BboxPatch(Patch):
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, bbox, **kwargs):
         """
         Patch showing the shape bounded by a Bbox.
@@ -148,7 +141,7 @@ class BboxPatch(Patch):
         **kwargs
             Patch properties. Valid arguments include:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -160,32 +153,15 @@ class BboxPatch(Patch):
     def get_path(self):
         # docstring inherited
         x0, y0, x1, y1 = self.bbox.extents
-        return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)],
-                    closed=True)
+        return Path._create_closed([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
 
 
 class BboxConnector(Patch):
     @staticmethod
     def get_bbox_edge_pos(bbox, loc):
         """
-        Helper function to obtain the location of a corner of a bbox
-
-        Parameters
-        ----------
-        bbox : `matplotlib.transforms.Bbox`
-
-        loc : {1, 2, 3, 4}
-            Corner of *bbox*. Valid values are::
-
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4
-
-        Returns
-        -------
-        x, y : float
-            Coordinates of the corner specified by *loc*.
+        Return the ``(x, y)`` coordinates of corner *loc* of *bbox*; parameters
+        behave as documented for the `.BboxConnector` constructor.
         """
         x0, y0, x1, y1 = bbox.extents
         if loc == 1:
@@ -200,35 +176,9 @@ class BboxConnector(Patch):
     @staticmethod
     def connect_bbox(bbox1, bbox2, loc1, loc2=None):
         """
-        Helper function to obtain a Path from one bbox to another.
-
-        Parameters
-        ----------
-        bbox1, bbox2 : `matplotlib.transforms.Bbox`
-            Bounding boxes to connect.
-
-        loc1 : {1, 2, 3, 4}
-            Corner of *bbox1* to use. Valid values are::
-
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4
-
-        loc2 : {1, 2, 3, 4}, optional
-            Corner of *bbox2* to use. If None, defaults to *loc1*.
-            Valid values are::
-
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4
-
-        Returns
-        -------
-        path : `matplotlib.path.Path`
-            A line segment from the *loc1* corner of *bbox1* to the *loc2*
-            corner of *bbox2*.
+        Construct a `.Path` connecting corner *loc1* of *bbox1* to corner
+        *loc2* of *bbox2*, where parameters behave as documented as for the
+        `.BboxConnector` constructor.
         """
         if isinstance(bbox1, Rectangle):
             bbox1 = TransformedBbox(Bbox.unit(), bbox1.get_transform())
@@ -240,7 +190,7 @@ class BboxConnector(Patch):
         x2, y2 = BboxConnector.get_bbox_edge_pos(bbox2, loc2)
         return Path([[x1, y1], [x2, y2]])
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1, loc2=None, **kwargs):
         """
         Connect two bboxes with a straight line.
@@ -250,27 +200,20 @@ class BboxConnector(Patch):
         bbox1, bbox2 : `matplotlib.transforms.Bbox`
             Bounding boxes to connect.
 
-        loc1 : {1, 2, 3, 4}
-            Corner of *bbox1* to draw the line. Valid values are::
+        loc1, loc2 : {1, 2, 3, 4}
+            Corner of *bbox1* and *bbox2* to draw the line. Valid values are::
 
                 'upper right'  : 1,
                 'upper left'   : 2,
                 'lower left'   : 3,
                 'lower right'  : 4
 
-        loc2 : {1, 2, 3, 4}, optional
-            Corner of *bbox2* to draw the line. If None, defaults to *loc1*.
-            Valid values are::
-
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4
+            *loc2* is optional and defaults to *loc1*.
 
         **kwargs
             Patch properties for the line drawn. Valid arguments include:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -293,7 +236,7 @@ class BboxConnector(Patch):
 
 
 class BboxConnectorPatch(BboxConnector):
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, bbox1, bbox2, loc1a, loc2a, loc1b, loc2b, **kwargs):
         """
         Connect two bboxes with a quadrilateral.
@@ -308,18 +251,10 @@ class BboxConnectorPatch(BboxConnector):
         bbox1, bbox2 : `matplotlib.transforms.Bbox`
             Bounding boxes to connect.
 
-        loc1a, loc2a : {1, 2, 3, 4}
-            Corners of *bbox1* and *bbox2* to draw the first line.
-            Valid values are::
-
-                'upper right'  : 1,
-                'upper left'   : 2,
-                'lower left'   : 3,
-                'lower right'  : 4
-
-        loc1b, loc2b : {1, 2, 3, 4}
-            Corners of *bbox1* and *bbox2* to draw the second line.
-            Valid values are::
+        loc1a, loc2a, loc1b, loc2b : {1, 2, 3, 4}
+            The first line connects corners *loc1a* of *bbox1* and *loc2a* of
+            *bbox2*; the second line connects corners *loc1b* of *bbox1* and
+            *loc2b* of *bbox2*.  Valid values are::
 
                 'upper right'  : 1,
                 'upper left'   : 2,
@@ -329,7 +264,7 @@ class BboxConnectorPatch(BboxConnector):
         **kwargs
             Patch properties for the line drawn:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -352,7 +287,7 @@ def _add_inset_axes(parent_axes, inset_axes):
     inset_axes.set_navigate(False)
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
                axes_class=None, axes_kwargs=None,
@@ -441,7 +376,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         Keyword arguments to pass to the constructor of the inset axes.
         Valid arguments include:
 
-        %(Axes_kwdoc)s
+        %(Axes:kwdoc)s
 
     borderpad : float, default: 0.5
         Padding between inset axes and the bbox_to_anchor.
@@ -492,7 +427,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     return inset_axes
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
                       axes_class=None, axes_kwargs=None,
@@ -548,7 +483,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         Keyword arguments to pass to the constructor of the inset axes.
         Valid arguments include:
 
-        %(Axes_kwdoc)s
+        %(Axes:kwdoc)s
 
     borderpad : float, default: 0.5
         Padding between inset axes and the bbox_to_anchor.
@@ -579,7 +514,23 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
     return inset_axes
 
 
-@docstring.dedent_interpd
+class _TransformedBboxWithCallback(TransformedBbox):
+    """
+    Variant of `.TransformBbox` which calls *callback* before returning points.
+
+    Used by `.mark_inset` to unstale the parent axes' viewlim as needed.
+    """
+
+    def __init__(self, *args, callback, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._callback = callback
+
+    def get_points(self):
+        self._callback()
+        return super().get_points()
+
+
+@_docstring.dedent_interpd
 def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
     Draw a box to mark the location of an area represented by an inset axes.
@@ -603,7 +554,7 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     **kwargs
         Patch properties for the lines and box drawn:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
 
     Returns
     -------
@@ -613,7 +564,9 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     p1, p2 : `matplotlib.patches.Patch`
         The patches connecting two corners of the inset axes and its area.
     """
-    rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
+    rect = _TransformedBboxWithCallback(
+        inset_axes.viewLim, parent_axes.transData,
+        callback=parent_axes._unstale_viewLim)
 
     if 'fill' in kwargs:
         pp = BboxPatch(rect, **kwargs)

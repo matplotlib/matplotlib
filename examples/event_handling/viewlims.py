@@ -5,6 +5,14 @@ Viewlims
 
 Creates two identical panels.  Zooming in on the right panel will show
 a rectangle in the first panel, denoting the zoomed region.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 import numpy as np
 import matplotlib.pyplot as plt

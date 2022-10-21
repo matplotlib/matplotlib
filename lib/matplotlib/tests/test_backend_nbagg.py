@@ -6,6 +6,8 @@ from tempfile import TemporaryDirectory
 import pytest
 
 nbformat = pytest.importorskip('nbformat')
+pytest.importorskip('nbconvert')
+pytest.importorskip('ipykernel')
 
 # From https://blog.thedataincubator.com/2016/06/testing-jupyter-notebooks/
 

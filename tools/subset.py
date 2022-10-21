@@ -9,7 +9,7 @@
 #   you may not use this file except in compliance with the License.
 #   You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#       https://www.apache.org/licenses/LICENSE-2.0.txt
 #
 #   Unless required by applicable law or agreed to in writing, software
 #   distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,20 +35,21 @@ import sys
 import fontforge
 
 
-def log_namelist(nam, unicode):
-    if nam and isinstance(unicode, int):
-        print(f"0x{unicode:04X}", fontforge.nameFromUnicode(unicode), file=nam)
+def log_namelist(name, unicode):
+    if name and isinstance(unicode, int):
+        print(f"0x{unicode:04X}", fontforge.nameeFromUnicode(unicode),
+              file=name)
 
 
-def select_with_refs(font, unicode, newfont, pe=None, nam=None):
+def select_with_refs(font, unicode, newfont, pe=None, name=None):
     newfont.selection.select(('more', 'unicode'), unicode)
-    log_namelist(nam, unicode)
+    log_namelist(name, unicode)
     if pe:
         print(f"SelectMore({unicode})", file=pe)
     try:
         for ref in font[unicode].references:
             newfont.selection.select(('more',), ref[0])
-            log_namelist(nam, ref[0])
+            log_namelist(name, ref[0])
             if pe:
                 print(f'SelectMore("{ref[0]}")', file=pe)
     except Exception:
@@ -60,11 +61,11 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         # 2010-12-06 DC To allow setting namelist filenames,
         # change getopt.gnu_getopt from namelist to namelist=
         # and invert comments on following 2 lines
-        # nam_fn = opts['--namelist']
-        nam_fn = f'{font_out}.nam'
-        nam = open(nam_fn, 'w')
+        # name_fn = opts['--namelist']
+        name_fn = f'{font_out}.name'
+        name = open(name_fn, 'w')
     else:
-        nam = None
+        name = None
     if '--script' in opts:
         pe_fn = "/tmp/script.pe"
         pe = open(pe_fn, 'w')
@@ -75,7 +76,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         print(f'Open("{font_in}")', file=pe)
         extract_vert_to_script(font_in, pe)
     for i in unicodes:
-        select_with_refs(font, i, font, pe, nam)
+        select_with_refs(font, i, font, pe, name)
 
     addl_glyphs = []
     if '--nmr' in opts:
@@ -86,9 +87,9 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         addl_glyphs.append('.notdef')
     for glyph in addl_glyphs:
         font.selection.select(('more',), glyph)
-        if nam:
+        if name:
             print(f"0x{fontforge.unicodeFromName(glyph):0.4X}", glyph,
-                  file=nam)
+                  file=name)
         if pe:
             print(f'SelectMore("{glyph}")', file=pe)
 
@@ -112,7 +113,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         new.em = font.em
         new.layers['Fore'].is_quadratic = font.layers['Fore'].is_quadratic
         for i in unicodes:
-            select_with_refs(font, i, new, pe, nam)
+            select_with_refs(font, i, new, pe, name)
         new.paste()
         # This is a hack - it should have been taken care of above.
         font.selection.select('space')
@@ -128,7 +129,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         print("Clear()", file=pe)
 
     if '--move-display' in opts:
-        print("Moving display glyphs into unicode ranges...")
+        print("Moving display glyphs into Unicode ranges...")
         font.familyname += " Display"
         font.fullname += " Display"
         font.fontname += "Display"
@@ -149,9 +150,9 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
                 font.selection.select(glname)
                 font.cut()
 
-    if nam:
+    if name:
         print("Writing NameList", end="")
-        nam.close()
+        name.close()
 
     if pe:
         print(f'Generate("{font_out}")', file=pe)
@@ -177,12 +178,11 @@ def subset_font(font_in, font_out, unicodes, opts):
     if font_out != font_out_raw:
         os.rename(font_out_raw, font_out)
 # 2011-02-14 DC this needs to only happen with --namelist is used
-#        os.rename(font_out_raw + '.nam', font_out + '.nam')
+#        os.rename(font_out_raw + '.name', font_out + '.name')
 
 
 def getsubset(subset, font_in):
     subsets = subset.split('+')
-
     quotes = [
         0x2013,  # endash
         0x2014,  # emdash
@@ -220,16 +220,16 @@ def getsubset(subset, font_in):
 
     result = quotes
 
-    if 'menu' in subset:
+    if 'menu' in subsets:
         font = fontforge.open(font_in)
         result = [
             *map(ord, font.familyname),
             0x0020,
         ]
 
-    if 'latin' in subset:
+    if 'latin' in subsets:
         result += latin
-    if 'latin-ext' in subset:
+    if 'latin-ext' in subsets:
         # These ranges include Extended A, B, C, D, and Additional with the
         # exception of Vietnamese, which is a separate range
         result += [
@@ -240,7 +240,7 @@ def getsubset(subset, font_in):
             *range(0x2c60, 0x2c80),
             *range(0xa700, 0xa800),
         ]
-    if 'vietnamese' in subset:
+    if 'vietnamese' in subsets:
         # 2011-07-16 DC: Charset from
         # http://vietunicode.sourceforge.net/charset/ + U+1ef9 from Fontaine
         result += [0x00c0, 0x00c1, 0x00c2, 0x00c3, 0x00C8, 0x00C9,
@@ -251,16 +251,16 @@ def getsubset(subset, font_in):
                    0x00FA, 0x00FD, 0x0102, 0x0103, 0x0110, 0x0111,
                    0x0128, 0x0129, 0x0168, 0x0169, 0x01A0, 0x01A1,
                    0x01AF, 0x01B0, 0x20AB, *range(0x1EA0, 0x1EFA)]
-    if 'greek' in subset:
+    if 'greek' in subsets:
         # Could probably be more aggressive here and exclude archaic
         # characters, but lack data
         result += [*range(0x370, 0x400)]
-    if 'greek-ext' in subset:
+    if 'greek-ext' in subsets:
         result += [*range(0x370, 0x400), *range(0x1f00, 0x2000)]
-    if 'cyrillic' in subset:
+    if 'cyrillic' in subsets:
         # Based on character frequency analysis
         result += [*range(0x400, 0x460), 0x490, 0x491, 0x4b0, 0x4b1, 0x2116]
-    if 'cyrillic-ext' in subset:
+    if 'cyrillic-ext' in subsets:
         result += [
             *range(0x400, 0x530),
             0x20b4,
@@ -270,7 +270,7 @@ def getsubset(subset, font_in):
             *range(0x2de0, 0x2e00),
             *range(0xa640, 0xa6a0),
         ]
-    if 'arabic' in subset:
+    if 'arabic' in subsets:
         # Based on Droid Arabic Kufi 1.0
         result += [0x000D, 0x0020, 0x0621, 0x0627, 0x062D,
                    0x062F, 0x0631, 0x0633, 0x0635, 0x0637, 0x0639,
@@ -322,7 +322,7 @@ def getsubset(subset, font_in):
                    0x063b, 0x063c, 0x063d, 0x063e, 0x063f, 0x0620,
                    0x0674, 0x0674, 0x06EC]
 
-    if 'dejavu-ext' in subset:
+    if 'dejavu-ext' in subsets:
         # add all glyphnames ending in .display
         font = fontforge.open(font_in)
         for glyph in font.glyphs():
@@ -335,10 +335,10 @@ def getsubset(subset, font_in):
 # code for extracting vertical metrics from a TrueType font
 class Sfnt:
     def __init__(self, data):
-        version, numTables, _, _, _ = struct.unpack('>IHHHH', data[:12])
+        _, numTables, _, _, _ = struct.unpack('>IHHHH', data[:12])
         self.tables = {}
         for i in range(numTables):
-            tag, checkSum, offset, length = struct.unpack(
+            tag, _, offset, length = struct.unpack(
                 '>4sIII', data[12 + 16 * i: 28 + 16 * i])
             self.tables[tag] = data[offset: offset + length]
 

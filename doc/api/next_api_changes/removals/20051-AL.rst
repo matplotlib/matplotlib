@@ -1,8 +1,0 @@
-Removal of deprecated ``offsetbox`` APIs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The following APIs were removed:
-
-- the *s* kwarg to `.AnnotationBbox.get_fontsize` (which had no effect),
-- the ``DraggableBase.artist_picker`` method (set the artist's picker instead),
-- the ``DraggableBase.on_motion_blit`` method (use `.DraggableBase.on_motion`
-  instead).

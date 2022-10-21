@@ -7,8 +7,8 @@ This example shows some configurations for axis style.
 
 Note: The `mpl_toolkits.axisartist` axes classes may be confusing for new
 users. If the only aim is to obtain arrow heads at the ends of the axes,
-rather check out the
-:doc:`/gallery/ticks_and_spines/centered_spines_with_arrows` example.
+rather check out the :doc:`/gallery/spines/centered_spines_with_arrows`
+example.
 """
 
 from mpl_toolkits.axisartist.axislines import AxesZero

@@ -77,8 +77,7 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
 # `~.Figure.colorbar`. For the out-of-range values to display on the colorbar
 # without using the *extend* keyword with
 # `.colors.BoundaryNorm`, we have to use the *extend* keyword argument directly
-# in the colorbar call, and supply an additional boundary on each end of the
-# range.  Here we also
+# in the colorbar call.  Here we also
 # use the spacing argument to make
 # the length of each colorbar segment proportional to its corresponding
 # interval.
@@ -94,7 +93,6 @@ norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 fig.colorbar(
     mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
     cax=ax,
-    boundaries=[0] + bounds + [13],  # Adding values for extensions.
     extend='both',
     ticks=bounds,
     spacing='proportional',
@@ -121,7 +119,6 @@ norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 fig.colorbar(
     mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
     cax=ax,
-    boundaries=[-10] + bounds + [10],
     extend='both',
     extendfrac='auto',
     ticks=bounds,

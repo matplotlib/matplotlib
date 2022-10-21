@@ -1,10 +1,11 @@
 .. _color_changes:
 
 *********************
-Default Color changes
+Default color changes
 *********************
 
-As discussed at length elsewhere [insert links], ``jet`` is an
+As discussed at length `elsewhere <https://bids.github.io/colormap/>`__ ,
+``jet`` is an
 empirically bad colormap and should not be the default colormap.
 Due to the position that changing the appearance of the plot breaks
 backward compatibility, this change has been put off for far longer
@@ -14,7 +15,7 @@ plots and to adopt a different colormap for filled plots (``imshow``,
 ``pcolor``, ``contourf``, etc) and for scatter like plots.
 
 
-Default Heat Map Colormap
+Default heat map colormap
 -------------------------
 
 The choice of a new colormap is fertile ground to bike-shedding ("No,
@@ -57,10 +58,10 @@ Nathaniel Smith) to evaluate proposed colormaps.
 Example script
 ++++++++++++++
 
-Proposed Colormaps
+Proposed colormaps
 ++++++++++++++++++
 
-Default Scatter Colormap
+Default scatter colormap
 ------------------------
 
 For heat-map like applications it can be desirable to cover as much of
@@ -99,10 +100,10 @@ Example script
    qd = np.random.rand(np.prod(X.shape))
    Q.set_array(qd)
 
-Proposed Colormaps
+Proposed colormaps
 ++++++++++++++++++
 
-Color Cycle / Qualitative colormap
+Color cycle / qualitative colormap
 -----------------------------------
 
 When plotting lines it is frequently desirable to plot multiple lines
@@ -131,5 +132,5 @@ Example script
 
    ax2.set_xlim(0, 2*np.pi)
 
-Proposed Color cycle
+Proposed color cycle
 ++++++++++++++++++++

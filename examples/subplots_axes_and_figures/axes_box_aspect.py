@@ -3,7 +3,7 @@
 Axes box aspect
 ===============
 
-This demo shows how to set the aspect of an axes box directly via
+This demo shows how to set the aspect of an Axes box directly via
 `~.Axes.set_box_aspect`. The box aspect is the ratio between axes height
 and axes width in physical units, independent of the data limits.
 This is useful to e.g. produce a square plot, independent of the data it
@@ -119,7 +119,7 @@ plt.show()
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # When setting the box aspect, one may still set the data aspect as well.
-# Here we create an axes with a box twice as long as tall and use an "equal"
+# Here we create an Axes with a box twice as long as tall and use an "equal"
 # data aspect for its contents, i.e. the circle actually stays circular.
 
 fig6, ax = plt.subplots()
@@ -135,8 +135,8 @@ plt.show()
 # Box aspect for many subplots
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# It is possible to pass the box aspect to an axes at initialization. The
-# following creates a 2 by 3 subplot grid with all square axes.
+# It is possible to pass the box aspect to an Axes at initialization. The
+# following creates a 2 by 3 subplot grid with all square Axes.
 
 fig7, axs = plt.subplots(2, 3, subplot_kw=dict(box_aspect=1),
                          sharex=True, sharey=True, constrained_layout=True)

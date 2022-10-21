@@ -3,8 +3,8 @@
 Colorbar
 ========
 
-Use `~.figure.Figure.colorbar` by specifying the mappable object (here
-the `~.matplotlib.image.AxesImage` returned by `~.axes.Axes.imshow`)
+Use `~.Figure.colorbar` by specifying the mappable object (here
+the `.AxesImage` returned by `~.axes.Axes.imshow`)
 and the axes to attach the colorbar to.
 """
 
@@ -54,5 +54,5 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
 #    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
-#    - `matplotlib.colorbar.ColorbarBase.minorticks_on`
-#    - `matplotlib.colorbar.ColorbarBase.minorticks_off`
+#    - `matplotlib.colorbar.Colorbar.minorticks_on`
+#    - `matplotlib.colorbar.Colorbar.minorticks_off`

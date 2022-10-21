@@ -1,9 +1,9 @@
 from contextlib import contextmanager
-import gc
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import sys
 
+import numpy as np
 import pytest
 
 import matplotlib as mpl
@@ -26,7 +26,8 @@ def temp_style(style_name, settings=None):
         with TemporaryDirectory() as tmpdir:
             # Write style settings to file in the tmpdir.
             Path(tmpdir, temp_file).write_text(
-                "\n".join("{}: {}".format(k, v) for k, v in settings.items()))
+                "\n".join("{}: {}".format(k, v) for k, v in settings.items()),
+                encoding="utf-8")
             # Add tmpdir to style path and reload so we can access this style.
             USER_LIBRARY_PATHS.append(tmpdir)
             style.reload_library()
@@ -59,7 +60,7 @@ def test_use():
 
 def test_use_url(tmpdir):
     path = Path(tmpdir, 'file')
-    path.write_text('axes.facecolor: adeade')
+    path.write_text('axes.facecolor: adeade', encoding='utf-8')
     with temp_style('test', DUMMY_SETTINGS):
         url = ('file:'
                + ('///' if sys.platform == 'win32' else '')
@@ -72,7 +73,7 @@ def test_single_path(tmpdir):
     mpl.rcParams[PARAM] = 'gray'
     temp_file = f'text.{STYLE_EXTENSION}'
     path = Path(tmpdir, temp_file)
-    path.write_text(f'{PARAM} : {VALUE}')
+    path.write_text(f'{PARAM} : {VALUE}', encoding='utf-8')
     with style.context(path):
         assert mpl.rcParams[PARAM] == VALUE
     assert mpl.rcParams[PARAM] == 'gray'
@@ -165,7 +166,7 @@ def test_xkcd_no_cm():
     assert mpl.rcParams["path.sketch"] is None
     plt.xkcd()
     assert mpl.rcParams["path.sketch"] == (1, 100, 2)
-    gc.collect()
+    np.testing.break_cycles()
     assert mpl.rcParams["path.sketch"] == (1, 100, 2)
 
 
@@ -174,3 +175,16 @@ def test_xkcd_cm():
     with plt.xkcd():
         assert mpl.rcParams["path.sketch"] == (1, 100, 2)
     assert mpl.rcParams["path.sketch"] is None
+
+
+def test_deprecated_seaborn_styles():
+    with mpl.style.context("seaborn-v0_8-bright"):
+        seaborn_bright = mpl.rcParams.copy()
+    assert mpl.rcParams != seaborn_bright
+    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
+        mpl.style.use("seaborn-bright")
+    assert mpl.rcParams == seaborn_bright
+
+
+def test_up_to_date_blacklist():
+    assert mpl.style.core.STYLE_BLACKLIST <= {*mpl.rcsetup._validators}

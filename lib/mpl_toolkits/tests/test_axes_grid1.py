@@ -3,20 +3,26 @@ import platform
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 from matplotlib import cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.transforms import Bbox, TransformedBbox
 from matplotlib.testing.decorators import (
-    image_comparison, remove_ticks_and_titles)
+    check_figures_equal, image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import (
-    axes_size as Size, host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
+    axes_size as Size,
+    host_subplot, make_axes_locatable,
+    Grid, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
-from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
+from mpl_toolkits.axes_grid1.axes_divider import (
+    Divider, HBoxDivider, make_axes_area_auto_adjustable, SubplotDivider)
+from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
-    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
+    zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
+    InsetPosition)
 import mpl_toolkits.axes_grid1.mpl_axes
 
 import pytest
@@ -36,7 +42,6 @@ def test_divider_append_axes():
         "right": divider.append_axes("right", 1.2, pad=0.1, sharey=ax),
     }
     fig.canvas.draw()
-    renderer = fig.canvas.get_renderer()
     bboxes = {k: axs[k].get_window_extent() for k in axs}
     dpi = fig.dpi
     assert bboxes["top"].height == pytest.approx(1.2 * dpi)
@@ -97,6 +102,18 @@ def test_axesgrid_colorbar_log_smoketest():
     grid.cbar_axes[0].colorbar(im)
 
 
+def test_inset_colorbar_tight_layout_smoketest():
+    fig, ax = plt.subplots(1, 1)
+    pts = ax.scatter([0, 1], [0, 1], c=[1, 5])
+
+    cax = inset_axes(ax, width="3%", height="70%")
+    plt.colorbar(pts, cax=cax)
+
+    with pytest.warns(UserWarning, match="This figure includes Axes"):
+        # Will warn, but not raise an error
+        plt.tight_layout()
+
+
 @image_comparison(['inset_locator.png'], style='default', remove_text=True)
 def test_inset_locator():
     fig, ax = plt.subplots(figsize=[5, 4])
@@ -109,7 +126,6 @@ def test_inset_locator():
     ny, nx = Z.shape
     Z2[30:30+ny, 30:30+nx] = Z
 
-    # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
@@ -151,7 +167,6 @@ def test_inset_axes():
     ny, nx = Z.shape
     Z2[30:30+ny, 30:30+nx] = Z
 
-    # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
               origin="lower")
 
@@ -354,6 +369,40 @@ def test_axes_locatable_position():
                       0.03621495327102808)
 
 
+@image_comparison(['image_grid_each_left_label_mode_all.png'], style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid_each_left_label_mode_all():
+    imdata = np.arange(100).reshape((10, 10))
+
+    fig = plt.figure(1, (3, 3))
+    grid = ImageGrid(fig, (1, 1, 1), nrows_ncols=(3, 2), axes_pad=(0.5, 0.3),
+                     cbar_mode="each", cbar_location="left", cbar_size="15%",
+                     label_mode="all")
+    # 3-tuple rect => SubplotDivider
+    assert isinstance(grid.get_divider(), SubplotDivider)
+    assert grid.get_axes_pad() == (0.5, 0.3)
+    assert grid.get_aspect()  # True by default for ImageGrid
+    for ax, cax in zip(grid, grid.cbar_axes):
+        im = ax.imshow(imdata, interpolation='none')
+        cax.colorbar(im)
+
+
+@image_comparison(['image_grid_single_bottom_label_mode_1.png'], style='mpl20',
+                  savefig_kwarg={'bbox_inches': 'tight'})
+def test_image_grid_single_bottom():
+    imdata = np.arange(100).reshape((10, 10))
+
+    fig = plt.figure(1, (2.5, 1.5))
+    grid = ImageGrid(fig, (0, 0, 1, 1), nrows_ncols=(1, 3),
+                     axes_pad=(0.2, 0.15), cbar_mode="single",
+                     cbar_location="bottom", cbar_size="10%", label_mode="1")
+    # 4-tuple rect => Divider, isinstance will give True for SubplotDivider
+    assert type(grid.get_divider()) is Divider
+    for i in range(3):
+        im = grid[i].imshow(imdata, interpolation='none')
+    grid.cbar_axes[0].colorbar(im)
+
+
 @image_comparison(['image_grid.png'],
                   remove_text=True, style='mpl20',
                   savefig_kwarg={'bbox_inches': 'tight'})
@@ -363,10 +412,9 @@ def test_image_grid():
 
     fig = plt.figure(1, (4, 4))
     grid = ImageGrid(fig, 111, nrows_ncols=(2, 2), axes_pad=0.1)
-
+    assert grid.get_axes_pad() == (0.1, 0.1)
     for i in range(4):
         grid[i].imshow(im, interpolation='nearest')
-        grid[i].set_title('test {0}{0}'.format(i))
 
 
 def test_gettightbbox():
@@ -470,3 +518,146 @@ def test_axes_class_tuple():
     fig = plt.figure()
     axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
     gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)
+
+
+def test_grid_axes_lists():
+    """Test Grid axes_all, axes_row and axes_column relationship."""
+    fig = plt.figure()
+    grid = Grid(fig, 111, (2, 3), direction="row")
+    assert_array_equal(grid, grid.axes_all)
+    assert_array_equal(grid.axes_row, np.transpose(grid.axes_column))
+    assert_array_equal(grid, np.ravel(grid.axes_row), "row")
+    assert grid.get_geometry() == (2, 3)
+    grid = Grid(fig, 111, (2, 3), direction="column")
+    assert_array_equal(grid, np.ravel(grid.axes_column), "column")
+
+
+@pytest.mark.parametrize('direction', ('row', 'column'))
+def test_grid_axes_position(direction):
+    """Test positioning of the axes in Grid."""
+    fig = plt.figure()
+    grid = Grid(fig, 111, (2, 2), direction=direction)
+    loc = [ax.get_axes_locator() for ax in np.ravel(grid.axes_row)]
+    assert loc[1]._nx > loc[0]._nx and loc[2]._ny < loc[0]._ny
+    assert loc[0]._nx == loc[2]._nx and loc[0]._ny == loc[1]._ny
+    assert loc[3]._nx == loc[1]._nx and loc[3]._ny == loc[2]._ny
+
+
+@pytest.mark.parametrize('rect, ngrids, error, message', (
+    ((1, 1), None, TypeError, "Incorrect rect format"),
+    (111, -1, ValueError, "ngrids must be positive"),
+    (111, 7, ValueError, "ngrids must be positive"),
+))
+def test_grid_errors(rect, ngrids, error, message):
+    fig = plt.figure()
+    with pytest.raises(error, match=message):
+        Grid(fig, rect, (2, 3), ngrids=ngrids)
+
+
+@pytest.mark.parametrize('anchor, error, message', (
+    (None, TypeError, "anchor must be str"),
+    ("CC", ValueError, "'CC' is not a valid value for anchor"),
+    ((1, 1, 1), TypeError, "anchor must be str"),
+))
+def test_divider_errors(anchor, error, message):
+    fig = plt.figure()
+    with pytest.raises(error, match=message):
+        Divider(fig, [0, 0, 1, 1], [Size.Fixed(1)], [Size.Fixed(1)],
+                anchor=anchor)
+
+
+@check_figures_equal(extensions=["png"])
+def test_mark_inset_unstales_viewlim(fig_test, fig_ref):
+    inset, full = fig_test.subplots(1, 2)
+    full.plot([0, 5], [0, 5])
+    inset.set(xlim=(1, 2), ylim=(1, 2))
+    # Check that mark_inset unstales full's viewLim before drawing the marks.
+    mark_inset(full, inset, 1, 4)
+
+    inset, full = fig_ref.subplots(1, 2)
+    full.plot([0, 5], [0, 5])
+    inset.set(xlim=(1, 2), ylim=(1, 2))
+    mark_inset(full, inset, 1, 4)
+    # Manually unstale the full's viewLim.
+    fig_ref.canvas.draw()
+
+
+def test_auto_adjustable():
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+    pad = 0.1
+    make_axes_area_auto_adjustable(ax, pad=pad)
+    fig.canvas.draw()
+    tbb = ax.get_tightbbox()
+    assert tbb.x0 == pytest.approx(pad * fig.dpi)
+    assert tbb.x1 == pytest.approx(fig.bbox.width - pad * fig.dpi)
+    assert tbb.y0 == pytest.approx(pad * fig.dpi)
+    assert tbb.y1 == pytest.approx(fig.bbox.height - pad * fig.dpi)
+
+
+@image_comparison(['rgb_axes.png'], remove_text=True)
+def test_rgb_axes():
+    fig = plt.figure()
+    ax = RGBAxes(fig, (0.1, 0.1, 0.8, 0.8), pad=0.1)
+    rng = np.random.default_rng(19680801)
+    r = rng.random((5, 5))
+    g = rng.random((5, 5))
+    b = rng.random((5, 5))
+    ax.imshow_rgb(r, g, b, interpolation='none')
+
+
+@image_comparison(['insetposition.png'], remove_text=True)
+def test_insetposition():
+    fig, ax = plt.subplots(figsize=(2, 2))
+    ax_ins = plt.axes([0, 0, 1, 1])
+    ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
+    ax_ins.set_axes_locator(ip)
+
+
+# The original version of this test relied on mpl_toolkits's slightly different
+# colorbar implementation; moving to matplotlib's own colorbar implementation
+# caused the small image comparison error.
+@image_comparison(['imagegrid_cbar_mode.png'],
+                  remove_text=True, style='mpl20', tol=0.3)
+def test_imagegrid_cbar_mode_edge():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
+    X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))
+    arr = np.sin(X) * np.cos(Y) + 1j*(np.sin(3*Y) * np.cos(Y/2.))
+
+    fig = plt.figure(figsize=(18, 9))
+
+    positions = (241, 242, 243, 244, 245, 246, 247, 248)
+    directions = ['row']*4 + ['column']*4
+    cbar_locations = ['left', 'right', 'top', 'bottom']*2
+
+    for position, direction, location in zip(
+            positions, directions, cbar_locations):
+        grid = ImageGrid(fig, position,
+                         nrows_ncols=(2, 2),
+                         direction=direction,
+                         cbar_location=location,
+                         cbar_size='20%',
+                         cbar_mode='edge')
+        ax1, ax2, ax3, ax4, = grid
+
+        ax1.imshow(arr.real, cmap='nipy_spectral')
+        ax2.imshow(arr.imag, cmap='hot')
+        ax3.imshow(np.abs(arr), cmap='jet')
+        ax4.imshow(np.arctan2(arr.imag, arr.real), cmap='hsv')
+
+        # In each row/column, the "first" colorbars must be overwritten by the
+        # "second" ones.  To achieve this, clear out the axes first.
+        for ax in grid:
+            ax.cax.cla()
+            cb = ax.cax.colorbar(ax.images[0])
+
+
+def test_imagegrid():
+    fig = plt.figure()
+    grid = ImageGrid(fig, 111, nrows_ncols=(1, 1))
+    ax = grid[0]
+    im = ax.imshow([[1, 2]], norm=mpl.colors.LogNorm())
+    cb = ax.cax.colorbar(im)
+    assert isinstance(cb.locator, mticker.LogLocator)

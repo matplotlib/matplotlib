@@ -107,7 +107,7 @@ ax.set(xlim=(-1, 5), ylim=(-3, 5))
 # In the example below, the *xy* point is in native coordinates (*xycoords*
 # defaults to 'data').  For a polar axes, this is in (theta, radius) space.
 # The text in the example is placed in the fractional figure coordinate system.
-# Text keyword args like horizontal and vertical alignment are respected.
+# Text keyword arguments like horizontal and vertical alignment are respected.
 
 fig, ax = plt.subplots(subplot_kw=dict(projection='polar'), figsize=(3, 3))
 r = np.arange(0, 1, 0.001)
@@ -125,6 +125,7 @@ ax.annotate('a polar annotation',
             horizontalalignment='left',
             verticalalignment='bottom')
 
+#############################################################################
 # You can also use polar notation on a cartesian axes.  Here the native
 # coordinate system ('data') is cartesian, so you need to specify the
 # xycoords and textcoords as 'polar' if you want to use (theta, radius).
@@ -230,6 +231,7 @@ ax.annotate('', xy=(4., 1.), xycoords='data',
 
 ax.set(xlim=(-1, 5), ylim=(-4, 3))
 
+#############################################################################
 # We'll create another figure so that it doesn't get too cluttered
 fig, ax = plt.subplots()
 
@@ -247,7 +249,6 @@ ax.annotate('arrow\nfancy',
             xy=(2., -1), xycoords='data',
             xytext=(-100, 60), textcoords='offset points',
             size=20,
-            # bbox=dict(boxstyle="round", fc="0.8"),
             arrowprops=dict(arrowstyle="fancy",
                             fc="0.6", ec="none",
                             patchB=el,
@@ -256,7 +257,6 @@ ax.annotate('arrow\nsimple',
             xy=(2., -1), xycoords='data',
             xytext=(100, 60), textcoords='offset points',
             size=20,
-            # bbox=dict(boxstyle="round", fc="0.8"),
             arrowprops=dict(arrowstyle="simple",
                             fc="0.6", ec="none",
                             patchB=el,
@@ -265,7 +265,6 @@ ax.annotate('wedge',
             xy=(2., -1), xycoords='data',
             xytext=(-100, -100), textcoords='offset points',
             size=20,
-            # bbox=dict(boxstyle="round", fc="0.8"),
             arrowprops=dict(arrowstyle="wedge,tail_width=0.7",
                             fc="0.6", ec="none",
                             patchB=el,

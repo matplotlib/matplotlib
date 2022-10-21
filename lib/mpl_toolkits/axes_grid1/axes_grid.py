@@ -3,8 +3,7 @@ import functools
 
 import numpy as np
 
-import matplotlib as mpl
-from matplotlib import _api
+from matplotlib import _api, cbook
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
@@ -21,7 +20,6 @@ def _tick_only(ax, bottom_on, left_on):
 class CbarAxesBase:
     def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
-        self._default_label_on = True
         self._locator = None  # deprecated.
         super().__init__(*args, **kwargs)
 
@@ -29,31 +27,26 @@ class CbarAxesBase:
         orientation = (
             "horizontal" if self.orientation in ["top", "bottom"] else
             "vertical")
-        cb = mpl.colorbar.Colorbar(
-            self, mappable, orientation=orientation, ticks=ticks, **kwargs)
-        self._config_axes()
+        cb = self.figure.colorbar(mappable, cax=self, orientation=orientation,
+                                  ticks=ticks, **kwargs)
         return cb
 
-    def _config_axes(self):
-        """Make an axes patch and outline."""
-        ax = self
-        ax.set_navigate(False)
-        ax.axis[:].toggle(all=False)
-        b = self._default_label_on
-        ax.axis[self.orientation].toggle(all=b)
-
     def toggle_label(self, b):
-        self._default_label_on = b
         axis = self.axis[self.orientation]
         axis.toggle(ticklabels=b, label=b)
 
     def cla(self):
+        orientation = self.orientation
         super().cla()
-        self._config_axes()
+        self.orientation = orientation
 
 
+@_api.deprecated("3.5")
 class CbarAxes(CbarAxesBase, Axes):
     pass
+
+
+_cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
 
 
 class Grid:
@@ -88,16 +81,19 @@ class Grid:
         ----------
         fig : `.Figure`
             The parent figure.
-        rect : (float, float, float, float) or int
-            The axes position, as a ``(left, bottom, width, height)`` tuple or
-            as a three-digit subplot position code (e.g., "121").
+        rect : (float, float, float, float), (int, int, int), int, or \
+    `~.SubplotSpec`
+            The axes position, as a ``(left, bottom, width, height)`` tuple,
+            as a three-digit subplot position code (e.g., ``(1, 2, 1)`` or
+            ``121``), or as a `~.SubplotSpec`.
         nrows_ncols : (int, int)
             Number of rows and columns in the grid.
         ngrids : int or None, default: None
             If not None, only the first *ngrids* axes in the grid are created.
         direction : {"row", "column"}, default: "row"
             Whether axes are created in row-major ("row by row") or
-            column-major order ("column by column").
+            column-major order ("column by column").  This also affects the
+            order in which axes are accessed using indexing (``grid[index]``).
         axes_pad : float or (float, float), default: 0.02
             Padding or (horizontal padding, vertical padding) between axes, in
             inches.
@@ -127,7 +123,8 @@ class Grid:
             ngrids = self._nrows * self._ncols
         else:
             if not 0 < ngrids <= self._nrows * self._ncols:
-                raise Exception("")
+                raise ValueError(
+                    "ngrids must be positive and not larger than nrows*ncols")
 
         self.ngrids = ngrids
 
@@ -144,14 +141,14 @@ class Grid:
             axes_class = functools.partial(cls, **kwargs)
 
         kw = dict(horizontal=[], vertical=[], aspect=aspect)
-        if isinstance(rect, (str, Number, SubplotSpec)):
+        if isinstance(rect, (Number, SubplotSpec)):
             self._divider = SubplotDivider(fig, rect, **kw)
         elif len(rect) == 3:
             self._divider = SubplotDivider(fig, *rect, **kw)
         elif len(rect) == 4:
             self._divider = Divider(fig, rect, **kw)
         else:
-            raise Exception("")
+            raise TypeError("Incorrect rect format")
 
         rect = self._divider.get_position()
 
@@ -165,7 +162,8 @@ class Grid:
                 sharey = axes_array[row, 0] if share_y else None
             axes_array[row, col] = axes_class(
                 fig, rect, sharex=sharex, sharey=sharey)
-        self.axes_all = axes_array.ravel().tolist()
+        self.axes_all = axes_array.ravel(
+            order="C" if self._direction == "row" else "F").tolist()
         self.axes_column = axes_array.T.tolist()
         self.axes_row = axes_array.tolist()
         self.axes_llc = self.axes_column[0][-1]
@@ -317,8 +315,6 @@ class Grid:
 class ImageGrid(Grid):
     # docstring inherited
 
-    _defaultCbarAxesClass = CbarAxes
-
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
@@ -383,6 +379,10 @@ class ImageGrid(Grid):
             to associated *cbar_axes*.
         axes_class : subclass of `matplotlib.axes.Axes`, default: None
         """
+        _api.check_in_list(["each", "single", "edge", None],
+                           cbar_mode=cbar_mode)
+        _api.check_in_list(["left", "right", "bottom", "top"],
+                           cbar_location=cbar_location)
         self._colorbar_mode = cbar_mode
         self._colorbar_location = cbar_location
         self._colorbar_pad = cbar_pad
@@ -423,7 +423,7 @@ class ImageGrid(Grid):
             else:
                 self._colorbar_pad = self._vert_pad_size.fixed_size
         self.cbar_axes = [
-            self._defaultCbarAxesClass(
+            _cbaraxes_class_factory(self._defaultAxesClass)(
                 self.axes_all[0].figure, self._divider.get_position(),
                 orientation=self._colorbar_location)
             for _ in range(self.ngrids)]

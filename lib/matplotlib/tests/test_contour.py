@@ -2,12 +2,13 @@ import datetime
 import platform
 import re
 
+import contourpy
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt, rc_context
-from matplotlib.colors import LogNorm
+from matplotlib.colors import LogNorm, same_color
 import pytest
 
 
@@ -153,8 +154,7 @@ def test_given_colors_levels_and_extends():
         plt.colorbar(c, ax=ax)
 
 
-@image_comparison(['contour_datetime_axis.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['contour_datetime_axis.png'], style='mpl20')
 def test_contour_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
@@ -244,33 +244,6 @@ def test_contourf_symmetric_locator():
     assert_array_almost_equal(cs.levels, np.linspace(-12, 12, 5))
 
 
-@pytest.mark.parametrize("args, cls, message", [
-    ((), TypeError,
-     'function takes exactly 6 arguments (0 given)'),
-    ((1, 2, 3, 4, 5, 6), ValueError,
-     'Expected 2-dimensional array, got 0'),
-    (([[0]], [[0]], [[]], None, True, 0), ValueError,
-     'x, y and z must all be 2D arrays with the same dimensions'),
-    (([[0]], [[0]], [[0]], None, True, 0), ValueError,
-     'x, y and z must all be at least 2x2 arrays'),
-    ((*[np.arange(4).reshape((2, 2))] * 3, [[0]], True, 0), ValueError,
-     'If mask is set it must be a 2D array with the same dimensions as x.'),
-])
-def test_internal_cpp_api(args, cls, message):  # Github issue 8197.
-    from matplotlib import _contour  # noqa: ensure lazy-loaded module *is* loaded.
-    with pytest.raises(cls, match=re.escape(message)):
-        mpl._contour.QuadContourGenerator(*args)
-
-
-def test_internal_cpp_api_2():
-    from matplotlib import _contour  # noqa: ensure lazy-loaded module *is* loaded.
-    arr = [[0, 1], [2, 3]]
-    qcg = mpl._contour.QuadContourGenerator(arr, arr, arr, None, True, 0)
-    with pytest.raises(
-            ValueError, match=r'filled contour levels must be increasing'):
-        qcg.create_filled_contour(1, 0)
-
-
 def test_circular_contour_warning():
     # Check that almost circular contours don't throw a warning
     x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
@@ -305,8 +278,12 @@ def test_clabel_zorder(use_clabeltext, contour_zorder, clabel_zorder):
         assert clabel.get_zorder() == expected_clabel_zorder
 
 
+# tol because ticks happen to fall on pixel boundaries so small
+# floating point changes in tick location flip which pixel gets
+# the tick.
 @image_comparison(['contour_log_extension.png'],
-                  remove_text=True, style='mpl20')
+                  remove_text=True, style='mpl20',
+                  tol=1.444)
 def test_contourf_log_extension():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -338,8 +315,6 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c2, ax=ax2)
     assert cb.ax.get_ylim() == (1e-4, 1e6)
     cb = plt.colorbar(c3, ax=ax3)
-    assert_array_almost_equal(
-        cb.ax.get_ylim(), [3.162277660168379e-05, 3162277.660168383], 2)
 
 
 @image_comparison(['contour_addlines.png'],
@@ -466,3 +441,254 @@ def test_contour_line_start_on_corner_edge():
     cbar = fig.colorbar(filled)
     lines = ax.contour(x, y, z, corner_mask=True, colors='k')
     cbar.add_lines(lines)
+
+
+def test_find_nearest_contour():
+    xy = np.indices((15, 15))
+    img = np.exp(-np.pi * (np.sum((xy - 5)**2, 0)/5.**2))
+    cs = plt.contour(img, 10)
+
+    nearest_contour = cs.find_nearest_contour(1, 1, pixel=False)
+    expected_nearest = (1, 0, 33, 1.965966, 1.965966, 1.866183)
+    assert_array_almost_equal(nearest_contour, expected_nearest)
+
+    nearest_contour = cs.find_nearest_contour(8, 1, pixel=False)
+    expected_nearest = (1, 0, 5, 7.550173, 1.587542, 0.547550)
+    assert_array_almost_equal(nearest_contour, expected_nearest)
+
+    nearest_contour = cs.find_nearest_contour(2, 5, pixel=False)
+    expected_nearest = (3, 0, 21, 1.884384, 5.023335, 0.013911)
+    assert_array_almost_equal(nearest_contour, expected_nearest)
+
+    nearest_contour = cs.find_nearest_contour(2, 5,
+                                              indices=(5, 7),
+                                              pixel=False)
+    expected_nearest = (5, 0, 16, 2.628202, 5.0, 0.394638)
+    assert_array_almost_equal(nearest_contour, expected_nearest)
+
+
+def test_find_nearest_contour_no_filled():
+    xy = np.indices((15, 15))
+    img = np.exp(-np.pi * (np.sum((xy - 5)**2, 0)/5.**2))
+    cs = plt.contourf(img, 10)
+
+    with pytest.raises(ValueError,
+                       match="Method does not support filled contours."):
+        cs.find_nearest_contour(1, 1, pixel=False)
+
+    with pytest.raises(ValueError,
+                       match="Method does not support filled contours."):
+        cs.find_nearest_contour(1, 10, indices=(5, 7), pixel=False)
+
+    with pytest.raises(ValueError,
+                       match="Method does not support filled contours."):
+        cs.find_nearest_contour(2, 5, indices=(2, 7), pixel=True)
+
+
+@mpl.style.context("default")
+def test_contour_autolabel_beyond_powerlimits():
+    ax = plt.figure().add_subplot()
+    cs = plt.contour(np.geomspace(1e-6, 1e-4, 100).reshape(10, 10),
+                     levels=[.25e-5, 1e-5, 4e-5])
+    ax.clabel(cs)
+    # Currently, the exponent is missing, but that may be fixed in the future.
+    assert {text.get_text() for text in ax.texts} == {"0.25", "1.00", "4.00"}
+
+
+def test_contourf_legend_elements():
+    from matplotlib.patches import Rectangle
+    x = np.arange(1, 10)
+    y = x.reshape(-1, 1)
+    h = x * y
+
+    cs = plt.contourf(h, levels=[10, 30, 50],
+                      colors=['#FFFF00', '#FF00FF', '#00FFFF'],
+                      extend='both')
+    cs.cmap.set_over('red')
+    cs.cmap.set_under('blue')
+    cs.changed()
+    artists, labels = cs.legend_elements()
+    assert labels == ['$x \\leq -1e+250s$',
+                      '$10.0 < x \\leq 30.0$',
+                      '$30.0 < x \\leq 50.0$',
+                      '$x > 1e+250s$']
+    expected_colors = ('blue', '#FFFF00', '#FF00FF', 'red')
+    assert all(isinstance(a, Rectangle) for a in artists)
+    assert all(same_color(a.get_facecolor(), c)
+               for a, c in zip(artists, expected_colors))
+
+
+def test_contour_legend_elements():
+    from matplotlib.collections import LineCollection
+    x = np.arange(1, 10)
+    y = x.reshape(-1, 1)
+    h = x * y
+
+    colors = ['blue', '#00FF00', 'red']
+    cs = plt.contour(h, levels=[10, 30, 50],
+                     colors=colors,
+                     extend='both')
+    artists, labels = cs.legend_elements()
+    assert labels == ['$x = 10.0$', '$x = 30.0$', '$x = 50.0$']
+    assert all(isinstance(a, LineCollection) for a in artists)
+    assert all(same_color(a.get_color(), c)
+               for a, c in zip(artists, colors))
+
+
+@pytest.mark.parametrize(
+    "algorithm, klass",
+    [('mpl2005', contourpy.Mpl2005ContourGenerator),
+     ('mpl2014', contourpy.Mpl2014ContourGenerator),
+     ('serial', contourpy.SerialContourGenerator),
+     ('threaded', contourpy.ThreadedContourGenerator),
+     ('invalid', None)])
+def test_algorithm_name(algorithm, klass):
+    z = np.array([[1.0, 2.0], [3.0, 4.0]])
+    if klass is not None:
+        cs = plt.contourf(z, algorithm=algorithm)
+        assert isinstance(cs._contour_generator, klass)
+    else:
+        with pytest.raises(ValueError):
+            plt.contourf(z, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "algorithm", ['mpl2005', 'mpl2014', 'serial', 'threaded'])
+def test_algorithm_supports_corner_mask(algorithm):
+    z = np.array([[1.0, 2.0], [3.0, 4.0]])
+
+    # All algorithms support corner_mask=False
+    plt.contourf(z, algorithm=algorithm, corner_mask=False)
+
+    # Only some algorithms support corner_mask=True
+    if algorithm != 'mpl2005':
+        plt.contourf(z, algorithm=algorithm, corner_mask=True)
+    else:
+        with pytest.raises(ValueError):
+            plt.contourf(z, algorithm=algorithm, corner_mask=True)
+
+
+@image_comparison(baseline_images=['contour_all_algorithms'],
+                  extensions=['png'], remove_text=True)
+def test_all_algorithms():
+    algorithms = ['mpl2005', 'mpl2014', 'serial', 'threaded']
+
+    rng = np.random.default_rng(2981)
+    x, y = np.meshgrid(np.linspace(0.0, 1.0, 10), np.linspace(0.0, 1.0, 6))
+    z = np.sin(15*x)*np.cos(10*y) + rng.normal(scale=0.5, size=(6, 10))
+    mask = np.zeros_like(z, dtype=bool)
+    mask[3, 7] = True
+    z = np.ma.array(z, mask=mask)
+
+    _, axs = plt.subplots(2, 2)
+    for ax, algorithm in zip(axs.ravel(), algorithms):
+        ax.contourf(x, y, z, algorithm=algorithm)
+        ax.contour(x, y, z, algorithm=algorithm, colors='k')
+        ax.set_title(algorithm)
+
+
+def test_subfigure_clabel():
+    # Smoke test for gh#23173
+    delta = 0.025
+    x = np.arange(-3.0, 3.0, delta)
+    y = np.arange(-2.0, 2.0, delta)
+    X, Y = np.meshgrid(x, y)
+    Z1 = np.exp(-(X**2) - Y**2)
+    Z2 = np.exp(-((X - 1) ** 2) - (Y - 1) ** 2)
+    Z = (Z1 - Z2) * 2
+
+    fig = plt.figure()
+    figs = fig.subfigures(nrows=1, ncols=2)
+
+    for f in figs:
+        ax = f.subplots()
+        CS = ax.contour(X, Y, Z)
+        ax.clabel(CS, inline=True, fontsize=10)
+        ax.set_title("Simplest default with labels")
+
+
+@pytest.mark.parametrize(
+    "style", ['solid', 'dashed', 'dashdot', 'dotted'])
+def test_linestyles(style):
+    delta = 0.025
+    x = np.arange(-3.0, 3.0, delta)
+    y = np.arange(-2.0, 2.0, delta)
+    X, Y = np.meshgrid(x, y)
+    Z1 = np.exp(-X**2 - Y**2)
+    Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+    Z = (Z1 - Z2) * 2
+
+    # Positive contour defaults to solid
+    fig1, ax1 = plt.subplots()
+    CS1 = ax1.contour(X, Y, Z, 6, colors='k')
+    ax1.clabel(CS1, fontsize=9, inline=True)
+    ax1.set_title('Single color - positive contours solid (default)')
+    assert CS1.linestyles is None  # default
+
+    # Change linestyles using linestyles kwarg
+    fig2, ax2 = plt.subplots()
+    CS2 = ax2.contour(X, Y, Z, 6, colors='k', linestyles=style)
+    ax2.clabel(CS2, fontsize=9, inline=True)
+    ax2.set_title(f'Single color - positive contours {style}')
+    assert CS2.linestyles == style
+
+    # Ensure linestyles do not change when negative_linestyles is defined
+    fig3, ax3 = plt.subplots()
+    CS3 = ax3.contour(X, Y, Z, 6, colors='k', linestyles=style,
+                      negative_linestyles='dashdot')
+    ax3.clabel(CS3, fontsize=9, inline=True)
+    ax3.set_title(f'Single color - positive contours {style}')
+    assert CS3.linestyles == style
+
+
+@pytest.mark.parametrize(
+    "style", ['solid', 'dashed', 'dashdot', 'dotted'])
+def test_negative_linestyles(style):
+    delta = 0.025
+    x = np.arange(-3.0, 3.0, delta)
+    y = np.arange(-2.0, 2.0, delta)
+    X, Y = np.meshgrid(x, y)
+    Z1 = np.exp(-X**2 - Y**2)
+    Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+    Z = (Z1 - Z2) * 2
+
+    # Negative contour defaults to dashed
+    fig1, ax1 = plt.subplots()
+    CS1 = ax1.contour(X, Y, Z, 6, colors='k')
+    ax1.clabel(CS1, fontsize=9, inline=True)
+    ax1.set_title('Single color - negative contours dashed (default)')
+    assert CS1.negative_linestyles == 'dashed'  # default
+
+    # Change negative_linestyles using rcParams
+    plt.rcParams['contour.negative_linestyle'] = style
+    fig2, ax2 = plt.subplots()
+    CS2 = ax2.contour(X, Y, Z, 6, colors='k')
+    ax2.clabel(CS2, fontsize=9, inline=True)
+    ax2.set_title(f'Single color - negative contours {style}'
+                   '(using rcParams)')
+    assert CS2.negative_linestyles == style
+
+    # Change negative_linestyles using negative_linestyles kwarg
+    fig3, ax3 = plt.subplots()
+    CS3 = ax3.contour(X, Y, Z, 6, colors='k', negative_linestyles=style)
+    ax3.clabel(CS3, fontsize=9, inline=True)
+    ax3.set_title(f'Single color - negative contours {style}')
+    assert CS3.negative_linestyles == style
+
+    # Ensure negative_linestyles do not change when linestyles is defined
+    fig4, ax4 = plt.subplots()
+    CS4 = ax4.contour(X, Y, Z, 6, colors='k', linestyles='dashdot',
+                      negative_linestyles=style)
+    ax4.clabel(CS4, fontsize=9, inline=True)
+    ax4.set_title(f'Single color - negative contours {style}')
+    assert CS4.negative_linestyles == style
+
+
+def test_contour_remove():
+    ax = plt.figure().add_subplot()
+    orig_children = ax.get_children()
+    cs = ax.contour(np.arange(16).reshape((4, 4)))
+    cs.clabel()
+    assert ax.get_children() != orig_children
+    cs.remove()
+    assert ax.get_children() == orig_children

@@ -34,8 +34,8 @@ def test_labelbase():
     ax.plot([0.5], [0.5], "o")
 
     label = LabelBase(0.5, 0.5, "Test")
-    label._set_ref_angle(-90)
-    label._set_offset_radius(offset_radius=50)
+    label._ref_angle = -90
+    label._offset_radius = 50
     label.set_rotation(-90)
     label.set(ha="center", va="top")
     ax.add_artist(label)
@@ -67,8 +67,8 @@ def test_ticklabels():
 
     ax.plot([0.5], [0.5], "s")
     axislabel = AxisLabel(0.5, 0.5, "Test")
-    axislabel._set_offset_radius(20)
-    axislabel._set_ref_angle(0)
+    axislabel._offset_radius = 20
+    axislabel._ref_angle = 0
     axislabel.set_axis_direction("bottom")
     ax.add_artist(axislabel)
 

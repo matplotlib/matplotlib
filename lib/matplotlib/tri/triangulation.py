@@ -1,5 +1,7 @@
 import numpy as np
 
+from matplotlib import _api
+
 
 class Triangulation:
     """
@@ -41,7 +43,9 @@ class Triangulation:
         self.x = np.asarray(x, dtype=np.float64)
         self.y = np.asarray(y, dtype=np.float64)
         if self.x.shape != self.y.shape or self.x.ndim != 1:
-            raise ValueError("x and y must be equal-length 1D arrays")
+            raise ValueError("x and y must be equal-length 1D arrays, but "
+                             f"found shapes {self.x.shape!r} and "
+                             f"{self.y.shape!r}")
 
         self.mask = None
         self._edges = None
@@ -56,25 +60,33 @@ class Triangulation:
         else:
             # Triangulation specified. Copy, since we may correct triangle
             # orientation.
-            self.triangles = np.array(triangles, dtype=np.int32, order='C')
+            try:
+                self.triangles = np.array(triangles, dtype=np.int32, order='C')
+            except ValueError as e:
+                raise ValueError('triangles must be a (N, 3) int array, not '
+                                 f'{triangles!r}') from e
             if self.triangles.ndim != 2 or self.triangles.shape[1] != 3:
-                raise ValueError('triangles must be a (?, 3) array')
+                raise ValueError(
+                    'triangles must be a (N, 3) int array, but found shape '
+                    f'{self.triangles.shape!r}')
             if self.triangles.max() >= len(self.x):
-                raise ValueError('triangles max element is out of bounds')
+                raise ValueError(
+                    'triangles are indices into the points and must be in the '
+                    f'range 0 <= i < {len(self.x)} but found value '
+                    f'{self.triangles.max()}')
             if self.triangles.min() < 0:
-                raise ValueError('triangles min element is out of bounds')
-
-        if mask is not None:
-            self.mask = np.asarray(mask, dtype=bool)
-            if self.mask.shape != (self.triangles.shape[0],):
-                raise ValueError('mask array must have same length as '
-                                 'triangles array')
+                raise ValueError(
+                    'triangles are indices into the points and must be in the '
+                    f'range 0 <= i < {len(self.x)} but found value '
+                    f'{self.triangles.min()}')
 
         # Underlying C++ object is not created until first needed.
         self._cpp_triangulation = None
 
         # Default TriFinder not created until needed.
         self._trifinder = None
+
+        self.set_mask(mask)
 
     def calculate_plane_coefficients(self, z):
         """
@@ -92,7 +104,7 @@ class Triangulation:
         Return integer array of shape (nedges, 2) containing all edges of
         non-masked triangles.
 
-        Each row defines an edge by it's start point index and end point
+        Each row defines an edge by its start point index and end point
         index.  Each edge appears only once, i.e. for an edge between points
         *i*  and *j*, there will only be either *(i, j)* or *(j, i)*.
         """
@@ -114,7 +126,7 @@ class Triangulation:
 
     def get_masked_triangles(self):
         """
-        Return an array of triangles that are not masked.
+        Return an array of triangles taking the mask into account.
         """
         if self.mask is not None:
             return self.triangles[~self.mask]
@@ -135,34 +147,42 @@ class Triangulation:
         """
         if isinstance(args[0], Triangulation):
             triangulation, *args = args
+            if 'triangles' in kwargs:
+                _api.warn_external(
+                    "Passing the keyword 'triangles' has no effect when also "
+                    "passing a Triangulation")
+            if 'mask' in kwargs:
+                _api.warn_external(
+                    "Passing the keyword 'mask' has no effect when also "
+                    "passing a Triangulation")
         else:
-            x, y, *args = args
-
-            # Check triangles in kwargs then args.
-            triangles = kwargs.pop('triangles', None)
-            from_args = False
-            if triangles is None and args:
-                triangles = args[0]
-                from_args = True
-
-            if triangles is not None:
-                try:
-                    triangles = np.asarray(triangles, dtype=np.int32)
-                except ValueError:
-                    triangles = None
-
-            if triangles is not None and (triangles.ndim != 2 or
-                                          triangles.shape[1] != 3):
-                triangles = None
-
-            if triangles is not None and from_args:
-                args = args[1:]  # Consumed first item in args.
-
-            # Check for mask in kwargs.
-            mask = kwargs.pop('mask', None)
-
+            x, y, triangles, mask, args, kwargs = \
+                Triangulation._extract_triangulation_params(args, kwargs)
             triangulation = Triangulation(x, y, triangles, mask)
         return triangulation, args, kwargs
+
+    @staticmethod
+    def _extract_triangulation_params(args, kwargs):
+        x, y, *args = args
+        # Check triangles in kwargs then args.
+        triangles = kwargs.pop('triangles', None)
+        from_args = False
+        if triangles is None and args:
+            triangles = args[0]
+            from_args = True
+        if triangles is not None:
+            try:
+                triangles = np.asarray(triangles, dtype=np.int32)
+            except ValueError:
+                triangles = None
+        if triangles is not None and (triangles.ndim != 2 or
+                                      triangles.shape[1] != 3):
+            triangles = None
+        if triangles is not None and from_args:
+            args = args[1:]  # Consumed first item in args.
+        # Check for mask in kwargs.
+        mask = kwargs.pop('mask', None)
+        return x, y, triangles, mask, args, kwargs
 
     def get_trifinder(self):
         """

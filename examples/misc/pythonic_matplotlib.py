@@ -3,9 +3,9 @@
 Pythonic Matplotlib
 ===================
 
-Some people prefer to write more pythonic, object-oriented code
-rather than use the pyplot interface to matplotlib.  This example shows
-you how.
+Some people prefer to write more "Pythonic", explicit object-oriented code,
+rather than use the implicit pyplot interface to Matplotlib. This example
+shows you how to take advantage of the explicit Matplotlib interface.
 
 Unless you are an application developer, I recommend using part of the
 pyplot interface, particularly the figure, close, subplot, axes, and
@@ -14,7 +14,7 @@ need to see in normal figure creation, like instantiating DPI
 instances, managing the bounding boxes of the figure elements,
 creating and realizing GUI windows and embedding figures in them.
 
-If you are an application developer and want to embed matplotlib in
+If you are an application developer and want to embed Matplotlib in
 your application, follow the lead of examples/embedding_in_wx.py,
 examples/embedding_in_gtk.py or examples/embedding_in_tk.py.  In this
 case you will want to control the creation of all your figures,
@@ -28,7 +28,7 @@ there is no reason why the pyplot interface won't work for web
 application developers, however.
 
 If you see an example in the examples dir written in pyplot interface,
-and you want to emulate that using the true python method calls, there
+and you want to emulate that using the true Python method calls, there
 is an easy mapping.  Many of those examples use 'set' to control
 figure properties.  Here's how to map those commands onto instance
 methods
@@ -52,6 +52,7 @@ So for your example, if a is your axes object, you can do::
     a.set_yticklabels([])
     a.set_xticks([])
     a.set_yticks([])
+
 """
 
 import matplotlib.pyplot as plt

@@ -48,9 +48,6 @@ class FooConverter(units.ConversionInterface):
 
         If *obj* is a sequence, return the converted sequence.
         """
-        if units.ConversionInterface.is_numlike(obj):
-            return obj
-
         if np.iterable(obj):
             return [o.value(unit) for o in obj]
         else:

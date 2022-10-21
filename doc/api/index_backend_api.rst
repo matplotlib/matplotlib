@@ -2,6 +2,8 @@
 ``matplotlib.backends``
 ***********************
 
+.. module:: matplotlib.backends
+
 .. toctree::
    :maxdepth: 1
 
@@ -10,6 +12,7 @@
    backend_agg_api.rst
    backend_cairo_api.rst
    backend_gtk3_api.rst
+   backend_gtk4_api.rst
    backend_nbagg_api.rst
    backend_pdf_api.rst
    backend_pgf_api.rst

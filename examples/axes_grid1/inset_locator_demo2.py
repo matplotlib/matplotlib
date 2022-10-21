@@ -1,12 +1,15 @@
 """
-===================
-Inset Locator Demo2
-===================
+====================
+Inset Locator Demo 2
+====================
 
-This Demo shows how to create a zoomed inset via `~.zoomed_inset_axes`.
-In the first subplot an `~.AnchoredSizeBar` shows the zoom effect.
+This Demo shows how to create a zoomed inset via `.zoomed_inset_axes`.
+In the first subplot an `.AnchoredSizeBar` shows the zoom effect.
 In the second subplot a connection to the region of interest is
-created via `~.mark_inset`.
+created via `.mark_inset`.
+
+A version of the second subplot, not using the toolkit, is available in
+:doc:`/gallery/subplots_axes_and_figures/zoom_inset_axes`.
 """
 
 from matplotlib import cbook
@@ -32,9 +35,7 @@ axins = zoomed_inset_axes(ax, zoom=0.5, loc='upper right')
 # fix the number of ticks on the inset axes
 axins.yaxis.get_major_locator().set_params(nbins=7)
 axins.xaxis.get_major_locator().set_params(nbins=7)
-
-plt.setp(axins.get_xticklabels(), visible=False)
-plt.setp(axins.get_yticklabels(), visible=False)
+axins.tick_params(labelleft=False, labelbottom=False)
 
 
 def add_sizebar(ax, size):
@@ -69,9 +70,7 @@ axins2.set_ylim(y1, y2)
 # fix the number of ticks on the inset axes
 axins2.yaxis.get_major_locator().set_params(nbins=7)
 axins2.xaxis.get_major_locator().set_params(nbins=7)
-
-plt.setp(axins2.get_xticklabels(), visible=False)
-plt.setp(axins2.get_yticklabels(), visible=False)
+axins2.tick_params(labelleft=False, labelbottom=False)
 
 # draw a bbox of the region of the inset axes in the parent axes and
 # connecting lines between the bbox and the inset axes area

@@ -12,6 +12,8 @@ typedef struct
     Py_ssize_t suboffsets[3];
 } PyRendererAgg;
 
+static PyTypeObject PyRendererAggType;
+
 typedef struct
 {
     PyObject_HEAD
@@ -20,6 +22,8 @@ typedef struct
     Py_ssize_t strides[3];
     Py_ssize_t suboffsets[3];
 } PyBufferRegion;
+
+static PyTypeObject PyBufferRegionType;
 
 
 /**********************************************************************
@@ -40,15 +44,21 @@ static void PyBufferRegion_dealloc(PyBufferRegion *self)
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args)
 {
+    char const* msg =
+        "BufferRegion.to_string is deprecated since Matplotlib 3.7 and will "
+        "be removed two minor releases later; use np.asarray(region) instead.";
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
+        return NULL;
+    }
     return PyBytes_FromStringAndSize((const char *)self->x->get_data(),
                                      self->x->get_height() * self->x->get_stride());
 }
 
 /* TODO: This doesn't seem to be used internally.  Remove? */
 
-static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args)
 {
     int x;
     if (!PyArg_ParseTuple(args, "i:set_x", &x)) {
@@ -59,7 +69,7 @@ static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args, PyOb
     Py_RETURN_NONE;
 }
 
-static PyObject *PyBufferRegion_set_y(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_set_y(PyBufferRegion *self, PyObject *args)
 {
     int y;
     if (!PyArg_ParseTuple(args, "i:set_y", &y)) {
@@ -70,15 +80,22 @@ static PyObject *PyBufferRegion_set_y(PyBufferRegion *self, PyObject *args, PyOb
     Py_RETURN_NONE;
 }
 
-static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args)
 {
     agg::rect_i rect = self->x->get_rect();
 
     return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
-static PyObject *PyBufferRegion_to_string_argb(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_to_string_argb(PyBufferRegion *self, PyObject *args)
 {
+    char const* msg =
+        "BufferRegion.to_string_argb is deprecated since Matplotlib 3.7 and "
+        "will be removed two minor releases later; use "
+        "np.take(region, [2, 1, 0, 3], axis=2) instead.";
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
+        return NULL;
+    }
     PyObject *bufobj;
     uint8_t *buf;
 
@@ -114,9 +131,7 @@ int PyBufferRegion_get_buffer(PyBufferRegion *self, Py_buffer *buf, int flags)
     return 1;
 }
 
-static PyTypeObject PyBufferRegionType;
-
-static PyTypeObject *PyBufferRegion_init_type(PyObject *m, PyTypeObject *type)
+static PyTypeObject *PyBufferRegion_init_type()
 {
     static PyMethodDef methods[] = {
         { "to_string", (PyCFunction)PyBufferRegion_to_string, METH_NOARGS, NULL },
@@ -128,26 +143,17 @@ static PyTypeObject *PyBufferRegion_init_type(PyObject *m, PyTypeObject *type)
     };
 
     static PyBufferProcs buffer_procs;
-    memset(&buffer_procs, 0, sizeof(PyBufferProcs));
     buffer_procs.bf_getbuffer = (getbufferproc)PyBufferRegion_get_buffer;
 
-    memset(type, 0, sizeof(PyTypeObject));
-    type->tp_name = "matplotlib.backends._backend_agg.BufferRegion";
-    type->tp_basicsize = sizeof(PyBufferRegion);
-    type->tp_dealloc = (destructor)PyBufferRegion_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    type->tp_methods = methods;
-    type->tp_new = PyBufferRegion_new;
-    type->tp_as_buffer = &buffer_procs;
+    PyBufferRegionType.tp_name = "matplotlib.backends._backend_agg.BufferRegion";
+    PyBufferRegionType.tp_basicsize = sizeof(PyBufferRegion);
+    PyBufferRegionType.tp_dealloc = (destructor)PyBufferRegion_dealloc;
+    PyBufferRegionType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyBufferRegionType.tp_methods = methods;
+    PyBufferRegionType.tp_new = PyBufferRegion_new;
+    PyBufferRegionType.tp_as_buffer = &buffer_procs;
 
-    if (PyType_Ready(type) < 0) {
-        return NULL;
-    }
-
-    /* Don't need to add to module, since you can't create buffer
-       regions directly from Python */
-
-    return type;
+    return &PyBufferRegionType;
 }
 
 /**********************************************************************
@@ -198,7 +204,7 @@ static void PyRendererAgg_dealloc(PyRendererAgg *self)
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     py::PathIterator path;
@@ -227,7 +233,7 @@ static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args, Py
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *args)
 {
     numpy::array_view<agg::int8u, 2> image;
     double x;
@@ -252,7 +258,7 @@ static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *ar
     Py_RETURN_NONE;
 }
 
-PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     py::PathIterator marker_path;
@@ -288,7 +294,7 @@ PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args, PyObje
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     double x;
@@ -316,11 +322,11 @@ static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args, P
 }
 
 static PyObject *
-PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     agg::trans_affine master_transform;
-    PyObject *pathobj;
+    py::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
@@ -330,15 +336,16 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
     DashesVector dashes;
     numpy::array_view<const uint8_t, 1> antialiaseds;
     PyObject *ignored;
-    e_offset_position offset_position;
+    PyObject *offset_position; // offset position is no longer used
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&OO&O&O&O&O&O&O&O&OO&:draw_path_collection",
+                          "O&O&O&O&O&O&O&O&O&O&O&OO:draw_path_collection",
                           &convert_gcagg,
                           &gc,
                           &convert_trans_affine,
                           &master_transform,
-                          &pathobj,
+                          &convert_pathgen,
+                          &paths,
                           &convert_transforms,
                           &transforms,
                           &convert_points,
@@ -356,38 +363,27 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
                           &antialiaseds.converter,
                           &antialiaseds,
                           &ignored,
-                          &convert_offset_position,
                           &offset_position)) {
         return NULL;
     }
 
-    try
-    {
-        py::PathGenerator path(pathobj);
-
-        CALL_CPP("draw_path_collection",
-                 (self->x->draw_path_collection(gc,
-                                                master_transform,
-                                                path,
-                                                transforms,
-                                                offsets,
-                                                offset_trans,
-                                                facecolors,
-                                                edgecolors,
-                                                linewidths,
-                                                dashes,
-                                                antialiaseds,
-                                                offset_position)));
-    }
-    catch (const py::exception &)
-    {
-        return NULL;
-    }
+    CALL_CPP("draw_path_collection",
+             (self->x->draw_path_collection(gc,
+                                            master_transform,
+                                            paths,
+                                            transforms,
+                                            offsets,
+                                            offset_trans,
+                                            facecolors,
+                                            edgecolors,
+                                            linewidths,
+                                            dashes,
+                                            antialiaseds)));
 
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     agg::trans_affine master_transform;
@@ -439,7 +435,7 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
 }
 
 static PyObject *
-PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     numpy::array_view<const double, 2> points;
@@ -480,7 +476,7 @@ PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args, PyObjec
 }
 
 static PyObject *
-PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     numpy::array_view<const double, 3> points;
@@ -550,14 +546,14 @@ int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
     return 1;
 }
 
-static PyObject *PyRendererAgg_clear(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_clear(PyRendererAgg *self, PyObject *args)
 {
     CALL_CPP("clear", self->x->clear());
 
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *args)
 {
     agg::rect_d bbox;
     BufferRegion *reg;
@@ -575,7 +571,7 @@ static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *arg
     return regobj;
 }
 
-static PyObject *PyRendererAgg_restore_region(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_restore_region(PyRendererAgg *self, PyObject *args)
 {
     PyBufferRegion *regobj;
     int xx1 = 0, yy1 = 0, xx2 = 0, yy2 = 0, x = 0, y = 0;
@@ -602,9 +598,7 @@ static PyObject *PyRendererAgg_restore_region(PyRendererAgg *self, PyObject *arg
     Py_RETURN_NONE;
 }
 
-PyTypeObject PyRendererAggType;
-
-static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
+static PyTypeObject *PyRendererAgg_init_type()
 {
     static PyMethodDef methods[] = {
         {"draw_path", (PyCFunction)PyRendererAgg_draw_path, METH_VARARGS, NULL},
@@ -624,64 +618,36 @@ static PyTypeObject *PyRendererAgg_init_type(PyObject *m, PyTypeObject *type)
     };
 
     static PyBufferProcs buffer_procs;
-    memset(&buffer_procs, 0, sizeof(PyBufferProcs));
     buffer_procs.bf_getbuffer = (getbufferproc)PyRendererAgg_get_buffer;
 
-    memset(type, 0, sizeof(PyTypeObject));
-    type->tp_name = "matplotlib.backends._backend_agg.RendererAgg";
-    type->tp_basicsize = sizeof(PyRendererAgg);
-    type->tp_dealloc = (destructor)PyRendererAgg_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    type->tp_methods = methods;
-    type->tp_init = (initproc)PyRendererAgg_init;
-    type->tp_new = PyRendererAgg_new;
-    type->tp_as_buffer = &buffer_procs;
+    PyRendererAggType.tp_name = "matplotlib.backends._backend_agg.RendererAgg";
+    PyRendererAggType.tp_basicsize = sizeof(PyRendererAgg);
+    PyRendererAggType.tp_dealloc = (destructor)PyRendererAgg_dealloc;
+    PyRendererAggType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyRendererAggType.tp_methods = methods;
+    PyRendererAggType.tp_init = (initproc)PyRendererAgg_init;
+    PyRendererAggType.tp_new = PyRendererAgg_new;
+    PyRendererAggType.tp_as_buffer = &buffer_procs;
 
-    if (PyType_Ready(type) < 0) {
-        return NULL;
-    }
-
-    if (PyModule_AddObject(m, "RendererAgg", (PyObject *)type)) {
-        return NULL;
-    }
-
-    return type;
+    return &PyRendererAggType;
 }
 
-static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "_backend_agg",
-    NULL,
-    0,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
+static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_backend_agg" };
 
 #pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__backend_agg(void)
 {
-    PyObject *m;
-
-    m = PyModule_Create(&moduledef);
-
-    if (m == NULL) {
-        return NULL;
-    }
-
     import_array();
-
-    if (!PyRendererAgg_init_type(m, &PyRendererAggType)) {
+    PyObject *m;
+    if (!(m = PyModule_Create(&moduledef))
+        || prepare_and_add_type(PyRendererAgg_init_type(), m)
+        // BufferRegion is not constructible from Python, thus not added to the module.
+        || PyType_Ready(PyBufferRegion_init_type())
+       ) {
+        Py_XDECREF(m);
         return NULL;
     }
-
-    if (!PyBufferRegion_init_type(m, &PyBufferRegionType)) {
-        return NULL;
-    }
-
     return m;
 }
 

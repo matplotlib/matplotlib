@@ -106,7 +106,7 @@ sections described above. "Clean-up" should involve:
 
 
 * PEP8_ clean-ups (running `flake8
-  <https://pypi.org/project/flake8>`_, or a similar checker, is
+  <https://pypi.org/project/flake8/>`_, or a similar checker, is
   highly recommended)
 * Commented-out code should be removed.
 * Replace uses of `pylab` interface with `.pyplot` (+ `numpy`,
@@ -142,8 +142,8 @@ page instead of the gallery examples.
 references to that example.  For example, the API documentation for
 :file:`axes.py` and :file:`pyplot.py` may use these examples to generate
 plots. Use your favorite search tool (e.g., grep, ack, `grin
-<https://pypi.org/project/grin>`_, `pss
-<https://pypi.org/project/pss>`_) to search the matplotlib
+<https://pypi.org/project/grin/>`_, `pss
+<https://pypi.org/project/pss/>`_) to search the matplotlib
 package. See `2dc9a46
 <https://github.com/tonysyu/matplotlib/commit/2dc9a4651e5e566afc0866c603aa8d06aaf32b71>`_
 and `aa6b410

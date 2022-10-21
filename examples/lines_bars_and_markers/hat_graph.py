@@ -40,8 +40,7 @@ def hat_graph(ax, xlabels, values, group_labels):
 
     values = np.asarray(values)
     x = np.arange(values.shape[1])
-    ax.set_xticks(x)
-    ax.set_xticklabels(xlabels)
+    ax.set_xticks(x, labels=xlabels)
     spacing = 0.3  # spacing between hat groups
     width = (1 - spacing) / values.shape[0]
     heights0 = values[0]

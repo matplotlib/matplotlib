@@ -2,5 +2,5 @@
 
 .. _axes_grid1-examples-index:
 
-Axes Grid
-=========
+axes_grid1
+==========

@@ -1,7 +1,7 @@
 .. _whats-new-1-5:
 
-New in matplotlib 1.5
-=====================
+What's new in Matplotlib 1.5 (Oct 29, 2015)
+===========================================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -36,7 +36,7 @@ that the draw command is deferred and only called once.
 The upshot of this is that for interactive backends (including
 ``%matplotlib notebook``) in interactive mode (with ``plt.ion()``)
 
-.. code-block :: python
+.. code-block:: python
 
    import matplotlib.pyplot as plt
    fig, ax = plt.subplots()
@@ -108,9 +108,6 @@ on two or more property cycles.
    :target: ../../tutorials/intermediate/color_cycle.html
    :align: center
    :scale: 50
-
-   Color Cycle
-
 
 New Colormaps
 -------------
@@ -316,9 +313,6 @@ specified, the default value is taken from rcParams.
    :align: center
    :scale: 50
 
-   Contour Corner Mask
-
-
 Mostly unified linestyles for `.Line2D`, `.Patch` and `.Collection`
 ```````````````````````````````````````````````````````````````````
 
@@ -346,7 +340,7 @@ Added a :mod:`.legend_handler` for :class:`~matplotlib.collections.PolyCollectio
 Support for alternate pivots in mplot3d quiver plot
 ```````````````````````````````````````````````````
 
-Added a :code:`pivot` kwarg to :func:`~mpl_toolkits.mplot3d.Axes3D.quiver`
+Added a :code:`pivot` kwarg to `~.Axes3D.quiver`
 that controls the pivot point around which the quiver line rotates. This also
 determines the placement of the arrow head along the quiver line.
 
@@ -378,9 +372,6 @@ This is particularly useful for plotting pre-binned histograms.
    :target: ../../gallery/lines_bars_and_markers/filled_step.html
    :align: center
    :scale: 50
-
-   Filled Step
-
 
 Square Plot
 ```````````
@@ -494,8 +485,7 @@ backends.
 
 DateFormatter strftime
 ``````````````````````
-:class:`~matplotlib.dates.DateFormatter`\ 's
-:meth:`~matplotlib.dates.DateFormatter.__call__` method will format
+:class:`~matplotlib.dates.DateFormatter`\ 's ``__call__`` method will format
 a :class:`datetime.datetime` object with the format string passed to
 the formatter's constructor. This method accepts datetimes with years
 before 1900, unlike :meth:`datetime.datetime.strftime`.
@@ -609,12 +599,12 @@ that comes as replacement for `.NavigationToolbar2`
 with the figures.  Before we had the `.NavigationToolbar2` with its own
 tools like ``zoom/pan/home/save/...`` and also we had the shortcuts like
 ``yscale/grid/quit/....``. `.ToolManager` relocate all those actions as
-`Tools` (located in `~matplotlib.backend_tools`), and defines a way to
+Tools (located in `~matplotlib.backend_tools`), and defines a way to
 access/trigger/reconfigure them.
 
-The `Toolbars` are replaced for `ToolContainers` that are just GUI
-interfaces to `trigger` the tools. But don't worry the default
-backends include a `ToolContainer` called `toolbar`
+The Toolbars are replaced by `.ToolContainerBase`\s that are just GUI
+interfaces to trigger the tools. But don't worry the default
+backends include a `.ToolContainerBase` called ``toolbar``
 
 
 .. note::
@@ -726,7 +716,7 @@ default, performing no display. ``html5`` converts the animation to an
 h264 encoded video, which is embedded directly in the notebook.
 
 Users not wishing to use the ``_repr_html_`` display hook can also manually
-call the `to_html5_video` method to get the HTML and display using
+call the `.to_html5_video` method to get the HTML and display using
 IPython's ``HTML`` display class::
 
     from IPython.display import HTML

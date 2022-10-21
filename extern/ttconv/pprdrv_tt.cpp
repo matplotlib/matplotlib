@@ -121,10 +121,7 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
 {
     BYTE *ptr;
     ULONG x;
-
-#ifdef DEBUG_TRUETYPE
     debug("GetTable(file,font,\"%s\")",name);
-#endif
 
     /* We must search the table directory. */
     ptr = font->offset_table + 12;
@@ -142,9 +139,7 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
 
             try
             {
-#ifdef DEBUG_TRUETYPE
                 debug("Loading table \"%s\" from offset %d, %d bytes",name,offset,length);
-#endif
 
                 if ( fseek( font->file, (long)offset, SEEK_SET ) )
                 {
@@ -200,10 +195,7 @@ void Read_name(struct TTFONT *font)
     int platform;                       /* Current platform id */
     int nameid;                         /* name id, */
     int offset,length;                  /* offset and length of string. */
-
-#ifdef DEBUG_TRUETYPE
     debug("Read_name()");
-#endif
 
     table_ptr = NULL;
 
@@ -235,11 +227,8 @@ void Read_name(struct TTFONT *font)
             nameid = getUSHORT(ptr2+6);
             length = getUSHORT(ptr2+8);
             offset = getUSHORT(ptr2+10);
-
-#ifdef DEBUG_TRUETYPE
             debug("platform %d, encoding %d, language 0x%x, name %d, offset %d, length %d",
                   platform,encoding,language,nameid,offset,length);
-#endif
 
             /* Copyright notice */
             if ( platform == 1 && nameid == 0 )
@@ -248,10 +237,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->Copyright,(const char*)strings+offset,length);
                 font->Copyright[length]='\0';
                 replace_newlines_with_spaces(font->Copyright);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->Copyright=\"%s\"",font->Copyright);
-#endif
                 continue;
             }
 
@@ -264,10 +250,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->FamilyName,(const char*)strings+offset,length);
                 font->FamilyName[length]='\0';
                 replace_newlines_with_spaces(font->FamilyName);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->FamilyName=\"%s\"",font->FamilyName);
-#endif
                 continue;
             }
 
@@ -280,10 +263,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->Style,(const char*)strings+offset,length);
                 font->Style[length]='\0';
                 replace_newlines_with_spaces(font->Style);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->Style=\"%s\"",font->Style);
-#endif
                 continue;
             }
 
@@ -296,10 +276,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->FullName,(const char*)strings+offset,length);
                 font->FullName[length]='\0';
                 replace_newlines_with_spaces(font->FullName);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->FullName=\"%s\"",font->FullName);
-#endif
                 continue;
             }
 
@@ -312,10 +289,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->Version,(const char*)strings+offset,length);
                 font->Version[length]='\0';
                 replace_newlines_with_spaces(font->Version);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->Version=\"%s\"",font->Version);
-#endif
                 continue;
             }
 
@@ -328,10 +302,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->PostName,(const char*)strings+offset,length);
                 font->PostName[length]='\0';
                 replace_newlines_with_spaces(font->PostName);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->PostName=\"%s\"",font->PostName);
-#endif
                 continue;
             }
 
@@ -343,10 +314,7 @@ void Read_name(struct TTFONT *font)
                 utf16be_to_ascii(font->PostName, (char *)strings+offset, length);
                 font->PostName[length/2]='\0';
                 replace_newlines_with_spaces(font->PostName);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->PostName=\"%s\"",font->PostName);
-#endif
                 continue;
             }
 
@@ -358,10 +326,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->Trademark,(const char*)strings+offset,length);
                 font->Trademark[length]='\0';
                 replace_newlines_with_spaces(font->Trademark);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->Trademark=\"%s\"",font->Trademark);
-#endif
                 continue;
             }
         }
@@ -677,10 +642,7 @@ void sfnts_glyf_table(TTStreamWriter& stream, struct TTFONT *font, ULONG oldoffs
     ULONG total=0;              /* running total of bytes written to table */
     int x;
     bool loca_is_local=false;
-
-#ifdef DEBUG_TRUETYPE
     debug("sfnts_glyf_table(font,%d)", (int)correct_total_length);
-#endif
 
     if (font->loca_table == NULL)
     {
@@ -709,10 +671,7 @@ void sfnts_glyf_table(TTStreamWriter& stream, struct TTFONT *font, ULONG oldoffs
             length = getULONG( font->loca_table + ((x+1) * 4) );
             length -= off;
         }
-
-#ifdef DEBUG_TRUETYPE
         debug("glyph length=%d",(int)length);
-#endif
 
         /* Start new string if necessary. */
         sfnts_new_table( stream, (int)length );
@@ -798,33 +757,36 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
     ** Find the tables we want and store there vital
     ** statistics in tables[].
     */
-    for (x=0; x < 9; x++ )
-    {
-        do
-        {
-            diff = strncmp( (char*)ptr, table_names[x], 4 );
+    ULONG num_tables_read = 0;  /* Number of tables read from the directory */
+    for (x = 0; x < 9; x++) {
+        do {
+          if (num_tables_read < font->numTables) {
+              /* There are still tables to read from ptr */
+              diff = strncmp((char*)ptr, table_names[x], 4);
 
-            if ( diff > 0 )             /* If we are past it. */
-            {
-                tables[x].length = 0;
-                diff = 0;
-            }
-            else if ( diff < 0 )        /* If we haven't hit it yet. */
-            {
-                ptr += 16;
-            }
-            else if ( diff == 0 )       /* Here it is! */
-            {
-                tables[x].newoffset = nextoffset;
-                tables[x].checksum = getULONG( ptr + 4 );
-                tables[x].oldoffset = getULONG( ptr + 8 );
-                tables[x].length = getULONG( ptr + 12 );
-                nextoffset += ( ((tables[x].length + 3) / 4) * 4 );
-                count++;
-                ptr += 16;
-            }
-        }
-        while (diff != 0);
+              if (diff > 0) {           /* If we are past it. */
+                  tables[x].length = 0;
+                  diff = 0;
+              } else if (diff < 0) {      /* If we haven't hit it yet. */
+                  ptr += 16;
+                  num_tables_read++;
+              } else if (diff == 0) {     /* Here it is! */
+                  tables[x].newoffset = nextoffset;
+                  tables[x].checksum = getULONG( ptr + 4 );
+                  tables[x].oldoffset = getULONG( ptr + 8 );
+                  tables[x].length = getULONG( ptr + 12 );
+                  nextoffset += ( ((tables[x].length + 3) / 4) * 4 );
+                  count++;
+                  ptr += 16;
+                  num_tables_read++;
+              }
+          } else {
+            /* We've read the whole table directory already */
+            /* Some tables couldn't be found */
+            tables[x].length = 0;
+            break;  /* Proceed to next tables[x] */
+          }
+        } while (diff != 0);
 
     } /* end of for loop which passes over the table directory */
 
@@ -841,18 +803,23 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
 
     /* Now, generate those silly numTables numbers. */
     sfnts_pputUSHORT(stream, count);            /* number of tables */
-    if ( count == 9 )
-    {
-        sfnts_pputUSHORT(stream, 7);          /* searchRange */
-        sfnts_pputUSHORT(stream, 3);          /* entrySelector */
-        sfnts_pputUSHORT(stream, 81);         /* rangeShift */
+
+    int search_range = 1;
+    int entry_sel = 0;
+
+    while (search_range <= count) {
+        search_range <<= 1;
+        entry_sel++;
     }
-#ifdef DEBUG_TRUETYPE
-    else
-    {
-        debug("only %d tables selected",count);
-    }
-#endif
+    entry_sel = entry_sel > 0 ? entry_sel - 1 : 0;
+    search_range = (search_range >> 1) * 16;
+    int range_shift = count * 16 - search_range;
+
+    sfnts_pputUSHORT(stream, search_range);      /* searchRange */
+    sfnts_pputUSHORT(stream, entry_sel);         /* entrySelector */
+    sfnts_pputUSHORT(stream, range_shift);       /* rangeShift */
+
+    debug("only %d tables selected",count);
 
     /* Now, emmit the table directory. */
     for (x=0; x < 9; x++)
@@ -885,10 +852,7 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
         {
             continue;
         }
-
-#ifdef DEBUG_TRUETYPE
         debug("emmiting table '%s'",table_names[x]);
-#endif
 
         /* 'glyf' table gets special treatment */
         if ( strcmp(table_names[x],"glyf")==0 )
@@ -1278,9 +1242,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
 
     /* Determine how many directory entries there are. */
     font.numTables = getUSHORT( font.offset_table + 4 );
-#ifdef DEBUG_TRUETYPE
     debug("numTables=%d",(int)font.numTables);
-#endif
 
     /* Expand the memory block to hold the whole thing. */
     font.offset_table = (BYTE*)realloc( font.offset_table, sizeof(BYTE) * (12 + font.numTables * 16) );
@@ -1301,9 +1263,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
         font.MfrRevision = getFixed( ptr + 4 );           /* font revision number */
         font.unitsPerEm = getUSHORT( ptr + 18 );
         font.HUPM = font.unitsPerEm / 2;
-#ifdef DEBUG_TRUETYPE
         debug("unitsPerEm=%d",(int)font.unitsPerEm);
-#endif
         font.llx = topost2( getFWord( ptr + 36 ) );               /* bounding box info */
         font.lly = topost2( getFWord( ptr + 38 ) );
         font.urx = topost2( getFWord( ptr + 40 ) );

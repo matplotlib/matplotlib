@@ -3,4 +3,4 @@
 Basic
 -----
 
-Basic plot types, usually x versus y.  
+Basic plot types, usually y versus x.

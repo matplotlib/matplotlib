@@ -32,43 +32,17 @@ to an RGBA tuple (`to_rgba`) or to an HTML-like hex string in the
 "#rrggbb" format (`to_hex`), and a sequence of colors to an (n, 4)
 RGBA array (`to_rgba_array`).  Caching is used for efficiency.
 
-Matplotlib recognizes the following formats to specify a color:
-
-* an RGB or RGBA (red, green, blue, alpha) tuple of float values in closed
-  interval ``[0, 1]`` (e.g., ``(0.1, 0.2, 0.5)`` or ``(0.1, 0.2, 0.5, 0.3)``);
-* a hex RGB or RGBA string (e.g., ``'#0f0f0f'`` or ``'#0f0f0f80'``;
-  case-insensitive);
-* a shorthand hex RGB or RGBA string, equivalent to the hex RGB or RGBA
-  string obtained by duplicating each character, (e.g., ``'#abc'``, equivalent
-  to ``'#aabbcc'``, or ``'#abcd'``, equivalent to ``'#aabbccdd'``;
-  case-insensitive);
-* a string representation of a float value in ``[0, 1]`` inclusive for gray
-  level (e.g., ``'0.5'``);
-* one of the characters ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``, which
-  are short-hand notations for shades of blue, green, red, cyan, magenta,
-  yellow, black, and white. Note that the colors ``'g', 'c', 'm', 'y'`` do not
-  coincide with the X11/CSS4 colors. Their particular shades were chosen for
-  better visibility of colored lines against typical backgrounds.
-* a X11/CSS4 color name (case-insensitive);
-* a name from the `xkcd color survey`_, prefixed with ``'xkcd:'`` (e.g.,
-  ``'xkcd:sky blue'``; case insensitive);
-* one of the Tableau Colors from the 'T10' categorical palette (the default
-  color cycle): ``{'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
-  'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan'}``
-  (case-insensitive);
-* a "CN" color spec, i.e. 'C' followed by a number, which is an index into the
-  default property cycle (:rc:`axes.prop_cycle`); the indexing is intended to
-  occur at rendering time, and defaults to black if the cycle does not include
-  color.
+Colors that Matplotlib recognizes are listed at
+:doc:`/tutorials/colors/colors`.
 
 .. _palettable: https://jiffyclub.github.io/palettable/
 .. _xkcd color survey: https://xkcd.com/color/rgb/
 """
 
 import base64
-from collections.abc import Sized, Sequence
-import copy
+from collections.abc import Sized, Sequence, Mapping
 import functools
+import importlib
 import inspect
 import io
 import itertools
@@ -79,7 +53,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib import _api, cbook, scale
+from matplotlib import _api, _cm, cbook, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -119,6 +93,113 @@ def get_named_colors_mapping():
     return _colors_full_map
 
 
+class ColorSequenceRegistry(Mapping):
+    r"""
+    Container for sequences of colors that are known to Matplotlib by name.
+
+    The universal registry instance is `matplotlib.color_sequences`. There
+    should be no need for users to instantiate `.ColorSequenceRegistry`
+    themselves.
+
+    Read access uses a dict-like interface mapping names to lists of colors::
+
+        import matplotlib as mpl
+        cmap = mpl.color_sequences['tab10']
+
+    The returned lists are copies, so that their modification does not change
+    the global definition of the color sequence.
+
+    Additional color sequences can be added via
+    `.ColorSequenceRegistry.register`::
+
+        mpl.color_sequences.register('rgb', ['r', 'g', 'b'])
+    """
+
+    _BUILTIN_COLOR_SEQUENCES = {
+        'tab10': _cm._tab10_data,
+        'tab20': _cm._tab20_data,
+        'tab20b': _cm._tab20b_data,
+        'tab20c': _cm._tab20c_data,
+        'Pastel1': _cm._Pastel1_data,
+        'Pastel2': _cm._Pastel2_data,
+        'Paired': _cm._Paired_data,
+        'Accent': _cm._Accent_data,
+        'Dark2': _cm._Dark2_data,
+        'Set1': _cm._Set1_data,
+        'Set2': _cm._Set1_data,
+        'Set3': _cm._Set1_data,
+    }
+
+    def __init__(self):
+        self._color_sequences = {**self._BUILTIN_COLOR_SEQUENCES}
+
+    def __getitem__(self, item):
+        try:
+            return list(self._color_sequences[item])
+        except KeyError:
+            raise KeyError(f"{item!r} is not a known color sequence name")
+
+    def __iter__(self):
+        return iter(self._color_sequences)
+
+    def __len__(self):
+        return len(self._color_sequences)
+
+    def __str__(self):
+        return ('ColorSequenceRegistry; available colormaps:\n' +
+                ', '.join(f"'{name}'" for name in self))
+
+    def register(self, name, color_list):
+        """
+        Register a new color sequence.
+
+        The color sequence registry stores a copy of the given *color_list*, so
+        that future changes to the original list do not affect the registered
+        color sequence. Think of this as the registry taking a snapshot
+        of *color_list* at registration.
+
+        Parameters
+        ----------
+        name : str
+            The name for the color sequence.
+
+        color_list : list of colors
+            An iterable returning valid Matplotlib colors when iterating over.
+            Note however that the returned color sequence will always be a
+            list regardless of the input type.
+
+        """
+        if name in self._BUILTIN_COLOR_SEQUENCES:
+            raise ValueError(f"{name!r} is a reserved name for a builtin "
+                             "color sequence")
+
+        color_list = list(color_list)  # force copy and coerce type to list
+        for color in color_list:
+            try:
+                to_rgba(color)
+            except ValueError:
+                raise ValueError(
+                    f"{color!r} is not a valid color specification")
+
+        self._color_sequences[name] = color_list
+
+    def unregister(self, name):
+        """
+        Remove a sequence from the registry.
+
+        You cannot remove built-in color sequences.
+
+        If the name is not registered, returns with no error.
+        """
+        if name in self._BUILTIN_COLOR_SEQUENCES:
+            raise ValueError(
+                f"Cannot unregister builtin color sequence {name!r}")
+        self._color_sequences.pop(name, None)
+
+
+_color_sequences = ColorSequenceRegistry()
+
+
 def _sanitize_extrema(ex):
     if ex is None:
         return ex
@@ -145,6 +226,12 @@ def is_color_like(c):
         return False
     else:
         return True
+
+
+def _has_alpha_channel(c):
+    """Return whether *c* is a color with an alpha channel."""
+    # 4-element sequences are interpreted as r, g, b, a
+    return not isinstance(c, str) and len(c) == 4
 
 
 def _check_color_like(**kwargs):
@@ -201,8 +288,7 @@ def to_rgba(c, alpha=None):
     """
     # Special-case nth color syntax because it should not be cached.
     if _is_nth_color(c):
-        from matplotlib import rcParams
-        prop_cycler = rcParams['axes.prop_cycle']
+        prop_cycler = mpl.rcParams['axes.prop_cycle']
         colors = prop_cycler.by_key().get('color', ['k'])
         c = colors[int(c[1:]) % len(colors)]
     try:
@@ -382,9 +468,7 @@ def to_rgba_array(c, alpha=None):
         pass
 
     if isinstance(c, str):
-        raise ValueError("Using a string of single character colors as "
-                         "a color sequence is not supported. The colors can "
-                         "be passed as an explicit list instead.")
+        raise ValueError(f"{c!r} is not a valid color value.")
 
     if len(c) == 0:
         return np.zeros((0, 4), float)
@@ -416,8 +500,17 @@ def to_hex(c, keep_alpha=False):
     """
     Convert *c* to a hex color.
 
-    Uses the ``#rrggbb`` format if *keep_alpha* is False (the default),
-    ``#rrggbbaa`` otherwise.
+    Parameters
+    ----------
+    c : :doc:`color </tutorials/colors/colors>` or `numpy.ma.masked`
+
+    keep_alpha : bool, default: False
+      If False, use the ``#rrggbb`` format, otherwise use ``#rrggbbaa``.
+
+    Returns
+    -------
+    str
+      ``#rrggbb`` or ``#rrggbbaa`` hex color string
     """
     c = to_rgba(c)
     if not keep_alpha:
@@ -521,9 +614,7 @@ def _create_lookup_table(N, data, gamma=1.0):
         adata = np.array(data)
     except Exception as err:
         raise TypeError("data must be convertible to an array") from err
-    shape = adata.shape
-    if len(shape) != 2 or shape[1] != 3:
-        raise ValueError("data must be nx3 format")
+    _api.check_shape((None, 3), data=adata)
 
     x = adata[:, 0]
     y0 = adata[:, 1]
@@ -551,20 +642,6 @@ def _create_lookup_table(N, data, gamma=1.0):
         ])
     # ensure that the lut is confined to values between 0 and 1 by clipping it
     return np.clip(lut, 0.0, 1.0)
-
-
-def _warn_if_global_cmap_modified(cmap):
-    if getattr(cmap, '_global', False):
-        _api.warn_deprecated(
-            "3.3",
-            removal="3.6",
-            message="You are modifying the state of a globally registered "
-                    "colormap. This has been deprecated since %(since)s and "
-                    "%(removal)s, you will not be able to modify a "
-                    "registered colormap in-place. To remove this warning, "
-                    "you can make a copy of the colormap first. "
-                    f'cmap = mpl.cm.get_cmap("{cmap.name}").copy()'
-        )
 
 
 class Colormap:
@@ -629,8 +706,12 @@ class Colormap:
         if not self._isinit:
             self._init()
 
-        mask_bad = X.mask if np.ma.is_masked(X) else np.isnan(X)  # Mask nan's.
+        # Take the bad mask from a masked array, or in all other cases defer
+        # np.isnan() to after we have converted to an array.
+        mask_bad = X.mask if np.ma.is_masked(X) else None
         xa = np.array(X, copy=True)
+        if mask_bad is None:
+            mask_bad = np.isnan(xa)
         if not xa.dtype.isnative:
             xa = xa.byteswap().newbyteorder()  # Native byteorder is faster.
         if xa.dtype.kind == "f":
@@ -650,24 +731,20 @@ class Colormap:
         xa[xa < 0] = self._i_under
         xa[mask_bad] = self._i_bad
 
+        lut = self._lut
         if bytes:
-            lut = (self._lut * 255).astype(np.uint8)
-        else:
-            lut = self._lut.copy()  # Don't let alpha modify original _lut.
+            lut = (lut * 255).astype(np.uint8)
 
-        rgba = np.empty(shape=xa.shape + (4,), dtype=lut.dtype)
-        lut.take(xa, axis=0, mode='clip', out=rgba)
+        rgba = lut.take(xa, axis=0, mode='clip')
 
         if alpha is not None:
-            if np.iterable(alpha):
-                alpha = np.asarray(alpha)
-                if alpha.shape != xa.shape:
-                    raise ValueError("alpha is array-like but its shape"
-                                     " %s doesn't match that of X %s" %
-                                     (alpha.shape, xa.shape))
             alpha = np.clip(alpha, 0, 1)
             if bytes:
-                alpha = (alpha * 255).astype(np.uint8)
+                alpha *= 255  # Will be cast to uint8 upon assignment.
+            if alpha.shape not in [(), xa.shape]:
+                raise ValueError(
+                    f"alpha is array-like but its shape {alpha.shape} does "
+                    f"not match that of X {xa.shape}")
             rgba[..., -1] = alpha
 
             # If the "bad" color is all zeros, then ignore alpha input.
@@ -687,8 +764,18 @@ class Colormap:
         cmapobject.__dict__.update(self.__dict__)
         if self._isinit:
             cmapobject._lut = np.copy(self._lut)
-        cmapobject._global = False
         return cmapobject
+
+    def __eq__(self, other):
+        if (not isinstance(other, Colormap) or self.name != other.name or
+                self.colorbar_extend != other.colorbar_extend):
+            return False
+        # To compare lookup tables the Colormaps have to be initialized
+        if not self._isinit:
+            self._init()
+        if not other._isinit:
+            other._init()
+        return np.array_equal(self._lut, other._lut)
 
     def get_bad(self):
         """Get the color for masked values."""
@@ -698,7 +785,6 @@ class Colormap:
 
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
-        _warn_if_global_cmap_modified(self)
         self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -711,7 +797,6 @@ class Colormap:
 
     def set_under(self, color='k', alpha=None):
         """Set the color for low out-of-range values."""
-        _warn_if_global_cmap_modified(self)
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -724,7 +809,6 @@ class Colormap:
 
     def set_over(self, color='k', alpha=None):
         """Set the color for high out-of-range values."""
-        _warn_if_global_cmap_modified(self)
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -747,7 +831,7 @@ class Colormap:
         values and, when ``norm.clip = False``, low (*under*) and high (*over*)
         out-of-range values, have been set accordingly.
         """
-        new_cm = copy.copy(self)
+        new_cm = self.copy()
         new_cm.set_extremes(bad=bad, under=under, over=over)
         return new_cm
 
@@ -773,21 +857,30 @@ class Colormap:
         return (np.all(self._lut[:, 0] == self._lut[:, 1]) and
                 np.all(self._lut[:, 0] == self._lut[:, 2]))
 
-    def _resample(self, lutsize):
+    def resampled(self, lutsize):
         """Return a new colormap with *lutsize* entries."""
+        if hasattr(self, '_resample'):
+            _api.warn_external(
+                "The ability to resample a color map is now public API "
+                f"However the class {type(self)} still only implements "
+                "the previous private _resample method.  Please update "
+                "your class."
+            )
+            return self._resample(lutsize)
+
         raise NotImplementedError()
 
     def reversed(self, name=None):
         """
         Return a reversed instance of the Colormap.
 
-        .. note:: This function is not implemented for base class.
+        .. note:: This function is not implemented for the base class.
 
         Parameters
         ----------
         name : str, optional
-            The name for the reversed colormap. If it's None the
-            name will be the name of the parent colormap + "_r".
+            The name for the reversed colormap. If None, the
+            name is set to ``self.name + "_r"``.
 
         See Also
         --------
@@ -969,7 +1062,7 @@ class LinearSegmentedColormap(Colormap):
 
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
-    def _resample(self, lutsize):
+    def resampled(self, lutsize):
         """Return a new colormap with *lutsize* entries."""
         new_cmap = LinearSegmentedColormap(self.name, self._segmentdata,
                                            lutsize)
@@ -990,8 +1083,8 @@ class LinearSegmentedColormap(Colormap):
         Parameters
         ----------
         name : str, optional
-            The name for the reversed colormap. If it's None the
-            name will be the name of the parent colormap + "_r".
+            The name for the reversed colormap. If None, the
+            name is set to ``self.name + "_r"``.
 
         Returns
         -------
@@ -1073,7 +1166,7 @@ class ListedColormap(Colormap):
         self._isinit = True
         self._set_extremes()
 
-    def _resample(self, lutsize):
+    def resampled(self, lutsize):
         """Return a new colormap with *lutsize* entries."""
         colors = self(np.linspace(0, 1, lutsize))
         new_cmap = ListedColormap(colors, name=self.name)
@@ -1090,8 +1183,8 @@ class ListedColormap(Colormap):
         Parameters
         ----------
         name : str, optional
-            The name for the reversed colormap. If it's None the
-            name will be the name of the parent colormap + "_r".
+            The name for the reversed colormap. If None, the
+            name is set to ``self.name + "_r"``.
 
         Returns
         -------
@@ -1138,10 +1231,50 @@ class Normalize:
         -----
         Returns 0 if ``vmin == vmax``.
         """
-        self.vmin = _sanitize_extrema(vmin)
-        self.vmax = _sanitize_extrema(vmax)
-        self.clip = clip
-        self._scale = scale.LinearScale(axis=None)
+        self._vmin = _sanitize_extrema(vmin)
+        self._vmax = _sanitize_extrema(vmax)
+        self._clip = clip
+        self._scale = None
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
+
+    @property
+    def vmin(self):
+        return self._vmin
+
+    @vmin.setter
+    def vmin(self, value):
+        value = _sanitize_extrema(value)
+        if value != self._vmin:
+            self._vmin = value
+            self._changed()
+
+    @property
+    def vmax(self):
+        return self._vmax
+
+    @vmax.setter
+    def vmax(self, value):
+        value = _sanitize_extrema(value)
+        if value != self._vmax:
+            self._vmax = value
+            self._changed()
+
+    @property
+    def clip(self):
+        return self._clip
+
+    @clip.setter
+    def clip(self, value):
+        if value != self._clip:
+            self._clip = value
+            self._changed()
+
+    def _changed(self):
+        """
+        Call this whenever the norm is changed to notify all the
+        callback listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
 
     @staticmethod
     def process_value(value):
@@ -1201,12 +1334,13 @@ class Normalize:
 
         result, is_scalar = self.process_value(value)
 
-        self.autoscale_None(result)
+        if self.vmin is None or self.vmax is None:
+            self.autoscale_None(result)
         # Convert at least to float, without losing precision.
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
         if vmin == vmax:
-            result.fill(0)   # Or should it be all masked?  Or 0.5?
+            result.fill(0)  # Or should it be all masked?  Or 0.5?
         elif vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         else:
@@ -1287,15 +1421,24 @@ class TwoSlopeNorm(Normalize):
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
         """
 
-        self.vcenter = vcenter
-        self.vmin = vmin
-        self.vmax = vmax
+        super().__init__(vmin=vmin, vmax=vmax)
+        self._vcenter = vcenter
         if vcenter is not None and vmax is not None and vcenter >= vmax:
             raise ValueError('vmin, vcenter, and vmax must be in '
                              'ascending order')
         if vcenter is not None and vmin is not None and vcenter <= vmin:
             raise ValueError('vmin, vcenter, and vmax must be in '
                              'ascending order')
+
+    @property
+    def vcenter(self):
+        return self._vcenter
+
+    @vcenter.setter
+    def vcenter(self, value):
+        if value != self._vcenter:
+            self._vcenter = value
+            self._changed()
 
     def autoscale_None(self, A):
         """
@@ -1316,11 +1459,23 @@ class TwoSlopeNorm(Normalize):
 
         if not self.vmin <= self.vcenter <= self.vmax:
             raise ValueError("vmin, vcenter, vmax must increase monotonically")
+        # note that we must extrapolate for tick locators:
         result = np.ma.masked_array(
             np.interp(result, [self.vmin, self.vcenter, self.vmax],
-                      [0, 0.5, 1.]), mask=np.ma.getmask(result))
+                      [0, 0.5, 1], left=-np.inf, right=np.inf),
+            mask=np.ma.getmask(result))
         if is_scalar:
             result = np.atleast_1d(result)[0]
+        return result
+
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until both vmin and vmax are set")
+        (vmin,), _ = self.process_value(self.vmin)
+        (vmax,), _ = self.process_value(self.vmax)
+        (vcenter,), _ = self.process_value(self.vcenter)
+        result = np.interp(value, [0, 0.5, 1], [vmin, vcenter, vmax],
+                           left=-np.inf, right=np.inf)
         return result
 
 
@@ -1358,12 +1513,10 @@ class CenteredNorm(Normalize):
             >>> norm(data)
             array([0.25, 0.5 , 1.  ])
         """
+        super().__init__(vmin=None, vmax=None, clip=clip)
         self._vcenter = vcenter
-        self.vmin = None
-        self.vmax = None
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
-        self.clip = clip
 
     def _set_vmin_vmax(self):
         """
@@ -1393,7 +1546,9 @@ class CenteredNorm(Normalize):
 
     @vcenter.setter
     def vcenter(self, vcenter):
-        self._vcenter = vcenter
+        if vcenter != self._vcenter:
+            self._vcenter = vcenter
+            self._changed()
         if self.vmax is not None:
             # recompute halfrange assuming vmin and vmax represent
             # min and max of data
@@ -1421,13 +1576,14 @@ class CenteredNorm(Normalize):
         return super().__call__(value, clip=clip)
 
 
-def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
+def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     """
-    Decorator for building a `.Normalize` subclass from a `.Scale` subclass.
+    Decorator for building a `.Normalize` subclass from a `~.scale.ScaleBase`
+    subclass.
 
     After ::
 
-        @_make_norm_from_scale(scale_cls)
+        @make_norm_from_scale(scale_cls)
         class norm_cls(Normalize):
             ...
 
@@ -1442,7 +1598,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     a dummy axis).
 
     If the *scale_cls* constructor takes additional parameters, then *init*
-    should be passed to `_make_norm_from_scale`.  It is a callable which is
+    should be passed to `make_norm_from_scale`.  It is a callable which is
     *only* used for its signature.  First, this signature will become the
     signature of *norm_cls*.  Second, the *norm_cls* constructor will bind the
     parameters passed to it using this signature, extract the bound *vmin*,
@@ -1452,25 +1608,79 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     """
 
     if base_norm_cls is None:
-        return functools.partial(_make_norm_from_scale, scale_cls, init=init)
+        return functools.partial(make_norm_from_scale, scale_cls, init=init)
+
+    if isinstance(scale_cls, functools.partial):
+        scale_args = scale_cls.args
+        scale_kwargs_items = tuple(scale_cls.keywords.items())
+        scale_cls = scale_cls.func
+    else:
+        scale_args = scale_kwargs_items = ()
 
     if init is None:
         def init(vmin=None, vmax=None, clip=False): pass
-    bound_init_signature = inspect.signature(init)
+
+    return _make_norm_from_scale(
+        scale_cls, scale_args, scale_kwargs_items,
+        base_norm_cls, inspect.signature(init))
+
+
+@functools.lru_cache(None)
+def _make_norm_from_scale(
+    scale_cls, scale_args, scale_kwargs_items,
+    base_norm_cls, bound_init_signature,
+):
+    """
+    Helper for `make_norm_from_scale`.
+
+    This function is split out to enable caching (in particular so that
+    different unpickles reuse the same class).  In order to do so,
+
+    - ``functools.partial`` *scale_cls* is expanded into ``func, args, kwargs``
+      to allow memoizing returned norms (partial instances always compare
+      unequal, but we can check identity based on ``func, args, kwargs``;
+    - *init* is replaced by *init_signature*, as signatures are picklable,
+      unlike to arbitrary lambdas.
+    """
 
     class Norm(base_norm_cls):
+        def __reduce__(self):
+            cls = type(self)
+            # If the class is toplevel-accessible, it is possible to directly
+            # pickle it "by name".  This is required to support norm classes
+            # defined at a module's toplevel, as the inner base_norm_cls is
+            # otherwise unpicklable (as it gets shadowed by the generated norm
+            # class).  If either import or attribute access fails, fall back to
+            # the general path.
+            try:
+                if cls is getattr(importlib.import_module(cls.__module__),
+                                  cls.__qualname__):
+                    return (_create_empty_object_of_class, (cls,), vars(self))
+            except (ImportError, AttributeError):
+                pass
+            return (_picklable_norm_constructor,
+                    (scale_cls, scale_args, scale_kwargs_items,
+                     base_norm_cls, bound_init_signature),
+                    vars(self))
 
         def __init__(self, *args, **kwargs):
             ba = bound_init_signature.bind(*args, **kwargs)
             ba.apply_defaults()
             super().__init__(
                 **{k: ba.arguments.pop(k) for k in ["vmin", "vmax", "clip"]})
-            self._scale = scale_cls(axis=None, **ba.arguments)
+            self._scale = functools.partial(
+                scale_cls, *scale_args, **dict(scale_kwargs_items))(
+                    axis=None, **ba.arguments)
             self._trf = self._scale.get_transform()
+
+        __init__.__signature__ = bound_init_signature.replace(parameters=[
+            inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
+            *bound_init_signature.parameters.values()])
 
         def __call__(self, value, clip=None):
             value, is_scalar = self.process_value(value)
-            self.autoscale_None(value)
+            if self.vmin is None or self.vmax is None:
+                self.autoscale_None(value)
             if self.vmin > self.vmax:
                 raise ValueError("vmin must be less or equal to vmax")
             if self.vmin == self.vmax:
@@ -1505,16 +1715,36 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                      .reshape(np.shape(value)))
             return value[0] if is_scalar else value
 
-    Norm.__name__ = base_norm_cls.__name__
-    Norm.__qualname__ = base_norm_cls.__qualname__
+        def autoscale(self, A):
+            # i.e. A[np.isfinite(...)], but also for non-array A's
+            in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            return super().autoscale(in_trf_domain)
+
+        def autoscale_None(self, A):
+            in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            return super().autoscale_None(in_trf_domain)
+
+    if base_norm_cls is Normalize:
+        Norm.__name__ = f"{scale_cls.__name__}Norm"
+        Norm.__qualname__ = f"{scale_cls.__qualname__}Norm"
+    else:
+        Norm.__name__ = base_norm_cls.__name__
+        Norm.__qualname__ = base_norm_cls.__qualname__
     Norm.__module__ = base_norm_cls.__module__
-    Norm.__init__.__signature__ = bound_init_signature.replace(parameters=[
-        inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
-        *bound_init_signature.parameters.values()])
+    Norm.__doc__ = base_norm_cls.__doc__
+
     return Norm
 
 
-@_make_norm_from_scale(
+def _create_empty_object_of_class(cls):
+    return cls.__new__(cls)
+
+
+def _picklable_norm_constructor(*args):
+    return _create_empty_object_of_class(_make_norm_from_scale(*args))
+
+
+@make_norm_from_scale(
     scale.FuncScale,
     init=lambda functions, vmin=None, vmax=None, clip=False: None)
 class FuncNorm(Normalize):
@@ -1547,20 +1777,13 @@ class FuncNorm(Normalize):
     """
 
 
-@_make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
-class LogNorm(Normalize):
-    """Normalize a given value to the 0-1 range on a log scale."""
-
-    def autoscale(self, A):
-        # docstring inherited.
-        super().autoscale(np.ma.masked_less_equal(A, 0, copy=False))
-
-    def autoscale_None(self, A):
-        # docstring inherited.
-        super().autoscale_None(np.ma.masked_less_equal(A, 0, copy=False))
+LogNorm = make_norm_from_scale(
+    functools.partial(scale.LogScale, nonpositive="mask"))(Normalize)
+LogNorm.__name__ = LogNorm.__qualname__ = "LogNorm"
+LogNorm.__doc__ = "Normalize a given value to the 0-1 range on a log scale."
 
 
-@_make_norm_from_scale(
+@make_norm_from_scale(
     scale.SymmetricalLogScale,
     init=lambda linthresh, linscale=1., vmin=None, vmax=None, clip=False, *,
                 base=10: None)
@@ -1596,6 +1819,38 @@ class SymLogNorm(Normalize):
     @linthresh.setter
     def linthresh(self, value):
         self._scale.linthresh = value
+
+
+@make_norm_from_scale(
+    scale.AsinhScale,
+    init=lambda linear_width=1, vmin=None, vmax=None, clip=False: None)
+class AsinhNorm(Normalize):
+    """
+    The inverse hyperbolic sine scale is approximately linear near
+    the origin, but becomes logarithmic for larger positive
+    or negative values. Unlike the `SymLogNorm`, the transition between
+    these linear and logarithmic regions is smooth, which may reduce
+    the risk of visual artifacts.
+
+    .. note::
+
+       This API is provisional and may be revised in the future
+       based on early user feedback.
+
+    Parameters
+    ----------
+    linear_width : float, default: 1
+        The effective width of the linear region, beyond which
+        the transformation becomes asymptotically logarithmic
+    """
+
+    @property
+    def linear_width(self):
+        return self._scale.linear_width
+
+    @linear_width.setter
+    def linear_width(self, value):
+        self._scale.linear_width = value
 
 
 class PowerNorm(Normalize):
@@ -1655,19 +1910,23 @@ class BoundaryNorm(Normalize):
 
     Unlike `Normalize` or `LogNorm`, `BoundaryNorm` maps values to integers
     instead of to the interval 0-1.
-
-    Mapping to the 0-1 interval could have been done via piece-wise linear
-    interpolation, but using integers seems simpler, and reduces the number of
-    conversions back and forth between integer and floating point.
     """
+
+    # Mapping to the 0-1 interval could have been done via piece-wise linear
+    # interpolation, but using integers seems simpler, and reduces the number
+    # of conversions back and forth between int and float.
+
     def __init__(self, boundaries, ncolors, clip=False, *, extend='neither'):
         """
         Parameters
         ----------
         boundaries : array-like
-            Monotonically increasing sequence of at least 2 boundaries.
+            Monotonically increasing sequence of at least 2 bin edges:  data
+            falling in the n-th bin will be mapped to the n-th color.
+
         ncolors : int
             Number of colors in the colormap to be used.
+
         clip : bool, optional
             If clip is ``True``, out of range values are mapped to 0 if they
             are below ``boundaries[0]`` or mapped to ``ncolors - 1`` if they
@@ -1677,6 +1936,7 @@ class BoundaryNorm(Normalize):
             they are below ``boundaries[0]`` or mapped to *ncolors* if they are
             above ``boundaries[-1]``. These are then converted to valid indices
             by `Colormap.__call__`.
+
         extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
             Extend the number of bins to include one or both of the
             regions beyond the boundaries.  For example, if ``extend``
@@ -1686,24 +1946,16 @@ class BoundaryNorm(Normalize):
             `~matplotlib.colorbar.Colorbar` will be drawn with
             the triangle extension on the left or lower end.
 
-        Returns
-        -------
-        int16 scalar or array
-
         Notes
         -----
-        *boundaries* defines the edges of bins, and data falling within a bin
-        is mapped to the color with the same index.
-
-        If the number of bins, including any extensions, is less than
-        *ncolors*, the color index is chosen by linear interpolation, mapping
-        the ``[0, nbins - 1]`` range onto the ``[0, ncolors - 1]`` range.
+        If there are fewer bins (including extensions) than colors, then the
+        color index is chosen by linearly interpolating the ``[0, nbins - 1]``
+        range onto the ``[0, ncolors - 1]`` range, effectively skipping some
+        colors in the middle of the colormap.
         """
         if clip and extend != 'neither':
             raise ValueError("'clip=True' is not compatible with 'extend'")
-        self.clip = clip
-        self.vmin = boundaries[0]
-        self.vmax = boundaries[-1]
+        super().__init__(vmin=boundaries[0], vmax=boundaries[-1], clip=clip)
         self.boundaries = np.asarray(boundaries)
         self.N = len(self.boundaries)
         if self.N < 2:
@@ -1728,6 +1980,10 @@ class BoundaryNorm(Normalize):
                              "number of bins")
 
     def __call__(self, value, clip=None):
+        """
+        This method behaves similarly to `.Normalize.__call__`, except that it
+        returns integers or arrays of int16.
+        """
         if clip is None:
             clip = self.clip
 
@@ -1741,7 +1997,7 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         # this gives us the bins in the lookup table in the range
-        # [0, _n_regions - 1]  (the offset is baked in the init)
+        # [0, _n_regions - 1]  (the offset is set in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
         # if we have more colors than regions, stretch the region
         # index computed above to full range of the color bins.  This
@@ -2327,7 +2583,7 @@ class LightSource:
 
     def blend_overlay(self, rgb, intensity):
         """
-        Combines an rgb image with an intensity map using "overlay" blending.
+        Combine an rgb image with an intensity map using "overlay" blending.
 
         Parameters
         ----------

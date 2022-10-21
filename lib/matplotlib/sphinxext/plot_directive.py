@@ -2,10 +2,13 @@
 A directive for including a Matplotlib plot in a Sphinx document
 ================================================================
 
-By default, in HTML output, `plot` will include a .png file with a link to a
-high-res .png and .pdf.  In LaTeX output, it will include a .pdf.
+This is a Sphinx extension providing a reStructuredText directive
+``.. plot::`` for including a plot in a Sphinx document.
 
-The source code for the plot may be included in one of three ways:
+In HTML output, ``.. plot::`` will include a .png file with a link
+to a high-res .png and .pdf.  In LaTeX output, it will include a .pdf.
+
+The plot content may be defined in one of three ways:
 
 1. **A path to a source file** as the argument to the directive::
 
@@ -16,7 +19,7 @@ The source code for the plot may be included in one of three ways:
 
      .. plot:: path/to/plot.py
 
-        The plot's caption.
+        The plot caption.
 
    Additionally, one may specify the name of a function to call (with
    no arguments) immediately after importing the module::
@@ -28,10 +31,8 @@ The source code for the plot may be included in one of three ways:
      .. plot::
 
         import matplotlib.pyplot as plt
-        import matplotlib.image as mpimg
-        import numpy as np
-        img = mpimg.imread('_static/stinkbug.png')
-        imgplot = plt.imshow(img)
+        plt.plot([1, 2, 3], [4, 5, 6])
+        plt.title("A plotting exammple")
 
 3. Using **doctest** syntax::
 
@@ -44,21 +45,22 @@ The source code for the plot may be included in one of three ways:
 Options
 -------
 
-The ``plot`` directive supports the following options:
+The ``.. plot::`` directive supports the following options:
 
-    format : {'python', 'doctest'}
-        The format of the input.
+    ``:format:`` : {'python', 'doctest'}
+        The format of the input.  If unset, the format is auto-detected.
 
-    include-source : bool
-        Whether to display the source code. The default can be changed
-        using the `plot_include_source` variable in :file:`conf.py`.
+    ``:include-source:`` : bool
+        Whether to display the source code. The default can be changed using
+        the ``plot_include_source`` variable in :file:`conf.py` (which itself
+        defaults to False).
 
-    encoding : str
+    ``:encoding:`` : str
         If this source file is in a non-UTF8 or non-ASCII encoding, the
         encoding must be specified using the ``:encoding:`` option.  The
         encoding will not be inferred using the ``-*- coding -*-`` metacomment.
 
-    context : bool or str
+    ``:context:`` : bool or str
         If provided, the code will be run in the context of all previous plot
         directives for which the ``:context:`` option was specified.  This only
         applies to inline code plot directives, not those run from files. If
@@ -67,18 +69,19 @@ The ``plot`` directive supports the following options:
         running the code. ``:context: close-figs`` keeps the context but closes
         previous figures before running the code.
 
-    nofigs : bool
+    ``:nofigs:`` : bool
         If specified, the code block will be run, but no figures will be
         inserted.  This is usually useful with the ``:context:`` option.
 
-    caption : str
+    ``:caption:`` : str
         If specified, the option's argument will be used as a caption for the
         figure. This overwrites the caption given in the content, when the plot
         is generated from a file.
 
-Additionally, this directive supports all of the options of the `image`
-directive, except for *target* (since plot will add its own target).  These
-include *alt*, *height*, *width*, *scale*, *align* and *class*.
+Additionally, this directive supports all the options of the `image directive
+<https://docutils.sourceforge.io/docs/ref/rst/directives.html#image>`_,
+except for ``:target:`` (since plot will add its own target).  These include
+``:alt:``, ``:height:``, ``:width:``, ``:scale:``, ``:align:`` and ``:class:``.
 
 Configuration options
 ---------------------
@@ -86,25 +89,26 @@ Configuration options
 The plot directive has the following configuration options:
 
     plot_include_source
-        Default value for the include-source option
+        Default value for the include-source option (default: False).
 
     plot_html_show_source_link
-        Whether to show a link to the source in HTML.
+        Whether to show a link to the source in HTML (default: True).
 
     plot_pre_code
-        Code that should be executed before each plot. If not specified or None
+        Code that should be executed before each plot. If None (the default),
         it will default to a string containing::
 
             import numpy as np
             from matplotlib import pyplot as plt
 
     plot_basedir
-        Base directory, to which ``plot::`` file names are relative
-        to.  (If None or empty, file names are relative to the
-        directory where the file containing the directive is.)
+        Base directory, to which ``plot::`` file names are relative to.
+        If None or empty (the default), file names are relative to the
+        directory where the file containing the directive is.
 
     plot_formats
-        File formats to generate. List of tuples or strings::
+        File formats to generate (default: ['png', 'hires.png', 'pdf']).
+        List of tuples or strings::
 
             [(suffix, dpi), suffix, ...]
 
@@ -114,16 +118,16 @@ The plot directive has the following configuration options:
         suffix:dpi,suffix:dpi, ...
 
     plot_html_show_formats
-        Whether to show links to the files in HTML.
+        Whether to show links to the files in HTML (default: True).
 
     plot_rcparams
         A dictionary containing any non-standard rcParams that should
-        be applied before each plot.
+        be applied before each plot (default: {}).
 
     plot_apply_rcparams
         By default, rcParams are applied when ``:context:`` option is not used
-        in a plot directive.  This configuration option overrides this behavior
-        and applies rcParams before each plot.
+        in a plot directive.  If set, this configuration option overrides this
+        behavior and applies rcParams before each plot.
 
     plot_working_directory
         By default, the working directory will be changed to the directory of
@@ -160,9 +164,6 @@ import matplotlib.pyplot as plt
 from matplotlib import _api, _pylab_helpers, cbook
 
 matplotlib.use("agg")
-align = _api.deprecated(
-    "3.4", alternative="docutils.parsers.rst.directives.images.Image.align")(
-        Image.align)
 
 __version__ = 2
 
@@ -181,7 +182,7 @@ def _option_boolean(arg):
     elif arg.strip().lower() in ('yes', '1', 'true'):
         return True
     else:
-        raise ValueError('"%s" unknown boolean' % arg)
+        raise ValueError(f'{arg!r} unknown boolean')
 
 
 def _option_context(arg):
@@ -192,6 +193,11 @@ def _option_context(arg):
 
 def _option_format(arg):
     return directives.choice(arg, ('python', 'doctest'))
+
+
+def _deprecated_option_encoding(arg):
+    _api.warn_deprecated("3.5", name="encoding", obj_type="option")
+    return directives.encoding(arg)
 
 
 def mark_plot_labels(app, document):
@@ -242,7 +248,7 @@ class PlotDirective(Directive):
         'format': _option_format,
         'context': _option_context,
         'nofigs': directives.flag,
-        'encoding': directives.encoding,
+        'encoding': _deprecated_option_encoding,
         'caption': directives.unchanged,
         }
 
@@ -259,7 +265,9 @@ def _copy_css_file(app, exc):
     if exc is None and app.builder.format == 'html':
         src = cbook._get_data_path('plot_directive/plot_directive.css')
         dst = app.outdir / Path('_static')
-        shutil.copy(src, dst)
+        dst.mkdir(exist_ok=True)
+        # Use copyfile because we do not want to copy src's permissions.
+        shutil.copyfile(src, dst / Path('plot_directive.css'))
 
 
 def setup(app):
@@ -429,14 +437,26 @@ class ImageFile:
         return [self.filename(fmt) for fmt in self.formats]
 
 
-def out_of_date(original, derived):
+def out_of_date(original, derived, includes=None):
     """
-    Return whether *derived* is out-of-date relative to *original*, both of
-    which are full file paths.
+    Return whether *derived* is out-of-date relative to *original* or any of
+    the RST files included in it using the RST include directive (*includes*).
+    *derived* and *original* are full paths, and *includes* is optionally a
+    list of full paths which may have been included in the *original*.
     """
-    return (not os.path.exists(derived) or
-            (os.path.exists(original) and
-             os.stat(derived).st_mtime < os.stat(original).st_mtime))
+    if not os.path.exists(derived):
+        return True
+
+    if includes is None:
+        includes = []
+    files_to_check = [original, *includes]
+
+    def out_of_date_one(original, derived_mtime):
+        return (os.path.exists(original) and
+                derived_mtime < os.stat(original).st_mtime)
+
+    derived_mtime = os.stat(derived).st_mtime
+    return any(out_of_date_one(f, derived_mtime) for f in files_to_check)
 
 
 class PlotError(RuntimeError):
@@ -532,7 +552,8 @@ def get_plot_formats(config):
 
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
-                   close_figs=False):
+                   close_figs=False,
+                   code_includes=None):
     """
     Run a pyplot script and save the images in *output_dir*.
 
@@ -549,7 +570,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
     all_exists = True
     img = ImageFile(output_base, output_dir)
     for format, dpi in formats:
-        if out_of_date(code_path, img.filename(format)):
+        if context or out_of_date(code_path, img.filename(format),
+                                  includes=code_includes):
             all_exists = False
             break
         img.formats.append(format)
@@ -569,7 +591,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
             else:
                 img = ImageFile('%s_%02d' % (output_base, j), output_dir)
             for fmt, dpi in formats:
-                if out_of_date(code_path, img.filename(fmt)):
+                if context or out_of_date(code_path, img.filename(fmt),
+                                          includes=code_includes):
                     all_exists = False
                     break
                 img.formats.append(fmt)
@@ -589,10 +612,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
     # We didn't find the files, so build them
 
     results = []
-    if context:
-        ns = plot_context
-    else:
-        ns = {}
+    ns = plot_context if context else {}
 
     if context_reset:
         clear_state(config.plot_rcparams)
@@ -717,9 +737,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # determine output directory name fragment
     source_rel_name = relpath(source_file_name, setup.confdir)
-    source_rel_dir = os.path.dirname(source_rel_name)
-    while source_rel_dir.startswith(os.path.sep):
-        source_rel_dir = source_rel_dir[1:]
+    source_rel_dir = os.path.dirname(source_rel_name).lstrip(os.path.sep)
 
     # build_dir: where to place output files (temporarily)
     build_dir = os.path.join(os.path.dirname(setup.app.doctreedir),
@@ -729,15 +747,12 @@ def run(arguments, content, options, state_machine, state, lineno):
     # see note in Python docs for warning about symbolic links on Windows.
     # need to compare source and dest paths at end
     build_dir = os.path.normpath(build_dir)
-
-    if not os.path.exists(build_dir):
-        os.makedirs(build_dir)
+    os.makedirs(build_dir, exist_ok=True)
 
     # output_dir: final location in the builder's directory
     dest_dir = os.path.abspath(os.path.join(setup.app.builder.outdir,
                                             source_rel_dir))
-    if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir)  # no problem here for me, but just use built-ins
+    os.makedirs(dest_dir, exist_ok=True)
 
     # how to link to files from the RST file
     dest_dir_link = os.path.join(relpath(setup.confdir, rst_dir),
@@ -750,6 +765,25 @@ def run(arguments, content, options, state_machine, state, lineno):
         build_dir_link = build_dir
     source_link = dest_dir_link + '/' + output_base + source_ext
 
+    # get list of included rst files so that the output is updated when any
+    # plots in the included files change. These attributes are modified by the
+    # include directive (see the docutils.parsers.rst.directives.misc module).
+    try:
+        source_file_includes = [os.path.join(os.getcwd(), t[0])
+                                for t in state.document.include_log]
+    except AttributeError:
+        # the document.include_log attribute only exists in docutils >=0.17,
+        # before that we need to inspect the state machine
+        possible_sources = {os.path.join(setup.confdir, t[0])
+                            for t in state_machine.input_lines.items}
+        source_file_includes = [f for f in possible_sources
+                                if os.path.isfile(f)]
+    # remove the source file itself from the includes
+    try:
+        source_file_includes.remove(source_file_name)
+    except ValueError:
+        pass
+
     # make figures
     try:
         results = render_figures(code,
@@ -760,7 +794,8 @@ def run(arguments, content, options, state_machine, state, lineno):
                                  function_name,
                                  config,
                                  context_reset=context_opt == 'reset',
-                                 close_figs=context_opt == 'close-figs')
+                                 close_figs=context_opt == 'close-figs',
+                                 code_includes=source_file_includes)
         errors = []
     except PlotError as err:
         reporter = state.memo.reporter
@@ -831,10 +866,11 @@ def run(arguments, content, options, state_machine, state, lineno):
                     shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
-    Path(dest_dir, output_base + source_ext).write_text(
-        doctest.script_from_examples(code)
-        if source_file_name == rst_file and is_doctest
-        else code,
-        encoding='utf-8')
+    if config.plot_html_show_source_link:
+        Path(dest_dir, output_base + source_ext).write_text(
+            doctest.script_from_examples(code)
+            if source_file_name == rst_file and is_doctest
+            else code,
+            encoding='utf-8')
 
     return errors

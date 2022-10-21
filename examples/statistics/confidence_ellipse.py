@@ -34,9 +34,9 @@ import matplotlib.transforms as transforms
 #
 # The radiuses of the ellipse can be controlled by n_std which is the number
 # of standard deviations. The default value is 3 which makes the ellipse
-# enclose 99.4% of the points if the data is normally distributed
+# enclose 98.9% of the points if the data is normally distributed
 # like in these examples (3 standard deviations in 1-D contain 99.7%
-# of the data, which is 99.4% of the data in 2-D).
+# of the data, which is 98.9% of the data in 2-D).
 
 
 def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
@@ -67,19 +67,19 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
     cov = np.cov(x, y)
     pearson = cov[0, 1]/np.sqrt(cov[0, 0] * cov[1, 1])
     # Using a special case to obtain the eigenvalues of this
-    # two-dimensionl dataset.
+    # two-dimensional dataset.
     ell_radius_x = np.sqrt(1 + pearson)
     ell_radius_y = np.sqrt(1 - pearson)
     ellipse = Ellipse((0, 0), width=ell_radius_x * 2, height=ell_radius_y * 2,
                       facecolor=facecolor, **kwargs)
 
-    # Calculating the stdandard deviation of x from
+    # Calculating the standard deviation of x from
     # the squareroot of the variance and multiplying
     # with the given number of standard deviations.
     scale_x = np.sqrt(cov[0, 0]) * n_std
     mean_x = np.mean(x)
 
-    # calculating the stdandard deviation of y ...
+    # calculating the standard deviation of y ...
     scale_y = np.sqrt(cov[1, 1]) * n_std
     mean_y = np.mean(y)
 
@@ -97,7 +97,7 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
 # A helper function to create a correlated dataset
 # """"""""""""""""""""""""""""""""""""""""""""""""
 #
-# Creates a random two-dimesional dataset with the specified
+# Creates a random two-dimensional dataset with the specified
 # two-dimensional mean (mu) and dimensions (scale).
 # The correlation can be controlled by the param 'dependency',
 # a 2x2 matrix.
@@ -190,7 +190,7 @@ plt.show()
 # Using the keyword arguments
 # """""""""""""""""""""""""""
 #
-# Use the kwargs specified for matplotlib.patches.Patch in order
+# Use the keyword arguments specified for `matplotlib.patches.Patch` in order
 # to have the ellipse rendered in different ways.
 
 fig, ax_kwargs = plt.subplots(figsize=(6, 6))
@@ -210,7 +210,7 @@ confidence_ellipse(x, y, ax_kwargs,
 
 ax_kwargs.scatter(x, y, s=0.5)
 ax_kwargs.scatter(mu[0], mu[1], c='red', s=3)
-ax_kwargs.set_title('Using kwargs')
+ax_kwargs.set_title('Using keyword arguments')
 
 fig.subplots_adjust(hspace=0.25)
 plt.show()

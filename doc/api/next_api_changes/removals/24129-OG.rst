@@ -1,0 +1,33 @@
+Interactive cursor details
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Setting a mouse cursor on a window has been moved from the toolbar to the
+canvas. Consequently, several implementation details on toolbars and within
+backends have been removed.
+
+``NavigationToolbar2.set_cursor`` and ``backend_tools.SetCursorBase.set_cursor``
+................................................................................
+
+Instead, use the `.FigureCanvasBase.set_cursor` method on the canvas (available
+as the ``canvas`` attribute on the toolbar or the Figure.)
+
+``backend_tools.SetCursorBase`` and subclasses
+..............................................
+
+``backend_tools.SetCursorBase`` was subclassed to provide backend-specific
+implementations of ``set_cursor``. As that is now removed, the subclassing
+is no longer necessary. Consequently, the following subclasses are also
+removed:
+
+- ``matplotlib.backends.backend_gtk3.SetCursorGTK3``
+- ``matplotlib.backends.backend_qt5.SetCursorQt``
+- ``matplotlib.backends._backend_tk.SetCursorTk``
+- ``matplotlib.backends.backend_wx.SetCursorWx``
+
+Instead, use the `.backend_tools.ToolSetCursor` class.
+
+``cursord`` in GTK and wx backends
+..................................
+
+The ``backend_gtk3.cursord`` and ``backend_wx.cursord`` dictionaries are
+removed. This makes the GTK module importable on headless environments.

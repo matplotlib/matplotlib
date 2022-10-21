@@ -2,7 +2,7 @@
 ``matplotlib.transforms``
 *************************
 
-.. inheritance-diagram:: matplotlib.transforms matplotlib.path
+.. inheritance-diagram:: matplotlib.transforms
    :parts: 1
 
 .. automodule:: matplotlib.transforms
@@ -15,4 +15,3 @@
        interval_contains, interval_contains_open
    :show-inheritance:
    :special-members:
-

@@ -45,7 +45,7 @@ patches += [
 ]
 
 for i in range(N):
-    polygon = Polygon(np.random.rand(N, 2), True)
+    polygon = Polygon(np.random.rand(N, 2), closed=True)
     patches.append(polygon)
 
 colors = 100 * np.random.rand(len(patches))

@@ -1,11 +1,11 @@
 import numpy as np
 
-from matplotlib import docstring
+from matplotlib import _docstring
 from matplotlib.contour import ContourSet
 from matplotlib.tri.triangulation import Triangulation
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 class TriContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions for
@@ -19,10 +19,10 @@ class TriContourSet(ContourSet):
     def __init__(self, ax, *args, **kwargs):
         """
         Draw triangular grid contour lines or filled regions,
-        depending on whether keyword arg 'filled' is False
+        depending on whether keyword arg *filled* is False
         (default) or True.
 
-        The first argument of the initializer must be an axes
+        The first argument of the initializer must be an `~.axes.Axes`
         object.  The remaining arguments and keyword arguments
         are described in the docstring of `~.Axes.tricontour`.
         """
@@ -51,10 +51,6 @@ class TriContourSet(ContourSet):
         return kwargs
 
     def _contour_args(self, args, kwargs):
-        if self.filled:
-            fn = 'contourf'
-        else:
-            fn = 'contour'
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args,
                                                                    **kwargs)
         z = np.ma.asarray(args[0])
@@ -76,84 +72,49 @@ class TriContourSet(ContourSet):
         self.zmax = float(z_check.max())
         self.zmin = float(z_check.min())
         if self.logscale and self.zmin <= 0:
-            raise ValueError('Cannot %s log of negative values.' % fn)
+            func = 'contourf' if self.filled else 'contour'
+            raise ValueError(f'Cannot {func} log of negative values.')
         self._process_contour_level_args(args[1:])
         return (tri, z)
 
 
-docstring.interpd.update(_tricontour_doc="""
-Draw contour %(type)s on an unstructured triangular grid.
+_docstring.interpd.update(_tricontour_doc="""
+Draw contour %%(type)s on an unstructured triangular grid.
 
-The triangulation can be specified in one of two ways; either ::
+Call signatures::
 
-    %(func)s(triangulation, ...)
+    %%(func)s(triangulation, z, [levels], ...)
+    %%(func)s(x, y, z, [levels], *, [triangles=triangles], [mask=mask], ...)
 
-where *triangulation* is a `.Triangulation` object, or ::
+The triangular grid can be specified either by passing a `.Triangulation`
+object as the first parameter, or by passing the points *x*, *y* and
+optionally the *triangles* and a *mask*. See `.Triangulation` for an
+explanation of these parameters. If neither of *triangulation* or
+*triangles* are given, the triangulation is calculated on the fly.
 
-    %(func)s(x, y, ...)
-    %(func)s(x, y, triangles, ...)
-    %(func)s(x, y, triangles=triangles, ...)
-    %(func)s(x, y, mask=mask, ...)
-    %(func)s(x, y, triangles, mask=mask, ...)
-
-in which case a `.Triangulation` object will be created.  See that class'
-docstring for an explanation of these cases.
-
-The remaining arguments may be::
-
-    %(func)s(..., Z)
-
-where *Z* is the array of values to contour, one per point in the
-triangulation.  The level values are chosen automatically.
-
-::
-
-    %(func)s(..., Z, levels)
-
-contour up to *levels+1* automatically chosen contour levels (*levels*
-intervals).
-
-::
-
-    %(func)s(..., Z, levels)
-
-draw contour %(type)s at the values specified in sequence *levels*, which must
-be in increasing order.
-
-::
-
-    %(func)s(Z, **kwargs)
-
-Use keyword arguments to control colors, linewidth, origin, cmap ... see below
-for more details.
+It is possible to pass *triangles* positionally, i.e.
+``%%(func)s(x, y, triangles, z, ...)``. However, this is discouraged. For more
+clarity, pass *triangles* via keyword argument.
 
 Parameters
 ----------
 triangulation : `.Triangulation`, optional
-    The unstructured triangular grid.
+    An already created triangular grid.
 
-    If specified, then *x*, *y*, *triangles*, and *mask* are not accepted.
+x, y, triangles, mask
+    Parameters defining the triangular grid. See `.Triangulation`.
+    This is mutually exclusive with specifying *triangulation*.
 
-x, y : array-like, optional
-    The coordinates of the values in *Z*.
-
-triangles : (ntri, 3) array-like of int, optional
-    For each triangle, the indices of the three points that make up the
-    triangle, ordered in an anticlockwise manner.  If not specified, the
-    Delaunay triangulation is calculated.
-
-mask : (ntri,) array-like of bool, optional
-    Which triangles are masked out.
-
-Z : 2D array-like
-    The height values over which the contour is drawn.
+z : array-like
+    The height values over which the contour is drawn.  Color-mapping is
+    controlled by *cmap*, *norm*, *vmin*, and *vmax*.
 
 levels : int or array-like, optional
     Determines the number and positions of the contour lines / regions.
 
     If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries to
     automatically choose no more than *n+1* "nice" contour levels between
-    *vmin* and *vmax*.
+    between minimum and maximum numeric values of *Z*.
 
     If array-like, draw contour lines at the specified levels.  The values must
     be in increasing order.
@@ -164,18 +125,11 @@ Returns
 
 Other Parameters
 ----------------
-corner_mask : bool, default: :rc:`contour.corner_mask`
-    Enable/disable corner masking, which only has an effect if *Z* is
-    a masked array.  If ``False``, any quad touching a masked point is
-    masked out.  If ``True``, only the triangular corners of quads
-    nearest those points are always masked out, other triangular
-    corners comprising three unmasked points are contoured as usual.
-
 colors : color string or sequence of colors, optional
-    The colors of the levels, i.e., the contour %(type)s.
+    The colors of the levels, i.e., the contour %%(type)s.
 
     The sequence is cycled for the levels in ascending order. If the sequence
-    is shorter than the number of levels, it's repeated.
+    is shorter than the number of levels, it is repeated.
 
     As a shortcut, single color strings may be used in place of one-element
     lists, i.e. ``'red'`` instead of ``['red']`` to color all levels with the
@@ -187,37 +141,36 @@ colors : color string or sequence of colors, optional
 alpha : float, default: 1
     The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-cmap : str or `.Colormap`, default: :rc:`image.cmap`
-    A `.Colormap` instance or registered colormap name. The colormap maps the
-    level values to colors.
+%(cmap_doc)s
 
-    If both *colors* and *cmap* are given, an error is raised.
+    This parameter is ignored if *colors* is set.
 
-norm : `~matplotlib.colors.Normalize`, optional
-    If a colormap is used, the `.Normalize` instance scales the level values to
-    the canonical colormap range [0, 1] for mapping to colors. If not given,
-    the default linear scaling is used.
+%(norm_doc)s
 
-vmin, vmax : float, optional
-    If not *None*, either or both of these values will be supplied to
-    the `.Normalize` instance, overriding the default color scaling
-    based on *levels*.
+    This parameter is ignored if *colors* is set.
+
+%(vmin_vmax_doc)s
+
+    If *vmin* or *vmax* are not given, the default color scaling is based on
+    *levels*.
+
+    This parameter is ignored if *colors* is set.
 
 origin : {*None*, 'upper', 'lower', 'image'}, default: None
-    Determines the orientation and exact position of *Z* by specifying the
-    position of ``Z[0, 0]``.  This is only relevant, if *X*, *Y* are not given.
+    Determines the orientation and exact position of *z* by specifying the
+    position of ``z[0, 0]``.  This is only relevant, if *X*, *Y* are not given.
 
-    - *None*: ``Z[0, 0]`` is at X=0, Y=0 in the lower left corner.
-    - 'lower': ``Z[0, 0]`` is at X=0.5, Y=0.5 in the lower left corner.
-    - 'upper': ``Z[0, 0]`` is at X=N+0.5, Y=0.5 in the upper left corner.
+    - *None*: ``z[0, 0]`` is at X=0, Y=0 in the lower left corner.
+    - 'lower': ``z[0, 0]`` is at X=0.5, Y=0.5 in the lower left corner.
+    - 'upper': ``z[0, 0]`` is at X=N+0.5, Y=0.5 in the upper left corner.
     - 'image': Use the value from :rc:`image.origin`.
 
 extent : (x0, x1, y0, y1), optional
     If *origin* is not *None*, then *extent* is interpreted as in `.imshow`: it
-    gives the outer pixel boundaries. In this case, the position of Z[0, 0] is
+    gives the outer pixel boundaries. In this case, the position of z[0, 0] is
     the center of the pixel, not a corner. If *origin* is *None*, then
-    (*x0*, *y0*) is the position of Z[0, 0], and (*x1*, *y1*) is the position
-    of Z[-1, -1].
+    (*x0*, *y0*) is the position of z[0, 0], and (*x1*, *y1*) is the position
+    of z[-1, -1].
 
     This argument is ignored if *X* and *Y* are specified in the call to
     contour.
@@ -228,7 +181,7 @@ locator : ticker.Locator subclass, optional
     Defaults to `~.ticker.MaxNLocator`.
 
 extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
-    Determines the ``%(func)s``-coloring of values that are outside the
+    Determines the ``%%(func)s``-coloring of values that are outside the
     *levels* range.
 
     If 'neither', values outside the *levels* range are not colored.  If 'min',
@@ -256,20 +209,11 @@ xunits, yunits : registered units, optional
 antialiased : bool, optional
     Enable antialiasing, overriding the defaults.  For
     filled contours, the default is *True*.  For line contours,
-    it is taken from :rc:`lines.antialiased`.
-
-nchunk : int >= 0, optional
-    If 0, no subdivision of the domain.  Specify a positive integer to
-    divide the domain into subdomains of *nchunk* by *nchunk* quads.
-    Chunking reduces the maximum length of polygons generated by the
-    contouring algorithm which reduces the rendering workload passed
-    on to the backend and also requires slightly less RAM.  It can
-    however introduce rendering artifacts at chunk boundaries depending
-    on the backend, the *antialiased* flag and value of *alpha*.""")
+    it is taken from :rc:`lines.antialiased`.""" % _docstring.interpd.params)
 
 
-@docstring.Substitution(func='tricontour', type='lines')
-@docstring.dedent_interpd
+@_docstring.Substitution(func='tricontour', type='lines')
+@_docstring.dedent_interpd
 def tricontour(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
@@ -297,8 +241,8 @@ def tricontour(ax, *args, **kwargs):
     return TriContourSet(ax, *args, **kwargs)
 
 
-@docstring.Substitution(func='tricontourf', type='regions')
-@docstring.dedent_interpd
+@_docstring.Substitution(func='tricontourf', type='regions')
+@_docstring.dedent_interpd
 def tricontourf(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s

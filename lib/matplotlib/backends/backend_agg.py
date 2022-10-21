@@ -1,5 +1,5 @@
 """
-An `Anti-Grain Geometry <http://antigrain.com>`_ (AGG) backend.
+An `Anti-Grain Geometry`_ (AGG) backend.
 
 Features that are implemented:
 
@@ -17,34 +17,27 @@ Features that are implemented:
 Still TODO:
 
 * integrate screen dpi w/ ppi and text
+
+.. _Anti-Grain Geometry: http://agg.sourceforge.net/antigrain.com
 """
 
-try:
-    import threading
-except ImportError:
-    import dummy_threading as threading
 from contextlib import nullcontext
 from math import radians, cos, sin
+import threading
 
 import numpy as np
-from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
-from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    RendererBase)
-from matplotlib.font_manager import findfont, get_font
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+from matplotlib.font_manager import fontManager as _fontManager, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
                                 LOAD_DEFAULT, LOAD_NO_AUTOHINT)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
-
-
-backend_version = 'v2.2'
 
 
 def get_hinting_flag():
@@ -109,26 +102,9 @@ class RendererAgg(RendererBase):
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers
-        # This is its own method for the duration of the deprecation of
-        # offset_position = "data".
-        # self.draw_path_collection = self._renderer.draw_path_collection
+        self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
-
-    @_api.deprecated("3.4")
-    def get_content_extents(self):
-        orig_img = np.asarray(self.buffer_rgba())
-        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
-        return (slice_x.start, slice_y.start,
-                slice_x.stop - slice_x.start, slice_y.stop - slice_y.start)
-
-    @_api.deprecated("3.4")
-    def tostring_rgba_minimized(self):
-        extents = self.get_content_extents()
-        bbox = [[extents[0], self.height - (extents[1] + extents[3])],
-                [extents[0] + extents[2], self.height - extents[1]]]
-        region = self.copy_from_bbox(bbox)
-        return np.array(region), extents
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
@@ -150,35 +126,69 @@ class RendererAgg(RendererBase):
                     c = c[ii0:ii1]
                     c[0] = Path.MOVETO  # move to end of last chunk
                 p = Path(v, c)
+                p.simplify_threshold = path.simplify_threshold
                 try:
                     self._renderer.draw_path(gc, p, transform, rgbFace)
-                except OverflowError as err:
-                    raise OverflowError(
-                        "Exceeded cell block limit (set 'agg.path.chunksize' "
-                        "rcparam)") from err
+                except OverflowError:
+                    msg = (
+                        "Exceeded cell block limit in Agg.\n\n"
+                        "Please reduce the value of "
+                        f"rcParams['agg.path.chunksize'] (currently {nmax}) "
+                        "or increase the path simplification threshold"
+                        "(rcParams['path.simplify_threshold'] = "
+                        f"{mpl.rcParams['path.simplify_threshold']:.2f} by "
+                        "default and path.simplify_threshold = "
+                        f"{path.simplify_threshold:.2f} on the input)."
+                    )
+                    raise OverflowError(msg) from None
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
-            except OverflowError as err:
-                raise OverflowError("Exceeded cell block limit (set "
-                                    "'agg.path.chunksize' rcparam)") from err
+            except OverflowError:
+                cant_chunk = ''
+                if rgbFace is not None:
+                    cant_chunk += "- can not split filled path\n"
+                if gc.get_hatch() is not None:
+                    cant_chunk += "- can not split hatched path\n"
+                if not path.should_simplify:
+                    cant_chunk += "- path.should_simplify is False\n"
+                if len(cant_chunk):
+                    msg = (
+                        "Exceeded cell block limit in Agg, however for the "
+                        "following reasons:\n\n"
+                        f"{cant_chunk}\n"
+                        "we can not automatically split up this path to draw."
+                        "\n\nPlease manually simplify your path."
+                    )
 
-    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
-        if offset_position == "data":
-            _api.warn_deprecated(
-                "3.3", message="Support for offset_position='data' is "
-                "deprecated since %(since)s and will be removed %(removal)s.")
-        return self._renderer.draw_path_collection(
-            gc, master_transform, paths, all_transforms, offsets, offsetTrans,
-            facecolors, edgecolors, linewidths, linestyles, antialiaseds, urls,
-            offset_position)
+                else:
+                    inc_threshold = (
+                        "or increase the path simplification threshold"
+                        "(rcParams['path.simplify_threshold'] = "
+                        f"{mpl.rcParams['path.simplify_threshold']} "
+                        "by default and path.simplify_threshold "
+                        f"= {path.simplify_threshold} "
+                        "on the input)."
+                        )
+                    if nmax > 100:
+                        msg = (
+                            "Exceeded cell block limit in Agg.  Please reduce "
+                            "the value of rcParams['agg.path.chunksize'] "
+                            f"(currently {nmax}) {inc_threshold}"
+                        )
+                    else:
+                        msg = (
+                            "Exceeded cell block limit in Agg.  Please set "
+                            "the value of rcParams['agg.path.chunksize'], "
+                            f"(currently {nmax}) to be greater than 100 "
+                            + inc_threshold
+                        )
+
+                raise OverflowError(msg) from None
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
-        ox, oy, width, height, descent, font_image, used_characters = \
+        ox, oy, width, height, descent, font_image = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
         xd = descent * sin(radians(angle))
@@ -189,18 +199,12 @@ class RendererAgg(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
-
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
-
-        flags = get_hinting_flag()
-        font = self._get_agg_font(prop)
-
-        if font is None:
-            return None
+        font = self._prepare_font(prop)
         # We pass '0' for angle here, since it will be rotated (in raster
         # space) in the following call to draw_text_image).
-        font.set_text(s, 0, flags=flags)
+        font.set_text(s, 0, flags=get_hinting_flag())
         font.draw_glyphs_to_bitmap(
             antialiased=mpl.rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
@@ -219,21 +223,15 @@ class RendererAgg(RendererBase):
 
         _api.check_in_list(["TeX", True, False], ismath=ismath)
         if ismath == "TeX":
-            # todo: handle props
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(
-                s, fontsize, renderer=self)
-            return w, h, d
+            return super().get_text_width_height_descent(s, prop, ismath)
 
         if ismath:
-            ox, oy, width, height, descent, fonts, used_characters = \
+            ox, oy, width, height, descent, font_image = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
-        flags = get_hinting_flag()
-        font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=flags)
+        font = self._prepare_font(prop)
+        font.set_text(s, 0.0, flags=get_hinting_flag())
         w, h = font.get_width_height()  # width and height of unrotated string
         d = font.get_descent()
         w /= 64.0  # convert from subpixels
@@ -262,17 +260,14 @@ class RendererAgg(RendererBase):
         # docstring inherited
         return self.width, self.height
 
-    def _get_agg_font(self, prop):
+    def _prepare_font(self, font_prop):
         """
-        Get the font for text instance t, caching for efficiency
+        Get the `.FT2Font` for *font_prop*, clear its buffer, and set its size.
         """
-        fname = findfont(prop)
-        font = get_font(fname)
-
+        font = get_font(_fontManager._find_fonts_by_props(font_prop))
         font.clear()
-        size = prop.get_size_in_points()
+        size = font_prop.get_size_in_points()
         font.set_size(size, self.dpi)
-
         return font
 
     def points_to_pixels(self, points):
@@ -384,6 +379,8 @@ class RendererAgg(RendererBase):
 class FigureCanvasAgg(FigureCanvasBase):
     # docstring inherited
 
+    _lastKey = None  # Overwritten per-instance on the first draw.
+
     def copy_from_bbox(self, bbox):
         renderer = self.get_renderer()
         return renderer.copy_from_bbox(bbox)
@@ -394,7 +391,8 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     def draw(self):
         # docstring inherited
-        self.renderer = self.get_renderer(cleared=True)
+        self.renderer = self.get_renderer()
+        self.renderer.clear()
         # Acquire a lock on the shared font cache.
         with RendererAgg.lock, \
              (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
@@ -404,11 +402,11 @@ class FigureCanvasAgg(FigureCanvasBase):
             # don't forget to call the superclass.
             super().draw()
 
+    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
     def get_renderer(self, cleared=False):
         w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
-        reuse_renderer = (hasattr(self, "renderer")
-                          and getattr(self, "_lastKey", None) == key)
+        reuse_renderer = (self._lastKey == key)
         if not reuse_renderer:
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
@@ -443,7 +441,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         return self.renderer.buffer_rgba()
 
-    @_check_savefig_extra_args
     @_api.delete_parameter("3.5", "args")
     def print_raw(self, filename_or_obj, *args):
         FigureCanvasAgg.draw(self)
@@ -453,7 +450,16 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_rgba = print_raw
 
-    @_check_savefig_extra_args
+    def _print_pil(self, filename_or_obj, fmt, pil_kwargs, metadata=None):
+        """
+        Draw the canvas, then save it using `.image.imsave` (to which
+        *pil_kwargs* and *metadata* are forwarded).
+        """
+        FigureCanvasAgg.draw(self)
+        mpl.image.imsave(
+            filename_or_obj, self.buffer_rgba(), format=fmt, origin="upper",
+            dpi=self.figure.dpi, metadata=metadata, pil_kwargs=pil_kwargs)
+
     @_api.delete_parameter("3.5", "args")
     def print_png(self, filename_or_obj, *args,
                   metadata=None, pil_kwargs=None):
@@ -503,10 +509,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             If the 'pnginfo' key is present, it completely overrides
             *metadata*, including the default 'Software' key.
         """
-        FigureCanvasAgg.draw(self)
-        mpl.image.imsave(
-            filename_or_obj, self.buffer_rgba(), format="png", origin="upper",
-            dpi=self.figure.dpi, metadata=metadata, pil_kwargs=pil_kwargs)
+        self._print_pil(filename_or_obj, "png", pil_kwargs, metadata)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
@@ -518,52 +521,40 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
-    @_check_savefig_extra_args()
     @_api.delete_parameter("3.5", "args")
-    def print_jpg(self, filename_or_obj, *args, pil_kwargs=None, **kwargs):
+    def print_jpg(self, filename_or_obj, *args, pil_kwargs=None):
+        # savefig() has already applied savefig.facecolor; we now set it to
+        # white to make imsave() blend semi-transparent figures against an
+        # assumed white background.
+        with mpl.rc_context({"savefig.facecolor": "white"}):
+            self._print_pil(filename_or_obj, "jpeg", pil_kwargs)
+
+    print_jpeg = print_jpg
+
+    def print_tif(self, filename_or_obj, *, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "tiff", pil_kwargs)
+
+    print_tiff = print_tif
+
+    def print_webp(self, filename_or_obj, *, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "webp", pil_kwargs)
+
+    print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
         """
-        Write the figure to a JPEG file.
+        Write the figure to a {} file.
 
         Parameters
         ----------
         filename_or_obj : str or path-like or file-like
             The file to write to.
-
-        Other Parameters
-        ----------------
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
-        """
-        # Remove transparency by alpha-blending on an assumed white background.
-        r, g, b, a = mcolors.to_rgba(self.figure.get_facecolor())
-        try:
-            self.figure.set_facecolor(a * np.array([r, g, b]) + 1 - a)
-            FigureCanvasAgg.draw(self)
-        finally:
-            self.figure.set_facecolor((r, g, b, a))
-        if pil_kwargs is None:
-            pil_kwargs = {}
-        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-        # Drop alpha channel now.
-        return (Image.fromarray(np.asarray(self.buffer_rgba())[..., :3])
-                .save(filename_or_obj, format='jpeg', **pil_kwargs))
-
-    print_jpeg = print_jpg
-
-    @_check_savefig_extra_args
-    def print_tif(self, filename_or_obj, *, pil_kwargs=None):
-        FigureCanvasAgg.draw(self)
-        if pil_kwargs is None:
-            pil_kwargs = {}
-        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-        return (Image.fromarray(np.asarray(self.buffer_rgba()))
-                .save(filename_or_obj, format='tiff', **pil_kwargs))
-
-    print_tiff = print_tif
+        """.format, ["JPEG", "TIFF", "WebP"])
 
 
 @_Backend.export
 class _BackendAgg(_Backend):
+    backend_version = 'v2.2'
     FigureCanvas = FigureCanvasAgg
     FigureManager = FigureManagerBase

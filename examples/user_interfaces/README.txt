@@ -8,6 +8,6 @@ following the embedding_in_SOMEGUI.py examples here. Currently
 Matplotlib supports PyQt/PySide, PyGObject, Tkinter, and wxPython.
 
 When embedding Matplotlib in a GUI, you must use the Matplotlib API
-directly rather than the pylab/pyplot proceedural interface, so take a
+directly rather than the pylab/pyplot procedural interface, so take a
 look at the examples/api directory for some example code working with
 the API.

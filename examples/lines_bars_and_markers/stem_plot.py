@@ -21,7 +21,7 @@ plt.show()
 # The parameters *linefmt*, *markerfmt*, and *basefmt* control basic format
 # properties of the plot. However, in contrast to `~.pyplot.plot` not all
 # properties are configurable via keyword arguments. For more advanced
-# control adapt the line objects returned by `~.pyplot`.
+# control adapt the line objects returned by `.pyplot`.
 
 markerline, stemlines, baseline = plt.stem(
     x, y, linefmt='grey', markerfmt='D', bottom=1.1)

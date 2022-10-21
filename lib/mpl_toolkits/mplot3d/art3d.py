@@ -12,8 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    _api, artist, cbook, colors as mcolors, lines, text as mtext,
-    path as mpath)
+    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -145,7 +144,7 @@ class Text3D(mtext.Text):
             mtext.Text.draw(self, renderer)
         self.stale = False
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         # Overwriting the 2d Text behavior which is not valid for 3d.
         # For now, just return None to exclude from layout calculation.
         return None
@@ -172,7 +171,8 @@ class Line3D(lines.Line2D):
     def set_3d_properties(self, zs=0, zdir='z'):
         xs = self.get_xdata()
         ys = self.get_ydata()
-        zs = np.broadcast_to(zs, xs.shape)
+        zs = cbook._to_unmasked_float_array(zs).ravel()
+        zs = np.broadcast_to(zs, len(xs))
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
         self.stale = True
 
@@ -297,8 +297,7 @@ class Line3DCollection(LineCollection):
         self._segments3d = segments
         super().set_segments([])
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         """
         Project the points according to renderer matrix.
         """
@@ -312,14 +311,6 @@ class Line3DCollection(LineCollection):
         for xs, ys, zs in xyslist:
             minz = min(minz, min(zs))
         return minz
-
-    @artist.allow_rasterization
-    @_api.delete_parameter('3.4', 'project',
-                           alternative='Line3DCollection.do_3d_projection')
-    def draw(self, renderer, project=False):
-        if project:
-            self.do_3d_projection()
-        super().draw(renderer)
 
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
@@ -346,8 +337,7 @@ class Patch3D(Patch):
     def get_path(self):
         return self._path2d
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         s = self._segment3d
         xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
@@ -370,8 +360,7 @@ class PathPatch3D(Patch3D):
         Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir)
         self._code3d = path.codes
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         s = self._segment3d
         xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
@@ -462,11 +451,11 @@ class Patch3DCollection(PatchCollection):
             xs = []
             ys = []
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self._z_markers_idx = slice(-1)
         self._vzs = None
         self.stale = True
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
@@ -557,7 +546,7 @@ class Path3DCollection(PathCollection):
         #
         # Grab the current sizes and linewidths to preserve them.
         self._sizes3d = self._sizes
-        self._linewidths3d = self._linewidths
+        self._linewidths3d = np.array(self._linewidths)
         xs, ys, zs = self._offsets3d
 
         # Sort the points based on z coordinates
@@ -575,7 +564,7 @@ class Path3DCollection(PathCollection):
     def set_linewidth(self, lw):
         super().set_linewidth(lw)
         if not self._in_draw:
-            self._linewidth3d = lw
+            self._linewidths3d = np.array(self._linewidths)
 
     def get_depthshade(self):
         return self._depthshade
@@ -593,8 +582,7 @@ class Path3DCollection(PathCollection):
         self._depthshade = depthshade
         self.stale = True
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
@@ -713,6 +701,12 @@ class Poly3DCollection(PolyCollection):
         and _edgecolors properties.
         """
         super().__init__(verts, *args, **kwargs)
+        if isinstance(verts, np.ndarray):
+            if verts.ndim != 3:
+                raise ValueError('verts must be a list of (N, 3) array-like')
+        else:
+            if any(len(np.shape(vert)) != 2 for vert in verts):
+                raise ValueError('verts must be a list of (N, 3) array-like')
         self.set_zsort(zsort)
         self._codes3d = None
 
@@ -779,8 +773,7 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = val
         self.stale = True
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         """
         Perform the 3D projection for this object.
         """
@@ -875,9 +868,19 @@ class Poly3DCollection(PolyCollection):
         self.stale = True
 
     def get_facecolor(self):
+        # docstring inherited
+        # self._facecolors2d is not initialized until do_3d_projection
+        if not hasattr(self, '_facecolors2d'):
+            self.axes.M = self.axes.get_proj()
+            self.do_3d_projection()
         return self._facecolors2d
 
     def get_edgecolor(self):
+        # docstring inherited
+        # self._edgecolors2d is not initialized until do_3d_projection
+        if not hasattr(self, '_edgecolors2d'):
+            self.axes.M = self.axes.get_proj()
+            self.do_3d_projection()
         return self._edgecolors2d
 
 

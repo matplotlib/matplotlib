@@ -4,7 +4,6 @@ Manage figures for the pyplot interface.
 
 import atexit
 from collections import OrderedDict
-import gc
 
 
 class Gcf:
@@ -65,7 +64,7 @@ class Gcf:
         if hasattr(manager, "_cidgcf"):
             manager.canvas.mpl_disconnect(manager._cidgcf)
         manager.destroy()
-        gc.collect(1)
+        del manager, num
 
     @classmethod
     def destroy_fig(cls, fig):
@@ -78,14 +77,10 @@ class Gcf:
     @classmethod
     def destroy_all(cls):
         """Destroy all figures."""
-        # Reimport gc in case the module globals have already been removed
-        # during interpreter shutdown.
-        import gc
         for manager in list(cls.figs.values()):
             manager.canvas.mpl_disconnect(manager._cidgcf)
             manager.destroy()
         cls.figs.clear()
-        gc.collect(1)
 
     @classmethod
     def has_fignum(cls, num):

@@ -81,6 +81,12 @@ public:
 #define DEBUG_TRUETYPE          /* truetype fonts, conversion to Postscript */
 #endif
 
+#if DEBUG_TRUETYPE
+#define debug(...) printf(__VA_ARGS__)
+#else
+#define debug(...)
+#endif
+
 /* Do not change anything below this line. */
 
 enum font_type_enum

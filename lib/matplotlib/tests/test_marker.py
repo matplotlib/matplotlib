@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import markers
+from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.path import Path
 from matplotlib.testing.decorators import check_figures_equal
+from matplotlib.transforms import Affine2D
 
 import pytest
 
@@ -18,7 +20,6 @@ def test_marker_fillstyle():
     'x',
     '',
     'None',
-    None,
     r'$\frac{1}{2}$',
     "$\u266B$",
     1,
@@ -32,12 +33,20 @@ def test_marker_fillstyle():
     (5, 0, 10),  # a pentagon, rotated by 10 degrees
     (7, 1, 10),  # a 7-pointed star, rotated by 10 degrees
     (5, 2, 10),  # asterisk, rotated by 10 degrees
-    markers.MarkerStyle(),
     markers.MarkerStyle('o'),
 ])
 def test_markers_valid(marker):
     # Checking this doesn't fail.
     markers.MarkerStyle(marker)
+
+
+def test_deprecated_marker():
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ms = markers.MarkerStyle()
+    markers.MarkerStyle(ms)  # No warning on copy.
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ms = markers.MarkerStyle(None)
+    markers.MarkerStyle(ms)  # No warning on copy.
 
 
 @pytest.mark.parametrize('marker', [
@@ -196,3 +205,99 @@ def test_marker_clipping(fig_ref, fig_test):
     ax_test.set(xlim=(-0.5, ncol), ylim=(-0.5, 2 * nrow))
     ax_ref.axis('off')
     ax_test.axis('off')
+
+
+def test_marker_init_transforms():
+    """Test that initializing marker with transform is a simple addition."""
+    marker = markers.MarkerStyle("o")
+    t = Affine2D().translate(1, 1)
+    t_marker = markers.MarkerStyle("o", transform=t)
+    assert marker.get_transform() + t == t_marker.get_transform()
+
+
+def test_marker_init_joinstyle():
+    marker = markers.MarkerStyle("*")
+    jstl = markers.JoinStyle.round
+    styled_marker = markers.MarkerStyle("*", joinstyle=jstl)
+    assert styled_marker.get_joinstyle() == jstl
+    assert marker.get_joinstyle() != jstl
+
+
+def test_marker_init_captyle():
+    marker = markers.MarkerStyle("*")
+    capstl = markers.CapStyle.round
+    styled_marker = markers.MarkerStyle("*", capstyle=capstl)
+    assert styled_marker.get_capstyle() == capstl
+    assert marker.get_capstyle() != capstl
+
+
+@pytest.mark.parametrize("marker,transform,expected", [
+    (markers.MarkerStyle("o"), Affine2D().translate(1, 1),
+        Affine2D().translate(1, 1)),
+    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+        Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
+    (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
+     Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
+    (markers.MarkerStyle(
+        markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
+        Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
+])
+def test_marker_transformed(marker, transform, expected):
+    new_marker = marker.transformed(transform)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == expected
+    assert marker._user_transform is not new_marker._user_transform
+
+
+def test_marker_rotated_invalid():
+    marker = markers.MarkerStyle("o")
+    with pytest.raises(ValueError):
+        new_marker = marker.rotated()
+    with pytest.raises(ValueError):
+        new_marker = marker.rotated(deg=10, rad=10)
+
+
+@pytest.mark.parametrize("marker,deg,rad,expected", [
+    (markers.MarkerStyle("o"), 10, None, Affine2D().rotate_deg(10)),
+    (markers.MarkerStyle("o"), None, 0.01, Affine2D().rotate(0.01)),
+    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+        10, None, Affine2D().translate(1, 1).rotate_deg(10)),
+    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+        None, 0.01, Affine2D().translate(1, 1).rotate(0.01)),
+    (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
+      10, None, Affine2D().translate(1, 1).rotate_deg(10)),
+    (markers.MarkerStyle(
+        markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
+        10, None, Affine2D().translate(1, 1).rotate_deg(10)),
+])
+def test_marker_rotated(marker, deg, rad, expected):
+    new_marker = marker.rotated(deg=deg, rad=rad)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == expected
+    assert marker._user_transform is not new_marker._user_transform
+
+
+def test_marker_scaled():
+    marker = markers.MarkerStyle("1")
+    new_marker = marker.scaled(2)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == Affine2D().scale(2)
+    assert marker._user_transform is not new_marker._user_transform
+
+    new_marker = marker.scaled(2, 3)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == Affine2D().scale(2, 3)
+    assert marker._user_transform is not new_marker._user_transform
+
+    marker = markers.MarkerStyle("1", transform=Affine2D().translate(1, 1))
+    new_marker = marker.scaled(2)
+    assert new_marker is not marker
+    expected = Affine2D().translate(1, 1).scale(2)
+    assert new_marker.get_user_transform() == expected
+    assert marker._user_transform is not new_marker._user_transform
+
+
+def test_alt_transform():
+    m1 = markers.MarkerStyle("o", "left")
+    m2 = markers.MarkerStyle("o", "left", Affine2D().rotate_deg(90))
+    assert m1.get_alt_transform().rotate_deg(90) == m2.get_alt_transform()

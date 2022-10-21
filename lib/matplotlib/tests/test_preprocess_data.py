@@ -1,4 +1,6 @@
 import re
+import subprocess
+import sys
 
 import numpy as np
 import pytest
@@ -78,7 +80,7 @@ def test_function_call_without_data(func):
 def test_function_call_with_dict_input(func):
     """Tests with dict input, unpacking via preprocess_pipeline"""
     data = {'a': 1, 'b': 2}
-    assert(func(None, data.keys(), data.values()) ==
+    assert (func(None, data.keys(), data.values()) ==
             "x: ['a', 'b'], y: [1, 2], ls: x, w: xyz, label: None")
 
 
@@ -197,33 +199,68 @@ def test_more_args_than_pos_parameter():
 def test_docstring_addition():
     @_preprocess_data()
     def funcy(ax, *args, **kwargs):
-        """Funcy does nothing"""
+        """
+        Parameters
+        ----------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+        """
 
-    assert re.search(r"every other argument", funcy.__doc__)
-    assert not re.search(r"the following arguments", funcy.__doc__)
+    assert re.search(r"all parameters also accept a string", funcy.__doc__)
+    assert not re.search(r"the following parameters", funcy.__doc__)
 
     @_preprocess_data(replace_names=[])
     def funcy(ax, x, y, z, bar=None):
-        """Funcy does nothing"""
+        """
+        Parameters
+        ----------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+        """
 
-    assert not re.search(r"every other argument", funcy.__doc__)
-    assert not re.search(r"the following arguments", funcy.__doc__)
+    assert not re.search(r"all parameters also accept a string", funcy.__doc__)
+    assert not re.search(r"the following parameters", funcy.__doc__)
 
     @_preprocess_data(replace_names=["bar"])
     def funcy(ax, x, y, z, bar=None):
-        """Funcy does nothing"""
+        """
+        Parameters
+        ----------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+        """
 
-    assert not re.search(r"every other argument", funcy.__doc__)
-    assert not re.search(r"the following arguments .*: \*bar\*\.",
+    assert not re.search(r"all parameters also accept a string", funcy.__doc__)
+    assert not re.search(r"the following parameters .*: \*bar\*\.",
                          funcy.__doc__)
 
     @_preprocess_data(replace_names=["x", "t"])
     def funcy(ax, x, y, z, t=None):
-        """Funcy does nothing"""
+        """
+        Parameters
+        ----------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+        """
 
-    assert not re.search(r"every other argument", funcy.__doc__)
-    assert not re.search(r"the following arguments .*: \*x\*, \*t\*\.",
+    assert not re.search(r"all parameters also accept a string", funcy.__doc__)
+    assert not re.search(r"the following parameters .*: \*x\*, \*t\*\.",
                          funcy.__doc__)
+
+
+def test_data_parameter_replacement():
+    """
+    Test that the docstring contains the correct *data* parameter stub
+    for all methods that we run _preprocess_data() on.
+    """
+    program = (
+        "import logging; "
+        "logging.basicConfig(level=logging.DEBUG); "
+        "import matplotlib.pyplot as plt"
+    )
+    cmd = [sys.executable, "-c", program]
+    completed_proc = subprocess.run(cmd, text=True, capture_output=True)
+    assert 'data parameter docstring error' not in completed_proc.stderr
 
 
 class TestPlotTypes:

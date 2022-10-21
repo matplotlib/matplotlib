@@ -1,7 +1,6 @@
 """EpochConverter module containing class EpochConverter."""
 
-from matplotlib import cbook
-import matplotlib.units as units
+from matplotlib import cbook, units
 import matplotlib.dates as date_ticker
 
 __all__ = ['EpochConverter']
@@ -81,8 +80,6 @@ class EpochConverter(units.ConversionInterface):
 
         if not cbook.is_scalar_or_string(value):
             return [EpochConverter.convert(x, unit, axis) for x in value]
-        if units.ConversionInterface.is_numlike(value):
-            return value
         if unit is None:
             unit = EpochConverter.default_units(value, axis)
         if isinstance(value, U.Duration):

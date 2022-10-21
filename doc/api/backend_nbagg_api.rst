@@ -1,6 +1,5 @@
-
-:mod:`matplotlib.backends.backend_nbagg`
-========================================
+:mod:`.backend_nbagg`
+=====================
 
 .. automodule:: matplotlib.backends.backend_nbagg
    :members:

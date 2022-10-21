@@ -15,7 +15,6 @@ from matplotlib.figure import Figure
 import numpy as np
 import wx
 
-IS_GTK = 'wxGTK' in wx.PlatformInfo
 IS_WIN = 'wxMSW' in wx.PlatformInfo
 
 
@@ -66,7 +65,7 @@ class CanvasFrame(wx.Frame):
         menuBar.Append(menu, "&File")
         self.Bind(wx.EVT_MENU, self.OnClose, m_exit)
 
-        if IS_GTK or IS_WIN:
+        if IS_WIN:
             # Equation Menu
             menu = wx.Menu()
             for i, (mt, func) in enumerate(functions):

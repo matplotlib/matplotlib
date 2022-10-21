@@ -15,7 +15,7 @@ values to NaN. No marker will be drawn where either x or y are masked and, if
 plotting with a line, it will be broken there.
 
 .. _masked array:
-   https://docs.scipy.org/doc/numpy/reference/maskedarray.generic.html
+   https://numpy.org/doc/stable/reference/maskedarray.generic.html
 
 The following example illustrates the three cases:
 

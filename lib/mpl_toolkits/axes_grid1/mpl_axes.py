@@ -40,23 +40,20 @@ class Axes(maxes.Axes):
         def __call__(self, *v, **kwargs):
             return maxes.Axes.axis(self.axes, *v, **kwargs)
 
-    def _init_axis_artists(self, axes=None):
-        if axes is None:
-            axes = self
+    @property
+    def axis(self):
+        return self._axislines
+
+    def clear(self):
+        # docstring inherited
+        super().clear()
+        # Init axis artists.
         self._axislines = self.AxisDict(self)
         self._axislines.update(
             bottom=SimpleAxisArtist(self.xaxis, 1, self.spines["bottom"]),
             top=SimpleAxisArtist(self.xaxis, 2, self.spines["top"]),
             left=SimpleAxisArtist(self.yaxis, 1, self.spines["left"]),
             right=SimpleAxisArtist(self.yaxis, 2, self.spines["right"]))
-
-    @property
-    def axis(self):
-        return self._axislines
-
-    def cla(self):
-        super().cla()
-        self._init_axis_artists()
 
 
 class SimpleAxisArtist(Artist):
@@ -115,14 +112,11 @@ class SimpleAxisArtist(Artist):
         if label is not None:
             _label = label
 
-        tickOn = "tick%dOn" % self._axisnum
-        labelOn = "label%dOn" % self._axisnum
-
         if _ticks is not None:
-            tickparam = {tickOn: _ticks}
+            tickparam = {f"tick{self._axisnum}On": _ticks}
             self._axis.set_tick_params(**tickparam)
         if _ticklabels is not None:
-            tickparam = {labelOn: _ticklabels}
+            tickparam = {f"label{self._axisnum}On": _ticklabels}
             self._axis.set_tick_params(**tickparam)
 
         if _label is not None:

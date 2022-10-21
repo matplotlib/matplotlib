@@ -4,6 +4,11 @@
 
 .. py:currentmodule:: matplotlib
 
+.. automodule:: matplotlib
+   :no-members:
+   :no-undoc-members:
+   :noindex:
+
 Backend management
 ==================
 
@@ -26,6 +31,7 @@ Default values and styling
    :no-members:
 
    .. automethod:: find_all
+   .. automethod:: copy
 
 .. autofunction:: rc_context
 
@@ -52,7 +58,18 @@ Logging
 
 .. autofunction:: set_loglevel
 
+Colormaps and color sequences
+=============================
+
+.. autodata:: colormaps
+   :no-value:
+
+.. autodata:: color_sequences
+   :no-value:
+
 Miscellaneous
 =============
+
+.. autoclass:: MatplotlibDeprecationWarning
 
 .. autofunction:: get_cachedir

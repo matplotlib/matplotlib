@@ -38,8 +38,8 @@ ax.set_title('Center Title')
 plt.show()
 
 ###########################################################################
-# Automatic positioning can be turned off by manually specifying the
-# *y* kwarg for the title or setting :rc:`axes.titley` in the rcParams.
+# Automatic positioning can be turned off by manually specifying the *y*
+# keyword argument for the title or setting :rc:`axes.titley` in the rcParams.
 
 fig, axs = plt.subplots(1, 2, constrained_layout=True)
 

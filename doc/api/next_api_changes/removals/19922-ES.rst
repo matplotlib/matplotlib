@@ -1,7 +1,0 @@
-Removed modules
-~~~~~~~~~~~~~~~
-
-The following deprecated modules have been removed:
-
-* ``matplotlib.compat``
-* ``matplotlib.ttconv``

@@ -52,7 +52,7 @@ A full-fledged and heavily annotated example is in
 `matplotlib.projections.polar` may also be of interest.
 """
 
-from .. import axes, docstring
+from .. import axes, _docstring
 from .geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from .polar import PolarAxes
 from mpl_toolkits.mplot3d import Axes3D
@@ -111,4 +111,4 @@ def get_projection_class(projection=None):
 
 
 get_projection_names = projection_registry.get_projection_names
-docstring.interpd.update(projection_names=get_projection_names())
+_docstring.interpd.update(projection_names=get_projection_names())

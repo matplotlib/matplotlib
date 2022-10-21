@@ -1,23 +1,21 @@
-import io
+from collections import Counter
 from pathlib import Path
+import io
 import re
 import tempfile
 
+import numpy as np
 import pytest
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib import cbook, patheffects
+from matplotlib import cbook, path, patheffects, font_manager as fm
+from matplotlib._api import MatplotlibDeprecationWarning
+from matplotlib.figure import Figure
+from matplotlib.patches import Ellipse
+from matplotlib.testing._markers import needs_ghostscript, needs_usetex
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib.cbook import MatplotlibDeprecationWarning
-
-
-needs_ghostscript = pytest.mark.skipif(
-    "eps" not in mpl.testing.compare.converter,
-    reason="This test needs a ghostscript installation")
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+import matplotlib as mpl
+import matplotlib.collections as mcollections
+import matplotlib.pyplot as plt
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
@@ -68,6 +66,8 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
         except tuple(allowable_exceptions) as exc:
             pytest.skip(str(exc))
 
+        assert not s_buf.closed
+        assert not b_buf.closed
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
 
@@ -116,6 +116,16 @@ def test_transparency():
     ax.text(.5, .5, "foo", color="r", alpha=0)
 
 
+@needs_usetex
+@image_comparison(["empty.eps"])
+def test_transparency_tex():
+    mpl.rcParams['text.usetex'] = True
+    fig, ax = plt.subplots()
+    ax.set_axis_off()
+    ax.plot([0, 1], color="r", alpha=0)
+    ax.text(.5, .5, "foo", color="r", alpha=0)
+
+
 def test_bbox():
     fig, ax = plt.subplots()
     with io.BytesIO() as buf:
@@ -147,10 +157,22 @@ def test_failing_latex():
 @needs_usetex
 def test_partial_usetex(caplog):
     caplog.set_level("WARNING")
-    plt.figtext(.5, .5, "foo", usetex=True)
+    plt.figtext(.1, .1, "foo", usetex=True)
+    plt.figtext(.2, .2, "bar", usetex=True)
     plt.savefig(io.BytesIO(), format="ps")
-    assert caplog.records and all("as if usetex=False" in record.getMessage()
-                                  for record in caplog.records)
+    record, = caplog.records  # asserts there's a single record.
+    assert "as if usetex=False" in record.getMessage()
+
+
+@needs_usetex
+def test_usetex_preamble(caplog):
+    mpl.rcParams.update({
+        "text.usetex": True,
+        # Check that these don't conflict with the packages loaded by default.
+        "text.latex.preamble": r"\usepackage{color,graphicx,textcomp}",
+    })
+    plt.figtext(.5, .5, "foo")
+    plt.savefig(io.BytesIO(), format="ps")
 
 
 @image_comparison(["useafm.eps"])
@@ -165,6 +187,18 @@ def test_useafm():
 @image_comparison(["type3.eps"])
 def test_type3_font():
     plt.figtext(.5, .5, "I/J")
+
+
+@image_comparison(["coloredhatcheszerolw.eps"])
+def test_colored_hatch_zero_linewidth():
+    ax = plt.gca()
+    ax.add_patch(Ellipse((0, 0), 1, 1, hatch='/', facecolor='none',
+                         edgecolor='r', linewidth=0))
+    ax.add_patch(Ellipse((0.5, 0.5), 0.5, 0.5, hatch='+', facecolor='none',
+                         edgecolor='g', linewidth=0.2))
+    ax.add_patch(Ellipse((1, 1), 0.3, 0.8, hatch='\\', facecolor='none',
+                         edgecolor='b', linewidth=0))
+    ax.set_axis_off()
 
 
 @check_figures_equal(extensions=["eps"])
@@ -184,3 +218,112 @@ def test_d_glyph(tmp_path):
     out = tmp_path / "test.eps"
     fig.savefig(out)
     mpl.testing.compare.convert(out, cache=False)  # Should not raise.
+
+
+@image_comparison(["type42_without_prep.eps"], style='mpl20')
+def test_type42_font_without_prep():
+    # Test whether Type 42 fonts without prep table are properly embedded
+    mpl.rcParams["ps.fonttype"] = 42
+    mpl.rcParams["mathtext.fontset"] = "stix"
+
+    plt.figtext(0.5, 0.5, "Mass $m$")
+
+
+@pytest.mark.parametrize('fonttype', ["3", "42"])
+def test_fonttype(fonttype):
+    mpl.rcParams["ps.fonttype"] = fonttype
+    fig, ax = plt.subplots()
+
+    ax.text(0.25, 0.5, "Forty-two is the answer to everything!")
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="ps")
+
+    test = b'/FontType ' + bytes(f"{fonttype}", encoding='utf-8') + b' def'
+
+    assert re.search(test, buf.getvalue(), re.MULTILINE)
+
+
+def test_linedash():
+    """Test that dashed lines do not break PS output"""
+    fig, ax = plt.subplots()
+
+    ax.plot([0, 1], linestyle="--")
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="ps")
+
+    assert buf.tell() > 0
+
+
+def test_empty_line():
+    # Smoke-test for gh#23954
+    figure = Figure()
+    figure.text(0.5, 0.5, "\nfoo\n\n")
+    buf = io.BytesIO()
+    figure.savefig(buf, format='eps')
+    figure.savefig(buf, format='ps')
+
+
+def test_no_duplicate_definition():
+
+    fig = Figure()
+    axs = fig.subplots(4, 4, subplot_kw=dict(projection="polar"))
+    for ax in axs.flat:
+        ax.set(xticks=[], yticks=[])
+        ax.plot([1, 2])
+    fig.suptitle("hello, world")
+
+    buf = io.StringIO()
+    fig.savefig(buf, format='eps')
+    buf.seek(0)
+
+    wds = [ln.partition(' ')[0] for
+           ln in buf.readlines()
+           if ln.startswith('/')]
+
+    assert max(Counter(wds).values()) == 1
+
+
+@image_comparison(["multi_font_type3.eps"], tol=0.51)
+def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('ps', fonttype=3)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["multi_font_type42.eps"], tol=1.6)
+def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('ps', fonttype=42)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["scatter.eps"])
+def test_path_collection():
+    rng = np.random.default_rng(19680801)
+    xvals = rng.uniform(0, 1, 10)
+    yvals = rng.uniform(0, 1, 10)
+    sizes = rng.uniform(30, 100, 10)
+    fig, ax = plt.subplots()
+    ax.scatter(xvals, yvals, sizes, edgecolor=[0.9, 0.2, 0.1], marker='<')
+    ax.set_axis_off()
+    paths = [path.Path.unit_regular_polygon(i) for i in range(3, 7)]
+    offsets = rng.uniform(0, 200, 20).reshape(10, 2)
+    sizes = [0.02, 0.04]
+    pc = mcollections.PathCollection(paths, sizes, zorder=-1,
+                                     facecolors='yellow', offsets=offsets)
+    ax.add_collection(pc)
+    ax.set_xlim(0, 1)

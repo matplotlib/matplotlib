@@ -1,7 +1,7 @@
 """
-================
-Polygon Selector
-================
+=======================================================
+Select indices from a collection using polygon selector
+=======================================================
 
 Shows how one can select indices of a polygon interactively.
 """
@@ -50,7 +50,7 @@ class SelectFromCollection:
         elif len(self.fc) == 1:
             self.fc = np.tile(self.fc, (self.Npts, 1))
 
-        self.poly = PolygonSelector(ax, self.onselect)
+        self.poly = PolygonSelector(ax, self.onselect, draw_bounding_box=True)
         self.ind = []
 
     def onselect(self, verts):

@@ -3,7 +3,7 @@ Helper functions for deprecating parts of the Matplotlib API.
 
 This documentation is only relevant for Matplotlib developers, not for users.
 
-.. warning:
+.. warning::
 
     This module is for internal use only.  Do not use it in your own code.
     We may change the API at any time with no warning.
@@ -17,22 +17,8 @@ import math
 import warnings
 
 
-class MatplotlibDeprecationWarning(UserWarning):
-    """
-    A class for issuing deprecation warnings for Matplotlib users.
-
-    In light of the fact that Python builtin DeprecationWarnings are ignored
-    by default as of Python 2.7 (see link below), this class was put in to
-    allow for the signaling of deprecation, but via UserWarnings which are not
-    ignored by default.
-
-    https://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
-    """
-
-
-# mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead.
-# remove when removing the re-import from cbook
-mplDeprecation = MatplotlibDeprecationWarning
+class MatplotlibDeprecationWarning(DeprecationWarning):
+    """A class for issuing deprecation warnings for Matplotlib users."""
 
 
 def _generate_deprecation_warning(
@@ -46,13 +32,11 @@ def _generate_deprecation_warning(
         removal = f"in {removal}" if removal else "two minor releases later"
     if not message:
         message = (
-            "\nThe %(name)s %(obj_type)s"
+            ("The %(name)s %(obj_type)s" if obj_type else "%(name)s")
             + (" will be deprecated in a future version"
                if pending else
                (" was deprecated in Matplotlib %(since)s"
-                + (" and will be removed %(removal)s"
-                   if removal else
-                   "")))
+                + (" and will be removed %(removal)s" if removal else "")))
             + "."
             + (" Use %(alternative)s instead." if alternative else "")
             + (" %(addendum)s" if addendum else ""))
@@ -73,31 +57,24 @@ def warn_deprecated(
     ----------
     since : str
         The release at which this API became deprecated.
-
     message : str, optional
         Override the default deprecation message.  The ``%(since)s``,
         ``%(name)s``, ``%(alternative)s``, ``%(obj_type)s``, ``%(addendum)s``,
         and ``%(removal)s`` format specifiers will be replaced by the values
         of the respective arguments passed to this function.
-
     name : str, optional
         The name of the deprecated object.
-
     alternative : str, optional
         An alternative API that the user may use in place of the deprecated
         API.  The deprecation warning will tell the user about this alternative
         if provided.
-
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.  Cannot be used together with *removal*.
-
     obj_type : str, optional
         The object type being deprecated.
-
     addendum : str, optional
         Additional text appended directly to the final message.
-
     removal : str, optional
         The expected removal version.  With the default (an empty string), a
         removal version is automatically computed from *since*.  Set to other
@@ -106,7 +83,7 @@ def warn_deprecated(
 
     Examples
     --------
-    Basic example::
+    ::
 
         # To warn of the deprecation of "matplotlib.name_of_module"
         warn_deprecated('1.4.0', name='matplotlib.name_of_module',
@@ -135,46 +112,13 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     ``@deprecated`` would mess up ``__init__`` inheritance when installing its
     own (deprecation-emitting) ``C.__init__``).
 
-    Parameters
-    ----------
-    since : str
-        The release at which this API became deprecated.
-
-    message : str, optional
-        Override the default deprecation message.  The ``%(since)s``,
-        ``%(name)s``, ``%(alternative)s``, ``%(obj_type)s``, ``%(addendum)s``,
-        and ``%(removal)s`` format specifiers will be replaced by the values
-        of the respective arguments passed to this function.
-
-    name : str, optional
-        The name used in the deprecation message; if not provided, the name
-        is automatically determined from the deprecated object.
-
-    alternative : str, optional
-        An alternative API that the user may use in place of the deprecated
-        API.  The deprecation warning will tell the user about this alternative
-        if provided.
-
-    pending : bool, optional
-        If True, uses a PendingDeprecationWarning instead of a
-        DeprecationWarning.  Cannot be used together with *removal*.
-
-    obj_type : str, optional
-        The object type being deprecated; by default, 'class' if decorating
-        a class, 'attribute' if decorating a property, 'function' otherwise.
-
-    addendum : str, optional
-        Additional text appended directly to the final message.
-
-    removal : str, optional
-        The expected removal version.  With the default (an empty string), a
-        removal version is automatically computed from *since*.  Set to other
-        Falsy values to not schedule a removal date.  Cannot be used together
-        with *pending*.
+    Parameters are the same as for `warn_deprecated`, except that *obj_type*
+    defaults to 'class' if decorating a class, 'attribute' if decorating a
+    property, and 'function' otherwise.
 
     Examples
     --------
-    Basic example::
+    ::
 
         @deprecated('1.4.0')
         def the_function_to_deprecate():
@@ -201,13 +145,14 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 return obj
 
         elif isinstance(obj, (property, classproperty)):
-            obj_type = "attribute"
+            if obj_type is None:
+                obj_type = "attribute"
             func = None
             name = name or obj.fget.__name__
             old_doc = obj.__doc__
 
             class _deprecated_property(type(obj)):
-                def __get__(self, instance, owner):
+                def __get__(self, instance, owner=None):
                     if instance is not None or owner is not None \
                             and isinstance(self, classproperty):
                         emit_warning()
@@ -257,10 +202,13 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')
 
         notes_header = '\nNotes\n-----'
+        second_arg = ' '.join([t.strip() for t in
+                               (message, f"Use {alternative} instead."
+                                if alternative else "", addendum) if t])
         new_doc = (f"[*Deprecated*] {old_doc}\n"
                    f"{notes_header if notes_header not in old_doc else ''}\n"
                    f".. deprecated:: {since}\n"
-                   f"   {message.strip()}")
+                   f"   {second_arg}")
 
         if not old_doc:
             # This is to prevent a spurious 'unexpected unindent' warning from
@@ -282,10 +230,10 @@ class deprecate_privatize_attribute:
             attr = _deprecate_privatize_attribute(*args, **kwargs)
 
     where *all* parameters are forwarded to `deprecated`.  This form makes
-    ``attr`` a property which forwards access to ``self._attr`` (same name but
-    with a leading underscore), with a deprecation warning.  Note that the
-    attribute name is derived from *the name this helper is assigned to*.  This
-    helper also works for deprecating methods.
+    ``attr`` a property which forwards read and write access to ``self._attr``
+    (same name but with a leading underscore), with a deprecation warning.
+    Note that the attribute name is derived from *the name this helper is
+    assigned to*.  This helper also works for deprecating methods.
     """
 
     def __init__(self, *args, **kwargs):
@@ -293,7 +241,17 @@ class deprecate_privatize_attribute:
 
     def __set_name__(self, owner, name):
         setattr(owner, name, self.deprecator(
-            property(lambda self: getattr(self, f"_{name}")), name=name))
+            property(lambda self: getattr(self, f"_{name}"),
+                     lambda self, value: setattr(self, f"_{name}", value)),
+            name=name))
+
+
+# Used by _copy_docstring_and_deprecators to redecorate pyplot wrappers and
+# boilerplate.py to retrieve original signatures.  It may seem natural to store
+# this information as an attribute on the wrapper, but if the wrapper gets
+# itself functools.wraps()ed, then such attributes are silently propagated to
+# the outer wrapper, which is not desired.
+DECORATORS = {}
 
 
 def rename_parameter(since, old, new, func=None):
@@ -315,8 +273,10 @@ def rename_parameter(since, old, new, func=None):
         def func(good_name): ...
     """
 
+    decorator = functools.partial(rename_parameter, since, old, new)
+
     if func is None:
-        return functools.partial(rename_parameter, since, old, new)
+        return decorator
 
     signature = inspect.signature(func)
     assert old not in signature.parameters, (
@@ -341,6 +301,7 @@ def rename_parameter(since, old, new, func=None):
     # would both show up in the pyplot function for an Axes method as well and
     # pyplot would explicitly pass both arguments to the Axes method.
 
+    DECORATORS[wrapper] = decorator
     return wrapper
 
 
@@ -377,8 +338,10 @@ def delete_parameter(since, name, func=None, **kwargs):
         def func(used_arg, other_arg, unused, more_args): ...
     """
 
+    decorator = functools.partial(delete_parameter, since, name, **kwargs)
+
     if func is None:
-        return functools.partial(delete_parameter, since, name, **kwargs)
+        return decorator
 
     signature = inspect.signature(func)
     # Name of `**kwargs` parameter of the decorated function, typically
@@ -446,6 +409,7 @@ def delete_parameter(since, name, func=None, **kwargs):
                 **kwargs)
         return func(*inner_args, **inner_kwargs)
 
+    DECORATORS[wrapper] = decorator
     return wrapper
 
 
@@ -453,10 +417,16 @@ def make_keyword_only(since, name, func=None):
     """
     Decorator indicating that passing parameter *name* (or any of the following
     ones) positionally to *func* is being deprecated.
+
+    When used on a method that has a pyplot wrapper, this should be the
+    outermost decorator, so that :file:`boilerplate.py` can access the original
+    signature.
     """
 
+    decorator = functools.partial(make_keyword_only, since, name)
+
     if func is None:
-        return functools.partial(make_keyword_only, since, name)
+        return decorator
 
     signature = inspect.signature(func)
     POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
@@ -466,19 +436,16 @@ def make_keyword_only(since, name, func=None):
         f"Matplotlib internal error: {name!r} must be a positional-or-keyword "
         f"parameter for {func.__name__}()")
     names = [*signature.parameters]
-    kwonly = [name for name in names[names.index(name):]
+    name_idx = names.index(name)
+    kwonly = [name for name in names[name_idx:]
               if signature.parameters[name].kind == POK]
-    func.__signature__ = signature.replace(parameters=[
-        param.replace(kind=KWO) if param.name in kwonly else param
-        for param in signature.parameters.values()])
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         # Don't use signature.bind here, as it would fail when stacked with
         # rename_parameter and an "old" argument name is passed in
         # (signature.bind would fail, but the actual call would succeed).
-        idx = [*func.__signature__.parameters].index(name)
-        if len(args) > idx:
+        if len(args) > name_idx:
             warn_deprecated(
                 since, message="Passing the %(name)s %(obj_type)s "
                 "positionally is deprecated since Matplotlib %(since)s; the "
@@ -486,6 +453,11 @@ def make_keyword_only(since, name, func=None):
                 name=name, obj_type=f"parameter of {func.__name__}()")
         return func(*args, **kwargs)
 
+    # Don't modify *func*'s signature, as boilerplate.py needs it.
+    wrapper.__signature__ = signature.replace(parameters=[
+        param.replace(kind=KWO) if param.name in kwonly else param
+        for param in signature.parameters.values()])
+    DECORATORS[wrapper] = decorator
     return wrapper
 
 

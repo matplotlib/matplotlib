@@ -1,5 +1,4 @@
 import contextlib
-from distutils.version import StrictVersion
 import functools
 import inspect
 import os
@@ -10,14 +9,13 @@ import sys
 import unittest
 import warnings
 
+from packaging.version import parse as parse_version
+
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
-from matplotlib import cbook
-from matplotlib import ft2font
-from matplotlib import pyplot as plt
-from matplotlib import ticker
-
+from matplotlib import (_api, _pylab_helpers, cbook, ft2font, pyplot as plt,
+                        ticker)
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -34,6 +32,8 @@ def _cleanup_cm():
         plt.close("all")
 
 
+@_api.deprecated("3.6", alternative="a vendored copy of the existing code, "
+                 "including the private function _cleanup_cm")
 class CleanupTestCase(unittest.TestCase):
     """A wrapper for unittest.TestCase that includes cleanup operations."""
     @classmethod
@@ -45,6 +45,8 @@ class CleanupTestCase(unittest.TestCase):
         cls._cm.__exit__(None, None, None)
 
 
+@_api.deprecated("3.6", alternative="a vendored copy of the existing code, "
+                 "including the private function _cleanup_cm")
 def cleanup(style=None):
     """
     A decorator to ensure that any global state is reset before
@@ -86,26 +88,32 @@ def cleanup(style=None):
         return make_cleanup
 
 
+@_api.deprecated("3.6", alternative="a vendored copy of the existing code "
+                 "of _check_freetype_version")
 def check_freetype_version(ver):
+    return _check_freetype_version(ver)
+
+
+def _check_freetype_version(ver):
     if ver is None:
         return True
 
     if isinstance(ver, str):
         ver = (ver, ver)
-    ver = [StrictVersion(x) for x in ver]
-    found = StrictVersion(ft2font.__freetype_version__)
+    ver = [parse_version(x) for x in ver]
+    found = parse_version(ft2font.__freetype_version__)
 
     return ver[0] <= found <= ver[1]
 
 
 def _checked_on_freetype_version(required_freetype_version):
     import pytest
-    reason = ("Mismatched version of freetype. "
-              "Test requires '%s', you have '%s'" %
-              (required_freetype_version, ft2font.__freetype_version__))
     return pytest.mark.xfail(
-        not check_freetype_version(required_freetype_version),
-        reason=reason, raises=ImageComparisonFailure, strict=False)
+        not _check_freetype_version(required_freetype_version),
+        reason=f"Mismatched version of freetype. "
+               f"Test requires '{required_freetype_version}', "
+               f"you have '{ft2font.__freetype_version__}'",
+        raises=ImageComparisonFailure, strict=False)
 
 
 def remove_ticks_and_titles(figure):
@@ -129,6 +137,29 @@ def remove_ticks_and_titles(figure):
         remove_ticks(ax)
 
 
+@contextlib.contextmanager
+def _collect_new_figures():
+    """
+    After::
+
+        with _collect_new_figures() as figs:
+            some_code()
+
+    the list *figs* contains the figures that have been created during the
+    execution of ``some_code``, sorted by figure number.
+    """
+    managers = _pylab_helpers.Gcf.figs
+    preexisting = [manager for manager in managers.values()]
+    new_figs = []
+    try:
+        yield new_figs
+    finally:
+        new_managers = sorted([manager for manager in managers.values()
+                               if manager not in preexisting],
+                              key=lambda manager: manager.num)
+        new_figs[:] = [manager.canvas.figure for manager in new_managers]
+
+
 def _raise_on_image_difference(expected, actual, tol):
     __tracebackhide__ = True
 
@@ -139,32 +170,6 @@ def _raise_on_image_difference(expected, actual, tol):
         raise ImageComparisonFailure(
             ('images not close (RMS %(rms).3f):'
                 '\n\t%(actual)s\n\t%(expected)s\n\t%(diff)s') % err)
-
-
-def _skip_if_format_is_uncomparable(extension):
-    import pytest
-    return pytest.mark.skipif(
-        extension not in comparable_formats(),
-        reason='Cannot compare {} files on this system'.format(extension))
-
-
-def _mark_skip_if_format_is_uncomparable(extension):
-    import pytest
-    if isinstance(extension, str):
-        name = extension
-        marks = []
-    elif isinstance(extension, tuple):
-        # Extension might be a pytest ParameterSet instead of a plain string.
-        # Unfortunately, this type is not exposed, so since it's a namedtuple,
-        # check for a tuple instead.
-        name, = extension.values
-        marks = [*extension.marks]
-    else:
-        # Extension might be a pytest marker instead of a plain string.
-        name, = extension.args
-        marks = [extension.mark]
-    return pytest.param(name,
-                        marks=[*marks, _skip_if_format_is_uncomparable(name)])
 
 
 class _ImageComparisonBase:
@@ -204,10 +209,8 @@ class _ImageComparisonBase:
                 f"{orig_expected_path}") from err
         return expected_fname
 
-    def compare(self, idx, baseline, extension, *, _lock=False):
+    def compare(self, fig, baseline, extension, *, _lock=False):
         __tracebackhide__ = True
-        fignum = plt.get_fignums()[idx]
-        fig = plt.figure(fignum)
 
         if self.remove_text:
             remove_ticks_and_titles(fig)
@@ -222,7 +225,12 @@ class _ImageComparisonBase:
         lock = (cbook._lock_path(actual_path)
                 if _lock else contextlib.nullcontext())
         with lock:
-            fig.savefig(actual_path, **kwargs)
+            try:
+                fig.savefig(actual_path, **kwargs)
+            finally:
+                # Matplotlib has an autouse fixture to close figures, but this
+                # makes things more convenient for third-party users.
+                plt.close(fig)
             expected_path = self.copy_baseline(baseline, extension)
             _raise_on_image_difference(expected_path, actual_path, self.tol)
 
@@ -238,7 +246,6 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     """
     import pytest
 
-    extensions = map(_mark_skip_if_format_is_uncomparable, extensions)
     KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
 
     def decorator(func):
@@ -246,7 +253,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
 
         @functools.wraps(func)
         @pytest.mark.parametrize('extension', extensions)
-        @pytest.mark.style(style)
+        @matplotlib.style.context(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
         def wrapper(*args, extension, request, **kwargs):
@@ -256,10 +263,20 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
             if 'request' in old_sig.parameters:
                 kwargs['request'] = request
 
+            if extension not in comparable_formats():
+                reason = {
+                    'pdf': 'because Ghostscript is not installed',
+                    'eps': 'because Ghostscript is not installed',
+                    'svg': 'because Inkscape is not installed',
+                }.get(extension, 'on this system')
+                pytest.skip(f"Cannot compare {extension} files {reason}")
+
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
             matplotlib.testing.set_font_settings_for_testing()
-            func(*args, **kwargs)
+
+            with _collect_new_figures() as figs:
+                func(*args, **kwargs)
 
             # If the test is parametrized in any way other than applied via
             # this decorator, then we need to use a lock to prevent two
@@ -276,11 +293,11 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 our_baseline_images = request.getfixturevalue(
                     'baseline_images')
 
-            assert len(plt.get_fignums()) == len(our_baseline_images), (
+            assert len(figs) == len(our_baseline_images), (
                 "Test generated {} images but there are {} baseline images"
-                .format(len(plt.get_fignums()), len(our_baseline_images)))
-            for idx, baseline in enumerate(our_baseline_images):
-                img.compare(idx, baseline, extension, _lock=needs_lock)
+                .format(len(figs), len(our_baseline_images)))
+            for fig, baseline in zip(figs, our_baseline_images):
+                img.compare(fig, baseline, extension, _lock=needs_lock)
 
         parameters = list(old_sig.parameters.values())
         if 'extension' not in old_sig.parameters:
@@ -451,11 +468,9 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
             try:
                 fig_test = plt.figure("test")
                 fig_ref = plt.figure("reference")
-                # Keep track of number of open figures, to make sure test
-                # doesn't create any new ones
-                n_figs = len(plt.get_fignums())
-                func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
-                if len(plt.get_fignums()) > n_figs:
+                with _collect_new_figures() as figs:
+                    func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
+                if figs:
                     raise RuntimeError('Number of open figures changed during '
                                        'test. Make sure you are plotting to '
                                        'fig_test or fig_ref, or if this is '
@@ -503,7 +518,7 @@ def _image_directories(func):
     ``$(pwd)/result_images/test_baz``.  The result directory is created if it
     doesn't exist.
     """
-    module_path = Path(sys.modules[func.__module__].__file__)
+    module_path = Path(inspect.getfile(func))
     baseline_dir = module_path.parent / "baseline_images" / module_path.stem
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)

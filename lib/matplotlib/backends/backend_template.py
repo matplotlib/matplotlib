@@ -41,7 +41,7 @@ class RendererTemplate(RendererBase):
     The renderer handles drawing/rendering operations.
 
     This is a minimal do-nothing class that can be used to get started when
-    writing a new backend.  Refer to `backend_bases.RendererBase` for
+    writing a new backend.  Refer to `.backend_bases.RendererBase` for
     documentation of the methods.
     """
 
@@ -63,7 +63,7 @@ class RendererTemplate(RendererBase):
     # relative timings by leaving it out. backend implementers concerned with
     # performance will probably want to implement it
 #     def draw_path_collection(self, gc, master_transform, paths,
-#                              all_transforms, offsets, offsetTrans,
+#                              all_transforms, offsets, offset_trans,
 #                              facecolors, edgecolors, linewidths, linestyles,
 #                              antialiaseds):
 #         pass
@@ -101,14 +101,14 @@ class RendererTemplate(RendererBase):
         # if backend doesn't have dpi, e.g., postscript or svg
         return points
         # elif backend assumes a value for pixels_per_inch
-        #return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
+        # return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
         # else
-        #return points/72.0 * self.dpi.get()
+        # return points/72.0 * self.dpi.get()
 
 
 class GraphicsContextTemplate(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...  See the cairo
+    The graphics context provides the color, line styles, etc.  See the cairo
     and postscript backends for examples of mapping the graphics context
     attributes (cap styles, join styles, line widths, colors) to a particular
     backend.  In cairo this is done by wrapping a cairo.Context object and
@@ -131,17 +131,9 @@ class GraphicsContextTemplate(GraphicsContextBase):
 ########################################################################
 #
 # The following functions and classes are for pyplot and implement
-# window/figure managers, etc...
+# window/figure managers, etc.
 #
 ########################################################################
-
-
-def draw_if_interactive():
-    """
-    For image backends - is not required.
-    For GUI backends - this should be overridden if drawing should be done in
-    interactive python mode.
-    """
 
 
 def show(*, block=None):
@@ -156,22 +148,12 @@ def show(*, block=None):
         pass
 
 
-def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
-    """Create a new figure manager instance."""
-    # If a main-level app must be created, this (and
-    # new_figure_manager_given_figure) is the usual place to do it -- see
-    # backend_wx, backend_wxagg and backend_tkagg for examples.  Not all GUIs
-    # require explicit instantiation of a main-level app (e.g., backend_gtk3)
-    # for pylab.
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
+class FigureManagerTemplate(FigureManagerBase):
+    """
+    Helper class for pyplot mode, wraps everything up into a neat bundle.
 
-
-def new_figure_manager_given_figure(num, figure):
-    """Create a new figure manager instance for the given figure."""
-    canvas = FigureCanvasTemplate(figure)
-    manager = FigureManagerTemplate(canvas, num)
-    return manager
+    For non-interactive backends, the base class is sufficient.
+    """
 
 
 class FigureCanvasTemplate(FigureCanvasBase):
@@ -190,6 +172,11 @@ class FigureCanvasTemplate(FigureCanvasBase):
     figure : `matplotlib.figure.Figure`
         A high-level Figure instance
     """
+
+    # The instantiated manager class.  For further customization,
+    # ``FigureManager.create_with_canvas`` can also be overridden; see the
+    # wx-based backends for an example.
+    manager_class = FigureManagerTemplate
 
     def draw(self):
         """
@@ -225,14 +212,6 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     def get_default_filetype(self):
         return 'foo'
-
-
-class FigureManagerTemplate(FigureManagerBase):
-    """
-    Helper class for pyplot mode, wraps everything up into a neat bundle.
-
-    For non-interactive backends, the base class is sufficient.
-    """
 
 
 ########################################################################

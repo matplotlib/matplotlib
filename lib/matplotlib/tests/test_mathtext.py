@@ -1,6 +1,8 @@
 import io
-import os
+from pathlib import Path
 import re
+import shlex
+from xml.etree import ElementTree as ET
 
 import numpy as np
 import pytest
@@ -8,13 +10,13 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import _api, mathtext
+from matplotlib import mathtext, _mathtext
 
 
 # If test is removed, use None as placeholder
 math_tests = [
     r'$a+b+\dot s+\dot{s}+\ldots$',
-    r'$x \doteq y$',
+    r'$x\hspace{-0.2}\doteq\hspace{-0.2}y$',
     r'\$100.00 $\alpha \_$',
     r'$\frac{\$100.00}{y}$',
     r'$x   y$',
@@ -45,7 +47,7 @@ math_tests = [
     r"$\arccos((x^i))$",
     r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
     r'$\limsup_{x\to\infty}$',
-    r'$\oint^\infty_0$',
+    None,
     r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
@@ -58,8 +60,8 @@ math_tests = [
     '$\\Gamma \\Delta \\Theta \\Lambda \\Xi \\Pi \\Sigma \\Upsilon \\Phi \\Psi \\Omega$',
     '$\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota \\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon \\phi \\chi \\psi$',
 
-    # The examples prefixed by 'mmltt' are from the MathML torture test here:
-    # https://developer.mozilla.org/en-US/docs/Mozilla/MathML_Project/MathML_Torture_Test
+    # The following examples are from the MathML torture test here:
+    # https://www-archive.mozilla.org/projects/mathml/demo/texvsmml.xhtml
     r'${x}^{2}{y}^{2}$',
     r'${}_{2}F_{3}$',
     r'$\frac{x+{y}^{2}}{k+1}$',
@@ -101,25 +103,32 @@ math_tests = [
     r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
     r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
-    r'$\Cup$ $\Cap$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
-    r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
+    r'$\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
+    r'$\hspace{-0.2}\dotplus\hspace{-0.2}$ $\hspace{-0.2}\doteq\hspace{-0.2}$ $\hspace{-0.2}\doteqdot\hspace{-0.2}$ $\ddots$',
     r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$',  # github issue #4873
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-    ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._accentprefixed)),
+    None,
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
-# 'Lightweight' tests test only a single fontset (dejavusans, which is the
+# 'svgastext' tests switch svg output to embed text as text (rather than as
+# paths).
+svgastext_math_tests = [
+    r'$-$-',
+]
+# 'lightweight' tests test only a single fontset (dejavusans, which is the
 # default) and only png outputs, in order to minimize the size of baseline
 # images.
 lightweight_math_tests = [
     r'$\sqrt[ab]{123}$',  # github issue #8665
     r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
+    r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
+    r'$1.$ $2.$ $19680801.$ $a.$ $b.$ $mpl.$',
 ]
 
 digits = "0123456789"
@@ -197,6 +206,23 @@ def test_mathtext_rendering(baseline_images, fontset, index, text):
              horizontalalignment='center', verticalalignment='center')
 
 
+@pytest.mark.parametrize('index, text', enumerate(svgastext_math_tests),
+                         ids=range(len(svgastext_math_tests)))
+@pytest.mark.parametrize('fontset', ['cm', 'dejavusans'])
+@pytest.mark.parametrize('baseline_images', ['mathtext0'], indirect=True)
+@image_comparison(
+    baseline_images=None, extensions=['svg'],
+    savefig_kwarg={'metadata': {  # Minimize image size.
+        'Creator': None, 'Date': None, 'Format': None, 'Type': None}})
+def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
+    mpl.rcParams['mathtext.fontset'] = fontset
+    mpl.rcParams['svg.fonttype'] = 'none'  # Minimize image size.
+    fig = plt.figure(figsize=(5.25, 0.75))
+    fig.patch.set(visible=False)  # Minimize image size.
+    fig.text(0.5, 0.5, text,
+             horizontalalignment='center', verticalalignment='center')
+
+
 @pytest.mark.parametrize('index, text', enumerate(lightweight_math_tests),
                          ids=range(len(lightweight_math_tests)))
 @pytest.mark.parametrize('fontset', ['dejavusans'])
@@ -221,6 +247,19 @@ def test_mathfont_rendering(baseline_images, fontset, index, text):
              horizontalalignment='center', verticalalignment='center')
 
 
+@check_figures_equal(extensions=["png"])
+def test_short_long_accents(fig_test, fig_ref):
+    acc_map = _mathtext.Parser._accent_map
+    short_accs = [s for s in acc_map if len(s) == 1]
+    corresponding_long_accs = []
+    for s in short_accs:
+        l, = [l for l in acc_map if len(l) > 1 and acc_map[l] == acc_map[s]]
+        corresponding_long_accs.append(l)
+    fig_test.text(0, .5, "$" + "".join(rf"\{s}a" for s in short_accs) + "$")
+    fig_ref.text(
+        0, .5, "$" + "".join(fr"\{l} a" for l in corresponding_long_accs) + "$")
+
+
 def test_fontinfo():
     fontpath = mpl.font_manager.findfont("DejaVu Sans")
     font = mpl.ft2font.FT2Font(fontpath)
@@ -231,8 +270,10 @@ def test_fontinfo():
 @pytest.mark.parametrize(
     'math, msg',
     [
-        (r'$\hspace{}$', r'Expected \hspace{n}'),
-        (r'$\hspace{foo}$', r'Expected \hspace{n}'),
+        (r'$\hspace{}$', r'Expected \hspace{space}'),
+        (r'$\hspace{foo}$', r'Expected \hspace{space}'),
+        (r'$\sinx$', r'Unknown symbol: \sinx'),
+        (r'$\dotx$', r'Unknown symbol: \dotx'),
         (r'$\frac$', r'Expected \frac{num}{den}'),
         (r'$\frac{}{}$', r'Expected \frac{num}{den}'),
         (r'$\binom$', r'Expected \binom{num}{den}'),
@@ -243,20 +284,28 @@ def test_fontinfo():
          r'Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}'),
         (r'$\sqrt$', r'Expected \sqrt{value}'),
         (r'$\sqrt f$', r'Expected \sqrt{value}'),
-        (r'$\overline$', r'Expected \overline{value}'),
-        (r'$\overline{}$', r'Expected \overline{value}'),
+        (r'$\overline$', r'Expected \overline{body}'),
+        (r'$\overline{}$', r'Expected \overline{body}'),
         (r'$\leftF$', r'Expected a delimiter'),
         (r'$\rightF$', r'Unknown symbol: \rightF'),
         (r'$\left(\right$', r'Expected a delimiter'),
-        (r'$\left($', r'Expected "\right"'),
+        # PyParsing 2 uses double quotes, PyParsing 3 uses single quotes and an
+        # extra backslash.
+        (r'$\left($', re.compile(r'Expected ("|\'\\)\\right["\']')),
         (r'$\dfrac$', r'Expected \dfrac{num}{den}'),
         (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
-        (r'$\overset$', r'Expected \overset{body}{annotation}'),
-        (r'$\underset$', r'Expected \underset{body}{annotation}'),
+        (r'$\overset$', r'Expected \overset{annotation}{body}'),
+        (r'$\underset$', r'Expected \underset{annotation}{body}'),
+        (r'$\foo$', r'Unknown symbol: \foo'),
+        (r'$a^2^2$', r'Double superscript'),
+        (r'$a_2_2$', r'Double subscript'),
+        (r'$a^2_a^2$', r'Double superscript'),
     ],
     ids=[
         'hspace without value',
         'hspace with invalid value',
+        'function without space',
+        'accent without space',
         'frac without parameters',
         'frac with empty parameters',
         'binom without parameters',
@@ -275,34 +324,36 @@ def test_fontinfo():
         'dfrac with empty parameters',
         'overset without parameters',
         'underset without parameters',
+        'unknown symbol',
+        'double superscript',
+        'double subscript',
+        'super on sub without braces'
     ]
 )
 def test_mathtext_exceptions(math, msg):
     parser = mathtext.MathTextParser('agg')
-
-    with pytest.raises(ValueError, match=re.escape(msg)):
+    match = re.escape(msg) if isinstance(msg, str) else msg
+    with pytest.raises(ValueError, match=match):
         parser.parse(math)
 
 
+def test_get_unicode_index_exception():
+    with pytest.raises(ValueError):
+        _mathtext.get_unicode_index(r'\foo')
+
+
 def test_single_minus_sign():
-    plt.figure(figsize=(0.3, 0.3))
-    plt.text(0.5, 0.5, '$-$')
-    plt.gca().spines[:].set_visible(False)
-    plt.gca().set_xticks([])
-    plt.gca().set_yticks([])
-
-    buff = io.BytesIO()
-    plt.savefig(buff, format="rgba", dpi=1000)
-    array = np.frombuffer(buff.getvalue(), dtype=np.uint8)
-
-    # If this fails, it would be all white
-    assert not np.all(array == 0xff)
+    fig = plt.figure()
+    fig.text(0.5, 0.5, '$-$')
+    fig.canvas.draw()
+    t = np.asarray(fig.canvas.renderer.buffer_rgba())
+    assert (t != 0xff).any()  # assert that canvas is not all white.
 
 
 @check_figures_equal(extensions=["png"])
 def test_spaces(fig_test, fig_ref):
-    fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
-    fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+    fig_test.text(.5, .5, r"$1\,2\>3\ 4$")
+    fig_ref.text(.5, .5, r"$1\/2\:3~4$")
 
 
 @check_figures_equal(extensions=["png"])
@@ -315,6 +366,7 @@ def test_operator_space(fig_test, fig_ref):
     fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
     fig_test.text(0.1, 0.7, r"$\cos^2$")
     fig_test.text(0.1, 0.8, r"$\log_2$")
+    fig_test.text(0.1, 0.9, r"$\sin^2 \cos$")  # GitHub issue #17852
 
     fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
@@ -324,6 +376,23 @@ def test_operator_space(fig_test, fig_ref):
     fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
     fig_ref.text(0.1, 0.7, r"$\mathrm{cos}^2$")
     fig_ref.text(0.1, 0.8, r"$\mathrm{log}_2$")
+    fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,cos}$")
+
+
+@check_figures_equal(extensions=["png"])
+def test_inverted_delimiters(fig_test, fig_ref):
+    fig_test.text(.5, .5, r"$\left)\right($", math_fontfamily="dejavusans")
+    fig_ref.text(.5, .5, r"$)($", math_fontfamily="dejavusans")
+
+
+@check_figures_equal(extensions=["png"])
+def test_genfrac_displaystyle(fig_test, fig_ref):
+    fig_test.text(0.1, 0.1, r"$\dfrac{2x}{3y}$")
+
+    thickness = _mathtext.TruetypeFonts.get_underline_thickness(
+        None, None, fontsize=mpl.rcParams["font.size"],
+        dpi=mpl.rcParams["savefig.dpi"])
+    fig_ref.text(0.1, 0.1, r"$\genfrac{}{}{%f}{0}{2x}{3y}$" % thickness)
 
 
 def test_mathtext_fallback_valid():
@@ -343,7 +412,7 @@ def test_mathtext_fallback_invalid():
      ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral'])])
 def test_mathtext_fallback(fallback, fontlist):
     mpl.font_manager.fontManager.addfont(
-        os.path.join((os.path.dirname(os.path.realpath(__file__))), 'mpltest.ttf'))
+        str(Path(__file__).resolve().parent / 'mpltest.ttf'))
     mpl.rcParams["svg.fonttype"] = 'none'
     mpl.rcParams['mathtext.fontset'] = 'custom'
     mpl.rcParams['mathtext.rm'] = 'mpltest'
@@ -357,24 +426,19 @@ def test_mathtext_fallback(fallback, fontlist):
     fig, ax = plt.subplots()
     fig.text(.5, .5, test_str, fontsize=40, ha='center')
     fig.savefig(buff, format="svg")
-    char_fonts = [
-        line.split("font-family:")[-1].split(";")[0]
-        for line in str(buff.getvalue()).split(r"\n") if "tspan" in line
-    ]
+    tspans = (ET.fromstring(buff.getvalue())
+              .findall(".//{http://www.w3.org/2000/svg}tspan[@style]"))
+    # Getting the last element of the style attrib is a close enough
+    # approximation for parsing the font property.
+    char_fonts = [shlex.split(tspan.attrib["style"])[-1] for tspan in tspans]
     assert char_fonts == fontlist
-    mpl.font_manager.fontManager.ttflist = mpl.font_manager.fontManager.ttflist[:-1]
+    mpl.font_manager.fontManager.ttflist.pop()
 
 
 def test_math_to_image(tmpdir):
     mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
     mathtext.math_to_image('$x^2$', io.BytesIO())
-
-
-def test_mathtext_to_png(tmpdir):
-    with _api.suppress_matplotlib_deprecation_warning():
-        mt = mathtext.MathTextParser('bitmap')
-        mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
-        mt.to_png(io.BytesIO(), '$x^2$')
+    mathtext.math_to_image('$x^2$', io.BytesIO(), color='Maroon')
 
 
 @image_comparison(baseline_images=['math_fontfamily_image.png'],
@@ -385,3 +449,54 @@ def test_math_fontfamily():
              size=24, math_fontfamily='dejavusans')
     fig.text(0.2, 0.3, r"$This\ text\ should\ have\ another$",
              size=24, math_fontfamily='stix')
+
+
+def test_default_math_fontfamily():
+    mpl.rcParams['mathtext.fontset'] = 'cm'
+    test_str = r'abc$abc\alpha$'
+    fig, ax = plt.subplots()
+
+    text1 = fig.text(0.1, 0.1, test_str, font='Arial')
+    prop1 = text1.get_fontproperties()
+    assert prop1.get_math_fontfamily() == 'cm'
+    text2 = fig.text(0.2, 0.2, test_str, fontproperties='Arial')
+    prop2 = text2.get_fontproperties()
+    assert prop2.get_math_fontfamily() == 'cm'
+
+    fig.draw_without_rendering()
+
+
+def test_argument_order():
+    mpl.rcParams['mathtext.fontset'] = 'cm'
+    test_str = r'abc$abc\alpha$'
+    fig, ax = plt.subplots()
+
+    text1 = fig.text(0.1, 0.1, test_str,
+                     math_fontfamily='dejavusans', font='Arial')
+    prop1 = text1.get_fontproperties()
+    assert prop1.get_math_fontfamily() == 'dejavusans'
+    text2 = fig.text(0.2, 0.2, test_str,
+                     math_fontfamily='dejavusans', fontproperties='Arial')
+    prop2 = text2.get_fontproperties()
+    assert prop2.get_math_fontfamily() == 'dejavusans'
+    text3 = fig.text(0.3, 0.3, test_str,
+                     font='Arial', math_fontfamily='dejavusans')
+    prop3 = text3.get_fontproperties()
+    assert prop3.get_math_fontfamily() == 'dejavusans'
+    text4 = fig.text(0.4, 0.4, test_str,
+                     fontproperties='Arial', math_fontfamily='dejavusans')
+    prop4 = text4.get_fontproperties()
+    assert prop4.get_math_fontfamily() == 'dejavusans'
+
+    fig.draw_without_rendering()
+
+
+def test_mathtext_cmr10_minus_sign():
+    # cmr10 does not contain a minus sign and used to issue a warning
+    # RuntimeWarning: Glyph 8722 missing from current font.
+    mpl.rcParams['font.family'] = 'cmr10'
+    mpl.rcParams['axes.formatter.use_mathtext'] = True
+    fig, ax = plt.subplots()
+    ax.plot(range(-1, 1), range(-1, 1))
+    # draw to make sure we have no warnings
+    fig.canvas.draw()

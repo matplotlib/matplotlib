@@ -1,4 +1,4 @@
-# Javascript template for HTMLWriter
+# JavaScript template for HTMLWriter
 JS_INCLUDE = """
 <link rel="stylesheet"
 href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -196,7 +196,7 @@ DISPLAY_TEMPLATE = """
   <div class="anim-controls">
     <input id="_anim_slider{id}" type="range" class="anim-slider"
            name="points" min="0" max="1" step="1" value="0"
-           oninput="anim{id}.set_frame(parseInt(this.value));"></input>
+           oninput="anim{id}.set_frame(parseInt(this.value));">
     <div class="anim-buttons">
       <button title="Decrease speed" aria-label="Decrease speed" onclick="anim{id}.slower()">
           <i class="fa fa-minus"></i></button>

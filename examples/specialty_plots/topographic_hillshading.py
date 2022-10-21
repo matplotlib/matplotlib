@@ -13,8 +13,8 @@ surfaces such as many mathematical functions.
 In most cases, hillshading is used purely for visual purposes, and *dx*/*dy*
 can be safely ignored. In that case, you can tweak *vert_exag* (vertical
 exaggeration) by trial and error to give the desired visual effect. However,
-this example demonstrates how to use the *dx* and *dy* kwargs to ensure that
-the *vert_exag* parameter is the true vertical exaggeration.
+this example demonstrates how to use the *dx* and *dy* keyword arguments to
+ensure that the *vert_exag* parameter is the true vertical exaggeration.
 """
 import numpy as np
 import matplotlib.pyplot as plt

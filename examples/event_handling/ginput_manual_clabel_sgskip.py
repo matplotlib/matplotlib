@@ -6,10 +6,13 @@ Interactive functions
 This provides examples of uses of interactive functions, such as ginput,
 waitforbuttonpress and manual clabel placement.
 
-This script must be run interactively using a backend that has a
-graphical user interface (for example, using GTK3Agg backend, but not
-PS backend).
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
 
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 
 import time
@@ -27,8 +30,9 @@ def tellme(s):
 # Define a triangle by clicking three points
 
 
-plt.clf()
-plt.setp(plt.gca(), autoscale_on=False)
+plt.figure()
+plt.xlim(0, 1)
+plt.ylim(0, 1)
 
 tellme('You will define a triangle, click to begin')
 

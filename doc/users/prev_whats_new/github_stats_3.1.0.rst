@@ -1,14 +1,14 @@
 .. _github-stats-3-1-0:
 
-GitHub Stats for Matplotlib 3.1.0
-=================================
+GitHub statistics for 3.1.0 (May 18, 2019)
+==========================================
 
-GitHub stats for 2018/09/18 - 2019/05/13 (tag: v3.0.0)
+GitHub statistics for 2018/09/18 (tag: v3.0.0) - 2019/05/18
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
 We closed 161 issues and merged 918 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestones/v3.1.0>`__
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/35?closed=1>`__
 
 The following 150 authors contributed 3426 commits.
 

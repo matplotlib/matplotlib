@@ -14,7 +14,7 @@ Laying out Axes in a Figure in a non uniform grid can be both tedious
 and verbose.  For dense, even grids we have `.Figure.subplots` but for
 more complex layouts, such as Axes that span multiple columns / rows
 of the layout or leave some areas of the Figure blank, you can use
-`.gridspec.GridSpec` (see :doc:`/tutorials/intermediate/gridspec`) or
+`.gridspec.GridSpec` (see :doc:`/tutorials/intermediate/arranging_axes`) or
 manually place your axes.  `.Figure.subplot_mosaic` aims to provide an
 interface to visually lay out your axes (as either ASCII art or nested
 lists) to streamline this process.
@@ -66,27 +66,30 @@ hist_data = np.random.randn(1_500)
 fig = plt.figure(constrained_layout=True)
 ax_array = fig.subplots(2, 2, squeeze=False)
 
-ax_array[0, 0].bar(['a', 'b', 'c'], [5, 7, 9])
+ax_array[0, 0].bar(["a", "b", "c"], [5, 7, 9])
 ax_array[0, 1].plot([1, 2, 3])
-ax_array[1, 0].hist(hist_data, bins='auto')
+ax_array[1, 0].hist(hist_data, bins="auto")
 ax_array[1, 1].imshow([[1, 2], [2, 1]])
 
 identify_axes(
-    {(j, k): a for j, r in enumerate(ax_array) for k, a in enumerate(r)}
+    {(j, k): a for j, r in enumerate(ax_array) for k, a in enumerate(r)},
 )
 
 ###############################################################################
-# Using `.Figure.subplot_mosaic` we can produce the same layout but give the
+# Using `.Figure.subplot_mosaic` we can produce the same mosaic but give the
 # axes semantic names
 
 fig = plt.figure(constrained_layout=True)
 ax_dict = fig.subplot_mosaic(
-    [['bar',  'plot'],
-     ['hist', 'image']])
-ax_dict['bar'].bar(['a', 'b', 'c'], [5, 7, 9])
-ax_dict['plot'].plot([1, 2, 3])
-ax_dict['hist'].hist(hist_data)
-ax_dict['image'].imshow([[1, 2], [2, 1]])
+    [
+        ["bar", "plot"],
+        ["hist", "image"],
+    ],
+)
+ax_dict["bar"].bar(["a", "b", "c"], [5, 7, 9])
+ax_dict["plot"].plot([1, 2, 3])
+ax_dict["hist"].hist(hist_data)
+ax_dict["image"].imshow([[1, 2], [2, 1]])
 identify_axes(ax_dict)
 
 ###############################################################################
@@ -102,32 +105,48 @@ print(ax_dict)
 # String short-hand
 # =================
 #
-# By restricting our axes labels to single characters we can use Using we can
+# By restricting our axes labels to single characters we can
 # "draw" the Axes we want as "ASCII art".  The following
 
 
-layout = """
+mosaic = """
     AB
     CD
     """
 
 ###############################################################################
 # will give us 4 Axes laid out in a 2x2 grid and generates the same
-# figure layout as above (but now labeled with ``{"A", "B", "C",
+# figure mosaic as above (but now labeled with ``{"A", "B", "C",
 # "D"}`` rather than ``{"bar", "plot", "hist", "image"}``).
 
 fig = plt.figure(constrained_layout=True)
-ax_dict = fig.subplot_mosaic(layout)
+ax_dict = fig.subplot_mosaic(mosaic)
 identify_axes(ax_dict)
 
+###############################################################################
+# Alternatively, you can use the more compact string notation
+mosaic = "AB;CD"
 
 ###############################################################################
+# will give you the same composition, where the ``";"`` is used
+# as the row separator instead of newline.
+
+fig = plt.figure(constrained_layout=True)
+ax_dict = fig.subplot_mosaic(mosaic)
+identify_axes(ax_dict)
+
+###############################################################################
+# Axes spanning multiple rows/columns
+# ===================================
+#
 # Something we can do with `.Figure.subplot_mosaic` that you can not
 # do with `.Figure.subplots` is specify that an Axes should span
 # several rows or columns.
-#
-# If we want to re-arrange our four Axes to have C be a horizontal
-# span on the bottom and D be a vertical span on the right we would do
+
+
+###############################################################################
+# If we want to re-arrange our four Axes to have ``"C"`` be a horizontal
+# span on the bottom and ``"D"`` be a vertical span on the right we would do
 
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
     """
@@ -183,7 +202,7 @@ identify_axes(axd)
 # empty sentinel with the string shorthand because it may be stripped
 # while processing the input.
 #
-# Controlling layout and subplot creation
+# Controlling mosaic and subplot creation
 # =======================================
 #
 # This feature is built on top of `.gridspec` and you can pass the
@@ -200,25 +219,23 @@ axd = plt.figure(constrained_layout=True).subplot_mosaic(
     bAc
     .d.
     """,
-    gridspec_kw={
-        # set the height ratios between the rows
-        "height_ratios": [1, 3.5, 1],
-        # set the width ratios between the columns
-        "width_ratios": [1, 3.5, 1],
-    },
+    # set the height ratios between the rows
+    height_ratios=[1, 3.5, 1],
+    # set the width ratios between the columns
+    width_ratios=[1, 3.5, 1],
 )
 identify_axes(axd)
 
 ###############################################################################
 # Or use the {*left*, *right*, *bottom*, *top*} keyword arguments to
-# position the overall layout to put multiple versions of the same
-# layout in a figure
+# position the overall mosaic to put multiple versions of the same
+# mosaic in a figure
 
-layout = """AA
+mosaic = """AA
             BC"""
 fig = plt.figure()
 axd = fig.subplot_mosaic(
-    layout,
+    mosaic,
     gridspec_kw={
         "bottom": 0.25,
         "top": 0.95,
@@ -231,7 +248,7 @@ axd = fig.subplot_mosaic(
 identify_axes(axd)
 
 axd = fig.subplot_mosaic(
-    layout,
+    mosaic,
     gridspec_kw={
         "bottom": 0.05,
         "top": 0.75,
@@ -241,6 +258,19 @@ axd = fig.subplot_mosaic(
         "hspace": 0.5,
     },
 )
+identify_axes(axd)
+
+###############################################################################
+# Alternatively, you can use the sub-Figure functionality:
+
+mosaic = """AA
+            BC"""
+fig = plt.figure(constrained_layout=True)
+left, right = fig.subfigures(nrows=1, ncols=2)
+axd = left.subplot_mosaic(mosaic)
+identify_axes(axd)
+
+axd = right.subplot_mosaic(mosaic)
 identify_axes(axd)
 
 
@@ -264,17 +294,18 @@ identify_axes(axd)
 # list), for example using spans, blanks, and *gridspec_kw*:
 
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
-    [["main", "zoom"],
-     ["main", "BLANK"]
-     ],
+    [
+        ["main", "zoom"],
+        ["main", "BLANK"],
+    ],
     empty_sentinel="BLANK",
-    gridspec_kw={"width_ratios": [2, 1]}
+    width_ratios=[2, 1],
 )
 identify_axes(axd)
 
 
 ###############################################################################
-# In addition, using the list input we can specify nested layouts.  Any element
+# In addition, using the list input we can specify nested mosaics.  Any element
 # of the inner list can be another set of nested lists:
 
 inner = [
@@ -282,22 +313,23 @@ inner = [
     ["inner B"],
 ]
 
-outer_nested_layout = [
+outer_nested_mosaic = [
     ["main", inner],
     ["bottom", "bottom"],
 ]
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
-    outer_nested_layout, empty_sentinel=None
+    outer_nested_mosaic, empty_sentinel=None
 )
 identify_axes(axd, fontsize=36)
 
 
 ###############################################################################
 # We can also pass in a 2D NumPy array to do things like
-layout = np.zeros((4, 4), dtype=int)
+mosaic = np.zeros((4, 4), dtype=int)
 for j in range(4):
-    layout[j, j] = j + 1
+    mosaic[j, j] = j + 1
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
-    layout, empty_sentinel=0
+    mosaic,
+    empty_sentinel=0,
 )
 identify_axes(axd)

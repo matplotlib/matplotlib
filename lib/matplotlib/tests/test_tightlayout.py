@@ -134,9 +134,10 @@ def test_tight_layout7():
 def test_tight_layout8():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
-    fig.set_tight_layout({'pad': .1})
+    fig.set_layout_engine(layout='tight', pad=0.1)
     ax = fig.add_subplot()
     example_plot(ax, fontsize=24)
+    fig.draw_without_rendering()
 
 
 @image_comparison(['tight_layout9'])
@@ -329,3 +330,53 @@ def test_non_agg_renderer(monkeypatch, recwarn):
     monkeypatch.setattr(mpl.backend_bases.RendererBase, "__init__", __init__)
     fig, ax = plt.subplots()
     fig.tight_layout()
+
+
+def test_manual_colorbar():
+    # This should warn, but not raise
+    fig, axes = plt.subplots(1, 2)
+    pts = axes[1].scatter([0, 1], [0, 1], c=[1, 5])
+    ax_rect = axes[1].get_position()
+    cax = fig.add_axes(
+        [ax_rect.x1 + 0.005, ax_rect.y0, 0.015, ax_rect.height]
+    )
+    fig.colorbar(pts, cax=cax)
+    with pytest.warns(UserWarning, match="This figure includes Axes"):
+        fig.tight_layout()
+
+
+def test_clipped_to_axes():
+    # Ensure that _fully_clipped_to_axes() returns True under default
+    # conditions for all projection types. Axes.get_tightbbox()
+    # uses this to skip artists in layout calculations.
+    arr = np.arange(100).reshape((10, 10))
+    fig = plt.figure(figsize=(6, 2))
+    ax1 = fig.add_subplot(131, projection='rectilinear')
+    ax2 = fig.add_subplot(132, projection='mollweide')
+    ax3 = fig.add_subplot(133, projection='polar')
+    for ax in (ax1, ax2, ax3):
+        # Default conditions (clipped by ax.bbox or ax.patch)
+        ax.grid(False)
+        h, = ax.plot(arr[:, 0])
+        m = ax.pcolor(arr)
+        assert h._fully_clipped_to_axes()
+        assert m._fully_clipped_to_axes()
+        # Non-default conditions (not clipped by ax.patch)
+        rect = Rectangle((0, 0), 0.5, 0.5, transform=ax.transAxes)
+        h.set_clip_path(rect)
+        m.set_clip_path(rect.get_path(), rect.get_transform())
+        assert not h._fully_clipped_to_axes()
+        assert not m._fully_clipped_to_axes()
+
+
+def test_tight_pads():
+    fig, ax = plt.subplots()
+    with pytest.warns(PendingDeprecationWarning,
+                      match='will be deprecated'):
+        fig.set_tight_layout({'pad': 0.15})
+    fig.draw_without_rendering()
+
+
+def test_tight_kwargs():
+    fig, ax = plt.subplots(tight_layout={'pad': 0.15})
+    fig.draw_without_rendering()

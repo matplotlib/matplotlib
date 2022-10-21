@@ -78,8 +78,8 @@ def issues_closed_since(period=timedelta(days=365), project="matplotlib/matplotl
     filtered = [ i for i in allclosed if _parse_datetime(i['closed_at']) > since ]
     if pulls:
         filtered = [ i for i in filtered if _parse_datetime(i['merged_at']) > since ]
-        # filter out PRs not against master (backports)
-        filtered = [ i for i in filtered if i['base']['ref'] == 'master' ]
+        # filter out PRs not against main (backports)
+        filtered = [ i for i in filtered if i['base']['ref'] == 'main' ]
     else:
         filtered = [ i for i in filtered if not is_pull_request(i) ]
 
@@ -172,17 +172,18 @@ if __name__ == "__main__":
 
     n_issues, n_pulls = map(len, (issues, pulls))
     n_total = n_issues + n_pulls
+    since_day = since.strftime("%Y/%m/%d")
+    today = datetime.today()
 
     # Print summary report we can directly include into release notes.
     print('.. _github-stats:')
     print()
-    print('GitHub Stats')
-    print('============')
+    title = 'GitHub statistics ' + today.strftime('(%b %d, %Y)')
+    print(title)
+    print('=' * len(title))
 
     print()
-    since_day = since.strftime("%Y/%m/%d")
-    today = datetime.today().strftime("%Y/%m/%d")
-    print("GitHub stats for %s - %s (tag: %s)" % (since_day, today, tag))
+    print("GitHub statistics for %s (tag: %s) - %s" % (since_day, tag, today.strftime("%Y/%m/%d"), ))
     print()
     print("These lists are automatically generated, and may be incomplete or contain duplicates.")
     print()
@@ -229,8 +230,9 @@ if __name__ == "__main__":
         report(issues, show_urls)
     print()
     print()
-    print("""Previous GitHub Stats
----------------------
+    print("""\
+Previous GitHub statistics
+--------------------------
 
 
 .. toctree::

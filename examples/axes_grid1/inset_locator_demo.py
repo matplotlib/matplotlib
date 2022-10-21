@@ -69,7 +69,7 @@ axins = inset_axes(ax, width="50%", height="75%",
                    bbox_transform=ax.transAxes, loc=3)
 
 # For visualization purposes we mark the bounding box by a rectangle
-ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="None",
+ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="none",
                            transform=ax.transAxes))
 
 # We set the axis limits to something other than the default, in order to not
@@ -89,9 +89,9 @@ axins3 = inset_axes(ax3, width="100%", height="100%",
                     bbox_transform=ax3.transAxes)
 
 # For visualization purposes we mark the bounding box by a rectangle
-ax2.add_patch(plt.Rectangle((0, 0), 1, 1, ls="--", lw=2, ec="c", fc="None"))
+ax2.add_patch(plt.Rectangle((0, 0), 1, 1, ls="--", lw=2, ec="c", fc="none"))
 ax3.add_patch(plt.Rectangle((.7, .5), .3, .5, ls="--", lw=2,
-                            ec="c", fc="None"))
+                            ec="c", fc="none"))
 
 # Turn ticklabels off
 for axi in [axins2, axins3, ax2, ax3]:

@@ -47,7 +47,7 @@ def update(changed_image):
 
 
 for im in images:
-    im.callbacksSM.connect('changed', update)
+    im.callbacks.connect('changed', update)
 
 plt.show()
 

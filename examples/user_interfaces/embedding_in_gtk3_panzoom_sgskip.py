@@ -20,7 +20,7 @@ import numpy as np
 win = Gtk.Window()
 win.connect("delete-event", Gtk.main_quit)
 win.set_default_size(400, 300)
-win.set_title("Embedding in GTK")
+win.set_title("Embedding in GTK3")
 
 fig = Figure(figsize=(5, 4), dpi=100)
 ax = fig.add_subplot(1, 1, 1)
@@ -36,7 +36,7 @@ canvas = FigureCanvas(fig)  # a Gtk.DrawingArea
 vbox.pack_start(canvas, True, True, 0)
 
 # Create toolbar
-toolbar = NavigationToolbar(canvas, win)
+toolbar = NavigationToolbar(canvas)
 vbox.pack_start(toolbar, False, False, 0)
 
 win.show_all()

@@ -1,29 +1,32 @@
 import numpy as np
 from matplotlib.tri.triangulation import Triangulation
+import matplotlib.cbook as cbook
+import matplotlib.lines as mlines
 
 
 def triplot(ax, *args, **kwargs):
     """
-    Draw a unstructured triangular grid as lines and/or markers.
+    Draw an unstructured triangular grid as lines and/or markers.
 
-    The triangulation to plot can be specified in one of two ways; either::
+    Call signatures::
 
       triplot(triangulation, ...)
+      triplot(x, y, [triangles], *, [mask=mask], ...)
 
-    where triangulation is a `.Triangulation` object, or
+    The triangular grid can be specified either by passing a `.Triangulation`
+    object as the first parameter, or by passing the points *x*, *y* and
+    optionally the *triangles* and a *mask*. If neither of *triangulation* or
+    *triangles* are given, the triangulation is calculated on the fly.
 
-    ::
-
-      triplot(x, y, ...)
-      triplot(x, y, triangles, ...)
-      triplot(x, y, triangles=triangles, ...)
-      triplot(x, y, mask=mask, ...)
-      triplot(x, y, triangles, mask=mask, ...)
-
-    in which case a Triangulation object will be created.  See `.Triangulation`
-    for a explanation of these possibilities.
-
-    The remaining args and kwargs are the same as for `~.Axes.plot`.
+    Parameters
+    ----------
+    triangulation : `.Triangulation`
+        An already created triangular grid.
+    x, y, triangles, mask
+        Parameters defining the triangular grid. See `.Triangulation`.
+        This is mutually exclusive with specifying *triangulation*.
+    other_parameters
+        All other args and kwargs are forwarded to `~.Axes.plot`.
 
     Returns
     -------
@@ -42,11 +45,11 @@ def triplot(ax, *args, **kwargs):
     linestyle, marker, color = matplotlib.axes._base._process_plot_format(fmt)
 
     # Insert plot format string into a copy of kwargs (kwargs values prevail).
-    kw = kwargs.copy()
+    kw = cbook.normalize_kwargs(kwargs, mlines.Line2D)
     for key, val in zip(('linestyle', 'marker', 'color'),
                         (linestyle, marker, color)):
         if val is not None:
-            kw[key] = kwargs.get(key, val)
+            kw.setdefault(key, val)
 
     # Draw lines without markers.
     # Note 1: If we drew markers here, most markers would be drawn more than
@@ -74,6 +77,7 @@ def triplot(ax, *args, **kwargs):
         **kw,
         'linestyle': 'None',  # No line to draw.
     }
+    kw_markers.pop('label', None)
     if marker not in [None, 'None', '', ' ']:
         tri_markers = ax.plot(x, y, **kw_markers)
     else:

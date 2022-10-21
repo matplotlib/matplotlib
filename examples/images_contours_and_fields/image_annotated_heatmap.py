@@ -39,6 +39,7 @@ universal function.
 
 import numpy as np
 import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 # sphinx_gallery_thumbnail_number = 2
 
@@ -59,12 +60,9 @@ harvest = np.array([[0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0],
 fig, ax = plt.subplots()
 im = ax.imshow(harvest)
 
-# We want to show all ticks...
-ax.set_xticks(np.arange(len(farmers)))
-ax.set_yticks(np.arange(len(vegetables)))
-# ... and label them with the respective list entries
-ax.set_xticklabels(farmers)
-ax.set_yticklabels(vegetables)
+# Show all ticks and label them with the respective list entries
+ax.set_xticks(np.arange(len(farmers)), labels=farmers)
+ax.set_yticks(np.arange(len(vegetables)), labels=vegetables)
 
 # Rotate the tick labels and set their alignment.
 plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
@@ -100,18 +98,18 @@ plt.show()
 
 
 def heatmap(data, row_labels, col_labels, ax=None,
-            cbar_kw={}, cbarlabel="", **kwargs):
+            cbar_kw=None, cbarlabel="", **kwargs):
     """
     Create a heatmap from a numpy array and two lists of labels.
 
     Parameters
     ----------
     data
-        A 2D numpy array of shape (N, M).
+        A 2D numpy array of shape (M, N).
     row_labels
-        A list or array of length N with the labels for the rows.
+        A list or array of length M with the labels for the rows.
     col_labels
-        A list or array of length M with the labels for the columns.
+        A list or array of length N with the labels for the columns.
     ax
         A `matplotlib.axes.Axes` instance to which the heatmap is plotted.  If
         not provided, use current axes or create a new one.  Optional.
@@ -123,8 +121,11 @@ def heatmap(data, row_labels, col_labels, ax=None,
         All other arguments are forwarded to `imshow`.
     """
 
-    if not ax:
+    if ax is None:
         ax = plt.gca()
+
+    if cbar_kw is None:
+        cbar_kw = {}
 
     # Plot the heatmap
     im = ax.imshow(data, **kwargs)
@@ -133,12 +134,9 @@ def heatmap(data, row_labels, col_labels, ax=None,
     cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
     cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
 
-    # We want to show all ticks...
-    ax.set_xticks(np.arange(data.shape[1]))
-    ax.set_yticks(np.arange(data.shape[0]))
-    # ... and label them with the respective list entries.
-    ax.set_xticklabels(col_labels)
-    ax.set_yticklabels(row_labels)
+    # Show all ticks and label them with the respective list entries.
+    ax.set_xticks(np.arange(data.shape[1]), labels=col_labels)
+    ax.set_yticks(np.arange(data.shape[0]), labels=row_labels)
 
     # Let the horizontal axes labeling appear on top.
     ax.tick_params(top=True, bottom=False,
@@ -275,7 +273,7 @@ norm = matplotlib.colors.BoundaryNorm(np.linspace(-3.5, 3.5, 8), 7)
 fmt = matplotlib.ticker.FuncFormatter(lambda x, pos: qrates[::-1][norm(x)])
 
 im, _ = heatmap(data, y, x, ax=ax3,
-                cmap=plt.get_cmap("PiYG", 7), norm=norm,
+                cmap=mpl.colormaps["PiYG"].resampled(7), norm=norm,
                 cbar_kw=dict(ticks=np.arange(-3, 4), format=fmt),
                 cbarlabel="Quality Rating")
 

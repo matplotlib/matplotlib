@@ -67,7 +67,7 @@ great!]:
 
 **Documentation**
 
-Documentation of master is now built by travis and uploaded to http://matplotlib.org/devdocs/index.html
+Documentation of main is now built by travis and uploaded to https://matplotlib.org/devdocs/index.html
 
 @NelleV, I believe, generates the docs automatically and posts them on
 the web to chart MEP10 progress.
@@ -122,7 +122,7 @@ This section outlines the requirements that we would like to have.
 #. Make it easy to test a large but sparse matrix of different
    versions of matplotlib's dependencies.  The matplotlib user survey
    provides some good data as to where to focus our efforts:
-   https://docs.google.com/spreadsheet/ccc?key=0AjrPjlTMRTwTdHpQS25pcTZIRWdqX0pNckNSU01sMHc
+   https://docs.google.com/spreadsheets/d/1jbK0J4cIkyBNncnS-gP7pINSliNy9lI-N4JHwxlNSXE/edit
 
 #. Nice to have: A decentralized design so that those with more
    obscure platforms can publish build results to a central dashboard.

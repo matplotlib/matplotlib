@@ -126,7 +126,8 @@ def test_arrow_styles():
     fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
 
     for i, stylename in enumerate(sorted(styles)):
-        patch = mpatches.FancyArrowPatch((0.1, i), (0.45, i),
+        patch = mpatches.FancyArrowPatch((0.1 + (i % 2)*0.05, i),
+                                         (0.45 + (i % 2)*0.05, i),
                                          arrowstyle=stylename,
                                          mutation_scale=25)
         ax.add_patch(patch)

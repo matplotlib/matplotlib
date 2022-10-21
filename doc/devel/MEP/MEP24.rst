@@ -1,5 +1,5 @@
 =======================================
- MEP24: negative radius in polar plots
+ MEP24: Negative radius in polar plots
 =======================================
 
 .. contents::

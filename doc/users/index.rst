@@ -1,24 +1,41 @@
 .. _users-guide-index:
 
-############
-User's Guide
-############
+.. redirect-from:: /contents
 
-.. only:: html
 
-    :Release: |version|
-    :Date: |today|
+###########
+Users guide
+###########
+
+General
+#######
 
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
 
-    installing.rst
-    ../tutorials/index.rst
-    interactive.rst
-    whats_new.rst
-    history.rst
-    github_stats.rst
-    whats_new_old.rst
-    license.rst
-    ../citing.rst
-    credits.rst
+   getting_started/index.rst
+   installing/index.rst
+   explain/index.rst
+   faq/index.rst
+   resources/index.rst
+
+Tutorials and examples
+######################
+
+.. toctree::
+   :maxdepth: 1
+
+   ../plot_types/index.rst
+   ../tutorials/index.rst
+   ../gallery/index.rst
+
+Reference
+#########
+
+.. toctree::
+   :maxdepth: 2
+
+   ../api/index.rst
+   ../devel/index.rst
+   project/index.rst
+   release_notes.rst

@@ -56,6 +56,9 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
     theta = np.linspace(0, 2 * np.pi, 768)
     r = np.linspace(0.2, 1, 4)
 
+    # Remove grid
+    ax.grid(False)
+
     # Create the bound for the segment 17
     for i in range(r.shape[0]):
         ax.plot(theta, np.repeat(r[i], theta.shape), '-k', lw=linewidth)
@@ -171,8 +174,6 @@ bounds = [2, 3, 7, 9, 15]
 norm3 = mpl.colors.BoundaryNorm(bounds, cmap3.N)
 fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap3, norm=norm3),
              cax=axl3,
-             # to use 'extend', you must specify two extra boundaries:
-             boundaries=[0] + bounds + [18],
              extend='both',
              ticks=bounds,  # optional
              spacing='proportional',

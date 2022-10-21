@@ -33,8 +33,8 @@ axins.imshow(Z2, extent=extent, origin="lower")
 x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9
 axins.set_xlim(x1, x2)
 axins.set_ylim(y1, y2)
-axins.set_xticklabels('')
-axins.set_yticklabels('')
+axins.set_xticklabels([])
+axins.set_yticklabels([])
 
 ax.indicate_inset_zoom(axins, edgecolor="black")
 

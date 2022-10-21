@@ -1,6 +1,6 @@
 r"""
 *************************
-Text rendering With LaTeX
+Text rendering with LaTeX
 *************************
 
 Matplotlib can use LaTeX to render text.  This is activated by setting
@@ -11,51 +11,69 @@ is more flexible, since different LaTeX packages (font packages, math packages,
 etc.) can be used. The results can be striking, especially when you take care
 to use the same fonts in your figures as in the main document.
 
-Matplotlib's LaTeX support requires a working LaTeX_ installation.  For the
-\*Agg backends, dvipng_ is additionally required; for the PS backend, psfrag_,
-dvips_ and Ghostscript_ are additionally required.  The executables for these
-external dependencies must all be located on your :envvar:`PATH`.
+Matplotlib's LaTeX support requires a working LaTeX_ installation.  For
+the \*Agg backends, dvipng_ is additionally required; for the PS backend,
+PSfrag_, dvips_ and Ghostscript_ are additionally required.  For the PDF
+and SVG backends, if LuaTeX is present, it will be used to speed up some
+post-processing steps, but note that it is not used to parse the TeX string
+itself (only LaTeX is supported).  The executables for these external
+dependencies must all be located on your :envvar:`PATH`.
 
-There are a couple of options to mention, which can be changed using
-:doc:`rc settings </tutorials/introductory/customizing>`. Here is an example
-matplotlibrc file::
+Only a small number of font families (defined by the PSNFSS_ scheme) are
+supported.  They are listed here, with the corresponding LaTeX font selection
+commands and LaTeX packages, which are automatically used.
 
-  font.family        : serif
-  font.serif         : Times, Palatino, New Century Schoolbook, Bookman, Computer Modern Roman
-  font.sans-serif    : Helvetica, Avant Garde, Computer Modern Sans Serif
-  font.cursive       : Zapf Chancery
-  font.monospace     : Courier, Computer Modern Typewriter
+=========================== =================================================
+generic family              fonts
+=========================== =================================================
+serif (``\rmfamily``)       Computer Modern Roman, Palatino (``mathpazo``),
+                            Times (``mathptmx``),  Bookman (``bookman``),
+                            New Century Schoolbook (``newcent``),
+                            Charter (``charter``)
 
-  text.usetex        : true
+sans-serif (``\sffamily``)  Computer Modern Serif, Helvetica (``helvet``),
+                            Avant Garde (``avant``)
 
-The first valid font in each family is the one that will be loaded. If the
-fonts are not specified, the Computer Modern fonts are used by default. All of
-the other fonts are Adobe fonts. Times and Palatino each have their own
-accompanying math fonts, while the other Adobe serif fonts make use of the
-Computer Modern math fonts. See the PSNFSS_ documentation for more details.
+cursive (``\rmfamily``)     Zapf Chancery (``chancery``)
 
-To use LaTeX and select Helvetica as the default font, without editing
-matplotlibrc use::
+monospace (``\ttfamily``)   Computer Modern Typewriter, Courier (``courier``)
+=========================== =================================================
 
-  import matplotlib.pyplot as plt
-  plt.rcParams.update({
-      "text.usetex": True,
-      "font.family": "sans-serif",
-      "font.sans-serif": ["Helvetica"]})
-  # for Palatino and other serif fonts use:
-  plt.rcParams.update({
-      "text.usetex": True,
-      "font.family": "serif",
-      "font.serif": ["Palatino"],
-  })
+The default font family (which does not require loading any LaTeX package) is
+Computer Modern.  All other families are Adobe fonts.  Times and Palatino each
+have their own accompanying math fonts, while the other Adobe serif fonts make
+use of the Computer Modern math fonts.
+
+To enable LaTeX and select a font, use e.g.::
+
+    plt.rcParams.update({
+        "text.usetex": True,
+        "font.family": "Helvetica"
+    })
+
+or equivalently, set your :doc:`matplotlibrc
+</tutorials/introductory/customizing>` to::
+
+    text.usetex : true
+    font.family : Helvetica
+
+It is also possible to instead set ``font.family`` to one of the generic family
+names and then configure the corresponding generic family; e.g.::
+
+    plt.rcParams.update({
+        "text.usetex": True,
+        "font.family": "sans-serif",
+        "font.sans-serif": "Helvetica",
+    })
+
+(this was the required approach until Matplotlib 3.5).
 
 Here is the standard example,
-:file:`/gallery/text_labels_and_annotations/tex_demo`:
+:doc:`/gallery/text_labels_and_annotations/tex_demo`:
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html
    :align: center
-   :scale: 50
 
 Note that display math mode (``$$ e=mc^2 $$``) is not supported, but adding the
 command ``\displaystyle``, as in the above demo, will produce the same results.
@@ -64,12 +82,22 @@ Non-ASCII characters (e.g. the degree sign in the y-label above) are supported
 to the extent that they are supported by inputenc_.
 
 .. note::
+   For consistency with the non-usetex case, Matplotlib special-cases newlines,
+   so that single-newlines yield linebreaks (rather than being interpreted as
+   whitespace in standard LaTeX).
+
+   Matplotlib uses the underscore_ package so that underscores (``_``) are
+   printed "as-is" in text mode (rather than causing an error as in standard
+   LaTeX).  Underscores still introduce subscripts in math mode.
+
+.. note::
    Certain characters require special escaping in TeX, such as::
 
-     # $ % & ~ _ ^ \ { } \( \) \[ \]
+     # $ % & ~ ^ \ { } \( \) \[ \]
 
    Therefore, these characters will behave differently depending on
-   :rc:`text.usetex`.
+   :rc:`text.usetex`.  As noted above, underscores (``_``) do not require
+   escaping outside of math mode.
 
 PostScript options
 ==================
@@ -131,7 +159,7 @@ Troubleshooting
   problems. Please disable this option before reporting problems to
   the mailing list.
 
-* If you still need help, please see :ref:`reporting-problems`
+* If you still need help, please see :ref:`reporting-problems`.
 
 .. _dvipng: http://www.nongnu.org/dvipng/
 .. _dvips: https://tug.org/texinfohtml/dvips.html
@@ -140,6 +168,7 @@ Troubleshooting
 .. _LaTeX: http://www.tug.org
 .. _Poppler: https://poppler.freedesktop.org/
 .. _PSNFSS: http://www.ctan.org/tex-archive/macros/latex/required/psnfss/psnfss2e.pdf
-.. _psfrag: https://ctan.org/pkg/psfrag
+.. _PSfrag: https://ctan.org/pkg/psfrag
+.. _underscore: https://ctan.org/pkg/underscore
 .. _Xpdf: http://www.xpdfreader.com/
 """

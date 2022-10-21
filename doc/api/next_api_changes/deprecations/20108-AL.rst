@@ -1,3 +1,0 @@
-``ContourLabeler.get_label_width``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... is deprecated.

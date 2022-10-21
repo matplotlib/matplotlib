@@ -45,7 +45,8 @@ marker                         symbol description
 ``9`` (``CARETRIGHTBASE``)     |m34|  caretright (centered at base)
 ``10`` (``CARETUPBASE``)       |m35|  caretup (centered at base)
 ``11`` (``CARETDOWNBASE``)     |m36|  caretdown (centered at base)
-``"None"``, ``" "`` or  ``""``        nothing
+``"none"`` or ``"None"``              nothing
+``" "`` or  ``""``                    nothing
 ``'$...$'``                    |m37|  Render the string using mathtext.
                                       E.g ``"$f$"`` for marker showing the
                                       letter ``f``.
@@ -63,9 +64,10 @@ path                                  A `~matplotlib.path.Path` instance.
                                       rotated by ``angle``.
 ============================== ====== =========================================
 
-``None`` is the default which means 'nothing', however this table is
-referred to from other docs for the valid inputs from marker inputs and in
-those cases ``None`` still means 'default'.
+As a deprecated feature, ``None`` also means 'nothing' when directly
+constructing a `.MarkerStyle`, but note that there are other contexts where
+``marker=None`` instead means "the default marker" (e.g. :rc:`scatter.marker`
+for `.Axes.scatter`).
 
 Note that special symbols can be defined via the
 :doc:`STIX math font </tutorials/text/mathtext>`,
@@ -80,12 +82,16 @@ Hence the following are equivalent::
     plt.plot([1, 2, 3], marker=11)
     plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
+Markers join and cap styles can be customized by creating a new instance of
+MarkerStyle.
+A MarkerStyle can also have a custom `~matplotlib.transforms.Transform`
+allowing it to be arbitrarily rotated or offset.
+
 Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
-* :doc:`/gallery/shapes_and_collections/marker_path`
 * :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`
-
+* :doc:`/gallery/lines_bars_and_markers/multivariate_marker_plot`
 
 .. |m00| image:: /_static/markers/m00.png
 .. |m01| image:: /_static/markers/m01.png
@@ -126,12 +132,15 @@ Examples showing the use of markers:
 .. |m36| image:: /_static/markers/m36.png
 .. |m37| image:: /_static/markers/m37.png
 """
+import copy
 
 from collections.abc import Sized
+import inspect
 
 import numpy as np
 
-from . import _api, cbook, rcParams
+import matplotlib as mpl
+from . import _api, cbook
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
 from ._enums import JoinStyle, CapStyle
@@ -200,7 +209,7 @@ class MarkerStyle:
         CARETUPBASE: 'caretupbase',
         CARETDOWNBASE: 'caretdownbase',
         "None": 'nothing',
-        None: 'nothing',
+        "none": 'nothing',
         ' ': 'nothing',
         '': 'nothing'
     }
@@ -214,26 +223,56 @@ class MarkerStyle:
     fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
     _half_fillstyles = ('left', 'right', 'bottom', 'top')
 
-    # TODO: Is this ever used as a non-constant?
-    _point_size_reduction = 0.5
+    _unset = object()  # For deprecation of MarkerStyle(<noargs>).
 
-    def __init__(self, marker=None, fillstyle=None):
+    def __init__(self, marker=_unset, fillstyle=None,
+                 transform=None, capstyle=None, joinstyle=None):
         """
         Parameters
         ----------
-        marker : str, array-like, Path, MarkerStyle, or None, default: None
+        marker : str, array-like, Path, MarkerStyle, or None
             - Another instance of *MarkerStyle* copies the details of that
               ``marker``.
-            - *None* means no marker.
-            - For other possible marker values see the module docstring
+            - *None* means no marker.  This is the deprecated default.
+            - For other possible marker values, see the module docstring
               `matplotlib.markers`.
 
-        fillstyle : str, default: 'full'
+        fillstyle : str, default: :rc:`markers.fillstyle`
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
+
+        transform : transforms.Transform, default: None
+            Transform that will be combined with the native transform of the
+            marker.
+
+        capstyle : CapStyle, default: None
+            Cap style that will override the default cap style of the marker.
+
+        joinstyle : JoinStyle, default: None
+            Join style that will override the default join style of the marker.
         """
         self._marker_function = None
+        self._user_transform = transform
+        self._user_capstyle = capstyle
+        self._user_joinstyle = joinstyle
         self._set_fillstyle(fillstyle)
+        # Remove _unset and signature rewriting after deprecation elapses.
+        if marker is self._unset:
+            marker = ""
+            _api.warn_deprecated(
+                "3.6", message="Calling MarkerStyle() with no parameters is "
+                "deprecated since %(since)s; support will be removed "
+                "%(removal)s.  Use MarkerStyle('') to construct an empty "
+                "MarkerStyle.")
+        if marker is None:
+            marker = ""
+            _api.warn_deprecated(
+                "3.6", message="MarkerStyle(None) is deprecated since "
+                "%(since)s; support will be removed %(removal)s.  Use "
+                "MarkerStyle('') to construct an empty MarkerStyle.")
         self._set_marker(marker)
+
+    __init__.__signature__ = inspect.signature(  # Only for deprecation period.
+        lambda self, marker, fillstyle=None: None)
 
     def _recache(self):
         if self._marker_function is None:
@@ -244,7 +283,7 @@ class MarkerStyle:
         self._alt_transform = None
         self._snap_threshold = None
         self._joinstyle = JoinStyle.round
-        self._capstyle = CapStyle.butt
+        self._capstyle = self._user_capstyle or CapStyle.butt
         # Initial guess: Assume the marker is filled unless the fillstyle is
         # set to 'none'. The marker function will override this for unfilled
         # markers.
@@ -260,10 +299,6 @@ class MarkerStyle:
     def get_fillstyle(self):
         return self._fillstyle
 
-    @_api.deprecated("3.4", alternative="a new marker")
-    def set_fillstyle(self, fillstyle):
-        return self._set_fillstyle(fillstyle)
-
     def _set_fillstyle(self, fillstyle):
         """
         Set the fillstyle.
@@ -275,23 +310,19 @@ class MarkerStyle:
             markerfacecolor.
         """
         if fillstyle is None:
-            fillstyle = rcParams['markers.fillstyle']
+            fillstyle = mpl.rcParams['markers.fillstyle']
         _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
         self._recache()
 
     def get_joinstyle(self):
-        return self._joinstyle
+        return self._joinstyle.name
 
     def get_capstyle(self):
-        return self._capstyle
+        return self._capstyle.name
 
     def get_marker(self):
         return self._marker
-
-    @_api.deprecated("3.4", alternative="a new marker")
-    def set_marker(self, marker):
-        return self._set_marker(marker)
 
     def _set_marker(self, marker):
         """
@@ -321,7 +352,8 @@ class MarkerStyle:
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
         elif isinstance(marker, MarkerStyle):
-            self.__dict__.update(marker.__dict__)
+            self.__dict__ = copy.deepcopy(marker.__dict__)
+
         else:
             try:
                 Path(marker)
@@ -348,7 +380,10 @@ class MarkerStyle:
         Return the transform to be applied to the `.Path` from
         `MarkerStyle.get_path()`.
         """
-        return self._transform.frozen()
+        if self._user_transform is None:
+            return self._transform.frozen()
+        else:
+            return (self._transform + self._user_transform).frozen()
 
     def get_alt_path(self):
         """
@@ -364,10 +399,85 @@ class MarkerStyle:
         Return the transform to be applied to the `.Path` from
         `MarkerStyle.get_alt_path()`.
         """
-        return self._alt_transform.frozen()
+        if self._user_transform is None:
+            return self._alt_transform.frozen()
+        else:
+            return (self._alt_transform + self._user_transform).frozen()
 
     def get_snap_threshold(self):
         return self._snap_threshold
+
+    def get_user_transform(self):
+        """Return user supplied part of marker transform."""
+        if self._user_transform is not None:
+            return self._user_transform.frozen()
+
+    def transformed(self, transform: Affine2D):
+        """
+        Return a new version of this marker with the transform applied.
+
+        Parameters
+        ----------
+        transform : Affine2D, default: None
+            Transform will be combined with current user supplied transform.
+        """
+        new_marker = MarkerStyle(self)
+        if new_marker._user_transform is not None:
+            new_marker._user_transform += transform
+        else:
+            new_marker._user_transform = transform
+        return new_marker
+
+    def rotated(self, *, deg=None, rad=None):
+        """
+        Return a new version of this marker rotated by specified angle.
+
+        Parameters
+        ----------
+        deg : float, default: None
+            Rotation angle in degrees.
+
+        rad : float, default: None
+            Rotation angle in radians.
+
+        .. note:: You must specify exactly one of deg or rad.
+        """
+        if deg is None and rad is None:
+            raise ValueError('One of deg or rad is required')
+        if deg is not None and rad is not None:
+            raise ValueError('Only one of deg and rad can be supplied')
+        new_marker = MarkerStyle(self)
+        if new_marker._user_transform is None:
+            new_marker._user_transform = Affine2D()
+
+        if deg is not None:
+            new_marker._user_transform.rotate_deg(deg)
+        if rad is not None:
+            new_marker._user_transform.rotate(rad)
+
+        return new_marker
+
+    def scaled(self, sx, sy=None):
+        """
+        Return new marker scaled by specified scale factors.
+
+        If *sy* is None, the same scale is applied in both the *x*- and
+        *y*-directions.
+
+        Parameters
+        ----------
+        sx : float
+            *X*-direction scaling factor.
+        sy : float, default: None
+            *Y*-direction scaling factor.
+        """
+        if sy is None:
+            sy = sx
+
+        new_marker = MarkerStyle(self)
+        _transform = new_marker._user_transform or Affine2D()
+        new_marker._user_transform = _transform.scale(sx, sy)
+        return new_marker
 
     def _set_nothing(self):
         self._filled = False
@@ -392,30 +502,30 @@ class MarkerStyle:
         symstyle = marker[1]
         if symstyle == 0:
             self._path = Path.unit_regular_polygon(numsides)
-            self._joinstyle = JoinStyle.miter
+            self._joinstyle = self._user_joinstyle or JoinStyle.miter
         elif symstyle == 1:
             self._path = Path.unit_regular_star(numsides)
-            self._joinstyle = JoinStyle.bevel
+            self._joinstyle = self._user_joinstyle or JoinStyle.bevel
         elif symstyle == 2:
             self._path = Path.unit_regular_asterisk(numsides)
             self._filled = False
-            self._joinstyle = JoinStyle.bevel
+            self._joinstyle = self._user_joinstyle or JoinStyle.bevel
         else:
             raise ValueError(f"Unexpected tuple marker: {marker}")
         self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
 
     def _set_mathtext_path(self):
         """
-        Draws mathtext markers '$...$' using TextPath object.
+        Draw mathtext markers '$...$' using TextPath object.
 
         Submitted by tcb
         """
-        from matplotlib.text import TextPath
+        from matplotlib.textpath import TextPath
 
         # again, the properties could be initialised just once outside
         # this function
         text = TextPath(xy=(0, 0), s=self.get_marker(),
-                        usetex=rcParams['text.usetex'])
+                        usetex=mpl.rcParams['text.usetex'])
         if len(text.vertices) == 0:
             return
 
@@ -433,8 +543,8 @@ class MarkerStyle:
     def _half_fill(self):
         return self.get_fillstyle() in self._half_fillstyles
 
-    def _set_circle(self, reduction=1.0):
-        self._transform = Affine2D().scale(0.5 * reduction)
+    def _set_circle(self, size=1.0):
+        self._transform = Affine2D().scale(0.5 * size)
         self._snap_threshold = np.inf
         if not self._half_fill():
             self._path = Path.unit_circle()
@@ -444,6 +554,9 @@ class MarkerStyle:
             self._transform.rotate_deg(
                 {'right': 0, 'top': 90, 'left': 180, 'bottom': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180.)
+
+    def _set_point(self):
+        self._set_circle(size=0.5)
 
     def _set_pixel(self):
         self._path = Path.unit_rectangle()
@@ -459,18 +572,13 @@ class MarkerStyle:
         self._transform = Affine2D().translate(-0.49999, -0.49999)
         self._snap_threshold = None
 
-    def _set_point(self):
-        self._set_circle(reduction=self._point_size_reduction)
-
-    _triangle_path = Path([[0, 1], [-1, -1], [1, -1], [0, 1]], closed=True)
+    _triangle_path = Path._create_closed([[0, 1], [-1, -1], [1, -1]])
     # Going down halfway looks to small.  Golden ratio is too far.
-    _triangle_path_u = Path([[0, 1], [-3/5, -1/5], [3/5, -1/5], [0, 1]],
-                            closed=True)
-    _triangle_path_d = Path(
-        [[-3/5, -1/5], [3/5, -1/5], [1, -1], [-1, -1], [-3/5, -1/5]],
-        closed=True)
-    _triangle_path_l = Path([[0, 1], [0, -1], [-1, -1], [0, 1]], closed=True)
-    _triangle_path_r = Path([[0, 1], [0, -1], [1, -1], [0, 1]], closed=True)
+    _triangle_path_u = Path._create_closed([[0, 1], [-3/5, -1/5], [3/5, -1/5]])
+    _triangle_path_d = Path._create_closed(
+        [[-3/5, -1/5], [3/5, -1/5], [1, -1], [-1, -1]])
+    _triangle_path_l = Path._create_closed([[0, 1], [0, -1], [-1, -1]])
+    _triangle_path_r = Path._create_closed([[0, 1], [0, -1], [1, -1]])
 
     def _set_triangle(self, rot, skip):
         self._transform = Affine2D().scale(0.5).rotate_deg(rot)
@@ -500,7 +608,7 @@ class MarkerStyle:
 
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_triangle_up(self):
         return self._set_triangle(0.0, 0)
@@ -530,7 +638,7 @@ class MarkerStyle:
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_diamond(self):
         self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
@@ -544,7 +652,7 @@ class MarkerStyle:
             rotate = {'right': 0, 'top': 90, 'left': 180, 'bottom': 270}[fs]
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_thin_diamond(self):
         self._set_diamond()
@@ -571,7 +679,7 @@ class MarkerStyle:
             }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_star(self):
         self._transform = Affine2D().scale(0.5)
@@ -593,7 +701,7 @@ class MarkerStyle:
             }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.bevel
+        self._joinstyle = self._user_joinstyle or JoinStyle.bevel
 
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
@@ -617,7 +725,7 @@ class MarkerStyle:
             }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
@@ -643,7 +751,7 @@ class MarkerStyle:
             }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_octagon(self):
         self._transform = Affine2D().scale(0.5)
@@ -664,7 +772,7 @@ class MarkerStyle:
                 {'left': 0, 'bottom': 90, 'right': 180, 'top': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180.0)
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
 
@@ -738,7 +846,7 @@ class MarkerStyle:
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_caretup(self):
         self._set_caretdown()
@@ -792,20 +900,17 @@ class MarkerStyle:
         self._filled = False
         self._path = self._x_path
 
-    _plus_filled_path = Path(
-        np.array([(-1, -3), (+1, -3), (+1, -1), (+3, -1), (+3, +1), (+1, +1),
-                  (+1, +3), (-1, +3), (-1, +1), (-3, +1), (-3, -1), (-1, -1),
-                  (-1, -3)]) / 6, closed=True)
-    _plus_filled_path_t = Path(
-        np.array([(+3, 0), (+3, +1), (+1, +1), (+1, +3),
-                  (-1, +3), (-1, +1), (-3, +1), (-3, 0),
-                  (+3, 0)]) / 6, closed=True)
+    _plus_filled_path = Path._create_closed(np.array([
+        (-1, -3), (+1, -3), (+1, -1), (+3, -1), (+3, +1), (+1, +1),
+        (+1, +3), (-1, +3), (-1, +1), (-3, +1), (-3, -1), (-1, -1)]) / 6)
+    _plus_filled_path_t = Path._create_closed(np.array([
+        (+3, 0), (+3, +1), (+1, +1), (+1, +3),
+        (-1, +3), (-1, +1), (-3, +1), (-3, 0)]) / 6)
 
     def _set_plus_filled(self):
         self._transform = Affine2D()
         self._snap_threshold = 5.0
-        self._joinstyle = JoinStyle.miter
-        fs = self.get_fillstyle()
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
         if not self._half_fill():
             self._path = self._plus_filled_path
         else:
@@ -816,20 +921,17 @@ class MarkerStyle:
                 {'top': 0, 'left': 90, 'bottom': 180, 'right': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180)
 
-    _x_filled_path = Path(
-        np.array([(-1, -2), (0, -1), (+1, -2), (+2, -1), (+1, 0), (+2, +1),
-                  (+1, +2), (0, +1), (-1, +2), (-2, +1), (-1, 0), (-2, -1),
-                  (-1, -2)]) / 4,
-        closed=True)
-    _x_filled_path_t = Path(
-        np.array([(+1, 0), (+2, +1), (+1, +2), (0, +1),
-                  (-1, +2), (-2, +1), (-1, 0), (+1, 0)]) / 4,
-        closed=True)
+    _x_filled_path = Path._create_closed(np.array([
+        (-1, -2), (0, -1), (+1, -2), (+2, -1), (+1, 0), (+2, +1),
+        (+1, +2), (0, +1), (-1, +2), (-2, +1), (-1, 0), (-2, -1)]) / 4)
+    _x_filled_path_t = Path._create_closed(np.array([
+        (+1, 0), (+2, +1), (+1, +2), (0, +1),
+        (-1, +2), (-2, +1), (-1, 0)]) / 4)
 
     def _set_x_filled(self):
         self._transform = Affine2D()
         self._snap_threshold = 5.0
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
         if not self._half_fill():
             self._path = self._x_filled_path
         else:

@@ -3,9 +3,9 @@
 SVG Filter Line
 ===============
 
-Demonstrate SVG filtering effects which might be used with mpl.
+Demonstrate SVG filtering effects which might be used with Matplotlib.
 
-Note that the filtering effects are only effective if your svg renderer
+Note that the filtering effects are only effective if your SVG renderer
 support it.
 """
 
@@ -41,10 +41,9 @@ for l in [l1, l2]:
     shadow.set_zorder(l.get_zorder() - 0.5)
 
     # offset transform
-    ot = mtransforms.offset_copy(l.get_transform(), fig1,
-                                 x=4.0, y=-6.0, units='points')
-
-    shadow.set_transform(ot)
+    transform = mtransforms.offset_copy(l.get_transform(), fig1,
+                                        x=4.0, y=-6.0, units='points')
+    shadow.set_transform(transform)
 
     # set the id for a later use
     shadow.set_gid(l.get_label() + "_shadow")

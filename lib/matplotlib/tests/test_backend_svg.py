@@ -1,22 +1,20 @@
 import datetime
 from io import BytesIO
-import tempfile
+from pathlib import Path
 import xml.etree.ElementTree
 import xml.parsers.expat
 
-import numpy as np
 import pytest
 
+import numpy as np
+
 import matplotlib as mpl
-from matplotlib import dviread
 from matplotlib.figure import Figure
+from matplotlib.text import Text
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
-
-
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing._markers import needs_usetex
+from matplotlib import font_manager as fm
 
 
 def test_visibility():
@@ -181,24 +179,8 @@ def test_count_bitmaps():
     assert count_tag(fig5, "path") == 1  # axis patch
 
 
-@needs_usetex
-def test_missing_psfont(monkeypatch):
-    """An error is raised if a TeX font lacks a Type-1 equivalent"""
-
-    def psfont(*args, **kwargs):
-        return dviread.PsFont(texname='texfont', psname='Some Font',
-                              effects=None, encoding=None, filename=None)
-
-    monkeypatch.setattr(dviread.PsfontsMap, '__getitem__', psfont)
-    mpl.rc('text', usetex=True)
-    fig, ax = plt.subplots()
-    ax.text(0.5, 0.5, 'hello')
-    with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
-        fig.savefig(tmpfile, format='svg')
-
-
 # Use Computer Modern Sans Serif, not Helvetica (which has no \textwon).
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @needs_usetex
 def test_unicode_won():
     fig = Figure()
@@ -216,7 +198,7 @@ def test_unicode_won():
 
 
 def test_svgnone_with_data_coordinates():
-    plt.rcParams['svg.fonttype'] = 'none'
+    plt.rcParams.update({'svg.fonttype': 'none', 'font.stretch': 'condensed'})
     expected = 'Unlikely to appear by chance'
 
     fig, ax = plt.subplots()
@@ -229,9 +211,7 @@ def test_svgnone_with_data_coordinates():
         fd.seek(0)
         buf = fd.read().decode()
 
-    assert expected in buf
-    for prop in ["family", "weight", "stretch", "style", "size"]:
-        assert f"font-{prop}:" in buf
+    assert expected in buf and "condensed" in buf
 
 
 def test_gid():
@@ -272,7 +252,7 @@ def test_gid():
         # we need to exclude certain objects which will not appear in the svg
         if isinstance(obj, OffsetBox):
             return False
-        if isinstance(obj, plt.Text):
+        if isinstance(obj, Text):
             if obj.get_text() == "":
                 return False
             elif obj.axes is None:
@@ -310,17 +290,17 @@ def test_url():
 
     # collections
     s = ax.scatter([1, 2, 3], [4, 5, 6])
-    s.set_urls(['http://example.com/foo', 'http://example.com/bar', None])
+    s.set_urls(['https://example.com/foo', 'https://example.com/bar', None])
 
     # Line2D
     p, = plt.plot([1, 3], [6, 5])
-    p.set_url('http://example.com/baz')
+    p.set_url('https://example.com/baz')
 
     b = BytesIO()
     fig.savefig(b, format='svg')
     b = b.getvalue()
     for v in [b'foo', b'bar', b'baz']:
-        assert b'http://example.com/' + v in b
+        assert b'https://example.com/' + v in b
 
 
 def test_url_tick(monkeypatch):
@@ -329,13 +309,13 @@ def test_url_tick(monkeypatch):
     fig1, ax = plt.subplots()
     ax.scatter([1, 2, 3], [4, 5, 6])
     for i, tick in enumerate(ax.yaxis.get_major_ticks()):
-        tick.set_url(f'http://example.com/{i}')
+        tick.set_url(f'https://example.com/{i}')
 
     fig2, ax = plt.subplots()
     ax.scatter([1, 2, 3], [4, 5, 6])
     for i, tick in enumerate(ax.yaxis.get_major_ticks()):
-        tick.label1.set_url(f'http://example.com/{i}')
-        tick.label2.set_url(f'http://example.com/{i}')
+        tick.label1.set_url(f'https://example.com/{i}')
+        tick.label2.set_url(f'https://example.com/{i}')
 
     b1 = BytesIO()
     fig1.savefig(b1, format='svg')
@@ -346,7 +326,7 @@ def test_url_tick(monkeypatch):
     b2 = b2.getvalue()
 
     for i in range(len(ax.yaxis.get_major_ticks())):
-        assert f'http://example.com/{i}'.encode('ascii') in b1
+        assert f'https://example.com/{i}'.encode('ascii') in b1
     assert b1 == b2
 
 
@@ -445,7 +425,7 @@ def test_svg_metadata():
         **{k: [f'{k} bar', f'{k} baz'] for k in multi_value},
     }
 
-    fig, ax = plt.subplots()
+    fig = plt.figure()
     with BytesIO() as fd:
         fig.savefig(fd, format='svg', metadata=metadata)
         buf = fd.getvalue().decode()
@@ -488,3 +468,123 @@ def test_svg_metadata():
     values = [node.text for node in
               rdf.findall(f'./{CCNS}Work/{DCNS}subject/{RDFNS}Bag/{RDFNS}li')]
     assert values == metadata['Keywords']
+
+
+@image_comparison(["multi_font_aspath.svg"], tol=1.8)
+def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('svg', fonttype='path')
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@image_comparison(["multi_font_astext.svg"])
+def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    fig = plt.figure()
+    plt.rc('svg', fonttype='none')
+
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    fig.text(0.15, 0.475, "There are 几个汉字 in between!")
+
+
+@pytest.mark.parametrize('metadata,error,message', [
+    ({'Date': 1}, TypeError, "Invalid type for Date metadata. Expected str"),
+    ({'Date': [1]}, TypeError,
+     "Invalid type for Date metadata. Expected iterable"),
+    ({'Keywords': 1}, TypeError,
+     "Invalid type for Keywords metadata. Expected str"),
+    ({'Keywords': [1]}, TypeError,
+     "Invalid type for Keywords metadata. Expected iterable"),
+    ({'Creator': 1}, TypeError,
+     "Invalid type for Creator metadata. Expected str"),
+    ({'Creator': [1]}, TypeError,
+     "Invalid type for Creator metadata. Expected iterable"),
+    ({'Title': 1}, TypeError,
+     "Invalid type for Title metadata. Expected str"),
+    ({'Format': 1}, TypeError,
+     "Invalid type for Format metadata. Expected str"),
+    ({'Foo': 'Bar'}, ValueError, "Unknown metadata key"),
+    ])
+def test_svg_incorrect_metadata(metadata, error, message):
+    with pytest.raises(error, match=message), BytesIO() as fd:
+        fig = plt.figure()
+        fig.savefig(fd, format='svg', metadata=metadata)
+
+
+def test_svg_escape():
+    fig = plt.figure()
+    fig.text(0.5, 0.5, "<\'\"&>", gid="<\'\"&>")
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
+        assert '&lt;&apos;&quot;&amp;&gt;"' in buf
+
+
+@pytest.mark.parametrize("font_str", [
+    "'DejaVu Sans', 'WenQuanYi Zen Hei', 'Arial', sans-serif",
+    "'DejaVu Serif', 'WenQuanYi Zen Hei', 'Times New Roman', serif",
+    "'Arial', 'WenQuanYi Zen Hei', cursive",
+    "'Impact', 'WenQuanYi Zen Hei', fantasy",
+    "'DejaVu Sans Mono', 'WenQuanYi Zen Hei', 'Courier New', monospace",
+    # These do not work because the logic to get the font metrics will not find
+    # WenQuanYi as the fallback logic stops with the first fallback font:
+    # "'DejaVu Sans Mono', 'Courier New', 'WenQuanYi Zen Hei', monospace",
+    # "'DejaVu Sans', 'Arial', 'WenQuanYi Zen Hei', sans-serif",
+    # "'DejaVu Serif', 'Times New Roman', 'WenQuanYi Zen Hei',  serif",
+])
+@pytest.mark.parametrize("include_generic", [True, False])
+def test_svg_font_string(font_str, include_generic):
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
+    explicit, *rest, generic = map(
+        lambda x: x.strip("'"), font_str.split(", ")
+    )
+    size = len(generic)
+    if include_generic:
+        rest = rest + [generic]
+    plt.rcParams[f"font.{generic}"] = rest
+    plt.rcParams["font.size"] = size
+    plt.rcParams["svg.fonttype"] = "none"
+
+    fig, ax = plt.subplots()
+    if generic == "sans-serif":
+        generic_options = ["sans", "sans-serif", "sans serif"]
+    else:
+        generic_options = [generic]
+
+    for generic_name in generic_options:
+        # test that fallback works
+        ax.text(0.5, 0.5, "There are 几个汉字 in between!",
+                family=[explicit, generic_name], ha="center")
+        # test deduplication works
+        ax.text(0.5, 0.1, "There are 几个汉字 in between!",
+                family=[explicit, *rest, generic_name], ha="center")
+    ax.axis("off")
+
+    with BytesIO() as fd:
+        fig.savefig(fd, format="svg")
+        buf = fd.getvalue()
+
+    tree = xml.etree.ElementTree.fromstring(buf)
+    ns = "http://www.w3.org/2000/svg"
+    text_count = 0
+    for text_element in tree.findall(f".//{{{ns}}}text"):
+        text_count += 1
+        font_info = dict(
+            map(lambda x: x.strip(), _.strip().split(":"))
+            for _ in dict(text_element.items())["style"].split(";")
+        )["font"]
+
+        assert font_info == f"{size}px {font_str}"
+    assert text_count == len(ax.texts)

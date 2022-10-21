@@ -164,7 +164,7 @@ static PyMethodDef ttconv_methods[] =
         "font data will be written to.\n"
         "fonttype may be either 3 or 42.  Type 3 is a \"raw Postscript\" font. "
         "Type 42 is an embedded Truetype font.  Glyph subsetting is not supported "
-        "for Type 42 fonts.\n"
+        "for Type 42 fonts within this module (needs to be done externally).\n"
         "glyph_ids (optional) is a list of glyph ids (integers) to keep when "
         "subsetting to a Type 3 font.  If glyph_ids is not provided or is None, "
         "then all glyphs will be included.  If any of the glyphs specified are "
@@ -184,7 +184,6 @@ static PyModuleDef ttconv_module = {
     module_docstring,
     -1,
     ttconv_methods,
-    NULL, NULL, NULL, NULL
 };
 
 #pragma GCC visibility push(default)
@@ -192,11 +191,7 @@ static PyModuleDef ttconv_module = {
 PyMODINIT_FUNC
 PyInit__ttconv(void)
 {
-    PyObject* m;
-
-    m = PyModule_Create(&ttconv_module);
-
-    return m;
+    return PyModule_Create(&ttconv_module);
 }
 
 #pragma GCC visibility pop

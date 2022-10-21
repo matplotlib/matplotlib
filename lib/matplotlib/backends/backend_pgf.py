@@ -1,4 +1,3 @@
-import atexit
 import codecs
 import datetime
 import functools
@@ -18,8 +17,7 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.backends.backend_pdf import (
@@ -36,58 +34,70 @@ _log = logging.getLogger(__name__)
 # which is not recognized by TeX.
 
 
+@_api.caching_module_getattr
+class __getattr__:
+    NO_ESCAPE = _api.deprecated("3.6", obj_type="")(
+        property(lambda self: _NO_ESCAPE))
+    re_mathsep = _api.deprecated("3.6", obj_type="")(
+        property(lambda self: _split_math.__self__))
+
+
+@_api.deprecated("3.6")
 def get_fontspec():
     """Build fontspec preamble from rc."""
-    latex_fontspec = []
-    texcommand = mpl.rcParams["pgf.texsystem"]
-
-    if texcommand != "pdflatex":
-        latex_fontspec.append("\\usepackage{fontspec}")
-
-    if texcommand != "pdflatex" and mpl.rcParams["pgf.rcfonts"]:
-        families = ["serif", "sans\\-serif", "monospace"]
-        commands = ["setmainfont", "setsansfont", "setmonofont"]
-        for family, command in zip(families, commands):
-            # 1) Forward slashes also work on Windows, so don't mess with
-            # backslashes.  2) The dirname needs to include a separator.
-            path = pathlib.Path(fm.findfont(family))
-            latex_fontspec.append(r"\%s{%s}[Path=\detokenize{%s}]" % (
-                command, path.name, path.parent.as_posix() + "/"))
-
-    return "\n".join(latex_fontspec)
+    with mpl.rc_context({"pgf.preamble": ""}):
+        return _get_preamble()
 
 
+@_api.deprecated("3.6")
 def get_preamble():
     """Get LaTeX preamble from rc."""
     return mpl.rcParams["pgf.preamble"]
 
-###############################################################################
 
-# This almost made me cry!!!
-# In the end, it's better to use only one unit for all coordinates, since the
+def _get_preamble():
+    """Prepare a LaTeX preamble based on the rcParams configuration."""
+    preamble = [mpl.rcParams["pgf.preamble"]]
+    if mpl.rcParams["pgf.texsystem"] != "pdflatex":
+        preamble.append("\\usepackage{fontspec}")
+        if mpl.rcParams["pgf.rcfonts"]:
+            families = ["serif", "sans\\-serif", "monospace"]
+            commands = ["setmainfont", "setsansfont", "setmonofont"]
+            for family, command in zip(families, commands):
+                # 1) Forward slashes also work on Windows, so don't mess with
+                # backslashes.  2) The dirname needs to include a separator.
+                path = pathlib.Path(fm.findfont(family))
+                preamble.append(r"\%s{%s}[Path=\detokenize{%s/}]" % (
+                    command, path.name, path.parent.as_posix()))
+    preamble.append(mpl.texmanager._usepackage_if_not_loaded(
+        "underscore", option="strings"))  # Documented as "must come last".
+    return "\n".join(preamble)
+
+
+# It's better to use only one unit for all coordinates, since the
 # arithmetic in latex seems to produce inaccurate conversions.
 latex_pt_to_in = 1. / 72.27
 latex_in_to_pt = 1. / latex_pt_to_in
 mpl_pt_to_in = 1. / 72.
 mpl_in_to_pt = 1. / mpl_pt_to_in
 
-###############################################################################
-# helper functions
 
-NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
-re_mathsep = re.compile(NO_ESCAPE + r"\$")
-
-
+_NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
+_split_math = re.compile(_NO_ESCAPE + r"\$").split
 _replace_escapetext = functools.partial(
-    # When the next character is _, ^, $, or % (not preceded by an escape),
-    # insert a backslash.
-    re.compile(NO_ESCAPE + "(?=[_^$%])").sub, "\\\\")
+    # When the next character is an unescaped % or ^, insert a backslash.
+    re.compile(_NO_ESCAPE + "(?=[%^])").sub, "\\\\")
 _replace_mathdefault = functools.partial(
     # Replace \mathdefault (when not preceded by an escape) by empty string.
-    re.compile(NO_ESCAPE + r"(\\mathdefault)").sub, "")
+    re.compile(_NO_ESCAPE + r"(\\mathdefault)").sub, "")
 
 
+@_api.deprecated("3.6")
 def common_texification(text):
+    return _tex_escape(text)
+
+
+def _tex_escape(text):
     r"""
     Do some necessary and/or useful substitutions for texts to be included in
     LaTeX documents.
@@ -96,14 +106,14 @@ def common_texification(text):
     ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
     are ignored.
 
-    The following characters are escaped in text segments: ``_^$%``
+    The following characters are escaped in text segments: ``^%``
     """
     # Sometimes, matplotlib adds the unknown command \mathdefault.
     # Not using \mathnormal instead since this looks odd for the latex cm font.
     text = _replace_mathdefault(text)
     text = text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
     # split text into normaltext and inline math parts
-    parts = re_mathsep.split(text)
+    parts = _split_math(text)
     for i, s in enumerate(parts):
         if not i % 2:
             # textmode replacements
@@ -115,15 +125,23 @@ def common_texification(text):
     return "".join(parts)
 
 
+@_api.deprecated("3.6")
 def writeln(fh, line):
-    # every line of a file included with \\input must be terminated with %
-    # if not, latex will create additional vertical spaces for some reason
+    return _writeln(fh, line)
+
+
+def _writeln(fh, line):
+    # Ending lines with a % prevents TeX from inserting spurious spaces
+    # (https://tex.stackexchange.com/questions/7453).
     fh.write(line)
     fh.write("%\n")
 
 
-def _font_properties_str(prop):
-    # translate font properties to latex commands, return as string
+def _escape_and_apply_props(s, prop):
+    """
+    Generate a TeX string that renders string *s* with font properties *prop*,
+    also applying any required escapes to *s*.
+    """
     commands = []
 
     families = {"serif": r"\rmfamily", "sans": r"\sffamily",
@@ -149,7 +167,7 @@ def _font_properties_str(prop):
         commands.append(r"\bfseries")
 
     commands.append(r"\selectfont")
-    return "".join(commands)
+    return "".join(commands) + " " + _tex_escape(s)
 
 
 def _metadata_to_str(key, value):
@@ -165,26 +183,28 @@ def _metadata_to_str(key, value):
 
 def make_pdf_to_png_converter():
     """Return a function that converts a pdf file to a png file."""
-    if shutil.which("pdftocairo"):
-        def cairo_convert(pdffile, pngfile, dpi):
-            cmd = ["pdftocairo", "-singlefile", "-png", "-r", "%d" % dpi,
-                   pdffile, os.path.splitext(pngfile)[0]]
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        return cairo_convert
+    try:
+        mpl._get_executable_info("pdftocairo")
+    except mpl.ExecutableNotFoundError:
+        pass
+    else:
+        return lambda pdffile, pngfile, dpi: subprocess.check_output(
+            ["pdftocairo", "-singlefile", "-transp", "-png", "-r", "%d" % dpi,
+             pdffile, os.path.splitext(pngfile)[0]],
+            stderr=subprocess.STDOUT)
     try:
         gs_info = mpl._get_executable_info("gs")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        def gs_convert(pdffile, pngfile, dpi):
-            cmd = [gs_info.executable,
-                   '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
-                   '-dUseCIEColor', '-dTextAlphaBits=4',
-                   '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE',
-                   '-sDEVICE=png16m', '-sOutputFile=%s' % pngfile,
-                   '-r%d' % dpi, pdffile]
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
-        return gs_convert
+        return lambda pdffile, pngfile, dpi: subprocess.check_output(
+            [gs_info.executable,
+             '-dQUIET', '-dSAFER', '-dBATCH', '-dNOPAUSE', '-dNOPROMPT',
+             '-dUseCIEColor', '-dTextAlphaBits=4',
+             '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE',
+             '-sDEVICE=pngalpha', '-sOutputFile=%s' % pngfile,
+             '-r%d' % dpi, pdffile],
+            stderr=subprocess.STDOUT)
     raise RuntimeError("No suitable pdf to png renderer found.")
 
 
@@ -209,22 +229,15 @@ class LatexManager:
 
     @staticmethod
     def _build_latex_header():
-        latex_preamble = get_preamble()
-        latex_fontspec = get_fontspec()
-        # Create LaTeX header with some content, else LaTeX will load some math
-        # fonts later when we don't expect the additional output on stdout.
-        # TODO: is this sufficient?
         latex_header = [
-            r"\documentclass{minimal}",
+            r"\documentclass{article}",
             # Include TeX program name as a comment for cache invalidation.
             # TeX does not allow this to be the first line.
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
             # Test whether \includegraphics supports interpolate option.
             r"\usepackage{graphicx}",
-            latex_preamble,
-            latex_fontspec,
+            _get_preamble(),
             r"\begin{document}",
-            r"text $math \mu$",  # force latex to load fonts now
             r"\typeout{pgf_backend_query_start}",
         ]
         return "\n".join(latex_header)
@@ -273,38 +286,41 @@ class LatexManager:
         self._finalize_tmpdir = weakref.finalize(self, self._tmpdir.cleanup)
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        self.texcommand = mpl.rcParams["pgf.texsystem"]
-        self.latex_header = LatexManager._build_latex_header()
-        latex_end = "\n\\makeatletter\n\\@@end\n"
         try:
-            latex = subprocess.Popen(
-                [self.texcommand, "-halt-on-error"],
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                encoding="utf-8", cwd=self.tmpdir)
+            self._setup_latex_process(expect_reply=False)
         except FileNotFoundError as err:
             raise RuntimeError(
-                f"{self.texcommand} not found.  Install it or change "
+                f"{self.latex.args[0]!r} not found.  Install it or change "
                 f"rcParams['pgf.texsystem'] to an available TeX "
                 f"implementation.") from err
         except OSError as err:
-            raise RuntimeError("Error starting process %r" %
-                               self.texcommand) from err
-        test_input = self.latex_header + latex_end
-        stdout, stderr = latex.communicate(test_input)
-        if latex.returncode != 0:
-            raise LatexError("LaTeX returned an error, probably missing font "
-                             "or error in preamble.", stdout)
+            raise RuntimeError(
+                f"Error starting process {self.latex.args[0]!r}") from err
+        stdout, stderr = self.latex.communicate("\n\\makeatletter\\@@end\n")
+        if self.latex.returncode != 0:
+            raise LatexError(
+                f"LaTeX errored (probably missing font or error in preamble) "
+                f"while processing the following input:\n"
+                f"{self._build_latex_header()}",
+                stdout)
 
         self.latex = None  # Will be set up on first use.
-        self.str_cache = {}  # cache for strings already processed
+        # Per-instance cache.
+        self._get_box_metrics = functools.lru_cache()(self._get_box_metrics)
 
-    def _setup_latex_process(self):
+    str_cache = _api.deprecated("3.5")(property(lambda self: {}))
+    texcommand = _api.deprecated("3.6")(
+        property(lambda self: mpl.rcParams["pgf.texsystem"]))
+    latex_header = _api.deprecated("3.6")(
+        property(lambda self: self._build_latex_header()))
+
+    def _setup_latex_process(self, *, expect_reply=True):
         # Open LaTeX process for real work; register it for deletion.  On
         # Windows, we must ensure that the subprocess has quit before being
         # able to delete the tmpdir in which it runs; in order to do so, we
         # must first `kill()` it, and then `communicate()` with it.
         self.latex = subprocess.Popen(
-            [self.texcommand, "-halt-on-error"],
+            [mpl.rcParams["pgf.texsystem"], "-halt-on-error"],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
             encoding="utf-8", cwd=self.tmpdir)
 
@@ -316,52 +332,42 @@ class LatexManager:
             self, finalize_latex, self.latex)
         # write header with 'pgf_backend_query_start' token
         self._stdin_writeln(self._build_latex_header())
-        # read all lines until our 'pgf_backend_query_start' token appears
-        self._expect("*pgf_backend_query_start")
-        self._expect_prompt()
+        if expect_reply:  # read until 'pgf_backend_query_start' token appears
+            self._expect("*pgf_backend_query_start")
+            self._expect_prompt()
 
     def get_width_height_descent(self, text, prop):
         """
-        Get the width, total height and descent for a text typeset by the
-        current LaTeX environment.
+        Get the width, total height, and descent (in TeX points) for a text
+        typeset by the current LaTeX environment.
         """
+        return self._get_box_metrics(_escape_and_apply_props(text, prop))
 
-        # apply font properties and define textbox
-        prop_cmds = _font_properties_str(prop)
-        textbox = "\\sbox0{%s %s}" % (prop_cmds, text)
-
-        # check cache
-        if textbox in self.str_cache:
-            return self.str_cache[textbox]
-
-        # send textbox to LaTeX and wait for prompt
-        self._stdin_writeln(textbox)
-        try:
-            self._expect_prompt()
-        except LatexError as e:
-            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, e.latex_output)) from e
-
-        # typeout width, height and text offset of the last textbox
-        self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
-        # read answer from latex and advance to the next prompt
+    def _get_box_metrics(self, tex):
+        """
+        Get the width, total height and descent (in TeX points) for a TeX
+        command's output in the current LaTeX environment.
+        """
+        # This method gets wrapped in __init__ for per-instance caching.
+        self._stdin_writeln(  # Send textbox to TeX & request metrics typeout.
+            r"\sbox0{%s}\typeout{\the\wd0,\the\ht0,\the\dp0}" % tex)
         try:
             answer = self._expect_prompt()
-        except LatexError as e:
-            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, e.latex_output)) from e
-
-        # parse metrics from the answer string
+        except LatexError as err:
+            # Here and below, use '{}' instead of {!r} to avoid doubling all
+            # backslashes.
+            raise ValueError("Error measuring {}\nLaTeX Output:\n{}"
+                             .format(tex, err.latex_output)) from err
         try:
-            width, height, offset = answer.splitlines()[0].split(",")
+            # Parse metrics from the answer string.  Last line is prompt, and
+            # next-to-last-line is blank line from \typeout.
+            width, height, offset = answer.splitlines()[-3].split(",")
         except Exception as err:
-            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, answer)) from err
+            raise ValueError("Error measuring {}\nLaTeX Output:\n{}"
+                             .format(tex, answer)) from err
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
-
-        # the height returned from LaTeX goes from base to top.
-        # the height matplotlib expects goes from bottom to top.
-        self.str_cache[textbox] = (w, h + o, o)
+        # The height returned from LaTeX goes from base to top;
+        # the height Matplotlib expects goes from bottom to top.
         return w, h + o, o
 
 
@@ -406,7 +412,7 @@ class RendererPgf(RendererBase):
                      rgbFace=None):
         # docstring inherited
 
-        writeln(self.fh, r"\begin{pgfscope}")
+        _writeln(self.fh, r"\begin{pgfscope}")
 
         # convert from display units to in
         f = 1. / self.dpi
@@ -418,59 +424,63 @@ class RendererPgf(RendererBase):
         # build marker definition
         bl, tr = marker_path.get_extents(marker_trans).get_points()
         coords = bl[0] * f, bl[1] * f, tr[0] * f, tr[1] * f
-        writeln(self.fh,
-                r"\pgfsys@defobject{currentmarker}"
-                r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
+        _writeln(self.fh,
+                 r"\pgfsys@defobject{currentmarker}"
+                 r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
         self._print_pgf_path(None, marker_path, marker_trans)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
-        writeln(self.fh, r"}")
+        _writeln(self.fh, r"}")
+
+        maxcoord = 16383 / 72.27 * self.dpi  # Max dimensions in LaTeX.
+        clip = (-maxcoord, -maxcoord, maxcoord, maxcoord)
 
         # draw marker for each vertex
-        for point, code in path.iter_segments(trans, simplify=False):
+        for point, code in path.iter_segments(trans, simplify=False,
+                                              clip=clip):
             x, y = point[0] * f, point[1] * f
-            writeln(self.fh, r"\begin{pgfscope}")
-            writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x, y))
-            writeln(self.fh, r"\pgfsys@useobject{currentmarker}{}")
-            writeln(self.fh, r"\end{pgfscope}")
+            _writeln(self.fh, r"\begin{pgfscope}")
+            _writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x, y))
+            _writeln(self.fh, r"\pgfsys@useobject{currentmarker}{}")
+            _writeln(self.fh, r"\end{pgfscope}")
 
-        writeln(self.fh, r"\end{pgfscope}")
+        _writeln(self.fh, r"\end{pgfscope}")
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
-        writeln(self.fh, r"\begin{pgfscope}")
+        _writeln(self.fh, r"\begin{pgfscope}")
         # draw the path
         self._print_pgf_clip(gc)
         self._print_pgf_path_styles(gc, rgbFace)
         self._print_pgf_path(gc, path, transform, rgbFace)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
-        writeln(self.fh, r"\end{pgfscope}")
+        _writeln(self.fh, r"\end{pgfscope}")
 
         # if present, draw pattern on top
         if gc.get_hatch():
-            writeln(self.fh, r"\begin{pgfscope}")
+            _writeln(self.fh, r"\begin{pgfscope}")
             self._print_pgf_path_styles(gc, rgbFace)
 
             # combine clip and path for clipping
             self._print_pgf_clip(gc)
             self._print_pgf_path(gc, path, transform, rgbFace)
-            writeln(self.fh, r"\pgfusepath{clip}")
+            _writeln(self.fh, r"\pgfusepath{clip}")
 
             # build pattern definition
-            writeln(self.fh,
-                    r"\pgfsys@defobject{currentpattern}"
-                    r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
-            writeln(self.fh, r"\begin{pgfscope}")
-            writeln(self.fh,
-                    r"\pgfpathrectangle"
-                    r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
-            writeln(self.fh, r"\pgfusepath{clip}")
+            _writeln(self.fh,
+                     r"\pgfsys@defobject{currentpattern}"
+                     r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
+            _writeln(self.fh, r"\begin{pgfscope}")
+            _writeln(self.fh,
+                     r"\pgfpathrectangle"
+                     r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
+            _writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
             self._print_pgf_path(None, gc.get_hatch_path(), scale)
             self._pgf_path_draw(stroke=True)
-            writeln(self.fh, r"\end{pgfscope}")
-            writeln(self.fh, r"}")
+            _writeln(self.fh, r"\end{pgfscope}")
+            _writeln(self.fh, r"}")
             # repeat pattern, filling the bounding rect of the path
             f = 1. / self.dpi
             (xmin, ymin), (xmax, ymax) = \
@@ -478,16 +488,16 @@ class RendererPgf(RendererBase):
             xmin, xmax = f * xmin, f * xmax
             ymin, ymax = f * ymin, f * ymax
             repx, repy = math.ceil(xmax - xmin), math.ceil(ymax - ymin)
-            writeln(self.fh,
-                    r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
+            _writeln(self.fh,
+                     r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
             for iy in range(repy):
                 for ix in range(repx):
-                    writeln(self.fh, r"\pgfsys@useobject{currentpattern}{}")
-                    writeln(self.fh, r"\pgfsys@transformshift{1in}{0in}")
-                writeln(self.fh, r"\pgfsys@transformshift{-%din}{0in}" % repx)
-                writeln(self.fh, r"\pgfsys@transformshift{0in}{1in}")
+                    _writeln(self.fh, r"\pgfsys@useobject{currentpattern}{}")
+                    _writeln(self.fh, r"\pgfsys@transformshift{1in}{0in}")
+                _writeln(self.fh, r"\pgfsys@transformshift{-%din}{0in}" % repx)
+                _writeln(self.fh, r"\pgfsys@transformshift{0in}{1in}")
 
-            writeln(self.fh, r"\end{pgfscope}")
+            _writeln(self.fh, r"\end{pgfscope}")
 
     def _print_pgf_clip(self, gc):
         f = 1. / self.dpi
@@ -497,30 +507,30 @@ class RendererPgf(RendererBase):
             p1, p2 = bbox.get_points()
             w, h = p2 - p1
             coords = p1[0] * f, p1[1] * f, w * f, h * f
-            writeln(self.fh,
-                    r"\pgfpathrectangle"
-                    r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
-                    % coords)
-            writeln(self.fh, r"\pgfusepath{clip}")
+            _writeln(self.fh,
+                     r"\pgfpathrectangle"
+                     r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
+                     % coords)
+            _writeln(self.fh, r"\pgfusepath{clip}")
 
         # check for clip path
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
             self._print_pgf_path(gc, clippath, clippath_trans)
-            writeln(self.fh, r"\pgfusepath{clip}")
+            _writeln(self.fh, r"\pgfusepath{clip}")
 
     def _print_pgf_path_styles(self, gc, rgbFace):
         # cap style
         capstyles = {"butt": r"\pgfsetbuttcap",
                      "round": r"\pgfsetroundcap",
                      "projecting": r"\pgfsetrectcap"}
-        writeln(self.fh, capstyles[gc.get_capstyle()])
+        _writeln(self.fh, capstyles[gc.get_capstyle()])
 
         # join style
         joinstyles = {"miter": r"\pgfsetmiterjoin",
                       "round": r"\pgfsetroundjoin",
                       "bevel": r"\pgfsetbeveljoin"}
-        writeln(self.fh, joinstyles[gc.get_joinstyle()])
+        _writeln(self.fh, joinstyles[gc.get_joinstyle()])
 
         # filling
         has_fill = rgbFace is not None
@@ -532,73 +542,99 @@ class RendererPgf(RendererBase):
             fillopacity = rgbFace[3] if has_fill and len(rgbFace) > 3 else 1.0
 
         if has_fill:
-            writeln(self.fh,
-                    r"\definecolor{currentfill}{rgb}{%f,%f,%f}"
-                    % tuple(rgbFace[:3]))
-            writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
+            _writeln(self.fh,
+                     r"\definecolor{currentfill}{rgb}{%f,%f,%f}"
+                     % tuple(rgbFace[:3]))
+            _writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
         if has_fill and fillopacity != 1.0:
-            writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
+            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
 
         # linewidth and color
         lw = gc.get_linewidth() * mpl_pt_to_in * latex_in_to_pt
         stroke_rgba = gc.get_rgb()
-        writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
-        writeln(self.fh,
-                r"\definecolor{currentstroke}{rgb}{%f,%f,%f}"
-                % stroke_rgba[:3])
-        writeln(self.fh, r"\pgfsetstrokecolor{currentstroke}")
+        _writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
+        _writeln(self.fh,
+                 r"\definecolor{currentstroke}{rgb}{%f,%f,%f}"
+                 % stroke_rgba[:3])
+        _writeln(self.fh, r"\pgfsetstrokecolor{currentstroke}")
         if strokeopacity != 1.0:
-            writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % strokeopacity)
+            _writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % strokeopacity)
 
         # line style
         dash_offset, dash_list = gc.get_dashes()
         if dash_list is None:
-            writeln(self.fh, r"\pgfsetdash{}{0pt}")
+            _writeln(self.fh, r"\pgfsetdash{}{0pt}")
         else:
-            writeln(self.fh,
-                    r"\pgfsetdash{%s}{%fpt}"
-                    % ("".join(r"{%fpt}" % dash for dash in dash_list),
-                       dash_offset))
+            _writeln(self.fh,
+                     r"\pgfsetdash{%s}{%fpt}"
+                     % ("".join(r"{%fpt}" % dash for dash in dash_list),
+                        dash_offset))
 
     def _print_pgf_path(self, gc, path, transform, rgbFace=None):
         f = 1. / self.dpi
         # check for clip box / ignore clip for filled paths
         bbox = gc.get_clip_rectangle() if gc else None
+        maxcoord = 16383 / 72.27 * self.dpi  # Max dimensions in LaTeX.
         if bbox and (rgbFace is None):
             p1, p2 = bbox.get_points()
-            clip = (p1[0], p1[1], p2[0], p2[1])
+            clip = (max(p1[0], -maxcoord), max(p1[1], -maxcoord),
+                    min(p2[0], maxcoord), min(p2[1], maxcoord))
         else:
-            clip = None
+            clip = (-maxcoord, -maxcoord, maxcoord, maxcoord)
         # build path
         for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
                 x, y = tuple(points)
-                writeln(self.fh,
-                        r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
-                        (f * x, f * y))
+                _writeln(self.fh,
+                         r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
+                         (f * x, f * y))
             elif code == Path.CLOSEPOLY:
-                writeln(self.fh, r"\pgfpathclose")
+                _writeln(self.fh, r"\pgfpathclose")
             elif code == Path.LINETO:
                 x, y = tuple(points)
-                writeln(self.fh,
-                        r"\pgfpathlineto{\pgfqpoint{%fin}{%fin}}" %
-                        (f * x, f * y))
+                _writeln(self.fh,
+                         r"\pgfpathlineto{\pgfqpoint{%fin}{%fin}}" %
+                         (f * x, f * y))
             elif code == Path.CURVE3:
                 cx, cy, px, py = tuple(points)
                 coords = cx * f, cy * f, px * f, py * f
-                writeln(self.fh,
-                        r"\pgfpathquadraticcurveto"
-                        r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
-                        % coords)
+                _writeln(self.fh,
+                         r"\pgfpathquadraticcurveto"
+                         r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
+                         % coords)
             elif code == Path.CURVE4:
                 c1x, c1y, c2x, c2y, px, py = tuple(points)
                 coords = c1x * f, c1y * f, c2x * f, c2y * f, px * f, py * f
-                writeln(self.fh,
-                        r"\pgfpathcurveto"
-                        r"{\pgfqpoint{%fin}{%fin}}"
-                        r"{\pgfqpoint{%fin}{%fin}}"
-                        r"{\pgfqpoint{%fin}{%fin}}"
-                        % coords)
+                _writeln(self.fh,
+                         r"\pgfpathcurveto"
+                         r"{\pgfqpoint{%fin}{%fin}}"
+                         r"{\pgfqpoint{%fin}{%fin}}"
+                         r"{\pgfqpoint{%fin}{%fin}}"
+                         % coords)
+
+        # apply pgf decorators
+        sketch_params = gc.get_sketch_params() if gc else None
+        if sketch_params is not None:
+            # Only "length" directly maps to "segment length" in PGF's API.
+            # PGF uses "amplitude" to pass the combined deviation in both x-
+            # and y-direction, while matplotlib only varies the length of the
+            # wiggle along the line ("randomness" and "length" parameters)
+            # and has a separate "scale" argument for the amplitude.
+            # -> Use "randomness" as PRNG seed to allow the user to force the
+            # same shape on multiple sketched lines
+            scale, length, randomness = sketch_params
+            if scale is not None:
+                # make matplotlib and PGF rendering visually similar
+                length *= 0.5
+                scale *= 2
+                # PGF guarantees that repeated loading is a no-op
+                _writeln(self.fh, r"\usepgfmodule{decorations}")
+                _writeln(self.fh, r"\usepgflibrary{decorations.pathmorphing}")
+                _writeln(self.fh, r"\pgfkeys{/pgf/decoration/.cd, "
+                         f"segment length = {(length * f):f}in, "
+                         f"amplitude = {(scale * f):f}in}}")
+                _writeln(self.fh, f"\\pgfmathsetseed{{{int(randomness)}}}")
+                _writeln(self.fh, r"\pgfdecoratecurrentpath{random steps}")
 
     def _pgf_path_draw(self, stroke=True, fill=False):
         actions = []
@@ -606,7 +642,7 @@ class RendererPgf(RendererBase):
             actions.append("stroke")
         if fill:
             actions.append("fill")
-        writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
+        _writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
 
     def option_scale_image(self):
         # docstring inherited
@@ -624,9 +660,9 @@ class RendererPgf(RendererBase):
             return
 
         if not os.path.exists(getattr(self.fh, "name", "")):
-            _api.warn_external(
+            raise ValueError(
                 "streamed pgf-code does not support raster graphics, consider "
-                "using the pgf-to-pdf option.")
+                "using the pgf-to-pdf option")
 
         # save the images to png files
         path = pathlib.Path(self.fh.name)
@@ -635,50 +671,48 @@ class RendererPgf(RendererBase):
         self.image_counter += 1
 
         # reference the image in the pgf picture
-        writeln(self.fh, r"\begin{pgfscope}")
+        _writeln(self.fh, r"\begin{pgfscope}")
         self._print_pgf_clip(gc)
         f = 1. / self.dpi  # from display coords to inch
         if transform is None:
-            writeln(self.fh,
-                    r"\pgfsys@transformshift{%fin}{%fin}" % (x * f, y * f))
+            _writeln(self.fh,
+                     r"\pgfsys@transformshift{%fin}{%fin}" % (x * f, y * f))
             w, h = w * f, h * f
         else:
             tr1, tr2, tr3, tr4, tr5, tr6 = transform.frozen().to_values()
-            writeln(self.fh,
-                    r"\pgfsys@transformcm{%f}{%f}{%f}{%f}{%fin}{%fin}" %
-                    (tr1 * f, tr2 * f, tr3 * f, tr4 * f,
-                     (tr5 + x) * f, (tr6 + y) * f))
+            _writeln(self.fh,
+                     r"\pgfsys@transformcm{%f}{%f}{%f}{%f}{%fin}{%fin}" %
+                     (tr1 * f, tr2 * f, tr3 * f, tr4 * f,
+                      (tr5 + x) * f, (tr6 + y) * f))
             w = h = 1  # scale is already included in the transform
         interp = str(transform is None).lower()  # interpolation in PDF reader
-        writeln(self.fh,
-                r"\pgftext[left,bottom]"
-                r"{%s[interpolate=%s,width=%fin,height=%fin]{%s}}" %
-                (_get_image_inclusion_command(),
-                 interp, w, h, fname_img))
-        writeln(self.fh, r"\end{pgfscope}")
+        _writeln(self.fh,
+                 r"\pgftext[left,bottom]"
+                 r"{%s[interpolate=%s,width=%fin,height=%fin]{%s}}" %
+                 (_get_image_inclusion_command(),
+                  interp, w, h, fname_img))
+        _writeln(self.fh, r"\end{pgfscope}")
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX", mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
-        self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
+        self.draw_text(gc, x, y, s, prop, angle, ismath="TeX", mtext=mtext)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
 
         # prepare string for tex
-        s = common_texification(s)
-        prop_cmds = _font_properties_str(prop)
-        s = r"%s %s" % (prop_cmds, s)
+        s = _escape_and_apply_props(s, prop)
 
-        writeln(self.fh, r"\begin{pgfscope}")
+        _writeln(self.fh, r"\begin{pgfscope}")
 
         alpha = gc.get_alpha()
         if alpha != 1.0:
-            writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
-            writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
+            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
+            _writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
         rgb = tuple(gc.get_rgb())[:3]
-        writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
-        writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
-        writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
+        _writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
+        _writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
+        _writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
         s = r"\color{textcolor}" + s
 
         dpi = self.figure.dpi
@@ -707,15 +741,11 @@ class RendererPgf(RendererBase):
         if angle != 0:
             text_args.append("rotate=%f" % angle)
 
-        writeln(self.fh, r"\pgftext[%s]{%s}" % (",".join(text_args), s))
-        writeln(self.fh, r"\end{pgfscope}")
+        _writeln(self.fh, r"\pgftext[%s]{%s}" % (",".join(text_args), s))
+        _writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
-
-        # check if the math is supposed to be displaystyled
-        s = common_texification(s)
-
         # get text metrics in units of latex pt, convert to display units
         w, h, d = (LatexManager._get_cached_or_new()
                    .get_width_height_descent(s, prop))
@@ -739,31 +769,6 @@ class RendererPgf(RendererBase):
         return points * mpl_pt_to_in * self.dpi
 
 
-@_api.deprecated("3.4")
-class TmpDirCleaner:
-    _remaining_tmpdirs = set()
-
-    @_api.classproperty
-    @_api.deprecated("3.4")
-    def remaining_tmpdirs(cls):
-        return cls._remaining_tmpdirs
-
-    @staticmethod
-    @_api.deprecated("3.4")
-    def add(tmpdir):
-        TmpDirCleaner._remaining_tmpdirs.add(tmpdir)
-
-    @staticmethod
-    @_api.deprecated("3.4")
-    @atexit.register
-    def cleanup_remaining_tmpdirs():
-        for tmpdir in TmpDirCleaner._remaining_tmpdirs:
-            error_message = "error deleting tmp directory {}".format(tmpdir)
-            shutil.rmtree(
-                tmpdir,
-                onerror=lambda *args: _log.error(error_message))
-
-
 class FigureCanvasPgf(FigureCanvasBase):
     filetypes = {"pgf": "LaTeX PGF picture",
                  "pdf": "LaTeX compiled PGF picture",
@@ -772,7 +777,6 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    @_check_savefig_extra_args
     def _print_pgf_to_fh(self, fh, *, bbox_inches_restore=None):
 
         header_text = """%% Creator: Matplotlib, PGF backend
@@ -782,6 +786,10 @@ class FigureCanvasPgf(FigureCanvasBase):
 %%
 %% Make sure the required packages are loaded in your preamble
 %%   \\usepackage{pgf}
+%%
+%% Also ensure that all the required font packages are loaded; for instance,
+%% the lmodern package is sometimes necessary when using math font.
+%%   \\usepackage{lmodern}
 %%
 %% Figures using additional raster images can only be included by \\input if
 %% they are in the same directory as the main LaTeX file. For loading figures
@@ -795,37 +803,35 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # append the preamble used by the backend as a comment for debugging
         header_info_preamble = ["%% Matplotlib used the following preamble"]
-        for line in get_preamble().splitlines():
-            header_info_preamble.append("%%   " + line)
-        for line in get_fontspec().splitlines():
+        for line in _get_preamble().splitlines():
             header_info_preamble.append("%%   " + line)
         header_info_preamble.append("%%")
         header_info_preamble = "\n".join(header_info_preamble)
 
         # get figure size in inch
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
-        dpi = self.figure.get_dpi()
+        dpi = self.figure.dpi
 
         # create pgfpicture environment and write the pgf code
         fh.write(header_text)
         fh.write(header_info_preamble)
         fh.write("\n")
-        writeln(fh, r"\begingroup")
-        writeln(fh, r"\makeatletter")
-        writeln(fh, r"\begin{pgfpicture}")
-        writeln(fh,
-                r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}"
-                % (w, h))
-        writeln(fh, r"\pgfusepath{use as bounding box, clip}")
+        _writeln(fh, r"\begingroup")
+        _writeln(fh, r"\makeatletter")
+        _writeln(fh, r"\begin{pgfpicture}")
+        _writeln(fh,
+                 r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}"
+                 % (w, h))
+        _writeln(fh, r"\pgfusepath{use as bounding box, clip}")
         renderer = MixedModeRenderer(self.figure, w, h, dpi,
                                      RendererPgf(self.figure, fh),
                                      bbox_inches_restore=bbox_inches_restore)
         self.figure.draw(renderer)
 
         # end the pgfpicture environment
-        writeln(fh, r"\end{pgfpicture}")
-        writeln(fh, r"\makeatother")
-        writeln(fh, r"\endgroup")
+        _writeln(fh, r"\end{pgfpicture}")
+        _writeln(fh, r"\makeatother")
+        _writeln(fh, r"\endgroup")
 
     def print_pgf(self, fname_or_fh, **kwargs):
         """
@@ -851,14 +857,12 @@ class FigureCanvasPgf(FigureCanvasBase):
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
             (tmppath / "figure.tex").write_text(
                 "\n".join([
-                    r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
-                    r"\RequirePackage{hyperref}",
-                    r"\documentclass[12pt]{minimal}",
+                    r"\documentclass[12pt]{article}",
+                    r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
-                    get_preamble(),
-                    get_fontspec(),
                     r"\usepackage{pgf}",
+                    _get_preamble(),
                     r"\begin{document}",
                     r"\centering",
                     r"\input{figure.pgf}",
@@ -889,7 +893,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         return RendererPgf(self.figure, None)
 
     def draw(self):
-        self.figure.draw_no_output()
+        self.figure.draw_without_rendering()
         return super().draw()
 
 
@@ -948,6 +952,9 @@ class PdfPages:
             'Creator', 'Producer', 'CreationDate', 'ModDate', and
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
+
+            Note that some versions of LaTeX engines may ignore the 'Producer'
+            key and set it to themselves.
         """
         self._output_name = filename
         self._n_figures = 0
@@ -960,14 +967,12 @@ class PdfPages:
         pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
         latex_header = "\n".join([
-            r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
-            r"\RequirePackage{hyperref}",
-            r"\documentclass[12pt]{minimal}",
+            r"\documentclass[12pt]{article}",
+            r"\usepackage[pdfinfo={%s}]{hyperref}" % pdfinfo,
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
-            get_preamble(),
-            get_fontspec(),
             r"\usepackage{pgf}",
+            _get_preamble(),
             r"\setlength{\parindent}{0pt}",
             r"\begin{document}%",
         ])
@@ -1010,11 +1015,8 @@ class PdfPages:
 
         Parameters
         ----------
-        figure : `.Figure` or int, optional
-            Specifies what figure is saved to file. If not specified, the
-            active figure is saved. If a `.Figure` instance is provided, this
-            figure is saved. If an int is specified, the figure instance to
-            save is looked up by number.
+        figure : `.Figure` or int, default: the active figure
+            The figure, or index of the figure, that is saved to the file.
         """
         if not isinstance(figure, Figure):
             if figure is None:

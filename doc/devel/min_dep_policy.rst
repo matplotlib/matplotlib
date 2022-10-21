@@ -1,7 +1,7 @@
 .. _min_deps_policy:
 
 ======================================
-Minimum Version of Dependencies Policy
+Minimum version of dependencies policy
 ======================================
 
 For the purpose of this document, 'minor version' is in the sense of
@@ -32,7 +32,7 @@ on every major and minor release, but never on a patch release.
 
 See also the :ref:`list-of-dependency-min-versions`.
 
-Python Dependencies
+Python dependencies
 ===================
 
 For Python dependencies we should support at least:
@@ -41,14 +41,14 @@ with compiled extensions
   minor versions initially released in the 24 months prior to our planned
   release date or the oldest that support our minimum Python + NumPy
 
-without complied extensions
+without compiled extensions
   minor versions initially released in the 12 months prior to our planned
   release date or the oldest that supports our minimum Python.
 
 We will only bump these dependencies as we need new features or the old
 versions no longer support our minimum NumPy or Python.
 
-Test and Documentation Dependencies
+Test and documentation dependencies
 ===================================
 
 As these packages are only needed for testing or building the docs and
@@ -61,7 +61,7 @@ We will support at least minor versions of the development
 dependencies released in the 12 months prior to our planned release.
 
 We will only bump these as needed or versions no longer support our
-minimum Python and numpy.
+minimum Python and NumPy.
 
 System and C-dependencies
 =========================
@@ -83,7 +83,8 @@ specification of the dependencies.
 ==========  ========  ======
 Matplotlib  Python    NumPy
 ==========  ========  ======
-3.5         3.7       1.17.0
+`3.6`_      3.8       1.19.0
+`3.5`_      3.7       1.17.0
 `3.4`_      3.7       1.16.0
 `3.3`_      3.6       1.15.0
 `3.2`_      3.6       1.11.0
@@ -100,7 +101,9 @@ Matplotlib  Python    NumPy
 1.0         2.4       1.1
 ==========  ========  ======
 
-.. _`3.4`: https://matplotlib.org/3.4.0/users/installing.html#dependencies
+.. _`3.6`: https://matplotlib.org/3.6.0/devel/dependencies.html
+.. _`3.5`: https://matplotlib.org/3.5.0/devel/dependencies.html
+.. _`3.4`: https://matplotlib.org/3.4.0/devel/dependencies.html
 .. _`3.3`: https://matplotlib.org/3.3.0/users/installing.html#dependencies
 .. _`3.2`: https://matplotlib.org/3.2.0/users/installing.html#dependencies
 .. _`3.1`: https://matplotlib.org/3.1.0/users/installing.html#dependencies

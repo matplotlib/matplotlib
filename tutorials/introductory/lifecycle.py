@@ -13,41 +13,45 @@ to highlight some neat features and best-practices using Matplotlib.
 .. note::
 
     This tutorial is based on
-    `this excellent blog post <http://pbpython.com/effective-matplotlib.html>`_
+    `this excellent blog post
+    <https://pbpython.com/effective-matplotlib.html>`_
     by Chris Moffitt. It was transformed into this tutorial by Chris Holdgraf.
 
-A note on the Object-Oriented API vs. Pyplot
-============================================
+A note on the explicit vs. implicit interfaces
+==============================================
 
-Matplotlib has two interfaces. The first is an object-oriented (OO)
-interface. In this case, we utilize an instance of :class:`axes.Axes`
-in order to render visualizations on an instance of :class:`figure.Figure`.
+Matplotlib has two interfaces. For an explanation of the trade-offs between the
+explicit and implicit interfaces see :ref:`api_interfaces`.
 
-The second is based on MATLAB and uses a state-based interface. This is
-encapsulated in the :mod:`.pyplot` module. See the :doc:`pyplot tutorials
-</tutorials/introductory/pyplot>` for a more in-depth look at the pyplot
-interface.
+In the explicit object-oriented (OO) interface we directly utilize instances of
+:class:`axes.Axes` to build up the visualization in an instance of
+:class:`figure.Figure`.  In the implicit interface, inspired by and modeled on
+MATLAB, we use a global state-based interface which is encapsulated in the
+:mod:`.pyplot` module to plot to the "current Axes".  See the :doc:`pyplot
+tutorials </tutorials/introductory/pyplot>` for a more in-depth look at the
+pyplot interface.
 
 Most of the terms are straightforward but the main thing to remember
 is that:
 
-* The Figure is the final image that may contain 1 or more Axes.
-* The Axes represent an individual plot (don't confuse this with the word
-  "axis", which refers to the x/y axis of a plot).
+* The `.Figure` is the final image, and may contain one or more `~.axes.Axes`.
+* The `~.axes.Axes` represents an individual plot (not to be confused with
+   `~.axis.Axis`, which refers to the x/y axis of a plot).
 
 We call methods that do the plotting directly from the Axes, which gives
 us much more flexibility and power in customizing our plot.
 
 .. note::
 
-   In general, try to use the object-oriented interface over the pyplot
-   interface.
+   In general, use the explicit interface over the implicit pyplot interface
+   for plotting.
 
 Our data
 ========
 
 We'll use the data from the post from which this tutorial was derived.
 It contains sales information for a number of companies.
+
 """
 
 # sphinx_gallery_thumbnail_number = 10
@@ -169,14 +173,14 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
 
 ###############################################################################
 # We can also adjust the size of this plot using the :func:`pyplot.subplots`
-# function. We can do this with the ``figsize`` kwarg.
+# function. We can do this with the *figsize* keyword argument.
 #
 # .. note::
 #
-#    While indexing in NumPy follows the form (row, column), the figsize
-#    kwarg follows the form (width, height). This follows conventions in
-#    visualization, which unfortunately are different from those of linear
-#    algebra.
+#    While indexing in NumPy follows the form (row, column), the *figsize*
+#    keyword argument follows the form (width, height). This follows
+#    conventions in visualization, which unfortunately are different from those
+#    of linear algebra.
 
 fig, ax = plt.subplots(figsize=(8, 4))
 ax.barh(group_names, group_data)
@@ -198,7 +202,7 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
 
 
 def currency(x, pos):
-    """The two args are the value and tick position"""
+    """The two arguments are the value and tick position"""
     if x >= 1e6:
         s = '${:1.1f}M'.format(x*1e-6)
     else:

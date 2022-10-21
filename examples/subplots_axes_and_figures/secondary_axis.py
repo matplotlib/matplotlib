@@ -8,7 +8,7 @@ radians to degrees on the same plot.  We can do this by making a child
 axes with only one axis visible via `.axes.Axes.secondary_xaxis` and
 `.axes.Axes.secondary_yaxis`.  This secondary axis can have a different scale
 than the main axis by providing both a forward and an inverse conversion
-function in a tuple to the ``functions`` kwarg:
+function in a tuple to the *functions* keyword argument:
 """
 
 import matplotlib.pyplot as plt
@@ -87,9 +87,9 @@ plt.show()
 #   nominal plot limits.
 #
 #   In the specific case of the numpy linear interpolation, `numpy.interp`,
-#   this condition can be arbitrarily enforced by providing optional kwargs
-#   *left*, *right* such that values outside the data range are mapped
-#   well outside the plot limits.
+#   this condition can be arbitrarily enforced by providing optional keyword
+#   arguments *left*, *right* such that values outside the data range are
+#   mapped well outside the plot limits.
 
 fig, ax = plt.subplots(constrained_layout=True)
 xdata = np.arange(1, 11, 0.4)

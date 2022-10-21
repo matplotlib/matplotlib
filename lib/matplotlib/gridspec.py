@@ -5,8 +5,10 @@ r"""
 The `GridSpec` specifies the overall grid structure. Individual cells within
 the grid are referenced by `SubplotSpec`\s.
 
-See the tutorial :doc:`/tutorials/intermediate/gridspec` for a comprehensive
-usage guide.
+Often, users need not access this module directly, and can use higher-level
+methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
+`~.Figure.subfigures`. See the tutorial
+:doc:`/tutorials/intermediate/arranging_axes` for a guide.
 """
 
 import copy
@@ -16,10 +18,8 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _pylab_helpers, tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, _tight_layout
 from matplotlib.transforms import Bbox
-import matplotlib._layoutgrid as layoutgrid
-
 
 _log = logging.getLogger(__name__)
 
@@ -41,16 +41,16 @@ class GridSpecBase:
             relative width of ``width_ratios[i] / sum(width_ratios)``.
             If not given, all columns will have the same width.
         height_ratios : array-like of length *nrows*, optional
-            Defines the relative heights of the rows. Each column gets a
+            Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
         """
         if not isinstance(nrows, Integral) or nrows <= 0:
             raise ValueError(
-                f"Number of rows must be a positive integer, not {nrows}")
+                f"Number of rows must be a positive integer, not {nrows!r}")
         if not isinstance(ncols, Integral) or ncols <= 0:
             raise ValueError(
-                f"Number of columns must be a positive integer, not {ncols}")
+                f"Number of columns must be a positive integer, not {ncols!r}")
         self._nrows, self._ncols = nrows, ncols
         self.set_height_ratios(height_ratios)
         self.set_width_ratios(width_ratios)
@@ -142,6 +142,7 @@ class GridSpecBase:
         """
         return self._row_height_ratios
 
+    @_api.delete_parameter("3.7", "raw")
     def get_grid_positions(self, fig, raw=False):
         """
         Return the positions of the grid cells in figure coordinates.
@@ -210,8 +211,8 @@ class GridSpecBase:
         or create a new one
         """
         for ax in figure.get_axes():
-            if hasattr(ax, 'get_subplotspec'):
-                gs = ax.get_subplotspec().get_gridspec()
+            gs = ax.get_gridspec()
+            if gs is not None:
                 if hasattr(gs, 'get_topmost_subplotspec'):
                     # This is needed for colorbar gridspec layouts.
                     # This is probably OK because this whole logic tree
@@ -310,10 +311,10 @@ class GridSpecBase:
         # turn off redundant tick labeling
         if sharex in ["col", "all"]:
             for ax in axarr.flat:
-                ax._label_outer_xaxis()
+                ax._label_outer_xaxis(check_patch=True)
         if sharey in ["row", "all"]:
             for ax in axarr.flat:
-                ax._label_outer_yaxis()
+                ax._label_outer_yaxis(check_patch=True)
 
         if squeeze:
             # Discarding unneeded dimensions that equal 1.  If we only have one
@@ -331,6 +332,8 @@ class GridSpec(GridSpecBase):
     The location of the grid cells is determined in a similar way to
     `~.figure.SubplotParams` using *left*, *right*, *top*, *bottom*, *wspace*
     and *hspace*.
+
+    Indexing a GridSpec instance returns a `.SubplotSpec`.
     """
     def __init__(self, nrows, ncols, figure=None,
                  left=None, bottom=None, right=None, top=None,
@@ -342,7 +345,7 @@ class GridSpec(GridSpecBase):
         nrows, ncols : int
             The number of rows and columns of the grid.
 
-        figure : `~.figure.Figure`, optional
+        figure : `.Figure`, optional
             Only used for constrained layout to create a proper layoutgrid.
 
         left, right, top, bottom : float, optional
@@ -369,7 +372,7 @@ class GridSpec(GridSpecBase):
             If not given, all columns will have the same width.
 
         height_ratios : array-like of length *nrows*, optional
-            Defines the relative heights of the rows. Each column gets a
+            Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
 
@@ -386,24 +389,7 @@ class GridSpec(GridSpecBase):
                          width_ratios=width_ratios,
                          height_ratios=height_ratios)
 
-        # set up layoutgrid for constrained_layout:
-        self._layoutgrid = None
-        if self.figure is None or not self.figure.get_constrained_layout():
-            self._layoutgrid = None
-        else:
-            self._toplayoutbox = self.figure._layoutgrid
-            self._layoutgrid = layoutgrid.LayoutGrid(
-                parent=self.figure._layoutgrid,
-                parent_inner=True,
-                name=(self.figure._layoutgrid.name + '.gridspec' +
-                      layoutgrid.seq_id()),
-                ncols=ncols, nrows=nrows, width_ratios=width_ratios,
-                height_ratios=height_ratios)
-
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
-
-    def __getstate__(self):
-        return {**self.__dict__, "_layoutgrid": None}
 
     def update(self, **kwargs):
         """
@@ -427,7 +413,7 @@ class GridSpec(GridSpecBase):
                 raise AttributeError(f"{k} is an unknown keyword")
         for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
-                if isinstance(ax, mpl.axes.SubplotBase):
+                if ax.get_subplotspec() is not None:
                     ss = ax.get_subplotspec().get_topmost_subplotspec()
                     if ss.get_gridspec() == self:
                         ax._set_position(
@@ -435,7 +421,7 @@ class GridSpec(GridSpecBase):
 
     def get_subplot_params(self, figure=None):
         """
-        Return the `~.SubplotParams` for the GridSpec.
+        Return the `.SubplotParams` for the GridSpec.
 
         In order of precedence the values are taken from
 
@@ -444,7 +430,8 @@ class GridSpec(GridSpecBase):
         - :rc:`figure.subplot.*`
         """
         if figure is None:
-            kw = {k: rcParams["figure.subplot."+k] for k in self._AllowedKeys}
+            kw = {k: mpl.rcParams["figure.subplot."+k]
+                  for k in self._AllowedKeys}
             subplotpars = mpl.figure.SubplotParams(**kw)
         else:
             subplotpars = copy.copy(figure.subplotpars)
@@ -475,13 +462,13 @@ class GridSpec(GridSpecBase):
         h_pad, w_pad : float, optional
             Padding (height/width) between edges of adjacent subplots.
             Defaults to *pad*.
-        rect : tuple of 4 floats, default: (0, 0, 1, 1), i.e. the whole figure
+        rect : tuple (left, bottom, right, top), default: None
             (left, bottom, right, top) rectangle in normalized figure
             coordinates that the whole subplots area (including labels) will
-            fit into.
+            fit into. Default (None) is the whole figure.
         """
 
-        subplotspec_list = tight_layout.get_subplotspec_list(
+        subplotspec_list = _tight_layout.get_subplotspec_list(
             figure.axes, grid_spec=self)
         if None in subplotspec_list:
             _api.warn_external("This figure includes Axes that are not "
@@ -489,9 +476,9 @@ class GridSpec(GridSpecBase):
                                "might be incorrect.")
 
         if renderer is None:
-            renderer = tight_layout.get_renderer(figure)
+            renderer = figure._get_renderer()
 
-        kwargs = tight_layout.get_tight_layout_figure(
+        kwargs = _tight_layout.get_tight_layout_figure(
             figure, figure.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         if kwargs:
@@ -508,11 +495,19 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                  wspace=None, hspace=None,
                  height_ratios=None, width_ratios=None):
         """
-        The number of rows and number of columns of the grid need to
-        be set. An instance of SubplotSpec is also needed to be set
-        from which the layout parameters will be inherited. The wspace
-        and hspace of the layout can be optionally specified or the
-        default values (from the figure or rcParams) will be used.
+        Parameters
+        ----------
+        nrows, ncols : int
+            Number of rows and number of columns of the grid.
+        subplot_spec : SubplotSpec
+            Spec from which the layout parameters are inherited.
+        wspace, hspace : float, optional
+            See `GridSpec` for more details. If not specified default values
+            (from the figure or rcParams) are used.
+        height_ratios : array-like of length *nrows*, optional
+            See `GridSpecBase` for details.
+        width_ratios : array-like of length *ncols*, optional
+            See `GridSpecBase` for details.
         """
         self._wspace = wspace
         self._hspace = hspace
@@ -521,35 +516,15 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         super().__init__(nrows, ncols,
                          width_ratios=width_ratios,
                          height_ratios=height_ratios)
-        # do the layoutgrids for constrained_layout:
-        subspeclb = subplot_spec.get_gridspec()._layoutgrid
-        if subspeclb is None:
-            self._layoutgrid = None
-        else:
-            # this _toplayoutbox is a container that spans the cols and
-            # rows in the parent gridspec.  Not yet implemented,
-            # but we do this so that it is possible to have subgridspec
-            # level artists.
-            self._toplayoutgrid = layoutgrid.LayoutGrid(
-                parent=subspeclb,
-                name=subspeclb.name + '.top' + layoutgrid.seq_id(),
-                nrows=1, ncols=1,
-                parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
-            self._layoutgrid = layoutgrid.LayoutGrid(
-                    parent=self._toplayoutgrid,
-                    name=(self._toplayoutgrid.name + '.gridspec' +
-                          layoutgrid.seq_id()),
-                    nrows=nrows, ncols=ncols,
-                    width_ratios=width_ratios, height_ratios=height_ratios)
 
     def get_subplot_params(self, figure=None):
         """Return a dictionary of subplot layout parameters."""
         hspace = (self._hspace if self._hspace is not None
                   else figure.subplotpars.hspace if figure is not None
-                  else rcParams["figure.subplot.hspace"])
+                  else mpl.rcParams["figure.subplot.hspace"])
         wspace = (self._wspace if self._wspace is not None
                   else figure.subplotpars.wspace if figure is not None
-                  else rcParams["figure.subplot.wspace"])
+                  else mpl.rcParams["figure.subplot.wspace"])
 
         figbox = self._subplot_spec.get_position(figure)
         left, bottom, right, top = figbox.extents
@@ -567,7 +542,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
 
 class SubplotSpec:
     """
-    Specifies the location of a subplot in a `GridSpec`.
+    The location of a subplot in a `GridSpec`.
 
     .. note::
 
@@ -603,44 +578,22 @@ class SubplotSpec:
         - a `.SubplotSpec` -- returned as is;
         - one or three numbers -- a MATLAB-style subplot specifier.
         """
-        message = ("Passing non-integers as three-element position "
-                   "specification is deprecated since %(since)s and will be "
-                   "removed %(removal)s.")
         if len(args) == 1:
             arg, = args
             if isinstance(arg, SubplotSpec):
                 return arg
-            else:
-                if not isinstance(arg, Integral):
-                    _api.warn_deprecated("3.3", message=message)
-                    arg = str(arg)
-                try:
-                    rows, cols, num = map(int, str(arg))
-                except ValueError:
-                    raise ValueError(
-                        f"Single argument to subplot must be a three-digit "
-                        f"integer, not {arg}") from None
-                i = j = num
+            elif not isinstance(arg, Integral):
+                raise ValueError(
+                    f"Single argument to subplot must be a three-digit "
+                    f"integer, not {arg!r}")
+            try:
+                rows, cols, num = map(int, str(arg))
+            except ValueError:
+                raise ValueError(
+                    f"Single argument to subplot must be a three-digit "
+                    f"integer, not {arg!r}") from None
         elif len(args) == 3:
             rows, cols, num = args
-            if not (isinstance(rows, Integral) and isinstance(cols, Integral)):
-                _api.warn_deprecated("3.3", message=message)
-                rows, cols = map(int, [rows, cols])
-            gs = GridSpec(rows, cols, figure=figure)
-            if isinstance(num, tuple) and len(num) == 2:
-                if not all(isinstance(n, Integral) for n in num):
-                    _api.warn_deprecated("3.3", message=message)
-                    i, j = map(int, num)
-                else:
-                    i, j = num
-            else:
-                if not isinstance(num, Integral):
-                    _api.warn_deprecated("3.3", message=message)
-                    num = int(num)
-                if num < 1 or num > rows*cols:
-                    raise ValueError(
-                        f"num must be 1 <= num <= {rows*cols}, not {num}")
-                i = j = num
         else:
             raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
                             f"{len(args)} were given")
@@ -648,6 +601,17 @@ class SubplotSpec:
         gs = GridSpec._check_gridspec_exists(figure, rows, cols)
         if gs is None:
             gs = GridSpec(rows, cols, figure=figure)
+        if isinstance(num, tuple) and len(num) == 2:
+            if not all(isinstance(n, Integral) for n in num):
+                raise ValueError(
+                    f"Subplot specifier tuple must contain integers, not {num}"
+                )
+            i, j = num
+        else:
+            if not isinstance(num, Integral) or num < 1 or num > rows*cols:
+                raise ValueError(
+                    f"num must be 1 <= num <= {rows*cols}, not {num!r}")
+            i = j = num
         return gs[i-1:j]
 
     # num2 is a property only to handle the case where it is None and someone
@@ -660,9 +624,6 @@ class SubplotSpec:
     @num2.setter
     def num2(self, value):
         self._num2 = value
-
-    def __getstate__(self):
-        return {**self.__dict__}
 
     def get_gridspec(self):
         return self._gridspec
@@ -677,18 +638,6 @@ class SubplotSpec:
         """
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
-
-    @_api.deprecated("3.3", alternative="rowspan, colspan")
-    def get_rows_columns(self):
-        """
-        Return the subplot row and column numbers as a tuple
-        ``(n_rows, n_cols, row_start, row_stop, col_start, col_stop)``.
-        """
-        gridspec = self.get_gridspec()
-        nrows, ncols = gridspec.get_geometry()
-        row_start, col_start = divmod(self.num1, ncols)
-        row_stop, col_stop = divmod(self.num2, ncols)
-        return nrows, ncols, row_start, row_stop, col_start, col_stop
 
     @property
     def rowspan(self):
@@ -717,8 +666,7 @@ class SubplotSpec:
     def is_last_col(self):
         return self.colspan.stop == self.get_gridspec().ncols
 
-    @_api.delete_parameter("3.4", "return_all")
-    def get_position(self, figure, return_all=False):
+    def get_position(self, figure):
         """
         Update the subplot position from ``figure.subplotpars``.
         """
@@ -732,12 +680,7 @@ class SubplotSpec:
         fig_top = fig_tops[rows].max()
         fig_left = fig_lefts[cols].min()
         fig_right = fig_rights[cols].max()
-        figbox = Bbox.from_extents(fig_left, fig_bottom, fig_right, fig_top)
-
-        if return_all:
-            return figbox, rows[0], cols[0], nrows, ncols
-        else:
-            return figbox
+        return Bbox.from_extents(fig_left, fig_bottom, fig_right, fig_top)
 
     def get_topmost_subplotspec(self):
         """

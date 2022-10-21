@@ -24,7 +24,7 @@ def test_bbox_inches_tight():
     rows = len(data)
     ind = np.arange(len(col_labels)) + 0.3  # the x locations for the groups
     cell_text = []
-    width = 0.4     # the width of the bars
+    width = 0.4  # the width of the bars
     yoff = np.zeros(len(col_labels))
     # the bottom values for stacked bar chart
     fig, ax = plt.subplots(1, 1)
@@ -43,7 +43,7 @@ def test_bbox_inches_tight():
 
 
 @image_comparison(['bbox_inches_tight_suptile_legend'],
-                  remove_text=False, savefig_kwarg={'bbox_inches': 'tight'})
+                  savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
     plt.legend(bbox_to_anchor=(0.9, 1), loc='upper left')
@@ -62,7 +62,7 @@ def test_bbox_inches_tight_suptile_legend():
 
 
 @image_comparison(['bbox_inches_tight_suptile_non_default.png'],
-                  remove_text=False, savefig_kwarg={'bbox_inches': 'tight'},
+                  savefig_kwarg={'bbox_inches': 'tight'},
                   tol=0.1)  # large tolerance because only testing clipping.
 def test_bbox_inches_tight_suptitle_non_default():
     fig, ax = plt.subplots()
@@ -146,3 +146,13 @@ def test_noop_tight_bbox():
     assert (im[:, :, 3] == 255).all()
     assert not (im[:, :, :3] == 255).all()
     assert im.shape == (7, 10, 4)
+
+
+@image_comparison(['bbox_inches_fixed_aspect'], extensions=['png'],
+                  remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
+def test_bbox_inches_fixed_aspect():
+    with plt.rc_context({'figure.constrained_layout.use': True}):
+        fig, ax = plt.subplots()
+        ax.plot([0, 1])
+        ax.set_xlim(0, 1)
+        ax.set_aspect('equal')

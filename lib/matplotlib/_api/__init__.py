@@ -3,13 +3,14 @@ Helper functions for managing the Matplotlib API.
 
 This documentation is only relevant for Matplotlib developers, not for users.
 
-.. warning:
+.. warning::
 
     This module and its submodules are for internal use only.  Do not use them
     in your own code.  We may change the API at any time with no warning.
 
 """
 
+import functools
 import itertools
 import re
 import sys
@@ -119,6 +120,8 @@ def check_in_list(_values, *, _print_supported_values=True, **kwargs):
     --------
     >>> _api.check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
     """
+    if not kwargs:
+        raise TypeError("No argument to check!")
     values = _values
     for key, val in kwargs.items():
         if val not in values:
@@ -187,6 +190,155 @@ def check_getitem(_mapping, **kwargs):
         raise ValueError(
             "{!r} is not a valid value for {}; supported values are {}"
             .format(v, k, ', '.join(map(repr, mapping)))) from None
+
+
+def caching_module_getattr(cls):
+    """
+    Helper decorator for implementing module-level ``__getattr__`` as a class.
+
+    This decorator must be used at the module toplevel as follows::
+
+        @caching_module_getattr
+        class __getattr__:  # The class *must* be named ``__getattr__``.
+            @property  # Only properties are taken into account.
+            def name(self): ...
+
+    The ``__getattr__`` class will be replaced by a ``__getattr__``
+    function such that trying to access ``name`` on the module will
+    resolve the corresponding property (which may be decorated e.g. with
+    ``_api.deprecated`` for deprecating module globals).  The properties are
+    all implicitly cached.  Moreover, a suitable AttributeError is generated
+    and raised if no property with the given name exists.
+    """
+
+    assert cls.__name__ == "__getattr__"
+    # Don't accidentally export cls dunders.
+    props = {name: prop for name, prop in vars(cls).items()
+             if isinstance(prop, property)}
+    instance = cls()
+
+    @functools.lru_cache(None)
+    def __getattr__(name):
+        if name in props:
+            return props[name].__get__(instance)
+        raise AttributeError(
+            f"module {cls.__module__!r} has no attribute {name!r}")
+
+    return __getattr__
+
+
+def define_aliases(alias_d, cls=None):
+    """
+    Class decorator for defining property aliases.
+
+    Use as ::
+
+        @_api.define_aliases({"property": ["alias", ...], ...})
+        class C: ...
+
+    For each property, if the corresponding ``get_property`` is defined in the
+    class so far, an alias named ``get_alias`` will be defined; the same will
+    be done for setters.  If neither the getter nor the setter exists, an
+    exception will be raised.
+
+    The alias map is stored as the ``_alias_map`` attribute on the class and
+    can be used by `.normalize_kwargs` (which assumes that higher priority
+    aliases come last).
+    """
+    if cls is None:  # Return the actual class decorator.
+        return functools.partial(define_aliases, alias_d)
+
+    def make_alias(name):  # Enforce a closure over *name*.
+        @functools.wraps(getattr(cls, name))
+        def method(self, *args, **kwargs):
+            return getattr(self, name)(*args, **kwargs)
+        return method
+
+    for prop, aliases in alias_d.items():
+        exists = False
+        for prefix in ["get_", "set_"]:
+            if prefix + prop in vars(cls):
+                exists = True
+                for alias in aliases:
+                    method = make_alias(prefix + prop)
+                    method.__name__ = prefix + alias
+                    method.__doc__ = "Alias for `{}`.".format(prefix + prop)
+                    setattr(cls, prefix + alias, method)
+        if not exists:
+            raise ValueError(
+                "Neither getter nor setter exists for {!r}".format(prop))
+
+    def get_aliased_and_aliases(d):
+        return {*d, *(alias for aliases in d.values() for alias in aliases)}
+
+    preexisting_aliases = getattr(cls, "_alias_map", {})
+    conflicting = (get_aliased_and_aliases(preexisting_aliases)
+                   & get_aliased_and_aliases(alias_d))
+    if conflicting:
+        # Need to decide on conflict resolution policy.
+        raise NotImplementedError(
+            f"Parent class already defines conflicting aliases: {conflicting}")
+    cls._alias_map = {**preexisting_aliases, **alias_d}
+    return cls
+
+
+def select_matching_signature(funcs, *args, **kwargs):
+    """
+    Select and call the function that accepts ``*args, **kwargs``.
+
+    *funcs* is a list of functions which should not raise any exception (other
+    than `TypeError` if the arguments passed do not match their signature).
+
+    `select_matching_signature` tries to call each of the functions in *funcs*
+    with ``*args, **kwargs`` (in the order in which they are given).  Calls
+    that fail with a `TypeError` are silently skipped.  As soon as a call
+    succeeds, `select_matching_signature` returns its return value.  If no
+    function accepts ``*args, **kwargs``, then the `TypeError` raised by the
+    last failing call is re-raised.
+
+    Callers should normally make sure that any ``*args, **kwargs`` can only
+    bind a single *func* (to avoid any ambiguity), although this is not checked
+    by `select_matching_signature`.
+
+    Notes
+    -----
+    `select_matching_signature` is intended to help implementing
+    signature-overloaded functions.  In general, such functions should be
+    avoided, except for back-compatibility concerns.  A typical use pattern is
+    ::
+
+        def my_func(*args, **kwargs):
+            params = select_matching_signature(
+                [lambda old1, old2: locals(), lambda new: locals()],
+                *args, **kwargs)
+            if "old1" in params:
+                warn_deprecated(...)
+                old1, old2 = params.values()  # note that locals() is ordered.
+            else:
+                new, = params.values()
+            # do things with params
+
+    which allows *my_func* to be called either with two parameters (*old1* and
+    *old2*) or a single one (*new*).  Note that the new signature is given
+    last, so that callers get a `TypeError` corresponding to the new signature
+    if the arguments they passed in do not match any signature.
+    """
+    # Rather than relying on locals() ordering, one could have just used func's
+    # signature (``bound = inspect.signature(func).bind(*args, **kwargs);
+    # bound.apply_defaults(); return bound``) but that is significantly slower.
+    for i, func in enumerate(funcs):
+        try:
+            return func(*args, **kwargs)
+        except TypeError:
+            if i == len(funcs) - 1:
+                raise
+
+
+def recursive_subclasses(cls):
+    """Yield *cls* and direct and indirect subclasses of *cls*."""
+    yield cls
+    for subcls in cls.__subclasses__():
+        yield from recursive_subclasses(subcls)
 
 
 def warn_external(message, category=None):

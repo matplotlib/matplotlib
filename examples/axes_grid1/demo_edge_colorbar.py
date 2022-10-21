@@ -1,7 +1,7 @@
 """
-==================
-Demo Edge Colorbar
-==================
+===============================
+Per-row or per-column colorbars
+===============================
 
 This example shows how to use one common colorbar for each row or column
 of an image grid.
@@ -35,7 +35,7 @@ def demo_bottom_cbar(fig):
                     )
 
     Z, extent = get_demo_image()
-    cmaps = [plt.get_cmap("autumn"), plt.get_cmap("summer")]
+    cmaps = ["autumn", "summer"]
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, cmap=cmaps[i//2])
         if i % 2:
@@ -65,7 +65,7 @@ def demo_right_cbar(fig):
                     cbar_pad="2%",
                     )
     Z, extent = get_demo_image()
-    cmaps = [plt.get_cmap("spring"), plt.get_cmap("winter")]
+    cmaps = ["spring", "winter"]
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, cmap=cmaps[i//2])
         if i % 2:

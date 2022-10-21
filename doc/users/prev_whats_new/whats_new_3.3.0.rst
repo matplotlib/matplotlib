@@ -1,6 +1,8 @@
-==============================
-What's new in Matplotlib 3.3.0
-==============================
+.. _whats-new-3-3-0:
+
+=============================================
+What's new in Matplotlib 3.3.0 (Jul 16, 2020)
+=============================================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
@@ -285,7 +287,7 @@ Align labels to Axes edges
 --------------------------
 
 `~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and
-`.ColorbarBase.set_label` support a parameter ``loc`` for simplified
+``ColorbarBase.set_label`` support a parameter ``loc`` for simplified
 positioning. For the xlabel, the supported values are 'left', 'center', or
 'right'. For the ylabel, the supported values are 'bottom', 'center', or
 'top'.

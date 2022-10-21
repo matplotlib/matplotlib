@@ -25,8 +25,8 @@ import os
 from pathlib import Path
 import re
 import struct
+import subprocess
 import sys
-import textwrap
 
 import numpy as np
 
@@ -39,8 +39,8 @@ _log = logging.getLogger(__name__)
 # are cached using lru_cache().
 
 # Dvi is a bytecode format documented in
-# http://mirrors.ctan.org/systems/knuth/dist/texware/dvitype.web
-# http://texdoc.net/texmf-dist/doc/generic/knuth/texware/dvitype.pdf
+# https://ctan.org/pkg/dvitype
+# https://texdoc.org/serve/dvitype.pdf/0
 #
 # The file consists of a preamble, some number of pages, a postamble,
 # and a finale. Different opcodes are allowed in different contexts,
@@ -58,8 +58,69 @@ _dvistate = enum.Enum('DviState', 'pre outer inpage post_post finale')
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
-Text = namedtuple('Text', 'x y font glyph width')
 Box = namedtuple('Box', 'x y height width')
+
+
+# Also a namedtuple, for backcompat.
+class Text(namedtuple('Text', 'x y font glyph width')):
+    """
+    A glyph in the dvi file.
+
+    The *x* and *y* attributes directly position the glyph.  The *font*,
+    *glyph*, and *width* attributes are kept public for back-compatibility,
+    but users wanting to draw the glyph themselves are encouraged to instead
+    load the font specified by `font_path` at `font_size`, warp it with the
+    effects specified by `font_effects`, and load the glyph specified by
+    `glyph_name_or_index`.
+    """
+
+    def _get_pdftexmap_entry(self):
+        return PsfontsMap(find_tex_file("pdftex.map"))[self.font.texname]
+
+    @property
+    def font_path(self):
+        """The `~pathlib.Path` to the font for this glyph."""
+        psfont = self._get_pdftexmap_entry()
+        if psfont.filename is None:
+            raise ValueError("No usable font file found for {} ({}); "
+                             "the font may lack a Type-1 version"
+                             .format(psfont.psname.decode("ascii"),
+                                     psfont.texname.decode("ascii")))
+        return Path(psfont.filename)
+
+    @property
+    def font_size(self):
+        """The font size."""
+        return self.font.size
+
+    @property
+    def font_effects(self):
+        """
+        The "font effects" dict for this glyph.
+
+        This dict contains the values for this glyph of SlantFont and
+        ExtendFont (if any), read off :file:`pdftex.map`.
+        """
+        return self._get_pdftexmap_entry().effects
+
+    @property
+    def glyph_name_or_index(self):
+        """
+        Either the glyph name or the native charmap glyph index.
+
+        If :file:`pdftex.map` specifies an encoding for this glyph's font, that
+        is a mapping of glyph indices to Adobe glyph names; use it to convert
+        dvi indices to glyph names.  Callers can then convert glyph names to
+        glyph indices (with FT_Get_Name_Index/get_name_index), and load the
+        glyph using FT_Load_Glyph/load_glyph.
+
+        If :file:`pdftex.map` specifies no encoding, the indices directly map
+        to the font's "native" charmap; glyphs should directly loaded using
+        FT_Load_Char/load_char after selecting the native charmap.
+        """
+        entry = self._get_pdftexmap_entry()
+        return (_parse_enc(entry.encoding)[self.glyph]
+                if entry.encoding is not None else self.glyph)
 
 
 # Opcode argument parsing
@@ -84,8 +145,6 @@ def _arg(nbytes, signed, dvi, _):
 
 def _arg_slen(dvi, delta):
     """
-    Signed, length *delta*
-
     Read *delta* bytes, returning None if *delta* is zero, and the bytes
     interpreted as a signed integer otherwise.
     """
@@ -96,26 +155,20 @@ def _arg_slen(dvi, delta):
 
 def _arg_slen1(dvi, delta):
     """
-    Signed, length *delta*+1
-
     Read *delta*+1 bytes, returning the bytes interpreted as signed.
     """
-    return dvi._arg(delta+1, True)
+    return dvi._arg(delta + 1, True)
 
 
 def _arg_ulen1(dvi, delta):
     """
-    Unsigned length *delta*+1
-
     Read *delta*+1 bytes, returning the bytes interpreted as unsigned.
     """
-    return dvi._arg(delta+1, False)
+    return dvi._arg(delta + 1, False)
 
 
 def _arg_olen1(dvi, delta):
     """
-    Optionally signed, length *delta*+1
-
     Read *delta*+1 bytes, returning the bytes interpreted as
     unsigned integer for 0<=*delta*<3 and signed if *delta*==3.
     """
@@ -139,30 +192,30 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
     matches *state* if not None, reads arguments from the file according
     to *args*.
 
-    *table*
-        the dispatch table to be filled in
+    Parameters
+    ----------
+    table : dict[int, callable]
+        The dispatch table to be filled in.
 
-    *min*
-        minimum opcode for calling this function
+    min, max : int
+        Range of opcodes that calls the registered function; *max* defaults to
+        *min*.
 
-    *max*
-        maximum opcode for calling this function, None if only *min* is allowed
+    state : _dvistate, optional
+        State of the Dvi object in which these opcodes are allowed.
 
-    *state*
-        state of the Dvi object in which these opcodes are allowed
+    args : list[str], default: ['raw']
+        Sequence of argument specifications:
 
-    *args*
-        sequence of argument specifications:
-
-        ``'raw'``: opcode minus minimum
-        ``'u1'``: read one unsigned byte
-        ``'u4'``: read four bytes, treat as an unsigned number
-        ``'s4'``: read four bytes, treat as a signed number
-        ``'slen'``: read (opcode - minimum) bytes, treat as signed
-        ``'slen1'``: read (opcode - minimum + 1) bytes, treat as signed
-        ``'ulen1'``: read (opcode - minimum + 1) bytes, treat as unsigned
-        ``'olen1'``: read (opcode - minimum + 1) bytes, treat as unsigned
-                     if under four bytes, signed if four bytes
+        - 'raw': opcode minus minimum
+        - 'u1': read one unsigned byte
+        - 'u4': read four bytes, treat as an unsigned number
+        - 's4': read four bytes, treat as a signed number
+        - 'slen': read (opcode - minimum) bytes, treat as signed
+        - 'slen1': read (opcode - minimum + 1) bytes, treat as signed
+        - 'ulen1': read (opcode - minimum + 1) bytes, treat as unsigned
+        - 'olen1': read (opcode - minimum + 1) bytes, treat as unsigned
+          if under four bytes, signed if four bytes
     """
     def decorate(method):
         get_args = [_arg_mapping[x] for x in args]
@@ -185,6 +238,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
 class Dvi:
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
+
     The current implementation can only iterate through pages in order,
     and does not even attempt to verify the postamble.
 
@@ -259,8 +313,8 @@ class Dvi:
         for elt in self.text + self.boxes:
             if isinstance(elt, Box):
                 x, y, h, w = elt
-                e = 0           # zero depth
-            else:               # glyph
+                e = 0  # zero depth
+            else:  # glyph
                 x, y, font, g, w = elt
                 h, e = font._height_depth_of(g)
             minx = min(minx, x)
@@ -301,6 +355,7 @@ class Dvi:
         # Pages appear to start with the sequence
         #   bop (begin of page)
         #   xxx comment
+        #   <push, ..., pop>  # if using chemformula
         #   down
         #   push
         #     down
@@ -312,17 +367,24 @@ class Dvi:
         #         etc.
         # (dviasm is useful to explore this structure.)
         # Thus, we use the vertical position at the first time the stack depth
-        # reaches 3, while at least three "downs" have been executed, as the
+        # reaches 3, while at least three "downs" have been executed (excluding
+        # those popped out (corresponding to the chemformula preamble)), as the
         # baseline (the "down" count is necessary to handle xcolor).
-        downs = 0
+        down_stack = [0]
         self._baseline_v = None
         while True:
             byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
-            downs += self._dtable[byte].__name__ == "_down"
+            name = self._dtable[byte].__name__
+            if name == "_push":
+                down_stack.append(down_stack[-1])
+            elif name == "_pop":
+                down_stack.pop()
+            elif name == "_down":
+                down_stack[-1] += 1
             if (self._baseline_v is None
                     and len(getattr(self, "stack", [])) == 3
-                    and downs >= 4):
+                    and down_stack[-1] >= 4):
                 self._baseline_v = self.v
             if byte == 140:                         # end of page
                 return True
@@ -469,13 +531,12 @@ class Dvi:
         n = self.file.read(a + l)
         fontname = n[-l:].decode('ascii')
         tfm = _tfmfile(fontname)
-        if tfm is None:
-            raise FileNotFoundError("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s' % n)
-
-        vf = _vffile(fontname)
-
+        try:
+            vf = _vffile(fontname)
+        except FileNotFoundError:
+            vf = None
         self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
     @_dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
@@ -594,7 +655,7 @@ class DviFont:
                 result.append(_mul2012(value, self._scale))
         # cmsyXX (symbols font) glyph 0 ("minus") has a nonzero descent
         # so that TeX aligns equations properly
-        # (https://tex.stackexchange.com/questions/526103/),
+        # (https://tex.stackexchange.com/q/526103/)
         # but we actually care about the rasterization depth to align
         # the dvipng-generated images.
         if re.match(br'^cmsy\d+$', self.texname) and char == 0:
@@ -714,15 +775,6 @@ class Vf(Dvi):
         # cs = checksum, ds = design size
 
 
-def _fix2comp(num):
-    """Convert from two's complement to negative."""
-    assert 0 <= num < 2**32
-    if num & 2**31:
-        return num - 2**32
-    else:
-        return num
-
-
 def _mul2012(num1, num2):
     """Multiply two numbers in 20.12 fixed point format."""
     # Separated into a function because >> has surprising precedence
@@ -756,29 +808,23 @@ class Tfm:
         _log.debug('opening tfm file %s', filename)
         with open(filename, 'rb') as file:
             header1 = file.read(24)
-            lh, bc, ec, nw, nh, nd = \
-                struct.unpack('!6H', header1[2:14])
+            lh, bc, ec, nw, nh, nd = struct.unpack('!6H', header1[2:14])
             _log.debug('lh=%d, bc=%d, ec=%d, nw=%d, nh=%d, nd=%d',
                        lh, bc, ec, nw, nh, nd)
             header2 = file.read(4*lh)
-            self.checksum, self.design_size = \
-                struct.unpack('!2I', header2[:8])
+            self.checksum, self.design_size = struct.unpack('!2I', header2[:8])
             # there is also encoding information etc.
             char_info = file.read(4*(ec-bc+1))
-            widths = file.read(4*nw)
-            heights = file.read(4*nh)
-            depths = file.read(4*nd)
-
+            widths = struct.unpack(f'!{nw}i', file.read(4*nw))
+            heights = struct.unpack(f'!{nh}i', file.read(4*nh))
+            depths = struct.unpack(f'!{nd}i', file.read(4*nd))
         self.width, self.height, self.depth = {}, {}, {}
-        widths, heights, depths = \
-            [struct.unpack('!%dI' % (len(x)/4), x)
-             for x in (widths, heights, depths)]
         for idx, char in enumerate(range(bc, ec+1)):
             byte0 = char_info[4*idx]
             byte1 = char_info[4*idx+1]
-            self.width[char] = _fix2comp(widths[byte0])
-            self.height[char] = _fix2comp(heights[byte1 >> 4])
-            self.depth[char] = _fix2comp(depths[byte1 & 0xf])
+            self.width[char] = widths[byte0]
+            self.height[char] = heights[byte1 >> 4]
+            self.depth[char] = depths[byte1 & 0xf]
 
 
 PsFont = namedtuple('PsFont', 'texname psname effects encoding filename')
@@ -842,28 +888,28 @@ class PsfontsMap:
         # store the unparsed lines (keyed by the first word, which is the
         # texname) and parse them on-demand.
         with open(filename, 'rb') as file:
-            self._unparsed = {line.split(b' ', 1)[0]: line for line in file}
+            self._unparsed = {}
+            for line in file:
+                tfmname = line.split(b' ', 1)[0]
+                self._unparsed.setdefault(tfmname, []).append(line)
         self._parsed = {}
         return self
 
     def __getitem__(self, texname):
         assert isinstance(texname, bytes)
         if texname in self._unparsed:
-            self._parse_and_cache_line(self._unparsed.pop(texname))
+            for line in self._unparsed.pop(texname):
+                if self._parse_and_cache_line(line):
+                    break
         try:
             return self._parsed[texname]
         except KeyError:
-            fmt = ('A PostScript file for the font whose TeX name is "{0}" '
-                   'could not be found in the file "{1}". The dviread module '
-                   'can only handle fonts that have an associated PostScript '
-                   'font file. '
-                   'This problem can often be solved by installing '
-                   'a suitable PostScript font package in your (TeX) '
-                   'package manager.')
-            _log.info(textwrap.fill(
-                fmt.format(texname.decode('ascii'), self._filename),
-                break_on_hyphens=False, break_long_words=False))
-            raise
+            raise LookupError(
+                f"An associated PostScript font (required by Matplotlib) "
+                f"could not be found for TeX font {texname.decode('ascii')!r} "
+                f"in {self._filename!r}; this problem can often be solved by "
+                f"installing a suitable PostScript font package in your TeX "
+                f"package manager") from None
 
     def _parse_and_cache_line(self, line):
         """
@@ -891,11 +937,12 @@ class PsfontsMap:
         # If the map file specifies multiple encodings for a font, we
         # follow pdfTeX in choosing the last one specified. Such
         # entries are probably mistakes but they have occurred.
-        # http://tex.stackexchange.com/questions/10826/
+        # https://tex.stackexchange.com/q/10826/
 
         if not line or line.startswith((b" ", b"%", b"*", b";", b"#")):
             return
         tfmname = basename = special = encodingfile = fontfile = None
+        is_subsetted = is_t1 = is_truetype = False
         matches = re.finditer(br'"([^"]*)(?:"|$)|(\S+)', line)
         for match in matches:
             quoted, unquoted = match.groups()
@@ -914,14 +961,13 @@ class PsfontsMap:
                         encodingfile = word
                     else:
                         fontfile = word
+                        is_subsetted = True
                 elif tfmname is None:
                     tfmname = unquoted
                 elif basename is None:
                     basename = unquoted
             elif quoted:
                 special = quoted
-        if basename is None:
-            basename = tfmname
         effects = {}
         if special:
             words = reversed(special.split())
@@ -930,25 +976,42 @@ class PsfontsMap:
                     effects["slant"] = float(next(words))
                 elif word == b"ExtendFont":
                     effects["extend"] = float(next(words))
-        if encodingfile is not None and not encodingfile.startswith(b"/"):
-            encodingfile = find_tex_file(encodingfile)
-        if fontfile is not None and not fontfile.startswith(b"/"):
-            fontfile = find_tex_file(fontfile)
+
+        # Verify some properties of the line that would cause it to be ignored
+        # otherwise.
+        if fontfile is not None:
+            if fontfile.endswith((b".ttf", b".ttc")):
+                is_truetype = True
+            elif not fontfile.endswith(b".otf"):
+                is_t1 = True
+        elif basename is not None:
+            is_t1 = True
+        if is_truetype and is_subsetted and encodingfile is None:
+            return
+        if not is_t1 and ("slant" in effects or "extend" in effects):
+            return
+        if abs(effects.get("slant", 0)) > 1:
+            return
+        if abs(effects.get("extend", 0)) > 2:
+            return
+
+        if basename is None:
+            basename = tfmname
+        if encodingfile is not None:
+            encodingfile = _find_tex_file(encodingfile)
+        if fontfile is not None:
+            fontfile = _find_tex_file(fontfile)
         self._parsed[tfmname] = PsFont(
             texname=tfmname, psname=basename, effects=effects,
             encoding=encodingfile, filename=fontfile)
+        return True
 
 
-# Note: this function should ultimately replace the Encoding class, which
-# appears to be mostly broken: because it uses b''.join(), there is no
-# whitespace left between glyph names (only slashes) so the final re.findall
-# returns a single string with all glyph names.  However this does not appear
-# to bother backend_pdf, so that needs to be investigated more.  (The fixed
-# version below is necessary for textpath/backend_svg, though.)
 def _parse_enc(path):
     r"""
-    Parses a \*.enc file referenced from a psfonts.map style file.
-    The format this class understands is a very limited subset of PostScript.
+    Parse a \*.enc file referenced from a psfonts.map style file.
+
+    The format supported by this function is a tiny subset of PostScript.
 
     Parameters
     ----------
@@ -970,17 +1033,39 @@ def _parse_enc(path):
             "Failed to parse {} as Postscript encoding".format(path))
 
 
+class _LuatexKpsewhich:
+    @lru_cache()  # A singleton.
+    def __new__(cls):
+        self = object.__new__(cls)
+        self._proc = self._new_proc()
+        return self
+
+    def _new_proc(self):
+        return subprocess.Popen(
+            ["luatex", "--luaonly",
+             str(cbook._get_data_path("kpsewhich.lua"))],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    def search(self, filename):
+        if self._proc.poll() is not None:  # Dead, restart it.
+            self._proc = self._new_proc()
+        self._proc.stdin.write(os.fsencode(filename) + b"\n")
+        self._proc.stdin.flush()
+        out = self._proc.stdout.readline().rstrip()
+        return None if out == b"nil" else os.fsdecode(out)
+
+
 @lru_cache()
-def find_tex_file(filename, format=None):
+@_api.delete_parameter("3.5", "format")
+def _find_tex_file(filename, format=None):
     """
-    Find a file in the texmf tree.
+    Find a file in the texmf tree using kpathsea_.
 
-    Calls :program:`kpsewhich` which is an interface to the kpathsea
-    library [1]_. Most existing TeX distributions on Unix-like systems use
-    kpathsea. It is also available as part of MikTeX, a popular
-    distribution on Windows.
+    The kpathsea library, provided by most existing TeX distributions, both
+    on Unix-like systems and on Windows (MikTeX), is invoked via a long-lived
+    luatex process if luatex is installed, or via kpsewhich otherwise.
 
-    *If the file is not found, an empty string is returned*.
+    .. _kpathsea: https://www.tug.org/kpathsea/
 
     Parameters
     ----------
@@ -988,11 +1073,12 @@ def find_tex_file(filename, format=None):
     format : str or bytes
         Used as the value of the ``--format`` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
+        Deprecated.
 
-    References
-    ----------
-    .. [1] `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
-        The library that :program:`kpsewhich` is part of.
+    Raises
+    ------
+    FileNotFoundError
+        If the file is not found.
     """
 
     # we expect these to always be ascii encoded, but use utf-8
@@ -1002,31 +1088,63 @@ def find_tex_file(filename, format=None):
     if isinstance(format, bytes):
         format = format.decode('utf-8', errors='replace')
 
-    if os.name == 'nt':
-        # On Windows only, kpathsea can use utf-8 for cmd args and output.
-        # The `command_line_encoding` environment variable is set to force it
-        # to always use utf-8 encoding.  See Matplotlib issue #11848.
-        kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
-                  'encoding': 'utf-8'}
-    else:  # On POSIX, run through the equivalent of os.fsdecode().
-        kwargs = {'encoding': sys.getfilesystemencoding(),
-                  'errors': 'surrogatescape'}
-
-    cmd = ['kpsewhich']
-    if format is not None:
-        cmd += ['--format=' + format]
-    cmd += [filename]
     try:
-        result = cbook._check_and_log_subprocess(cmd, _log, **kwargs)
-    except (FileNotFoundError, RuntimeError):
-        return ''
-    return result.rstrip('\n')
+        lk = _LuatexKpsewhich()
+    except FileNotFoundError:
+        lk = None  # Fallback to directly calling kpsewhich, as below.
+
+    if lk and format is None:
+        path = lk.search(filename)
+
+    else:
+        if os.name == 'nt':
+            # On Windows only, kpathsea can use utf-8 for cmd args and output.
+            # The `command_line_encoding` environment variable is set to force
+            # it to always use utf-8 encoding.  See Matplotlib issue #11848.
+            kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
+                      'encoding': 'utf-8'}
+        else:  # On POSIX, run through the equivalent of os.fsdecode().
+            kwargs = {'encoding': sys.getfilesystemencoding(),
+                      'errors': 'surrogateescape'}
+
+        cmd = ['kpsewhich']
+        if format is not None:
+            cmd += ['--format=' + format]
+        cmd += [filename]
+        try:
+            path = (cbook._check_and_log_subprocess(cmd, _log, **kwargs)
+                    .rstrip('\n'))
+        except (FileNotFoundError, RuntimeError):
+            path = None
+
+    if path:
+        return path
+    else:
+        raise FileNotFoundError(
+            f"Matplotlib's TeX implementation searched for a file named "
+            f"{filename!r} in your texmf tree, but could not find it")
+
+
+# After the deprecation period elapses, delete this shim and rename
+# _find_tex_file to find_tex_file everywhere.
+@_api.delete_parameter("3.5", "format")
+def find_tex_file(filename, format=None):
+    try:
+        return (_find_tex_file(filename, format) if format is not None else
+                _find_tex_file(filename))
+    except FileNotFoundError as exc:
+        _api.warn_deprecated(
+            "3.6", message=f"{exc.args[0]}; in the future, this will raise a "
+            f"FileNotFoundError.")
+        return ""
+
+
+find_tex_file.__doc__ = _find_tex_file.__doc__
 
 
 @lru_cache()
 def _fontfile(cls, suffix, texname):
-    filename = find_tex_file(texname + suffix)
-    return cls(filename) if filename else None
+    return cls(_find_tex_file(texname + suffix))
 
 
 _tfmfile = partial(_fontfile, Tfm, ".tfm")
@@ -1042,16 +1160,21 @@ if __name__ == '__main__':
     parser.add_argument("dpi", nargs="?", type=float, default=None)
     args = parser.parse_args()
     with Dvi(args.filename, args.dpi) as dvi:
-        fontmap = PsfontsMap(find_tex_file('pdftex.map'))
+        fontmap = PsfontsMap(_find_tex_file('pdftex.map'))
         for page in dvi:
-            print('=== new page ===')
+            print(f"=== new page === "
+                  f"(w: {page.width}, h: {page.height}, d: {page.descent})")
             for font, group in itertools.groupby(
                     page.text, lambda text: text.font):
-                print('font', font.texname, 'scaled', font._scale / 2 ** 20)
+                print(f"font: {font.texname.decode('latin-1')!r}\t"
+                      f"scale: {font._scale / 2 ** 20}")
+                print("x", "y", "glyph", "chr", "w", "(glyphs)", sep="\t")
                 for text in group:
                     print(text.x, text.y, text.glyph,
                           chr(text.glyph) if chr(text.glyph).isprintable()
                           else ".",
-                          text.width)
-            for x, y, w, h in page.boxes:
-                print(x, y, 'BOX', w, h)
+                          text.width, sep="\t")
+            if page.boxes:
+                print("x", "y", "h", "w", "", "(boxes)", sep="\t")
+                for box in page.boxes:
+                    print(box.x, box.y, box.height, box.width, sep="\t")

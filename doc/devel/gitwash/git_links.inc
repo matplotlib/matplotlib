@@ -46,7 +46,7 @@
 .. _linux git workflow: https://www.mail-archive.com/dri-devel@lists.sourceforge.net/msg39091.html
 .. _git parable: http://tom.preston-werner.com/2009/05/19/the-git-parable.html
 .. _git foundation: https://matthew-brett.github.io/pydagogue/foundation.html
-.. _deleting master on github: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
+.. _deleting main on github: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
 .. _rebase without tears: https://matthew-brett.github.io/pydagogue/rebase_without_tears.html
 .. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
 .. _ipython git workflow: https://mail.python.org/pipermail/ipython-dev/2010-October/005632.html

@@ -4,9 +4,9 @@ Embedding in Qt
 ===============
 
 Simple Qt application embedding Matplotlib canvases.  This program will work
-equally well using Qt4 and Qt5.  Either version of Qt can be selected (for
-example) by setting the ``MPLBACKEND`` environment variable to "Qt4Agg" or
-"Qt5Agg", or by first importing the desired version of PyQt.
+equally well using any Qt binding (PyQt6, PySide6, PyQt5, PySide2).  The
+binding can be selected by setting the ``QT_API`` environment variable to the
+binding name, or by first importing it.
 """
 
 import sys
@@ -14,13 +14,9 @@ import time
 
 import numpy as np
 
-from matplotlib.backends.qt_compat import QtCore, QtWidgets
-if QtCore.qVersion() >= "5.":
-    from matplotlib.backends.backend_qt5agg import (
-        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
-else:
-    from matplotlib.backends.backend_qt4agg import (
-        FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.qt_compat import QtWidgets
+from matplotlib.backends.backend_qtagg import (
+    FigureCanvas, NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 
 
@@ -32,13 +28,15 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         layout = QtWidgets.QVBoxLayout(self._main)
 
         static_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        # Ideally one would use self.addToolBar here, but it is slightly
+        # incompatible between PyQt6 and other bindings, so we just add the
+        # toolbar as a plain widget instead.
+        layout.addWidget(NavigationToolbar(static_canvas, self))
         layout.addWidget(static_canvas)
-        self.addToolBar(NavigationToolbar(static_canvas, self))
 
         dynamic_canvas = FigureCanvas(Figure(figsize=(5, 3)))
         layout.addWidget(dynamic_canvas)
-        self.addToolBar(QtCore.Qt.BottomToolBarArea,
-                        NavigationToolbar(dynamic_canvas, self))
+        layout.addWidget(NavigationToolbar(dynamic_canvas, self))
 
         self._static_ax = static_canvas.figure.subplots()
         t = np.linspace(0, 10, 501)
@@ -70,4 +68,4 @@ if __name__ == "__main__":
     app.show()
     app.activateWindow()
     app.raise_()
-    qapp.exec_()
+    qapp.exec()

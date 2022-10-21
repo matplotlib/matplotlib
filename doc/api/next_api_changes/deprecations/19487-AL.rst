@@ -1,6 +1,0 @@
-Unused positional parameters to ``print_<fmt>`` methods are deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-None of the ``print_<fmt>`` methods implemented by canvas subclasses used
-positional arguments other that the first (the output filename or file-like),
-so these extra parameters are deprecated.

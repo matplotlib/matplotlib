@@ -13,11 +13,16 @@ def pytest_configure(config):
         ("markers", "flaky: (Provided by pytest-rerunfailures.)"),
         ("markers", "timeout: (Provided by pytest-timeout.)"),
         ("markers", "backend: Set alternate Matplotlib backend temporarily."),
-        ("markers", "style: Set alternate Matplotlib style temporarily."),
+        ("markers",
+         "style: Set alternate Matplotlib style temporarily (deprecated)."),
         ("markers", "baseline_images: Compare output against references."),
         ("markers", "pytz: Tests that require pytz to be installed."),
-        ("markers", "network: Tests that reach out to the network."),
         ("filterwarnings", "error"),
+        ("filterwarnings",
+         "ignore:.*The py23 module has been deprecated:DeprecationWarning"),
+        ("filterwarnings",
+         r"ignore:DynamicImporter.find_spec\(\) not found; "
+         r"falling back to find_module\(\):ImportWarning"),
     ]:
         config.addinivalue_line(key, value)
 
@@ -38,37 +43,18 @@ def mpl_test_settings(request):
 
         backend = None
         backend_marker = request.node.get_closest_marker('backend')
+        prev_backend = matplotlib.get_backend()
         if backend_marker is not None:
             assert len(backend_marker.args) == 1, \
                 "Marker 'backend' must specify 1 backend."
             backend, = backend_marker.args
             skip_on_importerror = backend_marker.kwargs.get(
                 'skip_on_importerror', False)
-            prev_backend = matplotlib.get_backend()
 
             # special case Qt backend importing to avoid conflicts
-            if backend.lower().startswith('qt4'):
-                if any(sys.modules.get(k) for k in ('PyQt5', 'PySide2')):
-                    pytest.skip('Qt5 binding already imported')
-                try:
-                    import PyQt4
-                # RuntimeError if PyQt5 already imported.
-                except (ImportError, RuntimeError):
-                    try:
-                        import PySide
-                    except ImportError:
-                        pytest.skip("Failed to import a Qt4 binding.")
-            elif backend.lower().startswith('qt5'):
+            if backend.lower().startswith('qt5'):
                 if any(sys.modules.get(k) for k in ('PyQt4', 'PySide')):
                     pytest.skip('Qt4 binding already imported')
-                try:
-                    import PyQt5
-                # RuntimeError if PyQt4 already imported.
-                except (ImportError, RuntimeError):
-                    try:
-                        import PySide2
-                    except ImportError:
-                        pytest.skip("Failed to import a Qt5 binding.")
 
         # Default of cleanup and image_comparison too.
         style = ["classic", "_classic_test_patch"]
@@ -76,6 +62,8 @@ def mpl_test_settings(request):
         if style_marker is not None:
             assert len(style_marker.args) == 1, \
                 "Marker 'style' must specify 1 style."
+            _api.warn_deprecated("3.5", name="style", obj_type="pytest marker",
+                                 alternative="@mpl.style.context(...)")
             style, = style_marker.args
 
         matplotlib.testing.setup()
@@ -98,11 +86,11 @@ def mpl_test_settings(request):
         try:
             yield
         finally:
-            if backend is not None:
-                plt.switch_backend(prev_backend)
+            matplotlib.use(prev_backend)
 
 
 @pytest.fixture
+@_api.deprecated("3.5", alternative="none")
 def mpl_image_comparison_parameters(request, extension):
     # This fixture is applied automatically by the image_comparison decorator.
     #
@@ -135,3 +123,10 @@ def pd():
     except ImportError:
         pass
     return pd
+
+
+@pytest.fixture
+def xr():
+    """Fixture to import xarray."""
+    xr = pytest.importorskip('xarray')
+    return xr
