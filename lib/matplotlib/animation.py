@@ -1533,10 +1533,10 @@ class FuncAnimation(TimedAnimation):
         arguments, set all arguments as keyword arguments, just leaving the
         *frame* argument unset::
 
-            def func(frame, x, *, y=None):
+            def func(frame, art, *, y=None):
                 ...
 
-            ani = FuncAnimation(fig, partial(func, x=1, y='foo'))
+            ani = FuncAnimation(fig, partial(func, art=ln, y='foo'))
 
         If ``blit == True``, *func* must return an iterable of all artists
         that were modified or created. This information is used by the blitting

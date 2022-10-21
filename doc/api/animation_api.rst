@@ -142,14 +142,14 @@ function. ::
    from functools import partial
 
    fig, ax = plt.subplots()
-   ln, = plt.plot([], [], 'ro')
+   line1, = plt.plot([], [], 'ro')
 
    def init():
        ax.set_xlim(0, 2*np.pi)
        ax.set_ylim(-1, 1)
        return ln,
 
-   def update(frame, x, y):
+   def update(frame, ln, x, y):
        x.append(frame)
        y.append(np.sin(frame))
        ln.set_data(xdata, ydata)
@@ -157,7 +157,7 @@ function. ::
 
    xdata, ydata = [], []
    ani = FuncAnimation(
-       fig, partial(update, x=xdata, y=ydata),
+       fig, partial(update, ln=line1, x=xdata, y=ydata),
        frames=np.linspace(0, 2 * np.pi, 128),
        init_func=init, blit=True)
 
