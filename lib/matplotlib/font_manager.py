@@ -1116,7 +1116,8 @@ class FontManager:
         Cache the properties of the font at *path* to make it available to the
         `FontManager`. The type of font is inferred from the path suffix.
 
-        To cache globally and persistently, instead use
+        The cache only exists for the current session. To cache globally and
+        persistently, instead use 
         ``matplotlib.font_manager.fontManager.addpath(path)``.
 
         Parameters
