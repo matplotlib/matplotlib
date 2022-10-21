@@ -113,7 +113,6 @@ artist at a global scope and let Python sort things out.  For example ::
    import numpy as np
    import matplotlib.pyplot as plt
    from matplotlib.animation import FuncAnimation
-   from functools import partial
 
    fig, ax = plt.subplots()
    xdata, ydata = [], []
@@ -146,15 +145,15 @@ function. ::
    ln, = plt.plot([], [], 'ro')
 
    def init():
-      ax.set_xlim(0, 2*np.pi)
-      ax.set_ylim(-1, 1)
-      return ln,
+       ax.set_xlim(0, 2*np.pi)
+       ax.set_ylim(-1, 1)
+       return ln,
 
    def update(frame, x, y):
-      x.append(frame)
-      y.append(np.sin(frame))
-      ln.set_data(xdata, ydata)
-      return ln,
+       x.append(frame)
+       y.append(np.sin(frame))
+       ln.set_data(xdata, ydata)
+       return ln,
 
    xdata, ydata = [], []
    ani = FuncAnimation(
