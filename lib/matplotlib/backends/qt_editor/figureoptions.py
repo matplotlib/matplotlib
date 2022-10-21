@@ -5,6 +5,7 @@
 
 """Module that provides a GUI-based editor for Matplotlib's figure options."""
 
+from itertools import chain
 from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
@@ -38,30 +39,40 @@ def figure_edit(axes, parent=None):
         # Cast to builtin floats as they have nicer reprs.
         return map(float, lim)
 
-    xconverter = axes.xaxis.converter
-    xmin, xmax = convert_limits(axes.get_xlim(), xconverter)
-    yconverter = axes.yaxis.converter
-    ymin, ymax = convert_limits(axes.get_ylim(), yconverter)
-    general = [('Title', axes.get_title()),
-               sep,
-               (None, "<b>X-Axis</b>"),
-               ('Left', xmin), ('Right', xmax),
-               ('Label', axes.get_xlabel()),
-               ('Scale', [axes.get_xscale(),
-                          'linear', 'log', 'symlog', 'logit']),
-               sep,
-               (None, "<b>Y-Axis</b>"),
-               ('Bottom', ymin), ('Top', ymax),
-               ('Label', axes.get_ylabel()),
-               ('Scale', [axes.get_yscale(),
-                          'linear', 'log', 'symlog', 'logit']),
-               sep,
-               ('(Re-)Generate automatic legend', False),
-               ]
+    axis_map = axes._axis_map
+    axis_limits = {
+        name: tuple(convert_limits(
+            getattr(axes, f'get_{name}lim')(), axis.converter
+        ))
+        for name, axis in axis_map.items()
+    }
+    general = [
+        ('Title', axes.get_title()),
+        sep,
+        *chain.from_iterable([
+            (
+                (None, f"<b>{name.title()}-Axis</b>"),
+                ('Min', axis_limits[name][0]),
+                ('Max', axis_limits[name][1]),
+                ('Label', axis.get_label().get_text()),
+                ('Scale', [axis.get_scale(),
+                           'linear', 'log', 'symlog', 'logit']),
+                sep,
+            )
+            for name, axis in axis_map.items()
+        ]),
+        ('(Re-)Generate automatic legend', False),
+    ]
 
-    # Save the unit data
-    xunits = axes.xaxis.get_units()
-    yunits = axes.yaxis.get_units()
+    # Save the converter and unit data
+    axis_converter = {
+        name: axis.converter
+        for name, axis in axis_map.items()
+    }
+    axis_units = {
+        name: axis.get_units()
+        for name, axis in axis_map.items()
+    }
 
     # Get / Curves
     labeled_lines = []
@@ -165,8 +176,10 @@ def figure_edit(axes, parent=None):
 
     def apply_callback(data):
         """A callback to apply changes."""
-        orig_xlim = axes.get_xlim()
-        orig_ylim = axes.get_ylim()
+        orig_limits = {
+            name: getattr(axes, f"get_{name}lim")()
+            for name in axis_map
+        }
 
         general = data.pop(0)
         curves = data.pop(0) if has_curve else []
@@ -174,28 +187,24 @@ def figure_edit(axes, parent=None):
         if data:
             raise ValueError("Unexpected field")
 
-        # Set / General
-        (title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale,
-         generate_legend) = general
-
-        if axes.get_xscale() != xscale:
-            axes.set_xscale(xscale)
-        if axes.get_yscale() != yscale:
-            axes.set_yscale(yscale)
-
+        title = general.pop(0)
         axes.set_title(title)
-        axes.set_xlim(xmin, xmax)
-        axes.set_xlabel(xlabel)
-        axes.set_ylim(ymin, ymax)
-        axes.set_ylabel(ylabel)
+        generate_legend = general.pop()
 
-        # Restore the unit data
-        axes.xaxis.converter = xconverter
-        axes.yaxis.converter = yconverter
-        axes.xaxis.set_units(xunits)
-        axes.yaxis.set_units(yunits)
-        axes.xaxis._update_axisinfo()
-        axes.yaxis._update_axisinfo()
+        for i, (name, axis) in enumerate(axis_map.items()):
+            axis_min = general[4*i]
+            axis_max = general[4*i + 1]
+            axis_label = general[4*i + 2]
+            axis_scale = general[4*i + 3]
+            if axis.get_scale() != axis_scale:
+                getattr(axes, f"set_{name}scale")(axis_scale)
+
+            axis._set_lim(axis_min, axis_max, auto=False)
+            axis.set_label_text(axis_label)
+
+            # Restore the unit data
+            axis.converter = axis_converter[name]
+            axis.set_units(axis_units[name])
 
         # Set / Curves
         for index, curve in enumerate(curves):
@@ -242,8 +251,10 @@ def figure_edit(axes, parent=None):
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
-        if not (axes.get_xlim() == orig_xlim and axes.get_ylim() == orig_ylim):
-            figure.canvas.toolbar.push_current()
+        for name in axis_map:
+            if getattr(axes, f"get_{name}lim")() != orig_limits[name]:
+                figure.canvas.toolbar.push_current()
+                break
 
     _formlayout.fedit(
         datalist, title="Figure options", parent=parent,
