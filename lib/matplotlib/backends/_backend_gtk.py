@@ -24,12 +24,7 @@ except ImportError as e:
     raise ImportError("Gtk-based backends require cairo") from e
 
 _log = logging.getLogger(__name__)
-
-backend_version = "%s.%s.%s" % (
-    Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())
-
-# Placeholder
-_application = None
+_application = None  # Placeholder
 
 
 def _shutdown_application(app):
@@ -305,6 +300,12 @@ class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase):
 
 
 class _BackendGTK(_Backend):
+    backend_version = "%s.%s.%s" % (
+        Gtk.get_major_version(),
+        Gtk.get_minor_version(),
+        Gtk.get_micro_version(),
+    )
+
     @staticmethod
     def mainloop():
         global _application

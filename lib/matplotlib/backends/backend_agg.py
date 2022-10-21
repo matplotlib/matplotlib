@@ -40,9 +40,6 @@ from matplotlib.transforms import Bbox, BboxBase
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 
 
-backend_version = 'v2.2'
-
-
 def get_hinting_flag():
     mapping = {
         'default': LOAD_DEFAULT,
@@ -563,5 +560,6 @@ class FigureCanvasAgg(FigureCanvasBase):
 
 @_Backend.export
 class _BackendAgg(_Backend):
+    backend_version = 'v2.2'
     FigureCanvas = FigureCanvasAgg
     FigureManager = FigureManagerBase
