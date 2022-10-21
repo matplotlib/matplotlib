@@ -83,7 +83,7 @@ def stackplot(axes, x, *args,
     if colors is not None:
         colors = itertools.cycle(iter_method(colors))
     else:
-        colors = (axes._get_lines.get_next_color() for _ in y)
+        colors = iter_method(list(axes._get_lines.get_next_color() for _ in y))
 
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
