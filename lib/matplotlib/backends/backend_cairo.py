@@ -34,9 +34,6 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 
-backend_version = cairo.version
-
-
 def _append_path(ctx, path, transform, clip=None):
     for points, code in path.iter_segments(
             transform, remove_nans=True, clip=clip):
@@ -548,5 +545,6 @@ class _RendererGTKCairo(RendererCairo):
 
 @_Backend.export
 class _BackendCairo(_Backend):
+    backend_version = cairo.version
     FigureCanvas = FigureCanvasCairo
     FigureManager = FigureManagerBase
