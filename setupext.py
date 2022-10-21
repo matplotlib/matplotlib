@@ -487,7 +487,12 @@ class Tests(OptionalPackage):
                 'tests/test_*.ipynb',
             ],
             'mpl_toolkits': [
-                *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits/axes_grid1',
+                                  'tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits/axisartist'
+                                  'tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits/mplot3d'
+                                  'tests/baseline_images'),
             ]
         }
 
