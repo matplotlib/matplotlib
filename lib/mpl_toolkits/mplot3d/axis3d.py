@@ -96,7 +96,8 @@ class Axis(maxis.XAxis):
         self._axinfo = self._AXINFO[name].copy()
         # Common parts
         self._axinfo.update({
-            'label': {'va': 'center', 'ha': 'center'},
+            'label': {'va': 'center', 'ha': 'center',
+                      'rotation_mode': 'anchor'},
             'color': mpl.rcParams[f'axes3d.{name}axis.panecolor'],
             'tick': {
                 'inward_factor': 0.2,
@@ -403,6 +404,7 @@ class Axis(maxis.XAxis):
             self.label.set_rotation(angle)
         self.label.set_va(info['label']['va'])
         self.label.set_ha(info['label']['ha'])
+        self.label.set_rotation_mode(info['label']['rotation_mode'])
         self.label.draw(renderer)
 
         # Draw Offset text
