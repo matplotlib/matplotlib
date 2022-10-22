@@ -1,0 +1,4 @@
+``auto_add_to_figure=True`` for ``Axes3D``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is no longer supported. Instead use ``fig.add_axes(ax)``.

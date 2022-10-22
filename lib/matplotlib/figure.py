@@ -1679,8 +1679,6 @@ default: %(va)s
                 raise TypeError(
                     f"projection must be a string, None or implement a "
                     f"_as_mpl_axes method, not {projection!r}")
-        if projection_class.__name__ == 'Axes3D':
-            kwargs.setdefault('auto_add_to_figure', False)
         return projection_class, kwargs
 
     def get_default_bbox_extra_artists(self):
