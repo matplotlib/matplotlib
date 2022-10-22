@@ -109,6 +109,10 @@ z : array-like
     The height values over which the contour is drawn.  Color-mapping is
     controlled by *cmap*, *norm*, *vmin*, and *vmax*.
 
+    .. note::
+        All values in *z* must be finite. Hence, nan and inf values must
+        either be removed or `~.Triangulation.set_mask` be used.
+
 levels : int or array-like, optional
     Determines the number and positions of the contour lines / regions.
 
