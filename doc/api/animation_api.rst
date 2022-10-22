@@ -108,7 +108,7 @@ this means that the callable objects you pass in must know what
 artists they should be working on.  There are several approaches to
 handling this, of varying complexity and encapsulation.  The simplest
 approach, which works quite well in the case of a script, is to define the
-artist at a global scope and let Python sort things out.  For example ::
+artist at a global scope and let Python sort things out.  For example::
 
    import numpy as np
    import matplotlib.pyplot as plt
@@ -134,7 +134,7 @@ artist at a global scope and let Python sort things out.  For example ::
    plt.show()
 
 The second method is to use `functools.partial` to pass arguments to the
-function. ::
+function::
 
    import numpy as np
    import matplotlib.pyplot as plt
@@ -142,23 +142,22 @@ function. ::
    from functools import partial
 
    fig, ax = plt.subplots()
-   line1, = plt.plot([], [], 'ro')
+   line1, = ax.plot([], [], 'ro')
 
    def init():
        ax.set_xlim(0, 2*np.pi)
        ax.set_ylim(-1, 1)
-       return ln,
+       return line1,
 
    def update(frame, ln, x, y):
        x.append(frame)
        y.append(np.sin(frame))
-       ln.set_data(xdata, ydata)
+       ln.set_data(x, y)
        return ln,
 
-   xdata, ydata = [], []
    ani = FuncAnimation(
-       fig, partial(update, ln=line1, x=xdata, y=ydata),
-       frames=np.linspace(0, 2 * np.pi, 128),
+       fig, partial(update, ln=line1, x=[], y=[]),
+       frames=np.linspace(0, 2*np.pi, 128),
        init_func=init, blit=True)
 
    plt.show()
