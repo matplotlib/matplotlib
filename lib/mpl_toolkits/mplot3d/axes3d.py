@@ -1350,7 +1350,6 @@ class Axes3D(Axes):
         self._frameon = bool(b)
         self.stale = True
 
-    @_api.rename_parameter("3.5", "b", "visible")
     def grid(self, visible=True, **kwargs):
         """
         Set / unset 3D grid.

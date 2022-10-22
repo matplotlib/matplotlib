@@ -1553,7 +1553,6 @@ class Axis(martist.Artist):
 
         return self.minorTicks[:numticks]
 
-    @_api.rename_parameter("3.5", "b", "visible")
     def grid(self, visible=None, which='major', **kwargs):
         """
         Configure the grid lines.
