@@ -2,7 +2,7 @@ import re
 
 from matplotlib import path, transforms
 from matplotlib.backend_bases import (
-    FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
+    FigureCanvasBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
 from matplotlib.backend_tools import RubberbandBase
 from matplotlib.figure import Figure
@@ -124,12 +124,18 @@ def test_pick():
     fig = plt.figure()
     fig.text(.5, .5, "hello", ha="center", va="center", picker=True)
     fig.canvas.draw()
+
     picks = []
-    fig.canvas.mpl_connect("pick_event", lambda event: picks.append(event))
-    start_event = MouseEvent(
-        "button_press_event", fig.canvas, *fig.transFigure.transform((.5, .5)),
-        MouseButton.LEFT)
-    fig.canvas.callbacks.process(start_event.name, start_event)
+    def handle_pick(event):
+        assert event.mouseevent.key == "a"
+        picks.append(event)
+    fig.canvas.mpl_connect("pick_event", handle_pick)
+
+    KeyEvent("key_press_event", fig.canvas, "a")._process()
+    MouseEvent("button_press_event", fig.canvas,
+               *fig.transFigure.transform((.5, .5)),
+               MouseButton.LEFT)._process()
+    KeyEvent("key_release_event", fig.canvas, "a")._process()
     assert len(picks) == 1
 
 
