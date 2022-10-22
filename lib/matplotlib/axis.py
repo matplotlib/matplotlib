@@ -943,7 +943,7 @@ class Axis(martist.Artist):
 
         See Also
         --------
-        :meth:`.Axis.get_tick_params`
+        .Axis.get_tick_params
             View the current style defaults for ticks, ticklabels, and
             gridlines.
         """
@@ -988,6 +988,10 @@ class Axis(martist.Artist):
         which : {'major', 'minor'}, default: 'major'
             The group of ticks to which the parameters are applied.
 
+        Returns
+        -------
+        dict on properties that deviate from the default
+
         Notes
         -----
         This method returns the default values for styling *new* elements
@@ -998,11 +1002,13 @@ class Axis(martist.Artist):
         """
         _api.check_in_list(['major', 'minor'], which=which)
         if which == 'major':
-            return self._major_tick_kw
-        return self._minor_tick_kw
+            return self._translate_tick_params(
+                self._major_tick_kw, reverse=True
+            )
+        return self._translate_tick_params(self._minor_tick_kw, reverse=True)
 
     @staticmethod
-    def _translate_tick_params(kw):
+    def _translate_tick_params(kw, reverse=False):
         """
         Translate the kwargs supported by `.Axis.set_tick_params` to kwargs
         supported by `.Tick._apply_params`.
@@ -1013,9 +1019,12 @@ class Axis(martist.Artist):
 
         Returns a new dict of translated kwargs.
 
-        Note: The input *kwargs* are currently modified, but that's ok for
-        the only caller.
+        Note: Use reverse=True to translate from those supported by
+        `.Tick._apply_params` back to those supported by
+        `.Axis.set_tick_params`.
         """
+        kw_ = {**kw}
+
         # The following lists may be moved to a more accessible location.
         allowed_keys = [
             'size', 'width', 'color', 'tickdir', 'pad',
@@ -1040,19 +1049,27 @@ class Axis(martist.Artist):
             'labelright': 'label2On',
             'labeltop': 'label2On',
         }
-        kwtrans = {newkey: kw.pop(oldkey)
-                   for oldkey, newkey in keymap.items() if oldkey in kw}
-        if 'colors' in kw:
-            c = kw.pop('colors')
+        if reverse:
+            kwtrans = {
+                oldkey: kw_.pop(newkey)
+                for oldkey, newkey in keymap.items() if newkey in kw_
+            }
+        else:
+            kwtrans = {
+                newkey: kw_.pop(oldkey)
+                for oldkey, newkey in keymap.items() if oldkey in kw_
+            }
+        if 'colors' in kw_:
+            c = kw_.pop('colors')
             kwtrans['color'] = c
             kwtrans['labelcolor'] = c
         # Maybe move the checking up to the caller of this method.
-        for key in kw:
+        for key in kw_:
             if key not in allowed_keys:
                 raise ValueError(
                     "keyword %s is not recognized; valid keywords are %s"
                     % (key, allowed_keys))
-        kwtrans.update(kw)
+        kwtrans.update(kw_)
         return kwtrans
 
     def set_clip_path(self, clippath, transform=None):
