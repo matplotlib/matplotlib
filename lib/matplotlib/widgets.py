@@ -325,6 +325,7 @@ class Slider(SliderBase):
         Slider value.
     """
 
+    @_api.make_keyword_only("3.7", name="valinit")
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
@@ -597,6 +598,7 @@ class RangeSlider(SliderBase):
         Slider value.
     """
 
+    @_api.make_keyword_only("3.7", name="valinit")
     def __init__(
         self,
         ax,
@@ -1221,8 +1223,7 @@ class TextBox(AxesWidget):
         The color of the text box when hovering.
     """
 
-    DIST_FROM_LEFT = _api.deprecate_privatize_attribute("3.5")
-
+    @_api.make_keyword_only("3.7", name="color")
     def __init__(self, ax, label, initial='',
                  color='.95', hovercolor='1', label_pad=.01,
                  textalignment="left"):
@@ -1727,7 +1728,7 @@ class Cursor(AxesWidget):
     --------
     See :doc:`/gallery/widgets/cursor`.
     """
-
+    @_api.make_keyword_only("3.7", "horizOn")
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
         super().__init__(ax)
@@ -1981,9 +1982,6 @@ class _SelectorWidget(AxesWidget):
         self._prev_event = None
         self._state = set()
 
-    eventpress = _api.deprecate_privatize_attribute("3.5")
-    eventrelease = _api.deprecate_privatize_attribute("3.5")
-    state = _api.deprecate_privatize_attribute("3.5")
     state_modifier_keys = _api.deprecate_privatize_attribute("3.6")
 
     def set_active(self, active):
@@ -2408,8 +2406,7 @@ class SpanSelector(_SelectorWidget):
     See also: :doc:`/gallery/widgets/span_selector`
     """
 
-    @_api.rename_parameter("3.5", "rectprops", "props")
-    @_api.rename_parameter("3.5", "span_stays", "interactive")
+    @_api.make_keyword_only("3.7", name="minspan")
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
                  props=None, onmove_callback=None, interactive=False,
                  button=None, handle_props=None, grab_range=10,
@@ -2464,24 +2461,6 @@ class SpanSelector(_SelectorWidget):
 
         # prev attribute is deprecated but we still need to maintain it
         self._prev = (0, 0)
-
-    rect = _api.deprecated("3.5")(
-        property(lambda self: self._selection_artist)
-        )
-
-    rectprops = _api.deprecated("3.5")(
-        property(lambda self: self._props)
-        )
-
-    active_handle = _api.deprecate_privatize_attribute("3.5")
-
-    pressv = _api.deprecate_privatize_attribute("3.5")
-
-    span_stays = _api.deprecated("3.5")(
-        property(lambda self: self._interactive)
-        )
-
-    prev = _api.deprecate_privatize_attribute("3.5")
 
     def new_axes(self, ax):
         """Set SpanSelector to operate on a new Axes."""
@@ -2784,6 +2763,7 @@ class ToolLineHandles:
         for details.
     """
 
+    @_api.make_keyword_only("3.7", "line_props")
     def __init__(self, ax, positions, direction, line_props=None,
                  useblit=True):
         self.ax = ax
@@ -2894,6 +2874,7 @@ class ToolHandles:
         for details.
     """
 
+    @_api.make_keyword_only("3.7", "marker")
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
         self.ax = ax
         props = {'marker': marker, 'markersize': 7, 'markerfacecolor': 'w',
@@ -3059,18 +3040,11 @@ class RectangleSelector(_SelectorWidget):
     See also: :doc:`/gallery/widgets/rectangle_selector`
     """
 
-    @_api.rename_parameter("3.5", "maxdist", "grab_range")
-    @_api.rename_parameter("3.5", "marker_props", "handle_props")
-    @_api.rename_parameter("3.5", "rectprops", "props")
-    @_api.delete_parameter("3.5", "drawtype")
-    @_api.delete_parameter("3.5", "lineprops")
-    def __init__(self, ax, onselect, drawtype='box',
-                 minspanx=0, minspany=0, useblit=False,
-                 lineprops=None, props=None, spancoords='data',
-                 button=None, grab_range=10, handle_props=None,
-                 interactive=False, state_modifier_keys=None,
-                 drag_from_anywhere=False, ignore_event_outside=False,
-                 use_data_coordinates=False):
+    def __init__(self, ax, onselect, *, minspanx=0, minspany=0, useblit=False,
+                 props=None, spancoords='data', button=None, grab_range=10,
+                 handle_props=None, interactive=False,
+                 state_modifier_keys=None, drag_from_anywhere=False,
+                 ignore_event_outside=False, use_data_coordinates=False):
         super().__init__(ax, onselect, useblit=useblit, button=button,
                          state_modifier_keys=state_modifier_keys,
                          use_data_coordinates=use_data_coordinates)
@@ -3086,34 +3060,13 @@ class RectangleSelector(_SelectorWidget):
         # interactive bounding box to allow the polygon to be easily resized
         self._allow_creation = True
 
-        if drawtype == 'none':  # draw a line but make it invisible
-            _api.warn_deprecated(
-                "3.5", message="Support for drawtype='none' is deprecated "
-                               "since %(since)s and will be removed "
-                               "%(removal)s."
-                               "Use props=dict(visible=False) instead.")
-            drawtype = 'line'
-            self._visible = False
-
-        if drawtype == 'box':
-            if props is None:
-                props = dict(facecolor='red', edgecolor='black',
-                             alpha=0.2, fill=True)
-            self._props = {**props, 'animated': self.useblit}
-            self._visible = self._props.pop('visible', self._visible)
-            to_draw = self._init_shape(**self._props)
-            self.ax.add_patch(to_draw)
-        if drawtype == 'line':
-            _api.warn_deprecated(
-                "3.5", message="Support for drawtype='line' is deprecated "
-                               "since %(since)s and will be removed "
-                               "%(removal)s.")
-            if lineprops is None:
-                lineprops = dict(color='black', linestyle='-',
-                                 linewidth=2, alpha=0.5)
-            self._props = {**lineprops, 'animated': self.useblit}
-            to_draw = Line2D([0, 0], [0, 0], visible=False, **self._props)
-            self.ax.add_line(to_draw)
+        if props is None:
+            props = dict(facecolor='red', edgecolor='black',
+                         alpha=0.2, fill=True)
+        self._props = {**props, 'animated': self.useblit}
+        self._visible = self._props.pop('visible', self._visible)
+        to_draw = self._init_shape(**self._props)
+        self.ax.add_patch(to_draw)
 
         self._selection_artist = to_draw
         self._set_aspect_ratio_correction()
@@ -3123,7 +3076,6 @@ class RectangleSelector(_SelectorWidget):
 
         _api.check_in_list(['data', 'pixels'], spancoords=spancoords)
         self.spancoords = spancoords
-        self._drawtype = drawtype
 
         self.grab_range = grab_range
 
@@ -3153,20 +3105,6 @@ class RectangleSelector(_SelectorWidget):
             self._active_handle = None
 
         self._extents_on_press = None
-
-    to_draw = _api.deprecated("3.5")(
-        property(lambda self: self._selection_artist)
-        )
-
-    drawtype = _api.deprecate_privatize_attribute("3.5")
-
-    active_handle = _api.deprecate_privatize_attribute("3.5")
-
-    interactive = _api.deprecate_privatize_attribute("3.5")
-
-    maxdist = _api.deprecated("3.5", name="maxdist", alternative="grab_range")(
-        property(lambda self: self.grab_range,
-                 lambda self, value: setattr(self, "grab_range", value)))
 
     @property
     def _handles_artists(self):
@@ -3240,8 +3178,7 @@ class RectangleSelector(_SelectorWidget):
                                spancoords=self.spancoords)
         # check if drawn distance (if it exists) is not too small in
         # either x or y-direction
-        minspanxy = (spanx <= self.minspanx or spany <= self.minspany)
-        if (self._drawtype != 'none' and minspanxy):
+        if spanx <= self.minspanx or spany <= self.minspany:
             if self._selection_completed:
                 # Call onselect, only when the selection is already existing
                 self.onselect(self._eventpress, self._eventrelease)
@@ -3405,13 +3342,7 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def _rect_bbox(self):
-        if self._drawtype == 'box':
-            return self._selection_artist.get_bbox().bounds
-        else:
-            x, y = self._selection_artist.get_data()
-            x0, x1 = min(x), max(x)
-            y0, y1 = min(y), max(y)
-            return x0, y0, x1 - x0, y1 - y0
+        return self._selection_artist.get_bbox().bounds
 
     def _set_aspect_ratio_correction(self):
         aspect_ratio = self.ax._get_aspect_ratio()
@@ -3510,8 +3441,6 @@ class RectangleSelector(_SelectorWidget):
             # call extents setter to draw shape and update handles positions
             self.extents = self.extents
 
-    draw_shape = _api.deprecate_privatize_attribute('3.5')
-
     def _draw_shape(self, extents):
         x0, x1, y0, y1 = extents
         xmin, xmax = sorted([x0, x1])
@@ -3524,15 +3453,11 @@ class RectangleSelector(_SelectorWidget):
         xmax = min(xmax, xlim[1])
         ymax = min(ymax, ylim[1])
 
-        if self._drawtype == 'box':
-            self._selection_artist.set_x(xmin)
-            self._selection_artist.set_y(ymin)
-            self._selection_artist.set_width(xmax - xmin)
-            self._selection_artist.set_height(ymax - ymin)
-            self._selection_artist.set_angle(self.rotation)
-
-        elif self._drawtype == 'line':
-            self._selection_artist.set_data([xmin, xmax], [ymin, ymax])
+        self._selection_artist.set_x(xmin)
+        self._selection_artist.set_y(ymin)
+        self._selection_artist.set_width(xmax - xmin)
+        self._selection_artist.set_height(ymax - ymin)
+        self._selection_artist.set_angle(self.rotation)
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event."""
@@ -3600,9 +3525,6 @@ class EllipseSelector(RectangleSelector):
     --------
     :doc:`/gallery/widgets/rectangle_selector`
     """
-
-    draw_shape = _api.deprecate_privatize_attribute('3.5')
-
     def _init_shape(self, **props):
         return Ellipse((0, 0), 0, 1, visible=False, **props)
 
@@ -3614,29 +3536,17 @@ class EllipseSelector(RectangleSelector):
         a = (xmax - xmin) / 2.
         b = (ymax - ymin) / 2.
 
-        if self._drawtype == 'box':
-            self._selection_artist.center = center
-            self._selection_artist.width = 2 * a
-            self._selection_artist.height = 2 * b
-            self._selection_artist.angle = self.rotation
-        else:
-            rad = np.deg2rad(np.arange(31) * 12)
-            x = a * np.cos(rad) + center[0]
-            y = b * np.sin(rad) + center[1]
-            self._selection_artist.set_data(x, y)
+        self._selection_artist.center = center
+        self._selection_artist.width = 2 * a
+        self._selection_artist.height = 2 * b
+        self._selection_artist.angle = self.rotation
 
     @property
     def _rect_bbox(self):
-        if self._drawtype == 'box':
-            x, y = self._selection_artist.center
-            width = self._selection_artist.width
-            height = self._selection_artist.height
-            return x - width / 2., y - height / 2., width, height
-        else:
-            x, y = self._selection_artist.get_data()
-            x0, x1 = min(x), max(x)
-            y0, y1 = min(y), max(y)
-            return x0, y0, x1 - x0, y1 - y0
+        x, y = self._selection_artist.center
+        width = self._selection_artist.width
+        height = self._selection_artist.height
+        return x - width / 2., y - height / 2., width, height
 
 
 class LassoSelector(_SelectorWidget):
@@ -3680,9 +3590,8 @@ class LassoSelector(_SelectorWidget):
         which corresponds to all buttons.
     """
 
-    @_api.rename_parameter("3.5", "lineprops", "props")
-    def __init__(self, ax, onselect=None, useblit=True, props=None,
-                 button=None):
+    @_api.make_keyword_only("3.7", name="useblit")
+    def __init__(self, ax, onselect, useblit=True, props=None, button=None):
         super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
         props = {
@@ -3695,17 +3604,9 @@ class LassoSelector(_SelectorWidget):
         self.ax.add_line(line)
         self._selection_artist = line
 
-    @_api.deprecated("3.5", alternative="press")
-    def onpress(self, event):
-        self.press(event)
-
     def _press(self, event):
         self.verts = [self._get_data(event)]
         self._selection_artist.set_visible(True)
-
-    @_api.deprecated("3.5", alternative="release")
-    def onrelease(self, event):
-        self.release(event)
 
     def _release(self, event):
         if self.verts is not None:
@@ -3801,9 +3702,7 @@ class PolygonSelector(_SelectorWidget):
     point.
     """
 
-    @_api.rename_parameter("3.5", "lineprops", "props")
-    @_api.rename_parameter("3.5", "markerprops", "handle_props")
-    @_api.rename_parameter("3.5", "vertex_select_radius", "grab_range")
+    @_api.make_keyword_only("3.7", name="useblit")
     def __init__(self, ax, onselect, useblit=False,
                  props=None, handle_props=None, grab_range=10, *,
                  draw_bounding_box=False, box_handle_props=None,
@@ -3909,16 +3808,6 @@ class PolygonSelector(_SelectorWidget):
         self._xys = [*new_verts, new_verts[0]]
         self._draw_polygon()
         self._old_box_extents = self._box.extents
-
-    line = _api.deprecated("3.5")(
-        property(lambda self: self._selection_artist)
-        )
-
-    vertex_select_radius = _api.deprecated("3.5", name="vertex_select_radius",
-                                           alternative="grab_range")(
-        property(lambda self: self.grab_range,
-                 lambda self, value: setattr(self, "grab_range", value))
-        )
 
     @property
     def _handles_artists(self):
@@ -4111,16 +4000,17 @@ class Lasso(AxesWidget):
         The parent Axes for the widget.
     xy : (float, float)
         Coordinates of the start of the lasso.
+    callback : callable
+        Whenever the lasso is released, the *callback* function is called and
+        passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
         backend). See the tutorial :doc:`/tutorials/advanced/blitting`
         for details.
-    callback : callable
-        Whenever the lasso is released, the *callback* function is called and
-        passed the vertices of the selected path.
     """
 
-    def __init__(self, ax, xy, callback=None, useblit=True):
+    @_api.make_keyword_only("3.7", name="useblit")
+    def __init__(self, ax, xy, callback, useblit=True):
         super().__init__(ax)
 
         self.useblit = useblit and self.canvas.supports_blit
