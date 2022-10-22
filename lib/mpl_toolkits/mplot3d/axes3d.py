@@ -236,7 +236,11 @@ class Axes3D(Axes):
     w_zaxis = _api.deprecated("3.1", alternative="zaxis", removal="3.8")(
         property(lambda self: self.zaxis))
 
+    @_api.deprecated("3.7")
     def unit_cube(self, vals=None):
+        return self._unit_cube(vals)
+
+    def _unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
         return [(minx, miny, minz),
                 (maxx, miny, minz),
@@ -247,15 +251,23 @@ class Axes3D(Axes):
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
 
+    @_api.deprecated("3.7")
     def tunit_cube(self, vals=None, M=None):
+        return self._tunit_cube(vals, M)
+
+    def _tunit_cube(self, vals=None, M=None):
         if M is None:
             M = self.M
-        xyzs = self.unit_cube(vals)
+        xyzs = self._unit_cube(vals)
         tcube = proj3d.proj_points(xyzs, M)
         return tcube
 
+    @_api.deprecated("3.7")
     def tunit_edges(self, vals=None, M=None):
-        tc = self.tunit_cube(vals, M)
+        return self._tunit_edges(vals, M)
+
+    def _tunit_edges(self, vals=None, M=None):
+        tc = self._tunit_cube(vals, M)
         edges = [(tc[0], tc[1]),
                  (tc[1], tc[2]),
                  (tc[2], tc[3]),
@@ -496,7 +508,7 @@ class Axes3D(Axes):
 
     def get_axis_position(self):
         vals = self.get_w_lims()
-        tc = self.tunit_cube(vals, self.M)
+        tc = self._tunit_cube(vals, self.M)
         xhigh = tc[1][2] > tc[2][2]
         yhigh = tc[3][2] > tc[2][2]
         zhigh = tc[0][2] > tc[2][2]
@@ -1063,7 +1075,7 @@ class Axes3D(Axes):
                     ).replace("-", "\N{MINUS SIGN}")
 
         # nearest edge
-        p0, p1 = min(self.tunit_edges(),
+        p0, p1 = min(self._tunit_edges(),
                      key=lambda edge: proj3d._line2d_seg_dist(
                          edge[0], edge[1], (xd, yd)))
 
