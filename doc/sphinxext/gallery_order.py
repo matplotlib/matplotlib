@@ -28,6 +28,7 @@ explicit_order_folders = [
                           '../plot_types/arrays',
                           '../plot_types/stats',
                           '../plot_types/unstructured',
+                          '../plot_types/3D',
                           ]
 
 
