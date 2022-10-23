@@ -1124,6 +1124,10 @@ def use(backend, *, force=True):
     """
     Select the backend used for rendering and GUI integration.
 
+    If pyplot is already imported, `~matplotlib.pyplot.switch_backend` is used
+    and if the new backend is different than the current backend, all Figures
+    will be closed.
+
     Parameters
     ----------
     backend : str
@@ -1154,6 +1158,8 @@ def use(backend, *, force=True):
     --------
     :ref:`backends`
     matplotlib.get_backend
+    matplotlib.pyplot.switch_backend
+
     """
     name = validate_backend(backend)
     # don't (prematurely) resolve the "auto" backend setting
