@@ -18,7 +18,7 @@ from pathlib import Path
 import warnings
 
 import matplotlib as mpl
-from matplotlib import _api, _docstring, rc_params_from_file, rcParamsDefault
+from matplotlib import _api, _docstring, _rc_params_in_file, rcParamsDefault
 
 _log = logging.getLogger(__name__)
 
@@ -62,23 +62,6 @@ _DEPRECATED_SEABORN_MSG = (
     "as they no longer correspond to the styles shipped by seaborn. However, "
     "they will remain available as 'seaborn-v0_8-<style>'. Alternatively, "
     "directly use the seaborn API instead.")
-
-
-def _remove_blacklisted_style_params(d, warn=True):
-    o = {}
-    for key in d:  # prevent triggering RcParams.__getitem__('backend')
-        if key in STYLE_BLACKLIST:
-            if warn:
-                _api.warn_external(
-                    f"Style includes a parameter, {key!r}, that is not "
-                    "related to style.  Ignoring this parameter.")
-        else:
-            o[key] = d[key]
-    return o
-
-
-def _apply_style(d, warn=True):
-    mpl.rcParams.update(_remove_blacklisted_style_params(d, warn=warn))
 
 
 @_docstring.Substitution(
@@ -129,33 +112,38 @@ def use(style):
 
     style_alias = {'mpl20': 'default', 'mpl15': 'classic'}
 
-    def fix_style(s):
-        if isinstance(s, str):
-            s = style_alias.get(s, s)
-            if s in _DEPRECATED_SEABORN_STYLES:
+    for style in styles:
+        if isinstance(style, str):
+            style = style_alias.get(style, style)
+            if style in _DEPRECATED_SEABORN_STYLES:
                 _api.warn_deprecated("3.6", message=_DEPRECATED_SEABORN_MSG)
-                s = _DEPRECATED_SEABORN_STYLES[s]
-        return s
-
-    for style in map(fix_style, styles):
-        if not isinstance(style, (str, Path)):
-            _apply_style(style)
-        elif style == 'default':
-            # Deprecation warnings were already handled when creating
-            # rcParamsDefault, no need to reemit them here.
-            with _api.suppress_matplotlib_deprecation_warning():
-                _apply_style(rcParamsDefault, warn=False)
-        elif style in library:
-            _apply_style(library[style])
-        else:
+                style = _DEPRECATED_SEABORN_STYLES[style]
+            if style == "default":
+                # Deprecation warnings were already handled when creating
+                # rcParamsDefault, no need to reemit them here.
+                with _api.suppress_matplotlib_deprecation_warning():
+                    # don't trigger RcParams.__getitem__('backend')
+                    style = {k: rcParamsDefault[k] for k in rcParamsDefault
+                             if k not in STYLE_BLACKLIST}
+            elif style in library:
+                style = library[style]
+        if isinstance(style, (str, Path)):
             try:
-                rc = rc_params_from_file(style, use_default_template=False)
-                _apply_style(rc)
+                style = _rc_params_in_file(style)
             except IOError as err:
                 raise IOError(
-                    "{!r} not found in the style library and input is not a "
-                    "valid URL or path; see `style.available` for list of "
-                    "available styles".format(style)) from err
+                    f"{style!r} not found in the style library and input is "
+                    f"not a valid URL or path; see `style.available` for the "
+                    f"list of available styles") from err
+        filtered = {}
+        for k in style:  # don't trigger RcParams.__getitem__('backend')
+            if k in STYLE_BLACKLIST:
+                _api.warn_external(
+                    f"Style includes a parameter, {k!r}, that is not "
+                    f"related to style.  Ignoring this parameter.")
+            else:
+                filtered[k] = style[k]
+        mpl.rcParams.update(filtered)
 
 
 @contextlib.contextmanager
@@ -205,8 +193,7 @@ def read_style_directory(style_dir):
     styles = dict()
     for path in Path(style_dir).glob(f"*.{STYLE_EXTENSION}"):
         with warnings.catch_warnings(record=True) as warns:
-            styles[path.stem] = rc_params_from_file(
-                path, use_default_template=False)
+            styles[path.stem] = _rc_params_in_file(path)
         for w in warns:
             _log.warning('In %s: %s', path, w.message)
     return styles
