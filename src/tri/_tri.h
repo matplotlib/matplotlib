@@ -790,3 +790,5 @@ private:
 
     Node* _tree;    // Root node of the trapezoid map search tree.  Owned.
 };
+
+#endif
