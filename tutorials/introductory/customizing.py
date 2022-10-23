@@ -9,9 +9,9 @@ Tips for customizing the properties and default styles of Matplotlib.
 
 There are three ways to customize Matplotlib:
 
-    1. :ref:`Setting rcParams at runtime<customizing-with-dynamic-rc-settings>`.
-    2. :ref:`Using style sheets<customizing-with-style-sheets>`.
-    3. :ref:`Changing your matplotlibrc file<customizing-with-matplotlibrc-files>`.
+1. :ref:`Setting rcParams at runtime<customizing-with-dynamic-rc-settings>`.
+2. :ref:`Using style sheets<customizing-with-style-sheets>`.
+3. :ref:`Changing your matplotlibrc file<customizing-with-matplotlibrc-files>`.
 
 Setting rcParams at runtime takes precedence over style sheets, style
 sheets take precedence over :file:`matplotlibrc` files.
@@ -136,6 +136,17 @@ print(plt.style.available)
 #
 #    >>> import matplotlib.pyplot as plt
 #    >>> plt.style.use('./images/presentation.mplstyle')
+#
+#
+# Distributing styles
+# -------------------
+#
+# You can include style sheets into standard importable Python packages (which
+# can be e.g. distributed on PyPI).  If your package is importable as
+# ``import mypackage``, with a ``mypackage/__init__.py`` module, and you add
+# a ``mypackage/presentation.mplstyle`` style sheet, then it can be used as
+# ``plt.style.use("mypackage.presentation")``.  Subpackages (e.g.
+# ``dotted.package.name``) are also supported.
 #
 # Alternatively, you can make your style known to Matplotlib by placing
 # your ``<style-name>.mplstyle`` file into ``mpl_configdir/stylelib``.  You

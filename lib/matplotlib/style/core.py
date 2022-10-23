@@ -15,7 +15,15 @@ import contextlib
 import logging
 import os
 from pathlib import Path
+import sys
 import warnings
+
+if sys.version_info >= (3, 10):
+    import importlib.resources as importlib_resources
+else:
+    # Even though Py3.9 has importlib.resources, it doesn't properly handle
+    # modules added in sys.path.
+    import importlib_resources
 
 import matplotlib as mpl
 from matplotlib import _api, _docstring, _rc_params_in_file, rcParamsDefault
@@ -82,20 +90,28 @@ def use(style):
     Parameters
     ----------
     style : str, dict, Path or list
-        A style specification. Valid options are:
 
-        +------+-------------------------------------------------------------+
-        | str  | The name of a style or a path/URL to a style file. For a    |
-        |      | list of available style names, see `.style.available`.      |
-        +------+-------------------------------------------------------------+
-        | dict | Dictionary with valid key/value pairs for                   |
-        |      | `matplotlib.rcParams`.                                      |
-        +------+-------------------------------------------------------------+
-        | Path | A path-like object which is a path to a style file.         |
-        +------+-------------------------------------------------------------+
-        | list | A list of style specifiers (str, Path or dict) applied from |
-        |      | first to last in the list.                                  |
-        +------+-------------------------------------------------------------+
+        A style specification.
+
+        - If a str, this can be one of the style names in `.style.available`
+          (a builtin style or a style installed in the user library path).
+
+          This can also be a dotted name of the form "package.style_name"; in
+          that case, "package" should be an importable Python package name,
+          e.g. at ``/path/to/package/__init__.py``; the loaded style file is
+          ``/path/to/package/style_name.mplstyle``.  (Style files in
+          subpackages are likewise supported.)
+
+          This can also be the path or URL to a style file, which gets loaded
+          by `.rc_params_from_file`.
+
+        - If a dict, this is a mapping of key/value pairs for `.rcParams`.
+
+        - If a Path, this is the path to a style file, which gets loaded by
+          `.rc_params_from_file`.
+
+        - If a list, this is a list of style specifiers (str, Path or dict),
+          which get applied from first to last in the list.
 
     Notes
     -----
@@ -127,14 +143,28 @@ def use(style):
                              if k not in STYLE_BLACKLIST}
             elif style in library:
                 style = library[style]
+            elif "." in style:
+                pkg, _, name = style.rpartition(".")
+                try:
+                    path = (importlib_resources.files(pkg)
+                            / f"{name}.{STYLE_EXTENSION}")
+                    style = _rc_params_in_file(path)
+                except (ModuleNotFoundError, IOError) as exc:
+                    # There is an ambiguity whether a dotted name refers to a
+                    # package.style_name or to a dotted file path.  Currently,
+                    # we silently try the first form and then the second one;
+                    # in the future, we may consider forcing file paths to
+                    # either use Path objects or be prepended with "./" and use
+                    # the slash as marker for file paths.
+                    pass
         if isinstance(style, (str, Path)):
             try:
                 style = _rc_params_in_file(style)
             except IOError as err:
                 raise IOError(
-                    f"{style!r} not found in the style library and input is "
-                    f"not a valid URL or path; see `style.available` for the "
-                    f"list of available styles") from err
+                    f"{style!r} is not a valid package style, path of style "
+                    f"file, URL of style file, or library style name (library "
+                    f"styles are listed in `style.available`)") from err
         filtered = {}
         for k in style:  # don't trigger RcParams.__getitem__('backend')
             if k in STYLE_BLACKLIST:

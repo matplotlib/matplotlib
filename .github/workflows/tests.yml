@@ -162,8 +162,8 @@ jobs:
 
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
-            'contourpy>=1.0.1' cycler fonttools kiwisolver numpy packaging \
-            pillow pyparsing python-dateutil setuptools-scm \
+            'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
+            numpy packaging pillow pyparsing python-dateutil setuptools-scm \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
