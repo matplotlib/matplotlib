@@ -182,7 +182,8 @@ def findobj(o=None, match=None, include_self=True):
 
 
 def _get_required_interactive_framework(backend_mod):
-    if not hasattr(backend_mod.FigureCanvas, "required_interactive_framework"):
+    if not hasattr(getattr(backend_mod, "FigureCanvas", None),
+                   "required_interactive_framework"):
         _api.warn_deprecated(
             "3.6", name="Support for FigureCanvases without a "
             "required_interactive_framework attribute")
@@ -263,7 +264,6 @@ def switch_backend(newbackend):
 
     backend_mod = importlib.import_module(
         cbook._backend_module_name(newbackend))
-    canvas_class = backend_mod.FigureCanvas
 
     required_framework = _get_required_interactive_framework(backend_mod)
     if required_framework is not None:
@@ -293,6 +293,8 @@ def switch_backend(newbackend):
     # also update backend_mod accordingly; also, per-backend customization of
     # draw_if_interactive is disabled.
     if new_figure_manager is None:
+        # only try to get the canvas class if have opted into the new scheme
+        canvas_class = backend_mod.FigureCanvas
         def new_figure_manager_given_figure(num, figure):
             return canvas_class.new_manager(figure, num)
 
@@ -330,11 +332,21 @@ def switch_backend(newbackend):
 
 
 def _warn_if_gui_out_of_main_thread():
-    # This compares native thread ids because even if python-level Thread
-    # objects match, the underlying OS thread (which is what really matters)
-    # may be different on Python implementations with green threads.
-    if (_get_required_interactive_framework(_get_backend_mod()) and
-            threading.get_native_id() != threading.main_thread().native_id):
+    warn = False
+    if _get_required_interactive_framework(_get_backend_mod()):
+        if hasattr(threading, 'get_native_id'):
+            # This compares native thread ids because even if Python-level
+            # Thread objects match, the underlying OS thread (which is what
+            # really matters) may be different on Python implementations with
+            # green threads.
+            if threading.get_native_id() != threading.main_thread().native_id:
+                warn = True
+        else:
+            # Fall back to Python-level Thread if native IDs are unavailable,
+            # mainly for PyPy.
+            if threading.current_thread() is not threading.main_thread():
+                warn = True
+    if warn:
         _api.warn_external(
             "Starting a Matplotlib GUI outside of the main thread will likely "
             "fail.")
@@ -1130,13 +1142,11 @@ def subplot(*args, **kwargs):
 
     Returns
     -------
-    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+    `~.axes.Axes`
 
-        The axes of the subplot. The returned axes base class depends on
-        the projection used. It is `~.axes.Axes` if rectilinear projection
-        is used and `.projections.polar.PolarAxes` if polar projection
-        is used. The returned axes is then a subplot subclass of the
-        base class.
+        The Axes of the subplot. The returned Axes can actually be an instance
+        of a subclass, such as `.projections.polar.PolarAxes` for polar
+        projections.
 
     Other Parameters
     ----------------
@@ -1253,7 +1263,7 @@ def subplot(*args, **kwargs):
 
     for ax in fig.axes:
         # if we found an Axes at the position sort out if we can re-use it
-        if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key:
+        if ax.get_subplotspec() == key:
             # if the user passed no kwargs, re-use
             if kwargs == {}:
                 break
@@ -1560,12 +1570,11 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     Returns
     -------
-    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+    `~.axes.Axes`
 
-        The axes of the subplot.  The returned axes base class depends on the
-        projection used.  It is `~.axes.Axes` if rectilinear projection is used
-        and `.projections.polar.PolarAxes` if polar projection is used.  The
-        returned axes is then a subplot subclass of the base class.
+        The Axes of the subplot. The returned Axes can actually be an instance
+        of a subclass, such as `.projections.polar.PolarAxes` for polar
+        projections.
 
     Notes
     -----
@@ -2016,20 +2025,23 @@ def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     return lines, labels
 
 
-_NON_PLOT_COMMANDS = {
-    'connect', 'disconnect', 'get_current_fig_manager', 'ginput',
-    'new_figure_manager', 'waitforbuttonpress'}
-
-
+@_api.deprecated("3.7", pending=True)
 def get_plot_commands():
     """
     Get a sorted list of all of the plotting commands.
     """
+    NON_PLOT_COMMANDS = {
+        'connect', 'disconnect', 'get_current_fig_manager', 'ginput',
+        'new_figure_manager', 'waitforbuttonpress'}
+    return (name for name in _get_pyplot_commands()
+            if name not in NON_PLOT_COMMANDS)
+
+
+def _get_pyplot_commands():
     # This works by searching for all functions in this module and removing
     # a few hard-coded exclusions, as well as all of the colormap-setting
     # functions, and anything marked as private with a preceding underscore.
-    exclude = {'colormaps', 'colors', 'get_plot_commands',
-               *_NON_PLOT_COMMANDS, *colormaps}
+    exclude = {'colormaps', 'colors', 'get_plot_commands', *colormaps}
     this_module = inspect.getmodule(get_plot_commands)
     return sorted(
         name for name, obj in globals().items()
@@ -2367,9 +2379,12 @@ def barbs(*args, data=None, **kwargs):
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.barh)
-def barh(y, width, height=0.8, left=None, *, align='center', **kwargs):
+def barh(
+        y, width, height=0.8, left=None, *, align='center',
+        data=None, **kwargs):
     return gca().barh(
-        y, width, height=height, left=left, align=align, **kwargs)
+        y, width, height=height, left=left, align=align,
+        **({"data": data} if data is not None else {}), **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.

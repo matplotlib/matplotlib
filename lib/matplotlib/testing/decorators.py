@@ -32,8 +32,8 @@ def _cleanup_cm():
         plt.close("all")
 
 
-@_api.deprecated("3.6", alternative="Vendor the existing code, "
-                 "including the private function _cleanup_cm.")
+@_api.deprecated("3.6", alternative="a vendored copy of the existing code, "
+                 "including the private function _cleanup_cm")
 class CleanupTestCase(unittest.TestCase):
     """A wrapper for unittest.TestCase that includes cleanup operations."""
     @classmethod
@@ -45,8 +45,8 @@ class CleanupTestCase(unittest.TestCase):
         cls._cm.__exit__(None, None, None)
 
 
-@_api.deprecated("3.6", alternative="Vendor the existing code, "
-                 "including the private function _cleanup_cm.")
+@_api.deprecated("3.6", alternative="a vendored copy of the existing code, "
+                 "including the private function _cleanup_cm")
 def cleanup(style=None):
     """
     A decorator to ensure that any global state is reset before
@@ -88,8 +88,8 @@ def cleanup(style=None):
         return make_cleanup
 
 
-@_api.deprecated("3.6", alternative="Vendor the existing code "
-                 "of _check_freetype_version.")
+@_api.deprecated("3.6", alternative="a vendored copy of the existing code "
+                 "of _check_freetype_version")
 def check_freetype_version(ver):
     return _check_freetype_version(ver)
 
@@ -264,7 +264,12 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 kwargs['request'] = request
 
             if extension not in comparable_formats():
-                pytest.skip(f"Cannot compare {extension} files on this system")
+                reason = {
+                    'pdf': 'because Ghostscript is not installed',
+                    'eps': 'because Ghostscript is not installed',
+                    'svg': 'because Inkscape is not installed',
+                }.get(extension, 'on this system')
+                pytest.skip(f"Cannot compare {extension} files {reason}")
 
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)

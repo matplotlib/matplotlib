@@ -20,8 +20,8 @@ a dictionary of these artists, i.e., ax.axis["left"] is a AxisArtist
 instance responsible to draw left y-axis. The default Axes.axis contains
 "bottom", "left", "top" and "right".
 
-AxisArtist can be considered as a container artist and
-has following children artists which will draw ticks, labels, etc.
+AxisArtist can be considered as a container artist and has the following
+children artists which will draw ticks, labels, etc.
 
 * line
 * major_ticks, major_ticklabels
@@ -52,48 +52,35 @@ from .axis_artist import AxisArtist, GridlinesCollection
 
 class AxisArtistHelper:
     """
-    AxisArtistHelper should define
-    following method with given APIs. Note that the first axes argument
-    will be axes attribute of the caller artist.::
+    Axis helpers should define the methods listed below.  The *axes* argument
+    will be the axes attribute of the caller artist.
 
+    ::
 
-        # LINE (spinal line?)
-
-        def get_line(self, axes):
-            # path : Path
-            return path
+        # Construct the spine.
 
         def get_line_transform(self, axes):
-            # ...
-            # trans : transform
-            return trans
+            return transform
 
-        # LABEL
+        def get_line(self, axes):
+            return path
 
-        def get_label_pos(self, axes):
-            # x, y : position
-            return (x, y), trans
+        # Construct the label.
 
+        def get_axislabel_transform(self, axes):
+            return transform
 
-        def get_label_offset_transform(self,
-                axes,
-                pad_points, fontprops, renderer,
-                bboxes,
-                ):
-            # va : vertical alignment
-            # ha : horizontal alignment
-            # a : angle
-            return trans, va, ha, a
+        def get_axislabel_pos_angle(self, axes):
+            return (x, y), angle
 
-        # TICK
+        # Construct the ticks.
 
         def get_tick_transform(self, axes):
-            return trans
+            return transform
 
         def get_tick_iterators(self, axes):
-            # iter : iterable object that yields (c, angle, l) where
-            # c, angle, l is position, tick angle, and label
-
+            # A pair of iterables (one for major ticks, one for minor ticks)
+            # that yield (tick_position, tick_angle, tick_label).
             return iter_major, iter_minor
     """
 
@@ -117,17 +104,14 @@ class AxisArtistHelper:
                                     top=(0, 1))
 
         def __init__(self, loc, nth_coord=None):
-            """
-            nth_coord = along which coordinate value varies
-            in 2D, nth_coord = 0 ->  x axis, nth_coord = 1 -> y axis
-            """
+            """``nth_coord = 0``: x-axis; ``nth_coord = 1``: y-axis."""
             _api.check_in_list(["left", "right", "bottom", "top"], loc=loc)
             self._loc = loc
 
             if nth_coord is None:
                 if loc in ["left", "right"]:
                     nth_coord = 1
-                elif loc in ["bottom", "top"]:
+                else:  # "bottom", "top"
                     nth_coord = 0
 
             self.nth_coord = nth_coord
@@ -210,7 +194,7 @@ class AxisArtistHelperRectlinear:
             """tick_loc, tick_angle, tick_label"""
             if self._loc in ["bottom", "top"]:
                 angle_normal, angle_tangent = 90, 0
-            else:
+            else:  # "left", "right"
                 angle_normal, angle_tangent = 0, 90
 
             major = self.axis.major
@@ -327,8 +311,10 @@ class GridHelperBase:
         """
         Return list of grid lines as a list of paths (list of points).
 
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"both", "major", "minor"}
+        axis : {"both", "x", "y"}
         """
         return []
 
@@ -407,23 +393,27 @@ class GridHelperRectlinear(GridHelperBase):
         """
         Return list of gridline coordinates in data coordinates.
 
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
+        Parameters
+        ----------
+        which : {"both", "major", "minor"}
+        axis : {"both", "x", "y"}
         """
+        _api.check_in_list(["both", "major", "minor"], which=which)
+        _api.check_in_list(["both", "x", "y"], axis=axis)
         gridlines = []
 
-        if axis in ["both", "x"]:
+        if axis in ("both", "x"):
             locs = []
             y1, y2 = self.axes.get_ylim()
-            if which in ["both", "major"]:
+            if which in ("both", "major"):
                 locs.extend(self.axes.xaxis.major.locator())
-            if which in ["both", "minor"]:
+            if which in ("both", "minor"):
                 locs.extend(self.axes.xaxis.minor.locator())
 
             for x in locs:
                 gridlines.append([[x, x], [y1, y2]])
 
-        if axis in ["both", "y"]:
+        if axis in ("both", "y"):
             x1, x2 = self.axes.get_xlim()
             locs = []
             if self.axes.yaxis._major_tick_kw["gridOn"]:
@@ -558,9 +548,6 @@ class Axes(maxes.Axes):
         return axis
 
 
-Subplot = maxes.subplot_class_factory(Axes)
-
-
 class AxesZero(Axes):
 
     def clear(self):
@@ -577,4 +564,5 @@ class AxesZero(Axes):
             self._axislines[k].set_visible(False)
 
 
-SubplotZero = maxes.subplot_class_factory(AxesZero)
+Subplot = Axes
+SubplotZero = AxesZero

@@ -350,8 +350,12 @@ class OffsetBox(martist.Artist):
         # docstring inherited
         if renderer is None:
             renderer = self.figure._get_renderer()
-        w, h, xd, yd, offsets = self.get_extent_offsets(renderer)
-        px, py = self.get_offset(w, h, xd, yd, renderer)
+        w, h, xd, yd = self.get_extent(renderer)
+        # Some subclasses redefine get_offset to take no args.
+        try:
+            px, py = self.get_offset(w, h, xd, yd, renderer)
+        except TypeError:
+            px, py = self.get_offset()
         return mtransforms.Bbox.from_bounds(px - xd, py - yd, w, h)
 
     def draw(self, renderer):
@@ -636,15 +640,6 @@ class DrawingArea(OffsetBox):
         """Return offset of the container."""
         return self._offset
 
-    def get_window_extent(self, renderer=None):
-        # docstring inherited
-        if renderer is None:
-            renderer = self.figure._get_renderer()
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()  # w, h, xd, yd)
-
-        return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
-
     def get_extent(self, renderer):
         """Return width, height, xdescent, ydescent of box."""
         dpi_cor = renderer.points_to_pixels(1.)
@@ -773,14 +768,6 @@ class TextArea(OffsetBox):
         """Return offset of the container."""
         return self._offset
 
-    def get_window_extent(self, renderer=None):
-        # docstring inherited
-        if renderer is None:
-            renderer = self.figure._get_renderer()
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()
-        return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
-
     def get_extent(self, renderer):
         _, h_, d_ = renderer.get_text_width_height_descent(
             "lp", self._text._fontproperties,
@@ -875,14 +862,6 @@ class AuxTransformBox(OffsetBox):
     def get_offset(self):
         """Return offset of the container."""
         return self._offset
-
-    def get_window_extent(self, renderer=None):
-        # docstring inherited
-        if renderer is None:
-            renderer = self.figure._get_renderer()
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()  # w, h, xd, yd)
-        return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
         # clear the offset transforms
@@ -1061,34 +1040,14 @@ class AnchoredOffsetbox(OffsetBox):
         self._bbox_to_anchor_transform = transform
         self.stale = True
 
-    def get_window_extent(self, renderer=None):
+    def get_offset(self, width, height, xdescent, ydescent, renderer):
         # docstring inherited
-        if renderer is None:
-            renderer = self.figure._get_renderer()
-
-        self._update_offset_func(renderer)
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset(w, h, xd, yd, renderer)
-        return Bbox.from_bounds(ox - xd, oy - yd, w, h)
-
-    def _update_offset_func(self, renderer, fontsize=None):
-        """
-        Update the offset func which depends on the dpi of the
-        renderer (because of the padding).
-        """
-        if fontsize is None:
-            fontsize = renderer.points_to_pixels(
-                self.prop.get_size_in_points())
-
-        def _offset(w, h, xd, yd, renderer):
-            bbox = Bbox.from_bounds(0, 0, w, h)
-            borderpad = self.borderpad * fontsize
-            bbox_to_anchor = self.get_bbox_to_anchor()
-            x0, y0 = _get_anchored_bbox(
-                self.loc, bbox, bbox_to_anchor, borderpad)
-            return x0 + xd, y0 + yd
-
-        self.set_offset(_offset)
+        bbox = Bbox.from_bounds(0, 0, width, height)
+        pad = (self.borderpad
+               * renderer.points_to_pixels(self.prop.get_size_in_points()))
+        bbox_to_anchor = self.get_bbox_to_anchor()
+        x0, y0 = _get_anchored_bbox(self.loc, bbox, bbox_to_anchor, pad)
+        return x0 + xdescent, y0 + ydescent
 
     def update_frame(self, bbox, fontsize=None):
         self.patch.set_bounds(bbox.bounds)
@@ -1100,11 +1059,9 @@ class AnchoredOffsetbox(OffsetBox):
         if not self.get_visible():
             return
 
-        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
-        self._update_offset_func(renderer, fontsize)
-
         # update the location and size of the legend
         bbox = self.get_window_extent(renderer)
+        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         self.update_frame(bbox, fontsize)
         self.patch.draw(renderer)
 
@@ -1229,14 +1186,6 @@ class OffsetImage(OffsetBox):
 
     def get_children(self):
         return [self.image]
-
-    def get_window_extent(self, renderer=None):
-        # docstring inherited
-        if renderer is None:
-            renderer = self.figure._get_renderer()
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset()
-        return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def get_extent(self, renderer):
         if self._dpi_cor:  # True, do correction

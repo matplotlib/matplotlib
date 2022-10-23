@@ -11,13 +11,13 @@ from numpy import ma
 import matplotlib as mpl
 from matplotlib import _api, _docstring
 from matplotlib.backend_bases import MouseButton
+from matplotlib.text import Text
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
-import matplotlib.text as text
 import matplotlib.cbook as cbook
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
@@ -31,7 +31,8 @@ import matplotlib.transforms as mtransforms
 # per level.
 
 
-class ClabelText(text.Text):
+@_api.deprecated("3.7", alternative="Text.set_transform_rotates_text")
+class ClabelText(Text):
     """
     Unlike the ordinary text, the get_rotation returns an updated
     angle in the pixel coordinate assuming that the input rotation is
@@ -150,10 +151,8 @@ class ContourLabeler:
             or minus 90 degrees from level.
 
         use_clabeltext : bool, default: False
-            If ``True``, `.ClabelText` class (instead of `.Text`) is used to
-            create labels. `ClabelText` recalculates rotation angles
-            of texts during the drawing time, therefore this can be used if
-            aspect of the axes changes.
+            If ``True``, use `.Text.set_transform_rotates_text` to ensure that
+            label rotation is updated whenever the axes aspect changes.
 
         zorder : float or None, default: ``(2 + contour.get_zorder())``
             zorder of the contour labels.
@@ -202,10 +201,7 @@ class ContourLabeler:
         self.labelLevelList = levels
         self.labelIndiceList = indices
 
-        self.labelFontProps = font_manager.FontProperties()
-        self.labelFontProps.set_size(fontsize)
-        font_size_pts = self.labelFontProps.get_size_in_points()
-        self.labelFontSizeList = [font_size_pts] * len(levels)
+        self._label_font_props = font_manager.FontProperties(size=fontsize)
 
         if colors is None:
             self.labelMappable = self
@@ -218,10 +214,10 @@ class ContourLabeler:
 
         self.labelXYs = []
 
-        if np.iterable(self.labelManual):
-            for x, y in self.labelManual:
+        if np.iterable(manual):
+            for x, y in manual:
                 self.add_label_near(x, y, inline, inline_spacing)
-        elif self.labelManual:
+        elif manual:
             print('Select label locations manually using first mouse button.')
             print('End manual selection with second mouse button.')
             if not inline:
@@ -234,8 +230,23 @@ class ContourLabeler:
         else:
             self.labels(inline, inline_spacing)
 
-        self.labelTextsList = cbook.silent_list('text.Text', self.labelTexts)
-        return self.labelTextsList
+        return cbook.silent_list('text.Text', self.labelTexts)
+
+    @_api.deprecated("3.7", alternative="cs.labelTexts[0].get_font()")
+    @property
+    def labelFontProps(self):
+        return self._label_font_props
+
+    @_api.deprecated("3.7", alternative=(
+        "[cs.labelTexts[0].get_font().get_size()] * len(cs.labelLevelList)"))
+    @property
+    def labelFontSizeList(self):
+        return [self._label_font_props.get_size()] * len(self.labelLevelList)
+
+    @_api.deprecated("3.7", alternative="cs.labelTexts")
+    @property
+    def labelTextsList(self):
+        return cbook.silent_list('text.Text', self.labelTexts)
 
     def print_label(self, linecontour, labelwidth):
         """Return whether a contour is long enough to hold a label."""
@@ -252,13 +263,10 @@ class ContourLabeler:
         """Return the width of the *nth* label, in pixels."""
         fig = self.axes.figure
         renderer = fig._get_renderer()
-        return (
-            text.Text(0, 0,
-                      self.get_text(self.labelLevelList[nth], self.labelFmt),
-                      figure=fig,
-                      size=self.labelFontSizeList[nth],
-                      fontproperties=self.labelFontProps)
-            .get_window_extent(renderer).width)
+        return (Text(0, 0,
+                     self.get_text(self.labelLevelList[nth], self.labelFmt),
+                     figure=fig, fontproperties=self._label_font_props)
+                .get_window_extent(renderer).width)
 
     @_api.deprecated("3.5")
     def get_label_width(self, lev, fmt, fsize):
@@ -267,17 +275,18 @@ class ContourLabeler:
             lev = self.get_text(lev, fmt)
         fig = self.axes.figure
         renderer = fig._get_renderer()
-        width = (text.Text(0, 0, lev, figure=fig,
-                           size=fsize, fontproperties=self.labelFontProps)
+        width = (Text(0, 0, lev, figure=fig,
+                      size=fsize, fontproperties=self._label_font_props)
                  .get_window_extent(renderer).width)
         width *= 72 / fig.dpi
         return width
 
+    @_api.deprecated("3.7", alternative="Artist.set")
     def set_label_props(self, label, text, color):
         """Set the label properties - color, fontsize, text."""
         label.set_text(text)
         label.set_color(color)
-        label.set_fontproperties(self.labelFontProps)
+        label.set_fontproperties(self._label_font_props)
         label.set_clip_box(self.axes.bbox)
 
     def get_text(self, lev, fmt):
@@ -417,57 +426,32 @@ class ContourLabeler:
 
         return rotation, nlc
 
-    def _get_label_text(self, x, y, rotation):
-        dx, dy = self.axes.transData.inverted().transform((x, y))
-        t = text.Text(dx, dy, rotation=rotation,
-                      horizontalalignment='center',
-                      verticalalignment='center', zorder=self._clabel_zorder)
-        return t
-
-    def _get_label_clabeltext(self, x, y, rotation):
-        # x, y, rotation is given in pixel coordinate. Convert them to
-        # the data coordinate and create a label using ClabelText
-        # class. This way, the rotation of the clabel is along the
-        # contour line always.
-        transDataInv = self.axes.transData.inverted()
-        dx, dy = transDataInv.transform((x, y))
-        drotation = transDataInv.transform_angles(np.array([rotation]),
-                                                  np.array([[x, y]]))
-        t = ClabelText(dx, dy, rotation=drotation[0],
-                       horizontalalignment='center',
-                       verticalalignment='center', zorder=self._clabel_zorder)
-
-        return t
-
-    def _add_label(self, t, x, y, lev, cvalue):
-        color = self.labelMappable.to_rgba(cvalue, alpha=self.alpha)
-
-        _text = self.get_text(lev, self.labelFmt)
-        self.set_label_props(t, _text, color)
+    def add_label(self, x, y, rotation, lev, cvalue):
+        """Add contour label without `.Text.set_transform_rotates_text`."""
+        data_x, data_y = self.axes.transData.inverted().transform((x, y))
+        t = Text(
+            data_x, data_y,
+            text=self.get_text(lev, self.labelFmt),
+            rotation=rotation,
+            horizontalalignment='center', verticalalignment='center',
+            zorder=self._clabel_zorder,
+            color=self.labelMappable.to_rgba(cvalue, alpha=self.alpha),
+            fontproperties=self._label_font_props,
+            clip_box=self.axes.bbox)
         self.labelTexts.append(t)
         self.labelCValues.append(cvalue)
         self.labelXYs.append((x, y))
-
         # Add label to plot here - useful for manual mode label selection
         self.axes.add_artist(t)
 
-    def add_label(self, x, y, rotation, lev, cvalue):
-        """
-        Add contour label using :class:`~matplotlib.text.Text` class.
-        """
-        t = self._get_label_text(x, y, rotation)
-        self._add_label(t, x, y, lev, cvalue)
-
     def add_label_clabeltext(self, x, y, rotation, lev, cvalue):
-        """
-        Add contour label using :class:`ClabelText` class.
-        """
-        # x, y, rotation is given in pixel coordinate. Convert them to
-        # the data coordinate and create a label using ClabelText
-        # class. This way, the rotation of the clabel is along the
-        # contour line always.
-        t = self._get_label_clabeltext(x, y, rotation)
-        self._add_label(t, x, y, lev, cvalue)
+        """Add contour label with `.Text.set_transform_rotates_text`."""
+        self.add_label(x, y, rotation, lev, cvalue)
+        # Grab the last added text, and reconfigure its rotation.
+        t = self.labelTexts[-1]
+        data_rotation, = self.axes.transData.inverted().transform_angles(
+            [rotation], [[x, y]])
+        t.set(rotation=data_rotation, transform_rotates_text=True)
 
     def add_label_near(self, x, y, inline=True, inline_spacing=5,
                        transform=None):
@@ -584,6 +568,10 @@ class ContourLabeler:
             # by new ones if inlining.
             if inline:
                 paths[:] = additions
+
+    def remove(self):
+        for text in self.labelTexts:
+            text.remove()
 
 
 def _is_closed_polygon(X):
@@ -785,8 +773,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._transform = transform
 
         self.negative_linestyles = negative_linestyles
-        # If negative_linestyles was not defined as a kwarg,
-        # define negative_linestyles with rcParams
+        # If negative_linestyles was not defined as a keyword argument, define
+        # negative_linestyles with rcParams
         if self.negative_linestyles is None:
             self.negative_linestyles = \
                 mpl.rcParams['contour.negative_linestyle']
@@ -1389,6 +1377,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         return (conmin, segmin, imin, xmin, ymin, d2min)
 
+    def remove(self):
+        super().remove()
+        for coll in self.collections:
+            coll.remove()
+
 
 @_docstring.dedent_interpd
 class QuadContourSet(ContourSet):
@@ -1600,7 +1593,7 @@ levels : int or array-like, optional
 
     If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries
     to automatically choose no more than *n+1* "nice" contour levels
-    between *vmin* and *vmax*.
+    between minimum and maximum numeric values of *Z*.
 
     If array-like, draw contour lines at the specified levels.
     The values must be in increasing order.
@@ -1746,26 +1739,27 @@ linewidths : float or array-like, default: :rc:`contour.linewidth`
 linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
     *Only applies to* `.contour`.
 
-    If *linestyles* is *None*, the default is 'solid' unless the lines
-    are monochrome.  In that case, negative contours will take their
-    linestyle from :rc:`contour.negative_linestyle` setting.
+    If *linestyles* is *None*, the default is 'solid' unless the lines are
+    monochrome. In that case, negative contours will instead take their
+    linestyle from the *negative_linestyles* argument.
 
-    *linestyles* can also be an iterable of the above strings
-    specifying a set of linestyles to be used. If this
-    iterable is shorter than the number of contour levels
-    it will be repeated as necessary.
+    *linestyles* can also be an iterable of the above strings specifying a set
+    of linestyles to be used. If this iterable is shorter than the number of
+    contour levels it will be repeated as necessary.
 
 negative_linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, \
                        optional
     *Only applies to* `.contour`.
 
-    If *negative_linestyles* is None, the default is 'dashed' for
-    negative contours.
+    If *linestyles* is *None* and the lines are monochrome, this argument
+    specifies the line style for negative contours.
 
-    *negative_linestyles* can also be an iterable of the above
-    strings specifying a set of linestyles to be used. If this
-    iterable is shorter than the number of contour levels
-    it will be repeated as necessary.
+    If *negative_linestyles* is *None*, the default is taken from
+    :rc:`contour.negative_linestyles`.
+
+    *negative_linestyles* can also be an iterable of the above strings
+    specifying a set of linestyles to be used. If this iterable is shorter than
+    the number of contour levels it will be repeated as necessary.
 
 hatches : list[str], optional
     *Only applies to* `.contourf`.

@@ -19,12 +19,12 @@ reference.
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
-* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>=4.22.0)
+* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.1)
 * `NumPy <https://numpy.org>`_ (>= 1.19)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.2.1)
+* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 
 
@@ -47,18 +47,17 @@ and the capabilities they provide.
   most standard Python installations, but it's not part of Python itself and
   thus may not be present in rare cases.
 * PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
-* PyGObject_: for the GTK-based backends. If using pip (but not conda or system
-  package manager) PyGObject must be built from source; see `pygobject
-  documentation
+* PyGObject_ and pycairo_ (>= 1.14.0): for the GTK-based backends. If using pip
+  (but not conda or system package manager) PyGObject must be built from
+  source; see `pygobject documentation
   <https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html>`_.
-* pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK and/or cairo-based
-  backends.
+* pycairo_ (>= 1.14.0) or cairocffi_ (>= 0.8): for cairo-based backends.
 * wxPython_ (>= 4): for the wx-based backends.  If using pip (but not conda or
   system package manager) on Linux wxPython wheels must be manually downloaded
   from https://wxpython.org/pages/downloads/.
-* Tornado_ (>=5): for the WebAgg backend.
+* Tornado_ (>= 5): for the WebAgg backend.
 * ipykernel_: for the nbagg backend.
-* macOS (>=10.12): for the macosx backend.
+* macOS (>= 10.12): for the macosx backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt5: https://pypi.org/project/PyQt5/
@@ -84,8 +83,8 @@ Font handling and rendering
 
 * `LaTeX <https://www.latex-project.org/>`_ (with `cm-super
   <https://ctan.org/pkg/cm-super>`__ and `underscore
-  <https://ctan.org/pkg/underscore>`__ ) and `GhostScript (>=9.0)
-  <https://ghostscript.com/releases/>`_ : for rendering text with LaTeX.
+  <https://ctan.org/pkg/underscore>`__) and `GhostScript (>= 9.0)
+  <https://ghostscript.com/releases/>`_: for rendering text with LaTeX.
 * `fontconfig <https://www.fontconfig.org>`_ (>= 2.7): for detection of system
   fonts on Linux.
 
@@ -178,8 +177,8 @@ Minimum pip / manylinux support (linux)
 Matplotlib publishes `manylinux wheels <https://github.com/pypa/manylinux>`_
 which have a minimum version of pip which will recognize the wheels
 
-- Python 3.8: ``manylinx2010`` / pip >=19.0
-- Python 3.9+: ``manylinx2014`` / pip >=19.3
+- Python 3.8: ``manylinx2010`` / pip >= 19.0
+- Python 3.9+: ``manylinx2014`` / pip >= 19.3
 
 In all cases the required version of pip is embedded in the CPython source.
 
@@ -227,7 +226,7 @@ This section lists the additional software required for
 
 Required:
 
-- pytest_ (>=3.6)
+- pytest_ (>= 3.6)
 
 Optional:
 
@@ -240,7 +239,7 @@ testing the following will be used if they are installed.
 - pandas_ used to test compatibility with Pandas
 - pikepdf_ used in some tests for the pgf and pdf backends
 - psutil_ used in testing the interactive backends
-- pytest-cov_ (>=2.3.1) to collect coverage information
+- pytest-cov_ (>= 2.3.1) to collect coverage information
 - pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel

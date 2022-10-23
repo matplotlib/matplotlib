@@ -95,7 +95,6 @@ def curvelinear_test2(fig):
     ax2 = ax1.get_aux_axes(tr)
     # note that ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.
-    ax1.parasites.append(ax2)
     ax2.plot(np.linspace(0, 30, 51), np.linspace(10, 10, 51), linewidth=2)
 
     ax2.pcolor(np.linspace(0, 90, 4), np.linspace(0, 10, 4),

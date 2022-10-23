@@ -45,7 +45,7 @@ When making a PR, pay attention to:
   on GitHub.
 * When updating your PR, instead of adding new commits to fix something, please
   consider amending your initial commit(s) to keep the history clean.
-  You can achieve this using
+  You can achieve this by using
 
   .. code-block:: bash
 
@@ -134,13 +134,13 @@ Milestones
 * Set the milestone according to these rules:
 
   * *New features and API changes* are milestoned for the next minor release
-    ``v3.X.0``.
+    ``v3.N.0``.
 
-  * *Bugfixes and docstring changes* are milestoned for the next patch
-    release ``v3.X.Y``
+  * *Bugfixes, tests for released code, and docstring changes* are milestoned
+    for the next patch release ``v3.N.M``.
 
   * *Documentation changes* (all .rst files and examples) are milestoned
-    ``v3.X-doc``
+    ``v3.N-doc``.
 
   If multiple rules apply, choose the first matching from the above list.
 

@@ -1,6 +1,0 @@
-Removed loaded modules logging
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The list of currently loaded modules is no longer logged at the DEBUG level at Matplotlib import time,
-because it can produce extensive output and make other valuable DEBUG statements difficult to find.
-If you were relying on this please arrange for your own logging (the built-in `sys.modules` can be used to get the currently loaded modules).

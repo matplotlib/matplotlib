@@ -9,8 +9,8 @@ Demonstration of features of the :mod:`.floating_axes` module:
   the plot.
 * Using `~.floating_axes.GridHelperCurveLinear` to rotate the plot and set the
   plot boundary.
-* Using `~.floating_axes.FloatingSubplot` to create a subplot using the return
-  value from `~.floating_axes.GridHelperCurveLinear`.
+* Using `~.Figure.add_subplot` to create a subplot using the return value from
+  `~.floating_axes.GridHelperCurveLinear`.
 * Making a sector plot by adding more features to
   `~.floating_axes.GridHelperCurveLinear`.
 """

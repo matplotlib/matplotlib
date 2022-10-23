@@ -6,6 +6,8 @@ Text alignment
 Texts are aligned relative to their anchor point depending on the properties
 ``horizontalalignment`` and ``verticalalignment``.
 
+.. redirect-from:: /gallery/pyplots/text_layout
+
 .. plot::
 
     import matplotlib.pyplot as plt

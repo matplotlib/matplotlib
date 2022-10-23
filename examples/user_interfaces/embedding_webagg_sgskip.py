@@ -30,7 +30,7 @@ import tornado.websocket
 
 
 import matplotlib as mpl
-from matplotlib.backends.backend_webagg_core import (
+from matplotlib.backends.backend_webagg import (
     FigureManagerWebAgg, new_figure_manager_given_figure)
 from matplotlib.figure import Figure
 

@@ -2,14 +2,21 @@ import re
 
 from matplotlib import path, transforms
 from matplotlib.backend_bases import (
-    FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
+    FigureCanvasBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
+from matplotlib.backend_tools import RubberbandBase
 from matplotlib.figure import Figure
 from matplotlib.testing._markers import needs_pgf_xelatex
 import matplotlib.pyplot as plt
 
 import numpy as np
 import pytest
+
+
+_EXPECTED_WARNING_TOOLMANAGER = (
+    r"Treat the new Tool classes introduced in "
+    r"v[0-9]*.[0-9]* as experimental for now; "
+    "the API and rcParam may change in future versions.")
 
 
 def test_uses_per_path():
@@ -117,12 +124,18 @@ def test_pick():
     fig = plt.figure()
     fig.text(.5, .5, "hello", ha="center", va="center", picker=True)
     fig.canvas.draw()
+
     picks = []
-    fig.canvas.mpl_connect("pick_event", lambda event: picks.append(event))
-    start_event = MouseEvent(
-        "button_press_event", fig.canvas, *fig.transFigure.transform((.5, .5)),
-        MouseButton.LEFT)
-    fig.canvas.callbacks.process(start_event.name, start_event)
+    def handle_pick(event):
+        assert event.mouseevent.key == "a"
+        picks.append(event)
+    fig.canvas.mpl_connect("pick_event", handle_pick)
+
+    KeyEvent("key_press_event", fig.canvas, "a")._process()
+    MouseEvent("button_press_event", fig.canvas,
+               *fig.transFigure.transform((.5, .5)),
+               MouseButton.LEFT)._process()
+    KeyEvent("key_release_event", fig.canvas, "a")._process()
     assert len(picks) == 1
 
 
@@ -247,11 +260,7 @@ def test_interactive_colorbar(plot_func, orientation, tool, button, expected):
 
 
 def test_toolbar_zoompan():
-    expected_warning_regex = (
-        r"Treat the new Tool classes introduced in "
-        r"v[0-9]*.[0-9]* as experimental for now; "
-        "the API and rcParam may change in future versions.")
-    with pytest.warns(UserWarning, match=expected_warning_regex):
+    with pytest.warns(UserWarning, match=_EXPECTED_WARNING_TOOLMANAGER):
         plt.rcParams['toolbar'] = 'toolmanager'
     ax = plt.gca()
     assert ax.get_navigate_mode() is None
@@ -349,3 +358,44 @@ def test_interactive_pan(key, mouseend, expectedxlim, expectedylim):
     # Should be close, but won't be exact due to screen integer resolution
     assert tuple(ax.get_xlim()) == pytest.approx(expectedxlim, abs=0.02)
     assert tuple(ax.get_ylim()) == pytest.approx(expectedylim, abs=0.02)
+
+
+def test_toolmanager_remove():
+    with pytest.warns(UserWarning, match=_EXPECTED_WARNING_TOOLMANAGER):
+        plt.rcParams['toolbar'] = 'toolmanager'
+    fig = plt.gcf()
+    initial_len = len(fig.canvas.manager.toolmanager.tools)
+    assert 'forward' in fig.canvas.manager.toolmanager.tools
+    fig.canvas.manager.toolmanager.remove_tool('forward')
+    assert len(fig.canvas.manager.toolmanager.tools) == initial_len - 1
+    assert 'forward' not in fig.canvas.manager.toolmanager.tools
+
+
+def test_toolmanager_get_tool():
+    with pytest.warns(UserWarning, match=_EXPECTED_WARNING_TOOLMANAGER):
+        plt.rcParams['toolbar'] = 'toolmanager'
+    fig = plt.gcf()
+    rubberband = fig.canvas.manager.toolmanager.get_tool('rubberband')
+    assert isinstance(rubberband, RubberbandBase)
+    assert fig.canvas.manager.toolmanager.get_tool(rubberband) is rubberband
+    with pytest.warns(UserWarning,
+                      match="ToolManager does not control tool 'foo'"):
+        assert fig.canvas.manager.toolmanager.get_tool('foo') is None
+    assert fig.canvas.manager.toolmanager.get_tool('foo', warn=False) is None
+
+    with pytest.warns(UserWarning,
+                      match="ToolManager does not control tool 'foo'"):
+        assert fig.canvas.manager.toolmanager.trigger_tool('foo') is None
+
+
+def test_toolmanager_update_keymap():
+    with pytest.warns(UserWarning, match=_EXPECTED_WARNING_TOOLMANAGER):
+        plt.rcParams['toolbar'] = 'toolmanager'
+    fig = plt.gcf()
+    assert 'v' in fig.canvas.manager.toolmanager.get_tool_keymap('forward')
+    with pytest.warns(UserWarning,
+                      match="Key c changed from back to forward"):
+        fig.canvas.manager.toolmanager.update_keymap('forward', 'c')
+    assert fig.canvas.manager.toolmanager.get_tool_keymap('forward') == ['c']
+    with pytest.raises(KeyError, match="'foo' not in Tools"):
+        fig.canvas.manager.toolmanager.update_keymap('foo', 'c')

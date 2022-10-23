@@ -77,6 +77,7 @@ def triplot(ax, *args, **kwargs):
         **kw,
         'linestyle': 'None',  # No line to draw.
     }
+    kw_markers.pop('label', None)
     if marker not in [None, 'None', '', ' ']:
         tri_markers = ax.plot(x, y, **kw_markers)
     else:

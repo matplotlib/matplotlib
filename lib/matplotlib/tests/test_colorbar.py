@@ -1,9 +1,11 @@
 import numpy as np
 import pytest
 
+from matplotlib import _api
 from matplotlib import cm
 import matplotlib.colors as mcolors
 import matplotlib as mpl
+
 
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
@@ -313,6 +315,15 @@ def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
     Colorbar(ax, cmap=plt.cm.bone)
+
+
+def test_parentless_mappable():
+    pc = mpl.collections.PatchCollection([], cmap=plt.get_cmap('viridis'))
+    pc.set_array([])
+
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
+                      match='Unable to determine Axes to steal'):
+        plt.colorbar(pc)
 
 
 @image_comparison(['colorbar_closed_patch.png'], remove_text=True)
@@ -675,7 +686,7 @@ def test_colorbar_inverted_ticks():
 def test_mappable_no_alpha():
     fig, ax = plt.subplots()
     sm = cm.ScalarMappable(norm=mcolors.Normalize(), cmap='viridis')
-    fig.colorbar(sm)
+    fig.colorbar(sm, ax=ax)
     sm.set_cmap('plasma')
     plt.draw()
 
@@ -711,6 +722,17 @@ def test_colorbar_label():
 
     cbar3 = fig.colorbar(im, orientation='horizontal', label='horizontal cbar')
     assert cbar3.ax.get_xlabel() == 'horizontal cbar'
+
+
+@image_comparison(['colorbar_keeping_xlabel.png'], style='mpl20')
+def test_keeping_xlabel():
+    # github issue #23398 - xlabels being ignored in colorbar axis
+    arr = np.arange(25).reshape((5, 5))
+    fig, ax = plt.subplots()
+    im = ax.imshow(arr)
+    cbar = plt.colorbar(im)
+    cbar.ax.set_xlabel('Visible Xlabel')
+    cbar.set_label('YLabel')
 
 
 @pytest.mark.parametrize("clim", [(-20000, 20000), (-32768, 0)])
@@ -977,6 +999,36 @@ def test_colorbar_extend_drawedges():
                 ax.set_ylim(1.1, 2.9)
                 res = np.array(res)[:, :, [1, 0]]
             np.testing.assert_array_equal(cbar.dividers.get_segments(), res)
+
+
+@image_comparison(['contourf_extend_patches.png'], remove_text=True,
+                  style='mpl20')
+def test_colorbar_contourf_extend_patches():
+    params = [
+        ('both', 5, ['\\', '//']),
+        ('min', 7, ['+']),
+        ('max', 2, ['|', '-', '/', '\\', '//']),
+        ('neither', 10, ['//', '\\', '||']),
+    ]
+
+    plt.rcParams['axes.linewidth'] = 2
+
+    fig = plt.figure(figsize=(10, 4))
+    subfigs = fig.subfigures(1, 2)
+    fig.subplots_adjust(left=0.05, bottom=0.05, right=0.95, top=0.95)
+
+    x = np.linspace(-2, 3, 50)
+    y = np.linspace(-2, 3, 30)
+    z = np.cos(x[np.newaxis, :]) + np.sin(y[:, np.newaxis])
+
+    cmap = mpl.colormaps["viridis"]
+    for orientation, subfig in zip(['horizontal', 'vertical'], subfigs):
+        axs = subfig.subplots(2, 2).ravel()
+        for ax, (extend, levels, hatches) in zip(axs, params):
+            cs = ax.contourf(x, y, z, levels, hatches=hatches,
+                             cmap=cmap, extend=extend)
+            subfig.colorbar(cs, ax=ax, orientation=orientation, fraction=0.4,
+                            extendfrac=0.2, aspect=5)
 
 
 def test_negative_boundarynorm():

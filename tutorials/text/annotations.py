@@ -25,8 +25,8 @@ from matplotlib import pyplot as plt
 # *xy* and the location of the text *xytext*.  Both of these
 # arguments are ``(x, y)`` tuples.
 #
-# .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
-#    :target: ../../gallery/pyplots/annotation_basic.html
+# .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_annotation_basic_001.png
+#    :target: ../../gallery/text_labels_and_annotations/annotation_basic.html
 #    :align: center
 #
 # In this example, both the *xy* (arrow tip) and *xytext* locations
@@ -86,8 +86,8 @@ from matplotlib import pyplot as plt
 # *fontsize* are passed from `~matplotlib.axes.Axes.annotate` to the
 # ``Text`` instance.
 #
-# .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
-#    :target: ../../gallery/pyplots/annotation_polar.html
+# .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_annotation_polar_001.png
+#    :target: ../../gallery/text_labels_and_annotations/annotation_polar.html
 #    :align: center
 #
 # For more on all the wild and wonderful things you can do with
@@ -304,10 +304,10 @@ ax.add_artist(at)
 # artists) is known in pixel size during the time of creation. For
 # example, If you want to draw a circle with fixed size of 20 pixel x 20
 # pixel (radius = 10 pixel), you can utilize
-# ``AnchoredDrawingArea``. The instance is created with a size of the
-# drawing area (in pixels), and arbitrary artists can added to the
-# drawing area. Note that the extents of the artists that are added to
-# the drawing area are not related to the placement of the drawing
+# `~mpl_toolkits.axes_grid1.anchored_artists.AnchoredDrawingArea`. The instance
+# is created with a size of the drawing area (in pixels), and arbitrary artists
+# can added to the drawing area. Note that the extents of the artists that are
+# added to the drawing area are not related to the placement of the drawing
 # area itself. Only the initial size matters.
 #
 # The artists that are added to the drawing area should not have a
@@ -330,9 +330,11 @@ ax.add_artist(ada)
 ###############################################################################
 # Sometimes, you want your artists to scale with the data coordinate (or
 # coordinates other than canvas pixels). You can use
-# ``AnchoredAuxTransformBox`` class. This is similar to
-# ``AnchoredDrawingArea`` except that the extent of the artist is
-# determined during the drawing time respecting the specified transform.
+# `~mpl_toolkits.axes_grid1.anchored_artists.AnchoredAuxTransformBox` class.
+# This is similar to
+# `~mpl_toolkits.axes_grid1.anchored_artists.AnchoredDrawingArea` except that
+# the extent of the artist is determined during the drawing time respecting the
+# specified transform.
 #
 # The ellipse in the example below will have width and height
 # corresponding to 0.1 and 0.4 in data coordinates and will be
@@ -440,8 +442,8 @@ ax.add_artist(box)
 # Using ConnectionPatch
 # ~~~~~~~~~~~~~~~~~~~~~
 #
-# ConnectionPatch is like an annotation without text. While `~.Axes.annotate`
-# is sufficient in most situations, ConnectionPatch is useful when you want to
+# `.ConnectionPatch` is like an annotation without text. While `~.Axes.annotate`
+# is sufficient in most situations, `.ConnectionPatch` is useful when you want to
 # connect points in different axes. ::
 #
 #   from matplotlib.patches import ConnectionPatch
@@ -457,7 +459,7 @@ ax.add_artist(box)
 #    :target: ../../gallery/userdemo/connect_simple01.html
 #    :align: center
 #
-# Here, we added the ConnectionPatch to the *figure* (with `~.Figure.add_artist`)
+# Here, we added the `.ConnectionPatch` to the *figure* (with `~.Figure.add_artist`)
 # rather than to either axes: this ensures that it is drawn on top of both axes,
 # and is also necessary if using :doc:`constrained_layout
 # </tutorials/intermediate/constrainedlayout_guide>` for positioning the axes.
@@ -468,7 +470,7 @@ ax.add_artist(box)
 # Zoom effect between Axes
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# ``mpl_toolkits.axes_grid1.inset_locator`` defines some patch classes useful for
+# `mpl_toolkits.axes_grid1.inset_locator` defines some patch classes useful for
 # interconnecting two axes. Understanding the code requires some knowledge of
 # Matplotlib's transform system.
 #

@@ -33,18 +33,22 @@ from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from . import _backend_pdf_ps
 
-_log = logging.getLogger(__name__)
 
-backend_version = 'Level II'
+_log = logging.getLogger(__name__)
 debugPS = False
 
 
+@_api.deprecated("3.7")
 class PsBackendHelper:
     def __init__(self):
         self._cached = {}
 
 
-ps_backend_helper = PsBackendHelper()
+@_api.caching_module_getattr
+class __getattr__:
+    # module-level deprecations
+    ps_backend_helper = _api.deprecated("3.7", obj_type="")(
+        property(lambda self: PsBackendHelper()))
 
 
 papersize = {'letter': (8.5, 11),
@@ -87,7 +91,7 @@ def _nums_to_str(*args):
     return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
 
 
-@_api.deprecated("3.6", alternative="Vendor the code")
+@_api.deprecated("3.6", alternative="a vendored copy of this function")
 def quote_ps_string(s):
     """
     Quote dangerous characters of S for use in a PostScript string constant.
@@ -665,8 +669,9 @@ grestore
                 curr_stream[1].append(
                     (item.x, item.ft_object.get_glyph_name(item.glyph_idx))
                 )
-            # append the last entry
-            stream.append(curr_stream)
+            # append the last entry if exists
+            if curr_stream:
+                stream.append(curr_stream)
 
         self.set_color(*gc.get_rgb())
 
@@ -1363,4 +1368,5 @@ psDefs = [
 
 @_Backend.export
 class _BackendPS(_Backend):
+    backend_version = 'Level II'
     FigureCanvas = FigureCanvasPS

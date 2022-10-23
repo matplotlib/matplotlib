@@ -197,7 +197,7 @@ class Registry(dict):
             except KeyError:
                 pass
         try:  # If cache lookup fails, look up based on first element...
-            first = cbook._safe_first_non_none(x)
+            first = cbook._safe_first_finite(x)
         except (TypeError, StopIteration):
             pass
         else:

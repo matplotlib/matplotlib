@@ -75,7 +75,7 @@ class PointBrowser:
 
         dataind = self.lastind
 
-        ax2.cla()
+        ax2.clear()
         ax2.plot(X[dataind])
 
         ax2.text(0.05, 0.9, f'mu={xs[dataind]:1.3f}\nsigma={ys[dataind]:1.3f}',

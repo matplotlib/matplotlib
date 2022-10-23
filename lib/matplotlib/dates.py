@@ -173,6 +173,7 @@ import datetime
 import functools
 import logging
 import math
+import re
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -186,10 +187,9 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, ticker, units
 
 __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
-           'epoch2num', 'num2epoch', 'set_epoch', 'get_epoch', 'DateFormatter',
-           'ConciseDateFormatter', 'AutoDateFormatter',
-           'DateLocator', 'RRuleLocator', 'AutoDateLocator', 'YearLocator',
-           'MonthLocator', 'WeekdayLocator',
+           'set_epoch', 'get_epoch', 'DateFormatter', 'ConciseDateFormatter',
+           'AutoDateFormatter', 'DateLocator', 'RRuleLocator',
+           'AutoDateLocator', 'YearLocator', 'MonthLocator', 'WeekdayLocator',
            'DayLocator', 'HourLocator', 'MinuteLocator',
            'SecondLocator', 'MicrosecondLocator',
            'rrule', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU',
@@ -200,6 +200,18 @@ __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
 
 _log = logging.getLogger(__name__)
 UTC = datetime.timezone.utc
+
+
+@_api.caching_module_getattr
+class __getattr__:
+    JULIAN_OFFSET = _api.deprecated("3.7")(property(lambda self: 1721424.5))
+    # Julian date at 0000-12-31
+    # note that the Julian day epoch is achievable w/
+    # np.datetime64('-4713-11-24T12:00:00'); datetime64 is proleptic
+    # Gregorian and BC has a one-year offset.  So
+    # np.datetime64('0000-12-31') - np.datetime64('-4713-11-24T12:00') =
+    # 1721424.5
+    # Ref: https://en.wikipedia.org/wiki/Julian_day
 
 
 def _get_tzinfo(tz=None):
@@ -225,12 +237,6 @@ def _get_tzinfo(tz=None):
 # Time-related constants.
 EPOCH_OFFSET = float(datetime.datetime(1970, 1, 1).toordinal())
 # EPOCH_OFFSET is not used by matplotlib
-JULIAN_OFFSET = 1721424.5  # Julian date at 0000-12-31
-# note that the Julian day epoch is achievable w/
-# np.datetime64('-4713-11-24T12:00:00'); datetime64 is proleptic
-# Gregorian and BC has a one-year offset.  So
-# np.datetime64('0000-12-31') - np.datetime64('-4713-11-24T12:00') = 1721424.5
-# Ref: https://en.wikipedia.org/wiki/Julian_day
 MICROSECONDLY = SECONDLY + 1
 HOURS_PER_DAY = 24.
 MIN_PER_HOUR = 60.
@@ -457,6 +463,7 @@ def date2num(d):
     return d if iterable else d[0]
 
 
+@_api.deprecated("3.7")
 def julian2num(j):
     """
     Convert a Julian date (or sequence) to a Matplotlib date (or sequence).
@@ -476,10 +483,11 @@ def julian2num(j):
     ep0 = np.datetime64('0000-12-31T00:00:00', 'h').astype(float) / 24.
     # Julian offset defined above is relative to 0000-12-31, but we need
     # relative to our current epoch:
-    dt = JULIAN_OFFSET - ep0 + ep
+    dt = __getattr__("JULIAN_OFFSET") - ep0 + ep
     return np.subtract(j, dt)  # Handles both scalar & nonscalar j.
 
 
+@_api.deprecated("3.7")
 def num2julian(n):
     """
     Convert a Matplotlib date (or sequence) to a Julian date (or sequence).
@@ -498,7 +506,7 @@ def num2julian(n):
     ep0 = np.datetime64('0000-12-31T00:00:00', 'h').astype(float) / 24.
     # Julian offset defined above is relative to 0000-12-31, but we need
     # relative to our current epoch:
-    dt = JULIAN_OFFSET - ep0 + ep
+    dt = __getattr__("JULIAN_OFFSET") - ep0 + ep
     return np.add(n, dt)  # Handles both scalar & nonscalar j.
 
 
@@ -525,8 +533,7 @@ def num2date(x, tz=None):
 
     Notes
     -----
-    The addition of one here is a historical artifact. Also, note that the
-    Gregorian calendar is assumed; this is not universal practice.
+    The Gregorian calendar is assumed; this is not universal practice.
     For details, see the module docstring.
     """
     tz = _get_tzinfo(tz)
@@ -598,7 +605,16 @@ def drange(dstart, dend, delta):
 
 
 def _wrap_in_tex(text):
-    return r"{\fontfamily{\familydefault}\selectfont " + text + "}"
+    p = r'([a-zA-Z]+)'
+    ret_text = re.sub(p, r'}$\1$\\mathdefault{', text)
+
+    # Braces ensure symbols are not spaced like binary operators.
+    ret_text = ret_text.replace('-', '{-}').replace(':', '{:}')
+    # To not concatenate space between numbers.
+    ret_text = ret_text.replace(' ', r'\;')
+    ret_text = '$\\mathdefault{' + ret_text + '}$'
+    ret_text = ret_text.replace('$\\mathdefault{}$', '')
+    return ret_text
 
 
 ## date tickers and formatters ###
@@ -866,13 +882,13 @@ class AutoDateFormatter(ticker.Formatter):
     defaults to ::
 
         self.scaled = {
-            DAYS_PER_YEAR: rcParams['date.autoformat.year'],
-            DAYS_PER_MONTH: rcParams['date.autoformat.month'],
-            1: rcParams['date.autoformat.day'],
-            1 / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
-            1 / MINUTES_PER_DAY: rcParams['date.autoformat.minute'],
-            1 / SEC_PER_DAY: rcParams['date.autoformat.second'],
-            1 / MUSECONDS_PER_DAY: rcParams['date.autoformat.microsecond'],
+            DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
+            DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
+            1: rcParams['date.autoformatter.day'],
+            1 / HOURS_PER_DAY: rcParams['date.autoformatter.hour'],
+            1 / MINUTES_PER_DAY: rcParams['date.autoformatter.minute'],
+            1 / SEC_PER_DAY: rcParams['date.autoformatter.second'],
+            1 / MUSECONDS_PER_DAY: rcParams['date.autoformatter.microsecond'],
         }
 
     The formatter uses the format string corresponding to the lowest key in
@@ -1728,16 +1744,6 @@ class MicrosecondLocator(DateLocator):
         self._wrapped_locator.set_axis(axis)
         return super().set_axis(axis)
 
-    @_api.deprecated("3.5", alternative="`.Axis.set_view_interval`")
-    def set_view_interval(self, vmin, vmax):
-        self._wrapped_locator.set_view_interval(vmin, vmax)
-        return super().set_view_interval(vmin, vmax)
-
-    @_api.deprecated("3.5", alternative="`.Axis.set_data_interval`")
-    def set_data_interval(self, vmin, vmax):
-        self._wrapped_locator.set_data_interval(vmin, vmax)
-        return super().set_data_interval(vmin, vmax)
-
     def __call__(self):
         # if no data have been set, this will tank with a ValueError
         try:
@@ -1767,52 +1773,6 @@ class MicrosecondLocator(DateLocator):
     def _get_interval(self):
         # docstring inherited
         return self._interval
-
-
-@_api.deprecated(
-    "3.5",
-    alternative="``[date2num(datetime.utcfromtimestamp(t)) for t in e]`` or "
-                "numpy.datetime64 types")
-def epoch2num(e):
-    """
-    Convert UNIX time to days since Matplotlib epoch.
-
-    Parameters
-    ----------
-    e : list of floats
-        Time in seconds since 1970-01-01.
-
-    Returns
-    -------
-    `numpy.array`
-        Time in days since Matplotlib epoch (see `~.dates.get_epoch()`).
-    """
-
-    dt = (np.datetime64('1970-01-01T00:00:00', 's') -
-          np.datetime64(get_epoch(), 's')).astype(float)
-
-    return (dt + np.asarray(e)) / SEC_PER_DAY
-
-
-@_api.deprecated("3.5", alternative="`num2date(e).timestamp()<.num2date>`")
-def num2epoch(d):
-    """
-    Convert days since Matplotlib epoch to UNIX time.
-
-    Parameters
-    ----------
-    d : list of floats
-        Time in days since Matplotlib epoch (see `~.dates.get_epoch()`).
-
-    Returns
-    -------
-    `numpy.array`
-        Time in seconds since 1970-01-01.
-    """
-    dt = (np.datetime64('1970-01-01T00:00:00', 's') -
-          np.datetime64(get_epoch(), 's')).astype(float)
-
-    return np.asarray(d) * SEC_PER_DAY - dt
 
 
 @_api.deprecated("3.6", alternative="`AutoDateLocator` and `AutoDateFormatter`"
@@ -1908,7 +1868,7 @@ class DateConverter(units.ConversionInterface):
             x = x.ravel()
 
         try:
-            x = cbook._safe_first_non_none(x)
+            x = cbook._safe_first_finite(x)
         except (TypeError, StopIteration):
             pass
 

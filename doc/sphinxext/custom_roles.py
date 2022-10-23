@@ -43,7 +43,7 @@ def depart_query_reference_node(self, node):
 def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
     # Generate a pending cross-reference so that Sphinx will ensure this link
     # isn't broken at some point in the future.
-    title = f'rcParam["{text}"]'
+    title = f'rcParams["{text}"]'
     target = 'matplotlibrc-sample'
     ref_nodes, messages = inliner.interpreted(title, f'{title} <{target}>',
                                               'ref', lineno)

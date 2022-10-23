@@ -30,6 +30,19 @@ import matplotlib
 from matplotlib import _api, _c_internal_utils
 
 
+@_api.caching_module_getattr
+class __getattr__:
+    # module-level deprecations
+    MatplotlibDeprecationWarning = _api.deprecated(
+        "3.6", obj_type="",
+        alternative="matplotlib.MatplotlibDeprecationWarning")(
+        property(lambda self: _api.deprecation.MatplotlibDeprecationWarning))
+    mplDeprecation = _api.deprecated(
+        "3.6", obj_type="",
+        alternative="matplotlib.MatplotlibDeprecationWarning")(
+        property(lambda self: _api.deprecation.MatplotlibDeprecationWarning))
+
+
 def _get_running_interactive_framework():
     """
     Return the interactive framework whose event loop is currently running, if
@@ -1690,19 +1703,29 @@ def safe_first_element(obj):
     This is an type-independent way of obtaining the first element,
     supporting both index access and the iterator protocol.
     """
-    return _safe_first_non_none(obj, skip_none=False)
+    return _safe_first_finite(obj, skip_nonfinite=False)
 
 
-def _safe_first_non_none(obj, skip_none=True):
+def _safe_first_finite(obj, *, skip_nonfinite=True):
     """
-    Return the first non-None element in *obj*.
+    Return the first non-None (and optionally finite) element in *obj*.
+
     This is a method for internal use.
 
     This is an type-independent way of obtaining the first non-None element,
     supporting both index access and the iterator protocol.
     The first non-None element will be obtained when skip_none is True.
     """
-    if skip_none is False:
+    def safe_isfinite(val):
+        if val is None:
+            return False
+        try:
+            return np.isfinite(val) if np.isscalar(val) else True
+        except TypeError:
+            # This is something that numpy can not make heads or tails
+            # of, assume "finite"
+            return True
+    if skip_nonfinite is False:
         if isinstance(obj, collections.abc.Iterator):
             # needed to accept `array.flat` as input.
             # np.flatiter reports as an instance of collections.Iterator
@@ -1717,12 +1740,13 @@ def _safe_first_non_none(obj, skip_none=True):
                                "as input")
         return next(iter(obj))
     elif isinstance(obj, np.flatiter):
+        # TODO do the finite filtering on this
         return obj[0]
     elif isinstance(obj, collections.abc.Iterator):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        return next(val for val in obj if val is not None)
+        return next(val for val in obj if safe_isfinite(val))
 
 
 def sanitize_sequence(data):
@@ -2312,3 +2336,30 @@ def _unpack_to_numpy(x):
         if isinstance(xtmp, np.ndarray):
             return xtmp
     return x
+
+
+def _auto_format_str(fmt, value):
+    """
+    Apply *value* to the format string *fmt*.
+
+    This works both with unnamed %-style formatting and
+    unnamed {}-style formatting. %-style formatting has priority.
+    If *fmt* is %-style formattable that will be used. Otherwise,
+    {}-formatting is applied. Strings without formatting placeholders
+    are passed through as is.
+
+    Examples
+    --------
+    >>> _auto_format_str('%.2f m', 0.2)
+    '0.20 m'
+    >>> _auto_format_str('{} m', 0.2)
+    '0.2 m'
+    >>> _auto_format_str('const', 0.2)
+    'const'
+    >>> _auto_format_str('%d or {}', 0.2)
+    '0 or {}'
+    """
+    try:
+        return fmt % (value,)
+    except (TypeError, ValueError):
+        return fmt.format(value)

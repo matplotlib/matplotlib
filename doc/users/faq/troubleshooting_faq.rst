@@ -157,7 +157,7 @@ the tracker so the issue doesn't get lost.
 Problems with recent git versions
 =================================
 
-First make sure you have a clean build and install (see :ref:`clean-install`),
+First, make sure you have a clean build and install (see :ref:`clean-install`),
 get the latest git update, install it and run a simple test script in debug
 mode::
 

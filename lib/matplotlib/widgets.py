@@ -1315,17 +1315,6 @@ class TextBox(AxesWidget):
             # call it once we've already done our cleanup.
             self._observers.process('submit', self.text)
 
-    def position_cursor(self, x):
-        # now, we have to figure out where the cursor goes.
-        # approximate it based on assuming all characters the same length
-        if len(self.text) == 0:
-            self.cursor_index = 0
-        else:
-            bb = self.text_disp.get_window_extent()
-            ratio = np.clip((x - bb.x0) / bb.width, 0, 1)
-            self.cursor_index = int(len(self.text) * ratio)
-        self._rendercursor()
-
     def _click(self, event):
         if self.ignore(event):
             return
@@ -1338,7 +1327,8 @@ class TextBox(AxesWidget):
             event.canvas.grab_mouse(self.ax)
         if not self.capturekeystrokes:
             self.begin_typing(event.x)
-        self.position_cursor(event.x)
+        self.cursor_index = self.text_disp._char_index_at(event.x)
+        self._rendercursor()
 
     def _resize(self, event):
         self.stop_typing()

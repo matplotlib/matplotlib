@@ -14,15 +14,14 @@ import numpy as np
 
 try:
     import cairo
-    if cairo.version_info < (1, 11, 0):
-        # Introduced create_for_data for Py3.
+    if cairo.version_info < (1, 14, 0):  # Introduced set_device_scale.
         raise ImportError
 except ImportError:
     try:
         import cairocffi as cairo
     except ImportError as err:
         raise ImportError(
-            "cairo backend requires that pycairo>=1.11.0 or cairocffi "
+            "cairo backend requires that pycairo>=1.14.0 or cairocffi "
             "is installed") from err
 
 import matplotlib as mpl
@@ -33,9 +32,6 @@ from matplotlib.backend_bases import (
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-
-
-backend_version = cairo.version
 
 
 def _append_path(ctx, path, transform, clip=None):
@@ -549,5 +545,6 @@ class _RendererGTKCairo(RendererCairo):
 
 @_Backend.export
 class _BackendCairo(_Backend):
+    backend_version = cairo.version
     FigureCanvas = FigureCanvasCairo
     FigureManager = FigureManagerBase

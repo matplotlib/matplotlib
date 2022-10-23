@@ -286,6 +286,9 @@ handler_map : dict or None
     The custom dictionary mapping instances or types to a legend
     handler. This *handler_map* updates the default handler map
     found at `matplotlib.legend.Legend.get_legend_handler_map`.
+
+draggable : bool, default: False
+    Whether the legend can be dragged with the mouse.
 """)
 
 
@@ -342,7 +345,8 @@ class Legend(Artist):
         title_fontproperties=None,  # properties for the legend title
         alignment="center",       # control the alignment within the legend box
         *,
-        ncol=1  # synonym for ncols (backward compatibility)
+        ncol=1,  # synonym for ncols (backward compatibility)
+        draggable=False  # whether the legend can be dragged with the mouse
     ):
         """
         Parameters
@@ -537,7 +541,9 @@ class Legend(Artist):
             title_prop_fp.set_size(title_fontsize)
 
         self.set_title(title, prop=title_prop_fp)
+
         self._draggable = None
+        self.set_draggable(state=draggable)
 
         # set the text color
 
@@ -556,10 +562,24 @@ class Legend(Artist):
         if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legendHandles, self.texts):
+                try:
+                    if handle.get_array() is not None:
+                        continue
+                except AttributeError:
+                    pass
                 for getter_name in getter_names:
                     try:
                         color = getattr(handle, getter_name)()
-                        text.set_color(color)
+                        if isinstance(color, np.ndarray):
+                            if (
+                                    color.shape[0] == 1
+                                    or np.isclose(color, color[0]).all()
+                            ):
+                                text.set_color(color[0])
+                            else:
+                                pass
+                        else:
+                            text.set_color(color)
                         break
                     except AttributeError:
                         pass
@@ -1140,7 +1160,7 @@ def _get_legend_handles(axs, legend_handler_map=None):
         label = handle.get_label()
         if label != '_nolegend_' and has_handler(handler_map, handle):
             yield handle
-        elif (label not in ['_nolegend_', ''] and
+        elif (label and not label.startswith('_') and
                 not has_handler(handler_map, handle)):
             _api.warn_external(
                              "Legend does not support handles for {0} "

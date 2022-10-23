@@ -13,8 +13,8 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
 
     Call signatures::
 
-      tripcolor(triangulation, C, *, ...)
-      tripcolor(x, y, C, *, [triangles=triangles], [mask=mask], ...)
+      tripcolor(triangulation, c, *, ...)
+      tripcolor(x, y, c, *, [triangles=triangles], [mask=mask], ...)
 
     The triangular grid can be specified either by passing a `.Triangulation`
     object as the first parameter, or by passing the points *x*, *y* and
@@ -22,12 +22,12 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     explanation of these parameters.
 
     It is possible to pass the triangles positionally, i.e.
-    ``tripcolor(x, y, triangles, C, ...)``. However, this is discouraged.
+    ``tripcolor(x, y, triangles, c, ...)``. However, this is discouraged.
     For more clarity, pass *triangles* via keyword argument.
 
     If neither of *triangulation* or *triangles* are given, the triangulation
     is calculated on the fly. In this case, it does not make sense to provide
-    colors at the triangle faces via *C* or *facecolors* because there are
+    colors at the triangle faces via *c* or *facecolors* because there are
     multiple possible triangulations for a group of points and you don't know
     which triangles will be constructed.
 
@@ -38,21 +38,21 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     x, y, triangles, mask
         Parameters defining the triangular grid. See `.Triangulation`.
         This is mutually exclusive with specifying *triangulation*.
-    C : array-like
+    c : array-like
         The color values, either for the points or for the triangles. Which one
-        is automatically inferred from the length of *C*, i.e. does it match
+        is automatically inferred from the length of *c*, i.e. does it match
         the number of points or the number of triangles. If there are the same
         number of points and triangles in the triangulation it is assumed that
         color values are defined at points; to force the use of color values at
-        triangles use the keyword argument ``facecolors=C`` instead of just
-        ``C``.
+        triangles use the keyword argument ``facecolors=c`` instead of just
+        ``c``.
         This parameter is position-only.
     facecolors : array-like, optional
-        Can be used alternatively to *C* to specify colors at the triangle
-        faces. This parameter takes precedence over *C*.
+        Can be used alternatively to *c* to specify colors at the triangle
+        faces. This parameter takes precedence over *c*.
     shading : {'flat', 'gouraud'}, default: 'flat'
-        If  'flat' and the color values *C* are defined at points, the color
-        values used for each triangle are from the mean C of the triangle's
+        If  'flat' and the color values *c* are defined at points, the color
+        values used for each triangle are from the mean c of the triangle's
         three points. If *shading* is 'gouraud' then color values must be
         defined at points.
     other_parameters
@@ -68,34 +68,34 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     if facecolors is not None:
         if args:
             _api.warn_external(
-                "Positional parameter C has no effect when the keyword "
+                "Positional parameter c has no effect when the keyword "
                 "facecolors is given")
         point_colors = None
         if len(facecolors) != len(tri.triangles):
             raise ValueError("The length of facecolors must match the number "
                              "of triangles")
     else:
-        # Color from positional parameter C
+        # Color from positional parameter c
         if not args:
             raise TypeError(
-                "tripcolor() missing 1 required positional argument: 'C'; or "
+                "tripcolor() missing 1 required positional argument: 'c'; or "
                 "1 required keyword-only argument: 'facecolors'")
         elif len(args) > 1:
             _api.warn_deprecated(
                 "3.6", message=f"Additional positional parameters "
                 f"{args[1:]!r} are ignored; support for them is deprecated "
                 f"since %(since)s and will be removed %(removal)s")
-        C = np.asarray(args[0])
-        if len(C) == len(tri.x):
+        c = np.asarray(args[0])
+        if len(c) == len(tri.x):
             # having this before the len(tri.triangles) comparison gives
             # precedence to nodes if there are as many nodes as triangles
-            point_colors = C
+            point_colors = c
             facecolors = None
-        elif len(C) == len(tri.triangles):
+        elif len(c) == len(tri.triangles):
             point_colors = None
-            facecolors = C
+            facecolors = c
         else:
-            raise ValueError('The length of C must match either the number '
+            raise ValueError('The length of c must match either the number '
                              'of points or the number of triangles')
 
     # Handling of linewidths, shading, edgecolors and antialiased as

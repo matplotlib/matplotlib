@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
-import matplotlib.axes as maxes
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
 
@@ -339,4 +338,4 @@ floatingaxes_class_factory = cbook._make_class_factory(
     FloatingAxesBase, "Floating{}")
 FloatingAxes = floatingaxes_class_factory(
     host_axes_class_factory(axislines.Axes))
-FloatingSubplot = maxes.subplot_class_factory(FloatingAxes)
+FloatingSubplot = FloatingAxes

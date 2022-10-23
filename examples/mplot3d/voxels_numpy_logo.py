@@ -1,6 +1,6 @@
 """
 ===============================
-3D voxel plot of the numpy logo
+3D voxel plot of the NumPy logo
 ===============================
 
 Demonstrates using `.Axes3D.voxels` with uneven coordinates.

@@ -39,19 +39,6 @@ _log = logging.getLogger(__name__)
 PIXELS_PER_INCH = 75
 
 
-@_api.caching_module_getattr  # module-level deprecations
-class __getattr__:
-    cursord = _api.deprecated("3.5", obj_type="")(property(lambda self: {
-        cursors.MOVE: wx.CURSOR_HAND,
-        cursors.HAND: wx.CURSOR_HAND,
-        cursors.POINTER: wx.CURSOR_ARROW,
-        cursors.SELECT_REGION: wx.CURSOR_CROSS,
-        cursors.WAIT: wx.CURSOR_WAIT,
-        cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
-        cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
-    }))
-
-
 @_api.deprecated("3.6")
 def error_msg_wx(msg, parent=None):
     """Signal an error condition with a popup error dialog."""
@@ -508,6 +495,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         _log.debug("%s - __init__() - bitmap w:%d h:%d", type(self), w, h)
         self._isDrawn = False
         self._rubberband_rect = None
+        self._rubberband_pen_black = wx.Pen('BLACK', 1, wx.PENSTYLE_SHORT_DASH)
+        self._rubberband_pen_white = wx.Pen('WHITE', 1, wx.PENSTYLE_SOLID)
 
         self.Bind(wx.EVT_SIZE, self._on_size)
         self.Bind(wx.EVT_PAINT, self._on_paint)
@@ -625,11 +614,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         drawDC.DrawBitmap(bmp, 0, 0)
         if self._rubberband_rect is not None:
             # Some versions of wx+python don't support numpy.float64 here.
-            x0, y0, x1, y1 = map(int, self._rubberband_rect)
-            drawDC.DrawLineList(
-                [(x0, y0, x1, y0), (x1, y0, x1, y1),
-                 (x0, y0, x0, y1), (x0, y1, x1, y1)],
-                wx.Pen('BLACK', 1, wx.PENSTYLE_SHORT_DASH))
+            x0, y0, x1, y1 = map(round, self._rubberband_rect)
+            rect = [(x0, y0, x1, y0), (x1, y0, x1, y1),
+                    (x0, y0, x0, y1), (x0, y1, x1, y1)]
+            drawDC.DrawLineList(rect, self._rubberband_pen_white)
+            drawDC.DrawLineList(rect, self._rubberband_pen_black)
 
     filetypes = {
         **FigureCanvasBase.filetypes,
@@ -1290,13 +1279,6 @@ class SaveFigureWx(backend_tools.SaveFigureBase):
     def trigger(self, *args):
         NavigationToolbar2Wx.save_figure(
             self._make_classic_style_pseudo_toolbar())
-
-
-@_api.deprecated("3.5", alternative="ToolSetCursor")
-class SetCursorWx(backend_tools.SetCursorBase):
-    def set_cursor(self, cursor):
-        NavigationToolbar2Wx.set_cursor(
-            self._make_classic_style_pseudo_toolbar(), cursor)
 
 
 @backend_tools._register_tool_class(_FigureCanvasWxBase)

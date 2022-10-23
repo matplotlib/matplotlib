@@ -66,7 +66,7 @@ def test_repr():
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     assert repr(ax) == (
-        "<AxesSubplot: "
+        "<Axes: "
         "label='label', title={'center': 'title'}, xlabel='x', ylabel='y'>")
 
 
@@ -486,10 +486,63 @@ def test_inverted_cla():
     plt.close(fig)
 
 
-def test_cla_not_redefined():
+def test_subclass_clear_cla():
+    # Ensure that subclasses of Axes call cla/clear correctly.
+    # Note, we cannot use mocking here as we want to be sure that the
+    # superclass fallback does not recurse.
+
+    with pytest.warns(PendingDeprecationWarning,
+                      match='Overriding `Axes.cla`'):
+        class ClaAxes(Axes):
+            def cla(self):
+                nonlocal called
+                called = True
+
+    with pytest.warns(PendingDeprecationWarning,
+                      match='Overriding `Axes.cla`'):
+        class ClaSuperAxes(Axes):
+            def cla(self):
+                nonlocal called
+                called = True
+                super().cla()
+
+    class SubClaAxes(ClaAxes):
+        pass
+
+    class ClearAxes(Axes):
+        def clear(self):
+            nonlocal called
+            called = True
+
+    class ClearSuperAxes(Axes):
+        def clear(self):
+            nonlocal called
+            called = True
+            super().clear()
+
+    class SubClearAxes(ClearAxes):
+        pass
+
+    fig = Figure()
+    for axes_class in [ClaAxes, ClaSuperAxes, SubClaAxes,
+                       ClearAxes, ClearSuperAxes, SubClearAxes]:
+        called = False
+        ax = axes_class(fig, [0, 0, 1, 1])
+        # Axes.__init__ has already called clear (which aliases to cla or is in
+        # the subclass).
+        assert called
+
+        called = False
+        ax.cla()
+        assert called
+
+
+def test_cla_not_redefined_internally():
     for klass in Axes.__subclasses__():
-        # check that cla does not get redefined in our Axes subclasses
-        assert 'cla' not in klass.__dict__
+        # Check that cla does not get redefined in our Axes subclasses, except
+        # for in the above test function.
+        if 'test_subclass_clear_cla' not in klass.__qualname__:
+            assert 'cla' not in klass.__dict__
 
 
 @check_figures_equal(extensions=["png"])
@@ -843,11 +896,15 @@ def test_hexbin_extent():
     ax.hexbin("x", "y", extent=[.1, .3, .6, .7], data=data)
 
 
-@image_comparison(['hexbin_empty.png'], remove_text=True)
+@image_comparison(['hexbin_empty.png', 'hexbin_empty.png'], remove_text=True)
 def test_hexbin_empty():
     # From #3886: creating hexbin from empty dataset raises ValueError
-    ax = plt.gca()
+    fig, ax = plt.subplots()
     ax.hexbin([], [])
+    fig, ax = plt.subplots()
+    # From #23922: creating hexbin with log scaling from empty
+    # dataset raises ValueError
+    ax.hexbin([], [], bins='log')
 
 
 def test_hexbin_pickable():
@@ -2712,7 +2769,7 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == mpl.axes._subplots.subplot_class_factory(PolarAxes)
+    assert type(ax) == PolarAxes
     plt.close()
 
 
@@ -2800,10 +2857,11 @@ def test_stackplot():
     ax.set_xlim((0, 10))
     ax.set_ylim((0, 70))
 
-    # Reuse testcase from above for a labeled data test
+    # Reuse testcase from above for a test with labeled data and with colours
+    # from the Axes property cycle.
     data = {"x": x, "y1": y1, "y2": y2, "y3": y3}
     fig, ax = plt.subplots()
-    ax.stackplot("x", "y1", "y2", "y3", data=data)
+    ax.stackplot("x", "y1", "y2", "y3", data=data, colors=["C0", "C1", "C2"])
     ax.set_xlim((0, 10))
     ax.set_ylim((0, 70))
 
@@ -3627,6 +3685,41 @@ def test_errorbar():
     ax = fig.gca()
     ax.errorbar("x", "y", xerr=0.2, yerr=0.4, data=data)
     ax.set_title("Simplest errorbars, 0.2 in x, 0.4 in y")
+
+
+@image_comparison(['mixed_errorbar_polar_caps'], extensions=['png'],
+                  remove_text=True)
+def test_mixed_errorbar_polar_caps():
+    """
+    Mix several polar errorbar use cases in a single test figure.
+
+    It is advisable to position individual points off the grid. If there are
+    problems with reproducibility of this test, consider removing grid.
+    """
+    fig = plt.figure()
+    ax = plt.subplot(111, projection='polar')
+
+    # symmetric errorbars
+    th_sym = [1, 2, 3]
+    r_sym = [0.9]*3
+    ax.errorbar(th_sym, r_sym, xerr=0.35, yerr=0.2, fmt="o")
+
+    # long errorbars
+    th_long = [np.pi/2 + .1, np.pi + .1]
+    r_long = [1.8, 2.2]
+    ax.errorbar(th_long, r_long, xerr=0.8 * np.pi, yerr=0.15, fmt="o")
+
+    # asymmetric errorbars
+    th_asym = [4*np.pi/3 + .1, 5*np.pi/3 + .1, 2*np.pi-0.1]
+    r_asym = [1.1]*3
+    xerr = [[.3, .3, .2], [.2, .3, .3]]
+    yerr = [[.35, .5, .5], [.5, .35, .5]]
+    ax.errorbar(th_asym, r_asym, xerr=xerr, yerr=yerr, fmt="o")
+
+    # overlapping errorbar
+    th_over = [2.1]
+    r_over = [3.1]
+    ax.errorbar(th_over, r_over, xerr=10, yerr=.2, fmt="o")
 
 
 def test_errorbar_colorcycle():
@@ -7503,6 +7596,18 @@ def test_bbox_aspect_axes_init():
     assert_allclose(sizes, sizes[0])
 
 
+def test_set_aspect_negative():
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match="must be finite and positive"):
+        ax.set_aspect(-1)
+    with pytest.raises(ValueError, match="must be finite and positive"):
+        ax.set_aspect(0)
+    with pytest.raises(ValueError, match="must be finite and positive"):
+        ax.set_aspect(np.inf)
+    with pytest.raises(ValueError, match="must be finite and positive"):
+        ax.set_aspect(-np.inf)
+
+
 def test_redraw_in_frame():
     fig, ax = plt.subplots(1, 1)
     ax.plot([1, 2, 3])
@@ -7768,12 +7873,22 @@ def test_bar_label_location_center():
     ys, widths = [1, 2], [3, -4]
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects, label_type='center')
-    assert labels[0].xy == (widths[0] / 2, ys[0])
+    assert labels[0].xy == (0.5, 0.5)
     assert labels[0].get_ha() == 'center'
     assert labels[0].get_va() == 'center'
-    assert labels[1].xy == (widths[1] / 2, ys[1])
+    assert labels[1].xy == (0.5, 0.5)
     assert labels[1].get_ha() == 'center'
     assert labels[1].get_va() == 'center'
+
+
+@image_comparison(['test_centered_bar_label_nonlinear.svg'])
+def test_centered_bar_label_nonlinear():
+    _, ax = plt.subplots()
+    bar_container = ax.barh(['c', 'b', 'a'], [1_000, 5_000, 7_000])
+    ax.set_xscale('log')
+    ax.set_xlim(1, None)
+    ax.bar_label(bar_container, label_type='center')
+    ax.set_axis_off()
 
 
 def test_bar_label_location_errorbars():
@@ -7789,12 +7904,22 @@ def test_bar_label_location_errorbars():
     assert labels[1].get_va() == 'top'
 
 
-def test_bar_label_fmt():
+@pytest.mark.parametrize('fmt', [
+    '%.2f', '{:.2f}', '{:.2f}'.format
+])
+def test_bar_label_fmt(fmt):
     ax = plt.gca()
     rects = ax.bar([1, 2], [3, -4])
-    labels = ax.bar_label(rects, fmt='%.2f')
+    labels = ax.bar_label(rects, fmt=fmt)
     assert labels[0].get_text() == '3.00'
     assert labels[1].get_text() == '-4.00'
+
+
+def test_bar_label_fmt_error():
+    ax = plt.gca()
+    rects = ax.bar([1, 2], [3, -4])
+    with pytest.raises(TypeError, match='str or callable'):
+        _ = ax.bar_label(rects, fmt=10)
 
 
 def test_bar_label_labels():
@@ -8079,9 +8204,98 @@ def test_bezier_autoscale():
     assert ax.get_ylim()[0] == -0.5
 
 
+def test_small_autoscale():
+    # Check that paths with small values autoscale correctly #24097.
+    verts = np.array([
+        [-5.45, 0.00], [-5.45, 0.00], [-5.29, 0.00], [-5.29, 0.00],
+        [-5.13, 0.00], [-5.13, 0.00], [-4.97, 0.00], [-4.97, 0.00],
+        [-4.81, 0.00], [-4.81, 0.00], [-4.65, 0.00], [-4.65, 0.00],
+        [-4.49, 0.00], [-4.49, 0.00], [-4.33, 0.00], [-4.33, 0.00],
+        [-4.17, 0.00], [-4.17, 0.00], [-4.01, 0.00], [-4.01, 0.00],
+        [-3.85, 0.00], [-3.85, 0.00], [-3.69, 0.00], [-3.69, 0.00],
+        [-3.53, 0.00], [-3.53, 0.00], [-3.37, 0.00], [-3.37, 0.00],
+        [-3.21, 0.00], [-3.21, 0.01], [-3.05, 0.01], [-3.05, 0.01],
+        [-2.89, 0.01], [-2.89, 0.01], [-2.73, 0.01], [-2.73, 0.02],
+        [-2.57, 0.02], [-2.57, 0.04], [-2.41, 0.04], [-2.41, 0.04],
+        [-2.25, 0.04], [-2.25, 0.06], [-2.09, 0.06], [-2.09, 0.08],
+        [-1.93, 0.08], [-1.93, 0.10], [-1.77, 0.10], [-1.77, 0.12],
+        [-1.61, 0.12], [-1.61, 0.14], [-1.45, 0.14], [-1.45, 0.17],
+        [-1.30, 0.17], [-1.30, 0.19], [-1.14, 0.19], [-1.14, 0.22],
+        [-0.98, 0.22], [-0.98, 0.25], [-0.82, 0.25], [-0.82, 0.27],
+        [-0.66, 0.27], [-0.66, 0.29], [-0.50, 0.29], [-0.50, 0.30],
+        [-0.34, 0.30], [-0.34, 0.32], [-0.18, 0.32], [-0.18, 0.33],
+        [-0.02, 0.33], [-0.02, 0.32], [0.13, 0.32], [0.13, 0.33], [0.29, 0.33],
+        [0.29, 0.31], [0.45, 0.31], [0.45, 0.30], [0.61, 0.30], [0.61, 0.28],
+        [0.77, 0.28], [0.77, 0.25], [0.93, 0.25], [0.93, 0.22], [1.09, 0.22],
+        [1.09, 0.19], [1.25, 0.19], [1.25, 0.17], [1.41, 0.17], [1.41, 0.15],
+        [1.57, 0.15], [1.57, 0.12], [1.73, 0.12], [1.73, 0.10], [1.89, 0.10],
+        [1.89, 0.08], [2.05, 0.08], [2.05, 0.07], [2.21, 0.07], [2.21, 0.05],
+        [2.37, 0.05], [2.37, 0.04], [2.53, 0.04], [2.53, 0.02], [2.69, 0.02],
+        [2.69, 0.02], [2.85, 0.02], [2.85, 0.01], [3.01, 0.01], [3.01, 0.01],
+        [3.17, 0.01], [3.17, 0.00], [3.33, 0.00], [3.33, 0.00], [3.49, 0.00],
+        [3.49, 0.00], [3.65, 0.00], [3.65, 0.00], [3.81, 0.00], [3.81, 0.00],
+        [3.97, 0.00], [3.97, 0.00], [4.13, 0.00], [4.13, 0.00], [4.29, 0.00],
+        [4.29, 0.00], [4.45, 0.00], [4.45, 0.00], [4.61, 0.00], [4.61, 0.00],
+        [4.77, 0.00], [4.77, 0.00], [4.93, 0.00], [4.93, 0.00],
+    ])
+
+    minx = np.min(verts[:, 0])
+    miny = np.min(verts[:, 1])
+    maxx = np.max(verts[:, 0])
+    maxy = np.max(verts[:, 1])
+
+    p = mpath.Path(verts)
+
+    fig, ax = plt.subplots()
+    ax.add_patch(mpatches.PathPatch(p))
+    ax.autoscale()
+
+    assert ax.get_xlim()[0] <= minx
+    assert ax.get_xlim()[1] >= maxx
+    assert ax.get_ylim()[0] <= miny
+    assert ax.get_ylim()[1] >= maxy
+
+
 def test_get_xticklabel():
     fig, ax = plt.subplots()
     ax.plot(np.arange(10))
     for ind in range(10):
         assert ax.get_xticklabels()[ind].get_text() == f'{ind}'
         assert ax.get_yticklabels()[ind].get_text() == f'{ind}'
+
+
+def test_bar_leading_nan():
+
+    barx = np.arange(3, dtype=float)
+    barheights = np.array([0.5, 1.5, 2.0])
+    barstarts = np.array([0.77]*3)
+
+    barx[0] = np.NaN
+
+    fig, ax = plt.subplots()
+
+    bars = ax.bar(barx, barheights, bottom=barstarts)
+
+    hbars = ax.barh(barx, barheights, left=barstarts)
+
+    for bar_set in (bars, hbars):
+        # the first bar should have a nan in the location
+        nanful, *rest = bar_set
+        assert (~np.isfinite(nanful.xy)).any()
+        assert np.isfinite(nanful.get_width())
+        for b in rest:
+            assert np.isfinite(b.xy).all()
+            assert np.isfinite(b.get_width())
+
+
+@check_figures_equal(extensions=["png"])
+def test_bar_all_nan(fig_test, fig_ref):
+    mpl.style.use("mpl20")
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    ax_test.bar([np.nan], [np.nan])
+    ax_test.bar([1], [1])
+
+    ax_ref.bar([1], [1]).remove()
+    ax_ref.bar([1], [1])

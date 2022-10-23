@@ -4,7 +4,8 @@
 Default color changes
 *********************
 
-As discussed at length elsewhere [insert links], ``jet`` is an
+As discussed at length `elsewhere <https://bids.github.io/colormap/>`__ ,
+``jet`` is an
 empirically bad colormap and should not be the default colormap.
 Due to the position that changing the appearance of the plot breaks
 backward compatibility, this change has been put off for far longer

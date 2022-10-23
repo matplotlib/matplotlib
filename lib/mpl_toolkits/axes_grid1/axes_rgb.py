@@ -8,8 +8,15 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, **kwargs):
     """
     Parameters
     ----------
-    pad : float
-        Fraction of the axes height.
+    ax : `~matplotlib.axes.Axes`
+        Axes instance to create the RGB Axes in.
+    pad : float, optional
+        Fraction of the Axes height to pad.
+    axes_class : `matplotlib.axes.Axes` or None, optional
+        Axes class to use for the R, G, and B Axes. If None, use
+        the same class as *ax*.
+    **kwargs :
+        Forwarded to *axes_class* init for the R, G, and B Axes.
     """
 
     divider = make_axes_locatable(ax)
@@ -26,10 +33,7 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, **kwargs):
 
     ax_rgb = []
     if axes_class is None:
-        try:
-            axes_class = ax._axes_class
-        except AttributeError:
-            axes_class = type(ax)
+        axes_class = type(ax)
 
     for ny in [4, 2, 0]:
         ax1 = axes_class(ax.get_figure(), ax.get_position(original=True),
@@ -55,7 +59,7 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, **kwargs):
 
 class RGBAxes:
     """
-    4-panel imshow (RGB, R, G, B).
+    4-panel `~.Axes.imshow` (RGB, R, G, B).
 
     Layout:
 
@@ -68,17 +72,18 @@ class RGBAxes:
         +---------------+-----+
 
     Subclasses can override the ``_defaultAxesClass`` attribute.
+    By default RGBAxes uses `.mpl_axes.Axes`.
 
     Attributes
     ----------
     RGB : ``_defaultAxesClass``
-        The axes object for the three-channel imshow.
+        The Axes object for the three-channel `~.Axes.imshow`.
     R : ``_defaultAxesClass``
-        The axes object for the red channel imshow.
+        The Axes object for the red channel `~.Axes.imshow`.
     G : ``_defaultAxesClass``
-        The axes object for the green channel imshow.
+        The Axes object for the green channel `~.Axes.imshow`.
     B : ``_defaultAxesClass``
-        The axes object for the blue channel imshow.
+        The Axes object for the blue channel `~.Axes.imshow`.
     """
 
     _defaultAxesClass = Axes
@@ -88,13 +93,13 @@ class RGBAxes:
         Parameters
         ----------
         pad : float, default: 0
-            fraction of the axes height to put as padding.
-        axes_class : matplotlib.axes.Axes
-
+            Fraction of the Axes height to put as padding.
+        axes_class : `~matplotlib.axes.Axes`
+            Axes class to use. If not provided, ``_defaultAxesClass`` is used.
         *args
-            Unpacked into axes_class() init for RGB
+            Forwarded to *axes_class* init for the RGB Axes
         **kwargs
-            Unpacked into axes_class() init for RGB, R, G, B axes
+            Forwarded to *axes_class* init for the RGB, R, G, and B Axes
         """
         axes_class = kwargs.pop("axes_class", self._defaultAxesClass)
         self.RGB = ax = axes_class(*args, **kwargs)
@@ -114,15 +119,15 @@ class RGBAxes:
         ----------
         r, g, b : array-like
             The red, green, and blue arrays.
-        kwargs : imshow kwargs
-            kwargs get unpacked into the imshow calls for the four images.
+        **kwargs :
+            Forwarded to `~.Axes.imshow` calls for the four images.
 
         Returns
         -------
-        rgb : matplotlib.image.AxesImage
-        r : matplotlib.image.AxesImage
-        g : matplotlib.image.AxesImage
-        b : matplotlib.image.AxesImage
+        rgb : `~matplotlib.image.AxesImage`
+        r : `~matplotlib.image.AxesImage`
+        g : `~matplotlib.image.AxesImage`
+        b : `~matplotlib.image.AxesImage`
         """
         if not (r.shape == g.shape == b.shape):
             raise ValueError(

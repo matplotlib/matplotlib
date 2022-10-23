@@ -28,7 +28,7 @@ import numpy as np
 # `.Axes.plot` to draw some data on the Axes:
 
 fig, ax = plt.subplots()  # Create a figure containing a single axes.
-ax.plot([1, 2, 3, 4], [1, 4, 2, 3]);  # Plot some data on the axes.
+ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 
 ###############################################################################
 # .. _figure_parts:
@@ -126,7 +126,7 @@ data['d'] = np.abs(data['d']) * 100
 fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
 ax.scatter('a', 'b', c='c', s='d', data=data)
 ax.set_xlabel('entry a')
-ax.set_ylabel('entry b');
+ax.set_ylabel('entry b')
 
 ##############################################################################
 # .. _coding_styles:
@@ -159,7 +159,7 @@ ax.plot(x, x**3, label='cubic')  # ... and some more.
 ax.set_xlabel('x label')  # Add an x-label to the axes.
 ax.set_ylabel('y label')  # Add a y-label to the axes.
 ax.set_title("Simple Plot")  # Add a title to the axes.
-ax.legend();  # Add a legend.
+ax.legend()  # Add a legend.
 
 ###############################################################################
 # or the pyplot-style:
@@ -173,7 +173,7 @@ plt.plot(x, x**3, label='cubic')
 plt.xlabel('x label')
 plt.ylabel('y label')
 plt.title("Simple Plot")
-plt.legend();
+plt.legend()
 
 ###############################################################################
 # (In addition, there is a third approach, for the case when embedding
@@ -213,7 +213,7 @@ def my_plotter(ax, data1, data2, param_dict):
 data1, data2, data3, data4 = np.random.randn(4, 100)  # make 4 random data sets
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5, 2.7))
 my_plotter(ax1, data1, data2, {'marker': 'x'})
-my_plotter(ax2, data3, data4, {'marker': 'o'});
+my_plotter(ax2, data3, data4, {'marker': 'o'})
 
 ###############################################################################
 # Note that if you want to install these as a python package, or any other
@@ -235,7 +235,7 @@ fig, ax = plt.subplots(figsize=(5, 2.7))
 x = np.arange(len(data1))
 ax.plot(x, np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
 l, = ax.plot(x, np.cumsum(data2), color='orange', linewidth=2)
-l.set_linestyle(':');
+l.set_linestyle(':')
 
 ###############################################################################
 # Colors
@@ -248,7 +248,7 @@ l.set_linestyle(':');
 # from the interior:
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
-ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k');
+ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
 
 ###############################################################################
 # Linewidths, linestyles, and markersizes
@@ -272,7 +272,7 @@ ax.plot(data1, 'o', label='data1')
 ax.plot(data2, 'd', label='data2')
 ax.plot(data3, 'v', label='data3')
 ax.plot(data4, 's', label='data4')
-ax.legend();
+ax.legend()
 
 ###############################################################################
 #
@@ -298,7 +298,7 @@ ax.set_ylabel('Probability')
 ax.set_title('Aardvark lengths\n (not really)')
 ax.text(75, .025, r'$\mu=115,\ \sigma=15$')
 ax.axis([55, 175, 0, 0.03])
-ax.grid(True);
+ax.grid(True)
 
 ###############################################################################
 # All of the `~.Axes.text` functions return a `matplotlib.text.Text`
@@ -342,7 +342,7 @@ line, = ax.plot(t, s, lw=2)
 ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
             arrowprops=dict(facecolor='black', shrink=0.05))
 
-ax.set_ylim(-2, 2);
+ax.set_ylim(-2, 2)
 
 ###############################################################################
 # In this basic example, both *xy* and *xytext* are in data coordinates.
@@ -360,7 +360,7 @@ fig, ax = plt.subplots(figsize=(5, 2.7))
 ax.plot(np.arange(len(data1)), data1, label='data1')
 ax.plot(np.arange(len(data2)), data2, label='data2')
 ax.plot(np.arange(len(data3)), data3, 'd', label='data3')
-ax.legend();
+ax.legend()
 
 ##############################################################################
 # Legends in Matplotlib are quite flexible in layout, placement, and what
@@ -391,7 +391,7 @@ data = 10**data1
 axs[0].plot(xdata, data)
 
 axs[1].set_yscale('log')
-axs[1].plot(xdata, data);
+axs[1].plot(xdata, data)
 
 ##############################################################################
 # The scale sets the mapping from data values to spacing along the Axis. This
@@ -413,7 +413,7 @@ axs[0].set_title('Automatic ticks')
 axs[1].plot(xdata, data1)
 axs[1].set_xticks(np.arange(0, 100, 30), ['zero', '30', 'sixty', '90'])
 axs[1].set_yticks([-1.5, 0, 1.5])  # note that we don't need to specify labels
-axs[1].set_title('Manual ticks');
+axs[1].set_title('Manual ticks')
 
 ##############################################################################
 # Different scales can have different locators and formatters; for instance
@@ -435,7 +435,7 @@ dates = np.arange(np.datetime64('2021-11-15'), np.datetime64('2021-12-25'),
 data = np.cumsum(np.random.randn(len(dates)))
 ax.plot(dates, data)
 cdf = mpl.dates.ConciseDateFormatter(ax.xaxis.get_major_locator())
-ax.xaxis.set_major_formatter(cdf);
+ax.xaxis.set_major_formatter(cdf)
 
 ##############################################################################
 # For more information see the date examples
@@ -447,7 +447,7 @@ ax.xaxis.set_major_formatter(cdf);
 fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
 categories = ['turnips', 'rutabaga', 'cucumber', 'pumpkins']
 
-ax.bar(categories, np.random.rand(len(categories)));
+ax.bar(categories, np.random.rand(len(categories)))
 
 ##############################################################################
 # One caveat about categorical plotting is that some methods of parsing
@@ -561,7 +561,7 @@ fig, axd = plt.subplot_mosaic([['upleft', 'right'],
                                ['lowleft', 'right']], layout='constrained')
 axd['upleft'].set_title('upleft')
 axd['lowleft'].set_title('lowleft')
-axd['right'].set_title('right');
+axd['right'].set_title('right')
 
 ###############################################################################
 # Matplotlib has quite sophisticated tools for arranging Axes: See

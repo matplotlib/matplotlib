@@ -24,7 +24,7 @@ class InsetPosition:
 
         Parameters
         ----------
-        parent : `matplotlib.axes.Axes`
+        parent : `~matplotlib.axes.Axes`
             Axes to use for normalizing coordinates.
 
         lbwh : iterable of four floats
@@ -38,12 +38,12 @@ class InsetPosition:
         Examples
         --------
         The following bounds the inset axes to a box with 20%% of the parent
-        axes's height and 40%% of the width. The size of the axes specified
+        axes height and 40%% of the width. The size of the axes specified
         ([0, 0, 1, 1]) ensures that the axes completely fills the bounding box:
 
         >>> parent_axes = plt.gca()
         >>> ax_ins = plt.axes([0, 0, 1, 1])
-        >>> ip = InsetPosition(ax, [0.5, 0.1, 0.4, 0.2])
+        >>> ip = InsetPosition(parent_axes, [0.5, 0.1, 0.4, 0.2])
         >>> ax_ins.set_axes_locator(ip)
         """
         self.parent = parent
@@ -70,18 +70,11 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
 
     def __call__(self, ax, renderer):
         self.axes = ax
-
-        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
-        self._update_offset_func(renderer, fontsize)
-
-        width, height, xdescent, ydescent = self.get_extent(renderer)
-
-        px, py = self.get_offset(width, height, 0, 0, renderer)
-        bbox_canvas = Bbox.from_bounds(px, py, width, height)
+        bbox = self.get_window_extent(renderer)
+        px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)
+        bbox_canvas = Bbox.from_bounds(px, py, bbox.width, bbox.height)
         tr = ax.figure.transFigure.inverted()
-        bb = TransformedBbox(bbox_canvas, tr)
-
-        return bb
+        return TransformedBbox(bbox_canvas, tr)
 
 
 class AnchoredSizeLocator(AnchoredLocatorBase):
@@ -142,7 +135,7 @@ class BboxPatch(Patch):
 
         Parameters
         ----------
-        bbox : `matplotlib.transforms.Bbox`
+        bbox : `~matplotlib.transforms.Bbox`
             Bbox to use for the extents of this patch.
 
         **kwargs
@@ -204,7 +197,7 @@ class BboxConnector(Patch):
 
         Parameters
         ----------
-        bbox1, bbox2 : `matplotlib.transforms.Bbox`
+        bbox1, bbox2 : `~matplotlib.transforms.Bbox`
             Bounding boxes to connect.
 
         loc1, loc2 : {1, 2, 3, 4}
@@ -255,7 +248,7 @@ class BboxConnectorPatch(BboxConnector):
 
         Parameters
         ----------
-        bbox1, bbox2 : `matplotlib.transforms.Bbox`
+        bbox1, bbox2 : `~matplotlib.transforms.Bbox`
             Bounding boxes to connect.
 
         loc1a, loc2a, loc1b, loc2b : {1, 2, 3, 4}
@@ -342,7 +335,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         the size in inches, e.g. *width=1.3*. If a string is provided, it is
         the size in relative units, e.g. *width='40%%'*. By default, i.e. if
         neither *bbox_to_anchor* nor *bbox_transform* are specified, those
-        are relative to the parent_axes. Otherwise they are to be understood
+        are relative to the parent_axes. Otherwise, they are to be understood
         relative to the bounding box provided via *bbox_to_anchor*.
 
     loc : str, default: 'upper right'
@@ -353,7 +346,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         For backward compatibility, numeric values are accepted as well.
         See the parameter *loc* of `.Legend` for details.
 
-    bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
+    bbox_to_anchor : tuple or `~matplotlib.transforms.BboxBase`, optional
         Bbox that the inset axes will be anchored to. If None,
         a tuple of (0, 0, 1, 1) is used if *bbox_transform* is set
         to *parent_axes.transAxes* or *parent_axes.figure.transFigure*.
@@ -367,7 +360,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         a *bbox_transform*. This might often be the axes transform
         *parent_axes.transAxes*.
 
-    bbox_transform : `matplotlib.transforms.Transform`, optional
+    bbox_transform : `~matplotlib.transforms.Transform`, optional
         Transformation for the bbox that contains the inset axes.
         If None, a `.transforms.IdentityTransform` is used. The value
         of *bbox_to_anchor* (or the return value of its get_points method)
@@ -376,7 +369,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         You may provide *bbox_to_anchor* in some normalized coordinate,
         and give an appropriate transform (e.g., *parent_axes.transAxes*).
 
-    axes_class : `matplotlib.axes.Axes` type, default: `.HostAxes`
+    axes_class : `~matplotlib.axes.Axes` type, default: `.HostAxes`
         The type of the newly created inset axes.
 
     axes_kwargs : dict, optional
@@ -445,7 +438,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
 
     Parameters
     ----------
-    parent_axes : `matplotlib.axes.Axes`
+    parent_axes : `~matplotlib.axes.Axes`
         Axes to place the inset axes.
 
     zoom : float
@@ -461,7 +454,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         For backward compatibility, numeric values are accepted as well.
         See the parameter *loc* of `.Legend` for details.
 
-    bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
+    bbox_to_anchor : tuple or `~matplotlib.transforms.BboxBase`, optional
         Bbox that the inset axes will be anchored to. If None,
         *parent_axes.bbox* is used. If a tuple, can be either
         [left, bottom, width, height], or [left, bottom].
@@ -472,7 +465,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         also specify a *bbox_transform*. This might often be the axes transform
         *parent_axes.transAxes*.
 
-    bbox_transform : `matplotlib.transforms.Transform`, optional
+    bbox_transform : `~matplotlib.transforms.Transform`, optional
         Transformation for the bbox that contains the inset axes.
         If None, a `.transforms.IdentityTransform` is used (i.e. pixel
         coordinates). This is useful when not providing any argument to
@@ -483,7 +476,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         *bbox_to_anchor* will use *parent_axes.bbox*, the units of which are
         in display (pixel) coordinates.
 
-    axes_class : `matplotlib.axes.Axes` type, default: `.HostAxes`
+    axes_class : `~matplotlib.axes.Axes` type, default: `.HostAxes`
         The type of the newly created inset axes.
 
     axes_kwargs : dict, optional
@@ -548,10 +541,10 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
 
     Parameters
     ----------
-    parent_axes : `matplotlib.axes.Axes`
+    parent_axes : `~matplotlib.axes.Axes`
         Axes which contains the area of the inset axes.
 
-    inset_axes : `matplotlib.axes.Axes`
+    inset_axes : `~matplotlib.axes.Axes`
         The inset axes.
 
     loc1, loc2 : {1, 2, 3, 4}
@@ -565,10 +558,10 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
 
     Returns
     -------
-    pp : `matplotlib.patches.Patch`
+    pp : `~matplotlib.patches.Patch`
         The patch drawn to represent the area of the inset axes.
 
-    p1, p2 : `matplotlib.patches.Patch`
+    p1, p2 : `~matplotlib.patches.Patch`
         The patches connecting two corners of the inset axes and its area.
     """
     rect = _TransformedBboxWithCallback(

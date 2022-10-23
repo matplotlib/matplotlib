@@ -211,8 +211,8 @@ class GridSpecBase:
         or create a new one
         """
         for ax in figure.get_axes():
-            if hasattr(ax, 'get_subplotspec'):
-                gs = ax.get_subplotspec().get_gridspec()
+            gs = ax.get_gridspec()
+            if gs is not None:
                 if hasattr(gs, 'get_topmost_subplotspec'):
                     # This is needed for colorbar gridspec layouts.
                     # This is probably OK because this whole logic tree
@@ -413,7 +413,7 @@ class GridSpec(GridSpecBase):
                 raise AttributeError(f"{k} is an unknown keyword")
         for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
-                if isinstance(ax, mpl.axes.SubplotBase):
+                if ax.get_subplotspec() is not None:
                     ss = ax.get_subplotspec().get_topmost_subplotspec()
                     if ss.get_gridspec() == self:
                         ax._set_position(

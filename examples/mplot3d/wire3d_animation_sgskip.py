@@ -1,7 +1,7 @@
 """
-=============================
-Animating a 3D wireframe plot
-=============================
+===========================
+Animate a 3D wireframe plot
+===========================
 
 A very simple "animation" of a 3D plot.  See also :doc:`rotate_axes3d_sgskip`.
 

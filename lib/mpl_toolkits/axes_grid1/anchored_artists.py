@@ -14,7 +14,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
                  loc, pad=0.4, borderpad=0.5, prop=None, frameon=True,
                  **kwargs):
         """
-        An anchored container with a fixed size and fillable DrawingArea.
+        An anchored container with a fixed size and fillable `.DrawingArea`.
 
         Artists added to the *drawing_area* will have their coordinates
         interpreted as pixels. Any transformations set on the artists will be
@@ -23,9 +23,9 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         Parameters
         ----------
         width, height : float
-            width and height of the container, in pixels.
+            Width and height of the container, in pixels.
         xdescent, ydescent : float
-            descent of the container in the x- and y- direction, in pixels.
+            Descent of the container in the x- and y- direction, in pixels.
         loc : str
             Location of this artist.  Valid locations are
             'upper left', 'upper center', 'upper right',
@@ -37,16 +37,16 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
             Padding around the child objects, in fraction of the font size.
         borderpad : float, default: 0.5
             Border padding, in fraction of the font size.
-        prop : `matplotlib.font_manager.FontProperties`, optional
+        prop : `~matplotlib.font_manager.FontProperties`, optional
             Font property used as a reference for paddings.
         frameon : bool, default: True
-            If True, draw a box around this artists.
+            If True, draw a box around this artist.
         **kwargs
             Keyword arguments forwarded to `.AnchoredOffsetbox`.
 
         Attributes
         ----------
-        drawing_area : `matplotlib.offsetbox.DrawingArea`
+        drawing_area : `~matplotlib.offsetbox.DrawingArea`
             A container for artists to display.
 
         Examples
@@ -81,7 +81,7 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
 
         Parameters
         ----------
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             The transformation object for the coordinate system in use, i.e.,
             :attr:`matplotlib.axes.Axes.transData`.
         loc : str
@@ -95,16 +95,16 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
             Padding around the child objects, in fraction of the font size.
         borderpad : float, default: 0.5
             Border padding, in fraction of the font size.
-        prop : `matplotlib.font_manager.FontProperties`, optional
+        prop : `~matplotlib.font_manager.FontProperties`, optional
             Font property used as a reference for paddings.
         frameon : bool, default: True
-            If True, draw a box around this artists.
+            If True, draw a box around this artist.
         **kwargs
             Keyword arguments forwarded to `.AnchoredOffsetbox`.
 
         Attributes
         ----------
-        drawing_area : `matplotlib.offsetbox.AuxTransformBox`
+        drawing_area : `~matplotlib.offsetbox.AuxTransformBox`
             A container for artists to display.
 
         Examples
@@ -132,7 +132,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
 
         Parameters
         ----------
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             The transformation object for the coordinate system in use, i.e.,
             :attr:`matplotlib.axes.Axes.transData`.
         width, height : float
@@ -141,7 +141,7 @@ class AnchoredEllipse(AnchoredOffsetbox):
         angle : float
             Rotation of the ellipse, in degrees, anti-clockwise.
         loc : str
-            Location of this ellipse.  Valid locations are
+            Location of the ellipse.  Valid locations are
             'upper left', 'upper center', 'upper right',
             'center left', 'center', 'center right',
             'lower left', 'lower center, 'lower right'.
@@ -153,18 +153,18 @@ class AnchoredEllipse(AnchoredOffsetbox):
             Border padding, in fraction of the font size.
         frameon : bool, default: True
             If True, draw a box around the ellipse.
-        prop : `matplotlib.font_manager.FontProperties`, optional
+        prop : `~matplotlib.font_manager.FontProperties`, optional
             Font property used as a reference for paddings.
         **kwargs
             Keyword arguments forwarded to `.AnchoredOffsetbox`.
 
         Attributes
         ----------
-        ellipse : `matplotlib.patches.Ellipse`
+        ellipse : `~matplotlib.patches.Ellipse`
             Ellipse patch drawn.
         """
         self._box = AuxTransformBox(transform)
-        self.ellipse = Ellipse((0, 0), width, height, angle)
+        self.ellipse = Ellipse((0, 0), width, height, angle=angle)
         self._box.add_artist(self.ellipse)
 
         super().__init__(loc, pad=pad, borderpad=borderpad, child=self._box,
@@ -182,7 +182,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
 
         Parameters
         ----------
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             The transformation object for the coordinate system in use, i.e.,
             :attr:`matplotlib.axes.Axes.transData`.
         size : float
@@ -191,7 +191,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         label : str
             Label to display.
         loc : str
-            Location of this ellipse.  Valid locations are
+            Location of the size bar.  Valid locations are
             'upper left', 'upper center', 'upper right',
             'center left', 'center', 'center right',
             'lower left', 'lower center, 'lower right'.
@@ -213,10 +213,10 @@ class AnchoredSizeBar(AnchoredOffsetbox):
             Color for the size bar and label.
         label_top : bool, default: False
             If True, the label will be over the size bar.
-        fontproperties : `matplotlib.font_manager.FontProperties`, optional
+        fontproperties : `~matplotlib.font_manager.FontProperties`, optional
             Font properties for the label text.
         fill_bar : bool, optional
-            If True and if size_vertical is nonzero, the size bar will
+            If True and if *size_vertical* is nonzero, the size bar will
             be filled in with the color specified by the size bar.
             Defaults to True if *size_vertical* is greater than
             zero and False otherwise.
@@ -225,15 +225,15 @@ class AnchoredSizeBar(AnchoredOffsetbox):
 
         Attributes
         ----------
-        size_bar : `matplotlib.offsetbox.AuxTransformBox`
+        size_bar : `~matplotlib.offsetbox.AuxTransformBox`
             Container for the size bar.
-        txt_label : `matplotlib.offsetbox.TextArea`
+        txt_label : `~matplotlib.offsetbox.TextArea`
             Container for the label of the size bar.
 
         Notes
         -----
         If *prop* is passed as a keyword argument, but *fontproperties* is
-        not, then *prop* is be assumed to be the intended *fontproperties*.
+        not, then *prop* is assumed to be the intended *fontproperties*.
         Using both *prop* and *fontproperties* is not supported.
 
         Examples
@@ -301,7 +301,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
 
         Parameters
         ----------
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             The transformation object for the coordinate system in use, i.e.,
             :attr:`matplotlib.axes.Axes.transAxes`.
         label_x, label_y : str
@@ -311,7 +311,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         fontsize : float, default: 0.08
             Size of label strings, given in coordinates of *transform*.
         loc : str, default: 'upper left'
-            Location of this ellipse.  Valid locations are
+            Location of the arrow.  Valid locations are
             'upper left', 'upper center', 'upper right',
             'center left', 'center', 'center right',
             'lower left', 'lower center, 'lower right'.
@@ -335,7 +335,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
         sep_x, sep_y : float, default: 0.01 and 0 respectively
             Separation between the arrows and labels in coordinates of
             *transform*.
-        fontproperties : `matplotlib.font_manager.FontProperties`, optional
+        fontproperties : `~matplotlib.font_manager.FontProperties`, optional
             Font properties for the label text.
         back_length : float, default: 0.15
             Fraction of the arrow behind the arrow crossing.
@@ -347,25 +347,25 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
             Width of arrow tail, sent to ArrowStyle.
         text_props, arrow_props : dict
             Properties of the text and arrows, passed to
-            `.textpath.TextPath` and `.patches.FancyArrowPatch`.
+            `~.textpath.TextPath` and `~.patches.FancyArrowPatch`.
         **kwargs
             Keyword arguments forwarded to `.AnchoredOffsetbox`.
 
         Attributes
         ----------
-        arrow_x, arrow_y : `matplotlib.patches.FancyArrowPatch`
+        arrow_x, arrow_y : `~matplotlib.patches.FancyArrowPatch`
             Arrow x and y
-        text_path_x, text_path_y : `matplotlib.textpath.TextPath`
+        text_path_x, text_path_y : `~matplotlib.textpath.TextPath`
             Path for arrow labels
-        p_x, p_y : `matplotlib.patches.PathPatch`
+        p_x, p_y : `~matplotlib.patches.PathPatch`
             Patch for arrow labels
-        box : `matplotlib.offsetbox.AuxTransformBox`
+        box : `~matplotlib.offsetbox.AuxTransformBox`
             Container for the arrows and labels.
 
         Notes
         -----
         If *prop* is passed as a keyword argument, but *fontproperties* is
-        not, then *prop* is be assumed to be the intended *fontproperties*.
+        not, then *prop* is assumed to be the intended *fontproperties*.
         Using both *prop* and *fontproperties* is not supported.
 
         Examples

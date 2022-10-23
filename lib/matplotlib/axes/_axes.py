@@ -2179,14 +2179,22 @@ class Axes(_AxesBase):
             # removes the units from unit packages like `pint` that
             # wrap numpy arrays.
             try:
-                x0 = cbook._safe_first_non_none(x0)
+                x0 = cbook._safe_first_finite(x0)
             except (TypeError, IndexError, KeyError):
                 pass
+            except StopIteration:
+                # this means we found no finite element, fall back to first
+                # element unconditionally
+                x0 = cbook.safe_first_element(x0)
 
             try:
-                x = cbook._safe_first_non_none(xconv)
+                x = cbook._safe_first_finite(xconv)
             except (TypeError, IndexError, KeyError):
                 x = xconv
+            except StopIteration:
+                # this means we found no finite element, fall back to first
+                # element unconditionally
+                x = cbook.safe_first_element(xconv)
 
             delist = False
             if not np.iterable(dx):
@@ -2228,7 +2236,7 @@ class Axes(_AxesBase):
             The width(s) of the bars.
 
         bottom : float or array-like, default: 0
-            The y coordinate(s) of the bars bases.
+            The y coordinate(s) of the bottom side(s) of the bars.
 
         align : {'center', 'edge'}, default: 'center'
             Alignment of the bars to the *x* coordinates:
@@ -2278,8 +2286,8 @@ class Axes(_AxesBase):
               errors.
             - *None*: No errorbar. (Default)
 
-            See :doc:`/gallery/statistics/errorbar_features`
-            for an example on the usage of ``xerr`` and ``yerr``.
+            See :doc:`/gallery/statistics/errorbar_features` for an example on
+            the usage of *xerr* and *yerr*.
 
         ecolor : color or list of color, default: 'black'
             The line color of the errorbars.
@@ -2288,9 +2296,9 @@ class Axes(_AxesBase):
            The length of the error bar caps in points.
 
         error_kw : dict, optional
-            Dictionary of kwargs to be passed to the `~.Axes.errorbar`
-            method. Values of *ecolor* or *capsize* defined here take
-            precedence over the independent kwargs.
+            Dictionary of keyword arguments to be passed to the
+            `~.Axes.errorbar` method. Values of *ecolor* or *capsize* defined
+            here take precedence over the independent keyword arguments.
 
         log : bool, default: False
             If *True*, set the y-axis to be log scale.
@@ -2498,9 +2506,10 @@ class Axes(_AxesBase):
 
         return bar_container
 
+    # @_preprocess_data() # let 'bar' do the unpacking..
     @_docstring.dedent_interpd
     def barh(self, y, width, height=0.8, left=None, *, align="center",
-             **kwargs):
+             data=None, **kwargs):
         r"""
         Make a horizontal bar plot.
 
@@ -2524,7 +2533,7 @@ class Axes(_AxesBase):
             The heights of the bars.
 
         left : float or array-like, default: 0
-            The x coordinates of the left sides of the bars.
+            The x coordinates of the left side(s) of the bars.
 
         align : {'center', 'edge'}, default: 'center'
             Alignment of the base to the *y* coordinates*:
@@ -2556,9 +2565,17 @@ class Axes(_AxesBase):
             The tick labels of the bars.
             Default: None (Use default numeric labels.)
 
+        label : str or list of str, optional
+            A single label is attached to the resulting `.BarContainer` as a
+            label for the whole dataset.
+            If a list is provided, it must be the same length as *y* and
+            labels the individual bars. Repeated labels are not de-duplicated
+            and will cause repeated label entries, so this is best used when
+            bars also differ in style (e.g., by passing a list to *color*.)
+
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
-            If not ``None``, add horizontal / vertical errorbars to the
-            bar tips. The values are +/- sizes relative to the data:
+            If not *None*, add horizontal / vertical errorbars to the bar tips.
+            The values are +/- sizes relative to the data:
 
             - scalar: symmetric +/- values for all bars
             - shape(N,): symmetric +/- values for each bar
@@ -2567,8 +2584,8 @@ class Axes(_AxesBase):
               errors.
             - *None*: No errorbar. (default)
 
-            See :doc:`/gallery/statistics/errorbar_features`
-            for an example on the usage of ``xerr`` and ``yerr``.
+            See :doc:`/gallery/statistics/errorbar_features` for an example on
+            the usage of *xerr* and *yerr*.
 
         ecolor : color or list of color, default: 'black'
             The line color of the errorbars.
@@ -2577,12 +2594,16 @@ class Axes(_AxesBase):
            The length of the error bar caps in points.
 
         error_kw : dict, optional
-            Dictionary of kwargs to be passed to the `~.Axes.errorbar`
-            method. Values of *ecolor* or *capsize* defined here take
-            precedence over the independent kwargs.
+            Dictionary of keyword arguments to be passed to the
+            `~.Axes.errorbar` method. Values of *ecolor* or *capsize* defined
+            here take precedence over the independent keyword arguments.
 
         log : bool, default: False
             If ``True``, set the x-axis to be log scale.
+
+        data : indexable object, optional
+            If given, all parameters also accept a string ``s``, which is
+            interpreted as ``data[s]`` (unless this raises an exception).
 
         **kwargs : `.Rectangle` properties
 
@@ -2596,12 +2617,11 @@ class Axes(_AxesBase):
         -----
         Stacked bars can be achieved by passing individual *left* values per
         bar. See
-        :doc:`/gallery/lines_bars_and_markers/horizontal_barchart_distribution`
-        .
+        :doc:`/gallery/lines_bars_and_markers/horizontal_barchart_distribution`.
         """
         kwargs.setdefault('orientation', 'horizontal')
         patches = self.bar(x=left, height=height, width=width, bottom=y,
-                           align=align, **kwargs)
+                           align=align, data=data, **kwargs)
         return patches
 
     def bar_label(self, container, labels=None, *, fmt="%g", label_type="edge",
@@ -2622,8 +2642,11 @@ class Axes(_AxesBase):
             A list of label texts, that should be displayed. If not given, the
             label texts will be the data values formatted with *fmt*.
 
-        fmt : str, default: '%g'
-            A format string for the label.
+        fmt : str or callable, default: '%g'
+            An unnamed %-style or {}-style format string for the label or a
+            function to call with the value as the first argument.
+            When *fmt* is a string and can be interpreted in both formats,
+            %-style takes precedence over {}-style.
 
         label_type : {'edge', 'center'}, default: 'edge'
             The label type. Possible values:
@@ -2712,7 +2735,13 @@ class Axes(_AxesBase):
                 value = extrema
 
             if label_type == "center":
-                xy = xc, yc
+                xy = (0.5, 0.5)
+                kwargs["xycoords"] = (
+                    lambda r, b=bar:
+                        mtransforms.Bbox.intersection(
+                            b.get_window_extent(r), b.get_clip_box()
+                        )
+                )
             else:  # edge
                 if orientation == "vertical":
                     xy = xc, endpt
@@ -2745,7 +2774,14 @@ class Axes(_AxesBase):
             if np.isnan(dat):
                 lbl = ''
 
-            annotation = self.annotate(fmt % value if lbl is None else lbl,
+            if lbl is None:
+                if isinstance(fmt, str):
+                    lbl = cbook._auto_format_str(fmt, value)
+                elif callable(fmt):
+                    lbl = fmt(value)
+                else:
+                    raise TypeError("fmt must be a str or callable")
+            annotation = self.annotate(lbl,
                                        xy, xytext, textcoords="offset points",
                                        ha=ha, va=va, **kwargs)
             annotations.append(annotation)
@@ -2801,11 +2837,11 @@ class Axes(_AxesBase):
         """
         # process the unit information
         if len(xranges):
-            xdata = cbook._safe_first_non_none(xranges)
+            xdata = cbook._safe_first_finite(xranges)
         else:
             xdata = None
         if len(yrange):
-            ydata = cbook._safe_first_non_none(yrange)
+            ydata = cbook._safe_first_finite(yrange)
         else:
             ydata = None
         self._process_unit_info(
@@ -3447,10 +3483,10 @@ class Axes(_AxesBase):
                     # safe_first_element because getitem is index-first not
                     # location first on pandas objects so err[0] almost always
                     # fails.
-                    isinstance(cbook._safe_first_non_none(err), np.ndarray)
+                    isinstance(cbook._safe_first_finite(err), np.ndarray)
             ):
                 # Get the type of the first element
-                atype = type(cbook._safe_first_non_none(err))
+                atype = type(cbook._safe_first_finite(err))
                 # Promote the outer container to match the inner container
                 if atype is np.ndarray:
                     # Converts using np.asarray, because data cannot
@@ -3545,10 +3581,11 @@ class Axes(_AxesBase):
         eb_cap_style['color'] = ecolor
 
         barcols = []
-        caplines = []
+        caplines = {'x': [], 'y': []}
 
         # Vectorized fancy-indexer.
-        def apply_mask(arrays, mask): return [array[mask] for array in arrays]
+        def apply_mask(arrays, mask):
+            return [array[mask] for array in arrays]
 
         # dep: dependent dataset, indep: independent dataset
         for (dep_axis, dep, err, lolims, uplims, indep, lines_func,
@@ -3579,9 +3616,12 @@ class Axes(_AxesBase):
             #     return dep - elow * ~lolims, dep + ehigh * ~uplims
             # except that broadcast_to would strip units.
             low, high = dep + np.row_stack([-(1 - lolims), 1 - uplims]) * err
-
             barcols.append(lines_func(
                 *apply_mask([indep, low, high], everymask), **eb_lines_style))
+            if self.name == "polar" and dep_axis == "x":
+                for b in barcols:
+                    for p in b.get_paths():
+                        p._interpolation_steps = 2
             # Normal errorbars for points without upper/lower limits.
             nolims = ~(lolims | uplims)
             if nolims.any() and capsize > 0:
@@ -3594,7 +3634,7 @@ class Axes(_AxesBase):
                     line = mlines.Line2D(indep_masked, indep_masked,
                                          marker=marker, **eb_cap_style)
                     line.set(**{f"{dep_axis}data": lh_masked})
-                    caplines.append(line)
+                    caplines[dep_axis].append(line)
             for idx, (lims, hl) in enumerate([(lolims, high), (uplims, low)]):
                 if not lims.any():
                     continue
@@ -3608,15 +3648,29 @@ class Axes(_AxesBase):
                 line = mlines.Line2D(x_masked, y_masked,
                                      marker=hlmarker, **eb_cap_style)
                 line.set(**{f"{dep_axis}data": hl_masked})
-                caplines.append(line)
+                caplines[dep_axis].append(line)
                 if capsize > 0:
-                    caplines.append(mlines.Line2D(
+                    caplines[dep_axis].append(mlines.Line2D(
                         x_masked, y_masked, marker=marker, **eb_cap_style))
-
-        for l in caplines:
-            self.add_line(l)
+        if self.name == 'polar':
+            for axis in caplines:
+                for l in caplines[axis]:
+                    # Rotate caps to be perpendicular to the error bars
+                    for theta, r in zip(l.get_xdata(), l.get_ydata()):
+                        rotation = mtransforms.Affine2D().rotate(theta)
+                        if axis == 'y':
+                            rotation.rotate(-np.pi / 2)
+                        ms = mmarkers.MarkerStyle(marker=marker,
+                                                  transform=rotation)
+                        self.add_line(mlines.Line2D([theta], [r], marker=ms,
+                                                    **eb_cap_style))
+        else:
+            for axis in caplines:
+                for l in caplines[axis]:
+                    self.add_line(l)
 
         self._request_autoscale_view()
+        caplines = caplines['x'] + caplines['y']
         errorbar_container = ErrorbarContainer(
             (data_line, tuple(caplines), tuple(barcols)),
             has_xerr=(xerr is not None), has_yerr=(yerr is not None),
@@ -4313,7 +4367,7 @@ class Axes(_AxesBase):
         c_is_string_or_strings = (
             isinstance(c, str)
             or (np.iterable(c) and len(c) > 0
-                and isinstance(cbook._safe_first_non_none(c), str)))
+                and isinstance(cbook._safe_first_finite(c), str)))
 
         def invalid_shape_exception(csize, xsize):
             return ValueError(
@@ -4390,7 +4444,7 @@ class Axes(_AxesBase):
             The data positions.
 
         s : float or array-like, shape (n, ), optional
-            The marker size in points**2.
+            The marker size in points**2 (typographic points are 1/72 in.).
             Default is ``rcParams['lines.markersize'] ** 2``.
 
         c : array-like or list of colors or color, optional
@@ -4661,7 +4715,31 @@ default: :rc:`scatter.edgecolors`
             the hexagons are approximately regular.
 
             Alternatively, if a tuple (*nx*, *ny*), the number of hexagons
-            in the *x*-direction and the *y*-direction.
+            in the *x*-direction and the *y*-direction. In the
+            *y*-direction, counting is done along vertically aligned
+            hexagons, not along the zig-zag chains of hexagons; see the
+            following illustration.
+
+            .. plot::
+
+               import numpy
+               import matplotlib.pyplot as plt
+
+               np.random.seed(19680801)
+               n= 300
+               x = np.random.standard_normal(n)
+               y = np.random.standard_normal(n)
+
+               fig, ax = plt.subplots(figsize=(4, 4))
+               h = ax.hexbin(x, y, gridsize=(5, 3))
+               hx, hy = h.get_offsets().T
+               ax.plot(hx[24::3], hy[24::3], 'ro-')
+               ax.plot(hx[-3:], hy[-3:], 'ro-')
+               ax.set_title('gridsize=(5, 3)')
+               ax.axis('off')
+
+            To get approximately regular hexagons, choose
+            :math:`n_x = \\sqrt{3}\\,n_y`.
 
         bins : 'log' or int or sequence, default: None
             Discretization of the hexagon values.
@@ -4915,7 +4993,9 @@ default: :rc:`scatter.edgecolors`
         # autoscale the norm with current accum values if it hasn't been set
         if norm is not None:
             if norm.vmin is None and norm.vmax is None:
-                norm.autoscale(accum)
+                norm.autoscale_None(accum)
+            norm.vmin = np.ma.masked if norm.vmin is None else norm.vmin
+            norm.vmax = np.ma.masked if norm.vmax is None else norm.vmax
 
         if bins is not None:
             if not np.iterable(bins):
@@ -5242,7 +5322,7 @@ default: :rc:`scatter.edgecolors`
                 raise ValueError(f"where size ({where.size}) does not match "
                                  f"{ind_dir} size ({ind.size})")
         where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
+            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
 
         ind, dep1, dep2 = np.broadcast_arrays(
             np.atleast_1d(ind), dep1, dep2, subok=True)
@@ -6177,7 +6257,7 @@ default: :rc:`scatter.edgecolors`
 
            - It supports only flat shading (no outlines)
            - It lacks support for log scaling of the axes.
-           - It does not have a have a pyplot wrapper.
+           - It does not have a pyplot wrapper.
 
         Parameters
         ----------
@@ -6399,23 +6479,33 @@ default: :rc:`scatter.edgecolors`
              orientation='vertical', rwidth=None, log=False,
              color=None, label=None, stacked=False, **kwargs):
         """
-        Plot a histogram.
+        Compute and plot a histogram.
 
-        Compute and draw the histogram of *x*.  The return value is a tuple
-        (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*, [*patches0*,
-        *patches1*, ...]) if the input contains multiple data.  See the
-        documentation of the *weights* parameter to draw a histogram of
-        already-binned data.
+        This method uses `numpy.histogram` to bin the data in *x* and count the
+        number of values in each bin, then draws the distribution either as a
+        `.BarContainer` or `.Polygon`. The *bins*, *range*, *density*, and
+        *weights* parameters are forwarded to `numpy.histogram`.
 
-        Multiple data can be provided via *x* as a list of datasets
-        of potentially different length ([*x0*, *x1*, ...]), or as
-        a 2D ndarray in which each column is a dataset.  Note that
-        the ndarray form is transposed relative to the list form.
+        If the data has already been binned and counted, use `~.bar` or
+        `~.stairs` to plot the distribution::
+
+            counts, bins = np.histogram(x)
+            plt.stairs(counts, bins)
+
+        Alternatively, plot pre-computed bins and counts using ``hist()`` by
+        treating each bin as a single point with a weight equal to its count::
+
+            plt.hist(bins[:-1], bins, weights=counts)
+
+        The data input *x* can be a singular array, a list of datasets of
+        potentially different lengths ([*x0*, *x1*, ...]), or a 2D ndarray in
+        which each column is a dataset. Note that the ndarray form is
+        transposed relative to the list form. If the input is an array, then
+        the return value is a tuple (*n*, *bins*, *patches*); if the input is a
+        sequence of arrays, then the return value is a tuple
+        ([*n0*, *n1*, ...], *bins*, [*patches0*, *patches1*, ...]).
 
         Masked arrays are not supported.
-
-        The *bins*, *range*, *weights*, and *density* parameters behave as in
-        `numpy.histogram`.
 
         Parameters
         ----------
@@ -6468,15 +6558,6 @@ default: :rc:`scatter.edgecolors`
             (instead of 1).  If *density* is ``True``, the weights are
             normalized, so that the integral of the density over the range
             remains 1.
-
-            This parameter can be used to draw a histogram of data that has
-            already been binned, e.g. using `numpy.histogram` (by treating each
-            bin as a single point with a weight equal to its count) ::
-
-                counts, bins = np.histogram(data)
-                plt.hist(bins[:-1], bins, weights=counts)
-
-            (or you may alternatively use `~.bar()`).
 
         cumulative : bool or -1, default: False
             If ``True``, then a histogram is computed where each bin gives the
@@ -6578,9 +6659,9 @@ such objects
 
         Notes
         -----
-        For large numbers of bins (>1000), 'step' and 'stepfilled' can be
-        significantly faster than 'bar' and 'barstacked'.
-
+        For large numbers of bins (>1000), plotting can be significantly faster
+        if *histtype* is set to 'step' or 'stepfilled' rather than 'bar' or
+        'barstacked'.
         """
         # Avoid shadowing the builtin.
         bin_range = range

@@ -17,11 +17,16 @@ from matplotlib.spines import Spine
 
 class PolarTransform(mtransforms.Transform):
     """
-    The base polar transform.  This handles projection *theta* and
-    *r* into Cartesian coordinate space *x* and *y*, but does not
-    perform the ultimate affine transformation into the correct
-    position.
+    The base polar transform.
+
+    This transform maps polar coordinates ``(theta, r)`` into Cartesian
+    coordinates ``(x, y) = (r * cos(theta), r * sin(theta))`` (but does not
+    handle positioning in screen space).
+
+    Path segments at a fixed radius are automatically transformed to circular
+    arcs as long as ``path._interpolation_steps > 1``.
     """
+
     input_dims = output_dims = 2
 
     def __init__(self, axis=None, use_rmin=True,

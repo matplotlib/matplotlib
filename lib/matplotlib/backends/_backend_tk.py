@@ -24,9 +24,6 @@ from . import _tkagg
 
 
 _log = logging.getLogger(__name__)
-
-backend_version = tk.TkVersion
-
 cursord = {
     cursors.MOVE: "fleur",
     cursors.HAND: "hand2",
@@ -212,7 +209,8 @@ class FigureCanvasTk(FigureCanvasBase):
 
         self._tkcanvas.focus_set()
 
-        self._rubberband_rect = None
+        self._rubberband_rect_black = None
+        self._rubberband_rect_white = None
 
     def _update_device_pixel_ratio(self, event=None):
         # Tk gives scaling with respect to 72 DPI, but Windows screens are
@@ -667,21 +665,30 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         # Block copied from remove_rubberband for backend_tools convenience.
-        if self.canvas._rubberband_rect:
-            self.canvas._tkcanvas.delete(self.canvas._rubberband_rect)
+        if self.canvas._rubberband_rect_white:
+            self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_white)
+        if self.canvas._rubberband_rect_black:
+            self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_black)
         height = self.canvas.figure.bbox.height
         y0 = height - y0
         y1 = height - y1
-        self.canvas._rubberband_rect = self.canvas._tkcanvas.create_rectangle(
-            x0, y0, x1, y1)
+        self.canvas._rubberband_rect_black = (
+            self.canvas._tkcanvas.create_rectangle(
+                x0, y0, x1, y1))
+        self.canvas._rubberband_rect_white = (
+            self.canvas._tkcanvas.create_rectangle(
+                x0, y0, x1, y1, outline='white', dash=(3, 3)))
 
     def remove_rubberband(self):
-        if self.canvas._rubberband_rect:
-            self.canvas._tkcanvas.delete(self.canvas._rubberband_rect)
-            self.canvas._rubberband_rect = None
+        if self.canvas._rubberband_rect_white:
+            self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_white)
+            self.canvas._rubberband_rect_white = None
+        if self.canvas._rubberband_rect_black:
+            self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_black)
+            self.canvas._rubberband_rect_black = None
 
     lastrect = _api.deprecated("3.6")(
-        property(lambda self: self.canvas._rubberband_rect))
+        property(lambda self: self.canvas._rubberband_rect_black))
 
     def _set_image_for_button(self, button):
         """
@@ -907,14 +914,7 @@ class RubberbandTk(backend_tools.RubberbandBase):
             self._make_classic_style_pseudo_toolbar())
 
     lastrect = _api.deprecated("3.6")(
-        property(lambda self: self.figure.canvas._rubberband_rect))
-
-
-@_api.deprecated("3.5", alternative="ToolSetCursor")
-class SetCursorTk(backend_tools.SetCursorBase):
-    def set_cursor(self, cursor):
-        NavigationToolbar2Tk.set_cursor(
-            self._make_classic_style_pseudo_toolbar(), cursor)
+        property(lambda self: self.figure.canvas._rubberband_rect_black))
 
 
 class ToolbarTk(ToolContainerBase, tk.Frame):
@@ -1017,6 +1017,7 @@ FigureManagerTk._toolmanager_toolbar_class = ToolbarTk
 
 @_Backend.export
 class _BackendTk(_Backend):
+    backend_version = tk.TkVersion
     FigureManager = FigureManagerTk
 
     @staticmethod

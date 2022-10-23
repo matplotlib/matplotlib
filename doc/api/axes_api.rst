@@ -27,18 +27,6 @@ The Axes class
    :no-undoc-members:
    :show-inheritance:
 
-
-Subplots
-========
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   SubplotBase
-   subplot_class_factory
-
 Plotting
 ========
 
@@ -313,6 +301,7 @@ Axis labels, title, and legend
    Axes.get_xlabel
    Axes.set_ylabel
    Axes.get_ylabel
+   Axes.label_outer
 
    Axes.set_title
    Axes.get_title
@@ -483,6 +472,9 @@ Axes position
 
    Axes.get_axes_locator
    Axes.set_axes_locator
+
+   Axes.get_subplotspec
+   Axes.set_subplotspec
 
    Axes.reset_position
 

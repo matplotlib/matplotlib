@@ -519,10 +519,9 @@ coordinates, or you may use Parasite Axes for convenience.::
     ax1 = SubplotHost(fig, 1, 2, 2, grid_helper=grid_helper)
 
     # A parasite axes with given transform
-    ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
+    ax2 = ax1.get_aux_axes(tr, "equal")
     # note that ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.
-    ax1.parasites.append(ax2)
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
    :target: ../../gallery/axisartist/demo_curvelinear_grid.html

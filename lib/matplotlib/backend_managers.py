@@ -185,7 +185,7 @@ class ToolManager:
             Keys to associate with the tool.
         """
         if name not in self._tools:
-            raise KeyError(f'{name} not in Tools')
+            raise KeyError(f'{name!r} not in Tools')
         self._remove_keys(name)
         if isinstance(key, str):
             key = [key]
@@ -256,16 +256,6 @@ class ToolManager:
             _api.warn_external('A "Tool class" with the same name already '
                                'exists, not added')
             return self._tools[name]
-
-        if name == 'cursor' and tool_cls != backend_tools.SetCursorBase:
-            _api.warn_deprecated("3.5",
-                                 message="Overriding ToolSetCursor with "
-                                 f"{tool_cls.__qualname__} was only "
-                                 "necessary to provide the .set_cursor() "
-                                 "method, which is deprecated since "
-                                 "%(since)s and will be removed "
-                                 "%(removal)s. Please report this to the "
-                                 f"{tool_cls.__module__} author.")
 
         tool_obj = tool_cls(self, name, *args, **kwargs)
         self._tools[name] = tool_obj
@@ -404,6 +394,7 @@ class ToolManager:
             return name
         if name not in self._tools:
             if warn:
-                _api.warn_external(f"ToolManager does not control tool {name}")
+                _api.warn_external(
+                    f"ToolManager does not control tool {name!r}")
             return None
         return self._tools[name]

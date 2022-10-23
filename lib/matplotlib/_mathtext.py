@@ -15,8 +15,9 @@ import unicodedata
 import numpy as np
 from pyparsing import (
     Empty, Forward, Literal, NotAny, oneOf, OneOrMore, Optional,
-    ParseBaseException, ParseExpression, ParseFatalException, ParserElement,
-    ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore, pyparsing_common)
+    ParseBaseException, ParseException, ParseExpression, ParseFatalException,
+    ParserElement, ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore,
+    pyparsing_common)
 
 import matplotlib as mpl
 from . import _api, cbook
@@ -475,6 +476,14 @@ class UnicodeFonts(TruetypeFonts):
     symbol can not be found in the font.
     """
 
+    # Some glyphs are not present in the `cmr10` font, and must be brought in
+    # from `cmsy10`. Map the Unicode indices of those glyphs to the indices at
+    # which they are found in `cmsy10`.
+    _cmr10_substitutions = {
+        0x00D7: 0x00A3,  # Multiplication sign.
+        0x2212: 0x00A1,  # Minus sign.
+    }
+
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         fallback_rc = mpl.rcParams['mathtext.fallback']
@@ -541,11 +550,11 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             font = self._get_font(new_fontname)
             if font is not None:
-                if font.family_name == "cmr10" and uniindex == 0x2212:
-                    # minus sign exists in cmsy10 (not cmr10)
+                if (uniindex in self._cmr10_substitutions
+                        and font.family_name == "cmr10"):
                     font = get_font(
                         cbook._get_data_path("fonts/ttf/cmsy10.ttf"))
-                    uniindex = 0xa1
+                    uniindex = self._cmr10_substitutions[uniindex]
                 glyphindex = font.get_char_index(uniindex)
                 if glyphindex != 0:
                     found_symbol = True
@@ -1982,10 +1991,8 @@ class Parser:
         try:
             result = self._expression.parseString(s)
         except ParseBaseException as err:
-            raise ValueError("\n".join(["",
-                                        err.line,
-                                        " " * (err.column - 1) + "^",
-                                        str(err)])) from err
+            # explain becomes a plain method on pyparsing 3 (err.explain(0)).
+            raise ValueError("\n" + ParseException.explain(err, 0)) from None
         self._state_stack = None
         self._in_subscript_or_superscript = False
         # prevent operator spacing from leaking into a new expression

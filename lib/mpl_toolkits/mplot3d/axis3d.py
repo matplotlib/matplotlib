@@ -13,7 +13,7 @@ from matplotlib import (
 from . import art3d, proj3d
 
 
-@_api.deprecated("3.6", alternative="Vendor the code of _move_from_center")
+@_api.deprecated("3.6", alternative="a vendored copy of _move_from_center")
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     """
     For each coordinate where *axmask* is True, move *coord* away from
@@ -31,7 +31,7 @@ def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     return coord + axmask * np.copysign(1, coord - centers) * deltas
 
 
-@_api.deprecated("3.6", alternative="Vendor the code of _tick_update_position")
+@_api.deprecated("3.6", alternative="a vendored copy of _tick_update_position")
 def tick_update_position(tick, tickxs, tickys, labelpos):
     """Update tick line and label position and style."""
     _tick_update_position(tick, tickxs, tickys, labelpos)
@@ -199,6 +199,7 @@ class Axis(maxis.XAxis):
 
     @_api.deprecated("3.6")
     def set_pane_pos(self, xys):
+        """Set pane position."""
         self._set_pane_pos(xys)
 
     def _set_pane_pos(self, xys):
@@ -257,7 +258,7 @@ class Axis(maxis.XAxis):
 
         # Project the bounds along the current position of the cube:
         bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
-        bounds_proj = self.axes.tunit_cube(bounds, self.axes.M)
+        bounds_proj = self.axes._tunit_cube(bounds, self.axes.M)
 
         # Determine which one of the parallel planes are higher up:
         means_z0 = np.zeros(3)
@@ -320,6 +321,13 @@ class Axis(maxis.XAxis):
         return tickdir
 
     def draw_pane(self, renderer):
+        """
+        Draw pane.
+
+        Parameters
+        ----------
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass
+        """
         renderer.open_group('pane3d', gid=self.get_gid())
 
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)

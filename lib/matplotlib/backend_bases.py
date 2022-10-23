@@ -158,7 +158,7 @@ class RendererBase:
 
     * `draw_path`
     * `draw_image`
-    * `draw_gouraud_triangle`
+    * `draw_gouraud_triangles`
 
     The following methods *should* be implemented in the backend for
     optimization reasons:
@@ -286,6 +286,7 @@ class RendererBase:
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
             edgecolors, linewidths, [], [antialiased], [None], 'screen')
 
+    @_api.deprecated("3.7", alternative="draw_gouraud_triangles")
     def draw_gouraud_triangle(self, gc, points, colors, transform):
         """
         Draw a Gouraud-shaded triangle.
@@ -317,9 +318,7 @@ class RendererBase:
         transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
-        transform = transform.frozen()
-        for tri, col in zip(triangles_array, colors_array):
-            self.draw_gouraud_triangle(gc, tri, col, transform)
+        raise NotImplementedError
 
     def _iter_collection_raw_paths(self, master_transform, paths,
                                    all_transforms):
@@ -504,6 +503,24 @@ class RendererBase:
 
     def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         """
+        Draw a TeX instance.
+
+        Parameters
+        ----------
+        gc : `.GraphicsContextBase`
+            The graphics context.
+        x : float
+            The x location of the text in display coords.
+        y : float
+            The y location of the text baseline in display coords.
+        s : str
+            The TeX text string.
+        prop : `matplotlib.font_manager.FontProperties`
+            The font properties.
+        angle : float
+            The rotation angle in degrees anti-clockwise.
+        mtext : `matplotlib.text.Text`
+            The original text object to be rendered.
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
@@ -525,6 +542,8 @@ class RendererBase:
             The font properties.
         angle : float
             The rotation angle in degrees anti-clockwise.
+        ismath : bool or "TeX"
+            If True, use mathtext parser. If "TeX", use *usetex* mode.
         mtext : `matplotlib.text.Text`
             The original text object to be rendered.
 
@@ -608,8 +627,8 @@ class RendererBase:
         fontsize = prop.get_size_in_points()
 
         if ismath == 'TeX':
-            # todo: handle props
-            return TexManager().get_text_width_height_descent(
+            # todo: handle properties
+            return self.get_texmanager().get_text_width_height_descent(
                 s, fontsize, renderer=self)
 
         dpi = self.points_to_pixels(72)
@@ -2330,7 +2349,7 @@ class FigureCanvasBase:
                 _bbox_inches_restore = None
 
             # we have already done layout above, so turn it off:
-            stack.enter_context(self.figure._cm_set(layout_engine=None))
+            stack.enter_context(self.figure._cm_set(layout_engine='none'))
             try:
                 # _get_renderer may change the figure dpi (as vector formats
                 # force the figure dpi to 72), so we need to set it again here.
@@ -3294,18 +3313,6 @@ class NavigationToolbar2:
     def save_figure(self, *args):
         """Save the current figure."""
         raise NotImplementedError
-
-    @_api.deprecated("3.5", alternative="`.FigureCanvasBase.set_cursor`")
-    def set_cursor(self, cursor):
-        """
-        Set the current cursor to one of the :class:`Cursors` enums values.
-
-        If required by the backend, this method should trigger an update in
-        the backend event loop after the cursor is set, as this method may be
-        called e.g. before a long-running task during which the GUI is not
-        updated.
-        """
-        self.canvas.set_cursor(cursor)
 
     def update(self):
         """Reset the Axes stack."""

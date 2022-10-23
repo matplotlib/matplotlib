@@ -28,6 +28,7 @@ explicit_order_folders = [
                           '../plot_types/arrays',
                           '../plot_types/stats',
                           '../plot_types/unstructured',
+                          '../plot_types/3D',
                           ]
 
 
@@ -50,9 +51,9 @@ class MplExplicitOrder(ExplicitOrder):
 list_all = [
     #  **Tutorials**
     #  introductory
-    "usage", "pyplot", "sample_plots", "images", "lifecycle", "customizing",
+    "quick_start", "pyplot", "images", "lifecycle", "customizing",
     #  intermediate
-    "artists", "legend_guide", "color_cycle", "gridspec",
+    "artists", "legend_guide", "color_cycle",
     "constrainedlayout_guide", "tight_layout_guide",
     #  advanced
     #  text

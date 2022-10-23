@@ -69,7 +69,7 @@ def test_register_cmap():
     target = "viridis2"
     with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.register\(name\)"
     ):
         cm.register_cmap(target, new_cm)
     assert mpl.colormaps[target] == new_cm
@@ -78,13 +78,13 @@ def test_register_cmap():
                        match="Arguments must include a name or a Colormap"):
         with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.register\(name\)"
         ):
             cm.register_cmap()
 
     with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.unregister_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.unregister\(name\)"
     ):
         cm.unregister_cmap(target)
     with pytest.raises(ValueError,
@@ -96,7 +96,7 @@ def test_register_cmap():
             cm.get_cmap(target)
     with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.unregister_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.unregister\(name\)"
     ):
         # test that second time is error free
         cm.unregister_cmap(target)
@@ -104,9 +104,29 @@ def test_register_cmap():
     with pytest.raises(TypeError, match="'cmap' must be"):
         with pytest.warns(
             PendingDeprecationWarning,
-            match=r"matplotlib\.colormaps\.register_cmap\(name\)"
+            match=r"matplotlib\.colormaps\.register\(name\)"
         ):
             cm.register_cmap('nome', cmap='not a cmap')
+
+
+def test_colormaps_get_cmap():
+    cr = mpl.colormaps
+
+    # check str, and Colormap pass
+    assert cr.get_cmap('plasma') == cr["plasma"]
+    assert cr.get_cmap(cr["magma"]) == cr["magma"]
+
+    # check default
+    assert cr.get_cmap(None) == cr[mpl.rcParams['image.cmap']]
+
+    # check ValueError on bad name
+    bad_cmap = 'AardvarksAreAwkward'
+    with pytest.raises(ValueError, match=bad_cmap):
+        cr.get_cmap(bad_cmap)
+
+    # check TypeError on bad type
+    with pytest.raises(TypeError, match='object'):
+        cr.get_cmap(object())
 
 
 def test_double_register_builtin_cmap():
@@ -117,7 +137,7 @@ def test_double_register_builtin_cmap():
             mpl.colormaps[name], name=name, force=True
         )
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
-        with pytest.warns():
+        with pytest.warns(PendingDeprecationWarning):
             cm.register_cmap(name, mpl.colormaps[name])
     with pytest.warns(UserWarning):
         # TODO is warning more than once!
@@ -128,7 +148,7 @@ def test_unregister_builtin_cmap():
     name = "viridis"
     match = f'cannot unregister {name!r} which is a builtin colormap.'
     with pytest.raises(ValueError, match=match):
-        with pytest.warns():
+        with pytest.warns(PendingDeprecationWarning):
             cm.unregister_cmap(name)
 
 
@@ -567,7 +587,7 @@ def test_Normalize():
     norm = plt.Normalize(1, 1 + 100 * eps)
     # This returns exactly 0.5 when longdouble is extended precision (80-bit),
     # but only a value close to it when it is quadruple precision (128-bit).
-    np.testing.assert_array_almost_equal_nulp(norm(1 + 50 * eps), 0.5)
+    assert_array_almost_equal(norm(1 + 50 * eps), 0.5, decimal=3)
 
 
 def test_FuncNorm():
@@ -1543,3 +1563,11 @@ def test_color_sequences():
     plt.color_sequences.unregister('rgb')  # multiple unregisters are ok
     with pytest.raises(ValueError, match="Cannot unregister builtin"):
         plt.color_sequences.unregister('tab10')
+
+
+def test_cm_set_cmap_error():
+    sm = cm.ScalarMappable()
+    # Pick a name we are pretty sure will never be a colormap name
+    bad_cmap = 'AardvarksAreAwkward'
+    with pytest.raises(ValueError, match=bad_cmap):
+        sm.set_cmap(bad_cmap)

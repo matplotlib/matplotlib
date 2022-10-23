@@ -1,0 +1,5 @@
+``num2julian``, ``julian2num`` and ``JULIAN_OFFSET``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... of the `.dates` module are deprecated without replacements. These are
+undocumented and not exported. If you rely on these, please make a local copy.

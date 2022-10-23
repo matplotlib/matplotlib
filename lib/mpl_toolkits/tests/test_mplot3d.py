@@ -5,7 +5,8 @@ import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 import matplotlib as mpl
-from matplotlib.backend_bases import MouseButton
+from matplotlib.backend_bases import (MouseButton, MouseEvent,
+                                      NavigationToolbar2)
 from matplotlib import cm
 from matplotlib import colors as mcolors, patches as mpatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -44,7 +45,25 @@ def test_aspects():
                 ax.plot3D(*zip(start*scale, end*scale))
     for i, ax in enumerate(axs):
         ax.set_box_aspect((3, 4, 5))
-        ax.set_aspect(aspects[i])
+        ax.set_aspect(aspects[i], adjustable='datalim')
+
+
+@mpl3d_image_comparison(['aspects_adjust_box.png'], remove_text=False)
+def test_aspects_adjust_box():
+    aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz')
+    fig, axs = plt.subplots(1, len(aspects), subplot_kw={'projection': '3d'},
+                            figsize=(11, 3))
+
+    # Draw rectangular cuboid with side lengths [4, 3, 5]
+    r = [0, 1]
+    scale = np.array([4, 3, 5])
+    pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
+    for start, end in pts:
+        if np.sum(np.abs(start - end)) == r[1] - r[0]:
+            for ax in axs:
+                ax.plot3D(*zip(start*scale, end*scale))
+    for i, ax in enumerate(axs):
+        ax.set_aspect(aspects[i], adjustable='box')
 
 
 def test_axes3d_repr():
@@ -56,7 +75,7 @@ def test_axes3d_repr():
     ax.set_ylabel('y')
     ax.set_zlabel('z')
     assert repr(ax) == (
-        "<Axes3DSubplot: label='label', "
+        "<Axes3D: label='label', "
         "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 
@@ -913,7 +932,9 @@ def test_axes3d_labelpad():
     ax.set_xlabel('X LABEL', labelpad=10)
     assert ax.xaxis.labelpad == 10
     ax.set_ylabel('Y LABEL')
-    ax.set_zlabel('Z LABEL')
+    ax.set_zlabel('Z LABEL', labelpad=20)
+    assert ax.zaxis.labelpad == 20
+    assert ax.get_zlabel() == 'Z LABEL'
     # or manually
     ax.yaxis.labelpad = 20
     ax.zaxis.labelpad = -40
@@ -957,7 +978,8 @@ def _test_proj_make_M():
     R = np.array([100, 100, 100])
     V = np.array([0, 0, 1])
     roll = 0
-    viewM = proj3d.view_transformation(E, R, V, roll)
+    u, v, w = proj3d._view_axes(E, R, V, roll)
+    viewM = proj3d._view_transformation_uvw(u, v, w, E)
     perspM = proj3d.persp_transformation(100, -100, 1)
     M = np.dot(perspM, viewM)
     return M
@@ -1023,7 +1045,8 @@ def test_proj_axes_cube_ortho():
     R = np.array([0, 0, 0])
     V = np.array([0, 0, 1])
     roll = 0
-    viewM = proj3d.view_transformation(E, R, V, roll)
+    u, v, w = proj3d._view_axes(E, R, V, roll)
+    viewM = proj3d._view_transformation_uvw(u, v, w, E)
     orthoM = proj3d.ortho_transformation(-1, 1)
     M = np.dot(orthoM, viewM)
 
@@ -1106,6 +1129,7 @@ def test_lines_dists_nowarning():
 
 def test_autoscale():
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    assert ax.get_zscale() == 'linear'
     ax.margins(x=0, y=.1, z=.2)
     ax.plot([0, 1], [0, 1], [0, 1])
     assert ax.get_w_lims() == (0, 1, -.1, 1.1, -.2, 1.2)
@@ -1550,6 +1574,9 @@ def test_equal_box_aspect():
     ax.axis('off')
     ax.set_box_aspect((1, 1, 1))
 
+    with pytest.raises(ValueError, match="Argument zoom ="):
+        ax.set_box_aspect((1, 1, 1), zoom=-1)
+
 
 def test_colorbar_pos():
     num_plots = 2
@@ -1565,6 +1592,55 @@ def test_colorbar_pos():
     fig.canvas.draw()
     # check that actually on the bottom
     assert cbar.ax.get_position().extents[1] < 0.2
+
+
+def test_inverted_zaxis():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    assert not ax.zaxis_inverted()
+    assert ax.get_zlim() == (0, 1)
+    assert ax.get_zbound() == (0, 1)
+
+    # Change bound
+    ax.set_zbound((0, 2))
+    assert not ax.zaxis_inverted()
+    assert ax.get_zlim() == (0, 2)
+    assert ax.get_zbound() == (0, 2)
+
+    # Change invert
+    ax.invert_zaxis()
+    assert ax.zaxis_inverted()
+    assert ax.get_zlim() == (2, 0)
+    assert ax.get_zbound() == (0, 2)
+
+    # Set upper bound
+    ax.set_zbound(upper=1)
+    assert ax.zaxis_inverted()
+    assert ax.get_zlim() == (1, 0)
+    assert ax.get_zbound() == (0, 1)
+
+    # Set lower bound
+    ax.set_zbound(lower=2)
+    assert ax.zaxis_inverted()
+    assert ax.get_zlim() == (2, 1)
+    assert ax.get_zbound() == (1, 2)
+
+
+def test_set_zlim():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    assert ax.get_zlim() == (0, 1)
+    ax.set_zlim(zmax=2)
+    assert ax.get_zlim() == (0, 2)
+    ax.set_zlim(zmin=1)
+    assert ax.get_zlim() == (1, 2)
+
+    with pytest.raises(
+            TypeError, match="Cannot pass both 'bottom' and 'zmin'"):
+        ax.set_zlim(bottom=0, zmin=1)
+    with pytest.raises(
+            TypeError, match="Cannot pass both 'top' and 'zmax'"):
+        ax.set_zlim(top=0, zmax=1)
 
 
 def test_shared_axes_retick():
@@ -1615,6 +1691,82 @@ def test_pan():
     assert x_center != pytest.approx(x_center0)
     assert y_center != pytest.approx(y_center0)
     assert z_center != pytest.approx(z_center0)
+
+
+@pytest.mark.parametrize("tool,button,key,expected",
+                         [("zoom", MouseButton.LEFT, None,  # zoom in
+                          ((0.00, 0.06), (0.01, 0.07), (0.02, 0.08))),
+                          ("zoom", MouseButton.LEFT, 'x',  # zoom in
+                          ((-0.01, 0.10), (-0.03, 0.08), (-0.06, 0.06))),
+                          ("zoom", MouseButton.LEFT, 'y',  # zoom in
+                          ((-0.07, 0.04), (-0.03, 0.08), (0.00, 0.11))),
+                          ("zoom", MouseButton.RIGHT, None,  # zoom out
+                          ((-0.09, 0.15), (-0.07, 0.17), (-0.06, 0.18))),
+                          ("pan", MouseButton.LEFT, None,
+                          ((-0.70, -0.58), (-1.03, -0.91), (-1.27, -1.15))),
+                          ("pan", MouseButton.LEFT, 'x',
+                          ((-0.96, -0.84), (-0.58, -0.46), (-0.06, 0.06))),
+                          ("pan", MouseButton.LEFT, 'y',
+                          ((0.20, 0.32), (-0.51, -0.39), (-1.27, -1.15)))])
+def test_toolbar_zoom_pan(tool, button, key, expected):
+    # NOTE: The expected zoom values are rough ballparks of moving in the view
+    #       to make sure we are getting the right direction of motion.
+    #       The specific values can and should change if the zoom movement
+    #       scaling factor gets updated.
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter(0, 0, 0)
+    fig.canvas.draw()
+    xlim0, ylim0, zlim0 = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
+
+    # Mouse from (0, 0) to (1, 1)
+    d0 = (0, 0)
+    d1 = (1, 1)
+    # Convert to screen coordinates ("s").  Events are defined only with pixel
+    # precision, so round the pixel values, and below, check against the
+    # corresponding xdata/ydata, which are close but not equal to d0/d1.
+    s0 = ax.transData.transform(d0).astype(int)
+    s1 = ax.transData.transform(d1).astype(int)
+
+    # Set up the mouse movements
+    start_event = MouseEvent(
+        "button_press_event", fig.canvas, *s0, button, key=key)
+    stop_event = MouseEvent(
+        "button_release_event", fig.canvas, *s1, button, key=key)
+
+    tb = NavigationToolbar2(fig.canvas)
+    if tool == "zoom":
+        tb.zoom()
+        tb.press_zoom(start_event)
+        tb.drag_zoom(stop_event)
+        tb.release_zoom(stop_event)
+    else:
+        tb.pan()
+        tb.press_pan(start_event)
+        tb.drag_pan(stop_event)
+        tb.release_pan(stop_event)
+
+    # Should be close, but won't be exact due to screen integer resolution
+    xlim, ylim, zlim = expected
+    assert ax.get_xlim3d() == pytest.approx(xlim, abs=0.01)
+    assert ax.get_ylim3d() == pytest.approx(ylim, abs=0.01)
+    assert ax.get_zlim3d() == pytest.approx(zlim, abs=0.01)
+
+    # Ensure that back, forward, and home buttons work
+    tb.back()
+    assert ax.get_xlim3d() == pytest.approx(xlim0)
+    assert ax.get_ylim3d() == pytest.approx(ylim0)
+    assert ax.get_zlim3d() == pytest.approx(zlim0)
+
+    tb.forward()
+    assert ax.get_xlim3d() == pytest.approx(xlim, abs=0.01)
+    assert ax.get_ylim3d() == pytest.approx(ylim, abs=0.01)
+    assert ax.get_zlim3d() == pytest.approx(zlim, abs=0.01)
+
+    tb.home()
+    assert ax.get_xlim3d() == pytest.approx(xlim0)
+    assert ax.get_ylim3d() == pytest.approx(ylim0)
+    assert ax.get_zlim3d() == pytest.approx(zlim0)
 
 
 @mpl.style.context('default')

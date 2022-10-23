@@ -18,21 +18,21 @@ import matplotlib.pyplot as plt
 
 
 N = 5
-men_means = [150*cm, 160*cm, 146*cm, 172*cm, 155*cm]
-men_std = [20*cm, 30*cm, 32*cm, 10*cm, 20*cm]
+tea_means = [15*cm, 10*cm, 8*cm, 12*cm, 5*cm]
+tea_std = [2*cm, 1*cm, 1*cm, 4*cm, 2*cm]
 
 fig, ax = plt.subplots()
 
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars
-ax.bar(ind, men_means, width, bottom=0*cm, yerr=men_std, label='Men')
+ax.bar(ind, tea_means, width, bottom=0*cm, yerr=tea_std, label='Tea')
 
-women_means = (145*cm, 149*cm, 172*cm, 165*cm, 200*cm)
-women_std = (30*cm, 25*cm, 20*cm, 31*cm, 22*cm)
-ax.bar(ind + width, women_means, width, bottom=0*cm, yerr=women_std,
-       label='Women')
+coffee_means = (14*cm, 19*cm, 7*cm, 5*cm, 10*cm)
+coffee_std = (3*cm, 5*cm, 2*cm, 1*cm, 2*cm)
+ax.bar(ind + width, coffee_means, width, bottom=0*cm, yerr=coffee_std,
+       label='Coffee')
 
-ax.set_title('Scores by group and gender')
+ax.set_title('Cup height by group and beverage choice')
 ax.set_xticks(ind + width / 2, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 
 ax.legend()

@@ -328,7 +328,7 @@ are deprecated.  Panning and zooming are now implemented using the
 
 Passing None to various Axes subclass factories
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Support for passing ``None`` as base class to `.axes.subplot_class_factory`,
+Support for passing ``None`` as base class to ``axes.subplot_class_factory``,
 ``axes_grid1.parasite_axes.host_axes_class_factory``,
 ``axes_grid1.parasite_axes.host_subplot_class_factory``,
 ``axes_grid1.parasite_axes.parasite_axes_class_factory``, and
@@ -545,8 +545,8 @@ experimental and may change in the future.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... is deprecated.
 
-`.epoch2num` and `.num2epoch` are deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``epoch2num`` and ``num2epoch`` are deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These are unused and can be easily reproduced by other date tools.
 `.get_epoch` will return Matplotlib's epoch.
 

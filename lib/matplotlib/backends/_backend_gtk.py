@@ -24,12 +24,7 @@ except ImportError as e:
     raise ImportError("Gtk-based backends require cairo") from e
 
 _log = logging.getLogger(__name__)
-
-backend_version = "%s.%s.%s" % (
-    Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())
-
-# Placeholder
-_application = None
+_application = None  # Placeholder
 
 
 def _shutdown_application(app):
@@ -233,8 +228,8 @@ class _FigureManagerGTK(FigureManagerBase):
         width = int(width / self.canvas.device_pixel_ratio)
         height = int(height / self.canvas.device_pixel_ratio)
         if self.toolbar:
-            toolbar_size = self.toolbar.size_request()
-            height += toolbar_size.height
+            min_size, nat_size = self.toolbar.get_preferred_size()
+            height += nat_size.height
         canvas_size = self.canvas.get_allocation()
         if self._gtk_ver >= 4 or canvas_size.width == canvas_size.height == 1:
             # A canvas size of (1, 1) cannot exist in most cases, because
@@ -305,6 +300,12 @@ class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase):
 
 
 class _BackendGTK(_Backend):
+    backend_version = "%s.%s.%s" % (
+        Gtk.get_major_version(),
+        Gtk.get_minor_version(),
+        Gtk.get_micro_version(),
+    )
+
     @staticmethod
     def mainloop():
         global _application

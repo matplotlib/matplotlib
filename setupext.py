@@ -635,7 +635,7 @@ class FreeType(SetupPackage):
                 "--with-png=no", "--with-harfbuzz=no", "--enable-static",
                 "--disable-shared"
             ]
-            host = sysconfig.get_config_var('BUILD_GNU_TYPE')
+            host = sysconfig.get_config_var('HOST_GNU_TYPE')
             if host is not None:  # May be unset on PyPy.
                 configure.append(f"--host={host}")
             subprocess.check_call(configure, env=env, cwd=src_path)

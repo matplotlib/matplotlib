@@ -1,2 +1,0 @@
-``FigureManagerMac.close`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
