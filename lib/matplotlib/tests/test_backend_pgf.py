@@ -10,9 +10,8 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
-from matplotlib.testing.exceptions import ImageComparisonFailure
-from matplotlib.testing.compare import compare_images
-from matplotlib.backends.backend_pgf import PdfPages
+from matplotlib.testing.compare import compare_images, ImageComparisonFailure
+from matplotlib.backends.backend_pgf import FigureCanvasPgf, PdfPages
 from matplotlib.testing.decorators import (
     _image_directories, check_figures_equal, image_comparison)
 from matplotlib.testing._markers import (
@@ -378,6 +377,7 @@ def test_sketch_params():
     assert baseline in buf
 
 
+<<<<<<< HEAD
 # test to make sure that the document font size is set consistently (see #26892)
 @needs_pgf_xelatex
 @pytest.mark.skipif(
@@ -400,3 +400,13 @@ def test_document_font_size():
              label=r'\normalsize the document font size is \the\fontdimen6\font'
              )
     plt.legend()
+=======
+@needs_pgf_xelatex
+@pytest.mark.backend('pgf')
+@image_comparison(['hatch_linewidth'], extensions=['pdf'])
+def test_pgf_hatch_linewidth():
+    mpl.backend_bases.register_backend('pdf', FigureCanvasPgf)
+    mpl.rcParams['hatch.linewidth'] = 0.1
+
+    plt.bar(1, 1, color='white', edgecolor='black', hatch='/')
+>>>>>>> 7cbcd44f9a (Fix hatch linewidth in PGF)

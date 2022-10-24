@@ -453,6 +453,9 @@ class RendererPgf(RendererBase):
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
             _writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
+            lw = (mpl.rcParams["hatch.linewidth"]
+                  * mpl_pt_to_in * latex_in_to_pt)
+            _writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
             self._print_pgf_path(None, gc.get_hatch_path(), scale)
             self._pgf_path_draw(stroke=True)
             _writeln(self.fh, r"\end{pgfscope}")
