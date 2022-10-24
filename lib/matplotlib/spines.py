@@ -152,15 +152,16 @@ class Spine(mpatches.Patch):
         # make sure the location is updated so that transforms etc are correct:
         self._adjust_location()
         bb = super().get_window_extent(renderer=renderer)
-        if self.axis is None:
+        if self.axis is None or not self.axis.get_visible():
             return bb
         bboxes = [bb]
-        tickstocheck = [self.axis.majorTicks[0]]
-        if len(self.axis.minorTicks) > 1:
-            # only pad for minor ticks if there are more than one
-            # of them.  There is always one...
-            tickstocheck.append(self.axis.minorTicks[1])
-        for tick in tickstocheck:
+        drawn_ticks = self.axis._update_ticks()
+
+        major_tick = next(iter({*drawn_ticks} & {*self.axis.majorTicks}), None)
+        minor_tick = next(iter({*drawn_ticks} & {*self.axis.minorTicks}), None)
+        for tick in [major_tick, minor_tick]:
+            if tick is None:
+                continue
             bb0 = bb.frozen()
             tickl = tick._size
             tickdir = tick._tickdir
