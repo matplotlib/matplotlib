@@ -99,14 +99,6 @@ class Axes3D(Axes):
             does not produce the desired result. Note however, that a manual
             zorder will only be correct for a limited view angle. If the figure
             is rotated by the user, it will look wrong from certain angles.
-        auto_add_to_figure : bool, default: False
-            Prior to Matplotlib 3.4 Axes3D would add themselves
-            to their host Figure on init.  Other Axes class do not
-            do this.
-
-            This behavior is deprecated in 3.4, the default is
-            changed to False in 3.6.  The keyword will be undocumented
-            and a non-False value will be an error in 3.7.
         focal_length : float, default: None
             For a projection type of 'persp', the focal length of the virtual
             camera. Must be > 0. If None, defaults to 1.
@@ -145,7 +137,11 @@ class Axes3D(Axes):
             self._shared_axes["z"].join(self, sharez)
             self._adjustable = 'datalim'
 
-        auto_add_to_figure = kwargs.pop('auto_add_to_figure', False)
+        if kwargs.pop('auto_add_to_figure', False):
+            raise AttributeError(
+                'auto_add_to_figure is no longer supported for Axes3D. '
+                'Use fig.add_axes(ax) instead.'
+            )
 
         super().__init__(
             fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
@@ -176,18 +172,6 @@ class Axes3D(Axes):
         # mplot3d currently manages its own spines and needs these turned off
         # for bounding box calculations
         self.spines[:].set_visible(False)
-
-        if auto_add_to_figure:
-            _api.warn_deprecated(
-                "3.4", removal="3.7", message="Axes3D(fig) adding itself "
-                "to the figure is deprecated since %(since)s. "
-                "Pass the keyword argument auto_add_to_figure=False "
-                "and use fig.add_axes(ax) to suppress this warning. "
-                "The default value of auto_add_to_figure is changed to "
-                "False in mpl3.6 and True values will "
-                "no longer work %(removal)s.  This is consistent with "
-                "other Axes classes.")
-            fig.add_axes(self)
 
     def set_axis_off(self):
         self._axis3don = False

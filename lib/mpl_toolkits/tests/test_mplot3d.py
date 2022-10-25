@@ -925,7 +925,7 @@ def test_add_collection3d_zs_scalar():
 @mpl3d_image_comparison(['axes3d_labelpad.png'], remove_text=False)
 def test_axes3d_labelpad():
     fig = plt.figure()
-    ax = fig.add_axes(Axes3D(fig, auto_add_to_figure=False))
+    ax = fig.add_axes(Axes3D(fig))
     # labelpad respects rcParams
     assert ax.xaxis.labelpad == mpl.rcParams['axes.labelpad']
     # labelpad can be set in set_label
