@@ -7,7 +7,7 @@ This example shows how to add angle annotations to bracket arrow styles
 created using `.FancyArrowPatch`. *angleA* and *angleB* are measured from a
 vertical line as positive (to the left) or negative (to the right). Blue
 `.FancyArrowPatch` arrows indicate the directions of *angleA* and *angleB*
- from the vertical and axes text annotate the angle sizes.
+from the vertical and axes text annotate the angle sizes.
 """
 
 import matplotlib.pyplot as plt
