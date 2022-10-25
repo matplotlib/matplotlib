@@ -43,6 +43,32 @@ STYLE_BLACKLIST = {
     'toolbar', 'timezone', 'figure.max_open_warning',
     'figure.raise_window', 'savefig.directory', 'tk.window_focus',
     'docstring.hardcopy', 'date.epoch'}
+_DEPRECATED_SEABORN_STYLES = {
+    s: s.replace("seaborn", "seaborn-v0_8")
+    for s in [
+        "seaborn",
+        "seaborn-bright",
+        "seaborn-colorblind",
+        "seaborn-dark",
+        "seaborn-darkgrid",
+        "seaborn-dark-palette",
+        "seaborn-deep",
+        "seaborn-muted",
+        "seaborn-notebook",
+        "seaborn-paper",
+        "seaborn-pastel",
+        "seaborn-poster",
+        "seaborn-talk",
+        "seaborn-ticks",
+        "seaborn-white",
+        "seaborn-whitegrid",
+    ]
+}
+_DEPRECATED_SEABORN_MSG = (
+    "The seaborn styles shipped by Matplotlib are deprecated since %(since)s, "
+    "as they no longer correspond to the styles shipped by seaborn. However, "
+    "they will remain available as 'seaborn-v0_8-<style>'. Alternatively, "
+    "directly use the seaborn API instead.")
 
 
 def _remove_blacklisted_style_params(d, warn=True):
@@ -113,31 +139,9 @@ def use(style):
     def fix_style(s):
         if isinstance(s, str):
             s = style_alias.get(s, s)
-            if s in [
-                "seaborn",
-                "seaborn-bright",
-                "seaborn-colorblind",
-                "seaborn-dark",
-                "seaborn-darkgrid",
-                "seaborn-dark-palette",
-                "seaborn-deep",
-                "seaborn-muted",
-                "seaborn-notebook",
-                "seaborn-paper",
-                "seaborn-pastel",
-                "seaborn-poster",
-                "seaborn-talk",
-                "seaborn-ticks",
-                "seaborn-white",
-                "seaborn-whitegrid",
-            ]:
-                _api.warn_deprecated(
-                    "3.6", message="The seaborn styles shipped by Matplotlib "
-                    "are deprecated since %(since)s, as they no longer "
-                    "correspond to the styles shipped by seaborn. However, "
-                    "they will remain available as 'seaborn-v0_8-<style>'. "
-                    "Alternatively, directly use the seaborn API instead.")
-                s = s.replace("seaborn", "seaborn-v0_8")
+            if s in _DEPRECATED_SEABORN_STYLES:
+                _api.warn_deprecated("3.6", message=_DEPRECATED_SEABORN_MSG)
+                s = _DEPRECATED_SEABORN_STYLES[s]
         return s
 
     for style in map(fix_style, styles):
@@ -244,17 +248,26 @@ def update_nested_dict(main_dict, new_dict):
     return main_dict
 
 
+class _StyleLibrary(dict):
+    def __getitem__(self, key):
+        if key in _DEPRECATED_SEABORN_STYLES:
+            _api.warn_deprecated("3.6", message=_DEPRECATED_SEABORN_MSG)
+            key = _DEPRECATED_SEABORN_STYLES[key]
+
+        return dict.__getitem__(self, key)
+
+
 # Load style library
 # ==================
 _base_library = read_style_directory(BASE_LIBRARY_PATH)
-library = None
+library = _StyleLibrary()
 available = []
 
 
 def reload_library():
     """Reload the style library."""
-    global library
-    library = update_user_library(_base_library)
+    library.clear()
+    library.update(update_user_library(_base_library))
     available[:] = sorted(library.keys())
 
 
