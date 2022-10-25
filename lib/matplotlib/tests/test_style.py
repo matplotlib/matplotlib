@@ -184,6 +184,8 @@ def test_deprecated_seaborn_styles():
     with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
         mpl.style.use("seaborn-bright")
     assert mpl.rcParams == seaborn_bright
+    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
+        mpl.style.library["seaborn-bright"]
 
 
 def test_up_to_date_blacklist():
