@@ -107,7 +107,7 @@ class LightFilter(BaseFilter):
         ----------
         sigma : float
             sigma for gaussian filter
-        fraction: number: deault 1
+        fraction: number, default: 1
             Increases or decreases the contrast of the hillshade.
             See `matplotlib.colors.LightSource`
 
