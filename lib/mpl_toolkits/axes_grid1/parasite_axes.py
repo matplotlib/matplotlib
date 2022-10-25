@@ -106,6 +106,9 @@ class HostAxesBase:
         Despite this method's name, this should actually be thought of as an
         ``add_parasite_axes`` method.
 
+        .. versionchanged:: 3.7
+           Defaults to same base axes class as host axes.
+
         Parameters
         ----------
         tr : `~matplotlib.transforms.Transform` or None, default: None
