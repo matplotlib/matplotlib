@@ -1020,6 +1020,10 @@ _validators = {
     "polaraxes.grid": validate_bool,  # display polar grid or not
     "axes3d.grid":    validate_bool,  # display 3d grid
 
+    "axes3d.xaxis.panecolor":    validate_color,  # 3d background pane
+    "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
+    "axes3d.zaxis.panecolor":    validate_color,  # 3d background pane
+
     # scatter props
     "scatter.marker":     validate_string,
     "scatter.edgecolors": validate_string,

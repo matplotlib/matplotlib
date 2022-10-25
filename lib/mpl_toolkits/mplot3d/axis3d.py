@@ -61,12 +61,9 @@ class Axis(maxis.XAxis):
 
     # Some properties for the axes
     _AXINFO = {
-        'x': {'i': 0, 'tickdir': 1, 'juggled': (1, 0, 2),
-              'color': (0.95, 0.95, 0.95, 0.5)},
-        'y': {'i': 1, 'tickdir': 0, 'juggled': (0, 1, 2),
-              'color': (0.90, 0.90, 0.90, 0.5)},
-        'z': {'i': 2, 'tickdir': 0, 'juggled': (0, 2, 1),
-              'color': (0.925, 0.925, 0.925, 0.5)},
+        'x': {'i': 0, 'tickdir': 1, 'juggled': (1, 0, 2)},
+        'y': {'i': 1, 'tickdir': 0, 'juggled': (0, 1, 2)},
+        'z': {'i': 2, 'tickdir': 0, 'juggled': (0, 2, 1)},
     }
 
     def _old_init(self, adir, v_intervalx, d_intervalx, axes, *args,
@@ -97,17 +94,18 @@ class Axis(maxis.XAxis):
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[name].copy()
+        # Common parts
+        self._axinfo.update({
+            'label': {'va': 'center', 'ha': 'center'},
+            'color': mpl.rcParams[f'axes3d.{name}axis.panecolor'],
+            'tick': {
+                'inward_factor': 0.2,
+                'outward_factor': 0.1,
+            },
+        })
+
         if mpl.rcParams['_internal.classic_mode']:
             self._axinfo.update({
-                'label': {'va': 'center', 'ha': 'center'},
-                'tick': {
-                    'inward_factor': 0.2,
-                    'outward_factor': 0.1,
-                    'linewidth': {
-                        True: mpl.rcParams['lines.linewidth'],  # major
-                        False: mpl.rcParams['lines.linewidth'],  # minor
-                    }
-                },
                 'axisline': {'linewidth': 0.75, 'color': (0, 0, 0, 1)},
                 'grid': {
                     'color': (0.9, 0.9, 0.9, 1),
@@ -115,21 +113,14 @@ class Axis(maxis.XAxis):
                     'linestyle': '-',
                 },
             })
+            self._axinfo['tick'].update({
+                'linewidth': {
+                    True: mpl.rcParams['lines.linewidth'],  # major
+                    False: mpl.rcParams['lines.linewidth'],  # minor
+                }
+            })
         else:
             self._axinfo.update({
-                'label': {'va': 'center', 'ha': 'center'},
-                'tick': {
-                    'inward_factor': 0.2,
-                    'outward_factor': 0.1,
-                    'linewidth': {
-                        True: (  # major
-                            mpl.rcParams['xtick.major.width'] if name in 'xz'
-                            else mpl.rcParams['ytick.major.width']),
-                        False: (  # minor
-                            mpl.rcParams['xtick.minor.width'] if name in 'xz'
-                            else mpl.rcParams['ytick.minor.width']),
-                    }
-                },
                 'axisline': {
                     'linewidth': mpl.rcParams['axes.linewidth'],
                     'color': mpl.rcParams['axes.edgecolor'],
@@ -139,6 +130,16 @@ class Axis(maxis.XAxis):
                     'linewidth': mpl.rcParams['grid.linewidth'],
                     'linestyle': mpl.rcParams['grid.linestyle'],
                 },
+            })
+            self._axinfo['tick'].update({
+                'linewidth': {
+                    True: (  # major
+                        mpl.rcParams['xtick.major.width'] if name in 'xz'
+                        else mpl.rcParams['ytick.major.width']),
+                    False: (  # minor
+                        mpl.rcParams['xtick.minor.width'] if name in 'xz'
+                        else mpl.rcParams['ytick.minor.width']),
+                }
             })
 
         super().__init__(axes, *args, **kwargs)
