@@ -544,6 +544,7 @@ class _process_plot_var_args:
             return [l[0] for l in result]
 
 
+@_api.remove_methods(['set_transform', 'get_transform'])
 @_api.define_aliases({"facecolor": ["fc"]})
 class _AxesBase(martist.Artist):
     name = "rectilinear"

@@ -388,3 +388,43 @@ def warn_external(message, category=None):
     # premetively break reference cycle between locals and the frame
     del frame
     warnings.warn(message, category, stacklevel)
+
+
+def remove_methods(methods, cls=None):
+    """
+    Class decorator for removing methods on subclasses.
+
+    Use as ::
+
+        @_api.remove_methods(['methA', 'methB'])
+        class C: ...
+
+    Because almost everything in Matplotlib inherent from
+    `matplotlib.artist.Artist` we have some inherited methods
+    that do not function correctly on the sub-classes.  To prevent
+    this from catching users who expect something to work from the
+    docs this will remove them from the docs and cause the methods
+    to error when used.
+    """
+    if cls is None:  # Return the actual class decorator.
+        return functools.partial(remove_methods, methods)
+
+    def make_wrapper(name):
+        msg = (
+            f"`{method_name}` is removed on " +
+            f"`{cls.__module__}.{cls.__qualname__}`."
+        )
+        def method(self, *args, **kwargs):
+            raise Exception(msg)
+
+        method.__doc__ = msg
+        method.__name__ = method_name
+
+        return method
+
+    for method_name in methods:
+        method = make_wrapper(method_name)
+        method.is_removed = True
+        setattr(cls, method_name, method)
+
+    return cls

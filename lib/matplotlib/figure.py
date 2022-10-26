@@ -166,6 +166,7 @@ class SubplotParams:
             self.hspace = hspace
 
 
+@_api.remove_methods(['set_transform', 'get_transform'])
 class FigureBase(Artist):
     """
     Base class for `.Figure` and `.SubFigure` containing the methods that add

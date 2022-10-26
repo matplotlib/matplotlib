@@ -1524,9 +1524,12 @@ class ArtistInspector:
             if not name.startswith('set_'):
                 continue
             func = getattr(self.o, name)
-            if (not callable(func)
-                    or self.number_of_parameters(func) < 2
-                    or self.is_alias(func)):
+            if (
+                not callable(func)
+                or self.number_of_parameters(func) < 2
+                or self.is_alias(func)
+                or getattr(func, 'is_removed', False)
+            ):
                 continue
             setters.append(name[4:])
         return setters
