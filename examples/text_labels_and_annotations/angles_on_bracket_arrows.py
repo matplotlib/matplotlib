@@ -51,7 +51,7 @@ for i, style in enumerate(["]-[", "|-|"]):
             kw = dict(connectionstyle=f"arc3,rad={dir * 0.5}",
                       arrowstyle=arrowstyle, color="C0")
             ax.add_patch(FancyArrowPatch(vline, patch_top, **kw))
-            ax.text(vline[0] - dir * 0.15, y + 0.3, angle, ha="center",
+            ax.text(vline[0] - dir * 0.15, y + 0.3, f'{angle}°', ha="center",
                     va="center")
 
 #############################################################################
