@@ -739,7 +739,6 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
             pbcb = pbcb.translated(0, dy)
 
     pbcb = trans_fig_to_subfig.transform_bbox(pbcb)
-    cbax.set_transform(fig.transSubfigure)
     cbax._set_position(pbcb)
     cbax.set_anchor(anchor)
     if location in ['bottom', 'top']:
