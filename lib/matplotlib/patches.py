@@ -3119,6 +3119,14 @@ class ArrowStyle(_Style):
     stroked. This is meant to be used to correct the location of the
     head so that it does not overshoot the destination point, but not all
     classes support it.
+
+    Notes
+    -----
+    *angleA* and *angleB* specify the orientation of the bracket, as either a
+    clockwise or counterclockwise angle depending on the arrow type. 0 degrees
+    means perpendicular to the line connecting the arrow's head and tail.
+
+    .. plot:: gallery/text_labels_and_annotations/angles_on_bracket_arrows.py
     """
 
     _style_list = {}
