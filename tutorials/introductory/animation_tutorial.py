@@ -20,13 +20,6 @@ import numpy as np
 # :class:`~matplotlib.animation.FuncAnimation` uses a user-provided function by
 # repeatedly calling the function with at a regular *interval*. This allows
 # dynamic generation of data by using generators.
-import itertools
-
-
-def data_gen():
-    for cnt in itertools.count():
-        t = cnt/10
-        yield t, np.sin(2 * np.pi * t)
 
 
 def init():
@@ -43,13 +36,12 @@ ax.grid()
 xdata, ydata = [], []
 
 
-def update(data):
-    t, y = data
-    xdata.append(t)
-    ydata.append(y)
+def update(frame):
+    xdata.append(frame)
+    ydata.append(np.sin(2 * np.pi * frame / 30))
     xmin, xmax = ax.get_xlim()
 
-    if t >= xmax:
+    if frame >= xmax:
         ax.set_xlim(xmin, 2*xmax)
         ax.figure.canvas.draw()
     line.set_data(xdata, ydata)
@@ -57,7 +49,7 @@ def update(data):
     return line,
 
 ani = animation.FuncAnimation(
-    fig=fig, func=update, frames=data_gen, init_func=init, interval=20
+    fig=fig, func=update, frames=240, init_func=init, interval=30
 )
 plt.show()
 
@@ -73,25 +65,18 @@ scat = ax.scatter(
     rng.uniform(low=0, high=1, size=100),
     c='b'
 )
+ax.grid()
 
 
-def data_gen():
-    for cnt in itertools.count():
-        x, y = (
-            rng.uniform(low=0, high=1, size=100),
-            rng.uniform(low=0, high=1, size=100)
-            )
-        yield cnt, x, y
-
-
-def update(inputs):
-    frame, x, y = inputs
+def update(frame):
+    x = rng.uniform(low=0, high=1, size=100)
+    y = rng.uniform(low=0, high=1, size=100)
     data = np.stack([x, y]).T
     scat.set_offsets(data)
     return scat,
 
 ani = animation.FuncAnimation(
-    fig=fig, func=update, frames=data_gen, interval=200
+    fig=fig, func=update, frames=240, interval=300
 )
 plt.show()
 
@@ -103,22 +88,16 @@ plt.show()
 fig, ax = plt.subplots()
 rng = np.random.default_rng()
 
-aximg = ax.imshow(rng.uniform(low=0, high=1, size=(100, 100)))
+aximg = ax.imshow(rng.uniform(low=0, high=1, size=(10, 10)), cmap="Blues")
 
 
-def data_gen():
-    for cnt in itertools.count():
-        x = rng.uniform(low=0, high=1, size=(100, 100))
-        yield cnt, x
-
-
-def update(inputs):
-    frame, x = inputs
-    aximg.set_data(x)
+def update(frame):
+    data = rng.uniform(low=0, high=1, size=(10, 10))
+    aximg.set_data(data)
     return aximg,
 
 ani = animation.FuncAnimation(
-    fig=fig, func=update, frames=data_gen, interval=200
+    fig=fig, func=update, frames=240, interval=200
 )
 plt.show()
 
@@ -131,13 +110,14 @@ plt.show()
 
 
 fig, ax = plt.subplots()
+ax.grid()
 rng = np.random.default_rng()
 
 x_frames = rng.uniform(low=0, high=1, size=(100, 120))
 y_frames = rng.uniform(low=0, high=1, size=(100, 120))
 artists = [
     [
-        ax.scatter(x_frames[:, i], y_frames[:, i])
+        ax.scatter(x_frames[:, i], y_frames[:, i], c="b")
     ]
     for i in range(x_frames.shape[-1])
 ]
@@ -150,6 +130,7 @@ plt.show()
 # -------------------------------------------
 
 fig, ax = plt.subplots()
+ax.grid()
 rng = np.random.default_rng()
 
 scat = ax.scatter(
@@ -159,23 +140,15 @@ scat = ax.scatter(
 )
 
 
-def data_gen():
-    for cnt in itertools.count():
-        x, y = (
-            rng.uniform(low=0, high=1, size=100),
-            rng.uniform(low=0, high=1, size=100)
-            )
-        yield cnt, x, y
-
-
-def update(inputs):
-    frame, x, y = inputs
+def update(frame):
+    x = rng.uniform(low=0, high=1, size=100)
+    y = rng.uniform(low=0, high=1, size=100)
     data = np.stack([x, y]).T
     scat.set_offsets(data)
     return scat,
 
 ani = animation.FuncAnimation(
-    fig=fig, func=update, frames=data_gen, interval=200
+    fig=fig, func=update, frames=240, interval=200
 )
 # ani.save(filename="/tmp/pillow_example.gif", writer="pillow")
 # ani.save(filename="/tmp/pillow_example.apng", writer="pillow")
