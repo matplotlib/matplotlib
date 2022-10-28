@@ -651,8 +651,9 @@ grestore
                 kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
-                xs_names.append((ps_name, thisx, name))
+                xs_names.append((thisx, name))
                 thisx += width * scale
+                stream.append((ps_name, xs_names))
 
         else:
             font = self._get_font_ttf(prop)
