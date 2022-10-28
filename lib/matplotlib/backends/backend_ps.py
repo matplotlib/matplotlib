@@ -635,7 +635,8 @@ grestore
 
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
-            ps_name = (font.postscript_name.encode("ascii", "replace").decode("ascii"))
+            ps_name = (font.postscript_name.encode("ascii", "replace")
+                        .decode("ascii"))
             scale = 0.001 * prop.get_size_in_points()
             thisx = 0
             last_name = None  # kerns returns 0 for None.
@@ -663,7 +664,8 @@ grestore
                 stream.append((ps_name, item.x, glyph_name))
         self.set_color(*gc.get_rgb())
 
-        for ps_name, group in itertools.groupby(stream, lambda entry: entry[0]):
+        for ps_name, group in itertools. \
+                groupby(stream, lambda entry: entry[0]):
             self.set_font(ps_name, prop.get_size_in_points(), False)
             thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
                                 for _, x, name in group)
