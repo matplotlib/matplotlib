@@ -3130,7 +3130,6 @@ class _AxesBase(martist.Artist):
 
         if (rasterization_zorder is not None and
                 artists and artists[0].zorder < rasterization_zorder):
-            renderer.start_rasterizing()
             artists_rasterized = [a for a in artists
                                   if a.zorder < rasterization_zorder]
             artists = [a for a in artists
@@ -3146,7 +3145,6 @@ class _AxesBase(martist.Artist):
         if artists_rasterized:
             for a in artists_rasterized:
                 a.draw(renderer)
-            renderer.stop_rasterizing()
 
         mimage._draw_list_compositing_images(
             renderer, self, artists, self.figure.suppressComposite)
