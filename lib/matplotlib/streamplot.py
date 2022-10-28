@@ -285,8 +285,7 @@ class DomainMap:
 
     def grid2mask(self, xi, yi):
         """Return nearest space in mask-coords from given grid-coords."""
-        return (int(xi * self.x_grid2mask + 0.5),
-                int(yi * self.y_grid2mask + 0.5))
+        return round(xi * self.x_grid2mask), round(yi * self.y_grid2mask)
 
     def mask2grid(self, xm, ym):
         return xm * self.x_mask2grid, ym * self.y_mask2grid
