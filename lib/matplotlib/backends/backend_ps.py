@@ -640,7 +640,6 @@ grestore
             scale = 0.001 * prop.get_size_in_points()
             thisx = 0
             last_name = None  # kerns returns 0 for None.
-            xs_names = []
             for c in s:
                 name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
                 try:
@@ -651,9 +650,8 @@ grestore
                 kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
-                xs_names.append((thisx, name))
+                stream.append((ps_name, thisx, name))
                 thisx += width * scale
-                stream.append((ps_name, xs_names))
 
         else:
             font = self._get_font_ttf(prop)
