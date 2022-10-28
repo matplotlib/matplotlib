@@ -2612,8 +2612,7 @@ pivot='tail', normalize=False, **kwargs)
               last axis.
 
         shade : bool, default: True
-            Whether to shade the facecolors.  Shading is always disabled when
-            *cmap* is specified.
+            Whether to shade the facecolors.
 
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
