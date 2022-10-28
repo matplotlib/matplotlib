@@ -186,6 +186,21 @@ Miscellaneous
    Artist.get_in_layout
    Artist.stale
 
+
+Accessibility
+-------------
+
+
+.. autosummary::
+   :template: autosummary.rst
+   :toctree: _as_gen
+   :nosignatures:
+
+   Artist.get_aria
+   Artist.set_aria
+   Artist.update_aria
+
+
 Functions
 =========
 
