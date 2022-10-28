@@ -144,7 +144,7 @@ class TaggedValue(metaclass=TaggedValueMeta):
         return object.__getattribute__(self, name)
 
     def __array__(self, dtype=object):
-        return np.asarray(self.value).astype(dtype)
+        return np.asarray(self.value, dtype)
 
     def __array_wrap__(self, array, context):
         return TaggedValue(array, self.unit)

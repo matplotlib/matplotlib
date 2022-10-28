@@ -1221,9 +1221,7 @@ class Wedge(Patch):
                 arc.codes, [connector, connector, Path.CLOSEPOLY]])
 
         # Shift and scale the wedge to the final location.
-        v *= self.r
-        v += np.asarray(self.center)
-        self._path = Path(v, c)
+        self._path = Path(v * self.r + self.center, c)
 
     def set_center(self, center):
         self._path = None

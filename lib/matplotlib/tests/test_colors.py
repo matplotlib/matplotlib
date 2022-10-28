@@ -243,7 +243,7 @@ def test_colormap_invalid():
     # Test scalar representations
     assert_array_equal(cmap(-np.inf), cmap(0))
     assert_array_equal(cmap(np.inf), cmap(1.0))
-    assert_array_equal(cmap(np.nan), np.array([0., 0., 0., 0.]))
+    assert_array_equal(cmap(np.nan), [0., 0., 0., 0.])
 
 
 def test_colormap_return_types():
@@ -574,7 +574,7 @@ def test_Normalize():
     # i.e. 127-(-128) here).
     vals = np.array([-128, 127], dtype=np.int8)
     norm = mcolors.Normalize(vals.min(), vals.max())
-    assert_array_equal(np.asarray(norm(vals)), [0, 1])
+    assert_array_equal(norm(vals), [0, 1])
 
     # Don't lose precision on longdoubles (float128 on Linux):
     # for array inputs...

@@ -3207,7 +3207,7 @@ pivot='tail', normalize=False, **kwargs)
             invM = np.linalg.inv(self.get_proj())
         # elev=azim=roll=0 produces the Y-Z plane, so quiversize in 2D 'x' is
         # 'y' in 3D, hence the 1 index.
-        quiversize = np.dot(invM, np.array([quiversize, 0, 0, 0]))[1]
+        quiversize = np.dot(invM, [quiversize, 0, 0, 0])[1]
         # Quivers use a fixed 15-degree arrow head, so scale up the length so
         # that the size corresponds to the base. In other words, this constant
         # corresponds to the equation tan(15) = (base / 2) / (arrow length).

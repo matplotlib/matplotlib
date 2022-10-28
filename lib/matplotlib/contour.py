@@ -1144,7 +1144,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if isinstance(levels_arg, Integral):
             self.levels = self._autolev(levels_arg)
         else:
-            self.levels = np.asarray(levels_arg).astype(np.float64)
+            self.levels = np.asarray(levels_arg, np.float64)
 
         if not self.filled:
             inside = (self.levels > self.zmin) & (self.levels < self.zmax)
