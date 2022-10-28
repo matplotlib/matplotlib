@@ -36,7 +36,7 @@ import numpy as np
 # animation by passing a function that iteratively modifies the data of a plot.
 # This is achieved by using the *setter* methods on various
 # :class:`~matplotlib.artist.Artist`
-# (examples: :class:`~matplotlib.line.Line2D`,
+# (examples: :class:`~matplotlib.lines.Line2D`,
 # :class:`~matplotlib.collections.PathCollection`, etc.). A usual
 # :class:`~matplotlib.animation.FuncAnimation` object takes a
 # :class:`~matplotlib.figure.Figure` that we want to animate and a function
@@ -236,11 +236,12 @@ ani = animation.FuncAnimation(
 
 ###############################################################################
 #
-# ================================================  =============================
+# ================================================  ===========================
 # Writer                                            Supported Formats
-# ================================================  =============================
+# ================================================  ===========================
 # :class:`~matplotlib.animation.PillowWriter`       .gif, .apng
 # :class:`~matplotlib.animation.HTMLWriter`         .htm, .html, .png
-# :class:`~matplotlib.animation.FFMpegWriter`       All formats supported by *ffmpeg*
+# :class:`~matplotlib.animation.FFMpegWriter`       All formats supported by
+#                                                   *ffmpeg*
 # :class:`~matplotlib.animation.ImageMagickWriter`  .gif
-# ================================================  =============================
+# ================================================  ===========================
