@@ -153,7 +153,7 @@ class TaggedValue(metaclass=TaggedValueMeta):
         return 'TaggedValue({!r}, {!r})'.format(self.value, self.unit)
 
     def __str__(self):
-        return str(self.value) + ' in ' + str(self.unit)
+        return f"{self.value} in {self.unit}"
 
     def __len__(self):
         return len(self.value)

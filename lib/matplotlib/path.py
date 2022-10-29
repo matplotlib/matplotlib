@@ -460,7 +460,7 @@ class Path:
             elif code == Path.STOP:
                 return
             else:
-                raise ValueError("Invalid Path.code_type: " + str(code))
+                raise ValueError(f"Invalid Path.code_type: {code}")
             prev_vert = verts[-2:]
 
     def cleaned(self, transform=None, remove_nans=False, clip=None,

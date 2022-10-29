@@ -27,22 +27,22 @@ class ListTools(ToolBase):
 
     def trigger(self, *args, **kwargs):
         print('_' * 80)
-        print("{0:12} {1:45} {2}".format(
-            'Name (id)', 'Tool description', 'Keymap'))
+        fmt_tool = "{:12} {:45} {}".format
+        print(fmt_tool('Name (id)', 'Tool description', 'Keymap'))
         print('-' * 80)
         tools = self.toolmanager.tools
         for name in sorted(tools):
             if not tools[name].description:
                 continue
             keys = ', '.join(sorted(self.toolmanager.get_tool_keymap(name)))
-            print("{0:12} {1:45} {2}".format(
-                name, tools[name].description, keys))
+            print(fmt_tool(name, tools[name].description, keys))
         print('_' * 80)
+        fmt_active_toggle = "{0!s:12} {1!s:45}".format
         print("Active Toggle tools")
-        print("{0:12} {1:45}".format("Group", "Active"))
+        print(fmt_active_toggle("Group", "Active"))
         print('-' * 80)
         for group, active in self.toolmanager.active_toggle.items():
-            print("{0:12} {1:45}".format(str(group), str(active)))
+            print(fmt_active_toggle(group, active))
 
 
 class GroupHideTool(ToolToggleBase):

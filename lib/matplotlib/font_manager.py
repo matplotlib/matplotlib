@@ -1084,7 +1084,7 @@ class FontManager:
         # Create list of font paths.
         paths = [cbook._get_data_path('fonts', subdir)
                  for subdir in ['ttf', 'afm', 'pdfcorefonts']]
-        _log.debug('font search path %s', str(paths))
+        _log.debug('font search path %s', paths)
 
         self.defaultFamily = {
             'ttf': 'DejaVu Sans',
