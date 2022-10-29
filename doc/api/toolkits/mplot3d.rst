@@ -29,6 +29,7 @@ the toolbar pan and zoom buttons are not used.
 
    mplot3d/faq.rst
    mplot3d/view_angles.rst
+   mplot3d/axes3d.rst
 
 .. note::
    `.pyplot` cannot be used to add content to 3D plots, because its function
@@ -51,11 +52,8 @@ the toolbar pan and zoom buttons are not used.
    Please report any functions that do not behave as expected as a bug.
    In addition, help and patches would be greatly appreciated!
 
-.. autosummary::
-   :toctree: ../_as_gen
-   :template: autosummary.rst
 
-   axes3d.Axes3D
+`axes3d.Axes3D` (fig[, rect, elev, azim, roll, ...])    3D Axes object.
 
 
 .. module:: mpl_toolkits.mplot3d.axis3d

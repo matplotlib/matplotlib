@@ -26,7 +26,7 @@ plt.show()
 # *linefmt*, *markerfmt*, and *basefmt* control basic format properties of the
 # plot. However, in contrast to `~.axes3d.Axes3D.plot` not all properties are
 # configurable via keyword arguments. For more advanced control adapt the line
-# objects returned by `.stem3D`.
+# objects returned by `~mpl_toolkits.mplot3d.axes3d.Axes3D.stem`.
 
 fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
 markerline, stemlines, baseline = ax.stem(

@@ -499,6 +499,9 @@ class Axes3D(Axes):
         return xhigh, yhigh, zhigh
 
     def update_datalim(self, xys, **kwargs):
+        """
+        Not implemented in `~mpl_toolkits.mplot3d.axes3d.Axes3D`.
+        """
         pass
 
     get_autoscalez_on = _axis_method_wrapper("zaxis", "_get_autoscale_on")
