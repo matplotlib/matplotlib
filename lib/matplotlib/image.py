@@ -1244,8 +1244,8 @@ class PcolorImage(AxesImage):
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
-        width = int(round(width * magnification))
-        height = int(round(height * magnification))
+        width = round(width * magnification)
+        height = round(height * magnification)
         vl = self.axes.viewLim
 
         x_pix = np.linspace(vl.x0, vl.x1, width)

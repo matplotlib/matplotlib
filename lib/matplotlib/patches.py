@@ -2568,9 +2568,9 @@ class BoxStyle(_Style):
 
             # the sizes of the vertical and horizontal sawtooth are
             # separately adjusted to fit the given box size.
-            dsx_n = int(round((width - tooth_size) / (tooth_size * 2))) * 2
+            dsx_n = round((width - tooth_size) / (tooth_size * 2)) * 2
             dsx = (width - tooth_size) / dsx_n
-            dsy_n = int(round((height - tooth_size) / (tooth_size * 2))) * 2
+            dsy_n = round((height - tooth_size) / (tooth_size * 2)) * 2
             dsy = (height - tooth_size) / dsy_n
 
             x0, y0 = x0 - pad + tooth_size2, y0 - pad + tooth_size2
