@@ -21,10 +21,10 @@ import numpy as np
 # The process of animation can be thought about in 2 different ways:
 #
 # - :class:`~matplotlib.animation.FuncAnimation`: Generate data for first
-# frame and then modify this data for each frame to create an animated plot.
+#   frame and then modify this data for each frame to create an animated plot.
 #
 # - :class:`~matplotlib.animation.FuncAnimation`: Generate a list (iterable)
-# of artists that will draw in each frame in the animation.
+#   of artists that will draw in each frame in the animation.
 #
 # :class:`~matplotlib.animation.FuncAnimation` is more efficient in terms of
 # speed and memory as it draws an artist once and then modifies it. On the
@@ -63,8 +63,15 @@ rng = np.random.default_rng()
 xdata, ydata = [], []
 (line,) = ax.plot(xdata, ydata, c="b")
 ax.grid()
-ax.set_ylim(-1, 1)
-ax.set_xlim(0, 10)
+
+
+def init():
+    ax.set_ylim(-1.1, 1.1)
+    ax.set_xlim(0, 5)
+    del xdata[:]
+    del ydata[:]
+    line.set_data(xdata, ydata)
+    return line,
 
 
 def update(frame):
@@ -77,7 +84,8 @@ def update(frame):
     return (line,)
 
 
-ani = animation.FuncAnimation(fig=fig, func=update, interval=30)
+ani = animation.FuncAnimation(fig=fig, func=update,
+                              interval=30, init_func=init)
 plt.show()
 
 ###############################################################################
@@ -90,7 +98,7 @@ plt.show()
 
 fig, ax = plt.subplots()
 rng = np.random.default_rng()
-t = np.linspace(-4, 4, 1000)
+t = np.linspace(-4, 4, 400)
 a, b = 3, 2
 delta = np.pi / 2
 
@@ -110,7 +118,7 @@ def update(frame):
     return (scat,)
 
 
-ani = animation.FuncAnimation(fig=fig, func=update, interval=30)
+ani = animation.FuncAnimation(fig=fig, func=update, frames=400, interval=30)
 plt.show()
 
 
@@ -169,21 +177,21 @@ plt.show()
 # by all writers. There are 4 major types of writers:
 #
 # - :class:`~matplotlib.animation.PillowWriter` - Uses the Pillow library to
-# create the animation.
+#   create the animation.
 #
 # - :class:`~matplotlib.animation.HTMLWriter` - Used to create JS-based
-# animations.
+#   animations.
 #
 # - Pipe-based writers - :class:`~matplotlib.animation.FFMpegWriter` and
-# :class:`~matplotlib.animation.ImageMagickWriter` are pipe based writers.
-# These writers pipe each frame to the utility (*ffmpeg* / *imagemagick*) which
-# then stitches all of them together to create the animation.
+#   :class:`~matplotlib.animation.ImageMagickWriter` are pipe based writers.
+#   These writers pipe each frame to the utility (*ffmpeg* / *imagemagick*)
+#   which then stitches all of them together to create the animation.
 #
 # - File-based writers - :class:`~matplotlib.animation.FFMpegFileWriter` and
-# :class:`~matplotlib.animation.ImageMagickFileWriter` are examples of
-# file-based writers. These writers are slower than their standard writers but
-# are more useful for debugging as they save each frame in a file before
-# stitching them together into an animation.
+#   :class:`~matplotlib.animation.ImageMagickFileWriter` are examples of
+#   file-based writers. These writers are slower than their standard writers
+#   but are more useful for debugging as they save each frame in a file before
+#   stitching them together into an animation.
 #
 # ================================================  ===========================
 # Writer                                            Supported Formats
