@@ -547,8 +547,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
         self._offsets = np.column_stack(
-            (np.asarray(self.convert_xunits(offsets[:, 0]), 'float'),
-             np.asarray(self.convert_yunits(offsets[:, 1]), 'float')))
+            (np.asarray(self.convert_xunits(offsets[:, 0]), float),
+             np.asarray(self.convert_yunits(offsets[:, 1]), float)))
         self.stale = True
 
     def get_offsets(self):
@@ -573,7 +573,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if lw is None:
             lw = self._get_default_linewidth()
         # get the un-scaled/broadcast lw
-        self._us_lw = np.atleast_1d(np.asarray(lw))
+        self._us_lw = np.atleast_1d(lw)
 
         # scale all of the dash patterns.
         self._linewidths, self._linestyles = self._bcast_lwls(

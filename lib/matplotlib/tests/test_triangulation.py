@@ -944,8 +944,7 @@ def test_tritools():
     mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
     analyser = mtri.TriAnalyzer(triang)
-    assert_array_almost_equal(analyser.scale_factors,
-                              np.array([1., 1./(1.+0.5*np.sqrt(3.))]))
+    assert_array_almost_equal(analyser.scale_factors, [1, 1/(1+3**.5/2)])
     assert_array_almost_equal(
         analyser.circle_ratios(rescale=False),
         np.ma.masked_array([0.5, 1./(1.+np.sqrt(2.)), np.nan], mask))

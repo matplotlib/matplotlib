@@ -59,7 +59,7 @@ ax.set_title('Random spectrum')
 
 def one_over(x):
     """Vectorized 1/x, treating x==0 manually"""
-    x = np.array(x).astype(float)
+    x = np.array(x, float)
     near_zero = np.isclose(x, 0)
     x[near_zero] = np.inf
     x[~near_zero] = 1 / x[~near_zero]

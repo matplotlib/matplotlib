@@ -925,7 +925,7 @@ class Bbox(BboxBase):
            - When ``False``, include the existing bounds of the `Bbox`.
            - When ``None``, use the last value passed to :meth:`ignore`.
         """
-        y = np.array(y).ravel()
+        y = np.ravel(y)
         self.update_from_data_xy(np.column_stack([np.ones(y.size), y]),
                                  ignore=ignore, updatex=False)
 

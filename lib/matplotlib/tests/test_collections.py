@@ -696,7 +696,7 @@ def test_pathcollection_legend_elements():
 
     h, l = sc.legend_elements(fmt="{x:g}")
     assert len(h) == 5
-    assert_array_equal(np.array(l).astype(float), np.arange(5))
+    assert l == ["0", "1", "2", "3", "4"]
     colors = np.array([line.get_color() for line in h])
     colors2 = sc.cmap(np.arange(5)/4)
     assert_array_equal(colors, colors2)
@@ -707,16 +707,14 @@ def test_pathcollection_legend_elements():
     l2 = ax.legend(h2, lab2, loc=2)
 
     h, l = sc.legend_elements(prop="sizes", alpha=0.5, color="red")
-    alpha = np.array([line.get_alpha() for line in h])
-    assert_array_equal(alpha, 0.5)
-    color = np.array([line.get_markerfacecolor() for line in h])
-    assert_array_equal(color, "red")
+    assert all(line.get_alpha() == 0.5 for line in h)
+    assert all(line.get_markerfacecolor() == "red" for line in h)
     l3 = ax.legend(h, l, loc=4)
 
     h, l = sc.legend_elements(prop="sizes", num=4, fmt="{x:.2f}",
                               func=lambda x: 2*x)
     actsizes = [line.get_markersize() for line in h]
-    labeledsizes = np.sqrt(np.array(l).astype(float)/2)
+    labeledsizes = np.sqrt(np.array(l, float) / 2)
     assert_array_almost_equal(actsizes, labeledsizes)
     l4 = ax.legend(h, l, loc=3)
 
@@ -727,7 +725,7 @@ def test_pathcollection_legend_elements():
 
     levels = [-1, 0, 55.4, 260]
     h6, lab6 = sc.legend_elements(num=levels, prop="sizes", fmt="{x:g}")
-    assert_array_equal(np.array(lab6).astype(float), levels[2:])
+    assert [float(l) for l in lab6] == levels[2:]
 
     for l in [l1, l2, l3, l4]:
         ax.add_artist(l)

@@ -164,8 +164,7 @@ class Axis(maxis.XAxis):
             antialiased=True)
 
         # Store dummy data in Polygon object
-        self.pane = mpatches.Polygon(
-            np.array([[0, 0], [0, 1]]), closed=False)
+        self.pane = mpatches.Polygon([[0, 0], [0, 1]], closed=False)
         self.set_pane_color(self._axinfo['color'])
 
         self.axes._set_artist_props(self.line)

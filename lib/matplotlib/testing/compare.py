@@ -500,8 +500,8 @@ def save_diff_image(expected, actual, output):
     actual_image = _load_image(actual)
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
-    expected_image = np.array(expected_image).astype(float)
-    actual_image = np.array(actual_image).astype(float)
+    expected_image = np.array(expected_image, float)
+    actual_image = np.array(actual_image, float)
     if expected_image.shape != actual_image.shape:
         raise ImageComparisonFailure(
             "Image sizes do not match expected size: {} "
