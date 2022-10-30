@@ -302,7 +302,7 @@ We use these constraints to initialize a `.Divider` object::
     horiz = [...]  # Some other horizontal constraints.
     divider = Divider(fig, rect, horiz, vert)
 
-then use `.Divider.new_locator` to create an `.AxesLocator` instance for a
+then use `.Divider.new_locator` to create an axes locator callable for a
 given grid entry::
 
     locator = divider.new_locator(nx=0, ny=1)  # Grid entry (1, 0).
@@ -311,7 +311,7 @@ and make it responsible for locating the axes::
 
     ax.set_axes_locator(locator)
 
-The `.AxesLocator` is a callable object that returns the location and size of
+The axes locator callable returns the location and size of
 the cell at the first column and the second row.
 
 Locators that spans over multiple cells can be created with, e.g.::
