@@ -1175,11 +1175,20 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
     """Return handles and labels for legend."""
     handles = []
     labels = []
+    warning = False
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
-        if label and not label.startswith('_'):
-            handles.append(handle)
-            labels.append(label)
+        if label:
+            if not label.startswith('_'):
+                handles.append(handle)
+                labels.append(label)
+            else:
+                warning = True
+    if warning:
+        log.warning("One or more labels starting with an underscore was detected. Note that "
+                "artists whose label start with an underscore are ignored "
+                "when legend() is called with no argument")
+                
     return handles, labels
 
 
@@ -1254,9 +1263,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         handles, labels = _get_legend_handles_labels(axs, handlers)
         if not handles:
             log.warning(
-                "No artists with labels found to put in legend.  Note that "
-                "artists whose label start with an underscore are ignored "
-                "when legend() is called with no argument.")
+                "No handles with labels found to put in legend.")
 
     # One argument. User defined labels - automatic handle detection.
     elif len(args) == 1:
