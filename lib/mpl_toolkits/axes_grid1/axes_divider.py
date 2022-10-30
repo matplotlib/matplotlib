@@ -60,12 +60,6 @@ class Divider:
     def get_vertical_sizes(self, renderer):
         return [s.get_size(renderer) for s in self.get_vertical()]
 
-    @_api.deprecated("3.5")
-    def get_vsize_hsize(self):
-        vsize = Size.AddList(self.get_vertical())
-        hsize = Size.AddList(self.get_horizontal())
-        return vsize, hsize
-
     @staticmethod
     def _calc_k(l, total_size):
 
@@ -485,9 +479,8 @@ class AxesDivider(Divider):
         ax.set_axes_locator(locator)
         return ax
 
-    @_api.delete_parameter("3.5", "add_to_figure", alternative="ax.remove()")
-    def append_axes(self, position, size, pad=None, add_to_figure=True, *,
-                    axes_class=None, **kwargs):
+    def append_axes(self, position, size, pad=None, *, axes_class=None,
+                    **kwargs):
         """
         Add a new axes on a given side of the main axes.
 
@@ -517,8 +510,7 @@ class AxesDivider(Divider):
         }, position=position)
         ax = create_axes(
             size, pad, pack_start=pack_start, axes_class=axes_class, **kwargs)
-        if add_to_figure:
-            self._fig.add_axes(ax)
+        self._fig.add_axes(ax)
         return ax
 
     def get_aspect(self):

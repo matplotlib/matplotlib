@@ -3209,7 +3209,6 @@ class ArrowStyle(_Style):
         or closed.
         """
 
-        beginarrow = endarrow = None  # Whether arrows are drawn.
         arrow = "-"
         fillbegin = fillend = False  # Whether arrows are filled.
 
@@ -3272,18 +3271,6 @@ class ArrowStyle(_Style):
             elif beginarrow in ("]", "|"):
                 self._beginarrow_head = False
                 self._beginarrow_bracket = True
-            elif self.beginarrow is True:
-                self._beginarrow_head = True
-                self._beginarrow_bracket = False
-
-                _api.warn_deprecated('3.5', name="beginarrow",
-                                     alternative="arrow")
-            elif self.beginarrow is False:
-                self._beginarrow_head = False
-                self._beginarrow_bracket = False
-
-                _api.warn_deprecated('3.5', name="beginarrow",
-                                     alternative="arrow")
 
             if endarrow == ">":
                 self._endarrow_head = True
@@ -3295,18 +3282,6 @@ class ArrowStyle(_Style):
             elif endarrow in ("[", "|"):
                 self._endarrow_head = False
                 self._endarrow_bracket = True
-            elif self.endarrow is True:
-                self._endarrow_head = True
-                self._endarrow_bracket = False
-
-                _api.warn_deprecated('3.5', name="endarrow",
-                                     alternative="arrow")
-            elif self.endarrow is False:
-                self._endarrow_head = False
-                self._endarrow_bracket = False
-
-                _api.warn_deprecated('3.5', name="endarrow",
-                                     alternative="arrow")
 
             super().__init__()
 
@@ -4441,10 +4416,6 @@ default: 'arc3'
             self.get_mutation_aspect())
 
         return _path, fillable
-
-    get_path_in_displaycoord = _api.deprecate_privatize_attribute(
-        "3.5",
-        alternative="self.get_transform().transform_path(self.get_path())")
 
     def draw(self, renderer):
         if not self.get_visible():

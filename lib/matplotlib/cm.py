@@ -27,13 +27,6 @@ from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
 
-@_api.caching_module_getattr  # module-level deprecations
-class __getattr__:
-    LUTSIZE = _api.deprecated(
-        "3.5", obj_type="", alternative="rcParams['image.lut']")(
-            property(lambda self: _LUTSIZE))
-
-
 _LUTSIZE = mpl.rcParams['image.lut']
 
 
@@ -416,9 +409,6 @@ class ScalarMappable:
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
         self.callbacks = cbook.CallbackRegistry(signals=["changed"])
-
-    callbacksSM = _api.deprecated("3.5", alternative="callbacks")(
-        property(lambda self: self.callbacks))
 
     def _scale_norm(self, norm, vmin, vmax):
         """

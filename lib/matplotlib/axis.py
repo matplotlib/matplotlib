@@ -217,11 +217,6 @@ class Tick(martist.Artist):
         self._tickdir = tickdir
         self._pad = self._base_pad + self.get_tick_padding()
 
-    @_api.deprecated("3.5", alternative="`.Axis.set_tick_params`")
-    def apply_tickdir(self, tickdir):
-        self._apply_tickdir(tickdir)
-        self.stale = True
-
     def get_tickdir(self):
         return self._tickdir
 
@@ -666,8 +661,7 @@ class Axis(martist.Artist):
         self.axes = axes
         self.major = Ticker()
         self.minor = Ticker()
-        self.callbacks = cbook.CallbackRegistry(
-            signals=["units", "units finalize"])
+        self.callbacks = cbook.CallbackRegistry(signals=["units"])
 
         self._autolabelpos = True
 
@@ -880,8 +874,7 @@ class Axis(martist.Artist):
         self._set_scale('linear')
 
         # Clear the callback registry for this axis, or it may "leak"
-        self.callbacks = cbook.CallbackRegistry(
-            signals=["units", "units finalize"])
+        self.callbacks = cbook.CallbackRegistry(signals=["units"])
 
         # whether the grids are on
         self._major_tick_kw['gridOn'] = (
@@ -1697,7 +1690,6 @@ class Axis(martist.Artist):
             axis.units = u
             axis._update_axisinfo()
             axis.callbacks.process('units')
-            axis.callbacks.process('units finalize')
             axis.stale = True
 
     def get_units(self):

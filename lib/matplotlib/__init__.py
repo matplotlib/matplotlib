@@ -205,9 +205,6 @@ class __getattr__:
     __version__ = property(lambda self: _get_version())
     __version_info__ = property(
         lambda self: _parse_to_version_info(self.__version__))
-    # module-level deprecations
-    URL_REGEX = _api.deprecated("3.5", obj_type="")(property(
-        lambda self: re.compile(r'^http://|^https://|^ftp://|^file:')))
 
 
 def _check_versions():
@@ -748,12 +745,6 @@ class RcParams(MutableMapping, dict):
 def rc_params(fail_on_error=False):
     """Construct a `RcParams` instance from the default Matplotlib rc file."""
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
-
-
-@_api.deprecated("3.5")
-def is_url(filename):
-    """Return whether *filename* is an http, https, ftp, or file URL path."""
-    return __getattr__("URL_REGEX").match(filename) is not None
 
 
 @functools.lru_cache()

@@ -1,6 +1,5 @@
 from matplotlib import _api, cbook
 import matplotlib.artist as martist
-import matplotlib.image as mimage
 import matplotlib.transforms as mtransforms
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
@@ -20,21 +19,6 @@ class ParasiteAxesBase:
         super().clear()
         martist.setp(self.get_children(), visible=False)
         self._get_lines = self._parent_axes._get_lines
-
-    @_api.deprecated("3.5")
-    def get_images_artists(self):
-        artists = []
-        images = []
-
-        for a in self.get_children():
-            if not a.get_visible():
-                continue
-            if isinstance(a, mimage.AxesImage):
-                images.append(a)
-            else:
-                artists.append(a)
-
-        return images, artists
 
     def pick(self, mouseevent):
         # This most likely goes to Artist.pick (depending on axes_class given

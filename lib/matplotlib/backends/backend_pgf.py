@@ -308,7 +308,6 @@ class LatexManager:
         # Per-instance cache.
         self._get_box_metrics = functools.lru_cache()(self._get_box_metrics)
 
-    str_cache = _api.deprecated("3.5")(property(lambda self: {}))
     texcommand = _api.deprecated("3.6")(
         property(lambda self: mpl.rcParams["pgf.texsystem"]))
     latex_header = _api.deprecated("3.6")(

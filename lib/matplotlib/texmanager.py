@@ -100,11 +100,6 @@ class TexManager:
         'computer modern typewriter': 'monospace',
     }
 
-    grey_arrayd = _api.deprecate_privatize_attribute("3.5")
-    font_family = _api.deprecate_privatize_attribute("3.5")
-    font_families = _api.deprecate_privatize_attribute("3.5")
-    font_info = _api.deprecate_privatize_attribute("3.5")
-
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
         Path(cls.texcache).mkdir(parents=True, exist_ok=True)

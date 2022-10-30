@@ -2063,12 +2063,6 @@ class QuadMesh(Collection):
         return self._coordinates
 
     @staticmethod
-    @_api.deprecated("3.5", alternative="`QuadMesh(coordinates).get_paths()"
-                     "<.QuadMesh.get_paths>`")
-    def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
-        return QuadMesh._convert_mesh_to_paths(coordinates)
-
-    @staticmethod
     def _convert_mesh_to_paths(coordinates):
         """
         Convert a given mesh into a sequence of `.Path` objects.
@@ -2088,10 +2082,6 @@ class QuadMesh(Collection):
             c[:-1, :-1]
         ], axis=2).reshape((-1, 5, 2))
         return [mpath.Path(x) for x in points]
-
-    @_api.deprecated("3.5")
-    def convert_mesh_to_triangles(self, meshWidth, meshHeight, coordinates):
-        return self._convert_mesh_to_triangles(coordinates)
 
     def _convert_mesh_to_triangles(self, coordinates):
         """
