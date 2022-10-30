@@ -50,5 +50,5 @@ def run(data):
 
     return line,
 
-ani = animation.FuncAnimation(fig, run, data_gen, interval=10, init_func=init)
+ani = animation.FuncAnimation(fig, run, data_gen, interval=100, init_func=init)
 plt.show()
