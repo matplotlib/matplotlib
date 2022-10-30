@@ -7,9 +7,6 @@ Annotating text with Matplotlib.
 .. contents:: Table of Contents
    :depth: 3
 """
-
-from matplotlib import pyplot as plt
-
 ###############################################################################
 # .. _annotations-tutorial:
 #
@@ -23,12 +20,22 @@ from matplotlib import pyplot as plt
 # to make annotations easy.  In an annotation, there are two points to
 # consider: the location being annotated represented by the argument
 # *xy* and the location of the text *xytext*.  Both of these
-# arguments are ``(x, y)`` tuples.
-#
-# .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_annotation_basic_001.png
-#    :target: ../../gallery/text_labels_and_annotations/annotation_basic.html
-#    :align: center
-#
+# arguments are ``(x, y)`` tuples:
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(3, 3))
+
+t = np.arange(0.0, 5.0, 0.01)
+s = np.cos(2*np.pi*t)
+line, = ax.plot(t, s, lw=2)
+
+ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
+            arrowprops=dict(facecolor='black', shrink=0.05))
+ax.set_ylim(-2, 2)
+
+###############################################################################
 # In this example, both the *xy* (arrow tip) and *xytext* locations
 # (text location) are in data coordinates.  There are a variety of other
 # coordinate systems one can choose -- you can specify the coordinate
@@ -47,22 +54,50 @@ from matplotlib import pyplot as plt
 # 'data'              use the axes data coordinate system
 # ==================  ========================================================
 #
-# For example to place the text coordinates in fractional axes
-# coordinates, one could do::
+# The following strings are also valid arguments for *textcoords*
 #
-#     ax.annotate('local max', xy=(3, 1),  xycoords='data',
-#                 xytext=(0.8, 0.95), textcoords='axes fraction',
-#                 arrowprops=dict(facecolor='black', shrink=0.05),
-#                 horizontalalignment='right', verticalalignment='top',
-#                 )
+# ==================  ========================================================
+# argument            coordinate system
+# ==================  ========================================================
+# 'offset points'     offset (in points) from the xy value
+# 'offset pixels'     offset (in pixels) from the xy value
+# ==================  ========================================================
 #
 # For physical coordinate systems (points or pixels) the origin is the
-# bottom-left of the figure or axes.
+# bottom-left of the figure or axes. Points are
+# `typographic points <https://en.wikipedia.org/wiki/Point_(typography)>`_
+# meaning that they are a physical unit measuring 1/72 of an inch. Points and
+# pixels are discussed in further detail in :ref:`transforms-fig-scale-dpi`.
 #
-# Optionally, you can enable drawing of an arrow from the text to the annotated
-# point by giving a dictionary of arrow properties in the optional keyword
+# .. _annotation-data:
+#
+# Annotating data
+# ~~~~~~~~~~~~~~~
+#
+# This example places the text coordinates in fractional axes coordinates:
+
+fig, ax = plt.subplots(figsize=(3, 3))
+
+t = np.arange(0.0, 5.0, 0.01)
+s = np.cos(2*np.pi*t)
+line, = ax.plot(t, s, lw=2)
+
+ax.annotate('local max', xy=(2, 1), xycoords='data',
+            xytext=(0.01, .99), textcoords='axes fraction',
+            va='top', ha='left',
+            arrowprops=dict(facecolor='black', shrink=0.05))
+ax.set_ylim(-2, 2)
+
+###################################################################
+#
+# .. _annotation-with-arrow:
+#
+# Annotating with arrows
+# ~~~~~~~~~~~~~~~~~~~~~~
+#
+# You can enable drawing of an arrow from the text to the annotated point
+# by giving a dictionary of arrow properties in the optional keyword
 # argument *arrowprops*.
-#
 #
 # ==================== =====================================================
 # *arrowprops* key     description
@@ -77,59 +112,76 @@ from matplotlib import pyplot as plt
 #                      e.g., ``facecolor``
 # ==================== =====================================================
 #
-#
-# In the example below, the *xy* point is in native coordinates
-# (*xycoords* defaults to 'data').  For a polar axes, this is in
-# (theta, radius) space.  The text in this example is placed in the
+# In the example below, the *xy* point is in the data coordinate system
+# since *xycoords* defaults to 'data'. For a polar axes, this is in
+# (theta, radius) space. The text in this example is placed in the
 # fractional figure coordinate system. :class:`matplotlib.text.Text`
 # keyword arguments like *horizontalalignment*, *verticalalignment* and
 # *fontsize* are passed from `~matplotlib.axes.Axes.annotate` to the
 # ``Text`` instance.
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='polar')
+r = np.arange(0, 1, 0.001)
+theta = 2 * 2*np.pi * r
+line, = ax.plot(theta, r, color='#ee8d18', lw=3)
+
+ind = 800
+thisr, thistheta = r[ind], theta[ind]
+ax.plot([thistheta], [thisr], 'o')
+ax.annotate('a polar annotation',
+            xy=(thistheta, thisr),  # theta, radius
+            xytext=(0.05, 0.05),    # fraction, fraction
+            textcoords='figure fraction',
+            arrowprops=dict(facecolor='black', shrink=0.05),
+            horizontalalignment='left',
+            verticalalignment='bottom')
+
+###############################################################################
+# For more on plotting with arrows, see :ref:`annotation_with_custom_arrow`
 #
-# .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_annotation_polar_001.png
-#    :target: ../../gallery/text_labels_and_annotations/annotation_polar.html
-#    :align: center
+# .. _annotations-offset-text:
 #
-# For more on all the wild and wonderful things you can do with
-# annotations, including fancy arrows, see :ref:`plotting-guide-annotation`
-# and :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
-#
-#
-# Do not proceed unless you have already read :ref:`annotations-tutorial`,
-# :func:`~matplotlib.pyplot.text` and :func:`~matplotlib.pyplot.annotate`!
-#
+# Placing text annotations relative to data
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Annotations can be positioned at a relative offset to the *xy* input to
+# annotation by setting the *textcoords* keyword argument to ``'offset points'``
+# or ``'offset pixels'``.
+
+fig, ax = plt.subplots(figsize=(3, 3))
+x = [1, 3, 5, 7, 9]
+y = [2, 4, 6, 8, 10]
+annotations = ["A", "B", "C", "D", "E"]
+ax.scatter(x, y, s=20)
+
+for xi, yi, text in zip(x, y, annotations):
+    ax.annotate(text,
+                xy=(xi, yi), xycoords='data',
+                xytext=(1.5, 1.5), textcoords='offset points')
+
+###############################################################################
+# The annotations are offset 1.5 points (1.5*1/72 inches) from the *xy* values.
 #
 # .. _plotting-guide-annotation:
 #
-# Advanced Annotations
-# --------------------
+# Advanced annotation
+# -------------------
 #
-# Annotating with Text with Box
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# We recommend reading :ref:`annotations-tutorial`, :func:`~matplotlib.pyplot.text`
+# and :func:`~matplotlib.pyplot.annotate` before reading this section.
 #
-# Let's start with a simple example.
-#
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_text_arrow_001.png
-#    :target: ../../gallery/userdemo/annotate_text_arrow.html
-#    :align: center
+# Annotating with boxed text
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # `~.Axes.text` takes a *bbox* keyword argument, which draws a box around the
-# text::
-#
-#     t = ax.text(
-#         0, 0, "Direction", ha="center", va="center", rotation=45, size=15,
-#         bbox=dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2))
-#
-# The patch object associated with the text can be accessed by::
-#
-#     bb = t.get_bbox_patch()
-#
-# The return value is a `.FancyBboxPatch`; patch properties
-# (facecolor, edgewidth, etc.) can be accessed and modified as usual.
-# `.FancyBboxPatch.set_boxstyle` sets the box shape::
-#
-#   bb.set_boxstyle("rarrow", pad=0.6)
-#
+# text:
+
+fig, ax = plt.subplots(figsize=(5, 5))
+t = ax.text(0, 0, "Direction",
+            ha="center", va="center", rotation=45, size=15,
+            bbox=dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2))
+
+###############################################################################
 # The arguments are the name of the box style with its attributes as
 # keyword arguments. Currently, following box styles are implemented.
 #
@@ -151,43 +203,82 @@ from matplotlib import pyplot as plt
 #    :target: ../../gallery/shapes_and_collections/fancybox_demo.html
 #    :align: center
 #
-# Note that the attribute arguments can be specified within the style
-# name with separating comma (this form can be used as "boxstyle" value
-# of bbox argument when initializing the text instance) ::
+# The patch object (box) associated with the text can be accessed using::
 #
-#    bb.set_boxstyle("rarrow,pad=0.6")
+#     bb = t.get_bbox_patch()
 #
-# Annotating with Arrow
-# ~~~~~~~~~~~~~~~~~~~~~
+# The return value is a `.FancyBboxPatch`; patch properties
+# (facecolor, edgewidth, etc.) can be accessed and modified as usual.
+# `.FancyBboxPatch.set_boxstyle` sets the box shape::
 #
-# `~.Axes.annotate` draws an arrow connecting two points in an Axes::
+#    bb.set_boxstyle("rarrow", pad=0.6)
 #
-#     ax.annotate("Annotation",
-#                 xy=(x1, y1), xycoords='data',
-#                 xytext=(x2, y2), textcoords='offset points',
-#                 )
+# The attribute arguments can also be specified within the style
+# name with separating comma::
 #
-# This annotates a point at *xy* in the given coordinate (*xycoords*)
-# with the text at *xytext* given in *textcoords*. Often, the
-# annotated point is specified in the *data* coordinate and the annotating
-# text in *offset points*.
-# See `~.Axes.annotate` for available coordinate systems.
+#    bb.set_boxstyle("rarrow, pad=0.6")
+#
+#
+# Defining custom box styles
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# You can use a custom box style. The value for the ``boxstyle`` can be a
+# callable object in the following forms:
+
+from matplotlib.path import Path
+
+
+def custom_box_style(x0, y0, width, height, mutation_size):
+    """
+    Given the location and size of the box, return the path of the box around
+    it. Rotation is automatically taken care of.
+
+    Parameters
+    ----------
+    x0, y0, width, height : float
+       Box location and size.
+    mutation_size : float
+    Mutation reference scale, typically the text font size.
+    """
+    # padding
+    mypad = 0.3
+    pad = mutation_size * mypad
+    # width and height with padding added.
+    width = width + 2 * pad
+    height = height + 2 * pad
+    # boundary of the padded box
+    x0, y0 = x0 - pad, y0 - pad
+    x1, y1 = x0 + width, y0 + height
+    # return the new path
+    return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1),
+                 (x0-pad, (y0+y1)/2), (x0, y0), (x0, y0)],
+                closed=True)
+
+fig, ax = plt.subplots(figsize=(3, 3))
+ax.text(0.5, 0.5, "Test", size=30, va="center", ha="center", rotation=30,
+        bbox=dict(boxstyle=custom_box_style, alpha=0.2))
+
+###############################################################################
+# See also :doc:`/gallery/userdemo/custom_boxstyle01`. Similarly, you can define a
+# custom `.ConnectionStyle` and a custom `.ArrowStyle`. View the source code at
+# `.patches` to learn how each class is defined.
+#
+# .. _annotation_with_custom_arrow:
+#
+# Customizing annotation arrows
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # An arrow connecting *xy* to *xytext* can be optionally drawn by
 # specifying the *arrowprops* argument. To draw only an arrow, use
-# empty string as the first argument. ::
-#
-#     ax.annotate("",
-#                 xy=(0.2, 0.2), xycoords='data',
-#                 xytext=(0.8, 0.8), textcoords='data',
-#                 arrowprops=dict(arrowstyle="->",
-#                                 connectionstyle="arc3"),
-#                 )
-#
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple01_001.png
-#    :target: ../../gallery/userdemo/annotate_simple01.html
-#    :align: center
-#
+# empty string as the first argument:
+
+fig, ax = plt.subplots(figsize=(3, 3))
+ax.annotate("",
+            xy=(0.2, 0.2), xycoords='data',
+            xytext=(0.8, 0.8), textcoords='data',
+            arrowprops=dict(arrowstyle="->", connectionstyle="arc3"))
+
+###############################################################################
 # The arrow is drawn as follows:
 #
 # 1. A path connecting the two points is created, as specified by the
@@ -222,7 +313,7 @@ from matplotlib import pyplot as plt
 #
 # The behavior of each connection style is (limitedly) demonstrated in the
 # example below. (Warning: The behavior of the ``bar`` style is currently not
-# well defined, it may be changed in the future).
+# well defined and may be changed in the future).
 #
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
 #    :target: ../../gallery/userdemo/connectionstyle_demo.html
@@ -257,29 +348,62 @@ from matplotlib import pyplot as plt
 # For these arrow styles, you must use the "angle3" or "arc3" connection
 # style.
 #
-# If the annotation string is given, the patchA is set to the bbox patch
+# If the annotation string is given, the patch is set to the bbox patch
 # of the text by default.
-#
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple02_001.png
-#    :target: ../../gallery/userdemo/annotate_simple02.html
-#    :align: center
-#
+
+fig, ax = plt.subplots(figsize=(3, 3))
+
+ax.annotate("Test",
+            xy=(0.2, 0.2), xycoords='data',
+            xytext=(0.8, 0.8), textcoords='data',
+            size=20, va="center", ha="center",
+            arrowprops=dict(arrowstyle="simple",
+                            connectionstyle="arc3,rad=-0.2"))
+
+##############################################################################
 # As with `~.Axes.text`, a box around the text can be drawn using the *bbox*
 # argument.
-#
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple03_001.png
-#    :target: ../../gallery/userdemo/annotate_simple03.html
-#    :align: center
-#
+
+fig, ax = plt.subplots(figsize=(3, 3))
+
+ann = ax.annotate("Test",
+                  xy=(0.2, 0.2), xycoords='data',
+                  xytext=(0.8, 0.8), textcoords='data',
+                  size=20, va="center", ha="center",
+                  bbox=dict(boxstyle="round4", fc="w"),
+                  arrowprops=dict(arrowstyle="-|>",
+                                  connectionstyle="arc3,rad=-0.2",
+                                  fc="w"))
+
+##############################################################################
 # By default, the starting point is set to the center of the text
 # extent.  This can be adjusted with ``relpos`` key value. The values
 # are normalized to the extent of the text. For example, (0, 0) means
 # lower-left corner and (1, 1) means top-right.
-#
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple04_001.png
-#    :target: ../../gallery/userdemo/annotate_simple04.html
-#    :align: center
-#
+
+fig, ax = plt.subplots(figsize=(3, 3))
+
+ann = ax.annotate("Test",
+                  xy=(0.2, 0.2), xycoords='data',
+                  xytext=(0.8, 0.8), textcoords='data',
+                  size=20, va="center", ha="center",
+                  bbox=dict(boxstyle="round4", fc="w"),
+                  arrowprops=dict(arrowstyle="-|>",
+                                  connectionstyle="arc3,rad=0.2",
+                                  relpos=(0., 0.),
+                                  fc="w"))
+
+ann = ax.annotate("Test",
+                  xy=(0.2, 0.2), xycoords='data',
+                  xytext=(0.8, 0.8), textcoords='data',
+                  size=20, va="center", ha="center",
+                  bbox=dict(boxstyle="round4", fc="w"),
+                  arrowprops=dict(arrowstyle="-|>",
+                                  connectionstyle="arc3,rad=-0.2",
+                                  relpos=(1., 0.),
+                                  fc="w"))
+
+##############################################################################
 # Placing Artist at anchored Axes locations
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -291,9 +415,9 @@ from matplotlib import pyplot as plt
 
 from matplotlib.offsetbox import AnchoredText
 
-fig, ax = plt.subplots()
-at = AnchoredText(
-    "Figure 1a", prop=dict(size=15), frameon=True, loc='upper left')
+fig, ax = plt.subplots(figsize=(3, 3))
+at = AnchoredText("Figure 1a",
+                  prop=dict(size=15), frameon=True, loc='upper left')
 at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
 ax.add_artist(at)
 
@@ -318,7 +442,7 @@ ax.add_artist(at)
 from matplotlib.patches import Circle
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(3, 3))
 ada = AnchoredDrawingArea(40, 20, 0, 0,
                           loc='upper right', pad=0., frameon=False)
 p1 = Circle((10, 10), 10)
@@ -343,166 +467,202 @@ ax.add_artist(ada)
 from matplotlib.patches import Ellipse
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(3, 3))
 box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
 el = Ellipse((0, 0), width=0.1, height=0.4, angle=30)  # in data coordinates!
 box.drawing_area.add_artist(el)
 ax.add_artist(box)
 
 ###############################################################################
-# As in the legend, the bbox_to_anchor argument can be set.  Using the
-# HPacker and VPacker, you can have an arrangement(?) of artist as in the
-# legend (as a matter of fact, this is how the legend is created).
+# Another method of anchoring an artist relative to a parent axes or anchor
+# point is via the *bbox_to_anchor* argument of `.AnchoredOffsetbox`. This
+# artist can then be automatically positioned relative to another artist using
+# `.HPacker` and `.VPacker`:
+
+from matplotlib.offsetbox import (AnchoredOffsetbox, DrawingArea, HPacker,
+                                  TextArea)
+
+fig, ax = plt.subplots(figsize=(3, 3))
+
+box1 = TextArea(" Test: ", textprops=dict(color="k"))
+box2 = DrawingArea(60, 20, 0, 0)
+
+el1 = Ellipse((10, 10), width=16, height=5, angle=30, fc="r")
+el2 = Ellipse((30, 10), width=16, height=5, angle=170, fc="g")
+el3 = Ellipse((50, 10), width=16, height=5, angle=230, fc="b")
+box2.add_artist(el1)
+box2.add_artist(el2)
+box2.add_artist(el3)
+
+box = HPacker(children=[box1, box2],
+              align="center",
+              pad=0, sep=5)
+
+anchored_box = AnchoredOffsetbox(loc='lower left',
+                                 child=box, pad=0.,
+                                 frameon=True,
+                                 bbox_to_anchor=(0., 1.02),
+                                 bbox_transform=ax.transAxes,
+                                 borderpad=0.,)
+
+ax.add_artist(anchored_box)
+fig.subplots_adjust(top=0.8)
+
+###############################################################################
+# Note that, unlike in `.Legend`, the ``bbox_transform`` is set to
+# `.IdentityTransform` by default
 #
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box04_001.png
-#    :target: ../../gallery/userdemo/anchored_box04.html
-#    :align: center
+# .. _annotating_coordinate_systems:
 #
-# Note that unlike the legend, the ``bbox_transform`` is set
-# to IdentityTransform by default.
+# Coordinate systems for annotations
+# ----------------------------------
 #
-# Coordinate systems for Annotations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Matplotlib Annotations support several types of coordinate systems. The
+# examples in :ref:`annotations-tutorial` used the ``data`` coordinate system;
+# Some others more advanced options are:
 #
-# Matplotlib Annotations support several types of coordinates.  Some are
-# described in :ref:`annotations-tutorial`; more advanced options are
-#
-# 1. A `.Transform` instance.  For example, ::
-#
-#      ax.annotate("Test", xy=(0.5, 0.5), xycoords=ax.transAxes)
-#
-#    is identical to ::
-#
-#      ax.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
-#
-#    This allows annotating a point in another axes::
-#
-#      fig, (ax1, ax2) = plt.subplots(1, 2)
-#      ax2.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transData,
-#                   xytext=(0.5, 0.5), textcoords=ax2.transData,
-#                   arrowprops=dict(arrowstyle="->"))
-#
+# 1. A `.Transform` instance. For more information on transforms, see the
+# :doc:`../advanced/transforms_tutorial` For example, the
+# ``Axes.transAxes`` transform positions the annotation relative to the Axes
+# coordinates and using it is therefore identical to setting the
+# coordinate system to "axes fraction":
+
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
+ax1.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transAxes)
+ax2.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
+
+###############################################################################
+# Another commonly used `.Transform` instance is ``Axes.transData``. This
+# transform  is the coordinate system of the data plotted in the axes. In this
+# example, it is used to draw an arrow from a point in *ax1* to text in *ax2*,
+# where the point and text are positioned relative to the coordinates of *ax1*
+# and *ax2* respectively:
+
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
+
+ax1.annotate("Test1", xy=(0.5, 0.5), xycoords="axes fraction")
+ax2.annotate("Test2",
+               xy=(0.5, 0.5), xycoords=ax1.transData,
+               xytext=(0.5, 0.5), textcoords=ax2.transData,
+               arrowprops=dict(arrowstyle="->"))
+
+#############################################################################
 # 2. An `.Artist` instance. The *xy* value (or *xytext*) is interpreted as a
-#    fractional coordinate of the bbox (return value of *get_window_extent*) of
-#    the artist::
-#
-#      an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
-#                        va="center", ha="center",
-#                        bbox=dict(boxstyle="round", fc="w"))
-#      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,  # (1, 0.5) of the an1's bbox
-#                        xytext=(30, 0), textcoords="offset points",
-#                        va="center", ha="left",
-#                        bbox=dict(boxstyle="round", fc="w"),
-#                        arrowprops=dict(arrowstyle="->"))
-#
-#    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
-#       :target: ../../gallery/userdemo/annotate_simple_coord01.html
-#       :align: center
-#
-#    Note that you must ensure that the extent of the coordinate artist (*an1* in
-#    above example) is determined before *an2* gets drawn. Usually, this means
-#    that *an2* needs to be drawn after *an1*.
+# fractional coordinate of the bounding box (bbox) of the artist:
+
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(3, 3))
+an1 = ax.annotate("Test 1",
+                  xy=(0.5, 0.5), xycoords="data",
+                  va="center", ha="center",
+                  bbox=dict(boxstyle="round", fc="w"))
+
+an2 = ax.annotate("Test 2",
+                  xy=(1, 0.5), xycoords=an1,  # (1, 0.5) of an1's bbox
+                  xytext=(30, 0), textcoords="offset points",
+                  va="center", ha="left",
+                  bbox=dict(boxstyle="round", fc="w"),
+                  arrowprops=dict(arrowstyle="->"))
+
+###############################################################################
+# Note that you must ensure that the extent of the coordinate artist (*an1* in
+# this example) is determined before *an2* gets drawn. Usually, this means
+# that *an2* needs to be drawn after *an1*. The base class for all bounding
+# boxes is `.BboxBase`
 #
 # 3. A callable object that takes the renderer instance as single argument, and
-#    returns either a `.Transform` or a `.BboxBase`.  The return value is then
-#    handled as in (1), for transforms, or in (2), for bboxes.  For example, ::
-#
-#      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
-#                        xytext=(30, 0), textcoords="offset points")
-#
-#    is identical to::
-#
-#      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
-#                        xytext=(30, 0), textcoords="offset points")
-#
-# 4. A pair of coordinate specifications -- the first for the x-coordinate, and
-#    the second is for the y-coordinate; e.g. ::
-#
-#      annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
-#
-#    Here, 0.5 is in data coordinates, and 1 is in normalized axes coordinates.
-#    Each of the coordinate specifications can also be an artist or a transform.
-#    For example,
-#
-#    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
-#       :target: ../../gallery/userdemo/annotate_simple_coord02.html
-#       :align: center
-#
+# returns either a `.Transform` or a `.BboxBase`. For example, the return
+# value of `.Artist.get_window_extent` is a bbox, so this method is identical to
+# to (2) passing in the artist:
+
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(3, 3))
+an1 = ax.annotate("Test 1",
+                  xy=(0.5, 0.5), xycoords="data",
+                  va="center", ha="center",
+                  bbox=dict(boxstyle="round", fc="w"))
+
+an2 = ax.annotate("Test 2",
+                  xy=(1, 0.5), xycoords=an1.get_window_extent,
+                  xytext=(30, 0), textcoords="offset points",
+                  va="center", ha="left",
+                  bbox=dict(boxstyle="round", fc="w"),
+                  arrowprops=dict(arrowstyle="->"))
+
+###############################################################################
+# `.Artist.get_window_extent` is the bounding box of the Axes object and is
+# therefore identical to setting the coordinate system to axes fraction:
+
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
+
+an1 = ax1.annotate("Test1", xy=(0.5, 0.5), xycoords="axes fraction")
+an2 = ax2.annotate("Test 2", xy=(0.5, 0.5), xycoords=ax2.get_window_extent)
+
+###############################################################################
+# 4. A blended pair of coordinate specifications -- the first for the
+# x-coordinate, and the second is for the y-coordinate. For example, x=0.5 is
+# in data coordinates, and y=1 is in normalized axes coordinates:
+
+fig, ax = plt.subplots(figsize=(3, 3))
+ax.annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
+ax.axvline(x=.5, color='lightgray')
+ax.set(xlim=(0, 2), ylim=(1, 2))
+
+###############################################################################
 # 5. Sometimes, you want your annotation with some "offset points", not from the
-#    annotated point but from some other point.  `.text.OffsetFrom` is a helper
-#    for such cases.
-#
-#    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
-#       :target: ../../gallery/userdemo/annotate_simple_coord03.html
-#       :align: center
-#
-#    You may take a look at this example
-#    :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
-#
+# annotated point but from some other point or artist. `.text.OffsetFrom` is
+# a helper for such cases.
+
+from matplotlib.text import OffsetFrom
+
+fig, ax = plt.subplots(figsize=(3, 3))
+an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
+                  va="center", ha="center",
+                  bbox=dict(boxstyle="round", fc="w"))
+
+offset_from = OffsetFrom(an1, (0.5, 0))
+an2 = ax.annotate("Test 2", xy=(0.1, 0.1), xycoords="data",
+                  xytext=(0, -10), textcoords=offset_from,
+                  # xytext is offset points from "xy=(0.5, 0), xycoords=an1"
+                  va="top", ha="center",
+                  bbox=dict(boxstyle="round", fc="w"),
+                  arrowprops=dict(arrowstyle="->"))
+
+###############################################################################
 # Using ConnectionPatch
 # ~~~~~~~~~~~~~~~~~~~~~
 #
 # `.ConnectionPatch` is like an annotation without text. While `~.Axes.annotate`
-# is sufficient in most situations, `.ConnectionPatch` is useful when you want to
-# connect points in different axes. ::
-#
-#   from matplotlib.patches import ConnectionPatch
-#   xy = (0.2, 0.2)
-#   con = ConnectionPatch(xyA=xy, coordsA=ax1.transData,
-#                         xyB=xy, coordsB=ax2.transData)
-#   fig.add_artist(con)
-#
-# The above code connects point *xy* in the data coordinates of ``ax1`` to
-# point *xy* in the data coordinates of ``ax2``. Here is a simple example.
-#
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
-#    :target: ../../gallery/userdemo/connect_simple01.html
-#    :align: center
-#
-# Here, we added the `.ConnectionPatch` to the *figure* (with `~.Figure.add_artist`)
-# rather than to either axes: this ensures that it is drawn on top of both axes,
-# and is also necessary if using :doc:`constrained_layout
+# is sufficient in most situations, `.ConnectionPatch` is useful when you want
+# to connect points in different axes. For example, here we connect the point
+# *xy* in the data coordinates of ``ax1`` to point *xy* in the data coordinates
+# of ``ax2``:
+
+from matplotlib.patches import ConnectionPatch
+
+fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
+xy = (0.3, 0.2)
+con = ConnectionPatch(xyA=xy, coordsA=ax1.transData,
+                      xyB=xy, coordsB=ax2.transData)
+
+fig.add_artist(con)
+
+###############################################################################
+# Here, we added the `.ConnectionPatch` to the *figure*
+# (with `~.Figure.add_artist`) rather than to either axes. This ensures that
+# the ConnectionPatch artist is drawn on top of both axes, and is also necessary
+# when using :doc:`constrained_layout
 # </tutorials/intermediate/constrainedlayout_guide>` for positioning the axes.
-#
-# Advanced Topics
-# ---------------
 #
 # Zoom effect between Axes
 # ~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # `mpl_toolkits.axes_grid1.inset_locator` defines some patch classes useful for
-# interconnecting two axes. Understanding the code requires some knowledge of
-# Matplotlib's transform system.
+# interconnecting two axes.
 #
 # .. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
 #    :target: ../../gallery/subplots_axes_and_figures/axes_zoom_effect.html
 #    :align: center
 #
-# Define Custom BoxStyle
-# ~~~~~~~~~~~~~~~~~~~~~~
-#
-# You can use a custom box style. The value for the ``boxstyle`` can be a
-# callable object in the following forms.::
-#
-#         def __call__(self, x0, y0, width, height, mutation_size,
-#                      aspect_ratio=1.):
-#             '''
-#             Given the location and size of the box, return the path of
-#             the box around it.
-#
-#               - *x0*, *y0*, *width*, *height* : location and size of the box
-#               - *mutation_size* : a reference scale for the mutation.
-#               - *aspect_ratio* : aspect-ratio for the mutation.
-#             '''
-#             path = ...
-#             return path
-#
-# Here is a complete example.
-#
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_custom_boxstyle01_001.png
-#    :target: ../../gallery/userdemo/custom_boxstyle01.html
-#    :align: center
-#
-# Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
-# See the source code of ``lib/matplotlib/patches.py`` and check
-# how each style class is defined.
+# The code for this figure is at
+# :doc:`/gallery/subplots_axes_and_figures/axes_zoom_effect` and
+# familiarity with :doc:`../advanced/transforms_tutorial`
+# is recommended.
