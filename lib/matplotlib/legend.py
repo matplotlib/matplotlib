@@ -1173,6 +1173,7 @@ def _get_legend_handles(axs, legend_handler_map=None):
 
 def _get_legend_handles_labels(axs, legend_handler_map=None):
     """Return handles and labels for legend."""
+    log = logging.getLogger(__name__)
     handles = []
     labels = []
     warning = False
@@ -1185,10 +1186,10 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
             else:
                 warning = True
     if warning:
-        log.warning("One or more labels starting with an underscore was detected. Note that "
-                "artists whose label start with an underscore are ignored "
-                "when legend() is called with no argument")
-                
+        log.warning("One or more labels starting with an underscore were "
+                    "detected. Note that artists whose label start with an "
+                    "underscore are ignored when legend() is called with "
+                    "no argument")
     return handles, labels
 
 
