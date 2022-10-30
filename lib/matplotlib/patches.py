@@ -610,7 +610,7 @@ class Patch(artist.Artist):
 
 class Shadow(Patch):
     def __str__(self):
-        return "Shadow(%s)" % (str(self.patch))
+        return f"Shadow({self.patch})"
 
     @_docstring.dedent_interpd
     def __init__(self, patch, ox, oy, **kwargs):

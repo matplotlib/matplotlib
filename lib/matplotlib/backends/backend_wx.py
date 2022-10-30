@@ -1149,7 +1149,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             if mpl.rcParams["savefig.directory"]:
                 mpl.rcParams["savefig.directory"] = str(path.parent)
             try:
-                self.canvas.figure.savefig(str(path), format=fmt)
+                self.canvas.figure.savefig(path, format=fmt)
             except Exception as e:
                 dialog = wx.MessageDialog(
                     parent=self.canvas.GetParent(), message=str(e),
