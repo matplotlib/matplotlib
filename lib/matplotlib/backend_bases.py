@@ -1982,6 +1982,21 @@ class FigureCanvasBase:
         event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
         self.callbacks.process('figure_enter_event', event)
 
+    def touch_start_event(self, touches, guiEvent=None):
+        # Placeholder implementation awaiting
+        # https://github.com/matplotlib/matplotlib/pull/8041.
+        pass
+
+    def touch_move_event(self, touches, guiEvent=None):
+        # Placeholder implementation awaiting
+        # https://github.com/matplotlib/matplotlib/pull/8041.
+        pass
+
+    def touch_end_event(self, touches, guiEvent=None):
+        # Placeholder implementation awaiting
+        # https://github.com/matplotlib/matplotlib/pull/8041.
+        pass
+
     def inaxes(self, xy):
         """
         Return the topmost visible `~.axes.Axes` containing the point *xy*.
