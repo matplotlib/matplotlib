@@ -1547,7 +1547,15 @@ def imread(fname, format=None):
 def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
            origin=None, dpi=100, *, metadata=None, pil_kwargs=None):
     """
-    Save an array as an image file.
+    Colormap and save an array as an image file.
+
+    RGB(A) images are passed through.  Single channel images will be
+    colormapped according to *cmap* and *norm*.
+
+    .. note ::
+
+       If you want to save a single channel image as gray scale please use an
+       image I/O library (such as pillow, tifffile, or imageio) directly.
 
     Parameters
     ----------
