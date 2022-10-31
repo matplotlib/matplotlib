@@ -1176,17 +1176,22 @@ def _get_legend_handles_labels(axs, legend_handler_map=None):
     log = logging.getLogger(__name__)
     handles = []
     labels = []
-    warning = False
+    all_underscored = None
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
         if label:
             if not label.startswith('_'):
+                # it has found atleast one _ char
                 handles.append(handle)
                 labels.append(label)
+                all_underscored = False
             else:
-                warning = True
-    if warning:
-        log.warning("One or more labels starting with an underscore were "
+                all_underscored = True if all_underscored is not False \
+                    else False
+
+    # if it has found a label and not one of them starts with _
+    if all_underscored is not None and all_underscored is True:
+        log.warning("All labels starting with an underscore were "
                     "detected. Note that artists whose label start with an "
                     "underscore are ignored when legend() is called with "
                     "no argument")
