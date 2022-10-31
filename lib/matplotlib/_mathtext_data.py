@@ -526,7 +526,7 @@ tex2uni = {
     'succnsim'                 : 8937,
     'gimel'                    : 8503,
     'vert'                     : 124,
-    '|'                        : 124,
+    '|'                        : 8214,
     'varrho'                   : 1009,
     'P'                        : 182,
     'approxident'              : 8779,

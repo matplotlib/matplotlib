@@ -1455,7 +1455,7 @@ class AutoHeightChar(Hlist):
                 break
 
         shift = 0
-        if state.font != 0:
+        if state.font != 0 or len(alternatives) == 1:
             if factor is None:
                 factor = target_total / (char.height + char.depth)
             state.fontsize *= factor
