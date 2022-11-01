@@ -2918,10 +2918,9 @@ class RectangleSelector(_SelectorWidget):
     ...     print(erelease.xdata, erelease.ydata)
     >>> props = dict(facecolor='blue', alpha=0.5)
     >>> rect = mwidgets.RectangleSelector(ax, onselect, interactive=True,
-                                          props=props)
+    ...                                   props=props)
     >>> fig.show()
-
-    >>> selector.add_state('square')
+    >>> rect.add_state('square')
 
     See also: :doc:`/gallery/widgets/rectangle_selector`
     """

@@ -132,9 +132,9 @@ class CallbackRegistry:
     for a set of signals and callbacks:
 
         >>> def oneat(x):
-        ...    print('eat', x)
+        ...     print('eat', x)
         >>> def ondrink(x):
-        ...    print('drink', x)
+        ...     print('drink', x)
 
         >>> from matplotlib.cbook import CallbackRegistry
         >>> callbacks = CallbackRegistry()
@@ -1905,7 +1905,7 @@ def _array_perimeter(arr):
 
     Examples
     --------
-    >>> i, j = np.ogrid[:3,:4]
+    >>> i, j = np.ogrid[:3, :4]
     >>> a = i*10 + j
     >>> a
     array([[ 0,  1,  2,  3],
@@ -1949,7 +1949,7 @@ def _unfold(arr, axis, size, step):
 
     Examples
     --------
-    >>> i, j = np.ogrid[:3,:7]
+    >>> i, j = np.ogrid[:3, :7]
     >>> a = i*10 + j
     >>> a
     array([[ 0,  1,  2,  3,  4,  5,  6],
