@@ -1519,11 +1519,23 @@ class FuncAnimation(TimedAnimation):
     func : callable
         The function to call at each frame.  The first argument will
         be the next value in *frames*.   Any additional positional
-        arguments can be supplied via the *fargs* parameter.
+        arguments can be supplied using `functools.partial` or via the *fargs*
+        parameter.
 
         The required signature is::
 
             def func(frame, *fargs) -> iterable_of_artists
+
+        It is often more convenient to provide the arguments using
+        `functools.partial`. In this way it is also possible to pass keyword
+        arguments. To pass a function with both positional and keyword
+        arguments, set all arguments as keyword arguments, just leaving the
+        *frame* argument unset::
+
+            def func(frame, art, *, y=None):
+                ...
+
+            ani = FuncAnimation(fig, partial(func, art=ln, y='foo'))
 
         If ``blit == True``, *func* must return an iterable of all artists
         that were modified or created. This information is used by the blitting
@@ -1563,7 +1575,8 @@ class FuncAnimation(TimedAnimation):
         value is unused if ``blit == False`` and may be omitted in that case.
 
     fargs : tuple or None, optional
-        Additional arguments to pass to each call to *func*.
+        Additional arguments to pass to each call to *func*. Note: the use of
+        `functools.partial` is preferred over *fargs*. See *func* for details.
 
     save_count : int, default: 100
         Fallback for the number of values from *frames* to cache. This is
