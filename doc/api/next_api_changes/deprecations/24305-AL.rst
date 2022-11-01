@@ -1,0 +1,5 @@
+``SimpleEvent``
+~~~~~~~~~~~~~~~
+The ``SimpleEvent`` nested class (previously accessible via the public
+subclasses of ``ConnectionStyle._Base``, such as `.ConnectionStyle.Arc`, has
+been deprecated.

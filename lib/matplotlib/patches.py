@@ -7,6 +7,7 @@ import inspect
 import math
 from numbers import Number
 import textwrap
+from types import SimpleNamespace
 from collections import namedtuple
 
 import numpy as np
@@ -2698,59 +2699,35 @@ class ConnectionStyle(_Style):
         helper methods.
         """
 
+        @_api.deprecated("3.7")
         class SimpleEvent:
             def __init__(self, xy):
                 self.x, self.y = xy
 
-        def _clip(self, path, patchA, patchB):
+        def _in_patch(self, patch):
             """
-            Clip the path to the boundary of the patchA and patchB.
-            The starting point of the path needed to be inside of the
-            patchA and the end point inside the patch B. The *contains*
-            methods of each patch object is utilized to test if the point
-            is inside the path.
+            Return a predicate function testing whether a point *xy* is
+            contained in *patch*.
             """
+            return lambda xy: patch.contains(
+                SimpleNamespace(x=xy[0], y=xy[1]))[0]
 
-            if patchA:
-                def insideA(xy_display):
-                    xy_event = ConnectionStyle._Base.SimpleEvent(xy_display)
-                    return patchA.contains(xy_event)[0]
+        def _clip(self, path, in_start, in_stop):
+            """
+            Clip *path* at its start by the region where *in_start* returns
+            True, and at its stop by the region where *in_stop* returns True.
 
+            The original path is assumed to start in the *in_start* region and
+            to stop in the *in_stop* region.
+            """
+            if in_start:
                 try:
-                    left, right = split_path_inout(path, insideA)
-                except ValueError:
-                    right = path
-
-                path = right
-
-            if patchB:
-                def insideB(xy_display):
-                    xy_event = ConnectionStyle._Base.SimpleEvent(xy_display)
-                    return patchB.contains(xy_event)[0]
-
-                try:
-                    left, right = split_path_inout(path, insideB)
-                except ValueError:
-                    left = path
-
-                path = left
-
-            return path
-
-        def _shrink(self, path, shrinkA, shrinkB):
-            """
-            Shrink the path by fixed size (in points) with shrinkA and shrinkB.
-            """
-            if shrinkA:
-                insideA = inside_circle(*path.vertices[0], shrinkA)
-                try:
-                    left, path = split_path_inout(path, insideA)
+                    _, path = split_path_inout(path, in_start)
                 except ValueError:
                     pass
-            if shrinkB:
-                insideB = inside_circle(*path.vertices[-1], shrinkB)
+            if in_stop:
                 try:
-                    path, right = split_path_inout(path, insideB)
+                    path, _ = split_path_inout(path, in_stop)
                 except ValueError:
                     pass
             return path
@@ -2762,9 +2739,17 @@ class ConnectionStyle(_Style):
             *posB*; then clip and shrink the path.
             """
             path = self.connect(posA, posB)
-            clipped_path = self._clip(path, patchA, patchB)
-            shrunk_path = self._shrink(clipped_path, shrinkA, shrinkB)
-            return shrunk_path
+            path = self._clip(
+                path,
+                self._in_patch(patchA) if patchA else None,
+                self._in_patch(patchB) if patchB else None,
+            )
+            path = self._clip(
+                path,
+                inside_circle(*path.vertices[0], shrinkA) if shrinkA else None,
+                inside_circle(*path.vertices[-1], shrinkB) if shrinkB else None
+            )
+            return path
 
     @_register_style(_style_list)
     class Arc3(_Base):
