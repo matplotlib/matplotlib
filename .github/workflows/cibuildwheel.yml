@@ -53,7 +53,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@v2.11.1
+        uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_BUILD: "cp311-*"
           CIBW_SKIP: "*-musllinux*"
@@ -66,7 +66,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@v2.11.1
+        uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_SKIP: "*-musllinux*"
@@ -79,7 +79,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@v2.11.1
+        uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_BUILD: "cp39-*"
           CIBW_SKIP: "*-musllinux*"
@@ -92,7 +92,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.8
-        uses: pypa/cibuildwheel@v2.11.1
+        uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_BUILD: "cp38-*"
           CIBW_SKIP: "*-musllinux*"
@@ -105,7 +105,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@v2.11.1
+        uses: pypa/cibuildwheel@v2.11.2
         env:
           CIBW_BUILD: "pp38-* pp39-*"
           CIBW_SKIP: "*-musllinux*"
