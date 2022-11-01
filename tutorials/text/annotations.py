@@ -2,7 +2,14 @@ r"""
 Annotations
 ===========
 
-Annotating text with Matplotlib.
+Annotations are graphical elements, often pieces of text, that explain, add
+context to, or otherwise highlight some portion of the visualized data.
+`~.Axes.annotate` supports a number of coordinate systems for flexibly
+positioning data and annotations relative to each other and a variety of
+options of for styling the text. Axes.annotate also provides an optional arrow
+from the text to the data and this arrow can be styled in various ways.
+`~.Axes.text` can also be used for simple text annotation, but does not
+provide as much flexibility in positioning and styling as `~.Axes.annotate`.
 
 .. contents:: Table of Contents
    :depth: 3
@@ -13,14 +20,9 @@ Annotating text with Matplotlib.
 # Basic annotation
 # ----------------
 #
-# The uses of the basic :func:`~matplotlib.pyplot.text` will place text
-# at an arbitrary position on the Axes.  A common use case of text is to
-# annotate some feature of the plot, and the
-# :func:`~matplotlib.axes.Axes.annotate` method provides helper functionality
-# to make annotations easy.  In an annotation, there are two points to
-# consider: the location being annotated represented by the argument
-# *xy* and the location of the text *xytext*.  Both of these
-# arguments are ``(x, y)`` tuples:
+# In an annotation, there are two points to consider: the location of the data
+# being annotated *xy* and the location of the annotation text *xytext*.  Both
+# of these arguments are ``(x, y)`` tuples:
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -177,9 +179,10 @@ for xi, yi, text in zip(x, y, annotations):
 # text:
 
 fig, ax = plt.subplots(figsize=(5, 5))
-t = ax.text(0, 0, "Direction",
+t = ax.text(0.5, 0.5, "Direction",
             ha="center", va="center", rotation=45, size=15,
-            bbox=dict(boxstyle="rarrow,pad=0.3", fc="cyan", ec="b", lw=2))
+            bbox=dict(boxstyle="rarrow,pad=0.3",
+                      fc="lightblue", ec="steelblue", lw=2))
 
 ###############################################################################
 # The arguments are the name of the box style with its attributes as
