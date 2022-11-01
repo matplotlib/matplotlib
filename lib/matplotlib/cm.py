@@ -188,6 +188,7 @@ class ColormapRegistry(Mapping):
         cmap : str or `~matplotlib.colors.Colormap` or None
             - if a `.Colormap`, return it
             - if a string, look it up in ``mpl.colormaps``
+                - if the string == "random", return a random colormap
             - if None, return the Colormap defined in :rc:`image.cmap`
         Returns
         -------
