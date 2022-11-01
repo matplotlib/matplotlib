@@ -183,15 +183,12 @@ class ColormapRegistry(Mapping):
     def get_cmap(self, cmap):
         """
         Return a color map specified through *cmap*.
-
         Parameters
         ----------
         cmap : str or `~matplotlib.colors.Colormap` or None
-
             - if a `.Colormap`, return it
             - if a string, look it up in ``mpl.colormaps``
             - if None, return the Colormap defined in :rc:`image.cmap`
-
         Returns
         -------
         Colormap
@@ -204,6 +201,8 @@ class ColormapRegistry(Mapping):
         if isinstance(cmap, colors.Colormap):
             return cmap
         if isinstance(cmap, str):
+            if cmap == "random":
+                return self[np.random.choice(_colormaps)]
             _api.check_in_list(sorted(_colormaps), cmap=cmap)
             # otherwise, it must be a string so look it up
             return self[cmap]
