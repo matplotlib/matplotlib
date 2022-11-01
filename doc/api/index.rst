@@ -118,7 +118,6 @@ Alphabetical list of modules:
    dviread.rst
    figure_api.rst
    font_manager_api.rst
-   fontconfig_pattern_api.rst
    ft2font.rst
    gridspec_api.rst
    hatch_api.rst
