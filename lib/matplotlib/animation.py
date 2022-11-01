@@ -660,7 +660,7 @@ class ImageMagickBase:
 @writers.register('imagemagick')
 class ImageMagickWriter(ImageMagickBase, MovieWriter):
     """
-    Pipe-based animated gif.
+    Pipe-based animated gif writer.
 
     Frames are streamed directly to ImageMagick via a pipe and written
     in a single pass.
