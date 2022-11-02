@@ -18,7 +18,8 @@ import numpy as np
 # Animation Classes
 # =================
 #
-# The process of animation can be thought about in 2 different ways:
+# The process of animation in matplotlib can be thought about in 2 different
+# ways:
 #
 # - :class:`~matplotlib.animation.FuncAnimation`: Generate data for first
 #   frame and then modify this data for each frame to create an animated plot.
@@ -49,8 +50,8 @@ import numpy as np
 # :class:`~matplotlib.animation.FuncAnimation` with different artists.
 
 ###############################################################################
-# Animating :class:`~matplotlib.lines.Line2D`
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Animating Lines
+# ^^^^^^^^^^^^^^^
 #
 # `.pyplot.plot` returns a :class:`~matplotlib.lines.Line2D` collection. The
 # data on this collection can be modified by using the
@@ -78,8 +79,8 @@ ani = animation.FuncAnimation(fig=fig, func=update,
 plt.show()
 
 ###############################################################################
-# Animating :class:`~matplotlib.collections.PathCollection`
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Animating Markers
+# ^^^^^^^^^^^^^^^^^
 #
 # `.pyplot.scatter` returns a :class:`~matplotlib.collections.PathCollection`
 # that can similarly be modified by using the
@@ -93,13 +94,15 @@ delta = np.pi / 2
 
 scat = ax.scatter(np.sin(a * t[0] + delta), np.sin(b * t[0]), c="b", s=2)
 ax.grid()
-ax.set_xlim(-1, 1)
-ax.set_ylim(-1, 1)
+ax.set_xlim(-1.5, 1.5)
+ax.set_ylim(-1.5, 1.5)
 
 
 def update(frame):
-    # .set_offsets also resets the entire data for the collection.
-    # Therefore, we create the entire data in each frame to draw
+    # .set_offsets also resets the offset data for the entire collection with
+    # the new values. Therefore, to also carry forward the previously
+    # calculated information, we use the data from the first to the current
+    # frame to set the new offsets.
     x = np.sin(a * t[:frame] + delta)
     y = np.sin(b * t[:frame])
     data = np.stack([x, y]).T
@@ -112,8 +115,8 @@ plt.show()
 
 
 ###############################################################################
-# Animating :class:`~matplotlib.image.AxesImage`
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# Animating Images
+# ^^^^^^^^^^^^^^^^
 #
 # When we plot an image using `.pyplot.imshow`, it returns an
 # :class:`~matplotlib.image.AxesImage` object. The data in this object can also
