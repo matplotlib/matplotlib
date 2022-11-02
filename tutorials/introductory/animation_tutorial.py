@@ -60,32 +60,21 @@ import numpy as np
 fig, ax = plt.subplots()
 rng = np.random.default_rng()
 
-xdata, ydata = [], []
-(line,) = ax.plot(xdata, ydata, c="b")
+xdata = np.arange(0, 2 * np.pi, 0.01)
+(line,) = ax.plot(xdata, np.sin(xdata), c="b")
 ax.grid()
-
-
-def init():
-    ax.set_ylim(-1.1, 1.1)
-    ax.set_xlim(0, 5)
-    del xdata[:]
-    del ydata[:]
-    line.set_data(xdata, ydata)
-    return line,
+ax.set_ylim(-1.1, 1.1)
 
 
 def update(frame):
-    # .set_data resets all the data for the line, so we add the new point to
-    # the existing line data and set that again.
-    xdata.append(frame / 30)
-    ydata.append(np.sin(2 * np.pi * frame / 30))
-
-    line.set_data(xdata, ydata)
+    # .set_ydata resets the y-data for the line, so we add the new point to
+    # the existing line x-data and calculate y again.
+    line.set_ydata(np.sin(xdata + frame / 50))
     return (line,)
 
 
 ani = animation.FuncAnimation(fig=fig, func=update,
-                              interval=30, init_func=init)
+                              interval=30)
 plt.show()
 
 ###############################################################################
