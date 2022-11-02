@@ -185,6 +185,9 @@ plt.show()
 #   alternatives but are more useful for debugging as they save each frame in
 #   a file before stitching them together into an animation.
 #
+# Saving Animations
+# -----------------
+#
 # ================================================  ===========================
 # Writer                                            Supported Formats
 # ================================================  ===========================
@@ -224,18 +227,26 @@ def update(frame):
 
 
 ani = animation.FuncAnimation(fig=fig, func=update, frames=240, interval=200)
-# ani.save(filename="/tmp/pillow_example.gif", writer="pillow")
-# ani.save(filename="/tmp/pillow_example.apng", writer="pillow")
 
-# ani.save(filename="/tmp/html_example.html", writer="html")
-# ani.save(filename="/tmp/html_example.htm", writer="html")
-# ani.save(filename="/tmp/html_example.png", writer="html")
-
-# Since the frames are piped out to ffmpeg, this supports all formats
-# supported by ffmpeg
-# ani.save(filename="/tmp/ffmpeg_example.mkv", writer="ffmpeg")
-# ani.save(filename="/tmp/ffmpeg_example.mp4", writer="ffmpeg")
-# ani.save(filename="/tmp/ffmpeg_example.mjpeg", writer="ffmpeg")
-
-# Imagemagick
-# ani.save(filename="/tmp/imagemagick_example.gif", writer="imagemagick")
+###############################################################################
+# Pillow writers::
+#
+#   ani.save(filename="/tmp/pillow_example.gif", writer="pillow")
+#   ani.save(filename="/tmp/pillow_example.apng", writer="pillow")
+#
+# HTML writers::
+#
+#   ani.save(filename="/tmp/html_example.html", writer="html")
+#   ani.save(filename="/tmp/html_example.htm", writer="html")
+#   ani.save(filename="/tmp/html_example.png", writer="html")
+#
+# FFMpegWriter - Since the frames are piped out to ffmpeg, this option supports
+# all formats supported by ffmpeg::
+#
+#   ani.save(filename="/tmp/ffmpeg_example.mkv", writer="ffmpeg")
+#   ani.save(filename="/tmp/ffmpeg_example.mp4", writer="ffmpeg")
+#   ani.save(filename="/tmp/ffmpeg_example.mjpeg", writer="ffmpeg")
+#
+# Imagemagick writers::
+#
+#   ani.save(filename="/tmp/imagemagick_example.gif", writer="imagemagick")
