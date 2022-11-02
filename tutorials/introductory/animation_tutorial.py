@@ -181,9 +181,9 @@ plt.show()
 #
 # - File-based writers - :class:`~matplotlib.animation.FFMpegFileWriter` and
 #   :class:`~matplotlib.animation.ImageMagickFileWriter` are examples of
-#   file-based writers. These writers are slower than their standard writers
-#   but are more useful for debugging as they save each frame in a file before
-#   stitching them together into an animation.
+#   file-based writers. These writers are slower than their pipe-based
+#   alternatives but are more useful for debugging as they save each frame in
+#   a file before stitching them together into an animation.
 #
 # ================================================  ===========================
 # Writer                                            Supported Formats
