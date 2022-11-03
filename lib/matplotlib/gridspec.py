@@ -467,20 +467,12 @@ class GridSpec(GridSpecBase):
             coordinates that the whole subplots area (including labels) will
             fit into. Default (None) is the whole figure.
         """
-
-        subplotspec_list = _tight_layout.get_subplotspec_list(
-            figure.axes, grid_spec=self)
-        if None in subplotspec_list:
-            _api.warn_external("This figure includes Axes that are not "
-                               "compatible with tight_layout, so results "
-                               "might be incorrect.")
-
         if renderer is None:
             renderer = figure._get_renderer()
-
         kwargs = _tight_layout.get_tight_layout_figure(
-            figure, figure.axes, subplotspec_list, renderer,
-            pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
+            figure, figure.axes,
+            _tight_layout.get_subplotspec_list(figure.axes, grid_spec=self),
+            renderer, pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         if kwargs:
             self.update(**kwargs)
 
