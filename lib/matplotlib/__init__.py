@@ -1071,6 +1071,9 @@ def rc_context(rc=None, fname=None):
 
     The :rc:`backend` will not be reset by the context manager.
 
+    rcParams changed both through the context manager invocation and
+    in the body of the context will be reset on context exit.
+
     Parameters
     ----------
     rc : dict
@@ -1097,6 +1100,13 @@ def rc_context(rc=None, fname=None):
 
          with mpl.rc_context(fname='print.rc'):
              plt.plot(x, y)  # uses 'print.rc'
+
+    Setting in the context body::
+
+        with mpl.rc_context():
+            # will be reset
+            mpl.rcParams['lines.linewidth'] = 5
+            plt.plot(x, y)
 
     """
     orig = dict(rcParams.copy())
