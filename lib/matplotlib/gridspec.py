@@ -276,9 +276,9 @@ class GridSpecBase:
             raise ValueError("GridSpec.subplots() only works for GridSpecs "
                              "created with a parent figure")
 
-        if isinstance(sharex, bool):
+        if isinstance(sharex, bool) or sharex == 1 or sharex == 0:
             sharex = "all" if sharex else "none"
-        if isinstance(sharey, bool):
+        if isinstance(sharey, bool) or sharey == 1 or sharey == 0:
             sharey = "all" if sharey else "none"
         # This check was added because it is very easy to type
         # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
