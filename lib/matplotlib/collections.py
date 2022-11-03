@@ -9,7 +9,6 @@ they are meant to be fast for common use cases (e.g., a large set of solid
 line segments).
 """
 
-import inspect
 import math
 from numbers import Number
 import warnings
@@ -1923,62 +1922,15 @@ class QuadMesh(Collection):
     i.e. `~.Artist.contains` checks whether the test point is within any of the
     mesh quadrilaterals.
 
-    There exists a deprecated API version ``QuadMesh(M, N, coords)``, where
-    the dimensions are given explicitly and ``coords`` is a (M*N, 2)
-    array-like. This has been deprecated in Matplotlib 3.5. The following
-    describes the semantics of this deprecated API.
-
-    A quadrilateral mesh consists of a grid of vertices.
-    The dimensions of this array are (*meshWidth* + 1, *meshHeight* + 1).
-    Each vertex in the mesh has a different set of "mesh coordinates"
-    representing its position in the topology of the mesh.
-    For any values (*m*, *n*) such that 0 <= *m* <= *meshWidth*
-    and 0 <= *n* <= *meshHeight*, the vertices at mesh coordinates
-    (*m*, *n*), (*m*, *n* + 1), (*m* + 1, *n* + 1), and (*m* + 1, *n*)
-    form one of the quadrilaterals in the mesh. There are thus
-    (*meshWidth* * *meshHeight*) quadrilaterals in the mesh.  The mesh
-    need not be regular and the polygons need not be convex.
-
-    A quadrilateral mesh is represented by a (2 x ((*meshWidth* + 1) *
-    (*meshHeight* + 1))) numpy array *coordinates*, where each row is
-    the *x* and *y* coordinates of one of the vertices.  To define the
-    function that maps from a data point to its corresponding color,
-    use the :meth:`set_cmap` method.  Each of these arrays is indexed in
-    row-major order by the mesh coordinates of the vertex (or the mesh
-    coordinates of the lower left vertex, in the case of the colors).
-
-    For example, the first entry in *coordinates* is the coordinates of the
-    vertex at mesh coordinates (0, 0), then the one at (0, 1), then at (0, 2)
-    .. (0, meshWidth), (1, 0), (1, 1), and so on.
     """
 
-    def __init__(self, *args, **kwargs):
-        # signature deprecation since="3.5": Change to new signature after the
-        # deprecation has expired. Also remove setting __init__.__signature__,
-        # and remove the Notes from the docstring.
-        params = _api.select_matching_signature(
-            [
-                lambda meshWidth, meshHeight, coordinates, antialiased=True,
-                       shading='flat', **kwargs: locals(),
-                lambda coordinates, antialiased=True, shading='flat', **kwargs:
-                       locals()
-            ],
-            *args, **kwargs).values()
-        *old_w_h, coords, antialiased, shading, kwargs = params
-        if old_w_h:  # The old signature matched.
-            _api.warn_deprecated(
-                "3.5",
-                message="This usage of Quadmesh is deprecated: Parameters "
-                        "meshWidth and meshHeights will be removed; "
-                        "coordinates must be 2D; all parameters except "
-                        "coordinates will be keyword-only.")
-            w, h = old_w_h
-            coords = np.asarray(coords, np.float64).reshape((h + 1, w + 1, 2))
+    def __init__(self, coordinates, *, antialiased=True, shading='flat',
+                 **kwargs):
         kwargs.setdefault("pickradius", 0)
         # end of signature deprecation code
 
-        _api.check_shape((None, None, 2), coordinates=coords)
-        self._coordinates = coords
+        _api.check_shape((None, None, 2), coordinates=coordinates)
+        self._coordinates = coordinates
         self._antialiased = antialiased
         self._shading = shading
         self._bbox = transforms.Bbox.unit()
@@ -1987,11 +1939,6 @@ class QuadMesh(Collection):
         # self._coordinates and self._shading
         super().__init__(**kwargs)
         self.set_mouseover(False)
-
-    # Only needed during signature deprecation
-    __init__.__signature__ = inspect.signature(
-        lambda self, coordinates, *,
-               antialiased=True, shading='flat', pickradius=0, **kwargs: None)
 
     def get_paths(self):
         if self._paths is None:
@@ -2036,11 +1983,10 @@ class QuadMesh(Collection):
                     faulty_data = True
 
             if misshapen_data:
-                _api.warn_deprecated(
-                    "3.5", message=f"For X ({width}) and Y ({height}) "
-                    f"with {self._shading} shading, the expected shape of "
-                    f"A is ({h}, {w}). Passing A ({A.shape}) is deprecated "
-                    "since %(since)s and will become an error %(removal)s.")
+                raise ValueError(
+                    f"For X ({width}) and Y ({height}) with {self._shading} "
+                    f"shading, the expected shape of A is ({h}, {w}), not "
+                    f"{A.shape}")
 
             if faulty_data:
                 raise TypeError(
