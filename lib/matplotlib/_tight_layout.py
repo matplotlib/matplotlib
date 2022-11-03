@@ -268,7 +268,10 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     ss_to_subplots = {ss: [] for ss in subplotspec_list}
     for ax, ss in zip(axes_list, subplotspec_list):
         ss_to_subplots[ss].append(ax)
-    ss_to_subplots.pop(None, None)  # Skip subplotspec == None.
+    if ss_to_subplots.pop(None, None):
+        _api.warn_external(
+            "This figure includes Axes that are not compatible with "
+            "tight_layout, so results might be incorrect.")
     if not ss_to_subplots:
         return {}
     subplot_list = list(ss_to_subplots.values())

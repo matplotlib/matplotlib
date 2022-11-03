@@ -17,7 +17,6 @@ by subclassing `.LayoutEngine`.
 from contextlib import nullcontext
 
 import matplotlib as mpl
-import matplotlib._api as _api
 
 from matplotlib._constrained_layout import do_constrained_layout
 from matplotlib._tight_layout import (get_subplotspec_list,
@@ -170,15 +169,10 @@ class TightLayoutEngine(LayoutEngine):
         See also: `.figure.Figure.tight_layout` and `.pyplot.tight_layout`.
         """
         info = self._params
-        subplotspec_list = get_subplotspec_list(fig.axes)
-        if None in subplotspec_list:
-            _api.warn_external("This figure includes Axes that are not "
-                               "compatible with tight_layout, so results "
-                               "might be incorrect.")
         renderer = fig._get_renderer()
         with getattr(renderer, "_draw_disabled", nullcontext)():
             kwargs = get_tight_layout_figure(
-                fig, fig.axes, subplotspec_list, renderer,
+                fig, fig.axes, get_subplotspec_list(fig.axes), renderer,
                 pad=info['pad'], h_pad=info['h_pad'], w_pad=info['w_pad'],
                 rect=info['rect'])
         if kwargs:
