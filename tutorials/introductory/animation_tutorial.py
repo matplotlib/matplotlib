@@ -122,19 +122,33 @@ plt.show()
 # :class:`~matplotlib.image.AxesImage` object. The data in this object can also
 # similarly be modified by using the `.image.AxesImage.set_data` method.
 
-fig, ax = plt.subplots()
-rng = np.random.default_rng()
 
-aximg = ax.imshow(rng.uniform(low=0, high=1, size=(10, 10)), cmap="Blues")
+def f(x, y, mean, cov):
+    dev_x = x - mean
+    dev_y = y - mean
+    maha = -0.5 * (((x-mean)/cov)**2 + ((y-mean)/cov)**2)
+    return (1/(np.pi * cov)) * np.exp(maha)
+
+fig, ax = plt.subplots()
+
+x, y = np.meshgrid(np.arange(-1, 1, 0.01), np.arange(-1, 1, 0.01))
+mean = 0
+cov = 0.1
+data = f(x, y, mean, cov)
+aximg = ax.imshow(data)
 
 
 def update(frame):
-    data = rng.uniform(low=0, high=1, size=(10, 10))
+    x, y = np.meshgrid(np.arange(-1, 1, 0.01), np.arange(-1, 1, 0.01))
+    mean = 0
+    cov = 0.01 * frame + 1e-6
+    data = f(x, y, mean, cov)
+
     aximg.set_data(data)
     return (aximg,)
 
 
-ani = animation.FuncAnimation(fig=fig, func=update, frames=None, interval=200)
+ani = animation.FuncAnimation(fig=fig, func=update, frames=None, interval=100)
 plt.show()
 
 ###############################################################################
@@ -146,18 +160,26 @@ plt.show()
 # list of artists is then converted frame by frame into an animation.
 
 
-fig, ax = plt.subplots()
-ax.grid()
-rng = np.random.default_rng()
+def f(x, y, mean, cov):
+    dev_x = x - mean
+    dev_y = y - mean
+    maha = -0.5 * (((x-mean)/cov)**2 + ((y-mean)/cov)**2)
+    return (1/(np.pi * cov)) * np.exp(maha)
 
-x_frames = rng.uniform(low=0, high=1, size=(100, 120))
-y_frames = rng.uniform(low=0, high=1, size=(100, 120))
+fig, ax = plt.subplots()
+
+x, y = np.meshgrid(np.arange(-1, 1, 0.01), np.arange(-1, 1, 0.01))
+mean = 0
+cov = 0.1
+data = f(x, y, mean, cov)
+aximg = ax.imshow(data)
+
 artists = [
-    [ax.scatter(x_frames[:, i], y_frames[:, i], c="b")]
-    for i in range(x_frames.shape[-1])
+    [ax.imshow(f(x, y, mean, 0.01 * frame + 1e-6))]
+    for frame in range(120)
 ]
 
-ani = animation.ArtistAnimation(fig=fig, artists=artists, repeat_delay=1000)
+ani = animation.ArtistAnimation(fig=fig, artists=artists, interval=100)
 plt.show()
 
 ###############################################################################
