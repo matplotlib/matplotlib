@@ -290,7 +290,7 @@ class GridSpecBase:
             _api.warn_external(
                 "sharex argument to subplots() was an integer.  Did you "
                 "intend to use subplot() (without 's')?")
-        _api.check_in_list(["all", "row", "col", "none"],
+        _api.check_in_list(["all", "row", "col", "none", 0, 1, False, True],
                            sharex=sharex, sharey=sharey)
         if subplot_kw is None:
             subplot_kw = {}
