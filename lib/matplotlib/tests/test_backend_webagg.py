@@ -105,12 +105,16 @@ def test_webagg_resize(random_port, page):
 
     canvas = page.locator('canvas.mpl-canvas')
 
+    print(f'{orig_bbox=}')
     # Resize the canvas to be twice as big.
     bbox = canvas.bounding_box()
+    print(f'{bbox=}')
     x, y = bbox['x'] + bbox['width'] - 1, bbox['y'] + bbox['height'] - 1
+    print(f'{x=} {y=}')
     page.mouse.move(x, y)
     page.mouse.down()
     page.mouse.move(x + bbox['width'], y + bbox['height'])
+    print(f'{x + bbox["width"]=} {y + bbox["height"]=}')
     page.mouse.up()
 
     assert fig.bbox.height == orig_bbox.height * 2
