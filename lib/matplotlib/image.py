@@ -953,7 +953,7 @@ class AxesImage(_ImageBase):
         """Return whether the image would be better drawn unsampled."""
         return self.get_interpolation() == "none"
 
-    def set_extent(self, extent):
+    def set_extent(self, extent, **kwargs):
         """
         Set the image extent.
 
@@ -962,6 +962,10 @@ class AxesImage(_ImageBase):
         extent : 4-tuple of float
             The position and size of the image as tuple
             ``(left, right, bottom, top)`` in data coordinates.
+        **kwargs
+            Other parameters from which unit info (i.e., the *xunits*,
+            *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
+            polar axes) entries are applied, if present.
 
         Notes
         -----
@@ -970,7 +974,26 @@ class AxesImage(_ImageBase):
         state is not changed, so following this with ``ax.autoscale_view()``
         will redo the autoscaling in accord with ``dataLim``.
         """
-        self._extent = xmin, xmax, ymin, ymax = extent
+        (xmin, xmax), (ymin, ymax) = self.axes._process_unit_info(
+            [("x", [extent[0], extent[1]]),
+             ("y", [extent[2], extent[3]])],
+            kwargs)
+        if len(kwargs):
+            raise ValueError(
+                "set_extent did not consume all of the kwargs passed." +
+                f"{list(kwargs)!r} were unused"
+            )
+        xmin = self.axes._validate_converted_limits(
+            xmin, self.convert_xunits)
+        xmax = self.axes._validate_converted_limits(
+            xmax, self.convert_xunits)
+        ymin = self.axes._validate_converted_limits(
+            ymin, self.convert_yunits)
+        ymax = self.axes._validate_converted_limits(
+            ymax, self.convert_yunits)
+        extent = [xmin, xmax, ymin, ymax]
+
+        self._extent = extent
         corners = (xmin, ymin), (xmax, ymax)
         self.axes.update_datalim(corners)
         self.sticky_edges.x[:] = [xmin, xmax]
