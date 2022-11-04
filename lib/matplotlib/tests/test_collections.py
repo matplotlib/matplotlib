@@ -12,10 +12,8 @@ import matplotlib.colors as mcolors
 import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
-                                    EventCollection, PolyCollection,
-                                    QuadMesh)
+                                    EventCollection, PolyCollection)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
 
 def generate_EventCollection_plot():
@@ -811,77 +809,6 @@ def test_autolim_with_zeros(transform, expected):
     np.testing.assert_allclose(ax.get_xlim(), expected)
 
 
-@pytest.mark.parametrize('flat_ref, kwargs', [
-    (True, {}),
-    (False, {}),
-    (True, dict(antialiased=False)),
-    (False, dict(transform='__initialization_delayed__')),
-])
-@check_figures_equal(extensions=['png'])
-def test_quadmesh_deprecated_signature(
-        fig_test, fig_ref, flat_ref, kwargs):
-    # test that the new and old quadmesh signature produce the same results
-    # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
-    x = [0, 1, 2, 3.]
-    y = [1, 2, 3.]
-    X, Y = np.meshgrid(x, y)
-    X += 0.2 * Y
-    coords = np.stack([X, Y], axis=-1)
-    assert coords.shape == (3, 4, 2)
-    C = np.linspace(0, 2, 6).reshape(2, 3)
-
-    ax = fig_test.add_subplot()
-    ax.set(xlim=(0, 5), ylim=(0, 4))
-    if 'transform' in kwargs:
-        kwargs['transform'] = mtransforms.Affine2D().scale(1.2) + ax.transData
-    qmesh = QuadMesh(coords, **kwargs)
-    qmesh.set_array(C)
-    ax.add_collection(qmesh)
-    assert qmesh._shading == 'flat'
-
-    ax = fig_ref.add_subplot()
-    ax.set(xlim=(0, 5), ylim=(0, 4))
-    if 'transform' in kwargs:
-        kwargs['transform'] = mtransforms.Affine2D().scale(1.2) + ax.transData
-    with pytest.warns(MatplotlibDeprecationWarning):
-        qmesh = QuadMesh(4 - 1, 3 - 1,
-                         coords.copy().reshape(-1, 2) if flat_ref else coords,
-                         **kwargs)
-    qmesh.set_array(C.flatten() if flat_ref else C)
-    ax.add_collection(qmesh)
-    assert qmesh._shading == 'flat'
-
-
-@check_figures_equal(extensions=['png'])
-def test_quadmesh_deprecated_positional(fig_test, fig_ref):
-    # test that positional parameters are still accepted with the old signature
-    # and work correctly
-    # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
-    from matplotlib.collections import QuadMesh
-
-    x = [0, 1, 2, 3.]
-    y = [1, 2, 3.]
-    X, Y = np.meshgrid(x, y)
-    X += 0.2 * Y
-    coords = np.stack([X, Y], axis=-1)
-    assert coords.shape == (3, 4, 2)
-    C = np.linspace(0, 2, 12).reshape(3, 4)
-
-    ax = fig_test.add_subplot()
-    ax.set(xlim=(0, 5), ylim=(0, 4))
-    qmesh = QuadMesh(coords, antialiased=False, shading='gouraud')
-    qmesh.set_array(C)
-    ax.add_collection(qmesh)
-
-    ax = fig_ref.add_subplot()
-    ax.set(xlim=(0, 5), ylim=(0, 4))
-    with pytest.warns(MatplotlibDeprecationWarning):
-        qmesh = QuadMesh(4 - 1, 3 - 1, coords.copy().reshape(-1, 2),
-                         False, 'gouraud')
-    qmesh.set_array(C)
-    ax.add_collection(qmesh)
-
-
 def test_quadmesh_set_array_validation():
     x = np.arange(11)
     y = np.arange(8)
@@ -890,7 +817,9 @@ def test_quadmesh_set_array_validation():
     coll = ax.pcolormesh(x, y, z)
 
     # Test deprecated warning when faulty shape is passed.
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.raises(ValueError, match=r"For X \(11\) and Y \(8\) with flat "
+                       r"shading, the expected shape of A is \(7, 10\), not "
+                       r"\(10, 7\)"):
         coll.set_array(z.reshape(10, 7))
 
     z = np.arange(54).reshape((6, 9))
