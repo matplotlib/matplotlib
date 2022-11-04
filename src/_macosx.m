@@ -1330,7 +1330,18 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         goto exit;
     }
     if (!NSIsEmptyRect(rubberband)) {
-        NSFrameRect(rubberband);
+        // We use bezier paths so we can stroke the outside with a dash
+        // pattern alternating white/black with two separate paths offset
+        // in phase.
+        NSBezierPath *white_path = [NSBezierPath bezierPathWithRect: rubberband];
+        NSBezierPath *black_path = [NSBezierPath bezierPathWithRect: rubberband];
+        CGFloat dash_pattern[2] = {3, 3};
+        [white_path setLineDash: dash_pattern count: 2 phase: 0];
+        [black_path setLineDash: dash_pattern count: 2 phase: 3];
+        [[NSColor whiteColor] setStroke];
+        [white_path stroke];
+        [[NSColor blackColor] setStroke];
+        [black_path stroke];
     }
 
   exit:
@@ -1526,9 +1537,11 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)setRubberband:(NSRect)rect
 {
-    if (!NSIsEmptyRect(rubberband)) { [self setNeedsDisplayInRect: rubberband]; }
+    // The space we want to redraw is a union of the previous rubberband
+    // with the new rubberband and then expanded (negative inset) by one
+    // in each direction to account for the stroke linewidth.
+    [self setNeedsDisplayInRect: NSInsetRect(NSUnionRect(rect, rubberband), -1, -1)];
     rubberband = rect;
-    [self setNeedsDisplayInRect: rubberband];
 }
 
 - (void)removeRubberband
