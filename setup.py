@@ -334,6 +334,11 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
             os.environ.get("CIBUILDWHEEL", "0") != "1"
         ) else []
     ),
+    extras_require={
+        ':python_version<"3.10"': [
+            "importlib-resources>=3.2.0",
+        ],
+    },
     use_scm_version={
         "version_scheme": "release-branch-semver",
         "local_scheme": "node-and-date",
