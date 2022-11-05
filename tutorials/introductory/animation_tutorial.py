@@ -27,7 +27,7 @@ import numpy as np
 # - :class:`~matplotlib.animation.FuncAnimation`: Generate a list (iterable)
 #   of artists that will draw in each frame in the animation.
 #
-# :class:`~matplotlib.animation.FuncAnimation` is more efficient in terms of
+# :class:`~matplotlib.animation.ArtistAnimation` is more efficient in terms of
 # speed and memory as it draws an artist once and then modifies it. On the
 # other hand :class:`~matplotlib.animation.ArtistAnimation` is flexible as it
 # allows any iterable of artists to be animated in a sequence.
