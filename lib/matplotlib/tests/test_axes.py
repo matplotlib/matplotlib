@@ -6452,24 +6452,6 @@ def test_pandas_bar_align_center(pd):
     fig.canvas.draw()
 
 
-def test_tick_apply_tickdir_deprecation():
-    # Remove this test when the deprecation expires.
-    import matplotlib.axis as maxis
-    ax = plt.axes()
-
-    tick = maxis.XTick(ax, 0)
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match="The apply_tickdir function was deprecated in "
-                            "Matplotlib 3.5"):
-        tick.apply_tickdir('out')
-
-    tick = maxis.YTick(ax, 0)
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match="The apply_tickdir function was deprecated in "
-                            "Matplotlib 3.5"):
-        tick.apply_tickdir('out')
-
-
 def test_axis_get_tick_params():
     axis = plt.subplot().yaxis
     initial_major_style_translated = {**axis.get_tick_params(which='major')}
