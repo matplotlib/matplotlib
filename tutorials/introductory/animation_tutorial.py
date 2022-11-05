@@ -59,7 +59,6 @@ import numpy as np
 # plot using the function for every frame.
 
 fig, ax = plt.subplots()
-rng = np.random.default_rng()
 
 xdata = np.arange(0, 2 * np.pi, 0.01)
 (line,) = ax.plot(xdata, np.sin(xdata), c="b")
