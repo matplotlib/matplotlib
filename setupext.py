@@ -216,7 +216,7 @@ else:
 def print_status(package, status):
     initial_indent = "%12s: " % package
     indent = ' ' * 18
-    print_raw(textwrap.fill(str(status), width=80,
+    print_raw(textwrap.fill(status, width=80,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
 

@@ -429,3 +429,14 @@ def test_minor_ticks():
     tick_labels = ax.get_yticklabels(minor=True)
     assert np.all(tick_pos == np.array([3.5, 6.5]))
     assert [l.get_text() for l in tick_labels] == ['a', 'b']
+
+
+def test_switch_backend_no_close():
+    plt.switch_backend('agg')
+    fig = plt.figure()
+    fig = plt.figure()
+    assert len(plt.get_fignums()) == 2
+    plt.switch_backend('agg')
+    assert len(plt.get_fignums()) == 2
+    plt.switch_backend('svg')
+    assert len(plt.get_fignums()) == 0

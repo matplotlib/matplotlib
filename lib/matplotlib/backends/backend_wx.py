@@ -283,7 +283,7 @@ class RendererWx(RendererBase):
         # Font colour is determined by the active wx.Pen
         # TODO: It may be wise to cache font information
         self.fontd[key] = font = wx.Font(  # Cache the font and gc.
-            pointSize=int(size + 0.5),
+            pointSize=round(size),
             family=self.fontnames.get(prop.get_name(), wx.ROMAN),
             style=self.fontangles[prop.get_style()],
             weight=self.fontweights[prop.get_weight()])
@@ -1149,7 +1149,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             if mpl.rcParams["savefig.directory"]:
                 mpl.rcParams["savefig.directory"] = str(path.parent)
             try:
-                self.canvas.figure.savefig(str(path), format=fmt)
+                self.canvas.figure.savefig(path, format=fmt)
             except Exception as e:
                 dialog = wx.MessageDialog(
                     parent=self.canvas.GetParent(), message=str(e),

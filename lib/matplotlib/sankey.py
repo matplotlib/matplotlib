@@ -434,10 +434,7 @@ class Sankey:
         Sankey.finish
         """
         # Check and preprocess the arguments.
-        if flows is None:
-            flows = np.array([1.0, -1.0])
-        else:
-            flows = np.array(flows)
+        flows = np.array([1.0, -1.0]) if flows is None else np.array(flows)
         n = flows.shape[0]  # Number of flows
         if rotation is None:
             rotation = 0

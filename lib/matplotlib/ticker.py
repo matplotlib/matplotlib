@@ -804,7 +804,7 @@ class ScalarFormatter(Formatter):
             else:
                 break
         sigfigs += 1
-        self.format = '%1.' + str(sigfigs) + 'f'
+        self.format = f'%1.{sigfigs}f'
         if self._usetex or self._useMathText:
             self.format = r'$\mathdefault{%s}$' % self.format
 

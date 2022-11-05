@@ -150,7 +150,8 @@ def test_find_invalid(tmpdir):
         FT2Font(StringIO())
 
 
-@pytest.mark.skipif(sys.platform != 'linux', reason='Linux only')
+@pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
+                    reason='only Linux with fontconfig installed')
 def test_user_fonts_linux(tmpdir, monkeypatch):
     font_test_file = 'mpltest.ttf'
 

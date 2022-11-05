@@ -8,7 +8,6 @@ from itertools import chain
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, IdentityTransform
 from .axislines import AxisArtistHelper, GridHelperBase
@@ -39,15 +38,6 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
     def update_lim(self, axes):
         self.grid_helper.update_lim(axes)
 
-    @_api.deprecated("3.5")
-    def change_tick_coord(self, coord_number=None):
-        if coord_number is None:
-            self.nth_coord_ticks = 1 - self.nth_coord_ticks
-        elif coord_number in [0, 1]:
-            self.nth_coord_ticks = coord_number
-        else:
-            raise Exception("wrong coord number")
-
     def get_tick_transform(self, axes):
         return axes.transData
 
@@ -66,8 +56,6 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
 
 
 class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
-    grid_info = _api.deprecate_privatize_attribute("3.5")
-
     def __init__(self, grid_helper, nth_coord, value, axis_direction=None):
         """
         nth_coord = along which coordinate value varies.
@@ -252,8 +240,6 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
 
 class GridHelperCurveLinear(GridHelperBase):
-    grid_info = _api.deprecate_privatize_attribute("3.5")
-
     def __init__(self, aux_trans,
                  extreme_finder=None,
                  grid_locator1=None,

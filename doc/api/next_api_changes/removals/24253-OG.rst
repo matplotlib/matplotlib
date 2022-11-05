@@ -1,0 +1,5 @@
+The first parameter of ``Axes.grid`` and ``Axis.grid`` has been renamed to *visible*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The parameter was previously named *b*. This name change only matters if that
+parameter was passed using a keyword argument, e.g. ``grid(b=False)``.

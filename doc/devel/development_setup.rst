@@ -86,6 +86,10 @@ The simplest way to do this is to use either Python's virtual environment
 
 Remember to activate the environment whenever you start working on Matplotlib.
 
+Install additional development dependencies
+===========================================
+See :ref:`development-dependencies`.
+
 Install Matplotlib in editable mode
 ===================================
 Install Matplotlib in editable mode from the :file:`matplotlib` directory
@@ -100,10 +104,6 @@ of Matplotlib without re-installing after every change. Note that this is only
 true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
-
-Install additional development dependencies
-===========================================
-See :ref:`development-dependencies`.
 
 Install pre-commit hooks (optional)
 ===================================

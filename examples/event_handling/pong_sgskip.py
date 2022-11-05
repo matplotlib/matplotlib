@@ -220,10 +220,8 @@ class Game:
             for puck in self.pucks:
                 if puck.update(self.pads):
                     # we only get here if someone scored
-                    self.pads[0].disp.set_label(
-                        "   " + str(self.pads[0].score))
-                    self.pads[1].disp.set_label(
-                        "   " + str(self.pads[1].score))
+                    self.pads[0].disp.set_label(f"   {self.pads[0].score}")
+                    self.pads[1].disp.set_label(f"   {self.pads[1].score}")
                     self.ax.legend(loc='center', framealpha=.2,
                                    facecolor='0.5',
                                    prop=FontProperties(size='xx-large',

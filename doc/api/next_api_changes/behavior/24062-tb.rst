@@ -1,0 +1,8 @@
+``TrapezoidMapTriFinder`` uses different random number generator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The random number generator used to determine the order of insertion of
+triangle edges in ``TrapezoidMapTriFinder`` has changed. This can result in a
+different triangle index being returned for a point that lies exactly on an
+edge between two triangles. This can also affect triangulation interpolation
+and refinement algorithms that use ``TrapezoidMapTriFinder``.

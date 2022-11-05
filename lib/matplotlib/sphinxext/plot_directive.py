@@ -486,13 +486,13 @@ def _run_code(code, code_path, ns=None, function_name=None):
         try:
             os.chdir(setup.config.plot_working_directory)
         except OSError as err:
-            raise OSError(str(err) + '\n`plot_working_directory` option in'
-                          'Sphinx configuration file must be a valid '
-                          'directory path') from err
+            raise OSError(f'{err}\n`plot_working_directory` option in '
+                          f'Sphinx configuration file must be a valid '
+                          f'directory path') from err
         except TypeError as err:
-            raise TypeError(str(err) + '\n`plot_working_directory` option in '
-                            'Sphinx configuration file must be a string or '
-                            'None') from err
+            raise TypeError(f'{err}\n`plot_working_directory` option in '
+                            f'Sphinx configuration file must be a string or '
+                            f'None') from err
     elif code_path is not None:
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)

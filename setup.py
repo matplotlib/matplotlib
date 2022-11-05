@@ -310,6 +310,13 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
     package_data=package_data,
 
     python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
+    # When updating the list of dependencies, add an api_changes/development
+    # entry and also update the following places:
+    # - lib/matplotlib/__init__.py (matplotlib._check_versions())
+    # - requirements/testing/minver.txt
+    # - doc/devel/dependencies.rst
+    # - .github/workflows/tests.yml
+    # - environment.yml
     install_requires=[
         "contourpy>=1.0.1",
         "cycler>=0.10",
@@ -327,6 +334,11 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
             os.environ.get("CIBUILDWHEEL", "0") != "1"
         ) else []
     ),
+    extras_require={
+        ':python_version<"3.10"': [
+            "importlib-resources>=3.2.0",
+        ],
+    },
     use_scm_version={
         "version_scheme": "release-branch-semver",
         "local_scheme": "node-and-date",

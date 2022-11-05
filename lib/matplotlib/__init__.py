@@ -205,9 +205,6 @@ class __getattr__:
     __version__ = property(lambda self: _get_version())
     __version_info__ = property(
         lambda self: _parse_to_version_info(self.__version__))
-    # module-level deprecations
-    URL_REGEX = _api.deprecated("3.5", obj_type="")(property(
-        lambda self: re.compile(r'^http://|^https://|^ftp://|^file:')))
 
 
 def _check_versions():
@@ -750,12 +747,6 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
-@_api.deprecated("3.5")
-def is_url(filename):
-    """Return whether *filename* is an http, https, ftp, or file URL path."""
-    return __getattr__("URL_REGEX").match(filename) is not None
-
-
 @functools.lru_cache()
 def _get_ssl_context():
     try:
@@ -1080,6 +1071,9 @@ def rc_context(rc=None, fname=None):
 
     The :rc:`backend` will not be reset by the context manager.
 
+    rcParams changed both through the context manager invocation and
+    in the body of the context will be reset on context exit.
+
     Parameters
     ----------
     rc : dict
@@ -1107,6 +1101,13 @@ def rc_context(rc=None, fname=None):
          with mpl.rc_context(fname='print.rc'):
              plt.plot(x, y)  # uses 'print.rc'
 
+    Setting in the context body::
+
+        with mpl.rc_context():
+            # will be reset
+            mpl.rcParams['lines.linewidth'] = 5
+            plt.plot(x, y)
+
     """
     orig = dict(rcParams.copy())
     del orig['backend']
@@ -1123,6 +1124,10 @@ def rc_context(rc=None, fname=None):
 def use(backend, *, force=True):
     """
     Select the backend used for rendering and GUI integration.
+
+    If pyplot is already imported, `~matplotlib.pyplot.switch_backend` is used
+    and if the new backend is different than the current backend, all Figures
+    will be closed.
 
     Parameters
     ----------
@@ -1154,6 +1159,8 @@ def use(backend, *, force=True):
     --------
     :ref:`backends`
     matplotlib.get_backend
+    matplotlib.pyplot.switch_backend
+
     """
     name = validate_backend(backend)
     # don't (prematurely) resolve the "auto" backend setting

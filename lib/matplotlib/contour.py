@@ -268,19 +268,6 @@ class ContourLabeler:
                      figure=fig, fontproperties=self._label_font_props)
                 .get_window_extent(renderer).width)
 
-    @_api.deprecated("3.5")
-    def get_label_width(self, lev, fmt, fsize):
-        """Return the width of the label in points."""
-        if not isinstance(lev, str):
-            lev = self.get_text(lev, fmt)
-        fig = self.axes.figure
-        renderer = fig._get_renderer()
-        width = (Text(0, 0, lev, figure=fig,
-                      size=fsize, fontproperties=self._label_font_props)
-                 .get_window_extent(renderer).width)
-        width *= 72 / fig.dpi
-        return width
-
     @_api.deprecated("3.7", alternative="Artist.set")
     def set_label_props(self, label, text, color):
         """Set the label properties - color, fontsize, text."""
@@ -1144,7 +1131,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if isinstance(levels_arg, Integral):
             self.levels = self._autolev(levels_arg)
         else:
-            self.levels = np.asarray(levels_arg).astype(np.float64)
+            self.levels = np.asarray(levels_arg, np.float64)
 
         if not self.filled:
             inside = (self.levels > self.zmin) & (self.levels < self.zmax)

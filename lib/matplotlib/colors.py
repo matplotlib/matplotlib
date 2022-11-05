@@ -515,7 +515,7 @@ def to_hex(c, keep_alpha=False):
     c = to_rgba(c)
     if not keep_alpha:
         c = c[:3]
-    return "#" + "".join(format(int(round(val * 255)), "02x") for val in c)
+    return "#" + "".join(format(round(val * 255), "02x") for val in c)
 
 
 ### Backwards-compatible color-conversion API
@@ -1718,10 +1718,14 @@ def _make_norm_from_scale(
         def autoscale(self, A):
             # i.e. A[np.isfinite(...)], but also for non-array A's
             in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            if in_trf_domain.size == 0:
+                in_trf_domain = np.ma.masked
             return super().autoscale(in_trf_domain)
 
         def autoscale_None(self, A):
             in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            if in_trf_domain.size == 0:
+                in_trf_domain = np.ma.masked
             return super().autoscale_None(in_trf_domain)
 
     if base_norm_cls is Normalize:

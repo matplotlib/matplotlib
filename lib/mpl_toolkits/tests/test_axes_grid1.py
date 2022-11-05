@@ -18,7 +18,8 @@ from mpl_toolkits.axes_grid1 import (
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
 from mpl_toolkits.axes_grid1.axes_divider import (
-    Divider, HBoxDivider, make_axes_area_auto_adjustable, SubplotDivider)
+    Divider, HBoxDivider, make_axes_area_auto_adjustable, SubplotDivider,
+    VBoxDivider)
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
@@ -208,23 +209,22 @@ def test_inset_axes_complete():
     ins = inset_axes(ax, width=2., height=2., borderpad=0)
     fig.canvas.draw()
     assert_array_almost_equal(
-            ins.get_position().extents,
-            np.array(((0.9*figsize[0]-2.)/figsize[0],
-                      (0.9*figsize[1]-2.)/figsize[1], 0.9, 0.9)))
+        ins.get_position().extents,
+        [(0.9*figsize[0]-2.)/figsize[0], (0.9*figsize[1]-2.)/figsize[1],
+         0.9, 0.9])
 
     ins = inset_axes(ax, width="40%", height="30%", borderpad=0)
     fig.canvas.draw()
     assert_array_almost_equal(
-            ins.get_position().extents,
-            np.array((.9-.8*.4, .9-.8*.3, 0.9, 0.9)))
+        ins.get_position().extents, [.9-.8*.4, .9-.8*.3, 0.9, 0.9])
 
     ins = inset_axes(ax, width=1., height=1.2, bbox_to_anchor=(200, 100),
                      loc=3, borderpad=0)
     fig.canvas.draw()
     assert_array_almost_equal(
-            ins.get_position().extents,
-            np.array((200./dpi/figsize[0], 100./dpi/figsize[1],
-                     (200./dpi+1)/figsize[0], (100./dpi+1.2)/figsize[1])))
+        ins.get_position().extents,
+        [200/dpi/figsize[0], 100/dpi/figsize[1],
+         (200/dpi+1)/figsize[0], (100/dpi+1.2)/figsize[1]])
 
     ins1 = inset_axes(ax, width="35%", height="60%", loc=3, borderpad=1)
     ins2 = inset_axes(ax, width="100%", height="100%",
@@ -512,6 +512,29 @@ def test_hbox_divider():
     p2 = ax2.get_position()
     assert p1.height == p2.height
     assert p2.width / p1.width == pytest.approx((4 / 5) ** 2)
+
+
+def test_vbox_divider():
+    arr1 = np.arange(20).reshape((4, 5))
+    arr2 = np.arange(20).reshape((5, 4))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    ax1.imshow(arr1)
+    ax2.imshow(arr2)
+
+    pad = 0.5  # inches.
+    divider = VBoxDivider(
+        fig, 111,  # Position of combined axes.
+        horizontal=[Size.AxesX(ax1), Size.Scaled(1), Size.AxesX(ax2)],
+        vertical=[Size.AxesY(ax1), Size.Fixed(pad), Size.AxesY(ax2)])
+    ax1.set_axes_locator(divider.new_locator(0))
+    ax2.set_axes_locator(divider.new_locator(2))
+
+    fig.canvas.draw()
+    p1 = ax1.get_position()
+    p2 = ax2.get_position()
+    assert p1.width == p2.width
+    assert p1.height / p2.height == pytest.approx((4 / 5) ** 2)
 
 
 def test_axes_class_tuple():

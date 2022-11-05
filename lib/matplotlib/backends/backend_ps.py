@@ -7,6 +7,7 @@ import datetime
 from enum import Enum
 import functools
 from io import StringIO
+import itertools
 import logging
 import os
 import pathlib
@@ -630,13 +631,15 @@ grestore
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
+        stream = []  # list of (ps_name, x, char_name)
+
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
+            ps_name = (font.postscript_name.encode("ascii", "replace")
+                        .decode("ascii"))
             scale = 0.001 * prop.get_size_in_points()
-            stream = []
             thisx = 0
             last_name = None  # kerns returns 0 for None.
-            xs_names = []
             for c in s:
                 name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
                 try:
@@ -647,38 +650,24 @@ grestore
                 kern = font.get_kern_dist_from_name(last_name, name)
                 last_name = name
                 thisx += kern * scale
-                xs_names.append((thisx, name))
+                stream.append((ps_name, thisx, name))
                 thisx += width * scale
-            ps_name = (font.postscript_name
-                       .encode("ascii", "replace").decode("ascii"))
-            stream.append((ps_name, xs_names))
 
         else:
             font = self._get_font_ttf(prop)
             self._character_tracker.track(font, s)
-            stream = []
-            prev_font = curr_stream = None
             for item in _text_helpers.layout(s, font):
                 ps_name = (item.ft_object.postscript_name
                            .encode("ascii", "replace").decode("ascii"))
-                if item.ft_object is not prev_font:
-                    if curr_stream:
-                        stream.append(curr_stream)
-                    prev_font = item.ft_object
-                    curr_stream = [ps_name, []]
-                curr_stream[1].append(
-                    (item.x, item.ft_object.get_glyph_name(item.glyph_idx))
-                )
-            # append the last entry if exists
-            if curr_stream:
-                stream.append(curr_stream)
-
+                glyph_name = item.ft_object.get_glyph_name(item.glyph_idx)
+                stream.append((ps_name, item.x, glyph_name))
         self.set_color(*gc.get_rgb())
 
-        for ps_name, xs_names in stream:
+        for ps_name, group in itertools. \
+                groupby(stream, lambda entry: entry[0]):
             self.set_font(ps_name, prop.get_size_in_points(), False)
             thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
-                                for x, name in xs_names)
+                                for _, x, name in group)
             self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
@@ -833,9 +822,8 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
-    @_api.delete_parameter("3.5", "args")
     def _print_ps(
-            self, fmt, outfile, *args,
+            self, fmt, outfile, *,
             metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 

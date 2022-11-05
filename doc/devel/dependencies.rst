@@ -26,6 +26,9 @@ reference.
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
+* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
+* `importlib-resources <https://pypi.org/project/importlib-resources/>`_
+  (>= 3.2.0; only required on Python < 3.10)
 
 
 .. _optional_dependencies:

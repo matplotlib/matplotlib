@@ -26,18 +26,17 @@ def test_pngsuite():
     plt.gca().set_xlim(0, len(files))
 
 
-def test_truncated_file(tmpdir):
-    d = tmpdir.mkdir('test')
-    fname = str(d.join('test.png'))
-    fname_t = str(d.join('test_truncated.png'))
-    plt.savefig(fname)
-    with open(fname, 'rb') as fin:
+def test_truncated_file(tmp_path):
+    path = tmp_path / 'test.png'
+    path_t = tmp_path / 'test_truncated.png'
+    plt.savefig(path)
+    with open(path, 'rb') as fin:
         buf = fin.read()
-    with open(fname_t, 'wb') as fout:
+    with open(path_t, 'wb') as fout:
         fout.write(buf[:20])
 
     with pytest.raises(Exception):
-        plt.imread(fname_t)
+        plt.imread(path_t)
 
 
 def test_truncated_buffer():

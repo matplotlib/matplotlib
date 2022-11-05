@@ -60,7 +60,7 @@ per-file-ignores =
     lib/matplotlib/pyplot.py: F401, F811
     lib/matplotlib/tests/test_mathtext.py: E501
     lib/matplotlib/transforms.py: E201, E202, E203
-    lib/matplotlib/tri/triinterpolate.py: E201, E221
+    lib/matplotlib/tri/_triinterpolate.py: E201, E221
     lib/mpl_toolkits/axes_grid1/axes_size.py: E272
     lib/mpl_toolkits/axisartist/__init__.py: F401
     lib/mpl_toolkits/axisartist/angle_helper.py: E221

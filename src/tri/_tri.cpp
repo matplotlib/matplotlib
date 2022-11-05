@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <set>
+#include <random>
 
 
 TriEdge::TriEdge()
@@ -1465,8 +1466,8 @@ TrapezoidMapTriFinder::initialize()
     _tree->assert_valid(false);
 
     // Randomly shuffle all edges other than first 2.
-    RandomNumberGenerator rng(1234);
-    std::random_shuffle(_edges.begin()+2, _edges.end(), rng);
+    std::mt19937 rng(1234);
+    std::shuffle(_edges.begin()+2, _edges.end(), rng);
 
     // Add edges, one at a time, to tree.
     size_t nedges = _edges.size();
@@ -2055,17 +2056,4 @@ TrapezoidMapTriFinder::Trapezoid::set_upper_right(Trapezoid* upper_right_)
     upper_right = upper_right_;
     if (upper_right != 0)
         upper_right->upper_left = this;
-}
-
-
-
-RandomNumberGenerator::RandomNumberGenerator(unsigned long seed)
-    : _m(21870), _a(1291), _c(4621), _seed(seed % _m)
-{}
-
-unsigned long
-RandomNumberGenerator::operator()(unsigned long max_value)
-{
-    _seed = (_seed*_a + _c) % _m;
-    return (_seed*max_value) / _m;
 }

@@ -121,26 +121,21 @@ class SubplotParams:
             The height of the padding between subplots,
             as a fraction of the average Axes height.
         """
-        self._validate = True
         for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
             setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
         self.update(left, bottom, right, top, wspace, hspace)
-
-    # Also remove _validate after deprecation elapses.
-    validate = _api.deprecate_privatize_attribute("3.5")
 
     def update(self, left=None, bottom=None, right=None, top=None,
                wspace=None, hspace=None):
         """
         Update the dimensions of the passed parameters. *None* means unchanged.
         """
-        if self._validate:
-            if ((left if left is not None else self.left)
-                    >= (right if right is not None else self.right)):
-                raise ValueError('left cannot be >= right')
-            if ((bottom if bottom is not None else self.bottom)
-                    >= (top if top is not None else self.top)):
-                raise ValueError('bottom cannot be >= top')
+        if ((left if left is not None else self.left)
+                >= (right if right is not None else self.right)):
+            raise ValueError('left cannot be >= right')
+        if ((bottom if bottom is not None else self.bottom)
+                >= (top if top is not None else self.top)):
+            raise ValueError('bottom cannot be >= top')
         if left is not None:
             self.left = left
         if right is not None:
@@ -1679,8 +1674,6 @@ default: %(va)s
                 raise TypeError(
                     f"projection must be a string, None or implement a "
                     f"_as_mpl_axes method, not {projection!r}")
-        if projection_class.__name__ == 'Axes3D':
-            kwargs.setdefault('auto_add_to_figure', False)
         return projection_class, kwargs
 
     def get_default_bbox_extra_artists(self):
@@ -3431,12 +3424,6 @@ class Figure(FigureBase):
         .Figure.set_layout_engine
         .pyplot.tight_layout
         """
-        from ._tight_layout import get_subplotspec_list
-        subplotspec_list = get_subplotspec_list(self.axes)
-        if None in subplotspec_list:
-            _api.warn_external("This figure includes Axes that are not "
-                               "compatible with tight_layout, so results "
-                               "might be incorrect.")
         # note that here we do not permanently set the figures engine to
         # tight_layout but rather just perform the layout in place and remove
         # any previous engines.

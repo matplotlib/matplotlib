@@ -1499,7 +1499,7 @@ def test_arc_ellipse():
         [np.cos(rtheta), -np.sin(rtheta)],
         [np.sin(rtheta), np.cos(rtheta)]])
 
-    x, y = np.dot(R, np.array([x, y]))
+    x, y = np.dot(R, [x, y])
     x += xcenter
     y += ycenter
 
@@ -2097,7 +2097,7 @@ def test_hist_datetime_datasets():
 @pytest.mark.parametrize("bins_preprocess",
                          [mpl.dates.date2num,
                           lambda bins: bins,
-                          lambda bins: np.asarray(bins).astype('datetime64')],
+                          lambda bins: np.asarray(bins, 'datetime64')],
                          ids=['date2num', 'datetime.datetime',
                               'np.datetime64'])
 def test_hist_datetime_datasets_bins(bins_preprocess):
@@ -6409,7 +6409,7 @@ def test_pandas_pcolormesh(pd):
 
 def test_pandas_indexing_dates(pd):
     dates = np.arange('2005-02', '2005-03', dtype='datetime64[D]')
-    values = np.sin(np.array(range(len(dates))))
+    values = np.sin(range(len(dates)))
     df = pd.DataFrame({'dates': dates, 'values': values})
 
     ax = plt.gca()
@@ -8299,3 +8299,39 @@ def test_bar_all_nan(fig_test, fig_ref):
 
     ax_ref.bar([1], [1]).remove()
     ax_ref.bar([1], [1])
+
+
+@image_comparison(["extent_units.png"], style="mpl20")
+def test_extent_units():
+    _, axs = plt.subplots(2, 2)
+    date_first = np.datetime64('2020-01-01', 'D')
+    date_last = np.datetime64('2020-01-11', 'D')
+    arr = [[i+j for i in range(10)] for j in range(10)]
+
+    axs[0, 0].set_title('Date extents on y axis')
+    im = axs[0, 0].imshow(arr, origin='lower',
+                          extent=[1, 11, date_first, date_last],
+                          cmap=mpl.colormaps["plasma"])
+
+    axs[0, 1].set_title('Date extents on x axis (Day of Jan 2020)')
+    im = axs[0, 1].imshow(arr, origin='lower',
+                          extent=[date_first, date_last, 1, 11],
+                          cmap=mpl.colormaps["plasma"])
+    axs[0, 1].xaxis.set_major_formatter(mdates.DateFormatter('%d'))
+
+    im = axs[1, 0].imshow(arr, origin='lower',
+                          extent=[date_first, date_last,
+                                  date_first, date_last],
+                          cmap=mpl.colormaps["plasma"])
+    axs[1, 0].xaxis.set_major_formatter(mdates.DateFormatter('%d'))
+    axs[1, 0].set(xlabel='Day of Jan 2020')
+
+    im = axs[1, 1].imshow(arr, origin='lower',
+                          cmap=mpl.colormaps["plasma"])
+    im.set_extent([date_last, date_first, date_last, date_first])
+    axs[1, 1].xaxis.set_major_formatter(mdates.DateFormatter('%d'))
+    axs[1, 1].set(xlabel='Day of Jan 2020')
+
+    with pytest.raises(ValueError,
+                       match="set_extent did not consume all of the kwargs"):
+        im.set_extent([2, 12, date_first, date_last], clip=False)
