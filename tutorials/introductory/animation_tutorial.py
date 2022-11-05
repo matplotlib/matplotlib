@@ -63,7 +63,6 @@ rng = np.random.default_rng()
 
 xdata = np.arange(0, 2 * np.pi, 0.01)
 (line,) = ax.plot(xdata, np.sin(xdata), c="b")
-ax.grid()
 ax.set_ylim(-1.1, 1.1)
 
 
@@ -87,7 +86,6 @@ plt.show()
 # `.collections.PathCollection.set_offsets` function.
 
 fig, ax = plt.subplots()
-rng = np.random.default_rng()
 t = np.linspace(-4, 4, 400)
 a, b = 3, 2
 delta = np.pi / 2
