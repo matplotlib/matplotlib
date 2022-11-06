@@ -78,6 +78,9 @@ list_all = [
     "eventplot", "hist2d", "hexbin", "pie",
     # Unstructured
     "tricontour", "tricontourf", "tripcolor", "triplot",
+    # Spines
+    "spines", "spine_placement_demo", "spines_dropped",
+    "multiple_yaxis_with_spines", "centered_spines_with_arrows",
     ]
 explicit_subsection_order = [item + ".py" for item in list_all]
 
