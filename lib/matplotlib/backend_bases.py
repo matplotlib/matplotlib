@@ -2421,6 +2421,14 @@ class FigureCanvasBase:
             be set to the mouse location in data coordinates.  See `.KeyEvent`
             and `.MouseEvent` for more info.
 
+            .. note::
+
+                If func is a method, this only stores a weak reference to the
+                method. Thus, the figure does not influence the lifetime of
+                the associated object. Usually, you want to make sure that the
+                object is kept alive throughout the lifetime of the figure by
+                holding a reference to it.
+
         Returns
         -------
         cid
