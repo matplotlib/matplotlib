@@ -962,11 +962,12 @@ class Axis(martist.Artist):
         Parameters
         ----------
         which : {'major', 'minor'}, default: 'major'
-            The group of ticks to which the parameters are applied.
+            The group of ticks for which the parameters are retrieved.
 
         Returns
         -------
-        dict on properties that deviate from the default
+        dict
+            Default properties for styling *new* elements added to this axis.
 
         Notes
         -----
@@ -974,6 +975,31 @@ class Axis(martist.Artist):
         added to this axis and may be different from the values on current
         elements, if they were modified directly by the user (e.g., via
         ``set_*`` methods on individual tick objects).
+
+        Examples
+        --------
+        ::
+
+            >>> ax.yaxis.set_tick_params(labelsize=30, labelcolor='red',
+                                         direction='out', which='major')
+            >>> ax.yaxis.get_tick_params(which='major')
+            {'direction': 'out',
+            'left': True,
+            'right': False,
+            'labelleft': True,
+            'labelright': False,
+            'gridOn': False,
+            'labelsize': 30,
+            'labelcolor': 'red'}
+            >>> ax.yaxis.get_tick_params(which='minor')
+            {'left': True,
+            'right': False,
+            'labelleft': True,
+            'labelright': False,
+            'gridOn': False}
+
+        This allows us to confirm without visual inspection of the plot
+        that our styling is having the desired effect.
 
         """
         _api.check_in_list(['major', 'minor'], which=which)
