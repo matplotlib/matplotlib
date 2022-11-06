@@ -409,13 +409,13 @@ def remove_methods(methods, cls=None):
     if cls is None:  # Return the actual class decorator.
         return functools.partial(remove_methods, methods)
 
-    def make_wrapper(name):
+    def make_wrapper(method_name):
         msg = (
             f"`{method_name}` is removed on " +
             f"`{cls.__module__}.{cls.__qualname__}`."
         )
         def method(self, *args, **kwargs):
-            raise Exception(msg)
+            raise NotImplementedError(msg)
 
         method.__doc__ = msg
         method.__name__ = method_name
