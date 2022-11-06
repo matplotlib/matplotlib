@@ -90,7 +90,6 @@ a, b = 3, 2
 delta = np.pi / 2
 
 scat = ax.scatter(np.sin(a * t[0] + delta), np.sin(b * t[0]), c="b", s=2)
-ax.grid()
 ax.set_xlim(-1.5, 1.5)
 ax.set_ylim(-1.5, 1.5)
 
@@ -152,28 +151,22 @@ plt.show()
 # :class:`~matplotlib.animation.ArtistAnimation`
 # ----------------------------------------------
 #
-# On the other hand, :class:`~matplotlib.animation.ArtistAnimation` can be used
-# to generate animations if we have data on various different artists. This
-# list of artists is then converted frame by frame into an animation.
+# :class:`~matplotlib.animation.ArtistAnimation` can be used
+# to generate animations if there is data stored on various different artists.
+# This list of artists is then converted frame by frame into an animation. For
+# example, when we use `Axes.bar` to plot a bar-chart, it creates a number of
+# artists for each of the bar and error bars. To update the plot, one would
+# need to update each of the bars from the container individually and redraw
+# them. Instead, `.animation.ArtistAnimation` can be used to plot each frame
+# individually and then stitched together to form an animation.
 
-
-def f(x, y, mean, cov):
-    dev_x = x - mean
-    dev_y = y - mean
-    maha = -0.5 * (((x-mean)/cov)**2 + ((y-mean)/cov)**2)
-    return (1/(np.pi * cov)) * np.exp(maha)
 
 fig, ax = plt.subplots()
-
-x, y = np.meshgrid(np.arange(-1, 1, 0.01), np.arange(-1, 1, 0.01))
-mean = 0
-cov = 0.1
-data = f(x, y, mean, cov)
-aximg = ax.imshow(data)
+data = np.array([10, 20, 20, 30])
+x = [1, 2, 3, 4]
 
 artists = [
-    [ax.imshow(f(x, y, mean, 0.01 * frame + 1e-6))]
-    for frame in range(120)
+    list(ax.bar(x, data + i, color='b')) for i in range(10)
 ]
 
 ani = animation.ArtistAnimation(fig=fig, artists=artists, interval=100)
