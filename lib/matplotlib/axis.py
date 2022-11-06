@@ -967,14 +967,14 @@ class Axis(martist.Artist):
         Returns
         -------
         dict
-            Default properties for styling *new* elements added to this axis.
+            Properties for styling *new* elements added to this axis.
 
         Notes
         -----
-        This method returns the default values for styling *new* elements
-        added to this axis and may be different from the values on current
-        elements, if they were modified directly by the user (e.g., via
-        ``set_*`` methods on individual tick objects).
+        This method returns the appearance parameters for styling *new*
+        elements added to this axis and may be different from the values
+        on current elements, if they were modified directly by the user
+        (e.g., via ``set_*`` methods on individual tick objects).
 
         Examples
         --------
