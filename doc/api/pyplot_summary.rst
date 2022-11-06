@@ -40,6 +40,56 @@ Managing Figure and Axes
 Adding data to the plot
 -----------------------
 
+Basic
+^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   plot
+   errorbar
+   scatter
+   plot_date
+   step
+   loglog
+   semilogx
+   semilogy
+   fill_between
+   fill_betweenx
+   bar
+   barh
+   bar_label
+   stem
+   eventplot
+   pie
+   stackplot
+   broken_barh
+   vlines
+   hlines
+   fill
+   polar
+
+
+Spans
+^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   axhline
+   axhspan
+   axvline
+   axvspan
+   axline
+
+
+Spectral
+^^^^^^^^
+
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
@@ -47,72 +97,113 @@ Adding data to the plot
 
    acorr
    angle_spectrum
-   annotate
-   arrow
-   axhline
-   axhspan
-   axline
-   axvline
-   axvspan
-   bar
-   bar_label
-   barbs
-   barh
-   boxplot
-   broken_barh
-   clabel
    cohere
-   contour
-   contourf
    csd
-   errorbar
-   eventplot
-   figimage
-   figlegend
-   figtext
-   fill
-   fill_between
-   fill_betweenx
+   magnitude_spectrum
+   phase_spectrum
+   psd
+   specgram
+   xcorr
+
+
+Statistics
+^^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   boxplot
+   violinplot
+
+
+Binned
+^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
    hexbin
    hist
    hist2d
-   hlines
+   stairs
+
+
+Contours
+^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   clabel
+   contour
+   contourf
+
+
+2D arrays
+^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
    imshow
-   legend
-   loglog
-   magnitude_spectrum
    matshow
    pcolor
    pcolormesh
-   phase_spectrum
-   pie
-   plot
-   plot_date
-   polar
-   psd
-   quiver
-   quiverkey
-   scatter
-   semilogx
-   semilogy
-   specgram
    spy
-   stackplot
-   stairs
-   stem
-   step
-   streamplot
-   suptitle
-   table
-   text
-   title
+   figimage
+
+
+Unstructured triangles
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   triplot
+   tripcolor
    tricontour
    tricontourf
-   tripcolor
-   triplot
-   violinplot
-   vlines
-   xcorr
+
+
+Text and annotations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   annotate
+   text
+   figtext
+   table
+   arrow
+   figlegend
+   legend
+
+
+Vector fields
+^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   barbs
+   quiver
+   quiverkey
+   streamplot
 
 
 Axis configuration
@@ -142,6 +233,8 @@ Axis configuration
    ylim
    yscale
    yticks
+   suptitle
+   title
 
 
 Layout
