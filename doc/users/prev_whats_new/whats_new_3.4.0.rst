@@ -866,7 +866,7 @@ Stem plots in 3D Axes
 ---------------------
 
 Stem plots are now supported on 3D Axes. Much like 2D stems,
-`~.axes3d.Axes3D.stem3D` supports plotting the stems in various orientations:
+`~.axes3d.Axes3D.stem` supports plotting the stems in various orientations:
 
 .. plot::
 
