@@ -1,3 +1,5 @@
+.. redirect-from:: /gallery/misc/pythonic_matplotlib
+
 .. _api_interfaces:
 
 ========================================
