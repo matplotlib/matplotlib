@@ -302,8 +302,12 @@ class Spine(mpatches.Patch):
 
         Additionally, shorthand notations define a special positions:
 
-        * 'center' -> ('axes', 0.5)
-        * 'zero' -> ('data', 0.0)
+        * 'center' -> ``('axes', 0.5)``
+        * 'zero' -> ``('data', 0.0)``
+
+        Examples
+        --------
+        :doc:`/gallery/spines/spine_placement_demo`
         """
         if position in ('center', 'zero'):  # special positions
             pass
