@@ -158,18 +158,25 @@ plt.show()
 # artists for each of the bar and error bars. To update the plot, one would
 # need to update each of the bars from the container individually and redraw
 # them. Instead, `.animation.ArtistAnimation` can be used to plot each frame
-# individually and then stitched together to form an animation.
+# individually and then stitched together to form an animation. A barchart race
+# is a simple example for this.
 
 
 fig, ax = plt.subplots()
-data = np.array([10, 20, 20, 30])
-x = [1, 2, 3, 4]
+rng = np.random.default_rng()
+data = np.array([20, 20, 20, 20])
+x = np.array([1, 2, 3, 4])
 
-artists = [
-    list(ax.bar(x, data + i, color='b')) for i in range(10)
-]
+artists = []
+colors = {1: 'b', 2: 'r', 3: 'k', 4: 'g'}
+for i in range(20):
+    data += rng.integers(low=0, high=10, size=data.shape)
+    order = data.argsort()
+    container = ax.barh(x, data[order], color=[colors[x[o]] for o in order])
+    artists.append(container)
 
-ani = animation.ArtistAnimation(fig=fig, artists=artists, interval=100)
+
+ani = animation.ArtistAnimation(fig=fig, artists=artists, interval=400)
 plt.show()
 
 ###############################################################################
