@@ -7,6 +7,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api, cm, patches
+from matplotlib.container import Container
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
@@ -76,17 +77,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     Returns
     -------
-    StreamplotSet
-        Container object with attributes
+    `~.StreamplotContainer`
 
-        - ``lines``: `.LineCollection` of streamlines
-
-        - ``arrows``: `.PatchCollection` containing `.FancyArrowPatch`
-          objects representing the arrows half-way along stream lines.
-
-        This container will probably change in the future to allow changes
-        to the colormap, alpha, etc. for both lines and arrows, but these
-        changes should be backward compatible.
+    .. versionchanged major.minor::
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
@@ -237,19 +230,56 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         axes.add_patch(p)
 
     axes.autoscale_view()
-    stream_container = StreamplotSet(lc, ac)
+    stream_container = StreamplotContainer((lc, ac))
     return stream_container
 
 
+@_api.deprecated("major.minor", alternative="streamplot.StreamplotContainer")
 class StreamplotSet:
-
     def __init__(self, lines, arrows):
         self.lines = lines
         self.arrows = arrows
 
 
+class StreamplotContainer(Container):
+    """
+    `~.Container` object for artists created in an `~.Axes.streamplot` plot.
+
+    It can be treated like a namedtuple with fields ``(lines, arrows)``
+
+    .. versionadded major.minor ::
+
+    Attributes
+    ----------
+    lines: `~.LineCollection`
+`       The collection of `.Line2d` segments that make up the streamlines
+    arrows: `~.PatchCollection`
+        The collection of `.FancyArrow` arrows half-way along each streamline
+
+    .. note::
+        This container will probably change in the future to allow changes
+        to the colormap, alpha, etc. for both lines and arrows, but these
+        changes should be backward compatible.
+    """
+
+    def __init__(self, lines_arrows, **kwargs):
+        """
+        Parameters
+        ----------
+        lines_arrows : tuple
+            Tuple of (lines, arrows)
+            ``lines``: `.LineCollection` of streamlines.
+            ``arrows``: `.PatchCollection` of `.FancyArrowPatch` arrows
+        """
+        lines, arrows = lines_arrows
+        self.lines = lines
+        self.arrows = arrows
+        super().__init__(lines_arrows, **kwargs)
+
+
 # Coordinate definitions
 # ========================
+
 
 class DomainMap:
     """
