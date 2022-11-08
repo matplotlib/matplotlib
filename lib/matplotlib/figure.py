@@ -3145,7 +3145,7 @@ class Figure(FigureBase):
 
     def savefig(self, fname, *, transparent=None, **kwargs):
         """
-        Save the current figure.
+        Save the figure.
 
         Call signature::
 
