@@ -276,20 +276,15 @@ class GridSpecBase:
             raise ValueError("GridSpec.subplots() only works for GridSpecs "
                              "created with a parent figure")
 
-        if isinstance(sharex, bool) or sharex == 1 or sharex == 0:
+        if isinstance(sharex, str):
+            pass
+        else:
             sharex = "all" if sharex else "none"
-        if isinstance(sharey, bool) or sharey == 1 or sharey == 0:
+        if isinstance(sharey, str):
+            pass
+        else:
             sharey = "all" if sharey else "none"
-        # This check was added because it is very easy to type
-        # `subplots(1, 2, 1)` when `subplot(1, 2, 1)` was intended.
-        # In most cases, no error will ever occur, but mysterious behavior
-        # will result because what was intended to be the subplot index is
-        # instead treated as a bool for sharex.  This check should go away
-        # once sharex becomes kwonly.
-        if isinstance(sharex, Integral):
-            _api.warn_external(
-                "sharex argument to subplots() was an integer.  Did you "
-                "intend to use subplot() (without 's')?")
+
         _api.check_in_list(["all", "row", "col", "none", 0, 1, False, True],
                            sharex=sharex, sharey=sharey)
         if subplot_kw is None:
