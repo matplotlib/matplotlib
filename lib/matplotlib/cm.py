@@ -704,6 +704,14 @@ vmin, vmax : float, optional
 )
 
 
+def get_random_cmap():
+    """ 
+    Returns a colormap at random from _colormaps
+
+    """
+    return _get_cmap(np.random.choice(_colormaps))
+
+
 def _ensure_cmap(cmap):
     """
     Ensure that we have a `.Colormap` object.
@@ -715,6 +723,7 @@ def _ensure_cmap(cmap):
     cmap : None, str, Colormap
 
         - if a `Colormap`, return it
+        - if "random", return a random Colormap with get_random_cmap()
         - if a string, look it up in mpl.colormaps
         - if None, look up the default color map in mpl.colormaps
 
@@ -725,6 +734,8 @@ def _ensure_cmap(cmap):
     """
     if isinstance(cmap, colors.Colormap):
         return cmap
+    if cmap == "random":
+        return get_random_cmap()
     cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
     # use check_in_list to ensure type stability of the exception raised by
     # the internal usage of this (ValueError vs KeyError)
