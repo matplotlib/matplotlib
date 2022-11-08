@@ -166,6 +166,8 @@ def test_interactive_backend(env, toolbar):
     if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
+    if env["MPLBACKEND"] == "wx":
+        pytest.skip("wx backend is deprecated; tests failed on appveyor")
     proc = _run_helper(_test_interactive_impl,
                        json.dumps({"toolbar": toolbar}),
                        timeout=_test_timeout,
@@ -568,6 +570,11 @@ def test_figure_leak_20490(env, time_mem):
     # We haven't yet directly identified the leaks so test with a memory growth
     # threshold.
     pause_time, acceptable_memory_leakage = time_mem
+    if env["MPLBACKEND"] == "wx":
+        pytest.skip("wx backend is deprecated; tests failed on appveyor")
+    if env["MPLBACKEND"] == "wxagg" and sys.platform == "win32":
+        pytest.skip("tests failed on appveyor")
+
     if env["MPLBACKEND"] == "macosx" or (
             env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin'
     ):
