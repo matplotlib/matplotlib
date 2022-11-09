@@ -36,7 +36,7 @@ def test_rectangle_selector(ax, kwargs, warning_msg):
     onselect = mock.Mock(spec=noop, return_value=None)
 
     with (pytest.warns(MatplotlibDeprecationWarning, match=warning_msg)
-            if warning_msg else nullcontext()):
+          if warning_msg else nullcontext()):
         tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
@@ -63,7 +63,6 @@ def test_rectangle_selector(ax, kwargs, warning_msg):
 @pytest.mark.parametrize('minspanx, x1', [[0, 10], [1, 10.5], [1, 11]])
 @pytest.mark.parametrize('minspany, y1', [[0, 10], [1, 10.5], [1, 11]])
 def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
-
     onselect = mock.Mock(spec=noop, return_value=None)
 
     x0, y0 = (10, 10)
@@ -103,7 +102,7 @@ def test_deprecation_selector_visible_attribute(ax):
     assert tool.get_visible()
 
     with pytest.warns(
-        MatplotlibDeprecationWarning,
+            MatplotlibDeprecationWarning,
             match="was deprecated in Matplotlib 3.6"):
         tool.visible = False
     assert not tool.get_visible()
@@ -479,7 +478,7 @@ def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
         # resize E handle
         extents = tool.extents
         xdata, ydata, width = extents[1], extents[3], extents[1] - extents[0]
-        xdiff, ycenter = 10,  extents[2] + (extents[3] - extents[2]) / 2
+        xdiff, ycenter = 10, extents[2] + (extents[3] - extents[2]) / 2
         xdata_new, ydata_new = xdata + xdiff, ydata
         ychange = width / 2 + xdiff
         click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
@@ -909,7 +908,7 @@ def test_snapping_values_span_selector(ax):
     def onselect(*args):
         pass
 
-    tool = widgets.SpanSelector(ax, onselect, direction='horizontal',)
+    tool = widgets.SpanSelector(ax, onselect, direction='horizontal', )
     snap_function = tool._snap
 
     snap_values = np.linspace(0, 5, 11)
@@ -960,6 +959,71 @@ def test_CheckButtons(ax):
 
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
+
+
+@pytest.mark.backend('Qt5Agg')
+def test_Buttons(ax):
+    freqs = np.arange(2, 20, 3)
+
+    fig, ax = plt.subplots()
+    fig.subplots_adjust(bottom=0.2)
+    t = np.arange(0.0, 1.0, 0.001)
+    s = np.sin(2 * np.pi * freqs[0] * t)
+    l, = ax.plot(t, s, lw=2)
+
+    class Index:
+        ind = 0
+
+        def next(self, event):
+            self.ind += 1
+            i = self.ind % len(freqs)
+            ydata = np.sin(2 * np.pi * freqs[i] * t)
+            l.set_ydata(ydata)
+            plt.draw()
+
+        def prev(self, event):
+            self.ind -= 1
+            i = self.ind % len(freqs)
+            ydata = np.sin(2 * np.pi * freqs[i] * t)
+            l.set_ydata(ydata)
+            plt.draw()
+
+    callback = Index()
+    axprev = fig.add_axes([0.7, 0.05, 0.1, 0.075])
+    axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
+    bnext = widgets.Button(axnext,
+                           label='Next',
+                           color="0.85",
+                           text_color="#ff0000")
+    bnext.on_clicked(callback.next)
+    bprev = widgets.Button(axprev, 'Previous')
+    bprev.on_clicked(callback.prev)
+
+    plt.show()
+
+    # flip_bool = False
+    # #
+    # freqs = np.arange(2, 20, 3)
+    #
+    # fig, ax = plt.subplots()
+    # fig.subplots_adjust(bottom=0.2)
+    # t = np.arange(0.0, 1.0, 0.001)
+    # s = np.sin(2 * np.pi * freqs[0] * t)
+    # l, = ax.plot(t, s, lw=2)
+    # #
+    #
+    # # Flips a boolean value
+    # def test_function(flip):
+    #     flip = True
+    #
+    # axprev = fig.add_axes([0.7, 0.05, 0.1, 0.075])
+    # axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
+    #
+    # test_button = widgets.Button(ax, label='Next',
+    # color="0.85", text_color="#ff0000")
+    # test_button.on_clicked(test_function(flip_bool))
+    # plt.show()
+    # assert flip_bool == True
 
 
 @pytest.mark.parametrize("toolbar", ["none", "toolbar2", "toolmanager"])
@@ -1072,7 +1136,7 @@ def test_slider_horizontal_vertical():
     assert slider.val == 10
     # check the dimension of the slider patch in axes units
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.bounds, [0, .25, 10/24, .5])
+    assert_allclose(box.bounds, [0, .25, 10 / 24, .5])
 
     fig, ax = plt.subplots()
     slider = widgets.Slider(ax=ax, label='', valmin=0, valmax=24,
@@ -1081,7 +1145,7 @@ def test_slider_horizontal_vertical():
     assert slider.val == 10
     # check the dimension of the slider patch in axes units
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.bounds, [.25, 0, .5, 10/24])
+    assert_allclose(box.bounds, [.25, 0, .5, 10 / 24])
 
 
 def test_slider_reset():
@@ -1147,9 +1211,9 @@ def test_range_slider_same_init_values(orientation):
     fig, ax = plt.subplots()
 
     slider = widgets.RangeSlider(
-         ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation,
-         valinit=[0, 0]
-     )
+        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation,
+        valinit=[0, 0]
+    )
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
     assert_allclose(box.get_points().flatten()[idx], [0, 0.25, 0, 0.75])
 
@@ -1185,7 +1249,7 @@ def check_polygon_selector(event_sequence, expected_result, selections_count,
         do_event(tool, etype, **event_args)
 
     assert onselect.call_count == selections_count
-    assert onselect.call_args == ((expected_result, ), {})
+    assert onselect.call_args == ((expected_result,), {})
 
 
 def polygon_place_vertex(xdata, ydata):

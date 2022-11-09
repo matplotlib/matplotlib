@@ -152,7 +152,7 @@ class Button(AxesWidget):
     """
 
     def __init__(self, ax, label, image=None,
-                 color='0.85', hovercolor='0.95'):
+                 color='0.85', hovercolor='0.95', text_color=".95"):
         """
         Parameters
         ----------
@@ -167,6 +167,8 @@ class Button(AxesWidget):
             The color of the button when not activated.
         hovercolor : color
             The color of the button when the mouse is over it.
+        text_color : color
+            The color of the text label inside the button.
         """
         super().__init__(ax)
 
@@ -175,6 +177,7 @@ class Button(AxesWidget):
         self.label = ax.text(0.5, 0.5, label,
                              verticalalignment='center',
                              horizontalalignment='center',
+                             color=text_color,
                              transform=ax.transAxes)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
