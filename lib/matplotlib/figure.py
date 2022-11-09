@@ -3147,14 +3147,6 @@ class Figure(FigureBase):
         """
         Save the current figure.
 
-        Call signature::
-
-          savefig(fname, *, dpi='figure', format=None, metadata=None,
-                  bbox_inches=None, pad_inches=0.1,
-                  facecolor='auto', edgecolor='auto',
-                  backend=None, **kwargs
-                 )
-
         The available output formats depend on the backend being used.
 
         Parameters
@@ -3251,7 +3243,6 @@ class Figure(FigureBase):
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
-
         """
 
         kwargs.setdefault('dpi', mpl.rcParams['savefig.dpi'])
@@ -3267,6 +3258,16 @@ class Figure(FigureBase):
                         ax.patch._cm_set(facecolor='none', edgecolor='none'))
 
             self.canvas.print_figure(fname, **kwargs)
+
+    savefig.__signature__ = inspect.Signature([
+        *[p for p in inspect.signature(savefig).parameters.values()
+          if p.name != "kwargs"],  # self, fname, transparent
+        *[p.replace(kind=(inspect.Parameter.KEYWORD_ONLY
+                          if p.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD
+                          else p.kind))
+          for p in inspect.signature(
+              FigureCanvasBase.print_figure).parameters.values()
+          if p.name not in ["self", "filename"]]])  # everything else
 
     def ginput(self, n=1, timeout=30, show_clicks=True,
                mouse_add=MouseButton.LEFT,
