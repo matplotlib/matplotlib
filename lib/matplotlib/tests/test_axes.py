@@ -8295,7 +8295,7 @@ def test_extent_units():
 def test_repr_error_message():
 
     def get_next_color():
-        return 'blue'  # currently unused
+        return 'blue'  # pragma: no cover
     import re
     msg = re.escape(
             "'c' argument must be a color, a sequence of colors"
