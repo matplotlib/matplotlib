@@ -146,7 +146,7 @@ def test_find_invalid(tmpdir):
 
     # Not really public, but get_font doesn't expose non-filename constructor.
     from matplotlib.ft2font import FT2Font
-    with pytest.raises(TypeError, match='path or binary-mode file'):
+    with pytest.raises(TypeError, match='font file or a binary-mode file'):
         FT2Font(StringIO())
 
 
