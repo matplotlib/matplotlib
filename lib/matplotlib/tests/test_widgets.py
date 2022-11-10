@@ -993,36 +993,39 @@ def test_Buttons(ax):
     axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
     bnext = widgets.Button(axnext,
                            label='Next',
-                           style="pastel-green")
+                           style="lavender")
     bnext.on_clicked(callback.next)
     bprev = widgets.Button(axprev, 'Previous', style="")
     bprev.on_clicked(callback.prev)
 
     plt.show()
 
-    # flip_bool = False
-    # #
-    # freqs = np.arange(2, 20, 3)
-    #
-    # fig, ax = plt.subplots()
-    # fig.subplots_adjust(bottom=0.2)
-    # t = np.arange(0.0, 1.0, 0.001)
-    # s = np.sin(2 * np.pi * freqs[0] * t)
-    # l, = ax.plot(t, s, lw=2)
-    # #
-    #
-    # # Flips a boolean value
-    # def test_function(flip):
-    #     flip = True
-    #
-    # axprev = fig.add_axes([0.7, 0.05, 0.1, 0.075])
-    # axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
-    #
-    # test_button = widgets.Button(ax, label='Next',
-    # color="0.85", text_color="#ff0000")
-    # test_button.on_clicked(test_function(flip_bool))
-    # plt.show()
-    # assert flip_bool == True
+@pytest.mark.backend('Qt5Agg')
+def test_round_corners(ax):
+    fig, ax = plt.subplots()
+    fig.subplots_adjust(bottom=0.2)
+
+    # Round Button test
+    ax1 = fig.add_axes([0.4, 0.8, 0.1, 0.075])
+    b1 = widgets.Button(ax1, 'Button', color='blue')
+    b1.round_borders()
+    b1.remove_border()
+    b1.on_clicked(lambda event: print('Clicked'))
+
+    # Round Button test
+    ax2 = fig.add_axes([0.4, 0.6, 0.1, 0.075])
+    b2 = widgets.Button(ax2, 'Button', color='blue')
+    b2.round_borders(radius=0.4)
+    b2.remove_border()
+    b2.on_clicked(lambda event: print('Clicked'))
+
+    # Text Box test
+    ax3 = fig.add_axes([0.4, 0.4, 0.1, 0.075])
+    t1 = widgets.TextBox(ax3, 'Type:', color='lightgray')
+    t1.round_borders(radius=0.10)
+    t1.remove_border()
+
+    plt.show()
 
 
 @pytest.mark.parametrize("toolbar", ["none", "toolbar2", "toolmanager"])
