@@ -1163,24 +1163,30 @@ default: %(va)s
             self.sca(current_ax)
         self.stale = True
         return cb
-    
+
     @docstring.dedent_interpd
-    def bivariate_legend(self, *args, ax=None, legend_padding = None, subplot_adjust = None, **kwargs):
+    def bivariate_legend(self, *args, ax=None, legend_padding=None,
+                         subplot_adjust=None, **kwargs):
         if (subplot_adjust is None):
             self.subplots_adjust(left=0.005, right=0.65, top=0.85)
         else:
             self.subplots_adjust(**subplot_adjust)
-        if(ax is None):
+        if ax is None:
             self.subplots_adjust(left=0.005, right=0.65, top=0.85)
-            # position the Legend according to the other axes's dimensions and 
+            # position the Legend according to the other axes's dimensions and
             # position or based on a position specified by the user
             adjust = self.gca().get_position()
-            if (legend_padding == None):
+            if (legend_padding is None):
                 legend_padding = 0.4
             ax = self.add_axes([adjust.x0 + adjust.x1/2 + legend_padding,
-                                adjust.y0 + adjust.y1/2, adjust.x1/3, adjust.y1/3])
-        self.colors, self.blegend = mbvLegend.bivariate_legend(ax, *args, **kwargs)
-        return self.colors, self.blegend
+                                adjust.y0 + adjust.y1/2, adjust.x1/3,
+                                adjust.y1/3])
+        #self.colors, self.blegend = mbvLegend.bivariate_legend(ax, *args,
+        #                                                       **kwargs)
+        #return self.colors, self.blegend
+        self.blegend = mbvLegend.Bivariate_legend(ax, *args,
+                                                  **kwargs)
+        return self.blegend
 
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,

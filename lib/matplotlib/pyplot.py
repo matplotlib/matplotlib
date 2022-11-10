@@ -152,10 +152,11 @@ def install_repl_displayhook():
 
 
 @_copy_docstring_and_deprecators(Figure.bivariate_legend)
-def bivariate_legend(*args, ax= None, subplot_adjust=None, legend_padding=None, **kwargs):
-    ret =  gcf().bivariate_legend(*args, ax=ax, legend_padding=legend_padding, subplot_adjust = subplot_adjust, **kwargs)
+def bivariate_legend(*args, ax=None, subplot_adjust=None, legend_padding=None,
+                     **kwargs):
+    ret = gcf().bivariate_legend(*args, ax=ax, legend_padding=legend_padding,
+                                 subplot_adjust=subplot_adjust, **kwargs)
     return ret
-
 
 
 def uninstall_repl_displayhook():
