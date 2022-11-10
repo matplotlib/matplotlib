@@ -623,7 +623,7 @@ the Agg or Cairo renderers. Simultaneously, support for Qt4 has been dropped.
 Both Qt6 and Qt5 are supported by a combined backend (QtAgg or QtCairo), and
 the loaded version is determined by modules already imported, the
 :envvar:`QT_API` environment variable, and available packages. See
-:ref:`QT_API-usage` for details. The versioned Qt5 backend names (Qt5Agg or
+:ref:`QT_bindings` for details. The versioned Qt5 backend names (Qt5Agg or
 Qt5Cairo) remain supported for backwards compatibility.
 
 .. _PyQt6: https://www.riverbankcomputing.com/static/Docs/PyQt6/
