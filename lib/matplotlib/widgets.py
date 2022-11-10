@@ -130,6 +130,25 @@ class AxesWidget(Widget):
         """Disconnect all events created by this widget."""
         for c in self._cids:
             self.canvas.mpl_disconnect(c)
+    
+    def round_borders(self, radius=0.25, padding=0.01):
+        ax = self.ax
+        color = ax.get_facecolor()
+        self.color = 'w'
+        ax.add_patch(mpl.pyplot.Rectangle((0, radius), 1, 1 - 2 * radius, linewidth=0, edgecolor='w', facecolor=color))
+        ax.add_patch(mpl.pyplot.Rectangle((radius, 0), 1 - 2 * radius, 1, linewidth=0, edgecolor='w', facecolor=color))
+        ax.add_patch(mpl.pyplot.Circle((radius + padding, radius + padding), radius, color=color))
+        ax.add_patch(mpl.pyplot.Circle(( 1 - (radius + padding), 1 - (radius + padding)), radius, color=color))
+        ax.add_patch(mpl.pyplot.Circle((1 - (radius + padding), radius + padding), radius, color=color))
+        ax.add_patch(mpl.pyplot.Circle((radius + padding, 1 - (radius + padding)), radius, color=color))
+
+    def remove_border(self):
+        ax = self.ax
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+
 
 
 class Button(AxesWidget):
@@ -189,6 +208,7 @@ class Button(AxesWidget):
         ax.set_facecolor(color)
         ax.set_xticks([])
         ax.set_yticks([])
+        self.ax = ax
         self.color = color
         self.hovercolor = hovercolor
 
@@ -225,6 +245,7 @@ class Button(AxesWidget):
     def disconnect(self, cid):
         """Remove the callback function with connection id *cid*."""
         self._observers.disconnect(cid)
+
 
 
 class SliderBase(AxesWidget):
