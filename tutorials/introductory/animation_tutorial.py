@@ -46,43 +46,32 @@ import numpy as np
 # *func* that modifies the data plotted on the figure. It uses the *frames*
 # parameter to determine the length of the animation. The *interval* parameter
 # is used to determine time in milliseconds between drawing of two frames.
-# We will now look at some examples of using
-# :class:`~matplotlib.animation.FuncAnimation` with different artists.
-
-###############################################################################
-# Animating Lines
-# ^^^^^^^^^^^^^^^
+# Animating using `.FuncAnimation` would usually follow the following
+# structure:
 #
-# `.pyplot.plot` returns a :class:`~matplotlib.lines.Line2D` collection. The
-# data on this collection can be modified by using the
-# `.lines.Line2D.set_data` function. Therefore we can use this to modify the
-# plot using the function for every frame.
-
-fig, ax = plt.subplots()
-
-xdata = np.arange(0, 2 * np.pi, 0.01)
-(line,) = ax.plot(xdata, np.sin(xdata), c="b")
-ax.set_ylim(-1.1, 1.1)
-
-
-def update(frame):
-    # .set_ydata resets the y-data for the line, so we add the new point to
-    # the existing line x-data and calculate y again.
-    line.set_ydata(np.sin(xdata + frame / 50))
-    return (line,)
-
-
-ani = animation.FuncAnimation(fig=fig, func=update,
-                              interval=30)
-plt.show()
-
-###############################################################################
-# Animating Markers
-# ^^^^^^^^^^^^^^^^^
+# - Plot the initial figure, including all the required artists. Save all the
+#   artists in variables so that they can be updated later on during the
+#   animation.
+# - Create an animation function that updates the data in each artist to
+#   generate the new frame at each function call.
+# - Create a `.FuncAnimation` object with the `.Figure` and the animation
+#   function, along with the keyword arguments.
+# - Use `.animation.Animation.save` or `.pyplot.show` to save or show the
+#   animation.
 #
-# `.pyplot.scatter` returns a :class:`~matplotlib.collections.PathCollection`
-# that can similarly be modified by using the
-# `.collections.PathCollection.set_offsets` function.
+# The update function uses the `set_*` function for different artists to modify
+# the data.
+#
+# =============================  =========================================
+# Artist                         Set method
+# =============================  =========================================
+# `.lines.Line2D`                `.lines.Line2D.set_data`
+# `.collections.PathCollection`  `.collections.PathCollection.set_offsets`
+# `.image.AxesImage`             `.image.AxesImage.set_data`
+# =============================  =========================================
+#
+# An example for animating a `.Axes.scatter` plot is
+
 
 fig, ax = plt.subplots()
 t = np.linspace(-4, 4, 400)
@@ -111,50 +100,13 @@ plt.show()
 
 
 ###############################################################################
-# Animating Images
-# ^^^^^^^^^^^^^^^^
-#
-# When we plot an image using `.pyplot.imshow`, it returns an
-# :class:`~matplotlib.image.AxesImage` object. The data in this object can also
-# similarly be modified by using the `.image.AxesImage.set_data` method.
-
-
-def f(x, y, mean, cov):
-    dev_x = x - mean
-    dev_y = y - mean
-    maha = -0.5 * (((x-mean)/cov)**2 + ((y-mean)/cov)**2)
-    return (1/(np.pi * cov)) * np.exp(maha)
-
-fig, ax = plt.subplots()
-
-x, y = np.meshgrid(np.arange(-1, 1, 0.01), np.arange(-1, 1, 0.01))
-mean = 0
-cov = 0.1
-data = f(x, y, mean, cov)
-aximg = ax.imshow(data)
-
-
-def update(frame):
-    x, y = np.meshgrid(np.arange(-1, 1, 0.01), np.arange(-1, 1, 0.01))
-    mean = 0
-    cov = 0.01 * frame + 1e-6
-    data = f(x, y, mean, cov)
-
-    aximg.set_data(data)
-    return (aximg,)
-
-
-ani = animation.FuncAnimation(fig=fig, func=update, frames=None, interval=100)
-plt.show()
-
-###############################################################################
 # :class:`~matplotlib.animation.ArtistAnimation`
 # ----------------------------------------------
 #
 # :class:`~matplotlib.animation.ArtistAnimation` can be used
 # to generate animations if there is data stored on various different artists.
 # This list of artists is then converted frame by frame into an animation. For
-# example, when we use `Axes.bar` to plot a bar-chart, it creates a number of
+# example, when we use `.Axes.barh` to plot a bar-chart, it creates a number of
 # artists for each of the bar and error bars. To update the plot, one would
 # need to update each of the bars from the container individually and redraw
 # them. Instead, `.animation.ArtistAnimation` can be used to plot each frame
