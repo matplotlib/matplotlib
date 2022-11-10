@@ -8292,14 +8292,13 @@ def test_extent_units():
         im.set_extent([2, 12, date_first, date_last], clip=False)
 
 
-def test_repr_error_message():
+def test_scatter_color_repr_error():
 
     def get_next_color():
         return 'blue'  # pragma: no cover
-    import re
-    msg = re.escape(
-            "'c' argument must be a color, a sequence of colors"
-            ", or a sequence of numbers, not 'red\\n'"
+    msg = (
+            r"'c' argument must be a color, a sequence of colors"
+            r", or a sequence of numbers, not 'red\\n'"
         )
     with pytest.raises(ValueError, match=msg):
         c = 'red\n'
