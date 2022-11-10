@@ -562,6 +562,8 @@ def _test_figure_leak():
 
 
 # TODO: "0.1" memory threshold could be reduced 10x by fixing tkagg
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="appveyor tests fail; gh-22988 suggests reworking")
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 @pytest.mark.parametrize("time_mem", [(0.0, 2_000_000), (0.1, 30_000_000)])
 def test_figure_leak_20490(env, time_mem):
@@ -572,8 +574,6 @@ def test_figure_leak_20490(env, time_mem):
     pause_time, acceptable_memory_leakage = time_mem
     if env["MPLBACKEND"] == "wx":
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
-    if env["MPLBACKEND"] == "wxagg" and sys.platform == "win32":
-        pytest.skip("tests failed on appveyor")
 
     if env["MPLBACKEND"] == "macosx" or (
             env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin'
