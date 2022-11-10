@@ -993,10 +993,9 @@ def test_Buttons(ax):
     axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
     bnext = widgets.Button(axnext,
                            label='Next',
-                           color="0.85",
-                           text_color="#ff0000")
+                           style="pastel-green")
     bnext.on_clicked(callback.next)
-    bprev = widgets.Button(axprev, 'Previous')
+    bprev = widgets.Button(axprev, 'Previous', style="")
     bprev.on_clicked(callback.prev)
 
     plt.show()

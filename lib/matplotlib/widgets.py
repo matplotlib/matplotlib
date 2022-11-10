@@ -152,7 +152,7 @@ class Button(AxesWidget):
     """
 
     def __init__(self, ax, label, image=None,
-                 color='0.85', hovercolor='0.95', text_color=".95"):
+                 color='0.85', hovercolor='0.95', text_color=".10", style=""):
         """
         Parameters
         ----------
@@ -169,8 +169,32 @@ class Button(AxesWidget):
             The color of the button when the mouse is over it.
         text_color : color
             The color of the text label inside the button.
+        style : str
+            A pre-defined style. Style names:
+            "pastel-blue", "lavender", "tangerine", "pastel-green"
         """
         super().__init__(ax)
+        if style == "pastel-blue":
+            color = "#96B9D0"
+            hovercolor = "#BFD4DB"
+            text_color = ".99"
+        elif style == "lavender":
+            color = "#D8C9FF"
+            hovercolor = "#F3D5FB"
+            text_color = "#552c5c"
+        elif style == "tangerine":
+            color = "#FEB07C"
+            hovercolor = "#F9CE90"
+            text_color = "#8B4000"
+        elif style == "pastel-green":
+            color = "#AEDCAE"
+            hovercolor = "#CDEBC5"
+            text_color = "#023020"
+        elif style == "":
+            # Do nothing
+            pass
+        else:
+            raise ValueError('Invalid Style Name')
 
         if image is not None:
             ax.imshow(image)
