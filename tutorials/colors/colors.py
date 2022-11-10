@@ -103,7 +103,7 @@ following table contains examples.
 
 .. note::
 
-    Re-ordering Artists is not commutative in Matplotlib.
+    Changing the order of Artists will generally change the resulting figure.
 
 
 "CN" color selection
