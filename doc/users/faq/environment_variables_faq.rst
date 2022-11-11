@@ -48,7 +48,7 @@ Environment variables
 .. envvar:: QT_API
 
    The Python Qt wrapper to prefer when using Qt-based backends. See :ref:`the
-   entry in the usage guide <QT_API-usage>` for more information.
+   entry in the usage guide <QT_bindings>` for more information.
 
 .. _setting-linux-osx-environment-variables:
 
