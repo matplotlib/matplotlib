@@ -230,51 +230,29 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         axes.add_patch(p)
 
     axes.autoscale_view()
-    stream_container = StreamplotContainer((lc, ac))
-    return stream_container
+    return StreamplotSet(lc, ac)
 
 
-@_api.deprecated("major.minor", alternative="streamplot.StreamplotContainer")
-class StreamplotSet:
-    def __init__(self, lines, arrows):
-        self.lines = lines
-        self.arrows = arrows
-
-
-class StreamplotContainer(Container):
+class StreamplotSet(Container):
     """
     `~.Container` object for artists created in an `~.Axes.streamplot` plot.
 
     It can be treated like a namedtuple with fields ``(lines, arrows)``
 
-    .. versionadded major.minor ::
+    .. versionchanged major.minor ::
 
     Attributes
     ----------
     lines: `~.LineCollection`
-`       The collection of `.Line2d` segments that make up the streamlines
+`       collection of `.Line2d` segments that make up the streamlines
     arrows: `~.PatchCollection`
-        The collection of `.FancyArrow` arrows half-way along each streamline
-
-    .. note::
-        This container will probably change in the future to allow changes
-        to the colormap, alpha, etc. for both lines and arrows, but these
-        changes should be backward compatible.
+        collection of `.FancyArrow` arrows half-way along each streamline
     """
 
-    def __init__(self, lines_arrows, **kwargs):
-        """
-        Parameters
-        ----------
-        lines_arrows : tuple
-            Tuple of (lines, arrows)
-            ``lines``: `.LineCollection` of streamlines.
-            ``arrows``: `.PatchCollection` of `.FancyArrowPatch` arrows
-        """
-        lines, arrows = lines_arrows
+    def __init__(self, lines, arrows, **kwargs):
         self.lines = lines
         self.arrows = arrows
-        super().__init__(lines_arrows, **kwargs)
+        super().__init__(lines, arrows, **kwargs)
 
 
 # Coordinate definitions

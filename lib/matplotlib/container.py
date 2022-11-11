@@ -1,3 +1,5 @@
+import collections
+
 from matplotlib import cbook
 from matplotlib.artist import Artist
 
@@ -15,7 +17,12 @@ class Container(tuple):
                 .format(type(self).__name__, len(self)))
 
     def __new__(cls, *args, **kwargs):
-        return tuple.__new__(cls, args[0])
+        if isinstance(args[0], collections.abc.Iterable):
+            iterable_of_artists = args[0]
+        else:
+            iterable_of_artists = (a for a in args if isinstance(a, Artist))
+
+        return tuple.__new__(cls, iterable_of_artists)
 
     def __init__(self, kl, label=None):
         self._callbacks = cbook.CallbackRegistry(signals=["pchanged"])
