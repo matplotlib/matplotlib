@@ -62,15 +62,27 @@ import numpy as np
 # The update function uses the `set_*` function for different artists to modify
 # the data.
 #
-# =============================  =========================================
+# =============================  ===========================================
 # Artist                         Set method
-# =============================  =========================================
+# =============================  ===========================================
 # `.lines.Line2D`                `.lines.Line2D.set_data`
 # `.collections.PathCollection`  `.collections.PathCollection.set_offsets`
 # `.image.AxesImage`             `.image.AxesImage.set_data`
-# =============================  =========================================
+# `.text.Annotation`             `.text.Annotation.update_positions`
+# `.patches.Rectangle`           `.Rectangle.set_angle`,
+#                                `.Rectangle.set_bounds`,
+#                                `.Rectangle.set_height`,
+#                                `.Rectangle.set_width`,
+#                                `.Rectangle.set_x`, `.Rectangle.set_y`
+#                                `.Rectangle.set_xy`
+# `.patches.Polygon`             `.Polygon.set_xy`
+# `.patches.Ellipse`             `.Ellipse.set_angle`,
+#                                `.Ellipse.set_center`,
+#                                `.Ellipse.set_height`, `.Ellipse.set_width`
+# =============================  ===========================================
 #
-# An example for animating a `.Axes.scatter` plot is
+# Other such set methods can be looked up in the artist documentation. An
+# example for animating a `.Axes.scatter` plot is
 
 
 fig, ax = plt.subplots()
