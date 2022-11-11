@@ -56,7 +56,7 @@ import numpy as np
 from matplotlib import _api, _docstring, cbook
 
 
-@_api.deprecated("3.6", alternative="np.hanning")
+@_api.deprecated("3.7", alternative="np.hanning")
 def window_hanning(x):
     """
     Return *x* times the Hanning (or Hann) window of len(*x*).
@@ -68,7 +68,7 @@ def window_hanning(x):
     return np.hanning(len(x))*x
 
 
-@_api.deprecated("3.6")
+@_api.deprecated("3.7")
 def window_none(x):
     """
     No window function; simply return *x*.
@@ -80,7 +80,7 @@ def window_none(x):
     return x
 
 
-@_api.deprecated("3.6", alternative="scipy.signal.detrend")
+@_api.deprecated("3.7", alternative="scipy.signal.detrend")
 def detrend(x, key=None, axis=None):
     """
     Return *x* with its trend removed.
@@ -130,7 +130,7 @@ def detrend(x, key=None, axis=None):
             f"'constant', 'mean', 'linear', or a function")
 
 
-@_api.deprecated("3.6", alternative="scipy.signal.detrend")
+@_api.deprecated("3.7", alternative="scipy.signal.detrend")
 def detrend_mean(x, axis=None):
     """
     Return *x* minus the mean(*x*).
@@ -159,7 +159,7 @@ def detrend_mean(x, axis=None):
     return x - x.mean(axis, keepdims=True)
 
 
-@_api.deprecated("3.6")
+@_api.deprecated("3.7")
 def detrend_none(x, axis=None):
     """
     Return *x*: no detrending.
@@ -182,7 +182,7 @@ def detrend_none(x, axis=None):
     return x
 
 
-@_api.deprecated("3.6", alternative="scipy.signal.detrend")
+@_api.deprecated("3.7", alternative="scipy.signal.detrend")
 def detrend_linear(y):
     """
     Return *x* minus best fit line; 'linear' detrending.
@@ -217,7 +217,7 @@ def detrend_linear(y):
     return y - (b*x + a)
 
 
-@_api.deprecated("3.6")
+@_api.deprecated("3.7")
 def stride_windows(x, n, noverlap=None, axis=0):
     """
     Get all windows of *x* with length *n* as a single array,
@@ -535,7 +535,7 @@ scale_by_freq : bool, default: True
     MATLAB compatibility.""")
 
 
-@_api.deprecated("3.6", alternative="scipy.signal.psd")
+@_api.deprecated("3.7", alternative="scipy.signal.psd")
 @_docstring.dedent_interpd
 def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
@@ -592,7 +592,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
     return Pxx.real, freqs
 
 
-@_api.deprecated("3.6", alternative="scipy.signal.csd")
+@_api.deprecated("3.7", alternative="scipy.signal.csd")
 @_docstring.dedent_interpd
 def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
@@ -712,7 +712,7 @@ phase_spectrum.__doc__ = _single_spectrum_docs.format(
     **_docstring.interpd.params)
 
 
-@_api.deprecated("3.6", alternative="scipy.signal.welch")
+@_api.deprecated("3.7", alternative="scipy.signal.welch")
 @_docstring.dedent_interpd
 def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
              noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
@@ -796,7 +796,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     return spec, freqs, t
 
 
-@_api.deprecated("3.6", alternative="scipy.signal.coherence")
+@_api.deprecated("3.7", alternative="scipy.signal.coherence")
 @_docstring.dedent_interpd
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
            noverlap=0, pad_to=None, sides='default', scale_by_freq=None):

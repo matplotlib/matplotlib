@@ -7017,7 +7017,7 @@ such objects
 
         return h, xedges, yedges, pc
 
-    @_api.deprecated("3.6", alternative="scipy.signal.psd and ax.loglog")
+    @_api.deprecated("3.7", alternative="scipy.signal.psd and ax.loglog")
     @_preprocess_data(replace_names=["x"])
     @_docstring.dedent_interpd
     def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
@@ -7129,7 +7129,7 @@ such objects
         else:
             return pxx, freqs, line
 
-    @_api.deprecated("3.6", alternative="scipy.signal.csd and ax.plot")
+    @_api.deprecated("3.7", alternative="scipy.signal.csd and ax.plot")
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
     @_docstring.dedent_interpd
     def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
@@ -7233,7 +7233,7 @@ such objects
             return pxy, freqs, line
 
     @_api.deprecated(
-        "3.6",
+        "3.7",
         alternative="scipy.signal.spectrogram(mode='magnitude') and ax.loglog")
     @_preprocess_data(replace_names=["x"])
     @_docstring.dedent_interpd
@@ -7321,7 +7321,7 @@ such objects
 
         return spec, freqs, line
 
-    @_api.deprecated("3.6",
+    @_api.deprecated("3.7",
                      alternative="scipy.signal.spectrogram(mode='angle') and "
                                  "ax.loglog")
     @_preprocess_data(replace_names=["x"])
@@ -7393,7 +7393,7 @@ such objects
 
         return spec, freqs, lines[0]
 
-    @_api.deprecated("3.6",
+    @_api.deprecated("3.7",
                      alternative="scipy.signal.spectrogram(mode='phase') and "
                                  "ax.loglog")
     @_preprocess_data(replace_names=["x"])
@@ -7465,7 +7465,7 @@ such objects
 
         return spec, freqs, lines[0]
 
-    @_api.deprecated("3.6", alternative="scipy.signal.coherence and "
+    @_api.deprecated("3.7", alternative="scipy.signal.coherence and "
                                         "ax.semilogx")
     @_preprocess_data(replace_names=["x", "y"])
     @_docstring.dedent_interpd
@@ -7531,7 +7531,7 @@ such objects
 
         return cxy, freqs
 
-    @_api.deprecated("3.6",
+    @_api.deprecated("3.7",
                      alternative="scipy.signal.spectrogram(mode='psd') and "
                                  "ax.loglog")
     @_preprocess_data(replace_names=["x"])
