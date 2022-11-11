@@ -484,6 +484,20 @@ class FigureManagerTk(FigureManagerBase):
                 canvas.draw_idle()
             return manager
 
+    @classmethod
+    def start_main_loop(cls):
+        managers = Gcf.get_all_fig_managers()
+        if managers:
+            first_manager = managers[0]
+            manager_class = type(first_manager)
+            if manager_class._owns_mainloop:
+                return
+            manager_class._owns_mainloop = True
+            try:
+                first_manager.window.mainloop()
+            finally:
+                manager_class._owns_mainloop = False
+
     def _update_window_dpi(self, *args):
         newdpi = self._window_dpi.get()
         self.window.call('tk', 'scaling', newdpi / 72)
@@ -1018,18 +1032,6 @@ FigureManagerTk._toolmanager_toolbar_class = ToolbarTk
 @_Backend.export
 class _BackendTk(_Backend):
     backend_version = tk.TkVersion
+    FigureCanvas = FigureCanvasTk
     FigureManager = FigureManagerTk
-
-    @staticmethod
-    def mainloop():
-        managers = Gcf.get_all_fig_managers()
-        if managers:
-            first_manager = managers[0]
-            manager_class = type(first_manager)
-            if manager_class._owns_mainloop:
-                return
-            manager_class._owns_mainloop = True
-            try:
-                first_manager.window.mainloop()
-            finally:
-                manager_class._owns_mainloop = False
+    mainloop = FigureManagerTk.start_main_loop

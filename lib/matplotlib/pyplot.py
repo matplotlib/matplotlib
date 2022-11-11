@@ -56,7 +56,8 @@ from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
 from matplotlib import _docstring
-from matplotlib.backend_bases import FigureCanvasBase, MouseButton
+from matplotlib.backend_bases import (
+    FigureCanvasBase, FigureManagerBase, MouseButton)
 from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
@@ -285,7 +286,8 @@ def switch_backend(newbackend):
     # Classically, backends can directly export these functions.  This should
     # keep working for backcompat.
     new_figure_manager = getattr(backend_mod, "new_figure_manager", None)
-    # show = getattr(backend_mod, "show", None)
+    show = getattr(backend_mod, "show", None)
+
     # In that classical approach, backends are implemented as modules, but
     # "inherit" default method implementations from backend_bases._Backend.
     # This is achieved by creating a "class" that inherits from
@@ -293,13 +295,14 @@ def switch_backend(newbackend):
     class backend_mod(matplotlib.backend_bases._Backend):
         locals().update(vars(backend_mod))
 
-    # However, the newer approach for defining new_figure_manager (and, in
-    # the future, show) is to derive them from canvas methods.  In that case,
-    # also update backend_mod accordingly; also, per-backend customization of
+    # However, the newer approach for defining new_figure_manager and
+    # show is to derive them from canvas methods.  In that case, also
+    # update backend_mod accordingly; also, per-backend customization of
     # draw_if_interactive is disabled.
     if new_figure_manager is None:
-        # only try to get the canvas class if have opted into the new scheme
+        # Only try to get the canvas class if have opted into the new scheme.
         canvas_class = backend_mod.FigureCanvas
+
         def new_figure_manager_given_figure(num, figure):
             return canvas_class.new_manager(figure, num)
 
@@ -317,6 +320,14 @@ def switch_backend(newbackend):
             new_figure_manager_given_figure
         backend_mod.new_figure_manager = new_figure_manager
         backend_mod.draw_if_interactive = draw_if_interactive
+
+    # If the manager explicitly overrides pyplot_show, use it even if a global
+    # show is already present, as the latter may be here for backcompat.
+    manager_class = getattr(getattr(backend_mod, "FigureCanvas", None),
+                            "manager_class", None)
+    if (manager_class.pyplot_show != FigureManagerBase.pyplot_show
+            or show is None):
+        backend_mod.show = manager_class.pyplot_show
 
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)

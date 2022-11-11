@@ -583,6 +583,13 @@ class FigureManagerQT(FigureManagerBase):
         self.canvas.resize(width, height)
         self.window.resize(width + extra_width, height + extra_height)
 
+    @classmethod
+    def start_main_loop(cls):
+        qapp = QtWidgets.QApplication.instance()
+        if qapp:
+            with _maybe_allow_interrupt(qapp):
+                qt_compat._exec(qapp)
+
     def show(self):
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
@@ -1007,9 +1014,4 @@ class _BackendQT(_Backend):
     backend_version = __version__
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
-
-    @staticmethod
-    def mainloop():
-        qapp = QtWidgets.QApplication.instance()
-        with _maybe_allow_interrupt(qapp):
-            qt_compat._exec(qapp)
+    mainloop = FigureManagerQT.start_main_loop

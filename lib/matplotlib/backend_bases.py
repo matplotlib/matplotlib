@@ -2848,6 +2848,53 @@ class FigureManagerBase:
         """
         return cls(canvas_class(figure), num)
 
+    @classmethod
+    def start_main_loop(cls):
+        """
+        Start the main event loop.
+
+        This method is called by `.FigureManagerBase.pyplot_show`, which is the
+        implementation of `.pyplot.show`.  To customize the behavior of
+        `.pyplot.show`, interactive backends should usually override
+        `~.FigureManagerBase.start_main_loop`; if more customized logic is
+        necessary, `~.FigureManagerBase.pyplot_show` can also be overridden.
+        """
+
+    @classmethod
+    def pyplot_show(cls, *, block=None):
+        """
+        Show all figures.  This method is the implementation of `.pyplot.show`.
+
+        To customize the behavior of `.pyplot.show`, interactive backends
+        should usually override `~.FigureManagerBase.start_main_loop`; if more
+        customized logic is necessary, `~.FigureManagerBase.pyplot_show` can
+        also be overridden.
+
+        Parameters
+        ----------
+        block : bool, optional
+            Whether to block by calling ``start_main_loop``.  The default,
+            None, means to block if we are neither in IPython's ``%pylab`` mode
+            nor in ``interactive`` mode.
+        """
+        managers = Gcf.get_all_fig_managers()
+        if not managers:
+            return
+        for manager in managers:
+            try:
+                manager.show()  # Emits a warning for non-interactive backend.
+            except NonGuiException as exc:
+                _api.warn_external(str(exc))
+        if block is None:
+            # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
+            # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
+            # set to False).
+            ipython_pylab = hasattr(
+                getattr(sys.modules.get("pyplot"), "show", None), "_needmain")
+            block = not ipython_pylab and not is_interactive()
+        if block:
+            cls.start_main_loop()
+
     def show(self):
         """
         For GUI backends, show the figure window and redraw.
@@ -3526,7 +3573,12 @@ class _Backend:
 
     @classmethod
     def draw_if_interactive(cls):
-        if cls.mainloop is not None and is_interactive():
+        manager_class = cls.FigureCanvas.manager_class
+        # Interactive backends reimplement start_main_loop or pyplot_show.
+        backend_is_interactive = (
+            manager_class.start_main_loop != FigureManagerBase.start_main_loop
+            or manager_class.pyplot_show != FigureManagerBase.pyplot_show)
+        if backend_is_interactive and is_interactive():
             manager = Gcf.get_active()
             if manager:
                 manager.canvas.draw_idle()
@@ -3554,8 +3606,8 @@ class _Backend:
             # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
             # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
             # set to False).
-            from matplotlib import pyplot
-            ipython_pylab = hasattr(pyplot.show, "_needmain")
+            ipython_pylab = hasattr(
+                getattr(sys.modules.get("pyplot"), "show", None), "_needmain")
             block = not ipython_pylab and not is_interactive()
         if block:
             cls.mainloop()

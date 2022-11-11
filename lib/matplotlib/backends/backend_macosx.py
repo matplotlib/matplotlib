@@ -165,6 +165,10 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     def close(self):
         return self._close_button_pressed()
 
+    @classmethod
+    def start_main_loop(cls):
+        _macosx.show()
+
     def show(self):
         if not self._shown:
             self._show()
@@ -177,7 +181,4 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 class _BackendMac(_Backend):
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
-
-    @staticmethod
-    def mainloop():
-        _macosx.show()
+    mainloop = FigureManagerMac.start_main_loop
