@@ -97,3 +97,21 @@ def test_axis_artist():
     axisline.label.set_pad(5)
 
     ax.set_ylabel("Test")
+
+
+@image_comparison(['axis_artist_tight.png'], style='mpl20',
+                  remove_text=True)
+def test_axis_artist_tight():
+    fig, ax = plt.subplots()
+
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+
+    for loc in ('left', 'right', 'bottom'):
+        _helper = AxisArtistHelperRectlinear.Fixed(ax, loc=loc)
+        axisline = AxisArtist(ax, _helper, offset=None, axis_direction=loc)
+        ax.add_artist(axisline)
+
+    # Settings for bottom AxisArtist.
+    axisline.major_ticks.set_tick_out(True)
+    plt.tight_layout()
