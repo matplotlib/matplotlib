@@ -23,3 +23,4 @@ An example is:
     im = ax.imshow(imdata)
     fig.colorbar(im, cax=ax.inset_axes([0, 1.05, 1, 0.05]),
                  location='top')
+    fig.tight_layout()
