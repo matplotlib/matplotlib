@@ -959,6 +959,8 @@ class Axis(martist.Artist):
         """
         Get appearance parameters for ticks, ticklabels, and gridlines.
 
+        .. versionadded:: 3.7
+
         Parameters
         ----------
         which : {'major', 'minor'}, default: 'major'
