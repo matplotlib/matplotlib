@@ -967,13 +967,13 @@ class Axis(martist.Artist):
         Returns
         -------
         dict
-            Properties for styling *new* elements added to this axis.
+            Properties for styling tick elements added to the axis.
 
         Notes
         -----
         This method returns the appearance parameters for styling *new*
         elements added to this axis and may be different from the values
-        on current elements, if they were modified directly by the user
+        on current elements if they were modified directly by the user
         (e.g., via ``set_*`` methods on individual tick objects).
 
         Examples
@@ -998,8 +998,6 @@ class Axis(martist.Artist):
             'labelright': False,
             'gridOn': False}
 
-        This allows us to confirm without visual inspection of the plot
-        that our styling is having the desired effect.
 
         """
         _api.check_in_list(['major', 'minor'], which=which)
