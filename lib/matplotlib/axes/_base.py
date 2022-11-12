@@ -3404,7 +3404,7 @@ class _AxesBase(martist.Artist):
 
         Tick properties that are not explicitly set using the keyword
         arguments remain unchanged unless *reset* is True. For the current
-        style defaults, see `.Axis.get_tick_params`.
+        style settings, see `.Axis.get_tick_params`.
 
         Parameters
         ----------

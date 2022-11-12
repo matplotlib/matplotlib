@@ -920,7 +920,7 @@ class Axis(martist.Artist):
         See Also
         --------
         .Axis.get_tick_params
-            View the current style defaults for ticks, ticklabels, and
+            View the current style settings for ticks, ticklabels, and
             gridlines.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
