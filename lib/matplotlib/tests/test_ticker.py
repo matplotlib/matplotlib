@@ -194,6 +194,20 @@ class TestAutoMinorLocator:
 
 
 class TestLogLocator:
+    @pytest.mark.parametrize(
+        'vmin, vmax, expected_ticks',
+        (
+            [1, 10, [1, 10]],
+            [0.9, 10.1, [1, 10]],
+            [0.9, 9, [1]],
+            [1.1, 11, [10]],
+            [0.5, 983, [1, 10, 100]]
+        )
+    )
+    def test_tick_locs(self, vmin, vmax, expected_ticks):
+        ll = mticker.LogLocator(base=10.0, subs=(1.0,))
+        np.testing.assert_equal(ll.tick_values(vmin, vmax), expected_ticks)
+
     def test_basic(self):
         loc = mticker.LogLocator(numticks=5)
         test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01,
