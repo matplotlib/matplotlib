@@ -11,7 +11,7 @@ can now be expressed with units.
     from matplotlib.dates import HourLocator, DateFormatter
     from matplotlib.ticker import AutoMinorLocator
 
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(6, 4))
     date_first = np.datetime64('2020-01-01', 'D')
     date_last = np.datetime64('2020-01-11', 'D')
 
