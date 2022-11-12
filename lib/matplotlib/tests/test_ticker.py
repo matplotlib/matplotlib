@@ -196,9 +196,6 @@ class TestAutoMinorLocator:
 class TestLogLocator:
     def test_basic(self):
         loc = mticker.LogLocator(numticks=5)
-        with pytest.raises(ValueError):
-            loc.tick_values(0, 1000)
-
         test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01,
                                1.00000000e+01, 1.00000000e+03, 1.00000000e+05,
                                1.00000000e+07, 1.000000000e+09])
@@ -207,6 +204,15 @@ class TestLogLocator:
         loc = mticker.LogLocator(base=2)
         test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
         assert_almost_equal(loc.tick_values(1, 100), test_value)
+
+    def test_invalid_lim_error(self):
+        loc = mticker.LogLocator()
+        with pytest.raises(
+                ValueError,
+                match='Data has no positive values, '
+                'and therefore can not be log-scaled.'
+        ):
+            loc.tick_values(0, 1000)
 
     def test_polar_axes(self):
         """
