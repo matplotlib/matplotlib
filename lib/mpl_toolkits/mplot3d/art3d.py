@@ -639,6 +639,21 @@ class Path3DCollection(PathCollection):
         self._sort_zpos = val
         self.stale = True
 
+    def get_offsets3d(self):
+        """Return the 3d offsets for the collection as numpy array."""
+        return np.array(self._offsets3d).T
+
+    def set_offsets3d(self, offsets):
+        """
+        Set the offsets for the collection.
+
+        Parameters
+        ----------
+        offsets : (N, 3) array-like
+        """
+        self._offsets3d = np.asanyarray(offsets).T
+        self.stale = True
+
     def set_3d_properties(self, zs, zdir):
         """
         Set the *z* positions and direction of the paths.

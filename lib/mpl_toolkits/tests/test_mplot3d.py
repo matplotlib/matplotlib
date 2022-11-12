@@ -1360,6 +1360,26 @@ def test_line3d_set_get_data_3d():
     np.testing.assert_array_equal((x, y, np.zeros_like(z)), line.get_data_3d())
 
 
+def test_PathCollection3d_set_get_offsets_3d():
+    orig = np.array([
+            [0, 1, 1],
+            [2, 3, 2]
+    ])
+
+    new = np.array([
+            [6, 7, 4],
+            [8, 9, 5],
+            [10, 11, 6]
+    ])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    scat = ax.scatter(*orig.T)
+    np.testing.assert_array_equal(orig, scat.get_offsets3d())
+    scat.set_offsets3d(new)
+    np.testing.assert_array_equal(new, scat.get_offsets3d())
+
+
 @check_figures_equal(extensions=["png"])
 def test_inverted(fig_test, fig_ref):
     # Plot then invert.
