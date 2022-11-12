@@ -60,29 +60,35 @@ import numpy as np
 #   animation.
 #
 # The update function uses the `set_*` function for different artists to modify
-# the data.
+# the data. The following table shows a few example methods, the artist types
+# they return and the methods that can be used to update them.
 #
-# =============================  ===========================================
-# Artist                         Set method
-# =============================  ===========================================
-# `.lines.Line2D`                `.lines.Line2D.set_data`
-# `.collections.PathCollection`  `.collections.PathCollection.set_offsets`
-# `.image.AxesImage`             `.image.AxesImage.set_data`
-# `.text.Annotation`             `.text.Annotation.update_positions`
-# `.patches.Rectangle`           `.Rectangle.set_angle`,
-#                                `.Rectangle.set_bounds`,
-#                                `.Rectangle.set_height`,
-#                                `.Rectangle.set_width`,
-#                                `.Rectangle.set_x`, `.Rectangle.set_y`
-#                                `.Rectangle.set_xy`
-# `.patches.Polygon`             `.Polygon.set_xy`
-# `.patches.Ellipse`             `.Ellipse.set_angle`,
-#                                `.Ellipse.set_center`,
-#                                `.Ellipse.set_height`, `.Ellipse.set_width`
-# =============================  ===========================================
+# =================  =============================  ===========================
+# Plotting method    Artist                         Set method
+# =================  =============================  ===========================
+# `.Axes.plot`       `.lines.Line2D`                `.lines.Line2D.set_data`
+# `.Axes.scatter`    `.collections.PathCollection`  `.collections.PathCollecti\
+#                                                   on.set_offsets`
+# `.Axes.imshow`     `.image.AxesImage`             `.image.AxesImage.set_data`
+# `.Axes.annotate`   `.text.Annotation`             `.text.Annotation.update_p\
+#                                                   ositions`
+# `.Axes.barh`       `.patches.Rectangle`           `.Rectangle.set_angle`,
+#                                                   `.Rectangle.set_bounds`,
+#                                                   `.Rectangle.set_height`,
+#                                                   `.Rectangle.set_width`,
+#                                                   `.Rectangle.set_x`,
+#                                                   `.Rectangle.set_y`
+#                                                   `.Rectangle.set_xy`
+# `.Axes.fill`       `.patches.Polygon`             `.Polygon.set_xy`
+# `.patches.Circle`  `.patches.Ellipse`             `.Ellipse.set_angle`,
+#                                                   `.Ellipse.set_center`,
+#                                                   `.Ellipse.set_height`,
+#                                                   `.Ellipse.set_width`
+# =================  =============================  ===========================
 #
-# Other such set methods can be looked up in the artist documentation. An
-# example for animating a `.Axes.scatter` plot is
+# Covering the set methods for all types of artists is beyond the scope of this
+# tutorial but can be found in their respective documentations. An example of
+# such update methods in use for `.Axes.scatter` is as follows.
 
 
 fig, ax = plt.subplots()
