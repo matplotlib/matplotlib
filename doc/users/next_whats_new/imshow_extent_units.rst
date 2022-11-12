@@ -11,7 +11,7 @@ can now be expressed with units.
     from matplotlib.dates import HourLocator, DateFormatter
     from matplotlib.ticker import AutoMinorLocator
 
-    fig, ax = plt.subplots(figsize=(6, 4))
+    fig, ax = plt.subplots(layout='constrained')
     date_first = np.datetime64('2020-01-01', 'D')
     date_last = np.datetime64('2020-01-11', 'D')
 
@@ -22,7 +22,5 @@ can now be expressed with units.
     ax.yaxis.set_major_formatter(DateFormatter('%d/%m/%y:- %H00hours'))
     ax.yaxis.set_major_locator(HourLocator(byhour=[0, 12, 24]))
     ax.yaxis.set_minor_locator(AutoMinorLocator())
-
-    fig.tight_layout()
 
     plt.show()
