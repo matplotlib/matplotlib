@@ -4,7 +4,8 @@ Additional format string options in `~matplotlib.axes.Axes.bar_label`
 The ``fmt`` argument of `~matplotlib.axes.Axes.bar_label` now accepts
 {}-style format strings:
 
-.. code-block:: python
+.. plot::
+    :include-source: true
 
     import matplotlib.pyplot as plt
 
@@ -18,7 +19,8 @@ The ``fmt`` argument of `~matplotlib.axes.Axes.bar_label` now accepts
 
 It also accepts callables:
 
-.. code-block:: python
+.. plot::
+    :include-source: true
 
     animal_names = ['Lion', 'Gazelle', 'Cheetah']
     mph_speed = [50, 60, 75]
