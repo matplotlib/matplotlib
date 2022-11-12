@@ -2352,14 +2352,6 @@ class LogLocator(Locator):
             numticks = self.numticks
 
         b = self._base
-        # dummy axis has no axes attribute
-        if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
-            vmax = math.ceil(math.log(vmax) / math.log(b))
-            decades = np.arange(vmax - self.numdecs, vmax)
-            ticklocs = b ** decades
-
-            return ticklocs
-
         if vmin <= 0.0:
             if self.axis is not None:
                 vmin = self.axis.get_minpos()
@@ -2443,10 +2435,6 @@ class LogLocator(Locator):
         b = self._base
 
         vmin, vmax = self.nonsingular(vmin, vmax)
-
-        if self.axis.axes.name == 'polar':
-            vmax = math.ceil(math.log(vmax) / math.log(b))
-            vmin = b ** (vmax - self.numdecs)
 
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             vmin = _decade_less_equal(vmin, self._base)
