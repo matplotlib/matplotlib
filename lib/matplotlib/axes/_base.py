@@ -926,6 +926,10 @@ class _AxesBase(martist.Artist):
             `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+
+        Parameters
+        ----------
+        which : {'grid', 'tick1', 'tick2'}
         """
         if which == 'grid':
             return self._xaxis_transform
@@ -1002,6 +1006,10 @@ class _AxesBase(martist.Artist):
             `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+
+        Parameters
+        ----------
+        which : {'grid', 'tick1', 'tick2'}
         """
         if which == 'grid':
             return self._yaxis_transform
