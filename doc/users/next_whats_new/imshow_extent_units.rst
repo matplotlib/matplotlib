@@ -8,7 +8,7 @@ can now be expressed with units.
 
     import matplotlib.pyplot as plt
     import numpy as np
-    from matplotlib.dates import HourLocator, DateFormatter
+    from matplotlib.dates import HourLocator, ConciseDateFormatter
     from matplotlib.ticker import AutoMinorLocator
 
     fig, ax = plt.subplots(layout='constrained')
@@ -19,8 +19,14 @@ can now be expressed with units.
 
     ax.imshow(arr, origin='lower', extent=[1, 11, date_first, date_last])
 
-    ax.yaxis.set_major_formatter(DateFormatter('%d/%m/%y:- %H00hours'))
-    ax.yaxis.set_major_locator(HourLocator(byhour=[0, 12, 24]))
+    locator = HourLocator(byhour=[0, 12, 24])
+    ax.yaxis.set_major_formatter(
+        ConciseDateFormatter(
+            locator, show_offset=False,
+            zero_formats=['', '%Y', '%b', '%b-%d %H:%M', '%H:%M', '%H:%M']
+        )
+    )
+    ax.yaxis.set_major_locator(locator)
     ax.yaxis.set_minor_locator(AutoMinorLocator())
 
     plt.show()
