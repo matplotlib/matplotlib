@@ -60,8 +60,8 @@ import numpy as np
 #   animation.
 #
 # The update function uses the `set_*` function for different artists to modify
-# the data. The following table shows a few example methods, the artist types
-# they return and the methods that can be used to update them.
+# the data. The following table shows a few plotting methods, the artist types
+# they return and some methods that can be used to update them.
 #
 # =================  =============================  ===========================
 # Plotting method    Artist                         Set method
