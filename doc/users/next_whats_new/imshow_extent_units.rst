@@ -19,7 +19,8 @@ can now be expressed with units.
 
     ax.imshow(arr, origin='lower', extent=[1, 11, date_first, date_last])
 
-    locator = HourLocator(byhour=[0, 12, 24])
+    # customize tick locations and labels
+    locator = HourLocator(byhour=[0, 12])
     ax.yaxis.set_major_formatter(
         ConciseDateFormatter(
             locator, show_offset=False,
