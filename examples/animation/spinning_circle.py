@@ -28,7 +28,7 @@ ax.set_rmax(1.1)  # make round capstyle on outside visible
 def update(*args):
     new_colors = np.roll(lines.get_colors(), shift=-1, axis=0)
     lines.set_color(new_colors)
-    return lines
+    return lines,
 
 
 ani = animation.FuncAnimation(
