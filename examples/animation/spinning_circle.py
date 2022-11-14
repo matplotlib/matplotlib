@@ -16,8 +16,8 @@ ax.axis('off')
 
 lines = ax.vlines(
     np.radians(np.arange(0, 360, 30)),
-    0.5, 
-    1, 
+    0.5,
+    1,
     lw=17,
     colors=np.linspace(0.15, 0.85, 12, dtype=str),
     capstyle='round',
@@ -32,7 +32,7 @@ def update(*args):
 
 
 ani = animation.FuncAnimation(
-    fig, 
+    fig,
     update,
     interval=100)
 
