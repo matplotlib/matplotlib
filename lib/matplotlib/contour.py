@@ -1444,17 +1444,16 @@ class QuadContourSet(ContourSet):
             fn = 'contourf'
         else:
             fn = 'contour'
-        Nargs = len(args)
-        if Nargs <= 2:
+        nargs = len(args)
+        if nargs <= 2:
             z = ma.asarray(args[0], dtype=np.float64)
             x, y = self._initialize_x_y(z)
             args = args[1:]
-        elif Nargs <= 4:
+        elif nargs <= 4:
             x, y, z = self._check_xyz(args[:3], kwargs)
             args = args[3:]
         else:
-            raise TypeError("Too many arguments to %s; see help(%s)" %
-                            (fn, fn))
+            raise _api.nargs_error(fn, takes="from 1 to 4", given=nargs)
         z = ma.masked_invalid(z, copy=False)
         self.zmax = float(z.max())
         self.zmin = float(z.min())
