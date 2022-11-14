@@ -2064,7 +2064,7 @@ class _AxesBase(martist.Artist):
             x1 = xc + Xsize / 2.0
             self.set_xbound(x_trf.inverted().transform([x0, x1]))
 
-    def axis(self, *args, emit=True, **kwargs):
+    def axis(self, arg=None, /, *, emit=True, **kwargs):
         """
         Convenience method to get or set some axis properties.
 
@@ -2122,37 +2122,34 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
         """
-        if len(args) > 1:
-            raise TypeError("axis() takes 0 or 1 positional arguments but "
-                            f"{len(args)} were given")
-        elif len(args) == 1 and isinstance(args[0], (str, bool)):
-            s = args[0]
-            if s is True:
-                s = 'on'
-            if s is False:
-                s = 'off'
-            s = s.lower()
-            if s == 'on':
+        if isinstance(arg, (str, bool)):
+            if arg is True:
+                arg = 'on'
+            if arg is False:
+                arg = 'off'
+            arg = arg.lower()
+            if arg == 'on':
                 self.set_axis_on()
-            elif s == 'off':
+            elif arg == 'off':
                 self.set_axis_off()
-            elif s in ('equal', 'tight', 'scaled', 'auto', 'image', 'square'):
+            elif arg in [
+                    'equal', 'tight', 'scaled', 'auto', 'image', 'square']:
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
-                if s == 'equal':
+                if arg == 'equal':
                     self.set_aspect('equal', adjustable='datalim')
-                elif s == 'scaled':
+                elif arg == 'scaled':
                     self.set_aspect('equal', adjustable='box', anchor='C')
                     self.set_autoscale_on(False)  # Req. by Mark Bakker
-                elif s == 'tight':
+                elif arg == 'tight':
                     self.autoscale_view(tight=True)
                     self.set_autoscale_on(False)
-                elif s == 'image':
+                elif arg == 'image':
                     self.autoscale_view(tight=True)
                     self.set_autoscale_on(False)
                     self.set_aspect('equal', adjustable='box', anchor='C')
-                elif s == 'square':
+                elif arg == 'square':
                     self.set_aspect('equal', adjustable='box', anchor='C')
                     self.set_autoscale_on(False)
                     xlim = self.get_xlim()
@@ -2163,13 +2160,12 @@ class _AxesBase(martist.Artist):
                     self.set_ylim([ylim[0], ylim[0] + edge_size],
                                   emit=emit, auto=False)
             else:
-                raise ValueError(f"Unrecognized string {s!r} to axis; "
+                raise ValueError(f"Unrecognized string {arg!r} to axis; "
                                  "try 'on' or 'off'")
         else:
-            if len(args) == 1:
-                limits = args[0]
+            if arg is not None:
                 try:
-                    xmin, xmax, ymin, ymax = limits
+                    xmin, xmax, ymin, ymax = arg
                 except (TypeError, ValueError) as err:
                     raise TypeError('the first argument to axis() must be an '
                                     'iterable of the form '

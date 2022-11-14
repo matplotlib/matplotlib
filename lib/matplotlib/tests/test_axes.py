@@ -5429,8 +5429,8 @@ def test_shared_aspect_error():
 
 @pytest.mark.parametrize('err, args, kwargs, match',
                          ((TypeError, (1, 2), {},
-                           r"axis\(\) takes 0 or 1 positional arguments but 2"
-                           " were given"),
+                           r"axis\(\) takes from 0 to 1 positional arguments "
+                           "but 2 were given"),
                           (ValueError, ('foo', ), {},
                            "Unrecognized string 'foo' to axis; try 'on' or "
                            "'off'"),
