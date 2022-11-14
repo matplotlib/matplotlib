@@ -5735,6 +5735,17 @@ def test_set_get_ticklabels():
     ax[1].set_yticklabels(ax[0].get_yticklabels())
 
 
+def test_set_ticks_kwargs_raise_error_without_labels():
+    """
+    When labels=None and any kwarg is passed, axis.set_ticks() raises a
+    ValueError.
+    """
+    fig, ax = plt.subplots()
+    ticks = [1, 2, 3]
+    with pytest.raises(ValueError):
+        ax.xaxis.set_ticks(ticks, alpha=0.5)
+
+
 @check_figures_equal(extensions=["png"])
 def test_set_ticks_with_labels(fig_test, fig_ref):
     """
