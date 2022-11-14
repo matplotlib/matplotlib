@@ -334,6 +334,12 @@ def select_matching_signature(funcs, *args, **kwargs):
                 raise
 
 
+def nargs_error(name, takes, given):
+    """Generate a TypeError to be raised by function calls with wrong arity."""
+    return TypeError(f"{name}() takes {takes} positional arguments but "
+                     f"{given} were given")
+
+
 def recursive_subclasses(cls):
     """Yield *cls* and direct and indirect subclasses of *cls*."""
     yield cls
