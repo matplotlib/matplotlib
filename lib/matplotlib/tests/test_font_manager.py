@@ -73,7 +73,8 @@ def test_otf():
             assert res == is_opentype_cff_font(f.fname)
 
 
-@pytest.mark.skipif(not has_fclist, reason='no fontconfig installed')
+@pytest.mark.skipif(sys.platform == "win32" or not has_fclist,
+                    reason='no fontconfig installed')
 def test_get_fontconfig_fonts():
     assert len(_get_fontconfig_fonts()) > 1
 
