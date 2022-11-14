@@ -8,7 +8,6 @@ can now be expressed with units.
 
     import matplotlib.pyplot as plt
     import numpy as np
-    from matplotlib.dates import DateFormatter
 
     fig, ax = plt.subplots(layout='constrained')
     date_first = np.datetime64('2020-01-01', 'D')
@@ -16,8 +15,6 @@ can now be expressed with units.
 
     arr = [[i+j for i in range(10)] for j in range(10)]
 
-    ax.imshow(arr, origin='lower', extent=[1, 11, date_first, date_last])
-
-    ax.yaxis.set_major_formatter(DateFormatter('%d/%m/%y'))
+    ax.imshow(arr, origin='lower', extent=[0, 10, date_first, date_last])
 
     plt.show()
