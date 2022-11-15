@@ -1371,9 +1371,8 @@ class Normalize:
 
     def autoscale(self, A):
         """Set *vmin*, *vmax* to min, max of *A*."""
-        A = np.asanyarray(A)
-        self.vmin = A.min()
-        self.vmax = A.max()
+        self.vmin = self.vmax = None
+        self.autoscale_None(A)
 
     def autoscale_None(self, A):
         """If vmin or vmax are not set, use the min/max of *A* to set them."""
@@ -1715,14 +1714,8 @@ def _make_norm_from_scale(
                      .reshape(np.shape(value)))
             return value[0] if is_scalar else value
 
-        def autoscale(self, A):
-            # i.e. A[np.isfinite(...)], but also for non-array A's
-            in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
-            if in_trf_domain.size == 0:
-                in_trf_domain = np.ma.masked
-            return super().autoscale(in_trf_domain)
-
         def autoscale_None(self, A):
+            # i.e. A[np.isfinite(...)], but also for non-array A's
             in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
             if in_trf_domain.size == 0:
                 in_trf_domain = np.ma.masked
