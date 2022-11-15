@@ -1,5 +1,6 @@
-:mod:`.backend_qtagg`, :mod:`.backend_qtcairo`
-==============================================
+******************************************************************************
+``matplotlib.backends.backend_qtagg``, ``matplotlib.backends.backend_qtcairo``
+******************************************************************************
 
 **NOTE** These :ref:`backends` are not (auto) documented here, to avoid adding
 a dependency to building the docs.
