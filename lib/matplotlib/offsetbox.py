@@ -46,15 +46,12 @@ def bbox_artist(*args, **kwargs):
         mbbox_artist(*args, **kwargs)
 
 
-def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
+def _get_packed_offsets(widths, total, sep, mode="fixed"):
     r"""
-    Pack boxes specified by their ``(width, xdescent)`` pair.
+    Pack boxes specified by their *widths*.
 
     For simplicity of the description, the terminology used here assumes a
     horizontal layout, but the function works equally for a vertical layout.
-
-    *xdescent* is analogous to the usual descent, but along the x-direction; it
-    is currently ignored.
 
     There are three packing *mode*\s:
 
@@ -79,8 +76,8 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
 
     Parameters
     ----------
-    wd_list : list of (float, float)
-        (width, xdescent) of boxes to be packed.
+    widths : list of float
+        Widths of boxes to be packed.
     total : float or None
         Intended total length. *None* if not used.
     sep : float
@@ -95,11 +92,10 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     offsets : array of float
         The left offsets of the boxes.
     """
-    w_list, d_list = zip(*wd_list)  # d_list is currently not used.
     _api.check_in_list(["fixed", "expand", "equal"], mode=mode)
 
     if mode == "fixed":
-        offsets_ = np.cumsum([0] + [w + sep for w in w_list])
+        offsets_ = np.cumsum([0] + [w + sep for w in widths])
         offsets = offsets_[:-1]
         if total is None:
             total = offsets_[-1] - sep
@@ -110,24 +106,24 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         # is None and used in conjugation with tight layout.
         if total is None:
             total = 1
-        if len(w_list) > 1:
-            sep = (total - sum(w_list)) / (len(w_list) - 1)
+        if len(widths) > 1:
+            sep = (total - sum(widths)) / (len(widths) - 1)
         else:
             sep = 0
-        offsets_ = np.cumsum([0] + [w + sep for w in w_list])
+        offsets_ = np.cumsum([0] + [w + sep for w in widths])
         offsets = offsets_[:-1]
         return total, offsets
 
     elif mode == "equal":
-        maxh = max(w_list)
+        maxh = max(widths)
         if total is None:
             if sep is None:
                 raise ValueError("total and sep cannot both be None when "
                                  "using layout mode 'equal'")
-            total = (maxh + sep) * len(w_list)
+            total = (maxh + sep) * len(widths)
         else:
-            sep = total / len(w_list) - maxh
-        offsets = (maxh + sep) * np.arange(len(w_list))
+            sep = total / len(widths) - maxh
+        offsets = (maxh + sep) * np.arange(len(widths))
         return total, offsets
 
 
@@ -445,7 +441,7 @@ class VPacker(PackerBase):
                                                          self.width,
                                                          self.align)
 
-        pack_list = [(h, yd) for w, h, xd, yd in whd_list]
+        pack_list = [h for w, h, xd, yd in whd_list]
         height, yoffsets_ = _get_packed_offsets(pack_list, self.height,
                                                 sep, self.mode)
 
@@ -483,8 +479,7 @@ class HPacker(PackerBase):
                                                           self.height,
                                                           self.align)
 
-        pack_list = [(w, xd) for w, h, xd, yd in whd_list]
-
+        pack_list = [w for w, h, xd, yd in whd_list]
         width, xoffsets_ = _get_packed_offsets(pack_list, self.width,
                                                sep, self.mode)
 
