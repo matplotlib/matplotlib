@@ -39,6 +39,8 @@ def allow_rasterization(draw):
                     renderer._rasterizing = True
                 renderer._raster_depth += 1
             else:
+                # This part of the code may not needed since rasterization gets
+                # stopped in the finally statements below.
                 if renderer._raster_depth == 0 and renderer._rasterizing:
                     # Only stop when we are not in a rasterized parent
                     # and something has be rasterized since last stop
@@ -54,6 +56,9 @@ def allow_rasterization(draw):
                 renderer.stop_filter(artist.get_agg_filter())
             if artist.get_rasterized():
                 renderer._raster_depth -= 1
+                if renderer._raster_depth == 0 and renderer._rasterizing:
+                    renderer.stop_rasterizing()
+                    renderer._rasterizing = False
             if (renderer._rasterizing and artist.figure and
                     artist.figure.suppressComposite):
                 # restart rasterizing to prevent merging
