@@ -1,9 +1,6 @@
 """
 A collection of utility functions and classes.  Originally, many
 (but not all) were from the Python Cookbook -- hence the name cbook.
-
-This module is safe to import from anywhere within Matplotlib;
-it imports Matplotlib only at runtime.
 """
 
 import collections
@@ -853,21 +850,11 @@ class Grouper:
 class GrouperView:
     """Immutable view over a `.Grouper`."""
 
-    def __init__(self, grouper):
-        self._grouper = grouper
-
-    class _GrouperMethodForwarder:
-        def __set_name__(self, owner, name):
-            wrapped = getattr(Grouper, name)
-            forwarder = functools.wraps(wrapped)(
-                lambda self, *args, **kwargs: wrapped(
-                    self._grouper, *args, **kwargs))
-            setattr(owner, name, forwarder)
-
-    __contains__ = _GrouperMethodForwarder()
-    __iter__ = _GrouperMethodForwarder()
-    joined = _GrouperMethodForwarder()
-    get_siblings = _GrouperMethodForwarder()
+    def __init__(self, grouper): self._grouper = grouper
+    def __contains__(self, item): return item in self._grouper
+    def __iter__(self): return iter(self._grouper)
+    def joined(self, a, b): return self._grouper.joined(a, b)
+    def get_siblings(self, a): return self._grouper.get_siblings(a)
 
 
 def simple_linear_interpolation(a, steps):
