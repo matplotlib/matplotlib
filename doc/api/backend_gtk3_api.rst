@@ -1,5 +1,6 @@
-:mod:`.backend_gtk3agg`, :mod:`.backend_gtk3cairo`
-==================================================
+**********************************************************************************
+``matplotlib.backends.backend_gtk3agg``, ``matplotlib.backends.backend_gtk3cairo``
+**********************************************************************************
 
 **NOTE** These backends are not documented here, to avoid adding a dependency
 to building the docs.
