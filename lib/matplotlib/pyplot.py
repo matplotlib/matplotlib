@@ -962,7 +962,10 @@ def savefig(*args, **kwargs):
 def figlegend(*args, **kwargs):
     return gcf().legend(*args, **kwargs)
 if Figure.legend.__doc__:
-    figlegend.__doc__ = Figure.legend.__doc__.replace("legend(", "figlegend(")
+    figlegend.__doc__ = Figure.legend.__doc__ \
+        .replace(" legend(", " figlegend(") \
+        .replace("fig.legend(", "plt.figlegend(") \
+        .replace("ax.plot(", "plt.plot(")
 
 
 ## Axes ##
