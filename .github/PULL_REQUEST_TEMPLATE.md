@@ -3,11 +3,9 @@
 ## PR Checklist
 
 <!-- Please mark any checkboxes that do not apply to this PR as [N/A]. -->
-**Tests and Styling**
-- [ ] Has pytest style unit tests (and `pytest` passes).
-- [ ] Is [Flake 8](https://flake8.pycqa.org/en/latest/) compliant (install `flake8-docstrings` and run `flake8 --docstring-convention=all`).
 
-**Documentation**
+**Documentation and Tests**
+- [ ] Has pytest style unit tests (and `pytest` passes)
 - [ ] Documentation is sphinx and numpydoc compliant (the docs should [build](https://matplotlib.org/devel/documenting_mpl.html#building-the-docs) without error).
 - [ ] New plotting related features are documented with examples.
 
