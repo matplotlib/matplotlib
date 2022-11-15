@@ -5744,6 +5744,24 @@ def test_normalize_kwarg_pie():
     assert abs(t2[0][-1].theta2 - 360.) > 1e-3
 
 
+@check_figures_equal()
+def test_pie_hatch_single(fig_test, fig_ref):
+    x = [0.3, 0.3, 0.1]
+    hatch = '+'
+    fig_test.subplots().pie(x, hatch=hatch)
+    wedges, _ = fig_ref.subplots().pie(x)
+    [w.set_hatch(hatch) for w in wedges]
+
+
+@check_figures_equal()
+def test_pie_hatch_multi(fig_test, fig_ref):
+    x = [0.3, 0.3, 0.1]
+    hatch = ['/', '+', '.']
+    fig_test.subplots().pie(x, hatch=hatch)
+    wedges, _ = fig_ref.subplots().pie(x)
+    [w.set_hatch(hp) for w, hp in zip(wedges, hatch)]
+
+
 @image_comparison(['set_get_ticklabels.png'])
 def test_set_get_ticklabels():
     # test issue 2246
