@@ -229,8 +229,7 @@ ani = animation.FuncAnimation(fig=fig, func=update, frames=240, interval=200)
 #   ani.save(filename="/tmp/html_example.htm", writer="html")
 #   ani.save(filename="/tmp/html_example.png", writer="html")
 #
-# FFMpegWriter - Since the frames are piped out to ffmpeg, this option supports
-# all formats supported by ffmpeg::
+# FFMpegWriter::
 #
 #   ani.save(filename="/tmp/ffmpeg_example.mkv", writer="ffmpeg")
 #   ani.save(filename="/tmp/ffmpeg_example.mp4", writer="ffmpeg")
@@ -239,3 +238,7 @@ ani = animation.FuncAnimation(fig=fig, func=update, frames=240, interval=200)
 # Imagemagick writers::
 #
 #   ani.save(filename="/tmp/imagemagick_example.gif", writer="imagemagick")
+#
+# **NOTE**: Since the frames are piped out to *ffmpeg* or *imagemagick*,
+# *writer="ffmpeg"* and *writer="imagemagick"* support all formats supported by
+# *ffmpeg* and *imagemagick*.
