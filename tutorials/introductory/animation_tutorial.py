@@ -138,11 +138,10 @@ data = np.array([20, 20, 20, 20])
 x = np.array([1, 2, 3, 4])
 
 artists = []
-colors = {1: 'b', 2: 'r', 3: 'k', 4: 'g'}
+colors = ['tab:blue', 'tab:red', 'tab:green', 'tab:purple']
 for i in range(20):
     data += rng.integers(low=0, high=10, size=data.shape)
-    order = data.argsort()
-    container = ax.barh(x, data[order], color=[colors[x[o]] for o in order])
+    container = ax.barh(x, data, color=colors)
     artists.append(container)
 
 
