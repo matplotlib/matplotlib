@@ -1,6 +1,6 @@
-
-:mod:`matplotlib.backend_bases`
-================================
+****************************
+``matplotlib.backend_bases``
+****************************
 
 .. automodule:: matplotlib.backend_bases
    :members:

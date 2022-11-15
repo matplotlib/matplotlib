@@ -1,5 +1,6 @@
-:mod:`.backend_tkagg`, :mod:`.backend_tkcairo`
-==============================================
+******************************************************************************
+``matplotlib.backends.backend_tkagg``, ``matplotlib.backends.backend_tkcairo``
+******************************************************************************
 
 .. automodule:: matplotlib.backends.backend_tkagg
    :members:
