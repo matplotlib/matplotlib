@@ -1,5 +1,6 @@
-:mod:`.backend_pgf`
-===================
+***********************************
+``matplotlib.backends.backend_pgf``
+***********************************
 
 .. automodule:: matplotlib.backends.backend_pgf
    :members:
