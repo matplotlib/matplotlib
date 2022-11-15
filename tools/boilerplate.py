@@ -182,11 +182,12 @@ def generate_function(name, called_fullname, template, **kwargs):
            if param.kind in [
                Parameter.POSITIONAL_OR_KEYWORD,
                Parameter.KEYWORD_ONLY] else
+           '{0}'
+           if param.kind is Parameter.POSITIONAL_ONLY else
            '*{0}'
            if param.kind is Parameter.VAR_POSITIONAL else
            '**{0}'
            if param.kind is Parameter.VAR_KEYWORD else
-           # Intentionally crash for Parameter.POSITIONAL_ONLY.
            None).format(param.name)
        for param in params) + ')'
     MAX_CALL_PREFIX = 18  # len('    __ret = gca().')
