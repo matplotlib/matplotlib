@@ -1,7 +1,10 @@
 """
 *****************
-Specifying Colors
+Specifying colors
 *****************
+
+Color formats
+=============
 
 Matplotlib recognizes the following formats to specify a color.
 
@@ -74,45 +77,57 @@ Matplotlib recognizes the following formats to specify a color.
 "Red", "Green", and "Blue" are the intensities of those colors. In combination,
 they represent the colorspace.
 
-Matplotlib draws Artists based on the ``zorder`` parameter. If there are no
-specified values, Matplotlib defaults to the order of the Artists added to the
-Axes.
+Transparency
+============
 
-The alpha for an Artist controls opacity. It indicates how the RGB color of the
-new Artist combines with RGB colors already on the Axes.
+The *alpha* value of a color specifies its transparency, where 0 is fully
+transparent and 1 is fully opaque. When a color is semi-transparent, the
+background color will show through.
 
-The two Artists combine with alpha compositing. Matplotlib uses the equation
-below to compute the result of blending a new Artist.
+The *alpha* value determines the resulting color by blending the
+foreground color with the background color according to the formula
 
-::
+.. math::
 
-    RGB_{new} = RGB_{below} * (1 - \\alpha) + RGB_{artist} * \\alpha
+   RGB_{result} = RGB_{background} * (1 - \\alpha) + RGB_{foreground} * \\alpha
 
-Alpha of 1 indicates the new Artist completely covers the previous color.
-Alpha of 0 for top color is not visible; however, it contributes to blending
-for intermediate values as the cumulative result of all previous Artists. The
-following table contains examples.
-
-+---------------+-------------------------------------------------------------+
-| Alpha value   | Visual                                                      |
-+===============+=============================================================+
-| ``0.3``       | .. image:: ../../_static/color_zorder_A.png                 |
-+---------------+-------------------------------------------------------------+
-| ``1``         | .. image:: ../../_static/color_zorder_B.png                 |
-+---------------+-------------------------------------------------------------+
-
-.. note::
-
-    Changing the order of Artists will generally change the resulting figure.
-
-
-"CN" color selection
---------------------
-
-Matplotlib converts "CN" colors to RGBA when drawing Artists. The
-:doc:`/tutorials/intermediate/color_cycle` section contains additional
-information about controlling colors and style properties.
+The following plot illustrates the effect of transparency.
 """
+
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+import numpy as np
+
+fig, ax = plt.subplots(figsize=(6.5, 1.65), layout='constrained')
+ax.add_patch(Rectangle((-0.2, -0.35), 11.2, 0.7, color='C1', alpha=0.8))
+for i, alpha in enumerate(np.linspace(0, 1, 11)):
+    ax.add_patch(Rectangle((i, 0.05), 0.8, 0.6, alpha=alpha, zorder=0))
+    ax.text(i+0.4, 0.85, f"{alpha:.1f}", ha='center')
+    ax.add_patch(Rectangle((i, -0.05), 0.8, -0.6, alpha=alpha, zorder=2))
+ax.set_xlim(-0.2, 13)
+ax.set_ylim(-1, 1)
+ax.set_title('alpha values')
+ax.text(11.3, 0.6, 'zorder=1', va='center', color='C0')
+ax.text(11.3, 0, 'zorder=2\nalpha=0.8', va='center', color='C1')
+ax.text(11.3, -0.6, 'zorder=3', va='center', color='C0')
+ax.axis('off')
+
+
+###############################################################################
+#
+# The orange rectangle is semi-transparent with *alpha* = 0.8. The  top row of
+# blue squares is drawn below and the bottom row of blue squares is drawn on
+# top of the orange rectangle.
+#
+# See also :doc:`/gallery/misc/zorder_demo` to learn more on the drawing order.
+#
+#
+# "CN" color selection
+# ====================
+#
+# Matplotlib converts "CN" colors to RGBA when drawing Artists. The
+# :doc:`/tutorials/intermediate/color_cycle` section contains additional
+# information about controlling colors and style properties.
 
 
 import numpy as np
@@ -144,7 +159,7 @@ demo('seaborn-v0_8')
 # .. _xkcd-colors:
 #
 # Comparison between X11/CSS4 and xkcd colors
-# -------------------------------------------
+# ===========================================
 #
 # The xkcd colors come from a `user survey conducted by the webcomic xkcd
 # <https://blog.xkcd.com/2010/05/03/color-survey-results/>`__.
