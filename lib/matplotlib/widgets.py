@@ -1002,43 +1002,24 @@ class CheckButtons(AxesWidget):
         if actives is None:
             actives = [False] * len(labels)
 
-        if len(labels) > 1:
-            dy = 1. / (len(labels) + 1)
-            ys = np.linspace(1 - dy, dy, len(labels))
-        else:
-            dy = 0.25
-            ys = [0.5]
+        ys = np.linspace(1, 0, len(labels)+2)[1:-1]
+        text_size = mpl.rcParams["font.size"] / 2
 
-        axcolor = ax.get_facecolor()
+        self.labels = [
+            ax.text(0.25, y, label, transform=ax.transAxes,
+                    horizontalalignment="left", verticalalignment="center")
+            for y, label in zip(ys, labels)]
 
-        self.labels = []
-        self.lines = []
-        self.rectangles = []
-
-        lineparams = {'color': 'k', 'linewidth': 1.25,
-                      'transform': ax.transAxes, 'solid_capstyle': 'butt'}
-        for y, label, active in zip(ys, labels, actives):
-            t = ax.text(0.25, y, label, transform=ax.transAxes,
-                        horizontalalignment='left',
-                        verticalalignment='center')
-
-            w, h = dy / 2, dy / 2
-            x, y = 0.05, y - h / 2
-
-            p = Rectangle(xy=(x, y), width=w, height=h, edgecolor='black',
-                          facecolor=axcolor, transform=ax.transAxes)
-
-            l1 = Line2D([x, x + w], [y + h, y], **lineparams)
-            l2 = Line2D([x, x + w], [y, y + h], **lineparams)
-
-            l1.set_visible(active)
-            l2.set_visible(active)
-            self.labels.append(t)
-            self.rectangles.append(p)
-            self.lines.append((l1, l2))
-            ax.add_patch(p)
-            ax.add_line(l1)
-            ax.add_line(l2)
+        self._squares = ax.scatter(
+            [0.15] * len(ys), ys, marker='s', c="none", linewidth=1,
+            transform=ax.transAxes, edgecolor="k"
+        )
+        mask = [not x for x in actives]
+        self._crosses = ax.scatter(
+            [0.15] * len(ys), ys, marker='x', linewidth=1,
+            c=["k" if actives[i] else "none" for i in range(len(ys))],
+            transform=ax.transAxes
+        )
 
         self.connect_event('button_press_event', self._clicked)
 
@@ -1047,11 +1028,29 @@ class CheckButtons(AxesWidget):
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
-        for i, (p, t) in enumerate(zip(self.rectangles, self.labels)):
-            if (t.get_window_extent().contains(event.x, event.y) or
-                    p.get_window_extent().contains(event.x, event.y)):
-                self.set_active(i)
-                break
+        pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
+        _, square_inds = self._squares.contains(event)
+        coords = self._squares.get_offset_transform().transform(
+            self._squares.get_offsets()
+        )
+        distances = {}
+        if hasattr(self, "_rectangles"):
+            for i, (p, t) in enumerate(zip(self._rectangles, self.labels)):
+                if (t.get_window_extent().contains(event.x, event.y)
+                        or (
+                            p.get_x() < event.x < p.get_x() + p.get_width()
+                            and p.get_y() < event.y < p.get_y()
+                                                    + p.get_height()
+                            )):
+                    distances[i] = np.linalg.norm(pclicked - p.get_center())
+        else:
+            for i, t in enumerate(self.labels):
+                if (i in square_inds["ind"]
+                        or t.get_window_extent().contains(event.x, event.y)):
+                    distances[i] = np.linalg.norm(pclicked - coords[i])
+        if len(distances) > 0:
+            closest = min(distances, key=distances.get)
+            self.set_active(closest)
 
     def set_active(self, index):
         """
@@ -1072,9 +1071,18 @@ class CheckButtons(AxesWidget):
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid CheckButton index: {index}')
 
-        l1, l2 = self.lines[index]
-        l1.set_visible(not l1.get_visible())
-        l2.set_visible(not l2.get_visible())
+        if colors.same_color(
+                self._crosses.get_facecolor()[index], colors.to_rgba("none")
+        ):
+            self._crosses.get_facecolor()[index] = colors.to_rgba("k")
+        else:
+            self._crosses.get_facecolor()[index] = colors.to_rgba("none")
+
+        if hasattr(self, "_rectangles"):
+            for i, p in enumerate(self._rectangles):
+                p.set_facecolor("k" if colors.same_color(
+                    p.get_facecolor(), colors.to_rgba("none"))
+                                else "none")
 
         if self.drawon:
             self.ax.figure.canvas.draw()
@@ -1086,7 +1094,9 @@ class CheckButtons(AxesWidget):
         """
         Return a tuple of the status (True/False) of all of the check buttons.
         """
-        return [l1.get_visible() for (l1, l2) in self.lines]
+        return [False if colors.same_color(
+            self._crosses.get_facecolors()[i], colors.to_rgba("none"))
+                else True for i in range(len(self.labels))]
 
     def on_clicked(self, func):
         """
@@ -1099,6 +1109,24 @@ class CheckButtons(AxesWidget):
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
         self._observers.disconnect(cid)
+
+    @property
+    def rectangles(self):
+        if not hasattr(self, "rectangles"):
+            dy = 1. / (len(self.labels) + 1)
+            w, h = dy / 2, dy / 2
+            rectangles = self._rectangles = [
+                Rectangle(xy=self._squares.get_offsets()[i], width=w, height=h,
+                          edgecolor="black",
+                          facecolor=self._squares.get_facecolor()[i],
+                          transform=self.ax.transAxes
+                          )
+                for i in range(len(self.labels))
+            ]
+            self._squares.set_visible(False)
+            for rectangle in rectangles:
+                self.ax.add_patch(rectangle)
+        return self._rectangles
 
 
 class TextBox(AxesWidget):
