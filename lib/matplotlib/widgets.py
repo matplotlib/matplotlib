@@ -1011,12 +1011,12 @@ class CheckButtons(AxesWidget):
             for y, label in zip(ys, labels)]
 
         self._squares = ax.scatter(
-            [0.15] * len(ys), ys, marker='s', c="none", linewidth=1,
-            transform=ax.transAxes, edgecolor="k"
+            [0.15] * len(ys), ys, marker='s', c="none", s=text_size**2,
+            linewidth=1, transform=ax.transAxes, edgecolor="k"
         )
         mask = [not x for x in actives]
         self._crosses = ax.scatter(
-            [0.15] * len(ys), ys, marker='x', linewidth=1,
+            [0.15] * len(ys), ys, marker='x', linewidth=1, s=text_size**2,
             c=["k" if actives[i] else "none" for i in range(len(ys))],
             transform=ax.transAxes
         )
