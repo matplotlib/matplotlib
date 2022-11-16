@@ -1313,6 +1313,16 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             (accessible as the ``patch`` attribute of the `.AnnotationBbox`).
             If *frameon* is set to False, this patch is made invisible.
 
+        annotation_clip: bool or None, default: None
+            Whether to clip (i.e. not draw) the annotation when the annotation
+            point *xy* is outside the axes area.
+
+            - If *True*, the annotation will be clipped when *xy* is outside
+              the axes.
+            - If *False*, the annotation will always be drawn.
+            - If *None*, the annotation will be clipped when *xy* is outside
+              the axes and *xycoords* is 'data'.
+
         pad : float, default: 0.4
             Padding around the offsetbox.
 
@@ -1321,8 +1331,25 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             the offset box w.r.t. the *boxcoords*.
             The lower-left corner is (0, 0) and upper-right corner is (1, 1).
 
+        bboxprops : dict, optional
+            A dictionary of properties to set for the annotation bounding box,
+            for example *boxstyle* and *alpha*.  See `.FancyBboxPatch` for
+            details.
+
+        arrowprops: dict, optional
+            Arrow properties, see `.Annotation` for description.
+
+        fontsize: float or str, optional
+            Translated to points and passed as *mutation_scale* into
+            `.FancyBboxPatch` to scale attributes of the box style (e.g. pad
+            or rounding_size).  The name is chosen in analogy to `.Text` where
+            *fontsize* defines the mutation scale as well.  If not given,
+            :rc:`legend.fontsize` is used.  See `.Text.set_fontsize` for valid
+            values.
+
         **kwargs
-            Other parameters are identical to `.Annotation`.
+            Other `AnnotationBbox` properties.  See `.AnnotationBbox.set` for
+            a list.
         """
 
         martist.Artist.__init__(self)
