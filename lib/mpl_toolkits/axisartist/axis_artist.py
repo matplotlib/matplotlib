@@ -944,10 +944,10 @@ class AxisArtist(martist.Artist):
         multiplier = (
             self.major_ticks.get_visible()
             * {"out": 1, "inout": .5, "in": 0}[self.major_ticks._tickdir])
-        self.major_ticklabels._set_external_pad(
-            multiplier * self.major_ticks._ticksize * dpi_cor)
-        self.minor_ticklabels._set_external_pad(
-            multiplier * self.major_ticks._ticksize * dpi_cor)
+        self.major_ticklabels._external_pad = \
+            multiplier * self.major_ticks._ticksize * dpi_cor
+        self.minor_ticklabels._external_pad = \
+            multiplier * self.major_ticks._ticksize * dpi_cor
 
         majortick_iter, minortick_iter = \
             self._axis_artist_helper.get_tick_iterators(self.axes)
