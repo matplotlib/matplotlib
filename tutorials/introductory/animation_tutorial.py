@@ -194,29 +194,11 @@ plt.show()
 # `~.animation.ArtistAnimation` uses. *fps* determines the frame rate that the
 # **saved** animation uses, whereas *interval* determines the frame rate that
 # the **displayed** animation uses.
-
-fig, ax = plt.subplots()
-ax.grid()
-rng = np.random.default_rng()
-
-scat = ax.scatter(
-    rng.uniform(low=0, high=1, size=100),
-    rng.uniform(low=0, high=1, size=100),
-    c="b"
-)
-
-
-def update(frame):
-    x = rng.uniform(low=0, high=1, size=100)
-    y = rng.uniform(low=0, high=1, size=100)
-    data = np.stack([x, y]).T
-    scat.set_offsets(data)
-    return (scat,)
-
-
-ani = animation.FuncAnimation(fig=fig, func=update, frames=240, interval=200)
-
-###############################################################################
+#
+# Following are a few examples showing how to save an animation with different
+# writers.
+#
+#
 # Pillow writers::
 #
 #   ani.save(filename="/tmp/pillow_example.gif", writer="pillow")
@@ -238,6 +220,6 @@ ani = animation.FuncAnimation(fig=fig, func=update, frames=240, interval=200)
 #
 #   ani.save(filename="/tmp/imagemagick_example.gif", writer="imagemagick")
 #
-# **NOTE**: Since the frames are piped out to *ffmpeg* or *imagemagick*,
+# Since the frames are piped out to *ffmpeg* or *imagemagick*,
 # *writer="ffmpeg"* and *writer="imagemagick"* support all formats supported by
 # *ffmpeg* and *imagemagick*.
