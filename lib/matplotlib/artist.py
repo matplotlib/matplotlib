@@ -20,6 +20,30 @@ from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
 
 _log = logging.getLogger(__name__)
 
+def _prevent_rasterization(draw):
+    # we assume that by default artists are not allowed to rasterize (unless
+    # its draw method is explicitly decorated). If it is being drawn after a
+    # rasterized artist and it has reached the rater_depth of 0. We stop
+    # rasterization so that it does not affect the behavior of normal artist
+    # (e.g., change in dpi). If the artist's draw method is decorated
+    # (draw._supports_rasterization is True), it won't  be decorated by
+    # `_prevent_rasterization`.
+
+    if hasattr(draw, "_supports_rasterization"):
+        return draw
+
+    @wraps(draw)
+    def draw_wrapper(artist, renderer):
+        if renderer._raster_depth == 0 and renderer._rasterizing:
+            # Only stop when we are not in a rasterized parent
+            # and something has be rasterized since last stop
+            renderer.stop_rasterizing()
+            renderer._rasterizing = False
+
+        return draw(artist, renderer)
+
+    return draw_wrapper
+
 
 def allow_rasterization(draw):
     """
@@ -118,6 +142,8 @@ class Artist:
         cls.set.__name__ = "set"
         cls.set.__qualname__ = f"{cls.__qualname__}.set"
         cls._update_set_signature_and_docstring()
+
+        cls.draw = _prevent_rasterization(cls.draw)
 
     _PROPERTIES_EXCLUDED_FROM_SET = [
         'navigate_mode',  # not a user-facing function
@@ -921,7 +947,10 @@ class Artist:
         ----------
         rasterized : bool
         """
-        if rasterized and not hasattr(self.draw, "_supports_rasterization"):
+        support_rasterization = getattr(self.draw,
+                                        "_supports_rasterization", False)
+        if (rasterized and
+            not getattr(self.draw, "_supports_rasterization", False)):
             _api.warn_external(f"Rasterization of '{self}' will be ignored")
 
         self._rasterized = rasterized
