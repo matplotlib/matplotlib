@@ -1071,12 +1071,15 @@ class CheckButtons(AxesWidget):
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid CheckButton index: {index}')
 
-        if colors.same_color(
-                self._crosses.get_facecolor()[index], colors.to_rgba("none")
-        ):
-            self._crosses.get_facecolor()[index] = colors.to_rgba("k")
-        else:
-            self._crosses.get_facecolor()[index] = colors.to_rgba("none")
+        cross_facecolors = self._crosses.get_facecolor()
+        cross_facecolors[index] = (
+            colors.to_rgba("black")
+            if colors.same_color(
+                cross_facecolors[index], colors.to_rgba("none")
+            )
+            else colors.to_rgba("none")
+        )
+        self._crosses.set_facecolor(cross_facecolors)
 
         if hasattr(self, "_rectangles"):
             for i, p in enumerate(self._rectangles):
