@@ -1488,8 +1488,10 @@ class RadioButtons(AxesWidget):
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid RadioButton index: {index}')
         self.value_selected = self.labels[index].get_text()
-        self._buttons.get_facecolor()[:] = colors.to_rgba("none")
-        self._buttons.get_facecolor()[index] = colors.to_rgba(self.activecolor)
+        button_facecolors = self._buttons.get_facecolor()
+        button_facecolors[:] = colors.to_rgba("none")
+        button_facecolors[index] = colors.to_rgba(self.activecolor)
+        self._buttons.set_facecolor(button_facecolors)
         if hasattr(self, "_circles"):  # Remove once circles is removed.
             for i, p in enumerate(self._circles):
                 p.set_facecolor(self.activecolor if i == index else "none")
