@@ -1006,8 +1006,13 @@ def test_check_radio_buttons_image():
     rb = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
     with pytest.warns(DeprecationWarning):
         rb.circles  # Trigger the old-style elliptic radiobuttons.
-    widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
-                         (False, True, True))
+    cb = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
+                              (False, True, True))
+    with pytest.warns(DeprecationWarning):
+        # Trigger old-style Rectangle check boxes
+        cb.rectangles
+    with pytest.warns(DeprecationWarning):
+        cb.lines
 
 
 @check_figures_equal(extensions=["png"])
@@ -1016,6 +1021,18 @@ def test_radio_buttons(fig_test, fig_ref):
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
     ax.scatter([.15, .15], [2/3, 1/3], transform=ax.transAxes,
                s=(plt.rcParams["font.size"] / 2) ** 2, c=["C0", "none"])
+    ax.text(.25, 2/3, "tea", transform=ax.transAxes, va="center")
+    ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
+
+
+@check_figures_equal(extensions=["png"])
+def test_check_buttons(fig_test, fig_ref):
+    widgets.CheckButtons(fig_test.subplots(), ["tea", "coffee"], [True, True])
+    ax = fig_ref.add_subplot(xticks=[], yticks=[])
+    ax.scatter([.15, .15], [2/3, 1/3], marker='s', transform=ax.transAxes,
+               s=(plt.rcParams["font.size"] / 2) ** 2, c=["none", "none"])
+    ax.scatter([.15, .15], [2/3, 1/3], marker='x', transform=ax.transAxes,
+               s=(plt.rcParams["font.size"] / 2) ** 2, c=["k", "k"])
     ax.text(.25, 2/3, "tea", transform=ax.transAxes, va="center")
     ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
 

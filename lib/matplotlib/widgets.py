@@ -1011,7 +1011,8 @@ class CheckButtons(AxesWidget):
             for y, label in zip(ys, labels)]
 
         self._squares = ax.scatter(
-            [0.15] * len(ys), ys, marker='s', c="none", s=text_size**2,
+            [0.15] * len(ys), ys, marker='s', s=text_size**2,
+            c=["none" for _ in range(len(ys))],
             linewidth=1, transform=ax.transAxes, edgecolor="k"
         )
         mask = [not x for x in actives]
@@ -1038,8 +1039,9 @@ class CheckButtons(AxesWidget):
             for i, (p, t) in enumerate(zip(self._rectangles, self.labels)):
                 if (t.get_window_extent().contains(event.x, event.y)
                         or (
-                            p.get_x() < event.x < p.get_x() + p.get_width()
-                            and p.get_y() < event.y < p.get_y()
+                            p.get_x() <= pclicked[0] <= p.get_x()
+                                                    + p.get_width()
+                            and p.get_y() <= pclicked[1] <= p.get_y()
                                                     + p.get_height()
                             )):
                     distances[i] = np.linalg.norm(pclicked - p.get_center())
@@ -1081,11 +1083,10 @@ class CheckButtons(AxesWidget):
         )
         self._crosses.set_facecolor(cross_facecolors)
 
-        if hasattr(self, "_rectangles"):
-            for i, p in enumerate(self._rectangles):
-                p.set_facecolor("k" if colors.same_color(
-                    p.get_facecolor(), colors.to_rgba("none"))
-                                else "none")
+        if hasattr(self, "_lines"):
+            l1, l2 = self._lines[index]
+            l1.set_visible(not l1.get_visible())
+            l2.set_visible(not l2.get_visible())
 
         if self.drawon:
             self.ax.figure.canvas.draw()
@@ -1113,23 +1114,50 @@ class CheckButtons(AxesWidget):
         """Remove the observer with connection id *cid*."""
         self._observers.disconnect(cid)
 
+    @_api.deprecated("3.7")
     @property
     def rectangles(self):
-        if not hasattr(self, "rectangles"):
+        if not hasattr(self, "_rectangles"):
+            ys = np.linspace(1, 0, len(self.labels)+2)[1:-1]
             dy = 1. / (len(self.labels) + 1)
             w, h = dy / 2, dy / 2
             rectangles = self._rectangles = [
-                Rectangle(xy=self._squares.get_offsets()[i], width=w, height=h,
+                Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
                           edgecolor="black",
                           facecolor=self._squares.get_facecolor()[i],
                           transform=self.ax.transAxes
                           )
-                for i in range(len(self.labels))
+                for i, y in enumerate(ys)
             ]
             self._squares.set_visible(False)
             for rectangle in rectangles:
                 self.ax.add_patch(rectangle)
         return self._rectangles
+
+    @_api.deprecated("3.7")
+    @property
+    def lines(self):
+        if not hasattr(self, "_lines"):
+            ys = np.linspace(1, 0, len(self.labels)+2)[1:-1]
+            self._crosses.set_visible(False)
+            dy = 1. / (len(self.labels) + 1)
+            w, h = dy / 2, dy / 2
+            self._lines = []
+            current_status = self.get_status()
+            lineparams = {'color': 'k', 'linewidth': 1.25,
+                          'transform': self.ax.transAxes,
+                          'solid_capstyle': 'butt'}
+            for i, y in enumerate(ys):
+                x, y = 0.05, y - h / 2
+                l1 = Line2D([x, x + w], [y + h, y], **lineparams)
+                l2 = Line2D([x, x + w], [y, y + h], **lineparams)
+
+                l1.set_visible(current_status[i])
+                l2.set_visible(current_status[i])
+                self._lines.append((l1, l2))
+                self.ax.add_patch(l1)
+                self.ax.add_patch(l2)
+        return self._lines
 
 
 class TextBox(AxesWidget):
