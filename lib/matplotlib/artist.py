@@ -20,6 +20,7 @@ from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
 
 _log = logging.getLogger(__name__)
 
+
 def _prevent_rasterization(draw):
     # we assume that by default artists are not allowed to rasterize (unless
     # its draw method is explicitly decorated). If it is being drawn after a
@@ -947,8 +948,8 @@ class Artist:
         ----------
         rasterized : bool
         """
-        support_rasterization = getattr(self.draw,
-                                        "_supports_rasterization", False)
+        supports_rasterization = getattr(self.draw,
+                                         "_supports_rasterization", False)
         if (rasterized and not supports_rasterization):
             _api.warn_external(f"Rasterization of '{self}' will be ignored")
 
