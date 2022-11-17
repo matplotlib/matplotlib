@@ -122,7 +122,7 @@ def test_rasterized_ordering(fig_test, fig_ref):
     ax_test.plot(x+1, y, "-", c="b", lw=10, rasterized=False, zorder=1.2)
 
 
-@check_figures_equal(tol=5)
+@check_figures_equal(tol=5, extensions=['svg', 'pdf'])
 def test_prevent_rasterization(fig_test, fig_ref):
     loc = [0.05, 0.05]
 
