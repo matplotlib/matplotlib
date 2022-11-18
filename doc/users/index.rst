@@ -3,103 +3,99 @@
 .. redirect-from:: /contents
 
 
-###########
-User guide
-###########
+.. grid:: 3
 
-General
-#######
+   .. grid-item-card:: General
 
-.. dropdown:: Getting Started
+      .. dropdown:: Getting Started
 
-   .. toctree::
-      :maxdepth: 2
+         .. toctree::
+            :maxdepth: 2
 
-      getting_started/index.rst
+            getting_started/index.rst
 
-.. dropdown:: Installation
+      .. dropdown:: Installation
 
-   .. toctree::
-      :maxdepth: 2
+         .. toctree::
+            :maxdepth: 2
 
-      installing/index.rst
+            installing/index.rst
 
-.. dropdown:: Guide to Matplotlib
+      .. dropdown:: Guide to Matplotlib
 
-   .. toctree::
-      :maxdepth: 2
+         .. toctree::
+            :maxdepth: 2
 
-      explain/index.rst
+            explain/index.rst
 
 
-.. dropdown:: Troubleshooting
+      .. dropdown:: Troubleshooting
 
-   .. toctree::
-      :maxdepth: 2
+         .. toctree::
+            :maxdepth: 2
 
-      faq/index.rst
+            faq/index.rst
 
-.. dropdown:: External Resources
+      .. dropdown:: External Resources
 
-   .. toctree::
-      :maxdepth: 2
+         .. toctree::
+            :maxdepth: 2
 
-      resources/index.rst
+            resources/index.rst
 
-   `User Contributed Packages <https://matplotlib.org/mpl-third-party/>`_
-
-
-Tutorials and examples
-######################
-.. dropdown:: Plot Types
-
-   .. toctree::
-      :maxdepth: 2
-
-      ../plot_types/index.rst
-
-.. dropdown:: Tutorials
-
-    .. toctree::
-      :maxdepth: 2
-
-      ../tutorials/index.rst
-
-.. dropdown:: Example Gallery
-
-    .. toctree::
-      :maxdepth: 2
-
-      ../gallery/index.rst
+         `User Contributed Packages <https://matplotlib.org/mpl-third-party/>`_
 
 
-Reference
-#########
+   .. grid-item-card:: Tutorials and examples
 
-.. dropdown:: API Reference
+      .. dropdown:: Plot Types
 
-   .. toctree::
-      :maxdepth: 2
+         .. toctree::
+            :maxdepth: 2
 
-      ../api/index.rst
+            ../plot_types/index.rst
 
-.. dropdown:: Contributing Guide
+      .. dropdown:: Tutorials
 
-   .. toctree::
-      :maxdepth: 2
+         .. toctree::
+            :maxdepth: 2
 
-      ../devel/index.rst
+            ../tutorials/index.rst
 
-.. dropdown:: Project Information
+      .. dropdown:: Example Gallery
 
-   .. toctree::
-      :maxdepth: 2
+         .. toctree::
+            :maxdepth: 2
 
-      project/index.rst
+            ../gallery/index.rst
 
-.. dropdown:: Release Notes
 
-   .. toctree::
-      :maxdepth: 2
+   .. grid-item-card:: Reference
 
-      release_notes.rst
+      .. dropdown:: API Reference
+
+         .. toctree::
+            :maxdepth: 2
+
+            ../api/index.rst
+
+      .. dropdown:: Contributing Guide
+
+         .. toctree::
+            :maxdepth: 2
+
+            ../devel/index.rst
+
+      .. dropdown:: Project Information
+
+         .. toctree::
+            :maxdepth: 2
+
+            project/index.rst
+
+      .. dropdown:: Release Notes
+
+         .. toctree::
+            :maxdepth: 2
+
+            release_notes.rst
