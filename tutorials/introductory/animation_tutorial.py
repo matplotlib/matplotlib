@@ -59,9 +59,9 @@ import numpy as np
 # - Use `.animation.Animation.save` or `.pyplot.show` to save or show the
 #   animation.
 #
-# The update function uses the `set_*` function for different artists to modify
-# the data. The following table shows a few plotting methods, the artist types
-# they return and some methods that can be used to update them.
+# The update function uses the ``set_*`` function for different artists to
+# modify the data. The following table shows a few plotting methods, the artist
+# types they return and some methods that can be used to update them.
 #
 # =================  =============================  ===========================
 # Plotting method    Artist                         Set method
@@ -69,7 +69,7 @@ import numpy as np
 # `.Axes.plot`       `.lines.Line2D`                `.lines.Line2D.set_data`
 # `.Axes.scatter`    `.collections.PathCollection`  `.collections.PathCollecti\
 #                                                   on.set_offsets`
-# `.Axes.imshow`     `.image.AxesImage`             `.image.AxesImage.set_data`
+# `.Axes.imshow`     `.image.AxesImage`             ``AxesImage.set_data``
 # `.Axes.annotate`   `.text.Annotation`             `.text.Annotation.update_p\
 #                                                   ositions`
 # `.Axes.barh`       `.patches.Rectangle`           `.Rectangle.set_angle`,
