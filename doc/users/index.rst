@@ -4,38 +4,102 @@
 
 
 ###########
-Users guide
+User guide
 ###########
 
 General
 #######
 
-.. toctree::
-   :maxdepth: 2
+.. dropdown:: Getting Started
 
-   getting_started/index.rst
-   installing/index.rst
-   explain/index.rst
-   faq/index.rst
-   resources/index.rst
+   .. toctree::
+      :maxdepth: 2
+
+      getting_started/index.rst
+
+.. dropdown:: Installation
+
+   .. toctree::
+      :maxdepth: 2
+
+      installing/index.rst
+
+.. dropdown:: Guide to Matplotlib
+
+   .. toctree::
+      :maxdepth: 2
+
+      explain/index.rst
+
+
+.. dropdown:: Troubleshooting
+
+   .. toctree::
+      :maxdepth: 2
+
+      faq/index.rst
+
+.. dropdown:: External Resources
+
+   .. toctree::
+      :maxdepth: 2
+
+      resources/index.rst
+
+   `User Contributed Packages <https://matplotlib.org/mpl-third-party/>`_
+
 
 Tutorials and examples
 ######################
+.. dropdown:: Plot Types
 
-.. toctree::
-   :maxdepth: 1
+   .. toctree::
+      :maxdepth: 2
 
-   ../plot_types/index.rst
-   ../tutorials/index.rst
-   ../gallery/index.rst
+      ../plot_types/index.rst
+
+.. dropdown:: Tutorials
+
+    .. toctree::
+      :maxdepth: 2
+
+      ../tutorials/index.rst
+
+.. dropdown:: Example Gallery
+
+    .. toctree::
+      :maxdepth: 2
+
+      ../gallery/index.rst
+
 
 Reference
 #########
 
-.. toctree::
-   :maxdepth: 2
+.. dropdown:: API Reference
 
-   ../api/index.rst
-   ../devel/index.rst
-   project/index.rst
-   release_notes.rst
+   .. toctree::
+      :maxdepth: 2
+
+      ../api/index.rst
+
+.. dropdown:: Contributing Guide
+
+   .. toctree::
+      :maxdepth: 2
+
+      ../devel/index.rst
+
+.. dropdown:: Project Information
+
+   .. toctree::
+      :maxdepth: 2
+
+      project/index.rst
+
+.. dropdown:: Release Notes
+
+   .. toctree::
+      :maxdepth: 2
+
+      release_notes.rst

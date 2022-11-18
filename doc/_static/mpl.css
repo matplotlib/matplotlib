@@ -99,3 +99,14 @@ table.property-table td {
     display: inline-block;
     margin: 0 0.5em;
 }
+
+/* Removes title from toc in dropdwon */
+
+.sd-dropdown>.sd-card-body>.toctree-wrapper>ul>.toctree-l1>a{
+    display: none
+}
+
+.sd-dropdown>.sd-card-body>.toctree-wrapper>ul>.toctree-l1>ul{
+    list-style:none;
+    padding-inline-start:0em;
+}
