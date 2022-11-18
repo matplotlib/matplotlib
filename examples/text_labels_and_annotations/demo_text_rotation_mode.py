@@ -17,6 +17,8 @@ The actual positioning depends on the additional parameters
   the bounding box of the rotated text.
 - ``rotation_mode='anchor'`` aligns the unrotated text and then rotates the
   text around the point of alignment.
+
+.. redirect-from:: /gallery/text_labels_and_annotations/text_rotation
 """
 
 import matplotlib.pyplot as plt
