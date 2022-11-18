@@ -3,30 +3,28 @@
 Stacked bar chart
 =================
 
-This is an example of creating a stacked bar plot with error bars
-using `~matplotlib.pyplot.bar`.  Note the parameters *yerr* used for
-error bars, and *bottom* to stack the coffee's bars on top of the tea's
-bars.
+This is an example of creating a stacked bar plot
+using `~matplotlib.pyplot.bar`.
 """
 
 import matplotlib.pyplot as plt
 
+# data from https://allisonhorst.github.io/palmerpenguins/
 
-labels = ['G1', 'G2', 'G3', 'G4', 'G5']
-tea_means = [20, 35, 30, 35, 27]
-coffee_means = [25, 32, 34, 20, 25]
-tea_std = [2, 3, 4, 1, 2]
-coffee_std = [3, 5, 5, 3, 3]
-width = 0.25       # the width of the bars: can also be len(x) sequence
+islands = ("Biscoe", "Dream", "Torgersen")
+adelie_means = (44, 56, 52)
+gentoo_means = (124, 0, 0)
+chinstrap_means = (0, 68, 0)
+width = 0.5
 
 fig, ax = plt.subplots()
 
-ax.bar(labels, tea_means, width, yerr=tea_std, label='Tea')
-ax.bar(labels, coffee_means, width, yerr=coffee_std, bottom=tea_means,
-       label='Coffee')
+p1 = ax.bar(islands, adelie_means, width, label="Adelie")
+p2 = ax.bar(islands, gentoo_means, width, bottom=adelie_means, label="Gentoo")
+p3 = ax.bar(islands, chinstrap_means, width,
+              bottom=adelie_means, label="Chinstrap")
 
-ax.set_ylabel('Scores')
-ax.set_title('Scores by group and beverage preferences')
-ax.legend()
+ax.set_title("Number of penguins by island")
+ax.legend(loc="upper right")
 
 plt.show()
