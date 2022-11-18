@@ -11,7 +11,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
-import matplotlib.axes as maxes
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
 
@@ -275,25 +274,6 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
             grid_lines.extend(self._grid_info["lat_lines"])
         return grid_lines
 
-    @_api.deprecated("3.5")
-    def get_boundary(self):
-        """
-        Return (N, 2) array of (x, y) coordinate of the boundary.
-        """
-        x0, x1, y0, y1 = self._extremes
-
-        xx = np.linspace(x0, x1, 100)
-        yy0 = np.full_like(xx, y0)
-        yy1 = np.full_like(xx, y1)
-        yy = np.linspace(y0, y1, 100)
-        xx0 = np.full_like(yy, x0)
-        xx1 = np.full_like(yy, x1)
-
-        xxx = np.concatenate([xx[:-1], xx1[:-1], xx[-1:0:-1], xx0])
-        yyy = np.concatenate([yy0[:-1], yy[:-1], yy1[:-1], yy[::-1]])
-
-        return self._aux_trans.transform(np.column_stack([xxx, yyy]))
-
 
 class FloatingAxesBase:
 
@@ -339,4 +319,4 @@ floatingaxes_class_factory = cbook._make_class_factory(
     FloatingAxesBase, "Floating{}")
 FloatingAxes = floatingaxes_class_factory(
     host_axes_class_factory(axislines.Axes))
-FloatingSubplot = maxes.subplot_class_factory(FloatingAxes)
+FloatingSubplot = FloatingAxes

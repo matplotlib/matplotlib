@@ -7,9 +7,8 @@ import sys
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
-    FigureCanvasBase, ToolContainerBase,
-    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
-from matplotlib.backend_tools import Cursors
+    ToolContainerBase, CloseEvent, KeyEvent, LocationEvent, MouseEvent,
+    ResizeEvent)
 
 try:
     import gi
@@ -27,11 +26,10 @@ except ValueError as e:
 
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 from . import _backend_gtk
-from ._backend_gtk import (
-    _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
+from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
+    _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK3,
 )
-from ._backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
 
 
 _log = logging.getLogger(__name__)
@@ -39,22 +37,6 @@ _log = logging.getLogger(__name__)
 
 @_api.caching_module_getattr  # module-level deprecations
 class __getattr__:
-    @_api.deprecated("3.5", obj_type="")
-    @property
-    def cursord(self):
-        try:
-            new_cursor = functools.partial(
-                Gdk.Cursor.new_from_name, Gdk.Display.get_default())
-            return {
-                Cursors.MOVE:          new_cursor("move"),
-                Cursors.HAND:          new_cursor("pointer"),
-                Cursors.POINTER:       new_cursor("default"),
-                Cursors.SELECT_REGION: new_cursor("crosshair"),
-                Cursors.WAIT:          new_cursor("wait"),
-            }
-        except TypeError:
-            return {}
-
     icon_filename = _api.deprecated("3.6", obj_type="")(property(
         lambda self:
         "matplotlib.png" if sys.platform == "win32" else "matplotlib.svg"))
@@ -70,9 +52,8 @@ def _mpl_to_gtk_cursor(mpl_cursor):
         _backend_gtk.mpl_to_gtk_cursor_name(mpl_cursor))
 
 
-class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
+class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk3"
-    _timer_cls = TimerGTK3
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK3)
     # Setting this as a static constant prevents
     # this resulting expression from leaking
@@ -491,13 +472,6 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
     def trigger(self, *args, **kwargs):
         NavigationToolbar2GTK3.save_figure(
             self._make_classic_style_pseudo_toolbar())
-
-
-@_api.deprecated("3.5", alternative="ToolSetCursor")
-class SetCursorGTK3(backend_tools.SetCursorBase):
-    def set_cursor(self, cursor):
-        NavigationToolbar2GTK3.set_cursor(
-            self._make_classic_style_pseudo_toolbar(), cursor)
 
 
 @backend_tools._register_tool_class(FigureCanvasGTK3)

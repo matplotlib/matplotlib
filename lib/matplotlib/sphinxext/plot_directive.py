@@ -2,10 +2,13 @@
 A directive for including a Matplotlib plot in a Sphinx document
 ================================================================
 
-By default, in HTML output, `plot` will include a .png file with a link to a
-high-res .png and .pdf.  In LaTeX output, it will include a .pdf.
+This is a Sphinx extension providing a reStructuredText directive
+``.. plot::`` for including a plot in a Sphinx document.
 
-The source code for the plot may be included in one of three ways:
+In HTML output, ``.. plot::`` will include a .png file with a link
+to a high-res .png and .pdf.  In LaTeX output, it will include a .pdf.
+
+The plot content may be defined in one of three ways:
 
 1. **A path to a source file** as the argument to the directive::
 
@@ -28,10 +31,8 @@ The source code for the plot may be included in one of three ways:
      .. plot::
 
         import matplotlib.pyplot as plt
-        import matplotlib.image as mpimg
-        import numpy as np
-        img = mpimg.imread('_static/stinkbug.png')
-        imgplot = plt.imshow(img)
+        plt.plot([1, 2, 3], [4, 5, 6])
+        plt.title("A plotting exammple")
 
 3. Using **doctest** syntax::
 
@@ -44,22 +45,27 @@ The source code for the plot may be included in one of three ways:
 Options
 -------
 
-The ``plot`` directive supports the following options:
+The ``.. plot::`` directive supports the following options:
 
-    format : {'python', 'doctest'}
+    ``:format:`` : {'python', 'doctest'}
         The format of the input.  If unset, the format is auto-detected.
 
-    include-source : bool
+    ``:include-source:`` : bool
         Whether to display the source code. The default can be changed using
-        the `plot_include_source` variable in :file:`conf.py` (which itself
+        the ``plot_include_source`` variable in :file:`conf.py` (which itself
         defaults to False).
 
-    encoding : str
+    ``:show-source-link:`` : bool
+        Whether to show a link to the source in HTML. The default can be
+        changed using the ``plot_html_show_source_link`` variable in
+        :file:`conf.py` (which itself defaults to True).
+
+    ``:encoding:`` : str
         If this source file is in a non-UTF8 or non-ASCII encoding, the
         encoding must be specified using the ``:encoding:`` option.  The
         encoding will not be inferred using the ``-*- coding -*-`` metacomment.
 
-    context : bool or str
+    ``:context:`` : bool or str
         If provided, the code will be run in the context of all previous plot
         directives for which the ``:context:`` option was specified.  This only
         applies to inline code plot directives, not those run from files. If
@@ -68,18 +74,19 @@ The ``plot`` directive supports the following options:
         running the code. ``:context: close-figs`` keeps the context but closes
         previous figures before running the code.
 
-    nofigs : bool
+    ``:nofigs:`` : bool
         If specified, the code block will be run, but no figures will be
         inserted.  This is usually useful with the ``:context:`` option.
 
-    caption : str
+    ``:caption:`` : str
         If specified, the option's argument will be used as a caption for the
         figure. This overwrites the caption given in the content, when the plot
         is generated from a file.
 
-Additionally, this directive supports all of the options of the `image`
-directive, except for *target* (since plot will add its own target).  These
-include *alt*, *height*, *width*, *scale*, *align* and *class*.
+Additionally, this directive supports all the options of the `image directive
+<https://docutils.sourceforge.io/docs/ref/rst/directives.html#image>`_,
+except for ``:target:`` (since plot will add its own target).  These include
+``:alt:``, ``:height:``, ``:width:``, ``:scale:``, ``:align:`` and ``:class:``.
 
 Configuration options
 ---------------------
@@ -243,6 +250,7 @@ class PlotDirective(Directive):
         'align': Image.align,
         'class': directives.class_option,
         'include-source': _option_boolean,
+        'show-source-link': _option_boolean,
         'format': _option_format,
         'context': _option_context,
         'nofigs': directives.flag,
@@ -484,13 +492,13 @@ def _run_code(code, code_path, ns=None, function_name=None):
         try:
             os.chdir(setup.config.plot_working_directory)
         except OSError as err:
-            raise OSError(str(err) + '\n`plot_working_directory` option in'
-                          'Sphinx configuration file must be a valid '
-                          'directory path') from err
+            raise OSError(f'{err}\n`plot_working_directory` option in '
+                          f'Sphinx configuration file must be a valid '
+                          f'directory path') from err
         except TypeError as err:
-            raise TypeError(str(err) + '\n`plot_working_directory` option in '
-                            'Sphinx configuration file must be a string or '
-                            'None') from err
+            raise TypeError(f'{err}\n`plot_working_directory` option in '
+                            f'Sphinx configuration file must be a string or '
+                            f'None') from err
     elif code_path is not None:
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)
@@ -664,6 +672,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     default_fmt = formats[0][0]
 
     options.setdefault('include-source', config.plot_include_source)
+    options.setdefault('show-source-link', config.plot_html_show_source_link)
     if 'class' in options:
         # classes are parsed into a list of string, and output by simply
         # printing the list, abusing the fact that RST guarantees to strip
@@ -830,7 +839,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
         # Not-None src_link signals the need for a source link in the generated
         # html
-        if j == 0 and config.plot_html_show_source_link:
+        if j == 0 and options['show-source-link']:
             src_link = source_link
         else:
             src_link = None
@@ -864,7 +873,7 @@ def run(arguments, content, options, state_machine, state, lineno):
                     shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
-    if config.plot_html_show_source_link:
+    if options['show-source-link']:
         Path(dest_dir, output_base + source_ext).write_text(
             doctest.script_from_examples(code)
             if source_file_name == rst_file and is_doctest

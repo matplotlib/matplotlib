@@ -1,4 +1,4 @@
-from collections.abc import MutableSequence
+from collections.abc import Iterable, MutableSequence
 from contextlib import ExitStack
 import functools
 import inspect
@@ -18,6 +18,7 @@ from matplotlib.cbook import _OrderedSet, _check_1d, index_of
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.font_manager as font_manager
+from matplotlib.gridspec import SubplotSpec
 import matplotlib.image as mimage
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
@@ -571,8 +572,8 @@ class _AxesBase(martist.Artist):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
 
-    def __init__(self, fig, rect,
-                 *,
+    def __init__(self, fig,
+                 *args,
                  facecolor=None,  # defaults to rc axes.facecolor
                  frameon=True,
                  sharex=None,  # use Axes instance's xaxis info
@@ -591,9 +592,18 @@ class _AxesBase(martist.Artist):
         fig : `~matplotlib.figure.Figure`
             The Axes is built in the `.Figure` *fig*.
 
-        rect : tuple (left, bottom, width, height).
-            The Axes is built in the rectangle *rect*. *rect* is in
-            `.Figure` coordinates.
+        *args
+            ``*args`` can be a single ``(left, bottom, width, height)``
+            rectangle or a single `.Bbox`.  This specifies the rectangle (in
+            figure coordinates) where the Axes is positioned.
+
+            ``*args`` can also consist of three numbers or a single three-digit
+            number; in the latter case, the digits are considered as
+            independent numbers.  The numbers are interpreted as ``(nrows,
+            ncols, index)``: ``(nrows, ncols)`` specifies the size of an array
+            of subplots, and ``index`` is the 1-based index of the subplot
+            being created.  Finally, ``*args`` can also directly be a
+            `.SubplotSpec` instance.
 
         sharex, sharey : `~.axes.Axes`, optional
             The x or y `~.matplotlib.axis` is shared with the x or
@@ -618,10 +628,21 @@ class _AxesBase(martist.Artist):
         """
 
         super().__init__()
-        if isinstance(rect, mtransforms.Bbox):
-            self._position = rect
+        if "rect" in kwargs:
+            if args:
+                raise TypeError(
+                    "'rect' cannot be used together with positional arguments")
+            rect = kwargs.pop("rect")
+            _api.check_isinstance((mtransforms.Bbox, Iterable), rect=rect)
+            args = (rect,)
+        subplotspec = None
+        if len(args) == 1 and isinstance(args[0], mtransforms.Bbox):
+            self._position = args[0]
+        elif len(args) == 1 and np.iterable(args[0]):
+            self._position = mtransforms.Bbox.from_bounds(*args[0])
         else:
-            self._position = mtransforms.Bbox.from_bounds(*rect)
+            self._position = self._originalPosition = mtransforms.Bbox.unit()
+            subplotspec = SubplotSpec._from_subplot_args(fig, args)
         if self._position.width < 0 or self._position.height < 0:
             raise ValueError('Width and height specified must be non-negative')
         self._originalPosition = self._position.frozen()
@@ -634,8 +655,16 @@ class _AxesBase(martist.Artist):
         self._sharey = sharey
         self.set_label(label)
         self.set_figure(fig)
+        # The subplotspec needs to be set after the figure (so that
+        # figure-level subplotpars are taken into account), but the figure
+        # needs to be set after self._position is initialized.
+        if subplotspec:
+            self.set_subplotspec(subplotspec)
+        else:
+            self._subplotspec = None
         self.set_box_aspect(box_aspect)
         self._axes_locator = None  # Optionally set via update(kwargs).
+
         # placeholder for any colorbars added that use this Axes.
         # (see colorbar.py):
         self._colorbars = []
@@ -752,6 +781,19 @@ class _AxesBase(martist.Artist):
             if axis.get_label() and axis.get_label().get_text():
                 fields += [f"{name}label={axis.get_label().get_text()!r}"]
         return f"<{self.__class__.__name__}: " + ", ".join(fields) + ">"
+
+    def get_subplotspec(self):
+        """Return the `.SubplotSpec` associated with the subplot, or None."""
+        return self._subplotspec
+
+    def set_subplotspec(self, subplotspec):
+        """Set the `.SubplotSpec`. associated with the subplot."""
+        self._subplotspec = subplotspec
+        self._set_position(subplotspec.get_position(self.figure))
+
+    def get_gridspec(self):
+        """Return the `.GridSpec` associated with the subplot, or None."""
+        return self._subplotspec.get_gridspec() if self._subplotspec else None
 
     @_api.delete_parameter("3.6", "args")
     @_api.delete_parameter("3.6", "kwargs")
@@ -884,6 +926,10 @@ class _AxesBase(martist.Artist):
             `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+
+        Parameters
+        ----------
+        which : {'grid', 'tick1', 'tick2'}
         """
         if which == 'grid':
             return self._xaxis_transform
@@ -960,6 +1006,10 @@ class _AxesBase(martist.Artist):
             `~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+
+        Parameters
+        ----------
+        which : {'grid', 'tick1', 'tick2'}
         """
         if which == 'grid':
             return self._yaxis_transform
@@ -1681,6 +1731,8 @@ class _AxesBase(martist.Artist):
             aspect = 1
         if not cbook._str_equal(aspect, 'auto'):
             aspect = float(aspect)  # raise ValueError if necessary
+            if aspect <= 0 or not np.isfinite(aspect):
+                raise ValueError("aspect must be finite and positive ")
 
         if share:
             axes = {sibling for name in self._axis_names
@@ -2020,7 +2072,7 @@ class _AxesBase(martist.Artist):
             x1 = xc + Xsize / 2.0
             self.set_xbound(x_trf.inverted().transform([x0, x1]))
 
-    def axis(self, *args, emit=True, **kwargs):
+    def axis(self, arg=None, /, *, emit=True, **kwargs):
         """
         Convenience method to get or set some axis properties.
 
@@ -2078,37 +2130,34 @@ class _AxesBase(martist.Artist):
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
         """
-        if len(args) > 1:
-            raise TypeError("axis() takes 0 or 1 positional arguments but "
-                            f"{len(args)} were given")
-        elif len(args) == 1 and isinstance(args[0], (str, bool)):
-            s = args[0]
-            if s is True:
-                s = 'on'
-            if s is False:
-                s = 'off'
-            s = s.lower()
-            if s == 'on':
+        if isinstance(arg, (str, bool)):
+            if arg is True:
+                arg = 'on'
+            if arg is False:
+                arg = 'off'
+            arg = arg.lower()
+            if arg == 'on':
                 self.set_axis_on()
-            elif s == 'off':
+            elif arg == 'off':
                 self.set_axis_off()
-            elif s in ('equal', 'tight', 'scaled', 'auto', 'image', 'square'):
+            elif arg in [
+                    'equal', 'tight', 'scaled', 'auto', 'image', 'square']:
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view(tight=False)
-                if s == 'equal':
+                if arg == 'equal':
                     self.set_aspect('equal', adjustable='datalim')
-                elif s == 'scaled':
+                elif arg == 'scaled':
                     self.set_aspect('equal', adjustable='box', anchor='C')
                     self.set_autoscale_on(False)  # Req. by Mark Bakker
-                elif s == 'tight':
+                elif arg == 'tight':
                     self.autoscale_view(tight=True)
                     self.set_autoscale_on(False)
-                elif s == 'image':
+                elif arg == 'image':
                     self.autoscale_view(tight=True)
                     self.set_autoscale_on(False)
                     self.set_aspect('equal', adjustable='box', anchor='C')
-                elif s == 'square':
+                elif arg == 'square':
                     self.set_aspect('equal', adjustable='box', anchor='C')
                     self.set_autoscale_on(False)
                     xlim = self.get_xlim()
@@ -2119,13 +2168,12 @@ class _AxesBase(martist.Artist):
                     self.set_ylim([ylim[0], ylim[0] + edge_size],
                                   emit=emit, auto=False)
             else:
-                raise ValueError(f"Unrecognized string {s!r} to axis; "
+                raise ValueError(f"Unrecognized string {arg!r} to axis; "
                                  "try 'on' or 'off'")
         else:
-            if len(args) == 1:
-                limits = args[0]
+            if arg is not None:
                 try:
-                    xmin, xmax, ymin, ymax = limits
+                    xmin, xmax, ymin, ymax = arg
                 except (TypeError, ValueError) as err:
                     raise TypeError('the first argument to axis() must be an '
                                     'iterable of the form '
@@ -2434,7 +2482,7 @@ class _AxesBase(martist.Artist):
         # Get all vertices on the path
         # Loop through each segment to get extrema for Bezier curve sections
         vertices = []
-        for curve, code in p.iter_bezier():
+        for curve, code in p.iter_bezier(simplify=False):
             # Get distance along the curve of any extrema
             _, dzeros = curve.axis_aligned_extrema()
             # Calculate vertices of start, end and any extrema in between
@@ -3196,7 +3244,6 @@ class _AxesBase(martist.Artist):
         self.stale = True
 
     @_docstring.dedent_interpd
-    @_api.rename_parameter("3.5", "b", "visible")
     def grid(self, visible=None, which='major', axis='both', **kwargs):
         """
         Configure the grid lines.
@@ -4458,17 +4505,23 @@ class _AxesBase(martist.Artist):
 
     def _make_twin_axes(self, *args, **kwargs):
         """Make a twinx Axes of self. This is used for twinx and twiny."""
-        # Typically, SubplotBase._make_twin_axes is called instead of this.
         if 'sharex' in kwargs and 'sharey' in kwargs:
-            raise ValueError("Twinned Axes may share only one axis")
-        ax2 = self.figure.add_axes(
-            self.get_position(True), *args, **kwargs,
-            axes_locator=_TransformedBoundsLocator(
-                [0, 0, 1, 1], self.transAxes))
+            # The following line is added in v2.2 to avoid breaking Seaborn,
+            # which currently uses this internal API.
+            if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
+                raise ValueError("Twinned Axes may share only one axis")
+        ss = self.get_subplotspec()
+        if ss:
+            twin = self.figure.add_subplot(ss, *args, **kwargs)
+        else:
+            twin = self.figure.add_axes(
+                self.get_position(True), *args, **kwargs,
+                axes_locator=_TransformedBoundsLocator(
+                    [0, 0, 1, 1], self.transAxes))
         self.set_adjustable('datalim')
-        ax2.set_adjustable('datalim')
-        self._twinned_axes.join(self, ax2)
-        return ax2
+        twin.set_adjustable('datalim')
+        self._twinned_axes.join(self, twin)
+        return twin
 
     def twinx(self):
         """
@@ -4536,3 +4589,56 @@ class _AxesBase(martist.Artist):
     def get_shared_y_axes(self):
         """Return an immutable view on the shared y-axes Grouper."""
         return cbook.GrouperView(self._shared_axes["y"])
+
+    def label_outer(self):
+        """
+        Only show "outer" labels and tick labels.
+
+        x-labels are only kept for subplots on the last row (or first row, if
+        labels are on the top side); y-labels only for subplots on the first
+        column (or last column, if labels are on the right side).
+        """
+        self._label_outer_xaxis(check_patch=False)
+        self._label_outer_yaxis(check_patch=False)
+
+    def _label_outer_xaxis(self, *, check_patch):
+        # see documentation in label_outer.
+        if check_patch and not isinstance(self.patch, mpl.patches.Rectangle):
+            return
+        ss = self.get_subplotspec()
+        if not ss:
+            return
+        label_position = self.xaxis.get_label_position()
+        if not ss.is_first_row():  # Remove top label/ticklabels/offsettext.
+            if label_position == "top":
+                self.set_xlabel("")
+            self.xaxis.set_tick_params(which="both", labeltop=False)
+            if self.xaxis.offsetText.get_position()[1] == 1:
+                self.xaxis.offsetText.set_visible(False)
+        if not ss.is_last_row():  # Remove bottom label/ticklabels/offsettext.
+            if label_position == "bottom":
+                self.set_xlabel("")
+            self.xaxis.set_tick_params(which="both", labelbottom=False)
+            if self.xaxis.offsetText.get_position()[1] == 0:
+                self.xaxis.offsetText.set_visible(False)
+
+    def _label_outer_yaxis(self, *, check_patch):
+        # see documentation in label_outer.
+        if check_patch and not isinstance(self.patch, mpl.patches.Rectangle):
+            return
+        ss = self.get_subplotspec()
+        if not ss:
+            return
+        label_position = self.yaxis.get_label_position()
+        if not ss.is_first_col():  # Remove left label/ticklabels/offsettext.
+            if label_position == "left":
+                self.set_ylabel("")
+            self.yaxis.set_tick_params(which="both", labelleft=False)
+            if self.yaxis.offsetText.get_position()[0] == 0:
+                self.yaxis.offsetText.set_visible(False)
+        if not ss.is_last_col():  # Remove right label/ticklabels/offsettext.
+            if label_position == "right":
+                self.set_ylabel("")
+            self.yaxis.set_tick_params(which="both", labelright=False)
+            if self.yaxis.offsetText.get_position()[0] == 1:
+                self.yaxis.offsetText.set_visible(False)

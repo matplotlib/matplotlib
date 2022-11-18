@@ -188,12 +188,9 @@ class _ColorbarAxesLocator:
 
     def get_subplotspec(self):
         # make tight_layout happy..
-        ss = getattr(self._cbar.ax, 'get_subplotspec', None)
-        if ss is None:
-            if not hasattr(self._orig_locator, "get_subplotspec"):
-                return None
-            ss = self._orig_locator.get_subplotspec
-        return ss()
+        return (
+            self._cbar.ax.get_subplotspec()
+            or getattr(self._orig_locator, "get_subplotspec", lambda: None)())
 
 
 @_docstring.interpd
@@ -249,14 +246,35 @@ class Colorbar:
     alpha : float
         The colorbar transparency between 0 (transparent) and 1 (opaque).
 
-    orientation : {'vertical', 'horizontal'}
+    orientation : None or {'vertical', 'horizontal'}
+        If None, use the value determined by *location*. If both
+        *orientation* and *location* are None then defaults to 'vertical'.
 
     ticklocation : {'auto', 'left', 'right', 'top', 'bottom'}
+        The location of the colorbar ticks. The *ticklocation* must match
+        *orientation*. For example, a horizontal colorbar can only have ticks
+        at the top or the bottom. If 'auto', the ticks will be the same as
+        *location*, so a colorbar to the left will have ticks to the left. If
+        *location* is None, the ticks will be at the bottom for a horizontal
+        colorbar and at the right for a vertical.
 
     drawedges : bool
+        Whether to draw lines at color boundaries.
 
     filled : bool
+
     %(_colormap_kw_doc)s
+
+    location : None or {'left', 'right', 'top', 'bottom'}
+        Set the *orientation* and *ticklocation* of the colorbar using a
+        single argument. Colorbars on the left and right are vertical,
+        colorbars at the top and bottom are horizontal. The *ticklocation* is
+        the same as *location*, so if *location* is 'top', the ticks are on
+        the top. *orientation* and/or *ticklocation* can be provided as well
+        and overrides the value set by *location*, but there will be an error
+        for incompatible combinations.
+
+        .. versionadded:: 3.7
     """
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
@@ -267,7 +285,7 @@ class Colorbar:
                  alpha=None,
                  values=None,
                  boundaries=None,
-                 orientation='vertical',
+                 orientation=None,
                  ticklocation='auto',
                  extend=None,
                  spacing='uniform',  # uniform or proportional
@@ -278,6 +296,7 @@ class Colorbar:
                  extendfrac=None,
                  extendrect=False,
                  label='',
+                 location=None,
                  ):
 
         if mappable is None:
@@ -308,13 +327,22 @@ class Colorbar:
         mappable.colorbar_cid = mappable.callbacks.connect(
             'changed', self.update_normal)
 
+        location_orientation = _get_orientation_from_location(location)
+
         _api.check_in_list(
-            ['vertical', 'horizontal'], orientation=orientation)
+            [None, 'vertical', 'horizontal'], orientation=orientation)
         _api.check_in_list(
             ['auto', 'left', 'right', 'top', 'bottom'],
             ticklocation=ticklocation)
         _api.check_in_list(
             ['uniform', 'proportional'], spacing=spacing)
+
+        if location_orientation is not None and orientation is not None:
+            if location_orientation != orientation:
+                raise TypeError(
+                    "location and orientation are mutually exclusive")
+        else:
+            orientation = orientation or location_orientation or "vertical"
 
         self.ax = ax
         self.ax._axes_locator = _ColorbarAxesLocator(self)
@@ -353,11 +381,6 @@ class Colorbar:
         for spine in self.ax.spines.values():
             spine.set_visible(False)
         self.outline = self.ax.spines['outline'] = _ColorbarSpine(self.ax)
-        # Only kept for backcompat; remove after deprecation of .patch elapses.
-        self._patch = mpatches.Polygon(
-            np.empty((0, 2)),
-            color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
-        ax.add_artist(self._patch)
 
         self.dividers = collections.LineCollection(
             [],
@@ -373,7 +396,8 @@ class Colorbar:
         self.__scale = None  # linear, log10 for now.  Hopefully more?
 
         if ticklocation == 'auto':
-            ticklocation = 'bottom' if orientation == 'horizontal' else 'right'
+            ticklocation = _get_ticklocation_from_orientation(
+                orientation) if location is None else location
         self.ticklocation = ticklocation
 
         self.set_label(label)
@@ -465,9 +489,6 @@ class Colorbar:
         # We now restore the old cla() back and can call it directly
         del self.ax.cla
         self.ax.cla()
-
-    # Also remove ._patch after deprecation elapses.
-    patch = _api.deprecate_privatize_attribute("3.5", alternative="ax")
 
     filled = _api.deprecate_privatize_attribute("3.6")
 
@@ -1341,23 +1362,34 @@ ColorbarBase = Colorbar  # Backcompat API
 
 def _normalize_location_orientation(location, orientation):
     if location is None:
-        location = _api.check_getitem(
-            {None: "right", "vertical": "right", "horizontal": "bottom"},
-            orientation=orientation)
+        location = _get_ticklocation_from_orientation(orientation)
     loc_settings = _api.check_getitem({
-        "left":   {"location": "left", "orientation": "vertical",
-                   "anchor": (1.0, 0.5), "panchor": (0.0, 0.5), "pad": 0.10},
-        "right":  {"location": "right", "orientation": "vertical",
-                   "anchor": (0.0, 0.5), "panchor": (1.0, 0.5), "pad": 0.05},
-        "top":    {"location": "top", "orientation": "horizontal",
-                   "anchor": (0.5, 0.0), "panchor": (0.5, 1.0), "pad": 0.05},
-        "bottom": {"location": "bottom", "orientation": "horizontal",
-                   "anchor": (0.5, 1.0), "panchor": (0.5, 0.0), "pad": 0.15},
+        "left":   {"location": "left", "anchor": (1.0, 0.5),
+                   "panchor": (0.0, 0.5), "pad": 0.10},
+        "right":  {"location": "right", "anchor": (0.0, 0.5),
+                   "panchor": (1.0, 0.5), "pad": 0.05},
+        "top":    {"location": "top", "anchor": (0.5, 0.0),
+                   "panchor": (0.5, 1.0), "pad": 0.05},
+        "bottom": {"location": "bottom", "anchor": (0.5, 1.0),
+                   "panchor": (0.5, 0.0), "pad": 0.15},
     }, location=location)
+    loc_settings["orientation"] = _get_orientation_from_location(location)
     if orientation is not None and orientation != loc_settings["orientation"]:
         # Allow the user to pass both if they are consistent.
         raise TypeError("location and orientation are mutually exclusive")
     return loc_settings
+
+
+def _get_orientation_from_location(location):
+    return _api.check_getitem(
+        {None: None, "left": "vertical", "right": "vertical",
+         "top": "horizontal", "bottom": "horizontal"}, location=location)
+
+
+def _get_ticklocation_from_orientation(orientation):
+    return _api.check_getitem(
+        {None: "right", "vertical": "right", "horizontal": "bottom"},
+        orientation=orientation)
 
 
 @_docstring.interpd
@@ -1466,23 +1498,19 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 def make_axes_gridspec(parent, *, location=None, orientation=None,
                        fraction=0.15, shrink=1.0, aspect=20, **kwargs):
     """
-    Create a `.SubplotBase` suitable for a colorbar.
+    Create an `~.axes.Axes` suitable for a colorbar.
 
     The axes is placed in the figure of the *parent* axes, by resizing and
     repositioning *parent*.
 
-    This function is similar to `.make_axes`. Primary differences are
+    This function is similar to `.make_axes` and mostly compatible with it.
+    Primary differences are
 
-    - `.make_axes_gridspec` should only be used with a `.SubplotBase` parent.
-
-    - `.make_axes` creates an `~.axes.Axes`; `.make_axes_gridspec` creates a
-      `.SubplotBase`.
-
+    - `.make_axes_gridspec` requires the *parent* to have a subplotspec.
+    - `.make_axes` positions the axes in figure coordinates;
+      `.make_axes_gridspec` positions it using a subplotspec.
     - `.make_axes` updates the position of the parent.  `.make_axes_gridspec`
-      replaces the ``grid_spec`` attribute of the parent with a new one.
-
-    While this function is meant to be compatible with `.make_axes`,
-    there could be some minor differences.
+      replaces the parent gridspec with a new one.
 
     Parameters
     ----------
@@ -1492,7 +1520,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
 
     Returns
     -------
-    cax : `~.axes.SubplotBase`
+    cax : `~.axes.Axes`
         The child axes.
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar

@@ -479,7 +479,7 @@ plt.show()
 #   a new transform with an added offset. So above we could have done::
 #
 #      shadow_transform = transforms.offset_copy(ax.transData,
-#               fig=fig, dx, dy, units='inches')
+#               fig, dx, dy, units='inches')
 #
 #
 # .. _transformation-pipeline:

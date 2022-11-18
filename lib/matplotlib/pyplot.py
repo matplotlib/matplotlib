@@ -56,7 +56,8 @@ from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
 from matplotlib import _docstring
-from matplotlib.backend_bases import FigureCanvasBase, MouseButton
+from matplotlib.backend_bases import (
+    FigureCanvasBase, FigureManagerBase, MouseButton)
 from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
@@ -210,21 +211,24 @@ def _get_backend_mod():
 
 def switch_backend(newbackend):
     """
-    Close all open figures and set the Matplotlib backend.
+    Set the pyplot backend.
 
-    The argument is case-insensitive.  Switching to an interactive backend is
-    possible only if no event loop for another interactive backend has started.
-    Switching to and from non-interactive backends is always possible.
+    Switching to an interactive backend is possible only if no event loop for
+    another interactive backend has started.  Switching to and from
+    non-interactive backends is always possible.
+
+    If the new backend is different than the current backend then all open
+    Figures will be closed via ``plt.close('all')``.
 
     Parameters
     ----------
     newbackend : str
-        The name of the backend to use.
+        The case-insensitive name of the backend to use.
+
     """
     global _backend_mod
     # make sure the init is pulled up so we can assign to it later
     import matplotlib.backends
-    close("all")
 
     if newbackend is rcsetup._auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
@@ -261,6 +265,8 @@ def switch_backend(newbackend):
             switch_backend("agg")
             rcParamsOrig["backend"] = "agg"
             return
+    # have to escape the switch on access logic
+    old_backend = dict.__getitem__(rcParams, 'backend')
 
     backend_mod = importlib.import_module(
         cbook._backend_module_name(newbackend))
@@ -280,7 +286,8 @@ def switch_backend(newbackend):
     # Classically, backends can directly export these functions.  This should
     # keep working for backcompat.
     new_figure_manager = getattr(backend_mod, "new_figure_manager", None)
-    # show = getattr(backend_mod, "show", None)
+    show = getattr(backend_mod, "show", None)
+
     # In that classical approach, backends are implemented as modules, but
     # "inherit" default method implementations from backend_bases._Backend.
     # This is achieved by creating a "class" that inherits from
@@ -288,13 +295,14 @@ def switch_backend(newbackend):
     class backend_mod(matplotlib.backend_bases._Backend):
         locals().update(vars(backend_mod))
 
-    # However, the newer approach for defining new_figure_manager (and, in
-    # the future, show) is to derive them from canvas methods.  In that case,
-    # also update backend_mod accordingly; also, per-backend customization of
+    # However, the newer approach for defining new_figure_manager and
+    # show is to derive them from canvas methods.  In that case, also
+    # update backend_mod accordingly; also, per-backend customization of
     # draw_if_interactive is disabled.
     if new_figure_manager is None:
-        # only try to get the canvas class if have opted into the new scheme
+        # Only try to get the canvas class if have opted into the new scheme.
         canvas_class = backend_mod.FigureCanvas
+
         def new_figure_manager_given_figure(num, figure):
             return canvas_class.new_manager(figure, num)
 
@@ -313,6 +321,14 @@ def switch_backend(newbackend):
         backend_mod.new_figure_manager = new_figure_manager
         backend_mod.draw_if_interactive = draw_if_interactive
 
+    # If the manager explicitly overrides pyplot_show, use it even if a global
+    # show is already present, as the latter may be here for backcompat.
+    manager_class = getattr(getattr(backend_mod, "FigureCanvas", None),
+                            "manager_class", None)
+    if (manager_class.pyplot_show != FigureManagerBase.pyplot_show
+            or show is None):
+        backend_mod.show = manager_class.pyplot_show
+
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
 
@@ -325,6 +341,8 @@ def switch_backend(newbackend):
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend
+    if not cbook._str_equal(old_backend, newbackend):
+        close("all")
 
     # make sure the repl display hook is installed in case we become
     # interactive
@@ -332,11 +350,21 @@ def switch_backend(newbackend):
 
 
 def _warn_if_gui_out_of_main_thread():
-    # This compares native thread ids because even if python-level Thread
-    # objects match, the underlying OS thread (which is what really matters)
-    # may be different on Python implementations with green threads.
-    if (_get_required_interactive_framework(_get_backend_mod()) and
-            threading.get_native_id() != threading.main_thread().native_id):
+    warn = False
+    if _get_required_interactive_framework(_get_backend_mod()):
+        if hasattr(threading, 'get_native_id'):
+            # This compares native thread ids because even if Python-level
+            # Thread objects match, the underlying OS thread (which is what
+            # really matters) may be different on Python implementations with
+            # green threads.
+            if threading.get_native_id() != threading.main_thread().native_id:
+                warn = True
+        else:
+            # Fall back to Python-level Thread if native IDs are unavailable,
+            # mainly for PyPy.
+            if threading.current_thread() is not threading.main_thread():
+                warn = True
+    if warn:
         _api.warn_external(
             "Starting a Matplotlib GUI outside of the main thread will likely "
             "fail.")
@@ -952,7 +980,10 @@ def savefig(*args, **kwargs):
 def figlegend(*args, **kwargs):
     return gcf().legend(*args, **kwargs)
 if Figure.legend.__doc__:
-    figlegend.__doc__ = Figure.legend.__doc__.replace("legend(", "figlegend(")
+    figlegend.__doc__ = Figure.legend.__doc__ \
+        .replace(" legend(", " figlegend(") \
+        .replace("fig.legend(", "plt.figlegend(") \
+        .replace("ax.plot(", "plt.plot(")
 
 
 ## Axes ##
@@ -1132,13 +1163,11 @@ def subplot(*args, **kwargs):
 
     Returns
     -------
-    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+    `~.axes.Axes`
 
-        The axes of the subplot. The returned axes base class depends on
-        the projection used. It is `~.axes.Axes` if rectilinear projection
-        is used and `.projections.polar.PolarAxes` if polar projection
-        is used. The returned axes is then a subplot subclass of the
-        base class.
+        The Axes of the subplot. The returned Axes can actually be an instance
+        of a subclass, such as `.projections.polar.PolarAxes` for polar
+        projections.
 
     Other Parameters
     ----------------
@@ -1255,7 +1284,7 @@ def subplot(*args, **kwargs):
 
     for ax in fig.axes:
         # if we found an Axes at the position sort out if we can re-use it
-        if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key:
+        if ax.get_subplotspec() == key:
             # if the user passed no kwargs, re-use
             if kwargs == {}:
                 break
@@ -1562,12 +1591,11 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     Returns
     -------
-    `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+    `~.axes.Axes`
 
-        The axes of the subplot.  The returned axes base class depends on the
-        projection used.  It is `~.axes.Axes` if rectilinear projection is used
-        and `.projections.polar.PolarAxes` if polar projection is used.  The
-        returned axes is then a subplot subclass of the base class.
+        The Axes of the subplot. The returned Axes can actually be an instance
+        of a subclass, such as `.projections.polar.PolarAxes` for polar
+        projections.
 
     Notes
     -----
@@ -2018,20 +2046,23 @@ def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     return lines, labels
 
 
-_NON_PLOT_COMMANDS = {
-    'connect', 'disconnect', 'get_current_fig_manager', 'ginput',
-    'new_figure_manager', 'waitforbuttonpress'}
-
-
+@_api.deprecated("3.7", pending=True)
 def get_plot_commands():
     """
     Get a sorted list of all of the plotting commands.
     """
+    NON_PLOT_COMMANDS = {
+        'connect', 'disconnect', 'get_current_fig_manager', 'ginput',
+        'new_figure_manager', 'waitforbuttonpress'}
+    return (name for name in _get_pyplot_commands()
+            if name not in NON_PLOT_COMMANDS)
+
+
+def _get_pyplot_commands():
     # This works by searching for all functions in this module and removing
     # a few hard-coded exclusions, as well as all of the colormap-setting
     # functions, and anything marked as private with a preceding underscore.
-    exclude = {'colormaps', 'colors', 'get_plot_commands',
-               *_NON_PLOT_COMMANDS, *colormaps}
+    exclude = {'colormaps', 'colors', 'get_plot_commands', *colormaps}
     this_module = inspect.getmodule(get_plot_commands)
     return sorted(
         name for name, obj in globals().items()
@@ -2327,8 +2358,8 @@ def axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs):
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.axis)
-def axis(*args, emit=True, **kwargs):
-    return gca().axis(*args, emit=emit, **kwargs)
+def axis(arg=None, /, *, emit=True, **kwargs):
+    return gca().axis(arg, emit=emit, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2606,8 +2637,8 @@ def hlines(
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.imshow)
 def imshow(
-        X, cmap=None, norm=None, aspect=None, interpolation=None,
-        alpha=None, vmin=None, vmax=None, origin=None, extent=None, *,
+        X, cmap=None, norm=None, *, aspect=None, interpolation=None,
+        alpha=None, vmin=None, vmax=None, origin=None, extent=None,
         interpolation_stage=None, filternorm=True, filterrad=4.0,
         resample=None, url=None, data=None, **kwargs):
     __ret = gca().imshow(

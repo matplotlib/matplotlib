@@ -161,7 +161,9 @@ Backend   Description
 ========= ================================================================
 QtAgg     Agg rendering in a Qt_ canvas (requires PyQt_ or `Qt for Python`_,
           a.k.a. PySide).  This backend can be activated in IPython with
-          ``%matplotlib qt``.
+          ``%matplotlib qt``.  The Qt binding can be selected via the
+          :envvar:`QT_API` environment variable; see :ref:`QT_bindings` for
+          more details.
 ipympl    Agg rendering embedded in a Jupyter widget (requires ipympl_).
           This backend can be enabled in a Jupyter notebook with
           ``%matplotlib ipympl``.
@@ -228,23 +230,6 @@ or
    conda install ipympl -c conda-forge
 
 See `installing ipympl <https://matplotlib.org/ipympl/installing.html>`__ for more details.
-
-.. _QT_API-usage:
-
-How do I select the Qt implementation?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The QtAgg and QtCairo backends support both Qt 5 and 6, as well as both Python
-bindings (`PyQt`_ or `Qt for Python`_, a.k.a. PySide). If any binding has
-already been loaded, then it will be used for the Qt backend. Otherwise, the
-first available binding is used, in the order: PyQt6, PySide6, PyQt5, PySide2.
-
-The :envvar:`QT_API` environment variable can be set to override the search
-when nothing has already been loaded. It may be set to (case-insensitively)
-PyQt6, PySide6, PyQt5, or PySide2 to pick the version and binding to use. If
-the chosen implementation is unavailable, the Qt backend will fail to load
-without attempting any other Qt implementations.  See :ref:`QT_bindings` for
-more details.
 
 Using non-builtin backends
 --------------------------

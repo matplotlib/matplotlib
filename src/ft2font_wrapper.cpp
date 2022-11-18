@@ -433,7 +433,7 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
                || !(data = PyObject_CallMethod(filename, "read", "i", 0))
                || !PyBytes_Check(data)) {
         PyErr_SetString(PyExc_TypeError,
-                        "First argument must be a path or binary-mode file object");
+                        "First argument must be a path to a font file or a binary-mode file object");
         Py_CLEAR(data);
         goto exit;
     } else {

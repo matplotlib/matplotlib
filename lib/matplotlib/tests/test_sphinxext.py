@@ -14,11 +14,11 @@ pytest.importorskip('sphinx',
                     minversion=None if sys.version_info < (3, 10) else '4.1.3')
 
 
-def test_tinypages(tmpdir):
-    source_dir = Path(tmpdir) / 'src'
-    shutil.copytree(Path(__file__).parent / 'tinypages', source_dir)
-    html_dir = source_dir / '_build' / 'html'
-    doctree_dir = source_dir / 'doctrees'
+def test_tinypages(tmp_path):
+    shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
+                    dirs_exist_ok=True)
+    html_dir = tmp_path / '_build' / 'html'
+    doctree_dir = tmp_path / 'doctrees'
     # Build the pages with warnings turned into errors
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir),
@@ -32,7 +32,7 @@ def test_tinypages(tmpdir):
     out, err = proc.communicate()
 
     # Build the pages with warnings turned into errors
-    build_sphinx_html(source_dir, doctree_dir, html_dir)
+    build_sphinx_html(tmp_path, doctree_dir, html_dir)
 
     def plot_file(num):
         return html_dir / f'some_plots-{num}.png'
@@ -75,13 +75,13 @@ def test_tinypages(tmpdir):
     assert filecmp.cmp(range_6, plot_file(17))
 
     # Modify the included plot
-    contents = (source_dir / 'included_plot_21.rst').read_bytes()
+    contents = (tmp_path / 'included_plot_21.rst').read_bytes()
     contents = contents.replace(b'plt.plot(range(6))', b'plt.plot(range(4))')
-    (source_dir / 'included_plot_21.rst').write_bytes(contents)
+    (tmp_path / 'included_plot_21.rst').write_bytes(contents)
     # Build the pages again and check that the modified file was updated
     modification_times = [plot_directive_file(i).stat().st_mtime
                           for i in (1, 2, 3, 5)]
-    build_sphinx_html(source_dir, doctree_dir, html_dir)
+    build_sphinx_html(tmp_path, doctree_dir, html_dir)
     assert filecmp.cmp(range_4, plot_file(17))
     # Check that the plots in the plot_directive folder weren't changed.
     # (plot_directive_file(1) won't be modified, but it will be copied to html/
@@ -98,35 +98,73 @@ def test_tinypages(tmpdir):
     assert filecmp.cmp(range_6, plot_file(5))
 
 
-def test_plot_html_show_source_link(tmpdir):
-    source_dir = Path(tmpdir) / 'src'
-    source_dir.mkdir()
+def test_plot_html_show_source_link(tmp_path):
     parent = Path(__file__).parent
-    shutil.copyfile(parent / 'tinypages/conf.py', source_dir / 'conf.py')
-    shutil.copytree(parent / 'tinypages/_static', source_dir / '_static')
-    doctree_dir = source_dir / 'doctrees'
-    (source_dir / 'index.rst').write_text("""
+    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
+    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    doctree_dir = tmp_path / 'doctrees'
+    (tmp_path / 'index.rst').write_text("""
 .. plot::
 
     plt.plot(range(2))
 """)
     # Make sure source scripts are created by default
-    html_dir1 = source_dir / '_build' / 'html1'
-    build_sphinx_html(source_dir, doctree_dir, html_dir1)
+    html_dir1 = tmp_path / '_build' / 'html1'
+    build_sphinx_html(tmp_path, doctree_dir, html_dir1)
     assert "index-1.py" in [p.name for p in html_dir1.iterdir()]
     # Make sure source scripts are NOT created when
     # plot_html_show_source_link` is False
-    html_dir2 = source_dir / '_build' / 'html2'
-    build_sphinx_html(source_dir, doctree_dir, html_dir2,
+    html_dir2 = tmp_path / '_build' / 'html2'
+    build_sphinx_html(tmp_path, doctree_dir, html_dir2,
                       extra_args=['-D', 'plot_html_show_source_link=0'])
     assert "index-1.py" not in [p.name for p in html_dir2.iterdir()]
 
 
-def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
+@pytest.mark.parametrize('plot_html_show_source_link', [0, 1])
+def test_show_source_link_true(tmp_path, plot_html_show_source_link):
+    # Test that a source link is generated if :show-source-link: is true,
+    # whether or not plot_html_show_source_link is true.
+    parent = Path(__file__).parent
+    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
+    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    doctree_dir = tmp_path / 'doctrees'
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+    :show-source-link: true
+
+    plt.plot(range(2))
+""")
+    html_dir = tmp_path / '_build' / 'html'
+    build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=[
+        '-D', f'plot_html_show_source_link={plot_html_show_source_link}'])
+    assert "index-1.py" in [p.name for p in html_dir.iterdir()]
+
+
+@pytest.mark.parametrize('plot_html_show_source_link', [0, 1])
+def test_show_source_link_false(tmp_path, plot_html_show_source_link):
+    # Test that a source link is NOT generated if :show-source-link: is false,
+    # whether or not plot_html_show_source_link is true.
+    parent = Path(__file__).parent
+    shutil.copyfile(parent / 'tinypages/conf.py', tmp_path / 'conf.py')
+    shutil.copytree(parent / 'tinypages/_static', tmp_path / '_static')
+    doctree_dir = tmp_path / 'doctrees'
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+    :show-source-link: false
+
+    plt.plot(range(2))
+""")
+    html_dir = tmp_path / '_build' / 'html'
+    build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=[
+        '-D', f'plot_html_show_source_link={plot_html_show_source_link}'])
+    assert "index-1.py" not in [p.name for p in html_dir.iterdir()]
+
+
+def build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=None):
     # Build the pages with warnings turned into errors
     extra_args = [] if extra_args is None else extra_args
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
-           '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
+           '-d', str(doctree_dir), str(tmp_path), str(html_dir), *extra_args]
     proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
                  env={**os.environ, "MPLBACKEND": ""})
     out, err = proc.communicate()

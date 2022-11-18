@@ -403,11 +403,11 @@ html_theme_options = {
              "image_light": "images/logo2.svg",
              "image_dark": "images/logo_dark.svg"},
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
-    "page_sidebar_items": "page-toc.html",
+    "secondary_sidebar_items": "page-toc.html",
 }
 include_analytics = is_release_build
 if include_analytics:
-    html_theme_options["google_analytics_id"] = "UA-55954603-1"
+    html_theme_options["analytics"] = {"google_analytics_id": "UA-55954603-1"}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

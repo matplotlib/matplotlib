@@ -39,7 +39,6 @@ You can find a tutorial describing usage of axisartist at the
    axisartist.axis_artist
    axisartist.axisline_style
    axisartist.axislines
-   axisartist.clip_path
    axisartist.floating_axes
    axisartist.grid_finder
    axisartist.grid_helper_curvelinear

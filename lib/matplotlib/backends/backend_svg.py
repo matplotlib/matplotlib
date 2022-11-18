@@ -24,9 +24,9 @@ from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 
+
 _log = logging.getLogger(__name__)
 
-backend_version = mpl.__version__
 
 # ----------------------------------------------------------------------
 # SimpleXMLWriter class
@@ -1292,10 +1292,6 @@ class RendererSVG(RendererBase):
 
             writer.end('g')
 
-    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
-        # docstring inherited
-        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
-
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
 
@@ -1338,9 +1334,7 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     fixed_dpi = 72
 
-    @_api.delete_parameter("3.5", "args")
-    def print_svg(self, filename, *args, bbox_inches_restore=None,
-                  metadata=None):
+    def print_svg(self, filename, *, bbox_inches_restore=None, metadata=None):
         """
         Parameters
         ----------
@@ -1386,8 +1380,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             self.figure.draw(renderer)
             renderer.finalize()
 
-    @_api.delete_parameter("3.5", "args")
-    def print_svgz(self, filename, *args, **kwargs):
+    def print_svgz(self, filename, **kwargs):
         with cbook.open_file_cm(filename, "wb") as fh, \
                 gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
             return self.print_svg(gzipwriter, **kwargs)
@@ -1412,4 +1405,5 @@ svgProlog = """\
 
 @_Backend.export
 class _BackendSVG(_Backend):
+    backend_version = mpl.__version__
     FigureCanvas = FigureCanvasSVG

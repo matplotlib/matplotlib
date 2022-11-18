@@ -262,7 +262,7 @@ def test_add_subplot_invalid():
         fig.add_subplot(2, 2.0, 1)
     _, ax = plt.subplots()
     with pytest.raises(ValueError,
-                       match='The Subplot must have been created in the '
+                       match='The Axes must have been created in the '
                              'present figure'):
         fig.add_subplot(ax)
 
@@ -922,6 +922,26 @@ class TestSubplotMosaic:
         fig_ref.subplot_mosaic([["F"], [x]])
         fig_test.subplot_mosaic([["F"], [xt]])
 
+    def test_nested_width_ratios(self):
+        x = [["A", [["B"],
+                    ["C"]]]]
+        width_ratios = [2, 1]
+
+        fig, axd = plt.subplot_mosaic(x, width_ratios=width_ratios)
+
+        assert axd["A"].get_gridspec().get_width_ratios() == width_ratios
+        assert axd["B"].get_gridspec().get_width_ratios() != width_ratios
+
+    def test_nested_height_ratios(self):
+        x = [["A", [["B"],
+                    ["C"]]], ["D", "D"]]
+        height_ratios = [1, 2]
+
+        fig, axd = plt.subplot_mosaic(x, height_ratios=height_ratios)
+
+        assert axd["D"].get_gridspec().get_height_ratios() == height_ratios
+        assert axd["B"].get_gridspec().get_height_ratios() != height_ratios
+
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize(
         "x, empty_sentinel",
@@ -1412,3 +1432,11 @@ def test_unpickle_with_device_pixel_ratio():
     assert fig.dpi == 42*7
     fig2 = pickle.loads(pickle.dumps(fig))
     assert fig2.dpi == 42
+
+
+def test_gridspec_no_mutate_input():
+    gs = {'left': .1}
+    gs_orig = dict(gs)
+    plt.subplots(1, 2, width_ratios=[1, 2], gridspec_kw=gs)
+    assert gs == gs_orig
+    plt.subplot_mosaic('AB', width_ratios=[1, 2], gridspec_kw=gs)

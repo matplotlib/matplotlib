@@ -73,7 +73,8 @@ def test_otf():
             assert res == is_opentype_cff_font(f.fname)
 
 
-@pytest.mark.skipif(not has_fclist, reason='no fontconfig installed')
+@pytest.mark.skipif(sys.platform == "win32" or not has_fclist,
+                    reason='no fontconfig installed')
 def test_get_fontconfig_fonts():
     assert len(_get_fontconfig_fonts()) > 1
 
@@ -146,11 +147,12 @@ def test_find_invalid(tmpdir):
 
     # Not really public, but get_font doesn't expose non-filename constructor.
     from matplotlib.ft2font import FT2Font
-    with pytest.raises(TypeError, match='path or binary-mode file'):
+    with pytest.raises(TypeError, match='font file or a binary-mode file'):
         FT2Font(StringIO())
 
 
-@pytest.mark.skipif(sys.platform != 'linux', reason='Linux only')
+@pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
+                    reason='only Linux with fontconfig installed')
 def test_user_fonts_linux(tmpdir, monkeypatch):
     font_test_file = 'mpltest.ttf'
 

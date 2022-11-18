@@ -91,14 +91,14 @@ You can use the ``O`` variable to set additional options:
 * ``make O=-j4 html`` runs a parallel build with 4 processes.
 * ``make O=-Dplot_formats=png:100 html`` saves figures in low resolution.
 
-Multiple options can be combined, e.g. ``make O='-j4 -Dplot_gallery=0'
+Multiple options can be combined, e.g. ``make O='-j4 -Dplot_formats=png:100'
 html``.
 
 On Windows, set the options as environment variables, e.g.:
 
 .. code-block:: bat
 
-   set SPHINXOPTS= & set O=-j4 -Dplot_gallery=0 & make html
+   set SPHINXOPTS= & set O=-j4 -Dplot_formats=png:100 & make html
 
 Showing locally built docs
 --------------------------

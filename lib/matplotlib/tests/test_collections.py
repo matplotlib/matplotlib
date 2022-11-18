@@ -12,10 +12,8 @@ import matplotlib.colors as mcolors
 import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
-                                    EventCollection, PolyCollection,
-                                    QuadMesh)
+                                    EventCollection, PolyCollection)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
 
 def generate_EventCollection_plot():
@@ -403,7 +401,7 @@ def test_polycollection_close():
         [[3., 0.], [3., 1.], [4., 1.], [4., 0.]]]
 
     fig = plt.figure()
-    ax = fig.add_axes(Axes3D(fig, auto_add_to_figure=False))
+    ax = fig.add_axes(Axes3D(fig))
 
     colors = ['r', 'g', 'b', 'y', 'k']
     zpos = list(range(5))
@@ -696,7 +694,7 @@ def test_pathcollection_legend_elements():
 
     h, l = sc.legend_elements(fmt="{x:g}")
     assert len(h) == 5
-    assert_array_equal(np.array(l).astype(float), np.arange(5))
+    assert l == ["0", "1", "2", "3", "4"]
     colors = np.array([line.get_color() for line in h])
     colors2 = sc.cmap(np.arange(5)/4)
     assert_array_equal(colors, colors2)
@@ -707,16 +705,14 @@ def test_pathcollection_legend_elements():
     l2 = ax.legend(h2, lab2, loc=2)
 
     h, l = sc.legend_elements(prop="sizes", alpha=0.5, color="red")
-    alpha = np.array([line.get_alpha() for line in h])
-    assert_array_equal(alpha, 0.5)
-    color = np.array([line.get_markerfacecolor() for line in h])
-    assert_array_equal(color, "red")
+    assert all(line.get_alpha() == 0.5 for line in h)
+    assert all(line.get_markerfacecolor() == "red" for line in h)
     l3 = ax.legend(h, l, loc=4)
 
     h, l = sc.legend_elements(prop="sizes", num=4, fmt="{x:.2f}",
                               func=lambda x: 2*x)
     actsizes = [line.get_markersize() for line in h]
-    labeledsizes = np.sqrt(np.array(l).astype(float)/2)
+    labeledsizes = np.sqrt(np.array(l, float) / 2)
     assert_array_almost_equal(actsizes, labeledsizes)
     l4 = ax.legend(h, l, loc=3)
 
@@ -727,7 +723,7 @@ def test_pathcollection_legend_elements():
 
     levels = [-1, 0, 55.4, 260]
     h6, lab6 = sc.legend_elements(num=levels, prop="sizes", fmt="{x:g}")
-    assert_array_equal(np.array(lab6).astype(float), levels[2:])
+    assert [float(l) for l in lab6] == levels[2:]
 
     for l in [l1, l2, l3, l4]:
         ax.add_artist(l)
@@ -813,77 +809,6 @@ def test_autolim_with_zeros(transform, expected):
     np.testing.assert_allclose(ax.get_xlim(), expected)
 
 
-@pytest.mark.parametrize('flat_ref, kwargs', [
-    (True, {}),
-    (False, {}),
-    (True, dict(antialiased=False)),
-    (False, dict(transform='__initialization_delayed__')),
-])
-@check_figures_equal(extensions=['png'])
-def test_quadmesh_deprecated_signature(
-        fig_test, fig_ref, flat_ref, kwargs):
-    # test that the new and old quadmesh signature produce the same results
-    # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
-    x = [0, 1, 2, 3.]
-    y = [1, 2, 3.]
-    X, Y = np.meshgrid(x, y)
-    X += 0.2 * Y
-    coords = np.stack([X, Y], axis=-1)
-    assert coords.shape == (3, 4, 2)
-    C = np.linspace(0, 2, 6).reshape(2, 3)
-
-    ax = fig_test.add_subplot()
-    ax.set(xlim=(0, 5), ylim=(0, 4))
-    if 'transform' in kwargs:
-        kwargs['transform'] = mtransforms.Affine2D().scale(1.2) + ax.transData
-    qmesh = QuadMesh(coords, **kwargs)
-    qmesh.set_array(C)
-    ax.add_collection(qmesh)
-    assert qmesh._shading == 'flat'
-
-    ax = fig_ref.add_subplot()
-    ax.set(xlim=(0, 5), ylim=(0, 4))
-    if 'transform' in kwargs:
-        kwargs['transform'] = mtransforms.Affine2D().scale(1.2) + ax.transData
-    with pytest.warns(MatplotlibDeprecationWarning):
-        qmesh = QuadMesh(4 - 1, 3 - 1,
-                         coords.copy().reshape(-1, 2) if flat_ref else coords,
-                         **kwargs)
-    qmesh.set_array(C.flatten() if flat_ref else C)
-    ax.add_collection(qmesh)
-    assert qmesh._shading == 'flat'
-
-
-@check_figures_equal(extensions=['png'])
-def test_quadmesh_deprecated_positional(fig_test, fig_ref):
-    # test that positional parameters are still accepted with the old signature
-    # and work correctly
-    # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
-    from matplotlib.collections import QuadMesh
-
-    x = [0, 1, 2, 3.]
-    y = [1, 2, 3.]
-    X, Y = np.meshgrid(x, y)
-    X += 0.2 * Y
-    coords = np.stack([X, Y], axis=-1)
-    assert coords.shape == (3, 4, 2)
-    C = np.linspace(0, 2, 12).reshape(3, 4)
-
-    ax = fig_test.add_subplot()
-    ax.set(xlim=(0, 5), ylim=(0, 4))
-    qmesh = QuadMesh(coords, antialiased=False, shading='gouraud')
-    qmesh.set_array(C)
-    ax.add_collection(qmesh)
-
-    ax = fig_ref.add_subplot()
-    ax.set(xlim=(0, 5), ylim=(0, 4))
-    with pytest.warns(MatplotlibDeprecationWarning):
-        qmesh = QuadMesh(4 - 1, 3 - 1, coords.copy().reshape(-1, 2),
-                         False, 'gouraud')
-    qmesh.set_array(C)
-    ax.add_collection(qmesh)
-
-
 def test_quadmesh_set_array_validation():
     x = np.arange(11)
     y = np.arange(8)
@@ -892,7 +817,9 @@ def test_quadmesh_set_array_validation():
     coll = ax.pcolormesh(x, y, z)
 
     # Test deprecated warning when faulty shape is passed.
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.raises(ValueError, match=r"For X \(11\) and Y \(8\) with flat "
+                       r"shading, the expected shape of A is \(7, 10\), not "
+                       r"\(10, 7\)"):
         coll.set_array(z.reshape(10, 7))
 
     z = np.arange(54).reshape((6, 9))

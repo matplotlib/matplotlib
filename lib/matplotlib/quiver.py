@@ -19,7 +19,7 @@ import math
 import numpy as np
 from numpy import ma
 
-from matplotlib import _api, cbook, _docstring, font_manager
+from matplotlib import _api, cbook, _docstring
 import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
@@ -303,13 +303,11 @@ class QuiverKey(martist.Artist):
         self.labelcolor = labelcolor
         self.fontproperties = fontproperties or dict()
         self.kw = kwargs
-        _fp = self.fontproperties
         self.text = mtext.Text(
             text=label,
             horizontalalignment=self.halign[self.labelpos],
             verticalalignment=self.valign[self.labelpos],
-            fontproperties=font_manager.FontProperties._from_any(_fp))
-
+            fontproperties=self.fontproperties)
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
         self._dpi_at_last_init = None
@@ -346,29 +344,20 @@ class QuiverKey(martist.Artist):
             self.vector.set_figure(self.get_figure())
             self._dpi_at_last_init = self.Q.axes.figure.dpi
 
-    def _text_x(self, x):
-        if self.labelpos == 'E':
-            return x + self.labelsep
-        elif self.labelpos == 'W':
-            return x - self.labelsep
-        else:
-            return x
-
-    def _text_y(self, y):
-        if self.labelpos == 'N':
-            return y + self.labelsep
-        elif self.labelpos == 'S':
-            return y - self.labelsep
-        else:
-            return y
+    def _text_shift(self):
+        return {
+            "N": (0, +self.labelsep),
+            "S": (0, -self.labelsep),
+            "E": (+self.labelsep, 0),
+            "W": (-self.labelsep, 0),
+        }[self.labelpos]
 
     @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
-        x, y = self.get_transform().transform((self.X, self.Y))
-        self.text.set_x(self._text_x(x))
-        self.text.set_y(self._text_y(y))
+        pos = self.get_transform().transform((self.X, self.Y))
+        self.text.set_position(pos + self._text_shift())
         self.text.draw(renderer)
         self.stale = False
 
@@ -417,20 +406,19 @@ def _parse_args(*args, caller_name='function'):
     """
     X = Y = C = None
 
-    len_args = len(args)
-    if len_args == 2:
+    nargs = len(args)
+    if nargs == 2:
         # The use of atleast_1d allows for handling scalar arguments while also
         # keeping masked arrays
         U, V = np.atleast_1d(*args)
-    elif len_args == 3:
+    elif nargs == 3:
         U, V, C = np.atleast_1d(*args)
-    elif len_args == 4:
+    elif nargs == 4:
         X, Y, U, V = np.atleast_1d(*args)
-    elif len_args == 5:
+    elif nargs == 5:
         X, Y, U, V, C = np.atleast_1d(*args)
     else:
-        raise TypeError(f'{caller_name} takes 2-5 positional arguments but '
-                        f'{len_args} were given')
+        raise _api.nargs_error(caller_name, takes="from 2 to 5", given=nargs)
 
     nr, nc = (1, U.shape[0]) if U.ndim == 1 else U.shape
 
@@ -487,7 +475,7 @@ class Quiver(mcollections.PolyCollection):
         %s
         """
         self._axes = ax  # The attr actually set by the Artist.axes property.
-        X, Y, U, V, C = _parse_args(*args, caller_name='quiver()')
+        X, Y, U, V, C = _parse_args(*args, caller_name='quiver')
         self.X = X
         self.Y = Y
         self.XY = np.column_stack((X, Y))
@@ -890,9 +878,11 @@ class Barbs(mcollections.PolyCollection):
     From there :meth:`_make_barbs` is used to find the vertices of the
     polygon to represent the barb based on this information.
     """
+
     # This may be an abuse of polygons here to render what is essentially maybe
     # 1 triangle and a series of lines.  It works fine as far as I can tell
     # however.
+
     @_docstring.interpd
     def __init__(self, ax, *args,
                  pivot='tip', length=7, barbcolor=None, flagcolor=None,
@@ -937,7 +927,7 @@ class Barbs(mcollections.PolyCollection):
             kwargs['linewidth'] = 1
 
         # Parse out the data arrays from the various configurations supported
-        x, y, u, v, c = _parse_args(*args, caller_name='barbs()')
+        x, y, u, v, c = _parse_args(*args, caller_name='barbs')
         self.x = x
         self.y = y
         xy = np.column_stack((x, y))
@@ -952,35 +942,35 @@ class Barbs(mcollections.PolyCollection):
 
     def _find_tails(self, mag, rounding=True, half=5, full=10, flag=50):
         """
-        Find how many of each of the tail pieces is necessary.  Flag
-        specifies the increment for a flag, barb for a full barb, and half for
-        half a barb. Mag should be the magnitude of a vector (i.e., >= 0).
+        Find how many of each of the tail pieces is necessary.
 
-        This returns a tuple of:
+        Parameters
+        ----------
+        mag : array
+            Vector magnitudes; must be non-negative (and an actual ndarray).
+        rounding : bool, default: True
+            Whether to round or to truncate to the nearest half-barb.
+        half, full, flag : float, defaults: 5, 10, 50
+            Increments for a half-barb, a barb, and a flag.
 
-            (*number of flags*, *number of barbs*, *half_flag*, *empty_flag*)
-
-        The bool *half_flag* indicates whether half of a barb is needed,
-        since there should only ever be one half on a given
-        barb. *empty_flag* flag is an array of flags to easily tell if
-        a barb is empty (too low to plot any barbs/flags.
+        Returns
+        -------
+        n_flags, n_barbs : int array
+            For each entry in *mag*, the number of flags and barbs.
+        half_flag : bool array
+            For each entry in *mag*, whether a half-barb is needed.
+        empty_flag : bool array
+            For each entry in *mag*, whether nothing is drawn.
         """
-
         # If rounding, round to the nearest multiple of half, the smallest
         # increment
         if rounding:
-            mag = half * (mag / half + 0.5).astype(int)
-
-        num_flags = np.floor(mag / flag).astype(int)
-        mag = mag % flag
-
-        num_barb = np.floor(mag / full).astype(int)
-        mag = mag % full
-
+            mag = half * np.around(mag / half)
+        n_flags, mag = divmod(mag, flag)
+        n_barb, mag = divmod(mag, full)
         half_flag = mag >= half
-        empty_flag = ~(half_flag | (num_flags > 0) | (num_barb > 0))
-
-        return num_flags, num_barb, half_flag, empty_flag
+        empty_flag = ~(half_flag | (n_flags > 0) | (n_barb > 0))
+        return n_flags.astype(int), n_barb.astype(int), half_flag, empty_flag
 
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
                     pivot, sizes, fill_empty, flip):
@@ -1152,9 +1142,8 @@ class Barbs(mcollections.PolyCollection):
             _check_consistent_shapes(x, y, u, v, flip)
 
         magnitude = np.hypot(u, v)
-        flags, barbs, halves, empty = self._find_tails(magnitude,
-                                                       self.rounding,
-                                                       **self.barb_increments)
+        flags, barbs, halves, empty = self._find_tails(
+            magnitude, self.rounding, **self.barb_increments)
 
         # Get the vertices for each of the barbs
 

@@ -216,7 +216,7 @@ else:
 def print_status(package, status):
     initial_indent = "%12s: " % package
     indent = ' ' * 18
-    print_raw(textwrap.fill(str(status), width=80,
+    print_raw(textwrap.fill(status, width=80,
                             initial_indent=initial_indent,
                             subsequent_indent=indent))
 
@@ -487,7 +487,12 @@ class Tests(OptionalPackage):
                 'tests/test_*.ipynb',
             ],
             'mpl_toolkits': [
-                *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits/axes_grid1',
+                                  'tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits/axisartist'
+                                  'tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits/mplot3d'
+                                  'tests/baseline_images'),
             ]
         }
 

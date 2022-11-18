@@ -52,16 +52,15 @@ def create_figure():
 # The following is the content of the web page.  You would normally
 # generate this using some sort of template facility in your web
 # framework, but here we just use Python string formatting.
-html_content = """
-<html>
+html_content = """<!DOCTYPE html>
+<html lang="en">
   <head>
     <!-- TODO: There should be a way to include all of the required javascript
                and CSS so matplotlib can add to the set in the future if it
                needs to. -->
     <link rel="stylesheet" href="_static/css/page.css" type="text/css">
-    <link rel="stylesheet" href="_static/css/boilerplate.css"
-          type="text/css" />
-    <link rel="stylesheet" href="_static/css/fbm.css" type="text/css" />
+    <link rel="stylesheet" href="_static/css/boilerplate.css" type="text/css">
+    <link rel="stylesheet" href="_static/css/fbm.css" type="text/css">
     <link rel="stylesheet" href="_static/css/mpl.css" type="text/css">
     <script src="mpl.js"></script>
 

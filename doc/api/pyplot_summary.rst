@@ -9,8 +9,86 @@
    :no-undoc-members:
 
 
-Plotting commands
------------------
+Managing Figure and Axes
+------------------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   axes
+   cla
+   clf
+   close
+   delaxes
+   fignum_exists
+   figure
+   gca
+   gcf
+   get_figlabels
+   get_fignums
+   sca
+   subplot
+   subplot2grid
+   subplot_mosaic
+   subplots
+   twinx
+   twiny
+
+
+Adding data to the plot
+-----------------------
+
+Basic
+^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   plot
+   errorbar
+   scatter
+   plot_date
+   step
+   loglog
+   semilogx
+   semilogy
+   fill_between
+   fill_betweenx
+   bar
+   barh
+   bar_label
+   stem
+   eventplot
+   pie
+   stackplot
+   broken_barh
+   vlines
+   hlines
+   fill
+   polar
+
+
+Spans
+^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   axhline
+   axhspan
+   axvline
+   axvspan
+   axline
+
+
+Spectral
+^^^^^^^^
 
 .. autosummary::
    :toctree: _as_gen
@@ -19,133 +97,134 @@ Plotting commands
 
    acorr
    angle_spectrum
-   annotate
-   arrow
-   autoscale
-   axes
-   axhline
-   axhspan
-   axis
-   axline
-   axvline
-   axvspan
-   bar
-   bar_label
-   barbs
-   barh
-   box
-   boxplot
-   broken_barh
-   cla
-   clabel
-   clf
-   clim
-   close
    cohere
-   colorbar
-   contour
-   contourf
    csd
-   delaxes
-   draw
-   draw_if_interactive
-   errorbar
-   eventplot
-   figimage
-   figlegend
-   fignum_exists
-   figtext
-   figure
-   fill
-   fill_between
-   fill_betweenx
-   findobj
-   gca
-   gcf
-   gci
-   get
-   get_cmap
-   get_figlabels
-   get_fignums
-   getp
-   grid
+   magnitude_spectrum
+   phase_spectrum
+   psd
+   specgram
+   xcorr
+
+
+Statistics
+^^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   boxplot
+   violinplot
+
+
+Binned
+^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
    hexbin
    hist
    hist2d
-   hlines
-   imread
-   imsave
+   stairs
+
+
+Contours
+^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   clabel
+   contour
+   contourf
+
+
+2D arrays
+^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
    imshow
-   install_repl_displayhook
-   ioff
-   ion
-   isinteractive
-   legend
-   locator_params
-   loglog
-   magnitude_spectrum
-   margins
    matshow
-   minorticks_off
-   minorticks_on
-   pause
    pcolor
    pcolormesh
-   phase_spectrum
-   pie
-   plot
-   plot_date
-   polar
-   psd
+   spy
+   figimage
+
+
+Unstructured triangles
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   triplot
+   tripcolor
+   tricontour
+   tricontourf
+
+
+Text and annotations
+^^^^^^^^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   annotate
+   text
+   figtext
+   table
+   arrow
+   figlegend
+   legend
+
+
+Vector fields
+^^^^^^^^^^^^^
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   barbs
    quiver
    quiverkey
-   rc
-   rc_context
-   rcdefaults
-   rgrids
-   savefig
-   sca
-   scatter
-   sci
-   semilogx
-   semilogy
-   set_cmap
-   set_loglevel
-   setp
-   show
-   specgram
-   spy
-   stackplot
-   stairs
-   stem
-   step
    streamplot
-   subplot
-   subplot2grid
-   subplot_mosaic
-   subplot_tool
-   subplots
-   subplots_adjust
-   suptitle
-   switch_backend
-   table
-   text
+
+
+Axis configuration
+------------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   autoscale
+   axis
+   box
+   grid
+   locator_params
+   minorticks_off
+   minorticks_on
+   rgrids
    thetagrids
    tick_params
    ticklabel_format
-   tight_layout
-   title
-   tricontour
-   tricontourf
-   tripcolor
-   triplot
-   twinx
-   twiny
-   uninstall_repl_displayhook
-   violinplot
-   vlines
-   xcorr
-   xkcd
    xlabel
    xlim
    xscale
@@ -154,25 +233,41 @@ Plotting commands
    ylim
    yscale
    yticks
+   suptitle
+   title
 
 
-Other commands
---------------
+Layout
+------
+
 .. autosummary::
    :toctree: _as_gen
    :template: autosummary.rst
    :nosignatures:
 
-   connect
-   disconnect
-   get_current_fig_manager
-   ginput
-   new_figure_manager
-   waitforbuttonpress
+   margins
+   subplots_adjust
+   subplot_tool
+   tight_layout
 
 
-Colormaps
----------
+Colormapping
+------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   clim
+   colorbar
+   gci
+   sci
+   get_cmap
+   set_cmap
+   imread
+   imsave
+
 Colormaps are available via the colormap registry `matplotlib.colormaps`. For
 convenience this registry is available in ``pyplot`` as
 
@@ -182,5 +277,62 @@ convenience this registry is available in ``pyplot`` as
 Additionally, there are shortcut functions to set builtin colormaps; e.g.
 ``plt.viridis()`` is equivalent to ``plt.set_cmap('viridis')``.
 
+
 .. autodata:: color_sequences
    :no-value:
+
+
+Configuration
+-------------
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   rc
+   rc_context
+   rcdefaults
+
+
+Output
+------
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   draw
+   draw_if_interactive
+   ioff
+   ion
+   install_repl_displayhook
+   isinteractive
+   pause
+   savefig
+   show
+   switch_backend
+   uninstall_repl_displayhook
+
+
+Other
+-----
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   connect
+   disconnect
+   findobj
+   get
+   getp
+   get_current_fig_manager
+   ginput
+   new_figure_manager
+   set_loglevel
+   setp
+   waitforbuttonpress
+   xkcd

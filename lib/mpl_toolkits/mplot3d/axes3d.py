@@ -32,7 +32,7 @@ import matplotlib.transforms as mtransforms
 from matplotlib.axes import Axes
 from matplotlib.axes._base import _axis_method_wrapper, _process_plot_format
 from matplotlib.transforms import Bbox
-from matplotlib.tri.triangulation import Triangulation
+from matplotlib.tri._triangulation import Triangulation
 
 from . import art3d
 from . import proj3d
@@ -99,14 +99,6 @@ class Axes3D(Axes):
             does not produce the desired result. Note however, that a manual
             zorder will only be correct for a limited view angle. If the figure
             is rotated by the user, it will look wrong from certain angles.
-        auto_add_to_figure : bool, default: False
-            Prior to Matplotlib 3.4 Axes3D would add themselves
-            to their host Figure on init.  Other Axes class do not
-            do this.
-
-            This behavior is deprecated in 3.4, the default is
-            changed to False in 3.6.  The keyword will be undocumented
-            and a non-False value will be an error in 3.7.
         focal_length : float, default: None
             For a projection type of 'persp', the focal length of the virtual
             camera. Must be > 0. If None, defaults to 1.
@@ -145,7 +137,11 @@ class Axes3D(Axes):
             self._shared_axes["z"].join(self, sharez)
             self._adjustable = 'datalim'
 
-        auto_add_to_figure = kwargs.pop('auto_add_to_figure', False)
+        if kwargs.pop('auto_add_to_figure', False):
+            raise AttributeError(
+                'auto_add_to_figure is no longer supported for Axes3D. '
+                'Use fig.add_axes(ax) instead.'
+            )
 
         super().__init__(
             fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
@@ -176,18 +172,6 @@ class Axes3D(Axes):
         # mplot3d currently manages its own spines and needs these turned off
         # for bounding box calculations
         self.spines[:].set_visible(False)
-
-        if auto_add_to_figure:
-            _api.warn_deprecated(
-                "3.4", removal="3.7", message="Axes3D(fig) adding itself "
-                "to the figure is deprecated since %(since)s. "
-                "Pass the keyword argument auto_add_to_figure=False "
-                "and use fig.add_axes(ax) to suppress this warning. "
-                "The default value of auto_add_to_figure is changed to "
-                "False in mpl3.6 and True values will "
-                "no longer work %(removal)s.  This is consistent with "
-                "other Axes classes.")
-            fig.add_axes(self)
 
     def set_axis_off(self):
         self._axis3don = False
@@ -236,7 +220,11 @@ class Axes3D(Axes):
     w_zaxis = _api.deprecated("3.1", alternative="zaxis", removal="3.8")(
         property(lambda self: self.zaxis))
 
+    @_api.deprecated("3.7")
     def unit_cube(self, vals=None):
+        return self._unit_cube(vals)
+
+    def _unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
         return [(minx, miny, minz),
                 (maxx, miny, minz),
@@ -247,15 +235,23 @@ class Axes3D(Axes):
                 (maxx, maxy, maxz),
                 (minx, maxy, maxz)]
 
+    @_api.deprecated("3.7")
     def tunit_cube(self, vals=None, M=None):
+        return self._tunit_cube(vals, M)
+
+    def _tunit_cube(self, vals=None, M=None):
         if M is None:
             M = self.M
-        xyzs = self.unit_cube(vals)
+        xyzs = self._unit_cube(vals)
         tcube = proj3d.proj_points(xyzs, M)
         return tcube
 
+    @_api.deprecated("3.7")
     def tunit_edges(self, vals=None, M=None):
-        tc = self.tunit_cube(vals, M)
+        return self._tunit_edges(vals, M)
+
+    def _tunit_edges(self, vals=None, M=None):
+        tc = self._tunit_cube(vals, M)
         edges = [(tc[0], tc[1]),
                  (tc[1], tc[2]),
                  (tc[2], tc[3]),
@@ -299,7 +295,7 @@ class Axes3D(Axes):
         anchor : None or str or 2-tuple of float, optional
             If not *None*, this defines where the Axes will be drawn if there
             is extra space due to aspect constraints. The most common way to
-            to specify the anchor are abbreviations of cardinal directions:
+            specify the anchor are abbreviations of cardinal directions:
 
             =====   =====================
             value   description
@@ -402,7 +398,7 @@ class Axes3D(Axes):
         aspect : 3-tuple of floats or None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
-            If None, defaults to (4,4,3).
+            If None, defaults to (4, 4, 3).
 
         zoom : float, default: 1
             Control overall size of the Axes3D in the figure. Must be > 0.
@@ -496,13 +492,16 @@ class Axes3D(Axes):
 
     def get_axis_position(self):
         vals = self.get_w_lims()
-        tc = self.tunit_cube(vals, self.M)
+        tc = self._tunit_cube(vals, self.M)
         xhigh = tc[1][2] > tc[2][2]
         yhigh = tc[3][2] > tc[2][2]
         zhigh = tc[0][2] > tc[2][2]
         return xhigh, yhigh, zhigh
 
     def update_datalim(self, xys, **kwargs):
+        """
+        Not implemented in `~mpl_toolkits.mplot3d.axes3d.Axes3D`.
+        """
         pass
 
     get_autoscalez_on = _axis_method_wrapper("zaxis", "_get_autoscale_on")
@@ -1063,7 +1062,7 @@ class Axes3D(Axes):
                     ).replace("-", "\N{MINUS SIGN}")
 
         # nearest edge
-        p0, p1 = min(self.tunit_edges(),
+        p0, p1 = min(self._tunit_edges(),
                      key=lambda edge: proj3d._line2d_seg_dist(
                          edge[0], edge[1], (xd, yd)))
 
@@ -1205,7 +1204,8 @@ class Axes3D(Axes):
                             mode=None, twinx=False, twiny=False):
         """
         Zoom in or out of the bounding box.
-        Will center the view on the center of the bounding box, and zoom by
+
+        Will center the view in the center of the bounding box, and zoom by
         the ratio of the size of the bounding box to the size of the Axes3D.
         """
         (start_x, start_y, stop_x, stop_y) = bbox
@@ -1251,6 +1251,7 @@ class Axes3D(Axes):
     def _zoom_data_limits(self, scale_u, scale_v, scale_w):
         """
         Zoom in or out of a 3D plot.
+
         Will scale the data limits by the scale factors. These will be
         transformed to the x, y, z data axes based on the current view angles.
         A scale factor > 1 zooms out and a scale factor < 1 zooms in.
@@ -1348,7 +1349,6 @@ class Axes3D(Axes):
         self._frameon = bool(b)
         self.stale = True
 
-    @_api.rename_parameter("3.5", "b", "visible")
     def grid(self, visible=True, **kwargs):
         """
         Set / unset 3D grid.
@@ -1441,9 +1441,11 @@ class Axes3D(Axes):
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
         """
-        Add text to the plot. kwargs will be passed on to Axes.text,
-        except for the *zdir* keyword, which sets the direction to be
-        used as the z direction.
+        Add text to the plot.
+
+        Keyword arguments will be passed on to `.Axes.text`, except for the
+        *zdir* keyword, which sets the direction to be used as the z
+        direction.
         """
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
@@ -1466,7 +1468,7 @@ class Axes3D(Axes):
             z coordinates of vertices; either one for all points or one for
             each point.
         zdir : {'x', 'y', 'z'}, default: 'z'
-            When plotting 2D data, the direction to use as z ('x', 'y' or 'z').
+            When plotting 2D data, the direction to use as z.
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
         """
@@ -1500,7 +1502,7 @@ class Axes3D(Axes):
         """
         Create a surface plot.
 
-        By default it will be colored in shades of a solid color, but it also
+        By default, it will be colored in shades of a solid color, but it also
         supports colormapping by supplying the *cmap* argument.
 
         .. note::
@@ -1664,15 +1666,13 @@ class Axes3D(Axes):
 
         # note that the striding causes some polygons to have more coordinates
         # than others
-        polyc = art3d.Poly3DCollection(polys, **kwargs)
 
         if fcolors is not None:
-            if shade:
-                colset = self._shade_colors(
-                    colset, self._generate_normals(polys), lightsource)
-            polyc.set_facecolors(colset)
-            polyc.set_edgecolors(colset)
+            polyc = art3d.Poly3DCollection(
+                polys, edgecolors=colset, facecolors=colset, shade=shade,
+                lightsource=lightsource, **kwargs)
         elif cmap:
+            polyc = art3d.Poly3DCollection(polys, **kwargs)
             # can't always vectorize, because polys might be jagged
             if isinstance(polys, np.ndarray):
                 avg_z = polys[..., 2].mean(axis=-1)
@@ -1684,96 +1684,14 @@ class Axes3D(Axes):
             if norm is not None:
                 polyc.set_norm(norm)
         else:
-            if shade:
-                colset = self._shade_colors(
-                    color, self._generate_normals(polys), lightsource)
-            else:
-                colset = color
-            polyc.set_facecolors(colset)
+            polyc = art3d.Poly3DCollection(
+                polys, facecolors=color, shade=shade,
+                lightsource=lightsource, **kwargs)
 
         self.add_collection(polyc)
         self.auto_scale_xyz(X, Y, Z, had_data)
 
         return polyc
-
-    def _generate_normals(self, polygons):
-        """
-        Compute the normals of a list of polygons.
-
-        Normals point towards the viewer for a face with its vertices in
-        counterclockwise order, following the right hand rule.
-
-        Uses three points equally spaced around the polygon.
-        This normal of course might not make sense for polygons with more than
-        three points not lying in a plane, but it's a plausible and fast
-        approximation.
-
-        Parameters
-        ----------
-        polygons : list of (M_i, 3) array-like, or (..., M, 3) array-like
-            A sequence of polygons to compute normals for, which can have
-            varying numbers of vertices. If the polygons all have the same
-            number of vertices and array is passed, then the operation will
-            be vectorized.
-
-        Returns
-        -------
-        normals : (..., 3) array
-            A normal vector estimated for the polygon.
-        """
-        if isinstance(polygons, np.ndarray):
-            # optimization: polygons all have the same number of points, so can
-            # vectorize
-            n = polygons.shape[-2]
-            i1, i2, i3 = 0, n//3, 2*n//3
-            v1 = polygons[..., i1, :] - polygons[..., i2, :]
-            v2 = polygons[..., i2, :] - polygons[..., i3, :]
-        else:
-            # The subtraction doesn't vectorize because polygons is jagged.
-            v1 = np.empty((len(polygons), 3))
-            v2 = np.empty((len(polygons), 3))
-            for poly_i, ps in enumerate(polygons):
-                n = len(ps)
-                i1, i2, i3 = 0, n//3, 2*n//3
-                v1[poly_i, :] = ps[i1, :] - ps[i2, :]
-                v2[poly_i, :] = ps[i2, :] - ps[i3, :]
-        return np.cross(v1, v2)
-
-    def _shade_colors(self, color, normals, lightsource=None):
-        """
-        Shade *color* using normal vectors given by *normals*.
-        *color* can also be an array of the same length as *normals*.
-        """
-        if lightsource is None:
-            # chosen for backwards-compatibility
-            lightsource = mcolors.LightSource(azdeg=225, altdeg=19.4712)
-
-        with np.errstate(invalid="ignore"):
-            shade = ((normals / np.linalg.norm(normals, axis=1, keepdims=True))
-                     @ lightsource.direction)
-        mask = ~np.isnan(shade)
-
-        if mask.any():
-            # convert dot product to allowed shading fractions
-            in_norm = mcolors.Normalize(-1, 1)
-            out_norm = mcolors.Normalize(0.3, 1).inverse
-
-            def norm(x):
-                return out_norm(in_norm(x))
-
-            shade[~mask] = 0
-
-            color = mcolors.to_rgba_array(color)
-            # shape of color should be (M, 4) (where M is number of faces)
-            # shape of shade should be (M,)
-            # colors should have final shape of (M, 4)
-            alpha = color[:, 3]
-            colors = norm(shade)[:, np.newaxis] * color
-            colors[:, 3] = alpha
-        else:
-            colors = np.asanyarray(color).copy()
-
-        return colors
 
     def plot_wireframe(self, X, Y, Z, **kwargs):
         """
@@ -1910,7 +1828,7 @@ class Axes3D(Axes):
           plot_trisurf(X, Y, triangles=triangles, ...)
 
         in which case a Triangulation object will be created.  See
-        `.Triangulation` for a explanation of these possibilities.
+        `.Triangulation` for an explanation of these possibilities.
 
         The remaining arguments are::
 
@@ -1971,9 +1889,8 @@ class Axes3D(Axes):
         zt = z[triangles]
         verts = np.stack((xt, yt, zt), axis=-1)
 
-        polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
-
         if cmap:
+            polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
             # average over the three points of each triangle
             avg_z = verts[:, :, 2].mean(axis=1)
             polyc.set_array(avg_z)
@@ -1982,12 +1899,9 @@ class Axes3D(Axes):
             if norm is not None:
                 polyc.set_norm(norm)
         else:
-            if shade:
-                normals = self._generate_normals(verts)
-                colset = self._shade_colors(color, normals, lightsource)
-            else:
-                colset = color
-            polyc.set_facecolors(colset)
+            polyc = art3d.Poly3DCollection(
+                verts, *args, shade=shade, lightsource=lightsource,
+                facecolors=color, **kwargs)
 
         self.add_collection(polyc)
         self.auto_scale_xyz(tri.x, tri.y, z, had_data)
@@ -2012,8 +1926,6 @@ class Axes3D(Axes):
 
             color = linec.get_edgecolor()[0]
 
-            polyverts = []
-            normals = []
             nsteps = round(len(topverts[0]) / stride)
             if nsteps <= 1:
                 if len(topverts[0]) > 1:
@@ -2021,10 +1933,11 @@ class Axes3D(Axes):
                 else:
                     continue
 
+            polyverts = []
             stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
-            for i in range(int(round(nsteps)) - 1):
-                i1 = int(round(i * stepsize))
-                i2 = int(round((i + 1) * stepsize))
+            for i in range(round(nsteps) - 1):
+                i1 = round(i * stepsize)
+                i2 = round((i + 1) * stepsize)
                 polyverts.append([topverts[0][i1],
                                   topverts[0][i2],
                                   botverts[0][i2],
@@ -2032,13 +1945,10 @@ class Axes3D(Axes):
 
             # all polygons have 4 vertices, so vectorize
             polyverts = np.array(polyverts)
-            normals = self._generate_normals(polyverts)
-
-            colors = self._shade_colors(color, normals)
-            colors2 = self._shade_colors(color, normals)
             polycol = art3d.Poly3DCollection(polyverts,
-                                             facecolors=colors,
-                                             edgecolors=colors2)
+                                             facecolors=color,
+                                             edgecolors=color,
+                                             shade=True)
             polycol.set_sort_zpos(z)
             self.add_collection3d(polycol)
 
@@ -2063,7 +1973,7 @@ class Axes3D(Axes):
         """
         Returns
         -------
-        levels : numpy.ndarray
+        levels : `numpy.ndarray`
             Levels at which the filled contours are added.
         """
         zdir = '-' + zdir
@@ -2102,7 +2012,7 @@ class Axes3D(Axes):
             The direction to use.
         offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir.
+            position in a plane normal to *zdir*.
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -2146,7 +2056,7 @@ class Axes3D(Axes):
             The direction to use.
         offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir.
+            position in a plane normal to *zdir*.
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
@@ -2154,7 +2064,7 @@ class Axes3D(Axes):
 
         Returns
         -------
-        matplotlib.tri.tricontour.TriContourSet
+        matplotlib.tri._tricontour.TriContourSet
         """
         had_data = self.has_data()
 
@@ -2200,7 +2110,7 @@ class Axes3D(Axes):
             The direction to use.
         offset : float, optional
             If specified, plot a projection of the contour lines at this
-            position in a plane normal to zdir.
+            position in a plane normal to *zdir*.
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
@@ -2247,7 +2157,7 @@ class Axes3D(Axes):
 
         Returns
         -------
-        matplotlib.tri.tricontour.TriContourSet
+        matplotlib.tri._tricontour.TriContourSet
         """
         had_data = self.has_data()
 
@@ -2583,15 +2493,11 @@ class Axes3D(Axes):
             if len(facecolors) < len(x):
                 facecolors *= (6 * len(x))
 
-        if shade:
-            normals = self._generate_normals(polys)
-            sfacecolors = self._shade_colors(facecolors, normals, lightsource)
-        else:
-            sfacecolors = facecolors
-
         col = art3d.Poly3DCollection(polys,
                                      zsort=zsort,
-                                     facecolor=sfacecolors,
+                                     facecolors=facecolors,
+                                     shade=shade,
+                                     lightsource=lightsource,
                                      *args, **kwargs)
         self.add_collection(col)
 
@@ -2802,8 +2708,7 @@ pivot='tail', normalize=False, **kwargs)
               last axis.
 
         shade : bool, default: True
-            Whether to shade the facecolors.  Shading is always disabled when
-            *cmap* is specified.
+            Whether to shade the facecolors.
 
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
@@ -2960,16 +2865,10 @@ pivot='tail', normalize=False, **kwargs)
             # shade the faces
             facecolor = facecolors[coord]
             edgecolor = edgecolors[coord]
-            if shade:
-                normals = self._generate_normals(faces)
-                facecolor = self._shade_colors(facecolor, normals, lightsource)
-                if edgecolor is not None:
-                    edgecolor = self._shade_colors(
-                        edgecolor, normals, lightsource
-                    )
 
             poly = art3d.Poly3DCollection(
-                faces, facecolors=facecolor, edgecolors=edgecolor, **kwargs)
+                faces, facecolors=facecolor, edgecolors=edgecolor,
+                shade=shade, lightsource=lightsource, **kwargs)
             self.add_collection3d(poly)
             polygons[coord] = poly
 
@@ -3209,7 +3108,7 @@ pivot='tail', normalize=False, **kwargs)
             invM = np.linalg.inv(self.get_proj())
         # elev=azim=roll=0 produces the Y-Z plane, so quiversize in 2D 'x' is
         # 'y' in 3D, hence the 1 index.
-        quiversize = np.dot(invM, np.array([quiversize, 0, 0, 0]))[1]
+        quiversize = np.dot(invM, [quiversize, 0, 0, 0])[1]
         # Quivers use a fixed 15-degree arrow head, so scale up the length so
         # that the size corresponds to the base. In other words, this constant
         # corresponds to the equation tan(15) = (base / 2) / (arrow length).

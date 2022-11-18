@@ -243,7 +243,7 @@ def test_tripcolor_color():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError, match=r"tripcolor\(\) missing 1 required "):
         ax.tripcolor(x, y)
-    with pytest.raises(ValueError, match="The length of C must match either"):
+    with pytest.raises(ValueError, match="The length of c must match either"):
         ax.tripcolor(x, y, [1, 2, 3])
     with pytest.raises(ValueError,
                        match="length of facecolors must match .* triangles"):
@@ -255,7 +255,7 @@ def test_tripcolor_color():
                        match="'gouraud' .* at the points.* not at the faces"):
         ax.tripcolor(x, y, [1, 2], shading='gouraud')  # faces
     with pytest.raises(TypeError,
-                       match="positional.*'C'.*keyword-only.*'facecolors'"):
+                       match="positional.*'c'.*keyword-only.*'facecolors'"):
         ax.tripcolor(x, y, C=[1, 2, 3, 4])
 
     # smoke test for valid color specifications (via C or facecolors)
@@ -278,16 +278,16 @@ def test_tripcolor_clim():
 def test_tripcolor_warnings():
     x = [-1, 0, 1, 0]
     y = [0, -1, 0, 1]
-    C = [0.4, 0.5]
+    c = [0.4, 0.5]
     fig, ax = plt.subplots()
     # additional parameters
     with pytest.warns(DeprecationWarning, match="Additional positional param"):
-        ax.tripcolor(x, y, C, 'unused_positional')
-    # facecolors takes precedence over C
-    with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):
-        ax.tripcolor(x, y, C, facecolors=C)
-    with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):
-        ax.tripcolor(x, y, 'interpreted as C', facecolors=C)
+        ax.tripcolor(x, y, c, 'unused_positional')
+    # facecolors takes precedence over c
+    with pytest.warns(UserWarning, match="Positional parameter c .*no effect"):
+        ax.tripcolor(x, y, c, facecolors=c)
+    with pytest.warns(UserWarning, match="Positional parameter c .*no effect"):
+        ax.tripcolor(x, y, 'interpreted as c', facecolors=c)
 
 
 def test_no_modify():
@@ -614,15 +614,15 @@ def test_triinterpcubic_cg_solver():
 
     # Instantiating a sparse Poisson matrix of size 48 x 48:
     (n, m) = (12, 4)
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(*poisson_sparse_matrix(n, m))
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(*poisson_sparse_matrix(n, m))
     mat.compress_csc()
     mat_dense = mat.to_dense()
     # Testing a sparse solve for all 48 basis vector
     for itest in range(n*m):
         b = np.zeros(n*m, dtype=np.float64)
         b[itest] = 1.
-        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.zeros(n*m),
-                                       tol=1.e-10)
+        x, _ = mtri._triinterpolate._cg(A=mat, b=b, x0=np.zeros(n*m),
+                                        tol=1.e-10)
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
     # 2) Same matrix with inserting 2 rows - cols with null diag terms
@@ -635,16 +635,16 @@ def test_triinterpcubic_cg_solver():
     rows = np.concatenate([rows, [i_zero, i_zero-1, j_zero, j_zero-1]])
     cols = np.concatenate([cols, [i_zero-1, i_zero, j_zero-1, j_zero]])
     vals = np.concatenate([vals, [1., 1., 1., 1.]])
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(vals, rows, cols,
-                                                 (n*m + 2, n*m + 2))
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(vals, rows, cols,
+                                                  (n*m + 2, n*m + 2))
     mat.compress_csc()
     mat_dense = mat.to_dense()
     # Testing a sparse solve for all 50 basis vec
     for itest in range(n*m + 2):
         b = np.zeros(n*m + 2, dtype=np.float64)
         b[itest] = 1.
-        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.ones(n*m + 2),
-                                       tol=1.e-10)
+        x, _ = mtri._triinterpolate._cg(A=mat, b=b, x0=np.ones(n * m + 2),
+                                        tol=1.e-10)
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
     # 3) Now a simple test that summation of duplicate (i.e. with same rows,
@@ -655,7 +655,7 @@ def test_triinterpcubic_cg_solver():
     cols = np.array([0, 1, 2, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
                     dtype=np.int32)
     dim = (3, 3)
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(vals, rows, cols, dim)
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(vals, rows, cols, dim)
     mat.compress_csc()
     mat_dense = mat.to_dense()
     assert_array_almost_equal(mat_dense, np.array([
@@ -678,7 +678,7 @@ def test_triinterpcubic_geom_weights():
         y_rot = -np.sin(theta)*x + np.cos(theta)*y
         triang = mtri.Triangulation(x_rot, y_rot, triangles)
         cubic_geom = mtri.CubicTriInterpolator(triang, z, kind='geom')
-        dof_estimator = mtri.triinterpolate._DOF_estimator_geom(cubic_geom)
+        dof_estimator = mtri._triinterpolate._DOF_estimator_geom(cubic_geom)
         weights = dof_estimator.compute_geom_weights()
         # Testing for the 4 possibilities...
         sum_w[0, :] = np.sum(weights, 1) - 1
@@ -944,8 +944,7 @@ def test_tritools():
     mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
     analyser = mtri.TriAnalyzer(triang)
-    assert_array_almost_equal(analyser.scale_factors,
-                              np.array([1., 1./(1.+0.5*np.sqrt(3.))]))
+    assert_array_almost_equal(analyser.scale_factors, [1, 1/(1+3**.5/2)])
     assert_array_almost_equal(
         analyser.circle_ratios(rescale=False),
         np.ma.masked_array([0.5, 1./(1.+np.sqrt(2.)), np.nan], mask))

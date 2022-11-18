@@ -1315,17 +1315,6 @@ class TextBox(AxesWidget):
             # call it once we've already done our cleanup.
             self._observers.process('submit', self.text)
 
-    def position_cursor(self, x):
-        # now, we have to figure out where the cursor goes.
-        # approximate it based on assuming all characters the same length
-        if len(self.text) == 0:
-            self.cursor_index = 0
-        else:
-            bb = self.text_disp.get_window_extent()
-            ratio = np.clip((x - bb.x0) / bb.width, 0, 1)
-            self.cursor_index = int(len(self.text) * ratio)
-        self._rendercursor()
-
     def _click(self, event):
         if self.ignore(event):
             return
@@ -1338,7 +1327,8 @@ class TextBox(AxesWidget):
             event.canvas.grab_mouse(self.ax)
         if not self.capturekeystrokes:
             self.begin_typing(event.x)
-        self.position_cursor(event.x)
+        self.cursor_index = self.text_disp._char_index_at(event.x)
+        self._rendercursor()
 
     def _resize(self, event):
         self.stop_typing()
@@ -1414,41 +1404,23 @@ class RadioButtons(AxesWidget):
         """
         super().__init__(ax)
         self.activecolor = activecolor
-        self.value_selected = None
+        self.value_selected = labels[active]
 
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_navigate(False)
-        dy = 1. / (len(labels) + 1)
-        ys = np.linspace(1 - dy, dy, len(labels))
-        cnt = 0
-        axcolor = ax.get_facecolor()
 
-        # scale the radius of the circle with the spacing between each one
-        circle_radius = dy / 2 - 0.01
-        # default to hard-coded value if the radius becomes too large
-        circle_radius = min(circle_radius, 0.05)
+        ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
+        text_size = mpl.rcParams["font.size"] / 2
 
-        self.labels = []
-        self.circles = []
-        for y, label in zip(ys, labels):
-            t = ax.text(0.25, y, label, transform=ax.transAxes,
-                        horizontalalignment='left',
-                        verticalalignment='center')
-
-            if cnt == active:
-                self.value_selected = label
-                facecolor = activecolor
-            else:
-                facecolor = axcolor
-
-            p = Circle(xy=(0.15, y), radius=circle_radius, edgecolor='black',
-                       facecolor=facecolor, transform=ax.transAxes)
-
-            self.labels.append(t)
-            self.circles.append(p)
-            ax.add_patch(p)
-            cnt += 1
+        self.labels = [
+            ax.text(0.25, y, label, transform=ax.transAxes,
+                    horizontalalignment="left", verticalalignment="center")
+            for y, label in zip(ys, labels)]
+        self._buttons = ax.scatter(
+            [.15] * len(ys), ys, transform=ax.transAxes, s=text_size**2,
+            c=[activecolor if i == active else "none" for i in range(len(ys))],
+            edgecolor="black")
 
         self.connect_event('button_press_event', self._clicked)
 
@@ -1458,11 +1430,20 @@ class RadioButtons(AxesWidget):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
         pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
+        _, inds = self._buttons.contains(event)
+        coords = self._buttons.get_offset_transform().transform(
+            self._buttons.get_offsets())
         distances = {}
-        for i, (p, t) in enumerate(zip(self.circles, self.labels)):
-            if (t.get_window_extent().contains(event.x, event.y)
-                    or np.linalg.norm(pclicked - p.center) < p.radius):
-                distances[i] = np.linalg.norm(pclicked - p.center)
+        if hasattr(self, "_circles"):  # Remove once circles is removed.
+            for i, (p, t) in enumerate(zip(self._circles, self.labels)):
+                if (t.get_window_extent().contains(event.x, event.y)
+                        or np.linalg.norm(pclicked - p.center) < p.radius):
+                    distances[i] = np.linalg.norm(pclicked - p.center)
+        else:
+            for i, t in enumerate(self.labels):
+                if (i in inds["ind"]
+                        or t.get_window_extent().contains(event.x, event.y)):
+                    distances[i] = np.linalg.norm(pclicked - coords[i])
         if len(distances) > 0:
             closest = min(distances, key=distances.get)
             self.set_active(closest)
@@ -1475,19 +1456,14 @@ class RadioButtons(AxesWidget):
         """
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid RadioButton index: {index}')
-
         self.value_selected = self.labels[index].get_text()
-
-        for i, p in enumerate(self.circles):
-            if i == index:
-                color = self.activecolor
-            else:
-                color = self.ax.get_facecolor()
-            p.set_facecolor(color)
-
+        self._buttons.get_facecolor()[:] = colors.to_rgba("none")
+        self._buttons.get_facecolor()[index] = colors.to_rgba(self.activecolor)
+        if hasattr(self, "_circles"):  # Remove once circles is removed.
+            for i, p in enumerate(self._circles):
+                p.set_facecolor(self.activecolor if i == index else "none")
         if self.drawon:
             self.ax.figure.canvas.draw()
-
         if self.eventson:
             self._observers.process('clicked', self.labels[index].get_text())
 
@@ -1502,6 +1478,21 @@ class RadioButtons(AxesWidget):
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
         self._observers.disconnect(cid)
+
+    @_api.deprecated("3.7")
+    @property
+    def circles(self):
+        if not hasattr(self, "_circles"):
+            radius = min(.5 / (len(self.labels) + 1) - .01, .05)
+            circles = self._circles = [
+                Circle(xy=self._buttons.get_offsets()[i], edgecolor="black",
+                       facecolor=self._buttons.get_facecolor()[i],
+                       radius=radius, transform=self.ax.transAxes)
+                for i in range(len(self.labels))]
+            self._buttons.set_visible(False)
+            for circle in circles:
+                self.ax.add_patch(circle)
+        return self._circles
 
 
 class SubplotTool(Widget):
@@ -2918,10 +2909,9 @@ class RectangleSelector(_SelectorWidget):
     ...     print(erelease.xdata, erelease.ydata)
     >>> props = dict(facecolor='blue', alpha=0.5)
     >>> rect = mwidgets.RectangleSelector(ax, onselect, interactive=True,
-                                          props=props)
+    ...                                   props=props)
     >>> fig.show()
-
-    >>> selector.add_state('square')
+    >>> rect.add_state('square')
 
     See also: :doc:`/gallery/widgets/rectangle_selector`
     """

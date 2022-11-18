@@ -41,11 +41,6 @@ class CbarAxesBase:
         self.orientation = orientation
 
 
-@_api.deprecated("3.5")
-class CbarAxes(CbarAxesBase, Axes):
-    pass
-
-
 _cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
 
 
@@ -306,10 +301,6 @@ class Grid:
 
     def get_axes_locator(self):
         return self._divider.get_locator()
-
-    @_api.deprecated("3.5")
-    def get_vsize_hsize(self):
-        return self._divider.get_vsize_hsize()
 
 
 class ImageGrid(Grid):

@@ -21,7 +21,6 @@ import contextlib
 from packaging.version import parse as parse_version
 
 import matplotlib as mpl
-from matplotlib import _api
 
 from . import _QT_FORCE_QT5_BINDING
 
@@ -69,7 +68,8 @@ else:
 
 
 def _setup_pyqt5plus():
-    global QtCore, QtGui, QtWidgets, __version__, _isdeleted, _getSaveFileName
+    global QtCore, QtGui, QtWidgets, __version__
+    global _getSaveFileName, _isdeleted, _to_int
 
     if QT_API == QT_API_PYQT6:
         from PyQt6 import QtCore, QtGui, QtWidgets, sip
@@ -78,10 +78,15 @@ def _setup_pyqt5plus():
         QtCore.Slot = QtCore.pyqtSlot
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
+        _to_int = operator.attrgetter('value')
     elif QT_API == QT_API_PYSIDE6:
         from PySide6 import QtCore, QtGui, QtWidgets, __version__
         import shiboken6
         def _isdeleted(obj): return not shiboken6.isValid(obj)
+        if parse_version(__version__) >= parse_version('6.4'):
+            _to_int = operator.attrgetter('value')
+        else:
+            _to_int = int
     elif QT_API == QT_API_PYQT5:
         from PyQt5 import QtCore, QtGui, QtWidgets
         import sip
@@ -90,11 +95,16 @@ def _setup_pyqt5plus():
         QtCore.Slot = QtCore.pyqtSlot
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
+        _to_int = int
     elif QT_API == QT_API_PYSIDE2:
         from PySide2 import QtCore, QtGui, QtWidgets, __version__
-        import shiboken2
+        try:
+            from PySide2 import shiboken2
+        except ImportError:
+            import shiboken2
         def _isdeleted(obj):
             return not shiboken2.isValid(obj)
+        _to_int = int
     else:
         raise AssertionError(f"Unexpected QT_API: {QT_API}")
     _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
@@ -139,9 +149,6 @@ if (sys.platform == 'darwin' and
 
 
 # PyQt6 enum compat helpers.
-
-
-_to_int = operator.attrgetter("value") if QT_API == "PyQt6" else int
 
 
 @functools.lru_cache(None)
@@ -259,11 +266,3 @@ def _maybe_allow_interrupt(qapp):
             signal.signal(signal.SIGINT, old_sigint_handler)
             if handler_args is not None:
                 old_sigint_handler(*handler_args)
-
-
-@_api.caching_module_getattr
-class __getattr__:
-    ETS = _api.deprecated("3.5")(property(lambda self: dict(
-        pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))))
-    QT_RC_MAJOR_VERSION = _api.deprecated("3.5")(property(
-        lambda self: int(QtCore.qVersion().split(".")[0])))

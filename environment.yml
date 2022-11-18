@@ -12,6 +12,7 @@ dependencies:
   - contourpy>=1.0.1
   - cycler>=0.10.0
   - fonttools>=4.22.0
+  - importlib-resources>=3.2.0
   - kiwisolver>=1.0.1
   - numpy>=1.19
   - pillow>=6.2
@@ -43,7 +44,7 @@ dependencies:
   - coverage
   - flake8>=3.8
   - flake8-docstrings>=1.4.0
-  - gtk3
+  - gtk4
   - ipykernel
   - nbconvert[execute]!=6.0.0,!=6.0.1
   - nbformat!=5.0.0,!=5.0.1

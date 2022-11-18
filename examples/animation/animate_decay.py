@@ -24,7 +24,7 @@ def data_gen():
 
 def init():
     ax.set_ylim(-1.1, 1.1)
-    ax.set_xlim(0, 10)
+    ax.set_xlim(0, 1)
     del xdata[:]
     del ydata[:]
     line.set_data(xdata, ydata)
@@ -50,5 +50,5 @@ def run(data):
 
     return line,
 
-ani = animation.FuncAnimation(fig, run, data_gen, interval=10, init_func=init)
+ani = animation.FuncAnimation(fig, run, data_gen, interval=100, init_func=init)
 plt.show()

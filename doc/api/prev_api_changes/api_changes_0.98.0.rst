@@ -12,7 +12,7 @@ Changes for 0.98.0
   rather than custom callback handling.  Any users of
   ``matplotlib.cm.ScalarMappable.add_observer`` of the
   :class:`~matplotlib.cm.ScalarMappable` should use the
-  :attr:`matplotlib.cm.ScalarMappable.callbacksSM`
+  ``matplotlib.cm.ScalarMappable.callbacksSM``
   :class:`~matplotlib.cbook.CallbackRegistry` instead.
 
 * New axes function and Axes method provide control over the plot

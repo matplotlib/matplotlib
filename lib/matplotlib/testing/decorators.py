@@ -453,7 +453,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
         if not {"fig_test", "fig_ref"}.issubset(old_sig.parameters):
             raise ValueError("The decorated function must have at least the "
-                             "parameters 'fig_ref' and 'fig_test', but your "
+                             "parameters 'fig_test' and 'fig_ref', but your "
                              f"function has the signature {old_sig}")
 
         @pytest.mark.parametrize("ext", extensions)

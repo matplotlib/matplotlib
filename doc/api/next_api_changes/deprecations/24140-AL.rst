@@ -1,0 +1,8 @@
+``contour.ClabelText`` and ``ContourLabeler.set_label_props``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.
+
+Use ``Text(..., transform_rotates_text=True)`` as a replacement for
+``contour.ClabelText(...)`` and ``text.set(text=text, color=color,
+fontproperties=labeler.labelFontProps, clip_box=labeler.axes.bbox)`` as a
+replacement for the ``ContourLabeler.set_label_props(label, text, color)``.

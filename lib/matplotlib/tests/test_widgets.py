@@ -1003,18 +1003,21 @@ def test_check_radio_buttons_image():
     plt.subplots_adjust(left=0.3)
     rax1 = plt.axes([0.05, 0.7, 0.15, 0.15])
     rax2 = plt.axes([0.05, 0.2, 0.15, 0.15])
-    widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
+    rb = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
+    with pytest.warns(DeprecationWarning):
+        rb.circles  # Trigger the old-style elliptic radiobuttons.
     widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                          (False, True, True))
 
 
-@image_comparison(['check_bunch_of_radio_buttons.png'],
-                  style='mpl20', remove_text=True)
-def test_check_bunch_of_radio_buttons():
-    rax = plt.axes([0.05, 0.1, 0.15, 0.7])
-    widgets.RadioButtons(rax, ('B1', 'B2', 'B3', 'B4', 'B5', 'B6',
-                               'B7', 'B8', 'B9', 'B10', 'B11', 'B12',
-                               'B13', 'B14', 'B15'))
+@check_figures_equal(extensions=["png"])
+def test_radio_buttons(fig_test, fig_ref):
+    widgets.RadioButtons(fig_test.subplots(), ["tea", "coffee"])
+    ax = fig_ref.add_subplot(xticks=[], yticks=[])
+    ax.scatter([.15, .15], [2/3, 1/3], transform=ax.transAxes,
+               s=(plt.rcParams["font.size"] / 2) ** 2, c=["C0", "none"])
+    ax.text(.25, 2/3, "tea", transform=ax.transAxes, va="center")
+    ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
 
 
 def test_slider_slidermin_slidermax_invalid():

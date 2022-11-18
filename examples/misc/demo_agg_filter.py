@@ -99,8 +99,19 @@ class DropShadowFilter(BaseFilter):
 
 
 class LightFilter(BaseFilter):
+    """Apply LightSource filter"""
 
-    def __init__(self, sigma, fraction=0.5):
+    def __init__(self, sigma, fraction=1):
+        """
+        Parameters
+        ----------
+        sigma : float
+            sigma for gaussian filter
+        fraction: number, default: 1
+            Increases or decreases the contrast of the hillshade.
+            See `matplotlib.colors.LightSource`
+
+        """
         self.gauss_filter = GaussianFilter(sigma, alpha=1)
         self.light_source = LightSource()
         self.fraction = fraction
@@ -114,7 +125,8 @@ class LightFilter(BaseFilter):
         rgb = padded_src[:, :, :3]
         alpha = padded_src[:, :, 3:]
         rgb2 = self.light_source.shade_rgb(rgb, elevation,
-                                           fraction=self.fraction)
+                                           fraction=self.fraction,
+                                           blend_mode="overlay")
         return np.concatenate([rgb2, alpha], -1)
 
 
@@ -257,7 +269,7 @@ def drop_shadow_patches(ax):
 
 def light_filter_pie(ax):
     fracs = [15, 30, 45, 10]
-    explode = (0, 0.05, 0, 0)
+    explode = (0.1, 0.2, 0.1, 0.1)
     pies = ax.pie(fracs, explode=explode)
 
     light_filter = LightFilter(9)
@@ -267,7 +279,7 @@ def light_filter_pie(ax):
         p.set(ec="none",
               lw=2)
 
-    gauss = DropShadowFilter(9, offsets=(3, 4), alpha=0.7)
+    gauss = DropShadowFilter(9, offsets=(3, -4), alpha=0.7)
     shadow = FilteredArtistList(pies[0], gauss)
     ax.add_artist(shadow)
     shadow.set_zorder(pies[0][0].get_zorder() - 0.1)

@@ -97,7 +97,7 @@ def test_window():
 
 
 class TestDetrend:
-    def setup(self):
+    def setup_method(self):
         np.random.seed(0)
         n = 1000
         x = np.linspace(0., 100, n)

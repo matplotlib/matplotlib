@@ -77,6 +77,24 @@ The base matplotlib namespace includes:
         figure is created, because it is not possible to switch between
         different GUI backends after that.
 
+The following environment variables can be used to customize the behavior::
+
+    .. envvar:: MPLBACKEND
+
+      This optional variable can be set to choose the Matplotlib backend. See
+      :ref:`what-is-a-backend`.
+
+    .. envvar:: MPLCONFIGDIR
+
+      This is the directory used to store user customizations to
+      Matplotlib, as well as some caches to improve performance. If
+      :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
+      and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+      :file:`{HOME}/.matplotlib` on other platforms, if they are
+      writable. Otherwise, the Python standard library's `tempfile.gettempdir`
+      is used to find a base directory in which the :file:`matplotlib`
+      subdirectory is created.
+
 Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
 
@@ -187,9 +205,6 @@ class __getattr__:
     __version__ = property(lambda self: _get_version())
     __version_info__ = property(
         lambda self: _parse_to_version_info(self.__version__))
-    # module-level deprecations
-    URL_REGEX = _api.deprecated("3.5", obj_type="")(property(
-        lambda self: re.compile(r'^http://|^https://|^ftp://|^file:')))
 
 
 def _check_versions():
@@ -203,7 +218,7 @@ def _check_versions():
             ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
             ("numpy", "1.19"),
-            ("pyparsing", "2.2.1"),
+            ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)
         if parse_version(module.__version__) < parse_version(minver):
@@ -732,12 +747,6 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
-@_api.deprecated("3.5")
-def is_url(filename):
-    """Return whether *filename* is an http, https, ftp, or file URL path."""
-    return __getattr__("URL_REGEX").match(filename) is not None
-
-
 @functools.lru_cache()
 def _get_ssl_context():
     try:
@@ -1062,6 +1071,9 @@ def rc_context(rc=None, fname=None):
 
     The :rc:`backend` will not be reset by the context manager.
 
+    rcParams changed both through the context manager invocation and
+    in the body of the context will be reset on context exit.
+
     Parameters
     ----------
     rc : dict
@@ -1089,6 +1101,13 @@ def rc_context(rc=None, fname=None):
          with mpl.rc_context(fname='print.rc'):
              plt.plot(x, y)  # uses 'print.rc'
 
+    Setting in the context body::
+
+        with mpl.rc_context():
+            # will be reset
+            mpl.rcParams['lines.linewidth'] = 5
+            plt.plot(x, y)
+
     """
     orig = dict(rcParams.copy())
     del orig['backend']
@@ -1105,6 +1124,10 @@ def rc_context(rc=None, fname=None):
 def use(backend, *, force=True):
     """
     Select the backend used for rendering and GUI integration.
+
+    If pyplot is already imported, `~matplotlib.pyplot.switch_backend` is used
+    and if the new backend is different than the current backend, all Figures
+    will be closed.
 
     Parameters
     ----------
@@ -1136,6 +1159,8 @@ def use(backend, *, force=True):
     --------
     :ref:`backends`
     matplotlib.get_backend
+    matplotlib.pyplot.switch_backend
+
     """
     name = validate_backend(backend)
     # don't (prematurely) resolve the "auto" backend setting

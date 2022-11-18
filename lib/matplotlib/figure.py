@@ -33,7 +33,7 @@ import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
-from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
+from matplotlib.axes import Axes
 from matplotlib.gridspec import GridSpec
 from matplotlib.layout_engine import (
     ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
@@ -121,26 +121,21 @@ class SubplotParams:
             The height of the padding between subplots,
             as a fraction of the average Axes height.
         """
-        self._validate = True
         for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
             setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
         self.update(left, bottom, right, top, wspace, hspace)
-
-    # Also remove _validate after deprecation elapses.
-    validate = _api.deprecate_privatize_attribute("3.5")
 
     def update(self, left=None, bottom=None, right=None, top=None,
                wspace=None, hspace=None):
         """
         Update the dimensions of the passed parameters. *None* means unchanged.
         """
-        if self._validate:
-            if ((left if left is not None else self.left)
-                    >= (right if right is not None else self.right)):
-                raise ValueError('left cannot be >= right')
-            if ((bottom if bottom is not None else self.bottom)
-                    >= (top if top is not None else self.top)):
-                raise ValueError('bottom cannot be >= top')
+        if ((left if left is not None else self.left)
+                >= (right if right is not None else self.right)):
+            raise ValueError('left cannot be >= right')
+        if ((bottom if bottom is not None else self.bottom)
+                >= (top if top is not None else self.top)):
+            raise ValueError('bottom cannot be >= top')
         if left is not None:
             self.left = left
         if right is not None:
@@ -237,7 +232,7 @@ class FigureBase(Artist):
             Selects which ticklabels to rotate.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        allsubplots = all(hasattr(ax, 'get_subplotspec') for ax in self.axes)
+        allsubplots = all(ax.get_subplotspec() for ax in self.axes)
         if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels(which=which):
                 label.set_ha(ha)
@@ -675,13 +670,11 @@ default: %(va)s
 
         Returns
         -------
-        `.axes.SubplotBase`, or another subclass of `~.axes.Axes`
+        `~.axes.Axes`
 
-            The Axes of the subplot. The returned Axes base class depends on
-            the projection used. It is `~.axes.Axes` if rectilinear projection
-            is used and `.projections.polar.PolarAxes` if polar projection
-            is used. The returned Axes is then a subplot subclass of the
-            base class.
+            The Axes of the subplot. The returned Axes can actually be an
+            instance of a subclass, such as `.projections.polar.PolarAxes` for
+            polar projections.
 
         Other Parameters
         ----------------
@@ -725,11 +718,13 @@ default: %(va)s
             raise TypeError(
                 "add_subplot() got an unexpected keyword argument 'figure'")
 
-        if len(args) == 1 and isinstance(args[0], SubplotBase):
+        if (len(args) == 1
+                and isinstance(args[0], mpl.axes._base._AxesBase)
+                and args[0].get_subplotspec()):
             ax = args[0]
             key = ax._projection_init
             if ax.get_figure() is not self:
-                raise ValueError("The Subplot must have been created in "
+                raise ValueError("The Axes must have been created in "
                                  "the present figure")
         else:
             if not args:
@@ -742,7 +737,7 @@ default: %(va)s
                 args = tuple(map(int, str(args[0])))
             projection_class, pkw = self._process_projection_requirements(
                 *args, **kwargs)
-            ax = subplot_class_factory(projection_class)(self, *args, **pkw)
+            ax = projection_class(self, *args, **pkw)
             key = (projection_class, pkw)
         return self._add_axes_internal(ax, key)
 
@@ -878,8 +873,7 @@ default: %(va)s
             # Note that this is the same as
             fig.subplots(2, 2, sharex=True, sharey=True)
         """
-        if gridspec_kw is None:
-            gridspec_kw = {}
+        gridspec_kw = dict(gridspec_kw or {})
         if height_ratios is not None:
             if 'height_ratios' in gridspec_kw:
                 raise ValueError("'height_ratios' must not be defined both as "
@@ -985,9 +979,12 @@ default: %(va)s
         """
         return self.clear(keep_observers=keep_observers)
 
-    # Note: in the docstring below, the newlines in the examples after the
-    # calls to legend() allow replacing it with figlegend() to generate the
-    # docstring of pyplot.figlegend.
+    # Note: the docstring below is modified with replace for the pyplot
+    # version of this function because the method name differs (plt.figlegend)
+    # the replacements are:
+    #    " legend(" -> " figlegend(" for the signatures
+    #    "fig.legend(" -> "plt.figlegend" for the code examples
+    #    "ax.plot" -> "plt.plot" for consistency in using pyplot when able
     @_docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
@@ -1204,9 +1201,8 @@ default: %(va)s
 
         use_gridspec : bool, optional
             If *cax* is ``None``, a new *cax* is created as an instance of
-            Axes.  If *ax* is an instance of Subplot and *use_gridspec* is
-            ``True``, *cax* is created as an instance of Subplot using the
-            :mod:`.gridspec` module.
+            Axes.  If *ax* is positioned with a subplotspec and *use_gridspec*
+            is ``True``, then *cax* is also positioned with a subplotspec.
 
         Returns
         -------
@@ -1262,7 +1258,9 @@ default: %(va)s
                 ax = self.gca()
             current_ax = self.gca()
             userax = False
-            if (use_gridspec and isinstance(ax, SubplotBase)):
+            if (use_gridspec
+                    and isinstance(ax, mpl.axes._base._AxesBase)
+                    and ax.get_subplotspec()):
                 cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
@@ -1320,7 +1318,7 @@ default: %(va)s
             return
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
-            if hasattr(ax, 'get_subplotspec'):
+            if ax.get_subplotspec() is not None:
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
@@ -1367,9 +1365,7 @@ default: %(va)s
         """
         if axs is None:
             axs = self.axes
-        axs = np.ravel(axs)
-        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
-
+        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_xlabel())
             rowspan = ax.get_subplotspec().rowspan
@@ -1429,9 +1425,7 @@ default: %(va)s
         """
         if axs is None:
             axs = self.axes
-        axs = np.ravel(axs)
-        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
-
+        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_ylabel())
             colspan = ax.get_subplotspec().colspan
@@ -1521,7 +1515,7 @@ default: %(va)s
                    width_ratios=None, height_ratios=None,
                    **kwargs):
         """
-        Add a subfigure to this figure or subfigure.
+        Add a set of subfigures to this figure or subfigure.
 
         A subfigure has the same artist methods as a figure, and is logically
         the same as a figure, but cannot print itself.
@@ -1683,8 +1677,6 @@ default: %(va)s
                 raise TypeError(
                     f"projection must be a string, None or implement a "
                     f"_as_mpl_axes method, not {projection!r}")
-        if projection_class.__name__ == 'Axes3D':
-            kwargs.setdefault('auto_add_to_figure', False)
         return projection_class, kwargs
 
     def get_default_bbox_extra_artists(self):
@@ -1838,13 +1830,15 @@ default: %(va)s
             Defines the relative widths of the columns. Each column gets a
             relative width of ``width_ratios[i] / sum(width_ratios)``.
             If not given, all columns will have the same width.  Equivalent
-            to ``gridspec_kw={'width_ratios': [...]}``.
+            to ``gridspec_kw={'width_ratios': [...]}``. In the case of nested
+            layouts, this argument applies only to the outer layout.
 
         height_ratios : array-like of length *nrows*, optional
             Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height. Equivalent
-            to ``gridspec_kw={'height_ratios': [...]}``.
+            to ``gridspec_kw={'height_ratios': [...]}``. In the case of nested
+            layouts, this argument applies only to the outer layout.
 
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
@@ -1852,7 +1846,10 @@ default: %(va)s
 
         gridspec_kw : dict, optional
             Dictionary with keywords passed to the `.GridSpec` constructor used
-            to create the grid the subplots are placed on.
+            to create the grid the subplots are placed on. In the case of
+            nested layouts, this argument applies only to the outer layout.
+            For more complex layouts, users should use `.Figure.subfigures`
+            to create the nesting.
 
         empty_sentinel : object, optional
             Entry in the layout to mean "leave this space empty".  Defaults
@@ -1869,7 +1866,7 @@ default: %(va)s
 
         """
         subplot_kw = subplot_kw or {}
-        gridspec_kw = gridspec_kw or {}
+        gridspec_kw = dict(gridspec_kw or {})
         if height_ratios is not None:
             if 'height_ratios' in gridspec_kw:
                 raise ValueError("'height_ratios' must not be defined both as "
@@ -2022,7 +2019,7 @@ default: %(va)s
                     # recursively add the nested mosaic
                     rows, cols = nested_mosaic.shape
                     nested_output = _do_layout(
-                        gs[j, k].subgridspec(rows, cols, **gridspec_kw),
+                        gs[j, k].subgridspec(rows, cols),
                         nested_mosaic,
                         *_identify_keys_and_nested(nested_mosaic)
                     )
@@ -2444,10 +2441,6 @@ class Figure(FigureBase):
         # pickling.
         self._canvas_callbacks = cbook.CallbackRegistry(
             signals=FigureCanvasBase.events)
-        self._button_pick_id = self._canvas_callbacks._connect_picklable(
-            'button_press_event', self.pick)
-        self._scroll_pick_id = self._canvas_callbacks._connect_picklable(
-            'scroll_event', self.pick)
         connect = self._canvas_callbacks._connect_picklable
         self._mouse_key_ids = [
             connect('key_press_event', backend_bases._key_handler),
@@ -2458,6 +2451,8 @@ class Figure(FigureBase):
             connect('scroll_event', backend_bases._mouse_handler),
             connect('motion_notify_event', backend_bases._mouse_handler),
         ]
+        self._button_pick_id = connect('button_press_event', self.pick)
+        self._scroll_pick_id = connect('scroll_event', self.pick)
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']
@@ -3432,12 +3427,6 @@ class Figure(FigureBase):
         .Figure.set_layout_engine
         .pyplot.tight_layout
         """
-        from ._tight_layout import get_subplotspec_list
-        subplotspec_list = get_subplotspec_list(self.axes)
-        if None in subplotspec_list:
-            _api.warn_external("This figure includes Axes that are not "
-                               "compatible with tight_layout, so results "
-                               "might be incorrect.")
         # note that here we do not permanently set the figures engine to
         # tight_layout but rather just perform the layout in place and remove
         # any previous engines.

@@ -213,9 +213,7 @@ Blocking functions
 ------------------
 
 If you only need to collect points in an Axes you can use
-`.Figure.ginput` or more generally the tools from
-`.blocking_input` the tools will take care of starting and stopping
-the event loop for you.  However if you have written some custom event
+`.Figure.ginput`.  However if you have written some custom event
 handling or are using `.widgets` you will need to manually run the GUI
 event loop using the methods described :ref:`above <cp_block_the_prompt>`.
 

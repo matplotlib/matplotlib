@@ -427,6 +427,9 @@
 #polaraxes.grid: True  # display grid on polar axes
 #axes3d.grid:    True  # display grid on 3D axes
 
+#axes3d.xaxis.panecolor:    (0.95, 0.95, 0.95, 0.5)  # background pane on 3D axes
+#axes3d.yaxis.panecolor:    (0.90, 0.90, 0.90, 0.5)  # background pane on 3D axes
+#axes3d.zaxis.panecolor:    (0.925, 0.925, 0.925, 0.5)  # background pane on 3D axes
 
 ## ***************************************************************************
 ## * AXIS                                                                    *

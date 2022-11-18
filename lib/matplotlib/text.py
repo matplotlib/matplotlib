@@ -124,6 +124,7 @@ class Text(Artist):
     """Handle storing and drawing of text in window or data coordinates."""
 
     zorder = 3
+    _charsize_cache = dict()
 
     def __repr__(self):
         return "Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
@@ -278,6 +279,38 @@ class Text(Artist):
             return self._multialignment
         else:
             return self._horizontalalignment
+
+    def _char_index_at(self, x):
+        """
+        Calculate the index closest to the coordinate x in display space.
+
+        The position of text[index] is assumed to be the sum of the widths
+        of all preceding characters text[:index].
+
+        This works only on single line texts.
+        """
+        if not self._text:
+            return 0
+
+        text = self._text
+
+        fontproperties = str(self._fontproperties)
+        if fontproperties not in Text._charsize_cache:
+            Text._charsize_cache[fontproperties] = dict()
+
+        charsize_cache = Text._charsize_cache[fontproperties]
+        for char in set(text):
+            if char not in charsize_cache:
+                self.set_text(char)
+                bb = self.get_window_extent()
+                charsize_cache[char] = bb.x1 - bb.x0
+
+        self.set_text(text)
+        bb = self.get_window_extent()
+
+        size_accum = np.cumsum([0] + [charsize_cache[x] for x in text])
+        std_x = x - bb.x0
+        return (np.abs(size_accum - std_x)).argmin()
 
     def get_rotation(self):
         """Return the text angle in degrees between 0 and 360."""
@@ -871,27 +904,6 @@ class Text(Artist):
         # specified with 'set_x' and 'set_y'.
         return self._x, self._y
 
-    # When removing, also remove the hash(color) check in set_color()
-    @_api.deprecated("3.5")
-    def get_prop_tup(self, renderer=None):
-        """
-        Return a hashable tuple of properties.
-
-        Not intended to be human readable, but useful for backends who
-        want to cache derived information about text (e.g., layouts) and
-        need to know if the text has changed.
-        """
-        x, y = self.get_unitless_position()
-        renderer = renderer or self._renderer
-        return (x, y, self.get_text(), self._color,
-                self._verticalalignment, self._horizontalalignment,
-                hash(self._fontproperties),
-                self._rotation, self._rotation_mode,
-                self._transform_rotates_text,
-                self.figure.dpi, weakref.ref(renderer),
-                self._linespacing
-                )
-
     def get_text(self):
         """Return the text string."""
         return self._text
@@ -982,12 +994,6 @@ class Text(Artist):
         # out at draw time for simplicity.
         if not cbook._str_equal(color, "auto"):
             mpl.colors._check_color_like(color=color)
-        # Make sure it is hashable, or get_prop_tup will fail (remove this once
-        # get_prop_tup is removed).
-        try:
-            hash(color)
-        except TypeError:
-            color = tuple(color)
         self._color = color
         self.stale = True
 

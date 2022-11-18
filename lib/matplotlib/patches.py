@@ -7,6 +7,7 @@ import inspect
 import math
 from numbers import Number
 import textwrap
+from types import SimpleNamespace
 from collections import namedtuple
 
 import numpy as np
@@ -610,7 +611,7 @@ class Patch(artist.Artist):
 
 class Shadow(Patch):
     def __str__(self):
-        return "Shadow(%s)" % (str(self.patch))
+        return f"Shadow({self.patch})"
 
     @_docstring.dedent_interpd
     def __init__(self, patch, ox, oy, **kwargs):
@@ -1221,9 +1222,7 @@ class Wedge(Patch):
                 arc.codes, [connector, connector, Path.CLOSEPOLY]])
 
         # Shift and scale the wedge to the final location.
-        v *= self.r
-        v += np.asarray(self.center)
-        self._path = Path(v, c)
+        self._path = Path(v * self.r + self.center, c)
 
     def set_center(self, center):
         self._path = None
@@ -2568,9 +2567,9 @@ class BoxStyle(_Style):
 
             # the sizes of the vertical and horizontal sawtooth are
             # separately adjusted to fit the given box size.
-            dsx_n = int(round((width - tooth_size) / (tooth_size * 2))) * 2
+            dsx_n = round((width - tooth_size) / (tooth_size * 2)) * 2
             dsx = (width - tooth_size) / dsx_n
-            dsy_n = int(round((height - tooth_size) / (tooth_size * 2))) * 2
+            dsy_n = round((height - tooth_size) / (tooth_size * 2)) * 2
             dsy = (height - tooth_size) / dsy_n
 
             x0, y0 = x0 - pad + tooth_size2, y0 - pad + tooth_size2
@@ -2700,59 +2699,35 @@ class ConnectionStyle(_Style):
         helper methods.
         """
 
+        @_api.deprecated("3.7")
         class SimpleEvent:
             def __init__(self, xy):
                 self.x, self.y = xy
 
-        def _clip(self, path, patchA, patchB):
+        def _in_patch(self, patch):
             """
-            Clip the path to the boundary of the patchA and patchB.
-            The starting point of the path needed to be inside of the
-            patchA and the end point inside the patch B. The *contains*
-            methods of each patch object is utilized to test if the point
-            is inside the path.
+            Return a predicate function testing whether a point *xy* is
+            contained in *patch*.
             """
+            return lambda xy: patch.contains(
+                SimpleNamespace(x=xy[0], y=xy[1]))[0]
 
-            if patchA:
-                def insideA(xy_display):
-                    xy_event = ConnectionStyle._Base.SimpleEvent(xy_display)
-                    return patchA.contains(xy_event)[0]
+        def _clip(self, path, in_start, in_stop):
+            """
+            Clip *path* at its start by the region where *in_start* returns
+            True, and at its stop by the region where *in_stop* returns True.
 
+            The original path is assumed to start in the *in_start* region and
+            to stop in the *in_stop* region.
+            """
+            if in_start:
                 try:
-                    left, right = split_path_inout(path, insideA)
-                except ValueError:
-                    right = path
-
-                path = right
-
-            if patchB:
-                def insideB(xy_display):
-                    xy_event = ConnectionStyle._Base.SimpleEvent(xy_display)
-                    return patchB.contains(xy_event)[0]
-
-                try:
-                    left, right = split_path_inout(path, insideB)
-                except ValueError:
-                    left = path
-
-                path = left
-
-            return path
-
-        def _shrink(self, path, shrinkA, shrinkB):
-            """
-            Shrink the path by fixed size (in points) with shrinkA and shrinkB.
-            """
-            if shrinkA:
-                insideA = inside_circle(*path.vertices[0], shrinkA)
-                try:
-                    left, path = split_path_inout(path, insideA)
+                    _, path = split_path_inout(path, in_start)
                 except ValueError:
                     pass
-            if shrinkB:
-                insideB = inside_circle(*path.vertices[-1], shrinkB)
+            if in_stop:
                 try:
-                    path, right = split_path_inout(path, insideB)
+                    path, _ = split_path_inout(path, in_stop)
                 except ValueError:
                     pass
             return path
@@ -2764,9 +2739,17 @@ class ConnectionStyle(_Style):
             *posB*; then clip and shrink the path.
             """
             path = self.connect(posA, posB)
-            clipped_path = self._clip(path, patchA, patchB)
-            shrunk_path = self._shrink(clipped_path, shrinkA, shrinkB)
-            return shrunk_path
+            path = self._clip(
+                path,
+                self._in_patch(patchA) if patchA else None,
+                self._in_patch(patchB) if patchB else None,
+            )
+            path = self._clip(
+                path,
+                inside_circle(*path.vertices[0], shrinkA) if shrinkA else None,
+                inside_circle(*path.vertices[-1], shrinkB) if shrinkB else None
+            )
+            return path
 
     @_register_style(_style_list)
     class Arc3(_Base):
@@ -3119,6 +3102,14 @@ class ArrowStyle(_Style):
     stroked. This is meant to be used to correct the location of the
     head so that it does not overshoot the destination point, but not all
     classes support it.
+
+    Notes
+    -----
+    *angleA* and *angleB* specify the orientation of the bracket, as either a
+    clockwise or counterclockwise angle depending on the arrow type. 0 degrees
+    means perpendicular to the line connecting the arrow's head and tail.
+
+    .. plot:: gallery/text_labels_and_annotations/angles_on_bracket_arrows.py
     """
 
     _style_list = {}
@@ -3203,7 +3194,6 @@ class ArrowStyle(_Style):
         or closed.
         """
 
-        beginarrow = endarrow = None  # Whether arrows are drawn.
         arrow = "-"
         fillbegin = fillend = False  # Whether arrows are filled.
 
@@ -3266,18 +3256,6 @@ class ArrowStyle(_Style):
             elif beginarrow in ("]", "|"):
                 self._beginarrow_head = False
                 self._beginarrow_bracket = True
-            elif self.beginarrow is True:
-                self._beginarrow_head = True
-                self._beginarrow_bracket = False
-
-                _api.warn_deprecated('3.5', name="beginarrow",
-                                     alternative="arrow")
-            elif self.beginarrow is False:
-                self._beginarrow_head = False
-                self._beginarrow_bracket = False
-
-                _api.warn_deprecated('3.5', name="beginarrow",
-                                     alternative="arrow")
 
             if endarrow == ">":
                 self._endarrow_head = True
@@ -3289,18 +3267,6 @@ class ArrowStyle(_Style):
             elif endarrow in ("[", "|"):
                 self._endarrow_head = False
                 self._endarrow_bracket = True
-            elif self.endarrow is True:
-                self._endarrow_head = True
-                self._endarrow_bracket = False
-
-                _api.warn_deprecated('3.5', name="endarrow",
-                                     alternative="arrow")
-            elif self.endarrow is False:
-                self._endarrow_head = False
-                self._endarrow_bracket = False
-
-                _api.warn_deprecated('3.5', name="endarrow",
-                                     alternative="arrow")
 
             super().__init__()
 
@@ -4435,10 +4401,6 @@ default: 'arc3'
             self.get_mutation_aspect())
 
         return _path, fillable
-
-    get_path_in_displaycoord = _api.deprecate_privatize_attribute(
-        "3.5",
-        alternative="self.get_transform().transform_path(self.get_path())")
 
     def draw(self, renderer):
         if not self.get_visible():

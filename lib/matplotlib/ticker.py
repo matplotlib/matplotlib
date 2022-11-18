@@ -804,7 +804,7 @@ class ScalarFormatter(Formatter):
             else:
                 break
         sigfigs += 1
-        self.format = '%1.' + str(sigfigs) + 'f'
+        self.format = f'%1.{sigfigs}f'
         if self._usetex or self._useMathText:
             self.format = r'$\mathdefault{%s}$' % self.format
 
@@ -1707,10 +1707,10 @@ class IndexLocator(Locator):
 
 class FixedLocator(Locator):
     """
-    Tick locations are fixed.  If nbins is not None,
-    the array of possible positions will be subsampled to
-    keep the number of ticks <= nbins +1.
-    The subsampling will be done so as to include the smallest
+    Tick locations are fixed at *locs*.  If *nbins* is not None,
+    the *locs* array of possible positions will be subsampled to
+    keep the number of ticks <= *nbins* +1.
+    The subsampling will be done to include the smallest
     absolute value; for example, if zero is included in the
     array of possibilities, then it is guaranteed to be one of
     the chosen ticks.
@@ -1774,14 +1774,21 @@ class LinearLocator(Locator):
     Determine the tick locations
 
     The first time this function is called it will try to set the
-    number of ticks to make a nice tick partitioning.  Thereafter the
+    number of ticks to make a nice tick partitioning.  Thereafter, the
     number of ticks will be fixed so that interactive navigation will
     be nice
 
     """
     def __init__(self, numticks=None, presets=None):
         """
-        Use presets to set locs based on lom.  A dict mapping vmin, vmax->locs
+        Parameters
+        ----------
+        numticks : int or None, default None
+            Number of ticks. If None, *numticks* = 11.
+        presets : dict or None, default: None
+            Dictionary mapping ``(vmin, vmax)`` to an array of locations.
+            Overrides *numticks* if there is an entry for the current
+            ``(vmin, vmax)``.
         """
         self.numticks = numticks
         if presets is None:
@@ -1847,7 +1854,8 @@ class LinearLocator(Locator):
 
 class MultipleLocator(Locator):
     """
-    Set a tick on each integer multiple of a base within the view interval.
+    Set a tick on each integer multiple of the *base* within the view
+    interval.
     """
 
     def __init__(self, base=1.0):
@@ -1874,7 +1882,7 @@ class MultipleLocator(Locator):
 
     def view_limits(self, dmin, dmax):
         """
-        Set the view limits to the nearest multiples of base that
+        Set the view limits to the nearest multiples of *base* that
         contain the data.
         """
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
@@ -1903,16 +1911,20 @@ def scale_range(vmin, vmax, n=1, threshold=100):
 
 class _Edge_integer:
     """
-    Helper for MaxNLocator, MultipleLocator, etc.
+    Helper for `.MaxNLocator`, `.MultipleLocator`, etc.
 
-    Take floating point precision limitations into account when calculating
+    Take floating-point precision limitations into account when calculating
     tick locations as integer multiples of a step.
     """
     def __init__(self, step, offset):
         """
-        *step* is a positive floating-point interval between ticks.
-        *offset* is the offset subtracted from the data limits
-        prior to calculating tick locations.
+        Parameters
+        ----------
+        step : float > 0
+            Interval between ticks.
+        offset : float
+            Offset subtracted from the data limits prior to calculating tick
+            locations.
         """
         if step <= 0:
             raise ValueError("'step' must be positive")
@@ -1946,8 +1958,8 @@ class _Edge_integer:
 
 class MaxNLocator(Locator):
     """
-    Find nice tick locations with no more than N being within the view limits.
-    Locations beyond the limits are added to support autoscaling.
+    Find nice tick locations with no more than *nbins* + 1 being within the
+    view limits. Locations beyond the limits are added to support autoscaling.
     """
     default_params = dict(nbins=10,
                           steps=None,
@@ -2247,19 +2259,19 @@ class LogLocator(Locator):
 
     def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=None):
         """
-        Place ticks on the locations : subs[j] * base**i
+        Place ticks at values ``subs[j] * base**n``.
 
         Parameters
         ----------
         base : float, default: 10.0
             The base of the log used, so major ticks are placed at
-            ``base**n``, n integer.
-        subs : None or str or sequence of float, default: (1.0,)
+            ``base**n``, where ``n`` is an integer.
+        subs : None or {'auto', 'all'} or sequence of float, default: (1.0,)
             Gives the multiples of integer powers of the base at which
-            to place ticks.  The default places ticks only at
+            to place ticks.  The default of ``(1.0, )`` places ticks only at
             integer powers of the base.
-            The permitted string values are ``'auto'`` and ``'all'``,
-            both of which use an algorithm based on the axis view
+            Permitted string values are ``'auto'`` and ``'all'``.
+            Both of these use an algorithm based on the axis view
             limits to determine whether and how to put ticks between
             integer powers of the base.  With ``'auto'``, ticks are
             placed only between integer powers; with ``'all'``, the
@@ -2340,14 +2352,6 @@ class LogLocator(Locator):
             numticks = self.numticks
 
         b = self._base
-        # dummy axis has no axes attribute
-        if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
-            vmax = math.ceil(math.log(vmax) / math.log(b))
-            decades = np.arange(vmax - self.numdecs, vmax)
-            ticklocs = b ** decades
-
-            return ticklocs
-
         if vmin <= 0.0:
             if self.axis is not None:
                 vmin = self.axis.get_minpos()
@@ -2431,10 +2435,6 @@ class LogLocator(Locator):
         b = self._base
 
         vmin, vmax = self.nonsingular(vmin, vmax)
-
-        if self.axis.axes.name == 'polar':
-            vmax = math.ceil(math.log(vmax) / math.log(b))
-            vmin = b ** (vmax - self.numdecs)
 
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             vmin = _decade_less_equal(vmin, self._base)

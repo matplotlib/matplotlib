@@ -38,8 +38,8 @@ Subplot-related attributes and methods
 Some ``SubplotBase`` methods and attributes have been deprecated and/or moved
 to `.SubplotSpec`:
 
-- ``get_geometry`` (use `.SubplotBase.get_subplotspec` instead),
-- ``change_geometry`` (use `.SubplotBase.set_subplotspec` instead),
+- ``get_geometry`` (use ``SubplotBase.get_subplotspec`` instead),
+- ``change_geometry`` (use ``SubplotBase.set_subplotspec`` instead),
 - ``is_first_row``, ``is_last_row``, ``is_first_col``, ``is_last_col`` (use the
   corresponding methods on the `.SubplotSpec` instance instead),
 - ``update_params`` (now a no-op),

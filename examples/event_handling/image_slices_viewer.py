@@ -1,9 +1,10 @@
 """
-===================
-Image Slices Viewer
-===================
+============
+Scroll event
+============
 
-Scroll through 2D image slices of a 3D array.
+In this example a scroll wheel event is used to scroll through 2D slices of
+3D data.
 
 .. note::
     This example exercises the interactive capabilities of Matplotlib, and this
@@ -18,42 +19,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
-
 class IndexTracker:
     def __init__(self, ax, X):
-        self.ax = ax
-        ax.set_title('use scroll wheel to navigate images')
-
+        self.index = 0
         self.X = X
-        rows, cols, self.slices = X.shape
-        self.ind = self.slices//2
-
-        self.im = ax.imshow(self.X[:, :, self.ind])
+        self.ax = ax
+        self.im = ax.imshow(self.X[:, :, self.index])
         self.update()
 
     def on_scroll(self, event):
-        print("%s %s" % (event.button, event.step))
-        if event.button == 'up':
-            self.ind = (self.ind + 1) % self.slices
-        else:
-            self.ind = (self.ind - 1) % self.slices
+        print(event.button, event.step)
+        increment = 1 if event.button == 'up' else -1
+        max_index = self.X.shape[-1] - 1
+        self.index = np.clip(self.index + increment, 0, max_index)
         self.update()
 
     def update(self):
-        self.im.set_data(self.X[:, :, self.ind])
-        self.ax.set_ylabel('slice %s' % self.ind)
+        self.im.set_data(self.X[:, :, self.index])
+        self.ax.set_title(
+            f'Use scroll wheel to navigate\nindex {self.index}')
         self.im.axes.figure.canvas.draw()
 
 
-fig, ax = plt.subplots(1, 1)
+x, y, z = np.ogrid[-10:10:100j, -10:10:100j, 1:10:20j]
+X = np.sin(x * y * z) / (x * y * z)
 
-X = np.random.rand(20, 20, 40)
-
+fig, ax = plt.subplots()
+# create an IndexTracker and make sure it lives during the whole
+# lifetime of the figure by assigning it to a variable
 tracker = IndexTracker(ax, X)
-
 
 fig.canvas.mpl_connect('scroll_event', tracker.on_scroll)
 plt.show()

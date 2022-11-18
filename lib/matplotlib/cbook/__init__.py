@@ -132,9 +132,9 @@ class CallbackRegistry:
     for a set of signals and callbacks:
 
         >>> def oneat(x):
-        ...    print('eat', x)
+        ...     print('eat', x)
         >>> def ondrink(x):
-        ...    print('drink', x)
+        ...     print('drink', x)
 
         >>> from matplotlib.cbook import CallbackRegistry
         >>> callbacks = CallbackRegistry()
@@ -220,9 +220,6 @@ class CallbackRegistry:
 
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
-        if signal == "units finalize":
-            _api.warn_deprecated(
-                "3.5", name=signal, obj_type="signal", alternative="units")
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=signal)
         self._func_cid_map.setdefault(signal, {})
@@ -706,37 +703,6 @@ class Stack:
         for elem in old_elements:
             if elem != o:
                 self.push(elem)
-
-
-@_api.deprecated("3.5", alternative="psutil.virtual_memory")
-def report_memory(i=0):  # argument may go away
-    """Return the memory consumed by the process."""
-    def call(command, os_name):
-        try:
-            return subprocess.check_output(command)
-        except subprocess.CalledProcessError as err:
-            raise NotImplementedError(
-                "report_memory works on %s only if "
-                "the '%s' program is found" % (os_name, command[0])
-            ) from err
-
-    pid = os.getpid()
-    if sys.platform == 'sunos5':
-        lines = call(['ps', '-p', '%d' % pid, '-o', 'osz'], 'Sun OS')
-        mem = int(lines[-1].strip())
-    elif sys.platform == 'linux':
-        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,sz'], 'Linux')
-        mem = int(lines[1].split()[1])
-    elif sys.platform == 'darwin':
-        lines = call(['ps', '-p', '%d' % pid, '-o', 'rss,vsz'], 'Mac OS')
-        mem = int(lines[1].split()[0])
-    elif sys.platform == 'win32':
-        lines = call(["tasklist", "/nh", "/fi", "pid eq %d" % pid], 'Windows')
-        mem = int(lines.strip().split()[-2].replace(',', ''))
-    else:
-        raise NotImplementedError(
-            "We don't have a memory monitor for %s" % sys.platform)
-    return mem
 
 
 def safe_masked_invalid(x, copy=False):
@@ -1905,7 +1871,7 @@ def _array_perimeter(arr):
 
     Examples
     --------
-    >>> i, j = np.ogrid[:3,:4]
+    >>> i, j = np.ogrid[:3, :4]
     >>> a = i*10 + j
     >>> a
     array([[ 0,  1,  2,  3],
@@ -1949,7 +1915,7 @@ def _unfold(arr, axis, size, step):
 
     Examples
     --------
-    >>> i, j = np.ogrid[:3,:7]
+    >>> i, j = np.ogrid[:3, :7]
     >>> a = i*10 + j
     >>> a
     array([[ 0,  1,  2,  3,  4,  5,  6],

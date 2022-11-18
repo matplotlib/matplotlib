@@ -211,8 +211,8 @@ class GridSpecBase:
         or create a new one
         """
         for ax in figure.get_axes():
-            if hasattr(ax, 'get_subplotspec'):
-                gs = ax.get_subplotspec().get_gridspec()
+            gs = ax.get_gridspec()
+            if gs is not None:
                 if hasattr(gs, 'get_topmost_subplotspec'):
                     # This is needed for colorbar gridspec layouts.
                     # This is probably OK because this whole logic tree
@@ -413,7 +413,7 @@ class GridSpec(GridSpecBase):
                 raise AttributeError(f"{k} is an unknown keyword")
         for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
-                if isinstance(ax, mpl.axes.SubplotBase):
+                if ax.get_subplotspec() is not None:
                     ss = ax.get_subplotspec().get_topmost_subplotspec()
                     if ss.get_gridspec() == self:
                         ax._set_position(
@@ -467,20 +467,12 @@ class GridSpec(GridSpecBase):
             coordinates that the whole subplots area (including labels) will
             fit into. Default (None) is the whole figure.
         """
-
-        subplotspec_list = _tight_layout.get_subplotspec_list(
-            figure.axes, grid_spec=self)
-        if None in subplotspec_list:
-            _api.warn_external("This figure includes Axes that are not "
-                               "compatible with tight_layout, so results "
-                               "might be incorrect.")
-
         if renderer is None:
             renderer = figure._get_renderer()
-
         kwargs = _tight_layout.get_tight_layout_figure(
-            figure, figure.axes, subplotspec_list, renderer,
-            pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
+            figure, figure.axes,
+            _tight_layout.get_subplotspec_list(figure.axes, grid_spec=self),
+            renderer, pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         if kwargs:
             self.update(**kwargs)
 
@@ -595,8 +587,7 @@ class SubplotSpec:
         elif len(args) == 3:
             rows, cols, num = args
         else:
-            raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
-                            f"{len(args)} were given")
+            raise _api.nargs_error("subplot", takes="1 or 3", given=len(args))
 
         gs = GridSpec._check_gridspec_exists(figure, rows, cols)
         if gs is None:

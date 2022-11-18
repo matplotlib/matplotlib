@@ -660,7 +660,7 @@ class ImageMagickBase:
 @writers.register('imagemagick')
 class ImageMagickWriter(ImageMagickBase, MovieWriter):
     """
-    Pipe-based animated gif.
+    Pipe-based animated gif writer.
 
     Frames are streamed directly to ImageMagick via a pipe and written
     in a single pass.
@@ -840,7 +840,8 @@ class Animation:
         system notifications.
 
     blit : bool, default: False
-        Whether blitting is used to optimize drawing.
+        Whether blitting is used to optimize drawing.  If the backend does not
+        support blitting, then this parameter has no effect.
 
     See Also
     --------
@@ -956,7 +957,7 @@ class Animation:
         extra_anim : list, default: []
             Additional `Animation` objects that should be included
             in the saved movie file. These need to be from the same
-            `matplotlib.figure.Figure` instance. Also, animation frames will
+            `.Figure` instance. Also, animation frames will
             just be simply combined, so there should be a 1:1 correspondence
             between the frames from the different animations.
 
@@ -977,8 +978,7 @@ class Animation:
 
             Example code to write the progress to stdout::
 
-                progress_callback =\
-                    lambda i, n: print(f'Saving frame {i} of {n}')
+                progress_callback = lambda i, n: print(f'Saving frame {i}/{n}')
 
         Notes
         -----
@@ -1025,9 +1025,8 @@ class Animation:
 
         all_anim = [self]
         if extra_anim is not None:
-            all_anim.extend(anim
-                            for anim
-                            in extra_anim if anim._fig is self._fig)
+            all_anim.extend(anim for anim in extra_anim
+                            if anim._fig is self._fig)
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
@@ -1426,7 +1425,8 @@ class TimedAnimation(Animation):
 
 class ArtistAnimation(TimedAnimation):
     """
-    Animation using a fixed set of `.Artist` objects.
+    `TimedAnimation` subclass that creates an animation by using a fixed
+    set of `.Artist` objects.
 
     Before creating an instance, all plotting should have taken place
     and the relevant artists saved.
@@ -1502,7 +1502,8 @@ class ArtistAnimation(TimedAnimation):
 
 class FuncAnimation(TimedAnimation):
     """
-    Makes an animation by repeatedly calling a function *func*.
+    `TimedAnimation` subclass that makes an animation by repeatedly calling
+    a function *func*.
 
     .. note::
 
@@ -1518,11 +1519,23 @@ class FuncAnimation(TimedAnimation):
     func : callable
         The function to call at each frame.  The first argument will
         be the next value in *frames*.   Any additional positional
-        arguments can be supplied via the *fargs* parameter.
+        arguments can be supplied using `functools.partial` or via the *fargs*
+        parameter.
 
         The required signature is::
 
             def func(frame, *fargs) -> iterable_of_artists
+
+        It is often more convenient to provide the arguments using
+        `functools.partial`. In this way it is also possible to pass keyword
+        arguments. To pass a function with both positional and keyword
+        arguments, set all arguments as keyword arguments, just leaving the
+        *frame* argument unset::
+
+            def func(frame, art, *, y=None):
+                ...
+
+            ani = FuncAnimation(fig, partial(func, art=ln, y='foo'))
 
         If ``blit == True``, *func* must return an iterable of all artists
         that were modified or created. This information is used by the blitting
@@ -1562,7 +1575,8 @@ class FuncAnimation(TimedAnimation):
         value is unused if ``blit == False`` and may be omitted in that case.
 
     fargs : tuple or None, optional
-        Additional arguments to pass to each call to *func*.
+        Additional arguments to pass to each call to *func*. Note: the use of
+        `functools.partial` is preferred over *fargs*. See *func* for details.
 
     save_count : int, default: 100
         Fallback for the number of values from *frames* to cache. This is

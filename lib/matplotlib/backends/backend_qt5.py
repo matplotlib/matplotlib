@@ -4,11 +4,11 @@ backends._QT_FORCE_QT5_BINDING = True
 
 
 from .backend_qt import (  # noqa
-    backend_version, SPECIAL_KEYS,
+    SPECIAL_KEYS,
     # Public API
     cursord, _create_qApp, _BackendQT, TimerQT, MainWindow, FigureCanvasQT,
     FigureManagerQT, ToolbarQt, NavigationToolbar2QT, SubplotToolQt,
-    SaveFigureQt, ConfigureSubplotsQt, SetCursorQt, RubberbandQt,
+    SaveFigureQt, ConfigureSubplotsQt, RubberbandQt,
     HelpQt, ToolCopyToClipboardQT,
     # internal re-exports
     FigureCanvasBase,  FigureManagerBase, MouseButton, NavigationToolbar2,

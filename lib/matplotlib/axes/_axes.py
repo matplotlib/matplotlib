@@ -2182,11 +2182,19 @@ class Axes(_AxesBase):
                 x0 = cbook._safe_first_finite(x0)
             except (TypeError, IndexError, KeyError):
                 pass
+            except StopIteration:
+                # this means we found no finite element, fall back to first
+                # element unconditionally
+                x0 = cbook.safe_first_element(x0)
 
             try:
                 x = cbook._safe_first_finite(xconv)
             except (TypeError, IndexError, KeyError):
                 x = xconv
+            except StopIteration:
+                # this means we found no finite element, fall back to first
+                # element unconditionally
+                x = cbook.safe_first_element(xconv)
 
             delist = False
             if not np.iterable(dx):
@@ -2640,6 +2648,9 @@ class Axes(_AxesBase):
             When *fmt* is a string and can be interpreted in both formats,
             %-style takes precedence over {}-style.
 
+            .. versionadded:: 3.7
+               Support for {}-style format string and callables.
+
         label_type : {'edge', 'center'}, default: 'edge'
             The label type. Possible values:
 
@@ -2873,10 +2884,9 @@ class Axes(_AxesBase):
 
           stem([locs,] heads, linefmt=None, markerfmt=None, basefmt=None)
 
-        The *locs*-positions are optional. The formats may be provided either
-        as positional or as keyword-arguments.
-        Passing *markerfmt* and *basefmt* positionally is deprecated since
-        Matplotlib 3.5.
+        The *locs*-positions are optional. *linefmt* may be provided as
+        positional, but all other formats must be provided as keyword
+        arguments.
 
         Parameters
         ----------
@@ -2949,8 +2959,8 @@ class Axes(_AxesBase):
             `stem <https://www.mathworks.com/help/matlab/ref/stem.html>`_
             which inspired this method.
         """
-        if not 1 <= len(args) <= 5:
-            raise TypeError('stem expected between 1 and 5 positional '
+        if not 1 <= len(args) <= 3:
+            raise TypeError('stem expected between 1 or 3 positional '
                             'arguments, got {}'.format(args))
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
@@ -2963,12 +2973,6 @@ class Axes(_AxesBase):
             locs = np.arange(len(heads))
         else:
             locs, heads, *args = args
-        if len(args) > 1:
-            _api.warn_deprecated(
-                "3.5",
-                message="Passing the markerfmt parameter positionally is "
-                        "deprecated since Matplotlib %(since)s; the "
-                        "parameter will become keyword-only %(removal)s.")
 
         if orientation == 'vertical':
             locs, heads = self._process_unit_info([("x", locs), ("y", heads)])
@@ -2982,8 +2986,8 @@ class Axes(_AxesBase):
 
         # resolve marker format
         if markerfmt is None:
-            # if not given as kwarg, check for positional or fall back to 'o'
-            markerfmt = args[1] if len(args) > 1 else "o"
+            # if not given as kwarg, fall back to 'o'
+            markerfmt = "o"
         if markerfmt == '':
             markerfmt = ' '  # = empty line style; '' would resolve rcParams
         markerstyle, markermarker, markercolor = \
@@ -2997,8 +3001,7 @@ class Axes(_AxesBase):
 
         # resolve baseline format
         if basefmt is None:
-            basefmt = (args[2] if len(args) > 2 else
-                       "C2-" if mpl.rcParams["_internal.classic_mode"] else
+            basefmt = ("C2-" if mpl.rcParams["_internal.classic_mode"] else
                        "C3-")
         basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
@@ -3320,6 +3323,10 @@ class Axes(_AxesBase):
         *x*, *y* define the data locations, *xerr*, *yerr* define the errorbar
         sizes. By default, this draws the data markers/lines as well the
         errorbars. Use fmt='none' to draw errorbars without any data markers.
+
+        .. versionadded:: 3.7
+           Caps and error lines are drawn in polar coordinates on polar plots.
+
 
         Parameters
         ----------
@@ -4387,7 +4394,7 @@ class Axes(_AxesBase):
                     c_is_mapped = True
                 else:  # Wrong size; it must not be intended for mapping.
                     if c.shape in ((3,), (4,)):
-                        _log.warning(
+                        _api.warn_external(
                             "*c* argument looks like a single numeric RGB or "
                             "RGBA sequence, which should be avoided as value-"
                             "mapping will have precedence in case its length "
@@ -4409,7 +4416,7 @@ class Axes(_AxesBase):
                     # severe failure => one may appreciate a verbose feedback.
                     raise ValueError(
                         f"'c' argument must be a color, a sequence of colors, "
-                        f"or a sequence of numbers, not {c}") from err
+                        f"or a sequence of numbers, not {c!r}") from err
             else:
                 if len(colors) not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
@@ -4707,7 +4714,31 @@ default: :rc:`scatter.edgecolors`
             the hexagons are approximately regular.
 
             Alternatively, if a tuple (*nx*, *ny*), the number of hexagons
-            in the *x*-direction and the *y*-direction.
+            in the *x*-direction and the *y*-direction. In the
+            *y*-direction, counting is done along vertically aligned
+            hexagons, not along the zig-zag chains of hexagons; see the
+            following illustration.
+
+            .. plot::
+
+               import numpy
+               import matplotlib.pyplot as plt
+
+               np.random.seed(19680801)
+               n= 300
+               x = np.random.standard_normal(n)
+               y = np.random.standard_normal(n)
+
+               fig, ax = plt.subplots(figsize=(4, 4))
+               h = ax.hexbin(x, y, gridsize=(5, 3))
+               hx, hy = h.get_offsets().T
+               ax.plot(hx[24::3], hy[24::3], 'ro-')
+               ax.plot(hx[-3:], hy[-3:], 'ro-')
+               ax.set_title('gridsize=(5, 3)')
+               ax.axis('off')
+
+            To get approximately regular hexagons, choose
+            :math:`n_x = \\sqrt{3}\\,n_y`.
 
         bins : 'log' or int or sequence, default: None
             Discretization of the hexagon values.
@@ -4961,9 +4992,7 @@ default: :rc:`scatter.edgecolors`
         # autoscale the norm with current accum values if it hasn't been set
         if norm is not None:
             if norm.vmin is None and norm.vmax is None:
-                norm.autoscale_None(accum)
-            norm.vmin = np.ma.masked if norm.vmin is None else norm.vmin
-            norm.vmax = np.ma.masked if norm.vmax is None else norm.vmax
+                norm.autoscale(accum)
 
         if bins is not None:
             if not np.iterable(bins):
@@ -5396,15 +5425,11 @@ default: :rc:`scatter.edgecolors`
 
     #### plotting z(x, y): imshow, pcolor and relatives, contour
 
-    # Once this deprecation elapses, also move vmin, vmax right after norm, to
-    # match the signature of other methods returning ScalarMappables and keep
-    # the documentation for *norm*, *vmax* and *vmin* together.
-    @_api.make_keyword_only("3.5", "aspect")
     @_preprocess_data()
     @_docstring.interpd
-    def imshow(self, X, cmap=None, norm=None, aspect=None,
+    def imshow(self, X, cmap=None, norm=None, *, aspect=None,
                interpolation=None, alpha=None,
-               vmin=None, vmax=None, origin=None, extent=None, *,
+               vmin=None, vmax=None, origin=None, extent=None,
                interpolation_stage=None, filternorm=True, filterrad=4.0,
                resample=None, url=None, **kwargs):
         """
@@ -5523,6 +5548,7 @@ default: :rc:`scatter.edgecolors`
 
         extent : floats (left, right, bottom, top), optional
             The bounding box in data coordinates that the image will fill.
+            These values may be unitful and match the units of the Axes.
             The image is stretched individually along x and y to fill the box.
 
             The default extent is determined by the following conditions.
@@ -5669,8 +5695,7 @@ default: :rc:`scatter.edgecolors`
                     Y = Y.data
             nrows, ncols = C.shape
         else:
-            raise TypeError(f'{funcname}() takes 1 or 3 positional arguments '
-                            f'but {len(args)} were given')
+            raise _api.nargs_error(funcname, takes="1 or 3", given=len(args))
 
         Nx = X.shape[-1]
         Ny = Y.shape[0]
@@ -6458,7 +6483,7 @@ default: :rc:`scatter.edgecolors`
         `~.stairs` to plot the distribution::
 
             counts, bins = np.histogram(x)
-            plt.stairs(bins, counts)
+            plt.stairs(counts, bins)
 
         Alternatively, plot pre-computed bins and counts using ``hist()`` by
         treating each bin as a single point with a weight equal to its count::

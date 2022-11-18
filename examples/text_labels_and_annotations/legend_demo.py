@@ -116,7 +116,7 @@ l = ax2.legend([(rpos, rneg), (rneg, rpos)], ['pad!=0', 'pad=0'],
 plt.show()
 
 ###############################################################################
-# Finally, it is also possible to write custom objects that define
+# Finally, it is also possible to write custom classes that define
 # how to stylize legends.
 
 
@@ -166,7 +166,6 @@ x = np.linspace(0, 5, 100)
 fig, ax = plt.subplots()
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color'][:5]
 styles = ['solid', 'dashed', 'dashed', 'dashed', 'solid']
-lines = []
 for i, color, style in zip(range(5), colors, styles):
     ax.plot(x, np.sin(x) - .1 * i, c=color, ls=style)
 

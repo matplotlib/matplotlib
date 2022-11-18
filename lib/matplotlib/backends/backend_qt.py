@@ -20,8 +20,6 @@ from .qt_compat import (
 )
 
 
-backend_version = __version__
-
 # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
 # instead they have manually specified names.
 SPECIAL_KEYS = {
@@ -585,6 +583,13 @@ class FigureManagerQT(FigureManagerBase):
         self.canvas.resize(width, height)
         self.window.resize(width + extra_width, height + extra_height)
 
+    @classmethod
+    def start_main_loop(cls):
+        qapp = QtWidgets.QApplication.instance()
+        if qapp:
+            with _maybe_allow_interrupt(qapp):
+                qt_compat._exec(qapp)
+
     def show(self):
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
@@ -976,13 +981,6 @@ class SaveFigureQt(backend_tools.SaveFigureBase):
             self._make_classic_style_pseudo_toolbar())
 
 
-@_api.deprecated("3.5", alternative="ToolSetCursor")
-class SetCursorQt(backend_tools.SetCursorBase):
-    def set_cursor(self, cursor):
-        NavigationToolbar2QT.set_cursor(
-            self._make_classic_style_pseudo_toolbar(), cursor)
-
-
 @backend_tools._register_tool_class(FigureCanvasQT)
 class RubberbandQt(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
@@ -1013,11 +1011,7 @@ FigureManagerQT._toolmanager_toolbar_class = ToolbarQt
 
 @_Backend.export
 class _BackendQT(_Backend):
+    backend_version = __version__
     FigureCanvas = FigureCanvasQT
     FigureManager = FigureManagerQT
-
-    @staticmethod
-    def mainloop():
-        qapp = QtWidgets.QApplication.instance()
-        with _maybe_allow_interrupt(qapp):
-            qt_compat._exec(qapp)
+    mainloop = FigureManagerQT.start_main_loop

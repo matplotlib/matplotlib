@@ -515,7 +515,7 @@ def to_hex(c, keep_alpha=False):
     c = to_rgba(c)
     if not keep_alpha:
         c = c[:3]
-    return "#" + "".join(format(int(round(val * 255)), "02x") for val in c)
+    return "#" + "".join(format(round(val * 255), "02x") for val in c)
 
 
 ### Backwards-compatible color-conversion API
@@ -706,8 +706,12 @@ class Colormap:
         if not self._isinit:
             self._init()
 
-        mask_bad = X.mask if np.ma.is_masked(X) else np.isnan(X)  # Mask nan's.
+        # Take the bad mask from a masked array, or in all other cases defer
+        # np.isnan() to after we have converted to an array.
+        mask_bad = X.mask if np.ma.is_masked(X) else None
         xa = np.array(X, copy=True)
+        if mask_bad is None:
+            mask_bad = np.isnan(xa)
         if not xa.dtype.isnative:
             xa = xa.byteswap().newbyteorder()  # Native byteorder is faster.
         if xa.dtype.kind == "f":
@@ -1367,9 +1371,8 @@ class Normalize:
 
     def autoscale(self, A):
         """Set *vmin*, *vmax* to min, max of *A*."""
-        A = np.asanyarray(A)
-        self.vmin = A.min()
-        self.vmax = A.max()
+        self.vmin = self.vmax = None
+        self.autoscale_None(A)
 
     def autoscale_None(self, A):
         """If vmin or vmax are not set, use the min/max of *A* to set them."""
@@ -1711,13 +1714,11 @@ def _make_norm_from_scale(
                      .reshape(np.shape(value)))
             return value[0] if is_scalar else value
 
-        def autoscale(self, A):
+        def autoscale_None(self, A):
             # i.e. A[np.isfinite(...)], but also for non-array A's
             in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
-            return super().autoscale(in_trf_domain)
-
-        def autoscale_None(self, A):
-            in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            if in_trf_domain.size == 0:
+                in_trf_domain = np.ma.masked
             return super().autoscale_None(in_trf_domain)
 
     if base_norm_cls is Normalize:

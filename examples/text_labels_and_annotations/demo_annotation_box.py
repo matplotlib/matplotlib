@@ -31,7 +31,8 @@ ab = AnnotationBbox(offsetbox, xy,
                     xybox=(-20, 40),
                     xycoords='data',
                     boxcoords="offset points",
-                    arrowprops=dict(arrowstyle="->"))
+                    arrowprops=dict(arrowstyle="->"),
+                    bboxprops=dict(boxstyle="sawtooth"))
 ax.add_artist(ab)
 
 # Annotate the 1st position with another text box ('Test')
@@ -54,11 +55,12 @@ p = Circle((10, 10), 10)
 da.add_artist(p)
 
 ab = AnnotationBbox(da, xy,
-                    xybox=(1.02, xy[1]),
+                    xybox=(1., xy[1]),
                     xycoords='data',
                     boxcoords=("axes fraction", "data"),
-                    box_alignment=(0., 0.5),
-                    arrowprops=dict(arrowstyle="->"))
+                    box_alignment=(0.2, 0.5),
+                    arrowprops=dict(arrowstyle="->"),
+                    bboxprops=dict(alpha=0.5))
 
 ax.add_artist(ab)
 
