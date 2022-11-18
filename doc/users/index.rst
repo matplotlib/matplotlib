@@ -5,7 +5,7 @@
 
 .. grid:: 3
 
-   .. grid-item-card:: General
+   .. grid-item-card:: Information
 
       .. dropdown:: Getting Started
 
@@ -21,32 +21,29 @@
 
             installing/index.rst
 
-      .. dropdown:: Guide to Matplotlib
+      .. dropdown:: Contributing
+
+         .. toctree::
+            :maxdepth: 2
+
+            ../devel/index.rst
+
+      .. dropdown:: About
+
+         .. toctree::
+            :maxdepth: 2
+
+            project/index.rst
+
+
+   .. grid-item-card:: Explanations & Examples
+
+      .. dropdown:: API Explanations
 
          .. toctree::
             :maxdepth: 2
 
             explain/index.rst
-
-
-      .. dropdown:: Troubleshooting
-
-         .. toctree::
-            :maxdepth: 2
-
-            faq/index.rst
-
-      .. dropdown:: External Resources
-
-         .. toctree::
-            :maxdepth: 2
-
-            resources/index.rst
-
-         `User Contributed Packages <https://matplotlib.org/mpl-third-party/>`_
-
-
-   .. grid-item-card:: Tutorials and examples
 
       .. dropdown:: Plot Types
 
@@ -70,7 +67,7 @@
             ../gallery/index.rst
 
 
-   .. grid-item-card:: Reference
+   .. grid-item-card:: References & Resources
 
       .. dropdown:: API Reference
 
@@ -79,23 +76,25 @@
 
             ../api/index.rst
 
-      .. dropdown:: Contributing Guide
-
-         .. toctree::
-            :maxdepth: 2
-
-            ../devel/index.rst
-
-      .. dropdown:: Project Information
-
-         .. toctree::
-            :maxdepth: 2
-
-            project/index.rst
-
       .. dropdown:: Release Notes
 
          .. toctree::
             :maxdepth: 2
 
             release_notes.rst
+
+      .. dropdown:: Troubleshooting
+
+         .. toctree::
+            :maxdepth: 2
+
+            faq/index.rst
+
+      .. dropdown:: External Resources
+
+         .. toctree::
+            :maxdepth: 2
+
+            resources/index.rst
+
+         `User Contributed Packages <https://matplotlib.org/mpl-third-party/>`_
