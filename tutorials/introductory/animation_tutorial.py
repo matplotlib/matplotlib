@@ -91,7 +91,7 @@ import numpy as np
 
 
 fig, ax = plt.subplots()
-t = np.linspace(-4, 4, 400)
+t = np.linspace(-4, 2.3, 400)
 a, b = 3, 2
 delta = np.pi / 2
 
