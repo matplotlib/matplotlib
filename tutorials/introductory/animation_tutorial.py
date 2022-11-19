@@ -1,9 +1,9 @@
 """
 ===========================
-Animations using matplotlib
+Animations using Matplotlib
 ===========================
 
-Based on its plotting functionality, matplotlib also provides an interface to
+Based on its plotting functionality, Matplotlib also provides an interface to
 generate animations using the :class:`~matplotlib.animation` module. An
 animation is a sequence of frames where each frame corresponds to a plot on a
 :class:`~matplotlib.figure.Figure`. This tutorial covers a general guideline on
@@ -18,8 +18,7 @@ import numpy as np
 # Animation Classes
 # =================
 #
-# The process of animation in matplotlib can be thought about in 2 different
-# ways:
+# The animation process in Matplotlib can be thought of in 2 different ways:
 #
 # - :class:`~matplotlib.animation.FuncAnimation`: Generate data for first
 #   frame and then modify this data for each frame to create an animated plot.
@@ -32,17 +31,16 @@ import numpy as np
 # other hand :class:`~matplotlib.animation.ArtistAnimation` is flexible as it
 # allows any iterable of artists to be animated in a sequence.
 #
-# :class:`~matplotlib.animation.FuncAnimation`
-# --------------------------------------------
+# ``FuncAnimation``
+# -----------------
 #
-# :class:`~matplotlib.animation.FuncAnimation` class allows us to create an
+# The `~matplotlib.animation.FuncAnimation` class allows us to create an
 # animation by passing a function that iteratively modifies the data of a plot.
 # This is achieved by using the *setter* methods on various
-# :class:`~matplotlib.artist.Artist`
-# (examples: :class:`~matplotlib.lines.Line2D`,
-# :class:`~matplotlib.collections.PathCollection`, etc.). A usual
-# :class:`~matplotlib.animation.FuncAnimation` object takes a
-# :class:`~matplotlib.figure.Figure` that we want to animate and a function
+# `~matplotlib.artist.Artist` (examples: :class:`~matplotlib.lines.Line2D`,
+# `~matplotlib.collections.PathCollection`, etc.). A usual
+# `~matplotlib.animation.FuncAnimation` object takes a
+# `~matplotlib.figure.Figure` that we want to animate and a function
 # *func* that modifies the data plotted on the figure. It uses the *frames*
 # parameter to determine the length of the animation. The *interval* parameter
 # is used to determine time in milliseconds between drawing of two frames.
@@ -55,7 +53,8 @@ import numpy as np
 # - Create an animation function that updates the data in each artist to
 #   generate the new frame at each function call.
 # - Create a `.FuncAnimation` object with the `.Figure` and the animation
-#   function, along with the keyword arguments.
+#   function, along with the keyword arguments that determine the animation
+#   properties.
 # - Use `.animation.Animation.save` or `.pyplot.show` to save or show the
 #   animation.
 #
@@ -67,11 +66,11 @@ import numpy as np
 # Plotting method    Artist                         Set method
 # =================  =============================  ===========================
 # `.Axes.plot`       `.lines.Line2D`                `.lines.Line2D.set_data`
-# `.Axes.scatter`    `.collections.PathCollection`  `.collections.PathCollecti\
-#                                                   on.set_offsets`
+# `.Axes.scatter`    `.collections.PathCollection`  `.collections.\
+#                                                   PathCollection.set_offsets`
 # `.Axes.imshow`     `.image.AxesImage`             ``AxesImage.set_data``
-# `.Axes.annotate`   `.text.Annotation`             `.text.Annotation.update_p\
-#                                                   ositions`
+# `.Axes.annotate`   `.text.Annotation`             `.text.Annotation.\
+#                                                   update_positions`
 # `.Axes.barh`       `.patches.Rectangle`           `.Rectangle.set_angle`,
 #                                                   `.Rectangle.set_bounds`,
 #                                                   `.Rectangle.set_height`,
@@ -102,7 +101,7 @@ ax.set_ylim(-1.5, 1.5)
 
 
 def update(frame):
-    # .set_offsets also resets the offset data for the entire collection with
+    # .set_offsets replaces the offset data for the entire collection with
     # the new values. Therefore, to also carry forward the previously
     # calculated information, we use the data from the first to the current
     # frame to set the new offsets.
@@ -118,8 +117,8 @@ plt.show()
 
 
 ###############################################################################
-# :class:`~matplotlib.animation.ArtistAnimation`
-# ----------------------------------------------
+# ``ArtistAnimation``
+# -------------------
 #
 # :class:`~matplotlib.animation.ArtistAnimation` can be used
 # to generate animations if there is data stored on various different artists.
@@ -133,7 +132,7 @@ plt.show()
 
 
 fig, ax = plt.subplots()
-rng = np.random.default_rng()
+rng = np.random.default_rng(19680801)
 data = np.array([20, 20, 20, 20])
 x = np.array([1, 2, 3, 4])
 
@@ -159,7 +158,7 @@ plt.show()
 # - :class:`~matplotlib.animation.PillowWriter` - Uses the Pillow library to
 #   create the animation.
 #
-# - :class:`~matplotlib.animation.HTMLWriter` - Used to create JS-based
+# - :class:`~matplotlib.animation.HTMLWriter` - Used to create JavaScript-based
 #   animations.
 #
 # - Pipe-based writers - :class:`~matplotlib.animation.FFMpegWriter` and
@@ -195,7 +194,7 @@ plt.show()
 # **saved** animation uses, whereas *interval* determines the frame rate that
 # the **displayed** animation uses.
 #
-# Following are a few examples showing how to save an animation with different
+# Below are a few examples that show how to save an animation with different
 # writers.
 #
 #
@@ -221,5 +220,5 @@ plt.show()
 #   ani.save(filename="/tmp/imagemagick_example.gif", writer="imagemagick")
 #
 # Since the frames are piped out to *ffmpeg* or *imagemagick*,
-# *writer="ffmpeg"* and *writer="imagemagick"* support all formats supported by
-# *ffmpeg* and *imagemagick*.
+# ``writer="ffmpeg"`` and ``writer="imagemagick"`` support all formats
+# supported by *ffmpeg* and *imagemagick*.
