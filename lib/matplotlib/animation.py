@@ -686,10 +686,9 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
 
 # Taken directly from jakevdp's JSAnimation package at
 # http://github.com/jakevdp/JSAnimation
-def _included_frames(paths, frame_format):
-    """paths should be a list of Paths"""
-    return INCLUDED_FRAMES.format(Nframes=len(paths),
-                                  frame_dir=paths[0].parent,
+def _included_frames(frame_count, frame_format, frame_dir):
+    return INCLUDED_FRAMES.format(Nframes=frame_count,
+                                  frame_dir=frame_dir,
                                   frame_format=frame_format)
 
 
@@ -783,11 +782,13 @@ class HTMLWriter(FileMovieWriter):
         if self.embed_frames:
             fill_frames = _embedded_frames(self._saved_frames,
                                            self.frame_format)
-            Nframes = len(self._saved_frames)
+            frame_count = len(self._saved_frames)
         else:
             # temp names is filled by FileMovieWriter
-            fill_frames = _included_frames(self._temp_paths, self.frame_format)
-            Nframes = len(self._temp_paths)
+            frame_count = len(self._temp_paths)
+            fill_frames = _included_frames(
+                frame_count, self.frame_format,
+                self._temp_paths[0].parent.relative_to(self.outfile.parent))
         mode_dict = dict(once_checked='',
                          loop_checked='',
                          reflect_checked='')
@@ -798,7 +799,7 @@ class HTMLWriter(FileMovieWriter):
         with open(self.outfile, 'w') as of:
             of.write(JS_INCLUDE + STYLE_INCLUDE)
             of.write(DISPLAY_TEMPLATE.format(id=uuid.uuid4().hex,
-                                             Nframes=Nframes,
+                                             Nframes=frame_count,
                                              fill_frames=fill_frames,
                                              interval=interval,
                                              **mode_dict))
