@@ -4,9 +4,9 @@ Animations using Matplotlib
 ===========================
 
 Based on its plotting functionality, Matplotlib also provides an interface to
-generate animations using the :class:`~matplotlib.animation` module. An
+generate animations using the `~matplotlib.animation` module. An
 animation is a sequence of frames where each frame corresponds to a plot on a
-:class:`~matplotlib.figure.Figure`. This tutorial covers a general guideline on
+`~matplotlib.figure.Figure`. This tutorial covers a general guideline on
 how to create such animations and the different options available.
 """
 
@@ -20,15 +20,15 @@ import numpy as np
 #
 # The animation process in Matplotlib can be thought of in 2 different ways:
 #
-# - :class:`~matplotlib.animation.FuncAnimation`: Generate data for first
+# - `~matplotlib.animation.FuncAnimation`: Generate data for first
 #   frame and then modify this data for each frame to create an animated plot.
 #
-# - :class:`~matplotlib.animation.ArtistAnimation`: Generate a list (iterable)
+# - `~matplotlib.animation.ArtistAnimation`: Generate a list (iterable)
 #   of artists that will draw in each frame in the animation.
 #
-# :class:`~matplotlib.animation.FuncAnimation` is more efficient in terms of
+# `~matplotlib.animation.FuncAnimation` is more efficient in terms of
 # speed and memory as it draws an artist once and then modifies it. On the
-# other hand :class:`~matplotlib.animation.ArtistAnimation` is flexible as it
+# other hand `~matplotlib.animation.ArtistAnimation` is flexible as it
 # allows any iterable of artists to be animated in a sequence.
 #
 # ``FuncAnimation``
@@ -37,7 +37,7 @@ import numpy as np
 # The `~matplotlib.animation.FuncAnimation` class allows us to create an
 # animation by passing a function that iteratively modifies the data of a plot.
 # This is achieved by using the *setter* methods on various
-# `~matplotlib.artist.Artist` (examples: :class:`~matplotlib.lines.Line2D`,
+# `~matplotlib.artist.Artist` (examples: `~matplotlib.lines.Line2D`,
 # `~matplotlib.collections.PathCollection`, etc.). A usual
 # `~matplotlib.animation.FuncAnimation` object takes a
 # `~matplotlib.figure.Figure` that we want to animate and a function
@@ -120,7 +120,7 @@ plt.show()
 # ``ArtistAnimation``
 # -------------------
 #
-# :class:`~matplotlib.animation.ArtistAnimation` can be used
+# `~matplotlib.animation.ArtistAnimation` can be used
 # to generate animations if there is data stored on various different artists.
 # This list of artists is then converted frame by frame into an animation. For
 # example, when we use `.Axes.barh` to plot a bar-chart, it creates a number of
@@ -155,19 +155,19 @@ plt.show()
 # (ex: Pillow, *ffpmeg*, *imagemagick*). Not all video formats are supported
 # by all writers. There are 4 major types of writers:
 #
-# - :class:`~matplotlib.animation.PillowWriter` - Uses the Pillow library to
+# - `~matplotlib.animation.PillowWriter` - Uses the Pillow library to
 #   create the animation.
 #
-# - :class:`~matplotlib.animation.HTMLWriter` - Used to create JavaScript-based
+# - `~matplotlib.animation.HTMLWriter` - Used to create JavaScript-based
 #   animations.
 #
-# - Pipe-based writers - :class:`~matplotlib.animation.FFMpegWriter` and
-#   :class:`~matplotlib.animation.ImageMagickWriter` are pipe based writers.
+# - Pipe-based writers - `~matplotlib.animation.FFMpegWriter` and
+#   `~matplotlib.animation.ImageMagickWriter` are pipe based writers.
 #   These writers pipe each frame to the utility (*ffmpeg* / *imagemagick*)
 #   which then stitches all of them together to create the animation.
 #
-# - File-based writers - :class:`~matplotlib.animation.FFMpegFileWriter` and
-#   :class:`~matplotlib.animation.ImageMagickFileWriter` are examples of
+# - File-based writers - `~matplotlib.animation.FFMpegFileWriter` and
+#   `~matplotlib.animation.ImageMagickFileWriter` are examples of
 #   file-based writers. These writers are slower than their pipe-based
 #   alternatives but are more useful for debugging as they save each frame in
 #   a file before stitching them together into an animation.
@@ -175,15 +175,15 @@ plt.show()
 # Saving Animations
 # -----------------
 #
-# ================================================  ===========================
-# Writer                                            Supported Formats
-# ================================================  ===========================
-# :class:`~matplotlib.animation.PillowWriter`       .gif, .apng
-# :class:`~matplotlib.animation.HTMLWriter`         .htm, .html, .png
-# :class:`~matplotlib.animation.FFMpegWriter`       All formats supported by
+# ========================================== ===========================
+# Writer                                     Supported Formats
+# ========================================== ===========================
+# `~matplotlib.animation.PillowWriter`       .gif, .apng
+# `~matplotlib.animation.HTMLWriter`         .htm, .html, .png
+# `~matplotlib.animation.FFMpegWriter`       All formats supported by
 #                                                   *ffmpeg*
-# :class:`~matplotlib.animation.ImageMagickWriter`  .gif
-# ================================================  ===========================
+# `~matplotlib.animation.ImageMagickWriter`  .gif
+# ========================================== ===========================
 #
 # To save animations using any of the writers, we can use the
 # `.animation.Animation.save` method. It takes the *filename* that we want to
