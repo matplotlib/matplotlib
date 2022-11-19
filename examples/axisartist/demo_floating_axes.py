@@ -1,7 +1,7 @@
 """
-=====================================================
-:mod:`mpl_toolkits.axisartist.floating_axes` features
-=====================================================
+==========================
+``floating_axes`` features
+==========================
 
 Demonstration of features of the :mod:`.floating_axes` module:
 
