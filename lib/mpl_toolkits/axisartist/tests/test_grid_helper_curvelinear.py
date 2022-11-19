@@ -75,9 +75,9 @@ def test_custom_transform():
     ax1.grid(True)
 
 
-@image_comparison(['polar_box.png'], style='default', tol=0.04)
+# Remove tol & kerning_factor when this test image is regenerated.
+@image_comparison(['polar_box.png'], style='default', tol=0.27)
 def test_polar_box():
-    # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
     fig = plt.figure(figsize=(5, 5))
@@ -137,9 +137,9 @@ def test_polar_box():
     ax1.grid(True)
 
 
-@image_comparison(['axis_direction.png'], style='default', tol=0.071)
+# Remove tol & kerning_factor when this test image is regenerated.
+@image_comparison(['axis_direction.png'], style='default', tol=0.12)
 def test_axis_direction():
-    # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
     fig = plt.figure(figsize=(5, 5))

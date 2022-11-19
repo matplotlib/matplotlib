@@ -15,6 +15,31 @@ from .axis_artist import AxisArtist
 from .grid_finder import GridFinder
 
 
+def _value_and_jacobian(func, xs, ys, xlims, ylims):
+    """
+    Compute *func* and its derivatives along x and y at positions *xs*, *ys*,
+    while ensuring that finite difference calculations don't try to evaluate
+    values outside of *xlims*, *ylims*.
+    """
+    eps = np.finfo(float).eps ** (1/2)  # see e.g. scipy.optimize.approx_fprime
+    val = func(xs, ys)
+    # Take the finite difference step in the direction where the bound is the
+    # furthest; the step size is min of epsilon and distance to that bound.
+    xlo, xhi = sorted(xlims)
+    dxlo = xs - xlo
+    dxhi = xhi - xs
+    xeps = (np.take([-1, 1], dxhi >= dxlo)
+            * np.minimum(eps, np.maximum(dxlo, dxhi)))
+    val_dx = func(xs + xeps, ys)
+    ylo, yhi = sorted(ylims)
+    dylo = ys - ylo
+    dyhi = yhi - ys
+    yeps = (np.take([-1, 1], dyhi >= dylo)
+            * np.minimum(eps, np.maximum(dylo, dyhi)))
+    val_dy = func(xs, ys + yeps)
+    return (val, (val_dx - val) / xeps, (val_dy - val) / yeps)
+
+
 class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
     """
     Helper class for a fixed axis.
@@ -121,31 +146,23 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         return Affine2D()  # axes.transData
 
     def get_axislabel_pos_angle(self, axes):
+        def trf_xy(x, y):
+            trf = self.grid_helper.grid_finder.get_transform() + axes.transData
+            return trf.transform([x, y]).T
 
-        extremes = self._grid_info["extremes"]
-
+        xmin, xmax, ymin, ymax = self._grid_info["extremes"]
         if self.nth_coord == 0:
             xx0 = self.value
-            yy0 = (extremes[2] + extremes[3]) / 2
-            dxx = 0
-            dyy = abs(extremes[2] - extremes[3]) / 1000
+            yy0 = (ymin + ymax) / 2
         elif self.nth_coord == 1:
-            xx0 = (extremes[0] + extremes[1]) / 2
+            xx0 = (xmin + xmax) / 2
             yy0 = self.value
-            dxx = abs(extremes[0] - extremes[1]) / 1000
-            dyy = 0
-
-        grid_finder = self.grid_helper.grid_finder
-        (xx1,), (yy1,) = grid_finder.transform_xy([xx0], [yy0])
-
-        data_to_axes = axes.transData - axes.transAxes
-        p = data_to_axes.transform([xx1, yy1])
-
+        xy1, dxy1_dx, dxy1_dy = _value_and_jacobian(
+            trf_xy, xx0, yy0, (xmin, xmax), (ymin, ymax))
+        p = axes.transAxes.inverted().transform(xy1)
         if 0 <= p[0] <= 1 and 0 <= p[1] <= 1:
-            xx1c, yy1c = axes.transData.transform([xx1, yy1])
-            (xx2,), (yy2,) = grid_finder.transform_xy([xx0 + dxx], [yy0 + dyy])
-            xx2c, yy2c = axes.transData.transform([xx2, yy2])
-            return (xx1c, yy1c), np.rad2deg(np.arctan2(yy2c-yy1c, xx2c-xx1c))
+            d = [dxy1_dy, dxy1_dx][self.nth_coord]
+            return xy1, np.rad2deg(np.arctan2(*d[::-1]))
         else:
             return None, None
 
@@ -155,78 +172,48 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
     def get_tick_iterators(self, axes):
         """tick_loc, tick_angle, tick_label, (optionally) tick_label"""
 
-        grid_finder = self.grid_helper.grid_finder
-
         lat_levs, lat_n, lat_factor = self._grid_info["lat_info"]
         yy0 = lat_levs / lat_factor
-        dy = 0.01 / lat_factor
 
         lon_levs, lon_n, lon_factor = self._grid_info["lon_info"]
         xx0 = lon_levs / lon_factor
-        dx = 0.01 / lon_factor
 
         e0, e1 = self._extremes
 
-        if self.nth_coord == 0:
-            mask = (e0 <= yy0) & (yy0 <= e1)
-            # xx0, yy0 = xx0[mask], yy0[mask]
-            yy0 = yy0[mask]
-        elif self.nth_coord == 1:
-            mask = (e0 <= xx0) & (xx0 <= e1)
-            # xx0, yy0 = xx0[mask], yy0[mask]
-            xx0 = xx0[mask]
-
-        def transform_xy(x, y):
-            trf = grid_finder.get_transform() + axes.transData
-            return trf.transform(np.column_stack([x, y])).T
+        def trf_xy(x, y):
+            trf = self.grid_helper.grid_finder.get_transform() + axes.transData
+            return trf.transform(np.column_stack(np.broadcast_arrays(x, y))).T
 
         # find angles
         if self.nth_coord == 0:
-            xx0 = np.full_like(yy0, self.value)
-
-            xx1, yy1 = transform_xy(xx0, yy0)
-
-            xx00 = xx0.copy()
-            xx00[xx0 + dx > e1] -= dx
-            xx1a, yy1a = transform_xy(xx00, yy0)
-            xx1b, yy1b = transform_xy(xx00+dx, yy0)
-
-            xx2a, yy2a = transform_xy(xx0, yy0)
-            xx2b, yy2b = transform_xy(xx0, yy0+dy)
-
+            mask = (e0 <= yy0) & (yy0 <= e1)
+            (xx1, yy1), (dxx1, dyy1), (dxx2, dyy2) = _value_and_jacobian(
+                trf_xy, self.value, yy0[mask], (-np.inf, np.inf), (e0, e1))
             labels = self._grid_info["lat_labels"]
-            labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
-            yy0 = np.full_like(xx0, self.value)
-
-            xx1, yy1 = transform_xy(xx0, yy0)
-
-            xx1a, yy1a = transform_xy(xx0, yy0)
-            xx1b, yy1b = transform_xy(xx0, yy0+dy)
-
-            xx00 = xx0.copy()
-            xx00[xx0 + dx > e1] -= dx
-            xx2a, yy2a = transform_xy(xx00, yy0)
-            xx2b, yy2b = transform_xy(xx00+dx, yy0)
-
+            mask = (e0 <= xx0) & (xx0 <= e1)
+            (xx1, yy1), (dxx2, dyy2), (dxx1, dyy1) = _value_and_jacobian(
+                trf_xy, xx0[mask], self.value, (-np.inf, np.inf), (e0, e1))
             labels = self._grid_info["lon_labels"]
-            labels = [l for l, m in zip(labels, mask) if m]
+
+        labels = [l for l, m in zip(labels, mask) if m]
+
+        angle_normal = np.arctan2(dyy1, dxx1)
+        angle_tangent = np.arctan2(dyy2, dxx2)
+        mm = (dyy1 == 0) & (dxx1 == 0)  # points with degenerate normal
+        angle_normal[mm] = angle_tangent[mm] + np.pi / 2
+
+        tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
+        in_01 = functools.partial(
+            mpl.transforms._interval_contains_close, (0, 1))
 
         def f1():
-            dd = np.arctan2(yy1b-yy1a, xx1b-xx1a)  # angle normal
-            dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a)  # angle tangent
-            mm = (yy1b == yy1a) & (xx1b == xx1a)  # mask where dd not defined
-            dd[mm] = dd2[mm] + np.pi / 2
-
-            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
-            in_01 = functools.partial(
-                mpl.transforms._interval_contains_close, (0, 1))
-            for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
+            for x, y, normal, tangent, lab \
+                    in zip(xx1, yy1, angle_normal, angle_tangent, labels):
                 c2 = tick_to_axes.transform((x, y))
                 if in_01(c2[0]) and in_01(c2[1]):
-                    d1, d2 = np.rad2deg([d, d2])
-                    yield [x, y], d1, d2, lab
+                    yield [x, y], *np.rad2deg([normal, tangent]), lab
 
         return f1(), iter([])
 

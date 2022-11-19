@@ -54,72 +54,49 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
         lat_levs, lat_n, lat_factor = self._grid_info["lat_info"]
         yy0 = lat_levs / lat_factor
-        dy = 0.001 / lat_factor
 
         lon_levs, lon_n, lon_factor = self._grid_info["lon_info"]
         xx0 = lon_levs / lon_factor
-        dx = 0.001 / lon_factor
 
         extremes = self.grid_helper._extremes
         xmin, xmax = sorted(extremes[:2])
         ymin, ymax = sorted(extremes[2:])
 
-        def transform_xy(x, y):
+        def trf_xy(x, y):
             trf = grid_finder.get_transform() + axes.transData
-            return trf.transform(np.column_stack([x, y])).T
+            return trf.transform(np.column_stack(np.broadcast_arrays(x, y))).T
 
         if self.nth_coord == 0:
             mask = (ymin <= yy0) & (yy0 <= ymax)
-            yy0 = yy0[mask]
-            xx0 = np.full_like(yy0, self.value)
-            xx1, yy1 = transform_xy(xx0, yy0)
-
-            xx00 = xx0.astype(float, copy=True)
-            xx00[xx0 + dx > xmax] -= dx
-            xx1a, yy1a = transform_xy(xx00, yy0)
-            xx1b, yy1b = transform_xy(xx00 + dx, yy0)
-
-            yy00 = yy0.astype(float, copy=True)
-            yy00[yy0 + dy > ymax] -= dy
-            xx2a, yy2a = transform_xy(xx0, yy00)
-            xx2b, yy2b = transform_xy(xx0, yy00 + dy)
-
+            (xx1, yy1), (dxx1, dyy1), (dxx2, dyy2) = \
+                grid_helper_curvelinear._value_and_jacobian(
+                    trf_xy, self.value, yy0[mask], (xmin, xmax), (ymin, ymax))
             labels = self._grid_info["lat_labels"]
-            labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
             mask = (xmin <= xx0) & (xx0 <= xmax)
-            xx0 = xx0[mask]
-            yy0 = np.full_like(xx0, self.value)
-            xx1, yy1 = transform_xy(xx0, yy0)
-
-            yy00 = yy0.astype(float, copy=True)
-            yy00[yy0 + dy > ymax] -= dy
-            xx1a, yy1a = transform_xy(xx0, yy00)
-            xx1b, yy1b = transform_xy(xx0, yy00 + dy)
-
-            xx00 = xx0.astype(float, copy=True)
-            xx00[xx0 + dx > xmax] -= dx
-            xx2a, yy2a = transform_xy(xx00, yy0)
-            xx2b, yy2b = transform_xy(xx00 + dx, yy0)
-
+            (xx1, yy1), (dxx2, dyy2), (dxx1, dyy1) = \
+                grid_helper_curvelinear._value_and_jacobian(
+                    trf_xy, xx0[mask], self.value, (xmin, xmax), (ymin, ymax))
             labels = self._grid_info["lon_labels"]
-            labels = [l for l, m in zip(labels, mask) if m]
+
+        labels = [l for l, m in zip(labels, mask) if m]
+
+        angle_normal = np.arctan2(dyy1, dxx1)
+        angle_tangent = np.arctan2(dyy2, dxx2)
+        mm = (dyy1 == 0) & (dxx1 == 0)  # points with degenerate normal
+        angle_normal[mm] = angle_tangent[mm] + np.pi / 2
+
+        tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
+        in_01 = functools.partial(
+            mpl.transforms._interval_contains_close, (0, 1))
 
         def f1():
-            dd = np.arctan2(yy1b - yy1a, xx1b - xx1a)  # angle normal
-            dd2 = np.arctan2(yy2b - yy2a, xx2b - xx2a)  # angle tangent
-            mm = (yy1b - yy1a == 0) & (xx1b - xx1a == 0)  # mask not defined dd
-            dd[mm] = dd2[mm] + np.pi / 2
-
-            tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
-            in_01 = functools.partial(
-                mpl.transforms._interval_contains_close, (0, 1))
-            for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
+            for x, y, normal, tangent, lab \
+                    in zip(xx1, yy1, angle_normal, angle_tangent, labels):
                 c2 = tick_to_axes.transform((x, y))
                 if in_01(c2[0]) and in_01(c2[1]):
-                    d1, d2 = np.rad2deg([d, d2])
-                    yield [x, y], d1, d2, lab
+                    yield [x, y], *np.rad2deg([normal, tangent]), lab
 
         return f1(), iter([])
 
