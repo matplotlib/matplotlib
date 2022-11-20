@@ -1,9 +1,9 @@
 r"""
 .. _axes_grid1_users-guide-index:
 
-==========================================
-Overview of :mod:`mpl_toolkits.axes_grid1`
-==========================================
+======================
+The axes_grid1 toolkit
+======================
 
 :mod:`.axes_grid1` provides the following features:
 
@@ -138,14 +138,14 @@ legend command in host, creates a legend that includes lines in the
 parasite axes.  To create a host axes, you may use ``host_subplot`` or
 ``host_axes`` command.
 
-Example 1. twinx
+Example 1: twinx
 ~~~~~~~~~~~~~~~~
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple_001.png
    :target: ../../gallery/axes_grid1/parasite_simple.html
    :align: center
 
-Example 2. twin
+Example 2: twin
 ~~~~~~~~~~~~~~~
 
 ``twin`` without a transform argument assumes that the parasite axes has the
