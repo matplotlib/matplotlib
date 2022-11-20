@@ -510,7 +510,7 @@ class PaddedBox(OffsetBox):
             The contained `.Artist`.
         pad : float
             The padding in points. This will be scaled with the renderer dpi.
-            In contrast *width* and *height* are in *pixels* and thus not
+            In contrast, *width* and *height* are in *pixels* and thus not
             scaled.
         draw_frame : bool
             Whether to draw the contained `.FancyBboxPatch`.
@@ -919,7 +919,7 @@ class AnchoredOffsetbox(OffsetBox):
             The box location.  Valid locations are
             'upper left', 'upper center', 'upper right',
             'center left', 'center', 'center right',
-            'lower left', 'lower center, 'lower right'.
+            'lower left', 'lower center', 'lower right'.
             For backward compatibility, numeric values are accepted as well.
             See the parameter *loc* of `.Legend` for details.
         pad : float, default: 0.4

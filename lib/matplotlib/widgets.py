@@ -973,7 +973,7 @@ class CheckButtons(AxesWidget):
     rectangles : list of `.Rectangle`
 
     lines : list of (`.Line2D`, `.Line2D`) pairs
-        List of lines for the x's in the check boxes.  These lines exist for
+        List of lines for the x's in the checkboxes.  These lines exist for
         each box, but have ``set_visible(False)`` when its box is not checked.
     """
 
@@ -2675,8 +2675,8 @@ class ToolLineHandles:
 
     def set_data(self, positions):
         """
-        Set x or y positions of handles, depending if the lines are vertical
-        of horizontal.
+        Set x- or y-positions of handles, depending on if the lines are
+        vertical or horizontal.
 
         Parameters
         ----------

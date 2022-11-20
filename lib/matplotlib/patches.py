@@ -102,7 +102,7 @@ class Patch(artist.Artist):
         """
         Return a copy of the vertices used in this patch.
 
-        If the patch contains Bezier curves, the curves will be interpolated by
+        If the patch contains Bézier curves, the curves will be interpolated by
         line segments.  To access the curves as curves, use `get_path`.
         """
         trans = self.get_transform()
@@ -165,7 +165,7 @@ class Patch(artist.Artist):
             ``self.get_transform()``. These are display coordinates for patches
             that are added to a figure or axes.
         radius : float, optional
-            Add an additional margin on the patch in target coordinates of
+            Additional margin on the patch in target coordinates of
             ``self.get_transform()``. See `.Path.contains_point` for further
             details.
 
@@ -215,7 +215,7 @@ class Patch(artist.Artist):
             ``self.get_transform()``. These are display coordinates for patches
             that are added to a figure or axes. Columns contain x and y values.
         radius : float, optional
-            Add an additional margin on the patch in target coordinates of
+            Additional margin on the patch in target coordinates of
             ``self.get_transform()``. See `.Path.contains_point` for further
             details.
 
@@ -942,7 +942,7 @@ class PathPatch(Patch):
     @_docstring.dedent_interpd
     def __init__(self, path, **kwargs):
         """
-        *path* is a `~.path.Path` object.
+        *path* is a `.Path` object.
 
         Valid keyword arguments are:
 
@@ -962,7 +962,7 @@ class StepPatch(PathPatch):
     """
     A path patch describing a stepwise constant function.
 
-    By default the path is not closed and starts and stops at
+    By default, the path is not closed and starts and stops at
     baseline value.
     """
 
@@ -1138,7 +1138,7 @@ class Polygon(Patch):
 
         Notes
         -----
-        Unlike `~.path.Path`, we do not ignore the last input vertex. If the
+        Unlike `.Path`, we do not ignore the last input vertex. If the
         polygon is meant to be closed, and the last point of the polygon is not
         equal to the first, we assume that the user has not explicitly passed a
         ``CLOSEPOLY`` vertex, and add it ourselves.
@@ -1941,8 +1941,7 @@ class Arc(Ellipse):
         ----------------
         **kwargs : `.Patch` properties
             Most `.Patch` properties are supported as keyword arguments,
-            with the exception of *fill* and *facecolor* because filling is
-            not supported.
+            except *fill* and *facecolor* because filling is not supported.
 
         %(Patch:kwdoc)s
         """
@@ -2669,7 +2668,7 @@ class ConnectionStyle(_Style):
 
     %(ConnectionStyle:table)s
 
-    An instance of any connection style class is an callable object,
+    An instance of any connection style class is a callable object,
     whose call signature is::
 
         __call__(self, posA, posB,
@@ -2754,7 +2753,7 @@ class ConnectionStyle(_Style):
     @_register_style(_style_list)
     class Arc3(_Base):
         """
-        Creates a simple quadratic Bezier curve between two
+        Creates a simple quadratic Bézier curve between two
         points. The curve is created so that the middle control point
         (C1) is located at the same distance from the start (C0) and
         end points(C2) and the distance of the C1 to the line
@@ -2763,8 +2762,10 @@ class ConnectionStyle(_Style):
 
         def __init__(self, rad=0.):
             """
-            *rad*
-              curvature of the curve.
+            Parameters
+            ----------
+            rad : float
+              Curvature of the curve.
             """
             self.rad = rad
 
@@ -2790,19 +2791,21 @@ class ConnectionStyle(_Style):
     @_register_style(_style_list)
     class Angle3(_Base):
         """
-        Creates a simple quadratic Bezier curve between two
-        points. The middle control points is placed at the
-        intersecting point of two lines which cross the start and
-        end point, and have a slope of angleA and angleB, respectively.
+        Creates a simple quadratic Bézier curve between two points. The middle
+        control point is placed at the intersecting point of two lines which
+        cross the start and end point, and have a slope of *angleA* and
+        *angleB*, respectively.
         """
 
         def __init__(self, angleA=90, angleB=0):
             """
-            *angleA*
-              starting angle of the path
+            Parameters
+            ----------
+            angleA : float
+              Starting angle of the path.
 
-            *angleB*
-              ending angle of the path
+            angleB : float
+              Ending angle of the path.
             """
 
             self.angleA = angleA
@@ -2828,23 +2831,25 @@ class ConnectionStyle(_Style):
     @_register_style(_style_list)
     class Angle(_Base):
         """
-        Creates a piecewise continuous quadratic Bezier path between
-        two points. The path has a one passing-through point placed at
-        the intersecting point of two lines which cross the start
-        and end point, and have a slope of angleA and angleB, respectively.
+        Creates a piecewise continuous quadratic Bézier path between two
+        points. The path has a one passing-through point placed at the
+        intersecting point of two lines which cross the start and end point,
+        and have a slope of *angleA* and *angleB*, respectively.
         The connecting edges are rounded with *rad*.
         """
 
         def __init__(self, angleA=90, angleB=0, rad=0.):
             """
-            *angleA*
-              starting angle of the path
+            Parameters
+            ----------
+            angleA : float
+              Starting angle of the path.
 
-            *angleB*
-              ending angle of the path
+            angleB : float
+              Ending angle of the path.
 
-            *rad*
-              rounding radius of the edge
+            rad : float
+              Rounding radius of the edge.
             """
 
             self.angleA = angleA
@@ -2890,29 +2895,31 @@ class ConnectionStyle(_Style):
     @_register_style(_style_list)
     class Arc(_Base):
         """
-        Creates a piecewise continuous quadratic Bezier path between
-        two points. The path can have two passing-through points, a
-        point placed at the distance of armA and angle of angleA from
+        Creates a piecewise continuous quadratic Bézier path between two
+        points. The path can have two passing-through points, a
+        point placed at the distance of *armA* and angle of *angleA* from
         point A, another point with respect to point B. The edges are
         rounded with *rad*.
         """
 
         def __init__(self, angleA=0, angleB=0, armA=None, armB=None, rad=0.):
             """
-            *angleA* :
-              starting angle of the path
+            Parameters
+            ----------
+            angleA : float
+              Starting angle of the path.
 
-            *angleB* :
-              ending angle of the path
+            angleB : float
+              Ending angle of the path.
 
-            *armA* :
-              length of the starting arm
+            armA : float or None
+              Length of the starting arm.
 
-            *armB* :
-              length of the ending arm
+            armB : float or None
+              Length of the ending arm.
 
-            *rad* :
-              rounding radius of the edges
+            rad : float
+              Rounding radius of the edges.
             """
 
             self.angleA = angleA
@@ -2984,10 +2991,10 @@ class ConnectionStyle(_Style):
     @_register_style(_style_list)
     class Bar(_Base):
         """
-        A line with *angle* between A and B with *armA* and
-        *armB*. One of the arms is extended so that they are connected in
-        a right angle. The length of armA is determined by (*armA*
-        + *fraction* x AB distance). Same for armB.
+        A line with *angle* between A and B with *armA* and *armB*. One of the
+        arms is extended so that they are connected in a right angle. The
+        length of *armA* is determined by (*armA* + *fraction* x AB distance).
+        Same for *armB*.
         """
 
         def __init__(self, armA=0., armB=0., fraction=0.3, angle=None):
@@ -2995,18 +3002,17 @@ class ConnectionStyle(_Style):
             Parameters
             ----------
             armA : float
-                minimum length of armA
+                Minimum length of armA.
 
             armB : float
-                minimum length of armB
+                Minimum length of armB.
 
             fraction : float
-                a fraction of the distance between two points that
-                will be added to armA and armB.
+                A fraction of the distance between two points that will be
+                added to armA and armB.
 
             angle : float or None
-                angle of the connecting line (if None, parallel
-                to A and B)
+                Angle of the connecting line (if None, parallel to A and B).
             """
             self.armA = armA
             self.armB = armB
@@ -3074,7 +3080,7 @@ class ArrowStyle(_Style):
     arrowstyle classes, which is used to create an arrow path along a
     given path.  These are mainly used with `FancyArrowPatch`.
 
-    A arrowstyle object can be either created as::
+    An arrowstyle object can be either created as::
 
            ArrowStyle.Fancy(head_length=.4, head_width=.4, tail_width=.4)
 
@@ -3134,9 +3140,9 @@ class ArrowStyle(_Style):
         def ensure_quadratic_bezier(path):
             """
             Some ArrowStyle classes only works with a simple quadratic
-            Bezier curve (created with `.ConnectionStyle.Arc3` or
+            Bézier curve (created with `.ConnectionStyle.Arc3` or
             `.ConnectionStyle.Angle3`). This static method checks if the
-            provided path is a simple quadratic Bezier curve and returns its
+            provided path is a simple quadratic Bézier curve and returns its
             control points if true.
             """
             segments = list(path.iter_segments())
@@ -3149,14 +3155,14 @@ class ArrowStyle(_Style):
         def transmute(self, path, mutation_size, linewidth):
             """
             The transmute method is the very core of the ArrowStyle class and
-            must be overridden in the subclasses. It receives the path object
-            along which the arrow will be drawn, and the mutation_size, with
-            which the arrow head etc. will be scaled. The linewidth may be
-            used to adjust the path so that it does not pass beyond the given
-            points. It returns a tuple of a Path instance and a boolean. The
-            boolean value indicate whether the path can be filled or not. The
-            return value can also be a list of paths and list of booleans of a
-            same length.
+            must be overridden in the subclasses. It receives the *path*
+            object along which the arrow will be drawn, and the
+            *mutation_size*, with which the arrow head etc. will be scaled.
+            The *linewidth* may be used to adjust the path so that it does not
+            pass beyond the given points. It returns a tuple of a `.Path`
+            instance and a boolean. The boolean value indicate whether the
+            path can be filled or not. The return value can also be a list of
+            paths and list of booleans of the same length.
             """
             raise NotImplementedError('Derived must override')
 
@@ -3189,7 +3195,7 @@ class ArrowStyle(_Style):
         """
         A simple arrow which will work with any path instance. The
         returned path is the concatenation of the original path, and at
-        most two paths representing the arrow head or bracket at the begin
+        most two paths representing the arrow head or bracket at the start
         point and at the end point. The arrow heads can be either open
         or closed.
         """
@@ -3339,7 +3345,7 @@ class ArrowStyle(_Style):
             return vertices_arrow, codes_arrow
 
         def transmute(self, path, mutation_size, linewidth):
-
+            # Doc-string inherited
             if self._beginarrow_head or self._endarrow_head:
                 head_length = self.head_length * mutation_size
                 head_width = self.head_width * mutation_size
@@ -3438,7 +3444,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="<-")
     class CurveA(_Curve):
-        """An arrow with a head at its begin point."""
+        """An arrow with a head at its start point."""
         arrow = "<-"
 
     @_register_style(_style_list, name="->")
@@ -3448,12 +3454,12 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list, name="<->")
     class CurveAB(_Curve):
-        """An arrow with heads both at the begin and the end point."""
+        """An arrow with heads both at the start and the end point."""
         arrow = "<->"
 
     @_register_style(_style_list, name="<|-")
     class CurveFilledA(_Curve):
-        """An arrow with filled triangle head at the begin."""
+        """An arrow with filled triangle head at the start."""
         arrow = "<|-"
 
     @_register_style(_style_list, name="-|>")
@@ -3590,7 +3596,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list)
     class Simple(_Base):
-        """A simple arrow. Only works with a quadratic Bezier curve."""
+        """A simple arrow. Only works with a quadratic Bézier curve."""
 
         def __init__(self, head_length=.5, head_width=.5, tail_width=.2):
             """
@@ -3610,7 +3616,7 @@ class ArrowStyle(_Style):
             super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
-
+            # Doc-string inherited
             x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
 
             # divide the path into a head and a tail
@@ -3670,7 +3676,7 @@ class ArrowStyle(_Style):
 
     @_register_style(_style_list)
     class Fancy(_Base):
-        """A fancy arrow. Only works with a quadratic Bezier curve."""
+        """A fancy arrow. Only works with a quadratic Bézier curve."""
 
         def __init__(self, head_length=.4, head_width=.4, tail_width=.4):
             """
@@ -3690,7 +3696,7 @@ class ArrowStyle(_Style):
             super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
-
+            # Doc-string inherited
             x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
 
             # divide the path into a head and a tail
@@ -3759,9 +3765,9 @@ class ArrowStyle(_Style):
     @_register_style(_style_list)
     class Wedge(_Base):
         """
-        Wedge(?) shape. Only works with a quadratic Bezier curve.  The
-        begin point has a width of the tail_width and the end point has a
-        width of 0. At the middle, the width is shrink_factor*tail_width.
+        Wedge(?) shape. Only works with a quadratic Bézier curve.  The
+        start point has a width of the *tail_width* and the end point has a
+        width of 0. At the middle, the width is *shrink_factor*x*tail_width*.
         """
 
         def __init__(self, tail_width=.3, shrink_factor=0.5):
@@ -3779,7 +3785,7 @@ class ArrowStyle(_Style):
             super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
-
+            # Doc-string inherited
             x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
 
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
@@ -4208,7 +4214,7 @@ default: 'arc3'
 
     def set_positions(self, posA, posB):
         """
-        Set the begin and end positions of the connecting path.
+        Set the start and end positions of the connecting path.
 
         Parameters
         ----------
