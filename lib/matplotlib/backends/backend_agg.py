@@ -335,7 +335,7 @@ class RendererAgg(RendererBase):
 
     def start_filter(self):
         """
-        Start filtering. It simply create a new canvas (the old one is saved).
+        Start filtering. It simply creates a new canvas (the old one is saved).
         """
         self._filter_renderers.append(self._renderer)
         self._renderer = _RendererAgg(int(self.width), int(self.height),
@@ -344,7 +344,7 @@ class RendererAgg(RendererBase):
 
     def stop_filter(self, post_processing):
         """
-        Save the plot in the current canvas as a image and apply
+        Save the plot in the current canvas as an image and apply
         the *post_processing* function.
 
            def post_processing(image, dpi):

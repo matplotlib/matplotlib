@@ -125,7 +125,7 @@ class TriInterpolator:
 
         (Note that np.vectorize could do most of those things very well for
         you, but it does it by function evaluations over successive tuples of
-        the input arrays. Therefore, this tends to be more time consuming than
+        the input arrays. Therefore, this tends to be more time-consuming than
         using optimized numpy functions - e.g., np.dot - which can be used
         easily on the flattened inputs, in the child-subclass methods
         :meth:`_interpolate_single_key`.)

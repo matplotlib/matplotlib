@@ -1475,7 +1475,7 @@ def violin_stats(X, method, points=100, quantiles=None):
     else:
         quantiles = [[]] * len(X)
 
-    # quantiles should has the same size as dataset
+    # quantiles should have the same size as dataset
     if len(X) != len(quantiles):
         raise ValueError("List of violinplot statistics and quantiles values"
                          " must have the same length")
@@ -1666,7 +1666,7 @@ def safe_first_element(obj):
     """
     Return the first element in *obj*.
 
-    This is an type-independent way of obtaining the first element,
+    This is a type-independent way of obtaining the first element,
     supporting both index access and the iterator protocol.
     """
     return _safe_first_finite(obj, skip_nonfinite=False)
@@ -1678,7 +1678,7 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
 
     This is a method for internal use.
 
-    This is an type-independent way of obtaining the first non-None element,
+    This is a type-independent way of obtaining the first non-None element,
     supporting both index access and the iterator protocol.
     The first non-None element will be obtained when skip_none is True.
     """

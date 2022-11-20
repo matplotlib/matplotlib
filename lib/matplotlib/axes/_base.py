@@ -46,7 +46,7 @@ class _axis_method_wrapper:
 
     The docstring of ``get_foo`` is built by replacing "this Axis" by "the
     {attr_name}" (i.e., "the xaxis", "the yaxis") in the wrapped method's
-    dedented docstring; additional replacements can by given in *doc_sub*.
+    dedented docstring; additional replacements can be given in *doc_sub*.
     """
 
     def __init__(self, attr_name, method_name, *, doc_sub=None):
@@ -606,8 +606,8 @@ class _AxesBase(martist.Artist):
             `.SubplotSpec` instance.
 
         sharex, sharey : `~.axes.Axes`, optional
-            The x or y `~.matplotlib.axis` is shared with the x or
-            y axis in the input `~.axes.Axes`.
+            The x- or y-`~.matplotlib.axis` is shared with the x- or y-axis in
+            the input `~.axes.Axes`.
 
         frameon : bool, default: True
             Whether the Axes frame is visible.
@@ -1093,7 +1093,7 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         original : bool
-            If ``True``, return the original position. Otherwise return the
+            If ``True``, return the original position. Otherwise, return the
             active position. For an explanation of the positions see
             `.set_position`.
 
@@ -1422,7 +1422,7 @@ class _AxesBase(martist.Artist):
             """
             Parameters
             ----------
-            axes : .axes.Axes
+            axes : `~matplotlib.axes.Axes`
                 The Axes from which this sublist will pull the children
                 Artists.
             prop_name : str
@@ -1702,7 +1702,7 @@ class _AxesBase(martist.Artist):
 
         anchor : None or str or (float, float), optional
             If not ``None``, this defines where the Axes will be drawn if there
-            is extra space due to aspect constraints. The most common way to
+            is extra space due to aspect constraints. The most common way
             to specify the anchor are abbreviations of cardinal directions:
 
             =====   =====================
@@ -2911,10 +2911,10 @@ class _AxesBase(martist.Artist):
             behaves like True).
 
         scalex : bool, default: True
-            Whether to autoscale the x axis.
+            Whether to autoscale the x-axis.
 
         scaley : bool, default: True
-            Whether to autoscale the y axis.
+            Whether to autoscale the y-axis.
 
         Notes
         -----
@@ -3997,7 +3997,7 @@ class _AxesBase(martist.Artist):
 
     def format_ydata(self, y):
         """
-        Return *y* formatted as an y-value.
+        Return *y* formatted as a y-value.
 
         This function will use the `.fmt_ydata` attribute if it is not None,
         else will fall back on the yaxis major formatter.
