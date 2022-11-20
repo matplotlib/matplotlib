@@ -325,8 +325,14 @@ def switch_backend(newbackend):
     # show is already present, as the latter may be here for backcompat.
     manager_class = getattr(getattr(backend_mod, "FigureCanvas", None),
                             "manager_class", None)
-    if (manager_class.pyplot_show != FigureManagerBase.pyplot_show
-            or show is None):
+    # We can't compare directly manager_class.pyplot_show and FMB.pyplot_show
+    # because pyplot_show is a classmethod so the above constructs are bound
+    # classmethods, & thus always different (being bound to different classes).
+    manager_pyplot_show = vars(manager_class).get("pyplot_show")
+    base_pyplot_show = vars(FigureManagerBase).get("pyplot_show")
+    if (show is None
+            or (manager_pyplot_show is not None
+                and manager_pyplot_show != base_pyplot_show)):
         backend_mod.show = manager_class.pyplot_show
 
     _log.debug("Loaded backend %s version %s.",
