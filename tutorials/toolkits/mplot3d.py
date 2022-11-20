@@ -1,6 +1,6 @@
 """
 ===================
-The mplot3d Toolkit
+The mplot3d toolkit
 ===================
 
 Generating 3D plots using the mplot3d toolkit.

@@ -1,9 +1,7 @@
 r"""
-==============================
-Overview of axisartist toolkit
-==============================
-
-The axisartist toolkit tutorial.
+======================
+The axisartist toolkit
+======================
 
 .. warning::
    *axisartist* uses a custom Axes class
@@ -267,14 +265,14 @@ HowTo
 
 1. Changing tick locations and label.
 
-  Same as the original Matplotlib's axes::
+   Same as the original Matplotlib's axes::
 
-   ax.set_xticks([1, 2, 3])
+    ax.set_xticks([1, 2, 3])
 
 2. Changing axis properties like color, etc.
 
-  Change the properties of appropriate artists. For example, to change
-  the color of the ticklabels::
+   Change the properties of appropriate artists. For example, to change
+   the color of the ticklabels::
 
     ax.axis["left"].major_ticklabels.set_color("r")
 
@@ -340,18 +338,18 @@ On the other hand, there is a concept of "axis_direction". This is a
 default setting of above properties for each, "bottom", "left", "top",
 and "right" axis.
 
- ========== =========== ========= ========== ========= ==========
-    ?           ?        left      bottom      right      top
- ---------- ----------- --------- ---------- --------- ----------
- axislabel   direction      '-'       '+'        '+'      '-'
- axislabel   rotation      180         0          0       180
- axislabel   va           center    top       center     bottom
- axislabel   ha           right    center      right     center
- ticklabel   direction      '-'       '+'        '+'      '-'
- ticklabels  rotation       90         0        -90       180
- ticklabel   ha           right    center      right     center
- ticklabel   va           center   baseline    center   baseline
- ========== =========== ========= ========== ========= ==========
+========== =========== ========= ========== ========= ==========
+   ?           ?        left      bottom      right      top
+---------- ----------- --------- ---------- --------- ----------
+axislabel   direction      '-'       '+'        '+'      '-'
+axislabel   rotation      180         0          0       180
+axislabel   va           center    top       center     bottom
+axislabel   ha           right    center      right     center
+ticklabel   direction      '-'       '+'        '+'      '-'
+ticklabels  rotation       90         0        -90       180
+ticklabel   ha           right    center      right     center
+ticklabel   va           center   baseline    center   baseline
+========== =========== ========= ========== ========= ==========
 
 And, 'set_axis_direction("top")' means to adjust the text rotation
 etc, for settings suitable for "top" axis. The concept of axis
@@ -490,10 +488,10 @@ required. ::
     #   has a cycle of 360 degree.
     # The second coordinate (latitude, but radius in polar)  has a minimum of 0
     extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
-                                                     lon_cycle = 360,
-                                                     lat_cycle = None,
-                                                     lon_minmax = None,
-                                                     lat_minmax = (0, np.inf),
+                                                     lon_cycle=360,
+                                                     lat_cycle=None,
+                                                     lon_minmax=None,
+                                                     lat_minmax=(0, np.inf),
                                                      )
 
     # Find a grid values appropriate for the coordinate (degree,
