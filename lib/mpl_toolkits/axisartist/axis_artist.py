@@ -1021,15 +1021,27 @@ class AxisArtist(martist.Artist):
         if not self.label.get_visible():
             return
 
+        # We calculate the pad size for the axislabel.
         if self._ticklabel_add_angle != self._axislabel_add_angle:
-            if ((self.major_ticks.get_visible()  # ???
-                 and not self.major_ticks.get_tick_out())
-                or (self.minor_ticks.get_visible()
-                    and not self.major_ticks.get_tick_out())):
-                axislabel_pad = self.major_ticks._ticksize
-            else:
-                axislabel_pad = 0
+            # If ticklabels and axislabel are on differenct side, we only
+            # conside the padding for the ticks only.
+
+            ticksizes = []
+            # ticksize of the major_ticks
+            ticksizes.append(
+                self.major_ticks.get_visible()
+                * {"out": 1, "inout": .5, "in": 0}[self.major_ticks._tickdir]
+                * self.major_ticks._ticksize
+            )
+            ticksizes.append(
+                self.minor_ticks.get_visible()
+                * {"out": 1, "inout": .5, "in": 0}[self.minor_ticks._tickdir]
+                * self.minor_ticks._ticksize
+            )
+            axislabel_pad = max(ticksizes)
         else:
+            # If ticklabels and axislabel are on the same side, we use values
+            # from the the ticklabels.
             axislabel_pad = max(self.major_ticklabels._axislabel_pad,
                                 self.minor_ticklabels._axislabel_pad)
 
