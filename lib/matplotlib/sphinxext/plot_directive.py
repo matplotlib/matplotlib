@@ -369,16 +369,16 @@ TEMPLATE = """
 
 .. only:: html
 
-   {% if source_link or (html_show_formats and not multi_image) %}
+   {% if src_name or (html_show_formats and not multi_image) %}
    (
-   {%- if source_link -%}
-   `Source code <{{ source_link }}>`__
+   {%- if src_name -%}
+   :download:`Source code <{{ build_dir }}/{{ src_name }}>`
    {%- endif -%}
    {%- if html_show_formats and not multi_image -%}
      {%- for img in images -%}
        {%- for fmt in img.formats -%}
-         {%- if source_link or not loop.first -%}, {% endif -%}
-         `{{ fmt }} <{{ dest_dir }}/{{ img.basename }}.{{ fmt }}>`__
+         {%- if src_name or not loop.first -%}, {% endif -%}
+         :download:`{{ fmt }} <{{ build_dir }}/{{ img.basename }}.{{ fmt }}>`
        {%- endfor -%}
      {%- endfor -%}
    {%- endif -%}
@@ -395,7 +395,7 @@ TEMPLATE = """
         (
         {%- for fmt in img.formats -%}
         {%- if not loop.first -%}, {% endif -%}
-        `{{ fmt }} <{{ dest_dir }}/{{ img.basename }}.{{ fmt }}>`__
+        :download:`{{ fmt }} <{{ build_dir }}/{{ img.basename }}.{{ fmt }}>`
         {%- endfor -%}
         )
       {%- endif -%}
@@ -756,21 +756,13 @@ def run(arguments, content, options, state_machine, state, lineno):
     build_dir = os.path.normpath(build_dir)
     os.makedirs(build_dir, exist_ok=True)
 
-    # output_dir: final location in the builder's directory
-    dest_dir = os.path.abspath(os.path.join(setup.app.builder.outdir,
-                                            source_rel_dir))
-    os.makedirs(dest_dir, exist_ok=True)
-
     # how to link to files from the RST file
-    dest_dir_link = os.path.join(relpath(setup.confdir, rst_dir),
-                                 source_rel_dir).replace(os.path.sep, '/')
     try:
         build_dir_link = relpath(build_dir, rst_dir).replace(os.path.sep, '/')
     except ValueError:
         # on Windows, relpath raises ValueError when path and start are on
         # different mounts/drives
         build_dir_link = build_dir
-    source_link = dest_dir_link + '/' + output_base + source_ext
 
     # get list of included rst files so that the output is updated when any
     # plots in the included files change. These attributes are modified by the
@@ -790,6 +782,14 @@ def run(arguments, content, options, state_machine, state, lineno):
         source_file_includes.remove(source_file_name)
     except ValueError:
         pass
+
+    # save script (if necessary)
+    if options['show-source-link']:
+        Path(build_dir, output_base + source_ext).write_text(
+            doctest.script_from_examples(code)
+            if source_file_name == rst_file and is_doctest
+            else code,
+            encoding='utf-8')
 
     # make figures
     try:
@@ -837,18 +837,17 @@ def run(arguments, content, options, state_machine, state, lineno):
             ':%s: %s' % (key, val) for key, val in options.items()
             if key in ('alt', 'height', 'width', 'scale', 'align', 'class')]
 
-        # Not-None src_link signals the need for a source link in the generated
-        # html
+        # Not-None src_name signals the need for a source download in the
+        # generated html
         if j == 0 and options['show-source-link']:
-            src_link = source_link
+            src_name = output_base + source_ext
         else:
-            src_link = None
+            src_name = None
 
         result = jinja2.Template(config.plot_template or TEMPLATE).render(
             default_fmt=default_fmt,
-            dest_dir=dest_dir_link,
             build_dir=build_dir_link,
-            source_link=src_link,
+            src_name=src_name,
             multi_image=len(images) > 1,
             options=opts,
             images=images,
@@ -861,23 +860,5 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     if total_lines:
         state_machine.insert_input(total_lines, source=source_file_name)
-
-    # copy image files to builder's output directory, if necessary
-    Path(dest_dir).mkdir(parents=True, exist_ok=True)
-
-    for code_piece, images in results:
-        for img in images:
-            for fn in img.filenames():
-                destimg = os.path.join(dest_dir, os.path.basename(fn))
-                if fn != destimg:
-                    shutil.copyfile(fn, destimg)
-
-    # copy script (if necessary)
-    if options['show-source-link']:
-        Path(dest_dir, output_base + source_ext).write_text(
-            doctest.script_from_examples(code)
-            if source_file_name == rst_file and is_doctest
-            else code,
-            encoding='utf-8')
 
     return errors
