@@ -12,17 +12,22 @@ import matplotlib.pyplot as plt
 # data from https://allisonhorst.github.io/palmerpenguins/
 
 islands = ("Biscoe", "Dream", "Torgersen")
+species = ["Adelie", "Gentoo", "Chinstrap"]
 adelie_means = (44, 56, 52)
 gentoo_means = (124, 0, 0)
 chinstrap_means = (0, 68, 0)
+penguin_means = [adelie_means, gentoo_means, chinstrap_means]
 width = 0.5
 
 fig, ax = plt.subplots()
 
-p1 = ax.bar(islands, adelie_means, width, label="Adelie")
-p2 = ax.bar(islands, gentoo_means, width, bottom=adelie_means, label="Gentoo")
-p3 = ax.bar(islands, chinstrap_means, width,
-              bottom=adelie_means, label="Chinstrap")
+for species, penguin_mean in zip(species, penguin_means):
+    if species == "Adelie":
+        p = ax.bar(islands, penguin_mean, width, label=species)
+
+    else:
+        p = ax.bar(islands, penguin_mean, width, label=species,
+                    bottom=penguin_means[0])
 
 ax.set_title("Number of penguins by island")
 ax.legend(loc="upper right")

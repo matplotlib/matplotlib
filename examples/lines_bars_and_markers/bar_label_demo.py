@@ -20,24 +20,28 @@ import numpy as np
 ###############################################################################
 # data from https://allisonhorst.github.io/palmerpenguins/
 
-N = 3
-ind = np.arange(N)
 species = ('Adelie', 'Chinstrap', 'Gentoo')
+sexes = ["Male", "Female"]
 male = (73, 34, 61)
 female = (73, 34, 58)
-width = 0.6     # the width of the bars: can also be len(x) sequence
+sex_counts = [male, female]
+width = 0.6  # the width of the bars: can also be len(x) sequence
 
 ###############################################################################
 # Stacked bar plot with error bars
 
 fig, ax = plt.subplots()
 
-p1 = ax.bar(species, male, width, label="Male")
-p2 = ax.bar(species, female, width, bottom=male, label="Female")
+for sex, sex_count in zip(sexes, sex_counts):
+    if sex == "Male":
+        p = ax.bar(species, sex_count, width, label=sex)
+
+    else:
+        p = ax.bar(species, sex_count, width, label=sex, bottom=sex_counts[0])
+
+    ax.bar_label(p, label_type='center')
 
 ax.set_title('Number of penguins by sex')
-ax.bar_label(p1, label_type='center')
-ax.bar_label(p2, label_type='center')
 ax.legend()
 
 plt.show()

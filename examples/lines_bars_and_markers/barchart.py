@@ -13,27 +13,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 islands = ('Biscoe', 'Dream', 'Torgersen')
+species = ["Adelie", "Gentoo", "Chinstrap"]
 adelie_means = (188.80, 189.73, 191.20)
 gentoo_means = (217.19, 0, 0)
 chinstrap_means = (0, 48.83, 0)
+penguin_means = [adelie_means, gentoo_means, chinstrap_means]
 
 x = np.arange(len(islands))  # the label locations
 width = 0.25  # the width of the bars
-
+multiplier = 0
 fig, ax = plt.subplots()
-rects1 = ax.bar(x - width, adelie_means, width, label='Adelie')
-rects2 = ax.bar(x, gentoo_means, width, label='Chinstrap')
-rects3 = ax.bar(x + width, chinstrap_means, width, label='Gentoo')
+
+for specie, penguin_mean in zip(species, penguin_means):
+    rects = ax.bar(x + (width * multiplier), penguin_mean, width, label=specie)
+    ax.bar_label(rects, padding=3)
+    multiplier += 1
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Flipper length (mm)')
 ax.set_title('Average flipper length of penguin species by island')
 ax.set_xticks(x, islands)
 ax.legend()
-
-ax.bar_label(rects1, padding=3)
-ax.bar_label(rects2, padding=3)
-ax.bar_label(rects3, padding=3)
 
 fig.tight_layout()
 
