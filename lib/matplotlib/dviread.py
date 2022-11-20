@@ -115,7 +115,7 @@ class Text(namedtuple('Text', 'x y font glyph width')):
         glyph using FT_Load_Glyph/load_glyph.
 
         If :file:`pdftex.map` specifies no encoding, the indices directly map
-        to the font's "native" charmap; glyphs should directly loaded using
+        to the font's "native" charmap; glyphs should directly load using
         FT_Load_Char/load_char after selecting the native charmap.
         """
         entry = self._get_pdftexmap_entry()
@@ -1013,7 +1013,7 @@ def _parse_enc(path):
 
     Parameters
     ----------
-    path : os.PathLike
+    path : `os.PathLike`
 
     Returns
     -------

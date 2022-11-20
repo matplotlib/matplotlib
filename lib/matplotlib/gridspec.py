@@ -538,17 +538,17 @@ class SubplotSpec:
 
     .. note::
 
-        Likely, you'll never instantiate a `SubplotSpec` yourself. Instead you
-        will typically obtain one from a `GridSpec` using item-access.
+        Likely, you will never instantiate a `SubplotSpec` yourself. Instead,
+        you will typically obtain one from a `GridSpec` using item-access.
 
     Parameters
     ----------
     gridspec : `~matplotlib.gridspec.GridSpec`
         The GridSpec, which the subplot is referencing.
     num1, num2 : int
-        The subplot will occupy the num1-th cell of the given
-        gridspec.  If num2 is provided, the subplot will span between
-        num1-th cell and num2-th cell *inclusive*.
+        The subplot will occupy the *num1*-th cell of the given
+        *gridspec*.  If *num2* is provided, the subplot will span between
+        *num1*-th cell and *num2*-th cell **inclusive**.
 
         The index starts from 0.
     """
@@ -710,7 +710,7 @@ class SubplotSpec:
             Number of rows in grid.
 
         ncols : int
-            Number or columns in grid.
+            Number of columns in grid.
 
         Returns
         -------

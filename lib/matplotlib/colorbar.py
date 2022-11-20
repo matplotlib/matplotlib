@@ -821,7 +821,7 @@ class Colorbar:
 
     def update_ticks(self):
         """
-        Setup the ticks and ticklabels. This should not be needed by users.
+        Set up the ticks and ticklabels. This should not be needed by users.
         """
         # Get the locator and formatter; defaults to self._locator if not None.
         self._get_ticker_locator_formatter()
@@ -1024,7 +1024,7 @@ class Colorbar:
 
         Notes
         -----
-        By default, Matplotlib supports the above mentioned scales.
+        By default, Matplotlib supports the above-mentioned scales.
         Additionally, custom scales may be registered using
         `matplotlib.scale.register_scale`. These scales can then also
         be used here.

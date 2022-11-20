@@ -558,7 +558,7 @@ class FontProperties:
       'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy',
       'extra bold', 'black'. Default: :rc:`font.weight`
 
-    - size: Either an relative value of 'xx-small', 'x-small',
+    - size: Either a relative value of 'xx-small', 'x-small',
       'small', 'medium', 'large', 'x-large', 'xx-large' or an
       absolute font size, e.g., 10. Default: :rc:`font.size`
 
@@ -719,7 +719,7 @@ class FontProperties:
 
     def set_family(self, family):
         """
-        Change the font family.  May be either an alias (generic name
+        Change the font family.  Can be either an alias (generic name
         is CSS parlance), such as: 'serif', 'sans-serif', 'cursive',
         'fantasy', or 'monospace', a real font name or a list of real
         font names.  Real font names are not supported when
@@ -817,8 +817,8 @@ class FontProperties:
         ----------
         size : float or {'xx-small', 'x-small', 'small', 'medium', \
 'large', 'x-large', 'xx-large'}, default: :rc:`font.size`
-            If float, the font size in points. The string values denote sizes
-            relative to the default font size.
+            If a float, the font size in points. The string values denote
+            sizes relative to the default font size.
         """
         if size is None:
             size = mpl.rcParams['font.size']
@@ -987,7 +987,7 @@ class FontManager:
     font is returned.
     """
     # Increment this version number whenever the font cache data
-    # format or behavior has changed and requires a existing font
+    # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
     __version__ = 330
 
@@ -1224,7 +1224,7 @@ class FontManager:
             If given, only search this directory and its subdirectories.
 
         fallback_to_default : bool
-            If True, will fallback to the default font family (usually
+            If True, will fall back to the default font family (usually
             "DejaVu Sans" or "Helvetica") if the first lookup hard-fails.
 
         rebuild_if_missing : bool
@@ -1294,7 +1294,7 @@ class FontManager:
             If given, only search this directory and its subdirectories.
 
         fallback_to_default : bool
-            If True, will fallback to the default font family (usually
+            If True, will fall back to the default font family (usually
             "DejaVu Sans" or "Helvetica") if none of the families were found.
 
         rebuild_if_missing : bool
@@ -1311,7 +1311,7 @@ class FontManager:
         -----
         This is an extension/wrapper of the original findfont API, which only
         returns a single font for given font properties. Instead, this API
-        returns an dict containing multiple fonts and their filepaths
+        returns a dict containing multiple fonts and their filepaths
         which closely match the given font properties.  Since this internally
         uses the original API, there's no change to the logic of performing the
         nearest neighbor search.  See `findfont` for more details.

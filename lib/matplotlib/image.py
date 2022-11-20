@@ -1510,7 +1510,7 @@ def imread(fname, format=None):
     format : str, optional
         The image file format assumed for reading the data.  The image is
         loaded as a PNG file if *format* is set to "png", if *fname* is a path
-        or opened file with a ".png" extension, or if it is an URL.  In all
+        or opened file with a ".png" extension, or if it is a URL.  In all
         other cases, *format* is ignored and the format is auto-detected by
         `PIL.Image.open`.
 

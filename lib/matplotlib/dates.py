@@ -107,15 +107,15 @@ Most of the date tickers can locate single or multiple values.  For example::
     # import constants for the days of the week
     from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
 
-    # tick on mondays every week
+    # tick on Mondays every week
     loc = WeekdayLocator(byweekday=MO, tz=tz)
 
-    # tick on mondays and saturdays
+    # tick on Mondays and Saturdays
     loc = WeekdayLocator(byweekday=(MO, SA))
 
 In addition, most of the constructors take an interval argument::
 
-    # tick on mondays every second week
+    # tick on Mondays every second week
     loc = WeekdayLocator(byweekday=MO, interval=2)
 
 The rrule locator allows completely general date ticking::
@@ -150,9 +150,9 @@ The available date tickers are:
 * `AutoDateLocator`: On autoscale, this class picks the best `DateLocator`
   (e.g., `RRuleLocator`) to set the view limits and the tick locations.  If
   called with ``interval_multiples=True`` it will make ticks line up with
-  sensible multiples of the tick intervals.  E.g. if the interval is 4 hours,
-  it will pick hours 0, 4, 8, etc as ticks.  This behaviour is not guaranteed
-  by default.
+  sensible multiples of the tick intervals.  For example, if the interval is
+  4 hours, it will pick hours 0, 4, 8, etc. as ticks.  This behaviour is not
+  guaranteed by default.
 
 Date formatters
 ---------------
@@ -216,8 +216,8 @@ class __getattr__:
 
 def _get_tzinfo(tz=None):
     """
-    Generate tzinfo from a string or return tzinfo. If None,
-    retrieve the preferred timezone from the rcParams dictionary.
+    Generate `~datetime.tzinfo` from a string or return `~datetime.tzinfo`.
+    If None, retrieve the preferred timezone from the rcParams dictionary.
     """
     if tz is None:
         tz = mpl.rcParams['timezone']
@@ -1430,7 +1430,7 @@ class AutoDateLocator(DateLocator):
 
         # Loop over all the frequencies and try to find one that gives at
         # least a minticks tick positions.  Once this is found, look for
-        # an interval from an list specific to that frequency that gives no
+        # an interval from a list specific to that frequency that gives no
         # more than maxticks tick positions. Also, set up some ranges
         # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
         for i, (freq, num) in enumerate(zip(self._freqs, nums)):
@@ -1664,7 +1664,7 @@ class MinuteLocator(RRuleLocator):
         Parameters
         ----------
         byminute : int or list of int, default: all minutes
-            Ticks will be placed on every minutes in *byminutes*. Default is
+            Ticks will be placed on every minute in *byminute*. Default is
             ``byminute=range(60)``, i.e., every minute.
         interval : int, default: 1
             The interval between each iteration. For example, if
@@ -1824,7 +1824,7 @@ class DateConverter(units.ConversionInterface):
     Converter for `datetime.date` and `datetime.datetime` data, or for
     date/time data represented as it would be converted by `date2num`.
 
-    The 'unit' tag for such data is None or a tzinfo instance.
+    The 'unit' tag for such data is None or a `~datetime.tzinfo` instance.
     """
 
     def __init__(self, *, interval_multiples=True):
@@ -1835,7 +1835,7 @@ class DateConverter(units.ConversionInterface):
         """
         Return the `~matplotlib.units.AxisInfo` for *unit*.
 
-        *unit* is a tzinfo instance or None.
+        *unit* is a `~datetime.tzinfo` instance or None.
         The *axis* argument is required but not used.
         """
         tz = unit
@@ -1862,7 +1862,8 @@ class DateConverter(units.ConversionInterface):
     @staticmethod
     def default_units(x, axis):
         """
-        Return the tzinfo instance of *x* or of its first element, or None
+        Return the `~datetime.tzinfo` instance of *x* or of its first element,
+        or None
         """
         if isinstance(x, np.ndarray):
             x = x.ravel()
