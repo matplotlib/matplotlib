@@ -48,7 +48,7 @@ class Grid:
     """
     A grid of Axes.
 
-    In Matplotlib, the axes location (and size) is specified in normalized
+    In Matplotlib, the Axes location (and size) is specified in normalized
     figure coordinates. This may not be ideal for images that needs to be
     displayed with a given aspect ratio; for example, it is difficult to
     display multiple images of a same size with some fixed padding between

@@ -1,6 +1,6 @@
 """
 Provides classes of simple units that will be used with AxesDivider
-class (or others) to determine the size of each axes. The unit
+class (or others) to determine the size of each Axes. The unit
 classes define `get_size` method that returns a tuple of two floats,
 meaning relative and absolute sizes, respectively.
 
@@ -207,7 +207,7 @@ class Fraction(_Base):
 @_api.deprecated("3.6", alternative="size + pad")
 class Padded(_Base):
     """
-    Return a instance where the absolute part of *size* is
+    Return an instance where the absolute part of *size* is
     increase by the amount of *pad*.
     """
 
