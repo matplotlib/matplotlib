@@ -37,7 +37,7 @@ def _prevent_rasterization(draw):
     def draw_wrapper(artist, renderer):
         if renderer._raster_depth == 0 and renderer._rasterizing:
             # Only stop when we are not in a rasterized parent
-            # and something has be rasterized since last stop
+            # and something has been rasterized since last stop.
             renderer.stop_rasterizing()
             renderer._rasterizing = False
 
