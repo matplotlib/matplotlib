@@ -57,7 +57,7 @@ legend1 = ax.legend(*scatter.legend_elements(),
                     loc="lower left", title="Classes")
 ax.add_artist(legend1)
 
-# produce a legend with a cross section of sizes from the scatter
+# produce a legend with a cross-section of sizes from the scatter
 handles, labels = scatter.legend_elements(prop="sizes", alpha=0.6)
 legend2 = ax.legend(handles, labels, loc="upper right", title="Sizes")
 

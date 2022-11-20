@@ -1,10 +1,10 @@
 """
 ==============
-Eventplot Demo
+Eventplot demo
 ==============
 
-An eventplot showing sequences of events with various line properties.
-The plot is shown in both horizontal and vertical orientations.
+An `~.axes.Axes.eventplot` showing sequences of events with various line
+properties. The plot is shown in both horizontal and vertical orientations.
 """
 
 import matplotlib.pyplot as plt

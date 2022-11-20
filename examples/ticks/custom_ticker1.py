@@ -7,7 +7,7 @@ The :mod:`matplotlib.ticker` module defines many preset tickers, but was
 primarily designed for extensibility, i.e., to support user customized ticking.
 
 In this example, a user defined function is used to format the ticks in
-millions of dollars on the y axis.
+millions of dollars on the y-axis.
 """
 
 import matplotlib.pyplot as plt

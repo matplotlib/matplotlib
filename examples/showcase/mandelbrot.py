@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # https://linas.org/art-gallery/escape/smooth.html
     # https://web.archive.org/web/20160331171238/https://www.ibm.com/developerworks/community/blogs/jfp/entry/My_Christmas_Gift?lang=en
 
-    # This line will generate warnings for null values but it is faster to
+    # This line will generate warnings for null values, but it is faster to
     # process them afterwards using the nan_to_num
     with np.errstate(invalid='ignore'):
         M = np.nan_to_num(N + 1 - np.log2(np.log(abs(Z))) + log_horizon)

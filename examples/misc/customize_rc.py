@@ -3,7 +3,7 @@
 Customize Rc
 ============
 
-I'm not trying to make a good looking figure here, but just to show
+I'm not trying to make a good-looking figure here, but just to show
 some examples of customizing `.rcParams` on the fly.
 
 If you like to work interactively, and need to create different sets

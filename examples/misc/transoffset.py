@@ -11,7 +11,7 @@ coordinates.
 
 Every Artist (Text, Line2D, etc.) has a transform that can be
 set when the Artist is created, such as by the corresponding
-pyplot function.  By default this is usually the Axes.transData
+pyplot function.  By default, this is usually the Axes.transData
 transform, going from data units to screen pixels.  We can
 use the `.offset_copy` function to make a modified copy of
 this transform, where the modification consists of an

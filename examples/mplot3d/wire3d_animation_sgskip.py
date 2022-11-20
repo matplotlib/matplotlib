@@ -6,7 +6,7 @@ Animate a 3D wireframe plot
 A very simple "animation" of a 3D plot.  See also :doc:`rotate_axes3d_sgskip`.
 
 (This example is skipped when building the documentation gallery because it
-intentionally takes a long time to run)
+intentionally takes a long time to run.)
 """
 
 import matplotlib.pyplot as plt
@@ -22,7 +22,7 @@ xs = np.linspace(-1, 1, 50)
 ys = np.linspace(-1, 1, 50)
 X, Y = np.meshgrid(xs, ys)
 
-# Set the z axis limits so they aren't recalculated each frame.
+# Set the z axis limits, so they aren't recalculated each frame.
 ax.set_zlim(-1, 1)
 
 # Begin plotting.

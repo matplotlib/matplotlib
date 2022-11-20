@@ -1,6 +1,6 @@
 """
 ==================================
-Colormap Normalizations SymLogNorm
+Colormap normalizations SymLogNorm
 ==================================
 
 Demonstration of using norm to map colormaps onto data in non-linear ways.

@@ -1,6 +1,6 @@
 """
 ===========
-Pcolor Demo
+Pcolor demo
 ===========
 
 Generating images with `~.axes.Axes.pcolor`.
@@ -92,8 +92,8 @@ N = 100
 X, Y = np.meshgrid(np.linspace(-3, 3, N), np.linspace(-2, 2, N))
 
 # A low hump with a spike coming out.
-# Needs to have z/colour axis on a log scale so we see both hump and spike.
-# linear scale only shows the spike.
+# Needs to have z/colour axis on a log scale, so we see both hump and spike.
+# A linear scale only shows the spike.
 Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X * 10)**2 - (Y * 10)**2)
 Z = Z1 + 50 * Z2

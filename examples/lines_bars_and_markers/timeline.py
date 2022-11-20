@@ -55,7 +55,7 @@ except Exception:
 ##############################################################################
 # Next, we'll create a stem plot with some variation in levels as to
 # distinguish even close-by events. We add markers on the baseline for visual
-# emphasis on the one-dimensional nature of the time line.
+# emphasis on the one-dimensional nature of the timeline.
 #
 # For each event, we add a text label via `~.Axes.annotate`, which is offset
 # in units of points from the tip of the event line.
@@ -82,12 +82,12 @@ for d, l, r in zip(dates, levels, names):
                 horizontalalignment="right",
                 verticalalignment="bottom" if l > 0 else "top")
 
-# format xaxis with 4 month intervals
+# format x-axis with 4-month intervals
 ax.xaxis.set_major_locator(mdates.MonthLocator(interval=4))
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %Y"))
 plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
 
-# remove y axis and spines
+# remove y-axis and spines
 ax.yaxis.set_visible(False)
 ax.spines[["left", "top", "right"]].set_visible(False)
 

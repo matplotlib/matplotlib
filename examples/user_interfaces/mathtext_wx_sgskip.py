@@ -1,7 +1,7 @@
 """
-===========
-MathText WX
-===========
+======================
+Display mathtext in WX
+======================
 
 Demonstrates how to convert (math)text to a wx.Bitmap for display in various
 controls on wxPython.
@@ -20,7 +20,7 @@ IS_WIN = 'wxMSW' in wx.PlatformInfo
 
 def mathtext_to_wxbitmap(s):
     # We draw the text at position (0, 0) but then rely on
-    # ``facecolor="none"`` and ``bbox_inches="tight", pad_inches=0`` to get an
+    # ``facecolor="none"`` and ``bbox_inches="tight", pad_inches=0`` to get a
     # transparent mask that is then loaded into a wx.Bitmap.
     fig = Figure(facecolor="none")
     text_color = (

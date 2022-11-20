@@ -1,6 +1,6 @@
 """
 ===========
-Path Editor
+Path editor
 ===========
 
 Sharing events across GUIs.
@@ -47,7 +47,7 @@ ax.add_patch(patch)
 
 class PathInteractor:
     """
-    An path editor.
+    A path editor.
 
     Press 't' to toggle vertex markers on and off.  When vertex markers are on,
     they can be dragged with the mouse.

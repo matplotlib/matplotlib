@@ -21,9 +21,9 @@ directly to `.Axis.set_major_formatter` or
 `.Axis.set_minor_formatter`.  An appropriate `.StrMethodFormatter` will
 be created and used automatically.
 
-`.pyplot.grid` changes the grid settings of the major ticks of the y and y axis
-together.  If you want to control the grid of the minor ticks for a given axis,
-use for example ::
+`.pyplot.grid` changes the grid settings of the major ticks of the x- and
+y-axis together.  If you want to control the grid of the minor ticks for a
+given axis, use for example ::
 
   ax.xaxis.grid(True, which='minor')
 

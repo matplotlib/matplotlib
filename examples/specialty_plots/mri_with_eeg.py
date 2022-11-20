@@ -17,7 +17,7 @@ from matplotlib.ticker import MultipleLocator
 
 fig = plt.figure("MRI_with_EEG")
 
-# Load the MRI data (256x256 16 bit integers)
+# Load the MRI data (256x256 16-bit integers)
 with cbook.get_sample_data('s1045.ima.gz') as dfile:
     im = np.frombuffer(dfile.read(), np.uint16).reshape((256, 256))
 
@@ -67,7 +67,7 @@ offsets[:, 1] = ticklocs
 lines = LineCollection(segs, offsets=offsets, offset_transform=None)
 ax2.add_collection(lines)
 
-# Set the yticks to use axes coordinates on the y axis
+# Set the yticks to use axes coordinates on the y-axis
 ax2.set_yticks(ticklocs, labels=['PG3', 'PG5', 'PG7', 'PG9'])
 
 ax2.set_xlabel('Time (s)')

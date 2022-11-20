@@ -1,10 +1,10 @@
 """
 ================
-GTK4 Spreadsheet
+GTK4 spreadsheet
 ================
 
 Example of embedding Matplotlib in an application and interacting with a
-treeview to store data.  Double click on an entry to update plot data.
+treeview to store data.  Double-click on an entry to update plot data.
 """
 
 import gi

@@ -1,10 +1,10 @@
 """
 ================
-Image Nonuniform
+Image nonuniform
 ================
 
 This illustrates the NonUniformImage class.  It is not
-available via an Axes method but it is easily added to an
+available via an Axes method, but it is easily added to an
 Axes instance as shown here.
 """
 

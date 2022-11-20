@@ -143,7 +143,7 @@ def plot_figure(style_label=""):
 
 if __name__ == "__main__":
 
-    # Setup a list of all available styles, in alphabetical order but
+    # Set up a list of all available styles, in alphabetical order but
     # the `default` and `classic` ones, which will be forced resp. in
     # first and second position.
     # styles with leading underscores are for internal use such as testing

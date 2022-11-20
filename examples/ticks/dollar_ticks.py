@@ -1,9 +1,9 @@
 """
 ============
-Dollar Ticks
+Dollar ticks
 ============
 
-Use a `~.ticker.FormatStrFormatter` to prepend dollar signs on y axis labels.
+Use a `~.ticker.FormatStrFormatter` to prepend dollar signs on y-axis labels.
 
 .. redirect-from:: /gallery/pyplots/dollar_ticks
 """

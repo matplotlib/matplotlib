@@ -1,7 +1,7 @@
 """
-================
-Pick Event Demo2
-================
+=================
+Pick event demo 2
+=================
 
 Compute the mean (mu) and standard deviation (sigma) of 100 data sets and plot
 mu vs. sigma.  When you click on one of the (mu, sigma) points, plot the raw

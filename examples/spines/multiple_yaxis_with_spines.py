@@ -3,7 +3,7 @@ r"""
 Multiple y-axis with Spines
 ===========================
 
-Create multiple y axes with a shared x axis. This is done by creating
+Create multiple y axes with a shared x-axis. This is done by creating
 a `~.axes.Axes.twinx` axes, turning all spines but the right one invisible
 and offset its position using `~.spines.Spine.set_position`.
 

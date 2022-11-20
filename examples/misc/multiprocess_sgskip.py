@@ -1,7 +1,7 @@
 """
-============
-Multiprocess
-============
+===============
+Multiprocessing
+===============
 
 Demo of using multiprocessing for generating data in one process and
 plotting in another.
@@ -94,7 +94,7 @@ class NBPlot:
 
 def main():
     pl = NBPlot()
-    for ii in range(10):
+    for _ in range(10):
         pl.plot()
         time.sleep(0.5)
     pl.plot(finished=True)

@@ -33,7 +33,7 @@ universal function.
 # tick labels (`~matplotlib.axes.Axes.set_xticklabels`),
 # otherwise they would become out of sync. The locations are just
 # the ascending integer numbers, while the ticklabels are the labels to show.
-# Finally we can label the data itself by creating a `~matplotlib.text.Text`
+# Finally, we can label the data itself by creating a `~matplotlib.text.Text`
 # within each cell showing the value of that cell.
 
 

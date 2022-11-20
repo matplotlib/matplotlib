@@ -12,7 +12,7 @@ the strings used in those tick labels as much as possible.
 
     This formatter is a candidate to become the default date tick formatter
     in future versions of Matplotlib.  Please report any issues or
-    suggestions for improvement to the github repository or mailing list.
+    suggestions for improvement to the GitHub repository or mailing list.
 
 """
 import datetime
@@ -156,7 +156,7 @@ formats = ['%y',          # ticks are mostly years
            '%S.%f', ]  # secs
 # these can be the same, except offset by one level....
 zero_formats = [''] + formats[:-1]
-# ...except for ticks that are mostly hours, then its nice to have month-day
+# ...except for ticks that are mostly hours, then it's nice to have month-day
 zero_formats[3] = '%d-%b'
 offset_formats = ['',
                   '%Y',

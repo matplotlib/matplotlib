@@ -1,12 +1,12 @@
 """
 ============
-Data Browser
+Data browser
 ============
 
 Connecting data between multiple canvases.
 
 This example covers how to interact data with multiple canvases. This
-let's you select and highlight a point on one axis, and generating the
+lets you select and highlight a point on one axis, and generating the
 data of that point on the other axis.
 
 .. note::

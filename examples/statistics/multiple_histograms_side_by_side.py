@@ -9,7 +9,7 @@ be symmetrical about their x-position, thus making them very similar
 to violin plots.
 
 To make this highly specialized plot, we can't use the standard ``hist``
-method. Instead we use ``barh`` to draw the horizontal bars directly. The
+method. Instead, we use ``barh`` to draw the horizontal bars directly. The
 vertical positions and lengths of the bars are computed via the
 ``np.histogram`` function. The histograms for all the samples are
 computed using the same range (min and max values) and number of bins,

@@ -1,7 +1,7 @@
 """
-=======
-Matshow
-=======
+===============================
+Visualize matrices with matshow
+===============================
 
 `~.axes.Axes.matshow` visualizes a 2D matrix or array as color-coded image.
 """

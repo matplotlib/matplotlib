@@ -41,7 +41,7 @@ dy = y_head - y_tail
 # Head shape fixed in display space and anchor points fixed in data space
 # -----------------------------------------------------------------------
 #
-# This is useful if you are annotating a plot, and don't want the arrow to
+# This is useful if you are annotating a plot, and don't want the arrow
 # to change shape or position if you pan or scale the plot.
 #
 # In this case we use `.patches.FancyArrowPatch`.
