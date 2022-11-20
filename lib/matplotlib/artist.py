@@ -950,7 +950,7 @@ class Artist:
         """
         supports_rasterization = getattr(self.draw,
                                          "_supports_rasterization", False)
-        if (rasterized and not supports_rasterization):
+        if rasterized and not supports_rasterization:
             _api.warn_external(f"Rasterization of '{self}' will be ignored")
 
         self._rasterized = rasterized
