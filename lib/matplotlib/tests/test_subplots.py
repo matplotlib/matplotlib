@@ -148,8 +148,6 @@ def test_exceptions():
         plt.subplots(2, 2, sharex='blah')
     with pytest.raises(ValueError):
         plt.subplots(2, 2, sharey='blah')
-    with pytest.raises(ValueError):
-        plt.subplots(2, 2, sharey=2)
 
 
 @image_comparison(['subplots_offset_text'])

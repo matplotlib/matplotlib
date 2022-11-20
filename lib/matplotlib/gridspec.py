@@ -276,16 +276,12 @@ class GridSpecBase:
             raise ValueError("GridSpec.subplots() only works for GridSpecs "
                              "created with a parent figure")
 
-        if isinstance(sharex, str):
-            pass
-        else:
+        if not isinstance(sharex, str):
             sharex = "all" if sharex else "none"
-        if isinstance(sharey, str):
-            pass
-        else:
+        if not isinstance(sharey, str):
             sharey = "all" if sharey else "none"
 
-        _api.check_in_list(["all", "row", "col", "none", 0, 1, False, True],
+        _api.check_in_list(["all", "row", "col", "none", False, True],
                            sharex=sharex, sharey=sharey)
         if subplot_kw is None:
             subplot_kw = {}
