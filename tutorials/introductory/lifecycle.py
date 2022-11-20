@@ -36,7 +36,7 @@ is that:
 
 * The `.Figure` is the final image, and may contain one or more `~.axes.Axes`.
 * The `~.axes.Axes` represents an individual plot (not to be confused with
-   `~.axis.Axis`, which refers to the x/y axis of a plot).
+   `~.axis.Axis`, which refers to the x-, y-, or z-axis of a plot).
 
 We call methods that do the plotting directly from the Axes, which gives
 us much more flexibility and power in customizing our plot.

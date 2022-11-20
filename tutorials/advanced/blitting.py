@@ -41,7 +41,7 @@ the `.FigureCanvasBase.supports_blit` property.
 .. warning::
 
    This code does not work with the OSX backend (but does work with other
-   GUI backends on mac).
+   GUI backends on Mac).
 
 Minimal example
 ---------------
@@ -106,7 +106,7 @@ for j in range(100):
 # pixels changes (due to either the size or dpi of the figure
 # changing) , the background will be invalid and result in incorrect
 # (but sometimes cool looking!) images.  There is also a global
-# variable and a fair amount of boiler plate which suggests we should
+# variable and a fair amount of boilerplate which suggests we should
 # wrap this in a class.
 #
 # Class-based example
@@ -125,7 +125,7 @@ class BlitManager:
         Parameters
         ----------
         canvas : FigureCanvasAgg
-            The canvas to work with, this only works for sub-classes of the Agg
+            The canvas to work with, this only works for subclasses of the Agg
             canvas which have the `~FigureCanvasAgg.copy_from_bbox` and
             `~FigureCanvasAgg.restore_region` methods.
 

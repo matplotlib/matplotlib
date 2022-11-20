@@ -23,7 +23,7 @@ import numpy as np
 # Matplotlib graphs your data on `.Figure`\s (e.g., windows, Jupyter
 # widgets, etc.), each of which can contain one or more `~.axes.Axes`, an
 # area where points can be specified in terms of x-y coordinates (or theta-r
-# in a polar plot, x-y-z in a 3D plot, etc).  The simplest way of
+# in a polar plot, x-y-z in a 3D plot, etc.).  The simplest way of
 # creating a Figure with an Axes is using `.pyplot.subplots`. We can then use
 # `.Axes.plot` to draw some data on the Axes:
 
@@ -113,9 +113,9 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 #   b_asarray = np.asarray(b)
 #
 # Most methods will also parse an addressable object like a *dict*, a
-# `numpy.recarray`, or a `pandas.DataFrame`.  Matplotlib allows you provide
-# the ``data`` keyword argument and generate plots passing the strings
-# corresponding to the *x* and *y* variables.
+# `numpy.recarray`, or a `pandas.DataFrame`.  Matplotlib allows you to
+# provide the ``data`` keyword argument and generate plots passing the
+# strings corresponding to the *x* and *y* variables.
 np.random.seed(19680801)  # seed the random number generator.
 data = {'a': np.arange(50),
         'c': np.random.randint(0, 50, 50),

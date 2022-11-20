@@ -53,7 +53,7 @@ N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 
 # A low hump with a spike coming out of the top right.  Needs to have
-# z/colour axis on a log scale so we see both hump and spike.  linear
+# z/colour axis on a log scale, so we see both hump and spike. A linear
 # scale only shows the spike.
 Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X * 10)**2 - (Y * 10)**2)

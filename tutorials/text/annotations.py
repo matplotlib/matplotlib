@@ -317,7 +317,7 @@ ax.annotate("",
 #
 # The behavior of each connection style is (limitedly) demonstrated in the
 # example below. (Warning: The behavior of the ``bar`` style is currently not
-# well defined and may be changed in the future).
+# well-defined and may be changed in the future).
 #
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
 #    :target: ../../gallery/userdemo/connectionstyle_demo.html
@@ -434,7 +434,7 @@ ax.add_artist(at)
 # pixel (radius = 10 pixel), you can utilize
 # `~mpl_toolkits.axes_grid1.anchored_artists.AnchoredDrawingArea`. The instance
 # is created with a size of the drawing area (in pixels), and arbitrary artists
-# can added to the drawing area. Note that the extents of the artists that are
+# can be added to the drawing area. Note that the extents of the artists that are
 # added to the drawing area are not related to the placement of the drawing
 # area itself. Only the initial size matters.
 #
@@ -575,7 +575,7 @@ an2 = ax.annotate("Test 2",
 #
 # 3. A callable object that takes the renderer instance as single argument, and
 # returns either a `.Transform` or a `.BboxBase`. For example, the return
-# value of `.Artist.get_window_extent` is a bbox, so this method is identical to
+# value of `.Artist.get_window_extent` is a bbox, so this method is identical
 # to (2) passing in the artist:
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(3, 3))

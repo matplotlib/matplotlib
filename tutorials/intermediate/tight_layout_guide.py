@@ -161,7 +161,7 @@ plt.tight_layout()
 #   are rare cases where it is not.
 #
 # * ``pad=0`` can clip some texts by a few pixels. This may be a bug or
-#   a limitation of the current algorithm and it is not clear why it
+#   a limitation of the current algorithm, and it is not clear why it
 #   happens. Meanwhile, use of pad larger than 0.3 is recommended.
 #
 # Use with GridSpec
@@ -213,7 +213,7 @@ gs1.tight_layout(fig, rect=[0, 0, 0.5, 1.0])
 # =======================
 #
 # Pre Matplotlib 2.2, legends and annotations were excluded from the bounding
-# box calculations that decide the layout.  Subsequently these artists were
+# box calculations that decide the layout.  Subsequently, these artists were
 # added to the calculation, but sometimes it is undesirable to include them.
 # For instance in this case it might be good to have the axes shrink a bit
 # to make room for the legend:

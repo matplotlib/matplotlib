@@ -11,8 +11,8 @@ supported user APIs.
 """
 
 ###############################################################################
-# Intro to pyplot
-# ===============
+# Introduction to pyplot
+# ======================
 #
 # :mod:`matplotlib.pyplot` is a collection of functions that make matplotlib
 # work like MATLAB.  Each ``pyplot`` function makes some change to a figure:
@@ -29,11 +29,11 @@ supported user APIs.
 #
 # .. note::
 #
-#    the implicit pyplot API is generally less verbose but also not as flexible as the
+#    The implicit pyplot API is generally less verbose but also not as flexible as the
 #    explicit API.  Most of the function calls you see here can also be called
 #    as methods from an ``Axes`` object. We recommend browsing the tutorials
 #    and examples to see how this works. See :ref:`api_interfaces` for an
-#    explanation of the trade off of the supported user APIs.
+#    explanation of the trade-off of the supported user APIs.
 #
 # Generating visualizations with pyplot is very quick:
 
@@ -48,7 +48,7 @@ plt.show()
 # `~.pyplot.plot`, matplotlib assumes it is a
 # sequence of y values, and automatically generates the x values for
 # you.  Since python ranges start with 0, the default x vector has the
-# same length as y but starts with 0.  Hence the x data are
+# same length as y but starts with 0; therefore, the x data are
 # ``[0, 1, 2, 3]``.
 #
 # `~.pyplot.plot` is a versatile function, and will take an arbitrary number of
@@ -104,7 +104,7 @@ plt.show()
 # access particular variables with strings. For example, with
 # `numpy.recarray` or `pandas.DataFrame`.
 #
-# Matplotlib allows you provide such an object with
+# Matplotlib allows you to provide such an object with
 # the ``data`` keyword argument. If provided, then you may generate plots with
 # the strings corresponding to these variables.
 
@@ -355,7 +355,7 @@ plt.show()
 # Using mathematical expressions in text
 # --------------------------------------
 #
-# matplotlib accepts TeX equation expressions in any text expression.
+# Matplotlib accepts TeX equation expressions in any text expression.
 # For example to write the expression :math:`\sigma_i=15` in the title,
 # you can write a TeX expression surrounded by dollar signs::
 #
@@ -365,9 +365,9 @@ plt.show()
 # that the string is a *raw* string and not to treat backslashes as
 # python escapes.  matplotlib has a built-in TeX expression parser and
 # layout engine, and ships its own math fonts -- for details see
-# :doc:`/tutorials/text/mathtext`.  Thus you can use mathematical text across platforms
-# without requiring a TeX installation.  For those who have LaTeX and
-# dvipng installed, you can also use LaTeX to format your text and
+# :doc:`/tutorials/text/mathtext`.  Thus, you can use mathematical text across
+# platforms without requiring a TeX installation.  For those who have LaTeX
+# and dvipng installed, you can also use LaTeX to format your text and
 # incorporate the output directly into your display figures or saved
 # postscript -- see :doc:`/tutorials/text/usetex`.
 #
@@ -415,7 +415,7 @@ plt.show()
 #
 #     plt.xscale('log')
 #
-# An example of four plots with the same data and different scales for the y axis
+# An example of four plots with the same data and different scales for the y-axis
 # is shown below.
 
 # Fixing random state for reproducibility
