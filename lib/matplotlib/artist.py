@@ -22,7 +22,7 @@ _log = logging.getLogger(__name__)
 
 
 def _prevent_rasterization(draw):
-    # we assume that by default artists are not allowed to rasterize (unless
+    # We assume that by default artists are not allowed to rasterize (unless
     # its draw method is explicitly decorated). If it is being drawn after a
     # rasterized artist and it has reached the rater_depth of 0. We stop
     # rasterization so that it does not affect the behavior of normal artist
