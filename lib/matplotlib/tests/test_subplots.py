@@ -142,14 +142,6 @@ def test_shared_and_moved():
     check_visible([a1], [False], [True])
 
 
-def test_exceptions():
-    # TODO should this test more options?
-    with pytest.raises(ValueError):
-        plt.subplots(2, 2, sharex='blah')
-    with pytest.raises(ValueError):
-        plt.subplots(2, 2, sharey='blah')
-
-
 @image_comparison(['subplots_offset_text'])
 def test_subplots_offsettext():
     x = np.arange(0, 1e10, 1e9)
