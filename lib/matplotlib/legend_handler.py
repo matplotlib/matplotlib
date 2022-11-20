@@ -17,7 +17,7 @@ Where *legend* is the legend itself, *orig_handle* is the original
 plot, *fontsize* is the fontsize in pixels, and *handlebox* is a
 OffsetBox instance. Within the call, you should create relevant
 artists (using relevant properties from the *legend* and/or
-*orig_handle*) and add them into the handlebox. The artists needs to
+*orig_handle*) and add them into the handlebox. The artists need to
 be scaled according to the fontsize (note that the size is in pixel,
 i.e., this is dpi-scaled value).
 
@@ -46,7 +46,7 @@ def update_from_first_child(tgt, src):
 
 class HandlerBase:
     """
-    A Base class for default legend handlers.
+    A base class for default legend handlers.
 
     The derived classes are meant to override *create_artists* method, which
     has a following signature.::
@@ -319,7 +319,7 @@ class HandlerPatch(HandlerBase):
                                xdescent=xdescent, ydescent=ydescent,
                                width=width, height=height, fontsize=fontsize)
 
-            Subsequently the created artist will have its ``update_prop``
+            Subsequently, the created artist will have its ``update_prop``
             method called and the appropriate transform will be applied.
 
         **kwargs
@@ -353,24 +353,21 @@ class HandlerStepPatch(HandlerBase):
     Handler for `~.matplotlib.patches.StepPatch` instances.
     """
 
-    def _create_patch(self, legend, orig_handle,
-                      xdescent, ydescent, width, height, fontsize):
-        p = Rectangle(xy=(-xdescent, -ydescent),
-                      color=orig_handle.get_facecolor(),
-                      width=width, height=height)
-        return p
+    @staticmethod
+    def _create_patch(orig_handle, xdescent, ydescent, width, height):
+        return Rectangle(xy=(-xdescent, -ydescent), width=width,
+                         height=height, color=orig_handle.get_facecolor())
 
-    # Unfilled StepPatch should show as a line
-    def _create_line(self, legend, orig_handle,
-                     xdescent, ydescent, width, height, fontsize):
-
-        # Overwrite manually because patch and line properties don't mix
+    @staticmethod
+    def _create_line(orig_handle, width, height):
+        # Unfilled StepPatch should show as a line
         legline = Line2D([0, width], [height/2, height/2],
                          color=orig_handle.get_edgecolor(),
                          linestyle=orig_handle.get_linestyle(),
                          linewidth=orig_handle.get_linewidth(),
                          )
 
+        # Overwrite manually because patch and line properties don't mix
         legline.set_drawstyle('default')
         legline.set_marker("")
         return legline
@@ -378,12 +375,11 @@ class HandlerStepPatch(HandlerBase):
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
         if orig_handle.get_fill() or (orig_handle.get_hatch() is not None):
-            p = self._create_patch(legend, orig_handle,
-                                   xdescent, ydescent, width, height, fontsize)
+            p = self._create_patch(orig_handle, xdescent, ydescent, width,
+                                   height)
             self.update_prop(p, orig_handle, legend)
         else:
-            p = self._create_line(legend, orig_handle,
-                                  xdescent, ydescent, width, height, fontsize)
+            p = self._create_line(orig_handle, width, height)
         p.set_transform(trans)
         return [p]
 
