@@ -1,5 +1,5 @@
-Matplotlib Mission Statement
-============================
+Mission Statement
+=================
 
 The Matplotlib developer community develops, maintains, and supports Matplotlib
 and its extensions to provide data visualization tools for the Scientific

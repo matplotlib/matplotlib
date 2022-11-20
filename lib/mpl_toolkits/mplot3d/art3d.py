@@ -11,6 +11,8 @@ import math
 
 import numpy as np
 
+from contextlib import contextmanager
+
 from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext,
     path as mpath)
@@ -629,10 +631,12 @@ class Path3DCollection(PathCollection):
         self._in_draw = False
         super().__init__(*args, **kwargs)
         self.set_3d_properties(zs, zdir)
+        self._offset_zordered = None
 
     def draw(self, renderer):
-        with cbook._setattr_cm(self, _in_draw=True):
-            super().draw(renderer)
+        with self._use_zordered_offset():
+            with cbook._setattr_cm(self, _in_draw=True):
+                super().draw(renderer)
 
     def set_sort_zpos(self, val):
         """Set the position to use for z-sorting."""
@@ -731,14 +735,31 @@ class Path3DCollection(PathCollection):
         if len(self._linewidths3d) > 1:
             self._linewidths = self._linewidths3d[z_markers_idx]
 
+        PathCollection.set_offsets(self, np.column_stack((vxs, vys)))
+
         # Re-order items
         vzs = vzs[z_markers_idx]
         vxs = vxs[z_markers_idx]
         vys = vys[z_markers_idx]
 
-        PathCollection.set_offsets(self, np.column_stack((vxs, vys)))
+        # Store ordered offset for drawing purpose
+        self._offset_zordered = np.column_stack((vxs, vys))
 
         return np.min(vzs) if vzs.size else np.nan
+
+    @contextmanager
+    def _use_zordered_offset(self):
+        if self._offset_zordered is None:
+            # Do nothing
+            yield
+        else:
+            # Swap offset with z-ordered offset
+            old_offset = self._offsets
+            super().set_offsets(self._offset_zordered)
+            try:
+                yield
+            finally:
+                self._offsets = old_offset
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         color_array = (
