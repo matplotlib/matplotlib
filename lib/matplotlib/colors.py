@@ -663,7 +663,7 @@ class Colormap:
         name : str
             The name of the colormap.
         N : int
-            The number of rgb quantization levels.
+            The number of RGB quantization levels.
         """
         self.name = name
         self.N = int(N)  # ensure that N is always int
@@ -1039,7 +1039,7 @@ class LinearSegmentedColormap(Colormap):
             If (value, color) pairs are given, the mapping is from *value*
             to *color*. This can be used to divide the range unevenly.
         N : int
-            The number of rgb quantization levels.
+            The number of RGB quantization levels.
         gamma : float
         """
         if not np.iterable(colors):
@@ -1120,7 +1120,7 @@ class ListedColormap(Colormap):
     ----------
     colors : list, array
         List of Matplotlib color specifications, or an equivalent Nx3 or Nx4
-        floating point array (*N* rgb or rgba values).
+        floating point array (*N* RGB or RGBA values).
     name : str, optional
         String to identify the colormap.
     N : int, optional
@@ -2043,7 +2043,7 @@ class NoNorm(Normalize):
 
 def rgb_to_hsv(arr):
     """
-    Convert float rgb values (in the range [0, 1]), in a numpy array to hsv
+    Convert float RGB values (in the range [0, 1]), in a numpy array to HSV
     values.
 
     Parameters
@@ -2054,7 +2054,7 @@ def rgb_to_hsv(arr):
     Returns
     -------
     (..., 3) ndarray
-       Colors converted to hsv values in range [0, 1]
+       Colors converted to HSV values in range [0, 1]
     """
     arr = np.asarray(arr)
 
@@ -2095,7 +2095,7 @@ def rgb_to_hsv(arr):
 
 def hsv_to_rgb(hsv):
     """
-    Convert hsv values to rgb.
+    Convert HSV values to RGB.
 
     Parameters
     ----------
@@ -2191,8 +2191,8 @@ class LightSource:
     Angles are in degrees, with the azimuth measured
     clockwise from north and elevation up from the zero plane of the surface.
 
-    `shade` is used to produce "shaded" rgb values for a data array.
-    `shade_rgb` can be used to combine an rgb image with an elevation map.
+    `shade` is used to produce "shaded" RGB values for a data array.
+    `shade_rgb` can be used to combine an RGB image with an elevation map.
     `hillshade` produces an illumination map of a surface.
     """
 
@@ -2496,7 +2496,7 @@ class LightSource:
         which can then be used to plot the shaded image with imshow.
 
         The color of the resulting image will be darkened by moving the (s, v)
-        values (in hsv colorspace) toward (hsv_min_sat, hsv_min_val) in the
+        values (in HSV colorspace) toward (hsv_min_sat, hsv_min_val) in the
         shaded regions, or lightened by sliding (s, v) toward (hsv_max_sat,
         hsv_max_val) in regions that are illuminated.  The default extremes are
         chose so that completely shaded points are nearly black (s = 1, v = 0)
@@ -2561,7 +2561,7 @@ class LightSource:
 
     def blend_soft_light(self, rgb, intensity):
         """
-        Combine an rgb image with an intensity map using "soft light" blending,
+        Combine an RGB image with an intensity map using "soft light" blending,
         using the "pegtop" formula.
 
         Parameters
@@ -2580,7 +2580,7 @@ class LightSource:
 
     def blend_overlay(self, rgb, intensity):
         """
-        Combine an rgb image with an intensity map using "overlay" blending.
+        Combine an RGB image with an intensity map using "overlay" blending.
 
         Parameters
         ----------
