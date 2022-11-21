@@ -23,7 +23,7 @@ def lorenz(xyz, *, s=10, r=28, b=2.667):
     Parameters
     ----------
     xyz : array-like, shape (3,)
-       Point of interest in three dimensional space.
+       Point of interest in three-dimensional space.
     s, r, b : float
        Parameters defining the Lorenz attractor.
 

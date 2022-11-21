@@ -36,7 +36,7 @@ ax.set_xlabel('X')
 ax.set_ylabel('Y')
 ax.set_zlabel('Z')
 
-# On the y axis let's only label the discrete values that we have data for.
+# On the y-axis let's only label the discrete values that we have data for.
 ax.set_yticks(yticks)
 
 plt.show()

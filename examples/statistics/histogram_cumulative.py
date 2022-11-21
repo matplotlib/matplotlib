@@ -24,7 +24,7 @@ from the sample not exceeding that x-value. For example, the value of
 225 on the x-axis corresponds to about 0.85 on the y-axis, so there's an
 85% chance that an observation in the sample does not exceed 225.
 Conversely, setting, ``cumulative`` to -1 as is done in the
-last series for this example, creates a "exceedance" curve.
+last series for this example, creates an "exceedance" curve.
 
 Selecting different bin counts and sizes can significantly affect the
 shape of a histogram. The Astropy docs have a great section on how to

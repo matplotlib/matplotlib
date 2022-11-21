@@ -717,5 +717,5 @@ plt.show()
 #
 #
 # .. include:: ../../gallery/ticks/dollar_ticks.rst
-#    :start-after: y axis labels.
+#    :start-after: y-axis labels.
 #    :end-before: .. admonition:: References

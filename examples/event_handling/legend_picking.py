@@ -1,6 +1,6 @@
 """
 ==============
-Legend Picking
+Legend picking
 ==============
 
 Enable picking on the legend to toggle the original line on and off
@@ -42,7 +42,7 @@ def on_pick(event):
     origline = lined[legline]
     visible = not origline.get_visible()
     origline.set_visible(visible)
-    # Change the alpha on the line in the legend so we can see what lines
+    # Change the alpha on the line in the legend, so we can see what lines
     # have been toggled.
     legline.set_alpha(1.0 if visible else 0.2)
     fig.canvas.draw()

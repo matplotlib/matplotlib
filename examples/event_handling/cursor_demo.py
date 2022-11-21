@@ -1,15 +1,15 @@
 """
 =================
-Cross hair cursor
+Cross-hair cursor
 =================
 
-This example adds a cross hair as a data cursor.  The cross hair is
+This example adds a cross-hair as a data cursor.  The cross-hair is
 implemented as regular line objects that are updated on mouse move.
 
 We show three implementations:
 
 1) A simple cursor implementation that redraws the figure on every mouse move.
-   This is a bit slow and you may notice some lag of the cross hair movement.
+   This is a bit slow, and you may notice some lag of the cross-hair movement.
 2) A cursor that uses blitting for speedup of the rendering.
 3) A cursor that snaps to data points.
 
@@ -76,18 +76,18 @@ fig.canvas.mpl_connect('motion_notify_event', cursor.on_mouse_move)
 # Faster redrawing using blitting
 # """""""""""""""""""""""""""""""
 # This technique stores the rendered plot as a background image. Only the
-# changed artists (cross hair lines and text) are rendered anew. They are
+# changed artists (cross-hair lines and text) are rendered anew. They are
 # combined with the background using blitting.
 #
 # This technique is significantly faster. It requires a bit more setup because
-# the background has to be stored without the cross hair lines (see
+# the background has to be stored without the cross-hair lines (see
 # ``create_new_background()``). Additionally, a new background has to be
 # created whenever the figure changes. This is achieved by connecting to the
 # ``'draw_event'``.
 
 class BlittedCursor:
     """
-    A cross hair cursor using blitting for faster redraw.
+    A cross-hair cursor using blitting for faster redraw.
     """
     def __init__(self, ax):
         self.ax = ax
@@ -167,7 +167,7 @@ fig.canvas.mpl_connect('motion_notify_event', blitted_cursor.on_mouse_move)
 
 class SnappingCursor:
     """
-    A cross hair cursor that snaps to the data point of a line, which is
+    A cross-hair cursor that snaps to the data point of a line, which is
     closest to the *x* position of the cursor.
 
     For simplicity, this assumes that *x* values of the data are sorted.

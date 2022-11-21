@@ -1,6 +1,6 @@
 """
 ================
-Annotated Cursor
+Annotated cursor
 ================
 
 Display a data cursor including a text box, which shows the plot point close
@@ -50,7 +50,7 @@ class AnnotatedCursor(Cursor):
 
     offset : (float, float) default: (5, 5)
         The offset in display (pixel) coordinates of the text position
-        relative to the cross hair.
+        relative to the cross-hair.
 
     dataaxis : {"x", "y"}, optional, default: "x"
         If "x" is specified, the vertical cursor line sticks to the mouse

@@ -1,6 +1,6 @@
 """
 ===============
-Pick Event Demo
+Pick event demo
 ===============
 
 You can enable picking by setting the "picker" property of an artist
@@ -56,7 +56,7 @@ artist
   the matplotlib.artist that generated the pick event.
 
 Additionally, certain artists like Line2D and PatchCollection may
-attach additional meta data like the indices into the data that meet
+attach additional metadata like the indices into the data that meet
 the picker criteria (for example, all the points in the line that are within
 the specified epsilon tolerance)
 

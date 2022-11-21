@@ -10,7 +10,7 @@ property::
     for label in ax.get_xticklabels():
         label.set_horizontalalignment('right')
 
-However there is no direct way to center the labels between ticks. To fake
+However, there is no direct way to center the labels between ticks. To fake
 this behavior, one can place a label on the minor ticks in between the major
 ticks, and hide the major tick labels and minor ticks.
 

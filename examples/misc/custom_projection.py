@@ -103,7 +103,7 @@ class GeoAxes(Axes):
         # 2) The above has an output range that is not in the unit
         # rectangle, so scale and translate it so it fits correctly
         # within the axes.  The peculiar calculations of xscale and
-        # yscale are specific to a Aitoff-Hammer projection, so don't
+        # yscale are specific to an Aitoff-Hammer projection, so don't
         # worry about them too much.
         self.transAffine = self._get_affine_transform()
 
@@ -333,17 +333,17 @@ class GeoAxes(Axes):
     # so we override all of the following methods to disable it.
     def can_zoom(self):
         """
-        Return whether this axes supports the zoom box button functionality.
+        Return whether this Axes supports the zoom box button functionality.
 
-        This axes object does not support interactive zoom box.
+        This Axes object does not support interactive zoom box.
         """
         return False
 
     def can_pan(self):
         """
-        Return whether this axes supports the pan/zoom button functionality.
+        Return whether this Axes supports the pan/zoom button functionality.
 
-        This axes object does not support interactive pan/zoom.
+        This Axes object does not support interactive pan/zoom.
         """
         return False
 

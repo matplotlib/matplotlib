@@ -12,7 +12,7 @@ the change of resolution (if any).
 When subsampling data, aliasing is reduced by smoothing first and then
 subsampling the smoothed data.  In Matplotlib, we can do that
 smoothing before mapping the data to colors, or we can do the smoothing
-on the RGB(A) data in the final image.  The difference between these is
+on the RGB(A) data in the final image.  The differences between these are
 shown below, and controlled with the *interpolation_stage* keyword argument.
 
 The default image interpolation in Matplotlib is 'antialiased', and
@@ -49,9 +49,9 @@ a = aa
 ###############################################################################
 # The following images are subsampled from 450 data pixels to either
 # 125 pixels or 250 pixels (depending on your display).
-# The Moire patterns in the 'nearest' interpolation are caused by the
+# The Moiré patterns in the 'nearest' interpolation are caused by the
 # high-frequency data being subsampled.  The 'antialiased' imaged
-# still has some Moire patterns as well, but they are greatly reduced.
+# still has some Moiré patterns as well, but they are greatly reduced.
 #
 # There are substantial differences between the 'data' interpolation and
 # the 'rgba' interpolation.  The alternating bands of red and blue on the
@@ -81,7 +81,7 @@ for ax, interp, space in zip(axs.flat[1:],
 plt.show()
 
 ###############################################################################
-# Even up-sampling an image with 'nearest' interpolation will lead to Moire
+# Even up-sampling an image with 'nearest' interpolation will lead to Moiré
 # patterns when the upsampling factor is not integer. The following image
 # upsamples 500 data pixels to 530 rendered pixels. You may note a grid of
 # 30 line-like artifacts which stem from the 524 - 500 = 24 extra pixels that

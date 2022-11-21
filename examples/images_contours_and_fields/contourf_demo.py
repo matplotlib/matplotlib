@@ -1,6 +1,6 @@
 """
 =============
-Contourf Demo
+Contourf demo
 =============
 
 How to use the `.axes.Axes.contourf` method to create filled contour plots.
@@ -97,7 +97,7 @@ extends = ["neither", "both", "min", "max"]
 cmap = plt.colormaps["winter"].with_extremes(under="magenta", over="yellow")
 # Note: contouring simply excludes masked or nan regions, so
 # instead of using the "bad" colormap value for them, it draws
-# nothing at all in them.  Therefore the following would have
+# nothing at all in them.  Therefore, the following would have
 # no effect:
 # cmap.set_bad("red")
 

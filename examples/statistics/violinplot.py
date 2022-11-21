@@ -10,7 +10,7 @@ or order statistics, violin plots use kernel density estimation (KDE) to
 compute an empirical distribution of the sample. That computation
 is controlled by several parameters. This example demonstrates how to
 modify the number of points at which the KDE is evaluated (``points``)
-and how to modify the band-width of the KDE (``bw_method``).
+and how to modify the bandwidth of the KDE (``bw_method``).
 
 For more information on violin plots and KDE, the scikit-learn docs
 have a great section: https://scikit-learn.org/stable/modules/density.html

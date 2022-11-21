@@ -1,6 +1,6 @@
 """
 ==========
-Image Demo
+Image demo
 ==========
 
 Many ways to plot images in Matplotlib.

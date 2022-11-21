@@ -1,6 +1,6 @@
 """
 ============
-Axes Divider
+Axes divider
 ============
 
 Axes divider to calculate location of axes and
@@ -112,7 +112,7 @@ def demo():
 
     # PLOT 3
     # image and colorbar whose location is adjusted in the drawing time.
-    # a easy way
+    # an easy way
 
     ax = fig.add_subplot(2, 2, 3)
     demo_locatable_axes_easy(ax)

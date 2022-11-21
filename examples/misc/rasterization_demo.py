@@ -54,7 +54,7 @@ ax1.set_title("No Rasterization")
 # pcolormesh with rasterization; enabled by keyword argument
 ax2.set_aspect(1)
 ax2.set_title("Rasterization")
-m = ax2.pcolormesh(xx, yy, d, rasterized=True)
+ax2.pcolormesh(xx, yy, d, rasterized=True)
 
 # pcolormesh with an overlaid text without rasterization
 ax3.set_aspect(1)

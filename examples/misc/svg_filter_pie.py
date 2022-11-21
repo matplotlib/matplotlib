@@ -1,6 +1,6 @@
 """
 ==============
-SVG Filter Pie
+SVG filter pie
 ==============
 
 Demonstrate SVG filtering effects which might be used with Matplotlib.
@@ -25,7 +25,7 @@ fracs = [15, 30, 45, 10]
 
 explode = (0, 0.05, 0, 0)
 
-# We want to draw the shadow for each pie but we will not use "shadow"
+# We want to draw the shadow for each pie, but we will not use "shadow"
 # option as it doesn't save the references to the shadow patches.
 pies = ax.pie(fracs, explode=explode, labels=labels, autopct='%1.1f%%')
 

@@ -1,9 +1,9 @@
 """
 ===========
-Shared Axis
+Shared axis
 ===========
 
-You can share the x or y axis limits for one axis with another by
+You can share the x- or y-axis limits for one axis with another by
 passing an `~.axes.Axes` instance as a *sharex* or *sharey* keyword argument.
 
 Changing the axis limits on one axes will be reflected automatically
@@ -21,7 +21,7 @@ because you may want to make the tick labels smaller on the upper
 axes, e.g., in the example below.
 
 If you want to turn off the ticklabels for a given Axes (e.g., on
-subplot(211) or subplot(212), you cannot do the standard trick::
+subplot(211) or subplot(212)), you cannot do the standard trick::
 
    setp(ax2, xticklabels=[])
 

@@ -3,8 +3,8 @@
 pcolormesh
 ==========
 
-`.axes.Axes.pcolormesh` allows you to generate 2D image-style plots.  Note it
-is faster than the similar `~.axes.Axes.pcolor`.
+`.axes.Axes.pcolormesh` allows you to generate 2D image-style plots.
+Note that it is faster than the similar `~.axes.Axes.pcolor`.
 
 """
 

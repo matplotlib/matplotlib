@@ -1,9 +1,9 @@
 """
 ====================
-Inset Locator Demo 2
+Inset locator demo 2
 ====================
 
-This Demo shows how to create a zoomed inset via `.zoomed_inset_axes`.
+This demo shows how to create a zoomed inset via `.zoomed_inset_axes`.
 In the first subplot an `.AnchoredSizeBar` shows the zoom effect.
 In the second subplot a connection to the region of interest is
 created via `.mark_inset`.
@@ -63,7 +63,7 @@ ax2.imshow(Z2, extent=extent, origin="lower")
 axins2 = zoomed_inset_axes(ax2, zoom=6, loc=1)
 axins2.imshow(Z2, extent=extent, origin="lower")
 
-# sub region of the original image
+# subregion of the original image
 x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9
 axins2.set_xlim(x1, x2)
 axins2.set_ylim(y1, y2)
