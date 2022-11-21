@@ -54,7 +54,7 @@ class LayoutEngine:
     3. override `LayoutEngine.execute` with your implementation
 
     """
-    # override these is sub-class
+    # override these in subclass
     _adjust_compatible = None
     _colorbar_gridspec = None
 
@@ -103,7 +103,7 @@ class PlaceHolderLayoutEngine(LayoutEngine):
     """
     This layout engine does not adjust the figure layout at all.
 
-    The purpose of this `.LayoutEngine` is to act as a place holder when the
+    The purpose of this `.LayoutEngine` is to act as a placeholder when the
     user removes a layout engine to ensure an incompatible `.LayoutEngine` can
     not be set later.
 

@@ -1,5 +1,5 @@
 """
-Classes for the ticks and x and y axis.
+Classes for the ticks and x- and y-axis.
 """
 
 import datetime
@@ -283,13 +283,13 @@ class Tick(martist.Artist):
         """Get the default Text 2 instance."""
 
     def _get_tick1line(self):
-        """Get the default line2D instance for tick1."""
+        """Get the default `.Line2D` instance for tick1."""
 
     def _get_tick2line(self):
-        """Get the default line2D instance for tick2."""
+        """Get the default `.Line2D` instance for tick2."""
 
     def _get_gridline(self):
-        """Get the default grid Line2d instance for this tick."""
+        """Get the default grid `.Line2D` instance for this tick."""
 
     def get_loc(self):
         """Return the tick location (data coords) as a scalar."""
@@ -802,7 +802,7 @@ class Axis(martist.Artist):
 
         Notes
         -----
-        By default, Matplotlib supports the above mentioned scales.
+        By default, Matplotlib supports the above-mentioned scales.
         Additionally, custom scales may be registered using
         `matplotlib.scale.register_scale`. These scales can then also
         be used here.
@@ -1596,7 +1596,7 @@ class Axis(martist.Artist):
     def update_units(self, data):
         """
         Introspect *data* for units converter and update the
-        axis.converter instance if necessary. Return *True*
+        ``axis.converter`` instance if necessary. Return *True*
         if *data* is registered for unit conversion.
         """
         converter = munits.registry.get_converter(data)
@@ -2037,7 +2037,7 @@ class Axis(martist.Artist):
         Get the bounding boxes for this `.axis` and its siblings
         as set by `.Figure.align_xlabels` or  `.Figure.align_ylabels`.
 
-        By default it just gets bboxes for self.
+        By default, it just gets bboxes for *self*.
         """
         # Get the Grouper keeping track of x or y label groups for this figure.
         axis_names = [
@@ -2208,7 +2208,7 @@ class XAxis(Axis):
         self.offset_text_position = 'bottom'
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred in the x axis."""
+        """Test whether the mouse event occurred in the x-axis."""
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
