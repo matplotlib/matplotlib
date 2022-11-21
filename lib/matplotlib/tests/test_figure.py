@@ -598,6 +598,17 @@ def test_invalid_layouts():
         fig.set_layout_engine("constrained")
 
 
+@pytest.mark.parametrize('layout', ['constrained', 'compressed'])
+def test_layout_change_warning(layout):
+    """
+    Raise a warning when a previously assigned layout changes to tight using
+    plt.tight_layout().
+    """
+    fig, ax = plt.subplots(layout=layout)
+    with pytest.warns(UserWarning, match='The figure layout has changed to'):
+        plt.tight_layout()
+
+
 @check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
     fig_test.dpi = 100
