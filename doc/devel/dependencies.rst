@@ -46,7 +46,7 @@ Matplotlib figures can be rendered to various user interfaces. See
 :ref:`what-is-a-backend` for more details on the optional Matplotlib backends
 and the capabilities they provide.
 
-* Tk_ (>= 8.4, != 8.6.0 or 8.6.1): for the Tk-based backends. Tk is part of
+* Tk_ (>= 8.5, != 8.6.0 or 8.6.1): for the Tk-based backends. Tk is part of
   most standard Python installations, but it's not part of Python itself and
   thus may not be present in rare cases.
 * PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
