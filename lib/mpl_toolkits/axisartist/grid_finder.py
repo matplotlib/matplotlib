@@ -130,7 +130,7 @@ class GridFinder:
                  tick_formatter2=None):
         """
         transform : transform from the image coordinate (which will be
-        the transData of the axes to the world coordinate.
+        the transData of the axes to the world coordinate).
 
         or transform = (transform_xy, inv_transform_xy)
 
