@@ -2249,7 +2249,7 @@ class Axes3D(Axes):
         """
         Generate a 3D barplot.
 
-        This method creates three dimensional barplot where the width,
+        This method creates three-dimensional barplot where the width,
         depth, height, and color of the bars can all be uniquely set.
 
         Parameters
@@ -2302,8 +2302,7 @@ class Axes3D(Axes):
         Returns
         -------
         collection : `~.art3d.Poly3DCollection`
-            A collection of three dimensional polygons representing
-            the bars.
+            A collection of three-dimensional polygons representing the bars.
         """
 
         had_data = self.has_data()
@@ -2818,7 +2817,7 @@ pivot='tail', normalize=False, **kwargs)
             The format for the data points / data lines. See `.plot` for
             details.
 
-            Use 'none' (case insensitive) to plot errorbars without any data
+            Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
         ecolor : color, default: None

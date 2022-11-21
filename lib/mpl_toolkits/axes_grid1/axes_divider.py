@@ -183,10 +183,10 @@ class Divider:
         Parameters
         ----------
         nx, nx1 : int
-            Integers specifying the column-position of the
-            cell. When *nx1* is None, a single *nx*-th column is
-            specified. Otherwise location of columns spanning between *nx*
-            to *nx1* (but excluding *nx1*-th column) is specified.
+            Integers specifying the column-position of the cell. When *nx1* is
+            None, a single *nx*-th column is specified. Otherwise, the
+            location of columns spanning between *nx* to *nx1* (but excluding
+            *nx1*-th column) is specified.
         ny, ny1 : int
             Same as *nx* and *nx1*, but for row positions.
         axes
@@ -509,8 +509,8 @@ class AxesDivider(Divider):
         pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
             Padding between the axes.  float or str arguments are interpreted
             as for *size*.  Defaults to :rc:`figure.subplot.wspace` times the
-            main axes width (left or right axes) or :rc:`figure.subplot.hspace`
-            times the main axes height (bottom or top axes).
+            main Axes width (left or right axes) or :rc:`figure.subplot.hspace`
+            times the main Axes height (bottom or top axes).
         axes_class : subclass type of `~.axes.Axes`, optional
             The type of the new axes.  Defaults to the type of the main axes.
         **kwargs
