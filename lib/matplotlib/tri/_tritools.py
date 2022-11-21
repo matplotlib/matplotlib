@@ -128,7 +128,7 @@ class TriAnalyzer:
 
         The *new_mask* array is computed recursively; at each step flat
         triangles are removed only if they share a side with the current mesh
-        border. Thus no new holes in the triangulated domain will be created.
+        border. Thus, no new holes in the triangulated domain will be created.
 
         Parameters
         ----------

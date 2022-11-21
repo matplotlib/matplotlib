@@ -870,7 +870,7 @@ class FigureCanvasPS(FigureCanvasBase):
         Render the figure to a filesystem path or a file-like object.
 
         Parameters are as for `.print_figure`, except that *dsc_comments* is a
-        all string containing Document Structuring Convention comments,
+        string containing Document Structuring Convention comments,
         generated from the *metadata* parameter to `.print_figure`.
         """
         is_eps = fmt == 'eps'
@@ -1187,7 +1187,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     # the original bbox can be restored during the pstoeps step.
 
     if eps:
-        # For some versions of gs, above steps result in an ps file where the
+        # For some versions of gs, above steps result in a ps file where the
         # original bbox is no more correct. Do not adjust bbox for now.
         pstoeps(tmpfile, bbox, rotated=rotated)
 

@@ -8,12 +8,12 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-import matplotlib.category  # Register category unit converter as side-effect.
+import matplotlib.category  # Register category unit converter as side effect.
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates  # noqa # Register date unit converter as side-effect.
+import matplotlib.dates  # noqa # Register date unit converter as side effect.
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
@@ -541,7 +541,7 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def secondary_xaxis(self, location, *, functions=None, **kwargs):
         """
-        Add a second x-axis to this Axes.
+        Add a second x-axis to this `~.axes.Axes`.
 
         For example if we want to have a second scale for the data plotted on
         the xaxis.
@@ -583,7 +583,7 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def secondary_yaxis(self, location, *, functions=None, **kwargs):
         """
-        Add a second y-axis to this Axes.
+        Add a second y-axis to this `~.axes.Axes`.
 
         For example if we want to have a second scale for the data plotted on
         the yaxis.
@@ -721,8 +721,8 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            Valid keyword arguments are `.Line2D` properties, with the
-            exception of 'transform':
+            Valid keyword arguments are `.Line2D` properties, except for
+            'transform':
 
             %(Line2D:kwdoc)s
 
@@ -789,8 +789,8 @@ class Axes(_AxesBase):
         Other Parameters
         ----------------
         **kwargs
-            Valid keyword arguments are `.Line2D` properties, with the
-            exception of 'transform':
+            Valid keyword arguments are `.Line2D` properties, except for
+            'transform':
 
             %(Line2D:kwdoc)s
 
@@ -1491,7 +1491,7 @@ class Axes(_AxesBase):
           >>> plot(x1, y1, 'g^', x2, y2, 'g-')
 
           In this case, any additional keyword argument applies to all
-          datasets. Also this syntax cannot be combined with the *data*
+          datasets. Also, this syntax cannot be combined with the *data*
           parameter.
 
         By default, each line is assigned a different style specified by a
@@ -1753,7 +1753,7 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def loglog(self, *args, **kwargs):
         """
-        Make a plot with log scaling on both the x and y axis.
+        Make a plot with log scaling on both the x- and y-axis.
 
         Call signatures::
 
@@ -1761,7 +1761,7 @@ class Axes(_AxesBase):
             loglog([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
 
         This is just a thin wrapper around `.plot` which additionally changes
-        both the x-axis and the y-axis to log scaling. All of the concepts and
+        both the x-axis and the y-axis to log scaling. All the concepts and
         parameters of plot can be used here as well.
 
         The additional parameters *base*, *subs* and *nonpositive* control the
@@ -1807,7 +1807,7 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def semilogx(self, *args, **kwargs):
         """
-        Make a plot with log scaling on the x axis.
+        Make a plot with log scaling on the x-axis.
 
         Call signatures::
 
@@ -1815,8 +1815,8 @@ class Axes(_AxesBase):
             semilogx([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
 
         This is just a thin wrapper around `.plot` which additionally changes
-        the x-axis to log scaling. All of the concepts and parameters of plot
-        can be used here as well.
+        the x-axis to log scaling. All the concepts and parameters of plot can
+        be used here as well.
 
         The additional parameters *base*, *subs*, and *nonpositive* control the
         x-axis properties. They are just forwarded to `.Axes.set_xscale`.
@@ -1854,7 +1854,7 @@ class Axes(_AxesBase):
     @_docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
         """
-        Make a plot with log scaling on the y axis.
+        Make a plot with log scaling on the y-axis.
 
         Call signatures::
 
@@ -1862,8 +1862,8 @@ class Axes(_AxesBase):
             semilogy([x], y, [fmt], [x2], y2, [fmt2], ..., **kwargs)
 
         This is just a thin wrapper around `.plot` which additionally changes
-        the y-axis to log scaling. All of the concepts and parameters of plot
-        can be used here as well.
+        the y-axis to log scaling. All the concepts and parameters of plot can
+        be used here as well.
 
         The additional parameters *base*, *subs*, and *nonpositive* control the
         y-axis properties. They are just forwarded to `.Axes.set_yscale`.
@@ -3121,7 +3121,7 @@ class Axes(_AxesBase):
             For example, you can pass in ``wedgeprops = {'linewidth': 3}``
             to set the width of the wedge border lines equal to 3.
             For more details, look at the doc/arguments of the wedge object.
-            By default ``clip_on=False``.
+            By default, ``clip_on=False``.
 
         textprops : dict, default: None
             Dict of arguments to pass to the text objects.
@@ -3352,7 +3352,7 @@ class Axes(_AxesBase):
             The format for the data points / data lines. See `.plot` for
             details.
 
-            Use 'none' (case insensitive) to plot errorbars without any data
+            Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
         ecolor : color, default: None
@@ -4387,7 +4387,7 @@ class Axes(_AxesBase):
                     c_is_mapped = False
                     if c.size != xsize:
                         valid_shape = False
-                # If c can be either mapped values or a RGB(A) color, prefer
+                # If c can be either mapped values or an RGB(A) color, prefer
                 # the former if shapes match, the latter otherwise.
                 elif c.size == xsize:
                     c = c.ravel()
@@ -4458,9 +4458,9 @@ class Axes(_AxesBase):
             Note that *c* should not be a single numeric RGB or RGBA sequence
             because that is indistinguishable from an array of values to be
             colormapped. If you want to specify the same RGB or RGBA value for
-            all points, use a 2D array with a single row.  Otherwise, value-
-            matching will have precedence in case of a size matching with *x*
-            and *y*.
+            all points, use a 2D array with a single row.  Otherwise,
+            value-matching will have precedence in case of a size matching with
+            *x* and *y*.
 
             If you wish to specify a single color for all points
             prefer the *color* keyword argument.
@@ -5126,7 +5126,7 @@ default: :rc:`scatter.edgecolors`
             return (x, y) + args[2:]
         return args
 
-    # args can by a combination if X, Y, U, V, C and all should be replaced
+    # args can be a combination of X, Y, U, V, C and all should be replaced
     @_preprocess_data()
     @_docstring.dedent_interpd
     def quiver(self, *args, **kwargs):
@@ -6566,7 +6566,7 @@ default: :rc:`scatter.edgecolors`
             equals 1.
 
         bottom : array-like, scalar, or None, default: None
-            Location of the bottom of each bin, ie. bins are drawn from
+            Location of the bottom of each bin, i.e. bins are drawn from
             ``bottom`` to ``bottom + hist(x, bins)`` If a scalar, the bottom
             of each bin is shifted by the same amount. If an array, each bin
             is shifted independently and the length of bottom must match the
@@ -7060,9 +7060,9 @@ such objects
             histogrammed along the first dimension and values in y are
             histogrammed along the second dimension.
         xedges : 1D array
-            The bin edges along the x axis.
+            The bin edges along the x-axis.
         yedges : 1D array
-            The bin edges along the y axis.
+            The bin edges along the y-axis.
         image : `~.matplotlib.collections.QuadMesh`
 
         Other Parameters
@@ -7653,7 +7653,7 @@ such objects
         scale : {'default', 'linear', 'dB'}
             The scaling of the values in the *spec*.  'linear' is no scaling.
             'dB' returns the values in dB scale.  When *mode* is 'psd',
-            this is dB power (10 * log10).  Otherwise this is dB amplitude
+            this is dB power (10 * log10).  Otherwise, this is dB amplitude
             (20 * log10). 'default' is 'dB' if *mode* is 'psd' or
             'magnitude' and 'linear' otherwise.  This must be 'linear'
             if *mode* is 'angle' or 'phase'.
@@ -8240,7 +8240,7 @@ such objects
 
     table = mtable.table
 
-    # args can by either Y or y1, y2, ... and all should be replaced
+    # args can be either Y or y1, y2, ... and all should be replaced
     stackplot = _preprocess_data()(mstack.stackplot)
 
     streamplot = _preprocess_data(

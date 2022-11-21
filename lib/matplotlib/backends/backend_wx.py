@@ -303,7 +303,7 @@ class GraphicsContextWx(GraphicsContextBase):
     seems to be fairly heavy, so these objects are cached based on the
     bitmap object that is passed in.
 
-    The base GraphicsContext stores colors as a RGB tuple on the unit
+    The base GraphicsContext stores colors as an RGB tuple on the unit
     interval, e.g., (0.5, 0.0, 1.0).  wxPython uses an int interval, but
     since wxPython colour management is rather simple, I have not chosen
     to implement a separate colour manager class.
@@ -398,7 +398,7 @@ class GraphicsContextWx(GraphicsContextBase):
         self.unselect()
 
     def get_wxcolour(self, color):
-        """Convert a RGB(A) color to a wx.Colour."""
+        """Convert an RGB(A) color to a wx.Colour."""
         _log.debug("%s - get_wx_color()", type(self))
         return wx.Colour(*[int(255 * x) for x in color])
 

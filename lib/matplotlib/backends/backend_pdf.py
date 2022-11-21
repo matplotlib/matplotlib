@@ -2614,7 +2614,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     def delta(self, other):
         """
         Copy properties of other into self and return PDF commands
-        needed to transform self into other.
+        needed to transform *self* into *other*.
         """
         cmds = []
         fill_performed = False

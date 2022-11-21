@@ -103,8 +103,8 @@ class __getattr__:
 def _create_qApp():
     app = QtWidgets.QApplication.instance()
 
-    # Create a new QApplication and configure if if non exists yet, as only one
-    # QApplication can exist at a time.
+    # Create a new QApplication and configure it if none exists yet, as only
+    # one QApplication can exist at a time.
     if app is None:
         # display_is_valid returns False only if on Linux and neither X11
         # nor Wayland display can be opened.
@@ -376,7 +376,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         except KeyError:
             # Unicode defines code points up to 0x10ffff (sys.maxunicode)
             # QT will use Key_Codes larger than that for keyboard keys that are
-            # are not Unicode characters (like multimedia keys)
+            # not Unicode characters (like multimedia keys)
             # skip these
             # if you really want them, you should add them to SPECIAL_KEYS
             if event_key > sys.maxunicode:
