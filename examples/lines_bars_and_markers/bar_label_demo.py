@@ -27,8 +27,6 @@ female = (73, 34, 58)
 sex_counts = [male, female]
 width = 0.6  # the width of the bars: can also be len(x) sequence
 
-###############################################################################
-# Stacked bar plot with error bars
 
 fig, ax = plt.subplots()
 
