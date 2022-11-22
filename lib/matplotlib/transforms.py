@@ -17,7 +17,7 @@ to the graph:
 .. image:: ../_static/transforms.png
 
 The framework can be used for both affine and non-affine
-transformations.  However, for speed, we want use the backend
+transformations.  However, for speed, we want to use the backend
 renderers to perform affine transformations whenever possible.
 Therefore, it is possible to perform just the affine or non-affine
 part of a transformation on a set of data.  The affine is always

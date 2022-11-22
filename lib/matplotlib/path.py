@@ -48,11 +48,11 @@ class Path:
         Draw a line from the current position to the given vertex.
 
     - ``CURVE3`` :  1 control point, 1 endpoint
-        Draw a quadratic Bezier curve from the current position, with the given
+        Draw a quadratic Bézier curve from the current position, with the given
         control point, to the given end point.
 
     - ``CURVE4`` :  2 control points, 1 endpoint
-        Draw a cubic Bezier curve from the current position, with the given
+        Draw a cubic Bézier curve from the current position, with the given
         control points, to the given end point.
 
     - ``CLOSEPOLY`` : 1 vertex (ignored)
@@ -419,7 +419,7 @@ class Path:
 
     def iter_bezier(self, **kwargs):
         """
-        Iterate over each bezier curve (lines included) in a Path.
+        Iterate over each Bézier curve (lines included) in a Path.
 
         Parameters
         ----------
@@ -429,13 +429,13 @@ class Path:
         Yields
         ------
         B : matplotlib.bezier.BezierSegment
-            The bezier curves that make up the current path. Note in particular
-            that freestanding points are bezier curves of order 0, and lines
-            are bezier curves of order 1 (with two control points).
+            The Bézier curves that make up the current path. Note in particular
+            that freestanding points are Bézier curves of order 0, and lines
+            are Bézier curves of order 1 (with two control points).
         code : Path.code_type
             The code describing what kind of curve is being returned.
             Path.MOVETO, Path.LINETO, Path.CURVE3, Path.CURVE4 correspond to
-            bezier curves with 1, 2, 3, and 4 control points (respectively).
+            Bézier curves with 1, 2, 3, and 4 control points (respectively).
             Path.CLOSEPOLY is a Path.LINETO with the control points correctly
             chosen based on the start/end points of the current stroke.
         """
@@ -513,7 +513,7 @@ class Path:
             by *transform*; i.e. for a correct check, *transform* should
             transform the path into the coordinate system of *point*.
         radius : float, default: 0
-            Add an additional margin on the path in coordinates of *point*.
+            Additional margin on the path in coordinates of *point*.
             The path is extended tangentially by *radius/2*; i.e. if you would
             draw the path with a linewidth of *radius*, all points on the line
             would still be considered to be contained in the area. Conversely,
@@ -563,7 +563,7 @@ class Path:
             by *transform*; i.e. for a correct check, *transform* should
             transform the path into the coordinate system of *points*.
         radius : float, default: 0
-            Add an additional margin on the path in coordinates of *points*.
+            Additional margin on the path in coordinates of *points*.
             The path is extended tangentially by *radius/2*; i.e. if you would
             draw the path with a linewidth of *radius*, all points on the line
             would still be considered to be contained in the area. Conversely,
@@ -688,7 +688,7 @@ class Path:
         polygon/polyline is an Nx2 array of vertices.  In other words,
         each polygon has no ``MOVETO`` instructions or curves.  This
         is useful for displaying in backends that do not support
-        compound paths or Bezier curves.
+        compound paths or Bézier curves.
 
         If *width* and *height* are both non-zero then the lines will
         be simplified so that vertices outside of (0, 0), (width,
@@ -827,7 +827,7 @@ class Path:
 
         Notes
         -----
-        The circle is approximated using 8 cubic Bezier curves, as described in
+        The circle is approximated using 8 cubic Bézier curves, as described in
 
           Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
           Bezier Cubic Splines <https://www.tinaja.com/glib/ellipse4.pdf>`_.

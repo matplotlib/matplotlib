@@ -39,7 +39,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         For different densities in each direction, use a tuple
         (density_x, density_y).
     linewidth : float or 2D array
-        The width of the stream lines. With a 2D array the line width can be
+        The width of the streamlines. With a 2D array the line width can be
         varied across the grid. The array must have the same shape as *u*
         and *v*.
     color : color or 2D array
@@ -61,7 +61,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Coordinates of starting points for the streamlines in data coordinates
         (the same coordinates as the *x* and *y* arrays).
     zorder : int
-        The zorder of the stream lines and arrows.
+        The zorder of the streamlines and arrows.
         Artists with lower zorder values are drawn first.
     maxlength : float
         Maximum length of streamline in axes coordinates.
@@ -82,7 +82,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         - ``lines``: `.LineCollection` of streamlines
 
         - ``arrows``: `.PatchCollection` containing `.FancyArrowPatch`
-          objects representing the arrows half-way along stream lines.
+          objects representing the arrows half-way along streamlines.
 
         This container will probably change in the future to allow changes
         to the colormap, alpha, etc. for both lines and arrows, but these
@@ -201,7 +201,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         points = np.transpose([tx, ty]).reshape(-1, 1, 2)
         streamlines.extend(np.hstack([points[:-1], points[1:]]))
 
-        # Add arrows half way along each trajectory.
+        # Add arrows halfway along each trajectory.
         s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
         n = np.searchsorted(s, s[-1] / 2.)
         arrow_tail = (tx[n], ty[n])
