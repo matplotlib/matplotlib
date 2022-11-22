@@ -75,7 +75,7 @@ class AxislineStyle(_Style):
     """
     A container class which defines style classes for AxisArtists.
 
-    An instance of any axisline style class is an callable object,
+    An instance of any axisline style class is a callable object,
     whose call signature is ::
 
        __call__(self, axis_artist, path, transform)

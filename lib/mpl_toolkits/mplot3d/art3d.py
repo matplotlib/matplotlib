@@ -410,10 +410,9 @@ class Patch3DCollection(PatchCollection):
         :class:`~matplotlib.collections.PatchCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
-        Also, the keyword argument *depthshade* is available to
-        indicate whether or not to shade the patches in order to
-        give the appearance of depth (default is *True*).
-        This is typically desired in scatter plots.
+        Also, the keyword argument *depthshade* is available to indicate
+        whether to shade the patches in order to give the appearance of depth
+        (default is *True*). This is typically desired in scatter plots.
         """
         self._depthshade = depthshade
         super().__init__(*args, **kwargs)
@@ -505,10 +504,9 @@ class Path3DCollection(PathCollection):
         :class:`~matplotlib.collections.PathCollection`. In addition,
         keywords *zs=0* and *zdir='z'* are available.
 
-        Also, the keyword argument *depthshade* is available to
-        indicate whether or not to shade the patches in order to
-        give the appearance of depth (default is *True*).
-        This is typically desired in scatter plots.
+        Also, the keyword argument *depthshade* is available to indicate
+        whether to shade the patches in order to give the appearance of depth
+        (default is *True*). This is typically desired in scatter plots.
         """
         self._depthshade = depthshade
         self._in_draw = False
