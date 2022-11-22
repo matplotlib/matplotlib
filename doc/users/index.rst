@@ -8,7 +8,7 @@ User guide
 
 .. grid:: 1 1 3 3
 
-   .. grid-item:: Information
+   .. grid-item-card:: Information
 
       .. dropdown:: :doc:`getting_started/index`
          :open:
@@ -43,7 +43,7 @@ User guide
             project/index.rst
 
 
-   .. grid-item:: Explanations & Examples
+   .. grid-item-card:: Explanations & Examples
 
       .. dropdown:: :doc:`explain/index`
          :open:
@@ -78,7 +78,7 @@ User guide
             ../gallery/index.rst
 
 
-   .. grid-item:: References & Resources
+   .. grid-item-card:: References & Resources
 
       .. dropdown:: :doc:`../api/index`
          :open:

@@ -124,7 +124,8 @@ details.sd-dropdown summary.sd-card-header+div.sd-summary-content {
 details.sd-dropdown summary {
     /* padding: 1em; */
     padding: 0;
-  }
+}
 
-  .sd-dropdown>.sd-card-body{
-    padding: 0;}
+.sd-dropdown>.sd-card-body{
+    padding: 0;
+}
