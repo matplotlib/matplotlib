@@ -1,5 +1,5 @@
 """
-A module providing some utility functions regarding Bezier path manipulation.
+A module providing some utility functions regarding Bézier path manipulation.
 """
 
 from functools import lru_cache
@@ -94,7 +94,7 @@ def _de_casteljau1(beta, t):
 
 def split_de_casteljau(beta, t):
     """
-    Split a Bezier segment defined by its control points *beta* into two
+    Split a Bézier segment defined by its control points *beta* into two
     separate segments divided at *t* and return their control points.
     """
     beta = np.asarray(beta)
@@ -113,7 +113,7 @@ def split_de_casteljau(beta, t):
 def find_bezier_t_intersecting_with_closedpath(
         bezier_point_at_t, inside_closedpath, t0=0., t1=1., tolerance=0.01):
     """
-    Find the intersection of the Bezier curve with a closed path.
+    Find the intersection of the Bézier curve with a closed path.
 
     The intersection point *t* is approximated by two parameters *t0*, *t1*
     such that *t0* <= *t* <= *t1*.
@@ -126,7 +126,7 @@ def find_bezier_t_intersecting_with_closedpath(
     Parameters
     ----------
     bezier_point_at_t : callable
-        A function returning x, y coordinates of the Bezier at parameter *t*.
+        A function returning x, y coordinates of the Bézier at parameter *t*.
         It must have the signature::
 
             bezier_point_at_t(t: float) -> tuple[float, float]
@@ -146,7 +146,7 @@ def find_bezier_t_intersecting_with_closedpath(
     Returns
     -------
     t0, t1 : float
-        The Bezier path parameters.
+        The Bézier path parameters.
     """
     start = bezier_point_at_t(t0)
     end = bezier_point_at_t(t1)
@@ -180,7 +180,7 @@ def find_bezier_t_intersecting_with_closedpath(
 
 class BezierSegment:
     """
-    A d-dimensional Bezier segment.
+    A d-dimensional Bézier segment.
 
     Parameters
     ----------
@@ -199,7 +199,7 @@ class BezierSegment:
 
     def __call__(self, t):
         """
-        Evaluate the Bezier curve at point(s) t in [0, 1].
+        Evaluate the Bézier curve at point(s) *t* in [0, 1].
 
         Parameters
         ----------
@@ -239,7 +239,7 @@ class BezierSegment:
     @property
     def polynomial_coefficients(self):
         r"""
-        The polynomial coefficients of the Bezier curve.
+        The polynomial coefficients of the Bézier curve.
 
         .. warning:: Follows opposite convention from `numpy.polyval`.
 
@@ -247,7 +247,7 @@ class BezierSegment:
         -------
         (n+1, d) array
             Coefficients after expanding in polynomial basis, where :math:`n`
-            is the degree of the bezier curve and :math:`d` its dimension.
+            is the degree of the Bézier curve and :math:`d` its dimension.
             These are the numbers (:math:`C_j`) such that the curve can be
             written :math:`\sum_{j=0}^n C_j t^j`.
 
@@ -308,12 +308,12 @@ class BezierSegment:
 def split_bezier_intersecting_with_closedpath(
         bezier, inside_closedpath, tolerance=0.01):
     """
-    Split a Bezier curve into two at the intersection with a closed path.
+    Split a Bézier curve into two at the intersection with a closed path.
 
     Parameters
     ----------
     bezier : (N, 2) array-like
-        Control points of the Bezier segment. See `.BezierSegment`.
+        Control points of the Bézier segment. See `.BezierSegment`.
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the
         closed path. See also `.find_bezier_t_intersecting_with_closedpath`.
@@ -324,7 +324,7 @@ def split_bezier_intersecting_with_closedpath(
     Returns
     -------
     left, right
-        Lists of control points for the two Bezier segments.
+        Lists of control points for the two Bézier segments.
     """
 
     bz = BezierSegment(bezier)
@@ -461,13 +461,13 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
 
 def get_parallels(bezier2, width):
     """
-    Given the quadratic Bezier control points *bezier2*, returns
-    control points of quadratic Bezier lines roughly parallel to given
+    Given the quadratic Bézier control points *bezier2*, returns
+    control points of quadratic Bézier lines roughly parallel to given
     one separated by *width*.
     """
 
     # The parallel Bezier lines are constructed by following ways.
-    #  c1 and c2 are control points representing the begin and end of the
+    #  c1 and c2 are control points representing the start and end of the
     #  Bezier line.
     #  cm is the middle point
 
@@ -485,7 +485,7 @@ def get_parallels(bezier2, width):
         cos_t2, sin_t2 = cos_t1, sin_t1
     else:
         # t1 and t2 is the angle between c1 and cm, cm, c2.  They are
-        # also a angle of the tangential line of the path at c1 and c2
+        # also an angle of the tangential line of the path at c1 and c2
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
         cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c2x, c2y)
 
@@ -535,7 +535,7 @@ def get_parallels(bezier2, width):
 
 def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
     """
-    Find control points of the Bezier curve passing through (*c1x*, *c1y*),
+    Find control points of the Bézier curve passing through (*c1x*, *c1y*),
     (*mmx*, *mmy*), and (*c2x*, *c2y*), at parametric values 0, 0.5, and 1.
     """
     cmx = .5 * (4 * mmx - (c1x + c2x))
@@ -545,8 +545,8 @@ def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
 
 def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     """
-    Being similar to get_parallels, returns control points of two quadratic
-    Bezier lines having a width roughly parallel to given one separated by
+    Being similar to `get_parallels`, returns control points of two quadratic
+    Bézier lines having a width roughly parallel to given one separated by
     *width*.
     """
 
@@ -556,7 +556,7 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     c3x, c3y = bezier2[2]
 
     # t1 and t2 is the angle between c1 and cm, cm, c3.
-    # They are also a angle of the tangential line of the path at c1 and c3
+    # They are also an angle of the tangential line of the path at c1 and c3
     cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
     cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c3x, c3y)
 

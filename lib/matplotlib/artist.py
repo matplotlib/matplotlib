@@ -204,7 +204,7 @@ class Artist:
         Note: there is no support for removing the artist's legend entry.
         """
 
-        # There is no method to set the callback.  Instead the parent should
+        # There is no method to set the callback.  Instead, the parent should
         # set the _remove_method attribute directly.  This would be a
         # protected attribute if Python supported that sort of thing.  The
         # callback has one parameter, which is the child to be removed.
@@ -521,7 +521,7 @@ class Artist:
                 # tick label) can be outside the bounding box of the
                 # Axes and inaxes will be None
                 # also check that ax is None so that it traverse objects
-                # which do no have an axes property but children might
+                # which do not have an axes property but children might
                 a.pick(mouseevent)
 
     def set_picker(self, picker):
@@ -878,7 +878,7 @@ class Artist:
         """
         Set whether the artist uses clipping.
 
-        When False artists will be visible outside of the Axes which
+        When False, artists will be visible outside the Axes which
         can lead to unexpected results.
 
         Parameters
@@ -1145,7 +1145,7 @@ class Artist:
         Helper for `.Artist.set` and `.Artist.update`.
 
         *errfmt* is used to generate error messages for invalid property
-        names; it get formatted with ``type(self)`` and the property name.
+        names; it gets formatted with ``type(self)`` and the property name.
         """
         ret = []
         with cbook._setattr_cm(self, eventson=False):
@@ -1371,7 +1371,7 @@ class Artist:
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):
     """
     Matplotlib's `.Axes.get_tightbbox` and `.Axis.get_tightbbox` support a
-    *for_layout_only* kwarg; this helper tries to uses the kwarg but skips it
+    *for_layout_only* kwarg; this helper tries to use the kwarg but skips it
     when encountering third-party subclasses that do not support it.
     """
     try:
@@ -1463,7 +1463,7 @@ class ArtistInspector:
         # although barely relevant wrt. matplotlib's total import time.
         param_name = func.__code__.co_varnames[1]
         # We could set the presence * based on whether the parameter is a
-        # varargs (it can't be a varkwargs) but it's not really worth the it.
+        # varargs (it can't be a varkwargs) but it's not really worth it.
         match = re.search(r"(?m)^ *\*?{} : (.+)".format(param_name), docstring)
         if match:
             return match.group(1)
@@ -1523,7 +1523,7 @@ class ArtistInspector:
         """
         Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME'.
 
-        e.g., for the line markerfacecolor property, which has an
+        For example, for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'.
         """
@@ -1551,7 +1551,7 @@ class ArtistInspector:
         Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME',
         formatted for reST.
 
-        e.g., for the line markerfacecolor property, which has an
+        For example, for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'.
         """
