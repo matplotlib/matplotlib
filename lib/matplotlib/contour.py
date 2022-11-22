@@ -1362,6 +1362,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         d2min = np.inf
         conmin = None
         segmin = None
+        imin = None
         xmin = None
         ymin = None
 
