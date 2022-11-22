@@ -9,6 +9,8 @@ User guide
 .. grid:: 1 1 3 3
 
    .. grid-item-card:: Information
+      :shadow: none
+      :class-card: sd-border-0
 
       .. dropdown:: :doc:`getting_started/index`
          :open:
@@ -44,6 +46,8 @@ User guide
 
 
    .. grid-item-card:: Explanations & Examples
+      :shadow: none
+      :class-card: sd-border-0
 
       .. dropdown:: :doc:`explain/index`
          :open:
@@ -79,6 +83,8 @@ User guide
 
 
    .. grid-item-card:: References & Resources
+      :shadow: none
+      :class-card: sd-border-0
 
       .. dropdown:: :doc:`../api/index`
          :open:
