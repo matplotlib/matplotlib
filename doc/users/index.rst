@@ -2,12 +2,17 @@
 
 .. redirect-from:: /contents
 
-..
-.. grid:: 3
+==========
+User guide
+==========
+
+.. grid:: 1 1 3 3
 
    .. grid-item-card:: Information
+      :shadow: none
+      :class-card: sd-border-0
 
-      .. dropdown:: Getting Started
+      .. dropdown:: :doc:`getting_started/index`
          :open:
 
          .. toctree::
@@ -15,7 +20,7 @@
 
             getting_started/index.rst
 
-      .. dropdown:: Installation
+      .. dropdown:: :doc:`installing/index`
          :open:
 
          .. toctree::
@@ -23,7 +28,7 @@
 
             installing/index.rst
 
-      .. dropdown:: Contributing
+      .. dropdown:: :doc:`../devel/index`
          :open:
 
          .. toctree::
@@ -31,7 +36,7 @@
 
             ../devel/index.rst
 
-      .. dropdown:: About
+      .. dropdown:: :doc:`project/index`
          :open:
 
          .. toctree::
@@ -41,8 +46,10 @@
 
 
    .. grid-item-card:: Explanations & Examples
+      :shadow: none
+      :class-card: sd-border-0
 
-      .. dropdown:: API Explanations
+      .. dropdown:: :doc:`explain/index`
          :open:
 
          .. toctree::
@@ -50,7 +57,7 @@
 
             explain/index.rst
 
-      .. dropdown:: Plot Types
+      .. dropdown:: :doc:`../plot_types/index`
          :open:
 
          .. toctree::
@@ -58,7 +65,7 @@
 
             ../plot_types/index.rst
 
-      .. dropdown:: Tutorials
+      .. dropdown:: :doc:`../tutorials/index`
          :open:
 
          .. toctree::
@@ -66,7 +73,7 @@
 
             ../tutorials/index.rst
 
-      .. dropdown:: Example Gallery
+      .. dropdown:: :doc:`../gallery/index`
          :open:
 
          .. toctree::
@@ -76,8 +83,10 @@
 
 
    .. grid-item-card:: References & Resources
+      :shadow: none
+      :class-card: sd-border-0
 
-      .. dropdown:: API Reference
+      .. dropdown:: :doc:`../api/index`
          :open:
 
          .. toctree::
@@ -85,7 +94,7 @@
 
             ../api/index.rst
 
-      .. dropdown:: Release Notes
+      .. dropdown:: :doc:`release_notes`
          :open:
 
          .. toctree::
@@ -93,7 +102,7 @@
 
             release_notes.rst
 
-      .. dropdown:: Troubleshooting
+      .. dropdown:: :doc:`faq/index`
          :open:
 
          .. toctree::
@@ -101,7 +110,7 @@
 
             faq/index.rst
 
-      .. dropdown:: External Resources
+      .. dropdown:: :doc:`resources/index`
          :open:
 
          .. toctree::

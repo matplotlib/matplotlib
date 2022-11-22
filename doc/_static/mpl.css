@@ -110,3 +110,21 @@ table.property-table td {
     list-style:none;
     padding-inline-start:0em;
 }
+
+/* styles dropdown like toctree-toggle */
+details.sd-dropdown{
+    box-shadow: none !important;
+}
+
+details.sd-dropdown summary.sd-card-header,
+details.sd-dropdown summary.sd-card-header+div.sd-summary-content {
+    --pst-sd-dropdown-color: none;
+}
+
+details.sd-dropdown summary {
+    /* padding: 1em; */
+    padding: 0;
+  }
+
+  .sd-dropdown>.sd-card-body{
+    padding: 0;}

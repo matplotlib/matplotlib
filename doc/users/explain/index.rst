@@ -2,8 +2,9 @@
 
 .. redirect-from:: /users/explain
 
-Explanations
-------------
+
+API Documentation
+=================
 
 .. toctree::
     :maxdepth: 2
