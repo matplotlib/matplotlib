@@ -8,9 +8,7 @@ User guide
 
 .. grid:: 1 1 3 3
 
-   .. grid-item-card:: Information
-      :shadow: none
-      :class-card: sd-border-0
+   .. grid-item:: Information
 
       .. dropdown:: :doc:`getting_started/index`
          :open:
@@ -45,9 +43,7 @@ User guide
             project/index.rst
 
 
-   .. grid-item-card:: Explanations & Examples
-      :shadow: none
-      :class-card: sd-border-0
+   .. grid-item:: Explanations & Examples
 
       .. dropdown:: :doc:`explain/index`
          :open:
@@ -82,9 +78,7 @@ User guide
             ../gallery/index.rst
 
 
-   .. grid-item-card:: References & Resources
-      :shadow: none
-      :class-card: sd-border-0
+   .. grid-item:: References & Resources
 
       .. dropdown:: :doc:`../api/index`
          :open:
