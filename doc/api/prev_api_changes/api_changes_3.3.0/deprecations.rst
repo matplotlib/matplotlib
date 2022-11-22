@@ -273,13 +273,13 @@ mathtext glues
 The *copy* parameter of ``mathtext.Glue`` is deprecated (the underlying glue
 spec is now immutable).  ``mathtext.GlueSpec`` is deprecated.
 
-Signatures of `.Artist.draw` and `.Axes.draw`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The *inframe* parameter to `.Axes.draw` is deprecated.  Use
+Signatures of `.Artist.draw` and `matplotlib.axes.Axes.draw`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *inframe* parameter to `matplotlib.axes.Axes.draw` is deprecated.  Use
 `.Axes.redraw_in_frame` instead.
 
-Not passing the *renderer* parameter to `.Axes.draw` is deprecated.  Use
-``axes.draw_artist(axes)`` instead.
+Not passing the *renderer* parameter to `matplotlib.axes.Axes.draw` is
+deprecated. Use ``axes.draw_artist(axes)`` instead.
 
 These changes make the signature of the ``draw`` (``artist.draw(renderer)``)
 method consistent across all artists; thus, additional parameters to
