@@ -39,7 +39,7 @@ import matplotlib as mpl
 from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
 from matplotlib import _api, cbook
-
+import matplotlib.colors as mcolors
 
 _log = logging.getLogger(__name__)
 
@@ -1003,6 +1003,9 @@ class Animation:
 
         if savefig_kwargs is None:
             savefig_kwargs = {}
+        else:
+            # we are going to mutate this below
+            savefig_kwargs = dict(savefig_kwargs)
 
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
@@ -1057,6 +1060,18 @@ class Animation:
             _log.info("Disabling savefig.bbox = 'tight', as it may cause "
                       "frame size to vary, which is inappropriate for "
                       "animation.")
+
+        facecolor = savefig_kwargs.get('facecolor',
+                                       mpl.rcParams['savefig.facecolor'])
+        if facecolor == 'auto':
+            facecolor = self._fig.get_facecolor()
+
+        def _pre_composite_to_white(color):
+            r, g, b, a = mcolors.to_rgba(color)
+            return a * np.array([r, g, b]) + 1 - a
+
+        savefig_kwargs['facecolor'] = _pre_composite_to_white(facecolor)
+        savefig_kwargs['transparent'] = False   # just to be safe!
         # canvas._is_saving = True makes the draw_event animation-starting
         # callback a no-op; canvas.manager = None prevents resizing the GUI
         # widget (both are likewise done in savefig()).
