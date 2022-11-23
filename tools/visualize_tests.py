@@ -126,7 +126,7 @@ def run(show_browser=True):
             show_message = True
 
     if show_message:
-        print("Open {} in a browser for a visual comparison.".format(index))
+        print(f"Open {index} in a browser for a visual comparison.")
 
 
 if __name__ == '__main__':
