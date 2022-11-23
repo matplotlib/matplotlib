@@ -485,11 +485,25 @@ def test_CenteredNorm():
     norm(np.linspace(-1.0, 0.0, 10))
     assert norm.vmax == 1.0
     assert norm.halfrange == 1.0
-    # set vcenter to 1, which should double halfrange
+    # set vcenter to 1, which should move the center but leave the
+    # halfrange unchanged
     norm.vcenter = 1
-    assert norm.vmin == -1.0
-    assert norm.vmax == 3.0
-    assert norm.halfrange == 2.0
+    assert norm.vmin == 0
+    assert norm.vmax == 2
+    assert norm.halfrange == 1
+
+    # Check setting vmin directly updates the halfrange and vmax, but
+    # leaves vcenter alone
+    norm.vmin = -1
+    assert norm.halfrange == 2
+    assert norm.vmax == 3
+    assert norm.vcenter == 1
+
+    # also check vmax updates
+    norm.vmax = 2
+    assert norm.halfrange == 1
+    assert norm.vmin == 0
+    assert norm.vcenter == 1
 
 
 @pytest.mark.parametrize("vmin,vmax", [[-1, 2], [3, 1]])

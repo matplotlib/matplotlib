@@ -1060,6 +1060,17 @@ def test_negative_boundarynorm():
     np.testing.assert_allclose(cb.ax.get_yticks(), clevs)
 
 
+def test_centerednorm():
+    # Test default centered norm gets expanded with non-singular limits
+    # when plot data is all equal (autoscale halfrange == 0)
+    fig, ax = plt.subplots(figsize=(1, 3))
+
+    norm = mcolors.CenteredNorm()
+    mappable = ax.pcolormesh(np.zeros((3, 3)), norm=norm)
+    fig.colorbar(mappable)
+    assert (norm.vmin, norm.vmax) == (-0.1, 0.1)
+
+
 @image_comparison(['nonorm_colorbars.svg'], style='mpl20')
 def test_nonorm():
     plt.rcParams['svg.fonttype'] = 'none'
