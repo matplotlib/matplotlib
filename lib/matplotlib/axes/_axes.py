@@ -1184,7 +1184,7 @@ class Axes(_AxesBase):
                                      "colors", "linestyles"])
     @_docstring.dedent_interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
-                  linelengths=1, linewidths=None, colors=None,
+                  linelengths=1, linewidths=None, colors=None, alpha=None,
                   linestyles='solid', **kwargs):
         """
         Plot identical parallel lines at the given positions.
@@ -1246,6 +1246,13 @@ class Axes(_AxesBase):
             If *positions* is 2D, this can be a sequence with length matching
             the length of *positions*.
 
+        alpha : float or array-like, default: 1
+            The alpha blending value(s), between 0 (transparent) and 1
+            (opaque).
+
+            If *positions* is 2D, this can be a sequence with length matching
+            the length of *positions*.
+
         linestyles : str or tuple or list of such values, default: 'solid'
             Default is 'solid'. Valid strings are ['solid', 'dashed',
             'dashdot', 'dotted', '-', '--', '-.', ':']. Dash tuples
@@ -1273,8 +1280,8 @@ class Axes(_AxesBase):
 
         Notes
         -----
-        For *linelengths*, *linewidths*, *colors*, and *linestyles*, if only
-        a single value is given, that value is applied to all lines.  If an
+        For *linelengths*, *linewidths*, *colors*, *alpha* and *linestyles*, if
+        only a single value is given, that value is applied to all lines. If an
         array-like is given, it must have the same length as *positions*, and
         each value will be applied to the corresponding row of the array.
 
@@ -1316,6 +1323,8 @@ class Axes(_AxesBase):
             linewidths = [linewidths]
         if not np.iterable(colors):
             colors = [colors]
+        if not np.iterable(alpha):
+            alpha = [alpha]
         if hasattr(linestyles, 'lower') or not np.iterable(linestyles):
             linestyles = [linestyles]
 
@@ -1352,8 +1361,9 @@ class Axes(_AxesBase):
         if len(linewidths) == 1:
             linewidths = np.tile(linewidths, len(positions))
         if len(colors) == 1:
-            colors = list(colors)
-            colors = colors * len(positions)
+            colors = list(colors) * len(positions)
+        if len(alpha) == 1:
+            alpha = list(alpha) * len(positions)
         if len(linestyles) == 1:
             linestyles = [linestyles] * len(positions)
 
@@ -1369,20 +1379,25 @@ class Axes(_AxesBase):
         if len(colors) != len(positions):
             raise ValueError('colors and positions are unequal sized '
                              'sequences')
+        if len(alpha) != len(positions):
+            raise ValueError('alpha and positions are unequal sized '
+                             'sequences')
         if len(linestyles) != len(positions):
             raise ValueError('linestyles and positions are unequal sized '
                              'sequences')
 
         colls = []
-        for position, lineoffset, linelength, linewidth, color, linestyle in \
+        for position, lineoffset, linelength, linewidth, color, alpha_, \
+            linestyle in \
                 zip(positions, lineoffsets, linelengths, linewidths,
-                    colors, linestyles):
+                    colors, alpha, linestyles):
             coll = mcoll.EventCollection(position,
                                          orientation=orientation,
                                          lineoffset=lineoffset,
                                          linelength=linelength,
                                          linewidth=linewidth,
                                          color=color,
+                                         alpha=alpha_,
                                          linestyle=linestyle)
             self.add_collection(coll, autolim=False)
             coll._internal_update(kwargs)
