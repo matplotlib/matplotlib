@@ -152,7 +152,7 @@ The following class methods have been removed:
   ``RendererAgg.tostring_rgba_minimized()``
 - ``NavigationToolbar2Wx.get_canvas()``
 
-- ``ParasiteAxesBase.update_viewlim()``; use `.ParasiteAxesBase.apply_aspect`
+- ``ParasiteAxesBase.update_viewlim()``; use ``ParasiteAxesBase.apply_aspect``
   instead.
 - ``Subplot.get_geometry()``; use ``SubplotBase.get_subplotspec`` instead.
 - ``Subplot.change_geometry()``; use ``SubplotBase.set_subplotspec`` instead.
