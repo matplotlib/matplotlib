@@ -916,6 +916,12 @@ class Axis(martist.Artist):
 
         For documentation of keyword arguments, see
         :meth:`matplotlib.axes.Axes.tick_params`.
+
+        See Also
+        --------
+        .Axis.get_tick_params
+            View the current style settings for ticks, ticklabels, and
+            gridlines.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
         kwtrans = self._translate_tick_params(kwargs)
@@ -949,8 +955,62 @@ class Axis(martist.Artist):
 
         self.stale = True
 
+    def get_tick_params(self, which='major'):
+        """
+        Get appearance parameters for ticks, ticklabels, and gridlines.
+
+        .. versionadded:: 3.7
+
+        Parameters
+        ----------
+        which : {'major', 'minor'}, default: 'major'
+            The group of ticks for which the parameters are retrieved.
+
+        Returns
+        -------
+        dict
+            Properties for styling tick elements added to the axis.
+
+        Notes
+        -----
+        This method returns the appearance parameters for styling *new*
+        elements added to this axis and may be different from the values
+        on current elements if they were modified directly by the user
+        (e.g., via ``set_*`` methods on individual tick objects).
+
+        Examples
+        --------
+        ::
+
+            >>> ax.yaxis.set_tick_params(labelsize=30, labelcolor='red',
+                                         direction='out', which='major')
+            >>> ax.yaxis.get_tick_params(which='major')
+            {'direction': 'out',
+            'left': True,
+            'right': False,
+            'labelleft': True,
+            'labelright': False,
+            'gridOn': False,
+            'labelsize': 30,
+            'labelcolor': 'red'}
+            >>> ax.yaxis.get_tick_params(which='minor')
+            {'left': True,
+            'right': False,
+            'labelleft': True,
+            'labelright': False,
+            'gridOn': False}
+
+
+        """
+        _api.check_in_list(['major', 'minor'], which=which)
+        if which == 'major':
+            return self._translate_tick_params(
+                self._major_tick_kw, reverse=True
+            )
+        return self._translate_tick_params(self._minor_tick_kw, reverse=True)
+
     @staticmethod
-    def _translate_tick_params(kw):
+    def _translate_tick_params(kw, reverse=False):
         """
         Translate the kwargs supported by `.Axis.set_tick_params` to kwargs
         supported by `.Tick._apply_params`.
@@ -961,9 +1021,12 @@ class Axis(martist.Artist):
 
         Returns a new dict of translated kwargs.
 
-        Note: The input *kwargs* are currently modified, but that's ok for
-        the only caller.
+        Note: Use reverse=True to translate from those supported by
+        `.Tick._apply_params` back to those supported by
+        `.Axis.set_tick_params`.
         """
+        kw_ = {**kw}
+
         # The following lists may be moved to a more accessible location.
         allowed_keys = [
             'size', 'width', 'color', 'tickdir', 'pad',
@@ -988,19 +1051,27 @@ class Axis(martist.Artist):
             'labelright': 'label2On',
             'labeltop': 'label2On',
         }
-        kwtrans = {newkey: kw.pop(oldkey)
-                   for oldkey, newkey in keymap.items() if oldkey in kw}
-        if 'colors' in kw:
-            c = kw.pop('colors')
+        if reverse:
+            kwtrans = {
+                oldkey: kw_.pop(newkey)
+                for oldkey, newkey in keymap.items() if newkey in kw_
+            }
+        else:
+            kwtrans = {
+                newkey: kw_.pop(oldkey)
+                for oldkey, newkey in keymap.items() if oldkey in kw_
+            }
+        if 'colors' in kw_:
+            c = kw_.pop('colors')
             kwtrans['color'] = c
             kwtrans['labelcolor'] = c
         # Maybe move the checking up to the caller of this method.
-        for key in kw:
+        for key in kw_:
             if key not in allowed_keys:
                 raise ValueError(
                     "keyword %s is not recognized; valid keywords are %s"
                     % (key, allowed_keys))
-        kwtrans.update(kw)
+        kwtrans.update(kw_)
         return kwtrans
 
     def set_clip_path(self, clippath, transform=None):

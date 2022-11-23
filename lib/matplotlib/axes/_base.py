@@ -3407,7 +3407,8 @@ class _AxesBase(martist.Artist):
         Change the appearance of ticks, tick labels, and gridlines.
 
         Tick properties that are not explicitly set using the keyword
-        arguments remain unchanged unless *reset* is True.
+        arguments remain unchanged unless *reset* is True. For the current
+        style settings, see `.Axis.get_tick_params`.
 
         Parameters
         ----------
