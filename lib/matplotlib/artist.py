@@ -132,7 +132,9 @@ class Artist:
 
         # Decorate draw() method so that all artists are able to stop
         # rastrization when necessary.
-        cls.draw = _prevent_rasterization(cls.draw)
+
+        if not hasattr(cls.draw, "_supports_rasterization"):
+            cls.draw = _prevent_rasterization(cls.draw)
 
         # Inject custom set() methods into the subclass with signature and
         # docstring based on the subclasses' properties.
