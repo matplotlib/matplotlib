@@ -1210,16 +1210,12 @@ class Wedge(Patch):
             # followed by a reversed and scaled inner ring
             v1 = arc.vertices
             v2 = arc.vertices[::-1] * (self.r - self.width) / self.r
-            v = np.concatenate([v1, v2, [v1[0, :], (0, 0)]])
-            c = np.concatenate([
-                arc.codes, arc.codes, [connector, Path.CLOSEPOLY]])
-            c[len(arc.codes)] = connector
+            v = np.concatenate([v1, v2, [(0, 0)]])
+            c = [*arc.codes, connector, *arc.codes[1:], Path.CLOSEPOLY]
         else:
             # Wedge doesn't need an inner ring
-            v = np.concatenate([
-                arc.vertices, [(0, 0), arc.vertices[0, :], (0, 0)]])
-            c = np.concatenate([
-                arc.codes, [connector, connector, Path.CLOSEPOLY]])
+            v = np.concatenate([arc.vertices, [(0, 0), (0, 0)]])
+            c = [*arc.codes, connector, Path.CLOSEPOLY]
 
         # Shift and scale the wedge to the final location.
         self._path = Path(v * self.r + self.center, c)
@@ -2478,9 +2474,7 @@ class BoxStyle(_Style):
                    Path.CURVE3, Path.CURVE3,
                    Path.CLOSEPOLY]
 
-            path = Path(cp, com)
-
-            return path
+            return Path(cp, com)
 
     @_register_style(_style_list)
     class Round4:
@@ -2529,9 +2523,7 @@ class BoxStyle(_Style):
                    Path.CURVE4, Path.CURVE4, Path.CURVE4,
                    Path.CLOSEPOLY]
 
-            path = Path(cp, com)
-
-            return path
+            return Path(cp, com)
 
     @_register_style(_style_list)
     class Sawtooth:
@@ -2626,8 +2618,7 @@ class BoxStyle(_Style):
         def __call__(self, x0, y0, width, height, mutation_size):
             saw_vertices = self._get_sawtooth_vertices(x0, y0, width,
                                                        height, mutation_size)
-            path = Path(saw_vertices, closed=True)
-            return path
+            return Path(saw_vertices, closed=True)
 
     @_register_style(_style_list)
     class Roundtooth(Sawtooth):
@@ -3383,22 +3374,20 @@ class ArrowStyle(_Style):
 
             # This simple code will not work if ddx, ddy is greater than the
             # separation between vertices.
-            _path = [Path(np.concatenate([[(x0 + ddxA, y0 + ddyA)],
+            paths = [Path(np.concatenate([[(x0 + ddxA, y0 + ddyA)],
                                           path.vertices[1:-1],
                                           [(x3 + ddxB, y3 + ddyB)]]),
                           path.codes)]
-            _fillable = [False]
+            fills = [False]
 
             if has_begin_arrow:
                 if self.fillbegin:
-                    p = np.concatenate([verticesA, [verticesA[0],
-                                                    verticesA[0]], ])
-                    c = np.concatenate([codesA, [Path.LINETO, Path.CLOSEPOLY]])
-                    _path.append(Path(p, c))
-                    _fillable.append(True)
+                    paths.append(
+                        Path([*verticesA, (0, 0)], [*codesA, Path.CLOSEPOLY]))
+                    fills.append(True)
                 else:
-                    _path.append(Path(verticesA, codesA))
-                    _fillable.append(False)
+                    paths.append(Path(verticesA, codesA))
+                    fills.append(False)
             elif self._beginarrow_bracket:
                 x0, y0 = path.vertices[0]
                 x1, y1 = path.vertices[1]
@@ -3407,19 +3396,17 @@ class ArrowStyle(_Style):
                                                       self.lengthA * scaleA,
                                                       self.angleA)
 
-                _path.append(Path(verticesA, codesA))
-                _fillable.append(False)
+                paths.append(Path(verticesA, codesA))
+                fills.append(False)
 
             if has_end_arrow:
                 if self.fillend:
-                    _fillable.append(True)
-                    p = np.concatenate([verticesB, [verticesB[0],
-                                                    verticesB[0]], ])
-                    c = np.concatenate([codesB, [Path.LINETO, Path.CLOSEPOLY]])
-                    _path.append(Path(p, c))
+                    fills.append(True)
+                    paths.append(
+                        Path([*verticesB, (0, 0)], [*codesB, Path.CLOSEPOLY]))
                 else:
-                    _fillable.append(False)
-                    _path.append(Path(verticesB, codesB))
+                    fills.append(False)
+                    paths.append(Path(verticesB, codesB))
             elif self._endarrow_bracket:
                 x0, y0 = path.vertices[-1]
                 x1, y1 = path.vertices[-2]
@@ -3428,10 +3415,10 @@ class ArrowStyle(_Style):
                                                       self.lengthB * scaleB,
                                                       self.angleB)
 
-                _path.append(Path(verticesB, codesB))
-                _fillable.append(False)
+                paths.append(Path(verticesB, codesB))
+                fills.append(False)
 
-            return _path, _fillable
+            return paths, fills
 
     @_register_style(_style_list, name="-")
     class Curve(_Curve):
@@ -3626,8 +3613,7 @@ class ArrowStyle(_Style):
 
             try:
                 arrow_out, arrow_in = \
-                    split_bezier_intersecting_with_closedpath(
-                        arrow_path, in_f, tolerance=0.01)
+                    split_bezier_intersecting_with_closedpath(arrow_path, in_f)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3707,7 +3693,7 @@ class ArrowStyle(_Style):
             in_f = inside_circle(x2, y2, head_length)
             try:
                 path_out, path_in = split_bezier_intersecting_with_closedpath(
-                    arrow_path, in_f, tolerance=0.01)
+                    arrow_path, in_f)
             except NonIntersectingPathException:
                 # if this happens, make a straight line of the head_length
                 # long.
@@ -3721,7 +3707,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x2, y2, head_length * .8)
             path_out, path_in = split_bezier_intersecting_with_closedpath(
-                arrow_path, in_f, tolerance=0.01)
+                arrow_path, in_f)
             path_tail = path_out
 
             # head
@@ -3739,7 +3725,7 @@ class ArrowStyle(_Style):
             # path for head
             in_f = inside_circle(x0, y0, tail_width * .3)
             path_in, path_out = split_bezier_intersecting_with_closedpath(
-                arrow_path, in_f, tolerance=0.01)
+                arrow_path, in_f)
             tail_start = path_in[-1]
 
             head_right, head_left = head_r, head_l
