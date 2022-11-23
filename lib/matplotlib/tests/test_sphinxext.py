@@ -18,6 +18,7 @@ def test_tinypages(tmp_path):
     shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
                     dirs_exist_ok=True)
     html_dir = tmp_path / '_build' / 'html'
+    img_dir = html_dir / '_images'
     doctree_dir = tmp_path / 'doctrees'
     # Build the pages with warnings turned into errors
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
@@ -35,7 +36,7 @@ def test_tinypages(tmp_path):
     build_sphinx_html(tmp_path, doctree_dir, html_dir)
 
     def plot_file(num):
-        return html_dir / f'some_plots-{num}.png'
+        return img_dir / f'some_plots-{num}.png'
 
     def plot_directive_file(num):
         # This is always next to the doctree dir.
@@ -58,8 +59,8 @@ def test_tinypages(tmp_path):
 
     assert b'# Only a comment' in html_contents
     # check plot defined in external file.
-    assert filecmp.cmp(range_4, html_dir / 'range4.png')
-    assert filecmp.cmp(range_6, html_dir / 'range6.png')
+    assert filecmp.cmp(range_4, img_dir / 'range4.png')
+    assert filecmp.cmp(range_6, img_dir / 'range6.png')
     # check if figure caption made it into html file
     assert b'This is the caption for plot 15.' in html_contents
     # check if figure caption using :caption: made it into html file
@@ -111,13 +112,13 @@ def test_plot_html_show_source_link(tmp_path):
     # Make sure source scripts are created by default
     html_dir1 = tmp_path / '_build' / 'html1'
     build_sphinx_html(tmp_path, doctree_dir, html_dir1)
-    assert "index-1.py" in [p.name for p in html_dir1.iterdir()]
+    assert len(list(html_dir1.glob("**/index-1.py"))) == 1
     # Make sure source scripts are NOT created when
     # plot_html_show_source_link` is False
     html_dir2 = tmp_path / '_build' / 'html2'
     build_sphinx_html(tmp_path, doctree_dir, html_dir2,
                       extra_args=['-D', 'plot_html_show_source_link=0'])
-    assert "index-1.py" not in [p.name for p in html_dir2.iterdir()]
+    assert len(list(html_dir2.glob("**/index-1.py"))) == 0
 
 
 @pytest.mark.parametrize('plot_html_show_source_link', [0, 1])
@@ -137,7 +138,7 @@ def test_show_source_link_true(tmp_path, plot_html_show_source_link):
     html_dir = tmp_path / '_build' / 'html'
     build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=[
         '-D', f'plot_html_show_source_link={plot_html_show_source_link}'])
-    assert "index-1.py" in [p.name for p in html_dir.iterdir()]
+    assert len(list(html_dir.glob("**/index-1.py"))) == 1
 
 
 @pytest.mark.parametrize('plot_html_show_source_link', [0, 1])
@@ -157,7 +158,7 @@ def test_show_source_link_false(tmp_path, plot_html_show_source_link):
     html_dir = tmp_path / '_build' / 'html'
     build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=[
         '-D', f'plot_html_show_source_link={plot_html_show_source_link}'])
-    assert "index-1.py" not in [p.name for p in html_dir.iterdir()]
+    assert len(list(html_dir.glob("**/index-1.py"))) == 0
 
 
 def build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=None):
