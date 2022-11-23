@@ -147,7 +147,7 @@ def test_legend_label_with_leading_underscore():
     with pytest.warns(UserWarning,
                       match=r"starts with '_'.*excluded from the legend."):
         legend = ax.legend(handles=[line])
-    assert len(legend.legendHandles) == 0
+    assert len(legend.legend_handles) == 0
 
 
 @image_comparison(['legend_labels_first.png'], remove_text=True)
@@ -550,7 +550,7 @@ def test_linecollection_scaled_dashes():
     ax.add_collection(lc3)
 
     leg = ax.legend([lc1, lc2, lc3], ["line1", "line2", 'line 3'])
-    h1, h2, h3 = leg.legendHandles
+    h1, h2, h3 = leg.legend_handles
 
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
         assert oh.get_linestyles()[0] == lh._dash_pattern
@@ -970,7 +970,7 @@ def test_legend_draggable(draggable):
 def test_alpha_handles():
     x, n, hh = plt.hist([1, 2, 3], alpha=0.25, label='data', color='red')
     legend = plt.legend()
-    for lh in legend.legendHandles:
+    for lh in legend.legend_handles:
         lh.set_alpha(1.0)
     assert lh.get_facecolor()[:-1] == hh[1].get_facecolor()[:-1]
     assert lh.get_edgecolor()[:-1] == hh[1].get_edgecolor()[:-1]
@@ -1102,7 +1102,7 @@ def test_handlerline2d():
     ax.scatter([0, 1], [0, 1], marker="v")
     handles = [mlines.Line2D([0], [0], marker="v")]
     leg = ax.legend(handles, ["Aardvark"], numpoints=1)
-    assert handles[0].get_marker() == leg.legendHandles[0].get_marker()
+    assert handles[0].get_marker() == leg.legend_handles[0].get_marker()
 
 
 def test_subfigure_legend():

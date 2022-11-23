@@ -55,7 +55,7 @@ def test_linecollection_scaled_dashes():
     ax.add_collection(lc3)
 
     leg = ax.legend([lc1, lc2, lc3], ['line1', 'line2', 'line 3'])
-    h1, h2, h3 = leg.legendHandles
+    h1, h2, h3 = leg.legend_handles
 
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
         assert oh.get_linestyles()[0] == lh._dash_pattern
@@ -67,7 +67,7 @@ def test_handlerline3d():
     ax.scatter([0, 1], [0, 1], marker="v")
     handles = [art3d.Line3D([0], [0], [0], marker="v")]
     leg = ax.legend(handles, ["Aardvark"], numpoints=1)
-    assert handles[0].get_marker() == leg.legendHandles[0].get_marker()
+    assert handles[0].get_marker() == leg.legend_handles[0].get_marker()
 
 
 def test_contour_legend_elements():
