@@ -99,7 +99,6 @@ table.property-table td {
     display: inline-block;
     margin: 0 0.5em;
 }
-
 /* Removes title from toc in dropdwon */
 
 .sd-dropdown>.sd-card-body>.toctree-wrapper>ul>.toctree-l1>a{
@@ -128,4 +127,11 @@ details.sd-dropdown summary {
 
 .sd-dropdown>.sd-card-body{
     padding: 0;
+}
+
+details.sd-sphinx-override.sd-dropdown.sd-card.sd-mb-3{
+    border-top-style: solid !important;
+    border-top-color: var(--pst-color-border) !important;
+    border-top-width: .1em !important;
+    border-radius: 0;
 }

@@ -11,9 +11,11 @@ User guide
    .. grid-item-card:: Information
       :shadow: none
       :class-card: sd-border-0
+      :class-title: sd-fs-4
 
       .. dropdown:: :doc:`getting_started/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -22,6 +24,7 @@ User guide
 
       .. dropdown:: :doc:`installing/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -30,6 +33,7 @@ User guide
 
       .. dropdown:: :doc:`../devel/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -38,6 +42,7 @@ User guide
 
       .. dropdown:: :doc:`project/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -48,9 +53,11 @@ User guide
    .. grid-item-card:: Explanations & Examples
       :shadow: none
       :class-card: sd-border-0
+      :class-title: sd-fs-4
 
       .. dropdown:: :doc:`explain/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -59,6 +66,7 @@ User guide
 
       .. dropdown:: :doc:`../plot_types/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -67,6 +75,7 @@ User guide
 
       .. dropdown:: :doc:`../tutorials/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -75,6 +84,7 @@ User guide
 
       .. dropdown:: :doc:`../gallery/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -85,9 +95,11 @@ User guide
    .. grid-item-card:: References & Resources
       :shadow: none
       :class-card: sd-border-0
+      :class-title: sd-fs-4
 
       .. dropdown:: :doc:`../api/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -96,6 +108,7 @@ User guide
 
       .. dropdown:: :doc:`release_notes`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -104,6 +117,7 @@ User guide
 
       .. dropdown:: :doc:`faq/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
@@ -112,6 +126,7 @@ User guide
 
       .. dropdown:: :doc:`resources/index`
          :open:
+         :class-title: sd-fs-5
 
          .. toctree::
             :maxdepth: 2
