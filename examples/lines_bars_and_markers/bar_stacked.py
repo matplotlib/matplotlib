@@ -11,25 +11,24 @@ import matplotlib.pyplot as plt
 
 # data from https://allisonhorst.github.io/palmerpenguins/
 
-islands = ("Biscoe", "Dream", "Torgersen")
-species = ["Adelie", "Gentoo", "Chinstrap"]
-adelie_means = (44, 56, 52)
-gentoo_means = (124, 0, 0)
-chinstrap_means = (0, 68, 0)
-penguin_means = [adelie_means, gentoo_means, chinstrap_means]
+species = ("Adelie", "Gentoo", "Chinstrap")
+booleans = ["True", "False"]
+above_average_weight = (70, 31, 58)
+below_average_weight = (82, 37, 66)
+weight_counts = [above_average_weight, below_average_weight]
 width = 0.5
 
 fig, ax = plt.subplots()
 
-for species, penguin_mean in zip(species, penguin_means):
-    if species == "Adelie":
-        p = ax.bar(islands, penguin_mean, width, label=species)
+for boolean, weight_count in zip(booleans, weight_counts):
+    if boolean == "True":
+        p = ax.bar(species, weight_count, width, label=boolean)
 
     else:
-        p = ax.bar(islands, penguin_mean, width, label=species,
-                    bottom=penguin_means[0])
+        p = ax.bar(species, weight_count, width, label=boolean,
+                    bottom=weight_counts[0])
 
-ax.set_title("Number of penguins by island")
+ax.set_title("Number of penguins with above average body mass")
 ax.legend(loc="upper right")
 
 plt.show()

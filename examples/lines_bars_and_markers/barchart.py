@@ -12,32 +12,32 @@ bars with labels.
 import matplotlib.pyplot as plt
 import numpy as np
 
-islands = ('Biscoe', 'Dream', 'Torgersen')
-species = ["Adelie", "Gentoo", "Chinstrap"]
-adelie_means = (188.80, 189.73, 191.20)
-gentoo_means = (217.19, 0, 0)
-chinstrap_means = (0, 48.83, 0)
-penguin_means = [adelie_means, gentoo_means, chinstrap_means]
+species = ("Adelie", "Chinstrap", "Gentoo")
+measurements = ['Bill Length', 'Bill Depth']
+bill_length = (38.80, 48.83, 47.50)
+bill_depth = (18.34, 18.43, 14.98)
+penguin_means = [bill_length, bill_depth]
 
-x = np.arange(len(islands))  # the label locations
+x = np.arange(len(species))  # the label locations
 width = 0.25  # the width of the bars
 multiplier = 0
 fig, ax = plt.subplots()
 
-for specie, penguin_mean in zip(species, penguin_means):
-    rects = ax.bar(x + (width * multiplier), penguin_mean, width, label=specie)
+for measurement, penguin_mean in zip(measurements, penguin_means):
+    offset = (width * multiplier)
+    rects = ax.bar(x + offset, penguin_mean, width, label=measurement)
     ax.bar_label(rects, padding=3)
     multiplier += 1
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Flipper length (mm)')
-ax.set_title('Average flipper length of penguin species by island')
-ax.set_xticks(x, islands)
+ax.set_ylabel('Length (mm)')
+ax.set_title('Penguin attributes by species')
+ax.set_xticks(x + (width / 2), species)
 ax.legend()
 
 fig.tight_layout()
 
-plt.ylim(0, 250)
+plt.ylim(0, 60)
 plt.show()
 
 #############################################################################
