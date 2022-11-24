@@ -22,20 +22,18 @@ import numpy as np
 
 species = ('Adelie', 'Chinstrap', 'Gentoo')
 sexes = ["Male", "Female"]
-male = (73, 34, 61)
-female = (73, 34, 58)
+male = np.array([73, 34, 61])
+female = np.array([73, 34, 58])
 sex_counts = [male, female]
 width = 0.6  # the width of the bars: can also be len(x) sequence
 
 
 fig, ax = plt.subplots()
+bottom = np.zeros(3)
 
 for sex, sex_count in zip(sexes, sex_counts):
-    if sex == "Male":
-        p = ax.bar(species, sex_count, width, label=sex)
-
-    else:
-        p = ax.bar(species, sex_count, width, label=sex, bottom=sex_counts[0])
+    p = ax.bar(species, sex_count, width, label=sex, bottom=bottom)
+    bottom += sex_count
 
     ax.bar_label(p, label_type='center')
 
