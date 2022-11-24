@@ -117,3 +117,39 @@ def test_axisline_style_size_color():
 
     for direction in ("left", "right", "bottom", "top"):
         ax.axis[direction].set_visible(False)
+
+
+@image_comparison(['axisline_style_tight.png'], remove_text=True,
+                  style='mpl20')
+def test_axisline_style_tight():
+    fig = plt.figure(figsize=(2, 2))
+    ax = fig.add_subplot(axes_class=AxesZero)
+    ax.axis["xzero"].set_axisline_style("-|>", size=5, facecolor='g')
+    ax.axis["xzero"].set_visible(True)
+    ax.axis["yzero"].set_axisline_style("->, size=8")
+    ax.axis["yzero"].set_visible(True)
+
+    for direction in ("left", "right", "bottom", "top"):
+        ax.axis[direction].set_visible(False)
+
+    fig.tight_layout()
+
+
+@image_comparison(['subplotzero_ylabel.png'], style='mpl20')
+def test_subplotzero_ylabel():
+    fig = plt.figure()
+    ax = SubplotZero(fig, 111)
+    _ = fig.add_subplot(ax)
+
+    for direction in ["xzero", "yzero"]:
+        ax.axis[direction].set_visible(True)
+        ax.axis[direction].set_axisline_style("->")
+        # Set outward ticks
+        ax.axis[direction].major_ticks.set_tick_out(True)
+        ax.axis[direction].minor_ticks.set_tick_out(True)
+
+    ax.axis["yzero"].set_axis_direction("left")
+
+    plt.plot([0, 1], [0, 1], c="blue", lw=2)
+    plt.xlabel('x')
+    plt.ylabel('y')
