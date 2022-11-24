@@ -70,6 +70,15 @@ class _FancyAxislineStyle:
             self._path_original = extended_path
             FancyArrowPatch.draw(self, renderer)
 
+        def get_window_extent(self, renderer=None):
+
+            path_in_disp = self._line_transform.transform_path(self._line_path)
+            mutation_size = self.get_mutation_scale()  # line_mutation_scale()
+            extended_path = self._extend_path(path_in_disp,
+                                              mutation_size=mutation_size)
+            self._path_original = extended_path
+            return FancyArrowPatch.get_window_extent(self, renderer)
+
     class FilledArrow(SimpleArrow):
         """The artist class that will be returned for FilledArrow style."""
         _ARROW_STYLE = "-|>"
