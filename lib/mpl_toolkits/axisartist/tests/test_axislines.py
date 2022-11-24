@@ -138,18 +138,13 @@ def test_axisline_style_tight():
 @image_comparison(['subplotzero_ylabel.png'], style='mpl20')
 def test_subplotzero_ylabel():
     fig = plt.figure()
-    ax = SubplotZero(fig, 111)
-    _ = fig.add_subplot(ax)
+    ax = fig.add_subplot(111, axes_class=SubplotZero)
 
-    for direction in ["xzero", "yzero"]:
-        ax.axis[direction].set_visible(True)
-        ax.axis[direction].set_axisline_style("->")
-        # Set outward ticks
-        ax.axis[direction].major_ticks.set_tick_out(True)
-        ax.axis[direction].minor_ticks.set_tick_out(True)
+    ax.set(xlim=(-3, 7), ylim=(-3, 7), xlabel="x", ylabel="y")
 
-    ax.axis["yzero"].set_axis_direction("left")
+    zero_axis = ax.axis["xzero", "yzero"]
+    zero_axis.set_visible(True)  # they are hidden by default
 
-    plt.plot([0, 1], [0, 1], c="blue", lw=2)
-    plt.xlabel('x')
-    plt.ylabel('y')
+    ax.axis["left", "right", "bottom", "top"].set_visible(False)
+
+    zero_axis.set_axisline_style("->")
