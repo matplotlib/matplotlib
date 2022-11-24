@@ -178,11 +178,11 @@ plt.show()
 # ========================================== ===========================
 # Writer                                     Supported Formats
 # ========================================== ===========================
-# `~matplotlib.animation.PillowWriter`       .gif, .apng
+# `~matplotlib.animation.PillowWriter`       .gif, .apng, .webp
 # `~matplotlib.animation.HTMLWriter`         .htm, .html, .png
-# `~matplotlib.animation.FFMpegWriter`       All formats supported by
-#                                                   *ffmpeg*
-# `~matplotlib.animation.ImageMagickWriter`  .gif
+# `~matplotlib.animation.FFMpegWriter`       All formats supported by *ffmpeg*
+# `~matplotlib.animation.ImageMagickWriter`  All formats supported by
+#                                            *imagemagick*
 # ========================================== ===========================
 #
 # To save animations using any of the writers, we can use the
@@ -218,6 +218,11 @@ plt.show()
 # Imagemagick writers::
 #
 #   ani.save(filename="/tmp/imagemagick_example.gif", writer="imagemagick")
+#   ani.save(filename="/tmp/imagemagick_example.webp", writer="imagemagick")
+#   ani.save(filename="apng:/tmp/imagemagick_example.apng",
+#            writer="imagemagick", extra_args=["-quality", "100"])
+#
+# (the ``extra_args`` for apng are needed to reduce filesize by ~10x)
 #
 # Since the frames are piped out to *ffmpeg* or *imagemagick*,
 # ``writer="ffmpeg"`` and ``writer="imagemagick"`` support all formats
