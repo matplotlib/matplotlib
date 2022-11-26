@@ -5,9 +5,10 @@ Figures have a ``layout_engine`` property that holds a subclass of
 `~.LayoutEngine` defined here (or *None* for no layout).  At draw time
 ``figure.get_layout_engine().execute()`` is called, the goal of which is
 usually to rearrange Axes on the figure to produce a pleasing layout. This is
-like a ``draw`` callback, however when printing we disable the layout engine
-for the final draw and it is useful to know the layout engine while the figure
-is being created, in particular to deal with colorbars.
+like a ``draw`` callback but with two differences.  First, when printing we
+disable the layout engine for the final draw. Second, it is useful to know the
+layout engine while the figure is being created.  In particular, colorbars are made
+differently with different layout engines (for historical reasons).
 
 Matplotlib supplies two layout engines, `.TightLayoutEngine` and
 `.ConstrainedLayoutEngine`.  Third parties can create their own layout engine
