@@ -118,6 +118,13 @@ def get_and_extract_tarball(urls, sha, dirname):
     """
     toplevel = Path("build", dirname)
     if not toplevel.exists():  # Download it or load it from cache.
+        try:
+            import certifi  # noqa
+        except ImportError as e:
+            raise ImportError(
+                f"`certifi` is unavailable ({e}) so unable to download any of "
+                f"the following: {urls}.") from None
+
         Path("build").mkdir(exist_ok=True)
         for url in urls:
             try:
