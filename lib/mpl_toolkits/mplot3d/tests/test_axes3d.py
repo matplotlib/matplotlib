@@ -2140,10 +2140,6 @@ def test_mutating_input_arrays_y_and_z(fig_test, fig_ref):
     z = [0.0, 0.0, 0.0]
     ax1.plot(x, y, z, 'o-')
 
-    ax1.set_ylim([0, 4])
-    ax1.set_zlim([0, 4])
-    fig_test.draw_without_rendering()
-
     # mutate y,z to get a nontrivial line
     y[:] = [1, 2, 3]
     z[:] = [1, 2, 3]
@@ -2154,7 +2150,3 @@ def test_mutating_input_arrays_y_and_z(fig_test, fig_ref):
     y = [0.0, 0.0, 0.0]
     z = [0.0, 0.0, 0.0]
     ax2.plot(x, y, z, 'o-')
-
-    ax2.set_ylim([0, 4])
-    ax2.set_zlim([0, 4])
-    fig_test.draw_without_rendering()
