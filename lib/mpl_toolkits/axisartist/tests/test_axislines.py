@@ -61,7 +61,7 @@ def test_Axes():
 
 @image_comparison(['ParasiteAxesAuxTrans_meshplot.png'],
                   remove_text=True, style='default', tol=0.075)
-def test_ParasiteAxesAuxTrans(parasite_cls):
+def test_ParasiteAxesAuxTrans():
     # Remove these lines when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
     plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "in"})
