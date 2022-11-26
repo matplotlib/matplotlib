@@ -283,3 +283,19 @@ def test_plot_kernel():
     # just a smoketest that fail
     kernel = Kernel([1, 2, 3, 4, 5])
     plt.plot(kernel)
+
+
+@pytest.mark.parametrize('plot_meth_name', ['scatter', 'plot'])
+def test_unit_axis_label(plot_meth_name):
+    # Check that the correct Axis labels are set on plots with units
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    fig, ax = plt.subplots()
+    ax.xaxis.set_units('m')
+    ax.yaxis.set_units('sec')
+    plot_method = getattr(ax, plot_meth_name)
+    plot_method(np.arange(3) * units.m, np.arange(3) * units.sec)
+    assert ax.get_xlabel() == 'm'
+    assert ax.get_ylabel() == 'sec'
+    plt.close('all')
