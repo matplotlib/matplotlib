@@ -2124,3 +2124,37 @@ def test_panecolor_rcparams():
                          'axes3d.zaxis.panecolor': 'b'}):
         fig = plt.figure(figsize=(1, 1))
         fig.add_subplot(projection='3d')
+
+
+@check_figures_equal(extensions=["png"])
+def test_mutating_input_arrays_y_and_z(fig_test, fig_ref):
+    """
+    Test to see if the `z` axis does not get mutated
+    after a call to `Axes3D.plot`
+
+    test cases came from GH#8990
+    """
+    ax1 = fig_test.add_subplot(111, projection='3d')
+    x = [1, 2, 3]
+    y = [0.0, 0.0, 0.0]
+    z = [0.0, 0.0, 0.0]
+    ax1.plot(x, y, z, 'o-')
+
+    ax1.set_ylim([0, 4])
+    ax1.set_zlim([0, 4])
+    fig_test.draw_without_rendering()
+
+    # mutate y,z to get a nontrivial line
+    y[:] = [1, 2, 3]
+    z[:] = [1, 2, 3]
+
+    # draw the same plot without mutating x and y
+    ax2 = fig_ref.add_subplot(111, projection='3d')
+    x = [1, 2, 3]
+    y = [0.0, 0.0, 0.0]
+    z = [0.0, 0.0, 0.0]
+    ax2.plot(x, y, z, 'o-')
+
+    ax2.set_ylim([0, 4])
+    ax2.set_zlim([0, 4])
+    fig_test.draw_without_rendering()
