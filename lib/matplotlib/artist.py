@@ -26,12 +26,7 @@ def _prevent_rasterization(draw):
     # its draw method is explicitly decorated). If it is being drawn after a
     # rasterized artist and it has reached a raster_depth of 0, we stop
     # rasterization so that it does not affect the behavior of normal artist
-    # (e.g., change in dpi). If the artist's draw method is decorated (has a
-    # `_supports_rasterization` attribute), it won't be decorated by
-    # `_prevent_rasterization`.
-
-    if hasattr(draw, "_supports_rasterization"):
-        return draw
+    # (e.g., change in dpi).
 
     @wraps(draw)
     def draw_wrapper(artist, renderer):
@@ -131,7 +126,9 @@ class Artist:
     def __init_subclass__(cls):
 
         # Decorate draw() method so that all artists are able to stop
-        # rastrization when necessary.
+        # rastrization when necessary. If the artist's draw method is already
+        # decorated (has a `_supports_rasterization` attribute), it won't be
+        # decorated.
 
         if not hasattr(cls.draw, "_supports_rasterization"):
             cls.draw = _prevent_rasterization(cls.draw)
