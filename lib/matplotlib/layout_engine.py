@@ -4,10 +4,11 @@ Classes to layout elements in a `.Figure`.
 Figures have a ``layout_engine`` property that holds a subclass of
 `~.LayoutEngine` defined here (or *None* for no layout).  At draw time
 ``figure.get_layout_engine().execute()`` is called, the goal of which is
-usually to rearrange Axes on the figure to produce a pleasing layout. This is
-like a ``draw`` callback, however when printing we disable the layout engine
-for the final draw and it is useful to know the layout engine while the figure
-is being created, in particular to deal with colorbars.
+usually to rearrange Axes on the figure to produce a pleasing layout. This 
+is like a draw callback but with two differences.  First, when printing we 
+disable the layout engine for the final ``draw``. Second, it is useful to know 
+the layout engine while the figure is being created.  In particular, 
+colorbars are made differently with different layout engines (for historical reasons).
 
 Matplotlib supplies two layout engines, `.TightLayoutEngine` and
 `.ConstrainedLayoutEngine`.  Third parties can create their own layout engine
@@ -19,8 +20,7 @@ from contextlib import nullcontext
 import matplotlib as mpl
 
 from matplotlib._constrained_layout import do_constrained_layout
-from matplotlib._tight_layout import (get_subplotspec_list,
-                                      get_tight_layout_figure)
+from matplotlib._tight_layout import get_subplotspec_list, get_tight_layout_figure
 
 
 class LayoutEngine:
@@ -54,6 +54,7 @@ class LayoutEngine:
     3. override `LayoutEngine.execute` with your implementation
 
     """
+
     # override these in subclass
     _adjust_compatible = None
     _colorbar_gridspec = None
@@ -114,6 +115,7 @@ class PlaceHolderLayoutEngine(LayoutEngine):
         layout engine it is replacing.
 
     """
+
     def __init__(self, adjust_compatible, colorbar_gridspec, **kwargs):
         self._adjust_compatible = adjust_compatible
         self._colorbar_gridspec = colorbar_gridspec
@@ -128,11 +130,13 @@ class TightLayoutEngine(LayoutEngine):
     Implements the ``tight_layout`` geometry management.  See
     :doc:`/tutorials/intermediate/tight_layout_guide` for details.
     """
+
     _adjust_compatible = True
     _colorbar_gridspec = True
 
-    def __init__(self, *, pad=1.08, h_pad=None, w_pad=None,
-                 rect=(0, 0, 1, 1), **kwargs):
+    def __init__(
+        self, *, pad=1.08, h_pad=None, w_pad=None, rect=(0, 0, 1, 1), **kwargs
+    ):
         """
         Initialize tight_layout engine.
 
@@ -149,7 +153,7 @@ class TightLayoutEngine(LayoutEngine):
             (including labels) will fit into.
         """
         super().__init__(**kwargs)
-        for td in ['pad', 'h_pad', 'w_pad', 'rect']:
+        for td in ["pad", "h_pad", "w_pad", "rect"]:
             # initialize these in case None is passed in above:
             self._params[td] = None
         self.set(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
@@ -172,9 +176,15 @@ class TightLayoutEngine(LayoutEngine):
         renderer = fig._get_renderer()
         with getattr(renderer, "_draw_disabled", nullcontext)():
             kwargs = get_tight_layout_figure(
-                fig, fig.axes, get_subplotspec_list(fig.axes), renderer,
-                pad=info['pad'], h_pad=info['h_pad'], w_pad=info['w_pad'],
-                rect=info['rect'])
+                fig,
+                fig.axes,
+                get_subplotspec_list(fig.axes),
+                renderer,
+                pad=info["pad"],
+                h_pad=info["h_pad"],
+                w_pad=info["w_pad"],
+                rect=info["rect"],
+            )
         if kwargs:
             fig.subplots_adjust(**kwargs)
 
@@ -193,9 +203,17 @@ class ConstrainedLayoutEngine(LayoutEngine):
     _adjust_compatible = False
     _colorbar_gridspec = False
 
-    def __init__(self, *, h_pad=None, w_pad=None,
-                 hspace=None, wspace=None, rect=(0, 0, 1, 1),
-                 compress=False, **kwargs):
+    def __init__(
+        self,
+        *,
+        h_pad=None,
+        w_pad=None,
+        hspace=None,
+        wspace=None,
+        rect=(0, 0, 1, 1),
+        compress=False,
+        **kwargs
+    ):
         """
         Initialize ``constrained_layout`` settings.
 
@@ -223,14 +241,15 @@ class ConstrainedLayoutEngine(LayoutEngine):
         """
         super().__init__(**kwargs)
         # set the defaults:
-        self.set(w_pad=mpl.rcParams['figure.constrained_layout.w_pad'],
-                 h_pad=mpl.rcParams['figure.constrained_layout.h_pad'],
-                 wspace=mpl.rcParams['figure.constrained_layout.wspace'],
-                 hspace=mpl.rcParams['figure.constrained_layout.hspace'],
-                 rect=(0, 0, 1, 1))
+        self.set(
+            w_pad=mpl.rcParams["figure.constrained_layout.w_pad"],
+            h_pad=mpl.rcParams["figure.constrained_layout.h_pad"],
+            wspace=mpl.rcParams["figure.constrained_layout.wspace"],
+            hspace=mpl.rcParams["figure.constrained_layout.hspace"],
+            rect=(0, 0, 1, 1),
+        )
         # set anything that was passed in (None will be ignored):
-        self.set(w_pad=w_pad, h_pad=h_pad, wspace=wspace, hspace=hspace,
-                 rect=rect)
+        self.set(w_pad=w_pad, h_pad=h_pad, wspace=wspace, hspace=hspace, rect=rect)
         self._compress = compress
 
     def execute(self, fig):
@@ -243,17 +262,20 @@ class ConstrainedLayoutEngine(LayoutEngine):
         """
         width, height = fig.get_size_inches()
         # pads are relative to the current state of the figure...
-        w_pad = self._params['w_pad'] / width
-        h_pad = self._params['h_pad'] / height
+        w_pad = self._params["w_pad"] / width
+        h_pad = self._params["h_pad"] / height
 
-        return do_constrained_layout(fig, w_pad=w_pad, h_pad=h_pad,
-                                     wspace=self._params['wspace'],
-                                     hspace=self._params['hspace'],
-                                     rect=self._params['rect'],
-                                     compress=self._compress)
+        return do_constrained_layout(
+            fig,
+            w_pad=w_pad,
+            h_pad=h_pad,
+            wspace=self._params["wspace"],
+            hspace=self._params["hspace"],
+            rect=self._params["rect"],
+            compress=self._compress,
+        )
 
-    def set(self, *, h_pad=None, w_pad=None,
-            hspace=None, wspace=None, rect=None):
+    def set(self, *, h_pad=None, w_pad=None, hspace=None, wspace=None, rect=None):
         """
         Set the pads for constrained_layout.
 
