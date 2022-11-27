@@ -1215,6 +1215,7 @@ class Animation:
         # we're paused. Reset the cache and re-init. Set up an event handler
         # to catch once the draw has actually taken place.
         self._fig.canvas.mpl_disconnect(self._resize_id)
+        self._was_stopped = self.event_source._timer is None
         self.event_source.stop()
         self._blit_cache.clear()
         self._init_draw()
@@ -1225,7 +1226,8 @@ class Animation:
         # Now that the redraw has happened, do the post draw flushing and
         # blit handling. Then re-enable all of the original events.
         self._post_draw(None, False)
-        self.event_source.start()
+        if not self._was_stopped:
+            self.event_source.start()
         self._fig.canvas.mpl_disconnect(self._resize_id)
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
                                                        self._on_resize)
