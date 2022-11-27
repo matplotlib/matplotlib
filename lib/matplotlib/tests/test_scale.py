@@ -14,6 +14,8 @@ from numpy.testing import assert_allclose
 import io
 import pytest
 
+import random
+
 
 @check_figures_equal()
 def test_log_scales(fig_test, fig_ref):
@@ -53,6 +55,25 @@ def test_symlog_mask_nan():
     out = slti.transform_non_affine(slt.transform_non_affine(x))
     assert_allclose(out, x)
     assert type(out) == type(x)
+
+
+def test_symlog_linthresh():
+    fig, ax = plt.subplots()
+
+    n_samples = 100
+
+    upper_bound = 1.0
+
+    x = [random.uniform(0.0, upper_bound) for _ in range(n_samples)]
+    y = [random.uniform(0.0, upper_bound) for _ in range(n_samples)]
+
+    with pytest.warns(UserWarning) as record:
+        plt.plot(x, y, 'o')
+        ax.set_xscale('symlog')
+        ax.set_yscale('symlog')
+        plt.show()
+
+    assert len(record) == 1
 
 
 @image_comparison(['logit_scales.png'], remove_text=True)
