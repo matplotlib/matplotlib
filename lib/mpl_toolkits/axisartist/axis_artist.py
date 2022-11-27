@@ -162,7 +162,8 @@ class Ticks(AttributeCopier, Line2D):
         return self._tickdir
 
     def set_tick_orientation(self, mode):
-        """Set how tick orientation will be determined.
+        """
+        Set how tick orientation will be determined.
 
         Parameters
         ----------
@@ -176,7 +177,8 @@ class Ticks(AttributeCopier, Line2D):
         self._tick_orientation = mode
 
     def get_tick_orientation(self, interpret_auto=True):
-        """ Return orientation of ticks.
+        """
+        Return orientation of ticks.
 
         Parameters
         ----------
