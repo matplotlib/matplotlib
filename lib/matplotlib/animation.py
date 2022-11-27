@@ -40,6 +40,8 @@ from matplotlib._animation_data import (
     DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE)
 from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
+from matplotlib.widgets import Button,Slider
+import mpl_toolkits.axes_grid1
 
 _log = logging.getLogger(__name__)
 
@@ -1225,7 +1227,7 @@ class Animation:
     def _end_redraw(self, event):
         # Now that the redraw has happened, do the post draw flushing and
         # blit handling. Then re-enable all of the original events.
-        self._post_draw(None, False)
+        self._post_draw(None, self._blit)
         if not self._was_stopped:
             self.event_source.start()
         self._fig.canvas.mpl_disconnect(self._resize_id)
@@ -1779,3 +1781,106 @@ class FuncAnimation(TimedAnimation):
 
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
+
+class PlayerAnimation(FuncAnimation):
+    # inspired from https://stackoverflow.com/a/46327978/3949028
+    PLAY_SYMBOL = "$\u25B6$"
+    STOP_SYMBOL = "$\u25A0$"
+    PAUSE_SYMBOL = "$\u23F8$" #TODO use instead of STOP_SYMBOL, but doesn't work in Button.label
+    ONE_BACK_SYMBOL = "$\u29CF$"
+    ONE_FORWARD_SYMBOL = "$\u29D0$"
+
+    def __init__(self, func, init_func, min_value=0, max_value=100,
+                 pos=(0.125, 0.92), valstep=1, **kwargs):
+        self.val = min_value
+        self.min = min_value
+        self.max = max_value
+        self.direction = 1
+        self.caller_func = func
+        self.valstep = valstep
+        self._player_initiated = False
+        #https://github.com/matplotlib/matplotlib/issues/17685
+
+        def init_func_wrapper():
+            return init_func(self.val)
+
+        super().__init__(func=self._func_wrapper, frames=self._frame_generator,
+                         init_func=init_func_wrapper, **kwargs)
+
+        self._setup_player(pos)
+
+    def _setup_player(self, pos):
+        if not self._player_initiated:
+            self._player_initiated = True
+            playerax = self._fig.add_axes([pos[0], pos[1], 0.64, 0.04])
+            divider = mpl_toolkits.axes_grid1.make_axes_locatable(playerax)
+            sax = divider.append_axes("right", size="80%", pad=0.05)
+            ofax = divider.append_axes("right", size="100%", pad=0.05)
+            sliderax = divider.append_axes("right", size="500%", pad=0.07)
+            self.button_oneback = Button(playerax, label=self.ONE_BACK_SYMBOL, useblit=self._blit)
+            self.play_pause_button = Button(sax, label=self.STOP_SYMBOL, useblit=self._blit)
+            self.button_oneforward = Button(ofax, label=self.ONE_FORWARD_SYMBOL, useblit=self._blit)
+            self.button_oneback.on_clicked(self.onebackward)
+            self.play_pause_button.on_clicked(self.play_pause)
+            self.button_oneforward.on_clicked(self.oneforward)
+            self.slider = Slider(sliderax, '', self.min, self.max, valinit=self.min, valstep=self.valstep, useblit=self._blit)
+            self.slider.on_changed(self.set_pos)
+
+    def _frame_generator(self):
+        while True:
+            next = self.val + self.direction*self.valstep
+            if next >= self.min and next <= self.max:
+                self.val = next
+                print(f"yield: {self.val}")
+                yield self.val
+            else:
+                self.pause()
+                print(f"pause, yield: {self.val}")
+                yield self.val
+
+    def pause(self, event=None):
+        super().pause()
+        self.direction = 0
+        self.play_pause_button.label.set_text(self.PLAY_SYMBOL)
+        self.play_pause_button._draw()
+
+    def resume(self, event=None):
+        self.direction = 1
+        self.play_pause_button.label.set_text(self.STOP_SYMBOL)
+        self.play_pause_button._draw()
+        super().resume()
+
+    def play_pause(self, event=None):
+        if self.direction == 0:
+            self.resume()
+        else:
+            self.pause()
+
+    def oneforward(self, event=None):
+        self.direction = 1
+        self.trigger_step()
+
+    def onebackward(self, event=None):
+        self.direction = -1
+        self.trigger_step()
+
+    def set_pos(self, val):
+       if isinstance(self.valstep, int):
+           val = int(val) # slider gives float event if valstep is int
+       if self.val != val:
+           print(f"slider set_pos: {val}")
+           self.val = val
+           self.direction = 0
+           self.trigger_step()
+
+    def trigger_step(self):
+        for a in self._drawn_artists:
+            a.set_animated(True)
+        self._step()
+        self.pause()
+
+    def _func_wrapper(self, val):
+        print(f"player _func_wrapper: {val}")
+        self.slider.set_val(val)
+        return self.caller_func(self.val)
+
