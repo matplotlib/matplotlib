@@ -72,6 +72,7 @@ The following attributes can be customized (use the ``set_xxx`` methods):
 
 
 from operator import methodcaller
+import warnings
 
 import numpy as np
 
@@ -115,12 +116,30 @@ class Ticks(AttributeCopier, Line2D):
     """
 
     # tick_out is mostly deprecated in favor of tickdir.
-    def __init__(self, ticksize, tick_out=False, tick_orientation="auto",
-                 *, axis=None, **kwargs):
+
+    @_api.delete_parameter("3.7", "tick_out", alternative="tickdir")
+    def __init__(self, ticksize, tick_out=None,
+                 *, tick_orientation="auto",
+                 axis=None, **kwargs):
         self._ticksize = ticksize
         self.locs_angles_labels = []
 
-        self.set_tick_out(tick_out)
+        if "tickdir" in kwargs:
+            if tick_out is not None:
+                raise ValueError("tickdir and tick_out"
+                                 "cannot be used together")
+            self.set_tickdir(kwargs.pop("tickdir"))
+        else:
+            # The default value for tick_out was False. We changed it to None
+            # to catch whether it explicily set by the user. "None" may not be
+            # a good choice of value though.
+            if tick_out is None:
+                warnings.warn("The dwfault behavior will change. "
+                              "Explicitly set tickdir parameter if you want.")
+                tick_out = False
+
+            self.set_tickdir({True: "out", False: "in"}[bool(tick_out)])
+
         self.set_tick_orientation(tick_orientation)
 
         self._axis = axis
@@ -1076,8 +1095,8 @@ class AxisArtist(martist.Artist):
 
         # We calculate the pad size for the axislabel.
         if self._ticklabel_add_angle != self._axislabel_add_angle:
-            # If ticklabels and axislabel are on differenct side, we only
-            # conside the padding for the ticks only.
+            # If ticklabels and axislabel are on different side, we only
+            # consider the padding for the ticks only.
 
             ticksizes = []
             # ticksize of the major_ticks

@@ -5,6 +5,8 @@ from mpl_toolkits.axisartist import AxisArtistHelperRectlinear
 from mpl_toolkits.axisartist.axis_artist import (AxisArtist, AxisLabel,
                                                  LabelBase, Ticks, TickLabels)
 
+from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+
 
 @image_comparison(['axis_artist_ticks.png'], style='default')
 def test_ticks():
@@ -15,11 +17,11 @@ def test_ticks():
 
     locs_angles = [((i / 10, 0.0), i * 30) for i in range(-1, 12)]
 
-    ticks_in = Ticks(ticksize=10, axis=ax.xaxis)
+    ticks_in = Ticks(ticksize=10, tickdir="in", axis=ax.xaxis)
     ticks_in.set_locs_angles(locs_angles)
     ax.add_artist(ticks_in)
 
-    ticks_out = Ticks(ticksize=10, tick_out=True, color='C3', axis=ax.xaxis)
+    ticks_out = Ticks(ticksize=10, tickdir="out", color='C3', axis=ax.xaxis)
     ticks_out.set_locs_angles(locs_angles)
     ax.add_artist(ticks_out)
 
@@ -53,7 +55,7 @@ def test_ticklabels():
 
     ax.plot([0.2, 0.4], [0.5, 0.5], "o")
 
-    ticks = Ticks(ticksize=10, axis=ax.xaxis)
+    ticks = Ticks(ticksize=10, tickdir="in", axis=ax.xaxis)
     ax.add_artist(ticks)
     locs_angles_labels = [((0.2, 0.5), -90, "0.2"),
                           ((0.4, 0.5), -120, "0.4")]
@@ -98,3 +100,23 @@ def test_axis_artist():
     axisline.label.set_pad(5)
 
     ax.set_ylabel("Test")
+
+
+def test_tickout_kwargs(recwarn):
+    """
+    test that 'singular' versions of LineCollection props raise an
+    MatplotlibDeprecationWarning rather than overriding the 'plural' versions
+    (e.g., to prevent 'color' from overriding 'colors', see issue #4297)
+    """
+
+    Ticks(1)
+    Ticks(1, False)
+    Ticks(1, False)
+    Ticks(1, tick_out=True)
+    Ticks(1, tick_out=False)
+
+    assert issubclass(recwarn[0].category, UserWarning)
+    # May need to check the message
+
+    assert all(issubclass(wi.category, MatplotlibDeprecationWarning)
+               for wi in recwarn[1:])
