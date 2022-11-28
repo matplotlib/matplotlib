@@ -56,12 +56,11 @@ def test_symlog_mask_nan():
 
 
 def test_symlog_linthresh():
-    fig, ax = plt.subplots()
-
     np.random.seed(19680801)
     x = np.random.random(100)
     y = np.random.random(100)
 
+    fig, ax = plt.subplots()
     plt.plot(x, y, 'o')
     ax.set_xscale('symlog')
     ax.set_yscale('symlog')
