@@ -66,8 +66,8 @@ def test_symlog_linthresh():
     ax.set_xscale('symlog')
     ax.set_yscale('symlog')
 
-    with pytest.warns(UserWarning):
-        plt.show()
+    with pytest.warns(UserWarning, match="All values .* of linthresh"):
+        fig.canvas.draw()
 
 
 @image_comparison(['logit_scales.png'], remove_text=True)
