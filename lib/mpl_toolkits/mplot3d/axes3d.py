@@ -975,7 +975,7 @@ class Axes3D(Axes):
         """
         Share the z-axis with *other*.
 
-        This is equivalent to passing ``sharex=other`` when constructing the
+        This is equivalent to passing ``sharez=other`` when constructing the
         Axes, and cannot be used if the z-axis is already being shared with
         another Axes.
         """
@@ -1402,12 +1402,7 @@ class Axes3D(Axes):
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
 
-    def zaxis_inverted(self):
-        """
-        Returns True if the z-axis is inverted.
-        """
-        bottom, top = self.get_zlim()
-        return top < bottom
+    zaxis_inverted = _axis_method_wrapper("zaxis", "get_inverted")
 
     def get_zbound(self):
         """
