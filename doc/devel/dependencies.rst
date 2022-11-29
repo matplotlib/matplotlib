@@ -210,7 +210,8 @@ C++ compiler
 
 Matplotlib requires a C++ compiler that supports C++11.
 
-- `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_ or higher
+- `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_ or higher.  For gcc <6.5 you will
+  need to set ``$CFLAGS=-std=c++11`` to enable C++11 support.
 - `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_ or higher
 - `Visual Studio 2015
   <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-140>`_
