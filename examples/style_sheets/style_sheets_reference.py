@@ -63,7 +63,8 @@ def plot_colored_circles(ax, prng, nb_samples=15):
     the color cycle, because different styles may have different numbers
     of colors.
     """
-    for sty_dict, j in zip(plt.rcParams['axes.prop_cycle'], range(nb_samples)):
+    for sty_dict, j in zip(plt.rcParams['axes.prop_cycle'](),
+                           range(nb_samples)):
         ax.add_patch(plt.Circle(prng.normal(scale=3, size=2),
                                 radius=1.0, color=sty_dict['color']))
     ax.grid(visible=True)
