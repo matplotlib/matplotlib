@@ -13,10 +13,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 species = ("Adelie", "Chinstrap", "Gentoo")
-measurements = ['Bill Length', 'Bill Depth']
-bill_length = (38.80, 48.83, 47.50)
-bill_depth = (18.34, 18.43, 14.98)
-penguin_means = [bill_length, bill_depth]
+measurements = ['Bill Depth', 'Bill Length', "Flipper Length"]
+bill_depth = (18.35, 18.43, 14.98)
+bill_length = (38.79, 48.83, 47.50)
+flipper_length = (189.95, 195.82, 217.19)
+penguin_means = [bill_depth, bill_length, flipper_length]
 
 x = np.arange(len(species))  # the label locations
 width = 0.25  # the width of the bars
@@ -32,12 +33,12 @@ for measurement, penguin_mean in zip(measurements, penguin_means):
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Length (mm)')
 ax.set_title('Penguin attributes by species')
-ax.set_xticks(x + (width / 2), species)
-ax.legend()
+ax.set_xticks(x + (width), species)
+ax.legend(loc='upper left', ncols=3)
 
 fig.tight_layout()
 
-plt.ylim(0, 60)
+plt.ylim(0, 250)
 plt.show()
 
 #############################################################################
