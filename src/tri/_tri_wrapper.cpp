@@ -17,7 +17,7 @@ PYBIND11_MODULE(_tri, m) {
             py::arg("neighbors"),
             py::arg("correct_triangle_orientations"),
             "Create a new C++ Triangulation object.\n"
-            "This should not be called directly, instead use the python class\n"
+            "This should not be called directly, use the python class\n"
             "matplotlib.tri.Triangulation instead.\n")
         .def("calculate_plane_coefficients", &Triangulation::calculate_plane_coefficients,
             "Calculate plane equation coefficients for all unmasked triangles.")
@@ -34,7 +34,7 @@ PYBIND11_MODULE(_tri, m) {
             py::arg("triangulation"),
             py::arg("z"),
             "Create a new C++ TriContourGenerator object.\n"
-            "This should not be called directly, instead use the functions\n"
+            "This should not be called directly, use the functions\n"
             "matplotlib.axes.tricontour and tricontourf instead.\n")
         .def("create_contour", &TriContourGenerator::create_contour,
             "Create and return a non-filled contour.")
@@ -45,7 +45,7 @@ PYBIND11_MODULE(_tri, m) {
         .def(py::init<Triangulation&>(),
             py::arg("triangulation"),
             "Create a new C++ TrapezoidMapTriFinder object.\n"
-            "This should not be called directly, instead use the python class\n"
+            "This should not be called directly, use the python class\n"
             "matplotlib.tri.TrapezoidMapTriFinder instead.\n")
         .def("find_many", &TrapezoidMapTriFinder::find_many,
             "Find indices of triangles containing the point coordinates (x, y).")
