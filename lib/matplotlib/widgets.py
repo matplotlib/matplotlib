@@ -1132,6 +1132,9 @@ class CheckButtons(AxesWidget):
             self._squares.set_visible(False)
             for rectangle in rectangles:
                 self.ax.add_patch(rectangle)
+        if not hasattr(self, "_lines"):
+            with _api.suppress_matplotlib_deprecation_warning():
+                _ = self.lines
         return self._rectangles
 
     @_api.deprecated("3.7")
@@ -1157,6 +1160,9 @@ class CheckButtons(AxesWidget):
                 self._lines.append((l1, l2))
                 self.ax.add_patch(l1)
                 self.ax.add_patch(l2)
+        if not hasattr(self, "_rectangles"):
+            with _api.suppress_matplotlib_deprecation_warning():
+                _ = self.rectangles
         return self._lines
 
 

@@ -1011,8 +1011,6 @@ def test_check_radio_buttons_image():
     with pytest.warns(DeprecationWarning):
         # Trigger old-style Rectangle check boxes
         cb.rectangles
-    with pytest.warns(DeprecationWarning):
-        cb.lines
 
 
 @check_figures_equal(extensions=["png"])
