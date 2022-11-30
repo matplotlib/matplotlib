@@ -589,6 +589,20 @@ def test_get_window_extent_for_AxisImage():
 
     assert_array_equal(im_bbox.get_points(), [[400, 200], [700, 900]])
 
+    fig, ax = plt.subplots(figsize=(10, 10), dpi=100)
+    ax.set_position([0, 0, 1, 1])
+    ax.set_xlim(1, 2)
+    ax.set_ylim(0, 1)
+    im_obj = ax.imshow(
+        im, extent=[0.4, 0.7, 0.2, 0.9], interpolation='nearest',
+        transform=ax.transAxes)
+
+    fig.canvas.draw()
+    renderer = fig.canvas.renderer
+    im_bbox = im_obj.get_window_extent(renderer)
+
+    assert_array_equal(im_bbox.get_points(), [[400, 200], [700, 900]])
+
 
 @image_comparison(['zoom_and_clip_upper_origin.png'],
                   remove_text=True, style='mpl20')
