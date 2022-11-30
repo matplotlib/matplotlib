@@ -53,7 +53,7 @@ static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args)
         return NULL;
     }
     return PyBytes_FromStringAndSize((const char *)self->x->get_data(),
-                                     self->x->get_height() * self->x->get_stride());
+                                     (Py_ssize_t) self->x->get_height() * self->x->get_stride());
 }
 
 /* TODO: This doesn't seem to be used internally.  Remove? */
@@ -98,8 +98,10 @@ static PyObject *PyBufferRegion_to_string_argb(PyBufferRegion *self, PyObject *a
     }
     PyObject *bufobj;
     uint8_t *buf;
-
-    bufobj = PyBytes_FromStringAndSize(NULL, self->x->get_height() * self->x->get_stride());
+    Py_ssize_t height, stride;
+    height = self->x->get_height();
+    stride = self->x->get_stride();
+    bufobj = PyBytes_FromStringAndSize(NULL, height * stride);
     buf = (uint8_t *)PyBytes_AS_STRING(bufobj);
 
     CALL_CPP_CLEANUP("to_string_argb", (self->x->to_string_argb(buf)), Py_DECREF(bufobj));

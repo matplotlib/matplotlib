@@ -1222,7 +1222,7 @@ bool convert_to_string(PathIterator &path,
     clipped_t clipped(nan_removed, do_clip, clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 
-    buffersize = path.total_vertices() * (precision + 5) * 4;
+    buffersize = (size_t) path.total_vertices() * (precision + 5) * 4;
     if (buffersize == 0) {
         return true;
     }

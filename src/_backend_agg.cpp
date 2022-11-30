@@ -11,7 +11,7 @@ void BufferRegion::to_string_argb(uint8_t *buf)
     unsigned char tmp;
     size_t i, j;
 
-    memcpy(buf, data, height * stride);
+    memcpy(buf, data, (size_t) height * stride);
 
     for (i = 0; i < (size_t)height; ++i) {
         pix = buf + i * stride;

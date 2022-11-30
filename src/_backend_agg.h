@@ -1124,7 +1124,7 @@ class QuadMeshGenerator
 
     inline size_t num_paths() const
     {
-        return m_meshWidth * m_meshHeight;
+        return (size_t) m_meshWidth * m_meshHeight;
     }
 
     inline path_iterator operator()(size_t i) const
