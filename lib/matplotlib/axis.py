@@ -2046,6 +2046,7 @@ class Axis(martist.Artist):
 
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
+        locator = mticker.FixedLocator(ticks)  # validate ticks early.
         for name, axis in self.axes._axis_map.items():
             if self is axis:
                 shared = [
@@ -2061,10 +2062,10 @@ class Axis(martist.Artist):
                 axis.set_view_interval(min(ticks), max(ticks))
         self.axes.stale = True
         if minor:
-            self.set_minor_locator(mticker.FixedLocator(ticks))
+            self.set_minor_locator(locator)
             return self.get_minor_ticks(len(ticks))
         else:
-            self.set_major_locator(mticker.FixedLocator(ticks))
+            self.set_major_locator(locator)
             return self.get_major_ticks(len(ticks))
 
     def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):

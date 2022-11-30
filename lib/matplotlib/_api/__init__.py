@@ -162,6 +162,8 @@ def check_shape(_shape, **kwargs):
                                     if n is not None
                                     else next(dim_labels)
                                     for n in target_shape))
+            if len(target_shape) == 1:
+                text_shape += ","
 
             raise ValueError(
                 f"{k!r} must be {len(target_shape)}D "
