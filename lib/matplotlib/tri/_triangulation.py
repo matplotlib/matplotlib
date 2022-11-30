@@ -233,7 +233,7 @@ class Triangulation:
 
         # Set mask in C++ Triangulation.
         if self._cpp_triangulation is not None:
-            self._cpp_triangulation.set_mask(self.mask)
+            self._cpp_triangulation.set_mask(self.mask if self.mask is not None else ())
 
         # Clear derived fields so they are recalculated when needed.
         self._edges = None

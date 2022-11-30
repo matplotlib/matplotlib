@@ -72,6 +72,29 @@ def test_triangulation_init():
         mtri.Triangulation(x, y, [[0, 1, -1]])
 
 
+def test_triangulation_set_mask():
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    triangles = [[0, 1, 2], [2, 3, 0]]
+    triang = mtri.Triangulation(x, y, triangles)
+
+    # Check neighbors, which forces creation of C++ triangulation
+    assert_array_equal(triang.neighbors, [[-1, -1, 1], [-1, -1, 0]])
+
+    # Set mask
+    triang.set_mask([False, True])
+    assert_array_equal(triang.mask, [False, True])
+
+    # Reset mask
+    triang.set_mask(None)
+    assert triang.mask is None
+
+    msg = r"mask array must have same length as triangles array"
+    for mask in ([False, True, False], [False], [True], False, True):
+        with pytest.raises(ValueError, match=msg):
+            triang.set_mask(mask)
+
+
 def test_delaunay():
     # No duplicate points, regular grid.
     nx = 5
@@ -1205,11 +1228,18 @@ def test_internal_cpp_api():
                   r'triangulation x and y arrays'):
         triang.calculate_plane_coefficients([])
 
-    with pytest.raises(
-            ValueError,
-            match=r'mask must be a 1D array with the same length as the '
-                  r'triangles array'):
-        triang.set_mask([0, 1])
+    for mask in ([0, 1], None):
+        with pytest.raises(
+                ValueError,
+                match=r'mask must be a 1D array with the same length as the '
+                      r'triangles array'):
+            triang.set_mask(mask)
+
+    triang.set_mask([True])
+    assert_array_equal(triang.get_edges(), np.empty((0, 2)))
+
+    triang.set_mask(())  # Equivalent to Python Triangulation mask=None
+    assert_array_equal(triang.get_edges(), [[1, 0], [2, 0], [2, 1]])
 
     # C++ TriContourGenerator.
     with pytest.raises(
