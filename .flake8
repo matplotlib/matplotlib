@@ -82,6 +82,7 @@ per-file-ignores =
     tutorials/introductory/pyplot.py: E402, E501
     tutorials/introductory/sample_plots.py: E501
     tutorials/introductory/quick_start.py: E703
+    tutorials/introductory/animation_tutorial.py: E501
     tutorials/text/annotations.py: E402, E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501

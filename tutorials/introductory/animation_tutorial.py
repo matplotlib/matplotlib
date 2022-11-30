@@ -175,15 +175,27 @@ plt.show()
 # Saving Animations
 # -----------------
 #
-# ========================================== ===========================
-# Writer                                     Supported Formats
-# ========================================== ===========================
-# `~matplotlib.animation.PillowWriter`       .gif, .apng, .webp
-# `~matplotlib.animation.HTMLWriter`         .htm, .html, .png
-# `~matplotlib.animation.FFMpegWriter`       All formats supported by *ffmpeg*
-# `~matplotlib.animation.ImageMagickWriter`  All formats supported by
-#                                            *imagemagick*
-# ========================================== ===========================
+# .. list-table::
+#    :header-rows: 1
+#
+#    * - Writer
+#      - Supported Formats
+#    * - `~matplotlib.animation.PillowWriter`
+#      - .gif, .apng, .webp
+#    * - `~matplotlib.animation.HTMLWriter`
+#      - .htm, .html, .png
+#    * - | `~matplotlib.animation.FFMpegWriter`
+#        | `~matplotlib.animation.FFMpegFileWriter`
+#      - All formats supported by |ffmpeg|_: ``ffmpeg -formats``
+#    * - | `~matplotlib.animation.ImageMagickWriter`
+#        | `~matplotlib.animation.ImageMagickFileWriter`
+#      - All formats supported by |imagemagick|_: ``magick -list format``
+#
+# .. _ffmpeg: https://www.ffmpeg.org/general.html#Supported-File-Formats_002c-Codecs-or-Features
+# .. |ffmpeg| replace:: *ffmpeg*
+#
+# .. _imagemagick: https://imagemagick.org/script/formats.php#supported
+# .. |imagemagick| replace:: *imagemagick*
 #
 # To save animations using any of the writers, we can use the
 # `.animation.Animation.save` method. It takes the *filename* that we want to
@@ -222,8 +234,4 @@ plt.show()
 #   ani.save(filename="apng:/tmp/imagemagick_example.apng",
 #            writer="imagemagick", extra_args=["-quality", "100"])
 #
-# (the ``extra_args`` for apng are needed to reduce filesize by ~10x)
-#
-# Since the frames are piped out to *ffmpeg* or *imagemagick*,
-# ``writer="ffmpeg"`` and ``writer="imagemagick"`` support all formats
-# supported by *ffmpeg* and *imagemagick*.
+# (the ``extra_args`` for *apng* are needed to reduce filesize by ~10x)
