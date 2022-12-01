@@ -2408,8 +2408,10 @@ class LogLocator(Locator):
         # whether we're a major or a minor locator.
         have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
 
-        decades = np.arange(math.floor(log_vmin) - stride,
-                            math.ceil(log_vmax) + 2 * stride, stride)
+        # Return one tick below (or equal to) vmin,
+        # and one tick above (or equal to) vmax
+        decades = np.arange(math.floor(log_vmin),
+                            math.ceil(log_vmax) + stride, stride)
 
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)

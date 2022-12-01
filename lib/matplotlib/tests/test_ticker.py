@@ -198,10 +198,10 @@ class TestLogLocator:
         'vmin, vmax, expected_ticks',
         (
             [1, 10, [1, 10]],
-            [0.9, 10.1, [1, 10]],
-            [0.9, 9, [1]],
-            [1.1, 11, [10]],
-            [0.5, 983, [1, 10, 100]]
+            [0.9, 10.1, [0.1, 1, 10, 100]],
+            [0.9, 9, [0.1, 1, 10]],
+            [1.1, 11, [1, 10, 100]],
+            [0.5, 983, [0.1, 1, 10, 100, 1000]]
         )
     )
     def test_tick_locs(self, vmin, vmax, expected_ticks):
@@ -210,13 +210,13 @@ class TestLogLocator:
 
     def test_basic(self):
         loc = mticker.LogLocator(numticks=5)
-        test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01,
+        test_value = np.array([1.00000000e-03, 1.00000000e-01,
                                1.00000000e+01, 1.00000000e+03, 1.00000000e+05,
-                               1.00000000e+07, 1.000000000e+09])
-        assert_almost_equal(loc.tick_values(0.001, 1.1e5), test_value)
+                               1.00000000e+07])
+        assert_almost_equal(loc.tick_values(1e-3, 1.1e5), test_value)
 
         loc = mticker.LogLocator(base=2)
-        test_value = np.array([0.5, 1., 2., 4., 8., 16., 32., 64., 128., 256.])
+        test_value = np.array([1., 2., 4., 8., 16., 32., 64., 128.])
         assert_almost_equal(loc.tick_values(1, 100), test_value)
 
     def test_invalid_lim_error(self):
