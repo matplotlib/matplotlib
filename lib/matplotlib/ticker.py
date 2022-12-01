@@ -2344,6 +2344,15 @@ class LogLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
+        """
+        Return the values of the located ticks given **vmin** and **vmax**.
+
+        Notes
+        -----
+        The tick values returned include all ticks for the decades containing
+        ``vmin`` and ``vmax``, which can result in some tick values below
+        ``vmin`` and above ``vmax``.
+        """
         if self.numticks == 'auto':
             if self.axis is not None:
                 numticks = np.clip(self.axis.get_tick_space(), 2, 9)
