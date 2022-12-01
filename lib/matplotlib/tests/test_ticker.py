@@ -235,7 +235,7 @@ class TestLogLocator:
         fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
         ax.set_yscale('log')
         ax.set_ylim(1, 100)
-        assert_array_equal(ax.get_yticks(), [10, 100, 1000])
+        assert_array_equal(ax.get_yticks(), [10, 100])
 
     def test_switch_to_autolocator(self):
         loc = mticker.LogLocator(subs="all")

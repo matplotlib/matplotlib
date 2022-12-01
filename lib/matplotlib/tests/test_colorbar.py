@@ -493,10 +493,10 @@ def test_colorbar_autotickslog():
                              orientation='vertical', shrink=0.4)
         # note only -12 to +12 are visible
         np.testing.assert_almost_equal(cbar.ax.yaxis.get_ticklocs(),
-                                       10**np.arange(-16., 16.2, 4.))
-        # note only -24 to +24 are visible
+                                       10**np.arange(-12., 12.2, 4.))
+        # note only -12 to +12 are visible
         np.testing.assert_almost_equal(cbar2.ax.yaxis.get_ticklocs(),
-                                       10**np.arange(-24., 25., 12.))
+                                       10**np.arange(-12., 13., 12.))
 
 
 def test_colorbar_get_ticks():
@@ -584,6 +584,7 @@ def test_colorbar_log_minortick_labels():
 def test_colorbar_renorm():
     x, y = np.ogrid[-4:4:31j, -4:4:31j]
     z = 120000*np.exp(-x**2 - y**2)
+    # min/max of z vals is 1.5196998658913011e-09, 120000.0
 
     fig, ax = plt.subplots()
     im = ax.imshow(z)
@@ -597,7 +598,7 @@ def test_colorbar_renorm():
     norm = LogNorm(z.min(), z.max())
     im.set_norm(norm)
     np.testing.assert_allclose(cbar.ax.yaxis.get_majorticklocs(),
-                               np.logspace(-10, 7, 18))
+                               np.logspace(-9, 6, 16))
     # note that set_norm removes the FixedLocator...
     assert np.isclose(cbar.vmin, z.min())
     cbar.set_ticks([1, 2, 3])
@@ -616,6 +617,7 @@ def test_colorbar_format(fmt):
     # make sure that format is passed properly
     x, y = np.ogrid[-4:4:31j, -4:4:31j]
     z = 120000*np.exp(-x**2 - y**2)
+    # min/max of z vals is 1.5196998658913011e-09, 120000.0
 
     fig, ax = plt.subplots()
     im = ax.imshow(z)
@@ -633,7 +635,7 @@ def test_colorbar_format(fmt):
     im.set_norm(LogNorm(vmin=0.1, vmax=10))
     fig.canvas.draw()
     assert (cbar.ax.yaxis.get_ticklabels()[0].get_text() ==
-            '$\\mathdefault{10^{-2}}$')
+            '$\\mathdefault{10^{-1}}$')
 
 
 def test_colorbar_scale_reset():
