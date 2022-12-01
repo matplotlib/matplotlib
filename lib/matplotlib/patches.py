@@ -2338,6 +2338,24 @@ class BoxStyle(_Style):
             x0, y0 = x0 - pad, y0 - pad
             return Path.circle((x0 + width / 2, y0 + height / 2),
                                max(width, height) / 2)
+    
+    @_register_style(_style_list)
+    class Ellipse:
+        """A ellipse curve."""
+
+        def __init__(self, pad=0.3):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            """
+            self.pad = pad
+
+        def __call__(self,width, height, mutation_size):
+            ellipse_path = transforms.Affine2D().scale(width, height).transform_path(Path.unit_circle())
+
+            return ellipse_path
 
     @_register_style(_style_list)
     class LArrow:
