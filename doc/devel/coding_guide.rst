@@ -13,7 +13,8 @@
 Pull request guidelines
 ***********************
 
-`Pull requests (PRs) on GitHub <https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
+`Pull requests (PRs) on GitHub
+<https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
 are the mechanism for contributing to Matplotlib's code and documentation.
 
 It is recommended to check that your contribution complies with the following
@@ -24,7 +25,8 @@ rules before submitting a pull request:
   in the pull request description to ensure that a link is created to the
   original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
   original issue mentioned is automatically closed when your PR is merged. See
-  `the GitHub documentation <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__
+  `the GitHub documentation
+  <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__
   for more details.
 
 * Formatting should follow the recommendations of PEP8_, as enforced by
@@ -85,7 +87,7 @@ rules before submitting a pull request:
 .. note::
 
     The current state of the Matplotlib code base is not compliant with all
-    of those guidelines, but we expect that enforcing those constraints on all
+    of these guidelines, but we expect that enforcing these constraints on all
     new contributions will move the overall code base quality in the right
     direction.
 

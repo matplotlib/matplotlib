@@ -21,7 +21,7 @@ why you did it, we recommend the following:
   ``bugfix-for-issue-14`` or ``refactor-database-code``.
 * If you get stuck, reach out on Gitter or
   `discourse <https://discourse.matplotlib.org>`__.
-* When your ready or need feedback on your code, open a pull request so that the
+* When you're ready or need feedback on your code, open a pull request so that the
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.
 
@@ -40,7 +40,7 @@ Update the ``main`` branch
 
 First make sure you have followed :ref:`installing_for_devs`.
 
-From time to time you should fetch the upstream changes from github::
+From time to time you should fetch the upstream changes from GitHub::
 
    git fetch upstream
 

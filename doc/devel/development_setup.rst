@@ -59,7 +59,7 @@ Change into this directory before continuing::
   For more information on ``git`` and ``GitHub``, check the following resources.
 
   * `Git documentation <https://git-scm.com/doc>`_
-  * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+  * `GitHub-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
   * `Introduction to GitHub <https://lab.github.com/githubtraining/introduction-to-github>`_
   * :ref:`using-git`
   * :ref:`git-resources`
