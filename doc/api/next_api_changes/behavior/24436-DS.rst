@@ -1,0 +1,9 @@
+Improved tick location logic in ``LogLocator``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`~.LogLocator.tick_values` previously returned two ticks that were outside
+the range ``{vmin, vmax}``. This has been updated to only return all ticks
+for the decades containing ``vmin`` and ``vmax``. If ``vmin`` or ``vmax``
+are exactly on a decade this means no ticks above/below are returned.
+Otherwise a single major tick is returned above/below, and for minor ticks
+all the ticks in the decade containing ``vmin`` or ``vmax`` are returned.
