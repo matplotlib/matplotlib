@@ -9,13 +9,22 @@ To set up Matplotlib for development follow these steps:
 .. contents::
    :local:
 
+Fork the Matplotlib repository
+==============================
+
+Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git. If you
+plan on solving issues or submit pull requests to the main Matplotlib
+repository, you should first *fork* this repository by visiting
+https://github.com/matplotlib/matplotlib.git and clicking on the
+``Fork`` button on the top right of the page (see
+`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details.)
+
 Retrieve the latest version of the code
 =======================================
 
-Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git.
-
-You can retrieve the latest sources with the command (see
-`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details)::
+Now that your fork of the repository lives under your GitHub username, you can
+retrieve the latest sources with one of the following commands (where your
+should replace ``<your-username>`` with your GitHub username):
 
 .. tab-set::
 
@@ -23,33 +32,35 @@ You can retrieve the latest sources with the command (see
 
       .. code-block:: bash
 
-         git clone https://github.com/matplotlib/matplotlib.git
+         git clone https://github.com/<your-username>/matplotlib.git
 
    .. tab-item:: ssh
 
       .. code-block:: bash
 
-         git clone git@github.com:matplotlib/matplotlib.git
+         git clone git@github.com:<your-username>/matplotlib.git
 
       This requires you to setup an `SSH key`_ in advance, but saves you from
       typing your password at every connection.
 
       .. _SSH key: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
 
+
 This will place the sources in a directory :file:`matplotlib` below your
-current working directory, and set up the `upstream remote <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__
-to point to the Matplotlib main repository. Change into this directory before
-continuing::
+current working directory, set up the ``origin`` remote to point to your own
+fork, and set up the ``upstream`` remote to point to the Matplotlib main
+repository (see also `Managing remote repositories <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__.)
+Change into this directory before continuing::
 
     cd matplotlib
 
 .. note::
 
-   For more information on ``git`` and ``GitHub``, check the following resources.
+  For more information on ``git`` and ``GitHub``, check the following resources.
 
   * `Git documentation <https://git-scm.com/doc>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
-  * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
+  * `Introduction to GitHub <https://lab.github.com/githubtraining/introduction-to-github>`_
   * :ref:`using-git`
   * :ref:`git-resources`
   * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
@@ -82,11 +93,6 @@ The simplest way to do this is to use either Python's virtual environment
         source <file folder location>/bin/activate  # Linux/macOS
         <file folder location>\Scripts\activate.bat  # Windows cmd.exe
         <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
-
-Conda dev environment
----------------------
-
-After you have cloned the repo change into the matplotlib directory.
 
    .. tab-item:: conda environment
 

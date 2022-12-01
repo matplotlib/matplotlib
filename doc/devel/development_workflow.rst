@@ -21,7 +21,7 @@ why you did it, we recommend the following:
   ``bugfix-for-issue-14`` or ``refactor-database-code``.
 * If you get stuck, reach out on Gitter or
   `discourse <https://discourse.matplotlib.org>`__.
-* When your ready or need feedback on your code, open a pull-request so that the
+* When your ready or need feedback on your code, open a pull request so that the
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.
 
@@ -35,10 +35,10 @@ why you did it, we recommend the following:
 
 .. _update-mirror-main:
 
-Update the mirror of main
-=========================
+Update the ``main`` branch
+==========================
 
-First make sure you have done :ref:`linking-to-upstream`.
+First make sure you have followed :ref:`installing_for_devs`.
 
 From time to time you should fetch the upstream changes from github::
 
@@ -65,7 +65,7 @@ what the changes in the branch are for.  For example ``add-ability-to-fly``, or
 
 ::
 
-    # Update the mirror of main
+    # Update the main branch
     git fetch upstream
     # Make new feature branch starting at current main
     git branch my-new-feature upstream/main
