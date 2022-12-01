@@ -1012,13 +1012,11 @@ class CheckButtons(AxesWidget):
 
         self._squares = ax.scatter(
             [0.15] * len(ys), ys, marker='s', s=text_size**2,
-            c=["none" for _ in range(len(ys))],
-            linewidth=1, transform=ax.transAxes, edgecolor="k"
+            c="none", linewidth=1, transform=ax.transAxes, edgecolor="k"
         )
-        mask = [not x for x in actives]
         self._crosses = ax.scatter(
             [0.15] * len(ys), ys, marker='x', linewidth=1, s=text_size**2,
-            c=["k" if actives[i] else "none" for i in range(len(ys))],
+            c=["k" if active else "none" for active in actives],
             transform=ax.transAxes
         )
 
@@ -1030,22 +1028,19 @@ class CheckButtons(AxesWidget):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
         pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
-        _, square_inds = self._squares.contains(event)
-        coords = self._squares.get_offset_transform().transform(
-            self._squares.get_offsets()
-        )
         distances = {}
         if hasattr(self, "_rectangles"):
             for i, (p, t) in enumerate(zip(self._rectangles, self.labels)):
+                x0, y0 = p.get_xy()
                 if (t.get_window_extent().contains(event.x, event.y)
-                        or (
-                            p.get_x() <= pclicked[0] <= p.get_x()
-                                                    + p.get_width()
-                            and p.get_y() <= pclicked[1] <= p.get_y()
-                                                    + p.get_height()
-                            )):
+                        or (x0 <= pclicked[0] <= x0 + p.get_width()
+                            and y0 <= pclicked[1] <= y0 + p.get_height())):
                     distances[i] = np.linalg.norm(pclicked - p.get_center())
         else:
+            _, square_inds = self._squares.contains(event)
+            coords = self._squares.get_offset_transform().transform(
+                self._squares.get_offsets()
+            )
             for i, t in enumerate(self.labels):
                 if (i in square_inds["ind"]
                         or t.get_window_extent().contains(event.x, event.y)):
@@ -1074,12 +1069,12 @@ class CheckButtons(AxesWidget):
             raise ValueError(f'Invalid CheckButton index: {index}')
 
         cross_facecolors = self._crosses.get_facecolor()
-        cross_facecolors[index] = (
-            colors.to_rgba("black")
+        cross_facecolors[index] = colors.to_rgba(
+            "black"
             if colors.same_color(
                 cross_facecolors[index], colors.to_rgba("none")
             )
-            else colors.to_rgba("none")
+            else "none"
         )
         self._crosses.set_facecolor(cross_facecolors)
 
@@ -1098,9 +1093,8 @@ class CheckButtons(AxesWidget):
         """
         Return a tuple of the status (True/False) of all of the check buttons.
         """
-        return [False if colors.same_color(
-            self._crosses.get_facecolors()[i], colors.to_rgba("none"))
-                else True for i in range(len(self.labels))]
+        return [not colors.same_color(color, colors.to_rgba("none"))
+                for color in self._crosses.get_facecolors()]
 
     def on_clicked(self, func):
         """
@@ -1124,7 +1118,7 @@ class CheckButtons(AxesWidget):
             rectangles = self._rectangles = [
                 Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
                           edgecolor="black",
-                          facecolor=self._squares.get_facecolor()[i],
+                          facecolor="none",
                           transform=self.ax.transAxes
                           )
                 for i, y in enumerate(ys)
