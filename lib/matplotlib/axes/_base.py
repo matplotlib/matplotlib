@@ -3750,7 +3750,7 @@ class _AxesBase(martist.Artist):
     get_xminorticklabels = _axis_method_wrapper("xaxis", "get_minorticklabels")
     get_xticklabels = _axis_method_wrapper("xaxis", "get_ticklabels")
     set_xticklabels = _axis_method_wrapper(
-        "xaxis", "_set_ticklabels",
+        "xaxis", "set_ticklabels",
         doc_sub={"Axis.set_ticks": "Axes.set_xticks"})
 
     def get_ylabel(self):
@@ -3982,7 +3982,7 @@ class _AxesBase(martist.Artist):
     get_yminorticklabels = _axis_method_wrapper("yaxis", "get_minorticklabels")
     get_yticklabels = _axis_method_wrapper("yaxis", "get_ticklabels")
     set_yticklabels = _axis_method_wrapper(
-        "yaxis", "_set_ticklabels",
+        "yaxis", "set_ticklabels",
         doc_sub={"Axis.set_ticks": "Axes.set_yticks"})
 
     xaxis_date = _axis_method_wrapper("xaxis", "axis_date")
