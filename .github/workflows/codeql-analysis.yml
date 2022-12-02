@@ -42,7 +42,8 @@ jobs:
           # https://github.com/jazzband/pip-tools/pull/1681
           python -m pip install --upgrade \
             certifi contourpy cycler fonttools kiwisolver importlib_resources \
-            numpy packaging pillow pyparsing python-dateutil setuptools-scm
+            numpy packaging pillow pyparsing python-dateutil setuptools-scm \
+            pybind11
           echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
 
       - name: Initialize CodeQL
