@@ -1,3 +1,4 @@
+---
 name: "Maintenance"
 on:
   # So that PRs touching the same files as the push are updated
@@ -7,6 +8,9 @@ on:
   # In `pull_request` we wouldn't be able to change labels of fork PRs
   pull_request_target:
     types: [synchronize]
+
+permissions:
+  pull-requests: write
 
 jobs:
   main:

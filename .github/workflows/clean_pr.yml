@@ -1,5 +1,9 @@
+---
 name: PR cleanliness
 on: [pull_request]
+
+permissions:
+  contents: read
 
 jobs:
   pr_clean:
