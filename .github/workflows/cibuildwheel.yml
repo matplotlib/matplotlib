@@ -1,3 +1,4 @@
+---
 name: Build CI wheels
 
 on:
@@ -16,6 +17,9 @@ on:
       - synchronize
       - reopened
       - labeled
+
+permissions:
+  contents: read
 
 jobs:
   build_wheels:
