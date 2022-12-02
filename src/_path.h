@@ -1250,16 +1250,14 @@ struct _is_sorted
     {
         npy_intp size;
         npy_intp i;
-        T last_value;
+        T last_value = -INFINITY;
         T current_value;
 
         size = PyArray_DIM(array, 0);
 
-        // std::isnan is only in C++11, which we don't yet require,
-        // so we use the "self == self" trick
         for (i = 0; i < size; ++i) {
             last_value = *((T *)PyArray_GETPTR1(array, i));
-            if (last_value == last_value) {
+            if (!std::isnan(last_value)) {
                 break;
             }
         }
@@ -1271,7 +1269,7 @@ struct _is_sorted
 
         for (; i < size; ++i) {
             current_value = *((T *)PyArray_GETPTR1(array, i));
-            if (current_value == current_value) {
+            if (!std::isnan(current_value)) {
                 if (current_value < last_value) {
                     return false;
                 }
