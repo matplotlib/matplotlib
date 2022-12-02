@@ -1244,68 +1244,24 @@ bool convert_to_string(PathIterator &path,
 }
 
 template<class T>
-struct _is_sorted
+bool is_sorted(PyArrayObject *array)
 {
-    bool operator()(PyArrayObject *array)
-    {
-        npy_intp size;
-        npy_intp i;
-        T last_value = -INFINITY;
-        T current_value;
+    npy_intp size = PyArray_DIM(array, 0);
+    using limits = std::numeric_limits<T>;
+    T last = limits::has_infinity ? -limits::infinity() : limits::min();
 
-        size = PyArray_DIM(array, 0);
-
-        for (i = 0; i < size; ++i) {
-            last_value = *((T *)PyArray_GETPTR1(array, i));
-            if (!std::isnan(last_value)) {
-                break;
-            }
-        }
-
-        if (i == size) {
-            // The whole array is non-finite
-            return false;
-        }
-
-        for (; i < size; ++i) {
-            current_value = *((T *)PyArray_GETPTR1(array, i));
-            if (!std::isnan(current_value)) {
-                if (current_value < last_value) {
-                    return false;
-                }
-                last_value = current_value;
-            }
-        }
-
-        return true;
-    }
-};
-
-
-template<class T>
-struct _is_sorted_int
-{
-    bool operator()(PyArrayObject *array)
-    {
-        npy_intp size;
-        npy_intp i;
-        T last_value;
-        T current_value;
-
-        size = PyArray_DIM(array, 0);
-
-        last_value = *((T *)PyArray_GETPTR1(array, 0));
-
-        for (i = 1; i < size; ++i) {
-            current_value = *((T *)PyArray_GETPTR1(array, i));
-            if (current_value < last_value) {
+    for (npy_intp i = 0; i < size; ++i) {
+        T current = *(T *)PyArray_GETPTR1(array, i);
+        // The following tests !isnan(current), but also works for integral
+        // types.  (The isnan(IntegralType) overload is absent on MSVC.)
+        if (current == current) {
+            if (current < last) {
                 return false;
             }
-            last_value = current_value;
+            last = current;
         }
-
-        return true;
     }
+    return true;
 };
 
 
