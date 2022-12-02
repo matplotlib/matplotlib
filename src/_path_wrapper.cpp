@@ -807,54 +807,29 @@ static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
 
     /* Handle just the most common types here, otherwise coerce to
     double */
-    switch(PyArray_TYPE(array)) {
+    switch (PyArray_TYPE(array)) {
     case NPY_INT:
-        {
-            _is_sorted_int<npy_int> is_sorted;
-            result = is_sorted(array);
-        }
+        result = is_sorted<npy_int>(array);
         break;
-
     case NPY_LONG:
-        {
-            _is_sorted_int<npy_long> is_sorted;
-            result = is_sorted(array);
-        }
+        result = is_sorted<npy_long>(array);
         break;
-
     case NPY_LONGLONG:
-        {
-            _is_sorted_int<npy_longlong> is_sorted;
-            result = is_sorted(array);
-        }
+        result = is_sorted<npy_longlong>(array);
         break;
-
     case NPY_FLOAT:
-        {
-            _is_sorted<npy_float> is_sorted;
-            result = is_sorted(array);
-        }
+        result = is_sorted<npy_float>(array);
         break;
-
     case NPY_DOUBLE:
-        {
-            _is_sorted<npy_double> is_sorted;
-            result = is_sorted(array);
-        }
+        result = is_sorted<npy_double>(array);
         break;
-
     default:
-        {
-            Py_DECREF(array);
-            array = (PyArrayObject *)PyArray_FromObject(obj, NPY_DOUBLE, 1, 1);
-
-            if (array == NULL) {
-                return NULL;
-            }
-
-            _is_sorted<npy_double> is_sorted;
-            result = is_sorted(array);
+        Py_DECREF(array);
+        array = (PyArrayObject *)PyArray_FromObject(obj, NPY_DOUBLE, 1, 1);
+        if (array == NULL) {
+            return NULL;
         }
+        result = is_sorted<npy_double>(array);
     }
 
     Py_DECREF(array);
