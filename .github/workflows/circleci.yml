@@ -1,7 +1,11 @@
+---
 on: [status]
+permissions:
+  statuses: write
 jobs:
   circleci_artifacts_redirector_job:
     runs-on: ubuntu-latest
+    if: "${{ github.event.context == 'ci/circleci: docs-python38' }}"
     name: Run CircleCI artifacts redirector
     steps:
       - name: GitHub Action step
@@ -11,3 +15,7 @@ jobs:
           artifact-path: 0/doc/build/html/index.html
           circleci-jobs: docs-python38
           job-title: View the built docs
+      - name: Check the URL
+        if: github.event.status != 'pending'
+        run: |
+          curl --fail ${{ steps.step1.outputs.url }} | grep $GITHUB_SHA

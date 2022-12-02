@@ -229,4 +229,6 @@ workflows:
   version: 2
   build:
     jobs:
+      # NOTE: If you rename this job, then you must update the `if` condition
+      # and `circleci-jobs` option in `.github/workflows/circleci.yml`.
       - docs-python38
