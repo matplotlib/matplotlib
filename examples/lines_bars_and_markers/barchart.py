@@ -22,7 +22,7 @@ penguin_means = [bill_depth, bill_length, flipper_length]
 x = np.arange(len(species))  # the label locations
 width = 0.25  # the width of the bars
 multiplier = 0
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(constrained_layout=True)
 
 for measurement, penguin_mean in zip(measurements, penguin_means):
     offset = (width * multiplier)
@@ -35,10 +35,8 @@ ax.set_ylabel('Length (mm)')
 ax.set_title('Penguin attributes by species')
 ax.set_xticks(x + (width), species)
 ax.legend(loc='upper left', ncols=3)
+ax.set_ylim(0, 250)
 
-fig.tight_layout()
-
-plt.ylim(0, 250)
 plt.show()
 
 #############################################################################
