@@ -567,8 +567,9 @@ plt.show()
 # the typical separable matplotlib Axes, with one additional piece
 # ``transProjection``::
 #
-#       self.transData = self.transScale + self.transProjection + \
-#           (self.transProjectionAffine + self.transAxes)
+#        self.transData = (
+#            self.transScale + self.transShift + self.transProjection +
+#            (self.transProjectionAffine + self.transWedge + self.transAxes))
 #
 # ``transProjection`` handles the projection from the space,
 # e.g., latitude and longitude for map data, or radius and theta for polar
