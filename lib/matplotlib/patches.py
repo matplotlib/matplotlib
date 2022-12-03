@@ -9,6 +9,7 @@ from numbers import Number
 import textwrap
 from types import SimpleNamespace
 from collections import namedtuple
+from matplotlib.transforms import Affine2D
 
 import numpy as np
 
@@ -2337,7 +2338,32 @@ class BoxStyle(_Style):
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad
             return Path.circle((x0 + width / 2, y0 + height / 2),
-                               max(width, height) / 2)
+                                max(width, height) / 2)
+
+    @_register_style(_style_list)
+    class Ellipse:
+        """An elliptical box."""
+
+        def __init__(self, pad=0.3):
+            """
+            Parameters
+            ----------
+            pad : float, default: 0.3
+                The amount of padding around the original box.
+            """
+            self.pad = pad
+
+        def __call__(self, x0, y0, width, height, mutation_size):
+            pad = mutation_size * self.pad
+            width, height = width + 2 * pad, height + 2 * pad
+            # boundary of the padded box
+            x0, y0 = x0 - pad, y0 - pad
+            a = width / math.sqrt(2)
+            b = height / math.sqrt(2)
+            trans = Affine2D().scale(a, b).translate(x0 + width / 2,
+                                                     y0 + height / 2)
+            ellipse_path = trans.transform_path(Path.unit_circle())
+            return ellipse_path
 
     @_register_style(_style_list)
     class LArrow:
