@@ -2366,8 +2366,7 @@ class BoxStyle(_Style):
             b = height / math.sqrt(2)
             trans = Affine2D().scale(a, b).translate(x0 + width / 2,
                                                      y0 + height / 2)
-            ellipse_path = trans.transform_path(Path.unit_circle())
-            return ellipse_path
+            return trans.transform_path(Path.unit_circle())
 
     @_register_style(_style_list)
     class LArrow:
