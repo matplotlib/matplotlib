@@ -5,7 +5,8 @@ import os
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
-    ToolContainerBase, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    ToolContainerBase, KeyEvent, LocationEvent, MouseEvent, ResizeEvent,
+    CloseEvent)
 
 try:
     import gi
@@ -79,7 +80,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         style_ctx.add_class("matplotlib-canvas")
 
     def destroy(self):
-        self.close_event()
+        CloseEvent("close_event", self)._process()
 
     def set_cursor(self, cursor):
         # docstring inherited
