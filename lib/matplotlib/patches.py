@@ -2344,7 +2344,7 @@ class BoxStyle(_Style):
     class Ellipse:
         """
         An elliptical box.
-        
+
         .. versionadded:: 3.7
         """
 
