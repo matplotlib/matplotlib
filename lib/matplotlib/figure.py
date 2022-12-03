@@ -2048,9 +2048,7 @@ default: %(va)s
             if sharey:
                 ax.sharey(ax0)
                 ax._label_outer_yaxis(check_patch=True)
-        for k, ax in ret.items():
-            if isinstance(k, str):
-                ax.set_label(k)
+
         return ret
 
     def _set_artist_props(self, a):
