@@ -2614,12 +2614,16 @@ class Figure(FigureBase):
             may only be shown briefly or not shown at all if you or your
             environment are not managing an event loop.
 
-            Proper use cases for `.Figure.show` include running this from a
-            GUI application or an IPython shell.
+            Proper use cases for `.Figure.show` include running this from a GUI
+            application (where there is persistently an event loop running) or
+            from a shell with in input hook configured (IPython will do this).
+            Some, but not all, GUI toolkits will register an input hook on
+            import.  See :ref:`cp_integration` for more details.
 
-            If you're running a pure python shell or executing a non-GUI
-            python script, you should use `matplotlib.pyplot.show` instead,
-            which takes care of managing the event loop for you.
+            If you're in a shell without input hook integration or executing a
+            python script, you should use `matplotlib.pyplot.show` with
+            ``block=True`` instead, which takes care of starting and running
+            the event loop for you.
 
         Parameters
         ----------
