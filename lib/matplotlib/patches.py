@@ -2342,7 +2342,11 @@ class BoxStyle(_Style):
 
     @_register_style(_style_list)
     class Ellipse:
-        """An elliptical box."""
+        """
+        An elliptical box.
+        
+        .. versionadded:: 3.7
+        """
 
         def __init__(self, pad=0.3):
             """
