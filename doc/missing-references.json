@@ -366,8 +366,8 @@
     ],
     "matplotlib.patches.BoxStyle._Base": [
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Circle:1",
-      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Ellipse:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.DArrow:1",
+      "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Ellipse:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.LArrow:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Round4:1",
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.BoxStyle.Round:1",
