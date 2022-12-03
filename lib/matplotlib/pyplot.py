@@ -1479,7 +1479,8 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
 
 def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
                    width_ratios=None, height_ratios=None, empty_sentinel='.',
-                   subplot_kw=None, gridspec_kw=None, **fig_kw):
+                   subplot_kw=None, gridspec_kw=None,
+                   per_subplot_kw=None, **fig_kw):
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1576,7 +1577,8 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
         mosaic, sharex=sharex, sharey=sharey,
         height_ratios=height_ratios, width_ratios=width_ratios,
         subplot_kw=subplot_kw, gridspec_kw=gridspec_kw,
-        empty_sentinel=empty_sentinel
+        empty_sentinel=empty_sentinel,
+        per_subplot_kw=per_subplot_kw,
     )
     return fig, ax_dict
 

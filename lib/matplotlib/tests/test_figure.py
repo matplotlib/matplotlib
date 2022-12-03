@@ -848,7 +848,12 @@ def test_animated_with_canvas_change(fig_test, fig_ref):
 class TestSubplotMosaic:
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize(
-        "x", [[["A", "A", "B"], ["C", "D", "B"]], [[1, 1, 2], [3, 4, 2]]]
+        "x", [
+            [["A", "A", "B"], ["C", "D", "B"]],
+            [[1, 1, 2], [3, 4, 2]],
+            (("A", "A", "B"), ("C", "D", "B")),
+            ((1, 1, 2), (3, 4, 2))
+        ]
     )
     def test_basic(self, fig_test, fig_ref, x):
         grid_axes = fig_test.subplot_mosaic(x)
@@ -998,6 +1003,10 @@ class TestSubplotMosaic:
             plt.subplot_mosaic(['foo', 'bar'])
         with pytest.raises(ValueError, match='must be 2D'):
             plt.subplot_mosaic(['foo'])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic([['foo', ('bar',)]])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic([['a', 'b'], [('a', 'b'), 'c']])
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
@@ -1011,8 +1020,26 @@ class TestSubplotMosaic:
 
         axB = fig_ref.add_subplot(gs[0, 1], **subplot_kw)
 
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("multi_value", ['BC', tuple('BC')])
+    def test_per_subplot_kw(self, fig_test, fig_ref, multi_value):
+        x = 'AB;CD'
+        grid_axes = fig_test.subplot_mosaic(
+            x,
+            subplot_kw={'facecolor': 'red'},
+            per_subplot_kw={
+                'D': {'facecolor': 'blue'},
+                multi_value: {'facecolor': 'green'},
+            }
+        )
+
+        gs = fig_ref.add_gridspec(2, 2)
+        for color, spec in zip(['red', 'green', 'green', 'blue'], gs):
+            fig_ref.add_subplot(spec, facecolor=color)
+
     def test_string_parser(self):
         normalize = Figure._normalize_grid_string
+
         assert normalize('ABC') == [['A', 'B', 'C']]
         assert normalize('AB;CC') == [['A', 'B'], ['C', 'C']]
         assert normalize('AB;CC;DE') == [['A', 'B'], ['C', 'C'], ['D', 'E']]
@@ -1028,6 +1055,25 @@ class TestSubplotMosaic:
                          CC
                          DE
                          """) == [['A', 'B'], ['C', 'C'], ['D', 'E']]
+
+    def test_per_subplot_kw_expander(self):
+        normalize = Figure._norm_per_subplot_kw
+        assert normalize({"A": {}, "B": {}}) == {"A": {}, "B": {}}
+        assert normalize({("A", "B"): {}}) == {"A": {}, "B": {}}
+        with pytest.raises(
+                ValueError, match=f'The key {"B"!r} appears multiple times'
+        ):
+            normalize({("A", "B"): {}, "B": {}})
+        with pytest.raises(
+                ValueError, match=f'The key {"B"!r} appears multiple times'
+        ):
+            normalize({"B": {}, ("A", "B"): {}})
+
+    def test_extra_per_subplot_kw(self):
+        with pytest.raises(
+                ValueError, match=f'The keys {set("B")!r} are in'
+        ):
+            Figure().subplot_mosaic("A", per_subplot_kw={"B": {}})
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("str_pattern",

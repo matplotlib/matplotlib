@@ -202,8 +202,8 @@ identify_axes(axd)
 # empty sentinel with the string shorthand because it may be stripped
 # while processing the input.
 #
-# Controlling mosaic and subplot creation
-# =======================================
+# Controlling mosaic creation
+# ===========================
 #
 # This feature is built on top of `.gridspec` and you can pass the
 # keyword arguments through to the underlying `.gridspec.GridSpec`
@@ -278,12 +278,69 @@ identify_axes(axd)
 
 
 ###############################################################################
+# Controlling subplot creation
+# ============================
+
 # We can also pass through arguments used to create the subplots
-# (again, the same as `.Figure.subplots`).
+# (again, the same as `.Figure.subplots`) which will apply to all
+# of the Axes created.
 
 
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
     "AB", subplot_kw={"projection": "polar"}
+)
+identify_axes(axd)
+
+###############################################################################
+# Per-Axes subplot keyword arguments
+# ----------------------------------
+#
+#
+# If you need to control the parameters passed to each subplot individually use
+# *per_subplot_kw* to pass a mapping between the Axes identifiers (or
+# tuples of Axes identifiers) to dictionaries of keywords to be passed.
+#
+# .. versionadded:: 3.7
+#
+
+
+fig, axd = plt.subplot_mosaic(
+    "AB;CD",
+    per_subplot_kw={
+        "A": {"projection": "polar"},
+        ("C", "D"): {"xscale": "log"}
+    },
+)
+identify_axes(axd)
+
+###############################################################################
+# If the layout is specified with the string short-hand, then we know the
+# Axes labels will be one character and can unambiguously interpret longer
+# strings in *per_subplot_kw* to specify a set of Axes to apply the
+# keywords to:
+
+
+fig, axd = plt.subplot_mosaic(
+    "AB;CD",
+    per_subplot_kw={
+        "AD": {"projection": "polar"},
+        "BC": {"facecolor": ".9"}
+    },
+)
+identify_axes(axd)
+
+###############################################################################
+# if *subplot_kw* and *per_subplot_kw* are used together, then they are
+# merged with *per_subplot_kw* taking priority:
+
+
+axd = plt.figure(constrained_layout=True).subplot_mosaic(
+    "AB;CD",
+    subplot_kw={"facecolor": "xkcd:tangerine"},
+    per_subplot_kw={
+        "B": {"facecolor": "xkcd:water blue"},
+        "D": {"projection": "polar", "facecolor": "w"},
+    }
 )
 identify_axes(axd)
 

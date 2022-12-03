@@ -1760,6 +1760,25 @@ default: %(va)s
         return _bbox
 
     @staticmethod
+    def _norm_per_subplot_kw(per_subplot_kw):
+        expanded = {}
+        for k, v in per_subplot_kw.items():
+            if isinstance(k, tuple):
+                for sub_key in k:
+                    if sub_key in expanded:
+                        raise ValueError(
+                            f'The key {sub_key!r} appears multiple times.'
+                            )
+                    expanded[sub_key] = v
+            else:
+                if k in expanded:
+                    raise ValueError(
+                        f'The key {k!r} appears multiple times.'
+                    )
+                expanded[k] = v
+        return expanded
+
+    @staticmethod
     def _normalize_grid_string(layout):
         if '\n' not in layout:
             # single-line string
@@ -1771,7 +1790,8 @@ default: %(va)s
 
     def subplot_mosaic(self, mosaic, *, sharex=False, sharey=False,
                        width_ratios=None, height_ratios=None,
-                       empty_sentinel='.', subplot_kw=None, gridspec_kw=None):
+                       empty_sentinel='.', subplot_kw=None, gridspec_kw=None,
+                       per_subplot_kw=None):
         """
         Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1821,6 +1841,9 @@ default: %(va)s
             The string notation allows only single character Axes labels and
             does not support nesting but is very terse.
 
+            Tuples may be used instead of lists and tuples may not be used
+            as Axes identifiers.
+
         sharex, sharey : bool, default: False
             If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
             among all subplots.  In that case, tick label visibility and axis
@@ -1843,7 +1866,21 @@ default: %(va)s
 
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
-            used to create each subplot.
+            used to create each subplot.  These values may be overridden by
+            values in *per_subplot_kw*.
+
+        per_subplot_kw : dict, optional
+            A dictionary mapping the Axes idenitfies or tuples of identifies to
+            a dictionary of keyword arguments to be passed to the
+            `.Figure.add_subplot` call used to create each subplot.  The values
+            in these dictionaries have precedence over the values in
+            *subplot_kw*.
+
+            In the special case *mosaic* being a string, multi-character keys
+            in *per_subplot_kw* will be applied to all of the Axes named
+            treating the string as a sequence.
+
+            .. versionadded:: 3.7
 
         gridspec_kw : dict, optional
             Dictionary with keywords passed to the `.GridSpec` constructor used
@@ -1868,6 +1905,8 @@ default: %(va)s
         """
         subplot_kw = subplot_kw or {}
         gridspec_kw = dict(gridspec_kw or {})
+        per_subplot_kw = per_subplot_kw or {}
+
         if height_ratios is not None:
             if 'height_ratios' in gridspec_kw:
                 raise ValueError("'height_ratios' must not be defined both as "
@@ -1882,6 +1921,14 @@ default: %(va)s
         # special-case string input
         if isinstance(mosaic, str):
             mosaic = self._normalize_grid_string(mosaic)
+            per_subplot_kw = {
+                tuple(k): v for k, v in per_subplot_kw.items()
+            }
+
+        per_subplot_kw = self._norm_per_subplot_kw(
+            per_subplot_kw
+        )
+
         # Only accept strict bools to allow a possible future API expansion.
         _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
 
@@ -2011,7 +2058,11 @@ default: %(va)s
                         raise ValueError(f"There are duplicate keys {name} "
                                          f"in the layout\n{mosaic!r}")
                     ax = self.add_subplot(
-                        gs[slc], **{'label': str(name), **subplot_kw}
+                        gs[slc], **{
+                            'label': str(name),
+                            **subplot_kw,
+                            **per_subplot_kw.get(name, {})
+                        }
                     )
                     output[name] = ax
                 elif method == 'nested':
@@ -2048,7 +2099,11 @@ default: %(va)s
             if sharey:
                 ax.sharey(ax0)
                 ax._label_outer_yaxis(check_patch=True)
-
+        if extra := set(per_subplot_kw) - set(ret):
+            raise ValueError(
+                f"The keys {extra} are in *per_subplot_kw* "
+                "but not in the mosaic."
+            )
         return ret
 
     def _set_artist_props(self, a):
