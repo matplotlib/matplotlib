@@ -2552,7 +2552,7 @@ class BoxStyle(_Style):
             else:
                 tooth_size = self.tooth_size * mutation_size
 
-            tooth_size2 = tooth_size / 2
+            hsz = tooth_size / 2
             width = width + 2 * pad - tooth_size
             height = height + 2 * pad - tooth_size
 
@@ -2563,57 +2563,23 @@ class BoxStyle(_Style):
             dsy_n = round((height - tooth_size) / (tooth_size * 2)) * 2
             dsy = (height - tooth_size) / dsy_n
 
-            x0, y0 = x0 - pad + tooth_size2, y0 - pad + tooth_size2
+            x0, y0 = x0 - pad + hsz, y0 - pad + hsz
             x1, y1 = x0 + width, y0 + height
 
-            bottom_saw_x = [
-                x0,
-                *(x0 + tooth_size2 + dsx * .5 * np.arange(dsx_n * 2)),
-                x1 - tooth_size2,
+            xs = [
+                x0, *np.linspace(x0 + hsz, x1 - hsz, 2 * dsx_n + 1),  # bottom
+                *([x1, x1 + hsz, x1, x1 - hsz] * dsy_n)[:2*dsy_n+2],  # right
+                x1, *np.linspace(x1 - hsz, x0 + hsz, 2 * dsx_n + 1),  # top
+                *([x0, x0 - hsz, x0, x0 + hsz] * dsy_n)[:2*dsy_n+2],  # left
             ]
-            bottom_saw_y = [
-                y0,
-                *([y0 - tooth_size2, y0, y0 + tooth_size2, y0] * dsx_n),
-                y0 - tooth_size2,
-            ]
-            right_saw_x = [
-                x1,
-                *([x1 + tooth_size2, x1, x1 - tooth_size2, x1] * dsx_n),
-                x1 + tooth_size2,
-            ]
-            right_saw_y = [
-                y0,
-                *(y0 + tooth_size2 + dsy * .5 * np.arange(dsy_n * 2)),
-                y1 - tooth_size2,
-            ]
-            top_saw_x = [
-                x1,
-                *(x1 - tooth_size2 - dsx * .5 * np.arange(dsx_n * 2)),
-                x0 + tooth_size2,
-            ]
-            top_saw_y = [
-                y1,
-                *([y1 + tooth_size2, y1, y1 - tooth_size2, y1] * dsx_n),
-                y1 + tooth_size2,
-            ]
-            left_saw_x = [
-                x0,
-                *([x0 - tooth_size2, x0, x0 + tooth_size2, x0] * dsy_n),
-                x0 - tooth_size2,
-            ]
-            left_saw_y = [
-                y1,
-                *(y1 - tooth_size2 - dsy * .5 * np.arange(dsy_n * 2)),
-                y0 + tooth_size2,
+            ys = [
+                *([y0, y0 - hsz, y0, y0 + hsz] * dsx_n)[:2*dsx_n+2],  # bottom
+                y0, *np.linspace(y0 + hsz, y1 - hsz, 2 * dsy_n + 1),  # right
+                *([y1, y1 + hsz, y1, y1 - hsz] * dsx_n)[:2*dsx_n+2],  # top
+                y1, *np.linspace(y1 - hsz, y0 + hsz, 2 * dsy_n + 1),  # left
             ]
 
-            saw_vertices = [*zip(bottom_saw_x, bottom_saw_y),
-                            *zip(right_saw_x, right_saw_y),
-                            *zip(top_saw_x, top_saw_y),
-                            *zip(left_saw_x, left_saw_y),
-                            (bottom_saw_x[0], bottom_saw_y[0])]
-
-            return saw_vertices
+            return [*zip(xs, ys), (xs[0], ys[0])]
 
         def __call__(self, x0, y0, width, height, mutation_size):
             saw_vertices = self._get_sawtooth_vertices(x0, y0, width,
