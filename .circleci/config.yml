@@ -156,6 +156,7 @@ commands:
           command: |
            (grep "WARNING\|ERROR" /tmp/sphinxerrorswarnings.log ||
             echo "No errors or warnings")
+          when: always
 
   doc-show-deprecations:
     steps:
@@ -166,6 +167,7 @@ commands:
             echo "No deprecation warnings in gallery")
            (grep DeprecationWarning -r -l doc/build/html/tutorials ||
             echo "No deprecation warnings in tutorials")
+          when: always
 
   doc-bundle:
     steps:
