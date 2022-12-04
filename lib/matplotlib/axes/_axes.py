@@ -6394,14 +6394,10 @@ default: :rc:`scatter.edgecolors`
         if style == "quadmesh":
             # data point in each cell is value at lower left corner
             coords = np.stack([x, y], axis=-1)
-            if np.ndim(C) == 2:
-                qm_kwargs = {"array": np.ma.ravel(C)}
-            elif np.ndim(C) == 3:
-                qm_kwargs = {"color": np.ma.reshape(C, (-1, C.shape[-1]))}
-            else:
+            if np.ndim(C) not in {2, 3}:
                 raise ValueError("C must be 2D or 3D")
             collection = mcoll.QuadMesh(
-                coords, **qm_kwargs,
+                coords, array=C,
                 alpha=alpha, cmap=cmap, norm=norm,
                 antialiased=False, edgecolors="none")
             self.add_collection(collection, autolim=False)
