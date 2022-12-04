@@ -19,6 +19,9 @@ from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, Transform
 
 _log = logging.getLogger(__name__)
 
+# a tombstone sentinel to ensure we never reset the axes or figure on an Artist
+_tombstone = object()
+
 
 def _prevent_rasterization(draw):
     # We assume that by default artists are not allowed to rasterize (unless
@@ -264,7 +267,7 @@ Supported properties are
             if (fig := self.get_figure(root=False)) is not None:
                 if not _ax_flag:
                     fig.stale = True
-                self._parent_figure = None
+                self._parent_figure = _tombstone
 
         else:
             raise NotImplementedError('cannot remove artist')
@@ -301,17 +304,34 @@ Supported properties are
     @property
     def axes(self):
         """The `~.axes.Axes` instance the artist resides in, or *None*."""
-        return self._axes
+        return self._axes if self._axes is not _tombstone else None
 
     @axes.setter
     def axes(self, new_axes):
         if (new_axes is not None and self._axes is not None
                 and new_axes != self._axes):
-            raise ValueError("Can not reset the Axes. You are probably trying to reuse "
-                             "an artist in more than one Axes which is not supported")
+            if self._axes is _tombstone:
+                extra = (
+                    f"The artist {self!r} has had its Axes reset to None " +
+                    "but was previously included in one."
+                )
+            else:
+                extra = (
+                    f"The artist {self!r} is currently in {self._axes!r} " +
+                    f"in the figure {self._axes.figure!r}."
+                )
+            raise RuntimeError(
+                "Can not reset the Axes.  You are probably " +
+                "trying to reuse an artist in more than one " +
+                "Axes which is not supported.  " +
+                extra
+            )
+        if self._axes is not None and new_axes is None:
+            new_axes = _tombstone
         self._axes = new_axes
         if new_axes is not None and new_axes is not self:
             self.stale_callback = _stale_axes_callback
+
 
     @property
     def stale(self):
@@ -759,6 +779,9 @@ Supported properties are
             If False, return the (Sub)Figure this artist is on.  If True,
             return the root Figure for a nested tree of SubFigures.
         """
+        if self._parent_figure is _tombstone:
+            return None
+
         if root and self._parent_figure is not None:
             return self._parent_figure.get_figure(root=True)
 
@@ -794,8 +817,24 @@ Supported properties are
         # is not allowed for the same reason as adding the same instance
         # to more than one Axes
         if self._parent_figure is not None:
-            raise RuntimeError("Can not put single artist in "
-                               "more than one figure")
+            if fig is None:
+                self._parent_figure = _tombstone
+                return
+            if self._parent_figure is _tombstone:
+                extra = (
+                    f"The artist {self!r} has had its Figure reset to None " +
+                    "but was previously included in one."
+                )
+            else:
+                extra = (
+                    f"The artist {self!r} is currently in {self._parent_figure!r}."
+                )
+            raise RuntimeError(
+                "Can not reset the figure.  You are probably " +
+                "trying to reuse an artist in more than one " +
+                "Figure which is not supported.  " +
+                extra
+            )
         self._parent_figure = fig
         if self._parent_figure and self._parent_figure is not self:
             self.pchanged()
