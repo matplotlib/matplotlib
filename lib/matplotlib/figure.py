@@ -2616,7 +2616,7 @@ class Figure(FigureBase):
 
             Proper use cases for `.Figure.show` include running this from a GUI
             application (where there is persistently an event loop running) or
-            from a shell with in input hook configured (IPython will do this).
+            from a shell with an input hook configured (IPython will do this).
             Some, but not all, GUI toolkits will register an input hook on
             import.  See :ref:`cp_integration` for more details.
 
