@@ -137,6 +137,7 @@ class FigureBase(Artist):
         # axis._get_tick_boxes_siblings
         self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
 
+        self._figure = self
         self._localaxes = []  # track all Axes
         self.artists = []
         self.lines = []
@@ -2162,7 +2163,7 @@ class SubFigure(FigureBase):
 
         self._subplotspec = subplotspec
         self._parent = parent
-        self.figure = parent.figure
+        self._figure = parent.figure
 
         # subfigures use the parent axstack
         self._axstack = parent._axstack

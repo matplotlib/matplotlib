@@ -562,3 +562,36 @@ def test_draw_wraper_forward_input():
 
     assert 'aardvark' == art.draw(renderer, 'aardvark')
     assert 'aardvark' == art.draw(renderer, extra='aardvark')
+
+
+def test_no_reset():
+    fig, (ax1, ax2) = plt.subplots(2)
+    fig2 = plt.figure()
+    ln, = ax1.plot(range(5))
+    with pytest.raises(
+            ValueError, match=f"The artist {ln!r} is currently in {ax1!r}"
+    ):
+        ax2.add_line(ln)
+    with pytest.raises(
+            ValueError, match=f"The artist {ln!r} is currently in {ax1!r}"
+    ):
+        ln.axes = ax2
+    with pytest.raises(
+            ValueError, match=f"The artist {ln!r} is currently in {fig!r}"
+    ):
+        ln.figure = fig2
+
+    ln.remove()
+    assert ln.figure is None
+    assert ln.axes is None
+    with pytest.raises(
+            ValueError, match=f"The artist {ln!r} has had its Figure reset "
+    ):
+        ax2.add_line(ln)
+    with pytest.raises(
+            ValueError, match=f"The artist {ln!r} has had its Axes reset "
+    ):
+        ln.axes = ax2
+
+    assert ln.axes is None
+    assert ln.figure is None
