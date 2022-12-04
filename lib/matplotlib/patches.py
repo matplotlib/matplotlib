@@ -3810,12 +3810,8 @@ class FancyBboxPatch(Patch):
         return s % (self._x, self._y, self._width, self._height)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="mutation_scale")
-    @_api.delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
-    def __init__(self, xy, width, height,
-                 boxstyle="round", bbox_transmuter=None,
-                 mutation_scale=1, mutation_aspect=1,
-                 **kwargs):
+    def __init__(self, xy, width, height, boxstyle="round", *,
+                 mutation_scale=1, mutation_aspect=1, **kwargs):
         """
         Parameters
         ----------
@@ -3857,27 +3853,12 @@ class FancyBboxPatch(Patch):
         """
 
         super().__init__(**kwargs)
-
-        self._x = xy[0]
-        self._y = xy[1]
+        self._x, self._y = xy
         self._width = width
         self._height = height
-
-        if boxstyle == "custom":
-            _api.warn_deprecated(
-                "3.4", message="Support for boxstyle='custom' is deprecated "
-                "since %(since)s and will be removed %(removal)s; directly "
-                "pass a boxstyle instance as the boxstyle parameter instead.")
-            if bbox_transmuter is None:
-                raise ValueError("bbox_transmuter argument is needed with "
-                                 "custom boxstyle")
-            self._bbox_transmuter = bbox_transmuter
-        else:
-            self.set_boxstyle(boxstyle)
-
+        self.set_boxstyle(boxstyle)
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
-
         self.stale = True
 
     @_docstring.dedent_interpd
@@ -3958,30 +3939,12 @@ class FancyBboxPatch(Patch):
     def get_path(self):
         """Return the mutated path of the rectangle."""
         boxstyle = self.get_boxstyle()
-        x = self._x
-        y = self._y
-        width = self._width
-        height = self._height
-        m_scale = self.get_mutation_scale()
         m_aspect = self.get_mutation_aspect()
-        # Squeeze the given height by the aspect_ratio.
-        y, height = y / m_aspect, height / m_aspect
-        # Call boxstyle with squeezed height.
-        try:
-            inspect.signature(boxstyle).bind(x, y, width, height, m_scale)
-        except TypeError:
-            # Don't apply aspect twice.
-            path = boxstyle(x, y, width, height, m_scale, 1)
-            _api.warn_deprecated(
-                "3.4", message="boxstyles must be callable without the "
-                "'mutation_aspect' parameter since %(since)s; support for the "
-                "old call signature will be removed %(removal)s.")
-        else:
-            path = boxstyle(x, y, width, height, m_scale)
-        vertices, codes = path.vertices, path.codes
-        # Restore the height.
-        vertices[:, 1] = vertices[:, 1] * m_aspect
-        return Path(vertices, codes)
+        # Call boxstyle with y, height squeezed by aspect_ratio.
+        path = boxstyle(self._x, self._y / m_aspect,
+                        self._width, self._height / m_aspect,
+                        self.get_mutation_scale())
+        return Path(path.vertices * [1, m_aspect], path.codes)  # Unsqueeze y.
 
     # Following methods are borrowed from the Rectangle class.
 
