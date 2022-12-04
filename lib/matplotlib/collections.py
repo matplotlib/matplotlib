@@ -1955,7 +1955,16 @@ class QuadMesh(Collection):
 
         Parameters
         ----------
-        A : (M, N) array-like or M*N array-like
+        A : array-like
+            The mesh data. Supported array shapes are:
+
+            - (M, N) or M*N: a mesh with scalar data. The values are mapped to
+              colors using normalization and a colormap. See parameters *norm*,
+              *cmap*, *vmin*, *vmax*.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
+
             If the values are provided as a 2D grid, the shape must match the
             coordinates grid. If the values are 1D, they are reshaped to 2D.
             M, N follow from the coordinates grid, where the coordinates grid
@@ -1976,11 +1985,19 @@ class QuadMesh(Collection):
             if len(shape) == 1:
                 if shape[0] != (h*w):
                     faulty_data = True
-            elif shape != (h, w):
-                if np.prod(shape) == (h * w):
+            elif shape[:2] != (h, w):
+                if np.prod(shape[:2]) == (h * w):
                     misshapen_data = True
                 else:
                     faulty_data = True
+            elif len(shape) == 3 and shape[2] not in {3, 4}:
+                # 3D data must be RGB(A) (h, w, [3,4])
+                # the (h, w) check is taken care of above
+                raise ValueError(
+                    f"For X ({width}) and Y ({height}) with "
+                    f"{self._shading} shading, the expected shape of "
+                    f"A with RGB(A) colors is ({h}, {w}, [3 or 4]), not "
+                    f"{A.shape}")
 
             if misshapen_data:
                 raise ValueError(

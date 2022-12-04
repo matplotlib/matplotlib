@@ -5679,7 +5679,7 @@ default: :rc:`scatter.edgecolors`
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
-            nrows, ncols = C.shape
+            nrows, ncols = C.shape[:2]
             if shading in ['gouraud', 'nearest']:
                 X, Y = np.meshgrid(np.arange(ncols), np.arange(nrows))
             else:
@@ -5708,7 +5708,7 @@ default: :rc:`scatter.edgecolors`
                     X = X.data  # strip mask as downstream doesn't like it...
                 if isinstance(Y, np.ma.core.MaskedArray):
                     Y = Y.data
-            nrows, ncols = C.shape
+            nrows, ncols = C.shape[:2]
         else:
             raise _api.nargs_error(funcname, takes="1 or 3", given=len(args))
 
@@ -6045,9 +6045,18 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        C : 2D array-like
-            The color-mapped values.  Color-mapping is controlled by *cmap*,
-            *norm*, *vmin*, and *vmax*.
+        C : array-like
+            The mesh data. Supported array shapes are:
+
+            - (M, N) or M*N: a mesh with scalar data. The values are mapped to
+              colors using normalization and a colormap. See parameters *norm*,
+              *cmap*, *vmin*, *vmax*.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
+
+            The first two dimensions (M, N) define the rows and columns of
+            the mesh data.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6207,8 +6216,9 @@ default: :rc:`scatter.edgecolors`
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
                                             shading=shading, kwargs=kwargs)
         coords = np.stack([X, Y], axis=-1)
-        # convert to one dimensional array
-        C = C.ravel()
+        # convert to one dimensional array, except for 3D RGB(A) arrays
+        if C.ndim != 3:
+            C = C.ravel()
 
         kwargs.setdefault('snap', mpl.rcParams['pcolormesh.snap'])
 
