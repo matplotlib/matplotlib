@@ -68,7 +68,7 @@ class ValidateInStrings:
             name, = (k for k, v in globals().items() if v is self)
             _api.warn_deprecated(
                 self._deprecated_since, name=name, obj_type="function")
-        if self.ignorecase:
+        if self.ignorecase and isinstance(s, str):
             s = s.lower()
         if s in self.valid:
             return self.valid[s]
