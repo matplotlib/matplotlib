@@ -79,17 +79,7 @@ test_script:
   - echo The following args are passed to pytest %PYTEST_ARGS%
   - pytest %PYTEST_ARGS%
 
-after_test:
-  # After the tests were a success, build wheels.
-  # Hide the output, the copied files really clutter the build log...
-  - 'python setup.py bdist_wheel > NUL:'
-  - dir dist\
-  - echo finished...
-
 artifacts:
-  - path: dist\*
-    name: packages
-
   - path: result_images\*
     name: result_images
     type: zip
