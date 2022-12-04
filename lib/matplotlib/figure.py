@@ -2614,11 +2614,13 @@ class Figure(FigureBase):
             may only be shown briefly or not shown at all if you or your
             environment are not managing an event loop.
 
-            Proper use cases for `.Figure.show` include running this from a GUI
+            Use cases for `.Figure.show` include running this from a GUI
             application (where there is persistently an event loop running) or
-            from a shell with an input hook configured (IPython will do this).
-            Some, but not all, GUI toolkits will register an input hook on
-            import.  See :ref:`cp_integration` for more details.
+            from a shell, like IPython, that install an input hook to allow the
+            interactive shell to accept input while the figure is also being
+            shown and interactive.  Some, but not all, GUI toolkits will
+            register an input hook on import.  See :ref:`cp_integration` for
+            more details.
 
             If you're in a shell without input hook integration or executing a
             python script, you should use `matplotlib.pyplot.show` with
@@ -2630,6 +2632,7 @@ class Figure(FigureBase):
         warn : bool, default: True
             If ``True`` and we are not running headless (i.e. on Linux with an
             unset DISPLAY), issue warning when called on a non-GUI backend.
+
         """
         if self.canvas.manager is None:
             raise AttributeError(
