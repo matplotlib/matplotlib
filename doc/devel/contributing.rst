@@ -4,13 +4,20 @@
 Contributing
 ============
 
+You've discovered a bug or something else you want to change
+in Matplotlib — excellent!
+
+You've worked out a way to fix it — even better!
+
+You want to tell us about it — best of all!
+
 This project is a community effort, and everyone is welcome to
 contribute. Everyone within the community
 is expected to abide by our
 `code of conduct <https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md>`_.
 
-The project is hosted on
-https://github.com/matplotlib/matplotlib
+Below, you can find a number of ways to contribute, and how to connect with the
+Matplotlib community.
 
 Get Connected
 =============
@@ -192,96 +199,8 @@ A brief overview is:
 Finally, go to the web page of your fork of the Matplotlib repo, and click
 'Pull request' to send your changes to the maintainers for review.
 
-.. seealso::
-
-  * `Git documentation <https://git-scm.com/doc>`_
-  * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
-  * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
-  * :ref:`development-workflow` for best practices for Matplotlib
-  * :ref:`using-git`
-
-Contributing pull requests
---------------------------
-
-It is recommended to check that your contribution complies with the following
-rules before submitting a pull request:
-
-* If your pull request addresses an issue, please use the title to describe the
-  issue and mention the issue number in the pull request description to ensure
-  that a link is created to the original issue.
-
-* All public methods should have informative docstrings with sample usage when
-  appropriate. Use the `numpy docstring standard
-  <https://numpydoc.readthedocs.io/en/latest/format.html>`_.
-
-* Formatting should follow the recommendations of PEP8_, as enforced by
-  flake8_.  You can check flake8 compliance from the command line with ::
-
-    python -m pip install flake8
-    flake8 /path/to/module.py
-
-  or your editor may provide integration with it.  Note that Matplotlib
-  intentionally does not use the black_ auto-formatter (1__), in particular due
-  to its inability to understand the semantics of mathematical expressions
-  (2__, 3__).
-
-  .. _PEP8: https://www.python.org/dev/peps/pep-0008/
-  .. _flake8: https://flake8.pycqa.org/
-  .. _black: https://black.readthedocs.io/
-  .. __: https://github.com/matplotlib/matplotlib/issues/18796
-  .. __: https://github.com/psf/black/issues/148
-  .. __: https://github.com/psf/black/issues/1984
-
-* Each high-level plotting function should have a simple example in the
-  ``Example`` section of the docstring.  This should be as simple as possible
-  to demonstrate the method.  More complex examples should go in the
-  ``examples`` tree.
-
-* Changes (both new features and bugfixes) should have good test coverage. See
-  :ref:`testing` for more details.
-
-* Import the following modules using the standard scipy conventions::
-
-     import numpy as np
-     import numpy.ma as ma
-     import matplotlib as mpl
-     import matplotlib.pyplot as plt
-     import matplotlib.cbook as cbook
-     import matplotlib.patches as mpatches
-
-  In general, Matplotlib modules should **not** import `.rcParams` using ``from
-  matplotlib import rcParams``, but rather access it as ``mpl.rcParams``.  This
-  is because some modules are imported very early, before the `.rcParams`
-  singleton is constructed.
-
-* If your change is a major new feature, add an entry to the ``What's new``
-  section by adding a new file in ``doc/users/next_whats_new`` (see
-  :file:`doc/users/next_whats_new/README.rst` for more information).
-
-* If you change the API in a backward-incompatible way, please document it in
-  :file:`doc/api/next_api_changes/behavior`, by adding a new file with the
-  naming convention ``99999-ABC.rst`` where the pull request number is followed
-  by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
-  information)
-
-* See below for additional points about :ref:`keyword-argument-processing`, if
-  applicable for your pull request.
-
-.. note::
-
-    The current state of the Matplotlib code base is not compliant with all
-    of those guidelines, but we expect that enforcing those constraints on all
-    new contributions will move the overall code base quality in the right
-    direction.
-
-
-.. seealso::
-
-  * :ref:`coding_guidelines`
-  * :ref:`testing`
-  * :ref:`documenting-matplotlib`
-
-
+For more detailed instructions on how to set up Matplotlib for development and
+best practices for contribution, see :ref:`installing_for_devs`.
 
 
 .. _contributing_documentation:

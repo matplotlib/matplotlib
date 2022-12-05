@@ -13,8 +13,92 @@
 Pull request guidelines
 ***********************
 
-Pull requests (PRs) are the mechanism for contributing to Matplotlibs code and
-documentation.
+`Pull requests (PRs) on GitHub
+<https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
+are the mechanism for contributing to Matplotlib's code and documentation.
+
+It is recommended to check that your contribution complies with the following
+rules before submitting a pull request:
+
+* If your pull request addresses an issue, please use the title to describe the
+  issue (e.g. "Add ability to plot timedeltas") and mention the issue number
+  in the pull request description to ensure that a link is created to the
+  original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
+  original issue mentioned is automatically closed when your PR is merged. See
+  `the GitHub documentation
+  <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__
+  for more details.
+
+* Formatting should follow the recommendations of PEP8_, as enforced by
+  flake8_.  You can check flake8 compliance from the command line with ::
+
+    python -m pip install flake8
+    flake8 /path/to/module.py
+
+  or your editor may provide integration with it.  Note that Matplotlib
+  intentionally does not use the black_ auto-formatter (1__), in particular due
+  to its unability to understand the semantics of mathematical expressions
+  (2__, 3__).
+
+  .. _PEP8: https://www.python.org/dev/peps/pep-0008/
+  .. _flake8: https://flake8.pycqa.org/
+  .. _black: https://black.readthedocs.io/
+  .. __: https://github.com/matplotlib/matplotlib/issues/18796
+  .. __: https://github.com/psf/black/issues/148
+  .. __: https://github.com/psf/black/issues/1984
+
+* All public methods should have informative docstrings with sample usage when
+  appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
+
+* For high-level plotting functions, consider adding a simple example either in
+  the ``Example`` section of the docstring or the
+  :ref:`examples gallery <gallery>`.
+
+* Changes (both new features and bugfixes) should have good test coverage. See
+  :ref:`testing` for more details.
+
+* Import the following modules using the standard scipy conventions::
+
+     import numpy as np
+     import numpy.ma as ma
+     import matplotlib as mpl
+     import matplotlib.pyplot as plt
+     import matplotlib.cbook as cbook
+     import matplotlib.patches as mpatches
+
+  In general, Matplotlib modules should **not** import `.rcParams` using ``from
+  matplotlib import rcParams``, but rather access it as ``mpl.rcParams``.  This
+  is because some modules are imported very early, before the `.rcParams`
+  singleton is constructed.
+
+* If your change is a major new feature, add an entry to the ``What's new``
+  section by adding a new file in ``doc/users/next_whats_new`` (see
+  :file:`doc/users/next_whats_new/README.rst` for more information).
+
+* If you change the API in a backward-incompatible way, please document it in
+  :file:`doc/api/next_api_changes/behavior`, by adding a new file with the
+  naming convention ``99999-ABC.rst`` where the pull request number is followed
+  by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
+  information)
+
+* See below for additional points about :ref:`keyword-argument-processing`, if
+  applicable for your pull request.
+
+.. note::
+
+    The current state of the Matplotlib code base is not compliant with all
+    of these guidelines, but we expect that enforcing these constraints on all
+    new contributions will move the overall code base quality in the right
+    direction.
+
+
+.. seealso::
+
+  * :ref:`coding_guidelines`
+  * :ref:`testing`
+  * :ref:`documenting-matplotlib`
+
+
 
 Summary for pull request authors
 ================================
