@@ -822,7 +822,6 @@ class _AxesBase(martist.Artist):
         self.yaxis = maxis.YAxis(self)
         self.spines.left.register_axis(self.yaxis)
         self.spines.right.register_axis(self.yaxis)
-        self._update_transScale()
 
     def set_figure(self, fig):
         # docstring inherited
