@@ -259,7 +259,12 @@ def test_data_parameter_replacement():
         "import matplotlib.pyplot as plt"
     )
     cmd = [sys.executable, "-c", program]
-    completed_proc = subprocess.run(cmd, text=True, capture_output=True)
+    try:
+        completed_proc = subprocess.run(cmd, text=True, capture_output=True)
+    except BlockingIOError:
+        if sys.platform == "cygwin":
+            pytest.xfail("Fork failure")
+        raise
     assert 'data parameter docstring error' not in completed_proc.stderr
 
 

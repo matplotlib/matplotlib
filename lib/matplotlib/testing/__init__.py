@@ -66,16 +66,23 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
     """
     target = func.__name__
     module = func.__module__
-    proc = subprocess.run(
-        [sys.executable,
-         "-c",
-         f"from {module} import {target}; {target}()",
-         *args],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
-        timeout=timeout, check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True)
+    try:
+        proc = subprocess.run(
+            [sys.executable,
+             "-c",
+             f"from {module} import {target}; {target}()",
+             *args],
+            env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
+            timeout=timeout, check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True)
+    except BlockingIOError:
+        if sys.platform == "cygwin":
+            import pytest
+            pytest.xfail("Fork failure")
+        else:
+            raise
     return proc
 
 

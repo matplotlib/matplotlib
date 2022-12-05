@@ -19,8 +19,14 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
     extra_args = [] if extra_args is None else extra_args
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
-                 env={**os.environ, "MPLBACKEND": ""})
+    try:
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
+                     env={**os.environ, "MPLBACKEND": ""})
+    except BlockingIOError:
+        if sys.platform == "cygwin":
+            pytest.xfail("Fork failure")
+        else:
+            raise
     out, err = proc.communicate()
 
     assert proc.returncode == 0, \
@@ -44,9 +50,16 @@ def test_tinypages(tmp_path):
     # On CI, gcov emits warnings (due to agg headers being included with the
     # same name in multiple extension modules -- but we don't care about their
     # coverage anyways); hide them using GCOV_ERROR_FILE.
-    proc = Popen(
-        cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
-        env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull})
+    try:
+        proc = Popen(
+            cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
+            env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull}
+        )
+    except BlockingIOError:
+        if sys.platform == "cygwin":
+            pytest.xfail("Fork failure")
+        else:
+            raise
     out, err = proc.communicate()
 
     # Build the pages with warnings turned into errors

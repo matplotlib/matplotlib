@@ -20,8 +20,13 @@ def test_pyplot_up_to_date(tmpdir):
     plt_file = tmpdir.join('pyplot.py')
     plt_file.write_text(orig_contents, 'utf-8')
 
-    subprocess.run([sys.executable, str(gen_script), str(plt_file)],
-                   check=True)
+    try:
+        subprocess.run([sys.executable, str(gen_script), str(plt_file)],
+                       check=True)
+    except BlockingIOError:
+        if sys.platform == "cygwin":
+            pytest.xfail("Fork failure")
+        raise
     new_contents = plt_file.read_text('utf-8')
 
     if orig_contents != new_contents:
