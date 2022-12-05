@@ -665,6 +665,8 @@ class _AxesBase(martist.Artist):
         self.set_box_aspect(box_aspect)
         self._axes_locator = None  # Optionally set via update(kwargs).
 
+        self._children = []
+
         # placeholder for any colorbars added that use this Axes.
         # (see colorbar.py):
         self._colorbars = []
@@ -1078,7 +1080,7 @@ class _AxesBase(martist.Artist):
         self.transScale.set(
             mtransforms.blended_transform_factory(
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
-        for line in getattr(self, "_children", []):  # Not set during init.
+        for line in self._children:
             if not isinstance(line, mlines.Line2D):
                 continue
             try:
@@ -1291,14 +1293,6 @@ class _AxesBase(martist.Artist):
         self.callbacks = cbook.CallbackRegistry(
             signals=["xlim_changed", "ylim_changed", "zlim_changed"])
 
-        for name, axis in self._axis_map.items():
-            share = getattr(self, f"_share{name}")
-            if share is not None:
-                getattr(self, f"share{name}")(share)
-            else:
-                axis._set_scale("linear")
-                axis._set_lim(0, 1, auto=True)
-
         # update the minor locator for x and y axis based on rcParams
         if mpl.rcParams['xtick.minor.visible']:
             self.xaxis.set_minor_locator(mticker.AutoMinorLocator())
@@ -1309,7 +1303,6 @@ class _AxesBase(martist.Artist):
         self._ymargin = mpl.rcParams['axes.ymargin']
         self._tight = None
         self._use_sticky_edges = True
-        self._update_transScale()  # needed?
 
         self._get_lines = _process_plot_var_args(self)
         self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
@@ -1385,6 +1378,17 @@ class _AxesBase(martist.Artist):
         if self._sharey is not None:
             self.yaxis.set_visible(yaxis_visible)
             self.patch.set_visible(patch_visible)
+
+        # This comes last, as the call to _set_lim may trigger an autoscale (in
+        # case of shared axes), requiring children to be already set up.
+        for name, axis in self._axis_map.items():
+            share = getattr(self, f"_share{name}")
+            if share is not None:
+                getattr(self, f"share{name}")(share)
+            else:
+                axis._set_scale("linear")
+                axis._set_lim(0, 1, auto=True)
+        self._update_transScale()
 
         self.stale = True
 
@@ -2936,22 +2940,15 @@ class _AxesBase(martist.Artist):
 
         x_stickies = y_stickies = np.array([])
         if self.use_sticky_edges:
-            # Only iterate over Axes and artists if needed.  The check for
-            # ``hasattr(ax, "_children")`` is necessary because this can be
-            # called very early in the Axes init process (e.g., for twin Axes)
-            # when these attributes don't even exist yet, in which case
-            # `get_children` would raise an AttributeError.
             if self._xmargin and scalex and self.get_autoscalex_on():
                 x_stickies = np.sort(np.concatenate([
                     artist.sticky_edges.x
                     for ax in self._shared_axes["x"].get_siblings(self)
-                    if hasattr(ax, "_children")
                     for artist in ax.get_children()]))
             if self._ymargin and scaley and self.get_autoscaley_on():
                 y_stickies = np.sort(np.concatenate([
                     artist.sticky_edges.y
                     for ax in self._shared_axes["y"].get_siblings(self)
-                    if hasattr(ax, "_children")
                     for artist in ax.get_children()]))
         if self.get_xscale() == 'log':
             x_stickies = x_stickies[x_stickies > 0]
