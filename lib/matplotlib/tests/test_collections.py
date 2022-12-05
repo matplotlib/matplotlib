@@ -830,6 +830,24 @@ def test_quadmesh_set_array_validation():
                        r"are incompatible with X \(11\) and/or Y \(8\)"):
         coll.set_array(z.ravel())
 
+    # RGB(A) tests
+    z = np.ones((9, 6, 3))  # RGB with wrong X/Y dims
+    with pytest.raises(TypeError, match=r"Dimensions of A \(9, 6, 3\) "
+                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+        coll.set_array(z)
+
+    z = np.ones((9, 6, 4))  # RGBA with wrong X/Y dims
+    with pytest.raises(TypeError, match=r"Dimensions of A \(9, 6, 4\) "
+                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+        coll.set_array(z)
+
+    z = np.ones((7, 10, 2))  # Right X/Y dims, bad 3rd dim
+    with pytest.raises(ValueError, match=r"For X \(11\) and Y \(8\) with "
+                       r"flat shading, the expected shape of "
+                       r"A with RGB\(A\) colors is \(7, 10, \[3 or 4\]\), "
+                       r"not \(7, 10, 2\)"):
+        coll.set_array(z)
+
     x = np.arange(10)
     y = np.arange(7)
     z = np.random.random((7, 10))
@@ -1048,6 +1066,9 @@ def test_array_wrong_dimensions():
     pc = plt.pcolormesh(z)
     pc.set_array(z)  # 2D is OK for Quadmesh
     pc.update_scalarmappable()
+    # 3D RGB is OK as well
+    z = np.arange(36).reshape(3, 4, 3)
+    pc.set_array(z)
 
 
 def test_get_segments():
