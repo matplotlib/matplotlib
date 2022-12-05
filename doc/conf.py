@@ -662,7 +662,10 @@ if link_github:
                     if lineno else "")
 
         startdir = Path(matplotlib.__file__).parent.parent
-        fn = os.path.relpath(fn, start=startdir).replace(os.path.sep, '/')
+        try:
+            fn = os.path.relpath(fn, start=startdir).replace(os.path.sep, '/')
+        except ValueError:
+            return None
 
         if not fn.startswith(('matplotlib/', 'mpl_toolkits/')):
             return None
