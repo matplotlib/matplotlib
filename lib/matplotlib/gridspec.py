@@ -599,7 +599,10 @@ class SubplotSpec:
                 )
             i, j = num
         else:
-            if not isinstance(num, Integral) or num < 1 or num > rows*cols:
+            if not isinstance(num, Integral):
+                raise ValueError(
+                    f"Subplot specifier must be an integer, not {num!r}")
+            if num < 1 or num > rows*cols:
                 raise ValueError(
                     f"num must be 1 <= num <= {rows*cols}, not {num!r}")
             i = j = num
