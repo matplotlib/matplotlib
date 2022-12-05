@@ -3182,14 +3182,62 @@ class NavigationToolbar2:
         if (event.button not in [MouseButton.LEFT, MouseButton.RIGHT]
                 or event.x is None or event.y is None):
             return
-        axes = [a for a in self.canvas.figure.get_axes()
-                if a.in_axes(event) and a.get_navigate() and a.can_pan()]
-        if not axes:
+
+        # Get all axes and group them by their navigation-capture behaviour.
+        axes_capture = {True: {}, False: {}}
+        for a in self.canvas.figure.get_axes():
+            if a.in_axes(event) and a.get_navigate() and a.can_pan():
+                # By default, axes with an invisible patch forward events
+                # while axes with a visible patch capture events.
+                if a.get_capture_navigation_events() == "auto":
+                    if a.patch.get_visible():
+                        axes_capture[True].setdefault(
+                            a.get_zorder(), []).append(a)
+                    else:
+                        axes_capture[False].setdefault(
+                            a.get_zorder(), []).append(a)
+                else:
+                    axes_capture[a.get_capture_navigation_events()].setdefault(
+                        a.get_zorder(), []).append(a)
+
+        if not any(axes_capture.values()):
             return
         if self._nav_stack() is None:
-            self.push_current()  # set the home button to this view
-        for ax in axes:
+            self.push_current()   # Set the home button to this view.
+
+        # Handle the topmost axes that captures navigation (if there is one).
+        if axes_capture[True]:
+            zorder = max(axes_capture[True])
+            ax = axes_capture[True][zorder][-1]
             ax.start_pan(event.x, event.y, event.button)
+            axes = {ax}  # A set to collect all axes that have been zoomed.
+
+            # Treat all shared axes (irrespective of zorder & patch).
+            shared_axes = {
+                sibling for name in ax._axis_names
+                for sibling in ax._shared_axes[name].get_siblings(ax)}
+
+            for ax in (shared_axes - axes):
+                ax.start_pan(event.x, event.y, event.button)
+                axes.add(ax)
+        else:
+            zorder, axes = -1, set()
+
+        # Handle all other axes at larger or equal zorders that
+        # forward navigation events.
+        for z in (i for i in axes_capture[False] if i >= zorder):
+            for ax in axes_capture[False].get(z, []):
+                # Make sure that there is no shared axes with a visible
+                # patch at the same zorder.
+                # (otherwise ALL shared axes would trigger)
+                shared_ax = next((
+                    sibling for name in ax._axis_names
+                    for sibling in ax._shared_axes[name].get_siblings(ax)
+                    if sibling in axes_capture[True].get(z, [])), False)
+                if shared_ax is False:
+                    ax.start_pan(event.x, event.y, event.button)
+                    axes.add(ax)
+
         self.canvas.mpl_disconnect(self._id_drag)
         id_drag = self.canvas.mpl_connect("motion_notify_event", self.drag_pan)
         self._pan_info = self._PanInfo(
