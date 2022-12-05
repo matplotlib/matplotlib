@@ -1,3 +1,15 @@
+.. redirect-from:: /devel/gitwash/configure_git
+.. redirect-from:: /devel/gitwash/dot2_dot3
+.. redirect-from:: /devel/gitwash/following_latest
+.. redirect-from:: /devel/gitwash/forking_hell
+.. redirect-from:: /devel/gitwash/git_development
+.. redirect-from:: /devel/gitwash/git_install
+.. redirect-from:: /devel/gitwash/git_intro
+.. redirect-from:: /devel/gitwash/git_resources
+.. redirect-from:: /devel/gitwash/patching
+.. redirect-from:: /devel/gitwash/set_up_fork
+.. redirect-from:: /devel/gitwash/index
+
 .. _installing_for_devs:
 
 =====================================
