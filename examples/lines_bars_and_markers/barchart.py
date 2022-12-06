@@ -25,7 +25,7 @@ multiplier = 0
 fig, ax = plt.subplots(constrained_layout=True)
 
 for measurement, penguin_mean in zip(measurements, penguin_means):
-    offset = (width * multiplier)
+    offset = width * multiplier
     rects = ax.bar(x + offset, penguin_mean, width, label=measurement)
     ax.bar_label(rects, padding=3)
     multiplier += 1
