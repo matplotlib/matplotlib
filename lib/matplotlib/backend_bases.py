@@ -3446,8 +3446,8 @@ class ToolContainerBase:
         for fname in [
             image,
             image + self._icon_extension,
-            str(basedir / image),
-            str(basedir / (image + self._icon_extension)),
+            basedir / image,
+            basedir / (image + self._icon_extension),
         ]:
             if os.path.isfile(fname):
                 return fname
