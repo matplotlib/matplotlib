@@ -13,11 +13,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 species = ("Adelie", "Chinstrap", "Gentoo")
-measurements = ['Bill Depth', 'Bill Length', "Flipper Length"]
-bill_depth = (18.35, 18.43, 14.98)
-bill_length = (38.79, 48.83, 47.50)
-flipper_length = (189.95, 195.82, 217.19)
-penguin_means = [bill_depth, bill_length, flipper_length]
+penguin_means = {
+    'Bill Depth': (18.35, 18.43, 14.98),
+    'Bill Length': (38.79, 48.83, 47.50),
+    'Flipper Length': (189.95, 195.82, 217.19),
+}
 
 x = np.arange(len(species))  # the label locations
 width = 0.25  # the width of the bars
