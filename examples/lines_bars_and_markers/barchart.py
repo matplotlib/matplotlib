@@ -33,7 +33,7 @@ for measurement, penguin_mean in zip(measurements, penguin_means):
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Length (mm)')
 ax.set_title('Penguin attributes by species')
-ax.set_xticks(x + (width), species)
+ax.set_xticks(x + width, species)
 ax.legend(loc='upper left', ncols=3)
 ax.set_ylim(0, 250)
 
