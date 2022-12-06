@@ -170,6 +170,11 @@ jobs:
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
+          # Preinstall pybind11 on no-build-isolation builds.
+          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
+            python -m pip install 'pybind11>=2.6'
+          fi
+
           # Install optional dependencies from PyPI.
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx
