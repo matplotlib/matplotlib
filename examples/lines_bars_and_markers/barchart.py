@@ -24,9 +24,9 @@ width = 0.25  # the width of the bars
 multiplier = 0
 fig, ax = plt.subplots(constrained_layout=True)
 
-for measurement, penguin_mean in zip(measurements, penguin_means):
+for attribute, measurement in penguin_means.items():
     offset = width * multiplier
-    rects = ax.bar(x + offset, penguin_mean, width, label=measurement)
+    rects = ax.bar(x + offset, measurement, width, label=attribute)
     ax.bar_label(rects, padding=3)
     multiplier += 1
 
