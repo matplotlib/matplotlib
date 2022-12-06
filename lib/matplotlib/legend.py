@@ -23,6 +23,7 @@ information.
 
 import itertools
 import logging
+import numbers
 import time
 
 import numpy as np
@@ -472,6 +473,14 @@ class Legend(Artist):
                 loc = 'upper right'
         if isinstance(loc, str):
             loc = _api.check_getitem(self.codes, loc=loc)
+        elif isinstance(loc, tuple):
+            if len(loc) != 2 or not (all(isinstance(e, numbers.Real)
+                                         for e in loc)):
+                raise ValueError(
+                    f"loc must be string or pair of numbers, not {loc!r}")
+        else:
+            raise ValueError(
+                f"loc must be string or pair of numbers, not {loc!r}")
         if not self.isaxes and loc == 0:
             raise ValueError(
                 "Automatic legend placement (loc='best') not implemented for "

@@ -1090,3 +1090,27 @@ def test_ncol_ncols(fig_test, fig_ref):
     ncols = 3
     fig_test.legend(strings, ncol=ncols)
     fig_ref.legend(strings, ncols=ncols)
+
+
+def test_loc_invalid_tuple_exception():
+    # check that exception is raised if the loc arg
+    # of legend is not a 2-tuple of numbers
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError,
+                       match="loc must be string or pair of numbers, not "
+                             "\\(1.1\\,\\)"):   # regex escape special chars
+        ax.legend(loc=(1.1, ))
+    with pytest.raises(ValueError,
+                       match="loc must be string or pair of numbers, not "
+                             "\\(0.481\\, 0.4227\\, 0.4523\\)"):
+        ax.legend(loc=(0.481, 0.4227, 0.4523))
+    with pytest.raises(ValueError,
+                       match="loc must be string or pair of numbers, not "
+                             "\\(0.481\\, \\'go blue\\'\\)"):
+        ax.legend(loc=(0.481, "go blue"))
+
+
+def test_loc_valid_tuple():
+    fig, ax = plt.subplots()
+    ax.legend(loc=(0.481, 0.442))
+    ax.legend(loc=(1, 2))
