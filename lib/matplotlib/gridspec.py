@@ -601,7 +601,9 @@ class SubplotSpec:
         else:
             if not isinstance(num, Integral) or num < 1 or num > rows*cols:
                 raise ValueError(
-                    f"num must be 1 <= num <= {rows*cols}, not {num!r}")
+                    f"num must be an integer with 1 <= num <= {rows*cols}, "
+                    f"not {num!r}"
+                )
             i = j = num
         return gs[i-1:j]
 
