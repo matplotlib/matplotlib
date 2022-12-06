@@ -166,7 +166,7 @@ takes over again.
 This time-share technique only allows the event loop to run while
 python is otherwise idle and waiting for user input.  If you want the
 GUI to be responsive during long running code it is necessary to
-periodically flush the GUI event queue as described :ref:`spin_event_loop`.
+periodically flush the GUI event queue as described in :ref:`spin_event_loop`.
 In this case it is your code, not the REPL, which
 is blocking the process so you need to handle the "time-share" manually.
 Conversely, a very slow figure draw will block the prompt until it
