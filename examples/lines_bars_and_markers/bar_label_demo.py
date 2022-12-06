@@ -21,10 +21,10 @@ import numpy as np
 # data from https://allisonhorst.github.io/palmerpenguins/
 
 species = ('Adelie', 'Chinstrap', 'Gentoo')
-sexes = ["Male", "Female"]
-male = np.array([73, 34, 61])
-female = np.array([73, 34, 58])
-sex_counts = [male, female]
+sex_counts = {
+    'Male': np.array([73, 34, 61]),
+    'Female': np.array([73, 34, 58]),
+]
 width = 0.6  # the width of the bars: can also be len(x) sequence
 
 
