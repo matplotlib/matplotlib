@@ -236,10 +236,15 @@ def test_add_subplot_invalid():
     with pytest.raises(ValueError,
                        match='Number of rows must be a positive integer'):
         fig.add_subplot(0, 2, 1)
-    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
+    with pytest.raises(ValueError, match='num must be an integer with '
+                                         '1 <= num <= 4'):
         fig.add_subplot(2, 2, 0)
-    with pytest.raises(ValueError, match='num must be 1 <= num <= 4'):
+    with pytest.raises(ValueError, match='num must be an integer with '
+                                         '1 <= num <= 4'):
         fig.add_subplot(2, 2, 5)
+    with pytest.raises(ValueError, match='num must be an integer with '
+                                         '1 <= num <= 4'):
+        fig.add_subplot(2, 2, 0.5)
 
     with pytest.raises(ValueError, match='must be a three-digit integer'):
         fig.add_subplot(42)
