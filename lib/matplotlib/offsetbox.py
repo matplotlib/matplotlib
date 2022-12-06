@@ -1298,13 +1298,13 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             The position *(x, y)* to place the text at. The coordinate system
             is determined by *boxcoords*.
 
-        xycoords : str or `.Artist` or `.Transform` or callable or \
-(float, float), default: 'data'
+        xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
+callable, default: 'data'
             The coordinate system that *xy* is given in. See the parameter
             *xycoords* in `.Annotation` for a detailed description.
 
-        boxcoords : str or `.Artist` or `.Transform` or callable or \
-(float, float), default: value of *xycoords*
+        boxcoords : single or two-tuple of str or `.Artist` or `.Transform` \
+or callable, default: value of *xycoords*
             The coordinate system that *xybox* is given in. See the parameter
             *textcoords* in `.Annotation` for a detailed description.
 

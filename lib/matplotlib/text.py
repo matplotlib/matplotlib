@@ -1660,8 +1660,8 @@ class Annotation(Text, _AnnotationBase):
             The position *(x, y)* to place the text at. The coordinate system
             is determined by *textcoords*.
 
-        xycoords : str or `.Artist` or `.Transform` or callable or \
-(float, float), default: 'data'
+        xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
+callable, default: 'data'
 
             The coordinate system that *xy* is given in. The following types
             of values are supported:
@@ -1713,8 +1713,8 @@ class Annotation(Text, _AnnotationBase):
 
             See :ref:`plotting-guide-annotation` for more details.
 
-        textcoords : str or `.Artist` or `.Transform` or callable or \
-(float, float), default: value of *xycoords*
+        textcoords : single or two-tuple of str or `.Artist` or `.Transform` \
+or callable, default: value of *xycoords*
             The coordinate system that *xytext* is given in.
 
             All *xycoords* values are valid as well as the following
