@@ -5219,9 +5219,8 @@ default: :rc:`scatter.edgecolors`
         self._request_autoscale_view()
         return patches
 
-    def _fill_between_x_or_y(
-            self, ind_dir, ind, dep1, dep2=0, *,
-            where=None, interpolate=False, step=None, **kwargs):
+    def _fill_between_x_or_y(self, ind_dir, ind, dep1, dep2=0, *, where=None,
+                             interpolate=False, step=None, **kwargs):
         # Common implementation between fill_between (*ind_dir*="x") and
         # fill_betweenx (*ind_dir*="y").  *ind* is the independent variable,
         # *dep* the dependent variable.  The docstring below is interpolated
@@ -5439,6 +5438,195 @@ default: :rc:`scatter.edgecolors`
         replace_names=["y", "x1", "x2", "where"])
 
     #### plotting z(x, y): imshow, pcolor and relatives, contour
+
+    def _fill_above_or_below(self, ind, dep1, dep2=0, *, where=None,
+                             interpolate=False, step=None, **kwargs):
+        ind_dir = "y"
+        dep_dir = "x"
+
+        if not mpl.rcParams["_internal.classic_mode"]:
+            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
+            if not any(c in kwargs for c in ("color", "facecolor")):
+                kwargs["facecolor"] = \
+                    self._get_patches_for_fill.get_next_color()
+
+        ind, dep1, dep2 = map(
+            ma.masked_invalid, self._process_unit_info(
+                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
+
+        for name, array in [
+                (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
+            if array.ndim > 1:
+                raise ValueError(f"{name!r} is not 1-dimensional")
+
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != ind.size:
+                raise ValueError(f"where size ({where.size}) does not match "
+                                 f"{ind_dir} size ({ind.size})")
+        where = where & ~functools.reduce(
+            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
+
+        ind, dep1, dep2 = np.broadcast_arrays(
+            np.atleast_1d(ind), dep1, dep2, subok=True)
+
+        ret = []
+        for idx0, idx1 in cbook.contiguous_regions(where):
+            indslice = ind[idx0:idx1]
+            dep1slice = dep1[idx0:idx1]
+            dep2slice = dep2[idx0:idx1]
+
+            if step is not None:
+                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
+                indslice, dep1slice, dep2slice = \
+                    step_func(indslice, dep1slice, dep2slice)
+
+            if not len(indslice):
+                continue
+
+            if interpolate:
+                N = len(indslice)
+                xslices = np.stack([indslice, dep1slice, dep2slice], axis=-1)
+                xslices = list(map(tuple, xslices))
+                xslices.sort()
+
+                ind_interps = []
+                dep_interps = []
+                for i in range(N-1):
+                    # sliding window
+                    # [[dep1[i], dep2[i+1]],
+                    #  [dep2[i], dep2[i+1]],
+                    #  [ind[i], ind[i+1]]]
+
+                    cur_slice = xslices[i]
+                    next_slice = xslices[i+1]
+
+                    d1 = cur_slice[1] - cur_slice[2]
+                    d2 = next_slice[1] - next_slice[2]
+                    dx = next_slice[0] - cur_slice[0]
+
+                    if dx == 0:
+                        # multiple ind with same value
+                        pass
+
+                    if (d1 > 0) == (d2 > 0):
+                        continue
+                    if (d1 == 0) or (d2 == 0):
+                        continue
+
+                    # calculate intersect pt
+                    r = -d2/d1
+                    ind_interps.append((next_slice[0] + r*cur_slice[0])/(1+r))
+                    dep_interps.append((next_slice[1] + r*cur_slice[1])/(1+r))
+
+                indslice = np.concatenate([indslice, ind_interps])
+                dep1slice = np.concatenate([dep1slice, dep_interps])
+                dep2slice = np.concatenate([dep2slice, dep_interps])
+
+            N = len(indslice)
+            temp = np.stack([dep1slice, dep2slice])
+
+            vertices_above = np.zeros((N, 2))
+            vertices_below = np.zeros((N, 2))
+
+            vertices_above[0:N, 0] = indslice
+            vertices_below[0:N, 0] = indslice
+
+            vertices_above[0:N, 1] = np.amax(temp, axis=0)
+            vertices_below[0:N, 1] = np.amin(temp, axis=0)
+
+            line_above = mpatches.Lines(vertices_above, direction=True,
+                                        **kwargs)
+            line_below = mpatches.Lines(vertices_below, direction=False,
+                                        **kwargs)
+
+            self.add_artist(line_above)
+            self.add_artist(line_below)
+
+            ret.append(line_above)
+            ret.append(line_below)
+
+        # now update the datalim and autoscale
+        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
+                            np.column_stack([ind[where], dep2[where]])])
+        pts = pts[:, ::-1]
+        self.update_datalim(pts, updatex=True, updatey=True)
+        self._request_autoscale_view()
+        return ret
+
+    def fill_disjoint(self, x, y1, y2, where=None, interpolate=False,
+                      step=None, **kwargs):
+        """
+        Dill everything not in between the lines *y1* and *y2*
+
+        Parameters
+        ----------
+        x : array (length N)
+            The x coordinates of the nodes defining the curves.
+
+        y1 : array (length N) or scalar
+            The y coordinates of the nodes defining the first curve.
+
+        y2 : array (length N) or scalar: default 0
+            The y coordinates of the nodes defining the second curve.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some regions from being filled.
+            The filled regions are defined by the coordinates ``x[where]``.
+            More precisely, fill between ``x[i]`` and ``x[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        interpolate : bool, default: False
+            This option is only relevant if *where* is used and the two curves
+            are crossing each other.
+
+            Semantically, *where* is often used for *y1* > *y2* or
+            similar.  By default, the nodes of the polygon defining the in
+            between region will only be placed at the positions in the *x*
+            array. Such a polygon cannot describe the above semantics close to
+            the intersection.  The x-sections containing the intersection are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            intersection point and extend the filled region up to this point.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *x*.  The value determines where the
+            step will occur:
+
+            - 'pre': The y value is continued constantly to the left from
+              every *x* position, i.e. the interval ``(x[i-1], x[i]]`` has the
+              value ``y[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
+              value ``y[i]``.
+            - 'mid': Steps occur half-way between the *x* positions.
+
+        Other Parameters
+        ----------------
+        **kwargs
+            All other keyword arguments are passed on to `.Lines`.
+            %(Lines:kwdoc)s
+
+        Returns
+        -------
+        list of `.Lines`
+            A list `.Lines` containing the plotted Lines.
+
+        See Also
+        --------
+        fill_between : Fill between two sets of y-values.
+        fill_betweenx : Fill between two sets of x-values.
+        """
+        return (self._fill_above_or_below(x, y1, y2, where=where,
+                                          interpolate=interpolate, step=step,
+                                          **kwargs))
 
     @_preprocess_data()
     @_docstring.interpd

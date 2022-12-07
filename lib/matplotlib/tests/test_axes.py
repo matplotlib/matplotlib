@@ -45,6 +45,30 @@ from matplotlib.testing.decorators import (
 #       different baseline images to prevent race conditions when pytest runs
 #       the tests with multiple threads.
 
+@image_comparison(['fill_disjoint'], remove_text=False)
+def test_fill_disjoint():
+    # True test
+    def f1(x): return 32.0 * x + 2.0
+    def f2(x): return -55.0 * x
+    def fLo(x): return -100
+    def fHi(x): return 100
+    def fMin(x): return min(f1(x), f2(x))
+    def fMax(x): return max(f1(x), f2(x))
+    xRng=np.linspace(-1, 1, 100)
+    fig, ax = plt.subplots()
+    plt.plot(xRng, [f1(x) for x in xRng], 'b-')
+    plt.plot(xRng, [f2(x) for x in xRng], 'r-')
+    # Uncomment below line to test other configs
+    # plt.fill_disjoint(xRng, [f1(x) for x in xRng], [f2(x) for x in xRng])
+
+    # Test with limits set on axes - uncomment below to use
+    # ax.set_xlim(xRng.min(), xRng.max()) 
+    # ax.set_ylim(-100, 100) 
+    # plt.fill_disjoint(xRng, [f1(x) for x in xRng], [f2(x) for x in xRng])
+
+    # Baseline generation - uncomment below to use
+    plt.fill_between(xRng, [fMin(x) for x in xRng], [fLo(x) for x in xRng], color='g')
+    plt.fill_between(xRng, [fMax(x) for x in xRng], [fHi(x) for x in xRng], color='g')
 
 @check_figures_equal(extensions=["png"])
 def test_invisible_axes(fig_test, fig_ref):
