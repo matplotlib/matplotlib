@@ -369,12 +369,12 @@ class OffsetBox(martist.Artist):
 
 
 class PackerBase(OffsetBox):
-    def __init__(self, pad=None, sep=None, width=None, height=None,
+    def __init__(self, pad=0., sep=None, width=None, height=None,
                  align="baseline", mode="fixed", children=None):
         """
         Parameters
         ----------
-        pad : float, optional
+        pad : float, required
             The boundary padding in points.
 
         sep : float, optional
@@ -502,7 +502,7 @@ class PaddedBox(OffsetBox):
     """
 
     @_api.make_keyword_only("3.6", name="draw_frame")
-    def __init__(self, child, pad=None, draw_frame=False, patch_attrs=None):
+    def __init__(self, child, pad=0., draw_frame=False, patch_attrs=None):
         """
         Parameters
         ----------
@@ -530,6 +530,15 @@ class PaddedBox(OffsetBox):
         )
         if patch_attrs is not None:
             self.patch.update(patch_attrs)
+
+    def get_offset(self, width, height, xdescent, ydescent, renderer):
+        # docstring inherited
+        bbox = Bbox.from_bounds(0, 0, width, height)
+        pad = (self._children[0].pad
+               * renderer.points_to_pixels(self._children[0].prop.get_size_in_points()))
+        bbox_to_anchor = self._children[0].get_bbox_to_anchor()
+        x0, y0 = _get_anchored_bbox(self._children[0].loc, bbox, bbox_to_anchor, pad)
+        return x0 + xdescent, y0 + ydescent
 
     def get_extent_offsets(self, renderer):
         # docstring inherited.

@@ -13,7 +13,7 @@ from matplotlib.backend_bases import MouseButton, MouseEvent
 
 from matplotlib.offsetbox import (
     AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea, OffsetBox,
-    OffsetImage, TextArea, _get_packed_offsets, HPacker, VPacker)
+    OffsetImage, PaddedBox, TextArea, _get_packed_offsets, HPacker, VPacker)
 
 
 @image_comparison(['offsetbox_clipping'], remove_text=True)
@@ -378,3 +378,13 @@ def test_packers(align):
         x_height = (x2 - x1) / 2
     # x-offsets, y-offsets
     assert_allclose([(x_height, 0), (0, -y2)], offset_pairs)
+
+
+def test_paddedbox():
+    fig, ax = plt.subplots()
+
+    at = AnchoredText("foo",  'upper left')
+    try:
+        pb = PaddedBox(at, patch_attrs={'facecolor' : 'r'}, draw_frame=True)
+    except:
+        raise Exception("incorrect default value")
