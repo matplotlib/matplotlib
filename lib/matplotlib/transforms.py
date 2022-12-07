@@ -1292,13 +1292,13 @@ class Transform(TransformNode):
     - :meth:`transform_path`
     """
 
-    input_dims = None
+    input_dims: int|None = None
     """
     The number of input dimensions of this transform.
     Must be overridden (with integers) in the subclass.
     """
 
-    output_dims = None
+    output_dims: int|None = None
     """
     The number of output dimensions of this transform.
     Must be overridden (with integers) in the subclass.

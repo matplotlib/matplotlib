@@ -1388,7 +1388,7 @@ def test_ndarray_subclass_norm():
     # which objects when adding or subtracting with other
     # arrays. See #6622 and #8696
     class MyArray(np.ndarray):
-        def __isub__(self, other):
+        def __isub__(self, other):  # type: ignore
             raise RuntimeError
 
         def __add__(self, other):

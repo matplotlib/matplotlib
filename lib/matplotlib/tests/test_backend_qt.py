@@ -18,7 +18,7 @@ from matplotlib import _c_internal_utils
 
 
 try:
-    from matplotlib.backends.qt_compat import QtGui, QtWidgets  # noqa
+    from matplotlib.backends.qt_compat import QtGui, QtWidgets  # type: ignore # noqa
     from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt bindings')
