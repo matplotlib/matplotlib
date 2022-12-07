@@ -20,7 +20,6 @@ from matplotlib import _api, cbook, collections, cm, colors, contour, ticker
 import matplotlib.artist as martist
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
-import matplotlib.scale as mscale
 import matplotlib.spines as mspines
 import matplotlib.transforms as mtransforms
 from matplotlib import _docstring
@@ -393,7 +392,6 @@ class Colorbar:
         self._minorlocator = None
         self._formatter = None
         self._minorformatter = None
-        self.__scale = None  # linear, log10 for now.  Hopefully more?
 
         if ticklocation == 'auto':
             ticklocation = _get_ticklocation_from_orientation(
@@ -1029,14 +1027,7 @@ class Colorbar:
         `matplotlib.scale.register_scale`. These scales can then also
         be used here.
         """
-        if self.orientation == 'vertical':
-            self.ax.set_yscale(scale, **kwargs)
-        else:
-            self.ax.set_xscale(scale, **kwargs)
-        if isinstance(scale, mscale.ScaleBase):
-            self.__scale = scale.name
-        else:
-            self.__scale = scale
+        self._long_axis()._set_axes_scale(scale, **kwargs)
 
     def remove(self):
         """
