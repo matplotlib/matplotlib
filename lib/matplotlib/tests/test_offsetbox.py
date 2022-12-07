@@ -385,6 +385,6 @@ def test_paddedbox():
 
     at = AnchoredText("foo",  'upper left')
     try:
-        pb = PaddedBox(at, patch_attrs={'facecolor' : 'r'}, draw_frame=True)
+        pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
     except:
         raise Exception("incorrect default value")

@@ -535,9 +535,11 @@ class PaddedBox(OffsetBox):
         # docstring inherited
         bbox = Bbox.from_bounds(0, 0, width, height)
         pad = (self._children[0].pad
-               * renderer.points_to_pixels(self._children[0].prop.get_size_in_points()))
+               * renderer.points_to_pixels(
+                self._children[0].prop.get_size_in_points()))
         bbox_to_anchor = self._children[0].get_bbox_to_anchor()
-        x0, y0 = _get_anchored_bbox(self._children[0].loc, bbox, bbox_to_anchor, pad)
+        x0, y0 = _get_anchored_bbox(
+            self._children[0].loc, bbox, bbox_to_anchor, pad)
         return x0 + xdescent, y0 + ydescent
 
     def get_extent_offsets(self, renderer):
