@@ -381,10 +381,7 @@ def test_packers(align):
 
 
 def test_paddedbox():
+    # smoke test for correct default value though
     fig, ax = plt.subplots()
-
     at = AnchoredText("foo",  'upper left')
-    try:
-        pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
-    except:
-        raise Exception("incorrect default value")
+    pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
