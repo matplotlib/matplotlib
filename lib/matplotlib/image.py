@@ -1653,6 +1653,9 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:
             pil_kwargs = {}
+        else:
+            # we modify this below, so make a copy (don't modify caller's dict)
+            pil_kwargs = pil_kwargs.copy()
         pil_shape = (rgba.shape[1], rgba.shape[0])
         image = PIL.Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
