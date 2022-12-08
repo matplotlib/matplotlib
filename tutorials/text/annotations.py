@@ -193,6 +193,7 @@ t = ax.text(0.5, 0.5, "Direction",
 #   ==========   ==============   ==========================
 #   Circle       ``circle``       pad=0.3
 #   DArrow       ``darrow``       pad=0.3
+#   Ellipse      ``ellipse``      pad=0.3
 #   LArrow       ``larrow``       pad=0.3
 #   RArrow       ``rarrow``       pad=0.3
 #   Round        ``round``        pad=0.3,rounding_size=None
