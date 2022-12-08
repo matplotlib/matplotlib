@@ -288,6 +288,10 @@ and the history looks now like this::
 If it went wrong, recovery is again possible as explained :ref:`above
 <recovering-from-mess-up>`.
 
+If you have not yet pushed this branch to github, you can carry on as normal,
+however if you *have* already pushed this commit see :ref:`force-push` for how
+to replace your already published commits with the new ones.
+
 
 .. _rebase-on-main:
 
@@ -359,3 +363,55 @@ some related help on merging in the git user manual - see `resolving a merge`_.
 
 .. _git rebase: https://git-scm.com/docs/git-rebase
 .. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
+
+
+If you have not yet pushed this branch to github, you can carry on as normal,
+however if you *have* already pushed this commit see :ref:`force-push` for how
+to replace your already published commits with the new ones.
+
+
+.. _force-push:
+
+
+Pushing, with force
+-------------------
+
+If you have in some way re-written already pushed history (e.g. via
+:ref:`rewriting-commit-history` or :ref:`rebase-on-main`), then when you try to
+push the new commits to GitHub it will fail with an error that looks like ::
+
+   $ git push
+   Pushing to github.com:YOURFORK/matplotlib.git
+   To github.com:YOURFORK/matplotlib.git
+    ! [rejected]              cool_feature -> cool_feature (non-fast-forward)
+   error: failed to push some refs to 'github.com:tacaswell/matplotlib.git'
+   hint: Updates were rejected because the tip of your current branch is behind
+   hint: its remote counterpart. Integrate the remote changes (e.g.
+   hint: 'git pull ...') before pushing again.
+   hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+What is going on is that by default ``git push`` tries to protect you from
+accidentally make commits inaccessible by leaving no reference to them so if a
+push *would* effectively discard commits on the remote, ``git`` rejects the
+push.  When this happens GitHub adds the helpful suggestion to pull the remote
+changes and then try pushing again.  In some cases, such as if you and a
+colleague are both committing and pushing to the same branch, this is the
+correct course of action (or rebase your local branch but it is a matter of
+taste).  Although both of things are good ideas, taken together they are not
+what we want to do.
+
+In the case of having intentionally re-written history we *want* to make the
+commits on GitHub inaccessible and replace them with the new-and-improved versions
+on our local machines.  In these cases what we want to do is ::
+
+  $ git push --force-with-lease
+
+which tells git you are aware of the risks and want to do the push anyway.  We
+recommend using ``--force-with-lease`` over the ``--force`` flag.  The
+``--force`` will do the push no matter what, whereas ``--force-with-lease``
+will only do the push of the remote branch is where the local ``git`` client
+thought it was.
+
+Be judicious with force-pushing.  It is effectively re-writing published
+history and if anyone has fetched the old commits will have a different view
+of history which can cause confusion.
