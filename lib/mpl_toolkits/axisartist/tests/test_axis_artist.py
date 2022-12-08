@@ -1,10 +1,14 @@
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
-from  mpl_toolkits import axisartist
+import matplotlib.transforms as mtransforms
+
+from mpl_toolkits import axisartist
 from mpl_toolkits.axisartist import AxisArtistHelperRectlinear
 from mpl_toolkits.axisartist.axis_artist import (AxisArtist, AxisLabel,
                                                  LabelBase, Ticks, TickLabels)
+from mpl_toolkits.axisartist.grid_helper_curvelinear import (
+    GridHelperCurveLinear)
 
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
@@ -158,3 +162,43 @@ def test_axis_artist_dir():
                 axis.set_axislabel_direction(ld)
                 axis.set_ticklabel_direction(tld)
                 axis.major_ticks.set_tickdir(td)
+
+
+def _setup_axes_tick_orientation(fig, pos):
+    tr = mtransforms.Affine2D().skew_deg(0, 30)
+
+    grid_helper = GridHelperCurveLinear(tr)
+
+    ax = fig.add_subplot(pos, axes_class=axisartist.Axes,
+                         grid_helper=grid_helper)
+
+    ax.set_xlim(0, 0.2)
+
+    ax.axis[:].set_visible(False)
+
+    ax.axis["test"] = ax.new_fixed_axis("left")
+    ax.axis["test"].toggle(ticklabels=False)
+
+    ax.set_aspect(1)
+    ax.grid(True, axis="y", color="0.8")
+    return ax
+
+
+@image_comparison(['axis_artist_tick_orientation.png'], style='default')
+def test_axis_artist_tick_orientation():
+    plt.rcParams['text.kerning_factor'] = 6
+
+    fig = plt.figure(figsize=(4, 5))
+
+    from matplotlib.gridspec import GridSpec
+    gs = GridSpec(3, 3, figure=fig)
+    gsi = iter(gs)
+
+    for td in ["in", "out", "inout"]:
+        for to in ["auto", "normal", "parallel"]:
+            ax = _setup_axes_tick_orientation(fig, next(gsi))
+            axis = ax.axis["test"]
+            axis.major_ticks.set_ticksize(8)
+            axis.major_ticks.set_tickdir(td)
+            axis.major_ticks.set_tick_orientation(to)
+            axis.label.set_text(f"{td}-{to}")
