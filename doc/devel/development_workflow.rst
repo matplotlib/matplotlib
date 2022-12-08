@@ -170,6 +170,38 @@ To see a linear list of commits for this branch::
 
    git log
 
+
+.. _recovering-from-mess-up:
+
+Recovering from mess-ups
+------------------------
+
+Sometimes, you mess up merges or rebases. Luckily, in git it is
+relatively straightforward to recover from such mistakes.
+
+If you mess up during a rebase::
+
+   git rebase --abort
+
+If you notice you messed up after the rebase::
+
+   # reset branch back to the saved point
+   git reset --hard tmp
+
+If you forgot to make a backup branch::
+
+   # look at the reflog of the branch
+   git reflog show cool-feature
+
+   8630830 cool-feature@{0}: commit: BUG: io: close file handles immediately
+   278dd2a cool-feature@{1}: rebase finished: refs/heads/my-feature-branch onto 11ee694744f2552d
+   26aa21a cool-feature@{2}: commit: BUG: lib: make seek_gzip_factory not leak gzip obj
+   ...
+
+   # reset the branch to where it was before the botched rebase
+   git reset --hard cool-feature@{2}
+
+
 .. _rebase-on-main:
 
 Rebasing on ``upstream/main``
@@ -241,36 +273,6 @@ some related help on merging in the git user manual - see `resolving a merge`_.
 .. _git rebase: https://git-scm.com/docs/git-rebase
 .. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
 
-
-.. _recovering-from-mess-up:
-
-Recovering from mess-ups
-------------------------
-
-Sometimes, you mess up merges or rebases. Luckily, in git it is
-relatively straightforward to recover from such mistakes.
-
-If you mess up during a rebase::
-
-   git rebase --abort
-
-If you notice you messed up after the rebase::
-
-   # reset branch back to the saved point
-   git reset --hard tmp
-
-If you forgot to make a backup branch::
-
-   # look at the reflog of the branch
-   git reflog show cool-feature
-
-   8630830 cool-feature@{0}: commit: BUG: io: close file handles immediately
-   278dd2a cool-feature@{1}: rebase finished: refs/heads/my-feature-branch onto 11ee694744f2552d
-   26aa21a cool-feature@{2}: commit: BUG: lib: make seek_gzip_factory not leak gzip obj
-   ...
-
-   # reset the branch to where it was before the botched rebase
-   git reset --hard cool-feature@{2}
 
 .. _rewriting-commit-history:
 
