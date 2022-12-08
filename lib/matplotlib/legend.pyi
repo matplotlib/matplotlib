@@ -78,7 +78,7 @@ class Legend(Artist):
         ncols: int = ...,
         mode: Literal["expand"] | None = ...,
         fancybox: bool | None = ...,
-        shadow: bool | None = ...,
+        shadow: bool | dict[str, Any] | None = ...,
         title: str | None = ...,
         title_fontsize: float | None = ...,
         framealpha: float | None = ...,
