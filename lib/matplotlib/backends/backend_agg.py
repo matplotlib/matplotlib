@@ -404,7 +404,14 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
     def get_renderer(self, cleared=False):
-        w, h = self.figure.bbox.size
+        w, h = np.round(self.figure.bbox.size).astype(int)
+        dpi = self.figure.dpi
+
+        # we know we are using Agg, thus are tied to discrete sizes
+        # set by the dpi.  Feed this back so that the transforms are
+        # mapped to the available pixels
+        self.figure.set_size_inches(w / dpi, h / dpi)
+
         key = w, h, self.figure.dpi
         reuse_renderer = (self._lastKey == key)
         if not reuse_renderer:

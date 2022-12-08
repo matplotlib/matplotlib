@@ -1,0 +1,12 @@
+Round instead of truncating pixel number when using Agg
+```````````````````````````````````````````````````````
+
+When rasterizing a figure the allowed figure sizes are effectively
+discretized by the finite dpi.  Previously, we simply truncated when
+computing the number of pixels to use, now we use `numpy.round` which
+will avoid floating point issues when setting the size of the figure
+in inches to get a specific size of in pixels.
+
+Additionally, the Agg based backends will adjust the size of the
+figure to match the actual size (given by the number of pixels and the
+dpi) during the draw process.
