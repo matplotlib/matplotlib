@@ -109,7 +109,7 @@ tests it::
    import matplotlib.pyplot as plt
 
    @image_comparison(baseline_images=['line_dashes'], remove_text=True,
-                     extensions=['png'])
+                     extensions=['png'], style='mpl20')
    def test_line_dashes():
        fig, ax = plt.subplots()
        ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
@@ -129,6 +129,12 @@ used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.
+
+It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
+figures and reflects the newer look of default Matplotlib plots. Also, if the
+texts (labels, tick labels, etc) are not really part of what is tested, use
+``remove_text=True`` as this will lead to smaller figures and reduce possible
+issues with font mismatch on different platforms.
 
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
