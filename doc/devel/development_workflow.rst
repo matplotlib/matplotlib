@@ -391,18 +391,15 @@ push the new commits to GitHub it will fail with an error that looks like ::
    hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 
 What is going on is that by default ``git push`` tries to protect you from
-accidentally make commits inaccessible by leaving no reference to them so if a
-push *would* effectively discard commits on the remote, ``git`` rejects the
-push.  When this happens GitHub adds the helpful suggestion to pull the remote
+accidentally discarding commits on the remote by rejecting the
+push.  When this happens, GitHub adds the helpful suggestion to pull the remote
 changes and then try pushing again.  In some cases, such as if you and a
 colleague are both committing and pushing to the same branch, this is the
 correct course of action (or rebase your local branch but it is a matter of
-taste).  Although both of things are good ideas, taken together they are not
-what we want to do.
+taste). 
 
-In the case of having intentionally re-written history we *want* to make the
-commits on GitHub inaccessible and replace them with the new-and-improved versions
-on our local machines.  In these cases what we want to do is ::
+However, in the case of having intentionally re-written history we *want* to discard the commits and  
+replace them with the new-and-improved versions from our local branch.  In these cases what we want to do is ::
 
   $ git push --force-with-lease
 
