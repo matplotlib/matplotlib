@@ -3434,8 +3434,12 @@ class Figure(FigureBase):
         engine = TightLayoutEngine(pad=pad, h_pad=h_pad, w_pad=w_pad,
                                    rect=rect)
         try:
+            previous_engine = self.get_layout_engine()
             self.set_layout_engine(engine)
             engine.execute(self)
+            if not isinstance(previous_engine, TightLayoutEngine) \
+                    and previous_engine is not None:
+                _api.warn_external('The figure layout has changed to tight')
         finally:
             self.set_layout_engine(None)
 

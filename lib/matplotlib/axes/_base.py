@@ -824,7 +824,6 @@ class _AxesBase(martist.Artist):
         self.yaxis = maxis.YAxis(self)
         self.spines.left.register_axis(self.yaxis)
         self.spines.right.register_axis(self.yaxis)
-        self._update_transScale()
 
     def set_figure(self, fig):
         # docstring inherited
@@ -1080,13 +1079,6 @@ class _AxesBase(martist.Artist):
         self.transScale.set(
             mtransforms.blended_transform_factory(
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
-        for line in self._children:
-            if not isinstance(line, mlines.Line2D):
-                continue
-            try:
-                line._transformed_path.invalidate()
-            except AttributeError:
-                pass
 
     def get_position(self, original=False):
         """
@@ -1308,7 +1300,9 @@ class _AxesBase(martist.Artist):
         self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
 
         self._gridOn = mpl.rcParams['axes.grid']
-        self._children = []
+        old_children, self._children = self._children, []
+        for chld in old_children:
+            chld.axes = chld.figure = None
         self._mouseover_set = _OrderedSet()
         self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci

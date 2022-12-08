@@ -1699,15 +1699,8 @@ class TransformWrapper(Transform):
         be replaced with :meth:`set`.
         """
         _api.check_isinstance(Transform, child=child)
-        self._init(child)
-        self.set_children(child)
-
-    def _init(self, child):
-        Transform.__init__(self)
-        self.input_dims = child.input_dims
-        self.output_dims = child.output_dims
-        self._set(child)
-        self._invalid = 0
+        super().__init__()
+        self.set(child)
 
     def __eq__(self, other):
         return self._child.__eq__(other)
@@ -1718,8 +1711,24 @@ class TransformWrapper(Transform):
         # docstring inherited
         return self._child.frozen()
 
-    def _set(self, child):
+    def set(self, child):
+        """
+        Replace the current child of this transform with another one.
+
+        The new child must have the same number of input and output
+        dimensions as the current child.
+        """
+        if hasattr(self, "_child"):  # Absent during init.
+            new_dims = (child.input_dims, child.output_dims)
+            old_dims = (self._child.input_dims, self._child.output_dims)
+            if new_dims != old_dims:
+                raise ValueError(
+                    f"The input and output dims of the new child {new_dims} "
+                    f"do not match those of current child {old_dims}")
+            self._child._parents.pop(id(self), None)
+
         self._child = child
+        self.set_children(child)
 
         self.transform = child.transform
         self.transform_affine = child.transform_affine
@@ -1730,31 +1739,16 @@ class TransformWrapper(Transform):
         self.get_affine = child.get_affine
         self.inverted = child.inverted
         self.get_matrix = child.get_matrix
-
         # note we do not wrap other properties here since the transform's
         # child can be changed with WrappedTransform.set and so checking
         # is_affine and other such properties may be dangerous.
-
-    def set(self, child):
-        """
-        Replace the current child of this transform with another one.
-
-        The new child must have the same number of input and output
-        dimensions as the current child.
-        """
-        if (child.input_dims != self.input_dims or
-                child.output_dims != self.output_dims):
-            raise ValueError(
-                "The new child must have the same number of input and output "
-                "dimensions as the current child")
-
-        self.set_children(child)
-        self._set(child)
 
         self._invalid = 0
         self.invalidate()
         self._invalid = 0
 
+    input_dims = property(lambda self: self._child.input_dims)
+    output_dims = property(lambda self: self._child.output_dims)
     is_affine = property(lambda self: self._child.is_affine)
     is_separable = property(lambda self: self._child.is_separable)
     has_inverse = property(lambda self: self._child.has_inverse)

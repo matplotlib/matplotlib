@@ -189,7 +189,7 @@ def list_fonts(directory, extensions):
     if sys.platform == 'win32' and directory == win32FontDirectory():
         return [os.path.join(directory, filename)
                 for filename in os.listdir(directory)
-                if os.path.isfile(filename)]
+                if os.path.isfile(os.path.join(directory, filename))]
     else:
         return [os.path.join(dirpath, filename)
                 # os.walk ignores access errors, unlike Path.glob.

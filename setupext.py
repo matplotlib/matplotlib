@@ -16,6 +16,7 @@ from tempfile import TemporaryDirectory
 import textwrap
 import urllib.request
 
+from pybind11.setup_helpers import Pybind11Extension
 from setuptools import Distribution, Extension
 
 _log = logging.getLogger(__name__)
@@ -459,12 +460,12 @@ class Matplotlib(SetupPackage):
         add_libagg_flags(ext)
         yield ext
         # tri
-        ext = Extension(
+        ext = Pybind11Extension(
             "matplotlib._tri", [
                 "src/tri/_tri.cpp",
                 "src/tri/_tri_wrapper.cpp",
-            ])
-        add_numpy_flags(ext)
+            ],
+            cxx_std=11)
         yield ext
         # ttconv
         ext = Extension(
