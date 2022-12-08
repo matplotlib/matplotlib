@@ -1098,16 +1098,19 @@ class AxisArtist(martist.Artist):
             # If ticklabels and axislabel are on different side, we only
             # consider the padding for the ticks only.
 
+            # "in", "out" and "inout" are relative to the ticks. Therefore, "in"
+            # means that axislabel and ticks are on the same side while
+            # ticklabels are on the other side.
             ticksizes = []
             # ticksize of the major_ticks
             ticksizes.append(
                 self.major_ticks.get_visible()
-                * {"out": 1, "inout": .5, "in": 0}[self.major_ticks._tickdir]
+                * {"out": 0, "inout": .5, "in": 1}[self.major_ticks._tickdir]
                 * self.major_ticks._ticksize
             )
             ticksizes.append(
                 self.minor_ticks.get_visible()
-                * {"out": 1, "inout": .5, "in": 0}[self.minor_ticks._tickdir]
+                * {"out": 0, "inout": .5, "in": 1}[self.minor_ticks._tickdir]
                 * self.minor_ticks._ticksize
             )
             axislabel_pad = max(ticksizes)
