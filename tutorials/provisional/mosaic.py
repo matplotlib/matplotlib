@@ -286,7 +286,7 @@ identify_axes(axd)
 
 
 ###############################################################################
-# Nested List input
+# Nested list input
 # =================
 #
 # Everything we can do with the string short-hand we can also do when
