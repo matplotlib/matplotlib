@@ -201,79 +201,6 @@ If you forgot to make a backup branch::
    # reset the branch to where it was before the botched rebase
    git reset --hard cool-feature@{2}
 
-
-.. _rebase-on-main:
-
-Rebasing on ``upstream/main``
------------------------------
-
-Let's say you thought of some work you'd like to do. You
-:ref:`update-mirror-main` and :ref:`make-feature-branch` called
-``cool-feature``. At this stage, ``main`` is at some commit, let's call it E.
-Now you make some new commits on your ``cool-feature`` branch, let's call them
-A, B, C. Maybe your changes take a while, or you come back to them after a
-while. In the meantime, ``main`` has progressed from commit E to commit (say) G:
-
-.. code-block:: none
-
-          A---B---C cool-feature
-         /
-    D---E---F---G main
-
-At this stage you consider merging ``main`` into your feature branch, and you
-remember that this here page sternly advises you not to do that, because the
-history will get messy. Most of the time you can just ask for a review, and not
-worry that ``main`` has got a little ahead.  But sometimes, the changes in
-``main`` might affect your changes, and you need to harmonize them.  In this
-situation you may prefer to do a rebase.
-
-``rebase`` takes your changes (A, B, C) and replays them as if they had been
-made to the current state of ``main``.  In other words, in this case, it takes
-the changes represented by A, B, C and replays them on top of G. After the
-rebase, your history will look like this:
-
-.. code-block:: none
-
-                  A'--B'--C' cool-feature
-                 /
-    D---E---F---G main
-
-See `rebase without tears`_ for more detail.
-
-.. _rebase without tears: https://matthew-brett.github.io/pydagogue/rebase_without_tears.html
-
-To do a rebase on ``upstream/main``::
-
-    # Fetch changes from upstream/main
-    git fetch upstream
-    # go to the feature branch
-    git checkout cool-feature
-    # make a backup in case you mess up
-    git branch tmp cool-feature
-    # rebase cool-feature onto main
-    git rebase --onto upstream/main upstream/main cool-feature
-
-In this situation, where you are already on branch ``cool-feature``, the last
-command can be written more succinctly as::
-
-    git rebase upstream/main
-
-When all looks good you can delete your backup branch::
-
-   git branch -D tmp
-
-If it doesn't look good you may need to have a look at
-:ref:`recovering-from-mess-up`.
-
-If you have made changes to files that have also changed in ``main``, this may
-generate merge conflicts that you need to resolve - see the `git rebase`_ man
-page for some instructions at the end of the "Description" section. There is
-some related help on merging in the git user manual - see `resolving a merge`_.
-
-.. _git rebase: https://git-scm.com/docs/git-rebase
-.. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
-
-
 .. _rewriting-commit-history:
 
 Rewriting commit history
@@ -360,3 +287,75 @@ and the history looks now like this::
 
 If it went wrong, recovery is again possible as explained :ref:`above
 <recovering-from-mess-up>`.
+
+
+.. _rebase-on-main:
+
+Rebasing on ``upstream/main``
+-----------------------------
+
+Let's say you thought of some work you'd like to do. You
+:ref:`update-mirror-main` and :ref:`make-feature-branch` called
+``cool-feature``. At this stage, ``main`` is at some commit, let's call it E.
+Now you make some new commits on your ``cool-feature`` branch, let's call them
+A, B, C. Maybe your changes take a while, or you come back to them after a
+while. In the meantime, ``main`` has progressed from commit E to commit (say) G:
+
+.. code-block:: none
+
+          A---B---C cool-feature
+         /
+    D---E---F---G main
+
+At this stage you consider merging ``main`` into your feature branch, and you
+remember that this here page sternly advises you not to do that, because the
+history will get messy. Most of the time you can just ask for a review, and not
+worry that ``main`` has got a little ahead.  But sometimes, the changes in
+``main`` might affect your changes, and you need to harmonize them.  In this
+situation you may prefer to do a rebase.
+
+``rebase`` takes your changes (A, B, C) and replays them as if they had been
+made to the current state of ``main``.  In other words, in this case, it takes
+the changes represented by A, B, C and replays them on top of G. After the
+rebase, your history will look like this:
+
+.. code-block:: none
+
+                  A'--B'--C' cool-feature
+                 /
+    D---E---F---G main
+
+See `rebase without tears`_ for more detail.
+
+.. _rebase without tears: https://matthew-brett.github.io/pydagogue/rebase_without_tears.html
+
+To do a rebase on ``upstream/main``::
+
+    # Fetch changes from upstream/main
+    git fetch upstream
+    # go to the feature branch
+    git checkout cool-feature
+    # make a backup in case you mess up
+    git branch tmp cool-feature
+    # rebase cool-feature onto main
+    git rebase --onto upstream/main upstream/main cool-feature
+
+In this situation, where you are already on branch ``cool-feature``, the last
+command can be written more succinctly as::
+
+    git rebase upstream/main
+
+When all looks good you can delete your backup branch::
+
+   git branch -D tmp
+
+If it doesn't look good you may need to have a look at
+:ref:`recovering-from-mess-up`.
+
+If you have made changes to files that have also changed in ``main``, this may
+generate merge conflicts that you need to resolve - see the `git rebase`_ man
+page for some instructions at the end of the "Description" section. There is
+some related help on merging in the git user manual - see `resolving a merge`_.
+
+.. _git rebase: https://git-scm.com/docs/git-rebase
+.. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
