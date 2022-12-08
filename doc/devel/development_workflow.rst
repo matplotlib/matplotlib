@@ -312,7 +312,7 @@ while. In the meantime, ``main`` has progressed from commit E to commit (say) G:
     D---E---F---G main
 
 At this stage you consider merging ``main`` into your feature branch, and you
-remember that this here page sternly advises you not to do that, because the
+remember that this page sternly advises you not to do that, because the
 history will get messy. Most of the time you can just ask for a review, and not
 worry that ``main`` has got a little ahead.  But sometimes, the changes in
 ``main`` might affect your changes, and you need to harmonize them.  In this
@@ -399,14 +399,14 @@ correct course of action (or rebase your local branch but it is a matter of
 taste). 
 
 However, in the case of having intentionally re-written history we *want* to discard the commits and  
-replace them with the new-and-improved versions from our local branch.  In these cases what we want to do is ::
+replace them with the new-and-improved versions from our local branch.  In these cases, what we want to do is ::
 
   $ git push --force-with-lease
 
 which tells git you are aware of the risks and want to do the push anyway.  We
 recommend using ``--force-with-lease`` over the ``--force`` flag.  The
 ``--force`` will do the push no matter what, whereas ``--force-with-lease``
-will only do the push of the remote branch is where the local ``git`` client
+will only do the push if the remote branch is where the local ``git`` client
 thought it was.
 
 Be judicious with force-pushing.  It is effectively re-writing published
