@@ -55,10 +55,16 @@ ticklabel ha        right  center   right  center
 axislabel ha        right  center   right  center
 =================== ====== ======== ====== ========
 
-Ticks are by default direct opposite side of the ticklabels. To make ticks to
-the same side of the ticklabels, ::
+Direction of ticks follows the setting in rcParams (default is "out"). To
+change it, ::
 
-  ax.axis["bottom"].major_ticks.set_tick_out(True)
+  ax.axis["bottom"].major_ticks.set_tickdir("in")
+
+Ticks can be oriented either normal to the axisline or parallel to the grid
+lines. The default is "normal" if "tickdir" is "out", "parallel" otherwise.
+To change it, ::
+
+  ax.axis["bottom"].major_ticks.set_tick_orientation("normal")
 
 The following attributes can be customized (use the ``set_xxx`` methods):
 
