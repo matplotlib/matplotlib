@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
+from  mpl_toolkits import axisartist
 from mpl_toolkits.axisartist import AxisArtistHelperRectlinear
 from mpl_toolkits.axisartist.axis_artist import (AxisArtist, AxisLabel,
                                                  LabelBase, Ticks, TickLabels)
@@ -120,3 +121,40 @@ def test_tickout_kwargs(recwarn):
 
     assert all(issubclass(wi.category, MatplotlibDeprecationWarning)
                for wi in recwarn[1:])
+
+
+def _setup_axes_for_axis_artist_dir(fig, pos):
+    ax = fig.add_subplot(pos, axes_class=axisartist.Axes)
+
+    ax.set_ylim(-0.1, 1.5)
+    ax.set_yticks([0, 1])
+
+    ax.axis[:].set_visible(False)
+
+    ax.axis["x"] = ax.new_floating_axis(1, 0.5)
+
+    return ax
+
+
+@image_comparison(['axis_artist_dir.png'], style='default')
+def test_axis_artist_dir():
+    plt.rcParams['text.kerning_factor'] = 6
+
+    fig = plt.figure(figsize=(4, 5), num=1)
+    fig.clf()
+
+    from matplotlib.gridspec import GridSpec
+    gs = GridSpec(3, 4, figure=fig)
+    gsi = iter(gs)
+
+    for td in ["in", "out", "inout"]:
+        for ld in "+-":
+            for tld in "+-":
+                ax = _setup_axes_for_axis_artist_dir(fig, next(gsi))
+                axis = ax.axis["x"]
+                axis.major_ticks.set_ticksize(8)
+                axis.label.set_text("Label")
+                axis.toggle(ticklabels=True)
+                axis.set_axislabel_direction(ld)
+                axis.set_ticklabel_direction(tld)
+                axis.major_ticks.set_tickdir(td)
