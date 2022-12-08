@@ -376,30 +376,43 @@ to replace your already published commits with the new ones.
 Pushing, with force
 -------------------
 
+
 If you have in some way re-written already pushed history (e.g. via
-:ref:`rewriting-commit-history` or :ref:`rebase-on-main`), then when you try to
-push the new commits to GitHub it will fail with an error that looks like ::
+:ref:`rewriting-commit-history` or :ref:`rebase-on-main`) leaving you with
+a git history that looks something like
+
+.. code-block:: none
+
+       A'--E cool-feature
+      /
+     D---A---B---C origin/cool-feature
+
+where you have pushed the commits ``A,B,C`` to your fork on GitHub (under the
+remote name *origin*) but now have the commits ``A'`` and ``E`` on your local
+branch *cool-feature*.  If you try to push the new commits to GitHub it will
+fail with an error that looks like ::
 
    $ git push
-   Pushing to github.com:YOURFORK/matplotlib.git
-   To github.com:YOURFORK/matplotlib.git
+   Pushing to github.com:origin/matplotlib.git
+   To github.com:origin/matplotlib.git
     ! [rejected]              cool_feature -> cool_feature (non-fast-forward)
-   error: failed to push some refs to 'github.com:tacaswell/matplotlib.git'
+   error: failed to push some refs to 'github.com:origin/matplotlib.git'
    hint: Updates were rejected because the tip of your current branch is behind
    hint: its remote counterpart. Integrate the remote changes (e.g.
    hint: 'git pull ...') before pushing again.
    hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 
-What is going on is that by default ``git push`` tries to protect you from
-accidentally discarding commits on the remote by rejecting the
-push.  When this happens, GitHub adds the helpful suggestion to pull the remote
-changes and then try pushing again.  In some cases, such as if you and a
-colleague are both committing and pushing to the same branch, this is the
-correct course of action (or rebase your local branch but it is a matter of
-taste). 
+If this push had succeed then the commits ``A``, ``B``, and ``C`` would no
+longer be referenced by any branch and be discarded.  By default ``git push``
+helpfully tries to protect you from accidentally discarding commits by
+rejecting the push to the remote.  When this happens, GitHub also adds the
+helpful suggestion to pull the remote changes and then try pushing again.  In
+some cases, such as if you and a colleague are both committing and pushing to
+the same branch, this is a correct course of action.
 
-However, in the case of having intentionally re-written history we *want* to discard the commits and  
-replace them with the new-and-improved versions from our local branch.  In these cases, what we want to do is ::
+However, in the case of having intentionally re-written history we *want* to
+discard the commits on the remote and replace them with the new-and-improved
+versions from our local branch.  In this case, what we want to do is ::
 
   $ git push --force-with-lease
 
