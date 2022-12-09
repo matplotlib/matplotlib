@@ -369,7 +369,7 @@ class OffsetBox(martist.Artist):
 
 
 class PackerBase(OffsetBox):
-    def __init__(self, pad=0., sep=0., width=None, height=None,
+    def __init__(self, pad=0, sep=0, width=None, height=None,
                  align="baseline", mode="fixed", children=None):
         """
         Parameters
@@ -502,7 +502,7 @@ class PaddedBox(OffsetBox):
     """
 
     @_api.make_keyword_only("3.6", name="draw_frame")
-    def __init__(self, child, pad=0., draw_frame=False, patch_attrs=None):
+    def __init__(self, child, pad=0, draw_frame=False, patch_attrs=None):
         """
         Parameters
         ----------
@@ -530,17 +530,6 @@ class PaddedBox(OffsetBox):
         )
         if patch_attrs is not None:
             self.patch.update(patch_attrs)
-
-    def get_offset(self, width, height, xdescent, ydescent, renderer):
-        # docstring inherited
-        bbox = Bbox.from_bounds(0, 0, width, height)
-        pad = (self._children[0].pad
-               * renderer.points_to_pixels(
-                self._children[0].prop.get_size_in_points()))
-        bbox_to_anchor = self._children[0].get_bbox_to_anchor()
-        x0, y0 = _get_anchored_bbox(
-            self._children[0].loc, bbox, bbox_to_anchor, pad)
-        return x0 + xdescent, y0 + ydescent
 
     def get_extent_offsets(self, renderer):
         # docstring inherited.
@@ -1253,13 +1242,13 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             The position *(x, y)* to place the text at. The coordinate system
             is determined by *boxcoords*.
 
-        xycoords : str or `.Artist` or `.Transform` or callable or \
-(float, float), default: 'data'
+        xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
+callable, default: 'data'
             The coordinate system that *xy* is given in. See the parameter
             *xycoords* in `.Annotation` for a detailed description.
 
-        boxcoords : str or `.Artist` or `.Transform` or callable or \
-(float, float), default: value of *xycoords*
+        boxcoords : single or two-tuple of str or `.Artist` or `.Transform` \
+or callable, default: value of *xycoords*
             The coordinate system that *xybox* is given in. See the parameter
             *textcoords* in `.Annotation` for a detailed description.
 
