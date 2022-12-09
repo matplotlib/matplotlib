@@ -1165,6 +1165,15 @@ def test_subfigure_dpi():
     assert fig.get_dpi() == 200
 
 
+def test_set_dpi_save(tmp_path):
+    fig = plt.figure(figsize=(1, 2), dpi=100)
+    fig.set_dpi(63)
+    outname = tmp_path / 'dpi_test.png'
+    fig.savefig(outname, dpi='figure')
+    im = np.array(Image.open(outname))
+    assert np.shape(im) == (126, 63, 4)
+
+
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
                   savefig_kwarg={'facecolor': 'teal'}, tol=0.02)
 def test_subfigure_ss():
