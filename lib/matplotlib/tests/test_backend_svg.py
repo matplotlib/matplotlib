@@ -122,6 +122,27 @@ def test_rasterized_ordering(fig_test, fig_ref):
     ax_test.plot(x+1, y, "-", c="b", lw=10, rasterized=False, zorder=1.2)
 
 
+@check_figures_equal(tol=5, extensions=['svg', 'pdf'])
+def test_prevent_rasterization(fig_test, fig_ref):
+    loc = [0.05, 0.05]
+
+    ax_ref = fig_ref.subplots()
+
+    ax_ref.plot([loc[0]], [loc[1]], marker="x", c="black", zorder=2)
+
+    b = mpl.offsetbox.TextArea("X")
+    abox = mpl.offsetbox.AnnotationBbox(b, loc, zorder=2.1)
+    ax_ref.add_artist(abox)
+
+    ax_test = fig_test.subplots()
+    ax_test.plot([loc[0]], [loc[1]], marker="x", c="black", zorder=2,
+                 rasterized=True)
+
+    b = mpl.offsetbox.TextArea("X")
+    abox = mpl.offsetbox.AnnotationBbox(b, loc, zorder=2.1)
+    ax_test.add_artist(abox)
+
+
 def test_count_bitmaps():
     def count_tag(fig, tag):
         with BytesIO() as fd:

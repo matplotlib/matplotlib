@@ -21,6 +21,27 @@ from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
 _log = logging.getLogger(__name__)
 
 
+def _prevent_rasterization(draw):
+    # We assume that by default artists are not allowed to rasterize (unless
+    # its draw method is explicitly decorated). If it is being drawn after a
+    # rasterized artist and it has reached a raster_depth of 0, we stop
+    # rasterization so that it does not affect the behavior of normal artist
+    # (e.g., change in dpi).
+
+    @wraps(draw)
+    def draw_wrapper(artist, renderer):
+        if renderer._raster_depth == 0 and renderer._rasterizing:
+            # Only stop when we are not in a rasterized parent
+            # and something has been rasterized since last stop.
+            renderer.stop_rasterizing()
+            renderer._rasterizing = False
+
+        return draw(artist, renderer)
+
+    draw_wrapper._supports_rasterization = False
+    return draw_wrapper
+
+
 def allow_rasterization(draw):
     """
     Decorator for Artist.draw method. Provides routines
@@ -103,6 +124,15 @@ class Artist:
     zorder = 0
 
     def __init_subclass__(cls):
+
+        # Decorate draw() method so that all artists are able to stop
+        # rastrization when necessary. If the artist's draw method is already
+        # decorated (has a `_supports_rasterization` attribute), it won't be
+        # decorated.
+
+        if not hasattr(cls.draw, "_supports_rasterization"):
+            cls.draw = _prevent_rasterization(cls.draw)
+
         # Inject custom set() methods into the subclass with signature and
         # docstring based on the subclasses' properties.
 
@@ -921,7 +951,9 @@ class Artist:
         ----------
         rasterized : bool
         """
-        if rasterized and not hasattr(self.draw, "_supports_rasterization"):
+        supports_rasterization = getattr(self.draw,
+                                         "_supports_rasterization", False)
+        if rasterized and not supports_rasterization:
             _api.warn_external(f"Rasterization of '{self}' will be ignored")
 
         self._rasterized = rasterized
