@@ -170,77 +170,6 @@ To see a linear list of commits for this branch::
 
    git log
 
-.. _rebase-on-main:
-
-Rebasing on ``upstream/main``
------------------------------
-
-Let's say you thought of some work you'd like to do. You
-:ref:`update-mirror-main` and :ref:`make-feature-branch` called
-``cool-feature``. At this stage, ``main`` is at some commit, let's call it E.
-Now you make some new commits on your ``cool-feature`` branch, let's call them
-A, B, C. Maybe your changes take a while, or you come back to them after a
-while. In the meantime, ``main`` has progressed from commit E to commit (say) G:
-
-.. code-block:: none
-
-          A---B---C cool-feature
-         /
-    D---E---F---G main
-
-At this stage you consider merging ``main`` into your feature branch, and you
-remember that this here page sternly advises you not to do that, because the
-history will get messy. Most of the time you can just ask for a review, and not
-worry that ``main`` has got a little ahead.  But sometimes, the changes in
-``main`` might affect your changes, and you need to harmonize them.  In this
-situation you may prefer to do a rebase.
-
-``rebase`` takes your changes (A, B, C) and replays them as if they had been
-made to the current state of ``main``.  In other words, in this case, it takes
-the changes represented by A, B, C and replays them on top of G. After the
-rebase, your history will look like this:
-
-.. code-block:: none
-
-                  A'--B'--C' cool-feature
-                 /
-    D---E---F---G main
-
-See `rebase without tears`_ for more detail.
-
-.. _rebase without tears: https://matthew-brett.github.io/pydagogue/rebase_without_tears.html
-
-To do a rebase on ``upstream/main``::
-
-    # Fetch changes from upstream/main
-    git fetch upstream
-    # go to the feature branch
-    git checkout cool-feature
-    # make a backup in case you mess up
-    git branch tmp cool-feature
-    # rebase cool-feature onto main
-    git rebase --onto upstream/main upstream/main cool-feature
-
-In this situation, where you are already on branch ``cool-feature``, the last
-command can be written more succinctly as::
-
-    git rebase upstream/main
-
-When all looks good you can delete your backup branch::
-
-   git branch -D tmp
-
-If it doesn't look good you may need to have a look at
-:ref:`recovering-from-mess-up`.
-
-If you have made changes to files that have also changed in ``main``, this may
-generate merge conflicts that you need to resolve - see the `git rebase`_ man
-page for some instructions at the end of the "Description" section. There is
-some related help on merging in the git user manual - see `resolving a merge`_.
-
-.. _git rebase: https://git-scm.com/docs/git-rebase
-.. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
-
 
 .. _recovering-from-mess-up:
 
@@ -358,3 +287,146 @@ and the history looks now like this::
 
 If it went wrong, recovery is again possible as explained :ref:`above
 <recovering-from-mess-up>`.
+
+If you have not yet pushed this branch to github, you can carry on as normal,
+however if you *have* already pushed this commit see :ref:`force-push` for how
+to replace your already published commits with the new ones.
+
+
+.. _rebase-on-main:
+
+Rebasing on ``upstream/main``
+-----------------------------
+
+Let's say you thought of some work you'd like to do. You
+:ref:`update-mirror-main` and :ref:`make-feature-branch` called
+``cool-feature``. At this stage, ``main`` is at some commit, let's call it E.
+Now you make some new commits on your ``cool-feature`` branch, let's call them
+A, B, C. Maybe your changes take a while, or you come back to them after a
+while. In the meantime, ``main`` has progressed from commit E to commit (say) G:
+
+.. code-block:: none
+
+          A---B---C cool-feature
+         /
+    D---E---F---G main
+
+At this stage you consider merging ``main`` into your feature branch, and you
+remember that this page sternly advises you not to do that, because the
+history will get messy. Most of the time you can just ask for a review, and not
+worry that ``main`` has got a little ahead.  But sometimes, the changes in
+``main`` might affect your changes, and you need to harmonize them.  In this
+situation you may prefer to do a rebase.
+
+``rebase`` takes your changes (A, B, C) and replays them as if they had been
+made to the current state of ``main``.  In other words, in this case, it takes
+the changes represented by A, B, C and replays them on top of G. After the
+rebase, your history will look like this:
+
+.. code-block:: none
+
+                  A'--B'--C' cool-feature
+                 /
+    D---E---F---G main
+
+See `rebase without tears`_ for more detail.
+
+.. _rebase without tears: https://matthew-brett.github.io/pydagogue/rebase_without_tears.html
+
+To do a rebase on ``upstream/main``::
+
+    # Fetch changes from upstream/main
+    git fetch upstream
+    # go to the feature branch
+    git checkout cool-feature
+    # make a backup in case you mess up
+    git branch tmp cool-feature
+    # rebase cool-feature onto main
+    git rebase --onto upstream/main upstream/main cool-feature
+
+In this situation, where you are already on branch ``cool-feature``, the last
+command can be written more succinctly as::
+
+    git rebase upstream/main
+
+When all looks good you can delete your backup branch::
+
+   git branch -D tmp
+
+If it doesn't look good you may need to have a look at
+:ref:`recovering-from-mess-up`.
+
+If you have made changes to files that have also changed in ``main``, this may
+generate merge conflicts that you need to resolve - see the `git rebase`_ man
+page for some instructions at the end of the "Description" section. There is
+some related help on merging in the git user manual - see `resolving a merge`_.
+
+.. _git rebase: https://git-scm.com/docs/git-rebase
+.. _resolving a merge: https://schacon.github.io/git/user-manual.html#resolving-a-merge
+
+
+If you have not yet pushed this branch to github, you can carry on as normal,
+however if you *have* already pushed this commit see :ref:`force-push` for how
+to replace your already published commits with the new ones.
+
+
+.. _force-push:
+
+
+Pushing, with force
+-------------------
+
+
+If you have in some way re-written already pushed history (e.g. via
+:ref:`rewriting-commit-history` or :ref:`rebase-on-main`) leaving you with
+a git history that looks something like
+
+.. code-block:: none
+
+       A'--E cool-feature
+      /
+     D---A---B---C origin/cool-feature
+
+where you have pushed the commits ``A,B,C`` to your fork on GitHub (under the
+remote name *origin*) but now have the commits ``A'`` and ``E`` on your local
+branch *cool-feature*.  If you try to push the new commits to GitHub it will
+fail with an error that looks like ::
+
+   $ git push
+   Pushing to github.com:origin/matplotlib.git
+   To github.com:origin/matplotlib.git
+    ! [rejected]              cool_feature -> cool_feature (non-fast-forward)
+   error: failed to push some refs to 'github.com:origin/matplotlib.git'
+   hint: Updates were rejected because the tip of your current branch is behind
+   hint: its remote counterpart. Integrate the remote changes (e.g.
+   hint: 'git pull ...') before pushing again.
+   hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+
+If this push had succeed then the commits ``A``, ``B``, and ``C`` would no
+longer be referenced by any branch and be discarded:
+
+.. code-block:: none
+
+      D---A'---E cool-feature, origin/cool-feature
+
+By default ``git push`` helpfully tries to protect you from accidentally
+discarding commits by rejecting the push to the remote.  When this happens,
+GitHub also adds the helpful suggestion to pull the remote changes and then try
+pushing again.  In some cases, such as if you and a colleague are both
+committing and pushing to the same branch, this is a correct course of action.
+
+However, in the case of having intentionally re-written history we *want* to
+discard the commits on the remote and replace them with the new-and-improved
+versions from our local branch.  In this case, what we want to do is ::
+
+  $ git push --force-with-lease
+
+which tells git you are aware of the risks and want to do the push anyway.  We
+recommend using ``--force-with-lease`` over the ``--force`` flag.  The
+``--force`` will do the push no matter what, whereas ``--force-with-lease``
+will only do the push if the remote branch is where the local ``git`` client
+thought it was.
+
+Be judicious with force-pushing.  It is effectively re-writing published
+history and if anyone has fetched the old commits will have a different view
+of history which can cause confusion.
