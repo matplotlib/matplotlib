@@ -2176,7 +2176,7 @@ class SubFigure(FigureBase):
         ----------
         val : float
         """
-        self._parent.dpi = val
+        self._parent.set_dpi(val)
         self.stale = True
 
     def _get_renderer(self):
@@ -3002,6 +3002,8 @@ class Figure(FigureBase):
         val : float
         """
         self.dpi = val
+        if hasattr(self, '_original_dpi'):
+            self._original_dpi = val
         self.stale = True
 
     def set_figwidth(self, val, forward=True):
