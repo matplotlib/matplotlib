@@ -1799,8 +1799,9 @@ def test_subfigure_simple():
     ax = sf[1].add_subplot(1, 1, 1, projection='3d', label='other')
 
 
+# Update style when regenerating the test image
 @image_comparison(baseline_images=['computed_zorder'], remove_text=True,
-                  extensions=['png'])
+                  extensions=['png'], style=('classic', '_classic_test_patch'))
 def test_computed_zorder():
     fig = plt.figure()
     ax1 = fig.add_subplot(221, projection='3d')
