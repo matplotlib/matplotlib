@@ -136,7 +136,7 @@ class HostAxesBase:
             self._children.extend(ax.get_children())
 
         super().draw(renderer)
-        self._children = self._children[:orig_children_len]
+        del self._children[orig_children_len:]
 
     def clear(self):
         for ax in self.parasites:
