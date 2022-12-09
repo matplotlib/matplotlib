@@ -73,7 +73,7 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
         bbox = self.get_window_extent(renderer)
         px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)
         bbox_canvas = Bbox.from_bounds(px, py, bbox.width, bbox.height)
-        tr = ax.figure.transFigure.inverted()
+        tr = ax.figure.transSubfigure.inverted()
         return TransformedBbox(bbox_canvas, tr)
 
 
@@ -388,7 +388,6 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     inset_axes : *axes_class*
         Inset axes object created.
     """
-
     if axes_class is None:
         axes_class = HostAxes
     if axes_kwargs is None:
