@@ -40,8 +40,14 @@ from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 DEBUG = False
 
 
-# for debugging use
+@_api.deprecated("3.7", alternative='patches.bbox_artist')
 def bbox_artist(*args, **kwargs):
+    if DEBUG:
+        mbbox_artist(*args, **kwargs)
+
+
+# for debugging use
+def _bbox_artist(*args, **kwargs):
     if DEBUG:
         mbbox_artist(*args, **kwargs)
 
@@ -364,7 +370,7 @@ class OffsetBox(martist.Artist):
         for c, (ox, oy) in zip(self.get_visible_children(), offsets):
             c.set_offset((px + ox, py + oy))
             c.draw(renderer)
-        bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        _bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
 
@@ -672,7 +678,7 @@ class DrawingArea(OffsetBox):
                 c.set_clip_path(tpath)
             c.draw(renderer)
 
-        bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        _bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
 
@@ -794,7 +800,7 @@ class TextArea(OffsetBox):
     def draw(self, renderer):
         # docstring inherited
         self._text.draw(renderer)
-        bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        _bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
 
@@ -877,7 +883,7 @@ class AuxTransformBox(OffsetBox):
         # docstring inherited
         for c in self._children:
             c.draw(renderer)
-        bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+        _bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
 

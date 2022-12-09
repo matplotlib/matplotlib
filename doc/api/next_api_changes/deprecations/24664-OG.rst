@@ -1,0 +1,5 @@
+``offsetbox.bbox_artist``
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... is deprecated. This is just a wrapper to call `.patches.bbox_artist` if a
+flag is set in the file, so use that directly if you need the behavior.
