@@ -403,12 +403,17 @@ fail with an error that looks like ::
    hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 
 If this push had succeed then the commits ``A``, ``B``, and ``C`` would no
-longer be referenced by any branch and be discarded.  By default ``git push``
-helpfully tries to protect you from accidentally discarding commits by
-rejecting the push to the remote.  When this happens, GitHub also adds the
-helpful suggestion to pull the remote changes and then try pushing again.  In
-some cases, such as if you and a colleague are both committing and pushing to
-the same branch, this is a correct course of action.
+longer be referenced by any branch and be discarded:
+
+.. code-block:: none
+
+      D---A'---E cool-feature, origin/cool-feature
+
+By default ``git push`` helpfully tries to protect you from accidentally
+discarding commits by rejecting the push to the remote.  When this happens,
+GitHub also adds the helpful suggestion to pull the remote changes and then try
+pushing again.  In some cases, such as if you and a colleague are both
+committing and pushing to the same branch, this is a correct course of action.
 
 However, in the case of having intentionally re-written history we *want* to
 discard the commits on the remote and replace them with the new-and-improved
