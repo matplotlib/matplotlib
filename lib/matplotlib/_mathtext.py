@@ -1333,7 +1333,7 @@ class Vrule(Rule):
 
 _GlueSpec = namedtuple(
     "_GlueSpec", "width stretch stretch_order shrink shrink_order")
-_GlueSpec._named = {
+_GlueSpec._named = {  # type: ignore[attr-defined]
     'fil':         _GlueSpec(0., 1., 1, 0., 0),
     'fill':        _GlueSpec(0., 1., 2, 0., 0),
     'filll':       _GlueSpec(0., 1., 3, 0., 0),
