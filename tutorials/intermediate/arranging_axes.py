@@ -111,7 +111,7 @@ for row in range(2):
 fig.suptitle('plt.subplots()')
 
 ##############################################################################
-# We will annotate a lot of Axes, so lets encapsulate the annotation, rather
+# We will annotate a lot of Axes, so let's encapsulate the annotation, rather
 # than having that large piece of annotation code every time we need it:
 
 

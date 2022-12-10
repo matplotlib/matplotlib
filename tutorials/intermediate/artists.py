@@ -556,7 +556,7 @@ plt.show()
 # :attr:`~matplotlib.axes.Axes.yaxis`.  The ``XAxis`` and ``YAxis``
 # containers will be detailed below, but note that the ``Axes`` contains
 # many helper methods which forward calls on to the
-# :class:`~matplotlib.axis.Axis` instances so you often do not need to
+# :class:`~matplotlib.axis.Axis` instances, so you often do not need to
 # work with them directly unless you want to.  For example, you can set
 # the font color of the ``XAxis`` ticklabels using the ``Axes`` helper
 # method::

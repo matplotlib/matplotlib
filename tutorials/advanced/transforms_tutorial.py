@@ -9,7 +9,7 @@ coordinate system, the *axes* coordinate system, the *figure* coordinate
 system, and the *display* coordinate system.  In 95% of your plotting, you
 won't need to think about this, as it happens under the hood, but as you push
 the limits of custom figure generation, it helps to have an understanding of
-these objects so you can reuse the existing transformations Matplotlib makes
+these objects, so you can reuse the existing transformations Matplotlib makes
 available to you, or create your own (see :mod:`matplotlib.transforms`).  The
 table below summarizes some useful coordinate systems, a description of each
 system, and the transformation object for going from each coordinate system to
@@ -91,7 +91,7 @@ in your *data* coordinate system.
 Note that specifying the position of Artists in *display* coordinates may
 change their relative location if the ``dpi`` or size of the figure changes.
 This can cause confusion when printing or changing screen resolution, because
-the object can change location and size.  Therefore it is most common for
+the object can change location and size.  Therefore, it is most common for
 artists placed in an Axes or figure to have their transform set to something
 *other* than the `~.transforms.IdentityTransform()`; the default when an artist
 is added to an Axes using `~.axes.Axes.add_artist` is for the transform to be
@@ -291,7 +291,7 @@ plt.show()
 # coordinates is extremely useful, for example to create a horizontal
 # span which highlights some region of the y-data but spans across the
 # x-axis regardless of the data limits, pan or zoom level, etc.  In fact
-# these blended lines and spans are so useful, we have built in
+# these blended lines and spans are so useful, we have built-in
 # functions to make them easy to plot (see
 # :meth:`~matplotlib.axes.Axes.axhline`,
 # :meth:`~matplotlib.axes.Axes.axvline`,
@@ -430,7 +430,7 @@ plt.show()
 # Another use of :class:`~matplotlib.transforms.ScaledTranslation` is to create
 # a new transformation that is
 # offset from another transformation, e.g., to place one object shifted a
-# bit relative to another object.  Typically you want the shift to be in
+# bit relative to another object.  Typically, you want the shift to be in
 # some physical dimension, like points or inches rather than in *data*
 # coordinates, so that the shift effect is constant at different zoom
 # levels and dpi settings.

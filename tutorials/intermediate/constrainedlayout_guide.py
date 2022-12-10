@@ -599,7 +599,7 @@ fig.suptitle('subplot2grid')
 # ======================
 #
 # The algorithm for the constraint is relatively straightforward, but
-# has some complexity due to the complex ways we can layout a figure.
+# has some complexity due to the complex ways we can lay out a figure.
 #
 # Layout in Matplotlib is carried out with gridspecs
 # via the `.GridSpec` class. A gridspec is a logical division of the figure
@@ -611,7 +611,7 @@ fig.suptitle('subplot2grid')
 # for each column, and ``bottom`` and ``top`` variables for each row, and
 # further it has a margin for each of left, right, bottom and top.  In each
 # row, the bottom/top margins are widened until all the decorators
-# in that row are accommodated.  Similarly for columns and the left/right
+# in that row are accommodated.  Similarly, for columns and the left/right
 # margins.
 #
 #

@@ -10,7 +10,7 @@ Complex and semantic figure composition
    make breaking changes in future versions with no warning.
 
 
-Laying out Axes in a Figure in a non uniform grid can be both tedious
+Laying out Axes in a Figure in a non-uniform grid can be both tedious
 and verbose.  For dense, even grids we have `.Figure.subplots` but for
 more complex layouts, such as Axes that span multiple columns / rows
 of the layout or leave some areas of the Figure blank, you can use
@@ -139,8 +139,8 @@ identify_axes(ax_dict)
 # Axes spanning multiple rows/columns
 # ===================================
 #
-# Something we can do with `.Figure.subplot_mosaic` that you can not
-# do with `.Figure.subplots` is specify that an Axes should span
+# Something we can do with `.Figure.subplot_mosaic`, that we cannot
+# do with `.Figure.subplots`, is to specify that an Axes should span
 # several rows or columns.
 
 
@@ -289,7 +289,7 @@ identify_axes(axd)
 # Nested list input
 # =================
 #
-# Everything we can do with the string short-hand we can also do when
+# Everything we can do with the string shorthand we can also do when
 # passing in a list (internally we convert the string shorthand to a nested
 # list), for example using spans, blanks, and *gridspec_kw*:
 

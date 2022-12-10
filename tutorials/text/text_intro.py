@@ -250,7 +250,7 @@ plt.show()
 # Simple ticks
 # ~~~~~~~~~~~~
 #
-# It often is convenient to simply define the
+# It is often convenient to simply define the
 # tick values, and sometimes the tick labels, overriding the default
 # locators and formatters.  This is discouraged because it breaks interactive
 # navigation of the plot.  It also can reset the axis limits: note that
@@ -323,7 +323,7 @@ plt.show()
 # ``nbins=auto`` uses an algorithm to determine how many ticks will
 # be acceptable based on how long the axis is.  The fontsize of the
 # ticklabel is taken into account, but the length of the tick string
-# is not (because its not yet known.)  In the bottom row, the
+# is not (because it's not yet known.)  In the bottom row, the
 # ticklabels are quite large, so we set ``nbins=4`` to make the
 # labels fit in the right-hand plot.
 

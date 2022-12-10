@@ -285,7 +285,7 @@ for cmap_category, cmap_list in cmaps.items():
             # https://stackoverflow.com/q/8202605/
 
             if cmap_category == 'Sequential':
-                # These colormaps all start at high lightness but we want them
+                # These colormaps all start at high lightness, but we want them
                 # reversed to look nice in the plot, so reverse the order.
                 y_ = lab[0, ::-1, 0]
                 c_ = x[::-1]

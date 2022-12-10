@@ -9,7 +9,7 @@ The object underlying all of the :mod:`matplotlib.patches` objects is
 the :class:`~matplotlib.path.Path`, which supports the standard set of
 moveto, lineto, curveto commands to draw simple and compound outlines
 consisting of line segments and splines.  The ``Path`` is instantiated
-with a (N, 2) array of (x, y) vertices, and a N-length array of path
+with a (N, 2) array of (x, y) vertices, and an N-length array of path
 codes.  For example to draw the unit rectangle from (0, 0) to (1, 1), we
 could use this code:
 """
@@ -148,7 +148,7 @@ plt.show()
 #     n, bins = np.histogram(data, 100)
 #
 # We'll now extract the corners of the rectangles.  Each of the
-# ``left``, ``bottom``, etc, arrays below is ``len(n)``, where ``n`` is
+# ``left``, ``bottom``, etc., arrays below is ``len(n)``, where ``n`` is
 # the array of counts for each histogram bar::
 #
 #     # get the corners of the rectangles for the histogram
@@ -161,7 +161,7 @@ plt.show()
 # series of ``MOVETO``, ``LINETO`` and ``CLOSEPOLY`` for each rectangle.
 # For each rectangle, we need five vertices: one for the ``MOVETO``,
 # three for the ``LINETO``, and one for the ``CLOSEPOLY``.  As indicated
-# in the table above, the vertex for the closepoly is ignored but we still
+# in the table above, the vertex for the closepoly is ignored, but we still
 # need it to keep the codes aligned with the vertices::
 #
 #     nverts = nrects*(1+3+1)
