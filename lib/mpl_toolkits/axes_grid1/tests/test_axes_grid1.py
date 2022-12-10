@@ -59,7 +59,9 @@ def test_divider_append_axes():
     assert bboxes["top"].x1 == bboxes["main"].x1 == bboxes["bottom"].x1
 
 
-@image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1)
+# Update style when regenerating the test image
+@image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1,
+                  style=('classic', '_classic_test_patch'))
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
     mpl.rcParams.update(
@@ -321,7 +323,9 @@ def test_fill_facecolor():
     mark_inset(ax[3], axins, loc1=2, loc2=4, fc="g", ec="0.5", fill=False)
 
 
-@image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'])
+# Update style when regenerating the test image
+@image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'],
+                  style=('classic', '_classic_test_patch'))
 def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
@@ -336,8 +340,10 @@ def test_zooming_with_inverted_axes():
     inset_ax.axis([1.4, 1.1, 1.4, 1.1])
 
 
+# Update style when regenerating the test image
 @image_comparison(['anchored_direction_arrows.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.01,
+                  style=('classic', '_classic_test_patch'))
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((10, 10)), interpolation='nearest')
@@ -346,7 +352,9 @@ def test_anchored_direction_arrows():
     ax.add_artist(simple_arrow)
 
 
-@image_comparison(['anchored_direction_arrows_many_args.png'])
+# Update style when regenerating the test image
+@image_comparison(['anchored_direction_arrows_many_args.png'],
+                  style=('classic', '_classic_test_patch'))
 def test_anchored_direction_arrows_many_args():
     fig, ax = plt.subplots()
     ax.imshow(np.ones((10, 10)))
@@ -618,7 +626,9 @@ def test_auto_adjustable():
     assert tbb.y1 == pytest.approx(fig.bbox.height - pad * fig.dpi)
 
 
-@image_comparison(['rgb_axes.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['rgb_axes.png'], remove_text=True,
+                  style=('classic', '_classic_test_patch'))
 def test_rgb_axes():
     fig = plt.figure()
     ax = RGBAxes(fig, (0.1, 0.1, 0.8, 0.8), pad=0.1)
@@ -629,7 +639,9 @@ def test_rgb_axes():
     ax.imshow_rgb(r, g, b, interpolation='none')
 
 
-@image_comparison(['insetposition.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['insetposition.png'], remove_text=True,
+                  style=('classic', '_classic_test_patch'))
 def test_insetposition():
     fig, ax = plt.subplots(figsize=(2, 2))
     ax_ins = plt.axes([0, 0, 1, 1])
