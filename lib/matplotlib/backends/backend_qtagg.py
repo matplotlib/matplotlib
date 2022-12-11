@@ -48,30 +48,31 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             right = left + width
             # create a buffer using the image bounding box
             bbox = Bbox([[left, bottom], [right, top]])
-            reg = self.copy_from_bbox(bbox)
-            buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
-                memoryview(reg))
+            buf = memoryview(self.copy_from_bbox(bbox))
 
-            # clear the widget canvas
-            painter.eraseRect(rect)
+            fmts = _enum("QtGui.QImage.Format")
+            if hasattr(fmts, "Format_RGBA8888"):
+                fmt = fmts.Format_RGBA8888
+            else:  # Qt<=5.1 support.
+                fmt = fmts.Format_ARGB32_Premultiplied
+                buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(buf)
 
             if QT_API == "PyQt6":
                 from PyQt6 import sip
                 ptr = int(sip.voidptr(buf))
             else:
                 ptr = buf
-            qimage = QtGui.QImage(
-                ptr, buf.shape[1], buf.shape[0],
-                _enum("QtGui.QImage.Format").Format_ARGB32_Premultiplied)
+
+            painter.eraseRect(rect)  # clear the widget canvas
+            qimage = QtGui.QImage(ptr, buf.shape[1], buf.shape[0], fmt)
             _setDevicePixelRatio(qimage, self.device_pixel_ratio)
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
             # Adjust the buf reference count to work around a memory
             # leak bug in QImage under PySide.
-            if QT_API in ('PySide', 'PySide2'):
-                if QtCore.__version_info__ < (5, 12):
-                    ctypes.c_long.from_address(id(buf)).value = 1
+            if QT_API == "PySide2" and QtCore.__version_info__ < (5, 12):
+                ctypes.c_long.from_address(id(buf)).value = 1
 
             self._draw_rect_callback(painter)
         finally:
