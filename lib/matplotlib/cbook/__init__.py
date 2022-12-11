@@ -2056,7 +2056,7 @@ class _OrderedSet(collections.abc.MutableSet):
         self._od.pop(key, None)
 
 
-# Agg's buffers are unmultiplied RGBA8888, which neither PyQt5 nor cairo
+# Agg's buffers are unmultiplied RGBA8888, which neither PyQt<=5.1 nor cairo
 # support; however, both do support premultiplied ARGB32.
 
 
