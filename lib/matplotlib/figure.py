@@ -1201,6 +1201,61 @@ default: %(va)s
         self.stale = True
         return text
 
+    def set_subplotparams(self, subplotparams={}):
+        """
+        Set the subplot layout parameters.
+        Accepts either a `.SubplotParams` object, from which the relevant
+        parameters are copied, or a dictionary of subplot layout parameters.
+        If a dictionary is provided, this function is a convenience wrapper for
+        `matplotlib.figure.Figure.subplots_adjust`
+        Parameters
+        ----------
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
+        "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
+            SubplotParams object to copy new subplot parameters from, or a dict
+             of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+             current state of the figure's `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        subplotparams_args = ["left", "bottom", "right",
+                              "top", "wspace", "hspace"]
+        kwargs = {}
+        if isinstance(subplotparams, SubplotParams):
+            for key in subplotparams_args:
+                kwargs[key] = getattr(subplotparams, key)
+        elif isinstance(subplotparams, dict):
+            for key in subplotparams.keys():
+                if key in subplotparams_args:
+                    kwargs[key] = subplotparams[key]
+                else:
+                    _api.warn_external(
+                        f"'{key}' is not a valid key for set_subplotparams;"
+                        " this key was ignored.")
+        else:
+            raise TypeError(
+                "subplotparams must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
+        if kwargs == {}:
+            self.set_subplotparams(self.get_subplotparams())
+        self.subplots_adjust(**kwargs)
+
+    def get_subplotparams(self):
+        """
+        Return the `.SubplotParams` object associated with the Figure.
+        Returns
+        -------
+        `.SubplotParams`
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotparams
+        """
+        return self.subplotpars
+
     @_docstring.dedent_interpd
     def colorbar(
             self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
@@ -2346,6 +2401,10 @@ class SubFigure(FigureBase):
 
 
 @_docstring.interpd
+@_api.define_aliases({
+    "size_inches": ["figsize"],
+    "layout_engine": ["layout"]
+})
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
