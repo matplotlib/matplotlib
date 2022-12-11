@@ -1095,7 +1095,8 @@ class Axes(_AxesBase):
             maxy = np.nanmax(masked_verts[..., 1])
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners)
-            self._request_autoscale_view()
+            update_axis = "y" if ("transform" in kwargs) else "all"
+            self._request_autoscale_view(axis=update_axis)
 
         return lines
 
@@ -1174,9 +1175,9 @@ class Axes(_AxesBase):
             miny = np.nanmin(masked_verts[..., 1])
             maxy = np.nanmax(masked_verts[..., 1])
             corners = (minx, miny), (maxx, maxy)
+            update_axis = "x" if ("transform" in kwargs) else "all"
             self.update_datalim(corners)
-            self._request_autoscale_view()
-
+            self._request_autoscale_view(axis=update_axis)
         return lines
 
     @_preprocess_data(replace_names=["positions", "lineoffsets",
