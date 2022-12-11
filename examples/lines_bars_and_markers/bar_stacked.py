@@ -3,30 +3,34 @@
 Stacked bar chart
 =================
 
-This is an example of creating a stacked bar plot with error bars
-using `~matplotlib.pyplot.bar`.  Note the parameters *yerr* used for
-error bars, and *bottom* to stack the coffee's bars on top of the tea's
-bars.
+This is an example of creating a stacked bar plot
+using `~matplotlib.pyplot.bar`.
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
 
+# data from https://allisonhorst.github.io/palmerpenguins/
 
-labels = ['G1', 'G2', 'G3', 'G4', 'G5']
-tea_means = [20, 35, 30, 35, 27]
-coffee_means = [25, 32, 34, 20, 25]
-tea_std = [2, 3, 4, 1, 2]
-coffee_std = [3, 5, 5, 3, 3]
-width = 0.25       # the width of the bars: can also be len(x) sequence
+species = (
+    "Adelie\n $\\mu=$3700.66g",
+    "Chinstrap\n $\\mu=$3733.09g",
+    "Gentoo\n $\\mu=5076.02g$",
+)
+weight_counts = {
+    "Below": np.array([70, 31, 58]),
+    "Above": np.array([82, 37, 66]),
+}
+width = 0.5
 
 fig, ax = plt.subplots()
+bottom = np.zeros(3)
 
-ax.bar(labels, tea_means, width, yerr=tea_std, label='Tea')
-ax.bar(labels, coffee_means, width, yerr=coffee_std, bottom=tea_means,
-       label='Coffee')
+for boolean, weight_count in weight_counts.items():
+    p = ax.bar(species, weight_count, width, label=boolean, bottom=bottom)
+    bottom += weight_count
 
-ax.set_ylabel('Scores')
-ax.set_title('Scores by group and beverage preferences')
-ax.legend()
+ax.set_title("Number of penguins with above average body mass")
+ax.legend(loc="upper right")
 
 plt.show()
