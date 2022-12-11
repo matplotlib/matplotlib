@@ -1207,8 +1207,8 @@ default: %(va)s
                         " this key was ignored.")
         else:
             raise TypeError(
-                "subplotparams must be a dictionary of keyword-argument pairs or"
-                " an instance of SubplotParams()")
+                "subplotparams must be a dictionary of keyword-argument pairs"
+                " or an instance of SubplotParams()")
         if kwargs == {}:
             self.set_subplotparams(self.get_subplotparams())
         self.subplots_adjust(**kwargs)

@@ -1446,6 +1446,7 @@ def test_gridspec_no_mutate_input():
     assert gs == gs_orig
     plt.subplot_mosaic('AB', width_ratios=[1, 2], gridspec_kw=gs)
 
+
 def test_get_subplot_params():
     fig = plt.figure()
     subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
@@ -1459,7 +1460,7 @@ def test_get_subplot_params():
     fig.set_subplotparams(test_dict)
     for key, value in test_dict.items():
         assert getattr(fig.get_subplotparams(), key) == value
-    
+
     test_dict['foo'] = 'bar'
     with pytest.warns(UserWarning,
                       match="'foo' is not a valid key for set_subplotparams;"
