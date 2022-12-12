@@ -364,7 +364,7 @@ def test_packers(align):
         y_height = (y2 - y1) / 2
     # x-offsets, y-offsets
     assert_allclose([(0, y_height), (x1, 0)], offset_pairs)
-
+    
     # VPacker
     *extents, offset_pairs = vpacker.get_extent_offsets(renderer)
     # width, height, xdescent, ydescent
@@ -379,15 +379,16 @@ def test_packers(align):
     # x-offsets, y-offsets
     assert_allclose([(x_height, 0), (0, -y2)], offset_pairs)
 
-
-def test_paddedbox_packer():
+@pytest.mark.parametrize("align", ["baseline", "bottom", "top",
+                                   "left", "right", "center"])
+def test_paddedbox_packer(align):
     # smoke test for correct default value
     fig, ax = plt.subplots()
     at = AnchoredText("foo",  'upper left')
     pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
     ax.add_artist(pb)
     fig.draw_without_rendering()
-    
+
     fig = plt.figure(dpi=72)
     x1, y1 = 10, 30
     x2, y2 = 20, 60
@@ -397,4 +398,3 @@ def test_paddedbox_packer():
     hpacker = HPacker(children=[r1, r2], align=align)
     vpacker = VPacker(children=[r1, r2], align=align)
     renderer = fig.canvas.get_renderer()
-    
