@@ -140,6 +140,7 @@ plt.show()
 ###############################################################################
 # If you have multiple plots side-by-side each with a common legend and wish to
 # instead have one legend that represents all subplots, you can do this:
+
 import numpy as np
 import matplotlib.pyplot as plt
 
