@@ -364,7 +364,7 @@ def test_packers(align):
         y_height = (y2 - y1) / 2
     # x-offsets, y-offsets
     assert_allclose([(0, y_height), (x1, 0)], offset_pairs)
-    
+
     # VPacker
     *extents, offset_pairs = vpacker.get_extent_offsets(renderer)
     # width, height, xdescent, ydescent
@@ -378,6 +378,7 @@ def test_packers(align):
         x_height = (x2 - x1) / 2
     # x-offsets, y-offsets
     assert_allclose([(x_height, 0), (0, -y2)], offset_pairs)
+
 
 @pytest.mark.parametrize("align", ["baseline", "bottom", "top",
                                    "left", "right", "center"])
