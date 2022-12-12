@@ -502,7 +502,7 @@ class PaddedBox(OffsetBox):
     """
 
     @_api.make_keyword_only("3.6", name="draw_frame")
-    def __init__(self, child, pad=0, draw_frame=False, patch_attrs=None):
+    def __init__(self, child, pad=0., draw_frame=False, patch_attrs=None):
         """
         Parameters
         ----------
