@@ -381,7 +381,7 @@ def test_packers(align):
 
 
 def test_paddedbox():
-    # smoke test for correct default value though
+    # smoke test for correct default value
     fig, ax = plt.subplots()
     at = AnchoredText("foo",  'upper left')
     pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
