@@ -1,23 +1,17 @@
 """
-===============
-Line Collection
-===============
+=============================================
+Plotting multiple lines with a LineCollection
+=============================================
 
-Plotting lines with Matplotlib.
-
-`~matplotlib.collections.LineCollection` allows one to plot multiple
-lines on a figure. Below we show off some of its properties.
+Matplotlib can efficiently draw multiple lines at once using a
+`~.LineCollection`, as showcased below.
 """
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
-from matplotlib import colors as mcolors
 
 import numpy as np
 
-# In order to efficiently plot many lines in a single set of axes,
-# Matplotlib has the ability to add the lines all at once. Here is a
-# simple example showing how it is done.
 
 x = np.arange(100)
 # Here are many sets of y to plot vs. x
@@ -30,7 +24,7 @@ segs[:, :, 0] = x
 # Mask some values to test masked array support:
 segs = np.ma.masked_where((segs > 50) & (segs < 60), segs)
 
-# We need to set the plot limits.
+# We need to set the plot limits, they will not autoscale
 fig, ax = plt.subplots()
 ax.set_xlim(x.min(), x.max())
 ax.set_ylim(ys.min(), ys.max())
@@ -41,8 +35,7 @@ ax.set_ylim(ys.min(), ys.max())
 # onoffseq is an even length tuple of on and off ink in points.  If linestyle
 # is omitted, 'solid' is used.
 # See `matplotlib.collections.LineCollection` for more information.
-colors = [mcolors.to_rgba(c)
-          for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
+colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 line_segments = LineCollection(segs, linewidths=(0.5, 1, 1.5, 2),
                                colors=colors, linestyle='solid')
@@ -51,32 +44,22 @@ ax.set_title('Line collection with masked arrays')
 plt.show()
 
 ###############################################################################
-# In order to efficiently plot many lines in a single set of axes,
-# Matplotlib has the ability to add the lines all at once. Here is a
-# simple example showing how it is done.
+# In the following example, instead of passing a list of colors
+# (``colors=colors``), we pass an array of values (``array=x``) that get
+# colormapped.
 
 N = 50
 x = np.arange(N)
-# Here are many sets of y to plot vs. x
-ys = [x + i for i in x]
+ys = [x + i for i in x]  # Many sets of y to plot vs. x
+segs = [np.column_stack([x, y]) for y in ys]
 
-# We need to set the plot limits, they will not autoscale
 fig, ax = plt.subplots()
 ax.set_xlim(np.min(x), np.max(x))
 ax.set_ylim(np.min(ys), np.max(ys))
 
-# colors is sequence of rgba tuples
-# linestyle is a string or dash tuple. Legal string values are
-#          solid|dashed|dashdot|dotted.  The dash tuple is (offset, onoffseq)
-#          where onoffseq is an even length tuple of on and off ink in points.
-#          If linestyle is omitted, 'solid' is used
-# See `matplotlib.collections.LineCollection` for more information
-
-# Make a sequence of (x, y) pairs.
-line_segments = LineCollection([np.column_stack([x, y]) for y in ys],
+line_segments = LineCollection(segs, array=x,
                                linewidths=(0.5, 1, 1.5, 2),
                                linestyles='solid')
-line_segments.set_array(x)
 ax.add_collection(line_segments)
 axcb = fig.colorbar(line_segments)
 axcb.set_label('Line Number')

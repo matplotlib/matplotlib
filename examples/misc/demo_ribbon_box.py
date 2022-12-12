@@ -24,7 +24,7 @@ class RibbonBox:
     nx = original_image.shape[1]
 
     def __init__(self, color):
-        rgb = mcolors.to_rgba(color)[:3]
+        rgb = mcolors.to_rgb(color)
         self.im = np.dstack(
             [self.b_and_h - self.color * (1 - np.array(rgb)), self.alpha])
 
