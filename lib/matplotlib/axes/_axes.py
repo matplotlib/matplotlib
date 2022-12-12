@@ -4119,6 +4119,9 @@ class Axes(_AxesBase):
 
         zdelta = 0.1
 
+        if medianprops is None or medianprops.get('solid_capstyle', None) is None:
+            medianprops['solid_capstyle'] = 'butt'
+
         def merge_kw_rc(subkey, explicit, zdelta=0, usemarker=True):
             d = {k.split('.')[-1]: v for k, v in mpl.rcParams.items()
                  if k.startswith(f'boxplot.{subkey}props')}
