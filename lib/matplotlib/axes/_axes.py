@@ -5127,11 +5127,18 @@ default: :rc:`scatter.edgecolors`
         self._request_autoscale_view()
         return a
     
-    def vector (self, x, y, dx, dy, **kwargs):
+    def vector (self, x, y, dx, dy, delta=True, **kwargs):
         """
-        Add a vector from point (x, y) to point (x + dx, y + dy)
+        Add a vector from starting point (x, y) to endpoint (x + dx, y + dy) when 
+        delta = True, treating dx,dy as deltas, or end point (dx, dy) when delta = False.
+        color is an optional argument; by default, color aligns with matplotlib color cycles.
+        fancy_style is also an optional argument that is false by default, generating a simple arrow
 
-        Differs from arrow in its lack of reliance on the graph scale
+        
+        Differs from arrow in its lack of reliance on the graph scale.
+        Additionally, it adds the end point as an optional endpoint. 
+
+    
 
         Parameters
         -----------
@@ -5139,12 +5146,20 @@ default: :rc:`scatter.edgecolors`
         y : float
         dx : float
         dy : float
+        delta : bool
+
+        -- kwargs -- 
+        color : String
+        style : bool
 
         """
         color = kwargs.pop("color", None)
         if not color:
             color = self._get_lines.get_next_color()
-        vector = mpatches.FancyArrowPatch((x, y), (x + dx, y + dy), color=color, **kwargs)
+        if delta:
+            vector = mpatches.FancyArrowPatch((x, y), (x + dx, y + dy), color=color, **kwargs)
+        else: 
+           vector = mpatches.FancyArrowPatch((x, y), (dx, dy), color=color, **kwargs) 
         ms = vector._mutation_scale
         style_kwargs = {
             "head_length": kwargs.get("head_length", 12) / ms,

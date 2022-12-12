@@ -1,5 +1,6 @@
 import pytest
 import platform
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.patches as mpatches
@@ -175,3 +176,25 @@ def test_invalid_intersection():
     p2 = mpatches.FancyArrowPatch((.2, .2), (.5, .5),
                                   connectionstyle=conn_style_2)
     plt.gca().add_patch(p2)
+
+@image_comparison(['vector_test_image.png'], style='default', remove_text=True)
+def test_vector_display():
+    # example plot taken from draft pull requestion conversation
+    # https://github.com/matplotlib/matplotlib/pull/22435#issuecomment-1036247458
+    F1, F2 = np.random.random(2) + 1j*np.random.random(2)
+
+    fig, ax = plt.subplots()
+
+    dx,dy,x,y= np.real(F1),np.imag(F1),0., 0.
+    ax.vector(x, y, dx, dy, label='F1')
+
+    dx,dy,x,y= np.real(F2),np.imag(F2),np.real(F1),np.imag(F1)
+    ax.vector(x,y, dx, dy, label='F2')
+
+    dx,dy,x,y= np.real(F1+F2),np.imag(F1+F2),0., 0.
+    ax.vector(x, y, dx, dy, label='F1+F2')
+
+    plt.xlabel(r"$\mathbb{X}$", size=16)
+    plt.ylabel(r"$\mathbb{Y}$", size=16)
+    plt.grid(ls='-.')
+    plt.legend()
