@@ -2372,14 +2372,19 @@ class BoxStyle(_Style):
     class LArrow:
         """A box in the shape of a left-pointing arrow."""
 
-        def __init__(self, pad=0.3):
+        def __init__(self, pad=0.3, fhead=False):
             """
             Parameters
             ----------
             pad : float, default: 0.3
                 The amount of padding around the original box.
+
+            fhead : bool, default: False
+                If the arrowheads should be flush with the top
+                and botton sides of the arrow body.
             """
             self.pad = pad
+            self.fhead = fhead
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # padding
@@ -2394,11 +2399,17 @@ class BoxStyle(_Style):
             dxx = dx / 2
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
-            return Path._create_closed(
-                [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
-                 (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                 (x0 + dxx, y0 - dxx),  # arrow
-                 (x0 + dxx, y0)])
+            if self.fhead:
+                return Path._create_closed([(x0 + dxx - pad, y0), (x1, y0),
+                                            (x1, y1), (x0 + dxx - pad, y1),
+                                            (x0 - dx - pad, y0 + dx),
+                                            (x0 + dxx - pad, y0)])
+
+            return Path._create_closed([(x0 + dxx, y0), (x1, y0), (x1, y1),
+                                        (x0 + dxx, y1), (x0 + dxx, y1 + dxx),
+                                        (x0 - dx, y0 + dx),
+                                        (x0 + dxx, y0 - dxx),  # arrow
+                                        (x0 + dxx, y0), (x0 + dxx, y0)])
 
     @_register_style(_style_list)
     class RArrow(LArrow):
@@ -2415,14 +2426,19 @@ class BoxStyle(_Style):
         """A box in the shape of a two-way arrow."""
         # Modified from LArrow to add a right arrow to the bbox.
 
-        def __init__(self, pad=0.3):
+        def __init__(self, pad=0.3, fhead=False):
             """
             Parameters
             ----------
             pad : float, default: 0.3
                 The amount of padding around the original box.
+
+            fhead : bool, default: False
+                If the arrowheads should be flush with the top
+                and botton sides of the arrow body.
             """
             self.pad = pad
+            self.fhead = fhead
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # padding
@@ -2438,14 +2454,24 @@ class BoxStyle(_Style):
             dxx = dx / 2
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
-            return Path._create_closed([
-                (x0 + dxx, y0), (x1, y0),  # bot-segment
-                (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
-                (x1, y1 + dxx),  # right-arrow
-                (x1, y1), (x0 + dxx, y1),  # top-segment
-                (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                (x0 + dxx, y0 - dxx),  # left-arrow
-                (x0 + dxx, y0)])
+            if self.fhead:
+                return Path._create_closed([(x0 + dxx - pad, y0),
+                                            (x1 + pad, y0),
+                                            (x1 + dx + dxx + pad, y0 + dx),
+                                            (x1 + pad, y1),
+                                            (x0 + dxx - pad, y1),
+                                            (x0 - dx - pad, y0 + dx),
+                                            (x0 + dxx - pad, y0)])
+
+            return Path._create_closed([(x0 + dxx, y0), (x1, y0),
+                                        (x1, y0 - dxx),
+                                        (x1 + dx + dxx, y0 + dx),
+                                        (x1, y1 + dxx),  # right-arrow
+                                        (x1, y1), (x0 + dxx, y1),
+                                        (x0 + dxx, y1 + dxx),
+                                        (x0 - dx, y0 + dx),
+                                        (x0 + dxx, y0 - dxx),  # left-arrow
+                                        (x0 + dxx, y0)])
 
     @_register_style(_style_list)
     class Round:

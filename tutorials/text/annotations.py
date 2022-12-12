@@ -192,10 +192,10 @@ t = ax.text(0.5, 0.5, "Direction",
 #   Class        Name             Attrs
 #   ==========   ==============   ==========================
 #   Circle       ``circle``       pad=0.3
-#   DArrow       ``darrow``       pad=0.3
+#   DArrow       ``darrow``       pad=0.3,fhead=False
 #   Ellipse      ``ellipse``      pad=0.3
-#   LArrow       ``larrow``       pad=0.3
-#   RArrow       ``rarrow``       pad=0.3
+#   LArrow       ``larrow``       pad=0.3,fhead=False
+#   RArrow       ``rarrow``       pad=0.3,fhead=False
 #   Round        ``round``        pad=0.3,rounding_size=None
 #   Round4       ``round4``       pad=0.3,rounding_size=None
 #   Roundtooth   ``roundtooth``   pad=0.3,tooth_size=None
@@ -215,12 +215,12 @@ t = ax.text(0.5, 0.5, "Direction",
 # (facecolor, edgewidth, etc.) can be accessed and modified as usual.
 # `.FancyBboxPatch.set_boxstyle` sets the box shape::
 #
-#    bb.set_boxstyle("rarrow", pad=0.6)
+#    bb.set_boxstyle("rarrow", pad=0.6, fhead=True)
 #
 # The attribute arguments can also be specified within the style
 # name with separating comma::
 #
-#    bb.set_boxstyle("rarrow, pad=0.6")
+#    bb.set_boxstyle("rarrow, pad=0.6, fhead=True")
 #
 #
 # Defining custom box styles
