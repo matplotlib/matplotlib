@@ -10,6 +10,10 @@ selected points
 This is currently a proof-of-concept implementation (though it is
 usable as is).  There will be some refinement of the API.
 
+.. Error:: When only clicking (without drawing a lasso line), the program hangs!
+
+.. fixed:: Using new bool variable callback_has_been_called
+
 .. note::
     This example exercises the interactive capabilities of Matplotlib, and this
     will not appear in the static documentation. Please run this code on your
@@ -45,6 +49,8 @@ class LassoManager:
         self.canvas = ax.figure.canvas
         self.data = data
 
+        self.callback_has_been_called = False
+
         self.Nxy = len(data)
 
         facecolors = [d.color for d in data]
@@ -72,18 +78,20 @@ class LassoManager:
         self.canvas.draw_idle()
         self.canvas.widgetlock.release(self.lasso)
         del self.lasso
+        self.callback_has_been_called = True
 
     def on_press(self, event):
         if self.canvas.widgetlock.locked():
             return
         if event.inaxes is None:
             return
+        self.callback_has_been_called = False
         self.lasso = Lasso(event.inaxes,
                            (event.xdata, event.ydata),
                            self.callback)
         # acquire a lock on the widget drawing
-        self.canvas.widgetlock(self.lasso)
-
+        if self.callback_has_been_called:
+            self.canvas.widgetlock(self.lasso)
 
 if __name__ == '__main__':
 
@@ -96,3 +104,4 @@ if __name__ == '__main__':
     lman = LassoManager(ax, data)
 
     plt.show()
+
