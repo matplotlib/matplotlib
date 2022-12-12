@@ -380,8 +380,21 @@ def test_packers(align):
     assert_allclose([(x_height, 0), (0, -y2)], offset_pairs)
 
 
-def test_paddedbox():
+def test_paddedbox_packer():
     # smoke test for correct default value
     fig, ax = plt.subplots()
     at = AnchoredText("foo",  'upper left')
     pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
+    ax.add_artist(pb)
+    fig.draw_without_rendering()
+    
+    fig = plt.figure(dpi=72)
+    x1, y1 = 10, 30
+    x2, y2 = 20, 60
+    r1 = DrawingArea(x1, y1)
+    r2 = DrawingArea(x2, y2)
+
+    hpacker = HPacker(children=[r1, r2], align=align)
+    vpacker = VPacker(children=[r1, r2], align=align)
+    renderer = fig.canvas.get_renderer()
+    
