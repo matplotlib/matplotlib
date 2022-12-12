@@ -138,6 +138,51 @@ ax_dict['bottom'].legend(bbox_to_anchor=(1.05, 1),
 plt.show()
 
 ###############################################################################
+# If you have multiple plots side-by-side each with a common legend and wish to
+# instead have one legend that represents all subplots, you can do this:
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Make a mosaic of subplots and use the top one for the legend.
+fig, axes = plt.subplot_mosaic(
+    (("legend", "legend", "legend"),  # Top row has one column.
+     ("f", "df_deta", "d2f_deta2")),  # Bottom row has three columns.
+    height_ratios=(0.1, 0.9),         # Size the dummy plot appropriately.
+    num="distributions")              # I like to name my figures. :)
+fig.set_constrained_layout(True)
+
+eta = np.linspace(0, 1)
+cap_lambda_vals = np.array([-24, -12, 0, 12, 24])
+for cap_lambda in cap_lambda_vals:
+  # Some data
+  f = 2 * eta - 2 * eta**3 + eta**4 + cap_lambda * eta / 6 * (1 - eta)**3
+  df_deta = 2 - 6 * eta**2 + 4 * eta**3 + cap_lambda / \
+      6 * (1 - 6 * eta + 9 * eta**2 - 4 * eta**3)
+  d2f_deta2 = -12 * eta + 12 * eta**2 + \
+      cap_lambda / 6 * (-6 + 18 * eta - 12 * eta**2)
+
+  for axis in axes:
+    # Make the dummy plot blank.
+    if axis == "legend":
+      axes[axis].axis("off")
+      continue
+
+  # Plot data
+  axes["f"].plot(f, eta, label=f"$\Lambda = {cap_lambda}$")
+  axes["df_deta"].plot(df_deta, eta, label=f"$\Lambda = {cap_lambda}$")
+  axes["d2f_deta2"].plot(d2f_deta2, eta, label=f"$\Lambda = {cap_lambda}$")
+
+# Add a legend to the dummy plot, using the handles from the plot you want to
+# create the legend for.
+axes["legend"].legend(
+    handles=axes["f"].get_legend_handles_labels()[0],
+    loc="center", ncol=len(cap_lambda_vals),
+    mode="expand", borderaxespad=0)
+
+plt.show()  # Ta-daa! (They look better if you squish em down a bit)
+
+###############################################################################
 # Multiple legends on the same Axes
 # =================================
 #
