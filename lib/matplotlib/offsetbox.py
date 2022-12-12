@@ -369,7 +369,7 @@ class OffsetBox(martist.Artist):
 
 
 class PackerBase(OffsetBox):
-    def __init__(self, pad=0, sep=0, width=None, height=None,
+    def __init__(self, pad=0., sep=0., width=None, height=None,
                  align="baseline", mode="fixed", children=None):
         """
         Parameters
