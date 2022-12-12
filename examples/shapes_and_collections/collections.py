@@ -11,14 +11,14 @@ and `.PolyCollection`.
 The third subplot will make regular polygons, with the same
 type of scaling and positioning as in the first two.
 
-The last subplot illustrates the use of "offsets=(xo, yo)",
+The last subplot illustrates the use of ``offsets=(xo, yo)``,
 that is, a single tuple instead of a list of tuples, to generate
 successively offset curves, with the offset given in data
 units.  This behavior is available only for the LineCollection.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib import collections, colors, transforms
+from matplotlib import collections, transforms
 import numpy as np
 
 nverts = 50
@@ -38,8 +38,7 @@ rs = np.random.RandomState(19680801)
 xyo = rs.randn(npts, 2)
 
 # Make a list of colors cycling through the default series.
-colors = [colors.to_rgba(c)
-          for c in plt.rcParams['axes.prop_cycle'].by_key()['color']]
+colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 fig.subplots_adjust(top=0.92, left=0.07, right=0.97,
