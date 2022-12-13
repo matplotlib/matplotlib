@@ -98,11 +98,19 @@ def test_legend_label_with_leading_underscore1():
 def test_legend_label_with_leading_underscore2():
     """
     Test that artists with labels starting with an underscore are added to the
-    legend when the legend method is called with the handles argument.
+    legend when the legend method is called with arguments.
     """
     fig, ax = plt.subplots()
     lines = ax.plot([0, 1], label='_foo')
     legend = ax.legend(handles=lines)
+    assert len(legend.legendHandles) == 1
+    legend = ax.legend(handles=lines, labels=["_foo"])
+    assert len(legend.legendHandles) == 1
+    legend = ax.legend(labels=["_foo"])
+    assert len(legend.legendHandles) == 1
+    legend = ax.legend(["_foo"])
+    assert len(legend.legendHandles) == 1
+    legend = ax.legend(lines, ["_foo"])
     assert len(legend.legendHandles) == 1
 
 
