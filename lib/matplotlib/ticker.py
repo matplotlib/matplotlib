@@ -1432,7 +1432,7 @@ class EngFormatter(Formatter):
         >>> format_eng(1000000)  # for self.places = 1
         '1.0 M'
 
-        >>> format_eng("-1e-6")  # for self.places = 2
+        >>> format_eng(-1e-6)  # for self.places = 2
         '-1.00 \N{MICRO SIGN}'
         """
         sign = 1
