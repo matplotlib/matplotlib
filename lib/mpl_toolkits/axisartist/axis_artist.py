@@ -55,14 +55,20 @@ ticklabel ha        right  center   right  center
 axislabel ha        right  center   right  center
 =================== ====== ======== ====== ========
 
-Ticks are by default direct opposite side of the ticklabels. To make ticks to
-the same side of the ticklabels, ::
+Direction of ticks follows the setting in rcParams (default is "out"). To
+change it, ::
 
-  ax.axis["bottom"].major_ticks.set_tick_out(True)
+  ax.axis["bottom"].major_ticks.set_tickdir("in")
+
+Ticks can be oriented either normal to the axisline or parallel to the grid
+lines. The default is "normal" if "tickdir" is "out", "parallel" otherwise.
+To change it, ::
+
+  ax.axis["bottom"].major_ticks.set_tick_orientation("normal")
 
 The following attributes can be customized (use the ``set_xxx`` methods):
 
-* `Ticks`: ticksize, tick_out
+* `Ticks`: ticksize, tickdir
 * `TickLabels`: pad
 * `AxisLabel`: pad
 """
@@ -72,6 +78,7 @@ The following attributes can be customized (use the ``set_xxx`` methods):
 
 
 from operator import methodcaller
+import warnings
 
 import numpy as np
 
@@ -109,17 +116,37 @@ class Ticks(AttributeCopier, Line2D):
     Ticks are derived from `.Line2D`, and note that ticks themselves
     are markers. Thus, you should use set_mec, set_mew, etc.
 
-    To change the tick size (length), you need to use
-    `set_ticksize`. To change the direction of the ticks (ticks are
-    in opposite direction of ticklabels by default), use
-    ``set_tick_out(False)``
+    To change the tick size (length), use set_ticksize.  To change the
+    direction of the ticks, use set_tickdir ("out" corresponds to the side of
+    the label, "in" to the opposite side).
     """
 
-    def __init__(self, ticksize, tick_out=False, *, axis=None, **kwargs):
+    # tick_out is mostly deprecated in favor of tickdir.
+
+    @_api.delete_parameter("3.7", "tick_out", alternative="tickdir")
+    def __init__(self, ticksize, tick_out=None,
+                 *, tick_orientation="auto",
+                 axis=None, **kwargs):
         self._ticksize = ticksize
         self.locs_angles_labels = []
 
-        self.set_tick_out(tick_out)
+        if "tickdir" in kwargs:
+            if tick_out is not None:
+                raise ValueError("tickdir and tick_out"
+                                 "cannot be used together")
+            self.set_tickdir(kwargs.pop("tickdir"))
+        else:
+            # The default value for tick_out was False. We changed it to None
+            # to catch whether it explicily set by the user. "None" may not be
+            # a good choice of value though.
+            if tick_out is None:
+                warnings.warn("The dwfault behavior will change. "
+                              "Explicitly set tickdir parameter if you want.")
+                tick_out = False
+
+            self.set_tickdir({True: "out", False: "in"}[bool(tick_out)])
+
+        self.set_tick_orientation(tick_orientation)
 
         self._axis = axis
         if self._axis is not None:
@@ -152,13 +179,61 @@ class Ticks(AttributeCopier, Line2D):
     def get_markeredgewidth(self):
         return self.get_attribute_from_ref_artist("markeredgewidth")
 
+    def set_tickdir(self, tickdir):
+        _api.check_in_list(self._tick_paths, tickdir=tickdir)
+        self._tickdir = tickdir
+
+    def get_tickdir(self):
+        return self._tickdir
+
+    def set_tick_orientation(self, mode):
+        """
+        Set how tick orientation will be determined.
+
+        Parameters
+        ----------
+        mode : {"parallel", "normal", "auto"}
+          'parallel' - ticks along the grid lines
+          'normal' - ticks normal to axis line.
+          'auto' - 'normal' if tickdir is 'out' else 'parallel'
+        """
+        _api.check_in_list(["auto", "normal", "parallel"],
+                           tick_orientation=mode)
+        self._tick_orientation = mode
+
+    def get_tick_orientation(self, interpret_auto=True):
+        """
+        Return orientation of ticks.
+
+        Parameters
+        ----------
+        interpret_auto : bool, default if True
+          If True and tick_orientation is 'auto', return the
+          interpreted value ('normal' if dicktir is out, else 'parallel).
+          If False, return 'auto' as 'auto'.
+
+        Returns
+        -------
+        tick_orientation : {"parallel", "normal", "auto"}
+        """
+        tick_orientation = self._tick_orientation
+        if tick_orientation == "auto" and interpret_auto:
+            tick_orientation = ("normal" if self._tickdir == "out"
+                                else "parallel")
+
+        return tick_orientation
+
     def set_tick_out(self, b):
         """Set whether ticks are drawn inside or outside the axes."""
-        self._tick_out = b
+        self.set_tickdir({True: "out", False: "in"}[bool(b)])
 
     def get_tick_out(self):
         """Return whether ticks are drawn inside or outside the axes."""
-        return self._tick_out
+        if self._tickdir == "out":
+            return True
+        elif self._tickdir == "in":
+            return False
+        raise ValueError(f"tickdir is {self._tickdir}")
 
     def set_ticksize(self, ticksize):
         """Set length of the ticks in points."""
@@ -171,7 +246,11 @@ class Ticks(AttributeCopier, Line2D):
     def set_locs_angles(self, locs_angles):
         self.locs_angles = locs_angles
 
-    _tickvert_path = Path([[0., 0.], [1., 0.]])
+    _tick_paths = {
+        "out": Path([[0, 0], [-1, 0]]),
+        "in": Path([[0, 0], [1, 0]]),
+        "inout": Path([[-1/2, 0], [1/2, 0]]),
+    }
 
     def draw(self, renderer):
         if not self.get_visible():
@@ -185,15 +264,14 @@ class Ticks(AttributeCopier, Line2D):
         path_trans = self.get_transform()
         marker_transform = (Affine2D()
                             .scale(renderer.points_to_pixels(self._ticksize)))
-        if self.get_tick_out():
-            marker_transform.rotate_deg(180)
+        tick_path = self._tick_paths[self._tickdir]
 
         for loc, angle in self.locs_angles:
             locs = path_trans.transform_non_affine(np.array([loc]))
             if self.axes and not self.axes.viewLim.contains(*locs[0]):
                 continue
             renderer.draw_markers(
-                gc, self._tickvert_path,
+                gc, tick_path,
                 marker_transform + Affine2D().rotate_deg(angle),
                 Path(locs), path_trans.get_affine())
 
@@ -868,12 +946,14 @@ class AxisArtist(martist.Artist):
             kwargs.get(
                 "major_tick_size",
                 mpl.rcParams[f"{axis_name}tick.major.size"]),
-            axis=self.axis, transform=trans)
+            axis=self.axis, transform=trans,
+            tickdir=mpl.rcParams[f"{axis_name}tick.direction"])
         self.minor_ticks = Ticks(
             kwargs.get(
                 "minor_tick_size",
                 mpl.rcParams[f"{axis_name}tick.minor.size"]),
-            axis=self.axis, transform=trans)
+            axis=self.axis, transform=trans,
+            tickdir=mpl.rcParams[f"{axis_name}tick.direction"])
 
         size = mpl.rcParams[f"{axis_name}tick.labelsize"]
         self.major_ticklabels = TickLabels(
@@ -895,7 +975,7 @@ class AxisArtist(martist.Artist):
                 "minor_tick_pad", mpl.rcParams[f"{axis_name}tick.minor.pad"]),
         )
 
-    def _get_tick_info(self, tick_iter):
+    def _get_tick_info(self, tick_iter, tick_orientation="parallel"):
         """
         Return a pair of:
 
@@ -909,9 +989,16 @@ class AxisArtist(martist.Artist):
 
         for loc, angle_normal, angle_tangent, label in tick_iter:
             angle_label = angle_tangent - 90 + ticklabel_add_angle
-            angle_tick = (angle_normal
-                          if 90 <= (angle_label - angle_normal) % 360 <= 270
-                          else angle_normal + 180)
+            if tick_orientation == "parallel":  # tick along the gridlines
+                angle_tick = (
+                    angle_normal
+                    if 90 <= (angle_label - angle_normal) % 360 <= 270
+                    else angle_normal + 180)
+            elif tick_orientation == "normal":  # tick normal to axisline.
+                angle_tick = 180+angle_label
+            else:
+                raise ValueError(
+                    f"Unsupported tick_orientation of {tick_orientation}")
             ticks_loc_angle.append([loc, angle_tick])
             ticklabels_loc_angle_label.append([loc, angle_label, label])
 
@@ -925,24 +1012,31 @@ class AxisArtist(martist.Artist):
             renderer = self.figure._get_renderer()
 
         dpi_cor = renderer.points_to_pixels(1.)
-        if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():
-            ticklabel_pad = self.major_ticks._ticksize * dpi_cor
-            self.major_ticklabels._external_pad = ticklabel_pad
-            self.minor_ticklabels._external_pad = ticklabel_pad
-        else:
-            self.major_ticklabels._external_pad = 0
-            self.minor_ticklabels._external_pad = 0
+        multiplier = (
+            self.major_ticks.get_visible()
+            * {"out": 1, "inout": .5, "in": 0}[self.major_ticks._tickdir])
+
+        self.major_ticklabels._external_pad = \
+            multiplier * self.major_ticks._ticksize * dpi_cor
+        self.minor_ticklabels._external_pad = \
+            multiplier * self.major_ticks._ticksize * dpi_cor
 
         majortick_iter, minortick_iter = \
             self._axis_artist_helper.get_tick_iterators(self.axes)
 
+        tick_orientation = self.major_ticks.get_tick_orientation(
+            interpret_auto=True)
         tick_loc_angle, ticklabel_loc_angle_label = \
-            self._get_tick_info(majortick_iter)
+            self._get_tick_info(majortick_iter, tick_orientation)
+
         self.major_ticks.set_locs_angles(tick_loc_angle)
         self.major_ticklabels.set_locs_angles_labels(ticklabel_loc_angle_label)
 
+        tick_orientation = self.minor_ticks.get_tick_orientation(
+            interpret_auto=True)
         tick_loc_angle, ticklabel_loc_angle_label = \
-            self._get_tick_info(minortick_iter)
+            self._get_tick_info(minortick_iter, tick_orientation)
+
         self.minor_ticks.set_locs_angles(tick_loc_angle)
         self.minor_ticklabels.set_locs_angles_labels(ticklabel_loc_angle_label)
 
@@ -1005,15 +1099,30 @@ class AxisArtist(martist.Artist):
         if not self.label.get_visible():
             return
 
+        # We calculate the pad size for the axislabel.
         if self._ticklabel_add_angle != self._axislabel_add_angle:
-            if ((self.major_ticks.get_visible()
-                 and not self.major_ticks.get_tick_out())
-                or (self.minor_ticks.get_visible()
-                    and not self.major_ticks.get_tick_out())):
-                axislabel_pad = self.major_ticks._ticksize
-            else:
-                axislabel_pad = 0
+            # If ticklabels and axislabel are on different side, we only
+            # consider the padding for the ticks only.
+
+            # "in", "out" and "inout" are relative to the ticks. Therefore, "in"
+            # means that axislabel and ticks are on the same side while
+            # ticklabels are on the other side.
+            ticksizes = []
+            # ticksize of the major_ticks
+            ticksizes.append(
+                self.major_ticks.get_visible()
+                * {"out": 0, "inout": .5, "in": 1}[self.major_ticks._tickdir]
+                * self.major_ticks._ticksize
+            )
+            ticksizes.append(
+                self.minor_ticks.get_visible()
+                * {"out": 0, "inout": .5, "in": 1}[self.minor_ticks._tickdir]
+                * self.minor_ticks._ticksize
+            )
+            axislabel_pad = max(ticksizes)
         else:
+            # If ticklabels and axislabel are on the same side, we use values
+            # from the the ticklabels.
             axislabel_pad = max(self.major_ticklabels._axislabel_pad,
                                 self.minor_ticklabels._axislabel_pad)
 
