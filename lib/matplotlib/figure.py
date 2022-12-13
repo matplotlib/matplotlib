@@ -1876,9 +1876,9 @@ default: %(va)s
             in these dictionaries have precedence over the values in
             *subplot_kw*.
 
-            In the special case *mosaic* being a string, multi-character keys
-            in *per_subplot_kw* will be applied to all of the Axes named
-            treating the string as a sequence.
+            If *mosaic* is a string, and thus all keys are single characters,
+            it is possible to use a single string instead of a tuple as keys;
+            i.e. "AB" is equivalent to `("A", "B")`.
 
             .. versionadded:: 3.7
 
