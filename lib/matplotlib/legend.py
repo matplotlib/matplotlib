@@ -418,17 +418,6 @@ class Legend(Artist):
         self.borderaxespad = val_or_rc(borderaxespad, 'legend.borderaxespad')
         self.columnspacing = val_or_rc(columnspacing, 'legend.columnspacing')
         self.shadow = val_or_rc(shadow, 'legend.shadow')
-        # trim handles and labels if illegal label...
-        _lab, _hand = [], []
-        for label, handle in zip(labels, handles):
-            if isinstance(label, str) and label.startswith('_'):
-                _api.warn_external(f"The label {label!r} of {handle!r} starts "
-                                   "with '_'. It is thus excluded from the "
-                                   "legend.")
-            else:
-                _lab.append(label)
-                _hand.append(handle)
-        labels, handles = _lab, _hand
 
         handles = list(handles)
         if len(handles) < 2:
