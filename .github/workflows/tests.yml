@@ -56,6 +56,7 @@ jobs:
             pyside2-ver: '==5.15.1'  # oldest version with working Py3.9 wheel.
             pyside6-ver: '==6.0.0'
             delete-font-cache: true
+            no-build-isolation: true
           - os: ubuntu-20.04
             python-version: 3.9
             extra-requirements: '-r requirements/testing/extra.txt'
@@ -76,6 +77,11 @@ jobs:
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
             extra-requirements: '-r requirements/testing/extra.txt'
+          - os: ubuntu-22.04
+            python-version: '3.12-dev'
+            pyside6-ver: '!=6.5.1'
+            pre: true
+            no-build-isolation: true
           - os: macos-latest
             python-version: 3.9
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
@@ -191,8 +197,10 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
 
           # Install pre-release versions during our weekly upcoming dependency tests.
+          # Also install for 3.12 to get working NumPy (remove when 1.26 is released)
           if [[ "${{ github.event_name == 'schedule' &&
-                     matrix.name-suffix != '(Minimum Versions)' }}" = "true" ]]; then
+                     matrix.name-suffix != '(Minimum Versions)' }}" = "true"
+                || "${{ matrix.pre }}" = "true" ]]; then
             PRE="--pre"
           fi
 
@@ -204,7 +212,7 @@ jobs:
             ${{ matrix.extra-requirements }}
 
           # Preinstall pybind11 on no-build-isolation builds.
-          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
+          if [[ "${{ matrix.no-build-isolation }}" == 'true' ]]; then
             python -m pip install 'pybind11>=2.6'
           fi
 
@@ -232,7 +240,8 @@ jobs:
             python -c 'import PyQt5.QtCore' &&
             echo 'PyQt5 is available' ||
             echo 'PyQt5 is not available'
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+          if [[ "${{ runner.os }}" != 'macOS'
+                && "${{ matrix.python-version != '3.12-dev'}}" = "true" ]]; then
             python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
@@ -243,18 +252,23 @@ jobs:
               python -c 'import PyQt6.QtCore' &&
               echo 'PyQt6 is available' ||
               echo 'PyQt6 is not available'
+          fi
+          if [[ "${{ runner.os }}" != 'macOS'
+                && "${{ matrix.python-version != '3.12-dev'}}" = "true" ]]; then
             python -mpip install --upgrade pyside6${{ matrix.pyside6-ver }} &&
               python -c 'import PySide6.QtCore' &&
               echo 'PySide6 is available' ||
               echo 'PySide6 is not available'
           fi
 
-          python -mpip install --upgrade \
-            -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
-            wxPython &&
-            python -c 'import wx' &&
-            echo 'wxPython is available' ||
-            echo 'wxPython is not available'
+          if [[ "${{ matrix.python-version != '3.12-dev'}}" = "true" ]]; then
+            python -mpip install --upgrade \
+              -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
+              wxPython &&
+              python -c 'import wx' &&
+              echo 'wxPython is available' ||
+              echo 'wxPython is not available'
+          fi
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -289,7 +303,7 @@ jobs:
 
           cat mplsetup.cfg
 
-          if [[ "${{ matrix.name-suffix }}" == '(Minimum Versions)' ]]; then
+          if [[ "${{ matrix.no-build-isolation }}" == 'true' ]]; then
             # Minimum versions run does not use build isolation so that it
             # builds against the pre-installed minver dependencies.
             python -m pip install --no-deps --no-build-isolation -ve .
