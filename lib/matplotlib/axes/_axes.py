@@ -55,6 +55,12 @@ class Axes(_AxesBase):
     are 'xlim_changed' and 'ylim_changed' and the callback will be called with
     func(*ax*) where *ax* is the `Axes` instance.
 
+    .. note::
+
+        As a user, you do not instantiate Axes directly, but use Axes creation
+        methods instead; e.g. from `.pyplot` or `.Figure`:
+        `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` or `.Figure.add_axes`.
+
     Attributes
     ----------
     dataLim : `.Bbox`

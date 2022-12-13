@@ -45,6 +45,12 @@ from . import axis3d
 class Axes3D(Axes):
     """
     3D Axes object.
+
+    .. note::
+
+        As a user, you do not instantiate Axes directly, but use Axes creation
+        methods instead; e.g. from `.pyplot` or `.Figure`:
+        `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` or `.Figure.add_axes`.
     """
     name = '3d'
 
