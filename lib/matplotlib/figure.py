@@ -1841,8 +1841,8 @@ default: %(va)s
             The string notation allows only single character Axes labels and
             does not support nesting but is very terse.
 
-            Tuples may be used instead of lists and tuples may not be used
-            as Axes identifiers.
+            The Axes identifiers may be `str` or a non-iterable hashable
+            object (e.g. `tuple` s may not be used).
 
         sharex, sharey : bool, default: False
             If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
