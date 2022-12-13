@@ -25,8 +25,10 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
+# Update style when regenerating the test image
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                  tol=0 if platform.machine() == 'x86_64' else 0.01,
+                  style=("classic", "_classic_test_patch"))
 def test_align_labels():
     fig = plt.figure(layout='tight')
     gs = gridspec.GridSpec(3, 3)
@@ -160,7 +162,8 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(['figure_today'])
+# Update style when regenerating the test image
+@image_comparison(['figure_today'], style=("classic", "_classic_test_patch"))
 def test_figure():
     # named figure support
     fig = plt.figure('today')
@@ -175,7 +178,8 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@image_comparison(['figure_legend'])
+# Update style when regenerating the test image
+@image_comparison(['figure_legend'], style=("classic", "_classic_test_patch"))
 def test_figure_legend():
     fig, axs = plt.subplots(2)
     axs[0].plot([0, 1], [1, 0], label='x', color='g')
@@ -272,7 +276,9 @@ def test_add_subplot_invalid():
         fig.add_subplot(ax)
 
 
-@image_comparison(['figure_suptitle'])
+# Update style when regenerating the test image
+@image_comparison(['figure_suptitle'],
+                  style=("classic", "_classic_test_patch"))
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')

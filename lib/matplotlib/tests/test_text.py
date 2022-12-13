@@ -17,7 +17,8 @@ from matplotlib.testing._markers import needs_usetex
 from matplotlib.text import Text
 
 
-@image_comparison(['font_styles'])
+# Update style when regenerating the test image
+@image_comparison(['font_styles'], style=("classic", "_classic_test_patch"))
 def test_font_styles():
 
     def find_matplotlib_font(**kw):
@@ -106,7 +107,8 @@ def test_font_styles():
     ax.set_yticks([])
 
 
-@image_comparison(['multiline'])
+# Update style when regenerating the test image
+@image_comparison(['multiline'], style=("classic", "_classic_test_patch"))
 def test_multiline():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -182,7 +184,9 @@ def test_multiline2():
     ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
 
 
-@image_comparison(['antialiased.png'])
+# Update style when regenerating the test image
+@image_comparison(['antialiased.png'],
+                  style=("classic", "_classic_test_patch"))
 def test_antialiasing():
     mpl.rcParams['text.antialiased'] = True
 

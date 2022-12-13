@@ -102,8 +102,10 @@ def _colorbar_extension_length(spacing):
     return fig
 
 
+# Update style when regenerating the test image
 @image_comparison(['colorbar_extensions_shape_uniform.png',
-                   'colorbar_extensions_shape_proportional.png'])
+                   'colorbar_extensions_shape_proportional.png'],
+                  style=("classic", "_classic_test_patch"))
 def test_colorbar_extension_shape():
     """Test rectangular colorbar extensions."""
     # Remove this line when this test image is regenerated.
@@ -114,9 +116,10 @@ def test_colorbar_extension_shape():
     _colorbar_extension_shape('proportional')
 
 
+# Update style when regenerating the test image
 @image_comparison(['colorbar_extensions_uniform.png',
                    'colorbar_extensions_proportional.png'],
-                  tol=1.0)
+                  tol=1.0, style=("classic", "_classic_test_patch"))
 def test_colorbar_extension_length():
     """Test variable length colorbar extensions."""
     # Remove this line when this test image is regenerated.
@@ -152,13 +155,15 @@ def test_colorbar_extension_inverted_axis(orientation, extend, expected):
 
 
 @pytest.mark.parametrize('use_gridspec', [True, False])
+# Update style when regenerating the test image
 @image_comparison(['cbar_with_orientation',
                    'cbar_locationing',
                    'double_cbar',
                    'cbar_sharing',
                    ],
                   extensions=['png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style=("classic", "_classic_test_patch"))
 def test_colorbar_positioning(use_gridspec):
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -233,7 +238,9 @@ def test_colorbar_single_ax_panchor_east(constrained):
     assert ax.get_anchor() == 'E'
 
 
-@image_comparison(['contour_colorbar.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['contour_colorbar.png'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_contour_colorbar():
     fig, ax = plt.subplots(figsize=(4, 2))
     data = np.arange(1200).reshape(30, 40) - 500
@@ -244,8 +251,10 @@ def test_contour_colorbar():
     fig.colorbar(CS, orientation='vertical')
 
 
+# Update style when regenerating the test image
 @image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style=("classic", "_classic_test_patch"))
 def test_gridspec_make_colorbar():
     plt.figure()
     data = np.arange(1200).reshape(30, 40)
@@ -262,8 +271,10 @@ def test_gridspec_make_colorbar():
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
 
 
+# Update style when regenerating the test image
 @image_comparison(['colorbar_single_scatter.png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40},
+                  style=("classic", "_classic_test_patch"))
 def test_colorbar_single_scatter():
     # Issue #2642: if a path collection has only one entry,
     # the norm scaling within the colorbar must ensure a

@@ -43,7 +43,9 @@ def test_image_interps():
     ax3.set_ylabel('bicubic')
 
 
-@image_comparison(['interp_alpha.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['interp_alpha.png'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_alpha_interp():
     """Test the interpolation of the alpha channel on RGBA images"""
     fig, (axl, axr) = plt.subplots(1, 2)
@@ -56,8 +58,10 @@ def test_alpha_interp():
     axr.imshow(img, interpolation="bilinear")
 
 
+# Update style when regenerating the test image
 @image_comparison(['interp_nearest_vs_none'],
-                  extensions=['pdf', 'svg'], remove_text=True)
+                  extensions=['pdf', 'svg'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_interp_nearest_vs_none():
     """Test the effect of "nearest" and "none" interpolation"""
     # Setting dpi to something really small makes the difference very
@@ -74,8 +78,10 @@ def test_interp_nearest_vs_none():
     ax2.set_title('interpolation nearest')
 
 
+# Update style when regenerating the test image
 @pytest.mark.parametrize('suppressComposite', [False, True])
-@image_comparison(['figimage'], extensions=['png', 'pdf'])
+@image_comparison(['figimage'], extensions=['png', 'pdf'],
+                  style=("classic", "_classic_test_patch"))
 def test_figimage(suppressComposite):
     fig = plt.figure(figsize=(2, 2), dpi=100)
     fig.suppressComposite = suppressComposite

@@ -150,7 +150,9 @@ def test_exceptions():
         plt.subplots(2, 2, sharey='blah')
 
 
-@image_comparison(['subplots_offset_text'])
+# Update style when regenerating the test image
+@image_comparison(['subplots_offset_text'],
+                  style=("classic", "_classic_test_patch"))
 def test_subplots_offsettext():
     x = np.arange(0, 1e10, 1e9)
     y = np.arange(0, 100, 10)+1e4
