@@ -71,6 +71,10 @@ Ghostscript, FFmpeg) support as old as practical.  These can be difficult to
 install for end-users and we want to be usable on as many systems as
 possible.  We will bump these on a case-by-case basis.
 
+In the case of GUI frameworks for which we rely on Python bindings being
+available, we will also drop support for bindings so old that they don't
+support any Python version that we support.
+
 .. _list-of-dependency-min-versions:
 
 List of dependency versions
