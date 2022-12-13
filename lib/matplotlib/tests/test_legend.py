@@ -524,9 +524,10 @@ def test_text_nohandler_warning():
     """Test that Text artists with labels raise a warning"""
     fig, ax = plt.subplots()
     ax.text(x=0, y=0, s="text", label="label")
-    with pytest.warns(UserWarning) as record:
+    with pytest.warns(UserWarning,
+                      match="Legend does not support handles for .+ "
+                            "instances"):
         ax.legend()
-    assert len(record) == 1
 
     # this should _not_ warn:
     f, ax = plt.subplots()
@@ -558,7 +559,7 @@ def test_legend_title_empty():
     # it comes back as an empty string, and that it is not
     # visible:
     fig, ax = plt.subplots()
-    ax.plot(range(10))
+    ax.plot(range(10), label="foo")
     leg = ax.legend()
     assert leg.get_title().get_text() == ""
     assert not leg.get_title().get_visible()
@@ -591,7 +592,7 @@ def test_window_extent_cached_renderer():
 
 def test_legend_title_fontprop_fontsize():
     # test the title_fontsize kwarg
-    plt.plot(range(10))
+    plt.plot(range(10), label="foo")
     with pytest.raises(ValueError):
         plt.legend(title='Aardvark', title_fontsize=22,
                    title_fontproperties={'family': 'serif', 'size': 22})
@@ -602,27 +603,27 @@ def test_legend_title_fontprop_fontsize():
 
     fig, axes = plt.subplots(2, 3, figsize=(10, 6))
     axes = axes.flat
-    axes[0].plot(range(10))
+    axes[0].plot(range(10), label="foo")
     leg0 = axes[0].legend(title='Aardvark', title_fontsize=22)
     assert leg0.get_title().get_fontsize() == 22
-    axes[1].plot(range(10))
+    axes[1].plot(range(10), label="foo")
     leg1 = axes[1].legend(title='Aardvark',
                           title_fontproperties={'family': 'serif', 'size': 22})
     assert leg1.get_title().get_fontsize() == 22
-    axes[2].plot(range(10))
+    axes[2].plot(range(10), label="foo")
     mpl.rcParams['legend.title_fontsize'] = None
     leg2 = axes[2].legend(title='Aardvark',
                           title_fontproperties={'family': 'serif'})
     assert leg2.get_title().get_fontsize() == mpl.rcParams['font.size']
-    axes[3].plot(range(10))
+    axes[3].plot(range(10), label="foo")
     leg3 = axes[3].legend(title='Aardvark')
     assert leg3.get_title().get_fontsize() == mpl.rcParams['font.size']
-    axes[4].plot(range(10))
+    axes[4].plot(range(10), label="foo")
     mpl.rcParams['legend.title_fontsize'] = 20
     leg4 = axes[4].legend(title='Aardvark',
                           title_fontproperties={'family': 'serif'})
     assert leg4.get_title().get_fontsize() == 20
-    axes[5].plot(range(10))
+    axes[5].plot(range(10), label="foo")
     leg5 = axes[5].legend(title='Aardvark')
     assert leg5.get_title().get_fontsize() == 20
 
@@ -907,7 +908,7 @@ def test_legend_labelcolor_rcparam_markerfacecolor_short():
 
 
 def test_get_set_draggable():
-    legend = plt.legend()
+    legend = plt.legend("foo")
     assert not legend.get_draggable()
     legend.set_draggable(True)
     assert legend.get_draggable()
