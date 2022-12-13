@@ -22,7 +22,6 @@ information.
 """
 
 import itertools
-import logging
 import time
 
 import numpy as np
@@ -1217,8 +1216,6 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         *kwargs* with keywords handles and labels removed.
 
     """
-    log = logging.getLogger(__name__)
-
     handlers = kwargs.get('handler_map')
     extra_args = ()
 
@@ -1242,8 +1239,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     elif len(args) == 0:
         handles, labels = _get_legend_handles_labels(axs, handlers)
         if not handles:
-            log.warning(
-                "No artists with labels found to put in legend.  Note that "
+            _api.warn_external(
+                "No artists with labels found to put in legend. Note that "
                 "artists whose label start with an underscore are ignored "
                 "when legend() is called with no argument.")
 

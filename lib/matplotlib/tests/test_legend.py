@@ -80,18 +80,30 @@ def test_various_labels():
     ax.legend(numpoints=1, loc='best')
 
 
-def test_legend_label_with_leading_underscore():
+def test_legend_label_with_leading_underscore1():
     """
     Test that artists with labels starting with an underscore are not added to
-    the legend, and that a warning is issued if one tries to add them
-    explicitly.
+    the legend when the legend method is called with no arguments, and that a
+    warning is issued if one tries to add them explicitly.
     """
     fig, ax = plt.subplots()
-    line, = ax.plot([0, 1], label='_foo')
+    ax.plot([0, 1], label='_foo')
     with pytest.warns(UserWarning,
-                      match=r"starts with '_'.*excluded from the legend."):
-        legend = ax.legend(handles=[line])
+                      match=r"artists whose label start with an underscore "
+                            "are ignored"):
+        legend = ax.legend()
     assert len(legend.legendHandles) == 0
+
+
+def test_legend_label_with_leading_underscore2():
+    """
+    Test that artists with labels starting with an underscore are added to the
+    legend when the legend method is called with the handles argument.
+    """
+    fig, ax = plt.subplots()
+    lines = ax.plot([0, 1], label='_foo')
+    legend = ax.legend(handles=lines)
+    assert len(legend.legendHandles) == 1
 
 
 @image_comparison(['legend_labels_first.png'], remove_text=True)
