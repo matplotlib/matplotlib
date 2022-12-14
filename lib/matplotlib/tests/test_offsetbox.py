@@ -349,6 +349,11 @@ def test_packers(align):
 
     hpacker = HPacker(children=[r1, r2], pad=0, sep=0, align=align)
     vpacker = VPacker(children=[r1, r2], pad=0, sep=0, align=align)
+
+    #smoke testing default values
+    hpacker = HPacker(children=[r1, r2], align=align)
+    vpacker = VPacker(children=[r1, r2], align=align)
+
     renderer = fig.canvas.get_renderer()
 
     # HPacker
@@ -380,22 +385,10 @@ def test_packers(align):
     assert_allclose([(x_height, 0), (0, -y2)], offset_pairs)
 
 
-@pytest.mark.parametrize("align", ["baseline", "bottom", "top",
-                                   "left", "right", "center"])
-def test_paddedbox_packer(align):
-    # smoke test for correct default value
+def test_paddedbox():
+    # smoke test paddedbox for correct default value
     fig, ax = plt.subplots()
     at = AnchoredText("foo",  'upper left')
     pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
     ax.add_artist(pb)
     fig.draw_without_rendering()
-
-    fig = plt.figure(dpi=72)
-    x1, y1 = 10, 30
-    x2, y2 = 20, 60
-    r1 = DrawingArea(x1, y1)
-    r2 = DrawingArea(x2, y2)
-
-    hpacker = HPacker(children=[r1, r2], align=align)
-    vpacker = VPacker(children=[r1, r2], align=align)
-    renderer = fig.canvas.get_renderer()
