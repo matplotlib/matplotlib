@@ -350,7 +350,7 @@ def test_packers(align):
     hpacker = HPacker(children=[r1, r2], pad=0, sep=0, align=align)
     vpacker = VPacker(children=[r1, r2], pad=0, sep=0, align=align)
 
-    #smoke testing default values
+    # smoke testing default values
     hpacker = HPacker(children=[r1, r2], align=align)
     vpacker = VPacker(children=[r1, r2], align=align)
 
