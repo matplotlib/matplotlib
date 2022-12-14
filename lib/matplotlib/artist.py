@@ -29,14 +29,14 @@ def _prevent_rasterization(draw):
     # (e.g., change in dpi).
 
     @wraps(draw)
-    def draw_wrapper(artist, renderer):
+    def draw_wrapper(artist, renderer, *args, **kwargs):
         if renderer._raster_depth == 0 and renderer._rasterizing:
             # Only stop when we are not in a rasterized parent
             # and something has been rasterized since last stop.
             renderer.stop_rasterizing()
             renderer._rasterizing = False
 
-        return draw(artist, renderer)
+        return draw(artist, renderer, *args, **kwargs)
 
     draw_wrapper._supports_rasterization = False
     return draw_wrapper
