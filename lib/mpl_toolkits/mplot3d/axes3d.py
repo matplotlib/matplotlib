@@ -1599,11 +1599,13 @@ class Axes3D(Axes):
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
         else:
+            fcolors = None
+            
+        if fcolors is None:
             color = kwargs.pop('color', None)
             if color is None:
                 color = self._get_lines.get_next_color()
             color = np.array(mcolors.to_rgba(color))
-            fcolors = None
 
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
