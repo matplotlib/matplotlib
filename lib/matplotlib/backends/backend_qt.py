@@ -14,9 +14,7 @@ import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, __version__, QT_API,
-    _enum, _to_int,
-    _devicePixelRatioF, _isdeleted, _setDevicePixelRatio,
-    _maybe_allow_interrupt
+    _enum, _to_int, _isdeleted, _maybe_allow_interrupt
 )
 
 
@@ -220,7 +218,8 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         self.setPalette(palette)
 
     def _update_pixel_ratio(self):
-        if self._set_device_pixel_ratio(_devicePixelRatioF(self)):
+        if self._set_device_pixel_ratio(
+                self.devicePixelRatioF() or 1):  # rarely, devicePixelRatioF=0
             # The easiest way to resize the canvas is to emit a resizeEvent
             # since we implement all the logic for resizing the canvas for
             # that event.
@@ -677,7 +676,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         filename = str(path_large if path_large.exists() else path_regular)
 
         pm = QtGui.QPixmap(filename)
-        _setDevicePixelRatio(pm, _devicePixelRatioF(self))
+        pm.setDevicePixelRatio(
+            self.devicePixelRatioF() or 1)  # rarely, devicePixelRatioF=0
         if self.palette().color(self.backgroundRole()).value() < 128:
             icon_color = self.palette().color(self.foregroundRole())
             mask = pm.createMaskFromColor(
