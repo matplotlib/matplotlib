@@ -1878,7 +1878,7 @@ default: %(va)s
 
             If *mosaic* is a string, and thus all keys are single characters,
             it is possible to use a single string instead of a tuple as keys;
-            i.e. "AB" is equivalent to `("A", "B")`.
+            i.e. ``"AB"`` is equivalent to ``("A", "B")``.
 
             .. versionadded:: 3.7
 
