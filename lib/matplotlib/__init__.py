@@ -1,3 +1,34 @@
+__all__ = [
+    "__bibtex__",
+    "__version_info__",
+    "set_loglevel",
+    "ExecutableNotFoundError",
+    "get_configdir",
+    "get_cachedir",
+    "get_data_path",
+    "matplotlib_fname",
+    "RcParams",
+    "rc_params",
+    "rc_params_from_file",
+    "rcParamsDefault",
+    "rcParams",
+    "rcParamsOrig",
+    "defaultParams",
+    "rc",
+    "rcdefaults",
+    "rc_file_defaults",
+    "rc_file",
+    "rc_context",
+    "use",
+    "get_backend",
+    "interactive",
+    "is_interactive",
+    "default_test_modules",
+    "colormaps",
+    "color_sequences",
+]
+
+
 """
 An object-oriented plotting library.
 

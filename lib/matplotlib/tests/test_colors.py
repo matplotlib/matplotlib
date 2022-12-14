@@ -10,13 +10,14 @@ import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cbook, cm, cycler
+from matplotlib import cbook, cm
 import matplotlib
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.colorbar as mcolorbar
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
+from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
