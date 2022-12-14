@@ -24,10 +24,6 @@ Multiple 3D subplots can be added on the same figure, as for 2D subplots.
    :target: ../../gallery/mplot3d/subplot3d.html
    :align: center
 
-.. versionchanged:: 1.0.0
-   Prior to Matplotlib 1.0.0, only a single `.Axes3D` could be created per
-   figure; it needed to be directly instantiated as ``ax = Axes3D(fig)``.
-
 .. versionchanged:: 3.2.0
    Prior to Matplotlib 3.2.0, it was necessary to explicitly import the
    :mod:`mpl_toolkits.mplot3d` module to make the '3d' projection to
