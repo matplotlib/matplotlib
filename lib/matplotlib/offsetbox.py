@@ -375,15 +375,15 @@ class OffsetBox(martist.Artist):
 
 
 class PackerBase(OffsetBox):
-    def __init__(self, pad=None, sep=None, width=None, height=None,
+    def __init__(self, pad=0., sep=0., width=None, height=None,
                  align="baseline", mode="fixed", children=None):
         """
         Parameters
         ----------
-        pad : float, optional
+        pad : float, default: 0.0
             The boundary padding in points.
 
-        sep : float, optional
+        sep : float, default: 0.0
             The spacing between items in points.
 
         width, height : float, optional
@@ -508,13 +508,13 @@ class PaddedBox(OffsetBox):
     """
 
     @_api.make_keyword_only("3.6", name="draw_frame")
-    def __init__(self, child, pad=None, draw_frame=False, patch_attrs=None):
+    def __init__(self, child, pad=0., draw_frame=False, patch_attrs=None):
         """
         Parameters
         ----------
         child : `~matplotlib.artist.Artist`
             The contained `.Artist`.
-        pad : float
+        pad : float, default: 0.0
             The padding in points. This will be scaled with the renderer dpi.
             In contrast, *width* and *height* are in *pixels* and thus not
             scaled.
