@@ -1600,7 +1600,7 @@ class Axes3D(Axes):
             fcolors = kwargs.pop('facecolors')
         else:
             fcolors = None
-            
+
         if fcolors is None:
             color = kwargs.pop('color', None)
             if color is None:
