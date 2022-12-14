@@ -347,10 +347,6 @@ def test_packers(align):
     r1 = DrawingArea(x1, y1)
     r2 = DrawingArea(x2, y2)
 
-    hpacker = HPacker(children=[r1, r2], pad=0, sep=0, align=align)
-    vpacker = VPacker(children=[r1, r2], pad=0, sep=0, align=align)
-
-    # smoke testing default values
     hpacker = HPacker(children=[r1, r2], align=align)
     vpacker = VPacker(children=[r1, r2], align=align)
 
