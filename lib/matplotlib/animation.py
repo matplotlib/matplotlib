@@ -1668,6 +1668,16 @@ class FuncAnimation(TimedAnimation):
                     f"You passed in an explicit {save_count=} which is being "
                     f"ignored in favor of {frames=}."
                 )
+        if self._save_count is None and cache_frame_data:
+            _api.warn_external(
+                f"{frames=!r} which we can infer the length of, "
+                "did not pass an explicit *save_count* "
+                f"and passed {cache_frame_data=}.  To avoid a possibly "
+                "unbounded cache, frame data caching has been disabled. "
+                "To suppress this warning either pass "
+                "`cache_frame_data=False` or `save_count=MAX_FRAMES`."
+            )
+            cache_frame_data = False
 
         self._cache_frame_data = cache_frame_data
 
