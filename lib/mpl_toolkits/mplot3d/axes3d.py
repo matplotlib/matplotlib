@@ -324,9 +324,6 @@ class Axes3D(Axes):
         """
         _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
                            aspect=aspect)
-        if adjustable is None:
-            adjustable = self._adjustable
-        _api.check_in_list(('box', 'datalim'), adjustable=adjustable)
         super().set_aspect(
             aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
         self._aspect = aspect
@@ -338,7 +335,7 @@ class Axes3D(Axes):
                                        self.yaxis.get_view_interval(),
                                        self.zaxis.get_view_interval()])
             ptp = np.ptp(view_intervals, axis=1)
-            if adjustable == 'datalim':
+            if self._adjustable == 'datalim':
                 mean = np.mean(view_intervals, axis=1)
                 delta = max(ptp[ax_indices])
                 scale = self._box_aspect[ptp == delta][0]
