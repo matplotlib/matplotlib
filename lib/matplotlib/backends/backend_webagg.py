@@ -245,10 +245,10 @@ class WebAggApplication(tornado.web.Application):
 
     @classmethod
     def start(cls):
+        import asyncio
         try:
-            import asyncio
             asyncio.get_running_loop()
-        except:
+        except RuntimeError:
             pass
         else:
             cls.started = True
@@ -294,10 +294,10 @@ def ipython_inline_display(figure):
     import tornado.template
 
     WebAggApplication.initialize()
+    import asyncio
     try:
-        import asyncio
         asyncio.get_running_loop()
-    except:
+    except RuntimeError:
         if not webagg_server_thread.is_alive():
             webagg_server_thread.start()
 
