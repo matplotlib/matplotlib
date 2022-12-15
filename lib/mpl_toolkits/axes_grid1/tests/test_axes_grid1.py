@@ -29,36 +29,6 @@ from matplotlib.testing.decorators import (check_figures_equal,
                                            image_comparison,
                                            remove_ticks_and_titles)
 from matplotlib.transforms import Bbox, TransformedBbox
-from mpl_toolkits.axes_grid1.anchored_artists import (
-    AnchoredDirectionArrows,
-    AnchoredSizeBar,
-)
-from mpl_toolkits.axes_grid1.axes_divider import (
-    Divider, HBoxDivider, SubplotDivider, VBoxDivider,
-    make_axes_area_auto_adjustable)
-from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
-from mpl_toolkits.axes_grid1.inset_locator import (BboxConnectorPatch,
-                                                   InsetPosition, inset_axes,
-                                                   mark_inset,
-                                                   zoomed_inset_axes)
-from numpy.testing import assert_array_almost_equal, assert_array_equal
-
-<<<<<<< HEAD
-import numpy as np
-from numpy.testing import assert_array_equal, assert_array_almost_equal
->>>>>>> 955967cb46... formatting
-=======
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-from matplotlib import cbook
-from matplotlib.backend_bases import MouseEvent
-from matplotlib.colors import LogNorm
-from matplotlib.testing.decorators import (check_figures_equal,
-                                           image_comparison,
-                                           remove_ticks_and_titles)
-from matplotlib.transforms import Bbox, TransformedBbox
->>>>>>> 6d992cad91... fixed long line linter issues
 
 
 def test_divider_append_axes():
@@ -964,7 +934,9 @@ def test_removal():
     fig.canvas.draw()
     col.remove()
     fig.canvas.draw()
-@image_comparison(['anchored_locator_base_call.png'], style="classic")
+
+
+@image_comparison(['anchored_locator_base_call.png'], style="mpl20")
 def test_anchored_locator_base_call():
     fig = plt.figure(figsize=(3, 3))
     fig1, fig2 = fig.subfigures(
