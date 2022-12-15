@@ -1753,10 +1753,6 @@ class FuncAnimation(TimedAnimation):
         if self._cache_frame_data:
             # Save the data for potential saving of movies.
             self._save_seq.append(framedata)
-
-        # Make sure to respect save_count (keep only the last save_count
-        # around)
-        if self._save_count is not None:
             self._save_seq = self._save_seq[-self._save_count:]
 
         # Call the func with framedata and args. If blitting is desired,
