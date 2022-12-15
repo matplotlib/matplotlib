@@ -1081,7 +1081,7 @@ class Lines(Patch):
         *xy* is a numpy array with shape Nx2.
 
         If *direction* is *True*, the patch is lower bounded by the polyline.
-        Otherwise, it ish upper bounded by the polyline
+        Otherwise, it is upper bounded by the polyline
         """
         super().__init__(**kwargs)
         self.set_direction(direction)
