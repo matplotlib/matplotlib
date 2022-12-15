@@ -11,6 +11,7 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
    End-users most likely won't need to directly use this module's API.
 """
 
+import collections.abc as collections_abc
 import logging
 
 import numpy as np
@@ -1394,7 +1395,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     Parameters
     ----------
-    parents : `~.axes.Axes` or list or `numpy.ndarray` of `~.axes.Axes`
+    parents : `~.axes.Axes` or sequence or `numpy.ndarray` of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
     %(_make_axes_kw_doc)s
 
@@ -1420,7 +1421,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     # reuse them, leading to a memory leak
     if isinstance(parents, np.ndarray):
         parents = list(parents.flat)
-    elif not isinstance(parents, list):
+    elif not isinstance(parents, collections_abc.Sequence):
         parents = [parents]
     fig = parents[0].get_figure()
 
