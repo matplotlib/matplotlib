@@ -323,7 +323,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 paths.append(mpath.Path(np.column_stack([xs, ys]), path.codes))
             xs = self.convert_xunits(offsets[:, 0])
             ys = self.convert_yunits(offsets[:, 1])
-            offsets = np.column_stack([xs, ys])
+            offsets = np.ma.column_stack([xs, ys])
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path)
