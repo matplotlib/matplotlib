@@ -5559,7 +5559,7 @@ default: :rc:`scatter.edgecolors`
     def fill_disjoint(self, x, y1, y2, where=None, interpolate=False,
                       step=None, **kwargs):
         """
-        Dill everything not in between the lines *y1* and *y2*
+        Fill everything not in between the lines *y1* and *y2*
 
         Parameters
         ----------
