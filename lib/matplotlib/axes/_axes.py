@@ -5624,9 +5624,9 @@ default: :rc:`scatter.edgecolors`
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
-        return (self._fill_above_or_below(x, y1, y2, where=where,
-                                          interpolate=interpolate, step=step,
-                                          **kwargs))
+        return self._fill_above_or_below(x, y1, y2, where=where,
+                                         interpolate=interpolate, step=step,
+                                         **kwargs)
 
     @_preprocess_data()
     @_docstring.interpd
