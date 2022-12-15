@@ -1,5 +1,6 @@
 import io
 from types import SimpleNamespace
+from datetime import datetime
 
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -1181,3 +1182,22 @@ def test_set_offset_units():
     off0 = sc.get_offsets()
     sc.set_offsets(list(zip(y, d)))
     np.testing.assert_allclose(off0, sc.get_offsets())
+
+
+@image_comparison(baseline_images=["test_check_masked_offsets"],
+                  extensions=["png"], remove_text=True, style="mpl20")
+def test_check_masked_offsets():
+    # Check if masked data is respected by scatter
+    # Ref: Issue #24545
+    unmasked_x = [
+        datetime(2022, 12, 15, 4, 49, 52),
+        datetime(2022, 12, 15, 4, 49, 53),
+        datetime(2022, 12, 15, 4, 49, 54),
+        datetime(2022, 12, 15, 4, 49, 55),
+        datetime(2022, 12, 15, 4, 49, 56),
+    ]
+
+    masked_y = np.ma.array([1, 2, 3, 4, 5], mask=[0, 1, 1, 0, 0])
+
+    fig, ax = plt.subplots()
+    ax.scatter(unmasked_x, masked_y)
