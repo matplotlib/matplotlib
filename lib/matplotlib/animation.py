@@ -1654,9 +1654,20 @@ class FuncAnimation(TimedAnimation):
                 self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
                 self._save_count = len(frames)
+                if save_count is not None:
+                    _api.warn_external(
+                        f"You passed in an explicit {save_count=} "
+                        "which is being ignored in favor of "
+                        f"{len(frames)=}."
+                    )
         else:
             self._iter_gen = lambda: iter(range(frames))
             self._save_count = frames
+            if save_count is not None:
+                _api.warn_external(
+                    f"You passed in an explicit {save_count=} which is being "
+                    f"ignored in favor of {frames=}."
+                )
 
         self._cache_frame_data = cache_frame_data
 
