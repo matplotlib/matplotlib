@@ -34,24 +34,14 @@ from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar,
 )
 from mpl_toolkits.axes_grid1.axes_divider import (
-    Divider,
-    HBoxDivider,
-    SubplotDivider,
-    VBoxDivider,
-    make_axes_area_auto_adjustable,
-)
+    Divider, HBoxDivider, SubplotDivider, VBoxDivider,
+    make_axes_area_auto_adjustable)
 from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
-from mpl_toolkits.axes_grid1.inset_locator import (
-    BboxConnectorPatch,
-    InsetPosition,
-    inset_axes,
-    mark_inset,
-    zoomed_inset_axes,
-)
-from numpy.testing import (
-    assert_array_almost_equal,
-    assert_array_equal,
-)
+from mpl_toolkits.axes_grid1.inset_locator import (BboxConnectorPatch,
+                                                   InsetPosition, inset_axes,
+                                                   mark_inset,
+                                                   zoomed_inset_axes)
+from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 <<<<<<< HEAD
 import numpy as np
@@ -64,11 +54,9 @@ import matplotlib.ticker as mticker
 from matplotlib import cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
-from matplotlib.testing.decorators import (
-    check_figures_equal,
-    image_comparison,
-    remove_ticks_and_titles,
-)
+from matplotlib.testing.decorators import (check_figures_equal,
+                                           image_comparison,
+                                           remove_ticks_and_titles)
 from matplotlib.transforms import Bbox, TransformedBbox
 >>>>>>> 6d992cad91... fixed long line linter issues
 
@@ -215,7 +203,7 @@ def test_inset_locator():
     extent = (-3, 4, -4, 3)
     Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
-    Z2[30 : 30 + ny, 30 : 30 + nx] = Z
+    Z2[30:30 + ny, 30:30 + nx] = Z
 
     ax.imshow(
         Z2, extent=extent, interpolation="nearest", origin="lower"
@@ -266,7 +254,7 @@ def test_inset_axes():
     extent = (-3, 4, -4, 3)
     Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
-    Z2[30 : 30 + ny, 30 : 30 + nx] = Z
+    Z2[30:30 + ny, 30:30 + nx] = Z
 
     ax.imshow(
         Z2, extent=extent, interpolation="nearest", origin="lower"
