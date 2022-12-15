@@ -39,7 +39,7 @@ check = CheckButtons(
 def callback(label):
     ln = lines_by_label[label]
     ln.set_visible(not ln.get_visible())
-    plt.draw()
+    ln.figure.canvas.draw_idle()
 
 check.on_clicked(callback)
 
