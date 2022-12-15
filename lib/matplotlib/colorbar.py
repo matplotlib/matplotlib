@@ -1394,7 +1394,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     Parameters
     ----------
-    parents : `~.axes.Axes` or iterable of `~.axes.Axes`
+    parents : `~.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
     %(_make_axes_kw_doc)s
 
