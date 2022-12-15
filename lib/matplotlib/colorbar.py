@@ -1418,11 +1418,10 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     # turn parents into a list if it is not already.  Note we cannot
     # use .flatten or .ravel as these copy the references rather than
     # reuse them, leading to a memory leak
-    if np.iterable(parents):
-        if isinstance(parents, np.ndarray):
-            parents = list(parents.flat)
-        else:
-            parents = list(parents)
+    if isinstance(parents, np.ndarray):
+        parents = list(parents.flat)
+    elif np.iterable(parents):
+        parents = list(parents)
     else:
         parents = [parents]
 
