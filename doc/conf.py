@@ -619,7 +619,12 @@ texinfo_documents = [
 
 numpydoc_show_class_members = False
 
-inheritance_node_attrs = dict(fontsize=16)
+# We want to prevent any size limit, as we'll add scroll bars with CSS.
+inheritance_graph_attrs = dict(dpi=100, size='1000.0', splines='polyline')
+# Also remove minimum node dimensions, and increase line size a bit.
+inheritance_node_attrs = dict(height=0.02, margin=0.055, penwidth=1,
+                              width=0.01)
+inheritance_edge_attrs = dict(penwidth=1)
 
 graphviz_dot = shutil.which('dot')
 # Still use PNG until SVG linking is fixed
