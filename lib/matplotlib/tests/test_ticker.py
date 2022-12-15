@@ -223,7 +223,7 @@ class TestLogLocator:
         loc = mticker.LogLocator()
         with pytest.raises(
                 ValueError,
-                match='Data has no positive values, '
+                match='Data has non-positive values, '
                 'and therefore can not be log-scaled.'
         ):
             loc.tick_values(0, 1000)
