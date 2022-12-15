@@ -1596,10 +1596,7 @@ class Axes3D(Axes):
             rstride = int(max(np.ceil(rows / rcount), 1))
             cstride = int(max(np.ceil(cols / ccount), 1))
 
-        if 'facecolors' in kwargs:
-            fcolors = kwargs.pop('facecolors')
-        else:
-            fcolors = None
+        fcolors = kwargs.pop('facecolors', None)
 
         if fcolors is None:
             color = kwargs.pop('color', None)
