@@ -61,9 +61,9 @@ def stackplot(axes, x, *args,
     where: bool or array of bool, optional
         Passed to `.Axes.fill_between` and defines where to exclude horizontal
         regions from being filled. The filled regions are defined by the
-        coordinates `x[where]`. Can be either a single bool, an array of shape
-        (N,) or an array of shape (M, N).
-        Should be used together with kwarg `interpolate=True`.
+        coordinates ``x[where]``. Can be either a single bool, an array of
+        shape (N,) or an array of shape (M, N).  Should be used together with
+        kwarg ``interpolate=True``.
 
     **kwargs
         All other keyword arguments are passed to `.Axes.fill_between`.
@@ -73,6 +73,7 @@ def stackplot(axes, x, *args,
     list of `.PolyCollection`
         A list of `.PolyCollection` instances, one for each element in the
         stacked area plot.
+
     """
 
     y = np.row_stack(args)
