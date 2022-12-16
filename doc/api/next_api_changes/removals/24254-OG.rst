@@ -45,14 +45,12 @@ SpanSelector
 - The ``active_handle`` attribute has been privatized and removed.
 - The ``eventpress`` attribute has been privatized and removed.
 - The ``eventrelease`` attribute has been privatized and removed.
-- The *maxdist* argument and attribute is removed, use *grab_range* instead.
 - The ``pressv`` attribute has been privatized and removed.
 - The ``prev`` attribute has been privatized and removed.
 - The ``rect`` attribute has been privatized and removed.
-- The *rectprops* argument is removed, use *props* instead.
+- The *rectprops* parameter has been renamed to *props*.
 - The ``rectprops`` attribute has been privatized and removed.
-- The *span_stays* argument is removed, use the *interactive* argument
-  instead.
+- The *span_stays* parameter has been renamed to *interactive*.
 - The ``span_stays`` attribute has been privatized and removed.
 - The ``state`` attribute has been privatized and removed.
 
