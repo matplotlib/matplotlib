@@ -369,7 +369,7 @@ class Legend(Artist):
         Attributes
         ----------
         legend_handles
-            List of `.Artists` added as legend entries. 
+            List of `.Artist` objects added as legend entries.
 
             .. versionadded:: 3.7
 
