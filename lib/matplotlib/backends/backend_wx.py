@@ -696,8 +696,22 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
 
-    def _get_key(self, event):
+    @staticmethod
+    def _mpl_modifiers(event=None, *, exclude=None):
+        mod_table = [
+            ("ctrl", wx.MOD_CONTROL, wx.WXK_CONTROL),
+            ("alt", wx.MOD_ALT, wx.WXK_ALT),
+            ("shift", wx.MOD_SHIFT, wx.WXK_SHIFT),
+        ]
+        if event is not None:
+            modifiers = event.GetModifiers()
+            return [name for name, mod, key in mod_table
+                    if modifiers & mod and exclude != key]
+        else:
+            return [name for name, mod, key in mod_table
+                    if wx.GetKeyState(key)]
 
+    def _get_key(self, event):
         keyval = event.KeyCode
         if keyval in self.keyvald:
             key = self.keyvald[keyval]
@@ -708,18 +722,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             if not event.ShiftDown():
                 key = key.lower()
         else:
-            key = None
-
-        for meth, prefix, key_name in [
-                (event.ControlDown, 'ctrl', 'control'),
-                (event.AltDown, 'alt', 'alt'),
-                (event.ShiftDown, 'shift', 'shift'),
-        ]:
-            if meth() and key_name != key:
-                if not (key_name == 'shift' and key.isupper()):
-                    key = '{0}+{1}'.format(prefix, key)
-
-        return key
+            return None
+        mods = self._mpl_modifiers(event, exclude=keyval)
+        if "shift" in mods and key.isupper():
+            mods.remove("shift")
+        return "+".join([*mods, key])
 
     def _mpl_coords(self, pos=None):
         """
@@ -789,15 +796,17 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         }
         button = event.GetButton()
         button = button_map.get(button, button)
+        modifiers = self._mpl_modifiers(event)
         if event.ButtonDown():
-            MouseEvent("button_press_event", self,
-                       x, y, button, guiEvent=event)._process()
+            MouseEvent("button_press_event", self, x, y, button,
+                       modifiers=modifiers, guiEvent=event)._process()
         elif event.ButtonDClick():
-            MouseEvent("button_press_event", self,
-                       x, y, button, dblclick=True, guiEvent=event)._process()
+            MouseEvent("button_press_event", self, x, y, button,
+                       dblclick=True, modifiers=modifiers,
+                       guiEvent=event)._process()
         elif event.ButtonUp():
-            MouseEvent("button_release_event", self,
-                       x, y, button, guiEvent=event)._process()
+            MouseEvent("button_release_event", self, x, y, button,
+                       modifiers=modifiers, guiEvent=event)._process()
 
     def _on_mouse_wheel(self, event):
         """Translate mouse wheel events into matplotlib events"""
@@ -815,14 +824,16 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 return  # Return without processing event
             else:
                 self._skipwheelevent = True
-        MouseEvent("scroll_event", self,
-                   x, y, step=step, guiEvent=event)._process()
+        MouseEvent("scroll_event", self, x, y, step=step,
+                   modifiers=self._mpl_modifiers(event),
+                   guiEvent=event)._process()
 
     def _on_motion(self, event):
         """Start measuring on an axis."""
         event.Skip()
         MouseEvent("motion_notify_event", self,
                    *self._mpl_coords(event),
+                   modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
     def _on_enter(self, event):
@@ -830,6 +841,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         event.Skip()
         LocationEvent("figure_enter_event", self,
                       *self._mpl_coords(event),
+                      modifiers=self._mpl_modifiers(),
                       guiEvent=event)._process()
 
     def _on_leave(self, event):
@@ -837,6 +849,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         event.Skip()
         LocationEvent("figure_leave_event", self,
                       *self._mpl_coords(event),
+                      modifiers=self._mpl_modifiers(),
                       guiEvent=event)._process()
 
 

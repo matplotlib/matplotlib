@@ -109,44 +109,58 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         return x, y
 
     def scroll_event(self, controller, dx, dy):
-        MouseEvent("scroll_event", self,
-                   *self._mpl_coords(), step=dy)._process()
+        MouseEvent(
+            "scroll_event", self, *self._mpl_coords(), step=dy,
+            modifiers=self._mpl_modifiers(controller),
+        )._process()
         return True
 
     def button_press_event(self, controller, n_press, x, y):
-        MouseEvent("button_press_event", self,
-                   *self._mpl_coords((x, y)), controller.get_current_button()
-                   )._process()
+        MouseEvent(
+            "button_press_event", self, *self._mpl_coords((x, y)),
+            controller.get_current_button(),
+            modifiers=self._mpl_modifiers(controller),
+        )._process()
         self.grab_focus()
 
     def button_release_event(self, controller, n_press, x, y):
-        MouseEvent("button_release_event", self,
-                   *self._mpl_coords((x, y)), controller.get_current_button()
-                   )._process()
+        MouseEvent(
+            "button_release_event", self, *self._mpl_coords((x, y)),
+            controller.get_current_button(),
+            modifiers=self._mpl_modifiers(controller),
+        )._process()
 
     def key_press_event(self, controller, keyval, keycode, state):
-        KeyEvent("key_press_event", self,
-                 self._get_key(keyval, keycode, state), *self._mpl_coords()
-                 )._process()
+        KeyEvent(
+            "key_press_event", self, self._get_key(keyval, keycode, state),
+            *self._mpl_coords(),
+        )._process()
         return True
 
     def key_release_event(self, controller, keyval, keycode, state):
-        KeyEvent("key_release_event", self,
-                 self._get_key(keyval, keycode, state), *self._mpl_coords()
-                 )._process()
+        KeyEvent(
+            "key_release_event", self, self._get_key(keyval, keycode, state),
+            *self._mpl_coords(),
+        )._process()
         return True
 
     def motion_notify_event(self, controller, x, y):
-        MouseEvent("motion_notify_event", self,
-                   *self._mpl_coords((x, y)))._process()
-
-    def leave_notify_event(self, controller):
-        LocationEvent("figure_leave_event", self,
-                      *self._mpl_coords())._process()
+        MouseEvent(
+            "motion_notify_event", self, *self._mpl_coords((x, y)),
+            modifiers=self._mpl_modifiers(controller),
+        )._process()
 
     def enter_notify_event(self, controller, x, y):
-        LocationEvent("figure_enter_event", self,
-                      *self._mpl_coords((x, y)))._process()
+        LocationEvent(
+            "figure_enter_event", self, *self._mpl_coords((x, y)),
+            modifiers=self._mpl_modifiers(),
+        )._process()
+
+    def leave_notify_event(self, controller):
+        LocationEvent(
+            "figure_leave_event", self, *self._mpl_coords(),
+            modifiers=self._mpl_modifiers(),
+        )._process()
 
     def resize_event(self, area, width, height):
         self._update_device_pixel_ratio()
@@ -157,22 +171,37 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
 
+    def _mpl_modifiers(self, controller=None):
+        if controller is None:
+            surface = self.get_native().get_surface()
+            is_over, x, y, event_state = surface.get_device_position(
+                self.get_display().get_default_seat().get_pointer())
+        else:
+            event_state = controller.get_current_event_state()
+        mod_table = [
+            ("ctrl", Gdk.ModifierType.CONTROL_MASK),
+            ("alt", Gdk.ModifierType.ALT_MASK),
+            ("shift", Gdk.ModifierType.SHIFT_MASK),
+            ("super", Gdk.ModifierType.SUPER_MASK),
+        ]
+        return [name for name, mask in mod_table if event_state & mask]
+
     def _get_key(self, keyval, keycode, state):
         unikey = chr(Gdk.keyval_to_unicode(keyval))
         key = cbook._unikey_or_keysym_to_mplkey(
             unikey,
             Gdk.keyval_name(keyval))
         modifiers = [
-            (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
-            (Gdk.ModifierType.ALT_MASK, 'alt'),
-            (Gdk.ModifierType.SHIFT_MASK, 'shift'),
-            (Gdk.ModifierType.SUPER_MASK, 'super'),
+            ("ctrl", Gdk.ModifierType.CONTROL_MASK, "control"),
+            ("alt", Gdk.ModifierType.ALT_MASK, "alt"),
+            ("shift", Gdk.ModifierType.SHIFT_MASK, "shift"),
+            ("super", Gdk.ModifierType.SUPER_MASK, "super"),
         ]
-        for key_mask, prefix in modifiers:
-            if state & key_mask:
-                if not (prefix == 'shift' and unikey.isprintable()):
-                    key = f'{prefix}+{key}'
-        return key
+        mods = [
+            mod for mod, mask, mod_key in modifiers
+            if (mod_key != key and state & mask
+                and not (mod == "shift" and unikey.isprintable()))]
+        return "+".join([*mods, key])
 
     def _update_device_pixel_ratio(self, *args, **kwargs):
         # We need to be careful in cases with mixed resolution displays if
