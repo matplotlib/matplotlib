@@ -693,3 +693,9 @@ def test_contour_remove():
     assert ax.get_children() != orig_children
     cs.remove()
     assert ax.get_children() == orig_children
+
+
+def test_countour_kwargsonly():
+    # Smoke test for GH#24743
+    # Passing only kwargs
+    plt.contour(Z=np.random.rand(30, 30))

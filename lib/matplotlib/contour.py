@@ -1386,7 +1386,7 @@ class QuadContourSet(ContourSet):
         """
         Process args and kwargs.
         """
-        if isinstance(args[0], QuadContourSet):
+        if args and isinstance(args[0], QuadContourSet):
             if self.levels is None:
                 self.levels = args[0].levels
             self.zmin = args[0].zmin
