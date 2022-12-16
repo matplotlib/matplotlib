@@ -67,5 +67,5 @@ def update(frame_number):
 
 
 # Construct the animation, using the update function as the animation director.
-animation = FuncAnimation(fig, update, interval=10)
+animation = FuncAnimation(fig, update, interval=10, save_count=100)
 plt.show()
