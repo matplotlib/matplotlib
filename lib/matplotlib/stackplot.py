@@ -65,6 +65,8 @@ def stackplot(axes, x, *args,
         shape (N,) or an array of shape (M, N).  Should be used together with
         kwarg ``interpolate=True``.
 
+        .. versionadded:: 3.7
+
     **kwargs
         All other keyword arguments are passed to `.Axes.fill_between`.
 

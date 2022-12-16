@@ -2857,7 +2857,7 @@ def test_log_scales_invalid():
         ax.set_ylim(-1, 10)
 
 
-@image_comparison(['stackplot_test_image', 'stackplot_test_image'])
+@image_comparison(['stackploty_test_image', 'stackplot_test_image'])
 def test_stackplot():
     fig = plt.figure()
     x = np.linspace(0, 10, 10)
