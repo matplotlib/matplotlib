@@ -47,6 +47,7 @@ def test_boxarrow():
                  transform=fig.transFigure,
                  bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
+
 @image_comparison(['roadsign_test_image.png'])
 def temp_test_boxarrow():
 
@@ -63,10 +64,11 @@ def temp_test_boxarrow():
     for i, stylename in enumerate(sorted(styles)):
         if stylename in ("larrow", "rarrow", "darrow"):
             fig.text(0.5, ((n - i) * spacing - 0.5)/figheight, stylename,
-                    ha="center",
-                    size=fontsize,
-                    transform=fig.transFigure,
-                    bbox=dict(boxstyle=stylename+",head_width=1", fc="w", ec="k"))
+                        ha="center",
+                        size=fontsize,
+                        transform=fig.transFigure,
+                        bbox=dict(boxstyle=stylename+",head_width=1", fc="w",
+                                    ec="k"))
 
 
 def __prepare_fancyarrow_dpi_cor_test():
