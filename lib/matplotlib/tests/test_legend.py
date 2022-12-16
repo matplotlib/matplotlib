@@ -10,6 +10,7 @@ from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
@@ -17,6 +18,7 @@ from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 from matplotlib import rc_context
 from matplotlib.font_manager import FontProperties
+from numpy.testing import assert_allclose
 
 
 def test_legend_ordereddict():
@@ -67,6 +69,60 @@ def test_legend_auto3():
     ax.set_xlim(0.0, 1.0)
     ax.set_ylim(0.0, 1.0)
     ax.legend(loc='best')
+
+
+def test_legend_auto4():
+    """
+    Check that the legend location with automatic placement is the same,
+    whatever the histogram type is. Related to issue #9580.
+    """
+    # NB: barstacked is pointless with a single dataset.
+    fig, axs = plt.subplots(ncols=3, figsize=(6.4, 2.4))
+    leg_bboxes = []
+    for ax, ht in zip(axs.flat, ('bar', 'step', 'stepfilled')):
+        ax.set_title(ht)
+        # A high bar on the left but an even higher one on the right.
+        ax.hist([0] + 5*[9], bins=range(10), label="Legend", histtype=ht)
+        leg = ax.legend(loc="best")
+        fig.canvas.draw()
+        leg_bboxes.append(
+            leg.get_window_extent().transformed(ax.transAxes.inverted()))
+
+    # The histogram type "bar" is assumed to be the correct reference.
+    assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
+    assert_allclose(leg_bboxes[2].bounds, leg_bboxes[0].bounds)
+
+
+def test_legend_auto5():
+    """
+    Check that the automatic placement handle a rather complex
+    case with non rectangular patch. Related to issue #9580.
+    """
+    fig, axs = plt.subplots(ncols=2, figsize=(9.6, 4.8))
+
+    leg_bboxes = []
+    for ax, loc in zip(axs.flat, ("center", "best")):
+        # An Ellipse patch at the top, a U-shaped Polygon patch at the
+        # bottom and a ring-like Wedge patch: the correct placement of
+        # the legend should be in the center.
+        for _patch in [
+                mpatches.Ellipse(
+                    xy=(0.5, 0.9), width=0.8, height=0.2, fc="C1"),
+                mpatches.Polygon(np.array([
+                    [0, 1], [0, 0], [1, 0], [1, 1], [0.9, 1.0], [0.9, 0.1],
+                    [0.1, 0.1], [0.1, 1.0], [0.1, 1.0]]), fc="C1"),
+                mpatches.Wedge((0.5, 0.5), 0.5, 0, 360, width=0.05, fc="C0")
+                ]:
+            ax.add_patch(_patch)
+
+        ax.plot([0.1, 0.9], [0.9, 0.9], label="A segment")  # sthg to label
+
+        leg = ax.legend(loc=loc)
+        fig.canvas.draw()
+        leg_bboxes.append(
+            leg.get_window_extent().transformed(ax.transAxes.inverted()))
+
+    assert_allclose(leg_bboxes[1].bounds, leg_bboxes[0].bounds)
 
 
 @image_comparison(['legend_various_labels'], remove_text=True)

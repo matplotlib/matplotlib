@@ -265,6 +265,14 @@ class WebAggApplication(tornado.web.Application):
 
     @classmethod
     def start(cls):
+        import asyncio
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            pass
+        else:
+            cls.started = True
+
         if cls.started:
             return
 
@@ -306,8 +314,12 @@ def ipython_inline_display(figure):
     import tornado.template
 
     WebAggApplication.initialize()
-    if not webagg_server_thread.is_alive():
-        webagg_server_thread.start()
+    import asyncio
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        if not webagg_server_thread.is_alive():
+            webagg_server_thread.start()
 
     fignum = figure.number
     tpl = Path(core.FigureManagerWebAgg.get_static_file_path(),

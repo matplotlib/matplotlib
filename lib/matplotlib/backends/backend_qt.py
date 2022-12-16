@@ -267,14 +267,19 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         return x * self.device_pixel_ratio, y * self.device_pixel_ratio
 
     def enterEvent(self, event):
+        # Force querying of the modifiers, as the cached modifier state can
+        # have been invalidated while the window was out of focus.
+        mods = QtWidgets.QApplication.instance().queryKeyboardModifiers()
         LocationEvent("figure_enter_event", self,
                       *self.mouseEventCoords(event),
+                      modifiers=self._mpl_modifiers(mods),
                       guiEvent=event)._process()
 
     def leaveEvent(self, event):
         QtWidgets.QApplication.restoreOverrideCursor()
         LocationEvent("figure_leave_event", self,
                       *self.mouseEventCoords(),
+                      modifiers=self._mpl_modifiers(),
                       guiEvent=event)._process()
 
     def mousePressEvent(self, event):
@@ -282,6 +287,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if button is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button,
+                       modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
 
     def mouseDoubleClickEvent(self, event):
@@ -289,11 +295,13 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if button is not None:
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event), button, dblclick=True,
+                       modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
         MouseEvent("motion_notify_event", self,
                    *self.mouseEventCoords(event),
+                   modifiers=self._mpl_modifiers(),
                    guiEvent=event)._process()
 
     def mouseReleaseEvent(self, event):
@@ -301,6 +309,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if button is not None:
             MouseEvent("button_release_event", self,
                        *self.mouseEventCoords(event), button,
+                       modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
 
     def wheelEvent(self, event):
@@ -314,6 +323,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if steps:
             MouseEvent("scroll_event", self,
                        *self.mouseEventCoords(event), step=steps,
+                       modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
 
     def keyPressEvent(self, event):
@@ -356,18 +366,23 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     def minumumSizeHint(self):
         return QtCore.QSize(10, 10)
 
-    def _get_key(self, event):
-        event_key = event.key()
-        event_mods = _to_int(event.modifiers())  # actually a bitmask
-
+    @staticmethod
+    def _mpl_modifiers(modifiers=None, *, exclude=None):
+        if modifiers is None:
+            modifiers = QtWidgets.QApplication.instance().keyboardModifiers()
+        modifiers = _to_int(modifiers)
         # get names of the pressed modifier keys
         # 'control' is named 'control' when a standalone key, but 'ctrl' when a
         # modifier
-        # bit twiddling to pick out modifier keys from event_mods bitmask,
-        # if event_key is a MODIFIER, it should not be duplicated in mods
-        mods = [SPECIAL_KEYS[key].replace('control', 'ctrl')
-                for mod, key in _MODIFIER_KEYS
-                if event_key != key and event_mods & mod]
+        # bit twiddling to pick out modifier keys from modifiers bitmask,
+        # if exclude is a MODIFIER, it should not be duplicated in mods
+        return [SPECIAL_KEYS[key].replace('control', 'ctrl')
+                for mask, key in _MODIFIER_KEYS
+                if exclude != key and modifiers & mask]
+
+    def _get_key(self, event):
+        event_key = event.key()
+        mods = self._mpl_modifiers(exclude=event_key)
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
             # key, rather than Unicode

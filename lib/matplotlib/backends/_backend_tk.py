@@ -273,16 +273,19 @@ class FigureCanvasTk(FigureCanvasBase):
     def motion_notify_event(self, event):
         MouseEvent("motion_notify_event", self,
                    *self._event_mpl_coords(event),
+                   modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
     def enter_notify_event(self, event):
         LocationEvent("figure_enter_event", self,
                       *self._event_mpl_coords(event),
+                      modifiers=self._mpl_modifiers(event),
                       guiEvent=event)._process()
 
     def leave_notify_event(self, event):
         LocationEvent("figure_leave_event", self,
                       *self._event_mpl_coords(event),
+                      modifiers=self._mpl_modifiers(event),
                       guiEvent=event)._process()
 
     def button_press_event(self, event, dblclick=False):
@@ -294,6 +297,7 @@ class FigureCanvasTk(FigureCanvasBase):
             num = {2: 3, 3: 2}.get(num, num)
         MouseEvent("button_press_event", self,
                    *self._event_mpl_coords(event), num, dblclick=dblclick,
+                   modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
     def button_dblclick_event(self, event):
@@ -305,6 +309,7 @@ class FigureCanvasTk(FigureCanvasBase):
             num = {2: 3, 3: 2}.get(num, num)
         MouseEvent("button_release_event", self,
                    *self._event_mpl_coords(event), num,
+                   modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
     def scroll_event(self, event):
@@ -312,6 +317,7 @@ class FigureCanvasTk(FigureCanvasBase):
         step = 1 if num == 4 else -1 if num == 5 else 0
         MouseEvent("scroll_event", self,
                    *self._event_mpl_coords(event), step=step,
+                   modifiers=self._mpl_modifiers(event),
                    guiEvent=event)._process()
 
     def scroll_event_windows(self, event):
@@ -325,12 +331,11 @@ class FigureCanvasTk(FigureCanvasBase):
              - self._tkcanvas.canvasy(event.y_root - w.winfo_rooty()))
         step = event.delta / 120
         MouseEvent("scroll_event", self,
-                   x, y, step=step, guiEvent=event)._process()
+                   x, y, step=step, modifiers=self._mpl_modifiers(event),
+                   guiEvent=event)._process()
 
-    def _get_key(self, event):
-        unikey = event.char
-        key = cbook._unikey_or_keysym_to_mplkey(unikey, event.keysym)
-
+    @staticmethod
+    def _mpl_modifiers(event, *, exclude=None):
         # add modifier keys to the key string. Bit details originate from
         # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
         # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004;
@@ -339,32 +344,33 @@ class FigureCanvasTk(FigureCanvasBase):
         # In general, the modifier key is excluded from the modifier flag,
         # however this is not the case on "darwin", so double check that
         # we aren't adding repeat modifier flags to a modifier key.
-        if sys.platform == 'win32':
-            modifiers = [(2, 'ctrl', 'control'),
-                         (17, 'alt', 'alt'),
-                         (0, 'shift', 'shift'),
-                         ]
-        elif sys.platform == 'darwin':
-            modifiers = [(2, 'ctrl', 'control'),
-                         (4, 'alt', 'alt'),
-                         (0, 'shift', 'shift'),
-                         (3, 'super', 'super'),
-                         ]
-        else:
-            modifiers = [(2, 'ctrl', 'control'),
-                         (3, 'alt', 'alt'),
-                         (0, 'shift', 'shift'),
-                         (6, 'super', 'super'),
-                         ]
+        modifiers = [
+            ("ctrl", 1 << 2, "control"),
+            ("alt", 1 << 17, "alt"),
+            ("shift", 1 << 0, "shift"),
+        ] if sys.platform == "win32" else [
+            ("ctrl", 1 << 2, "control"),
+            ("alt", 1 << 4, "alt"),
+            ("shift", 1 << 0, "shift"),
+            ("super", 1 << 3, "super"),
+        ] if sys.platform == "darwin" else [
+            ("ctrl", 1 << 2, "control"),
+            ("alt", 1 << 3, "alt"),
+            ("shift", 1 << 0, "shift"),
+            ("super", 1 << 6, "super"),
+        ]
+        return [name for name, mask, key in modifiers
+                if event.state & mask and exclude != key]
 
+    def _get_key(self, event):
+        unikey = event.char
+        key = cbook._unikey_or_keysym_to_mplkey(unikey, event.keysym)
         if key is not None:
-            # shift is not added to the keys as this is already accounted for
-            for bitmask, prefix, key_name in modifiers:
-                if event.state & (1 << bitmask) and key_name not in key:
-                    if not (prefix == 'shift' and unikey):
-                        key = '{0}+{1}'.format(prefix, key)
-
-        return key
+            mods = self._mpl_modifiers(event, exclude=key)
+            # shift is not added to the keys as this is already accounted for.
+            if "shift" in mods and unikey:
+                mods.remove("shift")
+            return "+".join([*mods, key])
 
     def key_press(self, event):
         KeyEvent("key_press_event", self,

@@ -1394,7 +1394,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     Parameters
     ----------
-    parents : `~.axes.Axes` or list or `numpy.ndarray` of `~.axes.Axes`
+    parents : `~.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
     %(_make_axes_kw_doc)s
 
@@ -1420,8 +1420,11 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     # reuse them, leading to a memory leak
     if isinstance(parents, np.ndarray):
         parents = list(parents.flat)
-    elif not isinstance(parents, list):
+    elif np.iterable(parents):
+        parents = list(parents)
+    else:
         parents = [parents]
+
     fig = parents[0].get_figure()
 
     pad0 = 0.05 if fig.get_constrained_layout() else loc_settings['pad']

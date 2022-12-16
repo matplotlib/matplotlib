@@ -45,6 +45,12 @@ from . import axis3d
 class Axes3D(Axes):
     """
     3D Axes object.
+
+    .. note::
+
+        As a user, you do not instantiate Axes directly, but use Axes creation
+        methods instead; e.g. from `.pyplot` or `.Figure`:
+        `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` or `.Figure.add_axes`.
     """
     name = '3d'
 
@@ -318,9 +324,6 @@ class Axes3D(Axes):
         """
         _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
                            aspect=aspect)
-        if adjustable is None:
-            adjustable = self._adjustable
-        _api.check_in_list(('box', 'datalim'), adjustable=adjustable)
         super().set_aspect(
             aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
         self._aspect = aspect
@@ -332,7 +335,7 @@ class Axes3D(Axes):
                                        self.yaxis.get_view_interval(),
                                        self.zaxis.get_view_interval()])
             ptp = np.ptp(view_intervals, axis=1)
-            if adjustable == 'datalim':
+            if self._adjustable == 'datalim':
                 mean = np.mean(view_intervals, axis=1)
                 delta = max(ptp[ax_indices])
                 scale = self._box_aspect[ptp == delta][0]
@@ -384,9 +387,8 @@ class Axes3D(Axes):
 
         The box aspect is the ratio of height to width in display
         units for each face of the box when viewed perpendicular to
-        that face.  This is not to be confused with the data aspect
-        (which for Axes3D is always 'auto').  The default ratios are
-        4:4:3 (x:y:z).
+        that face.  This is not to be confused with the data aspect (see
+        `~.Axes3D.set_aspect`). The default ratios are 4:4:3 (x:y:z).
 
         To simulate having equal aspect in data space, set the box
         aspect to match your data range in each dimension.

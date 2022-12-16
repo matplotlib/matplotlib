@@ -141,6 +141,7 @@ commands:
                [ "$CIRCLE_PR_NUMBER" = "" ]; then
               export RELEASE_TAG='-t release'
             fi
+            mkdir -p logs
             make html O="-T $RELEASE_TAG -j4 -w /tmp/sphinxerrorswarnings.log"
             rm -r build/html/_sources
           working_directory: doc
@@ -154,20 +155,35 @@ commands:
       - run:
           name: Extract possible build errors and warnings
           command: |
-           (grep "WARNING\|ERROR" /tmp/sphinxerrorswarnings.log ||
-            echo "No errors or warnings")
+            (grep "WARNING\|ERROR" /tmp/sphinxerrorswarnings.log ||
+             echo "No errors or warnings")
+            # Save logs as an artifact, and convert from absolute paths to
+            # repository-relative paths.
+            sed "s~$PWD/~~" /tmp/sphinxerrorswarnings.log > \
+              doc/logs/sphinx-errors-warnings.log
           when: always
+      - store_artifacts:
+          path: doc/logs/sphinx-errors-warnings.log
 
   doc-show-deprecations:
     steps:
       - run:
           name: Extract possible deprecation warnings in examples and tutorials
           command: |
-           (grep DeprecationWarning -r -l doc/build/html/gallery ||
-            echo "No deprecation warnings in gallery")
-           (grep DeprecationWarning -r -l doc/build/html/tutorials ||
-            echo "No deprecation warnings in tutorials")
+            (grep -rl DeprecationWarning doc/build/html/gallery ||
+             echo "No deprecation warnings in gallery")
+            (grep -rl DeprecationWarning doc/build/html/plot_types ||
+             echo "No deprecation warnings in plot_types")
+            (grep -rl DeprecationWarning doc/build/html/tutorials ||
+             echo "No deprecation warnings in tutorials")
+            # Save deprecations that are from this absolute directory, and
+            # convert to repository-relative paths.
+            (grep -Ero --no-filename "$PWD/.+DeprecationWarning.+$" \
+             doc/build/html/{gallery,plot_types,tutorials} || echo) | \
+              sed "s~$PWD/~~" > doc/logs/sphinx-deprecations.log
           when: always
+      - store_artifacts:
+          path: doc/logs/sphinx-deprecations.log
 
   doc-bundle:
     steps:

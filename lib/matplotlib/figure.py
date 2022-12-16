@@ -1195,7 +1195,7 @@ default: %(va)s
         cax : `~matplotlib.axes.Axes`, optional
             Axes into which the colorbar will be drawn.
 
-        ax : `~.axes.Axes` or list or `numpy.ndarray` of Axes, optional
+        ax : `~.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
             One or more parent axes from which space for a new colorbar axes
             will be stolen, if *cax* is None.  This has no effect if *cax* is
             set.

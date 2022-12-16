@@ -84,7 +84,7 @@ def test_shared():
     plt.close(f)
 
     # test all option combinations
-    ops = [False, True, 'all', 'none', 'row', 'col']
+    ops = [False, True, 'all', 'none', 'row', 'col', 0, 1]
     for xo in ops:
         for yo in ops:
             f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=xo, sharey=yo)

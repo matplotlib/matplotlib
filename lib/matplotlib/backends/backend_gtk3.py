@@ -133,19 +133,23 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
 
     def scroll_event(self, widget, event):
         step = 1 if event.direction == Gdk.ScrollDirection.UP else -1
-        MouseEvent("scroll_event", self, *self._mpl_coords(event), step=step,
+        MouseEvent("scroll_event", self,
+                   *self._mpl_coords(event), step=step,
+                   modifiers=self._mpl_modifiers(event.state),
                    guiEvent=event)._process()
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
         MouseEvent("button_press_event", self,
                    *self._mpl_coords(event), event.button,
+                   modifiers=self._mpl_modifiers(event.state),
                    guiEvent=event)._process()
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
         MouseEvent("button_release_event", self,
                    *self._mpl_coords(event), event.button,
+                   modifiers=self._mpl_modifiers(event.state),
                    guiEvent=event)._process()
         return False  # finish event propagation?
 
@@ -163,15 +167,22 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
 
     def motion_notify_event(self, widget, event):
         MouseEvent("motion_notify_event", self, *self._mpl_coords(event),
+                   modifiers=self._mpl_modifiers(event.state),
                    guiEvent=event)._process()
         return False  # finish event propagation?
 
     def enter_notify_event(self, widget, event):
+        gtk_mods = Gdk.Keymap.get_for_display(
+            self.get_display()).get_modifier_state()
         LocationEvent("figure_enter_event", self, *self._mpl_coords(event),
+                      modifiers=self._mpl_modifiers(gtk_mods),
                       guiEvent=event)._process()
 
     def leave_notify_event(self, widget, event):
+        gtk_mods = Gdk.Keymap.get_for_display(
+            self.get_display()).get_modifier_state()
         LocationEvent("figure_leave_event", self, *self._mpl_coords(event),
+                      modifiers=self._mpl_modifiers(gtk_mods),
                       guiEvent=event)._process()
 
     def size_allocate(self, widget, allocation):
@@ -182,22 +193,25 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
 
+    @staticmethod
+    def _mpl_modifiers(event_state, *, exclude=None):
+        modifiers = [
+            ("ctrl", Gdk.ModifierType.CONTROL_MASK, "control"),
+            ("alt", Gdk.ModifierType.MOD1_MASK, "alt"),
+            ("shift", Gdk.ModifierType.SHIFT_MASK, "shift"),
+            ("super", Gdk.ModifierType.MOD4_MASK, "super"),
+        ]
+        return [name for name, mask, key in modifiers
+                if exclude != key and event_state & mask]
+
     def _get_key(self, event):
         unikey = chr(Gdk.keyval_to_unicode(event.keyval))
         key = cbook._unikey_or_keysym_to_mplkey(
-            unikey,
-            Gdk.keyval_name(event.keyval))
-        modifiers = [
-            (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
-            (Gdk.ModifierType.MOD1_MASK, 'alt'),
-            (Gdk.ModifierType.SHIFT_MASK, 'shift'),
-            (Gdk.ModifierType.MOD4_MASK, 'super'),
-        ]
-        for key_mask, prefix in modifiers:
-            if event.state & key_mask:
-                if not (prefix == 'shift' and unikey.isprintable()):
-                    key = f'{prefix}+{key}'
-        return key
+            unikey, Gdk.keyval_name(event.keyval))
+        mods = self._mpl_modifiers(event.state, exclude=key)
+        if "shift" in mods and unikey.isprintable():
+            mods.remove("shift")
+        return "+".join([*mods, key])
 
     def _update_device_pixel_ratio(self, *args, **kwargs):
         # We need to be careful in cases with mixed resolution displays if

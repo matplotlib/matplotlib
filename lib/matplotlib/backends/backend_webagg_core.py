@@ -290,22 +290,23 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         button = event['button'] + 1
 
         e_type = event['type']
+        modifiers = event['modifiers']
         guiEvent = event.get('guiEvent')
         if e_type in ['button_press', 'button_release']:
             MouseEvent(e_type + '_event', self, x, y, button,
-                       guiEvent=guiEvent)._process()
+                       modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type == 'dblclick':
             MouseEvent('button_press_event', self, x, y, button, dblclick=True,
-                       guiEvent=guiEvent)._process()
+                       modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type == 'scroll':
             MouseEvent('scroll_event', self, x, y, step=event['step'],
-                       guiEvent=guiEvent)._process()
+                       modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type == 'motion_notify':
             MouseEvent(e_type + '_event', self, x, y,
-                       guiEvent=guiEvent)._process()
+                       modifiers=modifiers, guiEvent=guiEvent)._process()
         elif e_type in ['figure_enter', 'figure_leave']:
             LocationEvent(e_type + '_event', self, x, y,
-                          guiEvent=guiEvent)._process()
+                          modifiers=modifiers, guiEvent=guiEvent)._process()
     handle_button_press = handle_button_release = handle_dblclick = \
         handle_figure_enter = handle_figure_leave = handle_motion_notify = \
         handle_scroll = _handle_mouse

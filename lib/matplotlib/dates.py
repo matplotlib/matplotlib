@@ -444,7 +444,10 @@ def date2num(d):
     if not iterable:
         d = [d]
 
+    masked = np.ma.is_masked(d)
+    mask = np.ma.getmask(d)
     d = np.asarray(d)
+
     # convert to datetime64 arrays, if not already:
     if not np.issubdtype(d.dtype, np.datetime64):
         # datetime arrays
@@ -458,6 +461,7 @@ def date2num(d):
             d = np.asarray(d)
         d = d.astype('datetime64[us]')
 
+    d = np.ma.masked_array(d, mask=mask) if masked else d
     d = _dt64_to_ordinalf(d)
 
     return d if iterable else d[0]
