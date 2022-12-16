@@ -1,5 +1,6 @@
 import pytest
 import platform
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.patches as mpatches
@@ -175,3 +176,34 @@ def test_invalid_intersection():
     p2 = mpatches.FancyArrowPatch((.2, .2), (.5, .5),
                                   connectionstyle=conn_style_2)
     plt.gca().add_patch(p2)
+
+@image_comparison(['vector_test_image.png'], style='default', remove_text=True)
+def test_vector_display():
+    # example plot taken from draft pull requestion conversation
+    # https://github.com/matplotlib/matplotlib/pull/22435#issuecomment-1036247458
+
+    fig, ax = plt.subplots()
+
+    ax.vector(0.75, 2, 1.0, 2, delta=False, label='dash1')
+    ax.vector(2, 1, 2, 3, delta=False, label='3 bar')
+    ax.vector(2, 3, 1, 3, delta=False, label='3 top')
+    ax.vector(2, 2, 1.5 - 0.25, 2, delta=False, label='3 mid')
+    ax.vector(2, 1, 1, 1, delta=False, label='3 bottom')
+
+    ax.vector(3, 1, 3, 3, delta=False, label='1 bar')
+    ax.vector(3, 3, -0.5, -0.5, delta=True, label='1 dash')
+
+    shift = 2.5
+
+    ax.vector(2 + shift, 1, 2+ shift, 3, delta=False, label='3 bar')
+    ax.vector(2+ shift, 3, 1+ shift, 3, delta=False, label='3 top')
+    ax.vector(2+ shift, 2, 1.5+ shift - 0.25, 2, delta=False, label='3 mid')
+    ax.vector(2+ shift, 1, 1+ shift, 1, delta=False, label='3 bottom')
+    
+    ax.vector(5.5, 2, 5, 2, delta=False, label='dash2')
+
+
+    plt.xlabel(r"$\mathbb{X}$", size=16)
+    plt.ylabel(r"$\mathbb{Y}$", size=16)
+    plt.grid(ls='-.')
+    plt.legend()
