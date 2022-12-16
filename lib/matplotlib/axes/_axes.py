@@ -5117,6 +5117,11 @@ default: :rc:`scatter.edgecolors`
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
+        _api.warn_deprecated(
+            "3.6", message="Arrow(x,y,dx,dy) is deprecated since "
+            "%(since)s; support will be removed %(removal)s.  Use "
+            "Vector(x,y,dx,dy) to construct a vector from point (x, y) "
+            "to point (x + dx, y + dy).")
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
         dx = self.convert_xunits(dx)
@@ -5126,8 +5131,8 @@ default: :rc:`scatter.edgecolors`
         self.add_patch(a)
         self._request_autoscale_view()
         return a
-    
-    def vector (self, x, y, dx, dy, delta=True, **kwargs):
+
+    def vector(self, x, y, dx, dy, **kwargs):
         """
         Add a vector from starting point (x, y) to endpoint (x + dx, y + dy) when 
         delta = True, treating dx,dy as deltas, or end point (dx, dy) when delta = False.
@@ -5141,7 +5146,7 @@ default: :rc:`scatter.edgecolors`
     
 
         Parameters
-        -----------
+        ----------
         x : float
         y : float
         dx : float
@@ -5167,12 +5172,12 @@ default: :rc:`scatter.edgecolors`
             "tail_width": kwargs.get("tail_width", 4) / ms,
         }
 
-        vector.set_arrowstyle(kwargs.get("arrowstyle", "simple"), **style_kwargs)
+        vector.set_arrowstyle(kwargs.get("arrowstyle", 
+                              "simple"), **style_kwargs)
         self.add_patch(vector)
         self.update_datalim([(x, y), (x + dx, y + dy)])
         self._request_autoscale_view()
         return vector
-
 
     @_docstring.copy(mquiver.QuiverKey.__init__)
     def quiverkey(self, Q, X, Y, U, label, **kwargs):
