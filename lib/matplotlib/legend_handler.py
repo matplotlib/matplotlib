@@ -161,8 +161,9 @@ class HandlerBase:
             The fontsize in pixels. The legend artists being created should
             be scaled according to the given fontsize.
         trans :  `~matplotlib.transforms.Transform`
-            The transform that is applied to the legend artists being created.  Typically 
-            from unit coordinates in the handler box to screen coordinates.
+            The transform that is applied to the legend artists being created.
+            Typically from unit coordinates in the handler box to screen
+            coordinates.
         """
         raise NotImplementedError('Derived must override')
 
@@ -307,7 +308,7 @@ class HandlerLine2D(HandlerNpoints):
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
-        # Doc-string inherited
+        # docstring inherited
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
 
@@ -372,7 +373,7 @@ class HandlerPatch(HandlerBase):
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
-        # Doc-string inherited
+        # docstring inherited
         p = self._create_patch(legend, orig_handle,
                                xdescent, ydescent, width, height, fontsize)
         self.update_prop(p, orig_handle, legend)
@@ -406,7 +407,7 @@ class HandlerStepPatch(HandlerBase):
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
-        # Doc-string inherited
+        # docstring inherited
         if orig_handle.get_fill() or (orig_handle.get_hatch() is not None):
             p = self._create_patch(orig_handle, xdescent, ydescent, width,
                                    height)
@@ -437,7 +438,7 @@ class HandlerLineCollection(HandlerLine2D):
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
-        # Doc-string inherited
+        # docstring inherited
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
         ydata = np.full_like(xdata, (height - ydescent) / 2)
@@ -504,7 +505,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
-        # Doc-string inherited
+        # docstring inherited
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
 
@@ -568,7 +569,7 @@ class HandlerErrorbar(HandlerLine2D):
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
-        # Doc-string inherited
+        # docstring inherited
         plotlines, caplines, barlinecols = orig_handle
 
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
@@ -687,7 +688,7 @@ class HandlerStem(HandlerNpointsYoffsets):
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
-        # Doc-string inherited
+        # docstring inherited
         markerline, stemlines, baseline = orig_handle
         # Check to see if the stemcontainer is storing lines as a list or a
         # LineCollection. Eventually using a list will be removed, and this
@@ -765,7 +766,7 @@ class HandlerTuple(HandlerBase):
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
-        # Doc-string inherited
+        # docstring inherited
         handler_map = legend.get_legend_handler_map()
 
         if self._ndivide is None:
@@ -832,7 +833,7 @@ class HandlerPolyCollection(HandlerBase):
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
-        # Doc-string inherited
+        # docstring inherited
         p = Rectangle(xy=(-xdescent, -ydescent),
                       width=width, height=height)
         self.update_prop(p, orig_handle, legend)
