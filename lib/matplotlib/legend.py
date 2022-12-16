@@ -360,7 +360,7 @@ class Legend(Artist):
         labels : list of str
             A list of labels to show next to the artists. The length of handles
             and labels should be the same. If they are not, they are truncated
-            to the shortest of both lengths.
+            to the length of the shorter list.
 
         Other Parameters
         ----------------
@@ -369,7 +369,7 @@ class Legend(Artist):
         Attributes
         ----------
         legend_handles
-            A list of legend handles used by the legend.
+            List of `.Artists` added as legend entries. 
 
             .. versionadded:: 3.7
 

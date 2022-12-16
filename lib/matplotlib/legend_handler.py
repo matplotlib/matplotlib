@@ -18,7 +18,7 @@ plot, *fontsize* is the fontsize in pixels, and *handlebox* is an
 `.OffsetBox` instance. Within the call, you should create relevant
 artists (using relevant properties from the *legend* and/or
 *orig_handle*) and add them into the *handlebox*. The artists need to
-be scaled according to the *fontsize* (note that the size is in pixel,
+be scaled according to the *fontsize* (note that the size is in pixels,
 i.e., this is dpi-scaled value).
 
 This module includes definition of several legend handler classes
@@ -161,7 +161,8 @@ class HandlerBase:
             The fontsize in pixels. The legend artists being created should
             be scaled according to the given fontsize.
         trans :  `~matplotlib.transforms.Transform`
-            The transform that is applied to the legend artists being created.
+            The transform that is applied to the legend artists being created.  Typically 
+            from unit coordinates in the handler box to screen coordinates.
         """
         raise NotImplementedError('Derived must override')
 
@@ -247,7 +248,7 @@ class HandlerLine2DCompound(HandlerNpoints):
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
-        # Doc-string inherited
+        # docstring inherited
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
 
