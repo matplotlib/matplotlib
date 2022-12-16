@@ -1209,4 +1209,5 @@ def test_colorbar_axes_parmeters():
     fig.colorbar(im, ax=ax[0])
     fig.colorbar(im, ax=[_ax for _ax in ax])
     fig.colorbar(im, ax=(ax[0], ax[1]))
+    fig.colorbar(im, ax={i: _ax for i, _ax in enumerate(ax)}.values())
     fig.draw_without_rendering()
