@@ -526,7 +526,7 @@ class Legend(Artist):
         self._alignment = alignment
 
         # init with null renderer
-        self._init_legend_box(handles, labels, markerfirst, reverse)
+        self._init_legend_box(handles, labels,reverse, markerfirst)
 
         tmp = self._loc_used_default
         self._set_loc(loc)
@@ -751,7 +751,7 @@ class Legend(Artist):
                 pass
         return None
 
-    def _init_legend_box(self, handles, labels, markerfirst=True, reverse=False):
+    def _init_legend_box(self, handles, labels, reverse, markerfirst=True):
         """
         Initialize the legend_box. The legend_box is an instance of
         the OffsetBox, which is packed with legend handles and
@@ -784,7 +784,7 @@ class Legend(Artist):
         # default transform (e.g., Collections), you need to
         # manually set their transform to the self.get_transform().
         legend_handler_map = self.get_legend_handler_map()
-        if reverse == True:
+        if reverse:
             handles.reverse()
             labels.reverse()
 
