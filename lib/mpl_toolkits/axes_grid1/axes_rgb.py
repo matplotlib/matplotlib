@@ -61,15 +61,15 @@ class RGBAxes:
     """
     4-panel `~.Axes.imshow` (RGB, R, G, B).
 
-    Layout:
+    Layout::
 
-        +---------------+-----+
-        |               |  R  |
-        +               +-----+
-        |      RGB      |  G  |
-        +               +-----+
-        |               |  B  |
-        +---------------+-----+
+        ┌───────────────┬─────┐
+        │               │  R  │
+        │               ├─────┤
+        │      RGB      │  G  │
+        │               ├─────┤
+        │               │  B  │
+        └───────────────┴─────┘
 
     Subclasses can override the ``_defaultAxesClass`` attribute.
     By default RGBAxes uses `.mpl_axes.Axes`.

@@ -5826,9 +5826,9 @@ default: :rc:`scatter.edgecolors`
             The coordinates of the corners of quadrilaterals of a pcolormesh::
 
                 (X[i+1, j], Y[i+1, j])       (X[i+1, j+1], Y[i+1, j+1])
-                                      +-----+
-                                      |     |
-                                      +-----+
+                                      ●╶───╴●
+                                      │     │
+                                      ●╶───╴●
                     (X[i, j], Y[i, j])       (X[i, j+1], Y[i, j+1])
 
             Note that the column index corresponds to the x-coordinate, and
@@ -6068,9 +6068,9 @@ default: :rc:`scatter.edgecolors`
             The coordinates of the corners of quadrilaterals of a pcolormesh::
 
                 (X[i+1, j], Y[i+1, j])       (X[i+1, j+1], Y[i+1, j+1])
-                                      +-----+
-                                      |     |
-                                      +-----+
+                                      ●╶───╴●
+                                      │     │
+                                      ●╶───╴●
                     (X[i, j], Y[i, j])       (X[i, j+1], Y[i, j+1])
 
             Note that the column index corresponds to the x-coordinate, and
