@@ -526,7 +526,7 @@ class Legend(Artist):
         self._alignment = alignment
 
         # init with null renderer
-        self._init_legend_box(handles, labels,reverse, markerfirst)
+        self._init_legend_box(handles, labels, reverse, markerfirst)
 
         tmp = self._loc_used_default
         self._set_loc(loc)
