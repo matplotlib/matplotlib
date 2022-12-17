@@ -312,7 +312,7 @@ class Legend(Artist):
         numpoints=None,      # number of points in the legend line
         markerscale=None,    # relative size of legend markers vs. original
         markerfirst=True,    # left/right ordering of legend marker and label
-        reverse=False        # reverse ordering of legend marker and label
+        reverse=False,        # reverse ordering of legend marker and label
         scatterpoints=None,  # number of scatter points
         scatteryoffsets=None,
         prop=None,           # properties for the legend texts
