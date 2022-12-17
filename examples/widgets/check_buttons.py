@@ -25,21 +25,23 @@ l1, = ax.plot(t, s1, lw=2, color='r', label='4 Hz')
 l2, = ax.plot(t, s2, lw=2, color='g', label='6 Hz')
 fig.subplots_adjust(left=0.2)
 
-lines = [l0, l1, l2]
+lines_by_label = {l.get_label(): l for l in [l0, l1, l2]}
 
 # Make checkbuttons with all plotted lines with correct visibility
 rax = fig.add_axes([0.05, 0.4, 0.1, 0.15])
-labels = [str(line.get_label()) for line in lines]
-visibility = [line.get_visible() for line in lines]
-check = CheckButtons(rax, labels, visibility)
+check = CheckButtons(
+    ax=rax,
+    labels=lines_by_label.keys(),
+    actives=[l.get_visible() for l in lines_by_label.values()]
+)
 
 
-def func(label):
-    index = labels.index(label)
-    lines[index].set_visible(not lines[index].get_visible())
-    plt.draw()
+def callback(label):
+    ln = lines_by_label[label]
+    ln.set_visible(not ln.get_visible())
+    ln.figure.canvas.draw_idle()
 
-check.on_clicked(func)
+check.on_clicked(callback)
 
 plt.show()
 
