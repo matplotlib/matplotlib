@@ -591,12 +591,16 @@ def test_surface3d_masked():
     ax.view_init(30, -80, 0)
 
 
-def test_plot_surface_None_arg():
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
+@check_figures_equal(extensions=["png"])
+def test_plot_surface_None_arg(fig_test, fig_ref):
     x, y = np.meshgrid(np.arange(5), np.arange(5))
     z = x + y
-    ax.plot_surface(x,y,z, facecolors=None)
+    
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.plot_surface(x, y, z, facecolors=None)
+    
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.plot_surface(x, y, z)
 
 
 @mpl3d_image_comparison(['surface3d_masked_strides.png'])
