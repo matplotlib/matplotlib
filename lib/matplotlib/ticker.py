@@ -623,7 +623,7 @@ class ScalarFormatter(Formatter):
 
     def format_data_short(self, value):
         # docstring inherited
-        if isinstance(value, np.ma.MaskedArray) and value.mask:
+        if isinstance(value, np.ma.core.MaskedConstant):
             return ""
         if isinstance(value, Integral):
             fmt = "%d"

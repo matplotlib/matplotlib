@@ -1854,7 +1854,7 @@ class Affine2DBase(AffineBase):
             # The major speed trap here is just converting to the
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
-            if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
+            if not isinstance(points, np.ndarray):
                 _api.warn_external(
                     f'A non-numpy array of type {type(points)} was passed in '
                     f'for transformation, which results in poor performance.')
