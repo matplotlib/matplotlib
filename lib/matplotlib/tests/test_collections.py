@@ -1149,3 +1149,14 @@ def test_check_masked_offsets():
 
     fig, ax = plt.subplots()
     ax.scatter(unmasked_x, masked_y)
+
+
+def test_masked_set_offsets():
+    x = np.ma.array([1, 2, 3, 4, 5], mask=[0, 0, 1, 1, 0])
+    y = np.arange(1, 6)
+
+    fig, ax = plt.subplots()
+    scat = ax.scatter(x, y)
+    x += 1
+    scat.set_offsets(np.ma.column_stack([x, y]))
+    assert np.ma.is_masked(scat.get_offsets())
