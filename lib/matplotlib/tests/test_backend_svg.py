@@ -615,11 +615,9 @@ def test_annotationbbox_gid():
     ax.add_artist(ab)
     fig.canvas.draw()
 
-    fd = BytesIO()
-    fig.savefig(fd, format='svg')
-    fd.seek(0)
-    buf = fd.read().decode()
-    fd.close()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode('utf-8')
 
     expected = '<g id="a test for issue 20044">'
     assert expected in buf
