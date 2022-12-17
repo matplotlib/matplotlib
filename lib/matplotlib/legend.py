@@ -312,6 +312,7 @@ class Legend(Artist):
         numpoints=None,      # number of points in the legend line
         markerscale=None,    # relative size of legend markers vs. original
         markerfirst=True,    # left/right ordering of legend marker and label
+        reverse=False        # reverse ordering of legend marker and label
         scatterpoints=None,  # number of scatter points
         scatteryoffsets=None,
         prop=None,           # properties for the legend texts
@@ -525,7 +526,7 @@ class Legend(Artist):
         self._alignment = alignment
 
         # init with null renderer
-        self._init_legend_box(handles, labels, markerfirst)
+        self._init_legend_box(handles, labels, markerfirst, reverse)
 
         tmp = self._loc_used_default
         self._set_loc(loc)
@@ -750,7 +751,7 @@ class Legend(Artist):
                 pass
         return None
 
-    def _init_legend_box(self, handles, labels, markerfirst=True):
+    def _init_legend_box(self, handles, labels, markerfirst=True, reverse=False):
         """
         Initialize the legend_box. The legend_box is an instance of
         the OffsetBox, which is packed with legend handles and
@@ -783,6 +784,9 @@ class Legend(Artist):
         # default transform (e.g., Collections), you need to
         # manually set their transform to the self.get_transform().
         legend_handler_map = self.get_legend_handler_map()
+        if reverse == True:
+            handles.reverse()
+            labels.reverse()
 
         for orig_handle, label in zip(handles, labels):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
