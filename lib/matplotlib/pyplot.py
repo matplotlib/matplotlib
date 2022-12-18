@@ -1551,7 +1551,21 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     subplot_kw : dict, optional
         Dictionary with keywords passed to the `.Figure.add_subplot` call
-        used to create each subplot.
+        used to create each subplot.  These values may be overridden by
+        values in *per_subplot_kw*.
+
+    per_subplot_kw : dict, optional
+        A dictionary mapping the Axes identifiers or tuples of identifiers
+        to a dictionary of keyword arguments to be passed to the
+        `.Figure.add_subplot` call used to create each subplot.  The values
+        in these dictionaries have precedence over the values in
+        *subplot_kw*.
+
+        If *mosaic* is a string, and thus all keys are single characters,
+        it is possible to use a single string instead of a tuple as keys;
+        i.e. ``"AB"`` is equivalent to ``("A", "B")``.
+
+        .. versionadded:: 3.7
 
     gridspec_kw : dict, optional
         Dictionary with keywords passed to the `.GridSpec` constructor used
