@@ -1066,7 +1066,7 @@ class StepPatch(PathPatch):
         self.stale = True
 
 
-class Lines(Patch):
+class BoundedSemiplane(Patch):
     """A semiplane bounded by a polyline on one side."""
     def __str__(self):
         if len(self._path.vertices):
@@ -1080,8 +1080,7 @@ class Lines(Patch):
         """
         *xy* is a numpy array with shape Nx2.
 
-        If *direction* is *True*, the patch is lower bounded by the polyline.
-        Otherwise, it is upper bounded by the polyline
+        *direction* determines bounding direction of the semiplane
         """
         super().__init__(**kwargs)
         self.set_direction(direction)
@@ -1094,10 +1093,13 @@ class Lines(Patch):
 
         Parameters
         ----------
-        direction : bool
-            *True* if lower bounded, *False* otherwise
+        direction : {{'top', 'bottom'}}
+            - 'top': Semiplane is upper bounded by the specified polyline
+            - 'bottom': Semiplane is lower bounded by the specified polyline
         """
-        self.direction = bool(direction)
+        if direction not in ['top', 'bottom']:
+            raise ValueError(f"{direction!r} is not 'top' or 'bottom'")
+        self._direction = direction
         self.stale = True
 
     def get_direction(self):
@@ -1106,9 +1108,9 @@ class Lines(Patch):
 
         Returns
         -------
-        bool
+        {{'top', 'bottom'}}
         """
-        return self.direction
+        return self._direction
 
     def set_polyline(self, xy):
         """
@@ -1121,9 +1123,9 @@ class Lines(Patch):
 
         Notes
         -----
-        *xy* is stably sorted by *x* first before setting the polyline
+        *xy* is stably sorted by *x* first before setting the polyline. This is
+        to ensure the fill does not cover any vertices.
         """
-        # Convert to tuple for structured sort
         xy = np.asarray(xy)
         sorted_idxs = np.argsort(xy[:, 0], kind='stable')
         xy = xy[sorted_idxs]
@@ -1169,7 +1171,8 @@ class Lines(Patch):
             return
 
         bottom, top = container.get_ylim()
-        bound = top if self.direction else bottom
+        bound_dict = {'top': bottom, 'bottom': top}
+        bound = bound_dict[self._direction]
 
         N, _ = self._polyline.shape
         left_x = self._polyline[0, 0]

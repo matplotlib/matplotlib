@@ -5537,10 +5537,10 @@ default: :rc:`scatter.edgecolors`
             vertices_above[0:N, 1] = np.amax(temp, axis=0)
             vertices_below[0:N, 1] = np.amin(temp, axis=0)
 
-            line_above = mpatches.Lines(vertices_above, direction=True,
-                                        **kwargs)
-            line_below = mpatches.Lines(vertices_below, direction=False,
-                                        **kwargs)
+            line_above = mpatches.BoundedSemiplane(vertices_above, 'bottom',
+                                                   **kwargs)
+            line_below = mpatches.BoundedSemiplane(vertices_below, 'top',
+                                                   **kwargs)
 
             self.add_artist(line_above)
             self.add_artist(line_below)
@@ -5551,7 +5551,6 @@ default: :rc:`scatter.edgecolors`
         # now update the datalim and autoscale
         pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
                             np.column_stack([ind[where], dep2[where]])])
-        pts = pts[:, ::-1]
         self.update_datalim(pts, updatex=True, updatey=True)
         self._request_autoscale_view()
         return ret

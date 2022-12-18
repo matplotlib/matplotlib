@@ -59,7 +59,12 @@ def test_fill_disjoint():
     fig, ax = plt.subplots()
     plt.plot(xRng, [f1(x) for x in xRng], 'b-')
     plt.plot(xRng, [f2(x) for x in xRng], 'r-')
-    plt.fill_disjoint(xRng, [f1(x) for x in xRng], [f2(x) for x in xRng])
+    plt.fill_disjoint(xRng, [f1(x) for x in xRng], [f2(x) for x in xRng],
+                      color='g')
+    plt.xlim(-1, 1)
+    plt.ylim(-100, 100)
+    plt.xticks([])
+    plt.yticks([])
 
 
 @check_figures_equal(extensions=["png"])
