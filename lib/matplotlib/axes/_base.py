@@ -3127,7 +3127,6 @@ class _AxesBase(martist.Artist):
 
         if (rasterization_zorder is not None and
                 artists and artists[0].zorder < rasterization_zorder):
-            renderer.start_rasterizing()
             artists_rasterized = [a for a in artists
                                   if a.zorder < rasterization_zorder]
             artists = [a for a in artists
@@ -3135,15 +3134,14 @@ class _AxesBase(martist.Artist):
         else:
             artists_rasterized = []
 
-        # the patch draws the background rectangle -- the frame below
-        # will draw the edges
         if self.axison and self._frameon:
-            self.patch.draw(renderer)
+            if artists_rasterized:
+                artists_rasterized = [self.patch] + artists_rasterized
+            else:
+                artists = [self.patch] + artists
 
         if artists_rasterized:
-            for a in artists_rasterized:
-                a.draw(renderer)
-            renderer.stop_rasterizing()
+            _draw_rasterized(self.figure, artists_rasterized, renderer)
 
         mimage._draw_list_compositing_images(
             renderer, self, artists, self.figure.suppressComposite)
@@ -4636,3 +4634,23 @@ class _AxesBase(martist.Artist):
             self.yaxis.set_tick_params(which="both", labelright=False)
             if self.yaxis.offsetText.get_position()[0] == 1:
                 self.yaxis.offsetText.set_visible(False)
+
+
+def _draw_rasterized(figure, artists, renderer):
+    class _MinimalArtist:
+        def get_rasterized(self):
+            return True
+
+        def get_agg_filter(self):
+            return None
+
+        def __init__(self, figure, artists):
+            self.figure = figure
+            self.artists = artists
+
+        @martist.allow_rasterization
+        def draw(self, renderer):
+            for a in self.artists:
+                a.draw(renderer)
+
+    return _MinimalArtist(figure, artists).draw(renderer)
