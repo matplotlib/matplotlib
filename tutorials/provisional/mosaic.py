@@ -280,7 +280,7 @@ identify_axes(axd)
 ###############################################################################
 # Controlling subplot creation
 # ============================
-
+#
 # We can also pass through arguments used to create the subplots
 # (again, the same as `.Figure.subplots`) which will apply to all
 # of the Axes created.
