@@ -210,7 +210,9 @@ identify_axes(axd)
 # (the same as `.Figure.subplots`).
 #
 # In this case we want to use the input to specify the arrangement,
-# but set the relative widths of the rows / columns via *gridspec_kw*.
+# but set the relative widths of the rows / columns.  For convenience,
+# `.gridspec.GridSpec`'s *height_ratios* and *width_ratios* are exposed in the
+# `.Figure.subplot_mosaic` calling sequence.
 
 
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
@@ -227,9 +229,10 @@ axd = plt.figure(constrained_layout=True).subplot_mosaic(
 identify_axes(axd)
 
 ###############################################################################
-# Or use the {*left*, *right*, *bottom*, *top*} keyword arguments to
+# Other `.gridspec.GridSpec` keywords can be passed via *gridspec_kw*.  For
+# example, use the {*left*, *right*, *bottom*, *top*} keyword arguments to
 # position the overall mosaic to put multiple versions of the same
-# mosaic in a figure
+# mosaic in a figure.
 
 mosaic = """AA
             BC"""
