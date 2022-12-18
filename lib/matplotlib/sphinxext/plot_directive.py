@@ -313,8 +313,8 @@ def _split_code_at_show(text, function_name):
         parts = []
         part = []
         for line in text.split("\n"):
-            if (not is_doctest and line.startswith('plt.show')) or \
-                   (is_doctest and line.strip() == '>>> plt.show()'):
+            if ((not is_doctest and line.startswith('plt.show(')) or
+                   (is_doctest and line.strip() == '>>> plt.show()')):
                 part.append(line)
                 parts.append("\n".join(part))
                 part = []
