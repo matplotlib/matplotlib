@@ -3127,10 +3127,12 @@ class _AxesBase(martist.Artist):
 
         if (rasterization_zorder is not None and
                 artists and artists[0].zorder < rasterization_zorder):
-            artists_rasterized = [a for a in artists
-                                  if a.zorder < rasterization_zorder]
-            artists = [a for a in artists
-                       if a.zorder >= rasterization_zorder]
+            split_index = np.searchsorted(
+                [art.zorder for art in artists],
+                rasterization_zorder, side='right'
+            )
+            artists_rasterized = artists[:split_index]
+            artists = artists[split_index:]
         else:
             artists_rasterized = []
 
