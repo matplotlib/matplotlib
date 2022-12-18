@@ -46,9 +46,14 @@ _log = logging.getLogger(__name__)
 @_docstring.interpd
 class Axes(_AxesBase):
     """
-    The `Axes` contains most of the figure elements: `~.axis.Axis`,
+    An Axes object encapsulates all the elements of an individual (sub-)plot in
+    a figure.
+
+    It contains most of the (sub-)plot elements: `~.axis.Axis`,
     `~.axis.Tick`, `~.lines.Line2D`, `~.text.Text`, `~.patches.Polygon`, etc.,
     and sets the coordinate system.
+
+    Like all visible elements in a figure, Axes is an `.Artist` subclass.
 
     The `Axes` instance supports callbacks through a callbacks attribute which
     is a `~.cbook.CallbackRegistry` instance.  The events you can connect to
