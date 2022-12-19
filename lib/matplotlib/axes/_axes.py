@@ -5472,6 +5472,51 @@ default: :rc:`scatter.edgecolors`
         ind, dep1, dep2 = np.broadcast_arrays(
             np.atleast_1d(ind), dep1, dep2, subok=True)
 
+        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
+                            np.column_stack([ind[where], dep2[where]])])
+
+        if interpolate:
+            N = len(ind)
+            xslices = np.stack([ind, dep1, dep2], axis=-1)
+            sorted_idx = np.argsort(ind, kind="stable")
+            xslices = xslices[sorted_idx]
+            ind_interps = []
+            dep_interps = []
+            where_interps = []
+            for i in range(N-1):
+                # sliding window
+                # [[dep1[i], dep2[i+1]],
+                #  [dep2[i], dep2[i+1]],
+                #  [ind[i], ind[i+1]]]
+                cur_slice = xslices[i]
+                next_slice = xslices[i+1]
+                d1 = cur_slice[1] - cur_slice[2]
+                d2 = next_slice[1] - next_slice[2]
+                dx = next_slice[0] - cur_slice[0]
+                if dx == 0:
+                    # multiple ind with same value
+                    pass
+                if (d1 > 0) == (d2 > 0):
+                    continue
+                if (d1 == 0) or (d2 == 0):
+                    continue
+                # calculate intersect pt
+                r = -d2/d1
+                ind_interps.append((next_slice[0] + r*cur_slice[0])/(1+r))
+                dep_interps.append((next_slice[1] + r*cur_slice[1])/(1+r))
+                where_interps.append(where[i] or where[i+1])
+
+            ind = np.concatenate([ind, ind_interps])
+            dep1 = np.concatenate([dep1, dep_interps])
+            dep2 = np.concatenate([dep2, dep_interps])
+            where = np.concatenate([where, where_interps])
+
+            sorted_idx = np.argsort(ind, kind="stable")
+            ind = ind[sorted_idx]
+            dep1 = dep1[sorted_idx]
+            dep2 = dep2[sorted_idx]
+            where = where[sorted_idx]
+
         ret = []
         for idx0, idx1 in cbook.contiguous_regions(where):
             indslice = ind[idx0:idx1]
@@ -5485,45 +5530,6 @@ default: :rc:`scatter.edgecolors`
 
             if not len(indslice):
                 continue
-
-            if interpolate:
-                N = len(indslice)
-                xslices = np.stack([indslice, dep1slice, dep2slice], axis=-1)
-                xslices = list(map(tuple, xslices))
-                xslices.sort()
-
-                ind_interps = []
-                dep_interps = []
-                for i in range(N-1):
-                    # sliding window
-                    # [[dep1[i], dep2[i+1]],
-                    #  [dep2[i], dep2[i+1]],
-                    #  [ind[i], ind[i+1]]]
-
-                    cur_slice = xslices[i]
-                    next_slice = xslices[i+1]
-
-                    d1 = cur_slice[1] - cur_slice[2]
-                    d2 = next_slice[1] - next_slice[2]
-                    dx = next_slice[0] - cur_slice[0]
-
-                    if dx == 0:
-                        # multiple ind with same value
-                        pass
-
-                    if (d1 > 0) == (d2 > 0):
-                        continue
-                    if (d1 == 0) or (d2 == 0):
-                        continue
-
-                    # calculate intersect pt
-                    r = -d2/d1
-                    ind_interps.append((next_slice[0] + r*cur_slice[0])/(1+r))
-                    dep_interps.append((next_slice[1] + r*cur_slice[1])/(1+r))
-
-                indslice = np.concatenate([indslice, ind_interps])
-                dep1slice = np.concatenate([dep1slice, dep_interps])
-                dep2slice = np.concatenate([dep2slice, dep_interps])
 
             N = len(indslice)
             temp = np.stack([dep1slice, dep2slice])
@@ -5549,8 +5555,6 @@ default: :rc:`scatter.edgecolors`
             ret.append(line_below)
 
         # now update the datalim and autoscale
-        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
-                            np.column_stack([ind[where], dep2[where]])])
         self.update_datalim(pts, updatex=True, updatey=True)
         self._request_autoscale_view()
         return ret
