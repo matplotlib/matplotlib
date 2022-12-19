@@ -8,6 +8,7 @@ name: mpl-dev
 channels:
   - conda-forge
 dependencies:
+  # runtime dependencies
   - cairocffi
   - contourpy>=1.0.1
   - cycler>=0.10.0
@@ -16,6 +17,7 @@ dependencies:
   - kiwisolver>=1.0.1
   - numpy>=1.19
   - pillow>=6.2
+  - pybind11>=2.6.0
   - pygobject
   - pyparsing
   - pyqt
