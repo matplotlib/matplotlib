@@ -300,7 +300,7 @@ class Grid:
             if mode != 'keep':
                 _api.warn_deprecated(
                     '3.7', name="Grid label_mode",
-                    message='Passing a non-defined label_mode is deprecated '
+                    message='Passing an undefined label_mode is deprecated '
                             'since %(since)s and will become an error '
                             '%(removal)s. To silence this warning, pass '
                             '"keep", which gives the same behaviour.')

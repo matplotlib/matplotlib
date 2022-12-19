@@ -408,7 +408,7 @@ def test_image_grid_label_mode_deprecation_warning():
 
     fig = plt.figure()
     with pytest.warns(_api.MatplotlibDeprecationWarning,
-                      match="Passing a non-defined label_mode"):
+                      match="Passing an undefined label_mode"):
         grid = ImageGrid(fig, (0, 0, 1, 1), (2, 1), label_mode="foo")
 
 
