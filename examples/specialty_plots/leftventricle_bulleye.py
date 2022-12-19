@@ -80,7 +80,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         # First segment start at 60 degrees
         theta0 = theta[i * 128:i * 128 + 128] + np.deg2rad(60)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
-        z = np.ones((128, 2)) * data[i]
+        z = np.ones((128 - 1, 2 - 1)) * data[i]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 1 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
@@ -94,7 +94,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         # First segment start at 60 degrees
         theta0 = theta[i * 128:i * 128 + 128] + np.deg2rad(60)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
-        z = np.ones((128, 2)) * data[i + 6]
+        z = np.ones((128 - 1, 2 - 1)) * data[i + 6]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 7 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
@@ -108,7 +108,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         # First segment start at 45 degrees
         theta0 = theta[i * 192:i * 192 + 192] + np.deg2rad(45)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
-        z = np.ones((192, 2)) * data[i + 12]
+        z = np.ones((192 - 1, 2 - 1)) * data[i + 12]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 13 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
@@ -120,7 +120,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         r0 = np.array([0, r[0]])
         r0 = np.repeat(r0[:, np.newaxis], theta.size, axis=1).T
         theta0 = np.repeat(theta[:, np.newaxis], 2, axis=1)
-        z = np.ones((theta.size, 2)) * data[16]
+        z = np.ones((theta.size - 1, 2 - 1)) * data[16]
         ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if 17 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
