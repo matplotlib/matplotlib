@@ -37,7 +37,7 @@ class Scope:
         t = self.tdata[0] + len(self.tdata) * self.dt
 
         self.tdata.append(t)
-        self.ydata.append(y)
+        self.ydata.append(float(y))
         self.line.set_data(self.tdata, self.ydata)
         return self.line,
 
