@@ -5306,7 +5306,6 @@ default: :rc:`scatter.edgecolors`
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
         """
-
         dep_dir = {"x": "y", "y": "x"}[ind_dir]
 
         if not mpl.rcParams["_internal.classic_mode"]:
@@ -5472,9 +5471,6 @@ default: :rc:`scatter.edgecolors`
         ind, dep1, dep2 = np.broadcast_arrays(
             np.atleast_1d(ind), dep1, dep2, subok=True)
 
-        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
-                            np.column_stack([ind[where], dep2[where]])])
-
         if interpolate:
             N = len(ind)
             xslices = np.stack([ind, dep1, dep2], axis=-1)
@@ -5543,20 +5539,23 @@ default: :rc:`scatter.edgecolors`
             vertices_above[0:N, 1] = np.amax(temp, axis=0)
             vertices_below[0:N, 1] = np.amin(temp, axis=0)
 
-            line_above = mpatches.BoundedSemiplane(vertices_above, 'bottom',
-                                                   **kwargs)
-            line_below = mpatches.BoundedSemiplane(vertices_below, 'top',
-                                                   **kwargs)
+            plane_above = mpatches.BoundedSemiplane(vertices_above, 'bottom',
+                                                    **kwargs)
+            plane_below = mpatches.BoundedSemiplane(vertices_below, 'top',
+                                                    **kwargs)
 
-            self.add_artist(line_above)
-            self.add_artist(line_below)
+            self.add_artist(plane_above)
+            self.add_artist(plane_below)
 
-            ret.append(line_above)
-            ret.append(line_below)
+            ret.append(plane_above)
+            ret.append(plane_below)
 
         # now update the datalim and autoscale
+        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
+                            np.column_stack([ind[where], dep2[where]])])
         self.update_datalim(pts, updatex=True, updatey=True)
         self._request_autoscale_view()
+
         return ret
 
     def fill_disjoint(self, x, y1, y2, where=None, interpolate=False,
@@ -5614,13 +5613,13 @@ default: :rc:`scatter.edgecolors`
         Other Parameters
         ----------------
         **kwargs
-            All other keyword arguments are passed on to `.Lines`.
-            %(Lines:kwdoc)s
+            All other keyword arguments are passed on to `.BoundedSemiplane`.
+            %(BoundedSemiplane:kwdoc)s
 
         Returns
         -------
-        list of `.Lines`
-            A list `.Lines` containing the plotted Lines.
+        list of `.BoundedSemiplane`
+            A list `.BoundedSemiplane` containing the plotted Lines.
 
         See Also
         --------

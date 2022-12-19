@@ -56,8 +56,6 @@ def test_fill_disjoint():
     plt.plot(xRng, [f2(x) for x in xRng], 'r-')
     plt.fill_disjoint(xRng, [f1(x) for x in xRng], [f2(x) for x in xRng],
                       color='g')
-    plt.xlim(-1, 1)
-    plt.ylim(-100, 100)
 
 
 @image_comparison(['fill_disjoint_interpolate'], remove_text=True,
@@ -66,9 +64,6 @@ def test_fill_disjoint_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
     y2 = 1.2*np.sin(4*np.pi*x)
-    print(f"{x =}")
-    print(f"{y1 =}")
-    print(f"{y2 =}")
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     ax1.plot(x, y1, x, y2, color='black')
@@ -86,27 +81,6 @@ def test_fill_disjoint_interpolate():
                       interpolate=True)
 
 
-@image_comparison(['fill_disjoint_interpolate_decreasing'],
-                  style='mpl20', remove_text=True)
-def test_fill_disjoint_interpolate_decreasing():
-    t = np.array([724.3, 700, 655])
-    p = np.array([9.4, 7, 2.2])
-    prof = np.array([7.9, 6.6, 3.8])
-
-    fig, ax = plt.subplots(figsize=(9, 9))
-
-    ax.plot(t, p, 'tab:red')
-    ax.plot(prof, p, 'k')
-
-    ax.fill_disjoint(p, t, prof, where=prof < t,
-                     facecolor='blue', interpolate=True, alpha=0.4)
-    ax.fill_disjoint(p, t, prof, where=prof > t,
-                     facecolor='red', interpolate=True, alpha=0.4)
-
-    ax.set_xlim(0, 30)
-    ax.set_ylim(800, 600)
-
-
 @image_comparison(['fill_disjoint_interpolate_nan'], remove_text=True,
                   style='mpl20')
 def test_fill_disjoint_interpolate_nan():
@@ -122,6 +96,19 @@ def test_fill_disjoint_interpolate_nan():
                      interpolate=True, alpha=0.5)
     ax.fill_disjoint(x, y1, y2, where=y1 >= y2, facecolor="red",
                      interpolate=True, alpha=0.5)
+
+
+@image_comparison(['fill_disjoint_step'], remove_text=True,
+                  style='mpl20')
+def test_fill_disjoint_step():
+    x = np.arange(10)
+    y1 = np.asarray([10, 8, 5, 7, 9, 11, 13, 15, 17, 19])
+    y2 = np.asarray([18, 21, 25, 22, 19, 16, 13, 10, 7, 4])
+    fig, ax = plt.subplots()
+
+    ax.plot(x, y1, c='k')
+    ax.plot(x, y2, c='b')
+    ax.fill_disjoint(x, y1, y2, step="mid", facecolor="red")
 
 
 @check_figures_equal(extensions=["png"])
