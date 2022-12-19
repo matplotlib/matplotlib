@@ -294,6 +294,21 @@ def test_legend_remove():
     assert ax.get_legend() is None
 
 
+def test_reverse_legend():
+    fig, ax = plt.subplots()
+    x = [1, 2, 3]
+    y = [1, 2, 3], [2, 3, 4], [3, 4, 5]
+    labels = ["First label", "Second label", "Third label"]
+
+    ax.plot(x, y, label=labels)
+    leg = ax.legend(reverse=True)
+    actual_labels = []
+    for text in leg.get_texts():
+        actual_labels.append(text.get_text())
+    excepted_labels = list(reversed(labels))
+    assert actual_labels == excepted_labels
+
+
 class TestLegendFunction:
     # Tests the legend function on the Axes and pyplot.
     def test_legend_no_args(self):
