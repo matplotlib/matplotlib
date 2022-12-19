@@ -209,6 +209,10 @@ markerfirst : bool, default: True
     If *True*, legend marker is placed to the left of the legend label.
     If *False*, legend marker is placed to the right of the legend label.
 
+reverse : bool, default: False
+    If *True*, the legend labels are displayed in reverse order as the input.
+    If *False*, the legend labels are displayed in the same order as the input.
+
 frameon : bool, default: :rc:`legend.frameon`
     Whether the legend should be drawn on a patch (frame).
 
