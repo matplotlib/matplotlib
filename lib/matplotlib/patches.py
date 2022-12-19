@@ -3331,7 +3331,7 @@ class ArrowStyle(_Style):
             return vertices_arrow, codes_arrow
 
         def transmute(self, path, mutation_size, linewidth):
-            # Doc-string inherited
+            # docstring inherited
             if self._beginarrow_head or self._endarrow_head:
                 head_length = self.head_length * mutation_size
                 head_width = self.head_width * mutation_size
@@ -3598,7 +3598,7 @@ class ArrowStyle(_Style):
             super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
-            # Doc-string inherited
+            # docstring inherited
             x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
 
             # divide the path into a head and a tail
@@ -3677,7 +3677,7 @@ class ArrowStyle(_Style):
             super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
-            # Doc-string inherited
+            # docstring inherited
             x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
 
             # divide the path into a head and a tail
@@ -3766,7 +3766,7 @@ class ArrowStyle(_Style):
             super().__init__()
 
         def transmute(self, path, mutation_size, linewidth):
-            # Doc-string inherited
+            # docstring inherited
             x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
 
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]

@@ -360,11 +360,18 @@ class Legend(Artist):
         labels : list of str
             A list of labels to show next to the artists. The length of handles
             and labels should be the same. If they are not, they are truncated
-            to the smaller of both lengths.
+            to the length of the shorter list.
 
         Other Parameters
         ----------------
         %(_legend_kw_doc)s
+
+        Attributes
+        ----------
+        legend_handles
+            List of `.Artist` objects added as legend entries.
+
+            .. versionadded:: 3.7
 
         Notes
         -----
@@ -397,7 +404,7 @@ class Legend(Artist):
         self._fontsize = self.prop.get_size_in_points()
 
         self.texts = []
-        self.legendHandles = []
+        self.legend_handles = []
         self._legend_title_box = None
 
         #: A dictionary with the extra handler mappings for this Legend
@@ -561,7 +568,7 @@ class Legend(Artist):
                 labelcolor = mpl.rcParams['text.color']
         if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
-            for handle, text in zip(self.legendHandles, self.texts):
+            for handle, text in zip(self.legend_handles, self.texts):
                 try:
                     if handle.get_array() is not None:
                         continue
@@ -593,6 +600,9 @@ class Legend(Artist):
                 text.set_color(color)
         else:
             raise ValueError(f"Invalid labelcolor: {labelcolor!r}")
+
+    legendHandles = _api.deprecated('3.7', alternative="legend_handles")(
+        property(lambda self: self.legend_handles))
 
     def _set_artist_props(self, a):
         """
@@ -838,7 +848,7 @@ class Legend(Artist):
         self._legend_box.set_figure(self.figure)
         self._legend_box.axes = self.axes
         self.texts = text_list
-        self.legendHandles = handle_list
+        self.legend_handles = handle_list
 
     def _auto_legend_data(self):
         """
@@ -885,12 +895,12 @@ class Legend(Artist):
 
     def get_lines(self):
         r"""Return the list of `~.lines.Line2D`\s in the legend."""
-        return [h for h in self.legendHandles if isinstance(h, Line2D)]
+        return [h for h in self.legend_handles if isinstance(h, Line2D)]
 
     def get_patches(self):
         r"""Return the list of `~.patches.Patch`\s in the legend."""
         return silent_list('Patch',
-                           [h for h in self.legendHandles
+                           [h for h in self.legend_handles
                             if isinstance(h, Patch)])
 
     def get_texts(self):
