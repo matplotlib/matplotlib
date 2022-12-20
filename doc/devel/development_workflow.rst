@@ -279,7 +279,7 @@ message. After revising it, we get the output::
      1 files changed, 79 insertions(+), 61 deletions(-)
     Successfully rebased and updated refs/heads/my-feature-branch.
 
-and now, history looks like this::
+and now, the history looks like this::
 
      0f22701 Fix a few bugs + disable
      721fc64 ENH: Sophisticated feature
