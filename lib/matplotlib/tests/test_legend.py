@@ -296,14 +296,14 @@ def test_legend_remove():
 
 def test_reverse_legend():
     fig, ax = plt.subplots()
-    x = [1, 2, 3]
-    y = [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
+    x = 1
+    y = 1
     labels = ["First label", "Second label", "Third label"]
     markers = ['.', ',', 'o']
 
-    ax.plot(x, y[0], markers[0], label=labels[0])
-    ax.plot(x, y[1], markers[1], label=labels[1])
-    ax.plot(x, y[2], markers[2], label=labels[2])
+    ax.plot(x, y, markers[0], label=labels[0])
+    ax.plot(x, y, markers[1], label=labels[1])
+    ax.plot(x, y, markers[2], label=labels[2])
     leg = ax.legend(reverse=True)
     actual_labels = [t.get_text() for t in leg.get_texts()]
     actual_markers = [h.get_marker() for h in leg.legend_handles]
