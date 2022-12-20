@@ -37,6 +37,11 @@ jobs:
     env:
       CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
       MACOSX_DEPLOYMENT_TARGET: "10.12"
+      CIBW_BEFORE_BUILD_WINDOWS: >-
+        pip install certifi delvewheel oldest-supported-numpy &&
+        git clean -fxd build
+      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
+        delvewheel repair -w {dest_dir} {wheel}
     strategy:
       matrix:
         os: [ubuntu-20.04, windows-latest, macos-11]
