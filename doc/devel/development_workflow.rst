@@ -417,7 +417,7 @@ committing and pushing to the same branch, this is a correct course of action.
 
 However, in the case of having intentionally re-written history, we *want* to
 discard the commits on the remote and replace them with the new-and-improved
-versions from our local branches.  In this case, what we want to do is ::
+versions from our local branch.  In this case, what we want to do is ::
 
   $ git push --force-with-lease
 
