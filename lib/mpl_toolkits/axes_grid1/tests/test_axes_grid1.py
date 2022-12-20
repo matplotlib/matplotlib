@@ -4,7 +4,7 @@ import platform
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.transforms import Bbox, TransformedBbox
@@ -409,6 +409,15 @@ def test_image_grid_single_bottom():
     for i in range(3):
         im = grid[i].imshow(imdata, interpolation='none')
     grid.cbar_axes[0].colorbar(im)
+
+
+def test_image_grid_label_mode_deprecation_warning():
+    imdata = np.arange(9).reshape((3, 3))
+
+    fig = plt.figure()
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
+                      match="Passing an undefined label_mode"):
+        grid = ImageGrid(fig, (0, 0, 1, 1), (2, 1), label_mode="foo")
 
 
 @image_comparison(['image_grid.png'],
