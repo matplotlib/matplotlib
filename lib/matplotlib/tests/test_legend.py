@@ -302,11 +302,8 @@ def test_reverse_legend():
 
     ax.plot(x, y, label=labels)
     leg = ax.legend(reverse=True)
-    actual_labels = []
-    for text in leg.get_texts():
-        actual_labels.append(text.get_text())
-    excepted_labels = list(reversed(labels))
-    assert actual_labels == excepted_labels
+    actual_labels = [t.get_gext() for t in leg.get_texts()]
+    assert actual_labels == list(reversed(labels))
 
 
 class TestLegendFunction:
