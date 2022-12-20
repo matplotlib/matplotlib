@@ -11,7 +11,6 @@
 [![AzurePipelines](https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=main)](https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=main)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=main&svg=true)](https://ci.appveyor.com/project/matplotlib/matplotlib)
 [![Codecov](https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=main&service=github)](https://codecov.io/github/matplotlib/matplotlib?branch=main)
-[![LGTM](https://img.shields.io/lgtm/grade/python/github/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/matplotlib/matplotlib)
 
 ![image](https://matplotlib.org/_static/logo2.svg)
 
