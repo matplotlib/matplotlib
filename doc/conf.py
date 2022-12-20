@@ -315,6 +315,11 @@ try:
 except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__
 
+
+html_context = {
+    "doc_version": SHA,
+}
+
 project = 'Matplotlib'
 copyright = (
     '2002–2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom '
@@ -449,6 +454,7 @@ html_theme_options = {
              "image_dark": "images/logo_dark.svg"},
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "secondary_sidebar_items": "page-toc.html",
+     "footer_items": ["copyright", "sphinx-version", "doc_version"],
 }
 include_analytics = is_release_build
 if include_analytics:
