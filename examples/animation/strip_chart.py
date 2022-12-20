@@ -37,7 +37,7 @@ class Scope:
         t = self.tdata[0] + len(self.tdata) * self.dt
 
         self.tdata.append(t)
-        self.ydata.append(float(y))
+        self.ydata.append(y)
         self.line.set_data(self.tdata, self.ydata)
         return self.line,
 
@@ -45,11 +45,11 @@ class Scope:
 def emitter(p=0.1):
     """Return a random value in [0, 1) with probability p, else 0."""
     while True:
-        v = np.random.rand(1)
+        v = np.random.rand()
         if v > p:
             yield 0.
         else:
-            yield np.random.rand(1)
+            yield np.random.rand()
 
 
 # Fixing random state for reproducibility
