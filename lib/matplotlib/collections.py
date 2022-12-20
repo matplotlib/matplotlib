@@ -545,14 +545,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
-        if isinstance(offsets, np.ma.MaskedArray):
-            self._offsets = np.ma.column_stack(
-                (np.asanyarray(self.convert_xunits(offsets[:, 0]), float),
-                 np.asanyarray(self.convert_yunits(offsets[:, 1]), float)))
-        else:
-            self._offsets = np.column_stack(
-                (np.asanyarray(self.convert_xunits(offsets[:, 0]), float),
-                 np.asanyarray(self.convert_yunits(offsets[:, 1]), float)))
+        cstack = (np.ma.column_stack if isinstance(offsets, np.ma.MaskedArray)
+                  else np.column_stack)
+        self._offsets = cstack(
+            (np.asanyarray(self.convert_xunits(offsets[:, 0]), float),
+                np.asanyarray(self.convert_yunits(offsets[:, 1]), float)))
         self.stale = True
 
     def get_offsets(self):

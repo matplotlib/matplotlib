@@ -1158,7 +1158,6 @@ def test_masked_set_offsets(fig_ref, fig_test):
 
     ax_test = fig_test.add_subplot()
     scat = ax_test.scatter(x, y)
-    x += 1
     scat.set_offsets(np.ma.column_stack([x, y]))
     ax_test.set_xticks([])
     ax_test.set_yticks([])
@@ -1166,7 +1165,7 @@ def test_masked_set_offsets(fig_ref, fig_test):
     ax_test.set_ylim(0, 6)
 
     ax_ref = fig_ref.add_subplot()
-    ax_ref.scatter([2, 3, 6], [1, 2, 5])
+    ax_ref.scatter([1, 2, 5], [1, 2, 5])
     ax_ref.set_xticks([])
     ax_ref.set_yticks([])
     ax_ref.set_xlim(0, 7)
@@ -1180,7 +1179,6 @@ def test_check_offsets_dtype():
 
     fig, ax = plt.subplots()
     scat = ax.scatter(x, y)
-    x += 1
     masked_offsets = np.ma.column_stack([x, y])
     scat.set_offsets(masked_offsets)
     assert isinstance(scat.get_offsets(), type(masked_offsets))
