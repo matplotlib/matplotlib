@@ -47,7 +47,7 @@ class UpdateDist:
             return self.line,
 
         # Choose success based on exceed a threshold with a uniform pick
-        if np.random.rand(1,) < self.prob:
+        if np.random.rand() < self.prob:
             self.success += 1
         y = beta_pdf(self.x, self.success + 1, (i - self.success) + 1)
         self.line.set_data(self.x, y)
