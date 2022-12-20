@@ -147,7 +147,7 @@ Open a pull request
 When you are ready to ask for someone to review your code and consider a merge,
 `submit your Pull Request (PR) <https://docs.github.com/pull-requests>`_.
 
-Enter a title for a set of changes with some explanation of what you've done.
+Enter a title for the set of changes with some explanation of what you've done.
 Mention anything you'd like particular attention for - such as a
 complicated change or some code you are not happy with.
 
