@@ -210,7 +210,7 @@ Rewriting commit history
 
    Do this only for your own feature branches.
 
-Is there any embarrassing typo in a commit you made? Or perhaps you
+Is there an embarrassing typo in a commit you made? Or perhaps you
 made several false starts you don't want posterity to see.
 
 This can be done via *interactive rebasing*.
