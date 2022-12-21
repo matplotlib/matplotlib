@@ -4646,8 +4646,8 @@ def _draw_rasterized(figure, artists, renderer):
     with the mixed-mode backends is relatively complicated and is now
     handled in the matplotlib.artist.allow_rasterization decorator.
 
-    This helper defines the absolute minimum methods and attributes on
-    shim class to be compatible with that decorator and the uses it to
+    This helper defines the absolute minimum methods and attributes on a
+    shim class to be compatible with that decorator and then uses it to
     rasterize the list of artists.
 
     This is maybe too-clever, but allows us to re-use the same code that is
@@ -4662,7 +4662,7 @@ def _draw_rasterized(figure, artists, renderer):
     figure : matplotlib.figure.Figure
         The figure all of the artists belong to (not checked).  We need this
         because we can at the figure level suppress composition and insert each
-        rasterized artist as it's own image.
+        rasterized artist as its own image.
 
     artists : List[matplotlib.artist.Artist]
         The list of Artists to be rasterized.  These are assumed to all
