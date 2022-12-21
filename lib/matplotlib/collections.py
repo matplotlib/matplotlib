@@ -549,7 +549,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                   else np.column_stack)
         self._offsets = cstack(
             (np.asanyarray(self.convert_xunits(offsets[:, 0]), float),
-                np.asanyarray(self.convert_yunits(offsets[:, 1]), float)))
+             np.asanyarray(self.convert_yunits(offsets[:, 1]), float)))
         self.stale = True
 
     def get_offsets(self):
