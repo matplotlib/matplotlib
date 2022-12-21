@@ -4639,6 +4639,43 @@ class _AxesBase(martist.Artist):
 
 
 def _draw_rasterized(figure, artists, renderer):
+    """
+    A helper function for rasterizing the list of artists.
+
+    The bookkeeping to track if we are or are not in rasterizing mode
+    with the mixed-mode backends is relatively complicated and is now
+    handled in the matplotlib.artist.allow_rasterization decorator.
+
+    This helper defines the absolute minimum methods and attributes on
+    shim class to be compatible with that decorator and the uses it to
+    rasterize the list of artists.
+
+    This is maybe too-clever, but allows us to re-use the same code that is
+    used on normal artists to participate in the "are we rasterizing"
+    accounting.
+
+    Please do not use this outside of the "rasterize below a given zorder"
+    functionality of Axes.
+
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        The figure all of the artists belong to (not checked).  We need this
+        because we can at the figure level suppress composition and insert each
+        rasterized artist as it's own image.
+
+    artists : List[matplotlib.artist.Artist]
+        The list of Artists to be rasterized.  These are assumed to all
+        be in the same Figure.
+
+    renderer : matplotlib.backendbases.RendererBase
+        The currently active renderer
+
+    Returns
+    -------
+    None
+
+    """
     class _MinimalArtist:
         def get_rasterized(self):
             return True
