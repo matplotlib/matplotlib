@@ -1149,3 +1149,36 @@ def test_check_masked_offsets():
 
     fig, ax = plt.subplots()
     ax.scatter(unmasked_x, masked_y)
+
+
+@check_figures_equal(extensions=["png"])
+def test_masked_set_offsets(fig_ref, fig_test):
+    x = np.ma.array([1, 2, 3, 4, 5], mask=[0, 0, 1, 1, 0])
+    y = np.arange(1, 6)
+
+    ax_test = fig_test.add_subplot()
+    scat = ax_test.scatter(x, y)
+    scat.set_offsets(np.ma.column_stack([x, y]))
+    ax_test.set_xticks([])
+    ax_test.set_yticks([])
+
+    ax_ref = fig_ref.add_subplot()
+    ax_ref.scatter([1, 2, 5], [1, 2, 5])
+    ax_ref.set_xticks([])
+    ax_ref.set_yticks([])
+
+
+def test_check_offsets_dtype():
+    # Check that setting offsets doesn't change dtype
+    x = np.ma.array([1, 2, 3, 4, 5], mask=[0, 0, 1, 1, 0])
+    y = np.arange(1, 6)
+
+    fig, ax = plt.subplots()
+    scat = ax.scatter(x, y)
+    masked_offsets = np.ma.column_stack([x, y])
+    scat.set_offsets(masked_offsets)
+    assert isinstance(scat.get_offsets(), type(masked_offsets))
+
+    unmasked_offsets = np.column_stack([x, y])
+    scat.set_offsets(unmasked_offsets)
+    assert isinstance(scat.get_offsets(), type(unmasked_offsets))
