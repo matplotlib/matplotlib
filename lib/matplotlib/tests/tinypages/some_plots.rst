@@ -120,11 +120,9 @@ Plot 14 uses ``include-source``:
 
     # Only a comment
 
-Plot 15 uses an external file with the plot commands and a caption (the
-encoding is ignored and just verifies the deprecation is not broken):
+Plot 15 uses an external file with the plot commands and a caption:
 
 .. plot:: range4.py
-   :encoding: utf-8
 
    This is the caption for plot 15.
 
@@ -168,8 +166,11 @@ scenario:
 
    plt.figure()
    plt.plot(range(4))
- 
+
 Plot 21 is generated via an include directive:
 
 .. include:: included_plot_21.rst
 
+Plot 22 uses a different specific function in a file with plot commands:
+
+.. plot:: range6.py range10

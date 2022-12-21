@@ -14,6 +14,23 @@ pytest.importorskip('sphinx',
                     minversion=None if sys.version_info < (3, 10) else '4.1.3')
 
 
+def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
+    # Build the pages with warnings turned into errors
+    extra_args = [] if extra_args is None else extra_args
+    cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
+           '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
+    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
+                 env={**os.environ, "MPLBACKEND": ""})
+    out, err = proc.communicate()
+
+    assert proc.returncode == 0, \
+        f"sphinx build failed with stdout:\n{out}\nstderr:\n{err}\n"
+    if err:
+        pytest.fail(f"sphinx build emitted the following warnings:\n{err}")
+
+    assert html_dir.is_dir()
+
+
 def test_tinypages(tmp_path):
     shutil.copytree(Path(__file__).parent / 'tinypages', tmp_path,
                     dirs_exist_ok=True)
@@ -60,7 +77,7 @@ def test_tinypages(tmp_path):
     assert b'# Only a comment' in html_contents
     # check plot defined in external file.
     assert filecmp.cmp(range_4, img_dir / 'range4.png')
-    assert filecmp.cmp(range_6, img_dir / 'range6.png')
+    assert filecmp.cmp(range_6, img_dir / 'range6_range6.png')
     # check if figure caption made it into html file
     assert b'This is the caption for plot 15.' in html_contents
     # check if figure caption using :caption: made it into html file
@@ -74,6 +91,8 @@ def test_tinypages(tmp_path):
     # Plot 21 is range(6) plot via an include directive. But because some of
     # the previous plots are repeated, the argument to plot_file() is only 17.
     assert filecmp.cmp(range_6, plot_file(17))
+    # plot 22 is from the range6.py file again, but a different function
+    assert filecmp.cmp(range_10, img_dir / 'range6_range10.png')
 
     # Modify the included plot
     contents = (tmp_path / 'included_plot_21.rst').read_bytes()
@@ -159,20 +178,3 @@ def test_show_source_link_false(tmp_path, plot_html_show_source_link):
     build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=[
         '-D', f'plot_html_show_source_link={plot_html_show_source_link}'])
     assert len(list(html_dir.glob("**/index-1.py"))) == 0
-
-
-def build_sphinx_html(tmp_path, doctree_dir, html_dir, extra_args=None):
-    # Build the pages with warnings turned into errors
-    extra_args = [] if extra_args is None else extra_args
-    cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
-           '-d', str(doctree_dir), str(tmp_path), str(html_dir), *extra_args]
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
-                 env={**os.environ, "MPLBACKEND": ""})
-    out, err = proc.communicate()
-
-    assert proc.returncode == 0, \
-        f"sphinx build failed with stdout:\n{out}\nstderr:\n{err}\n"
-    if err:
-        pytest.fail(f"sphinx build emitted the following warnings:\n{err}")
-
-    assert html_dir.is_dir()

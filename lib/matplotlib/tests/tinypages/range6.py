@@ -11,3 +11,10 @@ def range6():
     plt.figure()
     plt.plot(range(6))
     plt.show()
+
+
+def range10():
+    """The function that should be executed."""
+    plt.figure()
+    plt.plot(range(10))
+    plt.show()

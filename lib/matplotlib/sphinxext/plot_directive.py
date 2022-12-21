@@ -60,11 +60,6 @@ The ``.. plot::`` directive supports the following options:
         changed using the ``plot_html_show_source_link`` variable in
         :file:`conf.py` (which itself defaults to True).
 
-    ``:encoding:`` : str
-        If this source file is in a non-UTF8 or non-ASCII encoding, the
-        encoding must be specified using the ``:encoding:`` option.  The
-        encoding will not be inferred using the ``-*- coding -*-`` metacomment.
-
     ``:context:`` : bool or str
         If provided, the code will be run in the context of all previous plot
         directives for which the ``:context:`` option was specified.  This only
@@ -166,7 +161,7 @@ import jinja2  # Sphinx dependency.
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
 import matplotlib.pyplot as plt
-from matplotlib import _api, _pylab_helpers, cbook
+from matplotlib import _pylab_helpers, cbook
 
 matplotlib.use("agg")
 
@@ -198,11 +193,6 @@ def _option_context(arg):
 
 def _option_format(arg):
     return directives.choice(arg, ('python', 'doctest'))
-
-
-def _deprecated_option_encoding(arg):
-    _api.warn_deprecated("3.5", name="encoding", obj_type="option")
-    return directives.encoding(arg)
 
 
 def mark_plot_labels(app, document):
@@ -254,7 +244,6 @@ class PlotDirective(Directive):
         'format': _option_format,
         'context': _option_context,
         'nofigs': directives.flag,
-        'encoding': _deprecated_option_encoding,
         'caption': directives.unchanged,
         }
 
@@ -316,47 +305,25 @@ def contains_doctest(text):
     return bool(m)
 
 
-@_api.deprecated("3.5", alternative="doctest.script_from_examples")
-def unescape_doctest(text):
-    """
-    Extract code from a piece of text, which contains either Python code
-    or doctests.
-    """
-    if not contains_doctest(text):
-        return text
-    code = ""
-    for line in text.split("\n"):
-        m = re.match(r'^\s*(>>>|\.\.\.) (.*)$', line)
-        if m:
-            code += m.group(2) + "\n"
-        elif line.strip():
-            code += "# " + line.strip() + "\n"
-        else:
-            code += "\n"
-    return code
-
-
-@_api.deprecated("3.5")
-def split_code_at_show(text):
+def _split_code_at_show(text, function_name):
     """Split code at plt.show()."""
-    return _split_code_at_show(text)[1]
 
-
-def _split_code_at_show(text):
-    """Split code at plt.show()."""
-    parts = []
     is_doctest = contains_doctest(text)
-    part = []
-    for line in text.split("\n"):
-        if (not is_doctest and line.strip() == 'plt.show()') or \
-               (is_doctest and line.strip() == '>>> plt.show()'):
-            part.append(line)
+    if function_name is None:
+        parts = []
+        part = []
+        for line in text.split("\n"):
+            if ((not is_doctest and line.startswith('plt.show(')) or
+                   (is_doctest and line.strip() == '>>> plt.show()')):
+                part.append(line)
+                parts.append("\n".join(part))
+                part = []
+            else:
+                part.append(line)
+        if "\n".join(part).strip():
             parts.append("\n".join(part))
-            part = []
-        else:
-            part.append(line)
-    if "\n".join(part).strip():
-        parts.append("\n".join(part))
+    else:
+        parts = [text]
     return is_doctest, parts
 
 
@@ -469,15 +436,6 @@ class PlotError(RuntimeError):
     pass
 
 
-@_api.deprecated("3.5")
-def run_code(code, code_path, ns=None, function_name=None):
-    """
-    Import a Python module from a path, and run the function given by
-    name, if function_name is not None.
-    """
-    _run_code(unescape_doctest(code), code_path, ns, function_name)
-
-
 def _run_code(code, code_path, ns=None, function_name=None):
     """
     Import a Python module from a path, and run the function given by
@@ -566,14 +524,15 @@ def render_figures(code, code_path, output_dir, output_base, context,
     Save the images under *output_dir* with file names derived from
     *output_base*
     """
+    if function_name is not None:
+        output_base = f'{output_base}_{function_name}'
     formats = get_plot_formats(config)
 
     # Try to determine if all images already exist
 
-    is_doctest, code_pieces = _split_code_at_show(code)
+    is_doctest, code_pieces = _split_code_at_show(code, function_name)
 
     # Look for single-figure output files first
-    all_exists = True
     img = ImageFile(output_base, output_dir)
     for format, dpi in formats:
         if context or out_of_date(code_path, img.filename(format),
@@ -581,13 +540,14 @@ def render_figures(code, code_path, output_dir, output_base, context,
             all_exists = False
             break
         img.formats.append(format)
+    else:
+        all_exists = True
 
     if all_exists:
         return [(code, [img])]
 
     # Then look for multi-figure output files
     results = []
-    all_exists = True
     for i, code_piece in enumerate(code_pieces):
         images = []
         for j in itertools.count():
@@ -611,6 +571,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
         if not all_exists:
             break
         results.append((code_piece, images))
+    else:
+        all_exists = True
 
     if all_exists:
         return results
@@ -793,13 +755,13 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # make figures
     try:
-        results = render_figures(code,
-                                 source_file_name,
-                                 build_dir,
-                                 output_base,
-                                 keep_context,
-                                 function_name,
-                                 config,
+        results = render_figures(code=code,
+                                 code_path=source_file_name,
+                                 output_dir=build_dir,
+                                 output_base=output_base,
+                                 context=keep_context,
+                                 function_name=function_name,
+                                 config=config,
                                  context_reset=context_opt == 'reset',
                                  close_figs=context_opt == 'close-figs',
                                  code_includes=source_file_includes)
