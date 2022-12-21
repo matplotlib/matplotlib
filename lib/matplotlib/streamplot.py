@@ -60,7 +60,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     start_points : Nx2 array
         Coordinates of starting points for the streamlines in data coordinates
         (the same coordinates as the *x* and *y* arrays).
-    zorder : int
+    zorder : float
         The zorder of the streamlines and arrows.
         Artists with lower zorder values are drawn first.
     maxlength : float
