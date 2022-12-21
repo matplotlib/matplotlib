@@ -945,7 +945,7 @@ class RangeSlider(SliderBase):
         ----------
         func : callable
             Function to call when slider is changed. The function
-            must accept a numpy array with shape (2,) as its argument.
+            must accept a 2-tuple of floats as its argument.
 
         Returns
         -------
