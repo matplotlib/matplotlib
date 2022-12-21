@@ -56,7 +56,7 @@ When you are ready to make some changes to the code, you should start a new
 branch.  Branches that are for a collection of related edits are often called
 'feature branches'.
 
-Making an new branch for each set of related changes will make it easier for
+Making a new branch for each set of related changes will make it easier for
 someone reviewing your branch to see what you are doing.
 
 Choose an informative name for the branch to remind yourself and the rest of us
@@ -147,8 +147,8 @@ Open a pull request
 When you are ready to ask for someone to review your code and consider a merge,
 `submit your Pull Request (PR) <https://docs.github.com/pull-requests>`_.
 
-Enter a title for the set of changes, and some explanation of what you've done.
-Say if there is anything you'd like particular attention for - like a
+Enter a title for the set of changes with some explanation of what you've done.
+Mention anything you'd like particular attention for - such as a
 complicated change or some code you are not happy with.
 
 If you don't think your request is ready to be merged, just say so in your pull
@@ -210,8 +210,8 @@ Rewriting commit history
 
    Do this only for your own feature branches.
 
-There's an embarrassing typo in a commit you made? Or perhaps the you
-made several false starts you would like the posterity not to see.
+Is there an embarrassing typo in a commit you made? Or perhaps you
+made several false starts you don't want posterity to see.
 
 This can be done via *interactive rebasing*.
 
@@ -279,7 +279,7 @@ message. After revising it, we get the output::
      1 files changed, 79 insertions(+), 61 deletions(-)
     Successfully rebased and updated refs/heads/my-feature-branch.
 
-and the history looks now like this::
+and now, the history looks like this::
 
      0f22701 Fix a few bugs + disable
      721fc64 ENH: Sophisticated feature
@@ -313,8 +313,8 @@ while. In the meantime, ``main`` has progressed from commit E to commit (say) G:
 
 At this stage you consider merging ``main`` into your feature branch, and you
 remember that this page sternly advises you not to do that, because the
-history will get messy. Most of the time you can just ask for a review, and not
-worry that ``main`` has got a little ahead.  But sometimes, the changes in
+history will get messy. Most of the time, you can just ask for a review without
+worrying about whether ``main`` has got a little ahead; however sometimes, the changes in
 ``main`` might affect your changes, and you need to harmonize them.  In this
 situation you may prefer to do a rebase.
 
@@ -349,7 +349,7 @@ command can be written more succinctly as::
 
     git rebase upstream/main
 
-When all looks good you can delete your backup branch::
+When all looks good, you can delete your backup branch::
 
    git branch -D tmp
 
@@ -389,8 +389,8 @@ a git history that looks something like
 
 where you have pushed the commits ``A,B,C`` to your fork on GitHub (under the
 remote name *origin*) but now have the commits ``A'`` and ``E`` on your local
-branch *cool-feature*.  If you try to push the new commits to GitHub it will
-fail with an error that looks like ::
+branch *cool-feature*.  If you try to push the new commits to GitHub, it will
+fail and show an error that looks like ::
 
    $ git push
    Pushing to github.com:origin/matplotlib.git
@@ -402,8 +402,8 @@ fail with an error that looks like ::
    hint: 'git pull ...') before pushing again.
    hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 
-If this push had succeed then the commits ``A``, ``B``, and ``C`` would no
-longer be referenced by any branch and be discarded:
+If this push had succeeded, the commits ``A``, ``B``, and ``C`` would no
+longer be referenced by any branch and they would be discarded:
 
 .. code-block:: none
 
@@ -415,7 +415,7 @@ GitHub also adds the helpful suggestion to pull the remote changes and then try
 pushing again.  In some cases, such as if you and a colleague are both
 committing and pushing to the same branch, this is a correct course of action.
 
-However, in the case of having intentionally re-written history we *want* to
+However, in the case of having intentionally re-written history, we *want* to
 discard the commits on the remote and replace them with the new-and-improved
 versions from our local branch.  In this case, what we want to do is ::
 
@@ -428,5 +428,5 @@ will only do the push if the remote branch is where the local ``git`` client
 thought it was.
 
 Be judicious with force-pushing.  It is effectively re-writing published
-history and if anyone has fetched the old commits will have a different view
+history, and if anyone has fetched the old commits, it will have a different view
 of history which can cause confusion.
