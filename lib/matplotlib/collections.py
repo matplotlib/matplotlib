@@ -1390,7 +1390,7 @@ class LineCollection(Collection):
             allowed).
         antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
             Whether to use antialiasing for each line.
-        zorder : int, default: 2
+        zorder : float, default: 2
             zorder of the lines once drawn.
 
         facecolors : color or list of color, default: 'none'
