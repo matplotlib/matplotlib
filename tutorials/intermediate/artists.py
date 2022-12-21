@@ -717,5 +717,5 @@ plt.show()
 #
 #
 # .. include:: ../../gallery/ticks/dollar_ticks.rst
-#    :start-after: y-axis labels.
+#    :start-after: .. redirect-from:: /gallery/pyplots/dollar_ticks
 #    :end-before: .. admonition:: References
