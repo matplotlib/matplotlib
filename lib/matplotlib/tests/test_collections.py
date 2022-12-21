@@ -1161,15 +1161,11 @@ def test_masked_set_offsets(fig_ref, fig_test):
     scat.set_offsets(np.ma.column_stack([x, y]))
     ax_test.set_xticks([])
     ax_test.set_yticks([])
-    ax_test.set_xlim(0, 7)
-    ax_test.set_ylim(0, 6)
 
     ax_ref = fig_ref.add_subplot()
     ax_ref.scatter([1, 2, 5], [1, 2, 5])
     ax_ref.set_xticks([])
     ax_ref.set_yticks([])
-    ax_ref.set_xlim(0, 7)
-    ax_ref.set_ylim(0, 6)
 
 
 def test_check_offsets_dtype():
