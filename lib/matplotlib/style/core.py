@@ -91,27 +91,31 @@ def use(style):
     ----------
     style : str, dict, Path or list
 
-        A style specification.
+        A style specification. Valid options are:
 
-        - If a str, this can be one of the style names in `.style.available`
-          (a builtin style or a style installed in the user library path).
+        str
+            - One of the style names in `.style.available` (a builtin style or
+              a style installed in the user library path).
 
-          This can also be a dotted name of the form "package.style_name"; in
-          that case, "package" should be an importable Python package name,
-          e.g. at ``/path/to/package/__init__.py``; the loaded style file is
-          ``/path/to/package/style_name.mplstyle``.  (Style files in
-          subpackages are likewise supported.)
+            - A dotted name of the form "package.style_name"; in that case,
+              "package" should be an importable Python package name, e.g. at
+              ``/path/to/package/__init__.py``; the loaded style file is
+              ``/path/to/package/style_name.mplstyle``.  (Style files in
+              subpackages are likewise supported.)
 
-          This can also be the path or URL to a style file, which gets loaded
-          by `.rc_params_from_file`.
+            - The path or URL to a style file, which gets loaded by
+              `.rc_params_from_file`.
 
-        - If a dict, this is a mapping of key/value pairs for `.rcParams`.
+        dict
+            A mapping of key/value pairs for `matplotlib.rcParams`.
 
-        - If a Path, this is the path to a style file, which gets loaded by
-          `.rc_params_from_file`.
+        Path
+            The path to a style file, which gets loaded by
+            `.rc_params_from_file`.
 
-        - If a list, this is a list of style specifiers (str, Path or dict),
-          which get applied from first to last in the list.
+        list
+            A list of style specifiers (str, Path or dict), which are applied
+            from first to last in the list.
 
     Notes
     -----
@@ -186,18 +190,28 @@ def context(style, after_reset=False):
     style : str, dict, Path or list
         A style specification. Valid options are:
 
-        +------+-------------------------------------------------------------+
-        | str  | The name of a style or a path/URL to a style file. For a    |
-        |      | list of available style names, see `.style.available`.      |
-        +------+-------------------------------------------------------------+
-        | dict | Dictionary with valid key/value pairs for                   |
-        |      | `matplotlib.rcParams`.                                      |
-        +------+-------------------------------------------------------------+
-        | Path | A path-like object which is a path to a style file.         |
-        +------+-------------------------------------------------------------+
-        | list | A list of style specifiers (str, Path or dict) applied from |
-        |      | first to last in the list.                                  |
-        +------+-------------------------------------------------------------+
+        str
+            - One of the style names in `.style.available` (a builtin style or
+              a style installed in the user library path).
+
+            - A dotted name of the form "package.style_name"; in that case,
+              "package" should be an importable Python package name, e.g. at
+              ``/path/to/package/__init__.py``; the loaded style file is
+              ``/path/to/package/style_name.mplstyle``.  (Style files in
+              subpackages are likewise supported.)
+
+            - The path or URL to a style file, which gets loaded by
+              `.rc_params_from_file`.
+        dict
+            A mapping of key/value pairs for `matplotlib.rcParams`.
+
+        Path
+            The path to a style file, which gets loaded by
+            `.rc_params_from_file`.
+
+        list
+            A list of style specifiers (str, Path or dict), which are applied
+            from first to last in the list.
 
     after_reset : bool
         If True, apply style after resetting settings to their defaults;

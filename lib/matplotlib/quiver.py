@@ -150,9 +150,9 @@ units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
     =================  =================   ==================
     units              zoom                figure size change
     =================  =================   ==================
-    'x', 'y', 'xy'     arrow size scales   -
-    'width', 'height'  -                   arrow size scales
-    'dots', 'inches'   -                   -
+    'x', 'y', 'xy'     arrow size scales   —
+    'width', 'height'  —                   arrow size scales
+    'dots', 'inches'   —                   —
     =================  =================   ==================
 
 width : float, optional
