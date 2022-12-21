@@ -147,7 +147,6 @@ Alphabetical list of modules:
    testing_api.rst
    text_api.rst
    texmanager_api.rst
-   textpath_api.rst
    ticker_api.rst
    tight_bbox_api.rst
    tight_layout_api.rst

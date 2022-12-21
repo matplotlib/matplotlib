@@ -43,7 +43,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, backend_tools as tools, cbook, colors, _docstring, textpath,
+    _api, backend_tools as tools, cbook, colors, _docstring, text,
     _tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
@@ -172,7 +172,7 @@ class RendererBase:
     def __init__(self):
         super().__init__()
         self._texmanager = None
-        self._text2path = textpath.TextToPath()
+        self._text2path = text.TextToPath()
         self._raster_depth = 0
         self._rasterizing = False
 
@@ -515,7 +515,7 @@ class RendererBase:
             The y location of the text baseline in display coords.
         s : str
             The TeX text string.
-        prop : `matplotlib.font_manager.FontProperties`
+        prop : `~matplotlib.font_manager.FontProperties`
             The font properties.
         angle : float
             The rotation angle in degrees anti-clockwise.
@@ -538,12 +538,12 @@ class RendererBase:
             The y location of the text baseline in display coords.
         s : str
             The text string.
-        prop : `matplotlib.font_manager.FontProperties`
+        prop : `~matplotlib.font_manager.FontProperties`
             The font properties.
         angle : float
             The rotation angle in degrees anti-clockwise.
         ismath : bool or "TeX"
-            If True, use mathtext parser. If "TeX", use *usetex* mode.
+            If True, use mathtext parser. If "TeX", use tex for rendering.
         mtext : `matplotlib.text.Text`
             The original text object to be rendered.
 
@@ -569,12 +569,18 @@ class RendererBase:
 
         Parameters
         ----------
-        prop : `matplotlib.font_manager.FontProperties`
-            The font property.
+        x : float
+            The x location of the text in display coords.
+        y : float
+            The y location of the text baseline in display coords.
         s : str
             The text to be converted.
+        prop : `~matplotlib.font_manager.FontProperties`
+            The font property.
+        angle : float
+            Angle in degrees to render the text at.
         ismath : bool or "TeX"
-            If True, use mathtext parser. If "TeX", use *usetex* mode.
+            If True, use mathtext parser. If "TeX", use tex for rendering.
         """
 
         text2path = self._text2path
@@ -599,18 +605,22 @@ class RendererBase:
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         """
-        Draw the text by converting them to paths using textpath module.
+        Draw the text by converting them to paths using `.TextToPath`.
 
         Parameters
         ----------
-        prop : `matplotlib.font_manager.FontProperties`
-            The font property.
+        x : float
+            The x location of the text in display coords.
+        y : float
+            The y location of the text baseline in display coords.
         s : str
             The text to be converted.
-        usetex : bool
-            Whether to use usetex mode.
+        prop : `~matplotlib.font_manager.FontProperties`
+            The font property.
+        angle : float
+            Angle in degrees to render the text at.
         ismath : bool or "TeX"
-            If True, use mathtext parser. If "TeX", use *usetex* mode.
+            If True, use mathtext parser. If "TeX", use tex for rendering.
         """
         path, transform = self._get_text_path_transform(
             x, y, s, prop, angle, ismath)

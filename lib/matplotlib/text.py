@@ -15,7 +15,7 @@ from . import _api, artist, cbook, _docstring
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
-from .textpath import TextPath  # noqa # Unused, but imported by others.
+from .textpath import TextPath, TextToPath  # noqa # Logically located here
 from .transforms import (
     Affine2D, Bbox, BboxBase, BboxTransformTo, IdentityTransform, Transform)
 

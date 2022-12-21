@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.font_manager
 from matplotlib.patches import Rectangle, PathPatch
-from matplotlib.textpath import TextPath
+from matplotlib.text import TextPath
 import matplotlib.transforms as mtrans
 
 MPL_BLUE = '#11557c'
