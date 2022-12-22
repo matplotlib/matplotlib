@@ -613,7 +613,6 @@ def test_annotationbbox_gid():
                         )
     ab.set_gid("a test for issue 20044")
     ax.add_artist(ab)
-    fig.canvas.draw()
 
     with BytesIO() as fd:
         fig.savefig(fd, format='svg')
