@@ -609,3 +609,20 @@ def test_svg_font_string(font_str, include_generic):
 
         assert font_info == f"{size}px {font_str}"
     assert text_count == len(ax.texts)
+
+
+def test_aria():
+    fig, ax = plt.subplots()
+
+    with BytesIO() as fd:
+        fig.savefig(fd, format="svg")
+        buf = fd.getvalue()
+
+    assert b'aria-label' not in buf
+
+    fig.set_aria({'aria-label': 'A test of inserting the label'})
+    with BytesIO() as fd:
+        fig.savefig(fd, format="svg")
+        buf = fd.getvalue()
+
+    assert b'aria-label' in buf

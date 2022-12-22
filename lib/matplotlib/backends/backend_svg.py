@@ -317,7 +317,7 @@ def _check_is_iterable_of_str(infos, key):
 
 class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72,
-                 *, metadata=None):
+                 *, metadata=None, aria=None):
         self.width = width
         self.height = height
         self.writer = XMLWriter(svgwriter)
@@ -337,6 +337,7 @@ class RendererSVG(RendererBase):
         self._hatchd = {}
         self._has_gouraud = False
         self._n_gradients = 0
+        self._aria = dict(aria or {})
 
         super().__init__()
         self._glyph_map = dict()
@@ -350,7 +351,9 @@ class RendererSVG(RendererBase):
             viewBox='0 0 %s %s' % (str_width, str_height),
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
-            attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
+            attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"},
+            **{k: self._aria[k] for k in ['aria-label'] if k in self._aria}
+        )
         self._write_metadata(metadata)
         self._write_default_style()
 
@@ -1362,9 +1365,12 @@ class FigureCanvasSVG(FigureCanvasBase):
             self.figure.dpi = 72
             width, height = self.figure.get_size_inches()
             w, h = width * 72, height * 72
+            aria = self.figure.get_aria()
             renderer = MixedModeRenderer(
                 self.figure, width, height, dpi,
-                RendererSVG(w, h, fh, image_dpi=dpi, metadata=metadata),
+                RendererSVG(
+                    w, h, fh, image_dpi=dpi, metadata=metadata, aria=aria
+                ),
                 bbox_inches_restore=bbox_inches_restore)
             self.figure.draw(renderer)
             renderer.finalize()
