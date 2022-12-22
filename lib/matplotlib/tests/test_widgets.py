@@ -7,6 +7,8 @@ from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+from matplotlib.lines import Line2D
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
                                         mock_event, noop)
@@ -1006,8 +1008,10 @@ def test_check_radio_buttons_image():
     rb = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
     with pytest.warns(DeprecationWarning):
         rb.circles  # Trigger the old-style elliptic radiobuttons.
-    widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
-                         (False, True, True))
+    cb = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
+                              (False, True, True))
+    with pytest.warns(DeprecationWarning):
+        cb.rectangles  # Trigger old-style Rectangle check boxes
 
 
 @check_figures_equal(extensions=["png"])
@@ -1018,6 +1022,67 @@ def test_radio_buttons(fig_test, fig_ref):
                s=(plt.rcParams["font.size"] / 2) ** 2, c=["C0", "none"])
     ax.text(.25, 2/3, "tea", transform=ax.transAxes, va="center")
     ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
+
+
+@check_figures_equal(extensions=["png"])
+def test_check_buttons(fig_test, fig_ref):
+    widgets.CheckButtons(fig_test.subplots(), ["tea", "coffee"], [True, True])
+    ax = fig_ref.add_subplot(xticks=[], yticks=[])
+    ax.scatter([.15, .15], [2/3, 1/3], marker='s', transform=ax.transAxes,
+               s=(plt.rcParams["font.size"] / 2) ** 2, c=["none", "none"])
+    ax.scatter([.15, .15], [2/3, 1/3], marker='x', transform=ax.transAxes,
+               s=(plt.rcParams["font.size"] / 2) ** 2, c=["k", "k"])
+    ax.text(.25, 2/3, "tea", transform=ax.transAxes, va="center")
+    ax.text(.25, 1/3, "coffee", transform=ax.transAxes, va="center")
+
+
+@check_figures_equal(extensions=["png"])
+def test_check_buttons_rectangles(fig_test, fig_ref):
+    # Test should be removed once .rectangles is removed
+    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""],
+                              [False, False])
+    with pytest.warns(DeprecationWarning):
+        cb.rectangles
+    ax = fig_ref.add_subplot(xticks=[], yticks=[])
+    ys = [2/3, 1/3]
+    dy = 1/3
+    w, h = dy / 2, dy / 2
+    rectangles = [
+        Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
+                  edgecolor="black",
+                  facecolor="none",
+                  transform=ax.transAxes
+                  )
+        for i, y in enumerate(ys)
+    ]
+    for rectangle in rectangles:
+        ax.add_patch(rectangle)
+
+
+@check_figures_equal(extensions=["png"])
+def test_check_buttons_lines(fig_test, fig_ref):
+    # Test should be removed once .lines is removed
+    cb = widgets.CheckButtons(fig_test.subplots(), ["", ""], [True, True])
+    with pytest.warns(DeprecationWarning):
+        cb.lines
+    for rectangle in cb._rectangles:
+        rectangle.set_visible(False)
+    ax = fig_ref.add_subplot(xticks=[], yticks=[])
+    ys = [2/3, 1/3]
+    dy = 1/3
+    w, h = dy / 2, dy / 2
+    lineparams = {'color': 'k', 'linewidth': 1.25,
+                    'transform': ax.transAxes,
+                    'solid_capstyle': 'butt'}
+    for i, y in enumerate(ys):
+        x, y = 0.05, y - h / 2
+        l1 = Line2D([x, x + w], [y + h, y], **lineparams)
+        l2 = Line2D([x, x + w], [y, y + h], **lineparams)
+
+        l1.set_visible(True)
+        l2.set_visible(True)
+        ax.add_line(l1)
+        ax.add_line(l2)
 
 
 def test_slider_slidermin_slidermax_invalid():

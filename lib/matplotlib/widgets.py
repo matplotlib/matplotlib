@@ -1002,43 +1002,23 @@ class CheckButtons(AxesWidget):
         if actives is None:
             actives = [False] * len(labels)
 
-        if len(labels) > 1:
-            dy = 1. / (len(labels) + 1)
-            ys = np.linspace(1 - dy, dy, len(labels))
-        else:
-            dy = 0.25
-            ys = [0.5]
+        ys = np.linspace(1, 0, len(labels)+2)[1:-1]
+        text_size = mpl.rcParams["font.size"] / 2
 
-        axcolor = ax.get_facecolor()
+        self.labels = [
+            ax.text(0.25, y, label, transform=ax.transAxes,
+                    horizontalalignment="left", verticalalignment="center")
+            for y, label in zip(ys, labels)]
 
-        self.labels = []
-        self.lines = []
-        self.rectangles = []
-
-        lineparams = {'color': 'k', 'linewidth': 1.25,
-                      'transform': ax.transAxes, 'solid_capstyle': 'butt'}
-        for y, label, active in zip(ys, labels, actives):
-            t = ax.text(0.25, y, label, transform=ax.transAxes,
-                        horizontalalignment='left',
-                        verticalalignment='center')
-
-            w, h = dy / 2, dy / 2
-            x, y = 0.05, y - h / 2
-
-            p = Rectangle(xy=(x, y), width=w, height=h, edgecolor='black',
-                          facecolor=axcolor, transform=ax.transAxes)
-
-            l1 = Line2D([x, x + w], [y + h, y], **lineparams)
-            l2 = Line2D([x, x + w], [y, y + h], **lineparams)
-
-            l1.set_visible(active)
-            l2.set_visible(active)
-            self.labels.append(t)
-            self.rectangles.append(p)
-            self.lines.append((l1, l2))
-            ax.add_patch(p)
-            ax.add_line(l1)
-            ax.add_line(l2)
+        self._squares = ax.scatter(
+            [0.15] * len(ys), ys, marker='s', s=text_size**2,
+            c="none", linewidth=1, transform=ax.transAxes, edgecolor="k"
+        )
+        self._crosses = ax.scatter(
+            [0.15] * len(ys), ys, marker='x', linewidth=1, s=text_size**2,
+            c=["k" if active else "none" for active in actives],
+            transform=ax.transAxes
+        )
 
         self.connect_event('button_press_event', self._clicked)
 
@@ -1047,11 +1027,27 @@ class CheckButtons(AxesWidget):
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
             return
-        for i, (p, t) in enumerate(zip(self.rectangles, self.labels)):
-            if (t.get_window_extent().contains(event.x, event.y) or
-                    p.get_window_extent().contains(event.x, event.y)):
-                self.set_active(i)
-                break
+        pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
+        distances = {}
+        if hasattr(self, "_rectangles"):
+            for i, (p, t) in enumerate(zip(self._rectangles, self.labels)):
+                x0, y0 = p.get_xy()
+                if (t.get_window_extent().contains(event.x, event.y)
+                        or (x0 <= pclicked[0] <= x0 + p.get_width()
+                            and y0 <= pclicked[1] <= y0 + p.get_height())):
+                    distances[i] = np.linalg.norm(pclicked - p.get_center())
+        else:
+            _, square_inds = self._squares.contains(event)
+            coords = self._squares.get_offset_transform().transform(
+                self._squares.get_offsets()
+            )
+            for i, t in enumerate(self.labels):
+                if (i in square_inds["ind"]
+                        or t.get_window_extent().contains(event.x, event.y)):
+                    distances[i] = np.linalg.norm(pclicked - coords[i])
+        if len(distances) > 0:
+            closest = min(distances, key=distances.get)
+            self.set_active(closest)
 
     def set_active(self, index):
         """
@@ -1072,9 +1068,20 @@ class CheckButtons(AxesWidget):
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid CheckButton index: {index}')
 
-        l1, l2 = self.lines[index]
-        l1.set_visible(not l1.get_visible())
-        l2.set_visible(not l2.get_visible())
+        cross_facecolors = self._crosses.get_facecolor()
+        cross_facecolors[index] = colors.to_rgba(
+            "black"
+            if colors.same_color(
+                cross_facecolors[index], colors.to_rgba("none")
+            )
+            else "none"
+        )
+        self._crosses.set_facecolor(cross_facecolors)
+
+        if hasattr(self, "_lines"):
+            l1, l2 = self._lines[index]
+            l1.set_visible(not l1.get_visible())
+            l2.set_visible(not l2.get_visible())
 
         if self.drawon:
             self.ax.figure.canvas.draw()
@@ -1086,7 +1093,8 @@ class CheckButtons(AxesWidget):
         """
         Return a list of the status (True/False) of all of the check buttons.
         """
-        return [l1.get_visible() for (l1, l2) in self.lines]
+        return [not colors.same_color(color, colors.to_rgba("none"))
+                for color in self._crosses.get_facecolors()]
 
     def on_clicked(self, func):
         """
@@ -1099,6 +1107,57 @@ class CheckButtons(AxesWidget):
     def disconnect(self, cid):
         """Remove the observer with connection id *cid*."""
         self._observers.disconnect(cid)
+
+    @_api.deprecated("3.7")
+    @property
+    def rectangles(self):
+        if not hasattr(self, "_rectangles"):
+            ys = np.linspace(1, 0, len(self.labels)+2)[1:-1]
+            dy = 1. / (len(self.labels) + 1)
+            w, h = dy / 2, dy / 2
+            rectangles = self._rectangles = [
+                Rectangle(xy=(0.05, ys[i] - h / 2), width=w, height=h,
+                          edgecolor="black",
+                          facecolor="none",
+                          transform=self.ax.transAxes
+                          )
+                for i, y in enumerate(ys)
+            ]
+            self._squares.set_visible(False)
+            for rectangle in rectangles:
+                self.ax.add_patch(rectangle)
+        if not hasattr(self, "_lines"):
+            with _api.suppress_matplotlib_deprecation_warning():
+                _ = self.lines
+        return self._rectangles
+
+    @_api.deprecated("3.7")
+    @property
+    def lines(self):
+        if not hasattr(self, "_lines"):
+            ys = np.linspace(1, 0, len(self.labels)+2)[1:-1]
+            self._crosses.set_visible(False)
+            dy = 1. / (len(self.labels) + 1)
+            w, h = dy / 2, dy / 2
+            self._lines = []
+            current_status = self.get_status()
+            lineparams = {'color': 'k', 'linewidth': 1.25,
+                          'transform': self.ax.transAxes,
+                          'solid_capstyle': 'butt'}
+            for i, y in enumerate(ys):
+                x, y = 0.05, y - h / 2
+                l1 = Line2D([x, x + w], [y + h, y], **lineparams)
+                l2 = Line2D([x, x + w], [y, y + h], **lineparams)
+
+                l1.set_visible(current_status[i])
+                l2.set_visible(current_status[i])
+                self._lines.append((l1, l2))
+                self.ax.add_patch(l1)
+                self.ax.add_patch(l2)
+        if not hasattr(self, "_rectangles"):
+            with _api.suppress_matplotlib_deprecation_warning():
+                _ = self.rectangles
+        return self._lines
 
 
 class TextBox(AxesWidget):
@@ -1457,8 +1516,10 @@ class RadioButtons(AxesWidget):
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid RadioButton index: {index}')
         self.value_selected = self.labels[index].get_text()
-        self._buttons.get_facecolor()[:] = colors.to_rgba("none")
-        self._buttons.get_facecolor()[index] = colors.to_rgba(self.activecolor)
+        button_facecolors = self._buttons.get_facecolor()
+        button_facecolors[:] = colors.to_rgba("none")
+        button_facecolors[index] = colors.to_rgba(self.activecolor)
+        self._buttons.set_facecolor(button_facecolors)
         if hasattr(self, "_circles"):  # Remove once circles is removed.
             for i, p in enumerate(self._circles):
                 p.set_facecolor(self.activecolor if i == index else "none")
