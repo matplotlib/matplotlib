@@ -984,7 +984,7 @@ def test_TextBox(ax, toolbar):
     assert tool.text == 'x**2'
     assert text_change_event.call_count == 1
 
-    tool.begin_typing(tool.text)
+    tool.begin_typing()
     tool.stop_typing()
 
     assert submit_event.call_count == 2
