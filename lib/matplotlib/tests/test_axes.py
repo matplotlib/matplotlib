@@ -8449,3 +8449,11 @@ def test_scatter_color_repr_error():
         c = 'red\n'
         mpl.axes.Axes._parse_scatter_color_args(
             c, None, kwargs={}, xsize=2, get_next_color_func=get_next_color)
+
+
+def test_zorder_and_explicit_rasterization():
+    fig, ax = plt.subplots()
+    ax.set_rasterization_zorder(5)
+    ln, = ax.plot(range(5), rasterized=True, zorder=1)
+    with io.BytesIO() as b:
+        fig.savefig(b, format='pdf')
