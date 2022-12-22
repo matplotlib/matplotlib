@@ -2728,9 +2728,11 @@ class ToolLineHandles:
         _api.check_in_list(['horizontal', 'vertical'], direction=direction)
         self._direction = direction
 
-        if line_props is None:
-            line_props = {}
-        line_props.update({'visible': False, 'animated': useblit})
+        line_props = {
+            **(line_props if line_props is not None else {}),
+            'visible': False,
+            'animated': useblit,
+        }
 
         line_fun = ax.axvline if self.direction == 'horizontal' else ax.axhline
 
@@ -3034,9 +3036,8 @@ class RectangleSelector(_SelectorWidget):
             if props is None:
                 props = dict(facecolor='red', edgecolor='black',
                              alpha=0.2, fill=True)
-            props['animated'] = self.useblit
-            self._visible = props.pop('visible', self._visible)
-            self._props = props
+            self._props = {**props, 'animated': self.useblit}
+            self._visible = self._props.pop('visible', self._visible)
             to_draw = self._init_shape(**self._props)
             self.ax.add_patch(to_draw)
         if drawtype == 'line':
@@ -3047,8 +3048,7 @@ class RectangleSelector(_SelectorWidget):
             if lineprops is None:
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
-            lineprops['animated'] = self.useblit
-            self._props = lineprops
+            self._props = {**lineprops, 'animated': self.useblit}
             to_draw = Line2D([0, 0], [0, 0], visible=False, **self._props)
             self.ax.add_line(to_draw)
 
@@ -3621,10 +3621,12 @@ class LassoSelector(_SelectorWidget):
                  button=None):
         super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
-        if props is None:
-            props = dict()
-        # self.useblit may be != useblit, if the canvas doesn't support blit.
-        props.update(animated=self.useblit, visible=False)
+        props = {
+            **(props if props is not None else {}),
+            # Note that self.useblit may be != useblit, if the canvas doesn't
+            # support blitting.
+            'animated': self.useblit, 'visible': False,
+        }
         line = Line2D([], [], **props)
         self.ax.add_line(line)
         self._selection_artist = line
@@ -3759,8 +3761,7 @@ class PolygonSelector(_SelectorWidget):
 
         if props is None:
             props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
-        props['animated'] = self.useblit
-        self._props = props
+        self._props = {**props, 'animated': self.useblit}
         self._selection_artist = line = Line2D([], [], **self._props)
         self.ax.add_line(line)
 
