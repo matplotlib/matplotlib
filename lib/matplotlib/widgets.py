@@ -1279,7 +1279,8 @@ class TextBox(AxesWidget):
             self._observers.process('change', self.text)
             self._observers.process('submit', self.text)
 
-    def begin_typing(self, x):
+    @_api.delete_parameter("3.7", "x")
+    def begin_typing(self, x=None):
         self.capturekeystrokes = True
         # Disable keypress shortcuts, which may otherwise cause the figure to
         # be saved, closed, etc., until the user stops typing.  The way to
@@ -1326,7 +1327,7 @@ class TextBox(AxesWidget):
         if event.canvas.mouse_grabber != self.ax:
             event.canvas.grab_mouse(self.ax)
         if not self.capturekeystrokes:
-            self.begin_typing(event.x)
+            self.begin_typing()
         self.cursor_index = self.text_disp._char_index_at(event.x)
         self._rendercursor()
 
