@@ -210,7 +210,7 @@ markerfirst : bool, default: True
     If *False*, legend marker is placed to the right of the legend label.
 
 reverse : bool, default: False
-    If *True*, the legend labels are displayed in reverse order as the input.
+    If *True*, the legend labels are displayed in reverse order from the input.
     If *False*, the legend labels are displayed in the same order as the input.
 
 frameon : bool, default: :rc:`legend.frameon`
