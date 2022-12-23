@@ -1,7 +1,7 @@
 Per-subplot keyword arguments  in ``subplot_mosaic``
 ----------------------------------------------------
 
-It is now possible to pass keyword arguments through to the creation to each
+It is now possible to pass keyword arguments through to Axes creation in each
 specific call to ``add_subplot`` in `.Figure.subplot_mosaic` and
 `.pyplot.subplot_mosaic` :
 

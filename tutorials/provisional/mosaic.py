@@ -295,7 +295,6 @@ identify_axes(axd)
 # Per-Axes subplot keyword arguments
 # ----------------------------------
 #
-#
 # If you need to control the parameters passed to each subplot individually use
 # *per_subplot_kw* to pass a mapping between the Axes identifiers (or
 # tuples of Axes identifiers) to dictionaries of keywords to be passed.
@@ -330,7 +329,7 @@ fig, axd = plt.subplot_mosaic(
 identify_axes(axd)
 
 ###############################################################################
-# if *subplot_kw* and *per_subplot_kw* are used together, then they are
+# If *subplot_kw* and *per_subplot_kw* are used together, then they are
 # merged with *per_subplot_kw* taking priority:
 
 

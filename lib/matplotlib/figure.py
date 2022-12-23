@@ -1790,8 +1790,8 @@ default: %(va)s
 
     def subplot_mosaic(self, mosaic, *, sharex=False, sharey=False,
                        width_ratios=None, height_ratios=None,
-                       empty_sentinel='.', subplot_kw=None, gridspec_kw=None,
-                       per_subplot_kw=None):
+                       empty_sentinel='.',
+                       subplot_kw=None, per_subplot_kw=None, gridspec_kw=None):
         """
         Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1925,9 +1925,7 @@ default: %(va)s
                 tuple(k): v for k, v in per_subplot_kw.items()
             }
 
-        per_subplot_kw = self._norm_per_subplot_kw(
-            per_subplot_kw
-        )
+        per_subplot_kw = self._norm_per_subplot_kw(per_subplot_kw)
 
         # Only accept strict bools to allow a possible future API expansion.
         _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
