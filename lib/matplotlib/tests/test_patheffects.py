@@ -7,7 +7,9 @@ from matplotlib.path import Path
 import matplotlib.patches as patches
 
 
-@image_comparison(['patheffect1'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['patheffect1'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_patheffect1():
     ax1 = plt.subplot()
     ax1.imshow([[1, 2], [2, 3]])
@@ -43,7 +45,8 @@ def test_patheffect2():
                                                    foreground="w")])
 
 
-@image_comparison(['patheffect3'])
+# Update style when regenerating the test image
+@image_comparison(['patheffect3'], style=("classic", "_classic_test_patch"))
 def test_patheffect3():
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
     p1.set_path_effects([path_effects.SimpleLineShadow(),
@@ -71,7 +74,9 @@ def test_patheffect3():
     t.set_path_effects(pe)
 
 
-@image_comparison(['stroked_text.png'])
+# Update style when regenerating the test image
+@image_comparison(['stroked_text.png'],
+                  style=("classic", "_classic_test_patch"))
 def test_patheffects_stroked_text():
     text_chunks = [
         'A B C D E F G H I J K L',
@@ -136,8 +141,10 @@ def test_collection():
                        'edgecolor': 'blue'})
 
 
+# Update style when regenerating the test image
 @image_comparison(['tickedstroke'], remove_text=True, extensions=['png'],
-                  tol=0.22)  # Increased tolerance due to fixed clipping.
+                  tol=0.22,  # Increased tolerance due to fixed clipping.
+                  style=("classic", "_classic_test_patch"))
 def test_tickedstroke():
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 4))
     path = Path.unit_circle()
@@ -191,7 +198,9 @@ def test_tickedstroke():
     ax3.set_ylim(0, 4)
 
 
-@image_comparison(['spaces_and_newlines.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['spaces_and_newlines.png'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_patheffects_spaces_and_newlines():
     ax = plt.subplot()
     s1 = "         "

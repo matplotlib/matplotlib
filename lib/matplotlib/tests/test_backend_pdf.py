@@ -22,7 +22,9 @@ from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 
 
-@image_comparison(['pdf_use14corefonts.pdf'])
+# Update style when regenerating the test image
+@image_comparison(['pdf_use14corefonts.pdf'],
+                  style=("classic", "_classic_test_patch"))
 def test_use14corefonts():
     rcParams['pdf.use14corefonts'] = True
     rcParams['font.family'] = 'sans-serif'
@@ -306,7 +308,9 @@ def test_pdfpages_fspath():
         pdf.savefig(plt.figure())
 
 
-@image_comparison(['hatching_legend.pdf'])
+# Update style when regenerating the test image
+@image_comparison(['hatching_legend.pdf'],
+                  style=("classic", "_classic_test_patch"))
 def test_hatching_legend():
     """Test for correct hatching on patches in legend"""
     fig = plt.figure(figsize=(1, 2))
@@ -317,7 +321,9 @@ def test_hatching_legend():
     fig.legend([a, b, a, b], ["", "", "", ""])
 
 
-@image_comparison(['grayscale_alpha.pdf'])
+# Update style when regenerating the test image
+@image_comparison(['grayscale_alpha.pdf'],
+                  style=("classic", "_classic_test_patch"))
 def test_grayscale_alpha():
     """Masking images with NaN did not work for grayscale images"""
     x, y = np.ogrid[-2:2:.1, -2:2:.1]
@@ -354,7 +360,8 @@ def test_empty_rasterized():
     fig.savefig(io.BytesIO(), format="pdf")
 
 
-@image_comparison(['kerning.pdf'])
+# Update style when regenerating the test image
+@image_comparison(['kerning.pdf'], style=("classic", "_classic_test_patch"))
 def test_kerning():
     fig = plt.figure()
     s = "AVAVAVAVAVAVAVAV€AAVV"
@@ -387,7 +394,9 @@ def test_glyphs_subset():
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
 
 
-@image_comparison(["multi_font_type3.pdf"], tol=4.6)
+# Update style when regenerating the test image
+@image_comparison(["multi_font_type3.pdf"], tol=4.6,
+                  style=("classic", "_classic_test_patch"))
 def test_multi_font_type3():
     fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
@@ -400,7 +409,9 @@ def test_multi_font_type3():
     fig.text(0.15, 0.475, "There are 几个汉字 in between!")
 
 
-@image_comparison(["multi_font_type42.pdf"], tol=2.2)
+# Update style when regenerating the test image
+@image_comparison(["multi_font_type42.pdf"], tol=2.2,
+                  style=("classic", "_classic_test_patch"))
 def test_multi_font_type42():
     fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":

@@ -124,7 +124,9 @@ def test_contour_manual_labels():
     plt.clabel(cs, manual=pts, fontsize='small', colors=('r', 'g'))
 
 
-@image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_given_colors_levels_and_extends():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -211,9 +213,10 @@ def test_labels():
         CS.add_label_near(x, y, inline=True, transform=False)
 
 
+# Update style when regenerating the test image
 @image_comparison(['contour_corner_mask_False.png',
                    'contour_corner_mask_True.png'],
-                  remove_text=True)
+                  remove_text=True, style=("classic", "_classic_test_patch"))
 def test_corner_mask():
     n = 60
     mask_level = 0.95

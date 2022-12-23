@@ -83,7 +83,9 @@ def test_set_line_coll_dash():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
-@image_comparison(['line_dashes'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['line_dashes'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_line_dashes():
     fig, ax = plt.subplots()
 
@@ -122,7 +124,9 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
-@image_comparison(['drawstyle_variants.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['drawstyle_variants.png'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
     dss = ["default", "steps-mid", "steps-pre", "steps-post", "steps", None]
@@ -172,7 +176,9 @@ def test_set_line_coll_dash_image():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
-@image_comparison(['marker_fill_styles.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['marker_fill_styles.png'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_marker_fill_styles():
     colors = itertools.cycle([[0, 0, 1], 'g', '#ff0000', 'c', 'm', 'y',
                               np.array([0, 0, 0])])

@@ -12,7 +12,9 @@ def test_non_square():
     plt.table(cellColours=cellcolors)
 
 
-@image_comparison(['table_zorder.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['table_zorder.png'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_zorder():
     data = [[66386, 174296],
             [58230, 381139]]
@@ -45,7 +47,9 @@ def test_zorder():
     plt.yticks([])
 
 
-@image_comparison(['table_labels.png'])
+# Update style when regenerating the test image
+@image_comparison(['table_labels.png'],
+                  style=("classic", "_classic_test_patch"))
 def test_label_colours():
     dim = 3
 
@@ -82,7 +86,9 @@ def test_label_colours():
               loc='best')
 
 
-@image_comparison(['table_cell_manipulation.png'], remove_text=True)
+# Update style when regenerating the test image
+@image_comparison(['table_cell_manipulation.png'], remove_text=True,
+                  style=("classic", "_classic_test_patch"))
 def test_diff_cell_table():
     cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
     cellText = [['1'] * len(cells)] * 2
@@ -119,7 +125,9 @@ def test_customcell():
         assert c == code
 
 
-@image_comparison(['table_auto_column.png'])
+# Update style when regenerating the test image
+@image_comparison(['table_auto_column.png'],
+                  style=("classic", "_classic_test_patch"))
 def test_auto_column():
     fig = plt.figure()
 
