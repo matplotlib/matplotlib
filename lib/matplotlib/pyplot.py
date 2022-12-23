@@ -756,9 +756,15 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Notes
     -----
-    Newly created figures are passed to the `~.FigureCanvasBase.new_manager`
+    A newly created figure is passed to the `~.FigureCanvasBase.new_manager`
     method or the `new_figure_manager` function provided by the current
     backend, which install a canvas and a manager on the figure.
+
+    Once this is done, :rc:`figure.hooks` are called, one at a time, on the
+    figure; these hooks allow arbitrary customization of the figure (e.g.,
+    attaching callbacks) or of associated elements (e.g., modifying the
+    toolbar).  See :doc:`/gallery/user_interfaces/mplcvd` for an example of
+    toolbar customization.
 
     If you are creating many figures, make sure you explicitly call
     `.pyplot.close` on the figures you are not using, because this will
@@ -811,6 +817,13 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         fig = manager.canvas.figure
         if fig_label:
             fig.set_label(fig_label)
+
+        for hookspecs in rcParams["figure.hooks"]:
+            module_name, dotted_name = hookspecs.split(":")
+            obj = importlib.import_module(module_name)
+            for part in dotted_name.split("."):
+                obj = getattr(obj, part)
+            obj(fig)
 
         _pylab_helpers.Gcf._set_new_active_manager(manager)
 

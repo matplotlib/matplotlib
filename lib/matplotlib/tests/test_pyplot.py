@@ -440,3 +440,18 @@ def test_switch_backend_no_close():
     assert len(plt.get_fignums()) == 2
     plt.switch_backend('svg')
     assert len(plt.get_fignums()) == 0
+
+
+def figure_hook_example(figure):
+    figure._test_was_here = True
+
+
+def test_figure_hook():
+
+    test_rc = {
+        'figure.hooks': ['matplotlib.tests.test_pyplot:figure_hook_example']
+    }
+    with mpl.rc_context(test_rc):
+        fig = plt.figure()
+
+    assert fig._test_was_here
