@@ -200,7 +200,7 @@ class Line3D(lines.Line2D):
         Additional arguments are passed onto :func:`~matplotlib.lines.Line2D`.
         """
         super().__init__([], [], *args, **kwargs)
-        self._verts3d = xs, ys, zs
+        self.set_data_3d(xs, ys, zs)
 
     def set_3d_properties(self, zs=0, zdir='z'):
         """
@@ -240,9 +240,11 @@ class Line3D(lines.Line2D):
         Accepts x, y, z arguments or a single array-like (x, y, z)
         """
         if len(args) == 1:
-            self._verts3d = args[0]
-        else:
-            self._verts3d = args
+            args = args[0]
+        for name, xyz in zip('xyz', args):
+            if not np.iterable(xyz):
+                raise RuntimeError(f'{name} must be a sequence')
+        self._verts3d = args
         self.stale = True
 
     def get_data_3d(self):

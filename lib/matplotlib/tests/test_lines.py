@@ -83,6 +83,19 @@ def test_set_line_coll_dash():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
+def test_invalid_line_data():
+    with pytest.raises(RuntimeError, match='xdata must be'):
+        mlines.Line2D(0, [])
+    with pytest.raises(RuntimeError, match='ydata must be'):
+        mlines.Line2D([], 1)
+
+    line = mlines.Line2D([], [])
+    with pytest.raises(RuntimeError, match='x must be'):
+        line.set_xdata(0)
+    with pytest.raises(RuntimeError, match='y must be'):
+        line.set_ydata(0)
+
+
 @image_comparison(['line_dashes'], remove_text=True)
 def test_line_dashes():
     fig, ax = plt.subplots()

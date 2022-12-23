@@ -47,7 +47,7 @@ def _tick_update_position(tick, tickxs, tickys, labelpos):
     tick.tick1line.set_linestyle('-')
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
-    tick.gridline.set_data(0, 0)
+    tick.gridline.set_data([0], [0])
 
 
 class Axis(maxis.XAxis):
