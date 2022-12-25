@@ -448,7 +448,6 @@ class Legend(Artist):
             labels.reverse()
             handles.reverse()
 
-        handles = list(handles)
         if len(handles) < 2:
             ncols = 1
         self._ncols = ncols if ncols != 1 else ncol
