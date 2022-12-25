@@ -209,6 +209,12 @@ markerfirst : bool, default: True
     If *True*, legend marker is placed to the left of the legend label.
     If *False*, legend marker is placed to the right of the legend label.
 
+reverse : bool, default: False
+    If *True*, the legend labels are displayed in reverse order from the input.
+    If *False*, the legend labels are displayed in the same order as the input.
+
+    ..versionadded:: 3.7
+
 frameon : bool, default: :rc:`legend.frameon`
     Whether the legend should be drawn on a patch (frame).
 
@@ -312,6 +318,7 @@ class Legend(Artist):
         numpoints=None,      # number of points in the legend line
         markerscale=None,    # relative size of legend markers vs. original
         markerfirst=True,    # left/right ordering of legend marker and label
+        reverse=False,       # reverse ordering of legend marker and label
         scatterpoints=None,  # number of scatter points
         scatteryoffsets=None,
         prop=None,           # properties for the legend texts
@@ -436,6 +443,10 @@ class Legend(Artist):
                 _lab.append(label)
                 _hand.append(handle)
         labels, handles = _lab, _hand
+
+        if reverse:
+            labels.reverse()
+            handles.reverse()
 
         handles = list(handles)
         if len(handles) < 2:

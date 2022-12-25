@@ -294,6 +294,38 @@ def test_legend_remove():
     assert ax.get_legend() is None
 
 
+def test_reverse_legend_handles_and_labels():
+    """Check that the legend handles and labels are reversed."""
+    fig, ax = plt.subplots()
+    x = 1
+    y = 1
+    labels = ["First label", "Second label", "Third label"]
+    markers = ['.', ',', 'o']
+
+    ax.plot(x, y, markers[0], label=labels[0])
+    ax.plot(x, y, markers[1], label=labels[1])
+    ax.plot(x, y, markers[2], label=labels[2])
+    leg = ax.legend(reverse=True)
+    actual_labels = [t.get_text() for t in leg.get_texts()]
+    actual_markers = [h.get_marker() for h in leg.legend_handles]
+    assert actual_labels == list(reversed(labels))
+    assert actual_markers == list(reversed(markers))
+
+
+@check_figures_equal(extensions=["png"])
+def test_reverse_legend_display(fig_test, fig_ref):
+    """Check that the rendered legend entries are reversed"""
+    ax = fig_test.subplots()
+    ax.plot([1], 'ro', label="first")
+    ax.plot([2], 'bx', label="second")
+    ax.legend(reverse=True)
+
+    ax = fig_ref.subplots()
+    ax.plot([2], 'bx', label="second")
+    ax.plot([1], 'ro', label="first")
+    ax.legend()
+
+
 class TestLegendFunction:
     # Tests the legend function on the Axes and pyplot.
     def test_legend_no_args(self):
