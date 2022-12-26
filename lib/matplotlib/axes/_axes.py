@@ -3498,28 +3498,32 @@ class Axes(_AxesBase):
 
             Otherwise, fallback to casting to an object array.
             """
-
-            if (
-                    # make sure it is not a scalar
-                    np.iterable(err) and
-                    # and it is not empty
-                    len(err) > 0 and
-                    # and the first element is an array sub-class use
-                    # safe_first_element because getitem is index-first not
-                    # location first on pandas objects so err[0] almost always
-                    # fails.
-                    isinstance(cbook._safe_first_finite(err), np.ndarray)
-            ):
-                # Get the type of the first element
-                atype = type(cbook._safe_first_finite(err))
-                # Promote the outer container to match the inner container
-                if atype is np.ndarray:
-                    # Converts using np.asarray, because data cannot
-                    # be directly passed to init of np.ndarray
-                    return np.asarray(err, dtype=object)
-                # If atype is not np.ndarray, directly pass data to init.
-                # This works for types such as unyts and astropy units
-                return atype(err)
+            try:
+                if (
+                        # make sure it is not a scalar
+                        np.iterable(err) and
+                        # and it is not empty
+                        len(err) > 0 and
+                        # and the first element is an array sub-class use
+                        # safe_first_element because getitem is index-first not
+                        # location first on pandas objects so err[0] almost
+                        # always fails.
+                        isinstance(cbook._safe_first_finite(err), np.ndarray)
+                ):
+                    # Get the type of the first element
+                    atype = type(cbook._safe_first_finite(err))
+                    # Promote the outer container to match the inner container
+                    if atype is np.ndarray:
+                        # Converts using np.asarray, because data cannot
+                        # be directly passed to init of np.ndarray
+                        return np.asarray(err, dtype=object)
+                    # If atype is not np.ndarray, directly pass data to init.
+                    # This works for types such as unyts and astropy units
+                    return atype(err)
+            except StopIteration:
+                # this means we found no finite element, fall back to default
+                # case.
+                pass
             # Otherwise wrap it in an object array
             return np.asarray(err, dtype=object)
 
