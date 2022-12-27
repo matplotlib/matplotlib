@@ -4,8 +4,6 @@ import subprocess
 import sys
 import textwrap
 
-import matplotlib
-
 
 def test_simple():
     assert 1 + 1 == 2
@@ -13,7 +11,6 @@ def test_simple():
 
 def test_override_builtins():
     import pylab
-
     ok_to_override = {
         '__name__',
         '__doc__',
@@ -25,15 +22,9 @@ def test_override_builtins():
         'sum',
         'divmod'
     }
-    overridden = False
-    for key in dir(pylab):
-        if key in dir(builtins):
-            if (getattr(pylab, key) != getattr(builtins, key) and
-                    key not in ok_to_override):
-                print("'%s' was overridden in globals()." % key)
-                overridden = True
-
-    assert not overridden
+    overridden = {key for key in {*dir(pylab)} & {*dir(builtins)}
+                  if getattr(pylab, key) != getattr(builtins, key)}
+    assert overridden <= ok_to_override
 
 
 def test_lazy_imports():
@@ -44,7 +35,6 @@ def test_lazy_imports():
     import matplotlib.backend_bases
     import matplotlib.pyplot
 
-    assert 'matplotlib._png' not in sys.modules
     assert 'matplotlib._tri' not in sys.modules
     assert 'matplotlib._qhull' not in sys.modules
     assert 'matplotlib._contour' not in sys.modules

@@ -58,7 +58,7 @@ sankey.add(flows=[25, 0, 60, -10, -20, -5, -15, -10, -40],
            orientations=[-1, 1, 0, 1, 1, 1, -1, -1, 0],
            pathlengths=[0.25, 0.25, 0.25, 0.25, 0.25, 0.6, 0.25, 0.25,
                         0.25],
-           patchlabel="Widget\nA")  # Arguments to matplotlib.patches.PathPatch()
+           patchlabel="Widget\nA")  # Arguments to matplotlib.patches.PathPatch
 diagrams = sankey.finish()
 diagrams[0].texts[-1].set_color('r')
 diagrams[0].text.set_fontweight('bold')
@@ -103,16 +103,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.sankey
-matplotlib.sankey.Sankey
-matplotlib.sankey.Sankey.add
-matplotlib.sankey.Sankey.finish
+#    - `matplotlib.sankey`
+#    - `matplotlib.sankey.Sankey`
+#    - `matplotlib.sankey.Sankey.add`
+#    - `matplotlib.sankey.Sankey.finish`

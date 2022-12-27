@@ -1,9 +1,6 @@
 """EpochConverter module containing class EpochConverter."""
 
-import numpy as np
-
-from matplotlib import cbook
-import matplotlib.units as units
+from matplotlib import cbook, units
 import matplotlib.dates as date_ticker
 
 __all__ = ['EpochConverter']
@@ -21,26 +18,16 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def axisinfo(unit, axis):
-        """: Returns information on how to handle an axis that has Epoch data.
-
-        = INPUT VARIABLES
-        - unit     The units to use for a axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns a AxisInfo data structure that contains
-          minor/major formatters, major/minor locators, and default
-          label information.
-        """
-
+        # docstring inherited
         majloc = date_ticker.AutoDateLocator()
         majfmt = date_ticker.AutoDateFormatter(majloc)
-
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label=unit)
 
     @staticmethod
     def float2epoch(value, unit):
-        """: Convert a Matplotlib floating-point date into an Epoch of the
-              specified units.
+        """
+        Convert a Matplotlib floating-point date into an Epoch of the specified
+        units.
 
         = INPUT VARIABLES
         - value     The Matplotlib floating-point date.
@@ -57,8 +44,9 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def epoch2float(value, unit):
-        """: Convert an Epoch value to a float suitable for plotting as a
-              python datetime object.
+        """
+        Convert an Epoch value to a float suitable for plotting as a python
+        datetime object.
 
         = INPUT VARIABLES
         - value    An Epoch or list of Epochs that need to be converted.
@@ -71,8 +59,9 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def duration2float(value):
-        """: Convert a Duration value to a float suitable for plotting as a
-              python datetime object.
+        """
+        Convert a Duration value to a float suitable for plotting as a python
+        datetime object.
 
         = INPUT VARIABLES
         - value    A Duration or list of Durations that need to be converted.
@@ -84,23 +73,13 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def convert(value, unit, axis):
-        """: Convert value using unit to a float.  If value is a sequence, return
-        the converted sequence.
+        # docstring inherited
 
-        = INPUT VARIABLES
-        - value    The value or list of values that need to be converted.
-        - unit     The units to use for an axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns the value parameter converted to floats.
-        """
         # Delay-load due to circular dependencies.
         import matplotlib.testing.jpl_units as U
 
         if not cbook.is_scalar_or_string(value):
             return [EpochConverter.convert(x, unit, axis) for x in value]
-        if units.ConversionInterface.is_numlike(value):
-            return value
         if unit is None:
             unit = EpochConverter.default_units(value, axis)
         if isinstance(value, U.Duration):
@@ -110,14 +89,7 @@ class EpochConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(value, axis):
-        """: Return the default unit for value, or None.
-
-        = INPUT VARIABLES
-        - value    The value or list of values that need units.
-
-        = RETURN VALUE
-        - Returns the default units to use for value.
-        """
+        # docstring inherited
         if cbook.is_scalar_or_string(value):
             return value.frame()
         else:

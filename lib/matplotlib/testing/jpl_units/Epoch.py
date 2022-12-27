@@ -1,10 +1,11 @@
 """Epoch module."""
 
+import functools
 import operator
 import math
 import datetime as DT
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.dates import date2num
 
 
@@ -21,7 +22,8 @@ class Epoch:
         }
 
     def __init__(self, frame, sec=None, jd=None, daynum=None, dt=None):
-        """Create a new Epoch object.
+        """
+        Create a new Epoch object.
 
         Build an epoch 1 of 2 ways:
 
@@ -58,7 +60,7 @@ class Epoch:
                 "dnum= %s\n"
                 "dt  = %s" % (sec, jd, daynum, dt))
 
-        cbook._check_in_list(self.allowed, frame=frame)
+        _api.check_in_list(self.allowed, frame=frame)
         self._frame = frame
 
         if dt is not None:
@@ -105,45 +107,25 @@ class Epoch:
         delta = t._jd - jd
         return t._seconds + delta * 86400
 
-    def __eq__(self, rhs):
-        return self._cmp(rhs, operator.eq)
-
-    def __ne__(self, rhs):
-        return self._cmp(rhs, operator.ne)
-
-    def __lt__(self, rhs):
-        return self._cmp(rhs, operator.lt)
-
-    def __le__(self, rhs):
-        return self._cmp(rhs, operator.le)
-
-    def __gt__(self, rhs):
-        return self._cmp(rhs, operator.gt)
-
-    def __ge__(self, rhs):
-        return self._cmp(rhs, operator.ge)
-
-    def _cmp(self, rhs, op):
-        """Compare two Epoch's.
-
-        = INPUT VARIABLES
-        - rhs     The Epoch to compare against.
-        - op      The function to do the comparison
-
-        = RETURN VALUE
-        - Returns op(self, rhs)
-        """
+    def _cmp(self, op, rhs):
+        """Compare Epochs *self* and *rhs* using operator *op*."""
         t = self
         if self._frame != rhs._frame:
             t = self.convert(rhs._frame)
-
         if t._jd != rhs._jd:
             return op(t._jd, rhs._jd)
-
         return op(t._seconds, rhs._seconds)
 
+    __eq__ = functools.partialmethod(_cmp, operator.eq)
+    __ne__ = functools.partialmethod(_cmp, operator.ne)
+    __lt__ = functools.partialmethod(_cmp, operator.lt)
+    __le__ = functools.partialmethod(_cmp, operator.le)
+    __gt__ = functools.partialmethod(_cmp, operator.gt)
+    __ge__ = functools.partialmethod(_cmp, operator.ge)
+
     def __add__(self, rhs):
-        """Add a duration to an Epoch.
+        """
+        Add a duration to an Epoch.
 
         = INPUT VARIABLES
         - rhs     The Epoch to subtract.
@@ -160,7 +142,8 @@ class Epoch:
         return Epoch(t._frame, sec, t._jd)
 
     def __sub__(self, rhs):
-        """Subtract two Epoch's or a Duration from an Epoch.
+        """
+        Subtract two Epoch's or a Duration from an Epoch.
 
         Valid:
         Duration = Epoch - Epoch
@@ -199,7 +182,8 @@ class Epoch:
 
     @staticmethod
     def range(start, stop, step):
-        """Generate a range of Epoch objects.
+        """
+        Generate a range of Epoch objects.
 
         Similar to the Python range() method.  Returns the range [
         start, stop) at the requested step.  Each element will be a

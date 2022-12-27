@@ -1,6 +1,6 @@
 
-Changes in 1.1.x
-================
+API Changes in 1.1.x
+====================
 
 * Added new :class:`matplotlib.sankey.Sankey` for generating Sankey diagrams.
 

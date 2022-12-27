@@ -3,7 +3,7 @@
 Different scales on the same axes
 =================================
 
-Demo of how to display two scales on the left and right y axis.
+Demo of how to display two scales on the left and right y-axis.
 
 This example uses the Fahrenheit and Celsius scales.
 """
@@ -23,7 +23,7 @@ def make_plot():
     # Define a closure function to register as a callback
     def convert_ax_c_to_celsius(ax_f):
         """
-        Update second axis according with first axis.
+        Update second axis according to first axis.
         """
         y1, y2 = ax_f.get_ylim()
         ax_c.set_ylim(fahrenheit2celsius(y1), fahrenheit2celsius(y2))

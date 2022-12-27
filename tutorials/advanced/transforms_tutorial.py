@@ -3,73 +3,100 @@
 Transformations Tutorial
 ========================
 
-Like any graphics packages, Matplotlib is built on top of a
-transformation framework to easily move between coordinate systems,
-the userland *data* coordinate system, the *axes* coordinate system,
-the *figure* coordinate system, and the *display* coordinate system.
-In 95% of your plotting, you won't need to think about this, as it
-happens under the hood, but as you push the limits of custom figure
-generation, it helps to have an understanding of these objects so you
-can reuse the existing transformations Matplotlib makes available to
-you, or create your own (see :mod:`matplotlib.transforms`).  The table
-below summarizes the some useful coordinate systems, the transformation
-object you should use to work in that coordinate system, and the
-description of that system. In the ``Transformation Object`` column,
-``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
-:class:`~matplotlib.figure.Figure` instance.
+Like any graphics packages, Matplotlib is built on top of a transformation
+framework to easily move between coordinate systems, the userland *data*
+coordinate system, the *axes* coordinate system, the *figure* coordinate
+system, and the *display* coordinate system.  In 95% of your plotting, you
+won't need to think about this, as it happens under the hood, but as you push
+the limits of custom figure generation, it helps to have an understanding of
+these objects, so you can reuse the existing transformations Matplotlib makes
+available to you, or create your own (see :mod:`matplotlib.transforms`).  The
+table below summarizes some useful coordinate systems, a description of each
+system, and the transformation object for going from each coordinate system to
+the *display* coordinates.  In the "Transformation Object" column, ``ax`` is a
+:class:`~matplotlib.axes.Axes` instance, ``fig`` is a
+:class:`~matplotlib.figure.Figure` instance, and ``subfigure`` is a
+:class:`~matplotlib.figure.SubFigure` instance.
 
-+----------------+-----------------------------+-----------------------------------+
-|Coordinates     |Transformation object        |Description                        |
-+================+=============================+===================================+
-|"data"          |``ax.transData``             |The coordinate system for the data,|
-|                |                             |controlled by xlim and ylim.       |
-+----------------+-----------------------------+-----------------------------------+
-|"axes"          |``ax.transAxes``             |The coordinate system of the       |
-|                |                             |`~matplotlib.axes.Axes`; (0, 0)    |
-|                |                             |is bottom left of the axes, and    |
-|                |                             |(1, 1) is top right of the axes.   |
-+----------------+-----------------------------+-----------------------------------+
-|"figure"        |``fig.transFigure``          |The coordinate system of the       |
-|                |                             |`.Figure`; (0, 0) is bottom left   |
-|                |                             |of the figure, and (1, 1) is top   |
-|                |                             |right of the figure.               |
-+----------------+-----------------------------+-----------------------------------+
-|"figure-inches" |``fig.dpi_scale_trans``      |The coordinate system of the       |
-|                |                             |`.Figure` in inches; (0, 0) is     |
-|                |                             |bottom left of the figure, and     |
-|                |                             |(width, height) is the top right   |
-|                |                             |of the figure in inches.           |
-+----------------+-----------------------------+-----------------------------------+
-|"display"       |``None``, or                 |The pixel coordinate system of the |
-|                |``IdentityTransform()``      |display window; (0, 0) is bottom   |
-|                |                             |left of the window, and (width,    |
-|                |                             |height) is top right of the        |
-|                |                             |display window in pixels.          |
-+----------------+-----------------------------+-----------------------------------+
-|"xaxis",        |``ax.get_xaxis_transform()``,|Blended coordinate systems; use    |
-|"yaxis"         |``ax.get_yaxis_transform()`` |data coordinates on one of the axis|
-|                |                             |and axes coordinates on the other. |
-+----------------+-----------------------------+-----------------------------------+
 
-All of the transformation objects in the table above take inputs in
-their coordinate system, and transform the input to the *display*
-coordinate system.  That is why the *display* coordinate system has
-``None`` for the ``Transformation Object`` column -- it already is in
-*display* coordinates.  The transformations also know how to invert
-themselves, to go from *display* back to the native coordinate system.
-This is particularly useful when processing events from the user
-interface, which typically occur in display space, and you want to
-know where the mouse click or key-press occurred in your *data*
-coordinate system.
++----------------+-----------------------------------+---------------------------------------------------+
+|Coordinate      |Description                        |Transformation object                              |
+|system          |                                   |from system to display                             |
++================+===================================+===================================================+
+|"data"          |The coordinate system of the data  |``ax.transData``                                   |
+|                |in the Axes.                       |                                                   |
++----------------+-----------------------------------+---------------------------------------------------+
+|"axes"          |The coordinate system of the       |``ax.transAxes``                                   |
+|                |`~matplotlib.axes.Axes`; (0, 0)    |                                                   |
+|                |is bottom left of the axes, and    |                                                   |
+|                |(1, 1) is top right of the axes.   |                                                   |
++----------------+-----------------------------------+---------------------------------------------------+
+|"subfigure"     |The coordinate system of the       |``subfigure.transSubfigure``                       |
+|                |`.SubFigure`; (0, 0) is bottom left|                                                   |
+|                |of the subfigure, and (1, 1) is top|                                                   |
+|                |right of the subfigure.  If a      |                                                   |
+|                |figure has no subfigures, this is  |                                                   |
+|                |the same as ``transFigure``.       |                                                   |
++----------------+-----------------------------------+---------------------------------------------------+
+|"figure"        |The coordinate system of the       |``fig.transFigure``                                |
+|                |`.Figure`; (0, 0) is bottom left   |                                                   |
+|                |of the figure, and (1, 1) is top   |                                                   |
+|                |right of the figure.               |                                                   |
++----------------+-----------------------------------+---------------------------------------------------+
+|"figure-inches" |The coordinate system of the       |``fig.dpi_scale_trans``                            |
+|                |`.Figure` in inches; (0, 0) is     |                                                   |
+|                |bottom left of the figure, and     |                                                   |
+|                |(width, height) is the top right   |                                                   |
+|                |of the figure in inches.           |                                                   |
++----------------+-----------------------------------+---------------------------------------------------+
+|"xaxis",        |Blended coordinate systems, using  |``ax.get_xaxis_transform()``,                      |
+|"yaxis"         |data coordinates on one direction  |``ax.get_yaxis_transform()``                       |
+|                |and axes coordinates on the other. |                                                   |
++----------------+-----------------------------------+---------------------------------------------------+
+|"display"       |The native coordinate system of the|`None`, or                                         |
+|                |output ; (0, 0) is the bottom left |:class:`~matplotlib.transforms.IdentityTransform()`|
+|                |of the window, and (width, height) |                                                   |
+|                |is top right of the output in      |                                                   |
+|                |"display units".                   |                                                   |
+|                |                                   |                                                   |
+|                |The exact interpretation of the    |                                                   |
+|                |units depends on the back end. For |                                                   |
+|                |example it is pixels for Agg and   |                                                   |
+|                |points for svg/pdf.                |                                                   |
++----------------+-----------------------------------+---------------------------------------------------+
 
-Note that specifying objects in *display* coordinates will change their
-location if the ``dpi`` of the figure changes.  This can cause confusion when
-printing or changing screen resolution, because the object can change location
-and size.  Therefore it is most common
-for artists placed in an axes or figure to have their transform set to
-something *other* than the `~.transforms.IdentityTransform()`; the default when
-an artist is placed on an axes using `~.axes.Axes.add_artist` is for the
-transform to be ``ax.transData``.
+
+
+
+
+The `~matplotlib.transforms.Transform` objects are naive to the source and
+destination coordinate systems, however the objects referred to in the table
+above are constructed to take inputs in their coordinate system, and transform
+the input to the *display* coordinate system.  That is why the *display*
+coordinate system has `None` for the "Transformation Object" column -- it
+already is in *display* coordinates.  The naming and destination conventions
+are an aid to keeping track of the available "standard" coordinate systems and
+transforms.
+
+The transformations also know how to invert themselves (via
+`.Transform.inverted`) to generate a transform from output coordinate system
+back to the input coordinate system.  For example, ``ax.transData`` converts
+values in data coordinates to display coordinates and
+``ax.transData.inversed()`` is a :class:`matplotlib.transforms.Transform` that
+goes from display coordinates to data coordinates. This is particularly useful
+when processing events from the user interface, which typically occur in
+display space, and you want to know where the mouse click or key-press occurred
+in your *data* coordinate system.
+
+Note that specifying the position of Artists in *display* coordinates may
+change their relative location if the ``dpi`` or size of the figure changes.
+This can cause confusion when printing or changing screen resolution, because
+the object can change location and size.  Therefore, it is most common for
+artists placed in an Axes or figure to have their transform set to something
+*other* than the `~.transforms.IdentityTransform()`; the default when an artist
+is added to an Axes using `~.axes.Axes.add_artist` is for the transform to be
+``ax.transData`` so that you can work and think in *data* coordinates and let
+Matplotlib take care of the transformation to *display*.
 
 .. _data-coords:
 
@@ -82,6 +109,7 @@ most commonly updated with the :meth:`~matplotlib.axes.Axes.set_xlim` and
 :meth:`~matplotlib.axes.Axes.set_ylim` methods.  For example, in the figure
 below, the data limits stretch from 0 to 10 on the x-axis, and -1 to 1 on the
 y-axis.
+
 """
 
 import numpy as np
@@ -145,6 +173,9 @@ ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
 
 xdata, ydata = 5, 0
+# This computing the transform now, if anything
+# (figure size, dpi, axes placement, data limits, scales..)
+# changes re-calling transform will get a different value.
 xdisplay, ydisplay = ax.transData.transform((xdata, ydata))
 
 bbox = dict(boxstyle="round", fc="0.8")
@@ -166,7 +197,7 @@ disp = ax.annotate('display = (%.1f, %.1f)' % (xdisplay, ydisplay),
 plt.show()
 
 ###############################################################################
-# .. note::
+# .. warning::
 #
 #   If you run the source code in the example above in a GUI backend,
 #   you may also find that the two arrows for the *data* and *display*
@@ -260,7 +291,7 @@ plt.show()
 # coordinates is extremely useful, for example to create a horizontal
 # span which highlights some region of the y-data but spans across the
 # x-axis regardless of the data limits, pan or zoom level, etc.  In fact
-# these blended lines and spans are so useful, we have built in
+# these blended lines and spans are so useful, we have built-in
 # functions to make them easy to plot (see
 # :meth:`~matplotlib.axes.Axes.axhline`,
 # :meth:`~matplotlib.axes.Axes.axvline`,
@@ -280,18 +311,13 @@ x = np.random.randn(1000)
 ax.hist(x, 30)
 ax.set_title(r'$\sigma=1 \/ \dots \/ \sigma=2$', fontsize=16)
 
-# the x coords of this transformation are data, and the
-# y coord are axes
+# the x coords of this transformation are data, and the y coord are axes
 trans = transforms.blended_transform_factory(
     ax.transData, ax.transAxes)
-
 # highlight the 1..2 stddev region with a span.
-# We want x to be in data coordinates and y to
-# span from 0..1 in axes coords
-rect = mpatches.Rectangle((1, 0), width=1, height=1,
-                         transform=trans, color='yellow',
-                         alpha=0.5)
-
+# We want x to be in data coordinates and y to span from 0..1 in axes coords.
+rect = mpatches.Rectangle((1, 0), width=1, height=1, transform=trans,
+                          color='yellow', alpha=0.5)
 ax.add_patch(rect)
 
 plt.show()
@@ -312,11 +338,11 @@ plt.show()
 #
 # .. _transforms-fig-scale-dpi:
 #
-# Plotting in physical units
-# ==========================
+# Plotting in physical coordinates
+# ================================
 #
 # Sometimes we want an object to be a certain physical size on the plot.
-# Here we draw the same circle as above, but in physical units.  If done
+# Here we draw the same circle as above, but in physical coordinates.  If done
 # interactively, you can see that changing the size of the figure does
 # not change the offset of the circle from the lower-left corner,
 # does not change its size, and the circle remains a circle regardless of
@@ -325,7 +351,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 4))
 x, y = 10*np.random.rand(2, 1000)
 ax.plot(x, y*10., 'go', alpha=0.2)  # plot some data in data coordinates
-# add a circle in fixed-units
+# add a circle in fixed-coordinates
 circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
                        facecolor='blue', alpha=0.75)
 ax.add_patch(circ)
@@ -338,7 +364,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(7, 2))
 x, y = 10*np.random.rand(2, 1000)
 ax.plot(x, y*10., 'go', alpha=0.2)  # plot some data in data coordinates
-# add a circle in fixed-units
+# add a circle in fixed-coordinates
 circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
                        facecolor='blue', alpha=0.75)
 ax.add_patch(circ)
@@ -404,7 +430,7 @@ plt.show()
 # Another use of :class:`~matplotlib.transforms.ScaledTranslation` is to create
 # a new transformation that is
 # offset from another transformation, e.g., to place one object shifted a
-# bit relative to another object.  Typically you want the shift to be in
+# bit relative to another object.  Typically, you want the shift to be in
 # some physical dimension, like points or inches rather than in *data*
 # coordinates, so that the shift effect is constant at different zoom
 # levels and dpi settings.
@@ -416,7 +442,7 @@ plt.show()
 #
 # Here we apply the transforms in the *opposite* order to the use of
 # :class:`~matplotlib.transforms.ScaledTranslation` above. The plot is
-# first made in data units (``ax.transData``) and then shifted by
+# first made in data coordinates (``ax.transData``) and then shifted by
 # ``dx`` and ``dy`` points using ``fig.dpi_scale_trans``.  (In typography,
 # a `point <https://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
 # 1/72 inches, and by specifying your offsets in points, your figure
@@ -453,7 +479,7 @@ plt.show()
 #   a new transform with an added offset. So above we could have done::
 #
 #      shadow_transform = transforms.offset_copy(ax.transData,
-#               fig=fig, dx, dy, units='inches')
+#               fig, dx, dy, units='inches')
 #
 #
 # .. _transformation-pipeline:
@@ -494,7 +520,7 @@ plt.show()
 #
 # .. sourcecode:: ipython
 #
-#     In [80]: ax = subplot(111)
+#     In [80]: ax = plt.subplot()
 #
 #     In [81]: ax.set_xlim(0, 10)
 #     Out[81]: (0, 10)
@@ -541,13 +567,14 @@ plt.show()
 # the typical separable matplotlib Axes, with one additional piece
 # ``transProjection``::
 #
-#       self.transData = self.transScale + self.transProjection + \
-#           (self.transProjectionAffine + self.transAxes)
+#        self.transData = (
+#            self.transScale + self.transShift + self.transProjection +
+#            (self.transProjectionAffine + self.transWedge + self.transAxes))
 #
 # ``transProjection`` handles the projection from the space,
 # e.g., latitude and longitude for map data, or radius and theta for polar
 # data, to a separable Cartesian coordinate system.  There are several
-# projection examples in the ``matplotlib.projections`` package, and the
+# projection examples in the :mod:`matplotlib.projections` package, and the
 # best way to learn more is to open the source for those packages and
 # see how to make your own, since Matplotlib supports extensible axes
 # and projections.  Michael Droettboom has provided a nice tutorial

@@ -32,38 +32,35 @@ people commonly use a specific argument to the %matplotlib magic:
 This turns on inline plotting, where plot graphics will appear in your
 notebook.  This has important implications for interactivity.  For inline plotting, commands in
 cells below the cell that outputs a plot will not affect the plot.  For example,
-changing the color map is not possible from cells below the cell that creates a plot.
-However, for other backends, such as Qt5, that open a separate window,
+changing the colormap is not possible from cells below the cell that creates a plot.
+However, for other backends, such as Qt, that open a separate window,
 cells below those that create the plot will change the plot - it is a
 live object in memory.
 
-This tutorial will use matplotlib's imperative-style plotting
-interface, pyplot.  This interface maintains global state, and is very
-useful for quickly and easily experimenting with various plot
-settings.  The alternative is the object-oriented interface, which is also
-very powerful, and generally more suitable for large application
-development.  If you'd like to learn about the object-oriented
-interface, a great place to start is our :doc:`Usage guide
-</tutorials/introductory/usage>`.  For now, let's get on
-with the imperative-style approach:
+This tutorial will use Matplotlib's implicit plotting interface, pyplot.  This
+interface maintains global state, and is very useful for quickly and easily
+experimenting with various plot settings.  The alternative is the explicit,
+which is more suitable for large application development.  For an explanation
+of the tradeoffs between the implicit and explicit interfaces see
+:ref:`api_interfaces` and the :doc:`Quick start guide
+</tutorials/introductory/quick_start>` to start using the explicit interface.
+For now, let's get on with the implicit approach:
+
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
+import numpy as np
+from PIL import Image
 
 ###############################################################################
 # .. _importing_data:
 #
 # Importing image data into Numpy arrays
-# ===============================================
+# ======================================
 #
-# Loading image data is supported by the `Pillow
-# <https://pillow.readthedocs.io/en/latest/>`_ library.  Natively, Matplotlib
-# only supports PNG images.  The commands shown below fall back on Pillow if
-# the native read fails.
+# Matplotlib relies on the Pillow_ library to load image data.
 #
-# The image used in this example is a PNG file, but keep that Pillow
-# requirement in mind for your own data.
+# .. _Pillow: https://pillow.readthedocs.io/en/latest/
 #
 # Here's the image we're going to play with:
 #
@@ -72,34 +69,25 @@ import matplotlib.image as mpimg
 # It's a 24-bit RGB PNG image (8 bits for each of R, G, B).  Depending
 # on where you get your data, the other kinds of image that you'll most
 # likely encounter are RGBA images, which allow for transparency, or
-# single-channel grayscale (luminosity) images.  You can right click on
-# it and choose "Save image as" to download it to your computer for the
-# rest of this tutorial.
+# single-channel grayscale (luminosity) images.  Download `stinkbug.png
+# <https://raw.githubusercontent.com/matplotlib/matplotlib/main/doc/_static/stinkbug.png>`_
+# to your computer for the rest of this tutorial.
 #
-# And here we go...
+# We use Pillow to open an image (with `PIL.Image.open`), and immediately
+# convert the `PIL.Image.Image` object into an 8-bit (``dtype=uint8``) numpy
+# array.
 
-img = mpimg.imread('../../doc/_static/stinkbug.png')
-print(img)
+img = np.asarray(Image.open('../../doc/_static/stinkbug.png'))
+print(repr(img))
 
 ###############################################################################
-# Note the dtype there - float32.  Matplotlib has rescaled the 8 bit
-# data from each channel to floating point data between 0.0 and 1.0.  As
-# a side note, the only datatype that Pillow can work with is uint8.
-# Matplotlib plotting can handle float32 and uint8, but image
-# reading/writing for any format other than PNG is limited to uint8
-# data.  Why 8 bits? Most displays can only render 8 bits per channel
-# worth of color gradation.  Why can they only render 8 bits/channel?
-# Because that's about all the human eye can see.  More here (from a
-# photography standpoint): `Luminous Landscape bit depth tutorial
-# <https://luminous-landscape.com/bit-depth/>`_.
-#
 # Each inner list represents a pixel.  Here, with an RGB image, there
 # are 3 values.  Since it's a black and white image, R, G, and B are all
-# similar.  An RGBA (where A is alpha, or transparency), has 4 values
+# similar.  An RGBA (where A is alpha, or transparency) has 4 values
 # per inner list, and a simple luminance image just has one value (and
 # is thus only a 2-D array, not a 3-D array).  For RGB and RGBA images,
-# matplotlib supports float32 and uint8 data types.  For grayscale,
-# matplotlib supports only float32.  If your array data does not meet
+# Matplotlib supports float32 and uint8 data types.  For grayscale,
+# Matplotlib supports only float32.  If your array data does not meet
 # one of these descriptions, you need to rescale it.
 #
 # .. _plotting_data:
@@ -131,13 +119,11 @@ imgplot = plt.imshow(img)
 # Pseudocolor is only relevant to single-channel, grayscale, luminosity
 # images.  We currently have an RGB image.  Since R, G, and B are all
 # similar (see for yourself above or in your data), we can just pick one
-# channel of our data:
+# channel of our data using array slicing (you can read more in the
+# `Numpy tutorial <https://numpy.org/doc/stable/user/quickstart.html
+# #indexing-slicing-and-iterating>`_):
 
 lum_img = img[:, :, 0]
-
-# This is array slicing.  You can read more in the `Numpy tutorial
-# <https://docs.scipy.org/doc/numpy/user/quickstart.html>`_.
-
 plt.imshow(lum_img)
 
 ###############################################################################
@@ -175,17 +161,12 @@ imgplot.set_cmap('nipy_spectral')
 # ------------------------
 #
 # It's helpful to have an idea of what value a color represents.  We can
-# do that by adding color bars.
+# do that by adding a color bar to your figure:
 
 imgplot = plt.imshow(lum_img)
 plt.colorbar()
 
 ###############################################################################
-# This adds a colorbar to your existing figure.  This won't
-# automatically change if you change you switch to a different
-# colormap - you have to re-create your plot, and add in the colorbar
-# again.
-#
 # .. _`Data ranges`:
 #
 # Examining a specific data range
@@ -197,7 +178,7 @@ plt.colorbar()
 # interesting regions is the histogram.  To create a histogram of our
 # image data, we use the :func:`~matplotlib.pyplot.hist` function.
 
-plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
+plt.hist(lum_img.ravel(), bins=range(256), fc='k', ec='k')
 
 ###############################################################################
 # Most often, the "interesting" part of the image is around the peak,
@@ -205,29 +186,23 @@ plt.hist(lum_img.ravel(), bins=256, range=(0.0, 1.0), fc='k', ec='k')
 # below the peak.  In our histogram, it looks like there's not much
 # useful information in the high end (not many white things in the
 # image).  Let's adjust the upper limit, so that we effectively "zoom in
-# on" part of the histogram.  We do this by passing the clim argument to
-# imshow.  You could also do this by calling the
-# :meth:`~matplotlib.cm.ScalarMappable.set_clim` method of the image plot
-# object, but make sure that you do so in the same cell as your plot
-# command when working with the Jupyter Notebook - it will not change
-# plots from earlier cells.
+# on" part of the histogram.  We do this by setting *clim*, the colormap
+# limits.
 #
-# You can specify the clim in the call to ``plot``.
+# This can be done by passing a *clim* keyword argument in the call to
+# ``imshow``.
 
-imgplot = plt.imshow(lum_img, clim=(0.0, 0.7))
+plt.imshow(lum_img, clim=(0, 175))
 
 ###############################################################################
-# You can also specify the clim using the returned object
-fig = plt.figure()
-a = fig.add_subplot(1, 2, 1)
+# This can also be done by calling the
+# :meth:`~matplotlib.cm.ScalarMappable.set_clim` method of the returned image
+# plot object, but make sure that you do so in the same cell as your plot
+# command when working with the Jupyter Notebook - it will not change
+# plots from earlier cells.
+
 imgplot = plt.imshow(lum_img)
-a.set_title('Before')
-plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
-a = fig.add_subplot(1, 2, 2)
-imgplot = plt.imshow(lum_img)
-imgplot.set_clim(0.0, 0.7)
-a.set_title('After')
-plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
+imgplot.set_clim(0, 175)
 
 ###############################################################################
 # .. _Interpolation:
@@ -251,19 +226,17 @@ plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
 # We'll use the Pillow library that we used to load the image also to resize
 # the image.
 
-from PIL import Image
-
 img = Image.open('../../doc/_static/stinkbug.png')
-img.thumbnail((64, 64), Image.ANTIALIAS)  # resizes image in-place
+img.thumbnail((64, 64))  # resizes image in-place
 imgplot = plt.imshow(img)
 
 ###############################################################################
-# Here we have the default interpolation, bilinear, since we did not
+# Here we use the default interpolation ("nearest"), since we did not
 # give :func:`~matplotlib.pyplot.imshow` any interpolation argument.
 #
-# Let's try some others. Here's "nearest", which does no interpolation.
+# Let's try some others. Here's "bilinear":
 
-imgplot = plt.imshow(img, interpolation="nearest")
+imgplot = plt.imshow(img, interpolation="bilinear")
 
 ###############################################################################
 # and bicubic:

@@ -1,7 +1,7 @@
 """
-====================
-Connectionstyle Demo
-====================
+=================================
+Connection styles for annotations
+=================================
 
 When creating an annotation using `~.Axes.annotate`, the arrow shape can be
 controlled via the *connectionstyle* parameter of *arrowprops*. For further
@@ -30,7 +30,7 @@ def demo_con_style(ax, connectionstyle):
             transform=ax.transAxes, ha="left", va="top")
 
 
-fig, axs = plt.subplots(3, 5, figsize=(8, 4.8))
+fig, axs = plt.subplots(3, 5, figsize=(7, 6.3), constrained_layout=True)
 demo_con_style(axs[0, 0], "angle3,angleA=90,angleB=0")
 demo_con_style(axs[1, 0], "angle3,angleA=0,angleB=90")
 demo_con_style(axs[0, 1], "arc3,rad=0.")
@@ -47,21 +47,17 @@ demo_con_style(axs[1, 4], "bar,fraction=-0.3")
 demo_con_style(axs[2, 4], "bar,angle=180,fraction=-0.2")
 
 for ax in axs.flat:
-    ax.set(xlim=(0, 1), ylim=(0, 1), xticks=[], yticks=[], aspect=1)
-fig.tight_layout(pad=0.2)
+    ax.set(xlim=(0, 1), ylim=(0, 1.25), xticks=[], yticks=[], aspect=1.25)
+fig.set_constrained_layout_pads(wspace=0, hspace=0, w_pad=0, h_pad=0)
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.annotate
-matplotlib.patches.FancyArrowPatch
+#    - `matplotlib.axes.Axes.annotate`
+#    - `matplotlib.patches.FancyArrowPatch`

@@ -4,11 +4,95 @@ from numpy.testing import (
 import numpy.ma.testutils as matest
 import pytest
 
-import matplotlib.cm as cm
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 from matplotlib.path import Path
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
+
+
+class TestTriangulationParams:
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    triangles = [[0, 1, 2], [0, 2, 3]]
+    mask = [False, True]
+
+    @pytest.mark.parametrize('args, kwargs, expected', [
+        ([x, y], {}, [x, y, None, None]),
+        ([x, y, triangles], {}, [x, y, triangles, None]),
+        ([x, y], dict(triangles=triangles), [x, y, triangles, None]),
+        ([x, y], dict(mask=mask), [x, y, None, mask]),
+        ([x, y, triangles], dict(mask=mask), [x, y, triangles, mask]),
+        ([x, y], dict(triangles=triangles, mask=mask), [x, y, triangles, mask])
+    ])
+    def test_extract_triangulation_params(self, args, kwargs, expected):
+        other_args = [1, 2]
+        other_kwargs = {'a': 3, 'b': '4'}
+        x_, y_, triangles_, mask_, args_, kwargs_ = \
+            mtri.Triangulation._extract_triangulation_params(
+                args + other_args, {**kwargs, **other_kwargs})
+        x, y, triangles, mask = expected
+        assert x_ is x
+        assert y_ is y
+        assert_array_equal(triangles_, triangles)
+        assert mask_ is mask
+        assert args_ == other_args
+        assert kwargs_ == other_kwargs
+
+
+def test_extract_triangulation_positional_mask():
+    # mask cannot be passed positionally
+    mask = [True]
+    args = [[0, 2, 1], [0, 0, 1], [[0, 1, 2]], mask]
+    x_, y_, triangles_, mask_, args_, kwargs_ = \
+        mtri.Triangulation._extract_triangulation_params(args, {})
+    assert mask_ is None
+    assert args_ == [mask]
+    # the positional mask must be caught downstream because this must pass
+    # unknown args through
+
+
+def test_triangulation_init():
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    with pytest.raises(ValueError, match="x and y must be equal-length"):
+        mtri.Triangulation(x, [1, 2])
+    with pytest.raises(
+            ValueError,
+            match=r"triangles must be a \(N, 3\) int array, but found shape "
+                  r"\(3,\)"):
+        mtri.Triangulation(x, y, [0, 1, 2])
+    with pytest.raises(
+            ValueError,
+            match=r"triangles must be a \(N, 3\) int array, not 'other'"):
+        mtri.Triangulation(x, y, 'other')
+    with pytest.raises(ValueError, match="found value 99"):
+        mtri.Triangulation(x, y, [[0, 1, 99]])
+    with pytest.raises(ValueError, match="found value -1"):
+        mtri.Triangulation(x, y, [[0, 1, -1]])
+
+
+def test_triangulation_set_mask():
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    triangles = [[0, 1, 2], [2, 3, 0]]
+    triang = mtri.Triangulation(x, y, triangles)
+
+    # Check neighbors, which forces creation of C++ triangulation
+    assert_array_equal(triang.neighbors, [[-1, -1, 1], [-1, -1, 0]])
+
+    # Set mask
+    triang.set_mask([False, True])
+    assert_array_equal(triang.mask, [False, True])
+
+    # Reset mask
+    triang.set_mask(None)
+    assert triang.mask is None
+
+    msg = r"mask array must have same length as triangles array"
+    for mask in ([False, True, False], [False], [True], False, True):
+        with pytest.raises(ValueError, match=msg):
+            triang.set_mask(mask)
 
 
 def test_delaunay():
@@ -174,6 +258,59 @@ def test_tripcolor():
     plt.subplot(122)
     plt.tripcolor(triang, facecolors=Cfaces, edgecolors='k')
     plt.title('facecolors')
+
+
+def test_tripcolor_color():
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match=r"tripcolor\(\) missing 1 required "):
+        ax.tripcolor(x, y)
+    with pytest.raises(ValueError, match="The length of c must match either"):
+        ax.tripcolor(x, y, [1, 2, 3])
+    with pytest.raises(ValueError,
+                       match="length of facecolors must match .* triangles"):
+        ax.tripcolor(x, y, facecolors=[1, 2, 3, 4])
+    with pytest.raises(ValueError,
+                       match="'gouraud' .* at the points.* not at the faces"):
+        ax.tripcolor(x, y, facecolors=[1, 2], shading='gouraud')
+    with pytest.raises(ValueError,
+                       match="'gouraud' .* at the points.* not at the faces"):
+        ax.tripcolor(x, y, [1, 2], shading='gouraud')  # faces
+    with pytest.raises(TypeError,
+                       match="positional.*'c'.*keyword-only.*'facecolors'"):
+        ax.tripcolor(x, y, C=[1, 2, 3, 4])
+
+    # smoke test for valid color specifications (via C or facecolors)
+    ax.tripcolor(x, y, [1, 2, 3, 4])  # edges
+    ax.tripcolor(x, y, [1, 2, 3, 4], shading='gouraud')  # edges
+    ax.tripcolor(x, y, [1, 2])  # faces
+    ax.tripcolor(x, y, facecolors=[1, 2])  # faces
+
+
+def test_tripcolor_clim():
+    np.random.seed(19680801)
+    a, b, c = np.random.rand(10), np.random.rand(10), np.random.rand(10)
+
+    ax = plt.figure().add_subplot()
+    clim = (0.25, 0.75)
+    norm = ax.tripcolor(a, b, c, clim=clim).norm
+    assert (norm.vmin, norm.vmax) == clim
+
+
+def test_tripcolor_warnings():
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    c = [0.4, 0.5]
+    fig, ax = plt.subplots()
+    # additional parameters
+    with pytest.warns(DeprecationWarning, match="Additional positional param"):
+        ax.tripcolor(x, y, c, 'unused_positional')
+    # facecolors takes precedence over c
+    with pytest.warns(UserWarning, match="Positional parameter c .*no effect"):
+        ax.tripcolor(x, y, c, facecolors=c)
+    with pytest.warns(UserWarning, match="Positional parameter c .*no effect"):
+        ax.tripcolor(x, y, 'interpreted as c', facecolors=c)
 
 
 def test_no_modify():
@@ -500,15 +637,15 @@ def test_triinterpcubic_cg_solver():
 
     # Instantiating a sparse Poisson matrix of size 48 x 48:
     (n, m) = (12, 4)
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(*poisson_sparse_matrix(n, m))
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(*poisson_sparse_matrix(n, m))
     mat.compress_csc()
     mat_dense = mat.to_dense()
     # Testing a sparse solve for all 48 basis vector
     for itest in range(n*m):
         b = np.zeros(n*m, dtype=np.float64)
         b[itest] = 1.
-        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.zeros(n*m),
-                                       tol=1.e-10)
+        x, _ = mtri._triinterpolate._cg(A=mat, b=b, x0=np.zeros(n*m),
+                                        tol=1.e-10)
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
     # 2) Same matrix with inserting 2 rows - cols with null diag terms
@@ -521,16 +658,16 @@ def test_triinterpcubic_cg_solver():
     rows = np.concatenate([rows, [i_zero, i_zero-1, j_zero, j_zero-1]])
     cols = np.concatenate([cols, [i_zero-1, i_zero, j_zero-1, j_zero]])
     vals = np.concatenate([vals, [1., 1., 1., 1.]])
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(vals, rows, cols,
-                                                 (n*m + 2, n*m + 2))
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(vals, rows, cols,
+                                                  (n*m + 2, n*m + 2))
     mat.compress_csc()
     mat_dense = mat.to_dense()
     # Testing a sparse solve for all 50 basis vec
     for itest in range(n*m + 2):
         b = np.zeros(n*m + 2, dtype=np.float64)
         b[itest] = 1.
-        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.ones(n*m + 2),
-                                       tol=1.e-10)
+        x, _ = mtri._triinterpolate._cg(A=mat, b=b, x0=np.ones(n * m + 2),
+                                        tol=1.e-10)
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
     # 3) Now a simple test that summation of duplicate (i.e. with same rows,
@@ -541,7 +678,7 @@ def test_triinterpcubic_cg_solver():
     cols = np.array([0, 1, 2, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
                     dtype=np.int32)
     dim = (3, 3)
-    mat = mtri.triinterpolate._Sparse_Matrix_coo(vals, rows, cols, dim)
+    mat = mtri._triinterpolate._Sparse_Matrix_coo(vals, rows, cols, dim)
     mat.compress_csc()
     mat_dense = mat.to_dense()
     assert_array_almost_equal(mat_dense, np.array([
@@ -564,7 +701,7 @@ def test_triinterpcubic_geom_weights():
         y_rot = -np.sin(theta)*x + np.cos(theta)*y
         triang = mtri.Triangulation(x_rot, y_rot, triangles)
         cubic_geom = mtri.CubicTriInterpolator(triang, z, kind='geom')
-        dof_estimator = mtri.triinterpolate._DOF_estimator_geom(cubic_geom)
+        dof_estimator = mtri._triinterpolate._DOF_estimator_geom(cubic_geom)
         weights = dof_estimator.compute_geom_weights()
         # Testing for the 4 possibilities...
         sum_w[0, :] = np.sum(weights, 1) - 1
@@ -729,7 +866,7 @@ def test_triinterp_transformations():
             matest.assert_array_almost_equal(interpz, interp_z0[interp_key])
 
 
-@image_comparison(['tri_smooth_contouring.png'], remove_text=True, tol=0.07)
+@image_comparison(['tri_smooth_contouring.png'], remove_text=True, tol=0.072)
 def test_tri_smooth_contouring():
     # Image comparison based on example tricontour_smooth_user.
     n_angles = 20
@@ -810,7 +947,7 @@ def test_tri_smooth_gradient():
     plt.triplot(triang, color='0.8')
 
     levels = np.arange(0., 1., 0.01)
-    cmap = cm.get_cmap(name='hot', lut=None)
+    cmap = mpl.colormaps['hot']
     plt.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
                    linewidths=[2.0, 1.0, 1.0, 1.0])
     # Plots direction of the electrical vector field
@@ -830,8 +967,7 @@ def test_tritools():
     mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
     analyser = mtri.TriAnalyzer(triang)
-    assert_array_almost_equal(analyser.scale_factors,
-                              np.array([1., 1./(1.+0.5*np.sqrt(3.))]))
+    assert_array_almost_equal(analyser.scale_factors, [1, 1/(1+3**.5/2)])
     assert_array_almost_equal(
         analyser.circle_ratios(rescale=False),
         np.ma.masked_array([0.5, 1./(1.+np.sqrt(2.)), np.nan], mask))
@@ -934,6 +1070,24 @@ def test_trirefine():
     assert_array_almost_equal(xyz_data[0], xyz_data[1])
 
 
+@pytest.mark.parametrize('interpolator',
+                         [mtri.LinearTriInterpolator,
+                          mtri.CubicTriInterpolator],
+                         ids=['linear', 'cubic'])
+def test_trirefine_masked(interpolator):
+    # Repeated points means we will have fewer triangles than points, and thus
+    # get masking.
+    x, y = np.mgrid[:2, :2]
+    x = np.repeat(x.flatten(), 2)
+    y = np.repeat(y.flatten(), 2)
+
+    z = np.zeros_like(x)
+    tri = mtri.Triangulation(x, y)
+    refiner = mtri.UniformTriRefiner(tri)
+    interp = interpolator(tri, z)
+    refiner.refine_field(z, triinterpolator=interp, subdiv=2)
+
+
 def meshgrid_triangles(n):
     """
     Return (2*(N-1)**2, 3) array of triangles to mesh (N, N)-point np.meshgrid.
@@ -941,7 +1095,7 @@ def meshgrid_triangles(n):
     tri = []
     for i in range(n-1):
         for j in range(n-1):
-            a = i + j*(n)
+            a = i + j*n
             b = (i+1) + j*n
             c = i + (j+1)*n
             d = (i+1) + (j+1)*n
@@ -951,8 +1105,7 @@ def meshgrid_triangles(n):
 
 def test_triplot_return():
     # Check that triplot returns the artists it adds
-    from matplotlib.figure import Figure
-    ax = Figure().add_axes([0.1, 0.1, 0.7, 0.7])
+    ax = plt.figure().add_subplot()
     triang = mtri.Triangulation(
         [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0],
         triangles=[[0, 1, 3], [3, 2, 0]])
@@ -1031,77 +1184,93 @@ def test_tricontourf_decreasing_levels():
 
 def test_internal_cpp_api():
     # Following github issue 8197.
-    import matplotlib._tri as _tri
+    from matplotlib import _tri  # noqa: ensure lazy-loaded module *is* loaded.
 
     # C++ Triangulation.
-    with pytest.raises(TypeError) as excinfo:
-        triang = _tri.Triangulation()
-    excinfo.match(r'function takes exactly 7 arguments \(0 given\)')
+    with pytest.raises(
+            TypeError,
+            match=r'__init__\(\): incompatible constructor arguments.'):
+        mpl._tri.Triangulation()
 
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation([], [1], [[]], None, None, None, False)
-    excinfo.match(r'x and y must be 1D arrays of the same length')
+    with pytest.raises(
+            ValueError, match=r'x and y must be 1D arrays of the same length'):
+        mpl._tri.Triangulation([], [1], [[]], (), (), (), False)
 
     x = [0, 1, 1]
     y = [0, 0, 1]
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, [[0, 1]], None, None, None, False)
-    excinfo.match(r'triangles must be a 2D array of shape \(\?,3\)')
+    with pytest.raises(
+            ValueError,
+            match=r'triangles must be a 2D array of shape \(\?,3\)'):
+        mpl._tri.Triangulation(x, y, [[0, 1]], (), (), (), False)
 
     tris = [[0, 1, 2]]
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, [0, 1], None, None, False)
-    excinfo.match(r'mask must be a 1D array with the same length as the ' +
-                  r'triangles array')
+    with pytest.raises(
+            ValueError,
+            match=r'mask must be a 1D array with the same length as the '
+                  r'triangles array'):
+        mpl._tri.Triangulation(x, y, tris, [0, 1], (), (), False)
 
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, None, [[1]], None, False)
-    excinfo.match(r'edges must be a 2D array with shape \(\?,2\)')
+    with pytest.raises(
+            ValueError, match=r'edges must be a 2D array with shape \(\?,2\)'):
+        mpl._tri.Triangulation(x, y, tris, (), [[1]], (), False)
 
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, None, None, [[-1]], False)
-    excinfo.match(r'neighbors must be a 2D array with the same shape as the ' +
-                  r'triangles array')
+    with pytest.raises(
+            ValueError,
+            match=r'neighbors must be a 2D array with the same shape as the '
+                  r'triangles array'):
+        mpl._tri.Triangulation(x, y, tris, (), (), [[-1]], False)
 
-    triang = _tri.Triangulation(x, y, tris, None, None, None, False)
+    triang = mpl._tri.Triangulation(x, y, tris, (), (), (), False)
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(
+            ValueError,
+            match=r'z must be a 1D array with the same length as the '
+                  r'triangulation x and y arrays'):
         triang.calculate_plane_coefficients([])
-    excinfo.match(r'z array must have same length as triangulation x and y ' +
-                  r'arrays')
 
-    with pytest.raises(ValueError) as excinfo:
-        triang.set_mask([0, 1])
-    excinfo.match(r'mask must be a 1D array with the same length as the ' +
-                  r'triangles array')
+    for mask in ([0, 1], None):
+        with pytest.raises(
+                ValueError,
+                match=r'mask must be a 1D array with the same length as the '
+                      r'triangles array'):
+            triang.set_mask(mask)
+
+    triang.set_mask([True])
+    assert_array_equal(triang.get_edges(), np.empty((0, 2)))
+
+    triang.set_mask(())  # Equivalent to Python Triangulation mask=None
+    assert_array_equal(triang.get_edges(), [[1, 0], [2, 0], [2, 1]])
 
     # C++ TriContourGenerator.
-    with pytest.raises(TypeError) as excinfo:
-        tcg = _tri.TriContourGenerator()
-    excinfo.match(r'function takes exactly 2 arguments \(0 given\)')
+    with pytest.raises(
+            TypeError,
+            match=r'__init__\(\): incompatible constructor arguments.'):
+        mpl._tri.TriContourGenerator()
 
-    with pytest.raises(ValueError) as excinfo:
-        tcg = _tri.TriContourGenerator(triang, [1])
-    excinfo.match(r'z must be a 1D array with the same length as the x and ' +
-                  r'y arrays')
+    with pytest.raises(
+            ValueError,
+            match=r'z must be a 1D array with the same length as the x and y '
+                  r'arrays'):
+        mpl._tri.TriContourGenerator(triang, [1])
 
     z = [0, 1, 2]
-    tcg = _tri.TriContourGenerator(triang, z)
+    tcg = mpl._tri.TriContourGenerator(triang, z)
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(
+            ValueError, match=r'filled contour levels must be increasing'):
         tcg.create_filled_contour(1, 0)
-    excinfo.match(r'filled contour levels must be increasing')
 
     # C++ TrapezoidMapTriFinder.
-    with pytest.raises(TypeError) as excinfo:
-        trifinder = _tri.TrapezoidMapTriFinder()
-    excinfo.match(r'function takes exactly 1 argument \(0 given\)')
+    with pytest.raises(
+            TypeError,
+            match=r'__init__\(\): incompatible constructor arguments.'):
+        mpl._tri.TrapezoidMapTriFinder()
 
-    trifinder = _tri.TrapezoidMapTriFinder(triang)
+    trifinder = mpl._tri.TrapezoidMapTriFinder(triang)
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(
+            ValueError, match=r'x and y must be array-like with same shape'):
         trifinder.find_many([0], [0, 1])
-    excinfo.match(r'x and y must be array-like with same shape')
 
 
 def test_qhull_large_offset():
@@ -1137,3 +1306,38 @@ def test_tricontour_non_finite_z():
     with pytest.raises(ValueError, match='z must not contain masked points '
                                          'within the triangulation'):
         plt.tricontourf(triang, np.ma.array([0, 1, 2, 3], mask=[1, 0, 0, 0]))
+
+
+def test_tricontourset_reuse():
+    # If TriContourSet returned from one tricontour(f) call is passed as first
+    # argument to another the underlying C++ contour generator will be reused.
+    x = [0.0, 0.5, 1.0]
+    y = [0.0, 1.0, 0.0]
+    z = [1.0, 2.0, 3.0]
+    fig, ax = plt.subplots()
+    tcs1 = ax.tricontourf(x, y, z)
+    tcs2 = ax.tricontour(x, y, z)
+    assert tcs2._contour_generator != tcs1._contour_generator
+    tcs3 = ax.tricontour(tcs1, z)
+    assert tcs3._contour_generator == tcs1._contour_generator
+
+
+@check_figures_equal()
+def test_triplot_with_ls(fig_test, fig_ref):
+    x = [0, 2, 1]
+    y = [0, 0, 1]
+    data = [[0, 1, 2]]
+    fig_test.subplots().triplot(x, y, data, ls='--')
+    fig_ref.subplots().triplot(x, y, data, linestyle='--')
+
+
+def test_triplot_label():
+    x = [0, 2, 1]
+    y = [0, 0, 1]
+    data = [[0, 1, 2]]
+    fig, ax = plt.subplots()
+    lines, markers = ax.triplot(x, y, data, label='label')
+    handles, labels = ax.get_legend_handles_labels()
+    assert labels == ['label']
+    assert len(handles) == 1
+    assert handles[0] is lines

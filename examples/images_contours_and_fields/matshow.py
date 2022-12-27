@@ -1,37 +1,25 @@
 """
-=======
-Matshow
-=======
+===============================
+Visualize matrices with matshow
+===============================
 
-Simple `~.axes.Axes.matshow` example.
+`~.axes.Axes.matshow` visualizes a 2D matrix or array as color-coded image.
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
+# a 2D array with linearly increasing values on the diagonal
+a = np.diag(range(15))
 
-def samplemat(dims):
-    """Make a matrix with all zeros and increasing elements on the diagonal"""
-    aa = np.zeros(dims)
-    for i in range(min(dims)):
-        aa[i, i] = i
-    return aa
-
-
-# Display matrix
-plt.matshow(samplemat((15, 15)))
+plt.matshow(a)
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.matshow
-matplotlib.pyplot.matshow
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`

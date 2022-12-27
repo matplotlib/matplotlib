@@ -18,3 +18,12 @@ y = np.exp(-x)
 fig, ax = plt.subplots()
 ax.errorbar(x, y, xerr=0.2, yerr=0.4)
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.errorbar` / `matplotlib.pyplot.errorbar`

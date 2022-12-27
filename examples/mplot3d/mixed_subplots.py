@@ -1,9 +1,9 @@
 """
-=================================
-2D and 3D *Axes* in same *Figure*
-=================================
+=============================
+2D and 3D axes in same figure
+=============================
 
-This example shows a how to plot a 2D and 3D plot on the same figure.
+This example shows a how to plot a 2D and a 3D plot on the same figure.
 """
 
 import matplotlib.pyplot as plt

@@ -4,6 +4,14 @@ Looking Glass
 =============
 
 Example using mouse events to simulate a looking glass for inspecting data.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26,13 +34,13 @@ ax.set_title("Left click and drag to move looking glass")
 
 class EventHandler:
     def __init__(self):
-        fig.canvas.mpl_connect('button_press_event', self.onpress)
-        fig.canvas.mpl_connect('button_release_event', self.onrelease)
-        fig.canvas.mpl_connect('motion_notify_event', self.onmove)
+        fig.canvas.mpl_connect('button_press_event', self.on_press)
+        fig.canvas.mpl_connect('button_release_event', self.on_release)
+        fig.canvas.mpl_connect('motion_notify_event', self.on_move)
         self.x0, self.y0 = circ.center
         self.pressevent = None
 
-    def onpress(self, event):
+    def on_press(self, event):
         if event.inaxes != ax:
             return
 
@@ -41,11 +49,11 @@ class EventHandler:
 
         self.pressevent = event
 
-    def onrelease(self, event):
+    def on_release(self, event):
         self.pressevent = None
         self.x0, self.y0 = circ.center
 
-    def onmove(self, event):
+    def on_move(self, event):
         if self.pressevent is None or event.inaxes != self.pressevent.inaxes:
             return
 

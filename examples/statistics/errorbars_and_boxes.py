@@ -12,9 +12,9 @@ reveal the preferred pattern in writing functions for matplotlib:
   1. an `~.axes.Axes` object is passed directly to the function
   2. the function operates on the ``Axes`` methods directly, not through
      the ``pyplot`` interface
-  3. plotting kwargs that could be abbreviated are spelled out for
-     better code readability in the future (for example we use
-     ``facecolor`` instead of ``fc``)
+  3. plotting keyword arguments that could be abbreviated are spelled out for
+     better code readability in the future (for example we use *facecolor*
+     instead of *fc*)
   4. the artists returned by the ``Axes`` plotting methods are then
      returned by the function so that, if desired, their styles
      can be modified later outside of the function (they are not
@@ -40,7 +40,7 @@ yerr = np.random.rand(2, n) + 0.2
 
 
 def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
-                     edgecolor='None', alpha=0.5):
+                     edgecolor='none', alpha=0.5):
 
     # Loop over data points; create box from errors at each point
     errorboxes = [Rectangle((x - xe[0], y - ye[0]), xe.sum(), ye.sum())
@@ -55,7 +55,7 @@ def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
 
     # Plot errorbars
     artists = ax.errorbar(xdata, ydata, xerr=xerror, yerr=yerror,
-                          fmt='None', ecolor='k')
+                          fmt='none', ecolor='k')
 
     return artists
 
@@ -67,3 +67,14 @@ fig, ax = plt.subplots(1)
 _ = make_error_boxes(ax, x, y, xerr, yerr)
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.errorbar` / `matplotlib.pyplot.errorbar`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.collections.PatchCollection`

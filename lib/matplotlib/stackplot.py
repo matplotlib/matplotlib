@@ -1,14 +1,16 @@
 """
 Stacked area plot for 1D arrays inspired by Douglas Y'barbo's stackoverflow
 answer:
-http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-with-matplotlib
+https://stackoverflow.com/q/2225995/
 
-(http://stackoverflow.com/users/66549/doug)
-
+(https://stackoverflow.com/users/66549/doug)
 """
+
+import itertools
+
 import numpy as np
 
-import matplotlib.cbook as cbook
+from matplotlib import _api
 
 __all__ = ['stackplot']
 
@@ -21,15 +23,14 @@ def stackplot(axes, x, *args,
 
     Parameters
     ----------
-    x : 1d array of dimension N
+    x : (N,) array-like
 
-    y : 2d array (dimension MxN), or sequence of 1d arrays (each dimension 1xN)
-
+    y : (M, N) array-like
         The data is assumed to be unstacked. Each of the following
         calls is legal::
 
-            stackplot(x, y)               # where y is MxN
-            stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
+            stackplot(x, y)           # where y has shape (M, N)
+            stackplot(x, y1, y2, y3)  # where y1, y2, y3, y4 have length N
 
     baseline : {'zero', 'sym', 'wiggle', 'weighted_wiggle'}
         Method used to calculate the baseline:
@@ -42,20 +43,27 @@ def stackplot(axes, x, *args,
           size of each layer. It is also called 'Streamgraph'-layout. More
           details can be found at http://leebyron.com/streamgraph/.
 
-    labels : Length N sequence of strings
-        Labels to assign to each data series.
+    labels : list of str, optional
+        A sequence of labels to assign to each data series. If unspecified,
+        then no labels will be applied to artists.
 
-    colors : Length N sequence of colors
-        A list or tuple of colors. These will be cycled through and used to
-        colour the stacked areas.
+    colors : list of color, optional
+        A sequence of colors to be cycled through and used to color the stacked
+        areas. The sequence need not be exactly the same length as the number
+        of provided *y*, in which case the colors will repeat from the
+        beginning.
+
+        If not specified, the colors from the Axes property cycle will be used.
+
+    data : indexable object, optional
+        DATA_PARAMETER_PLACEHOLDER
 
     **kwargs
-        All other keyword arguments are passed to `Axes.fill_between()`.
-
+        All other keyword arguments are passed to `.Axes.fill_between`.
 
     Returns
     -------
-    list : list of `.PolyCollection`
+    list of `.PolyCollection`
         A list of `.PolyCollection` instances, one for each element in the
         stacked area plot.
     """
@@ -64,14 +72,16 @@ def stackplot(axes, x, *args,
 
     labels = iter(labels)
     if colors is not None:
-        axes.set_prop_cycle(color=colors)
+        colors = itertools.cycle(colors)
+    else:
+        colors = (axes._get_lines.get_next_color() for _ in y)
 
     # Assume data passed has not been 'stacked', so stack it here.
     # We'll need a float buffer for the upcoming calculations.
     stack = np.cumsum(y, axis=0, dtype=np.promote_types(y.dtype, np.float32))
 
-    cbook._check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
-                         baseline=baseline)
+    _api.check_in_list(['zero', 'sym', 'wiggle', 'weighted_wiggle'],
+                       baseline=baseline)
     if baseline == 'zero':
         first_line = 0.
 
@@ -102,17 +112,16 @@ def stackplot(axes, x, *args,
         stack += first_line
 
     # Color between x = 0 and the first array.
-    color = axes._get_lines.get_next_color()
     coll = axes.fill_between(x, first_line, stack[0, :],
-                             facecolor=color, label=next(labels, None),
+                             facecolor=next(colors), label=next(labels, None),
                              **kwargs)
     coll.sticky_edges.y[:] = [0]
     r = [coll]
 
     # Color between array i-1 and array i
     for i in range(len(y) - 1):
-        color = axes._get_lines.get_next_color()
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
-                                   facecolor=color, label=next(labels, None),
+                                   facecolor=next(colors),
+                                   label=next(labels, None),
                                    **kwargs))
     return r

@@ -36,28 +36,20 @@ cs = ax2.contourf(x, y, z, n_levels, colors='none',
                   extend='lower')
 
 # create a legend for the contour set
-artists, labels = cs.legend_elements()
-ax2.legend(artists, labels, handleheight=2)
+artists, labels = cs.legend_elements(str_format='{:2.1f}'.format)
+ax2.legend(artists, labels, handleheight=2, framealpha=1)
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.axes.Axes.legend
-matplotlib.pyplot.legend
-matplotlib.contour.ContourSet
-matplotlib.contour.ContourSet.legend_elements
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#    - `matplotlib.contour.ContourSet`
+#    - `matplotlib.contour.ContourSet.legend_elements`

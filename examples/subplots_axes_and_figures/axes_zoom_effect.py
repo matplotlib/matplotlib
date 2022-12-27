@@ -5,6 +5,8 @@ Axes Zoom Effect
 
 """
 
+import matplotlib.pyplot as plt
+
 from matplotlib.transforms import (
     Bbox, TransformedBbox, blended_transform_factory)
 from mpl_toolkits.axes_grid1.inset_locator import (
@@ -18,21 +20,21 @@ def connect_bbox(bbox1, bbox2,
         prop_patches = {
             **prop_lines,
             "alpha": prop_lines.get("alpha", 1) * 0.2,
+            "clip_on": False,
         }
 
-    c1 = BboxConnector(bbox1, bbox2, loc1=loc1a, loc2=loc2a, **prop_lines)
-    c1.set_clip_on(False)
-    c2 = BboxConnector(bbox1, bbox2, loc1=loc1b, loc2=loc2b, **prop_lines)
-    c2.set_clip_on(False)
+    c1 = BboxConnector(
+        bbox1, bbox2, loc1=loc1a, loc2=loc2a, clip_on=False, **prop_lines)
+    c2 = BboxConnector(
+        bbox1, bbox2, loc1=loc1b, loc2=loc2b, clip_on=False, **prop_lines)
 
     bbox_patch1 = BboxPatch(bbox1, **prop_patches)
     bbox_patch2 = BboxPatch(bbox2, **prop_patches)
 
     p = BboxConnectorPatch(bbox1, bbox2,
-                           # loc1a=3, loc2a=2, loc1b=4, loc2b=1,
                            loc1a=loc1a, loc2a=loc2a, loc1b=loc1b, loc2b=loc2b,
+                           clip_on=False,
                            **prop_patches)
-    p.set_clip_on(False)
 
     return c1, c2, bbox_patch1, bbox_patch2, p
 
@@ -54,13 +56,10 @@ def zoom_effect01(ax1, ax2, xmin, xmax, **kwargs):
         Arguments passed to the patch constructor.
     """
 
-    trans1 = blended_transform_factory(ax1.transData, ax1.transAxes)
-    trans2 = blended_transform_factory(ax2.transData, ax2.transAxes)
-
     bbox = Bbox.from_extents(xmin, 0, xmax, 1)
 
-    mybbox1 = TransformedBbox(bbox, trans1)
-    mybbox2 = TransformedBbox(bbox, trans2)
+    mybbox1 = TransformedBbox(bbox, ax1.get_xaxis_transform())
+    mybbox2 = TransformedBbox(bbox, ax2.get_xaxis_transform())
 
     prop_patches = {**kwargs, "ec": "none", "alpha": 0.2}
 
@@ -109,19 +108,14 @@ def zoom_effect02(ax1, ax2, **kwargs):
     return c1, c2, bbox_patch1, bbox_patch2, p
 
 
-import matplotlib.pyplot as plt
+axs = plt.figure().subplot_mosaic([
+    ["zoom1", "zoom2"],
+    ["main", "main"],
+])
 
-plt.figure(figsize=(5, 5))
-ax1 = plt.subplot(221)
-ax2 = plt.subplot(212)
-ax2.set_xlim(0, 1)
-ax2.set_xlim(0, 5)
-zoom_effect01(ax1, ax2, 0.2, 0.8)
-
-
-ax1 = plt.subplot(222)
-ax1.set_xlim(2, 3)
-ax2.set_xlim(0, 5)
-zoom_effect02(ax1, ax2)
+axs["main"].set(xlim=(0, 5))
+zoom_effect01(axs["zoom1"], axs["main"], 0.2, 0.8)
+axs["zoom2"].set(xlim=(2, 3))
+zoom_effect02(axs["zoom2"], axs["main"])
 
 plt.show()

@@ -1,10 +1,11 @@
 """
-==================
-Errorbar Subsample
-==================
+====================
+Errorbar subsampling
+====================
 
-Demo for the errorevery keyword to show data full accuracy data plots with
-few errorbars.
+The parameter *errorevery* of `.Axes.errorbar` can be used to draw error bars
+only on a subset of data points. This is particularly useful if there are many
+data points with similar errors.
 """
 
 import numpy as np
@@ -20,21 +21,20 @@ y1err = 0.1 + 0.1 * np.sqrt(x)
 y2err = 0.1 + 0.1 * np.sqrt(x/2)
 
 
-# Now switch to a more OO interface to exercise more features.
-fig, (ax_l, ax_c, ax_r) = plt.subplots(nrows=1, ncols=3,
-                                       sharex=True, figsize=(12, 6))
+fig, (ax0, ax1, ax2) = plt.subplots(nrows=1, ncols=3, sharex=True,
+                                    figsize=(12, 6))
 
-ax_l.set_title('all errorbars')
-ax_l.errorbar(x, y1, yerr=y1err)
-ax_l.errorbar(x, y2, yerr=y2err)
+ax0.set_title('all errorbars')
+ax0.errorbar(x, y1, yerr=y1err)
+ax0.errorbar(x, y2, yerr=y2err)
 
-ax_c.set_title('only every 6th errorbar')
-ax_c.errorbar(x, y1, yerr=y1err, errorevery=6)
-ax_c.errorbar(x, y2, yerr=y2err, errorevery=6)
+ax1.set_title('only every 6th errorbar')
+ax1.errorbar(x, y1, yerr=y1err, errorevery=6)
+ax1.errorbar(x, y2, yerr=y2err, errorevery=6)
 
-ax_r.set_title('second series shifted by 3')
-ax_r.errorbar(x, y1, yerr=y1err, errorevery=(0, 6))
-ax_r.errorbar(x, y2, yerr=y2err, errorevery=(3, 6))
+ax2.set_title('second series shifted by 3')
+ax2.errorbar(x, y1, yerr=y1err, errorevery=(0, 6))
+ax2.errorbar(x, y2, yerr=y2err, errorevery=(3, 6))
 
-fig.suptitle('Errorbar subsampling for better appearance')
+fig.suptitle('Errorbar subsampling')
 plt.show()

@@ -3,6 +3,11 @@
 **********************
 
 
+:func:`matplotlib.test`
+=======================
+
+.. autofunction:: matplotlib.test
+
 :mod:`matplotlib.testing`
 =========================
 

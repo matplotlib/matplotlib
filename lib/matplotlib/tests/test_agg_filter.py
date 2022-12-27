@@ -7,6 +7,9 @@ from matplotlib.testing.decorators import image_comparison
 @image_comparison(baseline_images=['agg_filter_alpha'],
                   extensions=['png', 'pdf'])
 def test_agg_filter_alpha():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     ax = plt.axes()
     x, y = np.mgrid[0:7, 0:8]
     data = x**2 - y**2
@@ -20,7 +23,7 @@ def test_agg_filter_alpha():
     # Note: Doing alpha like this is not the same as setting alpha on
     # the mesh itself. Currently meshes are drawn as independent patches,
     # and we see fine borders around the blocks of color. See the SO
-    # question for an example: https://stackoverflow.com/questions/20678817
+    # question for an example: https://stackoverflow.com/q/20678817/
     mesh.set_agg_filter(manual_alpha)
 
     # Currently we must enable rasterization for this to have an effect in

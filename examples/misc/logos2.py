@@ -7,12 +7,11 @@ This example generates the current matplotlib logo.
 """
 
 import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.font_manager
-from matplotlib.patches import Circle, Rectangle, PathPatch
-from matplotlib.textpath import TextPath
+from matplotlib.patches import Rectangle, PathPatch
+from matplotlib.text import TextPath
 import matplotlib.transforms as mtrans
 
 MPL_BLUE = '#11557c'
@@ -90,7 +89,7 @@ def create_icon_axes(fig, ax_position, lw_bars, lw_grid, lw_border, rgrid):
 
 
 def create_text_axes(fig, height_px):
-    """Create an axes in *fig* that contains 'matplotlib' as Text."""
+    """Create an Axes in *fig* that contains 'matplotlib' as Text."""
     ax = fig.add_axes((0, 0, 1, 1))
     ax.set_aspect("equal")
     ax.set_axis_off()

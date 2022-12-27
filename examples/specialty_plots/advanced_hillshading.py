@@ -25,7 +25,7 @@ def display_colorbar():
     # Use a proxy artist for the colorbar...
     im = ax.imshow(z, cmap=cmap)
     im.remove()
-    fig.colorbar(im)
+    fig.colorbar(im, ax=ax)
 
     ax.set_title('Using a colorbar with a shaded plot', size='x-large')
 

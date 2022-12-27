@@ -36,7 +36,7 @@ class SkewXTick(maxis.XTick):
                 self.tick2line.get_visible() and needs_upper)
             self.label2.set_visible(
                 self.label2.get_visible() and needs_upper)
-            super(SkewXTick, self).draw(renderer)
+            super().draw(renderer)
 
     def get_view_interval(self):
         return self.axes.xaxis.get_view_interval()
@@ -46,7 +46,7 @@ class SkewXTick(maxis.XTick):
 # as well as create instances of the custom tick
 class SkewXAxis(maxis.XAxis):
     def _get_tick(self, major):
-        return SkewXTick(self.axes, None, '', major=major)
+        return SkewXTick(self.axes, None, major=major)
 
     def get_view_interval(self):
         return self.axes.upper_xlim[0], self.axes.lower_xlim[1]
@@ -69,18 +69,17 @@ class SkewSpine(mspines.Spine):
 # spines and axes instances as appropriate.
 class SkewXAxes(Axes):
     # The projection must specify a name.  This will be used be the
-    # user to select the projection, i.e. ``subplot(111,
-    # projection='skewx')``.
+    # user to select the projection, i.e. ``subplot(projection='skewx')``.
     name = 'skewx'
 
     def _init_axis(self):
         # Taken from Axes and modified to use our modified X-axis
         self.xaxis = SkewXAxis(self)
-        self.spines['top'].register_axis(self.xaxis)
-        self.spines['bottom'].register_axis(self.xaxis)
+        self.spines.top.register_axis(self.xaxis)
+        self.spines.bottom.register_axis(self.xaxis)
         self.yaxis = maxis.YAxis(self)
-        self.spines['left'].register_axis(self.yaxis)
-        self.spines['right'].register_axis(self.yaxis)
+        self.spines.left.register_axis(self.yaxis)
+        self.spines.right.register_axis(self.yaxis)
 
     def _gen_axes_spines(self):
         spines = {'top': SkewSpine.linear_spine(self, 'top'),
@@ -97,7 +96,7 @@ class SkewXAxes(Axes):
         rot = 30
 
         # Get the standard transform setup from the Axes base class
-        Axes._set_lim_and_transforms(self)
+        super()._set_lim_and_transforms()
 
         # Need to put the skew in the middle, after the scale and limits,
         # but before the transAxes. This way, the skew is done in Axes

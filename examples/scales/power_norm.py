@@ -12,9 +12,13 @@ import matplotlib.colors as mcolors
 import numpy as np
 from numpy.random import multivariate_normal
 
+
+# Fixing random state for reproducibility.
+np.random.seed(19680801)
+
 data = np.vstack([
     multivariate_normal([10, 10], [[3, 2], [2, 3]], size=100000),
-    multivariate_normal([30, 20], [[2, 3], [1, 3]], size=1000)
+    multivariate_normal([30, 20], [[3, 1], [1, 3]], size=1000)
 ])
 
 gammas = [0.8, 0.5, 0.3]
@@ -34,16 +38,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.colors
-matplotlib.colors.PowerNorm
-matplotlib.axes.Axes.hist2d
-matplotlib.pyplot.hist2d
+#    - `matplotlib.colors`
+#    - `matplotlib.colors.PowerNorm`
+#    - `matplotlib.axes.Axes.hist2d`
+#    - `matplotlib.pyplot.hist2d`

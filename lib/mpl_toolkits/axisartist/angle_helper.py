@@ -19,19 +19,11 @@ def select_step_degree(dv):
     second_limits_ = np.array(minsec_limits_) / 3600
     second_factors = [3600.] * len(second_limits_)
 
-    degree_limits = np.concatenate([second_limits_,
-                                    minute_limits_,
-                                    degree_limits_])
+    degree_limits = [*second_limits_, *minute_limits_, *degree_limits_]
+    degree_steps = [*minsec_steps_, *minsec_steps_, *degree_steps_]
+    degree_factors = [*second_factors, *minute_factors, *degree_factors]
 
-    degree_steps = np.concatenate([minsec_steps_,
-                                   minsec_steps_,
-                                   degree_steps_])
-
-    degree_factors = np.concatenate([second_factors,
-                                     minute_factors,
-                                     degree_factors])
-
-    n = degree_limits.searchsorted(dv)
+    n = np.searchsorted(degree_limits, dv)
     step = degree_steps[n]
     factor = degree_factors[n]
 
@@ -53,19 +45,11 @@ def select_step_hour(dv):
     second_limits_ = np.array(minsec_limits_) / 3600
     second_factors = [3600.] * len(second_limits_)
 
-    hour_limits = np.concatenate([second_limits_,
-                                  minute_limits_,
-                                  hour_limits_])
+    hour_limits = [*second_limits_, *minute_limits_, *hour_limits_]
+    hour_steps = [*minsec_steps_, *minsec_steps_, *hour_steps_]
+    hour_factors = [*second_factors, *minute_factors, *hour_factors]
 
-    hour_steps = np.concatenate([minsec_steps_,
-                                 minsec_steps_,
-                                 hour_steps_])
-
-    hour_factors = np.concatenate([second_factors,
-                                   minute_factors,
-                                   hour_factors])
-
-    n = hour_limits.searchsorted(dv)
+    n = np.searchsorted(hour_limits, dv)
     step = hour_steps[n]
     factor = hour_factors[n]
 
@@ -156,54 +140,46 @@ def select_step360(v1, v2, nv, include_last=True, threshold_factor=3600):
 
 
 class LocatorBase:
-    def __init__(self, den, include_last=True):
-        self.den = den
+    def __init__(self, nbins, include_last=True):
+        self.nbins = nbins
         self._include_last = include_last
-
-    @property
-    def nbins(self):
-        return self.den
-
-    @nbins.setter
-    def nbins(self, v):
-        self.den = v
 
     def set_params(self, nbins=None):
         if nbins is not None:
-            self.den = int(nbins)
+            self.nbins = int(nbins)
 
 
 class LocatorHMS(LocatorBase):
     def __call__(self, v1, v2):
-        return select_step24(v1, v2, self.den, self._include_last)
+        return select_step24(v1, v2, self.nbins, self._include_last)
 
 
 class LocatorHM(LocatorBase):
     def __call__(self, v1, v2):
-        return select_step24(v1, v2, self.den, self._include_last,
+        return select_step24(v1, v2, self.nbins, self._include_last,
                              threshold_factor=60)
 
 
 class LocatorH(LocatorBase):
     def __call__(self, v1, v2):
-        return select_step24(v1, v2, self.den, self._include_last,
+        return select_step24(v1, v2, self.nbins, self._include_last,
                              threshold_factor=1)
 
 
 class LocatorDMS(LocatorBase):
     def __call__(self, v1, v2):
-        return select_step360(v1, v2, self.den, self._include_last)
+        return select_step360(v1, v2, self.nbins, self._include_last)
 
 
 class LocatorDM(LocatorBase):
     def __call__(self, v1, v2):
-        return select_step360(v1, v2, self.den, self._include_last,
+        return select_step360(v1, v2, self.nbins, self._include_last,
                               threshold_factor=60)
 
 
 class LocatorD(LocatorBase):
     def __call__(self, v1, v2):
-        return select_step360(v1, v2, self.den, self._include_last,
+        return select_step360(v1, v2, self.nbins, self._include_last,
                               threshold_factor=1)
 
 
@@ -308,7 +284,7 @@ class FormatterDMS:
                 return r
 
         else:  # factor > 3600.
-            return [r"$%s^{\circ}$" % (str(v),) for v in ss*values]
+            return [r"$%s^{\circ}$" % v for v in ss*values]
 
 
 class FormatterHMS(FormatterDMS):
@@ -332,26 +308,49 @@ class FormatterHMS(FormatterDMS):
 
 
 class ExtremeFinderCycle(ExtremeFinderSimple):
-    """
-    When there is a cycle, e.g., longitude goes from 0-360.
-    """
+    # docstring inherited
+
     def __init__(self, nx, ny,
                  lon_cycle=360., lat_cycle=None,
                  lon_minmax=None, lat_minmax=(-90, 90)):
+        """
+        This subclass handles the case where one or both coordinates should be
+        taken modulo 360, or be restricted to not exceed a specific range.
+
+        Parameters
+        ----------
+        nx, ny : int
+            The number of samples in each direction.
+
+        lon_cycle, lat_cycle : 360 or None
+            If not None, values in the corresponding direction are taken modulo
+            *lon_cycle* or *lat_cycle*; in theory this can be any number but
+            the implementation actually assumes that it is 360 (if not None);
+            other values give nonsensical results.
+
+            This is done by "unwrapping" the transformed grid coordinates so
+            that jumps are less than a half-cycle; then normalizing the span to
+            no more than a full cycle.
+
+            For example, if values are in the union of the [0, 2] and
+            [358, 360] intervals (typically, angles measured modulo 360), the
+            values in the second interval are normalized to [-2, 0] instead so
+            that the values now cover [-2, 2].  If values are in a range of
+            [5, 1000], this gets normalized to [5, 365].
+
+        lon_minmax, lat_minmax : (float, float) or None
+            If not None, the computed bounding box is clipped to the given
+            range in the corresponding direction.
+        """
         self.nx, self.ny = nx, ny
         self.lon_cycle, self.lat_cycle = lon_cycle, lat_cycle
         self.lon_minmax = lon_minmax
         self.lat_minmax = lat_minmax
 
     def __call__(self, transform_xy, x1, y1, x2, y2):
-        """
-        get extreme values.
-
-        x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of divisions in each axis
-        """
-        x_, y_ = np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny)
-        x, y = np.meshgrid(x_, y_)
+        # docstring inherited
+        x, y = np.meshgrid(
+            np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny))
         lon, lat = transform_xy(np.ravel(x), np.ravel(y))
 
         # iron out jumps, but algorithm should be improved.
@@ -372,14 +371,7 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
         lat_min, lat_max = np.nanmin(lat), np.nanmax(lat)
 
         lon_min, lon_max, lat_min, lat_max = \
-                 self._adjust_extremes(lon_min, lon_max, lat_min, lat_max)
-
-        return lon_min, lon_max, lat_min, lat_max
-
-    def _adjust_extremes(self, lon_min, lon_max, lat_min, lat_max):
-
-        lon_min, lon_max, lat_min, lat_max = \
-                 self._add_pad(lon_min, lon_max, lat_min, lat_max)
+            self._add_pad(lon_min, lon_max, lat_min, lat_max)
 
         # check cycle
         if self.lon_cycle:

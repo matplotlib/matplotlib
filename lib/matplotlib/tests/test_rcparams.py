@@ -1,7 +1,7 @@
-from collections import OrderedDict
 import copy
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 from unittest import mock
@@ -10,22 +10,26 @@ from cycler import cycler, Cycler
 import pytest
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, _c_internal_utils
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
-from matplotlib.rcsetup import (validate_bool_maybe_none,
-                                validate_stringlist,
-                                validate_colorlist,
-                                validate_color,
-                                validate_bool,
-                                validate_nseq_int,
-                                validate_nseq_float,
-                                validate_cycler,
-                                validate_hatch,
-                                validate_hist_bins,
-                                validate_markevery,
-                                _validate_linestyle)
+from matplotlib.rcsetup import (
+    validate_bool,
+    validate_color,
+    validate_colorlist,
+    _validate_color_or_linecolor,
+    validate_cycler,
+    validate_float,
+    validate_fontstretch,
+    validate_fontweight,
+    validate_hatch,
+    validate_hist_bins,
+    validate_int,
+    validate_markevery,
+    validate_stringlist,
+    _validate_linestyle,
+    _listify_validator)
 
 
 def test_rcparams(tmpdir):
@@ -36,7 +40,7 @@ def test_rcparams(tmpdir):
     linewidth = mpl.rcParams['lines.linewidth']
 
     rcpath = Path(tmpdir) / 'test_rcparams.rc'
-    rcpath.write_text('lines.linewidth: 33')
+    rcpath.write_text('lines.linewidth: 33', encoding='utf-8')
 
     # test context given dictionary
     with mpl.rc_context(rc={'text.usetex': not usetex}):
@@ -52,6 +56,14 @@ def test_rcparams(tmpdir):
     with mpl.rc_context(fname=rcpath, rc={'lines.linewidth': 44}):
         assert mpl.rcParams['lines.linewidth'] == 44
     assert mpl.rcParams['lines.linewidth'] == linewidth
+
+    # test context as decorator (and test reusability, by calling func twice)
+    @mpl.rc_context({'lines.linewidth': 44})
+    def func():
+        assert mpl.rcParams['lines.linewidth'] == 44
+
+    func()
+    func()
 
     # test rc_file
     mpl.rc_file(rcpath)
@@ -108,25 +120,17 @@ def test_rcparams_init():
 
 def test_Bug_2543():
     # Test that it possible to add all values to itself / deepcopy
-    # This was not possible because validate_bool_maybe_none did not
-    # accept None as an argument.
     # https://github.com/matplotlib/matplotlib/issues/2543
     # We filter warnings at this stage since a number of them are raised
     # for deprecated rcparams as they should. We don't want these in the
     # printed in the test suite.
-    with cbook._suppress_matplotlib_deprecation_warning():
+    with _api.suppress_matplotlib_deprecation_warning():
         with mpl.rc_context():
             _copy = mpl.rcParams.copy()
             for key in _copy:
                 mpl.rcParams[key] = _copy[key]
         with mpl.rc_context():
             copy.deepcopy(mpl.rcParams)
-        # real test is that this does not raise
-        assert validate_bool_maybe_none(None) is None
-        assert validate_bool_maybe_none("none") is None
-
-    with pytest.raises(ValueError):
-        validate_bool_maybe_none("blah")
     with pytest.raises(ValueError):
         validate_bool(None)
     with pytest.raises(ValueError):
@@ -188,10 +192,19 @@ def test_axes_titlecolor_rcparams():
 
 def test_Issue_1713(tmpdir):
     rcpath = Path(tmpdir) / 'test_rcparams.rc'
-    rcpath.write_text('timezone: UTC', encoding='UTF-32-BE')
+    rcpath.write_text('timezone: UTC', encoding='utf-8')
     with mock.patch('locale.getpreferredencoding', return_value='UTF-32-BE'):
         rc = mpl.rc_params_from_file(rcpath, True, False)
     assert rc.get('timezone') == 'UTC'
+
+
+def test_animation_frame_formats():
+    # Animation frame_format should allow any of the following
+    # if any of these are not allowed, an exception will be raised
+    # test for gh issue #17908
+    for fmt in ['png', 'jpeg', 'tiff', 'raw', 'rgba', 'ppm',
+                'sgi', 'bmp', 'pbm', 'svg']:
+        mpl.rcParams['animation.frame_format'] = fmt
 
 
 def generate_validator_testcases(valid):
@@ -214,14 +227,14 @@ def generate_validator_testcases(valid):
                      (('a', 'b'), ['a', 'b']),
                      (iter(['a', 'b']), ['a', 'b']),
                      (np.array(['a', 'b']), ['a', 'b']),
-                     ((1, 2), ['1', '2']),
-                     (np.array([1, 2]), ['1', '2']),
                      ),
-         'fail': ((dict(), ValueError),
+         'fail': ((set(), ValueError),
                   (1, ValueError),
+                  ((1, 2), _api.MatplotlibDeprecationWarning),
+                  (np.array([1, 2]), _api.MatplotlibDeprecationWarning),
                   )
          },
-        {'validator': validate_nseq_int(2),
+        {'validator': _listify_validator(validate_int, n=2),
          'success': ((_, [1, 2])
                      for _ in ('1, 2', [1.5, 2.5], [1, 2],
                                (1, 2), np.array((1, 2)))),
@@ -230,14 +243,12 @@ def generate_validator_testcases(valid):
                             (1, 2, 3)
                             ))
          },
-        {'validator': validate_nseq_float(2),
+        {'validator': _listify_validator(validate_float, n=2),
          'success': ((_, [1.5, 2.5])
                      for _ in ('1.5, 2.5', [1.5, 2.5], [1.5, 2.5],
                                (1.5, 2.5), np.array((1.5, 2.5)))),
          'fail': ((_, ValueError)
-                  for _ in ('aardvark', ('a', 1),
-                            (1, 2, 3)
-                            ))
+                  for _ in ('aardvark', ('a', 1), (1, 2, 3), (None, ), None))
          },
         {'validator': validate_cycler,
          'success': (('cycler("color", "rgb")',
@@ -269,6 +280,17 @@ def generate_validator_testcases(valid):
                   ('cycler("bleh, [])', ValueError),  # syntax error
                   ('Cycler("linewidth", [1, 2, 3])',
                    ValueError),  # only 'cycler()' function is allowed
+                  # do not allow dunder in string literals
+                  ("cycler('c', [j.__class__(j) for j in ['r', 'b']])",
+                   ValueError),
+                  ("cycler('c', [j. __class__(j) for j in ['r', 'b']])",
+                   ValueError),
+                  ("cycler('c', [j.\t__class__(j) for j in ['r', 'b']])",
+                   ValueError),
+                  ("cycler('c', [j.\u000c__class__(j) for j in ['r', 'b']])",
+                   ValueError),
+                  ("cycler('c', [j.__class__(j).lower() for j in ['r', 'b']])",
+                   ValueError),
                   ('1 + 2', ValueError),  # doesn't produce a Cycler object
                   ('os.system("echo Gotcha")', ValueError),  # os not available
                   ('import os', ValueError),  # should not be able to import
@@ -286,8 +308,8 @@ def generate_validator_testcases(valid):
          'success': (('--|', '--|'), ('\\oO', '\\oO'),
                      ('/+*/.x', '/+*/.x'), ('', '')),
          'fail': (('--_', ValueError),
-                 (8, ValueError),
-                 ('X', ValueError)),
+                  (8, ValueError),
+                  ('X', ValueError)),
          },
         {'validator': validate_colorlist,
          'success': (('r,g,b', ['r', 'g', 'b']),
@@ -309,17 +331,28 @@ def generate_validator_testcases(valid):
                      ('AABBCC00', '#AABBCC00'),  # RGBA hex code
                      ('tab:blue', 'tab:blue'),  # named color
                      ('C12', 'C12'),  # color from cycle
-                     ('(0, 1, 0)', [0.0, 1.0, 0.0]),  # RGB tuple
+                     ('(0, 1, 0)', (0.0, 1.0, 0.0)),  # RGB tuple
                      ((0, 1, 0), (0, 1, 0)),  # non-string version
-                     ('(0, 1, 0, 1)', [0.0, 1.0, 0.0, 1.0]),  # RGBA tuple
+                     ('(0, 1, 0, 1)', (0.0, 1.0, 0.0, 1.0)),  # RGBA tuple
                      ((0, 1, 0, 1), (0, 1, 0, 1)),  # non-string version
-                     ('(0, 1, "0.5")', [0.0, 1.0, 0.5]),  # unusual but valid
                      ),
          'fail': (('tab:veryblue', ValueError),  # invalid name
                   ('(0, 1)', ValueError),  # tuple with length < 3
                   ('(0, 1, 0, 1, 0)', ValueError),  # tuple with length > 4
                   ('(0, 1, none)', ValueError),  # cannot cast none to float
+                  ('(0, 1, "0.5")', ValueError),  # last one not a float
                   ),
+         },
+        {'validator': _validate_color_or_linecolor,
+         'success': (('linecolor', 'linecolor'),
+                     ('markerfacecolor', 'markerfacecolor'),
+                     ('mfc', 'markerfacecolor'),
+                     ('markeredgecolor', 'markeredgecolor'),
+                     ('mec', 'markeredgecolor')
+                     ),
+         'fail': (('line', ValueError),
+                  ('marker', ValueError)
+                  )
          },
         {'validator': validate_hist_bins,
          'success': (('auto', 'auto'),
@@ -369,18 +402,21 @@ def generate_validator_testcases(valid):
                      ('', ''), (' ', ' '),
                      ('None', 'none'), ('none', 'none'),
                      ('DoTtEd', 'dotted'),  # case-insensitive
-                     (['1.23', '4.56'], (None, [1.23, 4.56])),
-                     ([1.23, 456], (None, [1.23, 456.0])),
-                     ([1, 2, 3, 4], (None, [1.0, 2.0, 3.0, 4.0])),
+                     ('1, 3', (0, (1, 3))),
+                     ([1.23, 456], (0, [1.23, 456.0])),
+                     ([1, 2, 3, 4], (0, [1.0, 2.0, 3.0, 4.0])),
+                     ((0, [1, 2]), (0, [1, 2])),
+                     ((-1, [1, 2]), (-1, [1, 2])),
                      ),
          'fail': (('aardvark', ValueError),  # not a valid string
                   (b'dotted', ValueError),
                   ('dotted'.encode('utf-16'), ValueError),
-                  ((None, [1, 2]), ValueError),  # (offset, dashes) != OK
-                  ((0, [1, 2]), ValueError),  # idem
-                  ((-1, [1, 2]), ValueError),  # idem
                   ([1, 2, 3], ValueError),  # sequence with odd length
                   (1.23, ValueError),  # not a sequence
+                  (("a", [1, 2]), ValueError),  # wrong explicit offset
+                  ((None, [1, 2]), ValueError),  # wrong explicit offset
+                  ((1, [1, 2, 3]), ValueError),  # odd length sequence
+                  (([1, 2], 1), ValueError),  # inverted offset/onoff
                   )
          },
     )
@@ -415,100 +451,151 @@ def test_validator_invalid(validator, arg, exception_type):
         validator(arg)
 
 
+@pytest.mark.parametrize('weight, parsed_weight', [
+    ('bold', 'bold'),
+    ('BOLD', ValueError),  # weight is case-sensitive
+    (100, 100),
+    ('100', 100),
+    (np.array(100), 100),
+    # fractional fontweights are not defined. This should actually raise a
+    # ValueError, but historically did not.
+    (20.6, 20),
+    ('20.6', ValueError),
+    ([100], ValueError),
+])
+def test_validate_fontweight(weight, parsed_weight):
+    if parsed_weight is ValueError:
+        with pytest.raises(ValueError):
+            validate_fontweight(weight)
+    else:
+        assert validate_fontweight(weight) == parsed_weight
+
+
+@pytest.mark.parametrize('stretch, parsed_stretch', [
+    ('expanded', 'expanded'),
+    ('EXPANDED', ValueError),  # stretch is case-sensitive
+    (100, 100),
+    ('100', 100),
+    (np.array(100), 100),
+    # fractional fontweights are not defined. This should actually raise a
+    # ValueError, but historically did not.
+    (20.6, 20),
+    ('20.6', ValueError),
+    ([100], ValueError),
+])
+def test_validate_fontstretch(stretch, parsed_stretch):
+    if parsed_stretch is ValueError:
+        with pytest.raises(ValueError):
+            validate_fontstretch(stretch)
+    else:
+        assert validate_fontstretch(stretch) == parsed_stretch
+
+
 def test_keymaps():
     key_list = [k for k in mpl.rcParams if 'keymap' in k]
     for k in key_list:
         assert isinstance(mpl.rcParams[k], list)
 
 
-def test_rcparams_reset_after_fail():
+def test_no_backend_reset_rccontext():
+    assert mpl.rcParams['backend'] != 'module://aardvark'
+    with mpl.rc_context():
+        mpl.rcParams['backend'] = 'module://aardvark'
+    assert mpl.rcParams['backend'] == 'module://aardvark'
 
+
+def test_rcparams_reset_after_fail():
     # There was previously a bug that meant that if rc_context failed and
     # raised an exception due to issues in the supplied rc parameters, the
     # global rc parameters were left in a modified state.
-
     with mpl.rc_context(rc={'text.usetex': False}):
-
         assert mpl.rcParams['text.usetex'] is False
-
         with pytest.raises(KeyError):
-            with mpl.rc_context(rc=OrderedDict([('text.usetex', True),
-                                                ('test.blah', True)])):
+            with mpl.rc_context(rc={'text.usetex': True, 'test.blah': True}):
                 pass
-
         assert mpl.rcParams['text.usetex'] is False
-
-
-def test_if_rctemplate_is_up_to_date():
-    # This tests if the matplotlibrc.template file contains all valid rcParams.
-    deprecated = {*mpl._all_deprecated, *mpl._deprecated_remain_as_none}
-    with cbook._get_data_path('matplotlibrc').open() as file:
-        rclines = file.readlines()
-    missing = {}
-    for k, v in mpl.defaultParams.items():
-        if k[0] == "_":
-            continue
-        if k in deprecated:
-            continue
-        found = False
-        for line in rclines:
-            if k in line:
-                found = True
-        if not found:
-            missing.update({k: v})
-    if missing:
-        raise ValueError("The following params are missing in the "
-                         "matplotlibrc.template file: {}"
-                         .format(missing.items()))
-
-
-def test_if_rctemplate_would_be_valid(tmpdir):
-    # This tests if the matplotlibrc.template file would result in a valid
-    # rc file if all lines are uncommented.
-    with cbook._get_data_path('matplotlibrc').open() as file:
-        rclines = file.readlines()
-    newlines = []
-    for line in rclines:
-        if line[0] == "#":
-            newline = line[1:]
-        else:
-            newline = line
-        if "$TEMPLATE_BACKEND" in newline:
-            newline = "backend : Agg"
-        if "datapath" in newline:
-            newline = ""
-        newlines.append(newline)
-    d = tmpdir.mkdir('test1')
-    fname = str(d.join('testrcvalid.temp'))
-    with open(fname, "w") as f:
-        f.writelines(newlines)
-    with pytest.warns(None) as record:
-        mpl.rc_params_from_file(fname,
-                                fail_on_error=True,
-                                use_default_template=False)
-        assert len(record) == 0
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux only")
 def test_backend_fallback_headless(tmpdir):
     env = {**os.environ,
-           "DISPLAY": "", "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
+           "DISPLAY": "", "WAYLAND_DISPLAY": "",
+           "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
     with pytest.raises(subprocess.CalledProcessError):
         subprocess.run(
             [sys.executable, "-c",
-             "import matplotlib; matplotlib.use('tkagg')"],
-            env=env, check=True)
+             "import matplotlib;"
+             "matplotlib.use('tkagg');"
+             "import matplotlib.pyplot;"
+             "matplotlib.pyplot.plot(42);"
+             ],
+            env=env, check=True, stderr=subprocess.DEVNULL)
 
 
-@pytest.mark.skipif(sys.platform == "linux" and not os.environ.get("DISPLAY"),
-                    reason="headless")
+@pytest.mark.skipif(
+    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+    reason="headless")
 def test_backend_fallback_headful(tmpdir):
     pytest.importorskip("tkinter")
     env = {**os.environ, "MPLBACKEND": "", "MPLCONFIGDIR": str(tmpdir)}
     backend = subprocess.check_output(
         [sys.executable, "-c",
-         "import matplotlib.pyplot; print(matplotlib.get_backend())"],
+         "import matplotlib as mpl; "
+         "sentinel = mpl.rcsetup._auto_backend_sentinel; "
+         # Check that access on another instance does not resolve the sentinel.
+         "assert mpl.RcParams({'backend': sentinel})['backend'] == sentinel; "
+         "assert mpl.rcParams._get('backend') == sentinel; "
+         "import matplotlib.pyplot; "
+         "print(matplotlib.get_backend())"],
         env=env, universal_newlines=True)
     # The actual backend will depend on what's installed, but at least tkagg is
     # present.
     assert backend.strip().lower() != "agg"
+
+
+def test_deprecation(monkeypatch):
+    monkeypatch.setitem(
+        mpl._deprecated_map, "patch.linewidth",
+        ("0.0", "axes.linewidth", lambda old: 2 * old, lambda new: new / 2))
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        assert mpl.rcParams["patch.linewidth"] \
+            == mpl.rcParams["axes.linewidth"] / 2
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        mpl.rcParams["patch.linewidth"] = 1
+    assert mpl.rcParams["axes.linewidth"] == 2
+
+    monkeypatch.setitem(
+        mpl._deprecated_ignore_map, "patch.edgecolor",
+        ("0.0", "axes.edgecolor"))
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        assert mpl.rcParams["patch.edgecolor"] \
+            == mpl.rcParams["axes.edgecolor"]
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        mpl.rcParams["patch.edgecolor"] = "#abcd"
+    assert mpl.rcParams["axes.edgecolor"] != "#abcd"
+
+    monkeypatch.setitem(
+        mpl._deprecated_ignore_map, "patch.force_edgecolor",
+        ("0.0", None))
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        assert mpl.rcParams["patch.force_edgecolor"] is None
+
+    monkeypatch.setitem(
+        mpl._deprecated_remain_as_none, "svg.hashsalt",
+        ("0.0",))
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        mpl.rcParams["svg.hashsalt"] = "foobar"
+    assert mpl.rcParams["svg.hashsalt"] == "foobar"  # Doesn't warn.
+    mpl.rcParams["svg.hashsalt"] = None  # Doesn't warn.
+
+    mpl.rcParams.update(mpl.rcParams.copy())  # Doesn't warn.
+    # Note that the warning suppression actually arises from the
+    # iteration over the updater rcParams being protected by
+    # suppress_matplotlib_deprecation_warning, rather than any explicit check.
+
+
+def test_rcparams_legend_loc():
+    value = (0.9, .7)
+    match_str = f"{value} is not a valid value for legend.loc;"
+    with pytest.raises(ValueError, match=re.escape(match_str)):
+        mpl.RcParams({'legend.loc': value})

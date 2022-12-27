@@ -1,8 +1,13 @@
 """
-===============
-Demo Agg Filter
-===============
+==========
+AGG filter
+==========
 
+Most pixel-based backends in Matplotlib use `Anti-Grain Geometry (AGG)`_ for
+rendering. You can modify the rendering of Artists by applying a filter via
+`.Artist.set_agg_filter`.
+
+.. _Anti-Grain Geometry (AGG): http://agg.sourceforge.net/antigrain.com
 """
 
 import matplotlib.cm as cm
@@ -14,7 +19,7 @@ import numpy as np
 
 
 def smooth1d(x, window_len):
-    # copied from http://www.scipy.org/Cookbook/SignalSmooth
+    # copied from https://scipy-cookbook.readthedocs.io/items/SignalSmooth.html
     s = np.r_[2*x[0] - x[window_len:1:-1], x, 2*x[-1] - x[-1:-window_len:-1]]
     w = np.hanning(window_len)
     y = np.convolve(w/w.sum(), s, mode='same')
@@ -33,7 +38,7 @@ class BaseFilter:
     def get_pad(self, dpi):
         return 0
 
-    def process_image(padded_src, dpi):
+    def process_image(self, padded_src, dpi):
         raise NotImplementedError("Should be overridden by subclasses")
 
     def __call__(self, im, dpi):
@@ -94,8 +99,19 @@ class DropShadowFilter(BaseFilter):
 
 
 class LightFilter(BaseFilter):
+    """Apply LightSource filter"""
 
-    def __init__(self, sigma, fraction=0.5):
+    def __init__(self, sigma, fraction=1):
+        """
+        Parameters
+        ----------
+        sigma : float
+            sigma for gaussian filter
+        fraction: number, default: 1
+            Increases or decreases the contrast of the hillshade.
+            See `matplotlib.colors.LightSource`
+
+        """
         self.gauss_filter = GaussianFilter(sigma, alpha=1)
         self.light_source = LightSource()
         self.fraction = fraction
@@ -109,7 +125,8 @@ class LightFilter(BaseFilter):
         rgb = padded_src[:, :, :3]
         alpha = padded_src[:, :, 3:]
         rgb2 = self.light_source.shade_rgb(rgb, elevation,
-                                           fraction=self.fraction)
+                                           fraction=self.fraction,
+                                           blend_mode="overlay")
         return np.concatenate([rgb2, alpha], -1)
 
 
@@ -170,7 +187,7 @@ def filtered_text(ax):
 
     # contour label
     cl = ax.clabel(CS, levels[1::2],  # label every second level
-                   inline=1,
+                   inline=True,
                    fmt='%1.1f',
                    fontsize=11)
 
@@ -208,10 +225,9 @@ def drop_shadow_line(ax):
         shadow.update_from(l)
 
         # offset transform
-        ot = mtransforms.offset_copy(l.get_transform(), ax.figure,
-                                     x=4.0, y=-6.0, units='points')
-
-        shadow.set_transform(ot)
+        transform = mtransforms.offset_copy(l.get_transform(), ax.figure,
+                                            x=4.0, y=-6.0, units='points')
+        shadow.set_transform(transform)
 
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines
@@ -229,20 +245,19 @@ def drop_shadow_line(ax):
 def drop_shadow_patches(ax):
     # Copied from barchart_demo.py
     N = 5
-    men_means = [20, 35, 30, 35, 27]
+    group1_means = [20, 35, 30, 35, 27]
 
     ind = np.arange(N)  # the x locations for the groups
     width = 0.35  # the width of the bars
 
-    rects1 = ax.bar(ind, men_means, width, color='r', ec="w", lw=2)
+    rects1 = ax.bar(ind, group1_means, width, color='r', ec="w", lw=2)
 
-    women_means = [25, 32, 34, 20, 25]
-    rects2 = ax.bar(ind + width + 0.1, women_means, width,
+    group2_means = [25, 32, 34, 20, 25]
+    rects2 = ax.bar(ind + width + 0.1, group2_means, width,
                     color='y', ec="w", lw=2)
 
-    # gauss = GaussianFilter(1.5, offsets=(1, 1))
-    gauss = DropShadowFilter(5, offsets=(1, 1))
-    shadow = FilteredArtistList(rects1 + rects2, gauss)
+    drop = DropShadowFilter(5, offsets=(1, 1))
+    shadow = FilteredArtistList(rects1 + rects2, drop)
     ax.add_artist(shadow)
     shadow.set_zorder(rects1[0].get_zorder() - 0.1)
 
@@ -254,7 +269,7 @@ def drop_shadow_patches(ax):
 
 def light_filter_pie(ax):
     fracs = [15, 30, 45, 10]
-    explode = (0, 0.05, 0, 0)
+    explode = (0.1, 0.2, 0.1, 0.1)
     pies = ax.pie(fracs, explode=explode)
 
     light_filter = LightFilter(9)
@@ -264,7 +279,7 @@ def light_filter_pie(ax):
         p.set(ec="none",
               lw=2)
 
-    gauss = DropShadowFilter(9, offsets=(3, 4), alpha=0.7)
+    gauss = DropShadowFilter(9, offsets=(3, -4), alpha=0.7)
     shadow = FilteredArtistList(pies[0], gauss)
     ax.add_artist(shadow)
     shadow.set_zorder(pies[0][0].get_zorder() - 0.1)

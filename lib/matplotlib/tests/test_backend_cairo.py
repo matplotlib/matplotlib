@@ -1,14 +1,8 @@
 import numpy as np
-from io import BytesIO
-import os
-import tempfile
-import warnings
 
 import pytest
 
-import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal
-import matplotlib
 from matplotlib import (
     collections as mcollections, patches as mpatches, path as mpath)
 

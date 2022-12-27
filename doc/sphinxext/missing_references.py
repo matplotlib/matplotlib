@@ -18,7 +18,7 @@ The basic operation is:
 from collections import defaultdict
 import json
 import logging
-from pathlib import Path, PosixPath
+from pathlib import Path
 
 from docutils.utils import get_source_line
 from docutils import nodes
@@ -47,8 +47,8 @@ class MissingReferenceFilter(logging.Filter):
             self.app.env.missing_references_warnings = defaultdict(set)
 
         record_missing_reference(self.app,
-            self.app.env.missing_references_warnings,
-            record.location)
+                                 self.app.env.missing_references_warnings,
+                                 record.location)
 
     def filter(self, record):
         self._record_reference(record)
@@ -90,7 +90,7 @@ def get_location(node, app):
     Usually, this will be of the form "path/to/file:linenumber". Two
     special values can be emitted, "<external>" for paths which are
     not contained in this source tree (e.g. docstrings included from
-    other modules) or "<unknown>", inidcating that the sphinx application
+    other modules) or "<unknown>", indicating that the sphinx application
     cannot locate the original source file (usually because an extension
     has injected text into the sphinx parsing engine).
     """
@@ -136,12 +136,10 @@ def _truncate_location(location):
     """
     Cuts off anything after the first colon in location strings.
 
-    This allows for easy comparison even when line numbers chagne
-    (as they do regularily).
+    This allows for easy comparison even when line numbers change
+    (as they do regularly).
     """
-    if ":" in location:
-        return location.split(":", 1)[0]
-    return location
+    return location.split(":", 1)[0]
 
 
 def _warn_unused_missing_references(app):
@@ -157,13 +155,14 @@ def _warn_unused_missing_references(app):
         return
 
     # This is a dictionary of {(domain_type, target): locations}
-    references_ignored = getattr(app.env,
-        'missing_references_ignored_references', {})
+    references_ignored = getattr(
+        app.env, 'missing_references_ignored_references', {})
     references_events = getattr(app.env, 'missing_references_events', {})
 
     # Warn about any reference which is no longer missing.
     for (domain_type, target), locations in references_ignored.items():
-        missing_reference_locations = [_truncate_location(location)
+        missing_reference_locations = [
+            _truncate_location(location)
             for location in references_events.get((domain_type, target), [])]
 
         # For each ignored reference location, ensure a missing reference
@@ -174,11 +173,11 @@ def _warn_unused_missing_references(app):
                 msg = (f"Reference {domain_type} {target} for "
                        f"{ignored_reference_location} can be removed"
                        f" from {app.config.missing_references_filename}."
-                        "It is no longer a missing reference in the docs.")
+                        " It is no longer a missing reference in the docs.")
                 logger.warning(msg,
-                    location=ignored_reference_location,
-                    type='ref',
-                    subtype=domain_type)
+                               location=ignored_reference_location,
+                               type='ref',
+                               subtype=domain_type)
 
 
 def save_missing_references_handler(app, exc):
@@ -211,13 +210,13 @@ def _write_missing_references_json(records, json_path):
     Convert from ``{(domain_type, target): locations}`` to
     ``{domain_type: {target: locations}}`` since JSON can't serialize tuples.
     """
+    # Sorting records and keys avoids needlessly big diffs when
+    # missing_references.json is regenerated.
     transformed_records = defaultdict(dict)
-
     for (domain_type, target), paths in records.items():
         transformed_records[domain_type][target] = sorted(paths)
-
     with json_path.open("w") as stream:
-        json.dump(transformed_records, stream, indent=2)
+        json.dump(transformed_records, stream, sort_keys=True, indent=2)
 
 
 def _read_missing_references_json(json_path):
@@ -254,7 +253,7 @@ def prepare_missing_references_handler(app):
 
     sphinx_logger = logging.getLogger('sphinx')
     missing_reference_filter = MissingReferenceFilter(app)
-    for handler in sphinx_logger.handlers[:]:
+    for handler in sphinx_logger.handlers:
         if (isinstance(handler, sphinx_logging.WarningStreamHandler)
                 and missing_reference_filter not in handler.filters):
 

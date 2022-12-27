@@ -5,10 +5,10 @@ The histogram (hist) function with multiple data sets
 
 Plot histogram with multiple sample sets and demonstrate:
 
-    * Use of legend with multiple sample sets
-    * Stacked bars
-    * Step curve with no fill
-    * Data sets of different sample sizes
+* Use of legend with multiple sample sets
+* Stacked bars
+* Step curve with no fill
+* Data sets of different sample sizes
 
 Selecting different bin counts and sizes can significantly affect the
 shape of a histogram. The Astropy docs have a great section on how to
@@ -44,3 +44,12 @@ ax3.set_title('different sample sizes')
 
 fig.tight_layout()
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.hist` / `matplotlib.pyplot.hist`

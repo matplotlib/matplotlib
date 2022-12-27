@@ -11,6 +11,8 @@ branches:
 
 clone_depth: 50
 
+image: Visual Studio 2017
+
 environment:
 
   global:
@@ -20,14 +22,11 @@ environment:
                  --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
-    # In theory we could use a single CONDA_INSTALL_LOCN because we construct
-    # the envs anyway. But using one for the right python version hopefully
-    # making things faster due to package caching.
-    - PYTHON_VERSION: "3.6"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
+    - PYTHON_VERSION: "3.8"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
       TEST_ALL: "no"
-    - PYTHON_VERSION: "3.7"
-      CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
+    - PYTHON_VERSION: "3.9"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
       TEST_ALL: "no"
 
 # We always use a 64-bit machine, but can build x86 distributions
@@ -47,33 +46,18 @@ init:
 
 install:
   - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
-  - set PYTHONUNBUFFERED=1
   - conda config --set always_yes true
-  - conda update --all
   - conda config --set show_channel_urls yes
   - conda config --prepend channels conda-forge
-  # this is now the downloaded conda...
-  - activate
-  - conda info -a
 
-  # For building, use a new environment which only includes the requirements for mpl
-  # if conda-forge gets a new pyqt, it might be nice to install it as well to have more backends
-  # https://github.com/conda-forge/conda-forge.github.io/issues/157#issuecomment-223536381
-  - conda create -q -n test-environment python=%PYTHON_VERSION%
-    freetype=2.6 "libpng>=1.6.21,<1.7" zlib=1.2 tk=8.5
-    pip setuptools numpy sphinx tornado
-  - activate test-environment
+  # For building, use a new environment
+  # Add python version to environment
+  # `^ ` escapes spaces for indentation
+  - echo ^ ^ - python=%PYTHON_VERSION% >> environment.yml
+  - conda env create -f environment.yml
+  - activate mpl-dev
+  - conda install -c conda-forge pywin32
   - echo %PYTHON_VERSION% %TARGET_ARCH%
-  - pip install -r requirements/testing/travis_all.txt -r requirements/testing/travis36.txt
-
-  # Apply patch to `subprocess` on Python versions > 2 and < 3.6.3
-  # https://github.com/matplotlib/matplotlib/issues/9176
-  - python -c "import sys; sys.exit(not (3,) < sys.version_info < (3,6,3))" && (
-    curl -sL https://github.com/python/cpython/pull/1224.patch |
-    patch -fsup 1 -d %CONDA_PREFIX% ) || cmd /c "exit /b 0"
-
-  # enables the local freetype build
-  - set MPLLOCALFREETYPE=1
   # Show the installed packages + versions
   - conda list
 
@@ -81,15 +65,13 @@ test_script:
   # Now build the thing..
   - set LINK=/LIBPATH:%cd%\lib
   - pip install -ve .
-  # these should show no z, png, or freetype dll...
+  # this should show no freetype dll...
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
-  - 'if x%MPLSTATICBUILD% == xTrue "%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
-  - 'if x%MPLSTATICBUILD% == xTrue "%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd | findstr z.*.dll && exit /b 1 || exit /b 0'
-  - 'if x%MPLSTATICBUILD% == xTrue "%DUMPBIN%" /DEPENDENTS lib\matplotlib\_png*.pyd | findstr png.*.dll && exit /b 1 || exit /b 0'
+  - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
 
   # this are optional dependencies so that we don't skip so many tests...
-  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex pillow
-  # missing packages on conda-forge for avconv imagemagick
+  - if x%TEST_ALL% == xyes conda install -q ffmpeg inkscape miktex
+  # missing packages on conda-forge for imagemagick
   # This install sometimes failed randomly :-(
   #- choco install imagemagick
 
@@ -99,24 +81,13 @@ test_script:
   - echo The following args are passed to pytest %PYTEST_ARGS%
   - pytest %PYTEST_ARGS%
 
-after_test:
-  # After the tests were a success, build wheels with the static libs
-  # Hide the output, the copied files really clutter the build log...
-  - set MPLSTATICBUILD=True
-  - 'python setup.py bdist_wheel > NUL:'
-  - dir dist\
-  - echo finished...
-
 artifacts:
-  - path: dist\*
-    name: packages
-
   - path: result_images\*
     name: result_images
     type: zip
 
 on_finish:
-  - pip install codecov
+  - conda install codecov
   - codecov -e PYTHON_VERSION PLATFORM
 
 on_failure:

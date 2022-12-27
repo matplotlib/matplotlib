@@ -8,7 +8,6 @@ imshow with masked array input and out-of-range colors.
 The second subplot illustrates the use of BoundaryNorm to
 get a filled contour effect.
 """
-from copy import copy
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,11 +24,7 @@ Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
 # Set up a colormap:
-# use copy so that we do not mutate the global colormap instance
-palette = copy(plt.cm.gray)
-palette.set_over('r', 1.0)
-palette.set_under('g', 1.0)
-palette.set_bad('b', 1.0)
+palette = plt.cm.gray.with_extremes(over='r', under='g', bad='b')
 # Alternatively, we could use
 # palette.set_bad(alpha = 0.0)
 # to make the bad region transparent.  This is the default.
@@ -45,7 +40,7 @@ Zm = np.ma.masked_where(Z > 1.2, Z)
 # set up the Axes objects
 fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 5.4))
 
-# plot using 'continuous' color map
+# plot using 'continuous' colormap
 im = ax1.imshow(Zm, interpolation='bilinear',
                 cmap=palette,
                 norm=colors.Normalize(vmin=-1.0, vmax=1.0),
@@ -55,8 +50,7 @@ im = ax1.imshow(Zm, interpolation='bilinear',
 ax1.set_title('Green=low, Red=high, Blue=masked')
 cbar = fig.colorbar(im, extend='both', shrink=0.9, ax=ax1)
 cbar.set_label('uniform')
-for ticklabel in ax1.xaxis.get_ticklabels():
-    ticklabel.set_visible(False)
+ax1.tick_params(axis='x', labelbottom=False)
 
 # Plot using a small number of colors, with unevenly spaced boundaries.
 im = ax2.imshow(Zm, interpolation='nearest',
@@ -76,18 +70,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colors.BoundaryNorm
-matplotlib.colorbar.ColorbarBase.set_label
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colors.BoundaryNorm`
+#    - `matplotlib.colorbar.Colorbar.set_label`

@@ -6,7 +6,8 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal
 
 import pytest
 
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import (
+    check_figures_equal, image_comparison, remove_ticks_and_titles)
 import matplotlib.pyplot as plt
 
 from matplotlib import patches, transforms
@@ -45,6 +46,29 @@ def test_diamond():
     ax.plot(x, y)
     ax.set_xlim(-0.6, 0.6)
     ax.set_ylim(-0.6, 0.6)
+
+
+def test_clipping_out_of_bounds():
+    # Should work on a Path *without* codes.
+    path = Path([(0, 0), (1, 2), (2, 1)])
+    simplified = path.cleaned(clip=(10, 10, 20, 20))
+    assert_array_equal(simplified.vertices, [(0, 0)])
+    assert simplified.codes == [Path.STOP]
+
+    # Should work on a Path *with* codes, and no curves.
+    path = Path([(0, 0), (1, 2), (2, 1)],
+                [Path.MOVETO, Path.LINETO, Path.LINETO])
+    simplified = path.cleaned(clip=(10, 10, 20, 20))
+    assert_array_equal(simplified.vertices, [(0, 0)])
+    assert simplified.codes == [Path.STOP]
+
+    # A Path with curves does not do any clipping yet.
+    path = Path([(0, 0), (1, 2), (2, 3)],
+                [Path.MOVETO, Path.CURVE3, Path.CURVE3])
+    simplified = path.cleaned()
+    simplified_clipped = path.cleaned(clip=(10, 10, 20, 20))
+    assert_array_equal(simplified.vertices, simplified_clipped.vertices)
+    assert_array_equal(simplified.codes, simplified_clipped.codes)
 
 
 def test_noise():
@@ -207,7 +231,7 @@ def test_sine_plus_noise():
     assert simplified.vertices.size == 25240
 
 
-@image_comparison(['simplify_curve'], remove_text=True)
+@image_comparison(['simplify_curve'], remove_text=True, tol=0.017)
 def test_simplify_curve():
     pp1 = patches.PathPatch(
         Path([(0, 0), (1, 0), (1, 1), (np.nan, 1), (0, 0), (2, 0), (2, 2),
@@ -220,6 +244,155 @@ def test_simplify_curve():
     ax.add_patch(pp1)
     ax.set_xlim((0, 2))
     ax.set_ylim((0, 2))
+
+
+@check_figures_equal()
+def test_closed_path_nan_removal(fig_test, fig_ref):
+    ax_test = fig_test.subplots(2, 2).flatten()
+    ax_ref = fig_ref.subplots(2, 2).flatten()
+
+    # NaN on the first point also removes the last point, because it's closed.
+    path = Path(
+        [[-3, np.nan], [3, -3], [3, 3], [-3, 3], [-3, -3]],
+        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    ax_test[0].add_patch(patches.PathPatch(path, facecolor='none'))
+    path = Path(
+        [[-3, np.nan], [3, -3], [3, 3], [-3, 3], [-3, np.nan]],
+        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO])
+    ax_ref[0].add_patch(patches.PathPatch(path, facecolor='none'))
+
+    # NaN on second-last point should not re-close.
+    path = Path(
+        [[-2, -2], [2, -2], [2, 2], [-2, np.nan], [-2, -2]],
+        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    ax_test[0].add_patch(patches.PathPatch(path, facecolor='none'))
+    path = Path(
+        [[-2, -2], [2, -2], [2, 2], [-2, np.nan], [-2, -2]],
+        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO])
+    ax_ref[0].add_patch(patches.PathPatch(path, facecolor='none'))
+
+    # Test multiple loops in a single path (with same paths as above).
+    path = Path(
+        [[-3, np.nan], [3, -3], [3, 3], [-3, 3], [-3, -3],
+         [-2, -2], [2, -2], [2, 2], [-2, np.nan], [-2, -2]],
+        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY,
+         Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    ax_test[1].add_patch(patches.PathPatch(path, facecolor='none'))
+    path = Path(
+        [[-3, np.nan], [3, -3], [3, 3], [-3, 3], [-3, np.nan],
+         [-2, -2], [2, -2], [2, 2], [-2, np.nan], [-2, -2]],
+        [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO,
+         Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO])
+    ax_ref[1].add_patch(patches.PathPatch(path, facecolor='none'))
+
+    # NaN in first point of CURVE3 should not re-close, and hide entire curve.
+    path = Path(
+        [[-1, -1], [1, -1], [1, np.nan], [0, 1], [-1, 1], [-1, -1]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE3, Path.CURVE3, Path.LINETO,
+         Path.CLOSEPOLY])
+    ax_test[2].add_patch(patches.PathPatch(path, facecolor='none'))
+    path = Path(
+        [[-1, -1], [1, -1], [1, np.nan], [0, 1], [-1, 1], [-1, -1]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE3, Path.CURVE3, Path.LINETO,
+         Path.CLOSEPOLY])
+    ax_ref[2].add_patch(patches.PathPatch(path, facecolor='none'))
+
+    # NaN in second point of CURVE3 should not re-close, and hide entire curve
+    # plus next line segment.
+    path = Path(
+        [[-3, -3], [3, -3], [3, 0], [0, np.nan], [-3, 3], [-3, -3]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE3, Path.CURVE3, Path.LINETO,
+         Path.LINETO])
+    ax_test[2].add_patch(patches.PathPatch(path, facecolor='none'))
+    path = Path(
+        [[-3, -3], [3, -3], [3, 0], [0, np.nan], [-3, 3], [-3, -3]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE3, Path.CURVE3, Path.LINETO,
+         Path.LINETO])
+    ax_ref[2].add_patch(patches.PathPatch(path, facecolor='none'))
+
+    # NaN in first point of CURVE4 should not re-close, and hide entire curve.
+    path = Path(
+        [[-1, -1], [1, -1], [1, np.nan], [0, 0], [0, 1], [-1, 1], [-1, -1]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4,
+         Path.LINETO, Path.CLOSEPOLY])
+    ax_test[3].add_patch(patches.PathPatch(path, facecolor='none'))
+    path = Path(
+        [[-1, -1], [1, -1], [1, np.nan], [0, 0], [0, 1], [-1, 1], [-1, -1]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4,
+         Path.LINETO, Path.CLOSEPOLY])
+    ax_ref[3].add_patch(patches.PathPatch(path, facecolor='none'))
+
+    # NaN in second point of CURVE4 should not re-close, and hide entire curve.
+    path = Path(
+        [[-2, -2], [2, -2], [2, 0], [0, np.nan], [0, 2], [-2, 2], [-2, -2]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4,
+         Path.LINETO, Path.LINETO])
+    ax_test[3].add_patch(patches.PathPatch(path, facecolor='none'))
+    path = Path(
+        [[-2, -2], [2, -2], [2, 0], [0, np.nan], [0, 2], [-2, 2], [-2, -2]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4,
+         Path.LINETO, Path.LINETO])
+    ax_ref[3].add_patch(patches.PathPatch(path, facecolor='none'))
+
+    # NaN in third point of CURVE4 should not re-close, and hide entire curve
+    # plus next line segment.
+    path = Path(
+        [[-3, -3], [3, -3], [3, 0], [0, 0], [0, np.nan], [-3, 3], [-3, -3]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4,
+         Path.LINETO, Path.LINETO])
+    ax_test[3].add_patch(patches.PathPatch(path, facecolor='none'))
+    path = Path(
+        [[-3, -3], [3, -3], [3, 0], [0, 0], [0, np.nan], [-3, 3], [-3, -3]],
+        [Path.MOVETO, Path.LINETO, Path.CURVE4, Path.CURVE4, Path.CURVE4,
+         Path.LINETO, Path.LINETO])
+    ax_ref[3].add_patch(patches.PathPatch(path, facecolor='none'))
+
+    # Keep everything clean.
+    for ax in [*ax_test.flat, *ax_ref.flat]:
+        ax.set(xlim=(-3.5, 3.5), ylim=(-3.5, 3.5))
+    remove_ticks_and_titles(fig_test)
+    remove_ticks_and_titles(fig_ref)
+
+
+@check_figures_equal()
+def test_closed_path_clipping(fig_test, fig_ref):
+    vertices = []
+    for roll in range(8):
+        offset = 0.1 * roll + 0.1
+
+        # A U-like pattern.
+        pattern = [
+            [-0.5, 1.5], [-0.5, -0.5], [1.5, -0.5], [1.5, 1.5],  # Outer square
+            # With a notch in the top.
+            [1 - offset / 2, 1.5], [1 - offset / 2, offset],
+            [offset / 2, offset], [offset / 2, 1.5],
+        ]
+
+        # Place the initial/final point anywhere in/out of the clipping area.
+        pattern = np.roll(pattern, roll, axis=0)
+        pattern = np.concatenate((pattern, pattern[:1, :]))
+
+        vertices.append(pattern)
+
+    # Multiple subpaths are used here to ensure they aren't broken by closed
+    # loop clipping.
+    codes = np.full(len(vertices[0]), Path.LINETO)
+    codes[0] = Path.MOVETO
+    codes[-1] = Path.CLOSEPOLY
+    codes = np.tile(codes, len(vertices))
+    vertices = np.concatenate(vertices)
+
+    fig_test.set_size_inches((5, 5))
+    path = Path(vertices, codes)
+    fig_test.add_artist(patches.PathPatch(path, facecolor='none'))
+
+    # For reference, we draw the same thing, but unclosed by using a line to
+    # the last point only.
+    fig_ref.set_size_inches((5, 5))
+    codes = codes.copy()
+    codes[codes == Path.CLOSEPOLY] = Path.LINETO
+    path = Path(vertices, codes)
+    fig_ref.add_artist(patches.PathPatch(path, facecolor='none'))
 
 
 @image_comparison(['hatch_simplify'], remove_text=True)
@@ -282,8 +455,8 @@ AAj1//+nPwAA/////w=="""
 
 def test_throw_rendering_complexity_exceeded():
     plt.rcParams['path.simplify'] = False
-    xx = np.arange(200000)
-    yy = np.random.rand(200000)
+    xx = np.arange(2_000_000)
+    yy = np.random.rand(2_000_000)
     yy[1000] = np.nan
 
     fig, ax = plt.subplots()

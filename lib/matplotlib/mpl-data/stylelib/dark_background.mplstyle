@@ -21,3 +21,9 @@ figure.edgecolor: black
 savefig.facecolor: black
 savefig.edgecolor: black
 
+### Boxplots
+boxplot.boxprops.color: white
+boxplot.capprops.color: white
+boxplot.flierprops.color: white
+boxplot.flierprops.markeredgecolor: white
+boxplot.whiskerprops.color: white

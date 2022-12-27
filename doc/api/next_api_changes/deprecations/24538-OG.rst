@@ -1,0 +1,4 @@
+``legend.legendHandles``
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+... was undocumented and has been renamed to ``legend_handles``. Using ``legendHandles`` is deprecated.

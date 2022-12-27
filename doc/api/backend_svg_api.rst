@@ -1,6 +1,6 @@
-
-:mod:`matplotlib.backends.backend_svg`
-======================================
+***********************************
+``matplotlib.backends.backend_svg``
+***********************************
 
 .. automodule:: matplotlib.backends.backend_svg
    :members:

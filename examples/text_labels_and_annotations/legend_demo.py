@@ -63,8 +63,8 @@ plt.show()
 ###############################################################################
 # Here we attach legends to more complex plots.
 
-fig, axes = plt.subplots(3, 1, constrained_layout=True)
-top_ax, middle_ax, bottom_ax = axes
+fig, axs = plt.subplots(3, 1, constrained_layout=True)
+top_ax, middle_ax, bottom_ax = axs
 
 top_ax.bar([0, 1, 2], [0.2, 0.3, 0.1], width=0.4, label="Bar 1",
            align="center")
@@ -116,7 +116,7 @@ l = ax2.legend([(rpos, rneg), (rneg, rpos)], ['pad!=0', 'pad=0'],
 plt.show()
 
 ###############################################################################
-# Finally, it is also possible to write custom objects that define
+# Finally, it is also possible to write custom classes that define
 # how to stylize legends.
 
 
@@ -153,7 +153,7 @@ class HandlerDashedLines(HandlerLineCollection):
                 lw = orig_handle.get_linewidths()[i]
             except IndexError:
                 lw = orig_handle.get_linewidths()[0]
-            if dashes[0] is not None:
+            if dashes[1] is not None:
                 legline.set_dashes(dashes[1])
             legline.set_color(color)
             legline.set_transform(trans)
@@ -166,7 +166,6 @@ x = np.linspace(0, 5, 100)
 fig, ax = plt.subplots()
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color'][:5]
 styles = ['solid', 'dashed', 'dashed', 'dashed', 'solid']
-lines = []
 for i, color, style in zip(range(5), colors, styles):
     ax.plot(x, np.sin(x) - .1 * i, c=color, ls=style)
 

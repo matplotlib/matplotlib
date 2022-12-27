@@ -1,0 +1,135 @@
+---
+name: Build CI wheels
+
+on:
+  # Save CI by only running this on release branches or tags.
+  push:
+    branches:
+      - main
+      - v[0-9]+.[0-9]+.x
+    tags:
+      - v*
+  # Also allow running this action on PRs if requested by applying the
+  # "Run cibuildwheel" label.
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+
+permissions:
+  contents: read
+
+jobs:
+  build_wheels:
+    if: |
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' && (
+        (
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'Run cibuildwheel'
+        ) ||
+        contains(github.event.pull_request.labels.*.name, 'Run cibuildwheel')
+      )
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    env:
+      CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+      MACOSX_DEPLOYMENT_TARGET: "10.12"
+      CIBW_BEFORE_BUILD_WINDOWS: >-
+        pip install certifi delvewheel oldest-supported-numpy &&
+        git clean -fxd build
+      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
+        delvewheel repair -w {dest_dir} {wheel}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-latest, macos-11]
+        cibw_archs: ["auto"]
+        include:
+          - os: ubuntu-20.04
+            cibw_archs: "aarch64"
+
+    steps:
+      - name: Set up QEMU
+        if: matrix.cibw_archs == 'aarch64'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Build wheels for CPython 3.11
+        uses: pypa/cibuildwheel@v2.11.3
+        env:
+          CIBW_BUILD: "cp311-*"
+          CIBW_SKIP: "*-musllinux*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          CIBW_BEFORE_BUILD: >-
+            pip install certifi oldest-supported-numpy &&
+            git clean -fxd build
+          MPL_DISABLE_FH4: "yes"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
+      - name: Build wheels for CPython 3.10
+        uses: pypa/cibuildwheel@v2.11.3
+        env:
+          CIBW_BUILD: "cp310-*"
+          CIBW_SKIP: "*-musllinux*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          CIBW_BEFORE_BUILD: >-
+            pip install certifi oldest-supported-numpy &&
+            git clean -fxd build
+          MPL_DISABLE_FH4: "yes"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
+      - name: Build wheels for CPython 3.9
+        uses: pypa/cibuildwheel@v2.11.3
+        env:
+          CIBW_BUILD: "cp39-*"
+          CIBW_SKIP: "*-musllinux*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          CIBW_BEFORE_BUILD: >-
+            pip install certifi oldest-supported-numpy &&
+            git clean -fxd build
+          MPL_DISABLE_FH4: "yes"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
+      - name: Build wheels for CPython 3.8
+        uses: pypa/cibuildwheel@v2.11.3
+        env:
+          CIBW_BUILD: "cp38-*"
+          CIBW_SKIP: "*-musllinux*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2010
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2010
+          CIBW_BEFORE_BUILD: >-
+            pip install certifi numpy==1.19.2 &&
+            git clean -fxd build
+          MPL_DISABLE_FH4: "yes"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+
+      - name: Build wheels for PyPy
+        uses: pypa/cibuildwheel@v2.11.3
+        env:
+          CIBW_BUILD: "pp38-* pp39-*"
+          CIBW_SKIP: "*-musllinux*"
+          CIBW_BEFORE_BUILD: >-
+            pip install certifi oldest-supported-numpy &&
+            git clean -fxd build
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+        if: matrix.cibw_archs != 'aarch64'
+
+      - name: Validate that LICENSE files are included in wheels
+        run: |
+          python3 ./ci/check_wheel_licenses.py
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: ./wheelhouse/*.whl
+          if-no-files-found: error

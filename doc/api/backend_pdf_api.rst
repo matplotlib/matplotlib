@@ -1,6 +1,6 @@
-
-:mod:`matplotlib.backends.backend_pdf`
-======================================
+***********************************
+``matplotlib.backends.backend_pdf``
+***********************************
 
 .. automodule:: matplotlib.backends.backend_pdf
    :members:

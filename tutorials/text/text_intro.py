@@ -8,7 +8,7 @@ Introduction to plotting and working with text in Matplotlib.
 Matplotlib has extensive text support, including support for
 mathematical expressions, truetype support for raster and
 vector outputs, newline separated text with arbitrary
-rotations, and unicode support.
+rotations, and Unicode support.
 
 Because it embeds fonts directly in output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
@@ -31,11 +31,11 @@ math symbols and commands, supporting :doc:`mathematical expressions
 Basic text commands
 ===================
 
-The following commands are used to create text in the pyplot
-interface and the object-oriented API:
+The following commands are used to create text in the implicit and explicit
+interfaces (see :ref:`api_interfaces` for an explanation of the tradeoffs):
 
 =================== =================== ======================================
-`.pyplot` API       OO API              description
+implicit API        explicit API        description
 =================== =================== ======================================
 `~.pyplot.text`     `~.Axes.text`       Add text at an arbitrary location of
                                         the `~matplotlib.axes.Axes`.
@@ -63,13 +63,14 @@ All of these functions create and return a `.Text` instance, which can be
 configured with a variety of font and other properties.  The example below
 shows all of these commands in action, and more detail is provided in the
 sections that follow.
+
 """
 
 import matplotlib
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 fig.subplots_adjust(top=0.85)
 
 # Set titles for the figure and the subplot respectively
@@ -87,7 +88,7 @@ ax.text(3, 8, 'boxed italics text in data coords', style='italic',
 
 ax.text(2, 6, r'an equation: $E=mc^2$', fontsize=15)
 
-ax.text(3, 2, 'unicode: Institut für Festkörperphysik')
+ax.text(3, 2, 'Unicode: Institut für Festkörperphysik')
 
 ax.text(0.95, 0.01, 'colored text in axes coords',
         verticalalignment='bottom', horizontalalignment='right',
@@ -117,7 +118,7 @@ y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1)
-ax.set_xlabel('time [s]')
+ax.set_xlabel('Time [s]')
 ax.set_ylabel('Damped oscillation [V]')
 
 plt.show()
@@ -130,7 +131,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1*10000)
-ax.set_xlabel('time [s]')
+ax.set_xlabel('Time [s]')
 ax.set_ylabel('Damped oscillation [V]')
 
 plt.show()
@@ -143,7 +144,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1*10000)
-ax.set_xlabel('time [s]')
+ax.set_xlabel('Time [s]')
 ax.set_ylabel('Damped oscillation [V]', labelpad=18)
 
 plt.show()
@@ -153,20 +154,20 @@ plt.show()
 # *position*, via which we can manually specify the label positions.  Here we
 # put the xlabel to the far left of the axis.  Note, that the y-coordinate of
 # this position has no effect - to adjust the y-position we need to use the
-# *labelpad* kwarg.
+# *labelpad* keyword argument.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1)
-ax.set_xlabel('time [s]', position=(0., 1e6), horizontalalignment='left')
+ax.set_xlabel('Time [s]', position=(0., 1e6), horizontalalignment='left')
 ax.set_ylabel('Damped oscillation [V]')
 
 plt.show()
 
 ##############################################################################
 # All the labelling in this tutorial can be changed by manipulating the
-# `matplotlib.font_manager.FontProperties` method, or by named kwargs to
-# `~matplotlib.axes.Axes.set_xlabel`
+# `matplotlib.font_manager.FontProperties` method, or by named keyword
+# arguments to `~matplotlib.axes.Axes.set_xlabel`
 
 from matplotlib.font_manager import FontProperties
 
@@ -178,7 +179,7 @@ font.set_style('italic')
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
 ax.plot(x1, y1)
-ax.set_xlabel('time [s]', fontsize='large', fontweight='bold')
+ax.set_xlabel('Time [s]', fontsize='large', fontweight='bold')
 ax.set_ylabel('Damped oscillation [V]', fontproperties=font)
 
 plt.show()
@@ -190,7 +191,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.2, left=0.2)
 ax.plot(x1, np.cumsum(y1**2))
-ax.set_xlabel('time [s] \n This was a long experiment')
+ax.set_xlabel('Time [s] \n This was a long experiment')
 ax.set_ylabel(r'$\int\ Y^2\ dt\ \ [V^2 s]$')
 plt.show()
 
@@ -211,8 +212,8 @@ for ax, loc in zip(axs, locs):
 plt.show()
 
 ##############################################################################
-# Vertical spacing for titles is controlled via :rc:`axes.titlepad`, which
-# defaults to 5 points.  Setting to a different value moves the title.
+# Vertical spacing for titles is controlled via :rc:`axes.titlepad`.
+# Setting to a different value moves the title.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(top=0.8)
@@ -249,7 +250,7 @@ plt.show()
 # Simple ticks
 # ~~~~~~~~~~~~
 #
-# It often is convenient to simply define the
+# It is often convenient to simply define the
 # tick values, and sometimes the tick labels, overriding the default
 # locators and formatters.  This is discouraged because it breaks interactive
 # navigation of the plot.  It also can reset the axis limits: note that
@@ -272,7 +273,7 @@ axs[0].plot(x1, y1)
 axs[1].plot(x1, y1)
 ticks = np.arange(0., 8.1, 2.)
 # list comprehension to get all tick labels...
-tickla = ['%1.2f' % tick for tick in ticks]
+tickla = [f'{tick:1.2f}' for tick in ticks]
 axs[1].xaxis.set_ticks(ticks)
 axs[1].xaxis.set_ticklabels(tickla)
 axs[1].set_xlim(axs[0].get_xlim())
@@ -282,19 +283,19 @@ plt.show()
 # Tick Locators and Formatters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Instead of making a list of all the tickalbels, we could have
+# Instead of making a list of all the ticklabels, we could have
 # used `matplotlib.ticker.StrMethodFormatter` (new-style ``str.format()``
 # format string) or `matplotlib.ticker.FormatStrFormatter` (old-style '%'
-# format string) and passed it to the ``ax.xaxis``.
+# format string) and passed it to the ``ax.xaxis``.  A
+# `matplotlib.ticker.StrMethodFormatter` can also be created by passing a
+# ``str`` without having to explicitly create the formatter.
 
 fig, axs = plt.subplots(2, 1, figsize=(5, 3), tight_layout=True)
 axs[0].plot(x1, y1)
 axs[1].plot(x1, y1)
 ticks = np.arange(0., 8.1, 2.)
-# list comprehension to get all tick labels...
-formatter = matplotlib.ticker.StrMethodFormatter('{x:1.1f}')
 axs[1].xaxis.set_ticks(ticks)
-axs[1].xaxis.set_major_formatter(formatter)
+axs[1].xaxis.set_major_formatter('{x:1.1f}')
 axs[1].set_xlim(axs[0].get_xlim())
 plt.show()
 
@@ -306,10 +307,9 @@ plt.show()
 fig, axs = plt.subplots(2, 1, figsize=(5, 3), tight_layout=True)
 axs[0].plot(x1, y1)
 axs[1].plot(x1, y1)
-formatter = matplotlib.ticker.FormatStrFormatter('%1.1f')
 locator = matplotlib.ticker.FixedLocator(ticks)
 axs[1].xaxis.set_major_locator(locator)
-axs[1].xaxis.set_major_formatter(formatter)
+axs[1].xaxis.set_major_formatter('±{x}°')
 plt.show()
 
 #############################################################################
@@ -323,7 +323,7 @@ plt.show()
 # ``nbins=auto`` uses an algorithm to determine how many ticks will
 # be acceptable based on how long the axis is.  The fontsize of the
 # ticklabel is taken into account, but the length of the tick string
-# is not (because its not yet known.)  In the bottom row, the
+# is not (because it's not yet known.)  In the bottom row, the
 # ticklabels are quite large, so we set ``nbins=4`` to make the
 # labels fit in the right-hand plot.
 
@@ -350,26 +350,27 @@ plt.show()
 
 ##############################################################################
 #  Finally, we can specify functions for the formatter using
-# `matplotlib.ticker.FuncFormatter`.
+# `matplotlib.ticker.FuncFormatter`.  Further, like
+# `matplotlib.ticker.StrMethodFormatter`, passing a function will
+# automatically create a `matplotlib.ticker.FuncFormatter`.
 
 
 def formatoddticks(x, pos):
-    """Format odd tick positions
-    """
+    """Format odd tick positions."""
     if x % 2:
-        return '%1.2f' % x
+        return f'{x:1.2f}'
     else:
         return ''
 
 
 fig, ax = plt.subplots(figsize=(5, 3), tight_layout=True)
 ax.plot(x1, y1)
-formatter = matplotlib.ticker.FuncFormatter(formatoddticks)
 locator = matplotlib.ticker.MaxNLocator(nbins=6)
-ax.xaxis.set_major_formatter(formatter)
+ax.xaxis.set_major_formatter(formatoddticks)
 ax.xaxis.set_major_locator(locator)
 
 plt.show()
+
 
 ##############################################################################
 # Dateticks

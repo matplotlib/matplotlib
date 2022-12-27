@@ -1,5 +1,5 @@
-Changes in 1.2.x
-================
+API Changes in 1.2.x
+====================
 
 * The ``classic`` option of the rc parameter ``toolbar`` is deprecated
   and will be removed in the next release.
@@ -41,7 +41,7 @@ Changes in 1.2.x
 
 * Use of ``matplotlib.projections.projection_factory`` is now deprecated
   in favour of axes class identification using
-  :func:`~matplotlib.projections.process_projection_requirements` followed by
+  ``matplotlib.projections.process_projection_requirements`` followed by
   direct axes class invocation (at the time of writing, functions which do this
   are: :meth:`~matplotlib.figure.Figure.add_axes`,
   :meth:`~matplotlib.figure.Figure.add_subplot` and
@@ -66,7 +66,7 @@ Changes in 1.2.x
 
   This change means that third party objects can expose themselves as
   Matplotlib axes by providing a ``_as_mpl_axes`` method. See
-  :ref:`adding-new-scales` for more detail.
+  :mod:`matplotlib.projections` for more detail.
 
 * A new keyword *extendfrac* in :meth:`~matplotlib.pyplot.colorbar` and
   :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the size of

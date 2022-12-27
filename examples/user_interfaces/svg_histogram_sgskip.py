@@ -149,7 +149,7 @@ function toggle_hist(obj) {
 """ % json.dumps(hist_patches)
 
 # Add a transition effect
-css = tree.getchildren()[0][0]
+css = tree.find('.//{http://www.w3.org/2000/svg}style')
 css.text = css.text + "g {-webkit-transition:opacity 0.4s ease-out;" + \
     "-moz-transition:opacity 0.4s ease-out;}"
 

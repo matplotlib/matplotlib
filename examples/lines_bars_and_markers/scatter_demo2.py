@@ -9,11 +9,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 
-# Load a numpy record array from yahoo csv data with fields date, open, close,
-# volume, adj_close from the mpl-data/example directory. The record array
-# stores the date as an np.datetime64 with a day unit ('D') in the date column.
-with cbook.get_sample_data('goog.npz') as datafile:
-    price_data = np.load(datafile)['price_data'].view(np.recarray)
+# Load a numpy record array from yahoo csv data with fields date, open, high,
+# low, close, volume, adj_close from the mpl-data/sample_data directory. The
+# record array stores the date as an np.datetime64 with a day unit ('D') in
+# the date column.
+price_data = (cbook.get_sample_data('goog.npz', np_load=True)['price_data']
+              .view(np.recarray))
 price_data = price_data[-250:]  # get the most recent 250 trading days
 
 delta1 = np.diff(price_data.adj_close) / price_data.adj_close[:-1]

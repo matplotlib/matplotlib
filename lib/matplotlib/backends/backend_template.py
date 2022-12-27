@@ -1,5 +1,5 @@
 """
-This is a fully functional do nothing backend to provide a template to backend
+A fully functional, do-nothing backend intended as a template for backend
 writers.  It is fully functional in that you can select it as a backend e.g.
 with ::
 
@@ -8,11 +8,11 @@ with ::
 
 and your program will (should!) run without error, though no output is
 produced.  This provides a starting point for backend writers; you can
-selectively implement drawing methods (`draw_path`, `draw_image`, etc.) and
-slowly see your figure come to life instead having to have a full blown
-implementation before getting any results.
+selectively implement drawing methods (`~.RendererTemplate.draw_path`,
+`~.RendererTemplate.draw_image`, etc.) and slowly see your figure come to life
+instead having to have a full-blown implementation before getting any results.
 
-Copy this file to a directory outside of the Matplotlib source tree, somewhere
+Copy this file to a directory outside the Matplotlib source tree, somewhere
 where Python can import it (by adding the directory to your ``sys.path`` or by
 packaging it as a normal Python package); if the backend is importable as
 ``import my.backend`` you can then select it using ::
@@ -29,6 +29,7 @@ method), you can register it as the default handler for a given file type::
     plt.savefig("figure.xyz")
 """
 
+from matplotlib import _api
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
      FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
@@ -40,7 +41,7 @@ class RendererTemplate(RendererBase):
     The renderer handles drawing/rendering operations.
 
     This is a minimal do-nothing class that can be used to get started when
-    writing a new backend.  Refer to `backend_bases.RendererBase` for
+    writing a new backend.  Refer to `.backend_bases.RendererBase` for
     documentation of the methods.
     """
 
@@ -62,7 +63,7 @@ class RendererTemplate(RendererBase):
     # relative timings by leaving it out. backend implementers concerned with
     # performance will probably want to implement it
 #     def draw_path_collection(self, gc, master_transform, paths,
-#                              all_transforms, offsets, offsetTrans,
+#                              all_transforms, offsets, offset_trans,
 #                              facecolors, edgecolors, linewidths, linestyles,
 #                              antialiaseds):
 #         pass
@@ -100,14 +101,14 @@ class RendererTemplate(RendererBase):
         # if backend doesn't have dpi, e.g., postscript or svg
         return points
         # elif backend assumes a value for pixels_per_inch
-        #return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
+        # return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
         # else
-        #return points/72.0 * self.dpi.get()
+        # return points/72.0 * self.dpi.get()
 
 
 class GraphicsContextTemplate(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...  See the cairo
+    The graphics context provides the color, line styles, etc.  See the cairo
     and postscript backends for examples of mapping the graphics context
     attributes (cap styles, join styles, line widths, colors) to a particular
     backend.  In cairo this is done by wrapping a cairo.Context object and
@@ -121,7 +122,7 @@ class GraphicsContextTemplate(GraphicsContextBase):
     do the mapping here, you'll need to override several of the setter
     methods.
 
-    The base GraphicsContext stores colors as a RGB tuple on the unit
+    The base GraphicsContext stores colors as an RGB tuple on the unit
     interval, e.g., (0.5, 0.0, 1.0). You may need to map this to colors
     appropriate for your backend.
     """
@@ -130,47 +131,19 @@ class GraphicsContextTemplate(GraphicsContextBase):
 ########################################################################
 #
 # The following functions and classes are for pyplot and implement
-# window/figure managers, etc...
+# window/figure managers, etc.
 #
 ########################################################################
 
 
-def draw_if_interactive():
+class FigureManagerTemplate(FigureManagerBase):
     """
-    For image backends - is not required.
-    For GUI backends - this should be overridden if drawing should be done in
-    interactive python mode.
+    Helper class for pyplot mode, wraps everything up into a neat bundle.
+
+    For non-interactive backends, the base class is sufficient.  For
+    interactive backends, see the documentation of the `.FigureManagerBase`
+    class for the list of methods that can/should be overridden.
     """
-
-
-def show(*, block=None):
-    """
-    For image backends - is not required.
-    For GUI backends - show() is usually the last line of a pyplot script and
-    tells the backend that it is time to draw.  In interactive mode, this
-    should do nothing.
-    """
-    for manager in Gcf.get_all_fig_managers():
-        # do something to display the GUI
-        pass
-
-
-def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
-    """Create a new figure manager instance."""
-    # If a main-level app must be created, this (and
-    # new_figure_manager_given_figure) is the usual place to do it -- see
-    # backend_wx, backend_wxagg and backend_tkagg for examples.  Not all GUIs
-    # require explicit instantiation of a main-level app (e.g., backend_gtk3)
-    # for pylab.
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """Create a new figure manager instance for the given figure."""
-    canvas = FigureCanvasTemplate(figure)
-    manager = FigureManagerTemplate(canvas, num)
-    return manager
 
 
 class FigureCanvasTemplate(FigureCanvasBase):
@@ -190,8 +163,20 @@ class FigureCanvasTemplate(FigureCanvasBase):
         A high-level Figure instance
     """
 
+    # The instantiated manager class.  For further customization,
+    # ``FigureManager.create_with_canvas`` can also be overridden; see the
+    # wx-based backends for an example.
+    manager_class = FigureManagerTemplate
+
     def draw(self):
-        """Draw the figure using the renderer."""
+        """
+        Draw the figure using the renderer.
+
+        It is important that this method actually walk the artist tree
+        even if not output is produced because this will trigger
+        deferred work (like computing limits auto-limits and tick
+        values) that users may want access to before saving to disk.
+        """
         renderer = RendererTemplate(self.figure.dpi)
         self.figure.draw(renderer)
 
@@ -200,26 +185,22 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     # If the file type is not in the base set of filetypes,
     # you should add it to the class-scope filetypes dictionary as follows:
-    filetypes = FigureCanvasBase.filetypes.copy()
-    filetypes['foo'] = 'My magic Foo format'
+    filetypes = {**FigureCanvasBase.filetypes, 'foo': 'My magic Foo format'}
 
-    def print_foo(self, filename, *args, **kwargs):
+    def print_foo(self, filename, **kwargs):
         """
-        Write out format foo.  The dpi, facecolor and edgecolor are restored
-        to their original values after this call, so you don't need to
-        save and restore them.
+        Write out format foo.
+
+        This method is normally called via `.Figure.savefig` and
+        `.FigureCanvasBase.print_figure`, which take care of setting the figure
+        facecolor, edgecolor, and dpi to the desired output values, and will
+        restore them to the original values.  Therefore, `print_foo` does not
+        need to handle these settings.
         """
+        self.draw()
 
     def get_default_filetype(self):
         return 'foo'
-
-
-class FigureManagerTemplate(FigureManagerBase):
-    """
-    Helper class for pyplot mode, wraps everything up into a neat bundle.
-
-    For non-interactive backends, the base class is sufficient.
-    """
 
 
 ########################################################################

@@ -14,6 +14,8 @@ investigate a font by running ::
     python font_table.py /path/to/font/file
 """
 
+import os
+from pathlib import Path
 import unicodedata
 
 import matplotlib.font_manager as fm
@@ -84,7 +86,7 @@ def draw_font_table(path):
         chars[row][col] = chr(char_code)
 
     fig, ax = plt.subplots(figsize=(8, 4))
-    ax.set_title(path)
+    ax.set_title(os.path.basename(path))
     ax.set_axis_off()
 
     table = ax.table(
@@ -100,7 +102,7 @@ def draw_font_table(path):
     for key, cell in table.get_celld().items():
         row, col = key
         if row > 0 and col > -1:  # Beware of table's idiosyncratic indexing...
-            cell.set_text_props(fontproperties=fm.FontProperties(fname=path))
+            cell.set_text_props(font=Path(path))
 
     fig.tight_layout()
     plt.show()

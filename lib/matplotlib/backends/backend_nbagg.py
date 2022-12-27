@@ -1,4 +1,4 @@
-"""Interactive figures in the IPython notebook"""
+"""Interactive figures in the IPython notebook."""
 # Note: There is a notebook in
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.
@@ -9,21 +9,16 @@ import json
 import pathlib
 import uuid
 
+from ipykernel.comm import Comm
 from IPython.display import display, Javascript, HTML
-try:
-    # Jupyter/IPython 4.x or later
-    from ipykernel.comm import Comm
-except ImportError:
-    # Jupyter/IPython 3.x or earlier
-    from IPython.kernel.comm import Comm
 
-from matplotlib import cbook, is_interactive
+from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, NavigationToolbar2)
-from matplotlib.backends.backend_webagg_core import (
-    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
-    TimerTornado)
+from matplotlib.backend_bases import _Backend, NavigationToolbar2
+from .backend_webagg_core import (
+    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg)
+from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
+    TimerTornado, TimerAsyncio)
 
 
 def connection_info():
@@ -40,22 +35,17 @@ def connection_info():
         for manager in Gcf.get_all_fig_managers()
     ]
     if not is_interactive():
-        result.append('Figures pending show: {}'.format(len(Gcf._activeQue)))
+        result.append(f'Figures pending show: {len(Gcf.figs)}')
     return '\n'.join(result)
 
 
-# Note: Version 3.2 and 4.x icons
-# http://fontawesome.io/3.2.1/icons/
-# http://fontawesome.io/
-# the `fa fa-xxx` part targets font-awesome 4, (IPython 3.x)
-# the icon-xxx targets font awesome 3.21 (IPython 2.x)
-_FONT_AWESOME_CLASSES = {
-    'home': 'fa fa-home icon-home',
-    'back': 'fa fa-arrow-left icon-arrow-left',
-    'forward': 'fa fa-arrow-right icon-arrow-right',
-    'zoom_to_rect': 'fa fa-square-o icon-check-empty',
-    'move': 'fa fa-arrows icon-move',
-    'download': 'fa fa-floppy-o icon-save',
+_FONT_AWESOME_CLASSES = {  # font-awesome 4 names
+    'home': 'fa fa-home',
+    'back': 'fa fa-arrow-left',
+    'forward': 'fa fa-arrow-right',
+    'zoom_to_rect': 'fa fa-square-o',
+    'move': 'fa fa-arrows',
+    'download': 'fa fa-floppy-o',
     None: None
 }
 
@@ -72,11 +62,26 @@ class NavigationIPy(NavigationToolbar2WebAgg):
 
 
 class FigureManagerNbAgg(FigureManagerWebAgg):
-    ToolbarCls = NavigationIPy
+    _toolbar2_class = ToolbarCls = NavigationIPy
 
     def __init__(self, canvas, num):
         self._shown = False
-        FigureManagerWebAgg.__init__(self, canvas, num)
+        super().__init__(canvas, num)
+
+    @classmethod
+    def create_with_canvas(cls, canvas_class, figure, num):
+        canvas = canvas_class(figure)
+        manager = cls(canvas, num)
+        if is_interactive():
+            manager.show()
+            canvas.draw_idle()
+
+        def destroy(event):
+            canvas.mpl_disconnect(cid)
+            Gcf.destroy(manager)
+
+        cid = canvas.mpl_connect('close_event', destroy)
+        return manager
 
     def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
@@ -91,6 +96,15 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         else:
             self.canvas.draw_idle()
         self._shown = True
+        # plt.figure adds an event which makes the figure in focus the active
+        # one. Disable this behaviour, as it results in figures being put as
+        # the active figure after they have been shown, even in non-interactive
+        # mode.
+        if hasattr(self, '_cidgcf'):
+            self.canvas.mpl_disconnect(self._cidgcf)
+        if not is_interactive():
+            from matplotlib._pylab_helpers import Gcf
+            Gcf.figs.pop(self.num, None)
 
     def reshow(self):
         """
@@ -143,9 +157,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerTornado(*args, **kwargs)
+    manager_class = FigureManagerNbAgg
 
 
 class CommSocket:
@@ -167,9 +179,10 @@ class CommSocket:
         display(HTML("<div id=%r></div>" % self.uuid))
         try:
             self.comm = Comm('matplotlib', data={'id': self.uuid})
-        except AttributeError:
+        except AttributeError as err:
             raise RuntimeError('Unable to create an IPython notebook Comm '
-                               'instance. Are you in the IPython notebook?')
+                               'instance. Are you in the IPython '
+                               'notebook?') from err
         self.comm.on_msg(self.on_message)
 
         manager = self.manager
@@ -199,11 +212,14 @@ class CommSocket:
         self.comm.send({'data': json.dumps(content)})
 
     def send_binary(self, blob):
-        # The comm is ascii, so we always send the image in base64
-        # encoded data URL form.
-        data = b64encode(blob).decode('ascii')
-        data_uri = "data:image/png;base64,{0}".format(data)
-        self.comm.send({'data': data_uri})
+        if self.supports_binary:
+            self.comm.send({'blob': 'image/png'}, buffers=[blob])
+        else:
+            # The comm is ASCII, so we send the image in base64 encoded data
+            # URL form.
+            data = b64encode(blob).decode('ascii')
+            data_uri = "data:image/png;base64,{0}".format(data)
+            self.comm.send({'data': data_uri})
 
     def on_message(self, message):
         # The 'supports_binary' message is relevant to the
@@ -225,47 +241,3 @@ class CommSocket:
 class _BackendNbAgg(_Backend):
     FigureCanvas = FigureCanvasNbAgg
     FigureManager = FigureManagerNbAgg
-
-    @staticmethod
-    def new_figure_manager_given_figure(num, figure):
-        canvas = FigureCanvasNbAgg(figure)
-        manager = FigureManagerNbAgg(canvas, num)
-        if is_interactive():
-            manager.show()
-            figure.canvas.draw_idle()
-        canvas.mpl_connect('close_event', lambda event: Gcf.destroy(num))
-        return manager
-
-    @staticmethod
-    def trigger_manager_draw(manager):
-        manager.show()
-
-    @staticmethod
-    def show(*args, block=None, **kwargs):
-        if args or kwargs:
-            cbook.warn_deprecated(
-                "3.1", message="Passing arguments to show(), other than "
-                "passing 'block' by keyword, is deprecated %(since)s, and "
-                "support for it will be removed %(removal)s.")
-
-        ## TODO: something to do when keyword block==False ?
-        from matplotlib._pylab_helpers import Gcf
-
-        managers = Gcf.get_all_fig_managers()
-        if not managers:
-            return
-
-        interactive = is_interactive()
-
-        for manager in managers:
-            manager.show()
-
-            # plt.figure adds an event which puts the figure in focus
-            # in the activeQue. Disable this behaviour, as it results in
-            # figures being put as the active figure after they have been
-            # shown, even in non-interactive mode.
-            if hasattr(manager, '_cidgcf'):
-                manager.canvas.mpl_disconnect(manager._cidgcf)
-
-            if not interactive and manager in Gcf._activeQue:
-                Gcf._activeQue.remove(manager)

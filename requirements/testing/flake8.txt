@@ -1,0 +1,9 @@
+# Extra pip requirements for the GitHub Actions flake8 build
+
+flake8>=3.8
+# versions less than 5.1.0 raise on some interp'd docstrings
+pydocstyle>=5.1.0
+# 1.4.0 adds docstring-convention=all
+flake8-docstrings>=1.4.0
+# fix bug where flake8 aborts checking on syntax error
+flake8-force

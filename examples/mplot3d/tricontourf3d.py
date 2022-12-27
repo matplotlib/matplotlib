@@ -36,8 +36,7 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
                          y[triang.triangles].mean(axis=1))
                 < min_radius)
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 ax.tricontourf(triang, z, cmap=plt.cm.CMRmap)
 
 # Customize the view angle so it's easier to understand the plot.

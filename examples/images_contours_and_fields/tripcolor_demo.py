@@ -113,7 +113,7 @@ zfaces = np.exp(-0.01 * ((xmid - x0) * (xmid - x0) +
 # object if the same triangulation was to be used more than once to save
 # duplicated calculations.
 # Can specify one color value per face rather than one per point by using the
-# facecolors kwarg.
+# *facecolors* keyword argument.
 
 fig3, ax3 = plt.subplots()
 ax3.set_aspect('equal')
@@ -127,16 +127,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.tripcolor
-matplotlib.pyplot.tripcolor
-matplotlib.tri
-matplotlib.tri.Triangulation
+#    - `matplotlib.axes.Axes.tripcolor` / `matplotlib.pyplot.tripcolor`
+#    - `matplotlib.tri`
+#    - `matplotlib.tri.Triangulation`

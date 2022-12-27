@@ -1,0 +1,8 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "certifi>=2020.06.20",
+    "oldest-supported-numpy",
+    "pybind11>=2.6",
+    "setuptools_scm>=7",
+]

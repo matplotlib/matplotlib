@@ -1,7 +1,7 @@
 """
-=====================================================
-:mod:`mpl_toolkits.axisartist.floating_axes` features
-=====================================================
+==========================
+``floating_axes`` features
+==========================
 
 Demonstration of features of the :mod:`.floating_axes` module:
 
@@ -9,8 +9,8 @@ Demonstration of features of the :mod:`.floating_axes` module:
   the plot.
 * Using `~.floating_axes.GridHelperCurveLinear` to rotate the plot and set the
   plot boundary.
-* Using `~.floating_axes.FloatingSubplot` to create a subplot using the return
-  value from `~.floating_axes.GridHelperCurveLinear`.
+* Using `~.Figure.add_subplot` to create a subplot using the return value from
+  `~.floating_axes.GridHelperCurveLinear`.
 * Making a sector plot by adding more features to
   `~.floating_axes.GridHelperCurveLinear`.
 """
@@ -39,8 +39,9 @@ def setup_axes1(fig, rect):
         grid_locator1=MaxNLocator(nbins=4),
         grid_locator2=MaxNLocator(nbins=4))
 
-    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
-    fig.add_subplot(ax1)
+    ax1 = fig.add_subplot(
+        rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
+    ax1.grid()
 
     aux_ax = ax1.get_aux_axes(tr)
 
@@ -70,8 +71,9 @@ def setup_axes2(fig, rect):
         tick_formatter1=tick_formatter1,
         tick_formatter2=None)
 
-    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
-    fig.add_subplot(ax1)
+    ax1 = fig.add_subplot(
+        rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
+    ax1.grid()
 
     # create a parasite axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
@@ -114,8 +116,8 @@ def setup_axes3(fig, rect):
         tick_formatter1=tick_formatter1,
         tick_formatter2=None)
 
-    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
-    fig.add_subplot(ax1)
+    ax1 = fig.add_subplot(
+        rect, axes_class=floating_axes.FloatingAxes, grid_helper=grid_helper)
 
     # adjust axis
     ax1.axis["left"].set_axis_direction("bottom")
@@ -129,6 +131,7 @@ def setup_axes3(fig, rect):
 
     ax1.axis["left"].label.set_text(r"cz [km$^{-1}$]")
     ax1.axis["top"].label.set_text(r"$\alpha_{1950}$")
+    ax1.grid()
 
     # create a parasite axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)

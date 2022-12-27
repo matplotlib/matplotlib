@@ -1,6 +1,6 @@
 
-Changes in 1.5.0
-================
+API Changes in 1.5.0
+====================
 
 Code Changes
 ------------
@@ -41,7 +41,7 @@ fully delegate to `.Quiver`).  Previously any input matching 'mid.*' would be
 interpreted as 'middle', 'tip.*' as 'tip' and any string not matching one of
 those patterns as 'tail'.
 
-The value of `.Quiver.pivot` is normalized to be in the set {'tip', 'tail',
+The value of ``Quiver.pivot`` is normalized to be in the set {'tip', 'tail',
 'middle'} in `.Quiver`.
 
 Reordered ``Axes.get_children``
@@ -60,7 +60,7 @@ by the new keyword argument *corner_mask*, or if this is not specified then
 the new :rc:`contour.corner_mask` instead.  The new default behaviour is
 equivalent to using ``corner_mask=True``; the previous behaviour can be obtained
 using ``corner_mask=False`` or by changing the rcParam.  The example
-http://matplotlib.org/examples/pylab_examples/contour_corner_mask.html
+https://matplotlib.org/examples/pylab_examples/contour_corner_mask.html
 demonstrates the difference.  Use of the old contouring algorithm, which is
 obtained with ``corner_mask='legacy'``, is now deprecated.
 
@@ -116,10 +116,10 @@ In either case to update the data in the `.Line2D` object you must update
 both the ``x`` and ``y`` data.
 
 
-Removed *args* and *kwargs* from `.MicrosecondLocator.__call__`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Removed *args* and *kwargs* from ``MicrosecondLocator.__call__``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The call signature of :meth:`~matplotlib.dates.MicrosecondLocator.__call__`
+The call signature of ``matplotlib.dates.MicrosecondLocator.__call__``
 has changed from ``__call__(self, *args, **kwargs)`` to ``__call__(self)``.
 This is consistent with the superclass :class:`~matplotlib.ticker.Locator`
 and also all the other Locators derived from this superclass.
@@ -374,7 +374,7 @@ directly.
 patheffects.svg
 ~~~~~~~~~~~~~~~
 
- - remove ``get_proxy_renderer`` method from ``AbstarctPathEffect`` class
+ - remove ``get_proxy_renderer`` method from ``AbstractPathEffect`` class
  - remove ``patch_alpha`` and ``offset_xy`` from ``SimplePatchShadow``
 
 

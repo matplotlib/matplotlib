@@ -5,6 +5,14 @@ Timers
 
 Simple example of using general timer objects. This is used to update
 the time placed in the title of the figure.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,10 +34,10 @@ timer = fig.canvas.new_timer(interval=100)
 timer.add_callback(update_title, ax)
 timer.start()
 
-# Or could start the timer on first figure draw
-#def start_timer(evt):
-#    timer.start()
-#    fig.canvas.mpl_disconnect(drawid)
-#drawid = fig.canvas.mpl_connect('draw_event', start_timer)
+# Or could start the timer on first figure draw:
+# def start_timer(event):
+#     timer.start()
+#     fig.canvas.mpl_disconnect(drawid)
+# drawid = fig.canvas.mpl_connect('draw_event', start_timer)
 
 plt.show()

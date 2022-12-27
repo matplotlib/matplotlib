@@ -1,8 +1,8 @@
 .. _changes_in_1_3:
 
 
-Changes in 1.3.x
-================
+API Changes in 1.3.x
+====================
 
 Changes in 1.3.1
 ----------------
@@ -33,7 +33,7 @@ Code removal
       functionality on `matplotlib.path.Path.contains_point` and
       friends instead.
 
-    - Instead of ``axes.Axes.get_frame``, use `.axes.Axes.patch`.
+    - Instead of ``axes.Axes.get_frame``, use ``axes.Axes.patch``.
 
     - The following keyword arguments to the `~.axes.Axes.legend` function have
       been renamed:
@@ -102,7 +102,7 @@ Code deprecation
   be used.  In previous Matplotlib versions this attribute was an undocumented
   tuple of ``(colorbar_instance, colorbar_axes)`` but is now just
   ``colorbar_instance``.  To get the colorbar axes it is possible to just use
-  the :attr:`~matplotlib.colorbar.ColorbarBase.ax` attribute on a colorbar
+  the ``matplotlib.colorbar.ColorbarBase.ax`` attribute on a colorbar
   instance.
 
 * The ``matplotlib.mpl`` module is now deprecated.  Those who relied on this
@@ -192,7 +192,7 @@ Code changes
   by ``self.vline`` for vertical cursors lines and ``self.hline`` is added
   for the horizontal cursors lines.
 
-* On POSIX platforms, the :func:`~matplotlib.cbook.report_memory` function
+* On POSIX platforms, the ``matplotlib.cbook.report_memory`` function
   raises :class:`NotImplementedError` instead of :class:`OSError` if the
   :command:`ps` command cannot be run.
 
@@ -213,6 +213,6 @@ Configuration and rcParams
   other rcParams.
 
 * Removed call of :meth:`~matplotlib.axes.Axes.grid` in
-  :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set the
+  ``matplotlib.pyplot.plotfile``. To draw the axes grid, set the
   ``axes.grid`` rcParam to *True*, or explicitly call
   :meth:`~matplotlib.axes.Axes.grid`.

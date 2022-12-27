@@ -7,11 +7,11 @@ Demo of a basic pie chart plus a few additional features.
 
 In addition to the basic pie chart, this demo shows a few optional features:
 
-    * slice labels
-    * auto-labeling the percentage
-    * offsetting a slice with "explode"
-    * drop-shadow
-    * custom start angle
+* slice labels
+* auto-labeling the percentage
+* offsetting a slice with "explode"
+* drop-shadow
+* custom start angle
 
 Note about the custom start angle:
 
@@ -36,14 +36,9 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.pie
-matplotlib.pyplot.pie
+#    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`

@@ -1,15 +1,30 @@
 """
-A module providing some utility functions regarding Bezier path manipulation.
+A module providing some utility functions regarding Bézier path manipulation.
 """
+
+from functools import lru_cache
+import math
+import warnings
 
 import numpy as np
 
-import matplotlib.cbook as cbook
-from matplotlib.path import Path
+from matplotlib import _api
+
+
+# same algorithm as 3.8's math.comb
+@np.vectorize
+@lru_cache(maxsize=128)
+def _comb(n, k):
+    if k > n:
+        return 0
+    k = min(k, n - k)
+    i = np.arange(1, k + 1)
+    return np.prod((n + 1 - i)/i).astype(int)
 
 
 class NonIntersectingPathException(ValueError):
     pass
+
 
 # some functions
 
@@ -32,7 +47,7 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     c, d = sin_t2, -cos_t2
 
     ad_bc = a * d - b * c
-    if np.abs(ad_bc) < 1.0e-12:
+    if abs(ad_bc) < 1e-12:
         raise ValueError("Given lines do not intersect. Please verify that "
                          "the angles are not equal or differ by 180 degrees.")
 
@@ -79,7 +94,7 @@ def _de_casteljau1(beta, t):
 
 def split_de_casteljau(beta, t):
     """
-    Split a Bezier segment defined by its control points *beta* into two
+    Split a Bézier segment defined by its control points *beta* into two
     separate segments divided at *t* and return their control points.
     """
     beta = np.asarray(beta)
@@ -95,11 +110,10 @@ def split_de_casteljau(beta, t):
     return left_beta, right_beta
 
 
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def find_bezier_t_intersecting_with_closedpath(
         bezier_point_at_t, inside_closedpath, t0=0., t1=1., tolerance=0.01):
     """
-    Find the intersection of the Bezier curve with a closed path.
+    Find the intersection of the Bézier curve with a closed path.
 
     The intersection point *t* is approximated by two parameters *t0*, *t1*
     such that *t0* <= *t* <= *t1*.
@@ -112,16 +126,16 @@ def find_bezier_t_intersecting_with_closedpath(
     Parameters
     ----------
     bezier_point_at_t : callable
-        A function returning x, y coordinates of the Bezier at parameter *t*.
+        A function returning x, y coordinates of the Bézier at parameter *t*.
         It must have the signature::
 
-            bezier_point_at_t(t: float) -> Tuple[float, float]
+            bezier_point_at_t(t: float) -> tuple[float, float]
 
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the
         closed path. It must have the signature::
 
-            inside_closedpath(point: Tuple[float, float]) -> bool
+            inside_closedpath(point: tuple[float, float]) -> bool
 
     t0, t1 : float
         Start parameters for the search.
@@ -132,7 +146,7 @@ def find_bezier_t_intersecting_with_closedpath(
     Returns
     -------
     t0, t1 : float
-        The Bezier path parameters.
+        The Bézier path parameters.
     """
     start = bezier_point_at_t(t0)
     end = bezier_point_at_t(t1)
@@ -158,7 +172,6 @@ def find_bezier_t_intersecting_with_closedpath(
         if start_inside ^ middle_inside:
             t1 = middle_t
             end = middle
-            end_inside = middle_inside
         else:
             t0 = middle_t
             start = middle
@@ -167,48 +180,140 @@ def find_bezier_t_intersecting_with_closedpath(
 
 class BezierSegment:
     """
-    A 2-dimensional Bezier segment.
+    A d-dimensional Bézier segment.
 
     Parameters
     ----------
-    control_points : array-like (N, 2)
-        A list of the (x, y) positions of control points of the Bezier line.
-        This must contain N points, where N is the order of the Bezier line.
-        1 <= N <= 3 is supported.
+    control_points : (N, d) array
+        Location of the *N* control points.
     """
-    # Higher order Bezier lines can be supported by simplying adding
-    # corresponding values.
-    _binom_coeff = {1: np.array([1., 1.]),
-                    2: np.array([1., 2., 1.]),
-                    3: np.array([1., 3., 3., 1.])}
 
     def __init__(self, control_points):
-        _o = len(control_points)
-        self._orders = np.arange(_o)
+        self._cpoints = np.asarray(control_points)
+        self._N, self._d = self._cpoints.shape
+        self._orders = np.arange(self._N)
+        coeff = [math.factorial(self._N - 1)
+                 // (math.factorial(i) * math.factorial(self._N - 1 - i))
+                 for i in range(self._N)]
+        self._px = (self._cpoints.T * coeff).T
 
-        _coeff = BezierSegment._binom_coeff[_o - 1]
-        xx, yy = np.asarray(control_points).T
-        self._px = xx * _coeff
-        self._py = yy * _coeff
+    def __call__(self, t):
+        """
+        Evaluate the Bézier curve at point(s) *t* in [0, 1].
+
+        Parameters
+        ----------
+        t : (k,) array-like
+            Points at which to evaluate the curve.
+
+        Returns
+        -------
+        (k, d) array
+            Value of the curve for each point in *t*.
+        """
+        t = np.asarray(t)
+        return (np.power.outer(1 - t, self._orders[::-1])
+                * np.power.outer(t, self._orders)) @ self._px
 
     def point_at_t(self, t):
-        """Return the point (x, y) at parameter *t*."""
-        tt = ((1 - t) ** self._orders)[::-1] * t ** self._orders
-        _x = np.dot(tt, self._px)
-        _y = np.dot(tt, self._py)
-        return _x, _y
+        """
+        Evaluate the curve at a single point, returning a tuple of *d* floats.
+        """
+        return tuple(self(t))
+
+    @property
+    def control_points(self):
+        """The control points of the curve."""
+        return self._cpoints
+
+    @property
+    def dimension(self):
+        """The dimension of the curve."""
+        return self._d
+
+    @property
+    def degree(self):
+        """Degree of the polynomial. One less the number of control points."""
+        return self._N - 1
+
+    @property
+    def polynomial_coefficients(self):
+        r"""
+        The polynomial coefficients of the Bézier curve.
+
+        .. warning:: Follows opposite convention from `numpy.polyval`.
+
+        Returns
+        -------
+        (n+1, d) array
+            Coefficients after expanding in polynomial basis, where :math:`n`
+            is the degree of the Bézier curve and :math:`d` its dimension.
+            These are the numbers (:math:`C_j`) such that the curve can be
+            written :math:`\sum_{j=0}^n C_j t^j`.
+
+        Notes
+        -----
+        The coefficients are calculated as
+
+        .. math::
+
+            {n \choose j} \sum_{i=0}^j (-1)^{i+j} {j \choose i} P_i
+
+        where :math:`P_i` are the control points of the curve.
+        """
+        n = self.degree
+        # matplotlib uses n <= 4. overflow plausible starting around n = 15.
+        if n > 10:
+            warnings.warn("Polynomial coefficients formula unstable for high "
+                          "order Bezier curves!", RuntimeWarning)
+        P = self.control_points
+        j = np.arange(n+1)[:, None]
+        i = np.arange(n+1)[None, :]  # _comb is non-zero for i <= j
+        prefactor = (-1)**(i + j) * _comb(j, i)  # j on axis 0, i on axis 1
+        return _comb(n, j) * prefactor @ P  # j on axis 0, self.dimension on 1
+
+    def axis_aligned_extrema(self):
+        """
+        Return the dimension and location of the curve's interior extrema.
+
+        The extrema are the points along the curve where one of its partial
+        derivatives is zero.
+
+        Returns
+        -------
+        dims : array of int
+            Index :math:`i` of the partial derivative which is zero at each
+            interior extrema.
+        dzeros : array of float
+            Of same size as dims. The :math:`t` such that :math:`d/dx_i B(t) =
+            0`
+        """
+        n = self.degree
+        if n <= 1:
+            return np.array([]), np.array([])
+        Cj = self.polynomial_coefficients
+        dCj = np.arange(1, n+1)[:, None] * Cj[1:]
+        dims = []
+        roots = []
+        for i, pi in enumerate(dCj.T):
+            r = np.roots(pi[::-1])
+            roots.append(r)
+            dims.append(np.full_like(r, i))
+        roots = np.concatenate(roots)
+        dims = np.concatenate(dims)
+        in_range = np.isreal(roots) & (roots >= 0) & (roots <= 1)
+        return dims[in_range], np.real(roots)[in_range]
 
 
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def split_bezier_intersecting_with_closedpath(
         bezier, inside_closedpath, tolerance=0.01):
     """
-    Split a Bezier curve into two at the intersection with a closed path.
+    Split a Bézier curve into two at the intersection with a closed path.
 
     Parameters
     ----------
-    bezier : array-like(N, 2)
-        Control points of the Bezier segment. See `.BezierSegment`.
+    bezier : (N, 2) array-like
+        Control points of the Bézier segment. See `.BezierSegment`.
     inside_closedpath : callable
         A function returning True if a given point (x, y) is inside the
         closed path. See also `.find_bezier_t_intersecting_with_closedpath`.
@@ -219,7 +324,7 @@ def split_bezier_intersecting_with_closedpath(
     Returns
     -------
     left, right
-        Lists of control points for the two Bezier segments.
+        Lists of control points for the two Bézier segments.
     """
 
     bz = BezierSegment(bezier)
@@ -232,51 +337,21 @@ def split_bezier_intersecting_with_closedpath(
     return _left, _right
 
 
-@cbook.deprecated("3.1")
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
-def find_r_to_boundary_of_closedpath(
-        inside_closedpath, xy, cos_t, sin_t, rmin=0., rmax=1., tolerance=0.01):
-    """
-    Find a radius r (centered at *xy*) between *rmin* and *rmax* at
-    which it intersect with the path.
-
-    Parameters
-    ----------
-    inside_closedpath : callable
-        A function returning True if a given point (x, y) is inside the
-        closed path.
-    xy : float, float
-        The center of the radius.
-    cos_t, sin_t : float
-        Cosine and sine for the angle.
-    rmin, rmax : float
-        Starting parameters for the radius search.
-    """
-    cx, cy = xy
-
-    def _f(r):
-        return cos_t * r + cx, sin_t * r + cy
-
-    find_bezier_t_intersecting_with_closedpath(
-        _f, inside_closedpath, t0=rmin, t1=rmax, tolerance=tolerance)
-
 # matplotlib specific
 
 
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     """
     Divide a path into two segments at the point where ``inside(x, y)`` becomes
     False.
     """
+    from .path import Path
     path_iter = path.iter_segments()
 
     ctl_points, command = next(path_iter)
     begin_inside = inside(ctl_points[-2:])  # true if begin point is inside
 
     ctl_points_old = ctl_points
-
-    concat = np.concatenate
 
     iold = 0
     i = 1
@@ -285,7 +360,7 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
         iold = i
         i += len(ctl_points) // 2
         if inside(ctl_points[-2:]) != begin_inside:
-            bezier_path = concat([ctl_points_old[-2:], ctl_points])
+            bezier_path = np.concatenate([ctl_points_old[-2:], ctl_points])
             break
         ctl_points_old = ctl_points
     else:
@@ -310,15 +385,15 @@ def split_path_inout(path, inside, tolerance=0.01, reorder_inout=False):
     verts_right = right[:]
 
     if path.codes is None:
-        path_in = Path(concat([path.vertices[:i], verts_left]))
-        path_out = Path(concat([verts_right, path.vertices[i:]]))
+        path_in = Path(np.concatenate([path.vertices[:i], verts_left]))
+        path_out = Path(np.concatenate([verts_right, path.vertices[i:]]))
 
     else:
-        path_in = Path(concat([path.vertices[:iold], verts_left]),
-                       concat([path.codes[:iold], codes_left]))
+        path_in = Path(np.concatenate([path.vertices[:iold], verts_left]),
+                       np.concatenate([path.codes[:iold], codes_left]))
 
-        path_out = Path(concat([verts_right, path.vertices[i:]]),
-                        concat([codes_right, path.codes[i:]]))
+        path_out = Path(np.concatenate([verts_right, path.vertices[i:]]),
+                        np.concatenate([codes_right, path.codes[i:]]))
 
     if reorder_inout and not begin_inside:
         path_in, path_out = path_out, path_in
@@ -333,7 +408,7 @@ def inside_circle(cx, cy, r):
 
     The returned function has the signature::
 
-        f(xy: Tuple[float, float]) -> bool
+        f(xy: tuple[float, float]) -> bool
     """
     r2 = r ** 2
 
@@ -354,7 +429,6 @@ def get_cos_sin(x0, y0, x1, y1):
     return dx / d, dy / d
 
 
-@cbook._rename_parameter("3.1", "tolerence", "tolerance")
 def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
     """
     Check if two lines are parallel.
@@ -376,10 +450,10 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
     """
     theta1 = np.arctan2(dx1, dy1)
     theta2 = np.arctan2(dx2, dy2)
-    dtheta = np.abs(theta1 - theta2)
+    dtheta = abs(theta1 - theta2)
     if dtheta < tolerance:
         return 1
-    elif np.abs(dtheta - np.pi) < tolerance:
+    elif abs(dtheta - np.pi) < tolerance:
         return -1
     else:
         return False
@@ -387,13 +461,13 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerance=1.e-5):
 
 def get_parallels(bezier2, width):
     """
-    Given the quadratic Bezier control points *bezier2*, returns
-    control points of quadratic Bezier lines roughly parallel to given
+    Given the quadratic Bézier control points *bezier2*, returns
+    control points of quadratic Bézier lines roughly parallel to given
     one separated by *width*.
     """
 
     # The parallel Bezier lines are constructed by following ways.
-    #  c1 and c2 are control points representing the begin and end of the
+    #  c1 and c2 are control points representing the start and end of the
     #  Bezier line.
     #  cm is the middle point
 
@@ -405,13 +479,13 @@ def get_parallels(bezier2, width):
                                       cmx - c2x, cmy - c2y)
 
     if parallel_test == -1:
-        cbook._warn_external(
+        _api.warn_external(
             "Lines do not intersect. A straight line is used instead.")
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, c2x, c2y)
         cos_t2, sin_t2 = cos_t1, sin_t1
     else:
         # t1 and t2 is the angle between c1 and cm, cm, c2.  They are
-        # also a angle of the tangential line of the path at c1 and c2
+        # also an angle of the tangential line of the path at c1 and c2
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
         cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c2x, c2y)
 
@@ -429,23 +503,23 @@ def get_parallels(bezier2, width):
     # find cm_left which is the intersecting point of a line through
     # c1_left with angle t1 and a line through c2_left with angle
     # t2. Same with cm_right.
-    if parallel_test != 0:
-        # a special case for a straight line, i.e., angle between two
-        # lines are smaller than some (arbitrary) value.
+    try:
+        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
+                                              sin_t1, c2x_left, c2y_left,
+                                              cos_t2, sin_t2)
+        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
+                                                sin_t1, c2x_right, c2y_right,
+                                                cos_t2, sin_t2)
+    except ValueError:
+        # Special case straight lines, i.e., angle between two lines is
+        # less than the threshold used by get_intersection (we don't use
+        # check_if_parallel as the threshold is not the same).
         cmx_left, cmy_left = (
             0.5 * (c1x_left + c2x_left), 0.5 * (c1y_left + c2y_left)
         )
         cmx_right, cmy_right = (
             0.5 * (c1x_right + c2x_right), 0.5 * (c1y_right + c2y_right)
         )
-    else:
-        cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1,
-                                              sin_t1, c2x_left, c2y_left,
-                                              cos_t2, sin_t2)
-
-        cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1,
-                                                sin_t1, c2x_right, c2y_right,
-                                                cos_t2, sin_t2)
 
     # the parallel Bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
@@ -461,7 +535,7 @@ def get_parallels(bezier2, width):
 
 def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
     """
-    Find control points of the Bezier curve passing through (*c1x*, *c1y*),
+    Find control points of the Bézier curve passing through (*c1x*, *c1y*),
     (*mmx*, *mmy*), and (*c2x*, *c2y*), at parametric values 0, 0.5, and 1.
     """
     cmx = .5 * (4 * mmx - (c1x + c2x))
@@ -471,8 +545,8 @@ def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
 
 def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     """
-    Being similar to get_parallels, returns control points of two quadratic
-    Bezier lines having a width roughly parallel to given one separated by
+    Being similar to `get_parallels`, returns control points of two quadratic
+    Bézier lines having a width roughly parallel to given one separated by
     *width*.
     """
 
@@ -482,7 +556,7 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     c3x, c3y = bezier2[2]
 
     # t1 and t2 is the angle between c1 and cm, cm, c3.
-    # They are also a angle of the tangential line of the path at c1 and c3
+    # They are also an angle of the tangential line of the path at c1 and c3
     cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
     cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c3x, c3y)
 
@@ -518,25 +592,3 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
                                      c3x_right, c3y_right)
 
     return path_left, path_right
-
-
-def make_path_regular(p):
-    """
-    If the :attr:`codes` attribute of `Path` *p* is None, return a copy of *p*
-    with the :attr:`codes` set to (MOVETO, LINETO, LINETO, ..., LINETO);
-    otherwise return *p* itself.
-    """
-    c = p.codes
-    if c is None:
-        c = np.full(len(p.vertices), Path.LINETO, dtype=Path.code_type)
-        c[0] = Path.MOVETO
-        return Path(p.vertices, c)
-    else:
-        return p
-
-
-def concatenate_paths(paths):
-    """Concatenate a list of paths into a single path."""
-    vertices = np.concatenate([p.vertices for p in paths])
-    codes = np.concatenate([make_path_regular(p).codes for p in paths])
-    return Path(vertices, codes)

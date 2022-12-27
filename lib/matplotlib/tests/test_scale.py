@@ -1,13 +1,17 @@
-from matplotlib.cbook import MatplotlibDeprecationWarning
+import copy
+
 import matplotlib.pyplot as plt
-from matplotlib.scale import (Log10Transform, InvertedLog10Transform,
-                              SymmetricalLogTransform)
+from matplotlib.scale import (
+    AsinhScale, AsinhTransform,
+    LogTransform, InvertedLogTransform,
+    SymmetricalLogTransform)
+import matplotlib.scale as mscale
+from matplotlib.ticker import AsinhLocator, LogFormatterSciNotation
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 import numpy as np
 from numpy.testing import assert_allclose
 import io
-import platform
 import pytest
 
 
@@ -51,6 +55,20 @@ def test_symlog_mask_nan():
     assert type(out) == type(x)
 
 
+def test_symlog_linthresh():
+    np.random.seed(19680801)
+    x = np.random.random(100)
+    y = np.random.random(100)
+
+    fig, ax = plt.subplots()
+    plt.plot(x, y, 'o')
+    ax.set_xscale('symlog')
+    ax.set_yscale('symlog')
+
+    with pytest.warns(UserWarning, match="All values .* of linthresh"):
+        fig.canvas.draw()
+
+
 @image_comparison(['logit_scales.png'], remove_text=True)
 def test_logit_scales():
     fig, ax = plt.subplots()
@@ -89,7 +107,7 @@ def test_log_scatter():
 
 def test_logscale_subs():
     fig, ax = plt.subplots()
-    ax.set_yscale('log', subsy=np.array([2, 3, 4]))
+    ax.set_yscale('log', subs=np.array([2, 3, 4]))
     # force draw
     fig.canvas.draw()
 
@@ -106,19 +124,12 @@ def test_logscale_mask():
     ax.set(yscale="log")
 
 
-def test_extra_kwargs_raise_or_warn():
+def test_extra_kwargs_raise():
     fig, ax = plt.subplots()
 
-    # with pytest.raises(TypeError):
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax.set_yscale('linear', nonpos='mask')
-
-    with pytest.raises(TypeError):
-        ax.set_yscale('log', nonpos='mask')
-
-    # with pytest.raises(TypeError):
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax.set_yscale('symlog', nonpos='mask')
+    for scale in ['linear', 'log', 'symlog']:
+        with pytest.raises(TypeError):
+            ax.set_yscale(scale, foo='mask')
 
 
 def test_logscale_invert_transform():
@@ -128,18 +139,16 @@ def test_logscale_invert_transform():
     tform = (ax.transAxes + ax.transData.inverted()).inverted()
 
     # direct test of log transform inversion
-    with pytest.warns(MatplotlibDeprecationWarning):
-        assert isinstance(Log10Transform().inverted(), InvertedLog10Transform)
+    inverted_transform = LogTransform(base=2).inverted()
+    assert isinstance(inverted_transform, InvertedLogTransform)
+    assert inverted_transform.base == 2
 
 
 def test_logscale_transform_repr():
     fig, ax = plt.subplots()
     ax.set_yscale('log')
-    repr(ax.transData)  # check that repr of log transform succeeds
-
-    # check that repr of log transform succeeds
-    with pytest.warns(MatplotlibDeprecationWarning):
-        repr(Log10Transform(nonpos='clip'))
+    repr(ax.transData)
+    repr(LogTransform(10, nonpositive='clip'))
 
 
 @image_comparison(['logscale_nonpos_values.png'],
@@ -151,7 +160,7 @@ def test_logscale_nonpos_values():
     ax1.hist(xs, range=(-5, 5), bins=10)
     ax1.set_yscale('log')
     ax2.hist(xs, range=(-5, 5), bins=10)
-    ax2.set_yscale('log', nonposy='mask')
+    ax2.set_yscale('log', nonpositive='mask')
 
     xdata = np.arange(0, 10, 0.01)
     ydata = np.exp(-xdata)
@@ -208,3 +217,93 @@ def test_function_scale():
     ax.plot(x, x)
     ax.set_xscale('function', functions=(forward, inverse))
     ax.set_xlim(1, 1000)
+
+
+def test_pass_scale():
+    # test passing a scale object works...
+    fig, ax = plt.subplots()
+    scale = mscale.LogScale(axis=None)
+    ax.set_xscale(scale)
+    scale = mscale.LogScale(axis=None)
+    ax.set_yscale(scale)
+    assert ax.xaxis.get_scale() == 'log'
+    assert ax.yaxis.get_scale() == 'log'
+
+
+def test_scale_deepcopy():
+    sc = mscale.LogScale(axis='x', base=10)
+    sc2 = copy.deepcopy(sc)
+    assert str(sc.get_transform()) == str(sc2.get_transform())
+    assert sc._transform is not sc2._transform
+
+
+class TestAsinhScale:
+    def test_transforms(self):
+        a0 = 17.0
+        a = np.linspace(-50, 50, 100)
+
+        forward = AsinhTransform(a0)
+        inverse = forward.inverted()
+        invinv = inverse.inverted()
+
+        a_forward = forward.transform_non_affine(a)
+        a_inverted = inverse.transform_non_affine(a_forward)
+        assert_allclose(a_inverted, a)
+
+        a_invinv = invinv.transform_non_affine(a)
+        assert_allclose(a_invinv, a0 * np.arcsinh(a / a0))
+
+    def test_init(self):
+        fig, ax = plt.subplots()
+
+        s = AsinhScale(axis=None, linear_width=23.0)
+        assert s.linear_width == 23
+        assert s._base == 10
+        assert s._subs == (2, 5)
+
+        tx = s.get_transform()
+        assert isinstance(tx, AsinhTransform)
+        assert tx.linear_width == s.linear_width
+
+    def test_base_init(self):
+        fig, ax = plt.subplots()
+
+        s3 = AsinhScale(axis=None, base=3)
+        assert s3._base == 3
+        assert s3._subs == (2,)
+
+        s7 = AsinhScale(axis=None, base=7, subs=(2, 4))
+        assert s7._base == 7
+        assert s7._subs == (2, 4)
+
+    def test_fmtloc(self):
+        class DummyAxis:
+            def __init__(self):
+                self.fields = {}
+            def set(self, **kwargs):
+                self.fields.update(**kwargs)
+            def set_major_formatter(self, f):
+                self.fields['major_formatter'] = f
+
+        ax0 = DummyAxis()
+        s0 = AsinhScale(axis=ax0, base=0)
+        s0.set_default_locators_and_formatters(ax0)
+        assert isinstance(ax0.fields['major_locator'], AsinhLocator)
+        assert isinstance(ax0.fields['major_formatter'], str)
+
+        ax5 = DummyAxis()
+        s7 = AsinhScale(axis=ax5, base=5)
+        s7.set_default_locators_and_formatters(ax5)
+        assert isinstance(ax5.fields['major_locator'], AsinhLocator)
+        assert isinstance(ax5.fields['major_formatter'],
+                          LogFormatterSciNotation)
+
+    def test_bad_scale(self):
+        fig, ax = plt.subplots()
+
+        with pytest.raises(ValueError):
+            AsinhScale(axis=None, linear_width=0)
+        with pytest.raises(ValueError):
+            AsinhScale(axis=None, linear_width=-1)
+        s0 = AsinhScale(axis=None, )
+        s1 = AsinhScale(axis=None, linear_width=3.0)

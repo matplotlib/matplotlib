@@ -3,15 +3,13 @@
 # see the Matplotlib licenses directory for a copy of the license
 
 
-"""Module that provides a GUI-based editor for matplotlib's figure options."""
+"""Module that provides a GUI-based editor for Matplotlib's figure options."""
 
-import re
-
-import matplotlib
+from itertools import chain
 from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
-
+from matplotlib.dates import DateConverter, num2date
 
 LINESTYLES = {'-': 'Solid',
               '--': 'Dashed',
@@ -34,49 +32,60 @@ def figure_edit(axes, parent=None):
     sep = (None, None)  # separator
 
     # Get / General
-    # Cast to builtin floats as they have nicer reprs.
-    xmin, xmax = map(float, axes.get_xlim())
-    ymin, ymax = map(float, axes.get_ylim())
-    general = [('Title', axes.get_title()),
-               sep,
-               (None, "<b>X-Axis</b>"),
-               ('Left', xmin), ('Right', xmax),
-               ('Label', axes.get_xlabel()),
-               ('Scale', [axes.get_xscale(), 'linear', 'log', 'logit']),
-               sep,
-               (None, "<b>Y-Axis</b>"),
-               ('Bottom', ymin), ('Top', ymax),
-               ('Label', axes.get_ylabel()),
-               ('Scale', [axes.get_yscale(), 'linear', 'log', 'logit']),
-               sep,
-               ('(Re-)Generate automatic legend', False),
-               ]
+    def convert_limits(lim, converter):
+        """Convert axis limits for correct input editors."""
+        if isinstance(converter, DateConverter):
+            return map(num2date, lim)
+        # Cast to builtin floats as they have nicer reprs.
+        return map(float, lim)
 
-    # Save the unit data
-    xconverter = axes.xaxis.converter
-    yconverter = axes.yaxis.converter
-    xunits = axes.xaxis.get_units()
-    yunits = axes.yaxis.get_units()
+    axis_map = axes._axis_map
+    axis_limits = {
+        name: tuple(convert_limits(
+            getattr(axes, f'get_{name}lim')(), axis.converter
+        ))
+        for name, axis in axis_map.items()
+    }
+    general = [
+        ('Title', axes.get_title()),
+        sep,
+        *chain.from_iterable([
+            (
+                (None, f"<b>{name.title()}-Axis</b>"),
+                ('Min', axis_limits[name][0]),
+                ('Max', axis_limits[name][1]),
+                ('Label', axis.get_label().get_text()),
+                ('Scale', [axis.get_scale(),
+                           'linear', 'log', 'symlog', 'logit']),
+                sep,
+            )
+            for name, axis in axis_map.items()
+        ]),
+        ('(Re-)Generate automatic legend', False),
+    ]
 
-    # Sorting for default labels (_lineXXX, _imageXXX).
-    def cmp_key(label):
-        match = re.match(r"(_line|_image)(\d+)", label)
-        if match:
-            return match.group(1), int(match.group(2))
-        else:
-            return label, 0
+    # Save the converter and unit data
+    axis_converter = {
+        name: axis.converter
+        for name, axis in axis_map.items()
+    }
+    axis_units = {
+        name: axis.get_units()
+        for name, axis in axis_map.items()
+    }
 
     # Get / Curves
-    linedict = {}
+    labeled_lines = []
     for line in axes.get_lines():
         label = line.get_label()
         if label == '_nolegend_':
             continue
-        linedict[label] = line
+        labeled_lines.append((label, line))
     curves = []
 
     def prepare_data(d, init):
-        """Prepare entry for FormLayout.
+        """
+        Prepare entry for FormLayout.
 
         *d* is a mapping of shorthands to style names (a single style may
         have multiple shorthands, in particular the shorthands `None`,
@@ -101,9 +110,7 @@ def figure_edit(axes, parent=None):
                 sorted(short2name.items(),
                        key=lambda short_and_name: short_and_name[1]))
 
-    curvelabels = sorted(linedict, key=cmp_key)
-    for label in curvelabels:
-        line = linedict[label]
+    for label, line in labeled_lines:
         color = mcolors.to_hex(
             mcolors.to_rgba(line.get_color(), line.get_alpha()),
             keep_alpha=True)
@@ -132,19 +139,17 @@ def figure_edit(axes, parent=None):
     has_curve = bool(curves)
 
     # Get ScalarMappables.
-    mappabledict = {}
+    labeled_mappables = []
     for mappable in [*axes.images, *axes.collections]:
         label = mappable.get_label()
         if label == '_nolegend_' or mappable.get_array() is None:
             continue
-        mappabledict[label] = mappable
-    mappablelabels = sorted(mappabledict, key=cmp_key)
+        labeled_mappables.append((label, mappable))
     mappables = []
-    cmaps = [(cmap, name) for name, cmap in sorted(cm.cmap_d.items())]
-    for label in mappablelabels:
-        mappable = mappabledict[label]
+    cmaps = [(cmap, name) for name, cmap in sorted(cm._colormaps.items())]
+    for label, mappable in labeled_mappables:
         cmap = mappable.get_cmap()
-        if cmap not in cm.cmap_d.values():
+        if cmap not in cm._colormaps.values():
             cmaps = [(cmap, cmap.name), *cmaps]
         low, high = mappable.get_clim()
         mappabledata = [
@@ -170,9 +175,11 @@ def figure_edit(axes, parent=None):
         datalist.append((mappables, "Images, etc.", ""))
 
     def apply_callback(data):
-        """This function will be called to apply changes"""
-        orig_xlim = axes.get_xlim()
-        orig_ylim = axes.get_ylim()
+        """A callback to apply changes."""
+        orig_limits = {
+            name: getattr(axes, f"get_{name}lim")()
+            for name in axis_map
+        }
 
         general = data.pop(0)
         curves = data.pop(0) if has_curve else []
@@ -180,32 +187,28 @@ def figure_edit(axes, parent=None):
         if data:
             raise ValueError("Unexpected field")
 
-        # Set / General
-        (title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale,
-         generate_legend) = general
-
-        if axes.get_xscale() != xscale:
-            axes.set_xscale(xscale)
-        if axes.get_yscale() != yscale:
-            axes.set_yscale(yscale)
-
+        title = general.pop(0)
         axes.set_title(title)
-        axes.set_xlim(xmin, xmax)
-        axes.set_xlabel(xlabel)
-        axes.set_ylim(ymin, ymax)
-        axes.set_ylabel(ylabel)
+        generate_legend = general.pop()
 
-        # Restore the unit data
-        axes.xaxis.converter = xconverter
-        axes.yaxis.converter = yconverter
-        axes.xaxis.set_units(xunits)
-        axes.yaxis.set_units(yunits)
-        axes.xaxis._update_axisinfo()
-        axes.yaxis._update_axisinfo()
+        for i, (name, axis) in enumerate(axis_map.items()):
+            axis_min = general[4*i]
+            axis_max = general[4*i + 1]
+            axis_label = general[4*i + 2]
+            axis_scale = general[4*i + 3]
+            if axis.get_scale() != axis_scale:
+                getattr(axes, f"set_{name}scale")(axis_scale)
+
+            axis._set_lim(axis_min, axis_max, auto=False)
+            axis.set_label_text(axis_label)
+
+            # Restore the unit data
+            axis.converter = axis_converter[name]
+            axis.set_units(axis_units[name])
 
         # Set / Curves
         for index, curve in enumerate(curves):
-            line = linedict[curvelabels[index]]
+            line = labeled_lines[index][1]
             (label, linestyle, drawstyle, linewidth, color, marker, markersize,
              markerfacecolor, markeredgecolor) = curve
             line.set_label(label)
@@ -223,7 +226,7 @@ def figure_edit(axes, parent=None):
 
         # Set ScalarMappables.
         for index, mappable_settings in enumerate(mappables):
-            mappable = mappabledict[mappablelabels[index]]
+            mappable = labeled_mappables[index][1]
             if len(mappable_settings) == 5:
                 label, cmap, low, high, interpolation = mappable_settings
                 mappable.set_interpolation(interpolation)
@@ -236,25 +239,25 @@ def figure_edit(axes, parent=None):
         # re-generate legend, if checkbox is checked
         if generate_legend:
             draggable = None
-            ncol = 1
+            ncols = 1
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
-                ncol = old_legend._ncol
-            new_legend = axes.legend(ncol=ncol)
+                ncols = old_legend._ncols
+            new_legend = axes.legend(ncols=ncols)
             if new_legend:
                 new_legend.set_draggable(draggable)
 
         # Redraw
         figure = axes.get_figure()
         figure.canvas.draw()
-        if not (axes.get_xlim() == orig_xlim and axes.get_ylim() == orig_ylim):
-            figure.canvas.toolbar.push_current()
+        for name in axis_map:
+            if getattr(axes, f"get_{name}lim")() != orig_limits[name]:
+                figure.canvas.toolbar.push_current()
+                break
 
-    data = _formlayout.fedit(
+    _formlayout.fedit(
         datalist, title="Figure options", parent=parent,
         icon=QtGui.QIcon(
             str(cbook._get_data_path('images', 'qt4_editor_options.svg'))),
         apply=apply_callback)
-    if data is not None:
-        apply_callback(data)

@@ -1,15 +1,16 @@
 """
-===========
-Set And Get
-===========
+======================
+Set and get properties
+======================
 
-The pyplot interface allows you to use setp and getp to set and get
-object properties, as well as to do introspection on the object
+The pyplot interface allows you to use ``setp`` and ``getp`` to
+set and get object properties respectively, as well as to do
+introspection on the object.
 
-set
-===
+Setting with ``setp``
+=====================
 
-To set the linestyle of a line to be dashed, you can do::
+To set the linestyle of a line to be dashed, you use ``setp``::
 
   >>> line, = plt.plot([1, 2, 3])
   >>> plt.setp(line, linestyle='--')
@@ -25,11 +26,11 @@ possible values, you can do::
 
     >>> plt.setp(line)
 
-set operates on a single instance or a list of instances.  If you are
-in query mode introspecting the possible values, only the first
+``setp`` operates on a single instance or a list of instances.  If you
+are in query mode introspecting the possible values, only the first
 instance in the sequence is used.  When actually setting values, all
-the instances will be set.  e.g., suppose you have a list of two lines,
-the following will make both lines thicker and red::
+the instances will be set.  For example, suppose you have a list of
+two lines, the following will make both lines thicker and red::
 
     >>> x = np.arange(0, 1, 0.01)
     >>> y1 = np.sin(2*np.pi*x)
@@ -38,10 +39,10 @@ the following will make both lines thicker and red::
     >>> plt.setp(lines, linewidth=2, color='r')
 
 
-get
-===
+Getting with ``getp``
+=====================
 
-get returns the value of a given attribute.  You can use get to query
+``getp`` returns the value of a given attribute.  You can use it to query
 the value of a single attribute::
 
     >>> plt.getp(line, 'linewidth')
@@ -64,7 +65,7 @@ Aliases
 To reduce keystrokes in interactive mode, a number of properties
 have short aliases, e.g., 'lw' for 'linewidth' and 'mec' for
 'markeredgecolor'.  When calling set or get in introspection mode,
-these properties will be listed as 'fullname or aliasname'.
+these properties will be listed as 'fullname' or 'aliasname'.
 """
 
 

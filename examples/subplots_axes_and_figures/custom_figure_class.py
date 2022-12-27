@@ -41,15 +41,11 @@ plt.plot(x, y)
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.figure
-matplotlib.figure.Figure
-matplotlib.figure.Figure.text
+#    - `matplotlib.pyplot.figure`
+#    - `matplotlib.figure.Figure`
+#    - `matplotlib.figure.Figure.text`

@@ -2,10 +2,10 @@
 
 # Subsetting DejaVu fonts to create a display-math-only font
 
-# The DejaVu fonts include math display variants outside of the unicode range,
-# and it is currently hard to access them from matploltib. The subset.py script
+# The DejaVu fonts include math display variants outside of the Unicode range,
+# and it is currently hard to access them from matplotlib. The subset.py script
 # in `tools` has been modified to move the math display variants found in DejaVu
-# fonts into a new TTF font with these variants in the unicode range.
+# fonts into a new TTF font with these variants in the Unicode range.
 
 # This bash script calls the subset.py scripts with the appropriate options to
 # generate the new font files `DejaVuSansDisplay.ttf` and

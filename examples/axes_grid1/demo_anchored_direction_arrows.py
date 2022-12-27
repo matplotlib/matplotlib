@@ -1,13 +1,17 @@
 """
-=============================
-Demo Anchored Direction Arrow
-=============================
+========================
+Anchored Direction Arrow
+========================
 
 """
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDirectionArrows
 import matplotlib.font_manager as fm
+
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 fig, ax = plt.subplots()
 ax.imshow(np.random.random((10, 10)))
@@ -38,7 +42,7 @@ ax.add_artist(high_contrast_part_2)
 # Rotated arrow
 fontprops = fm.FontProperties(family='serif')
 
-roatated_arrow = AnchoredDirectionArrows(
+rotated_arrow = AnchoredDirectionArrows(
                     ax.transAxes,
                     '30', '120',
                     loc='center',
@@ -46,7 +50,7 @@ roatated_arrow = AnchoredDirectionArrows(
                     angle=30,
                     fontproperties=fontprops
                     )
-ax.add_artist(roatated_arrow)
+ax.add_artist(rotated_arrow)
 
 # Altering arrow directions
 a1 = AnchoredDirectionArrows(

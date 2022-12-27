@@ -1,23 +1,16 @@
 from io import BytesIO
-import glob
-import os
 from pathlib import Path
 
-import numpy as np
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
-from matplotlib import pyplot as plt
-import matplotlib.cm as cm
+from matplotlib import cm, pyplot as plt
 
 
 @image_comparison(['pngsuite.png'], tol=0.03)
 def test_pngsuite():
-    dirname = os.path.join(
-        os.path.dirname(__file__),
-        'baseline_images',
-        'pngsuite')
-    files = sorted(glob.iglob(os.path.join(dirname, 'basn*.png')))
+    files = sorted(
+        (Path(__file__).parent / "baseline_images/pngsuite").glob("basn*.png"))
 
     plt.figure(figsize=(len(files), 2))
 
@@ -33,27 +26,17 @@ def test_pngsuite():
     plt.gca().set_xlim(0, len(files))
 
 
-def test_imread_png_uint16():
-    from matplotlib import _png
-    with (Path(__file__).parent
-          / 'baseline_images/test_png/uint16.png').open('rb') as file:
-        img = _png.read_png_int(file)
-    assert (img.dtype == np.uint16)
-    assert np.sum(img.flatten()) == 134184960
-
-
-def test_truncated_file(tmpdir):
-    d = tmpdir.mkdir('test')
-    fname = str(d.join('test.png'))
-    fname_t = str(d.join('test_truncated.png'))
-    plt.savefig(fname)
-    with open(fname, 'rb') as fin:
+def test_truncated_file(tmp_path):
+    path = tmp_path / 'test.png'
+    path_t = tmp_path / 'test_truncated.png'
+    plt.savefig(path)
+    with open(path, 'rb') as fin:
         buf = fin.read()
-    with open(fname_t, 'wb') as fout:
+    with open(path_t, 'wb') as fout:
         fout.write(buf[:20])
 
     with pytest.raises(Exception):
-        plt.imread(fname_t)
+        plt.imread(path_t)
 
 
 def test_truncated_buffer():

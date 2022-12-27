@@ -1,0 +1,161 @@
+.. redirect-from:: /devel/gitwash/configure_git
+.. redirect-from:: /devel/gitwash/dot2_dot3
+.. redirect-from:: /devel/gitwash/following_latest
+.. redirect-from:: /devel/gitwash/forking_hell
+.. redirect-from:: /devel/gitwash/git_development
+.. redirect-from:: /devel/gitwash/git_install
+.. redirect-from:: /devel/gitwash/git_intro
+.. redirect-from:: /devel/gitwash/git_resources
+.. redirect-from:: /devel/gitwash/patching
+.. redirect-from:: /devel/gitwash/set_up_fork
+.. redirect-from:: /devel/gitwash/index
+
+.. _installing_for_devs:
+
+=====================================
+Setting up Matplotlib for development
+=====================================
+
+To set up Matplotlib for development follow these steps:
+
+.. contents::
+   :local:
+
+Fork the Matplotlib repository
+==============================
+
+Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git. If you
+plan on solving issues or submit pull requests to the main Matplotlib
+repository, you should first *fork* this repository by visiting
+https://github.com/matplotlib/matplotlib.git and clicking on the
+``Fork`` button on the top right of the page (see
+`the GitHub documentation <https://docs.github.com/get-started/quickstart/fork-a-repo>`__ for more details.)
+
+Retrieve the latest version of the code
+=======================================
+
+Now that your fork of the repository lives under your GitHub username, you can
+retrieve the latest sources with one of the following commands (where your
+should replace ``<your-username>`` with your GitHub username):
+
+.. tab-set::
+
+   .. tab-item:: https
+
+      .. code-block:: bash
+
+         git clone https://github.com/<your-username>/matplotlib.git
+
+   .. tab-item:: ssh
+
+      .. code-block:: bash
+
+         git clone git@github.com:<your-username>/matplotlib.git
+
+      This requires you to setup an `SSH key`_ in advance, but saves you from
+      typing your password at every connection.
+
+      .. _SSH key: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
+
+
+This will place the sources in a directory :file:`matplotlib` below your
+current working directory, set up the ``origin`` remote to point to your own
+fork, and set up the ``upstream`` remote to point to the Matplotlib main
+repository (see also `Managing remote repositories <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__.)
+Change into this directory before continuing::
+
+    cd matplotlib
+
+.. note::
+
+  For more information on ``git`` and ``GitHub``, check the following resources.
+
+  * `Git documentation <https://git-scm.com/doc>`_
+  * `GitHub-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+  * `Introduction to GitHub <https://lab.github.com/githubtraining/introduction-to-github>`_
+  * :ref:`using-git`
+  * :ref:`git-resources`
+  * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
+  * https://tacaswell.github.io/think-like-git.html
+  * https://tom.preston-werner.com/2009/05/19/the-git-parable.html
+
+.. _dev-environment:
+
+Create a dedicated environment
+==============================
+You should set up a dedicated environment to decouple your Matplotlib
+development from other Python and Matplotlib installations on your system.
+
+The simplest way to do this is to use either Python's virtual environment
+`venv`_ or `conda`_.
+
+.. _venv: https://docs.python.org/3/library/venv.html
+.. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+.. tab-set::
+
+   .. tab-item:: venv environment
+
+      Create a new `venv`_ environment with ::
+
+        python -m venv <file folder location>
+
+      and activate it with one of the following ::
+
+        source <file folder location>/bin/activate  # Linux/macOS
+        <file folder location>\Scripts\activate.bat  # Windows cmd.exe
+        <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
+
+   .. tab-item:: conda environment
+
+      Create a new `conda`_ environment with ::
+
+        conda env create -f environment.yml
+
+      You can use ``mamba`` instead of ``conda`` in the above command if
+      you have `mamba`_ installed.
+
+      .. _mamba: https://mamba.readthedocs.io/en/latest/
+
+      Activate the environment using ::
+
+        conda activate mpl-dev
+
+Remember to activate the environment whenever you start working on Matplotlib.
+
+Installing Matplotlib in editable mode
+======================================
+Install Matplotlib in editable mode from the :file:`matplotlib` directory
+using the command ::
+
+    python -m pip install -ve .
+
+The 'editable/develop mode', builds everything and places links in your Python
+environment so that Python will be able to import Matplotlib from your
+development source directory.  This allows you to import your modified version
+of Matplotlib without re-installing after every change. Note that this is only
+true for ``*.py`` files.  If you change the C-extension source (which might
+also happen if you change branches) you will have to re-run
+``python -m pip install -ve .``
+
+Install additional development dependencies
+===========================================
+See :ref:`development-dependencies`.
+
+Install pre-commit hooks (optional)
+===================================
+`pre-commit <https://pre-commit.com/>`_ hooks automatically check flake8 and
+other style issues when you run ``git commit``. The hooks are defined in the
+top level ``.pre-commit-config.yaml`` file. To install the hooks ::
+
+    python -m pip install pre-commit
+    pre-commit install
+
+The hooks can also be run manually. All the hooks can be run, in order as
+listed in ``.pre-commit-config.yaml``, against the full codebase with ::
+
+    pre-commit run --all-files
+
+To run a particular hook manually, run ``pre-commit run`` with the hook id ::
+
+    pre-commit run <hook id> --all-files

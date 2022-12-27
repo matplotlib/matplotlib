@@ -2,13 +2,11 @@
 ``matplotlib.colors``
 *********************
 
-For a visual representation of the Matplotlib colormaps, see:
+.. note::
 
-* The :ref:`color_examples` examples for examples of controlling color with
-  Matplotlib.
-* The :ref:`tutorials-colors` tutorial for an in-depth guide on controlling
-  color.
-
+   The Color :ref:`tutorials <tutorials-colors>` and :ref:`examples
+   <color_examples>` demonstrate how to set colors and colormaps. You may want
+   to read those instead.
 
 .. currentmodule:: matplotlib.colors
 
@@ -16,24 +14,44 @@ For a visual representation of the Matplotlib colormaps, see:
    :no-members:
    :no-inherited-members:
 
-Classes
--------
+Color norms
+-----------
 
 .. autosummary::
    :toctree: _as_gen/
    :template: autosummary.rst
 
-   BoundaryNorm
-   Colormap
-   DivergingNorm
-   LightSource
-   LinearSegmentedColormap
-   ListedColormap
-   LogNorm
-   NoNorm
    Normalize
+   NoNorm
+   AsinhNorm
+   BoundaryNorm
+   CenteredNorm
+   FuncNorm
+   LogNorm
    PowerNorm
    SymLogNorm
+   TwoSlopeNorm
+
+Colormaps
+---------
+
+.. autosummary::
+   :toctree: _as_gen/
+   :template: autosummary.rst
+
+   Colormap
+   LinearSegmentedColormap
+   ListedColormap
+
+Other classes
+-------------
+
+.. autosummary::
+   :toctree: _as_gen/
+   :template: autosummary.rst
+
+   ColorSequenceRegistry
+   LightSource
 
 Functions
 ---------
@@ -50,5 +68,6 @@ Functions
    to_rgba
    to_rgba_array
    is_color_like
-   makeMappingArray
+   same_color
    get_named_colors_mapping
+   make_norm_from_scale

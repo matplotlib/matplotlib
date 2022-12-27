@@ -6,8 +6,9 @@ Using span_where
 Illustrate some helper functions for shading regions where a logical
 mask is True.
 
-See :meth:`matplotlib.collections.BrokenBarHCollection.span_where`
+See `matplotlib.collections.BrokenBarHCollection.span_where`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.collections as collections
@@ -37,16 +38,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.collections.BrokenBarHCollection
-matplotlib.collections.BrokenBarHCollection.span_where
-matplotlib.axes.Axes.add_collection
-matplotlib.axes.Axes.axhline
+#    - `matplotlib.collections.BrokenBarHCollection`
+#    - `matplotlib.collections.BrokenBarHCollection.span_where`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.axes.Axes.axhline`

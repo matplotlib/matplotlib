@@ -1,10 +1,10 @@
-'''
-=========
-Barb Demo
-=========
+"""
+==========
+Wind Barbs
+==========
 
-Demonstration of wind barb plots
-'''
+Demonstration of wind barb plots.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -47,6 +47,7 @@ masked_u = np.ma.masked_array(data['u'])
 masked_u[4] = 1000  # Bad value that should not be plotted when masked
 masked_u[4] = np.ma.masked
 
+#############################################################################
 # Identical plot to panel 2 in the first figure, but with the point at
 # (0.5, 0.25) missing (masked)
 fig2, ax2 = plt.subplots()
@@ -56,14 +57,9 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.barbs
-matplotlib.pyplot.barbs
+#    - `matplotlib.axes.Axes.barbs` / `matplotlib.pyplot.barbs`

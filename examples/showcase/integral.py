@@ -5,12 +5,12 @@ Integral as the area under a curve
 
 Although this is a simple example, it demonstrates some important tweaks:
 
-    * A simple line plot with custom color and line width.
-    * A shaded region created using a Polygon patch.
-    * A text label with mathtext rendering.
-    * figtext calls to label the x- and y-axes.
-    * Use of axis spines to hide the top and right spines.
-    * Custom tick placement and labels.
+* A simple line plot with custom color and line width.
+* A shaded region created using a Polygon patch.
+* A text label with mathtext rendering.
+* figtext calls to label the x- and y-axes.
+* Use of axis spines to hide the top and right spines.
+* Custom tick placement and labels.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -42,12 +42,8 @@ ax.text(0.5 * (a + b), 30, r"$\int_a^b f(x)\mathrm{d}x$",
 fig.text(0.9, 0.05, '$x$')
 fig.text(0.1, 0.9, '$y$')
 
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
-ax.xaxis.set_ticks_position('bottom')
-
-ax.set_xticks((a, b))
-ax.set_xticklabels(('$a$', '$b$'))
+ax.spines[['top', 'right']].set_visible(False)
+ax.set_xticks([a, b], labels=['$a$', '$b$'])
 ax.set_yticks([])
 
 plt.show()

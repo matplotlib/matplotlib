@@ -8,8 +8,8 @@ between the subplots to zero. Passing sharex=True when creating the subplots
 will automatically turn off all x ticks and labels except those on the bottom
 axis.
 
-In this example the plots share a common x axis but you can follow the same
-logic to supply a common y axis.
+In this example the plots share a common x-axis, but you can follow the same
+logic to supply a common y-axis.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,7 +21,7 @@ s2 = np.exp(-t)
 s3 = s1 * s2
 
 fig, axs = plt.subplots(3, 1, sharex=True)
-# Remove horizontal space between axes
+# Remove vertical space between axes
 fig.subplots_adjust(hspace=0)
 
 # Plot each graph, and manually set the y tick values

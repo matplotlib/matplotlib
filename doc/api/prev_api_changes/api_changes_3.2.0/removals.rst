@@ -57,8 +57,7 @@ The following API elements have been removed:
   instead)
 - ``axisartist.axes_divider.Axes``, ``axisartist.axes_divider.LocatableAxes``
   (use ``axisartist.axislines.Axes`` instead)
-- the ``normed`` kwarg to ``hist`` (use ``density`` instead)
-- the ``verts`` parameter to ``scatter`` (use ``marker`` instead)
+- the *normed* keyword argument to ``hist`` (use *density* instead)
 - passing ``(verts, 0)`` or ``(..., 3)`` when specifying a marker to specify a
   path or a circle, respectively (instead, use ``verts`` or ``"o"``,
   respectively)

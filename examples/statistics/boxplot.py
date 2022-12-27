@@ -3,16 +3,15 @@
 Artist customization in box plots
 =================================
 
-This example demonstrates how to use the various kwargs
-to fully customize box plots. The first figure demonstrates
-how to remove and add individual components (note that the
-mean is the only value not shown by default). The second
-figure demonstrates how the styles of the artists can
-be customized. It also demonstrates how to set the limit
-of the whiskers to specific percentiles (lower right axes)
+This example demonstrates how to use the various keyword arguments to fully
+customize box plots. The first figure demonstrates how to remove and add
+individual components (note that the mean is the only value not shown by
+default). The second figure demonstrates how the styles of the artists can be
+customized. It also demonstrates how to set the limit of the whiskers to
+specific percentiles (lower right axes)
 
-A good general reference on boxplots and their history can be found
-here: http://vita.had.co.nz/papers/boxplots.pdf
+A good general reference on boxplots and their history can be found here:
+https://vita.had.co.nz/papers/boxplots.pdf
 
 """
 
@@ -61,7 +60,7 @@ plt.show()
 
 boxprops = dict(linestyle='--', linewidth=3, color='darkgoldenrod')
 flierprops = dict(marker='o', markerfacecolor='green', markersize=12,
-                  linestyle='none')
+                  markeredgecolor='none')
 medianprops = dict(linestyle='-.', linewidth=2.5, color='firebrick')
 meanpointprops = dict(marker='D', markeredgecolor='black',
                       markerfacecolor='firebrick')
@@ -95,3 +94,12 @@ for ax in axs.flat:
 fig.suptitle("I never said they'd be pretty")
 fig.subplots_adjust(hspace=0.4)
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.boxplot` / `matplotlib.pyplot.boxplot`

@@ -3,15 +3,14 @@
 Plot 2D data on 3D plot
 =======================
 
-Demonstrates using ax.plot's zdir keyword to plot 2D data on
+Demonstrates using ax.plot's *zdir* keyword to plot 2D data on
 selective axes of a 3D plot.
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 # Plot a sin curve using the x and y axes.
 x = np.linspace(0, 1, 100)
@@ -44,6 +43,6 @@ ax.set_zlabel('Z')
 
 # Customize the view angle so it's easier to see that the scatter points lie
 # on the plane y=0
-ax.view_init(elev=20., azim=-35)
+ax.view_init(elev=20., azim=-35, roll=0)
 
 plt.show()

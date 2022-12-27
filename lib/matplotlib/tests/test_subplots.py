@@ -1,10 +1,11 @@
 import itertools
 
-import numpy
-import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
-
+import numpy as np
 import pytest
+
+from matplotlib.axes import Axes, SubplotBase
+import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 def check_shared(axs, x_shared, y_shared):
@@ -18,34 +19,38 @@ def check_shared(axs, x_shared, y_shared):
             enumerate(zip("xy", [x_shared, y_shared]))):
         if i2 <= i1:
             continue
-        assert \
-            (getattr(axs[0], "_shared_{}_axes".format(name)).joined(ax1, ax2)
-             == shared[i1, i2]), \
+        assert axs[0]._shared_axes[name].joined(ax1, ax2) == shared[i1, i2], \
             "axes %i and %i incorrectly %ssharing %s axis" % (
                 i1, i2, "not " if shared[i1, i2] else "", name)
 
 
 def check_visible(axs, x_visible, y_visible):
     for i, (ax, vx, vy) in enumerate(zip(axs, x_visible, y_visible)):
-        for l in ax.get_xticklabels() + [ax.get_xaxis().offsetText]:
+        for l in ax.get_xticklabels() + [ax.xaxis.offsetText]:
             assert l.get_visible() == vx, \
                     f"Visibility of x axis #{i} is incorrectly {vx}"
-        for l in ax.get_yticklabels() + [ax.get_yaxis().offsetText]:
+        for l in ax.get_yticklabels() + [ax.yaxis.offsetText]:
             assert l.get_visible() == vy, \
                     f"Visibility of y axis #{i} is incorrectly {vy}"
+        # axis label "visibility" is toggled by label_outer by resetting the
+        # label to empty, but it can also be empty to start with.
+        if not vx:
+            assert ax.get_xlabel() == ""
+        if not vy:
+            assert ax.get_ylabel() == ""
 
 
 def test_shared():
     rdim = (4, 4, 2)
     share = {
-            'all': numpy.ones(rdim[:2], dtype=bool),
-            'none': numpy.zeros(rdim[:2], dtype=bool),
-            'row': numpy.array([
+            'all': np.ones(rdim[:2], dtype=bool),
+            'none': np.zeros(rdim[:2], dtype=bool),
+            'row': np.array([
                 [False, True, False, False],
                 [True, False, False, False],
                 [False, False, False, True],
                 [False, False, True, False]]),
-            'col': numpy.array([
+            'col': np.array([
                 [False, False, True, False],
                 [False, False, False, True],
                 [True, False, False, False],
@@ -79,7 +84,7 @@ def test_shared():
     plt.close(f)
 
     # test all option combinations
-    ops = [False, True, 'all', 'none', 'row', 'col']
+    ops = [False, True, 'all', 'none', 'row', 'col', 0, 1]
     for xo in ops:
         for yo in ops:
             f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=xo, sharey=yo)
@@ -92,6 +97,7 @@ def test_shared():
     f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=True, sharey=True)
     axs = [a1, a2, a3, a4]
     for ax in axs:
+        ax.set(xlabel="foo", ylabel="bar")
         ax.label_outer()
     check_visible(axs, [False, False, True, True], [True, False, True, False])
 
@@ -116,6 +122,12 @@ def test_label_outer_span():
         fig.axes, [False, True, False, True], [True, True, False, False])
 
 
+def test_label_outer_non_gridspec():
+    ax = plt.axes([0, 0, 1, 1])
+    ax.label_outer()  # Does nothing.
+    check_visible([ax], [True], [True])
+
+
 def test_shared_and_moved():
     # test if sharey is on, but then tick_left is called that labels don't
     # re-appear.  Seaborn does this just to be sure yaxis is on left...
@@ -136,28 +148,56 @@ def test_exceptions():
         plt.subplots(2, 2, sharex='blah')
     with pytest.raises(ValueError):
         plt.subplots(2, 2, sharey='blah')
-    # We filter warnings in this test which are genuine since
-    # the point of this test is to ensure that this raises.
-    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
-         pytest.raises(ValueError):
-        plt.subplots(2, 2, -1)
-    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
-         pytest.raises(ValueError):
-        plt.subplots(2, 2, 0)
-    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
-         pytest.raises(ValueError):
-        plt.subplots(2, 2, 5)
 
 
-@image_comparison(['subplots_offset_text'], remove_text=False)
+@image_comparison(['subplots_offset_text'])
 def test_subplots_offsettext():
-    x = numpy.arange(0, 1e10, 1e9)
-    y = numpy.arange(0, 100, 10)+1e4
+    x = np.arange(0, 1e10, 1e9)
+    y = np.arange(0, 100, 10)+1e4
     fig, axs = plt.subplots(2, 2, sharex='col', sharey='all')
     axs[0, 0].plot(x, x)
     axs[1, 0].plot(x, x)
     axs[0, 1].plot(y, x)
     axs[1, 1].plot(y, x)
+
+
+@pytest.mark.parametrize("top", [True, False])
+@pytest.mark.parametrize("bottom", [True, False])
+@pytest.mark.parametrize("left", [True, False])
+@pytest.mark.parametrize("right", [True, False])
+def test_subplots_hide_ticklabels(top, bottom, left, right):
+    # Ideally, we would also test offset-text visibility (and remove
+    # test_subplots_offsettext), but currently, setting rcParams fails to move
+    # the offset texts as well.
+    with plt.rc_context({"xtick.labeltop": top, "xtick.labelbottom": bottom,
+                         "ytick.labelleft": left, "ytick.labelright": right}):
+        axs = plt.figure().subplots(3, 3, sharex=True, sharey=True)
+    for (i, j), ax in np.ndenumerate(axs):
+        xtop = ax.xaxis._major_tick_kw["label2On"]
+        xbottom = ax.xaxis._major_tick_kw["label1On"]
+        yleft = ax.yaxis._major_tick_kw["label1On"]
+        yright = ax.yaxis._major_tick_kw["label2On"]
+        assert xtop == (top and i == 0)
+        assert xbottom == (bottom and i == 2)
+        assert yleft == (left and j == 0)
+        assert yright == (right and j == 2)
+
+
+@pytest.mark.parametrize("xlabel_position", ["bottom", "top"])
+@pytest.mark.parametrize("ylabel_position", ["left", "right"])
+def test_subplots_hide_axislabels(xlabel_position, ylabel_position):
+    axs = plt.figure().subplots(3, 3, sharex=True, sharey=True)
+    for (i, j), ax in np.ndenumerate(axs):
+        ax.set(xlabel="foo", ylabel="bar")
+        ax.xaxis.set_label_position(xlabel_position)
+        ax.yaxis.set_label_position(ylabel_position)
+        ax.label_outer()
+        assert bool(ax.get_xlabel()) == (
+            xlabel_position == "bottom" and i == 2
+            or xlabel_position == "top" and i == 0)
+        assert bool(ax.get_ylabel()) == (
+            ylabel_position == "left" and j == 0
+            or ylabel_position == "right" and j == 2)
 
 
 def test_get_gridspec():
@@ -173,3 +213,50 @@ def test_dont_mutate_kwargs():
                            gridspec_kw=gridspec_kw)
     assert subplot_kw == {'sharex': 'all'}
     assert gridspec_kw == {'width_ratios': [1, 2]}
+
+
+@pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
+@pytest.mark.parametrize("height_ratios", [None, [1, 2]])
+@check_figures_equal(extensions=['png'])
+def test_width_and_height_ratios(fig_test, fig_ref,
+                                 height_ratios, width_ratios):
+    fig_test.subplots(2, 3, height_ratios=height_ratios,
+                      width_ratios=width_ratios)
+    fig_ref.subplots(2, 3, gridspec_kw={
+                     'height_ratios': height_ratios,
+                     'width_ratios': width_ratios})
+
+
+@pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
+@pytest.mark.parametrize("height_ratios", [None, [1, 2]])
+@check_figures_equal(extensions=['png'])
+def test_width_and_height_ratios_mosaic(fig_test, fig_ref,
+                                        height_ratios, width_ratios):
+    mosaic_spec = [['A', 'B', 'B'], ['A', 'C', 'D']]
+    fig_test.subplot_mosaic(mosaic_spec, height_ratios=height_ratios,
+                            width_ratios=width_ratios)
+    fig_ref.subplot_mosaic(mosaic_spec, gridspec_kw={
+                           'height_ratios': height_ratios,
+                           'width_ratios': width_ratios})
+
+
+@pytest.mark.parametrize('method,args', [
+    ('subplots', (2, 3)),
+    ('subplot_mosaic', ('abc;def', ))
+    ]
+)
+def test_ratio_overlapping_kws(method, args):
+    with pytest.raises(ValueError, match='height_ratios'):
+        getattr(plt, method)(*args, height_ratios=[1, 2],
+                             gridspec_kw={'height_ratios': [1, 2]})
+    with pytest.raises(ValueError, match='width_ratios'):
+        getattr(plt, method)(*args, width_ratios=[1, 2, 3],
+                             gridspec_kw={'width_ratios': [1, 2, 3]})
+
+
+def test_old_subplot_compat():
+    fig = plt.figure()
+    assert isinstance(fig.add_subplot(), SubplotBase)
+    assert not isinstance(fig.add_axes(rect=[0, 0, 1, 1]), SubplotBase)
+    with pytest.raises(TypeError):
+        Axes(fig, [0, 0, 1, 1], rect=[0, 0, 1, 1])

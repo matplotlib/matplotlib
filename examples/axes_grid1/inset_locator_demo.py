@@ -1,6 +1,6 @@
 """
 ==================
-Inset Locator Demo
+Inset locator demo
 ==================
 
 """
@@ -44,8 +44,8 @@ plt.show()
 
 
 ###############################################################################
-# The arguments *bbox_to_anchor* and *bbox_transfrom* can be used for a more
-# fine grained control over the inset position and size or even to position
+# The parameters *bbox_to_anchor* and *bbox_transform* can be used for a more
+# fine-grained control over the inset position and size or even to position
 # the inset at completely arbitrary positions.
 # The *bbox_to_anchor* sets the bounding box in coordinates according to the
 # *bbox_transform*.
@@ -54,12 +54,12 @@ plt.show()
 fig = plt.figure(figsize=[5.5, 2.8])
 ax = fig.add_subplot(121)
 
-# We use the axes transform as bbox_transform. Therefore the bounding box
+# We use the axes transform as bbox_transform. Therefore, the bounding box
 # needs to be specified in axes coordinates ((0, 0) is the lower left corner
 # of the axes, (1, 1) is the upper right corner).
 # The bounding box (.2, .4, .6, .5) starts at (.2, .4) and ranges to (.8, .9)
 # in those coordinates.
-# Inside of this bounding box an inset of half the bounding box' width and
+# Inside this bounding box an inset of half the bounding box' width and
 # three quarters of the bounding box' height is created. The lower left corner
 # of the inset is aligned to the lower left corner of the bounding box (loc=3).
 # The inset is then offset by the default 0.5 in units of the font size.
@@ -69,7 +69,7 @@ axins = inset_axes(ax, width="50%", height="75%",
                    bbox_transform=ax.transAxes, loc=3)
 
 # For visualization purposes we mark the bounding box by a rectangle
-ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="None",
+ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="none",
                            transform=ax.transAxes))
 
 # We set the axis limits to something other than the default, in order to not
@@ -89,9 +89,9 @@ axins3 = inset_axes(ax3, width="100%", height="100%",
                     bbox_transform=ax3.transAxes)
 
 # For visualization purposes we mark the bounding box by a rectangle
-ax2.add_patch(plt.Rectangle((0, 0), 1, 1, ls="--", lw=2, ec="c", fc="None"))
+ax2.add_patch(plt.Rectangle((0, 0), 1, 1, ls="--", lw=2, ec="c", fc="none"))
 ax3.add_patch(plt.Rectangle((.7, .5), .3, .5, ls="--", lw=2,
-                            ec="c", fc="None"))
+                            ec="c", fc="none"))
 
 # Turn ticklabels off
 for axi in [axins2, axins3, ax2, ax3]:
@@ -103,7 +103,7 @@ plt.show()
 ###############################################################################
 # In the above the axes transform together with 4-tuple bounding boxes has been
 # used as it mostly is useful to specify an inset relative to the axes it is
-# an inset to. However other use cases are equally possible. The following
+# an inset to. However, other use cases are equally possible. The following
 # example examines some of those.
 #
 
@@ -135,7 +135,7 @@ axins3 = inset_axes(ax2, width="100%", height="100%",
 
 # Create an inset horizontally centered in figure coordinates and vertically
 # bound to line up with the axes.
-from matplotlib.transforms import blended_transform_factory
+from matplotlib.transforms import blended_transform_factory  # noqa
 transform = blended_transform_factory(fig.transFigure, ax2.transAxes)
 axins4 = inset_axes(ax2, width="16%", height="34%",
                     bbox_to_anchor=(0, 0, 1, 1),

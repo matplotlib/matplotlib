@@ -2,8 +2,7 @@
 
 import numpy as np
 
-from matplotlib import cbook
-import matplotlib.units as units
+from matplotlib import cbook, units
 import matplotlib.projections.polar as polar
 
 __all__ = ['UnitDblConverter']
@@ -40,16 +39,8 @@ class UnitDblConverter(units.ConversionInterface):
 
     @staticmethod
     def axisinfo(unit, axis):
-        """: Returns information on how to handle an axis that has Epoch data.
+        # docstring inherited
 
-        = INPUT VARIABLES
-        - unit     The units to use for a axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns a matplotlib AxisInfo data structure that contains
-          minor/major formatters, major/minor locators, and default
-          label information.
-        """
         # Delay-load due to circular dependencies.
         import matplotlib.testing.jpl_units as U
 
@@ -71,26 +62,9 @@ class UnitDblConverter(units.ConversionInterface):
 
     @staticmethod
     def convert(value, unit, axis):
-        """: Convert value using unit to a float.  If value is a sequence, return
-        the converted sequence.
-
-        = INPUT VARIABLES
-        - value    The value or list of values that need to be converted.
-        - unit     The units to use for a axis with Epoch data.
-
-        = RETURN VALUE
-        - Returns the value parameter converted to floats.
-        """
-        # Delay-load due to circular dependencies.
-        import matplotlib.testing.jpl_units as U
-
+        # docstring inherited
         if not cbook.is_scalar_or_string(value):
             return [UnitDblConverter.convert(x, unit, axis) for x in value]
-        # If the incoming value behaves like a number,
-        # then just return it because we don't know how to convert it
-        # (or it is already converted)
-        if units.ConversionInterface.is_numlike(value):
-            return value
         # If no units were specified, then get the default units to use.
         if unit is None:
             unit = UnitDblConverter.default_units(value, axis)
@@ -102,15 +76,7 @@ class UnitDblConverter(units.ConversionInterface):
 
     @staticmethod
     def default_units(value, axis):
-        """: Return the default unit for value, or None.
-
-        = INPUT VARIABLES
-        - value    The value or list of values that need units.
-
-        = RETURN VALUE
-        - Returns the default units to use for value.
-        Return the default unit for value, or None.
-        """
+        # docstring inherited
         # Determine the default units based on the user preferences set for
         # default units when printing a UnitDbl.
         if cbook.is_scalar_or_string(value):

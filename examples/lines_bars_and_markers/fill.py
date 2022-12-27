@@ -3,7 +3,7 @@
 Filled polygon
 ==============
 
-`~.Axes.fill()` draws a filled polygon based based on lists of point
+`~.Axes.fill()` draws a filled polygon based on lists of point
 coordinates *x*, *y*.
 
 This example uses the `Koch snowflake`_ as an example polygon.
@@ -20,8 +20,8 @@ def koch_snowflake(order, scale=10):
     """
     Return two lists x, y of point coordinates of the Koch snowflake.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     order : int
         The recursion depth.
     scale : float
@@ -62,7 +62,7 @@ plt.fill(x, y)
 plt.show()
 
 ###############################################################################
-# Use keyword arguments *facecolor* and *edgecolor* to modify the the colors
+# Use keyword arguments *facecolor* and *edgecolor* to modify the colors
 # of the polygon. Since the *linewidth* of the edge is 0 in the default
 # Matplotlib style, we have to set it as well for the edge to become visible.
 
@@ -76,18 +76,12 @@ ax3.fill(x, y, facecolor='none', edgecolor='purple', linewidth=3)
 
 plt.show()
 
-#############################################################################
+###############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.fill
-matplotlib.pyplot.fill
-matplotlib.axes.Axes.axis
-matplotlib.pyplot.axis
+#    - `matplotlib.axes.Axes.fill` / `matplotlib.pyplot.fill`
+#    - `matplotlib.axes.Axes.axis` / `matplotlib.pyplot.axis`

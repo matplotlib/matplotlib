@@ -1,7 +1,7 @@
 """
-========================
-Demo Ticklabel Direction
-========================
+===================
+Ticklabel direction
+===================
 
 """
 
@@ -9,13 +9,10 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.axisartist.axislines as axislines
 
 
-def setup_axes(fig, rect):
-    ax = axislines.Subplot(fig, rect)
-    fig.add_subplot(ax)
-
+def setup_axes(fig, pos):
+    ax = fig.add_subplot(pos, axes_class=axislines.Axes)
     ax.set_yticks([0.2, 0.8])
     ax.set_xticks([0.2, 0.8])
-
     return ax
 
 

@@ -6,16 +6,16 @@ Logit Demo
 Examples of plots with logit axes.
 """
 
+import math
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 xmax = 10
 x = np.linspace(-xmax, xmax, 10000)
-cdf_norm = np.array([np.math.erf(w / np.sqrt(2)) / 2 + 1 / 2 for w in x])
-cdf_laplacian = np.array(
-    [1 / 2 * np.exp(w) if w < 0 else 1 - 1 / 2 * np.exp(-w) for w in x]
-)
-cdf_cauchy = 1 / np.pi * np.arctan(x) + 1 / 2
+cdf_norm = [math.erf(w / np.sqrt(2)) / 2 + 1 / 2 for w in x]
+cdf_laplacian = np.where(x < 0, 1 / 2 * np.exp(x), 1 - 1 / 2 * np.exp(-x))
+cdf_cauchy = np.arctan(x) / np.pi + 1 / 2
 
 fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(6.4, 8.5))
 

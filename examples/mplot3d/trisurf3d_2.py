@@ -6,7 +6,7 @@ More triangular 3D surfaces
 Two additional examples of plotting surfaces with triangular mesh.
 
 The first demonstrates use of plot_trisurf's triangles argument, and the
-second sets a Triangulation object's mask and passes the object directly
+second sets a `.Triangulation` object's mask and passes the object directly
 to plot_trisurf.
 """
 
@@ -17,9 +17,9 @@ import matplotlib.tri as mtri
 
 fig = plt.figure(figsize=plt.figaspect(0.5))
 
-#============
+# ==========
 # First plot
-#============
+# ==========
 
 # Make a mesh in the space of parameterisation variables u and v
 u = np.linspace(0, 2.0 * np.pi, endpoint=True, num=50)
@@ -43,9 +43,9 @@ ax.plot_trisurf(x, y, z, triangles=tri.triangles, cmap=plt.cm.Spectral)
 ax.set_zlim(-1, 1)
 
 
-#============
+# ===========
 # Second plot
-#============
+# ===========
 
 # Make parameter spaces radii and angles.
 n_angles = 36

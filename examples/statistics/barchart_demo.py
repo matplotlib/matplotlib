@@ -15,29 +15,20 @@ children did. To extract the plotting code for demo purposes, we'll
 just make up some data for little Johnny Doe.
 """
 
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 from collections import namedtuple
+import numpy as np
+import matplotlib.pyplot as plt
 
-np.random.seed(42)
 
 Student = namedtuple('Student', ['name', 'grade', 'gender'])
-Score = namedtuple('Score', ['score', 'percentile'])
-
-# GLOBAL CONSTANTS
-test_names = ['Pacer Test', 'Flexed Arm\n Hang', 'Mile Run', 'Agility',
-              'Push Ups']
-test_meta = dict(zip(test_names, ['laps', 'sec', 'min:sec', 'sec', '']))
+Score = namedtuple('Score', ['value', 'unit', 'percentile'])
 
 
-def attach_ordinal(num):
+def to_ordinal(num):
     """Convert an integer to an ordinal string, e.g. 2 -> '2nd'."""
     suffixes = {str(i): v
                 for i, v in enumerate(['th', 'st', 'nd', 'rd', 'th',
                                        'th', 'th', 'th', 'th', 'th'])}
-
     v = str(num)
     # special case early teens
     if v in {'11', '12', '13'}:
@@ -45,140 +36,76 @@ def attach_ordinal(num):
     return v + suffixes[v[-1]]
 
 
-def format_score(scr, test):
+def format_score(score):
     """
-    Build up the score labels for the right Y-axis by first
-    appending a carriage return to each string and then tacking on
-    the appropriate meta information (i.e., 'laps' vs. 'seconds'). We
-    want the labels centered on the ticks, so if there is no meta
-    info (like for pushups) then don't add the carriage return to
-    the string
+    Create score labels for the right y-axis as the test name followed by the
+    measurement unit (if any), split over two lines.
     """
-    md = test_meta[test]
-    if md:
-        return '{0}\n{1}'.format(scr, md)
-    else:
-        return scr
+    return f'{score.value}\n{score.unit}' if score.unit else str(score.value)
 
 
-def format_ycursor(y):
-    y = int(y)
-    if y < 0 or y >= len(test_names):
-        return ''
-    else:
-        return test_names[y]
-
-
-def plot_student_results(student, scores, cohort_size):
-    #  create the figure
-    fig, ax1 = plt.subplots(figsize=(9, 7))
-    fig.subplots_adjust(left=0.115, right=0.88)
-    fig.canvas.set_window_title('Eldorado K-8 Fitness Chart')
-
-    pos = np.arange(len(test_names))
-
-    rects = ax1.barh(pos, [scores[k].percentile for k in test_names],
-                     align='center',
-                     height=0.5,
-                     tick_label=test_names)
+def plot_student_results(student, scores_by_test, cohort_size):
+    fig, ax1 = plt.subplots(figsize=(9, 7), constrained_layout=True)
+    fig.canvas.manager.set_window_title('Eldorado K-8 Fitness Chart')
 
     ax1.set_title(student.name)
+    ax1.set_xlabel(
+        'Percentile Ranking Across {grade} Grade {gender}s\n'
+        'Cohort Size: {cohort_size}'.format(
+            grade=to_ordinal(student.grade),
+            gender=student.gender.title(),
+            cohort_size=cohort_size))
+
+    test_names = list(scores_by_test.keys())
+    percentiles = [score.percentile for score in scores_by_test.values()]
+
+    rects = ax1.barh(test_names, percentiles, align='center', height=0.5)
+    # Partition the percentile values to be able to draw large numbers in
+    # white within the bar, and small numbers in black outside the bar.
+    large_percentiles = [to_ordinal(p) if p > 40 else '' for p in percentiles]
+    small_percentiles = [to_ordinal(p) if p <= 40 else '' for p in percentiles]
+    ax1.bar_label(rects, small_percentiles,
+                  padding=5, color='black', fontweight='bold')
+    ax1.bar_label(rects, large_percentiles,
+                  padding=-32, color='white', fontweight='bold')
 
     ax1.set_xlim([0, 100])
-    ax1.xaxis.set_major_locator(MaxNLocator(11))
+    ax1.set_xticks([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
     ax1.xaxis.grid(True, linestyle='--', which='major',
                    color='grey', alpha=.25)
-
-    # Plot a solid vertical gridline to highlight the median position
-    ax1.axvline(50, color='grey', alpha=0.25)
+    ax1.axvline(50, color='grey', alpha=0.25)  # median position
 
     # Set the right-hand Y-axis ticks and labels
     ax2 = ax1.twinx()
-
-    scoreLabels = [format_score(scores[k].score, k) for k in test_names]
-
-    # set the tick locations
-    ax2.set_yticks(pos)
-    # make sure that the limits are set equally on both yaxis so the
-    # ticks line up
+    # Set equal limits on both yaxis so that the ticks line up
     ax2.set_ylim(ax1.get_ylim())
-
-    # set the tick labels
-    ax2.set_yticklabels(scoreLabels)
+    # Set the tick locations and labels
+    ax2.set_yticks(
+        np.arange(len(scores_by_test)),
+        labels=[format_score(score) for score in scores_by_test.values()])
 
     ax2.set_ylabel('Test Scores')
 
-    xlabel = ('Percentile Ranking Across {grade} Grade {gender}s\n'
-              'Cohort Size: {cohort_size}')
-    ax1.set_xlabel(xlabel.format(grade=attach_ordinal(student.grade),
-                                 gender=student.gender.title(),
-                                 cohort_size=cohort_size))
 
-    rect_labels = []
-    # Lastly, write in the ranking inside each bar to aid in interpretation
-    for rect in rects:
-        # Rectangle widths are already integer-valued but are floating
-        # type, so it helps to remove the trailing decimal point and 0 by
-        # converting width to int type
-        width = int(rect.get_width())
+student = Student(name='Johnny Doe', grade=2, gender='Boy')
+scores_by_test = {
+    'Pacer Test': Score(7, 'laps', percentile=37),
+    'Flexed Arm\n Hang': Score(48, 'sec', percentile=95),
+    'Mile Run': Score('12:52', 'min:sec', percentile=73),
+    'Agility': Score(17, 'sec', percentile=60),
+    'Push Ups': Score(14, '', percentile=16),
+}
 
-        rankStr = attach_ordinal(width)
-        # The bars aren't wide enough to print the ranking inside
-        if width < 40:
-            # Shift the text to the right side of the right edge
-            xloc = 5
-            # Black against white background
-            clr = 'black'
-            align = 'left'
-        else:
-            # Shift the text to the left side of the right edge
-            xloc = -5
-            # White on magenta
-            clr = 'white'
-            align = 'right'
-
-        # Center the text vertically in the bar
-        yloc = rect.get_y() + rect.get_height() / 2
-        label = ax1.annotate(rankStr, xy=(width, yloc), xytext=(xloc, 0),
-                            textcoords="offset points",
-                            ha=align, va='center',
-                            color=clr, weight='bold', clip_on=True)
-        rect_labels.append(label)
-
-    # make the interactive mouse over give the bar title
-    ax2.fmt_ydata = format_ycursor
-    # return all of the artists created
-    return {'fig': fig,
-            'ax': ax1,
-            'ax_right': ax2,
-            'bars': rects,
-            'perc_labels': rect_labels}
-
-
-student = Student('Johnny Doe', 2, 'boy')
-scores = dict(zip(
-    test_names,
-    (Score(v, p) for v, p in
-     zip(['7', '48', '12:52', '17', '14'],
-         np.round(np.random.uniform(0, 100, len(test_names)), 0)))))
-cohort_size = 62  # The number of other 2nd grade boys
-
-arts = plot_student_results(student, scores, cohort_size)
+plot_student_results(student, scores_by_test, cohort_size=62)
 plt.show()
-
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
-matplotlib.axes.Axes.annotate
-matplotlib.pyplot.annotate
-matplotlib.axes.Axes.twinx
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.axes.Axes.bar_label` / `matplotlib.pyplot.bar_label`
+#    - `matplotlib.axes.Axes.twinx` / `matplotlib.pyplot.twinx`

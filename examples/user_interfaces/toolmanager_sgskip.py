@@ -3,50 +3,51 @@
 Tool Manager
 ============
 
-This example demonstrates how to:
+This example demonstrates how to
 
-* Modify the Toolbar
-* Create tools
-* Add tools
-* Remove tools
+* modify the Toolbar
+* create tools
+* add tools
+* remove tools
 
-Using `matplotlib.backend_managers.ToolManager`
+using `matplotlib.backend_managers.ToolManager`.
 """
 
 import matplotlib.pyplot as plt
-plt.rcParams['toolbar'] = 'toolmanager'
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
 
 
+plt.rcParams['toolbar'] = 'toolmanager'
+
+
 class ListTools(ToolBase):
-    '''List all the tools controlled by the `ToolManager`'''
-    # keyboard shortcut
-    default_keymap = 'm'
+    """List all the tools controlled by the `ToolManager`."""
+    default_keymap = 'm'  # keyboard shortcut
     description = 'List Tools'
 
     def trigger(self, *args, **kwargs):
         print('_' * 80)
-        print("{0:12} {1:45} {2}".format(
-            'Name (id)', 'Tool description', 'Keymap'))
+        fmt_tool = "{:12} {:45} {}".format
+        print(fmt_tool('Name (id)', 'Tool description', 'Keymap'))
         print('-' * 80)
         tools = self.toolmanager.tools
         for name in sorted(tools):
             if not tools[name].description:
                 continue
             keys = ', '.join(sorted(self.toolmanager.get_tool_keymap(name)))
-            print("{0:12} {1:45} {2}".format(
-                name, tools[name].description, keys))
+            print(fmt_tool(name, tools[name].description, keys))
         print('_' * 80)
+        fmt_active_toggle = "{0!s:12} {1!s:45}".format
         print("Active Toggle tools")
-        print("{0:12} {1:45}".format("Group", "Active"))
+        print(fmt_active_toggle("Group", "Active"))
         print('-' * 80)
         for group, active in self.toolmanager.active_toggle.items():
-            print("{0:12} {1:45}".format(str(group), str(active)))
+            print(fmt_active_toggle(group, active))
 
 
 class GroupHideTool(ToolToggleBase):
-    '''Show lines with a given gid'''
-    default_keymap = 'G'
+    """Show lines with a given gid."""
+    default_keymap = 'S'
     description = 'Show by gid'
     default_toggled = True
 
@@ -76,7 +77,6 @@ plt.plot([3, 2, 1], gid='mygroup')
 # Add the custom tools that we created
 fig.canvas.manager.toolmanager.add_tool('List', ListTools)
 fig.canvas.manager.toolmanager.add_tool('Show', GroupHideTool, gid='mygroup')
-
 
 # Add an existing tool to new group `foo`.
 # It can be added as many times as we want

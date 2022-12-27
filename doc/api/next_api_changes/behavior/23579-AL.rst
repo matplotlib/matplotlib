@@ -1,0 +1,5 @@
+``HostAxesBase.get_aux_axes`` now defaults to using the same base axes class as the host axes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If using an ``mpl_toolkits.axisartist``-based host Axes, the parasite Axes will
+also be based on ``mpl_toolkits.axisartist``.  This behavior is consistent with
+``HostAxesBase.twin``, ``HostAxesBase.twinx``, and ``HostAxesBase.twiny``.

@@ -9,6 +9,14 @@ selected points
 
 This is currently a proof-of-concept implementation (though it is
 usable as is).  There will be some refinement of the API.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 
 from matplotlib import colors as mcolors, path
@@ -45,11 +53,11 @@ class LassoManager:
             6, sizes=(100,),
             facecolors=facecolors,
             offsets=self.xys,
-            transOffset=ax.transData)
+            offset_transform=ax.transData)
 
         ax.add_collection(self.collection)
 
-        self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
+        self.cid = self.canvas.mpl_connect('button_press_event', self.on_press)
 
     def callback(self, verts):
         facecolors = self.collection.get_facecolors()
@@ -65,7 +73,7 @@ class LassoManager:
         self.canvas.widgetlock.release(self.lasso)
         del self.lasso
 
-    def onpress(self, event):
+    def on_press(self, event):
         if self.canvas.widgetlock.locked():
             return
         if event.inaxes is None:

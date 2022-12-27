@@ -19,7 +19,8 @@ want a legend item to show up for each one. If you simply plot the lines
 and call ``ax.legend()``, you will get the following:
 """
 # sphinx_gallery_thumbnail_number = 2
-from matplotlib import rcParams, cycler
+import matplotlib as mpl
+from matplotlib import cycler
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -27,17 +28,16 @@ import numpy as np
 np.random.seed(19680801)
 
 N = 10
-data = [np.logspace(0, 1, 100) + np.random.randn(100) + ii for ii in range(N)]
-data = np.array(data).T
+data = (np.geomspace(1, 10, 100) + np.random.randn(N, 100)).T
 cmap = plt.cm.coolwarm
-rcParams['axes.prop_cycle'] = cycler(color=cmap(np.linspace(0, 1, N)))
+mpl.rcParams['axes.prop_cycle'] = cycler(color=cmap(np.linspace(0, 1, N)))
 
 fig, ax = plt.subplots()
 lines = ax.plot(data)
-ax.legend(lines)
+ax.legend()
 
 ##############################################################################
-# Note that one legend item per line was created.
+# Note that no legend entries were created.
 # In this case, we can compose a legend using Matplotlib objects that aren't
 # explicitly tied to the data that was plotted. For example:
 

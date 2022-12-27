@@ -3,8 +3,8 @@
 Colorbar
 ========
 
-Use `~.figure.Figure.colorbar` by specifying the mappable object (here
-the `~.matplotlib.image.AxesImage` returned by `~.axes.Axes.imshow`)
+Use `~.Figure.colorbar` by specifying the mappable object (here
+the `.AxesImage` returned by `~.axes.Axes.imshow`)
 and the axes to attach the colorbar to.
 """
 
@@ -32,8 +32,9 @@ pos = ax1.imshow(Zpos, cmap='Blues', interpolation='none')
 fig.colorbar(pos, ax=ax1)
 
 # repeat everything above for the negative data
+# you can specify location, anchor and shrink the colorbar
 neg = ax2.imshow(Zneg, cmap='Reds_r', interpolation='none')
-fig.colorbar(neg, ax=ax2)
+fig.colorbar(neg, ax=ax2, location='right', anchor=(0, 0.3), shrink=0.7)
 
 # Plot both positive and negative values between +/- 1.2
 pos_neg_clipped = ax3.imshow(Z, cmap='RdBu', vmin=-1.2, vmax=1.2,
@@ -46,19 +47,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-import matplotlib.colorbar
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colorbar.Colorbar.minorticks_on
-matplotlib.colorbar.Colorbar.minorticks_off
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colorbar.Colorbar.minorticks_on`
+#    - `matplotlib.colorbar.Colorbar.minorticks_off`

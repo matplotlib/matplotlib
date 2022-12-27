@@ -11,6 +11,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Ellipse
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 NUM = 250
 
 ells = [Ellipse(xy=np.random.rand(2) * 10,
@@ -38,41 +42,30 @@ plt.show()
 # Draw many ellipses with different angles.
 #
 
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.patches import Ellipse
+angle_step = 45  # degrees
+angles = np.arange(0, 180, angle_step)
 
-delta = 45.0  # degrees
+fig, ax = plt.subplots(subplot_kw={'aspect': 'equal'})
 
-angles = np.arange(0, 360 + delta, delta)
-ells = [Ellipse((1, 1), 4, 2, a) for a in angles]
+for angle in angles:
+    ellipse = Ellipse((0, 0), 4, 2, angle=angle, alpha=0.1)
+    ax.add_artist(ellipse)
 
-a = plt.subplot(111, aspect='equal')
-
-for e in ells:
-    e.set_clip_box(a.bbox)
-    e.set_alpha(0.1)
-    a.add_artist(e)
-
-plt.xlim(-2, 4)
-plt.ylim(-1, 3)
+ax.set_xlim(-2.2, 2.2)
+ax.set_ylim(-2.2, 2.2)
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches
-matplotlib.patches.Ellipse
-matplotlib.axes.Axes.add_artist
-matplotlib.artist.Artist.set_clip_box
-matplotlib.artist.Artist.set_alpha
-matplotlib.patches.Patch.set_facecolor
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.Ellipse`
+#    - `matplotlib.axes.Axes.add_artist`
+#    - `matplotlib.artist.Artist.set_clip_box`
+#    - `matplotlib.artist.Artist.set_alpha`
+#    - `matplotlib.patches.Patch.set_facecolor`

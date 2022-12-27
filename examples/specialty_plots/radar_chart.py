@@ -8,10 +8,10 @@ This example creates a radar chart, also known as a spider or star chart [1]_.
 Although this example allows a frame of either 'circle' or 'polygon', polygon
 frames don't have proper gridlines (the lines are circles instead of polygons).
 It's possible to get a polygon grid by setting GRIDLINE_INTERPOLATION_STEPS in
-matplotlib.axis to the desired number of vertices, but the orientation of the
+`matplotlib.axis` to the desired number of vertices, but the orientation of the
 polygon is not aligned with the radial axes.
 
-.. [1] http://en.wikipedia.org/wiki/Radar_chart
+.. [1] https://en.wikipedia.org/wiki/Radar_chart
 """
 
 import numpy as np
@@ -26,7 +26,8 @@ from matplotlib.transforms import Affine2D
 
 
 def radar_factory(num_vars, frame='circle'):
-    """Create a radar chart with `num_vars` axes.
+    """
+    Create a radar chart with `num_vars` axes.
 
     This function creates a RadarAxes projection and registers it.
 
@@ -41,11 +42,20 @@ def radar_factory(num_vars, frame='circle'):
     # calculate evenly-spaced axis angles
     theta = np.linspace(0, 2*np.pi, num_vars, endpoint=False)
 
+    class RadarTransform(PolarAxes.PolarTransform):
+
+        def transform_path_non_affine(self, path):
+            # Paths with non-unit interpolation steps correspond to gridlines,
+            # in which case we force interpolation (to defeat PolarTransform's
+            # autoconversion to circular arcs).
+            if path._interpolation_steps > 1:
+                path = path.interpolated(num_vars)
+            return Path(self.transform(path.vertices), path.codes)
+
     class RadarAxes(PolarAxes):
 
         name = 'radar'
-        # use 1 line segment to connect specified points
-        RESOLUTION = 1
+        PolarTransform = RadarTransform
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -66,8 +76,8 @@ def radar_factory(num_vars, frame='circle'):
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:
-                x = np.concatenate((x, [x[0]]))
-                y = np.concatenate((y, [y[0]]))
+                x = np.append(x, x[0])
+                y = np.append(y, y[0])
                 line.set_data(x, y)
 
         def set_varlabels(self, labels):
@@ -82,7 +92,7 @@ def radar_factory(num_vars, frame='circle'):
                 return RegularPolygon((0.5, 0.5), num_vars,
                                       radius=.5, edgecolor="k")
             else:
-                raise ValueError("unknown value for 'frame': %s" % frame)
+                raise ValueError("Unknown value for 'frame': %s" % frame)
 
         def _gen_axes_spines(self):
             if frame == 'circle':
@@ -99,7 +109,7 @@ def radar_factory(num_vars, frame='circle'):
                                     + self.transAxes)
                 return {'polar': spine}
             else:
-                raise ValueError("unknown value for 'frame': %s" % frame)
+                raise ValueError("Unknown value for 'frame': %s" % frame)
 
     register_projection(RadarAxes)
     return theta
@@ -121,7 +131,7 @@ def example_data():
     #     Organic Carbon fraction 1 (OC)
     #     Organic Carbon fraction 2 (OC2)
     #     Organic Carbon fraction 3 (OC3)
-    #     Pyrolized Organic Carbon (OP)
+    #     Pyrolyzed Organic Carbon (OP)
     #  2)Inclusion of gas-phase specie carbon monoxide (CO)
     #  3)Inclusion of gas-phase specie ozone (O3).
     #  4)Inclusion of both gas-phase species is present...
@@ -174,7 +184,7 @@ if __name__ == '__main__':
                      horizontalalignment='center', verticalalignment='center')
         for d, color in zip(case_data, colors):
             ax.plot(theta, d, color=color)
-            ax.fill(theta, d, facecolor=color, alpha=0.25)
+            ax.fill(theta, d, facecolor=color, alpha=0.25, label='_nolegend_')
         ax.set_varlabels(spoke_labels)
 
     # add legend relative to top-left plot
@@ -191,20 +201,16 @@ if __name__ == '__main__':
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.path
-matplotlib.path.Path
-matplotlib.spines
-matplotlib.spines.Spine
-matplotlib.projections
-matplotlib.projections.polar
-matplotlib.projections.polar.PolarAxes
-matplotlib.projections.register_projection
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.spines`
+#    - `matplotlib.spines.Spine`
+#    - `matplotlib.projections`
+#    - `matplotlib.projections.polar`
+#    - `matplotlib.projections.polar.PolarAxes`
+#    - `matplotlib.projections.register_projection`

@@ -1,8 +1,8 @@
 .. _whats-new-1-2:
 
 
-New in matplotlib 1.2
-=====================
+What's new in Matplotlib 1.2 (Nov 9, 2012)
+==========================================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -67,8 +67,6 @@ Damon McDougall added a new plotting method for the
    :align: center
    :scale: 50
 
-   Trisurf3d
-
 Control the lengths of colorbar extensions
 ------------------------------------------
 
@@ -124,7 +122,7 @@ New Boxplot Functionality
 -------------------------
 
 Users can now incorporate their own methods for computing the median and its
-confidence intervals into the :meth:`~matplotlib.axes.boxplot` method. For
+confidence intervals into the `~.Axes.boxplot` method. For
 every column of data passed to boxplot, the user can specify an accompanying
 median and confidence interval.
 
@@ -132,9 +130,6 @@ median and confidence interval.
    :target: ../../gallery/statistics/boxplot_demo.html
    :align: center
    :scale: 50
-
-   Boxplot Demo3
-
 
 New RC parameter functionality
 ------------------------------
@@ -168,17 +163,14 @@ local intensity of the vector field.
    :align: center
    :scale: 50
 
-   Plot Streamplot
-
-
 New hist functionality
 ----------------------
 
-Nic Eggert added a new `stacked` kwarg to :meth:`~matplotlib.pyplot.hist` that
+Nic Eggert added a new *stacked* kwarg to :meth:`~matplotlib.pyplot.hist` that
 allows creation of stacked histograms using any of the histogram types.
-Previously, this functionality was only available by using the `barstacked`
-histogram type. Now, when `stacked=True` is passed to the function, any of the
-histogram types can be stacked. The `barstacked` histogram type retains its
+Previously, this functionality was only available by using the "barstacked"
+histogram type. Now, when ``stacked=True`` is passed to the function, any of the
+histogram types can be stacked. The "barstacked" histogram type retains its
 previous functionality for backwards compatibility.
 
 Updated shipped dependencies
@@ -187,10 +179,9 @@ Updated shipped dependencies
 The following dependencies that ship with matplotlib and are
 optionally installed alongside it have been updated:
 
-  - `pytz <http://pytz.sf.net/>` 2012d
-
-  - `dateutil <http://labix.org/python-dateutil>` 1.5 on Python 2.x,
-    and 2.1 on Python 3.x
+- `pytz <http://pytz.sourceforge.net/>`_ 2012d
+- `dateutil <http://labix.org/python-dateutil>`_ 1.5 on Python 2.x,
+   and 2.1 on Python 3.x
 
 
 Face-centred colors in tripcolor plots
@@ -205,8 +196,6 @@ a triangulation.
    :align: center
    :scale: 50
 
-   Tripcolor Demo
-
 Hatching patterns in filled contour plots, with legends
 -------------------------------------------------------
 
@@ -218,8 +207,6 @@ to use a legend to identify contoured ranges.
    :target: ../../gallery/images_contours_and_fields/contourf_hatching.html
    :align: center
    :scale: 50
-
-   Contourf Hatching
 
 Known issues in the matplotlib 1.2 release
 ------------------------------------------

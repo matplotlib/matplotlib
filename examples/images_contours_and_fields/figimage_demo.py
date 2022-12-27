@@ -7,7 +7,6 @@ This illustrates placing images directly in the figure, with no Axes objects.
 
 """
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
 
@@ -22,14 +21,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-matplotlib.figure.Figure
-matplotlib.figure.Figure.figimage
-matplotlib.pyplot.figimage
+#    - `matplotlib.figure.Figure`
+#    - `matplotlib.figure.Figure.figimage` / `matplotlib.pyplot.figimage`

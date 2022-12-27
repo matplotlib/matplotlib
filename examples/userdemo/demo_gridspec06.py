@@ -7,9 +7,7 @@ This example demonstrates the use of nested `.GridSpec`\s.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 import numpy as np
-from itertools import product
 
 
 def squiggle_xy(a, b, c, d):
@@ -18,35 +16,23 @@ def squiggle_xy(a, b, c, d):
 
 
 fig = plt.figure(figsize=(8, 8))
+outer_grid = fig.add_gridspec(4, 4, wspace=0, hspace=0)
 
-# gridspec inside gridspec
-outer_grid = gridspec.GridSpec(4, 4, wspace=0.0, hspace=0.0)
-
-for i in range(16):
-    inner_grid = gridspec.GridSpecFromSubplotSpec(3, 3,
-            subplot_spec=outer_grid[i], wspace=0.0, hspace=0.0)
-    a = i // 4 + 1
-    b = i % 4 + 1
-    for j, (c, d) in enumerate(product(range(1, 4), repeat=2)):
-        ax = fig.add_subplot(inner_grid[j])
-        ax.plot(*squiggle_xy(a, b, c, d))
-        ax.set_xticks([])
-        ax.set_yticks([])
-        fig.add_subplot(ax)
-
-all_axes = fig.get_axes()
+for a in range(4):
+    for b in range(4):
+        # gridspec inside gridspec
+        inner_grid = outer_grid[a, b].subgridspec(3, 3, wspace=0, hspace=0)
+        axs = inner_grid.subplots()  # Create all subplots for the inner grid.
+        for (c, d), ax in np.ndenumerate(axs):
+            ax.plot(*squiggle_xy(a + 1, b + 1, c + 1, d + 1))
+            ax.set(xticks=[], yticks=[])
 
 # show only the outside spines
-for ax in all_axes:
-    for sp in ax.spines.values():
-        sp.set_visible(False)
-    if ax.is_first_row():
-        ax.spines['top'].set_visible(True)
-    if ax.is_last_row():
-        ax.spines['bottom'].set_visible(True)
-    if ax.is_first_col():
-        ax.spines['left'].set_visible(True)
-    if ax.is_last_col():
-        ax.spines['right'].set_visible(True)
+for ax in fig.get_axes():
+    ss = ax.get_subplotspec()
+    ax.spines.top.set_visible(ss.is_first_row())
+    ax.spines.bottom.set_visible(ss.is_last_row())
+    ax.spines.left.set_visible(ss.is_first_col())
+    ax.spines.right.set_visible(ss.is_last_col())
 
 plt.show()

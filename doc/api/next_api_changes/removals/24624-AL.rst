@@ -1,0 +1,10 @@
+Expiration of ``FancyBboxPatch`` deprecations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The `.FancyBboxPatch` constructor no longer accepts the *bbox_transmuter*
+parameter, nor can the *boxstyle* parameter be set to "custom" -- instead,
+directly set *boxstyle* to the relevant boxstyle instance.  The
+*mutation_scale* and *mutation_aspect* parameters have also become
+keyword-only.
+
+The *mutation_aspect* parameter is now handled internally and no longer passed
+to the boxstyle callables when mutating the patch path.

@@ -1,13 +1,21 @@
 """
 ============
-Data Browser
+Data browser
 ============
 
 Connecting data between multiple canvases.
 
 This example covers how to interact data with multiple canvases. This
-let's you select and highlight a point on one axis, and generating the
+lets you select and highlight a point on one axis, and generating the
 data of that point on the other axis.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 import numpy as np
 
@@ -27,7 +35,7 @@ class PointBrowser:
         self.selected, = ax.plot([xs[0]], [ys[0]], 'o', ms=12, alpha=0.4,
                                  color='yellow', visible=False)
 
-    def onpress(self, event):
+    def on_press(self, event):
         if self.lastind is None:
             return
         if event.key not in ('n', 'p'):
@@ -41,7 +49,7 @@ class PointBrowser:
         self.lastind = np.clip(self.lastind, 0, len(xs) - 1)
         self.update()
 
-    def onpick(self, event):
+    def on_pick(self, event):
 
         if event.artist != line:
             return True
@@ -67,10 +75,10 @@ class PointBrowser:
 
         dataind = self.lastind
 
-        ax2.cla()
+        ax2.clear()
         ax2.plot(X[dataind])
 
-        ax2.text(0.05, 0.9, 'mu=%1.3f\nsigma=%1.3f' % (xs[dataind], ys[dataind]),
+        ax2.text(0.05, 0.9, f'mu={xs[dataind]:1.3f}\nsigma={ys[dataind]:1.3f}',
                  transform=ax2.transAxes, va='top')
         ax2.set_ylim(-0.5, 1.5)
         self.selected.set_visible(True)
@@ -91,11 +99,11 @@ if __name__ == '__main__':
 
     fig, (ax, ax2) = plt.subplots(2, 1)
     ax.set_title('click on point to plot time series')
-    line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
+    line, = ax.plot(xs, ys, 'o', picker=True, pickradius=5)
 
     browser = PointBrowser()
 
-    fig.canvas.mpl_connect('pick_event', browser.onpick)
-    fig.canvas.mpl_connect('key_press_event', browser.onpress)
+    fig.canvas.mpl_connect('pick_event', browser.on_pick)
+    fig.canvas.mpl_connect('key_press_event', browser.on_press)
 
     plt.show()

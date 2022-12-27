@@ -9,7 +9,7 @@ The object underlying all of the :mod:`matplotlib.patches` objects is
 the :class:`~matplotlib.path.Path`, which supports the standard set of
 moveto, lineto, curveto commands to draw simple and compound outlines
 consisting of line segments and splines.  The ``Path`` is instantiated
-with a (N, 2) array of (x, y) vertices, and a N-length array of path
+with a (N, 2) array of (x, y) vertices, and an N-length array of path
 codes.  For example to draw the unit rectangle from (0, 0) to (1, 1), we
 could use this code:
 """
@@ -47,16 +47,26 @@ plt.show()
 ###############################################################################
 # The following path codes are recognized
 #
-# ============== =================================  ====================================================================================================================
-# Code           Vertices                           Description
-# ============== =================================  ====================================================================================================================
-# ``STOP``       1 (ignored)                        A marker for the end of the entire path (currently not required and ignored)
-# ``MOVETO``     1                                  Pick up the pen and move to the given vertex.
-# ``LINETO``     1                                  Draw a line from the current position to the given vertex.
-# ``CURVE3``     2 (1 control point, 1 endpoint)    Draw a quadratic Bézier curve from the current position, with the given control point, to the given end point.
-# ``CURVE4``     3 (2 control points, 1 endpoint)   Draw a cubic Bézier curve from the current position, with the given control points, to the given end point.
-# ``CLOSEPOLY``  1 (point itself is ignored)        Draw a line segment to the start point of the current polyline.
-# ============== =================================  ====================================================================================================================
+# ============= ======================== ======================================
+# Code          Vertices                 Description
+# ============= ======================== ======================================
+# ``STOP``      1 (ignored)              A marker for the end of the entire
+#                                        path (currently not required and
+#                                        ignored).
+# ``MOVETO``    1                        Pick up the pen and move to the given
+#                                        vertex.
+# ``LINETO``    1                        Draw a line from the current position
+#                                        to the given vertex.
+# ``CURVE3``    2:                       Draw a quadratic Bézier curve from the
+#               1 control point,         current position, with the given
+#               1 end point              control point, to the given end point.
+# ``CURVE4``    3:                       Draw a cubic Bézier curve from the
+#               2 control points,        current position, with the given
+#               1 end point              control points, to the given end
+#                                        point.
+# ``CLOSEPOLY`` 1 (the point is ignored) Draw a line segment to the start point
+#                                        of the current polyline.
+# ============= ======================== ======================================
 #
 #
 # .. path-curves:
@@ -66,11 +76,11 @@ plt.show()
 # ==============
 #
 # Some of the path components require multiple vertices to specify them:
-# for example CURVE 3 is a `bézier
+# for example CURVE 3 is a `Bézier
 # <https://en.wikipedia.org/wiki/B%C3%A9zier_curve>`_ curve with one
 # control point and one end point, and CURVE4 has three vertices for the
 # two control points and the end point.  The example below shows a
-# CURVE4 Bézier spline -- the bézier curve will be contained in the
+# CURVE4 Bézier spline -- the Bézier curve will be contained in the
 # convex hull of the start point, the two control points, and the end
 # point
 
@@ -129,8 +139,8 @@ plt.show()
 # for each histogram bar: the rectangle width is the bin width and the
 # rectangle height is the number of datapoints in that bin.  First we'll
 # create some random normally distributed data and compute the
-# histogram.  Because numpy returns the bin edges and not centers, the
-# length of ``bins`` is 1 greater than the length of ``n`` in the
+# histogram.  Because NumPy returns the bin edges and not centers, the
+# length of ``bins`` is one greater than the length of ``n`` in the
 # example below::
 #
 #     # histogram our data with numpy
@@ -138,7 +148,7 @@ plt.show()
 #     n, bins = np.histogram(data, 100)
 #
 # We'll now extract the corners of the rectangles.  Each of the
-# ``left``, ``bottom``, etc, arrays below is ``len(n)``, where ``n`` is
+# ``left``, ``bottom``, etc., arrays below is ``len(n)``, where ``n`` is
 # the array of counts for each histogram bar::
 #
 #     # get the corners of the rectangles for the histogram
@@ -149,10 +159,10 @@ plt.show()
 #
 # Now we have to construct our compound path, which will consist of a
 # series of ``MOVETO``, ``LINETO`` and ``CLOSEPOLY`` for each rectangle.
-# For each rectangle, we need 5 vertices: 1 for the ``MOVETO``, 3 for
-# the ``LINETO``, and 1 for the ``CLOSEPOLY``.  As indicated in the
-# table above, the vertex for the closepoly is ignored but we still need
-# it to keep the codes aligned with the vertices::
+# For each rectangle, we need five vertices: one for the ``MOVETO``,
+# three for the ``LINETO``, and one for the ``CLOSEPOLY``.  As indicated
+# in the table above, the vertex for the closepoly is ignored, but we still
+# need it to keep the codes aligned with the vertices::
 #
 #     nverts = nrects*(1+3+1)
 #     verts = np.zeros((nverts, 2))

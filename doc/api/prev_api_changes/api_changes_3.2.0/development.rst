@@ -3,7 +3,7 @@ Development changes
 
 Windows build
 ~~~~~~~~~~~~~
-Previously, when building the :mod:`matplotlib._png` extension, the build
+Previously, when building the ``matplotlib._png`` extension, the build
 script would add "png" and "z" to the extensions ``.libraries`` attribute (if
 pkg-config information is not available, which is in particular the case on
 Windows).
@@ -22,7 +22,7 @@ is desired.
 
 Packaging DLLs
 ~~~~~~~~~~~~~~
-Previously, it was possible to package Windows DLLs into the Maptlotlib
+Previously, it was possible to package Windows DLLs into the Matplotlib
 wheel (or sdist) by copying them into the source tree and setting the
 ``package_data.dlls`` entry in ``setup.cfg``.
 

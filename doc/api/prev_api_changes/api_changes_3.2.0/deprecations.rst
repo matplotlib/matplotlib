@@ -10,17 +10,16 @@ if so desired).
 
 plotfile
 ~~~~~~~~
-`.pyplot.plotfile` is deprecated in favor of separately loading and plotting
-the data.  See :doc:`/gallery/misc/plotfile_demo_sgskip` for various ways to
-use pandas or numpy to load data, and pandas or matplotlib to plot the
-resulting data.
+``.pyplot.plotfile`` is deprecated in favor of separately loading and plotting
+the data.  Use pandas or NumPy to load data, and pandas or matplotlib to plot
+the resulting data.
 
 axes and axis
 ~~~~~~~~~~~~~
 Setting ``Axis.major.locator``, ``Axis.minor.locator``, ``Axis.major.formatter``
-or ``Axis.minor.formatter`` to an object that is not a subclass of `Locator` or
-`Formatter` (respectively) is deprecated.  Note that these attributes should
-usually be set using `Axis.set_major_locator`, `Axis.set_minor_locator`, etc.
+or ``Axis.minor.formatter`` to an object that is not a subclass of `.Locator` or
+`.Formatter` (respectively) is deprecated.  Note that these attributes should
+usually be set using `.Axis.set_major_locator`, `.Axis.set_minor_locator`, etc.
 which already raise an exception when an object of the wrong class is passed.
 
 Passing more than one positional argument or unsupported keyword arguments to
@@ -45,10 +44,14 @@ The main differences are:
 
 - Setting the ticks on the colorbar is done by calling ``colorbar.set_ticks``
   rather than ``colorbar.cbar_axis.set_xticks`` or
-  ``colorbar.cbar_axis.set_yticks``.
+  ``colorbar.cbar_axis.set_yticks``; the ``locator`` parameter to ``colorbar()``
+  is deprecated in favor of its synonym ``ticks`` (which already existed
+  previously, and is consistent with :mod:`matplotlib.colorbar`).
 - The colorbar's long axis is accessed with ``colorbar.xaxis`` or
   ``colorbar.yaxis`` depending on the orientation, rather than
   ``colorbar.cbar_axis``.
+- The default ticker is no longer ``MaxNLocator(5)``, but a
+  ``_ColorbarAutoLocator``.
 - Overdrawing multiple colorbars on top of one another in a single Axes (e.g.
   when using the ``cax`` attribute of `~.axes_grid1.axes_grid.ImageGrid`
   elements) is not supported; if you previously relied on the second colorbar
@@ -86,9 +89,9 @@ Axes3D
 axisartist
 ~~~~~~~~~~
 ``mpl_toolkits.axisartist.grid_finder.GridFinderBase`` is deprecated (its
-only use is to be inherited by the `GridFinder` class which just provides
+only use is to be inherited by the `.GridFinder` class which just provides
 more defaults in the constructor and directly sets the transforms, so
-``GridFinderBase``'s methods were just moved to `GridFinder`).
+``GridFinderBase``'s methods were just moved to `.GridFinder`).
 
 ``axisartist.axis_artist.BezierPath`` is deprecated (use `.patches.PathPatch`
 to draw arbitrary Paths).
@@ -110,12 +113,12 @@ Deprecation of the constructor means that classes inheriting from
 
 Locators
 ~~~~~~~~
-The unused `Locator.autoscale()` method is deprecated (pass the axis limits to
-`Locator.view_limits()` instead).
+The unused ``Locator.autoscale`` method is deprecated (pass the axis limits to
+`.Locator.view_limits` instead).
 
 Animation
 ~~~~~~~~~
-The following methods and attributes of the `MovieWriterRegistry` class are
+The following methods and attributes of the `.MovieWriterRegistry` class are
 deprecated: ``set_dirty``, ``ensure_not_dirty``, ``reset_available_writers``,
 ``avail``.
 
@@ -138,6 +141,11 @@ Passing scalars to parameter *where* in ``fill_between()`` and
 *where* must be of the same size as *x* (or *y*), scalars were accepted and
 broadcasted to the size of *x*. Non-matching sizes will raise a ``ValueError``
 in the future.
+
+``scatter()``
+~~~~~~~~~~~~~
+Passing the *verts* parameter to `.axes.Axes.scatter` is deprecated; use the
+*marker* parameter instead.
 
 ``tight_layout()``
 ~~~~~~~~~~~~~~~~~~
@@ -216,11 +224,11 @@ is now available to register a font at a given path.
 
 The ``as_str``, ``as_rgba_str``, ``as_array``, ``get_width`` and ``get_height``
 methods of ``matplotlib.ft2font.FT2Image`` are deprecated.  Convert the ``FT2Image``
-to a numpy array with ``np.asarray`` before processing it.
+to a NumPy array with ``np.asarray`` before processing it.
 
 Colors
 ~~~~~~
-The function `matplotlib.colors.makeMappingArray` is not considered part of
+The function ``matplotlib.colors.makeMappingArray`` is not considered part of
 the public API any longer. Thus, it's deprecated.
 
 Using a string of single-character colors as a color sequence (e.g. "rgb") is
@@ -228,10 +236,11 @@ deprecated. Use an explicit list instead.
 
 Scales
 ~~~~~~
-Passing unsupported keyword arguments to `.ScaleBase` and its subclasses
-`.LinearScale`, and `.SymLogScale` is deprecated and will raise a `TypeError` in 3.3.
+Passing unsupported keyword arguments to `.ScaleBase`, and its subclasses
+`.LinearScale` and `.SymmetricalLogScale`, is deprecated and will raise a
+`TypeError` in 3.3.
 
-If extra kwargs are passed to `.LogScale`, `TypeError` will now be
+If extra keyword arguments are passed to `.LogScale`, `TypeError` will now be
 raised instead of `ValueError`.
 
 Testing
@@ -251,10 +260,20 @@ both 1) matplotlib's conftests have not been called and 2) nose is in
 During the deprecation period, to force the generation of nose base tests,
 import nose first.
 
-The ``switch_backend_warn`` parameter to ``matplotlib.test`` has no effect and
-is deprecated.
+The *switch_backend_warn* parameter to ``matplotlib.test`` has no effect and is
+deprecated.
 
 ``testing.jpl_units.UnitDbl.UnitDbl.checkUnits`` is deprecated.
+
+``DivergingNorm`` renamed to ``TwoSlopeNorm``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``DivergingNorm`` was a misleading name; although the norm was
+developed with the idea that it would likely be used with diverging
+colormaps, the word 'diverging' does not describe or evoke the norm's
+mapping function.  Since that function is monotonic, continuous, and
+piece-wise linear with two segments, the norm has been renamed to
+`.TwoSlopeNorm`
 
 Misc
 ~~~~
@@ -276,3 +295,10 @@ from the public API in future versions.
 
 ``style.core.is_style_file`` and ``style.core.iter_style_files``
 are deprecated.
+
+The ``datapath`` rcParam
+~~~~~~~~~~~~~~~~~~~~~~~~
+Use `.get_data_path` instead.  (The rcParam is deprecated because it cannot be
+meaningfully set by an end user.)  The rcParam had no effect from 3.2.0, but
+was deprecated only in 3.2.1.  In 3.2.1+ if ``'datapath'`` is set in a
+``matplotlibrc`` file it will be respected, but this behavior will be removed in 3.3.

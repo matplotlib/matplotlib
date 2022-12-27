@@ -2,12 +2,17 @@
 
 ## PR Checklist
 
-- [ ] Has Pytest style unit tests
-- [ ] Code is [Flake 8](http://flake8.pycqa.org/en/latest/) compliant
-- [ ] New features are documented, with examples if plot related
-- [ ] Documentation is sphinx and numpydoc compliant
-- [ ] Added an entry to doc/users/next_whats_new/ if major new feature (follow instructions in README.rst there)
-- [ ] Documented in doc/api/api_changes.rst if API changed in a backward-incompatible way
+<!-- Please mark any checkboxes that do not apply to this PR as [N/A]. -->
+
+**Documentation and Tests**
+- [ ] Has pytest style unit tests (and `pytest` passes)
+- [ ] Documentation is sphinx and numpydoc compliant (the docs should [build](https://matplotlib.org/devel/documenting_mpl.html#building-the-docs) without error).
+- [ ] New plotting related features are documented with examples.
+
+**Release Notes**
+- [ ] New features are marked with a `.. versionadded::` directive in the docstring and documented in `doc/users/next_whats_new/`
+- [ ] API changes are marked with a `.. versionchanged::` directive in the docstring and documented in `doc/api/next_api_changes/`
+- [ ] Release notes conform with instructions in  `next_whats_new/README.rst` or `next_api_changes/README.rst`
 
 <!--
 Thank you so much for your PR!  To help us review your contribution, please
@@ -18,7 +23,7 @@ consider the following points:
 - Help with git and github is available at
   https://matplotlib.org/devel/gitwash/development_workflow.html.
 
-- Do not create the PR out of master, but out of a separate branch.
+- Create a separate branch for your changes and open the PR from this branch. Please avoid working on `main`.
 
 - The PR title should summarize the changes, for example "Raise ValueError on
   non-numeric input to set_xlim".  Avoid non-descriptive titles such as

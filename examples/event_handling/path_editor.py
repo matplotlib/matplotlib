@@ -1,19 +1,28 @@
 """
 ===========
-Path Editor
+Path editor
 ===========
 
 Sharing events across GUIs.
 
 This example demonstrates a cross-GUI application using Matplotlib event
 handling to interact with and modify objects on the canvas.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
+
 import numpy as np
-import matplotlib.path as mpath
-import matplotlib.patches as mpatches
+from matplotlib.backend_bases import MouseButton
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch
 import matplotlib.pyplot as plt
 
-Path = mpath.Path
 
 fig, ax = plt.subplots()
 
@@ -27,24 +36,21 @@ pathdata = [
     (Path.CURVE4, (3, 0.05)),
     (Path.CURVE4, (2.0, -0.5)),
     (Path.CLOSEPOLY, (1.58, -2.57)),
-    ]
+]
 
 codes, verts = zip(*pathdata)
-path = mpath.Path(verts, codes)
-patch = mpatches.PathPatch(path, facecolor='green', edgecolor='yellow', alpha=0.5)
+path = Path(verts, codes)
+patch = PathPatch(
+    path, facecolor='green', edgecolor='yellow', alpha=0.5)
 ax.add_patch(patch)
 
 
 class PathInteractor:
     """
-    An path editor.
+    A path editor.
 
-    Key-bindings
-
-      't' toggle vertex markers on and off.  When vertex markers are on,
-          you can move them, delete them
-
-
+    Press 't' to toggle vertex markers on and off.  When vertex markers are on,
+    they can be dragged with the mouse.
     """
 
     showverts = True
@@ -59,66 +65,53 @@ class PathInteractor:
 
         x, y = zip(*self.pathpatch.get_path().vertices)
 
-        self.line, = ax.plot(x, y, marker='o', markerfacecolor='r', animated=True)
+        self.line, = ax.plot(
+            x, y, marker='o', markerfacecolor='r', animated=True)
 
-        self._ind = None  # the active vert
+        self._ind = None  # the active vertex
 
-        canvas.mpl_connect('draw_event', self.draw_callback)
-        canvas.mpl_connect('button_press_event', self.button_press_callback)
-        canvas.mpl_connect('key_press_event', self.key_press_callback)
-        canvas.mpl_connect('button_release_event', self.button_release_callback)
-        canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
+        canvas.mpl_connect('draw_event', self.on_draw)
+        canvas.mpl_connect('button_press_event', self.on_button_press)
+        canvas.mpl_connect('key_press_event', self.on_key_press)
+        canvas.mpl_connect('button_release_event', self.on_button_release)
+        canvas.mpl_connect('motion_notify_event', self.on_mouse_move)
         self.canvas = canvas
-
-    def draw_callback(self, event):
-        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-        self.ax.draw_artist(self.pathpatch)
-        self.ax.draw_artist(self.line)
-        self.canvas.blit(self.ax.bbox)
-
-    def pathpatch_changed(self, pathpatch):
-        """This method is called whenever the pathpatch object is called."""
-        # only copy the artist props to the line (except visibility)
-        vis = self.line.get_visible()
-        plt.Artist.update_from(self.line, pathpatch)
-        self.line.set_visible(vis)  # don't use the pathpatch visibility state
 
     def get_ind_under_point(self, event):
         """
         Return the index of the point closest to the event position or *None*
         if no point is within ``self.epsilon`` to the event position.
         """
-        # display coords
-        xy = np.asarray(self.pathpatch.get_path().vertices)
-        xyt = self.pathpatch.get_transform().transform(xy)
+        xy = self.pathpatch.get_path().vertices
+        xyt = self.pathpatch.get_transform().transform(xy)  # to display coords
         xt, yt = xyt[:, 0], xyt[:, 1]
         d = np.sqrt((xt - event.x)**2 + (yt - event.y)**2)
         ind = d.argmin()
+        return ind if d[ind] < self.epsilon else None
 
-        if d[ind] >= self.epsilon:
-            ind = None
+    def on_draw(self, event):
+        """Callback for draws."""
+        self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self.ax.draw_artist(self.pathpatch)
+        self.ax.draw_artist(self.line)
+        self.canvas.blit(self.ax.bbox)
 
-        return ind
-
-    def button_press_callback(self, event):
+    def on_button_press(self, event):
         """Callback for mouse button presses."""
-        if not self.showverts:
-            return
-        if event.inaxes is None:
-            return
-        if event.button != 1:
+        if (event.inaxes is None
+                or event.button != MouseButton.LEFT
+                or not self.showverts):
             return
         self._ind = self.get_ind_under_point(event)
 
-    def button_release_callback(self, event):
+    def on_button_release(self, event):
         """Callback for mouse button releases."""
-        if not self.showverts:
-            return
-        if event.button != 1:
+        if (event.button != MouseButton.LEFT
+                or not self.showverts):
             return
         self._ind = None
 
-    def key_press_callback(self, event):
+    def on_key_press(self, event):
         """Callback for key presses."""
         if not event.inaxes:
             return
@@ -127,24 +120,19 @@ class PathInteractor:
             self.line.set_visible(self.showverts)
             if not self.showverts:
                 self._ind = None
-
         self.canvas.draw()
 
-    def motion_notify_callback(self, event):
+    def on_mouse_move(self, event):
         """Callback for mouse movements."""
-        if not self.showverts:
+        if (self._ind is None
+                or event.inaxes is None
+                or event.button != MouseButton.LEFT
+                or not self.showverts):
             return
-        if self._ind is None:
-            return
-        if event.inaxes is None:
-            return
-        if event.button != 1:
-            return
-        x, y = event.xdata, event.ydata
 
         vertices = self.pathpatch.get_path().vertices
 
-        vertices[self._ind] = x, y
+        vertices[self._ind] = event.xdata, event.ydata
         self.line.set_data(zip(*vertices))
 
         self.canvas.restore_region(self.background)

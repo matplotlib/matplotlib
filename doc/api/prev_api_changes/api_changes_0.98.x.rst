@@ -63,8 +63,8 @@ Changes for 0.98.x
   :meth:`matplotlib.axes.Axes.set_ylim` now return a copy of the
   ``viewlim`` array to avoid modify-in-place surprises.
 
-* :meth:`matplotlib.afm.AFM.get_fullname` and
-  :meth:`matplotlib.afm.AFM.get_familyname` no longer raise an
+* ``matplotlib.afm.AFM.get_fullname`` and
+  ``matplotlib.afm.AFM.get_familyname`` no longer raise an
   exception if the AFM file does not specify these optional
   attributes, but returns a guess based on the required FontName
   attribute.
@@ -87,13 +87,13 @@ Changes for 0.98.x
   :class:`~matplotlib.collections.Collection` base class.
 
 * ``matplotlib.figure.Figure.figurePatch`` renamed
-  :attr:`matplotlib.figure.Figure.patch`;
+  ``matplotlib.figure.Figure.patch``;
   ``matplotlib.axes.Axes.axesPatch`` renamed
-  :attr:`matplotlib.axes.Axes.patch`;
+  ``matplotlib.axes.Axes.patch``;
   ``matplotlib.axes.Axes.axesFrame`` renamed
-  :attr:`matplotlib.axes.Axes.frame`.
+  ``matplotlib.axes.Axes.frame``.
   ``matplotlib.axes.Axes.get_frame``, which returns
-  :attr:`matplotlib.axes.Axes.patch`, is deprecated.
+  ``matplotlib.axes.Axes.patch``, is deprecated.
 
 * Changes in the :class:`matplotlib.contour.ContourLabeler` attributes
   (:func:`matplotlib.pyplot.clabel` function) so that they all have a

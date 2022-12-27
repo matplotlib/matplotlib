@@ -9,11 +9,11 @@ properties for multi-line plots.
 .. note::
 
     More complete documentation of the ``cycler`` API can be found
-    `here <http://matplotlib.org/cycler/>`_.
+    `here <https://matplotlib.org/cycler/>`_.
 
 This example demonstrates two different APIs:
 
-1. Setting the default rc parameter specifying the property cycle.
+1. Setting the rc parameter specifying the default property cycle.
    This affects all subsequent axes (but not axes already created).
 2. Setting the property cycle for a single pair of axes.
 
@@ -67,12 +67,11 @@ fig.subplots_adjust(hspace=0.3)
 plt.show()
 
 ###############################################################################
-# Setting ``prop_cycle`` in the ``matplotlibrc`` file or style files
-# ------------------------------------------------------------------
+# Setting ``prop_cycle`` in the :file:`matplotlibrc` file or style files
+# ----------------------------------------------------------------------
 #
-# Remember, if you want to set a custom cycler in your
-# ``.matplotlibrc`` file or a style file (``style.mplstyle``), you can set the
-# ``axes.prop_cycle`` property:
+# Remember, a custom cycler can be set in your :file:`matplotlibrc`
+# file or a style file (:file:`style.mplstyle`) under ``axes.prop_cycle``:
 #
 # .. code-block:: python
 #

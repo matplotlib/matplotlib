@@ -45,6 +45,41 @@ fig1.colorbar(tcf)
 ax1.tricontour(triang, z, colors='k')
 ax1.set_title('Contour plot of Delaunay triangulation')
 
+
+###############################################################################
+# You could also specify hatching patterns along with different cmaps.
+
+fig2, ax2 = plt.subplots()
+ax2.set_aspect("equal")
+tcf = ax2.tricontourf(
+    triang,
+    z,
+    hatches=["*", "-", "/", "//", "\\", None],
+    cmap="cividis"
+)
+fig2.colorbar(tcf)
+ax2.tricontour(triang, z, linestyles="solid", colors="k", linewidths=2.0)
+ax2.set_title("Hatched Contour plot of Delaunay triangulation")
+
+###############################################################################
+# You could also generate hatching patterns labeled with no color.
+
+fig3, ax3 = plt.subplots()
+n_levels = 7
+tcf = ax3.tricontourf(
+    triang,
+    z,
+    n_levels,
+    colors="none",
+    hatches=[".", "/", "\\", None, "\\\\", "*"],
+)
+ax3.tricontour(triang, z, n_levels, colors="black", linestyles="-")
+
+
+# create a legend for the contour set
+artists, labels = tcf.legend_elements(str_format="{:2.1f}".format)
+ax3.legend(artists, labels, handleheight=2, framealpha=1)
+
 ###############################################################################
 # You can specify your own triangulation rather than perform a Delaunay
 # triangulation of the points, where each triangle is given by the indices of
@@ -101,27 +136,25 @@ triangles = np.asarray([
 # object if the same triangulation was to be used more than once to save
 # duplicated calculations.
 
-fig2, ax2 = plt.subplots()
-ax2.set_aspect('equal')
-tcf = ax2.tricontourf(x, y, triangles, z)
-fig2.colorbar(tcf)
-ax2.set_title('Contour plot of user-specified triangulation')
-ax2.set_xlabel('Longitude (degrees)')
-ax2.set_ylabel('Latitude (degrees)')
+fig4, ax4 = plt.subplots()
+ax4.set_aspect('equal')
+tcf = ax4.tricontourf(x, y, triangles, z)
+fig4.colorbar(tcf)
+ax4.set_title('Contour plot of user-specified triangulation')
+ax4.set_xlabel('Longitude (degrees)')
+ax4.set_ylabel('Latitude (degrees)')
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.tricontourf
-matplotlib.pyplot.tricontourf
-matplotlib.tri.Triangulation
+#    - `matplotlib.axes.Axes.tricontourf` / `matplotlib.pyplot.tricontourf`
+#    - `matplotlib.tri.Triangulation`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#    - `matplotlib.contour.ContourSet.legend_elements`

@@ -6,6 +6,14 @@ Trifinder Event Demo
 Example showing the use of a TriFinder object.  As the mouse is moved over the
 triangulation, the triangle under the cursor is highlighted and the index of
 the triangle is displayed in the plot title.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 import matplotlib.pyplot as plt
 from matplotlib.tri import Triangulation
@@ -23,13 +31,13 @@ def update_polygon(tri):
     polygon.set_xy(np.column_stack([xs, ys]))
 
 
-def motion_notify(event):
+def on_mouse_move(event):
     if event.inaxes is None:
         tri = -1
     else:
         tri = trifinder(event.xdata, event.ydata)
     update_polygon(tri)
-    plt.title('In triangle %i' % tri)
+    ax.set_title(f'In triangle {tri}')
     event.canvas.draw()
 
 
@@ -52,10 +60,10 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
 trifinder = triang.get_trifinder()
 
 # Setup plot and callbacks.
-plt.subplot(111, aspect='equal')
-plt.triplot(triang, 'bo-')
+fig, ax = plt.subplots(subplot_kw={'aspect': 'equal'})
+ax.triplot(triang, 'bo-')
 polygon = Polygon([[0, 0], [0, 0]], facecolor='y')  # dummy data for (xs, ys)
 update_polygon(-1)
-plt.gca().add_patch(polygon)
-plt.gcf().canvas.mpl_connect('motion_notify_event', motion_notify)
+ax.add_patch(polygon)
+fig.canvas.mpl_connect('motion_notify_event', on_mouse_move)
 plt.show()

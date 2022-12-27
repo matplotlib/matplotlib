@@ -3,7 +3,7 @@
 Create 3D histogram of 2D data
 ==============================
 
-Demo of a histogram for 2 dimensional data as a bar graph in 3D.
+Demo of a histogram for 2D data as a bar graph in 3D.
 """
 
 import matplotlib.pyplot as plt
@@ -14,7 +14,7 @@ np.random.seed(19680801)
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(projection='3d')
 x, y = np.random.rand(2, 100) * 4
 hist, xedges, yedges = np.histogram2d(x, y, bins=4, range=[[0, 4], [0, 4]])
 

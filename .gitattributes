@@ -1,5 +1,6 @@
 * text=auto
+*.m diff=objc
 *.ppm binary
 *.svg binary
 *.svg linguist-language=true
-lib/matplotlib/_version.py export-subst
+.git_archival.txt export-subst

@@ -1,9 +1,11 @@
 """
 =====================
-Simple Axes Divider 3
+Simple axes divider 3
 =====================
 
+See also :doc:`/tutorials/toolkits/axes_grid`.
 """
+
 import mpl_toolkits.axes_grid1.axes_size as Size
 from mpl_toolkits.axes_grid1 import Divider
 import matplotlib.pyplot as plt
@@ -11,7 +13,7 @@ import matplotlib.pyplot as plt
 
 fig = plt.figure(figsize=(5.5, 4))
 
-# the rect parameter will be ignore as we will set axes_locator
+# the rect parameter will be ignored as we will set axes_locator
 rect = (0.1, 0.1, 0.8, 0.8)
 ax = [fig.add_axes(rect, label="%d" % i) for i in range(4)]
 

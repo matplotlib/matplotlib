@@ -24,7 +24,7 @@ MEPs go through a number of phases in their lifetime:
 
 - **Progress**: Consensus was reached and implementation work has begun.
 
-- **Completed**: The implementation has been merged into master.
+- **Completed**: The implementation has been merged into main.
 
 - **Superseded**: This MEP has been abandoned in favor of another
   approach.

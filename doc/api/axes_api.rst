@@ -2,6 +2,10 @@
 ``matplotlib.axes``
 *******************
 
+The `~.axes.Axes` class represents one (sub-)plot in a figure. It contains the
+plotted data, axis ticks, labels, title, legend, etc. Its methods are the main
+interface for manipulating the plot.
+
 .. currentmodule:: matplotlib.axes
 
 .. contents:: Table of Contents
@@ -17,22 +21,12 @@
 The Axes class
 ==============
 
-.. autoclass:: Axes
-   :no-members:
-   :no-undoc-members:
-   :show-inheritance:
-
-
-Subplots
-========
-
 .. autosummary::
    :toctree: _as_gen
-   :template: autosummary.rst
+   :template: autosummary_class_only.rst
    :nosignatures:
 
-   SubplotBase
-   subplot_class_factory
+   Axes
 
 Plotting
 ========
@@ -61,6 +55,7 @@ Basic
 
    Axes.bar
    Axes.barh
+   Axes.bar_label
 
    Axes.stem
    Axes.eventplot
@@ -87,6 +82,7 @@ Spans
    Axes.axhspan
    Axes.axvline
    Axes.axvspan
+   Axes.axline
 
 Spectral
 --------
@@ -131,6 +127,7 @@ Binned
    Axes.hexbin
    Axes.hist
    Axes.hist2d
+   Axes.stairs
 
 Contours
 --------
@@ -144,8 +141,8 @@ Contours
    Axes.contour
    Axes.contourf
 
-Array
------
+2D arrays
+---------
 
 .. autosummary::
    :toctree: _as_gen
@@ -159,7 +156,7 @@ Array
    Axes.pcolormesh
    Axes.spy
 
-Unstructured Triangles
+Unstructured triangles
 ----------------------
 
 .. autosummary::
@@ -173,7 +170,7 @@ Unstructured Triangles
    Axes.tricontourf
 
 
-Text and Annotations
+Text and annotations
 --------------------
 
 .. autosummary::
@@ -192,8 +189,8 @@ Text and Annotations
    Axes.secondary_yaxis
 
 
-Fields
-------
+Vector fields
+-------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -240,10 +237,7 @@ Appearance
    Axes.grid
 
    Axes.get_facecolor
-   Axes.get_fc
-
    Axes.set_facecolor
-   Axes.set_fc
 
 
 Property cycle
@@ -271,7 +265,7 @@ Axis / limits
    Axes.get_xaxis
    Axes.get_yaxis
 
-Axis Limits and direction
+Axis limits and direction
 -------------------------
 
 .. autosummary::
@@ -290,14 +284,13 @@ Axis Limits and direction
    Axes.get_ylim
 
    Axes.update_datalim
-   Axes.update_datalim_bounds
 
    Axes.set_xbound
    Axes.get_xbound
    Axes.set_ybound
    Axes.get_ybound
 
-Axis Labels, title, and legend
+Axis labels, title, and legend
 ------------------------------
 
 .. autosummary::
@@ -309,6 +302,7 @@ Axis Labels, title, and legend
    Axes.get_xlabel
    Axes.set_ylabel
    Axes.get_ylabel
+   Axes.label_outer
 
    Axes.set_title
    Axes.get_title
@@ -369,6 +363,9 @@ Aspect ratio
    Axes.set_aspect
    Axes.get_aspect
 
+   Axes.set_box_aspect
+   Axes.get_box_aspect
+
    Axes.set_adjustable
    Axes.get_adjustable
 
@@ -428,7 +425,7 @@ Units
    Axes.have_units
 
 
-Adding Artists
+Adding artists
 ==============
 
 .. autosummary::
@@ -446,8 +443,8 @@ Adding Artists
    Axes.add_table
 
 
-Twinning
-========
+Twinning and sharing
+====================
 
 .. autosummary::
    :toctree: _as_gen
@@ -457,11 +454,14 @@ Twinning
    Axes.twinx
    Axes.twiny
 
+   Axes.sharex
+   Axes.sharey
+
    Axes.get_shared_x_axes
    Axes.get_shared_y_axes
 
 
-Axes Position
+Axes position
 =============
 .. autosummary::
    :toctree: _as_gen
@@ -474,13 +474,16 @@ Axes Position
    Axes.get_axes_locator
    Axes.set_axes_locator
 
+   Axes.get_subplotspec
+   Axes.set_subplotspec
+
    Axes.reset_position
 
    Axes.get_position
    Axes.set_position
 
 
-Async/Event based
+Async/event based
 =================
 
 .. autosummary::
@@ -523,14 +526,6 @@ Interactive
    Axes.mouseover
    Axes.in_axes
 
-   Axes.pick
-   Axes.pickable
-   Axes.get_picker
-   Axes.set_picker
-
-   Axes.set_contains
-   Axes.get_contains
-
    Axes.contains
    Axes.contains_point
 
@@ -570,78 +565,6 @@ Drawing
    Axes.get_tightbbox
 
 
-Bulk property manipulation
-==========================
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   Axes.set
-   Axes.update
-   Axes.properties
-   Axes.update_from
-
-
-General Artist Properties
-=========================
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   Axes.set_agg_filter
-   Axes.set_alpha
-   Axes.set_animated
-   Axes.set_clip_box
-   Axes.set_clip_on
-   Axes.set_clip_path
-   Axes.set_gid
-   Axes.set_label
-   Axes.set_path_effects
-   Axes.set_rasterized
-   Axes.set_sketch_params
-   Axes.set_snap
-   Axes.set_transform
-   Axes.set_url
-   Axes.set_visible
-   Axes.set_zorder
-
-   Axes.get_agg_filter
-   Axes.get_alpha
-   Axes.get_animated
-   Axes.get_clip_box
-   Axes.get_clip_on
-   Axes.get_clip_path
-   Axes.get_gid
-   Axes.get_label
-   Axes.get_path_effects
-   Axes.get_rasterized
-   Axes.get_sketch_params
-   Axes.get_snap
-   Axes.get_transform
-   Axes.get_url
-   Axes.get_visible
-   Axes.get_zorder
-
-   Axes.axes
-   Axes.set_figure
-   Axes.get_figure
-
-Artist Methods
-==============
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   Axes.remove
-   Axes.is_transform_set
-
-
 Projection
 ==========
 
@@ -657,7 +580,6 @@ non-rectilinear Axes.
    Axes.get_xaxis_transform
    Axes.get_yaxis_transform
    Axes.get_data_ratio
-   Axes.get_data_ratio_log
 
    Axes.get_xaxis_text1_transform
    Axes.get_xaxis_text2_transform
@@ -677,9 +599,6 @@ Other
    Axes.get_default_bbox_extra_artists
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
+   Axes.set
 
-
-Inheritance
-===========
-.. inheritance-diagram:: matplotlib.axes.Axes
-   :private-bases:
+.. autoclass:: matplotlib.axes.Axes.ArtistList

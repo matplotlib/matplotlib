@@ -1,16 +1,79 @@
+r"""
+A role and directive to display mathtext in Sphinx
+==================================================
+
+.. warning::
+    In most cases, you will likely want to use one of `Sphinx's builtin Math
+    extensions
+    <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__
+    instead of this one.
+
+Mathtext may be included in two ways:
+
+1. Inline, using the role::
+
+     This text uses inline math: :mathmpl:`\alpha > \beta`.
+
+   which produces:
+
+     This text uses inline math: :mathmpl:`\alpha > \beta`.
+
+2. Standalone, using the directive::
+
+     Here is some standalone math:
+
+     .. mathmpl::
+
+         \alpha > \beta
+
+   which produces:
+
+     Here is some standalone math:
+
+     .. mathmpl::
+
+         \alpha > \beta
+
+Options
+-------
+
+The ``mathmpl`` role and directive both support the following options:
+
+    fontset : str, default: 'cm'
+        The font set to use when displaying math. See :rc:`mathtext.fontset`.
+
+    fontsize : float
+        The font size, in points. Defaults to the value from the extension
+        configuration option defined below.
+
+Configuration options
+---------------------
+
+The mathtext extension has the following configuration options:
+
+    mathmpl_fontsize : float, default: 10.0
+        Default font size, in points.
+
+    mathmpl_srcset : list of str, default: []
+        Additional image sizes to generate when embedding in HTML, to support
+        `responsive resolution images
+        <https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images>`__.
+        The list should contain additional x-descriptors (``'1.5x'``, ``'2x'``,
+        etc.) to generate (1x is the default and always included.)
+
+"""
+
 import hashlib
-import os
-import sys
+from pathlib import Path
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 import sphinx
+from sphinx.errors import ConfigError, ExtensionError
 
-from matplotlib import rcParams
-from matplotlib import cbook
-from matplotlib.mathtext import MathTextParser
-rcParams['mathtext.fontset'] = 'cm'
-mathtext_parser = MathTextParser("Bitmap")
+import matplotlib as mpl
+from matplotlib import _api, mathtext
+from matplotlib.rcsetup import validate_float_or_None
 
 
 # Define LaTeX math node:
@@ -19,7 +82,7 @@ class latex_math(nodes.General, nodes.Element):
 
 
 def fontset_choice(arg):
-    return directives.choice(arg, ['cm', 'stix', 'stixsans'])
+    return directives.choice(arg, mathtext.MathTextParser._font_type_mapping)
 
 
 def math_role(role, rawtext, text, lineno, inliner,
@@ -29,52 +92,43 @@ def math_role(role, rawtext, text, lineno, inliner,
     node = latex_math(rawtext)
     node['latex'] = latex
     node['fontset'] = options.get('fontset', 'cm')
+    node['fontsize'] = options.get('fontsize',
+                                   setup.app.config.mathmpl_fontsize)
     return [node], []
-math_role.options = {'fontset': fontset_choice}
-
-
-@cbook.deprecated("3.1", alternative="MathDirective")
-def math_directive(name, arguments, options, content, lineno,
-                   content_offset, block_text, state, state_machine):
-    latex = ''.join(content)
-    node = latex_math(block_text)
-    node['latex'] = latex
-    node['fontset'] = options.get('fontset', 'cm')
-    return [node]
+math_role.options = {'fontset': fontset_choice,
+                     'fontsize': validate_float_or_None}
 
 
 class MathDirective(Directive):
+    """
+    The ``.. mathmpl::`` directive, as documented in the module's docstring.
+    """
     has_content = True
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {'fontset': fontset_choice}
+    option_spec = {'fontset': fontset_choice,
+                   'fontsize': validate_float_or_None}
 
     def run(self):
         latex = ''.join(self.content)
         node = latex_math(self.block_text)
         node['latex'] = latex
         node['fontset'] = self.options.get('fontset', 'cm')
+        node['fontsize'] = self.options.get('fontsize',
+                                            setup.app.config.mathmpl_fontsize)
         return [node]
 
 
 # This uses mathtext to render the expression
-def latex2png(latex, filename, fontset='cm'):
-    latex = "$%s$" % latex
-    orig_fontset = rcParams['mathtext.fontset']
-    rcParams['mathtext.fontset'] = fontset
-    if os.path.exists(filename):
-        depth = mathtext_parser.get_depth(latex, dpi=100)
-    else:
+def latex2png(latex, filename, fontset='cm', fontsize=10, dpi=100):
+    with mpl.rc_context({'mathtext.fontset': fontset, 'font.size': fontsize}):
         try:
-            depth = mathtext_parser.to_png(filename, latex, dpi=100)
+            depth = mathtext.math_to_image(
+                f"${latex}$", filename, dpi=dpi, format="png")
         except Exception:
-            cbook._warn_external("Could not render math expression %s" % latex,
-                                 Warning)
+            _api.warn_external(f"Could not render math expression {latex}")
             depth = 0
-    rcParams['mathtext.fontset'] = orig_fontset
-    sys.stdout.write("#")
-    sys.stdout.flush()
     return depth
 
 
@@ -82,15 +136,27 @@ def latex2png(latex, filename, fontset='cm'):
 def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
-    name = 'math-%s' % hashlib.md5(latex.encode()).hexdigest()[-10:]
+    fontset = node['fontset']
+    fontsize = node['fontsize']
+    name = 'math-{}'.format(
+        hashlib.md5(f'{latex}{fontset}{fontsize}'.encode()).hexdigest()[-10:])
 
-    destdir = os.path.join(setup.app.builder.outdir, '_images', 'mathmpl')
-    if not os.path.exists(destdir):
-        os.makedirs(destdir)
-    dest = os.path.join(destdir, '%s.png' % name)
-    path = '/'.join((setup.app.builder.imgpath, 'mathmpl'))
+    destdir = Path(setup.app.builder.outdir, '_images', 'mathmpl')
+    destdir.mkdir(parents=True, exist_ok=True)
 
-    depth = latex2png(latex, dest, node['fontset'])
+    dest = destdir / f'{name}.png'
+    depth = latex2png(latex, dest, fontset, fontsize=fontsize)
+
+    srcset = []
+    for size in setup.app.config.mathmpl_srcset:
+        filename = f'{name}-{size.replace(".", "_")}.png'
+        latex2png(latex, destdir / filename, fontset, fontsize=fontsize,
+                  dpi=100 * float(size[:-1]))
+        srcset.append(
+            f'{setup.app.builder.imgpath}/mathmpl/{filename} {size}')
+    if srcset:
+        srcset = (f'srcset="{setup.app.builder.imgpath}/mathmpl/{name}.png, ' +
+                  ', '.join(srcset) + '" ')
 
     if inline:
         cls = ''
@@ -101,11 +167,36 @@ def latex2html(node, source):
     else:
         style = ''
 
-    return '<img src="%s/%s.png" %s%s/>' % (path, name, cls, style)
+    return (f'<img src="{setup.app.builder.imgpath}/mathmpl/{name}.png"'
+            f' {srcset}{cls}{style}/>')
+
+
+def _config_inited(app, config):
+    # Check for srcset hidpi images
+    for i, size in enumerate(app.config.mathmpl_srcset):
+        if size[-1] == 'x':  # "2x" = "2.0"
+            try:
+                float(size[:-1])
+            except ValueError:
+                raise ConfigError(
+                    f'Invalid value for mathmpl_srcset parameter: {size!r}. '
+                    'Must be a list of strings with the multiplicative '
+                    'factor followed by an "x".  e.g. ["2.0x", "1.5x"]')
+        else:
+            raise ConfigError(
+                f'Invalid value for mathmpl_srcset parameter: {size!r}. '
+                'Must be a list of strings with the multiplicative '
+                'factor followed by an "x".  e.g. ["2.0x", "1.5x"]')
 
 
 def setup(app):
     setup.app = app
+    app.add_config_value('mathmpl_fontsize', 10.0, True)
+    app.add_config_value('mathmpl_srcset', [], True)
+    try:
+        app.connect('config-inited', _config_inited)  # Sphinx 1.8+
+    except ExtensionError:
+        app.connect('env-updated', lambda app, env: _config_inited(app, None))
 
     # Add visit/depart methods to HTML-Translator:
     def visit_latex_math_html(self, node):

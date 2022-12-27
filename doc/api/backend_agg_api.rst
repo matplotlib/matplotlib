@@ -1,6 +1,6 @@
-
-:mod:`matplotlib.backends.backend_agg`
-======================================
+***********************************
+``matplotlib.backends.backend_agg``
+***********************************
 
 .. automodule:: matplotlib.backends.backend_agg
    :members:
