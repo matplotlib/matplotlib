@@ -20,8 +20,12 @@ class PolarTransform(mtransforms.Transform):
     The base polar transform.
 
     This transform maps polar coordinates ``(theta, r)`` into Cartesian
-    coordinates ``(x, y) = (r * cos(theta), r * sin(theta))`` (but does not
+    coordinates ``(x, y) = (r * cos(theta), r * sin(theta))`` (but does not fully transform into Axes coordinates or
     handle positioning in screen space).
+
+    This transformation is designed to be applied to data after any scaling
+    along the radial axis (e.g. log-scaling) has been applied to the input
+    data.
 
     Path segments at a fixed radius are automatically transformed to circular
     arcs as long as ``path._interpolation_steps > 1``.
@@ -882,7 +886,9 @@ class PolarAxes(Axes):
         # data.  This one is aware of rmin
         self.transProjection = self.PolarTransform(
             self,
-            _apply_theta_transforms=False, scale_transform=self.transScale)
+            _apply_theta_transforms=False,
+            scale_transform=self.transScale
+        )
         # Add dependency on rorigin.
         self.transProjection.set_children(self._originViewLim)
 
@@ -893,9 +899,25 @@ class PolarAxes(Axes):
 
         # The complete data transformation stack -- from data all the
         # way to display coordinates
+        #
+        # 1. Remove any radial axis scaling (e.g. log scaling)
+        # 2. Shift data in the theta direction
+        # 3. Project the data from polar to cartesian values
+        #    (with the origin in the same place)
+        # 4. Scale and translate the cartesian values to Axes coordinates
+        #    (here the origin is moved to the lower left of the Axes)
+        # 5. Move and scale to fill the Axes
+        # 6. Convert from Axes coordinates to Figure coordinates
         self.transData = (
-            self.transScale + self.transShift + self.transProjection +
-            (self.transProjectionAffine + self.transWedge + self.transAxes))
+            self.transScale +
+            self.transShift +
+            self.transProjection +
+            (
+                self.transProjectionAffine +
+                self.transWedge +
+                self.transAxes
+            )
+        )
 
         # This is the transform for theta-axis ticks.  It is
         # equivalent to transData, except it always puts r == 0.0 and r == 1.0
