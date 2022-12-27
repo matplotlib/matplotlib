@@ -402,7 +402,7 @@ class FileMovieWriter(MovieWriter):
         frame_prefix : str, optional
             The filename prefix to use for temporary files.  If *None* (the
             default), files are written to a temporary directory which is
-            deleted by `cleanup`; if not *None*, no temporary files are
+            deleted by `finish`; if not *None*, no temporary files are
             deleted.
         """
         self.fig = fig
@@ -804,12 +804,11 @@ class HTMLWriter(FileMovieWriter):
                                              interval=interval,
                                              **mode_dict))
 
-        # duplicate the temporary file clean up logic from
-        # FileMovieWriter.cleanup.  We can not call the inherited
-        # versions of finish or cleanup because both assume that
-        # there is a subprocess that we either need to call to merge
-        # many frames together or that there is a subprocess call that
-        # we need to clean up.
+        # Duplicate the temporary file clean up logic from
+        # FileMovieWriter.finish.  We can not call the inherited version of
+        # finish because it assumes that there is a subprocess that we either
+        # need to call to merge many frames together or that there is a
+        # subprocess call that we need to clean up.
         if self._tmpdir:
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
