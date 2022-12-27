@@ -3981,6 +3981,12 @@ def test_errorbar_nan(fig_test, fig_ref):
     ax.errorbar([4], [3], [6], fmt="C0")
 
 
+def test_errorbar_allnan_error():
+    fig, ax = plt.subplots()
+    with pytest.warns(RuntimeWarning, match="All-NaN axis encountered"):
+        ax.errorbar([0], [0], [np.nan])
+
+
 @image_comparison(['hist_stacked_stepfilled', 'hist_stacked_stepfilled'])
 def test_hist_stacked_stepfilled():
     # make some data
