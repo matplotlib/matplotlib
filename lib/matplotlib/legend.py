@@ -213,7 +213,7 @@ reverse : bool, default: False
     If *True*, the legend labels are displayed in reverse order from the input.
     If *False*, the legend labels are displayed in the same order as the input.
 
-    ..versionadded:: 3.7
+    .. versionadded:: 3.7
 
 frameon : bool, default: :rc:`legend.frameon`
     Whether the legend should be drawn on a patch (frame).
