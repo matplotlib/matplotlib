@@ -20,7 +20,8 @@ class PolarTransform(mtransforms.Transform):
     The base polar transform.
 
     This transform maps polar coordinates ``(theta, r)`` into Cartesian
-    coordinates ``(x, y) = (r * cos(theta), r * sin(theta))`` (but does not fully transform into Axes coordinates or
+    coordinates ``(x, y) = (r * cos(theta), r * sin(theta))``
+    (but does not fully transform into Axes coordinates or
     handle positioning in screen space).
 
     This transformation is designed to be applied to data after any scaling
@@ -59,7 +60,8 @@ class PolarTransform(mtransforms.Transform):
 
     def _get_rorigin(self):
         # Get lower r limit after being scaled by the radial scale transform
-        return self._scale_transform.transform((0, self._axis.get_rorigin()))[1]
+        return self._scale_transform.transform(
+            (0, self._axis.get_rorigin()))[1]
 
     def transform_non_affine(self, tr):
         # docstring inherited
