@@ -30,7 +30,7 @@ class PolarTransform(mtransforms.Transform):
     input_dims = output_dims = 2
 
     def __init__(self, axis=None, use_rmin=True,
-                 _apply_theta_transforms=True):
+                _apply_theta_transforms=True, *, scale_transform=None):
         """
         Parameters
         ----------
@@ -46,11 +46,16 @@ class PolarTransform(mtransforms.Transform):
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
+        self._scale_transform = scale_transform
 
     __str__ = mtransforms._make_str_method(
         "_axis",
         use_rmin="_use_rmin",
         _apply_theta_transforms="_apply_theta_transforms")
+
+    def _get_rorigin(self):
+        # Get lower r limit after being scaled by the radial scale transform
+        return self._scale_transform.transform((0, self._axis.get_rorigin()))[1]
 
     def transform_non_affine(self, tr):
         # docstring inherited
@@ -61,7 +66,7 @@ class PolarTransform(mtransforms.Transform):
             theta *= self._axis.get_theta_direction()
             theta += self._axis.get_theta_offset()
         if self._use_rmin and self._axis is not None:
-            r = (r - self._axis.get_rorigin()) * self._axis.get_rsign()
+            r = (r - self._get_rorigin()) * self._axis.get_rsign()
         r = np.where(r >= 0, r, np.nan)
         return np.column_stack([r * np.cos(theta), r * np.sin(theta)])
 
@@ -85,7 +90,7 @@ class PolarTransform(mtransforms.Transform):
                     # that behavior here.
                     last_td, td = np.rad2deg([last_t, t])
                     if self._use_rmin and self._axis is not None:
-                        r = ((r - self._axis.get_rorigin())
+                        r = ((r - self._get_rorigin())
                              * self._axis.get_rsign())
                     if last_td <= td:
                         while td - last_td > 360:
@@ -877,7 +882,7 @@ class PolarAxes(Axes):
         # data.  This one is aware of rmin
         self.transProjection = self.PolarTransform(
             self,
-            _apply_theta_transforms=False)
+            _apply_theta_transforms=False, scale_transform=self.transScale)
         # Add dependency on rorigin.
         self.transProjection.set_children(self._originViewLim)
 
