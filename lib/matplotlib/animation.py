@@ -247,7 +247,7 @@ class MovieWriter(AbstractMovieWriter):
         The format used in writing frame data, defaults to 'rgba'.
     fig : `~matplotlib.figure.Figure`
         The figure to capture data from.
-        This must be provided by the sub-classes.
+        This must be provided by the subclasses.
     """
 
     # Builtin writer subclasses additionally define the _exec_key and _args_key
@@ -1438,7 +1438,7 @@ class TimedAnimation(Animation):
         self.event_source.interval = self._interval
         return True
 
-    repeat = _api.deprecated("3.7")(property(lambda self: self._repeat))
+    repeat = _api.deprecate_privatize_attribute("3.7")
 
 
 class ArtistAnimation(TimedAnimation):
@@ -1780,5 +1780,4 @@ class FuncAnimation(TimedAnimation):
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
 
-    save_count = _api.deprecated("3.7")(
-        property(lambda self: self._save_count))
+    save_count = _api.deprecate_privatize_attribute("3.7")
