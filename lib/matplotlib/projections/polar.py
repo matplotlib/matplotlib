@@ -43,16 +43,16 @@ class PolarTransform(mtransforms.Transform):
 
     def transform_non_affine(self, tr):
         # docstring inherited
-        t, r = np.transpose(tr)
+        theta, r = np.transpose(tr)
         # PolarAxes does not use the theta transforms here, but apply them for
         # backwards-compatibility if not being used by it.
         if self._apply_theta_transforms and self._axis is not None:
-            t *= self._axis.get_theta_direction()
-            t += self._axis.get_theta_offset()
+            theta *= self._axis.get_theta_direction()
+            theta += self._axis.get_theta_offset()
         if self._use_rmin and self._axis is not None:
             r = (r - self._axis.get_rorigin()) * self._axis.get_rsign()
         r = np.where(r >= 0, r, np.nan)
-        return np.column_stack([r * np.cos(t), r * np.sin(t)])
+        return np.column_stack([r * np.cos(theta), r * np.sin(theta)])
 
     def transform_path_non_affine(self, path):
         # docstring inherited
