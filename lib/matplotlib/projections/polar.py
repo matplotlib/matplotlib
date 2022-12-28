@@ -16,11 +16,11 @@ from matplotlib.spines import Spine
 
 
 class PolarTransform(mtransforms.Transform):
-    """
+    r"""
     The base polar transform.
 
-    This transform maps polar coordinates ``(theta, r)`` into Cartesian
-    coordinates ``(x, y) = (r * cos(theta), r * sin(theta))``
+    This transform maps polar coordinates :math:`\theta, r` into Cartesian
+    coordinates :math:`x, y = r \cos(\theta), r \sin(\theta)`
     (but does not fully transform into Axes coordinates or
     handle positioning in screen space).
 
