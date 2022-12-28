@@ -403,8 +403,8 @@ def to_rgba_array(c, alpha=None):
     Parameters
     ----------
     c : Matplotlib color or array of colors
-        If *c* is a masked array, an ndarray is returned with a (0, 0, 0, 0)
-        row for each masked value or row in *c*.
+        If *c* is a masked array, an `~numpy.ndarray` is returned with a
+        (0, 0, 0, 0) row for each masked value or row in *c*.
 
     alpha : float or sequence of floats, optional
         If *alpha* is given, force the alpha value of the returned RGBA tuple
@@ -684,11 +684,11 @@ class Colormap:
         """
         Parameters
         ----------
-        X : float or int, ndarray or scalar
+        X : float or int, `~numpy.ndarray` or scalar
             The data value(s) to convert to RGBA.
-            For floats, X should be in the interval ``[0.0, 1.0]`` to
+            For floats, *X* should be in the interval ``[0.0, 1.0]`` to
             return the RGBA values ``X*100`` percent along the Colormap line.
-            For integers, X should be in the interval ``[0, Colormap.N)`` to
+            For integers, *X* should be in the interval ``[0, Colormap.N)`` to
             return RGBA values *indexed* from the Colormap with index ``X``.
         alpha : float or array-like or None
             Alpha must be a scalar between 0 and 1, a sequence of such
@@ -2061,7 +2061,7 @@ def rgb_to_hsv(arr):
 
     Returns
     -------
-    (..., 3) ndarray
+    (..., 3) `~numpy.ndarray`
        Colors converted to HSV values in range [0, 1]
     """
     arr = np.asarray(arr)
@@ -2112,7 +2112,7 @@ def hsv_to_rgb(hsv):
 
     Returns
     -------
-    (..., 3) ndarray
+    (..., 3) `~numpy.ndarray`
        Colors converted to RGB values in range [0, 1]
     """
     hsv = np.asarray(hsv)
@@ -2279,7 +2279,7 @@ class LightSource:
 
         Returns
         -------
-        ndarray
+        `~numpy.ndarray`
             A 2D array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
@@ -2322,7 +2322,7 @@ class LightSource:
 
         Returns
         -------
-        ndarray
+        `~numpy.ndarray`
             A 2D array of illumination values between 0-1, where 0 is
             completely in shadow and 1 is completely illuminated.
         """
@@ -2404,7 +2404,7 @@ class LightSource:
 
         Returns
         -------
-        ndarray
+        `~numpy.ndarray`
             An MxNx4 array of floats ranging between 0-1.
         """
         if vmin is None:
@@ -2465,7 +2465,7 @@ class LightSource:
 
         Returns
         -------
-        ndarray
+        `~numpy.ndarray`
             An (m, n, 3) array of floats ranging between 0-1.
         """
         # Calculate the "hillshade" intensity.
@@ -2512,9 +2512,9 @@ class LightSource:
 
         Parameters
         ----------
-        rgb : ndarray
+        rgb : `~numpy.ndarray`
             An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
-        intensity : ndarray
+        intensity : `~numpy.ndarray`
             An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
         hsv_max_sat : number, default: 1
             The maximum saturation value that the *intensity* map can shift the
@@ -2531,7 +2531,7 @@ class LightSource:
 
         Returns
         -------
-        ndarray
+        `~numpy.ndarray`
             An MxNx3 RGB array representing the combined images.
         """
         # Backward compatibility...
@@ -2574,14 +2574,14 @@ class LightSource:
 
         Parameters
         ----------
-        rgb : ndarray
+        rgb : `~numpy.ndarray`
             An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
-        intensity : ndarray
+        intensity : `~numpy.ndarray`
             An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
 
         Returns
         -------
-        ndarray
+        `~numpy.ndarray`
             An MxNx3 RGB array representing the combined images.
         """
         return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2
@@ -2592,9 +2592,9 @@ class LightSource:
 
         Parameters
         ----------
-        rgb : ndarray
+        rgb : `~numpy.ndarray`
             An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
-        intensity : ndarray
+        intensity : `~numpy.ndarray`
             An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
 
         Returns

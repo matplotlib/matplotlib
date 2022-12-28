@@ -1339,7 +1339,7 @@ default: %(va)s
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list of (or ndarray) `~matplotlib.axes.Axes`
+            Optional list of (or `~numpy.ndarray`) `~matplotlib.axes.Axes`
             to align the xlabels.
             Default is to align all Axes on the figure.
 
@@ -1400,7 +1400,7 @@ default: %(va)s
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            Optional list (or `~numpy.ndarray`) of `~matplotlib.axes.Axes`
             to align the ylabels.
             Default is to align all Axes on the figure.
 
@@ -1455,7 +1455,7 @@ default: %(va)s
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            Optional list (or `~numpy.ndarray`) of `~matplotlib.axes.Axes`
             to align the labels.
             Default is to align all Axes on the figure.
 

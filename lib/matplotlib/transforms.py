@@ -755,7 +755,7 @@ class Bbox(BboxBase):
         """
         Parameters
         ----------
-        points : ndarray
+        points : `~numpy.ndarray`
             A 2x2 numpy array of the form ``[[x0, y0], [x1, y1]]``.
         """
         super().__init__(**kwargs)
@@ -897,7 +897,7 @@ class Bbox(BboxBase):
 
         Parameters
         ----------
-        x : ndarray
+        x : `~numpy.ndarray`
             Array of x-values.
 
         ignore : bool, optional
@@ -917,7 +917,7 @@ class Bbox(BboxBase):
 
         Parameters
         ----------
-        y : ndarray
+        y : `~numpy.ndarray`
             Array of y-values.
 
         ignore : bool, optional
@@ -937,7 +937,7 @@ class Bbox(BboxBase):
 
         Parameters
         ----------
-        xy : ndarray
+        xy : `~numpy.ndarray`
             A numpy array of 2D points.
 
         ignore : bool, optional

@@ -953,7 +953,7 @@ class _CollectionWithSizes(Collection):
 
         Parameters
         ----------
-        sizes : ndarray or None
+        sizes : `numpy.ndarray` or None
             The size to set for each element of the collection.  The
             value is the 'area' of the element.
         dpi : float, default: 72
