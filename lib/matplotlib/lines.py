@@ -22,7 +22,7 @@ from ._enums import JoinStyle, CapStyle
 # Imported here for backward compatibility, even though they don't
 # really belong.
 from . import _path
-from .markers import (  # noqa
+from .markers import (  # noqa: F401 # pylint: disable=W0611
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN,
     CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE,
     TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN)

@@ -14,6 +14,7 @@ from matplotlib import _api, cbook
 import matplotlib.artist as martist
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
+import matplotlib.markers as mmarkers
 import matplotlib.scale as mscale
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
@@ -445,8 +446,8 @@ class XTick(Tick):
         # docstring inherited
         super()._apply_tickdir(tickdir)
         mark1, mark2 = {
-            'out': (mlines.TICKDOWN, mlines.TICKUP),
-            'in': (mlines.TICKUP, mlines.TICKDOWN),
+            'out': (mmarkers.TICKDOWN, mmarkers.TICKUP),
+            'in': (mmarkers.TICKUP, mmarkers.TICKDOWN),
             'inout': ('|', '|'),
         }[self._tickdir]
         self.tick1line.set_marker(mark1)
@@ -506,8 +507,8 @@ class YTick(Tick):
         # docstring inherited
         super()._apply_tickdir(tickdir)
         mark1, mark2 = {
-            'out': (mlines.TICKLEFT, mlines.TICKRIGHT),
-            'in': (mlines.TICKRIGHT, mlines.TICKLEFT),
+            'out': (mmarkers.TICKLEFT, mmarkers.TICKRIGHT),
+            'in': (mmarkers.TICKRIGHT, mmarkers.TICKLEFT),
             'inout': ('_', '_'),
         }[self._tickdir]
         self.tick1line.set_marker(mark1)

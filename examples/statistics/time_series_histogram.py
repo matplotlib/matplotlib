@@ -27,7 +27,7 @@ from copy import copy
 import time
 
 import numpy as np
-import numpy.matlib
+from numpy import matlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
@@ -71,7 +71,7 @@ y_fine = np.empty((num_series, num_fine), dtype=float)
 for i in range(num_series):
     y_fine[i, :] = np.interp(x_fine, x, Y[i, :])
 y_fine = y_fine.flatten()
-x_fine = np.matlib.repmat(x_fine, num_series, 1).flatten()
+x_fine = matlib.repmat(x_fine, num_series, 1).flatten()
 
 
 # Plot (x, y) points in 2d histogram with log colorscale

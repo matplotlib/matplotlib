@@ -20,7 +20,7 @@ and call ``ax.legend()``, you will get the following:
 """
 # sphinx_gallery_thumbnail_number = 2
 import matplotlib as mpl
-from matplotlib import cycler
+from matplotlib.rcsetup import cycler
 import matplotlib.pyplot as plt
 import numpy as np
 

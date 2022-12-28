@@ -8,12 +8,14 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-import matplotlib.category  # Register category unit converter as side effect.
+# Register category unit converter as side effect.
+import matplotlib.category  # noqa: F401 # pylint: disable=W0611
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates  # noqa # Register date unit converter as side effect.
+# Register date unit converter as side effect.
+import matplotlib.dates  # noqa: F401 # pylint: disable=W0611
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
@@ -3616,9 +3618,9 @@ class Axes(_AxesBase):
         for (dep_axis, dep, err, lolims, uplims, indep, lines_func,
              marker, lomarker, himarker) in [
                 ("x", x, xerr, xlolims, xuplims, y, self.hlines,
-                 "|", mlines.CARETRIGHTBASE, mlines.CARETLEFTBASE),
+                 "|", mmarkers.CARETRIGHTBASE, mmarkers.CARETLEFTBASE),
                 ("y", y, yerr, lolims, uplims, x, self.vlines,
-                 "_", mlines.CARETUPBASE, mlines.CARETDOWNBASE),
+                 "_", mmarkers.CARETUPBASE, mmarkers.CARETDOWNBASE),
         ]:
             if err is None:
                 continue

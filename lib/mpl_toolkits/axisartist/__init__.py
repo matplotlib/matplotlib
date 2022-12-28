@@ -11,3 +11,17 @@ from mpl_toolkits.axes_grid1.parasite_axes import (
 ParasiteAxes = parasite_axes_class_factory(Axes)
 HostAxes = host_axes_class_factory(Axes)
 SubplotHost = HostAxes
+
+
+__all__ = [
+    'Axes', 'AxesZero', 'AxisArtistHelper', 'AxisArtistHelperRectlinear',
+    'GridHelperBase', 'GridHelperRectlinear', 'Subplot', 'SubplotZero',
+
+    'AxisArtist', 'GridlinesCollection',
+
+    'GridHelperCurveLinear',
+
+    'FloatingAxes', 'FloatingSubplot',
+
+    'ParasiteAxes', 'HostAxes', 'SubplotHost'
+]

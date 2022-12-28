@@ -121,18 +121,20 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import warnings
 
-import numpy
 from packaging.version import parse as parse_version
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import _api, _version, cbook, _docstring, rcsetup
 from matplotlib.cbook import sanitize_sequence
-from matplotlib._api import MatplotlibDeprecationWarning
-from matplotlib.rcsetup import validate_backend, cycler
+from matplotlib._api import (  # noqa: F401 # pylint: disable=W0611
+    MatplotlibDeprecationWarning)
+from matplotlib.rcsetup import validate_backend, cycler as _cycler
 
+
+cycler = _api.deprecated(
+    "3.7", alternative="matplotlib.rcsetup.cycler")(_cycler)
 
 _log = logging.getLogger(__name__)
 
@@ -211,7 +213,7 @@ def _check_versions():
 
     # Quickfix to ensure Microsoft Visual C++ redistributable
     # DLLs are loaded before importing kiwisolver
-    from . import ft2font
+    from . import ft2font  # noqa: F401 # pylint: disable=W0611
 
     for modname, minver in [
             ("cycler", "0.10"),

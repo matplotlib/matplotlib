@@ -10,7 +10,8 @@ import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cbook, cm, cycler
+from matplotlib import cbook, cm
+from matplotlib.rcsetup import cycler
 import matplotlib
 import matplotlib as mpl
 import matplotlib.colors as mcolors

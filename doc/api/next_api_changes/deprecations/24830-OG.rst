@@ -1,0 +1,5 @@
+``matplotlib.cycler``
+~~~~~~~~~~~~~~~~~~~~~
+
+... is deprecated and shall be imported from its original location
+``matplotlib.rcsetup.cycler`` instead.
