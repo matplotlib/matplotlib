@@ -1,6 +1,7 @@
-import io
-from types import SimpleNamespace
 from datetime import datetime
+import io
+import re
+from types import SimpleNamespace
 
 import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
@@ -817,36 +818,38 @@ def test_quadmesh_set_array_validation():
     fig, ax = plt.subplots()
     coll = ax.pcolormesh(x, y, z)
 
-    # Test deprecated warning when faulty shape is passed.
-    with pytest.raises(ValueError, match=r"For X \(11\) and Y \(8\) with flat "
-                       r"shading, the expected shape of A is \(7, 10\), not "
-                       r"\(10, 7\)"):
+    with pytest.raises(ValueError, match=re.escape(
+            "For X (11) and Y (8) with flat shading, A should have shape "
+            "(7, 10, 3) or (7, 10, 4) or (7, 10) or (70,), not (10, 7)")):
         coll.set_array(z.reshape(10, 7))
 
     z = np.arange(54).reshape((6, 9))
-    with pytest.raises(TypeError, match=r"Dimensions of A \(6, 9\) "
-                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+    with pytest.raises(ValueError, match=re.escape(
+            "For X (11) and Y (8) with flat shading, A should have shape "
+            "(7, 10, 3) or (7, 10, 4) or (7, 10) or (70,), not (6, 9)")):
         coll.set_array(z)
-    with pytest.raises(TypeError, match=r"Dimensions of A \(54,\) "
-                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+    with pytest.raises(ValueError, match=re.escape(
+            "For X (11) and Y (8) with flat shading, A should have shape "
+            "(7, 10, 3) or (7, 10, 4) or (7, 10) or (70,), not (54,)")):
         coll.set_array(z.ravel())
 
     # RGB(A) tests
     z = np.ones((9, 6, 3))  # RGB with wrong X/Y dims
-    with pytest.raises(TypeError, match=r"Dimensions of A \(9, 6, 3\) "
-                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+    with pytest.raises(ValueError, match=re.escape(
+            "For X (11) and Y (8) with flat shading, A should have shape "
+            "(7, 10, 3) or (7, 10, 4) or (7, 10) or (70,), not (9, 6, 3)")):
         coll.set_array(z)
 
     z = np.ones((9, 6, 4))  # RGBA with wrong X/Y dims
-    with pytest.raises(TypeError, match=r"Dimensions of A \(9, 6, 4\) "
-                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+    with pytest.raises(ValueError, match=re.escape(
+            "For X (11) and Y (8) with flat shading, A should have shape "
+            "(7, 10, 3) or (7, 10, 4) or (7, 10) or (70,), not (9, 6, 4)")):
         coll.set_array(z)
 
     z = np.ones((7, 10, 2))  # Right X/Y dims, bad 3rd dim
-    with pytest.raises(ValueError, match=r"For X \(11\) and Y \(8\) with "
-                       r"flat shading, the expected shape of "
-                       r"A with RGB\(A\) colors is \(7, 10, \[3 or 4\]\), "
-                       r"not \(7, 10, 2\)"):
+    with pytest.raises(ValueError, match=re.escape(
+            "For X (11) and Y (8) with flat shading, A should have shape "
+            "(7, 10, 3) or (7, 10, 4) or (7, 10) or (70,), not (7, 10, 2)")):
         coll.set_array(z)
 
     x = np.arange(10)
