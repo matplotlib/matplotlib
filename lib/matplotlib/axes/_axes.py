@@ -6747,13 +6747,13 @@ such objects
                 input_empty = False
 
         if color is None:
-            color = [self._get_lines.get_next_color() for i in range(nx)]
+            colors = [self._get_lines.get_next_color() for i in range(nx)]
         else:
-            color = mcolors.to_rgba_array(color)
-            if len(color) != nx:
+            colors = mcolors.to_rgba_array(color)
+            if len(colors) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
                                  f"color per dataset, but {nx} datasets and "
-                                 f"{len(color)} colors were provided")
+                                 f"{len(colors)} colors were provided")
 
         hist_kwargs = dict()
 
@@ -6848,19 +6848,19 @@ such objects
                 _barfunc = self.bar
                 bottom_kwarg = 'bottom'
 
-            for m, c in zip(tops, color):
+            for top, color in zip(tops, colors):
                 if bottom is None:
-                    bottom = np.zeros(len(m))
+                    bottom = np.zeros(len(top))
                 if stacked:
-                    height = m - bottom
+                    height = top - bottom
                 else:
-                    height = m
+                    height = top
                 bars = _barfunc(bins[:-1]+boffset, height, width,
                                 align='center', log=log,
-                                color=c, **{bottom_kwarg: bottom})
+                                color=color, **{bottom_kwarg: bottom})
                 patches.append(bars)
                 if stacked:
-                    bottom = m
+                    bottom = top
                 boffset += dw
             # Remove stickies from all bars but the lowest ones, as otherwise
             # margin expansion would be unable to cross the stickies in the
@@ -6899,12 +6899,12 @@ such objects
             fill = (histtype == 'stepfilled')
 
             xvals, yvals = [], []
-            for m in tops:
+            for top in tops:
                 if stacked:
                     # top of the previous polygon becomes the bottom
                     y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
                 # set the top of this polygon
-                y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = m + bottom
+                y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = top + bottom
 
                 # The starting point of the polygon has not yet been
                 # updated. So far only the endpoint was adjusted. This
@@ -6924,12 +6924,12 @@ such objects
             # add patches in reverse order so that when stacking,
             # items lower in the stack are plotted on top of
             # items higher in the stack
-            for x, y, c in reversed(list(zip(xvals, yvals, color))):
+            for x, y, color in reversed(list(zip(xvals, yvals, colors))):
                 patches.append(self.fill(
                     x[:split], y[:split],
                     closed=True if fill else None,
-                    facecolor=c,
-                    edgecolor=None if fill else c,
+                    facecolor=color,
+                    edgecolor=None if fill else color,
                     fill=fill if fill else None,
                     zorder=None if fill else mlines.Line2D.zorder))
             for patch_list in patches:
