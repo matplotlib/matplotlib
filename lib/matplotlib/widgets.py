@@ -152,7 +152,7 @@ class Button(AxesWidget):
     """
 
     def __init__(self, ax, label, image=None,
-                 color='0.85', hovercolor='0.95'):
+                 color='0.85', hovercolor='0.95', useblit=False):
         """
         Parameters
         ----------
@@ -182,12 +182,28 @@ class Button(AxesWidget):
         self.connect_event('button_press_event', self._click)
         self.connect_event('button_release_event', self._release)
         self.connect_event('motion_notify_event', self._motion)
+        self.connect_event('draw_event', self._draw)
+        self.connect_event('resize_event', self._clear)
         ax.set_navigate(False)
         ax.set_facecolor(color)
         ax.set_xticks([])
         ax.set_yticks([])
         self.color = color
         self.hovercolor = hovercolor
+
+        self.useblit = useblit and self.canvas.supports_blit
+        if self.useblit:
+            self.label.set_animated(True)
+            self.ax.patch.set_animated(True)
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+
+    def _clear(self, event):
+        if self.ignore(event):
+            return
+        if self.useblit:
+            self.label.set_visible(False)
+            self.ax.patch.set_visible(False)
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
     def _click(self, event):
         if self.ignore(event) or event.inaxes != self.ax or not self.eventson:
@@ -201,6 +217,7 @@ class Button(AxesWidget):
         event.canvas.release_mouse(self.ax)
         if self.eventson and event.inaxes == self.ax:
             self._observers.process('clicked', event)
+            self._draw()
 
     def _motion(self, event):
         if self.ignore(event):
@@ -208,8 +225,20 @@ class Button(AxesWidget):
         c = self.hovercolor if event.inaxes == self.ax else self.color
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
-            if self.drawon:
-                self.ax.figure.canvas.draw()
+            self._draw()
+
+    def _draw(self, event=None):
+        if self.ignore(event):
+            return
+        self.label.set_visible(True)
+        self.ax.patch.set_visible(True)
+        if self.useblit:
+            self.canvas.restore_region(self.background)
+            self.ax.draw_artist(self.ax.patch)
+            self.ax.draw_artist(self.label)
+            self.canvas.blit(self.ax.bbox)
+        else:
+            self.canvas.draw_idle()
 
     def on_clicked(self, func):
         """
@@ -320,7 +349,7 @@ class Slider(SliderBase):
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
                  orientation='horizontal', *, initcolor='r',
-                 track_color='lightgrey', handle_style=None, **kwargs):
+                 track_color='lightgrey', handle_style=None, useblit=False, **kwargs):
         """
         Parameters
         ----------
@@ -400,6 +429,8 @@ class Slider(SliderBase):
         super().__init__(ax, orientation, closedmin, closedmax,
                          valmin, valmax, valfmt, dragging, valstep)
 
+        self.useblit = useblit and self.canvas.supports_blit
+
         if slidermin is not None and not hasattr(slidermin, 'val'):
             raise ValueError(
                 f"Argument slidermin ({type(slidermin)}) has no 'val'")
@@ -420,18 +451,22 @@ class Slider(SliderBase):
             f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
         }
 
+        self.artists = []
         if orientation == 'vertical':
             self.track = Rectangle(
                 (.25, 0), .5, 1,
                 transform=ax.transAxes,
                 facecolor=track_color
             )
+            self.artists.append(self.track)
             ax.add_patch(self.track)
             self.poly = ax.axhspan(valmin, valinit, .25, .75, **kwargs)
             # Drawing a longer line and clipping it to the track avoids
             # pixelation-related asymmetries.
+            self.artists.append(self.poly)
             self.hline = ax.axhline(valinit, 0, 1, color=initcolor, lw=1,
                                     clip_path=TransformedPatchPath(self.track))
+            self.artists.append(self.hline)
             handleXY = [[0.5], [valinit]]
         else:
             self.track = Rectangle(
@@ -439,10 +474,13 @@ class Slider(SliderBase):
                 transform=ax.transAxes,
                 facecolor=track_color
             )
+            self.artists.append(self.track)
             ax.add_patch(self.track)
             self.poly = ax.axvspan(valmin, valinit, .25, .75, **kwargs)
+            self.artists.append(self.poly)
             self.vline = ax.axvline(valinit, 0, 1, color=initcolor, lw=1,
                                     clip_path=TransformedPatchPath(self.track))
+            self.artists.append(self.vline)
             handleXY = [[valinit], [0.5]]
         self._handle, = ax.plot(
             *handleXY,
@@ -450,27 +488,48 @@ class Slider(SliderBase):
             **marker_props,
             clip_on=False
         )
+        self.artists.append(self._handle)
 
         if orientation == 'vertical':
             self.label = ax.text(0.5, 1.02, label, transform=ax.transAxes,
                                  verticalalignment='bottom',
                                  horizontalalignment='center')
+            self.artists.append(self.label)
 
             self.valtext = ax.text(0.5, -0.02, self._format(valinit),
                                    transform=ax.transAxes,
                                    verticalalignment='top',
                                    horizontalalignment='center')
+            self.artists.append(self.valtext)
         else:
             self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
                                  verticalalignment='center',
                                  horizontalalignment='right')
+            self.artists.append(self.label)
 
             self.valtext = ax.text(1.02, 0.5, self._format(valinit),
                                    transform=ax.transAxes,
                                    verticalalignment='center',
                                    horizontalalignment='left')
+            self.artists.append(self.valtext)
 
-        self.set_val(valinit)
+        self.connect_event('draw_event', self._draw)
+        self.connect_event('resize_event', self._clear)
+        if self.useblit:
+            for artist in self.artists:
+                artist.set_animated(True)
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+        else:
+            self.set_val(valinit)
+
+    def _clear(self, event):
+        if self.ignore(event):
+            return
+        if self.useblit:
+            for artist in self.artists:
+                artist.set_visible(False)
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+
 
     def _value_in_bounds(self, val):
         """Makes sure *val* is with given bounds."""
@@ -538,6 +597,7 @@ class Slider(SliderBase):
         ----------
         val : float
         """
+        print(f"slider set_value {val}")
         xy = self.poly.xy
         if self.orientation == 'vertical':
             xy[1] = .25, val
@@ -549,11 +609,12 @@ class Slider(SliderBase):
             self._handle.set_xdata([val])
         self.poly.xy = xy
         self.valtext.set_text(self._format(val))
-        if self.drawon:
+        if self.drawon and not self.useblit:
             self.ax.figure.canvas.draw_idle()
         self.val = val
         if self.eventson:
             self._observers.process('changed', val)
+        self._draw()
 
     def on_changed(self, func):
         """
@@ -571,6 +632,22 @@ class Slider(SliderBase):
             Connection id (which can be used to disconnect *func*).
         """
         return self._observers.connect('changed', lambda val: func(val))
+
+    def _draw(self, event=None):
+        if self.ignore(event):
+            return
+        print(f"blit slider _draw() {self.val}")
+        if event is not None:
+            print(event)
+        for artist in self.artists:
+            artist.set_visible(True)
+        if self.useblit:
+            self.canvas.restore_region(self.background)
+            for artist in self.artists:
+                self.ax.draw_artist(artist)
+            self.canvas.blit(self.ax.bbox)
+        else:
+            self.canvas.draw_idle()
 
 
 class RangeSlider(SliderBase):
