@@ -1120,8 +1120,8 @@ def test_lines_dists():
     ys = (100, 150, 30, 200)
     ax.scatter(xs, ys)
 
-    dist0 = proj3d._line2d_seg_dist(p0, p1, (xs[0], ys[0]))
-    dist = proj3d._line2d_seg_dist(p0, p1, np.array((xs, ys)))
+    dist0 = proj3d._line2d_seg_dist((xs[0], ys[0]), p0, p1)
+    dist = proj3d._line2d_seg_dist(np.array((xs, ys)).T, p0, p1)
     assert dist0 == dist[0]
 
     for x, y, d in zip(xs, ys, dist):
@@ -1133,15 +1133,11 @@ def test_lines_dists():
 
 
 def test_lines_dists_nowarning():
-    # Smoke test to see that no RuntimeWarning is emitted when two first
-    # arguments are the same, see GH#22624
-    p0 = (10, 30, 50)
-    p1 = (10, 30, 20)
-    p2 = (20, 150)
-    proj3d._line2d_seg_dist(p0, p0, p2)
-    proj3d._line2d_seg_dist(p0, p1, p2)
-    p0 = np.array(p0)
-    proj3d._line2d_seg_dist(p0, p0, p2)
+    # No RuntimeWarning must be emitted for degenerate segments, see GH#22624.
+    s0 = (10, 30, 50)
+    p = (20, 150, 180)
+    proj3d._line2d_seg_dist(p, s0, s0)
+    proj3d._line2d_seg_dist(np.array(p), s0, s0)
 
 
 def test_autoscale():
