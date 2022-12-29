@@ -150,7 +150,7 @@ class TaggedValue(metaclass=TaggedValueMeta):
         return TaggedValue(array, self.unit)
 
     def __repr__(self):
-        return 'TaggedValue({!r}, {!r})'.format(self.value, self.unit)
+        return f'TaggedValue({self.value!r}, {self.unit!r})'
 
     def __str__(self):
         return f"{self.value} in {self.unit}"

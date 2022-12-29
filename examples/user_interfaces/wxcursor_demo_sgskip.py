@@ -50,8 +50,7 @@ class CanvasFrame(wx.Frame):
 
     def UpdateStatusBar(self, event):
         if event.inaxes:
-            self.statusBar.SetStatusText(
-                "x={}  y={}".format(event.xdata, event.ydata))
+            self.statusBar.SetStatusText(f"x={event.xdata}  y={event.ydata}")
 
 
 class App(wx.App):

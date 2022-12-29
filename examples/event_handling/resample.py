@@ -45,7 +45,7 @@ class DataDisplayDownsampler:
         xdata = xdata[::ratio]
         ydata = ydata[::ratio]
 
-        print("using {} of {} visible points".format(len(ydata), np.sum(mask)))
+        print(f"using {len(ydata)} of {np.sum(mask)} visible points")
 
         return xdata, ydata
 

@@ -20,7 +20,7 @@ np.random.seed(19680801)
 data1 = np.random.random([6, 50])
 
 # set different colors for each set of positions
-colors1 = ['C{}'.format(i) for i in range(6)]
+colors1 = [f'C{i}' for i in range(6)]
 
 # set different line properties for each set of positions
 # note that some overlap

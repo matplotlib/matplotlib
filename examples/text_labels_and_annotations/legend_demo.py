@@ -45,7 +45,7 @@ fig, (ax0, ax1) = plt.subplots(2, 1)
 
 # Plot the lines y=x**n for n=1..4.
 for n in range(1, 5):
-    ax0.plot(x, x**n, label="n={0}".format(n))
+    ax0.plot(x, x**n, label=f"{n=}")
 leg = ax0.legend(loc="upper left", bbox_to_anchor=[0, 1],
                  ncol=2, shadow=True, title="Legend", fancybox=True)
 leg.get_title().set_color("red")
