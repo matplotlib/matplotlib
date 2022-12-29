@@ -2826,10 +2826,6 @@ class Axes(_AxesBase):
         A rectangle is drawn for each element of *xranges*. All rectangles
         have the same vertical position and size defined by *yrange*.
 
-        This is a convenience function for instantiating a
-        `.BrokenBarHCollection`, adding it to the Axes and autoscaling the
-        view.
-
         Parameters
         ----------
         xranges : sequence of tuples (*xmin*, *xwidth*)
@@ -2841,13 +2837,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~.collections.BrokenBarHCollection`
+        `~.collections.PolyCollection`
 
         Other Parameters
         ----------------
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
-        **kwargs : `.BrokenBarHCollection` properties
+        **kwargs : `.PolyCollection` properties
 
             Each *kwarg* can be either a single argument applying to all
             rectangles, e.g.::
@@ -2862,32 +2858,28 @@ class Axes(_AxesBase):
 
             Supported keywords:
 
-            %(BrokenBarHCollection:kwdoc)s
+            %(PolyCollection:kwdoc)s
         """
         # process the unit information
-        if len(xranges):
-            xdata = cbook._safe_first_finite(xranges)
-        else:
-            xdata = None
-        if len(yrange):
-            ydata = cbook._safe_first_finite(yrange)
-        else:
-            ydata = None
+        xdata = cbook._safe_first_finite(xranges) if len(xranges) else None
+        ydata = cbook._safe_first_finite(yrange) if len(yrange) else None
         self._process_unit_info(
             [("x", xdata), ("y", ydata)], kwargs, convert=False)
-        xranges_conv = []
-        for xr in xranges:
-            if len(xr) != 2:
-                raise ValueError('each range in xrange must be a sequence '
-                                 'with two elements (i.e. an Nx2 array)')
-            # convert the absolute values, not the x and dx...
-            x_conv = np.asarray(self.convert_xunits(xr[0]))
-            x1 = self._convert_dx(xr[1], xr[0], x_conv, self.convert_xunits)
-            xranges_conv.append((x_conv, x1))
 
-        yrange_conv = self.convert_yunits(yrange)
+        vertices = []
+        y0, dy = yrange
+        y0, y1 = self.convert_yunits((y0, y0 + dy))
+        for xr in xranges:  # convert the absolute values, not the x and dx
+            try:
+                x0, dx = xr
+            except Exception:
+                raise ValueError(
+                    "each range in xrange must be a sequence with two "
+                    "elements (i.e. xrange must be an (N, 2) array)") from None
+            x0, x1 = self.convert_xunits((x0, x0 + dx))
+            vertices.append([(x0, y0), (x0, y1), (x1, y1), (x1, y0)])
 
-        col = mcoll.BrokenBarHCollection(xranges_conv, yrange_conv, **kwargs)
+        col = mcoll.PolyCollection(np.array(vertices), **kwargs)
         self.add_collection(col, autolim=True)
         self._request_autoscale_view()
 
