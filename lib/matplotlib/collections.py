@@ -9,6 +9,7 @@ they are meant to be fast for common use cases (e.g., a large set of solid
 line segments).
 """
 
+import itertools
 import math
 from numbers import Number
 import warnings
@@ -163,6 +164,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # list of unbroadcast/scaled linewidths
         self._us_lw = [0]
         self._linewidths = [0]
+
+        self._gapcolor = None  # Currently only used by LineCollection.
+
         # Flags set by _set_mappable_flags: are colors from mapping an array?
         self._face_is_mapped = None
         self._edge_is_mapped = None
@@ -406,6 +410,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 gc, paths[0], combined_transform.frozen(),
                 mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
         else:
+            if self._gapcolor is not None:
+                # First draw paths within the gaps.
+                ipaths, ilinestyles = self._get_inverse_paths_linestyles()
+                renderer.draw_path_collection(
+                    gc, transform.frozen(), ipaths,
+                    self.get_transforms(), offsets, offset_trf,
+                    [mcolors.to_rgba("none")], self._gapcolor,
+                    self._linewidths, ilinestyles,
+                    self._antialiaseds, self._urls,
+                    "screen")
+
             renderer.draw_path_collection(
                 gc, transform.frozen(), paths,
                 self.get_transforms(), offsets, offset_trf,
@@ -1459,6 +1474,12 @@ class LineCollection(Collection):
     def _get_default_facecolor(self):
         return 'none'
 
+    def set_alpha(self, alpha):
+        # docstring inherited
+        super().set_alpha(alpha)
+        if self._gapcolor is not None:
+            self.set_gapcolor(self._original_gapcolor)
+
     def set_color(self, c):
         """
         Set the edgecolor(s) of the LineCollection.
@@ -1478,6 +1499,53 @@ class LineCollection(Collection):
         return self._edgecolors
 
     get_colors = get_color  # for compatibility with old versions
+
+    def set_gapcolor(self, gapcolor):
+        """
+        Set a color to fill the gaps in the dashed line style.
+
+        .. note::
+
+            Striped lines are created by drawing two interleaved dashed lines.
+            There can be overlaps between those two, which may result in
+            artifacts when using transparency.
+
+            This functionality is experimental and may change.
+
+        Parameters
+        ----------
+        gapcolor : color or list of colors or None
+            The color with which to fill the gaps. If None, the gaps are
+            unfilled.
+        """
+        self._original_gapcolor = gapcolor
+        self._set_gapcolor(gapcolor)
+
+    def _set_gapcolor(self, gapcolor):
+        if gapcolor is not None:
+            gapcolor = mcolors.to_rgba_array(gapcolor, self._alpha)
+        self._gapcolor = gapcolor
+        self.stale = True
+
+    def get_gapcolor(self):
+        return self._gapcolor
+
+    def _get_inverse_paths_linestyles(self):
+        """
+        Returns the path and pattern for the gaps in the non-solid lines.
+
+        This path and pattern is the inverse of the path and pattern used to
+        construct the non-solid lines. For solid lines, we set the inverse path
+        to nans to prevent drawing an inverse line.
+        """
+        path_patterns = [
+            (mpath.Path(np.full((1, 2), np.nan)), ls)
+            if ls == (0, None) else
+            (path, mlines._get_inverse_dash_pattern(*ls))
+            for (path, ls) in
+            zip(self._paths, itertools.cycle(self._linestyles))]
+
+        return zip(*path_patterns)
 
 
 class EventCollection(LineCollection):

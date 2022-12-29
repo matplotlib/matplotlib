@@ -60,6 +60,18 @@ def _get_dash_pattern(style):
     return offset, dashes
 
 
+def _get_inverse_dash_pattern(offset, dashes):
+    """Return the inverse of the given dash pattern, for filling the gaps."""
+    # Define the inverse pattern by moving the last gap to the start of the
+    # sequence.
+    gaps = dashes[-1:] + dashes[:-1]
+    # Set the offset so that this new first segment is skipped
+    # (see backend_bases.GraphicsContextBase.set_dashes for offset definition).
+    offset_gaps = offset + dashes[-1]
+
+    return offset_gaps, gaps
+
+
 def _scale_dashes(offset, dashes, lw):
     if not mpl.rcParams['lines.scale_dashes']:
         return offset, dashes
@@ -780,14 +792,8 @@ class Line2D(Artist):
                     lc_rgba = mcolors.to_rgba(self._gapcolor, self._alpha)
                     gc.set_foreground(lc_rgba, isRGBA=True)
 
-                    # Define the inverse pattern by moving the last gap to the
-                    # start of the sequence.
-                    dashes = self._dash_pattern[1]
-                    gaps = dashes[-1:] + dashes[:-1]
-                    # Set the offset so that this new first segment is skipped
-                    # (see backend_bases.GraphicsContextBase.set_dashes for
-                    # offset definition).
-                    offset_gaps = self._dash_pattern[0] + dashes[-1]
+                    offset_gaps, gaps = _get_inverse_dash_pattern(
+                        *self._dash_pattern)
 
                     gc.set_dashes(offset_gaps, gaps)
                     renderer.draw_path(gc, tpath, affine.frozen())
