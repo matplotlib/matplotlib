@@ -6,9 +6,9 @@
    :members:
    :show-inheritance:
 
-Built in projections
+Built-in projections
 ====================
-Matplotlib has built in support for polar and some geographic projections.
+Matplotlib has built-in support for polar and some geographic projections.
 See the following pages for more information:
 
 .. toctree::
