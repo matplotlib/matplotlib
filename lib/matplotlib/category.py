@@ -43,7 +43,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        float or ndarray[float]
+        float or `~numpy.ndarray` of float
         """
         if unit is None:
             raise ValueError(

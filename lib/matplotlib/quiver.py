@@ -946,7 +946,7 @@ class Barbs(mcollections.PolyCollection):
 
         Parameters
         ----------
-        mag : array
+        mag : `~numpy.ndarray`
             Vector magnitudes; must be non-negative (and an actual ndarray).
         rounding : bool, default: True
             Whether to round or to truncate to the nearest half-barb.

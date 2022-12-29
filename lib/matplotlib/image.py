@@ -1143,8 +1143,8 @@ class NonUniformImage(AxesImage):
             Monotonic arrays of shapes (N,) and (M,), respectively, specifying
             pixel centers.
         A : array-like
-            (M, N) ndarray or masked array of values to be colormapped, or
-            (M, N, 3) RGB array, or (M, N, 4) RGBA array.
+            (M, N) `~numpy.ndarray` or masked array of values to be
+            colormapped, or (M, N, 3) RGB array, or (M, N, 4) RGBA array.
         """
         x = np.array(x, np.float32)
         y = np.array(y, np.float32)
@@ -1232,7 +1232,7 @@ class PcolorImage(AxesImage):
             The data to be color-coded. The interpretation depends on the
             shape:
 
-            - (M, N) ndarray or masked array: values to be colormapped
+            - (M, N) `~numpy.ndarray` or masked array: values to be colormapped
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
 
@@ -1298,7 +1298,7 @@ class PcolorImage(AxesImage):
             The data to be color-coded. The interpretation depends on the
             shape:
 
-            - (M, N) ndarray or masked array: values to be colormapped
+            - (M, N) `~numpy.ndarray` or masked array: values to be colormapped
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
         """

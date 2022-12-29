@@ -2698,10 +2698,10 @@ pivot='tail', normalize=False, **kwargs)
               can be either a string, or a 1D rgb/rgba array
             - ``None``, the default, to use a single color for the faces, and
               the style default for the edges.
-            - A 3D ndarray of color names, with each item the color for the
-              corresponding voxel. The size must match the voxels.
-            - A 4D ndarray of rgb/rgba data, with the components along the
-              last axis.
+            - A 3D `~numpy.ndarray` of color names, with each item the color
+              for the corresponding voxel. The size must match the voxels.
+            - A 4D `~numpy.ndarray` of rgb/rgba data, with the components
+              along the last axis.
 
         shade : bool, default: True
             Whether to shade the facecolors.
