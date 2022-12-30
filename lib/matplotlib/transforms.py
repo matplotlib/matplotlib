@@ -1890,7 +1890,7 @@ class Affine2D(Affine2DBase):
         super().__init__(**kwargs)
         if matrix is None:
             # A bit faster than np.identity(3).
-            matrix = IdentityTransform._mtx.copy()
+            matrix = IdentityTransform._mtx
         self._mtx = matrix.copy()
         self._invalid = 0
 
