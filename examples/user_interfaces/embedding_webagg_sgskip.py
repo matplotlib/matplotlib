@@ -122,7 +122,7 @@ class MyApplication(tornado.web.Application):
 
         def get(self):
             manager = self.application.manager
-            ws_uri = "ws://{req.host}/".format(req=self.request)
+            ws_uri = f"ws://{self.request.host}/"
             content = html_content % {
                 "ws_uri": ws_uri, "fig_id": manager.num}
             self.write(content)
@@ -206,8 +206,8 @@ class MyApplication(tornado.web.Application):
             if self.supports_binary:
                 self.write_message(blob, binary=True)
             else:
-                data_uri = "data:image/png;base64,{0}".format(
-                    blob.encode('base64').replace('\n', ''))
+                data_uri = ("data:image/png;base64," +
+                            blob.encode('base64').replace('\n', ''))
                 self.write_message(data_uri)
 
     def __init__(self, figure):

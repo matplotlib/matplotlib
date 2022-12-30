@@ -75,8 +75,8 @@ def draw_font_table(path):
     # we have indeed selected a Unicode charmap.
     codes = font.get_charmap().items()
 
-    labelc = ["{:X}".format(i) for i in range(16)]
-    labelr = ["{:02X}".format(16 * i) for i in range(16)]
+    labelc = [f"{i:X}" for i in range(16)]
+    labelr = [f"{i:02X}" for i in range(0, 16*16, 16)]
     chars = [["" for c in range(16)] for r in range(16)]
 
     for char_code, glyph_index in codes:

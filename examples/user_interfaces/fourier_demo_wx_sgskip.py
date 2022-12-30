@@ -98,7 +98,7 @@ class SliderGroup(Knob):
         self.param.set(value)
 
     def setKnob(self, value):
-        self.sliderText.SetValue('%g' % value)
+        self.sliderText.SetValue(f'{value:g}')
         self.slider.SetValue(int(value * 1000))
 
 

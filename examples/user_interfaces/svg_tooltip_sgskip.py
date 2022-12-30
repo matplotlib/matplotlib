@@ -48,8 +48,8 @@ for i, (item, label) in enumerate(zip(shapes, labels)):
                                                  zorder=1))
 
     ax.add_patch(patch)
-    patch.set_gid('mypatch_{:03d}'.format(i))
-    annotate.set_gid('mytooltip_{:03d}'.format(i))
+    patch.set_gid(f'mypatch_{i:03d}')
+    annotate.set_gid(f'mytooltip_{i:03d}')
 
 # Save the figure in a fake file object
 ax.set_xlim(-30, 30)
@@ -69,10 +69,10 @@ for i in shapes:
     # Get the index of the shape
     index = shapes.index(i)
     # Hide the tooltips
-    tooltip = xmlid['mytooltip_{:03d}'.format(index)]
+    tooltip = xmlid[f'mytooltip_{index:03d}']
     tooltip.set('visibility', 'hidden')
     # Assign onmouseover and onmouseout callbacks to patches.
-    mypatch = xmlid['mypatch_{:03d}'.format(index)]
+    mypatch = xmlid[f'mypatch_{index:03d}']
     mypatch.set('onmouseover', "ShowTooltip(this)")
     mypatch.set('onmouseout', "HideTooltip(this)")
 
