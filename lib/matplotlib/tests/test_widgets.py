@@ -1575,8 +1575,8 @@ def test_MultiCursor(horizOn, vertOn):
     )
 
     # Only two of the axes should have a line drawn on them.
-    assert len(multi.vlines) == (2 if vertOn else 0)
-    assert len(multi.hlines) == (2 if horizOn else 0)
+    assert len(multi.vlines) == 2
+    assert len(multi.hlines) == 2
 
     # mock a motion_notify_event
     # Can't use `do_event` as that helper requires the widget
@@ -1589,6 +1589,21 @@ def test_MultiCursor(horizOn, vertOn):
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
+    # The relevant lines get turned on after move.
+    assert len([line for line in multi.vlines if line.get_visible()]) == (
+        2 if vertOn else 0)
+    assert len([line for line in multi.hlines if line.get_visible()]) == (
+        2 if horizOn else 0)
+
+    # After toggling settings, the opposite lines should be visible after move.
+    multi.horizOn = not multi.horizOn
+    multi.vertOn = not multi.vertOn
+    event = mock_event(ax1, xdata=.5, ydata=.25)
+    multi._onmove(event)
+    assert len([line for line in multi.vlines if line.get_visible()]) == (
+        0 if vertOn else 2)
+    assert len([line for line in multi.hlines if line.get_visible()]) == (
+        0 if horizOn else 2)
 
     # test a move event in an Axes not part of the MultiCursor
     # the lines in ax1 and ax2 should not have moved.
