@@ -124,9 +124,9 @@ class PolarAffine(mtransforms.Affine2DBase):
 
     .. math::
 
-        x_{1} = 0.5 \left [ \frac{x_{0}}{(r_{max} - r_{min})} + 1 \right ]
+        x_{1} = 0.5 \left [ \frac{x_{0}}{(r_{\max} - r_{\min})} + 1 \right ]
 
-    :math:`r_{min}, r_{max}` are the minimum and maximum radial limits after
+    :math:`r_{\min}, r_{\max}` are the minimum and maximum radial limits after
     any scaling (e.g. log scaling) has been removed.
     """
     def __init__(self, scale_transform, limits):
