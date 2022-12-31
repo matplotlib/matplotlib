@@ -608,18 +608,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
             complete description.
         """
         try:
-            if isinstance(ls, str):
-                ls = cbook.ls_mapper.get(ls, ls)
-                dashes = [mlines._get_dash_pattern(ls)]
-            else:
-                try:
-                    dashes = [mlines._get_dash_pattern(ls)]
-                except ValueError:
-                    dashes = [mlines._get_dash_pattern(x) for x in ls]
-
-        except ValueError as err:
-            raise ValueError('Do not know how to convert {!r} to '
-                             'dashes'.format(ls)) from err
+            dashes = [mlines._get_dash_pattern(ls)]
+        except ValueError:
+            try:
+                dashes = [mlines._get_dash_pattern(x) for x in ls]
+            except ValueError as err:
+                emsg = f'Do not know how to convert {ls!r} to dashes'
+                raise ValueError(emsg) from err
 
         # get the list of raw 'unscaled' dash patterns
         self._us_linestyles = dashes
