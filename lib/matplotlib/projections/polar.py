@@ -115,15 +115,30 @@ class PolarTransform(mtransforms.Transform):
 
 
 class PolarAffine(mtransforms.Affine2DBase):
-    """
-    The affine part of the polar projection.  Scales the output so
-    that maximum radius rests on the edge of the axes circle.
+    r"""
+    The affine part of the polar projection.
+
+    Scales the output so that maximum radius rests on the edge of the axes
+    circle and the origin is mapped to (0.5, 0.5). The transform applied is
+    the same to x and y components and given by:
+
+    .. math::
+
+        x_{1} = 0.5 \left [ \frac{x_{0}}{(r_{max} - r_{min})} + 1 \right ]
+
+    :math:`r_{min}, r_{max}` are the minimum and maximum radial limits after
+    any scaling (e.g. log scaling) has been removed.
     """
     def __init__(self, scale_transform, limits):
         """
-        *limits* is the view limit of the data.  The only part of
-        its bounds that is used is the y limits (for the radius limits).
-        The theta range is handled by the non-affine transform.
+        Parameters
+        ----------
+        scale_transform : `~matplotlib.transforms.Transform`
+            Scaling transform for the data. This is used to remove any scaling
+            from the radial view limits.
+        limits : `~matplotlib.transforms.BboxBase`
+            View limits of the data. The only part of its bounds that is used
+            is the y limits (for the radius limits).
         """
         super().__init__()
         self._scale_transform = scale_transform
