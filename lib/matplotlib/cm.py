@@ -220,11 +220,7 @@ _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
 
 
-@_api.deprecated(
-    '3.6',
-    pending=True,
-    alternative="``matplotlib.colormaps.register(name)``"
-)
+@_api.deprecated("3.7", alternative="``matplotlib.colormaps.register(name)``")
 def register_cmap(name=None, cmap=None, *, override_builtin=False):
     """
     Add a colormap to the set recognized by :func:`get_cmap`.
@@ -299,9 +295,8 @@ def _get_cmap(name=None, lut=None):
 # do it in two steps like this so we can have an un-deprecated version in
 # pyplot.
 get_cmap = _api.deprecated(
-    '3.6',
+    '3.7',
     name='get_cmap',
-    pending=True,
     alternative=(
         "``matplotlib.colormaps[name]`` " +
         "or ``matplotlib.colormaps.get_cmap(obj)``"
@@ -309,11 +304,8 @@ get_cmap = _api.deprecated(
 )(_get_cmap)
 
 
-@_api.deprecated(
-    '3.6',
-    pending=True,
-    alternative="``matplotlib.colormaps.unregister(name)``"
-)
+@_api.deprecated("3.7",
+                 alternative="``matplotlib.colormaps.unregister(name)``")
 def unregister_cmap(name):
     """
     Remove a colormap recognized by :func:`get_cmap`.
