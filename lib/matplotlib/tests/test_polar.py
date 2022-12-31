@@ -291,6 +291,13 @@ def test_polar_no_data():
     assert ax.get_rmin() == 0 and ax.get_rmax() == 1
 
 
+def test_polar_default_log_lims():
+    plt.subplot(projection='polar')
+    ax = plt.gca()
+    ax.set_rscale('log')
+    assert ax.get_rmin() > 0
+
+
 def test_polar_not_datalim_adjustable():
     ax = plt.figure().add_subplot(projection="polar")
     with pytest.raises(ValueError):
