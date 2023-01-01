@@ -14,37 +14,24 @@ Matplotlib event handling to interact with objects on the canvas.
     You can copy and paste individual parts, or download the entire example
     using the link at the bottom of the page.
 """
+
 import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.artist import Artist
 
 
-def dist(x, y):
-    """
-    Return the distance between two points.
-    """
-    d = x - y
-    return np.sqrt(np.dot(d, d))
-
-
 def dist_point_to_segment(p, s0, s1):
     """
-    Get the distance of a point to a segment.
-      *p*, *s0*, *s1* are *xy* sequences
-    This algorithm from
-    http://www.geomalgorithms.com/algorithms.html
+    Get the distance from the point *p* to the segment (*s0*, *s1*), where
+    *p*, *s0*, *s1* are ``[x, y]`` arrays.
     """
-    v = s1 - s0
-    w = p - s0
-    c1 = np.dot(w, v)
-    if c1 <= 0:
-        return dist(p, s0)
-    c2 = np.dot(v, v)
-    if c2 <= c1:
-        return dist(p, s1)
-    b = c1 / c2
-    pb = s0 + b * v
-    return dist(p, pb)
+    s01 = s1 - s0
+    s0p = p - s0
+    if (s01 == 0).all():
+        return np.hypot(*s0p)
+    # Project onto segment, without going past segment ends.
+    p1 = s0 + np.clip((s0p @ s01) / (s01 @ s01), 0, 1) * s01
+    return np.hypot(*(p - p1))
 
 
 class PolygonInteractor:

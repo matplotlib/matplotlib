@@ -1066,7 +1066,7 @@ class Axes3D(Axes):
         # nearest edge
         p0, p1 = min(self._tunit_edges(),
                      key=lambda edge: proj3d._line2d_seg_dist(
-                         edge[0], edge[1], (xd, yd)))
+                         (xd, yd), edge[0][:2], edge[1][:2]))
 
         # scale the z value to match
         x0, y0, z0 = p0
