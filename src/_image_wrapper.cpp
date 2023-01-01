@@ -17,12 +17,12 @@ const char* image_resample__doc__ =
 
 "Parameters\n"
 "----------\n"
-"input_array : 2-d or 3-d array-like of float, double or uint8\n"
+"input_array : 2-d or 3-d NumPy array of float, double or `numpy.uint8`\n"
 "    If 2-d, the image is grayscale.  If 3-d, the image must be of size\n"
 "    4 in the last dimension and represents RGBA data.\n\n"
 
-"output_array : 2-d or 3-d numpy array of float, double or uint8\n"
-"    The dtype and number of dimensions must match *input_array*.\n\n"
+"output_array : 2-d or 3-d NumPy array of float, double or `numpy.uint8`\n"
+"    The dtype and number of dimensions must match `input_array`.\n\n"
 
 "transform : matplotlib.transforms.Transform instance\n"
 "    The transformation from the input array to the output array.\n\n"

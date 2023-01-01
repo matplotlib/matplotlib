@@ -437,7 +437,7 @@ class ScalarMappable:
         If *x* is an `~numpy.ndarray` with 3 dimensions,
         and the last dimension is either 3 or 4, then it will be
         treated as an RGB or RGBA array, and no mapping will be done.
-        The array can be uint8, or it can be floating point with
+        The array can be `~numpy.uint8`, or it can be floats with
         values in the 0-1 range; otherwise a ValueError will be raised.
         If it is a masked array, the mask will be ignored.
         If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
@@ -448,7 +448,7 @@ class ScalarMappable:
 
         In either case, if *bytes* is *False* (default), the RGBA
         array will be floats in the 0-1 range; if it is *True*,
-        the returned RGBA array will be uint8 in the 0 to 255 range.
+        the returned RGBA array will be `~numpy.uint8` in the 0 to 255 range.
 
         If norm is False, no normalization of the input data is
         performed, and it is assumed to be in the range (0-1).

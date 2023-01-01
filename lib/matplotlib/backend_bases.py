@@ -473,7 +473,7 @@ class RendererBase:
             The distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
-        im : (N, M, 4) array-like of np.uint8
+        im : (N, M, 4) array of `numpy.uint8`
             An array of RGBA pixels.
 
         transform : `matplotlib.transforms.Affine2DBase`

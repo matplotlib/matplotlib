@@ -74,7 +74,7 @@ def composite_images(images, renderer, magnification=1.0):
 
     Returns
     -------
-    image : uint8 array (M, N, 4)
+    image : (M, N, 4) `numpy.uint8` array
         The composited RGBA image.
     offset_x, offset_y : float
         The (left, bottom) offset where the composited image should be placed
@@ -333,9 +333,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         the given *clip_bbox* (also in pixel space), and magnified by the
         *magnification* factor.
 
-        *A* may be a greyscale image (M, N) with a dtype of float32, float64,
-        float128, uint16 or uint8, or an (M, N, 4) RGBA image with a dtype of
-        float32, float64, float128, or uint8.
+        *A* may be a greyscale image (M, N) with a dtype of `~numpy.float32`,
+        `~numpy.float64`, `~numpy.float128`, `~numpy.uint16` or `~numpy.uint8`,
+        or an (M, N, 4) RGBA image with a dtype of `~numpy.float32`,
+        `~numpy.float64`, `~numpy.float128`, or `~numpy.uint8`.
 
         If *unsampled* is True, the image will not be scaled, but an
         appropriate affine transformation will be returned instead.
@@ -347,7 +348,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Returns
         -------
-        image : (M, N, 4) uint8 array
+        image : (M, N, 4) `numpy.uint8` array
             The RGBA image, resampled unless *unsampled* is True.
         x, y : float
             The upper left corner where the image should be drawn, in pixel
@@ -596,7 +597,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Returns
         -------
-        image : (M, N, 4) uint8 array
+        image : (M, N, 4) `numpy.uint8` array
             The RGBA image, resampled unless *unsampled* is True.
         x, y : float
             The upper left corner where the image should be drawn, in pixel

@@ -29,7 +29,7 @@ class Path:
     The underlying storage is made up of two parallel numpy arrays:
 
     - *vertices*: an (N, 2) float array of vertices
-    - *codes*: an N-length uint8 array of path codes, or None
+    - *codes*: an N-length `numpy.uint8` array of path codes, or None
 
     These two arrays always have the same length in the first
     dimension.  For example, to represent a cubic curve, you must
