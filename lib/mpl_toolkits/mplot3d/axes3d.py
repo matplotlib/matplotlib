@@ -1561,7 +1561,7 @@ class Axes3D(Axes):
             The lightsource to use when *shade* is True.
 
         **kwargs
-            Other arguments are forwarded to `.Poly3DCollection`.
+            Other keyword arguments are forwarded to `.Poly3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1724,7 +1724,7 @@ class Axes3D(Axes):
             of the new default of ``rcount = ccount = 50``.
 
         **kwargs
-            Other arguments are forwarded to `.Line3DCollection`.
+            Other keyword arguments are forwarded to `.Line3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1851,7 +1851,7 @@ class Axes3D(Axes):
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
         **kwargs
-            All other arguments are passed on to
+            All other keyword arguments are passed on to
             :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Examples
@@ -2252,7 +2252,7 @@ class Axes3D(Axes):
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         **kwargs
-            All other arguments are passed on to `~.axes.Axes.scatter`.
+            All other keyword arguments are passed on to `~.axes.Axes.scatter`.
 
         Returns
         -------
@@ -2304,7 +2304,8 @@ class Axes3D(Axes):
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         **kwargs
-            Other arguments are forwarded to `matplotlib.axes.Axes.bar`.
+            Other keyword arguments are forwarded to
+            `matplotlib.axes.Axes.bar`.
 
         Returns
         -------
@@ -2508,19 +2509,16 @@ class Axes3D(Axes):
         return ret
 
     @_preprocess_data()
-    def quiver(self, *args,
+    def quiver(self, X, Y, Z, U, V, W, *,
                length=1, arrow_length_ratio=.3, pivot='tail', normalize=False,
                **kwargs):
         """
-        ax.quiver(X, Y, Z, U, V, W, /, length=1, arrow_length_ratio=.3, \
-pivot='tail', normalize=False, **kwargs)
-
         Plot a 3D field of arrows.
 
-        The arguments could be array-like or scalars, so long as they
-        they can be broadcast together. The arguments can also be
-        masked arrays. If an element in any of argument is masked, then
-        that corresponding quiver element will not be plotted.
+        The arguments can be array-like or scalars, so long as they can be
+        broadcast together. The arguments can also be masked arrays. If an
+        element in any of argument is masked, then that corresponding quiver
+        element will not be plotted.
 
         Parameters
         ----------
@@ -2550,7 +2548,7 @@ pivot='tail', normalize=False, **kwargs)
 
         **kwargs
             Any additional keyword arguments are delegated to
-            :class:`~matplotlib.collections.LineCollection`
+            :class:`.Line3DCollection`
         """
 
         def calc_arrows(UVW, angle=15):
@@ -2581,22 +2579,15 @@ pivot='tail', normalize=False, **kwargs)
 
         had_data = self.has_data()
 
-        # handle args
-        argi = 6
-        if len(args) < argi:
-            raise ValueError('Wrong number of arguments. Expected %d got %d' %
-                             (argi, len(args)))
-
-        # first 6 arguments are X, Y, Z, U, V, W
-        input_args = args[:argi]
+        input_args = [X, Y, Z, U, V, W]
 
         # extract the masks, if any
         masks = [k.mask for k in input_args
                  if isinstance(k, np.ma.MaskedArray)]
         # broadcast to match the shape
         bcast = np.broadcast_arrays(*input_args, *masks)
-        input_args = bcast[:argi]
-        masks = bcast[argi:]
+        input_args = bcast[:6]
+        masks = bcast[6:]
         if masks:
             # combine the masks into one
             mask = functools.reduce(np.logical_or, masks)
@@ -2608,7 +2599,7 @@ pivot='tail', normalize=False, **kwargs)
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
-            linec = art3d.Line3DCollection([], *args[argi:], **kwargs)
+            linec = art3d.Line3DCollection([], **kwargs)
             self.add_collection(linec)
             return linec
 
@@ -2622,7 +2613,7 @@ pivot='tail', normalize=False, **kwargs)
             shaft_dt -= length / 2
 
         XYZ = np.column_stack(input_args[:3])
-        UVW = np.column_stack(input_args[3:argi]).astype(float)
+        UVW = np.column_stack(input_args[3:]).astype(float)
 
         # Normalize rows of UVW
         norm = np.linalg.norm(UVW, axis=1)
@@ -2651,7 +2642,7 @@ pivot='tail', normalize=False, **kwargs)
         else:
             lines = []
 
-        linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
+        linec = art3d.Line3DCollection(lines, **kwargs)
         self.add_collection(linec)
 
         self.auto_scale_xyz(XYZ[:, 0], XYZ[:, 1], XYZ[:, 2], had_data)
