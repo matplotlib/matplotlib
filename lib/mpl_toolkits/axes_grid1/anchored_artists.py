@@ -209,7 +209,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
         size_vertical : float, default: 0
             Vertical length of the size bar, given in coordinates of
             *transform*.
-        color : str, default: 'black'
+        color : :doc:`color </tutorials/colors/colors>`, default: 'black'
             Color for the size bar and label.
         label_top : bool, default: False
             If True, the label will be over the size bar.
@@ -328,7 +328,7 @@ class AnchoredDirectionArrows(AnchoredOffsetbox):
             Border padding, in fraction of the font size.
         frameon : bool, default: False
             If True, draw a box around the arrows and labels.
-        color : str, default: 'white'
+        color : :doc:`color </tutorials/colors/colors>`, default: 'white'
             Color for the arrows and labels.
         alpha : float, default: 1
             Alpha values of the arrows and labels

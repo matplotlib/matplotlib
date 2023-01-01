@@ -1496,7 +1496,7 @@ class Axes3D(Axes):
 
     def plot_surface(self, X, Y, Z, *, norm=None, vmin=None,
                      vmax=None, lightsource=None, **kwargs):
-        """
+        r"""
         Create a surface plot.
 
         By default, it will be colored in shades of a solid color, but it also
@@ -1538,23 +1538,23 @@ class Axes3D(Axes):
             'classic' mode uses a default of ``rstride = cstride = 10`` instead
             of the new default of ``rcount = ccount = 50``.
 
-        color : color-like
+        color : :doc:`color </tutorials/colors/colors>`
             Color of the surface patches.
 
-        cmap : Colormap
+        cmap : `~matplotlib.colors.Colormap`
             Colormap of the surface patches.
 
-        facecolors : array-like of colors.
+        facecolors : array-like of :doc:`color </tutorials/colors/colors>`\s.
             Colors of each individual patch.
 
-        norm : Normalize
+        norm : `~matplotlib.colors.Normalize`
             Normalization for the colormap.
 
         vmin, vmax : float
             Bounds for the normalization.
 
         shade : bool, default: True
-            Whether to shade the facecolors.  Shading is always disabled when
+            Whether to shade the *facecolors*.  Shading is always disabled when
             *cmap* is specified.
 
         lightsource : `~matplotlib.colors.LightSource`
@@ -1837,11 +1837,11 @@ class Axes3D(Axes):
         ----------
         X, Y, Z : array-like
             Data values as 1D arrays.
-        color
+        color : :doc:`color </tutorials/colors/colors>`
             Color of the surface patches.
-        cmap
+        cmap : `~matplotlib.colors.Colormap`
             A colormap for the surface patches.
-        norm : Normalize
+        norm : `~matplotlib.colors.Normalize`
             An instance of Normalize to map values to colors.
         vmin, vmax : float, default: None
             Minimum and maximum value to map.
@@ -2235,7 +2235,8 @@ class Axes3D(Axes):
             The marker size in points**2. Either an array of the same length
             as *xs* and *ys* or a single value to make all markers the same
             size.
-        c : color, sequence, or sequence of colors, optional
+        c : :doc:`color </tutorials/colors/colors>`, sequence, or sequence of \
+colors, optional
             The marker color. Possible values:
 
             - A single color format string.
@@ -2356,7 +2357,8 @@ class Axes3D(Axes):
         dx, dy, dz : float or array-like
             The width, depth, and height of the bars, respectively.
 
-        color : sequence of colors, optional
+        color : :doc:`color </tutorials/colors/colors>` or sequence of \
+colors, optional
             The color of the bars can be specified globally or
             individually. This parameter can be:
 
@@ -2688,7 +2690,8 @@ pivot='tail', normalize=False, **kwargs)
             As indicated by the ``/`` in the function signature, these
             arguments can only be passed positionally.
 
-        facecolors, edgecolors : array-like, optional
+        facecolors, edgecolors : :doc:`color </tutorials/colors/colors>` or \
+array-like of colors, optional
             The color to draw the faces and edges of the voxels. Can only be
             passed as keyword arguments.
             These parameters can be:
@@ -2703,7 +2706,7 @@ pivot='tail', normalize=False, **kwargs)
               along the last axis.
 
         shade : bool, default: True
-            Whether to shade the facecolors.
+            Whether to shade the *facecolors*.
 
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
@@ -2906,7 +2909,7 @@ pivot='tail', normalize=False, **kwargs)
             Use 'none' (case-insensitive) to plot errorbars without any data
             markers.
 
-        ecolor : color, default: None
+        ecolor : :doc:`color </tutorials/colors/colors>`, default: None
             The color of the errorbar lines.  If None, use the color of the
             line connecting the markers.
 
@@ -3230,7 +3233,8 @@ pivot='tail', normalize=False, **kwargs)
 
         linefmt : str, default: 'C0-'
             A string defining the properties of the vertical lines. Usually,
-            this will be a color or a color and a linestyle:
+            this will be a :doc:`color </tutorials/colors/colors>` or a color \
+and a linestyle:
 
             =========  =============
             Character  Line Style

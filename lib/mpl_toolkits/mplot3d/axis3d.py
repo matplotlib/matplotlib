@@ -215,7 +215,7 @@ class Axis(maxis.XAxis):
 
         Parameters
         ----------
-        color : color
+        color : :doc:`color </tutorials/colors/colors>`
             Color for axis pane.
         alpha : float, optional
             Alpha value for axis pane. If None, base it on *color*.
