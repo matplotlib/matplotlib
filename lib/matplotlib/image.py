@@ -353,7 +353,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         x, y : float
             The upper left corner where the image should be drawn, in pixel
             space.
-        trans : Affine2D
+        trans : `~matplotlib.transforms.Affine2D`
             The affine transformation from image to pixel space.
         """
         if A is None:
@@ -602,7 +602,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         x, y : float
             The upper left corner where the image should be drawn, in pixel
             space.
-        trans : Affine2D
+        trans : `~matplotlib.transforms.Affine2D`
             The affine transformation from image to pixel space.
         """
         raise NotImplementedError('The make_image method must be overridden')

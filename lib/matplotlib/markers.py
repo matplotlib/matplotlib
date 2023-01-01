@@ -418,7 +418,7 @@ class MarkerStyle:
 
         Parameters
         ----------
-        transform : Affine2D, default: None
+        transform : `~matplotlib.transforms.Affine2D`, default: None
             Transform will be combined with current user supplied transform.
         """
         new_marker = MarkerStyle(self)
