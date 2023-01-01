@@ -1497,7 +1497,7 @@ class _AnnotationBase:
             return self.axes.transData
         elif coords == 'polar':
             from matplotlib.projections import PolarAxes
-            tr = PolarAxes.PolarTransform()
+            tr = PolarAxes.PolarTransform(_apply_theta_transforms=False)
             trans = tr + self.axes.transData
             return trans
 
