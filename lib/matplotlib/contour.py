@@ -107,7 +107,7 @@ class ContourLabeler:
             - If one string color, e.g., *colors* = 'r' or *colors* =
               'red', all labels will be plotted in this color.
 
-            - If a tuple of colors (string, float, rgb, etc), different labels
+            - If a tuple of colors (string, float, RGB, etc), different labels
               will be plotted in different colors in the order specified.
 
         inline : bool, default: True

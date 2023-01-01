@@ -781,7 +781,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         s : {'data', 'rgba'} or None
-            Whether to apply up/downsampling interpolation in data or rgba
+            Whether to apply up/downsampling interpolation in data or RGBA
             space.
         """
         if s is None:
