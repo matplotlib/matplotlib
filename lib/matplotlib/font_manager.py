@@ -1035,6 +1035,28 @@ class FontManager:
         Parameters
         ----------
         path : str or path-like
+
+        `addfont` must be called on the global `fontManager` instance::
+
+            import matplotlib.pyplot as plt
+            from matplotlib import font_manager
+
+            font_dirs = ["/resources/fonts"]
+            font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+
+            for font_file in font_files:
+            font_manager.fontManager.addfont(font_file)
+
+            fig, ax = plt.subplots()
+            ax.set_title(f'Roboto is an example font', font='roboto', size=14)
+
+            plt.show()
+
+        Notes
+        -----
+        This method is useful if you want to install fonts via the Python 
+        package, which is generally not recommended as user added fonts may not
+        persist in the font cache.
         """
         # Convert to string in case of a path as
         # afmFontProperty and FT2Font expect this
