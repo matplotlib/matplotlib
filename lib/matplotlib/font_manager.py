@@ -1045,7 +1045,7 @@ class FontManager:
             font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
 
             for font_file in font_files:
-            font_manager.fontManager.addfont(font_file)
+                font_manager.fontManager.addfont(font_file)
 
             fig, ax = plt.subplots()
             ax.set_title(f'Roboto is an example font', font='roboto', size=14)
@@ -1054,7 +1054,7 @@ class FontManager:
 
         Notes
         -----
-        This method is useful if you want to install fonts via the Python 
+        This method is useful if you want to install fonts via the Python
         package, which is generally not recommended as user added fonts may not
         persist in the font cache.
         """
