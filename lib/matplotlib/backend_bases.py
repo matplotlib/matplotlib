@@ -3150,15 +3150,11 @@ class NavigationToolbar2:
                             if data_str:
                                 s = s + '\n' + data_str
                 return s
+        return ""
 
     def mouse_move(self, event):
         self._update_cursor(event)
-
-        s = self._mouse_event_to_message(event)
-        if s is not None:
-            self.set_message(s)
-        else:
-            self.set_message(self.mode)
+        self.set_message(self._mouse_event_to_message(event))
 
     def _zoom_pan_handler(self, event):
         if self.mode == _Mode.PAN:
@@ -3189,7 +3185,6 @@ class NavigationToolbar2:
             self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self.mode._navigate_mode)
-        self.set_message(self.mode)
 
     _PanInfo = namedtuple("_PanInfo", "button axes cid")
 
@@ -3245,7 +3240,6 @@ class NavigationToolbar2:
             self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self.mode._navigate_mode)
-        self.set_message(self.mode)
 
     _ZoomInfo = namedtuple("_ZoomInfo", "direction start_xy axes cid cbar")
 
