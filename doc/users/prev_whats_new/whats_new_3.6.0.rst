@@ -70,8 +70,7 @@ Using the ``layout='compressed'`` layout reduces the space between the Axes,
 and adds the extra space to the outer margins:
 
 .. plot::
-    :alt: 4 identical 2 by 2 heatmaps, each cell a different color: purple, blue, yellow, green going clockwise from upper left corner
-        the 4 heatmaps are laid out in a 2 by 2 grid with minimum white space between the heatmaps
+    :alt: 4 identical 2 by 2 heatmaps, each cell a different color: purple, blue, yellow, green going clockwise from upper left corner the 4 heatmaps are laid out in a 2 by 2 grid with minimum white space between the heatmaps
 
     fig, axs = plt.subplots(2, 2, figsize=(5, 3),
                             sharex=True, sharey=True, layout='compressed')
@@ -190,8 +189,7 @@ label entries, so this is best used when bars also differ in style (e.g., by
 passing a list to *color*, as below.)
 
 .. plot::
-    :alt: bar chart: blue bar height 10, orange bar height 20, green bar height 15
-        legend with blue box labeled a, orange box labeled b, and green box labeled c
+    :alt: bar chart: blue bar height 10, orange bar height 20, green bar height 15 legend with blue box labeled a, orange box labeled b, and green box labeled c
     :include-source: true
 
     x = ["a", "b", "c"]
@@ -373,10 +371,7 @@ The rotation point of the `~matplotlib.patches.Rectangle` can now be set to
 'xy', 'center' or a 2-tuple of numbers using the *rotation_point* argument.
 
 .. plot::
-    :alt: blue square that isn't rotated
-        green square rotated 45 degrees relative to center
-        orange square rotated 45 degrees relative to lower right corner
-        red square rotated 45 degrees relative to point in upper right quadrant  
+    :alt: blue square that isn't rotated. green square rotated 45 degrees relative to center. orange square rotated 45 degrees relative to lower right corner. red square rotated 45 degrees relative to point in upper right quadrant  
 
     fig, ax = plt.subplots()
 
@@ -507,19 +502,7 @@ for the user to supply a transformation to be applied to the marker (e.g. a
 rotation).
 
 .. plot::
-    :alt: hree rows of markers, columns are blue, green, and purple
-        first row is yshaped markers with different capstyles:
-        butt: end is squared off at endpoint
-        projecting: end is squared off at short distance from endpoint
-        round: end is rounded
-        second row is star shaped markers with different join styles:
-        miter: star points are sharp triangles
-        round: star points are rounded
-        bevel: star points are beveled
-        last row shows stars rotated at different angles:
-        small star rotated 0 degrees - top point vertical
-        medium star rotated 45 degrees - top point tilted right
-        large star rotated 90 degrees - top point tilted left
+    :alt: hree rows of markers, columns are blue, green, and purple. first row is yshaped markers with different capstyles:. butt: end is squared off at endpoint. projecting: end is squared off at short distance from endpoint. round: end is rounded. second row is star shaped markers with different join styles:. miter: star points are sharp triangles. round: star points are rounded. bevel: star points are beveled. last row shows stars rotated at different angles:. small star rotated 0 degrees - top point vertical. medium star rotated 45 degrees - top point tilted right. large star rotated 90 degrees - top point tilted left
     :include-source: true
 
     from matplotlib.markers import CapStyle, JoinStyle, MarkerStyle
@@ -718,8 +701,7 @@ programmatically. The default roll angle of 0 is backwards-compatible with
 existing 3D plots.
 
 .. plot::
-    :alt: view of a wireframe of a 3d contour that is somewhat a thickend s shape
-        elevation and azimuth are 0 degrees so the shape is veiwed straight on, but tilted because the roll is 30 degrees
+    :alt: view of a wireframe of a 3d contour that is somewhat a thickend s shape elevation and azimuth are 0 degrees so the shape is veiwed straight on, but tilted because the roll is 30 degrees
     :include-source: true
 
     from mpl_toolkits.mplot3d import axes3d
@@ -739,13 +721,7 @@ Users can set the aspect ratio for the X, Y, Z axes of a 3D plot to be 'equal',
 'equalxy', 'equalxz', or 'equalyz' rather than the default of 'auto'.
 
 .. plot::
-    :alt: 5 plots, each showing a different aspect option for a rectangle that has height 4, depth 1, and width 1
-        auto: none of the dimensions have equal aspect, depth and width form a rectangular and height appears shrunken in proportion
-        equal: all the dimensions have equal aspect
-        equalxy: width and depth equal, height not so looks shrunken in proportion
-        equalyz: depth and height equal, width not so elongated
-        equalxz: width and height equal, depth not so elongated
-
+    :alt: 5 plots, each showing a different aspect option for a rectangle that has height 4, depth 1, and width 1 auto: none of the dimensions have equal aspect, depth and width form a rectangular and height appears shrunken in proportion. equal: all the dimensions have equal aspect. equalxy: width and depth equal, height not so looks shrunken in proportion. equalyz: depth and height equal, width not so elongated. equalxz: width and height equal, depth not so elongated
     :include-source: true
 
     from itertools import combinations, product
