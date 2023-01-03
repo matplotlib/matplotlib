@@ -35,7 +35,7 @@ class PolarTransform(mtransforms.Transform):
     input_dims = output_dims = 2
 
     def __init__(self, axis=None, use_rmin=True,
-                _apply_theta_transforms=True, *, scale_transform=None):
+                 _apply_theta_transforms=True, *, scale_transform=None):
         """
         Parameters
         ----------
