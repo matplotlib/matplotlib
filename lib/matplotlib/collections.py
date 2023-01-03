@@ -875,7 +875,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Allow possibility to call 'self.set_array(None)'.
         if self._A is not None:
             # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
-            if self._A.ndim > 1 and not isinstance(self, QuadMesh):
+            if self._A.ndim > 1 and not isinstance(self, _MeshData):
                 raise ValueError('Collections can only map rank 1 arrays')
             if np.iterable(self._alpha):
                 if self._alpha.size != self._A.size:
@@ -1944,9 +1944,11 @@ class TriMesh(Collection):
         renderer.close_group(self.__class__.__name__)
 
 
-class QuadMesh(Collection):
+class _MeshData:
     r"""
-    Class for the efficient drawing of a quadrilateral mesh.
+    Class for managing the two dimensional coordinates of Quadrilateral meshes
+    and the associated data with them. This class is a mixin and is intended to
+    be used with another collection that will implement the draw separately.
 
     A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
     defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
@@ -1966,42 +1968,12 @@ class QuadMesh(Collection):
         The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
         of vertex (m, n).
 
-    antialiased : bool, default: True
-
     shading : {'flat', 'gouraud'}, default: 'flat'
-
-    Notes
-    -----
-    Unlike other `.Collection`\s, the default *pickradius* of `.QuadMesh` is 0,
-    i.e. `~.Artist.contains` checks whether the test point is within any of the
-    mesh quadrilaterals.
-
     """
-
-    def __init__(self, coordinates, *, antialiased=True, shading='flat',
-                 **kwargs):
-        kwargs.setdefault("pickradius", 0)
-        # end of signature deprecation code
-
+    def __init__(self, coordinates, *, shading='flat'):
         _api.check_shape((None, None, 2), coordinates=coordinates)
         self._coordinates = coordinates
-        self._antialiased = antialiased
         self._shading = shading
-        self._bbox = transforms.Bbox.unit()
-        self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
-        # super init delayed after own init because array kwarg requires
-        # self._coordinates and self._shading
-        super().__init__(**kwargs)
-        self.set_mouseover(False)
-
-    def get_paths(self):
-        if self._paths is None:
-            self.set_paths()
-        return self._paths
-
-    def set_paths(self):
-        self._paths = self._convert_mesh_to_paths(self._coordinates)
-        self.stale = True
 
     def set_array(self, A):
         """
@@ -2040,9 +2012,6 @@ class QuadMesh(Collection):
                     f"{' or '.join(map(str, ok_shapes))}, not {A.shape}")
         return super().set_array(A)
 
-    def get_datalim(self, transData):
-        return (self.get_transform() - transData).transform_bbox(self._bbox)
-
     def get_coordinates(self):
         """
         Return the vertices of the mesh as an (M+1, N+1, 2) array.
@@ -2052,6 +2021,18 @@ class QuadMesh(Collection):
         The last dimension specifies the components (x, y).
         """
         return self._coordinates
+
+    def get_edgecolor(self):
+        # docstring inherited
+        # Note that we want to return an array of shape (N*M, 4)
+        # a flattened RGBA collection
+        return super().get_edgecolor().reshape(-1, 4)
+
+    def get_facecolor(self):
+        # docstring inherited
+        # Note that we want to return an array of shape (N*M, 4)
+        # a flattened RGBA collection
+        return super().get_facecolor().reshape(-1, 4)
 
     @staticmethod
     def _convert_mesh_to_paths(coordinates):
@@ -2116,6 +2097,64 @@ class QuadMesh(Collection):
         tmask = np.isnan(colors[..., 2, 3])
         return triangles[~tmask], colors[~tmask]
 
+
+class QuadMesh(_MeshData, Collection):
+    r"""
+    Class for the efficient drawing of a quadrilateral mesh.
+
+    A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
+    defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
+    defined by the vertices ::
+
+               (m+1, n) ----------- (m+1, n+1)
+                  /                   /
+                 /                 /
+                /               /
+            (m, n) -------- (m, n+1)
+
+    The mesh need not be regular and the polygons need not be convex.
+
+    Parameters
+    ----------
+    coordinates : (M+1, N+1, 2) array-like
+        The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
+        of vertex (m, n).
+
+    antialiased : bool, default: True
+
+    shading : {'flat', 'gouraud'}, default: 'flat'
+
+    Notes
+    -----
+    Unlike other `.Collection`\s, the default *pickradius* of `.QuadMesh` is 0,
+    i.e. `~.Artist.contains` checks whether the test point is within any of the
+    mesh quadrilaterals.
+
+    """
+
+    def __init__(self, coordinates, *, antialiased=True, shading='flat',
+                 **kwargs):
+        kwargs.setdefault("pickradius", 0)
+        super().__init__(coordinates=coordinates, shading=shading)
+        Collection.__init__(self, **kwargs)
+
+        self._antialiased = antialiased
+        self._bbox = transforms.Bbox.unit()
+        self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
+        self.set_mouseover(False)
+
+    def get_paths(self):
+        if self._paths is None:
+            self.set_paths()
+        return self._paths
+
+    def set_paths(self):
+        self._paths = self._convert_mesh_to_paths(self._coordinates)
+        self.stale = True
+
+    def get_datalim(self, transData):
+        return (self.get_transform() - transData).transform_bbox(self._bbox)
+
     @artist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
@@ -2170,3 +2209,161 @@ class QuadMesh(Collection):
         if contained and self.get_array() is not None:
             return self.get_array().ravel()[info["ind"]]
         return None
+
+
+class PolyQuadMesh(_MeshData, PolyCollection):
+    """
+    Class for drawing a quadrilateral mesh as individual Polygons.
+
+    A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
+    defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
+    defined by the vertices ::
+
+               (m+1, n) ----------- (m+1, n+1)
+                  /                   /
+                 /                 /
+                /               /
+            (m, n) -------- (m, n+1)
+
+    The mesh need not be regular and the polygons need not be convex.
+
+    Parameters
+    ----------
+    coordinates : (M+1, N+1, 2) array-like
+        The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
+        of vertex (m, n).
+
+    Notes
+    -----
+    Unlike `.QuadMesh`, this class will draw each cell as an individual Polygon.
+    This is significantly slower, but allows for more flexibility when wanting
+    to add additional properties to the cells, such as hatching.
+
+    Another difference from `.QuadMesh` is that if any of the vertices or data
+    of a cell are masked, that Polygon will **not** be drawn and it won't be in
+    the list of paths returned.
+    """
+
+    def __init__(self, coordinates, **kwargs):
+        # We need to keep track of whether we are using deprecated compression
+        # Update it after the initializers
+        self._deprecated_compression = False
+        super().__init__(coordinates=coordinates)
+        PolyCollection.__init__(self, verts=[], **kwargs)
+        # Store this during the compression deprecation period
+        self._original_mask = ~self._get_unmasked_polys()
+        self._deprecated_compression = np.any(self._original_mask)
+        # Setting the verts updates the paths of the PolyCollection
+        # This is called after the initializers to make sure the kwargs
+        # have all been processed and available for the masking calculations
+        self._set_unmasked_verts()
+
+    def _get_unmasked_polys(self):
+        """Get the unmasked regions using the coordinates and array"""
+        # mask(X) | mask(Y)
+        mask = np.any(np.ma.getmaskarray(self._coordinates), axis=-1)
+
+        # We want the shape of the polygon, which is the corner of each X/Y array
+        mask = (mask[0:-1, 0:-1] | mask[1:, 1:] | mask[0:-1, 1:] | mask[1:, 0:-1])
+
+        if (getattr(self, "_deprecated_compression", False) and
+                np.any(self._original_mask)):
+            return ~(mask | self._original_mask)
+        # Take account of the array data too, temporarily avoiding
+        # the compression warning and resetting the variable after the call
+        with cbook._setattr_cm(self, _deprecated_compression=False):
+            arr = self.get_array()
+        if arr is not None:
+            arr = np.ma.getmaskarray(arr)
+            if arr.ndim == 3:
+                # RGB(A) case
+                mask |= np.any(arr, axis=-1)
+            elif arr.ndim == 2:
+                mask |= arr
+            else:
+                mask |= arr.reshape(self._coordinates[:-1, :-1, :].shape[:2])
+        return ~mask
+
+    def _set_unmasked_verts(self):
+        X = self._coordinates[..., 0]
+        Y = self._coordinates[..., 1]
+
+        unmask = self._get_unmasked_polys()
+        X1 = np.ma.filled(X[:-1, :-1])[unmask]
+        Y1 = np.ma.filled(Y[:-1, :-1])[unmask]
+        X2 = np.ma.filled(X[1:, :-1])[unmask]
+        Y2 = np.ma.filled(Y[1:, :-1])[unmask]
+        X3 = np.ma.filled(X[1:, 1:])[unmask]
+        Y3 = np.ma.filled(Y[1:, 1:])[unmask]
+        X4 = np.ma.filled(X[:-1, 1:])[unmask]
+        Y4 = np.ma.filled(Y[:-1, 1:])[unmask]
+        npoly = len(X1)
+
+        xy = np.ma.stack([X1, Y1, X2, Y2, X3, Y3, X4, Y4, X1, Y1], axis=-1)
+        verts = xy.reshape((npoly, 5, 2))
+        self.set_verts(verts)
+
+    def get_edgecolor(self):
+        # docstring inherited
+        # We only want to return the facecolors of the polygons
+        # that were drawn.
+        ec = super().get_edgecolor()
+        unmasked_polys = self._get_unmasked_polys().ravel()
+        if len(ec) != len(unmasked_polys):
+            # Mapping is off
+            return ec
+        return ec[unmasked_polys, :]
+
+    def get_facecolor(self):
+        # docstring inherited
+        # We only want to return the facecolors of the polygons
+        # that were drawn.
+        fc = super().get_facecolor()
+        unmasked_polys = self._get_unmasked_polys().ravel()
+        if len(fc) != len(unmasked_polys):
+            # Mapping is off
+            return fc
+        return fc[unmasked_polys, :]
+
+    def set_array(self, A):
+        # docstring inherited
+        prev_unmask = self._get_unmasked_polys()
+        # MPL <3.8 compressed the mask, so we need to handle flattened 1d input
+        # until the deprecation expires, also only warning when there are masked
+        # elements and thus compression occurring.
+        if self._deprecated_compression and np.ndim(A) == 1:
+            _api.warn_deprecated("3.8", message="Setting a PolyQuadMesh array using "
+                                 "the compressed values is deprecated. "
+                                 "Pass the full 2D shape of the original array "
+                                 f"{prev_unmask.shape} including the masked elements.")
+            Afull = np.empty(self._original_mask.shape)
+            Afull[~self._original_mask] = A
+            # We also want to update the mask with any potential
+            # new masked elements that came in. But, we don't want
+            # to update any of the compression from the original
+            mask = self._original_mask.copy()
+            mask[~self._original_mask] |= np.ma.getmask(A)
+            A = np.ma.array(Afull, mask=mask)
+            return super().set_array(A)
+        self._deprecated_compression = False
+        super().set_array(A)
+        # If the mask has changed at all we need to update
+        # the set of Polys that we are drawing
+        if not np.array_equal(prev_unmask, self._get_unmasked_polys()):
+            self._set_unmasked_verts()
+
+    def get_array(self):
+        # docstring inherited
+        # Can remove this entire function once the deprecation period ends
+        A = super().get_array()
+        if A is None:
+            return
+        if self._deprecated_compression and np.any(np.ma.getmask(A)):
+            _api.warn_deprecated("3.8", message=(
+                "Getting the array from a PolyQuadMesh will return the full "
+                "array in the future (uncompressed). To get this behavior now "
+                "set the PolyQuadMesh with a 2D array .set_array(data2d)."))
+            # Setting an array of a polycollection required
+            # compressing the array
+            return np.ma.compressed(A)
+        return A
