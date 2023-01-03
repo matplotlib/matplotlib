@@ -13,6 +13,7 @@ this file.
 # runtime with the proper signatures, a static pyplot.py is simpler for static
 # analysis tools to parse.
 
+import ast
 from enum import Enum
 import inspect
 from inspect import Parameter
@@ -117,6 +118,17 @@ class value_formatter:
         return self._repr
 
 
+class direct_repr:
+    """
+    A placeholder class to destringify annotations from ast
+    """
+    def __init__(self, value):
+        self._repr = value
+
+    def __repr__(self):
+        return self._repr
+
+
 def generate_function(name, called_fullname, template, **kwargs):
     """
     Create a wrapper function *pyplot_name* calling *call_name*.
@@ -153,14 +165,17 @@ def generate_function(name, called_fullname, template, **kwargs):
     # redecorated with make_keyword_only by _copy_docstring_and_deprecators.
     if decorator and decorator.func is _api.make_keyword_only:
         meth = meth.__wrapped__
-    signature = inspect.signature(meth)
+
+    annotated_trees = get_ast_mro_trees(class_)
+    signature = get_matching_signature(meth, annotated_trees)
+
     # Replace self argument.
     params = list(signature.parameters.values())[1:]
     signature = str(signature.replace(parameters=[
         param.replace(default=value_formatter(param.default))
         if param.default is not param.empty else param
         for param in params]))
-    if len('def ' + name + signature) >= 80:
+    if len('def ' + name + signature) >= 80 and False:
         # Move opening parenthesis before newline.
         signature = '(\n' + text_wrapper.fill(signature).replace('(', '', 1)
     # How to call the wrapped function.
@@ -379,6 +394,73 @@ def build_pyplot(pyplot_path):
     with pyplot_path.open('w') as pyplot:
         pyplot.writelines(pyplot_orig)
         pyplot.writelines(boilerplate_gen())
+
+
+### Methods for retrieving signatures from pyi stub files
+
+def get_ast_tree(cls):
+    path = Path(inspect.getfile(cls))
+    stubpath = path.with_suffix(".pyi")
+    path = stubpath if stubpath.exists() else path
+    tree = ast.parse(path.read_text())
+    for item in tree.body:
+        if isinstance(item, ast.ClassDef) and item.name == cls.__name__:
+            return item
+    raise ValueError("Cannot find {cls.__name__} in ast")
+
+
+def get_ast_mro_trees(cls):
+    return [get_ast_tree(c) for c in cls.__mro__ if c.__module__ != "builtins"]
+
+
+def get_matching_signature(method, trees):
+    sig = inspect.signature(method)
+    for tree in trees:
+        for item in tree.body:
+            if not isinstance(item, ast.FunctionDef):
+                continue
+            if item.name == method.__name__:
+                return update_sig_from_node(item, sig)
+    # The following methods are implemented outside of the mro of Axes
+    # and thus do not get their annotated versions found with current code
+    #     stackplot
+    #     streamplot
+    #     table
+    #     tricontour
+    #     tricontourf
+    #     tripcolor
+    #     triplot
+
+    # import warnings
+    # warnings.warn(f"'{method.__name__}' not found")
+    return sig
+
+
+def update_sig_from_node(node, sig):
+    params = dict(sig.parameters)
+    args = node.args
+    allargs = (
+        args.posonlyargs
+        + args.args
+        + [args.vararg]
+        + args.kwonlyargs
+        + [args.kwarg]
+    )
+    for param in allargs:
+        if param is None:
+            continue
+        if param.annotation is None:
+            continue
+        annotation = direct_repr(ast.unparse(param.annotation))
+        params[param.arg] = params[param.arg].replace(annotation=annotation)
+
+    if node.returns is not None:
+        return inspect.Signature(
+            params.values(),
+            return_annotation=direct_repr(ast.unparse(node.returns))
+        )
+    else:
+        return inspect.Signature(params.values())
 
 
 if __name__ == '__main__':
