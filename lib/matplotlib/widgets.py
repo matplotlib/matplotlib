@@ -1746,7 +1746,9 @@ class Cursor(AxesWidget):
         self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
 
         self.background = None
-        self.needclear = False
+        self._needclear = False
+
+    needclear = _api.deprecate_privatize_attribute("3.7")
 
     @_api.deprecated('3.7')
     def clear(self, event):
@@ -1776,11 +1778,11 @@ class Cursor(AxesWidget):
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
 
-            if self.needclear:
+            if self._needclear:
                 self.canvas.draw()
-                self.needclear = False
+                self._needclear = False
             return
-        self.needclear = True
+        self._needclear = True
 
         self.linev.set_xdata((event.xdata, event.xdata))
         self.linev.set_visible(self.visible and self.vertOn)
@@ -1863,28 +1865,21 @@ class MultiCursor(Widget):
         self.useblit = (
             useblit
             and all(canvas.supports_blit for canvas in self._canvas_infos))
-        self.needclear = False
 
         if self.useblit:
             lineprops['animated'] = True
 
-        if vertOn:
-            self.vlines = [ax.axvline(xmid, visible=False, **lineprops)
-                           for ax in axes]
-        else:
-            self.vlines = []
-
-        if horizOn:
-            self.hlines = [ax.axhline(ymid, visible=False, **lineprops)
-                           for ax in axes]
-        else:
-            self.hlines = []
+        self.vlines = [ax.axvline(xmid, visible=False, **lineprops)
+                       for ax in axes]
+        self.hlines = [ax.axhline(ymid, visible=False, **lineprops)
+                       for ax in axes]
 
         self.connect()
 
     canvas = _api.deprecate_privatize_attribute("3.6")
     background = _api.deprecated("3.6")(lambda self: (
         self._backgrounds[self.axes[0].figure.canvas] if self.axes else None))
+    needclear = _api.deprecated("3.7")(lambda self: False)
 
     def connect(self):
         """Connect events."""
@@ -1925,15 +1920,12 @@ class MultiCursor(Widget):
                 or event.inaxes not in self.axes
                 or not event.canvas.widgetlock.available(self)):
             return
-        self.needclear = True
-        if self.vertOn:
-            for line in self.vlines:
-                line.set_xdata((event.xdata, event.xdata))
-                line.set_visible(self.visible)
-        if self.horizOn:
-            for line in self.hlines:
-                line.set_ydata((event.ydata, event.ydata))
-                line.set_visible(self.visible)
+        for line in self.vlines:
+            line.set_xdata((event.xdata, event.xdata))
+            line.set_visible(self.visible and self.vertOn)
+        for line in self.hlines:
+            line.set_ydata((event.ydata, event.ydata))
+            line.set_visible(self.visible and self.horizOn)
         if self.visible and (self.vertOn or self.horizOn):
             self._update()
 
