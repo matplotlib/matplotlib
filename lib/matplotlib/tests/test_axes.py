@@ -1032,7 +1032,9 @@ def test_imshow():
     ax.imshow("r", data=data)
 
 
-@image_comparison(['imshow_clip'], style='mpl20')
+@image_comparison(
+    ['imshow_clip'], style='mpl20',
+    tol=1.24 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
     # use former defaults to match existing baseline image
@@ -2352,7 +2354,9 @@ def test_contour_hatching():
                 extend='both', alpha=0.5)
 
 
-@image_comparison(['contour_colorbar'], style='mpl20')
+@image_comparison(
+    ['contour_colorbar'], style='mpl20',
+    tol=0.02 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 

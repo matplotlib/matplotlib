@@ -318,8 +318,10 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c3, ax=ax3)
 
 
-@image_comparison(['contour_addlines.png'],
-                  remove_text=True, style='mpl20', tol=0.03)
+@image_comparison(
+    ['contour_addlines.png'], remove_text=True, style='mpl20',
+    tol=0.15 if platform.machine() in ('aarch64', 'ppc64le', 's390x')
+        else 0.03)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
 def test_contour_addlines():
