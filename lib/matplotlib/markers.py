@@ -217,7 +217,7 @@ class MarkerStyle:
     # Just used for informational purposes.  is_filled()
     # is calculated in the _set_* functions.
     filled_markers = (
-        'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd',
+        '.', 'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd',
         'P', 'X')
 
     fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
