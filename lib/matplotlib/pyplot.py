@@ -82,12 +82,22 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import datetime
+    import io
+    import pathlib
+    import os
+
+    import PIL
 
     from numpy.typing import ArrayLike
-    from typing import Any, Callable, Literal, Sequence, Iterable
+    from typing import (
+        Any, Callable, Literal, Sequence, Iterable, Type, Generator
+    )
     from matplotlib._typing import Color, LineStyleType, MarkerType
 
-    from matplotlib.backend_bases import RendererBase
+    from matplotlib.axis import Tick
+    from matplotlib.axes import SubplotBase
+    from matplotlib.axes._base import _AxesBase
+    from matplotlib.backend_bases import RendererBase, Event
     from matplotlib.cm import ScalarMappable
     from matplotlib.contour import ContourSet, QuadContourSet
     from matplotlib.collections import (
@@ -99,12 +109,14 @@ if TYPE_CHECKING:
         EventCollection,
         QuadMesh,
     )
+    from matplotlib.colorbar import Colorbar
     from matplotlib.colors import Colormap
     from matplotlib.container import (
         BarContainer,
         ErrorbarContainer,
         StemContainer,
     )
+    from matplotlib.figure import SubFigure
     from matplotlib.legend import Legend
     from matplotlib.mlab import GaussianKDE
     from matplotlib.image import AxesImage
@@ -112,7 +124,7 @@ if TYPE_CHECKING:
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
     from matplotlib.transforms import Transform, Bbox
-    import PIL
+    from matplotlib.widgets import SubplotTool
 
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
@@ -210,13 +222,18 @@ def uninstall_repl_displayhook():
 draw_all = _pylab_helpers.Gcf.draw_all
 
 
+# Ensure this appears in the pyplot docs.
 @_copy_docstring_and_deprecators(matplotlib.set_loglevel)
-def set_loglevel(*args, **kwargs):  # Ensure this appears in the pyplot docs.
+def set_loglevel(*args, **kwargs) -> None:
     return matplotlib.set_loglevel(*args, **kwargs)
 
 
 @_copy_docstring_and_deprecators(Artist.findobj)
-def findobj(o=None, match=None, include_self=True):
+def findobj(
+    o: Artist | None = None,
+    match: Callable[[Artist], bool] | Type[Artist] | None = None,
+    include_self: bool = True
+) -> list[Artist]:
     if o is None:
         o = gcf()
     return o.findobj(match, include_self=include_self)
@@ -476,7 +493,7 @@ def show(*args, **kwargs):
     return _get_backend_mod().show(*args, **kwargs)
 
 
-def isinteractive():
+def isinteractive() -> bool:
     """
     Return whether plots are updated after every plotting command.
 
@@ -506,7 +523,7 @@ def isinteractive():
     return matplotlib.is_interactive()
 
 
-def ioff():
+def ioff() -> ExitStack:
     """
     Disable interactive mode.
 
@@ -546,7 +563,7 @@ def ioff():
     return stack
 
 
-def ion():
+def ion() -> ExitStack:
     """
     Enable interactive mode.
 
@@ -586,7 +603,7 @@ def ion():
     return stack
 
 
-def pause(interval):
+def pause(interval: float) -> None:
     """
     Run the GUI event loop for *interval* seconds.
 
@@ -615,17 +632,20 @@ def pause(interval):
 
 
 @_copy_docstring_and_deprecators(matplotlib.rc)
-def rc(group, **kwargs):
+def rc(group: str, **kwargs) -> None:
     matplotlib.rc(group, **kwargs)
 
 
 @_copy_docstring_and_deprecators(matplotlib.rc_context)
-def rc_context(rc=None, fname=None):
+def rc_context(
+    rc: dict[str, Any] | None = None,
+    fname: str | pathlib.Path | os.PathLike | None = None,
+):
     return matplotlib.rc_context(rc, fname)
 
 
 @_copy_docstring_and_deprecators(matplotlib.rcdefaults)
-def rcdefaults():
+def rcdefaults() -> None:
     matplotlib.rcdefaults()
     if matplotlib.is_interactive():
         draw_all()
@@ -649,7 +669,9 @@ def setp(obj, *args, **kwargs):
     return matplotlib.artist.setp(obj, *args, **kwargs)
 
 
-def xkcd(scale=1, length=100, randomness=2):
+def xkcd(
+    scale: float = 1, length: float = 100, randomness: float = 2
+) -> ExitStack:
     """
     Turn on `xkcd <https://xkcd.com/>`_ sketch-style drawing mode.  This will
     only have effect on things drawn after this function is called.
@@ -690,7 +712,7 @@ def xkcd(scale=1, length=100, randomness=2):
             "xkcd mode is not compatible with text.usetex = True")
 
     stack = ExitStack()
-    stack.callback(dict.update, rcParams, rcParams.copy())
+    stack.callback(dict.update, rcParams, rcParams.copy())  # type: ignore
 
     from matplotlib import patheffects
     rcParams.update({
@@ -718,17 +740,23 @@ def xkcd(scale=1, length=100, randomness=2):
 
 ## Figures ##
 
-def figure(num=None,  # autoincrement if None, else integer from 1-N
-           figsize=None,  # defaults to rc figure.figsize
-           dpi=None,  # defaults to rc figure.dpi
-           *,
-           facecolor=None,  # defaults to rc figure.facecolor
-           edgecolor=None,  # defaults to rc figure.edgecolor
-           frameon=True,
-           FigureClass=Figure,
-           clear=False,
-           **kwargs
-           ):
+def figure(
+    # autoincrement if None, else integer from 1-N
+    num: int | str | Figure | SubFigure | None = None,
+    # defaults to rc figure.figsize
+    figsize: tuple[float, float] | None = None,
+    # defaults to rc figure.dpi
+    dpi: float | None = None,
+    *,
+    # defaults to rc figure.facecolor
+    facecolor: Color | None = None,
+    # defaults to rc figure.edgecolor
+    edgecolor: Color = None,
+    frameon: bool = True,
+    FigureClass: Type[Figure] = Figure,
+    clear: bool = False,
+    **kwargs
+):
     """
     Create a new figure, or activate an existing figure.
 
@@ -854,7 +882,8 @@ default: None
     else:
         num = int(num)  # crude validation of num argument
 
-    manager = _pylab_helpers.Gcf.get_fig_manager(num)
+    # Type of "num" has narrowed to int, but mypy can't quite see it
+    manager = _pylab_helpers.Gcf.get_fig_manager(num)  # type: ignore[arg-type]
     if manager is None:
         max_open_warning = rcParams['figure.max_open_warning']
         if len(allnums) == max_open_warning >= 1:
@@ -920,7 +949,7 @@ def _auto_draw_if_interactive(fig, val):
             fig.canvas.draw_idle()
 
 
-def gcf():
+def gcf() -> Figure:
     """
     Get the current figure.
 
@@ -936,24 +965,24 @@ def gcf():
         return figure()
 
 
-def fignum_exists(num):
+def fignum_exists(num: int) -> bool:
     """Return whether the figure with the given id exists."""
     return _pylab_helpers.Gcf.has_fignum(num) or num in get_figlabels()
 
 
-def get_fignums():
+def get_fignums() -> list[int]:
     """Return a list of existing figure numbers."""
     return sorted(_pylab_helpers.Gcf.figs)
 
 
-def get_figlabels():
+def get_figlabels() -> list[Any]:
     """Return a list of existing figure labels."""
     managers = _pylab_helpers.Gcf.get_all_fig_managers()
     managers.sort(key=lambda m: m.num)
     return [m.canvas.figure.get_label() for m in managers]
 
 
-def get_current_fig_manager():
+def get_current_fig_manager() -> FigureManagerBase | None:
     """
     Return the figure manager of the current figure.
 
@@ -971,16 +1000,16 @@ def get_current_fig_manager():
 
 
 @_copy_docstring_and_deprecators(FigureCanvasBase.mpl_connect)
-def connect(s, func):
+def connect(s: str, func: Callable[[Event], Any]) -> int:
     return gcf().canvas.mpl_connect(s, func)
 
 
 @_copy_docstring_and_deprecators(FigureCanvasBase.mpl_disconnect)
-def disconnect(cid):
+def disconnect(cid: int) -> None:
     return gcf().canvas.mpl_disconnect(cid)
 
 
-def close(fig=None):
+def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
     """
     Close a figure window.
 
@@ -1022,12 +1051,12 @@ def close(fig=None):
                         "or None, not %s" % type(fig))
 
 
-def clf():
+def clf() -> None:
     """Clear the current figure."""
     gcf().clear()
 
 
-def draw():
+def draw() -> None:
     """
     Redraw the current figure.
 
@@ -1048,9 +1077,11 @@ def draw():
 
 
 @_copy_docstring_and_deprecators(Figure.savefig)
-def savefig(*args, **kwargs):
+def savefig(*args, **kwargs) -> None:
     fig = gcf()
-    res = fig.savefig(*args, **kwargs)
+    # savefig default implementation has no return, so mypy is unhappy
+    # presumably this is here because subclasses can return?
+    res = fig.savefig(*args, **kwargs)  # type: ignore[func-returns-value]
     fig.canvas.draw_idle()  # Need this if 'transparent=True', to reset colors.
     return res
 
@@ -1058,7 +1089,7 @@ def savefig(*args, **kwargs):
 ## Putting things in figures ##
 
 
-def figlegend(*args, **kwargs):
+def figlegend(*args, **kwargs) -> Legend:
     return gcf().legend(*args, **kwargs)
 if Figure.legend.__doc__:
     figlegend.__doc__ = Figure.legend.__doc__ \
@@ -1070,7 +1101,10 @@ if Figure.legend.__doc__:
 ## Axes ##
 
 @_docstring.dedent_interpd
-def axes(arg=None, **kwargs):
+def axes(
+    arg: None | tuple[float, float, float, float] = None,
+    **kwargs
+) -> Axes:
     """
     Add an Axes to the current figure and make it the current Axes.
 
@@ -1156,7 +1190,7 @@ def axes(arg=None, **kwargs):
         return fig.add_axes(arg, **kwargs)
 
 
-def delaxes(ax=None):
+def delaxes(ax: Axes | None = None) -> None:
     """
     Remove an `~.axes.Axes` (defaulting to the current axes) from its figure.
     """
@@ -1165,15 +1199,15 @@ def delaxes(ax=None):
     ax.remove()
 
 
-def sca(ax):
+def sca(ax: Axes) -> None:
     """
     Set the current Axes to *ax* and the current Figure to the parent of *ax*.
     """
     figure(ax.figure)
-    ax.figure.sca(ax)
+    ax.figure.sca(ax)  # type: ignore
 
 
-def cla():
+def cla() -> None:
     """Clear the current axes."""
     # Not generated via boilerplate.py to allow a different docstring.
     return gca().cla()
@@ -1182,7 +1216,7 @@ def cla():
 ## More ways of creating axes ##
 
 @_docstring.dedent_interpd
-def subplot(*args, **kwargs):
+def subplot(*args, **kwargs) -> Axes:
     """
     Add an Axes to the current figure or retrieve an existing Axes.
 
@@ -1369,9 +1403,17 @@ def subplot(*args, **kwargs):
     return ax
 
 
-def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
-             width_ratios=None, height_ratios=None,
-             subplot_kw=None, gridspec_kw=None, **fig_kw):
+def subplots(
+    nrows: int = 1, ncols: int = 1, *,
+    sharex: bool | Literal["none", "all", "row", "col"] = False,
+    sharey: bool | Literal["none", "all", "row", "col"] = False,
+    squeeze: bool = True,
+    width_ratios: Sequence[float] | None = None,
+    height_ratios: Sequence[float] | None = None,
+    subplot_kw: dict[str, Any] | None = None,
+    gridspec_kw: dict[str, Any] | None = None,
+    **fig_kw
+) -> tuple[Figure, Axes | np.ndarray | SubplotBase]:
     """
     Create a figure and a set of subplots.
 
@@ -1523,10 +1565,19 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
     return fig, axs
 
 
-def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
-                   width_ratios=None, height_ratios=None, empty_sentinel='.',
-                   subplot_kw=None, gridspec_kw=None,
-                   per_subplot_kw=None, **fig_kw):
+def subplot_mosaic(
+    mosaic: str | list[list[Any]],
+    *,
+    sharex: bool = False,
+    sharey: bool = False,
+    width_ratios: ArrayLike | None = None,
+    height_ratios: ArrayLike | None = None,
+    empty_sentinel: Any = '.',
+    subplot_kw: dict[str, Any] | None = None,
+    gridspec_kw: dict[str, Any] | None = None,
+    per_subplot_kw: dict[Any, dict[str, Any]] | None = None,
+    **fig_kw
+) -> tuple[Figure, dict[Any, Axes]]:
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1638,7 +1689,12 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
     return fig, ax_dict
 
 
-def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
+def subplot2grid(
+    shape: tuple[int, int], loc: tuple[int, int],
+    rowspan: int = 1, colspan: int = 1,
+    fig: Figure | None = None,
+    **kwargs
+) -> Axes:
     """
     Create a subplot at a specific location inside a regular grid.
 
@@ -1685,7 +1741,7 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
     return fig.add_subplot(subplotspec, **kwargs)
 
 
-def twinx(ax=None):
+def twinx(ax: Axes | None = None) -> _AxesBase:
     """
     Make and return a second axes that shares the *x*-axis.  The new axes will
     overlay *ax* (or the current axes if *ax* is *None*), and its ticks will be
@@ -1701,7 +1757,7 @@ def twinx(ax=None):
     return ax1
 
 
-def twiny(ax=None):
+def twiny(ax: Axes | None = None) -> _AxesBase:
     """
     Make and return a second axes that shares the *y*-axis.  The new axes will
     overlay *ax* (or the current axes if *ax* is *None*), and its ticks will be
@@ -1717,7 +1773,7 @@ def twiny(ax=None):
     return ax1
 
 
-def subplot_tool(targetfig=None):
+def subplot_tool(targetfig: Figure | None = None) -> SubplotTool:
     """
     Launch a subplot tool window for a figure.
 
@@ -1727,7 +1783,7 @@ def subplot_tool(targetfig=None):
     """
     if targetfig is None:
         targetfig = gcf()
-    tb = targetfig.canvas.manager.toolbar
+    tb = targetfig.canvas.manager.toolbar  # type: ignore[union-attr]
     if hasattr(tb, "configure_subplots"):  # toolbar2
         return tb.configure_subplots()
     elif hasattr(tb, "trigger_tool"):  # toolmanager
@@ -1737,7 +1793,7 @@ def subplot_tool(targetfig=None):
                          "an associated toolbar")
 
 
-def box(on=None):
+def box(on: bool | None = None) -> None:
     """
     Turn the axes box on or off on the current axes.
 
@@ -1760,7 +1816,7 @@ def box(on=None):
 ## Axis ##
 
 
-def xlim(*args, **kwargs):
+def xlim(*args, **kwargs) -> tuple[float, float]:
     """
     Get or set the x limits of the current axes.
 
@@ -1797,7 +1853,7 @@ def xlim(*args, **kwargs):
     return ret
 
 
-def ylim(*args, **kwargs):
+def ylim(*args, **kwargs) -> tuple[float, float]:
     """
     Get or set the y-limits of the current axes.
 
@@ -1834,7 +1890,13 @@ def ylim(*args, **kwargs):
     return ret
 
 
-def xticks(ticks=None, labels=None, *, minor=False, **kwargs):
+def xticks(
+    ticks: Sequence[float] | None = None,
+    labels: Sequence[str] | None = None,
+    *,
+    minor: bool = False,
+    **kwargs
+) -> tuple[list[Tick] | np.ndarray, list[Text]]:
     """
     Get or set the current tick locations and labels of the x-axis.
 
@@ -1887,17 +1949,24 @@ def xticks(ticks=None, labels=None, *, minor=False, **kwargs):
     else:
         locs = ax.set_xticks(ticks, minor=minor)
 
+    labels_out: list[Text] = []
     if labels is None:
-        labels = ax.get_xticklabels(minor=minor)
-        for l in labels:
+        labels_out = ax.get_xticklabels(minor=minor)
+        for l in labels_out:
             l._internal_update(kwargs)
     else:
-        labels = ax.set_xticklabels(labels, minor=minor, **kwargs)
+        labels_out = ax.set_xticklabels(labels, minor=minor, **kwargs)
 
-    return locs, labels
+    return locs, labels_out
 
 
-def yticks(ticks=None, labels=None, *, minor=False, **kwargs):
+def yticks(
+    ticks: Sequence[float] | None = None,
+    labels: Sequence[str] | None = None,
+    *,
+    minor: bool = False,
+    **kwargs
+) -> tuple[list[Tick] | np.ndarray, list[Text]]:
     """
     Get or set the current tick locations and labels of the y-axis.
 
@@ -1950,17 +2019,24 @@ def yticks(ticks=None, labels=None, *, minor=False, **kwargs):
     else:
         locs = ax.set_yticks(ticks, minor=minor)
 
+    labels_out: list[Text] = []
     if labels is None:
-        labels = ax.get_yticklabels(minor=minor)
-        for l in labels:
+        labels_out = ax.get_yticklabels(minor=minor)
+        for l in labels_out:
             l._internal_update(kwargs)
     else:
-        labels = ax.set_yticklabels(labels, minor=minor, **kwargs)
+        labels_out = ax.set_yticklabels(labels, minor=minor, **kwargs)
 
-    return locs, labels
+    return locs, labels_out
 
 
-def rgrids(radii=None, labels=None, angle=None, fmt=None, **kwargs):
+def rgrids(
+    radii: ArrayLike | None = None,
+    labels: Sequence[str | Text] | None = None,
+    angle: float | None = None,
+    fmt: str | None = None,
+    **kwargs
+) -> tuple[list[Line2D], list[Text]]:
     """
     Get or set the radial gridlines on the current polar plot.
 
@@ -2023,15 +2099,20 @@ def rgrids(radii=None, labels=None, angle=None, fmt=None, **kwargs):
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
     if all(p is None for p in [radii, labels, angle, fmt]) and not kwargs:
-        lines = ax.yaxis.get_gridlines()
-        labels = ax.yaxis.get_ticklabels()
+        lines_out: list[Line2D] = ax.yaxis.get_gridlines()
+        labels_out: list[Text] = ax.yaxis.get_ticklabels()
     else:
-        lines, labels = ax.set_rgrids(
+        lines_out, labels_out = ax.set_rgrids(
             radii, labels=labels, angle=angle, fmt=fmt, **kwargs)
-    return lines, labels
+    return lines_out, labels_out
 
 
-def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
+def thetagrids(
+    angles: ArrayLike | None = None,
+    labels: Sequence[str | Text] | None = None,
+    fmt: str | None = None,
+    **kwargs
+) -> tuple[list[Line2D], list[Text]]:
     """
     Get or set the theta gridlines on the current polar plot.
 
@@ -2091,16 +2172,17 @@ def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('thetagrids only defined for polar axes')
     if all(param is None for param in [angles, labels, fmt]) and not kwargs:
-        lines = ax.xaxis.get_ticklines()
-        labels = ax.xaxis.get_ticklabels()
+        lines_out: list[Line2D] = ax.xaxis.get_ticklines()
+        labels_out: list[Text] = ax.xaxis.get_ticklabels()
     else:
-        lines, labels = ax.set_thetagrids(angles,
-                                          labels=labels, fmt=fmt, **kwargs)
-    return lines, labels
+        lines_out, labels_out = ax.set_thetagrids(angles,
+                                                  labels=labels, fmt=fmt,
+                                                  **kwargs)
+    return lines_out, labels_out
 
 
 @_api.deprecated("3.7", pending=True)
-def get_plot_commands():
+def get_plot_commands() -> Generator[str, None, None]:
     """
     Get a sorted list of all of the plotting commands.
     """
@@ -2111,7 +2193,7 @@ def get_plot_commands():
             if name not in NON_PLOT_COMMANDS]
 
 
-def _get_pyplot_commands():
+def _get_pyplot_commands() -> list[str]:
     # This works by searching for all functions in this module and removing
     # a few hard-coded exclusions, as well as all of the colormap-setting
     # functions, and anything marked as private with a preceding underscore.
@@ -2128,7 +2210,12 @@ def _get_pyplot_commands():
 
 
 @_copy_docstring_and_deprecators(Figure.colorbar)
-def colorbar(mappable=None, cax=None, ax=None, **kwargs):
+def colorbar(
+    mappable: ScalarMappable | None = None,
+    cax: Axes | None = None,
+    ax: Axes | Iterable[Axes] | None = None,
+    **kwargs
+) -> Colorbar:
     if mappable is None:
         mappable = gci()
         if mappable is None:
@@ -2140,7 +2227,7 @@ def colorbar(mappable=None, cax=None, ax=None, **kwargs):
     return ret
 
 
-def clim(vmin=None, vmax=None):
+def clim(vmin: float | None = None, vmax: float | None = None) -> None:
     """
     Set the color limits of the current image.
 
@@ -2163,12 +2250,15 @@ def clim(vmin=None, vmax=None):
 
 # eventually this implementation should move here, use indirection for now to
 # avoid having two copies of the code floating around.
-def get_cmap(name=None, lut=None):
+def get_cmap(
+    name: Colormap | str | None = None,
+    lut: int | None = None
+) -> Colormap:
     return cm._get_cmap(name=name, lut=lut)  # type: ignore
 get_cmap.__doc__ = cm._get_cmap.__doc__  # type: ignore
 
 
-def set_cmap(cmap):
+def set_cmap(cmap: Colormap | str) -> None:
     """
     Set the default colormap, and applies it to the current image if any.
 
@@ -2193,16 +2283,18 @@ def set_cmap(cmap):
 
 
 @_copy_docstring_and_deprecators(matplotlib.image.imread)
-def imread(fname, format=None):
+def imread(fname: str | io.FileIO, format: str | None = None) -> np.ndarray:
     return matplotlib.image.imread(fname, format)
 
 
 @_copy_docstring_and_deprecators(matplotlib.image.imsave)
-def imsave(fname, arr, **kwargs):
+def imsave(
+    fname: str | os.PathLike | io.FileIO, arr: ArrayLike, **kwargs
+) -> None:
     return matplotlib.image.imsave(fname, arr, **kwargs)
 
 
-def matshow(A, fignum=None, **kwargs):
+def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
     """
     Display an array as a matrix in a new figure window.
 
@@ -2218,7 +2310,7 @@ def matshow(A, fignum=None, **kwargs):
     A : 2D array-like
         The matrix to be displayed.
 
-    fignum : None or int or False
+    fignum : None or int
         If *None*, create a new figure window with automatic numbering.
 
         If a nonzero integer, draw into the figure with the given number
@@ -2254,7 +2346,7 @@ def matshow(A, fignum=None, **kwargs):
     return im
 
 
-def polar(*args, **kwargs):
+def polar(*args, **kwargs) -> list[Line2D]:
     """
     Make a polar plot.
 
