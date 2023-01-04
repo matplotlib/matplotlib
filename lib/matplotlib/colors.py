@@ -391,7 +391,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         alpha = 1
     if alpha is not None:
         c = c[:3] + (alpha,)
-    if any(round(elem,7) < 0 or round(elem,7) > 1 for elem in c):
+    if any(round(elem, 7) < 0 or round(elem, 7) > 1 for elem in c):
         raise ValueError("RGBA values should be within 0-1 range")
     return c
 
