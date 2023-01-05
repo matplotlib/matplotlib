@@ -2069,9 +2069,7 @@ class MaxNLocator(Locator):
         if 'integer' in kwargs:
             self._integer = kwargs.pop('integer')
         if kwargs:
-            key, _ = kwargs.popitem()
-            raise TypeError(
-                f"set_params() got an unexpected keyword argument '{key}'")
+            raise _api.kwarg_error("set_params", kwargs)
 
     def _raw_ticks(self, vmin, vmax):
         """

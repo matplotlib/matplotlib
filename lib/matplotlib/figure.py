@@ -716,8 +716,7 @@ default: %(va)s
         if 'figure' in kwargs:
             # Axes itself allows for a 'figure' kwarg, but since we want to
             # bind the created Axes to self, it is not allowed here.
-            raise TypeError(
-                "add_subplot() got an unexpected keyword argument 'figure'")
+            raise _api.kwarg_error("add_subplot", "figure")
 
         if (len(args) == 1
                 and isinstance(args[0], mpl.axes._base._AxesBase)

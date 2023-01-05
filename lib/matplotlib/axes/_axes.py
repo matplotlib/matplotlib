@@ -7795,8 +7795,7 @@ such objects
         extent = xmin, xmax, freqs[0], freqs[-1]
 
         if 'origin' in kwargs:
-            raise TypeError("specgram() got an unexpected keyword argument "
-                            "'origin'")
+            raise _api.kwarg_error("specgram", "origin")
 
         im = self.imshow(Z, cmap, extent=extent, vmin=vmin, vmax=vmax,
                          origin='upper', **kwargs)
@@ -7894,8 +7893,7 @@ such objects
                 kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'],
                                                         name='binary')
             if 'interpolation' in kwargs:
-                raise TypeError(
-                    "spy() got an unexpected keyword argument 'interpolation'")
+                raise _api.kwarg_error("spy", "interpolation")
             if 'norm' not in kwargs:
                 kwargs['norm'] = mcolors.NoNorm()
             ret = self.imshow(mask, interpolation='nearest',
@@ -7920,8 +7918,7 @@ such objects
             if markersize is None:
                 markersize = 10
             if 'linestyle' in kwargs:
-                raise TypeError(
-                    "spy() got an unexpected keyword argument 'linestyle'")
+                raise _api.kwarg_error("spy", "linestyle")
             ret = mlines.Line2D(
                 x, y, linestyle='None', marker=marker, markersize=markersize,
                 **kwargs)
