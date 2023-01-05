@@ -1,13 +1,9 @@
 """
+.. redirect-from:: /gallery/subplots_axes_and_figures/mosaic
+
 =======================================
 Complex and semantic figure composition
 =======================================
-
-.. warning::
-
-   This tutorial documents experimental / provisional API.
-   We are releasing this in v3.3 to get user feedback.  We may
-   make breaking changes in future versions with no warning.
 
 
 Laying out Axes in a Figure in a non-uniform grid can be both tedious
