@@ -19,7 +19,8 @@ import inspect
 from inspect import Parameter
 from pathlib import Path
 import sys
-import textwrap
+import subprocess
+
 
 # This line imports the installed copy of matplotlib, and not the local copy.
 import numpy as np
@@ -151,10 +152,6 @@ def generate_function(name, called_fullname, template, **kwargs):
     **kwargs
         Additional parameters are passed to ``template.format()``.
     """
-    text_wrapper = textwrap.TextWrapper(
-        break_long_words=False, width=70,
-        initial_indent=' ' * 8, subsequent_indent=' ' * 8)
-
     # Get signature of wrapped function.
     class_name, called_name = called_fullname.split('.')
     class_ = {'Axes': Axes, 'Figure': Figure}[class_name]
@@ -175,9 +172,6 @@ def generate_function(name, called_fullname, template, **kwargs):
         param.replace(default=value_formatter(param.default))
         if param.default is not param.empty else param
         for param in params]))
-    if len('def ' + name + signature) >= 80 and False:
-        # Move opening parenthesis before newline.
-        signature = '(\n' + text_wrapper.fill(signature).replace('(', '', 1)
     # How to call the wrapped function.
     call = '(' + ', '.join((
            # Pass "intended-as-positional" parameters positionally to avoid
@@ -189,9 +183,6 @@ def generate_function(name, called_fullname, template, **kwargs):
            # Only pass the data kwarg if it is actually set, to avoid forcing
            # third-party subclasses to support it.
            '**({{"data": data}} if data is not None else {{}})'
-           # Avoid linebreaks in the middle of the expression, by using \0 as a
-           # placeholder that will be substituted after wrapping.
-           .replace(' ', '\0')
            if param.name == "data" else
            '{0}={0}'
            if param.kind in [
@@ -205,9 +196,6 @@ def generate_function(name, called_fullname, template, **kwargs):
            if param.kind is Parameter.VAR_KEYWORD else
            None).format(param.name)
        for param in params) + ')'
-    MAX_CALL_PREFIX = 18  # len('    __ret = gca().')
-    if MAX_CALL_PREFIX + max(len(name), len(called_name)) + len(call) >= 80:
-        call = '(\n' + text_wrapper.fill(call[1:]).replace('\0', ' ')
     # Bail out in case of name collision.
     for reserved in ('gca', 'gci', 'gcf', '__ret'):
         if reserved in params:
@@ -394,6 +382,11 @@ def build_pyplot(pyplot_path):
     with pyplot_path.open('w') as pyplot:
         pyplot.writelines(pyplot_orig)
         pyplot.writelines(boilerplate_gen())
+
+    # Run black to autoformat pyplot
+    subprocess.run(
+        [sys.executable, "-m", "black", "--line-length=79", pyplot_path]
+    )
 
 
 ### Methods for retrieving signatures from pyi stub files
