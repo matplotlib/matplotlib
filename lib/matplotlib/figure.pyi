@@ -122,7 +122,7 @@ class FigureBase(Artist):
 
     # Any in list of list is recursive list[list[Hashable | list[Hashable | ...]]] but that can't really be type checked
     # TODO: add per_subplot_kw
-    def subplot_mosaic(self, mosaic: str | list[list[Any]], *, sharex: bool = ..., sharey: bool = ..., width_ratios: ArrayLike | None = ..., height_ratios: ArrayLike | None = ..., empty_sentinel: Any = ..., subplot_kw: dict[str, Any] | None = ..., gridspec_kw: dict[str, Any] | None = ...) -> dict[Any, Axes]: ...
+    def subplot_mosaic(self, mosaic: str | list[list[Any]], *, sharex: bool = ..., sharey: bool = ..., width_ratios: ArrayLike | None = ..., height_ratios: ArrayLike | None = ..., empty_sentinel: Any = ..., subplot_kw: dict[str, Any] | None = ..., per_subplot_kw: dict[Any, dict[str, Any]] | None = ..., gridspec_kw: dict[str, Any] | None = ...) -> dict[Any, Axes]: ...
 
 class SubFigure(FigureBase):
     figure: FigureBase
