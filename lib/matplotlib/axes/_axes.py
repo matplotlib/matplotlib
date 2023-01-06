@@ -294,7 +294,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        %(_legend_kw_doc)s
+        %(_legend_kw_axes)s
 
         See Also
         --------
