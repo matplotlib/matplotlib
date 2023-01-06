@@ -1,3 +1,11 @@
+``subplot_mosaic`` no longer provisional
+----------------------------------------
+
+The API on `.Figure.subplot_mosaic` and `.pyplot.subplot_mosaic` are now
+considered stable and will change under Matplotlib's normal deprecation
+process.
+
+
 Per-subplot keyword arguments  in ``subplot_mosaic``
 ----------------------------------------------------
 
