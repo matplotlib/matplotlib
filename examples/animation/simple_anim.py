@@ -3,7 +3,7 @@
 Animated line plot
 ==================
 
-Output generate via :ref:`matplotlib.animation.Animation.to_jshtml`.
+Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np
@@ -12,7 +12,7 @@ import matplotlib.animation as animation
 
 fig, ax = plt.subplots()
 
-x = np.arange(0, 2 * np.pi, 0.01)
+x = np.arange(0, 2*np.pi, 0.01)
 line, = ax.plot(x, np.sin(x))
 
 
