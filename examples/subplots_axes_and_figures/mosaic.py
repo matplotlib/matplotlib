@@ -1,5 +1,5 @@
 """
-.. redirect-from:: /gallery/subplots_axes_and_figures/mosaic
+.. redirect-from:: /tutorials/provisional/mosaic
 
 =======================================
 Complex and semantic figure composition
