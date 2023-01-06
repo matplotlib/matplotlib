@@ -32,7 +32,7 @@ from matplotlib._typing import Color, LineStyleType, MarkerType
 
 import datetime
 import PIL
-from typing import Any, Callable, Literal, Sequence, Type
+from typing import Any, Callable, Literal, Sequence, Type, overload
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -53,8 +53,15 @@ class Axes(_AxesBase):
     ) -> tuple[list[Artist], list[Any]]: ...
     legend_: Legend
 
-    # TODO: legend signatures?
-    def legend(self, *args, **kwargs) -> Legend: ...
+    @overload
+    def legend(self) -> Legend: ...
+    @overload
+    def legend(self, handles: Sequence[Artist], labels: Sequence[str]) -> Legend: ...
+    @overload
+    def legend(self, *, handles: Sequence[Artist]) -> Legend: ...
+    @overload
+    def legend(self, labels: Sequence[str]) -> Legend: ...
+
     def inset_axes(
         self,
         bounds: tuple[float, float, float, float],
@@ -260,8 +267,6 @@ class Axes(_AxesBase):
         yrange: tuple[float, float],
         **kwargs
     ) -> BrokenBarHCollection: ...
-
-    # TODO, expand out kwargs into override
     def stem(
         self,
         *args: ArrayLike | str,

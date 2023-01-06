@@ -1,5 +1,6 @@
 from matplotlib.axis import Axis
 from matplotlib.transforms import Transform
+from matplotlib.projections.polar import _AxisWrapper
 
 from typing import Any, Callable, Sequence, Literal
 import numpy as np
@@ -15,7 +16,7 @@ class _DummyAxis:
     def get_tick_space(self) -> int: ...
 
 class TickHelper:
-    axis: None | Axis | _DummyAxis
+    axis: None | Axis | _DummyAxis | _AxisWrapper
     def set_axis(self, axis: Axis | _DummyAxis | None) -> None: ...
     def create_dummy_axis(self, **kwargs) -> None: ...
 
