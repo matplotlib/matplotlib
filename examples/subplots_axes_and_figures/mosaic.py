@@ -1,10 +1,11 @@
 """
 .. redirect-from:: /tutorials/provisional/mosaic
 
-=======================================
-Complex and semantic figure composition
-=======================================
 
+
+========================================================
+Complex and semantic figure composition (subplot_mosaic)
+========================================================
 
 Laying out Axes in a Figure in a non-uniform grid can be both tedious
 and verbose.  For dense, even grids we have `.Figure.subplots` but for
