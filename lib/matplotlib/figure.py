@@ -1085,7 +1085,8 @@ default: %(va)s
 
         Other Parameters
         ----------------
-        %(_legend_kw_doc)s
+        %(_legend_kw_figure)s
+
 
         See Also
         --------
