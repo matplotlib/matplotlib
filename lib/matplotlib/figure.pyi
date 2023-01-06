@@ -235,7 +235,6 @@ class FigureBase(Artist):
     ) -> Bbox: ...
 
     # Any in list of list is recursive list[list[Hashable | list[Hashable | ...]]] but that can't really be type checked
-    # TODO: add per_subplot_kw
     def subplot_mosaic(
         self,
         mosaic: str | list[list[Any]],

@@ -9,11 +9,10 @@ from matplotlib.transforms import Transform, Bbox
 
 import datetime
 from typing import Any, Literal, Type, Iterable, Callable
+from matplotlib._typing import Color
 import numpy as np
 from numpy.typing import ArrayLike
 
-# TODO actually type colors
-Color = Any
 
 GRIDLINE_INTERPOLATION_STEPS: int
 

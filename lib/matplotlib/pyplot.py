@@ -751,7 +751,7 @@ def figure(
     # defaults to rc figure.facecolor
     facecolor: Color | None = None,
     # defaults to rc figure.edgecolor
-    edgecolor: Color = None,
+    edgecolor: Color | None = None,
     frameon: bool = True,
     FigureClass: Type[Figure] = Figure,
     clear: bool = False,
