@@ -13,7 +13,14 @@ class ToolEvent:
 
 class ToolTriggerEvent(ToolEvent):
     canvasevent: ToolEvent
-    def __init__(self, name, sender, tool, canvasevent: ToolEvent | None = ..., data: Any | None = ...) -> None: ...
+    def __init__(
+        self,
+        name,
+        sender,
+        tool,
+        canvasevent: ToolEvent | None = ...,
+        data: Any | None = ...,
+    ) -> None: ...
 
 class ToolManagerMessageEvent:
     name: str
@@ -42,7 +49,15 @@ class ToolManager:
     def remove_tool(self, name: str) -> None: ...
     T = TypeVar("T", bound=backend_tools.ToolBase)
     def add_tool(self, name: str, tool: Type[T], *args, **kwargs) -> T: ...
-    def trigger_tool(self, name: str, sender: Any | None = ..., canvasevent: ToolEvent | None = ..., data: Any | None = ...) -> None: ...
+    def trigger_tool(
+        self,
+        name: str,
+        sender: Any | None = ...,
+        canvasevent: ToolEvent | None = ...,
+        data: Any | None = ...,
+    ) -> None: ...
     @property
     def tools(self) -> dict[str, backend_tools.ToolBase]: ...
-    def get_tool(self, name: str, warn: bool = ...) -> backend_tools.ToolBase | None: ...
+    def get_tool(
+        self, name: str, warn: bool = ...
+    ) -> backend_tools.ToolBase | None: ...

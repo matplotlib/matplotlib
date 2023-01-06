@@ -3,7 +3,12 @@ from collections.abc import Generator
 import contextlib
 from pathlib import Path
 from matplotlib import cbook
-from matplotlib._animation_data import DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE
+from matplotlib._animation_data import (
+    DISPLAY_TEMPLATE,
+    INCLUDED_FRAMES,
+    JS_INCLUDE,
+    STYLE_INCLUDE,
+)
 from matplotlib.artist import Artist
 from matplotlib.backend_bases import TimerBase
 from matplotlib.figure import Figure
@@ -16,7 +21,9 @@ def adjusted_figsize(w: float, h: float, dpi: float, n: int) -> tuple[float, flo
 
 class MovieWriterRegistry:
     def __init__(self) -> None: ...
-    def register(self, name: str) -> Callable[[Type[AbstractMovieWriter]], Type[AbstractMovieWriter]]: ...
+    def register(
+        self, name: str
+    ) -> Callable[[Type[AbstractMovieWriter]], Type[AbstractMovieWriter]]: ...
     def is_available(self, name: str) -> bool: ...
     def __iter__(self) -> Generator[str, None, None]: ...
     def list(self) -> list[str]: ...
@@ -29,7 +36,13 @@ class AbstractMovieWriter(abc.ABC, metaclass=abc.ABCMeta):
     metadata: dict[str, str]
     codec: str
     bitrate: int
-    def __init__(self, fps: int = ..., metadata: dict[str, str] | None = ..., codec: str | None = ..., bitrate: int | None = ...) -> None: ...
+    def __init__(
+        self,
+        fps: int = ...,
+        metadata: dict[str, str] | None = ...,
+        codec: str | None = ...,
+        bitrate: int | None = ...,
+    ) -> None: ...
     outfile: str | Path
     fig: Figure
     dpi: float
@@ -42,15 +55,23 @@ class AbstractMovieWriter(abc.ABC, metaclass=abc.ABCMeta):
     def grab_frame(self, **savefig_kwargs) -> None: ...
     @abc.abstractmethod
     def finish(self) -> None: ...
-
     @contextlib.contextmanager
-    def saving(self, fig: Figure, outfile: str | Path, dpi: float | None, *args, **kwargs) -> Generator[AbstractMovieWriter, None, None]: ...
+    def saving(
+        self, fig: Figure, outfile: str | Path, dpi: float | None, *args, **kwargs
+    ) -> Generator[AbstractMovieWriter, None, None]: ...
 
 class MovieWriter(AbstractMovieWriter):
     supported_formats: list[str]
     frame_format: str
     extra_args: list[str] | None
-    def __init__(self, fps: int = ..., codec: str | None = ..., bitrate: int | None = ..., extra_args: list[str] | None = ..., metadata: dict[str, str] | None = ...) -> None: ...
+    def __init__(
+        self,
+        fps: int = ...,
+        codec: str | None = ...,
+        bitrate: int | None = ...,
+        extra_args: list[str] | None = ...,
+        metadata: dict[str, str] | None = ...,
+    ) -> None: ...
     def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...): ...
     def grab_frame(self, **savefig_kwargs) -> None: ...
     def finish(self) -> None: ...
@@ -65,7 +86,13 @@ class FileMovieWriter(MovieWriter):
     dpi: float
     temp_prefix: str
     fname_format_str: str
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ..., frame_prefix: str | Path | None = ...) -> None: ...
+    def setup(
+        self,
+        fig: Figure,
+        outfile: str | Path,
+        dpi: float | None = ...,
+        frame_prefix: str | Path | None = ...,
+    ) -> None: ...
     def __del__(self) -> None: ...
     @property
     def frame_format(self) -> str: ...
@@ -75,7 +102,9 @@ class FileMovieWriter(MovieWriter):
 class PillowWriter(AbstractMovieWriter):
     @classmethod
     def isAvailable(cls) -> bool: ...
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ...) -> None: ...
+    def setup(
+        self, fig: Figure, outfile: str | Path, dpi: float | None = ...
+    ) -> None: ...
     def grab_frame(self, **savefig_kwargs) -> None: ...
     def finish(self) -> None: ...
 
@@ -109,31 +138,88 @@ class HTMLWriter(FileMovieWriter):
     def isAvailable(cls) -> bool: ...
     embed_frames: bool
     default_mode: str
-    def __init__(self, fps: int = ..., codec: str | None = ..., bitrate: int | None = ..., extra_args: list[str] | None = ..., metadata: dict[str, str] | None = ..., embed_frames: bool = ..., default_mode: str = ..., embed_limit: float | None = ...) -> None: ...
-    def setup(self, fig: Figure, outfile: str | Path, dpi: float | None = ..., frame_dir: str | Path | None = ...) -> None: ...
+    def __init__(
+        self,
+        fps: int = ...,
+        codec: str | None = ...,
+        bitrate: int | None = ...,
+        extra_args: list[str] | None = ...,
+        metadata: dict[str, str] | None = ...,
+        embed_frames: bool = ...,
+        default_mode: str = ...,
+        embed_limit: float | None = ...,
+    ) -> None: ...
+    def setup(
+        self,
+        fig: Figure,
+        outfile: str | Path,
+        dpi: float | None = ...,
+        frame_dir: str | Path | None = ...,
+    ) -> None: ...
     def grab_frame(self, **savefig_kwargs): ...
     def finish(self) -> None: ...
 
 class Animation:
     frame_seq: Iterable[Artist]
     event_source: Any
-    def __init__(self, fig: Figure, event_source: Any | None = ..., blit: bool = ...) -> None: ...
+    def __init__(
+        self, fig: Figure, event_source: Any | None = ..., blit: bool = ...
+    ) -> None: ...
     def __del__(self) -> None: ...
-    def save(self, filename: str | Path, writer: MovieWriter | str | None = ..., fps: int | None = ..., dpi: float | None = ..., codec: str | None = ..., bitrate: int | None = ..., extra_args: list[str] | None = ..., metadata: dict[str, str] | None = ..., extra_anim: list[Animation] | None = ..., savefig_kwargs: dict[str, Any] | None = ..., *, progress_callback: Callable[[int, int], Any] | None = ...) -> None: ...
+    def save(
+        self,
+        filename: str | Path,
+        writer: MovieWriter | str | None = ...,
+        fps: int | None = ...,
+        dpi: float | None = ...,
+        codec: str | None = ...,
+        bitrate: int | None = ...,
+        extra_args: list[str] | None = ...,
+        metadata: dict[str, str] | None = ...,
+        extra_anim: list[Animation] | None = ...,
+        savefig_kwargs: dict[str, Any] | None = ...,
+        *,
+        progress_callback: Callable[[int, int], Any] | None = ...
+    ) -> None: ...
     def new_frame_seq(self) -> Iterable[Artist]: ...
     def new_saved_frame_seq(self) -> Iterable[Artist]: ...
     def to_html5_video(self, embed_limit: float | None = ...) -> str: ...
-    def to_jshtml(self, fps: int | None = ..., embed_frames: bool = ..., default_mode: str | None = ...) -> str: ...
+    def to_jshtml(
+        self,
+        fps: int | None = ...,
+        embed_frames: bool = ...,
+        default_mode: str | None = ...,
+    ) -> str: ...
     def pause(self) -> None: ...
     def resume(self) -> None: ...
 
 class TimedAnimation(Animation):
     repeat: bool
-    def __init__(self, fig: Figure, interval: int = ..., repeat_delay: int = ..., repeat: bool = ..., event_source: TimerBase | None = ..., *args, **kwargs) -> None: ...
+    def __init__(
+        self,
+        fig: Figure,
+        interval: int = ...,
+        repeat_delay: int = ...,
+        repeat: bool = ...,
+        event_source: TimerBase | None = ...,
+        *args,
+        **kwargs
+    ) -> None: ...
 
 class ArtistAnimation(TimedAnimation):
     def __init__(self, fig: Figure, artists: list[Artist], *args, **kwargs) -> None: ...
 
 class FuncAnimation(TimedAnimation):
     save_count: int
-    def __init__(self, fig: Figure, func: Callable[..., Iterable[Artist]], frames: Iterable[Artist] | int | Generator[Artist, None, None] | None = ..., init_func: Callable[[], Iterable[Artist]] | None = ..., fargs: tuple[Any, ...] | None = ..., save_count: int | None = ..., *, cache_frame_data: bool = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        fig: Figure,
+        func: Callable[..., Iterable[Artist]],
+        frames: Iterable[Artist] | int | Generator[Artist, None, None] | None = ...,
+        init_func: Callable[[], Iterable[Artist]] | None = ...,
+        fargs: tuple[Any, ...] | None = ...,
+        save_count: int | None = ...,
+        *,
+        cache_frame_data: bool = ...,
+        **kwargs
+    ) -> None: ...

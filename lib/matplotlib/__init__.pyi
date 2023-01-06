@@ -4,30 +4,29 @@ __all__ = [
     "set_loglevel",
     "ExecutableNotFoundError",
     "get_configdir",
-    "get_cachedir", 
-    "get_data_path",   
+    "get_cachedir",
+    "get_data_path",
     "matplotlib_fname",
-    "RcParams", 
+    "RcParams",
     "rc_params",
     "rc_params_from_file",
     "rcParamsDefault",
-    "rcParams",    
-    "rcParamsOrig", 
+    "rcParams",
+    "rcParamsOrig",
     "defaultParams",
     "rc",
     "rcdefaults",
     "rc_file_defaults",
-    "rc_file",   
+    "rc_file",
     "rc_context",
     "use",
     "get_backend",
-    "interactive",   
+    "interactive",
     "is_interactive",
     "default_test_modules",
     "colormaps",
     "color_sequences",
 ]
-
 
 import os
 from pathlib import Path
@@ -64,7 +63,6 @@ class _ExecInfo(NamedTuple):
 class ExecutableNotFoundError(FileNotFoundError): ...
 
 def _get_executable_info(name: str) -> _ExecInfo: ...
-
 def get_configdir() -> str: ...
 def get_cachedir() -> str: ...
 def get_data_path() -> str: ...
@@ -81,7 +79,11 @@ class RcParams(dict[str, Any]):
     def copy(self) -> RcParams: ...
 
 def rc_params(fail_on_error: bool = ...) -> RcParams: ...
-def rc_params_from_file(fname: str | Path | os.PathLike, fail_on_error: bool = ..., use_default_template: bool = ...) -> RcParams: ...
+def rc_params_from_file(
+    fname: str | Path | os.PathLike,
+    fail_on_error: bool = ...,
+    use_default_template: bool = ...,
+) -> RcParams: ...
 
 rcParamsDefault: RcParams
 rcParams: RcParams
@@ -91,11 +93,13 @@ defaultParams: dict[str, Any]
 def rc(group: str, **kwargs) -> None: ...
 def rcdefaults() -> None: ...
 def rc_file_defaults() -> None: ...
-def rc_file(fname: str | Path | os.PathLike, *, use_default_template: bool = ...) -> None: ...
-
+def rc_file(
+    fname: str | Path | os.PathLike, *, use_default_template: bool = ...
+) -> None: ...
 @contextlib.contextmanager
-def rc_context(rc: dict[str, Any] | None = ..., fname: str | Path | os.PathLike | None = ...): ...
-
+def rc_context(
+    rc: dict[str, Any] | None = ..., fname: str | Path | os.PathLike | None = ...
+): ...
 def use(backend: str, *, force: bool = ...) -> None: ...
 def get_backend() -> str: ...
 def interactive(b: bool) -> None: ...
@@ -103,8 +107,12 @@ def is_interactive() -> bool: ...
 
 default_test_modules: list[str]
 
-def _preprocess_data(func: Callable | None = ..., *, replace_names: list[str] | None = ..., label_namer: str | None = ...) -> Callable: ...
+def _preprocess_data(
+    func: Callable | None = ...,
+    *,
+    replace_names: list[str] | None = ...,
+    label_namer: str | None = ...
+) -> Callable: ...
 
 from matplotlib.cm import _colormaps as colormaps
 from matplotlib.colors import _color_sequences as color_sequences
-

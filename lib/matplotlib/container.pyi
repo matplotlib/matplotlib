@@ -4,7 +4,6 @@ from matplotlib.lines import Line2D
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Rectangle
 
-
 from typing import Any, Callable, Literal
 from numpy.typing import ArrayLike
 
@@ -24,16 +23,34 @@ class BarContainer(Container):
     errorbar: None | ErrorbarContainer
     datavalues: None | ArrayLike
     orientation: None | Literal["vertical", "horizontal"]
-    def __init__(self, patches: list[Rectangle], errorbar: ErrorbarContainer | None = ..., *, datavalues: ArrayLike | None = ..., orientation: Literal["vertical", "horizontal"] | None = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        patches: list[Rectangle],
+        errorbar: ErrorbarContainer | None = ...,
+        *,
+        datavalues: ArrayLike | None = ...,
+        orientation: Literal["vertical", "horizontal"] | None = ...,
+        **kwargs
+    ) -> None: ...
 
 class ErrorbarContainer(Container):
     lines: tuple[Line2D, Line2D, LineCollection]
     has_xerr: bool
     has_yerr: bool
-    def __init__(self, lines: tuple[Line2D, Line2D, LineCollection], has_xerr: bool = ..., has_yerr: bool = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        lines: tuple[Line2D, Line2D, LineCollection],
+        has_xerr: bool = ...,
+        has_yerr: bool = ...,
+        **kwargs
+    ) -> None: ...
 
 class StemContainer(Container):
     markerline: Line2D
     stemlines: LineCollection
     baseline: Line2D
-    def __init__(self, markerline_stemlines_baseline: tuple[Line2D, LineCollection, Line2D], **kwargs) -> None: ...
+    def __init__(
+        self,
+        markerline_stemlines_baseline: tuple[Line2D, LineCollection, Line2D],
+        **kwargs
+    ) -> None: ...

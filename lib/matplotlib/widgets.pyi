@@ -43,7 +43,16 @@ class Button(AxesWidget):
     label: Text
     color: Color
     hovercolor: Color
-    def __init__(self, ax: Axes, label: str, image: ArrayLike | PIL.Image.Image | None = ..., color: Color = ..., hovercolor: Color = ..., *, useblit: bool = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        label: str,
+        image: ArrayLike | PIL.Image.Image | None = ...,
+        color: Color = ...,
+        hovercolor: Color = ...,
+        *,
+        useblit: bool = ...
+    ) -> None: ...
     def on_clicked(self, func: Callable[[Event], Any]): ...
     def disconnect(self, cid: int) -> None: ...
 
@@ -56,7 +65,18 @@ class SliderBase(AxesWidget):
     valstep: float | ArrayLike | None
     drag_active: bool
     valfmt: str
-    def __init__(self, ax: Axes, orientation: Literal["horizontal", "vertical"], closedmin: bool, closedmax: bool, valmin: float, valmax: float, valfmt: str, dragging: Slider | None, valstep: float | ArrayLike | None) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        orientation: Literal["horizontal", "vertical"],
+        closedmin: bool,
+        closedmax: bool,
+        valmin: float,
+        valmax: float,
+        valfmt: str,
+        dragging: Slider | None,
+        valstep: float | ArrayLike | None,
+    ) -> None: ...
     def disconnect(self, cid: int) -> None: ...
     def reset(self) -> None: ...
 
@@ -71,7 +91,27 @@ class Slider(SliderBase):
     vline: Line2D
     label: Text
     valtext: Text
-    def __init__(self, ax: Axes, label: str, valmin: float, valmax: float, valinit: float = ..., valfmt: str | None = ..., closedmin: bool = ..., closedmax: bool = ..., slidermin: Slider | None = ..., slidermax: Slider | None = ..., dragging: bool = ..., valstep: float | ArrayLike | None = ..., orientation: Literal["horizontal", "vertical"] = ..., *, initcolor: Color = ..., track_color: Color = ..., handle_style: dict[str, Any] | None = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        label: str,
+        valmin: float,
+        valmax: float,
+        valinit: float = ...,
+        valfmt: str | None = ...,
+        closedmin: bool = ...,
+        closedmax: bool = ...,
+        slidermin: Slider | None = ...,
+        slidermax: Slider | None = ...,
+        dragging: bool = ...,
+        valstep: float | ArrayLike | None = ...,
+        orientation: Literal["horizontal", "vertical"] = ...,
+        *,
+        initcolor: Color = ...,
+        track_color: Color = ...,
+        handle_style: dict[str, Any] | None = ...,
+        **kwargs
+    ) -> None: ...
     def set_val(self, val: float) -> None: ...
     def on_changed(self, func: Callable[[float], Any]) -> int: ...
 
@@ -82,7 +122,23 @@ class RangeSlider(SliderBase):
     poly: Polygon
     label: Text
     valtext: Text
-    def __init__(self, ax: Axes, label: str, valmin: float, valmax: float, valinit: tuple[float, float] | None = ..., valfmt: str | None = ..., closedmin: bool = ..., closedmax: bool = ..., dragging: bool = ..., valstep: float | ArrayLike | None = ..., orientation: Literal["horizontal", "vertical"] = ..., track_color: Color = ..., handle_style: dict[str, Any] | None = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        label: str,
+        valmin: float,
+        valmax: float,
+        valinit: tuple[float, float] | None = ...,
+        valfmt: str | None = ...,
+        closedmin: bool = ...,
+        closedmax: bool = ...,
+        dragging: bool = ...,
+        valstep: float | ArrayLike | None = ...,
+        orientation: Literal["horizontal", "vertical"] = ...,
+        track_color: Color = ...,
+        handle_style: dict[str, Any] | None = ...,
+        **kwargs
+    ) -> None: ...
     def set_min(self, min: float) -> None: ...
     def set_max(self, max: float) -> None: ...
     def set_val(self, val: ArrayLike) -> None: ...
@@ -92,7 +148,14 @@ class CheckButtons(AxesWidget):
     labels: list[Text]
     lines: list[tuple[Line2D, Line2D]]
     rectangles: list[Rectangle]
-    def __init__(self, ax: Axes, labels: Sequence[str], actives: Iterable[bool] | None = ..., *, useblit: bool = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        labels: Sequence[str],
+        actives: Iterable[bool] | None = ...,
+        *,
+        useblit: bool = ...
+    ) -> None: ...
     def set_active(self, index: int) -> None: ...
     def get_status(self) -> list[bool]: ...
     def on_clicked(self, func: Callable[[str], Any]) -> int: ...
@@ -106,7 +169,16 @@ class TextBox(AxesWidget):
     color: Color
     hovercolor: Color
     capturekeystrokes: bool
-    def __init__(self, ax: Axes, label: str, initial: str = ..., color: Color = ..., hovercolor: Color = ..., label_pad: float = ..., textalignment: Literal["left", "center", "right"] = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        label: str,
+        initial: str = ...,
+        color: Color = ...,
+        hovercolor: Color = ...,
+        label_pad: float = ...,
+        textalignment: Literal["left", "center", "right"] = ...,
+    ) -> None: ...
     @property
     def text(self) -> str: ...
     def set_val(self, val: str) -> None: ...
@@ -120,7 +192,13 @@ class RadioButtons(AxesWidget):
     activecolor: Color
     value_selected: str
     labels: list[Text]
-    def __init__(self, ax: Axes, labels: Iterable[str], active: int = ..., activecolor: Color = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        labels: Iterable[str],
+        active: int = ...,
+        activecolor: Color = ...,
+    ) -> None: ...
     def set_active(self, index: int) -> None: ...
     def on_clicked(self, func: Callable[[str], Any]) -> int: ...
     def disconnect(self, cid: int) -> None: ...
@@ -142,7 +220,14 @@ class Cursor(AxesWidget):
     linev: Line2D
     background: Any
     needclear: bool
-    def __init__(self, ax: Axes, horizOn: bool = ..., vertOn: bool = ..., useblit: bool = ..., **lineprops) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        horizOn: bool = ...,
+        vertOn: bool = ...,
+        useblit: bool = ...,
+        **lineprops
+    ) -> None: ...
     def clear(self, event: Event) -> None: ...
     def onmove(self, event: Event) -> None: ...
 
@@ -155,7 +240,15 @@ class MultiCursor(Widget):
     needclear: bool
     vlines: list[Line2D]
     hlines: list[Line2D]
-    def __init__(self, canvas: Any, axes: Sequence[Axes], useblit: bool = ..., horizOn: bool = ..., vertOn: bool = ..., **lineprops) -> None: ...
+    def __init__(
+        self,
+        canvas: Any,
+        axes: Sequence[Axes],
+        useblit: bool = ...,
+        horizOn: bool = ...,
+        vertOn: bool = ...,
+        **lineprops
+    ) -> None: ...
     def connect(self) -> None: ...
     def disconnect(self) -> None: ...
     def clear(self, event: Event) -> None: ...
@@ -166,7 +259,15 @@ class _SelectorWidget(AxesWidget):
     useblit: bool
     background: Any
     validButtons: list[MouseButton]
-    def __init__(self, ax: Axes, onselect: Callable[[float, float], Any], useblit: bool = ..., button: MouseButton | Collection[MouseButton] | None = ..., state_modifier_keys: dict[str, str] | None = ..., use_data_coordinates: bool = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        onselect: Callable[[float, float], Any],
+        useblit: bool = ...,
+        button: MouseButton | Collection[MouseButton] | None = ...,
+        state_modifier_keys: dict[str, str] | None = ...,
+        use_data_coordinates: bool = ...,
+    ) -> None: ...
     def update_background(self, event: Event) -> None: ...
     def connect_default_events(self) -> None: ...
     def ignore(self, event: Event) -> bool: ...
@@ -199,7 +300,24 @@ class SpanSelector(_SelectorWidget):
     drag_from_anywhere: bool
     ignore_event_outside: bool
     canvas: FigureCanvasBase | None
-    def __init__(self, ax: Axes, onselect: Callable[[float, float], Any], direction: Literal["horizontal", "vertical"], minspan: float = ..., useblit: bool = ..., props: dict[str, Any] | None = ..., onmove_callback: Callable[[float, float], Any] | None = ..., interactive: bool = ..., button: MouseButton | Collection[MouseButton] | None = ..., handle_props: dict[str, Any] | None = ..., grab_range: float = ..., state_modifier_keys: dict[str, str] | None = ..., drag_from_anywhere: bool = ..., ignore_event_outside: bool = ..., snap_values: ArrayLike | None = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        onselect: Callable[[float, float], Any],
+        direction: Literal["horizontal", "vertical"],
+        minspan: float = ...,
+        useblit: bool = ...,
+        props: dict[str, Any] | None = ...,
+        onmove_callback: Callable[[float, float], Any] | None = ...,
+        interactive: bool = ...,
+        button: MouseButton | Collection[MouseButton] | None = ...,
+        handle_props: dict[str, Any] | None = ...,
+        grab_range: float = ...,
+        state_modifier_keys: dict[str, str] | None = ...,
+        drag_from_anywhere: bool = ...,
+        ignore_event_outside: bool = ...,
+        snap_values: ArrayLike | None = ...,
+    ) -> None: ...
     def new_axes(self, ax: Axes) -> None: ...
     def connect_default_events(self) -> None: ...
     @property
@@ -213,7 +331,14 @@ class SpanSelector(_SelectorWidget):
 
 class ToolLineHandles:
     ax: Axes
-    def __init__(self, ax: Axes, positions: ArrayLike, direction: Literal["horizontal", "vertical"], line_props: dict[str, Any] | None = ..., useblit: bool = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        positions: ArrayLike,
+        direction: Literal["horizontal", "vertical"],
+        line_props: dict[str, Any] | None = ...,
+        useblit: bool = ...,
+    ) -> None: ...
     @property
     def artists(self) -> tuple[Line2D]: ...
     @property
@@ -228,7 +353,15 @@ class ToolLineHandles:
 
 class ToolHandles:
     ax: Axes
-    def __init__(self, ax: Axes, x: ArrayLike, y: ArrayLike, marker: str = ..., marker_props: dict[str, Any] | None = ..., useblit: bool = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        x: ArrayLike,
+        y: ArrayLike,
+        marker: str = ...,
+        marker_props: dict[str, Any] | None = ...,
+        useblit: bool = ...,
+    ) -> None: ...
     @property
     def x(self) -> ArrayLike: ...
     @property
@@ -247,7 +380,26 @@ class RectangleSelector(_SelectorWidget):
     minspany: float
     spancoords: Literal["data", "pixels"]
     grab_range: float
-    def __init__(self, ax: Axes, onselect: Callable[[MouseEvent, MouseEvent], Any], drawtype: str = ..., minspanx: float = ..., minspany: float = ..., useblit: bool = ..., lineprops: dict[str, Any] | None = ..., props: dict[str, Any] | None = ..., spancoords: Literal["data", "pixels"] = ..., button: MouseButton | Collection[MouseButton] | None = ..., grab_range: float = ..., handle_props: dict[str, Any] | None = ..., interactive: bool = ..., state_modifier_keys: dict[str, str] | None = ..., drag_from_anywhere: bool = ..., ignore_event_outside: bool = ..., use_data_coordinates: bool = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        onselect: Callable[[MouseEvent, MouseEvent], Any],
+        drawtype: str = ...,
+        minspanx: float = ...,
+        minspany: float = ...,
+        useblit: bool = ...,
+        lineprops: dict[str, Any] | None = ...,
+        props: dict[str, Any] | None = ...,
+        spancoords: Literal["data", "pixels"] = ...,
+        button: MouseButton | Collection[MouseButton] | None = ...,
+        grab_range: float = ...,
+        handle_props: dict[str, Any] | None = ...,
+        interactive: bool = ...,
+        state_modifier_keys: dict[str, str] | None = ...,
+        drag_from_anywhere: bool = ...,
+        ignore_event_outside: bool = ...,
+        use_data_coordinates: bool = ...,
+    ) -> None: ...
     @property
     def corners(self) -> tuple[np.ndarray, np.ndarray]: ...
     @property
@@ -269,11 +421,30 @@ class EllipseSelector(RectangleSelector): ...
 
 class LassoSelector(_SelectorWidget):
     verts: None | list[tuple[float, float]]
-    def __init__(self, ax: Axes, onselect: Callable[[list[tuple[float, float]]], Any] | None = ..., useblit: bool = ..., props: dict[str, Any] | None = ..., button: MouseButton | Collection[MouseButton] | None = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        onselect: Callable[[list[tuple[float, float]]], Any] | None = ...,
+        useblit: bool = ...,
+        props: dict[str, Any] | None = ...,
+        button: MouseButton | Collection[MouseButton] | None = ...,
+    ) -> None: ...
 
 class PolygonSelector(_SelectorWidget):
     grab_range: float
-    def __init__(self, ax: Axes, onselect: Callable[[ArrayLike, ArrayLike], Any], useblit: bool = ..., props: dict[str, Any] | None = ..., handle_props: dict[str, Any] | None = ..., grab_range: float = ..., *, draw_bounding_box: bool = ..., box_handle_props: dict[str, Any] | None = ..., box_props: dict[str, Any] | None = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        onselect: Callable[[ArrayLike, ArrayLike], Any],
+        useblit: bool = ...,
+        props: dict[str, Any] | None = ...,
+        handle_props: dict[str, Any] | None = ...,
+        grab_range: float = ...,
+        *,
+        draw_bounding_box: bool = ...,
+        box_handle_props: dict[str, Any] | None = ...,
+        box_props: dict[str, Any] | None = ...
+    ) -> None: ...
     def onmove(self, event: Event) -> bool: ...
     @property
     def verts(self) -> list[tuple[float, float]]: ...
@@ -286,6 +457,12 @@ class Lasso(AxesWidget):
     verts: list[tuple[float, float]] | None
     line: Line2D
     callback: Callable[[list[tuple[float, float]]], Any]
-    def __init__(self, ax: Axes, xy: tuple[float, float], callback: Callable[[list[tuple[float, float]]], Any] | None = ..., useblit: bool = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        xy: tuple[float, float],
+        callback: Callable[[list[tuple[float, float]]], Any] | None = ...,
+        useblit: bool = ...,
+    ) -> None: ...
     def onrelease(self, event: Event) -> None: ...
     def onmove(self, event: Event) -> None: ...

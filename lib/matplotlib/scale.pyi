@@ -1,5 +1,17 @@
 from matplotlib.axis import Axis
-from matplotlib.ticker import AsinhLocator, AutoLocator, AutoMinorLocator, LogFormatterSciNotation, LogLocator, LogitFormatter, LogitLocator, NullFormatter, NullLocator, ScalarFormatter, SymmetricalLogLocator
+from matplotlib.ticker import (
+    AsinhLocator,
+    AutoLocator,
+    AutoMinorLocator,
+    LogFormatterSciNotation,
+    LogLocator,
+    LogitFormatter,
+    LogitLocator,
+    NullFormatter,
+    NullLocator,
+    ScalarFormatter,
+    SymmetricalLogLocator,
+)
 from matplotlib.transforms import IdentityTransform, Transform
 
 from typing import Callable, Literal, Iterable, Type
@@ -9,7 +21,9 @@ class ScaleBase:
     def __init__(self, axis: Axis) -> None: ...
     def get_transform(self) -> Transform: ...
     def set_default_locators_and_formatters(self, axis: Axis) -> None: ...
-    def limit_range_for_scale(self, vmin: float, vmax: float, minpos: float) -> tuple[float, float]: ...
+    def limit_range_for_scale(
+        self, vmin: float, vmax: float, minpos: float
+    ) -> tuple[float, float]: ...
 
 class LinearScale(ScaleBase):
     name: str
@@ -17,19 +31,31 @@ class LinearScale(ScaleBase):
 class FuncTransform(Transform):
     input_dims: int
     output_dims: int
-    def __init__(self, forward: Callable[[ArrayLike], ArrayLike], inverse: Callable[[ArrayLike], ArrayLike]) -> None: ...
+    def __init__(
+        self,
+        forward: Callable[[ArrayLike], ArrayLike],
+        inverse: Callable[[ArrayLike], ArrayLike],
+    ) -> None: ...
     def transform_non_affine(self, values: ArrayLike) -> ArrayLike: ...
     def inverted(self) -> FuncTransform: ...
 
 class FuncScale(ScaleBase):
     name: str
-    def __init__(self, axis: Axis, functions: tuple[Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]]) -> None: ...
+    def __init__(
+        self,
+        axis: Axis,
+        functions: tuple[
+            Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]
+        ],
+    ) -> None: ...
 
 class LogTransform(Transform):
     input_dims: int
     output_dims: int
     base: float
-    def __init__(self, base: float, nonpositive: Literal["clip", "mask"] = ...) -> None: ...
+    def __init__(
+        self, base: float, nonpositive: Literal["clip", "mask"] = ...
+    ) -> None: ...
     def transform_non_affine(self, a: ArrayLike) -> ArrayLike: ...
     def inverted(self) -> InvertedLogTransform: ...
 
@@ -44,13 +70,27 @@ class InvertedLogTransform(Transform):
 class LogScale(ScaleBase):
     name: str
     subs: Iterable[int] | None
-    def __init__(self, axis: Axis, *, base: float = ..., subs: Iterable[int] | None = ..., nonpositive: Literal["clip", "mask"] = ...) -> None: ...
+    def __init__(
+        self,
+        axis: Axis,
+        *,
+        base: float = ...,
+        subs: Iterable[int] | None = ...,
+        nonpositive: Literal["clip", "mask"] = ...
+    ) -> None: ...
     @property
     def base(self) -> float: ...
     def get_transform(self) -> Transform: ...
 
 class FuncScaleLog(LogScale):
-    def __init__(self, axis: Axis, functions: tuple[Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]], base: float = ...) -> None: ...
+    def __init__(
+        self,
+        axis: Axis,
+        functions: tuple[
+            Callable[[ArrayLike], ArrayLike], Callable[[ArrayLike], ArrayLike]
+        ],
+        base: float = ...,
+    ) -> None: ...
     @property
     def base(self) -> float: ...
     def get_transform(self) -> Transform: ...
@@ -77,7 +117,15 @@ class InvertedSymmetricalLogTransform(Transform):
 class SymmetricalLogScale(ScaleBase):
     name: str
     subs: Iterable[int] | None
-    def __init__(self, axis: Axis, *, base: float = ..., linthresh: float = ..., subs: Iterable[int] | None = ..., linscale: float = ...) -> None: ...
+    def __init__(
+        self,
+        axis: Axis,
+        *,
+        base: float = ...,
+        linthresh: float = ...,
+        subs: Iterable[int] | None = ...,
+        linscale: float = ...
+    ) -> None: ...
     @property
     def base(self) -> float: ...
     @property
@@ -103,7 +151,15 @@ class InvertedAsinhTransform(Transform):
 class AsinhScale(ScaleBase):
     name: str
     auto_tick_multipliers: dict[int, tuple[int, ...]]
-    def __init__(self, axis: Axis, *, linear_width: float = ..., base: float = ..., subs: Iterable[int] | Literal["auto"] | None = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        axis: Axis,
+        *,
+        linear_width: float = ...,
+        base: float = ...,
+        subs: Iterable[int] | Literal["auto"] | None = ...,
+        **kwargs
+    ) -> None: ...
     @property
     def linear_width(self) -> float: ...
     def get_transform(self) -> AsinhTransform: ...
@@ -122,7 +178,14 @@ class LogisticTransform(Transform):
 
 class LogitScale(ScaleBase):
     name: str
-    def __init__(self, axis: Axis, nonpositive: Literal["mask", "clip"] = ..., *, one_half: str = ..., use_overline: bool = ...) -> None: ...
+    def __init__(
+        self,
+        axis: Axis,
+        nonpositive: Literal["mask", "clip"] = ...,
+        *,
+        one_half: str = ...,
+        use_overline: bool = ...
+    ) -> None: ...
     def get_transform(self) -> LogitTransform: ...
 
 def get_scale_names() -> list[str]: ...

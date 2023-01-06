@@ -26,6 +26,32 @@ class Sankey:
     pitch: float
     tolerance: float
     extent: np.ndarray
-    def __init__(self, ax: Axes | None = ..., scale: float = ..., unit: Any = ..., format: str | Callable[[float], str] = ..., gap: float = ..., radius: float = ..., shoulder: float = ..., offset: float = ..., head_angle: float = ..., margin: float = ..., tolerance: float = ..., **kwargs) -> None: ...
-    def add(self, patchlabel: str = ..., flows: Iterable[float] | None = ..., orientations: Iterable[int] | None = ..., labels: str | Iterable[str | None] = ..., trunklength: float = ..., pathlengths: float | Iterable[float] = ..., prior: int | None = ..., connect: tuple[int, int]=..., rotation: float = ..., **kwargs): ...
+    def __init__(
+        self,
+        ax: Axes | None = ...,
+        scale: float = ...,
+        unit: Any = ...,
+        format: str | Callable[[float], str] = ...,
+        gap: float = ...,
+        radius: float = ...,
+        shoulder: float = ...,
+        offset: float = ...,
+        head_angle: float = ...,
+        margin: float = ...,
+        tolerance: float = ...,
+        **kwargs
+    ) -> None: ...
+    def add(
+        self,
+        patchlabel: str = ...,
+        flows: Iterable[float] | None = ...,
+        orientations: Iterable[int] | None = ...,
+        labels: str | Iterable[str | None] = ...,
+        trunklength: float = ...,
+        pathlengths: float | Iterable[float] = ...,
+        prior: int | None = ...,
+        connect: tuple[int, int] = ...,
+        rotation: float = ...,
+        **kwargs
+    ): ...
     def finish(self) -> list[Any]: ...

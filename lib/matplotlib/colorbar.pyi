@@ -34,7 +34,29 @@ class Colorbar:
     outline: _ColorbarSpine
     dividers: collections.LineCollection
     ticklocation: Literal["left", "right", "top", "bottom"]
-    def __init__(self, ax: Axes, mappable: cm.ScalarMappable | None = ..., *, cmap: str | colors.Colormap | None = ..., norm: colors.Normalize | None = ..., alpha: float | None = ..., values: Sequence[float] | None = ..., boundaries: Sequence[float] | None = ..., orientation: Literal["vertical", "horizontal"] | None = ..., ticklocation: Literal["auto", "left", "right", "top", "bottom"] = ..., extend: Literal["neither", "both", "min", "max"] | None = ..., spacing: Literal["uniform", "proportional"] = ..., ticks: Sequence[float] | Locator | None = ..., format: str | Formatter | None = ..., drawedges: bool = ..., filled: bool = ..., extendfrac: Literal["auto"] | float | Sequence[float] | None = ..., extendrect: bool = ..., label: str = ..., location: Literal["left", "right", "top", "bottom"] | None = ...) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        mappable: cm.ScalarMappable | None = ...,
+        *,
+        cmap: str | colors.Colormap | None = ...,
+        norm: colors.Normalize | None = ...,
+        alpha: float | None = ...,
+        values: Sequence[float] | None = ...,
+        boundaries: Sequence[float] | None = ...,
+        orientation: Literal["vertical", "horizontal"] | None = ...,
+        ticklocation: Literal["auto", "left", "right", "top", "bottom"] = ...,
+        extend: Literal["neither", "both", "min", "max"] | None = ...,
+        spacing: Literal["uniform", "proportional"] = ...,
+        ticks: Sequence[float] | Locator | None = ...,
+        format: str | Formatter | None = ...,
+        drawedges: bool = ...,
+        filled: bool = ...,
+        extendfrac: Literal["auto"] | float | Sequence[float] | None = ...,
+        extendrect: bool = ...,
+        label: str = ...,
+        location: Literal["left", "right", "top", "bottom"] | None = ...
+    ) -> None: ...
     @property
     def locator(self) -> Locator: ...
     @locator.setter
@@ -52,23 +74,60 @@ class Colorbar:
     @minorformatter.setter
     def minorformatter(self, fmt: Formatter) -> None: ...
     def update_normal(self, mappable: cm.ScalarMappable) -> None: ...
-
     @overload
     def add_lines(self, CS: contour.ContourSet, erase: bool = ...) -> None: ...
     @overload
-    def add_lines(self, levels: ArrayLike, colors: Color | Sequence[Color], linewidths: float | ArrayLike, erase: bool = ...) -> None: ...
-
+    def add_lines(
+        self,
+        levels: ArrayLike,
+        colors: Color | Sequence[Color],
+        linewidths: float | ArrayLike,
+        erase: bool = ...,
+    ) -> None: ...
     def update_ticks(self) -> None: ...
-    def set_ticks(self, ticks: Sequence[float] | Locator, update_ticks: bool = ..., labels: Sequence[str] | None = ..., *, minor: bool = ..., **kwargs) -> None: ...
+    def set_ticks(
+        self,
+        ticks: Sequence[float] | Locator,
+        update_ticks: bool = ...,
+        labels: Sequence[str] | None = ...,
+        *,
+        minor: bool = ...,
+        **kwargs
+    ) -> None: ...
     def get_ticks(self, minor: bool = ...) -> np.ndarray: ...
-    def set_ticklabels(self, ticklabels: Sequence[str], update_ticks: bool = ..., *, minor: bool = ..., **kwargs) -> None: ...
+    def set_ticklabels(
+        self,
+        ticklabels: Sequence[str],
+        update_ticks: bool = ...,
+        *,
+        minor: bool = ...,
+        **kwargs
+    ) -> None: ...
     def minorticks_on(self) -> None: ...
     def minorticks_off(self) -> None: ...
     def set_label(self, label: str, *, loc: str | None = ..., **kwargs) -> None: ...
     def set_alpha(self, alpha: float | np.ndarray) -> None: ...
     def remove(self) -> None: ...
     def drag_pan(self, button: Any, key: Any, x: float, y: float) -> None: ...
+
 ColorbarBase = Colorbar
 
-def make_axes(parents: Axes | list[Axes] | np.ndarray , location: Literal["left", "right", "top", "bottom"] | None = ..., orientation: Literal["vertical", "horizontal"] | None = ..., fraction: float = ..., shrink: float = ..., aspect: float = ..., **kwargs): ...
-def make_axes_gridspec(parent: Axes, *, location: Literal["left", "right", "top", "bottom"] | None = ..., orientation: Literal["vertical", "horizontal"] | None = ..., fraction: float = ..., shrink: float = ..., aspect: float = ..., **kwargs): ...
+def make_axes(
+    parents: Axes | list[Axes] | np.ndarray,
+    location: Literal["left", "right", "top", "bottom"] | None = ...,
+    orientation: Literal["vertical", "horizontal"] | None = ...,
+    fraction: float = ...,
+    shrink: float = ...,
+    aspect: float = ...,
+    **kwargs
+): ...
+def make_axes_gridspec(
+    parent: Axes,
+    *,
+    location: Literal["left", "right", "top", "bottom"] | None = ...,
+    orientation: Literal["vertical", "horizontal"] | None = ...,
+    fraction: float = ...,
+    shrink: float = ...,
+    aspect: float = ...,
+    **kwargs
+): ...

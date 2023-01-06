@@ -8,6 +8,33 @@ from numpy.typing import ArrayLike
 from typing import overload, Literal
 
 @overload
-def tripcolor(ax: Axes, triangulation: Triangulation, c: ArrayLike = ..., *, alpha: float = ..., norm: str | Normalize | None = ..., cmap: str | Colormap | None = ..., vmin: float | None = ..., vmax: float | None = ..., shading: Literal["flat", "gouraud"] = ..., facecolors: ArrayLike | None = ..., **kwargs): ...
+def tripcolor(
+    ax: Axes,
+    triangulation: Triangulation,
+    c: ArrayLike = ...,
+    *,
+    alpha: float = ...,
+    norm: str | Normalize | None = ...,
+    cmap: str | Colormap | None = ...,
+    vmin: float | None = ...,
+    vmax: float | None = ...,
+    shading: Literal["flat", "gouraud"] = ...,
+    facecolors: ArrayLike | None = ...,
+    **kwargs
+): ...
 @overload
-def tripcolor(ax: Axes, x: ArrayLike, y: ArrayLike, c: ArrayLike = ..., *, alpha: float = ..., norm: str | Normalize | None = ..., cmap: str | Colormap | None = ..., vmin: float | None = ..., vmax: float | None = ..., shading: Literal["flat", "gouraud"] = ..., facecolors: ArrayLike | None = ..., **kwargs): ...
+def tripcolor(
+    ax: Axes,
+    x: ArrayLike,
+    y: ArrayLike,
+    c: ArrayLike = ...,
+    *,
+    alpha: float = ...,
+    norm: str | Normalize | None = ...,
+    cmap: str | Colormap | None = ...,
+    vmin: float | None = ...,
+    vmax: float | None = ...,
+    shading: Literal["flat", "gouraud"] = ...,
+    facecolors: ArrayLike | None = ...,
+    **kwargs
+): ...

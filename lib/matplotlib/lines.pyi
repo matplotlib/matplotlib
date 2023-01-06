@@ -4,26 +4,73 @@ from .artist import Artist, allow_rasterization
 from .axes import Axes
 from .backend_bases import MouseEvent, FigureCanvasBase
 from .cbook import STEP_LOOKUP_MAP, ls_mapper, ls_mapper_r
-from .markers import CARETDOWN, CARETDOWNBASE, CARETLEFT, CARETLEFTBASE, CARETRIGHT, CARETRIGHTBASE, CARETUP, CARETUPBASE, TICKDOWN, TICKLEFT, TICKRIGHT, TICKUP, MarkerStyle
+from .markers import (
+    CARETDOWN,
+    CARETDOWNBASE,
+    CARETLEFT,
+    CARETLEFTBASE,
+    CARETRIGHT,
+    CARETRIGHTBASE,
+    CARETUP,
+    CARETUPBASE,
+    TICKDOWN,
+    TICKLEFT,
+    TICKRIGHT,
+    TICKUP,
+    MarkerStyle,
+)
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath, Transform
-from ._typing import Color, LineStyleType, FillStyleType, DrawStyleType, MarkerType, MarkEveryType
+from ._typing import (
+    Color,
+    LineStyleType,
+    FillStyleType,
+    DrawStyleType,
+    MarkerType,
+    MarkEveryType,
+)
 
 from typing import Any, Literal, Sequence, Union, Callable, overload
 from numpy.typing import ArrayLike
 
-def segment_hits(cx: ArrayLike, cy: ArrayLike, x: ArrayLike, y: ArrayLike, radius: ArrayLike) -> ArrayLike: ...
+def segment_hits(
+    cx: ArrayLike, cy: ArrayLike, x: ArrayLike, y: ArrayLike, radius: ArrayLike
+) -> ArrayLike: ...
 
 class Line2D(Artist):
     lineStyles: dict[str, str]
     drawStyles: dict[str, str]
     drawStyleKeys: list[str]
-    markers: dict[str|int, str]
+    markers: dict[str | int, str]
     filled_markers: tuple[str, ...]
     fillStyles: tuple[str, ...]
     zorder: float
     ind_offset: float
-    def __init__(self, xdata: ArrayLike, ydata: ArrayLike, linewidth: float | None = ..., linestyle: LineStyleType | None = ..., color: Color | None = ..., gapcolor: Color | None = ..., marker: MarkerType | None = ..., markersize: float | None = ..., markeredgewidth: float | None = ..., markeredgecolor: Color | None = ..., markerfacecolor: Color | None = ..., markerfacecoloralt: Color = ..., fillstyle: FillStyleType | None = ..., antialiased: bool | None = ..., dash_capstyle: CapStyle | None = ..., solid_capstyle: CapStyle | None = ..., dash_joinstyle: JoinStyle | None = ..., solid_joinstyle: JoinStyle | None = ..., pickradius: float = ..., drawstyle: DrawStyleType | None = ..., markevery: MarkEveryType | None = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        xdata: ArrayLike,
+        ydata: ArrayLike,
+        linewidth: float | None = ...,
+        linestyle: LineStyleType | None = ...,
+        color: Color | None = ...,
+        gapcolor: Color | None = ...,
+        marker: MarkerType | None = ...,
+        markersize: float | None = ...,
+        markeredgewidth: float | None = ...,
+        markeredgecolor: Color | None = ...,
+        markerfacecolor: Color | None = ...,
+        markerfacecoloralt: Color = ...,
+        fillstyle: FillStyleType | None = ...,
+        antialiased: bool | None = ...,
+        dash_capstyle: CapStyle | None = ...,
+        solid_capstyle: CapStyle | None = ...,
+        dash_joinstyle: JoinStyle | None = ...,
+        solid_joinstyle: JoinStyle | None = ...,
+        pickradius: float = ...,
+        drawstyle: DrawStyleType | None = ...,
+        markevery: MarkEveryType | None = ...,
+        **kwargs
+    ) -> None: ...
     def contains(self, mouseevent: MouseEvent) -> tuple[bool, dict]: ...
     def get_pickradius(self) -> float: ...
     def set_pickradius(self, pickradius: float) -> None: ...
@@ -33,7 +80,9 @@ class Line2D(Artist):
     def set_fillstyle(self, fs: FillStyleType) -> None: ...
     def set_markevery(self, every: MarkEveryType) -> None: ...
     def get_markevery(self) -> MarkEveryType: ...
-    def set_picker(self, p: None | bool | float | Callable[[Artist, MouseEvent], tuple[bool, dict]]) -> None: ...
+    def set_picker(
+        self, p: None | bool | float | Callable[[Artist, MouseEvent], tuple[bool, dict]]
+    ) -> None: ...
     def get_bbox(self) -> Bbox: ...
     @overload
     def set_data(self, args: ArrayLike) -> None: ...
@@ -86,7 +135,13 @@ class Line2D(Artist):
     def is_dashed(self) -> bool: ...
 
 class _AxLine(Line2D):
-    def __init__(self, xy1: tuple[float, float], xy2: tuple[float, float] | None, slope: float | None, **kwargs) -> None: ...
+    def __init__(
+        self,
+        xy1: tuple[float, float],
+        xy2: tuple[float, float] | None,
+        slope: float | None,
+        **kwargs
+    ) -> None: ...
 
 class VertexSelector:
     axes: Axes
@@ -95,7 +150,9 @@ class VertexSelector:
     ind: set[int]
     def __init__(self, line: Line2D) -> None: ...
     canvas: FigureCanvasBase
-    def process_selected(self, ind: Sequence[int], xs: ArrayLike, ys: ArrayLike) -> None: ...
+    def process_selected(
+        self, ind: Sequence[int], xs: ArrayLike, ys: ArrayLike
+    ) -> None: ...
     def onpick(self, event: Any) -> None: ...
 
 lineStyles: dict[str, str]

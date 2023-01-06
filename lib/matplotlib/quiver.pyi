@@ -31,7 +31,23 @@ class QuiverKey(martist.Artist):
     kw: dict[str, Any]
     text: Text
     zorder: float
-    def __init__(self, Q: Quiver, X: float, Y: float, U: float, label: str, *, angle: float = ..., coordinates: Literal["axes", "figure", "data", "inches"] = ..., color: Color | None = ..., labelsep: float = ..., labelpos: Literal["N", "S", "E", "W"] = ..., labelcolor: Color | None = ..., fontproperties: dict[str, Any] | None = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        Q: Quiver,
+        X: float,
+        Y: float,
+        U: float,
+        label: str,
+        *,
+        angle: float = ...,
+        coordinates: Literal["axes", "figure", "data", "inches"] = ...,
+        color: Color | None = ...,
+        labelsep: float = ...,
+        labelpos: Literal["N", "S", "E", "W"] = ...,
+        labelcolor: Color | None = ...,
+        fontproperties: dict[str, Any] | None = ...,
+        **kwargs
+    ) -> None: ...
     @property
     def labelsep(self) -> float: ...
     def set_figure(self, fig: Figure) -> None: ...
@@ -60,12 +76,55 @@ class Quiver(mcollections.PolyCollection):
     quiver_doc: str
 
     @overload
-    def __init__(self, ax: Axes, U: ArrayLike, V: ArrayLike, C: ArrayLike = ..., scale: float | None = ..., headwidth: float = ..., headlength: float = ..., headaxislength: float = ..., minshaft: float = ..., minlength: float = ..., units: Literal["width", "height", "dots", "inches", "x", "y", "xy"] = ..., scale_units: Literal["width", "height", "dots", "inches", "x", "y", "xy"] | None = ..., angles: Literal["uv", "xy"] | ArrayLike = ..., width: float | None = ..., color: Color | Sequence[Color] = ..., pivot: Literal["tail", "mid", "middle", "tip"] = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        U: ArrayLike,
+        V: ArrayLike,
+        C: ArrayLike = ...,
+        scale: float | None = ...,
+        headwidth: float = ...,
+        headlength: float = ...,
+        headaxislength: float = ...,
+        minshaft: float = ...,
+        minlength: float = ...,
+        units: Literal["width", "height", "dots", "inches", "x", "y", "xy"] = ...,
+        scale_units: Literal["width", "height", "dots", "inches", "x", "y", "xy"]
+        | None = ...,
+        angles: Literal["uv", "xy"] | ArrayLike = ...,
+        width: float | None = ...,
+        color: Color | Sequence[Color] = ...,
+        pivot: Literal["tail", "mid", "middle", "tip"] = ...,
+        **kwargs
+    ) -> None: ...
     @overload
-    def __init__(self, ax: Axes, X: ArrayLike, Y: ArrayLike, U: ArrayLike, V: ArrayLike, C: ArrayLike = ..., scale: float | None = ..., headwidth: float = ..., headlength: float = ..., headaxislength: float = ..., minshaft: float = ..., minlength: float = ..., units: Literal["width", "height", "dots", "inches", "x", "y", "xy"] = ..., scale_units: Literal["width", "height", "dots", "inches", "x", "y", "xy"] | None = ..., angles: Literal["uv", "xy"] | ArrayLike = ..., width: float | None = ..., color: Color | Sequence[Color] = ..., pivot: Literal["tail", "mid", "middle", "tip"] = ..., **kwargs) -> None: ...
-
+    def __init__(
+        self,
+        ax: Axes,
+        X: ArrayLike,
+        Y: ArrayLike,
+        U: ArrayLike,
+        V: ArrayLike,
+        C: ArrayLike = ...,
+        scale: float | None = ...,
+        headwidth: float = ...,
+        headlength: float = ...,
+        headaxislength: float = ...,
+        minshaft: float = ...,
+        minlength: float = ...,
+        units: Literal["width", "height", "dots", "inches", "x", "y", "xy"] = ...,
+        scale_units: Literal["width", "height", "dots", "inches", "x", "y", "xy"]
+        | None = ...,
+        angles: Literal["uv", "xy"] | ArrayLike = ...,
+        width: float | None = ...,
+        color: Color | Sequence[Color] = ...,
+        pivot: Literal["tail", "mid", "middle", "tip"] = ...,
+        **kwargs
+    ) -> None: ...
     def get_datalim(self, transData: Transform) -> Bbox: ...
-    def set_UVC(self, U: ArrayLike, V: ArrayLike, C: ArrayLike | None = ...) -> None: ... 
+    def set_UVC(
+        self, U: ArrayLike, V: ArrayLike, C: ArrayLike | None = ...
+    ) -> None: ...
 
 class Barbs(mcollections.PolyCollection):
     sizes: dict[str, float]
@@ -80,9 +139,44 @@ class Barbs(mcollections.PolyCollection):
     barbs_doc: str
 
     @overload
-    def __init__(self, ax: Axes, U: ArrayLike, V: ArrayLike, C: ArrayLike = ..., pivot: str = ..., length: int = ..., barbcolor: Color | Sequence[Color] | None = ..., flagcolor: Color | Sequence[Color] | None = ..., sizes: dict[str, float] | None = ..., fill_empty: bool = ..., barb_increments: dict[str, float] | None = ..., rounding: bool = ..., flip_barb: bool | ArrayLike = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        ax: Axes,
+        U: ArrayLike,
+        V: ArrayLike,
+        C: ArrayLike = ...,
+        pivot: str = ...,
+        length: int = ...,
+        barbcolor: Color | Sequence[Color] | None = ...,
+        flagcolor: Color | Sequence[Color] | None = ...,
+        sizes: dict[str, float] | None = ...,
+        fill_empty: bool = ...,
+        barb_increments: dict[str, float] | None = ...,
+        rounding: bool = ...,
+        flip_barb: bool | ArrayLike = ...,
+        **kwargs
+    ) -> None: ...
     @overload
-    def __init__(self, ax: Axes, X: ArrayLike, Y: ArrayLike, U: ArrayLike, V: ArrayLike, C: ArrayLike = ..., pivot: str = ..., length: int = ..., barbcolor: Color | Sequence[Color] | None = ..., flagcolor: Color | Sequence[Color] | None = ..., sizes: dict[str, float] | None = ..., fill_empty: bool = ..., barb_increments: dict[str, float] | None = ..., rounding: bool = ..., flip_barb: bool | ArrayLike = ..., **kwargs) -> None: ...
-
-    def set_UVC(self, U: ArrayLike, V: ArrayLike, C: ArrayLike | None = ...) -> None: ... 
+    def __init__(
+        self,
+        ax: Axes,
+        X: ArrayLike,
+        Y: ArrayLike,
+        U: ArrayLike,
+        V: ArrayLike,
+        C: ArrayLike = ...,
+        pivot: str = ...,
+        length: int = ...,
+        barbcolor: Color | Sequence[Color] | None = ...,
+        flagcolor: Color | Sequence[Color] | None = ...,
+        sizes: dict[str, float] | None = ...,
+        fill_empty: bool = ...,
+        barb_increments: dict[str, float] | None = ...,
+        rounding: bool = ...,
+        flip_barb: bool | ArrayLike = ...,
+        **kwargs
+    ) -> None: ...
+    def set_UVC(
+        self, U: ArrayLike, V: ArrayLike, C: ArrayLike | None = ...
+    ) -> None: ...
     def set_offsets(self, xy: ArrayLike) -> None: ...

@@ -11,10 +11,42 @@ class TriContourSet(ContourSet):
     def __init__(self, ax: Axes, *args, **kwargs) -> None: ...
 
 @overload
-def tricontour(ax: Axes, triangulation: Triangulation, z: ArrayLike, levels: int | ArrayLike = ..., **kwargs) -> TriContourSet: ...
+def tricontour(
+    ax: Axes,
+    triangulation: Triangulation,
+    z: ArrayLike,
+    levels: int | ArrayLike = ...,
+    **kwargs
+) -> TriContourSet: ...
 @overload
-def tricontour(ax: Axes, x: ArrayLike, y: ArrayLike, z: ArrayLike, levels: int | ArrayLike = ..., *, triangles: ArrayLike = ..., mask: ArrayLike = ..., **kwargs) -> TriContourSet: ...
+def tricontour(
+    ax: Axes,
+    x: ArrayLike,
+    y: ArrayLike,
+    z: ArrayLike,
+    levels: int | ArrayLike = ...,
+    *,
+    triangles: ArrayLike = ...,
+    mask: ArrayLike = ...,
+    **kwargs
+) -> TriContourSet: ...
 @overload
-def tricontourf(ax: Axes, triangulation: Triangulation, z: ArrayLike, levels: int | ArrayLike = ..., **kwargs) -> TriContourSet: ...
+def tricontourf(
+    ax: Axes,
+    triangulation: Triangulation,
+    z: ArrayLike,
+    levels: int | ArrayLike = ...,
+    **kwargs
+) -> TriContourSet: ...
 @overload
-def tricontourf(ax: Axes, x: ArrayLike, y: ArrayLike, z: ArrayLike, levels: int | ArrayLike = ..., *, triangles: ArrayLike = ..., mask: ArrayLike = ..., **kwargs) -> TriContourSet: ...
+def tricontourf(
+    ax: Axes,
+    x: ArrayLike,
+    y: ArrayLike,
+    z: ArrayLike,
+    levels: int | ArrayLike = ...,
+    *,
+    triangles: ArrayLike = ...,
+    mask: ArrayLike = ...,
+    **kwargs
+) -> TriContourSet: ...

@@ -9,7 +9,27 @@ from typing import Literal
 
 from numpy.typing import ArrayLike
 
-def streamplot(axes: Axes, x: ArrayLike, y: ArrayLike, u: ArrayLike, v: ArrayLike, density: float | tuple[float, float] = ..., linewidth: float | ArrayLike | None = ..., color: Color | ArrayLike | None = ..., cmap: str | Colormap | None = ..., norm: str | Normalize | None = ..., arrowsize: float = ..., arrowstyle: str | ArrowStyle = ..., minlength: float = ..., transform: Transform | None = ..., zorder: float | None = ..., start_points: ArrayLike | None = ..., maxlength: float = ..., integration_direction: Literal["forward", "backward", "both"] = ..., broken_streamlines: bool = ...) -> StreamplotSet: ...
+def streamplot(
+    axes: Axes,
+    x: ArrayLike,
+    y: ArrayLike,
+    u: ArrayLike,
+    v: ArrayLike,
+    density: float | tuple[float, float] = ...,
+    linewidth: float | ArrayLike | None = ...,
+    color: Color | ArrayLike | None = ...,
+    cmap: str | Colormap | None = ...,
+    norm: str | Normalize | None = ...,
+    arrowsize: float = ...,
+    arrowstyle: str | ArrowStyle = ...,
+    minlength: float = ...,
+    transform: Transform | None = ...,
+    zorder: float | None = ...,
+    start_points: ArrayLike | None = ...,
+    maxlength: float = ...,
+    integration_direction: Literal["forward", "backward", "both"] = ...,
+    broken_streamlines: bool = ...,
+) -> StreamplotSet: ...
 
 class StreamplotSet:
     lines: LineCollection
@@ -30,7 +50,9 @@ class DomainMap:
     def mask2grid(self, xm: float, ym: float) -> tuple[float, float]: ...
     def data2grid(self, xd: float, yd: float) -> tuple[float, float]: ...
     def grid2data(self, xg: float, yg: float) -> tuple[float, float]: ...
-    def start_trajectory(self, xg: float, yg: float, broken_streamlines: bool = ...) -> None: ...
+    def start_trajectory(
+        self, xg: float, yg: float, broken_streamlines: bool = ...
+    ) -> None: ...
     def reset_start_point(self, xg: float, yg: float) -> None: ...
     def update_trajectory(self, xg, yg, broken_streamlines: bool = ...) -> None: ...
     def undo_trajectory(self) -> None: ...

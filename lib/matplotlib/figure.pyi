@@ -4,18 +4,37 @@ import os
 from matplotlib import backend_bases, projections
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.axes import Axes, SubplotBase
-from matplotlib.backend_bases import DrawEvent, FigureCanvasBase, MouseButton, MouseEvent, NonGuiException, RendererBase
+from matplotlib.backend_bases import (
+    DrawEvent,
+    FigureCanvasBase,
+    MouseButton,
+    MouseEvent,
+    NonGuiException,
+    RendererBase,
+)
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.colorbar import Colorbar
 from matplotlib.cm import ScalarMappable
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib.image import _ImageBase
-from matplotlib.layout_engine import ConstrainedLayoutEngine, LayoutEngine, PlaceHolderLayoutEngine, TightLayoutEngine
+from matplotlib.layout_engine import (
+    ConstrainedLayoutEngine,
+    LayoutEngine,
+    PlaceHolderLayoutEngine,
+    TightLayoutEngine,
+)
 from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
-from matplotlib.transforms import Affine2D, Bbox, BboxBase, BboxTransformTo, TransformedBbox, Transform
+from matplotlib.transforms import (
+    Affine2D,
+    Bbox,
+    BboxBase,
+    BboxTransformTo,
+    TransformedBbox,
+    Transform,
+)
 
 from matplotlib._typing import Color
 
@@ -25,14 +44,30 @@ from numpy.typing import ArrayLike
 from typing import Any, Callable, Iterable, Literal, overload
 
 class SubplotParams:
-    def __init__(self, left: float | None = ..., bottom: float | None = ..., right: float | None = ..., top: float | None = ..., wspace: float | None = ..., hspace: float | None = ...) -> None: ...
+    def __init__(
+        self,
+        left: float | None = ...,
+        bottom: float | None = ...,
+        right: float | None = ...,
+        top: float | None = ...,
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+    ) -> None: ...
     left: float
     right: float
     bottom: float
     top: float
     wspace: float
     hspace: float
-    def update(self, left: float | None = ..., bottom: float | None = ..., right: float | None = ..., top: float | None = ..., wspace: float | None = ..., hspace: float | None = ...) -> None: ...
+    def update(
+        self,
+        left: float | None = ...,
+        bottom: float | None = ...,
+        right: float | None = ...,
+        top: float | None = ...,
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+    ) -> None: ...
 
 class FigureBase(Artist):
     figure: FigureBase | None
@@ -46,7 +81,13 @@ class FigureBase(Artist):
     stale: bool
     suppressComposite: bool | None
     def __init__(self, **kwargs) -> None: ...
-    def autofmt_xdate(self, bottom: float = ..., rotation: int = ..., ha: Literal["left", "center", "right"] = ..., which: Literal["major", "minor", "both"] = ...) -> None: ...
+    def autofmt_xdate(
+        self,
+        bottom: float = ...,
+        rotation: int = ...,
+        ha: Literal["left", "center", "right"] = ...,
+        which: Literal["major", "minor", "both"] = ...,
+    ) -> None: ...
     def get_children(self) -> list[Artist]: ...
     def contains(self, mouseevent: MouseEvent) -> tuple[bool, dict[Any, Any]]: ...
     def suptitle(self, t: str, **kwargs) -> Text: ...
@@ -61,35 +102,63 @@ class FigureBase(Artist):
     def set_facecolor(self, color: Color) -> None: ...
     def set_frameon(self, b: bool) -> None: ...
     @property
-    def frameon(self) -> bool:...
+    def frameon(self) -> bool: ...
     @frameon.setter
     def frameon(self, b: bool) -> None: ...
     def add_artist(self, artist: Artist, clip: bool = ...) -> Artist: ...
-
     @overload
     def add_axes(self, ax: Axes) -> Axes: ...
     @overload
-    def add_axes(self, rect: tuple[float, float, float, float], projection: None | str = ..., polar: bool = ..., **kwargs) -> Axes: ...
+    def add_axes(
+        self,
+        rect: tuple[float, float, float, float],
+        projection: None | str = ...,
+        polar: bool = ...,
+        **kwargs
+    ) -> Axes: ...
 
     # TODO: docstring indicates SubplotSpec a valid arg, but none of the listed signatures appear to be that
     @overload
-    def add_subplot(self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs) -> Axes: ...
+    def add_subplot(
+        self, nrows: int, ncols: int, index: int | tuple[int, int], **kwargs
+    ) -> Axes: ...
     @overload
     def add_subplot(self, pos: int, **kwargs) -> Axes: ...
     @overload
     def add_subplot(self, ax: Axes) -> Axes: ...
     @overload
     def add_subplot(self) -> Axes: ...
-
     @overload
-    def subplots(self, nrows: int = ..., ncols: int = ..., *, sharex: bool | Literal["none", "all", "row", "col"] = ..., sharey: bool | Literal["none", "all", "row", "col"] = ..., squeeze: Literal[False], width_ratios: ArrayLike | None = ..., height_ratios: ArrayLike | None = ..., subplot_kw: dict[str, Any] | None = ..., gridspec_kw: dict[str, Any] | None = ...) -> np.ndarray: ...
+    def subplots(
+        self,
+        nrows: int = ...,
+        ncols: int = ...,
+        *,
+        sharex: bool | Literal["none", "all", "row", "col"] = ...,
+        sharey: bool | Literal["none", "all", "row", "col"] = ...,
+        squeeze: Literal[False],
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...
+    ) -> np.ndarray: ...
     @overload
-    def subplots(self, nrows: int = ..., ncols: int = ..., *, sharex: bool | Literal["none", "all", "row", "col"] = ..., sharey: bool | Literal["none", "all", "row", "col"] = ..., squeeze: Literal[True] = ..., width_ratios: ArrayLike | None = ..., height_ratios: ArrayLike | None = ..., subplot_kw: dict[str, Any] | None = ..., gridspec_kw: dict[str, Any] | None = ...) -> np.ndarray | SubplotBase | Axes: ...
-
+    def subplots(
+        self,
+        nrows: int = ...,
+        ncols: int = ...,
+        *,
+        sharex: bool | Literal["none", "all", "row", "col"] = ...,
+        sharey: bool | Literal["none", "all", "row", "col"] = ...,
+        squeeze: Literal[True] = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...
+    ) -> np.ndarray | SubplotBase | Axes: ...
     def delaxes(self, ax: Axes) -> None: ...
     def clear(self, keep_observers: bool = ...) -> None: ...
     def clf(self, keep_observers: bool = ...): ...
-
     @overload
     def legend(self) -> Legend: ...
     @overload
@@ -98,31 +167,88 @@ class FigureBase(Artist):
     def legend(self, *, handles: Iterable[Artist]) -> Legend: ...
     @overload
     def legend(self, labels: Iterable[str]) -> Legend: ...
-
-    def text(self, x: float, y: float, s: str, fontdict: dict[str, Any] | None = ..., **kwargs) -> Text: ...
-    def colorbar(self, mappable: ScalarMappable, cax: Axes | None = ..., ax: Axes | Iterable[Axes] | None = ..., use_gridspec: bool = ..., **kwargs) -> Colorbar: ...
-    def subplots_adjust(self, left: str | None = ..., bottom: str | None = ..., right: str | None = ..., top: str | None = ..., wspace: str | None = ..., hspace: str | None = ...) -> None: ...
+    def text(
+        self,
+        x: float,
+        y: float,
+        s: str,
+        fontdict: dict[str, Any] | None = ...,
+        **kwargs
+    ) -> Text: ...
+    def colorbar(
+        self,
+        mappable: ScalarMappable,
+        cax: Axes | None = ...,
+        ax: Axes | Iterable[Axes] | None = ...,
+        use_gridspec: bool = ...,
+        **kwargs
+    ) -> Colorbar: ...
+    def subplots_adjust(
+        self,
+        left: str | None = ...,
+        bottom: str | None = ...,
+        right: str | None = ...,
+        top: str | None = ...,
+        wspace: str | None = ...,
+        hspace: str | None = ...,
+    ) -> None: ...
     def align_xlabels(self, axs: Iterable[Axes] | None = ...) -> None: ...
     def align_ylabels(self, axs: Iterable[Axes] | None = ...) -> None: ...
     def align_labels(self, axs: Iterable[Axes] | None = ...) -> None: ...
     def add_gridspec(self, nrows: int = ..., ncols: int = ..., **kwargs): ...
-
     @overload
-    def subfigures(self, nrows: int = ..., ncols: int = ..., squeeze: Literal[False] = ..., wspace: float | None = ..., hspace: float | None = ..., width_ratios: ArrayLike | None = ..., height_ratios: ArrayLike | None = ..., **kwargs) -> np.ndarray: ...
+    def subfigures(
+        self,
+        nrows: int = ...,
+        ncols: int = ...,
+        squeeze: Literal[False] = ...,
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        **kwargs
+    ) -> np.ndarray: ...
     @overload
-    def subfigures(self, nrows: int = ..., ncols: int = ..., squeeze: Literal[True] = ..., wspace: float | None = ..., hspace: float | None = ..., width_ratios: ArrayLike | None = ..., height_ratios: ArrayLike | None = ..., **kwargs) -> np.ndarray | SubFigure: ...
-
+    def subfigures(
+        self,
+        nrows: int = ...,
+        ncols: int = ...,
+        squeeze: Literal[True] = ...,
+        wspace: float | None = ...,
+        hspace: float | None = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        **kwargs
+    ) -> np.ndarray | SubFigure: ...
     def add_subfigure(self, subplotspec: SubplotSpec, **kwargs) -> SubFigure: ...
     def sca(self, a: Axes) -> Axes: ...
     def gca(self) -> Axes: ...
     def _gci(self) -> ScalarMappable | None: ...
-    def _process_projection_requirements(self, *args, axes_class=None, polar=False, projection=None, **kwargs): ...
+    def _process_projection_requirements(
+        self, *args, axes_class=None, polar=False, projection=None, **kwargs
+    ): ...
     def get_default_bbox_extra_artists(self) -> list[Artist]: ...
-    def get_tightbbox(self, renderer: RendererBase | None = ..., bbox_extra_artists: Iterable[Artist] | None = ...) -> Bbox: ...
+    def get_tightbbox(
+        self,
+        renderer: RendererBase | None = ...,
+        bbox_extra_artists: Iterable[Artist] | None = ...,
+    ) -> Bbox: ...
 
     # Any in list of list is recursive list[list[Hashable | list[Hashable | ...]]] but that can't really be type checked
     # TODO: add per_subplot_kw
-    def subplot_mosaic(self, mosaic: str | list[list[Any]], *, sharex: bool = ..., sharey: bool = ..., width_ratios: ArrayLike | None = ..., height_ratios: ArrayLike | None = ..., empty_sentinel: Any = ..., subplot_kw: dict[str, Any] | None = ..., per_subplot_kw: dict[Any, dict[str, Any]] | None = ..., gridspec_kw: dict[str, Any] | None = ...) -> dict[Any, Axes]: ...
+    def subplot_mosaic(
+        self,
+        mosaic: str | list[list[Any]],
+        *,
+        sharex: bool = ...,
+        sharey: bool = ...,
+        width_ratios: ArrayLike | None = ...,
+        height_ratios: ArrayLike | None = ...,
+        empty_sentinel: Any = ...,
+        subplot_kw: dict[str, Any] | None = ...,
+        per_subplot_kw: dict[Any, dict[str, Any]] | None = ...,
+        gridspec_kw: dict[str, Any] | None = ...
+    ) -> dict[Any, Axes]: ...
 
 class SubFigure(FigureBase):
     figure: FigureBase
@@ -135,7 +261,17 @@ class SubFigure(FigureBase):
     bbox: Bbox
     transSubfigure: Transform
     patch: Rectangle
-    def __init__(self, parent: Figure | SubFigure, subplotspec: SubplotSpec, *, facecolor: Color | None = ..., edgecolor: Color | None = ..., linewidth: float = ..., frameon: bool | None = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        parent: Figure | SubFigure,
+        subplotspec: SubplotSpec,
+        *,
+        facecolor: Color | None = ...,
+        edgecolor: Color | None = ...,
+        linewidth: float = ...,
+        frameon: bool | None = ...,
+        **kwargs
+    ) -> None: ...
     @property
     def dpi(self) -> float: ...
     @dpi.setter
@@ -143,7 +279,9 @@ class SubFigure(FigureBase):
     def get_dpi(self) -> float: ...
     def set_dpi(self, val) -> None: ...
     def get_constrained_layout(self) -> bool: ...
-    def get_constrained_layout_pads(self, relative: bool = ...) -> tuple[float, float, float, float]: ...
+    def get_constrained_layout_pads(
+        self, relative: bool = ...
+    ) -> tuple[float, float, float, float]: ...
     def get_layout_engine(self) -> LayoutEngine: ...
     @property  # type: ignore[misc]
     def axes(self) -> list[Axes]: ...  # type: ignore[override]
@@ -158,26 +296,61 @@ class Figure(FigureBase):
     transSubfigure: Transform
     patch: Rectangle
     subplotpars: SubplotParams
-    def __init__(self, figsize: tuple[float, float] | None = ..., dpi: float | None = ..., facecolor: Color | None = ..., edgecolor: Color | None = ..., linewidth: float = ..., frameon: bool | None = ..., subplotpars: SubplotParams | None = ..., tight_layout: bool | dict[str, Any] | None = ..., constrained_layout: bool | dict[str, Any] | None = ..., *, layout: Literal["constrained", "compressed", "tight"] | LayoutEngine | None = ..., **kwargs) -> None: ...
+    def __init__(
+        self,
+        figsize: tuple[float, float] | None = ...,
+        dpi: float | None = ...,
+        facecolor: Color | None = ...,
+        edgecolor: Color | None = ...,
+        linewidth: float = ...,
+        frameon: bool | None = ...,
+        subplotpars: SubplotParams | None = ...,
+        tight_layout: bool | dict[str, Any] | None = ...,
+        constrained_layout: bool | dict[str, Any] | None = ...,
+        *,
+        layout: Literal["constrained", "compressed", "tight"]
+        | LayoutEngine
+        | None = ...,
+        **kwargs
+    ) -> None: ...
     def pick(self, mouseevent: MouseEvent) -> None: ...
-    def set_layout_engine(self, layout: Literal["constrained", "compressed", "tight"] | LayoutEngine | None = ..., **kwargs) -> None: ...
+    def set_layout_engine(
+        self,
+        layout: Literal["constrained", "compressed", "tight"]
+        | LayoutEngine
+        | None = ...,
+        **kwargs
+    ) -> None: ...
     def get_layout_engine(self) -> LayoutEngine | None: ...
     def show(self, warn: bool = ...) -> None: ...
     @property  # type: ignore[misc]
     def axes(self) -> list[Axes]: ...  # type: ignore[override]
     def get_axes(self) -> list[Axes]: ...
-
     @property
     def dpi(self) -> float: ...
     @dpi.setter
     def dpi(self, dpi: float) -> None: ...
-
     def get_tight_layout(self) -> bool: ...
     def get_constrained_layout(self) -> bool: ...
     canvas: FigureCanvasBase
     def set_canvas(self, canvas: FigureCanvasBase) -> None: ...
-    def figimage(self, X: ArrayLike, xo: int = ..., yo: int = ..., alpha: float | None = ..., norm: str | Normalize | None = ..., cmap: str | Colormap | None = ..., vmin: float | None = ..., vmax: float | None = ..., origin: Literal["upper", "lower"] | None = ..., resize: bool = ..., **kwargs): ...
-    def set_size_inches(self, w: float | tuple[float, float], h: float | None = ..., forward: bool = ...) -> None: ...
+    def figimage(
+        self,
+        X: ArrayLike,
+        xo: int = ...,
+        yo: int = ...,
+        alpha: float | None = ...,
+        norm: str | Normalize | None = ...,
+        cmap: str | Colormap | None = ...,
+        vmin: float | None = ...,
+        vmax: float | None = ...,
+        origin: Literal["upper", "lower"] | None = ...,
+        resize: bool = ...,
+        **kwargs
+    ): ...
+    def set_size_inches(
+        self, w: float | tuple[float, float], h: float | None = ..., forward: bool = ...
+    ) -> None: ...
     def get_size_inches(self) -> np.ndarray: ...
     def get_figwidth(self) -> float: ...
     def get_figheight(self) -> float: ...
@@ -189,9 +362,30 @@ class Figure(FigureBase):
     def draw_without_rendering(self) -> None: ...
     def draw_artist(self, a: Artist) -> None: ...
     def add_axobserver(self, func: Callable[[Figure], Any]): ...
-    def savefig(self, fname: str | os.PathLike | io.FileIO, *, transparent: bool | None = ..., **kwargs) -> None: ...
-    def ginput(self, n: int = ..., timeout: float = ..., show_clicks: bool = ..., mouse_add: MouseButton =..., mouse_pop: MouseButton =..., mouse_stop: MouseButton =...) -> list[tuple[int, int]]: ...
+    def savefig(
+        self,
+        fname: str | os.PathLike | io.FileIO,
+        *,
+        transparent: bool | None = ...,
+        **kwargs
+    ) -> None: ...
+    def ginput(
+        self,
+        n: int = ...,
+        timeout: float = ...,
+        show_clicks: bool = ...,
+        mouse_add: MouseButton = ...,
+        mouse_pop: MouseButton = ...,
+        mouse_stop: MouseButton = ...,
+    ) -> list[tuple[int, int]]: ...
     def waitforbuttonpress(self, timeout: float = ...): ...
-    def tight_layout(self, *, pad: float = ..., h_pad: float | None = ..., w_pad: float | None = ..., rect: tuple[float, float, float, float] | None = ...) -> None: ...
+    def tight_layout(
+        self,
+        *,
+        pad: float = ...,
+        h_pad: float | None = ...,
+        w_pad: float | None = ...,
+        rect: tuple[float, float, float, float] | None = ...
+    ) -> None: ...
 
 def figaspect(arg: float | ArrayLike) -> tuple[float, float]: ...

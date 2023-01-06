@@ -2375,7 +2375,7 @@ if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore
             set(_interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):  # type: ignore
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)  #type: ignore
+    rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
 
 # fmt: on
 
