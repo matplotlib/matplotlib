@@ -83,7 +83,7 @@ class RedirectFromDomain(Domain):
             elif self.redirects[src] != dst:
                 raise ValueError(
                     f"Inconsistent redirections from {src} to "
-                    F"{self.redirects[src]} and {otherdata.redirects[src]}")
+                    f"{self.redirects[src]} and {otherdata['redirects'][src]}")
 
 
 class RedirectFrom(Directive):
