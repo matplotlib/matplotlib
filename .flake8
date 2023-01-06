@@ -1,5 +1,5 @@
 [flake8]
-max-line-length = 79
+max-line-length = 88
 select =
     # flake8 default
     C90, E, F, W,
