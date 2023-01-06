@@ -87,6 +87,7 @@ specification of the dependencies.
 ==========  ========  ======
 Matplotlib  Python    NumPy
 ==========  ========  ======
+`3.7`_      3.8       1.20.0
 `3.6`_      3.8       1.19.0
 `3.5`_      3.7       1.17.0
 `3.4`_      3.7       1.16.0
@@ -105,6 +106,7 @@ Matplotlib  Python    NumPy
 1.0         2.4       1.1
 ==========  ========  ======
 
+.. _`3.7`: https://matplotlib.org/3.7.0/devel/dependencies.html
 .. _`3.6`: https://matplotlib.org/3.6.0/devel/dependencies.html
 .. _`3.5`: https://matplotlib.org/3.5.0/devel/dependencies.html
 .. _`3.4`: https://matplotlib.org/3.4.0/devel/dependencies.html
