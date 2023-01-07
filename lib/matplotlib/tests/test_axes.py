@@ -8248,7 +8248,7 @@ def test_automatic_legend():
 
 
 def test_plot_errors():
-    with pytest.raises(TypeError, match="plot got an unexpected keyword"):
+    with pytest.raises(TypeError, match=r"plot\(\) got an unexpected keyword"):
         plt.plot([1, 2, 3], x=1)
     with pytest.raises(ValueError, match=r"plot\(\) with multiple groups"):
         plt.plot([1, 2, 3], [1, 2, 3], [2, 3, 4], [2, 3, 4], label=['1', '2'])
@@ -8423,8 +8423,7 @@ def test_extent_units():
     axs[1, 1].xaxis.set_major_formatter(mdates.DateFormatter('%d'))
     axs[1, 1].set(xlabel='Day of Jan 2020')
 
-    with pytest.raises(ValueError,
-                       match="set_extent did not consume all of the kwargs"):
+    with pytest.raises(TypeError, match=r"set_extent\(\) got an unexpected"):
         im.set_extent([2, 12, date_first, date_last], clip=False)
 
 
