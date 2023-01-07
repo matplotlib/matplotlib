@@ -354,37 +354,30 @@ class GridHelperRectlinear(GridHelperBase):
                        offset=None,
                        axes=None,
                        ):
-
         if axes is None:
             _api.warn_external(
                 "'new_fixed_axis' explicitly requires the axes keyword.")
             axes = self.axes
-
-        _helper = AxisArtistHelperRectlinear.Fixed(axes, loc, nth_coord)
-
         if axis_direction is None:
             axis_direction = loc
-        axisline = AxisArtist(axes, _helper, offset=offset,
-                              axis_direction=axis_direction,
-                              )
 
+        helper = AxisArtistHelperRectlinear.Fixed(axes, loc, nth_coord)
+        axisline = AxisArtist(axes, helper, offset=offset,
+                              axis_direction=axis_direction)
         return axisline
 
     def new_floating_axis(self, nth_coord, value,
                           axis_direction="bottom",
                           axes=None,
                           ):
-
         if axes is None:
             _api.warn_external(
                 "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
 
-        _helper = AxisArtistHelperRectlinear.Floating(
+        helper = AxisArtistHelperRectlinear.Floating(
             axes, nth_coord, value, axis_direction)
-
-        axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
-
+        axisline = AxisArtist(axes, helper, axis_direction=axis_direction)
         axisline.line.set_clip_on(True)
         axisline.line.set_clip_box(axisline.axes.bbox)
         return axisline
