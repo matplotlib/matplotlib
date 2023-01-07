@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - main
-      - v[0-9]+.[0-9]+.[0-9x]+.x
+      - v[0-9]+.[0-9]+.[0-9x]+
     tags:
       - v*
     paths:
@@ -67,7 +67,6 @@ jobs:
           )
         )
       )
-    env:
     strategy:
       matrix:
         python-minor-version: [8, 9]
@@ -155,15 +154,15 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            C:\cygwin\home\runneradmin/.cache/matplotlib
-            !C:\cygwin\home\runneradmin/.cache/matplotlib/tex.cache
-            !C:\cygwin\home\runneradmin/.cache/matplotlib/test_cache
+            C:\cygwin\home\runneradmin\.cache\matplotlib
+            !C:\cygwin\home\runneradmin\.cache\matplotlib\tex.cache
+            !C:\cygwin\home\runneradmin\.cache\matplotlib\test_cache
           key: 1-Cygwin-py3.${{ matrix.python-minor-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
             1-Cygwin-py3.${{ matrix.python-minor-version }}-mpl-${{ github.ref }}-
             1-Cygwin-py3.${{ matrix.python-minor-version }}-mpl-
 
-      - name: Ensure correct python version
+      - name: Ensure correct Python version
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
           /usr/sbin/alternatives --set python /usr/bin/python3.${{ matrix.python-minor-version }}
@@ -192,7 +191,7 @@ jobs:
               echo 'PySide2 is not available'
           python -m pip uninstall --yes wxpython || echo 'wxPython already uninstalled'
 
-      - name: Install matplotlib
+      - name: Install Matplotlib
         shell: bash.exe -eo pipefail -o igncr "{0}"
         env:
           AUTOCONF: /usr/bin/autoconf-2.69
