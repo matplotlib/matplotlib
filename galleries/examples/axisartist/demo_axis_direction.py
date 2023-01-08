@@ -20,7 +20,10 @@ def setup_axes(fig, rect):
     """Polar projection, but in a rectangular box."""
     # see demo_curvelinear_grid.py for details
     grid_helper = GridHelperCurveLinear(
-        Affine2D().scale(np.pi/180., 1.) + PolarAxes.PolarTransform(),
+        (
+            Affine2D().scale(np.pi/180., 1.) +
+            PolarAxes.PolarTransform(apply_theta_transforms=False)
+        ),
         extreme_finder=angle_helper.ExtremeFinderCycle(
             20, 20,
             lon_cycle=360, lat_cycle=None,
