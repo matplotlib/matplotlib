@@ -167,9 +167,9 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
             axis_direction = loc
         # This is not the same as the FixedAxisArtistHelper class used by
         # grid_helper_curvelinear.GridHelperCurveLinear.new_fixed_axis!
-        _helper = FixedAxisArtistHelper(
+        helper = FixedAxisArtistHelper(
             self, loc, nth_coord_ticks=nth_coord)
-        axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
+        axisline = AxisArtist(axes, helper, axis_direction=axis_direction)
         # Perhaps should be moved to the base class?
         axisline.line.set_clip_on(True)
         axisline.line.set_clip_box(axisline.axes.bbox)

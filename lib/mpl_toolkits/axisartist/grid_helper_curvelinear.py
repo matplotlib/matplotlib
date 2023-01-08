@@ -268,8 +268,8 @@ class GridHelperCurveLinear(GridHelperBase):
             axes = self.axes
         if axis_direction is None:
             axis_direction = loc
-        _helper = FixedAxisArtistHelper(self, loc, nth_coord_ticks=nth_coord)
-        axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
+        helper = FixedAxisArtistHelper(self, loc, nth_coord_ticks=nth_coord)
+        axisline = AxisArtist(axes, helper, axis_direction=axis_direction)
         # Why is clip not set on axisline, unlike in new_floating_axis or in
         # the floating_axig.GridHelperCurveLinear subclass?
         return axisline
@@ -279,27 +279,15 @@ class GridHelperCurveLinear(GridHelperBase):
                           axes=None,
                           axis_direction="bottom"
                           ):
-
         if axes is None:
             axes = self.axes
-
-        _helper = FloatingAxisArtistHelper(
+        helper = FloatingAxisArtistHelper(
             self, nth_coord, value, axis_direction)
-
-        axisline = AxisArtist(axes, _helper)
-
-        # _helper = FloatingAxisArtistHelper(self, nth_coord,
-        #                                    value,
-        #                                    label_direction=label_direction,
-        #                                    )
-
-        # axisline = AxisArtistFloating(axes, _helper,
-        #                               axis_direction=axis_direction)
+        axisline = AxisArtist(axes, helper)
         axisline.line.set_clip_on(True)
         axisline.line.set_clip_box(axisline.axes.bbox)
         # axisline.major_ticklabels.set_visible(True)
         # axisline.minor_ticklabels.set_visible(False)
-
         return axisline
 
     def _update_grid(self, x1, y1, x2, y2):
