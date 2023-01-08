@@ -15,6 +15,19 @@ import matplotlib.transforms as mtransforms
 from matplotlib.spines import Spine
 
 
+def _apply_theta_transforms_warn():
+    _api.warn_deprecated(
+                "3.7",
+                message=(
+                    "Passing `_apply_theta_transforms=True` (the default) "
+                    "is deprecated. Support for this will be removed in "
+                    "Matplotlib %(removal)s. To prevent this warning, "
+                    "set `_apply_theta_transforms=False`, and make sure to "
+                    "shift theta values before being passed to this transform."
+                )
+            )
+
+
 class PolarTransform(mtransforms.Transform):
     r"""
     The base polar transform.
@@ -53,16 +66,7 @@ class PolarTransform(mtransforms.Transform):
         self._apply_theta_transforms = _apply_theta_transforms
         self._scale_transform = scale_transform
         if _apply_theta_transforms:
-            _api.warn_deprecated(
-                "3.7",
-                message=(
-                    "Passing `_apply_theta_transforms=True` (the default) "
-                    "is deprecated. Support for this will be removed in "
-                    "Matplotlib %(removal)s. To prevent this warning, "
-                    "set `_apply_theta_transforms=False`, and make sure to "
-                    "shift theta values before being passed to this transform."
-                )
-            )
+            _apply_theta_transforms_warn()
 
     __str__ = mtransforms._make_str_method(
         "_axis",
@@ -220,6 +224,8 @@ class InvertedPolarTransform(mtransforms.Transform):
         self._axis = axis
         self._use_rmin = use_rmin
         self._apply_theta_transforms = _apply_theta_transforms
+        if _apply_theta_transforms:
+            _apply_theta_transforms_warn()
 
     __str__ = mtransforms._make_str_method(
         "_axis",

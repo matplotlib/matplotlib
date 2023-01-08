@@ -1,6 +1,7 @@
 Applying theta transforms in ``PolarTransform``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Applying theta transforms in `~matplotlib.projections.polar.PolarTransform`
+and `~matplotlib.projections.polar.InvertedPolarTransform`
 is deprecated. This is currently the default behaviour, so to prevent
 a warning, manually pass ``_apply_theta_transforms=False``, and
 apply any theta shift before passing points to this transform.
