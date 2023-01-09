@@ -50,6 +50,63 @@ def setup():
     set_reproducibility_for_testing()
 
 
+def subprocess_run_for_testing(
+        command: "list[str]",
+        env: "dict[str, str]",
+        timeout=float,
+        stdout=None,
+        stderr=None,
+        check=False,
+        universal_newlines=True,
+        capture_output=False
+) -> "subprocess.Popen":
+    """
+    Create and run a subprocess.
+
+    Thin wrapper around subprocess.run, intended for testing.
+
+    Arguments
+    ---------
+    args : list of str
+    env : dict[str, str]
+    timeout : float
+    stdout, stderr
+    check : bool
+    universal_newlines : bool
+    capture_output : bool
+        Set stdout and stderr to subprocess.PIPE
+
+    Returns
+    -------
+    proc : subprocess.Popen
+
+    See Also
+    --------
+    subprocess.run
+
+    Raises
+    ------
+    pytest.xfail
+        If platform is Cygwin and subprocess reports a fork() failure.
+    """
+    if capture_output:
+        stdout = stderr = subprocess.PIPE
+    try:
+        proc = subprocess.run(
+            command, env=env,
+            timeout=timeout, check=check,
+            stdout=stdout, stderr=stderr,
+            universal_newlines=universal_newlines
+        )
+    except BlockingIOError:
+        if sys.platform == "cygwin":
+            # Might want to make this more specific
+            import pytest
+            pytest.xfail("Fork failure")
+        raise
+    return proc
+
+
 def subprocess_run_helper(func, *args, timeout, extra_env=None):
     """
     Run a function in a sub-process.
@@ -66,23 +123,16 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
     """
     target = func.__name__
     module = func.__module__
-    try:
-        proc = subprocess.run(
-            [sys.executable,
-             "-c",
-             f"from {module} import {target}; {target}()",
-             *args],
-            env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
-            timeout=timeout, check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True)
-    except BlockingIOError:
-        if sys.platform == "cygwin":
-            import pytest
-            pytest.xfail("Fork failure")
-        else:
-            raise
+    proc = subprocess_run_for_testing(
+        [sys.executable,
+         "-c",
+         f"from {module} import {target}; {target}()",
+         *args],
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
+        timeout=timeout, check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True)
     return proc
 
 
