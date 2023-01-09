@@ -112,7 +112,7 @@ def update(frame):
     return (scat,)
 
 
-ani = animation.FuncAnimation(fig=fig, func=update, frames=400, interval=30)
+ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=300)
 plt.show()
 
 
