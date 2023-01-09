@@ -470,7 +470,6 @@ control the alignment on existing Legends.
 
 .. plot::
     :alt: Figure with 3 subplots. All the subplots are titled test. The three subplots have legends titled alignment='left', alignment='center', alignment='right'. The legend texts are respectively aligned left, center and right,
-    :alt: Plot showing a line from 1,2 to 3.5,-0.5. X axis showing the 1, 2 and 3 
     :include-source: true
 
     fig, axs = plt.subplots(3, 1)
@@ -609,7 +608,7 @@ weight can be set separately from the figure title using :rc:`figure.labelsize`
 and :rc:`figure.labelweight`.
 
 .. plot::
-    :alt: A figure with 4 plots organised in 2 rows and 2 columns. The title of the figure is suptitle in bold and 64 points. The x axis is labelled supxlabel, and y axis is labelled subylabel. Both labels are 32 points and bold
+    :alt: A figure with 4 plots organised in 2 rows and 2 columns. The title of the figure is suptitle in bold and 64 points. The x axis is labelled supxlabel, and y axis is labelled subylabel. Both labels are 32 points and bold.
     :include-source: true
 
     # Original (previously combined with below) rcParams:
@@ -677,7 +676,7 @@ The focal length can be calculated from a desired FOV via the equation:
     focal\_length = 1/\tan(FOV/2)
 
 .. plot::
-    :alt: A figure showing 3 basic 3d Wireframe plots. From left to right, the plots use focal length of 0.2, 1 and infinity. Focal length betwen 0.2 and 1 produce plot with depth while focal length between 1 and infinity show relatively flattened image
+    :alt: A figure showing 3 basic 3d Wireframe plots. From left to right, the plots use focal length of 0.2, 1 and infinity. Focal length between 0.2 and 1 produce plot with depth while focal length between 1 and infinity show relatively flattened image.
     :include-source: true
 
     from mpl_toolkits.mplot3d import axes3d
@@ -703,7 +702,7 @@ programmatically. The default roll angle of 0 is backwards-compatible with
 existing 3D plots.
 
 .. plot::
-    :alt: view of a wireframe of a 3d contour that is somewhat a thickend s shape elevation and azimuth are 0 degrees so the shape is veiwed straight on, but tilted because the roll is 30 degrees
+    :alt: View of a wireframe of a 3D contour that is somewhat a thickened s shape. Elevation and azimuth are 0 degrees so the shape is viewed straight on, but tilted because the roll is 30 degrees.
     :include-source: true
 
     from mpl_toolkits.mplot3d import axes3d
@@ -723,7 +722,7 @@ Users can set the aspect ratio for the X, Y, Z axes of a 3D plot to be 'equal',
 'equalxy', 'equalxz', or 'equalyz' rather than the default of 'auto'.
 
 .. plot::
-    :alt: 5 plots, each showing a different aspect option for a rectangle that has height 4, depth 1, and width 1 auto: none of the dimensions have equal aspect, depth and width form a rectangular and height appears shrunken in proportion. equal: all the dimensions have equal aspect. equalxy: width and depth equal, height not so looks shrunken in proportion. equalyz: depth and height equal, width not so elongated. equalxz: width and height equal, depth not so elongated
+    :alt: Five plots, each showing a different aspect option for a rectangle that has height 4, depth 1, and width 1. auto: none of the dimensions have equal aspect, depth and width form a rectangular and height appears shrunken in proportion. equal: all the dimensions have equal aspect. equalxy: width and depth equal, height not so looks shrunken in proportion. equalyz: depth and height equal, width not so elongated. equalxz: width and height equal, depth not so elongated
     :include-source: true
 
     from itertools import combinations, product
