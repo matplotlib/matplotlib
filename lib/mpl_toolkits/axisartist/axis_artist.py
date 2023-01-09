@@ -1044,11 +1044,17 @@ class AxisArtist(martist.Artist):
         self._axis_artist_helper.update_lim(self.axes)
         self._update_ticks(renderer)
         self._update_label(renderer)
+
+        self.line.set_path(self._axis_artist_helper.get_line(self.axes))
+        if self.get_axisline_style() is not None:
+            self.line.set_line_mutation_scale(self.major_ticklabels.get_size())
+
         bb = [
             *self.major_ticklabels.get_window_extents(renderer),
             *self.minor_ticklabels.get_window_extents(renderer),
             self.label.get_window_extent(renderer),
             self.offsetText.get_window_extent(renderer),
+            self.line.get_window_extent(renderer),
         ]
         bb = [b for b in bb if b and (b.width != 0 or b.height != 0)]
         if bb:

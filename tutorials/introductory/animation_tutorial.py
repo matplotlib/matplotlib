@@ -62,28 +62,28 @@ import numpy as np
 # modify the data. The following table shows a few plotting methods, the artist
 # types they return and some methods that can be used to update them.
 #
-# =================  =============================  ===========================
-# Plotting method    Artist                         Set method
-# =================  =============================  ===========================
-# `.Axes.plot`       `.lines.Line2D`                `.lines.Line2D.set_data`
-# `.Axes.scatter`    `.collections.PathCollection`  `.collections.\
-#                                                   PathCollection.set_offsets`
-# `.Axes.imshow`     `.image.AxesImage`             ``AxesImage.set_data``
-# `.Axes.annotate`   `.text.Annotation`             `.text.Annotation.\
-#                                                   update_positions`
-# `.Axes.barh`       `.patches.Rectangle`           `.Rectangle.set_angle`,
-#                                                   `.Rectangle.set_bounds`,
-#                                                   `.Rectangle.set_height`,
-#                                                   `.Rectangle.set_width`,
-#                                                   `.Rectangle.set_x`,
-#                                                   `.Rectangle.set_y`
-#                                                   `.Rectangle.set_xy`
-# `.Axes.fill`       `.patches.Polygon`             `.Polygon.set_xy`
-# `.patches.Circle`  `.patches.Ellipse`             `.Ellipse.set_angle`,
-#                                                   `.Ellipse.set_center`,
-#                                                   `.Ellipse.set_height`,
-#                                                   `.Ellipse.set_width`
-# =================  =============================  ===========================
+# ========================================  =============================  ===========================
+# Plotting method                           Artist                         Set method
+# ========================================  =============================  ===========================
+# `.Axes.plot`                              `.lines.Line2D`                `~.lines.Line2D.set_data`
+# `.Axes.scatter`                           `.collections.PathCollection`  `~.collections.\
+#                                                                          PathCollection.set_offsets`
+# `.Axes.imshow`                            `.image.AxesImage`             ``AxesImage.set_data``
+# `.Axes.annotate`                          `.text.Annotation`             `~.text.Annotation.\
+#                                                                          update_positions`
+# `.Axes.barh`                              `.patches.Rectangle`           `~.Rectangle.set_angle`,
+#                                                                          `~.Rectangle.set_bounds`,
+#                                                                          `~.Rectangle.set_height`,
+#                                                                          `~.Rectangle.set_width`,
+#                                                                          `~.Rectangle.set_x`,
+#                                                                          `~.Rectangle.set_y`,
+#                                                                          `~.Rectangle.set_xy`
+# `.Axes.fill`                              `.patches.Polygon`             `~.Polygon.set_xy`
+# `.Axes.add_patch`\(`.patches.Ellipse`\)   `.patches.Ellipse`             `~.Ellipse.set_angle`,
+#                                                                          `~.Ellipse.set_center`,
+#                                                                          `~.Ellipse.set_height`,
+#                                                                          `~.Ellipse.set_width`
+# ========================================  =============================  ===========================
 #
 # Covering the set methods for all types of artists is beyond the scope of this
 # tutorial but can be found in their respective documentations. An example of

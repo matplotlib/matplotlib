@@ -20,7 +20,7 @@ Installation quick-start
 
         .. code-block:: bash
 
-            conda install matplotlib
+            conda install -c conda-forge matplotlib
 
 Further details are available in the :doc:`Installation Guide </users/installing/index>`.
 

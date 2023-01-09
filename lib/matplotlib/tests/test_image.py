@@ -1337,8 +1337,9 @@ def test_nonuniform_and_pcolor():
         ax.set(xlim=(0, 10))
 
 
-@image_comparison(["rgba_antialias.png"], style="mpl20",
-                  remove_text=True)
+@image_comparison(
+    ['rgba_antialias.png'], style='mpl20', remove_text=True,
+    tol=0.007 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)

@@ -716,8 +716,7 @@ default: %(va)s
         if 'figure' in kwargs:
             # Axes itself allows for a 'figure' kwarg, but since we want to
             # bind the created Axes to self, it is not allowed here.
-            raise TypeError(
-                "add_subplot() got an unexpected keyword argument 'figure'")
+            raise _api.kwarg_error("add_subplot", "figure")
 
         if (len(args) == 1
                 and isinstance(args[0], mpl.axes._base._AxesBase)
@@ -1085,7 +1084,8 @@ default: %(va)s
 
         Other Parameters
         ----------------
-        %(_legend_kw_doc)s
+        %(_legend_kw_figure)s
+
 
         See Also
         --------
@@ -1797,12 +1797,7 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        .. note::
-
-           This API is provisional and may be revised in the future based on
-           early user feedback.
-
-        See :doc:`/tutorials/provisional/mosaic`
+        See :doc:`/gallery/subplots_axes_and_figures/mosaic`
         for an example and full API documentation
 
         Parameters

@@ -243,8 +243,7 @@ class _process_plot_var_args:
 
         for pos_only in "xy":
             if pos_only in kwargs:
-                raise TypeError("{} got an unexpected keyword argument {!r}"
-                                .format(self.command, pos_only))
+                raise _api.kwarg_error(self.command, pos_only)
 
         if not args:
             return
@@ -2188,8 +2187,7 @@ class _AxesBase(martist.Artist):
             self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
             self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
         if kwargs:
-            raise TypeError(f"axis() got an unexpected keyword argument "
-                            f"'{next(iter(kwargs))}'")
+            raise _api.kwarg_error("axis", kwargs)
         return (*self.get_xlim(), *self.get_ylim())
 
     def get_legend(self):

@@ -978,11 +978,8 @@ class AxesImage(_ImageBase):
             [("x", [extent[0], extent[1]]),
              ("y", [extent[2], extent[3]])],
             kwargs)
-        if len(kwargs):
-            raise ValueError(
-                "set_extent did not consume all of the kwargs passed." +
-                f"{list(kwargs)!r} were unused"
-            )
+        if kwargs:
+            raise _api.kwarg_error("set_extent", kwargs)
         xmin = self.axes._validate_converted_limits(
             xmin, self.convert_xunits)
         xmax = self.axes._validate_converted_limits(

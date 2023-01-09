@@ -217,7 +217,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.19"),
+            ("numpy", "1.20"),
             ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)

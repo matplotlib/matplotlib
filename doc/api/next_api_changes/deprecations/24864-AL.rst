@@ -1,0 +1,10 @@
+``BrokenBarHCollection`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It was just a thin wrapper inheriting from `.PolyCollection`;
+`~.Axes.broken_barh` has now been changed to return a `.PolyCollection`
+instead.
+
+The ``BrokenBarHCollection.span_where`` helper is likewise deprecated; for the
+duration of the deprecation it has been moved to the parent `.PolyCollection`
+class.  Use `~.Axes.fill_between` as a replacement; see
+:doc:`/gallery/lines_bars_and_markers/span_regions` for an example.

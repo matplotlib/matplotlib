@@ -336,8 +336,6 @@ class ToolCursorPosition(ToolBase):
 
         from matplotlib.backend_bases import NavigationToolbar2
         message = NavigationToolbar2._mouse_event_to_message(event)
-        if message is None:
-            message = ' '
         self.toolmanager.message_event(message, self)
 
 
