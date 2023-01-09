@@ -501,21 +501,21 @@ class BboxBase(TransformNode):
             bottom, 1 is right or top), 'C' (center), or a cardinal direction
             ('SW', southwest, is bottom left, etc.).
         container : `Bbox`, optional
-            The box within which the `Bbox` is positioned; it defaults
-            to the initial `Bbox`.
+            The box within which the `Bbox` is positioned.
 
         See Also
         --------
         .Axes.set_anchor
         """
         if container is None:
+            _api.warn_deprecated(
+                "3.8", message="Calling anchored() with no container bbox "
+                "returns a frozen copy of the original bbox and is deprecated "
+                "since %(since)s.")
             container = self
         l, b, w, h = container.bounds
-        if isinstance(c, str):
-            cx, cy = self.coefs[c]
-        else:
-            cx, cy = c
         L, B, W, H = self.bounds
+        cx, cy = self.coefs[c] if isinstance(c, str) else c
         return Bbox(self._points +
                     [(l + cx * (w - W)) - L,
                      (b + cy * (h - H)) - B])
