@@ -53,7 +53,7 @@ def setup():
 def subprocess_run_for_testing(
         command: "list[str]",
         env: "dict[str, str]",
-        timeout=float,
+        timeout: float = None,
         stdout=None,
         stderr=None,
         check=False,
