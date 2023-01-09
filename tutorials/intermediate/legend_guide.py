@@ -135,7 +135,54 @@ ax_dict['bottom'].plot([3, 2, 1], label="test2")
 ax_dict['bottom'].legend(bbox_to_anchor=(1.05, 1),
                          loc='upper left', borderaxespad=0.)
 
-plt.show()
+##############################################################################
+# Figure legends
+# --------------
+#
+# Sometimes it makes more sense to place a legend relative to the (sub)figure
+# rather than individual Axes.  By using ``constrained_layout`` and
+# specifying "outside" at the beginning of the *loc* keyword argument,
+# the legend is drawn outside the Axes on the (sub)figure.
+
+fig, axs = plt.subplot_mosaic([['left', 'right']], layout='constrained')
+
+axs['left'].plot([1, 2, 3], label="test1")
+axs['left'].plot([3, 2, 1], label="test2")
+
+axs['right'].plot([1, 2, 3], 'C2', label="test3")
+axs['right'].plot([3, 2, 1], 'C3', label="test4")
+# Place a legend to the right of this smaller subplot.
+fig.legend(loc='outside upper right')
+
+##############################################################################
+# This accepts a slightly different grammar than the normal *loc* keyword,
+# where "outside right upper" is different from "outside upper right".
+#
+ucl = ['upper', 'center', 'lower']
+lcr = ['left', 'center', 'right']
+fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.7')
+
+ax.plot([1, 2], [1, 2], label='TEST')
+# Place a legend to the right of this smaller subplot.
+for loc in [
+        'outside upper left',
+        'outside upper center',
+        'outside upper right',
+        'outside lower left',
+        'outside lower center',
+        'outside lower right']:
+    fig.legend(loc=loc, title=loc)
+
+fig, ax = plt.subplots(figsize=(6, 4), layout='constrained', facecolor='0.7')
+ax.plot([1, 2], [1, 2], label='test')
+
+for loc in [
+        'outside left upper',
+        'outside right upper',
+        'outside left lower',
+        'outside right lower']:
+    fig.legend(loc=loc, title=loc)
+
 
 ###############################################################################
 # Multiple legends on the same Axes

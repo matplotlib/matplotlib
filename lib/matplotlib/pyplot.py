@@ -1499,12 +1499,7 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     This is a helper function to build complex GridSpec layouts visually.
 
-    .. note::
-
-       This API is provisional and may be revised in the future based on
-       early user feedback.
-
-    See :doc:`/tutorials/provisional/mosaic`
+    See :doc:`/gallery/subplots_axes_and_figures/mosaic`
     for an example and full API documentation
 
     Parameters

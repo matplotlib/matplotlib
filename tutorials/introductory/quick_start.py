@@ -566,7 +566,7 @@ axd['right'].set_title('right')
 ###############################################################################
 # Matplotlib has quite sophisticated tools for arranging Axes: See
 # :doc:`/tutorials/intermediate/arranging_axes` and
-# :doc:`/tutorials/provisional/mosaic`.
+# :doc:`/gallery/subplots_axes_and_figures/mosaic`.
 #
 #
 # More reading
