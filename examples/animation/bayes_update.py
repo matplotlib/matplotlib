@@ -7,6 +7,8 @@ This animation displays the posterior estimate updates as it is refitted when
 new data arrives.
 The vertical line represents the theoretical value to which the plotted
 distribution should converge.
+
+Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import math
