@@ -15,6 +15,8 @@ This example showcases:
 
     You can copy and paste individual parts, or download the entire example
     using the link at the bottom of the page.
+
+Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import matplotlib.pyplot as plt
