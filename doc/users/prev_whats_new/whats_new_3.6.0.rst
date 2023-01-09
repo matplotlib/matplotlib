@@ -21,7 +21,7 @@ The relative width and height of columns and rows in `~.Figure.subplots` and
 *width_ratios* keyword arguments to the methods:
 
 .. plot::
-    :alt: A figure with 3 subplots in 3 rows and 1 column. The hight of the subplot in the first row is 3 times more than the subplots in the 2nd and 3rd row
+    :alt: A figure with three subplots in three rows and one column. The height of the subplot in the first row is three times than the subplots in the 2nd and 3rd row
     :include-source: true
 
     fig = plt.figure()
@@ -58,7 +58,7 @@ With ``layout='tight'`` or ``'constrained'``, Axes with a fixed aspect ratio
 can leave large gaps between each other:
 
 .. plot::
-    :alt: A 5 by 3 inch figure with subplots displayed in 2 rows and 2 columns; Subplots have large gaps between each other.
+    :alt: A figure labelled "fixed-aspect plots, layout=constrained". Figure has subplots displayed in 2 rows and 2 columns; Subplots have large gaps between each other.
 
     fig, axs = plt.subplots(2, 2, figsize=(5, 3),
                             sharex=True, sharey=True, layout="constrained")
@@ -70,7 +70,7 @@ Using the ``layout='compressed'`` layout reduces the space between the Axes,
 and adds the extra space to the outer margins:
 
 .. plot::
-    :alt: 4 identical 2 by 2 heatmaps, each cell a different color: purple, blue, yellow, green going clockwise from upper left corner the 4 heatmaps are laid out in a 2 by 2 grid with minimum white space between the heatmaps
+    :alt: Four identical two by two heatmaps, each cell a different color: purple, blue, yellow, green going clockwise from upper left corner. The four heatmaps are laid out in a two by two grid with minimum white space between the heatmaps
 
     fig, axs = plt.subplots(2, 2, figsize=(5, 3),
                             sharex=True, sharey=True, layout='compressed')
@@ -98,7 +98,7 @@ with the previous layout engine.
 may be returned.
 
 .. plot::
-    :alt: plot of a straight line y=x, with a small inset axis in the lower right corner that shows a circle with radial grid lines and a line plotted in polar coordinates 
+    :alt: Plot of a straight line y=x, with a small inset axes in the lower right corner that shows a circle with radial grid lines and a line plotted in polar coordinates 
     :include-source: true
 
     fig, ax = plt.subplots()
@@ -151,6 +151,7 @@ lines.
 
 .. plot::
     :alt: plot of x**3 where the line is an orange-blue striped line, achieved using the keywords`linestyle='--', color='orange', gapcolor='blue' 
+    
     :include-source: true
 
     x = np.linspace(1., 3., 10)
@@ -168,7 +169,7 @@ The new *capwidths* parameter to `~.Axes.bxp` and `~.Axes.boxplot` allows
 controlling the widths of the caps in box and whisker plots.
 
 .. plot::
-    :alt: A box plot with width 0.01 and 0.2 
+    :alt: A box plot with capwidths 0.01 and 0.2 
     :include-source: true
 
     x = np.linspace(-7, 7, 140)
@@ -189,7 +190,7 @@ label entries, so this is best used when bars also differ in style (e.g., by
 passing a list to *color*, as below.)
 
 .. plot::
-    :alt: bar chart: blue bar height 10, orange bar height 20, green bar height 15 legend with blue box labeled a, orange box labeled b, and green box labeled c
+    :alt: Bar chart: blue bar height 10, orange bar height 20, green bar height 15 legend with blue box labeled a, orange box labeled b, and green box labeled c
     :include-source: true
 
     x = ["a", "b", "c"]
@@ -220,7 +221,7 @@ The line style of negative contours may be set by passing the
 only be set globally via :rc:`contour.negative_linestyles`.
 
 .. plot::
-    :alt: two contour plots, each showing two positive and two negative contours. The positive contours are shown in solid black lines in both plots. In one plot the negative contours are shown in dashed lines, which is the current styling. In the other plot they're shown in dotted lines, which is one of the new options.
+    :alt: Two contour plots, each showing two positive and two negative contours. The positive contours are shown in solid black lines in both plots. In one plot the negative contours are shown in dashed lines, which is the current styling. In the other plot they're shown in dotted lines, which is one of the new options.
     :include-source: true
 
     delta = 0.025
@@ -280,7 +281,7 @@ passed to `.Line2D`, rather than claiming that all keyword arguments are passed
 on.
 
 .. plot::
-    :alt: Graph with error bar showing + or - 0.2 error on the x-axis, and + or - 0.4 in the y axis. Error bar marker is a circle radius 20. Error bar face color is blue
+    :alt: Graph with error bar showing ±0.2 error on the x-axis, and ±0.4 error on the y-axis. Error bar marker is a circle radius 20. Error bar face color is blue.
     :include-source: true
 
     x = np.arange(0.1, 4, 0.5)
@@ -301,7 +302,7 @@ streamlines. Previously streamlines would end to limit the number of lines
 within a single grid cell. See the difference between the plots below:
 
 .. plot::
-    :alt: A figure with two streamplots. First streamplot has broken streamlnes. Second streamplot has continuous streamlines
+    :alt: A figure with two streamplots. First streamplot has broken streamlines. Second streamplot has continuous streamlines.
     
     w = 3
     Y, X = np.mgrid[-w:w:100j, -w:w:100j]
@@ -326,7 +327,7 @@ the scale. This is based on an arcsinh transformation that allows plotting both
 positive and negative values that span many orders of magnitude.
 
 .. plot::
-    :alt: A figure with 2 subplots. Subplot on the left uses symlog scale on the y axis. The transition at -2 is not smooth . Subplot on the right use asinh scale. The transition at -2 is smooth 
+    :alt:  figure with 2 subplots. Subplot on the left uses symlog scale on the y axis. The transition at -2 is not smooth. Subplot on the right use asinh scale. The transition at -2 is smooth. 
 
     fig, (ax0, ax1) = plt.subplots(1, 2, sharex=True)
     x = np.linspace(-3, 6, 100)
@@ -371,7 +372,7 @@ The rotation point of the `~matplotlib.patches.Rectangle` can now be set to
 'xy', 'center' or a 2-tuple of numbers using the *rotation_point* argument.
 
 .. plot::
-    :alt: blue square that isn't rotated. green square rotated 45 degrees relative to center. orange square rotated 45 degrees relative to lower right corner. red square rotated 45 degrees relative to point in upper right quadrant  
+    :alt: Blue square that isn't rotated. Green square rotated 45 degrees relative to center. Orange square rotated 45 degrees relative to lower right corner. Red square rotated 45 degrees relative to point in upper right quadrant.  
 
     fig, ax = plt.subplots()
 
@@ -448,7 +449,7 @@ It is now possible to set or get minor ticks using `.pyplot.xticks` and
 `.pyplot.yticks` by setting ``minor=True``.
 
 .. plot::
-    :alt: Plot showing a line from 1,2 to 3.5,-0.5. X axis showing the points 1,2 and 3 on the x axis as One, Zwei, Trois as minor ticks 
+    :alt: Plot showing a line from 1,2 to 3.5,-0.5. X axis showing the 1, 2 and 3 minor ticks on the x axis as One, Zwei, Trois. 
     :include-source: true
 
     plt.figure()
@@ -468,7 +469,8 @@ the keyword argument *alignment*. You can also use `.Legend.set_alignment` to
 control the alignment on existing Legends.
 
 .. plot::
-    :alt: Figure with 3 subplots. All the subplots are titled test. The three subplots have legends titled alignment='left', alignment='center',alignment='right'. The legend texts are respectively aligned left, center and right
+    :alt: Figure with 3 subplots. All the subplots are titled test. The three subplots have legends titled alignment='left', alignment='center', alignment='right'. The legend texts are respectively aligned left, center and right,
+    :alt: Plot showing a line from 1,2 to 3.5,-0.5. X axis showing the 1, 2 and 3 
     :include-source: true
 
     fig, axs = plt.subplots(3, 1)
@@ -502,7 +504,7 @@ for the user to supply a transformation to be applied to the marker (e.g. a
 rotation).
 
 .. plot::
-    :alt: hree rows of markers, columns are blue, green, and purple. first row is yshaped markers with different capstyles:. butt: end is squared off at endpoint. projecting: end is squared off at short distance from endpoint. round: end is rounded. second row is star shaped markers with different join styles:. miter: star points are sharp triangles. round: star points are rounded. bevel: star points are beveled. last row shows stars rotated at different angles:. small star rotated 0 degrees - top point vertical. medium star rotated 45 degrees - top point tilted right. large star rotated 90 degrees - top point tilted left
+    :alt: Three rows of markers, columns are blue, green, and purple. First row is y-shaped markers with different capstyles: butt, end is squared off at endpoint; projecting, end is squared off at short distance from endpoint; round, end is rounded. Second row is star-shaped markers with different join styles: miter, star points are sharp triangles; round, star points are rounded; bevel, star points are beveled. Last row shows stars rotated at different angles: small star rotated 0 degrees - top point vertical; medium star rotated 45 degrees - top point tilted right; large star rotated 90 degrees - top point tilted left.
     :include-source: true
 
     from matplotlib.markers import CapStyle, JoinStyle, MarkerStyle
