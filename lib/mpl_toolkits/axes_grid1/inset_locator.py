@@ -78,7 +78,7 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
 
         px, py = self.get_offset(width, height, 0, 0, renderer)
         bbox_canvas = Bbox.from_bounds(px, py, width, height)
-        tr = ax.figure.transFigure.inverted()
+        tr = ax.figure.transSubfigure.inverted()
         bb = TransformedBbox(bbox_canvas, tr)
 
         return bb
