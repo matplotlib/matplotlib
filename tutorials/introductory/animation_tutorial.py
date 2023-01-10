@@ -87,32 +87,37 @@ import numpy as np
 #
 # Covering the set methods for all types of artists is beyond the scope of this
 # tutorial but can be found in their respective documentations. An example of
-# such update methods in use for `.Axes.scatter` is as follows.
-
+# such update methods in use for `.Axes.scatter` and `.Axes.plot` is as follows.
 
 fig, ax = plt.subplots()
-t = np.linspace(-np.pi, np.pi, 400)
-a, b = 3, 2
-delta = np.pi / 2
+t = np.linspace(0, 3, 40)
+g = -9.81
+v0 = 12
+z = g * t**2 / 2 + v0 * t
 
-scat = ax.scatter(np.sin(a * t[0] + delta), np.sin(b * t[0]), c="b", s=2)
-ax.set_xlim(-1.5, 1.5)
-ax.set_ylim(-1.5, 1.5)
+v02 = 5
+z2 = g * t**2 / 2 + v02 * t
+
+scat = ax.scatter(t[0], z[0], c="b", s=5, label=f'v0 = {v0} m/s')
+line2 = ax.plot(t[0], z2[0], label=f'v0 = {v02} m/s')[0]
+ax.set(xlim=[0, 3], ylim=[-4, 10], xlabel='Time [s]', ylabel='Z [m]')
+ax.legend()
 
 
 def update(frame):
-    # .set_offsets replaces the offset data for the entire collection with
-    # the new values. Therefore, to also carry forward the previously
-    # calculated information, we use the data from the first to the current
-    # frame to set the new offsets.
-    x = np.sin(a * t[:frame] + delta)
-    y = np.sin(b * t[:frame])
+    # for each step update the data.
+    x = t[:frame]
+    y = z[:frame]
+    # update the scatter plot:
     data = np.stack([x, y]).T
     scat.set_offsets(data)
-    return (scat,)
+    # update the line plot:
+    line2.set_xdata(t[:frame])
+    line2.set_ydata(z2[:frame])
+    return (scat, line2)
 
 
-ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=300)
+ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=30)
 plt.show()
 
 
