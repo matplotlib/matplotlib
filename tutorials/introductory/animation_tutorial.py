@@ -105,7 +105,7 @@ ax.legend()
 
 
 def update(frame):
-    # for each step update the data.
+    # for each frame, update the data stored on each artist.
     x = t[:frame]
     y = z[:frame]
     # update the scatter plot:
