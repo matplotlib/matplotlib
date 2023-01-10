@@ -579,3 +579,23 @@ def test_removal():
     fig.canvas.draw()
     col.remove()
     fig.canvas.draw()
+
+
+@image_comparison(['anchored_locator_base_call.png'], style="mpl20")
+def test_anchored_locator_base_call():
+    fig = plt.figure(figsize=(3, 3))
+    fig1, fig2 = fig.subfigures(nrows=2, ncols=1)
+
+    ax = fig1.subplots()
+    ax.set(aspect=1, xlim=(-15, 15), ylim=(-20, 5))
+    ax.set(xticks=[], yticks=[])
+
+    Z = cbook.get_sample_data(
+        "axes_grid/bivariate_normal.npy", np_load=True
+    )
+    extent = (-3, 4, -4, 3)
+
+    axins = zoomed_inset_axes(ax, zoom=2, loc="upper left")
+    axins.set(xticks=[], yticks=[])
+
+    axins.imshow(Z, extent=extent, origin="lower")
