@@ -884,16 +884,13 @@ class Axes3D(Axes):
         # Look into the middle of the world coordinates:
         R = 0.5 * box_aspect
 
-        # elev stores the elevation angle in the z plane
-        # azim stores the azimuth angle in the x,y plane
-        elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
-        azim_rad = np.deg2rad(art3d._norm_angle(self.azim))
-
+        # elev: elevation angle in the z plane.
+        # azim: azimuth angle in the xy plane.
         # Coordinates for a point that rotates around the box of data.
-        # p0, p1 corresponds to rotating the box only around the
-        # vertical axis.
-        # p2 corresponds to rotating the box only around the horizontal
-        # axis.
+        # p0, p1 corresponds to rotating the box only around the vertical axis.
+        # p2 corresponds to rotating the box only around the horizontal axis.
+        elev_rad = np.deg2rad(self.elev)
+        azim_rad = np.deg2rad(self.azim)
         p0 = np.cos(elev_rad) * np.cos(azim_rad)
         p1 = np.cos(elev_rad) * np.sin(azim_rad)
         p2 = np.sin(elev_rad)
