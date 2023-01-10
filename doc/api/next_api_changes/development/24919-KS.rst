@@ -1,0 +1,4 @@
+Support for Python 3.8 dropped
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Matplotlib 3.8, the minimum supported version of Python is 3.9.
