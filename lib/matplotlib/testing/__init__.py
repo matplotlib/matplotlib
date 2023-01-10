@@ -52,12 +52,12 @@ def setup():
 
 def subprocess_run_for_testing(
         command: "list[str]",
-        env: "dict[str, str]",
+        env: "dict[str, str]" = None,
         timeout: float = None,
         stdout=None,
         stderr=None,
         check=False,
-        universal_newlines=True,
+        text=True,
         capture_output=False
 ) -> "subprocess.Popen":
     """
@@ -72,7 +72,11 @@ def subprocess_run_for_testing(
     timeout : float
     stdout, stderr
     check : bool
-    universal_newlines : bool
+    text : bool
+        Also called `universal_newlines` in subprocess.  I chose this
+        name since the main effect is returning bytes (False) vs. str
+        (True), though it also tries to normalize newlines across
+        platforms.
     capture_output : bool
         Set stdout and stderr to subprocess.PIPE
 
@@ -96,7 +100,7 @@ def subprocess_run_for_testing(
             command, env=env,
             timeout=timeout, check=check,
             stdout=stdout, stderr=stderr,
-            universal_newlines=universal_newlines
+            text=text
         )
     except BlockingIOError:
         if sys.platform == "cygwin":
@@ -124,15 +128,18 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
     target = func.__name__
     module = func.__module__
     proc = subprocess_run_for_testing(
-        [sys.executable,
-         "-c",
-         f"from {module} import {target}; {target}()",
-         *args],
+        [
+            sys.executable,
+            "-c",
+            f"from {module} import {target}; {target}()",
+            *args
+        ],
         env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
         timeout=timeout, check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True)
+        text=True
+    )
     return proc
 
 

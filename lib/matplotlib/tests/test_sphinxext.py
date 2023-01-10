@@ -20,7 +20,7 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
     proc = subprocess_run_for_testing(
-        cmd, capture_output=True, universal_newlines=True,
+        cmd, capture_output=True, text=True,
         env={**os.environ, "MPLBACKEND": ""})
     out = proc.stdout
     err = proc.stderr
@@ -47,7 +47,7 @@ def test_tinypages(tmp_path):
     # same name in multiple extension modules -- but we don't care about their
     # coverage anyways); hide them using GCOV_ERROR_FILE.
     proc = subprocess_run_for_testing(
-        cmd, capture_output=True, universal_newlines=True,
+        cmd, capture_output=True, text=True,
         env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull}
     )
     out = proc.stdout
