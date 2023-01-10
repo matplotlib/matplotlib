@@ -9,7 +9,7 @@ mplsetup.cfg.template for more information.
 import sys
 
 py_min_version = (3, 9)  # minimal supported python version
-since_mpl_version = (3, 6)  # py_min_version is required since this mpl version
+since_mpl_version = (3, 8)  # py_min_version is required since this mpl version
 
 if sys.version_info < py_min_version:
     error = """
