@@ -65,8 +65,8 @@ def subprocess_run_for_testing(
 
     Thin wrapper around subprocess.run, intended for testing.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     args : list of str
     env : dict[str, str]
     timeout : float
