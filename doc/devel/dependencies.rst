@@ -15,7 +15,7 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.8)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.9)
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
@@ -180,7 +180,6 @@ Minimum pip / manylinux support (linux)
 Matplotlib publishes `manylinux wheels <https://github.com/pypa/manylinux>`_
 which have a minimum version of pip which will recognize the wheels
 
-- Python 3.8: ``manylinx2010`` / pip >= 19.0
 - Python 3.9+: ``manylinx2014`` / pip >= 19.3
 
 In all cases the required version of pip is embedded in the CPython source.
