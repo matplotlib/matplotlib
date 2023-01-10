@@ -20,14 +20,12 @@ is :func:`matplotlib.colors.Normalize`.
 Artists that map data to color pass the arguments *vmin* and *vmax* to
 construct a :func:`matplotlib.colors.Normalize` instance, then call it:
 
-.. ipython::
+.. code-block:: pycon
 
-   In [1]: import matplotlib as mpl
-
-   In [2]: norm = mpl.colors.Normalize(vmin=-1, vmax=1)
-
-   In [3]: norm(0)
-   Out[3]: 0.5
+   >>> import matplotlib as mpl
+   >>> norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+   >>> norm(0)
+   0.5
 
 However, there are sometimes cases where it is useful to map data to
 colormaps in a non-linear fashion.
@@ -192,15 +190,12 @@ plt.show()
 # lower out-of-bounds values to the range over which the colors are
 # distributed. For instance:
 #
-# .. ipython::
+# .. code-block:: pycon
 #
-#   In [2]: import matplotlib.colors as colors
-#
-#   In [3]: bounds = np.array([-0.25, -0.125, 0, 0.5, 1])
-#
-#   In [4]: norm = colors.BoundaryNorm(boundaries=bounds, ncolors=4)
-#
-#   In [5]: print(norm([-0.2, -0.15, -0.02, 0.3, 0.8, 0.99]))
+#   >>> import matplotlib.colors as colors
+#   >>> bounds = np.array([-0.25, -0.125, 0, 0.5, 1])
+#   >>> norm = colors.BoundaryNorm(boundaries=bounds, ncolors=4)
+#   >>> print(norm([-0.2, -0.15, -0.02, 0.3, 0.8, 0.99]))
 #   [0 0 1 2 3 3]
 #
 # Note: Unlike the other norms, this norm returns values from 0 to *ncolors*-1.
