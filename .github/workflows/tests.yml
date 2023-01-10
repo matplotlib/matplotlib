@@ -177,7 +177,7 @@ jobs:
 
           # Install optional dependencies from PyPI.
           # Sphinx is needed to run sphinxext tests
-          python -m pip install --upgrade sphinx
+          python -m pip install --upgrade sphinx!=6.1.2
 
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
