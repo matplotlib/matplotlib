@@ -40,7 +40,6 @@ sys.path.append(str(Path(__file__).resolve().parent))
 import setupext
 from setupext import print_raw, print_status
 
-
 # These are the packages in the order we want to display them.
 mpl_packages = [
     setupext.Matplotlib(),
@@ -51,7 +50,6 @@ mpl_packages = [
     setupext.Tests(),
     setupext.BackendMacOSX(),
     ]
-
 
 # From https://bugs.python.org/issue26689
 def has_flag(self, flagname):
@@ -67,7 +65,6 @@ def has_flag(self, flagname):
                 raise
             return False
     return True
-
 
 class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
     def finalize_options(self):
@@ -99,7 +96,6 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
             return env
         enable_lto = setupext.config.getboolean('libs', 'enable_lto',
                                                 fallback=None)
-
         def prepare_flags(name, enable_lto):
             """
             Prepare *FLAGS from the environment.
@@ -197,7 +193,6 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
         finally:
             self.build_temp = orig_build_temp
 
-
 def update_matplotlibrc(path):
     # If packagers want to change the default backend, insert a `#backend: ...`
     # line.  Otherwise, use the default `##backend: Agg` which has no effect
@@ -221,13 +216,11 @@ class BuildPy(setuptools.command.build_py.build_py):
             update_matplotlibrc(
                 Path(self.build_lib, "matplotlib/mpl-data/matplotlibrc"))
 
-
 class Sdist(setuptools.command.sdist.sdist):
     def make_release_tree(self, base_dir, files):
         super().make_release_tree(base_dir, files)
         update_matplotlibrc(
             Path(base_dir, "lib/matplotlib/mpl-data/matplotlibrc"))
-
 
 package_data = {}  # Will be filled below by the various components.
 
