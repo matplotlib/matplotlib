@@ -3,6 +3,7 @@
 Animated 3D random walk
 =======================
 
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np

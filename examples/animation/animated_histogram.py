@@ -45,6 +45,8 @@ def prepare_animation(bar_container):
 # ``prepare_animation`` will define ``animate`` function working with supplied
 # `.BarContainer`, all this is used to setup `.FuncAnimation`.
 
+# Output generated via `matplotlib.animation.Animation.to_jshtml`.
+
 fig, ax = plt.subplots()
 _, _, bar_container = ax.hist(data, HIST_BINS, lw=1,
                               ec="yellow", fc="green", alpha=0.5)

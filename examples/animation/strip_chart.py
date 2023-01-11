@@ -4,6 +4,8 @@ Oscilloscope
 ============
 
 Emulates an oscilloscope.
+
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np

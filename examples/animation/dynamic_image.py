@@ -3,6 +3,7 @@
 Animated image using a precomputed list of images
 =================================================
 
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np
