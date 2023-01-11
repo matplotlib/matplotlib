@@ -1407,12 +1407,9 @@ class _AxesBase(martist.Artist):
         """
         A sublist of Axes children based on their type.
 
-        The type-specific children sublists will become immutable in
-        Matplotlib 3.7. Then, these artist lists will likely be replaced by
-        tuples. Use as if this is a tuple already.
-
-        This class exists only for the transition period to warn on the
-        deprecated modification of artist lists.
+        The type-specific children sublists were made immutable in Matplotlib
+        3.7.  In the future these artist lists may be replaced by tuples. Use
+        as if this is a tuple already.
         """
         def __init__(self, axes, prop_name,
                      valid_types=None, invalid_types=None):
