@@ -8115,19 +8115,13 @@ def test_artist_sublists():
     with pytest.raises(IndexError, match='out of range'):
         ax.lines[len(lines) + 1]
 
-    # Deleting items (multiple or single) should warn.
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        del ax.lines[-1]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        del ax.lines[-1:]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        del ax.lines[1:]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        del ax.lines[0]
+    # Adding to other lists should produce a regular list.
+    assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
+    assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]
+
+    # Adding to other tuples should produce a regular tuples.
+    assert ax.lines + (1, 2, 3) == (*lines, 1, 2, 3)
+    assert (1, 2, 3) + ax.lines == (1, 2, 3, *lines)
 
     # Lists should be empty after removing items.
     col.remove()
@@ -8136,58 +8130,9 @@ def test_artist_sublists():
     assert not ax.images
     patch.remove()
     assert not ax.patches
+    assert not ax.tables
     text.remove()
     assert not ax.texts
-
-    # Everything else should remain empty.
-    assert not ax.lines
-    assert not ax.tables
-
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.texts property'):
-        ax.texts.append(text)
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.collections property'):
-        ax.collections.append(col)
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.images property'):
-        ax.images.append(im)
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.patches property'):
-        ax.patches.append(patch)
-    # verify things are back
-    assert list(ax.collections) == [col]
-    assert list(ax.images) == [im]
-    assert list(ax.patches) == [patch]
-    assert list(ax.texts) == [text]
-
-    # Adding items should warn.
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines.append(lines[-2])
-    assert list(ax.lines) == [lines[-2]]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines.append(lines[-1])
-    assert list(ax.lines) == lines[-2:]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines.insert(-2, lines[0])
-    assert list(ax.lines) == [lines[0], lines[-2], lines[-1]]
-
-    # Modifying items should warn.
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines[0] = lines[0]
-    assert list(ax.lines) == [lines[0], lines[-2], lines[-1]]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines[1:1] = lines[1:-2]
-    assert list(ax.lines) == lines
-
-    # Adding to other lists should produce a regular list.
-    assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
-    assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]
 
     for ln in ax.lines:
         ln.remove()

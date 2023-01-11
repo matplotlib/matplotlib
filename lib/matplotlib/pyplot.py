@@ -1070,17 +1070,6 @@ def axes(arg=None, **kwargs):
 
         %(Axes:kwdoc)s
 
-    Notes
-    -----
-    If the figure already has an Axes with key (*args*,
-    *kwargs*) then it will simply make that axes current and
-    return it.  This behavior is deprecated. Meanwhile, if you do
-    not want this behavior (i.e., you want to force the creation of a
-    new axes), you must use a unique set of args and kwargs.  The Axes
-    *label* attribute has been exposed for this purpose: if you want
-    two Axes that are otherwise identical to be added to the figure,
-    make sure you give them unique labels.
-
     See Also
     --------
     .Figure.add_axes
