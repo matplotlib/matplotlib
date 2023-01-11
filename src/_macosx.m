@@ -285,11 +285,7 @@ static void lazy_init(void) {
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-#ifndef PYPY
-    /* TODO: remove ifndef after the new PyPy with the PyOS_InputHook implementation
-    get released: https://bitbucket.org/pypy/pypy/commits/caaf91a */
     PyOS_InputHook = wait_for_stdin;
-#endif
 
     WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
     NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
