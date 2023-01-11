@@ -46,4 +46,4 @@ needs_pgf_xelatex = pytest.mark.skipif(
     reason='xelatex + pgf is required')
 needs_usetex = pytest.mark.skipif(
     not _checkdep_usetex(),
-    reason="This test needs a TeX installation")
+    reason="This test needs a TeX installation with dvipng and ghostscript")

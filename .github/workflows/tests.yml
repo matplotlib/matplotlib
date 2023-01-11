@@ -58,6 +58,7 @@ jobs:
             python-version: '3.11'
           - os: macos-latest
             python-version: 3.8
+            extra-requirements: '-r requirements/testing/extra.txt'
 
     steps:
       - uses: actions/checkout@v3
@@ -118,6 +119,8 @@ jobs:
             brew install ccache
             brew tap homebrew/cask-fonts
             brew install font-noto-sans-cjk
+            brew install --cask inkscape
+            brew install gtk+3 gobject-introspection
             ;;
           esac
 
@@ -185,43 +188,45 @@ jobs:
           # (sometimes, the install appears to be successful but shared
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
-          # PyGObject, pycairo, and cariocffi do not install on OSX 10.12.
-           python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
+          python -m pip install --upgrade pycairo 'cairocffi>=0.8' &&
+            echo 'Cairo is available' ||
+            echo 'Cairo is not available'
+
+          # PyGObject does not install on OSX 11.6.
+          python -m pip install --upgrade PyGObject &&
              python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
              echo 'PyGObject is available' ||
              echo 'PyGObject is not available'
 
-          # There are no functioning wheels available for OSX 10.12 (as of
-          # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
-          # pyside2 (the latest version (5.13.2) with 10.12 wheels has a
-          # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
           python -mpip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
             python -c 'import PyQt5.QtCore' &&
             echo 'PyQt5 is available' ||
             echo 'PyQt5 is not available'
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
-              python -c 'import PySide2.QtCore' &&
-              echo 'PySide2 is available' ||
-              echo 'PySide2 is not available'
-          fi
-          if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
-            python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
-              python -c 'import PyQt6.QtCore' &&
-              echo 'PyQt6 is available' ||
-              echo 'PyQt6 is not available'
-            python -mpip install --upgrade pyside6${{ matrix.pyside6-ver }} &&
-              python -c 'import PySide6.QtCore' &&
-              echo 'PySide6 is available' ||
-              echo 'PySide6 is not available'
-          fi
+          python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
+            python -c 'import PyQt6.QtCore' &&
+            echo 'PyQt6 is available' ||
+            echo 'PyQt6 is not available'
+          python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
+            python -c 'import PySide2.QtCore' &&
+            echo 'PySide2 is available' ||
+            echo 'PySide2 is not available'
+          python -mpip install --upgrade pyside6${{ matrix.pyside6-ver }} &&
+            python -c 'import PySide6.QtCore' &&
+            echo 'PySide6 is available' ||
+            echo 'PySide6 is not available'
 
-          python -mpip install --upgrade \
-            -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
-            wxPython &&
-            python -c 'import wx' &&
-            echo 'wxPython is available' ||
-            echo 'wxPython is not available'
+          # No linux wheels in pypi, no working wheels for OSX
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+            python -mpip install --upgrade \
+              -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
+              wxPython &&
+              python -c 'import wx' &&
+              echo 'wxPython is available' ||
+              echo 'wxPython is not available'
+          fi
+          if [[ "${{ runner.os }}" == 'macOS' ]]; then
+               echo 'wxPython is not available'
+          fi
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
