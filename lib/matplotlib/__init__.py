@@ -1278,12 +1278,6 @@ def is_interactive():
     return rcParams['interactive']
 
 
-default_test_modules = [
-    'matplotlib.tests',
-    'mpl_toolkits.tests',
-]
-
-
 def _init_tests():
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
