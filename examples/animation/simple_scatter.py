@@ -3,7 +3,7 @@
 Animated scatter saved as GIF
 =============================
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 import numpy as np
 import matplotlib.pyplot as plt

@@ -8,7 +8,7 @@ This animation illustrates the double pendulum problem.
 Double pendulum formula translated from the C code at
 http://www.physics.usyd.edu.au/~wheat/dpend_html/solve_dpend.c
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 from numpy import sin, cos
