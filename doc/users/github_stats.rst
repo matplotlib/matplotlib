@@ -1,154 +1,168 @@
 .. _github-stats:
 
-GitHub statistics for 3.6.2 (Nov 02, 2022)
+GitHub statistics for 3.6.3 (Jan 11, 2023)
 ==========================================
 
-GitHub statistics for 2022/10/08 (tag: v3.6.1) - 2022/11/02
+GitHub statistics for 2022/11/02 (tag: v3.6.2) - 2023/01/11
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 21 issues and merged 86 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/75?closed=1>`__
+We closed 16 issues and merged 107 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/76?closed=1>`__
 
-The following 22 authors contributed 27 commits.
+The following 20 authors contributed 198 commits.
 
 * Antony Lee
-* Carsten Schnober
-* dependabot[bot]
+* Chahak Mehta
+* David Stansby
 * Elliott Sales de Andrade
+* Eric Larson
 * hannah
-* j1642
-* Jaco Verster
-* jacoverster
-* Jae-Joon Lee
-* Jeffrey Aaron Paul
-* jeffreypaul15
+* iofall
 * Jody Klymak
-* Kostya Farber
+* Kaidong Hu
 * Kyle Sunden
-* Martok
+* matt statham
+* Matthias Bussonnier
 * Muhammad Abdur Rakib
 * Oscar Gustafsson
-* Pavel Grunt
+* ramvikrams
 * Ruth Comer
+* Steffen Rehberg
 * Thomas A Caswell
-* Tiger Nie
 * Tim Hoffmann
+* yuanx749
 
 GitHub issues and pull requests:
 
-Pull Requests (86):
+Pull Requests (107):
 
-* :ghpull:`24341`: Backport PR #24301 on branch v3.6.x (Restore get_renderer function in deprecated tight_layout)
-* :ghpull:`24301`: Restore get_renderer function in deprecated tight_layout
-* :ghpull:`24337`: Backport PR #24238 on branch v3.6.x (Update example and docstring to encourage the use of functools.partial in FuncAnimation)
-* :ghpull:`24336`: Backport PR #24335 on branch v3.6.x (Fix missing word in ImageMagickWriter docstring.)
-* :ghpull:`20358`: Updates example and docstring to encourage the use of functools.partial in FuncAnimation
-* :ghpull:`24238`: Update example and docstring to encourage the use of functools.partial in FuncAnimation
-* :ghpull:`24335`: Fix missing word in ImageMagickWriter docstring.
-* :ghpull:`24330`: Backport PR #24282 on branch v3.6.x (Fix some minor docstring typos)
-* :ghpull:`24323`: Backport PR #24320 on branch v3.6.x (DOC: add warning note to imsave)
-* :ghpull:`24282`: Fix some minor docstring typos
-* :ghpull:`24327`: Backport PR #24310 on branch v3.6.x (show axes changing in animate decay example)
-* :ghpull:`24310`: show axes changing in animate decay example
-* :ghpull:`24324`: Backport PR #24259 on branch v3.6.x (Move empty hexbin fix to make_norm_from_scale.)
-* :ghpull:`24325`: Backport PR #24095 on branch v3.6.x (nb/webagg: Move mouse events to outer canvas div)
-* :ghpull:`24326`: Backport PR #24318 on branch v3.6.x (Bump pypa/cibuildwheel from 2.11.1 to 2.11.2)
-* :ghpull:`24318`: Bump pypa/cibuildwheel from 2.11.1 to 2.11.2
-* :ghpull:`24095`: nb/webagg: Move mouse events to outer canvas div
-* :ghpull:`24259`: Move empty hexbin fix to make_norm_from_scale.
-* :ghpull:`24320`: DOC: add warning note to imsave
-* :ghpull:`24297`: Backport PR #24294 on branch v3.6.x (Run test if fontconfig is present)
-* :ghpull:`24294`: Run test if fontconfig is present
-* :ghpull:`24286`: Backport PR #24284 on branch v3.6.x (Remove comment about cmap from voxels docstring)
-* :ghpull:`24284`: Remove comment about cmap from voxels docstring
-* :ghpull:`24280`: Backport PR #24145 on branch v3.6.x (Updated Angles on Bracket arrow styles example to make angles clear #23176)
-* :ghpull:`24145`: Updated Angles on Bracket arrow styles example to make angles clear #23176
-* :ghpull:`24270`: Backport PR #24265 on branch v3.6.x (Restore (and warn on) seaborn styles in style.library)
-* :ghpull:`24271`: Backport PR #24266 on branch v3.6.x (TST: Increase fp tolerance on more tests for new NumPy)
-* :ghpull:`24266`: TST: Increase fp tolerance on more tests for new NumPy
-* :ghpull:`24265`: Restore (and warn on) seaborn styles in style.library
-* :ghpull:`24267`: Backport PR #24261 on branch v3.6.x (Fix pie chart in demo_agg_filter.py)
-* :ghpull:`24261`: Fix pie chart in demo_agg_filter.py
-* :ghpull:`24258`: Backport PR #24108 on branch v3.6.x (Add 3D plots to plot_types doc page)
-* :ghpull:`24108`: Add 3D plots to plot_types doc page
-* :ghpull:`24255`: Backport PR #24250 on branch v3.6.x (Fix key reporting in pick events)
-* :ghpull:`24250`: Fix key reporting in pick events
-* :ghpull:`24237`: Backport PR #24197 on branch v3.6.x (Properly set and inherit backend_version.)
-* :ghpull:`24197`: Properly set and inherit backend_version.
-* :ghpull:`24234`: Backport PR #23607 on branch v3.6.x (DOC: document that appearance is part of our stable API)
-* :ghpull:`24233`: Backport PR #23985 on branch v3.6.x (Improve rubberband rendering in wx and tk)
-* :ghpull:`24232`: Backport PR #24096 on branch v3.6.x ([DOC]: Add simple animation scatter plot to the example documentation)
-* :ghpull:`24231`: Backport PR #24009 on branch v3.6.x (Fix evaluating colormaps on non-numpy arrays)
-* :ghpull:`24230`: Backport PR #24229 on branch v3.6.x (FIX: do not mutate dictionaries passed in by user)
-* :ghpull:`23607`: DOC: document that appearance is part of our stable API
-* :ghpull:`23985`: Improve rubberband rendering in wx and tk
-* :ghpull:`24096`: [DOC]: Add simple animation scatter plot to the example documentation
-* :ghpull:`24009`: Fix evaluating colormaps on non-numpy arrays
-* :ghpull:`24229`: FIX: do not mutate dictionaries passed in by user
-* :ghpull:`24223`: Backport PR #24184 on branch v3.6.x (Add tests for ToolManager)
-* :ghpull:`24219`: Backport PR #23995 on branch v3.6.x (DOC: Lowercase some parameter names)
-* :ghpull:`23995`: DOC: Lowercase some parameter names
-* :ghpull:`24184`: Add tests for ToolManager
-* :ghpull:`24211`: Backport PR #24202 on branch v3.6.x (Bump pypa/cibuildwheel from 2.10.2 to 2.11.1)
-* :ghpull:`24214`: Backport PR #24169 on branch v3.6.x ([DOC]: added parent link for ``FuncAnimation`` and ``ArtistAnimation``)
-* :ghpull:`24169`: [DOC]: add parent link for ``FuncAnimation`` and ``ArtistAnimation``
-* :ghpull:`24202`: Bump pypa/cibuildwheel from 2.10.2 to 2.11.1
-* :ghpull:`24206`: Backport PR #24081 on branch v3.6.x (TST: force test with shared test image to run in serial)
-* :ghpull:`24181`: Backport PR #24177 on branch v3.6.x (Don't simplify paths used for autoscaling)
-* :ghpull:`24200`: Backport PR #24193 on branch v3.6.x (DOC: Explain gridsize in hexbin())
-* :ghpull:`24201`: Backport PR #24194 on branch v3.6.x (DOC: Improve plot_directive documentation)
-* :ghpull:`24194`: DOC: Improve plot_directive documentation
-* :ghpull:`24193`: DOC: Explain gridsize in hexbin()
-* :ghpull:`24192`: Backport PR #24187 on branch v3.6.x (DOC: Fix toc structure in explain/interactive)
-* :ghpull:`24186`: Backport PR #24157 on branch v3.6.x (test only PR milestoning guidance)
-* :ghpull:`24187`: DOC: Fix toc structure in explain/interactive
-* :ghpull:`24190`: DOC: fix markup
-* :ghpull:`24157`: test only PR milestoning guidance
-* :ghpull:`24183`: Backport PR #24178 on branch v3.6.x (Fall back to Python-level Thread for GUI warning)
-* :ghpull:`24180`: Backport PR #24173 on branch v3.6.x (TST: convert nose-style tests)
-* :ghpull:`24178`: Fall back to Python-level Thread for GUI warning
-* :ghpull:`24177`: Don't simplify paths used for autoscaling
-* :ghpull:`24173`: TST: convert nose-style tests
-* :ghpull:`24174`: Backport PR #24171 on branch v3.6.x (Fix example where wrong variable was used)
-* :ghpull:`24176`: Backport PR #24167 on branch v3.6.x (FIX: turn off layout engine tightbbox)
-* :ghpull:`24167`: FIX: turn off layout engine tightbbox
-* :ghpull:`24171`: Fix example where wrong variable was used
-* :ghpull:`24172`: Backport PR #24158 on branch v3.6.x (Fix Qt with PySide6 6.4.0)
-* :ghpull:`24158`: Fix Qt with PySide6 6.4.0
-* :ghpull:`24165`: Backport PR #24164 on branch v3.6.x (Fix argument order in hist() docstring.)
-* :ghpull:`24164`: Fix argument order in hist() docstring.
-* :ghpull:`24151`: Backport PR #24149 on branch v3.6.x (FIX: handle input to ax.bar that is all nan)
-* :ghpull:`24149`: FIX: handle input to ax.bar that is all nan
-* :ghpull:`24146`: Backport PR #24137 on branch v3.6.x (Add note about blitting and zorder in animations)
-* :ghpull:`24137`: Add note about blitting and zorder in animations
-* :ghpull:`24134`: Backport PR #24130 on branch v3.6.x (DOC: align contour parameter doc with implementation)
-* :ghpull:`24130`: DOC: align contour parameter doc with implementation
-* :ghpull:`24081`: TST: force test with shared test image to run in serial
+* :ghpull:`24939`: Backport PR #23390 on branch v3.6.x (FIX: colorbar contour with log norm should default to log locator and formatter...)
+* :ghpull:`24936`: Backport PR #24927 on branch v3.6.x (DOC: Remove space after directive name, before double-colon)
+* :ghpull:`23390`: FIX: colorbar contour with log norm should default to log locator and formatter...
+* :ghpull:`24932`: Backport PR #24783 on branch v3.6.x (inset locator fix with tests added)
+* :ghpull:`24783`: inset locator fix with tests added
+* :ghpull:`24927`: DOC: Remove space after directive name, before double-colon
+* :ghpull:`24881`: Backport PR #24880 on branch v3.6.x (Minor cleanups to named colors example.)
+* :ghpull:`24876`: Backport PR #24873 on branch v3.6.x (Copy-edit fonts docs.)
+* :ghpull:`24857`: Backport PR #24856 on branch v3.6.x (fix typo)
+* :ghpull:`24852`: Backport PR #24843 on branch v3.6.x (Show that fill_between and span_where provide similar functionalities.)
+* :ghpull:`24808`: Backport PR #24807 on branch v3.6.x (Axes.stem docstring document orientation as literals)
+* :ghpull:`24807`: Axes.stem docstring document orientation as literals
+* :ghpull:`24791`: Backport PR #24785 on branch v3.6.x (Fix random generation of single floats)
+* :ghpull:`24777`: Backport PR #24772 on branch v3.6.x (Fix Left ventricle bullseye example)
+* :ghpull:`24775`: Backport PR #24774 on branch v3.6.x (DOC: fix strip_chart example with numpy 1.24)
+* :ghpull:`24765`: Backport PR #24764 on branch v3.6.x (DOC: ``subplot_mosaic`` tutorial - clarify ratios keywords used directly)
+* :ghpull:`24739`: Backport PR #24732 on branch v3.6.x (Use masked stack to preserve mask info)
+* :ghpull:`24738`: Backport PR #24735 on branch v3.6.x (Correct note about aspect)
+* :ghpull:`24732`: Use masked stack to preserve mask info
+* :ghpull:`24735`: Correct note about aspect
+* :ghpull:`24729`: Backport PR #24715 on branch v3.6.x (Add note that users do not instantiate Axes directly)
+* :ghpull:`24715`: Add note that users do not instantiate Axes directly
+* :ghpull:`24721`: Backport PR #24607 on branch v3.6.x (DOC: tweak wording on Figure.show warning)
+* :ghpull:`24607`: DOC: tweak wording on Figure.show warning
+* :ghpull:`24694`: Backport PR #24692 on branch v3.6.x (Avoid rgba8888->argb32 conversion if qt can do it for us.)
+* :ghpull:`24692`: Avoid rgba8888->argb32 conversion if qt can do it for us.
+* :ghpull:`24684`: Backport PR #24654: Don't manually invalidate cached lines in _update_transScale
+* :ghpull:`24687`: Backport PR #24003 on branch v3.6.x (Fix wording and links lifecycle tutorial)
+* :ghpull:`24685`: Backport PR #23974 on branch v3.6.x (Fix repeated word typos)
+* :ghpull:`24680`: Backport PR #24677 on branch v3.6.x (FIX: do not replace the Axes._children list object)
+* :ghpull:`24677`: FIX: do not replace the Axes._children list object
+* :ghpull:`24659`: Backport PR #24657 on branch v3.6.x (BUG: Fix bug with mutable input modification)
+* :ghpull:`24657`: BUG: Fix bug with mutable input modification
+* :ghpull:`24654`: Don't manually invalidate cached lines in _update_transScale.
+* :ghpull:`24650`: Backport PR #24645 on branch v3.6.x (Removed 'above' wording from Input hook integration docs (#24632))
+* :ghpull:`24647`: Backport PR #24643 on branch v3.6.x (DOC: annotation coords are not floats)
+* :ghpull:`24643`: DOC: annotation coords are not floats
+* :ghpull:`24625`: Backport PR #24606: FIX: do not use deprecated API in gtk4 backend
+* :ghpull:`24633`: Backport PR #24592 on branch v3.6.x (DOC: Don't try to link paths that are on a different drive)
+* :ghpull:`24592`: DOC: Don't try to link paths that are on a different drive
+* :ghpull:`24628`: Backport PR #24584 on branch v3.6.x (DOC: add "See Also: draw_idle" reference to pyplot.draw)
+* :ghpull:`24584`: DOC: add "See Also: draw_idle" reference to pyplot.draw
+* :ghpull:`24601`: Backport PR #24600 on branch v3.6.x (Fix: Gracefully fail the string validator for tuple inputs)
+* :ghpull:`24609`: Backport PR #24595 on branch v3.6.x (ci: Stop building wheels on AppVeyor)
+* :ghpull:`24616`: Backport PR #24397 on branch v3.6.x (Simplify appveyor to only use conda)
+* :ghpull:`24615`: Backport PR #24598 on branch v3.6.x (Check for errors/warnings on failed doc-builds)
+* :ghpull:`24606`: FIX: do not use deprecated API in gtk4 backend
+* :ghpull:`24612`: Backport PR #23868 on branch v3.6.x (Show errors and warnings in doc CI after build.)
+* :ghpull:`24595`: ci: Stop building wheels on AppVeyor
+* :ghpull:`24600`: Fix: Gracefully fail the string validator for tuple inputs
+* :ghpull:`24593`: Backport PR #24580 on branch v3.6.x (Update the polar transform information in doc #24499)
+* :ghpull:`24587`: Backport PR #24579: Add explicit permissions to GitHub Actions
+* :ghpull:`24579`: Add explicit permissions to GitHub Actions
+* :ghpull:`24561`: Backport PR #24540 on branch v3.6.x (DOC: add note about enabling c++11 support for old gcc)
+* :ghpull:`24559`: Backport PR #24299 on branch v3.6.x (Rework style sheet reference example to cycle props)
+* :ghpull:`24551`: Backport PR #24548 on branch v3.6.x (DOC: improved the doc for layout_engine.py)
+* :ghpull:`24548`: DOC: improved the doc for layout_engine.py
+* :ghpull:`24535`: Backport PR #24514 on branch v3.6.x (Fix potential issue in contour)
+* :ghpull:`24534`: Backport PR #24521 on branch v3.6.x (Doc: improve spelling and grammar)
+* :ghpull:`24533`: Backport PR #24517 on branch v3.6.x (DOC: improve grammar and consistency)
+* :ghpull:`24532`: Backport PR #24520 on branch v3.6.x (Doc: Fix grammar and spelling)
+* :ghpull:`24514`: Fix potential issue in contour
+* :ghpull:`24521`: Doc: improve spelling and grammar
+* :ghpull:`24517`: DOC: improve grammar and consistency
+* :ghpull:`24520`: Doc: Fix grammar and spelling
+* :ghpull:`24515`: Backport PR #24512 on branch v3.6.x (Tweak markup in toolkits tutorials.)
+* :ghpull:`24503`: Backport PR #24502 on branch v3.6.x (Remove link from demo_floating_axes title.)
+* :ghpull:`24505`: Backport PR #24482 on branch v3.6.x (Use relative frame path in HTMLWriter)
+* :ghpull:`24506`: Backport of PR#24488 (Update for pydata-sphinx-theme 0.12.0)
+* :ghpull:`24482`: Use relative frame path in HTMLWriter
+* :ghpull:`24496`: Backport PR #24495 on branch v3.6.x (Update adding of google analytics key for docs)
+* :ghpull:`24495`: Update adding of google analytics key for docs
+* :ghpull:`24488`: Update for pydata-sphinx-theme 0.12.0
+* :ghpull:`24485`: Backport PR #24481 on branch v3.6.x (Fix floating-point drift in oscilloscope example)
+* :ghpull:`24475`: DOC: Fix examples gallery layout issues
+* :ghpull:`24478`: Backport PR #24444 on branch v3.6.x (DOC: AnnotationBbox keyword descriptions)
+* :ghpull:`24444`: DOC: AnnotationBbox keyword descriptions
+* :ghpull:`24468`: Backport PR #24429 on branch v3.6.x (DOC: Clarify transparency in colors)
+* :ghpull:`24466`: Backport PR #24460 on branch v3.6.x (Define autoscale() based on autoscale_None().)
+* :ghpull:`24460`: Define autoscale() based on autoscale_None().
+* :ghpull:`24463`: Backport PR #24459 on branch v3.6.x (removed unused variable and fixed text in doc)
+* :ghpull:`24459`: removed unused variable and fixed text in doc
+* :ghpull:`24458`: Backport PR #24434 on branch v3.6.x (Fix pyplot.figlegend docstring)
+* :ghpull:`24434`: Fix pyplot.figlegend docstring
+* :ghpull:`24456`: Backport PR #24402 on branch v3.6.x (DOC: Fix title formats in backend api docs)
+* :ghpull:`24438`: Backport PR #24435 on branch v3.6.x (Minor improvements to LogLocator docstring)
+* :ghpull:`24435`: Minor improvements to LogLocator docstring
+* :ghpull:`24426`: Backport PR #24422 on branch v3.6.x (Make QT_API a link in the qt embedding example.)
+* :ghpull:`24411`: Backport PR #24407 on branch v3.6.x (Reword "Reordering is not commutative" phrase in tutorial.)
+* :ghpull:`24400`: Backport PR #24399 on branch v3.6.x (Fix docstring of Figure.subfigures.)
+* :ghpull:`24399`: Fix docstring of Figure.subfigures.
+* :ghpull:`24391`: Backport PR #24380 on branch v3.6.x (DOC: Remove the example "Pythonic Matplotlib")
+* :ghpull:`24384`: Backport PR #24377 on branch v3.6.x (DOC: Cleanup Spine placement example)
+* :ghpull:`24381`: Backport PR #24366 on branch v3.6.x (DOC: Improve Image Slices Viewer example)
+* :ghpull:`24382`: Backport PR #24378 on branch v3.6.x (DOC: Cleanup spines usage in examples)
+* :ghpull:`24378`: DOC: Cleanup spines usage in examples
+* :ghpull:`24366`: DOC: Improve Image Slices Viewer example
+* :ghpull:`24370`: Backport PR #24368 on branch v3.6.x (DOC: Install dev dependencies before building matplotlib)
+* :ghpull:`24368`: DOC: Install dev dependencies before building matplotlib
+* :ghpull:`24365`: Backport PR #24363 on branch v3.6.x (DOC: Fix syntax of suggestion)
+* :ghpull:`24358`: Backport PR #24354 on branch v3.6.x (DOC: clarify rc_context resets all rcParams changes)
+* :ghpull:`24354`: DOC: clarify rc_context resets all rcParams changes
+* :ghpull:`24353`: Backport PR #24343 on branch v3.6.x (Emit "axes not compatible with tight_layout" in a single place.)
+* :ghpull:`24343`: Emit "axes not compatible with tight_layout" in a single place.
+* :ghpull:`24346`: Backport PR #24344 on branch v3.6.x (Add test for colorbar extend alpha)
+* :ghpull:`24344`: Add test for colorbar extend alpha
+* :ghpull:`23974`: Fix repeated word typos
 
-Issues (21):
+Issues (16):
 
-* :ghissue:`20326`: FuncAnimation Named Arguments
-* :ghissue:`24332`: [Bug]: backend bug in matplotlib==3.6.1 with python3.11 and PySide6==6.4.0.1
-* :ghissue:`24296`: [Doc]:  Axes limits not updated in animate decay
-* :ghissue:`24089`: [Bug]: Resizing does not work in WebAgg backend in Safari
-* :ghissue:`3657`: matplotlib.pyplot.imsave colormaps some grayscale images before saving them
-* :ghissue:`24060`: [TST] Upcoming dependency test failures
-* :ghissue:`24264`: [Bug]: Setting matplotlib.pyplot.style.library['seaborn-colorblind'] result in key error on matplotlib v3.6.1
-* :ghissue:`23900`: [Doc]: Adding some 3D plots to plot gallery
-* :ghissue:`24199`: [Bug]: pick events do not forward mouseevent-key on Linux
-* :ghissue:`23969`: [ENH]: Make rubber band more visible
-* :ghissue:`23132`: [Bug]: call cmap object on torch.tensor will output first element all 0
-* :ghissue:`21349`: [Bug]: Hexbin gridsize interpreted differently for x and y
-* :ghissue:`22905`: [Doc]: Duplicated toc entries
-* :ghissue:`24094`: [Bug]: macOS: PyPy 3.8 (v7.3.9) threading get_native_id Broken
-* :ghissue:`24097`: [Bug]: ax.hist density not auto-scaled when using histtype='step'
-* :ghissue:`24148`: remove nose-style test classes
-* :ghissue:`24133`: [Bug]: Incorrect crop after constrained layout with equal aspect ratio and bbox_inches = tight
-* :ghissue:`24155`: [Bug]: TypeError: int() argument must be a string, a bytes-like object or a number, not 'KeyboardModifier'
-* :ghissue:`24127`: [Bug]: ax.bar raises for all-nan data on matplotlib 3.6.1
-* :ghissue:`2959`: artists zorder is ignored during animations
-* :ghissue:`24121`: [Doc]: Contour functions: auto-generated levels
+* :ghissue:`23389`: [Bug]: Colorbar with log scales wrong format
+* :ghissue:`24589`: [Bug]: inset_locator is broken when used with subfigures
+* :ghissue:`10160`: Low resolution (dpi problem) with Qt5 backend on new iMac Pro Retina
+* :ghissue:`24545`: [Bug]: ``matplotlib.pyplot.scatter`` does not respect mask rules with ``datetime``
+* :ghissue:`24639`: [Bug]: The Axes3D does not work as expected.
+* :ghissue:`22169`: [Doc]: figure.show works beyond what is documented
+* :ghissue:`23968`: [Bug]: Zoom rubber band lags in larger window
+* :ghissue:`24574`: [Bug]: Extension error (sphinx.ext.linkcode) while building docs
+* :ghissue:`24602`: ``close_event`` deprecated warning.
+* :ghissue:`24518`: [Doc]: ``layout_engine`` description
+* :ghissue:`23581`: [BUG]: frame paths relative to the html file when saving an animation to html
+* :ghissue:`23976`: [Doc]: Examples Gallery Layout changed to one or two columns
+* :ghissue:`24390`: [Doc]: alpha setting for annotation ``TextArea``
+* :ghissue:`24433`: [Doc]: figlegend examples call ``fig.figlegend`` instead of ``plt.figlegend`` or ``fig.legend``
+* :ghissue:`24360`: [ENH]: imshow support for multiple slice image volume
+* :ghissue:`24359`: [Bug]: Documentation not so clear that a C/C++-compiler is required to install from source
 
 
 Previous GitHub statistics
