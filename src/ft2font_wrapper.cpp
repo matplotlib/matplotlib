@@ -575,19 +575,9 @@ static PyObject *PyFT2Font_get_fontmap(PyFT2Font *self, PyObject *args, PyObject
 
     if (PyUnicode_Check(textobj)) {
         size = PyUnicode_GET_LENGTH(textobj);
-#if defined(PYPY_VERSION) && (PYPY_VERSION_NUM < 0x07040000)
-        // PyUnicode_ReadChar is available from PyPy 7.3.2, but wheels do not
-        // specify the micro-release version, so put the version bound at 7.4
-        // to prevent generating wheels unusable on PyPy 7.3.{0,1}.
-        Py_UNICODE *unistr = PyUnicode_AsUnicode(textobj);
-        for (size_t i = 0; i < size; ++i) {
-            codepoints.insert(unistr[i]);
-        }
-#else
         for (size_t i = 0; i < size; ++i) {
             codepoints.insert(PyUnicode_ReadChar(textobj, i));
         }
-#endif
     } else {
         PyErr_SetString(PyExc_TypeError, "string must be str");
         return NULL;
@@ -656,19 +646,9 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
     if (PyUnicode_Check(textobj)) {
         size = PyUnicode_GET_LENGTH(textobj);
         codepoints.resize(size);
-#if defined(PYPY_VERSION) && (PYPY_VERSION_NUM < 0x07040000)
-        // PyUnicode_ReadChar is available from PyPy 7.3.2, but wheels do not
-        // specify the micro-release version, so put the version bound at 7.4
-        // to prevent generating wheels unusable on PyPy 7.3.{0,1}.
-        Py_UNICODE *unistr = PyUnicode_AsUnicode(textobj);
-        for (size_t i = 0; i < size; ++i) {
-            codepoints[i] = unistr[i];
-        }
-#else
         for (size_t i = 0; i < size; ++i) {
             codepoints[i] = PyUnicode_ReadChar(textobj, i);
         }
-#endif
     } else {
         PyErr_SetString(PyExc_TypeError, "set_text requires str-input.");
         return NULL;
