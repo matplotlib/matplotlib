@@ -6,6 +6,7 @@
 #define MPLUTILS_H
 #define PY_SSIZE_T_CLEAN
 
+#include <Python.h>
 #include <stdint.h>
 
 #ifdef _POSIX_C_SOURCE
@@ -27,7 +28,6 @@
 #endif
 #endif
 
-#include <Python.h>
 
 inline double mpl_round(double v)
 {
