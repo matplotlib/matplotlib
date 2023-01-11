@@ -298,7 +298,8 @@ class Axes(_AxesBase):
         frame: bool = ...,
         rotatelabels: bool = ...,
         *,
-        normalize: bool = ...
+        normalize: bool = ...,
+        hatch: str | Sequence[str] | None = ...
     ): ...
     def errorbar(
         self,
