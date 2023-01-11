@@ -6,7 +6,7 @@ Paths are relative to the conf.py file.
 from sphinx_gallery.sorting import ExplicitOrder
 
 # Gallery sections shall be displayed in the following order.
-# Non-matching sections are appended.
+# Non-matching sections are inserted at UNSORTED
 explicit_order_folders = [
                           '../examples/lines_bars_and_markers',
                           '../examples/images_contours_and_fields',
@@ -29,6 +29,9 @@ explicit_order_folders = [
                           '../plot_types/stats',
                           '../plot_types/unstructured',
                           '../plot_types/3D',
+                          'UNSORTED',
+                          '../examples/userdemo',
+                          '../tutorials/provisional',
                           ]
 
 
@@ -37,11 +40,9 @@ class MplExplicitOrder(ExplicitOrder):
     def __call__(self, item):
         """Return a string determining the sort order."""
         if item in self.ordered_list:
-            return "{:04d}".format(self.ordered_list.index(item))
+            return f"{self.ordered_list.index(item):04d}"
         else:
-            # ensure not explicitly listed items come last.
-            return "zzz" + item
-
+            return f"{self.ordered_list.index('UNSORTED'):04d}{item}"
 
 # Subsection order:
 # Subsections are ordered by filename, unless they appear in the following
