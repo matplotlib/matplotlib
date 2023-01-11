@@ -53,11 +53,6 @@ class StrCategoryConverter(units.ConversionInterface):
         StrCategoryConverter._validate_unit(unit)
         # dtype = object preserves numerical pass throughs
         values = np.atleast_1d(np.array(value, dtype=object))
-        # pass through sequence of non binary numbers
-        with _api.suppress_matplotlib_deprecation_warning():
-            is_numlike = all(units.ConversionInterface.is_numlike(v)
-                             and not isinstance(v, (str, bytes))
-                             for v in values)
         # force an update so it also does type checking
         unit.update(values)
         return np.vectorize(unit._mapping.__getitem__, otypes=[float])(values)
