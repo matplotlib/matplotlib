@@ -1167,7 +1167,11 @@ class Colorbar:
         self._minorlocator = None
         self._formatter = None
         self._minorformatter = None
-        if (self.boundaries is not None or
+        if (isinstance(self.mappable, contour.ContourSet) and
+                isinstance(self.norm, colors.LogNorm)):
+            # if contours have lognorm, give them a log scale...
+            self._set_scale('log')
+        elif (self.boundaries is not None or
                 isinstance(self.norm, colors.BoundaryNorm)):
             if self.spacing == 'uniform':
                 funcs = (self._forward_boundaries, self._inverse_boundaries)
