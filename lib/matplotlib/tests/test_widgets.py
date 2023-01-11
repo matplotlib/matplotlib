@@ -24,10 +24,10 @@ def ax():
 
 
 @pytest.mark.parametrize('kwargs', [
-    (dict()),
-    (dict(useblit=True, button=1)),
-    (dict(minspanx=10, minspany=10, spancoords='pixels')),
-    (dict(props=dict(fill=True))),
+    dict(),
+    dict(useblit=True, button=1),
+    dict(minspanx=10, minspany=10, spancoords='pixels'),
+    dict(props=dict(fill=True)),
 ])
 def test_rectangle_selector(ax, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
