@@ -37,27 +37,24 @@ jobs:
         include:
           - name-suffix: "(Minimum Versions)"
             os: ubuntu-20.04
-            python-version: 3.8
+            python-version: 3.9
             extra-requirements: '-c requirements/testing/minver.txt'
-            pyqt5-ver: '==5.11.2 sip==5.0.0'  # oldest versions with a Py3.8 wheel.
+            pyqt5-ver: '==5.12.2 sip==5.0.0'  # oldest versions with a Py3.9 wheel.
             pyqt6-ver: '==6.1.0 PyQt6-Qt6==6.1.0'
-            pyside2-ver: '==5.14.0'  # oldest version with working Py3.8 wheel.
+            pyside2-ver: '==5.15.1'  # oldest version with working Py3.9 wheel.
             pyside6-ver: '==6.0.0'
             delete-font-cache: true
           - os: ubuntu-20.04
-            python-version: 3.8
-            extra-requirements: '-r requirements/testing/extra.txt'
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-          - os: ubuntu-20.04
             python-version: 3.9
             extra-requirements: '-r requirements/testing/extra.txt'
+            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
           - os: ubuntu-20.04
             python-version: '3.10'
             extra-requirements: '-r requirements/testing/extra.txt'
           - os: ubuntu-20.04
             python-version: '3.11'
           - os: macos-latest
-            python-version: 3.8
+            python-version: 3.9
 
     steps:
       - uses: actions/checkout@v3
