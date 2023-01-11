@@ -60,3 +60,5 @@ LassoSelector
 - The *lineprops* argument is removed, use *props* instead.
 - The ``onpress`` and ``onrelease`` methods are removed. They are straight
   aliases for ``press`` and ``release``.
+- The ``matplotlib.widgets.TextBox.DIST_FROM_LEFT`` attribute has been
+  removed.  It was marked as private in 3.5.
