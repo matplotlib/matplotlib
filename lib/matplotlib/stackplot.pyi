@@ -1,6 +1,6 @@
 from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
-from matplotlib._typing import Color
+from matplotlib.colors import Color
 
 from typing import Iterable, Literal
 from numpy.typing import ArrayLike

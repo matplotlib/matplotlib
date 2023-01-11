@@ -9,6 +9,7 @@ from matplotlib.backend_bases import RendererBase, MouseButton, MouseEvent
 from matplotlib.cbook import index_of
 from matplotlib.container import Container
 from matplotlib.collections import Collection
+from matplotlib.colors import Color
 from matplotlib.cm import ScalarMappable
 from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
@@ -28,7 +29,6 @@ from cycler import Cycler
 import numpy as np
 from numpy.typing import ArrayLike
 from typing import Any, Callable, Literal, Iterable, Iterator, Sequence, Type, overload
-from matplotlib._typing import Color
 
 class _axis_method_wrapper:
     attr_name: str

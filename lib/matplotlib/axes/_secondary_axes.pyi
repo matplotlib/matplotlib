@@ -1,8 +1,8 @@
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axis import Axis, Tick
 
+from matplotlib.colors import Color
 from matplotlib.transforms import Transform
-from matplotlib._typing import Color
 
 from typing import Literal, Callable, Iterable
 from numpy.typing import ArrayLike

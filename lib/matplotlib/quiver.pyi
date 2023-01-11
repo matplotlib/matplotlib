@@ -2,12 +2,12 @@ import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib import cbook
 from matplotlib.axes import Axes
+from matplotlib.colors import Color
 from matplotlib.figure import Figure
 from matplotlib.patches import CirclePolygon
 from matplotlib.text import Text
 from matplotlib.transforms import Transform, Bbox
 
-from matplotlib._typing import Color
 
 import numpy as np
 from numpy.typing import ArrayLike

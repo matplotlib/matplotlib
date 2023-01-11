@@ -12,7 +12,7 @@ from matplotlib.backend_bases import (
     NonGuiException,
     RendererBase,
 )
-from matplotlib.colors import Colormap, Normalize
+from matplotlib.colors import Color, Colormap, Normalize
 from matplotlib.colorbar import Colorbar
 from matplotlib.cm import ScalarMappable
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -35,8 +35,6 @@ from matplotlib.transforms import (
     TransformedBbox,
     Transform,
 )
-
-from matplotlib._typing import Color
 
 import numpy as np
 from numpy.typing import ArrayLike

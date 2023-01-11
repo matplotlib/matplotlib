@@ -3,7 +3,7 @@ import os
 from ._mathtext import RasterParse, VectorParse, get_unicode_index
 from matplotlib.font_manager import FontProperties
 from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
-from matplotlib._typing import Color
+from matplotlib.colors import Color
 
 from typing import Literal
 

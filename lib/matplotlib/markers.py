@@ -135,6 +135,7 @@ Examples showing the use of markers:
 import copy
 
 from collections.abc import Sized
+from typing import Union, Literal
 
 import numpy as np
 
@@ -921,3 +922,7 @@ class MarkerStyle:
             self._transform.rotate_deg(
                 {'top': 0, 'left': 90, 'bottom': 180, 'right': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180)
+
+
+MarkerType = Union[str, Path, MarkerStyle]
+FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]

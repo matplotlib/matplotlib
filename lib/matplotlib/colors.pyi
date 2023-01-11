@@ -3,11 +3,12 @@ from collections.abc import Mapping
 from matplotlib import cbook, scale
 import re
 
-from ._typing import Color
-from typing import Any, Callable, Sequence, Iterable, Iterator, Literal, Type, overload
+from typing import Any, Callable, Sequence, Iterable, Iterator, Literal, Type, Union, overload
 
 import numpy as np
 from numpy.typing import ArrayLike
+
+Color = Union[tuple[float, float, float], tuple[float, float, float, float], str]
 
 class _ColorMapping(dict[str, Color]):
     cache: dict[tuple[Color, float | None], tuple[float, float, float, float]]

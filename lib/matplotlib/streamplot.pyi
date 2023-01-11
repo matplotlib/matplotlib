@@ -1,9 +1,8 @@
 from matplotlib.axes import Axes
-from matplotlib.colors import Normalize, Colormap
+from matplotlib.colors import Color, Normalize, Colormap
 from matplotlib.collections import LineCollection, PatchCollection
 from matplotlib.patches import ArrowStyle
 from matplotlib.transforms import Transform
-from matplotlib._typing import Color
 
 from typing import Literal
 

@@ -4,6 +4,7 @@ from .artist import Artist, allow_rasterization
 from .axes import Axes
 from .backend_bases import MouseEvent, FigureCanvasBase
 from .cbook import STEP_LOOKUP_MAP, ls_mapper, ls_mapper_r
+from .colors import Color
 from .markers import (
     CARETDOWN,
     CARETDOWNBASE,
@@ -18,17 +19,11 @@ from .markers import (
     TICKRIGHT,
     TICKUP,
     MarkerStyle,
+    MarkerType,
+    FillStyleType,
 )
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath, Transform
-from ._typing import (
-    Color,
-    LineStyleType,
-    FillStyleType,
-    DrawStyleType,
-    MarkerType,
-    MarkEveryType,
-)
 
 from typing import Any, Literal, Sequence, Union, Callable, overload
 from numpy.typing import ArrayLike
@@ -158,4 +153,10 @@ class VertexSelector:
 lineStyles: dict[str, str]
 lineMarkers: dict[str | int, str]
 drawStyles: dict[str, str]
-fillStyles: tuple[str, ...]
+fillStyles: tuple[FillStyleType, ...]
+
+LineStyleType = Union[str, tuple[float, Sequence[float]]]
+DrawStyleType = Literal["default", "steps", "steps-pre", "steps-mid", "steps-post"]
+MarkEveryType = Union[
+    None, int, tuple[int, int], slice, list[int], float, tuple[float, float], list[bool]
+]

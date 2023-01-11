@@ -2,6 +2,7 @@ import matplotlib.artist as martist
 from matplotlib import cbook
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase
+from matplotlib.colors import Color
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from matplotlib.ticker import Locator, Formatter
@@ -9,7 +10,6 @@ from matplotlib.transforms import Transform, Bbox
 
 import datetime
 from typing import Any, Literal, Type, Iterable, Callable
-from matplotlib._typing import Color
 import numpy as np
 from numpy.typing import ArrayLike
 

@@ -8,7 +8,6 @@ from .lines import Line2D
 from .patches import Circle, Ellipse, Polygon, Rectangle
 from .text import Text
 from .transforms import Affine2D, TransformedPatchPath
-from ._typing import Color
 
 import PIL
 
@@ -41,15 +40,15 @@ class AxesWidget(Widget):
 
 class Button(AxesWidget):
     label: Text
-    color: Color
-    hovercolor: Color
+    color: colors.Color
+    hovercolor: colors.Color
     def __init__(
         self,
         ax: Axes,
         label: str,
         image: ArrayLike | PIL.Image.Image | None = ...,
-        color: Color = ...,
-        hovercolor: Color = ...,
+        color: colors.Color = ...,
+        hovercolor: colors.Color = ...,
         *,
         useblit: bool = ...
     ) -> None: ...
@@ -107,8 +106,8 @@ class Slider(SliderBase):
         valstep: float | ArrayLike | None = ...,
         orientation: Literal["horizontal", "vertical"] = ...,
         *,
-        initcolor: Color = ...,
-        track_color: Color = ...,
+        initcolor: colors.Color = ...,
+        track_color: colors.Color = ...,
         handle_style: dict[str, Any] | None = ...,
         **kwargs
     ) -> None: ...
@@ -135,7 +134,7 @@ class RangeSlider(SliderBase):
         dragging: bool = ...,
         valstep: float | ArrayLike | None = ...,
         orientation: Literal["horizontal", "vertical"] = ...,
-        track_color: Color = ...,
+        track_color: colors.Color = ...,
         handle_style: dict[str, Any] | None = ...,
         **kwargs
     ) -> None: ...
@@ -166,16 +165,16 @@ class TextBox(AxesWidget):
     text_disp: Text
     cursor_index: int
     cursor: LineCollection
-    color: Color
-    hovercolor: Color
+    color: colors.Color
+    hovercolor: colors.Color
     capturekeystrokes: bool
     def __init__(
         self,
         ax: Axes,
         label: str,
         initial: str = ...,
-        color: Color = ...,
-        hovercolor: Color = ...,
+        color: colors.Color = ...,
+        hovercolor: colors.Color = ...,
         label_pad: float = ...,
         textalignment: Literal["left", "center", "right"] = ...,
     ) -> None: ...
@@ -189,7 +188,7 @@ class TextBox(AxesWidget):
     def disconnect(self, cid: int) -> None: ...
 
 class RadioButtons(AxesWidget):
-    activecolor: Color
+    activecolor: colors.Color
     value_selected: str
     labels: list[Text]
     def __init__(
@@ -197,7 +196,7 @@ class RadioButtons(AxesWidget):
         ax: Axes,
         labels: Iterable[str],
         active: int = ...,
-        activecolor: Color = ...,
+        activecolor: colors.Color = ...,
     ) -> None: ...
     def set_active(self, index: int) -> None: ...
     def on_clicked(self, func: Callable[[str], Any]) -> int: ...

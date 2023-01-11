@@ -1,7 +1,7 @@
 from .backend_bases import RendererBase
 
-from matplotlib import cbook as cbook, dviread as dviread
-from matplotlib._typing import Color
+from matplotlib import cbook, dviread
+from matplotlib.colors import Color
 
 import numpy as np
 

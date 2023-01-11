@@ -1,10 +1,10 @@
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase
+from matplotlib.colors import Color
 from matplotlib.path import Path
 from matplotlib.patches import Patch
 from matplotlib.transforms import Transform
 
 from typing import Iterable, Sequence
-from matplotlib._typing import Color
 
 class AbstractPathEffect:
     def __init__(self, offset: tuple[float, float] = ...) -> None: ...

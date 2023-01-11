@@ -19,20 +19,14 @@ from matplotlib.axes import Axes
 from matplotlib.backend_managers import ToolManager
 from matplotlib.backend_tools import Cursors, ToolBase
 from matplotlib.colorbar import Colorbar
+from matplotlib.colors import Color
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
+from matplotlib.lines import LineStyleType
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
 from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Transform, TransformedPath, Bbox
-from matplotlib._typing import (
-    Color,
-    LineStyleType,
-    FillStyleType,
-    DrawStyleType,
-    MarkerType,
-    MarkEveryType,
-)
 
 from typing import Any, Callable, Literal, NamedTuple, Sequence, Type, TypeVar
 from numpy.typing import ArrayLike

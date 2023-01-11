@@ -92,7 +92,6 @@ if TYPE_CHECKING:
     from typing import (
         Any, Callable, Literal, Sequence, Iterable, Type, Generator
     )
-    from matplotlib._typing import Color, LineStyleType, MarkerType
 
     from matplotlib.axis import Tick
     from matplotlib.axes import SubplotBase
@@ -110,7 +109,7 @@ if TYPE_CHECKING:
         QuadMesh,
     )
     from matplotlib.colorbar import Colorbar
-    from matplotlib.colors import Colormap
+    from matplotlib.colors import Color, Colormap
     from matplotlib.container import (
         BarContainer,
         ErrorbarContainer,
@@ -118,6 +117,8 @@ if TYPE_CHECKING:
     )
     from matplotlib.figure import SubFigure
     from matplotlib.legend import Legend
+    from matplotlib.lines import LineStyleType
+    from matplotlib.markers import MarkerType
     from matplotlib.mlab import GaussianKDE
     from matplotlib.image import AxesImage
     from matplotlib.patches import FancyArrow, StepPatch

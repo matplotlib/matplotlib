@@ -11,6 +11,7 @@ from matplotlib.collections import (
     PolyCollection,
     RegularPolyCollection,
 )
+from matplotlib.colors import Color
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
@@ -35,7 +36,6 @@ from matplotlib.transforms import (
     Transform,
 )
 
-from matplotlib._typing import Color
 
 import pathlib
 from typing import Any, Literal, Iterable, Type, overload

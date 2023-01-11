@@ -1,20 +1,13 @@
 from . import artist, cbook, cm, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
-from .colors import Normalize, Colormap
+from .colors import Color, Normalize, Colormap
+from .lines import LineStyleType
 from .path import Path
 from .patches import Patch
 from .ticker import Locator, Formatter
 from .tri import Triangulation
 from ._enums import CapStyle, JoinStyle
-from ._typing import (
-    LineStyleType,
-    FillStyleType,
-    DrawStyleType,
-    MarkerType,
-    MarkEveryType,
-    Color,
-)
 
 import numpy as np
 from numpy.typing import ArrayLike

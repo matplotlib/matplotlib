@@ -4,7 +4,7 @@ from .path import Path
 from .transforms import Affine2D, IdentityTransform, Transform
 
 from numpy.typing import ArrayLike
-from typing import Literal
+from typing import Literal, Union
 
 TICKLEFT: int
 TICKRIGHT: int
@@ -22,12 +22,11 @@ CARETDOWNBASE: int
 class MarkerStyle:
     markers: dict[str | int, str]
     filled_markers: tuple[str, ...]
-    fillstyles: tuple[str, ...]
+    fillstyles: tuple[FillStyleType, ...]
     def __init__(
         self,
         marker: str | ArrayLike | Path | MarkerStyle | None = ...,
-        fillstyle: Literal["full", "left", "right", "bottom", "top", "none"]
-        | None = ...,
+        fillstyle: FillStyleType | None = ...,
         transform: Transform | None = ...,
         capstyle: CapStyle | None = ...,
         joinstyle: JoinStyle | None = ...,
@@ -36,7 +35,7 @@ class MarkerStyle:
     def is_filled(self) -> bool: ...
     def get_fillstyle(
         self,
-    ) -> Literal["full", "left", "right", "bottom", "top", "none"]: ...
+    ) -> FillStyleType: ...
     def get_joinstyle(self) -> JoinStyle: ...
     def get_capstyle(self) -> CapStyle: ...
     def get_marker(self) -> str | ArrayLike | Path | MarkerStyle | None: ...
@@ -51,3 +50,6 @@ class MarkerStyle:
         self, *, deg: float | None = ..., rad: float | None = ...
     ) -> MarkerStyle: ...
     def scaled(self, sx: float, sy: float | None = ...) -> MarkerStyle: ...
+
+MarkerType = Union[str, Path, MarkerStyle]
+FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]

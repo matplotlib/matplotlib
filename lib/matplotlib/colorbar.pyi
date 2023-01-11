@@ -4,8 +4,6 @@ from matplotlib.axes import Axes
 from matplotlib.patches import Patch
 from matplotlib.ticker import Locator, Formatter
 
-from matplotlib._typing import Color
-
 import numpy as np
 from numpy.typing import ArrayLike
 from typing import Any, Literal, Sequence, overload
@@ -80,7 +78,7 @@ class Colorbar:
     def add_lines(
         self,
         levels: ArrayLike,
-        colors: Color | Sequence[Color],
+        colors: colors.Color | Sequence[colors.Color],
         linewidths: float | ArrayLike,
         erase: bool = ...,
     ) -> None: ...

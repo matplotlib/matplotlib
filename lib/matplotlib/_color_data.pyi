@@ -1,4 +1,4 @@
-from ._typing import Color
+from .colors import Color
 
 BASE_COLORS: dict[str, Color]
 TABLEAU_COLORS: dict[str, Color]

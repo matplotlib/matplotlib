@@ -6,6 +6,7 @@ import copy
 
 from numbers import Integral, Number, Real
 import logging
+from typing import Literal, Sequence, Union
 
 import numpy as np
 
@@ -1606,3 +1607,18 @@ lineStyles = Line2D._lineStyles
 lineMarkers = MarkerStyle.markers
 drawStyles = Line2D.drawStyles
 fillStyles = MarkerStyle.fillstyles
+
+LineStyleType = Union[str, tuple[float, Sequence[float]]]
+DrawStyleType = Literal[
+    "default", "steps", "steps-pre", "steps-mid", "steps-post"
+]
+MarkEveryType = Union[
+    None,
+    int,
+    tuple[int, int],
+    slice,
+    list[int],
+    float,
+    tuple[float, float],
+    list[bool],
+]

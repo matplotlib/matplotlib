@@ -1,6 +1,7 @@
 from . import artist, cbook
 from .artist import Artist
 from .backend_bases import RendererBase
+from .colors import Color
 from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation
 from .path import Path
@@ -14,7 +15,6 @@ from .transforms import (
     IdentityTransform,
     Transform,
 )
-from ._typing import Color
 
 from typing import Any, Callable, Iterable, Literal
 

@@ -12,9 +12,10 @@ from .bezier import (
     split_bezier_intersecting_with_closedpath,
     split_path_inout,
 )
+from .colors import Color
+from .lines import LineStyleType
 from .path import Path
 from .transforms import Transform, Bbox
-from ._typing import Color, LineStyleType
 
 from typing import Any, Literal, Type, overload
 

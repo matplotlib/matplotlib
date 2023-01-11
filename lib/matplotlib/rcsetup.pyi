@@ -3,8 +3,8 @@ from matplotlib import cbook
 from matplotlib._enums import CapStyle, JoinStyle
 from matplotlib._fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.cbook import ls_mapper
-from matplotlib.colors import Colormap, is_color_like
-from matplotlib._typing import Color, LineStyleType, MarkEveryType
+from matplotlib.colors import Color, Colormap, is_color_like
+from matplotlib.lines import LineStyleType, MarkEveryType
 
 from cycler import Cycler
 

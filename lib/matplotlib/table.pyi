@@ -1,11 +1,11 @@
 from .artist import Artist, allow_rasterization
 from .axes import Axes
 from .backend_bases import RendererBase
+from .colors import Color
 from .patches import Rectangle
 from .path import Path
 from .text import Text
 from .transforms import Bbox
-from ._typing import Color
 
 from typing import Any, Literal, Sequence
 

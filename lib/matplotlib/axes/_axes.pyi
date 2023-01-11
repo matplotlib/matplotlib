@@ -12,13 +12,14 @@ from matplotlib.collections import (
     EventCollection,
     QuadMesh,
 )
-from matplotlib.colors import Colormap, Normalize
+from matplotlib.colors import Color, Colormap, Normalize
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
 from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
-from matplotlib.lines import Line2D
+from matplotlib.lines import Line2D, LineStyleType
+from matplotlib.markers import MarkerType
 from matplotlib.mlab import GaussianKDE
 from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
@@ -28,7 +29,6 @@ import matplotlib.tri as mtri
 import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
-from matplotlib._typing import Color, LineStyleType, MarkerType
 
 import datetime
 import PIL

@@ -3,13 +3,12 @@ from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import MouseButton
 from matplotlib.collections import Collection, PathCollection
-from matplotlib.colors import Colormap, Normalize
+from matplotlib.colors import Color, Colormap, Normalize
 from matplotlib.font_manager import FontProperties
 from matplotlib.text import Text
 from matplotlib.transforms import Transform
 from matplotlib.ticker import Locator, Formatter
 
-from matplotlib._typing import Color
 from numpy.typing import ArrayLike
 import numpy as np
 from typing import Any, Callable, Literal, Iterable, Sequence
