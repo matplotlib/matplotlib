@@ -200,7 +200,7 @@ def test_user_fonts_win32():
         pytest.xfail("This test should only run on CI (appveyor or azure) "
                      "as the developer's font directory should remain "
                      "unchanged.")
-
+    pytest.xfail("We need to update the registry for this test to work")
     font_test_file = 'mpltest.ttf'
 
     # Precondition: the test font should not be available
