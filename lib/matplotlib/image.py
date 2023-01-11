@@ -1552,7 +1552,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     RGB(A) images are passed through.  Single channel images will be
     colormapped according to *cmap* and *norm*.
 
-    .. note ::
+    .. note::
 
        If you want to save a single channel image as gray scale please use an
        image I/O library (such as pillow, tifffile, or imageio) directly.
