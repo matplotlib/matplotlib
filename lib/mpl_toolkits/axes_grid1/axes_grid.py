@@ -20,7 +20,6 @@ def _tick_only(ax, bottom_on, left_on):
 class CbarAxesBase:
     def __init__(self, *args, orientation, **kwargs):
         self.orientation = orientation
-        self._locator = None  # deprecated.
         super().__init__(*args, **kwargs)
 
     def colorbar(self, mappable, *, ticks=None, **kwargs):

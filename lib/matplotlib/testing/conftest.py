@@ -1,7 +1,7 @@
 import pytest
 import sys
 import matplotlib
-from matplotlib import _api, cbook
+from matplotlib import _api
 
 
 def pytest_configure(config):
@@ -13,8 +13,6 @@ def pytest_configure(config):
         ("markers", "flaky: (Provided by pytest-rerunfailures.)"),
         ("markers", "timeout: (Provided by pytest-timeout.)"),
         ("markers", "backend: Set alternate Matplotlib backend temporarily."),
-        ("markers",
-         "style: Set alternate Matplotlib style temporarily (deprecated)."),
         ("markers", "baseline_images: Compare output against references."),
         ("markers", "pytz: Tests that require pytz to be installed."),
         ("filterwarnings", "error"),
@@ -56,16 +54,6 @@ def mpl_test_settings(request):
                 if any(sys.modules.get(k) for k in ('PyQt4', 'PySide')):
                     pytest.skip('Qt4 binding already imported')
 
-        # Default of cleanup and image_comparison too.
-        style = ["classic", "_classic_test_patch"]
-        style_marker = request.node.get_closest_marker('style')
-        if style_marker is not None:
-            assert len(style_marker.args) == 1, \
-                "Marker 'style' must specify 1 style."
-            _api.warn_deprecated("3.5", name="style", obj_type="pytest marker",
-                                 alternative="@mpl.style.context(...)")
-            style, = style_marker.args
-
         matplotlib.testing.setup()
         with _api.suppress_matplotlib_deprecation_warning():
             if backend is not None:
@@ -82,34 +70,12 @@ def mpl_test_settings(request):
                                     .format(backend, exc))
                     else:
                         raise
-            matplotlib.style.use(style)
+            # Default of cleanup and image_comparison too.
+            matplotlib.style.use(["classic", "_classic_test_patch"])
         try:
             yield
         finally:
             matplotlib.use(prev_backend)
-
-
-@pytest.fixture
-@_api.deprecated("3.5", alternative="none")
-def mpl_image_comparison_parameters(request, extension):
-    # This fixture is applied automatically by the image_comparison decorator.
-    #
-    # The sole purpose of this fixture is to provide an indirect method of
-    # obtaining parameters *without* modifying the decorated function
-    # signature. In this way, the function signature can stay the same and
-    # pytest won't get confused.
-    # We annotate the decorated function with any parameters captured by this
-    # fixture so that they can be used by the wrapper in image_comparison.
-    baseline_images, = request.node.get_closest_marker('baseline_images').args
-    if baseline_images is None:
-        # Allow baseline image list to be produced on the fly based on current
-        # parametrization.
-        baseline_images = request.getfixturevalue('baseline_images')
-
-    func = request.function
-    with cbook._setattr_cm(func.__wrapped__,
-                           parameters=(baseline_images, extension)):
-        yield
 
 
 @pytest.fixture
