@@ -1,4 +1,3 @@
-from contextlib import nullcontext
 import functools
 from unittest import mock
 
@@ -24,22 +23,16 @@ def ax():
     return get_ax()
 
 
-@pytest.mark.parametrize('kwargs, warning_msg', [
-    (dict(), None),
-    (dict(drawtype='line', useblit=False),
-     "Support for drawtype='line' is deprecated"),
-    (dict(useblit=True, button=1), None),
-    (dict(drawtype='none', minspanx=10, minspany=10),
-     "Support for drawtype='none' is deprecated"),
-    (dict(minspanx=10, minspany=10, spancoords='pixels'), None),
-    (dict(props=dict(fill=True)), None),
+@pytest.mark.parametrize('kwargs', [
+    dict(),
+    dict(useblit=True, button=1),
+    dict(minspanx=10, minspany=10, spancoords='pixels'),
+    dict(props=dict(fill=True)),
 ])
-def test_rectangle_selector(ax, kwargs, warning_msg):
+def test_rectangle_selector(ax, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    with (pytest.warns(MatplotlibDeprecationWarning, match=warning_msg)
-            if warning_msg else nullcontext()):
-        tool = widgets.RectangleSelector(ax, onselect, **kwargs)
+    tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
 
