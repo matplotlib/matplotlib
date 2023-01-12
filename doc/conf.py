@@ -458,7 +458,7 @@ html_domain_index = False
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.
-html_use_opensearch = 'False'
+html_use_opensearch = 'https://matplotlib.org/stable'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Matplotlibdoc'
