@@ -5792,18 +5792,6 @@ default: :rc:`scatter.edgecolors`
         C = cbook.safe_masked_invalid(C)
         return X, Y, C, shading
 
-    def _pcolor_grid_deprecation_helper(self):
-        grid_active = any(axis._major_tick_kw["gridOn"]
-                          for axis in self._axis_map.values())
-        # explicit is-True check because get_axisbelow() can also be 'line'
-        grid_hidden_by_pcolor = self.get_axisbelow() is True
-        if grid_active and not grid_hidden_by_pcolor:
-            _api.warn_deprecated(
-                "3.5", message="Auto-removal of grids by pcolor() and "
-                "pcolormesh() is deprecated since %(since)s and will be "
-                "removed %(removal)s; please call grid(False) first.")
-        self.grid(False)
-
     @_preprocess_data()
     @_docstring.dedent_interpd
     def pcolor(self, *args, shading=None, alpha=None, norm=None, cmap=None,
@@ -6008,7 +5996,6 @@ default: :rc:`scatter.edgecolors`
         collection = mcoll.PolyCollection(
             verts, array=C, cmap=cmap, norm=norm, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
-        self._pcolor_grid_deprecation_helper()
 
         x = X.compressed()
         y = Y.compressed()
@@ -6242,7 +6229,6 @@ default: :rc:`scatter.edgecolors`
             coords, antialiased=antialiased, shading=shading,
             array=C, cmap=cmap, norm=norm, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
-        self._pcolor_grid_deprecation_helper()
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
 
