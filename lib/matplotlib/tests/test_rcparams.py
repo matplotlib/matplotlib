@@ -230,8 +230,6 @@ def generate_validator_testcases(valid):
                      ),
          'fail': ((set(), ValueError),
                   (1, ValueError),
-                  ((1, 2), _api.MatplotlibDeprecationWarning),
-                  (np.array([1, 2]), _api.MatplotlibDeprecationWarning),
                   )
          },
         {'validator': _listify_validator(validate_int, n=2),

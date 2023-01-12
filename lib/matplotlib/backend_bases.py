@@ -1969,7 +1969,7 @@ class FigureCanvasBase:
 
     @_api.deprecated("3.6", alternative=(
         "callbacks.process('enter_notify_event', LocationEvent(...))"))
-    def enter_notify_event(self, guiEvent=None, xy=None):
+    def enter_notify_event(self, guiEvent=None, *, xy):
         """
         Callback processing for the mouse cursor entering the canvas.
 
@@ -1983,18 +1983,7 @@ class FigureCanvasBase:
         xy : (float, float)
             The coordinate location of the pointer when the canvas is entered.
         """
-        if xy is not None:
-            x, y = xy
-            self._lastx, self._lasty = x, y
-        else:
-            x = None
-            y = None
-            _api.warn_deprecated(
-                '3.0', removal='3.5', name='enter_notify_event',
-                message='Since %(since)s, %(name)s expects a location but '
-                'your backend did not pass one. This will become an error '
-                '%(removal)s.')
-
+        self._lastx, self._lasty = x, y = xy
         event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
         self.callbacks.process('figure_enter_event', event)
 
