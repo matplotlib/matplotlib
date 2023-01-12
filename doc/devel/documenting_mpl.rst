@@ -71,6 +71,12 @@ Other useful invocations include
    # save time.
    make html-noplot
 
+   # Build the html documentation, but skip specific subdirectories.  If a gallery
+   # directory is skipped, the gallery images are not generated.  The first
+   # time this is run, it creates ``.mpl_skip_subdirs.yaml`` which can be edited
+   # to add or remove subdirectories
+   make html-skip-subdirs
+
    # Delete built files.  May help if you get errors about missing paths or
    # broken links.
    make clean
