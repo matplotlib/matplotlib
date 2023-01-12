@@ -36,7 +36,6 @@ exclude =
     doc/tutorials
     # External files.
     tools/gh_api.py
-    tools/github_stats.py
     .tox
     .eggs
 
