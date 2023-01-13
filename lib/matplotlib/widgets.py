@@ -1587,7 +1587,7 @@ class RadioButtons(AxesWidget):
         The label text of the currently selected button.
     """
 
-    def __init__(self, ax, labels, active=0, activecolor='blue', *,
+    def __init__(self, ax, labels, active=0, activecolor=None, *,
                  useblit=True, label_props=None, radio_props=None):
         """
         Add radio buttons to an `~.axes.Axes`.
@@ -1601,12 +1601,8 @@ class RadioButtons(AxesWidget):
         active : int
             The index of the initially selected button.
         activecolor : color
-            The color of the selected button.
-
-            .. note::
-                If a facecolor is supplied in *radio_props*, it will override
-                *activecolor*. This may be used to provide an active color per
-                button.
+            The color of the selected button. The default is ``'blue'`` if not
+            specified here or in *radio_props*.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :doc:`/tutorials/advanced/blitting` for details.
@@ -1623,6 +1619,21 @@ class RadioButtons(AxesWidget):
                 button.
         """
         super().__init__(ax)
+
+        _api.check_isinstance((dict, None), label_props=label_props,
+                              radio_props=radio_props)
+
+        radio_props = cbook.normalize_kwargs(radio_props,
+                                             collections.PathCollection)
+        if activecolor is not None:
+            if 'facecolor' in radio_props:
+                _api.warn_external(
+                    'Both the *activecolor* parameter and the *facecolor* '
+                    'key in the *radio_props* parameter has been specified. '
+                    '*activecolor* will be ignored.')
+        else:
+            activecolor = 'blue'  # Default.
+
         self.activecolor = activecolor
         self.value_selected = labels[active]
 
@@ -1635,9 +1646,6 @@ class RadioButtons(AxesWidget):
         self._useblit = useblit and self.canvas.supports_blit
         self._background = None
 
-        _api.check_isinstance((dict, None), label_props=label_props,
-                              radio_props=radio_props)
-
         label_props = _expand_text_props(label_props)
         self.labels = [
             ax.text(0.25, y, label, transform=ax.transAxes,
@@ -1648,7 +1656,7 @@ class RadioButtons(AxesWidget):
 
         radio_props = {
             's': text_size**2,
-            **cbook.normalize_kwargs(radio_props, collections.PathCollection),
+            **radio_props,
             'marker': 'o',
             'transform': ax.transAxes,
             'animated': self._useblit,

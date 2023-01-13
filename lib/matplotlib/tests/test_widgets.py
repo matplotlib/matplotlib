@@ -1051,6 +1051,15 @@ def test_radio_buttons_props(fig_test, fig_ref):
     cb.set_radio_props({**radio_props, 's': (24 / 2)**2})
 
 
+def test_radio_button_active_conflict(ax):
+    with pytest.warns(UserWarning,
+                      match=r'Both the \*activecolor\* parameter'):
+        rb = widgets.RadioButtons(ax, ['tea', 'coffee'], activecolor='red',
+                                  radio_props={'facecolor': 'green'})
+    # *radio_props*' facecolor wins over *activecolor*
+    assert mcolors.same_color(rb._buttons.get_facecolor(), ['green', 'none'])
+
+
 @check_figures_equal(extensions=["png"])
 def test_check_buttons(fig_test, fig_ref):
     widgets.CheckButtons(fig_test.subplots(), ["tea", "coffee"], [True, True])
