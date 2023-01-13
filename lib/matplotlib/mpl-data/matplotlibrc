@@ -237,7 +237,7 @@
 ##
 ## The font.variant property has two values: normal or small-caps.  For
 ## TrueType fonts, which are scalable fonts, small-caps is equivalent
-## to using a font size of 'smaller', or about 83%% of the current font
+## to using a font size of 'smaller', or about 83 % of the current font
 ## size.
 ##
 ## The font.weight property has effectively 13 values: normal, bold,
@@ -445,9 +445,9 @@
 ## These control the default format strings used in AutoDateFormatter.
 ## Any valid format datetime format string can be used (see the python
 ## `datetime` for details).  For example, by using:
-##     - '%%x' will use the locale date representation
-##     - '%%X' will use the locale time representation
-##     - '%%c' will use the full locale datetime representation
+##     - '%x' will use the locale date representation
+##     - '%X' will use the locale time representation
+##     - '%c' will use the full locale datetime representation
 ## These values map to the scales:
 ##     {'year': 365, 'month': 30, 'day': 1, 'hour': 1/24, 'minute': 1 / (24 * 60)}
 
