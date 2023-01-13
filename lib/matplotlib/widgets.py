@@ -1192,8 +1192,8 @@ class CheckButtons(AxesWidget):
                 l1.set_visible(current_status[i])
                 l2.set_visible(current_status[i])
                 self._lines.append((l1, l2))
-                self.ax.add_patch(l1)
-                self.ax.add_patch(l2)
+                self.ax.add_line(l1)
+                self.ax.add_line(l2)
         if not hasattr(self, "_rectangles"):
             with _api.suppress_matplotlib_deprecation_warning():
                 _ = self.rectangles
