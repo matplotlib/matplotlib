@@ -6,6 +6,7 @@ Nested pie charts
 The following examples show two ways to build a nested pie chart
 in Matplotlib. Such charts are often referred to as donut charts.
 
+See also the :doc:`/gallery/specialty_plots/leftventricle_bullseye` example.
 """
 
 import matplotlib.pyplot as plt
