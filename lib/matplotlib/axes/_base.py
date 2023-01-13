@@ -2203,20 +2203,6 @@ class _AxesBase(martist.Artist):
                                   mlines.Line2D, mpatches.Patch))
                    for a in self._children)
 
-    def _deprecate_noninstance(self, _name, _types, **kwargs):
-        """
-        For each *key, value* pair in *kwargs*, check that *value* is an
-        instance of one of *_types*; if not, raise an appropriate deprecation.
-        """
-        for key, value in kwargs.items():
-            if not isinstance(value, _types):
-                _api.warn_deprecated(
-                    '3.5', name=_name,
-                    message=f'Passing argument *{key}* of unexpected type '
-                    f'{type(value).__qualname__} to %(name)s which only '
-                    f'accepts {_types} is deprecated since %(since)s and will '
-                    'become an error %(removal)s.')
-
     def add_artist(self, a):
         """
         Add an `.Artist` to the Axes; return the artist.
@@ -2260,8 +2246,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Collection` to the Axes; return the collection.
         """
-        self._deprecate_noninstance('add_collection', mcoll.Collection,
-                                    collection=collection)
+        _api.check_isinstance(mcoll.Collection, collection=collection)
         label = collection.get_label()
         if not label:
             collection.set_label(f'_child{len(self._children)}')
@@ -2294,7 +2279,7 @@ class _AxesBase(martist.Artist):
         """
         Add an `.AxesImage` to the Axes; return the image.
         """
-        self._deprecate_noninstance('add_image', mimage.AxesImage, image=image)
+        _api.check_isinstance(mimage.AxesImage, image=image)
         self._set_artist_props(image)
         if not image.get_label():
             image.set_label(f'_child{len(self._children)}')
@@ -2311,7 +2296,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Line2D` to the Axes; return the line.
         """
-        self._deprecate_noninstance('add_line', mlines.Line2D, line=line)
+        _api.check_isinstance(mlines.Line2D, line=line)
         self._set_artist_props(line)
         if line.get_clip_path() is None:
             line.set_clip_path(self.patch)
@@ -2328,7 +2313,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Text` to the Axes; return the text.
         """
-        self._deprecate_noninstance('_add_text', mtext.Text, txt=txt)
+        _api.check_isinstance(mtext.Text, txt=txt)
         self._set_artist_props(txt)
         self._children.append(txt)
         txt._remove_method = self._children.remove
@@ -2387,7 +2372,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Patch` to the Axes; return the patch.
         """
-        self._deprecate_noninstance('add_patch', mpatches.Patch, p=p)
+        _api.check_isinstance(mpatches.Patch, p=p)
         self._set_artist_props(p)
         if p.get_clip_path() is None:
             p.set_clip_path(self.patch)
@@ -2440,7 +2425,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Table` to the Axes; return the table.
         """
-        self._deprecate_noninstance('add_table', mtable.Table, tab=tab)
+        _api.check_isinstance(mtable.Table, tab=tab)
         self._set_artist_props(tab)
         self._children.append(tab)
         tab.set_clip_path(self.patch)
