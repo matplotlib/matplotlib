@@ -101,8 +101,10 @@ def test_invalid_line_data():
         line.set_ydata(0)
 
 
-@image_comparison(['line_dashes'], remove_text=True)
+@image_comparison(['line_dashes'], remove_text=True, tol=0.002)
 def test_line_dashes():
+    # Tolerance introduced after reordering of floating-point operations
+    # Remove when regenerating the images
     fig, ax = plt.subplots()
 
     ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)

@@ -4921,8 +4921,11 @@ def test_lines_with_colors(fig_test, fig_ref, data):
                                         colors=expect_color, linewidth=5)
 
 
-@image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True)
+@image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True,
+                  tol=0.2)
 def test_step_linestyle():
+    # Tolerance caused by reordering of floating-point operations
+    # Remove when regenerating the images
     x = y = np.arange(10)
 
     # First illustrate basic pyplot interface, using defaults where possible.
