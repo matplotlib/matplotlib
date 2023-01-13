@@ -86,9 +86,8 @@ class Colorbar:
     def set_ticks(
         self,
         ticks: Sequence[float] | Locator,
-        update_ticks: bool = ...,
-        labels: Sequence[str] | None = ...,
         *,
+        labels: Sequence[str] | None = ...,
         minor: bool = ...,
         **kwargs
     ) -> None: ...
@@ -96,7 +95,6 @@ class Colorbar:
     def set_ticklabels(
         self,
         ticklabels: Sequence[str],
-        update_ticks: bool = ...,
         *,
         minor: bool = ...,
         **kwargs

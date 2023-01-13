@@ -23,7 +23,6 @@ __all__ = [
     "get_backend",
     "interactive",
     "is_interactive",
-    "default_test_modules",
     "colormaps",
     "color_sequences",
 ]
@@ -104,8 +103,6 @@ def use(backend: str, *, force: bool = ...) -> None: ...
 def get_backend() -> str: ...
 def interactive(b: bool) -> None: ...
 def is_interactive() -> bool: ...
-
-default_test_modules: list[str]
 
 def _preprocess_data(
     func: Callable | None = ...,
