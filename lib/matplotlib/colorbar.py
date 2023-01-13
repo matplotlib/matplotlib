@@ -875,9 +875,7 @@ class Colorbar:
         self._minorlocator = minorlocator
         _log.debug('locator: %r', locator)
 
-    @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticks(self, ticks, update_ticks=True, labels=None, *,
-                  minor=False, **kwargs):
+    def set_ticks(self, ticks, *, labels=None, minor=False, **kwargs):
         """
         Set tick locations.
 
@@ -916,9 +914,7 @@ class Colorbar:
         else:
             return self._long_axis().get_majorticklocs()
 
-    @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticklabels(self, ticklabels, update_ticks=True, *, minor=False,
-                       **kwargs):
+    def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         """
         [*Discouraged*] Set tick labels.
 

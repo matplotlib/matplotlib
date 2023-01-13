@@ -999,11 +999,13 @@ def test_check_radio_buttons_image():
     rax1 = plt.axes([0.05, 0.7, 0.15, 0.15])
     rax2 = plt.axes([0.05, 0.2, 0.15, 0.15])
     rb = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning,
+                      match='The circles attribute was deprecated'):
         rb.circles  # Trigger the old-style elliptic radiobuttons.
     cb = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                               (False, True, True))
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning,
+                      match='The rectangles attribute was deprecated'):
         cb.rectangles  # Trigger old-style Rectangle check boxes
 
 
@@ -1034,7 +1036,8 @@ def test_check_buttons_rectangles(fig_test, fig_ref):
     # Test should be removed once .rectangles is removed
     cb = widgets.CheckButtons(fig_test.subplots(), ["", ""],
                               [False, False])
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning,
+                      match='The rectangles attribute was deprecated'):
         cb.rectangles
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
     ys = [2/3, 1/3]
@@ -1056,7 +1059,8 @@ def test_check_buttons_rectangles(fig_test, fig_ref):
 def test_check_buttons_lines(fig_test, fig_ref):
     # Test should be removed once .lines is removed
     cb = widgets.CheckButtons(fig_test.subplots(), ["", ""], [True, True])
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning,
+                      match='The lines attribute was deprecated'):
         cb.lines
     for rectangle in cb._rectangles:
         rectangle.set_visible(False)
