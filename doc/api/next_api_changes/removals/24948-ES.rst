@@ -44,6 +44,17 @@ information; modification of the following sublists is no longer supported:
 To remove an Artist, use its `.Artist.remove` method. To add an Artist, use the
 corresponding ``Axes.add_*`` method.
 
+Passing incorrect types to ``Axes.add_*`` methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following ``Axes.add_*`` methods will now raise if passed an unexpected
+type. See their documentation for the types they expect.
+
+- `.Axes.add_collection`
+- `.Axes.add_image`
+- `.Axes.add_line`
+- `.Axes.add_patch`
+- `.Axes.add_table`
 
 
 ``ConversionInterface.convert`` no longer accepts unitless values

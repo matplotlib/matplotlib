@@ -1,0 +1,5 @@
+``Colorbar`` tick update parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *update_ticks* parameter of `.Colorbar.set_ticks` and
+`.Colorbar.set_ticklabels` was ignored since 3.5 and has been removed.
