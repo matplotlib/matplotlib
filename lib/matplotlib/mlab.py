@@ -45,9 +45,6 @@ Spectral functions
 
 `detrend_none`
     Return the original line.
-
-`stride_windows`
-    Get all windows in an array in a memory-efficient manner
 """
 
 import functools
