@@ -687,10 +687,10 @@ def xkcd(scale=1, length=100, randomness=2):
 
 ## Figures ##
 
-@_api.make_keyword_only("3.6", "facecolor")
 def figure(num=None,  # autoincrement if None, else integer from 1-N
            figsize=None,  # defaults to rc figure.figsize
            dpi=None,  # defaults to rc figure.dpi
+           *,
            facecolor=None,  # defaults to rc figure.facecolor
            edgecolor=None,  # defaults to rc figure.edgecolor
            frameon=True,
