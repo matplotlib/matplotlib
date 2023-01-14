@@ -129,9 +129,8 @@ class Text(Artist):
     def __repr__(self):
         return f"Text({self._x}, {self._y}, {self._text!r})"
 
-    @_api.make_keyword_only("3.6", name="color")
     def __init__(self,
-                 x=0, y=0, text='',
+                 x=0, y=0, text='', *,
                  color=None,           # defaults to rc params
                  verticalalignment='baseline',
                  horizontalalignment='left',
@@ -143,7 +142,6 @@ class Text(Artist):
                  usetex=None,          # defaults to rcParams['text.usetex']
                  wrap=False,
                  transform_rotates_text=False,
-                 *,
                  parse_math=None,    # defaults to rcParams['text.parse_math']
                  **kwargs
                  ):
