@@ -222,7 +222,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 self._offset_transform._as_mpl_transform(self.axes)
         return self._offset_transform
 
-    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
     def set_offset_transform(self, offset_transform):
         """
         Set the artist offset transform.
