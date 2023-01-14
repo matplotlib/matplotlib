@@ -901,8 +901,8 @@ class AxesImage(_ImageBase):
     **kwargs : `.Artist` properties
     """
 
-    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, ax,
+                 *,
                  cmap=None,
                  norm=None,
                  interpolation=None,
@@ -911,7 +911,6 @@ class AxesImage(_ImageBase):
                  filternorm=True,
                  filterrad=4.0,
                  resample=False,
-                 *,
                  interpolation_stage=None,
                  **kwargs
                  ):
@@ -1208,11 +1207,11 @@ class PcolorImage(AxesImage):
     and it is used by pcolorfast for the corresponding grid type.
     """
 
-    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, ax,
                  x=None,
                  y=None,
                  A=None,
+                 *,
                  cmap=None,
                  norm=None,
                  **kwargs
@@ -1360,8 +1359,8 @@ class FigureImage(_ImageBase):
 
     _interpolation = 'nearest'
 
-    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, fig,
+                 *,
                  cmap=None,
                  norm=None,
                  offsetx=0,
@@ -1419,8 +1418,8 @@ class FigureImage(_ImageBase):
 class BboxImage(_ImageBase):
     """The Image class whose size is determined by the given bbox."""
 
-    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, bbox,
+                 *,
                  cmap=None,
                  norm=None,
                  interpolation=None,
