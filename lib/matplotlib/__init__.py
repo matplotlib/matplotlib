@@ -462,26 +462,6 @@ def _get_executable_info(name):
         raise ValueError(f"Unknown executable: {name!r}")
 
 
-@_api.deprecated("3.6", alternative="a vendored copy of this function")
-def checkdep_usetex(s):
-    if not s:
-        return False
-    if not shutil.which("tex"):
-        _log.warning("usetex mode requires TeX.")
-        return False
-    try:
-        _get_executable_info("dvipng")
-    except ExecutableNotFoundError:
-        _log.warning("usetex mode requires dvipng.")
-        return False
-    try:
-        _get_executable_info("gs")
-    except ExecutableNotFoundError:
-        _log.warning("usetex mode requires ghostscript.")
-        return False
-    return True
-
-
 def _get_xdg_config_dir():
     """
     Return the XDG configuration directory, according to the XDG base
