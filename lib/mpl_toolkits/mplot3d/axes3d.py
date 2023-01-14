@@ -57,7 +57,6 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
 
-    dist = _api.deprecate_privatize_attribute("3.6")
     vvec = _api.deprecate_privatize_attribute("3.7")
     eye = _api.deprecate_privatize_attribute("3.7")
     sx = _api.deprecate_privatize_attribute("3.7")
@@ -676,9 +675,8 @@ class Axes3D(Axes):
         return minx, maxx, miny, maxy, minz, maxz
 
     # set_xlim, set_ylim are directly inherited from base Axes.
-    @_api.make_keyword_only("3.6", "emit")
-    def set_zlim(self, bottom=None, top=None, emit=True, auto=False,
-                 *, zmin=None, zmax=None):
+    def set_zlim(self, bottom=None, top=None, *, emit=True, auto=False,
+                 zmin=None, zmax=None):
         """
         Set 3D z limits.
 
