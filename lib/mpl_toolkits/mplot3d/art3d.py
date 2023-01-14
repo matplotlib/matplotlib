@@ -148,7 +148,7 @@ class Text3D(mtext.Text):
     @artist.allow_rasterization
     def draw(self, renderer):
         position3d = np.array((self._x, self._y, self._z))
-        proj = proj3d.proj_trans_points(
+        proj = proj3d._proj_trans_points(
             [position3d, position3d + self._dir_vec], self.axes.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
@@ -359,7 +359,7 @@ class Line3DCollection(LineCollection):
         """
         Project the points according to renderer matrix.
         """
-        xyslist = [proj3d.proj_trans_points(points, self.axes.M)
+        xyslist = [proj3d._proj_trans_points(points, self.axes.M)
                    for points in self._segments3d]
         segments_2d = [np.column_stack([xs, ys]) for xs, ys, zs in xyslist]
         LineCollection.set_segments(self, segments_2d)

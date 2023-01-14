@@ -367,7 +367,7 @@ class Axis(maxis.XAxis):
 
         # Project the edge points along the current position and
         # create the line:
-        pep = proj3d.proj_trans_points([edgep1, edgep2], self.axes.M)
+        pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
         pep = np.asarray(pep)
         self.line.set_data(pep[0], pep[1])
         self.line.draw(renderer)
