@@ -796,12 +796,9 @@ class _AxesBase(martist.Artist):
         """Return the `.GridSpec` associated with the subplot, or None."""
         return self._subplotspec.get_gridspec() if self._subplotspec else None
 
-    @_api.delete_parameter("3.6", "args")
-    @_api.delete_parameter("3.6", "kwargs")
-    def get_window_extent(self, renderer=None, *args, **kwargs):
+    def get_window_extent(self, renderer=None):
         """
-        Return the Axes bounding box in display space; *args* and *kwargs*
-        are empty.
+        Return the Axes bounding box in display space.
 
         This bounding box does not include the spines, ticks, ticklabels,
         or other labels.  For a bounding box including these elements use
