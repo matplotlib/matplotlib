@@ -176,10 +176,12 @@ commands:
              echo "No deprecation warnings in plot_types")
             (grep -rl DeprecationWarning doc/build/html/tutorials ||
              echo "No deprecation warnings in tutorials")
+            (grep -rl DeprecationWarning doc/build/html/users ||
+             echo "No deprecation warnings in users")
             # Save deprecations that are from this absolute directory, and
             # convert to repository-relative paths.
             (grep -Ero --no-filename "$PWD/.+DeprecationWarning.+$" \
-             doc/build/html/{gallery,plot_types,tutorials} || echo) | \
+             doc/build/html/{gallery,plot_types,tutorials,users} || echo) | \
               sed "s~$PWD/~~" > doc/logs/sphinx-deprecations.log
           when: always
       - store_artifacts:
