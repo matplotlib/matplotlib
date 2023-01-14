@@ -640,8 +640,7 @@ class Axis(martist.Artist):
         return "{}({},{})".format(
             type(self).__name__, *self.axes.transAxes.transform((0, 0)))
 
-    @_api.make_keyword_only("3.6", name="pickradius")
-    def __init__(self, axes, pickradius=15):
+    def __init__(self, axes, *, pickradius=15):
         """
         Parameters
         ----------

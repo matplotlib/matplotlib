@@ -404,7 +404,7 @@ class Line2D(Artist):
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
         self._internal_update(kwargs)
-        self._pickradius = pickradius
+        self.pickradius = pickradius
         self.ind_offset = 0
         if (isinstance(self._picker, Number) and
                 not isinstance(self._picker, bool)):
@@ -502,7 +502,6 @@ class Line2D(Artist):
         """
         return self._pickradius
 
-    @_api.rename_parameter("3.6", "d", "pickradius")
     def set_pickradius(self, pickradius):
         """
         Set the pick radius used for containment tests.
