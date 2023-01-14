@@ -3078,10 +3078,6 @@ class _AxesBase(martist.Artist):
                 stack.enter_context(artist._cm_set(visible=False))
             self.draw(self.figure.canvas.get_renderer())
 
-    @_api.deprecated("3.6", alternative="Axes.figure.canvas.get_renderer()")
-    def get_renderer_cache(self):
-        return self.figure.canvas.get_renderer()
-
     # Axes rectangle characteristics
 
     def get_frame_on(self):
