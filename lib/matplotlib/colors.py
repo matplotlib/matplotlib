@@ -706,30 +706,24 @@ class Colormap:
         if not self._isinit:
             self._init()
 
-        # Take the bad mask from a masked array, or in all other cases defer
-        # np.isnan() to after we have converted to an array.
-        mask_bad = X.mask if np.ma.is_masked(X) else None
         xa = np.array(X, copy=True)
-        if mask_bad is None:
-            mask_bad = np.isnan(xa)
         if not xa.dtype.isnative:
             xa = xa.byteswap().newbyteorder()  # Native byteorder is faster.
         if xa.dtype.kind == "f":
             xa *= self.N
-            # Negative values are out of range, but astype(int) would
-            # truncate them towards zero.
-            xa[xa < 0] = -1
             # xa == 1 (== N after multiplication) is not out of range.
             xa[xa == self.N] = self.N - 1
-            # Avoid converting large positive values to negative integers.
-            np.clip(xa, -1, self.N, out=xa)
+        # Pre-compute the masks before casting to int (which can truncate
+        # negative values to zero or wrap large floats to negative ints).
+        mask_under = xa < 0
+        mask_over = xa >= self.N
+        # If input was masked, get the bad mask from it; else mask out nans.
+        mask_bad = X.mask if np.ma.is_masked(X) else np.isnan(xa)
         with np.errstate(invalid="ignore"):
             # We need this cast for unsigned ints as well as floats
             xa = xa.astype(int)
-        # Set the over-range indices before the under-range;
-        # otherwise the under-range values get converted to over-range.
-        xa[xa > self.N - 1] = self._i_over
-        xa[xa < 0] = self._i_under
+        xa[mask_under] = self._i_under
+        xa[mask_over] = self._i_over
         xa[mask_bad] = self._i_bad
 
         lut = self._lut
@@ -747,13 +741,9 @@ class Colormap:
                     f"alpha is array-like but its shape {alpha.shape} does "
                     f"not match that of X {xa.shape}")
             rgba[..., -1] = alpha
-
             # If the "bad" color is all zeros, then ignore alpha input.
-            if (lut[-1] == 0).all() and np.any(mask_bad):
-                if np.iterable(mask_bad) and mask_bad.shape == xa.shape:
-                    rgba[mask_bad] = (0, 0, 0, 0)
-                else:
-                    rgba[..., :] = (0, 0, 0, 0)
+            if (lut[-1] == 0).all():
+                rgba[mask_bad] = (0, 0, 0, 0)
 
         if not np.iterable(X):
             rgba = tuple(rgba)
