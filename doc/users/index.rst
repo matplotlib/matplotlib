@@ -3,31 +3,21 @@
 .. redirect-from:: /contents
 
 
-###########
-Users guide
-###########
+######################
+Matplotlib Users guide
+######################
 
 General
 #######
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    getting_started/index.rst
    installing/index.rst
-   explain/index.rst
+   Using Matplotlib <explain/index.rst>
    faq/index.rst
    resources/index.rst
-
-Tutorials and examples
-######################
-
-.. toctree::
-   :maxdepth: 1
-
-   ../plot_types/index.rst
-   ../tutorials/index.rst
-   ../gallery/index.rst
 
 Reference
 #########
