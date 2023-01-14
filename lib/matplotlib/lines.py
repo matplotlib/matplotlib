@@ -282,8 +282,7 @@ class Line2D(Artist):
             return "Line2D(%s)" % ",".join(
                 map("({:g},{:g})".format, self._x, self._y))
 
-    @_api.make_keyword_only("3.6", name="linewidth")
-    def __init__(self, xdata, ydata,
+    def __init__(self, xdata, ydata, *,
                  linewidth=None,  # all Nones default to rc
                  linestyle=None,
                  color=None,
