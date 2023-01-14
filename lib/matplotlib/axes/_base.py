@@ -3565,9 +3565,8 @@ class _AxesBase(martist.Artist):
                 raise ValueError("Axis limits cannot be NaN or Inf")
             return converted_limit
 
-    @_api.make_keyword_only("3.6", "emit")
-    def set_xlim(self, left=None, right=None, emit=True, auto=False,
-                 *, xmin=None, xmax=None):
+    def set_xlim(self, left=None, right=None, *, emit=True, auto=False,
+                 xmin=None, xmax=None):
         """
         Set the x-axis view limits.
 
@@ -3797,9 +3796,8 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervaly)
 
-    @_api.make_keyword_only("3.6", "emit")
-    def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
-                 *, ymin=None, ymax=None):
+    def set_ylim(self, bottom=None, top=None, *, emit=True, auto=False,
+                 ymin=None, ymax=None):
         """
         Set the y-axis view limits.
 
