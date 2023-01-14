@@ -718,6 +718,21 @@ class Axis(martist.Artist):
     def isDefault_minfmt(self, value):
         self.minor._formatter_is_default = value
 
+    def _get_shared_axes(self):
+        """Return Grouper of shared axes for current axis."""
+        return self.axes._shared_axes[
+            self._get_axis_name()].get_siblings(self.axes)
+
+    def _get_shared_axis(self):
+        """Return list of shared axis for current axis."""
+        name = self._get_axis_name()
+        return [ax._axis_map[name] for ax in self._get_shared_axes()]
+
+    def _get_axis_name(self):
+        """Return the axis name."""
+        return [name for name, axis in self.axes._axis_map.items()
+                if axis is self][0]
+
     # During initialization, Axis objects often create ticks that are later
     # unused; this turns out to be a very slow step.  Instead, use a custom
     # descriptor to make the tick lists lazy and instantiate them as needed.
@@ -801,12 +816,10 @@ class Axis(martist.Artist):
         `matplotlib.scale.register_scale`. These scales can then also
         be used here.
         """
-        name, = [name for name, axis in self.axes._axis_map.items()
-                 if axis is self]  # The axis name.
+        name = self._get_axis_name()
         old_default_lims = (self.get_major_locator()
                             .nonsingular(-np.inf, np.inf))
-        g = self.axes._shared_axes[name]
-        for ax in g.get_siblings(self.axes):
+        for ax in self._get_shared_axes():
             ax._axis_map[name]._set_scale(value, **kwargs)
             ax._update_transScale()
             ax.stale = True
@@ -1172,8 +1185,7 @@ class Axis(martist.Artist):
             Whether to turn on autoscaling of the x-axis. True turns on, False
             turns off, None leaves unchanged.
         """
-        name, = [name for name, axis in self.axes._axis_map.items()
-                 if axis is self]  # The axis name.
+        name = self._get_axis_name()
 
         self.axes._process_unit_info([(name, (v0, v1))], convert=False)
         v0 = self.axes._validate_converted_limits(v0, self.convert_units)
@@ -1211,7 +1223,7 @@ class Axis(martist.Artist):
 
         self.set_view_interval(v0, v1, ignore=True)
         # Mark viewlims as no longer stale without triggering an autoscale.
-        for ax in self.axes._shared_axes[name].get_siblings(self.axes):
+        for ax in self._get_shared_axes():
             ax._stale_viewlims[name] = False
         if auto is not None:
             self._set_autoscale_on(bool(auto))
@@ -1219,7 +1231,7 @@ class Axis(martist.Artist):
         if emit:
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
             # Call all of the other axes that are shared with this one
-            for other in self.axes._shared_axes[name].get_siblings(self.axes):
+            for other in self._get_shared_axes():
                 if other is not self.axes:
                     other._axis_map[name]._set_lim(
                         v0, v1, emit=False, auto=auto)
@@ -1753,16 +1765,7 @@ class Axis(martist.Artist):
         """
         if u == self.units:
             return
-        for name, axis in self.axes._axis_map.items():
-            if self is axis:
-                shared = [
-                    getattr(ax, f"{name}axis")
-                    for ax
-                    in self.axes._shared_axes[name].get_siblings(self.axes)]
-                break
-        else:
-            shared = [self]
-        for axis in shared:
+        for axis in self._get_shared_axis():
             axis.units = u
             axis._update_axisinfo()
             axis.callbacks.process('units')
@@ -2017,17 +2020,8 @@ class Axis(martist.Artist):
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
         locator = mticker.FixedLocator(ticks)  # validate ticks early.
-        for name, axis in self.axes._axis_map.items():
-            if self is axis:
-                shared = [
-                    getattr(ax, f"{name}axis")
-                    for ax
-                    in self.axes._shared_axes[name].get_siblings(self.axes)]
-                break
-        else:
-            shared = [self]
         if len(ticks):
-            for axis in shared:
+            for axis in self._get_shared_axis():
                 # set_view_interval maintains any preexisting inversion.
                 axis.set_view_interval(min(ticks), max(ticks))
         self.axes.stale = True
@@ -2088,18 +2082,15 @@ class Axis(martist.Artist):
         By default, it just gets bboxes for *self*.
         """
         # Get the Grouper keeping track of x or y label groups for this figure.
-        axis_names = [
-            name for name, axis in self.axes._axis_map.items()
-            if name in self.figure._align_label_groups and axis is self]
-        if len(axis_names) != 1:
+        name = self._get_axis_name()
+        if name not in self.figure._align_label_groups:
             return [], []
-        axis_name, = axis_names
-        grouper = self.figure._align_label_groups[axis_name]
+        grouper = self.figure._align_label_groups[name]
         bboxes = []
         bboxes2 = []
         # If we want to align labels from other Axes:
         for ax in grouper.get_siblings(self.axes):
-            axis = getattr(ax, f"{axis_name}axis")
+            axis = ax._axis_map[name]
             ticks_to_draw = axis._update_ticks()
             tlb, tlb2 = axis._get_ticklabel_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
