@@ -219,13 +219,6 @@ class Axes3D(Axes):
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
 
-    w_xaxis = _api.deprecated("3.1", alternative="xaxis", removal="3.8")(
-        property(lambda self: self.xaxis))
-    w_yaxis = _api.deprecated("3.1", alternative="yaxis", removal="3.8")(
-        property(lambda self: self.yaxis))
-    w_zaxis = _api.deprecated("3.1", alternative="zaxis", removal="3.8")(
-        property(lambda self: self.zaxis))
-
     @_api.deprecated("3.7")
     def unit_cube(self, vals=None):
         return self._unit_cube(vals)
