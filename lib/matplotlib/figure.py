@@ -922,7 +922,7 @@ default: %(va)s
         for name in ax._axis_names:
             last_ax = _break_share_link(ax, ax._shared_axes[name])
             if last_ax is not None:
-                _reset_locators_and_formatters(getattr(last_ax, f"{name}axis"))
+                _reset_locators_and_formatters(last_ax._axis_map[name])
 
         # Break link between any twinned axes
         _break_share_link(ax, ax._twinned_axes)

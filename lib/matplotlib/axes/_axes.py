@@ -3670,7 +3670,7 @@ class Axes(_AxesBase):
                     continue
                 hlmarker = (
                     himarker
-                    if getattr(self, f"{dep_axis}axis").get_inverted() ^ idx
+                    if self._axis_map[dep_axis].get_inverted() ^ idx
                     else lomarker)
                 x_masked, y_masked, hl_masked = apply_mask(
                     [x, y, hl], lims & everymask)
@@ -4275,7 +4275,7 @@ class Axes(_AxesBase):
         if manage_ticks:
             axis_name = "x" if vert else "y"
             interval = getattr(self.dataLim, f"interval{axis_name}")
-            axis = getattr(self, f"{axis_name}axis")
+            axis = self._axis_map[axis_name]
             positions = axis.convert_units(positions)
             # The 0.5 additional padding ensures reasonable-looking boxes
             # even when drawing a single box.  We set the sticky edge to
