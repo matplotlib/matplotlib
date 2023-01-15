@@ -15,15 +15,15 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.8)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.9)
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
-* `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.1)
+* `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
 * `NumPy <https://numpy.org>`_ (>= 1.20)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
@@ -180,7 +180,6 @@ Minimum pip / manylinux support (linux)
 Matplotlib publishes `manylinux wheels <https://github.com/pypa/manylinux>`_
 which have a minimum version of pip which will recognize the wheels
 
-- Python 3.8: ``manylinx2010`` / pip >= 19.0
 - Python 3.9+: ``manylinx2014`` / pip >= 19.3
 
 In all cases the required version of pip is embedded in the CPython source.

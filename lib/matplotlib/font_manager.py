@@ -186,16 +186,11 @@ def list_fonts(directory, extensions):
     recursively under the directory.
     """
     extensions = ["." + ext for ext in extensions]
-    if sys.platform == 'win32' and directory == win32FontDirectory():
-        return [os.path.join(directory, filename)
-                for filename in os.listdir(directory)
-                if os.path.isfile(os.path.join(directory, filename))]
-    else:
-        return [os.path.join(dirpath, filename)
-                # os.walk ignores access errors, unlike Path.glob.
-                for dirpath, _, filenames in os.walk(directory)
-                for filename in filenames
-                if Path(filename).suffix.lower() in extensions]
+    return [os.path.join(dirpath, filename)
+            # os.walk ignores access errors, unlike Path.glob.
+            for dirpath, _, filenames in os.walk(directory)
+            for filename in filenames
+            if Path(filename).suffix.lower() in extensions]
 
 
 def win32FontDirectory():
@@ -275,7 +270,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     if fontpaths is None:
         if sys.platform == 'win32':
             installed_fonts = _get_win32_installed_fonts()
-            fontpaths = MSUserFontDirectories + [win32FontDirectory()]
+            fontpaths = []
         else:
             installed_fonts = _get_fontconfig_fonts()
             if sys.platform == 'darwin':

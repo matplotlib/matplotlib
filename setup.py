@@ -8,8 +8,8 @@ mplsetup.cfg.template for more information.
 # and/or pip.
 import sys
 
-py_min_version = (3, 8)  # minimal supported python version
-since_mpl_version = (3, 6)  # py_min_version is required since this mpl version
+py_min_version = (3, 9)  # minimal supported python version
+since_mpl_version = (3, 8)  # py_min_version is required since this mpl version
 
 if sys.version_info < py_min_version:
     error = """
@@ -293,7 +293,6 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         'License :: OSI Approved :: Python Software Foundation License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',

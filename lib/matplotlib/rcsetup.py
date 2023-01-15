@@ -182,10 +182,7 @@ def _make_type_validator(cls, *, allow_none=False):
                 (s is None or isinstance(s, str) and s.lower() == "none")):
             return None
         if cls is str and not isinstance(s, str):
-            _api.warn_deprecated(
-                "3.5", message="Support for setting an rcParam that expects a "
-                "str value to a non-str value is deprecated since %(since)s "
-                "and support will be removed %(removal)s.")
+            raise ValueError(f'Could not convert {s!r} to str')
         try:
             return cls(s)
         except (TypeError, ValueError) as e:
@@ -218,7 +215,7 @@ def _validate_pathlike(s):
         # between "" (cwd) and "." (cwd, but gets updated by user selections).
         return os.fsdecode(s)
     else:
-        return validate_string(s)  # Emit deprecation warning.
+        return validate_string(s)
 
 
 def validate_fonttype(s):
