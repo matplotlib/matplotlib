@@ -273,7 +273,7 @@ class TruetypeFonts(Fonts):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Per-instance cache.
-        self._get_info = functools.lru_cache(None)(self._get_info)
+        self._get_info = functools.cache(self._get_info)
         self._fonts = {}
 
         filename = findfont(self.default_font_prop)
@@ -752,7 +752,7 @@ class StixFonts(UnicodeFonts):
 
         return fontname, uniindex
 
-    @functools.lru_cache
+    @functools.cache
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         fixes = {
             '\\{': '{', '\\}': '}', '\\[': '[', '\\]': ']',

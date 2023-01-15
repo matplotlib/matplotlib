@@ -1,6 +1,6 @@
 from collections import namedtuple
 import contextlib
-from functools import lru_cache, wraps
+from functools import cache, wraps
 import inspect
 from inspect import Signature, Parameter
 import logging
@@ -1538,13 +1538,13 @@ class ArtistInspector:
         return setters
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def number_of_parameters(func):
         """Return number of parameters of the callable *func*."""
         return len(inspect.signature(func).parameters)
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def is_alias(method):
         """
         Return whether the object *method* is an alias for another method.

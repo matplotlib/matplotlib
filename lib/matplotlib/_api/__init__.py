@@ -219,7 +219,7 @@ def caching_module_getattr(cls):
              if isinstance(prop, property)}
     instance = cls()
 
-    @functools.lru_cache(None)
+    @functools.cache
     def __getattr__(name):
         if name in props:
             return props[name].__get__(instance)

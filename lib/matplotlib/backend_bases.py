@@ -1696,12 +1696,12 @@ class FigureCanvasBase:
     scroll_pick_id = property(lambda self: self.figure._scroll_pick_id)
 
     @classmethod
-    @functools.lru_cache
+    @functools.cache
     def _fix_ipython_backend2gui(cls):
         # Fix hard-coded module -> toolkit mapping in IPython (used for
         # `ipython --auto`).  This cannot be done at import time due to
         # ordering issues, so we do it when creating a canvas, and should only
-        # be done once per class (hence the `lru_cache(1)`).
+        # be done once per class (hence the `cache`).
         if sys.modules.get("IPython") is None:
             return
         import IPython

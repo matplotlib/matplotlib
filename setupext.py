@@ -43,7 +43,7 @@ def _get_hash(data):
     return hasher.hexdigest()
 
 
-@functools.lru_cache
+@functools.cache
 def _get_ssl_context():
     import certifi
     import ssl
@@ -229,7 +229,7 @@ def print_status(package, status):
                             subsequent_indent=indent))
 
 
-@functools.lru_cache(1)  # We only need to compute this once.
+@functools.cache  # We only need to compute this once.
 def get_pkg_config():
     """
     Get path to pkg-config and set up the PKG_CONFIG environment variable.

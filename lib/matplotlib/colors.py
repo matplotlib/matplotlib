@@ -1623,7 +1623,7 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
         base_norm_cls, inspect.signature(init))
 
 
-@functools.lru_cache(None)
+@functools.cache
 def _make_norm_from_scale(
     scale_cls, scale_args, scale_kwargs_items,
     base_norm_cls, bound_init_signature,

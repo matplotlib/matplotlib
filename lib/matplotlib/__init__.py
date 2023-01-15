@@ -231,7 +231,7 @@ _check_versions()
 
 # The decorator ensures this always returns the same handler (and it is only
 # attached once).
-@functools.lru_cache
+@functools.cache
 def _ensure_handler():
     """
     The first time this function is called, attach a `StreamHandler` using the
@@ -321,7 +321,7 @@ class ExecutableNotFoundError(FileNotFoundError):
     pass
 
 
-@functools.lru_cache
+@functools.cache
 def _get_executable_info(name):
     """
     Get the version of some executable that Matplotlib optionally depends on.
@@ -799,7 +799,7 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
-@functools.lru_cache
+@functools.cache
 def _get_ssl_context():
     try:
         import certifi

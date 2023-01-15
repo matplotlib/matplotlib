@@ -2177,7 +2177,7 @@ def _unikey_or_keysym_to_mplkey(unikey, keysym):
     return key
 
 
-@functools.lru_cache(None)
+@functools.cache
 def _make_class_factory(mixin_class, fmt, attr_name=None):
     """
     Return a function that creates picklable classes inheriting from a mixin.
@@ -2196,7 +2196,7 @@ def _make_class_factory(mixin_class, fmt, attr_name=None):
     ``Axes`` class always return the same subclass.
     """
 
-    @functools.lru_cache(None)
+    @functools.cache
     def class_factory(axes_class):
         # if we have already wrapped this class, declare victory!
         if issubclass(axes_class, mixin_class):

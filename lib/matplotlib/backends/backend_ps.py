@@ -289,7 +289,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._path_collection_id = 0
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
-        self._logwarn_once = functools.lru_cache(None)(_log.warning)
+        self._logwarn_once = functools.cache(_log.warning)
 
     def _is_transparent(self, rgb_or_rgba):
         if rgb_or_rgba is None:
