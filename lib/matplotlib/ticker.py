@@ -2404,7 +2404,8 @@ class LogLocator(Locator):
                 "log-scaled.")
             vmin, vmax = 1, 10
         else:
-            minpos = self.axis.get_minpos()
+            # Consider shared axises
+            minpos = min(axis.get_minpos() for axis in self.axis._get_shared_axis())
             if not np.isfinite(minpos):
                 minpos = 1e-300  # This should never take effect.
             if vmin <= 0:
