@@ -1688,6 +1688,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
+    @_api.make_keyword_only("3.8", "bbox_extra_artists")
     def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
