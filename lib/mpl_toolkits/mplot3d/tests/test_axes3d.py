@@ -757,8 +757,7 @@ def test_mixedsamplesraises():
         ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
 
 
-@mpl3d_image_comparison(
-    ['quiver3d.png'])
+@mpl3d_image_comparison(['quiver3d.png'], style='mpl20')
 def test_quiver3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
