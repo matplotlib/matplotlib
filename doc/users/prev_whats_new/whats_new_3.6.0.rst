@@ -21,7 +21,7 @@ The relative width and height of columns and rows in `~.Figure.subplots` and
 *width_ratios* keyword arguments to the methods:
 
 .. plot::
-    :alt: A figure with three subplots in three rows and one column. The height of the subplot in the first row is three times than the subplots in the 2nd and 3rd row
+    :alt: A figure with three subplots in three rows and one column. The height of the subplot in the first row is three times than the subplots in the 2nd and 3rd row.
     :include-source: true
 
     fig = plt.figure()
@@ -70,7 +70,7 @@ Using the ``layout='compressed'`` layout reduces the space between the Axes,
 and adds the extra space to the outer margins:
 
 .. plot::
-    :alt: Four identical two by two heatmaps, each cell a different color: purple, blue, yellow, green going clockwise from upper left corner. The four heatmaps are laid out in a two by two grid with minimum white space between the heatmaps
+    :alt: Four identical two by two heatmaps, each cell a different color: purple, blue, yellow, green going clockwise from upper left corner. The four heatmaps are laid out in a two by two grid with minimum white space between the heatmaps.
 
     fig, axs = plt.subplots(2, 2, figsize=(5, 3),
                             sharex=True, sharey=True, layout='compressed')
@@ -98,7 +98,7 @@ with the previous layout engine.
 may be returned.
 
 .. plot::
-    :alt: Plot of a straight line y=x, with a small inset axes in the lower right corner that shows a circle with radial grid lines and a line plotted in polar coordinates 
+    :alt: Plot of a straight line y=x, with a small inset axes in the lower right corner that shows a circle with radial grid lines and a line plotted in polar coordinates.
     :include-source: true
 
     fig, ax = plt.subplots()
@@ -148,8 +148,9 @@ Striped lines (experimental)
 
 The new *gapcolor* parameter to `~.Axes.plot` enables the creation of striped
 lines.
+
 .. plot::
-    :alt: Plot of x**3 where the line is an orange-blue striped line, achieved using the keywords`linestyle='--', color='orange', gapcolor='blue'     
+    :alt: Plot of x**3 where the line is an orange-blue striped line, achieved using the keywords`linestyle='--', color='orange', gapcolor='blue'
     :include-source: true
 
     x = np.linspace(1., 3., 10)
