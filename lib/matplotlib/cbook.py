@@ -1,9 +1,6 @@
 """
 A collection of utility functions and classes.  Originally, many
 (but not all) were from the Python Cookbook -- hence the name cbook.
-
-This module is safe to import from anywhere within Matplotlib;
-it imports Matplotlib only at runtime.
 """
 
 import collections
@@ -28,19 +25,6 @@ import numpy as np
 
 import matplotlib
 from matplotlib import _api, _c_internal_utils
-
-
-@_api.caching_module_getattr
-class __getattr__:
-    # module-level deprecations
-    MatplotlibDeprecationWarning = _api.deprecated(
-        "3.6", obj_type="",
-        alternative="matplotlib.MatplotlibDeprecationWarning")(
-        property(lambda self: _api.deprecation.MatplotlibDeprecationWarning))
-    mplDeprecation = _api.deprecated(
-        "3.6", obj_type="",
-        alternative="matplotlib.MatplotlibDeprecationWarning")(
-        property(lambda self: _api.deprecation.MatplotlibDeprecationWarning))
 
 
 def _get_running_interactive_framework():
@@ -578,27 +562,6 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
-@_api.deprecated("3.6", alternative="functools.lru_cache")
-class maxdict(dict):
-    """
-    A dictionary with a maximum size.
-
-    Notes
-    -----
-    This doesn't override all the relevant methods to constrain the size,
-    just ``__setitem__``, so use with caution.
-    """
-
-    def __init__(self, maxsize):
-        super().__init__()
-        self.maxsize = maxsize
-
-    def __setitem__(self, k, v):
-        super().__setitem__(k, v)
-        while len(self) >= self.maxsize:
-            del self[next(iter(self))]
-
-
 class Stack:
     """
     Stack of elements with a movable cursor.
@@ -887,29 +850,11 @@ class Grouper:
 class GrouperView:
     """Immutable view over a `.Grouper`."""
 
-    def __init__(self, grouper):
-        self._grouper = grouper
-
-    class _GrouperMethodForwarder:
-        def __init__(self, deprecated_kw=None):
-            self._deprecated_kw = deprecated_kw
-
-        def __set_name__(self, owner, name):
-            wrapped = getattr(Grouper, name)
-            forwarder = functools.wraps(wrapped)(
-                lambda self, *args, **kwargs: wrapped(
-                    self._grouper, *args, **kwargs))
-            if self._deprecated_kw:
-                forwarder = _api.deprecated(**self._deprecated_kw)(forwarder)
-            setattr(owner, name, forwarder)
-
-    __contains__ = _GrouperMethodForwarder()
-    __iter__ = _GrouperMethodForwarder()
-    joined = _GrouperMethodForwarder()
-    get_siblings = _GrouperMethodForwarder()
-    clean = _GrouperMethodForwarder(deprecated_kw=dict(since="3.6"))
-    join = _GrouperMethodForwarder(deprecated_kw=dict(since="3.6"))
-    remove = _GrouperMethodForwarder(deprecated_kw=dict(since="3.6"))
+    def __init__(self, grouper): self._grouper = grouper
+    def __contains__(self, item): return item in self._grouper
+    def __iter__(self): return iter(self._grouper)
+    def joined(self, a, b): return self._grouper.joined(a, b)
+    def get_siblings(self, a): return self._grouper.get_siblings(a)
 
 
 def simple_linear_interpolation(a, steps):

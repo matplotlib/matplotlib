@@ -2760,9 +2760,9 @@ class Figure(FigureBase):
         """
         if tight is None:
             tight = mpl.rcParams['figure.autolayout']
+        _tight = 'tight' if bool(tight) else 'none'
         _tight_parameters = tight if isinstance(tight, dict) else {}
-        if bool(tight):
-            self.set_layout_engine(TightLayoutEngine(**_tight_parameters))
+        self.set_layout_engine(_tight, **_tight_parameters)
         self.stale = True
 
     def get_constrained_layout(self):
@@ -2797,10 +2797,9 @@ class Figure(FigureBase):
         """
         if constrained is None:
             constrained = mpl.rcParams['figure.constrained_layout.use']
-        _constrained = bool(constrained)
+        _constrained = 'constrained' if bool(constrained) else 'none'
         _parameters = constrained if isinstance(constrained, dict) else {}
-        if _constrained:
-            self.set_layout_engine(ConstrainedLayoutEngine(**_parameters))
+        self.set_layout_engine(_constrained, **_parameters)
         self.stale = True
 
     @_api.deprecated(

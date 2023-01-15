@@ -1,13 +1,13 @@
 import difflib
 
 import numpy as np
-import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
 import matplotlib as mpl
+from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
 from matplotlib._api import MatplotlibDeprecationWarning
 
@@ -20,8 +20,9 @@ def test_pyplot_up_to_date(tmpdir):
     plt_file = tmpdir.join('pyplot.py')
     plt_file.write_text(orig_contents, 'utf-8')
 
-    subprocess.run([sys.executable, str(gen_script), str(plt_file)],
-                   check=True)
+    subprocess_run_for_testing(
+        [sys.executable, str(gen_script), str(plt_file)],
+        check=True)
     new_contents = plt_file.read_text('utf-8')
 
     if orig_contents != new_contents:

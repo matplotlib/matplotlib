@@ -1,5 +1,4 @@
 import re
-import subprocess
 import sys
 
 import numpy as np
@@ -7,6 +6,7 @@ import pytest
 
 from matplotlib import _preprocess_data
 from matplotlib.axes import Axes
+from matplotlib.testing import subprocess_run_for_testing
 from matplotlib.testing.decorators import check_figures_equal
 
 # Notes on testing the plotting functions itself
@@ -259,7 +259,9 @@ def test_data_parameter_replacement():
         "import matplotlib.pyplot as plt"
     )
     cmd = [sys.executable, "-c", program]
-    completed_proc = subprocess.run(cmd, text=True, capture_output=True)
+    completed_proc = subprocess_run_for_testing(
+        cmd, text=True, capture_output=True
+    )
     assert 'data parameter docstring error' not in completed_proc.stderr
 
 

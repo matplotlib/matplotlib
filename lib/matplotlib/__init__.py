@@ -247,11 +247,21 @@ def _ensure_handler():
 
 def set_loglevel(level):
     """
-    Set Matplotlib's root logger and root logger handler level, creating
-    the handler if it does not exist yet.
+    Configure Matplotlib's logging levels.
+
+    Matplotlib uses the standard library `logging` framework under the root
+    logger 'matplotlib'.  This is a helper function to:
+
+    - set Matplotlib's root logger level
+    - set the root logger handler's level, creating the handler
+      if it does not exist yet
 
     Typically, one should call ``set_loglevel("info")`` or
     ``set_loglevel("debug")`` to get additional debugging information.
+
+    Users or applications that are installing their own logging handlers
+    may want to directly manipulate ``logging.getLogger('matplotlib')`` rather
+    than use this function.
 
     Parameters
     ----------
@@ -263,6 +273,7 @@ def set_loglevel(level):
     The first time this function is called, an additional handler is attached
     to Matplotlib's root handler; this handler is reused every time and this
     function simply manipulates the logger and handler's level.
+
     """
     _log.setLevel(level.upper())
     _ensure_handler().setLevel(level.upper())
@@ -1267,12 +1278,6 @@ def is_interactive():
     return rcParams['interactive']
 
 
-default_test_modules = [
-    'matplotlib.tests',
-    'mpl_toolkits.tests',
-]
-
-
 def _init_tests():
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
@@ -1289,58 +1294,6 @@ def _init_tests():
             f"Found freetype version {ft2font.__freetype_version__}.  "
             "Freetype build type is {}local".format(
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
-
-
-@_api.deprecated("3.5", alternative='pytest')
-def test(verbosity=None, coverage=False, **kwargs):
-    """Run the matplotlib test suite."""
-
-    try:
-        import pytest
-    except ImportError:
-        print("matplotlib.test requires pytest to run.")
-        return -1
-
-    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        print("Matplotlib test data is not installed")
-        return -1
-
-    old_backend = get_backend()
-    try:
-        use('agg')
-
-        args = kwargs.pop('argv', [])
-        provide_default_modules = True
-        use_pyargs = True
-        for arg in args:
-            if any(arg.startswith(module_path)
-                   for module_path in default_test_modules):
-                provide_default_modules = False
-                break
-            if os.path.exists(arg):
-                provide_default_modules = False
-                use_pyargs = False
-                break
-        if use_pyargs:
-            args += ['--pyargs']
-        if provide_default_modules:
-            args += default_test_modules
-
-        if coverage:
-            args += ['--cov']
-
-        if verbosity:
-            args += ['-' + 'v' * verbosity]
-
-        retcode = pytest.main(args, **kwargs)
-    finally:
-        if old_backend.lower() != 'agg':
-            use(old_backend)
-
-    return retcode
-
-
-test.__test__ = False  # pytest: this function is not a test
 
 
 def _replacer(data, value):

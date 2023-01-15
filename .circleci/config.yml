@@ -205,9 +205,9 @@ commands:
 #
 
 jobs:
-  docs-python38:
+  docs-python39:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.9
     resource_class: large
     steps:
       - checkout
@@ -250,4 +250,4 @@ workflows:
     jobs:
       # NOTE: If you rename this job, then you must update the `if` condition
       # and `circleci-jobs` option in `.github/workflows/circleci.yml`.
-      - docs-python38
+      - docs-python39

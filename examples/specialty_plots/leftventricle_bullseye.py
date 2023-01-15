@@ -5,6 +5,8 @@ Left ventricle bullseye
 
 This example demonstrates how to create the 17 segment model for the left
 ventricle recommended by the American Heart Association (AHA).
+
+.. redirect-from:: /gallery/specialty_plots/leftventricle_bulleye
 """
 
 import numpy as np
@@ -135,14 +137,10 @@ data = np.arange(17) + 1
 
 
 # Make a figure and axes with dimensions as desired.
-fig, ax = plt.subplots(figsize=(12, 8), nrows=1, ncols=3,
-                       subplot_kw=dict(projection='polar'))
+fig = plt.figure(figsize=(10, 5), layout="constrained")
+fig.get_layout_engine().set(wspace=.1, w_pad=.2)
+axs = fig.subplots(1, 3, subplot_kw=dict(projection='polar'))
 fig.canvas.manager.set_window_title('Left Ventricle Bulls Eyes (AHA)')
-
-# Create the axis for the colorbars
-axl = fig.add_axes([0.14, 0.15, 0.2, 0.05])
-axl2 = fig.add_axes([0.41, 0.15, 0.2, 0.05])
-axl3 = fig.add_axes([0.69, 0.15, 0.2, 0.05])
 
 
 # Set the colormap and norm to correspond to the data for which
@@ -152,14 +150,16 @@ norm = mpl.colors.Normalize(vmin=1, vmax=17)
 # Create an empty ScalarMappable to set the colorbar's colormap and norm.
 # The following gives a basic continuous colorbar with ticks and labels.
 fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
-             cax=axl, orientation='horizontal', label='Some Units')
+             cax=axs[0].inset_axes([0, -.15, 1, .1]),
+             orientation='horizontal', label='Some Units')
 
 
 # And again for the second colorbar.
 cmap2 = mpl.cm.cool
 norm2 = mpl.colors.Normalize(vmin=1, vmax=17)
 fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap2, norm=norm2),
-             cax=axl2, orientation='horizontal', label='Some other units')
+             cax=axs[1].inset_axes([0, -.15, 1, .1]),
+             orientation='horizontal', label='Some other units')
 
 
 # The second example illustrates the use of a ListedColormap, a
@@ -173,7 +173,7 @@ cmap3 = (mpl.colors.ListedColormap(['r', 'g', 'b', 'c'])
 bounds = [2, 3, 7, 9, 15]
 norm3 = mpl.colors.BoundaryNorm(bounds, cmap3.N)
 fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap3, norm=norm3),
-             cax=axl3,
+             cax=axs[2].inset_axes([0, -.15, 1, .1]),
              extend='both',
              ticks=bounds,  # optional
              spacing='proportional',
@@ -182,14 +182,14 @@ fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap3, norm=norm3),
 
 
 # Create the 17 segment model
-bullseye_plot(ax[0], data, cmap=cmap, norm=norm)
-ax[0].set_title('Bulls Eye (AHA)')
+bullseye_plot(axs[0], data, cmap=cmap, norm=norm)
+axs[0].set_title('Bulls Eye (AHA)')
 
-bullseye_plot(ax[1], data, cmap=cmap2, norm=norm2)
-ax[1].set_title('Bulls Eye (AHA)')
+bullseye_plot(axs[1], data, cmap=cmap2, norm=norm2)
+axs[1].set_title('Bulls Eye (AHA)')
 
-bullseye_plot(ax[2], data, seg_bold=[3, 5, 6, 11, 12, 16],
+bullseye_plot(axs[2], data, seg_bold=[3, 5, 6, 11, 12, 16],
               cmap=cmap3, norm=norm3)
-ax[2].set_title('Segments [3, 5, 6, 11, 12, 16] in bold')
+axs[2].set_title('Segments [3, 5, 6, 11, 12, 16] in bold')
 
 plt.show()
