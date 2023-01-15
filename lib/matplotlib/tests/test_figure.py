@@ -1458,13 +1458,31 @@ def test_kwargs_pass():
 
 @check_figures_equal(extensions=["png"])
 def test_rcparams(fig_test, fig_ref):
-    fig_ref.supxlabel("xlabel", weight='bold', size=15)
-    fig_ref.supylabel("ylabel", weight='bold', size=15)
-    fig_ref.suptitle("Title", weight='light', size=20)
+    fig_ref.supxlabel("xlabel", x=0.1, y=0.5, horizontalalignment='left',
+                      va="top", rotation=10, weight='bold', size=15)
+    fig_ref.supylabel("ylabel", x=0.1, y=0.2, ha="right", va="bottom",
+                      rotation=22.5, weight='bold', size=15)
+    fig_ref.suptitle("Title", x=0.1, y=0.2, ha="right", va="bottom",
+                     rotation=22.5, weight='light', size=20)
     with mpl.rc_context({'figure.labelweight': 'bold',
                          'figure.labelsize': 15,
                          'figure.titleweight': 'light',
-                         'figure.titlesize': 20}):
+                         'figure.titlesize': 20,
+                         'figure.title_x': 0.1,
+                         'figure.title_y': 0.2,
+                         'figure.title_ha': "right",
+                         'figure.title_va': "bottom",
+                         'figure.title_rotation': 22.5,
+                         'figure.xlabel_x': 0.1,
+                         'figure.xlabel_y': 0.5,
+                         'figure.xlabel_ha': "left",
+                         'figure.xlabel_va': "top",
+                         'figure.xlabel_rotation': 10,
+                         'figure.ylabel_x': 0.1,
+                         'figure.ylabel_y': 0.2,
+                         'figure.ylabel_ha': "right",
+                         'figure.ylabel_va': "bottom",
+                         'figure.ylabel_rotation': 22.5}):
         fig_test.supxlabel("xlabel")
         fig_test.supylabel("ylabel")
         fig_test.suptitle("Title")

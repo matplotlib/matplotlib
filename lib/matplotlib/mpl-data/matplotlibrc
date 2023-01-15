@@ -554,6 +554,21 @@
 ## * FIGURE                                                                  *
 ## ***************************************************************************
 ## See https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
+#figure.titleloc_x:  0.5
+#figure.titleloc_y:  0.98
+#figure.title_horizontalalignment:  center
+#figure.title_verticalalignment:    top
+#figure.title_rotation:   0
+#figure.xlabel_x:    0.5
+#figure.xlabel_y:    0.01
+#figure.xlabel_ha:   center
+#figure.xlabel_va:   bottom
+#figure.xlabel_rotation:  0
+#figure.ylabel_x:    0.02
+#figure.ylabel_y:    0.5
+#figure.ylabel_ha:   left
+#figure.ylabel_va:   center
+#figure.ylabel_rotation: vertical
 #figure.titlesize:   large     # size of the figure title (``Figure.suptitle()``)
 #figure.titleweight: normal    # weight of the figure title
 #figure.labelsize:   large     # size of the figure label (``Figure.sup[x|y]label()``)

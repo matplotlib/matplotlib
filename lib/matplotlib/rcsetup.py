@@ -805,6 +805,17 @@ def _convert_validator_spec(key, conv):
         return conv
 
 
+def validate_rotation(s):
+    rotations = ["vertical", "horizontal"]
+    if isinstance(s, str):
+        s = s.lower()
+    if s in rotations:
+        return s
+    try:
+        return float(s)
+    except ValueError as e:
+        raise ValueError("%s is not a valid rotation. Valid rotation values "
+                         "are %s." % (s, ", ".join(rotations))) from e
 # Mapping of rcParams to validators.
 # Converters given as lists or _ignorecase are converted to ValidateInStrings
 # immediately below.
@@ -1130,6 +1141,22 @@ _validators = {
     "grid.alpha":        validate_float,
 
     ## figure props
+    # new props
+    "figure.title_x":  validate_float,
+    "figure.title_y":  validate_float,
+    "figure.title_ha":    ["center", "left", "right"],
+    "figure.title_va":    ["top", "center", "bottom", "baseline"],
+    "figure.title_rotation":   validate_rotation,
+    "figure.xlabel_x":    validate_float,
+    "figure.xlabel_y":    validate_float,
+    "figure.xlabel_ha":   ["center", "left", "right"],
+    "figure.xlabel_va":   ["top", "center", "bottom", "baseline"],
+    "figure.xlabel_rotation": validate_rotation,
+    "figure.ylabel_x":    validate_float,
+    "figure.ylabel_y":    validate_float,
+    "figure.ylabel_ha":   ["center", "left", "right"],
+    "figure.ylabel_va":   ["top", "center", "bottom", "baseline"],
+    "figure.ylabel_rotation": validate_rotation,
     # figure title
     "figure.titlesize":   validate_fontsize,
     "figure.titleweight": validate_fontweight,

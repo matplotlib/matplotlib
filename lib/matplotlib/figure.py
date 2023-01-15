@@ -335,16 +335,16 @@ default: %(va)s
         elif info['name'] == '_supylabel':
             autopos = x is None
         if x is None:
-            x = info['x0']
+            x = mpl.rcParams[info['x0']]
         if y is None:
-            y = info['y0']
+            y = mpl.rcParams[info['y0']]
 
         if 'horizontalalignment' not in kwargs and 'ha' not in kwargs:
-            kwargs['horizontalalignment'] = info['ha']
+            kwargs['horizontalalignment'] = mpl.rcParams[info['ha']]
         if 'verticalalignment' not in kwargs and 'va' not in kwargs:
-            kwargs['verticalalignment'] = info['va']
+            kwargs['verticalalignment'] = mpl.rcParams[info['va']]
         if 'rotation' not in kwargs:
-            kwargs['rotation'] = info['rotation']
+            kwargs['rotation'] = mpl.rcParams[info['rotation']]
 
         if 'fontproperties' not in kwargs:
             if 'fontsize' not in kwargs and 'size' not in kwargs:
@@ -370,8 +370,9 @@ default: %(va)s
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
-                'ha': 'center', 'va': 'top', 'rotation': 0,
+        info = {'name': '_suptitle', 'x0': 'figure.title_x',
+                'y0': 'figure.title_y', 'ha': 'figure.title_ha',
+                'va': 'figure.title_va', 'rotation': 'figure.title_rotation',
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
@@ -380,8 +381,9 @@ default: %(va)s
     @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_supxlabel', 'x0': 0.5, 'y0': 0.01,
-                'ha': 'center', 'va': 'bottom', 'rotation': 0,
+        info = {'name': '_supxlabel', 'x0': 'figure.xlabel_x',
+                'y0': 'figure.xlabel_y', 'ha': 'figure.xlabel_ha',
+                'va': 'figure.xlabel_va', 'rotation': 'figure.xlabel_rotation',
                 'size': 'figure.labelsize', 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
 
@@ -390,8 +392,9 @@ default: %(va)s
     @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_supylabel', 'x0': 0.02, 'y0': 0.5,
-                'ha': 'left', 'va': 'center', 'rotation': 'vertical',
+        info = {'name': '_supylabel', 'x0': 'figure.ylabel_x',
+                'y0': 'figure.ylabel_y', 'ha': 'figure.ylabel_ha',
+                'va': 'figure.ylabel_va', 'rotation': 'figure.ylabel_rotation',
                 'rotation_mode': 'anchor', 'size': 'figure.labelsize',
                 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
