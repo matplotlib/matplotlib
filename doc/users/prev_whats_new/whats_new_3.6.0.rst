@@ -148,10 +148,8 @@ Striped lines (experimental)
 
 The new *gapcolor* parameter to `~.Axes.plot` enables the creation of striped
 lines.
-
 .. plot::
-    :alt: Plot of x**3 where the line is an orange-blue striped line, achieved using the keywords`linestyle='--', color='orange', gapcolor='blue' 
-    
+    :alt: Plot of x**3 where the line is an orange-blue striped line, achieved using the keywords`linestyle='--', color='orange', gapcolor='blue'     
     :include-source: true
 
     x = np.linspace(1., 3., 10)
