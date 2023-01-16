@@ -70,7 +70,7 @@ jobs:
       )
     strategy:
       matrix:
-        python-minor-version: [8, 9]
+        python-minor-version: [9]
 
     steps:
       - name: Fix line endings
