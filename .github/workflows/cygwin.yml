@@ -80,7 +80,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: cygwin/cygwin-install-action@v2
+      - uses: cygwin/cygwin-install-action@v3
         with:
           packages: >-
             ccache gcc-g++ gdb git graphviz libcairo-devel libffi-devel
