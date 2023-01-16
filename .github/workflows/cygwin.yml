@@ -51,6 +51,7 @@ jobs:
     name: Python 3.${{ matrix.python-minor-version }} on Cygwin
     if: |
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       (
         github.repository == 'matplotlib/matplotlib' &&
         !contains(github.event.head_commit.message, '[ci skip]') &&
