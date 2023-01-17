@@ -51,6 +51,7 @@ jobs:
     name: Python 3.${{ matrix.python-minor-version }} on Cygwin
     if: |
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       (
         github.repository == 'matplotlib/matplotlib' &&
         !contains(github.event.head_commit.message, '[ci skip]') &&
@@ -70,7 +71,7 @@ jobs:
       )
     strategy:
       matrix:
-        python-minor-version: [8, 9]
+        python-minor-version: [9]
 
     steps:
       - name: Fix line endings
@@ -80,7 +81,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: cygwin/cygwin-install-action@v2
+      - uses: cygwin/cygwin-install-action@v3
         with:
           packages: >-
             ccache gcc-g++ gdb git graphviz libcairo-devel libffi-devel
