@@ -137,7 +137,10 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.vlines:1"
     ],
     "Axes": [
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.axes:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.colorbar:1",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.delaxes:1",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot2grid:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot_mosaic:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplots:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.twinx:1",

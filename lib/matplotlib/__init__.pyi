@@ -1,5 +1,6 @@
 __all__ = [
     "__bibtex__",
+    "__version__",
     "__version_info__",
     "set_loglevel",
     "ExecutableNotFoundError",
@@ -49,8 +50,8 @@ class _VersionInfo(NamedTuple):
     releaselevel: str
     serial: int
 
-class __getattr__:
-    __version_info__: _VersionInfo
+__version__: str
+__version_info__: _VersionInfo
 
 def set_loglevel(level: str) -> None: ...
 
