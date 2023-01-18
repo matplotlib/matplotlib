@@ -19,7 +19,7 @@ y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
 x2 = np.linspace(0.0, 2.0)
 y2 = np.cos(2 * np.pi * x2)
 
-###############################################################################
+# %%
 # `~.pyplot.subplots()` is the recommended method to generate simple subplot
 # arrangements:
 
@@ -35,7 +35,7 @@ ax2.set_ylabel('Undamped')
 
 plt.show()
 
-###############################################################################
+# %%
 # Subplots can also be generated one at a time using `~.pyplot.subplot()`:
 
 plt.subplot(2, 1, 1)

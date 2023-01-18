@@ -85,7 +85,7 @@ ax.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,
 ax.set_title('Gradient plot: an electrical dipole')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

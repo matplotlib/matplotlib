@@ -50,7 +50,7 @@ for i, cmap_name in enumerate(cmap_names):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

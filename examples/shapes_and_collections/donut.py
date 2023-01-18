@@ -62,7 +62,7 @@ ax.set_title('Mmm, donuts!')
 ax.set_aspect(1.0)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

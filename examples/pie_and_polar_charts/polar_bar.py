@@ -24,7 +24,7 @@ ax.bar(theta, radii, width=width, bottom=0.0, color=colors, alpha=0.5)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

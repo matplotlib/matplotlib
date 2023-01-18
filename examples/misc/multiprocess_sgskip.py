@@ -18,7 +18,7 @@ import numpy as np
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-###############################################################################
+# %%
 #
 # Processing Class
 # ================
@@ -60,7 +60,7 @@ class ProcessPlotter:
         print('...done')
         plt.show()
 
-###############################################################################
+# %%
 #
 # Plotting class
 # ==============

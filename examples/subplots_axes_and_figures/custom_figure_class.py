@@ -39,7 +39,7 @@ plt.figure(FigureClass=WatermarkFigure, watermark='draft')
 plt.plot(x, y)
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

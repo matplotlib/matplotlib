@@ -28,7 +28,7 @@ Other anti-aliasing filters can be specified in `.Axes.imshow` using the
 import numpy as np
 import matplotlib.pyplot as plt
 
-###############################################################################
+# %%
 # First we generate a 450x450 pixel image with varying frequency content:
 N = 450
 x = np.arange(N) / N - 0.5
@@ -46,7 +46,7 @@ a[:int(N / 2), :][R[:int(N / 2), :] < 0.4] = -1
 a[:int(N / 2), :][R[:int(N / 2), :] < 0.3] = 1
 aa[:, int(N / 3):] = a[:, int(N / 3):]
 a = aa
-###############################################################################
+# %%
 # The following images are subsampled from 450 data pixels to either
 # 125 pixels or 250 pixels (depending on your display).
 # The Moiré patterns in the 'nearest' interpolation are caused by the
@@ -80,7 +80,7 @@ for ax, interp, space in zip(axs.flat[1:],
     ax.set_title(f"interpolation='{interp}'\nspace='{space}'")
 plt.show()
 
-###############################################################################
+# %%
 # Even up-sampling an image with 'nearest' interpolation will lead to Moiré
 # patterns when the upsampling factor is not integer. The following image
 # upsamples 500 data pixels to 530 rendered pixels. You may note a grid of
@@ -93,14 +93,14 @@ ax.imshow(a, interpolation='nearest', cmap='gray')
 ax.set_title("upsampled by factor a 1.048, interpolation='nearest'")
 plt.show()
 
-###############################################################################
+# %%
 # Better antialiasing algorithms can reduce this effect:
 fig, ax = plt.subplots(figsize=(6.8, 6.8))
 ax.imshow(a, interpolation='antialiased', cmap='gray')
 ax.set_title("upsampled by factor a 1.048, interpolation='antialiased'")
 plt.show()
 
-###############################################################################
+# %%
 # Apart from the default 'hanning' antialiasing, `~.Axes.imshow` supports a
 # number of different interpolation algorithms, which may work better or
 # worse depending on the pattern.
@@ -110,7 +110,7 @@ for ax, interp in zip(axs, ['hanning', 'lanczos']):
     ax.set_title(f"interpolation='{interp}'")
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

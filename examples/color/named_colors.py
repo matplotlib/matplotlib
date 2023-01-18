@@ -73,21 +73,21 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
 
     return fig
 
-#############################################################################
+# %%
 # -----------
 # Base colors
 # -----------
 
 plot_colortable(mcolors.BASE_COLORS, ncols=3, sort_colors=False)
 
-#############################################################################
+# %%
 # ---------------
 # Tableau Palette
 # ---------------
 
 plot_colortable(mcolors.TABLEAU_COLORS, ncols=2, sort_colors=False)
 
-#############################################################################
+# %%
 # ----------
 # CSS Colors
 # ----------
@@ -96,7 +96,7 @@ plot_colortable(mcolors.TABLEAU_COLORS, ncols=2, sort_colors=False)
 plot_colortable(mcolors.CSS4_COLORS)
 plt.show()
 
-#############################################################################
+# %%
 # -----------
 # XKCD Colors
 # -----------

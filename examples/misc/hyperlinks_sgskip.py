@@ -14,14 +14,14 @@ import numpy as np
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 
-###############################################################################
+# %%
 
 fig = plt.figure()
 s = plt.scatter([1, 2, 3], [4, 5, 6])
 s.set_urls(['https://www.bbc.com/news', 'https://www.google.com/', None])
 fig.savefig('scatter.svg')
 
-###############################################################################
+# %%
 
 fig = plt.figure()
 delta = 0.025

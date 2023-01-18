@@ -40,7 +40,7 @@ ax.indicate_inset_zoom(axins, edgecolor="black")
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

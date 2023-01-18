@@ -45,7 +45,7 @@ axs['patches'].set_ylim([10, 60])
 axs['patches'].set_aspect(1)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

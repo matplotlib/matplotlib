@@ -68,7 +68,7 @@ pcm = ax[1].pcolor(X, Y, Z, cmap='PuBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[1], extend='max')
 plt.show()
 
-###############################################################################
+# %%
 # Centered
 # --------
 #
@@ -108,7 +108,7 @@ ax2.set_title('CenteredNorm()')
 
 plt.show()
 
-###############################################################################
+# %%
 # Symmetric logarithmic
 # ---------------------
 #
@@ -145,7 +145,7 @@ pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z), shading='auto')
 fig.colorbar(pcm, ax=ax[1], extend='both')
 plt.show()
 
-###############################################################################
+# %%
 # Power-law
 # ---------
 #
@@ -179,7 +179,7 @@ fig.colorbar(pcm, ax=ax[1], extend='max')
 ax[1].set_title('Normalize()')
 plt.show()
 
-###############################################################################
+# %%
 # Discrete bounds
 # ---------------
 #
@@ -237,7 +237,7 @@ fig.colorbar(pcm, ax=ax[3], orientation='vertical')
 ax[3].set_title('BoundaryNorm: extend="both"')
 plt.show()
 
-###############################################################################
+# %%
 # TwoSlopeNorm: Different mapping on either side of a center
 # ----------------------------------------------------------
 #
@@ -277,7 +277,7 @@ cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 plt.show()
 
 
-###############################################################################
+# %%
 # FuncNorm: Arbitrary function normalization
 # ------------------------------------------
 #
@@ -303,7 +303,7 @@ ax.set_title('FuncNorm(x)')
 fig.colorbar(pcm, shrink=0.6)
 plt.show()
 
-###############################################################################
+# %%
 # Custom normalization: Manually implement two linear ranges
 # ----------------------------------------------------------
 #

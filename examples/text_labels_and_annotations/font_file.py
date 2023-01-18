@@ -30,7 +30,7 @@ ax.set_xlabel('This is the default font')
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -45,7 +45,7 @@ check.on_clicked(callback)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -28,7 +28,7 @@ legend.get_frame().set_facecolor('C0')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

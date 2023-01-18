@@ -90,7 +90,7 @@ ax.legend(handles=[red_patch])
 
 plt.show()
 
-###############################################################################
+# %%
 # There are many supported legend handles. Instead of creating a patch of color
 # we could have created a line with a marker:
 
@@ -103,7 +103,7 @@ ax.legend(handles=[blue_line])
 
 plt.show()
 
-###############################################################################
+# %%
 # Legend location
 # ===============
 #
@@ -135,7 +135,7 @@ ax_dict['bottom'].plot([3, 2, 1], label="test2")
 ax_dict['bottom'].legend(bbox_to_anchor=(1.05, 1),
                          loc='upper left', borderaxespad=0.)
 
-##############################################################################
+# %%
 # Figure legends
 # --------------
 #
@@ -154,7 +154,7 @@ axs['right'].plot([3, 2, 1], 'C3', label="test4")
 # Place a legend to the right of this smaller subplot.
 fig.legend(loc='outside upper right')
 
-##############################################################################
+# %%
 # This accepts a slightly different grammar than the normal *loc* keyword,
 # where "outside right upper" is different from "outside upper right".
 #
@@ -184,7 +184,7 @@ for loc in [
     fig.legend(loc=loc, title=loc)
 
 
-###############################################################################
+# %%
 # Multiple legends on the same Axes
 # =================================
 #
@@ -211,7 +211,7 @@ ax.legend(handles=[line2], loc='lower right')
 
 plt.show()
 
-###############################################################################
+# %%
 # Legend Handlers
 # ===============
 #
@@ -247,7 +247,7 @@ line2, = ax.plot([1, 2, 3], marker='o', label='Line 2')
 
 ax.legend(handler_map={line1: HandlerLine2D(numpoints=4)})
 
-###############################################################################
+# %%
 # As you can see, "Line 1" now has 4 marker points, where "Line 2" has 2 (the
 # default). Try the above code, only change the map's key from ``line1`` to
 # ``type(line1)``. Notice how now both `.Line2D` instances get 4 markers.
@@ -269,7 +269,7 @@ white_cross, = ax.plot(z[:5], "w+", markeredgewidth=3, markersize=15)
 
 ax.legend([red_dot, (red_dot, white_cross)], ["Attr A", "Attr A+B"])
 
-###############################################################################
+# %%
 # The `.legend_handler.HandlerTuple` class can also be used to
 # assign several legend keys to the same entry:
 
@@ -282,7 +282,7 @@ p2, = ax.plot([3, 2, 1], 'k-o')
 l = ax.legend([(p1, p2)], ['Two keys'], numpoints=1,
               handler_map={tuple: HandlerTuple(ndivide=None)})
 
-###############################################################################
+# %%
 # Implementing a custom legend handler
 # ------------------------------------
 #
@@ -314,7 +314,7 @@ fig, ax = plt.subplots()
 ax.legend([AnyObject()], ['My first handler'],
           handler_map={AnyObject: AnyObjectHandler()})
 
-###############################################################################
+# %%
 # Alternatively, had we wanted to globally accept ``AnyObject`` instances
 # without needing to manually set the *handler_map* keyword all the time, we
 # could have registered the new handler with::

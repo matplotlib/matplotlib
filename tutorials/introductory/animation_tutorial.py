@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 
-###############################################################################
+# %%
 # Animation Classes
 # =================
 #
@@ -121,7 +121,7 @@ ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=30)
 plt.show()
 
 
-###############################################################################
+# %%
 # ``ArtistAnimation``
 # -------------------
 #
@@ -152,7 +152,7 @@ for i in range(20):
 ani = animation.ArtistAnimation(fig=fig, artists=artists, interval=400)
 plt.show()
 
-###############################################################################
+# %%
 # Animation Writers
 # =================
 #

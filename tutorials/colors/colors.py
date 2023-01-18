@@ -113,7 +113,7 @@ ax.text(11.3, -0.6, 'zorder=3', va='center', color='C0')
 ax.axis('off')
 
 
-###############################################################################
+# %%
 #
 # The orange rectangle is semi-transparent with *alpha* = 0.8. The  top row of
 # blue squares is drawn below and the bottom row of blue squares is drawn on
@@ -151,7 +151,7 @@ def demo(sty):
 demo('default')
 demo('seaborn-v0_8')
 
-###############################################################################
+# %%
 # The first color ``'C0'`` is the title. Each plot uses the second and third
 # colors of each style's :rc:`axes.prop_cycle`. They are ``'C1'`` and ``'C2'``,
 # respectively.

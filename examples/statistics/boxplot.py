@@ -24,7 +24,7 @@ data = np.random.lognormal(size=(37, 4), mean=1.5, sigma=1.75)
 labels = list('ABCD')
 fs = 10  # fontsize
 
-###############################################################################
+# %%
 # Demonstrate how to toggle the display of different elements:
 
 fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
@@ -55,7 +55,7 @@ fig.subplots_adjust(hspace=0.4)
 plt.show()
 
 
-###############################################################################
+# %%
 # Demonstrate how to customize the display different elements:
 
 boxprops = dict(linestyle='--', linewidth=3, color='darkgoldenrod')
@@ -95,7 +95,7 @@ fig.suptitle("I never said they'd be pretty")
 fig.subplots_adjust(hspace=0.4)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

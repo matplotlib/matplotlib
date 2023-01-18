@@ -56,7 +56,7 @@ im.save("test.bmp")
 # Uncomment this line to display the image using ImageMagick's `display` tool.
 # im.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

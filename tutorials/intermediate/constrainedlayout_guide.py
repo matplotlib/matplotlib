@@ -66,7 +66,7 @@ def example_plot(ax, fontsize=12, hide_labels=False):
 fig, ax = plt.subplots(layout=None)
 example_plot(ax, fontsize=24)
 
-###############################################################################
+# %%
 # To prevent this, the location of axes needs to be adjusted. For
 # subplots, this can be done manually by adjusting the subplot parameters
 # using `.Figure.subplots_adjust`. However, specifying your figure with the
@@ -76,7 +76,7 @@ example_plot(ax, fontsize=24)
 fig, ax = plt.subplots(layout="constrained")
 example_plot(ax, fontsize=24)
 
-###############################################################################
+# %%
 # When you have multiple subplots, often you see labels of different
 # axes overlapping each other.
 
@@ -84,7 +84,7 @@ fig, axs = plt.subplots(2, 2, layout=None)
 for ax in axs.flat:
     example_plot(ax)
 
-###############################################################################
+# %%
 # Specifying ``layout="constrained"`` in the call to ``plt.subplots``
 # causes the layout to be properly constrained.
 
@@ -92,7 +92,7 @@ fig, axs = plt.subplots(2, 2, layout="constrained")
 for ax in axs.flat:
     example_plot(ax)
 
-###############################################################################
+# %%
 # Colorbars
 # =========
 #
@@ -117,7 +117,7 @@ fig, ax = plt.subplots(figsize=(4, 4), layout="constrained")
 im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=ax, shrink=0.6)
 
-############################################################################
+# %%
 # If you specify a list of axes (or other iterable container) to the
 # ``ax`` argument of ``colorbar``, constrained_layout will take space from
 # the specified axes.
@@ -127,7 +127,7 @@ for ax in axs.flat:
     im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs, shrink=0.6)
 
-############################################################################
+# %%
 # If you specify a list of axes from inside a grid of axes, the colorbar
 # will steal space appropriately, and leave a gap, but all subplots will
 # still be the same size.
@@ -138,7 +138,7 @@ for ax in axs.flat:
 fig.colorbar(im, ax=axs[1:, 1], shrink=0.8)
 fig.colorbar(im, ax=axs[:, -1], shrink=0.6)
 
-####################################################
+# %%
 # Suptitle
 # =========
 #
@@ -150,7 +150,7 @@ for ax in axs.flat:
 fig.colorbar(im, ax=axs, shrink=0.6)
 fig.suptitle('Big Suptitle')
 
-####################################################
+# %%
 # Legends
 # =======
 #
@@ -163,7 +163,7 @@ fig, ax = plt.subplots(layout="constrained")
 ax.plot(np.arange(10), label='This is a plot')
 ax.legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
-#############################################
+# %%
 # However, this will steal space from a subplot layout:
 
 fig, axs = plt.subplots(1, 2, figsize=(4, 2), layout="constrained")
@@ -171,7 +171,7 @@ axs[0].plot(np.arange(10))
 axs[1].plot(np.arange(10), label='This is a plot')
 axs[1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 
-#############################################
+# %%
 # In order for a legend or other artist to *not* steal space
 # from the subplot layout, we can ``leg.set_in_layout(False)``.
 # Of course this can mean the legend ends up
@@ -203,7 +203,7 @@ except FileNotFoundError:
     # the directory above doesn't exist
     pass
 
-#############################################
+# %%
 # The saved file looks like:
 #
 # .. image:: /_static/constrained_layout_1b.png
@@ -226,14 +226,14 @@ except FileNotFoundError:
     pass
 
 
-#############################################
+# %%
 # The saved file looks like:
 #
 # .. image:: /_static/constrained_layout_2b.png
 #    :align: center
 #
 
-###############################################################################
+# %%
 # Padding and Spacing
 # ===================
 #
@@ -248,7 +248,7 @@ for ax in axs.flat:
 fig.get_layout_engine().set(w_pad=4 / 72, h_pad=4 / 72, hspace=0,
                             wspace=0)
 
-##########################################
+# %%
 # Spacing between subplots is further set by *wspace* and *hspace*. These
 # are specified as a fraction of the size of the subplot group as a whole.
 # If these values are smaller than *w_pad* or *h_pad*, then the fixed pads are
@@ -261,7 +261,7 @@ for ax in axs.flat:
 fig.get_layout_engine().set(w_pad=4 / 72, h_pad=4 / 72, hspace=0.2,
                             wspace=0.2)
 
-##########################################
+# %%
 # If there are more than two columns, the *wspace* is shared between them,
 # so here the wspace is divided in two, with a *wspace* of 0.1 between each
 # column:
@@ -272,7 +272,7 @@ for ax in axs.flat:
 fig.get_layout_engine().set(w_pad=4 / 72, h_pad=4 / 72, hspace=0.2,
                             wspace=0.2)
 
-##########################################
+# %%
 # GridSpecs also have optional *hspace* and *wspace* keyword arguments,
 # that will be used instead of the pads set by ``constrained_layout``:
 
@@ -285,7 +285,7 @@ for ax in axs.flat:
 fig.get_layout_engine().set(w_pad=4 / 72, h_pad=4 / 72, hspace=0.0,
                             wspace=0.0)
 
-##########################################
+# %%
 # Spacing with colorbars
 # -----------------------
 #
@@ -304,7 +304,7 @@ for pad, ax in zip(pads, axs.flat):
 fig.get_layout_engine().set(w_pad=2 / 72, h_pad=2 / 72, hspace=0.2,
                             wspace=0.2)
 
-##########################################
+# %%
 # rcParams
 # ========
 #
@@ -324,7 +324,7 @@ fig, axs = plt.subplots(2, 2, figsize=(3, 3))
 for ax in axs.flat:
     example_plot(ax)
 
-#############################
+# %%
 # Use with GridSpec
 # =================
 #
@@ -346,7 +346,7 @@ ax2 = fig.add_subplot(gs1[1])
 example_plot(ax1)
 example_plot(ax2)
 
-###############################################################################
+# %%
 # More complicated gridspec layouts are possible.  Note here we use the
 # convenience functions `~.Figure.add_gridspec` and
 # `~.SubplotSpec.subgridspec`.
@@ -372,7 +372,7 @@ for ss in gs2:
 
 ax.set_xlabel("x-label", fontsize=12)
 
-############################################################################
+# %%
 # Note that in the above the left and right columns don't have the same
 # vertical extent.  If we want the top and bottom of the two grids to line up
 # then they need to be in the same gridspec.  We need to make this figure
@@ -396,7 +396,7 @@ ax = fig.add_subplot(gs0[4:, 1])
 example_plot(ax, hide_labels=True)
 fig.suptitle('Overlapping Gridspecs')
 
-############################################################################
+# %%
 # This example uses two gridspecs to have the colorbar only pertain to
 # one set of pcolors.  Note how the left column is wider than the
 # two right-hand columns because of this.  Of course, if you wanted the
@@ -422,7 +422,7 @@ for gs in gs_right:
 fig.suptitle('Nested plots using subgridspec')
 fig.colorbar(pcm, ax=axs)
 
-###############################################################################
+# %%
 # Rather than using subgridspecs, Matplotlib now provides `~.Figure.subfigures`
 # which also work with ``constrained_layout``:
 
@@ -442,7 +442,7 @@ for ax in axs_right.flat:
 fig.colorbar(pcm, ax=axs_right)
 fig.suptitle('Nested plots using subfigures')
 
-###############################################################################
+# %%
 # Manually setting axes positions
 # ================================
 #
@@ -455,7 +455,7 @@ fig, axs = plt.subplots(1, 2, layout="constrained")
 example_plot(axs[0], fontsize=12)
 axs[1].set_position([0.2, 0.2, 0.4, 0.4])
 
-###############################################################################
+# %%
 # .. _compressed_layout:
 #
 # Grids of fixed aspect-ratio Axes: "compressed" layout
@@ -472,7 +472,7 @@ for ax in axs.flat:
     ax.imshow(arr)
 fig.suptitle("fixed-aspect plots, layout='constrained'")
 
-###############################################################################
+# %%
 # One obvious way of fixing this is to make the figure size more square,
 # however, closing the gaps exactly requires trial and error.  For simple grids
 # of Axes we can use ``layout="compressed"`` to do the job for us:
@@ -484,7 +484,7 @@ for ax in axs.flat:
 fig.suptitle("fixed-aspect plots, layout='compressed'")
 
 
-###############################################################################
+# %%
 # Manually turning off ``constrained_layout``
 # ===========================================
 #
@@ -524,7 +524,7 @@ example_plot(ax2)
 example_plot(ax3)
 plt.suptitle('Homogenous nrows, ncols')
 
-###############################################################################
+# %%
 # but the following leads to a poor layout:
 
 fig = plt.figure(layout="constrained")
@@ -538,7 +538,7 @@ example_plot(ax2)
 example_plot(ax3)
 plt.suptitle('Mixed nrows, ncols')
 
-###############################################################################
+# %%
 # Similarly,
 # `~matplotlib.pyplot.subplot2grid` works with the same limitation
 # that nrows and ncols cannot change for the layout to look good.
@@ -556,7 +556,7 @@ example_plot(ax3)
 example_plot(ax4)
 fig.suptitle('subplot2grid')
 
-###############################################################################
+# %%
 # Other Caveats
 # -------------
 #
@@ -577,7 +577,7 @@ fig.suptitle('subplot2grid')
 #   :meth:`~matplotlib.figure.Figure.add_artist`. See
 #   :class:`~matplotlib.patches.ConnectionPatch` for an example.
 
-###########################################################
+# %%
 # Debugging
 # =========
 #
@@ -594,7 +594,7 @@ fig.suptitle('subplot2grid')
 # If there is a bug, please report with a self-contained example that does
 # not require outside data or dependencies (other than numpy).
 
-###########################################################
+# %%
 # Notes on the algorithm
 # ======================
 #
@@ -637,7 +637,7 @@ fig, ax = plt.subplots(layout="constrained")
 example_plot(ax, fontsize=24)
 plot_children(fig)
 
-#######################################################################
+# %%
 # Simple case: two Axes
 # ---------------------
 # When there are multiple axes they have their layouts bound in
@@ -652,7 +652,7 @@ example_plot(ax[0], fontsize=32)
 example_plot(ax[1], fontsize=8)
 plot_children(fig)
 
-#######################################################################
+# %%
 # Two Axes and colorbar
 # ---------------------
 #
@@ -665,7 +665,7 @@ fig.colorbar(im, ax=ax[0], shrink=0.6)
 im = ax[1].pcolormesh(arr, **pc_kwargs)
 plot_children(fig)
 
-#######################################################################
+# %%
 # Colorbar associated with a Gridspec
 # -----------------------------------
 #
@@ -678,7 +678,7 @@ for ax in axs.flat:
 fig.colorbar(im, ax=axs, shrink=0.6)
 plot_children(fig)
 
-#######################################################################
+# %%
 # Uneven sized Axes
 # -----------------
 #
@@ -703,7 +703,7 @@ ax = fig.add_subplot(gs[1, 1])
 im = ax.pcolormesh(arr, **pc_kwargs)
 plot_children(fig)
 
-#######################################################################
+# %%
 # One case that requires finessing is if margins do not have any artists
 # constraining their width. In the case below, the right margin for column 0
 # and the left margin for column 3 have no margin artists to set their width,

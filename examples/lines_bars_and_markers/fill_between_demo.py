@@ -10,7 +10,7 @@ between two lines.
 import matplotlib.pyplot as plt
 import numpy as np
 
-###############################################################################
+# %%
 #
 # Basic usage
 # -----------
@@ -34,7 +34,7 @@ ax3.set_title('fill between y1 and y2')
 ax3.set_xlabel('x')
 fig.tight_layout()
 
-###############################################################################
+# %%
 #
 # Example: Confidence bands
 # -------------------------
@@ -63,7 +63,7 @@ ax.plot(x, y_est, '-')
 ax.fill_between(x, y_est - y_err, y_est + y_err, alpha=0.2)
 ax.plot(x, y, 'o', color='tab:brown')
 
-###############################################################################
+# %%
 #
 # Selectively filling horizontal regions
 # --------------------------------------
@@ -99,7 +99,7 @@ ax2.fill_between(x, y1, y2, where=(y1 <= y2), color='C1', alpha=0.3,
                  interpolate=True)
 fig.tight_layout()
 
-###############################################################################
+# %%
 #
 # .. note::
 #
@@ -108,7 +108,7 @@ fig.tight_layout()
 #    The gaps around masked values can only be reduced by adding more data
 #    points close to the masked values.
 
-###############################################################################
+# %%
 #
 # Selectively marking horizontal regions across the whole Axes
 # ------------------------------------------------------------
@@ -130,7 +130,7 @@ ax.axhline(threshold, color='green', lw=2, alpha=0.7)
 ax.fill_between(x, 0, 1, where=y > threshold,
                 color='green', alpha=0.5, transform=ax.get_xaxis_transform())
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -99,7 +99,7 @@ scores_by_test = {
 plot_student_results(student, scores_by_test, cohort_size=62)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

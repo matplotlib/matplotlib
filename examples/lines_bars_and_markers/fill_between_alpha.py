@@ -37,7 +37,7 @@ ax1.set_ylabel('price')
 fig.suptitle('Google (GOOG) daily closing price')
 fig.autofmt_xdate()
 
-###############################################################################
+# %%
 # The alpha channel is not necessary here, but it can be used to soften
 # colors for more visually appealing plots.  In other examples, as we'll
 # see below, the alpha channel is functionally useful as the shaded
@@ -86,7 +86,7 @@ ax.set_xlabel('num steps')
 ax.set_ylabel('position')
 ax.grid()
 
-###############################################################################
+# %%
 # The ``where`` keyword argument is very handy for highlighting certain
 # regions of the graph.  ``where`` takes a boolean mask the same length
 # as the x, ymin and ymax arguments, and only fills in the region where
@@ -130,7 +130,7 @@ ax.set_xlabel('num steps')
 ax.set_ylabel('position')
 ax.grid()
 
-###############################################################################
+# %%
 # Another handy use of filled regions is to highlight horizontal or vertical
 # spans of an Axes -- for that Matplotlib has the helper functions
 # `~matplotlib.axes.Axes.axhspan` and `~matplotlib.axes.Axes.axvspan`.  See

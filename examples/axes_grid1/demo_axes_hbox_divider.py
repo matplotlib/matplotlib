@@ -33,7 +33,7 @@ ax2.set_axes_locator(divider.new_locator(2))
 
 plt.show()
 
-###############################################################################
+# %%
 # Using a `.VBoxDivider` to arrange subplots.
 #
 # Note that both axes' location are adjusted so that they have

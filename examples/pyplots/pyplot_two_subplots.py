@@ -26,7 +26,7 @@ plt.subplot(212)
 plt.plot(t2, np.cos(2*np.pi*t2), color='tab:orange', linestyle='--')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

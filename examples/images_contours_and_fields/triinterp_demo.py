@@ -59,7 +59,7 @@ axs[3].set_title("Cubic interpolation,\nkind='min_E'")
 fig.tight_layout()
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

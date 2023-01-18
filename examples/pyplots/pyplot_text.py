@@ -26,7 +26,7 @@ plt.xlabel('Time [s]')
 plt.ylabel('Voltage [mV]')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

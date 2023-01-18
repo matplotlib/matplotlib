@@ -83,7 +83,7 @@ location:
 .. redirect-from:: /tutorials/intermediate/gridspec
 
 """
-############################################################################
+# %%
 # High-level methods for making grids
 # ===================================
 #
@@ -111,7 +111,7 @@ for row in range(2):
                                color='darkgrey')
 fig.suptitle('plt.subplots()')
 
-##############################################################################
+# %%
 # We will annotate a lot of Axes, so let's encapsulate the annotation, rather
 # than having that large piece of annotation code every time we need it:
 
@@ -121,7 +121,7 @@ def annotate_axes(ax, text, fontsize=18):
             ha="center", va="center", fontsize=fontsize, color="darkgrey")
 
 
-##############################################################################
+# %%
 # The same effect can be achieved with `~.pyplot.subplot_mosaic`,
 # but the return type is a dictionary instead of an array, where the user
 # can give the keys useful meanings.  Here we provide two lists, each list
@@ -135,7 +135,7 @@ for k in axd:
     annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
-#############################################################################
+# %%
 #
 # Grids of fixed-aspect ratio Axes
 # --------------------------------
@@ -151,7 +151,7 @@ for ax in axs.flat:
     ax.set_aspect(1)
 fig.suptitle('Fixed aspect Axes')
 
-############################################################################
+# %%
 # One way to address this is to change the aspect of the figure to be close
 # to the aspect ratio of the Axes, however that requires trial and error.
 # Matplotlib also supplies ``layout="compressed"``, which will work with
@@ -165,7 +165,7 @@ for ax in axs.flat:
 fig.suptitle('Fixed aspect Axes: compressed')
 
 
-############################################################################
+# %%
 # Axes spanning rows or columns in a grid
 # ---------------------------------------
 #
@@ -181,7 +181,7 @@ for k in axd:
     annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
-############################################################################
+# %%
 # See below for the description of how to do the same thing using
 # `~matplotlib.gridspec.GridSpec` or `~matplotlib.pyplot.subplot2grid`.
 #
@@ -204,7 +204,7 @@ for k in axd:
     annotate_axes(axd[k], f'axd["{k}"]', fontsize=14)
 fig.suptitle('plt.subplot_mosaic()')
 
-############################################################################
+# %%
 # Nested Axes layouts
 # -------------------
 #
@@ -226,7 +226,7 @@ axs1 = subfigs[1].subplots(3, 1)
 subfigs[1].suptitle('subfigs[1]')
 subfigs[1].supylabel('ylabel for subfigs[1]')
 
-############################################################################
+# %%
 # It is also possible to nest Axes using `~.pyplot.subplot_mosaic` using
 # nested lists.  This method does not use subfigures, like above, so lacks
 # the ability to add per-subfigure ``suptitle`` and ``supxlabel``, etc.
@@ -242,7 +242,7 @@ fig, axd = plt.subplot_mosaic(outer, layout="constrained")
 for k in axd:
     annotate_axes(axd[k], f'axd["{k}"]')
 
-############################################################################
+# %%
 # Low-level and advanced grid methods
 # ===================================
 #
@@ -278,7 +278,7 @@ annotate_axes(ax3, 'ax3')
 
 fig.suptitle('Manually added subplots using add_gridspec')
 
-##############################################################################
+# %%
 # Axes spanning rows or grids in a grid
 # -------------------------------------
 #
@@ -301,7 +301,7 @@ annotate_axes(ax11, 'ax11')
 
 fig.suptitle('Manually added subplots, spanning a column')
 
-###############################################################################
+# %%
 # Manual adjustments to a *GridSpec* layout
 # -----------------------------------------
 #
@@ -326,7 +326,7 @@ ax2 = fig.add_subplot(gs[-1, -1])
 annotate_axes(ax2, 'ax2')
 fig.suptitle('Manual gridspec with right=0.75')
 
-###############################################################################
+# %%
 # Nested layouts with SubplotSpec
 # -------------------------------
 #
@@ -357,7 +357,7 @@ for a in range(3):
 
 fig.suptitle('nested gridspecs')
 
-###############################################################################
+# %%
 # Here's a more sophisticated example of nested *GridSpec*: We create an outer
 # 4x4 grid with each cell containing an inner 3x3 grid of Axes. We outline
 # the outer 4x4 grid by hiding appropriate spines in each of the inner 3x3
@@ -389,7 +389,7 @@ for ax in fig.get_axes():
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # More reading
 # ============

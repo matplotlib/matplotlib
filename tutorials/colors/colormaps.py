@@ -83,7 +83,7 @@ import matplotlib.pyplot as plt
 from colorspacious import cspace_converter
 
 
-###############################################################################
+# %%
 #
 # First, we'll show the range of each colormap. Note that some seem
 # to change more "quickly" than others.
@@ -116,7 +116,7 @@ def plot_color_gradients(category, cmap_list):
     cmaps[category] = cmap_list
 
 
-###############################################################################
+# %%
 # Sequential
 # ----------
 #
@@ -131,14 +131,14 @@ def plot_color_gradients(category, cmap_list):
 plot_color_gradients('Perceptually Uniform Sequential',
                      ['viridis', 'plasma', 'inferno', 'magma', 'cividis'])
 
-###############################################################################
+# %%
 
 plot_color_gradients('Sequential',
                      ['Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
                       'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
                       'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn'])
 
-###############################################################################
+# %%
 # Sequential2
 # -----------
 #
@@ -155,7 +155,7 @@ plot_color_gradients('Sequential (2)',
                       'pink', 'spring', 'summer', 'autumn', 'winter', 'cool',
                       'Wistia', 'hot', 'afmhot', 'gist_heat', 'copper'])
 
-###############################################################################
+# %%
 # Diverging
 # ---------
 #
@@ -170,7 +170,7 @@ plot_color_gradients('Diverging',
                      ['PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu',
                       'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic'])
 
-###############################################################################
+# %%
 # Cyclic
 # ------
 #
@@ -190,7 +190,7 @@ plot_color_gradients('Diverging',
 
 plot_color_gradients('Cyclic', ['twilight', 'twilight_shifted', 'hsv'])
 
-###############################################################################
+# %%
 # Qualitative
 # -----------
 #
@@ -204,7 +204,7 @@ plot_color_gradients('Qualitative',
                       'Set1', 'Set2', 'Set3', 'tab10', 'tab20', 'tab20b',
                       'tab20c'])
 
-###############################################################################
+# %%
 # Miscellaneous
 # -------------
 #
@@ -233,7 +233,7 @@ plot_color_gradients('Miscellaneous',
 
 plt.show()
 
-###############################################################################
+# %%
 # Lightness of Matplotlib colormaps
 # =================================
 #
@@ -325,7 +325,7 @@ for cmap_category, cmap_list in cmaps.items():
     plt.show()
 
 
-###############################################################################
+# %%
 # Grayscale conversion
 # ====================
 #
@@ -404,7 +404,7 @@ for cmap_category, cmap_list in cmaps.items():
 
     plot_color_gradients(cmap_category, cmap_list)
 
-###############################################################################
+# %%
 # Color vision deficiencies
 # =========================
 #

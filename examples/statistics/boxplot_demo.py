@@ -75,7 +75,7 @@ ax.boxplot(data)
 plt.show()
 
 
-###############################################################################
+# %%
 # Below we'll generate data from five different probability distributions,
 # each with different characteristics. We want to play with how an IID
 # bootstrap resample of the data preserves the distributional
@@ -188,7 +188,7 @@ fig.text(0.815, 0.013, ' Average Value', color='black', weight='roman',
 
 plt.show()
 
-###############################################################################
+# %%
 # Here we write a custom function to bootstrap confidence intervals.
 # We can then use the boxplot along with this function to show these intervals.
 
@@ -234,7 +234,7 @@ plt.setp(bp['fliers'], markersize=3.0)
 plt.show()
 
 
-###############################################################################
+# %%
 # Here we customize the widths of the caps .
 
 x = np.linspace(-7, 7, 140)
@@ -245,7 +245,7 @@ ax.boxplot([x, x], notch=True, capwidths=[0.01, 0.2])
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

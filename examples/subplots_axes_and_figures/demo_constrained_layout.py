@@ -22,7 +22,7 @@ def example_plot(ax):
     ax.set_title('Title', fontsize=14)
 
 
-###############################################################################
+# %%
 # If we don't use constrained_layout, then labels overlap the axes
 
 fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=False)
@@ -30,7 +30,7 @@ fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=False)
 for ax in axs.flat:
     example_plot(ax)
 
-###############################################################################
+# %%
 # adding ``constrained_layout=True`` automatically adjusts.
 
 fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=True)
@@ -38,7 +38,7 @@ fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=True)
 for ax in axs.flat:
     example_plot(ax)
 
-###############################################################################
+# %%
 # Below is a more complicated example using nested gridspecs.
 
 fig = plt.figure(constrained_layout=True)
@@ -60,7 +60,7 @@ for n in range(2):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

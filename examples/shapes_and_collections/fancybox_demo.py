@@ -13,7 +13,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatch
 from matplotlib.patches import FancyBboxPatch
 
-###############################################################################
+# %%
 # First we'll show some sample boxes with fancybox.
 
 styles = mpatch.BoxStyle.get_styles()
@@ -39,7 +39,7 @@ for ax, (stylename, stylecls) in zip(axs[1:, :].T.flat, styles.items()):
             horizontalalignment="left", verticalalignment="center")
 
 
-###############################################################################
+# %%
 # Next we'll show off multiple fancy boxes at once.
 
 
@@ -110,7 +110,7 @@ fig.tight_layout()
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

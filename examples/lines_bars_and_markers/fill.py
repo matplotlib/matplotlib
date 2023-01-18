@@ -51,7 +51,7 @@ def koch_snowflake(order, scale=10):
     return x, y
 
 
-###############################################################################
+# %%
 # Basic usage:
 
 x, y = koch_snowflake(order=5)
@@ -61,7 +61,7 @@ plt.axis('equal')
 plt.fill(x, y)
 plt.show()
 
-###############################################################################
+# %%
 # Use keyword arguments *facecolor* and *edgecolor* to modify the colors
 # of the polygon. Since the *linewidth* of the edge is 0 in the default
 # Matplotlib style, we have to set it as well for the edge to become visible.
@@ -76,7 +76,7 @@ ax3.fill(x, y, facecolor='none', edgecolor='purple', linewidth=3)
 
 plt.show()
 
-###############################################################################
+# %%
 #
 # .. admonition:: References
 #

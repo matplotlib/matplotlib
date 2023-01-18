@@ -95,7 +95,7 @@ toc = time.time()
 print(f"{toc-tic:.3f} sec. elapsed")
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

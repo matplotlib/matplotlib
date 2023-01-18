@@ -101,7 +101,7 @@ ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 90, 10)))
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

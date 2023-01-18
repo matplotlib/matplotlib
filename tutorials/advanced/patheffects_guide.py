@@ -29,7 +29,7 @@ text = fig.text(0.5, 0.5, 'Hello path effects world!\nThis is the normal '
 text.set_path_effects([path_effects.Normal()])
 plt.show()
 
-###############################################################################
+# %%
 # Whilst the plot doesn't look any different to what you would expect without
 # any path effects, the drawing of the text has now been changed to use the
 # path effects framework, opening up the possibilities for more interesting
@@ -53,7 +53,7 @@ plt.plot([0, 3, 2, 5], linewidth=5, color='blue',
                        path_effects.Normal()])
 plt.show()
 
-###############################################################################
+# %%
 # Notice the two approaches to setting the path effects in this example. The
 # first uses the ``with*`` classes to include the desired functionality
 # automatically followed with the "normal" effect, whereas the latter
@@ -74,7 +74,7 @@ text.set_path_effects([path_effects.Stroke(linewidth=3, foreground='black'),
                        path_effects.Normal()])
 plt.show()
 
-###############################################################################
+# %%
 # It is important to note that this effect only works because we have drawn
 # the text path twice; once with a thick black line, and then once with the
 # original text path on top.
@@ -107,7 +107,7 @@ t.set_path_effects([
         edgecolor='white', linewidth=1.1, facecolor='black')])
 plt.show()
 
-###############################################################################
+# %%
 # ..
 #     Headings for future consideration:
 #

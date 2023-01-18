@@ -36,7 +36,7 @@ Pxx, freqs, bins, im = ax2.specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900)
 # - im: the .image.AxesImage instance representing the data in the plot
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

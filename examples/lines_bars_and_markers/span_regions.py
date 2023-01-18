@@ -22,7 +22,7 @@ ax.fill_between(t, -1, where=s < 0, facecolor='red', alpha=.5)
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #
