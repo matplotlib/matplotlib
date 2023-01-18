@@ -135,7 +135,7 @@ fig.colorbar(im, ax=axs, shrink=0.6)
 fig, axs = plt.subplots(3, 3, figsize=(4, 4), layout="constrained")
 for ax in axs.flat:
     im = ax.pcolormesh(arr, **pc_kwargs)
-fig.colorbar(im, ax=axs[1:, ][:, 1], shrink=0.8)
+fig.colorbar(im, ax=axs[1:, 1], shrink=0.8)
 fig.colorbar(im, ax=axs[:, -1], shrink=0.6)
 
 ####################################################
