@@ -2,5 +2,5 @@
 
 .. _axisartist-examples-index:
 
-Axis artist
-===========
+The axisartist module
+=====================
