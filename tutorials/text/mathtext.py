@@ -354,7 +354,7 @@ Example
 -------
 Here is an example illustrating many of these features in context.
 
-.. figure:: ../../gallery/pyplots/images/sphx_glr_pyplot_mathtext_001.png
-   :target: ../../gallery/pyplots/pyplot_mathtext.html
+.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_mathtext_demo_001.png
+   :target: ../../gallery/text_labels_and_annotations/mathtext_demo.html
    :align: center
 """

@@ -1,10 +1,11 @@
 """
-===================
-Pyplot Two Subplots
-===================
+=========================
+Two subplots using pyplot
+=========================
 
-Create a figure with two subplots with `.pyplot.subplot`.
+Create a figure with two subplots using `.pyplot.subplot`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
