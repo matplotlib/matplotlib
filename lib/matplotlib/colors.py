@@ -241,7 +241,15 @@ def _check_color_like(**kwargs):
     for k, v in kwargs.items():
         if not is_color_like(v):
             raise ValueError(f"{v!r} is not a valid value for {k}")
-
+            
+def check_color_like_list(**kwargs):
+    """ 
+    For each *key, lst* pair in *kwargs*, check that every element *v* in *lst* is color-like. 
+    """ 
+    for k, lst in kwargs.items():
+        invalid_colors = list(filter(lambda v: not is_color_like(v), lst))
+        if invalid_colors:
+            raise ValueError(f"{invalid_colors} are not valid value(s) for {k}")
 
 def same_color(c1, c2):
     """
