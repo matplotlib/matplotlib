@@ -814,7 +814,9 @@ from having an plot generated insert "sgskip" somewhere in the filename.
 
 The format of these files is relatively straightforward.  Properly
 formatted comment blocks are treated as ReST_ text, the code is
-displayed, and figures are put into the built page.
+displayed, and figures are put into the built page.  Matplotlib uses the
+``# %%`` section separator so that IDEs will identify "code cells" to make
+it easy to re-run sub-sections of the example.
 
 For instance the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 example is generated from
@@ -853,7 +855,7 @@ Tutorials are made with the exact same mechanism, except they are longer, and
 typically have more than one comment block (i.e.
 :doc:`/tutorials/introductory/quick_start`).  The first comment block
 can be the same as the example above.  Subsequent blocks of ReST text
-are delimited by a line of ``###`` characters:
+are delimited by the line ``# %%`` :
 
 .. code-block:: python
 
@@ -868,7 +870,7 @@ are delimited by a line of ``###`` characters:
     ax.grid()
     plt.show()
 
-    ##########################################################################
+    # %%
     # Second plot
     # ===========
     #
@@ -887,7 +889,7 @@ bottom as follows
 
 .. code-block:: python
 
-    ###############################################################################
+    # %%
     #
     # .. admonition:: References
     #
