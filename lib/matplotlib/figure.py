@@ -1221,13 +1221,13 @@ default: %(va)s
 
         The *shrink* kwarg provides a simple way to scale the colorbar with
         respect to the axes. Note that if *cax* is specified, it determines the
-        size of the colorbar and *shrink* and *aspect* kwargs are ignored.
+        size of the colorbar, and *shrink* and *aspect* are ignored.
 
         For more precise control, you can manually specify the positions of the
         axes objects in which the mappable and the colorbar are drawn.  In this
         case, do not use any of the axes properties kwargs.
 
-        It is known that some vector graphics viewers (svg and pdf) renders
+        It is known that some vector graphics viewers (svg and pdf) render
         white gaps between segments of the colorbar.  This is due to bugs in
         the viewers, not Matplotlib.  As a workaround, the colorbar can be
         rendered with overlapping segments::
@@ -1247,8 +1247,8 @@ default: %(va)s
         if (self.get_layout_engine() is not None and
                 not self.get_layout_engine().colorbar_gridspec):
             use_gridspec = False
-        # Store the value of gca so that we can set it back later on.
         if cax is None:
+            current_ax = self.gca()
             if ax is None:
                 _api.warn_deprecated("3.6", message=(
                     'Unable to determine Axes to steal space for Colorbar. '
@@ -1256,28 +1256,21 @@ default: %(va)s
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
                     'from it, or add *mappable* to an Axes.'))
-                ax = self.gca()
-            current_ax = self.gca()
-            userax = False
+                ax = current_ax
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):
                 cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
-            cax.grid(visible=False, which='both', axis='both')
-        else:
-            userax = True
-
-        # need to remove kws that cannot be passed to Colorbar
-        NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
-                             'panchor']
-        cb_kw = {k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS}
-
-        cb = cbar.Colorbar(cax, mappable, **cb_kw)
-
-        if not userax:
+            # make_axes calls add_{axes,subplot} which changes gca; undo that.
             self.sca(current_ax)
+            cax.grid(visible=False, which='both', axis='both')
+
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
+        cb = cbar.Colorbar(cax, mappable, **{
+            k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
         self.stale = True
         return cb
 
