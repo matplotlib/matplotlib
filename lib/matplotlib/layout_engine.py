@@ -203,7 +203,7 @@ class ConstrainedLayoutEngine(LayoutEngine):
         Parameters
         ----------
         h_pad, w_pad : float
-            Padding around the axes elements in figure-normalized units.
+            Padding around the axes elements in inches.
             Default to :rc:`figure.constrained_layout.h_pad` and
             :rc:`figure.constrained_layout.w_pad`.
         hspace, wspace : float
@@ -261,7 +261,7 @@ class ConstrainedLayoutEngine(LayoutEngine):
         Parameters
         ----------
         h_pad, w_pad : float
-            Padding around the axes elements in figure-normalized units.
+            Padding around the axes elements in inches.
             Default to :rc:`figure.constrained_layout.h_pad` and
             :rc:`figure.constrained_layout.w_pad`.
         hspace, wspace : float

@@ -3251,8 +3251,11 @@ class Figure(FigureBase):
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : float, default: :rc:`savefig.pad_inches`
-            Amount of padding around the figure when bbox_inches is 'tight'.
+        pad_inches : float or 'layout', default: :rc:`savefig.pad_inches`
+            Amount of padding in inches around the figure when bbox_inches is
+            'tight'. If 'layout' use the padding from the constrained or
+            compressed layout engine; ignored if one of those engines is not in
+            use.
 
         facecolor : color or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
