@@ -959,15 +959,11 @@ class Axes3D(Axes):
         self.mouse_init(rotate_btn=[], pan_btn=[], zoom_btn=[])
 
     def can_zoom(self):
-        """
-        Return whether this Axes supports the zoom box button functionality.
-        """
+        # doc-string inherited
         return True
 
     def can_pan(self):
-        """
-        Return whether this Axes supports the pan button functionality.
-        """
+        # doc-string inherited
         return True
 
     def sharez(self, other):
@@ -1002,17 +998,17 @@ class Axes3D(Axes):
         if event.inaxes == self:
             self.button_pressed = event.button
             self._sx, self._sy = event.xdata, event.ydata
-            toolbar = getattr(self.figure.canvas, "toolbar")
+            toolbar = self.figure.canvas.toolbar
             if toolbar and toolbar._nav_stack() is None:
-                self.figure.canvas.toolbar.push_current()
+                toolbar.push_current()
 
     def _button_release(self, event):
         self.button_pressed = None
-        toolbar = getattr(self.figure.canvas, "toolbar")
+        toolbar = self.figure.canvas.toolbar
         # backend_bases.release_zoom and backend_bases.release_pan call
         # push_current, so check the navigation mode so we don't call it twice
         if toolbar and self.get_navigate_mode() is None:
-            self.figure.canvas.toolbar.push_current()
+            toolbar.push_current()
 
     def _get_view(self):
         # docstring inherited
@@ -1597,12 +1593,6 @@ class Axes3D(Axes):
 
         fcolors = kwargs.pop('facecolors', None)
 
-        if fcolors is None:
-            color = kwargs.pop('color', None)
-            if color is None:
-                color = self._get_lines.get_next_color()
-            color = np.array(mcolors.to_rgba(color))
-
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
         if shade is None:
@@ -1677,6 +1667,11 @@ class Axes3D(Axes):
             if norm is not None:
                 polyc.set_norm(norm)
         else:
+            color = kwargs.pop('color', None)
+            if color is None:
+                color = self._get_lines.get_next_color()
+            color = np.array(mcolors.to_rgba(color))
+
             polyc = art3d.Poly3DCollection(
                 polys, facecolors=color, shade=shade,
                 lightsource=lightsource, **kwargs)
@@ -2548,7 +2543,7 @@ class Axes3D(Axes):
             :class:`.Line3DCollection`
         """
 
-        def calc_arrows(UVW, angle=15):
+        def calc_arrows(UVW):
             # get unit direction vector perpendicular to (u, v, w)
             x = UVW[:, 0]
             y = UVW[:, 1]
@@ -2556,14 +2551,17 @@ class Axes3D(Axes):
             x_p = np.divide(y, norm, where=norm != 0, out=np.zeros_like(x))
             y_p = np.divide(-x,  norm, where=norm != 0, out=np.ones_like(x))
             # compute the two arrowhead direction unit vectors
-            ra = math.radians(angle)
-            c = math.cos(ra)
-            s = math.sin(ra)
+            rangle = math.radians(15)
+            c = math.cos(rangle)
+            s = math.sin(rangle)
             # construct the rotation matrices of shape (3, 3, n)
+            r13 = y_p * s
+            r32 = x_p * s
+            r12 = x_p * y_p * (1 - c)
             Rpos = np.array(
-                [[c + (x_p ** 2) * (1 - c), x_p * y_p * (1 - c), y_p * s],
-                 [y_p * x_p * (1 - c), c + (y_p ** 2) * (1 - c), -x_p * s],
-                 [-y_p * s, x_p * s, np.full_like(x_p, c)]])
+                [[c + (x_p ** 2) * (1 - c), r12, r13],
+                 [r12, c + (y_p ** 2) * (1 - c), -r32],
+                 [-r13, r32, np.full_like(x_p, c)]])
             # opposite rotation negates all the sin terms
             Rneg = Rpos.copy()
             Rneg[[0, 1, 2, 2], [2, 2, 0, 1]] *= -1
@@ -2571,8 +2569,7 @@ class Axes3D(Axes):
             Rpos_vecs = np.einsum("ij...,...j->...i", Rpos, UVW)
             Rneg_vecs = np.einsum("ij...,...j->...i", Rneg, UVW)
             # Stack into (n, 2, 3) result.
-            head_dirs = np.stack([Rpos_vecs, Rneg_vecs], axis=1)
-            return head_dirs
+            return np.stack([Rpos_vecs, Rneg_vecs], axis=1)
 
         had_data = self.has_data()
 
@@ -2934,7 +2931,7 @@ class Axes3D(Axes):
             draws error bars on a subset of the data. *errorevery* =N draws
             error bars on the points (x[::N], y[::N], z[::N]).
             *errorevery* =(start, N) draws error bars on the points
-            (x[start::N], y[start::N], z[start::N]). e.g. errorevery=(6, 3)
+            (x[start::N], y[start::N], z[start::N]). e.g. *errorevery* =(6, 3)
             adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
             Used to avoid overlapping error bars when two series share x-axis
             values.
