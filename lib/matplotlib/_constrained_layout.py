@@ -76,7 +76,7 @@ def do_constrained_layout(fig, h_pad, w_pad,
         Renderer to use.
 
     h_pad, w_pad : float
-      Padding around the axes elements in figure-normalized units.
+      Padding around the axes elements in inches.
 
     hspace, wspace : float
        Fraction of the figure to dedicate to space between the
