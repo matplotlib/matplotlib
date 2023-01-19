@@ -1060,6 +1060,17 @@ def test_radio_button_active_conflict(ax):
     assert mcolors.same_color(rb._buttons.get_facecolor(), ['green', 'none'])
 
 
+@check_figures_equal(extensions=['png'])
+def test_radio_buttons_activecolor_change(fig_test, fig_ref):
+    widgets.RadioButtons(fig_ref.subplots(), ['tea', 'coffee'],
+                         activecolor='green')
+
+    # Test property setter.
+    cb = widgets.RadioButtons(fig_test.subplots(), ['tea', 'coffee'],
+                              activecolor='red')
+    cb.activecolor = 'green'
+
+
 @check_figures_equal(extensions=["png"])
 def test_check_buttons(fig_test, fig_ref):
     widgets.CheckButtons(fig_test.subplots(), ["tea", "coffee"], [True, True])

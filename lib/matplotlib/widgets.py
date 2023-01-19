@@ -1634,7 +1634,7 @@ class RadioButtons(AxesWidget):
         else:
             activecolor = 'blue'  # Default.
 
-        self.activecolor = activecolor
+        self._activecolor = activecolor
         self.value_selected = labels[active]
 
         ax.set_xticks([])
@@ -1749,6 +1749,21 @@ class RadioButtons(AxesWidget):
         self._buttons.set_facecolor(
             [activecolor if text.get_text() == self.value_selected else "none"
              for text, activecolor in zip(self.labels, self._active_colors)])
+
+    @property
+    def activecolor(self):
+        return self._activecolor
+
+    @activecolor.setter
+    def activecolor(self, activecolor):
+        colors._check_color_like(activecolor=activecolor)
+        self._activecolor = activecolor
+        self.set_radio_props({'facecolor': activecolor})
+        # Make sure the deprecated version is updated.
+        # Remove once circles is removed.
+        labels = [label.get_text() for label in self.labels]
+        with cbook._setattr_cm(self, eventson=False):
+            self.set_active(labels.index(self.value_selected))
 
     def set_active(self, index):
         """
