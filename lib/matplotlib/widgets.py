@@ -1015,14 +1015,20 @@ class CheckButtons(AxesWidget):
             See the tutorial :doc:`/tutorials/advanced/blitting` for details.
         label_props : dict, optional
             Dictionary of `.Text` properties to be used for the labels.
+
+            .. versionadded:: 3.7
         frame_props : dict, optional
             Dictionary of scatter `.Collection` properties to be used for the
             check button frame. Defaults (label font size / 2)**2 size, black
             edgecolor, no facecolor, and 1.0 linewidth.
+
+            .. versionadded:: 3.7
         check_props : dict, optional
             Dictionary of scatter `.Collection` properties to be used for the
             check button check. Defaults to (label font size / 2)**2 size,
             black color, and 1.0 linewidth.
+
+            .. versionadded:: 3.7
         """
         super().__init__(ax)
 
@@ -1120,6 +1126,8 @@ class CheckButtons(AxesWidget):
         """
         Set properties of the `.Text` labels.
 
+        .. versionadded:: 3.7
+
         Parameters
         ----------
         props : dict
@@ -1133,6 +1141,8 @@ class CheckButtons(AxesWidget):
     def set_frame_props(self, props):
         """
         Set properties of the check button frames.
+
+        .. versionadded:: 3.7
 
         Parameters
         ----------
@@ -1148,6 +1158,8 @@ class CheckButtons(AxesWidget):
     def set_check_props(self, props):
         """
         Set properties of the check button checks.
+
+        .. versionadded:: 3.7
 
         Parameters
         ----------
@@ -1608,6 +1620,8 @@ class RadioButtons(AxesWidget):
             See the tutorial :doc:`/tutorials/advanced/blitting` for details.
         label_props : dict or list of dict, optional
             Dictionary of `.Text` properties to be used for the labels.
+
+            .. versionadded:: 3.7
         radio_props : dict, optional
             Dictionary of scatter `.Collection` properties to be used for the
             radio buttons. Defaults to (label font size / 2)**2 size, black
@@ -1617,6 +1631,8 @@ class RadioButtons(AxesWidget):
                 If a facecolor is supplied in *radio_props*, it will override
                 *activecolor*. This may be used to provide an active color per
                 button.
+
+            .. versionadded:: 3.7
         """
         super().__init__(ax)
 
@@ -1718,6 +1734,8 @@ class RadioButtons(AxesWidget):
         """
         Set properties of the `.Text` labels.
 
+        .. versionadded:: 3.7
+
         Parameters
         ----------
         props : dict
@@ -1731,6 +1749,8 @@ class RadioButtons(AxesWidget):
     def set_radio_props(self, props):
         """
         Set properties of the `.Text` labels.
+
+        .. versionadded:: 3.7
 
         Parameters
         ----------
