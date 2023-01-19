@@ -5,7 +5,7 @@ Inset locator demo
 
 """
 
-###############################################################################
+# %%
 # The `.inset_locator`'s `~.inset_locator.inset_axes` allows
 # easily placing insets in the corners of the axes by specifying a width and
 # height and optionally a location (loc) that accepts locations as codes,
@@ -43,7 +43,7 @@ for axi in [axins, axins2, axins3, axins4]:
 plt.show()
 
 
-###############################################################################
+# %%
 # The parameters *bbox_to_anchor* and *bbox_transform* can be used for a more
 # fine-grained control over the inset position and size or even to position
 # the inset at completely arbitrary positions.
@@ -100,7 +100,7 @@ for axi in [axins2, axins3, ax2, ax3]:
 plt.show()
 
 
-###############################################################################
+# %%
 # In the above the axes transform together with 4-tuple bounding boxes has been
 # used as it mostly is useful to specify an inset relative to the axes it is
 # an inset to. However, other use cases are equally possible. The following

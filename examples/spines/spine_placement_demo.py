@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-###############################################################################
+# %%
 
 x = np.linspace(0, 2*np.pi, 100)
 y = 2 * np.sin(x)
@@ -50,7 +50,7 @@ ax.spines.left.set_position(('data', 1))
 ax.spines.bottom.set_position(('data', 2))
 ax.spines[['top', 'right']].set_visible(False)
 
-###############################################################################
+# %%
 # Define a method that adjusts the location of the axis spines
 
 
@@ -75,7 +75,7 @@ def adjust_spines(ax, spines):
         ax.xaxis.set_ticks([])
 
 
-###############################################################################
+# %%
 # Create another figure using our new ``adjust_spines`` method
 
 fig = plt.figure()

@@ -29,7 +29,7 @@ fig.legend((l3, l4), ('Line 3', 'Line 4'), loc='upper right')
 plt.tight_layout()
 plt.show()
 
-##############################################################################
+# %%
 # Sometimes we do not want the legend to overlap the axes.  If you use
 # constrained_layout you can specify "outside right upper", and
 # constrained_layout will make room for the legend.

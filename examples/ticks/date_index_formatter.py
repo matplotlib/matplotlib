@@ -62,7 +62,7 @@ ax2.plot(r.adj_close, 'o-')
 ax2.set_title("Plot y at Index Coordinates Using Custom Formatter")
 ax2.xaxis.set_major_formatter(format_date)  # internally creates FuncFormatter
 
-#############################################################################
+# %%
 # Instead of passing a function into `.Axis.set_major_formatter` you can use
 # any other callable, e.g. an instance of a class that implements __call__:
 

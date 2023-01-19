@@ -70,7 +70,7 @@ ani = animation.FuncAnimation(
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -78,7 +78,7 @@ test_rotation_mode(subfigs[1], "anchor")
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

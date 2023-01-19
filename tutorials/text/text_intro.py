@@ -101,7 +101,7 @@ ax.annotate('annotate', xy=(2, 1), xytext=(3, 4),
 
 plt.show()
 
-###############################################################################
+# %%
 # Labels for x- and y-axis
 # ========================
 #
@@ -123,7 +123,7 @@ ax.set_ylabel('Damped oscillation [V]')
 
 plt.show()
 
-###############################################################################
+# %%
 # The x- and y-labels are automatically placed so that they clear the x- and
 # y-ticklabels.  Compare the plot below with that above, and note the y-label
 # is to the left of the one above.
@@ -136,7 +136,7 @@ ax.set_ylabel('Damped oscillation [V]')
 
 plt.show()
 
-###############################################################################
+# %%
 # If you want to move the labels, you can specify the *labelpad* keyword
 # argument, where the value is points (1/72", the same unit used to specify
 # fontsizes).
@@ -149,7 +149,7 @@ ax.set_ylabel('Damped oscillation [V]', labelpad=18)
 
 plt.show()
 
-###############################################################################
+# %%
 # Or, the labels accept all the `.Text` keyword arguments, including
 # *position*, via which we can manually specify the label positions.  Here we
 # put the xlabel to the far left of the axis.  Note, that the y-coordinate of
@@ -164,7 +164,7 @@ ax.set_ylabel('Damped oscillation [V]')
 
 plt.show()
 
-##############################################################################
+# %%
 # All the labelling in this tutorial can be changed by manipulating the
 # `matplotlib.font_manager.FontProperties` method, or by named keyword
 # arguments to `~matplotlib.axes.Axes.set_xlabel`
@@ -184,7 +184,7 @@ ax.set_ylabel('Damped oscillation [V]', fontproperties=font)
 
 plt.show()
 
-##############################################################################
+# %%
 # Finally, we can use native TeX rendering in all text objects and have
 # multiple lines:
 
@@ -196,7 +196,7 @@ ax.set_ylabel(r'$\int\ Y^2\ dt\ \ [V^2 s]$')
 plt.show()
 
 
-##############################################################################
+# %%
 # Titles
 # ======
 #
@@ -211,7 +211,7 @@ for ax, loc in zip(axs, locs):
     ax.set_title('Title with loc at '+loc, loc=loc)
 plt.show()
 
-##############################################################################
+# %%
 # Vertical spacing for titles is controlled via :rc:`axes.titlepad`.
 # Setting to a different value moves the title.
 
@@ -222,7 +222,7 @@ ax.set_title('Vertically offset title', pad=30)
 plt.show()
 
 
-##############################################################################
+# %%
 # Ticks and ticklabels
 # ====================
 #
@@ -263,7 +263,7 @@ axs[1].plot(x1, y1)
 axs[1].xaxis.set_ticks(np.arange(0., 8.1, 2.))
 plt.show()
 
-#############################################################################
+# %%
 # We can of course fix this after the fact, but it does highlight a
 # weakness of hard-coding the ticks.  This example also changes the format
 # of the ticks:
@@ -279,7 +279,7 @@ axs[1].xaxis.set_ticklabels(tickla)
 axs[1].set_xlim(axs[0].get_xlim())
 plt.show()
 
-#############################################################################
+# %%
 # Tick Locators and Formatters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -299,7 +299,7 @@ axs[1].xaxis.set_major_formatter('{x:1.1f}')
 axs[1].set_xlim(axs[0].get_xlim())
 plt.show()
 
-#############################################################################
+# %%
 # And of course we could have used a non-default locator to set the
 # tick locations.  Note we still pass in the tick values, but the
 # x-limit fix used above is *not* needed.
@@ -312,7 +312,7 @@ axs[1].xaxis.set_major_locator(locator)
 axs[1].xaxis.set_major_formatter('±{x}°')
 plt.show()
 
-#############################################################################
+# %%
 # The default formatter is the `matplotlib.ticker.MaxNLocator` called as
 # ``ticker.MaxNLocator(self, nbins='auto', steps=[1, 2, 2.5, 5, 10])``
 # The *steps* keyword contains a list of multiples that can be used for
@@ -348,7 +348,7 @@ axs[1, 1].xaxis.set_major_locator(locator)
 
 plt.show()
 
-##############################################################################
+# %%
 #  Finally, we can specify functions for the formatter using
 # `matplotlib.ticker.FuncFormatter`.  Further, like
 # `matplotlib.ticker.StrMethodFormatter`, passing a function will
@@ -372,7 +372,7 @@ ax.xaxis.set_major_locator(locator)
 plt.show()
 
 
-##############################################################################
+# %%
 # Dateticks
 # ~~~~~~~~~
 #
@@ -395,7 +395,7 @@ ax.plot(time, y1)
 ax.tick_params(axis='x', rotation=70)
 plt.show()
 
-##############################################################################
+# %%
 # We can pass a format to `matplotlib.dates.DateFormatter`.  Also note that the
 # 29th and the next month are very close together.  We can fix this by using
 # the `.dates.DayLocator` class, which allows us to specify a list of days of
@@ -414,7 +414,7 @@ ax.plot(time, y1)
 ax.tick_params(axis='x', rotation=70)
 plt.show()
 
-##############################################################################
+# %%
 # Legends and Annotations
 # =======================
 #

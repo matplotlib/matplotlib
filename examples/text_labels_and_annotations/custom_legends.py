@@ -36,7 +36,7 @@ fig, ax = plt.subplots()
 lines = ax.plot(data)
 ax.legend()
 
-##############################################################################
+# %%
 # Note that no legend entries were created.
 # In this case, we can compose a legend using Matplotlib objects that aren't
 # explicitly tied to the data that was plotted. For example:
@@ -51,7 +51,7 @@ lines = ax.plot(data)
 ax.legend(custom_lines, ['Cold', 'Medium', 'Hot'])
 
 
-###############################################################################
+# %%
 # There are many other Matplotlib objects that can be used in this way. In the
 # code below we've listed a few common ones.
 

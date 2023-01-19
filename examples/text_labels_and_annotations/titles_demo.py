@@ -17,7 +17,7 @@ plt.title('Right Title', loc='right')
 
 plt.show()
 
-###########################################################################
+# %%
 # The vertical position is automatically chosen to avoid decorations
 # (i.e. labels and ticks) on the topmost x-axis:
 
@@ -37,7 +37,7 @@ ax.set_xlabel('X-label')
 ax.set_title('Center Title')
 plt.show()
 
-###########################################################################
+# %%
 # Automatic positioning can be turned off by manually specifying the *y*
 # keyword argument for the title or setting :rc:`axes.titley` in the rcParams.
 

@@ -108,7 +108,7 @@ X, Y = np.meshgrid(x, y)
 Z = np.cos(X) * np.sin(Y) * 10
 
 
-###############################################################################
+# %%
 # Colormaps from a list
 # ---------------------
 
@@ -126,7 +126,7 @@ for n_bin, ax in zip(n_bins, axs.flat):
     fig.colorbar(im, ax=ax)
 
 
-###############################################################################
+# %%
 # Custom colormaps
 # ----------------
 
@@ -202,14 +202,14 @@ cdict4 = {
 }
 
 
-###############################################################################
+# %%
 # Now we will use this example to illustrate 2 ways of
 # handling custom colormaps.
 # First, the most direct and explicit:
 
 blue_red1 = LinearSegmentedColormap('BlueRed1', cdict1)
 
-###############################################################################
+# %%
 # Second, create the map explicitly and register it.
 # Like the first method, this method works with any kind
 # of Colormap, not just
@@ -219,7 +219,7 @@ mpl.colormaps.register(LinearSegmentedColormap('BlueRed2', cdict2))
 mpl.colormaps.register(LinearSegmentedColormap('BlueRed3', cdict3))
 mpl.colormaps.register(LinearSegmentedColormap('BlueRedAlpha', cdict4))
 
-###############################################################################
+# %%
 # Make the figure, with 4 subplots:
 
 fig, axs = plt.subplots(2, 2, figsize=(6, 9))
@@ -264,7 +264,7 @@ fig.subplots_adjust(top=0.9)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

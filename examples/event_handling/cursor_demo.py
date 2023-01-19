@@ -72,7 +72,7 @@ cursor = Cursor(ax)
 fig.canvas.mpl_connect('motion_notify_event', cursor.on_mouse_move)
 
 
-##############################################################################
+# %%
 # Faster redrawing using blitting
 # """""""""""""""""""""""""""""""
 # This technique stores the rendered plot as a background image. Only the
@@ -153,7 +153,7 @@ blitted_cursor = BlittedCursor(ax)
 fig.canvas.mpl_connect('motion_notify_event', blitted_cursor.on_mouse_move)
 
 
-##############################################################################
+# %%
 # Snapping to data points
 # """""""""""""""""""""""
 # The following cursor snaps its position to the data points of a `.Line2D`

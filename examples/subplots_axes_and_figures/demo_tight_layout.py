@@ -26,13 +26,13 @@ def example_plot(ax):
     ax.set_title('Title', fontsize=next(fontsizes))
 
 
-###############################################################################
+# %%
 
 fig, ax = plt.subplots()
 example_plot(ax)
 fig.tight_layout()
 
-###############################################################################
+# %%
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
 example_plot(ax1)
@@ -41,28 +41,28 @@ example_plot(ax3)
 example_plot(ax4)
 fig.tight_layout()
 
-###############################################################################
+# %%
 
 fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1)
 example_plot(ax1)
 example_plot(ax2)
 fig.tight_layout()
 
-###############################################################################
+# %%
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
 example_plot(ax1)
 example_plot(ax2)
 fig.tight_layout()
 
-###############################################################################
+# %%
 
 fig, axs = plt.subplots(nrows=3, ncols=3)
 for ax in axs.flat:
     example_plot(ax)
 fig.tight_layout()
 
-###############################################################################
+# %%
 
 plt.figure()
 ax1 = plt.subplot(221)
@@ -73,7 +73,7 @@ example_plot(ax2)
 example_plot(ax3)
 plt.tight_layout()
 
-###############################################################################
+# %%
 
 plt.figure()
 ax1 = plt.subplot2grid((3, 3), (0, 0))
@@ -86,7 +86,7 @@ example_plot(ax3)
 example_plot(ax4)
 plt.tight_layout()
 
-###############################################################################
+# %%
 
 fig = plt.figure()
 
@@ -120,7 +120,7 @@ gs2.update(top=top, bottom=bottom)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

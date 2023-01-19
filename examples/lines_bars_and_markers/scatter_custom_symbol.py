@@ -7,7 +7,7 @@ Scatter plots with custom symbols
 .. redirect-from:: /gallery/lines_bars_and_markers/scatter_piecharts
 """
 
-##############################################################################
+# %%
 # Using TeX symbols
 # -----------------
 # An easy way to customize scatter symbols is passing a TeX symbol name
@@ -32,7 +32,7 @@ ax.set_ylabel("Gold")
 ax.legend()
 plt.show()
 
-##############################################################################
+# %%
 # Using a custom path
 # -------------------
 # Alternatively, one can also pass a custom path of N vertices as a Nx2 array

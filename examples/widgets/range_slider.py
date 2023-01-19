@@ -60,7 +60,7 @@ def update(val):
 slider.on_changed(update)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

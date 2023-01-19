@@ -33,7 +33,7 @@ plt.errorbar(x, y, yerr=yerr, uplims=upperlimits, lolims=lowerlimits,
 plt.legend(loc='lower right')
 
 
-##############################################################################
+# %%
 # Similarly ``xuplims`` and ``xlolims`` can be used on the horizontal ``xerr``
 # errorbars.
 
@@ -53,7 +53,7 @@ plt.errorbar(x + 1.2, y, xerr=0.1, xuplims=True, label='xuplims=True')
 plt.legend()
 plt.show()
 
-##############################################################################
+# %%
 #
 # .. admonition:: References
 #

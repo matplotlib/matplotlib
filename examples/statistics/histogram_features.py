@@ -46,7 +46,7 @@ ax.set_title(r'Histogram of IQ: $\mu=100$, $\sigma=15$')
 fig.tight_layout()
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

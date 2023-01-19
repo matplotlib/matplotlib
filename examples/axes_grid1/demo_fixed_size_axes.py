@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1 import Divider, Size
 
-###############################################################################
+# %%
 
 
 fig = plt.figure(figsize=(6, 6))
@@ -26,7 +26,7 @@ ax = fig.add_axes(divider.get_position(),
 
 ax.plot([1, 2, 3])
 
-###############################################################################
+# %%
 
 
 fig = plt.figure(figsize=(6, 6))

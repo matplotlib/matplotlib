@@ -33,7 +33,7 @@ cb = fig.colorbar(hb, ax=ax1, label='log10(N)')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -32,7 +32,7 @@ ax.annotate('a polar annotation',
             )
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

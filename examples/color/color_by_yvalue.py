@@ -22,7 +22,7 @@ fig, ax = plt.subplots()
 ax.plot(t, smiddle, t, slower, t, supper)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

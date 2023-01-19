@@ -38,7 +38,7 @@ secax = ax.secondary_xaxis('top', functions=(deg2rad, rad2deg))
 secax.set_xlabel('angle [rad]')
 plt.show()
 
-###########################################################################
+# %%
 # Here is the case of converting from wavenumber to wavelength in a
 # log-log scale.
 #
@@ -74,7 +74,7 @@ secax = ax.secondary_xaxis('top', functions=(one_over, inverse))
 secax.set_xlabel('period [s]')
 plt.show()
 
-###########################################################################
+# %%
 # Sometime we want to relate the axes in a transform that is ad-hoc from
 # the data, and is derived empirically.  In that case we can set the
 # forward and inverse transforms functions to be linear interpolations from the
@@ -120,7 +120,7 @@ secax.set_xlabel('$X_{other}$')
 
 plt.show()
 
-###########################################################################
+# %%
 # A final example translates np.datetime64 to yearday on the x axis and
 # from Celsius to Fahrenheit on the y axis.  Note the addition of a
 # third y axis, and that it can be placed using a float for the
@@ -181,7 +181,7 @@ secax_y2.set_ylabel(r'$T - \overline{T}\ [^oC]$')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

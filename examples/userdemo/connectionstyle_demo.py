@@ -52,7 +52,7 @@ fig.set_constrained_layout_pads(wspace=0, hspace=0, w_pad=0, h_pad=0)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -46,7 +46,7 @@ text_box.set_val("t ** 2")  # Trigger `submit` with the initial string.
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

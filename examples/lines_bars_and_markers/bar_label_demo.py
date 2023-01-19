@@ -17,7 +17,7 @@ See also the :doc:`grouped bar
 import matplotlib.pyplot as plt
 import numpy as np
 
-###############################################################################
+# %%
 # data from https://allisonhorst.github.io/palmerpenguins/
 
 species = ('Adelie', 'Chinstrap', 'Gentoo')
@@ -42,7 +42,7 @@ ax.legend()
 
 plt.show()
 
-###############################################################################
+# %%
 # Horizontal bar chart
 
 # Fixing random state for reproducibility
@@ -68,7 +68,7 @@ ax.set_xlim(right=15)  # adjust xlim to fit labels
 
 plt.show()
 
-###############################################################################
+# %%
 # Some of the more advanced things that one can do with bar labels
 
 fig, ax = plt.subplots()
@@ -86,7 +86,7 @@ ax.set_xlim(right=16)
 
 plt.show()
 
-###############################################################################
+# %%
 # Bar labels using {}-style format string
 
 fruit_names = ['Coffee', 'Salted Caramel', 'Pistachio']
@@ -97,7 +97,7 @@ bar_container = ax.bar(fruit_names, fruit_counts)
 ax.set(ylabel='pints sold', title='Gelato sales by flavor', ylim=(0, 8000))
 ax.bar_label(bar_container, fmt='{:,.0f}')
 
-###############################################################################
+# %%
 # Bar labels using a callable
 
 animal_names = ['Lion', 'Gazelle', 'Cheetah']
@@ -110,7 +110,7 @@ ax.bar_label(
     bar_container, fmt=lambda x: '{:.1f} km/h'.format(x * 1.61)
 )
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

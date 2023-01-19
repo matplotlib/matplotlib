@@ -21,7 +21,7 @@ HIST_BINS = np.linspace(-4, 4, 100)
 data = np.random.randn(1000)
 n, _ = np.histogram(data, HIST_BINS)
 
-###############################################################################
+# %%
 # To animate the histogram, we need an ``animate`` function, which generates
 # a random set of numbers and updates the heights of rectangles. We utilize a
 # python closure to track an instance of `.BarContainer` whose `.Rectangle`
@@ -39,7 +39,7 @@ def prepare_animation(bar_container):
         return bar_container.patches
     return animate
 
-###############################################################################
+# %%
 # Using :func:`~matplotlib.pyplot.hist` allows us to get an instance of
 # `.BarContainer`, which is a collection of `.Rectangle` instances. Calling
 # ``prepare_animation`` will define ``animate`` function working with supplied

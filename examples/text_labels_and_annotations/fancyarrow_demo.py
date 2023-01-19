@@ -50,7 +50,7 @@ for ax, (stylename, stylecls) in zip(axs[1:, :].T.flat, styles.items()):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

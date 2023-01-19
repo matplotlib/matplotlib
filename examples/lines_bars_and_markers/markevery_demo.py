@@ -40,7 +40,7 @@ delta = 0.11
 x = np.linspace(0, 10 - 2 * delta, 200) + delta
 y = np.sin(x) + 1.0 + delta
 
-###############################################################################
+# %%
 # markevery with linear scales
 # ----------------------------
 
@@ -49,7 +49,7 @@ for ax, markevery in zip(axs.flat, cases):
     ax.set_title(f'markevery={markevery}')
     ax.plot(x, y, 'o', ls='-', ms=4, markevery=markevery)
 
-###############################################################################
+# %%
 # markevery with log scales
 # -------------------------
 #
@@ -65,7 +65,7 @@ for ax, markevery in zip(axs.flat, cases):
     ax.set_yscale('log')
     ax.plot(x, y, 'o', ls='-', ms=4, markevery=markevery)
 
-###############################################################################
+# %%
 # markevery on zoomed plots
 # -------------------------
 #
@@ -82,7 +82,7 @@ for ax, markevery in zip(axs.flat, cases):
     ax.set_xlim((6, 6.7))
     ax.set_ylim((1.1, 1.7))
 
-###############################################################################
+# %%
 # markevery on polar plots
 # ------------------------
 

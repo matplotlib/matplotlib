@@ -40,7 +40,7 @@ axs[2].set_title('With masked values')
 fig.tight_layout()
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

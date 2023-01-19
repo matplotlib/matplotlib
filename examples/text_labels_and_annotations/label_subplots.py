@@ -28,7 +28,7 @@ for label, ax in axs.items():
 
 plt.show()
 
-##############################################################################
+# %%
 # We may prefer the labels outside the axes, but still aligned
 # with each other, in which case we use a slightly different transform:
 
@@ -43,7 +43,7 @@ for label, ax in axs.items():
 
 plt.show()
 
-##############################################################################
+# %%
 # If we want it aligned with the title, either incorporate in the title or
 # use the *loc* keyword argument:
 
@@ -56,7 +56,7 @@ for label, ax in axs.items():
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -62,7 +62,7 @@ axs[0].set_title("Press 't' to toggle the selectors on and off.\n"
                  + axs[0].get_title())
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

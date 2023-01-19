@@ -73,7 +73,7 @@ group_data = list(data.values())
 group_names = list(data.keys())
 group_mean = np.mean(group_data)
 
-###############################################################################
+# %%
 # Getting started
 # ===============
 #
@@ -91,13 +91,13 @@ group_mean = np.mean(group_data)
 
 fig, ax = plt.subplots()
 
-###############################################################################
+# %%
 # Now that we have an Axes instance, we can plot on top of it.
 
 fig, ax = plt.subplots()
 ax.barh(group_names, group_data)
 
-###############################################################################
+# %%
 # Controlling the style
 # =====================
 #
@@ -107,18 +107,18 @@ ax.barh(group_names, group_data)
 
 print(plt.style.available)
 
-###############################################################################
+# %%
 # You can activate a style with the following:
 
 plt.style.use('fivethirtyeight')
 
-###############################################################################
+# %%
 # Now let's remake the above plot to see how it looks:
 
 fig, ax = plt.subplots()
 ax.barh(group_names, group_data)
 
-###############################################################################
+# %%
 # The style controls many things, such as color, linewidths, backgrounds,
 # etc.
 #
@@ -134,7 +134,7 @@ fig, ax = plt.subplots()
 ax.barh(group_names, group_data)
 labels = ax.get_xticklabels()
 
-###############################################################################
+# %%
 # If we'd like to set the property of many items at once, it's useful to use
 # the :func:`pyplot.setp` function. This will take a list (or many lists) of
 # Matplotlib objects, and attempt to set some style element of each one.
@@ -144,7 +144,7 @@ ax.barh(group_names, group_data)
 labels = ax.get_xticklabels()
 plt.setp(labels, rotation=45, horizontalalignment='right')
 
-###############################################################################
+# %%
 # It looks like this cut off some of the labels on the bottom. We can
 # tell Matplotlib to automatically make room for elements in the figures
 # that we create. To do this we set the ``autolayout`` value of our
@@ -159,7 +159,7 @@ ax.barh(group_names, group_data)
 labels = ax.get_xticklabels()
 plt.setp(labels, rotation=45, horizontalalignment='right')
 
-###############################################################################
+# %%
 # Next, we add labels to the plot. To do this with the OO interface,
 # we can use the :meth:`.Artist.set` method to set properties of this
 # Axes object.
@@ -171,7 +171,7 @@ plt.setp(labels, rotation=45, horizontalalignment='right')
 ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
 
-###############################################################################
+# %%
 # We can also adjust the size of this plot using the :func:`pyplot.subplots`
 # function. We can do this with the *figsize* keyword argument.
 #
@@ -189,7 +189,7 @@ plt.setp(labels, rotation=45, horizontalalignment='right')
 ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
 
-###############################################################################
+# %%
 # For labels, we can specify custom formatting guidelines in the form of
 # functions. Below we define a function that takes an integer as input, and
 # returns a string as an output. When used with `.Axis.set_major_formatter` or
@@ -209,7 +209,7 @@ def currency(x, pos):
         s = '${:1.0f}K'.format(x*1e-3)
     return s
 
-###############################################################################
+# %%
 # We can then apply this function to the labels on our plot. To do this,
 # we use the ``xaxis`` attribute of our axes. This lets you perform
 # actions on a specific axis on our plot.
@@ -223,7 +223,7 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
        title='Company Revenue')
 ax.xaxis.set_major_formatter(currency)
 
-###############################################################################
+# %%
 # Combining multiple visualizations
 # =================================
 #
@@ -255,7 +255,7 @@ fig.subplots_adjust(right=.1)
 
 plt.show()
 
-###############################################################################
+# %%
 # Saving our plot
 # ===============
 #
@@ -265,7 +265,7 @@ plt.show()
 
 print(fig.canvas.get_supported_filetypes())
 
-###############################################################################
+# %%
 # We can then use the :meth:`figure.Figure.savefig` in order to save the figure
 # to disk. Note that there are several useful flags we show below:
 #

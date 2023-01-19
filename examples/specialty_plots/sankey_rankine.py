@@ -83,7 +83,7 @@ for diagram in diagrams:
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

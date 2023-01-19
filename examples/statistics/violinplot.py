@@ -86,7 +86,7 @@ fig.suptitle("Violin Plotting Examples")
 fig.subplots_adjust(hspace=0.4)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

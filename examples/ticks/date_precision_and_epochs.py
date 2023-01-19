@@ -32,7 +32,7 @@ def _reset_epoch_for_tutorial():
     mdates._reset_epoch_test_example()
 
 
-#############################################################################
+# %%
 # Datetime
 # --------
 #
@@ -53,7 +53,7 @@ print('Before Roundtrip: ', date1, 'Matplotlib date:', mdate1)
 date2 = mdates.num2date(mdate1)
 print('After Roundtrip:  ', date2)
 
-#############################################################################
+# %%
 # Note this is only a round-off error, and there is no problem for
 # dates closer to the old epoch:
 
@@ -64,7 +64,7 @@ print('Before Roundtrip: ', date1, 'Matplotlib date:', mdate1)
 date2 = mdates.num2date(mdate1)
 print('After Roundtrip:  ', date2)
 
-#############################################################################
+# %%
 # If a user wants to use modern dates at microsecond precision, they
 # can change the epoch using `.set_epoch`.  However, the epoch has to be
 # set before any date operations to prevent confusion between different
@@ -75,7 +75,7 @@ try:
 except RuntimeError as e:
     print('RuntimeError:', str(e))
 
-#############################################################################
+# %%
 # For this tutorial, we reset the sentinel using a private method, but users
 # should just set the epoch once, if at all.
 
@@ -89,7 +89,7 @@ print('Before Roundtrip: ', date1, 'Matplotlib date:', mdate1)
 date2 = mdates.num2date(mdate1)
 print('After Roundtrip:  ', date2)
 
-#############################################################################
+# %%
 # datetime64
 # ----------
 #
@@ -107,7 +107,7 @@ print('Before Roundtrip: ', date1, 'Matplotlib date:', mdate1)
 date2 = mdates.num2date(mdate1)
 print('After Roundtrip:  ', date2)
 
-#############################################################################
+# %%
 # Plotting
 # --------
 #
@@ -134,7 +134,7 @@ ax.set_title('Epoch: ' + mdates.get_epoch())
 ax.xaxis.set_tick_params(rotation=40)
 plt.show()
 
-#############################################################################
+# %%
 # For dates plotted using the more recent epoch, the plot is smooth:
 
 fig, ax = plt.subplots(constrained_layout=True)
@@ -145,7 +145,7 @@ plt.show()
 
 _reset_epoch_for_tutorial()  # Don't do this.  Just for this tutorial.
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

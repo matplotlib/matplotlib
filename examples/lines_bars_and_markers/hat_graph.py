@@ -69,7 +69,7 @@ ax.legend()
 
 fig.tight_layout()
 plt.show()
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

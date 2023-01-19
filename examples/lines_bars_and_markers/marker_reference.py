@@ -42,7 +42,7 @@ def split_list(a_list):
     return a_list[:i_half], a_list[i_half:]
 
 
-###############################################################################
+# %%
 # Unfilled markers
 # ================
 # Unfilled markers are single-colored.
@@ -60,7 +60,7 @@ for ax, markers in zip(axs, split_list(unfilled_markers)):
         ax.plot([y] * 3, marker=marker, **marker_style)
     format_axes(ax)
 
-###############################################################################
+# %%
 # Filled markers
 # ==============
 
@@ -72,7 +72,7 @@ for ax, markers in zip(axs, split_list(Line2D.filled_markers)):
         ax.plot([y] * 3, marker=marker, **marker_style)
     format_axes(ax)
 
-###############################################################################
+# %%
 # .. _marker_fill_styles:
 #
 # Marker fill styles
@@ -97,7 +97,7 @@ for y, fill_style in enumerate(Line2D.fillStyles):
     ax.plot([y] * 3, fillstyle=fill_style, **filled_marker_style)
 format_axes(ax)
 
-###############################################################################
+# %%
 # Markers created from TeX symbols
 # ================================
 #
@@ -120,7 +120,7 @@ for y, marker in enumerate(markers):
     ax.plot([y] * 3, marker=marker, **marker_style)
 format_axes(ax)
 
-###############################################################################
+# %%
 # Markers created from Paths
 # ==========================
 #
@@ -149,7 +149,7 @@ for y, (name, marker) in enumerate(markers.items()):
     ax.plot([y] * 3, marker=marker, **marker_style)
 format_axes(ax)
 
-###############################################################################
+# %%
 # Advanced marker modifications with transform
 # ============================================
 #
@@ -185,7 +185,7 @@ format_axes(ax)
 
 fig.tight_layout()
 
-###############################################################################
+# %%
 # Setting marker cap style and join style
 # =======================================
 #
@@ -222,7 +222,7 @@ for y, cap_style in enumerate(CapStyle):
         ax.text(x, len(CapStyle) - .5, f'{theta}°', ha='center')
 format_axes(ax)
 
-###############################################################################
+# %%
 # Modifying the join style:
 
 fig, ax = plt.subplots()

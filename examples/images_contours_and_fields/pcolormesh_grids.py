@@ -18,7 +18,7 @@ the input vectors.
 import matplotlib.pyplot as plt
 import numpy as np
 
-###############################################################################
+# %%
 # Flat Shading
 # ------------
 #
@@ -49,7 +49,7 @@ def _annotate(ax, x, y, title):
 _annotate(ax, x, y, "shading='flat'")
 
 
-###############################################################################
+# %%
 # Flat Shading, same shape grid
 # -----------------------------
 #
@@ -65,7 +65,7 @@ fig, ax = plt.subplots()
 ax.pcolormesh(x, y, Z[:-1, :-1], shading='flat', vmin=Z.min(), vmax=Z.max())
 _annotate(ax, x, y, "shading='flat': X, Y, C same shape")
 
-###############################################################################
+# %%
 # Nearest Shading, same shape grid
 # --------------------------------
 #
@@ -81,7 +81,7 @@ fig, ax = plt.subplots()
 ax.pcolormesh(x, y, Z, shading='nearest', vmin=Z.min(), vmax=Z.max())
 _annotate(ax, x, y, "shading='nearest'")
 
-###############################################################################
+# %%
 # Auto Shading
 # ------------
 #
@@ -102,7 +102,7 @@ y = np.arange(nrows + 1)
 ax.pcolormesh(x, y, Z, shading='auto', vmin=Z.min(), vmax=Z.max())
 _annotate(ax, x, y, "shading='auto'; X, Y one larger than Z (flat)")
 
-###############################################################################
+# %%
 # Gouraud Shading
 # ---------------
 #
@@ -117,7 +117,7 @@ ax.pcolormesh(x, y, Z, shading='gouraud', vmin=Z.min(), vmax=Z.max())
 _annotate(ax, x, y, "shading='gouraud'; X, Y same shape as Z")
 
 plt.show()
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

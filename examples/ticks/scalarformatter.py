@@ -16,7 +16,7 @@ Example 3 : With Mathtext
 import matplotlib.pyplot as plt
 import numpy as np
 
-###############################################################################
+# %%
 # Example 1
 
 x = np.arange(0, 1, .01)
@@ -35,7 +35,7 @@ ax4.plot(-x * 1e5, -x * 1e-4)
 
 fig.subplots_adjust(wspace=0.7, hspace=0.6)
 
-###############################################################################
+# %%
 # Example 2
 
 x = np.arange(0, 1, .01)
@@ -58,7 +58,7 @@ ax4.ticklabel_format(useOffset=False)
 
 fig.subplots_adjust(wspace=0.7, hspace=0.6)
 
-###############################################################################
+# %%
 # Example 3
 
 x = np.arange(0, 1, .01)

@@ -68,7 +68,7 @@ _ = make_error_boxes(ax, x, y, xerr, yerr)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

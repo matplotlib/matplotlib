@@ -23,7 +23,7 @@ x, y = X.ravel(), Y.ravel()
 ax.scatter(x, y, c=x+y)
 plt.show()
 
-###############################################################################
+# %%
 # If you want to keep ticks at round numbers, and also have ticks at the edges
 # you can switch :rc:`axes.autolimit_mode` to 'round_numbers'. This expands the
 # axis limits to the next round number.
@@ -38,7 +38,7 @@ fig, ax = plt.subplots()
 ax.scatter(x, y, c=x+y)
 plt.show()
 
-###############################################################################
+# %%
 # The round numbers autolimit_mode is still respected if you set an additional
 # margin around the data using `.Axes.set_xmargin` / `.Axes.set_ymargin`:
 

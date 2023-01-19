@@ -19,7 +19,7 @@ im2 = fig.figimage(Z, xo=100, yo=100, alpha=.8, origin='lower')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

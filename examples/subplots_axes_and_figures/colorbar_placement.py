@@ -24,7 +24,7 @@ for col in range(2):
                             cmap=cmaps[col])
         fig.colorbar(pcm, ax=ax)
 
-######################################################################
+# %%
 # The first column has the same type of data in both rows, so it may
 # be desirable to combine the colorbar which we do by calling
 # `.Figure.colorbar` with a list of axes instead of a single axes.
@@ -38,7 +38,7 @@ for col in range(2):
                             cmap=cmaps[col])
     fig.colorbar(pcm, ax=axs[:, col], shrink=0.6)
 
-######################################################################
+# %%
 # Relatively complicated colorbar layouts are possible using this
 # paradigm.  Note that this example works far better with
 # ``constrained_layout=True``
@@ -52,7 +52,7 @@ fig.colorbar(pcm, ax=[axs[0, 2]], location='bottom')
 fig.colorbar(pcm, ax=axs[1:, :], location='right', shrink=0.6)
 fig.colorbar(pcm, ax=[axs[2, 1]], location='left')
 
-######################################################################
+# %%
 # Colorbars with fixed-aspect-ratio axes
 # ======================================
 #
@@ -73,7 +73,7 @@ for col in range(2):
         if row == 1:
             fig.colorbar(pcm, ax=ax, shrink=0.6)
 
-######################################################################
+# %%
 # One way around this issue is to use an `.Axes.inset_axes` to locate the
 # axes in axes coordinates.  Note that if you zoom in on the axes, and
 # change the shape of the axes, the colorbar will also change position.

@@ -64,7 +64,7 @@ do_plot(ax4, Z, mtransforms.Affine2D().
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

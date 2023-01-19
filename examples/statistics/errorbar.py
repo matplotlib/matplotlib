@@ -19,7 +19,7 @@ fig, ax = plt.subplots()
 ax.errorbar(x, y, xerr=0.2, yerr=0.4)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

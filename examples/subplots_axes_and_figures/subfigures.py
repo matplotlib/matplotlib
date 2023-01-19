@@ -57,7 +57,7 @@ fig.suptitle('Figure suptitle', fontsize='xx-large')
 
 plt.show()
 
-##############################################################################
+# %%
 # It is possible to mix subplots and subfigures using
 # `matplotlib.figure.Figure.add_subfigure`.  This requires getting
 # the gridspec that the subplots are laid out on.
@@ -86,7 +86,7 @@ subfig.colorbar(pc, shrink=0.6, ax=axsLeft, location='bottom')
 fig.suptitle('Figure suptitle', fontsize='xx-large')
 plt.show()
 
-##############################################################################
+# %%
 # Subfigures can have different widths and heights.  This is exactly the
 # same example as the first example, but *width_ratios* has been changed:
 
@@ -116,7 +116,7 @@ fig.suptitle('Figure suptitle', fontsize='xx-large')
 
 plt.show()
 
-##############################################################################
+# %%
 # Subfigures can be also be nested:
 
 fig = plt.figure(constrained_layout=True, figsize=(10, 8))

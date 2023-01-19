@@ -40,7 +40,7 @@ fig.suptitle('Colors in the default prop_cycle', fontsize='large')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

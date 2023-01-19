@@ -41,7 +41,7 @@ im2 = plt.imshow(Z2, cmap=plt.cm.viridis, alpha=.9, interpolation='bilinear',
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

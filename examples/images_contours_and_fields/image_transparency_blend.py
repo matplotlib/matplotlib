@@ -62,7 +62,7 @@ ax.imshow(greys)
 ax.imshow(weights, **imshow_kwargs)
 ax.set_axis_off()
 
-###############################################################################
+# %%
 # Blending in transparency
 # ========================
 #
@@ -82,7 +82,7 @@ ax.imshow(greys)
 ax.imshow(weights, alpha=alphas, **imshow_kwargs)
 ax.set_axis_off()
 
-###############################################################################
+# %%
 # Using transparency to highlight values with high amplitude
 # ==========================================================
 #
@@ -111,7 +111,7 @@ ax.contour(weights[::-1], levels=[-.0001, .0001], colors='k', linestyles='-')
 ax.set_axis_off()
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #
