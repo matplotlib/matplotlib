@@ -84,6 +84,7 @@ per-file-ignores =
     tutorials/introductory/quick_start.py: E703
     tutorials/introductory/animation_tutorial.py: E501
     tutorials/text/annotations.py: E402, E501
+    tutorials/text/mathtext.py: E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501
     tutorials/text/usetex.py: E501

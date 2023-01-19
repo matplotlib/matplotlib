@@ -10,6 +10,7 @@ sigmoid function.
 
 `~.axes.Axes.axline` draws infinite straight lines in arbitrary directions.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
