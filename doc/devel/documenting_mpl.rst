@@ -812,6 +812,10 @@ to create a gallery of images in the :file:`/doc/gallery` and
 :file:`/doc/tutorials` directories respectively.  To exclude an example
 from having an plot generated insert "sgskip" somewhere in the filename.
 
+
+Formatting the example
+----------------------
+
 The format of these files is relatively straightforward.  Properly
 formatted comment blocks are treated as ReST_ text, the code is
 displayed, and figures are put into the built page.  Matplotlib uses the
