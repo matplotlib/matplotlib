@@ -1,10 +1,11 @@
 """
-============
-Pyplot Three
-============
+===========================
+Multiple lines using pyplot
+===========================
 
-Plot three line plots in a single call to `~matplotlib.pyplot.plot`.
+Plot three datasets with a single call to `~matplotlib.pyplot.plot`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
