@@ -1746,7 +1746,26 @@ class Parser:
       \sqsubset   \sqsupset   \neq     \smile
       \sqsubseteq \sqsupseteq \doteq   \frown
       \in         \ni         \propto  \vdash
-      \dashv      \dots       \doteqdot'''.split())
+      \dashv      \dots       \doteqdot
+      \leqq       \geqq       \lneqq   \gneqq
+      \lessgtr \leqslant \eqgtr \eqless
+      \eqslantless \eqslantgtr \lesseqgtr
+      \backsim \backsimeq \lesssim \gtrsim
+      \precsim \precnsim \gnsim \lnsim
+      \succsim  \succnsim \nsim
+      \lesseqqgtr \gtreqqless \gtreqless
+      \subseteqq \supseteqq  \subsetneqq \supsetneqq
+      \lessapprox \approxeq \gtrapprox \precapprox
+      \succapprox \precnapprox \succnapprox
+      \lnapprox \gnapprox \napprox \approxeq
+      \approxident \lll \ggg \triangleeq
+      \triangleq \triangleleft \triangleright \ntriangleleft
+      \ntriangleright \trianglelefteq \ntrianglelefteq
+      \trianglerighteq \ntrianglerighteq \blacktriangleleft
+      \blacktriangleright \parallel \nparallel
+      \Vdash \Vvdash \nVdash \nvdash
+      \vDash \nvDash \nVDash
+      '''.split())
 
     _arrow_symbols = set(r'''
       \leftarrow              \longleftarrow           \uparrow
