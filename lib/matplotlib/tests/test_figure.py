@@ -652,7 +652,7 @@ def test_add_artist(fig_test, fig_ref):
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_fspath(fmt, tmpdir):
-    out = Path(tmpdir, "test.{}".format(fmt))
+    out = Path(tmpdir, f"test.{fmt}")
     plt.savefig(out)
     with out.open("rb") as file:
         # All the supported formats include the format name (case-insensitive)

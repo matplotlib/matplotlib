@@ -850,12 +850,12 @@ class Legend(Artist):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
                 _api.warn_external(
-                             "Legend does not support handles for {0} "
+                             "Legend does not support handles for "
+                             f"{type(orig_handle).__name__} "
                              "instances.\nA proxy artist may be used "
                              "instead.\nSee: https://matplotlib.org/"
                              "stable/tutorials/intermediate/legend_guide.html"
-                             "#controlling-the-legend-entries".format(
-                                 type(orig_handle).__name__))
+                             "#controlling-the-legend-entries")
                 # No handle for this artist, so we just defer to None.
                 handle_list.append(None)
             else:
@@ -1237,11 +1237,11 @@ def _get_legend_handles(axs, legend_handler_map=None):
         elif (label and not label.startswith('_') and
                 not has_handler(handler_map, handle)):
             _api.warn_external(
-                             "Legend does not support handles for {0} "
+                             "Legend does not support handles for "
+                             f"{type(handle).__name__} "
                              "instances.\nSee: https://matplotlib.org/stable/"
                              "tutorials/intermediate/legend_guide.html"
-                             "#implementing-a-custom-legend-handler".format(
-                                 type(handle).__name__))
+                             "#implementing-a-custom-legend-handler")
             continue
 
 

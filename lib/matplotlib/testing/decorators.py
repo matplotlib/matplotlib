@@ -294,8 +294,8 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                     'baseline_images')
 
             assert len(figs) == len(our_baseline_images), (
-                "Test generated {} images but there are {} baseline images"
-                .format(len(figs), len(our_baseline_images)))
+                f"Test generated {len(figs)} images but there are "
+                f"{len(our_baseline_images)} baseline images")
             for fig, baseline in zip(figs, our_baseline_images):
                 img.compare(fig, baseline, extension, _lock=needs_lock)
 

@@ -247,7 +247,7 @@ class InvertedLogTransform(Transform):
         self.base = base
 
     def __str__(self):
-        return "{}(base={})".format(type(self).__name__, self.base)
+        return f"{type(self).__name__}(base={self.base})"
 
     def transform_non_affine(self, a):
         return np.power(self.base, a)
@@ -601,7 +601,7 @@ class LogitTransform(Transform):
         return LogisticTransform(self._nonpositive)
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__, self._nonpositive)
+        return f"{type(self).__name__}({self._nonpositive!r})"
 
 
 class LogisticTransform(Transform):
@@ -619,7 +619,7 @@ class LogisticTransform(Transform):
         return LogitTransform(self._nonpositive)
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__, self._nonpositive)
+        return f"{type(self).__name__}({self._nonpositive!r})"
 
 
 class LogitScale(ScaleBase):

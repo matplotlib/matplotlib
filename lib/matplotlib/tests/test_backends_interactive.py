@@ -117,7 +117,7 @@ def _test_interactive_impl():
             fig = plt.figure()
             assert_equal(
                 type(fig.canvas).__module__,
-                "matplotlib.backends.backend_{}".format(alt_backend))
+                f"matplotlib.backends.backend_{alt_backend}")
 
         if importlib.util.find_spec("cairocffi"):
             check_alt_backend(backend[:-3] + "cairo")
@@ -128,7 +128,7 @@ def _test_interactive_impl():
     fig, ax = plt.subplots()
     assert_equal(
         type(fig.canvas).__module__,
-        "matplotlib.backends.backend_{}".format(backend))
+        f"matplotlib.backends.backend_{backend}")
 
     ax.plot([0, 1], [2, 3])
     if fig.canvas.toolbar:  # i.e toolbar2.

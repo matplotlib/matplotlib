@@ -324,7 +324,7 @@ class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase):
 
 
 class _BackendGTK(_Backend):
-    backend_version = "%s.%s.%s" % (
+    backend_version = "{}.{}.{}".format(
         Gtk.get_major_version(),
         Gtk.get_minor_version(),
         Gtk.get_micro_version(),

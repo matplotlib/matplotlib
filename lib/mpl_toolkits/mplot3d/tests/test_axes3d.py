@@ -1805,9 +1805,9 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
 @check_figures_equal(extensions=["png"])
 def test_scalarmap_update(fig_test, fig_ref):
 
-    x, y, z = np.array((list(itertools.product(*[np.arange(0, 5, 1),
-                                                 np.arange(0, 5, 1),
-                                                 np.arange(0, 5, 1)])))).T
+    x, y, z = np.array(list(itertools.product(*[np.arange(0, 5, 1),
+                                                np.arange(0, 5, 1),
+                                                np.arange(0, 5, 1)]))).T
     c = x + y
 
     # test

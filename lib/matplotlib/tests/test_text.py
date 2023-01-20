@@ -536,7 +536,7 @@ def test_font_scaling():
     ax.set_ylim(-10, 600)
 
     for i, fs in enumerate(range(4, 43, 2)):
-        ax.text(0.1, i*30, "{fs} pt font size".format(fs=fs), fontsize=fs)
+        ax.text(0.1, i*30, f"{fs} pt font size", fontsize=fs)
 
 
 @pytest.mark.parametrize('spacing1, spacing2', [(0.4, 2), (2, 0.4), (2, 2)])

@@ -141,7 +141,7 @@ def demo(sty):
     mpl.style.use(sty)
     fig, ax = plt.subplots(figsize=(3, 3))
 
-    ax.set_title('style: {!r}'.format(sty), color='C0')
+    ax.set_title(f'style: {sty!r}', color='C0')
 
     ax.plot(th, np.cos(th), 'C1', label='C1')
     ax.plot(th, np.sin(th), 'C2', label='C2')

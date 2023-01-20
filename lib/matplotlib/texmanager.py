@@ -100,7 +100,7 @@ class TexManager:
         'computer modern typewriter': 'monospace',
     }
 
-    @functools.lru_cache()  # Always return the same instance.
+    @functools.lru_cache  # Always return the same instance.
     def __new__(cls):
         Path(cls.texcache).mkdir(parents=True, exist_ok=True)
         return object.__new__(cls)
@@ -257,8 +257,8 @@ class TexManager:
                 stderr=subprocess.STDOUT)
         except FileNotFoundError as exc:
             raise RuntimeError(
-                'Failed to process string with tex because {} could not be '
-                'found'.format(command[0])) from exc
+                f'Failed to process string with tex because {command[0]} '
+                'could not be found') from exc
         except subprocess.CalledProcessError as exc:
             raise RuntimeError(
                 '{prog} was not able to process the following string:\n'

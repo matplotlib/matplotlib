@@ -629,7 +629,7 @@ class DviFont:
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "<{}: {}>".format(type(self).__name__, self.texname)
+        return f"<{type(self).__name__}: {self.texname}>"
 
     def _width_of(self, char):
         """Width of char in dvi units."""
@@ -877,7 +877,7 @@ class PsfontsMap:
     # Create a filename -> PsfontsMap cache, so that calling
     # `PsfontsMap(filename)` with the same filename a second time immediately
     # returns the same object.
-    @lru_cache()
+    @lru_cache
     def __new__(cls, filename):
         self = object.__new__(cls)
         self._filename = os.fsdecode(filename)
@@ -1027,12 +1027,11 @@ def _parse_enc(path):
     if all(line.startswith("/") for line in lines):
         return [line[1:] for line in lines]
     else:
-        raise ValueError(
-            "Failed to parse {} as Postscript encoding".format(path))
+        raise ValueError(f"Failed to parse {path} as Postscript encoding")
 
 
 class _LuatexKpsewhich:
-    @lru_cache()  # A singleton.
+    @lru_cache  # A singleton.
     def __new__(cls):
         self = object.__new__(cls)
         self._proc = self._new_proc()
@@ -1053,7 +1052,7 @@ class _LuatexKpsewhich:
         return None if out == b"nil" else os.fsdecode(out)
 
 
-@lru_cache()
+@lru_cache
 def _find_tex_file(filename):
     """
     Find a file in the texmf tree using kpathsea_.
@@ -1127,7 +1126,7 @@ def find_tex_file(filename):
 find_tex_file.__doc__ = _find_tex_file.__doc__
 
 
-@lru_cache()
+@lru_cache
 def _fontfile(cls, suffix, texname):
     return cls(_find_tex_file(texname + suffix))
 

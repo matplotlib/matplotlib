@@ -61,7 +61,7 @@ def record_missing_reference(app, record, node):
     target = node["reftarget"]
     location = get_location(node, app)
 
-    domain_type = "{}:{}".format(domain, typ)
+    domain_type = f"{domain}:{typ}"
 
     record[(domain_type, target)].add(location)
 

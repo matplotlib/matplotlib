@@ -11,8 +11,7 @@ class Container(tuple):
     """
 
     def __repr__(self):
-        return ("<{} object of {} artists>"
-                .format(type(self).__name__, len(self)))
+        return f"<{type(self).__name__} object of {len(self)} artists>"
 
     def __new__(cls, *args, **kwargs):
         return tuple.__new__(cls, args[0])

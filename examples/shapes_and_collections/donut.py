@@ -53,7 +53,7 @@ for i, (inside, outside) in enumerate(((1, 1), (1, -1), (-1, 1), (-1, -1))):
     patch = mpatches.PathPatch(path, facecolor='#885500', edgecolor='black')
     ax.add_patch(patch)
 
-    ax.annotate("Outside %s,\nInside %s" % (wise(outside), wise(inside)),
+    ax.annotate(f"Outside {wise(outside)},\nInside {wise(inside)}",
                 (i * 2.5, -1.5), va="top", ha="center")
 
 ax.set_xlim(-2, 10)

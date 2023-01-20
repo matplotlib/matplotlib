@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from matplotlib.colors import same_color

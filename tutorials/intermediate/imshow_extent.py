@@ -117,7 +117,7 @@ def plot_imshow_with_labels(ax, data, extent, origin, xlim, ylim):
     ax.annotate(starboard_string, xy=(1, .5), xytext=(-1, 0),
                 ha='right', va='center', rotation=-90,
                 **ann_kwargs)
-    ax.set_title('origin: {origin}'.format(origin=origin))
+    ax.set_title(f'origin: {origin}')
 
     # index labels
     for index in ["[0, 0]", "[0, N']", "[M', 0]", "[M', N']"]:

@@ -545,7 +545,7 @@ def test_backend_fallback_headful(tmpdir):
          "assert mpl.rcParams._get('backend') == sentinel; "
          "import matplotlib.pyplot; "
          "print(matplotlib.get_backend())"],
-        env=env, universal_newlines=True)
+        env=env, text=True)
     # The actual backend will depend on what's installed, but at least tkagg is
     # present.
     assert backend.strip().lower() != "agg"

@@ -113,7 +113,7 @@ def _move_path_to_path_or_stream(src, dst):
     If *dst* is a path, the metadata of *src* are *not* copied.
     """
     if is_writable_file_like(dst):
-        fh = (open(src, 'r', encoding='latin-1')
+        fh = (open(src, encoding='latin-1')
               if file_requires_unicode(dst)
               else open(src, 'rb'))
         with fh:
@@ -157,7 +157,7 @@ def _font_to_ps_type3(font_path, chars):
 """.format(font_name=font.postscript_name,
            inv_units_per_em=1 / font.units_per_EM,
            bbox=" ".join(map(str, font.bbox)),
-           encoding=" ".join("/{}".format(font.get_glyph_name(glyph_id))
+           encoding=" ".join(f"/{font.get_glyph_name(glyph_id)}"
                              for glyph_id in glyph_ids),
            num_glyphs=len(glyph_ids) + 1)
     postamble = """
@@ -528,7 +528,7 @@ grestore
                 simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
-                ps_cmd.append("%g %g o" % (x, y))
+                ps_cmd.append(f"{x:g} {y:g} o")
 
         ps = '\n'.join(ps_cmd)
         self._draw_ps(ps, gc, rgbFace, fill=False, stroke=False)
@@ -573,7 +573,7 @@ translate
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position):
-            ps = "%g %g %s" % (xo, yo, path_id)
+            ps = f"{xo:g} {yo:g} {path_id}"
             self._draw_ps(ps, gc0, rgbFace)
 
         self._path_collection_id += 1
@@ -1231,12 +1231,11 @@ def get_bbox_header(lbrt, rotated=False):
 
     l, b, r, t = lbrt
     if rotated:
-        rotate = "%.2f %.2f translate\n90 rotate" % (l+r, 0)
+        rotate = f"{l+r:.2f} {0:.2f} translate\n90 rotate"
     else:
         rotate = ""
     bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))
-    hires_bbox_info = '%%%%HiResBoundingBox: %.6f %.6f %.6f %.6f' % (
-        l, b, r, t)
+    hires_bbox_info = f'%%HiResBoundingBox: {l:.6f} {b:.6f} {r:.6f} {t:.6f}'
 
     return '\n'.join([bbox_info, hires_bbox_info]), rotate
 

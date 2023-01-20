@@ -114,7 +114,7 @@ class MplExplicitSubOrder:
     def __call__(self, item):
         """Return a string determining the sort order."""
         if item in self.ordered_list:
-            return "{:04d}".format(self.ordered_list.index(item))
+            return f"{self.ordered_list.index(item):04d}"
         else:
             # ensure not explicitly listed items come last.
             return "zzz" + item

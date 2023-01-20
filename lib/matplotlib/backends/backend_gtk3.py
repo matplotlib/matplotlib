@@ -45,7 +45,7 @@ class __getattr__:
         str(cbook._get_data_path("images", __getattr__("icon_filename")))))
 
 
-@functools.lru_cache()
+@functools.cache
 def _mpl_to_gtk_cursor(mpl_cursor):
     return Gdk.Cursor.new_from_name(
         Gdk.Display.get_default(),

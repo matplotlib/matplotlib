@@ -601,7 +601,7 @@ class ScalarMappable:
             except KeyError:
                 raise ValueError(
                     "Invalid norm str name; the following values are "
-                    "supported: {}".format(", ".join(scale._scale_mapping))
+                    f"supported: {', '.join(scale._scale_mapping)}"
                 ) from None
             norm = _auto_norm_from_scale(scale_cls)()
 

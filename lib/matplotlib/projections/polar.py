@@ -250,8 +250,7 @@ class ThetaFormatter(mticker.Formatter):
         # correctly with any arbitrary font (assuming it has a degree sign),
         # whereas $5\circ$ will only work correctly with one of the supported
         # math fonts (Computer Modern and STIX).
-        return ("{value:0.{digits:d}f}\N{DEGREE SIGN}"
-                .format(value=np.rad2deg(x), digits=digits))
+        return f"{np.rad2deg(x):0.{digits:d}f}\N{DEGREE SIGN}"
 
 
 class _AxisWrapper:

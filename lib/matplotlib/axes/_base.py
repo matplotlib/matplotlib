@@ -192,7 +192,7 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
             i += 1
         elif c == 'C' and i < len(fmt) - 1:
             color_cycle_number = int(fmt[i + 1])
-            color = mcolors.to_rgba("C{}".format(color_cycle_number))
+            color = mcolors.to_rgba(f"C{color_cycle_number}")
             i += 2
         else:
             raise ValueError(

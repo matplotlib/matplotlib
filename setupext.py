@@ -43,7 +43,7 @@ def _get_hash(data):
     return hasher.hexdigest()
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def _get_ssl_context():
     import certifi
     import ssl
@@ -71,7 +71,7 @@ def get_from_cache_or_download(url, sha):
     if cache_dir is not None:  # Try to read from cache.
         try:
             data = (cache_dir / sha).read_bytes()
-        except IOError:
+        except OSError:
             pass
         else:
             if _get_hash(data) == sha:
@@ -96,7 +96,7 @@ def get_from_cache_or_download(url, sha):
             cache_dir.mkdir(parents=True, exist_ok=True)
             with open(cache_dir / sha, "xb") as fout:
                 fout.write(data)
-        except IOError:
+        except OSError:
             pass
 
     return BytesIO(data)
@@ -134,14 +134,14 @@ def get_and_extract_tarball(urls, sha, dirname):
             except Exception:
                 pass
         else:
-            raise IOError(
+            raise OSError(
                 f"Failed to download any of the following: {urls}.  "
                 f"Please download one of these urls and extract it into "
                 f"'build/' at the top-level of the source repository.")
-        print("Extracting {}".format(urllib.parse.urlparse(url).path))
+        print(f"Extracting {urllib.parse.urlparse(url).path}")
         with tarfile.open(fileobj=tar_contents, mode="r:gz") as tgz:
             if os.path.commonpath(tgz.getnames()) != dirname:
-                raise IOError(
+                raise OSError(
                     f"The downloaded tgz file was expected to have {dirname} "
                     f"as sole top-level directory, but that is not the case")
             tgz.extractall("build")

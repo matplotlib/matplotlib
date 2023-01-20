@@ -158,10 +158,10 @@ def check_shape(_shape, **kwargs):
             dim_labels = iter(itertools.chain(
                 'MNLIJKLH',
                 (f"D{i}" for i in itertools.count())))
-            text_shape = ", ".join((str(n)
-                                    if n is not None
-                                    else next(dim_labels)
-                                    for n in target_shape))
+            text_shape = ", ".join(str(n)
+                                   if n is not None
+                                   else next(dim_labels)
+                                   for n in target_shape)
             if len(target_shape) == 1:
                 text_shape += ","
 
@@ -190,8 +190,8 @@ def check_getitem(_mapping, **kwargs):
         return mapping[v]
     except KeyError:
         raise ValueError(
-            "{!r} is not a valid value for {}; supported values are {}"
-            .format(v, k, ', '.join(map(repr, mapping)))) from None
+            f"{v!r} is not a valid value for {k}; supported values are "
+            f"{', '.join(map(repr, mapping))}") from None
 
 
 def caching_module_getattr(cls):
@@ -264,11 +264,11 @@ def define_aliases(alias_d, cls=None):
                 for alias in aliases:
                     method = make_alias(prefix + prop)
                     method.__name__ = prefix + alias
-                    method.__doc__ = "Alias for `{}`.".format(prefix + prop)
+                    method.__doc__ = f"Alias for `{prefix + prop}`."
                     setattr(cls, prefix + alias, method)
         if not exists:
             raise ValueError(
-                "Neither getter nor setter exists for {!r}".format(prop))
+                f"Neither getter nor setter exists for {prop!r}")
 
     def get_aliased_and_aliases(d):
         return {*d, *(alias for aliases in d.values() for alias in aliases)}

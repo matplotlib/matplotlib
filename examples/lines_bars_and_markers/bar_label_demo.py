@@ -80,7 +80,7 @@ ax.set_xlabel('Performance')
 ax.set_title('How fast do you want to go today?')
 
 # Label with given captions, custom padding and annotate options
-ax.bar_label(hbars, labels=['±%.2f' % e for e in error],
+ax.bar_label(hbars, labels=[f'±{e:.2f}' for e in error],
              padding=8, color='b', fontsize=14)
 ax.set_xlim(right=16)
 
@@ -106,9 +106,7 @@ mph_speed = [50, 60, 75]
 fig, ax = plt.subplots()
 bar_container = ax.bar(animal_names, mph_speed)
 ax.set(ylabel='speed in MPH', title='Running speeds', ylim=(0, 80))
-ax.bar_label(
-    bar_container, fmt=lambda x: '{:.1f} km/h'.format(x * 1.61)
-)
+ax.bar_label(bar_container, fmt=lambda x: f'{x * 1.61:.1f} km/h')
 
 # %%
 #

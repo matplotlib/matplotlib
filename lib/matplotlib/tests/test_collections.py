@@ -542,7 +542,7 @@ def test_quadmesh_cursor_data():
     assert mesh.get_cursor_data(mouse_event) is None
 
     # Now test adding the array data, to make sure we do get a value
-    mesh.set_array(np.ones((X.shape)))
+    mesh.set_array(np.ones(X.shape))
     assert_array_equal(mesh.get_cursor_data(mouse_event), [1])
 
 
@@ -992,7 +992,7 @@ def test_color_logic(pcfunc):
     pc.update_scalarmappable()  # This is called in draw().
     # Define 2 reference "colors" here for multiple use.
     face_default = mcolors.to_rgba_array(pc._get_default_facecolor())
-    mapped = pc.get_cmap()(pc.norm((z.ravel())))
+    mapped = pc.get_cmap()(pc.norm(z.ravel()))
     # GitHub issue #1302:
     assert mcolors.same_color(pc.get_edgecolor(), 'red')
     # Check setting attributes after initialization:

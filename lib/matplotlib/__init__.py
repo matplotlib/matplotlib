@@ -231,7 +231,7 @@ _check_versions()
 
 # The decorator ensures this always returns the same handler (and it is only
 # attached once).
-@functools.lru_cache()
+@functools.lru_cache
 def _ensure_handler():
     """
     The first time this function is called, attach a `StreamHandler` using the
@@ -321,7 +321,7 @@ class ExecutableNotFoundError(FileNotFoundError):
     pass
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def _get_executable_info(name):
     """
     Get the version of some executable that Matplotlib optionally depends on.
@@ -364,7 +364,7 @@ def _get_executable_info(name):
         try:
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT,
-                universal_newlines=True, errors="replace")
+                text=True, errors="replace")
         except subprocess.CalledProcessError as _cpe:
             if ignore_exit_code:
                 output = _cpe.output
@@ -459,7 +459,7 @@ def _get_executable_info(name):
                 f"version supported by Matplotlib is 3.0")
         return info
     else:
-        raise ValueError("Unknown executable: {!r}".format(name))
+        raise ValueError(f"Unknown executable: {name!r}")
 
 
 @_api.deprecated("3.6", alternative="a vendored copy of this function")
@@ -757,7 +757,7 @@ class RcParams(MutableMapping, dict):
             repr_split = pprint.pformat(dict(self), indent=1,
                                         width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
-        return '{}({})'.format(class_name, repr_indented)
+        return f'{class_name}({repr_indented})'
 
     def __str__(self):
         return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
@@ -799,7 +799,7 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
-@functools.lru_cache()
+@functools.lru_cache
 def _get_ssl_context():
     try:
         import certifi
@@ -1041,7 +1041,7 @@ def rc(group, **kwargs):
     for g in group:
         for k, v in kwargs.items():
             name = aliases.get(k) or k
-            key = '%s.%s' % (g, name)
+            key = f'{g}.{name}'
             try:
                 rcParams[key] = v
             except KeyError as err:
@@ -1430,11 +1430,11 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     arg_names = arg_names[1:]  # remove the first "ax" / self arg
 
     assert {*arg_names}.issuperset(replace_names or []) or varkwargs_name, (
-        "Matplotlib internal error: invalid replace_names ({!r}) for {!r}"
-        .format(replace_names, func.__name__))
+        "Matplotlib internal error: invalid replace_names "
+        f"({replace_names!r}) for {func.__name__!r}")
     assert label_namer is None or label_namer in arg_names, (
-        "Matplotlib internal error: invalid label_namer ({!r}) for {!r}"
-        .format(label_namer, func.__name__))
+        "Matplotlib internal error: invalid label_namer "
+        f"({label_namer!r}) for {func.__name__!r}")
 
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):

@@ -709,10 +709,10 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
             if isinstance(step, dict):
                 for key, val in step.items():
                     if val is next:
-                        outstream.write("[{!r}]".format(key))
+                        outstream.write(f"[{key!r}]")
                         break
                     if key is next:
-                        outstream.write("[key] = {!r}".format(val))
+                        outstream.write(f"[key] = {val!r}")
                         break
             elif isinstance(step, list):
                 outstream.write("[%d]" % step.index(next))
@@ -2078,8 +2078,7 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     *logger*.  In case of success, the output is likewise logged.
     """
     logger.debug('%s', _pformat_subprocess(command))
-    proc = subprocess.run(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
+    proc = subprocess.run(command, capture_output=True, **kwargs)
     if proc.returncode:
         stdout = proc.stdout
         if isinstance(stdout, bytes):
@@ -2107,7 +2106,7 @@ def _backend_module_name(name):
     or a custom backend -- "module://...") to the corresponding module name).
     """
     return (name[9:] if name.startswith("module://")
-            else "matplotlib.backends.backend_{}".format(name.lower()))
+            else f"matplotlib.backends.backend_{name.lower()}")
 
 
 def _setup_new_guiapp():
