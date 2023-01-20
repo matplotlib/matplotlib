@@ -1592,3 +1592,18 @@ def test_cm_set_cmap_error():
     bad_cmap = 'AardvarksAreAwkward'
     with pytest.raises(ValueError, match=bad_cmap):
         sm.set_cmap(bad_cmap)
+
+
+def test_check_color_like():
+    assert mcolors._check_color_like(colors1='yellow', colors2='red') is None
+    with pytest.raises(ValueError, match='none is not a valid value for c'):
+        mcolors.check_color_like_lst(c='none')
+
+
+def test_check_color_like_list():
+    assert mcolors.check_color_like_list(colors=['yellow', 'orange']) is None
+    assert mcolors.check_color_like_list(c1=['red'], c2=['blue']) is None
+    with pytest.raises(ValueError, match='none is not a valid value for c'):
+        mcolors.check_color_like_lst(c=['none', 'red'])
+    with pytest.raises(ValueError, match='none is not a valid value for c2'):
+        mcolors.check_color_like_lst(c1=['red', 'blue'], c2=['abcd'])
