@@ -1608,4 +1608,4 @@ def test_check_color_like_list():
     with pytest.raises(ValueError, match=err_msg):
         mcolors.check_color_like_list(c=['none', 'red'])
     with pytest.raises(ValueError, match=err_msg):
-        mcolors.check_color_like_list(c1=['red', 'blue'], c=['abcd'])
+        mcolors.check_color_like_list(c1=['red', 'blue'], c=['none'])
