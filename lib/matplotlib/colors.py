@@ -249,7 +249,7 @@ def check_color_like_list(**kwargs):
     element *v* in *lst* is color-like.
     """
     for k, lst in kwargs.items():
-        invalid_col = [c for c in lst if not is color_like(c)]
+        invalid_col = [c for c in lst if not is_color_like(c)]
         if invalid_col:
             raise ValueError(f"{invalid_col} are not valid value(s) for {k}")
 
