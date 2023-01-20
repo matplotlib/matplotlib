@@ -757,16 +757,25 @@ def test_mixedsamplesraises():
         ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
 
 
-@mpl3d_image_comparison(
-    ['quiver3d.png', 'quiver3d_pivot_middle.png', 'quiver3d_pivot_tail.png'])
+@mpl3d_image_comparison(['quiver3d.png'], style='mpl20')
 def test_quiver3d():
-    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
-    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
-    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (2/3)**0.5 * np.cos(np.pi * x) * np.cos(np.pi * y) * np.sin(np.pi * z)
-    for pivot in ['tip', 'middle', 'tail']:
-        ax = plt.figure().add_subplot(projection='3d')
-        ax.quiver(x, y, z, u, v, w, length=0.1, pivot=pivot, normalize=True)
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    pivots = ['tip', 'middle', 'tail']
+    colors = ['tab:blue', 'tab:orange', 'tab:green']
+    for i, (pivot, color) in enumerate(zip(pivots, colors)):
+        x, y, z = np.meshgrid([-0.5, 0.5], [-0.5, 0.5], [-0.5, 0.5])
+        u = -x
+        v = -y
+        w = -z
+        # Offset each set in z direction
+        z += 2 * i
+        ax.quiver(x, y, z, u, v, w, length=1, pivot=pivot, color=color)
+        ax.scatter(x, y, z, color=color)
+
+    ax.set_xlim(-3, 3)
+    ax.set_ylim(-3, 3)
+    ax.set_zlim(-1, 5)
 
 
 @check_figures_equal(extensions=["png"])
