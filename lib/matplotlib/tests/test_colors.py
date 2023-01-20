@@ -1597,7 +1597,7 @@ def test_cm_set_cmap_error():
 def test_check_color_like():
     assert mcolors._check_color_like(colors1='yellow', colors2='red') is None
     with pytest.raises(ValueError, match='none is not a valid value for c'):
-        mcolors.check_color_like(c='none')
+        mcolors._check_color_like(c='none')
 
 
 def test_check_color_like_list():
