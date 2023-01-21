@@ -54,7 +54,7 @@ def scatter_hist(x, y, ax, ax_histx, ax_histy):
     ax_histy.hist(y, bins=bins, orientation='horizontal')
 
 
-#############################################################################
+# %%
 #
 # Defining the axes positions using a gridspec
 # --------------------------------------------
@@ -78,7 +78,7 @@ ax_histy = fig.add_subplot(gs[1, 1], sharey=ax)
 scatter_hist(x, y, ax, ax_histx, ax_histy)
 
 
-#############################################################################
+# %%
 #
 # Defining the axes positions using inset_axes
 # --------------------------------------------
@@ -108,7 +108,7 @@ scatter_hist(x, y, ax, ax_histx, ax_histy)
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

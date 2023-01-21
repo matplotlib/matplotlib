@@ -247,7 +247,7 @@ class InvertedLogTransform(Transform):
         self.base = base
 
     def __str__(self):
-        return "{}(base={})".format(type(self).__name__, self.base)
+        return f"{type(self).__name__}(base={self.base})"
 
     def transform_non_affine(self, a):
         return np.power(self.base, a)
@@ -601,7 +601,7 @@ class LogitTransform(Transform):
         return LogisticTransform(self._nonpositive)
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__, self._nonpositive)
+        return f"{type(self).__name__}({self._nonpositive!r})"
 
 
 class LogisticTransform(Transform):
@@ -619,7 +619,7 @@ class LogisticTransform(Transform):
         return LogitTransform(self._nonpositive)
 
     def __str__(self):
-        return "{}({!r})".format(type(self).__name__, self._nonpositive)
+        return f"{type(self).__name__}({self._nonpositive!r})"
 
 
 class LogitScale(ScaleBase):
@@ -710,11 +710,6 @@ def scale_factory(scale, axis, **kwargs):
     scale : {%(names)s}
     axis : `matplotlib.axis.Axis`
     """
-    if scale != scale.lower():
-        _api.warn_deprecated(
-            "3.5", message="Support for case-insensitive scales is deprecated "
-            "since %(since)s and support will be removed %(removal)s.")
-        scale = scale.lower()
     scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
     return scale_cls(axis, **kwargs)
 

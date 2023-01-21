@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
-###############################################################################
+# %%
 # Lognorm: Instead of pcolor log10(Z1) you can have colorbars that have
 # the exponential labels using a norm.
 
@@ -38,7 +38,7 @@ pcm = ax[1].pcolor(X, Y, Z, cmap='PuBu_r', shading='nearest')
 fig.colorbar(pcm, ax=ax[1], extend='max')
 
 
-###############################################################################
+# %%
 # PowerNorm: Here a power-law trend in X partially obscures a rectified
 # sine wave in Y. We can remove the power law using a PowerNorm.
 
@@ -54,7 +54,7 @@ fig.colorbar(pcm, ax=ax[0], extend='max')
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='PuBu_r', shading='nearest')
 fig.colorbar(pcm, ax=ax[1], extend='max')
 
-###############################################################################
+# %%
 # SymLogNorm: two humps, one negative and one positive, The positive
 # with 5-times the amplitude. Linearly, you cannot see detail in the
 # negative hump.  Here we logarithmically scale the positive and
@@ -77,7 +77,7 @@ pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z),
                        shading='nearest')
 fig.colorbar(pcm, ax=ax[1], extend='both')
 
-###############################################################################
+# %%
 # Custom Norm: An example with a customized normalization.  This one
 # uses the example above, and normalizes the negative data differently
 # from the positive.
@@ -103,7 +103,7 @@ class MidpointNormalize(colors.Normalize):
         return np.ma.masked_array(np.interp(value, x, y))
 
 
-#####
+# %%
 fig, ax = plt.subplots(2, 1)
 
 pcm = ax[0].pcolormesh(X, Y, Z,
@@ -115,7 +115,7 @@ pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z),
                        shading='nearest')
 fig.colorbar(pcm, ax=ax[1], extend='both')
 
-###############################################################################
+# %%
 # BoundaryNorm: For this one you provide the boundaries for your colors,
 # and the Norm puts the first color in between the first pair, the
 # second color between the second pair, etc.

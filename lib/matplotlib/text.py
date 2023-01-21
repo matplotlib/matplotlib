@@ -46,9 +46,9 @@ def get_rotation(rotation):
         elif cbook._str_equal(rotation, 'vertical'):
             return 90.
         else:
-            raise ValueError("rotation is {!r}; expected either 'horizontal', "
-                             "'vertical', numeric value, or None"
-                             .format(rotation)) from err
+            raise ValueError(f"rotation is {rotation!r}; expected either "
+                             "'horizontal', 'vertical', numeric value, or "
+                             "None") from err
 
 
 def _get_textbox(text, renderer):
@@ -127,7 +127,7 @@ class Text(Artist):
     _charsize_cache = dict()
 
     def __repr__(self):
-        return "Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
+        return f"Text({self._x}, {self._y}, {self._text!r})"
 
     @_api.make_keyword_only("3.6", name="color")
     def __init__(self,
@@ -1667,7 +1667,7 @@ class Annotation(Text, _AnnotationBase):
     """
 
     def __str__(self):
-        return "Annotation(%g, %g, %r)" % (self.xy[0], self.xy[1], self._text)
+        return f"Annotation({self.xy[0]:g}, {self.xy[1]:g}, {self._text!r})"
 
     def __init__(self, text, xy,
                  xytext=None,

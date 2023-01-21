@@ -1,32 +1,32 @@
 """
-===========
-Pyplot Text
-===========
+==============================
+Text and mathtext using pyplot
+==============================
 
+Set the special text objects `~.pyplot.title`, `~.pyplot.xlabel`, and
+`~.pyplot.ylabel` through the dedicated pyplot functions.  Additional text
+objects can be placed in the axes using `~.pyplot.text`.
+
+You can use TeX-like mathematical typesetting in all texts; see also
+:doc:`/tutorials/text/mathtext`.
+
+.. redirect-from:: /gallery/pyplots/pyplot_mathtext
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
+t = np.arange(0.0, 2.0, 0.01)
+s = np.sin(2*np.pi*t)
 
-mu, sigma = 100, 15
-x = mu + sigma * np.random.randn(10000)
-
-# the histogram of the data
-n, bins, patches = plt.hist(x, 50, density=True, facecolor='g', alpha=0.75)
-
-
-plt.xlabel('Smarts')
-plt.ylabel('Probability')
-plt.title('Histogram of IQ')
-plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
-plt.xlim(40, 160)
-plt.ylim(0, 0.03)
-plt.grid(True)
+plt.plot(t, s)
+plt.text(0, -1, r'Hello, world!', fontsize=15)
+plt.title(r'$\mathcal{A}\sin(\omega t)$', fontsize=20)
+plt.xlabel('Time [s]')
+plt.ylabel('Voltage [mV]')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

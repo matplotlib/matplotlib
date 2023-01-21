@@ -380,3 +380,14 @@ def test_tight_pads():
 def test_tight_kwargs():
     fig, ax = plt.subplots(tight_layout={'pad': 0.15})
     fig.draw_without_rendering()
+
+
+def test_tight_toggle():
+    fig, ax = plt.subplots()
+    with pytest.warns(PendingDeprecationWarning):
+        fig.set_tight_layout(True)
+        assert fig.get_tight_layout()
+        fig.set_tight_layout(False)
+        assert not fig.get_tight_layout()
+        fig.set_tight_layout(True)
+        assert fig.get_tight_layout()

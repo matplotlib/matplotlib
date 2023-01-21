@@ -33,7 +33,7 @@ Z[:nr // 6, :nc // 6] = np.ma.masked
 interior = np.sqrt(X**2 + Y**2) < 0.5
 Z[interior] = np.ma.masked
 
-#############################################################################
+# %%
 # Automatic contour levels
 # ------------------------
 # We are using automatic selection of contour levels; this is usually not such
@@ -60,7 +60,7 @@ cbar.ax.set_ylabel('verbosity coefficient')
 # Add the contour line levels to the colorbar
 cbar.add_lines(CS2)
 
-#############################################################################
+# %%
 # Explicit contour levels
 # -----------------------
 # Now make a contour plot with the levels specified, and with the colormap
@@ -89,7 +89,7 @@ ax2.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 # needs from the ContourSet object, CS3.
 fig2.colorbar(CS3)
 
-#############################################################################
+# %%
 # Extension settings
 # ------------------
 # Illustrate all 4 possible "extend" settings:
@@ -111,7 +111,7 @@ for ax, extend in zip(axs.flat, extends):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

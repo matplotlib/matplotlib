@@ -17,7 +17,7 @@ universal function.
 """
 
 
-##############################################################################
+# %%
 #
 # A simple categorical heatmap
 # ----------------------------
@@ -79,7 +79,7 @@ fig.tight_layout()
 plt.show()
 
 
-#############################################################################
+# %%
 # Using the helper function code style
 # ------------------------------------
 #
@@ -216,7 +216,7 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
     return texts
 
 
-##########################################################################
+# %%
 # The above now allows us to keep the actual plot creation pretty compact.
 #
 
@@ -230,7 +230,7 @@ fig.tight_layout()
 plt.show()
 
 
-#############################################################################
+# %%
 # Some more complex heatmap examples
 # ----------------------------------
 #
@@ -301,7 +301,7 @@ plt.tight_layout()
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

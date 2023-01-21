@@ -28,7 +28,7 @@ ax3.plot(t, s3)
 multi = MultiCursor(None, (ax1, ax2, ax3), color='r', lw=1)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

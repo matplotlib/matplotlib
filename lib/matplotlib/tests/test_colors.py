@@ -30,6 +30,13 @@ def test_create_lookup_table(N, result):
     assert_array_almost_equal(mcolors._create_lookup_table(N, data), result)
 
 
+@pytest.mark.parametrize("dtype", [np.uint8, int, np.float16, float])
+def test_index_dtype(dtype):
+    # We use subtraction in the indexing, so need to verify that uint8 works
+    cm = mpl.colormaps["viridis"]
+    assert_array_equal(cm(dtype(0)), cm(0))
+
+
 def test_resampled():
     """
     GitHub issue #6025 pointed to incorrect ListedColormap.resampled;
@@ -921,8 +928,8 @@ def test_cmap_and_norm_from_levels_and_colors2():
             else:
                 d_val = [d_val]
             assert_array_equal(expected_color, cmap(norm(d_val))[0],
-                               'Wih extend={0!r} and data '
-                               'value={1!r}'.format(extend, d_val))
+                               f'With extend={extend!r} and data '
+                               f'value={d_val!r}')
 
     with pytest.raises(ValueError):
         mcolors.from_levels_and_colors(levels, colors)
@@ -1446,7 +1453,7 @@ def test_set_dict_to_rgba():
     # downstream libraries do this...
     # note we can't test this because it is not well-ordered
     # so just smoketest:
-    colors = set([(0, .5, 1), (1, .2, .5), (.4, 1, .2)])
+    colors = {(0, .5, 1), (1, .2, .5), (.4, 1, .2)}
     res = mcolors.to_rgba_array(colors)
     palette = {"red": (1, 0, 0), "green": (0, 1, 0), "blue": (0, 0, 1)}
     res = mcolors.to_rgba_array(palette.values())

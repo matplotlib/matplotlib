@@ -82,6 +82,7 @@ examples/tests/*
 !examples/tests/backend_driver_sgskip.py
 result_images
 doc/_static/constrained_layout*.png
+doc/.mpl_skip_subdirs.yaml
 
 # Nose/Pytest generated files #
 ###############################

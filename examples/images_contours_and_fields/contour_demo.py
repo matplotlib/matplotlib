@@ -23,7 +23,7 @@ Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
-###############################################################################
+# %%
 # Create a simple contour plot with labels using default colors.  The inline
 # argument to clabel will control whether the labels are draw over the line
 # segments of the contour, removing the lines beneath the label.
@@ -33,7 +33,7 @@ CS = ax.contour(X, Y, Z)
 ax.clabel(CS, inline=True, fontsize=10)
 ax.set_title('Simplest default with labels')
 
-###############################################################################
+# %%
 # Contour labels can be placed manually by providing list of positions (in data
 # coordinate).  See :doc:`/gallery/event_handling/ginput_manual_clabel_sgskip`
 # for interactive placement.
@@ -45,7 +45,7 @@ manual_locations = [
 ax.clabel(CS, inline=True, fontsize=10, manual=manual_locations)
 ax.set_title('labels at selected locations')
 
-###############################################################################
+# %%
 # You can force all the contours to be the same color.
 
 fig, ax = plt.subplots()
@@ -53,7 +53,7 @@ CS = ax.contour(X, Y, Z, 6, colors='k')  # Negative contours default to dashed.
 ax.clabel(CS, fontsize=9, inline=True)
 ax.set_title('Single color - negative contours dashed')
 
-###############################################################################
+# %%
 # You can set negative contours to be solid instead of dashed:
 
 plt.rcParams['contour.negative_linestyle'] = 'solid'
@@ -62,7 +62,7 @@ CS = ax.contour(X, Y, Z, 6, colors='k')  # Negative contours default to dashed.
 ax.clabel(CS, fontsize=9, inline=True)
 ax.set_title('Single color - negative contours solid')
 
-###############################################################################
+# %%
 # And you can manually specify the colors of the contour
 
 fig, ax = plt.subplots()
@@ -73,7 +73,7 @@ CS = ax.contour(X, Y, Z, 6,
 ax.clabel(CS, fontsize=9, inline=True)
 ax.set_title('Crazy lines')
 
-###############################################################################
+# %%
 # Or you can use a colormap to specify the colors; the default
 # colormap will be used for the contour lines
 
@@ -107,7 +107,7 @@ CB.ax.set_position([ll, b + 0.1*h, ww, h*0.8])
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -40,7 +40,7 @@ for ax, interp_method in zip(axs.flat, methods):
 plt.tight_layout()
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

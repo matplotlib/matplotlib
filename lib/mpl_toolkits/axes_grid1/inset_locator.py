@@ -73,7 +73,7 @@ class AnchoredLocatorBase(AnchoredOffsetbox):
         bbox = self.get_window_extent(renderer)
         px, py = self.get_offset(bbox.width, bbox.height, 0, 0, renderer)
         bbox_canvas = Bbox.from_bounds(px, py, bbox.width, bbox.height)
-        tr = ax.figure.transFigure.inverted()
+        tr = ax.figure.transSubfigure.inverted()
         return TransformedBbox(bbox_canvas, tr)
 
 
@@ -218,11 +218,9 @@ class BboxConnector(Patch):
             raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
-        if 'fill' in kwargs:
-            super().__init__(**kwargs)
-        else:
-            fill = bool({'fc', 'facecolor', 'color'}.intersection(kwargs))
-            super().__init__(fill=fill, **kwargs)
+        kwargs.setdefault(
+            "fill", bool({'fc', 'facecolor', 'color'}.intersection(kwargs)))
+        super().__init__(**kwargs)
         self.bbox1 = bbox1
         self.bbox2 = bbox2
         self.loc1 = loc1

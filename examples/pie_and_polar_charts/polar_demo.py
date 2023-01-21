@@ -22,7 +22,7 @@ ax.grid(True)
 ax.set_title("A line plot on a polar axis", va='bottom')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

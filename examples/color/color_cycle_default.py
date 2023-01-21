@@ -30,7 +30,7 @@ for icol in range(2):
 
     axs[1, icol].set_facecolor('k')
     axs[1, icol].xaxis.set_ticks(np.arange(0, 10, 2))
-    axs[0, icol].set_title('line widths (pts): %g, %g' % (lwx, lwy),
+    axs[0, icol].set_title(f'line widths (pts): {lwx:g}, {lwy:g}',
                            fontsize='medium')
 
 for irow in range(2):
@@ -40,7 +40,7 @@ fig.suptitle('Colors in the default prop_cycle', fontsize='large')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

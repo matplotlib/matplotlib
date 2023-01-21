@@ -11,7 +11,7 @@ in Matplotlib. Such charts are often referred to as donut charts.
 import matplotlib.pyplot as plt
 import numpy as np
 
-###############################################################################
+# %%
 # The most straightforward way to build a pie chart is to use the
 # `~matplotlib.axes.Axes.pie` method.
 #
@@ -43,7 +43,7 @@ ax.pie(vals.flatten(), radius=1-size, colors=inner_colors,
 ax.set(aspect="equal", title='Pie plot with `ax.pie`')
 plt.show()
 
-###############################################################################
+# %%
 # However, you can accomplish the same output by using a bar plot on
 # axes with a polar coordinate system. This may give more flexibility on
 # the exact design of the plot.
@@ -77,7 +77,7 @@ ax.set(title="Pie plot with `ax.bar` and polar coordinates")
 ax.set_axis_off()
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

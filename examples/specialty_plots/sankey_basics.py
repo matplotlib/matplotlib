@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.sankey import Sankey
 
 
-###############################################################################
+# %%
 # Example 1 -- Mostly defaults
 #
 # This demonstrates how to create a simple diagram by implicitly calling the
@@ -22,7 +22,7 @@ Sankey(flows=[0.25, 0.15, 0.60, -0.20, -0.15, -0.05, -0.50, -0.10],
        orientations=[-1, 1, 0, 1, 1, 1, 0, -1]).finish()
 plt.title("The default settings produce a diagram like this.")
 
-###############################################################################
+# %%
 # Notice:
 #
 # 1. Axes weren't provided when Sankey() was instantiated, so they were
@@ -32,7 +32,7 @@ plt.title("The default settings produce a diagram like this.")
 # 3. By default, the lengths of the paths are justified.
 
 
-###############################################################################
+# %%
 # Example 2
 #
 # This demonstrates:
@@ -63,7 +63,7 @@ diagrams = sankey.finish()
 diagrams[0].texts[-1].set_color('r')
 diagrams[0].text.set_fontweight('bold')
 
-###############################################################################
+# %%
 # Notice:
 #
 # 1. Since the sum of the flows is nonzero, the width of the trunk isn't
@@ -72,7 +72,7 @@ diagrams[0].text.set_fontweight('bold')
 #    logged at the DEBUG level.
 
 
-###############################################################################
+# %%
 # Example 3
 #
 # This demonstrates:
@@ -93,7 +93,7 @@ diagrams = sankey.finish()
 diagrams[-1].patch.set_hatch('/')
 plt.legend()
 
-###############################################################################
+# %%
 # Notice that only one connection is specified, but the systems form a
 # circuit since: (1) the lengths of the paths are justified and (2) the
 # orientation and ordering of the flows is mirrored.
@@ -101,7 +101,7 @@ plt.legend()
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

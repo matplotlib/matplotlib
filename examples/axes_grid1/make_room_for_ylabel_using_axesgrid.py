@@ -17,7 +17,7 @@ ax.set_yticks([0.5], labels=["very long label"])
 
 make_axes_area_auto_adjustable(ax)
 
-###############################################################################
+# %%
 
 fig = plt.figure()
 ax1 = fig.add_axes([0, 0, 1, 0.5])
@@ -31,7 +31,7 @@ ax2.set_title("Title")
 make_axes_area_auto_adjustable(ax1, pad=0.1, use_axes=[ax1, ax2])
 make_axes_area_auto_adjustable(ax2, pad=0.1, use_axes=[ax1, ax2])
 
-###############################################################################
+# %%
 
 fig = plt.figure()
 ax1 = fig.add_axes([0, 0, 1, 1])

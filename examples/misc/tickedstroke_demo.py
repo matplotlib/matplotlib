@@ -20,7 +20,7 @@ See also the :doc:`contours in optimization example
 </gallery/images_contours_and_fields/contours_in_optimization_demo>`.
 """
 
-###############################################################################
+# %%
 # Applying TickedStroke to paths
 # ==============================
 import matplotlib.patches as patches
@@ -41,7 +41,7 @@ ax.set_ylim(-2, 2)
 
 plt.show()
 
-###############################################################################
+# %%
 # Applying TickedStroke to lines
 # ==============================
 fig, ax = plt.subplots(figsize=(6, 6))
@@ -57,7 +57,7 @@ ax.legend()
 
 plt.show()
 
-###############################################################################
+# %%
 # Applying TickedStroke to contour plots
 # ======================================
 #

@@ -13,7 +13,7 @@ from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
 import numpy as np
 
-###############################################################################
+# %%
 # Basic pcolormesh
 # ----------------
 #
@@ -29,7 +29,7 @@ y = np.arange(4.5, 11, 1)  # len = 7
 fig, ax = plt.subplots()
 ax.pcolormesh(x, y, Z)
 
-###############################################################################
+# %%
 # Non-rectilinear pcolormesh
 # --------------------------
 #
@@ -45,7 +45,7 @@ Y = Y + 0.3 * X
 fig, ax = plt.subplots()
 ax.pcolormesh(X, Y, Z)
 
-###############################################################################
+# %%
 # Centered Coordinates
 # ---------------------
 #
@@ -67,7 +67,7 @@ axs[1].pcolormesh(X, Y, Z[:-1, :-1], vmin=np.min(Z), vmax=np.max(Z),
                   shading='flat')
 axs[1].set_title("shading='flat'")
 
-###############################################################################
+# %%
 # Making levels using Norms
 # -------------------------
 #
@@ -117,7 +117,7 @@ fig.tight_layout()
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

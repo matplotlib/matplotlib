@@ -875,9 +875,7 @@ class Colorbar:
         self._minorlocator = minorlocator
         _log.debug('locator: %r', locator)
 
-    @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticks(self, ticks, update_ticks=True, labels=None, *,
-                  minor=False, **kwargs):
+    def set_ticks(self, ticks, *, labels=None, minor=False, **kwargs):
         """
         Set tick locations.
 
@@ -916,9 +914,7 @@ class Colorbar:
         else:
             return self._long_axis().get_majorticklocs()
 
-    @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticklabels(self, ticklabels, update_ticks=True, *, minor=False,
-                       **kwargs):
+    def set_ticklabels(self, ticklabels, *, minor=False, **kwargs):
         """
         [*Discouraged*] Set tick labels.
 
@@ -1179,7 +1175,11 @@ class Colorbar:
         self._minorlocator = None
         self._formatter = None
         self._minorformatter = None
-        if (self.boundaries is not None or
+        if (isinstance(self.mappable, contour.ContourSet) and
+                isinstance(self.norm, colors.LogNorm)):
+            # if contours have lognorm, give them a log scale...
+            self._set_scale('log')
+        elif (self.boundaries is not None or
                 isinstance(self.norm, colors.BoundaryNorm)):
             if self.spacing == 'uniform':
                 funcs = (self._forward_boundaries, self._inverse_boundaries)

@@ -12,7 +12,7 @@ from matplotlib.path import Path
 import matplotlib.pyplot as plt
 
 
-###############################################################################
+# %%
 # Custom box styles can be implemented as a function that takes arguments
 # specifying both a rectangular box and the amount of "mutation", and
 # returns the "mutated" path.  The specific signature is the one of
@@ -61,7 +61,7 @@ ax.text(0.5, 0.5, "Test", size=30, va="center", ha="center", rotation=30,
         bbox=dict(boxstyle=custom_box_style, alpha=0.2))
 
 
-###############################################################################
+# %%
 # Likewise, custom box styles can be implemented as classes that implement
 # ``__call__``.
 #

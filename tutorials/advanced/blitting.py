@@ -100,7 +100,7 @@ for j in range(100):
     # you can put a pause in if you want to slow things down
     # plt.pause(.1)
 
-###############################################################################
+# %%
 # This example works and shows a simple animation, however because we
 # are only grabbing the background once, if the size of the figure in
 # pixels changes (due to either the size or dpi of the figure
@@ -192,7 +192,7 @@ class BlitManager:
         cv.flush_events()
 
 
-###############################################################################
+# %%
 # Here is how we would use our class.  This is a slightly more complicated
 # example than the first case as we add a text frame counter as well.
 
@@ -219,10 +219,10 @@ plt.pause(.1)
 for j in range(100):
     # update the artists
     ln.set_ydata(np.sin(x + (j / 100) * np.pi))
-    fr_number.set_text("frame: {j}".format(j=j))
+    fr_number.set_text(f"frame: {j}")
     # tell the blitting manager to do its thing
     bm.update()
 
-###############################################################################
+# %%
 # This class does not depend on `.pyplot` and is suitable to embed
 # into larger GUI application.

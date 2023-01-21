@@ -94,51 +94,7 @@ class DraggableLegend(DraggableOffsetBox):
         self.legend.set_bbox_to_anchor(loc_in_bbox)
 
 
-_docstring.interpd.update(_legend_kw_doc="""
-loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
-'upper right' for figures)
-    The location of the legend.
-
-    The strings
-    ``'upper left', 'upper right', 'lower left', 'lower right'``
-    place the legend at the corresponding corner of the axes/figure.
-
-    The strings
-    ``'upper center', 'lower center', 'center left', 'center right'``
-    place the legend at the center of the corresponding edge of the
-    axes/figure.
-
-    The string ``'center'`` places the legend at the center of the axes/figure.
-
-    The string ``'best'`` places the legend at the location, among the nine
-    locations defined so far, with the minimum overlap with other drawn
-    artists.  This option can be quite slow for plots with large amounts of
-    data; your plotting speed may benefit from providing a specific location.
-
-    The location can also be a 2-tuple giving the coordinates of the lower-left
-    corner of the legend in axes coordinates (in which case *bbox_to_anchor*
-    will be ignored).
-
-    For back-compatibility, ``'center right'`` (but no other location) can also
-    be spelled ``'right'``, and each "string" locations can also be given as a
-    numeric value:
-
-        ===============   =============
-        Location String   Location Code
-        ===============   =============
-        'best'            0
-        'upper right'     1
-        'upper left'      2
-        'lower left'      3
-        'lower right'     4
-        'right'           5
-        'center left'     6
-        'center right'    7
-        'lower center'    8
-        'upper center'    9
-        'center'          10
-        ===============   =============
-
+_legend_kw_doc_base = """
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
     Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
@@ -295,7 +251,79 @@ handler_map : dict or None
 
 draggable : bool, default: False
     Whether the legend can be dragged with the mouse.
-""")
+"""
+
+_loc_doc_base = """
+loc : str or pair of floats, {0}
+    The location of the legend.
+
+    The strings
+    ``'upper left', 'upper right', 'lower left', 'lower right'``
+    place the legend at the corresponding corner of the axes/figure.
+
+    The strings
+    ``'upper center', 'lower center', 'center left', 'center right'``
+    place the legend at the center of the corresponding edge of the
+    axes/figure.
+
+    The string ``'center'`` places the legend at the center of the axes/figure.
+
+    The string ``'best'`` places the legend at the location, among the nine
+    locations defined so far, with the minimum overlap with other drawn
+    artists.  This option can be quite slow for plots with large amounts of
+    data; your plotting speed may benefit from providing a specific location.
+
+    The location can also be a 2-tuple giving the coordinates of the lower-left
+    corner of the legend in axes coordinates (in which case *bbox_to_anchor*
+    will be ignored).
+
+    For back-compatibility, ``'center right'`` (but no other location) can also
+    be spelled ``'right'``, and each "string" locations can also be given as a
+    numeric value:
+
+        ===============   =============
+        Location String   Location Code
+        ===============   =============
+        'best'            0
+        'upper right'     1
+        'upper left'      2
+        'lower left'      3
+        'lower right'     4
+        'right'           5
+        'center left'     6
+        'center right'    7
+        'lower center'    8
+        'upper center'    9
+        'center'          10
+        ===============   =============
+    {1}"""
+
+_legend_kw_axes_st = (_loc_doc_base.format("default: :rc:`legend.loc`", '') +
+                      _legend_kw_doc_base)
+_docstring.interpd.update(_legend_kw_axes=_legend_kw_axes_st)
+
+_outside_doc = """
+    If a figure is using the constrained layout manager, the string codes
+    of the *loc* keyword argument can get better layout behaviour using the
+    prefix 'outside'. There is ambiguity at the corners, so 'outside
+    upper right' will make space for the legend above the rest of the
+    axes in the layout, and 'outside right upper' will make space on the
+    right side of the layout.  In addition to the values of *loc*
+    listed above, we have 'outside right upper', 'outside right lower',
+    'outside left upper', and 'outside left lower'.  See
+    :doc:`/tutorials/intermediate/legend_guide` for more details.
+"""
+
+_legend_kw_figure_st = (_loc_doc_base.format("default: 'upper right'",
+                                             _outside_doc) +
+                        _legend_kw_doc_base)
+_docstring.interpd.update(_legend_kw_figure=_legend_kw_figure_st)
+
+_legend_kw_both_st = (
+    _loc_doc_base.format("default: 'best' for axes, 'upper right' for figures",
+                         _outside_doc) +
+    _legend_kw_doc_base)
+_docstring.interpd.update(_legend_kw_doc=_legend_kw_both_st)
 
 
 class Legend(Artist):
@@ -482,13 +510,37 @@ class Legend(Artist):
             )
         self.parent = parent
 
+        loc0 = loc
         self._loc_used_default = loc is None
         if loc is None:
             loc = mpl.rcParams["legend.loc"]
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
+
+        # handle outside legends:
+        self._outside_loc = None
         if isinstance(loc, str):
+            if loc.split()[0] == 'outside':
+                # strip outside:
+                loc = loc.split('outside ')[1]
+                # strip "center" at the beginning
+                self._outside_loc = loc.replace('center ', '')
+                # strip first
+                self._outside_loc = self._outside_loc.split()[0]
+                locs = loc.split()
+                if len(locs) > 1 and locs[0] in ('right', 'left'):
+                    # locs doesn't accept "left upper", etc, so swap
+                    if locs[0] != 'center':
+                        locs = locs[::-1]
+                    loc = locs[0] + ' ' + locs[1]
+            # check that loc is in acceptable strings
             loc = _api.check_getitem(self.codes, loc=loc)
+
+        if self.isaxes and self._outside_loc:
+            raise ValueError(
+                f"'outside' option for loc='{loc0}' keyword argument only "
+                "works for figure legends")
+
         if not self.isaxes and loc == 0:
             raise ValueError(
                 "Automatic legend placement (loc='best') not implemented for "
@@ -798,12 +850,12 @@ class Legend(Artist):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
                 _api.warn_external(
-                             "Legend does not support handles for {0} "
+                             "Legend does not support handles for "
+                             f"{type(orig_handle).__name__} "
                              "instances.\nA proxy artist may be used "
                              "instead.\nSee: https://matplotlib.org/"
                              "stable/tutorials/intermediate/legend_guide.html"
-                             "#controlling-the-legend-entries".format(
-                                 type(orig_handle).__name__))
+                             "#controlling-the-legend-entries")
                 # No handle for this artist, so we just defer to None.
                 handle_list.append(None)
             else:
@@ -1185,11 +1237,11 @@ def _get_legend_handles(axs, legend_handler_map=None):
         elif (label and not label.startswith('_') and
                 not has_handler(handler_map, handle)):
             _api.warn_external(
-                             "Legend does not support handles for {0} "
+                             "Legend does not support handles for "
+                             f"{type(handle).__name__} "
                              "instances.\nSee: https://matplotlib.org/stable/"
                              "tutorials/intermediate/legend_guide.html"
-                             "#implementing-a-custom-legend-handler".format(
-                                 type(handle).__name__))
+                             "#implementing-a-custom-legend-handler")
             continue
 
 

@@ -21,7 +21,7 @@ from matplotlib.patches import PathPatch
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-###############################################################################
+# %%
 # First we'll generate a simple bivariate normal distribution.
 
 delta = 0.025
@@ -39,7 +39,7 @@ im = ax.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
 plt.show()
 
 
-###############################################################################
+# %%
 # It is also possible to show images of pictures.
 
 # A sample image
@@ -71,7 +71,7 @@ ax['mri'].set_title('MRI')
 plt.show()
 
 
-###############################################################################
+# %%
 # Interpolating images
 # --------------------
 #
@@ -129,7 +129,7 @@ for ax, interp in zip(axs, ['nearest', 'bilinear', 'bicubic']):
 plt.show()
 
 
-###############################################################################
+# %%
 # You can specify whether images should be plotted with the array origin
 # x[0, 0] in the upper left or lower right by using the origin parameter.
 # You can also control the default setting image.origin in your
@@ -149,7 +149,7 @@ axs[1].imshow(x, origin='lower', interpolation=interp)
 plt.show()
 
 
-###############################################################################
+# %%
 # Finally, we'll show an image using a clip path.
 
 delta = 0.025
@@ -172,7 +172,7 @@ im.set_clip_path(patch)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -158,7 +158,7 @@ if (sys.platform == 'darwin' and
 # PyQt6 enum compat helpers.
 
 
-@functools.lru_cache(None)
+@functools.cache
 def _enum(name):
     # foo.bar.Enum.Entry (PyQt6) <=> foo.bar.Entry (non-PyQt6).
     return operator.attrgetter(

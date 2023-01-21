@@ -314,7 +314,7 @@ cursor = AnnotatedCursor(
 
 plt.show()
 
-###############################################################################
+# %%
 # Trouble with non-biunique functions
 # -----------------------------------
 # A call demonstrating problems with the *dataaxis=y* parameter.

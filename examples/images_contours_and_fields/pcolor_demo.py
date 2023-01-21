@@ -16,7 +16,7 @@ from matplotlib.colors import LogNorm
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-###############################################################################
+# %%
 # A simple pcolor demo
 # --------------------
 
@@ -33,7 +33,7 @@ ax1.set_title('thick edges')
 fig.tight_layout()
 plt.show()
 
-###############################################################################
+# %%
 # Comparing pcolor with similar functions
 # ---------------------------------------
 #
@@ -82,7 +82,7 @@ fig.tight_layout()
 plt.show()
 
 
-###############################################################################
+# %%
 # Pcolor with a log scale
 # -----------------------
 #
@@ -109,7 +109,7 @@ fig.colorbar(c, ax=ax1)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

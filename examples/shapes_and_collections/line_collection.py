@@ -43,7 +43,7 @@ ax.add_collection(line_segments)
 ax.set_title('Line collection with masked arrays')
 plt.show()
 
-###############################################################################
+# %%
 # In the following example, instead of passing a list of colors
 # (``colors=colors``), we pass an array of values (``array=x``) that get
 # colormapped.
@@ -67,7 +67,7 @@ ax.set_title('Line Collection with mapped colors')
 plt.sci(line_segments)  # This allows interactive changing of the colormap.
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -68,7 +68,7 @@ cbar.set_label('proportional')
 fig.suptitle('imshow, with out-of-range and masked data')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

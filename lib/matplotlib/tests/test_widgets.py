@@ -1,4 +1,3 @@
-from contextlib import nullcontext
 import functools
 from unittest import mock
 
@@ -24,22 +23,16 @@ def ax():
     return get_ax()
 
 
-@pytest.mark.parametrize('kwargs, warning_msg', [
-    (dict(), None),
-    (dict(drawtype='line', useblit=False),
-     "Support for drawtype='line' is deprecated"),
-    (dict(useblit=True, button=1), None),
-    (dict(drawtype='none', minspanx=10, minspany=10),
-     "Support for drawtype='none' is deprecated"),
-    (dict(minspanx=10, minspany=10, spancoords='pixels'), None),
-    (dict(props=dict(fill=True)), None),
+@pytest.mark.parametrize('kwargs', [
+    dict(),
+    dict(useblit=True, button=1),
+    dict(minspanx=10, minspany=10, spancoords='pixels'),
+    dict(props=dict(fill=True)),
 ])
-def test_rectangle_selector(ax, kwargs, warning_msg):
+def test_rectangle_selector(ax, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    with (pytest.warns(MatplotlibDeprecationWarning, match=warning_msg)
-            if warning_msg else nullcontext()):
-        tool = widgets.RectangleSelector(ax, onselect, **kwargs)
+    tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
 
@@ -428,7 +421,7 @@ def test_rectangle_rotate(ax, selector_class):
 
     # Rotate anticlockwise using top-right corner
     do_event(tool, 'on_key_press', key='r')
-    assert tool._state == set(['rotate'])
+    assert tool._state == {'rotate'}
     assert len(tool._state) == 1
     click_and_drag(tool, start=(130, 140), end=(120, 145))
     do_event(tool, 'on_key_press', key='r')
@@ -1006,11 +999,13 @@ def test_check_radio_buttons_image():
     rax1 = plt.axes([0.05, 0.7, 0.15, 0.15])
     rax2 = plt.axes([0.05, 0.2, 0.15, 0.15])
     rb = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning,
+                      match='The circles attribute was deprecated'):
         rb.circles  # Trigger the old-style elliptic radiobuttons.
     cb = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                               (False, True, True))
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning,
+                      match='The rectangles attribute was deprecated'):
         cb.rectangles  # Trigger old-style Rectangle check boxes
 
 
@@ -1041,7 +1036,8 @@ def test_check_buttons_rectangles(fig_test, fig_ref):
     # Test should be removed once .rectangles is removed
     cb = widgets.CheckButtons(fig_test.subplots(), ["", ""],
                               [False, False])
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning,
+                      match='The rectangles attribute was deprecated'):
         cb.rectangles
     ax = fig_ref.add_subplot(xticks=[], yticks=[])
     ys = [2/3, 1/3]
@@ -1063,7 +1059,8 @@ def test_check_buttons_rectangles(fig_test, fig_ref):
 def test_check_buttons_lines(fig_test, fig_ref):
     # Test should be removed once .lines is removed
     cb = widgets.CheckButtons(fig_test.subplots(), ["", ""], [True, True])
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning,
+                      match='The lines attribute was deprecated'):
         cb.lines
     for rectangle in cb._rectangles:
         rectangle.set_visible(False)
@@ -1575,8 +1572,8 @@ def test_MultiCursor(horizOn, vertOn):
     )
 
     # Only two of the axes should have a line drawn on them.
-    assert len(multi.vlines) == (2 if vertOn else 0)
-    assert len(multi.hlines) == (2 if horizOn else 0)
+    assert len(multi.vlines) == 2
+    assert len(multi.hlines) == 2
 
     # mock a motion_notify_event
     # Can't use `do_event` as that helper requires the widget
@@ -1589,6 +1586,21 @@ def test_MultiCursor(horizOn, vertOn):
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
+    # The relevant lines get turned on after move.
+    assert len([line for line in multi.vlines if line.get_visible()]) == (
+        2 if vertOn else 0)
+    assert len([line for line in multi.hlines if line.get_visible()]) == (
+        2 if horizOn else 0)
+
+    # After toggling settings, the opposite lines should be visible after move.
+    multi.horizOn = not multi.horizOn
+    multi.vertOn = not multi.vertOn
+    event = mock_event(ax1, xdata=.5, ydata=.25)
+    multi._onmove(event)
+    assert len([line for line in multi.vlines if line.get_visible()]) == (
+        0 if vertOn else 2)
+    assert len([line for line in multi.hlines if line.get_visible()]) == (
+        0 if horizOn else 2)
 
     # test a move event in an Axes not part of the MultiCursor
     # the lines in ax1 and ax2 should not have moved.

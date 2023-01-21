@@ -41,7 +41,7 @@ def hello():
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     return f"<img src='data:image/png;base64,{data}'/>"
 
-#############################################################################
+# %%
 #
 # Since the above code is a Flask application, it should be run using the
 # `flask command-line tool <https://flask.palletsprojects.com/en/latest/cli/>`_

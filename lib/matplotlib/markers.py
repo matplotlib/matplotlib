@@ -217,7 +217,7 @@ class MarkerStyle:
     # Just used for informational purposes.  is_filled()
     # is calculated in the _set_* functions.
     filled_markers = (
-        'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd',
+        '.', 'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd',
         'P', 'X')
 
     fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
@@ -359,8 +359,8 @@ class MarkerStyle:
                 Path(marker)
                 self._marker_function = self._set_vertices
             except ValueError as err:
-                raise ValueError('Unrecognized marker style {!r}'
-                                 .format(marker)) from err
+                raise ValueError(
+                    f'Unrecognized marker style {marker!r}') from err
 
         if not isinstance(marker, MarkerStyle):
             self._marker = marker

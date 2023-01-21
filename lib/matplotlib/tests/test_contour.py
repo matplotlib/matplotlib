@@ -8,7 +8,7 @@ from numpy.testing import (
     assert_array_almost_equal, assert_array_almost_equal_nulp)
 import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
-from matplotlib import pyplot as plt, rc_context
+from matplotlib import pyplot as plt, rc_context, ticker
 from matplotlib.colors import LogNorm, same_color
 import pytest
 
@@ -62,15 +62,16 @@ def test_contour_shape_error(args, message):
         ax.contour(*args)
 
 
-def test_contour_empty_levels():
-
-    x = np.arange(9)
-    z = np.random.random((9, 9))
-
+def test_contour_no_valid_levels():
     fig, ax = plt.subplots()
-    with pytest.warns(UserWarning) as record:
-        ax.contour(x, x, z, levels=[])
-    assert len(record) == 1
+    # no warning for empty levels.
+    ax.contour(np.random.rand(9, 9), levels=[])
+    # no warning if levels is given and is not within the range of z.
+    cs = ax.contour(np.arange(81).reshape((9, 9)), levels=[100])
+    # ... and if fmt is given.
+    ax.clabel(cs, fmt={100: '%1.2f'})
+    # no warning if z is uniform.
+    ax.contour(np.ones((9, 9)))
 
 
 def test_contour_Nlevels():
@@ -82,33 +83,6 @@ def test_contour_Nlevels():
     assert len(cs1.levels) > 1
     cs2 = ax.contour(z, levels=5)
     assert (cs1.levels == cs2.levels).all()
-
-
-def test_contour_badlevel_fmt():
-    # Test edge case from https://github.com/matplotlib/matplotlib/issues/9742
-    # User supplied fmt for each level as a dictionary, but Matplotlib changed
-    # the level to the minimum data value because no contours possible.
-    # This was fixed in https://github.com/matplotlib/matplotlib/pull/9743
-    x = np.arange(9)
-    z = np.zeros((9, 9))
-
-    fig, ax = plt.subplots()
-    fmt = {1.: '%1.2f'}
-    with pytest.warns(UserWarning) as record:
-        cs = ax.contour(x, x, z, levels=[1.])
-        ax.clabel(cs, fmt=fmt)
-    assert len(record) == 1
-
-
-def test_contour_uniform_z():
-
-    x = np.arange(9)
-    z = np.ones((9, 9))
-
-    fig, ax = plt.subplots()
-    with pytest.warns(UserWarning) as record:
-        ax.contour(x, x, z)
-    assert len(record) == 1
 
 
 @image_comparison(['contour_manual_labels'], remove_text=True, style='mpl20')
@@ -153,6 +127,28 @@ def test_given_colors_levels_and_extends():
                            levels=levels, extend=extend)
 
         plt.colorbar(c, ax=ax)
+
+
+@image_comparison(['contour_log_locator.svg'], style='mpl20',
+                  remove_text=False)
+def test_log_locator_levels():
+
+    fig, ax = plt.subplots()
+
+    N = 100
+    x = np.linspace(-3.0, 3.0, N)
+    y = np.linspace(-2.0, 2.0, N)
+
+    X, Y = np.meshgrid(x, y)
+
+    Z1 = np.exp(-X**2 - Y**2)
+    Z2 = np.exp(-(X * 10)**2 - (Y * 10)**2)
+    data = Z1 + 50 * Z2
+
+    c = ax.contourf(data, locator=ticker.LogLocator())
+    assert_array_almost_equal(c.levels, np.power(10.0, np.arange(-6, 3)))
+    cb = fig.colorbar(c, ax=ax)
+    assert_array_almost_equal(cb.ax.get_yticks(), c.levels)
 
 
 @image_comparison(['contour_datetime_axis.png'], style='mpl20')
@@ -318,8 +314,10 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c3, ax=ax3)
 
 
-@image_comparison(['contour_addlines.png'],
-                  remove_text=True, style='mpl20', tol=0.03)
+@image_comparison(
+    ['contour_addlines.png'], remove_text=True, style='mpl20',
+    tol=0.15 if platform.machine() in ('aarch64', 'ppc64le', 's390x')
+        else 0.03)
 # tolerance is because image changed minutely when tick finding on
 # colorbars was cleaned up...
 def test_contour_addlines():
@@ -693,3 +691,20 @@ def test_contour_remove():
     assert ax.get_children() != orig_children
     cs.remove()
     assert ax.get_children() == orig_children
+
+
+def test_bool_autolevel():
+    x, y = np.random.rand(2, 9)
+    z = (np.arange(9) % 2).reshape((3, 3)).astype(bool)
+    m = [[False, False, False], [False, True, False], [False, False, False]]
+    assert plt.contour(z.tolist()).levels.tolist() == [.5]
+    assert plt.contour(z).levels.tolist() == [.5]
+    assert plt.contour(np.ma.array(z, mask=m)).levels.tolist() == [.5]
+    assert plt.contourf(z.tolist()).levels.tolist() == [0, .5, 1]
+    assert plt.contourf(z).levels.tolist() == [0, .5, 1]
+    assert plt.contourf(np.ma.array(z, mask=m)).levels.tolist() == [0, .5, 1]
+    z = z.ravel()
+    assert plt.tricontour(x, y, z.tolist()).levels.tolist() == [.5]
+    assert plt.tricontour(x, y, z).levels.tolist() == [.5]
+    assert plt.tricontourf(x, y, z.tolist()).levels.tolist() == [0, .5, 1]
+    assert plt.tricontourf(x, y, z).levels.tolist() == [0, .5, 1]

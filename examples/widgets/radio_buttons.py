@@ -55,7 +55,7 @@ radio3.on_clicked(stylefunc)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

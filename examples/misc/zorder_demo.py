@@ -40,7 +40,7 @@ theta = np.linspace(0, 4*np.pi, 30)
 x = r * np.sin(theta)
 y = r * np.cos(theta)
 
-###############################################################################
+# %%
 # The following example contains a `.Line2D` created by `~.axes.Axes.plot()`
 # and the dots (a `.PatchCollection`) created by `~.axes.Axes.scatter()`.
 # Hence, by default the dots are below the line (first subplot).
@@ -59,7 +59,7 @@ ax2.set_title('Dots on top of lines')
 
 plt.tight_layout()
 
-###############################################################################
+# %%
 # Many functions that create a visible object accepts a ``zorder`` parameter.
 # Alternatively, you can call ``set_zorder()`` on the created object later.
 

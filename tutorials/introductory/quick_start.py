@@ -15,7 +15,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-##############################################################################
+# %%
 #
 # A simple example
 # ================
@@ -30,7 +30,7 @@ import numpy as np
 fig, ax = plt.subplots()  # Create a figure containing a single axes.
 ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 
-###############################################################################
+# %%
 # .. _figure_parts:
 #
 # Parts of a Figure
@@ -128,7 +128,7 @@ ax.scatter('a', 'b', c='c', s='d', data=data)
 ax.set_xlabel('entry a')
 ax.set_ylabel('entry b')
 
-##############################################################################
+# %%
 # .. _coding_styles:
 #
 # Coding styles
@@ -161,7 +161,7 @@ ax.set_ylabel('y label')  # Add a y-label to the axes.
 ax.set_title("Simple Plot")  # Add a title to the axes.
 ax.legend()  # Add a legend.
 
-###############################################################################
+# %%
 # or the pyplot-style:
 
 x = np.linspace(0, 2, 100)  # Sample data.
@@ -175,7 +175,7 @@ plt.ylabel('y label')
 plt.title("Simple Plot")
 plt.legend()
 
-###############################################################################
+# %%
 # (In addition, there is a third approach, for the case when embedding
 # Matplotlib in a GUI application, which completely drops pyplot, even for
 # figure creation. See the corresponding section in the gallery for more info:
@@ -207,7 +207,7 @@ def my_plotter(ax, data1, data2, param_dict):
     out = ax.plot(data1, data2, **param_dict)
     return out
 
-###############################################################################
+# %%
 # which you would then use twice to populate two subplots:
 
 data1, data2, data3, data4 = np.random.randn(4, 100)  # make 4 random data sets
@@ -215,7 +215,7 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5, 2.7))
 my_plotter(ax1, data1, data2, {'marker': 'x'})
 my_plotter(ax2, data3, data4, {'marker': 'o'})
 
-###############################################################################
+# %%
 # Note that if you want to install these as a python package, or any other
 # customizations you could use one of the many templates on the web;
 # Matplotlib has one at `mpl-cookiecutter
@@ -237,7 +237,7 @@ ax.plot(x, np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
 l, = ax.plot(x, np.cumsum(data2), color='orange', linewidth=2)
 l.set_linestyle(':')
 
-###############################################################################
+# %%
 # Colors
 # ------
 #
@@ -250,7 +250,7 @@ l.set_linestyle(':')
 fig, ax = plt.subplots(figsize=(5, 2.7))
 ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
 
-###############################################################################
+# %%
 # Linewidths, linestyles, and markersizes
 # ---------------------------------------
 #
@@ -274,7 +274,7 @@ ax.plot(data3, 'v', label='data3')
 ax.plot(data4, 's', label='data4')
 ax.legend()
 
-###############################################################################
+# %%
 #
 # Labelling plots
 # ===============
@@ -300,7 +300,7 @@ ax.text(75, .025, r'$\mu=115,\ \sigma=15$')
 ax.axis([55, 175, 0, 0.03])
 ax.grid(True)
 
-###############################################################################
+# %%
 # All of the `~.Axes.text` functions return a `matplotlib.text.Text`
 # instance.  Just as with lines above, you can customize the properties by
 # passing keyword arguments into the text functions::
@@ -344,7 +344,7 @@ ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
 
 ax.set_ylim(-2, 2)
 
-###############################################################################
+# %%
 # In this basic example, both *xy* and *xytext* are in data coordinates.
 # There are a variety of other coordinate systems one can choose -- see
 # :ref:`annotations-tutorial` and :ref:`plotting-guide-annotation` for
@@ -362,7 +362,7 @@ ax.plot(np.arange(len(data2)), data2, label='data2')
 ax.plot(np.arange(len(data3)), data3, 'd', label='data3')
 ax.legend()
 
-##############################################################################
+# %%
 # Legends in Matplotlib are quite flexible in layout, placement, and what
 # Artists they can represent. They are discussed in detail in
 # :doc:`/tutorials/intermediate/legend_guide`.
@@ -393,7 +393,7 @@ axs[0].plot(xdata, data)
 axs[1].set_yscale('log')
 axs[1].plot(xdata, data)
 
-##############################################################################
+# %%
 # The scale sets the mapping from data values to spacing along the Axis. This
 # happens in both directions, and gets combined into a *transform*, which
 # is the way that Matplotlib maps from data coordinates to Axes, Figure, or
@@ -415,7 +415,7 @@ axs[1].set_xticks(np.arange(0, 100, 30), ['zero', '30', 'sixty', '90'])
 axs[1].set_yticks([-1.5, 0, 1.5])  # note that we don't need to specify labels
 axs[1].set_title('Manual ticks')
 
-##############################################################################
+# %%
 # Different scales can have different locators and formatters; for instance
 # the log-scale above uses `~.LogLocator` and `~.LogFormatter`. See
 # :doc:`/gallery/ticks/tick-locators` and
@@ -437,7 +437,7 @@ ax.plot(dates, data)
 cdf = mpl.dates.ConciseDateFormatter(ax.xaxis.get_major_locator())
 ax.xaxis.set_major_formatter(cdf)
 
-##############################################################################
+# %%
 # For more information see the date examples
 # (e.g. :doc:`/gallery/text_labels_and_annotations/date`)
 #
@@ -449,7 +449,7 @@ categories = ['turnips', 'rutabaga', 'cucumber', 'pumpkins']
 
 ax.bar(categories, np.random.rand(len(categories)))
 
-##############################################################################
+# %%
 # One caveat about categorical plotting is that some methods of parsing
 # text files return a list of strings, even if the strings all represent
 # numbers or dates.  If you pass 1000 strings, Matplotlib will think you
@@ -482,7 +482,7 @@ ax3.set_xlabel('Angle [rad]')
 ax4 = ax3.secondary_xaxis('top', functions=(np.rad2deg, np.deg2rad))
 ax4.set_xlabel('Angle [°]')
 
-##############################################################################
+# %%
 # Color mapped data
 # =================
 #
@@ -510,7 +510,7 @@ pc = axs[1, 1].scatter(data1, data2, c=data3, cmap='RdBu_r')
 fig.colorbar(pc, ax=axs[1, 1], extend='both')
 axs[1, 1].set_title('scatter()')
 
-##############################################################################
+# %%
 # Colormaps
 # ---------
 #
@@ -563,10 +563,10 @@ axd['upleft'].set_title('upleft')
 axd['lowleft'].set_title('lowleft')
 axd['right'].set_title('right')
 
-###############################################################################
+# %%
 # Matplotlib has quite sophisticated tools for arranging Axes: See
 # :doc:`/tutorials/intermediate/arranging_axes` and
-# :doc:`/tutorials/provisional/mosaic`.
+# :doc:`/gallery/subplots_axes_and_figures/mosaic`.
 #
 #
 # More reading

@@ -698,8 +698,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         if (self._A.dtype != np.uint8 and
                 not np.can_cast(self._A.dtype, float, "same_kind")):
-            raise TypeError("Image data of dtype {} cannot be converted to "
-                            "float".format(self._A.dtype))
+            raise TypeError(f"Image data of dtype {self._A.dtype} cannot be "
+                            "converted to float")
 
         if self._A.ndim == 3 and self._A.shape[-1] == 1:
             # If just one dimension assume scalar and apply colormap
@@ -707,8 +707,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         if not (self._A.ndim == 2
                 or self._A.ndim == 3 and self._A.shape[-1] in [3, 4]):
-            raise TypeError("Invalid shape {} for image data"
-                            .format(self._A.shape))
+            raise TypeError(f"Invalid shape {self._A.shape} for image data")
 
         if self._A.ndim == 3:
             # If the input data has values outside the valid range (after
@@ -978,11 +977,8 @@ class AxesImage(_ImageBase):
             [("x", [extent[0], extent[1]]),
              ("y", [extent[2], extent[3]])],
             kwargs)
-        if len(kwargs):
-            raise ValueError(
-                "set_extent did not consume all of the kwargs passed." +
-                f"{list(kwargs)!r} were unused"
-            )
+        if kwargs:
+            raise _api.kwarg_error("set_extent", kwargs)
         xmin = self.axes._validate_converted_limits(
             xmin, self.convert_xunits)
         xmax = self.axes._validate_converted_limits(
@@ -1575,7 +1571,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     RGB(A) images are passed through.  Single channel images will be
     colormapped according to *cmap* and *norm*.
 
-    .. note ::
+    .. note::
 
        If you want to save a single channel image as gray scale please use an
        image I/O library (such as pillow, tifffile, or imageio) directly.

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 
-###############################################################################
+# %%
 # Animation Classes
 # =================
 #
@@ -62,61 +62,66 @@ import numpy as np
 # modify the data. The following table shows a few plotting methods, the artist
 # types they return and some methods that can be used to update them.
 #
-# =================  =============================  ===========================
-# Plotting method    Artist                         Set method
-# =================  =============================  ===========================
-# `.Axes.plot`       `.lines.Line2D`                `.lines.Line2D.set_data`
-# `.Axes.scatter`    `.collections.PathCollection`  `.collections.\
-#                                                   PathCollection.set_offsets`
-# `.Axes.imshow`     `.image.AxesImage`             ``AxesImage.set_data``
-# `.Axes.annotate`   `.text.Annotation`             `.text.Annotation.\
-#                                                   update_positions`
-# `.Axes.barh`       `.patches.Rectangle`           `.Rectangle.set_angle`,
-#                                                   `.Rectangle.set_bounds`,
-#                                                   `.Rectangle.set_height`,
-#                                                   `.Rectangle.set_width`,
-#                                                   `.Rectangle.set_x`,
-#                                                   `.Rectangle.set_y`
-#                                                   `.Rectangle.set_xy`
-# `.Axes.fill`       `.patches.Polygon`             `.Polygon.set_xy`
-# `.patches.Circle`  `.patches.Ellipse`             `.Ellipse.set_angle`,
-#                                                   `.Ellipse.set_center`,
-#                                                   `.Ellipse.set_height`,
-#                                                   `.Ellipse.set_width`
-# =================  =============================  ===========================
+# ========================================  =============================  ===========================
+# Plotting method                           Artist                         Set method
+# ========================================  =============================  ===========================
+# `.Axes.plot`                              `.lines.Line2D`                `~.lines.Line2D.set_data`
+# `.Axes.scatter`                           `.collections.PathCollection`  `~.collections.\
+#                                                                          PathCollection.set_offsets`
+# `.Axes.imshow`                            `.image.AxesImage`             ``AxesImage.set_data``
+# `.Axes.annotate`                          `.text.Annotation`             `~.text.Annotation.\
+#                                                                          update_positions`
+# `.Axes.barh`                              `.patches.Rectangle`           `~.Rectangle.set_angle`,
+#                                                                          `~.Rectangle.set_bounds`,
+#                                                                          `~.Rectangle.set_height`,
+#                                                                          `~.Rectangle.set_width`,
+#                                                                          `~.Rectangle.set_x`,
+#                                                                          `~.Rectangle.set_y`,
+#                                                                          `~.Rectangle.set_xy`
+# `.Axes.fill`                              `.patches.Polygon`             `~.Polygon.set_xy`
+# `.Axes.add_patch`\(`.patches.Ellipse`\)   `.patches.Ellipse`             `~.Ellipse.set_angle`,
+#                                                                          `~.Ellipse.set_center`,
+#                                                                          `~.Ellipse.set_height`,
+#                                                                          `~.Ellipse.set_width`
+# ========================================  =============================  ===========================
 #
 # Covering the set methods for all types of artists is beyond the scope of this
 # tutorial but can be found in their respective documentations. An example of
-# such update methods in use for `.Axes.scatter` is as follows.
-
+# such update methods in use for `.Axes.scatter` and `.Axes.plot` is as follows.
 
 fig, ax = plt.subplots()
-t = np.linspace(-np.pi, np.pi, 400)
-a, b = 3, 2
-delta = np.pi / 2
+t = np.linspace(0, 3, 40)
+g = -9.81
+v0 = 12
+z = g * t**2 / 2 + v0 * t
 
-scat = ax.scatter(np.sin(a * t[0] + delta), np.sin(b * t[0]), c="b", s=2)
-ax.set_xlim(-1.5, 1.5)
-ax.set_ylim(-1.5, 1.5)
+v02 = 5
+z2 = g * t**2 / 2 + v02 * t
+
+scat = ax.scatter(t[0], z[0], c="b", s=5, label=f'v0 = {v0} m/s')
+line2 = ax.plot(t[0], z2[0], label=f'v0 = {v02} m/s')[0]
+ax.set(xlim=[0, 3], ylim=[-4, 10], xlabel='Time [s]', ylabel='Z [m]')
+ax.legend()
 
 
 def update(frame):
-    # .set_offsets replaces the offset data for the entire collection with
-    # the new values. Therefore, to also carry forward the previously
-    # calculated information, we use the data from the first to the current
-    # frame to set the new offsets.
-    x = np.sin(a * t[:frame] + delta)
-    y = np.sin(b * t[:frame])
+    # for each frame, update the data stored on each artist.
+    x = t[:frame]
+    y = z[:frame]
+    # update the scatter plot:
     data = np.stack([x, y]).T
     scat.set_offsets(data)
-    return (scat,)
+    # update the line plot:
+    line2.set_xdata(t[:frame])
+    line2.set_ydata(z2[:frame])
+    return (scat, line2)
 
 
-ani = animation.FuncAnimation(fig=fig, func=update, frames=400, interval=30)
+ani = animation.FuncAnimation(fig=fig, func=update, frames=40, interval=30)
 plt.show()
 
 
-###############################################################################
+# %%
 # ``ArtistAnimation``
 # -------------------
 #
@@ -147,7 +152,7 @@ for i in range(20):
 ani = animation.ArtistAnimation(fig=fig, artists=artists, interval=400)
 plt.show()
 
-###############################################################################
+# %%
 # Animation Writers
 # =================
 #

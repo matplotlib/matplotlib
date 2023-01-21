@@ -884,16 +884,13 @@ class Axes3D(Axes):
         # Look into the middle of the world coordinates:
         R = 0.5 * box_aspect
 
-        # elev stores the elevation angle in the z plane
-        # azim stores the azimuth angle in the x,y plane
-        elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
-        azim_rad = np.deg2rad(art3d._norm_angle(self.azim))
-
+        # elev: elevation angle in the z plane.
+        # azim: azimuth angle in the xy plane.
         # Coordinates for a point that rotates around the box of data.
-        # p0, p1 corresponds to rotating the box only around the
-        # vertical axis.
-        # p2 corresponds to rotating the box only around the horizontal
-        # axis.
+        # p0, p1 corresponds to rotating the box only around the vertical axis.
+        # p2 corresponds to rotating the box only around the horizontal axis.
+        elev_rad = np.deg2rad(self.elev)
+        azim_rad = np.deg2rad(self.azim)
         p0 = np.cos(elev_rad) * np.cos(azim_rad)
         p1 = np.cos(elev_rad) * np.sin(azim_rad)
         p2 = np.sin(elev_rad)
@@ -962,15 +959,11 @@ class Axes3D(Axes):
         self.mouse_init(rotate_btn=[], pan_btn=[], zoom_btn=[])
 
     def can_zoom(self):
-        """
-        Return whether this Axes supports the zoom box button functionality.
-        """
+        # doc-string inherited
         return True
 
     def can_pan(self):
-        """
-        Return whether this Axes supports the pan button functionality.
-        """
+        # doc-string inherited
         return True
 
     def sharez(self, other):
@@ -1005,17 +998,17 @@ class Axes3D(Axes):
         if event.inaxes == self:
             self.button_pressed = event.button
             self._sx, self._sy = event.xdata, event.ydata
-            toolbar = getattr(self.figure.canvas, "toolbar")
+            toolbar = self.figure.canvas.toolbar
             if toolbar and toolbar._nav_stack() is None:
-                self.figure.canvas.toolbar.push_current()
+                toolbar.push_current()
 
     def _button_release(self, event):
         self.button_pressed = None
-        toolbar = getattr(self.figure.canvas, "toolbar")
+        toolbar = self.figure.canvas.toolbar
         # backend_bases.release_zoom and backend_bases.release_pan call
         # push_current, so check the navigation mode so we don't call it twice
         if toolbar and self.get_navigate_mode() is None:
-            self.figure.canvas.toolbar.push_current()
+            toolbar.push_current()
 
     def _get_view(self):
         # docstring inherited
@@ -1081,7 +1074,7 @@ class Axes3D(Axes):
         xs = self.format_xdata(x)
         ys = self.format_ydata(y)
         zs = self.format_zdata(z)
-        return 'x=%s, y=%s, z=%s' % (xs, ys, zs)
+        return f'x={xs}, y={ys}, z={zs}'
 
     def _on_move(self, event):
         """
@@ -1561,7 +1554,7 @@ class Axes3D(Axes):
             The lightsource to use when *shade* is True.
 
         **kwargs
-            Other arguments are forwarded to `.Poly3DCollection`.
+            Other keyword arguments are forwarded to `.Poly3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1599,12 +1592,6 @@ class Axes3D(Axes):
             cstride = int(max(np.ceil(cols / ccount), 1))
 
         fcolors = kwargs.pop('facecolors', None)
-
-        if fcolors is None:
-            color = kwargs.pop('color', None)
-            if color is None:
-                color = self._get_lines.get_next_color()
-            color = np.array(mcolors.to_rgba(color))
 
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
@@ -1680,6 +1667,11 @@ class Axes3D(Axes):
             if norm is not None:
                 polyc.set_norm(norm)
         else:
+            color = kwargs.pop('color', None)
+            if color is None:
+                color = self._get_lines.get_next_color()
+            color = np.array(mcolors.to_rgba(color))
+
             polyc = art3d.Poly3DCollection(
                 polys, facecolors=color, shade=shade,
                 lightsource=lightsource, **kwargs)
@@ -1724,7 +1716,7 @@ class Axes3D(Axes):
             of the new default of ``rcount = ccount = 50``.
 
         **kwargs
-            Other arguments are forwarded to `.Line3DCollection`.
+            Other keyword arguments are forwarded to `.Line3DCollection`.
         """
 
         had_data = self.has_data()
@@ -1851,7 +1843,7 @@ class Axes3D(Axes):
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
         **kwargs
-            All other arguments are passed on to
+            All other keyword arguments are passed on to
             :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
 
         Examples
@@ -2252,7 +2244,7 @@ class Axes3D(Axes):
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         **kwargs
-            All other arguments are passed on to `~.axes.Axes.scatter`.
+            All other keyword arguments are passed on to `~.axes.Axes.scatter`.
 
         Returns
         -------
@@ -2304,7 +2296,8 @@ class Axes3D(Axes):
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
         **kwargs
-            Other arguments are forwarded to `matplotlib.axes.Axes.bar`.
+            Other keyword arguments are forwarded to
+            `matplotlib.axes.Axes.bar`.
 
         Returns
         -------
@@ -2508,19 +2501,16 @@ class Axes3D(Axes):
         return ret
 
     @_preprocess_data()
-    def quiver(self, *args,
+    def quiver(self, X, Y, Z, U, V, W, *,
                length=1, arrow_length_ratio=.3, pivot='tail', normalize=False,
                **kwargs):
         """
-        ax.quiver(X, Y, Z, U, V, W, /, length=1, arrow_length_ratio=.3, \
-pivot='tail', normalize=False, **kwargs)
-
         Plot a 3D field of arrows.
 
-        The arguments could be array-like or scalars, so long as they
-        they can be broadcast together. The arguments can also be
-        masked arrays. If an element in any of argument is masked, then
-        that corresponding quiver element will not be plotted.
+        The arguments can be array-like or scalars, so long as they can be
+        broadcast together. The arguments can also be masked arrays. If an
+        element in any of argument is masked, then that corresponding quiver
+        element will not be plotted.
 
         Parameters
         ----------
@@ -2550,10 +2540,10 @@ pivot='tail', normalize=False, **kwargs)
 
         **kwargs
             Any additional keyword arguments are delegated to
-            :class:`~matplotlib.collections.LineCollection`
+            :class:`.Line3DCollection`
         """
 
-        def calc_arrows(UVW, angle=15):
+        def calc_arrows(UVW):
             # get unit direction vector perpendicular to (u, v, w)
             x = UVW[:, 0]
             y = UVW[:, 1]
@@ -2561,14 +2551,17 @@ pivot='tail', normalize=False, **kwargs)
             x_p = np.divide(y, norm, where=norm != 0, out=np.zeros_like(x))
             y_p = np.divide(-x,  norm, where=norm != 0, out=np.ones_like(x))
             # compute the two arrowhead direction unit vectors
-            ra = math.radians(angle)
-            c = math.cos(ra)
-            s = math.sin(ra)
+            rangle = math.radians(15)
+            c = math.cos(rangle)
+            s = math.sin(rangle)
             # construct the rotation matrices of shape (3, 3, n)
+            r13 = y_p * s
+            r32 = x_p * s
+            r12 = x_p * y_p * (1 - c)
             Rpos = np.array(
-                [[c + (x_p ** 2) * (1 - c), x_p * y_p * (1 - c), y_p * s],
-                 [y_p * x_p * (1 - c), c + (y_p ** 2) * (1 - c), -x_p * s],
-                 [-y_p * s, x_p * s, np.full_like(x_p, c)]])
+                [[c + (x_p ** 2) * (1 - c), r12, r13],
+                 [r12, c + (y_p ** 2) * (1 - c), -r32],
+                 [-r13, r32, np.full_like(x_p, c)]])
             # opposite rotation negates all the sin terms
             Rneg = Rpos.copy()
             Rneg[[0, 1, 2, 2], [2, 2, 0, 1]] *= -1
@@ -2576,27 +2569,19 @@ pivot='tail', normalize=False, **kwargs)
             Rpos_vecs = np.einsum("ij...,...j->...i", Rpos, UVW)
             Rneg_vecs = np.einsum("ij...,...j->...i", Rneg, UVW)
             # Stack into (n, 2, 3) result.
-            head_dirs = np.stack([Rpos_vecs, Rneg_vecs], axis=1)
-            return head_dirs
+            return np.stack([Rpos_vecs, Rneg_vecs], axis=1)
 
         had_data = self.has_data()
 
-        # handle args
-        argi = 6
-        if len(args) < argi:
-            raise ValueError('Wrong number of arguments. Expected %d got %d' %
-                             (argi, len(args)))
-
-        # first 6 arguments are X, Y, Z, U, V, W
-        input_args = args[:argi]
+        input_args = [X, Y, Z, U, V, W]
 
         # extract the masks, if any
         masks = [k.mask for k in input_args
                  if isinstance(k, np.ma.MaskedArray)]
         # broadcast to match the shape
         bcast = np.broadcast_arrays(*input_args, *masks)
-        input_args = bcast[:argi]
-        masks = bcast[argi:]
+        input_args = bcast[:6]
+        masks = bcast[6:]
         if masks:
             # combine the masks into one
             mask = functools.reduce(np.logical_or, masks)
@@ -2608,7 +2593,7 @@ pivot='tail', normalize=False, **kwargs)
 
         if any(len(v) == 0 for v in input_args):
             # No quivers, so just make an empty collection and return early
-            linec = art3d.Line3DCollection([], *args[argi:], **kwargs)
+            linec = art3d.Line3DCollection([], **kwargs)
             self.add_collection(linec)
             return linec
 
@@ -2622,7 +2607,7 @@ pivot='tail', normalize=False, **kwargs)
             shaft_dt -= length / 2
 
         XYZ = np.column_stack(input_args[:3])
-        UVW = np.column_stack(input_args[3:argi]).astype(float)
+        UVW = np.column_stack(input_args[3:]).astype(float)
 
         # Normalize rows of UVW
         norm = np.linalg.norm(UVW, axis=1)
@@ -2651,7 +2636,7 @@ pivot='tail', normalize=False, **kwargs)
         else:
             lines = []
 
-        linec = art3d.Line3DCollection(lines, *args[argi:], **kwargs)
+        linec = art3d.Line3DCollection(lines, **kwargs)
         self.add_collection(linec)
 
         self.auto_scale_xyz(XYZ[:, 0], XYZ[:, 1], XYZ[:, 2], had_data)
@@ -2761,11 +2746,11 @@ pivot='tail', normalize=False, **kwargs)
                 # 3D array of strings, or 4D array with last axis rgb
                 if np.shape(color)[:3] != filled.shape:
                     raise ValueError(
-                        "When multidimensional, {} must match the shape of "
-                        "filled".format(name))
+                        f"When multidimensional, {name} must match the shape "
+                        "of filled")
                 return color
             else:
-                raise ValueError("Invalid {} argument".format(name))
+                raise ValueError(f"Invalid {name} argument")
 
         # broadcast and default on facecolors
         if facecolors is None:
@@ -2946,7 +2931,7 @@ pivot='tail', normalize=False, **kwargs)
             draws error bars on a subset of the data. *errorevery* =N draws
             error bars on the points (x[::N], y[::N], z[::N]).
             *errorevery* =(start, N) draws error bars on the points
-            (x[start::N], y[start::N], z[start::N]). e.g. errorevery=(6, 3)
+            (x[start::N], y[start::N], z[start::N]). e.g. *errorevery* =(6, 3)
             adds error bars to the data at (x[6], x[9], x[12], x[15], ...).
             Used to avoid overlapping error bars when two series share x-axis
             values.
@@ -3193,6 +3178,7 @@ pivot='tail', normalize=False, **kwargs)
 
         return errlines, caplines, limmarks
 
+    @_api.make_keyword_only("3.8", "call_axes_locator")
     def get_tightbbox(self, renderer=None, call_axes_locator=True,
                       bbox_extra_artists=None, *, for_layout_only=False):
         ret = super().get_tightbbox(renderer,

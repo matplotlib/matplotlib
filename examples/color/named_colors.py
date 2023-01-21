@@ -17,12 +17,14 @@ First we define a helper function for making a table of colors, then we use it
 on some common color categories.
 """
 
+import math
+
 from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
 
-def plot_colortable(colors, sort_colors=True, emptycols=0):
+def plot_colortable(colors, *, ncols=4, sort_colors=True):
 
     cell_width = 212
     cell_height = 22
@@ -31,16 +33,13 @@ def plot_colortable(colors, sort_colors=True, emptycols=0):
 
     # Sort colors by hue, saturation, value and name.
     if sort_colors is True:
-        by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))),
-                         name)
-                        for name, color in colors.items())
-        names = [name for hsv, name in by_hsv]
+        names = sorted(
+            colors, key=lambda c: tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(c))))
     else:
         names = list(colors)
 
     n = len(names)
-    ncols = 4 - emptycols
-    nrows = n // ncols + int(n % ncols > 0)
+    nrows = math.ceil(n / ncols)
 
     width = cell_width * 4 + 2 * margin
     height = cell_height * nrows + 2 * margin
@@ -74,21 +73,21 @@ def plot_colortable(colors, sort_colors=True, emptycols=0):
 
     return fig
 
-#############################################################################
+# %%
 # -----------
 # Base colors
 # -----------
 
-plot_colortable(mcolors.BASE_COLORS, sort_colors=False, emptycols=1)
+plot_colortable(mcolors.BASE_COLORS, ncols=3, sort_colors=False)
 
-#############################################################################
+# %%
 # ---------------
 # Tableau Palette
 # ---------------
 
-plot_colortable(mcolors.TABLEAU_COLORS, sort_colors=False, emptycols=2)
+plot_colortable(mcolors.TABLEAU_COLORS, ncols=2, sort_colors=False)
 
-#############################################################################
+# %%
 # ----------
 # CSS Colors
 # ----------
@@ -97,14 +96,14 @@ plot_colortable(mcolors.TABLEAU_COLORS, sort_colors=False, emptycols=2)
 plot_colortable(mcolors.CSS4_COLORS)
 plt.show()
 
-#############################################################################
+# %%
 # -----------
 # XKCD Colors
 # -----------
 # XKCD colors are supported, but they produce a large figure, so we skip them
 # for now. You can use the following code if desired::
 #
-#     xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
+#     xkcd_fig = plot_colortable(mcolors.XKCD_COLORS)
 #     xkcd_fig.savefig("XKCD_Colors.png")
 #
 # .. admonition:: References

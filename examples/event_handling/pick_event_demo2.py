@@ -43,7 +43,7 @@ def onpick(event):
     figi, axs = plt.subplots(N, squeeze=False)
     for ax, dataind in zip(axs.flat, event.ind):
         ax.plot(X[dataind])
-        ax.text(.05, .9, 'mu=%1.3f\nsigma=%1.3f' % (xs[dataind], ys[dataind]),
+        ax.text(.05, .9, f'mu={xs[dataind]:1.3f}\nsigma={ys[dataind]:1.3f}',
                 transform=ax.transAxes, va='top')
         ax.set_ylim(-0.5, 1.5)
     figi.show()

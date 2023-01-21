@@ -53,7 +53,7 @@ for ax, (label, (x, y)) in zip(axs.flat, datasets.items()):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

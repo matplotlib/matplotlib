@@ -1032,7 +1032,9 @@ def test_imshow():
     ax.imshow("r", data=data)
 
 
-@image_comparison(['imshow_clip'], style='mpl20')
+@image_comparison(
+    ['imshow_clip'], style='mpl20',
+    tol=1.24 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
     # use former defaults to match existing baseline image
@@ -2072,7 +2074,7 @@ def test_hist_step_filled():
 
     for kg, _type, ax in zip(kwargs, types, axs.flat):
         ax.hist(x, n_bins, histtype=_type, stacked=True, **kg)
-        ax.set_title('%s/%s' % (kg, _type))
+        ax.set_title(f'{kg}/{_type}')
         ax.set_ylim(bottom=-50)
 
     patches = axs[0, 0].patches
@@ -2352,7 +2354,9 @@ def test_contour_hatching():
                 extend='both', alpha=0.5)
 
 
-@image_comparison(['contour_colorbar'], style='mpl20')
+@image_comparison(
+    ['contour_colorbar'], style='mpl20',
+    tol=0.02 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 
@@ -5509,7 +5513,7 @@ def test_axis_method_errors():
 def test_twin_with_aspect(twin):
     fig, ax = plt.subplots()
     # test twinx or twiny
-    ax_twin = getattr(ax, 'twin{}'.format(twin))()
+    ax_twin = getattr(ax, f'twin{twin}')()
     ax.set_aspect(5)
     ax_twin.set_aspect(2)
     assert_array_equal(ax.bbox.extents,
@@ -5738,6 +5742,24 @@ def test_normalize_kwarg_pie():
     assert abs(t1[0][-1].theta2 - 360.) < 1e-3
     t2 = ax.pie(x=x, normalize=False)
     assert abs(t2[0][-1].theta2 - 360.) > 1e-3
+
+
+@check_figures_equal()
+def test_pie_hatch_single(fig_test, fig_ref):
+    x = [0.3, 0.3, 0.1]
+    hatch = '+'
+    fig_test.subplots().pie(x, hatch=hatch)
+    wedges, _ = fig_ref.subplots().pie(x)
+    [w.set_hatch(hatch) for w in wedges]
+
+
+@check_figures_equal()
+def test_pie_hatch_multi(fig_test, fig_ref):
+    x = [0.3, 0.3, 0.1]
+    hatch = ['/', '+', '.']
+    fig_test.subplots().pie(x, hatch=hatch)
+    wedges, _ = fig_ref.subplots().pie(x)
+    [w.set_hatch(hp) for w, hp in zip(wedges, hatch)]
 
 
 @image_comparison(['set_get_ticklabels.png'])
@@ -6837,12 +6859,12 @@ def test_fillbetween_cycle():
 
     for j in range(3):
         cc = ax.fill_between(range(3), range(3))
-        target = mcolors.to_rgba('C{}'.format(j))
+        target = mcolors.to_rgba(f'C{j}')
         assert tuple(cc.get_facecolors().squeeze()) == tuple(target)
 
     for j in range(3, 6):
         cc = ax.fill_betweenx(range(3), range(3))
-        target = mcolors.to_rgba('C{}'.format(j))
+        target = mcolors.to_rgba(f'C{j}')
         assert tuple(cc.get_facecolors().squeeze()) == tuple(target)
 
     target = mcolors.to_rgba('k')
@@ -6854,7 +6876,7 @@ def test_fillbetween_cycle():
     edge_target = mcolors.to_rgba('k')
     for j, el in enumerate(['edgecolor', 'edgecolors'], start=6):
         cc = ax.fill_between(range(3), range(3), **{el: 'k'})
-        face_target = mcolors.to_rgba('C{}'.format(j))
+        face_target = mcolors.to_rgba(f'C{j}')
         assert tuple(cc.get_facecolors().squeeze()) == tuple(face_target)
         assert tuple(cc.get_edgecolors().squeeze()) == tuple(edge_target)
 
@@ -8093,19 +8115,13 @@ def test_artist_sublists():
     with pytest.raises(IndexError, match='out of range'):
         ax.lines[len(lines) + 1]
 
-    # Deleting items (multiple or single) should warn.
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        del ax.lines[-1]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        del ax.lines[-1:]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        del ax.lines[1:]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        del ax.lines[0]
+    # Adding to other lists should produce a regular list.
+    assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
+    assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]
+
+    # Adding to other tuples should produce a regular tuples.
+    assert ax.lines + (1, 2, 3) == (*lines, 1, 2, 3)
+    assert (1, 2, 3) + ax.lines == (1, 2, 3, *lines)
 
     # Lists should be empty after removing items.
     col.remove()
@@ -8114,58 +8130,9 @@ def test_artist_sublists():
     assert not ax.images
     patch.remove()
     assert not ax.patches
+    assert not ax.tables
     text.remove()
     assert not ax.texts
-
-    # Everything else should remain empty.
-    assert not ax.lines
-    assert not ax.tables
-
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.texts property'):
-        ax.texts.append(text)
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.collections property'):
-        ax.collections.append(col)
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.images property'):
-        ax.images.append(im)
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.patches property'):
-        ax.patches.append(patch)
-    # verify things are back
-    assert list(ax.collections) == [col]
-    assert list(ax.images) == [im]
-    assert list(ax.patches) == [patch]
-    assert list(ax.texts) == [text]
-
-    # Adding items should warn.
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines.append(lines[-2])
-    assert list(ax.lines) == [lines[-2]]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines.append(lines[-1])
-    assert list(ax.lines) == lines[-2:]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines.insert(-2, lines[0])
-    assert list(ax.lines) == [lines[0], lines[-2], lines[-1]]
-
-    # Modifying items should warn.
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines[0] = lines[0]
-    assert list(ax.lines) == [lines[0], lines[-2], lines[-1]]
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match='modification of the Axes.lines property'):
-        ax.lines[1:1] = lines[1:-2]
-    assert list(ax.lines) == lines
-
-    # Adding to other lists should produce a regular list.
-    assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
-    assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]
 
     for ln in ax.lines:
         ln.remove()
@@ -8244,7 +8211,7 @@ def test_automatic_legend():
 
 
 def test_plot_errors():
-    with pytest.raises(TypeError, match="plot got an unexpected keyword"):
+    with pytest.raises(TypeError, match=r"plot\(\) got an unexpected keyword"):
         plt.plot([1, 2, 3], x=1)
     with pytest.raises(ValueError, match=r"plot\(\) with multiple groups"):
         plt.plot([1, 2, 3], [1, 2, 3], [2, 3, 4], [2, 3, 4], label=['1', '2'])
@@ -8419,8 +8386,7 @@ def test_extent_units():
     axs[1, 1].xaxis.set_major_formatter(mdates.DateFormatter('%d'))
     axs[1, 1].set(xlabel='Day of Jan 2020')
 
-    with pytest.raises(ValueError,
-                       match="set_extent did not consume all of the kwargs"):
+    with pytest.raises(TypeError, match=r"set_extent\(\) got an unexpected"):
         im.set_extent([2, 12, date_first, date_last], clip=False)
 
 

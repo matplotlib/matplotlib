@@ -1,4 +1,3 @@
-
 """
 ===========
 Symlog Demo
@@ -34,13 +33,13 @@ ax2.set_ylabel('symlog both')
 fig.tight_layout()
 plt.show()
 
-###############################################################################
+# %%
 # It should be noted that the coordinate transform used by ``symlog``
 # has a discontinuous gradient at the transition between its linear
 # and logarithmic regions. The ``asinh`` axis scale is an alternative
 # technique that may avoid visual artifacts caused by these discontinuities.
 
-###############################################################################
+# %%
 #
 # .. admonition:: References
 #

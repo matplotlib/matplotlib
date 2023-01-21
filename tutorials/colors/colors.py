@@ -113,7 +113,7 @@ ax.text(11.3, -0.6, 'zorder=3', va='center', color='C0')
 ax.axis('off')
 
 
-###############################################################################
+# %%
 #
 # The orange rectangle is semi-transparent with *alpha* = 0.8. The  top row of
 # blue squares is drawn below and the bottom row of blue squares is drawn on
@@ -141,7 +141,7 @@ def demo(sty):
     mpl.style.use(sty)
     fig, ax = plt.subplots(figsize=(3, 3))
 
-    ax.set_title('style: {!r}'.format(sty), color='C0')
+    ax.set_title(f'style: {sty!r}', color='C0')
 
     ax.plot(th, np.cos(th), 'C1', label='C1')
     ax.plot(th, np.sin(th), 'C2', label='C2')
@@ -151,7 +151,7 @@ def demo(sty):
 demo('default')
 demo('seaborn-v0_8')
 
-###############################################################################
+# %%
 # The first color ``'C0'`` is the title. Each plot uses the second and third
 # colors of each style's :rc:`axes.prop_cycle`. They are ``'C1'`` and ``'C2'``,
 # respectively.

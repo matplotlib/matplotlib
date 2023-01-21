@@ -26,7 +26,7 @@ ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
 ax.set_ylim(-2, 2)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

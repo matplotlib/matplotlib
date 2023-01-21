@@ -92,7 +92,7 @@ if __name__ == '__main__':
     print('\nSelected points:')
     print(selector.xys[selector.ind])
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

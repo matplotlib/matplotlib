@@ -3,6 +3,7 @@ Tests specific to the lines module.
 """
 
 import itertools
+import platform
 import timeit
 from types import SimpleNamespace
 
@@ -178,7 +179,9 @@ def test_set_drawstyle():
     assert len(line.get_path().vertices) == len(x)
 
 
-@image_comparison(['line_collection_dashes'], remove_text=True, style='mpl20')
+@image_comparison(
+    ['line_collection_dashes'], remove_text=True, style='mpl20',
+    tol=0.62 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_set_line_coll_dash_image():
     fig, ax = plt.subplots()
     np.random.seed(0)
@@ -195,7 +198,11 @@ def test_marker_fill_styles():
     x = np.array([0, 9])
     fig, ax = plt.subplots()
 
-    for j, marker in enumerate(mlines.Line2D.filled_markers):
+    # This hard-coded list of markers correspond to an earlier iteration of
+    # MarkerStyle.filled_markers; the value of that attribute has changed but
+    # we kept the old value here to not regenerate the baseline image.
+    # Replace with mlines.Line2D.filled_markers when the image is regenerated.
+    for j, marker in enumerate("ov^<>8sp*hHDdPX"):
         for i, fs in enumerate(mlines.Line2D.fillStyles):
             color = next(colors)
             ax.plot(j * 10 + x, y + i + .5 * (j % 2),

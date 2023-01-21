@@ -37,7 +37,7 @@ dx = x_head - x_tail
 dy = y_head - y_tail
 
 
-###############################################################################
+# %%
 # Head shape fixed in display space and anchor points fixed in data space
 # -----------------------------------------------------------------------
 #
@@ -59,7 +59,7 @@ arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (x_head, y_head),
 axs[1].add_patch(arrow)
 axs[1].set(xlim=(0, 2), ylim=(0, 2))
 
-###############################################################################
+# %%
 # Head shape and anchor points fixed in display space
 # ---------------------------------------------------
 #
@@ -86,7 +86,7 @@ axs[1].add_patch(arrow)
 axs[1].set(xlim=(0, 2), ylim=(0, 2))
 
 
-###############################################################################
+# %%
 # Head shape and anchor points fixed in data space
 # ------------------------------------------------
 #
@@ -120,6 +120,6 @@ axs[1].arrow(x_tail + 1, y_tail - .4, dx, dy,
              width=.1, length_includes_head=True, color="C2")
 axs[1].set(xlim=(0, 2), ylim=(0, 2))
 
-###############################################################################
+# %%
 
 plt.show()

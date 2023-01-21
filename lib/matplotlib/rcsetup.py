@@ -82,7 +82,7 @@ class ValidateInStrings:
         raise ValueError(msg)
 
 
-@lru_cache()
+@lru_cache
 def _listify_validator(scalar_validator, allow_stringlist=False, *,
                        n=None, doc=None):
     def f(s):
@@ -115,9 +115,9 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *,
         return val
 
     try:
-        f.__name__ = "{}list".format(scalar_validator.__name__)
+        f.__name__ = f"{scalar_validator.__name__}list"
     except AttributeError:  # class instance.
-        f.__name__ = "{}List".format(type(scalar_validator).__name__)
+        f.__name__ = f"{type(scalar_validator).__name__}List"
     f.__qualname__ = f.__qualname__.rsplit(".", 1)[0] + "." + f.__name__
     f.__doc__ = doc if doc is not None else scalar_validator.__doc__
     return f
@@ -182,10 +182,7 @@ def _make_type_validator(cls, *, allow_none=False):
                 (s is None or isinstance(s, str) and s.lower() == "none")):
             return None
         if cls is str and not isinstance(s, str):
-            _api.warn_deprecated(
-                "3.5", message="Support for setting an rcParam that expects a "
-                "str value to a non-str value is deprecated since %(since)s "
-                "and support will be removed %(removal)s.")
+            raise ValueError(f'Could not convert {s!r} to str')
         try:
             return cls(s)
         except (TypeError, ValueError) as e:
@@ -218,7 +215,7 @@ def _validate_pathlike(s):
         # between "" (cwd) and "." (cwd, but gets updated by user selections).
         return os.fsdecode(s)
     else:
-        return validate_string(s)  # Emit deprecation warning.
+        return validate_string(s)
 
 
 def validate_fonttype(s):
@@ -792,8 +789,8 @@ def validate_hist_bins(s):
         return validate_floatlist(s)
     except ValueError:
         pass
-    raise ValueError("'hist.bins' must be one of {}, an int or"
-                     " a sequence of floats".format(valid_strs))
+    raise ValueError(f"'hist.bins' must be one of {valid_strs}, an int or"
+                     " a sequence of floats")
 
 
 class _ignorecase(list):

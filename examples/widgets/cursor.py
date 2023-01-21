@@ -24,7 +24,7 @@ cursor = Cursor(ax, useblit=True, color='red', linewidth=2)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

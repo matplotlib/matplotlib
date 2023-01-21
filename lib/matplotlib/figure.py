@@ -603,7 +603,7 @@ default: %(va)s
             rect = args[0]
             if not np.isfinite(rect).all():
                 raise ValueError('all entries in rect must be finite '
-                                 'not {}'.format(rect))
+                                 f'not {rect}')
             projection_class, pkw = self._process_projection_requirements(
                 *args, **kwargs)
 
@@ -716,8 +716,7 @@ default: %(va)s
         if 'figure' in kwargs:
             # Axes itself allows for a 'figure' kwarg, but since we want to
             # bind the created Axes to self, it is not allowed here.
-            raise TypeError(
-                "add_subplot() got an unexpected keyword argument 'figure'")
+            raise _api.kwarg_error("add_subplot", "figure")
 
         if (len(args) == 1
                 and isinstance(args[0], mpl.axes._base._AxesBase)
@@ -1085,7 +1084,8 @@ default: %(va)s
 
         Other Parameters
         ----------------
-        %(_legend_kw_doc)s
+        %(_legend_kw_figure)s
+
 
         See Also
         --------
@@ -1221,13 +1221,13 @@ default: %(va)s
 
         The *shrink* kwarg provides a simple way to scale the colorbar with
         respect to the axes. Note that if *cax* is specified, it determines the
-        size of the colorbar and *shrink* and *aspect* kwargs are ignored.
+        size of the colorbar, and *shrink* and *aspect* are ignored.
 
         For more precise control, you can manually specify the positions of the
         axes objects in which the mappable and the colorbar are drawn.  In this
         case, do not use any of the axes properties kwargs.
 
-        It is known that some vector graphics viewers (svg and pdf) renders
+        It is known that some vector graphics viewers (svg and pdf) render
         white gaps between segments of the colorbar.  This is due to bugs in
         the viewers, not Matplotlib.  As a workaround, the colorbar can be
         rendered with overlapping segments::
@@ -1247,8 +1247,8 @@ default: %(va)s
         if (self.get_layout_engine() is not None and
                 not self.get_layout_engine().colorbar_gridspec):
             use_gridspec = False
-        # Store the value of gca so that we can set it back later on.
         if cax is None:
+            current_ax = self.gca()
             if ax is None:
                 _api.warn_deprecated("3.6", message=(
                     'Unable to determine Axes to steal space for Colorbar. '
@@ -1256,28 +1256,21 @@ default: %(va)s
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
                     'from it, or add *mappable* to an Axes.'))
-                ax = self.gca()
-            current_ax = self.gca()
-            userax = False
+                ax = current_ax
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):
                 cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
-            cax.grid(visible=False, which='both', axis='both')
-        else:
-            userax = True
-
-        # need to remove kws that cannot be passed to Colorbar
-        NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
-                             'panchor']
-        cb_kw = {k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS}
-
-        cb = cbar.Colorbar(cax, mappable, **cb_kw)
-
-        if not userax:
+            # make_axes calls add_{axes,subplot} which changes gca; undo that.
             self.sca(current_ax)
+            cax.grid(visible=False, which='both', axis='both')
+
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
+        cb = cbar.Colorbar(cax, mappable, **{
+            k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
         self.stale = True
         return cb
 
@@ -1688,6 +1681,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
+    @_api.make_keyword_only("3.8", "bbox_extra_artists")
     def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
@@ -1797,12 +1791,7 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        .. note::
-
-           This API is provisional and may be revised in the future based on
-           early user feedback.
-
-        See :doc:`/tutorials/provisional/mosaic`
+        See :doc:`/gallery/subplots_axes_and_figures/mosaic`
         for an example and full API documentation
 
         Parameters
@@ -2765,9 +2754,9 @@ class Figure(FigureBase):
         """
         if tight is None:
             tight = mpl.rcParams['figure.autolayout']
+        _tight = 'tight' if bool(tight) else 'none'
         _tight_parameters = tight if isinstance(tight, dict) else {}
-        if bool(tight):
-            self.set_layout_engine(TightLayoutEngine(**_tight_parameters))
+        self.set_layout_engine(_tight, **_tight_parameters)
         self.stale = True
 
     def get_constrained_layout(self):
@@ -2802,10 +2791,9 @@ class Figure(FigureBase):
         """
         if constrained is None:
             constrained = mpl.rcParams['figure.constrained_layout.use']
-        _constrained = bool(constrained)
+        _constrained = 'constrained' if bool(constrained) else 'none'
         _parameters = constrained if isinstance(constrained, dict) else {}
-        if _constrained:
-            self.set_layout_engine(ConstrainedLayoutEngine(**_parameters))
+        self.set_layout_engine(_constrained, **_parameters)
         self.stale = True
 
     @_api.deprecated(
@@ -3263,8 +3251,11 @@ class Figure(FigureBase):
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : float, default: :rc:`savefig.pad_inches`
-            Amount of padding around the figure when bbox_inches is 'tight'.
+        pad_inches : float or 'layout', default: :rc:`savefig.pad_inches`
+            Amount of padding in inches around the figure when bbox_inches is
+            'tight'. If 'layout' use the padding from the constrained or
+            compressed layout engine; ignored if one of those engines is not in
+            use.
 
         facecolor : color or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
