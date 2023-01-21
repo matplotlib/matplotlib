@@ -153,7 +153,7 @@ def use(style):
                     path = (importlib_resources.files(pkg)
                             / f"{name}.{STYLE_EXTENSION}")
                     style = _rc_params_in_file(path)
-                except (ModuleNotFoundError, IOError) as exc:
+                except (ModuleNotFoundError, OSError) as exc:
                     # There is an ambiguity whether a dotted name refers to a
                     # package.style_name or to a dotted file path.  Currently,
                     # we silently try the first form and then the second one;
@@ -164,8 +164,8 @@ def use(style):
         if isinstance(style, (str, Path)):
             try:
                 style = _rc_params_in_file(style)
-            except IOError as err:
-                raise IOError(
+            except OSError as err:
+                raise OSError(
                     f"{style!r} is not a valid package style, path of style "
                     f"file, URL of style file, or library style name (library "
                     f"styles are listed in `style.available`)") from err

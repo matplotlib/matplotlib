@@ -31,7 +31,7 @@ def make_test_filename(fname, purpose):
     Make a new filename by inserting *purpose* before the file's extension.
     """
     base, ext = os.path.splitext(fname)
-    return '%s-%s%s' % (base, purpose, ext)
+    return f'{base}-{purpose}{ext}'
 
 
 def _get_cache_path():
@@ -279,7 +279,7 @@ def convert(filename, cache):
     """
     path = Path(filename)
     if not path.exists():
-        raise IOError(f"{path} does not exist")
+        raise OSError(f"{path} does not exist")
     if path.suffix[1:] not in converter:
         import pytest
         pytest.skip(f"Don't know how to convert {path.suffix} files to png")
@@ -339,7 +339,7 @@ def _clean_conversion_cache():
             path.unlink()
 
 
-@functools.lru_cache()  # Ensure this is only registered once.
+@functools.cache  # Ensure this is only registered once.
 def _register_conversion_cache_cleaner_once():
     atexit.register(_clean_conversion_cache)
 
@@ -361,8 +361,8 @@ def calculate_rms(expected_image, actual_image):
     """
     if expected_image.shape != actual_image.shape:
         raise ImageComparisonFailure(
-            "Image sizes do not match expected size: {} "
-            "actual size {}".format(expected_image.shape, actual_image.shape))
+            f"Image sizes do not match expected size: {expected_image.shape} "
+            f"actual size {actual_image.shape}")
     # Convert to float to avoid overflowing finite integer types.
     return np.sqrt(((expected_image - actual_image).astype(float) ** 2).mean())
 
@@ -432,14 +432,14 @@ def compare_images(expected, actual, tol, in_decorator=False):
     """
     actual = os.fspath(actual)
     if not os.path.exists(actual):
-        raise Exception("Output image %s does not exist." % actual)
+        raise Exception(f"Output image {actual} does not exist.")
     if os.stat(actual).st_size == 0:
-        raise Exception("Output image file %s is empty." % actual)
+        raise Exception(f"Output image file {actual} is empty.")
 
     # Convert the image to png
     expected = os.fspath(expected)
     if not os.path.exists(expected):
-        raise IOError('Baseline image %r does not exist.' % expected)
+        raise OSError(f'Baseline image {expected!r} does not exist.')
     extension = expected.split('.')[-1]
     if extension != 'png':
         actual = convert(actual, cache=True)
@@ -504,8 +504,8 @@ def save_diff_image(expected, actual, output):
     actual_image = np.array(actual_image, float)
     if expected_image.shape != actual_image.shape:
         raise ImageComparisonFailure(
-            "Image sizes do not match expected size: {} "
-            "actual size {}".format(expected_image.shape, actual_image.shape))
+            f"Image sizes do not match expected size: {expected_image.shape} "
+            f"actual size {actual_image.shape}")
     abs_diff = np.abs(expected_image - actual_image)
 
     # expand differences in luminance domain

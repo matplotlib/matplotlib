@@ -184,11 +184,11 @@ arrowprops = dict(
     connectionstyle="angle,angleA=0,angleB=90,rad=10")
 
 offset = 72
-ax.annotate('data = (%.1f, %.1f)' % (xdata, ydata),
+ax.annotate(f'data = ({xdata:.1f}, {ydata:.1f})',
             (xdata, ydata), xytext=(-2*offset, offset), textcoords='offset points',
             bbox=bbox, arrowprops=arrowprops)
 
-disp = ax.annotate('display = (%.1f, %.1f)' % (xdisplay, ydisplay),
+disp = ax.annotate(f'display = ({xdisplay:.1f}, {ydisplay:.1f})',
                    (xdisplay, ydisplay), xytext=(0.5*offset, -offset),
                    xycoords='figure pixels',
                    textcoords='offset points',

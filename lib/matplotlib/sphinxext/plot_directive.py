@@ -404,7 +404,7 @@ class ImageFile:
         self.formats = []
 
     def filename(self, format):
-        return os.path.join(self.dirname, "%s.%s" % (self.basename, format))
+        return os.path.join(self.dirname, f"{self.basename}.{format}")
 
     def filenames(self):
         return [self.filename(fmt) for fmt in self.formats]
@@ -796,7 +796,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             images = []
 
         opts = [
-            ':%s: %s' % (key, val) for key, val in options.items()
+            f':{key}: {val}' for key, val in options.items()
             if key in ('alt', 'height', 'width', 'scale', 'align', 'class')]
 
         # Not-None src_name signals the need for a source download in the

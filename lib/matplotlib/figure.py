@@ -603,7 +603,7 @@ default: %(va)s
             rect = args[0]
             if not np.isfinite(rect).all():
                 raise ValueError('all entries in rect must be finite '
-                                 'not {}'.format(rect))
+                                 f'not {rect}')
             projection_class, pkw = self._process_projection_requirements(
                 *args, **kwargs)
 

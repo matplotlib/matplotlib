@@ -261,13 +261,12 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def handle_event(self, event):
         e_type = event['type']
-        handler = getattr(self, 'handle_{0}'.format(e_type),
+        handler = getattr(self, f'handle_{e_type}',
                           self.handle_unknown_event)
         return handler(event)
 
     def handle_unknown_event(self, event):
-        _log.warning('Unhandled message type {0}. {1}'.format(
-                     event['type'], event))
+        _log.warning(f'Unhandled message type {event["type"]}. {event}')
 
     def handle_ack(self, event):
         # Network latency tends to decrease if traffic is flowing
@@ -324,7 +323,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def handle_refresh(self, event):
         figure_label = self.figure.get_label()
         if not figure_label:
-            figure_label = "Figure {0}".format(self.manager.num)
+            figure_label = f"Figure {self.manager.num}"
         self.send_event('figure_label', label=figure_label)
         self._force_full = True
         if self.toolbar:
@@ -484,18 +483,16 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
                 toolitems.append(['', '', '', ''])
             else:
                 toolitems.append([name, tooltip, image, method])
-        output.write("mpl.toolbar_items = {0};\n\n".format(
-            json.dumps(toolitems)))
+        output.write(f"mpl.toolbar_items = {json.dumps(toolitems)};\n\n")
 
         extensions = []
         for filetype, ext in sorted(FigureCanvasWebAggCore.
                                     get_supported_filetypes_grouped().
                                     items()):
             extensions.append(ext[0])
-        output.write("mpl.extensions = {0};\n\n".format(
-            json.dumps(extensions)))
+        output.write(f"mpl.extensions = {json.dumps(extensions)};\n\n")
 
-        output.write("mpl.default_extension = {0};".format(
+        output.write("mpl.default_extension = {};".format(
             json.dumps(FigureCanvasWebAggCore.get_default_filetype())))
 
         if stream is None:

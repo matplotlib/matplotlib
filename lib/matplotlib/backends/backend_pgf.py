@@ -306,7 +306,7 @@ class LatexManager:
 
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
-        self._get_box_metrics = functools.lru_cache()(self._get_box_metrics)
+        self._get_box_metrics = functools.lru_cache(self._get_box_metrics)
 
     texcommand = _api.deprecated("3.6")(
         property(lambda self: mpl.rcParams["pgf.texsystem"]))
@@ -1023,7 +1023,7 @@ class PdfPages:
             else:
                 manager = Gcf.get_fig_manager(figure)
             if manager is None:
-                raise ValueError("No figure {}".format(figure))
+                raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
 
         try:

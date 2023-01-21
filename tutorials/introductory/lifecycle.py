@@ -204,9 +204,9 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
 def currency(x, pos):
     """The two arguments are the value and tick position"""
     if x >= 1e6:
-        s = '${:1.1f}M'.format(x*1e-6)
+        s = f'${x*1e-6:1.1f}M'
     else:
-        s = '${:1.0f}K'.format(x*1e-3)
+        s = f'${x*1e-3:1.0f}K'
     return s
 
 # %%

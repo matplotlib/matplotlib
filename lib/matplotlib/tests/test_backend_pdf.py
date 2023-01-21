@@ -378,7 +378,7 @@ def test_glyphs_subset():
     subcmap = subfont.get_charmap()
 
     # all unique chars must be available in subsetted font
-    assert set(chars) == set(chr(key) for key in subcmap.keys())
+    assert {*chars} == {chr(key) for key in subcmap}
 
     # subsetted font's charmap should have less entries
     assert len(subcmap) < len(nosubcmap)

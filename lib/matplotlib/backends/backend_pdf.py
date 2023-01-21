@@ -370,8 +370,8 @@ def pdfRepr(obj):
         return _fill([pdfRepr(val) for val in obj.bounds])
 
     else:
-        raise TypeError("Don't know a PDF representation for {} objects"
-                        .format(type(obj)))
+        raise TypeError(f"Don't know a PDF representation for {type(obj)} "
+                        "objects")
 
 
 def _font_supports_glyph(fonttype, glyph):
@@ -714,7 +714,7 @@ class PdfFile:
         if not opened:
             try:
                 self.tell_base = filename.tell()
-            except IOError:
+            except OSError:
                 fh = BytesIO()
                 self.original_file_like = filename
             else:
@@ -2763,7 +2763,7 @@ class PdfPages:
             else:
                 manager = Gcf.get_fig_manager(figure)
             if manager is None:
-                raise ValueError("No figure {}".format(figure))
+                raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
         # Force use of pdf backend, as PdfPages is tightly coupled with it.
         try:

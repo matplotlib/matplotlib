@@ -159,7 +159,7 @@ class TriInterpolator:
         sh_ret = x.shape
         if x.shape != y.shape:
             raise ValueError("x and y shall have same shapes."
-                             " Given: {0} and {1}".format(x.shape, y.shape))
+                             f" Given: {x.shape} and {y.shape}")
         x = np.ravel(x)
         y = np.ravel(y)
         x_scaled = x/self._unit_x
@@ -174,7 +174,7 @@ class TriInterpolator:
                 raise ValueError(
                     "tri_index array is provided and shall"
                     " have same shape as x and y. Given: "
-                    "{0} and {1}".format(tri_index.shape, sh_ret))
+                    f"{tri_index.shape} and {sh_ret}")
             tri_index = np.ravel(tri_index)
 
         mask_in = (tri_index != -1)

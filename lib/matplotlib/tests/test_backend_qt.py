@@ -641,4 +641,4 @@ def test_enums_available(env):
          inspect.getsource(_test_enums_impl) + "\n_test_enums_impl()"],
         env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
         timeout=_test_timeout, check=True,
-        stdout=subprocess.PIPE, universal_newlines=True)
+        stdout=subprocess.PIPE, text=True)

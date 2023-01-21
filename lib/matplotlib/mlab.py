@@ -960,8 +960,8 @@ class GaussianKDE:
 
         dim, num_m = np.array(points).shape
         if dim != self.dim:
-            raise ValueError("points have dimension {}, dataset has dimension "
-                             "{}".format(dim, self.dim))
+            raise ValueError(f"points have dimension {dim}, dataset has "
+                             f"dimension {self.dim}")
 
         result = np.zeros(num_m)
 

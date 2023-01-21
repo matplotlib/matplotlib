@@ -421,7 +421,7 @@ def test_rectangle_rotate(ax, selector_class):
 
     # Rotate anticlockwise using top-right corner
     do_event(tool, 'on_key_press', key='r')
-    assert tool._state == set(['rotate'])
+    assert tool._state == {'rotate'}
     assert len(tool._state) == 1
     click_and_drag(tool, start=(130, 140), end=(120, 145))
     do_event(tool, 'on_key_press', key='r')

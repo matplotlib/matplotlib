@@ -52,7 +52,7 @@ class AbstractPathEffect:
         for k, v in new_gc_dict.items():
             set_method = getattr(gc, 'set_' + k, None)
             if not callable(set_method):
-                raise AttributeError('Unknown property {0}'.format(k))
+                raise AttributeError(f'Unknown property {k}')
             set_method(v)
         return gc
 

@@ -219,7 +219,7 @@ plt.pause(.1)
 for j in range(100):
     # update the artists
     ln.set_ydata(np.sin(x + (j / 100) * np.pi))
-    fr_number.set_text("frame: {j}".format(j=j))
+    fr_number.set_text(f"frame: {j}")
     # tell the blitting manager to do its thing
     bm.update()
 

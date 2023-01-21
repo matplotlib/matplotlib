@@ -536,7 +536,7 @@ class FFMpegBase:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
         args.extend(extra_args)
         for k, v in self.metadata.items():
-            args.extend(['-metadata', '%s=%s' % (k, v)])
+            args.extend(['-metadata', f'{k}={v}'])
 
         return args + ['-y', self.outfile]
 

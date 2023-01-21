@@ -783,7 +783,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         selectedFilter = None
         for name, exts in sorted_filetypes:
             exts_list = " ".join(['*.%s' % ext for ext in exts])
-            filter = '%s (%s)' % (name, exts_list)
+            filter = f'{name} ({exts_list})'
             if default_filetype in exts:
                 selectedFilter = filter
             filters.append(filter)

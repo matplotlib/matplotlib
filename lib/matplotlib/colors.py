@@ -1623,7 +1623,7 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
         base_norm_cls, inspect.signature(init))
 
 
-@functools.lru_cache(None)
+@functools.cache
 def _make_norm_from_scale(
     scale_cls, scale_args, scale_kwargs_items,
     base_norm_cls, bound_init_signature,
@@ -2060,7 +2060,7 @@ def rgb_to_hsv(arr):
     # check length of the last dimension, should be _some_ sort of rgb
     if arr.shape[-1] != 3:
         raise ValueError("Last dimension of input array must be 3; "
-                         "shape {} was found.".format(arr.shape))
+                         f"shape {arr.shape} was found.")
 
     in_shape = arr.shape
     arr = np.array(
@@ -2111,7 +2111,7 @@ def hsv_to_rgb(hsv):
     # check length of the last dimension, should be _some_ sort of rgb
     if hsv.shape[-1] != 3:
         raise ValueError("Last dimension of input array must be 3; "
-                         "shape {shp} was found.".format(shp=hsv.shape))
+                         f"shape {hsv.shape} was found.")
 
     in_shape = hsv.shape
     hsv = np.array(
@@ -2475,8 +2475,8 @@ class LightSource:
             try:
                 blend = blend_mode(rgb, intensity, **kwargs)
             except TypeError as err:
-                raise ValueError('"blend_mode" must be callable or one of {}'
-                                 .format(lookup.keys)) from err
+                raise ValueError('"blend_mode" must be callable or one of '
+                                 f'{lookup.keys}') from err
 
         # Only apply result where hillshade intensity isn't masked
         if np.ma.is_masked(intensity):

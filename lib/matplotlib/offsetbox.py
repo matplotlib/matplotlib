@@ -1226,7 +1226,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     zorder = 3
 
     def __str__(self):
-        return "AnnotationBbox(%g,%g)" % (self.xy[0], self.xy[1])
+        return f"AnnotationBbox({self.xy[0]:g},{self.xy[1]:g})"
 
     @_docstring.dedent_interpd
     @_api.make_keyword_only("3.6", name="xycoords")

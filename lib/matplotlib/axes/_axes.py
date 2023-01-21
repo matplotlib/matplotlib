@@ -2979,7 +2979,7 @@ class Axes(_AxesBase):
         """
         if not 1 <= len(args) <= 3:
             raise TypeError('stem expected between 1 or 3 positional '
-                            'arguments, got {}'.format(args))
+                            f'arguments, got {args}')
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         if len(args) == 1:
