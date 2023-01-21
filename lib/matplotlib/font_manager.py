@@ -7,8 +7,8 @@ function returns the best TrueType (TTF) font file in the local or
 system font path that matches the specified `FontProperties`
 instance.  The `FontManager` also handles Adobe Font Metrics
 (AFM) font files for use by the PostScript backend.
-The `addfont` function adds a custom font from a file without installing
-it into your operating system.
+The `FontManager.addfont` function adds a custom font from a file without
+installing it into your operating system.
 
 The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
 font specification <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_.
@@ -991,8 +991,8 @@ class FontManager:
 
     Notes
     -----
-    The `FontManager.addfont` method must be called on the global `Fontmanager`
-    instance, `font_manager.fontManager`.
+    The `FontManager.addfont` method must be called on the global `FontManager`
+    instance.
 
     Example usage::
 
@@ -1058,8 +1058,8 @@ class FontManager:
         Notes
         -----
         This method is useful for adding a custom font without installing it in
-        your operating system. See the `font_manager.fontManager` singleton
-        instance for usage and caveats about this function.
+        your operating system. See the `FontManager` singleton instance for
+        usage and caveats about this function.
         """
         # Convert to string in case of a path as
         # afmFontProperty and FT2Font expect this
