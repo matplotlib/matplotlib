@@ -2007,6 +2007,12 @@ class FigureCanvasBase:
                      if a.patch.contains_point(xy) and a.get_visible()]
         if axes_list:
             axes = cbook._topmost_artist(axes_list)
+            prev_axes = None
+            while prev_axes != axes:
+                prev_axes = axes
+                axes_list = [a for a in axes.child_axes
+                             if a.patch.contains_point(xy) and a.get_visible()]
+                axes = cbook._topmost_artist([axes, *axes_list])
         else:
             axes = None
 
