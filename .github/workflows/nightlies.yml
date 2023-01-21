@@ -15,6 +15,12 @@ jobs:
   upload_nightly_wheels:
     name: Upload nightly wheels to Anaconda Cloud
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        # The login shell is necessary for the provision-with-micromamba setup
+        # to work in subsequent jobs.
+        # https://github.com/mamba-org/provision-with-micromamba#important
+        shell: bash -e -l {0}
     if: github.repository_owner == 'matplotlib'
 
     steps:
