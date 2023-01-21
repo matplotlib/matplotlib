@@ -7,6 +7,8 @@ function returns the best TrueType (TTF) font file in the local or
 system font path that matches the specified `FontProperties`
 instance.  The `FontManager` also handles Adobe Font Metrics
 (AFM) font files for use by the PostScript backend.
+The `addfont` function adds a custom font from a file without installing
+it into your operating system.
 
 The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
 font specification <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_.
@@ -980,6 +982,28 @@ class FontManager:
     method does a nearest neighbor search to find the font that most closely
     matches the specification.  If no good enough match is found, the default
     font is returned.
+
+    However, fonts added with the `FontManager.addfont` method will not persist
+    in the cache and hence will need to be called at every process. The added
+    fonts and their properties will not be configurable via rcParams if
+    installed using this method. This method should only be used if and when a
+    font cannot be installed on your operating system by other means.
+
+    Notes
+    -----
+    The `FontManager.addfont` method must be called on the global `Fontmanager`
+    instance, `font_manager.fontManager`.
+
+    Example usage::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import font_manager
+
+        font_dirs = ["/resources/fonts"]  # The path to the custom font file.
+        font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+
+        for font_file in font_files:
+            font_manager.fontManager.addfont(font_file)
     """
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
@@ -1031,27 +1055,11 @@ class FontManager:
         ----------
         path : str or path-like
 
-        `addfont` must be called on the global `fontManager` instance::
-
-            import matplotlib.pyplot as plt
-            from matplotlib import font_manager
-
-            font_dirs = ["/resources/fonts"]
-            font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
-
-            for font_file in font_files:
-                font_manager.fontManager.addfont(font_file)
-
-            fig, ax = plt.subplots()
-            ax.set_title(f'Roboto is an example font', font='roboto', size=14)
-
-            plt.show()
-
         Notes
         -----
-        This method is useful if you want to install fonts via the Python
-        package, which is generally not recommended as user added fonts may not
-        persist in the font cache.
+        This method is useful for adding a custom font without installing it in
+        your operating system. See the `font_manager.fontManager` singleton
+        instance for usage and caveats about this function.
         """
         # Convert to string in case of a path as
         # afmFontProperty and FT2Font expect this
