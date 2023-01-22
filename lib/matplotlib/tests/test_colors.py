@@ -1595,17 +1595,17 @@ def test_cm_set_cmap_error():
 
 
 def test_check_color_like():
-    err_msg = '[\'none\'] is not a valid value for c'
+    err_msg = '[\'abcd\'] is not a valid value for c'
     assert mcolors._check_color_like(colors1='yellow', colors2='red') is None
     with pytest.raises(ValueError, match=err_msg):
-        mcolors._check_color_like(c='none')
+        mcolors._check_color_like(c='abcd')
 
 
 def test_check_color_like_list():
-    err_msg = '[\'none\'] is not a valid value for c'
+    err_msg = '[\'abcd\'] is not a valid value for c'
     assert mcolors.check_color_like_list(colors=['yellow', 'orange']) is None
     assert mcolors.check_color_like_list(c1=['red'], c2=['blue']) is None
     with pytest.raises(ValueError, match=err_msg):
-        mcolors.check_color_like_list(c=['none', 'red'])
+        mcolors.check_color_like_list(c=['abcd', 'red'])
     with pytest.raises(ValueError, match=err_msg):
-        mcolors.check_color_like_list(c1=['red', 'blue'], c=['none'])
+        mcolors.check_color_like_list(c1=['red', 'blue'], c=['abcd'])
