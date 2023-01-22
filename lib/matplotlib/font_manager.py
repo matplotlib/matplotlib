@@ -984,10 +984,9 @@ class FontManager:
     font is returned.
 
     However, fonts added with the `FontManager.addfont` method will not persist
-    in the cache and hence will need to be called at every process. The added
-    fonts and their properties will not be configurable via rcParams if
-    installed using this method. This method should only be used if and when a
-    font cannot be installed on your operating system by other means.
+    in the cache and hence will need to be called at every process. This method
+    should only be used if and when a font cannot be installed on your operating
+    system by other means.
 
     Notes
     -----
