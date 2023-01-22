@@ -952,6 +952,22 @@ class Axis(martist.Artist):
                     or self._major_tick_kw.get('label2On', False))
             if 'labelcolor' in kwtrans:
                 self.offsetText.set_color(kwtrans['labelcolor'])
+            if 'top' in kwtrans:
+                self.offsetText.set_visible(
+                    self._major_tick_kw.get('label1On', True)
+                    or self._major_tick_kw.get('label2On', False))
+            if 'bottom' in kwtrans:
+                self.offsetText.set_visible(
+                    self._major_tick_kw.get('label1On', False)
+                    or self._major_tick_kw.get('label2On', True))
+            if 'right' in kwtrans:
+                self.offsetText.set_visible(
+                    self._major_tick_kw.get('label1On', True)
+                    or self._major_tick_kw.get('label2On', False))
+            if 'left' in kwtrans:
+                self.offsetText.set_visible(
+                    self._major_tick_kw.get('label1On', False)
+                    or self._major_tick_kw.get('label2On', True))
 
         self.stale = True
 
@@ -2168,7 +2184,6 @@ class Axis(martist.Artist):
                and not tick.label2.get_visible()
                for tick in [major, minor]):
             return 1
-        
         elif all(tick.tick2line.get_visible()
                  and not tick.tick1line.get_visible()
                  and tick.label2.get_visible()
@@ -2177,18 +2192,6 @@ class Axis(martist.Artist):
             return 2
         elif all(tick.tick1line.get_visible()
                  and tick.tick2line.get_visible()
-                 and tick.label1.get_visible()
-                 and not tick.label2.get_visible()
-                 for tick in [major, minor]):
-            return "default"
-        elif all(tick.tick2line.get_visible()
-                 and tick.tick1line.get_visible()
-                 and not tick.label2.get_visible()
-                 and not tick.label1.get_visible()
-                 for tick in [major, minor]):
-            return "default"
-        elif all(tick.tick1line.get_visible()
-                 and not tick.tick2line.get_visible()
                  and tick.label1.get_visible()
                  and not tick.label2.get_visible()
                  for tick in [major, minor]):
