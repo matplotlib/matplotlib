@@ -2168,9 +2168,21 @@ class Axis(martist.Artist):
                and not tick.label2.get_visible()
                for tick in [major, minor]):
             return 1
+        elif all(tick.tick1line.get_visible()
+                 and not tick.tick2line.get_visible()
+                 and tick.label1.get_visible()
+                 and not tick.label2.get_visible()
+                 for tick in [major, minor]):
+            return 1
         elif all(tick.tick2line.get_visible()
                  and not tick.tick1line.get_visible()
                  and tick.label2.get_visible()
+                 and not tick.label1.get_visible()
+                 for tick in [major, minor]):
+            return 2
+        elif all(tick.tick2line.get_visible()
+                 and tick.tick1line.get_visible()
+                 and not tick.label2.get_visible()
                  and not tick.label1.get_visible()
                  for tick in [major, minor]):
             return 2
@@ -2694,7 +2706,7 @@ class YAxis(Axis):
         self.set_ticks_position('right')
         # if labels were turned off before this was called
         # leave them off
-        self.set_tick_params(which='both', labelright=label)
+        self.set_tick_params(which='right', labelright=label)
 
     def tick_left(self):
         """
@@ -2707,7 +2719,7 @@ class YAxis(Axis):
         self.set_ticks_position('left')
         # if labels were turned off before this was called
         # leave them off
-        self.set_tick_params(which='both', labelleft=label)
+        self.set_tick_params(which='left', labelleft=label)
 
     def get_ticks_position(self):
         """
