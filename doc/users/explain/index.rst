@@ -9,6 +9,7 @@ Explanations
     :maxdepth: 2
 
     api_interfaces.rst
+    figures.rst
     backends.rst
     writing_a_backend_pyplot_interface.rst
     interactive.rst
