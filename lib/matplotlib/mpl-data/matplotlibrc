@@ -335,8 +335,7 @@
 ## The following settings allow you to select the fonts in math mode.
 #mathtext.fontset: dejavusans  # Should be 'dejavusans' (default),
                                # 'dejavuserif', 'cm' (Computer Modern), 'stix',
-                               # 'stixsans' or 'custom' (unsupported, may go
-                               # away in the future)
+                               # 'stixsans' or 'custom'
 ## "mathtext.fontset: custom" is defined by the mathtext.bf, .cal, .it, ...
 ## settings which map a TeX font name to a fontconfig font pattern.  (These
 ## settings are not used for other font sets.)
