@@ -12,6 +12,9 @@
 
 `SubplotParams`
     Control the default spacing between subplots.
+
+See :ref:`figure_explanation` for narrative on how figures are used in
+Matplotlib.
 """
 
 from contextlib import ExitStack
