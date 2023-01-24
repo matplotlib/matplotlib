@@ -1,6 +1,7 @@
 import copy
 import itertools
 import unittest.mock
+from re import escape
 
 from io import BytesIO
 import numpy as np
@@ -18,7 +19,6 @@ import matplotlib.colorbar as mcolorbar
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from re import escape
 
 
 @pytest.mark.parametrize('N, result', [
