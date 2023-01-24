@@ -252,7 +252,7 @@ def check_color_like_list(**kwargs):
         invalid_col = [c for c in lst if not is_color_like(c)]
         if invalid_col:
             err_msg = f"{invalid_col!r} are not valid values for {k}"
-            raise ValueError(re.escape(err_msg))
+            raise ValueError(err_msg)
 
 
 def same_color(c1, c2):
