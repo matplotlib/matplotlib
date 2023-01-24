@@ -5748,9 +5748,10 @@ default: :rc:`scatter.edgecolors`
 
         if shading == 'flat':
             if (Nx, Ny) != (ncols + 1, nrows + 1):
-                raise TypeError(f"Dimensions of X({Nx}) and y({Ny}) should"
-                                f" be one larger than C {C.shape} while using"
-                                f" shading='flat' see help({funcname})")
+                raise TypeError(f"Dimensions of C {C.shape} should"
+                                f" be one smaller than X({Nx}) and Y({Ny})"
+                                f" while using shading='flat'"
+                                f" see help({funcname})")
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
                 raise TypeError('Dimensions of C %s are incompatible with'
