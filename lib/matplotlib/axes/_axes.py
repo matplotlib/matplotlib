@@ -6796,7 +6796,7 @@ such objects
         **kwargs
         `~matplotlib.patches.FancyArrowPatch` properties
         """
-        if (delta is None) ^ (end is None):
+        if not((delta is None) ^ (end is None)):
             raise ValueError("Exactly one *delta* or *end* must be Non-Zero")
         if end is None:
             end = np.asanyarray(start) + np.asanyarray(delta)
@@ -6804,14 +6804,16 @@ such objects
         color = kwargs.pop("color", None)
         if color is None:
             color = self._get_lines.get_next_color()
-        vect = mpatches.FancyArrowPatch(start, end, color=color, **kwargs)
+        shrinkA = kwargs.get("shrinkA", 0)
+        shrinkB = kwargs.get("shrinkB", 0)
+        vect = mpatches.FancyArrowPatch(
+            start, end, color=color, shrinkA=shrinkA, shrinkB=shrinkB, **kwargs
+        )
         ms = vect._mutation_scale
         stylekw = {
             "head_length": kwargs.get("head_length", 12) / ms,
             "head_width": kwargs.get("head_width", 12) / ms,
             "tail_width": kwargs.get("tail_width", 4) / ms,
-            "shrinkA": kwargs.get("shrinkA", 0),
-            "shrinkB": kwargs.get("shrinkB", 0),
         }
         vect.set_arrowstyle(kwargs.get("arrowstyle", "simple"), **stylekw)
         self.add_patch(vect)
