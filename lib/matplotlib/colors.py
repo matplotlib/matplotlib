@@ -1372,8 +1372,12 @@ class Normalize:
 
     def autoscale(self, A):
         """Set *vmin*, *vmax* to min, max of *A*."""
-        self.vmin = self.vmax = None
-        self.autoscale_None(A)
+        with self.callbacks.blocked():
+            # Pause callbacks while we are updating so we only get
+            # a single update signal at the end
+            self.vmin = self.vmax = None
+            self.autoscale_None(A)
+        self._changed()
 
     def autoscale_None(self, A):
         """If vmin or vmax are not set, use the min/max of *A* to set them."""

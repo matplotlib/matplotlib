@@ -1493,6 +1493,11 @@ def test_norm_callback():
     norm.vmax = 5
     assert increment.call_count == 2
 
+    # We only want autoscale() calls to send out one update signal
+    increment.call_count = 0
+    norm.autoscale([0, 1, 2])
+    assert increment.call_count == 1
+
 
 def test_scalarmappable_norm_update():
     norm = mcolors.Normalize()
