@@ -1290,8 +1290,8 @@ class TestEngFormatter:
         (True, 1001, ('1.001 k', '1 k', '1.00 k')),
         (True, 100001, ('100.001 k', '100 k', '100.00 k')),
         (True, 987654.321, ('987.654 k', '988 k', '987.65 k')),
-        # OoR value (> 1000 Y)
-        (True, 1.23e27, ('1230 Y', '1230 Y', '1230.00 Y'))
+        # OoR value (> 1000 Q)
+        (True, 1.23e33, ('1230 Q', '1230 Q', '1230.00 Q'))
     ]
 
     @pytest.mark.parametrize('unicode_minus, input, expected', raw_format_data)
