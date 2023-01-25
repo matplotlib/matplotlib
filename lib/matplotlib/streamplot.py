@@ -222,7 +222,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         arrows.append(p)
 
     lc = mcollections.LineCollection(
-        streamlines, transform=transform, **line_kw)
+        streamlines, transform=transform, **line_kw, capstyle='round')
     lc.sticky_edges.x[:] = [grid.x_origin, grid.x_origin + grid.width]
     lc.sticky_edges.y[:] = [grid.y_origin, grid.y_origin + grid.height]
     if use_multicolor_lines:
