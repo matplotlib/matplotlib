@@ -455,6 +455,31 @@ Then they will receive messages like
    DEBUG:matplotlib.yourmodulename:Here is some information
    DEBUG:matplotlib.yourmodulename:Here is some more detailed information
 
+**NOTE:** Please avoid using pre-computed stirngs(``f-strings``, ``str.format``,etc.) for logging.
+There are security & performance
+issues, and it interferes with style handlers. 
+See `here <https://github.com/matplotlib/matplotlib/pull/25073#issuecomment-1403711269>`_
+for more details.
+
+**Correct**
+
+.. code-block:: python
+
+   _log.error('hello %s', 'world')
+
+**Incorrect**
+
+.. code-block:: python
+
+   _log.error('hello {}'.format('world'))
+
+.. code-block:: python
+
+   s = 'world'
+   _log.error(f'hello {s}')
+
+
+
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
