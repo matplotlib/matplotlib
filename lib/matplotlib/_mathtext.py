@@ -576,9 +576,9 @@ class UnicodeFonts(TruetypeFonts):
                 if (fontname in ('it', 'regular')
                         and isinstance(self, StixFonts)):
                     return self._get_glyph('rm', font_class, sym)
-                _log.warning("Font %r does not have a glyph "
-                             "for %a [U+%x], substituting "
-                             "with a dummy symbol.", new_fontname, sym, uniindex)
+                _log.warning("Font %r does not have a glyph for %a [U+%x], "
+                             "substituting with a dummy symbol.",
+                             new_fontname, sym, uniindex)
                 font = self._get_font('rm')
                 uniindex = 0xA4  # currency char, for lack of anything better
                 slanted = False
