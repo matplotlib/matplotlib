@@ -138,10 +138,6 @@ true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
 
-Install additional development dependencies
-===========================================
-See :ref:`development-dependencies`.
-
 Install pre-commit hooks (optional)
 ===================================
 `pre-commit <https://pre-commit.com/>`_ hooks automatically check flake8 and

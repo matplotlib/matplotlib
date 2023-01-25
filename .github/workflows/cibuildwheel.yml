@@ -101,7 +101,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.8
-        uses: pypa/cibuildwheel@v2.11.4
+        uses: pypa/cibuildwheel@v2.12.0
         env:
           CIBW_BUILD: "cp38-*"
           CIBW_SKIP: "*-musllinux*"
