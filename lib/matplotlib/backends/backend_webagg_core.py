@@ -266,7 +266,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         return handler(event)
 
     def handle_unknown_event(self, event):
-        _log.warning(f'Unhandled message type {event["type"]}. {event}')
+        _log.warning('Unhandled message type %s. %s', event["type"], event)
 
     def handle_ack(self, event):
         # Network latency tends to decrease if traffic is flowing
