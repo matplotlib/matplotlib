@@ -1,0 +1,15 @@
+Maximum line length increased to 88 characters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The maximum line length for new contributions has been extended from 79 characters to
+88 characters.
+This change provides an extra 9 characters to allow code which is a single idea to fit
+on fewer lines (often a single line).
+Other line lengths considered included 115 and 99, but ultimately 88 characters was the
+consensus as it is relatively conservative while still providing reasonable benefit.
+The ability to view side-by-side git diffs was a key point in choosing the smaller
+limit.
+Additionally, it is easier to increase the line length again than to decrease it if it
+was found too large.
+The chosen length is the same as `black <https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#line-length>`_.
+Their justifications influenced the discussion and provided a standard value.
