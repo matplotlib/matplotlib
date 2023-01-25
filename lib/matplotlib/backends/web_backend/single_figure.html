@@ -19,8 +19,9 @@
       ready(
         function () {
           var websocket_type = mpl.get_websocket_type();
-          var websocket = new websocket_type(
-              "{{ ws_uri }}" + {{ str(fig_id) }} + "/ws");
+          var uri = "{{ ws_uri }}" + {{ str(fig_id) }} + "/ws";
+          if (window.location.protocol === 'https:') uri = uri.replace('ws:', 'wss:')
+          var websocket = new websocket_type(uri);
           var fig = new mpl.figure(
               {{ str(fig_id) }}, websocket, mpl_ondownload,
               document.getElementById("figure"));
