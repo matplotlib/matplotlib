@@ -530,7 +530,7 @@ class UnicodeFonts(TruetypeFonts):
         except ValueError:
             uniindex = ord('?')
             found_symbol = False
-            _log.warning(f"No TeX to Unicode mapping for {sym!a}.")
+            _log.warning("No TeX to Unicode mapping for %a.", sym)
 
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
@@ -576,9 +576,9 @@ class UnicodeFonts(TruetypeFonts):
                 if (fontname in ('it', 'regular')
                         and isinstance(self, StixFonts)):
                     return self._get_glyph('rm', font_class, sym)
-                _log.warning(f"Font {new_fontname!r} does not have a glyph "
-                             f"for {sym!a} [U+{uniindex:x}], substituting "
-                             "with a dummy symbol.")
+                _log.warning("Font %r does not have a glyph for %a [U+%x], "
+                             "substituting with a dummy symbol.",
+                             new_fontname, sym, uniindex)
                 font = self._get_font('rm')
                 uniindex = 0xA4  # currency char, for lack of anything better
                 slanted = False

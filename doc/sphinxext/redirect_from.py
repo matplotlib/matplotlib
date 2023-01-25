@@ -112,10 +112,10 @@ def _generate_redirects(app, exception):
         html = HTML_TEMPLATE.format(v=builder.get_relative_uri(k, v))
         if p.is_file():
             if p.read_text() != html:
-                logger.warning(f'A redirect-from directive is trying to '
-                               f'create {p}, but that file already exists '
-                               f'(perhaps you need to run "make clean")')
+                logger.warning('A redirect-from directive is trying to '
+                               'create %s, but that file already exists '
+                               '(perhaps you need to run "make clean")', p)
         else:
-            logger.info(f'making refresh html file: {k} redirect to {v}')
+            logger.info('making refresh html file: %s redirect to %s', k, v)
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(html, encoding='utf-8')
