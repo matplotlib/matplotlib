@@ -6777,42 +6777,45 @@ such objects
                           else "list[Polygon]")
             return tops, bins, cbook.silent_list(patch_type, patches)
 
-    def vector(self, dx, dy, x=0., y=0., **kwargs):
+    def vector(self, start, *, delta=None, end=None, **kwargs):
         """
         Plot an arrow indicating a vector.
 
         Parameters
         ----------
-        dx : float
-            The x-component of the vector
-        dy : float
-            The y-component of the vector
-        x : float (optional)
-            The x-coordinate of the vector's base if nonzero.
-        y : float (optional)
-            The y-coordinate of the vector's base if nonzero.
+        start : (float, float)
+            The base point of the vector.
+        delta : (float, float)
+            The delta (deltaX, deltaY) from the start to the end of the vector.
+            Incompatible with *end*
+        end : float (optional)
+            The end point of the vector. Incompatible with *delta*
 
         Other Parameters
         ----------------
         **kwargs
         `~matplotlib.patches.FancyArrowPatch` properties
         """
-        posA = (x, y)
-        posB = (x + dx, y + dy)
+        if (delta is None) ^ (end is None):
+            raise ValueError("Exactly one *delta* or *end* must be Non-Zero")
+        if end is None:
+            end = np.asanyarray(start) + np.asanyarray(delta)
 
         color = kwargs.pop("color", None)
         if color is None:
             color = self._get_lines.get_next_color()
-        vect = mpatches.FancyArrowPatch(posA, posB, color=color, **kwargs)
+        vect = mpatches.FancyArrowPatch(start, end, color=color, **kwargs)
         ms = vect._mutation_scale
         stylekw = {
             "head_length": kwargs.get("head_length", 12) / ms,
             "head_width": kwargs.get("head_width", 12) / ms,
             "tail_width": kwargs.get("tail_width", 4) / ms,
+            "shrinkA": kwargs.get("shrinkA", 0),
+            "shrinkB": kwargs.get("shrinkB", 0),
         }
         vect.set_arrowstyle(kwargs.get("arrowstyle", "simple"), **stylekw)
         self.add_patch(vect)
-        self.update_datalim([posA, posB])
+        self.update_datalim([start, end])
         self._request_autoscale_view()
         return vect
 
