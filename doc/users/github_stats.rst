@@ -482,7 +482,7 @@ Pull Requests (380):
 * :ghpull:`23950`: DOC: Don't import doctest because we're not using it
 * :ghpull:`21006`: Rotate errorbar caps in polar plots
 * :ghpull:`23870`: Implement Sphinx-Gallery's ``make html-noplot``
-* :ghpull:`23905`: made explict that install link is install docs in readme
+* :ghpull:`23905`: made explicit that install link is install docs in readme
 * :ghpull:`23824`: Deprecate draw_gouraud_triangle
 * :ghpull:`23913`: Add draggable as param to Legend init
 * :ghpull:`23896`: Inline AnchoredOffsetBox._update_offset_func.
@@ -534,7 +534,7 @@ Issues (110):
 * :ghissue:`23849`: [Bug]: The point marker is not actually unfilled
 * :ghissue:`24321`: [ENH]: Auto-detect bool arrays passed to contour()?
 * :ghissue:`24842`: axes3d.quiver() fails when providing args to Line3DCollection
-* :ghissue:`24093`: [Bug]: CenteredNorm gets stuck in infinite recusion when given all zeros
+* :ghissue:`24093`: [Bug]: CenteredNorm gets stuck in infinite recursion when given all zeros
 * :ghissue:`24571`: [ENH]: gridspec_mosaic
 * :ghissue:`24815`: [TST] Upcoming dependency test failures
 * :ghissue:`24712`: [ENH]: Reverse legend
