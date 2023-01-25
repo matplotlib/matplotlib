@@ -130,8 +130,7 @@ stages:
         displayName: 'Install dependencies with pip'
 
       - bash: |
-          # Due to https://github.com/pypa/setuptools/pull/2896
-          SETUPTOOLS_USE_DISTUTILS=stdlib python -m pip install -ve . ||
+          python -m pip install -ve . ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]
         displayName: "Install self"
 
