@@ -1088,7 +1088,7 @@ class CheckButtons(AxesWidget):
 
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
-        if self.ignore(event):
+        if self.ignore(event) or self.canvas is not self.ax.figure.canvas:
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._checks)
@@ -1700,7 +1700,7 @@ class RadioButtons(AxesWidget):
 
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
-        if self.ignore(event):
+        if self.ignore(event) or self.canvas is not self.ax.figure.canvas:
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._buttons)
@@ -1971,7 +1971,7 @@ class Cursor(AxesWidget):
 
     def clear(self, event):
         """Internal event handler to clear the cursor."""
-        if self.ignore(event):
+        if self.ignore(event) or self.canvas is not self.ax.figure.canvas:
             return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
@@ -2106,7 +2106,7 @@ class MultiCursor(Widget):
 
     def clear(self, event):
         """Clear the cursor."""
-        if self.ignore(event):
+        if self.ignore(event) or self.canvas is not self.ax.figure.canvas:
             return
         if self.useblit:
             for canvas, info in self._canvas_infos.items():
