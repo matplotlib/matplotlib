@@ -124,8 +124,8 @@ figures inside a parent Figure; see
 It is possible to directly instantiate a `.Figure` instance without using the
 pyplot interface.  This is usually only necessary if you want to create your
 own GUI application or service that you do not want carrying the pyplot global
-state.  See the embedding examples in :doc:`/gallery/user_interfaces/index` for
-examples of how to do this.
+state.  See the embedding examples in :ref:`user_interfaces` for examples of
+how to do this.
 
 Figure options
 --------------
