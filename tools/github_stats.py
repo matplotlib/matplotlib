@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-"""Simple tools to query github.com and gather stats about issues.
+"""
+Simple tools to query github.com and gather stats about issues.
 
 To generate a report for Matplotlib 3.0.0, run:
 
