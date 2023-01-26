@@ -539,7 +539,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
                    close_figs=False,
                    code_includes=None,
-                   outname=''):
+                   outname=None):
     """
     Run a pyplot script and save the images in *output_dir*.
 
