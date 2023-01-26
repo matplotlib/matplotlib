@@ -157,11 +157,10 @@ Content topics:
 * Does the PR conform with the :ref:`coding_guidelines`?
 * Is the :ref:`documentation <pr-documentation>` (docstrings, examples,
   what's new, API changes) updated?
-* Is the change only reflowing code/docstrings for increased line length?
-  Generally, such changes are discouraged when not part of other non-stylistic
-  work because it obscures the git history of functional changes to the code.
-  Reflowing a method or docstring as part of a larger refactor/rewrite is
-  acceptable.
+* Is the change purely stylistic? Generally, such changes are discouraged when
+  not part of other non-stylistic work because it obscures the git history of
+  functional changes to the code. Reflowing a method or docstring as part of a
+  larger refactor/rewrite is acceptable.
 
 
 Organizational topics:
