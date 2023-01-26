@@ -1330,6 +1330,8 @@ class EngFormatter(Formatter):
 
     # The SI engineering prefixes
     ENG_PREFIXES = {
+        -30: "q",
+        -27: "r",
         -24: "y",
         -21: "z",
         -18: "a",
@@ -1346,7 +1348,9 @@ class EngFormatter(Formatter):
          15: "P",
          18: "E",
          21: "Z",
-         24: "Y"
+         24: "Y",
+         27: "R",
+         30: "Q"
     }
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
