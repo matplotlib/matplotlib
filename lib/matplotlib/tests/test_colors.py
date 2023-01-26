@@ -1604,9 +1604,9 @@ def test_check_color_like():
 
 def test_check_color_like_list():
     err_msg = escape("['abcd'] are not valid values for c")
-    assert mcolors.check_color_like_list(colors=['yellow', 'orange']) is None
-    assert mcolors.check_color_like_list(c1=['red'], c2=['blue']) is None
+    assert mcolors._check_color_like_list(colors=['yellow', 'orange']) is None
+    assert mcolors._check_color_like_list(c1=['red'], c2=['blue']) is None
     with pytest.raises(ValueError, match=err_msg):
-        mcolors.check_color_like_list(c=['abcd', 'red'])
+        mcolors._check_color_like_list(c=['abcd', 'red'])
     with pytest.raises(ValueError, match=err_msg):
-        mcolors.check_color_like_list(c1=['red', 'blue'], c=['abcd'])
+        mcolors._check_color_like_list(c1=['red', 'blue'], c=['abcd'])

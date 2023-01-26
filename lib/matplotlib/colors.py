@@ -243,7 +243,7 @@ def _check_color_like(**kwargs):
             raise ValueError(f"{v!r} is not a valid value for {k}")
 
 
-def check_color_like_list(**kwargs):
+def _check_color_like_list(**kwargs):
     """
     For each *key, lst* pair in *kwargs*, check that every
     element *v* in *lst* is color-like.
