@@ -1381,7 +1381,7 @@ class QuadContourSet(ContourSet):
         """
         Process args and kwargs.
         """
-        if isinstance(args[0], QuadContourSet):
+        if args and isinstance(args[0], QuadContourSet):
             if self.levels is None:
                 self.levels = args[0].levels
             self.zmin = args[0].zmin
@@ -1441,13 +1441,15 @@ class QuadContourSet(ContourSet):
         else:
             fn = 'contour'
         nargs = len(args)
-        if nargs <= 2:
+
+        if 0 < nargs <= 2:
             z, *args = args
             z = ma.asarray(z)
             x, y = self._initialize_x_y(z)
-        elif nargs <= 4:
+        elif 2 < nargs <= 4:
             x, y, z_orig, *args = args
             x, y, z = self._check_xyz(x, y, z_orig, kwargs)
+
         else:
             raise _api.nargs_error(fn, takes="from 1 to 4", given=nargs)
         z = ma.masked_invalid(z, copy=False)
