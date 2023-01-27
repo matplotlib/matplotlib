@@ -6,7 +6,6 @@ import logging
 import math
 import os
 import pathlib
-import re
 import shutil
 import subprocess
 from tempfile import TemporaryDirectory
