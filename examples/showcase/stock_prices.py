@@ -105,7 +105,7 @@ ax.tick_params(axis='both', which='both', labelsize='large',
 # fig.savefig('stock-prices.png', bbox_inches='tight')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

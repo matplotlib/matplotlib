@@ -71,7 +71,7 @@ axs[5].set_title('Streamplot with unbroken streamlines')
 
 plt.tight_layout()
 plt.show()
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

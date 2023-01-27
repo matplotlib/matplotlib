@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="72pt" height="72pt" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2021-07-14T19:48:07.525592</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.4.2.post1357+gf1afce77c6.d20210714, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 72 
+L 72 72 
+L 72 0 
+L 0 0 
+L 0 72 
+z
+" style="fill: none; opacity: 0"/>
+  </g>
+  <g id="text_1">
+   <!--  -->
+   <g transform="translate(2 66.584375)scale(0.68 -0.68)">
+    <defs>
+     <path id="FontAwesome-f06e" d="M 5943 2057 
+C 5332 1114 4346 457 3200 457 
+C 2054 457 1068 1114 457 2057 
+C 796 2582 1261 3032 1818 3318 
+C 1675 3075 1600 2796 1600 2514 
+C 1600 1632 2318 914 3200 914 
+C 4082 914 4800 1632 4800 2514 
+C 4800 2796 4725 3075 4582 3318 
+C 5139 3032 5604 2582 5943 2057 
+z
+M 3371 3429 
+C 3371 3336 3293 3257 3200 3257 
+C 2793 3257 2457 2921 2457 2514 
+C 2457 2421 2379 2343 2286 2343 
+C 2193 2343 2114 2421 2114 2514 
+C 2114 3111 2604 3600 3200 3600 
+C 3293 3600 3371 3521 3371 3429 
+z
+M 6400 2057 
+C 6400 2146 6371 2229 6329 2304 
+C 5671 3382 4468 4114 3200 4114 
+C 1932 4114 729 3382 71 2304 
+C 29 2229 0 2146 0 2057 
+C 0 1968 29 1886 71 1811 
+C 729 732 1932 0 3200 0 
+C 4468 0 5671 729 6329 1811 
+C 6371 1886 6400 1968 6400 2057 
+z
+" transform="scale(0.015625)"/>
+    </defs>
+    <use xlink:href="#FontAwesome-f06e"/>
+   </g>
+  </g>
+ </g>
+</svg>

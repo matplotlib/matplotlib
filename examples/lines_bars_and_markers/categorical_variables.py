@@ -19,7 +19,7 @@ axs[2].plot(names, values)
 fig.suptitle('Categorical Plotting')
 
 
-###############################################################################
+# %%
 # This works on both axes:
 
 cat = ["bored", "happy", "bored", "bored", "happy", "bored"]

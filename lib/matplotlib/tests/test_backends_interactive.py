@@ -117,7 +117,7 @@ def _test_interactive_impl():
             fig = plt.figure()
             assert_equal(
                 type(fig.canvas).__module__,
-                "matplotlib.backends.backend_{}".format(alt_backend))
+                f"matplotlib.backends.backend_{alt_backend}")
 
         if importlib.util.find_spec("cairocffi"):
             check_alt_backend(backend[:-3] + "cairo")
@@ -128,7 +128,7 @@ def _test_interactive_impl():
     fig, ax = plt.subplots()
     assert_equal(
         type(fig.canvas).__module__,
-        "matplotlib.backends.backend_{}".format(backend))
+        f"matplotlib.backends.backend_{backend}")
 
     ax.plot([0, 1], [2, 3])
     if fig.canvas.toolbar:  # i.e toolbar2.
@@ -249,13 +249,13 @@ def _impl_test_lazy_auto_backend_selection():
     import matplotlib
     import matplotlib.pyplot as plt
     # just importing pyplot should not be enough to trigger resolution
-    bk = dict.__getitem__(matplotlib.rcParams, 'backend')
+    bk = matplotlib.rcParams._get('backend')
     assert not isinstance(bk, str)
     assert plt._backend_mod is None
     # but actually plotting should
     plt.plot(5)
     assert plt._backend_mod is not None
-    bk = dict.__getitem__(matplotlib.rcParams, 'backend')
+    bk = matplotlib.rcParams._get('backend')
     assert isinstance(bk, str)
 
 

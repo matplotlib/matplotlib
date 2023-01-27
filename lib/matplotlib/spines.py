@@ -437,7 +437,7 @@ class Spine(mpatches.Patch):
         else:
             raise ValueError('unable to make path for spine "%s"' % spine_type)
         result = cls(axes, spine_type, path, **kwargs)
-        result.set_visible(mpl.rcParams['axes.spines.{0}'.format(spine_type)])
+        result.set_visible(mpl.rcParams[f'axes.spines.{spine_type}'])
 
         return result
 

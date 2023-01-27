@@ -19,6 +19,7 @@ import subprocess
 import sys
 from urllib.parse import urlsplit, urlunsplit
 import warnings
+import yaml
 
 import matplotlib
 
@@ -33,6 +34,42 @@ is_release_build = tags.has('release')  # noqa
 
 # are we running circle CI?
 CIRCLECI = 'CIRCLECI' in os.environ
+
+
+def _parse_skip_subdirs_file():
+    """
+    Read .mpl_skip_subdirs.yaml for subdirectories to not
+    build if we do `make html-skip-subdirs`.  Subdirectories
+    are relative to the toplevel directory.  Note that you
+    cannot skip 'users' as it contains the table of contents,
+    but you can skip subdirectories of 'users'.  Doing this
+    can make partial builds very fast.
+    """
+    default_skip_subdirs = ['users/prev_whats_new/*', 'api/*', 'gallery/*',
+                            'tutorials/*', 'plot_types/*', 'devel/*']
+    try:
+        with open(".mpl_skip_subdirs.yaml", 'r') as fin:
+            print('Reading subdirectories to skip from',
+                  '.mpl_skip_subdirs.yaml')
+            out = yaml.full_load(fin)
+        return out['skip_subdirs']
+    except FileNotFoundError:
+        # make a default:
+        with open(".mpl_skip_subdirs.yaml", 'w') as fout:
+            yamldict = {'skip_subdirs': default_skip_subdirs,
+                        'comment': 'For use with make html-skip-subdirs'}
+            yaml.dump(yamldict, fout)
+        print('Skipping subdirectories, but .mpl_skip_subdirs.yaml',
+              'not found so creating a default one. Edit this file',
+              'to customize which directories are included in build.')
+
+        return default_skip_subdirs
+
+
+skip_subdirs = []
+# triggered via make html-skip-subdirs
+if 'skip_sub_dirs=1' in sys.argv:
+    skip_subdirs = _parse_skip_subdirs_file()
 
 # Parse year using SOURCE_DATE_EPOCH, falling back to current time.
 # https://reproducible-builds.org/specs/source-date-epoch/
@@ -80,8 +117,10 @@ extensions = [
 ]
 
 exclude_patterns = [
-    'api/prev_api_changes/api_changes_*/*',
+    'api/prev_api_changes/api_changes_*/*'
 ]
+
+exclude_patterns += skip_subdirs
 
 
 def _check_dependencies():
@@ -102,7 +141,7 @@ def _check_dependencies():
     if missing:
         raise ImportError(
             "The following dependencies are missing to build the "
-            "documentation: {}".format(", ".join(missing)))
+            f"documentation: {', '.join(missing)}")
     if shutil.which('dot') is None:
         raise OSError(
             "No binary named dot - graphviz must be installed to build the "
@@ -174,15 +213,20 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
         gallery_conf['image_srcset'] = []
     return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
 
+gallery_dirs = [f'{ed}' for ed in ['gallery', 'tutorials', 'plot_types']
+                if f'{ed}/*' not in skip_subdirs]
+
+example_dirs = [f'../{gd}'.replace('gallery', 'examples') for gd in
+                gallery_dirs]
 
 sphinx_gallery_conf = {
     'backreferences_dir': Path('api') / Path('_as_gen'),
     # Compression is a significant effort that we skip for local and CI builds.
     'compress_images': ('thumbnails', 'images') if is_release_build else (),
     'doc_module': ('matplotlib', 'mpl_toolkits'),
-    'examples_dirs': ['../examples', '../tutorials', '../plot_types'],
+    'examples_dirs': example_dirs,
     'filename_pattern': '^((?!sgskip).)*$',
-    'gallery_dirs': ['gallery', 'tutorials', 'plot_types'],
+    'gallery_dirs': gallery_dirs,
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
@@ -458,7 +502,7 @@ html_domain_index = False
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.
-html_use_opensearch = 'False'
+html_use_opensearch = 'https://matplotlib.org/stable'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Matplotlibdoc'
@@ -711,5 +755,6 @@ def setup(app):
         bld_type = 'dev'
     else:
         bld_type = 'rel'
+    app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
     app.connect('html-page-context', add_html_cache_busting, priority=1000)

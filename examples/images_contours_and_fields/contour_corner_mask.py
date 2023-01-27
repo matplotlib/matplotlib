@@ -27,7 +27,7 @@ fig, axs = plt.subplots(ncols=2)
 for ax, corner_mask in zip(axs, corner_masks):
     cs = ax.contourf(x, y, z, corner_mask=corner_mask)
     ax.contour(cs, colors='k')
-    ax.set_title('corner_mask = {0}'.format(corner_mask))
+    ax.set_title(f'{corner_mask=}')
 
     # Plot grid.
     ax.grid(c='k', ls='-', alpha=0.3)
@@ -37,7 +37,7 @@ for ax, corner_mask in zip(axs, corner_masks):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

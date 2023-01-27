@@ -53,7 +53,8 @@ class TriContourSet(ContourSet):
     def _contour_args(self, args, kwargs):
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args,
                                                                    **kwargs)
-        z = np.ma.asarray(args[0])
+        z, *args = args
+        z = np.ma.asarray(z)
         if z.shape != tri.x.shape:
             raise ValueError('z array must have same length as triangulation x'
                              ' and y arrays')
@@ -74,7 +75,7 @@ class TriContourSet(ContourSet):
         if self.logscale and self.zmin <= 0:
             func = 'contourf' if self.filled else 'contour'
             raise ValueError(f'Cannot {func} log of negative values.')
-        self._process_contour_level_args(args[1:])
+        self._process_contour_level_args(args, z.dtype)
         return (tri, z)
 
 

@@ -36,7 +36,7 @@ ax.set_title('Damped oscillation')
 plt.show()
 
 
-###############################################################################
+# %%
 # Next we'll demonstrate plotting more complex labels.
 
 x = np.linspace(0, 1)
@@ -45,7 +45,7 @@ fig, (ax0, ax1) = plt.subplots(2, 1)
 
 # Plot the lines y=x**n for n=1..4.
 for n in range(1, 5):
-    ax0.plot(x, x**n, label="n={0}".format(n))
+    ax0.plot(x, x**n, label=f"{n=}")
 leg = ax0.legend(loc="upper left", bbox_to_anchor=[0, 1],
                  ncol=2, shadow=True, title="Legend", fancybox=True)
 leg.get_title().set_color("red")
@@ -60,7 +60,7 @@ ax1.legend(shadow=True, fancybox=True)
 plt.show()
 
 
-###############################################################################
+# %%
 # Here we attach legends to more complex plots.
 
 fig, axs = plt.subplots(3, 1, constrained_layout=True)
@@ -83,7 +83,7 @@ bottom_ax.legend()
 
 plt.show()
 
-###############################################################################
+# %%
 # Now we'll showcase legend entries with more than one legend key.
 
 fig, (ax1, ax2) = plt.subplots(2, 1, constrained_layout=True)
@@ -115,7 +115,7 @@ l = ax2.legend([(rpos, rneg), (rneg, rpos)], ['pad!=0', 'pad=0'],
                             (rneg, rpos): HandlerTuple(ndivide=None, pad=0.)})
 plt.show()
 
-###############################################################################
+# %%
 # Finally, it is also possible to write custom classes that define
 # how to stylize legends.
 

@@ -1,0 +1,6 @@
+Most arguments to widgets have been made keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing all but the very few first arguments positionally in the constructors
+of Widgets is deprecated. Most arguments will become keyword-only in a future
+version.

@@ -39,7 +39,7 @@ ax2.tick_params(axis='y', labelcolor=color)
 fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

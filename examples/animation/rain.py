@@ -7,6 +7,8 @@ Simulates rain drops on a surface by animating the scale and opacity
 of 50 scatter points.
 
 Author: Nicolas P. Rougier
+
+Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np
@@ -67,5 +69,5 @@ def update(frame_number):
 
 
 # Construct the animation, using the update function as the animation director.
-animation = FuncAnimation(fig, update, interval=10)
+animation = FuncAnimation(fig, update, interval=10, save_count=100)
 plt.show()

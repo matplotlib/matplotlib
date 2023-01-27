@@ -103,7 +103,7 @@ fig.patch.set(linewidth=4, edgecolor='0.5')
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

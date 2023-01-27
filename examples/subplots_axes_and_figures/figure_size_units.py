@@ -14,7 +14,7 @@ efficiently.
 import matplotlib.pyplot as plt
 text_kwargs = dict(ha='center', va='center', fontsize=28, color='C1')
 
-##############################################################################
+# %%
 # Figure size in inches (default)
 # -------------------------------
 #
@@ -23,7 +23,7 @@ plt.text(0.5, 0.5, '6 inches x 2 inches', **text_kwargs)
 plt.show()
 
 
-#############################################################################
+# %%
 # Figure size in centimeter
 # -------------------------
 # Multiplying centimeter-based numbers with a conversion factor from cm to
@@ -37,7 +37,7 @@ plt.text(0.5, 0.5, '15cm x 5cm', **text_kwargs)
 plt.show()
 
 
-#############################################################################
+# %%
 # Figure size in pixel
 # --------------------
 # Similarly, one can use a conversion from pixels.
@@ -50,7 +50,7 @@ plt.subplots(figsize=(600*px, 200*px))
 plt.text(0.5, 0.5, '600px x 200px', **text_kwargs)
 plt.show()
 
-#############################################################################
+# %%
 # Quick interactive work is usually rendered to the screen, making pixels a
 # good size of unit. But defining the conversion factor may feel a little
 # tedious for quick iterations.
@@ -62,14 +62,14 @@ plt.subplots(figsize=(6, 2))
 plt.text(0.5, 0.5, '600px x 200px', **text_kwargs)
 plt.show()
 
-#############################################################################
+# %%
 # .. [#] Unfortunately, this does not work well for the ``matplotlib inline``
 #        backend in Jupyter because that backend uses a different default of
 #        ``rcParams['figure.dpi'] = 72``. Additionally, it saves the figure
 #        with ``bbox_inches='tight'``, which crops the figure and makes the
 #        actual size unpredictable.
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

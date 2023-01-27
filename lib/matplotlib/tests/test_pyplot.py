@@ -1,13 +1,13 @@
 import difflib
 
 import numpy as np
-import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
 import matplotlib as mpl
+from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
 from matplotlib._api import MatplotlibDeprecationWarning
 
@@ -20,8 +20,9 @@ def test_pyplot_up_to_date(tmpdir):
     plt_file = tmpdir.join('pyplot.py')
     plt_file.write_text(orig_contents, 'utf-8')
 
-    subprocess.run([sys.executable, str(gen_script), str(plt_file)],
-                   check=True)
+    subprocess_run_for_testing(
+        [sys.executable, str(gen_script), str(plt_file)],
+        check=True)
     new_contents = plt_file.read_text('utf-8')
 
     if orig_contents != new_contents:
@@ -440,3 +441,18 @@ def test_switch_backend_no_close():
     assert len(plt.get_fignums()) == 2
     plt.switch_backend('svg')
     assert len(plt.get_fignums()) == 0
+
+
+def figure_hook_example(figure):
+    figure._test_was_here = True
+
+
+def test_figure_hook():
+
+    test_rc = {
+        'figure.hooks': ['matplotlib.tests.test_pyplot:figure_hook_example']
+    }
+    with mpl.rc_context(test_rc):
+        fig = plt.figure()
+
+    assert fig._test_was_here

@@ -7,6 +7,8 @@ Comparative path demonstration of frequency from a fake signal of a pulsar
 (mostly known because of the cover for Joy Division's Unknown Pleasures).
 
 Author: Nicolas P. Rougier
+
+Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np
@@ -69,5 +71,5 @@ def update(*args):
     return lines
 
 # Construct the animation, using the update function as the animation director.
-anim = animation.FuncAnimation(fig, update, interval=10)
+anim = animation.FuncAnimation(fig, update, interval=10, save_count=100)
 plt.show()

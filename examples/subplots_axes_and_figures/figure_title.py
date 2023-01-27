@@ -30,7 +30,7 @@ ax2.set_title('undamped')
 
 fig.suptitle('Different types of oscillations', fontsize=16)
 
-##############################################################################
+# %%
 # A global x- or y-label can be set using the `.FigureBase.supxlabel` and
 # `.FigureBase.supylabel` methods.
 

@@ -477,7 +477,7 @@ class FigureCanvasCairo(FigureCanvasBase):
                     fobj = gzip.GzipFile(None, 'wb', fileobj=fobj)
             surface = cairo.SVGSurface(fobj, width_in_points, height_in_points)
         else:
-            raise ValueError("Unknown format: {!r}".format(fmt))
+            raise ValueError(f"Unknown format: {fmt!r}")
 
         self._renderer.dpi = self.figure.dpi
         self._renderer.set_context(cairo.Context(surface))

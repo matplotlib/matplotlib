@@ -46,9 +46,14 @@ _log = logging.getLogger(__name__)
 @_docstring.interpd
 class Axes(_AxesBase):
     """
-    The `Axes` contains most of the figure elements: `~.axis.Axis`,
+    An Axes object encapsulates all the elements of an individual (sub-)plot in
+    a figure.
+
+    It contains most of the (sub-)plot elements: `~.axis.Axis`,
     `~.axis.Tick`, `~.lines.Line2D`, `~.text.Text`, `~.patches.Polygon`, etc.,
     and sets the coordinate system.
+
+    Like all visible elements in a figure, Axes is an `.Artist` subclass.
 
     The `Axes` instance supports callbacks through a callbacks attribute which
     is a `~.cbook.CallbackRegistry` instance.  The events you can connect to
@@ -289,7 +294,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        %(_legend_kw_doc)s
+        %(_legend_kw_axes)s
 
         See Also
         --------
@@ -2821,10 +2826,6 @@ class Axes(_AxesBase):
         A rectangle is drawn for each element of *xranges*. All rectangles
         have the same vertical position and size defined by *yrange*.
 
-        This is a convenience function for instantiating a
-        `.BrokenBarHCollection`, adding it to the Axes and autoscaling the
-        view.
-
         Parameters
         ----------
         xranges : sequence of tuples (*xmin*, *xwidth*)
@@ -2836,13 +2837,13 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        `~.collections.BrokenBarHCollection`
+        `~.collections.PolyCollection`
 
         Other Parameters
         ----------------
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
-        **kwargs : `.BrokenBarHCollection` properties
+        **kwargs : `.PolyCollection` properties
 
             Each *kwarg* can be either a single argument applying to all
             rectangles, e.g.::
@@ -2857,32 +2858,28 @@ class Axes(_AxesBase):
 
             Supported keywords:
 
-            %(BrokenBarHCollection:kwdoc)s
+            %(PolyCollection:kwdoc)s
         """
         # process the unit information
-        if len(xranges):
-            xdata = cbook._safe_first_finite(xranges)
-        else:
-            xdata = None
-        if len(yrange):
-            ydata = cbook._safe_first_finite(yrange)
-        else:
-            ydata = None
+        xdata = cbook._safe_first_finite(xranges) if len(xranges) else None
+        ydata = cbook._safe_first_finite(yrange) if len(yrange) else None
         self._process_unit_info(
             [("x", xdata), ("y", ydata)], kwargs, convert=False)
-        xranges_conv = []
-        for xr in xranges:
-            if len(xr) != 2:
-                raise ValueError('each range in xrange must be a sequence '
-                                 'with two elements (i.e. an Nx2 array)')
-            # convert the absolute values, not the x and dx...
-            x_conv = np.asarray(self.convert_xunits(xr[0]))
-            x1 = self._convert_dx(xr[1], xr[0], x_conv, self.convert_xunits)
-            xranges_conv.append((x_conv, x1))
 
-        yrange_conv = self.convert_yunits(yrange)
+        vertices = []
+        y0, dy = yrange
+        y0, y1 = self.convert_yunits((y0, y0 + dy))
+        for xr in xranges:  # convert the absolute values, not the x and dx
+            try:
+                x0, dx = xr
+            except Exception:
+                raise ValueError(
+                    "each range in xrange must be a sequence with two "
+                    "elements (i.e. xrange must be an (N, 2) array)") from None
+            x0, x1 = self.convert_xunits((x0, x0 + dx))
+            vertices.append([(x0, y0), (x0, y1), (x1, y1), (x1, y0)])
 
-        col = mcoll.BrokenBarHCollection(xranges_conv, yrange_conv, **kwargs)
+        col = mcoll.PolyCollection(np.array(vertices), **kwargs)
         self.add_collection(col, autolim=True)
         self._request_autoscale_view()
 
@@ -2946,9 +2943,9 @@ class Axes(_AxesBase):
         basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
 
-        orientation : str, default: 'vertical'
+        orientation : {'vertical', 'horizontal'}, default: 'vertical'
             If 'vertical', will produce a plot with stems oriented vertically,
-            otherwise the stems will be oriented horizontally.
+            If 'horizontal', the stems will be oriented horizontally.
 
         bottom : float, default: 0
             The y/x-position of the baseline (depending on orientation).
@@ -2982,7 +2979,7 @@ class Axes(_AxesBase):
         """
         if not 1 <= len(args) <= 3:
             raise TypeError('stem expected between 1 or 3 positional '
-                            'arguments, got {}'.format(args))
+                            f'arguments, got {args}')
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         if len(args) == 1:
@@ -3078,7 +3075,7 @@ class Axes(_AxesBase):
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=0, radius=1, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False, *, normalize=True):
+            frame=False, rotatelabels=False, *, normalize=True, hatch=None):
         """
         Plot a pie chart.
 
@@ -3104,28 +3101,33 @@ class Axes(_AxesBase):
             A sequence of colors through which the pie chart will cycle.  If
             *None*, will use the colors in the currently active cycle.
 
+        hatch : str or list, default: None
+            Hatching pattern applied to all pie wedges or sequence of patterns
+            through which the chart will cycle. For a list of valid patterns,
+            see :doc:`/gallery/shapes_and_collections/hatch_style_reference`.
+
+            .. versionadded:: 3.7
+
         autopct : None or str or callable, default: None
-            If not *None*, is a string or function used to label the wedges
-            with their numeric value.  The label will be placed inside the
-            wedge.  If it is a format string, the label will be ``fmt % pct``.
-            If it is a function, it will be called.
+            If not *None*, *autopct* is a string or function used to label the
+            wedges with their numeric value. The label will be placed inside
+            the wedge. If *autopct* is a format string, the label will be
+            ``fmt % pct``. If *autopct* is a function, then it will be called.
 
         pctdistance : float, default: 0.6
-            The ratio between the center of each pie slice and the start of
-            the text generated by *autopct*.  Ignored if *autopct* is *None*.
+            The relative distance along the radius at which the the text
+            generated by *autopct* is drawn. To draw the text outside the pie,
+            set *pctdistance* > 1. This parameter is ignored if *autopct* is
+            ``None``.
+
+        labeldistance : float or None, default: 1.1
+            The relative distance along the radius at which the labels are
+            drawn. To draw the labels inside the pie, set  *labeldistance* < 1.
+            If set to ``None``, labels are not drawn but are still stored for
+            use in `.legend`.
 
         shadow : bool, default: False
             Draw a shadow beneath the pie.
-
-        normalize : bool, default: True
-            When *True*, always make a full pie by normalizing x so that
-            ``sum(x) == 1``. *False* makes a partial pie if ``sum(x) <= 1``
-            and raises a `ValueError` for ``sum(x) > 1``.
-
-        labeldistance : float or None, default: 1.1
-            The radial distance at which the pie labels are drawn.
-            If set to ``None``, label are not drawn, but are stored for use in
-            ``legend()``
 
         startangle : float, default: 0 degrees
             The angle by which the start of the pie is rotated,
@@ -3138,11 +3140,11 @@ class Axes(_AxesBase):
             Specify fractions direction, clockwise or counterclockwise.
 
         wedgeprops : dict, default: None
-            Dict of arguments passed to the wedge objects making the pie.
-            For example, you can pass in ``wedgeprops = {'linewidth': 3}``
-            to set the width of the wedge border lines equal to 3.
-            For more details, look at the doc/arguments of the wedge object.
-            By default, ``clip_on=False``.
+            Dict of arguments passed to each `.patches.Wedge` of the pie.
+            For example, ``wedgeprops = {'linewidth': 3}`` sets the width of
+            the wedge border lines equal to 3. By default, ``clip_on=False``.
+            When there is a conflict between these properties and other
+            keywords, properties passed to *wedgeprops* take precedence.
 
         textprops : dict, default: None
             Dict of arguments to pass to the text objects.
@@ -3155,6 +3157,11 @@ class Axes(_AxesBase):
 
         rotatelabels : bool, default: False
             Rotate each label to the angle of the corresponding slice if true.
+
+        normalize : bool, default: True
+            When *True*, always make a full pie by normalizing x so that
+            ``sum(x) == 1``. *False* makes a partial pie if ``sum(x) <= 1``
+            and raises a `ValueError` for ``sum(x) > 1``.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -3210,6 +3217,8 @@ class Axes(_AxesBase):
             def get_next_color():
                 return next(color_cycle)
 
+        hatch_cycle = itertools.cycle(np.atleast_1d(hatch))
+
         _api.check_isinstance(Number, radius=radius, startangle=startangle)
         if radius <= 0:
             raise ValueError(f'radius must be a positive number, not {radius}')
@@ -3236,6 +3245,7 @@ class Axes(_AxesBase):
             w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
                                360. * max(theta1, theta2),
                                facecolor=get_next_color(),
+                               hatch=next(hatch_cycle),
                                clip_on=False,
                                label=label)
             w.set(**wedgeprops)
@@ -3660,7 +3670,7 @@ class Axes(_AxesBase):
                     continue
                 hlmarker = (
                     himarker
-                    if getattr(self, f"{dep_axis}axis").get_inverted() ^ idx
+                    if self._axis_map[dep_axis].get_inverted() ^ idx
                     else lomarker)
                 x_masked, y_masked, hl_masked = apply_mask(
                     [x, y, hl], lims & everymask)
@@ -4265,7 +4275,7 @@ class Axes(_AxesBase):
         if manage_ticks:
             axis_name = "x" if vert else "y"
             interval = getattr(self.dataLim, f"interval{axis_name}")
-            axis = getattr(self, f"{axis_name}axis")
+            axis = self._axis_map[axis_name]
             positions = axis.convert_units(positions)
             # The 0.5 additional padding ensures reasonable-looking boxes
             # even when drawing a single box.  We set the sticky edge to
@@ -5738,9 +5748,10 @@ default: :rc:`scatter.edgecolors`
 
         if shading == 'flat':
             if (Nx, Ny) != (ncols + 1, nrows + 1):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
+                raise TypeError(f"Dimensions of C {C.shape} should"
+                                f" be one smaller than X({Nx}) and Y({Ny})"
+                                f" while using shading='flat'"
+                                f" see help({funcname})")
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
                 raise TypeError('Dimensions of C %s are incompatible with'
@@ -5781,18 +5792,6 @@ default: :rc:`scatter.edgecolors`
 
         C = cbook.safe_masked_invalid(C)
         return X, Y, C, shading
-
-    def _pcolor_grid_deprecation_helper(self):
-        grid_active = any(axis._major_tick_kw["gridOn"]
-                          for axis in self._axis_map.values())
-        # explicit is-True check because get_axisbelow() can also be 'line'
-        grid_hidden_by_pcolor = self.get_axisbelow() is True
-        if grid_active and not grid_hidden_by_pcolor:
-            _api.warn_deprecated(
-                "3.5", message="Auto-removal of grids by pcolor() and "
-                "pcolormesh() is deprecated since %(since)s and will be "
-                "removed %(removal)s; please call grid(False) first.")
-        self.grid(False)
 
     @_preprocess_data()
     @_docstring.dedent_interpd
@@ -5998,7 +5997,6 @@ default: :rc:`scatter.edgecolors`
         collection = mcoll.PolyCollection(
             verts, array=C, cmap=cmap, norm=norm, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
-        self._pcolor_grid_deprecation_helper()
 
         x = X.compressed()
         y = Y.compressed()
@@ -6232,7 +6230,6 @@ default: :rc:`scatter.edgecolors`
             coords, antialiased=antialiased, shading=shading,
             array=C, cmap=cmap, norm=norm, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
-        self._pcolor_grid_deprecation_helper()
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
 
@@ -6742,13 +6739,13 @@ such objects
                 input_empty = False
 
         if color is None:
-            color = [self._get_lines.get_next_color() for i in range(nx)]
+            colors = [self._get_lines.get_next_color() for i in range(nx)]
         else:
-            color = mcolors.to_rgba_array(color)
-            if len(color) != nx:
+            colors = mcolors.to_rgba_array(color)
+            if len(colors) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
                                  f"color per dataset, but {nx} datasets and "
-                                 f"{len(color)} colors were provided")
+                                 f"{len(colors)} colors were provided")
 
         hist_kwargs = dict()
 
@@ -6843,19 +6840,19 @@ such objects
                 _barfunc = self.bar
                 bottom_kwarg = 'bottom'
 
-            for m, c in zip(tops, color):
+            for top, color in zip(tops, colors):
                 if bottom is None:
-                    bottom = np.zeros(len(m))
+                    bottom = np.zeros(len(top))
                 if stacked:
-                    height = m - bottom
+                    height = top - bottom
                 else:
-                    height = m
+                    height = top
                 bars = _barfunc(bins[:-1]+boffset, height, width,
                                 align='center', log=log,
-                                color=c, **{bottom_kwarg: bottom})
+                                color=color, **{bottom_kwarg: bottom})
                 patches.append(bars)
                 if stacked:
-                    bottom = m
+                    bottom = top
                 boffset += dw
             # Remove stickies from all bars but the lowest ones, as otherwise
             # margin expansion would be unable to cross the stickies in the
@@ -6894,12 +6891,12 @@ such objects
             fill = (histtype == 'stepfilled')
 
             xvals, yvals = [], []
-            for m in tops:
+            for top in tops:
                 if stacked:
                     # top of the previous polygon becomes the bottom
                     y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
                 # set the top of this polygon
-                y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = m + bottom
+                y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = top + bottom
 
                 # The starting point of the polygon has not yet been
                 # updated. So far only the endpoint was adjusted. This
@@ -6919,12 +6916,12 @@ such objects
             # add patches in reverse order so that when stacking,
             # items lower in the stack are plotted on top of
             # items higher in the stack
-            for x, y, c in reversed(list(zip(xvals, yvals, color))):
+            for x, y, color in reversed(list(zip(xvals, yvals, colors))):
                 patches.append(self.fill(
                     x[:split], y[:split],
                     closed=True if fill else None,
-                    facecolor=c,
-                    edgecolor=None if fill else c,
+                    facecolor=color,
+                    edgecolor=None if fill else color,
                     fill=fill if fill else None,
                     zorder=None if fill else mlines.Line2D.zorder))
             for patch_list in patches:
@@ -7790,8 +7787,7 @@ such objects
         extent = xmin, xmax, freqs[0], freqs[-1]
 
         if 'origin' in kwargs:
-            raise TypeError("specgram() got an unexpected keyword argument "
-                            "'origin'")
+            raise _api.kwarg_error("specgram", "origin")
 
         im = self.imshow(Z, cmap, extent=extent, vmin=vmin, vmax=vmax,
                          origin='upper', **kwargs)
@@ -7889,8 +7885,7 @@ such objects
                 kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'],
                                                         name='binary')
             if 'interpolation' in kwargs:
-                raise TypeError(
-                    "spy() got an unexpected keyword argument 'interpolation'")
+                raise _api.kwarg_error("spy", "interpolation")
             if 'norm' not in kwargs:
                 kwargs['norm'] = mcolors.NoNorm()
             ret = self.imshow(mask, interpolation='nearest',
@@ -7915,8 +7910,7 @@ such objects
             if markersize is None:
                 markersize = 10
             if 'linestyle' in kwargs:
-                raise TypeError(
-                    "spy() got an unexpected keyword argument 'linestyle'")
+                raise _api.kwarg_error("spy", "linestyle")
             ret = mlines.Line2D(
                 x, y, linestyle='None', marker=marker, markersize=markersize,
                 **kwargs)

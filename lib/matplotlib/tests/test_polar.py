@@ -291,6 +291,13 @@ def test_polar_no_data():
     assert ax.get_rmin() == 0 and ax.get_rmax() == 1
 
 
+def test_polar_default_log_lims():
+    plt.subplot(projection='polar')
+    ax = plt.gca()
+    ax.set_rscale('log')
+    assert ax.get_rmin() > 0
+
+
 def test_polar_not_datalim_adjustable():
     ax = plt.figure().add_subplot(projection="polar")
     with pytest.raises(ValueError):
@@ -427,3 +434,15 @@ def test_cursor_precision():
     assert ax.format_coord(2, 0) == "θ=0.6π (115°), r=0.000"
     assert ax.format_coord(2, .1) == "θ=0.64π (115°), r=0.100"
     assert ax.format_coord(2, 1) == "θ=0.637π (114.6°), r=1.000"
+
+
+@image_comparison(['polar_log.png'], style='default')
+def test_polar_log():
+    fig = plt.figure()
+    ax = fig.add_subplot(polar=True)
+
+    ax.set_rscale('log')
+    ax.set_rlim(1, 1000)
+
+    n = 100
+    ax.plot(np.linspace(0, 2 * np.pi, n), np.logspace(0, 2, n))

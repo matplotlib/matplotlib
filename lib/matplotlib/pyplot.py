@@ -202,10 +202,10 @@ def _get_backend_mod():
     This is currently private, but may be made public in the future.
     """
     if _backend_mod is None:
-        # Use __getitem__ here to avoid going through the fallback logic (which
-        # will (re)import pyplot and then call switch_backend if we need to
-        # resolve the auto sentinel)
-        switch_backend(dict.__getitem__(rcParams, "backend"))
+        # Use rcParams._get("backend") to avoid going through the fallback
+        # logic (which will (re)import pyplot and then call switch_backend if
+        # we need to resolve the auto sentinel)
+        switch_backend(rcParams._get("backend"))
     return _backend_mod
 
 
@@ -756,9 +756,15 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Notes
     -----
-    Newly created figures are passed to the `~.FigureCanvasBase.new_manager`
+    A newly created figure is passed to the `~.FigureCanvasBase.new_manager`
     method or the `new_figure_manager` function provided by the current
     backend, which install a canvas and a manager on the figure.
+
+    Once this is done, :rc:`figure.hooks` are called, one at a time, on the
+    figure; these hooks allow arbitrary customization of the figure (e.g.,
+    attaching callbacks) or of associated elements (e.g., modifying the
+    toolbar).  See :doc:`/gallery/user_interfaces/mplcvd` for an example of
+    toolbar customization.
 
     If you are creating many figures, make sure you explicitly call
     `.pyplot.close` on the figures you are not using, because this will
@@ -811,6 +817,13 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         fig = manager.canvas.figure
         if fig_label:
             fig.set_label(fig_label)
+
+        for hookspecs in rcParams["figure.hooks"]:
+            module_name, dotted_name = hookspecs.split(":")
+            obj = importlib.import_module(module_name)
+            for part in dotted_name.split("."):
+                obj = getattr(obj, part)
+            obj(fig)
 
         _pylab_helpers.Gcf._set_new_active_manager(manager)
 
@@ -1056,17 +1069,6 @@ def axes(arg=None, **kwargs):
         class.
 
         %(Axes:kwdoc)s
-
-    Notes
-    -----
-    If the figure already has an Axes with key (*args*,
-    *kwargs*) then it will simply make that axes current and
-    return it.  This behavior is deprecated. Meanwhile, if you do
-    not want this behavior (i.e., you want to force the creation of a
-    new axes), you must use a unique set of args and kwargs.  The Axes
-    *label* attribute has been exposed for this purpose: if you want
-    two Axes that are otherwise identical to be added to the figure,
-    make sure you give them unique labels.
 
     See Also
     --------
@@ -1479,18 +1481,14 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
 
 def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
                    width_ratios=None, height_ratios=None, empty_sentinel='.',
-                   subplot_kw=None, gridspec_kw=None, **fig_kw):
+                   subplot_kw=None, gridspec_kw=None,
+                   per_subplot_kw=None, **fig_kw):
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
     This is a helper function to build complex GridSpec layouts visually.
 
-    .. note::
-
-       This API is provisional and may be revised in the future based on
-       early user feedback.
-
-    See :doc:`/tutorials/provisional/mosaic`
+    See :doc:`/gallery/subplots_axes_and_figures/mosaic`
     for an example and full API documentation
 
     Parameters
@@ -1550,7 +1548,21 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     subplot_kw : dict, optional
         Dictionary with keywords passed to the `.Figure.add_subplot` call
-        used to create each subplot.
+        used to create each subplot.  These values may be overridden by
+        values in *per_subplot_kw*.
+
+    per_subplot_kw : dict, optional
+        A dictionary mapping the Axes identifiers or tuples of identifiers
+        to a dictionary of keyword arguments to be passed to the
+        `.Figure.add_subplot` call used to create each subplot.  The values
+        in these dictionaries have precedence over the values in
+        *subplot_kw*.
+
+        If *mosaic* is a string, and thus all keys are single characters,
+        it is possible to use a single string instead of a tuple as keys;
+        i.e. ``"AB"`` is equivalent to ``("A", "B")``.
+
+        .. versionadded:: 3.7
 
     gridspec_kw : dict, optional
         Dictionary with keywords passed to the `.GridSpec` constructor used
@@ -1576,7 +1588,8 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
         mosaic, sharex=sharex, sharey=sharey,
         height_ratios=height_ratios, width_ratios=width_ratios,
         subplot_kw=subplot_kw, gridspec_kw=gridspec_kw,
-        empty_sentinel=empty_sentinel
+        empty_sentinel=empty_sentinel,
+        per_subplot_kw=per_subplot_kw,
     )
     return fig, ax_dict
 
@@ -2241,7 +2254,7 @@ if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (
             set(_interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):
-    dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
+    rcParams._set("backend", rcsetup._auto_backend_sentinel)
 
 
 ################# REMAINING CONTENT GENERATED BY boilerplate.py ##############
@@ -2755,7 +2768,7 @@ def pie(
         pctdistance=0.6, shadow=False, labeldistance=1.1,
         startangle=0, radius=1, counterclock=True, wedgeprops=None,
         textprops=None, center=(0, 0), frame=False,
-        rotatelabels=False, *, normalize=True, data=None):
+        rotatelabels=False, *, normalize=True, hatch=None, data=None):
     return gca().pie(
         x, explode=explode, labels=labels, colors=colors,
         autopct=autopct, pctdistance=pctdistance, shadow=shadow,
@@ -2763,7 +2776,7 @@ def pie(
         radius=radius, counterclock=counterclock,
         wedgeprops=wedgeprops, textprops=textprops, center=center,
         frame=frame, rotatelabels=rotatelabels, normalize=normalize,
-        **({"data": data} if data is not None else {}))
+        hatch=hatch, **({"data": data} if data is not None else {}))
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.

@@ -70,7 +70,7 @@ ax.set_ylabel('Likelihood of occurrence')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

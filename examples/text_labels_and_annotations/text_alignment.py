@@ -42,7 +42,7 @@ Texts are aligned relative to their anchor point depending on the properties
 
 """
 
-#############################################################################
+# %%
 # The following plot uses this to align text relative to a plotted rectangle.
 
 import matplotlib.pyplot as plt

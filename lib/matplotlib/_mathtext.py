@@ -64,8 +64,8 @@ def get_unicode_index(symbol, math=False):  # Publicly exported.
         return tex2uni[symbol.strip("\\")]
     except KeyError as err:
         raise ValueError(
-            "'{}' is not a valid Unicode character or TeX/Type1 symbol"
-            .format(symbol)) from err
+            f"{symbol!r} is not a valid Unicode character or TeX/Type1 symbol"
+            ) from err
 
 
 VectorParse = namedtuple("VectorParse", "width height depth glyphs rects",
@@ -273,7 +273,7 @@ class TruetypeFonts(Fonts):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Per-instance cache.
-        self._get_info = functools.lru_cache(None)(self._get_info)
+        self._get_info = functools.cache(self._get_info)
         self._fonts = {}
 
         filename = findfont(self.default_font_prop)
@@ -530,7 +530,7 @@ class UnicodeFonts(TruetypeFonts):
         except ValueError:
             uniindex = ord('?')
             found_symbol = False
-            _log.warning("No TeX to Unicode mapping for {!a}.".format(sym))
+            _log.warning("No TeX to Unicode mapping for %a.", sym)
 
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
@@ -576,9 +576,9 @@ class UnicodeFonts(TruetypeFonts):
                 if (fontname in ('it', 'regular')
                         and isinstance(self, StixFonts)):
                     return self._get_glyph('rm', font_class, sym)
-                _log.warning("Font {!r} does not have a glyph for {!a} "
-                             "[U+{:x}], substituting with a dummy "
-                             "symbol.".format(new_fontname, sym, uniindex))
+                _log.warning("Font %r does not have a glyph for %a [U+%x], "
+                             "substituting with a dummy symbol.",
+                             new_fontname, sym, uniindex)
                 font = self._get_font('rm')
                 uniindex = 0xA4  # currency char, for lack of anything better
                 slanted = False
@@ -752,7 +752,7 @@ class StixFonts(UnicodeFonts):
 
         return fontname, uniindex
 
-    @functools.lru_cache()
+    @functools.cache
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         fixes = {
             '\\{': '{', '\\}': '}', '\\[': '[', '\\]': ']',
@@ -1083,7 +1083,7 @@ class List(Box):
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
 
     def __repr__(self):
-        return '%s<w=%.02f h=%.02f d=%.02f s=%.02f>[%s]' % (
+        return '{}<w={:.02f} h={:.02f} d={:.02f} s={:.02f}>[{}]'.format(
             super().__repr__(),
             self.width, self.height,
             self.depth, self.shift_amount,

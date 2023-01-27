@@ -46,7 +46,7 @@ ax1.set_title('variable, asymmetric error')
 ax1.set_yscale('log')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

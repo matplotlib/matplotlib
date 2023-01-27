@@ -42,7 +42,7 @@ def _get_dash_pattern(style):
     # dashed styles
     elif style in ['dashed', 'dashdot', 'dotted']:
         offset = 0
-        dashes = tuple(mpl.rcParams['lines.{}_pattern'.format(style)])
+        dashes = tuple(mpl.rcParams[f'lines.{style}_pattern'])
     #
     elif isinstance(style, tuple):
         offset, dashes = style
@@ -133,7 +133,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
     if isinstance(markevery, tuple):
         if len(markevery) != 2:
             raise ValueError('`markevery` is a tuple but its len is not 2; '
-                             'markevery={}'.format(markevery))
+                             f'markevery={markevery}')
         start, step = markevery
         # if step is an int, old behavior
         if isinstance(step, Integral):
@@ -141,8 +141,8 @@ def _mark_every_path(markevery, tpath, affine, ax):
             if not isinstance(start, Integral):
                 raise ValueError(
                     '`markevery` is a tuple with len 2 and second element is '
-                    'an int, but the first element is not an int; markevery={}'
-                    .format(markevery))
+                    'an int, but the first element is not an int; '
+                    f'markevery={markevery}')
             # just return, we are done here
 
             return Path(verts[slice(start, None, step)],
@@ -153,7 +153,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
                 raise ValueError(
                     '`markevery` is a tuple with len 2 and second element is '
                     'a float, but the first element is not a float or an int; '
-                    'markevery={}'.format(markevery))
+                    f'markevery={markevery}')
             if ax is None:
                 raise ValueError(
                     "markevery is specified relative to the axes size, but "
@@ -262,9 +262,10 @@ class Line2D(Artist):
         elif self._x is None:
             return "Line2D()"
         elif len(self._x) > 3:
-            return "Line2D((%g,%g),(%g,%g),...,(%g,%g))" % (
-                self._x[0], self._y[0], self._x[0],
-                self._y[0], self._x[-1], self._y[-1])
+            return "Line2D(({:g},{:g}),({:g},{:g}),...,({:g},{:g}))".format(
+                self._x[0], self._y[0],
+                self._x[1], self._y[1],
+                self._x[-1], self._y[-1])
         else:
             return "Line2D(%s)" % ",".join(
                 map("({:g},{:g})".format, self._x, self._y))
@@ -1274,6 +1275,8 @@ class Line2D(Artist):
         ----------
         x : 1D array
         """
+        if not np.iterable(x):
+            raise RuntimeError('x must be a sequence')
         self._xorig = copy.copy(x)
         self._invalidx = True
         self.stale = True
@@ -1286,6 +1289,8 @@ class Line2D(Artist):
         ----------
         y : 1D array
         """
+        if not np.iterable(y):
+            raise RuntimeError('y must be a sequence')
         self._yorig = copy.copy(y)
         self._invalidy = True
         self.stale = True

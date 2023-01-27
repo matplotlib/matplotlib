@@ -36,7 +36,7 @@ plt.legend(title='Parameter where:')
 plt.title('plt.step(where=...)')
 plt.show()
 
-#############################################################################
+# %%
 # The same behavior can be achieved by using the ``drawstyle`` parameter of
 # `.pyplot.plot`.
 
@@ -54,7 +54,7 @@ plt.legend(title='Parameter drawstyle:')
 plt.title('plt.plot(drawstyle=...)')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

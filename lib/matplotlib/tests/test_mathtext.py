@@ -1,5 +1,6 @@
 import io
 from pathlib import Path
+import platform
 import re
 import shlex
 from xml.etree import ElementTree as ET
@@ -198,7 +199,8 @@ def baseline_images(request, fontset, index, text):
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
-@image_comparison(baseline_images=None)
+@image_comparison(baseline_images=None,
+                  tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
@@ -239,7 +241,8 @@ def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
-@image_comparison(baseline_images=None, extensions=['png'])
+@image_comparison(baseline_images=None, extensions=['png'],
+                  tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))

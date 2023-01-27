@@ -217,7 +217,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.19"),
+            ("numpy", "1.21"),
             ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)
@@ -231,7 +231,7 @@ _check_versions()
 
 # The decorator ensures this always returns the same handler (and it is only
 # attached once).
-@functools.lru_cache()
+@functools.cache
 def _ensure_handler():
     """
     The first time this function is called, attach a `StreamHandler` using the
@@ -247,11 +247,21 @@ def _ensure_handler():
 
 def set_loglevel(level):
     """
-    Set Matplotlib's root logger and root logger handler level, creating
-    the handler if it does not exist yet.
+    Configure Matplotlib's logging levels.
+
+    Matplotlib uses the standard library `logging` framework under the root
+    logger 'matplotlib'.  This is a helper function to:
+
+    - set Matplotlib's root logger level
+    - set the root logger handler's level, creating the handler
+      if it does not exist yet
 
     Typically, one should call ``set_loglevel("info")`` or
     ``set_loglevel("debug")`` to get additional debugging information.
+
+    Users or applications that are installing their own logging handlers
+    may want to directly manipulate ``logging.getLogger('matplotlib')`` rather
+    than use this function.
 
     Parameters
     ----------
@@ -263,6 +273,7 @@ def set_loglevel(level):
     The first time this function is called, an additional handler is attached
     to Matplotlib's root handler; this handler is reused every time and this
     function simply manipulates the logger and handler's level.
+
     """
     _log.setLevel(level.upper())
     _ensure_handler().setLevel(level.upper())
@@ -310,7 +321,7 @@ class ExecutableNotFoundError(FileNotFoundError):
     pass
 
 
-@functools.lru_cache()
+@functools.cache
 def _get_executable_info(name):
     """
     Get the version of some executable that Matplotlib optionally depends on.
@@ -353,7 +364,7 @@ def _get_executable_info(name):
         try:
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT,
-                universal_newlines=True, errors="replace")
+                text=True, errors="replace")
         except subprocess.CalledProcessError as _cpe:
             if ignore_exit_code:
                 output = _cpe.output
@@ -448,7 +459,7 @@ def _get_executable_info(name):
                 f"version supported by Matplotlib is 3.0")
         return info
     else:
-        raise ValueError("Unknown executable: {!r}".format(name))
+        raise ValueError(f"Unknown executable: {name!r}")
 
 
 @_api.deprecated("3.6", alternative="a vendored copy of this function")
@@ -620,7 +631,7 @@ _deprecated_remain_as_none = {}
 )
 class RcParams(MutableMapping, dict):
     """
-    A dictionary object including validation.
+    A dict-like key-value store for config parameters, including validation.
 
     Validating functions are defined and associated with rc parameters in
     :mod:`matplotlib.rcsetup`.
@@ -639,6 +650,47 @@ class RcParams(MutableMapping, dict):
     # validate values on the way in
     def __init__(self, *args, **kwargs):
         self.update(*args, **kwargs)
+
+    def _set(self, key, val):
+        """
+        Directly write data bypassing deprecation and validation logic.
+
+        Notes
+        -----
+        As end user or downstream library you almost always should use
+        ``rcParams[key] = val`` and not ``_set()``.
+
+        There are only very few special cases that need direct data access.
+        These cases previously used ``dict.__setitem__(rcParams, key, val)``,
+        which is now deprecated and replaced by ``rcParams._set(key, val)``.
+
+        Even though private, we guarantee API stability for ``rcParams._set``,
+        i.e. it is subject to Matplotlib's API and deprecation policy.
+
+        :meta public:
+        """
+        dict.__setitem__(self, key, val)
+
+    def _get(self, key):
+        """
+        Directly read data bypassing deprecation, backend and validation
+        logic.
+
+        Notes
+        -----
+        As end user or downstream library you almost always should use
+        ``val = rcParams[key]`` and not ``_get()``.
+
+        There are only very few special cases that need direct data access.
+        These cases previously used ``dict.__getitem__(rcParams, key, val)``,
+        which is now deprecated and replaced by ``rcParams._get(key)``.
+
+        Even though private, we guarantee API stability for ``rcParams._get``,
+        i.e. it is subject to Matplotlib's API and deprecation policy.
+
+        :meta public:
+        """
+        return dict.__getitem__(self, key)
 
     def __setitem__(self, key, val):
         try:
@@ -664,7 +716,7 @@ class RcParams(MutableMapping, dict):
                 cval = self.validate[key](val)
             except ValueError as ve:
                 raise ValueError(f"Key {key}: {ve}") from None
-            dict.__setitem__(self, key, cval)
+            self._set(key, cval)
         except KeyError as err:
             raise KeyError(
                 f"{key} is not a valid rc parameter (see rcParams.keys() for "
@@ -675,27 +727,27 @@ class RcParams(MutableMapping, dict):
             version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
             _api.warn_deprecated(
                 version, name=key, obj_type="rcparam", alternative=alt_key)
-            return inverse_alt(dict.__getitem__(self, alt_key))
+            return inverse_alt(self._get(alt_key))
 
         elif key in _deprecated_ignore_map:
             version, alt_key = _deprecated_ignore_map[key]
             _api.warn_deprecated(
                 version, name=key, obj_type="rcparam", alternative=alt_key)
-            return dict.__getitem__(self, alt_key) if alt_key else None
+            return self._get(alt_key) if alt_key else None
 
         # In theory, this should only ever be used after the global rcParams
         # has been set up, but better be safe e.g. in presence of breakpoints.
         elif key == "backend" and self is globals().get("rcParams"):
-            val = dict.__getitem__(self, key)
+            val = self._get(key)
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
 
-        return dict.__getitem__(self, key)
+        return self._get(key)
 
     def _get_backend_or_none(self):
         """Get the requested backend, if any, without triggering resolution."""
-        backend = dict.__getitem__(self, "backend")
+        backend = self._get("backend")
         return None if backend is rcsetup._auto_backend_sentinel else backend
 
     def __repr__(self):
@@ -705,7 +757,7 @@ class RcParams(MutableMapping, dict):
             repr_split = pprint.pformat(dict(self), indent=1,
                                         width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
-        return '{}({})'.format(class_name, repr_indented)
+        return f'{class_name}({repr_indented})'
 
     def __str__(self):
         return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
@@ -738,7 +790,7 @@ class RcParams(MutableMapping, dict):
         """Copy this RcParams instance."""
         rccopy = RcParams()
         for k in self:  # Skip deprecations and revalidation.
-            dict.__setitem__(rccopy, k, dict.__getitem__(self, k))
+            rccopy._set(k, self._get(k))
         return rccopy
 
 
@@ -747,7 +799,7 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
-@functools.lru_cache()
+@functools.cache
 def _get_ssl_context():
     try:
         import certifi
@@ -989,7 +1041,7 @@ def rc(group, **kwargs):
     for g in group:
         for k, v in kwargs.items():
             name = aliases.get(k) or k
-            key = '%s.%s' % (g, name)
+            key = f'{g}.{name}'
             try:
                 rcParams[key] = v
             except KeyError as err:
@@ -1226,12 +1278,6 @@ def is_interactive():
     return rcParams['interactive']
 
 
-default_test_modules = [
-    'matplotlib.tests',
-    'mpl_toolkits.tests',
-]
-
-
 def _init_tests():
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
@@ -1248,58 +1294,6 @@ def _init_tests():
             f"Found freetype version {ft2font.__freetype_version__}.  "
             "Freetype build type is {}local".format(
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
-
-
-@_api.deprecated("3.5", alternative='pytest')
-def test(verbosity=None, coverage=False, **kwargs):
-    """Run the matplotlib test suite."""
-
-    try:
-        import pytest
-    except ImportError:
-        print("matplotlib.test requires pytest to run.")
-        return -1
-
-    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        print("Matplotlib test data is not installed")
-        return -1
-
-    old_backend = get_backend()
-    try:
-        use('agg')
-
-        args = kwargs.pop('argv', [])
-        provide_default_modules = True
-        use_pyargs = True
-        for arg in args:
-            if any(arg.startswith(module_path)
-                   for module_path in default_test_modules):
-                provide_default_modules = False
-                break
-            if os.path.exists(arg):
-                provide_default_modules = False
-                use_pyargs = False
-                break
-        if use_pyargs:
-            args += ['--pyargs']
-        if provide_default_modules:
-            args += default_test_modules
-
-        if coverage:
-            args += ['--cov']
-
-        if verbosity:
-            args += ['-' + 'v' * verbosity]
-
-        retcode = pytest.main(args, **kwargs)
-    finally:
-        if old_backend.lower() != 'agg':
-            use(old_backend)
-
-    return retcode
-
-
-test.__test__ = False  # pytest: this function is not a test
 
 
 def _replacer(data, value):
@@ -1436,11 +1430,11 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     arg_names = arg_names[1:]  # remove the first "ax" / self arg
 
     assert {*arg_names}.issuperset(replace_names or []) or varkwargs_name, (
-        "Matplotlib internal error: invalid replace_names ({!r}) for {!r}"
-        .format(replace_names, func.__name__))
+        "Matplotlib internal error: invalid replace_names "
+        f"({replace_names!r}) for {func.__name__!r}")
     assert label_namer is None or label_namer in arg_names, (
-        "Matplotlib internal error: invalid label_namer ({!r}) for {!r}"
-        .format(label_namer, func.__name__))
+        "Matplotlib internal error: invalid label_namer "
+        f"({label_namer!r}) for {func.__name__!r}")
 
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):

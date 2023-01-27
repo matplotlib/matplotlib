@@ -52,7 +52,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
 
-###############################################################################
+# %%
 # .. _importing_data:
 #
 # Importing image data into Numpy arrays
@@ -80,7 +80,7 @@ from PIL import Image
 img = np.asarray(Image.open('../../doc/_static/stinkbug.png'))
 print(repr(img))
 
-###############################################################################
+# %%
 # Each inner list represents a pixel.  Here, with an RGB image, there
 # are 3 values.  Since it's a black and white image, R, G, and B are all
 # similar.  An RGBA (where A is alpha, or transparency) has 4 values
@@ -103,7 +103,7 @@ print(repr(img))
 
 imgplot = plt.imshow(img)
 
-###############################################################################
+# %%
 # You can also plot any numpy array.
 #
 # .. _Pseudocolor:
@@ -126,21 +126,21 @@ imgplot = plt.imshow(img)
 lum_img = img[:, :, 0]
 plt.imshow(lum_img)
 
-###############################################################################
+# %%
 # Now, with a luminosity (2D, no color) image, the default colormap (aka lookup table,
 # LUT), is applied.  The default is called viridis.  There are plenty of
 # others to choose from.
 
 plt.imshow(lum_img, cmap="hot")
 
-###############################################################################
+# %%
 # Note that you can also change colormaps on existing plot objects using the
 # :meth:`~matplotlib.cm.ScalarMappable.set_cmap` method:
 
 imgplot = plt.imshow(lum_img)
 imgplot.set_cmap('nipy_spectral')
 
-###############################################################################
+# %%
 #
 # .. note::
 #
@@ -166,7 +166,7 @@ imgplot.set_cmap('nipy_spectral')
 imgplot = plt.imshow(lum_img)
 plt.colorbar()
 
-###############################################################################
+# %%
 # .. _`Data ranges`:
 #
 # Examining a specific data range
@@ -180,7 +180,7 @@ plt.colorbar()
 
 plt.hist(lum_img.ravel(), bins=range(256), fc='k', ec='k')
 
-###############################################################################
+# %%
 # Most often, the "interesting" part of the image is around the peak,
 # and you can get extra contrast by clipping the regions above and/or
 # below the peak.  In our histogram, it looks like there's not much
@@ -194,7 +194,7 @@ plt.hist(lum_img.ravel(), bins=range(256), fc='k', ec='k')
 
 plt.imshow(lum_img, clim=(0, 175))
 
-###############################################################################
+# %%
 # This can also be done by calling the
 # :meth:`~matplotlib.cm.ScalarMappable.set_clim` method of the returned image
 # plot object, but make sure that you do so in the same cell as your plot
@@ -204,7 +204,7 @@ plt.imshow(lum_img, clim=(0, 175))
 imgplot = plt.imshow(lum_img)
 imgplot.set_clim(0, 175)
 
-###############################################################################
+# %%
 # .. _Interpolation:
 #
 # Array Interpolation schemes
@@ -230,7 +230,7 @@ img = Image.open('../../doc/_static/stinkbug.png')
 img.thumbnail((64, 64))  # resizes image in-place
 imgplot = plt.imshow(img)
 
-###############################################################################
+# %%
 # Here we use the default interpolation ("nearest"), since we did not
 # give :func:`~matplotlib.pyplot.imshow` any interpolation argument.
 #
@@ -238,11 +238,11 @@ imgplot = plt.imshow(img)
 
 imgplot = plt.imshow(img, interpolation="bilinear")
 
-###############################################################################
+# %%
 # and bicubic:
 
 imgplot = plt.imshow(img, interpolation="bicubic")
 
-###############################################################################
+# %%
 # Bicubic interpolation is often used when blowing up photos - people
 # tend to prefer blurry over pixelated.

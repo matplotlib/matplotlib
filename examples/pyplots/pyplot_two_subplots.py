@@ -1,10 +1,11 @@
 """
-===================
-Pyplot Two Subplots
-===================
+=========================
+Two subplots using pyplot
+=========================
 
-Create a figure with two subplots with `.pyplot.subplot`.
+Create a figure with two subplots using `.pyplot.subplot`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -25,7 +26,7 @@ plt.subplot(212)
 plt.plot(t2, np.cos(2*np.pi*t2), color='tab:orange', linestyle='--')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

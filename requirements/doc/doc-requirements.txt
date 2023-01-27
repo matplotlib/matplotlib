@@ -7,7 +7,7 @@
 # Install the documentation requirements with:
 #     pip install -r requirements/doc/doc-requirements.txt
 #
-sphinx>=3.0.0
+sphinx>=3.0.0,!=6.1.2
 colorspacious
 ipython
 ipywidgets
@@ -15,6 +15,7 @@ numpydoc>=1.0
 packaging>=20
 pydata-sphinx-theme>=0.12.0
 mpl-sphinx-theme
+pyyaml
 sphinxcontrib-svg2pdfconverter>=1.1.0
 sphinx-gallery>=0.10
 sphinx-copybutton

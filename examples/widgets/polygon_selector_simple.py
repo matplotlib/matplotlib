@@ -9,7 +9,7 @@ Shows how to create a polygon programmatically or interactively
 import matplotlib.pyplot as plt
 from matplotlib.widgets import PolygonSelector
 
-###############################################################################
+# %%
 #
 # To create the polygon programmatically
 fig, ax = plt.subplots()
@@ -21,7 +21,7 @@ selector = PolygonSelector(ax, lambda *args: None)
 selector.verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
 
 
-###############################################################################
+# %%
 #
 # To create the polygon interactively
 
@@ -36,7 +36,7 @@ print("Try holding the 'shift' key to move all of the vertices.")
 print("Try holding the 'ctrl' key to move a single vertex.")
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

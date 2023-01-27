@@ -7,7 +7,7 @@ or Matplotlib can set them automatically based on the data already on the axes.
 There are a number of options to this autoscaling behaviour, discussed below.
 """
 
-###############################################################################
+# %%
 # We will start with a simple line plot showing that autoscaling
 # extends the axis limits 5% beyond the data limits (-2π, 2π).
 
@@ -21,21 +21,21 @@ y = np.sinc(x)
 fig, ax = plt.subplots()
 ax.plot(x, y)
 
-###############################################################################
+# %%
 # Margins
 # -------
 # The default margin around the data limits is 5%:
 
 print(ax.margins())
 
-###############################################################################
+# %%
 # The margins can be made larger using `~matplotlib.axes.Axes.margins`:
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.margins(0.2, 0.2)
 
-###############################################################################
+# %%
 # In general, margins can be in the range (-0.5, ∞), where negative margins set
 # the axes limits to a subrange of the data range, i.e. they clip data.
 # Using a single number for margins affects both axes, a single margin can be
@@ -46,7 +46,7 @@ fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.margins(y=-0.2)
 
-###############################################################################
+# %%
 # Sticky edges
 # ------------
 # There are plot elements (`.Artist`\s) that are usually used without margins.
@@ -64,7 +64,7 @@ ax[1].imshow(zz)
 ax[1].margins(0.2)
 ax[1].set_title("margins(0.2)")
 
-###############################################################################
+# %%
 # This override of margins is determined by "sticky edges", a
 # property of `.Artist` class that can suppress adding margins to axis
 # limits. The effect of sticky edges can be disabled on an Axes by changing
@@ -87,7 +87,7 @@ ax[2].imshow(zz)
 ax[2].margins(-0.2)
 ax[2].set_title("default use_sticky_edges\nmargins(-0.2)")
 
-###############################################################################
+# %%
 # We can see that setting ``use_sticky_edges`` to *False* renders the image
 # with requested margins.
 #
@@ -108,7 +108,7 @@ ax[1].plot(x, y)
 ax[1].plot(x * 2.0, y)
 ax[1].set_title("Two curves")
 
-###############################################################################
+# %%
 # However, there are cases when you don't want to automatically adjust the
 # viewport to new data.
 #
@@ -129,14 +129,14 @@ ax[1].plot(x + np.pi * 0.5, y)
 ax[1].autoscale()
 ax[1].set_title("set_xlim(left=-1, right=1)\nautoscale()")
 
-###############################################################################
+# %%
 # We can check that the first plot has autoscale disabled and that the second
 # plot has it enabled again by using `.Axes.get_autoscale_on()`:
 
 print(ax[0].get_autoscale_on())  # False means disabled
 print(ax[1].get_autoscale_on())  # True means enabled -> recalculated
 
-###############################################################################
+# %%
 # Arguments of the autoscale function give us precise control over the process
 # of autoscaling. A combination of arguments ``enable``, and ``axis`` sets the
 # autoscaling feature for the selected axis (or both). The argument ``tight``
@@ -152,7 +152,7 @@ ax.autoscale(enable=None, axis="x", tight=True)
 
 print(ax.margins())
 
-###############################################################################
+# %%
 # Working with collections
 # ------------------------
 #

@@ -109,3 +109,15 @@ div.graphviz {
 img.graphviz.inheritance {
     max-width: none;
 }
+
+/* Make tables in notes horizontally scrollable if too large. */
+div.wide-table {
+    overflow-x: auto;
+}
+
+div.wide-table table th.stub {
+    background-color: var(--pst-color-background);
+    background-clip: padding-box;
+    left: 0;
+    position: sticky;
+}

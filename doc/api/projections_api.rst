@@ -6,16 +6,13 @@
    :members:
    :show-inheritance:
 
-``matplotlib.projections.polar``
-================================
+Built-in projections
+====================
+Matplotlib has built-in support for polar and some geographic projections.
+See the following pages for more information:
 
-.. automodule:: matplotlib.projections.polar
-   :members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 1
 
-``matplotlib.projections.geo``
-==============================
-
-.. automodule:: matplotlib.projections.geo
-   :members:
-   :show-inheritance:
+   projections/polar
+   projections/geo

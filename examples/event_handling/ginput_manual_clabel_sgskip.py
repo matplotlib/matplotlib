@@ -26,7 +26,7 @@ def tellme(s):
     plt.title(s, fontsize=16)
     plt.draw()
 
-##################################################
+# %%
 # Define a triangle by clicking three points
 
 
@@ -59,7 +59,7 @@ while True:
         p.remove()
 
 
-##################################################
+# %%
 # Now contour according to distance from triangle
 # corners - just an example
 
@@ -79,7 +79,7 @@ CS = plt.contour(X, Y, Z, 20)
 tellme('Use mouse to select contour label locations, middle button to finish')
 CL = plt.clabel(CS, manual=True)
 
-##################################################
+# %%
 # Now do a zoom
 
 tellme('Now do a nested zoom, click to begin')

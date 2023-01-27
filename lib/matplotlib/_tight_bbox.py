@@ -17,8 +17,6 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     """
     origBbox = fig.bbox
     origBboxInches = fig.bbox_inches
-    orig_layout = fig.get_layout_engine()
-    fig.set_layout_engine(None)
     _boxout = fig.transFigure._boxout
 
     old_aspect = []
@@ -46,7 +44,6 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
 
         fig.bbox = origBbox
         fig.bbox_inches = origBboxInches
-        fig.set_layout_engine(orig_layout)
         fig.transFigure._boxout = _boxout
         fig.transFigure.invalidate()
         fig.patch.set_bounds(0, 0, 1, 1)

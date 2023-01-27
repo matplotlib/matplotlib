@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
 
-#############################################################################
+# %%
 # First, the default formatter.
 
 base = datetime.datetime(2005, 2, 1)
@@ -43,7 +43,7 @@ for nn, ax in enumerate(axs):
 axs[0].set_title('Default Date Formatter')
 plt.show()
 
-#############################################################################
+# %%
 # The default date formatter is quite verbose, so we have the option of
 # using `~.dates.ConciseDateFormatter`, as shown below.  Note that
 # for this example the labels do not need to be rotated as they do for the
@@ -62,7 +62,7 @@ axs[0].set_title('Concise Date Formatter')
 
 plt.show()
 
-#############################################################################
+# %%
 # If all calls to axes that have dates are to be made using this converter,
 # it is probably most convenient to use the units registry where you do
 # imports:
@@ -81,7 +81,7 @@ axs[0].set_title('Concise Date Formatter')
 
 plt.show()
 
-#############################################################################
+# %%
 # Localization of date formats
 # ============================
 #
@@ -138,7 +138,7 @@ axs[0].set_title('Concise Date Formatter')
 
 plt.show()
 
-#############################################################################
+# %%
 # Registering a converter with localization
 # =========================================
 #

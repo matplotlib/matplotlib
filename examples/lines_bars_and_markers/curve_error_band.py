@@ -24,7 +24,7 @@ fig, ax = plt.subplots()
 ax.plot(x, y, "k")
 ax.set(aspect=1)
 
-#############################################################################
+# %%
 # An error band can be used to indicate the uncertainty of the curve.
 # In this example we assume that the error can be given as a scalar *err*
 # that describes the uncertainty perpendicular to the curve in every point.
@@ -77,7 +77,7 @@ for i, (ax, title, err) in enumerate(errs):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

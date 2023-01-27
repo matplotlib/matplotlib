@@ -28,7 +28,7 @@ If mainly interested in the former, you may copy the below class and jump to
 the :ref:`angle-annotation-usage` section.
 """
 
-#########################################################################
+# %%
 # AngleAnnotation class
 # ~~~~~~~~~~~~~~~~~~~~~
 # The essential idea here is to subclass `~.patches.Arc` and set its transform
@@ -210,7 +210,7 @@ class AngleAnnotation(Arc):
             self.text.set_position([offs*np.cos(angle), offs*np.sin(angle)])
 
 
-#########################################################################
+# %%
 # .. _angle-annotation-usage:
 #
 # Usage
@@ -251,7 +251,7 @@ am5 = AngleAnnotation(p[1], p[0], p[2], ax=ax, size=40, text=r"$\Phi$",
                       text_kw=dict(fontsize=16, color="gray"))
 
 
-#########################################################################
+# %%
 # ``AngleLabel`` options
 # ~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -310,7 +310,7 @@ for x, text in zip([2.0, 3.5, 5.0, 6.5], ['"pixels"', '"points"',
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

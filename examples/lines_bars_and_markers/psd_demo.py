@@ -31,7 +31,7 @@ ax1.psd(s, 512, 1 / dt)
 
 plt.show()
 
-###############################################################################
+# %%
 # Compare this with the equivalent Matlab code to accomplish the same thing::
 #
 #     dt = 0.01;
@@ -99,7 +99,7 @@ for title, ax in axs.items():
 plt.show()
 
 
-###############################################################################
+# %%
 # This is a ported version of a MATLAB example from the signal
 # processing toolbox that showed some difference at one time between
 # Matplotlib's and MATLAB's scaling of the PSD.
@@ -136,7 +136,7 @@ ax1.set_ylim(yrange)
 
 plt.show()
 
-###############################################################################
+# %%
 # This is a ported version of a MATLAB example from the signal
 # processing toolbox that showed some difference at one time between
 # Matplotlib's and MATLAB's scaling of the PSD.

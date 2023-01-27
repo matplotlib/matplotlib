@@ -89,8 +89,8 @@ way of defining empty, and checking the above is only rarely necessary.
 Usually the user or program handling the figure know if they have added
 something to the figure.
 
-Checking whether a figure would render empty cannot be reliably checked except
-by actually rendering the figure and investigating the rendered result.
+The only reliable way to check whether a figure would render empty is to
+actually perform such a rendering and inspect the result.
 
 .. _howto-findobj:
 

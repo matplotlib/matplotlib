@@ -51,7 +51,7 @@ the_table = plt.table(cellText=cell_text,
 # Adjust layout to make room for the table:
 plt.subplots_adjust(left=0.2, bottom=0.2)
 
-plt.ylabel("Loss in ${0}'s".format(value_increment))
+plt.ylabel(f"Loss in ${value_increment}'s")
 plt.yticks(values * value_increment, ['%d' % val for val in values])
 plt.xticks([])
 plt.title('Loss by Disaster')

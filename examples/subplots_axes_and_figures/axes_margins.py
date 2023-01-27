@@ -39,7 +39,7 @@ ax3.set_title('Zoomed in')
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # On the "stickiness" of certain plotting methods
 # """""""""""""""""""""""""""""""""""""""""""""""
@@ -69,12 +69,12 @@ for ax, status in zip((ax1, ax2), ('Is', 'Is Not')):
     )  # not sticky
     ax.margins(x=0.1, y=0.05)
     ax.set_aspect('equal')
-    ax.set_title('{} Sticky'.format(status))
+    ax.set_title(f'{status} Sticky')
 
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -1,0 +1,3 @@
+``AxesImage.set_extent`` now raises ``TypeError`` for unknown keyword arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It previously raised a `ValueError`.

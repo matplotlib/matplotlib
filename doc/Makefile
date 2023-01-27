@@ -33,6 +33,13 @@ html-noplot:
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
+# This will skip the subdirectories listed in .mpl_skip_subdirs.yaml If
+# this file does not exist, one will be created for you.  This option useful
+# to quickly build parts of the docs, but the resulting build will not
+# have all the crosslinks etc.
+html-skip-subdirs:
+	$(SPHINXBUILD) -D skip_sub_dirs=1 -b html $(SOURCEDIR) $(BUILDDIR)/html $(SPHINXOPTS) $(O)
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile

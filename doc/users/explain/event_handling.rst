@@ -85,25 +85,124 @@ Event name             Class            Description
    what you may expect to receive as key(s) (using a QWERTY keyboard layout)
    from the different user interface toolkits, where a comma separates different keys:
 
-   ================ ============================= ============================== ============================== ============================== ============================== ===================================
-   Key(s) Pressed   WxPython                      Qt                             WebAgg                         Gtk                            Tkinter                        macosx
-   ================ ============================= ============================== ============================== ============================== ============================== ===================================
-   Shift+2          shift, shift+2                shift, @                       shift, @                       shift, @                       shift, @                       shift, @
-   Shift+F1         shift, shift+f1               shift, shift+f1                shift, shift+f1                shift, shift+f1                shift, shift+f1                shift, shift+f1
-   Shift            shift                         shift                          shift                          shift                          shift                          shift
-   Control          control                       control                        control                        control                        control                        control
-   Alt              alt                           alt                            alt                            alt                            alt                            alt
-   AltGr            Nothing                       Nothing                        alt                            iso_level3_shift               iso_level3_shift
-   CapsLock         caps_lock                     caps_lock                      caps_lock                      caps_lock                      caps_lock                      caps_lock
-   CapsLock+a       caps_lock, a                  caps_lock, a                   caps_lock, A                   caps_lock, A                   caps_lock, A                   caps_lock, a
-   a                a                             a                              a                              a                              a                              a
-   Shift+a          shift, A                      shift, A                       shift, A                       shift, A                       shift, A                       shift, A
-   CapsLock+Shift+a caps_lock, shift, A           caps_lock, shift, A            caps_lock, shift, a            caps_lock, shift, a            caps_lock, shift, a            caps_lock, shift, A
-   Ctrl+Shift+Alt   control, ctrl+shift, ctrl+alt control, ctrl+shift, ctrl+meta control, ctrl+shift, ctrl+meta control, ctrl+shift, ctrl+meta control, ctrl+shift, ctrl+meta control, ctrl+shift, ctrl+alt+shift
-   Ctrl+Shift+a     control, ctrl+shift, ctrl+A   control, ctrl+shift, ctrl+A    control, ctrl+shift, ctrl+A    control, ctrl+shift, ctrl+A    control, ctrl+shift, ctrl+a    control, ctrl+shift, ctrl+A
-   F1               f1                            f1                             f1                             f1                             f1                             f1
-   Ctrl+F1          control, ctrl+f1              control, ctrl+f1               control, ctrl+f1               control, ctrl+f1               control, ctrl+f1               control, Nothing
-   ================ ============================= ============================== ============================== ============================== ============================== ===================================
+   .. container:: wide-table
+
+      .. list-table::
+         :header-rows: 1
+         :stub-columns: 1
+
+         * - Key(s) Pressed
+           - Tkinter
+           - Qt
+           - macosx
+           - WebAgg
+           - GTK
+           - WxPython
+         * - :kbd:`Shift+2`
+           - shift, @
+           - shift, @
+           - shift, @
+           - shift, @
+           - shift, @
+           - shift, shift+2
+         * - :kbd:`Shift+F1`
+           - shift, shift+f1
+           - shift, shift+f1
+           - shift, shift+f1
+           - shift, shift+f1
+           - shift, shift+f1
+           - shift, shift+f1
+         * - :kbd:`Shift`
+           - shift
+           - shift
+           - shift
+           - shift
+           - shift
+           - shift
+         * - :kbd:`Control`
+           - control
+           - control
+           - control
+           - control
+           - control
+           - control
+         * - :kbd:`Alt`
+           - alt
+           - alt
+           - alt
+           - alt
+           - alt
+           - alt
+         * - :kbd:`AltGr`
+           - iso_level3_shift
+           - *nothing*
+           -
+           - alt
+           - iso_level3_shift
+           - *nothing*
+         * - :kbd:`CapsLock`
+           - caps_lock
+           - caps_lock
+           - caps_lock
+           - caps_lock
+           - caps_lock
+           - caps_lock
+         * - :kbd:`CapsLock+a`
+           - caps_lock, A
+           - caps_lock, a
+           - caps_lock, a
+           - caps_lock, A
+           - caps_lock, A
+           - caps_lock, a
+         * - :kbd:`a`
+           - a
+           - a
+           - a
+           - a
+           - a
+           - a
+         * - :kbd:`Shift+a`
+           - shift, A
+           - shift, A
+           - shift, A
+           - shift, A
+           - shift, A
+           - shift, A
+         * - :kbd:`CapsLock+Shift+a`
+           - caps_lock, shift, a
+           - caps_lock, shift, A
+           - caps_lock, shift, A
+           - caps_lock, shift, a
+           - caps_lock, shift, a
+           - caps_lock, shift, A
+         * - :kbd:`Ctrl+Shift+Alt`
+           - control, ctrl+shift, ctrl+meta
+           - control, ctrl+shift, ctrl+meta
+           - control, ctrl+shift, ctrl+alt+shift
+           - control, ctrl+shift, ctrl+meta
+           - control, ctrl+shift, ctrl+meta
+           - control, ctrl+shift, ctrl+alt
+         * - :kbd:`Ctrl+Shift+a`
+           - control, ctrl+shift, ctrl+a
+           - control, ctrl+shift, ctrl+A
+           - control, ctrl+shift, ctrl+A
+           - control, ctrl+shift, ctrl+A
+           - control, ctrl+shift, ctrl+A
+           - control, ctrl+shift, ctrl+A
+         * - :kbd:`F1`
+           - f1
+           - f1
+           - f1
+           - f1
+           - f1
+           - f1
+         * - :kbd:`Ctrl+F1`
+           - control, ctrl+f1
+           - control, ctrl+f1
+           - control, *nothing*
+           - control, ctrl+f1
+           - control, ctrl+f1
+           - control, ctrl+f1
 
 Matplotlib attaches some keypress callbacks by default for interactivity; they
 are documented in the :ref:`key-event-handling` section.

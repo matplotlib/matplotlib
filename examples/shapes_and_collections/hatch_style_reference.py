@@ -30,7 +30,7 @@ def hatches_plot(ax, h):
 for ax, h in zip(axs.flat, hatches):
     hatches_plot(ax, h)
 
-###############################################################################
+# %%
 # Hatching patterns can be repeated to increase the density.
 
 fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(6.4, 3.2))
@@ -40,7 +40,7 @@ hatches = ['//', '\\\\', '||', '--', '++', 'xx', 'oo', 'OO', '..', '**']
 for ax, h in zip(axs.flat, hatches):
     hatches_plot(ax, h)
 
-###############################################################################
+# %%
 # Hatching patterns can be combined to create additional patterns.
 
 fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(6.4, 3.2))
@@ -50,7 +50,7 @@ hatches = ['/o', '\\|', '|*', '-\\', '+o', 'x*', 'o-', 'O|', 'O.', '*-']
 for ax, h in zip(axs.flat, hatches):
     hatches_plot(ax, h)
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

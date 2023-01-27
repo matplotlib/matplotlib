@@ -14,7 +14,7 @@ import numpy as np
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
-###############################################################################
+# %%
 # Define our surface
 
 delta = 0.025
@@ -25,7 +25,7 @@ Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
-###############################################################################
+# %%
 # Make contour labels with custom level formatters
 
 
@@ -44,7 +44,7 @@ CS = ax.contour(X, Y, Z)
 
 ax.clabel(CS, CS.levels, inline=True, fmt=fmt, fontsize=10)
 
-###############################################################################
+# %%
 # Label contours with arbitrary strings using a dictionary
 
 fig1, ax1 = plt.subplots()
@@ -60,7 +60,7 @@ for l, s in zip(CS1.levels, strs):
 # Label every other level using strings
 ax1.clabel(CS1, CS1.levels[::2], inline=True, fmt=fmt, fontsize=10)
 
-###############################################################################
+# %%
 # Use a Formatter
 
 fig2, ax2 = plt.subplots()
@@ -73,7 +73,7 @@ ax2.set_title("$100^Z$")
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

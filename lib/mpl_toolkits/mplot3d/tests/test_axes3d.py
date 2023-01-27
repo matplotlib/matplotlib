@@ -310,6 +310,23 @@ def test_plot_scalar(fig_test, fig_ref):
     ax2.plot(1, 1, "o")
 
 
+def test_invalid_line_data():
+    with pytest.raises(RuntimeError, match='x must be'):
+        art3d.Line3D(0, [], [])
+    with pytest.raises(RuntimeError, match='y must be'):
+        art3d.Line3D([], 0, [])
+    with pytest.raises(RuntimeError, match='z must be'):
+        art3d.Line3D([], [], 0)
+
+    line = art3d.Line3D([], [], [])
+    with pytest.raises(RuntimeError, match='x must be'):
+        line.set_data_3d(0, [], [])
+    with pytest.raises(RuntimeError, match='y must be'):
+        line.set_data_3d([], 0, [])
+    with pytest.raises(RuntimeError, match='z must be'):
+        line.set_data_3d([], [], 0)
+
+
 @mpl3d_image_comparison(['mixedsubplot.png'])
 def test_mixedsubplots():
     def f(t):
@@ -591,6 +608,16 @@ def test_surface3d_masked():
     ax.view_init(30, -80, 0)
 
 
+@check_figures_equal(extensions=["png"])
+def test_plot_surface_None_arg(fig_test, fig_ref):
+    x, y = np.meshgrid(np.arange(5), np.arange(5))
+    z = x + y
+    ax_test = fig_test.add_subplot(projection='3d')
+    ax_test.plot_surface(x, y, z, facecolors=None)
+    ax_ref = fig_ref.add_subplot(projection='3d')
+    ax_ref.plot_surface(x, y, z)
+
+
 @mpl3d_image_comparison(['surface3d_masked_strides.png'])
 def test_surface3d_masked_strides():
     fig = plt.figure()
@@ -730,16 +757,25 @@ def test_mixedsamplesraises():
         ax.plot_surface(X, Y, Z, cstride=50, rcount=10)
 
 
-@mpl3d_image_comparison(
-    ['quiver3d.png', 'quiver3d_pivot_middle.png', 'quiver3d_pivot_tail.png'])
+@mpl3d_image_comparison(['quiver3d.png'], style='mpl20')
 def test_quiver3d():
-    x, y, z = np.ogrid[-1:0.8:10j, -1:0.8:10j, -1:0.6:3j]
-    u = np.sin(np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
-    v = -np.cos(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
-    w = (2/3)**0.5 * np.cos(np.pi * x) * np.cos(np.pi * y) * np.sin(np.pi * z)
-    for pivot in ['tip', 'middle', 'tail']:
-        ax = plt.figure().add_subplot(projection='3d')
-        ax.quiver(x, y, z, u, v, w, length=0.1, pivot=pivot, normalize=True)
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    pivots = ['tip', 'middle', 'tail']
+    colors = ['tab:blue', 'tab:orange', 'tab:green']
+    for i, (pivot, color) in enumerate(zip(pivots, colors)):
+        x, y, z = np.meshgrid([-0.5, 0.5], [-0.5, 0.5], [-0.5, 0.5])
+        u = -x
+        v = -y
+        w = -z
+        # Offset each set in z direction
+        z += 2 * i
+        ax.quiver(x, y, z, u, v, w, length=1, pivot=pivot, color=color)
+        ax.scatter(x, y, z, color=color)
+
+    ax.set_xlim(-3, 3)
+    ax.set_ylim(-3, 3)
+    ax.set_zlim(-1, 5)
 
 
 @check_figures_equal(extensions=["png"])
@@ -1103,8 +1139,8 @@ def test_lines_dists():
     ys = (100, 150, 30, 200)
     ax.scatter(xs, ys)
 
-    dist0 = proj3d._line2d_seg_dist(p0, p1, (xs[0], ys[0]))
-    dist = proj3d._line2d_seg_dist(p0, p1, np.array((xs, ys)))
+    dist0 = proj3d._line2d_seg_dist((xs[0], ys[0]), p0, p1)
+    dist = proj3d._line2d_seg_dist(np.array((xs, ys)).T, p0, p1)
     assert dist0 == dist[0]
 
     for x, y, d in zip(xs, ys, dist):
@@ -1116,15 +1152,11 @@ def test_lines_dists():
 
 
 def test_lines_dists_nowarning():
-    # Smoke test to see that no RuntimeWarning is emitted when two first
-    # arguments are the same, see GH#22624
-    p0 = (10, 30, 50)
-    p1 = (10, 30, 20)
-    p2 = (20, 150)
-    proj3d._line2d_seg_dist(p0, p0, p2)
-    proj3d._line2d_seg_dist(p0, p1, p2)
-    p0 = np.array(p0)
-    proj3d._line2d_seg_dist(p0, p0, p2)
+    # No RuntimeWarning must be emitted for degenerate segments, see GH#22624.
+    s0 = (10, 30, 50)
+    p = (20, 150, 180)
+    proj3d._line2d_seg_dist(p, s0, s0)
+    proj3d._line2d_seg_dist(np.array(p), s0, s0)
 
 
 def test_autoscale():
@@ -1773,9 +1805,9 @@ def test_toolbar_zoom_pan(tool, button, key, expected):
 @check_figures_equal(extensions=["png"])
 def test_scalarmap_update(fig_test, fig_ref):
 
-    x, y, z = np.array((list(itertools.product(*[np.arange(0, 5, 1),
-                                                 np.arange(0, 5, 1),
-                                                 np.arange(0, 5, 1)])))).T
+    x, y, z = np.array(list(itertools.product(*[np.arange(0, 5, 1),
+                                                np.arange(0, 5, 1),
+                                                np.arange(0, 5, 1)]))).T
     c = x + y
 
     # test

@@ -1,6 +1,6 @@
 from collections import namedtuple
 import contextlib
-from functools import lru_cache, wraps
+from functools import cache, wraps
 import inspect
 from inspect import Signature, Parameter
 import logging
@@ -765,6 +765,11 @@ class Artist:
         Parameters
         ----------
         clipbox : `.Bbox`
+
+            Typically would be created from a `.TransformedBbox`. For
+            instance ``TransformedBbox(Bbox([[0, 0], [1, 1]]), ax.transAxes)``
+            is the default clipping for an artist added to an Axes.
+
         """
         self.clipbox = clipbox
         self.pchanged()
@@ -825,8 +830,8 @@ class Artist:
 
         if not success:
             raise TypeError(
-                "Invalid arguments to set_clip_path, of type {} and {}"
-                .format(type(path).__name__, type(transform).__name__))
+                "Invalid arguments to set_clip_path, of type "
+                f"{type(path).__name__} and {type(transform).__name__}")
         # This may result in the callbacks being hit twice, but guarantees they
         # will be hit at least once.
         self.pchanged()
@@ -1357,13 +1362,13 @@ class Artist:
                 g_sig_digits = cbook._g_sig_digits(data, delta)
             else:
                 g_sig_digits = 3  # Consistent with default below.
-            return "[{:-#.{}g}]".format(data, g_sig_digits)
+            return f"[{data:-#.{g_sig_digits}g}]"
         else:
             try:
                 data[0]
             except (TypeError, IndexError):
                 data = [data]
-            data_str = ', '.join('{:0.3g}'.format(item) for item in data
+            data_str = ', '.join(f'{item:0.3g}' for item in data
                                  if isinstance(item, Number))
             return "[" + data_str + "]"
 
@@ -1457,7 +1462,7 @@ class ArtistInspector:
             func = getattr(self.o, name)
             if not self.is_alias(func):
                 continue
-            propname = re.search("`({}.*)`".format(name[:4]),  # get_.*/set_.*
+            propname = re.search(f"`({name[:4]}.*)`",  # get_.*/set_.*
                                  inspect.getdoc(func)).group(1)
             aliases.setdefault(propname[4:], set()).add(name[4:])
         return aliases
@@ -1477,7 +1482,7 @@ class ArtistInspector:
 
         name = 'set_%s' % attr
         if not hasattr(self.o, name):
-            raise AttributeError('%s has no function %s' % (self.o, name))
+            raise AttributeError(f'{self.o} has no function {name}')
         func = getattr(self.o, name)
 
         docstring = inspect.getdoc(func)
@@ -1496,7 +1501,7 @@ class ArtistInspector:
         param_name = func.__code__.co_varnames[1]
         # We could set the presence * based on whether the parameter is a
         # varargs (it can't be a varkwargs) but it's not really worth it.
-        match = re.search(r"(?m)^ *\*?{} : (.+)".format(param_name), docstring)
+        match = re.search(fr"(?m)^ *\*?{param_name} : (.+)", docstring)
         if match:
             return match.group(1)
 
@@ -1533,13 +1538,13 @@ class ArtistInspector:
         return setters
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def number_of_parameters(func):
         """Return number of parameters of the callable *func*."""
         return len(inspect.signature(func).parameters)
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def is_alias(method):
         """
         Return whether the object *method* is an alias for another method.
@@ -1592,7 +1597,7 @@ class ArtistInspector:
             return f'``{s}``'
 
         aliases = ''.join(' or %s' % x for x in sorted(self.aliasd.get(s, [])))
-        return ':meth:`%s <%s>`%s' % (s, target, aliases)
+        return f':meth:`{s} <{target}>`{aliases}'
 
     def pprint_setters(self, prop=None, leadingspace=2):
         """
@@ -1609,13 +1614,13 @@ class ArtistInspector:
             pad = ''
         if prop is not None:
             accepts = self.get_valid_values(prop)
-            return '%s%s: %s' % (pad, prop, accepts)
+            return f'{pad}{prop}: {accepts}'
 
         lines = []
         for prop in sorted(self.get_setters()):
             accepts = self.get_valid_values(prop)
             name = self.aliased_name(prop)
-            lines.append('%s%s: %s' % (pad, name, accepts))
+            lines.append(f'{pad}{name}: {accepts}')
         return lines
 
     def pprint_setters_rest(self, prop=None, leadingspace=4):
@@ -1633,7 +1638,7 @@ class ArtistInspector:
             pad = ''
         if prop is not None:
             accepts = self.get_valid_values(prop)
-            return '%s%s: %s' % (pad, prop, accepts)
+            return f'{pad}{prop}: {accepts}'
 
         prop_and_qualnames = []
         for prop in sorted(self.get_setters()):
@@ -1706,7 +1711,7 @@ class ArtistInspector:
             if len(s) > 50:
                 s = s[:50] + '...'
             name = self.aliased_name(name)
-            lines.append('    %s = %s' % (name, s))
+            lines.append(f'    {name} = {s}')
         return lines
 
 

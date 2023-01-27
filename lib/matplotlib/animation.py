@@ -247,7 +247,7 @@ class MovieWriter(AbstractMovieWriter):
         The format used in writing frame data, defaults to 'rgba'.
     fig : `~matplotlib.figure.Figure`
         The figure to capture data from.
-        This must be provided by the sub-classes.
+        This must be provided by the subclasses.
     """
 
     # Builtin writer subclasses additionally define the _exec_key and _args_key
@@ -402,7 +402,7 @@ class FileMovieWriter(MovieWriter):
         frame_prefix : str, optional
             The filename prefix to use for temporary files.  If *None* (the
             default), files are written to a temporary directory which is
-            deleted by `cleanup`; if not *None*, no temporary files are
+            deleted by `finish`; if not *None*, no temporary files are
             deleted.
         """
         self.fig = fig
@@ -536,7 +536,7 @@ class FFMpegBase:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
         args.extend(extra_args)
         for k, v in self.metadata.items():
-            args.extend(['-metadata', '%s=%s' % (k, v)])
+            args.extend(['-metadata', f'{k}={v}'])
 
         return args + ['-y', self.outfile]
 
@@ -804,12 +804,11 @@ class HTMLWriter(FileMovieWriter):
                                              interval=interval,
                                              **mode_dict))
 
-        # duplicate the temporary file clean up logic from
-        # FileMovieWriter.cleanup.  We can not call the inherited
-        # versions of finish or cleanup because both assume that
-        # there is a subprocess that we either need to call to merge
-        # many frames together or that there is a subprocess call that
-        # we need to clean up.
+        # Duplicate the temporary file clean up logic from
+        # FileMovieWriter.finish.  We can not call the inherited version of
+        # finish because it assumes that there is a subprocess that we either
+        # need to call to merge many frames together or that there is a
+        # subprocess call that we need to clean up.
         if self._tmpdir:
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
@@ -1084,7 +1083,7 @@ class Animation:
             frame_number = 0
             # TODO: Currently only FuncAnimation has a save_count
             #       attribute. Can we generalize this to all Animations?
-            save_count_list = [getattr(a, 'save_count', None)
+            save_count_list = [getattr(a, '_save_count', None)
                                for a in all_anim]
             if None in save_count_list:
                 total_frames = None
@@ -1237,7 +1236,7 @@ class Animation:
         This saves the animation as an h264 video, encoded in base64
         directly into the HTML5 video tag. This respects :rc:`animation.writer`
         and :rc:`animation.bitrate`. This also makes use of the
-        ``interval`` to control the speed, and uses the ``repeat``
+        *interval* to control the speed, and uses the *repeat*
         parameter to decide whether to loop.
 
         Parameters
@@ -1300,7 +1299,7 @@ class Animation:
             options = ['controls', 'autoplay']
 
             # If we're set to repeat, make it loop
-            if hasattr(self, 'repeat') and self.repeat:
+            if getattr(self, '_repeat', False):
                 options.append('loop')
 
             return VIDEO_TAG.format(video=self._base64_video,
@@ -1321,17 +1320,18 @@ class Animation:
         embed_frames : bool, optional
         default_mode : str, optional
             What to do when the animation ends. Must be one of ``{'loop',
-            'once', 'reflect'}``. Defaults to ``'loop'`` if ``self.repeat``
-            is True, otherwise ``'once'``.
+            'once', 'reflect'}``. Defaults to ``'loop'`` if the *repeat*
+            parameter is True, otherwise ``'once'``.
         """
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
             fps = 1000 / self._interval
 
         # If we're not given a default mode, choose one base on the value of
-        # the repeat attribute
+        # the _repeat attribute
         if default_mode is None:
-            default_mode = 'loop' if self.repeat else 'once'
+            default_mode = 'loop' if getattr(self, '_repeat',
+                                             False) else 'once'
 
         if not hasattr(self, "_html_representation"):
             # Can't open a NamedTemporaryFile twice on Windows, so use a
@@ -1395,13 +1395,12 @@ class TimedAnimation(Animation):
     blit : bool, default: False
         Whether blitting is used to optimize drawing.
     """
-
     def __init__(self, fig, interval=200, repeat_delay=0, repeat=True,
                  event_source=None, *args, **kwargs):
         self._interval = interval
         # Undocumented support for repeat_delay = None as backcompat.
         self._repeat_delay = repeat_delay if repeat_delay is not None else 0
-        self.repeat = repeat
+        self._repeat = repeat
         # If we're not given an event source, create a new timer. This permits
         # sharing timers between animation objects for syncing animations.
         if event_source is None:
@@ -1418,7 +1417,7 @@ class TimedAnimation(Animation):
         # back.
         still_going = super()._step(*args)
         if not still_going:
-            if self.repeat:
+            if self._repeat:
                 # Restart the draw loop
                 self._init_draw()
                 self.frame_seq = self.new_frame_seq()
@@ -1437,6 +1436,8 @@ class TimedAnimation(Animation):
 
         self.event_source.interval = self._interval
         return True
+
+    repeat = _api.deprecate_privatize_attribute("3.7")
 
 
 class ArtistAnimation(TimedAnimation):
@@ -1594,7 +1595,7 @@ class FuncAnimation(TimedAnimation):
         Additional arguments to pass to each call to *func*. Note: the use of
         `functools.partial` is preferred over *fargs*. See *func* for details.
 
-    save_count : int, default: 100
+    save_count : int, optional
         Fallback for the number of values from *frames* to cache. This is
         only used if the number of frames cannot be inferred from *frames*,
         i.e. when it's an iterator without length or a generator.
@@ -1619,7 +1620,6 @@ class FuncAnimation(TimedAnimation):
         Whether frame data is cached.  Disabling cache might be helpful when
         frames contain large objects.
     """
-
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
                  save_count=None, *, cache_frame_data=True, **kwargs):
         if fargs:
@@ -1632,7 +1632,7 @@ class FuncAnimation(TimedAnimation):
         # Amount of framedata to keep around for saving movies. This is only
         # used if we don't know how many frames there will be: in the case
         # of no generator or in the case of a callable.
-        self.save_count = save_count
+        self._save_count = save_count
         # Set up a function that creates a new iterable when needed. If nothing
         # is passed in for frames, just use itertools.count, which will just
         # keep counting from 0. A callable passed in for frames is assumed to
@@ -1652,19 +1652,31 @@ class FuncAnimation(TimedAnimation):
             else:
                 self._iter_gen = lambda: iter(frames)
             if hasattr(frames, '__len__'):
-                self.save_count = len(frames)
+                self._save_count = len(frames)
+                if save_count is not None:
+                    _api.warn_external(
+                        f"You passed in an explicit {save_count=} "
+                        "which is being ignored in favor of "
+                        f"{len(frames)=}."
+                    )
         else:
             self._iter_gen = lambda: iter(range(frames))
-            self.save_count = frames
-
-        if self.save_count is None:
-            # If we're passed in and using the default, set save_count to 100.
-            self.save_count = 100
-        else:
-            # itertools.islice returns an error when passed a numpy int instead
-            # of a native python int (https://bugs.python.org/issue30537).
-            # As a workaround, convert save_count to a native python int.
-            self.save_count = int(self.save_count)
+            self._save_count = frames
+            if save_count is not None:
+                _api.warn_external(
+                    f"You passed in an explicit {save_count=} which is being "
+                    f"ignored in favor of {frames=}."
+                )
+        if self._save_count is None and cache_frame_data:
+            _api.warn_external(
+                f"{frames=!r} which we can infer the length of, "
+                "did not pass an explicit *save_count* "
+                f"and passed {cache_frame_data=}.  To avoid a possibly "
+                "unbounded cache, frame data caching has been disabled. "
+                "To suppress this warning either pass "
+                "`cache_frame_data=False` or `save_count=MAX_FRAMES`."
+            )
+            cache_frame_data = False
 
         self._cache_frame_data = cache_frame_data
 
@@ -1691,26 +1703,18 @@ class FuncAnimation(TimedAnimation):
             self._old_saved_seq = list(self._save_seq)
             return iter(self._old_saved_seq)
         else:
-            if self.save_count is not None:
-                return itertools.islice(self.new_frame_seq(), self.save_count)
-
-            else:
+            if self._save_count is None:
                 frame_seq = self.new_frame_seq()
 
                 def gen():
                     try:
-                        for _ in range(100):
+                        while True:
                             yield next(frame_seq)
                     except StopIteration:
                         pass
-                    else:
-                        _api.warn_deprecated(
-                            "2.2", message="FuncAnimation.save has truncated "
-                            "your animation to 100 frames.  In the future, no "
-                            "such truncation will occur; please pass "
-                            "'save_count' accordingly.")
-
                 return gen()
+            else:
+                return itertools.islice(self.new_frame_seq(), self._save_count)
 
     def _init_draw(self):
         super()._init_draw()
@@ -1748,10 +1752,7 @@ class FuncAnimation(TimedAnimation):
         if self._cache_frame_data:
             # Save the data for potential saving of movies.
             self._save_seq.append(framedata)
-
-        # Make sure to respect save_count (keep only the last save_count
-        # around)
-        self._save_seq = self._save_seq[-self.save_count:]
+            self._save_seq = self._save_seq[-self._save_count:]
 
         # Call the func with framedata and args. If blitting is desired,
         # func needs to return a sequence of any artists that were modified.
@@ -1777,3 +1778,5 @@ class FuncAnimation(TimedAnimation):
 
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
+
+    save_count = _api.deprecate_privatize_attribute("3.7")

@@ -4,6 +4,8 @@ Oscilloscope
 ============
 
 Emulates an oscilloscope.
+
+Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np
@@ -61,6 +63,6 @@ scope = Scope(ax)
 
 # pass a generator in "emitter" to produce data for the update func
 ani = animation.FuncAnimation(fig, scope.update, emitter, interval=50,
-                              blit=True)
+                              blit=True, save_count=100)
 
 plt.show()

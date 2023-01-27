@@ -230,8 +230,6 @@ def generate_validator_testcases(valid):
                      ),
          'fail': ((set(), ValueError),
                   (1, ValueError),
-                  ((1, 2), _api.MatplotlibDeprecationWarning),
-                  (np.array([1, 2]), _api.MatplotlibDeprecationWarning),
                   )
          },
         {'validator': _listify_validator(validate_int, n=2),
@@ -544,10 +542,10 @@ def test_backend_fallback_headful(tmpdir):
          "sentinel = mpl.rcsetup._auto_backend_sentinel; "
          # Check that access on another instance does not resolve the sentinel.
          "assert mpl.RcParams({'backend': sentinel})['backend'] == sentinel; "
-         "assert dict.__getitem__(mpl.rcParams, 'backend') == sentinel; "
+         "assert mpl.rcParams._get('backend') == sentinel; "
          "import matplotlib.pyplot; "
          "print(matplotlib.get_backend())"],
-        env=env, universal_newlines=True)
+        env=env, text=True)
     # The actual backend will depend on what's installed, but at least tkagg is
     # present.
     assert backend.strip().lower() != "agg"

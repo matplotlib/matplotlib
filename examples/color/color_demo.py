@@ -61,7 +61,7 @@ ax.tick_params(labelcolor='tab:orange')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

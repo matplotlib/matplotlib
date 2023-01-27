@@ -74,7 +74,7 @@ ax.set_title("High-resolution tricontouring")
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

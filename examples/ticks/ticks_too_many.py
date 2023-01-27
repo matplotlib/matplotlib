@@ -14,7 +14,7 @@ a numeric type as in the following examples.
 
 """
 
-############################################################################
+# %%
 # Example 1: Strings can lead to an unexpected order of number ticks
 # ------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ ax[1].plot(x, y, 'd')
 ax[1].set_xlabel('Floats')
 ax[1].set_title('Ticks as expected')
 
-############################################################################
+# %%
 # Example 2: Strings can lead to very many ticks
 # ----------------------------------------------
 # If *x* has 100 elements, all strings, then we would have 100 (unreadable)
@@ -53,7 +53,7 @@ ax[1].plot(np.asarray(x, float), y)
 ax[1].set_title('x converted to numbers')
 ax[1].set_xlabel('Floats')
 
-############################################################################
+# %%
 # Example 3: Strings can lead to an unexpected order of datetime ticks
 # --------------------------------------------------------------------
 # A common case is when dates are read from a CSV file, they need to be

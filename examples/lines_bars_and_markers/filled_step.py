@@ -49,17 +49,16 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     """
     print(orientation)
     if orientation not in 'hv':
-        raise ValueError("orientation must be in {{'h', 'v'}} "
-                         "not {o}".format(o=orientation))
+        raise ValueError(f"orientation must be in {{'h', 'v'}} "
+                         f"not {orientation}")
 
     kwargs.setdefault('step', 'post')
     kwargs.setdefault('alpha', 0.7)
     edges = np.asarray(edges)
     values = np.asarray(values)
     if len(edges) - 1 != len(values):
-        raise ValueError('Must provide one more bin edge than value not: '
-                         'len(edges): {lb} len(values): {lv}'.format(
-                             lb=len(edges), lv=len(values)))
+        raise ValueError(f'Must provide one more bin edge than value not: '
+                         f'{len(edges)=} {len(values)=}')
 
     if bottoms is None:
         bottoms = 0
@@ -159,7 +158,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
     arts = {}
     for j, (data, label, sty) in loop_iter:
         if label is None:
-            label = 'dflt set {n}'.format(n=j)
+            label = f'dflt set {j}'
         label = sty.pop('label', label)
         vals, edges = hist_func(data)
         if bottoms is None:
@@ -182,7 +181,7 @@ hist_func = partial(np.histogram, bins=edges)
 
 # set up style cycles
 color_cycle = cycler(facecolor=plt.rcParams['axes.prop_cycle'][:4])
-label_cycle = cycler(label=['set {n}'.format(n=n) for n in range(4)])
+label_cycle = cycler(label=[f'set {n}' for n in range(4)])
 hatch_cycle = cycler(hatch=['/', '*', '+', '|'])
 
 # Fixing random state for reproducibility
@@ -191,7 +190,7 @@ np.random.seed(19680801)
 stack_data = np.random.randn(4, 12250)
 dict_data = dict(zip((c['label'] for c in label_cycle), stack_data))
 
-###############################################################################
+# %%
 # Work with plain arrays
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5), tight_layout=True)
@@ -206,7 +205,7 @@ ax1.set_xlabel('x')
 ax2.set_xlabel('counts')
 ax2.set_ylabel('x')
 
-###############################################################################
+# %%
 # Work with labeled data
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5),
@@ -224,7 +223,7 @@ ax2.set_ylabel('x')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

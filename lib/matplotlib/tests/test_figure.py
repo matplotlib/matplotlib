@@ -532,6 +532,36 @@ def test_savefig_pixel_ratio(backend):
     assert ratio1 == ratio2
 
 
+def test_savefig_preserve_layout_engine(tmp_path):
+    fig = plt.figure(layout='compressed')
+    fig.savefig(tmp_path / 'foo.png', bbox_inches='tight')
+
+    assert fig.get_layout_engine()._compress
+
+
+@mpl.rc_context({"savefig.transparent": True})
+@check_figures_equal(extensions=["png"])
+def test_savefig_transparent(fig_test, fig_ref):
+    # create two transparent subfigures with corresponding transparent inset
+    # axes. the entire background of the image should be transparent.
+    gs1 = fig_test.add_gridspec(3, 3, left=0.05, wspace=0.05)
+    f1 = fig_test.add_subfigure(gs1[:, :])
+    f2 = f1.add_subfigure(gs1[0, 0])
+
+    ax12 = f2.add_subplot(gs1[:, :])
+
+    ax1 = f1.add_subplot(gs1[:-1, :])
+    iax1 = ax1.inset_axes([.1, .2, .3, .4])
+    iax2 = iax1.inset_axes([.1, .2, .3, .4])
+
+    ax2 = fig_test.add_subplot(gs1[-1, :-1])
+    ax3 = fig_test.add_subplot(gs1[-1, -1])
+
+    for ax in [ax12, ax1, iax1, iax2, ax2, ax3]:
+        ax.set(xticks=[], yticks=[])
+        ax.spines[:].set_visible(False)
+
+
 def test_figure_repr():
     fig = plt.figure(figsize=(10, 20), dpi=10)
     assert repr(fig) == "<Figure size 100x200 with 0 Axes>"
@@ -645,7 +675,7 @@ def test_add_artist(fig_test, fig_ref):
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_fspath(fmt, tmpdir):
-    out = Path(tmpdir, "test.{}".format(fmt))
+    out = Path(tmpdir, f"test.{fmt}")
     plt.savefig(out)
     with out.open("rb") as file:
         # All the supported formats include the format name (case-insensitive)
@@ -848,7 +878,12 @@ def test_animated_with_canvas_change(fig_test, fig_ref):
 class TestSubplotMosaic:
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize(
-        "x", [[["A", "A", "B"], ["C", "D", "B"]], [[1, 1, 2], [3, 4, 2]]]
+        "x", [
+            [["A", "A", "B"], ["C", "D", "B"]],
+            [[1, 1, 2], [3, 4, 2]],
+            (("A", "A", "B"), ("C", "D", "B")),
+            ((1, 1, 2), (3, 4, 2))
+        ]
     )
     def test_basic(self, fig_test, fig_ref, x):
         grid_axes = fig_test.subplot_mosaic(x)
@@ -998,6 +1033,10 @@ class TestSubplotMosaic:
             plt.subplot_mosaic(['foo', 'bar'])
         with pytest.raises(ValueError, match='must be 2D'):
             plt.subplot_mosaic(['foo'])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic([['foo', ('bar',)]])
+        with pytest.raises(ValueError, match='must be 2D'):
+            plt.subplot_mosaic([['a', 'b'], [('a', 'b'), 'c']])
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("subplot_kw", [{}, {"projection": "polar"}, None])
@@ -1011,8 +1050,26 @@ class TestSubplotMosaic:
 
         axB = fig_ref.add_subplot(gs[0, 1], **subplot_kw)
 
+    @check_figures_equal(extensions=["png"])
+    @pytest.mark.parametrize("multi_value", ['BC', tuple('BC')])
+    def test_per_subplot_kw(self, fig_test, fig_ref, multi_value):
+        x = 'AB;CD'
+        grid_axes = fig_test.subplot_mosaic(
+            x,
+            subplot_kw={'facecolor': 'red'},
+            per_subplot_kw={
+                'D': {'facecolor': 'blue'},
+                multi_value: {'facecolor': 'green'},
+            }
+        )
+
+        gs = fig_ref.add_gridspec(2, 2)
+        for color, spec in zip(['red', 'green', 'green', 'blue'], gs):
+            fig_ref.add_subplot(spec, facecolor=color)
+
     def test_string_parser(self):
         normalize = Figure._normalize_grid_string
+
         assert normalize('ABC') == [['A', 'B', 'C']]
         assert normalize('AB;CC') == [['A', 'B'], ['C', 'C']]
         assert normalize('AB;CC;DE') == [['A', 'B'], ['C', 'C'], ['D', 'E']]
@@ -1028,6 +1085,25 @@ class TestSubplotMosaic:
                          CC
                          DE
                          """) == [['A', 'B'], ['C', 'C'], ['D', 'E']]
+
+    def test_per_subplot_kw_expander(self):
+        normalize = Figure._norm_per_subplot_kw
+        assert normalize({"A": {}, "B": {}}) == {"A": {}, "B": {}}
+        assert normalize({("A", "B"): {}}) == {"A": {}, "B": {}}
+        with pytest.raises(
+                ValueError, match=f'The key {"B"!r} appears multiple times'
+        ):
+            normalize({("A", "B"): {}, "B": {}})
+        with pytest.raises(
+                ValueError, match=f'The key {"B"!r} appears multiple times'
+        ):
+            normalize({"B": {}, ("A", "B"): {}})
+
+    def test_extra_per_subplot_kw(self):
+        with pytest.raises(
+                ValueError, match=f'The keys {set("B")!r} are in'
+        ):
+            Figure().subplot_mosaic("A", per_subplot_kw={"B": {}})
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize("str_pattern",

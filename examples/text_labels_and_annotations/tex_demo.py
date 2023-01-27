@@ -30,7 +30,7 @@ ax.set_ylabel('\\textit{Velocity (\N{DEGREE SIGN}/sec)}', fontsize=16)
 ax.set_title(r'\TeX\ is Number $\displaystyle\sum_{n=1}^\infty'
              r'\frac{-e^{i\pi}}{2^n}$!', fontsize=16, color='r')
 
-#############################################################################
+# %%
 # A more complex example.
 
 fig, ax = plt.subplots()

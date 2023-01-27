@@ -501,21 +501,21 @@ class BboxBase(TransformNode):
             bottom, 1 is right or top), 'C' (center), or a cardinal direction
             ('SW', southwest, is bottom left, etc.).
         container : `Bbox`, optional
-            The box within which the `Bbox` is positioned; it defaults
-            to the initial `Bbox`.
+            The box within which the `Bbox` is positioned.
 
         See Also
         --------
         .Axes.set_anchor
         """
         if container is None:
+            _api.warn_deprecated(
+                "3.8", message="Calling anchored() with no container bbox "
+                "returns a frozen copy of the original bbox and is deprecated "
+                "since %(since)s.")
             container = self
         l, b, w, h = container.bounds
-        if isinstance(c, str):
-            cx, cy = self.coefs[c]
-        else:
-            cx, cy = c
         L, B, W, H = self.bounds
+        cx, cy = self.coefs[c] if isinstance(c, str) else c
         return Bbox(self._points +
                     [(l + cx * (w - W)) - L,
                      (b + cy * (h - H)) - B])
@@ -616,10 +616,23 @@ class BboxBase(TransformNode):
         a = np.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 
-    def padded(self, p):
-        """Construct a `Bbox` by padding this one on all four sides by *p*."""
+    @_api.rename_parameter("3.8", "p", "w_pad")
+    def padded(self, w_pad, h_pad=None):
+        """
+        Construct a `Bbox` by padding this one on all four sides.
+
+        Parameters
+        ----------
+        w_pad : float
+            Width pad
+        h_pad: float, optional
+            Height pad.  Defaults to *w_pad*.
+
+        """
         points = self.get_points()
-        return Bbox(points + [[-p, -p], [p, p]])
+        if h_pad is None:
+            h_pad = w_pad
+        return Bbox(points + [[-w_pad, -h_pad], [w_pad, h_pad]])
 
     def translated(self, tx, ty):
         """Construct a `Bbox` by translating this one by *tx* and *ty*."""
@@ -755,7 +768,7 @@ class Bbox(BboxBase):
         """
         Parameters
         ----------
-        points : ndarray
+        points : `~numpy.ndarray`
             A 2x2 numpy array of the form ``[[x0, y0], [x1, y1]]``.
         """
         super().__init__(**kwargs)
@@ -897,7 +910,7 @@ class Bbox(BboxBase):
 
         Parameters
         ----------
-        x : ndarray
+        x : `~numpy.ndarray`
             Array of x-values.
 
         ignore : bool, optional
@@ -917,7 +930,7 @@ class Bbox(BboxBase):
 
         Parameters
         ----------
-        y : ndarray
+        y : `~numpy.ndarray`
             Array of y-values.
 
         ignore : bool, optional
@@ -937,7 +950,7 @@ class Bbox(BboxBase):
 
         Parameters
         ----------
-        xy : ndarray
+        xy : `~numpy.ndarray`
             A numpy array of 2D points.
 
         ignore : bool, optional
@@ -1890,7 +1903,7 @@ class Affine2D(Affine2DBase):
         super().__init__(**kwargs)
         if matrix is None:
             # A bit faster than np.identity(3).
-            matrix = IdentityTransform._mtx.copy()
+            matrix = IdentityTransform._mtx
         self._mtx = matrix.copy()
         self._invalid = 0
 

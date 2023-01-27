@@ -54,7 +54,7 @@ ax.xaxis.set_minor_locator(MultipleLocator(5))
 
 plt.show()
 
-###############################################################################
+# %%
 # Automatic tick selection for major and minor ticks.
 #
 # Use interactive pan and zoom to see how the tick intervals change. There will
@@ -80,7 +80,7 @@ ax.tick_params(which='minor', length=4, color='r')
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

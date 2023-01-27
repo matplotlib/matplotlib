@@ -44,7 +44,7 @@ plt.close('all')
 fig, ax = plt.subplots()
 example_plot(ax, fontsize=24)
 
-###############################################################################
+# %%
 # To prevent this, the location of axes needs to be adjusted. For
 # subplots, this can be done manually by adjusting the subplot parameters
 # using `.Figure.subplots_adjust`. `.Figure.tight_layout` does this
@@ -54,7 +54,7 @@ fig, ax = plt.subplots()
 example_plot(ax, fontsize=24)
 plt.tight_layout()
 
-###############################################################################
+# %%
 # Note that :func:`matplotlib.pyplot.tight_layout` will only adjust the
 # subplot params when it is called.  In order to perform this adjustment each
 # time the figure is redrawn, you can call ``fig.set_tight_layout(True)``, or,
@@ -71,7 +71,7 @@ example_plot(ax2)
 example_plot(ax3)
 example_plot(ax4)
 
-###############################################################################
+# %%
 # :func:`~matplotlib.pyplot.tight_layout` will also adjust spacing between
 # subplots to minimize the overlaps.
 
@@ -82,7 +82,7 @@ example_plot(ax3)
 example_plot(ax4)
 plt.tight_layout()
 
-###############################################################################
+# %%
 # :func:`~matplotlib.pyplot.tight_layout` can take keyword arguments of
 # *pad*, *w_pad* and *h_pad*. These control the extra padding around the
 # figure border and between subplots. The pads are specified in fraction
@@ -95,7 +95,7 @@ example_plot(ax3)
 example_plot(ax4)
 plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-###############################################################################
+# %%
 # :func:`~matplotlib.pyplot.tight_layout` will work even if the sizes of
 # subplots are different as far as their grid specification is
 # compatible. In the example below, *ax1* and *ax2* are subplots of a 2x2
@@ -114,7 +114,7 @@ example_plot(ax3)
 
 plt.tight_layout()
 
-###############################################################################
+# %%
 # It works with subplots created with
 # :func:`~matplotlib.pyplot.subplot2grid`. In general, subplots created
 # from the gridspec (:doc:`/tutorials/intermediate/arranging_axes`) will work.
@@ -134,7 +134,7 @@ example_plot(ax4)
 
 plt.tight_layout()
 
-###############################################################################
+# %%
 # Although not thoroughly tested, it seems to work for subplots with
 # aspect != "auto" (e.g., axes with images).
 
@@ -148,7 +148,7 @@ im = ax.imshow(arr, interpolation="none")
 
 plt.tight_layout()
 
-###############################################################################
+# %%
 # Caveats
 # =======
 #
@@ -184,7 +184,7 @@ example_plot(ax2)
 
 gs1.tight_layout(fig)
 
-###############################################################################
+# %%
 # You may provide an optional *rect* parameter, which specifies the bounding
 # box that the subplots will be fit inside. The coordinates must be in
 # normalized figure coordinates and the default is (0, 0, 1, 1).
@@ -200,7 +200,7 @@ example_plot(ax2)
 
 gs1.tight_layout(fig, rect=[0, 0, 0.5, 1.0])
 
-###############################################################################
+# %%
 # However, we do not recommend that this be used to manually construct more
 # complicated layouts, like having one GridSpec in the left and one in the
 # right side of the figure. For these use cases, one should instead take
@@ -208,7 +208,7 @@ gs1.tight_layout(fig, rect=[0, 0, 0.5, 1.0])
 # the :doc:`/gallery/subplots_axes_and_figures/subfigures`.
 
 
-###############################################################################
+# %%
 # Legends and Annotations
 # =======================
 #
@@ -224,7 +224,7 @@ ax.legend(bbox_to_anchor=(0.7, 0.5), loc='center left',)
 fig.tight_layout()
 plt.show()
 
-###############################################################################
+# %%
 # However, sometimes this is not desired (quite often when using
 # ``fig.savefig('outname.png', bbox_inches='tight')``).  In order to
 # remove the legend from the bounding box calculation, we simply set its
@@ -237,7 +237,7 @@ leg.set_in_layout(False)
 fig.tight_layout()
 plt.show()
 
-###############################################################################
+# %%
 # Use with AxesGrid1
 # ==================
 #
@@ -257,7 +257,7 @@ ax.title.set_visible(False)
 
 plt.tight_layout()
 
-###############################################################################
+# %%
 # Colorbar
 # ========
 #
@@ -274,7 +274,7 @@ plt.colorbar(im)
 
 plt.tight_layout()
 
-###############################################################################
+# %%
 # Another option is to use the AxesGrid1 toolkit to
 # explicitly create an Axes for the colorbar.
 

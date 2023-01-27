@@ -202,17 +202,9 @@ class Divider:
             x0, y0 = x, y
 
         if nx1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing nx1=None to mean nx+1 is "
-                "deprecated since %(since)s; in a future version, nx1=None "
-                "will mean 'up to the last cell'.")
-            nx1 = nx + 1
+            nx1 = -1
         if ny1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing ny1=None to mean ny+1 is "
-                "deprecated since %(since)s; in a future version, ny1=None "
-                "will mean 'up to the last cell'.")
-            ny1 = ny + 1
+            ny1 = -1
 
         x1, w1 = x0 + ox[nx] / fig_w, (ox[nx1] - ox[nx]) / fig_w
         y1, h1 = y0 + oy[ny] / fig_h, (oy[ny1] - oy[ny]) / fig_h
@@ -299,17 +291,9 @@ class AxesLocator:
         self._nx, self._ny = nx - _xrefindex, ny - _yrefindex
 
         if nx1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing nx1=None to mean nx+1 is "
-                "deprecated since %(since)s; in a future version, nx1=None "
-                "will mean 'up to the last cell'.")
-            nx1 = nx + 1
+            nx1 = len(self._axes_divider)
         if ny1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing ny1=None to mean ny+1 is "
-                "deprecated since %(since)s; in a future version, ny1=None "
-                "will mean 'up to the last cell'.")
-            ny1 = ny + 1
+            ny1 = len(self._axes_divider[0])
 
         self._nx1 = nx1 - _xrefindex
         self._ny1 = ny1 - _yrefindex
@@ -600,11 +584,7 @@ class HBoxDivider(SubplotDivider):
         x0, y0, ox, hh = _locate(
             x, y, w, h, summed_ws, equal_hs, fig_w, fig_h, self.get_anchor())
         if nx1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing nx1=None to mean nx+1 is "
-                "deprecated since %(since)s; in a future version, nx1=None "
-                "will mean 'up to the last cell'.")
-            nx1 = nx + 1
+            nx1 = -1
         x1, w1 = x0 + ox[nx] / fig_w, (ox[nx1] - ox[nx]) / fig_w
         y1, h1 = y0, hh
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
@@ -639,11 +619,7 @@ class VBoxDivider(SubplotDivider):
         y0, x0, oy, ww = _locate(
             y, x, h, w, summed_hs, equal_ws, fig_h, fig_w, self.get_anchor())
         if ny1 is None:
-            _api.warn_deprecated(
-                "3.5", message="Support for passing ny1=None to mean ny+1 is "
-                "deprecated since %(since)s; in a future version, ny1=None "
-                "will mean 'up to the last cell'.")
-            ny1 = ny + 1
+            ny1 = -1
         x1, w1 = x0, ww
         y1, h1 = y0 + oy[ny] / fig_h, (oy[ny1] - oy[ny]) / fig_h
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)

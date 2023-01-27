@@ -10,7 +10,7 @@ Customize the background, labels and ticks of a simple plot.
 
 import matplotlib.pyplot as plt
 
-###############################################################################
+# %%
 # `.pyplot.figure` creates a `matplotlib.figure.Figure` instance.
 
 fig = plt.figure()
@@ -26,7 +26,7 @@ ax1.tick_params(axis='y', color='tab:green', size=25, width=3)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

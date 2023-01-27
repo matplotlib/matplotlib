@@ -47,7 +47,7 @@ make_plot(axs)
 fig.align_ylabels(axs[:, 1])
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. seealso::
 #     `.Figure.align_ylabels` and `.Figure.align_labels` for a direct method
@@ -71,7 +71,7 @@ for j in range(2):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

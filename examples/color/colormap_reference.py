@@ -68,7 +68,7 @@ for cmap_category, cmap_list in cmaps:
     plot_color_gradients(cmap_category, cmap_list)
 
 
-###############################################################################
+# %%
 # .. _reverse-cmap:
 #
 # Reversed colormaps
@@ -83,7 +83,7 @@ plot_color_gradients("Original and reversed ", ['viridis', 'viridis_r'])
 # The built-in reversed colormaps are generated using `.Colormap.reversed`.
 # For an example, see :ref:`reversing-colormap`
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

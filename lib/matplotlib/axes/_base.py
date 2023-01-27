@@ -1,4 +1,4 @@
-from collections.abc import Iterable, MutableSequence
+from collections.abc import Iterable, Sequence
 from contextlib import ExitStack
 import functools
 import inspect
@@ -192,7 +192,7 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
             i += 1
         elif c == 'C' and i < len(fmt) - 1:
             color_cycle_number = int(fmt[i + 1])
-            color = mcolors.to_rgba("C{}".format(color_cycle_number))
+            color = mcolors.to_rgba(f"C{color_cycle_number}")
             i += 2
         else:
             raise ValueError(
@@ -243,8 +243,7 @@ class _process_plot_var_args:
 
         for pos_only in "xy":
             if pos_only in kwargs:
-                raise TypeError("{} got an unexpected keyword argument {!r}"
-                                .format(self.command, pos_only))
+                raise _api.kwarg_error(self.command, pos_only)
 
         if not args:
             return
@@ -1404,18 +1403,15 @@ class _AxesBase(martist.Artist):
         else:
             self.clear()
 
-    class ArtistList(MutableSequence):
+    class ArtistList(Sequence):
         """
         A sublist of Axes children based on their type.
 
-        The type-specific children sublists will become immutable in
-        Matplotlib 3.7. Then, these artist lists will likely be replaced by
-        tuples. Use as if this is a tuple already.
-
-        This class exists only for the transition period to warn on the
-        deprecated modification of artist lists.
+        The type-specific children sublists were made immutable in Matplotlib
+        3.7.  In the future these artist lists may be replaced by tuples. Use
+        as if this is a tuple already.
         """
-        def __init__(self, axes, prop_name, add_name,
+        def __init__(self, axes, prop_name,
                      valid_types=None, invalid_types=None):
             """
             Parameters
@@ -1426,9 +1422,6 @@ class _AxesBase(martist.Artist):
             prop_name : str
                 The property name used to access this sublist from the Axes;
                 used to generate deprecation warnings.
-            add_name : str
-                The method name used to add Artists of this sublist's type to
-                the Axes; used to generate deprecation warnings.
             valid_types : list of type, optional
                 A list of types that determine which children will be returned
                 by this sublist. If specified, then the Artists in the sublist
@@ -1443,7 +1436,6 @@ class _AxesBase(martist.Artist):
             """
             self._axes = axes
             self._prop_name = prop_name
-            self._add_name = add_name
             self._type_check = lambda artist: (
                 (not valid_types or isinstance(artist, valid_types)) and
                 (not invalid_types or not isinstance(artist, invalid_types))
@@ -1469,103 +1461,47 @@ class _AxesBase(martist.Artist):
         def __add__(self, other):
             if isinstance(other, (list, _AxesBase.ArtistList)):
                 return [*self, *other]
+            if isinstance(other, (tuple, _AxesBase.ArtistList)):
+                return (*self, *other)
             return NotImplemented
 
         def __radd__(self, other):
             if isinstance(other, list):
                 return other + list(self)
+            if isinstance(other, tuple):
+                return other + tuple(self)
             return NotImplemented
-
-        def insert(self, index, item):
-            _api.warn_deprecated(
-                '3.5',
-                name=f'modification of the Axes.{self._prop_name}',
-                obj_type='property',
-                alternative=f'Axes.{self._add_name}')
-            try:
-                index = self._axes._children.index(self[index])
-            except IndexError:
-                index = None
-            getattr(self._axes, self._add_name)(item)
-            if index is not None:
-                # Move new item to the specified index, if there's something to
-                # put it before.
-                self._axes._children[index:index] = self._axes._children[-1:]
-                del self._axes._children[-1]
-
-        def __setitem__(self, key, item):
-            _api.warn_deprecated(
-                '3.5',
-                name=f'modification of the Axes.{self._prop_name}',
-                obj_type='property',
-                alternative=f'Artist.remove() and Axes.f{self._add_name}')
-            del self[key]
-            if isinstance(key, slice):
-                key = key.start
-            if not np.iterable(item):
-                self.insert(key, item)
-                return
-
-            try:
-                index = self._axes._children.index(self[key])
-            except IndexError:
-                index = None
-            for i, artist in enumerate(item):
-                getattr(self._axes, self._add_name)(artist)
-            if index is not None:
-                # Move new items to the specified index, if there's something
-                # to put it before.
-                i = -(i + 1)
-                self._axes._children[index:index] = self._axes._children[i:]
-                del self._axes._children[i:]
-
-        def __delitem__(self, key):
-            _api.warn_deprecated(
-                '3.5',
-                name=f'modification of the Axes.{self._prop_name}',
-                obj_type='property',
-                alternative='Artist.remove()')
-            if isinstance(key, slice):
-                for artist in self[key]:
-                    artist.remove()
-            else:
-                self[key].remove()
 
     @property
     def artists(self):
-        return self.ArtistList(self, 'artists', 'add_artist', invalid_types=(
+        return self.ArtistList(self, 'artists', invalid_types=(
             mcoll.Collection, mimage.AxesImage, mlines.Line2D, mpatches.Patch,
             mtable.Table, mtext.Text))
 
     @property
     def collections(self):
-        return self.ArtistList(self, 'collections', 'add_collection',
+        return self.ArtistList(self, 'collections',
                                valid_types=mcoll.Collection)
 
     @property
     def images(self):
-        return self.ArtistList(self, 'images', 'add_image',
-                               valid_types=mimage.AxesImage)
+        return self.ArtistList(self, 'images', valid_types=mimage.AxesImage)
 
     @property
     def lines(self):
-        return self.ArtistList(self, 'lines', 'add_line',
-                               valid_types=mlines.Line2D)
+        return self.ArtistList(self, 'lines', valid_types=mlines.Line2D)
 
     @property
     def patches(self):
-        return self.ArtistList(self, 'patches', 'add_patch',
-                               valid_types=mpatches.Patch)
+        return self.ArtistList(self, 'patches', valid_types=mpatches.Patch)
 
     @property
     def tables(self):
-        return self.ArtistList(self, 'tables', 'add_table',
-                               valid_types=mtable.Table)
+        return self.ArtistList(self, 'tables', valid_types=mtable.Table)
 
     @property
     def texts(self):
-        return self.ArtistList(self, 'texts', 'add_artist',
-                               valid_types=mtext.Text)
+        return self.ArtistList(self, 'texts', valid_types=mtext.Text)
 
     def get_facecolor(self):
         """Get the facecolor of the Axes."""
@@ -2188,8 +2124,7 @@ class _AxesBase(martist.Artist):
             self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
             self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
         if kwargs:
-            raise TypeError(f"axis() got an unexpected keyword argument "
-                            f"'{next(iter(kwargs))}'")
+            raise _api.kwarg_error("axis", kwargs)
         return (*self.get_xlim(), *self.get_ylim())
 
     def get_legend(self):
@@ -2268,20 +2203,6 @@ class _AxesBase(martist.Artist):
                                   mlines.Line2D, mpatches.Patch))
                    for a in self._children)
 
-    def _deprecate_noninstance(self, _name, _types, **kwargs):
-        """
-        For each *key, value* pair in *kwargs*, check that *value* is an
-        instance of one of *_types*; if not, raise an appropriate deprecation.
-        """
-        for key, value in kwargs.items():
-            if not isinstance(value, _types):
-                _api.warn_deprecated(
-                    '3.5', name=_name,
-                    message=f'Passing argument *{key}* of unexpected type '
-                    f'{type(value).__qualname__} to %(name)s which only '
-                    f'accepts {_types} is deprecated since %(since)s and will '
-                    'become an error %(removal)s.')
-
     def add_artist(self, a):
         """
         Add an `.Artist` to the Axes; return the artist.
@@ -2325,8 +2246,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Collection` to the Axes; return the collection.
         """
-        self._deprecate_noninstance('add_collection', mcoll.Collection,
-                                    collection=collection)
+        _api.check_isinstance(mcoll.Collection, collection=collection)
         label = collection.get_label()
         if not label:
             collection.set_label(f'_child{len(self._children)}')
@@ -2359,7 +2279,7 @@ class _AxesBase(martist.Artist):
         """
         Add an `.AxesImage` to the Axes; return the image.
         """
-        self._deprecate_noninstance('add_image', mimage.AxesImage, image=image)
+        _api.check_isinstance(mimage.AxesImage, image=image)
         self._set_artist_props(image)
         if not image.get_label():
             image.set_label(f'_child{len(self._children)}')
@@ -2376,7 +2296,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Line2D` to the Axes; return the line.
         """
-        self._deprecate_noninstance('add_line', mlines.Line2D, line=line)
+        _api.check_isinstance(mlines.Line2D, line=line)
         self._set_artist_props(line)
         if line.get_clip_path() is None:
             line.set_clip_path(self.patch)
@@ -2393,7 +2313,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Text` to the Axes; return the text.
         """
-        self._deprecate_noninstance('_add_text', mtext.Text, txt=txt)
+        _api.check_isinstance(mtext.Text, txt=txt)
         self._set_artist_props(txt)
         self._children.append(txt)
         txt._remove_method = self._children.remove
@@ -2452,7 +2372,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Patch` to the Axes; return the patch.
         """
-        self._deprecate_noninstance('add_patch', mpatches.Patch, p=p)
+        _api.check_isinstance(mpatches.Patch, p=p)
         self._set_artist_props(p)
         if p.get_clip_path() is None:
             p.set_clip_path(self.patch)
@@ -2505,7 +2425,7 @@ class _AxesBase(martist.Artist):
         """
         Add a `.Table` to the Axes; return the table.
         """
-        self._deprecate_noninstance('add_table', mtable.Table, tab=tab)
+        _api.check_isinstance(mtable.Table, tab=tab)
         self._set_artist_props(tab)
         self._children.append(tab)
         tab.set_clip_path(self.patch)
@@ -3125,23 +3045,23 @@ class _AxesBase(martist.Artist):
 
         if (rasterization_zorder is not None and
                 artists and artists[0].zorder < rasterization_zorder):
-            renderer.start_rasterizing()
-            artists_rasterized = [a for a in artists
-                                  if a.zorder < rasterization_zorder]
-            artists = [a for a in artists
-                       if a.zorder >= rasterization_zorder]
+            split_index = np.searchsorted(
+                [art.zorder for art in artists],
+                rasterization_zorder, side='right'
+            )
+            artists_rasterized = artists[:split_index]
+            artists = artists[split_index:]
         else:
             artists_rasterized = []
 
-        # the patch draws the background rectangle -- the frame below
-        # will draw the edges
         if self.axison and self._frameon:
-            self.patch.draw(renderer)
+            if artists_rasterized:
+                artists_rasterized = [self.patch] + artists_rasterized
+            else:
+                artists = [self.patch] + artists
 
         if artists_rasterized:
-            for a in artists_rasterized:
-                a.draw(renderer)
-            renderer.stop_rasterizing()
+            _draw_rasterized(self.figure, artists_rasterized, renderer)
 
         mimage._draw_list_compositing_images(
             renderer, self, artists, self.figure.suppressComposite)
@@ -4408,6 +4328,7 @@ class _AxesBase(martist.Artist):
         return [a for a in artists if a.get_visible() and a.get_in_layout()
                 and (isinstance(a, noclip) or not a._fully_clipped_to_axes())]
 
+    @_api.make_keyword_only("3.8", "call_axes_locator")
     def get_tightbbox(self, renderer=None, call_axes_locator=True,
                       bbox_extra_artists=None, *, for_layout_only=False):
         """
@@ -4634,3 +4555,60 @@ class _AxesBase(martist.Artist):
             self.yaxis.set_tick_params(which="both", labelright=False)
             if self.yaxis.offsetText.get_position()[0] == 1:
                 self.yaxis.offsetText.set_visible(False)
+
+
+def _draw_rasterized(figure, artists, renderer):
+    """
+    A helper function for rasterizing the list of artists.
+
+    The bookkeeping to track if we are or are not in rasterizing mode
+    with the mixed-mode backends is relatively complicated and is now
+    handled in the matplotlib.artist.allow_rasterization decorator.
+
+    This helper defines the absolute minimum methods and attributes on a
+    shim class to be compatible with that decorator and then uses it to
+    rasterize the list of artists.
+
+    This is maybe too-clever, but allows us to re-use the same code that is
+    used on normal artists to participate in the "are we rasterizing"
+    accounting.
+
+    Please do not use this outside of the "rasterize below a given zorder"
+    functionality of Axes.
+
+    Parameters
+    ----------
+    figure : matplotlib.figure.Figure
+        The figure all of the artists belong to (not checked).  We need this
+        because we can at the figure level suppress composition and insert each
+        rasterized artist as its own image.
+
+    artists : List[matplotlib.artist.Artist]
+        The list of Artists to be rasterized.  These are assumed to all
+        be in the same Figure.
+
+    renderer : matplotlib.backendbases.RendererBase
+        The currently active renderer
+
+    Returns
+    -------
+    None
+
+    """
+    class _MinimalArtist:
+        def get_rasterized(self):
+            return True
+
+        def get_agg_filter(self):
+            return None
+
+        def __init__(self, figure, artists):
+            self.figure = figure
+            self.artists = artists
+
+        @martist.allow_rasterization
+        def draw(self, renderer):
+            for a in self.artists:
+                a.draw(renderer)
+
+    return _MinimalArtist(figure, artists).draw(renderer)

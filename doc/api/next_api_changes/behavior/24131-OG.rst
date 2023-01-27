@@ -1,0 +1,6 @@
+``FuncAnimation(save_count=None)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing ``save_count=None`` to `.FuncAnimation` no longer limits the number
+of frames to 100. Make sure that it either can be inferred from *frames*
+or provide an integer *save_count*.

@@ -1,0 +1,115 @@
+
+Testing support
+~~~~~~~~~~~~~~~
+
+``matplotlib.test()`` has been removed
+......................................
+
+Run tests using ``pytest`` from the commandline instead. The variable
+``matplotlib.default_test_modules`` was only used for ``matplotlib.test()`` and
+is thus removed as well.
+
+To test an installed copy, be sure to specify both ``matplotlib`` and
+``mpl_toolkits`` with ``--pyargs``::
+
+    python -m pytest --pyargs matplotlib.tests mpl_toolkits.tests
+
+See :ref:`testing` for more details.
+
+
+
+Auto-removal of grids by `~.Axes.pcolor` and `~.Axes.pcolormesh`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`~.Axes.pcolor` and `~.Axes.pcolormesh` previously remove any visible axes
+major grid. This behavior is removed; please explicitly call ``ax.grid(False)``
+to remove the grid.
+
+
+
+Modification of ``Axes`` children sublists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`Behavioural API Changes 3.5 - Axes children combined` for more
+information; modification of the following sublists is no longer supported:
+
+* ``Axes.artists``
+* ``Axes.collections``
+* ``Axes.images``
+* ``Axes.lines``
+* ``Axes.patches``
+* ``Axes.tables``
+* ``Axes.texts``
+
+To remove an Artist, use its `.Artist.remove` method. To add an Artist, use the
+corresponding ``Axes.add_*`` method.
+
+Passing incorrect types to ``Axes.add_*`` methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following ``Axes.add_*`` methods will now raise if passed an unexpected
+type. See their documentation for the types they expect.
+
+- `.Axes.add_collection`
+- `.Axes.add_image`
+- `.Axes.add_line`
+- `.Axes.add_patch`
+- `.Axes.add_table`
+
+
+``ConversionInterface.convert`` no longer accepts unitless values
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, custom subclasses of `.units.ConversionInterface` needed to
+implement a ``convert`` method that not only accepted instances of the unit,
+but also unitless values (which are passed through as is). This is no longer
+the case (``convert`` is never called with a unitless value), and such support
+in ``.StrCategoryConverter`` is removed. Likewise, the
+``.ConversionInterface.is_numlike`` helper is removed.
+
+Consider calling `.Axis.convert_units` instead, which still supports unitless
+values.
+
+
+Normal list of `.Artist` objects now returned by `.HandlerLine2D.create_artists`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Matplotlib 3.5 and 3.6 a proxy list was returned that simulated the return
+of `.HandlerLine2DCompound.create_artists`. Now a list containing only the
+single artist is return.
+
+
+rcParams will no longer cast inputs to str
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+rcParams that expect a (non-pathlike) str no longer cast non-str inputs using
+`str`. This will avoid confusing errors in subsequent code if e.g. a list input
+gets implicitly cast to a str.
+
+
+
+Case-insensitive scales
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, scales could be set case-insensitively (e.g.,
+``set_xscale("LoG")``).  Now all builtin scales use lowercase names.
+
+
+
+Support for ``nx1 = None`` or ``ny1 = None`` in ``AxesLocator`` and ``Divider.locate``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In `.axes_grid1.axes_divider`, various internal APIs no longer supports
+passing ``nx1 = None`` or ``ny1 = None`` to mean ``nx + 1`` or ``ny + 1``, in
+preparation for a possible future API which allows indexing and slicing of
+dividers (possibly ``divider[a:b] == divider.new_locator(a, b)``, but also
+``divider[a:] == divider.new_locator(a, <end>)``). The user-facing
+`.Divider.new_locator` API is unaffected -- it correctly normalizes ``nx1 =
+None`` and ``ny1 = None`` as needed.
+
+
+change signature of ``.FigureCanvasBase.enter_notify_event``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *xy* parameter is now required and keyword only.  This was deprecated in
+3.0 and originally slated to be removed in 3.5.

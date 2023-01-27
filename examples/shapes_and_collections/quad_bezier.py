@@ -25,7 +25,7 @@ ax.set_title('The red point should be on the path')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

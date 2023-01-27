@@ -12,6 +12,9 @@
 
 `SubplotParams`
     Control the default spacing between subplots.
+
+See :ref:`figure_explanation` for narrative on how figures are used in
+Matplotlib.
 """
 
 from contextlib import ExitStack
@@ -603,7 +606,7 @@ default: %(va)s
             rect = args[0]
             if not np.isfinite(rect).all():
                 raise ValueError('all entries in rect must be finite '
-                                 'not {}'.format(rect))
+                                 f'not {rect}')
             projection_class, pkw = self._process_projection_requirements(
                 *args, **kwargs)
 
@@ -716,8 +719,7 @@ default: %(va)s
         if 'figure' in kwargs:
             # Axes itself allows for a 'figure' kwarg, but since we want to
             # bind the created Axes to self, it is not allowed here.
-            raise TypeError(
-                "add_subplot() got an unexpected keyword argument 'figure'")
+            raise _api.kwarg_error("add_subplot", "figure")
 
         if (len(args) == 1
                 and isinstance(args[0], mpl.axes._base._AxesBase)
@@ -923,7 +925,7 @@ default: %(va)s
         for name in ax._axis_names:
             last_ax = _break_share_link(ax, ax._shared_axes[name])
             if last_ax is not None:
-                _reset_locators_and_formatters(getattr(last_ax, f"{name}axis"))
+                _reset_locators_and_formatters(last_ax._axis_map[name])
 
         # Break link between any twinned axes
         _break_share_link(ax, ax._twinned_axes)
@@ -1085,7 +1087,8 @@ default: %(va)s
 
         Other Parameters
         ----------------
-        %(_legend_kw_doc)s
+        %(_legend_kw_figure)s
+
 
         See Also
         --------
@@ -1221,13 +1224,13 @@ default: %(va)s
 
         The *shrink* kwarg provides a simple way to scale the colorbar with
         respect to the axes. Note that if *cax* is specified, it determines the
-        size of the colorbar and *shrink* and *aspect* kwargs are ignored.
+        size of the colorbar, and *shrink* and *aspect* are ignored.
 
         For more precise control, you can manually specify the positions of the
         axes objects in which the mappable and the colorbar are drawn.  In this
         case, do not use any of the axes properties kwargs.
 
-        It is known that some vector graphics viewers (svg and pdf) renders
+        It is known that some vector graphics viewers (svg and pdf) render
         white gaps between segments of the colorbar.  This is due to bugs in
         the viewers, not Matplotlib.  As a workaround, the colorbar can be
         rendered with overlapping segments::
@@ -1247,8 +1250,8 @@ default: %(va)s
         if (self.get_layout_engine() is not None and
                 not self.get_layout_engine().colorbar_gridspec):
             use_gridspec = False
-        # Store the value of gca so that we can set it back later on.
         if cax is None:
+            current_ax = self.gca()
             if ax is None:
                 _api.warn_deprecated("3.6", message=(
                     'Unable to determine Axes to steal space for Colorbar. '
@@ -1256,28 +1259,21 @@ default: %(va)s
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
                     'from it, or add *mappable* to an Axes.'))
-                ax = self.gca()
-            current_ax = self.gca()
-            userax = False
+                ax = current_ax
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):
                 cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
-            cax.grid(visible=False, which='both', axis='both')
-        else:
-            userax = True
-
-        # need to remove kws that cannot be passed to Colorbar
-        NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
-                             'panchor']
-        cb_kw = {k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS}
-
-        cb = cbar.Colorbar(cax, mappable, **cb_kw)
-
-        if not userax:
+            # make_axes calls add_{axes,subplot} which changes gca; undo that.
             self.sca(current_ax)
+            cax.grid(visible=False, which='both', axis='both')
+
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
+        cb = cbar.Colorbar(cax, mappable, **{
+            k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
         self.stale = True
         return cb
 
@@ -1339,7 +1335,7 @@ default: %(va)s
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list of (or ndarray) `~matplotlib.axes.Axes`
+            Optional list of (or `~numpy.ndarray`) `~matplotlib.axes.Axes`
             to align the xlabels.
             Default is to align all Axes on the figure.
 
@@ -1400,7 +1396,7 @@ default: %(va)s
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            Optional list (or `~numpy.ndarray`) of `~matplotlib.axes.Axes`
             to align the ylabels.
             Default is to align all Axes on the figure.
 
@@ -1455,7 +1451,7 @@ default: %(va)s
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
-            Optional list (or ndarray) of `~matplotlib.axes.Axes`
+            Optional list (or `~numpy.ndarray`) of `~matplotlib.axes.Axes`
             to align the labels.
             Default is to align all Axes on the figure.
 
@@ -1688,6 +1684,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
+    @_api.make_keyword_only("3.8", "bbox_extra_artists")
     def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
@@ -1760,6 +1757,25 @@ default: %(va)s
         return _bbox
 
     @staticmethod
+    def _norm_per_subplot_kw(per_subplot_kw):
+        expanded = {}
+        for k, v in per_subplot_kw.items():
+            if isinstance(k, tuple):
+                for sub_key in k:
+                    if sub_key in expanded:
+                        raise ValueError(
+                            f'The key {sub_key!r} appears multiple times.'
+                            )
+                    expanded[sub_key] = v
+            else:
+                if k in expanded:
+                    raise ValueError(
+                        f'The key {k!r} appears multiple times.'
+                    )
+                expanded[k] = v
+        return expanded
+
+    @staticmethod
     def _normalize_grid_string(layout):
         if '\n' not in layout:
             # single-line string
@@ -1771,18 +1787,14 @@ default: %(va)s
 
     def subplot_mosaic(self, mosaic, *, sharex=False, sharey=False,
                        width_ratios=None, height_ratios=None,
-                       empty_sentinel='.', subplot_kw=None, gridspec_kw=None):
+                       empty_sentinel='.',
+                       subplot_kw=None, per_subplot_kw=None, gridspec_kw=None):
         """
         Build a layout of Axes based on ASCII art or nested lists.
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        .. note::
-
-           This API is provisional and may be revised in the future based on
-           early user feedback.
-
-        See :doc:`/tutorials/provisional/mosaic`
+        See :doc:`/gallery/subplots_axes_and_figures/mosaic`
         for an example and full API documentation
 
         Parameters
@@ -1821,6 +1833,9 @@ default: %(va)s
             The string notation allows only single character Axes labels and
             does not support nesting but is very terse.
 
+            The Axes identifiers may be `str` or a non-iterable hashable
+            object (e.g. `tuple` s may not be used).
+
         sharex, sharey : bool, default: False
             If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
             among all subplots.  In that case, tick label visibility and axis
@@ -1843,7 +1858,21 @@ default: %(va)s
 
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
-            used to create each subplot.
+            used to create each subplot.  These values may be overridden by
+            values in *per_subplot_kw*.
+
+        per_subplot_kw : dict, optional
+            A dictionary mapping the Axes identifiers or tuples of identifiers
+            to a dictionary of keyword arguments to be passed to the
+            `.Figure.add_subplot` call used to create each subplot.  The values
+            in these dictionaries have precedence over the values in
+            *subplot_kw*.
+
+            If *mosaic* is a string, and thus all keys are single characters,
+            it is possible to use a single string instead of a tuple as keys;
+            i.e. ``"AB"`` is equivalent to ``("A", "B")``.
+
+            .. versionadded:: 3.7
 
         gridspec_kw : dict, optional
             Dictionary with keywords passed to the `.GridSpec` constructor used
@@ -1868,6 +1897,8 @@ default: %(va)s
         """
         subplot_kw = subplot_kw or {}
         gridspec_kw = dict(gridspec_kw or {})
+        per_subplot_kw = per_subplot_kw or {}
+
         if height_ratios is not None:
             if 'height_ratios' in gridspec_kw:
                 raise ValueError("'height_ratios' must not be defined both as "
@@ -1882,6 +1913,12 @@ default: %(va)s
         # special-case string input
         if isinstance(mosaic, str):
             mosaic = self._normalize_grid_string(mosaic)
+            per_subplot_kw = {
+                tuple(k): v for k, v in per_subplot_kw.items()
+            }
+
+        per_subplot_kw = self._norm_per_subplot_kw(per_subplot_kw)
+
         # Only accept strict bools to allow a possible future API expansion.
         _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
 
@@ -2011,7 +2048,11 @@ default: %(va)s
                         raise ValueError(f"There are duplicate keys {name} "
                                          f"in the layout\n{mosaic!r}")
                     ax = self.add_subplot(
-                        gs[slc], **{'label': str(name), **subplot_kw}
+                        gs[slc], **{
+                            'label': str(name),
+                            **subplot_kw,
+                            **per_subplot_kw.get(name, {})
+                        }
                     )
                     output[name] = ax
                 elif method == 'nested':
@@ -2048,9 +2089,11 @@ default: %(va)s
             if sharey:
                 ax.sharey(ax0)
                 ax._label_outer_yaxis(check_patch=True)
-        for k, ax in ret.items():
-            if isinstance(k, str):
-                ax.set_label(k)
+        if extra := set(per_subplot_kw) - set(ret):
+            raise ValueError(
+                f"The keys {extra} are in *per_subplot_kw* "
+                "but not in the mosaic."
+            )
         return ret
 
     def _set_artist_props(self, a):
@@ -2714,9 +2757,9 @@ class Figure(FigureBase):
         """
         if tight is None:
             tight = mpl.rcParams['figure.autolayout']
+        _tight = 'tight' if bool(tight) else 'none'
         _tight_parameters = tight if isinstance(tight, dict) else {}
-        if bool(tight):
-            self.set_layout_engine(TightLayoutEngine(**_tight_parameters))
+        self.set_layout_engine(_tight, **_tight_parameters)
         self.stale = True
 
     def get_constrained_layout(self):
@@ -2751,10 +2794,9 @@ class Figure(FigureBase):
         """
         if constrained is None:
             constrained = mpl.rcParams['figure.constrained_layout.use']
-        _constrained = bool(constrained)
+        _constrained = 'constrained' if bool(constrained) else 'none'
         _parameters = constrained if isinstance(constrained, dict) else {}
-        if _constrained:
-            self.set_layout_engine(ConstrainedLayoutEngine(**_parameters))
+        self.set_layout_engine(_constrained, **_parameters)
         self.stale = True
 
     @_api.deprecated(
@@ -3212,8 +3254,11 @@ class Figure(FigureBase):
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : float, default: :rc:`savefig.pad_inches`
-            Amount of padding around the figure when bbox_inches is 'tight'.
+        pad_inches : float or 'layout', default: :rc:`savefig.pad_inches`
+            Amount of padding in inches around the figure when bbox_inches is
+            'tight'. If 'layout' use the padding from the constrained or
+            compressed layout engine; ignored if one of those engines is not in
+            use.
 
         facecolor : color or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
@@ -3271,12 +3316,37 @@ class Figure(FigureBase):
 
         with ExitStack() as stack:
             if transparent:
+                def _recursively_make_subfig_transparent(exit_stack, subfig):
+                    exit_stack.enter_context(
+                        subfig.patch._cm_set(
+                            facecolor="none", edgecolor="none"))
+                    for ax in subfig.axes:
+                        exit_stack.enter_context(
+                            ax.patch._cm_set(
+                                facecolor="none", edgecolor="none"))
+                    for sub_subfig in subfig.subfigs:
+                        _recursively_make_subfig_transparent(
+                            exit_stack, sub_subfig)
+
+                def _recursively_make_axes_transparent(exit_stack, ax):
+                    exit_stack.enter_context(
+                        ax.patch._cm_set(facecolor="none", edgecolor="none"))
+                    for child_ax in ax.child_axes:
+                        exit_stack.enter_context(
+                            child_ax.patch._cm_set(
+                                facecolor="none", edgecolor="none"))
+                    for child_childax in ax.child_axes:
+                        _recursively_make_axes_transparent(
+                            exit_stack, child_childax)
+
                 kwargs.setdefault('facecolor', 'none')
                 kwargs.setdefault('edgecolor', 'none')
+                # set subfigure to appear transparent in printed image
+                for subfig in self.subfigs:
+                    _recursively_make_subfig_transparent(stack, subfig)
+                # set axes to be transparent
                 for ax in self.axes:
-                    stack.enter_context(
-                        ax.patch._cm_set(facecolor='none', edgecolor='none'))
-
+                    _recursively_make_axes_transparent(stack, ax)
             self.canvas.print_figure(fname, **kwargs)
 
     def ginput(self, n=1, timeout=30, show_clicks=True,

@@ -10,7 +10,7 @@ supported user APIs.
 
 """
 
-###############################################################################
+# %%
 # Introduction to pyplot
 # ======================
 #
@@ -42,7 +42,7 @@ plt.plot([1, 2, 3, 4])
 plt.ylabel('some numbers')
 plt.show()
 
-###############################################################################
+# %%
 # You may be wondering why the x-axis ranges from 0-3 and the y-axis
 # from 1-4.  If you provide a single list or array to
 # `~.pyplot.plot`, matplotlib assumes it is a
@@ -56,7 +56,7 @@ plt.show()
 
 plt.plot([1, 2, 3, 4], [1, 4, 9, 16])
 
-###############################################################################
+# %%
 # Formatting the style of your plot
 # ---------------------------------
 #
@@ -71,7 +71,7 @@ plt.plot([1, 2, 3, 4], [1, 4, 9, 16], 'ro')
 plt.axis([0, 6, 0, 20])
 plt.show()
 
-###############################################################################
+# %%
 # See the `~.pyplot.plot` documentation for a complete
 # list of line styles and format strings.  The
 # `~.pyplot.axis` function in the example above takes a
@@ -94,7 +94,7 @@ t = np.arange(0., 5., 0.2)
 plt.plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
 plt.show()
 
-###############################################################################
+# %%
 # .. _plotting-with-keywords:
 #
 # Plotting with keyword strings
@@ -119,7 +119,7 @@ plt.xlabel('entry a')
 plt.ylabel('entry b')
 plt.show()
 
-###############################################################################
+# %%
 # .. _plotting-with-categorical-vars:
 #
 # Plotting with categorical variables
@@ -143,7 +143,7 @@ plt.plot(names, values)
 plt.suptitle('Categorical Plotting')
 plt.show()
 
-###############################################################################
+# %%
 # .. _controlling-line-properties:
 #
 # Controlling line properties
@@ -260,7 +260,7 @@ plt.subplot(212)
 plt.plot(t2, np.cos(2*np.pi*t2), 'r--')
 plt.show()
 
-###############################################################################
+# %%
 # The `~.pyplot.figure` call here is optional because a figure will be created
 # if none exists, just as an Axes will be created (equivalent to an explicit
 # ``subplot()`` call) if none exists.
@@ -342,7 +342,7 @@ plt.axis([40, 160, 0, 0.03])
 plt.grid(True)
 plt.show()
 
-###############################################################################
+# %%
 # All of the `~.pyplot.text` functions return a `matplotlib.text.Text`
 # instance.  Just as with lines above, you can customize the properties by
 # passing keyword arguments into the text functions or using `~.pyplot.setp`::
@@ -397,7 +397,7 @@ plt.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
 plt.ylim(-2, 2)
 plt.show()
 
-###############################################################################
+# %%
 # In this basic example, both the ``xy`` (arrow tip) and ``xytext``
 # locations (text location) are in data coordinates.  There are a
 # variety of other coordinate systems one can choose -- see
@@ -464,6 +464,6 @@ plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
 
 plt.show()
 
-###############################################################################
+# %%
 # It is also possible to add your own scale, see `matplotlib.scale` for
 # details.

@@ -71,7 +71,7 @@ for ax in [ax1, ax2]:
 plt.subplots_adjust(bottom=0.15, wspace=0.05)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

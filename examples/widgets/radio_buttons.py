@@ -25,23 +25,31 @@ fig.subplots_adjust(left=0.3)
 
 axcolor = 'lightgoldenrodyellow'
 rax = fig.add_axes([0.05, 0.7, 0.15, 0.15], facecolor=axcolor)
-radio = RadioButtons(rax, ('2 Hz', '4 Hz', '8 Hz'))
+radio = RadioButtons(rax, ('1 Hz', '2 Hz', '4 Hz'),
+                     label_props={'color': 'cmy', 'fontsize': [12, 14, 16]},
+                     radio_props={'s': [16, 32, 64]})
 
 
 def hzfunc(label):
-    hzdict = {'2 Hz': s0, '4 Hz': s1, '8 Hz': s2}
+    hzdict = {'1 Hz': s0, '2 Hz': s1, '4 Hz': s2}
     ydata = hzdict[label]
     l.set_ydata(ydata)
-    plt.draw()
+    fig.canvas.draw()
 radio.on_clicked(hzfunc)
 
 rax = fig.add_axes([0.05, 0.4, 0.15, 0.15], facecolor=axcolor)
-radio2 = RadioButtons(rax, ('red', 'blue', 'green'))
+radio2 = RadioButtons(
+    rax, ('red', 'blue', 'green'),
+    label_props={'color': ['red', 'blue', 'green']},
+    radio_props={
+        'facecolor': ['red', 'blue', 'green'],
+        'edgecolor': ['darkred', 'darkblue', 'darkgreen'],
+    })
 
 
 def colorfunc(label):
     l.set_color(label)
-    plt.draw()
+    fig.canvas.draw()
 radio2.on_clicked(colorfunc)
 
 rax = fig.add_axes([0.05, 0.1, 0.15, 0.15], facecolor=axcolor)
@@ -50,12 +58,12 @@ radio3 = RadioButtons(rax, ('-', '--', '-.', ':'))
 
 def stylefunc(label):
     l.set_linestyle(label)
-    plt.draw()
+    fig.canvas.draw()
 radio3.on_clicked(stylefunc)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #
