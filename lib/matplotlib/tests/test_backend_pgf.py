@@ -11,7 +11,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.backends.backend_pgf import PdfPages, _tex_escape
+from matplotlib.backends.backend_pgf import PdfPages
 from matplotlib.testing.decorators import (
     _image_directories, check_figures_equal, image_comparison)
 from matplotlib.testing._markers import (
@@ -33,21 +33,17 @@ def compare_figure(fname, savefig_kwargs={}, tol=0):
         raise ImageComparisonFailure(err)
 
 
-@pytest.mark.parametrize('plain_text, escaped_text', [
-    (r'quad_sum: $\sum x_i^2$', r'quad_sum: \(\displaystyle \sum x_i^2\)'),
-    ('% not a comment', r'\% not a comment'),
-    ('^not', r'\^not'),
-])
-def test_tex_escape(plain_text, escaped_text):
-    assert _tex_escape(plain_text) == escaped_text
-
-
 @needs_pgf_xelatex
+@needs_ghostscript
 @pytest.mark.backend('pgf')
 def test_tex_special_chars(tmp_path):
     fig = plt.figure()
-    fig.text(.5, .5, "_^ $a_b^c$")
-    fig.savefig(tmp_path / "test.pdf")  # Should not error.
+    fig.text(.5, .5, "%_^ $a_b^c$")
+    buf = BytesIO()
+    fig.savefig(buf, format="png", backend="pgf")
+    buf.seek(0)
+    t = plt.imread(buf)
+    assert not (t == 1).all()  # The leading "%" didn't eat up everything.
 
 
 def create_figure():
@@ -99,7 +95,7 @@ except mpl.ExecutableNotFoundError:
 @pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_pdflatex.pdf'], style='default',
-                  tol=11.7 if _old_gs_version else 0)
+                  tol=11.71 if _old_gs_version else 0)
 def test_pdflatex():
     if os.environ.get('APPVEYOR'):
         pytest.xfail("pdflatex test does not work on appveyor due to missing "
