@@ -1873,8 +1873,8 @@ class SubplotTool(Widget):
         # The last subplot, removed below, keeps space for the "Reset" button.
         for name, ax in zip(names, toolfig.subplots(len(names) + 1)):
             ax.set_navigate(False)
-            slider = Slider(ax, name,
-                            0, 1, getattr(targetfig.subplotpars, name))
+            slider = Slider(ax, name, 0, 1,
+                            valinit=getattr(targetfig.subplotpars, name))
             slider.on_changed(self._on_slider_changed)
             self._sliders.append(slider)
         toolfig.axes[-1].remove()
