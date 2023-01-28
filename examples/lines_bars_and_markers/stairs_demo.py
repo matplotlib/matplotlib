@@ -43,7 +43,7 @@ for ax in axs:
     ax.legend()
 plt.show()
 
-#############################################################################
+# %%
 # *baseline* can take an array to allow for stacked histogram plots
 A = [[0, 0, 0],
      [1, 2, 3],
@@ -53,7 +53,7 @@ A = [[0, 0, 0],
 for i in range(len(A) - 1):
     plt.stairs(A[i+1], baseline=A[i], fill=True)
 
-#############################################################################
+# %%
 # Comparison of `.pyplot.step` and `.pyplot.stairs`
 # -------------------------------------------------
 #
@@ -80,7 +80,7 @@ plt.legend()
 plt.title('step() vs. stairs()')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

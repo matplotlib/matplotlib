@@ -23,7 +23,7 @@ from matplotlib.patches import Ellipse
 import matplotlib.transforms as transforms
 
 
-#############################################################################
+# %%
 #
 # The plotting function itself
 # """"""""""""""""""""""""""""
@@ -92,7 +92,7 @@ def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
     return ax.add_patch(ellipse)
 
 
-#############################################################################
+# %%
 #
 # A helper function to create a correlated dataset
 # """"""""""""""""""""""""""""""""""""""""""""""""
@@ -111,7 +111,7 @@ def get_correlated_dataset(n, dependency, mu, scale):
     return scaled_with_offset[:, 0], scaled_with_offset[:, 1]
 
 
-#############################################################################
+# %%
 #
 # Positive, negative and weak correlation
 # """""""""""""""""""""""""""""""""""""""
@@ -152,7 +152,7 @@ for ax, (title, dependency) in zip(axs, PARAMETERS.items()):
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # Different number of standard deviations
 # """""""""""""""""""""""""""""""""""""""
@@ -185,7 +185,7 @@ ax_nstd.legend()
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # Using the keyword arguments
 # """""""""""""""""""""""""""
@@ -215,7 +215,7 @@ ax_kwargs.set_title('Using keyword arguments')
 fig.subplots_adjust(hspace=0.25)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

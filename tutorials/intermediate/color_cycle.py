@@ -22,18 +22,18 @@ from cycler import cycler
 import numpy as np
 import matplotlib.pyplot as plt
 
-###############################################################################
+# %%
 # First we'll generate some sample data, in this case, four offset sine
 # curves.
 x = np.linspace(0, 2 * np.pi, 50)
 offsets = np.linspace(0, 2 * np.pi, 4, endpoint=False)
 yy = np.transpose([np.sin(x + phi) for phi in offsets])
 
-###############################################################################
+# %%
 # Now ``yy`` has shape
 print(yy.shape)
 
-###############################################################################
+# %%
 # So ``yy[:, i]`` will give you the ``i``-th offset sine curve. Let's set the
 # default ``prop_cycle`` using :func:`matplotlib.pyplot.rc`.  We'll combine a
 # color cycler and a linestyle cycler by adding (``+``) two ``cycler``'s
@@ -45,7 +45,7 @@ default_cycler = (cycler(color=['r', 'g', 'b', 'y']) +
 plt.rc('lines', linewidth=4)
 plt.rc('axes', prop_cycle=default_cycler)
 
-###############################################################################
+# %%
 # Now we'll generate a figure with two axes, one on top of the other. On the
 # first axis, we'll plot with the default cycler. On the second axis, we'll
 # set the ``prop_cycle`` using :func:`matplotlib.axes.Axes.set_prop_cycle`,
@@ -66,7 +66,7 @@ ax1.set_title('Set axes color cycle to cmyk')
 fig.subplots_adjust(hspace=0.3)
 plt.show()
 
-###############################################################################
+# %%
 # Setting ``prop_cycle`` in the :file:`matplotlibrc` file or style files
 # ----------------------------------------------------------------------
 #

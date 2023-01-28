@@ -9,7 +9,7 @@ show how to label them with a `legend <matplotlib.axes.Axes.legend>`
 as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 """
 
-###############################################################################
+# %%
 # As usual we would start by defining the imports and create a figure with
 # subplots.
 # Now it's time for the pie. Starting with a pie recipe, we create the data
@@ -62,7 +62,7 @@ ax.set_title("Matplotlib bakery: A pie")
 plt.show()
 
 
-###############################################################################
+# %%
 # Now it's time for the donut. Starting with a donut recipe, we transcribe
 # the data to numbers (converting 1 egg to 50 g), and directly plot the pie.
 # The pie? Wait... it's going to be donut, is it not?
@@ -117,13 +117,13 @@ ax.set_title("Matplotlib bakery: A donut")
 
 plt.show()
 
-###############################################################################
+# %%
 # And here it is, the donut. Note however, that if we were to use this recipe,
 # the ingredients would suffice for around 6 donuts - producing one huge
 # donut is untested and might result in kitchen errors.
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

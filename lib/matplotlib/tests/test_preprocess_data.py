@@ -18,8 +18,7 @@ from matplotlib.testing.decorators import check_figures_equal
 # this gets used in multiple tests, so define it here
 @_preprocess_data(replace_names=["x", "y"], label_namer="y")
 def plot_func(ax, x, y, ls="x", label=None, w="xyz"):
-    return ("x: %s, y: %s, ls: %s, w: %s, label: %s" % (
-        list(x), list(y), ls, w, label))
+    return f"x: {list(x)}, y: {list(y)}, ls: {ls}, w: {w}, label: {label}"
 
 
 all_funcs = [plot_func]
@@ -147,8 +146,7 @@ def test_function_call_replace_all():
 
     @_preprocess_data(label_namer="y")
     def func_replace_all(ax, x, y, ls="x", label=None, w="NOT"):
-        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
-            list(x), list(y), ls, w, label)
+        return f"x: {list(x)}, y: {list(y)}, ls: {ls}, w: {w}, label: {label}"
 
     assert (func_replace_all(None, "a", "b", w="x", data=data) ==
             "x: [1, 2], y: [8, 9], ls: x, w: xyz, label: b")
@@ -172,8 +170,7 @@ def test_no_label_replacements():
 
     @_preprocess_data(replace_names=["x", "y"], label_namer=None)
     def func_no_label(ax, x, y, ls="x", label=None, w="xyz"):
-        return "x: %s, y: %s, ls: %s, w: %s, label: %s" % (
-            list(x), list(y), ls, w, label)
+        return f"x: {list(x)}, y: {list(y)}, ls: {ls}, w: {w}, label: {label}"
 
     data = {"a": [1, 2], "b": [8, 9], "w": "NOT"}
     assert (func_no_label(None, "a", "b", data=data) ==

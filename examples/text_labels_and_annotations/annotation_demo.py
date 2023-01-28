@@ -16,7 +16,7 @@ import numpy as np
 from matplotlib.text import OffsetFrom
 
 
-###############################################################################
+# %%
 # Specifying text points and annotation points
 # --------------------------------------------
 #
@@ -96,7 +96,7 @@ ax.annotate('pixel offset from axes fraction',
 ax.set(xlim=(-1, 5), ylim=(-3, 5))
 
 
-###############################################################################
+# %%
 # Using multiple coordinate systems and axis types
 # ------------------------------------------------
 #
@@ -125,7 +125,7 @@ ax.annotate('a polar annotation',
             horizontalalignment='left',
             verticalalignment='bottom')
 
-#############################################################################
+# %%
 # You can also use polar notation on a cartesian axes.  Here the native
 # coordinate system ('data') is cartesian, so you need to specify the
 # xycoords and textcoords as 'polar' if you want to use (theta, radius).
@@ -148,7 +148,7 @@ ax.annotate('the top',
 ax.set(xlim=[-20, 20], ylim=[-20, 20])
 
 
-###############################################################################
+# %%
 # Customizing arrow and bubble styles
 # -----------------------------------
 #
@@ -231,7 +231,7 @@ ax.annotate('', xy=(4., 1.), xycoords='data',
 
 ax.set(xlim=(-1, 5), ylim=(-4, 3))
 
-#############################################################################
+# %%
 # We'll create another figure so that it doesn't get too cluttered
 fig, ax = plt.subplots()
 
@@ -295,7 +295,7 @@ ax.annotate('bubble',
 
 ax.set(xlim=(-1, 5), ylim=(-5, 3))
 
-###############################################################################
+# %%
 # More examples of coordinate systems
 # -----------------------------------
 #

@@ -114,7 +114,7 @@ def test_location_event_position(x, y):
         assert isinstance(event.y, int)
     if x is not None and y is not None:
         assert re.match(
-            "x={} +y={}".format(ax.format_xdata(x), ax.format_ydata(y)),
+            f"x={ax.format_xdata(x)} +y={ax.format_ydata(y)}",
             ax.format_coord(x, y))
         ax.fmt_xdata = ax.fmt_ydata = lambda x: "foo"
         assert re.match("x=foo +y=foo", ax.format_coord(x, y))

@@ -665,16 +665,16 @@ def test_TwoSlopeNorm_scale():
 def test_TwoSlopeNorm_scaleout_center():
     # test the vmin never goes above vcenter
     norm = mcolors.TwoSlopeNorm(vcenter=0)
-    norm([1, 2, 3, 5])
-    assert norm.vmin == 0
+    norm([0, 1, 2, 3, 5])
+    assert norm.vmin == -5
     assert norm.vmax == 5
 
 
 def test_TwoSlopeNorm_scaleout_center_max():
     # test the vmax never goes below vcenter
     norm = mcolors.TwoSlopeNorm(vcenter=0)
-    norm([-1, -2, -3, -5])
-    assert norm.vmax == 0
+    norm([0, -1, -2, -3, -5])
+    assert norm.vmax == 5
     assert norm.vmin == -5
 
 
@@ -928,8 +928,8 @@ def test_cmap_and_norm_from_levels_and_colors2():
             else:
                 d_val = [d_val]
             assert_array_equal(expected_color, cmap(norm(d_val))[0],
-                               'Wih extend={0!r} and data '
-                               'value={1!r}'.format(extend, d_val))
+                               f'With extend={extend!r} and data '
+                               f'value={d_val!r}')
 
     with pytest.raises(ValueError):
         mcolors.from_levels_and_colors(levels, colors)
@@ -1453,7 +1453,7 @@ def test_set_dict_to_rgba():
     # downstream libraries do this...
     # note we can't test this because it is not well-ordered
     # so just smoketest:
-    colors = set([(0, .5, 1), (1, .2, .5), (.4, 1, .2)])
+    colors = {(0, .5, 1), (1, .2, .5), (.4, 1, .2)}
     res = mcolors.to_rgba_array(colors)
     palette = {"red": (1, 0, 0), "green": (0, 1, 0), "blue": (0, 0, 1)}
     res = mcolors.to_rgba_array(palette.values())
@@ -1492,6 +1492,11 @@ def test_norm_callback():
     assert increment.call_count == 2
     norm.vmax = 5
     assert increment.call_count == 2
+
+    # We only want autoscale() calls to send out one update signal
+    increment.call_count = 0
+    norm.autoscale([0, 1, 2])
+    assert increment.call_count == 1
 
 
 def test_scalarmappable_norm_update():

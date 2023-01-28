@@ -52,7 +52,7 @@ except Exception:
     # Convert date strings (e.g. 2014-10-18) to datetime
     dates = [datetime.strptime(d, "%Y-%m-%d") for d in dates]
 
-##############################################################################
+# %%
 # Next, we'll create a stem plot with some variation in levels as to
 # distinguish even close-by events. We add markers on the baseline for visual
 # emphasis on the one-dimensional nature of the timeline.
@@ -95,7 +95,7 @@ ax.margins(y=0.1)
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

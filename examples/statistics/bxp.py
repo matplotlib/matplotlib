@@ -26,7 +26,7 @@ labels = list('ABCD')
 # compute the boxplot stats
 stats = cbook.boxplot_stats(data, labels=labels, bootstrap=10000)
 
-###############################################################################
+# %%
 # After we've computed the stats, we can go through and change anything.
 # Just to prove it, I'll set the median of each set to the median of all
 # the data, and double the means
@@ -39,7 +39,7 @@ print(list(stats[0]))
 
 fs = 10  # fontsize
 
-###############################################################################
+# %%
 # Demonstrate how to toggle the display of different elements:
 
 fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(6, 6), sharey=True)
@@ -69,7 +69,7 @@ for ax in axs.flat:
 fig.subplots_adjust(hspace=0.4)
 plt.show()
 
-###############################################################################
+# %%
 # Demonstrate how to customize the display different elements:
 
 boxprops = dict(linestyle='--', linewidth=3, color='darkgoldenrod')
@@ -103,7 +103,7 @@ fig.suptitle("I never said they'd be pretty")
 fig.subplots_adjust(hspace=0.4)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -646,7 +646,7 @@ class ScalarFormatter(Formatter):
                 # Rough approximation: no more than 1e4 divisions.
                 a, b = self.axis.get_view_interval()
                 delta = (b - a) / 1e4
-            fmt = "%-#.{}g".format(cbook._g_sig_digits(value, delta))
+            fmt = f"%-#.{cbook._g_sig_digits(value, delta)}g"
         return self._format_maybe_minus_and_locale(fmt, value)
 
     def format_data(self, value):
@@ -687,7 +687,7 @@ class ScalarFormatter(Formatter):
             if self._useMathText or self._usetex:
                 if sciNotStr != '':
                     sciNotStr = r'\times\mathdefault{%s}' % sciNotStr
-                s = r'$%s\mathdefault{%s}$' % (sciNotStr, offsetStr)
+                s = fr'${sciNotStr}\mathdefault{{{offsetStr}}}$'
             else:
                 s = ''.join((sciNotStr, offsetStr))
 
@@ -1289,7 +1289,7 @@ class LogitFormatter(Formatter):
         if self._use_overline:
             return r"\overline{%s}" % s
         else:
-            return "1-{}".format(s)
+            return f"1-{s}"
 
     def __call__(self, x, pos=None):
         if self._minor and x not in self._labelled:
@@ -1316,10 +1316,10 @@ class LogitFormatter(Formatter):
         # docstring inherited
         # Thresholds chosen to use scientific notation iff exponent <= -2.
         if value < 0.1:
-            return "{:e}".format(value)
+            return f"{value:e}"
         if value < 0.9:
-            return "{:f}".format(value)
-        return "1-{:e}".format(1 - value)
+            return f"{value:f}"
+        return f"1-{1 - value:e}"
 
 
 class EngFormatter(Formatter):
@@ -1330,6 +1330,8 @@ class EngFormatter(Formatter):
 
     # The SI engineering prefixes
     ENG_PREFIXES = {
+        -30: "q",
+        -27: "r",
         -24: "y",
         -21: "z",
         -18: "a",
@@ -1346,7 +1348,9 @@ class EngFormatter(Formatter):
          15: "P",
          18: "E",
          21: "Z",
-         24: "Y"
+         24: "Y",
+         27: "R",
+         30: "Q"
     }
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
@@ -1414,7 +1418,7 @@ class EngFormatter(Formatter):
     useMathText = property(fget=get_useMathText, fset=set_useMathText)
 
     def __call__(self, x, pos=None):
-        s = "%s%s" % (self.format_eng(x), self.unit)
+        s = f"{self.format_eng(x)}{self.unit}"
         # Remove the trailing separator when there is neither prefix nor unit
         if self.sep and s.endswith(self.sep):
             s = s[:-len(self.sep)]
@@ -1436,7 +1440,7 @@ class EngFormatter(Formatter):
         '-1.00 \N{MICRO SIGN}'
         """
         sign = 1
-        fmt = "g" if self.places is None else ".{:d}f".format(self.places)
+        fmt = "g" if self.places is None else f".{self.places:d}f"
 
         if num < 0:
             sign = -1
@@ -1464,11 +1468,9 @@ class EngFormatter(Formatter):
 
         prefix = self.ENG_PREFIXES[int(pow10)]
         if self._usetex or self._useMathText:
-            formatted = "${mant:{fmt}}${sep}{prefix}".format(
-                mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
+            formatted = f"${mant:{fmt}}${self.sep}{prefix}"
         else:
-            formatted = "{mant:{fmt}}{sep}{prefix}".format(
-                mant=mant, sep=self.sep, prefix=prefix, fmt=fmt)
+            formatted = f"{mant:{fmt}}{self.sep}{prefix}"
 
         return formatted
 
@@ -1551,7 +1553,7 @@ class PercentFormatter(Formatter):
                     decimals = 0
         else:
             decimals = self.decimals
-        s = '{x:0.{decimals}f}'.format(x=x, decimals=int(decimals))
+        s = f'{x:0.{int(decimals)}f}'
 
         return s + self.symbol
 
@@ -2329,11 +2331,11 @@ class LogLocator(Locator):
             except ValueError as e:
                 raise ValueError("subs must be None, 'all', 'auto' or "
                                  "a sequence of floats, not "
-                                 "{}.".format(subs)) from e
+                                 f"{subs}.") from e
             if self._subs.ndim != 1:
                 raise ValueError("A sequence passed to subs must be "
                                  "1-dimensional, not "
-                                 "{}-dimensional.".format(self._subs.ndim))
+                                 f"{self._subs.ndim}-dimensional.")
 
     def __call__(self):
         """Return the locations of the ticks."""

@@ -14,7 +14,7 @@ from matplotlib.ticker import PercentFormatter
 # Create a random number generator with a fixed seed for reproducibility
 rng = np.random.default_rng(19680801)
 
-###############################################################################
+# %%
 # Generate data and plot a simple histogram
 # -----------------------------------------
 #
@@ -36,7 +36,7 @@ axs[0].hist(dist1, bins=n_bins)
 axs[1].hist(dist2, bins=n_bins)
 
 
-###############################################################################
+# %%
 # Updating histogram colors
 # -------------------------
 #
@@ -68,7 +68,7 @@ axs[1].hist(dist1, bins=n_bins, density=True)
 axs[1].yaxis.set_major_formatter(PercentFormatter(xmax=1))
 
 
-###############################################################################
+# %%
 # Plot a 2D histogram
 # -------------------
 #
@@ -79,7 +79,7 @@ fig, ax = plt.subplots(tight_layout=True)
 hist = ax.hist2d(dist1, dist2)
 
 
-###############################################################################
+# %%
 # Customizing your histogram
 # --------------------------
 #
@@ -100,7 +100,7 @@ axs[2].hist2d(dist1, dist2, bins=(80, 10), norm=colors.LogNorm())
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

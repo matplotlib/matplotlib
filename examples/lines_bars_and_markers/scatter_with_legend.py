@@ -31,7 +31,7 @@ ax.grid(True)
 plt.show()
 
 
-##############################################################################
+# %%
 # .. _automatedlegendcreation:
 #
 # Automated legend creation
@@ -64,7 +64,7 @@ legend2 = ax.legend(handles, labels, loc="upper right", title="Sizes")
 plt.show()
 
 
-##############################################################################
+# %%
 # Further arguments to the `.PathCollection.legend_elements` method
 # can be used to steer how many legend entries are to be created and how they
 # should be labeled. The following shows how to use some of them.
@@ -99,7 +99,7 @@ legend2 = ax.legend(*scatter.legend_elements(**kw),
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

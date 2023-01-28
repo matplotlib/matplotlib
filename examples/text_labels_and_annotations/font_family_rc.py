@@ -36,7 +36,7 @@ print(plt.rcParams["font.sans-serif"][0])
 print(plt.rcParams["font.monospace"][0])
 
 
-#################################################################
+# %%
 # Choose default sans-serif font
 
 def print_text(text):
@@ -50,7 +50,7 @@ plt.rcParams["font.family"] = "sans-serif"
 print_text("Hello World! 01")
 
 
-#################################################################
+# %%
 # Choose sans-serif font and specify to it to "Nimbus Sans"
 
 plt.rcParams["font.family"] = "sans-serif"
@@ -58,14 +58,14 @@ plt.rcParams["font.sans-serif"] = ["Nimbus Sans"]
 print_text("Hello World! 02")
 
 
-##################################################################
+# %%
 # Choose default monospace font
 
 plt.rcParams["font.family"] = "monospace"
 print_text("Hello World! 03")
 
 
-###################################################################
+# %%
 # Choose monospace font and specify to it to "FreeMono"
 
 plt.rcParams["font.family"] = "monospace"

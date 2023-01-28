@@ -19,7 +19,7 @@ import numpy as np
 x = np.linspace(0, 2 * np.pi, 400)
 y = np.sin(x ** 2)
 
-###############################################################################
+# %%
 # A figure with just one subplot
 # """"""""""""""""""""""""""""""
 #
@@ -33,7 +33,7 @@ fig, ax = plt.subplots()
 ax.plot(x, y)
 ax.set_title('A single plot')
 
-###############################################################################
+# %%
 # Stacking subplots in one direction
 # """"""""""""""""""""""""""""""""""
 #
@@ -48,7 +48,7 @@ fig.suptitle('Vertically stacked subplots')
 axs[0].plot(x, y)
 axs[1].plot(x, -y)
 
-###############################################################################
+# %%
 # If you are creating just a few Axes, it's handy to unpack them immediately to
 # dedicated variables for each Axes. That way, we can use ``ax1`` instead of
 # the more verbose ``axs[0]``.
@@ -58,7 +58,7 @@ fig.suptitle('Vertically stacked subplots')
 ax1.plot(x, y)
 ax2.plot(x, -y)
 
-###############################################################################
+# %%
 # To obtain side-by-side subplots, pass parameters ``1, 2`` for one row and two
 # columns.
 
@@ -67,7 +67,7 @@ fig.suptitle('Horizontally stacked subplots')
 ax1.plot(x, y)
 ax2.plot(x, -y)
 
-###############################################################################
+# %%
 # Stacking subplots in two directions
 # """""""""""""""""""""""""""""""""""
 #
@@ -93,7 +93,7 @@ for ax in axs.flat:
 for ax in axs.flat:
     ax.label_outer()
 
-###############################################################################
+# %%
 # You can use tuple-unpacking also in 2D to assign all subplots to dedicated
 # variables:
 
@@ -107,7 +107,7 @@ ax4.plot(x, -y**2, 'tab:red')
 for ax in fig.get_axes():
     ax.label_outer()
 
-###############################################################################
+# %%
 # Sharing axes
 # """"""""""""
 #
@@ -119,7 +119,7 @@ fig.suptitle('Axes values are scaled individually by default')
 ax1.plot(x, y)
 ax2.plot(x + 1, -y)
 
-###############################################################################
+# %%
 # You can use *sharex* or *sharey* to align the horizontal or vertical axis.
 
 fig, (ax1, ax2) = plt.subplots(2, sharex=True)
@@ -127,7 +127,7 @@ fig.suptitle('Aligning x-axis using sharex')
 ax1.plot(x, y)
 ax2.plot(x + 1, -y)
 
-###############################################################################
+# %%
 # Setting *sharex* or *sharey* to ``True`` enables global sharing across the
 # whole grid, i.e. also the y-axes of vertically stacked subplots have the
 # same scale when using ``sharey=True``.
@@ -138,7 +138,7 @@ axs[0].plot(x, y ** 2)
 axs[1].plot(x, 0.3 * y, 'o')
 axs[2].plot(x, y, '+')
 
-###############################################################################
+# %%
 # For subplots that are sharing axes one set of tick labels is enough. Tick
 # labels of inner Axes are automatically removed by *sharex* and *sharey*.
 # Still there remains an unused empty space between the subplots.
@@ -163,7 +163,7 @@ axs[2].plot(x, y, '+')
 for ax in axs:
     ax.label_outer()
 
-###############################################################################
+# %%
 # Apart from ``True`` and ``False``, both *sharex* and *sharey* accept the
 # values 'row' and 'col' to share the values only per row or column.
 
@@ -179,7 +179,7 @@ ax4.plot(x + 2, -y**2, 'tab:red')
 for ax in fig.get_axes():
     ax.label_outer()
 
-###############################################################################
+# %%
 # If you want a more complex sharing structure, you can first create the
 # grid of axes with no sharing, and then call `.axes.Axes.sharex` or
 # `.axes.Axes.sharey` to add sharing info a posteriori.
@@ -196,7 +196,7 @@ axs[1, 1].plot(x + 2, y + 2)
 axs[1, 1].set_title("also unrelated")
 fig.tight_layout()
 
-###############################################################################
+# %%
 # Polar axes
 # """"""""""
 #

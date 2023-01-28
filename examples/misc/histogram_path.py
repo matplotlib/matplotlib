@@ -46,7 +46,7 @@ patch.sticky_edges.y[:] = [0]
 axs[0].add_patch(patch)
 axs[0].autoscale_view()
 
-#############################################################################
+# %%
 # Instead of creating a three-dimensional array and using
 # `~.path.Path.make_compound_path_from_polys`, we could as well create the
 # compound path directly using vertices and codes as shown below
@@ -76,7 +76,7 @@ axs[1].autoscale_view()
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

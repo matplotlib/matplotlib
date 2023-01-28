@@ -117,7 +117,7 @@ def plot_imshow_with_labels(ax, data, extent, origin, xlim, ylim):
     ax.annotate(starboard_string, xy=(1, .5), xytext=(-1, 0),
                 ha='right', va='center', rotation=-90,
                 **ann_kwargs)
-    ax.set_title('origin: {origin}'.format(origin=origin))
+    ax.set_title(f'origin: {origin}')
 
     # index labels
     for index in ["[0, 0]", "[0, N']", "[M', 0]", "[M', N']"]:
@@ -161,7 +161,7 @@ def generate_imshow_demo_grid(extents, xlim=None, ylim=None):
     return columns
 
 
-###############################################################################
+# %%
 #
 # Default extent
 # --------------
@@ -170,7 +170,7 @@ def generate_imshow_demo_grid(extents, xlim=None, ylim=None):
 
 generate_imshow_demo_grid(extents=[None])
 
-###############################################################################
+# %%
 #
 # Generally, for an array of shape (M, N), the first index runs along the
 # vertical, the second index runs along the horizontal.
@@ -229,7 +229,7 @@ set_extent_None_text(columns['upper'][1])
 set_extent_None_text(columns['lower'][0])
 
 
-###############################################################################
+# %%
 #
 # Explicit extent and axes limits
 # -------------------------------

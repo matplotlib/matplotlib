@@ -38,14 +38,14 @@ mpl.rcParams['lines.linestyle'] = '--'
 data = np.random.randn(50)
 plt.plot(data)
 
-###############################################################################
+# %%
 # Note, that in order to change the usual `~.Axes.plot` color you have to
 # change the *prop_cycle* property of *axes*:
 
 mpl.rcParams['axes.prop_cycle'] = cycler(color=['r', 'g', 'b', 'y'])
 plt.plot(data)  # first color is red
 
-###############################################################################
+# %%
 # Matplotlib also provides a couple of convenience functions for modifying rc
 # settings. `matplotlib.rc` can be used to modify multiple
 # settings in a single group at once, using keyword arguments:
@@ -53,7 +53,7 @@ plt.plot(data)  # first color is red
 mpl.rc('lines', linewidth=4, linestyle='-.')
 plt.plot(data)
 
-###############################################################################
+# %%
 # Temporary rc settings
 # ---------------------
 #
@@ -63,7 +63,7 @@ plt.plot(data)
 with mpl.rc_context({'lines.linewidth': 2, 'lines.linestyle': ':'}):
     plt.plot(data)
 
-###############################################################################
+# %%
 # `matplotlib.rc_context` can also be used as a decorator to modify the
 # defaults within a function:
 
@@ -74,14 +74,14 @@ def plotting_function():
 
 plotting_function()
 
-###############################################################################
+# %%
 # `matplotlib.rcdefaults` will restore the standard Matplotlib
 # default settings.
 #
 # There is some degree of validation when setting the values of rcParams, see
 # :mod:`matplotlib.rcsetup` for details.
 
-###############################################################################
+# %%
 # .. _customizing-with-style-sheets:
 #
 # Using style sheets
@@ -109,12 +109,12 @@ plotting_function()
 
 plt.style.use('ggplot')
 
-###############################################################################
+# %%
 # To list all available styles, use:
 
 print(plt.style.available)
 
-###############################################################################
+# %%
 # Defining your own style
 # -----------------------
 #
@@ -195,7 +195,7 @@ with plt.style.context('dark_background'):
     plt.plot(np.sin(np.linspace(0, 2 * np.pi)), 'r-o')
 plt.show()
 
-###############################################################################
+# %%
 # .. _customizing-with-matplotlibrc-files:
 #
 # The :file:`matplotlibrc` file

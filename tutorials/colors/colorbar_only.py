@@ -39,7 +39,7 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
              cax=ax, orientation='horizontal', label='Some Units')
 
 
-###############################################################################
+# %%
 # Extended colorbar with continuous colorscale
 # --------------------------------------------
 #
@@ -57,7 +57,7 @@ fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap=cmap),
              cax=ax, orientation='horizontal',
              label="Discrete intervals with extend='both' keyword")
 
-###############################################################################
+# %%
 # Discrete intervals colorbar
 # ---------------------------
 #
@@ -100,7 +100,7 @@ fig.colorbar(
     label='Discrete intervals, some other units',
 )
 
-###############################################################################
+# %%
 # Colorbar with custom extension lengths
 # --------------------------------------
 #

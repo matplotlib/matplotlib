@@ -45,7 +45,7 @@ cbar = fig.colorbar(pos_neg_clipped, ax=ax3, extend='both')
 cbar.minorticks_on()
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

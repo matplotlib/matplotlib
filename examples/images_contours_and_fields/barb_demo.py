@@ -47,7 +47,7 @@ masked_u = np.ma.masked_array(data['u'])
 masked_u[4] = 1000  # Bad value that should not be plotted when masked
 masked_u[4] = np.ma.masked
 
-#############################################################################
+# %%
 # Identical plot to panel 2 in the first figure, but with the point at
 # (0.5, 0.25) missing (masked)
 fig2, ax2 = plt.subplots()
@@ -55,7 +55,7 @@ ax2.barbs(data['x'], data['y'], masked_u, data['v'], length=8, pivot='middle')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

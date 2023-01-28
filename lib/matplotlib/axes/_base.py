@@ -192,7 +192,7 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
             i += 1
         elif c == 'C' and i < len(fmt) - 1:
             color_cycle_number = int(fmt[i + 1])
-            color = mcolors.to_rgba("C{}".format(color_cycle_number))
+            color = mcolors.to_rgba(f"C{color_cycle_number}")
             i += 2
         else:
             raise ValueError(
@@ -4328,6 +4328,7 @@ class _AxesBase(martist.Artist):
         return [a for a in artists if a.get_visible() and a.get_in_layout()
                 and (isinstance(a, noclip) or not a._fully_clipped_to_axes())]
 
+    @_api.make_keyword_only("3.8", "call_axes_locator")
     def get_tightbbox(self, renderer=None, call_axes_locator=True,
                       bbox_extra_artists=None, *, for_layout_only=False):
         """

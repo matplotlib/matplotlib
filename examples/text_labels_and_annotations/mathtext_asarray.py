@@ -46,7 +46,7 @@ fig.text(100, 350, r"some other string", color="red", fontsize=20,
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

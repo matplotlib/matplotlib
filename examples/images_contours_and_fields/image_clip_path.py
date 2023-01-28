@@ -21,7 +21,7 @@ im.set_clip_path(patch)
 ax.axis('off')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

@@ -69,7 +69,7 @@ fig.canvas.mpl_connect('draw_event', on_draw)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

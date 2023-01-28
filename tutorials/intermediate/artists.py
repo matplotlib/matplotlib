@@ -137,7 +137,7 @@ ax2.set_xlabel('Time [s]')
 
 plt.show()
 
-###############################################################################
+# %%
 # .. _customizing-artists:
 #
 # Customizing your objects
@@ -340,7 +340,7 @@ fig.lines.extend([l1, l2])
 
 plt.show()
 
-###############################################################################
+# %%
 # Here is a summary of the Artists the Figure contains
 #
 # ================ ============================================================
@@ -611,25 +611,25 @@ fig, ax = plt.subplots()
 axis = ax.xaxis
 axis.get_ticklocs()
 
-###############################################################################
+# %%
 
 axis.get_ticklabels()
 
-###############################################################################
+# %%
 # note there are twice as many ticklines as labels because by default there are
 # tick lines at the top and bottom but only tick labels below the xaxis;
 # however, this can be customized.
 
 axis.get_ticklines()
 
-###############################################################################
+# %%
 # And with the above methods, you only get lists of major ticks back by
 # default, but you can also ask for the minor ticks:
 
 axis.get_ticklabels(minor=True)
 axis.get_ticklines(minor=True)
 
-###############################################################################
+# %%
 # Here is a summary of some of the useful accessor methods of the ``Axis``
 # (these have corresponding setters where useful, such as
 # :meth:`~matplotlib.axis.Axis.set_major_formatter`.)
@@ -688,7 +688,7 @@ for line in ax1.yaxis.get_ticklines():
 
 plt.show()
 
-###############################################################################
+# %%
 # .. _tick-container:
 #
 # Tick containers

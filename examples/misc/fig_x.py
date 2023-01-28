@@ -17,7 +17,7 @@ fig.add_artist(lines.Line2D([0, 1], [0, 1]))
 fig.add_artist(lines.Line2D([0, 1], [1, 0]))
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

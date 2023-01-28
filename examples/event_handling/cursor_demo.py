@@ -58,7 +58,7 @@ class Cursor:
             # update the line positions
             self.horizontal_line.set_ydata(y)
             self.vertical_line.set_xdata(x)
-            self.text.set_text('x=%1.2f, y=%1.2f' % (x, y))
+            self.text.set_text(f'x={x:1.2f}, y={y:1.2f}')
             self.ax.figure.canvas.draw()
 
 
@@ -72,7 +72,7 @@ cursor = Cursor(ax)
 fig.canvas.mpl_connect('motion_notify_event', cursor.on_mouse_move)
 
 
-##############################################################################
+# %%
 # Faster redrawing using blitting
 # """""""""""""""""""""""""""""""
 # This technique stores the rendered plot as a background image. Only the
@@ -134,7 +134,7 @@ class BlittedCursor:
             x, y = event.xdata, event.ydata
             self.horizontal_line.set_ydata(y)
             self.vertical_line.set_xdata(x)
-            self.text.set_text('x=%1.2f, y=%1.2f' % (x, y))
+            self.text.set_text(f'x={x:1.2f}, y={y:1.2f}')
 
             self.ax.figure.canvas.restore_region(self.background)
             self.ax.draw_artist(self.horizontal_line)
@@ -153,7 +153,7 @@ blitted_cursor = BlittedCursor(ax)
 fig.canvas.mpl_connect('motion_notify_event', blitted_cursor.on_mouse_move)
 
 
-##############################################################################
+# %%
 # Snapping to data points
 # """""""""""""""""""""""
 # The following cursor snaps its position to the data points of a `.Line2D`
@@ -206,7 +206,7 @@ class SnappingCursor:
             # update the line positions
             self.horizontal_line.set_ydata(y)
             self.vertical_line.set_xdata(x)
-            self.text.set_text('x=%1.2f, y=%1.2f' % (x, y))
+            self.text.set_text(f'x={x:1.2f}, y={y:1.2f}')
             self.ax.figure.canvas.draw()
 
 

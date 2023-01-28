@@ -69,7 +69,7 @@ def survey(results, category_names):
 survey(results, category_names)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

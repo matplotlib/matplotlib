@@ -616,10 +616,23 @@ class BboxBase(TransformNode):
         a = np.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 
-    def padded(self, p):
-        """Construct a `Bbox` by padding this one on all four sides by *p*."""
+    @_api.rename_parameter("3.8", "p", "w_pad")
+    def padded(self, w_pad, h_pad=None):
+        """
+        Construct a `Bbox` by padding this one on all four sides.
+
+        Parameters
+        ----------
+        w_pad : float
+            Width pad
+        h_pad: float, optional
+            Height pad.  Defaults to *w_pad*.
+
+        """
         points = self.get_points()
-        return Bbox(points + [[-p, -p], [p, p]])
+        if h_pad is None:
+            h_pad = w_pad
+        return Bbox(points + [[-w_pad, -h_pad], [w_pad, h_pad]])
 
     def translated(self, tx, ty):
         """Construct a `Bbox` by translating this one by *tx* and *ty*."""

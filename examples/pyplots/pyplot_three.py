@@ -1,10 +1,11 @@
 """
-============
-Pyplot Three
-============
+===========================
+Multiple lines using pyplot
+===========================
 
-Plot three line plots in a single call to `~matplotlib.pyplot.plot`.
+Plot three datasets with a single call to `~matplotlib.pyplot.plot`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -15,7 +16,7 @@ t = np.arange(0., 5., 0.2)
 plt.plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

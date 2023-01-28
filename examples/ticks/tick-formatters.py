@@ -33,7 +33,7 @@ def setup(ax, title):
             fontsize=14, fontname='Monospace', color='tab:blue')
 
 
-#############################################################################
+# %%
 # Tick formatters can be set in one of two ways, either by passing a ``str``
 # or function to `~.Axis.set_major_formatter` or `~.Axis.set_minor_formatter`,
 # or by creating an instance of one of the various `~.ticker.Formatter` classes
@@ -60,7 +60,7 @@ axs0[1].xaxis.set_major_formatter(lambda x, pos: str(x-5))
 fig0.tight_layout()
 
 
-#############################################################################
+# %%
 # The remaining examples use `.Formatter` objects.
 
 fig1, axs1 = plt.subplots(7, 1, figsize=(8, 6))
@@ -109,7 +109,7 @@ fig1.tight_layout()
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

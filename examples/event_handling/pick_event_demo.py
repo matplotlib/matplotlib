@@ -84,7 +84,7 @@ from numpy.random import rand
 np.random.seed(19680801)
 
 
-#############################################################################
+# %%
 # Simple picking, lines, rectangles and text
 # ------------------------------------------
 
@@ -117,7 +117,7 @@ def onpick1(event):
 fig.canvas.mpl_connect('pick_event', onpick1)
 
 
-#############################################################################
+# %%
 # Picking with a custom hit test function
 # ---------------------------------------
 # You can define custom pickers by setting picker to a callable function. The
@@ -163,7 +163,7 @@ line, = ax.plot(rand(100), rand(100), 'o', picker=line_picker)
 fig.canvas.mpl_connect('pick_event', onpick2)
 
 
-#############################################################################
+# %%
 # Picking on a scatter plot
 # -------------------------
 # A scatter plot is backed by a `~matplotlib.collections.PathCollection`.
@@ -181,7 +181,7 @@ ax.scatter(x, y, 100*s, c, picker=True)
 fig.canvas.mpl_connect('pick_event', onpick3)
 
 
-#############################################################################
+# %%
 # Picking images
 # --------------
 # Images plotted using `.Axes.imshow` are `~matplotlib.image.AxesImage`

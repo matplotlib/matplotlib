@@ -693,6 +693,13 @@ def test_contour_remove():
     assert ax.get_children() == orig_children
 
 
+def test_contour_no_args():
+    fig, ax = plt.subplots()
+    data = [[0, 1], [1, 0]]
+    with pytest.raises(TypeError, match=r"contour\(\) takes from 1 to 4"):
+        ax.contour(Z=data)
+
+
 def test_bool_autolevel():
     x, y = np.random.rand(2, 9)
     z = (np.arange(9) % 2).reshape((3, 3)).astype(bool)

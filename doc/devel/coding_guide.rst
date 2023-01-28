@@ -30,7 +30,8 @@ rules before submitting a pull request:
   for more details.
 
 * Formatting should follow the recommendations of PEP8_, as enforced by
-  flake8_.  You can check flake8 compliance from the command line with ::
+  flake8_. Matplotlib modifies PEP8 to extend the maximum line length to 88
+  characters. You can check flake8 compliance from the command line with ::
 
     python -m pip install flake8
     flake8 /path/to/module.py
@@ -156,6 +157,11 @@ Content topics:
 * Does the PR conform with the :ref:`coding_guidelines`?
 * Is the :ref:`documentation <pr-documentation>` (docstrings, examples,
   what's new, API changes) updated?
+* Is the change purely stylistic? Generally, such changes are discouraged when
+  not part of other non-stylistic work because it obscures the git history of
+  functional changes to the code. Reflowing a method or docstring as part of a
+  larger refactor/rewrite is acceptable.
+
 
 Organizational topics:
 

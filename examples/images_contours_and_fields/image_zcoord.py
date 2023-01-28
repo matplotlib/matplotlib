@@ -35,7 +35,7 @@ def format_coord(x, y):
 ax.format_coord = format_coord
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

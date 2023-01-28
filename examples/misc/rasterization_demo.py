@@ -82,7 +82,7 @@ if not plt.rcParams["text.usetex"]:
     plt.savefig("test_rasterization.svg", dpi=150)
     # svg backend currently ignores the dpi
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

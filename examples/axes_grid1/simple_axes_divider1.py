@@ -18,7 +18,7 @@ def label_axes(ax, text):
                    left=False, labelleft=False)
 
 
-##############################################################################
+# %%
 # Fixed axes sizes; fixed paddings.
 
 fig = plt.figure(figsize=(6, 6))
@@ -42,7 +42,7 @@ label_axes(ax3, "nx=2, ny=2")
 ax4 = fig.add_axes(rect, axes_locator=div.new_locator(nx=2, nx1=4, ny=0))
 label_axes(ax4, "nx=2, nx1=4, ny=0")
 
-##############################################################################
+# %%
 # Axes sizes that scale with the figure size; fixed paddings.
 
 fig = plt.figure(figsize=(6, 6))

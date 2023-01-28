@@ -49,7 +49,7 @@ axs[1, 1].set_title('bar, unequal bins')
 fig.tight_layout()
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

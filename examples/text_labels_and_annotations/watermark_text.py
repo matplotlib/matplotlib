@@ -22,7 +22,7 @@ ax.text(0.5, 0.5, 'created with matplotlib', transform=ax.transAxes,
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

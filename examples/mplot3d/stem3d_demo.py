@@ -20,7 +20,7 @@ ax.stem(x, y, z)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # The position of the baseline can be adapted using *bottom*. The parameters
 # *linefmt*, *markerfmt*, and *basefmt* control basic format properties of the
@@ -35,7 +35,7 @@ markerline.set_markerfacecolor('none')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # The orientation of the stems and baseline can be changed using *orientation*.
 # This determines in which direction the stems are projected from the head

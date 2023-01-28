@@ -81,7 +81,7 @@ ax2.set_title('tricontour (%d points)' % npts)
 plt.subplots_adjust(hspace=0.5)
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

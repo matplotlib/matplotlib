@@ -11,13 +11,15 @@ wide and tall you want your Axes to be to accommodate your widget.
 
 from contextlib import ExitStack
 import copy
+import itertools
 from numbers import Integral, Number
 
+from cycler import cycler
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _docstring, backend_tools, cbook, colors, ticker,
-               transforms)
+from . import (_api, _docstring, backend_tools, cbook, collections, colors,
+               text as mtext, ticker, transforms)
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse, Polygon
 from .transforms import TransformedPatchPath, Affine2D
@@ -966,6 +968,11 @@ class RangeSlider(SliderBase):
         return self._observers.connect('changed', lambda val: func(val))
 
 
+def _expand_text_props(props):
+    props = cbook.normalize_kwargs(props, mtext.Text)
+    return cycler(**props)() if props else itertools.repeat({})
+
+
 class CheckButtons(AxesWidget):
     r"""
     A GUI neutral set of check buttons.
@@ -989,7 +996,8 @@ class CheckButtons(AxesWidget):
         each box, but have ``set_visible(False)`` when its box is not checked.
     """
 
-    def __init__(self, ax, labels, actives=None, *, useblit=True):
+    def __init__(self, ax, labels, actives=None, *, useblit=True,
+                 label_props=None, frame_props=None, check_props=None):
         """
         Add check buttons to `matplotlib.axes.Axes` instance *ax*.
 
@@ -1005,8 +1013,27 @@ class CheckButtons(AxesWidget):
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+        label_props : dict, optional
+            Dictionary of `.Text` properties to be used for the labels.
+
+            .. versionadded:: 3.7
+        frame_props : dict, optional
+            Dictionary of scatter `.Collection` properties to be used for the
+            check button frame. Defaults (label font size / 2)**2 size, black
+            edgecolor, no facecolor, and 1.0 linewidth.
+
+            .. versionadded:: 3.7
+        check_props : dict, optional
+            Dictionary of scatter `.Collection` properties to be used for the
+            check button check. Defaults to (label font size / 2)**2 size,
+            black color, and 1.0 linewidth.
+
+            .. versionadded:: 3.7
         """
         super().__init__(ax)
+
+        _api.check_isinstance((dict, None), label_props=label_props,
+                              frame_props=frame_props, check_props=check_props)
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -1019,22 +1046,39 @@ class CheckButtons(AxesWidget):
         self._background = None
 
         ys = np.linspace(1, 0, len(labels)+2)[1:-1]
-        text_size = mpl.rcParams["font.size"] / 2
 
+        label_props = _expand_text_props(label_props)
         self.labels = [
             ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center")
-            for y, label in zip(ys, labels)]
+                    horizontalalignment="left", verticalalignment="center",
+                    **props)
+            for y, label, props in zip(ys, labels, label_props)]
+        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
 
-        self._squares = ax.scatter(
-            [0.15] * len(ys), ys, marker='s', s=text_size**2,
-            c="none", linewidth=1, transform=ax.transAxes, edgecolor="k"
-        )
-        self._crosses = ax.scatter(
-            [0.15] * len(ys), ys, marker='x', linewidth=1, s=text_size**2,
-            c=["k" if active else "none" for active in actives],
-            transform=ax.transAxes, animated=self._useblit,
-        )
+        frame_props = {
+            's': text_size**2,
+            'linewidth': 1,
+            **cbook.normalize_kwargs(frame_props, collections.PathCollection),
+            'marker': 's',
+            'transform': ax.transAxes,
+        }
+        frame_props.setdefault('facecolor', frame_props.get('color', 'none'))
+        frame_props.setdefault('edgecolor', frame_props.pop('color', 'black'))
+        self._frames = ax.scatter([0.15] * len(ys), ys, **frame_props)
+        check_props = {
+            'linewidth': 1,
+            's': text_size**2,
+            **cbook.normalize_kwargs(check_props, collections.PathCollection),
+            'marker': 'x',
+            'transform': ax.transAxes,
+            'animated': self._useblit,
+        }
+        check_props.setdefault('facecolor', check_props.pop('color', 'black'))
+        self._checks = ax.scatter([0.15] * len(ys), ys, **check_props)
+        # The user may have passed custom colours in check_props, so we need to
+        # create the checks (above), and modify the visibility after getting
+        # whatever the user set.
+        self._init_status(actives)
 
         self.connect_event('button_press_event', self._clicked)
         if self._useblit:
@@ -1047,7 +1091,7 @@ class CheckButtons(AxesWidget):
         if self.ignore(event):
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
-        self.ax.draw_artist(self._crosses)
+        self.ax.draw_artist(self._checks)
         if hasattr(self, '_lines'):
             for l1, l2 in self._lines:
                 self.ax.draw_artist(l1)
@@ -1066,17 +1110,70 @@ class CheckButtons(AxesWidget):
                             and y0 <= pclicked[1] <= y0 + p.get_height())):
                     distances[i] = np.linalg.norm(pclicked - p.get_center())
         else:
-            _, square_inds = self._squares.contains(event)
-            coords = self._squares.get_offset_transform().transform(
-                self._squares.get_offsets()
+            _, frame_inds = self._frames.contains(event)
+            coords = self._frames.get_offset_transform().transform(
+                self._frames.get_offsets()
             )
             for i, t in enumerate(self.labels):
-                if (i in square_inds["ind"]
+                if (i in frame_inds["ind"]
                         or t.get_window_extent().contains(event.x, event.y)):
                     distances[i] = np.linalg.norm(pclicked - coords[i])
         if len(distances) > 0:
             closest = min(distances, key=distances.get)
             self.set_active(closest)
+
+    def set_label_props(self, props):
+        """
+        Set properties of the `.Text` labels.
+
+        .. versionadded:: 3.7
+
+        Parameters
+        ----------
+        props : dict
+            Dictionary of `.Text` properties to be used for the labels.
+        """
+        _api.check_isinstance(dict, props=props)
+        props = _expand_text_props(props)
+        for text, prop in zip(self.labels, props):
+            text.update(prop)
+
+    def set_frame_props(self, props):
+        """
+        Set properties of the check button frames.
+
+        .. versionadded:: 3.7
+
+        Parameters
+        ----------
+        props : dict
+            Dictionary of `.Collection` properties to be used for the check
+            button frames.
+        """
+        _api.check_isinstance(dict, props=props)
+        if 's' in props:  # Keep API consistent with constructor.
+            props['sizes'] = np.broadcast_to(props.pop('s'), len(self.labels))
+        self._frames.update(props)
+
+    def set_check_props(self, props):
+        """
+        Set properties of the check button checks.
+
+        .. versionadded:: 3.7
+
+        Parameters
+        ----------
+        props : dict
+            Dictionary of `.Collection` properties to be used for the check
+            button check.
+        """
+        _api.check_isinstance(dict, props=props)
+        if 's' in props:  # Keep API consistent with constructor.
+            props['sizes'] = np.broadcast_to(props.pop('s'), len(self.labels))
+        actives = self.get_status()
+        self._checks.update(props)
+        # If new colours are supplied, then we must re-apply the status.
+        self._init_status(actives)
 
     def set_active(self, index):
         """
@@ -1097,15 +1194,15 @@ class CheckButtons(AxesWidget):
         if index not in range(len(self.labels)):
             raise ValueError(f'Invalid CheckButton index: {index}')
 
-        cross_facecolors = self._crosses.get_facecolor()
-        cross_facecolors[index] = colors.to_rgba(
-            "black"
-            if colors.same_color(
-                cross_facecolors[index], colors.to_rgba("none")
-            )
-            else "none"
+        invisible = colors.to_rgba('none')
+
+        facecolors = self._checks.get_facecolor()
+        facecolors[index] = (
+            self._active_check_colors[index]
+            if colors.same_color(facecolors[index], invisible)
+            else invisible
         )
-        self._crosses.set_facecolor(cross_facecolors)
+        self._checks.set_facecolor(facecolors)
 
         if hasattr(self, "_lines"):
             l1, l2 = self._lines[index]
@@ -1116,7 +1213,7 @@ class CheckButtons(AxesWidget):
             if self._useblit:
                 if self._background is not None:
                     self.canvas.restore_region(self._background)
-                self.ax.draw_artist(self._crosses)
+                self.ax.draw_artist(self._checks)
                 if hasattr(self, "_lines"):
                     for l1, l2 in self._lines:
                         self.ax.draw_artist(l1)
@@ -1128,12 +1225,28 @@ class CheckButtons(AxesWidget):
         if self.eventson:
             self._observers.process('clicked', self.labels[index].get_text())
 
+    def _init_status(self, actives):
+        """
+        Initialize properties to match active status.
+
+        The user may have passed custom colours in *check_props* to the
+        constructor, or to `.set_check_props`, so we need to modify the
+        visibility after getting whatever the user set.
+        """
+        self._active_check_colors = self._checks.get_facecolor()
+        if len(self._active_check_colors) == 1:
+            self._active_check_colors = np.repeat(self._active_check_colors,
+                                                  len(actives), axis=0)
+        self._checks.set_facecolor(
+            [ec if active else "none"
+             for ec, active in zip(self._active_check_colors, actives)])
+
     def get_status(self):
         """
         Return a list of the status (True/False) of all of the check buttons.
         """
         return [not colors.same_color(color, colors.to_rgba("none"))
-                for color in self._crosses.get_facecolors()]
+                for color in self._checks.get_facecolors()]
 
     def on_clicked(self, func):
         """
@@ -1147,7 +1260,8 @@ class CheckButtons(AxesWidget):
         """Remove the observer with connection id *cid*."""
         self._observers.disconnect(cid)
 
-    @_api.deprecated("3.7")
+    @_api.deprecated("3.7",
+                     addendum="Any custom property styling may be lost.")
     @property
     def rectangles(self):
         if not hasattr(self, "_rectangles"):
@@ -1162,7 +1276,7 @@ class CheckButtons(AxesWidget):
                           )
                 for i, y in enumerate(ys)
             ]
-            self._squares.set_visible(False)
+            self._frames.set_visible(False)
             for rectangle in rectangles:
                 self.ax.add_patch(rectangle)
         if not hasattr(self, "_lines"):
@@ -1170,12 +1284,13 @@ class CheckButtons(AxesWidget):
                 _ = self.lines
         return self._rectangles
 
-    @_api.deprecated("3.7")
+    @_api.deprecated("3.7",
+                     addendum="Any custom property styling may be lost.")
     @property
     def lines(self):
         if not hasattr(self, "_lines"):
             ys = np.linspace(1, 0, len(self.labels)+2)[1:-1]
-            self._crosses.set_visible(False)
+            self._checks.set_visible(False)
             dy = 1. / (len(self.labels) + 1)
             w, h = dy / 2, dy / 2
             self._lines = []
@@ -1484,8 +1599,8 @@ class RadioButtons(AxesWidget):
         The label text of the currently selected button.
     """
 
-    def __init__(self, ax, labels, active=0, activecolor='blue', *,
-                 useblit=True):
+    def __init__(self, ax, labels, active=0, activecolor=None, *,
+                 useblit=True, label_props=None, radio_props=None):
         """
         Add radio buttons to an `~.axes.Axes`.
 
@@ -1498,13 +1613,44 @@ class RadioButtons(AxesWidget):
         active : int
             The index of the initially selected button.
         activecolor : color
-            The color of the selected button.
+            The color of the selected button. The default is ``'blue'`` if not
+            specified here or in *radio_props*.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+        label_props : dict or list of dict, optional
+            Dictionary of `.Text` properties to be used for the labels.
+
+            .. versionadded:: 3.7
+        radio_props : dict, optional
+            Dictionary of scatter `.Collection` properties to be used for the
+            radio buttons. Defaults to (label font size / 2)**2 size, black
+            edgecolor, and *activecolor* facecolor (when active).
+
+            .. note::
+                If a facecolor is supplied in *radio_props*, it will override
+                *activecolor*. This may be used to provide an active color per
+                button.
+
+            .. versionadded:: 3.7
         """
         super().__init__(ax)
-        self.activecolor = activecolor
+
+        _api.check_isinstance((dict, None), label_props=label_props,
+                              radio_props=radio_props)
+
+        radio_props = cbook.normalize_kwargs(radio_props,
+                                             collections.PathCollection)
+        if activecolor is not None:
+            if 'facecolor' in radio_props:
+                _api.warn_external(
+                    'Both the *activecolor* parameter and the *facecolor* '
+                    'key in the *radio_props* parameter has been specified. '
+                    '*activecolor* will be ignored.')
+        else:
+            activecolor = 'blue'  # Default.
+
+        self._activecolor = activecolor
         self.value_selected = labels[active]
 
         ax.set_xticks([])
@@ -1512,19 +1658,39 @@ class RadioButtons(AxesWidget):
         ax.set_navigate(False)
 
         ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
-        text_size = mpl.rcParams["font.size"] / 2
 
         self._useblit = useblit and self.canvas.supports_blit
         self._background = None
 
+        label_props = _expand_text_props(label_props)
         self.labels = [
             ax.text(0.25, y, label, transform=ax.transAxes,
-                    horizontalalignment="left", verticalalignment="center")
-            for y, label in zip(ys, labels)]
-        self._buttons = ax.scatter(
-            [.15] * len(ys), ys, transform=ax.transAxes, s=text_size**2,
-            c=[activecolor if i == active else "none" for i in range(len(ys))],
-            edgecolor="black", animated=self._useblit)
+                    horizontalalignment="left", verticalalignment="center",
+                    **props)
+            for y, label, props in zip(ys, labels, label_props)]
+        text_size = np.array([text.get_fontsize() for text in self.labels]) / 2
+
+        radio_props = {
+            's': text_size**2,
+            **radio_props,
+            'marker': 'o',
+            'transform': ax.transAxes,
+            'animated': self._useblit,
+        }
+        radio_props.setdefault('edgecolor', radio_props.get('color', 'black'))
+        radio_props.setdefault('facecolor',
+                               radio_props.pop('color', activecolor))
+        self._buttons = ax.scatter([.15] * len(ys), ys, **radio_props)
+        # The user may have passed custom colours in radio_props, so we need to
+        # create the radios, and modify the visibility after getting whatever
+        # the user set.
+        self._active_colors = self._buttons.get_facecolor()
+        if len(self._active_colors) == 1:
+            self._active_colors = np.repeat(self._active_colors, len(labels),
+                                            axis=0)
+        self._buttons.set_facecolor(
+            [activecolor if i == active else "none"
+             for i, activecolor in enumerate(self._active_colors)])
 
         self.connect_event('button_press_event', self._clicked)
         if self._useblit:
@@ -1564,6 +1730,61 @@ class RadioButtons(AxesWidget):
             closest = min(distances, key=distances.get)
             self.set_active(closest)
 
+    def set_label_props(self, props):
+        """
+        Set properties of the `.Text` labels.
+
+        .. versionadded:: 3.7
+
+        Parameters
+        ----------
+        props : dict
+            Dictionary of `.Text` properties to be used for the labels.
+        """
+        _api.check_isinstance(dict, props=props)
+        props = _expand_text_props(props)
+        for text, prop in zip(self.labels, props):
+            text.update(prop)
+
+    def set_radio_props(self, props):
+        """
+        Set properties of the `.Text` labels.
+
+        .. versionadded:: 3.7
+
+        Parameters
+        ----------
+        props : dict
+            Dictionary of `.Collection` properties to be used for the radio
+            buttons.
+        """
+        _api.check_isinstance(dict, props=props)
+        if 's' in props:  # Keep API consistent with constructor.
+            props['sizes'] = np.broadcast_to(props.pop('s'), len(self.labels))
+        self._buttons.update(props)
+        self._active_colors = self._buttons.get_facecolor()
+        if len(self._active_colors) == 1:
+            self._active_colors = np.repeat(self._active_colors,
+                                            len(self.labels), axis=0)
+        self._buttons.set_facecolor(
+            [activecolor if text.get_text() == self.value_selected else "none"
+             for text, activecolor in zip(self.labels, self._active_colors)])
+
+    @property
+    def activecolor(self):
+        return self._activecolor
+
+    @activecolor.setter
+    def activecolor(self, activecolor):
+        colors._check_color_like(activecolor=activecolor)
+        self._activecolor = activecolor
+        self.set_radio_props({'facecolor': activecolor})
+        # Make sure the deprecated version is updated.
+        # Remove once circles is removed.
+        labels = [label.get_text() for label in self.labels]
+        with cbook._setattr_cm(self, eventson=False):
+            self.set_active(labels.index(self.value_selected))
+
     def set_active(self, index):
         """
         Select button with number *index*.
@@ -1575,7 +1796,7 @@ class RadioButtons(AxesWidget):
         self.value_selected = self.labels[index].get_text()
         button_facecolors = self._buttons.get_facecolor()
         button_facecolors[:] = colors.to_rgba("none")
-        button_facecolors[index] = colors.to_rgba(self.activecolor)
+        button_facecolors[index] = colors.to_rgba(self._active_colors[index])
         self._buttons.set_facecolor(button_facecolors)
         if hasattr(self, "_circles"):  # Remove once circles is removed.
             for i, p in enumerate(self._circles):
@@ -1609,7 +1830,8 @@ class RadioButtons(AxesWidget):
         """Remove the observer with connection id *cid*."""
         self._observers.disconnect(cid)
 
-    @_api.deprecated("3.7")
+    @_api.deprecated("3.7",
+                     addendum="Any custom property styling may be lost.")
     @property
     def circles(self):
         if not hasattr(self, "_circles"):
@@ -3344,12 +3566,6 @@ class RectangleSelector(_SelectorWidget):
 
     def _set_aspect_ratio_correction(self):
         aspect_ratio = self.ax._get_aspect_ratio()
-        if not hasattr(self._selection_artist, '_aspect_ratio_correction'):
-            # Aspect ratio correction is not supported with deprecated
-            # drawtype='line'. Remove this block in matplotlib 3.7
-            self._aspect_ratio_correction = 1
-            return
-
         self._selection_artist._aspect_ratio_correction = aspect_ratio
         if self._use_data_coordinates:
             self._aspect_ratio_correction = 1

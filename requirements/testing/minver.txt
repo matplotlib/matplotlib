@@ -4,7 +4,7 @@ contourpy==1.0.1
 cycler==0.10
 kiwisolver==1.3.1
 importlib-resources==3.2.0
-numpy==1.20.0
+numpy==1.21.0
 packaging==20.0
 pillow==8.0.0
 pyparsing==2.3.1

@@ -48,6 +48,7 @@ from matplotlib import (
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
+from matplotlib.layout_engine import ConstrainedLayoutEngine
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
@@ -1695,12 +1696,12 @@ class FigureCanvasBase:
     scroll_pick_id = property(lambda self: self.figure._scroll_pick_id)
 
     @classmethod
-    @functools.lru_cache()
+    @functools.cache
     def _fix_ipython_backend2gui(cls):
         # Fix hard-coded module -> toolkit mapping in IPython (used for
         # `ipython --auto`).  This cannot be done at import time due to
         # ordering issues, so we do it when creating a canvas, and should only
-        # be done once per class (hence the `lru_cache(1)`).
+        # be done once per class (hence the `cache`).
         if sys.modules.get("IPython") is None:
             return
         import IPython
@@ -2273,8 +2274,11 @@ class FigureCanvasBase:
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : float, default: :rc:`savefig.pad_inches`
-            Amount of padding around the figure when *bbox_inches* is 'tight'.
+        pad_inches : float or 'layout', default: :rc:`savefig.pad_inches`
+            Amount of padding in inches around the figure when bbox_inches is
+            'tight'. If 'layout' use the padding from the constrained or
+            compressed layout engine; ignored if one of those engines is not in
+            use.
 
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
@@ -2324,8 +2328,8 @@ class FigureCanvasBase:
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
 
-            if (self.figure.get_layout_engine() is not None or
-                    bbox_inches == "tight"):
+            layout_engine = self.figure.get_layout_engine()
+            if layout_engine is not None or bbox_inches == "tight":
                 # we need to trigger a draw before printing to make sure
                 # CL works.  "tight" also needs a draw to get the right
                 # locations:
@@ -2341,9 +2345,15 @@ class FigureCanvasBase:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(
                         renderer, bbox_extra_artists=bbox_extra_artists)
-                    if pad_inches is None:
-                        pad_inches = rcParams['savefig.pad_inches']
-                    bbox_inches = bbox_inches.padded(pad_inches)
+                    if (isinstance(layout_engine, ConstrainedLayoutEngine) and
+                            pad_inches == "layout"):
+                        h_pad = layout_engine.get()["h_pad"]
+                        w_pad = layout_engine.get()["w_pad"]
+                    else:
+                        if pad_inches in [None, "layout"]:
+                            pad_inches = rcParams['savefig.pad_inches']
+                        h_pad = w_pad = pad_inches
+                    bbox_inches = bbox_inches.padded(w_pad, h_pad)
 
                 # call adjust_bbox to save only the given area
                 restore_bbox = _tight_bbox.adjust_bbox(

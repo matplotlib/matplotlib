@@ -37,7 +37,7 @@ for ax, corner_mask in zip(axs, corner_masks):
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

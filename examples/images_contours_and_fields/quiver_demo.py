@@ -19,7 +19,7 @@ X, Y = np.meshgrid(np.arange(0, 2 * np.pi, .2), np.arange(0, 2 * np.pi, .2))
 U = np.cos(X)
 V = np.sin(Y)
 
-###############################################################################
+# %%
 
 fig1, ax1 = plt.subplots()
 ax1.set_title('Arrows scale with plot width, not view')
@@ -27,7 +27,7 @@ Q = ax1.quiver(X, Y, U, V, units='width')
 qk = ax1.quiverkey(Q, 0.9, 0.9, 2, r'$2 \frac{m}{s}$', labelpos='E',
                    coordinates='figure')
 
-###############################################################################
+# %%
 
 fig2, ax2 = plt.subplots()
 ax2.set_title("pivot='mid'; every third arrow; units='inches'")
@@ -37,7 +37,7 @@ qk = ax2.quiverkey(Q, 0.9, 0.9, 1, r'$1 \frac{m}{s}$', labelpos='E',
                    coordinates='figure')
 ax2.scatter(X[::3, ::3], Y[::3, ::3], color='r', s=5)
 
-###############################################################################
+# %%
 
 # sphinx_gallery_thumbnail_number = 3
 
@@ -52,7 +52,7 @@ ax3.scatter(X, Y, color='0.5', s=1)
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

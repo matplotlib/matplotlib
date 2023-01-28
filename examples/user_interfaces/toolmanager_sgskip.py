@@ -37,7 +37,7 @@ class ListTools(ToolBase):
             keys = ', '.join(sorted(self.toolmanager.get_tool_keymap(name)))
             print(fmt_tool(name, tools[name].description, keys))
         print('_' * 80)
-        fmt_active_toggle = "{0!s:12} {1!s:45}".format
+        fmt_active_toggle = "{!s:12} {!s:45}".format
         print("Active Toggle tools")
         print(fmt_active_toggle("Group", "Active"))
         print('-' * 80)

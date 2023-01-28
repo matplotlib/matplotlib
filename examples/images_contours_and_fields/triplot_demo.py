@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import numpy as np
 
-###############################################################################
+# %%
 # Creating a Triangulation without specifying the triangles results in the
 # Delaunay triangulation of the points.
 
@@ -34,7 +34,7 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
                          y[triang.triangles].mean(axis=1))
                 < min_radius)
 
-###############################################################################
+# %%
 # Plot the triangulation.
 
 fig1, ax1 = plt.subplots()
@@ -43,7 +43,7 @@ ax1.triplot(triang, 'bo-', lw=1)
 ax1.set_title('triplot of Delaunay triangulation')
 
 
-###############################################################################
+# %%
 # You can specify your own triangulation rather than perform a Delaunay
 # triangulation of the points, where each triangle is given by the indices of
 # the three points that make up the triangle, ordered in either a clockwise or
@@ -90,7 +90,7 @@ triangles = np.asarray([
     [42, 41, 40], [72, 33, 31], [32, 31, 33], [39, 38, 72], [33, 72, 38],
     [33, 38, 34], [37, 35, 38], [34, 38, 35], [35, 37, 36]])
 
-###############################################################################
+# %%
 # Rather than create a Triangulation object, can simply pass x, y and triangles
 # arrays to triplot directly.  It would be better to use a Triangulation object
 # if the same triangulation was to be used more than once to save duplicated
@@ -105,7 +105,7 @@ ax2.set_ylabel('Latitude (degrees)')
 
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

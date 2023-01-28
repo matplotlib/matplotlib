@@ -345,7 +345,7 @@ class Path:
         return cls(vertices, codes)
 
     def __repr__(self):
-        return "Path(%r, %r)" % (self.vertices, self.codes)
+        return f"Path({self.vertices!r}, {self.codes!r})"
 
     def __len__(self):
         return len(self.vertices)

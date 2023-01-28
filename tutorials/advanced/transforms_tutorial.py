@@ -126,7 +126,7 @@ ax.set_ylim(-1, 1)
 
 plt.show()
 
-###############################################################################
+# %%
 # You can use the ``ax.transData`` instance to transform from your
 # *data* to your *display* coordinate system, either a single point or a
 # sequence of points as shown below:
@@ -184,11 +184,11 @@ arrowprops = dict(
     connectionstyle="angle,angleA=0,angleB=90,rad=10")
 
 offset = 72
-ax.annotate('data = (%.1f, %.1f)' % (xdata, ydata),
+ax.annotate(f'data = ({xdata:.1f}, {ydata:.1f})',
             (xdata, ydata), xytext=(-2*offset, offset), textcoords='offset points',
             bbox=bbox, arrowprops=arrowprops)
 
-disp = ax.annotate('display = (%.1f, %.1f)' % (xdisplay, ydisplay),
+disp = ax.annotate(f'display = ({xdisplay:.1f}, {ydisplay:.1f})',
                    (xdisplay, ydisplay), xytext=(0.5*offset, -offset),
                    xycoords='figure pixels',
                    textcoords='offset points',
@@ -196,7 +196,7 @@ disp = ax.annotate('display = (%.1f, %.1f)' % (xdisplay, ydisplay),
 
 plt.show()
 
-###############################################################################
+# %%
 # .. warning::
 #
 #   If you run the source code in the example above in a GUI backend,
@@ -259,7 +259,7 @@ for i, label in enumerate(('A', 'B', 'C', 'D')):
 
 plt.show()
 
-###############################################################################
+# %%
 # You can also make lines or patches in the *axes* coordinate system, but
 # this is less useful in my experience than using ``ax.transAxes`` for
 # placing text.  Nonetheless, here is a silly example which plots some
@@ -281,7 +281,7 @@ circ = mpatches.Circle((0.5, 0.5), 0.25, transform=ax.transAxes,
 ax.add_patch(circ)
 plt.show()
 
-###############################################################################
+# %%
 # .. _blended_transformations:
 #
 # Blended transformations
@@ -322,7 +322,7 @@ ax.add_patch(rect)
 
 plt.show()
 
-###############################################################################
+# %%
 # .. note::
 #
 #   The blended transformations where x is in *data* coords and y in *axes*
@@ -357,7 +357,7 @@ circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
 ax.add_patch(circ)
 plt.show()
 
-###############################################################################
+# %%
 # If we change the figure size, the circle does not change its absolute
 # position and is cropped.
 
@@ -370,7 +370,7 @@ circ = mpatches.Circle((2.5, 2), 1.0, transform=fig.dpi_scale_trans,
 ax.add_patch(circ)
 plt.show()
 
-###############################################################################
+# %%
 # Another use is putting a patch with a set physical dimension around a
 # data point on the axes.  Here we add together two transforms.  The
 # first sets the scaling of how large the ellipse should be and the second
@@ -409,7 +409,7 @@ circle = mpatches.Ellipse((0, 0), 150/72, 130/72, angle=40,
 ax.add_patch(circle)
 plt.show()
 
-###############################################################################
+# %%
 # .. note::
 #
 #   The order of transformation matters.  Here the ellipse
@@ -470,7 +470,7 @@ ax.set_title('creating a shadow effect with an offset transform')
 plt.show()
 
 
-###############################################################################
+# %%
 # .. note::
 #
 #   The dpi and inches offset is a

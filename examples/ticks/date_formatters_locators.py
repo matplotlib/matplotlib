@@ -69,7 +69,7 @@ for i, fmt in enumerate(formatters):
     plot_axis(ax[i], formatter=fmt)
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

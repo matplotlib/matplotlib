@@ -25,7 +25,7 @@ ax.yaxis.set_tick_params(which='major', labelcolor='green',
 plt.show()
 
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

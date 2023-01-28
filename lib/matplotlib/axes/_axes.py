@@ -2979,7 +2979,7 @@ class Axes(_AxesBase):
         """
         if not 1 <= len(args) <= 3:
             raise TypeError('stem expected between 1 or 3 positional '
-                            'arguments, got {}'.format(args))
+                            f'arguments, got {args}')
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         if len(args) == 1:
@@ -3670,7 +3670,7 @@ class Axes(_AxesBase):
                     continue
                 hlmarker = (
                     himarker
-                    if getattr(self, f"{dep_axis}axis").get_inverted() ^ idx
+                    if self._axis_map[dep_axis].get_inverted() ^ idx
                     else lomarker)
                 x_masked, y_masked, hl_masked = apply_mask(
                     [x, y, hl], lims & everymask)
@@ -4275,7 +4275,7 @@ class Axes(_AxesBase):
         if manage_ticks:
             axis_name = "x" if vert else "y"
             interval = getattr(self.dataLim, f"interval{axis_name}")
-            axis = getattr(self, f"{axis_name}axis")
+            axis = self._axis_map[axis_name]
             positions = axis.convert_units(positions)
             # The 0.5 additional padding ensures reasonable-looking boxes
             # even when drawing a single box.  We set the sticky edge to
@@ -5748,9 +5748,10 @@ default: :rc:`scatter.edgecolors`
 
         if shading == 'flat':
             if (Nx, Ny) != (ncols + 1, nrows + 1):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
+                raise TypeError(f"Dimensions of C {C.shape} should"
+                                f" be one smaller than X({Nx}) and Y({Ny})"
+                                f" while using shading='flat'"
+                                f" see help({funcname})")
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
                 raise TypeError('Dimensions of C %s are incompatible with'

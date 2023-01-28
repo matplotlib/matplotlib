@@ -539,6 +539,29 @@ def test_savefig_preserve_layout_engine(tmp_path):
     assert fig.get_layout_engine()._compress
 
 
+@mpl.rc_context({"savefig.transparent": True})
+@check_figures_equal(extensions=["png"])
+def test_savefig_transparent(fig_test, fig_ref):
+    # create two transparent subfigures with corresponding transparent inset
+    # axes. the entire background of the image should be transparent.
+    gs1 = fig_test.add_gridspec(3, 3, left=0.05, wspace=0.05)
+    f1 = fig_test.add_subfigure(gs1[:, :])
+    f2 = f1.add_subfigure(gs1[0, 0])
+
+    ax12 = f2.add_subplot(gs1[:, :])
+
+    ax1 = f1.add_subplot(gs1[:-1, :])
+    iax1 = ax1.inset_axes([.1, .2, .3, .4])
+    iax2 = iax1.inset_axes([.1, .2, .3, .4])
+
+    ax2 = fig_test.add_subplot(gs1[-1, :-1])
+    ax3 = fig_test.add_subplot(gs1[-1, -1])
+
+    for ax in [ax12, ax1, iax1, iax2, ax2, ax3]:
+        ax.set(xticks=[], yticks=[])
+        ax.spines[:].set_visible(False)
+
+
 def test_figure_repr():
     fig = plt.figure(figsize=(10, 20), dpi=10)
     assert repr(fig) == "<Figure size 100x200 with 0 Axes>"
@@ -652,7 +675,7 @@ def test_add_artist(fig_test, fig_ref):
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
 def test_fspath(fmt, tmpdir):
-    out = Path(tmpdir, "test.{}".format(fmt))
+    out = Path(tmpdir, f"test.{fmt}")
     plt.savefig(out)
     with out.open("rb") as file:
         # All the supported formats include the format name (case-insensitive)

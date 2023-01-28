@@ -54,7 +54,7 @@ for i, style in enumerate(["]-[", "|-|"]):
             ax.text(vline[0] - dir * 0.15, y + 0.3, f'{angle}°', ha="center",
                     va="center")
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #

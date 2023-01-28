@@ -242,7 +242,7 @@ def _get_win32_installed_fonts():
     return items
 
 
-@lru_cache()
+@lru_cache
 def _get_fontconfig_fonts():
     """Cache and list the font paths known to ``fc-list``."""
     try:
@@ -958,7 +958,7 @@ def json_dump(data, filename):
         try:
             json.dump(data, fh, cls=_JSONEncoder, indent=2)
         except OSError as e:
-            _log.warning('Could not save font_manager cache {}'.format(e))
+            _log.warning('Could not save font_manager cache %s', e)
 
 
 def json_load(filename):
@@ -1265,7 +1265,7 @@ class FontManager:
 
     def get_font_names(self):
         """Return the list of available fonts."""
-        return list(set([font.name for font in self.ttflist]))
+        return list({font.name for font in self.ttflist})
 
     def _find_fonts_by_props(self, prop, fontext='ttf', directory=None,
                              fallback_to_default=True, rebuild_if_missing=True):
@@ -1441,7 +1441,7 @@ class FontManager:
         return _cached_realpath(result)
 
 
-@lru_cache()
+@lru_cache
 def is_opentype_cff_font(filename):
     """
     Return whether the given font is a Postscript Compact Font Format Font

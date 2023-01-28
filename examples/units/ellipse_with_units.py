@@ -35,7 +35,7 @@ x, y = np.dot(R, [x, y])
 x += xcenter
 y += ycenter
 
-###############################################################################
+# %%
 
 fig = plt.figure()
 ax = fig.add_subplot(211, aspect='auto')
@@ -56,7 +56,7 @@ e2 = patches.Ellipse((xcenter, ycenter), width, height,
 ax.add_patch(e2)
 fig.savefig('ellipse_compare')
 
-###############################################################################
+# %%
 
 fig = plt.figure()
 ax = fig.add_subplot(211, aspect='auto')

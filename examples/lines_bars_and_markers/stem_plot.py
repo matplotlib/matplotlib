@@ -15,7 +15,7 @@ y = np.exp(np.sin(x))
 plt.stem(x, y)
 plt.show()
 
-#############################################################################
+# %%
 #
 # The position of the baseline can be adapted using *bottom*.
 # The parameters *linefmt*, *markerfmt*, and *basefmt* control basic format
@@ -28,7 +28,7 @@ markerline, stemlines, baseline = plt.stem(
 markerline.set_markerfacecolor('none')
 plt.show()
 
-#############################################################################
+# %%
 #
 # .. admonition:: References
 #
