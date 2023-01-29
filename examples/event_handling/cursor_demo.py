@@ -58,8 +58,8 @@ class Cursor:
             self.set_cross_hair_visible(True)
             x, y = event.xdata, event.ydata
             # update the line positions
-            self.horizontal_line.set_ydata(y)
-            self.vertical_line.set_xdata(x)
+            self.horizontal_line.set_ydata([y])
+            self.vertical_line.set_xdata([x])
             self.text.set_text('x=%1.2f, y=%1.2f' % (x, y))
             self.ax.figure.canvas.draw()
 
@@ -140,8 +140,8 @@ class BlittedCursor:
             self.set_cross_hair_visible(True)
             # update the line positions
             x, y = event.xdata, event.ydata
-            self.horizontal_line.set_ydata(y)
-            self.vertical_line.set_xdata(x)
+            self.horizontal_line.set_ydata([y])
+            self.vertical_line.set_xdata([x])
             self.text.set_text('x=%1.2f, y=%1.2f' % (x, y))
 
             self.ax.figure.canvas.restore_region(self.background)
@@ -218,8 +218,8 @@ class SnappingCursor:
             x = self.x[index]
             y = self.y[index]
             # update the line positions
-            self.horizontal_line.set_ydata(y)
-            self.vertical_line.set_xdata(x)
+            self.horizontal_line.set_ydata([y])
+            self.vertical_line.set_xdata([x])
             self.text.set_text('x=%1.2f, y=%1.2f' % (x, y))
             self.ax.figure.canvas.draw()
 
