@@ -983,10 +983,10 @@ class FontManager:
     matches the specification.  If no good enough match is found, the default
     font is returned.
 
-    However, fonts added with the `FontManager.addfont` method will not persist
-    in the cache and hence will need to be called at every process. This method
-    should only be used if and when a font cannot be installed on your operating
-    system by other means.
+    Fonts added with the `FontManager.addfont` method will not persist in the
+    cache; therefore, `addfont` will need to be called every time Matplotlib is
+    imported. This method should only be used if and when a font cannot be
+    installed on your operating system by other means.
 
     Notes
     -----
