@@ -721,7 +721,7 @@ Users can set the aspect ratio for the X, Y, Z axes of a 3D plot to be 'equal',
 'equalxy', 'equalxz', or 'equalyz' rather than the default of 'auto'.
 
 .. plot::
-    :alt: Five plots, each showing a different aspect option for a rectangle that has height 4, depth 1, and width 1. auto: none of the dimensions have equal aspect, depth and width form a rectangular and height appears shrunken in proportion. equal: all the dimensions have equal aspect. equalxy: width and depth equal, height not so looks shrunken in proportion. equalyz: depth and height equal, width not so elongated. equalxz: width and height equal, depth not so elongated
+    :alt: Five plots, each showing a different aspect option for a rectangle that has height 4, depth 1, and width 1. auto: none of the dimensions have equal aspect, depth and width form a rectangular and height appears shrunken in proportion. equal: all the dimensions have equal aspect. equalxy: width and depth equal, height not so looks shrunken in proportion. equalyz: depth and height equal, width not so elongated. equalxz: width and height equal, depth not so elongated.
     :include-source: true
 
     from itertools import combinations, product
