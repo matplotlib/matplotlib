@@ -468,7 +468,7 @@ the keyword argument *alignment*. You can also use `.Legend.set_alignment` to
 control the alignment on existing Legends.
 
 .. plot::
-    :alt: Figure with 3 subplots. All the subplots are titled test. The three subplots have legends titled alignment='left', alignment='center', alignment='right'. The legend texts are respectively aligned left, center and right,
+    :alt: Figure with 3 subplots. All the subplots are titled test. The three subplots have legends titled alignment='left', alignment='center', alignment='right'. The legend texts are respectively aligned left, center and right.
     :include-source: true
 
     fig, axs = plt.subplots(3, 1)
