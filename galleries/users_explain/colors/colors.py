@@ -68,6 +68,9 @@ Matplotlib recognizes the following formats to specify a color.
 |           to black if cycle does not |                                      |
 |           include color.             |                                      |
 +--------------------------------------+--------------------------------------+
+| Tuple of one of the above color      | - ``('green', 0.3)``                 |
+| formats and an alpha float.          | - ``('#f00', 0.9)``                  |
++--------------------------------------+--------------------------------------+
 
 .. _xkcd color survey: https://xkcd.com/color/rgb/
 
