@@ -6220,9 +6220,6 @@ default: :rc:`scatter.edgecolors`
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
                                             shading=shading, kwargs=kwargs)
         coords = np.stack([X, Y], axis=-1)
-        # convert to one dimensional array, except for 3D RGB(A) arrays
-        if C.ndim != 3:
-            C = C.ravel()
 
         kwargs.setdefault('snap', mpl.rcParams['pcolormesh.snap'])
 
