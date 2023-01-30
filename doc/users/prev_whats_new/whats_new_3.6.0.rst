@@ -326,7 +326,7 @@ the scale. This is based on an arcsinh transformation that allows plotting both
 positive and negative values that span many orders of magnitude.
 
 .. plot::
-    :alt:  figure with 2 subplots. Subplot on the left uses symlog scale on the y axis. The transition at -2 is not smooth. Subplot on the right use asinh scale. The transition at -2 is smooth. 
+    :alt: Figure with 2 subplots. Subplot on the left uses symlog scale on the y axis. The transition at -2 is not smooth. Subplot on the right use asinh scale. The transition at -2 is smooth. 
 
     fig, (ax0, ax1) = plt.subplots(1, 2, sharex=True)
     x = np.linspace(-3, 6, 100)
