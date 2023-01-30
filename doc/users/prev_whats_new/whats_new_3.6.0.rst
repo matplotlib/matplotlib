@@ -675,7 +675,7 @@ The focal length can be calculated from a desired FOV via the equation:
     focal\_length = 1/\tan(FOV/2)
 
 .. plot::
-    :alt: A figure showing 3 basic 3d Wireframe plots. From left to right, the plots use focal length of 0.2, 1 and infinity. Focal length between 0.2 and 1 produce plot with depth while focal length between 1 and infinity show relatively flattened image.
+    :alt: A figure showing 3 basic 3D Wireframe plots. From left to right, the plots use focal length of 0.2, 1 and infinity. Focal length between 0.2 and 1 produce plot with depth while focal length between 1 and infinity show relatively flattened image.
     :include-source: true
 
     from mpl_toolkits.mplot3d import axes3d
