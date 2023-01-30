@@ -71,7 +71,7 @@ def test_blit():
     import matplotlib.pyplot as plt
     import numpy as np
     import matplotlib.backends.backend_tkagg  # noqa
-    from matplotlib.backends import _tkagg
+    from matplotlib.backends import _backend_tk, _tkagg
 
     fig, ax = plt.subplots()
     photoimage = fig.canvas._tkphoto
@@ -92,6 +92,10 @@ def test_blit():
                 (0, 1, 2, 3), bad_box)
         except ValueError:
             print("success")
+
+    # Test blitting to a destroyed canvas.
+    plt.close(fig)
+    _backend_tk.blit(photoimage, data, (0, 1, 2, 3))
 
 
 @_isolated_tk_test(success_count=1)

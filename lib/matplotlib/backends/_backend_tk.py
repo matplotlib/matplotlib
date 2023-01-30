@@ -61,6 +61,8 @@ def _blit(argsid):
     the ``_blit_args`` dict, since arguments cannot be passed directly.
     """
     photoimage, dataptr, offsets, bboxptr, comp_rule = _blit_args.pop(argsid)
+    if not photoimage.tk.call("info", "commands", photoimage):
+        return
     _tkagg.blit(photoimage.tk.interpaddr(), str(photoimage), dataptr,
                 comp_rule, offsets, bboxptr)
 
