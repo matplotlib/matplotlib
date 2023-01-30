@@ -5,6 +5,8 @@ Various transforms used for by the 3D code
 import numpy as np
 import numpy.linalg as linalg
 
+from matplotlib import _api
+
 
 def _line2d_seg_dist(p, s0, s1):
     """
@@ -51,7 +53,15 @@ def world_transformation(xmin, xmax,
                      [0,    0,    0,    1]])
 
 
+@_api.deprecated("3.8")
 def rotation_about_vector(v, angle):
+    """
+    Produce a rotation matrix for an angle in radians about a vector.
+    """
+    return _rotation_about_vector(v, angle)
+
+
+def _rotation_about_vector(v, angle):
     """
     Produce a rotation matrix for an angle in radians about a vector.
     """
@@ -101,7 +111,7 @@ def _view_axes(E, R, V, roll):
     # Save some computation for the default roll=0
     if roll != 0:
         # A positive rotation of the camera is a negative rotation of the world
-        Rroll = rotation_about_vector(w, -roll)
+        Rroll = _rotation_about_vector(w, -roll)
         u = np.dot(Rroll, u)
         v = np.dot(Rroll, v)
     return u, v, w
@@ -130,6 +140,7 @@ def _view_transformation_uvw(u, v, w, E):
     return M
 
 
+@_api.deprecated("3.8")
 def view_transformation(E, R, V, roll):
     """
     Return the view transformation matrix.
@@ -150,7 +161,12 @@ def view_transformation(E, R, V, roll):
     return M
 
 
+@_api.deprecated("3.8")
 def persp_transformation(zfront, zback, focal_length):
+    return _persp_transformation(zfront, zback, focal_length)
+
+
+def _persp_transformation(zfront, zback, focal_length):
     e = focal_length
     a = 1  # aspect ratio
     b = (zfront+zback)/(zfront-zback)
@@ -162,7 +178,12 @@ def persp_transformation(zfront, zback, focal_length):
     return proj_matrix
 
 
+@_api.deprecated("3.8")
 def ortho_transformation(zfront, zback):
+    return _ortho_transformation(zfront, zback)
+
+
+def _ortho_transformation(zfront, zback):
     # note: w component in the resulting vector will be (zback-zfront), not 1
     a = -(zfront + zback)
     b = -(zfront - zback)
@@ -218,7 +239,9 @@ def proj_transform(xs, ys, zs, M):
     return _proj_transform_vec(vec, M)
 
 
-transform = proj_transform
+transform = _api.deprecated(
+    "3.8", obj_type="function", name="transform",
+    alternative="proj_transform")(proj_transform)
 
 
 def proj_transform_clip(xs, ys, zs, M):
@@ -231,15 +254,26 @@ def proj_transform_clip(xs, ys, zs, M):
     return _proj_transform_vec_clip(vec, M)
 
 
+@_api.deprecated("3.8")
 def proj_points(points, M):
-    return np.column_stack(proj_trans_points(points, M))
+    return _proj_points(points, M)
 
 
+def _proj_points(points, M):
+    return np.column_stack(_proj_trans_points(points, M))
+
+
+@_api.deprecated("3.8")
 def proj_trans_points(points, M):
+    return _proj_trans_points(points, M)
+
+
+def _proj_trans_points(points, M):
     xs, ys, zs = zip(*points)
     return proj_transform(xs, ys, zs, M)
 
 
+@_api.deprecated("3.8")
 def rot_x(V, alpha):
     cosa, sina = np.cos(alpha), np.sin(alpha)
     M1 = np.array([[1, 0, 0, 0],

@@ -1016,7 +1016,7 @@ def _test_proj_make_M():
     roll = 0
     u, v, w = proj3d._view_axes(E, R, V, roll)
     viewM = proj3d._view_transformation_uvw(u, v, w, E)
-    perspM = proj3d.persp_transformation(100, -100, 1)
+    perspM = proj3d._persp_transformation(100, -100, 1)
     M = np.dot(perspM, viewM)
     return M
 
@@ -1083,7 +1083,7 @@ def test_proj_axes_cube_ortho():
     roll = 0
     u, v, w = proj3d._view_axes(E, R, V, roll)
     viewM = proj3d._view_transformation_uvw(u, v, w, E)
-    orthoM = proj3d.ortho_transformation(-1, 1)
+    orthoM = proj3d._ortho_transformation(-1, 1)
     M = np.dot(orthoM, viewM)
 
     ts = '0 1 2 3 0 4 5 6 7 4'.split()
@@ -1102,16 +1102,6 @@ def test_proj_axes_cube_ortho():
 
     ax.set_xlim(-200, 200)
     ax.set_ylim(-200, 200)
-
-
-def test_rot():
-    V = [1, 0, 0, 1]
-    rotated_V = proj3d.rot_x(V, np.pi / 6)
-    np.testing.assert_allclose(rotated_V, [1, 0, 0, 1])
-
-    V = [0, 1, 0, 1]
-    rotated_V = proj3d.rot_x(V, np.pi / 6)
-    np.testing.assert_allclose(rotated_V, [0, np.sqrt(3) / 2, 0.5, 1])
 
 
 def test_world():
