@@ -1928,13 +1928,11 @@ default: %(va)s
 
             We need to have this internal function rather than
             ``np.asarray(..., dtype=object)`` so that a list of lists
-            of lists does not get converted to an array of dimension >
-            2
+            of lists does not get converted to an array of dimension > 2.
 
             Returns
             -------
             2D object array
-
             """
             r0, *rest = inp
             if isinstance(r0, str):
@@ -1960,13 +1958,13 @@ default: %(va)s
 
             Parameters
             ----------
-            mosaic : 2D numpy object array
+            mosaic : 2D object array
 
             Returns
             -------
             unique_ids : tuple
                 The unique non-sub mosaic entries in this mosaic
-            nested : dict[tuple[int, int]], 2D object array
+            nested : dict[tuple[int, int], 2D object array]
             """
             # make sure we preserve the user supplied order
             unique_ids = cbook._OrderedSet()
@@ -1990,7 +1988,7 @@ default: %(va)s
             ----------
             gs : GridSpec
             mosaic : 2D object array
-                The input converted to a 2D numpy array for this level.
+                The input converted to a 2D array for this level.
             unique_ids : tuple
                 The identified scalar labels at this level of nesting.
             nested : dict[tuple[int, int]], 2D object array

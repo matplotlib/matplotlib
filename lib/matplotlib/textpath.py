@@ -78,19 +78,15 @@ class TextToPath:
         ----------
         prop : `~matplotlib.font_manager.FontProperties`
             The font properties for the text.
-
         s : str
             The text to be converted.
-
         ismath : {False, True, "TeX"}
             If True, use mathtext parser.  If "TeX", use tex for rendering.
 
         Returns
         -------
         verts : list
-            A list of numpy arrays containing the x and y coordinates of the
-            vertices.
-
+            A list of arrays containing the (x, y) coordinates of the vertices.
         codes : list
             A list of path codes.
 

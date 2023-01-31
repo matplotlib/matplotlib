@@ -17,22 +17,21 @@ const char* image_resample__doc__ =
 
 "Parameters\n"
 "----------\n"
-"input_array : 2-d or 3-d Numpy array of float, double or uint8\n"
+"input_array : 2-d or 3-d array-like of float, double or uint8\n"
 "    If 2-d, the image is grayscale.  If 3-d, the image must be of size\n"
 "    4 in the last dimension and represents RGBA data.\n\n"
 
-"output_array : 2-d or 3-d Numpy array of float, double or uint8\n"
-"    The dtype and number of dimensions must match `input_array`.\n\n"
+"output_array : 2-d or 3-d numpy array of float, double or uint8\n"
+"    The dtype and number of dimensions must match *input_array*.\n\n"
 
 "transform : matplotlib.transforms.Transform instance\n"
-"    The transformation from the input array to the output\n"
-"    array.\n\n"
+"    The transformation from the input array to the output array.\n\n"
 
-"interpolation : int, optional\n"
+"interpolation : int, default: NEAREST\n"
 "    The interpolation method.  Must be one of the following constants\n"
 "    defined in this module:\n\n"
 
-"      NEAREST (default), BILINEAR, BICUBIC, SPLINE16, SPLINE36,\n"
+"      NEAREST, BILINEAR, BICUBIC, SPLINE16, SPLINE36,\n"
 "      HANNING, HAMMING, HERMITE, KAISER, QUADRIC, CATROM, GAUSSIAN,\n"
 "      BESSEL, MITCHELL, SINC, LANCZOS, BLACKMAN\n\n"
 
@@ -40,16 +39,14 @@ const char* image_resample__doc__ =
 "    When `True`, use a full resampling method.  When `False`, only\n"
 "    resample when the output image is larger than the input image.\n\n"
 
-"alpha : float, optional\n"
-"    The level of transparency to apply.  1.0 is completely opaque.\n"
-"    0.0 is completely transparent.\n\n"
+"alpha : float, default: 1\n"
+"    The transparency level, from 0 (transparent) to 1 (opaque).\n\n"
 
-"norm : bool, optional\n"
-"    Whether to norm the interpolation function.  Default is `False`.\n\n"
+"norm : bool, default: False\n"
+"    Whether to norm the interpolation function.\n\n"
 
-"radius: float, optional\n"
-"    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n"
-"    Default is 1.\n";
+"radius: float, default: 1\n"
+"    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n";
 
 
 static PyArrayObject *

@@ -830,11 +830,10 @@ class Bbox(BboxBase):
         ----------
         left, bottom, right, top : float
             The four extents of the bounding box.
-
         minpos : float or None
-           If this is supplied, the Bbox will have a minimum positive value
-           set. This is useful when dealing with logarithmic scales and other
-           scales where negative bounds result in floating point errors.
+            If this is supplied, the Bbox will have a minimum positive value
+            set. This is useful when dealing with logarithmic scales and other
+            scales where negative bounds result in floating point errors.
         """
         bbox = Bbox(np.reshape(args, (2, 2)))
         if minpos is not None:
@@ -858,11 +857,10 @@ class Bbox(BboxBase):
         by subsequent calls to :meth:`update_from_data_xy`.
 
         value : bool
-           - When ``True``, subsequent calls to :meth:`update_from_data_xy`
-             will ignore the existing bounds of the `Bbox`.
-
-           - When ``False``, subsequent calls to :meth:`update_from_data_xy`
-             will include the existing bounds of the `Bbox`.
+            - When ``True``, subsequent calls to `update_from_data_xy` will
+              ignore the existing bounds of the `Bbox`.
+            - When ``False``, subsequent calls to `update_from_data_xy` will
+              include the existing bounds of the `Bbox`.
         """
         self._ignore = value
 
@@ -875,12 +873,10 @@ class Bbox(BboxBase):
         Parameters
         ----------
         path : `~matplotlib.path.Path`
-
         ignore : bool, optional
-           - when ``True``, ignore the existing bounds of the `Bbox`.
-           - when ``False``, include the existing bounds of the `Bbox`.
-           - when ``None``, use the last value passed to :meth:`ignore`.
-
+           - When ``True``, ignore the existing bounds of the `Bbox`.
+           - When ``False``, include the existing bounds of the `Bbox`.
+           - When ``None``, use the last value passed to :meth:`ignore`.
         updatex, updatey : bool, default: True
             When ``True``, update the x/y values.
         """
@@ -912,7 +908,6 @@ class Bbox(BboxBase):
         ----------
         x : `~numpy.ndarray`
             Array of x-values.
-
         ignore : bool, optional
            - When ``True``, ignore the existing bounds of the `Bbox`.
            - When ``False``, include the existing bounds of the `Bbox`.
@@ -932,11 +927,10 @@ class Bbox(BboxBase):
         ----------
         y : `~numpy.ndarray`
             Array of y-values.
-
         ignore : bool, optional
-           - When ``True``, ignore the existing bounds of the `Bbox`.
-           - When ``False``, include the existing bounds of the `Bbox`.
-           - When ``None``, use the last value passed to :meth:`ignore`.
+            - When ``True``, ignore the existing bounds of the `Bbox`.
+            - When ``False``, include the existing bounds of the `Bbox`.
+            - When ``None``, use the last value passed to :meth:`ignore`.
         """
         y = np.ravel(y)
         self.update_from_data_xy(np.column_stack([np.ones(y.size), y]),
@@ -944,22 +938,21 @@ class Bbox(BboxBase):
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
-        Update the bounds of the `Bbox` based on the passed in data. After
-        updating, the bounds will have positive *width* and *height*;
+        Update the `Bbox` bounds based on the passed in *xy* coordinates.
+
+        After updating, the bounds will have positive *width* and *height*;
         *x0* and *y0* will be the minimal values.
 
         Parameters
         ----------
-        xy : `~numpy.ndarray`
-            A numpy array of 2D points.
-
+        xy : (N, 2) array-like
+            The (x, y) coordinates.
         ignore : bool, optional
-           - When ``True``, ignore the existing bounds of the `Bbox`.
-           - When ``False``, include the existing bounds of the `Bbox`.
-           - When ``None``, use the last value passed to :meth:`ignore`.
-
+            - When ``True``, ignore the existing bounds of the `Bbox`.
+            - When ``False``, include the existing bounds of the `Bbox`.
+            - When ``None``, use the last value passed to :meth:`ignore`.
         updatex, updatey : bool, default: True
-            When ``True``, update the x/y values.
+             When ``True``, update the x/y values.
         """
         if len(xy) == 0:
             return
@@ -1051,17 +1044,17 @@ class Bbox(BboxBase):
 
     def get_points(self):
         """
-        Get the points of the bounding box directly as a numpy array
-        of the form: ``[[x0, y0], [x1, y1]]``.
+        Get the points of the bounding box as an array of the form
+        ``[[x0, y0], [x1, y1]]``.
         """
         self._invalid = 0
         return self._points
 
     def set_points(self, points):
         """
-        Set the points of the bounding box directly from a numpy array
-        of the form: ``[[x0, y0], [x1, y1]]``.  No error checking is
-        performed, as this method is mainly for internal use.
+        Set the points of the bounding box directly from an array of the form
+        ``[[x0, y0], [x1, y1]]``.  No error checking is performed, as this
+        method is mainly for internal use.
         """
         if np.any(self._points != points):
             self._points = points
@@ -1483,14 +1476,14 @@ class Transform(TransformNode):
 
         Parameters
         ----------
-        values : array
-            The input values as NumPy array of length :attr:`input_dims` or
+        values : array-like
+            The input values as an array of length :attr:`input_dims` or
             shape (N, :attr:`input_dims`).
 
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`output_dims` or
+            The output values as an array of length :attr:`output_dims` or
             shape (N, :attr:`output_dims`), depending on the input.
         """
         # Ensure that values is a 2d array (but remember whether
@@ -1529,13 +1522,13 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array
-            The input values as NumPy array of length :attr:`input_dims` or
+            The input values as an array of length :attr:`input_dims` or
             shape (N, :attr:`input_dims`).
 
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`output_dims` or
+            The output values as an array of length :attr:`output_dims` or
             shape (N, :attr:`output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
@@ -1554,13 +1547,13 @@ class Transform(TransformNode):
         Parameters
         ----------
         values : array
-            The input values as NumPy array of length :attr:`input_dims` or
+            The input values as an array of length :attr:`input_dims` or
             shape (N, :attr:`input_dims`).
 
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`output_dims` or
+            The output values as an array of length :attr:`output_dims` or
             shape (N, :attr:`output_dims`), depending on the input.
         """
         return values
@@ -1932,7 +1925,7 @@ class Affine2D(Affine2DBase):
 
     def get_matrix(self):
         """
-        Get the underlying transformation matrix as a 3x3 numpy array::
+        Get the underlying transformation matrix as a 3x3 array::
 
           a c e
           b d f
@@ -1947,7 +1940,7 @@ class Affine2D(Affine2DBase):
 
     def set_matrix(self, mtx):
         """
-        Set the underlying transformation matrix from a 3x3 numpy array::
+        Set the underlying transformation matrix from a 3x3 array::
 
           a c e
           b d f

@@ -2237,7 +2237,7 @@ def _unpack_to_numpy(x):
         # If numpy, return directly
         return x
     if hasattr(x, 'to_numpy'):
-        # Assume that any function to_numpy() do actually return a numpy array
+        # Assume that any to_numpy() method actually returns a numpy array
         return x.to_numpy()
     if hasattr(x, 'values'):
         xtmp = x.values

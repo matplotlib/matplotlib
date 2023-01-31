@@ -1125,7 +1125,7 @@ class Polygon(Patch):
 
         Returns
         -------
-        (N, 2) numpy array
+        (N, 2) array
             The coordinates of the vertices.
         """
         return self._path.vertices
@@ -1164,7 +1164,7 @@ class Polygon(Patch):
         self.stale = True
 
     xy = property(get_xy, set_xy,
-                  doc='The vertices of the path as (N, 2) numpy array.')
+                  doc='The vertices of the path as a (N, 2) array.')
 
 
 class Wedge(Patch):

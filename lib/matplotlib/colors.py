@@ -2050,8 +2050,7 @@ class NoNorm(Normalize):
 
 def rgb_to_hsv(arr):
     """
-    Convert float RGB values (in the range [0, 1]), in a numpy array to HSV
-    values.
+    Convert an array of float RGB values (in the range [0, 1]) to HSV values.
 
     Parameters
     ----------
