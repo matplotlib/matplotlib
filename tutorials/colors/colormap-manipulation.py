@@ -51,9 +51,9 @@ print(viridis(0.56))
 # `.ListedColormap`\s store their color values in a ``.colors`` attribute.
 # The list of colors that comprise the colormap can be directly accessed using
 # the ``colors`` property,
-# or it can be accessed indirectly by calling  ``viridis`` with an array
-# of values matching the length of the colormap.  Note that the returned list
-# is in the form of an RGBA Nx4 array, where N is the length of the colormap.
+# or it can be accessed indirectly by calling  ``viridis`` with an array of
+# values matching the length of the colormap.  Note that the returned list is
+# in the form of an RGBA (N, 4) array, where N is the length of the colormap.
 
 print('viridis.colors', viridis.colors)
 print('viridis(range(8))', viridis(range(8)))
@@ -115,7 +115,7 @@ plot_examples([cmap])
 # %%
 # In fact, that list may contain any valid
 # :doc:`Matplotlib color specification </tutorials/colors/colors>`.
-# Particularly useful for creating custom colormaps are Nx4 numpy arrays.
+# Particularly useful for creating custom colormaps are (N, 4)-shaped arrays.
 # Because with the variety of numpy operations that we can do on a such an
 # array, carpentry of new colormaps from existing colormaps become quite
 # straight forward.
@@ -155,7 +155,7 @@ plot_examples([viridis, newcmp])
 
 # %%
 # Of course we need not start from a named colormap, we just need to create
-# the Nx4 array to pass to `.ListedColormap`. Here we create a colormap that
+# the (N, 4) array to pass to `.ListedColormap`. Here we create a colormap that
 # goes from brown (RGB: 90, 40, 40) to white (RGB: 255, 255, 255).
 
 N = 256

@@ -62,4 +62,33 @@ inline int prepare_and_add_type(PyTypeObject *type, PyObject *module)
     return 0;
 }
 
+#ifdef __cplusplus  // not for macosx.m
+// Check that array has shape (N, d1) or (N, d1, d2).  We cast d1, d2 to longs
+// so that we don't need to access the NPY_INTP_FMT macro here.
+
+template<typename T>
+inline bool check_trailing_shape(T array, char const* name, long d1)
+{
+    if (array.dim(1) != d1) {
+        PyErr_Format(PyExc_ValueError,
+                     "%s must have shape (N, %ld), got (%ld, %ld)",
+                     name, d1, array.dim(0), array.dim(1));
+        return false;
+    }
+    return true;
+}
+
+template<typename T>
+inline bool check_trailing_shape(T array, char const* name, long d1, long d2)
+{
+    if (array.dim(1) != d1 || array.dim(2) != d2) {
+        PyErr_Format(PyExc_ValueError,
+                     "%s must have shape (N, %ld, %ld), got (%ld, %ld, %ld)",
+                     name, d1, d2, array.dim(0), array.dim(1), array.dim(2));
+        return false;
+    }
+    return true;
+}
+#endif
+
 #endif

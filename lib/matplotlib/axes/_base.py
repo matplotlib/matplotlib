@@ -2495,7 +2495,7 @@ class _AxesBase(martist.Artist):
         ----------
         xys : 2D array-like
             The points to include in the data limits Bbox. This can be either
-            a list of (x, y) tuples or a Nx2 array.
+            a list of (x, y) tuples or a (N, 2) array.
 
         updatex, updatey : bool, default: True
             Whether to update the x/y limits.
