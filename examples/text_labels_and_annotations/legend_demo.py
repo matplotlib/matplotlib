@@ -47,7 +47,7 @@ fig, (ax0, ax1) = plt.subplots(2, 1)
 for n in range(1, 5):
     ax0.plot(x, x**n, label=f"{n=}")
 leg = ax0.legend(loc="upper left", bbox_to_anchor=[0, 1],
-                 ncol=2, shadow=True, title="Legend", fancybox=True)
+                 ncols=2, shadow=True, title="Legend", fancybox=True)
 leg.get_title().set_color("red")
 
 # Demonstrate some more complex labels.

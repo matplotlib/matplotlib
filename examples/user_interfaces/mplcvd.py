@@ -295,5 +295,5 @@ if __name__ == '__main__':
     th = np.linspace(0, 2*np.pi, 1024)
     for j in [1, 2, 4, 6]:
         axd['lines'].plot(th, np.sin(th * j), label=f'$\\omega={j}$')
-    axd['lines'].legend(ncol=2, loc='upper right')
+    axd['lines'].legend(ncols=2, loc='upper right')
     plt.show()

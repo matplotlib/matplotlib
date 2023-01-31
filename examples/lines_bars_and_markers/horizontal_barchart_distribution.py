@@ -60,7 +60,7 @@ def survey(results, category_names):
         r, g, b, _ = color
         text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
         ax.bar_label(rects, label_type='center', color=text_color)
-    ax.legend(ncol=len(category_names), bbox_to_anchor=(0, 1),
+    ax.legend(ncols=len(category_names), bbox_to_anchor=(0, 1),
               loc='lower left', fontsize='small')
 
     return fig, ax

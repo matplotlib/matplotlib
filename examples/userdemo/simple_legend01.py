@@ -15,7 +15,7 @@ ax.plot([3, 2, 1], label="test2")
 # Place a legend above this subplot, expanding itself to
 # fully use the given bounding box.
 ax.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
-           ncol=2, mode="expand", borderaxespad=0.)
+           ncols=2, mode="expand", borderaxespad=0.)
 
 ax = fig.add_subplot(223)
 ax.plot([1, 2, 3], label="test1")
