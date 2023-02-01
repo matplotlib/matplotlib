@@ -774,8 +774,8 @@ class Colorbar:
             # TODO: Make colorbar lines auto-follow changes in contour lines.
             return self.add_lines(
                 CS.levels,
-                [c[0] for c in CS.tcolors],
-                [t[0] for t in CS.tlinewidths],
+                CS.to_rgba(CS.cvalues, CS.alpha),
+                [coll.get_linewidths()[0] for coll in CS.collections],
                 erase=erase)
         else:
             self, levels, colors, linewidths, erase = params.values()
