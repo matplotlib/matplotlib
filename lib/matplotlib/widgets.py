@@ -1971,7 +1971,7 @@ class Cursor(AxesWidget):
 
     needclear = _api.deprecate_privatize_attribute("3.7")
 
-    @_api.deprecated('3.7')
+    @_api.deprecated('3.5')
     def clear(self, event):
         """Internal event handler to clear the cursor."""
         self._clear(event)
@@ -1987,7 +1987,7 @@ class Cursor(AxesWidget):
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
-    onmove = _api.deprecate_privatize_attribute('3.7')
+    onmove = _api.deprecate_privatize_attribute('3.5')
 
     def _onmove(self, event):
         """Internal event handler to draw the cursor when the mouse moves."""
@@ -2117,7 +2117,7 @@ class MultiCursor(Widget):
                 canvas.mpl_disconnect(cid)
             info["cids"].clear()
 
-    @_api.deprecated('3.7')
+    @_api.deprecated('3.5')
     def clear(self, event):
         """Clear the cursor."""
         if self.ignore(event):
@@ -2134,7 +2134,7 @@ class MultiCursor(Widget):
             for canvas, info in self._canvas_infos.items():
                 info["background"] = canvas.copy_from_bbox(canvas.figure.bbox)
 
-    onmove = _api.deprecate_privatize_attribute('3.7')
+    onmove = _api.deprecate_privatize_attribute('3.5')
 
     def _onmove(self, event):
         if (self.ignore(event)
