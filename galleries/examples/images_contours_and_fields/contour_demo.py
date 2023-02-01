@@ -85,7 +85,9 @@ CS = ax.contour(Z, levels, origin='lower', cmap='flag', extend='both',
                 linewidths=2, extent=(-3, 3, -2, 2))
 
 # Thicken the zero contour.
-CS.collections[6].set_linewidth(4)
+lws = np.resize(CS.get_linewidth(), len(levels))
+lws[6] = 4
+CS.set_linewidth(lws)
 
 ax.clabel(CS, levels[1::2],  # label every second level
           inline=True, fmt='%1.1f', fontsize=14)

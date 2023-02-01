@@ -1884,47 +1884,28 @@ class Axes3D(Axes):
         Extend a contour in 3D by creating
         """
 
-        levels = cset.levels
-        colls = cset.collections
-        dz = (levels[1] - levels[0]) / 2
-
-        for z, linec in zip(levels, colls):
-            paths = linec.get_paths()
-            if not paths:
+        dz = (cset.levels[1] - cset.levels[0]) / 2
+        polyverts = []
+        colors = []
+        for idx, level in enumerate(cset.levels):
+            path = cset.get_paths()[idx]
+            subpaths = [*path._iter_connected_components()]
+            color = cset.get_edgecolor()[idx]
+            top = art3d._paths_to_3d_segments(subpaths, level - dz)
+            bot = art3d._paths_to_3d_segments(subpaths, level + dz)
+            if not len(top[0]):
                 continue
-            topverts = art3d._paths_to_3d_segments(paths, z - dz)
-            botverts = art3d._paths_to_3d_segments(paths, z + dz)
-
-            color = linec.get_edgecolor()[0]
-
-            nsteps = round(len(topverts[0]) / stride)
-            if nsteps <= 1:
-                if len(topverts[0]) > 1:
-                    nsteps = 2
-                else:
-                    continue
-
-            polyverts = []
-            stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
-            for i in range(round(nsteps) - 1):
-                i1 = round(i * stepsize)
-                i2 = round((i + 1) * stepsize)
-                polyverts.append([topverts[0][i1],
-                                  topverts[0][i2],
-                                  botverts[0][i2],
-                                  botverts[0][i1]])
-
-            # all polygons have 4 vertices, so vectorize
-            polyverts = np.array(polyverts)
-            polycol = art3d.Poly3DCollection(polyverts,
-                                             facecolors=color,
-                                             edgecolors=color,
-                                             shade=True)
-            polycol.set_sort_zpos(z)
-            self.add_collection3d(polycol)
-
-        for col in colls:
-            col.remove()
+            nsteps = max(round(len(top[0]) / stride), 2)
+            stepsize = (len(top[0]) - 1) / (nsteps - 1)
+            polyverts.extend([
+                (top[0][round(i * stepsize)], top[0][round((i + 1) * stepsize)],
+                 bot[0][round((i + 1) * stepsize)], bot[0][round(i * stepsize)])
+                for i in range(round(nsteps) - 1)])
+            colors.extend([color] * (round(nsteps) - 1))
+        self.add_collection3d(art3d.Poly3DCollection(
+            np.array(polyverts),  # All polygons have 4 vertices, so vectorize.
+            facecolors=colors, edgecolors=colors, shade=True))
+        cset.remove()
 
     def add_contour_set(
             self, cset, extend3d=False, stride=5, zdir='z', offset=None):
@@ -1932,10 +1913,8 @@ class Axes3D(Axes):
         if extend3d:
             self._3d_extend_contour(cset, stride)
         else:
-            for z, linec in zip(cset.levels, cset.collections):
-                if offset is not None:
-                    z = offset
-                art3d.line_collection_2d_to_3d(linec, z, zdir=zdir)
+            art3d.collection_2d_to_3d(
+                cset, zs=offset if offset is not None else cset.levels, zdir=zdir)
 
     def add_contourf_set(self, cset, zdir='z', offset=None):
         self._add_contourf_set(cset, zdir=zdir, offset=offset)
@@ -1958,11 +1937,8 @@ class Axes3D(Axes):
             max_level = cset.levels[-1] + np.diff(cset.levels[-2:]) / 2
             midpoints = np.append(midpoints, max_level)
 
-        for z, linec in zip(midpoints, cset.collections):
-            if offset is not None:
-                z = offset
-            art3d.poly_collection_2d_to_3d(linec, z, zdir=zdir)
-            linec.set_sort_zpos(z)
+        art3d.collection_2d_to_3d(
+            cset, zs=offset if offset is not None else midpoints, zdir=zdir)
         return midpoints
 
     @_preprocess_data()

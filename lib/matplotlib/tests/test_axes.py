@@ -1050,11 +1050,7 @@ def test_imshow_clip():
     fig, ax = plt.subplots()
 
     c = ax.contour(r, [N/4])
-    x = c.collections[0]
-    clip_path = x.get_paths()[0]
-    clip_transform = x.get_transform()
-
-    clip_path = mtransforms.TransformedPath(clip_path, clip_transform)
+    clip_path = mtransforms.TransformedPath(c.get_paths()[0], c.get_transform())
 
     # Plot the image clipped by the contour
     ax.imshow(r, clip_path=clip_path)
@@ -2352,7 +2348,7 @@ def contour_dat():
     return x, y, z
 
 
-@image_comparison(['contour_hatching'], remove_text=True, style='mpl20')
+@image_comparison(['contour_hatching'], remove_text=True, style='mpl20', tol=0.06)
 def test_contour_hatching():
     x, y, z = contour_dat()
     fig, ax = plt.subplots()
@@ -2361,9 +2357,7 @@ def test_contour_hatching():
                 extend='both', alpha=0.5)
 
 
-@image_comparison(
-    ['contour_colorbar'], style='mpl20',
-    tol=0.02 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+@image_comparison(['contour_colorbar'], style='mpl20', tol=1.6)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 

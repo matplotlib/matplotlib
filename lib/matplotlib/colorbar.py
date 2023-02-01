@@ -750,15 +750,15 @@ class Colorbar:
              lambda self, levels, colors, linewidths, erase=True: locals()],
             self, *args, **kwargs)
         if "CS" in params:
-            self, CS, erase = params.values()
-            if not isinstance(CS, contour.ContourSet) or CS.filled:
+            self, cs, erase = params.values()
+            if not isinstance(cs, contour.ContourSet) or cs.filled:
                 raise ValueError("If a single artist is passed to add_lines, "
                                  "it must be a ContourSet of lines")
             # TODO: Make colorbar lines auto-follow changes in contour lines.
             return self.add_lines(
-                CS.levels,
-                CS.to_rgba(CS.cvalues, CS.alpha),
-                [coll.get_linewidths()[0] for coll in CS.collections],
+                cs.levels,
+                cs.to_rgba(cs.cvalues, cs.alpha),
+                cs.get_linewidths(),
                 erase=erase)
         else:
             self, levels, colors, linewidths, erase = params.values()
