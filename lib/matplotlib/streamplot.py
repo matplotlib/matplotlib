@@ -57,7 +57,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         See `~matplotlib.patches.FancyArrowPatch`.
     minlength : float
         Minimum length of streamline in axes coordinates.
-    start_points : Nx2 array
+    start_points : (N, 2) array
         Coordinates of starting points for the streamlines in data coordinates
         (the same coordinates as the *x* and *y* arrays).
     zorder : float

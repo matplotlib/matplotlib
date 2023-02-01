@@ -28,7 +28,7 @@ class Path:
 
     The underlying storage is made up of two parallel numpy arrays:
 
-    - *vertices*: an Nx2 float array of vertices
+    - *vertices*: an (N, 2) float array of vertices
     - *codes*: an N-length uint8 array of path codes, or None
 
     These two arrays always have the same length in the first
@@ -210,9 +210,7 @@ class Path:
 
     @property
     def vertices(self):
-        """
-        The list of vertices in the `Path` as an Nx2 numpy array.
-        """
+        """The vertices of the `Path` as an (N, 2) array."""
         return self._vertices
 
     @vertices.setter
@@ -684,7 +682,7 @@ class Path:
     def to_polygons(self, transform=None, width=0, height=0, closed_only=True):
         """
         Convert this path to a list of polygons or polylines.  Each
-        polygon/polyline is an Nx2 array of vertices.  In other words,
+        polygon/polyline is an (N, 2) array of vertices.  In other words,
         each polygon has no ``MOVETO`` instructions or curves.  This
         is useful for displaying in backends that do not support
         compound paths or Bézier curves.

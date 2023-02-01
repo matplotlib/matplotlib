@@ -584,7 +584,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        vertices : Nx2 Numpy array.
+        vertices : (N, 2) array
         """
         if len(vertices) == 0:
             return 0
@@ -769,7 +769,7 @@ class Bbox(BboxBase):
         Parameters
         ----------
         points : `~numpy.ndarray`
-            A 2x2 numpy array of the form ``[[x0, y0], [x1, y1]]``.
+            A (2, 2) array of the form ``[[x0, y0], [x1, y1]]``.
         """
         super().__init__(**kwargs)
         points = np.asarray(points, float)
@@ -1485,13 +1485,13 @@ class Transform(TransformNode):
         ----------
         values : array
             The input values as NumPy array of length :attr:`input_dims` or
-            shape (N x :attr:`input_dims`).
+            shape (N, :attr:`input_dims`).
 
         Returns
         -------
         array
             The output values as NumPy array of length :attr:`output_dims` or
-            shape (N x :attr:`output_dims`), depending on the input.
+            shape (N, :attr:`output_dims`), depending on the input.
         """
         # Ensure that values is a 2d array (but remember whether
         # we started with a 1d or 2d array).
@@ -1511,8 +1511,8 @@ class Transform(TransformNode):
         elif ndim == 2:
             return res
         raise ValueError(
-            "Input values must have shape (N x {dims}) "
-            "or ({dims}).".format(dims=self.input_dims))
+            "Input values must have shape (N, {dims}) or ({dims},)"
+            .format(dims=self.input_dims))
 
     def transform_affine(self, values):
         """
@@ -1530,13 +1530,13 @@ class Transform(TransformNode):
         ----------
         values : array
             The input values as NumPy array of length :attr:`input_dims` or
-            shape (N x :attr:`input_dims`).
+            shape (N, :attr:`input_dims`).
 
         Returns
         -------
         array
             The output values as NumPy array of length :attr:`output_dims` or
-            shape (N x :attr:`output_dims`), depending on the input.
+            shape (N, :attr:`output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
 
@@ -1555,13 +1555,13 @@ class Transform(TransformNode):
         ----------
         values : array
             The input values as NumPy array of length :attr:`input_dims` or
-            shape (N x :attr:`input_dims`).
+            shape (N, :attr:`input_dims`).
 
         Returns
         -------
         array
             The output values as NumPy array of length :attr:`output_dims` or
-            shape (N x :attr:`output_dims`), depending on the input.
+            shape (N, :attr:`output_dims`), depending on the input.
         """
         return values
 

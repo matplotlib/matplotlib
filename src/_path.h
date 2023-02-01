@@ -394,7 +394,7 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
                                  extent_limits &extent)
 {
     if (offsets.size() != 0 && offsets.dim(1) != 2) {
-        throw std::runtime_error("Offsets array must be Nx2");
+        throw std::runtime_error("Offsets array must have shape (N, 2)");
     }
 
     size_t Npaths = paths.size();
