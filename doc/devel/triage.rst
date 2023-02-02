@@ -87,7 +87,7 @@ Triaging operations for members of the core and triage teams
 In addition to the above, members of the core team and the triage team
 can do the following important tasks:
 
-- Update labels for issues and PRs: see the list of `available github
+- Update labels for issues and PRs: see the list of `available GitHub
   labels <https://github.com/matplotlib/matplotlib/labels>`_.
 
 - Triage issues:

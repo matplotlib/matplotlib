@@ -38,7 +38,7 @@ Contributor incubator
 The incubator is our non-public communication channel for new contributors. It
 is a private gitter room moderated by core Matplotlib developers where you can
 get guidance and support for your first few PRs. It's a place you can ask
-questions about anything: how to use git, github, how our PR review process
+questions about anything: how to use git, GitHub, how our PR review process
 works, technical questions about the code, what makes for good documentation
 or a blog post, how to get involved in community work, or get
 "pre-review" on your PR.
@@ -57,7 +57,7 @@ Among our attendees are fellow new contributors, as well as maintainers, and
 veteran contributors, who are keen to support onboarding of new folks and
 share their experience. You can find our community calendar link at the
 `Scientific Python website <https://scientific-python.org/calendars/>`_, and
-you can browse previous meeting notes on `github
+you can browse previous meeting notes on `GitHub
 <https://github.com/matplotlib/ProjectManagement/tree/master/
 new_contributor_meeting>`_.
 We recommend joining the meeting to clarify any doubts, or lingering
