@@ -1975,8 +1975,6 @@ class Cursor(AxesWidget):
             return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
-        self.linev.set_visible(False)
-        self.lineh.set_visible(False)
 
     def onmove(self, event):
         """Internal event handler to draw the cursor when the mouse moves."""
@@ -2113,8 +2111,6 @@ class MultiCursor(Widget):
         if self.useblit:
             for canvas, info in self._canvas_infos.items():
                 info["background"] = canvas.copy_from_bbox(canvas.figure.bbox)
-        for line in self.vlines + self.hlines:
-            line.set_visible(False)
 
     def onmove(self, event):
         if (self.ignore(event)
