@@ -215,10 +215,13 @@ Matplotlib requires a C++ compiler that supports C++11.
 
 - `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_ or higher.  For gcc <6.5 you will
   need to set ``$CFLAGS=-std=c++11`` to enable C++11 support.
-- `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_ or higher
+  `Installing GCC: Binaries <https://gcc.gnu.org/install/binaries.html>`_.
+- `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_ or higher.
+  `LLVM Download Page <https://releases.llvm.org/download.html>`_.
 - `Visual Studio 2015
   <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-140>`_
-  (aka VS 14.0) or higher
+  (aka VS 14.0) or higher. A free version of Build Tools for Visual Studio is available for
+  `download <https://visualstudio.microsoft.com/downloads/?q=build+tools>`_.
 
 
 .. _test-dependencies:
@@ -304,9 +307,10 @@ Additional external dependencies
 --------------------------------
 Required:
 
-* a minimal working LaTeX distribution
+* a minimal working LaTeX distribution, e.g., `TeX Live <https://www.tug.org/texlive/>`_ or
+  `MikTeX <https://miktex.org/>`_
 * `Graphviz <http://www.graphviz.org/download>`_
-* the following LaTeX packages (if your OS bundles TeXLive, the
+* the following LaTeX packages (if your OS bundles TeX Live, the
   "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
   will often automatically include these packages):
 
