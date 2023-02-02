@@ -1655,6 +1655,8 @@ def test_MultiCursor(horizOn, vertOn):
     # to have a single .ax attribute.
     event = mock_event(ax1, xdata=.5, ydata=.25)
     multi.onmove(event)
+    # force a draw + draw event to exercise clear
+    ax1.figure.canvas.draw()
 
     # the lines in the first two ax should both move
     for l in multi.vlines:
