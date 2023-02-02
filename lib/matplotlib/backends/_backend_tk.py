@@ -354,7 +354,7 @@ class FigureCanvasTk(FigureCanvasBase):
             ("ctrl", 1 << 2, "control"),
             ("alt", 1 << 4, "alt"),
             ("shift", 1 << 0, "shift"),
-            ("super", 1 << 3, "super"),
+            ("cmd", 1 << 3, "cmd"),
         ] if sys.platform == "darwin" else [
             ("ctrl", 1 << 2, "control"),
             ("alt", 1 << 3, "alt"),
