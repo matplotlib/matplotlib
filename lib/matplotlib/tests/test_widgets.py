@@ -1671,7 +1671,7 @@ def test_MultiCursor(horizOn, vertOn):
     multi.horizOn = not multi.horizOn
     multi.vertOn = not multi.vertOn
     event = mock_event(ax1, xdata=.5, ydata=.25)
-    multi._onmove(event)
+    multi.onmove(event)
     assert len([line for line in multi.vlines if line.get_visible()]) == (
         0 if vertOn else 2)
     assert len([line for line in multi.hlines if line.get_visible()]) == (
