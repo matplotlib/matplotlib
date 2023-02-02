@@ -50,7 +50,7 @@ If there are only a few commits, consider rebasing to upstream::
     git rebase upstream-rw/main
 
 Remember that, if you do a rebase, and push that, you'll have to close any
-github pull requests manually, because github will not be able to detect the
+GitHub pull requests manually, because GitHub will not be able to detect the
 changes have already been merged.
 
 A long series of commits
@@ -61,7 +61,7 @@ If there are a longer series of related commits, consider a merge instead::
     git fetch upstream-rw
     git merge --no-ff upstream-rw/main
 
-The merge will be detected by github, and should close any related pull requests
+The merge will be detected by GitHub, and should close any related pull requests
 automatically.
 
 Note the ``--no-ff`` above.  This forces git to make a merge commit, rather than
