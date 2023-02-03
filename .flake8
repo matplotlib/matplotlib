@@ -42,7 +42,6 @@ exclude =
 per-file-ignores =
     setup.py: E402
 
-
     lib/matplotlib/__init__.py: E402, F401
     lib/matplotlib/_animation_data.py: E501
     lib/matplotlib/_api/__init__.py: F401
@@ -81,9 +80,6 @@ per-file-ignores =
     tutorials/text/mathtext.py: E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501
-    tutorials/text/usetex.py: E501
-    tutorials/toolkits/axes_grid.py: E501
-    tutorials/toolkits/axisartist.py: E501
 
     examples/animation/frame_grabbing_sgskip.py: E402
     examples/images_contours_and_fields/tricontour_demo.py: E201
@@ -93,7 +89,6 @@ per-file-ignores =
     examples/misc/print_stdout_sgskip.py: E402
     examples/misc/table_demo.py: E201
     examples/style_sheets/bmh.py: E501
-    examples/style_sheets/plot_solarizedlight2.py: E501
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
     examples/text_labels_and_annotations/custom_legends.py: E402
     examples/ticks/date_concise_formatter.py: E402
