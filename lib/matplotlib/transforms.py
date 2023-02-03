@@ -1719,6 +1719,7 @@ class TransformWrapper(Transform):
         dimensions as the current child.
         """
         if hasattr(self, "_child"):  # Absent during init.
+            self.invalidate()
             new_dims = (child.input_dims, child.output_dims)
             old_dims = (self._child.input_dims, self._child.output_dims)
             if new_dims != old_dims:
