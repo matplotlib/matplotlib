@@ -3721,7 +3721,7 @@ class Axes(_AxesBase):
                 capwidths=None):
         """
         Draw a box and whisker plot.
-        
+
         The box extends from the first quartile (Q1) to the third
         quartile (Q3) of the data, with a line at the median.
         The whiskers extend from the box to the farthest data point
