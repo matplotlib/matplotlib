@@ -11,7 +11,7 @@ import weakref
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, artist, cbook, _docstring
+from . import _api, artist, cbook, colors as mcolors, _docstring
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -993,7 +993,7 @@ class Text(Artist):
         # "auto" is only supported by axisartist, but we can just let it error
         # out at draw time for simplicity.
         if not cbook._str_equal(color, "auto"):
-            mpl.colors._check_color_like(color=color)
+            _ = mcolors.to_rgba(color, errname="color")
         self._color = color
         self.stale = True
 

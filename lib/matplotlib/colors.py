@@ -234,15 +234,6 @@ def _has_alpha_channel(c):
     return not isinstance(c, str) and len(c) == 4
 
 
-def _check_color_like(**kwargs):
-    """
-    For each *key, value* pair in *kwargs*, check that *value* is color-like.
-    """
-    for k, v in kwargs.items():
-        if not is_color_like(v):
-            raise ValueError(f"{v!r} is not a valid value for {k}")
-
-
 def same_color(c1, c2):
     """
     Return whether the colors *c1* and *c2* are the same.
@@ -262,7 +253,7 @@ def same_color(c1, c2):
     return c1.shape == c2.shape and (c1 == c2).all()
 
 
-def to_rgba(c, alpha=None):
+def to_rgba(c, alpha=None, errname=None):
     """
     Convert *c* to an RGBA color.
 
@@ -296,15 +287,16 @@ def to_rgba(c, alpha=None):
     except (KeyError, TypeError):  # Not in cache, or unhashable.
         rgba = None
     if rgba is None:  # Suppress exception chaining of cache lookup failure.
-        rgba = _to_rgba_no_colorcycle(c, alpha)
+        rgba = _to_rgba_no_colorcycle(c, alpha, errname)
         try:
             _colors_full_map.cache[c, alpha] = rgba
         except TypeError:
             pass
+
     return rgba
 
 
-def _to_rgba_no_colorcycle(c, alpha=None):
+def _to_rgba_no_colorcycle(c, alpha=None, errname=None):
     """
     Convert *c* to an RGBA color, with no support for color-cycle syntax.
 
@@ -368,23 +360,27 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         else:
             if not (0 <= c <= 1):
                 raise ValueError(
-                    f"Invalid string grayscale value {orig_c!r}. "
+                    f"Invalid string grayscale value {orig_c!r} "
+                    f'{" is not a valid value for " + errname if errname else ""}.'
                     f"Value must be within 0-1 range")
             return c, c, c, alpha if alpha is not None else 1.
-        raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
+        raise ValueError(f'Invalid RGBA argument {orig_c!r}'
+                         f'{" is not a valid value for " + errname if errname else ""}')
     # turn 2-D array into 1-D array
     if isinstance(c, np.ndarray):
         if c.ndim == 2 and c.shape[0] == 1:
             c = c.reshape(-1)
     # tuple color.
     if not np.iterable(c):
-        raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
+        raise ValueError(f"Invalid RGBA argument {orig_c!r}"
+                         f'{" is not a valid value for " + errname if errname else ""}')
     if len(c) not in [3, 4]:
         raise ValueError("RGBA sequence should have length 3 or 4")
     if not all(isinstance(x, Number) for x in c):
         # Checks that don't work: `map(float, ...)`, `np.array(..., float)` and
         # `np.array(...).astype(float)` would all convert "0.5" to 0.5.
-        raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
+        raise ValueError(f"Invalid RGBA argument {orig_c!r}"
+                         f'{" is not a valid value for " + errname if errname else ""}')
     # Return a tuple to prevent the cached value from being modified.
     c = tuple(map(float, c))
     if len(c) == 3 and alpha is None:
@@ -396,7 +392,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     return c
 
 
-def to_rgba_array(c, alpha=None):
+def to_rgba_array(c, alpha=None, errname=None):
     """
     Convert *c* to a (n, 4) array of RGBA colors.
 
@@ -468,7 +464,8 @@ def to_rgba_array(c, alpha=None):
         pass
 
     if isinstance(c, str):
-        raise ValueError(f"{c!r} is not a valid color value.")
+        raise ValueError(f"{c!r} is not a valid "
+                         f'{"value for " + errname if errname else "color value."}')
 
     if len(c) == 0:
         return np.zeros((0, 4), float)

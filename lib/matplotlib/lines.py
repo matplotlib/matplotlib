@@ -1056,7 +1056,7 @@ class Line2D(Artist):
         ----------
         color : color
         """
-        mcolors._check_color_like(color=color)
+        _ = mcolors.to_rgba(color, errname="color")
         self._color = color
         self.stale = True
 
@@ -1114,7 +1114,7 @@ class Line2D(Artist):
             unfilled.
         """
         if gapcolor is not None:
-            mcolors._check_color_like(color=gapcolor)
+            _ = mcolors.to_rgba(gapcolor, errname="gapcolor")
         self._gapcolor = gapcolor
         self.stale = True
 

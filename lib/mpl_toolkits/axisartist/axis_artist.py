@@ -139,7 +139,7 @@ class Ticks(AttributeCopier, Line2D):
         # docstring inherited
         # Unlike the base Line2D.set_color, this also supports "auto".
         if not cbook._str_equal(color, "auto"):
-            mcolors._check_color_like(color=color)
+            _ = mcolors.to_rgba(color, errname="color")
         self._color = color
         self.stale = True
 
