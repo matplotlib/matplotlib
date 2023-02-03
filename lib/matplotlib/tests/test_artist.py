@@ -583,6 +583,7 @@ def test_line_in_autoscale_false():
     ax.autoscale_view()
     assert ax.get_xlim() == ax.get_ylim() == (0, 1)  # The default limits.
 
+
 def test_patch_in_autoscale_true():
     # test autoscale is performed when in_autoscale=True for a patch.
     fig, ax = plt.subplots()
