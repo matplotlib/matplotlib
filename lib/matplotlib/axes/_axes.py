@@ -3723,9 +3723,10 @@ class Axes(_AxesBase):
         Draw a box and whisker plot.
 
         The box extends from the first quartile (Q1) to the third
-        quartile (Q3) of the data, with a line at the median.  The
-        whiskers extend from the box by 1.5x the inter-quartile range
-        (IQR).  Flier points are those past the end of the whiskers.
+        quartile (Q3) of the data, with a line at the median.
+        The whiskers extend from the box to the farthest data point
+        lying within 1.5x the inter-quartile range (IQR) from the box.
+        Flier points are those past the end of the whiskers.
         See https://en.wikipedia.org/wiki/Box_plot for reference.
 
         .. code-block:: none
