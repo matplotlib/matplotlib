@@ -789,7 +789,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             filters.append(filter)
         filters = ';;'.join(filters)
 
-        fname, filter = qt_compat._getSaveFileName(
+        fname, filter = QtWidgets.QFileDialog.getSaveFileName(
             self.canvas.parent(), "Choose a filename to save to", start,
             filters, selectedFilter)
         if fname:
