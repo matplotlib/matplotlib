@@ -63,8 +63,7 @@ def draw_error_band(ax, x, y, err, **kwargs):
     ax.add_patch(PathPatch(path, **kwargs))
 
 
-axs = (plt.figure(constrained_layout=True)
-       .subplots(1, 2, sharex=True, sharey=True))
+_, axs = plt.subplots(1, 2, layout='constrained', sharex=True, sharey=True)
 errs = [
     (axs[0], "constant error", 0.05),
     (axs[1], "variable error", 0.05 * np.sin(2 * t) ** 2 + 0.04),

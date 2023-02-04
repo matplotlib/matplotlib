@@ -33,7 +33,7 @@ import matplotlib.dates as mdates
 # the date column.
 data = cbook.get_sample_data('goog.npz', np_load=True)['price_data']
 
-fig, axs = plt.subplots(3, 1, figsize=(6.4, 7), constrained_layout=True)
+fig, axs = plt.subplots(3, 1, figsize=(6.4, 7), layout='constrained')
 # common to all three:
 for ax in axs:
     ax.plot('date', 'adj_close', data=data)

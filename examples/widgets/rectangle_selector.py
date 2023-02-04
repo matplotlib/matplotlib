@@ -41,7 +41,7 @@ def toggle_selector(event):
                 selector.set_active(True)
 
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout='constrained')
 axs = fig.subplots(2)
 
 N = 100000  # If N is large one can see improvement by using blitting.

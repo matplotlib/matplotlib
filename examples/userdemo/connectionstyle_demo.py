@@ -30,7 +30,7 @@ def demo_con_style(ax, connectionstyle):
             transform=ax.transAxes, ha="left", va="top")
 
 
-fig, axs = plt.subplots(3, 5, figsize=(7, 6.3), constrained_layout=True)
+fig, axs = plt.subplots(3, 5, figsize=(7, 6.3), layout="constrained")
 demo_con_style(axs[0, 0], "angle3,angleA=90,angleB=0")
 demo_con_style(axs[1, 0], "angle3,angleA=0,angleB=90")
 demo_con_style(axs[0, 1], "arc3,rad=0.")

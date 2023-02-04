@@ -17,7 +17,7 @@ from matplotlib.cbook import get_sample_data
 
 x = np.linspace(0.0, 5.0, 501)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, constrained_layout=True, sharey=True)
+fig, (ax1, ax2) = plt.subplots(1, 2, layout='constrained', sharey=True)
 ax1.plot(x, np.cos(6*x) * np.exp(-x))
 ax1.set_title('damped')
 ax1.set_xlabel('time (s)')
@@ -33,7 +33,7 @@ fig.suptitle('Different types of oscillations', fontsize=16)
 # A global x- or y-label can be set using the `.FigureBase.supxlabel` and
 # `.FigureBase.supylabel` methods.
 
-fig, axs = plt.subplots(3, 5, figsize=(8, 5), constrained_layout=True,
+fig, axs = plt.subplots(3, 5, figsize=(8, 5), layout='constrained',
                         sharex=True, sharey=True)
 
 fname = get_sample_data('percent_bachelors_degrees_women_usa.csv',

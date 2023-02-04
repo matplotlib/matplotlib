@@ -112,7 +112,7 @@ f = np.array([150, 140]).reshape(-1, 1)
 xn = (A * np.sin(2 * np.pi * f * t)).sum(axis=0)
 xn += 5 * np.random.randn(*t.shape)
 
-fig, (ax0, ax1) = plt.subplots(ncols=2, constrained_layout=True)
+fig, (ax0, ax1) = plt.subplots(ncols=2, layout='constrained')
 
 yticks = np.arange(-50, 30, 10)
 yrange = (yticks[0], yticks[-1])
@@ -152,7 +152,7 @@ A = np.array([2, 8]).reshape(-1, 1)
 f = np.array([150, 140]).reshape(-1, 1)
 xn = (A * np.exp(2j * np.pi * f * t)).sum(axis=0) + 5 * prng.randn(*t.shape)
 
-fig, (ax0, ax1) = plt.subplots(ncols=2, constrained_layout=True)
+fig, (ax0, ax1) = plt.subplots(ncols=2, layout='constrained')
 
 yticks = np.arange(-50, 30, 10)
 yrange = (yticks[0], yticks[-1])

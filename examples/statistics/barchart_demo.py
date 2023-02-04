@@ -45,7 +45,7 @@ def format_score(score):
 
 
 def plot_student_results(student, scores_by_test, cohort_size):
-    fig, ax1 = plt.subplots(figsize=(9, 7), constrained_layout=True)
+    fig, ax1 = plt.subplots(figsize=(9, 7), layout='constrained')
     fig.canvas.manager.set_window_title('Eldorado K-8 Fitness Chart')
 
     ax1.set_title(student.name)

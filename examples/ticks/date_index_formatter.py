@@ -25,12 +25,11 @@ from matplotlib.ticker import Formatter
 # low, close, volume, adj_close from the mpl-data/sample_data directory. The
 # record array stores the date as an np.datetime64 with a day unit ('D') in
 # the date column (``r.date``).
-r = (cbook.get_sample_data('goog.npz', np_load=True)['price_data']
-     .view(np.recarray))
+r = cbook.get_sample_data('goog.npz', np_load=True)['price_data'].view(np.recarray)
 r = r[:9]  # get the first 9 days
 
-fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 6),
-                               constrained_layout={'hspace': .15})
+fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=(6, 6), layout='constrained')
+fig.get_layout_engine().set(hspace=0.15)
 
 # First we'll do it the default way, with gaps on weekends
 ax1.plot(r.date, r.adj_close, 'o-')

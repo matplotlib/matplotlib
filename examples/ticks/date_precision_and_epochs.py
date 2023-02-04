@@ -129,7 +129,7 @@ y = np.arange(0, len(x))
 _reset_epoch_for_tutorial()  # Don't do this.  Just for this tutorial.
 mdates.set_epoch(new_epoch)
 
-fig, ax = plt.subplots(constrained_layout=True)
+fig, ax = plt.subplots(layout='constrained')
 ax.plot(xold, y)
 ax.set_title('Epoch: ' + mdates.get_epoch())
 ax.xaxis.set_tick_params(rotation=40)
@@ -138,7 +138,7 @@ plt.show()
 # %%
 # For dates plotted using the more recent epoch, the plot is smooth:
 
-fig, ax = plt.subplots(constrained_layout=True)
+fig, ax = plt.subplots(layout='constrained')
 ax.plot(x, y)
 ax.set_title('Epoch: ' + mdates.get_epoch())
 ax.xaxis.set_tick_params(rotation=40)

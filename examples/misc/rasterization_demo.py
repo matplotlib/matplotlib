@@ -44,7 +44,7 @@ theta = 0.25*np.pi
 xx = x*np.cos(theta) - y*np.sin(theta)  # rotate x by -theta
 yy = x*np.sin(theta) + y*np.cos(theta)  # rotate y by -theta
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, constrained_layout=True)
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, layout="constrained")
 
 # pcolormesh without rasterization
 ax1.set_aspect(1)

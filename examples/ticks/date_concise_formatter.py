@@ -31,7 +31,7 @@ N = len(dates)
 np.random.seed(19680801)
 y = np.cumsum(np.random.randn(N))
 
-fig, axs = plt.subplots(3, 1, constrained_layout=True, figsize=(6, 6))
+fig, axs = plt.subplots(3, 1, layout='constrained', figsize=(6, 6))
 lims = [(np.datetime64('2005-02'), np.datetime64('2005-04')),
         (np.datetime64('2005-02-03'), np.datetime64('2005-02-15')),
         (np.datetime64('2005-02-03 11:00'), np.datetime64('2005-02-04 13:20'))]
@@ -51,7 +51,7 @@ plt.show()
 # for this example the labels do not need to be rotated as they do for the
 # default formatter because the labels are as small as possible.
 
-fig, axs = plt.subplots(3, 1, constrained_layout=True, figsize=(6, 6))
+fig, axs = plt.subplots(3, 1, layout='constrained', figsize=(6, 6))
 for nn, ax in enumerate(axs):
     locator = mdates.AutoDateLocator(minticks=3, maxticks=7)
     formatter = mdates.ConciseDateFormatter(locator)
@@ -76,7 +76,7 @@ munits.registry[np.datetime64] = converter
 munits.registry[datetime.date] = converter
 munits.registry[datetime.datetime] = converter
 
-fig, axs = plt.subplots(3, 1, figsize=(6, 6), constrained_layout=True)
+fig, axs = plt.subplots(3, 1, figsize=(6, 6), layout='constrained')
 for nn, ax in enumerate(axs):
     ax.plot(dates, y)
     ax.set_xlim(lims[nn])
@@ -109,7 +109,7 @@ plt.show()
 # Here we modify the labels to be "day month year", instead of the ISO
 # "year month day":
 
-fig, axs = plt.subplots(3, 1, constrained_layout=True, figsize=(6, 6))
+fig, axs = plt.subplots(3, 1, layout='constrained', figsize=(6, 6))
 
 for nn, ax in enumerate(axs):
     locator = mdates.AutoDateLocator()
@@ -175,7 +175,7 @@ munits.registry[np.datetime64] = converter
 munits.registry[datetime.date] = converter
 munits.registry[datetime.datetime] = converter
 
-fig, axs = plt.subplots(3, 1, constrained_layout=True, figsize=(6, 6))
+fig, axs = plt.subplots(3, 1, layout='constrained', figsize=(6, 6))
 for nn, ax in enumerate(axs):
     ax.plot(dates, y)
     ax.set_xlim(lims[nn])

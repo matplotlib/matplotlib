@@ -148,7 +148,7 @@ if __name__ == '__main__':
     }
 
     size = 4
-    fig = plt.figure(figsize=(3 * size, size), constrained_layout=True)
+    fig = plt.figure(figsize=(3 * size, size), layout="constrained")
     axs = fig.subplot_mosaic([["length", "width", "alpha"]])
 
     for display, ax in axs.items():

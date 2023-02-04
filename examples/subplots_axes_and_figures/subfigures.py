@@ -31,7 +31,7 @@ def example_plot(ax, fontsize=12, hide_labels=False):
 
 np.random.seed(19680808)
 # gridspec inside gridspec
-fig = plt.figure(constrained_layout=True, figsize=(10, 4))
+fig = plt.figure(layout='constrained', figsize=(10, 4))
 subfigs = fig.subfigures(1, 2, wspace=0.07)
 
 axsLeft = subfigs[0].subplots(1, 2, sharey=True)
@@ -62,7 +62,7 @@ plt.show()
 # `matplotlib.figure.Figure.add_subfigure`.  This requires getting
 # the gridspec that the subplots are laid out on.
 
-fig, axs = plt.subplots(2, 3, constrained_layout=True, figsize=(10, 4))
+fig, axs = plt.subplots(2, 3, layout='constrained', figsize=(10, 4))
 gridspec = axs[0, 0].get_subplotspec().get_gridspec()
 
 # clear the left column for the subfigure:
@@ -90,7 +90,7 @@ plt.show()
 # Subfigures can have different widths and heights.  This is exactly the
 # same example as the first example, but *width_ratios* has been changed:
 
-fig = plt.figure(constrained_layout=True, figsize=(10, 4))
+fig = plt.figure(layout='constrained', figsize=(10, 4))
 subfigs = fig.subfigures(1, 2, wspace=0.07, width_ratios=[2, 1])
 
 axsLeft = subfigs[0].subplots(1, 2, sharey=True)
@@ -119,7 +119,7 @@ plt.show()
 # %%
 # Subfigures can be also be nested:
 
-fig = plt.figure(constrained_layout=True, figsize=(10, 8))
+fig = plt.figure(layout='constrained', figsize=(10, 8))
 
 fig.suptitle('fig')
 
