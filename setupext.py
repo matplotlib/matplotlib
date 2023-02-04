@@ -588,14 +588,10 @@ class FreeType(SetupPackage):
         else:
             src_path = Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
             # Statically link to the locally-built freetype.
-            # This is certainly broken on Windows.
             ext.include_dirs.insert(0, str(src_path / 'include'))
-            if sys.platform == 'win32':
-                libfreetype = 'libfreetype.lib'
-            else:
-                libfreetype = 'libfreetype.a'
             ext.extra_objects.insert(
-                0, str(src_path / 'objs' / '.libs' / libfreetype))
+                0, str((src_path / 'objs/.libs/libfreetype').with_suffix(
+                    '.lib' if sys.platform == 'win32' else '.a')))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
 
     def do_custom_build(self, env):
@@ -617,11 +613,9 @@ class FreeType(SetupPackage):
             dirname=f'freetype-{LOCAL_FREETYPE_VERSION}',
         )
 
-        if sys.platform == 'win32':
-            libfreetype = 'libfreetype.lib'
-        else:
-            libfreetype = 'libfreetype.a'
-        if (src_path / 'objs' / '.libs' / libfreetype).is_file():
+        libfreetype = (src_path / "objs/.libs/libfreetype").with_suffix(
+            ".lib" if sys.platform == "win32" else ".a")
+        if libfreetype.is_file():
             return  # Bail out because we have already built FreeType.
 
         print(f"Building freetype in {src_path}")
@@ -669,13 +663,6 @@ class FreeType(SetupPackage):
             subprocess.check_call([make], env=env, cwd=src_path)
         else:  # compilation on windows
             shutil.rmtree(src_path / "objs", ignore_errors=True)
-            is_x64 = platform.architecture()[0] == '64bit'
-            if platform.machine() == 'ARM64':
-                msbuild_platform = 'ARM64'
-            elif is_x64:
-                msbuild_platform = 'x64'
-            else:
-                msbuild_platform = 'Win32'
             base_path = Path(
                 f"build/freetype-{LOCAL_FREETYPE_VERSION}/builds/windows"
             )
@@ -726,6 +713,10 @@ class FreeType(SetupPackage):
                     str(dest),
                 ])
                 msbuild_path = dest.read_text()
+            msbuild_platform = (
+                "ARM64" if platform.machine() == "ARM64" else
+                "x64" if platform.architecture()[0] == "64bit" else
+                "Win32")
             # Freetype 2.10.0+ support static builds.
             msbuild_config = (
                 "Release Static"
@@ -738,7 +729,7 @@ class FreeType(SetupPackage):
                       f"/p:Configuration={msbuild_config};"
                       f"Platform={msbuild_platform}"])
             # Move to the corresponding Unix build path.
-            (src_path / "objs" / ".libs").mkdir()
+            libfreetype.parent.mkdir()
             # Be robust against change of FreeType version.
             lib_paths = Path(src_path / "objs").rglob('freetype*.lib')
             # Select FreeType library for required platform
@@ -746,10 +737,8 @@ class FreeType(SetupPackage):
                 p for p in lib_paths
                 if msbuild_platform in p.resolve().as_uri()
             ]
-            print(
-                f"Copying {lib_path} to {src_path}/objs/.libs/libfreetype.lib"
-            )
-            shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
+            print(f"Copying {lib_path} to {libfreetype}")
+            shutil.copy2(lib_path, libfreetype)
 
 
 class Qhull(SetupPackage):

@@ -1081,14 +1081,16 @@ class Polygon(Patch):
     @_api.make_keyword_only("3.6", name="closed")
     def __init__(self, xy, closed=True, **kwargs):
         """
-        *xy* is a numpy array with shape Nx2.
+        Parameters
+        ----------
+        xy : (N, 2) array
 
-        If *closed* is *True*, the polygon will be closed so the
-        starting and ending points are the same.
+        closed : bool, default: True
+            Whether the polygon is closed (i.e., has identical start and end
+            points).
 
-        Valid keyword arguments are:
-
-        %(Patch:kwdoc)s
+        **kwargs
+            %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self._closed = closed

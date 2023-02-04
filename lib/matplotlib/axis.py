@@ -1374,12 +1374,8 @@ class Axis(martist.Artist):
         for tick in ticks_to_draw:
             tick.draw(renderer)
 
-        # Scale up the axis label box to also find the neighbors, not just the
-        # tick labels that actually overlap.  We need a *copy* of the axis
-        # label box because we don't want to scale the actual bbox.
-
+        # Shift label away from axes to avoid overlapping ticklabels.
         self._update_label_position(renderer)
-
         self.label.draw(renderer)
 
         self._update_offset_text_position(tlb1, tlb2)

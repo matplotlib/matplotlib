@@ -1110,8 +1110,8 @@ class ListedColormap(Colormap):
     Parameters
     ----------
     colors : list, array
-        List of Matplotlib color specifications, or an equivalent Nx3 or Nx4
-        floating point array (*N* RGB or RGBA values).
+        Sequence of Matplotlib color specifications (color names or RGB(A)
+        values).
     name : str, optional
         String to identify the colormap.
     N : int, optional
@@ -2370,8 +2370,8 @@ class LightSource:
             "overlay".  Note that for most topographic surfaces,
             "overlay" or "soft" appear more visually realistic. If a
             user-defined function is supplied, it is expected to
-            combine an MxNx3 RGB array of floats (ranging 0 to 1) with
-            an MxNx1 hillshade array (also 0 to 1).  (Call signature
+            combine an (M, N, 3) RGB array of floats (ranging 0 to 1) with
+            an (M, N, 1) hillshade array (also 0 to 1).  (Call signature
             ``func(rgb, illum, **kwargs)``) Additional kwargs supplied
             to this function will be passed on to the *blend_mode*
             function.
@@ -2404,7 +2404,7 @@ class LightSource:
         Returns
         -------
         `~numpy.ndarray`
-            An MxNx4 array of floats ranging between 0-1.
+            An (M, N, 4) array of floats ranging between 0-1.
         """
         if vmin is None:
             vmin = data.min()
@@ -2445,8 +2445,8 @@ class LightSource:
             defaults to "hsv". Note that for most topographic surfaces,
             "overlay" or "soft" appear more visually realistic. If a
             user-defined function is supplied, it is expected to combine an
-            MxNx3 RGB array of floats (ranging 0 to 1) with an MxNx1 hillshade
-            array (also 0 to 1).  (Call signature
+            (M, N, 3) RGB array of floats (ranging 0 to 1) with an (M, N, 1)
+            hillshade array (also 0 to 1).  (Call signature
             ``func(rgb, illum, **kwargs)``)
             Additional kwargs supplied to this function will be passed on to
             the *blend_mode* function.
@@ -2512,9 +2512,9 @@ class LightSource:
         Parameters
         ----------
         rgb : `~numpy.ndarray`
-            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+            An (M, N, 3) RGB array of floats ranging from 0 to 1 (color image).
         intensity : `~numpy.ndarray`
-            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+            An (M, N, 1) array of floats ranging from 0 to 1 (grayscale image).
         hsv_max_sat : number, default: 1
             The maximum saturation value that the *intensity* map can shift the
             output image to.
@@ -2531,7 +2531,7 @@ class LightSource:
         Returns
         -------
         `~numpy.ndarray`
-            An MxNx3 RGB array representing the combined images.
+            An (M, N, 3) RGB array representing the combined images.
         """
         # Backward compatibility...
         if hsv_max_sat is None:
@@ -2574,14 +2574,14 @@ class LightSource:
         Parameters
         ----------
         rgb : `~numpy.ndarray`
-            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+            An (M, N, 3) RGB array of floats ranging from 0 to 1 (color image).
         intensity : `~numpy.ndarray`
-            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+            An (M, N, 1) array of floats ranging from 0 to 1 (grayscale image).
 
         Returns
         -------
         `~numpy.ndarray`
-            An MxNx3 RGB array representing the combined images.
+            An (M, N, 3) RGB array representing the combined images.
         """
         return 2 * intensity * rgb + (1 - 2 * intensity) * rgb**2
 
@@ -2592,14 +2592,14 @@ class LightSource:
         Parameters
         ----------
         rgb : `~numpy.ndarray`
-            An MxNx3 RGB array of floats ranging from 0 to 1 (color image).
+            An (M, N, 3) RGB array of floats ranging from 0 to 1 (color image).
         intensity : `~numpy.ndarray`
-            An MxNx1 array of floats ranging from 0 to 1 (grayscale image).
+            An (M, N, 1) array of floats ranging from 0 to 1 (grayscale image).
 
         Returns
         -------
         ndarray
-            An MxNx3 RGB array representing the combined images.
+            An (M, N, 3) RGB array representing the combined images.
         """
         low = 2 * intensity * rgb
         high = 1 - 2 * (1 - intensity) * (1 - rgb)

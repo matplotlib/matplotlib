@@ -249,7 +249,7 @@ class Axes3D(Axes):
         if M is None:
             M = self.M
         xyzs = self._unit_cube(vals)
-        tcube = proj3d.proj_points(xyzs, M)
+        tcube = proj3d._proj_points(xyzs, M)
         return tcube
 
     @_api.deprecated("3.7")
@@ -918,15 +918,15 @@ class Axes3D(Axes):
         if self._focal_length == np.inf:
             # Orthographic projection
             viewM = proj3d._view_transformation_uvw(u, v, w, eye)
-            projM = proj3d.ortho_transformation(-self._dist, self._dist)
+            projM = proj3d._ortho_transformation(-self._dist, self._dist)
         else:
             # Perspective projection
             # Scale the eye dist to compensate for the focal length zoom effect
             eye_focal = R + self._dist * ps * self._focal_length
             viewM = proj3d._view_transformation_uvw(u, v, w, eye_focal)
-            projM = proj3d.persp_transformation(-self._dist,
-                                                self._dist,
-                                                self._focal_length)
+            projM = proj3d._persp_transformation(-self._dist,
+                                                 self._dist,
+                                                 self._focal_length)
 
         # Combine all the transformation matrices to get the final projection
         M0 = np.dot(viewM, worldM)

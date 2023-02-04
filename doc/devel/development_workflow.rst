@@ -28,10 +28,10 @@ why you did it, we recommend the following:
 .. note::
 
    It may sound strange, but deleting your own ``main`` branch can help reduce
-   confusion about which branch you are on.  See `deleting main on github`_ for
+   confusion about which branch you are on.  See `deleting main on GitHub`_ for
    details.
 
-.. _deleting main on github: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
+.. _deleting main on GitHub: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
 
 .. _update-mirror-main:
 
@@ -134,7 +134,7 @@ In more detail
    description in the `tangled working copy problem`_. The
    `git commit <https://git-scm.com/docs/git-commit>`_ manual page might also be
    useful.
-#. To push the changes up to your forked repo on github, do a ``git
+#. To push the changes up to your forked repo on GitHub, do a ``git
    push``.
 
 .. _why the -a flag?: http://gitready.com/beginner/2009/01/18/the-staging-area.html

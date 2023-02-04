@@ -252,8 +252,9 @@ if 'plot_gallery=0' in sys.argv:
 
     def gallery_image_warning_filter(record):
         msg = record.msg
-        for gallery_dir in sphinx_gallery_conf['gallery_dirs']:
-            if msg.startswith(f'image file not readable: {gallery_dir}'):
+        for pattern in (sphinx_gallery_conf['gallery_dirs'] +
+                        ['_static/constrained_layout']):
+            if msg.startswith(f'image file not readable: {pattern}'):
                 return False
 
         if msg == 'Could not obtain image size. :scale: option is ignored.':

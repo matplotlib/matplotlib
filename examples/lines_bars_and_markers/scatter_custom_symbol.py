@@ -35,8 +35,8 @@ plt.show()
 # %%
 # Using a custom path
 # -------------------
-# Alternatively, one can also pass a custom path of N vertices as a Nx2 array
-# of x, y values as *marker*.
+# Alternatively, one can also pass a custom path of N vertices as a (N, 2)
+# array of x, y values as *marker*.
 
 # unit area ellipse
 rx, ry = 3., 1.
@@ -45,7 +45,7 @@ theta = np.arange(0, 2 * np.pi + 0.01, 0.1)
 verts = np.column_stack([rx / area * np.cos(theta), ry / area * np.sin(theta)])
 
 x, y, s, c = np.random.rand(4, 30)
-s *= 10**2.
+s *= 100
 
 fig, ax = plt.subplots()
 ax.scatter(x, y, s, c, marker=verts)

@@ -3,6 +3,7 @@ Classes to support contour plotting and labelling for the Axes class.
 """
 
 import functools
+import itertools
 from numbers import Integral
 
 import numpy as np
@@ -826,6 +827,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             # well.  Must ensure allkinds can be zipped below.
             self.allkinds = [None] * len(self.allsegs)
 
+        # Each entry in (allsegs, allkinds) is a list of (segs, kinds) which
+        # specifies a list of Paths: segs is a list of (N, 2) arrays of xy
+        # coordinates, kinds is a list of arrays of corresponding pathcodes.
+        # However, kinds can also be None; in which case all paths in that list
+        # are codeless.
+        allpaths = [
+            [*map(mpath.Path,
+                  segs,
+                  kinds if kinds is not None else itertools.repeat(None))]
+            for segs, kinds in zip(self.allsegs, self.allkinds)]
+
         if self.filled:
             if self.linewidths is not None:
                 _api.warn_external('linewidths is ignored by contourf')
@@ -836,14 +848,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
             self.collections[:] = [
                 mcoll.PathCollection(
-                    self._make_paths(segs, kinds),
+                    paths,
                     antialiaseds=(self.antialiased,),
                     edgecolors='none',
                     alpha=self.alpha,
                     transform=self.get_transform(),
                     zorder=self._contour_zorder)
-                for level, level_upper, segs, kinds
-                in zip(lowers, uppers, self.allsegs, self.allkinds)]
+                for level, level_upper, paths
+                in zip(lowers, uppers, allpaths)]
         else:
             self.tlinewidths = tlinewidths = self._process_linewidths()
             tlinestyles = self._process_linestyles()
@@ -856,7 +868,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
             self.collections[:] = [
                 mcoll.PathCollection(
-                    self._make_paths(segs, kinds),
+                    paths,
                     facecolors="none",
                     antialiaseds=aa,
                     linewidths=width,
@@ -865,9 +877,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     transform=self.get_transform(),
                     zorder=self._contour_zorder,
                     label='_nolegend_')
-                for level, width, lstyle, segs, kinds
-                in zip(self.levels, tlinewidths, tlinestyles, self.allsegs,
-                       self.allkinds)]
+                for level, width, lstyle, paths
+                in zip(self.levels, tlinewidths, tlinestyles, allpaths)]
 
         for col in self.collections:
             self.axes.add_collection(col, autolim=False)
@@ -1028,23 +1039,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 lowers[0] -= 1
         uppers = self._levels[1:]
         return (lowers, uppers)
-
-    def _make_paths(self, segs, kinds):
-        """
-        Create and return Path objects for the specified segments and optional
-        kind codes.  *segs* is a list of numpy arrays, each array is either a
-        closed line loop or open line strip of 2D points with a shape of
-        (npoints, 2).  *kinds* is either None or a list (with the same length
-        as *segs*) of numpy arrays, each array is of shape (npoints,) and
-        contains the kind codes for the corresponding line in *segs*.  If
-        *kinds* is None then the Path constructor creates the kind codes
-        assuming that the line is an open strip.
-        """
-        if kinds is None:
-            return [mpath.Path(seg) for seg in segs]
-        else:
-            return [mpath.Path(seg, codes=kind) for seg, kind
-                    in zip(segs, kinds)]
 
     def changed(self):
         if not hasattr(self, "cvalues"):

@@ -92,6 +92,30 @@ ax.set_ylim(-2, 2)
 
 # %%
 #
+# Annotating an Artist
+# ~~~~~~~~~~~~~~~~~~~~
+#
+# Annotations can be positioned relative to an `.Artist` instance by passing
+# that Artist in as *xycoords*. Then *xy* is interpreted as a fraction of the
+# Artist's bounding box.
+
+import matplotlib.patches as mpatches
+
+fig, ax = plt.subplots(figsize=(3, 3))
+arr = mpatches.FancyArrowPatch((1.25, 1.25), (1.75, 1.75),
+                               arrowstyle='->,head_width=.15', mutation_scale=20)
+ax.add_patch(arr)
+ax.annotate("label", (.5, .5), xycoords=arr, ha='center', va='center')
+ax.set(xlim=(1, 2), ylim=(1, 2))
+
+# %%
+# Here the annotation is placed at position (.5,.5) relative to the arrow's
+# lower left corner and is vertically and horizontally centered at that
+# position. For an example of chaining annotation Artists, see the
+# :ref:`Artist section <artist_annotation_coord>` of
+# :ref:`annotating_coordinate_systems`.
+#
+#
 # .. _annotation-with-arrow:
 #
 # Annotating with arrows
@@ -551,6 +575,8 @@ ax2.annotate("Test2",
                arrowprops=dict(arrowstyle="->"))
 
 # %%
+# .. _artist_annotation_coord:
+#
 # 2. An `.Artist` instance. The *xy* value (or *xytext*) is interpreted as a
 # fractional coordinate of the bounding box (bbox) of the artist:
 
