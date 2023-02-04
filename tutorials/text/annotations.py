@@ -1,4 +1,11 @@
 r"""
+.. redirect-from:: /gallery/userdemo/annotate_simple01
+.. redirect-from:: /gallery/userdemo/annotate_simple02
+.. redirect-from:: /gallery/userdemo/annotate_simple03
+.. redirect-from:: /gallery/userdemo/annotate_simple04
+.. redirect-from:: /gallery/userdemo/anchored_box04
+.. redirect-from:: /gallery/userdemo/annotate_simple_coord01
+.. redirect-from:: /gallery/userdemo/annotate_simple_coord03
 Annotations
 ===========
 
@@ -170,6 +177,7 @@ ax.annotate('a polar annotation',
 #
 # Placing text annotations relative to data
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
 # Annotations can be positioned at a relative offset to the *xy* input to
 # annotation by setting the *textcoords* keyword argument to ``'offset points'``
 # or ``'offset pixels'``.
