@@ -23,7 +23,7 @@ try:
 
     url = 'https://api.github.com/repos/matplotlib/matplotlib/releases'
     url += '?per_page=100'
-    data = json.loads(urllib.request.urlopen(url, timeout=.4).read().decode())
+    data = json.loads(urllib.request.urlopen(url, timeout=1).read().decode())
 
     dates = []
     names = []
