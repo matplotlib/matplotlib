@@ -3,38 +3,46 @@
 Constrained Layout Guide
 ================================
 
-How to use constrained-layout to fit plots within your figure cleanly.
+Use *constrained layout* to fit plots within your figure cleanly.
 
-*constrained_layout* automatically adjusts subplots and decorations like
-legends and colorbars so that they fit in the figure window while still
-preserving, as best they can, the logical layout requested by the user.
+*Constrained layout* automatically adjusts subplots so that decorations like tick
+labels, legends, and colorbars do not overlap, while still preserving the
+logical layout requested by the user.
 
-*constrained_layout* is similar to
-:doc:`tight_layout</tutorials/intermediate/tight_layout_guide>`,
-but uses a constraint solver to determine the size of axes that allows
-them to fit.
+*Constrained layout* is similar to :doc:`Tight
+layout</tutorials/intermediate/tight_layout_guide>`, but is substantially more
+flexible.  It handles colorbars placed on multiple Axes
+(:ref:`colorbar_placement`) nested layouts (`~.Figure.subfigures`) and Axes that
+span rows or columns (`~.pyplot.subplot_mosaic`), striving to align spines from
+Axes in the same row or column.  In addition, :ref:`Compressed layout
+<compressed_layout>` will try and move fixed aspect-ratio Axes closer together.
+These features are described in this document, as well as some
+:ref:`implementation details <cl_notes_on_algorithm>` discussed at the end.
 
-*constrained_layout* typically needs to be activated before any axes are
-added to a figure. Two ways of doing so are
+*Constrained layout* typically needs to be activated before any Axes are added to
+a figure. Two ways of doing so are
 
-* using the respective argument to :func:`~.pyplot.subplots` or
-  :func:`~.pyplot.figure`, e.g.::
+* using the respective argument to `~.pyplot.subplots`,
+  `~.pyplot.figure`, `~.pyplot.subplot_mosaic` e.g.::
 
       plt.subplots(layout="constrained")
 
-* activate it via :ref:`rcParams<customizing-with-dynamic-rc-settings>`,
-  like::
+* activate it via :ref:`rcParams<customizing-with-dynamic-rc-settings>`, like::
 
       plt.rcParams['figure.constrained_layout.use'] = True
 
 Those are described in detail throughout the following sections.
 
-Simple Example
+.. warning::
+
+    Calling ``plt.tight_layout()`` will turn off *constrained layout*!
+
+Simple example
 ==============
 
-In Matplotlib, the location of axes (including subplots) are specified in
-normalized figure coordinates. It can happen that your axis labels or
-titles (or sometimes even ticklabels) go outside the figure area, and are thus
+In Matplotlib, the location of Axes (including subplots) are specified in
+normalized figure coordinates. It can happen that your axis labels or titles
+(or sometimes even ticklabels) go outside the figure area, and are thus
 clipped.
 """
 
@@ -67,18 +75,18 @@ fig, ax = plt.subplots(layout=None)
 example_plot(ax, fontsize=24)
 
 # %%
-# To prevent this, the location of axes needs to be adjusted. For
+# To prevent this, the location of Axes needs to be adjusted. For
 # subplots, this can be done manually by adjusting the subplot parameters
 # using `.Figure.subplots_adjust`. However, specifying your figure with the
-# # ``layout="constrained"`` keyword argument will do the adjusting
-# # automatically.
+# ``layout="constrained"`` keyword argument will do the adjusting
+# automatically.
 
 fig, ax = plt.subplots(layout="constrained")
 example_plot(ax, fontsize=24)
 
 # %%
 # When you have multiple subplots, often you see labels of different
-# axes overlapping each other.
+# Axes overlapping each other.
 
 fig, axs = plt.subplots(2, 2, layout=None)
 for ax in axs.flat:
@@ -93,21 +101,19 @@ for ax in axs.flat:
     example_plot(ax)
 
 # %%
+#
 # Colorbars
 # =========
 #
-# If you create a colorbar with `.Figure.colorbar`,
-# you need to make room for it.  ``constrained_layout`` does this
-# automatically.  Note that if you specify ``use_gridspec=True`` it will be
-# ignored because this option is made for improving the layout via
-# ``tight_layout``.
+# If you create a colorbar with `.Figure.colorbar`, you need to make room for
+# it.  *Constrained layout* does this automatically.  Note that if you
+# specify ``use_gridspec=True`` it will be ignored because this option is made
+# for improving the layout via ``tight_layout``.
 #
 # .. note::
 #
 #   For the `~.axes.Axes.pcolormesh` keyword arguments (``pc_kwargs``) we use a
-#   dictionary. Below we will assign one colorbar to a number of axes each
-#   containing a `~.cm.ScalarMappable`; specifying the norm and colormap
-#   ensures the colorbar is accurate for all the axes.
+#   dictionary to keep the calls consistent across this document.
 
 arr = np.arange(100).reshape((10, 10))
 norm = mcolors.Normalize(vmin=0., vmax=100.)
@@ -118,9 +124,9 @@ im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=ax, shrink=0.6)
 
 # %%
-# If you specify a list of axes (or other iterable container) to the
+# If you specify a list of Axes (or other iterable container) to the
 # ``ax`` argument of ``colorbar``, constrained_layout will take space from
-# the specified axes.
+# the specified Axes.
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), layout="constrained")
 for ax in axs.flat:
@@ -128,7 +134,7 @@ for ax in axs.flat:
 fig.colorbar(im, ax=axs, shrink=0.6)
 
 # %%
-# If you specify a list of axes from inside a grid of axes, the colorbar
+# If you specify a list of Axes from inside a grid of Axes, the colorbar
 # will steal space appropriately, and leave a gap, but all subplots will
 # still be the same size.
 
@@ -142,7 +148,7 @@ fig.colorbar(im, ax=axs[:, -1], shrink=0.6)
 # Suptitle
 # =========
 #
-# ``constrained_layout`` can also make room for `~.Figure.suptitle`.
+# *Constrained layout* can also make room for `~.Figure.suptitle`.
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), layout="constrained")
 for ax in axs.flat:
@@ -180,7 +186,7 @@ axs[1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 # however, that the legend's ``get_in_layout`` status will have to be
 # toggled again to make the saved file work, and we must manually
 # trigger a draw if we want constrained_layout to adjust the size
-# of the axes before printing.
+# of the Axes before printing.
 
 fig, axs = plt.subplots(1, 2, figsize=(4, 2), layout="constrained")
 
@@ -234,13 +240,13 @@ except FileNotFoundError:
 #
 
 # %%
-# Padding and Spacing
+# Padding and spacing
 # ===================
 #
-# Padding between axes is controlled in the horizontal by *w_pad* and
+# Padding between Axes is controlled in the horizontal by *w_pad* and
 # *wspace*, and vertical by *h_pad* and *hspace*.  These can be edited
 # via `~.layout_engine.ConstrainedLayoutEngine.set`.  *w/h_pad* are
-# the minimum space around the axes in units of inches:
+# the minimum space around the Axes in units of inches:
 
 fig, axs = plt.subplots(2, 2, layout="constrained")
 for ax in axs.flat:
@@ -274,7 +280,7 @@ fig.get_layout_engine().set(w_pad=4 / 72, h_pad=4 / 72, hspace=0.2,
 
 # %%
 # GridSpecs also have optional *hspace* and *wspace* keyword arguments,
-# that will be used instead of the pads set by ``constrained_layout``:
+# that will be used instead of the pads set by *constrained layout*:
 
 fig, axs = plt.subplots(2, 2, layout="constrained",
                         gridspec_kw={'wspace': 0.3, 'hspace': 0.2})
@@ -313,7 +319,7 @@ fig.get_layout_engine().set(w_pad=2 / 72, h_pad=2 / 72, hspace=0.2,
 # file. They all have the prefix ``figure.constrained_layout``:
 #
 # - *use*: Whether to use constrained_layout. Default is False
-# - *w_pad*, *h_pad*:    Padding around axes objects.
+# - *w_pad*, *h_pad*:    Padding around Axes objects.
 #   Float representing inches.  Default is 3./72. inches (3 pts)
 # - *wspace*, *hspace*:  Space between subplot groups.
 #   Float representing a fraction of the subplot widths being separated.
@@ -376,7 +382,7 @@ ax.set_xlabel("x-label", fontsize=12)
 # Note that in the above the left and right columns don't have the same
 # vertical extent.  If we want the top and bottom of the two grids to line up
 # then they need to be in the same gridspec.  We need to make this figure
-# larger as well in order for the axes not to collapse to zero height:
+# larger as well in order for the Axes not to collapse to zero height:
 
 fig = plt.figure(figsize=(4, 6), layout="constrained")
 
@@ -424,7 +430,7 @@ fig.colorbar(pcm, ax=axs)
 
 # %%
 # Rather than using subgridspecs, Matplotlib now provides `~.Figure.subfigures`
-# which also work with ``constrained_layout``:
+# which also work with *constrained layout*:
 
 fig = plt.figure(layout="constrained")
 sfigs = fig.subfigures(1, 2, width_ratios=[1, 2])
@@ -443,13 +449,13 @@ fig.colorbar(pcm, ax=axs_right)
 fig.suptitle('Nested plots using subfigures')
 
 # %%
-# Manually setting axes positions
+# Manually setting Axes positions
 # ================================
 #
 # There can be good reasons to manually set an Axes position.  A manual call
-# to `~.axes.Axes.set_position` will set the axes so constrained_layout has
-# no effect on it anymore. (Note that ``constrained_layout`` still leaves the
-# space for the axes that is moved).
+# to `~.axes.Axes.set_position` will set the Axes so constrained_layout has
+# no effect on it anymore. (Note that *constrained layout* still leaves the
+# space for the Axes that is moved).
 
 fig, axs = plt.subplots(1, 2, layout="constrained")
 example_plot(axs[0], fontsize=12)
@@ -461,8 +467,8 @@ axs[1].set_position([0.2, 0.2, 0.4, 0.4])
 # Grids of fixed aspect-ratio Axes: "compressed" layout
 # =====================================================
 #
-# ``constrained_layout`` operates on the grid of "original" positions for
-# axes. However, when Axes have fixed aspect ratios, one side is usually made
+# *Constrained layout* operates on the grid of "original" positions for
+# Axes. However, when Axes have fixed aspect ratios, one side is usually made
 # shorter, and leaves large gaps in the shortened direction. In the following,
 # the Axes are square, but the figure quite wide so there is a horizontal gap:
 
@@ -485,19 +491,19 @@ fig.suptitle("fixed-aspect plots, layout='compressed'")
 
 
 # %%
-# Manually turning off ``constrained_layout``
+# Manually turning off *constrained layout*
 # ===========================================
 #
-# ``constrained_layout`` usually adjusts the axes positions on each draw
+# *Constrained layout* usually adjusts the Axes positions on each draw
 # of the figure.  If you want to get the spacing provided by
-# ``constrained_layout`` but not have it update, then do the initial
+# *Constrained layout* but not have it update, then do the initial
 # draw and then call ``fig.set_layout_engine('none')``.
 # This is potentially useful for animations where the tick labels may
 # change length.
 #
-# Note that ``constrained_layout`` is turned off for ``ZOOM`` and ``PAN``
+# Note that *Constrained layout* is turned off for ``ZOOM`` and ``PAN``
 # GUI events for the backends that use the toolbar.  This prevents the
-# axes from changing position during zooming and panning.
+# Axes from changing position during zooming and panning.
 #
 #
 # Limitations
@@ -506,17 +512,17 @@ fig.suptitle("fixed-aspect plots, layout='compressed'")
 # Incompatible functions
 # ----------------------
 #
-# ``constrained_layout`` will work with `.pyplot.subplot`, but only if the
+# *Constrained layout* will work with `.pyplot.subplot`, but only if the
 # number of rows and columns is the same for each call.
 # The reason is that each call to `.pyplot.subplot` will create a new
 # `.GridSpec` instance if the geometry is not the same, and
-# ``constrained_layout``.  So the following works fine:
+# *Constrained layout*.  So the following works fine:
 
 fig = plt.figure(layout="constrained")
 
 ax1 = plt.subplot(2, 2, 1)
 ax2 = plt.subplot(2, 2, 3)
-# third axes that spans both rows in second column:
+# third Axes that spans both rows in second column:
 ax3 = plt.subplot(2, 2, (2, 4))
 
 example_plot(ax1)
@@ -557,22 +563,22 @@ example_plot(ax4)
 fig.suptitle('subplot2grid')
 
 # %%
-# Other Caveats
+# Other caveats
 # -------------
 #
-# * ``constrained_layout`` only considers ticklabels, axis labels, titles, and
+# * *Constrained layout* only considers ticklabels, axis labels, titles, and
 #   legends.  Thus, other artists may be clipped and also may overlap.
 #
 # * It assumes that the extra space needed for ticklabels, axis labels,
-#   and titles is independent of original location of axes. This is
+#   and titles is independent of original location of Axes. This is
 #   often true, but there are rare cases where it is not.
 #
 # * There are small differences in how the backends handle rendering fonts,
 #   so the results will not be pixel-identical.
 #
-# * An artist using axes coordinates that extend beyond the axes
+# * An artist using Axes coordinates that extend beyond the Axes
 #   boundary will result in unusual layouts when added to an
-#   axes. This can be avoided by adding the artist directly to the
+#   Axes. This can be avoided by adding the artist directly to the
 #   :class:`~matplotlib.figure.Figure` using
 #   :meth:`~matplotlib.figure.Figure.add_artist`. See
 #   :class:`~matplotlib.patches.ConnectionPatch` for an example.
@@ -595,6 +601,8 @@ fig.suptitle('subplot2grid')
 # not require outside data or dependencies (other than numpy).
 
 # %%
+# .. _cl_notes_on_algorithm:
+#
 # Notes on the algorithm
 # ======================
 #
@@ -620,16 +628,16 @@ fig.suptitle('subplot2grid')
 #
 # For a single Axes the layout is straight forward.  There is one parent
 # layoutgrid for the figure consisting of one column and row, and
-# a child layoutgrid for the gridspec that contains the axes, again
+# a child layoutgrid for the gridspec that contains the Axes, again
 # consisting of one row and column. Space is made for the "decorations" on
-# each side of the axes.  In the code, this is accomplished by the entries in
+# each side of the Axes.  In the code, this is accomplished by the entries in
 # ``do_constrained_layout()`` like::
 #
 #     gridspec._layoutgrid[0, 0].edit_margin_min('left',
 #           -bbox.x0 + pos.x0 + w_pad)
 #
-# where ``bbox`` is the tight bounding box of the axes, and ``pos`` its
-# position.  Note how the four margins encompass the axes decorations.
+# where ``bbox`` is the tight bounding box of the Axes, and ``pos`` its
+# position.  Note how the four margins encompass the Axes decorations.
 
 from matplotlib._layoutgrid import plot_children
 
@@ -640,8 +648,8 @@ plot_children(fig)
 # %%
 # Simple case: two Axes
 # ---------------------
-# When there are multiple axes they have their layouts bound in
-# simple ways.  In this example the left axes has much larger decorations
+# When there are multiple Axes they have their layouts bound in
+# simple ways.  In this example the left Axes has much larger decorations
 # than the right, but they share a bottom margin, which is made large
 # enough to accommodate the larger xlabel.   Same with the shared top
 # margin.  The left and right margins are not shared, and hence are
@@ -682,16 +690,16 @@ plot_children(fig)
 # Uneven sized Axes
 # -----------------
 #
-# There are two ways to make axes have an uneven size in a
+# There are two ways to make Axes have an uneven size in a
 # Gridspec layout, either by specifying them to cross Gridspecs rows
 # or columns, or by specifying width and height ratios.
 #
 # The first method is used here.  Note that the middle ``top`` and
 # ``bottom`` margins are not affected by the left-hand column.  This
 # is a conscious decision of the algorithm, and leads to the case where
-# the two right-hand axes have the same height, but it is not 1/2 the height
-# of the left-hand axes.  This is consistent with how ``gridspec`` works
-# without constrained layout.
+# the two right-hand Axes have the same height, but it is not 1/2 the height
+# of the left-hand Axes.  This is consistent with how ``gridspec`` works
+# without *constrained layout*.
 
 fig = plt.figure(layout="constrained")
 gs = gridspec.GridSpec(2, 2, figure=fig)
@@ -708,7 +716,7 @@ plot_children(fig)
 # constraining their width. In the case below, the right margin for column 0
 # and the left margin for column 3 have no margin artists to set their width,
 # so we take the maximum width of the margin widths that do have artists.
-# This makes all the axes have the same size:
+# This makes all the Axes have the same size:
 
 fig = plt.figure(layout="constrained")
 gs = fig.add_gridspec(2, 4)

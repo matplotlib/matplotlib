@@ -1,4 +1,6 @@
 """
+.. _colorbar_placement:
+
 =================
 Placing Colorbars
 =================
