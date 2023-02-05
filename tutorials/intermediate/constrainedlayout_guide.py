@@ -194,7 +194,7 @@ fig.canvas.draw()
 # we want the legend included in the bbox_inches='tight' calcs.
 leg.set_in_layout(True)
 # we don't want the layout to change at this point.
-fig.set_layout_engine(None)
+fig.set_layout_engine('none')
 try:
     fig.savefig('../../doc/_static/constrained_layout_1b.png',
                 bbox_inches='tight', dpi=100)
@@ -491,7 +491,7 @@ fig.suptitle("fixed-aspect plots, layout='compressed'")
 # ``constrained_layout`` usually adjusts the axes positions on each draw
 # of the figure.  If you want to get the spacing provided by
 # ``constrained_layout`` but not have it update, then do the initial
-# draw and then call ``fig.set_layout_engine(None)``.
+# draw and then call ``fig.set_layout_engine('none')``.
 # This is potentially useful for animations where the tick labels may
 # change length.
 #
