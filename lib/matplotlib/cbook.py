@@ -2169,6 +2169,9 @@ def _unikey_or_keysym_to_mplkey(unikey, keysym):
         key = key.replace("page_", "page")
     if key.endswith(("_l", "_r")):  # alt_l, ctrl_l, shift_l.
         key = key[:-2]
+    if sys.platform == "darwin" and key == "meta":
+        # meta should be reported as command on mac
+        key = "cmd"
     key = {
         "return": "enter",
         "prior": "pageup",  # Used by tk.
