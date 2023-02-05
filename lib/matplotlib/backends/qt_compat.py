@@ -69,7 +69,7 @@ else:
 
 def _setup_pyqt5plus():
     global QtCore, QtGui, QtWidgets, __version__
-    global _getSaveFileName, _isdeleted, _to_int
+    global _isdeleted, _to_int
 
     if QT_API == QT_API_PYQT6:
         from PyQt6 import QtCore, QtGui, QtWidgets, sip
@@ -107,7 +107,6 @@ def _setup_pyqt5plus():
         _to_int = int
     else:
         raise AssertionError(f"Unexpected QT_API: {QT_API}")
-    _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
 
 
 if QT_API in [QT_API_PYQT6, QT_API_PYQT5, QT_API_PYSIDE6, QT_API_PYSIDE2]:
