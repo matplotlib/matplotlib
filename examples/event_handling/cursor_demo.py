@@ -28,6 +28,8 @@ __ https://github.com/anntzer/mplcursors
 import matplotlib.pyplot as plt
 import numpy as np
 
+from matplotlib.backend_bases import MouseEvent
+
 
 class Cursor:
     """
@@ -71,6 +73,11 @@ ax.plot(x, y, 'o')
 cursor = Cursor(ax)
 fig.canvas.mpl_connect('motion_notify_event', cursor.on_mouse_move)
 
+# Simulate a mouse move to (0.5, 0.5), needed for online docs
+t = ax.transData
+MouseEvent(
+    "motion_notify_event", ax.figure.canvas, *t.transform((0.5, 0.5))
+)._process()
 
 # %%
 # Faster redrawing using blitting
@@ -84,6 +91,7 @@ fig.canvas.mpl_connect('motion_notify_event', cursor.on_mouse_move)
 # ``create_new_background()``). Additionally, a new background has to be
 # created whenever the figure changes. This is achieved by connecting to the
 # ``'draw_event'``.
+
 
 class BlittedCursor:
     """
@@ -152,6 +160,11 @@ ax.plot(x, y, 'o')
 blitted_cursor = BlittedCursor(ax)
 fig.canvas.mpl_connect('motion_notify_event', blitted_cursor.on_mouse_move)
 
+# Simulate a mouse move to (0.5, 0.5), needed for online docs
+t = ax.transData
+MouseEvent(
+    "motion_notify_event", ax.figure.canvas, *t.transform((0.5, 0.5))
+)._process()
 
 # %%
 # Snapping to data points
@@ -164,6 +177,7 @@ fig.canvas.mpl_connect('motion_notify_event', blitted_cursor.on_mouse_move)
 # moves far enough so that another data point must be selected. This reduces
 # the lag due to many redraws. Of course, blitting could still be added on top
 # for additional speedup.
+
 
 class SnappingCursor:
     """
@@ -218,4 +232,11 @@ ax.set_title('Snapping cursor')
 line, = ax.plot(x, y, 'o')
 snap_cursor = SnappingCursor(ax, line)
 fig.canvas.mpl_connect('motion_notify_event', snap_cursor.on_mouse_move)
+
+# Simulate a mouse move to (0.5, 0.5), needed for online docs
+t = ax.transData
+MouseEvent(
+    "motion_notify_event", ax.figure.canvas, *t.transform((0.5, 0.5))
+)._process()
+
 plt.show()
