@@ -6,6 +6,7 @@ r"""
 .. redirect-from:: /gallery/userdemo/anchored_box04
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord01
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord03
+
 Annotations
 ===========
 
