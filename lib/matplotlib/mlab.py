@@ -395,7 +395,11 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
     elif mode == 'psd':
         result = np.conj(result) * result
     elif mode == 'magnitude':
-        result = np.abs(result) / np.abs(window).sum()
+        result = np.abs(result)
+        if np.iscomplexobj(window):
+            result /= np.abs(window).sum()
+        else:
+            result /= np.asarray(window).sum()
     elif mode == 'angle' or mode == 'phase':
         # we unwrap the phase later to handle the onesided vs. twosided case
         result = np.angle(result)
