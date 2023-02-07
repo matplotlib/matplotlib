@@ -697,7 +697,6 @@ class TestSpectral:
                         spec_a*self.Fs*(win**2).sum(),
                         atol=1e-08)
 
-
     def test_psd_windowarray(self):
         freqs = self.freqs_density
         spec, fsp = mlab.psd(x=self.y,
