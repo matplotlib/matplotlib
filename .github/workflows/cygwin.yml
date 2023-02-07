@@ -57,6 +57,7 @@ jobs:
         !contains(github.event.head_commit.message, '[ci skip]') &&
         !contains(github.event.head_commit.message, '[skip ci]') &&
         !contains(github.event.head_commit.message, '[skip github]') &&
+        !contains(github.event.head_commit.message, '[ci doc]') &&
         (
           github.event_name == 'push' ||
           github.event_name == 'pull_request' &&

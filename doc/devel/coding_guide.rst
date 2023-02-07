@@ -373,6 +373,8 @@ will run on all supported platforms and versions of Python.
   - Azure Pipelines: ``[skip azp]``
   - CircleCI: ``[skip circle]``
 
+  If you only want to run documentation CI you can pass ``[ci doc]``.
+
 .. _pr-squashing:
 
 Number of commits and squashing
