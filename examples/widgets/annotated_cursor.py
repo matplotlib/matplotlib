@@ -24,6 +24,8 @@ from matplotlib.widgets import Cursor
 import numpy as np
 import matplotlib.pyplot as plt
 
+from matplotlib.backend_bases import MouseEvent
+
 
 class AnnotatedCursor(Cursor):
     """
@@ -312,6 +314,12 @@ cursor = AnnotatedCursor(
     color='red',
     linewidth=2)
 
+# Simulate a mouse move to (-2, 10), needed for online docs
+t = ax.transData
+MouseEvent(
+    "motion_notify_event", ax.figure.canvas, *t.transform((-2, 10))
+)._process()
+
 plt.show()
 
 ###############################################################################
@@ -338,5 +346,11 @@ cursor = AnnotatedCursor(
     ax=ax,
     useblit=True,
     color='red', linewidth=2)
+
+# Simulate a mouse move to (-2, 10), needed for online docs
+t = ax.transData
+MouseEvent(
+    "motion_notify_event", ax.figure.canvas, *t.transform((-2, 10))
+)._process()
 
 plt.show()

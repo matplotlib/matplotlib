@@ -1654,7 +1654,9 @@ def test_MultiCursor(horizOn, vertOn):
     # Can't use `do_event` as that helper requires the widget
     # to have a single .ax attribute.
     event = mock_event(ax1, xdata=.5, ydata=.25)
-    multi._onmove(event)
+    multi.onmove(event)
+    # force a draw + draw event to exercise clear
+    ax1.figure.canvas.draw()
 
     # the lines in the first two ax should both move
     for l in multi.vlines:
@@ -1671,7 +1673,7 @@ def test_MultiCursor(horizOn, vertOn):
     multi.horizOn = not multi.horizOn
     multi.vertOn = not multi.vertOn
     event = mock_event(ax1, xdata=.5, ydata=.25)
-    multi._onmove(event)
+    multi.onmove(event)
     assert len([line for line in multi.vlines if line.get_visible()]) == (
         0 if vertOn else 2)
     assert len([line for line in multi.hlines if line.get_visible()]) == (
@@ -1680,7 +1682,7 @@ def test_MultiCursor(horizOn, vertOn):
     # test a move event in an Axes not part of the MultiCursor
     # the lines in ax1 and ax2 should not have moved.
     event = mock_event(ax3, xdata=.75, ydata=.75)
-    multi._onmove(event)
+    multi.onmove(event)
     for l in multi.vlines:
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:
