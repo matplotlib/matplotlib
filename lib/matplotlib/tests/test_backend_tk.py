@@ -4,11 +4,19 @@ import os
 import platform
 import subprocess
 import sys
+import tempfile
+import warnings
+
+from PIL import Image
 
 import pytest
 
-from matplotlib.testing import subprocess_run_helper
+import matplotlib
 from matplotlib import _c_internal_utils
+from matplotlib.backend_tools import ToolToggleBase
+from matplotlib.testing import subprocess_run_helper
+import matplotlib.pyplot as plt
+
 
 _test_timeout = 60  # A reasonably safe value for slower architectures.
 
@@ -175,6 +183,32 @@ def test_never_update():
 
     # Note that exceptions would be printed to stderr; _isolated_tk_test
     # checks them.
+
+
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
+@_isolated_tk_test(success_count=0)
+def test_toolbar_button_la_mode_icon():
+    # test that icon in LA mode can be used for buttons
+    # see GH#25164
+    # tweaking toolbar raises an UserWarning
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        matplotlib.rcParams["toolbar"] = "toolmanager"
+
+    # create an icon in LA mode
+    with tempfile.TemporaryDirectory() as tempdir:
+        img = Image.new("LA", (26, 26))
+        tmp_img_path = os.path.join(tempdir, "test_la_icon.png")
+        img.save(tmp_img_path)
+
+        class CustomTool(ToolToggleBase):
+            image = tmp_img_path
+
+        fig = plt.figure()
+        toolmanager = fig.canvas.manager.toolmanager
+        toolbar = fig.canvas.manager.toolbar
+        toolmanager.add_tool("test", CustomTool)
+        toolbar.add_tool("test", "group")
 
 
 @_isolated_tk_test(success_count=2)
