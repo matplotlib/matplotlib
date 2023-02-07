@@ -3357,10 +3357,14 @@ class NavigationToolbar2:
         tool_fig = manager.canvas.figure
         tool_fig.subplots_adjust(top=0.9)
         self.subplot_tool = widgets.SubplotTool(self.canvas.figure, tool_fig)
-        tool_fig.canvas.mpl_connect(
-            "close_event", lambda e: delattr(self, "subplot_tool"))
-        self.canvas.mpl_connect(
+        cid = self.canvas.mpl_connect(
             "close_event", lambda e: manager.destroy())
+
+        def on_tool_fig_close(e):
+            self.canvas.mpl_disconnect(cid)
+            del self.subplot_tool
+
+        tool_fig.canvas.mpl_connect("close_event", on_tool_fig_close)
         manager.show()
         return self.subplot_tool
 
