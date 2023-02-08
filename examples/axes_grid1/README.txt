@@ -2,5 +2,5 @@
 
 .. _axes_grid1-examples-index:
 
-Module - axes_grid1 
+Module - axes_grid1
 ===================
