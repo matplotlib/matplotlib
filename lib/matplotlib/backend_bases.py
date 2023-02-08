@@ -37,6 +37,7 @@ import logging
 import os
 import sys
 import time
+import weakref
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -1331,7 +1332,11 @@ class LocationEvent(Event):
         The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
-    lastevent = None  # The last event processed so far.
+    # Fully delete all occurrences of lastevent after deprecation elapses.
+    _lastevent = None
+    lastevent = _api.deprecated("3.8")(
+        _api.classproperty(lambda cls: cls._lastevent))
+    _last_axes_ref = None
 
     def __init__(self, name, canvas, x, y, guiEvent=None, *, modifiers=None):
         super().__init__(name, canvas, guiEvent=guiEvent)
@@ -1348,20 +1353,25 @@ class LocationEvent(Event):
             # cannot check if event was in Axes if no (x, y) info
             return
 
-        if self.canvas.mouse_grabber is None:
-            self.inaxes = self.canvas.inaxes((x, y))
-        else:
-            self.inaxes = self.canvas.mouse_grabber
+        self._set_inaxes(self.canvas.inaxes((x, y))
+                         if self.canvas.mouse_grabber is None else
+                         self.canvas.mouse_grabber,
+                         (x, y))
 
-        if self.inaxes is not None:
+    # Splitting _set_inaxes out is useful for the axes_leave_event handler: it
+    # needs to generate synthetic LocationEvents with manually-set inaxes.  In
+    # that latter case, xy has already been cast to int so it can directly be
+    # read from self.x, self.y; in the normal case, however, it is more
+    # accurate to pass the untruncated float x, y values passed to the ctor.
+
+    def _set_inaxes(self, inaxes, xy=None):
+        self.inaxes = inaxes
+        if inaxes is not None:
             try:
-                trans = self.inaxes.transData.inverted()
-                xdata, ydata = trans.transform((x, y))
+                self.xdata, self.ydata = inaxes.transData.inverted().transform(
+                    xy if xy is not None else (self.x, self.y))
             except ValueError:
                 pass
-            else:
-                self.xdata = xdata
-                self.ydata = ydata
 
 
 class MouseButton(IntEnum):
@@ -1555,17 +1565,30 @@ def _mouse_handler(event):
         event.key = event.canvas._key
     # Emit axes_enter/axes_leave.
     if event.name == "motion_notify_event":
-        last = LocationEvent.lastevent
-        last_axes = last.inaxes if last is not None else None
+        last_ref = LocationEvent._last_axes_ref
+        last_axes = last_ref() if last_ref else None
         if last_axes != event.inaxes:
             if last_axes is not None:
+                # Create a synthetic LocationEvent for the axes_leave_event.
+                # Its inaxes attribute needs to be manually set (because the
+                # cursor is actually *out* of that axes at that point); this is
+                # done with the internal _set_inaxes method which ensures that
+                # the xdata and ydata attributes are also correct.
                 try:
-                    last.canvas.callbacks.process("axes_leave_event", last)
+                    leave_event = LocationEvent(
+                        "axes_leave_event", last_axes.figure.canvas,
+                        event.x, event.y, event.guiEvent,
+                        modifiers=event.modifiers)
+                    leave_event._set_inaxes(last_axes)
+                    last_axes.figure.canvas.callbacks.process(
+                        "axes_leave_event", leave_event)
                 except Exception:
                     pass  # The last canvas may already have been torn down.
             if event.inaxes is not None:
                 event.canvas.callbacks.process("axes_enter_event", event)
-        LocationEvent.lastevent = (
+        LocationEvent._last_axes_ref = (
+            weakref.ref(event.inaxes) if event.inaxes else None)
+        LocationEvent._lastevent = (
             None if event.name == "figure_leave_event" else event)
 
 
@@ -1964,8 +1987,8 @@ class FigureCanvasBase:
         guiEvent
             The native UI event that generated the Matplotlib event.
         """
-        self.callbacks.process('figure_leave_event', LocationEvent.lastevent)
-        LocationEvent.lastevent = None
+        self.callbacks.process('figure_leave_event', LocationEvent._lastevent)
+        LocationEvent._lastevent = None
         self._lastx, self._lasty = None, None
 
     @_api.deprecated("3.6", alternative=(
