@@ -73,3 +73,19 @@ axs[7].xaxis.set_major_locator(ticker.LogLocator(base=10, numticks=15))
 
 plt.tight_layout()
 plt.show()
+
+# %%
+#
+# .. admonition:: References
+#
+#    The following locators are used in this example:
+#
+#    - `matplotlib.ticker.NullLocator`
+#    - `matplotlib.ticker.MultipleLocator`
+#    - `matplotlib.ticker.FixedLocator`
+#    - `matplotlib.ticker.LinearLocator`
+#    - `matplotlib.ticker.IndexLocator`
+#    - `matplotlib.ticker.AutoLocator`
+#    - `matplotlib.ticker.MaxNLocator`
+#    - `matplotlib.ticker.LogLocator`
+
