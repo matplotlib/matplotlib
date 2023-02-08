@@ -9,7 +9,8 @@ Demonstrate use of a log color scale in contourf
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy import ma
-from matplotlib import ticker, cm
+
+from matplotlib import cm, ticker
 
 N = 100
 x = np.linspace(-3.0, 3.0, N)

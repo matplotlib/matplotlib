@@ -6,10 +6,11 @@ Axes Grid2
 Grid of images with shared xaxis and yaxis.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
+
 from matplotlib import cbook
 import matplotlib.colors
-import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
 

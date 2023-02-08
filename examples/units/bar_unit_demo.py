@@ -12,10 +12,10 @@ centimeters.
    This example requires :download:`basic_units.py <basic_units.py>`
 """
 
-import numpy as np
 from basic_units import cm, inch
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 N = 5
 tea_means = [15*cm, 10*cm, 8*cm, 12*cm, 5*cm]

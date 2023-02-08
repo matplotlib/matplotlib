@@ -21,8 +21,9 @@ reveal the preferred pattern in writing functions for matplotlib:
      modified in this example).
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 

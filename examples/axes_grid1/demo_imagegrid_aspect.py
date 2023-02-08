@@ -5,6 +5,7 @@ Setting a fixed aspect on ImageGrid cells
 """
 
 import matplotlib.pyplot as plt
+
 from mpl_toolkits.axes_grid1 import ImageGrid
 
 fig = plt.figure()

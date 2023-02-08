@@ -28,8 +28,8 @@ as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 # point of the legend will be at the left central point of the bounding box,
 # spanning from ``(1, 0)`` to ``(1.5, 1)`` in axes coordinates.
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
 

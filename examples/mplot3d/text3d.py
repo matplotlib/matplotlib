@@ -16,7 +16,6 @@ Functionality shown:
 
 import matplotlib.pyplot as plt
 
-
 ax = plt.figure().add_subplot(projection='3d')
 
 # Demo 1: zdir

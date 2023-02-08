@@ -10,16 +10,18 @@ we show how to create a simple timeline using the dates for recent releases
 of Matplotlib. First, we'll pull the data from GitHub.
 """
 
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 import matplotlib.dates as mdates
-from datetime import datetime
 
 try:
     # Try to fetch a list of Matplotlib releases and their dates
     # from https://api.github.com/repos/matplotlib/matplotlib/releases
-    import urllib.request
     import json
+    import urllib.request
 
     url = 'https://api.github.com/repos/matplotlib/matplotlib/releases'
     url += '?per_page=100'

@@ -16,9 +16,9 @@ just make up some data for little Johnny Doe.
 """
 
 from collections import namedtuple
-import numpy as np
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 Student = namedtuple('Student', ['name', 'grade', 'gender'])
 Score = namedtuple('Score', ['value', 'unit', 'percentile'])

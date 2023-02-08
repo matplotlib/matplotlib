@@ -10,10 +10,11 @@ help you get started with Matplotlib.
 
 """
 
-# sphinx_gallery_thumbnail_number = 3
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
+
+# sphinx_gallery_thumbnail_number = 3
+import matplotlib as mpl
 
 # %%
 #

@@ -7,8 +7,9 @@ Axes divider to calculate location of axes and
 create a divider for them using existing axes instances.
 """
 
-from matplotlib import cbook
 import matplotlib.pyplot as plt
+
+from matplotlib import cbook
 
 
 def get_demo_image():
@@ -27,7 +28,7 @@ def demo_simple_image(ax):
 
 def demo_locatable_axes_hard(fig):
 
-    from mpl_toolkits.axes_grid1 import SubplotDivider, Size
+    from mpl_toolkits.axes_grid1 import Size, SubplotDivider
     from mpl_toolkits.axes_grid1.mpl_axes import Axes
 
     divider = SubplotDivider(fig, 2, 2, 2, aspect=True)

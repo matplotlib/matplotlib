@@ -7,9 +7,10 @@ This modification of the :doc:`contour3d` example uses ``extend3d=True`` to
 extend the curves vertically into 'ribbons'.
 """
 
-from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
+
 from matplotlib import cm
+from mpl_toolkits.mplot3d import axes3d
 
 ax = plt.figure().add_subplot(projection='3d')
 X, Y, Z = axes3d.get_test_data(0.05)

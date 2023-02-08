@@ -12,11 +12,13 @@ See https://dateutil.readthedocs.io/en/stable/rrule.html for help with rrules.
 
 .. _iCalender RFC: https://tools.ietf.org/html/rfc5545
 """
-import matplotlib.pyplot as plt
-from matplotlib.dates import (YEARLY, DateFormatter,
-                              rrulewrapper, RRuleLocator, drange)
-import numpy as np
 import datetime
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.dates import (YEARLY, DateFormatter, RRuleLocator, drange,
+                              rrulewrapper)
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

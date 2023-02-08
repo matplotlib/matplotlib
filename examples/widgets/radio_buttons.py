@@ -10,8 +10,9 @@ In this case, the buttons let the user choose one of the three different sine
 waves to be shown in the plot.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.widgets import RadioButtons
 
 t = np.arange(0.0, 2.0, 0.01)

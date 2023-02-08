@@ -7,10 +7,11 @@ This example shows how to make a multicolored line. In this example, the line
 is colored based on its derivative.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.collections import LineCollection
-from matplotlib.colors import ListedColormap, BoundaryNorm
+from matplotlib.colors import BoundaryNorm, ListedColormap
 
 x = np.linspace(0, 3 * np.pi, 500)
 y = np.sin(x)

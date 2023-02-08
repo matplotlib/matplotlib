@@ -7,10 +7,11 @@ Draw donuts (miam!) using `~.path.Path`\s and `~.patches.PathPatch`\es.
 This example shows the effect of the path's orientations in a compound path.
 """
 
-import numpy as np
-import matplotlib.path as mpath
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib.patches as mpatches
+import matplotlib.path as mpath
 
 
 def wise(v):

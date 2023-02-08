@@ -6,8 +6,8 @@ Broken Axis
 Broken axis example, where the y-axis will have a portion cut out.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 np.random.seed(19680801)
 

@@ -27,8 +27,10 @@ Below each use case is presented in turn.
 .. redirect-from:: /gallery/text_labels_and_annotations/arrow_simple_demo
 """
 
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+
+import matplotlib.patches as mpatches
+
 x_tail = 0.1
 y_tail = 0.5
 x_head = 0.9

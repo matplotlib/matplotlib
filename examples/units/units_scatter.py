@@ -10,9 +10,10 @@ arrays.
 
    This example requires :download:`basic_units.py <basic_units.py>`
 """
-import numpy as np
+from basic_units import hertz, minutes, secs
+
 import matplotlib.pyplot as plt
-from basic_units import secs, hertz, minutes
+import numpy as np
 
 # create masked array
 data = (1, 2, 3, 4, 5, 6, 7, 8)

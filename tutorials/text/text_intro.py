@@ -66,8 +66,9 @@ sections that follow.
 
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
+
+import matplotlib
 
 fig = plt.figure()
 ax = fig.add_subplot()

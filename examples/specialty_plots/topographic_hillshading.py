@@ -16,11 +16,11 @@ exaggeration) by trial and error to give the desired visual effect. However,
 this example demonstrates how to use the *dx* and *dy* keyword arguments to
 ensure that the *vert_exag* parameter is the true vertical exaggeration.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.cbook import get_sample_data
 from matplotlib.colors import LightSource
-
 
 dem = get_sample_data('jacksboro_fault_dem.npz', np_load=True)
 z = dem['elevation']

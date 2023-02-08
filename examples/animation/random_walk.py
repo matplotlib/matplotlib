@@ -6,8 +6,9 @@ Animated 3D random walk
 Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.animation as animation
 
 # Fixing random state for reproducibility

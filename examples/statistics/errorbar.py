@@ -8,8 +8,8 @@ In this case, constant values are provided for the error
 in both the x- and y-directions.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # example data
 x = np.arange(0.1, 4, 0.5)

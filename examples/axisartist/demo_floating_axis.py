@@ -10,13 +10,13 @@ rectangular box. In order to get a better sense of polar curves, please look at
 :doc:`/gallery/axisartist/demo_curvelinear_grid`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-import mpl_toolkits.axisartist.angle_helper as angle_helper
+import numpy as np
+
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
-from mpl_toolkits.axisartist import HostAxes
-from mpl_toolkits.axisartist import GridHelperCurveLinear
+from mpl_toolkits.axisartist import GridHelperCurveLinear, HostAxes
+import mpl_toolkits.axisartist.angle_helper as angle_helper
 
 
 def curvelinear_test2(fig):

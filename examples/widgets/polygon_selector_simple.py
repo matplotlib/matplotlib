@@ -7,6 +7,7 @@ Shows how to create a polygon programmatically or interactively
 """
 
 import matplotlib.pyplot as plt
+
 from matplotlib.widgets import PolygonSelector
 
 # %%

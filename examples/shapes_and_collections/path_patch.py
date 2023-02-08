@@ -7,9 +7,10 @@ This example shows how to create `~.path.Path` and `~.patches.PathPatch`
 objects through Matplotlib's API.
 """
 
-import matplotlib.path as mpath
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+
+import matplotlib.patches as mpatches
+import matplotlib.path as mpath
 
 fig, ax = plt.subplots()
 

@@ -18,8 +18,9 @@ units.  This behavior is available only for the LineCollection.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib import collections, transforms
 import numpy as np
+
+from matplotlib import collections, transforms
 
 nverts = 50
 npts = 100

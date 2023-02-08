@@ -8,8 +8,9 @@ and y data points on the respective axes for each curve.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.collections import EventCollection
 import numpy as np
+
+from matplotlib.collections import EventCollection
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

@@ -11,9 +11,12 @@ Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np
+
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from matplotlib.animation import FFMpegWriter
 
 # Fixing random state for reproducibility

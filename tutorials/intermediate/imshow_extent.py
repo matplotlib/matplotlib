@@ -22,8 +22,9 @@ by the axes limits.
    For a quick understanding, you may want to skip the code details below and
    directly continue with the discussion of the results.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.gridspec import GridSpec
 
 

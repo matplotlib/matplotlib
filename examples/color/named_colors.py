@@ -19,9 +19,10 @@ on some common color categories.
 
 import math
 
-from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
+
 import matplotlib.colors as mcolors
+from matplotlib.patches import Rectangle
 
 
 def plot_colortable(colors, *, ncols=4, sort_colors=True):

@@ -37,10 +37,12 @@ universal function.
 # within each cell showing the value of that cell.
 
 
+import matplotlib.pyplot as plt
 import numpy as np
+
 import matplotlib
 import matplotlib as mpl
-import matplotlib.pyplot as plt
+
 # sphinx_gallery_thumbnail_number = 2
 
 vegetables = ["cucumber", "tomato", "lettuce", "asparagus",

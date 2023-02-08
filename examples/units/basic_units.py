@@ -7,11 +7,12 @@ Basic Units
 
 import math
 
-import numpy as np
 from packaging.version import parse as parse_version
 
-import matplotlib.units as units
+import numpy as np
+
 import matplotlib.ticker as ticker
+import matplotlib.units as units
 
 
 class ProxyDelegate:

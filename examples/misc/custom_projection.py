@@ -6,16 +6,17 @@ Custom projection
 Showcase Hammer projection by alleviating many features of Matplotlib.
 """
 
+import numpy as np
+
 import matplotlib
 from matplotlib.axes import Axes
+import matplotlib.axis as maxis
 from matplotlib.patches import Circle
 from matplotlib.path import Path
-from matplotlib.ticker import NullLocator, Formatter, FixedLocator
-from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 from matplotlib.projections import register_projection
 import matplotlib.spines as mspines
-import matplotlib.axis as maxis
-import numpy as np
+from matplotlib.ticker import FixedLocator, Formatter, NullLocator
+from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 
 rcParams = matplotlib.rcParams
 
@@ -436,6 +437,7 @@ register_projection(HammerAxes)
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
+
     # Now make a simple example using the custom projection.
     fig, ax = plt.subplots(subplot_kw={'projection': 'custom_hammer'})
     ax.plot([-1, 1, 1], [-1, -1, 1], "o-")

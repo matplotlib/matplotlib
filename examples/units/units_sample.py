@@ -14,6 +14,7 @@ to correct units.
 
 """
 from basic_units import cm, inch
+
 import matplotlib.pyplot as plt
 import numpy as np
 

@@ -50,9 +50,10 @@ clipped.
 
 
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.colors as mcolors
 import matplotlib.gridspec as gridspec
-import numpy as np
 
 plt.rcParams['savefig.facecolor'] = "0.8"
 plt.rcParams['figure.figsize'] = 4.5, 4.

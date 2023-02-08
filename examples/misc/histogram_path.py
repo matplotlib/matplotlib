@@ -14,8 +14,9 @@ work to set up the vertex arrays at the outset, but it should be much faster
 for large numbers of objects.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.patches as patches
 import matplotlib.path as path
 

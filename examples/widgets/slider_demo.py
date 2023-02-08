@@ -13,9 +13,10 @@ See :doc:`/gallery/widgets/range_slider` for an example of using
 a ``RangeSlider`` to define a range of values.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider, Button
+import numpy as np
+
+from matplotlib.widgets import Button, Slider
 
 
 # The parametrized function to be plotted

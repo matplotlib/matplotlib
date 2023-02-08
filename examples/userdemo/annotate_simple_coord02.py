@@ -7,7 +7,6 @@ Annotate Simple Coord02
 
 import matplotlib.pyplot as plt
 
-
 fig, ax = plt.subplots(figsize=(3, 2))
 an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
                   va="center", ha="center",

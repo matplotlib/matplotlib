@@ -5,9 +5,8 @@ Table Demo
 
 Demo of table function to display a table within a plot.
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 data = [[ 66386, 174296,  75131, 577908,  32015],
         [ 58230, 381139,  78045,  99308, 160454],

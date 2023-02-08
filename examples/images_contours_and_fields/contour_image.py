@@ -15,6 +15,7 @@ contour.
 """
 import matplotlib.pyplot as plt
 import numpy as np
+
 from matplotlib import cm
 
 # Default delta is large because that makes it fast, and it illustrates

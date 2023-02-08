@@ -10,13 +10,13 @@ The most common way to plot images in Matplotlib is with
 functionality of imshow and the many images you can create.
 """
 
-import numpy as np
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import matplotlib.cbook as cbook
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
+import numpy as np
 
+import matplotlib.cbook as cbook
+import matplotlib.cm as cm
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

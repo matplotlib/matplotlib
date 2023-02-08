@@ -23,9 +23,10 @@ a data set is the following:
 3. Plot the refined data with `~.axes.Axes.tricontour`.
 
 """
-from matplotlib.tri import Triangulation, TriAnalyzer, UniformTriRefiner
 import matplotlib.pyplot as plt
 import numpy as np
+
+from matplotlib.tri import TriAnalyzer, Triangulation, UniformTriRefiner
 
 
 # ----------------------------------------------------------------------------

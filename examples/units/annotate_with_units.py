@@ -11,8 +11,9 @@ annotations using a centimeter-scale plot.
    This example requires :download:`basic_units.py <basic_units.py>`
 """
 
-import matplotlib.pyplot as plt
 from basic_units import cm
+
+import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 

@@ -9,8 +9,9 @@ The ``next`` and ``previous`` button widget helps visualize the wave with
 new frequencies.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.widgets import Button
 
 freqs = np.arange(2, 20, 3)

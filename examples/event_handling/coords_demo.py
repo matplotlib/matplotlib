@@ -15,9 +15,10 @@ and click events.
     using the link at the bottom of the page.
 """
 
-from matplotlib.backend_bases import MouseButton
 import matplotlib.pyplot as plt
 import numpy as np
+
+from matplotlib.backend_bases import MouseButton
 
 t = np.arange(0.0, 1.0, 0.01)
 s = np.sin(2 * np.pi * t)

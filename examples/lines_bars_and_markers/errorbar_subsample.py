@@ -8,8 +8,8 @@ only on a subset of data points. This is particularly useful if there are many
 data points with similar errors.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # example data
 x = np.arange(0.1, 4, 0.1)

@@ -81,8 +81,9 @@ Suppose we wanted to create a legend which has an entry for some data which
 is represented by a red color:
 """
 
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+
+import matplotlib.patches as mpatches
 
 fig, ax = plt.subplots()
 red_patch = mpatches.Patch(color='red', label='The red data')

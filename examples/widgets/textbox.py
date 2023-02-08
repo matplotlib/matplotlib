@@ -13,10 +13,10 @@ static elements: :doc:`/tutorials/text/annotations` and
 :doc:`/gallery/text_labels_and_annotations/placing_text_boxes`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import TextBox
+import numpy as np
 
+from matplotlib.widgets import TextBox
 
 fig, ax = plt.subplots()
 fig.subplots_adjust(bottom=0.2)

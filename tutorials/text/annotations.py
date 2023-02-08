@@ -32,8 +32,8 @@ provide as much flexibility in positioning and styling as `~.Axes.annotate`.
 # being annotated *xy* and the location of the annotation text *xytext*.  Both
 # of these arguments are ``(x, y)`` tuples:
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 fig, ax = plt.subplots(figsize=(3, 3))
 

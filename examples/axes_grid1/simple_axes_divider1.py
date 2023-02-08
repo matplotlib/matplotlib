@@ -6,8 +6,9 @@ Simple Axes Divider 1
 See also :doc:`/tutorials/toolkits/axes_grid`.
 """
 
-from mpl_toolkits.axes_grid1 import Size, Divider
 import matplotlib.pyplot as plt
+
+from mpl_toolkits.axes_grid1 import Divider, Size
 
 
 def label_axes(ax, text):

@@ -14,9 +14,9 @@ Note, however, that it is simpler to achieve this effect using standard
 """
 
 import matplotlib.pyplot as plt
-from mpl_toolkits import axisartist
 import numpy as np
 
+from mpl_toolkits import axisartist
 
 fig = plt.figure(figsize=(6, 3), constrained_layout=True)
 # To construct axes of two different classes, we need to use gridspec (or

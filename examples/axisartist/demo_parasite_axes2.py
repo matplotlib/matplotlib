@@ -23,9 +23,10 @@ and `mpl_toolkits.axes_grid1.parasite_axes.ParasiteAxes` is shown in the
 :doc:`/gallery/axisartist/demo_parasite_axes` example.
 """
 
-from mpl_toolkits.axes_grid1 import host_subplot
-from mpl_toolkits import axisartist
 import matplotlib.pyplot as plt
+
+from mpl_toolkits import axisartist
+from mpl_toolkits.axes_grid1 import host_subplot
 
 host = host_subplot(111, axes_class=axisartist.Axes)
 plt.subplots_adjust(right=0.75)

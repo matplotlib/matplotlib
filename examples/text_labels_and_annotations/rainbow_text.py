@@ -24,6 +24,7 @@ The solution below is modified from Paul Ivanov's original answer.
 """
 
 import matplotlib.pyplot as plt
+
 from matplotlib.transforms import Affine2D, offset_copy
 
 

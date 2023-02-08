@@ -6,8 +6,8 @@ Two subplots using pyplot
 Create a figure with two subplots using `.pyplot.subplot`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def f(t):

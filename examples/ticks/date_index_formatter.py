@@ -13,13 +13,13 @@ with no data.
 The example shows how to use an 'index formatter' to achieve the desired plot.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cbook as cbook
-import matplotlib.lines as ml
-from matplotlib.dates import DateFormatter, DayLocator
-from matplotlib.ticker import Formatter
+import numpy as np
 
+import matplotlib.cbook as cbook
+from matplotlib.dates import DateFormatter, DayLocator
+import matplotlib.lines as ml
+from matplotlib.ticker import Formatter
 
 # Load a numpy record array from yahoo csv data with fields date, open, high,
 # low, close, volume, adj_close from the mpl-data/sample_data directory. The

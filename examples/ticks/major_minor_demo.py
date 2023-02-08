@@ -33,8 +33,8 @@ axis (because the locator stores references to the axis data and view limits).
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
+from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 
 t = np.arange(0.0, 100.0, 0.1)
 s = np.sin(0.1 * np.pi * t) * np.exp(-t * 0.01)

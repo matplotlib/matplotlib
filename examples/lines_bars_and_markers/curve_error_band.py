@@ -9,11 +9,11 @@ A parametrized curve x(t), y(t) can directly be drawn using `~.Axes.plot`.
 """
 # sphinx_gallery_thumbnail_number = 2
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.pyplot as plt
-from matplotlib.path import Path
 from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 N = 400
 t = np.linspace(0, 2 * np.pi, N)

@@ -18,8 +18,9 @@ An alternative approach using `mpl_toolkits.axes_grid1` and
 :doc:`/gallery/axisartist/demo_parasite_axes2` example.
 """
 
-from mpl_toolkits.axisartist.parasite_axes import HostAxes
 import matplotlib.pyplot as plt
+
+from mpl_toolkits.axisartist.parasite_axes import HostAxes
 
 fig = plt.figure()
 

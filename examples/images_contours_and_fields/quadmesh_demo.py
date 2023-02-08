@@ -9,8 +9,9 @@ a faster generalization of `~.axes.Axes.pcolor`, but with some restrictions.
 This demo illustrates a bug in quadmesh with masked data.
 """
 
-from matplotlib import pyplot as plt
 import numpy as np
+
+from matplotlib import pyplot as plt
 
 n = 12
 x = np.linspace(-1.5, 1.5, n)

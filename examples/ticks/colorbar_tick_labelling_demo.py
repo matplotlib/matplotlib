@@ -10,9 +10,9 @@ Contributed by Scott Sinclair
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import cm
 from numpy.random import randn
 
+from matplotlib import cm
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

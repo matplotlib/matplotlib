@@ -20,6 +20,7 @@ without any effect:
 """
 
 import matplotlib.pyplot as plt
+
 import matplotlib.patheffects as path_effects
 
 fig = plt.figure(figsize=(5, 1.5))

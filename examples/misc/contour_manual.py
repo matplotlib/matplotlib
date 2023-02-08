@@ -6,9 +6,9 @@ Manual Contour
 Example of displaying your own contour lines and polygons using ContourSet.
 """
 import matplotlib.pyplot as plt
-from matplotlib.contour import ContourSet
-import matplotlib.cm as cm
 
+import matplotlib.cm as cm
+from matplotlib.contour import ContourSet
 
 # %%
 # Contour lines for each level are a list/tuple of polygons.

@@ -14,6 +14,7 @@ different than what you want to label the subplot with.
 """
 
 import matplotlib.pyplot as plt
+
 import matplotlib.transforms as mtransforms
 
 fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],

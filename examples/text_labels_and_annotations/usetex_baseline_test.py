@@ -8,7 +8,6 @@ Comparison of text baselines computed for mathtext and usetex.
 
 import matplotlib.pyplot as plt
 
-
 plt.rcParams.update({"mathtext.fontset": "cm", "mathtext.rm": "serif"})
 axs = plt.figure(figsize=(2 * 3, 6.5)).subplots(1, 2)
 for ax, usetex in zip(axs, [False, True]):

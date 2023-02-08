@@ -18,8 +18,9 @@ Demonstration of using norm to map colormaps onto data in non-linear ways.
 #
 # See `~.colors.SymLogNorm`.
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.colors as colors
 
 

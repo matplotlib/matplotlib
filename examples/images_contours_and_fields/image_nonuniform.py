@@ -8,10 +8,11 @@ available via an Axes method, but it is easily added to an
 Axes instance as shown here.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.image import NonUniformImage
+import numpy as np
+
 from matplotlib import cm
+from matplotlib.image import NonUniformImage
 
 interp = 'nearest'
 

@@ -13,6 +13,7 @@ work in the same way, and are also demonstrated here.
 """
 
 import matplotlib.pyplot as plt
+
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=[6, 3])

@@ -5,9 +5,8 @@ Polar plot
 
 Demo of a line plot on a polar axis.
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 r = np.arange(0, 2, 0.01)
 theta = 2 * np.pi * r

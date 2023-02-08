@@ -17,11 +17,12 @@ ticks, and hide the major tick labels and minor ticks.
 Here is an example that labels the months, centered between the ticks.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
+
 import matplotlib.cbook as cbook
 import matplotlib.dates as dates
 import matplotlib.ticker as ticker
-import matplotlib.pyplot as plt
 
 # Load some financial data; Google's stock price
 r = (cbook.get_sample_data('goog.npz', np_load=True)['price_data']

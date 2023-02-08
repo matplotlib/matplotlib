@@ -28,9 +28,9 @@ Or vice versa:
 
 """
 
-from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 
+from mpl_toolkits.mplot3d import axes3d
 
 fig, axs = plt.subplots(1, 3, subplot_kw={'projection': '3d'})
 

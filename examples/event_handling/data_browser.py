@@ -90,6 +90,7 @@ class PointBrowser:
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
+
     # Fixing random state for reproducibility
     np.random.seed(19680801)
 

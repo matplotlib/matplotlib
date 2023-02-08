@@ -23,8 +23,8 @@ Other attributes of the dash may also be set either with the relevant method
 `~.Line2D.set_gapcolor`) or by passing the property through a plotting
 function.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 x = np.linspace(0, 10, 500)
 y = np.sin(x)

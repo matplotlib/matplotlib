@@ -10,9 +10,10 @@ This is like a `.Axes.contourf` plot in 2D except that the shaded region
 corresponding to the level c is graphed on the plane ``z=c``.
 """
 
-from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
+
 from matplotlib import cm
+from mpl_toolkits.mplot3d import axes3d
 
 ax = plt.figure().add_subplot(projection='3d')
 X, Y, Z = axes3d.get_test_data(0.05)

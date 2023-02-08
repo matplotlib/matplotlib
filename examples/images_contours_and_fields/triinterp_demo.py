@@ -6,8 +6,9 @@ Triinterp Demo
 Interpolation from triangular grid to quad grid.
 """
 import matplotlib.pyplot as plt
-import matplotlib.tri as mtri
 import numpy as np
+
+import matplotlib.tri as mtri
 
 # Create triangulation.
 x = np.asarray([0, 1, 2, 3, 0.5, 1.5, 2.5, 1, 2, 1.5])

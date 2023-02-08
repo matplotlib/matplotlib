@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 
 from matplotlib.sankey import Sankey
 
-
 # %%
 # Example 1 -- Mostly defaults
 #

@@ -7,8 +7,8 @@ Demonstrates using ax.plot's *zdir* keyword to plot 2D data on
 selective axes of a 3D plot.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 ax = plt.figure().add_subplot(projection='3d')
 

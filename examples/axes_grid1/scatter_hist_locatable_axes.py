@@ -15,8 +15,9 @@ If one wants to set axes sizes and pads relative to the main Figure, see the
 :doc:`/gallery/lines_bars_and_markers/scatter_hist` example.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # Fixing random state for reproducibility

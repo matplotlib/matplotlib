@@ -10,9 +10,10 @@ This currently only works with the SVG backend.
 """
 
 
-import numpy as np
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib.cm as cm
 
 # %%
 

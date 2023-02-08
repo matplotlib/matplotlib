@@ -4,10 +4,10 @@ Adding a colorbar to inset axes
 ===============================
 """
 
-from matplotlib import cbook
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
 
+from matplotlib import cbook
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
 
 fig, ax = plt.subplots(figsize=[5, 4])
 ax.set(aspect=1, xlim=(-15, 15), ylim=(-20, 5))

@@ -41,6 +41,7 @@ are updated and second draw is triggered.
 """
 
 import matplotlib.pyplot as plt
+
 import matplotlib.transforms as mtransforms
 
 fig, ax = plt.subplots()

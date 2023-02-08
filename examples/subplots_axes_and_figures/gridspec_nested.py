@@ -12,6 +12,7 @@ Note that the same functionality can be achieved more directly with
 
 """
 import matplotlib.pyplot as plt
+
 import matplotlib.gridspec as gridspec
 
 

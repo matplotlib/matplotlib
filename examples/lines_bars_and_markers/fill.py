@@ -12,8 +12,8 @@ This example uses the `Koch snowflake`_ as an example polygon.
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def koch_snowflake(order, scale=10):

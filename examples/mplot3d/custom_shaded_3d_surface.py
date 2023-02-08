@@ -6,11 +6,11 @@ Custom hillshading in a 3D surface plot
 Demonstrates using custom hillshading in a 3D surface plot.
 """
 
-from matplotlib import cbook
-from matplotlib import cm
-from matplotlib.colors import LightSource
 import matplotlib.pyplot as plt
 import numpy as np
+
+from matplotlib import cbook, cm
+from matplotlib.colors import LightSource
 
 # Load and format data
 dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)

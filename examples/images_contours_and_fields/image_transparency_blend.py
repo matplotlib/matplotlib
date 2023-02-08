@@ -15,9 +15,10 @@ First we will generate some data, in this case, we'll create two 2D "blobs"
 in a 2D grid. One blob will be positive, and the other negative.
 """
 
+import matplotlib.pyplot as plt
 # sphinx_gallery_thumbnail_number = 3
 import numpy as np
-import matplotlib.pyplot as plt
+
 from matplotlib.colors import Normalize
 
 

@@ -7,8 +7,8 @@ Create lines or rectangles that span the axes in either the horizontal or
 vertical direction, and lines than span the axes with an arbitrary orientation.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 t = np.arange(-1, 2, .01)
 s = np.sin(2 * np.pi * t)

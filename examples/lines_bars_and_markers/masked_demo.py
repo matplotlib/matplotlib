@@ -27,7 +27,6 @@ The following example illustrates the three cases:
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 x = np.linspace(-np.pi/2, np.pi/2, 31)
 y = np.cos(x)**3
 

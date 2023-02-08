@@ -8,8 +8,9 @@ Tick locators define the position of the ticks.
 This example illustrates the usage and effect of the most common locators.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.ticker as ticker
 
 

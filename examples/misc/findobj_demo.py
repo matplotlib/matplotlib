@@ -5,8 +5,9 @@ Findobj Demo
 
 Recursively find all objects that match some criteria
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.text as text
 
 a = np.arange(0, 3, .02)

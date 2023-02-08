@@ -9,7 +9,6 @@ Demonstrates plotting 3D volumetric objects with `.Axes3D.voxels`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 # prepare some coordinates
 x, y, z = np.indices((8, 8, 8))
 

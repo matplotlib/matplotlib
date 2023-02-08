@@ -6,8 +6,9 @@ Draw flat objects in 3D plot
 Demonstrate using `.pathpatch_2d_to_3d` to 'draw' shapes and text on a 3D plot.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.text import TextPath
 from matplotlib.transforms import Affine2D

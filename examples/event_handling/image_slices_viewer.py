@@ -15,8 +15,8 @@ In this example a scroll wheel event is used to scroll through 2D slices of
     using the link at the bottom of the page.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class IndexTracker:

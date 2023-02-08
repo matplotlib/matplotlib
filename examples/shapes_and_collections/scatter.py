@@ -5,8 +5,8 @@ Scatter plot
 
 This example showcases a simple scatter plot.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

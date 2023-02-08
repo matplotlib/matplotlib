@@ -114,8 +114,8 @@ Try creating the figure below.
 """
 # sphinx_gallery_capture_repr = ('__repr__',)
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 fig = plt.figure()
 fig.subplots_adjust(top=0.8)

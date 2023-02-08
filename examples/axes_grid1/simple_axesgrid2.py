@@ -7,10 +7,10 @@ Align multiple images of different sizes using
 `~mpl_toolkits.axes_grid1.axes_grid.ImageGrid`.
 """
 
-from matplotlib import cbook
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
 
+from matplotlib import cbook
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 fig = plt.figure(figsize=(5.5, 3.5))
 grid = ImageGrid(fig, 111,  # similar to subplot(111)

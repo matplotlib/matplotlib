@@ -7,7 +7,6 @@ Demo of custom tick-labels with user-defined rotation.
 """
 import matplotlib.pyplot as plt
 
-
 x = [1, 2, 3, 4]
 y = [1, 4, 9, 6]
 labels = ['Frogs', 'Hogs', 'Bogs', 'Slogs']

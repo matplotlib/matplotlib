@@ -6,9 +6,8 @@ Parametric curve
 This example demonstrates plotting a parametric curve in 3D.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 ax = plt.figure().add_subplot(projection='3d')
 

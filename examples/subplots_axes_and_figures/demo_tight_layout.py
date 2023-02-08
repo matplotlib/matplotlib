@@ -11,10 +11,10 @@ See :doc:`/tutorials/intermediate/tight_layout_guide` for more details and
 
 """
 
-import matplotlib.pyplot as plt
 import itertools
 import warnings
 
+import matplotlib.pyplot as plt
 
 fontsizes = itertools.cycle([8, 16, 24, 32])
 

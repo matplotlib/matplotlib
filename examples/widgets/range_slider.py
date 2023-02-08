@@ -16,8 +16,9 @@ See :doc:`/gallery/widgets/slider_snap_demo` for an example of having
 the ``Slider`` snap to discrete values.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.widgets import RangeSlider
 
 # generate a fake image

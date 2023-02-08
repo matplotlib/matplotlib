@@ -4,10 +4,10 @@ Cursor
 ======
 
 """
-from matplotlib.widgets import Cursor
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
+from matplotlib.widgets import Cursor
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

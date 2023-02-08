@@ -13,7 +13,6 @@ import os
 import matplotlib
 import matplotlib.ft2font as ft
 
-
 font = ft.FT2Font(
     # Use a font shipped with Matplotlib.
     os.path.join(matplotlib.get_data_path(),

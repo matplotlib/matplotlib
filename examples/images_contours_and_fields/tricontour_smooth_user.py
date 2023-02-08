@@ -6,9 +6,10 @@ Tricontour Smooth User
 Demonstrates high-resolution tricontouring on user-defined triangular grids
 with `matplotlib.tri.UniformTriRefiner`.
 """
-import matplotlib.tri as tri
 import matplotlib.pyplot as plt
 import numpy as np
+
+import matplotlib.tri as tri
 
 
 # ----------------------------------------------------------------------------

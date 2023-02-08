@@ -14,8 +14,9 @@ a rectangle in the first panel, denoting the zoomed region.
     You can copy and paste individual parts, or download the entire example
     using the link at the bottom of the page.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.patches import Rectangle
 
 

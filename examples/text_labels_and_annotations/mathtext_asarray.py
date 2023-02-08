@@ -6,8 +6,9 @@ Convert texts to images
 
 from io import BytesIO
 
-from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+
+from matplotlib.figure import Figure
 from matplotlib.transforms import IdentityTransform
 
 

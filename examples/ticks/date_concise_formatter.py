@@ -16,9 +16,11 @@ the strings used in those tick labels as much as possible.
 
 """
 import datetime
+
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import numpy as np
+
+import matplotlib.dates as mdates
 
 # %%
 # First, the default formatter.
@@ -68,6 +70,7 @@ plt.show()
 # imports:
 
 import matplotlib.units as munits
+
 converter = mdates.ConciseDateConverter()
 munits.registry[np.datetime64] = converter
 munits.registry[datetime.date] = converter

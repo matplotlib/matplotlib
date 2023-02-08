@@ -11,6 +11,7 @@ This example illustrates the usage and effect of the most common formatters.
 """
 
 import matplotlib.pyplot as plt
+
 from matplotlib import ticker
 
 

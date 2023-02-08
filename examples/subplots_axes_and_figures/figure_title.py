@@ -10,11 +10,10 @@ Each axes can have a title (or actually three - one each with *loc* "left",
 We can also add figure-level x- and y-labels using `.FigureBase.supxlabel` and
 `.FigureBase.supylabel`.
 """
-from matplotlib.cbook import get_sample_data
 import matplotlib.pyplot as plt
-
 import numpy as np
 
+from matplotlib.cbook import get_sample_data
 
 x = np.linspace(0.0, 5.0, 501)
 
