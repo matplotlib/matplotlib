@@ -695,7 +695,6 @@ class RendererBase:
         Parameters
         ----------
         points : float or array-like
-            a float or a numpy array of float
 
         Returns
         -------

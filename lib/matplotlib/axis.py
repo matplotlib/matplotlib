@@ -1511,13 +1511,13 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        numpy array of tick locations
+        array of tick locations
         """
         return self.get_minorticklocs() if minor else self.get_majorticklocs()
 
     def get_ticks_direction(self, minor=False):
         """
-        Get the tick directions as a numpy array
+        Return an array of this Axis' tick directions.
 
         Parameters
         ----------
@@ -1527,7 +1527,7 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        numpy array of tick directions
+        array of tick directions
         """
         if minor:
             return np.array(

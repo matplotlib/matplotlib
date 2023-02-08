@@ -52,11 +52,11 @@ def get_dir_vector(zdir):
         - 'y': equivalent to (0, 1, 0)
         - 'z': equivalent to (0, 0, 1)
         - *None*: equivalent to (0, 0, 0)
-        - an iterable (x, y, z) is converted to a NumPy array, if not already
+        - an iterable (x, y, z) is converted to an array
 
     Returns
     -------
-    x, y, z : array-like
+    x, y, z : array
         The direction vector.
     """
     if zdir == 'x':

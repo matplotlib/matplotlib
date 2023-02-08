@@ -166,8 +166,8 @@ class Path:
 
         Parameters
         ----------
-        verts : numpy array
-        codes : numpy array
+        verts : array-like
+        codes : array
         internals_from : Path or None
             If not None, another `Path` from which the attributes
             ``should_simplify``, ``simplify_threshold``, and
@@ -223,12 +223,12 @@ class Path:
     @property
     def codes(self):
         """
-        The list of codes in the `Path` as a 1D numpy array.  Each
-        code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4`
-        or `CLOSEPOLY`.  For codes that correspond to more than one
-        vertex (`CURVE3` and `CURVE4`), that code will be repeated so
-        that the length of `vertices` and `codes` is always
-        the same.
+        The list of codes in the `Path` as a 1D array.
+
+        Each code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4` or
+        `CLOSEPOLY`.  For codes that correspond to more than one vertex
+        (`CURVE3` and `CURVE4`), that code will be repeated so that the length
+        of `vertices` and `codes` is always the same.
         """
         return self._codes
 
