@@ -78,8 +78,12 @@ plt.show()
 #
 # .. admonition:: References
 #
-#    The following locators are used in this example:
+#    The following functions, methods, classes and modules are used in this example:
 #
+#    - `matplotlib.axis.Axis.set_major_locator`
+#    - `matplotlib.axis.Axis.set_minor_locator`
+#    - `matplotlib.axis.XAxis.set_ticks_position`
+#    - `matplotlib.axis.YAxis.set_ticks_position`
 #    - `matplotlib.ticker.NullLocator`
 #    - `matplotlib.ticker.MultipleLocator`
 #    - `matplotlib.ticker.FixedLocator`
@@ -88,3 +92,4 @@ plt.show()
 #    - `matplotlib.ticker.AutoLocator`
 #    - `matplotlib.ticker.MaxNLocator`
 #    - `matplotlib.ticker.LogLocator`
+# %%
