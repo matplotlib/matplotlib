@@ -7,8 +7,9 @@ import sys
 
 import pytest
 
-from matplotlib.testing import subprocess_run_helper
 from matplotlib import _c_internal_utils
+from matplotlib.testing import subprocess_run_helper
+
 
 _test_timeout = 60  # A reasonably safe value for slower architectures.
 

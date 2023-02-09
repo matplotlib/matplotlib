@@ -767,6 +767,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # Use the high-resolution (48x48 px) icon if it exists and is needed
         with Image.open(path_large if (size > 24 and path_large.exists())
                         else path_regular) as im:
+            # assure a RGBA image as foreground color is RGB
+            im = im.convert("RGBA")
             image = ImageTk.PhotoImage(im.resize((size, size)), master=self)
             button._ntimage = image
 

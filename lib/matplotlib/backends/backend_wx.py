@@ -1112,7 +1112,9 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         *name*, including the extension and relative to Matplotlib's "images"
         data directory.
         """
-        image = np.array(PIL.Image.open(cbook._get_data_path("images", name)))
+        pilimg = PIL.Image.open(cbook._get_data_path("images", name))
+        # ensure RGBA as wx BitMap expects RGBA format
+        image = np.array(pilimg.convert("RGBA"))
         try:
             dark = wx.SystemSettings.GetAppearance().IsDark()
         except AttributeError:  # wxpython < 4.1
