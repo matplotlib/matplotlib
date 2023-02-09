@@ -15,8 +15,8 @@ https://vita.had.co.nz/papers/boxplots.pdf
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # fake data
 np.random.seed(19680801)

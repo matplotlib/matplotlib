@@ -12,11 +12,10 @@ OffsetBoxes: `.TextArea`, `.DrawingArea`, and `.OffsetImage`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib.patches import Circle
-from matplotlib.offsetbox import (TextArea, DrawingArea, OffsetImage,
-                                  AnnotationBbox)
 from matplotlib.cbook import get_sample_data
-
+from matplotlib.offsetbox import (AnnotationBbox, DrawingArea, OffsetImage,
+                                  TextArea)
+from matplotlib.patches import Circle
 
 fig, ax = plt.subplots()
 

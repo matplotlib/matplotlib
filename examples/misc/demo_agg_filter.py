@@ -10,12 +10,13 @@ rendering. You can modify the rendering of Artists by applying a filter via
 .. _Anti-Grain Geometry (AGG): http://agg.sourceforge.net/antigrain.com
 """
 
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtransforms
-from matplotlib.colors import LightSource
-from matplotlib.artist import Artist
 import numpy as np
+
+from matplotlib.artist import Artist
+import matplotlib.cm as cm
+from matplotlib.colors import LightSource
+import matplotlib.transforms as mtransforms
 
 
 def smooth1d(x, window_len):

@@ -20,13 +20,14 @@ See also the :doc:`contours in optimization example
 </gallery/images_contours_and_fields/contours_in_optimization_demo>`.
 """
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 # %%
 # Applying TickedStroke to paths
 # ==============================
 import matplotlib.patches as patches
 from matplotlib.path import Path
-import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.patheffects as patheffects
 
 fig, ax = plt.subplots(figsize=(6, 6))

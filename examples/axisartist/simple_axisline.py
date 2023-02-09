@@ -6,8 +6,8 @@ Simple Axisline
 """
 
 import matplotlib.pyplot as plt
-from mpl_toolkits.axisartist.axislines import AxesZero
 
+from mpl_toolkits.axisartist.axislines import AxesZero
 
 fig = plt.figure()
 fig.subplots_adjust(right=0.85)

@@ -8,10 +8,11 @@ Emulates an oscilloscope.
 Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
-import numpy as np
-from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.animation as animation
+from matplotlib.lines import Line2D
 
 
 class Scope:

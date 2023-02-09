@@ -9,7 +9,6 @@ Example use of cross-correlation (`~.Axes.xcorr`) and auto-correlation
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 

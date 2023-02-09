@@ -23,18 +23,17 @@ try:
     import tornado
 except ImportError as err:
     raise RuntimeError("This example requires tornado.") from err
-import tornado.web
 import tornado.httpserver
 import tornado.ioloop
+import tornado.web
 import tornado.websocket
 
+import numpy as np
 
 import matplotlib as mpl
 from matplotlib.backends.backend_webagg import (
     FigureManagerWebAgg, new_figure_manager_given_figure)
 from matplotlib.figure import Figure
-
-import numpy as np
 
 
 def create_figure():

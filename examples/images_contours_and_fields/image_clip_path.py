@@ -6,9 +6,9 @@ Clipping images with patches
 Demo of image that's been clipped by a circular patch.
 """
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import matplotlib.cbook as cbook
 
+import matplotlib.cbook as cbook
+import matplotlib.patches as patches
 
 with cbook.get_sample_data('grace_hopper.jpg') as image_file:
     image = plt.imread(image_file)

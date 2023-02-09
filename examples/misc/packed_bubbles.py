@@ -11,8 +11,8 @@ browsers.
 (source: https://gs.statcounter.com/browser-market-share/desktop/worldwidev)
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 browser_market_share = {
     'browsers': ['firefox', 'chrome', 'safari', 'edge', 'ie', 'opera'],

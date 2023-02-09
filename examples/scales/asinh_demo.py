@@ -40,8 +40,8 @@ transition between linear and logarithmic regions of the plot.
 See `~.scale.AsinhScale`, `~.scale.SymmetricalLogScale`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Prepare sample values for variations on y=x graph:
 x = np.linspace(-3, 6, 500)

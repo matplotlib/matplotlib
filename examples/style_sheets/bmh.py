@@ -9,9 +9,8 @@ This example demonstrates the style used in the Bayesian Methods for Hackers
 .. [1] http://camdavidsonpilon.github.io/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers/
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

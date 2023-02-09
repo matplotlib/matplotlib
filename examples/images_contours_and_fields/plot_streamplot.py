@@ -14,9 +14,8 @@ example shows a few features of the `~.axes.Axes.streamplot` function:
 * Unbroken streamlines even when exceeding the limit of lines within a single
   grid cell.
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 w = 3
 Y, X = np.mgrid[-w:w:100j, -w:w:100j]

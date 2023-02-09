@@ -112,8 +112,9 @@ y-axis.
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.patches as mpatches
 
 x = np.arange(0, 10, 0.005)

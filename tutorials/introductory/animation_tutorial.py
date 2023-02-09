@@ -11,8 +11,9 @@ how to create such animations and the different options available.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import numpy as np
+
+import matplotlib.animation as animation
 
 # %%
 # Animation Classes

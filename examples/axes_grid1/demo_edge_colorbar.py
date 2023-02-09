@@ -7,8 +7,9 @@ This example shows how to use one common colorbar for each row or column
 of an image grid.
 """
 
-from matplotlib import cbook
 import matplotlib.pyplot as plt
+
+from matplotlib import cbook
 from mpl_toolkits.axes_grid1 import AxesGrid
 
 

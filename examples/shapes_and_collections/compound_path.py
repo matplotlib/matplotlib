@@ -8,9 +8,10 @@ and a triangle.  Use ``CLOSEPOLY`` and ``MOVETO`` for the different parts of
 the compound path
 """
 
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
 import matplotlib.pyplot as plt
+
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 vertices = []
 codes = []

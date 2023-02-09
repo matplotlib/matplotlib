@@ -10,9 +10,10 @@ axes) until the button is released.  A connected callback receives the click-
 and release-events.
 """
 
-from matplotlib.widgets import EllipseSelector, RectangleSelector
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.widgets import EllipseSelector, RectangleSelector
 
 
 def select_callback(eclick, erelease):

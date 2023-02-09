@@ -23,9 +23,10 @@ the appearance by the CSS.
 """
 
 
-import matplotlib.pyplot as plt
-import xml.etree.ElementTree as ET
 from io import BytesIO
+import xml.etree.ElementTree as ET
+
+import matplotlib.pyplot as plt
 
 ET.register_namespace("", "http://www.w3.org/2000/svg")
 

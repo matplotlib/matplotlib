@@ -11,8 +11,8 @@ The following also demonstrates how transparency of the markers
 can be adjusted by giving ``alpha`` a value between 0 and 1.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 np.random.seed(19680801)
 

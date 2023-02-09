@@ -5,8 +5,10 @@ PGF preamble
 """
 
 import matplotlib as mpl
+
 mpl.use("pgf")
 import matplotlib.pyplot as plt
+
 plt.rcParams.update({
     "font.family": "serif",  # use serif/main font for text elements
     "text.usetex": True,     # use inline math for ticks

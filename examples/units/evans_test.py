@@ -9,11 +9,11 @@ conversion factor, but this example shows that Matplotlib is entirely agnostic
 to what kind of units client packages use.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.units as units
 import matplotlib.ticker as ticker
-import matplotlib.pyplot as plt
+import matplotlib.units as units
 
 
 class Foo:

@@ -7,6 +7,7 @@ Demonstrate/test the Sankey class by producing a long chain of connections.
 """
 
 import matplotlib.pyplot as plt
+
 from matplotlib.sankey import Sankey
 
 links_per_side = 6

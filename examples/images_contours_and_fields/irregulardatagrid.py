@@ -21,8 +21,9 @@ This example shows both methods in action.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.tri as tri
 import numpy as np
+
+import matplotlib.tri as tri
 
 np.random.seed(19680801)
 npts = 200

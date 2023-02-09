@@ -15,9 +15,8 @@ via the container ``ax.spines``.
 .. redirect-from:: /gallery/spines/spines_bounds
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 x = np.linspace(0, 2 * np.pi, 100)
 y = 2 * np.sin(x)

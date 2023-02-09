@@ -6,12 +6,13 @@ Adding a cursor in WX
 Example to draw a cursor and report the data coords in wx.
 """
 
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbar2Wx
-from matplotlib.figure import Figure
+import wx
+
 import numpy as np
 
-import wx
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 
 class CanvasFrame(wx.Frame):

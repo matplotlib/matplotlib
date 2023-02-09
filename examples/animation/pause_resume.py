@@ -20,8 +20,9 @@ Output generate via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import numpy as np
+
+import matplotlib.animation as animation
 
 
 class PauseAnimation:

@@ -19,11 +19,13 @@ usable as is).  There will be some refinement of the API.
     using the link at the bottom of the page.
 """
 
-from matplotlib import colors as mcolors, path
-from matplotlib.collections import RegularPolyCollection
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Lasso
 import numpy as np
+
+from matplotlib import colors as mcolors
+from matplotlib import path
+from matplotlib.collections import RegularPolyCollection
+from matplotlib.widgets import Lasso
 
 
 class Datum:

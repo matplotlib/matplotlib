@@ -7,9 +7,9 @@ Use histogram's `.BarContainer` to draw a bunch of rectangles for an animated
 histogram.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 # Fixing random state for reproducibility

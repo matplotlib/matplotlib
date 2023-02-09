@@ -95,8 +95,9 @@ The following plot illustrates the effect of transparency.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 import numpy as np
+
+from matplotlib.patches import Rectangle
 
 fig, ax = plt.subplots(figsize=(6.5, 1.65), layout='constrained')
 ax.add_patch(Rectangle((-0.2, -0.35), 11.2, 0.7, color='C1', alpha=0.8))
@@ -130,8 +131,9 @@ ax.axis('off')
 # information about controlling colors and style properties.
 
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib as mpl
 
 th = np.linspace(0, 2*np.pi, 128)

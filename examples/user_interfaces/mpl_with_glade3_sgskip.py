@@ -7,12 +7,15 @@ Matplotlib with Glade 3
 from pathlib import Path
 
 import gi
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_gtk3agg import (
-    FigureCanvasGTK3Agg as FigureCanvas)
+
 import numpy as np
+
+from matplotlib.backends.backend_gtk3agg import \
+    FigureCanvasGTK3Agg as FigureCanvas
+from matplotlib.figure import Figure
 
 
 class Window1Signals:

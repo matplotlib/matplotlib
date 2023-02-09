@@ -37,8 +37,8 @@ def draw_circle(ax):
     """
     Draw a circle in axis coordinates
     """
-    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
     from matplotlib.patches import Circle
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
     ada = AnchoredDrawingArea(20, 20, 0, 0,
                               loc='upper right', pad=0., frameon=False)
     p = Circle((10, 10), 10)

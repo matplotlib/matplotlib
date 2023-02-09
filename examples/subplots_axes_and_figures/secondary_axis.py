@@ -11,9 +11,11 @@ than the main axis by providing both a forward and an inverse conversion
 function in a tuple to the *functions* keyword argument:
 """
 
+import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
-import datetime
+
 import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator
 

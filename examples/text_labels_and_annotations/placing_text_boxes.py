@@ -10,8 +10,8 @@ can also use the ``bbox`` property of text to surround the text with a
 dictionary with keys that are Patch properties.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 np.random.seed(19680801)
 

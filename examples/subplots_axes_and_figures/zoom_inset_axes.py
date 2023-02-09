@@ -6,9 +6,10 @@ Zoom region inset axes
 Example of an inset axes and a rectangle showing where the zoom is located.
 """
 
-from matplotlib import cbook
 import matplotlib.pyplot as plt
 import numpy as np
+
+from matplotlib import cbook
 
 
 def get_demo_image():

@@ -5,9 +5,10 @@ Fourier Demo WX
 
 """
 
+import wx
+
 import numpy as np
 
-import wx
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 

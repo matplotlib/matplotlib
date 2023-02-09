@@ -72,7 +72,6 @@ these properties will be listed as 'fullname' or 'aliasname'.
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 x = np.arange(0, 1.0, 0.01)
 y1 = np.sin(2*np.pi*x)
 y2 = np.sin(4*np.pi*x)

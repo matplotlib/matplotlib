@@ -5,8 +5,9 @@ Scatter Demo2
 
 Demo of scatter plot with varying marker colors and sizes.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.cbook as cbook
 
 # Load a numpy record array from yahoo csv data with fields date, open, high,

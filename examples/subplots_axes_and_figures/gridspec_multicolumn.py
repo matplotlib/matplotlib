@@ -9,6 +9,7 @@ axes spanning all three columns, two columns, and two rows.
 
 """
 import matplotlib.pyplot as plt
+
 from matplotlib.gridspec import GridSpec
 
 

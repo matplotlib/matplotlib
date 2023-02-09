@@ -16,8 +16,8 @@ through dragging and zooming.
     using the link at the bottom of the page.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 # A class that will downsample the data and recompute when zoomed.

@@ -16,8 +16,9 @@ Matplotlib event handling to interact with objects on the canvas.
 """
 
 import numpy as np
-from matplotlib.lines import Line2D
+
 from matplotlib.artist import Artist
+from matplotlib.lines import Line2D
 
 
 def dist_point_to_segment(p, s0, s1):
@@ -186,6 +187,7 @@ class PolygonInteractor:
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
+
     from matplotlib.patches import Polygon
 
     theta = np.arange(0, 2*np.pi, 0.1)

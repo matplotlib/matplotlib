@@ -9,10 +9,10 @@ A very simple "animation" of a 3D plot.  See also :doc:`rotate_axes3d_sgskip`.
 intentionally takes a long time to run.)
 """
 
-import matplotlib.pyplot as plt
-import numpy as np
 import time
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')

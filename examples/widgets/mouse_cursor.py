@@ -9,8 +9,8 @@ Note, this is an interactive example, and must be run to see the effect.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.backend_tools import Cursors
 
+from matplotlib.backend_tools import Cursors
 
 fig, axs = plt.subplots(len(Cursors), figsize=(6, len(Cursors) + 0.5),
                         gridspec_kw={'hspace': 0})

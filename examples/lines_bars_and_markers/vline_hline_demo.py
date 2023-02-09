@@ -9,7 +9,6 @@ This example showcases the functions hlines and vlines.
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 

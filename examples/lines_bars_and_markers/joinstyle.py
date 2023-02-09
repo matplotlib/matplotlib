@@ -9,6 +9,7 @@ where two different line segments meet. For more details, see the
 """
 
 import matplotlib.pyplot as plt
+
 from matplotlib._enums import JoinStyle
 
 JoinStyle.demo()

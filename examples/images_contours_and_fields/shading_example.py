@@ -10,9 +10,10 @@ Example showing how to make shaded relief plots like Mathematica_ or
 .. _Generic Mapping Tools: https://www.generic-mapping-tools.org/
 """
 
-import numpy as np
-from matplotlib import cbook
 import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib import cbook
 from matplotlib.colors import LightSource
 
 

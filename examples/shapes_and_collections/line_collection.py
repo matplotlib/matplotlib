@@ -8,10 +8,9 @@ Matplotlib can efficiently draw multiple lines at once using a
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-
 import numpy as np
 
+from matplotlib.collections import LineCollection
 
 x = np.arange(100)
 # Here are many sets of y to plot vs. x

@@ -7,8 +7,8 @@ Instead of plotting a legend on each axis, a legend for all the artists on all
 the sub-axes of a figure can be plotted instead.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 fig, axs = plt.subplots(1, 2)
 

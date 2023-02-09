@@ -15,14 +15,16 @@ to scalars.
    This example requires :download:`basic_units.py <basic_units.py>`
 """
 import random
+
+from basic_units import cm, inch
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib.collections as collections
 import matplotlib.lines as lines
 import matplotlib.patches as patches
 import matplotlib.text as text
-import matplotlib.collections as collections
-
-from basic_units import cm, inch
-import numpy as np
-import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 ax.xaxis.set_units(cm)

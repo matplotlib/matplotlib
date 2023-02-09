@@ -15,8 +15,8 @@ as shown in :doc:`/gallery/lines_bars_and_markers/line_demo_dash_control`
 and passing a list of dash sequences using the keyword *dashes* to the
 cycler in :doc:`property_cycle </tutorials/intermediate/color_cycle>`.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 linestyle_str = [
      ('solid', 'solid'),      # Same as (0, ()) or '-'

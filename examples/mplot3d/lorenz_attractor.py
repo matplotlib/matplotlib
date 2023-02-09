@@ -14,8 +14,8 @@ Flow"`_ in a 3-dimensional space using mplot3d.
    SciPy's ODE solver, but this approach depends only upon NumPy.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def lorenz(xyz, *, s=10, r=28, b=2.667):

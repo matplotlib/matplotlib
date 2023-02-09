@@ -11,10 +11,10 @@ description of the annotation and text tools in Matplotlib, see the
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
 import numpy as np
-from matplotlib.text import OffsetFrom
 
+from matplotlib.patches import Ellipse
+from matplotlib.text import OffsetFrom
 
 # %%
 # Specifying text points and annotation points

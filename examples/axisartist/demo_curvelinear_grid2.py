@@ -10,14 +10,14 @@ custom grids and ticklines by applying a transformation on the grid.
 As showcase on the plot, a 5x5 matrix is displayed on the axes.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-from mpl_toolkits.axisartist.grid_helper_curvelinear import (
-    GridHelperCurveLinear)
-from mpl_toolkits.axisartist.grid_finder import (
-    ExtremeFinderSimple, MaxNLocator)
 from mpl_toolkits.axisartist.axislines import Axes
+from mpl_toolkits.axisartist.grid_finder import (ExtremeFinderSimple,
+                                                 MaxNLocator)
+from mpl_toolkits.axisartist.grid_helper_curvelinear import \
+    GridHelperCurveLinear
 
 
 def curvelinear_test1(fig):

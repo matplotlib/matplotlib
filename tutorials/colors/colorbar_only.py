@@ -27,6 +27,7 @@ For more information see the :mod:`~matplotlib.colorbar` API.
 """
 
 import matplotlib.pyplot as plt
+
 import matplotlib as mpl
 
 fig, ax = plt.subplots(figsize=(6, 1))

@@ -7,11 +7,11 @@ Displays a set of subplots with an MRI image, its intensity
 histogram and some EEG traces.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.cbook as cbook
 import matplotlib.cm as cm
-
 from matplotlib.collections import LineCollection
 from matplotlib.ticker import MultipleLocator
 

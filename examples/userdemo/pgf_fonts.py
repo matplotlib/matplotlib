@@ -5,6 +5,7 @@ PGF fonts
 """
 
 import matplotlib.pyplot as plt
+
 plt.rcParams.update({
     "font.family": "serif",
     # Use LaTeX default serif font.

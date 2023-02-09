@@ -6,8 +6,9 @@ Triplot Demo
 Creating and plotting unstructured triangular grids.
 """
 import matplotlib.pyplot as plt
-import matplotlib.tri as tri
 import numpy as np
+
+import matplotlib.tri as tri
 
 # %%
 # Creating a Triangulation without specifying the triangles results in the

@@ -60,6 +60,7 @@ upper right.
 """
 
 import matplotlib.pyplot as plt
+
 import matplotlib.patches as patches
 
 # build a rectangle in axes coords

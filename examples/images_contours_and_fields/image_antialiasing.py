@@ -25,8 +25,8 @@ Other anti-aliasing filters can be specified in `.Axes.imshow` using the
 *interpolation* keyword argument.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # %%
 # First we generate a 450x450 pixel image with varying frequency content:

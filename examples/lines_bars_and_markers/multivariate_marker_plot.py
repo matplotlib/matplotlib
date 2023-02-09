@@ -9,12 +9,13 @@ smiley face with marker size mapped to the skill of thrower, marker rotation to
 the take-off angle, and thrust to the marker color.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.markers import MarkerStyle
-from matplotlib.transforms import Affine2D
-from matplotlib.text import TextPath
+import numpy as np
+
 from matplotlib.colors import Normalize
+from matplotlib.markers import MarkerStyle
+from matplotlib.text import TextPath
+from matplotlib.transforms import Affine2D
 
 SUCCESS_SYMBOLS = [
     TextPath((0, 0), "☹"),

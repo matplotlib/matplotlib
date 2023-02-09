@@ -11,8 +11,8 @@ import functools
 from pathlib import Path
 
 import colorspacious
-import numpy as np
 
+import numpy as np
 
 _BUTTON_NAME = "Filter"
 _BUTTON_HELP = "Simulate color vision deficiencies"
@@ -256,6 +256,7 @@ def _setup_wx(tb):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
+
     from matplotlib import cbook
 
     plt.rcParams['figure.hooks'].append('mplcvd:setup')

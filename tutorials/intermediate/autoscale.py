@@ -11,9 +11,10 @@ There are a number of options to this autoscaling behaviour, discussed below.
 # We will start with a simple line plot showing that autoscaling
 # extends the axis limits 5% beyond the data limits (-2π, 2π).
 
-import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib as mpl
 
 x = np.linspace(-2 * np.pi, 2 * np.pi, 100)
 y = np.sinc(x)

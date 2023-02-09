@@ -7,15 +7,15 @@ An example of how to use wxagg in an application with the new
 toolbar - comment out the add_toolbar line for no toolbar.
 """
 
-from matplotlib.backends.backend_wxagg import (
-    FigureCanvasWxAgg as FigureCanvas,
-    NavigationToolbar2WxAgg as NavigationToolbar)
-from matplotlib.figure import Figure
+import wx
+import wx.lib.mixins.inspection as WIT
 
 import numpy as np
 
-import wx
-import wx.lib.mixins.inspection as WIT
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.backends.backend_wxagg import \
+    NavigationToolbar2WxAgg as NavigationToolbar
+from matplotlib.figure import Figure
 
 
 class CanvasFrame(wx.Frame):

@@ -7,8 +7,8 @@ Defining legend labels with plots.
 """
 
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Make some fake data.
 a = b = np.arange(0, 3, .02)

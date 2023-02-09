@@ -34,12 +34,12 @@ Author: david.huard@gmail.com
 """
 
 
-import numpy as np
-import matplotlib.pyplot as plt
-import xml.etree.ElementTree as ET
 from io import BytesIO
 import json
+import xml.etree.ElementTree as ET
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 plt.rcParams['svg.fonttype'] = 'none'
 

@@ -9,10 +9,11 @@ See also :doc:`/gallery/shapes_and_collections/artist_reference`, which instead
 adds each artist separately to its own axes.
 """
 
-import numpy as np
-from matplotlib.patches import Circle, Wedge, Polygon
-from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.collections import PatchCollection
+from matplotlib.patches import Circle, Polygon, Wedge
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

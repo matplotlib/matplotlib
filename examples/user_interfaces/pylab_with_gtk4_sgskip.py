@@ -8,13 +8,14 @@ GUI by accessing the underlying GTK widgets.
 """
 
 import matplotlib
+
 matplotlib.use('GTK4Agg')  # or 'GTK4Cairo'
+import gi
+
 import matplotlib.pyplot as plt
 
-import gi
 gi.require_version('Gtk', '4.0')
 from gi.repository import Gtk
-
 
 fig, ax = plt.subplots()
 ax.plot([1, 2, 3], 'ro-', label='easy as 1 2 3')

@@ -14,6 +14,7 @@ respective axes.
 """
 import matplotlib.pyplot as plt
 import numpy as np
+
 import matplotlib.gridspec as gridspec
 
 fig = plt.figure(tight_layout=True)

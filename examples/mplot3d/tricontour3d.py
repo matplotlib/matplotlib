@@ -10,8 +10,9 @@ tricontourf3d_demo shows the filled version of this example.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.tri as tri
 import numpy as np
+
+import matplotlib.tri as tri
 
 n_angles = 48
 n_radii = 8

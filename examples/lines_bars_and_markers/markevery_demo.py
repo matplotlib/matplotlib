@@ -19,8 +19,8 @@ In short:
   of the points along the line, irrespective of scales and zooming.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # define a list of markevery cases to plot
 cases = [

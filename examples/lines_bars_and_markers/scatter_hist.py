@@ -25,8 +25,8 @@ as three axes, the main axes for the scatter, and two marginal axes. It will
 then create the scatter and histograms inside the provided axes.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

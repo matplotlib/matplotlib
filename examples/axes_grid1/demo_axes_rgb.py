@@ -8,10 +8,11 @@ channels: one large Axes for the RGB image and 3 smaller Axes for the R, G, B
 channels.
 """
 
-import numpy as np
-from matplotlib import cbook
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1.axes_rgb import make_rgb_axes, RGBAxes
+import numpy as np
+
+from matplotlib import cbook
+from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes, make_rgb_axes
 
 
 def get_rgb():

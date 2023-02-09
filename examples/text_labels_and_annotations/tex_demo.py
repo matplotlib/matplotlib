@@ -13,8 +13,8 @@ occurrences reuse the rendered image from the cache and are thus faster.
 Unicode input is supported, e.g. for the y-axis label in this example.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 plt.rcParams['text.usetex'] = True
 

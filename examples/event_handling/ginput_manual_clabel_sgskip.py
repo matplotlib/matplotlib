@@ -17,8 +17,8 @@ waitforbuttonpress and manual clabel placement.
 
 import time
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def tellme(s):

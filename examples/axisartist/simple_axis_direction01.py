@@ -5,6 +5,7 @@ Simple Axis Direction01
 
 """
 import matplotlib.pyplot as plt
+
 import mpl_toolkits.axisartist as axisartist
 
 fig = plt.figure(figsize=(4, 2.5))

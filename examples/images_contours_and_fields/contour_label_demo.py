@@ -10,9 +10,10 @@ See also the :doc:`contour demo example
 </gallery/images_contours_and_fields/contour_demo>`.
 """
 
-import numpy as np
-import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib.ticker as ticker
 
 # %%
 # Define our surface

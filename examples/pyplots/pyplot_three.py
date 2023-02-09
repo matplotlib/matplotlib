@@ -6,8 +6,8 @@ Multiple lines using pyplot
 Plot three datasets with a single call to `~matplotlib.pyplot.plot`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # evenly sampled time at 200ms intervals
 t = np.arange(0., 5., 0.2)

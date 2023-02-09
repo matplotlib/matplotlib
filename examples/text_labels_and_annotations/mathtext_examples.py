@@ -11,7 +11,6 @@ import sys
 
 import matplotlib.pyplot as plt
 
-
 # Selection of features following "Writing mathematical expressions" tutorial,
 # with randomly picked examples.
 mathtext_demos = {

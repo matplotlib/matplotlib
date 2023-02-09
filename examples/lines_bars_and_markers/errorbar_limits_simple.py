@@ -9,9 +9,8 @@ errorbars using the parameters ``uplims``, ``lolims`` of `~.pyplot.errorbar`.
 Alternatively, you can use 2xN values to draw errorbars in only one direction.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 fig = plt.figure()
 x = np.arange(10)

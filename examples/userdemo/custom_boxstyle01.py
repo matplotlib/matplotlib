@@ -7,10 +7,10 @@ This example demonstrates the implementation of a custom `.BoxStyle`.
 Custom `.ConnectionStyle`\s and `.ArrowStyle`\s can be similarly defined.
 """
 
-from matplotlib.patches import BoxStyle
-from matplotlib.path import Path
 import matplotlib.pyplot as plt
 
+from matplotlib.patches import BoxStyle
+from matplotlib.path import Path
 
 # %%
 # Custom box styles can be implemented as a function that takes arguments

@@ -5,8 +5,9 @@ Patheffect Demo
 
 """
 import matplotlib.pyplot as plt
-from matplotlib import patheffects
 import numpy as np
+
+from matplotlib import patheffects
 
 fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(8, 3))
 ax1.imshow([[1, 2], [2, 3]])

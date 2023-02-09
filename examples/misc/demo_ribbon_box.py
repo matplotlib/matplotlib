@@ -5,12 +5,13 @@ Ribbon Box
 
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-from matplotlib import cbook, colors as mcolors
+from matplotlib import cbook
+from matplotlib import colors as mcolors
 from matplotlib.image import AxesImage
-import matplotlib.pyplot as plt
-from matplotlib.transforms import Bbox, TransformedBbox, BboxTransformTo
+from matplotlib.transforms import Bbox, BboxTransformTo, TransformedBbox
 
 
 class RibbonBox:

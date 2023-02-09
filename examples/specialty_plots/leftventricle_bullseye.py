@@ -11,9 +11,10 @@ ventricle recommended by the American Heart Association (AHA).
 See also the :doc:`/gallery/pie_and_polar_charts/nested_pie` example.
 """
 
-import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib as mpl
 
 
 def bullseye_plot(ax, data, seg_bold=None, cmap="viridis", norm=None):

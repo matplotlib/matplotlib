@@ -23,8 +23,9 @@ at `datetime.date.strftime`.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+
 import matplotlib.cbook as cbook
+import matplotlib.dates as mdates
 
 # Load a numpy record array from yahoo csv data with fields date, open, high,
 # low, close, volume, adj_close from the mpl-data/sample_data directory. The

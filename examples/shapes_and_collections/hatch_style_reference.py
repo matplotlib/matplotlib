@@ -14,6 +14,7 @@ an example using `~.Axes.contourf`, and
 
 """
 import matplotlib.pyplot as plt
+
 from matplotlib.patches import Rectangle
 
 fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(6.4, 3.2))

@@ -48,9 +48,10 @@ For now, let's get on with the implicit approach:
 
 """
 
+from PIL import Image
+
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
 
 # %%
 # .. _importing_data:

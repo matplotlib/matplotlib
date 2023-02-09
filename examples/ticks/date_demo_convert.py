@@ -5,9 +5,11 @@ Date Demo Convert
 
 """
 import datetime
+
 import matplotlib.pyplot as plt
-from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange
 import numpy as np
+
+from matplotlib.dates import DateFormatter, DayLocator, HourLocator, drange
 
 date1 = datetime.datetime(2000, 3, 2)
 date2 = datetime.datetime(2000, 3, 6)

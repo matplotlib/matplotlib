@@ -9,10 +9,10 @@ import wx
 import wx.lib.agw.aui as aui
 import wx.lib.mixins.inspection as wit
 
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.backends.backend_wxagg import \
+    NavigationToolbar2WxAgg as NavigationToolbar
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_wxagg import (
-    FigureCanvasWxAgg as FigureCanvas,
-    NavigationToolbar2WxAgg as NavigationToolbar)
 
 
 class Plot(wx.Panel):

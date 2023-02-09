@@ -14,8 +14,8 @@ using `matplotlib.backend_managers.ToolManager`.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.backend_tools import ToolBase, ToolToggleBase
 
+from matplotlib.backend_tools import ToolBase, ToolToggleBase
 
 plt.rcParams['toolbar'] = 'toolmanager'
 

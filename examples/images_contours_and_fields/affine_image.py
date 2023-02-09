@@ -13,8 +13,9 @@ The image of the output should have its boundary match the dashed yellow
 rectangle.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.transforms as mtransforms
 
 

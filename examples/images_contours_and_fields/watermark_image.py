@@ -6,11 +6,11 @@ Watermark image
 Using a PNG file as a watermark.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
+
 import matplotlib.cbook as cbook
 import matplotlib.image as image
-import matplotlib.pyplot as plt
-
 
 with cbook.get_sample_data('logo2.png') as file:
     im = image.imread(file)

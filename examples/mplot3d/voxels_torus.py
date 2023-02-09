@@ -7,8 +7,9 @@ Demonstrates using the *x*, *y*, *z* parameters of `.Axes3D.voxels`.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.colors
 import numpy as np
+
+import matplotlib.colors
 
 
 def midpoints(x):

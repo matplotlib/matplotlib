@@ -7,15 +7,17 @@ Demonstrate NavigationToolbar with GTK3 accessed via pygobject.
 """
 
 import gi
+
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from matplotlib.backends.backend_gtk3 import (
-    NavigationToolbar2GTK3 as NavigationToolbar)
-from matplotlib.backends.backend_gtk3agg import (
-    FigureCanvasGTK3Agg as FigureCanvas)
-from matplotlib.figure import Figure
 import numpy as np
+
+from matplotlib.backends.backend_gtk3 import \
+    NavigationToolbar2GTK3 as NavigationToolbar
+from matplotlib.backends.backend_gtk3agg import \
+    FigureCanvasGTK3Agg as FigureCanvas
+from matplotlib.figure import Figure
 
 win = Gtk.Window()
 win.connect("delete-event", Gtk.main_quit)

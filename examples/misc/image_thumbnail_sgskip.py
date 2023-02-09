@@ -13,8 +13,8 @@ supported by Pillow.
 from argparse import ArgumentParser
 from pathlib import Path
 import sys
-import matplotlib.image as image
 
+import matplotlib.image as image
 
 parser = ArgumentParser(
     description="Build thumbnails of all images in a directory.")

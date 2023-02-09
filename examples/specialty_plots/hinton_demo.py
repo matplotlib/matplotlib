@@ -10,8 +10,8 @@ magnitude of each value.
 
 Initial idea from David Warde-Farley on the SciPy Cookbook
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def hinton(matrix, max_weight=None, ax=None):

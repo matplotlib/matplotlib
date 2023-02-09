@@ -95,9 +95,10 @@ the interpolation is between ``y1[i]`` and ``y0[i+1]``.  So, ``y0[0]`` and
 ``y1[-1]`` are never used.
 
 """
-import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib as mpl
 from matplotlib.colors import LinearSegmentedColormap
 
 # Make some illustrative fake data:

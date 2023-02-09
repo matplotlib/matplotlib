@@ -8,8 +8,8 @@ pixel given x and y.  This functionality is built in by default; this example
 just showcases how to customize the `~.axes.Axes.format_coord` function.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

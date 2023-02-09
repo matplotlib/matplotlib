@@ -7,8 +7,9 @@ onto the 'walls' of the graph.
 See :doc:`contourf3d_2` for the filled version.
 """
 
-from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
+
+from mpl_toolkits.mplot3d import axes3d
 
 ax = plt.figure().add_subplot(projection='3d')
 X, Y, Z = axes3d.get_test_data(0.05)

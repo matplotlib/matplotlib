@@ -34,8 +34,8 @@ its physical size and the value of the ``dpi`` parameter passed to
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 d = np.arange(100).reshape(10, 10)  # the values to be color-mapped
 x, y = np.meshgrid(np.arange(11), np.arange(11))

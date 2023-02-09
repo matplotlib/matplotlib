@@ -5,6 +5,7 @@ PGF texsystem
 """
 
 import matplotlib.pyplot as plt
+
 plt.rcParams.update({
     "pgf.texsystem": "pdflatex",
     "pgf.preamble": "\n".join([

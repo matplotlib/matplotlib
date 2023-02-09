@@ -13,11 +13,12 @@ Copyright (c) 2010, Bartosz Telenczuk
 BSD License
 """
 
+import matplotlib.pyplot as plt
+
 import matplotlib as mpl
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
-import matplotlib.pyplot as plt
 
 # Prepare the data for the PathPatch below.
 Path = mpath.Path

@@ -16,9 +16,10 @@ the triangle is displayed in the plot title.
     using the link at the bottom of the page.
 """
 import matplotlib.pyplot as plt
-from matplotlib.tri import Triangulation
-from matplotlib.patches import Polygon
 import numpy as np
+
+from matplotlib.patches import Polygon
+from matplotlib.tri import Triangulation
 
 
 def update_polygon(tri):

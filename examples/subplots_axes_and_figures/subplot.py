@@ -10,8 +10,8 @@ For more options, see :doc:`/gallery/subplots_axes_and_figures/subplots_demo`.
 .. redirect-from:: /gallery/subplots_axes_and_figures/subplot_demo
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Create some fake data.
 x1 = np.linspace(0.0, 5.0)

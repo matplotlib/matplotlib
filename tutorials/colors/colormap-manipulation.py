@@ -31,10 +31,11 @@ Below we use a modest value of 8 so there are not a lot of values to look at.
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib as mpl
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 
 viridis = mpl.colormaps['viridis'].resampled(8)
 

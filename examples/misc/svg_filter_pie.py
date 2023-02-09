@@ -14,6 +14,7 @@ import io
 import xml.etree.ElementTree as ET
 
 import matplotlib.pyplot as plt
+
 from matplotlib.patches import Shadow
 
 # make a square figure and axes

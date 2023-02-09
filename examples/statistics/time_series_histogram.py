@@ -26,9 +26,10 @@ histogram, with optional interpolation between data points, by using
 from copy import copy
 import time
 
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.matlib
-import matplotlib.pyplot as plt
+
 from matplotlib.colors import LogNorm
 
 fig, axes = plt.subplots(nrows=3, figsize=(6, 8), constrained_layout=True)
