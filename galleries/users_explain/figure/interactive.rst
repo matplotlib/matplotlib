@@ -312,6 +312,29 @@ Preserve aspect ratio              hold **CONTROL** when panning/zooming with mo
 ================================== ===============================
 
 
+Position Format
+---------------
+
+The location of the cursor is shown in the UI and generated via the
+`~axes.Axes.format_coord` method which in turn calls the
+`~axes.Axes.format_xdata` and `~axes.Axes.format_ydata` methods.  The hard
+coded format in `~axes.Axes.format_coord` is ``f'x={formatted_x}
+y={formatted_y}'``.
+
+To easily customize how the x and y values are formatted, you can set the
+`.axes.Axes.fmt_xdata` and `.axes.Axes.fmt_ydata` attributes on the
+`~axes.Axes` instance.  The values are expected to be functions that
+take a float and return a string.  For example ::
+
+  fig, ax = plt.subplots()
+  ax.set_ylim(-5, 5)
+  ax.fmt_ydata = lambda v: f'{v:.3g}' if v > 0 else f'({-v:.3g})'
+
+will format negative y-values with parenthesis rather than a negative sign.  If
+these attributes are set to `None`, then the `.Formatter.format_data_short`
+method on the major formatter of the respective axes will be used instead.
+
+
 .. _other-shells:
 
 Other Python prompts
