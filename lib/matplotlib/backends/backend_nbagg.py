@@ -14,7 +14,7 @@ from IPython.display import display, Javascript, HTML
 
 from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_bases import _Backend, NavigationToolbar2
+from matplotlib.backend_bases import _Backend, CloseEvent, NavigationToolbar2
 from .backend_webagg_core import (
     FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg)
 from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
@@ -149,7 +149,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
                             if socket.is_open()}
 
         if len(self.web_sockets) == 0:
-            self.canvas.close_event()
+            CloseEvent("close_event", self.canvas)._process()
 
     def remove_comm(self, comm_id):
         self.web_sockets = {socket for socket in self.web_sockets
