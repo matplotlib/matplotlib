@@ -92,4 +92,3 @@ plt.show()
 #    - `matplotlib.ticker.AutoLocator`
 #    - `matplotlib.ticker.MaxNLocator`
 #    - `matplotlib.ticker.LogLocator`
-# %%
