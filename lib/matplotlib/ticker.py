@@ -1978,12 +1978,12 @@ class MaxNLocator(Locator):
             automatically determined based on the length of the axis.
 
         steps : array-like, optional
-            Sequence of nice numbers starting with 1 and ending with 10;
-            e.g., [1, 2, 4, 5, 10], where the values are acceptable
-            tick multiples.  i.e. for the example, 20, 40, 60 would be
-            an acceptable set of ticks, as would 0.4, 0.6, 0.8, because
-            they are multiples of 2.  However, 30, 60, 90 would not
-            be allowed because 3 does not appear in the list of steps.
+            Sequence of acceptable tick multiples, starting with 1 and
+            ending with 10. For example, if ``steps=[1, 2, 4, 5, 10]``,
+            ``20, 40, 60`` or ``0.4, 0.6, 0.8`` would be possible
+            sets of ticks because they are multiples of 2.
+            ``30, 60, 90`` would not be generated because 3 does not
+            appear in this example list of steps.
 
         integer : bool, default: False
             If True, ticks will take only integer values, provided at least
@@ -2092,27 +2092,28 @@ class MaxNLocator(Locator):
         scale, offset = scale_range(vmin, vmax, nbins)
         _vmin = vmin - offset
         _vmax = vmax - offset
-        raw_step = (_vmax - _vmin) / nbins
         steps = self._extended_steps * scale
         if self._integer:
             # For steps > 1, keep only integer values.
             igood = (steps < 1) | (np.abs(steps - np.round(steps)) < 0.001)
             steps = steps[igood]
 
-        istep = np.nonzero(steps >= raw_step)[0][0]
-
-        # Classic round_numbers mode may require a larger step.
+        raw_step = ((_vmax - _vmin) / nbins)
+        large_steps = steps >= raw_step
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
-            for istep in range(istep, len(steps)):
-                step = steps[istep]
-                best_vmin = (_vmin // step) * step
-                best_vmax = best_vmin + step * nbins
-                if best_vmax >= _vmax:
-                    break
+            # Classic round_numbers mode may require a larger step.
+            # Get first multiple of steps that are <= _vmin
+            floored_vmins = (_vmin // steps) * steps
+            floored_vmaxs = floored_vmins + steps * nbins
+            large_steps = large_steps & (floored_vmaxs >= _vmax)
 
-        # This is an upper limit; move to smaller steps if necessary.
-        for istep in reversed(range(istep + 1)):
-            step = steps[istep]
+        # Find index of smallest large step
+        istep = np.nonzero(large_steps)[0][0]
+
+        # Start at smallest of the steps greater than the raw step, and check
+        # if it provides enough ticks. If not, work backwards through
+        # smaller steps until one is found that provides enough ticks.
+        for step in steps[:istep+1][::-1]:
 
             if (self._integer and
                     np.floor(_vmax) - np.ceil(_vmin) >= self._min_n_ticks - 1):
