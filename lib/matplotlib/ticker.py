@@ -2098,20 +2098,21 @@ class MaxNLocator(Locator):
             igood = (steps < 1) | (np.abs(steps - np.round(steps)) < 0.001)
             steps = steps[igood]
 
-        good_steps = steps >= ((_vmax - _vmin) / nbins)
+        raw_step = ((_vmax - _vmin) / nbins)
+        large_steps = steps >= raw_step
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             # Classic round_numbers mode may require a larger step.
             # Get first multiple of steps that are <= _vmin
             floored_vmins = (_vmin // steps) * steps
             floored_vmaxs = floored_vmins + steps * nbins
-            good_steps = good_steps & (floored_vmaxs >= _vmax)
+            large_steps = large_steps & (floored_vmaxs >= _vmax)
 
-        # Find index of smallest good step
-        istep = np.nonzero(good_steps)[0][0]
+        # Find index of smallest large step
+        istep = np.nonzero(large_steps)[0][0]
 
-        # Start at smallest good step, and check if this provides enough
-        # ticks. If not, work backwards through smaller steps until one is
-        # found that provides enough ticks.
+        # Start at smallest of the steps greater than the raw step, and check
+        # if it provides enough ticks. If not, work backwards through
+        # smaller steps until one is found that provides enough ticks.
         for step in steps[:istep+1][::-1]:
 
             if (self._integer and
