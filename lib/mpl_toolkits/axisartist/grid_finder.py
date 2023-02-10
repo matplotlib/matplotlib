@@ -1,5 +1,6 @@
 import numpy as np
 
+from matplotlib import _api
 from matplotlib import ticker as mticker
 from matplotlib.transforms import Bbox, Transform
 
@@ -277,15 +278,26 @@ class GridFinder:
                 raise ValueError(f"Unknown update property {k!r}")
 
 
+# Sentinel to check if prune argument has been passed by user or not
+_None = object()
+
+
 class MaxNLocator(mticker.MaxNLocator):
+    @_api.delete_parameter("3.8", "prune")
     def __init__(self, nbins=10, steps=None,
                  trim=True,
                  integer=False,
                  symmetric=False,
-                 prune=None):
-        # trim argument has no effect. It has been left for API compatibility
-        super().__init__(nbins, steps=steps, integer=integer,
-                         symmetric=symmetric, prune=prune)
+                 prune=_None):
+        kwargs = {
+            'steps': steps,
+            'integer': integer,
+            'symmetric': symmetric,
+            'prune': prune
+        }
+        if prune == _None:
+            kwargs.pop('prune')
+        super().__init__(nbins, **kwargs)
         self.create_dummy_axis()
 
     def __call__(self, v1, v2):

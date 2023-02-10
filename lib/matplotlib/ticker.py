@@ -1965,7 +1965,6 @@ class MaxNLocator(Locator):
                           steps=None,
                           integer=False,
                           symmetric=False,
-                          prune=None,
                           min_n_ticks=2)
 
     def __init__(self, nbins=None, **kwargs):
@@ -1992,15 +1991,6 @@ class MaxNLocator(Locator):
         symmetric : bool, default: False
             If True, autoscaling will result in a range symmetric about zero.
 
-        prune : {'lower', 'upper', 'both', None}, default: None
-            Remove edge ticks -- useful for stacked or ganged plots where
-            the upper tick of one axes overlaps with the lower tick of the
-            axes above it, primarily when :rc:`axes.autolimit_mode` is
-            ``'round_numbers'``.  If ``prune=='lower'``, the smallest tick will
-            be removed.  If ``prune == 'upper'``, the largest tick will be
-            removed.  If ``prune == 'both'``, the largest and smallest ticks
-            will be removed.  If *prune* is *None*, no ticks will be removed.
-
         min_n_ticks : int, default: 2
             Relax *nbins* and *integer* constraints if necessary to obtain
             this minimum number of ticks.
@@ -2008,6 +1998,10 @@ class MaxNLocator(Locator):
         if nbins is not None:
             kwargs['nbins'] = nbins
         self.set_params(**{**self.default_params, **kwargs})
+        if not hasattr(self, '_prune'):
+            # Make sure _prune is set without hitting deprecation warning in
+            # set_params()
+            self._prune = None
 
     @staticmethod
     def _validate_steps(steps):
@@ -2044,8 +2038,6 @@ class MaxNLocator(Locator):
             see `.MaxNLocator`
         symmetric : bool, optional
             see `.MaxNLocator`
-        prune : {'lower', 'upper', 'both', None}, optional
-            see `.MaxNLocator`
         min_n_ticks : int, optional
             see `.MaxNLocator`
         """
@@ -2056,6 +2048,11 @@ class MaxNLocator(Locator):
         if 'symmetric' in kwargs:
             self._symmetric = kwargs.pop('symmetric')
         if 'prune' in kwargs:
+            _api.warn_deprecated(
+                "3.8", message="The 'prune' keyword argument is deprecated, "
+                "and will be removed in Matplotlib %(removal)s. Tick pruning "
+                "should be done manually after the ticks have been generated."
+            )
             prune = kwargs.pop('prune')
             _api.check_in_list(['upper', 'lower', 'both', None], prune=prune)
             self._prune = prune

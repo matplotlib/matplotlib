@@ -1,0 +1,6 @@
+Automatically pruning ticks in ``MaxNLocator``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``prune`` keyword argument to both `matplotlib.ticker.MaxNLocator` and
+`mpl_toolkits.axisartist.grid_finder.MaxNLocator` is deprecated, with
+no replacement. If tick pruning is desired, manually prune the ticks
+after they have been returned by ``MaxNLocator.tick_values()``.
