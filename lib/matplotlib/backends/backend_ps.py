@@ -825,7 +825,7 @@ class FigureCanvasPS(FigureCanvasBase):
     def _print_ps(
             self, fmt, outfile, *,
             metadata=None, papertype=None, orientation='portrait',
-            **kwargs):
+            bbox_inches_restore=None, **kwargs):
 
         dpi = self.figure.dpi
         self.figure.dpi = 72  # Override the dpi kwarg
@@ -860,7 +860,8 @@ class FigureCanvasPS(FigureCanvasBase):
                    if mpl.rcParams['text.usetex'] else
                    self._print_figure)
         printer(fmt, outfile, dpi=dpi, dsc_comments=dsc_comments,
-                orientation=orientation, papertype=papertype, **kwargs)
+                orientation=orientation, papertype=papertype,
+                bbox_inches_restore=bbox_inches_restore, **kwargs)
 
     def _print_figure(
             self, fmt, outfile, *,
