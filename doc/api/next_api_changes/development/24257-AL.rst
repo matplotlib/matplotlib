@@ -1,2 +1,0 @@
-importlib_resources>=2.3.0 is now required on Python<3.10
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

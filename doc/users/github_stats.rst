@@ -1,16 +1,16 @@
 .. _github-stats:
 
-GitHub statistics for 3.7.0 (Jan 25, 2023)
-==========================================
+GitHub statistics (Feb 13, 2023)
+================================
 
-GitHub statistics for 2022/09/16 (tag: v3.6.0) - 2023/01/25
+GitHub statistics for 2022/09/16 (tag: v3.6.0) - 2023/02/13
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 110 issues and merged 380 pull requests.
+We closed 120 issues and merged 427 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/70?closed=1>`__
 
-The following 107 authors contributed 2268 commits.
+The following 112 authors contributed 1962 commits.
 
 * Abhijnan Bajpai
 * Adrien F. Vincent
@@ -30,10 +30,13 @@ The following 107 authors contributed 2268 commits.
 * David Stansby
 * dependabot[bot]
 * DerWeh
+* Eero Vaher
 * Elliott Sales de Andrade
 * Eric Larson
+* Eric Prestat
 * erykoff
 * EunHo Lee
+* Felix Goudreault
 * Greg Lucas
 * hannah
 * Ian Hunt-Isaak
@@ -53,6 +56,7 @@ The following 107 authors contributed 2268 commits.
 * John Paul Jepko
 * Joseph Fox-Rabinovitz
 * Joshua Barrass
+* Julian Chen
 * Junaid Khan
 * Justin Tracey
 * Kaidong Hu
@@ -87,6 +91,7 @@ The following 107 authors contributed 2268 commits.
 * Pratim Ugale
 * pre-commit-ci[bot]
 * ramvikrams
+* richardsheridan
 * Ruth Comer
 * Ryan May
 * saranti
@@ -122,8 +127,55 @@ The following 107 authors contributed 2268 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (380):
+Pull Requests (427):
 
+* :ghpull:`25201`: Backport PR #25196 on branch v3.7.x (Add deprecation for setting data with non sequence type in ``Line2D``)
+* :ghpull:`25196`: Add deprecation for setting data with non sequence type in ``Line2D``
+* :ghpull:`25197`: Backport PR #25193 on branch v3.7.x (Fix displacement of colorbar for eps with bbox_inches='tight')
+* :ghpull:`25193`: Fix displacement of colorbar for eps with bbox_inches='tight'
+* :ghpull:`24781`: DOC: restore SHA to footer
+* :ghpull:`25188`: Backport PR #25085 on branch v3.7.x (FIX: only try to update blit caches if the canvas we expect)
+* :ghpull:`25170`: Backport PR #25097 on branch v3.7.x (fix FigureCanvasTkAgg memory leak via weakrefs)
+* :ghpull:`25186`: Backport PR #24893 on branch v3.7.x (STY: make allowed line length 9 longer to 88 from 79)
+* :ghpull:`25185`: Backport PR #25183 on branch v3.7.x (FIX: do not use deprecated API internally)
+* :ghpull:`25184`: Backport PR #25174 on branch v3.7.x (Accept LA icons for the toolbar)
+* :ghpull:`25085`: FIX: only try to update blit caches if the canvas we expect
+* :ghpull:`25183`: FIX: do not use deprecated API internally
+* :ghpull:`25182`: Backport PR #25052 on branch v3.7.x (Support both Bbox and list for bbox to table/Table)
+* :ghpull:`25174`: Accept LA icons for the toolbar
+* :ghpull:`25052`: Support both Bbox and list for bbox to table/Table
+* :ghpull:`25095`: Backport PR #23442 on branch v3.7.x (Remove need to detect math mode in pgf strings)
+* :ghpull:`25097`: fix FigureCanvasTkAgg memory leak via weakrefs
+* :ghpull:`25167`: Backport PR #25122 on branch v3.7.x (FIX: scaling factor for window with negative value)
+* :ghpull:`25122`: FIX: scaling factor for window with negative value
+* :ghpull:`25161`: Backport PR #25158 on branch v3.7.x (Disconnect SubplotTool destroyer callback on tool_fig close)
+* :ghpull:`25160`: Backport PR #25129 on branch v3.7.x (Undeprecate Cursor event handlers)
+* :ghpull:`25158`: Disconnect SubplotTool destroyer callback on tool_fig close
+* :ghpull:`25129`: Undeprecate Cursor event handlers
+* :ghpull:`25154`: Backport PR #25151 on branch v3.7.x (Increase timeout to GitHub API)
+* :ghpull:`25151`: Increase timeout to GitHub API
+* :ghpull:`25136`: Backport PR #25126 on branch v3.7.x (FIX: fully invalidate TransformWrapper parents before swapping)
+* :ghpull:`25132`: Backport PR #24993 on branch v3.7.x ([DOC] GitHub spelling and links)
+* :ghpull:`25126`: FIX: fully invalidate TransformWrapper parents before swapping
+* :ghpull:`24993`: [DOC] GitHub spelling and links
+* :ghpull:`25118`: Backport PR #25113 on branch v3.7.x (Fix outdated comment re: _update_label_position.)
+* :ghpull:`25113`: Fix outdated comment re: _update_label_position.
+* :ghpull:`25111`: Backport PR #25110 on branch v3.7.x (Stop recommending ``ncol`` in legend examples)
+* :ghpull:`25110`: Stop recommending ``ncol`` in legend examples
+* :ghpull:`25106`: Fix cursor_demo wrt. Line2D.set_x/ydata not accepting scalars anymore.
+* :ghpull:`25103`: Backport PR #25098 on branch v3.7.x (Correctly pass valinit as keyword in SliderTool.)
+* :ghpull:`25098`: Correctly pass valinit as keyword in SliderTool.
+* :ghpull:`23442`: Remove need to detect math mode in pgf strings
+* :ghpull:`25093`: Backport PR #25092 on branch v3.7.x (Fix distribution of test data)
+* :ghpull:`24893`: STY: make allowed line length 9 longer to 88 from 79
+* :ghpull:`25092`: Fix distribution of test data
+* :ghpull:`25089`: Backport PR #25088 on branch v3.7.x (DOC: Fix broken cross-reference when building PDF)
+* :ghpull:`25088`: DOC: Fix broken cross-reference when building PDF
+* :ghpull:`25083`: Backport PR #25074 on branch v3.7.x (Revert "Use system distutils instead of the setuptools copy")
+* :ghpull:`25082`: Backport PR #25079 on branch v3.7.x (FIX: Only send one update signal when autoscaling norms)
+* :ghpull:`25084`: DOC: Fix typos in GitHub stats
+* :ghpull:`25074`: Revert "Use system distutils instead of the setuptools copy"
+* :ghpull:`25079`: FIX: Only send one update signal when autoscaling norms
 * :ghpull:`25072`: Merge v3.6.x into v3.7.x
 * :ghpull:`25071`: Backport PR #25039 on branch v3.7.x (Updated WebAgg JS to check and send request over wss if using HTTPS)
 * :ghpull:`25039`: Updated WebAgg JS to check and send request over wss if using HTTPS
@@ -414,7 +466,7 @@ Pull Requests (380):
 * :ghpull:`24298`: List all the places to update when adding a dependency.
 * :ghpull:`24289`: Cleanup image_zcoord example.
 * :ghpull:`23865`: Add test and example for VBoxDivider
-* :ghpull:`24287`: Simplifying glyph stream logic in ps backend
+* :ghpull:`24287`:  Simplifying glyph stream logic in ps backend
 * :ghpull:`24291`: Rely on builtin round() instead of manual rounding.
 * :ghpull:`24062`: Replaced std::random_shuffle with std::shuffle in tri
 * :ghpull:`24278`: Use oldest-supported-numpy for build
@@ -478,7 +530,7 @@ Pull Requests (380):
 * :ghpull:`23579`: Remove direct manipulation of HostAxes.parasites by end users.
 * :ghpull:`23553`: Add tests for ImageGrid
 * :ghpull:`23918`: Merge v3.6.x branch to main
-* :ghpull:`23902`: Add test and improve examples for mpl_toolkits
+* :ghpull:`23902`:  Add test and improve examples for mpl_toolkits
 * :ghpull:`23950`: DOC: Don't import doctest because we're not using it
 * :ghpull:`21006`: Rotate errorbar caps in polar plots
 * :ghpull:`23870`: Implement Sphinx-Gallery's ``make html-noplot``
@@ -505,8 +557,18 @@ Pull Requests (380):
 * :ghpull:`22614`: ENH: Add pan and zoom toolbar handling to 3D Axes
 * :ghpull:`21562`: Add a test for Hexbin Linear
 
-Issues (110):
+Issues (120):
 
+* :ghissue:`25176`: [Bug]: Colorbar is displaced when saving as .eps with bbox_inches='tight'
+* :ghissue:`25075`: [Bug]: Widget blitting broken when saving as PDF
+* :ghissue:`25181`: unavoidable warnings in nbagg on ``plt.close``
+* :ghissue:`25134`: [Doc]: pyplot.boxplot whisker length wrong docs
+* :ghissue:`24395`: Any resizing of the plot after plt.show results in an error when closing the window
+* :ghissue:`25107`: [Doc]: annotated_cursor example seems broken
+* :ghissue:`25124`: [Bug]: ax.plot(x,y) disappears after changing y_scale
+* :ghissue:`8278`: FuncAnimation with generator defaults to arbitrary save_count=100
+* :ghissue:`22765`: Document distutil vs setuptools issues or fix usage
+* :ghissue:`25077`: [Bug]: Setting norm with existing colorbar fails with 3.6.3
 * :ghissue:`23999`: [Bug]: Annotation misplaced when rasterizing and saving as PDF
 * :ghissue:`25040`: [Bug]: Request to insecure websocket endpoint is blocked by browser
 * :ghissue:`24678`: [Bug]: pcolormesh doesn't allow shading = 'flat' in the option

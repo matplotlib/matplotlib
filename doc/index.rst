@@ -51,7 +51,7 @@ Learning resources
 
         - :doc:`Quick-start guide <tutorials/introductory/quick_start>`
         - :doc:`Plot types <plot_types/index>`
-        - `Introductory tutorials <../tutorials/index.html#introductory>`_
+        - :ref:`Introductory tutorials <tutorials-introductory>`
         - :doc:`External learning resources <users/resources/index>`
 
     .. grid-item-card::

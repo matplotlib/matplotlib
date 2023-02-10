@@ -1,5 +1,0 @@
-``matplotlib.tri`` submodules are deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``matplotlib.tri.*`` submodules are deprecated.  All functionality is
-available in ``matplotlib.tri`` directly and should be imported from there.
