@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /tutorials/intermediate/gridspec
+
+.. _arranging_axes:
+
 ===================================
 Arranging multiple Axes in a Figure
 ===================================
@@ -58,6 +62,8 @@ a `~.SubplotSpec`:
 `~matplotlib.gridspec.SubplotSpec`
     Specifies the location of the subplot in the given `.GridSpec`.
 
+.. _fixed_size_axes:
+
 Adding single Axes at a time
 ----------------------------
 
@@ -80,9 +86,26 @@ location:
     Similar to `.pyplot.subplot`, but uses 0-based indexing and two-d python
     slicing to choose cells.
 
-.. redirect-from:: /tutorials/intermediate/gridspec
-
 """
+
+# %%
+#
+# As a simple example of manually adding an axes a, lets add a 3 inch x 2 inch
+# Axes to a 4 inch x 3 inch figure.  Note that the location of the subplot is
+# defined as [left, bottom, width, height] in figure-normalized units:
+
+# sphinx_gallery_thumbnail_number = 2
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+w, h = 4, 3
+margin = 0.5
+fig = plt.figure(figsize=(w, h), facecolor='lightblue')
+ax = fig.add_axes([margin / w, margin / h, (w - 2 * margin) / w,
+                      (h - 2 * margin) / h])
+
+
 # %%
 # High-level methods for making grids
 # ===================================
@@ -96,9 +119,6 @@ location:
 # objects can be used to access methods to place artists on the Axes; here
 # we use `~.Axes.annotate`, but other examples could be `~.Axes.plot`,
 # `~.Axes.pcolormesh`, etc.
-
-import matplotlib.pyplot as plt
-import numpy as np
 
 fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(5.5, 3.5),
                         layout="constrained")
@@ -146,7 +166,8 @@ fig.suptitle('plt.subplot_mosaic()')
 # have a set aspect ratio.  This leads to large gaps between Axes by default:
 #
 
-fig, axs = plt.subplots(2, 2, layout="constrained", figsize=(5.5, 3.5))
+fig, axs = plt.subplots(2, 2, layout="constrained",
+                        figsize=(5.5, 3.5), facecolor='lightblue')
 for ax in axs.flat:
     ax.set_aspect(1)
 fig.suptitle('Fixed aspect Axes')
@@ -159,7 +180,8 @@ fig.suptitle('Fixed aspect Axes')
 # provides `~.mpl_toolkits.axes_grid1.axes_grid.ImageGrid` to accomplish
 # a similar effect, but with a non-standard Axes class).
 
-fig, axs = plt.subplots(2, 2, layout="compressed", figsize=(5.5, 3.5))
+fig, axs = plt.subplots(2, 2, layout="compressed", figsize=(5.5, 3.5),
+                        facecolor='lightblue')
 for ax in axs.flat:
     ax.set_aspect(1)
 fig.suptitle('Fixed aspect Axes: compressed')
@@ -218,7 +240,7 @@ fig.suptitle('plt.subplot_mosaic()')
 fig = plt.figure(layout="constrained")
 subfigs = fig.subfigures(1, 2, wspace=0.07, width_ratios=[1.5, 1.])
 axs0 = subfigs[0].subplots(2, 2)
-subfigs[0].set_facecolor('0.9')
+subfigs[0].set_facecolor('lightblue')
 subfigs[0].suptitle('subfigs[0]\nLeft side')
 subfigs[0].supxlabel('xlabel for subfigs[0]')
 
@@ -315,7 +337,7 @@ fig.suptitle('Manually added subplots, spanning a column')
 # These spacing parameters can also be passed to `~.pyplot.subplots` and
 # `~.pyplot.subplot_mosaic` as the *gridspec_kw* argument.
 
-fig = plt.figure(layout=None, facecolor='0.9')
+fig = plt.figure(layout=None, facecolor='lightblue')
 gs = fig.add_gridspec(nrows=3, ncols=3, left=0.05, right=0.75,
                       hspace=0.1, wspace=0.05)
 ax0 = fig.add_subplot(gs[:-1, :])
