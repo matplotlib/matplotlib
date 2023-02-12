@@ -373,8 +373,8 @@ will run on all supported platforms and versions of Python.
     - ``[skip appveyor]`` (must be in the first line of the commit): AppVeyor
     - ``[skip azp]``: Azure Pipelines
 
-  - ``[ci skip]`` or ``[skip ci]``: skip all CIs.  Use this only if you know
-    your changes do not need to be tested at all (this is very rare!)
+  - ``[skip ci]``: skip all CIs.  Use this only if you know your changes do not
+    need to be tested at all, which is very rare.
 
 .. _pr-squashing:
 
