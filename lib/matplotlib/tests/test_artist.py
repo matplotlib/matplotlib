@@ -241,7 +241,7 @@ def test_properties():
     ln.properties()  # Check that no warning is emitted.
 
 
-def test_setp():
+def test_setp(capsys):
     # Check empty list
     plt.setp([])
     plt.setp([[]])
@@ -257,6 +257,63 @@ def test_setp():
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
     assert sio.getvalue() == '  zorder: float\n'
+
+    # Test pretty printing
+    plt.setp(lines1)
+    printed = capsys.readouterr()
+    assert printed.out == (
+        "  agg_filter: a filter function, which takes a (m, n, 3)"
+        " float array and a dpi value, and returns a (m, n, 3) array and two offsets"
+        """ from the bottom left corner of the image
+  alpha: scalar or None
+  animated: bool
+  antialiased or aa: bool
+  clip_box: `.Bbox`
+  clip_on: bool
+  clip_path: Patch or (Path, Transform) or None
+  color or c: color
+  dash_capstyle: `.CapStyle` or {'butt', 'projecting', 'round'}
+  dash_joinstyle: `.JoinStyle` or {'miter', 'round', 'bevel'}
+  dashes: sequence of floats (on/off ink in points) or (None, None)
+  data: (2, N) array or two 1D arrays
+  drawstyle or ds: {'default', 'steps', 'steps-pre', 'steps-mid', 'steps-post'},"""
+        """ default: 'default'
+  figure: `.Figure`
+  fillstyle: {'full', 'left', 'right', 'bottom', 'top', 'none'}
+  gapcolor: color or None
+  gid: str
+  in_layout: bool
+  label: object
+  linestyle or ls: {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+  linewidth or lw: float
+  marker: marker style string, `~.path.Path` or `~.markers.MarkerStyle`
+  markeredgecolor or mec: color
+  markeredgewidth or mew: float
+  markerfacecolor or mfc: color
+  markerfacecoloralt or mfcalt: color
+  markersize or ms: float
+  markevery: None or int or (int, int) or slice or list[int] or float or"""
+        """ (float, float) or list[bool]
+  mouseover: bool
+  path_effects: `.AbstractPathEffect`
+  picker: float or callable[[Artist, Event], tuple[bool, dict]]
+  pickradius: unknown
+  rasterized: bool
+  sketch_params: (scale: float, length: float, randomness: float)
+  snap: bool or None
+  solid_capstyle: `.CapStyle` or {'butt', 'projecting', 'round'}
+  solid_joinstyle: `.JoinStyle` or {'miter', 'round', 'bevel'}
+  transform: `.Transform`
+  url: str
+  visible: bool
+  xdata: 1D array
+  ydata: 1D array
+  zorder: float
+""")
+
+    # Odd number of arguments
+    with pytest.raises(ValueError, match="The set args must be string, value pairs"):
+        plt.setp(lines2, 'foo', 2, 'bar')
 
 
 def test_None_zorder():
@@ -550,6 +607,63 @@ def test_auto_no_rasterize():
 
     assert 'draw' not in Gen2.__dict__
     assert Gen2.draw is Gen1.draw
+
+
+def test_getp_printing(capsys):
+    fig, ax = plt.subplots()
+    lines = ax.plot(range(3))
+    plt.getp(lines)
+    printed = capsys.readouterr()
+    assert printed.out == """    agg_filter = None
+    alpha = None
+    animated = False
+    antialiased or aa = True
+    bbox = Bbox(x0=0.0, y0=0.0, x1=2.0, y1=2.0)
+    children = []
+    clip_box = TransformedBbox(     Bbox(x0=0.0, y0=0.0, x1=1.0, ...
+    clip_on = True
+    clip_path = None
+    color or c = b
+    dash_capstyle = butt
+    dash_joinstyle = round
+    data = (array([0., 1., 2.]), array([0, 1, 2]))
+    drawstyle or ds = default
+    figure = Figure(640x480)
+    fillstyle = full
+    gapcolor = None
+    gid = None
+    in_layout = True
+    label = _child0
+    linestyle or ls = -
+    linewidth or lw = 1.0
+    marker = None
+    markeredgecolor or mec = b
+    markeredgewidth or mew = 0.5
+    markerfacecolor or mfc = b
+    markerfacecoloralt or mfcalt = none
+    markersize or ms = 6.0
+    markevery = None
+    mouseover = False
+    path = Path(array([[0., 0.],        [1., 1.],        [2.,...
+    path_effects = []
+    picker = None
+    pickradius = 5
+    rasterized = False
+    sketch_params = None
+    snap = None
+    solid_capstyle = projecting
+    solid_joinstyle = round
+    tightbbox = Bbox(x0=80.0, y0=47.999999999999986, x1=576.0, y1=...
+    transform = CompositeGenericTransform(     TransformWrapper(  ...
+    transformed_clip_path_and_affine = (None, None)
+    url = None
+    visible = True
+    window_extent = Bbox(x0=80.0, y0=47.999999999999986, x1=1072.0, y1...
+    xdata = [0. 1. 2.]
+    xydata = [[0. 0.]  [1. 1.]  [2. 2.]]
+    ydata = [0 1 2]
+    zorder = 2
+"""
 
 
 def test_draw_wraper_forward_input():
