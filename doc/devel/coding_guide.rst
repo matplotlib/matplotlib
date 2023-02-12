@@ -363,19 +363,18 @@ will run on all supported platforms and versions of Python.
 * If you know only a subset of CIs need to be run, this can be controlled on
   individual commits by including the following substrings in commit messages:
 
-  - If you only changed documentation, use ``[ci doc]`` to restrict the CI to
-    documentation checks.
-  - If you didn't change any documentation, use ``[skip circle]`` to skip the
-    documentation build check.
+  - ``[ci doc]``: restrict the CI to documentation checks. For when you only
+    changed documentation.
+  - ``[skip circle]``: skip the documentation build check. For when you didn't
+    change documentation.
   - Unit tests can be turned off for individual platforms with
 
-    - GitHub Actions: ``[skip actions]``
-    - AppVeyor: ``[skip appveyor]`` (must be in the first line of the commit)
-    - Azure Pipelines: ``[skip azp]``
+    - ``[skip actions]``: GitHub Actions
+    - ``[skip appveyor]`` (must be in the first line of the commit): AppVeyor
+    - ``[skip azp]``: Azure Pipelines
 
-  - If you know your changes do not need to be tested at all (this is very
-    rare!), all CIs can be skipped by including ``[ci skip]`` or ``[skip ci]``.
-
+  - ``[ci skip]`` or ``[skip ci]``: skip all CIs.  Use this only if you know
+    your changes do not need to be tested at all (this is very rare!)
 
 .. _pr-squashing:
 
