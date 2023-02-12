@@ -360,20 +360,21 @@ will run on all supported platforms and versions of Python.
 
   .. _tox: https://tox.readthedocs.io/
 
-* If you know your changes do not need to be tested (this is very rare!), all
-  CIs can be skipped for a given commit by including ``[ci skip]`` or
-  ``[skip ci]`` in the commit message. If you know only a subset of CIs need
-  to be run (e.g., if you are changing some block of plain reStructuredText and
-  want only CircleCI to run to render the result), individual CIs can be
-  skipped on individual commits as well by using the following substrings
-  in commit messages:
+* If you know only a subset of CIs need to be run, this can be controlled on
+  individual commits by including the following substrings in commit messages:
 
-  - GitHub Actions: ``[skip actions]``
-  - AppVeyor: ``[skip appveyor]`` (must be in the first line of the commit)
-  - Azure Pipelines: ``[skip azp]``
-  - CircleCI: ``[skip circle]``
+  - ``[ci doc]``: restrict the CI to documentation checks. For when you only
+    changed documentation.
+  - ``[skip circle]``: skip the documentation build check. For when you didn't
+    change documentation.
+  - Unit tests can be turned off for individual platforms with
 
-  If you only want to run documentation CI you can pass ``[ci doc]``.
+    - ``[skip actions]``: GitHub Actions
+    - ``[skip appveyor]`` (must be in the first line of the commit): AppVeyor
+    - ``[skip azp]``: Azure Pipelines
+
+  - ``[skip ci]``: skip all CIs.  Use this only if you know your changes do not
+    need to be tested at all, which is very rare.
 
 .. _pr-squashing:
 
