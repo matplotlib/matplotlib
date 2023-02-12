@@ -219,6 +219,8 @@ class Artist:
                 self.axes = None  # decouple the artist from the Axes
                 _ax_flag = True
 
+            self._transformSet = False
+
             if self.figure:
                 self.figure = None
                 if not _ax_flag:
