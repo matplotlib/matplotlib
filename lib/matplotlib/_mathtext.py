@@ -1881,8 +1881,7 @@ class Parser:
 
         p.function <<= csnames("name", self._function_names)
         p.operatorname <<= cmd(
-            r"\operatorname",
-            "{" + ZeroOrMore(p.simple | p.unknown_symbol)("name") + "}")
+            r"\operatorname", "{" + ZeroOrMore(p.simple)("name") + "}")
 
         p.group <<= p.start_group + ZeroOrMore(p.token)("group") + p.end_group
 
