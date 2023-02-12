@@ -29,9 +29,14 @@
 #endif
 
 
+inline int mpl_round_to_int(double v)
+{
+    return (int)(v + ((v >= 0.0) ? 0.5 : -0.5));
+}
+
 inline double mpl_round(double v)
 {
-    return (double)(int)(v + ((v >= 0.0) ? 0.5 : -0.5));
+    return (double)mpl_round_to_int(v);
 }
 
 // 'kind' codes for paths.

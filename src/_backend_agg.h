@@ -780,10 +780,10 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
         if (gc.cliprect.x1 != 0.0 || gc.cliprect.y1 != 0.0 || gc.cliprect.x2 != 0.0 || gc.cliprect.y2 != 0.0) {
             agg::rect_i clip;
 
-            clip.init(int(mpl_round(gc.cliprect.x1)),
-                      int(mpl_round(height - gc.cliprect.y2)),
-                      int(mpl_round(gc.cliprect.x2)),
-                      int(mpl_round(height - gc.cliprect.y1)));
+            clip.init(mpl_round_to_int(gc.cliprect.x1),
+                      mpl_round_to_int(height - gc.cliprect.y2),
+                      mpl_round_to_int(gc.cliprect.x2),
+                      mpl_round_to_int(height - gc.cliprect.y1));
             text.clip(clip);
         }
 
