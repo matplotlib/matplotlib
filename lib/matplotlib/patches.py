@@ -5,7 +5,7 @@ Patches are `.Artist`\s with a face color and an edge color.
 import functools
 import inspect
 import math
-from numbers import Number
+from numbers import Number, Real
 import textwrap
 from types import SimpleNamespace
 from collections import namedtuple
@@ -769,7 +769,7 @@ class Rectangle(Patch):
     def rotation_point(self, value):
         if value in ['center', 'xy'] or (
                 isinstance(value, tuple) and len(value) == 2 and
-                isinstance(value[0], Number) and isinstance(value[1], Number)
+                isinstance(value[0], Real) and isinstance(value[1], Real)
                 ):
             self._rotation_point = value
         else:

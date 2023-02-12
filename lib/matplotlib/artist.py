@@ -4,7 +4,7 @@ from functools import cache, wraps
 import inspect
 from inspect import Signature, Parameter
 import logging
-from numbers import Number
+from numbers import Number, Real
 import re
 import warnings
 
@@ -1013,7 +1013,7 @@ class Artist:
         alpha : scalar or None
             *alpha* must be within the 0-1 range, inclusive.
         """
-        if alpha is not None and not isinstance(alpha, Number):
+        if alpha is not None and not isinstance(alpha, Real):
             raise TypeError(
                 f'alpha must be numeric or None, not {type(alpha)}')
         if alpha is not None and not (0 <= alpha <= 1):
