@@ -5,7 +5,7 @@ Classes for the ticks and x- and y-axis.
 import datetime
 import functools
 import logging
-from numbers import Number
+from numbers import Real
 
 import numpy as np
 
@@ -1901,7 +1901,7 @@ class Axis(martist.Artist):
             The acceptance radius for containment tests.
             See also `.Axis.contains`.
         """
-        if not isinstance(pickradius, Number) or pickradius < 0:
+        if not isinstance(pickradius, Real) or pickradius < 0:
             raise ValueError("pick radius should be a distance")
         self._pickradius = pickradius
 

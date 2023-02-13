@@ -2,7 +2,7 @@ import functools
 import itertools
 import logging
 import math
-from numbers import Integral, Number
+from numbers import Integral, Number, Real
 
 import numpy as np
 from numpy import ma
@@ -582,7 +582,7 @@ class Axes(_AxesBase):
             secax.set_xlabel('Period [s]')
             plt.show()
         """
-        if location in ['top', 'bottom'] or isinstance(location, Number):
+        if location in ['top', 'bottom'] or isinstance(location, Real):
             secondary_ax = SecondaryAxis(self, 'x', location, functions,
                                          **kwargs)
             self.add_child_axes(secondary_ax)
@@ -614,7 +614,7 @@ class Axes(_AxesBase):
                                                            np.rad2deg))
             secax.set_ylabel('radians')
         """
-        if location in ['left', 'right'] or isinstance(location, Number):
+        if location in ['left', 'right'] or isinstance(location, Real):
             secondary_ax = SecondaryAxis(self, 'y', location,
                                          functions, **kwargs)
             self.add_child_axes(secondary_ax)
@@ -3219,7 +3219,7 @@ class Axes(_AxesBase):
 
         hatch_cycle = itertools.cycle(np.atleast_1d(hatch))
 
-        _api.check_isinstance(Number, radius=radius, startangle=startangle)
+        _api.check_isinstance(Real, radius=radius, startangle=startangle)
         if radius <= 0:
             raise ValueError(f'radius must be a positive number, not {radius}')
 
@@ -4188,7 +4188,7 @@ class Axes(_AxesBase):
             raise ValueError(datashape_message.format("positions"))
 
         positions = np.array(positions)
-        if len(positions) > 0 and not isinstance(positions[0], Number):
+        if len(positions) > 0 and not all(isinstance(p, Real) for p in positions):
             raise TypeError("positions should be an iterable of numbers")
 
         # width

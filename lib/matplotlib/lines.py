@@ -514,7 +514,7 @@ class Line2D(Artist):
         pickradius : float
             Pick radius, in points.
         """
-        if not isinstance(pickradius, Number) or pickradius < 0:
+        if not isinstance(pickradius, Real) or pickradius < 0:
             raise ValueError("pick radius should be a distance")
         self._pickradius = pickradius
 
