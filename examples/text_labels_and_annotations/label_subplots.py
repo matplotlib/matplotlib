@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
 fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],
-                              constrained_layout=True)
+                              layout='constrained')
 
 for label, ax in axs.items():
     # label physical distance in and down:
@@ -33,7 +33,7 @@ plt.show()
 # with each other, in which case we use a slightly different transform:
 
 fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],
-                              constrained_layout=True)
+                              layout='constrained')
 
 for label, ax in axs.items():
     # label physical distance to the left and up:
@@ -48,7 +48,7 @@ plt.show()
 # use the *loc* keyword argument:
 
 fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],
-                              constrained_layout=True)
+                              layout='constrained')
 
 for label, ax in axs.items():
     ax.set_title('Normal Title', fontstyle='italic')

@@ -17,7 +17,7 @@ import datetime
 import matplotlib.dates as mdates
 from matplotlib.ticker import AutoMinorLocator
 
-fig, ax = plt.subplots(constrained_layout=True)
+fig, ax = plt.subplots(layout='constrained')
 x = np.arange(0, 360, 1)
 y = np.sin(2 * x * np.pi / 180)
 ax.plot(x, y)
@@ -47,7 +47,7 @@ plt.show()
 #   In this case, the xscale of the parent is logarithmic, so the child is
 #   made logarithmic as well.
 
-fig, ax = plt.subplots(constrained_layout=True)
+fig, ax = plt.subplots(layout='constrained')
 x = np.arange(0.02, 1, 0.02)
 np.random.seed(19680801)
 y = np.random.randn(len(x)) ** 2
@@ -91,7 +91,7 @@ plt.show()
 #   arguments *left*, *right* such that values outside the data range are
 #   mapped well outside the plot limits.
 
-fig, ax = plt.subplots(constrained_layout=True)
+fig, ax = plt.subplots(layout='constrained')
 xdata = np.arange(1, 11, 0.4)
 ydata = np.random.randn(len(xdata))
 ax.plot(xdata, ydata, label='Plotted data')
@@ -129,7 +129,7 @@ plt.show()
 dates = [datetime.datetime(2018, 1, 1) + datetime.timedelta(hours=k * 6)
          for k in range(240)]
 temperature = np.random.randn(len(dates)) * 4 + 6.7
-fig, ax = plt.subplots(constrained_layout=True)
+fig, ax = plt.subplots(layout='constrained')
 
 ax.plot(dates, temperature)
 ax.set_ylabel(r'$T\ [^oC]$')
