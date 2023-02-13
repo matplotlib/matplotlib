@@ -1,5 +1,0 @@
-``HPacker`` alignment with **bottom** or **top** are now correct
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Previously, the **bottom** and **top** alignments were swapped.
-This has been corrected so that the alignments correspond appropriately.

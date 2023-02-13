@@ -1,4 +1,0 @@
-``contour`` no longer warns if no contour lines are drawn.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This can occur if the user explicitly passes a ``levels`` array with no values
-between ``z.min()`` and ``z.max()``; or if ``z`` has the same value everywhere.

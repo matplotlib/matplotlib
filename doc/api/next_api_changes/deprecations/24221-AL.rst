@@ -1,5 +1,0 @@
-``BufferRegion.to_string`` and ``BufferRegion.to_string_argb``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... are deprecated.  Use ``np.asarray(buffer_region)`` to get an array view on
-a buffer region without making a copy; to convert that view from RGBA (the
-default) to ARGB, use ``np.take(..., [2, 1, 0, 3], axis=2)``.

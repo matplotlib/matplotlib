@@ -52,7 +52,7 @@ MacOS backend as well.  These are typically chosen either in the user's
 ``matplotlib.use('QtAgg')`` at the beginning of a session or script.
 
 When run from a script, or interactively (e.g. from an
-`iPython shell <https://https://ipython.readthedocs.io/en/stable/>`_) the Figure
+`iPython shell <https://ipython.readthedocs.io/en/stable/>`_) the Figure
 will not be shown until we call ``plt.show()``. The Figure will appear in
 a new GUI window, and usually will have a toolbar with Zoom, Pan, and other tools
 for interacting with the Figure.  By default, ``plt.show()`` blocks
