@@ -20,7 +20,7 @@ import numpy as np
 
 cms = cm * np.arange(0, 10, 2)
 
-fig, axs = plt.subplots(2, 2, constrained_layout=True)
+fig, axs = plt.subplots(2, 2, layout='constrained')
 
 axs[0, 0].plot(cms, cms)
 

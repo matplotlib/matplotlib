@@ -32,7 +32,7 @@ import numpy.matlib
 
 from matplotlib.colors import LogNorm
 
-fig, axes = plt.subplots(nrows=3, figsize=(6, 8), constrained_layout=True)
+fig, axes = plt.subplots(nrows=3, figsize=(6, 8), layout='constrained')
 
 # Make some data; a 1D random walk + small fraction of sine waves
 num_series = 1000

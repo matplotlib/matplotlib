@@ -22,7 +22,7 @@ x = np.linspace(0, 2 * np.pi, 100)
 y = 2 * np.sin(x)
 
 # Constrained layout makes sure the labels don't overlap the axes.
-fig, (ax0, ax1, ax2) = plt.subplots(nrows=3, constrained_layout=True)
+fig, (ax0, ax1, ax2) = plt.subplots(nrows=3, layout='constrained')
 
 ax0.plot(x, y)
 ax0.set_title('normal spines')

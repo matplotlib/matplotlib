@@ -24,8 +24,7 @@ y.sort()
 x = np.arange(len(y))
 
 # plot with various axes scales
-fig, axs = plt.subplots(3, 2, figsize=(6, 8),
-                        constrained_layout=True)
+fig, axs = plt.subplots(3, 2, figsize=(6, 8), layout='constrained')
 
 # linear
 ax = axs[0, 0]

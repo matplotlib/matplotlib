@@ -21,7 +21,7 @@ a numeric type as in the following examples.
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(6, 2.5))
+fig, ax = plt.subplots(1, 2, layout='constrained', figsize=(6, 2.5))
 x = ['1', '5', '2', '3']
 y = [1, 4, 2, 3]
 ax[0].plot(x, y, 'd')
@@ -60,7 +60,7 @@ ax[1].set_xlabel('Floats')
 # converted from strings to datetime objects to get the proper date locators
 # and formatters.
 
-fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(6, 2.75))
+fig, ax = plt.subplots(1, 2, layout='constrained', figsize=(6, 2.75))
 x = ['2021-10-01', '2021-11-02', '2021-12-03', '2021-09-01']
 y = [0, 2, 3, 1]
 ax[0].plot(x, y, 'd')

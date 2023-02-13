@@ -89,7 +89,7 @@ _annotate(ax, x, y, "shading='nearest'")
 # to use, in this case ``shading='auto'`` will decide whether to use 'flat' or
 # 'nearest' shading based on the shapes of *X*, *Y* and *Z*.
 
-fig, axs = plt.subplots(2, 1, constrained_layout=True)
+fig, axs = plt.subplots(2, 1, layout='constrained')
 ax = axs[0]
 x = np.arange(ncols)
 y = np.arange(nrows)
@@ -110,7 +110,7 @@ _annotate(ax, x, y, "shading='auto'; X, Y one larger than Z (flat)")
 # be specified, where the color in the quadrilaterals is linearly interpolated
 # between the grid points.  The shapes of *X*, *Y*, *Z* must be the same.
 
-fig, ax = plt.subplots(constrained_layout=True)
+fig, ax = plt.subplots(layout='constrained')
 x = np.arange(ncols)
 y = np.arange(nrows)
 ax.pcolormesh(x, y, Z, shading='gouraud', vmin=Z.min(), vmax=Z.max())

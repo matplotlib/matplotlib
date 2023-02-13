@@ -44,7 +44,7 @@ y = np.sin(x) + 1.0 + delta
 # markevery with linear scales
 # ----------------------------
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True)
+fig, axs = plt.subplots(3, 3, figsize=(10, 6), layout='constrained')
 for ax, markevery in zip(axs.flat, cases):
     ax.set_title(f'markevery={markevery}')
     ax.plot(x, y, 'o', ls='-', ms=4, markevery=markevery)
@@ -58,7 +58,7 @@ for ax, markevery in zip(axs.flat, cases):
 # fraction of figure size creates even distributions, because it's based on
 # fractions of the Axes diagonal, not on data coordinates or data indices.
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True)
+fig, axs = plt.subplots(3, 3, figsize=(10, 6), layout='constrained')
 for ax, markevery in zip(axs.flat, cases):
     ax.set_title(f'markevery={markevery}')
     ax.set_xscale('log')
@@ -75,7 +75,7 @@ for ax, markevery in zip(axs.flat, cases):
 # diagonal, it changes the displayed data range, and more points will be
 # displayed when zooming.
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True)
+fig, axs = plt.subplots(3, 3, figsize=(10, 6), layout='constrained')
 for ax, markevery in zip(axs.flat, cases):
     ax.set_title(f'markevery={markevery}')
     ax.plot(x, y, 'o', ls='-', ms=4, markevery=markevery)
@@ -89,7 +89,7 @@ for ax, markevery in zip(axs.flat, cases):
 r = np.linspace(0, 3.0, 200)
 theta = 2 * np.pi * r
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 6), constrained_layout=True,
+fig, axs = plt.subplots(3, 3, figsize=(10, 6), layout='constrained',
                         subplot_kw={'projection': 'polar'})
 for ax, markevery in zip(axs.flat, cases):
     ax.set_title(f'markevery={markevery}')

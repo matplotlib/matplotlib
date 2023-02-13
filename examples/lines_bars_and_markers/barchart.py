@@ -23,7 +23,7 @@ x = np.arange(len(species))  # the label locations
 width = 0.25  # the width of the bars
 multiplier = 0
 
-fig, ax = plt.subplots(constrained_layout=True)
+fig, ax = plt.subplots(layout='constrained')
 
 for attribute, measurement in penguin_means.items():
     offset = width * multiplier
