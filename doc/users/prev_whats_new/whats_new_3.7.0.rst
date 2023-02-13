@@ -1,5 +1,5 @@
 =============================================
-What's new in Matplotlib 3.7.0 (Feb 10, 2023)
+What's new in Matplotlib 3.7.0 (Feb 13, 2023)
 =============================================
 
 For a list of all of the issues and pull requests since the last revision, see
