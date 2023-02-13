@@ -34,22 +34,56 @@ using Matplotlib, and what :ref:`Backend <what-is-a-backend>` you are using.
 Notebooks and IDEs
 ------------------
 
+.. figure:: /_static/FigureInline.png
+    :alt: Image of figure generated in Jupyter Notebook with inline backend.
+    :width: 400
+
+    Screenshot of a `Jupyter Notebook <https://jupyter.org>`_, with a figure
+    generated via the default `inline
+    <https://github.com/ipython/matplotlib-inline>`_ backend.
+
+
 If you are using a Notebook (e.g. `Jupyter <https://jupyter.org>`_) or an IDE
 that renders Notebooks (PyCharm, VSCode, etc), then they have a backend that
 will render the Matplotlib Figure when a code cell is executed.  One thing to
 be aware of is that the default Jupyter backend (``%matplotlib inline``) will
 by default trim or expand the figure size to have a tight box around Artists
-added to the Figure (see :ref:`saving_figures`, below).
+added to the Figure (see :ref:`saving_figures`, below).  If you use a backend
+other than the default "inline" backend, you will likely need to use an ipython
+"magic" like ``%matplotlib notebook`` for the Matplotlib :ref:`notebook
+<jupyter_notebooks_jupyterlab>` or ``%matplotlib widget`` for the  `ipympl
+<https://matplotlib.org/ipympl/>`_ backend.
+
+.. figure:: /_static/FigureNotebook.png
+    :alt: Image of figure generated in Jupyter Notebook with notebook
+          backend, including a toolbar.
+    :width: 400
+
+    Screenshot of a  Jupyter Notebook with an interactive figure generated via
+    the ``%matplotlib notebook`` magic.  Users should also try the similar
+    `widget <https://matplotlib.org/ipympl/>`_ backend if using `JupyterLab
+    <https://jupyterlab.readthedocs.io/en/stable/>`_.
+
+
+.. seealso::
+    :ref:`interactive_figures`.
 
 Standalone scripts and interactive use
 --------------------------------------
 
 If the user is on a client with a windowing system, there are a number of
 :ref:`Backends <what-is-a-backend>` that can be used to render the Figure to
-the screen, usually using a Python Qt, Tk, or Wx toolkit, though there is a native
-MacOS backend as well.  These are typically chosen either in the user's
-:ref:`matplotlibrc <customizing-with-matplotlibrc-files>`, or by calling
+the screen, usually using a Python Qt, Tk, or Wx toolkit, or the native MacOS
+backend.  These are typically chosen either in the user's :ref:`matplotlibrc
+<customizing-with-matplotlibrc-files>`, or by calling, for example,
 ``matplotlib.use('QtAgg')`` at the beginning of a session or script.
+
+.. figure:: /_static/FigureQtAgg.png
+    :alt: Image of figure generated from a script via the QtAgg backend.
+    :width: 370
+
+    Screenshot of a Figure generated via a python script and shown using the
+    QtAgg backend.
 
 When run from a script, or interactively (e.g. from an
 `iPython shell <https://ipython.readthedocs.io/en/stable/>`_) the Figure
@@ -63,6 +97,9 @@ though that can be toggled off for some purposes.  For more details, please see
 Note that if you are on a client that does not have access to a windowing
 system, the Figure will fallback to being drawn using the "Agg" backend, and
 cannot be viewed, though it can be :ref:`saved <saving_figures>`.
+
+.. seealso::
+    :ref:`interactive_figures`.
 
 .. _creating_figures:
 
