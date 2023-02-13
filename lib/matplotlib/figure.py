@@ -13,8 +13,22 @@
 `SubplotParams`
     Control the default spacing between subplots.
 
-See :ref:`figure_explanation` for narrative on how figures are used in
-Matplotlib.
+Figures are typically created using pyplot methods `~.pyplot.figure`,
+`~.pyplot.subplots`, and `~.pyplot.subplot_mosaic`.
+
+.. plot::
+    :include-source:
+
+    fig, ax = plt.subplots(figsize=(2, 2), facecolor='lightskyblue',
+                           layout='constrained')
+    fig.suptitle('Figure')
+    ax.set_title('Axes', loc='left', fontstyle='oblique', fontsize='medium')
+
+Some situations call for directly instantiating a `~.figure.Figure` class,
+usually inside an application of some sort (see :ref:`user_interfaces` for a
+list of examples) .  More information about Figures can be found at
+:ref:`figure_explanation`.
+
 """
 
 from contextlib import ExitStack
