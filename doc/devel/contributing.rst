@@ -49,8 +49,10 @@ There are a few very typical new contributor profiles:
   In this case, even if you need help with programming skills or don't know
   where to start, you have a focus on a specific application and domain and can
   start there. In this case, maintainers can help you figure out the best
-  implementation; you can open a (draft or not) pull request with a starting
-  point, and we'll be happy to discuss technical approaches.
+  implementation; you can open a pull request with a starting point, and we'll
+  be happy to discuss technical approaches. If you prefer, you can use the
+  `GitHub functionality for "draft" pull requests <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
+  and request early feedback on whatever you are working on.
 
 * **You are new to Matplotlib, both as a user and contributor, and want to start
   contributing but have yet to develop a particular interest.**
