@@ -21,15 +21,15 @@ Matplotlib community.
 
 .. _start-contributing:
 
-Is there a recommended way to get started with contributing?
-============================================================
+Getting started with contributing?
+==================================
 
-There is no pre-defined pathway for new contributors, but in practical terms you
-can look at existing issues and pull request discussions, as well as subsets
-of the Matplotlib source code. You can learn a lot from the observations and
-corrections that come up in code review, for example.
+There is no pre-defined pathway for new contributors; you can look at existing
+issue and pull request discussions, and follow the discussions during code
+review. Or you can deep-dive into a subset of code-base to understand what is
+going on.
 
-There are a few very typical new contributor profiles:
+There are a few typical new contributor profiles:
 
 * **You are a Matplotlib user, and you see a bug, a potential improvement, or
   something that annoys you, and you can fix it.**
@@ -49,8 +49,8 @@ There are a few very typical new contributor profiles:
   In this case, even if you need help with programming skills or don't know
   where to start, you have a focus on a specific application and domain and can
   start there. In this case, maintainers can help you figure out the best
-  implementation; you can open a pull request with a starting point, and we'll
-  be happy to discuss technical approaches. If you prefer, you can use the
+  implementation; you can open an issue or pull request with a starting point,
+  and we'll be happy to discuss technical approaches. If you prefer, you can use the
   `GitHub functionality for "draft" pull requests <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
   and request early feedback on whatever you are working on.
 
