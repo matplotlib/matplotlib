@@ -16,7 +16,7 @@ an example using `~.Axes.contourf`, and
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(6.4, 3.2))
+fig, axs = plt.subplots(2, 5, layout='constrained', figsize=(6.4, 3.2))
 
 hatches = ['/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*']
 
@@ -33,7 +33,7 @@ for ax, h in zip(axs.flat, hatches):
 ###############################################################################
 # Hatching patterns can be repeated to increase the density.
 
-fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(6.4, 3.2))
+fig, axs = plt.subplots(2, 5, layout='constrained', figsize=(6.4, 3.2))
 
 hatches = ['//', '\\\\', '||', '--', '++', 'xx', 'oo', 'OO', '..', '**']
 
@@ -43,7 +43,7 @@ for ax, h in zip(axs.flat, hatches):
 ###############################################################################
 # Hatching patterns can be combined to create additional patterns.
 
-fig, axs = plt.subplots(2, 5, constrained_layout=True, figsize=(6.4, 3.2))
+fig, axs = plt.subplots(2, 5, layout='constrained', figsize=(6.4, 3.2))
 
 hatches = ['/o', '\\|', '|*', '-\\', '+o', 'x*', 'o-', 'O|', 'O.', '*-']
 

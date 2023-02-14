@@ -31,8 +31,8 @@ plt.show()
 
 ##############################################################################
 # Sometimes we do not want the legend to overlap the axes.  If you use
-# constrained_layout you can specify "outside right upper", and
-# constrained_layout will make room for the legend.
+# *constrained layout* you can specify "outside right upper", and
+# *constrained layout* will make room for the legend.
 
 fig, axs = plt.subplots(1, 2, layout='constrained')
 

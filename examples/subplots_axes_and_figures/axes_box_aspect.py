@@ -74,10 +74,10 @@ plt.show()
 # height. `~.Axes.set_box_aspect` provides an easy solution to that by allowing
 # to have the normal plot's axes use the images dimensions as box aspect.
 #
-# This example also shows that ``constrained_layout`` interplays nicely with
+# This example also shows that *constrained layout* interplays nicely with
 # a fixed box aspect.
 
-fig4, (ax, ax2) = plt.subplots(ncols=2, constrained_layout=True)
+fig4, (ax, ax2) = plt.subplots(ncols=2, layout="constrained")
 
 np.random.seed(19680801)  # Fixing random state for reproducibility
 im = np.random.rand(16, 27)
@@ -139,7 +139,7 @@ plt.show()
 # following creates a 2 by 3 subplot grid with all square Axes.
 
 fig7, axs = plt.subplots(2, 3, subplot_kw=dict(box_aspect=1),
-                         sharex=True, sharey=True, constrained_layout=True)
+                         sharex=True, sharey=True, layout="constrained")
 
 for i, ax in enumerate(axs.flat):
     ax.scatter(i % 3, -((i // 3) - 0.5)*200, c=[plt.cm.hsv(i / 6)], s=300)

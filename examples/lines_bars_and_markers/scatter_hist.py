@@ -89,7 +89,7 @@ scatter_hist(x, y, ax, ax_histx, ax_histy)
 # of the axes.
 
 # Create a Figure, which doesn't have to be square.
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout='constrained')
 # Create the main axes, leaving 25% of the figure space at the top and on the
 # right to position marginals.
 ax = fig.add_gridspec(top=0.75, right=0.75).subplots()

@@ -60,7 +60,7 @@ np.random.seed(19680801)
 hist_data = np.random.randn(1_500)
 
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout="constrained")
 ax_array = fig.subplots(2, 2, squeeze=False)
 
 ax_array[0, 0].bar(["a", "b", "c"], [5, 7, 9])
@@ -76,7 +76,7 @@ identify_axes(
 # Using `.Figure.subplot_mosaic` we can produce the same mosaic but give the
 # axes semantic names
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout="constrained")
 ax_dict = fig.subplot_mosaic(
     [
         ["bar", "plot"],
@@ -116,7 +116,7 @@ mosaic = """
 # figure mosaic as above (but now labeled with ``{"A", "B", "C",
 # "D"}`` rather than ``{"bar", "plot", "hist", "image"}``).
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout="constrained")
 ax_dict = fig.subplot_mosaic(mosaic)
 identify_axes(ax_dict)
 
@@ -128,7 +128,7 @@ mosaic = "AB;CD"
 # will give you the same composition, where the ``";"`` is used
 # as the row separator instead of newline.
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout="constrained")
 ax_dict = fig.subplot_mosaic(mosaic)
 identify_axes(ax_dict)
 
@@ -145,7 +145,7 @@ identify_axes(ax_dict)
 # If we want to re-arrange our four Axes to have ``"C"`` be a horizontal
 # span on the bottom and ``"D"`` be a vertical span on the right we would do
 
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     """
     ABD
     CCD
@@ -158,7 +158,7 @@ identify_axes(axd)
 # we can specify some spaces in the grid to be blank
 
 
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     """
     A.C
     BBB
@@ -173,7 +173,7 @@ identify_axes(axd)
 # to mark the empty space, we can use *empty_sentinel* to specify the
 # character to use.
 
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     """
     aX
     Xb
@@ -188,7 +188,7 @@ identify_axes(axd)
 # Internally there is no meaning attached to the letters we use, any
 # Unicode code point is valid!
 
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     """αб
        ℝ☢"""
 )
@@ -212,7 +212,7 @@ identify_axes(axd)
 # `.Figure.subplot_mosaic` calling sequence.
 
 
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     """
     .a.
     bAc
@@ -265,7 +265,7 @@ identify_axes(axd)
 
 mosaic = """AA
             BC"""
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout="constrained")
 left, right = fig.subfigures(nrows=1, ncols=2)
 axd = left.subplot_mosaic(mosaic)
 identify_axes(axd)
@@ -283,7 +283,7 @@ identify_axes(axd)
 # of the Axes created.
 
 
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     "AB", subplot_kw={"projection": "polar"}
 )
 identify_axes(axd)
@@ -330,7 +330,7 @@ identify_axes(axd)
 # merged with *per_subplot_kw* taking priority:
 
 
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     "AB;CD",
     subplot_kw={"facecolor": "xkcd:tangerine"},
     per_subplot_kw={
@@ -349,7 +349,7 @@ identify_axes(axd)
 # passing in a list (internally we convert the string shorthand to a nested
 # list), for example using spans, blanks, and *gridspec_kw*:
 
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     [
         ["main", "zoom"],
         ["main", "BLANK"],
@@ -373,7 +373,7 @@ outer_nested_mosaic = [
     ["main", inner],
     ["bottom", "bottom"],
 ]
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     outer_nested_mosaic, empty_sentinel=None
 )
 identify_axes(axd, fontsize=36)
@@ -384,7 +384,7 @@ identify_axes(axd, fontsize=36)
 mosaic = np.zeros((4, 4), dtype=int)
 for j in range(4):
     mosaic[j, j] = j + 1
-axd = plt.figure(constrained_layout=True).subplot_mosaic(
+axd = plt.figure(layout="constrained").subplot_mosaic(
     mosaic,
     empty_sentinel=0,
 )

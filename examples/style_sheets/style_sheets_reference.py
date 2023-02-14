@@ -116,7 +116,7 @@ def plot_figure(style_label=""):
     prng = np.random.RandomState(96917002)
 
     fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
-                            figsize=(14.8, 2.8), constrained_layout=True)
+                            figsize=(14.8, 2.8), layout='constrained')
 
     # make a suptitle, in the same style for all subfigures,
     # except those with dark backgrounds, which get a lighter color:

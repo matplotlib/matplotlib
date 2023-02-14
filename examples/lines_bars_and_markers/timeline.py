@@ -68,7 +68,7 @@ levels = np.tile([-5, 5, -3, 3, -1, 1],
                  int(np.ceil(len(dates)/6)))[:len(dates)]
 
 # Create figure and plot a stem plot with the date
-fig, ax = plt.subplots(figsize=(8.8, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(8.8, 4), layout="constrained")
 ax.set(title="Matplotlib release dates")
 
 ax.vlines(dates, 0, levels, color="tab:red")  # The vertical stems.
