@@ -22,7 +22,7 @@ Matplotlib community.
 .. _start-contributing:
 
 Is there a recommended way to get started with contributing?
-------------------------------------------------------------
+============================================================
 
 There is no pre-defined pathway for new contributors, but in practical terms you
 can look at existing issues and pull request discussions, as well as subsets
@@ -97,8 +97,8 @@ documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
 To join, please go to our public gitter_ community channel, and ask to be added
-added to `#incubator`. One of our core developers will see your message and will
-add you.
+added to ``#incubator``. One of our core developers will see your message and
+will add you.
 
 New Contributors meeting
 ------------------------
