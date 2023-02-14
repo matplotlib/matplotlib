@@ -24,10 +24,10 @@ Matplotlib community.
 Is there a recommended way to get started with contributing?
 ------------------------------------------------------------
 
-There is no pre-defined pathway for new contributors, but in practical terms -
-looking at subsets of the Matplotlib source code is reasonable, as is looking at
-existing issue and pull request discussions. You can learn a lot from the
-observations and corrections that come up in code review, for example.
+There is no pre-defined pathway for new contributors, but in practical terms you
+can look at existing issues and pull request discussions, as well as subsets
+of the Matplotlib source code. You can learn a lot from the observations and
+corrections that come up in code review, for example.
 
 There are a few very typical new contributor profiles:
 
