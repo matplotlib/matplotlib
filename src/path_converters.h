@@ -595,7 +595,7 @@ class PathSnapper
         m_snap = should_snap(source, snap_mode, total_vertices);
 
         if (m_snap) {
-            int is_odd = (int)mpl_round(stroke_width) % 2;
+            int is_odd = mpl_round_to_int(stroke_width) % 2;
             m_snap_value = (is_odd) ? 0.5 : 0.0;
         }
 
