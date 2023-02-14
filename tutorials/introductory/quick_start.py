@@ -30,16 +30,12 @@ import numpy as np
 fig, ax = plt.subplots()  # Create a figure containing a single axes.
 ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 
-<<<<<<< HEAD
-###############################################################################
-=======
 # %%
 #
 # Note that to get this Figure to display, you may have to call ``plt.show()``,
 # depending on your backend.  For more details of Figures and backends, see
 # :ref:`figure_explanation`.
 #
->>>>>>> 76dd07e529 (Merge pull request #25109 from jklymak/doc-figure-cross-ref)
 # .. _figure_parts:
 #
 # Parts of a Figure
