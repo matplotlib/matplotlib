@@ -2160,6 +2160,8 @@ class Parser:
             accent_box.shrink()
             accent_box.shrink()
         centered = HCentered([Hbox(sym.width / 4.0), accent_box])
+        while isinstance(sym, Hlist):
+            sym = sym.children[0]
         centered.hpack(sym.width, 'exactly')
         return Vlist([
                 centered,
