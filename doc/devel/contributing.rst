@@ -36,16 +36,15 @@ Contributor incubator
 ---------------------
 
 The incubator is our non-public communication channel for new contributors. It
-is a private gitter room moderated by core Matplotlib developers where you can
+is a private gitter_ room moderated by core Matplotlib developers where you can
 get guidance and support for your first few PRs. It's a place you can ask
 questions about anything: how to use git, GitHub, how our PR review process
 works, technical questions about the code, what makes for good documentation
 or a blog post, how to get involved in community work, or get
 "pre-review" on your PR.
 
-To join, please go to our public `gitter
-<https://gitter.im/matplotlib/matplotlib>`_ community channel, and ask to be
-added to '#incubator'. One of our core developers will see your message and will
+To join, please go to our public gitter_ community channel, and ask to be added
+added to `#incubator`. One of our core developers will see your message and will
 add you.
 
 New Contributors meeting
@@ -62,8 +61,7 @@ you can browse previous meeting notes on `GitHub
 new_contributor_meeting>`_.
 We recommend joining the meeting to clarify any doubts, or lingering
 questions you might have, and to get to know a few of the people behind the
-GitHub handles 😉. You can reach out to @noatamir on `gitter
-<https://gitter.im/matplotlib/matplotlib>`_ for any clarifications or
+GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
 suggestions. We <3 feedback!
 
 .. _new_contributors:
@@ -98,6 +96,58 @@ submitting reviews of their code or commenting on the PR rather than opening
 a new PR; duplicate PRs are subject to being closed.  However, if the existing
 PR is an outline, unlikely to work, or stalled, and the original author is
 unresponsive, feel free to open a new PR referencing the old one.
+
+.. _start-contributing:
+
+Is there a recommended way to get started with contributions?
+-------------------------------------------------------------
+
+There is no pre-defined pathway for new contributors, but in practical terms -
+looking at subsets of the Matplotlib source code is reasonable, as is looking at
+existing issue and pull request discussions. You can learn a lot from the
+observations and corrections that come up in code review, for example.
+
+There are a few very typical new contributor profiles:
+
+* **You are a Matplotlib user, and you see a bug, a potential improvement, or
+  something that annoys you, and you can fix it.**
+
+  This is how a lot of people approach open-source development. You can search
+  our issue tracker for an existing issue that describes your problem or open a
+  new issue to inform us of the problem you observed and discuss the best
+  approach to fix it. If your contributions would not be captured on GitHub
+  (social media, communication, educational content), you can also reach out to
+  us on gitter_, `Discourse <https://discourse.matplotlib.org/>`__ or attend any
+  of our `community meetings <https://scientific-python.org/calendars>`__.
+
+* **You are not a regular Matplotlib user but a domain expert (you know about
+  visualization, 3D plotting, design, technical writing, statistics, or some
+  other field where Matplotlib could be improved).**
+
+  In this case, even if you need help with programming skills or don't know
+  where to start, you have a focus on a specific application and domain and can
+  start there. In this case, maintainers can help you figure out the best
+  implementation; you can open a (draft or not) pull request with a starting
+  point, and we'll be happy to discuss technical approaches.
+
+* **You are new to Matplotlib, both as a user and contributor, and want to start
+  contributing but have yet to develop a particular interest.**
+
+  Having some previous experience or relationship with the library can be very
+  helpful when making open-source contributions. It helps you understand why
+  things are the way they are and how they *should* be. Having first-hand
+  experience and context is valuable both for what you can bring to the
+  conversation (and given the breadth of Matplotlib's usage, there is a good
+  chance it is a unique context in any given conversation) and make it easier to
+  understand where other people are coming from.
+
+  Understanding the entire codebase is a long-term project, and nobody expects
+  you to do this right away. If you are determined to get started with
+  Matplotlib and want to learn, going through the basic functionality and
+  choosing something to focus on (3d, testing, documentation, animations, etc.)
+  and building your way up from issues and pull requests touching these subjects
+  is a reasonable approach.
+
 
 .. _submitting-a-bug-report:
 
@@ -543,3 +593,5 @@ example code you can load it into a file handle with::
 
     import matplotlib.cbook as cbook
     fh = cbook.get_sample_data('mydata.dat')
+
+.. _gitter: https://gitter.im/matplotlib/matplotlib
