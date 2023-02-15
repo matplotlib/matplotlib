@@ -1827,7 +1827,12 @@ class LinearLocator(Locator):
 
         if self.numticks == 0:
             return []
-        ticklocs = np.linspace(vmin, vmax, self.numticks)
+        ticklocs, step = np.linspace(vmin, vmax, self.numticks, retstep=True)
+
+        # Extend so there is a single tick out of bounds
+        ticklocs = np.concatenate(
+            ([ticklocs[0] - step], ticklocs, [ticklocs[-1] + step])
+        )
 
         return self.raise_if_exceeds(ticklocs)
 
