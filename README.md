@@ -71,3 +71,51 @@ acknowledge this by citing Matplotlib.
 [A ready-made citation
 entry](https://matplotlib.org/stable/users/project/citing.html) is
 available.
+
+# DD2480 - Group 24 - Assignment 3
+
+## Git Commit Message Template
+### `type: Description #issuenumber`
+### Types
+- `build`: Changes that affect the build system or external dependencies (example scopes: broccoli, npm).
+- `docs`: Documentation only changes.
+- `feat`: A new feature. Can of course also contain tests for the feature.
+- `fix`: Bug fixes. Can of course also contain tests for the feature.
+- `refactor`: A code change that neither fixes a bug nor adds a feature.
+- `revert`: Reverts a previous commit.
+- `style`: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc).
+- `test`: Adding missing tests or correcting existing tests.
+
+## Detailed installation for Group 24:
+Guide originally provided by matplotlib [here](https://matplotlib.org/stable/devel/development_setup.html#installing-for-devs) for cloning the repo and setup of the virtual environment and the dependencies. 
+
+### Step 1: Clone the repo
+
+### Step 2: Step into the root of the directory:
+`cd matplotlib`
+
+### Step 3: Create the virtual environment (choose your folder location name and add it to the .gitignore):
+`python -m venv <file folder location>`
+
+### Step 4: Activate the virtual environment:
+```
+source <file folder location>/bin/activate   # Linux/macOS
+<file folder location>\Scripts\activate.bat  # Windows cmd.exe
+<file folder location>\Scripts\Activate.ps1  # Windows PowerShell
+````
+
+### Step 5: Install Pytest and Coverage in the virtual environment:
+1. `pip install pytest`
+2. `pip install coverage`
+
+### Step 6 (Optional): Run the tests with Coverage.py:
+From the Coverage.py tutorial avaliable [here](https://coverage.readthedocs.io/en/7.1.0/).  
+In the root directory run (this will take a while ~15min):  
+`coverage run -m pytest`
+
+### Step 7 (Optional): Retrieve the coverage report:
+Either in the terminal window:  
+`coverage report -m`
+
+or as HTML (the generated files are already ignored in the .gitignore):  
+`coverage html`

@@ -110,4 +110,9 @@ lib/z.lib
 lib/matplotlib/backends/web_backend/node_modules/
 lib/matplotlib/backends/web_backend/package-lock.json
 
+# DD2480 - Group 24 Venv #
+# Add your virtual environment folder name here #
+jonasvenv
+
+
 LICENSE/LICENSE_QHULL
