@@ -551,7 +551,7 @@ class Axes(_AxesBase):
         return self.indicate_inset(rect, inset_ax, **kwargs)
 
     @_docstring.dedent_interpd
-    def secondary_xaxis(self, location, *, functions=None, **kwargs):
+    def secondary_xaxis(self, location, *, functions=None, transform=None, **kwargs):
         """
         Add a second x-axis to this `~.axes.Axes`.
 
@@ -582,18 +582,30 @@ class Axes(_AxesBase):
             secax = ax.secondary_xaxis('top', functions=(invert, invert))
             secax.set_xlabel('Period [s]')
             plt.show()
+
+        To add a secondary axis relative to your data, you can pass a transform
+        to the new axis.
+
+        .. plot::
+
+            fig, ax = plt.subplots()
+            ax.plot(range(0, 5), range(-1, 4))
+
+            # Pass 'ax.transData' as a transform to place the axis
+            # relative to your data at y=0
+            secax = ax.secondary_xaxis(0, transform=ax.transData)
         """
-        if location in ['top', 'bottom'] or isinstance(location, Real):
-            secondary_ax = SecondaryAxis(self, 'x', location, functions,
-                                         **kwargs)
-            self.add_child_axes(secondary_ax)
-            return secondary_ax
-        else:
+        if not (location in ['top', 'bottom'] or isinstance(location, Real)):
             raise ValueError('secondary_xaxis location must be either '
                              'a float or "top"/"bottom"')
 
+        secondary_ax = SecondaryAxis(self, 'x', location, functions,
+                                     transform, **kwargs)
+        self.add_child_axes(secondary_ax)
+        return secondary_ax
+
     @_docstring.dedent_interpd
-    def secondary_yaxis(self, location, *, functions=None, **kwargs):
+    def secondary_yaxis(self, location, *, functions=None, transform=None, **kwargs):
         """
         Add a second y-axis to this `~.axes.Axes`.
 
@@ -614,15 +626,27 @@ class Axes(_AxesBase):
             secax = ax.secondary_yaxis('right', functions=(np.deg2rad,
                                                            np.rad2deg))
             secax.set_ylabel('radians')
+
+        To add a secondary axis relative to your data, you can pass a transform
+        to the new axis.
+
+        .. plot::
+
+            fig, ax = plt.subplots()
+            ax.plot(range(0, 5), range(-1, 4))
+
+            # Pass 'ax.transData' as a transform to place the axis
+            # relative to your data at x=3
+            secax = ax.secondary_yaxis(3, transform=ax.transData)
         """
-        if location in ['left', 'right'] or isinstance(location, Real):
-            secondary_ax = SecondaryAxis(self, 'y', location,
-                                         functions, **kwargs)
-            self.add_child_axes(secondary_ax)
-            return secondary_ax
-        else:
+        if not (location in ['left', 'right'] or isinstance(location, Real)):
             raise ValueError('secondary_yaxis location must be either '
                              'a float or "left"/"right"')
+
+        secondary_ax = SecondaryAxis(self, 'y', location, functions,
+                                     transform, **kwargs)
+        self.add_child_axes(secondary_ax)
+        return secondary_ax
 
     @_docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, **kwargs):

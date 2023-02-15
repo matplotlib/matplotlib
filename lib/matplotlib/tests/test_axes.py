@@ -7528,6 +7528,7 @@ def test_secondary_xy():
         secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
         secax(0.8)
         secax("top" if nn == 0 else "right", functions=_Translation(2))
+        secax(6.25, transform=ax.transData)
 
 
 def test_secondary_fail():
@@ -7539,6 +7540,8 @@ def test_secondary_fail():
         ax.secondary_xaxis('right')
     with pytest.raises(ValueError):
         ax.secondary_yaxis('bottom')
+    with pytest.raises(TypeError):
+        ax.secondary_xaxis(0.2, transform='error')
 
 
 def test_secondary_resize():
