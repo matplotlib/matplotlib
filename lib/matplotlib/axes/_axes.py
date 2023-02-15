@@ -6113,7 +6113,7 @@ default: :rc:`scatter.edgecolors`
 
         shading : {'flat', 'nearest', 'gouraud', 'auto'}, optional
             The fill style for the quadrilateral; defaults to
-            'flat' or :rc:`pcolor.shading`. Possible values:
+            :rc:`pcolor.shading`. Possible values:
 
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
