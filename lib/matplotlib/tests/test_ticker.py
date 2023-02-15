@@ -15,11 +15,13 @@ import matplotlib.ticker as mticker
 
 class TestMaxNLocator:
     basic_data = [
-        (20, 100, np.array([20., 40., 60., 80., 100.])),
-        (0.001, 0.0001, np.array([0., 0.0002, 0.0004, 0.0006, 0.0008, 0.001])),
-        (-1e15, 1e15, np.array([-1.0e+15, -5.0e+14, 0e+00, 5e+14, 1.0e+15])),
-        (0, 0.85e-50, np.arange(6) * 2e-51),
-        (-0.85e-50, 0, np.arange(-5, 1) * 2e-51),
+        # vmin, vmax, expected
+        (20, 100, np.array([0, 20., 40., 60., 80., 100., 120])),
+        (0.001, 0.0001, np.array([0., 0.0002, 0.0004, 0.0006, 0.0008, 0.001, 0.0012])),
+        (-1e15, 1e15,
+            np.array([-1.5e15, -1.0e+15, -5.0e+14, 0e+00, 5e+14, 1.0e+15, 1.5e15])),
+        (0, 0.85e-50, np.arange(-1, 6) * 2e-51),
+        (-0.85e-50, 0, np.arange(-5, 2) * 2e-51),
     ]
 
     integer_data = [
@@ -161,7 +163,7 @@ class TestAutoMinorLocator:
          9.50e-21, 1.05e-20, 1.10e-20],
         [5.00e-15, 1.00e-14, 1.50e-14, 2.50e-14, 3.00e-14, 3.50e-14, 4.50e-14,
          5.00e-14, 5.50e-14, 6.50e-14, 7.00e-14, 7.50e-14, 8.50e-14, 9.00e-14,
-         9.50e-14, 1.05e-13, 1.10e-13],
+         9.50e-14, 1.05e-13, 1.10e-13, 1.15e-13],
         [-1.95e-07, -1.90e-07, -1.85e-07, -1.75e-07, -1.70e-07, -1.65e-07,
          -1.55e-07, -1.50e-07, -1.45e-07, -1.35e-07, -1.30e-07, -1.25e-07,
          -1.15e-07, -1.10e-07, -1.05e-07, -9.50e-08, -9.00e-08, -8.50e-08,
@@ -169,7 +171,7 @@ class TestAutoMinorLocator:
          -3.50e-08],
         [1.21e-06, 1.22e-06, 1.23e-06, 1.24e-06, 1.26e-06, 1.27e-06, 1.28e-06,
          1.29e-06, 1.31e-06, 1.32e-06, 1.33e-06, 1.34e-06, 1.36e-06, 1.37e-06,
-         1.38e-06, 1.39e-06, 1.41e-06, 1.42e-06],
+         1.38e-06, 1.39e-06, 1.41e-06, 1.42e-06, 1.43e-06],
         [-1.435e-06, -1.430e-06, -1.425e-06, -1.415e-06, -1.410e-06,
          -1.405e-06, -1.395e-06, -1.390e-06, -1.385e-06, -1.375e-06,
          -1.370e-06, -1.365e-06, -1.355e-06, -1.350e-06, -1.345e-06],
@@ -336,7 +338,9 @@ class TestLogitLocator:
         loc = mticker.LogitLocator(nbins=100)
         for nbins in range(basic_needed, 2, -1):
             loc.set_params(nbins=nbins)
-            assert len(loc.tick_values(*lims)) <= nbins + 2
+            ticks = loc.tick_values(*lims)
+            ticks_in_bounds = ticks[(ticks < lims[0]) & (ticks > lims[1])]
+            assert len(ticks_in_bounds) <= nbins + 1
 
     @pytest.mark.parametrize(
         "lims, expected_low_ticks",

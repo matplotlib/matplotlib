@@ -1948,11 +1948,25 @@ class _Edge_integer:
             return d + 1
         return d
 
+    def lt(self, x):
+        """Return the largest integer n: n*step < x."""
+        d, m = divmod(x, self.step)
+        if self.closeto(m / self.step, 0):
+            return d - 1
+        return d
+
     def ge(self, x):
         """Return the smallest n: n*step >= x."""
         d, m = divmod(x, self.step)
         if self.closeto(m / self.step, 0):
             return d
+        return d + 1
+
+    def gt(self, x):
+        """Return the smallest integer n: n*step > x."""
+        d, m = divmod(x, self.step)
+        if self.closeto(m / self.step, 1):
+            return d + 2
         return d + 1
 
 
@@ -2125,8 +2139,8 @@ class MaxNLocator(Locator):
             # The edge ticks beyond vmin and/or vmax are needed for the
             # "round_numbers" autolimit mode.
             edge = _Edge_integer(step, offset)
-            low = edge.le(_vmin - best_vmin)
-            high = edge.ge(_vmax - best_vmin)
+            low = edge.lt(_vmin - best_vmin)
+            high = edge.gt(_vmax - best_vmin)
             ticks = np.arange(low, high + 1) * step + best_vmin
             # Count only the ticks that will be displayed.
             nticks = ((ticks <= _vmax) & (ticks >= _vmin)).sum()
