@@ -149,4 +149,3 @@ if __name__ == "__main__":
             )
         fout.write("\n\n")
         fout.write("\n".join(footer))
-        fout.write('\n')

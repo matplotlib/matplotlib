@@ -206,9 +206,12 @@ it is important to move all branches away from the commit with the tag [#]_::
 
 Finally, push the tag to GitHub::
 
-  git push DANGER main v2.0.0
+  git push DANGER v2.0.x v2.0.0
 
 Congratulations, the scariest part is done!
+This assumes the release branch has already been made.
+Usually this is done at the time of feature freeze for a minor release (which often
+coincides with the last patch release of the previous minor version)
 
 .. [#] The tarball that is provided by GitHub is produced using `git archive`_.
        We use setuptools_scm_ which uses a format string in
@@ -236,15 +239,29 @@ done for pre-releases)::
    git branch v2.0.0-doc
    git push DANGER v2.0.0-doc
 
-and if this is a major or minor release, also create a bug-fix branch (a micro
-release will be cut from this branch)::
+Update (or create) the ``v2.0-doc`` milestone.
+The description should include the instruction for meeseeksmachine to backport changes
+with the ``v2.0-doc`` milestone to both the ``v2.0.x`` branch and the ``v2.0.0-doc`` branch::
 
-   git branch v2.0.x
+   Documentation changes (.rst files and examples)
+
+   on-merge: backport to v2.0.x
+   on-merge: backport to v2.0.0-doc
+
+Check all active milestones for consistency. Older doc milestones should also backport to
+higher minor versions (e.g. ``v3.6-doc`` should backport to both ``v3.6.x`` and ``v3.7.x``
+if the ``v3.7.x`` branch exists)
 
 On this branch un-comment the globs from :ref:`release_chkdocs`.  And then ::
 
-   git push DANGER v2.0.x
+   git push DANGER v2.1.x
 
+If this is the last micro release anticipated (or otherwise are entering feature
+freeze for the next minor release), create a release branch for the next minor
+release ::
+
+   git switch main
+   git branch v2.1.x
 
 .. _release_DOI:
 
@@ -259,14 +276,13 @@ automatically produce one once the tag is pushed). Add the DOI post-fix and vers
 the dictionary in :file:`tools/cache_zenodo_svg.py` and run the script.
 
 This will download the new SVG to :file:`doc/_static/zenodo_cache/{postfix}.svg` and
-edit :file:`doc/citing.rst`. Commit the new SVG, the change to
-:file:`tools/cache_zenodo_svg.py`, and the changes to :file:`doc/citing.rst` to the
-VER-doc branch and push to GitHub. ::
+edit :file:`doc/users/project/citing.rst`. Commit the new SVG, the change to
+:file:`tools/cache_zenodo_svg.py`, and the changes to :file:`doc/users/project/citing.rst`
+to the VER-doc branch and push to GitHub. ::
 
   git checkout v2.0.0-doc
   $EDITOR tools/cache_zenodo_svg.py
   python tools/cache_zenodo_svg.py
-  $EDITOR doc/citing.html
   git commit -a
   git push DANGER v2.0.0-doc:v2.0.0-doc
 
