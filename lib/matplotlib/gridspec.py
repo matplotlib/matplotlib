@@ -561,7 +561,11 @@ class SubplotSpec:
         - a `.SubplotSpec` -- returned as is;
         - one or three numbers -- a MATLAB-style subplot specifier.
         """
-        if len(args) == 1:
+        try:
+            l = len(args[0])
+        except:
+            l = 1
+        if l == 1:
             arg, = args
             if isinstance(arg, SubplotSpec):
                 return arg
@@ -575,8 +579,8 @@ class SubplotSpec:
                 raise ValueError(
                     f"Single argument to subplot must be a three-digit "
                     f"integer, not {arg!r}") from None
-        elif len(args) == 3:
-            rows, cols, num = args
+        elif l == 3:
+            rows, cols, num = args[0]
         else:
             raise _api.nargs_error("subplot", takes="1 or 3", given=len(args))
 
