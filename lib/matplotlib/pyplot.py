@@ -695,7 +695,6 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
            frameon=True,
            FigureClass=Figure,
            clear=False,
-           layout=None,
            **kwargs
            ):
     """
