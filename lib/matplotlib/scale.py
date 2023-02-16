@@ -576,7 +576,7 @@ class AsinhScale(ScaleBase):
         if self._base > 1:
             axis.set_major_formatter(LogFormatterSciNotation(self._base))
         else:
-            axis.set_major_formatter('{x:.3g}'),
+            axis.set_major_formatter('{x:.3g}')
 
 
 class LogitTransform(Transform):
