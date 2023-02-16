@@ -1449,6 +1449,21 @@ class TestPercentFormatter:
             assert fmt.format_pct(50, 100) == expected
 
 
+def test_locale_comma():
+    import locale
+
+    currentLocale = locale.getlocale()
+    try:
+        locale.setlocale(locale.LC_ALL, 'fy_DE.UTF-8')
+    except locale.Error as err:
+        pytest.fail("Locale 'fy_DE.UTF-8' is not supported")
+    ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
+    fmt = '$\\mathdefault{%1.1f}$'
+    x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    locale.setlocale(locale.LC_ALL, currentLocale)
+    assert x == '$\\mathdefault{0{,}5}$'
+
+
 def test_majformatter_type():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError):
