@@ -64,9 +64,9 @@ jobs:
           (
             (
               github.event.action == 'labeled' &&
-              github.event.label.name == 'Run cygwin'
+              github.event.label.name == 'CI: Run cygwin'
             ) ||
-            contains(github.event.pull_request.labels.*.name, 'Run cygwin')
+            contains(github.event.pull_request.labels.*.name, 'CI: Run cygwin')
           )
         )
       )
