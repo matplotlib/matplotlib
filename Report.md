@@ -36,8 +36,9 @@ From the `./lib/matplotlib` directory which avoids the test-files.
 2. Are the functions just complex, or also long?
 
 
-48 CC, 365 LOC errorbar@3346-3710@./lib/matplotlib/axes/_axes.py
-34 CC, 294 LOC bar@2240-2533@./lib/matplotlib/axes/_axes.py
+pontus's functions
+* 48 CC, 365 LOC errorbar@3346-3710@./lib/matplotlib/axes/_axes.py
+* 34 CC, 294 LOC bar@2240-2533@./lib/matplotlib/axes/_axes.py
 
 3. What is the purpose of the functions?
 4. Are exceptions taken into account in the given measurements?
