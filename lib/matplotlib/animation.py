@@ -193,6 +193,8 @@ class AbstractMovieWriter(abc.ABC):
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file.
         """
+        # Check that path is valid
+        Path(outfile).parent.resolve(strict=True)
         self.outfile = outfile
         self.fig = fig
         if dpi is None:
@@ -405,6 +407,8 @@ class FileMovieWriter(MovieWriter):
             deleted by `finish`; if not *None*, no temporary files are
             deleted.
         """
+        # Check that path is valid
+        Path(outfile).parent.resolve(strict=True)
         self.fig = fig
         self.outfile = outfile
         if dpi is None:
@@ -423,7 +427,7 @@ class FileMovieWriter(MovieWriter):
         self.fname_format_str = '%s%%07d.%s'
 
     def __del__(self):
-        if self._tmpdir:
+        if hasattr(self, '_tmpdir') and self._tmpdir:
             self._tmpdir.cleanup()
 
     @property
