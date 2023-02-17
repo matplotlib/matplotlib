@@ -898,7 +898,7 @@ class SubplotToolQt(QtWidgets.QDialog):
         self._figure.tight_layout()
         for attr, spinbox in self._spinboxes.items():
             spinbox.blockSignals(True)
-            spinbox.setValue(vars(self._figure.subplotpars)[attr])
+            spinbox.setValue(getattr(self._figure.subplotpars, attr))
             spinbox.blockSignals(False)
         self._figure.canvas.draw_idle()
 
