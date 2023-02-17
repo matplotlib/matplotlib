@@ -879,6 +879,9 @@ class Axis(martist.Artist):
         - registered callbacks
         """
         self.label._reset_visual_defaults()
+        self.label.set_color(mpl.rcParams['axes.labelcolor'])
+        self.label.set_fontsize(mpl.rcParams['axes.labelsize'])
+        self.label.set_fontweight(mpl.rcParams['axes.labelweight'])
         self.offsetText._reset_visual_defaults()
         self.labelpad = mpl.rcParams['axes.labelpad']
 
