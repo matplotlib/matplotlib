@@ -99,7 +99,7 @@ def plot_examples(colormaps):
     data = np.random.randn(30, 30)
     n = len(colormaps)
     fig, axs = plt.subplots(1, n, figsize=(n * 2 + 2, 3),
-                            constrained_layout=True, squeeze=False)
+                            layout='constrained', squeeze=False)
     for [ax, cmap] in zip(axs.flat, colormaps):
         psm = ax.pcolormesh(data, cmap=cmap, rasterized=True, vmin=-4, vmax=4)
         fig.colorbar(psm, ax=ax)
@@ -197,7 +197,7 @@ cdict = {'red':   [[0.0,  0.0, 0.0],
 def plot_linearmap(cdict):
     newcmp = LinearSegmentedColormap('testCmap', segmentdata=cdict, N=256)
     rgba = newcmp(np.linspace(0, 1, 256))
-    fig, ax = plt.subplots(figsize=(4, 3), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(4, 3), layout='constrained')
     col = ['r', 'g', 'b']
     for xx in [0.25, 0.5, 0.75]:
         ax.axvline(xx, color='0.7', linestyle='--')

@@ -329,7 +329,7 @@ fig.suptitle('Manually added subplots, spanning a column')
 #
 # When a  *GridSpec* is explicitly used, you can adjust the layout
 # parameters of subplots that are created from the  *GridSpec*.  Note this
-# option is not compatible with ``constrained_layout`` or
+# option is not compatible with *constrained layout* or
 # `.Figure.tight_layout` which both ignore *left* and *right* and adjust
 # subplot sizes to fill the figure.  Usually such manual placement
 # requires iterations to make the Axes tick labels not overlap the Axes.
@@ -389,7 +389,7 @@ fig.suptitle('nested gridspecs')
 def squiggle_xy(a, b, c, d, i=np.arange(0.0, 2*np.pi, 0.05)):
     return np.sin(i*a)*np.cos(i*b), np.sin(i*c)*np.cos(i*d)
 
-fig = plt.figure(figsize=(8, 8), constrained_layout=False)
+fig = plt.figure(figsize=(8, 8), layout='constrained')
 outer_grid = fig.add_gridspec(4, 4, wspace=0, hspace=0)
 
 for a in range(4):

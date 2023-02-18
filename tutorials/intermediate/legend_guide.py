@@ -141,7 +141,7 @@ ax_dict['bottom'].legend(bbox_to_anchor=(1.05, 1),
 # --------------
 #
 # Sometimes it makes more sense to place a legend relative to the (sub)figure
-# rather than individual Axes.  By using ``constrained_layout`` and
+# rather than individual Axes.  By using *constrained layout* and
 # specifying "outside" at the beginning of the *loc* keyword argument,
 # the legend is drawn outside the Axes on the (sub)figure.
 
