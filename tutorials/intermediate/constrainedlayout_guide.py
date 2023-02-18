@@ -126,7 +126,7 @@ fig.colorbar(im, ax=ax, shrink=0.6)
 
 # %%
 # If you specify a list of Axes (or other iterable container) to the
-# ``ax`` argument of ``colorbar``, constrained_layout will take space from
+# ``ax`` argument of ``colorbar``, *constrained layout* will take space from
 # the specified Axes.
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), layout="constrained")
@@ -162,8 +162,8 @@ fig.suptitle('Big Suptitle')
 # =======
 #
 # Legends can be placed outside of their parent axis.
-# Constrained-layout is designed to handle this for :meth:`.Axes.legend`.
-# However, constrained-layout does *not* handle legends being created via
+# *Constrained layout* is designed to handle this for :meth:`.Axes.legend`.
+# However, *constrained layout* does *not* handle legends being created via
 # :meth:`.Figure.legend` (yet).
 
 fig, ax = plt.subplots(layout="constrained")
@@ -186,7 +186,7 @@ axs[1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 # with ``fig.savefig('outname.png', bbox_inches='tight')``.  Note,
 # however, that the legend's ``get_in_layout`` status will have to be
 # toggled again to make the saved file work, and we must manually
-# trigger a draw if we want constrained_layout to adjust the size
+# trigger a draw if we want *constrained layout* to adjust the size
 # of the Axes before printing.
 
 fig, axs = plt.subplots(1, 2, figsize=(4, 2), layout="constrained")
@@ -195,7 +195,7 @@ axs[0].plot(np.arange(10))
 axs[1].plot(np.arange(10), label='This is a plot')
 leg = axs[1].legend(loc='center left', bbox_to_anchor=(0.8, 0.5))
 leg.set_in_layout(False)
-# trigger a draw so that constrained_layout is executed once
+# trigger a draw so that constrained layout is executed once
 # before we turn it off when printing....
 fig.canvas.draw()
 # we want the legend included in the bbox_inches='tight' calcs.
@@ -288,7 +288,7 @@ fig, axs = plt.subplots(2, 2, layout="constrained",
 for ax in axs.flat:
     example_plot(ax, hide_labels=True)
 # this has no effect because the space set in the gridspec trumps the
-# space set in constrained_layout.
+# space set in *constrained layout*.
 fig.get_layout_engine().set(w_pad=4 / 72, h_pad=4 / 72, hspace=0.0,
                             wspace=0.0)
 
@@ -319,7 +319,7 @@ fig.get_layout_engine().set(w_pad=2 / 72, h_pad=2 / 72, hspace=0.2,
 # that can be set, either in a script or in the :file:`matplotlibrc`
 # file. They all have the prefix ``figure.constrained_layout``:
 #
-# - *use*: Whether to use constrained_layout. Default is False
+# - *use*: Whether to use *constrained layout*. Default is False
 # - *w_pad*, *h_pad*:    Padding around Axes objects.
 #   Float representing inches.  Default is 3./72. inches (3 pts)
 # - *wspace*, *hspace*:  Space between subplot groups.
@@ -335,7 +335,7 @@ for ax in axs.flat:
 # Use with GridSpec
 # =================
 #
-# constrained_layout is meant to be used
+# *Constrained layout* is meant to be used
 # with :func:`~matplotlib.figure.Figure.subplots`,
 # :func:`~matplotlib.figure.Figure.subplot_mosaic`, or
 # :func:`~matplotlib.gridspec.GridSpec` with
@@ -454,7 +454,7 @@ fig.suptitle('Nested plots using subfigures')
 # ================================
 #
 # There can be good reasons to manually set an Axes position.  A manual call
-# to `~.axes.Axes.set_position` will set the Axes so constrained_layout has
+# to `~.axes.Axes.set_position` will set the Axes so *constrained layout* has
 # no effect on it anymore. (Note that *constrained layout* still leaves the
 # space for the Axes that is moved).
 
@@ -497,12 +497,12 @@ fig.suptitle("fixed-aspect plots, layout='compressed'")
 #
 # *Constrained layout* usually adjusts the Axes positions on each draw
 # of the figure.  If you want to get the spacing provided by
-# *Constrained layout* but not have it update, then do the initial
+# *constrained layout* but not have it update, then do the initial
 # draw and then call ``fig.set_layout_engine('none')``.
 # This is potentially useful for animations where the tick labels may
 # change length.
 #
-# Note that *Constrained layout* is turned off for ``ZOOM`` and ``PAN``
+# Note that *constrained layout* is turned off for ``ZOOM`` and ``PAN``
 # GUI events for the backends that use the toolbar.  This prevents the
 # Axes from changing position during zooming and panning.
 #
@@ -517,7 +517,7 @@ fig.suptitle("fixed-aspect plots, layout='compressed'")
 # number of rows and columns is the same for each call.
 # The reason is that each call to `.pyplot.subplot` will create a new
 # `.GridSpec` instance if the geometry is not the same, and
-# *Constrained layout*.  So the following works fine:
+# *constrained layout*.  So the following works fine:
 
 fig = plt.figure(layout="constrained")
 
@@ -588,7 +588,7 @@ fig.suptitle('subplot2grid')
 # Debugging
 # =========
 #
-# Constrained-layout can fail in somewhat unexpected ways.  Because it uses
+# *Constrained layout* can fail in somewhat unexpected ways.  Because it uses
 # a constraint solver the solver can find solutions that are mathematically
 # correct, but that aren't at all what the user wants.  The usual failure
 # mode is for all sizes to collapse to their smallest allowable value. If
@@ -615,7 +615,7 @@ fig.suptitle('subplot2grid')
 # into rows and columns, with the relative width of the Axes in those
 # rows and columns set by *width_ratios* and *height_ratios*.
 #
-# In constrained_layout, each gridspec gets a *layoutgrid* associated with
+# In *constrained layout*, each gridspec gets a *layoutgrid* associated with
 # it.  The *layoutgrid* has a series of ``left`` and ``right`` variables
 # for each column, and ``bottom`` and ``top`` variables for each row, and
 # further it has a margin for each of left, right, bottom and top.  In each
