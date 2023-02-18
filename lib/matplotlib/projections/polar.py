@@ -19,10 +19,10 @@ def _apply_theta_transforms_warn():
     _api.warn_deprecated(
                 "3.7",
                 message=(
-                    "Passing `_apply_theta_transforms=True` (the default) "
+                    "Passing `apply_theta_transforms=True` (the default) "
                     "is deprecated. Support for this will be removed in "
                     "Matplotlib %(removal)s. To prevent this warning, "
-                    "set `_apply_theta_transforms=False`, and make sure to "
+                    "set `apply_theta_transforms=False`, and make sure to "
                     "shift theta values before being passed to this transform."
                 )
             )
@@ -47,8 +47,8 @@ class PolarTransform(mtransforms.Transform):
 
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True,
-                 _apply_theta_transforms=True, *, scale_transform=None):
+    def __init__(self, axis=None, use_rmin=True, *,
+                 apply_theta_transforms=True, scale_transform=None):
         """
         Parameters
         ----------
@@ -63,15 +63,15 @@ class PolarTransform(mtransforms.Transform):
         super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
-        self._apply_theta_transforms = _apply_theta_transforms
+        self._apply_theta_transforms = apply_theta_transforms
         self._scale_transform = scale_transform
-        if _apply_theta_transforms:
+        if apply_theta_transforms:
             _apply_theta_transforms_warn()
 
     __str__ = mtransforms._make_str_method(
         "_axis",
         use_rmin="_use_rmin",
-        _apply_theta_transforms="_apply_theta_transforms")
+        apply_theta_transforms="_apply_theta_transforms")
 
     def _get_rorigin(self):
         # Get lower r limit after being scaled by the radial scale transform
@@ -148,8 +148,10 @@ class PolarTransform(mtransforms.Transform):
 
     def inverted(self):
         # docstring inherited
-        return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin,
-                                                self._apply_theta_transforms)
+        return PolarAxes.InvertedPolarTransform(
+            self._axis, self._use_rmin,
+            apply_theta_transforms=self._apply_theta_transforms
+        )
 
 
 class PolarAffine(mtransforms.Affine2DBase):
@@ -208,7 +210,7 @@ class InvertedPolarTransform(mtransforms.Transform):
     input_dims = output_dims = 2
 
     def __init__(self, axis=None, use_rmin=True,
-                 _apply_theta_transforms=True):
+                 *, apply_theta_transforms=True):
         """
         Parameters
         ----------
@@ -223,14 +225,14 @@ class InvertedPolarTransform(mtransforms.Transform):
         super().__init__()
         self._axis = axis
         self._use_rmin = use_rmin
-        self._apply_theta_transforms = _apply_theta_transforms
-        if _apply_theta_transforms:
+        self._apply_theta_transforms = apply_theta_transforms
+        if apply_theta_transforms:
             _apply_theta_transforms_warn()
 
     __str__ = mtransforms._make_str_method(
         "_axis",
         use_rmin="_use_rmin",
-        _apply_theta_transforms="_apply_theta_transforms")
+        apply_theta_transforms="_apply_theta_transforms")
 
     @_api.rename_parameter("3.8", "xy", "values")
     def transform_non_affine(self, values):
@@ -251,8 +253,10 @@ class InvertedPolarTransform(mtransforms.Transform):
 
     def inverted(self):
         # docstring inherited
-        return PolarAxes.PolarTransform(self._axis, self._use_rmin,
-                                        self._apply_theta_transforms)
+        return PolarAxes.PolarTransform(
+            self._axis, self._use_rmin,
+            apply_theta_transforms=self._apply_theta_transforms
+        )
 
 
 class ThetaFormatter(mticker.Formatter):
@@ -896,7 +900,7 @@ class PolarAxes(Axes):
         # data.  This one is aware of rmin
         self.transProjection = self.PolarTransform(
             self,
-            _apply_theta_transforms=False,
+            apply_theta_transforms=False,
             scale_transform=self.transScale
         )
         # Add dependency on rorigin.

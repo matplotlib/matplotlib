@@ -54,7 +54,7 @@ def setup_axes2(fig, rect):
     With custom locator and formatter.
     Note that the extreme values are swapped.
     """
-    tr = PolarAxes.PolarTransform(_apply_theta_transforms=False)
+    tr = PolarAxes.PolarTransform(apply_theta_transforms=False)
 
     pi = np.pi
     angle_ticks = [(0, r"$0$"),
@@ -100,7 +100,7 @@ def setup_axes3(fig, rect):
     tr_scale = Affine2D().scale(np.pi/180., 1.)
 
     tr = tr_rotate + tr_scale + PolarAxes.PolarTransform(
-        _apply_theta_transforms=False)
+        apply_theta_transforms=False)
 
     grid_locator1 = angle_helper.LocatorHMS(4)
     tick_formatter1 = angle_helper.FormatterHMS()

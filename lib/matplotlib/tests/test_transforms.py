@@ -859,7 +859,7 @@ CompositeGenericTransform(
         PolarTransform(
             PolarAxes(0.125,0.1;0.775x0.8),
             use_rmin=True,
-            _apply_theta_transforms=False)),
+            apply_theta_transforms=False)),
     CompositeGenericTransform(
         CompositeGenericTransform(
             PolarAffine(
