@@ -35,10 +35,31 @@ From the `./lib/matplotlib` directory which avoids the test-files.
    * Are the results clear?
 2. Are the functions just complex, or also long?
 
+Functions: 
+* pontus's:
+* 57 NLOC, 17 CC get_tight_layout_figure@194-301@./_tight_layout.py
+* 34 NLOC 19 CC _parse_legend_args@1260-1355@./legend.py
 
-pontus's functions
-* 48 CC, 365 LOC errorbar@3346-3710@./lib/matplotlib/axes/_axes.py
-* 34 CC, 294 LOC bar@2240-2533@./lib/matplotlib/axes/_axes.py
+
+* Klara's functions:
+
+* 130 NLOC, 32 CCN subsuper@2254-2414@./_mathtext.py
+* 35 NLOC, 16 CCN _keypress@1463-1497@./widgets.py
+
+* Ahmad's functions:
+* 15 CC, 68 LOC do_3d_projection@966-1033@./lib/mpl_toolkits/mplot3d/art3d.py
+* 15 CC, 54 LOC draw@440-493@./lib/mpl_toolkits/mplot3d/axes3d.py
+
+* Jonas's functions:
+* 36     21    303      6      86 get_tightbbox@4332-4417@./axes/_base.py
+* 27     19    228      1      33 ginput.handler@3416-3448@./figure.py
+
+* Ronan's functions:
+* 77 CC 208 LOC voxels@2648-2855@./lib/mpl_toolkits/mplot3d/axes3d.py
+* 109 CC, 180 LOC draw@349-528@./lib/mpl_toolkits/mplot3d/axis3d.py
+
+
+
 
 3. What is the purpose of the functions?
 4. Are exceptions taken into account in the given measurements?

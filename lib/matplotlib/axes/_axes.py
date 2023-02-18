@@ -1,3 +1,5 @@
+from matplotlib.tests.conftest import histBranchBools
+
 import functools
 import itertools
 import logging
