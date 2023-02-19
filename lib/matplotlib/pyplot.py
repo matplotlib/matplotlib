@@ -741,7 +741,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     clear : bool, default: False
         If True and the figure already exists, then it is cleared.
 
-    layout : {'constrained', 'tight', `.LayoutEngine`, None}, default: None
+    layout : {'constrained', 'tight', 'compressed', \
+        `.LayoutEngine`, None}, default: None
         The layout mechanism for positioning of plot elements to avoid
         overlapping Axes decorations (labels, ticks, etc). Note that layout
         managers can measurably slow down figure display. Defaults to *None*
