@@ -2155,8 +2155,8 @@ class SubFigure(FigureBase):
             Defines the region in a parent gridspec where the subfigure will
             be placed.
 
-        facecolor : default: :rc:`figure.facecolor`
-            The figure patch face color.
+        facecolor : default: ``"none"``
+            Transparent face color.
 
         edgecolor : default: :rc:`figure.edgecolor`
             The figure patch edge color.
@@ -2176,7 +2176,7 @@ class SubFigure(FigureBase):
         """
         super().__init__(**kwargs)
         if facecolor is None:
-            facecolor = mpl.rcParams['figure.facecolor']
+            facecolor = "none"
         if edgecolor is None:
             edgecolor = mpl.rcParams['figure.edgecolor']
         if frameon is None:
