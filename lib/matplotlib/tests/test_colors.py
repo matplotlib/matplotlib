@@ -545,6 +545,9 @@ def test_LogNorm_inverse():
 
 
 def test_PowerNorm():
+    # Check an exponent of 1 gives same results as a normal linear
+    # normalization. Also implicitly checks that vmin/vmax are
+    # automatically initialized from first array input.
     a = np.array([0, 0.5, 1, 1.5], dtype=float)
     pnorm = mcolors.PowerNorm(1)
     norm = mcolors.Normalize()
@@ -561,18 +564,21 @@ def test_PowerNorm():
     # Clip = True
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
     expected = [0, 0, 0, 1, 1]
+    # Clip = True when creating the norm
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
     assert_array_almost_equal(pnorm(a), expected)
     assert pnorm(a[0]) == expected[0]
     assert pnorm(a[-1]) == expected[-1]
-
     # Clip = True at call time
-    a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
-    expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
     assert_array_almost_equal(pnorm(a, clip=True), expected)
     assert pnorm(a[0], clip=True) == expected[0]
     assert pnorm(a[-1], clip=True) == expected[-1]
+
+    # Check clip=True preserves masked values
+    a = np.ma.array([5, 2], mask=[True, False])
+    out = pnorm(a, clip=True)
+    assert_array_equal(out.mask, [True, False])
 
 
 def test_PowerNorm_translation_invariance():
