@@ -5,6 +5,7 @@ from matplotlib.testing.conftest import (  # noqa
 #Global boolean list declarations
 histBranchBools = [False for i in range(72)]
 #another list with false booleans
+histBranchBoolsKey = [False for i in range(23)]
 
 def writeRes():
     currTakenBranches = 0

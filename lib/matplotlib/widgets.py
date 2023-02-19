@@ -13,6 +13,7 @@ from contextlib import ExitStack
 import copy
 import itertools
 from numbers import Integral, Number
+from matplotlib.tests.conftest import histBranchBoolsKey
 
 from cycler import cycler
 import numpy as np
@@ -1462,39 +1463,63 @@ class TextBox(AxesWidget):
 
     def _keypress(self, event):
         if self.ignore(event):
+            histBranchBoolsKey[0] = True
             return
+        histBranchBoolsKey[1] = True
         if self.capturekeystrokes:
+            histBranchBoolsKey[2] = True
             key = event.key
             text = self.text
             if len(key) == 1:
+                histBranchBoolsKey[4] = True
                 text = (text[:self.cursor_index] + key +
                         text[self.cursor_index:])
                 self.cursor_index += 1
             elif key == "right":
+                histBranchBoolsKey[5] = True
                 if self.cursor_index != len(text):
+                    histBranchBoolsKey[12] = True
                     self.cursor_index += 1
+                histBranchBoolsKey[13] = True
             elif key == "left":
+                histBranchBoolsKey[6] = True
                 if self.cursor_index != 0:
+                    histBranchBoolsKey[14] = True
                     self.cursor_index -= 1
+                histBranchBoolsKey[15] = True
             elif key == "home":
+                histBranchBoolsKey[7] = True
                 self.cursor_index = 0
             elif key == "end":
+                histBranchBoolsKey[8] = True
                 self.cursor_index = len(text)
             elif key == "backspace":
+                histBranchBoolsKey[9] = True
                 if self.cursor_index != 0:
+                    histBranchBoolsKey[16] = True
                     text = (text[:self.cursor_index - 1] +
                             text[self.cursor_index:])
                     self.cursor_index -= 1
+                histBranchBoolsKey[17] = True
             elif key == "delete":
+                histBranchBoolsKey[10] = True
                 if self.cursor_index != len(self.text):
+                    histBranchBoolsKey[18] = True
                     text = (text[:self.cursor_index] +
                             text[self.cursor_index + 1:])
+                histBranchBoolsKey[19] = True
+            histBranchBoolsKey[11] = True
             self.text_disp.set_text(text)
             self._rendercursor()
             if self.eventson:
+                histBranchBoolsKey[20] = True
                 self._observers.process('change', self.text)
                 if key in ["enter", "return"]:
+                    histBranchBoolsKey[22] = True
                     self._observers.process('submit', self.text)
+                histBranchBoolsKey[23] = True
+            histBranchBoolsKey[21] = True
+        histBranchBoolsKey[3] = True
 
     def set_val(self, val):
         newval = str(val)
