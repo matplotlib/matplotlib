@@ -551,11 +551,16 @@ def test_PowerNorm():
     assert_array_almost_equal(norm(a), pnorm(a))
 
     a = np.array([-0.5, 0, 2, 4, 8], dtype=float)
-    expected = [0, 0, 1/16, 1/4, 1]
     pnorm = mcolors.PowerNorm(2, vmin=0, vmax=8)
-    assert_array_almost_equal(pnorm(a), expected)
-    assert pnorm(a[0]) == expected[0]
+    expected = [0, 0, 1/16, 1/4, 1]
+    expected_mask = [True, False, False, False, False]
+
+    normed = pnorm(a)
+    assert_array_almost_equal(normed, expected)
+    assert_array_equal(normed.mask, expected_mask)
+    assert pnorm(a[1]) == expected[1]
     assert pnorm(a[2]) == expected[2]
+
     assert_array_almost_equal(a[1:], pnorm.inverse(pnorm(a))[1:])
 
     # Clip = True

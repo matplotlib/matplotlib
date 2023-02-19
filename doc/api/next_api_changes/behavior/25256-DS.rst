@@ -1,0 +1,5 @@
+``PowerNorm`` clipping
+~~~~~~~~~~~~~~~~~~~~~~
+When ``clip=False`` (the default) was set on `~.PowerNorm`, values
+less than ``vmin`` were previously clipped to zero without being masked.
+This has been fixed to mask these values in the result.

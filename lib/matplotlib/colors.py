@@ -1885,12 +1885,16 @@ class PowerNorm(Normalize):
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                      mask=mask)
             resdat = result.data
-            resdat -= vmin
-            resdat[resdat < 0] = 0
-            np.power(resdat, gamma, resdat)
-            resdat /= (vmax - vmin) ** gamma
+            # These values are masked later, but set to zero now to prevent
+            # invalid value warnings when taking the power
+            under_mask = resdat < vmin
+            resdat[under_mask] = vmin
 
-            result = np.ma.array(resdat, mask=result.mask, copy=False)
+            resdat = (resdat - vmin) / (vmax - vmin)
+            resdat = resdat ** gamma
+
+            mask = result.mask | under_mask
+            result = np.ma.array(resdat, mask=mask, copy=False)
         if is_scalar:
             result = result[0]
         return result
