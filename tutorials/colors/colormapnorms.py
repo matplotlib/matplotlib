@@ -168,7 +168,7 @@ N = 100
 X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
 Z1 = (1 + np.sin(Y * 10.)) * X**2
 
-fig, ax = plt.subplots(2, 1, constrained_layout=True)
+fig, ax = plt.subplots(2, 1, layout='constrained')
 
 pcm = ax[0].pcolormesh(X, Y, Z1, norm=colors.PowerNorm(gamma=0.5),
                        cmap='PuBu_r', shading='auto')
@@ -207,7 +207,7 @@ Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = ((Z1 - Z2) * 2)[:-1, :-1]
 
-fig, ax = plt.subplots(2, 2, figsize=(8, 6), constrained_layout=True)
+fig, ax = plt.subplots(2, 2, figsize=(8, 6), layout='constrained')
 ax = ax.flatten()
 
 # Default norm:
