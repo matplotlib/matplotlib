@@ -191,15 +191,12 @@ def ishikawaplot(data, figsize=(20, 10), left_margin: float = 0.05, right_margin
     return fig
 
 
-# =============================================================================
 # Rooting
-# =============================================================================
 current_dir = Path(__file__).parent
 output_path = current_dir / "Ishikawa.jpeg"
 
-# =============================================================================
+
 # USER DATA
-# =============================================================================
 data = {'problem': {'machine': {'cause1': ''},
                     'process': {'cause2': {'subcause1': '', 'subcause2': ''}
                                 },
