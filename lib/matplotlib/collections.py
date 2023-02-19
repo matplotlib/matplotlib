@@ -935,6 +935,7 @@ class _CollectionWithSizes(Collection):
     Base class for collections that have an array of sizes.
     """
     _factor = 1.0
+    _scaling = 2
 
     def get_sizes(self):
         """
@@ -947,7 +948,7 @@ class _CollectionWithSizes(Collection):
         """
         return self._sizes
 
-    def set_sizes(self, sizes, dpi=72.0):
+    def set_sizes(self, sizes, dpi=72.0, scaling=2):
         """
         Set the sizes of each member of the collection.
 
@@ -959,13 +960,16 @@ class _CollectionWithSizes(Collection):
         dpi : float, default: 72
             The dpi of the canvas.
         """
+        self._scaling = scaling
         if sizes is None:
             self._sizes = np.array([])
             self._transforms = np.empty((0, 3, 3))
         else:
             self._sizes = np.asarray(sizes)
             self._transforms = np.zeros((len(self._sizes), 3, 3))
-            scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
+            s = np.sqrt(self._sizes) if scaling == 2 else self._sizes
+            scale = s * dpi / 72.0 * self._factor
+            # scale = self._sizes * dpi / 72.0 * self._factor
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
@@ -973,7 +977,7 @@ class _CollectionWithSizes(Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes, self.figure.dpi, self._scaling)
         super().draw(renderer)
 
 
@@ -982,7 +986,7 @@ class PathCollection(_CollectionWithSizes):
     A collection of `~.path.Path`\s, as created by e.g. `~.Axes.scatter`.
     """
 
-    def __init__(self, paths, sizes=None, **kwargs):
+    def __init__(self, paths, sizes=None, scaling=2, **kwargs):
         """
         Parameters
         ----------
@@ -998,7 +1002,7 @@ class PathCollection(_CollectionWithSizes):
 
         super().__init__(**kwargs)
         self.set_paths(paths)
-        self.set_sizes(sizes)
+        self.set_sizes(sizes, scaling=scaling)
         self.stale = True
 
     def set_paths(self, paths):

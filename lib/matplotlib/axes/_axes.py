@@ -4476,7 +4476,7 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None, *,
-                edgecolors=None, plotnonfinite=False, **kwargs):
+                edgecolors=None, plotnonfinite=False, markersize=None, **kwargs):
         """
         A scatter plot of *y* vs. *x* with varying marker size and/or color.
 
@@ -4611,6 +4611,7 @@ default: :rc:`scatter.edgecolors`
             s = (20 if mpl.rcParams['_internal.classic_mode'] else
                  mpl.rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)
+        scaling = 2
         if (len(s) not in (1, x.size) or
                 (not np.issubdtype(s.dtype, np.floating) and
                  not np.issubdtype(s.dtype, np.integer))):
@@ -4618,6 +4619,9 @@ default: :rc:`scatter.edgecolors`
                 "s must be a scalar, "
                 "or float array-like with the same size as x and y")
 
+        if markersize is not None:
+            s = np.ma.ravel(markersize)
+            scaling = 1
         # get the original edgecolor the user passed before we normalize
         orig_edgecolor = edgecolors
         if edgecolors is None:
@@ -4696,6 +4700,7 @@ default: :rc:`scatter.edgecolors`
 
         collection = mcoll.PathCollection(
             (path,), scales,
+            scaling=scaling,
             facecolors=colors,
             edgecolors=edgecolors,
             linewidths=linewidths,

@@ -688,8 +688,8 @@ class Path3DCollection(PathCollection):
         self._vzs = None
         self.stale = True
 
-    def set_sizes(self, sizes, dpi=72.0):
-        super().set_sizes(sizes, dpi)
+    def set_sizes(self, sizes, dpi=72.0, scaling=2):
+        super().set_sizes(sizes, dpi=dpi, scaling=scaling)
         if not self._in_draw:
             self._sizes3d = sizes
 
