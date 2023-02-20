@@ -1,4 +1,5 @@
 from matplotlib.tests.conftest import boxplotlist
+from matplotlib.tests.conftest import histBranchBools
 
 
 import functools

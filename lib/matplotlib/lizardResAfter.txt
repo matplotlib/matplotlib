@@ -1,93 +1,96 @@
 ================================================
   NLOC    CCN   token  PARAM  length  location  
 ------------------------------------------------
-       6      1     53      2      24 get_title@79-102@./axes/_axes.py
-      32      7    227      8      78 set_title@104-181@./axes/_axes.py
-       4      1     28      2      13 get_legend_handles_labels@183-195@./axes/_axes.py
-      10      2     75      3     123 legend@198-320@./axes/_axes.py
-       2      1     12      2       2 _remove_legend@322-323@./axes/_axes.py
-      12      2    103      6      74 inset_axes@325-398@./axes/_axes.py
-      43      7    383     10     111 indicate_inset@401-511@./axes/_axes.py
-       5      1     70      3      38 indicate_inset_zoom@513-550@./axes/_axes.py
-       9      3     64      5      40 secondary_xaxis@553-592@./axes/_axes.py
-       9      3     64      5      30 secondary_yaxis@595-624@./axes/_axes.py
-      13      2     90      6      66 text@627-692@./axes/_axes.py
-      10      2     96      9      12 annotate@695-706@./axes/_axes.py
-      14      4    139      5      66 axhline@711-776@./axes/_axes.py
-      14      4    139      5      66 axvline@779-844@./axes/_axes.py
-       5      3     36      2       6 _check_no_units@847-852@./axes/_axes.py
-      18      8    157      6      72 axline@855-926@./axes/_axes.py
-       9      1    125      6      46 axhspan@929-974@./axes/_axes.py
-      10      1    136      6      55 axvspan@977-1031@./axes/_axes.py
-      32      5    322      8      77 hlines@1035-1111@./axes/_axes.py
-      32      5    322      8      77 vlines@1115-1191@./axes/_axes.py
-     113     39    864     10     241 eventplot@1197-1437@./axes/_axes.py
-      10      4     86      6     252 plot@1444-1695@./axes/_axes.py
-       7      3     61      8      78 plot_date@1699-1776@./axes/_axes.py
-      11      7    132      3      51 loglog@1780-1830@./axes/_axes.py
-       7      5     84      3      44 semilogx@1834-1877@./axes/_axes.py
-       7      5     84      3      44 semilogy@1881-1924@./axes/_axes.py
-       2      1     23      3      70 acorr@1927-1996@./axes/_axes.py
-      99      7    249      8     107 xcorr@1999-2105@./axes/_axes.py
-       4      1     67      7      67 step@2110-2176@./axes/_axes.py
-      27     10    161      4      58 _convert_dx@2179-2236@./axes/_axes.py
-     257     34   1149      8     294 bar@2240-2533@./axes/_axes.py
-     115      1     77      9     115 barh@2537-2651@./axes/_axes.py
-       2      2     14      1       2 bar_label.sign@2717-2718@./axes/_axes.py
-      95     32    662      8     166 bar_label@2653-2818@./axes/_axes.py
-      21      5    194      4      65 broken_barh@2822-2886@./axes/_axes.py
-      78     20    577      9     182 stem@2890-3071@./axes/_axes.py
-       5      1     85     16       5 pie@3074-3078@./axes/_axes.py
-       2      1      9      0       2 get_next_color@3217-3218@./axes/_axes.py
-      25     10    163      2      30 _errorevery_to_mask@3312-3341@./axes/_axes.py
-      11      5     82      1      38 errorbar._upcast_err@3492-3529@./axes/_axes.py
-       2      2     18      2       2 errorbar.apply_mask@3617-3618@./axes/_axes.py
-     147     48   1296     17     365 errorbar@3346-3710@./axes/_axes.py
-      94     35    673     28     309 boxplot@3713-4021@./axes/_axes.py
-       8      4     86      4       8 bxp.merge_kw_rc@4139-4146@./axes/_axes.py
-       2      1     31      3       2 bxp.do_plot@4170-4171@./axes/_axes.py
-       6      1     51      3       6 bxp.do_patch@4173-4178@./axes/_axes.py
-     136     32   1267     21     287 bxp@4023-4309@./axes/_axes.py
-       4      1     15      2       4 _parse_scatter_color_args.invalid_shape_exception@4403-4406@./axes/_axes.py
-      78     29    429      5     148 _parse_scatter_color_args@4312-4459@./axes/_axes.py
-     100     32    756     16     250 scatter@4466-4715@./axes/_axes.py
-       5      1     53      1       5 hexbin.on_changed@5098-5102@./axes/_axes.py
-     188     37   1868     20     388 hexbin@4719-5106@./axes/_axes.py
-       9      1     79      6      37 arrow@5109-5145@./axes/_axes.py
-       4      1     45      7       4 quiverkey@5148-5151@./axes/_axes.py
-       6      2     65      3       6 _quiver_units@5154-5159@./axes/_axes.py
-       6      1     53      3       8 quiver@5164-5171@./axes/_axes.py
-       6      1     53      3       8 barbs@5176-5183@./axes/_axes.py
-       7      2     65      4      51 fill@5187-5237@./axes/_axes.py
-      18      4    162      1      20 _fill_between_x_or_y.get_interp_point@5376-5395@./axes/_axes.py
-      65     14    605     10     190 _fill_between_x_or_y@5239-5428@./axes/_axes.py
-       5      1     56      8       5 fill_between@5430-5434@./axes/_axes.py
-       5      1     56      8       5 fill_betweenx@5444-5448@./axes/_axes.py
-      23      3    200     18     218 imshow@5462-5679@./axes/_axes.py
-      17      4    141      1      20 _pcolorargs._interp_grid@5765-5784@./axes/_axes.py
-      75     25    603      5     115 _pcolorargs@5681-5795@./axes/_axes.py
-     208     11    766      9     231 pcolor@5799-6029@./axes/_axes.py
-      31      6    336     10     221 pcolormesh@6033-6253@./axes/_axes.py
-      64     17    579      8     179 pcolorfast@6257-6435@./axes/_axes.py
-       5      1     39      3      13 contour@6439-6451@./axes/_axes.py
-       5      1     39      3      13 contourf@6455-6467@./axes/_axes.py
-       2      1     25      4      19 clabel@6469-6487@./axes/_axes.py
-     198     77   1724     17     462 hist@6492-6953@./axes/_axes.py
-      32      6    255      8      75 stairs@6956-7030@./axes/_axes.py
-      12      3    150     10     104 hist2d@7034-7137@./axes/_axes.py
-     103      5    243     13     108 psd@7141-7248@./axes/_axes.py
-      94      4    235     14      99 csd@7252-7350@./axes/_axes.py
-      20      3    157      9      83 magnitude_spectrum@7354-7436@./axes/_axes.py
-      11      2    104      8      66 angle_spectrum@7440-7505@./axes/_axes.py
-      11      2    104      8      66 phase_spectrum@7509-7574@./axes/_axes.py
-      59      1    138     13      61 cohere@7578-7638@./axes/_axes.py
-      50     18    389     18     153 specgram@7642-7794@./axes/_axes.py
-      60     16    490      8     137 spy@7797-7933@./axes/_axes.py
-      15      1    137      3      50 matshow@7935-7984@./axes/_axes.py
-       6      2     59      2       8 violinplot._kde_method@8076-8083@./axes/_axes.py
-       9      1     97     11     103 violinplot@7987-8089@./axes/_axes.py
-      62     13    511      8     166 violin@8091-8256@./axes/_axes.py
-       5      1     47      1       9 _get_aspect_ratio@8273-8281@./axes/_axes.py
+       6      1     53      2      24 get_title@82-105@./axes/_axes.py
+      32      7    227      8      78 set_title@107-184@./axes/_axes.py
+       4      1     28      2      13 get_legend_handles_labels@186-198@./axes/_axes.py
+      10      2     75      3     123 legend@201-323@./axes/_axes.py
+       2      1     12      2       2 _remove_legend@325-326@./axes/_axes.py
+      12      2    103      6      74 inset_axes@328-401@./axes/_axes.py
+      43      7    383     10     111 indicate_inset@404-514@./axes/_axes.py
+       5      1     70      3      38 indicate_inset_zoom@516-553@./axes/_axes.py
+       9      3     64      5      40 secondary_xaxis@556-595@./axes/_axes.py
+       9      3     64      5      30 secondary_yaxis@598-627@./axes/_axes.py
+      13      2     90      6      66 text@630-695@./axes/_axes.py
+      10      2     96      9      12 annotate@698-709@./axes/_axes.py
+      14      4    139      5      66 axhline@714-779@./axes/_axes.py
+      14      4    139      5      66 axvline@782-847@./axes/_axes.py
+       5      3     36      2       6 _check_no_units@850-855@./axes/_axes.py
+      18      8    157      6      72 axline@858-929@./axes/_axes.py
+       9      1    125      6      46 axhspan@932-977@./axes/_axes.py
+      10      1    136      6      55 axvspan@980-1034@./axes/_axes.py
+      32      5    322      8      77 hlines@1038-1114@./axes/_axes.py
+      32      5    322      8      77 vlines@1118-1194@./axes/_axes.py
+     113     39    864     10     241 eventplot@1200-1440@./axes/_axes.py
+      21     10    178     10      21 refactorPatches@1443-1463@./axes/_axes.py
+      10      4     86      6     252 plot@1470-1721@./axes/_axes.py
+       7      3     61      8      78 plot_date@1725-1802@./axes/_axes.py
+      11      7    132      3      51 loglog@1806-1856@./axes/_axes.py
+       7      5     84      3      44 semilogx@1860-1903@./axes/_axes.py
+       7      5     84      3      44 semilogy@1907-1950@./axes/_axes.py
+       2      1     23      3      70 acorr@1953-2022@./axes/_axes.py
+      99      7    249      8     107 xcorr@2025-2131@./axes/_axes.py
+       4      1     67      7      67 step@2136-2202@./axes/_axes.py
+      27     10    161      4      58 _convert_dx@2205-2262@./axes/_axes.py
+     257     34   1149      8     294 bar@2266-2559@./axes/_axes.py
+     115      1     77      9     115 barh@2563-2677@./axes/_axes.py
+       2      2     14      1       2 bar_label.sign@2743-2744@./axes/_axes.py
+      95     32    662      8     166 bar_label@2679-2844@./axes/_axes.py
+      21      5    194      4      65 broken_barh@2848-2912@./axes/_axes.py
+      78     20    577      9     182 stem@2916-3097@./axes/_axes.py
+       5      1     85     16       5 pie@3100-3104@./axes/_axes.py
+       2      1      9      0       2 get_next_color@3243-3244@./axes/_axes.py
+      25     10    163      2      30 _errorevery_to_mask@3338-3367@./axes/_axes.py
+      11      5     82      1      38 errorbar._upcast_err@3518-3555@./axes/_axes.py
+       2      2     18      2       2 errorbar.apply_mask@3643-3644@./axes/_axes.py
+     147     48   1296     17     365 errorbar@3372-3736@./axes/_axes.py
+     131     35    895     28     346 boxplot@3739-4084@./axes/_axes.py
+       8      4     86      4       8 bxp.merge_kw_rc@4202-4209@./axes/_axes.py
+       2      1     31      3       2 bxp.do_plot@4233-4234@./axes/_axes.py
+       6      1     51      3       6 bxp.do_patch@4236-4241@./axes/_axes.py
+     136     32   1267     21     287 bxp@4086-4372@./axes/_axes.py
+       4      1     15      2       4 _parse_scatter_color_args.invalid_shape_exception@4466-4469@./axes/_axes.py
+      78     29    429      5     148 _parse_scatter_color_args@4375-4522@./axes/_axes.py
+     100     32    756     16     250 scatter@4529-4778@./axes/_axes.py
+       5      1     53      1       5 hexbin.on_changed@5161-5165@./axes/_axes.py
+     188     37   1868     20     388 hexbin@4782-5169@./axes/_axes.py
+       9      1     79      6      37 arrow@5172-5208@./axes/_axes.py
+       4      1     45      7       4 quiverkey@5211-5214@./axes/_axes.py
+       6      2     65      3       6 _quiver_units@5217-5222@./axes/_axes.py
+       6      1     53      3       8 quiver@5227-5234@./axes/_axes.py
+       6      1     53      3       8 barbs@5239-5246@./axes/_axes.py
+       7      2     65      4      51 fill@5250-5300@./axes/_axes.py
+      18      4    162      1      20 _fill_between_x_or_y.get_interp_point@5439-5458@./axes/_axes.py
+      65     14    605     10     190 _fill_between_x_or_y@5302-5491@./axes/_axes.py
+       5      1     56      8       5 fill_between@5493-5497@./axes/_axes.py
+       5      1     56      8       5 fill_betweenx@5507-5511@./axes/_axes.py
+      23      3    200     18     218 imshow@5525-5742@./axes/_axes.py
+      17      4    141      1      20 _pcolorargs._interp_grid@5828-5847@./axes/_axes.py
+      75     25    603      5     115 _pcolorargs@5744-5858@./axes/_axes.py
+     208     11    766      9     231 pcolor@5862-6092@./axes/_axes.py
+      31      6    336     10     221 pcolormesh@6096-6316@./axes/_axes.py
+      64     17    579      8     179 pcolorfast@6320-6498@./axes/_axes.py
+       5      1     39      3      13 contour@6502-6514@./axes/_axes.py
+       5      1     39      3      13 contourf@6518-6530@./axes/_axes.py
+       2      1     25      4      19 clabel@6532-6550@./axes/_axes.py
+      63     18    445     14      71 refactorHistBar@6557-6627@./axes/_axes.py
+      47     10    543     12      72 refactorHistStep@6634-6705@./axes/_axes.py
+     152     42   1195     17     383 hist@6710-7092@./axes/_axes.py
+      32      6    255      8      75 stairs@7095-7169@./axes/_axes.py
+      12      3    150     10     104 hist2d@7173-7276@./axes/_axes.py
+     103      5    243     13     108 psd@7280-7387@./axes/_axes.py
+      94      4    235     14      99 csd@7391-7489@./axes/_axes.py
+      20      3    157      9      83 magnitude_spectrum@7493-7575@./axes/_axes.py
+      11      2    104      8      66 angle_spectrum@7579-7644@./axes/_axes.py
+      11      2    104      8      66 phase_spectrum@7648-7713@./axes/_axes.py
+      59      1    138     13      61 cohere@7717-7777@./axes/_axes.py
+      50     18    389     18     153 specgram@7781-7933@./axes/_axes.py
+      60     16    490      8     137 spy@7936-8072@./axes/_axes.py
+      15      1    137      3      50 matshow@8074-8123@./axes/_axes.py
+       6      2     59      2       8 violinplot._kde_method@8215-8222@./axes/_axes.py
+       9      1     97     11     103 violinplot@8126-8228@./axes/_axes.py
+      62     13    511      8     166 violin@8230-8395@./axes/_axes.py
+       5      1     47      1       9 _get_aspect_ratio@8412-8420@./axes/_axes.py
       12      5    105      5      14 __init__@52-65@./axes/_base.py
        2      1     23      3       2 __set_name__.wrapper@73-74@./axes/_base.py
       16      2    106      3      27 __set_name__@67-93@./axes/_base.py
@@ -1320,6 +1323,57 @@
        3      1     18      2       3 trigger@1038-1040@./backends/_backend_tk.py
        2      1     14      2       2 trigger@1045-1046@./backends/_backend_tk.py
        4      1     46      2       4 trigger@1051-1054@./backends/_backend_tk.py
+       3      1     11      0       3 (anonymous)@15-17@./htmlcov/coverage_html.js
+       4      1     23      1       6 (anonymous)@13-18@./htmlcov/coverage_html.js
+       4      1     16      2       9 debounce@11-19@./htmlcov/coverage_html.js
+       6      2     53      1       6 checkVisible@21-26@./htmlcov/coverage_html.js
+       6      2     32      2       6 on_click@28-33@./htmlcov/coverage_html.js
+      12      7     76      2      12 getCellValue@36-47@./htmlcov/coverage_html.js
+       8      3     67      3       8 rowComparator@49-56@./htmlcov/coverage_html.js
+       1      1      9      0       1 (anonymous)@62-62@./htmlcov/coverage_html.js
+       1      2     25      0       1 (anonymous)@73-73@./htmlcov/coverage_html.js
+       1      1      9      0       1 (anonymous)@74-74@./htmlcov/coverage_html.js
+      13      4    120      1      18 sortColumn@58-75@./htmlcov/coverage_html.js
+       8      3     40      0       8 (anonymous)@80-87@./htmlcov/coverage_html.js
+       3      1     13      0      10 (anonymous)@79-88@./htmlcov/coverage_html.js
+       3      1     18      0      12 coverage.assign_shortkeys@78-89@./htmlcov/coverage_html.js
+      18      4    154      0      24 (anonymous)@106-129@./htmlcov/coverage_html.js
+      27      6    217      0      67 (anonymous)@99-165@./htmlcov/coverage_html.js
+       7      1     69      0      79 coverage.wire_up_filter@92-170@./htmlcov/coverage_html.js
+       1      1      7      0       1 (anonymous)@179-179@./htmlcov/coverage_html.js
+       2      1     10      0       2 (anonymous)@179-180@./htmlcov/coverage_html.js
+       3      1      9      1       3 th.getAttribute@200-202@./htmlcov/coverage_html.js
+       6      1     40      1      10 ].indexOf@199-208@./htmlcov/coverage_html.js
+      38      6    309      0      49 coverage.pyfile_ready@214-262@./htmlcov/coverage_html.js
+      11      2     89      1      11 coverage.toggle_lines@264-274@./htmlcov/coverage_html.js
+       1      1      9      0       1 (anonymous)@281-281@./htmlcov/coverage_html.js
+       1      1      9      0       1 (anonymous)@285-285@./htmlcov/coverage_html.js
+      14      3     89      2      14 coverage.set_line_visibilty@276-289@./htmlcov/coverage_html.js
+       3      2     21      1       3 coverage.line_elt@292-294@./htmlcov/coverage_html.js
+       4      2     29      2       6 coverage.set_sel@297-302@./htmlcov/coverage_html.js
+       4      1     20      0       4 coverage.to_top@304-307@./htmlcov/coverage_html.js
+       4      1     19      0       4 coverage.to_first_chunk@309-312@./htmlcov/coverage_html.js
+       3      1     17      0       3 coverage.to_prev_file@314-316@./htmlcov/coverage_html.js
+       3      1     17      0       3 coverage.to_next_file@318-320@./htmlcov/coverage_html.js
+       3      1     17      0       3 coverage.to_index@322-324@./htmlcov/coverage_html.js
+       4      1     22      0       4 coverage.show_hide_help@326-329@./htmlcov/coverage_html.js
+      11      4     49      1      11 coverage.chunk_indicator@333-343@./htmlcov/coverage_html.js
+      25      5    119      0      31 coverage.to_next_chunk@345-375@./htmlcov/coverage_html.js
+      29      7    156      0      35 coverage.to_prev_chunk@377-411@./htmlcov/coverage_html.js
+      11      4     68      0      13 coverage.selection_ends_on_screen@415-427@./htmlcov/coverage_html.js
+      11      3     80      0      18 coverage.to_next_chunk_nicely@429-446@./htmlcov/coverage_html.js
+      11      3     88      0      18 coverage.to_prev_chunk_nicely@448-465@./htmlcov/coverage_html.js
+      32      7    160      1      37 coverage.select_line_or_chunk@469-505@./htmlcov/coverage_html.js
+       1      1      9      0       1 (anonymous)@509-509@./htmlcov/coverage_html.js
+       7      2     62      0       9 coverage.show_selection@507-515@./htmlcov/coverage_html.js
+       6      2     39      0       7 coverage.scroll_to_selection@517-523@./htmlcov/coverage_html.js
+       3      1     20      1       3 coverage.scroll_window@525-527@./htmlcov/coverage_html.js
+       4      1     23      0       7 coverage.init_scroll_markers@529-535@./htmlcov/coverage_html.js
+      16      2    112      0      20 (anonymous)@554-573@./htmlcov/coverage_html.js
+      16      3    131      0      41 coverage.build_scroll_markers@537-577@./htmlcov/coverage_html.js
+       7      2     35      0       7 updateHeader@586-592@./htmlcov/coverage_html.js
+      10      1     56      0      18 coverage.wire_up_sticky_header@579-596@./htmlcov/coverage_html.js
+       7      2     32      0       7 (anonymous)@598-604@./htmlcov/coverage_html.js
        2      1     16      2       2 __init__@23-24@./projections/geo.py
        3      1     33      3       3 __call__@26-28@./projections/geo.py
        3      1     25      1       3 _init_axis@32-34@./projections/geo.py
@@ -4341,71 +4395,74 @@
        2      1     12      1       2 __iter__@584-585@./spines.py
        2      1     12      1       2 __len__@587-588@./spines.py
        3      1     26      4       3 stackplot@18-20@./stackplot.py
-     119     30   1057     19     229 streamplot@18-246@./streamplot.py
-       3      1     19      3       3 __init__@251-253@./streamplot.py
-       9      1     97      3      12 __init__@278-289@./streamplot.py
-       2      1     28      3       3 grid2mask@291-293@./streamplot.py
-       2      1     21      3       2 mask2grid@295-296@./streamplot.py
-       2      1     21      3       2 data2grid@298-299@./streamplot.py
-       2      1     21      3       2 grid2data@301-302@./streamplot.py
-       3      1     37      4       3 start_trajectory@304-306@./streamplot.py
-       3      1     32      3       3 reset_start_point@308-310@./streamplot.py
-       5      2     52      4       5 update_trajectory@312-316@./streamplot.py
-       2      1     12      1       2 undo_trajectory@318-319@./streamplot.py
-      36     11    315      3      44 __init__@324-367@./streamplot.py
-       2      1     13      1       2 shape@370-371@./streamplot.py
-       2      2     30      3       5 within_grid@373-377@./streamplot.py
-      11      4     97      2      12 __init__@390-401@./streamplot.py
-       2      1     14      2       2 __getitem__@403-404@./streamplot.py
-       3      1     30      4       4 _start_trajectory@406-409@./streamplot.py
-       3      2     21      1       4 _undo_trajectory@411-414@./streamplot.py
-      11      4     76      4      16 _update_trajectory@416-431@./streamplot.py
-      10      3     75      2      10 _get_integrator.forward_time@455-464@./streamplot.py
-       3      1     23      2       3 _get_integrator.backward_time@466-468@./streamplot.py
-      22      5    156      3      36 _get_integrator.integrate@470-505@./streamplot.py
-       9      1     77      6      63 _get_integrator@445-507@./streamplot.py
-      44     10    299      6      94 _integrate_rk12@514-607@./streamplot.py
-      19      5    136      3      20 _euler_step@610-629@./streamplot.py
-      31      6    236      3      38 interpgrid@635-672@./streamplot.py
-      30     10    127      1      38 _gen_starting_points@675-712@./streamplot.py
-      19      2    135     13      51 __init__@55-105@./table.py
-       3      1     20      2       4 set_transform@107-110@./table.py
-       3      1     23      2       3 set_figure@112-114@./table.py
-       2      1     10      1       3 get_text@116-118@./table.py
-       3      1     21      2       4 set_fontsize@120-123@./table.py
-       2      1     14      1       3 get_fontsize@125-127@./table.py
-       8      3     55      2      10 auto_set_font_size@129-138@./table.py
-       7      2     43      2       9 draw@141-149@./table.py
-      11      3    101      2      14 _set_text_position@151-164@./table.py
-       4      1     34      2       7 get_text_bounds@166-172@./table.py
-       3      1     40      2       4 get_required_width@174-177@./table.py
-       3      1     22      2      10 set_text_props@180-189@./table.py
-       2      1     10      1      11 visible_edges@192-202@./table.py
-      14      5     92      2      14 visible_edges@205-218@./table.py
-      12      4    119      1      13 get_path@220-232@./table.py
-      20      3    139      5      43 __init__@279-321@./table.py
-       5      1     51      5      23 add_cell@323-345@./table.py
-      12      2     87      3      15 __setitem__@347-361@./table.py
-       2      1     15      2       3 __getitem__@363-365@./table.py
-       2      1     10      1      17 edges@368-384@./table.py
-       3      1     17      2       3 edges@387-389@./table.py
-       3      1     33      1       3 _approx_text_height@391-393@./table.py
-      13      5     92      2      20 draw@396-415@./table.py
-       6      4     65      2      11 _get_grid_bbox@417-427@./table.py
-      13      6    107      2      16 contains@429-444@./table.py
-       2      1     17      1       3 get_children@446-448@./table.py
-       7      3     56      2       8 get_window_extent@450-457@./table.py
-      21      5    178      1      30 _do_cell_alignment@459-488@./table.py
-       9      3     49      2      19 auto_set_column_width@490-508@./table.py
-       6      5     66      3       7 _auto_set_column_width@510-516@./table.py
-       3      1     20      2       4 auto_set_font_size@518-521@./table.py
-      13      5    104      2      17 _auto_set_font_size@523-539@./table.py
-       4      2     45      3       5 scale@541-545@./table.py
-       4      2     30      2      24 set_fontsize@547-570@./table.py
-       5      2     52      3       6 _offset@572-577@./table.py
-      43     15    443      2      57 _update_positions@579-635@./table.py
-      14      1     11      1      14 get_celld@637-650@./table.py
-      77     28    528     15     177 table@654-830@./table.py
+       7      4     69      5       7 refactor1@18-24@./streamplot.py
+      16      6    170      6      28 refactor2@26-53@./streamplot.py
+      26      5    329     14      34 refactor3@55-88@./streamplot.py
+      92     18    700     19     182 streamplot@90-271@./streamplot.py
+       3      1     19      3       3 __init__@276-278@./streamplot.py
+       9      1     97      3      12 __init__@303-314@./streamplot.py
+       2      1     28      3       3 grid2mask@316-318@./streamplot.py
+       2      1     21      3       2 mask2grid@320-321@./streamplot.py
+       2      1     21      3       2 data2grid@323-324@./streamplot.py
+       2      1     21      3       2 grid2data@326-327@./streamplot.py
+       3      1     37      4       3 start_trajectory@329-331@./streamplot.py
+       3      1     32      3       3 reset_start_point@333-335@./streamplot.py
+       5      2     52      4       5 update_trajectory@337-341@./streamplot.py
+       2      1     12      1       2 undo_trajectory@343-344@./streamplot.py
+      36     11    315      3      44 __init__@349-392@./streamplot.py
+       2      1     13      1       2 shape@395-396@./streamplot.py
+       2      2     30      3       5 within_grid@398-402@./streamplot.py
+      11      4     97      2      12 __init__@415-426@./streamplot.py
+       2      1     14      2       2 __getitem__@428-429@./streamplot.py
+       3      1     30      4       4 _start_trajectory@431-434@./streamplot.py
+       3      2     21      1       4 _undo_trajectory@436-439@./streamplot.py
+      11      4     76      4      16 _update_trajectory@441-456@./streamplot.py
+      10      3     75      2      10 _get_integrator.forward_time@480-489@./streamplot.py
+       3      1     23      2       3 _get_integrator.backward_time@491-493@./streamplot.py
+      22      5    156      3      36 _get_integrator.integrate@495-530@./streamplot.py
+       9      1     77      6      63 _get_integrator@470-532@./streamplot.py
+      44     10    299      6      94 _integrate_rk12@539-632@./streamplot.py
+      19      5    136      3      20 _euler_step@635-654@./streamplot.py
+      31      6    236      3      38 interpgrid@660-697@./streamplot.py
+      30     10    127      1      38 _gen_starting_points@700-737@./streamplot.py
+      19      2    135     13      51 __init__@58-108@./table.py
+       3      1     20      2       4 set_transform@110-113@./table.py
+       3      1     23      2       3 set_figure@115-117@./table.py
+       2      1     10      1       3 get_text@119-121@./table.py
+       3      1     21      2       4 set_fontsize@123-126@./table.py
+       2      1     14      1       3 get_fontsize@128-130@./table.py
+       8      3     55      2      10 auto_set_font_size@132-141@./table.py
+       7      2     43      2       9 draw@144-152@./table.py
+      11      3    101      2      14 _set_text_position@154-167@./table.py
+       4      1     34      2       7 get_text_bounds@169-175@./table.py
+       3      1     40      2       4 get_required_width@177-180@./table.py
+       3      1     22      2      10 set_text_props@183-192@./table.py
+       2      1     10      1      11 visible_edges@195-205@./table.py
+      14      5     92      2      14 visible_edges@208-221@./table.py
+      12      4    119      1      13 get_path@223-235@./table.py
+      20      3    139      5      43 __init__@282-324@./table.py
+       5      1     51      5      23 add_cell@326-348@./table.py
+      12      2     87      3      15 __setitem__@350-364@./table.py
+       2      1     15      2       3 __getitem__@366-368@./table.py
+       2      1     10      1      17 edges@371-387@./table.py
+       3      1     17      2       3 edges@390-392@./table.py
+       3      1     33      1       3 _approx_text_height@394-396@./table.py
+      13      5     92      2      20 draw@399-418@./table.py
+       6      4     65      2      11 _get_grid_bbox@420-430@./table.py
+      13      6    107      2      16 contains@432-447@./table.py
+       2      1     17      1       3 get_children@449-451@./table.py
+       7      3     56      2       8 get_window_extent@453-460@./table.py
+      21      5    178      1      30 _do_cell_alignment@462-491@./table.py
+       9      3     49      2      19 auto_set_column_width@493-511@./table.py
+       6      5     66      3       7 _auto_set_column_width@513-519@./table.py
+       3      1     20      2       4 auto_set_font_size@521-524@./table.py
+      13      5    104      2      17 _auto_set_font_size@526-542@./table.py
+       4      2     45      3       5 scale@544-548@./table.py
+       4      2     30      2      24 set_fontsize@550-573@./table.py
+       5      2     52      3       6 _offset@575-580@./table.py
+      43     15    443      2      57 _update_positions@582-638@./table.py
+      14      1     11      1      14 get_celld@640-653@./table.py
+     104     28    690     15     206 table@657-862@./table.py
        7      2     42      3      15 _usepackage_if_not_loaded@39-53@./texmanager.py
        3      1     29      1       3 __new__@104-106@./texmanager.py
        4      1     41      1       7 get_font_config@109-115@./texmanager.py
@@ -4937,214 +4994,214 @@
        2      1     12      3       8 convert@125-132@./units.py
        7      3     57      3      18 convert@139-156@./units.py
       19      7    128      2      28 get_converter@164-191@./units.py
-       2      1     10      1       2 __init__@38-39@./widgets.py
-       4      2     27      2       5 __call__@41-45@./widgets.py
-       4      2     27      2       5 release@47-51@./widgets.py
-       2      2     22      2       3 available@53-55@./widgets.py
-       2      1     14      2       3 isowner@57-59@./widgets.py
-       2      1     13      1       3 locked@61-63@./widgets.py
-       2      1     13      2       3 set_active@74-76@./widgets.py
-       2      1     10      1       3 get_active@78-80@./widgets.py
-       2      1     13      2       7 ignore@85-91@./widgets.py
-       2      1     19      1      15 _changed_canvas@93-107@./widgets.py
-       4      1     27      2       4 __init__@132-135@./widgets.py
-       3      1     30      3       9 connect_event@137-145@./widgets.py
-       3      2     21      1       4 disconnect_events@147-150@./widgets.py
-      20      3    171      8      42 __init__@172-213@./widgets.py
-       5      5     50      2       5 _click@215-219@./widgets.py
-       6      5     59      2       6 _release@221-226@./widgets.py
-      12      6     99      2      12 _motion@228-239@./widgets.py
-       2      1     25      2       7 on_clicked@241-247@./widgets.py
-       2      1     16      2       3 disconnect@249-251@./widgets.py
-      33      5    247     10      39 __init__@261-299@./widgets.py
-      12      4     95      2      13 _stepped_value@301-313@./widgets.py
-       2      1     16      2      10 disconnect@315-324@./widgets.py
-       3      2     28      1       4 reset@326-329@./widgets.py
-      70     10    601     19     155 __init__@347-501@./widgets.py
-      19     11    116      2      23 _value_in_bounds@503-525@./widgets.py
-      20     11    150      2      24 _update@527-550@./widgets.py
-       6      2     58      2       8 _format@552-559@./widgets.py
-      17      4    136      2      24 set_val@561-584@./widgets.py
-       2      1     25      2      16 on_changed@586-601@./widgets.py
-     109      6    607     16     182 __init__@620-801@./widgets.py
-      12      2    108      3      20 _update_selection_poly@803-822@./widgets.py
-       8      4     58      2      10 _min_in_bounds@824-833@./widgets.py
-       8      4     58      2      10 _max_in_bounds@835-844@./widgets.py
-       2      1     30      2       3 _value_in_bounds@846-848@./widgets.py
-      13      4     94      2      14 _update_val_from_pos@850-863@./widgets.py
-      30     14    225      2      40 _update@865-904@./widgets.py
-      10      2     69      2      13 _format@906-918@./widgets.py
-       2      1     23      2       9 set_min@920-928@./widgets.py
-       2      1     23      2       9 set_max@930-938@./widgets.py
-      19      4    180      2      28 set_val@940-967@./widgets.py
-       2      1     25      2      16 on_changed@969-984@./widgets.py
-       3      2     35      1       3 _expand_text_props@987-989@./widgets.py
-      45      6    430      9      89 __init__@1015-1103@./widgets.py
-       9      5     82      2      10 _clear@1105-1114@./widgets.py
-      24     13    286      2      24 _clicked@1116-1139@./widgets.py
-       5      2     44      2      15 set_label_props@1141-1155@./widgets.py
-       5      2     54      2      16 set_frame_props@1157-1172@./widgets.py
-       7      2     67      2      19 set_check_props@1174-1192@./widgets.py
-      29     10    236      2      49 set_active@1194-1242@./widgets.py
-       8      4     77      2      15 _init_status@1244-1258@./widgets.py
-       3      2     33      1       6 get_status@1260-1265@./widgets.py
-       2      1     25      2       7 on_clicked@1267-1273@./widgets.py
-       2      1     16      2       3 disconnect@1275-1277@./widgets.py
-      20      5    171      1      20 rectangles@1282-1301@./widgets.py
-      25      4    257      1      26 lines@1306-1331@./widgets.py
-      30      1    302      8      59 __init__@1358-1416@./widgets.py
-       2      1     13      1       2 text@1419-1420@./widgets.py
-      20      5    181      1      33 _rendercursor@1422-1454@./widgets.py
-       6      3     38      2       6 _release@1456-1461@./widgets.py
-      35     16    252      2      35 _keypress@1463-1497@./widgets.py
-       9      3     63      2       9 set_val@1499-1507@./widgets.py
-      13      4    106      2      20 begin_typing@1510-1529@./widgets.py
-      12      4     71      1      14 stop_typing@1531-1544@./widgets.py
-      14      6     89      2      14 _click@1546-1559@./widgets.py
-       2      1     12      2       2 _resize@1561-1562@./widgets.py
-       8      5     74      2       8 _motion@1564-1571@./widgets.py
-       2      1     25      2       7 on_text_change@1573-1579@./widgets.py
-       2      1     25      2       8 on_submit@1581-1588@./widgets.py
-       2      1     16      2       3 disconnect@1590-1592@./widgets.py
-      52     10    434      9      98 __init__@1618-1715@./widgets.py
-       8      5     72      2       9 _clear@1717-1725@./widgets.py
-      21     12    260      2      21 _clicked@1727-1747@./widgets.py
-       5      2     44      2      15 set_label_props@1749-1763@./widgets.py
-      12      5    135      2      23 set_radio_props@1765-1787@./widgets.py
-       2      1      9      1       2 activecolor@1790-1791@./widgets.py
-       7      2     70      2       9 activecolor@1794-1802@./widgets.py
-      26     13    243      2      32 set_active@1804-1835@./widgets.py
-       2      1     19      2       7 on_clicked@1837-1843@./widgets.py
-       2      1     16      2       3 disconnect@1845-1847@./widgets.py
-      13      4    133      1      13 circles@1852-1864@./widgets.py
-      28      4    294      3      42 __init__@1872-1913@./widgets.py
-       6      3     48      2       6 _on_slider_changed@1915-1920@./widgets.py
-      11      4     85      2      15 _on_reset@1922-1936@./widgets.py
-      15      3    145      6      19 __init__@1968-1986@./widgets.py
-       5      4     44      2       6 clear@1988-1993@./widgets.py
-      19     10    159      2      24 onmove@1995-2018@./widgets.py
-      10      3     71      1      10 _update@2020-2029@./widgets.py
-      23      7    205      7      32 __init__@2070-2101@./widgets.py
-       6      2     48      1       7 connect@2108-2114@./widgets.py
-       5      3     41      1       6 disconnect@2116-2121@./widgets.py
-       8      5     61      2      13 clear@2123-2135@./widgets.py
-      13     11    125      2      13 onmove@2137-2149@./widgets.py
-      16     10    118      1      16 _update@2151-2166@./widgets.py
-      22      4    155      7      31 __init__@2171-2201@./widgets.py
-       4      2     24      2       4 set_active@2205-2208@./widgets.py
-       4      5     46      1      11 _get_animated_artists@2210-2220@./widgets.py
-      15      7    121      2      25 update_background@2222-2246@./widgets.py
-       8      1     76      1       9 connect_default_events@2248-2256@./widgets.py
-      16     10    122      2      24 ignore@2258-2281@./widgets.py
-      16      6    121      1      20 update@2283-2302@./widgets.py
-       6      2     61      2       7 _get_data@2304-2310@./widgets.py
-       8      2     51      2      15 _clean_event@2312-2326@./widgets.py
-      12      4     80      2      14 press@2328-2341@./widgets.py
-       1      1      8      2       2 _press@2343-2344@./widgets.py
-      10      3     62      2      11 release@2346-2356@./widgets.py
-       1      1      8      2       2 _release@2358-2359@./widgets.py
-       6      3     39      2       7 onmove@2361-2367@./widgets.py
-       1      1      8      2       2 _onmove@2369-2370@./widgets.py
-       3      2     23      2       4 on_scroll@2372-2375@./widgets.py
-       1      1      8      2       2 _on_scroll@2377-2378@./widgets.py
-      17      8    117      2      20 on_key_press@2380-2399@./widgets.py
-       1      1      8      2       2 _on_key_press@2401-2402@./widgets.py
-       7      6     63      2      10 on_key_release@2404-2413@./widgets.py
-       1      1      8      2       2 _on_key_release@2415-2416@./widgets.py
-       4      2     26      2       5 set_visible@2418-2422@./widgets.py
-       2      1     10      1       3 get_visible@2424-2426@./widgets.py
-       2      1     11      1       2 visible@2429-2430@./widgets.py
-       3      1     23      2       3 visible@2433-2435@./widgets.py
-       3      1     16      1       4 clear@2437-2440@./widgets.py
-       3      1     16      1       3 _clear_without_update@2442-2444@./widgets.py
-       3      1     26      1       4 artists@2447-2450@./widgets.py
-       7      2     49      2      11 set_props@2452-2462@./widgets.py
-      10      4     73      2      16 set_handle_props@2464-2479@./widgets.py
-       6      4     42      2       6 _validate_state@2481-2486@./widgets.py
-       3      1     22      2      19 add_state@2488-2506@./widgets.py
-       3      1     22      2      19 remove_state@2508-2526@./widgets.py
-      37      4    266     16      54 __init__@2628-2681@./widgets.py
-      20      4    134      2      26 new_axes@2683-2708@./widgets.py
-       9      2     62      2      10 _setup_edge_handles@2710-2719@./widgets.py
-       5      2     24      1       5 _handles_artists@2722-2726@./widgets.py
-       8      3     53      2      10 _set_cursor@2728-2737@./widgets.py
-       4      2     32      1       5 connect_default_events@2739-2743@./widgets.py
-      18      8    126      2      31 _press@2745-2775@./widgets.py
-       2      1     10      1       3 direction@2778-2780@./widgets.py
-      12      5     88      2      14 direction@2783-2796@./widgets.py
-      21      7    121      2      32 _release@2798-2829@./widgets.py
-       7      4     59      2      14 _hover@2831-2844@./widgets.py
-      28     12    177      2      44 _onmove@2846-2889@./widgets.py
-       9      3     66      3       9 _draw_shape@2891-2899@./widgets.py
-      15      5    101      2      25 _set_active_handle@2901-2925@./widgets.py
-       2      1     24      2       3 _contains@2927-2929@./widgets.py
-       5      2     62      2       7 _snap@2932-2938@./widgets.py
-       8      2     59      1       9 extents@2941-2949@./widgets.py
-       8      3     65      2      10 extents@2952-2961@./widgets.py
-      12      4    100      6      16 __init__@2985-3000@./widgets.py
-       2      1     12      1       2 artists@3003-3004@./widgets.py
-       3      3     37      1       4 positions@3007-3010@./widgets.py
-       2      1     10      1       3 direction@3013-3015@./widgets.py
-       4      3     46      2      13 set_data@3017-3029@./widgets.py
-       3      2     21      2       4 set_visible@3031-3034@./widgets.py
-       3      2     21      2       4 set_animated@3036-3039@./widgets.py
-       3      2     18      1       4 remove@3041-3044@./widgets.py
-      13      4    114      3      27 closest@3046-3072@./widgets.py
-       8      1    100      7       8 __init__@3096-3103@./widgets.py
-       2      1     13      1       2 x@3106-3107@./widgets.py
-       2      1     13      1       2 y@3110-3111@./widgets.py
-       2      1     12      1       2 artists@3114-3115@./widgets.py
-       5      2     41      3       6 set_data@3117-3122@./widgets.py
-       2      1     15      2       2 set_visible@3124-3125@./widgets.py
-       2      1     15      2       2 set_animated@3127-3128@./widgets.py
-       7      1     73      3       9 closest@3130-3138@./widgets.py
-      49      4    428     17      65 __init__@3261-3325@./widgets.py
-       3      1     28      1       3 _handles_artists@3328-3330@./widgets.py
-       3      1     32      2       3 _init_shape@3332-3334@./widgets.py
-      21      9    137      2      29 _press@3336-3364@./widgets.py
-      35     10    304      2      47 _release@3366-3412@./widgets.py
-     103     29    917      2     146 _onmove@3414-3559@./widgets.py
-       2      1     15      1       2 _rect_bbox@3562-3563@./widgets.py
-       7      2     38      1       7 _set_aspect_ratio_correction@3565-3571@./widgets.py
-       7      1     72      1       7 _get_rotation_transform@3573-3579@./widgets.py
-       7      1     81      1      11 corners@3582-3592@./widgets.py
-       9      1     97      1      13 edge_centers@3595-3607@./widgets.py
-       3      1     31      1       4 center@3610-3613@./widgets.py
-       5      1     53      1       9 extents@3616-3624@./widgets.py
-       9      2     74      2      11 extents@3627-3637@./widgets.py
-       2      1     15      1       6 rotation@3640-3645@./widgets.py
-       4      3     34      2       7 rotation@3648-3654@./widgets.py
-      15      1    154      2      17 _draw_shape@3656-3672@./widgets.py
-      18      8    153      2      27 _set_active_handle@3674-3700@./widgets.py
-       2      1     24      2       3 _contains@3702-3704@./widgets.py
-       7      2     71      1      13 geometry@3707-3719@./widgets.py
-       2      1     28      2       2 _init_shape@3740-3741@./widgets.py
-      11      1    119      2      12 _draw_shape@3743-3754@./widgets.py
-       5      1     46      1       5 _rect_bbox@3757-3761@./widgets.py
-      10      2     97      6      12 __init__@3806-3817@./widgets.py
-       3      1     27      2       3 _press@3819-3821@./widgets.py
-       7      2     63      2       7 _release@3823-3829@./widgets.py
-       6      2     50      2       7 _onmove@3831-3837@./widgets.py
-      33      4    280     11      44 __init__@3918-3961@./widgets.py
-       2      1     13      1       2 _get_bbox@3963-3964@./widgets.py
-      14      1    100      1      16 _add_box@3966-3981@./widgets.py
-       4      2     26      1       4 _remove_box@3983-3986@./widgets.py
-       5      2     52      1       7 _update_box@3988-3994@./widgets.py
-      16      4    152      2      27 _scale_polygon@3996-4022@./widgets.py
-       2      1     11      1       2 _handles_artists@4025-4026@./widgets.py
-      12      5     99      2      19 _remove_vertex@4028-4046@./widgets.py
-       7      5     73      2      11 _press@4048-4058@./widgets.py
-      16     11    141      2      23 _release@4060-4082@./widgets.py
-       6      2     35      2      11 onmove@4084-4094@./widgets.py
-      24     12    242      2      37 _onmove@4096-4132@./widgets.py
-       6      4     42      2       9 _on_key_press@4134-4142@./widgets.py
-      13      5    118      2      17 _on_key_release@4144-4160@./widgets.py
-      11      5    114      1      15 _draw_polygon@4162-4176@./widgets.py
-       2      1     15      1       3 verts@4179-4181@./widgets.py
-       7      3     53      2      13 verts@4184-4196@./widgets.py
-      12      3    132      5      14 __init__@4225-4238@./widgets.py
-      10      4     80      2      10 onrelease@4240-4249@./widgets.py
-      17      6    121      2      19 onmove@4251-4269@./widgets.py
+       2      1     10      1       2 __init__@39-40@./widgets.py
+       4      2     27      2       5 __call__@42-46@./widgets.py
+       4      2     27      2       5 release@48-52@./widgets.py
+       2      2     22      2       3 available@54-56@./widgets.py
+       2      1     14      2       3 isowner@58-60@./widgets.py
+       2      1     13      1       3 locked@62-64@./widgets.py
+       2      1     13      2       3 set_active@75-77@./widgets.py
+       2      1     10      1       3 get_active@79-81@./widgets.py
+       2      1     13      2       7 ignore@86-92@./widgets.py
+       2      1     19      1      15 _changed_canvas@94-108@./widgets.py
+       4      1     27      2       4 __init__@133-136@./widgets.py
+       3      1     30      3       9 connect_event@138-146@./widgets.py
+       3      2     21      1       4 disconnect_events@148-151@./widgets.py
+      20      3    171      8      42 __init__@173-214@./widgets.py
+       5      5     50      2       5 _click@216-220@./widgets.py
+       6      5     59      2       6 _release@222-227@./widgets.py
+      12      6     99      2      12 _motion@229-240@./widgets.py
+       2      1     25      2       7 on_clicked@242-248@./widgets.py
+       2      1     16      2       3 disconnect@250-252@./widgets.py
+      33      5    247     10      39 __init__@262-300@./widgets.py
+      12      4     95      2      13 _stepped_value@302-314@./widgets.py
+       2      1     16      2      10 disconnect@316-325@./widgets.py
+       3      2     28      1       4 reset@327-330@./widgets.py
+      70     10    601     19     155 __init__@348-502@./widgets.py
+      19     11    116      2      23 _value_in_bounds@504-526@./widgets.py
+      20     11    150      2      24 _update@528-551@./widgets.py
+       6      2     58      2       8 _format@553-560@./widgets.py
+      17      4    136      2      24 set_val@562-585@./widgets.py
+       2      1     25      2      16 on_changed@587-602@./widgets.py
+     109      6    607     16     182 __init__@621-802@./widgets.py
+      12      2    108      3      20 _update_selection_poly@804-823@./widgets.py
+       8      4     58      2      10 _min_in_bounds@825-834@./widgets.py
+       8      4     58      2      10 _max_in_bounds@836-845@./widgets.py
+       2      1     30      2       3 _value_in_bounds@847-849@./widgets.py
+      13      4     94      2      14 _update_val_from_pos@851-864@./widgets.py
+      30     14    225      2      40 _update@866-905@./widgets.py
+      10      2     69      2      13 _format@907-919@./widgets.py
+       2      1     23      2       9 set_min@921-929@./widgets.py
+       2      1     23      2       9 set_max@931-939@./widgets.py
+      19      4    180      2      28 set_val@941-968@./widgets.py
+       2      1     25      2      16 on_changed@970-985@./widgets.py
+       3      2     35      1       3 _expand_text_props@988-990@./widgets.py
+      45      6    430      9      89 __init__@1016-1104@./widgets.py
+       9      5     82      2      10 _clear@1106-1115@./widgets.py
+      24     13    286      2      24 _clicked@1117-1140@./widgets.py
+       5      2     44      2      15 set_label_props@1142-1156@./widgets.py
+       5      2     54      2      16 set_frame_props@1158-1173@./widgets.py
+       7      2     67      2      19 set_check_props@1175-1193@./widgets.py
+      29     10    236      2      49 set_active@1195-1243@./widgets.py
+       8      4     77      2      15 _init_status@1245-1259@./widgets.py
+       3      2     33      1       6 get_status@1261-1266@./widgets.py
+       2      1     25      2       7 on_clicked@1268-1274@./widgets.py
+       2      1     16      2       3 disconnect@1276-1278@./widgets.py
+      20      5    171      1      20 rectangles@1283-1302@./widgets.py
+      25      4    257      1      26 lines@1307-1332@./widgets.py
+      30      1    302      8      59 __init__@1359-1417@./widgets.py
+       2      1     13      1       2 text@1420-1421@./widgets.py
+      20      5    181      1      33 _rendercursor@1423-1455@./widgets.py
+       6      3     38      2       6 _release@1457-1462@./widgets.py
+      59     16    396      2      59 _keypress@1464-1522@./widgets.py
+       9      3     63      2       9 set_val@1524-1532@./widgets.py
+      13      4    106      2      20 begin_typing@1535-1554@./widgets.py
+      12      4     71      1      14 stop_typing@1556-1569@./widgets.py
+      14      6     89      2      14 _click@1571-1584@./widgets.py
+       2      1     12      2       2 _resize@1586-1587@./widgets.py
+       8      5     74      2       8 _motion@1589-1596@./widgets.py
+       2      1     25      2       7 on_text_change@1598-1604@./widgets.py
+       2      1     25      2       8 on_submit@1606-1613@./widgets.py
+       2      1     16      2       3 disconnect@1615-1617@./widgets.py
+      52     10    434      9      98 __init__@1643-1740@./widgets.py
+       8      5     72      2       9 _clear@1742-1750@./widgets.py
+      21     12    260      2      21 _clicked@1752-1772@./widgets.py
+       5      2     44      2      15 set_label_props@1774-1788@./widgets.py
+      12      5    135      2      23 set_radio_props@1790-1812@./widgets.py
+       2      1      9      1       2 activecolor@1815-1816@./widgets.py
+       7      2     70      2       9 activecolor@1819-1827@./widgets.py
+      26     13    243      2      32 set_active@1829-1860@./widgets.py
+       2      1     19      2       7 on_clicked@1862-1868@./widgets.py
+       2      1     16      2       3 disconnect@1870-1872@./widgets.py
+      13      4    133      1      13 circles@1877-1889@./widgets.py
+      28      4    294      3      42 __init__@1897-1938@./widgets.py
+       6      3     48      2       6 _on_slider_changed@1940-1945@./widgets.py
+      11      4     85      2      15 _on_reset@1947-1961@./widgets.py
+      15      3    145      6      19 __init__@1993-2011@./widgets.py
+       5      4     44      2       6 clear@2013-2018@./widgets.py
+      19     10    159      2      24 onmove@2020-2043@./widgets.py
+      10      3     71      1      10 _update@2045-2054@./widgets.py
+      23      7    205      7      32 __init__@2095-2126@./widgets.py
+       6      2     48      1       7 connect@2133-2139@./widgets.py
+       5      3     41      1       6 disconnect@2141-2146@./widgets.py
+       8      5     61      2      13 clear@2148-2160@./widgets.py
+      13     11    125      2      13 onmove@2162-2174@./widgets.py
+      16     10    118      1      16 _update@2176-2191@./widgets.py
+      22      4    155      7      31 __init__@2196-2226@./widgets.py
+       4      2     24      2       4 set_active@2230-2233@./widgets.py
+       4      5     46      1      11 _get_animated_artists@2235-2245@./widgets.py
+      15      7    121      2      25 update_background@2247-2271@./widgets.py
+       8      1     76      1       9 connect_default_events@2273-2281@./widgets.py
+      16     10    122      2      24 ignore@2283-2306@./widgets.py
+      16      6    121      1      20 update@2308-2327@./widgets.py
+       6      2     61      2       7 _get_data@2329-2335@./widgets.py
+       8      2     51      2      15 _clean_event@2337-2351@./widgets.py
+      12      4     80      2      14 press@2353-2366@./widgets.py
+       1      1      8      2       2 _press@2368-2369@./widgets.py
+      10      3     62      2      11 release@2371-2381@./widgets.py
+       1      1      8      2       2 _release@2383-2384@./widgets.py
+       6      3     39      2       7 onmove@2386-2392@./widgets.py
+       1      1      8      2       2 _onmove@2394-2395@./widgets.py
+       3      2     23      2       4 on_scroll@2397-2400@./widgets.py
+       1      1      8      2       2 _on_scroll@2402-2403@./widgets.py
+      17      8    117      2      20 on_key_press@2405-2424@./widgets.py
+       1      1      8      2       2 _on_key_press@2426-2427@./widgets.py
+       7      6     63      2      10 on_key_release@2429-2438@./widgets.py
+       1      1      8      2       2 _on_key_release@2440-2441@./widgets.py
+       4      2     26      2       5 set_visible@2443-2447@./widgets.py
+       2      1     10      1       3 get_visible@2449-2451@./widgets.py
+       2      1     11      1       2 visible@2454-2455@./widgets.py
+       3      1     23      2       3 visible@2458-2460@./widgets.py
+       3      1     16      1       4 clear@2462-2465@./widgets.py
+       3      1     16      1       3 _clear_without_update@2467-2469@./widgets.py
+       3      1     26      1       4 artists@2472-2475@./widgets.py
+       7      2     49      2      11 set_props@2477-2487@./widgets.py
+      10      4     73      2      16 set_handle_props@2489-2504@./widgets.py
+       6      4     42      2       6 _validate_state@2506-2511@./widgets.py
+       3      1     22      2      19 add_state@2513-2531@./widgets.py
+       3      1     22      2      19 remove_state@2533-2551@./widgets.py
+      37      4    266     16      54 __init__@2653-2706@./widgets.py
+      20      4    134      2      26 new_axes@2708-2733@./widgets.py
+       9      2     62      2      10 _setup_edge_handles@2735-2744@./widgets.py
+       5      2     24      1       5 _handles_artists@2747-2751@./widgets.py
+       8      3     53      2      10 _set_cursor@2753-2762@./widgets.py
+       4      2     32      1       5 connect_default_events@2764-2768@./widgets.py
+      18      8    126      2      31 _press@2770-2800@./widgets.py
+       2      1     10      1       3 direction@2803-2805@./widgets.py
+      12      5     88      2      14 direction@2808-2821@./widgets.py
+      21      7    121      2      32 _release@2823-2854@./widgets.py
+       7      4     59      2      14 _hover@2856-2869@./widgets.py
+      28     12    177      2      44 _onmove@2871-2914@./widgets.py
+       9      3     66      3       9 _draw_shape@2916-2924@./widgets.py
+      15      5    101      2      25 _set_active_handle@2926-2950@./widgets.py
+       2      1     24      2       3 _contains@2952-2954@./widgets.py
+       5      2     62      2       7 _snap@2957-2963@./widgets.py
+       8      2     59      1       9 extents@2966-2974@./widgets.py
+       8      3     65      2      10 extents@2977-2986@./widgets.py
+      12      4    100      6      16 __init__@3010-3025@./widgets.py
+       2      1     12      1       2 artists@3028-3029@./widgets.py
+       3      3     37      1       4 positions@3032-3035@./widgets.py
+       2      1     10      1       3 direction@3038-3040@./widgets.py
+       4      3     46      2      13 set_data@3042-3054@./widgets.py
+       3      2     21      2       4 set_visible@3056-3059@./widgets.py
+       3      2     21      2       4 set_animated@3061-3064@./widgets.py
+       3      2     18      1       4 remove@3066-3069@./widgets.py
+      13      4    114      3      27 closest@3071-3097@./widgets.py
+       8      1    100      7       8 __init__@3121-3128@./widgets.py
+       2      1     13      1       2 x@3131-3132@./widgets.py
+       2      1     13      1       2 y@3135-3136@./widgets.py
+       2      1     12      1       2 artists@3139-3140@./widgets.py
+       5      2     41      3       6 set_data@3142-3147@./widgets.py
+       2      1     15      2       2 set_visible@3149-3150@./widgets.py
+       2      1     15      2       2 set_animated@3152-3153@./widgets.py
+       7      1     73      3       9 closest@3155-3163@./widgets.py
+      49      4    428     17      65 __init__@3286-3350@./widgets.py
+       3      1     28      1       3 _handles_artists@3353-3355@./widgets.py
+       3      1     32      2       3 _init_shape@3357-3359@./widgets.py
+      21      9    137      2      29 _press@3361-3389@./widgets.py
+      35     10    304      2      47 _release@3391-3437@./widgets.py
+     103     29    917      2     146 _onmove@3439-3584@./widgets.py
+       2      1     15      1       2 _rect_bbox@3587-3588@./widgets.py
+       7      2     38      1       7 _set_aspect_ratio_correction@3590-3596@./widgets.py
+       7      1     72      1       7 _get_rotation_transform@3598-3604@./widgets.py
+       7      1     81      1      11 corners@3607-3617@./widgets.py
+       9      1     97      1      13 edge_centers@3620-3632@./widgets.py
+       3      1     31      1       4 center@3635-3638@./widgets.py
+       5      1     53      1       9 extents@3641-3649@./widgets.py
+       9      2     74      2      11 extents@3652-3662@./widgets.py
+       2      1     15      1       6 rotation@3665-3670@./widgets.py
+       4      3     34      2       7 rotation@3673-3679@./widgets.py
+      15      1    154      2      17 _draw_shape@3681-3697@./widgets.py
+      18      8    153      2      27 _set_active_handle@3699-3725@./widgets.py
+       2      1     24      2       3 _contains@3727-3729@./widgets.py
+       7      2     71      1      13 geometry@3732-3744@./widgets.py
+       2      1     28      2       2 _init_shape@3765-3766@./widgets.py
+      11      1    119      2      12 _draw_shape@3768-3779@./widgets.py
+       5      1     46      1       5 _rect_bbox@3782-3786@./widgets.py
+      10      2     97      6      12 __init__@3831-3842@./widgets.py
+       3      1     27      2       3 _press@3844-3846@./widgets.py
+       7      2     63      2       7 _release@3848-3854@./widgets.py
+       6      2     50      2       7 _onmove@3856-3862@./widgets.py
+      33      4    280     11      44 __init__@3943-3986@./widgets.py
+       2      1     13      1       2 _get_bbox@3988-3989@./widgets.py
+      14      1    100      1      16 _add_box@3991-4006@./widgets.py
+       4      2     26      1       4 _remove_box@4008-4011@./widgets.py
+       5      2     52      1       7 _update_box@4013-4019@./widgets.py
+      16      4    152      2      27 _scale_polygon@4021-4047@./widgets.py
+       2      1     11      1       2 _handles_artists@4050-4051@./widgets.py
+      12      5     99      2      19 _remove_vertex@4053-4071@./widgets.py
+       7      5     73      2      11 _press@4073-4083@./widgets.py
+      16     11    141      2      23 _release@4085-4107@./widgets.py
+       6      2     35      2      11 onmove@4109-4119@./widgets.py
+      24     12    242      2      37 _onmove@4121-4157@./widgets.py
+       6      4     42      2       9 _on_key_press@4159-4167@./widgets.py
+      13      5    118      2      17 _on_key_release@4169-4185@./widgets.py
+      11      5    114      1      15 _draw_polygon@4187-4201@./widgets.py
+       2      1     15      1       3 verts@4204-4206@./widgets.py
+       7      3     53      2      13 verts@4209-4221@./widgets.py
+      12      3    132      5      14 __init__@4250-4263@./widgets.py
+      10      4     80      2      10 onrelease@4265-4274@./widgets.py
+      17      6    121      2      19 onmove@4276-4294@./widgets.py
        2      1     13      1       7 _to_int@48-54@./_afm.py
        4      2     33      1       9 _to_float@57-65@./_afm.py
        2      1     12      1       2 _to_str@68-69@./_afm.py
@@ -5390,7 +5447,9 @@
        5      1     34      3      12 process_figure_for_rasterizing@70-81@./_tight_bbox.py
       95     32    798     10     138 _auto_adjust_subplotpars@20-157@./_tight_layout.py
       20      8    106      2      32 get_subplotspec_list@160-191@./_tight_layout.py
-      57     17    431      8     108 get_tight_layout_figure@194-301@./_tight_layout.py
+      11      5     80      2      13 refactor@194-206@./_tight_layout.py
+       5      4     59      2       9 refactor_init_lists@209-217@./_tight_layout.py
+      47     10    346      8     114 get_tight_layout_figure@220-333@./_tight_layout.py
        4      1     33      3       4 __init__@55-58@./_type1font.py
        2      1      8      1       2 __str__@60-61@./_type1font.py
        2      1     17      1       3 endpos@63-65@./_type1font.py
@@ -5473,11 +5532,11 @@
       19      8     91      2      42 _add_data_doc@1324-1365@./__init__.py
       24     15    230      4      29 _preprocess_data.inner@1440-1468@./__init__.py
       35      9    225      4     105 _preprocess_data@1368-1472@./__init__.py
-143 file analyzed.
+144 file analyzed.
 ==============================================================
 NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
 --------------------------------------------------------------
-   3639      37.5     8.4      262.2        87     ./axes/_axes.py
+   3772      37.6     8.2      263.0        90     ./axes/_axes.py
    2168      10.8     3.9       82.4       189     ./axes/_base.py
     167      10.7     2.9       91.1        11     ./axes/_secondary_axes.py
      10       3.0     2.0       27.0         1     ./axes/__init__.py
@@ -5522,6 +5581,7 @@ NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
      88       5.3     1.4       41.8        13     ./backends/_backend_pdf_ps.py
     754       8.3     2.4       67.9        81     ./backends/_backend_tk.py
       1       0.0     0.0        0.0         0     ./backends/__init__.py
+    441       8.6     2.3       57.3        51     ./htmlcov/coverage_html.js
       2       0.0     0.0        0.0         0     ./mpl-data/kpsewhich.lua
     331       5.0     1.1       45.5        58     ./projections/geo.py
     985       8.6     2.3       72.5        95     ./projections/polar.py
@@ -5590,15 +5650,15 @@ NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
     487       4.8     1.5       33.6        62     ./scale.py
     402       9.1     3.1       68.9        37     ./spines.py
     107       3.0     1.0       26.0         1     ./stackplot.py
-    435      14.4     4.0      115.6        27     ./streamplot.py
-    470      10.1     3.3       77.7        38     ./table.py
+    458      13.7     3.7      111.1        30     ./streamplot.py
+    498      10.8     3.3       82.0        38     ./table.py
     287      12.4     2.8       87.8        16     ./texmanager.py
     992       8.9     2.6       64.3       104     ./text.py
     272      14.4     2.7       91.2        17     ./textpath.py
    2000       9.0     3.1       64.0       165     ./ticker.py
    1588       5.1     2.0       43.1       222     ./transforms.py
     119       7.0     2.9       48.0         7     ./units.py
-   2932      10.7     3.5       88.6       208     ./widgets.py
+   2957      10.8     3.5       89.2       208     ./widgets.py
     319       7.5     2.4       51.7        34     ./_afm.py
     253       0.0     0.0        0.0         0     ./_animation_data.py
       9       9.0     5.0       67.0         1     ./_blocking_input.py
@@ -5616,7 +5676,7 @@ NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
      93       4.9     2.5       39.5        11     ./_pylab_helpers.py
      46      19.0     8.5      131.5         2     ./_text_helpers.py
      50      15.7     2.7      125.7         3     ./_tight_bbox.py
-    187      57.3    19.0      445.0         3     ./_tight_layout.py
+    193      35.6    11.8      277.8         5     ./_tight_layout.py
     645      13.8     4.5       96.0        32     ./_type1font.py
       2       0.0     0.0        0.0         0     ./_version.py
     790      11.6     4.0       74.0        50     ./__init__.py
@@ -5626,21 +5686,22 @@ NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
 ================================================
   NLOC    CCN   token  PARAM  length  location  
 ------------------------------------------------
-     113     39    864     10     241 eventplot@1197-1437@./axes/_axes.py
-     257     34   1149      8     294 bar@2240-2533@./axes/_axes.py
-      95     32    662      8     166 bar_label@2653-2818@./axes/_axes.py
-      78     20    577      9     182 stem@2890-3071@./axes/_axes.py
-     147     48   1296     17     365 errorbar@3346-3710@./axes/_axes.py
-      94     35    673     28     309 boxplot@3713-4021@./axes/_axes.py
-     136     32   1267     21     287 bxp@4023-4309@./axes/_axes.py
-      78     29    429      5     148 _parse_scatter_color_args@4312-4459@./axes/_axes.py
-     100     32    756     16     250 scatter@4466-4715@./axes/_axes.py
-     188     37   1868     20     388 hexbin@4719-5106@./axes/_axes.py
-      75     25    603      5     115 _pcolorargs@5681-5795@./axes/_axes.py
-      64     17    579      8     179 pcolorfast@6257-6435@./axes/_axes.py
-     198     77   1724     17     462 hist@6492-6953@./axes/_axes.py
-      50     18    389     18     153 specgram@7642-7794@./axes/_axes.py
-      60     16    490      8     137 spy@7797-7933@./axes/_axes.py
+     113     39    864     10     241 eventplot@1200-1440@./axes/_axes.py
+     257     34   1149      8     294 bar@2266-2559@./axes/_axes.py
+      95     32    662      8     166 bar_label@2679-2844@./axes/_axes.py
+      78     20    577      9     182 stem@2916-3097@./axes/_axes.py
+     147     48   1296     17     365 errorbar@3372-3736@./axes/_axes.py
+     131     35    895     28     346 boxplot@3739-4084@./axes/_axes.py
+     136     32   1267     21     287 bxp@4086-4372@./axes/_axes.py
+      78     29    429      5     148 _parse_scatter_color_args@4375-4522@./axes/_axes.py
+     100     32    756     16     250 scatter@4529-4778@./axes/_axes.py
+     188     37   1868     20     388 hexbin@4782-5169@./axes/_axes.py
+      75     25    603      5     115 _pcolorargs@5744-5858@./axes/_axes.py
+      64     17    579      8     179 pcolorfast@6320-6498@./axes/_axes.py
+      63     18    445     14      71 refactorHistBar@6557-6627@./axes/_axes.py
+     152     42   1195     17     383 hist@6710-7092@./axes/_axes.py
+      50     18    389     18     153 specgram@7781-7933@./axes/_axes.py
+      60     16    490      8     137 spy@7936-8072@./axes/_axes.py
       57     20    330      3      88 _process_plot_format@121-208@./axes/_base.py
       56     19    317      4      72 __call__@241-312@./axes/_base.py
       72     31    539      6     139 _plot_args@406-544@./axes/_base.py
@@ -5698,15 +5759,15 @@ NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
       51     20    415      4      56 _get_xy@4490-4545@./patches.py
       43     19    253      2     198 subplot@1127-1324@./pyplot.py
       46     17    419      4      57 _make_verts@607-663@./quiver.py
-     119     30   1057     19     229 streamplot@18-246@./streamplot.py
-      77     28    528     15     177 table@654-830@./table.py
+      92     18    700     19     182 streamplot@90-271@./streamplot.py
+     104     28    690     15     206 table@657-862@./table.py
      101     24    752      2     150 _get_layout@363-512@./text.py
       66     22    419      3      83 _get_xy_transform@1480-1562@./text.py
       64     26    520      3      87 tick_values@2346-2432@./ticker.py
       45     17    342      3      88 tick_values@2520-2607@./ticker.py
       64     24    458      3      76 tick_values@2772-2847@./ticker.py
-      35     16    252      2      35 _keypress@1463-1497@./widgets.py
-     103     29    917      2     146 _onmove@3414-3559@./widgets.py
+      59     16    396      2      59 _keypress@1464-1522@./widgets.py
+     103     29    917      2     146 _onmove@3439-3584@./widgets.py
       73     32    661      8     101 make_layout_margins@338-438@./_constrained_layout.py
       64     21    623      2      95 match_submerged_margins@480-574@./_constrained_layout.py
       51     19    334      4      61 _get_glyph@526-586@./_mathtext.py
@@ -5715,11 +5776,10 @@ NLOC    Avg.NLOC  AvgCCN  Avg.token  function_cnt    file
       31     21    289      4      44 symbol@2076-2119@./_mathtext.py
      130     32    932      4     161 subsuper@2254-2414@./_mathtext.py
       95     32    798     10     138 _auto_adjust_subplotpars@20-157@./_tight_layout.py
-      57     17    431      8     108 get_tight_layout_figure@194-301@./_tight_layout.py
       76     20    516      2      97 _tokenize@174-270@./_type1font.py
       74     24    500      1     102 _parse@491-592@./_type1font.py
       68     23    383      1     138 _get_executable_info@325-462@./__init__.py
 ==========================================================================================
 Total nloc   Avg.NLOC  AvgCCN  Avg.token   Fun Cnt  Warning cnt   Fun Rt   nloc Rt
 ------------------------------------------------------------------------------------------
-     75702       9.9     2.9       76.7     5472           93      0.02    0.13
+     76358       9.9     2.9       76.7     5531           93      0.02    0.13

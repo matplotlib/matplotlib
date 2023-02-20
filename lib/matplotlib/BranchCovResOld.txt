@@ -1,0 +1,46 @@
+|| Branch 0 taken: True || Branch 1 taken: True || Branch 2 taken: True || Branch 3 taken: True ||
+|| Branch 4 taken: True || Branch 5 taken: True || Branch 6 taken: True || Branch 7 taken: True ||
+|| Branch 8 taken: True || Branch 9 taken: False || Branch 10 taken: True || Branch 11 taken: False ||
+|| Branch 12 taken: True || Branch 13 taken: True || Branch 14 taken: True || Branch 15 taken: False ||
+|| Branch 16 taken: True || Branch 17 taken: True || Branch 18 taken: True || Branch 19 taken: True ||
+|| Branch 20 taken: True || Branch 21 taken: True || Branch 22 taken: True || Branch 23 taken: True ||
+|| Branch 24 taken: True || Branch 25 taken: True || Branch 26 taken: True || Branch 27 taken: True ||
+|| Branch 28 taken: False || Branch 29 taken: False || Branch 30 taken: False || Branch 31 taken: False ||
+|| Branch 32 taken: True || Branch 33 taken: False || Branch 34 taken: True || Branch 35 taken: True ||
+|| Branch 36 taken: True || Branch 37 taken: True || Branch 38 taken: True || Branch 39 taken: False ||
+|| Branch 40 taken: False || Branch 41 taken: True || Branch 42 taken: True || Branch 43 taken: True ||
+|| Branch 44 taken: True || Branch 45 taken: True || Branch 46 taken: True || Branch 47 taken: True ||
+|| Branch 48 taken: True || Branch 49 taken: True || Branch 50 taken: True || Branch 51 taken: True ||
+|| Branch 52 taken: False || Branch 53 taken: True || Branch 54 taken: False || Branch 55 taken: False ||
+|| Branch 56 taken: True || Branch 57 taken: True || Branch 58 taken: True || Branch 59 taken: True ||
+|| Branch 60 taken: True || Branch 61 taken: True || Branch 62 taken: True || Branch 63 taken: True ||
+|| Branch 64 taken: True || Branch 65 taken: True || Branch 66 taken: True || Branch 67 taken: True ||
+|| Branch 68 taken: True || Branch 69 taken: True || Branch 70 taken: True ||
+The hist() function took 81.69014084507043% of its branches, 58 out of 71, during the tests.
+|| Branch 0 taken: False || Branch 1 taken: True || Branch 2 taken: True || Branch 3 taken: False ||
+|| Branch 4 taken: True || Branch 5 taken: False || Branch 6 taken: True || Branch 7 taken: False ||
+|| Branch 8 taken: True || Branch 9 taken: True || Branch 10 taken: True || Branch 11 taken: True ||
+|| Branch 12 taken: True || Branch 13 taken: True || Branch 14 taken: False || Branch 15 taken: True ||
+|| Branch 16 taken: True || Branch 17 taken: True || Branch 18 taken: True || Branch 19 taken: False ||
+|| Branch 20 taken: True || Branch 21 taken: True || Branch 22 taken: True || Branch 23 taken: True ||
+|| Branch 24 taken: True || Branch 25 taken: True || Branch 26 taken: True || Branch 27 taken: False ||
+The table() function took 75.0% of its branches, 21 out of 28, during the tests.
+|| Branch 0 taken: True || Branch 1 taken: True || Branch 2 taken: True || Branch 3 taken: True ||
+|| Branch 4 taken: True || Branch 5 taken: True || Branch 6 taken: False || Branch 7 taken: True ||
+|| Branch 8 taken: True || Branch 9 taken: False || Branch 10 taken: True || Branch 11 taken: False ||
+|| Branch 12 taken: True || Branch 13 taken: True || Branch 14 taken: True || Branch 15 taken: True ||
+|| Branch 16 taken: True || Branch 17 taken: True || Branch 18 taken: False || Branch 19 taken: True ||
+|| Branch 20 taken: True || Branch 21 taken: True || Branch 22 taken: True || Branch 23 taken: True ||
+|| Branch 24 taken: True || Branch 25 taken: False || Branch 26 taken: False || Branch 27 taken: True ||
+|| Branch 28 taken: True ||
+The streamplot() function took 79.3103448275862% of its branches, 23 out of 29, during the tests.
+|| Branch 0 taken: True || Branch 1 taken: True || Branch 2 taken: True || Branch 3 taken: True ||
+|| Branch 4 taken: True || Branch 5 taken: True || Branch 6 taken: True || Branch 7 taken: True ||
+|| Branch 8 taken: True || Branch 9 taken: True || Branch 10 taken: True || Branch 11 taken: True ||
+|| Branch 12 taken: True || Branch 13 taken: True || Branch 14 taken: True || Branch 15 taken: True ||
+|| Branch 16 taken: True || Branch 17 taken: False || Branch 18 taken: True || Branch 19 taken: False ||
+|| Branch 20 taken: True || Branch 21 taken: True || Branch 22 taken: True || Branch 23 taken: True ||
+|| Branch 24 taken: True || Branch 25 taken: True || Branch 26 taken: True || Branch 27 taken: True ||
+|| Branch 28 taken: True || Branch 29 taken: True || Branch 30 taken: True || Branch 31 taken: True ||
+|| Branch 32 taken: True || Branch 33 taken: False || Branch 34 taken: True || Branch 35 taken: True ||
+The boxplot() function took 91.66666666666666% of its branches, 33 out of 36, during the tests.

@@ -46,7 +46,6 @@ def writeRes():
     #Klara
     currTakenBranches = 0
     global streamBranchBools
-    f = open("BranchCovRes.txt", "w")
     for currBranchNr in range(len(streamBranchBools)):
         if (currBranchNr % 4 == 0 and currBranchNr != 0):
             f.write("||\n")
@@ -56,13 +55,12 @@ def writeRes():
 
     f.write("||\n")
     f.write(
-        f"The hist() function took {100 * (currTakenBranches / len(streamBranchBools))}% of its branches, {currTakenBranches} out of {len(streamBranchBools)}, during the tests.")
+        f"The streamplot() function took {100 * (currTakenBranches / len(streamBranchBools))}% of its branches, {currTakenBranches} out of {len(streamBranchBools)}, during the tests.")
     f.write("\n")
 
     #Ahmad
     currTakenBranches = 0
     global boxplotlist
-    f = open("BranchCovRes.txt", "w")
     for currBranchNr in range(len(boxplotlist)):
         if (currBranchNr % 4 == 0 and currBranchNr != 0):
             f.write("||\n")
@@ -72,7 +70,7 @@ def writeRes():
 
     f.write("||\n")
     f.write(
-        f"The hist() function took {100 * (currTakenBranches / len(boxplotlist))}% of its branches, {currTakenBranches} out of {len(boxplotlist)}, during the tests.")
+        f"The boxplot() function took {100 * (currTakenBranches / len(boxplotlist))}% of its branches, {currTakenBranches} out of {len(boxplotlist)}, during the tests.")
     f.write("\n")
 
     f.close()
