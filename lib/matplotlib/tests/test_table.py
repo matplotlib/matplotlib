@@ -222,3 +222,49 @@ def test_table_bbox(fig_test, fig_ref):
                   loc='center',
                   bbox=Bbox.from_extents(0.1, 0.2, 0.9, 0.8)
                   )
+
+import pytest
+from matplotlib.table import table
+
+
+# Test that a ValueError is raised when cellColours = None and cellText = None
+# We control this by asserting that the error message is what we expect
+def test_table_no_args():
+    fig, ax = plt.subplots()
+
+    with pytest.raises(ValueError) as excinfo:
+        table(ax, cellColours=None, cellText=None)
+
+    assert 'At least one argument from "cellColours" or "cellText" must be provided to create a table.' in str(
+        excinfo.value)
+
+# Test that a ValueError is raised when the length of a row in cellText != the first row
+# here the second row in cellText is length 3 and the first row in cellColours has length 2
+# We control this by asserting that the error message is what we expect
+def test_table_wrong_rows():
+    fig, ax = plt.subplots()
+
+    with pytest.raises(ValueError) as excinfo:
+        table(ax, cellText=[['a', 'b'], ['c', 'd','e']], cellColours=[[1, 2], [3, 4], [5, 6]])
+    assert str(excinfo.value) == "Each row in 'cellText' must have 2 columns"
+
+# Test that a ValueError is raised when the length of a row in cellColours != the length of the first row in cellText
+# here the first row in cellText has length 2 and the second row in cellColours length 3
+# We controll this by asserting that the error message is what we expect
+def test_table_wrong_columns():
+    fig, ax = plt.subplots()
+
+    with pytest.raises(ValueError, match="Each row in 'cellColours' must have 2 columns"):
+        fig, ax = plt.subplots()
+        table(ax, cellText=[['a', 'b'], ['c', 'd']], cellColours=[[1, 2], [3, 4, 5]])
+
+
+# Test that a ValueError is raised when rowLabels does not have the same lenght as cellText
+# here cellText has length 2 and rowLabels length 1
+# We control this by asserting that the error message is what we expect
+def test_table_rowLabels_length():
+
+    with pytest.raises(ValueError) as excinfo:
+        fig, ax = plt.subplots()
+        table(ax, cellText=[['a', 'b'], ['c', 'd']], rowLabels=['Row 1'], cellColours=[[1, 2], [3, 4]])
+    assert str(excinfo.value) == "'rowLabels' must be of length 2"
