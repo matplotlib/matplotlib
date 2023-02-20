@@ -1,10 +1,12 @@
 
+
 from matplotlib.testing.conftest import (  # noqa
     mpl_test_settings, pytest_configure, pytest_unconfigure, pd, xr)
 
 #Global boolean list declarations
 histBranchBools = [False for i in range(72)]
 #another list with false booleans
+boxplotlist = [False for i in range(72)]
 
 def writeRes():
     currTakenBranches = 0
@@ -12,6 +14,7 @@ def writeRes():
     f = open("BranchCovRes.txt", "w")
     for currBranchNr in range(len(histBranchBools)):
         if(currBranchNr % 4 == 0 and currBranchNr != 0):
+
             f.write("||\n")
         f.write(f"|| Branch {currBranchNr} taken: {histBranchBools[currBranchNr]} ")
         if(histBranchBools[currBranchNr]):

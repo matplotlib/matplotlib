@@ -1,4 +1,5 @@
-from matplotlib.tests.conftest import histBranchBools
+from matplotlib.tests.conftest import boxplotlist
+
 
 import functools
 import itertools
@@ -3910,45 +3911,63 @@ class Axes(_AxesBase):
 
         # Missing arguments default to rcParams.
         if whis is None:
+            boxplotlist[0] = True
             whis = mpl.rcParams['boxplot.whiskers']
         if bootstrap is None:
+            boxplotlist[1] = True
             bootstrap = mpl.rcParams['boxplot.bootstrap']
 
         bxpstats = cbook.boxplot_stats(x, whis=whis, bootstrap=bootstrap,
                                        labels=labels, autorange=autorange)
         if notch is None:
+            boxplotlist[2] = True
             notch = mpl.rcParams['boxplot.notch']
         if vert is None:
+            boxplotlist[3] = True
             vert = mpl.rcParams['boxplot.vertical']
         if patch_artist is None:
+            boxplotlist[4] = True
             patch_artist = mpl.rcParams['boxplot.patchartist']
         if meanline is None:
+            boxplotlist[5] = True
             meanline = mpl.rcParams['boxplot.meanline']
         if showmeans is None:
+            boxplotlist[6] = True
             showmeans = mpl.rcParams['boxplot.showmeans']
         if showcaps is None:
+            boxplotlist[7] = True
             showcaps = mpl.rcParams['boxplot.showcaps']
         if showbox is None:
+            boxplotlist[8] = True
             showbox = mpl.rcParams['boxplot.showbox']
         if showfliers is None:
+            boxplotlist[9] = True
             showfliers = mpl.rcParams['boxplot.showfliers']
 
         if boxprops is None:
+            boxplotlist[10] = True
             boxprops = {}
         if whiskerprops is None:
+            boxplotlist[11] = True
             whiskerprops = {}
         if capprops is None:
+            boxplotlist[12] = True
             capprops = {}
         if medianprops is None:
+            boxplotlist[13] = True
             medianprops = {}
         if meanprops is None:
+            boxplotlist[14] = True
             meanprops = {}
         if flierprops is None:
+            boxplotlist[15] = True
             flierprops = {}
 
         if patch_artist:
+            boxplotlist[16] = True
             boxprops['linestyle'] = 'solid'  # Not consistent with bxp.
             if 'color' in boxprops:
+                boxplotlist[17] = True
                 boxprops['edgecolor'] = boxprops.pop('color')
 
         # if non-default sym value, put it into the flier dictionary
@@ -3957,24 +3976,29 @@ class Axes(_AxesBase):
         # handle all of the *sym* related logic here so we only have to pass
         # on the flierprops dict.
         if sym is not None:
+            boxplotlist[18] = True
             # no-flier case, which should really be done with
             # 'showfliers=False' but none-the-less deal with it to keep back
             # compatibility
             if sym == '':
+                boxplotlist[19] = True
                 # blow away existing dict and make one for invisible markers
                 flierprops = dict(linestyle='none', marker='', color='none')
                 # turn the fliers off just to be safe
                 showfliers = False
             # now process the symbol string
             else:
+                boxplotlist[20] = True
                 # process the symbol string
                 # discarded linestyle
                 _, marker, color = _process_plot_format(sym)
                 # if we have a marker, use it
                 if marker is not None:
+                    boxplotlist[21] = True
                     flierprops['marker'] = marker
                 # if we have a color, use it
                 if color is not None:
+                    boxplotlist[22] = True
                     # assume that if color is passed in the user want
                     # filled symbol, if the users want more control use
                     # flierprops
@@ -3984,30 +4008,44 @@ class Axes(_AxesBase):
 
         # replace medians if necessary:
         if usermedians is not None:
+            boxplotlist[23] = True
             if (len(np.ravel(usermedians)) != len(bxpstats) or
                     np.shape(usermedians)[0] != len(bxpstats)):
+                boxplotlist[24] = True
                 raise ValueError(
                     "'usermedians' and 'x' have different lengths")
             else:
+                boxplotlist[25] = True
                 # reassign medians as necessary
                 for stats, med in zip(bxpstats, usermedians):
+                    boxplotlist[26] = True
                     if med is not None:
+                        boxplotlist[27] = True
                         stats['med'] = med
 
         if conf_intervals is not None:
+            boxplotlist[28] = True
             if len(conf_intervals) != len(bxpstats):
+                boxplotlist[29] = True
                 raise ValueError(
                     "'conf_intervals' and 'x' have different lengths")
             else:
+                boxplotlist[30] = True
                 for stats, ci in zip(bxpstats, conf_intervals):
+                    boxplotlist[31] = True
                     if ci is not None:
+                        boxplotlist[32] = True
                         if len(ci) != 2:
+                            boxplotlist[33] = True
                             raise ValueError('each confidence interval must '
                                              'have two values')
                         else:
+                            boxplotlist[34] = True
                             if ci[0] is not None:
+                                boxplotlist[35] = True
                                 stats['cilo'] = ci[0]
                             if ci[1] is not None:
+                                boxplotlist[36] = True
                                 stats['cihi'] = ci[1]
 
         artists = self.bxp(bxpstats, positions=positions, widths=widths,
