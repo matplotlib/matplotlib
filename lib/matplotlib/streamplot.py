@@ -10,10 +10,82 @@ from matplotlib import _api, cm, patches
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
+from matplotlib.tests.conftest import streamBranchBools
 
 
 __all__ = ['streamplot']
 
+def refactor1(mask, trajectories, dmap, integrate, broken_streamlines):
+    for xm, ym in _gen_starting_points(mask.shape):
+            if mask[ym, xm] == 0:
+                xg, yg = dmap.mask2grid(xm, ym)
+                t = integrate(xg, yg, broken_streamlines)
+                if t is not None:
+                    trajectories.append(t)
+
+def refactor2(start_points, grid, dmap, integrate, broken_streamlines, trajectories):
+    sp2 = np.asanyarray(start_points, dtype=float).copy()
+
+    # Check if start_points are outside the data boundaries
+    for xs, ys in sp2:
+        if not (grid.x_origin <= xs <= grid.x_origin + grid.width and
+                grid.y_origin <= ys <= grid.y_origin + grid.height):
+            raise ValueError(f"Starting point ({xs}, {ys}) outside of "
+                                "data boundaries")
+
+    # Convert start_points from data to array coords
+    # Shift the seed points from the bottom left of the data so that
+    # data2grid works properly.
+    sp2[:, 0] -= grid.x_origin
+    sp2[:, 1] -= grid.y_origin
+
+    for xs, ys in sp2:
+        xg, yg = dmap.data2grid(xs, ys)
+        # Floating point issues can cause xg, yg to be slightly out of
+        # bounds for xs, ys on the upper boundaries. Because we have
+        # already checked that the starting points are within the original
+        # grid, clip the xg, yg to the grid to work around this issue
+        xg = np.clip(xg, 0, grid.nx - 1)
+        yg = np.clip(yg, 0, grid.ny - 1)
+
+        t = integrate(xg, yg, broken_streamlines)
+        if t is not None:
+            trajectories.append(t)
+
+def refactor3(t, dmap, grid, linewidth, use_multicolor_lines, streamlines, line_kw, arrow_kw, line_colors, color, cmap, norm, transform, arrows):
+    tgx, tgy = t.T
+    # Rescale from grid-coordinates to data-coordinates.
+    tx, ty = dmap.grid2data(tgx, tgy)
+    tx += grid.x_origin
+    ty += grid.y_origin
+
+    # Create multiple tiny segments if varying width or color is given
+    if isinstance(linewidth, np.ndarray) or use_multicolor_lines:
+        points = np.transpose([tx, ty]).reshape(-1, 1, 2)
+        streamlines.extend(np.hstack([points[:-1], points[1:]]))
+    else:
+        points = np.transpose([tx, ty])
+        streamlines.append(points)
+
+    # Add arrows halfway along each trajectory.
+    s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
+    n = np.searchsorted(s, s[-1] / 2.)
+    arrow_tail = (tx[n], ty[n])
+    arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
+
+    if isinstance(linewidth, np.ndarray):
+        line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
+        line_kw['linewidth'].extend(line_widths)
+        arrow_kw['linewidth'] = line_widths[n]
+
+    if use_multicolor_lines:
+        color_values = interpgrid(color, tgx, tgy)[:-1]
+        line_colors.append(color_values)
+        arrow_kw['color'] = cmap(norm(color_values[n]))
+
+    p = patches.FancyArrowPatch(
+        arrow_tail, arrow_head, transform=transform, **arrow_kw)
+    arrows.append(p)
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
@@ -93,16 +165,20 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     dmap = DomainMap(grid, mask)
 
     if zorder is None:
+        streamBranchBools[0] = True
         zorder = mlines.Line2D.zorder
 
     # default to data coordinates
     if transform is None:
+        streamBranchBools[1] = True
         transform = axes.transData
-
+    
     if color is None:
+        streamBranchBools[2] = True
         color = axes._get_lines.get_next_color()
 
     if linewidth is None:
+        streamBranchBools[3] = True
         linewidth = mpl.rcParams['lines.linewidth']
 
     line_kw = {}
@@ -112,25 +188,32 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                        integration_direction=integration_direction)
 
     if integration_direction == 'both':
+        streamBranchBools[4] = True
         maxlength /= 2.
 
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
+        streamBranchBools[5] = True
         if color.shape != grid.shape:
+            streamBranchBools[6] = True
             raise ValueError("If 'color' is given, it must match the shape of "
                              "the (x, y) grid")
         line_colors = [[]]  # Empty entry allows concatenation of zero arrays.
         color = np.ma.masked_invalid(color)
     else:
+        streamBranchBools[7] = True
         line_kw['color'] = color
         arrow_kw['color'] = color
 
     if isinstance(linewidth, np.ndarray):
+        streamBranchBools[8] = True
         if linewidth.shape != grid.shape:
+            streamBranchBools[9] = True
             raise ValueError("If 'linewidth' is given, it must match the "
                              "shape of the (x, y) grid")
         line_kw['linewidth'] = []
     else:
+        streamBranchBools[10] = True
         line_kw['linewidth'] = linewidth
         arrow_kw['linewidth'] = linewidth
 
@@ -139,6 +222,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     # Sanity checks.
     if u.shape != grid.shape or v.shape != grid.shape:
+        streamBranchBools[11] = True
         raise ValueError("'u' and 'v' must match the shape of the (x, y) grid")
 
     u = np.ma.masked_invalid(u)
@@ -149,88 +233,28 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     trajectories = []
     if start_points is None:
-        for xm, ym in _gen_starting_points(mask.shape):
-            if mask[ym, xm] == 0:
-                xg, yg = dmap.mask2grid(xm, ym)
-                t = integrate(xg, yg, broken_streamlines)
-                if t is not None:
-                    trajectories.append(t)
+        refactor1(mask, trajectories, dmap, integrate, broken_streamlines)
     else:
-        sp2 = np.asanyarray(start_points, dtype=float).copy()
-
-        # Check if start_points are outside the data boundaries
-        for xs, ys in sp2:
-            if not (grid.x_origin <= xs <= grid.x_origin + grid.width and
-                    grid.y_origin <= ys <= grid.y_origin + grid.height):
-                raise ValueError(f"Starting point ({xs}, {ys}) outside of "
-                                 "data boundaries")
-
-        # Convert start_points from data to array coords
-        # Shift the seed points from the bottom left of the data so that
-        # data2grid works properly.
-        sp2[:, 0] -= grid.x_origin
-        sp2[:, 1] -= grid.y_origin
-
-        for xs, ys in sp2:
-            xg, yg = dmap.data2grid(xs, ys)
-            # Floating point issues can cause xg, yg to be slightly out of
-            # bounds for xs, ys on the upper boundaries. Because we have
-            # already checked that the starting points are within the original
-            # grid, clip the xg, yg to the grid to work around this issue
-            xg = np.clip(xg, 0, grid.nx - 1)
-            yg = np.clip(yg, 0, grid.ny - 1)
-
-            t = integrate(xg, yg, broken_streamlines)
-            if t is not None:
-                trajectories.append(t)
-
+        refactor2(start_points, grid, dmap, integrate, broken_streamlines, trajectories)
+    
     if use_multicolor_lines:
+        streamBranchBools[21] = True
         if norm is None:
+            streamBranchBools[22] = True
             norm = mcolors.Normalize(color.min(), color.max())
         cmap = cm._ensure_cmap(cmap)
 
     streamlines = []
     arrows = []
     for t in trajectories:
-        tgx, tgy = t.T
-        # Rescale from grid-coordinates to data-coordinates.
-        tx, ty = dmap.grid2data(tgx, tgy)
-        tx += grid.x_origin
-        ty += grid.y_origin
-
-        # Create multiple tiny segments if varying width or color is given
-        if isinstance(linewidth, np.ndarray) or use_multicolor_lines:
-            points = np.transpose([tx, ty]).reshape(-1, 1, 2)
-            streamlines.extend(np.hstack([points[:-1], points[1:]]))
-        else:
-            points = np.transpose([tx, ty])
-            streamlines.append(points)
-
-        # Add arrows halfway along each trajectory.
-        s = np.cumsum(np.hypot(np.diff(tx), np.diff(ty)))
-        n = np.searchsorted(s, s[-1] / 2.)
-        arrow_tail = (tx[n], ty[n])
-        arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
-
-        if isinstance(linewidth, np.ndarray):
-            line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
-            line_kw['linewidth'].extend(line_widths)
-            arrow_kw['linewidth'] = line_widths[n]
-
-        if use_multicolor_lines:
-            color_values = interpgrid(color, tgx, tgy)[:-1]
-            line_colors.append(color_values)
-            arrow_kw['color'] = cmap(norm(color_values[n]))
-
-        p = patches.FancyArrowPatch(
-            arrow_tail, arrow_head, transform=transform, **arrow_kw)
-        arrows.append(p)
+        refactor3(t, dmap, grid, linewidth, use_multicolor_lines, streamlines, line_kw, arrow_kw, line_colors, color, cmap, norm, transform, arrows)
 
     lc = mcollections.LineCollection(
         streamlines, transform=transform, **line_kw)
     lc.sticky_edges.x[:] = [grid.x_origin, grid.x_origin + grid.width]
     lc.sticky_edges.y[:] = [grid.y_origin, grid.y_origin + grid.height]
     if use_multicolor_lines:
+        streamBranchBools[27] = True
         lc.set_array(np.ma.hstack(line_colors))
         lc.set_cmap(cmap)
         lc.set_norm(norm)
@@ -239,6 +263,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     ac = mcollections.PatchCollection(arrows)
     # Adding the collection itself is broken; see #2341.
     for p in arrows:
+        streamBranchBools[28] = True
         axes.add_patch(p)
 
     axes.autoscale_view()

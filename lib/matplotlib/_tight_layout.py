@@ -190,6 +190,32 @@ def get_subplotspec_list(axes_list, grid_spec=None):
 
     return subplotspec_list
 
+## Refactor to reduce CCN
+def refactor(rect, kwargs):
+
+    left, bottom, right, top = rect
+    if left is not None:
+        left += kwargs["left"]
+    if bottom is not None:
+        bottom += kwargs["bottom"]
+    if right is not None:
+        right -= (1 - kwargs["right"])
+    if top is not None:
+        top -= (1 - kwargs["top"])
+
+    return left, bottom, right, top
+
+## Refactor to reduce CCN
+def refactor_init_lists(ss_to_subplots,fig):
+
+
+    ax_bbox_list = [ss.get_position(fig) for ss in ss_to_subplots]
+
+    max_nrows = max(ss.get_gridspec().nrows for ss in ss_to_subplots)
+    max_ncols = max(ss.get_gridspec().ncols for ss in ss_to_subplots)
+
+    return ax_bbox_list, max_nrows, max_ncols
+
 
 def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                             pad=1.08, h_pad=None, w_pad=None, rect=None):
@@ -233,10 +259,13 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     if not ss_to_subplots:
         return {}
     subplot_list = list(ss_to_subplots.values())
-    ax_bbox_list = [ss.get_position(fig) for ss in ss_to_subplots]
 
-    max_nrows = max(ss.get_gridspec().nrows for ss in ss_to_subplots)
-    max_ncols = max(ss.get_gridspec().ncols for ss in ss_to_subplots)
+    ## Here we refactor lines 264, 265, 266 to a single line of code where we call a function instead that is defined outside of get_tight_layout_figure()
+    ax_bbox_list, max_nrows, max_ncols = refactor_init_lists(ss_to_subplots,fig)
+
+    # ax_bbox_list = [ss.get_position(fig) for ss in ss_to_subplots]
+    # max_nrows = max(ss.get_gridspec().nrows for ss in ss_to_subplots)
+    # max_ncols = max(ss.get_gridspec().ncols for ss in ss_to_subplots)
 
     span_pairs = []
     for ss in ss_to_subplots:
@@ -280,15 +309,18 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         # auto_adjust_subplotpars twice, where the second run
         # with adjusted rect parameters.
 
-        left, bottom, right, top = rect
-        if left is not None:
-            left += kwargs["left"]
-        if bottom is not None:
-            bottom += kwargs["bottom"]
-        if right is not None:
-            right -= (1 - kwargs["right"])
-        if top is not None:
-            top -= (1 - kwargs["top"])
+        # Here lines 313-321 are refactored to a single line which instead is a call to a function instead of many if statements
+        left, bottom, right, top = refactor(rect,kwargs)
+
+        # left, bottom, right, top = rect
+        # if left is not None:
+        #     left += kwargs["left"]
+        # if bottom is not None:
+        #     bottom += kwargs["bottom"]
+        # if right is not None:
+        #     right -= (1 - kwargs["right"])
+        # if top is not None:
+        #     top -= (1 - kwargs["top"])
 
         kwargs = _auto_adjust_subplotpars(fig, renderer,
                                           shape=(max_nrows, max_ncols),
