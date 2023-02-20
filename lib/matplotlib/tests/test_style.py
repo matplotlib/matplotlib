@@ -205,3 +205,5 @@ def test_style_from_module(tmp_path, monkeypatch):
     assert mpl.rcParams["lines.linewidth"] == 42
     mpl.style.use("mpl_test_style_pkg.mplstyle")
     assert mpl.rcParams["lines.linewidth"] == 84
+    mpl.style.use("./mpl_test_style_pkg.mplstyle")
+    assert mpl.rcParams["lines.linewidth"] == 84
