@@ -595,8 +595,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """
         Update the displayed image on the GUI canvas, using the supplied
         wx.PaintDC device context.
-
-        The 'WXAgg' backend sets origin accordingly.
         """
         _log.debug("%s - gui_repaint()", type(self))
         # The "if self" check avoids a "wrapped C/C++ object has been deleted"
