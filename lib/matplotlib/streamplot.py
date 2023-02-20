@@ -10,6 +10,7 @@ from matplotlib import _api, cm, patches
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
+from matplotlib.tests.conftest import streamBranchBools
 
 
 __all__ = ['streamplot']
@@ -93,16 +94,20 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     dmap = DomainMap(grid, mask)
 
     if zorder is None:
+        streamBranchBools[0] = True
         zorder = mlines.Line2D.zorder
 
     # default to data coordinates
     if transform is None:
+        streamBranchBools[1] = True
         transform = axes.transData
-
+    
     if color is None:
+        streamBranchBools[2] = True
         color = axes._get_lines.get_next_color()
 
     if linewidth is None:
+        streamBranchBools[3] = True
         linewidth = mpl.rcParams['lines.linewidth']
 
     line_kw = {}
@@ -112,25 +117,32 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                        integration_direction=integration_direction)
 
     if integration_direction == 'both':
+        streamBranchBools[4] = True
         maxlength /= 2.
 
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
+        streamBranchBools[5] = True
         if color.shape != grid.shape:
+            streamBranchBools[6] = True
             raise ValueError("If 'color' is given, it must match the shape of "
                              "the (x, y) grid")
         line_colors = [[]]  # Empty entry allows concatenation of zero arrays.
         color = np.ma.masked_invalid(color)
     else:
+        streamBranchBools[7] = True
         line_kw['color'] = color
         arrow_kw['color'] = color
 
     if isinstance(linewidth, np.ndarray):
+        streamBranchBools[8] = True
         if linewidth.shape != grid.shape:
+            streamBranchBools[9] = True
             raise ValueError("If 'linewidth' is given, it must match the "
                              "shape of the (x, y) grid")
         line_kw['linewidth'] = []
     else:
+        streamBranchBools[10] = True
         line_kw['linewidth'] = linewidth
         arrow_kw['linewidth'] = linewidth
 
@@ -139,6 +151,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     # Sanity checks.
     if u.shape != grid.shape or v.shape != grid.shape:
+        streamBranchBools[11] = True
         raise ValueError("'u' and 'v' must match the shape of the (x, y) grid")
 
     u = np.ma.masked_invalid(u)
@@ -149,19 +162,26 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     trajectories = []
     if start_points is None:
+        streamBranchBools[12] = True
         for xm, ym in _gen_starting_points(mask.shape):
+            streamBranchBools[13] = True
             if mask[ym, xm] == 0:
+                streamBranchBools[14] = True
                 xg, yg = dmap.mask2grid(xm, ym)
                 t = integrate(xg, yg, broken_streamlines)
                 if t is not None:
+                    streamBranchBools[15] = True
                     trajectories.append(t)
     else:
+        streamBranchBools[16] = True
         sp2 = np.asanyarray(start_points, dtype=float).copy()
 
         # Check if start_points are outside the data boundaries
         for xs, ys in sp2:
+            streamBranchBools[17] = True
             if not (grid.x_origin <= xs <= grid.x_origin + grid.width and
                     grid.y_origin <= ys <= grid.y_origin + grid.height):
+                streamBranchBools[18] = True
                 raise ValueError(f"Starting point ({xs}, {ys}) outside of "
                                  "data boundaries")
 
@@ -172,6 +192,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         sp2[:, 1] -= grid.y_origin
 
         for xs, ys in sp2:
+            streamBranchBools[19] = True
             xg, yg = dmap.data2grid(xs, ys)
             # Floating point issues can cause xg, yg to be slightly out of
             # bounds for xs, ys on the upper boundaries. Because we have
@@ -182,16 +203,20 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
             t = integrate(xg, yg, broken_streamlines)
             if t is not None:
+                streamBranchBools[20] = True
                 trajectories.append(t)
 
     if use_multicolor_lines:
+        streamBranchBools[21] = True
         if norm is None:
+            streamBranchBools[22] = True
             norm = mcolors.Normalize(color.min(), color.max())
         cmap = cm._ensure_cmap(cmap)
 
     streamlines = []
     arrows = []
     for t in trajectories:
+        streamBranchBools[23] = True
         tgx, tgy = t.T
         # Rescale from grid-coordinates to data-coordinates.
         tx, ty = dmap.grid2data(tgx, tgy)
@@ -200,9 +225,11 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         # Create multiple tiny segments if varying width or color is given
         if isinstance(linewidth, np.ndarray) or use_multicolor_lines:
+            streamBranchBools[24] = True
             points = np.transpose([tx, ty]).reshape(-1, 1, 2)
             streamlines.extend(np.hstack([points[:-1], points[1:]]))
         else:
+            streamBranchBools[25] = True
             points = np.transpose([tx, ty])
             streamlines.append(points)
 
@@ -213,11 +240,13 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
 
         if isinstance(linewidth, np.ndarray):
+            streamBranchBools[26] = True
             line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
             line_kw['linewidth'].extend(line_widths)
             arrow_kw['linewidth'] = line_widths[n]
 
         if use_multicolor_lines:
+            streamBranchBools[27] = True
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.append(color_values)
             arrow_kw['color'] = cmap(norm(color_values[n]))
@@ -231,6 +260,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     lc.sticky_edges.x[:] = [grid.x_origin, grid.x_origin + grid.width]
     lc.sticky_edges.y[:] = [grid.y_origin, grid.y_origin + grid.height]
     if use_multicolor_lines:
+        streamBranchBools[27] = True
         lc.set_array(np.ma.hstack(line_colors))
         lc.set_cmap(cmap)
         lc.set_norm(norm)
@@ -239,6 +269,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     ac = mcollections.PatchCollection(arrows)
     # Adding the collection itself is broken; see #2341.
     for p in arrows:
+        streamBranchBools[28] = True
         axes.add_patch(p)
 
     axes.autoscale_view()
