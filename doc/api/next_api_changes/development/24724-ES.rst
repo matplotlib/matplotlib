@@ -1,5 +1,0 @@
-Windows wheel runtime bundling
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Wheels built for Windows now bundle the MSVC runtime DLL ``msvcp140.dll``. This
-enables importing Matplotlib on systems that do not have the runtime installed.

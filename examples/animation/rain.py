@@ -8,7 +8,7 @@ of 50 scatter points.
 
 Author: Nicolas P. Rougier
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import matplotlib.pyplot as plt
