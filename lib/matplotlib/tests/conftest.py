@@ -6,6 +6,7 @@ from matplotlib.testing.conftest import (  # noqa
 histBranchBools = [False for i in range(72)]
 #another list with false booleans
 histBranchBoolsKey = [False for i in range(23)]
+streamBranchBools = [False for i in range(28)]
 
 def writeRes():
     currTakenBranches = 0
