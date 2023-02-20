@@ -6,6 +6,9 @@ from matplotlib.testing.conftest import (  # noqa
 histBranchBools = [False for i in range(72)]
 #another list with false booleans
 
+tableBranchBools = [False for i in range(28)]
+
+
 def writeRes():
     currTakenBranches = 0
     global histBranchBools
@@ -19,6 +22,20 @@ def writeRes():
     
     f.write("||\n")
     f.write(f"The hist() function took {100*(currTakenBranches/len(histBranchBools))}% of its branches, {currTakenBranches} out of {len(histBranchBools)}, during the tests.")
+    f.write("\n")
+
+    currTakenBranches = 0
+    global tableBranchBools
+    for currBranchNr in range(len(tableBranchBools)):
+        if (currBranchNr % 4 == 0 and currBranchNr != 0):
+            f.write("||\n")
+        f.write(f"|| Branch {currBranchNr} taken: {tableBranchBools[currBranchNr]} ")
+        if (tableBranchBools[currBranchNr]):
+            currTakenBranches += 1
+
+    f.write("||\n")
+    f.write(
+        f"The table() function took {100 * (currTakenBranches / len(tableBranchBools))}% of its branches, {currTakenBranches} out of {len(tableBranchBools)}, during the tests.")
     f.write("\n")
     f.close()
 

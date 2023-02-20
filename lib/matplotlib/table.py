@@ -6,6 +6,9 @@
 #    The Matplotlib development team
 #    Copyright The Matplotlib development team
 
+from matplotlib.tests.conftest import tableBranchBools
+
+
 """
 Tables drawing.
 
@@ -735,11 +738,14 @@ def table(ax,
     """
 
     if cellColours is None and cellText is None:
+        tableBranchBools[0] = True
         raise ValueError('At least one argument from "cellColours" or '
                          '"cellText" must be provided to create a table.')
 
+
     # Check we have some cellText
     if cellText is None:
+        tableBranchBools[1] = True
         # assume just colours are needed
         rows = len(cellColours)
         cols = len(cellColours[0])
@@ -748,51 +754,70 @@ def table(ax,
     rows = len(cellText)
     cols = len(cellText[0])
     for row in cellText:
+        tableBranchBools[2] = True
         if len(row) != cols:
+            tableBranchBools[3] = True
             raise ValueError(f"Each row in 'cellText' must have {cols} "
                              "columns")
 
     if cellColours is not None:
+        tableBranchBools[4] = True
         if len(cellColours) != rows:
+            tableBranchBools[5] = True
             raise ValueError(f"'cellColours' must have {rows} rows")
         for row in cellColours:
+            tableBranchBools[6] = True
             if len(row) != cols:
+                tableBranchBools[7] = True
                 raise ValueError("Each row in 'cellColours' must have "
                                  f"{cols} columns")
     else:
         cellColours = ['w' * cols] * rows
+        tableBranchBools[8] = True
+
 
     # Set colwidths if not given
     if colWidths is None:
+        tableBranchBools[9] = True
         colWidths = [1.0 / cols] * cols
 
     # Fill in missing information for column
     # and row labels
     rowLabelWidth = 0
     if rowLabels is None:
+        tableBranchBools[10] = True
         if rowColours is not None:
+            tableBranchBools[11] = True
             rowLabels = [''] * rows
             rowLabelWidth = colWidths[0]
     elif rowColours is None:
+        tableBranchBools[12] = True
         rowColours = 'w' * rows
 
     if rowLabels is not None:
+        tableBranchBools[13] = True
         if len(rowLabels) != rows:
+            tableBranchBools[14] = True
             raise ValueError(f"'rowLabels' must be of length {rows}")
 
     # If we have column labels, need to shift
     # the text and colour arrays down 1 row
     offset = 1
     if colLabels is None:
+        tableBranchBools[15] = True
         if colColours is not None:
+            tableBranchBools[16] = True
             colLabels = [''] * cols
         else:
+            tableBranchBools[17] = True
             offset = 0
     elif colColours is None:
+        tableBranchBools[18] = True
         colColours = 'w' * cols
 
     # Set up cell colours if not given
     if cellColours is None:
+        tableBranchBools[19] = True
         cellColours = ['w' * cols] * rows
 
     # Now create the table
@@ -802,7 +827,9 @@ def table(ax,
 
     # Add the cells
     for row in range(rows):
+        tableBranchBools[20] = True
         for col in range(cols):
+            tableBranchBools[21] = True
             table.add_cell(row + offset, col,
                            width=colWidths[col], height=height,
                            text=cellText[row][col],
@@ -810,7 +837,9 @@ def table(ax,
                            loc=cellLoc)
     # Do column labels
     if colLabels is not None:
+        tableBranchBools[22] = True
         for col in range(cols):
+            tableBranchBools[23] = True
             table.add_cell(0, col,
                            width=colWidths[col], height=height,
                            text=colLabels[col], facecolor=colColours[col],
@@ -818,12 +847,15 @@ def table(ax,
 
     # Do row labels
     if rowLabels is not None:
+        tableBranchBools[24] = True
         for row in range(rows):
+            tableBranchBools[25] = True
             table.add_cell(row + offset, -1,
                            width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],
                            loc=rowLoc)
         if rowLabelWidth == 0:
+            tableBranchBools[26] = True
             table.auto_set_column_width(-1)
 
     ax.add_table(table)
