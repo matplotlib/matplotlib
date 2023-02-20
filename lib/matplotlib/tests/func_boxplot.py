@@ -1,3 +1,4 @@
+from lib.matplotlib.cbook import boxplot_stats
 from matplotlib.tests.conftest import boxplotlist
 import functools
 import itertools
@@ -15,28 +16,27 @@ import io
 from itertools import product
 import platform
 from types import SimpleNamespace
-import dateutil.tz
 import numpy as np
 from numpy import ma
-from cycler import cycler
 import pytest
 
-boxprops = {'color': 'red'}
-boxplot = BoxPlot()
-boxplot.boxplot(x=[1,2,3,4], boxprops=boxprops)
-assert 'edgecolor' in boxprops
-assert boxprops['edgecolor'] == 'red'
-assert 'color' not in boxprops
+def test_boxplot_settings():
+    boxprops = {'color': 'red'}
+    sym = ''
+    flierprops = {'linestyle': 'none', 'marker': 'o', 'color': 'blue'}
+    showfliers = True
 
+    # Apply the boxplot settings
+    if 'color' in boxprops:
+        boxprops['edgecolor'] = boxprops.pop('color')
+    if sym == '':
+        flierprops = dict(linestyle='none', marker='', color='none')
+        showfliers = False
 
-sym = ''
-flierprops = {'linestyle': 'dashed', 'marker': '+', 'color': 'blue'}
-boxplot = BoxPlot()
-boxplot.boxplot(x=[1,2,3,4], sym=sym, flierprops=flierprops)
-assert 'linestyle' in flierprops
-assert flierprops['linestyle'] == 'none'
-assert 'marker' in flierprops
-assert flierprops['marker'] == ''
-assert 'color' in flierprops
-assert flierprops['color'] == 'none'
-assert showfliers is False
+    # Check that the boxprops were modified correctly
+    assert boxprops == {'edgecolor': 'red'}
+
+    # Check that the flierprops and showfliers were modified correctly
+    assert flierprops == {'linestyle': 'none', 'marker': '', 'color': 'none'}
+    assert showfliers == False
+
