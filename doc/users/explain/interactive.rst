@@ -3,6 +3,7 @@
 .. currentmodule:: matplotlib
 
 .. _mpl-shell:
+.. _interactive_figures:
 
 ===================
 Interactive figures
@@ -11,6 +12,10 @@ Interactive figures
 When working with data, interactivity can be invaluable. The pan/zoom and
 mouse-location tools built into the Matplotlib GUI windows are often sufficient, but
 you can also use the event system to build customized data exploration tools.
+
+.. seealso::
+    :ref:`figure_explanation`.
+
 
 Matplotlib ships with :ref:`backends <what-is-a-backend>` binding to
 several GUI toolkits (Qt, Tk, Wx, GTK, macOS, JavaScript) and third party
@@ -42,7 +47,9 @@ collected. `.Figure`\s can be closed and deregistered from `.pyplot` individuall
 `.pyplot.close`; all open `.Figure`\s can be closed via ``plt.close('all')``.
 
 
-For more discussion of Matplotlib's event system and integrated event loops, please read:
+.. seealso::
+
+   For more discussion of Matplotlib's event system and integrated event loops:
 
    - :ref:`interactive_figures_and_eventloops`
    - :ref:`event-handling-tutorial`
@@ -246,6 +253,7 @@ and your figures may not be responsive.  Please consult the
 documentation of your GUI toolkit for details.
 
 
+.. _jupyter_notebooks_jupyterlab:
 
 Jupyter Notebooks / JupyterLab
 ------------------------------
