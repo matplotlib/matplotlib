@@ -3,7 +3,7 @@ from matplotlib.testing.conftest import (  # noqa
     mpl_test_settings, pytest_configure, pytest_unconfigure, pd, xr)
 
 #Global boolean list declarations
-histBranchBools = [False for i in range(72)]
+histBranchBools = [False for i in range(71)]
 #another list with false booleans
 
 def writeRes():
