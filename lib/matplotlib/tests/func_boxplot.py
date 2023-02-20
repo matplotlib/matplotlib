@@ -1,11 +1,3 @@
-from lib.matplotlib.cbook import boxplot_stats
-from matplotlib.tests.conftest import boxplotlist
-import functools
-import itertools
-import logging
-import math
-from numbers import Integral, Number, Real
-
 import contextlib
 from collections import namedtuple
 import datetime
@@ -16,27 +8,48 @@ import io
 from itertools import product
 import platform
 from types import SimpleNamespace
+
+import dateutil.tz
+
 import numpy as np
 from numpy import ma
+from cycler import cycler
 import pytest
 
-def test_boxplot_settings():
-    boxprops = {'color': 'red'}
-    sym = ''
-    flierprops = {'linestyle': 'none', 'marker': 'o', 'color': 'blue'}
-    showfliers = True
+import matplotlib
+import matplotlib as mpl
+from matplotlib import rc_context
+from matplotlib._api import MatplotlibDeprecationWarning
+import matplotlib.colors as mcolors
+import matplotlib.dates as mdates
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes
+import matplotlib.font_manager as mfont_manager
+import matplotlib.markers as mmarkers
+import matplotlib.patches as mpatches
+import matplotlib.path as mpath
+from matplotlib.projections.geo import HammerAxes
+from matplotlib.projections.polar import PolarAxes
+import matplotlib.pyplot as plt
+import matplotlib.text as mtext
+import matplotlib.ticker as mticker
+import matplotlib.transforms as mtransforms
+import mpl_toolkits.axisartist as AA
+from numpy.testing import (
+    assert_allclose, assert_array_equal, assert_array_almost_equal)
+from matplotlib.testing.decorators import (
+    image_comparison, check_figures_equal, remove_ticks_and_titles)
 
-    # Apply the boxplot settings
-    if 'color' in boxprops:
-        boxprops['edgecolor'] = boxprops.pop('color')
-    if sym == '':
-        flierprops = dict(linestyle='none', marker='', color='none')
-        showfliers = False
+def boxplot_test_empty_string():
+   data = np.random.rand(5,3)
+   fig, axs = plt.subplots(1)
+   axs[0].boxplot(data, sym = '')
+   
 
-    # Check that the boxprops were modified correctly
-    assert boxprops == {'edgecolor': 'red'}
+def boxplot_test_patchArtist_color():
+   data = np.random.rand(5,3)
+   fig, axs = plt.subplots(1)
+   axs[0].boxplot(data, boxprops=dict(facecolor='yellow', edgecolor='green', color='green', ls=':'))
 
-    # Check that the flierprops and showfliers were modified correctly
-    assert flierprops == {'linestyle': 'none', 'marker': '', 'color': 'none'}
-    assert showfliers == False
+
 
