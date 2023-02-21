@@ -285,17 +285,21 @@ def test_plot_kernel():
     plt.plot(kernel)
 
 
-@pytest.mark.parametrize('plot_meth_name', ['scatter', 'plot'])
-def test_unit_axis_label(plot_meth_name):
-    # Check that the correct Axis labels are set on plots with units
+@check_figures_equal(extensions=['png'])
+def test_unit_axis_label(fig_test, fig_ref):
     import matplotlib.testing.jpl_units as units
     units.register()
 
-    fig, ax = plt.subplots()
-    ax.xaxis.set_units('m')
-    ax.yaxis.set_units('sec')
-    plot_method = getattr(ax, plot_meth_name)
-    plot_method(np.arange(3) * units.m, np.arange(3) * units.sec)
-    assert ax.get_xlabel() == 'm'
-    assert ax.get_ylabel() == 'sec'
-    plt.close('all')
+    data = [0 * units.km, 1 * units.km, 2 * units.km]
+
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+    axs = [ax_test, ax_ref]
+
+    for ax in axs:
+        ax.yaxis.set_units('km')
+        ax.set_xlim(10, 20)
+        ax.set_ylim(10, 20)
+
+    ax_test.scatter([1, 2, 3], data, edgecolors='none')
+    ax_ref.plot([1, 2, 3], data, marker='o', linewidth=0)
