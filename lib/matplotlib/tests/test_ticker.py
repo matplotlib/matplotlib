@@ -1457,8 +1457,12 @@ def test_locale_comma():
     ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
     fmt = '$\\mathdefault{%1.1f}$'
     x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
-    locale.setlocale(locale.LC_ALL, currentLocale)
     assert x == '$\\mathdefault{0{,}5}$'
+    # Do not change , in the format string
+    fmt = ',$\\mathdefault{,%1.1f},$'
+    x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+    assert x == ',$\\mathdefault{,0{,}5},$'
+    locale.setlocale(locale.LC_ALL, currentLocale)
 
 
 def test_majformatter_type():
