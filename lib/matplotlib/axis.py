@@ -1733,7 +1733,7 @@ class Axis(martist.Artist):
         """
         return self.converter is not None or self.units is not None
 
-    def _have_units_and_converter(self):
+    def have_units_and_converter(self):
         """
         Return `True` if units and a converter have been set.
         """
