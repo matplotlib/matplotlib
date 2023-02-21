@@ -92,9 +92,9 @@ The `_apply_params()` function sets various properties of an axis in a matplotli
 
 ##### Ronan: 
 
-`Calc_label_rot_and_inline()`: Calculate the appropriate label rotation given the linecontour coordinates in screen units, the index of the label location and the label width. The method used here involves computing the path length along the contour in pixel coordinates and then looking approximately (label width / 2) away from central point to determine rotation and then to break contour if desired.
+`Calc_label_rot_and_inline()`: Calculate the appropriate label rotation given the linecontour coordinates in screen units, the index of the label location and the label width. The method used here involves computing the path length along the contour in pixel coordinates and then looking approximately (label width / 2) away from central point to determine rotation and then to break contour if desired. We have to check a lot of conditions thus the high complexity of the function.
 
-Subplot: adds subplot to a current figure at the specified grid position.  It is similar to the `subplots()` function however unlike `subplots()` it adds one subplot at a time. So to create multiple plots you will need several lines of code with the `subplot()` function.
+`Subplot()`: adds subplot to a current figure at the specified grid position.  It is similar to the `subplots()` function however unlike `subplots()` it adds one subplot at a time. So to create multiple plots you will need several lines of code with the `subplot()` function. The function had to check a lot of conditions too leading to a high complexity.
 
 
 
@@ -279,3 +279,5 @@ Pontus: (aiming for P+) Wrote 4 new tests for the function table() (table@654-83
 Ahmad: counted CCN by hand for _apply_params and plotbox() functions. In addition, implemented manual coverage for plotbox() functions. Wrote two tests for plotbox() and improved complexity. Also wrote the report with Klara, Jonas and Pontus.
 
 Jonas (aiming for P+): Counted CCN by hand for the subsuper() function, wrote the DIY branch coverage tool, implemented manual branch coverage for the hist() function, wrote four new tests for the hist() function to improve branch coverage from 81% to 88.9%, refactored the hist() function from CCN 77-42, wrote the report together with Klara, Pontus and Ahmad.
+
+Ronan: counted CCN by hand for subplot() and calc_label_rot_and_inline() functions. In addition, implemented manual coverage for subplot() function. Wrote a test for subplot().
