@@ -11,7 +11,7 @@ examples that use it.
 
 Note that calling `time.sleep` instead of `~.pyplot.pause` would *not* work.
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import matplotlib.pyplot as plt

@@ -931,7 +931,7 @@ class Path:
 
            Masionobe, L.  2003.  `Drawing an elliptical arc using
            polylines, quadratic or cubic Bezier curves
-           <http://www.spaceroots.org/documents/ellipse/index.html>`_.
+           <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
         halfpi = np.pi * 0.5
 
