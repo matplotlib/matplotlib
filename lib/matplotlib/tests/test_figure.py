@@ -287,11 +287,6 @@ def test_suptitle_fontproperties():
     assert txt.get_weight() == fps.get_weight()
 
 
-<<<<<<< HEAD
-@image_comparison(['figure_suptitle_subfigures'],
-                  extensions=['png'])
-=======
->>>>>>> bb69a2fbc5 (RR - convert visual test to simple unit test.)
 def test_suptitle_subfigures():
     fig = plt.figure(figsize=(4, 3))
     sf1, sf2 = fig.subfigures(1, 2)

@@ -2156,7 +2156,7 @@ class SubFigure(FigureBase):
             be placed.
 
         facecolor : default: ``"none"``
-            Transparent face color.
+            The figure patch face color; transparent by default.
 
         edgecolor : default: :rc:`figure.edgecolor`
             The figure patch edge color.
