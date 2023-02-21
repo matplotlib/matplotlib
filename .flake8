@@ -92,7 +92,6 @@ per-file-ignores =
     examples/lines_bars_and_markers/marker_reference.py: E402
     examples/misc/print_stdout_sgskip.py: E402
     examples/misc/table_demo.py: E201
-	examples/specialty_plots/ishikawa.py: E501
     examples/style_sheets/bmh.py: E501
     examples/style_sheets/plot_solarizedlight2.py: E501
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
