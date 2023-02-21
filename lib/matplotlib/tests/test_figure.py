@@ -287,6 +287,20 @@ def test_suptitle_fontproperties():
     assert txt.get_weight() == fps.get_weight()
 
 
+def test_suptitle_subfigures():
+    fig = plt.figure(figsize=(4, 3))
+    sf1, sf2 = fig.subfigures(1, 2)
+    sf2.set_facecolor('white')
+    sf1.subplots()
+    sf2.subplots()
+    fig.suptitle("This is a visible suptitle.")
+
+    # verify the first subfigure facecolor is the default transparent
+    assert sf1.get_facecolor() == (0.0, 0.0, 0.0, 0.0)
+    # verify the second subfigure facecolor is white
+    assert sf2.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
+
+
 @image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
@@ -1211,12 +1225,14 @@ def test_subfigure():
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
     sub[0].colorbar(pc, ax=axs)
     sub[0].suptitle('Left Side')
+    sub[0].set_facecolor('white')
 
     axs = sub[1].subplots(1, 3)
     for ax in axs.flat:
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
     sub[1].colorbar(pc, ax=axs, location='bottom')
     sub[1].suptitle('Right Side')
+    sub[1].set_facecolor('white')
 
     fig.suptitle('Figure suptitle', fontsize='xx-large')
 
