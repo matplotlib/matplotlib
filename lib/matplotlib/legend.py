@@ -23,6 +23,7 @@ information.
 
 import itertools
 import logging
+import numbers
 import time
 
 import numpy as np
@@ -517,6 +518,9 @@ class Legend(Artist):
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
 
+        type_err_message = ("loc must be string, coordinate tuple, or"
+                            f" an integer 0-10, not {loc!r}")
+
         # handle outside legends:
         self._outside_loc = None
         if isinstance(loc, str):
@@ -535,6 +539,19 @@ class Legend(Artist):
                     loc = locs[0] + ' ' + locs[1]
             # check that loc is in acceptable strings
             loc = _api.check_getitem(self.codes, loc=loc)
+        elif np.iterable(loc):
+            # coerce iterable into tuple
+            loc = tuple(loc)
+            # validate the tuple represents Real coordinates
+            if len(loc) != 2 or not all(isinstance(e, numbers.Real) for e in loc):
+                raise ValueError(type_err_message)
+        elif isinstance(loc, int):
+            # validate the integer represents a string numeric value
+            if loc < 0 or loc > 10:
+                raise ValueError(type_err_message)
+        else:
+            # all other cases are invalid values of loc
+            raise ValueError(type_err_message)
 
         if self.isaxes and self._outside_loc:
             raise ValueError(
