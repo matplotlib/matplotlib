@@ -18,6 +18,47 @@ Release guide
    ``remote`` and a read/write remote is ``DANGER``
 
 
+.. _release_feature_freeze:
+
+Making the release branch
+=========================
+
+When a new minor release (vX.Y.0) is approaching, a new release branch must be made.
+When precisely this happens is up to the release manager, but at this point is where
+most new features intended for the minor release are merged and you are entering a
+feature freeze (i.e. newly implemented features will be going into vX.Y+1).
+This does not necessarily mean that no further changes will be made prior to release,
+just that those changes will be made using the backport system.
+
+First create the branch ::
+
+   git switch main
+   git pull
+   git switch -c v3.7.x
+   git push DANGER v3.7.x
+
+Update the ``v3.7.0`` milestone so that the description reads::
+
+   New features and API changes
+
+   on-merge: backport to v3.7.x
+
+Micro versions should instead read::
+
+   Bugfixes and docstring changes
+
+   on-merge: backport to v3.7.x
+
+Check all active milestones for consistency. Older milestones should also backport
+to higher minor versions (e.g. ``v3.6.3`` and ``v3.6-doc`` should backport to both
+``v3.6.x`` and ``v3.7.x`` once the ``v3.7.x`` branch exists and while PR backports are
+still targeting ``v3.6.x``)
+
+Create the milestone for the next-next minor release (i.e. ``v3.9.0``, as ``v3.8.0``
+should already exist). While most active items should go in the next minor release,
+this milestone can help with longer term planning, especially around deprecation
+cycles.
+
 .. _release-testing:
 
 Testing
@@ -50,16 +91,16 @@ prepare this list:
    b. Change the link target at the top of the file.
    c. Remove the "Previous GitHub Stats" section at the end.
 
-   For example, when updating from v3.2.0 to v3.2.1::
+   For example, when updating from v3.7.0 to v3.7.1::
 
-      cp doc/users/github_stats.rst doc/users/prev_whats_new/github_stats_3.2.0.rst
-      $EDITOR doc/users/prev_whats_new/github_stats_3.2.0.rst
+      cp doc/users/github_stats.rst doc/users/prev_whats_new/github_stats_3.7.0.rst
+      $EDITOR doc/users/prev_whats_new/github_stats_3.7.0.rst
       # Change contents as noted above.
-      git add doc/users/prev_whats_new/github_stats_3.2.0.rst
+      git add doc/users/prev_whats_new/github_stats_3.7.0.rst
 
 2. Re-generate the updated stats::
 
-       python tools/github_stats.py --since-tag v3.2.0 --milestone=v3.2.1 \
+       python tools/github_stats.py --since-tag v3.7.0 --milestone=v3.7.1 \
            --project 'matplotlib/matplotlib' --links > doc/users/github_stats.rst
 
 3. Review and commit changes. Some issue/PR titles may not be valid reST (the most
@@ -87,7 +128,7 @@ Update and validate the docs
 Merge ``*-doc`` branch
 ----------------------
 
-Merge the most recent 'doc' branch (e.g., ``v3.2.0-doc``) into the branch you
+Merge the most recent 'doc' branch (e.g., ``v3.7.0-doc``) into the branch you
 are going to tag on and delete the doc branch on GitHub.
 
 Update supported versions in Security Policy
@@ -193,7 +234,7 @@ notes in the commit message::
 
 and then create a signed, annotated tag with the same text in the body message::
 
-  git tag -a -s v2.0.0
+  git tag -a -s v3.7.0
 
 which will prompt you for your GPG key password and an annotation.  For pre-releases it
 is important to follow :pep:`440` so that the build artifacts will sort correctly in
@@ -206,7 +247,7 @@ it is important to move all branches away from the commit with the tag [#]_::
 
 Finally, push the tag to GitHub::
 
-  git push DANGER v2.0.x v2.0.0
+  git push DANGER v3.7.x v3.7.0
 
 Congratulations, the scariest part is done!
 This assumes the release branch has already been made.
@@ -228,7 +269,7 @@ coincides with the last patch release of the previous minor version)
 
        To generate the file that GitHub does use::
 
-          git archive v2.0.0 -o matplotlib-2.0.0.tar.gz --prefix=matplotlib-2.0.0/
+          git archive v3.7.0 -o matplotlib-3.7.0.tar.gz --prefix=matplotlib-3.7.0/
 
 .. _git archive: https://git-scm.com/docs/git-archive
 .. _setuptools_scm: https://github.com/pypa/setuptools_scm
@@ -236,32 +277,22 @@ coincides with the last patch release of the previous minor version)
 If this is a final release, also create a 'doc' branch (this is not
 done for pre-releases)::
 
-   git branch v2.0.0-doc
-   git push DANGER v2.0.0-doc
+   git branch v3.7.0-doc
+   git push DANGER v3.7.0-doc
 
-Update (or create) the ``v2.0-doc`` milestone.
+Update (or create) the ``v3.7-doc`` milestone.
 The description should include the instruction for meeseeksmachine to backport changes
-with the ``v2.0-doc`` milestone to both the ``v2.0.x`` branch and the ``v2.0.0-doc`` branch::
+with the ``v3.7-doc`` milestone to both the ``v3.7.x`` branch and the ``v3.7.0-doc`` branch::
 
    Documentation changes (.rst files and examples)
 
-   on-merge: backport to v2.0.x
-   on-merge: backport to v2.0.0-doc
+   on-merge: backport to v3.7.x
+   on-merge: backport to v3.7.0-doc
 
 Check all active milestones for consistency. Older doc milestones should also backport to
 higher minor versions (e.g. ``v3.6-doc`` should backport to both ``v3.6.x`` and ``v3.7.x``
 if the ``v3.7.x`` branch exists)
 
-On this branch un-comment the globs from :ref:`release_chkdocs`.  And then ::
-
-   git push DANGER v2.1.x
-
-If this is the last micro release anticipated (or otherwise are entering feature
-freeze for the next minor release), create a release branch for the next minor
-release ::
-
-   git switch main
-   git branch v2.1.x
 
 .. _release_DOI:
 
@@ -280,11 +311,11 @@ edit :file:`doc/users/project/citing.rst`. Commit the new SVG, the change to
 :file:`tools/cache_zenodo_svg.py`, and the changes to :file:`doc/users/project/citing.rst`
 to the VER-doc branch and push to GitHub. ::
 
-  git checkout v2.0.0-doc
+  git checkout v3.7.0-doc
   $EDITOR tools/cache_zenodo_svg.py
   python tools/cache_zenodo_svg.py
   git commit -a
-  git push DANGER v2.0.0-doc:v2.0.0-doc
+  git push DANGER v3.7.0-doc:v3.7.0-doc
 
 
 .. _release_bld_bin:
@@ -316,7 +347,7 @@ Make distribution and upload to PyPI
 Once you have collected all of the wheels (expect this to take a few hours), generate
 the tarball::
 
-  git checkout v2.0.0
+  git checkout v3.7.0
   git clean -xfd
   python -m build --sdist
 
@@ -343,7 +374,7 @@ build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
 
   pip install matplotlib
   pip install -r requirements/doc/doc-requirements.txt
-  git checkout v2.0.0-doc
+  git checkout v3.7.0-doc
   git clean -xfd
   make -Cdoc O="-t release -j$(nproc)" html latexpdf LATEXMKOPTS="-silent -f"
 
@@ -363,22 +394,22 @@ Assuming you have this repository checked out in the same directory as
 matplotlib ::
 
   cd ../matplotlib.github.com
-  cp -a ../matplotlib/doc/build/html 2.0.0
-  rm 2.0.0/.buildinfo
-  cp ../matplotlib/doc/build/latex/Matplotlib.pdf 2.0.0
+  cp -a ../matplotlib/doc/build/html 3.7.0
+  rm 3.7.0/.buildinfo
+  cp ../matplotlib/doc/build/latex/Matplotlib.pdf 3.7.0
 
 which will copy the built docs over.  If this is a final release, link the
 ``stable`` subdirectory to the newest version::
 
   rm stable
-  ln -s 2.0.0 stable
+  ln -s 3.7.0 stable
 
 You will need to manually edit :file:`versions.html` to show the last
 3 tagged versions.  You will also need to edit :file:`sitemap.xml` to include
 the newly released version.  Now commit and push everything to GitHub ::
 
   git add *
-  git commit -a -m 'Updating docs for v2.0.0'
+  git commit -a -m 'Updating docs for v3.7.0'
   git push DANGER main
 
 Congratulations you have now done the third scariest part!
@@ -388,6 +419,33 @@ If you have access, clear the CloudFlare caches.
 It typically takes about 5-10 minutes for the website to process the push and update the
 live web page (remember to clear your browser cache).
 
+.. _release_merge_up:
+
+Merge up changes to main
+========================
+
+After a release is done, the changes from the release branch should be merged into the
+``main`` branch. This is primarily done so that the released tag is on the main branch
+so ``git describe`` (and thus ``setuptools-scm``) has the most current tag.
+Secondarily, changes made during release (including removing individualized release
+notes, fixing broken links, and updating the version switcher) are bubbled up to
+``main``.
+
+Git conflicts are very likely to arise, though aside from changes made directly to the
+release branch (mostly as part of the release), should be relatively trivially resolved
+by using the version from ``main``. This is not a universal rule, and care should be
+taken to ensure correctness::
+
+   git switch main
+   git pull
+   git switch -c merge_up_v3.7.0
+   git merge v3.7.x
+   # resolve conflicts
+   git merge --continue
+
+Due to branch protections for the ``main`` branch, this is merged via a standard pull
+request, though the PR cleanliness status check is expected to fail. The PR should not
+be squashed because the intent is to merge the branch histories.
 
 Announcing
 ==========
