@@ -87,7 +87,7 @@ class LassoManager:
         self.canvas.widgetlock(self.lasso)
 
     def on_release(self, event):
-        if self.canvas.widgetlock.isowner(self.lasso):
+        if hasattr(self, 'lasso') and self.canvas.widgetlock.isowner(self.lasso):
             self.canvas.widgetlock.release(self.lasso)
 
 
