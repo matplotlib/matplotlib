@@ -98,7 +98,7 @@ class LinearScale(ScaleBase):
         # constructor docstring, which would otherwise end up interpolated into
         # the docstring of Axis.set_scale.
         """
-        """
+        """  # noqa: D419
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited

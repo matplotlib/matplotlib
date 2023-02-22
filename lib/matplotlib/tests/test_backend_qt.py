@@ -128,7 +128,7 @@ def test_sigint(target, kwargs):
     try:
         proc.wait_for('DRAW')
         stdout, _ = proc.communicate(timeout=_test_timeout)
-    except:
+    except Exception:
         proc.kill()
         stdout, _ = proc.communicate()
         raise
@@ -182,7 +182,7 @@ def test_other_signal_before_sigint(target, kwargs):
         proc.wait_for('SIGUSR1')
         os.kill(proc.pid, signal.SIGINT)
         stdout, _ = proc.communicate(timeout=_test_timeout)
-    except:
+    except Exception:
         proc.kill()
         stdout, _ = proc.communicate()
         raise

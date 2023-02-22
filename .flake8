@@ -2,16 +2,7 @@
 max-line-length = 88
 select =
     # flake8 default
-    C90, E, F, W,
-    # docstring-convention=numpy
-    D100, D101, D102, D103, D104, D105, D106,
-    D200, D201, D202, D204, D205, D206, D207, D208,
-    D209, D210, D211, D214, D215,
-    D300, D301, D302,
-    D400, D401, D403, D404, D405, D406, D407, D408,
-    D409, D410, D411, D412, D414,
-    # matplotlib-specific extra pydocstyle errors
-    D213,
+    D, E, F, W,
 ignore =
     # flake8 default
     E121,E123,E126,E226,E24,E704,W503,W504,
@@ -19,15 +10,15 @@ ignore =
     E127, E131,
     E266,
     E305, E306,
-    E722, E741,
+    E741,
     F841,
-    # Some new flake8 ignores:
-    N801, N802, N803, N806, N812,
     # pydocstyle
-    D100, D101, D102, D103, D104, D105, D106, D107,
-    D200, D202, D203, D204, D205, D207, D212,
+    D100, D101, D102, D103, D104, D105, D106,
+    D200, D202, D204, D205,
     D301,
-    D400, D401, D402, D403, D404, D413,
+    D400, D401, D403, D404
+    # ignored by pydocstyle numpy docstring convention
+    D107, D203, D212, D213, D402, D413, D415, D416, D417,
 
 exclude =
     .git
@@ -41,7 +32,6 @@ exclude =
 
 per-file-ignores =
     setup.py: E402
-
 
     lib/matplotlib/__init__.py: E402, F401
     lib/matplotlib/_animation_data.py: E501
@@ -81,9 +71,6 @@ per-file-ignores =
     tutorials/text/mathtext.py: E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501
-    tutorials/text/usetex.py: E501
-    tutorials/toolkits/axes_grid.py: E501
-    tutorials/toolkits/axisartist.py: E501
 
     examples/animation/frame_grabbing_sgskip.py: E402
     examples/images_contours_and_fields/tricontour_demo.py: E201
@@ -93,7 +80,6 @@ per-file-ignores =
     examples/misc/print_stdout_sgskip.py: E402
     examples/misc/table_demo.py: E201
     examples/style_sheets/bmh.py: E501
-    examples/style_sheets/plot_solarizedlight2.py: E501
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
     examples/text_labels_and_annotations/custom_legends.py: E402
     examples/ticks/date_concise_formatter.py: E402
