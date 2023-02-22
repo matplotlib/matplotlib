@@ -1,7 +1,7 @@
 """
-===============
+=================
 Ishikawa Diagrams
-===============
+=================
 
 Ishikawa Diagrams, fishbone diagrams, herringbone diagrams, or cause-and-effect
 diagrams are useful for visualizing the effect to many cause relationships
