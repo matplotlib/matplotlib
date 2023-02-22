@@ -74,7 +74,11 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         self.set_focusable(True)
 
         css = Gtk.CssProvider()
-        css.load_from_data(b".matplotlib-canvas { background-color: white; }")
+        style = '.matplotlib-canvas { background-color: white; }'
+        if Gtk.check_version(4, 9, 3) is None:
+            css.load_from_data(style, -1)
+        else:
+            css.load_from_data(style.encode('utf-8'))
         style_ctx = self.get_style_context()
         style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         style_ctx.add_class("matplotlib-canvas")
