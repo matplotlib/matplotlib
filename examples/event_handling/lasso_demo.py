@@ -59,7 +59,10 @@ class LassoManager:
 
         ax.add_collection(self.collection)
 
-        self.cid = self.canvas.mpl_connect('button_press_event', self.on_press)
+        self.cid_press = self.canvas.mpl_connect('button_press_event',
+                                                 self.on_press)
+        self.cid_release = self.canvas.mpl_connect('button_release_event',
+                                                   self.on_release)
 
     def callback(self, verts):
         facecolors = self.collection.get_facecolors()
@@ -72,7 +75,6 @@ class LassoManager:
                 facecolors[i] = Datum.colorout
 
         self.canvas.draw_idle()
-        self.canvas.widgetlock.release(self.lasso)
         del self.lasso
 
     def on_press(self, event):
@@ -85,6 +87,10 @@ class LassoManager:
                            self.callback)
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
+
+    def on_release(self, event):
+        if hasattr(self, 'lasso') and self.canvas.widgetlock.isowner(self.lasso):
+            self.canvas.widgetlock.release(self.lasso)
 
 
 if __name__ == '__main__':
