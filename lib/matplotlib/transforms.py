@@ -92,9 +92,12 @@ class TransformNode:
     # Invalidation may affect only the affine part.  If the
     # invalidation was "affine-only", the _invalid member is set to
     # INVALID_AFFINE_ONLY
-    INVALID_NON_AFFINE = 1
-    INVALID_AFFINE = 2
-    INVALID = INVALID_NON_AFFINE | INVALID_AFFINE
+    INVALID_NON_AFFINE = _api.deprecated("3.8")(_api.classproperty(lambda cls: 1))
+    INVALID_AFFINE = _api.deprecated("3.8")(_api.classproperty(lambda cls: 2))
+    INVALID = _api.deprecated("3.8")(_api.classproperty(lambda cls: 3))
+
+    # Possible values for the _invalid attribute.
+    _VALID, _INVALID_AFFINE_ONLY, _INVALID_FULL = range(3)
 
     # Some metadata about the transform, used to determine whether an
     # invalidation is affine-only
@@ -117,10 +120,8 @@ class TransformNode:
             ``str(transform)`` when DEBUG=True.
         """
         self._parents = {}
-
-        # TransformNodes start out as invalid until their values are
-        # computed for the first time.
-        self._invalid = 1
+        # Initially invalid, until first computation.
+        self._invalid = self._INVALID_FULL
         self._shorthand_name = shorthand_name or ''
 
     if DEBUG:
@@ -159,37 +160,24 @@ class TransformNode:
         Invalidate this `TransformNode` and triggers an invalidation of its
         ancestors.  Should be called any time the transform changes.
         """
-        value = self.INVALID
-        if self.is_affine:
-            value = self.INVALID_AFFINE
-        return self._invalidate_internal(value, invalidating_node=self)
+        return self._invalidate_internal(
+            level=self._INVALID_AFFINE_ONLY if self.is_affine else self._INVALID_FULL,
+            invalidating_node=self)
 
-    def _invalidate_internal(self, value, invalidating_node):
+    def _invalidate_internal(self, level, invalidating_node):
         """
         Called by :meth:`invalidate` and subsequently ascends the transform
         stack calling each TransformNode's _invalidate_internal method.
         """
-        # determine if this call will be an extension to the invalidation
-        # status. If not, then a shortcut means that we needn't invoke an
-        # invalidation up the transform stack as it will already have been
-        # invalidated.
-
-        # N.B This makes the invalidation sticky, once a transform has been
-        # invalidated as NON_AFFINE, then it will always be invalidated as
-        # NON_AFFINE even when triggered with a AFFINE_ONLY invalidation.
-        # In most cases this is not a problem (i.e. for interactive panning and
-        # zooming) and the only side effect will be on performance.
-        status_changed = self._invalid < value
-
-        if self.pass_through or status_changed:
-            self._invalid = value
-
-            for parent in list(self._parents.values()):
-                # Dereference the weak reference
-                parent = parent()
-                if parent is not None:
-                    parent._invalidate_internal(
-                        value=value, invalidating_node=self)
+        # If we are already more invalid than the currently propagated invalidation,
+        # then we don't need to do anything.
+        if level <= self._invalid and not self.pass_through:
+            return
+        self._invalid = level
+        for parent in list(self._parents.values()):
+            parent = parent()  # Dereference the weak reference.
+            if parent is not None:
+                parent._invalidate_internal(level=level, invalidating_node=self)
 
     def set_children(self, *children):
         """
@@ -2379,20 +2367,17 @@ class CompositeGenericTransform(Transform):
             return frozen.frozen()
         return frozen
 
-    def _invalidate_internal(self, value, invalidating_node):
+    def _invalidate_internal(self, level, invalidating_node):
         # In some cases for a composite transform, an invalidating call to
         # AFFINE_ONLY needs to be extended to invalidate the NON_AFFINE part
         # too. These cases are when the right hand transform is non-affine and
         # either:
         # (a) the left hand transform is non affine
         # (b) it is the left hand node which has triggered the invalidation
-        if (value == Transform.INVALID_AFFINE and
-                not self._b.is_affine and
+        if (not self._b.is_affine and
                 (not self._a.is_affine or invalidating_node is self._a)):
-            value = Transform.INVALID
-
-        super()._invalidate_internal(value=value,
-                                     invalidating_node=invalidating_node)
+            level = Transform._INVALID_FULL
+        super()._invalidate_internal(level, invalidating_node)
 
     def __eq__(self, other):
         if isinstance(other, (CompositeGenericTransform, CompositeAffine2D)):
@@ -2757,7 +2742,7 @@ class TransformedPath(TransformNode):
     def _revalidate(self):
         # only recompute if the invalidation includes the non_affine part of
         # the transform
-        if (self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE
+        if (self._invalid == self._INVALID_FULL
                 or self._transformed_path is None):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)
