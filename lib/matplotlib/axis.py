@@ -2259,7 +2259,9 @@ class XAxis(Axis):
             transform=mtransforms.blended_transform_factory(
                 self.axes.transAxes, mtransforms.IdentityTransform()),
             fontsize=mpl.rcParams['xtick.labelsize'],
-            color=mpl.rcParams['xtick.color'],
+            color=mpl.rcParams['xtick.color'] if
+            mpl.rcParams['xtick.labelcolor'] == 'inherit' else
+            mpl.rcParams['xtick.labelcolor'],
         )
         self.offset_text_position = 'bottom'
 
@@ -2519,7 +2521,9 @@ class YAxis(Axis):
             transform=mtransforms.blended_transform_factory(
                 self.axes.transAxes, mtransforms.IdentityTransform()),
             fontsize=mpl.rcParams['ytick.labelsize'],
-            color=mpl.rcParams['ytick.color'],
+            color=mpl.rcParams['ytick.color'] if
+            mpl.rcParams['ytick.labelcolor'] == 'inherit' else
+            mpl.rcParams['ytick.labelcolor'],
         )
         self.offset_text_position = 'left'
 

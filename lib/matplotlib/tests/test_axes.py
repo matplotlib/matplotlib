@@ -7811,6 +7811,36 @@ def test_ytickcolor_is_not_yticklabelcolor():
         assert tick.label1.get_color() == 'blue'
 
 
+def test_xticklabelcolor_if_not_xtickcolor():
+    plt.rcParams['xtick.labelcolor'] = 'blue'
+    ax = plt.axes()
+    ticks = ax.xaxis.get_major_ticks()
+    for tick in ticks:
+        assert tick.label1.get_color() == 'blue'
+
+    plt.rcParams['xtick.color'] = 'yellow'
+    plt.rcParams['xtick.labelcolor'] = 'inherit'
+    ax = plt.axes()
+    ticks = ax.xaxis.get_major_ticks()
+    for tick in ticks:
+        assert tick.label1.get_color() == 'yellow'
+
+
+def test_yticklabelcolor_if_not_ytickcolor():
+    plt.rcParams['ytick.labelcolor'] = 'green'
+    ax = plt.axes()
+    ticks = ax.yaxis.get_major_ticks()
+    for tick in ticks:
+        assert tick.label1.get_color() == 'green'
+
+    plt.rcParams['ytick.color'] = 'red'
+    plt.rcParams['ytick.labelcolor'] = 'inherit'
+    ax = plt.axes()
+    ticks = ax.yaxis.get_major_ticks()
+    for tick in ticks:
+        assert tick.label1.get_color() == 'red'
+
+
 @pytest.mark.parametrize('size', [size for size in mfont_manager.font_scalings
                                   if size is not None] + [8, 10, 12])
 @mpl.style.context('default')
