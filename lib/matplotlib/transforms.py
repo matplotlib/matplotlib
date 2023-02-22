@@ -2368,14 +2368,9 @@ class CompositeGenericTransform(Transform):
         return frozen
 
     def _invalidate_internal(self, level, invalidating_node):
-        # In some cases for a composite transform, an invalidating call to
-        # AFFINE_ONLY needs to be extended to invalidate the NON_AFFINE part
-        # too. These cases are when the right hand transform is non-affine and
-        # either:
-        # (a) the left hand transform is non affine
-        # (b) it is the left hand node which has triggered the invalidation
-        if (not self._b.is_affine and
-                (not self._a.is_affine or invalidating_node is self._a)):
+        # When the left child is invalidated at AFFINE_ONLY level and the right child is
+        # non-affine, the composite transform is FULLY invalidated.
+        if invalidating_node is self._a and not self._b.is_affine:
             level = Transform._INVALID_FULL
         super()._invalidate_internal(level, invalidating_node)
 
