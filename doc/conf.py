@@ -442,7 +442,11 @@ html_theme_options = {
     "collapse_navigation": not is_release_build,
     "show_prev_next": False,
     "switcher": {
-        "json_url": "https://matplotlib.org/devdocs/_static/switcher.json",
+        # Add a unique query to the switcher.json url.  This will be ignored by
+        # the server, but will be used as part of the key for caching by browsers
+        # so when we do a new minor release the switcher will update "promptly" on
+        # the stable and devdocs.
+        "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
