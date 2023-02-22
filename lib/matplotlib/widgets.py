@@ -4244,7 +4244,7 @@ class Lasso(AxesWidget):
             self.verts.append((event.xdata, event.ydata))
             if len(self.verts) > 2:
                 self.callback(self.verts)
-            self.ax.lines.remove(self.line)
+            self.line.remove()
         self.verts = None
         self.disconnect_events()
 
