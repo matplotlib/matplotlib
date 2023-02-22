@@ -14,6 +14,7 @@ As a result, there may be no ticks on the edges of the plot.
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 np.random.seed(19680801)
 
 fig, ax = plt.subplots()

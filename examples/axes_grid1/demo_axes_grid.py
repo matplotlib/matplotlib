@@ -6,10 +6,10 @@ Demo Axes Grid
 Grid of 2x2 images with a single colorbar or with one colorbar per axes.
 """
 
-from matplotlib import cbook
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import ImageGrid
 
+from matplotlib import cbook
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 Z = cbook.get_sample_data(  # (15, 15) array
     "axes_grid/bivariate_normal.npy", np_load=True)

@@ -8,12 +8,13 @@ and nodes using the `~.path.Path`, `~.patches.PathPatch` and
 `~matplotlib.transforms` classes.
 """
 
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib.cm as cm
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

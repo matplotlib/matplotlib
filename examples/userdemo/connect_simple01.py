@@ -7,8 +7,9 @@ A `.ConnectionPatch` can be used to draw a line (possibly with arrow head)
 between points defined in different coordinate systems and/or axes.
 """
 
-from matplotlib.patches import ConnectionPatch
 import matplotlib.pyplot as plt
+
+from matplotlib.patches import ConnectionPatch
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6, 3))
 

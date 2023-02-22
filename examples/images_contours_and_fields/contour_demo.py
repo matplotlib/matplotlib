@@ -10,10 +10,10 @@ See also the :doc:`contour image example
 </gallery/images_contours_and_fields/contour_image>`.
 """
 
-import numpy as np
-import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+import numpy as np
 
+import matplotlib.cm as cm
 
 delta = 0.025
 x = np.arange(-3.0, 3.0, delta)

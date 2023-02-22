@@ -2169,6 +2169,9 @@ def _unikey_or_keysym_to_mplkey(unikey, keysym):
         key = key.replace("page_", "page")
     if key.endswith(("_l", "_r")):  # alt_l, ctrl_l, shift_l.
         key = key[:-2]
+    if sys.platform == "darwin" and key == "meta":
+        # meta should be reported as command on mac
+        key = "cmd"
     key = {
         "return": "enter",
         "prior": "pageup",  # Used by tk.
@@ -2237,7 +2240,7 @@ def _unpack_to_numpy(x):
         # If numpy, return directly
         return x
     if hasattr(x, 'to_numpy'):
-        # Assume that any function to_numpy() do actually return a numpy array
+        # Assume that any to_numpy() method actually returns a numpy array
         return x.to_numpy()
     if hasattr(x, 'values'):
         xtmp = x.values

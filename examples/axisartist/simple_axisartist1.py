@@ -14,11 +14,11 @@ Note, however, that it is simpler to achieve this effect using standard
 """
 
 import matplotlib.pyplot as plt
-from mpl_toolkits import axisartist
 import numpy as np
 
+from mpl_toolkits import axisartist
 
-fig = plt.figure(figsize=(6, 3), constrained_layout=True)
+fig = plt.figure(figsize=(6, 3), layout="constrained")
 # To construct axes of two different classes, we need to use gridspec (or
 # MATLAB-style add_subplot calls).
 gs = fig.add_gridspec(1, 2)

@@ -6,9 +6,8 @@ Demo of 3D bar charts
 A basic demo of how to plot 3D bars with and without shading.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 # set up the figure and axes
 fig = plt.figure(figsize=(8, 3))

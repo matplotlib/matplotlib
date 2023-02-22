@@ -8,9 +8,8 @@ elements that are typically black (text, borders, etc). Note that not all plot
 elements default to colors defined by an rc parameter.
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 plt.style.use('dark_background')
 

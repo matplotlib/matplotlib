@@ -13,7 +13,6 @@ If no parameter is set, the global value
 
 import matplotlib.pyplot as plt
 
-
 fig, ax = plt.subplots(figsize=(6, 5))
 
 # A simple plot for the background.

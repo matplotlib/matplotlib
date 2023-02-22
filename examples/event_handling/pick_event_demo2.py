@@ -15,9 +15,8 @@ data from the dataset that generated this point.
     You can copy and paste individual parts, or download the entire example
     using the link at the bottom of the page.
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

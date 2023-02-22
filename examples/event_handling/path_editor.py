@@ -17,12 +17,12 @@ handling to interact with and modify objects on the canvas.
     using the link at the bottom of the page.
 """
 
-import numpy as np
-from matplotlib.backend_bases import MouseButton
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
 import matplotlib.pyplot as plt
+import numpy as np
 
+from matplotlib.backend_bases import MouseButton
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 fig, ax = plt.subplots()
 

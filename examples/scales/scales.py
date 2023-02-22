@@ -9,9 +9,10 @@ The last two examples are examples of using the ``'function'`` scale by
 supplying forward and inverse functions for the scale transformation.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import NullFormatter, FixedLocator
+import numpy as np
+
+from matplotlib.ticker import FixedLocator, NullFormatter
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -23,8 +24,7 @@ y.sort()
 x = np.arange(len(y))
 
 # plot with various axes scales
-fig, axs = plt.subplots(3, 2, figsize=(6, 8),
-                        constrained_layout=True)
+fig, axs = plt.subplots(3, 2, figsize=(6, 8), layout='constrained')
 
 # linear
 ax = axs[0, 0]

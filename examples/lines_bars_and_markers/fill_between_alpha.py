@@ -14,8 +14,8 @@ line plot on the left and a filled line on the right.
 
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.cbook as cbook
 
+import matplotlib.cbook as cbook
 
 # load up some sample financial data
 r = (cbook.get_sample_data('goog.npz', np_load=True)['price_data']

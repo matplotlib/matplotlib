@@ -13,8 +13,8 @@ Stackplots and streamgraphs
 # value are of interest.
 
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # data from United Nations World Population Prospects (Revision 2019)
 # https://population.un.org/wpp/, license: CC BY 3.0 IGO

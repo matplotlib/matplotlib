@@ -5,7 +5,7 @@ Patches are `.Artist`\s with a face color and an edge color.
 import functools
 import inspect
 import math
-from numbers import Number
+from numbers import Number, Real
 import textwrap
 from types import SimpleNamespace
 from collections import namedtuple
@@ -769,7 +769,7 @@ class Rectangle(Patch):
     def rotation_point(self, value):
         if value in ['center', 'xy'] or (
                 isinstance(value, tuple) and len(value) == 2 and
-                isinstance(value[0], Number) and isinstance(value[1], Number)
+                isinstance(value[0], Real) and isinstance(value[1], Real)
                 ):
             self._rotation_point = value
         else:
@@ -1125,7 +1125,7 @@ class Polygon(Patch):
 
         Returns
         -------
-        (N, 2) numpy array
+        (N, 2) array
             The coordinates of the vertices.
         """
         return self._path.vertices
@@ -1164,7 +1164,7 @@ class Polygon(Patch):
         self.stale = True
 
     xy = property(get_xy, set_xy,
-                  doc='The vertices of the path as (N, 2) numpy array.')
+                  doc='The vertices of the path as a (N, 2) array.')
 
 
 class Wedge(Patch):

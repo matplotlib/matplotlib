@@ -16,7 +16,6 @@ automatically trigger it.
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 ax = plt.figure().add_subplot(projection='3d')
 
 X, Y = np.mgrid[0:6*np.pi:0.25, 0:4*np.pi:0.25]

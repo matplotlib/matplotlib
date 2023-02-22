@@ -14,10 +14,10 @@ formatting and axis labeling.
    This example requires :download:`basic_units.py <basic_units.py>`
 """
 
+from basic_units import cos, degrees, radians
+
 import matplotlib.pyplot as plt
 import numpy as np
-
-from basic_units import radians, degrees, cos
 
 x = [val*radians for val in np.arange(0, 15, 0.01)]
 

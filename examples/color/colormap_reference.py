@@ -14,8 +14,8 @@ colormaps, including colorblind-friendliness, and
 colormaps.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 cmaps = [('Perceptually Uniform Sequential', [
             'viridis', 'plasma', 'inferno', 'magma', 'cividis']),

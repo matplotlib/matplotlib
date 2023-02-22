@@ -9,9 +9,10 @@ The following examples show how to plot boxes with different visual properties.
 import inspect
 
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtransforms
+
 import matplotlib.patches as mpatch
 from matplotlib.patches import FancyBboxPatch
+import matplotlib.transforms as mtransforms
 
 # %%
 # First we'll show some sample boxes with fancybox.

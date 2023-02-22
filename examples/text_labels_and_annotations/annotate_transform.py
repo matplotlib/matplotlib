@@ -10,8 +10,8 @@ For a complete overview of the annotation capabilities, also see the
 .. redirect-from:: /gallery/pyplots/annotate_transform
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 x = np.arange(0, 10, 0.005)
 y = np.exp(-x/2.) * np.sin(2*np.pi*x)

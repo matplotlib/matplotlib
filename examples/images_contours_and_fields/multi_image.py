@@ -6,9 +6,10 @@ Multiple images
 Make a set of images with a single colormap, norm, and colorbar.
 """
 
-from matplotlib import colors
 import matplotlib.pyplot as plt
 import numpy as np
+
+from matplotlib import colors
 
 np.random.seed(19680801)
 Nr = 3

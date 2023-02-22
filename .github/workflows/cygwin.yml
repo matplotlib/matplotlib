@@ -57,15 +57,16 @@ jobs:
         !contains(github.event.head_commit.message, '[ci skip]') &&
         !contains(github.event.head_commit.message, '[skip ci]') &&
         !contains(github.event.head_commit.message, '[skip github]') &&
+        !contains(github.event.head_commit.message, '[ci doc]') &&
         (
           github.event_name == 'push' ||
           github.event_name == 'pull_request' &&
           (
             (
               github.event.action == 'labeled' &&
-              github.event.label.name == 'Run cygwin'
+              github.event.label.name == 'CI: Run cygwin'
             ) ||
-            contains(github.event.pull_request.labels.*.name, 'Run cygwin')
+            contains(github.event.pull_request.labels.*.name, 'CI: Run cygwin')
           )
         )
       )

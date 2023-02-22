@@ -14,9 +14,10 @@ the time placed in the title of the figure.
     You can copy and paste individual parts, or download the entire example
     using the link at the bottom of the page.
 """
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
-from datetime import datetime
 
 
 def update_title(axes):

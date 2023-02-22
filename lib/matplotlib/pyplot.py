@@ -41,7 +41,6 @@ import functools
 import importlib
 import inspect
 import logging
-from numbers import Number
 import re
 import sys
 import threading
@@ -325,11 +324,12 @@ def switch_backend(newbackend):
     # show is already present, as the latter may be here for backcompat.
     manager_class = getattr(getattr(backend_mod, "FigureCanvas", None),
                             "manager_class", None)
-    # We can't compare directly manager_class.pyplot_show and FMB.pyplot_show
-    # because pyplot_show is a classmethod so the above constructs are bound
-    # classmethods, & thus always different (being bound to different classes).
-    manager_pyplot_show = vars(manager_class).get("pyplot_show")
-    base_pyplot_show = vars(FigureManagerBase).get("pyplot_show")
+    # We can't compare directly manager_class.pyplot_show and FMB.pyplot_show because
+    # pyplot_show is a classmethod so the above constructs are bound classmethods, and
+    # thus always different (being bound to different classes).  We also have to use
+    # getattr_static instead of vars as manager_class could have no __dict__.
+    manager_pyplot_show = inspect.getattr_static(manager_class, "pyplot_show", None)
+    base_pyplot_show = inspect.getattr_static(FigureManagerBase, "pyplot_show", None)
     if (show is None
             or (manager_pyplot_show is not None
                 and manager_pyplot_show != base_pyplot_show)):
@@ -740,7 +740,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     clear : bool, default: False
         If True and the figure already exists, then it is cleared.
 
-    layout : {'constrained', 'tight', `.LayoutEngine`, None}, default: None
+    layout : {'constrained', 'tight', 'compressed', \
+        `.LayoutEngine`, None}, default: None
         The layout mechanism for positioning of plot elements to avoid
         overlapping Axes decorations (labels, ticks, etc). Note that layout
         managers can measurably slow down figure display. Defaults to *None*

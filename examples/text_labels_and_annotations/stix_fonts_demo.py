@@ -9,7 +9,6 @@ rendering.
 
 import matplotlib.pyplot as plt
 
-
 circle123 = "\N{CIRCLED DIGIT ONE}\N{CIRCLED DIGIT TWO}\N{CIRCLED DIGIT THREE}"
 
 tests = [

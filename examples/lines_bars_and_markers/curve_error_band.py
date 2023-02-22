@@ -9,11 +9,11 @@ A parametrized curve x(t), y(t) can directly be drawn using `~.Axes.plot`.
 """
 # sphinx_gallery_thumbnail_number = 2
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.pyplot as plt
-from matplotlib.path import Path
 from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 
 N = 400
 t = np.linspace(0, 2 * np.pi, N)
@@ -63,8 +63,7 @@ def draw_error_band(ax, x, y, err, **kwargs):
     ax.add_patch(PathPatch(path, **kwargs))
 
 
-axs = (plt.figure(constrained_layout=True)
-       .subplots(1, 2, sharex=True, sharey=True))
+_, axs = plt.subplots(1, 2, layout='constrained', sharex=True, sharey=True)
 errs = [
     (axs[0], "constant error", 0.05),
     (axs[1], "variable error", 0.05 * np.sin(2 * t) ** 2 + 0.04),

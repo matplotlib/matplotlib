@@ -11,8 +11,8 @@ For a complete overview of the annotation capabilities, also see the
 
 .. redirect-from:: /gallery/pyplots/annotation_basic
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 fig, ax = plt.subplots()
 

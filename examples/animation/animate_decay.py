@@ -8,13 +8,14 @@ This example showcases:
 - using a generator to drive an animation,
 - changing axes limits during an animation.
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import itertools
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.animation as animation
 
 

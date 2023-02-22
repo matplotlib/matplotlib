@@ -11,6 +11,7 @@ uses `.append_axes` to add colorbars next to axes.
 """
 
 import matplotlib.pyplot as plt
+
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
 
 fig, (ax1, ax2) = plt.subplots(1, 2)

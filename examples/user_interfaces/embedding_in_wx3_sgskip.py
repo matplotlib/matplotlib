@@ -21,16 +21,17 @@ This was derived from embedding_in_wx and dynamic_image_wxagg.
 Thanks to matplotlib and wx teams for creating such great software!
 """
 
-import matplotlib.cm as cm
-import matplotlib.cbook as cbook
-from matplotlib.backends.backend_wxagg import (
-    FigureCanvasWxAgg as FigureCanvas,
-    NavigationToolbar2WxAgg as NavigationToolbar)
-from matplotlib.figure import Figure
-import numpy as np
-
 import wx
 import wx.xrc as xrc
+
+import numpy as np
+
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.backends.backend_wxagg import \
+    NavigationToolbar2WxAgg as NavigationToolbar
+import matplotlib.cbook as cbook
+import matplotlib.cm as cm
+from matplotlib.figure import Figure
 
 ERR_TOL = 1e-5  # floating point slop for peak-detection
 

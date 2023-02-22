@@ -15,8 +15,9 @@ selected range is then plotted on the lower axis.
     interactivity.  You must keep a hard reference to it to prevent this.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.widgets import SpanSelector
 
 # Fixing random state for reproducibility

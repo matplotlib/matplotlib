@@ -8,8 +8,8 @@ the `.AxesImage` returned by `~.axes.Axes.imshow`)
 and the axes to attach the colorbar to.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # setup some generic data
 N = 37

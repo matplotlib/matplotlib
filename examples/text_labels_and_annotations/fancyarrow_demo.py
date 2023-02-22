@@ -7,11 +7,12 @@ Overview of the arrow styles available in `~.Axes.annotate`.
 """
 
 import inspect
-import re
 import itertools
+import re
+
+import matplotlib.pyplot as plt
 
 import matplotlib.patches as mpatches
-import matplotlib.pyplot as plt
 
 styles = mpatches.ArrowStyle.get_styles()
 ncol = 2

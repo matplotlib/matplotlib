@@ -16,8 +16,8 @@ take integer values.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 
+from matplotlib.ticker import MaxNLocator
 
 fig, ax = plt.subplots()
 xs = range(26)

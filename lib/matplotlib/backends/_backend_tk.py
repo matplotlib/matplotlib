@@ -1,4 +1,5 @@
 import uuid
+import weakref
 from contextlib import contextmanager
 import logging
 import math
@@ -200,14 +201,33 @@ class FigureCanvasTk(FigureCanvasBase):
         # event to the window containing the canvas instead.
         # See https://wiki.tcl-lang.org/3893 (mousewheel) for details
         root = self._tkcanvas.winfo_toplevel()
-        root.bind("<MouseWheel>", self.scroll_event_windows, "+")
+
+        # Prevent long-lived references via tkinter callback structure GH-24820
+        weakself = weakref.ref(self)
+        weakroot = weakref.ref(root)
+
+        def scroll_event_windows(event):
+            self = weakself()
+            if self is None:
+                root = weakroot()
+                if root is not None:
+                    root.unbind("<MouseWheel>", scroll_event_windows_id)
+                return
+            return self.scroll_event_windows(event)
+        scroll_event_windows_id = root.bind("<MouseWheel>", scroll_event_windows, "+")
 
         # Can't get destroy events by binding to _tkcanvas. Therefore, bind
         # to the window and filter.
         def filter_destroy(event):
+            self = weakself()
+            if self is None:
+                root = weakroot()
+                if root is not None:
+                    root.unbind("<Destroy>", filter_destroy_id)
+                return
             if event.widget is self._tkcanvas:
                 CloseEvent("close_event", self)._process()
-        root.bind("<Destroy>", filter_destroy, "+")
+        filter_destroy_id = root.bind("<Destroy>", filter_destroy, "+")
 
         self._tkcanvas.focus_set()
 
@@ -354,7 +374,7 @@ class FigureCanvasTk(FigureCanvasBase):
             ("ctrl", 1 << 2, "control"),
             ("alt", 1 << 4, "alt"),
             ("shift", 1 << 0, "shift"),
-            ("super", 1 << 3, "super"),
+            ("cmd", 1 << 3, "cmd"),
         ] if sys.platform == "darwin" else [
             ("ctrl", 1 << 2, "control"),
             ("alt", 1 << 3, "alt"),
@@ -747,6 +767,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # Use the high-resolution (48x48 px) icon if it exists and is needed
         with Image.open(path_large if (size > 24 and path_large.exists())
                         else path_regular) as im:
+            # assure a RGBA image as foreground color is RGB
+            im = im.convert("RGBA")
             image = ImageTk.PhotoImage(im.resize((size, size)), master=self)
             button._ntimage = image
 

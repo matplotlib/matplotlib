@@ -1,4 +1,0 @@
-``CheckButtons.rectangles`` and ``CheckButtons.lines``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-``CheckButtons.rectangles`` and ``CheckButtons.lines`` are deprecated.
-(``CheckButtons`` now draws itself using `~.Axes.scatter`.)

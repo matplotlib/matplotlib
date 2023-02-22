@@ -10,8 +10,9 @@ tricontour3d_demo shows the unfilled version of this example.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.tri as tri
 import numpy as np
+
+import matplotlib.tri as tri
 
 # First create the x, y, z coordinates of the points.
 n_angles = 48

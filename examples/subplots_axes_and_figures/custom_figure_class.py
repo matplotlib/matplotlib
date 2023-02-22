@@ -14,8 +14,9 @@ constructor.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 import numpy as np
+
+from matplotlib.figure import Figure
 
 
 class WatermarkFigure(Figure):

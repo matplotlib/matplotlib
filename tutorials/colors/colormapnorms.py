@@ -41,11 +41,12 @@ than the other. Using `.colors.LogNorm`, the shape and location of each bump
 can clearly be seen:
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as colors
-import matplotlib.cbook as cbook
+import numpy as np
+
 from matplotlib import cm
+import matplotlib.cbook as cbook
+import matplotlib.colors as colors
 
 N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
@@ -167,7 +168,7 @@ N = 100
 X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
 Z1 = (1 + np.sin(Y * 10.)) * X**2
 
-fig, ax = plt.subplots(2, 1, constrained_layout=True)
+fig, ax = plt.subplots(2, 1, layout='constrained')
 
 pcm = ax[0].pcolormesh(X, Y, Z1, norm=colors.PowerNorm(gamma=0.5),
                        cmap='PuBu_r', shading='auto')
@@ -206,7 +207,7 @@ Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = ((Z1 - Z2) * 2)[:-1, :-1]
 
-fig, ax = plt.subplots(2, 2, figsize=(8, 6), constrained_layout=True)
+fig, ax = plt.subplots(2, 2, figsize=(8, 6), layout='constrained')
 ax = ax.flatten()
 
 # Default norm:

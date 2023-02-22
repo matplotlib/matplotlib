@@ -24,11 +24,12 @@ any format supported by Pillow.
 .. redirect-from:: /gallery/misc/agg_buffer_to_array
 """
 
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-from matplotlib.figure import Figure
-import numpy as np
 from PIL import Image
 
+import numpy as np
+
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.figure import Figure
 
 fig = Figure(figsize=(5, 4), dpi=100)
 # A canvas must be manually attached to the figure (pyplot would automatically

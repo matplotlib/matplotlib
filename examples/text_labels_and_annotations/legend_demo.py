@@ -12,10 +12,11 @@ First we'll show off how to make a legend for specific lines.
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.collections as mcol
 from matplotlib.legend_handler import HandlerLineCollection, HandlerTuple
 from matplotlib.lines import Line2D
-import numpy as np
 
 t1 = np.arange(0.0, 2.0, 0.1)
 t2 = np.arange(0.0, 2.0, 0.01)
@@ -63,7 +64,7 @@ plt.show()
 # %%
 # Here we attach legends to more complex plots.
 
-fig, axs = plt.subplots(3, 1, constrained_layout=True)
+fig, axs = plt.subplots(3, 1, layout="constrained")
 top_ax, middle_ax, bottom_ax = axs
 
 top_ax.bar([0, 1, 2], [0.2, 0.3, 0.1], width=0.4, label="Bar 1",
@@ -86,7 +87,7 @@ plt.show()
 # %%
 # Now we'll showcase legend entries with more than one legend key.
 
-fig, (ax1, ax2) = plt.subplots(2, 1, constrained_layout=True)
+fig, (ax1, ax2) = plt.subplots(2, 1, layout='constrained')
 
 # First plot: two legend keys for a single entry
 p1 = ax1.scatter([1], [5], c='r', marker='s', s=100)

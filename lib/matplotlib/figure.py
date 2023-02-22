@@ -13,8 +13,21 @@
 `SubplotParams`
     Control the default spacing between subplots.
 
-See :ref:`figure_explanation` for narrative on how figures are used in
-Matplotlib.
+Figures are typically created using pyplot methods `~.pyplot.figure`,
+`~.pyplot.subplots`, and `~.pyplot.subplot_mosaic`.
+
+.. plot::
+    :include-source:
+
+    fig, ax = plt.subplots(figsize=(2, 2), facecolor='lightskyblue',
+                           layout='constrained')
+    fig.suptitle('Figure')
+    ax.set_title('Axes', loc='left', fontstyle='oblique', fontsize='medium')
+
+Some situations call for directly instantiating a `~.figure.Figure` class,
+usually inside an application of some sort (see :ref:`user_interfaces` for a
+list of examples) .  More information about Figures can be found at
+:ref:`figure_explanation`.
 """
 
 from contextlib import ExitStack
@@ -1928,13 +1941,11 @@ default: %(va)s
 
             We need to have this internal function rather than
             ``np.asarray(..., dtype=object)`` so that a list of lists
-            of lists does not get converted to an array of dimension >
-            2
+            of lists does not get converted to an array of dimension > 2.
 
             Returns
             -------
             2D object array
-
             """
             r0, *rest = inp
             if isinstance(r0, str):
@@ -1960,13 +1971,13 @@ default: %(va)s
 
             Parameters
             ----------
-            mosaic : 2D numpy object array
+            mosaic : 2D object array
 
             Returns
             -------
             unique_ids : tuple
                 The unique non-sub mosaic entries in this mosaic
-            nested : dict[tuple[int, int]], 2D object array
+            nested : dict[tuple[int, int], 2D object array]
             """
             # make sure we preserve the user supplied order
             unique_ids = cbook._OrderedSet()
@@ -1990,7 +2001,7 @@ default: %(va)s
             ----------
             gs : GridSpec
             mosaic : 2D object array
-                The input converted to a 2D numpy array for this level.
+                The input converted to a 2D array for this level.
             unique_ids : tuple
                 The identified scalar labels at this level of nesting.
             nested : dict[tuple[int, int]], 2D object array
@@ -2143,8 +2154,8 @@ class SubFigure(FigureBase):
             Defines the region in a parent gridspec where the subfigure will
             be placed.
 
-        facecolor : default: :rc:`figure.facecolor`
-            The figure patch face color.
+        facecolor : default: ``"none"``
+            The figure patch face color; transparent by default.
 
         edgecolor : default: :rc:`figure.edgecolor`
             The figure patch edge color.
@@ -2164,7 +2175,7 @@ class SubFigure(FigureBase):
         """
         super().__init__(**kwargs)
         if facecolor is None:
-            facecolor = mpl.rcParams['figure.facecolor']
+            facecolor = "none"
         if edgecolor is None:
             edgecolor = mpl.rcParams['figure.edgecolor']
         if frameon is None:

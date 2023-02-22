@@ -8,13 +8,14 @@ treeview to store data.  Double-click on an entry to update plot data.
 """
 
 import gi
+
 gi.require_version('Gtk', '4.0')
 gi.require_version('Gdk', '4.0')
 from gi.repository import Gtk
 
-from matplotlib.backends.backend_gtk4agg import FigureCanvas  # or gtk4cairo.
-
 from numpy.random import random
+
+from matplotlib.backends.backend_gtk4agg import FigureCanvas  # or gtk4cairo.
 from matplotlib.figure import Figure
 
 
@@ -49,7 +50,7 @@ class DataManager(Gtk.ApplicationWindow):
         sw.set_child(self.treeview)
 
         # Matplotlib stuff
-        fig = Figure(figsize=(6, 4), constrained_layout=True)
+        fig = Figure(figsize=(6, 4), layout='constrained')
 
         self.canvas = FigureCanvas(fig)  # a Gtk.DrawingArea
         self.canvas.set_hexpand(True)

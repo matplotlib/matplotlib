@@ -6,9 +6,8 @@ Scatter plot on polar axis
 Size increases radially in this example and color increases with angle
 (just to verify the symbols are being scattered correctly).
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

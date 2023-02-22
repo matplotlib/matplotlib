@@ -8,8 +8,9 @@ Set font properties using setters.
 See :doc:`fonts_demo_kw` to achieve the same effect using keyword arguments.
 """
 
-from matplotlib.font_manager import FontProperties
 import matplotlib.pyplot as plt
+
+from matplotlib.font_manager import FontProperties
 
 fig = plt.figure()
 alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}

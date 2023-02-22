@@ -9,14 +9,29 @@ Release notes
 .. include from another document so that it's easy to exclude this for releases
 .. include:: release_notes_next.rst
 
+
+Version 3.7
+===========
+.. toctree::
+    :maxdepth: 1
+
+    prev_whats_new/whats_new_3.7.0.rst
+    ../api/prev_api_changes/api_changes_3.7.0.rst
+    github_stats.rst
+
+
 Version 3.6
 ===========
 .. toctree::
     :maxdepth: 1
 
     prev_whats_new/whats_new_3.6.0.rst
+    ../api/prev_api_changes/api_changes_3.6.1.rst
     ../api/prev_api_changes/api_changes_3.6.0.rst
-    github_stats.rst
+    prev_whats_new/github_stats_3.6.3.rst
+    prev_whats_new/github_stats_3.6.2.rst
+    prev_whats_new/github_stats_3.6.1.rst
+    prev_whats_new/github_stats_3.6.0.rst
 
 Version 3.5
 ===========

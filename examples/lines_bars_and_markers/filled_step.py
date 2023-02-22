@@ -6,13 +6,15 @@ Hatch-filled histograms
 Hatching capabilities for plotting histograms.
 """
 
-import itertools
 from functools import partial
+import itertools
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 from cycler import cycler
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib.ticker as mticker
 
 
 def filled_hist(ax, edges, values, bottoms=None, orientation='v',

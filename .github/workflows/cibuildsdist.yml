@@ -28,9 +28,9 @@ jobs:
       github.event_name == 'pull_request' && (
         (
           github.event.action == 'labeled' &&
-          github.event.label.name == 'Run cibuildwheel'
+          github.event.label.name == 'CI: Run cibuildwheel'
         ) ||
-        contains(github.event.pull_request.labels.*.name, 'Run cibuildwheel')
+        contains(github.event.pull_request.labels.*.name, 'CI: Run cibuildwheel')
       )
     name: Build sdist and wheel on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

@@ -12,8 +12,9 @@ Although this is a simple example, it demonstrates some important tweaks:
 * Use of axis spines to hide the top and right spines.
 * Custom tick placement and labels.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.patches import Polygon
 
 

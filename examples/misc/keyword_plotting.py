@@ -12,8 +12,9 @@ argument. If provided, you may generate plots with the strings
 corresponding to these variables.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 np.random.seed(19680801)
 
 data = {'a': np.arange(50),

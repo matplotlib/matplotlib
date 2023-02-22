@@ -1,3 +1,0 @@
-``QuadMesh.set_array`` now always raises ``ValueError`` for inputs with incorrect shapes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-It could previously also raise `TypeError` in some cases.

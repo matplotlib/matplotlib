@@ -8,9 +8,8 @@ The position of the axis spines can be influenced using `~.Spine.set_position`.
 Note: If you want to obtain arrow heads at the ends of the axes, also check
 out the :doc:`/gallery/spines/centered_spines_with_arrows` example.
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 # %%
 

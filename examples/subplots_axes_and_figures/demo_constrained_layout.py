@@ -3,7 +3,7 @@
 Resizing axes with constrained layout
 =====================================
 
-Constrained layout attempts to resize subplots in
+*Constrained layout* attempts to resize subplots in
 a figure so that there are no overlaps between axes objects and labels
 on the axes.
 
@@ -23,17 +23,17 @@ def example_plot(ax):
 
 
 # %%
-# If we don't use constrained_layout, then labels overlap the axes
+# If we don't use *constrained layout*, then labels overlap the axes
 
-fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=False)
+fig, axs = plt.subplots(nrows=2, ncols=2, layout=None)
 
 for ax in axs.flat:
     example_plot(ax)
 
 # %%
-# adding ``constrained_layout=True`` automatically adjusts.
+# adding ``layout='constrained'`` automatically adjusts.
 
-fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=True)
+fig, axs = plt.subplots(nrows=2, ncols=2, layout='constrained')
 
 for ax in axs.flat:
     example_plot(ax)
@@ -41,7 +41,7 @@ for ax in axs.flat:
 # %%
 # Below is a more complicated example using nested gridspecs.
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout='constrained')
 
 import matplotlib.gridspec as gridspec
 

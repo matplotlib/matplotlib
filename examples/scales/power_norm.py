@@ -8,10 +8,10 @@ Various normalization on a multivariate normal distribution.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 import numpy as np
 from numpy.random import multivariate_normal
 
+import matplotlib.colors as mcolors
 
 # Fixing random state for reproducibility.
 np.random.seed(19680801)

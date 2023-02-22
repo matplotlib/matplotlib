@@ -16,10 +16,10 @@ a bunch of custom classes for ticks, spines, and axis to handle this.
 from contextlib import ExitStack
 
 from matplotlib.axes import Axes
-import matplotlib.transforms as transforms
 import matplotlib.axis as maxis
-import matplotlib.spines as mspines
 from matplotlib.projections import register_projection
+import matplotlib.spines as mspines
+import matplotlib.transforms as transforms
 
 
 # The sole purpose of this class is to look at the upper, lower, or total
@@ -147,10 +147,12 @@ register_projection(SkewXAxes)
 if __name__ == '__main__':
     # Now make a simple example using the custom projection.
     from io import StringIO
-    from matplotlib.ticker import (MultipleLocator, NullFormatter,
-                                   ScalarFormatter)
+
     import matplotlib.pyplot as plt
     import numpy as np
+
+    from matplotlib.ticker import (MultipleLocator, NullFormatter,
+                                   ScalarFormatter)
 
     # Some example data.
     data_txt = '''

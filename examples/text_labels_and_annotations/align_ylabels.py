@@ -8,8 +8,8 @@ and the second a manual way to align the labels.
 
 .. redirect-from:: /gallery/pyplots/align_ylabels
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def make_plot(axs):

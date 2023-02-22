@@ -10,16 +10,18 @@ we show how to create a simple timeline using the dates for recent releases
 of Matplotlib. First, we'll pull the data from GitHub.
 """
 
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 import matplotlib.dates as mdates
-from datetime import datetime
 
 try:
     # Try to fetch a list of Matplotlib releases and their dates
     # from https://api.github.com/repos/matplotlib/matplotlib/releases
-    import urllib.request
     import json
+    import urllib.request
 
     url = 'https://api.github.com/repos/matplotlib/matplotlib/releases'
     url += '?per_page=100'
@@ -68,7 +70,7 @@ levels = np.tile([-5, 5, -3, 3, -1, 1],
                  int(np.ceil(len(dates)/6)))[:len(dates)]
 
 # Create figure and plot a stem plot with the date
-fig, ax = plt.subplots(figsize=(8.8, 4), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(8.8, 4), layout="constrained")
 ax.set(title="Matplotlib release dates")
 
 ax.vlines(dates, 0, levels, color="tab:red")  # The vertical stems.

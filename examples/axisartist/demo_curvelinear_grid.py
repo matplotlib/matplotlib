@@ -11,15 +11,14 @@ ticklines by applying a transformation on the grid.  This can be used, as
 shown on the second plot, to create polar projections in a rectangular box.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.pyplot as plt
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
-
-from mpl_toolkits.axisartist import angle_helper, Axes, HostAxes
-from mpl_toolkits.axisartist.grid_helper_curvelinear import (
-    GridHelperCurveLinear)
+from mpl_toolkits.axisartist import Axes, HostAxes, angle_helper
+from mpl_toolkits.axisartist.grid_helper_curvelinear import \
+    GridHelperCurveLinear
 
 
 def curvelinear_test1(fig):

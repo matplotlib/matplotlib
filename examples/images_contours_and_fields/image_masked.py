@@ -9,8 +9,9 @@ The second subplot illustrates the use of BoundaryNorm to
 get a filled contour effect.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.colors as colors
 
 # compute some interesting data

@@ -14,8 +14,9 @@ A good general reference on boxplots and their history can be found
 here: http://vita.had.co.nz/papers/boxplots.pdf
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.cbook as cbook
 
 # fake data

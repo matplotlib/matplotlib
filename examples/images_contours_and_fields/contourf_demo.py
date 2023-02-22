@@ -5,8 +5,8 @@ Contourf demo
 
 How to use the `.axes.Axes.contourf` method to create filled contour plots.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 origin = 'lower'
 
@@ -40,7 +40,7 @@ Z[interior] = np.ma.masked
 # a good idea, because they don't occur on nice boundaries, but we do it here
 # for purposes of illustration.
 
-fig1, ax2 = plt.subplots(constrained_layout=True)
+fig1, ax2 = plt.subplots(layout='constrained')
 CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
 
 # Note that in the following, we explicitly pass in a subset of the contour
@@ -66,7 +66,7 @@ cbar.add_lines(CS2)
 # Now make a contour plot with the levels specified, and with the colormap
 # generated automatically from a list of colors.
 
-fig2, ax2 = plt.subplots(constrained_layout=True)
+fig2, ax2 = plt.subplots(layout='constrained')
 levels = [-1.5, -1, -0.5, 0, 0.5, 1]
 CS3 = ax2.contourf(X, Y, Z, levels,
                    colors=('r', 'g', 'b'),
@@ -101,7 +101,7 @@ cmap = plt.colormaps["winter"].with_extremes(under="magenta", over="yellow")
 # no effect:
 # cmap.set_bad("red")
 
-fig, axs = plt.subplots(2, 2, constrained_layout=True)
+fig, axs = plt.subplots(2, 2, layout="constrained")
 
 for ax, extend in zip(axs.flat, extends):
     cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)

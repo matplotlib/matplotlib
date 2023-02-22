@@ -15,14 +15,15 @@ Demonstration of features of the :mod:`.floating_axes` module:
   `~.floating_axes.GridHelperCurveLinear`.
 """
 
-from matplotlib.transforms import Affine2D
-import mpl_toolkits.axisartist.floating_axes as floating_axes
-import numpy as np
-import mpl_toolkits.axisartist.angle_helper as angle_helper
-from matplotlib.projections import PolarAxes
-from mpl_toolkits.axisartist.grid_finder import (FixedLocator, MaxNLocator,
-                                                 DictFormatter)
 import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.projections import PolarAxes
+from matplotlib.transforms import Affine2D
+import mpl_toolkits.axisartist.angle_helper as angle_helper
+import mpl_toolkits.axisartist.floating_axes as floating_axes
+from mpl_toolkits.axisartist.grid_finder import (DictFormatter, FixedLocator,
+                                                 MaxNLocator)
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

@@ -6,8 +6,8 @@ Log Demo
 Examples of plots with logarithmic axes.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Data for plotting
 t = np.arange(0.01, 20.0, 0.01)

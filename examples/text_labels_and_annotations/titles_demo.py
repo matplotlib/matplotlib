@@ -21,7 +21,7 @@ plt.show()
 # The vertical position is automatically chosen to avoid decorations
 # (i.e. labels and ticks) on the topmost x-axis:
 
-fig, axs = plt.subplots(1, 2, constrained_layout=True)
+fig, axs = plt.subplots(1, 2, layout='constrained')
 
 ax = axs[0]
 ax.plot(range(10))
@@ -41,7 +41,7 @@ plt.show()
 # Automatic positioning can be turned off by manually specifying the *y*
 # keyword argument for the title or setting :rc:`axes.titley` in the rcParams.
 
-fig, axs = plt.subplots(1, 2, constrained_layout=True)
+fig, axs = plt.subplots(1, 2, layout='constrained')
 
 ax = axs[0]
 ax.plot(range(10))

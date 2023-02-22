@@ -14,8 +14,8 @@ These settings were shamelessly stolen from [1]_ (with permission).
 .. _R: https://www.r-project.org/
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 plt.style.use('ggplot')
 

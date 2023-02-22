@@ -1,1295 +1,684 @@
 .. _github-stats:
 
-GitHub statistics for 3.6.0 (Sep 15, 2022)
-==========================================
+GitHub statistics (Feb 13, 2023)
+================================
 
-GitHub statistics for 2021/11/16 (tag: v3.5.0) - 2022/09/15
+GitHub statistics for 2022/09/16 (tag: v3.6.0) - 2023/02/13
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 202 issues and merged 894 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/65?closed=1>`__
+We closed 120 issues and merged 427 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/70?closed=1>`__
 
-The following 174 authors contributed 4425 commits.
+The following 112 authors contributed 1962 commits.
 
-* Abhishek K M
-* Adeel Hassan
-* agra
-* Aitik Gupta
-* ambi7
-* Andras Deak
-* Andres Martinez
-* Andrew Fennell
-* andrzejnovak
+* Abhijnan Bajpai
+* Adrien F. Vincent
+* Ahoy Ahoy
+* Akshit Tyagi
+* Ali Meshkat
+* Almar Klein
 * Andrés Martínez
-* Anna Mastori
-* AnnaMastori
 * Ante Sikic
 * Antony Lee
-* arndRemy
-* Ben Root
-* Biswapriyo Nath
-* cavesdev
-* Clément Phan
-* Clément Walter
-* code-review-doctor
-* Connor Cozad
-* Constantine Evans
-* Croadden
-* daniilS
-* Danilo Palumbo
-* David Gilbertson
-* David Ketcheson
-* David Matos
-* David Poznik
+* Augustin LAVILLE
+* baharev
+* cargobuild
+* Carsten Schnober
+* Chahak Mehta
+* Charisma Kausar
 * David Stansby
-* Davide Sandonà
 * dependabot[bot]
-* dermasugita
-* Diego Solano
-* Dimitri Papadopoulos
-* dj4t9n
-* Dmitriy Fishman
-* DWesl
-* Edouard Berthe
-* eindH
+* DerWeh
+* Eero Vaher
 * Elliott Sales de Andrade
-* Eric Firing
 * Eric Larson
 * Eric Prestat
-* Federico Ariza
-* Felix Nößler
-* Fernando
-* Gajendra Pal
-* gajendra0180
-* GavinZhang
+* erykoff
+* EunHo Lee
+* Felix Goudreault
 * Greg Lucas
 * hannah
-* Hansin Ahuja
-* Harshal Prakash Patankar
-* Hassan Kibirige
-* Haziq Khurshid
-* Henry
-* henrybeUM
-* Hood
-* Hood Chatham
 * Ian Hunt-Isaak
 * Ian Thomas
-* igurin-invn
-* ikhebgeenaccount
-* Isha Mehta
-* Jake Bowhay
-* Jake Li
-* Jake Lishman
-* Jake VanderPlas
+* intellizEHL
+* iofall
+* j1642
+* jacoverster
+* Jae-Joon Lee
 * Jakub Klus
-* James Tocknell
-* Jan-Hendrik Müller
-* Jay Joshi
+* James Braza
 * Jay Stanley
-* jayjoshi112711
-* Jeff Beck
+* Jef Myers
+* jeffreypaul15
+* Jefro
 * Jody Klymak
-* Joel Frederico
+* John Paul Jepko
 * Joseph Fox-Rabinovitz
-* Josh Soref
-* Jouni K. Seppänen
-* Kayran Schmidt
-* kdpenner
+* Joshua Barrass
+* Julian Chen
+* Junaid Khan
+* Justin Tracey
+* Kaidong Hu
+* Kanza
+* Karan
 * Kian Eliasi
-* Kinshuk Dua
-* kislovskiy
-* KIU Shueng Chuan
-* kjain
 * kolibril13
-* krassowski
-* Krish-sysadmin
-* Leeh Peter
-* lgfunderburk
-* Liam Toney
+* Kostya Farber
+* Krutarth Patel
+* Kyle Sunden
+* Leo Singer
 * Lucas Ricci
-* Luke Davis
-* luz paz
-* mackopes
-* MAKOMO
-* MalikIdreesHasa
-* Marcin Swaltek
-* Mario
-* Mario Sergio Valdés Tresanco
-* martinRenou
+* luke
+* Marc Van den Bossche
+* Martok
+* Marvvxi
 * Matthew Feickert
-* Matthias Bussonnier
 * Mauricio Collares
 * MeeseeksMachine
 * melissawm
-* Mr-Milk
-* Navid C. Constantinou
-* Nickolaos Giannatos
-* Nicolas P. Rougier
-* Niyas Sait
+* Mikhail Ryazanov
+* Muhammad Abdur Rakib
 * noatamir
-* ojeda-e
-* Olivier Gauthé
+* NRaudseps
+* Olivier Castany
 * Oscar Gustafsson
-* patquem
-* Philipp Rohde
+* parthpankajtiwary
+* Paul Seyfert
+* Pavel Grunt
 * Pieter Eendebak
-* Pieter P
-* Péter Leéh
-* Qijia Liu
-* Quentin Peter
-* Raphael Quast
-* rditlar9
-* Richard Penney
+* PIotr Strzelczyk
+* Pratim Ugale
+* pre-commit-ci[bot]
+* ramvikrams
 * richardsheridan
-* Rike-Benjamin Schuppner
-* Robert Cimrman
-* Roberto Toro
-* root
 * Ruth Comer
-* Ruth G. N
-* Ruth Nainggolan
 * Ryan May
-* Rémi Achard
-* SaumyaBhushan
-* Scott Jones
+* saranti
 * Scott Shambaugh
-* selormtamakloe
-* Simon Hoxbro
-* skywateryang
+* Shabnam Sadegh
+* Shawn Zhong
+* Simon Waldherr
+* Skhaki18
+* slackline
+* Snipeur060
+* Sourajita Dewasi
+* SourajitaDewasi
 * Stefanie Molin
 * Steffen Rehberg
-* stone
 * Sven Eschlbeck
 * sveneschlbeck
 * takimata
 * tfpf
 * Thomas A Caswell
+* Tiger Nie
 * Tim Hoffmann
-* Tobias Megies
-* Tomas Hrnciar
-* Tomasz Kuliński
-* trichter
-* unknown
-* Uwe Hubert
-* vfdev-5
-* Vishal Chandratreya
+* Tom
+* Tortar
+* tsumli
+* tybeller
+* vdbma
 * Vishal Pankaj Chandratreya
-* Vishnu V K
-* vk0812
-* Vlad Korolev
-* Will Qian
-* William Qian
-* wqh17101
-* wsykala
-* yaaun
-* Yannic Schroeder
+* vivekvedant
+* whyvra
 * yuanx749
-* 渡邉 美希
+* zhizheng1
+* مهدي شينون (Mehdi Chinoune)
 
 GitHub issues and pull requests:
 
-Pull Requests (894):
+Pull Requests (427):
 
-* :ghpull:`23814`: Consolidate release notes for 3.6
-* :ghpull:`23899`: Backport PR #23885 on branch v3.6.x (DOC: Rearrange navbar-end elements)
-* :ghpull:`23898`: Backport PR #23892 on branch v3.6.x (DOC: Fix docs for linestyles in contour)
-* :ghpull:`23885`: DOC: Rearrange navbar-end elements
-* :ghpull:`23894`: Backport PR #23881 on branch v3.6.x (Fix Pillow compatibility in example)
-* :ghpull:`23897`: Backport PR #23887 on branch v3.6.x (Add missing label argument to barh docs)
-* :ghpull:`23892`: DOC: Fix docs for linestyles in contour
-* :ghpull:`23887`: Add missing label argument to barh docs
-* :ghpull:`23893`: Backport PR #23886 on branch v3.6.x (CI: prefer (older) binaries over (newer) sdists)
-* :ghpull:`23881`: Fix Pillow compatibility in example
-* :ghpull:`23886`: CI: prefer (older) binaries over (newer) sdists
-* :ghpull:`23880`: Backport PR #23862 on branch v3.6.x (Remove triggering of deprecation warning in AnchoredEllipse)
-* :ghpull:`23862`: Remove triggering of deprecation warning in AnchoredEllipse
-* :ghpull:`23879`: Backport PR #23864 on branch v3.6.x (Correct and improve documentation for anchored artists)
-* :ghpull:`23877`: Backport PR #23841 on branch v3.6.x (clarified that hist computes histogram on unbinned data)
-* :ghpull:`23872`: Backport PR #23871 on branch v3.6.x (DOC: Fix formatting of pick event demo example)
-* :ghpull:`23841`: clarified that hist computes histogram on unbinned data
-* :ghpull:`23864`: Correct and improve documentation for anchored artists
-* :ghpull:`23871`: DOC: Fix formatting of pick event demo example
-* :ghpull:`23869`: Backport PR #23867 on branch v3.6.x (DOC: fix deprecation warnings in examples)
-* :ghpull:`23867`: DOC: fix deprecation warnings in examples
-* :ghpull:`23858`: Backport PR #23855 on branch v3.6.x (DOC: fix deprecation warnings)
-* :ghpull:`23859`: Backport PR #23844 on branch v3.6.x (Further improve dev setup instructions)
-* :ghpull:`23844`: Further improve dev setup instructions
-* :ghpull:`23855`: DOC: fix deprecation warnings
-* :ghpull:`23854`: Backport PR #23852 on branch v3.6.x (Fix cross-compiling internal freetype)
-* :ghpull:`23852`: Fix cross-compiling internal freetype
-* :ghpull:`23853`: Backport PR #23830 on branch v3.6.x (Start testing on Python 3.11)
-* :ghpull:`23830`: Start testing on Python 3.11
-* :ghpull:`23851`: Backport PR #23850 on branch v3.6.x (removed single word in documenting doc)
-* :ghpull:`23850`: removed single word in documenting doc
-* :ghpull:`23848`: Backport PR #23843 on branch v3.6.x (Clarify that pycairo>=1.14.0 is needed.)
-* :ghpull:`23843`: Clarify that pycairo>=1.14.0 is needed.
-* :ghpull:`23842`: Backport PR #23840 on branch v3.6.x (Remove documentation for axes_grid)
-* :ghpull:`23838`: Backport PR #23834 on branch v3.6.x (Revert "Refactor handling of tick and ticklabel visibility in Axis.clear")
-* :ghpull:`23840`: Remove documentation for axes_grid
-* :ghpull:`23837`: Backport PR #23833 on branch v3.6.x (Remove search field from sidebar)
-* :ghpull:`23836`: Backport PR #23823 on branch v3.6.x ([DOC] Improve dev setup description)
-* :ghpull:`23834`: Revert "Refactor handling of tick and ticklabel visibility in Axis.clear"
-* :ghpull:`23833`: Remove search field from sidebar
-* :ghpull:`23823`: [DOC] Improve dev setup description
-* :ghpull:`23822`: Backport PR #23813 on branch v3.6.x (Triplot duplicated label)
-* :ghpull:`23813`: Triplot duplicated label
-* :ghpull:`23811`: Backport PR #23805 on branch v3.6.x (sphinxext: Do not copy plot_directive.css's metadata)
-* :ghpull:`23805`: sphinxext: Do not copy plot_directive.css's metadata
-* :ghpull:`23800`: Backport PR #23785 on branch v3.6.x (FIX: ensure type stability for missing cmaps in ``set_cmap``)
-* :ghpull:`23799`: Backport PR #23790 on branch v3.6.x (DOC: Add cache busting to all static assets)
-* :ghpull:`23785`: FIX: ensure type stability for missing cmaps in ``set_cmap``
-* :ghpull:`23790`: DOC: Add cache busting to all static assets
-* :ghpull:`23791`: Backport PR #23774 on branch v3.6.x (Correct rcParams-name in AutoDateFormatter doc-string)
-* :ghpull:`23792`: Backport PR #23781 on branch v3.6.x (ci: Add plot types to sphinx-gallery artifacts)
-* :ghpull:`23789`: Backport PR #23786 on branch v3.6.x (DOC: fontfallback works for most of the backends)
-* :ghpull:`23788`: Backport PR #23784 on branch v3.6.x (DOC: Fix num2date docstring)
-* :ghpull:`23786`: DOC: fontfallback works for most of the backends
-* :ghpull:`23784`: DOC: Fix num2date docstring
-* :ghpull:`23781`: ci: Add plot types to sphinx-gallery artifacts
-* :ghpull:`23783`: Backport PR #23782 on branch v3.6.x (Remove ``Axes.cla`` from examples)
-* :ghpull:`23782`: Remove ``Axes.cla`` from examples
-* :ghpull:`23774`: Correct rcParams-name in AutoDateFormatter doc-string
-* :ghpull:`23773`: Backport PR #23772 on branch v3.6.x (3d plots what's new cleanups)
-* :ghpull:`23772`: 3d plots what's new cleanups
-* :ghpull:`23765`: Backport PR #23762 on branch v3.6.x (FIX: legend handler warning too liberal)
-* :ghpull:`23762`: FIX: legend handler warning too liberal
-* :ghpull:`23759`: Backport PR #23686 on branch v3.6.x (Improve matplotlib.pyplot importtime by caching ArtistInspector)
-* :ghpull:`23686`: Improve matplotlib.pyplot importtime by caching ArtistInspector
-* :ghpull:`23756`: Backport PR #23569 on branch v3.6.x (Fix hidden xlabel bug in colorbar)
-* :ghpull:`23755`: Backport PR #23742 on branch v3.6.x (FIX: unbreak ipympl)
-* :ghpull:`23569`: Fix hidden xlabel bug in colorbar
-* :ghpull:`23742`: FIX: unbreak ipympl
-* :ghpull:`23752`: Backport PR #23750 on branch v3.6.x (Fix rcParams documentation)
-* :ghpull:`23749`: Backport PR #23735 on branch v3.6.x (Correctly handle Axes subclasses that override cla)
-* :ghpull:`23735`: Correctly handle Axes subclasses that override cla
-* :ghpull:`23748`: Backport PR #23746 on branch v3.6.x (DOC: add numpydoc docstring + commentary to Axis.get_ticklocs)
-* :ghpull:`23747`: Backport PR #23721 on branch v3.6.x (3d plot view angle documentation)
-* :ghpull:`23746`: DOC: add numpydoc docstring + commentary to Axis.get_ticklocs
-* :ghpull:`23721`: 3d plot view angle documentation
-* :ghpull:`23744`: Backport PR #23740 on branch v3.6.x (Clarify error for colorbar with unparented mappable)
-* :ghpull:`23741`: Backport PR #23674 on branch v3.6.x (Re-rename builtin seaborn styles to not include a dot.)
-* :ghpull:`23740`: Clarify error for colorbar with unparented mappable
-* :ghpull:`23674`: Re-rename builtin seaborn styles to not include a dot.
-* :ghpull:`23738`: Backport PR #23639 on branch v3.6.x (Adding the new contributor meeting)
-* :ghpull:`23739`: Backport PR #23712 on branch v3.6.x (FIX: do not try to help CPython with garbage collection)
-* :ghpull:`23712`: FIX: do not try to help CPython with garbage collection
-* :ghpull:`23639`: Adding the new contributor meeting
-* :ghpull:`23732`: Backport PR #23729 on branch v3.6.x (Use cleaner recursion check in PyQt FigureCanvas' resizeEvent.)
-* :ghpull:`23734`: Backport PR #23733 on branch v3.6.x (DOC: Update theme configuration for upcoming changes)
-* :ghpull:`23733`: DOC: Update theme configuration for upcoming changes
-* :ghpull:`23728`: Backport PR #23722 on branch v3.6.x (Restore deprecation class aliases in cbook)
-* :ghpull:`23729`: Use cleaner recursion check in PyQt FigureCanvas' resizeEvent.
-* :ghpull:`23726`: Backport PR #23711 on branch v3.6.x (Fix deprecation messages for vendoring unused things)
-* :ghpull:`23722`: Restore deprecation class aliases in cbook
-* :ghpull:`23727`: Backport PR #23724 on branch v3.6.x (Fix/harmonize spacing in dependencies.rst.)
-* :ghpull:`23724`: Fix/harmonize spacing in dependencies.rst.
-* :ghpull:`23711`: Fix deprecation messages for vendoring unused things
-* :ghpull:`23715`: Backport PR #23708 on branch v3.6.x (Loosen up test_Normalize test)
-* :ghpull:`23713`: Backport PR #23710 on branch v3.6.x (Fix cmap deprecations)
-* :ghpull:`23708`: Loosen up test_Normalize test
-* :ghpull:`23710`: Fix cmap deprecations
-* :ghpull:`23696`: Backport PR #23695 on branch v3.6.x (Document polar handling of _interpolation_steps.)
-* :ghpull:`23706`: Backport PR #23705 on branch v3.6.x (DOC: Added link to class under discussion)
-* :ghpull:`23705`: DOC: Added link to class under discussion
-* :ghpull:`23695`: Document polar handling of _interpolation_steps.
-* :ghpull:`23668`: Api deprecate cmap functions
-* :ghpull:`23049`: Add ``minor`` keyword argument to ``plt.x/yticks``
-* :ghpull:`23665`: Harmonize docstrings for boxstyle/connectionstyle/arrowstyle.
-* :ghpull:`23636`: FIX: macosx flush_events should process all events
-* :ghpull:`23555`: Uncamelcase offsetTrans in draw_path_collection.
-* :ghpull:`23682`: Fix generated documentation for deprecated modules
-* :ghpull:`23678`: Get rcParams from mpl
-* :ghpull:`23571`: Simplify _bind_draw_path_function.
-* :ghpull:`23673`: DOC: Highlight information about avoiding labels in legend
-* :ghpull:`22506`: Replace MathtextBackend mechanism.
-* :ghpull:`23340`: Set correct path for Arc
-* :ghpull:`23562`: Fix issue with get_edgecolor and get_facecolor in 3D plots
-* :ghpull:`23634`: make.bat: Don't override SPHINXOPTS/O from the environment
-* :ghpull:`23675`: Deprecate helper functions in axis3d
-* :ghpull:`23676`: MNT: Get rcParams from mpl
-* :ghpull:`23677`: TST: Use article class when checking for pgf
-* :ghpull:`23669`: CI: Azure update from ubuntu-18.04 to ubuntu-latest and ubuntu-20.04
-* :ghpull:`23670`: Add bar color demo.
-* :ghpull:`23644`: Standardize edge-on axis locations when viewing primary 3d axis planes
-* :ghpull:`23563`: Fix issue with drawing 3D lines where points are from nparray
-* :ghpull:`23666`: MNT: Deprecate macosx prepare subplots tool
-* :ghpull:`23572`: Deprecate ``get_grid_positions(..., raw=True)``.
-* :ghpull:`23525`: Add functionality to label individual bars with Axes.bar()
-* :ghpull:`23667`: Fix flake8 errors introduced by crossed PRs
-* :ghpull:`23554`: MNT: Remove unused imports
-* :ghpull:`23659`: Simplify/fix save_diff_image.
-* :ghpull:`23663`: Small cleanups to _find_fonts_by_props.
-* :ghpull:`23662`: Add tolerance to test failing on ppc64le
-* :ghpull:`23623`: MNT: remove _gridspecs attribute on Figure classes
-* :ghpull:`23654`: Reverts macosx change to ARC
-* :ghpull:`23661`: Remove unused fontsize argument from private mathtext _get_info.
-* :ghpull:`23655`: Merge branch v3.5.x into main
-* :ghpull:`23658`: Increase tolerance on multi-font tests
-* :ghpull:`23657`: Add eps to extension list in image triager
-* :ghpull:`23656`: Fix broken link to MathML torture tests.
-* :ghpull:`23649`: CI: Use anaconda-client v1.10.0 for upload of nightlies
-* :ghpull:`23647`: Allow any color format to be used for axis3d.Axis.set_pane_color
-* :ghpull:`23643`: Enable wheels for PyPy 3.8+
-* :ghpull:`23621`: DOC: update and extend fonts explanation
-* :ghpull:`23612`: CI: try installing a different version of noto on OSX
-* :ghpull:`23619`: add pikepdf  and visual c++ dependency
-* :ghpull:`23631`: Leave out ``barh`` from the basic plot types.
-* :ghpull:`23637`: BLD: Add Python 3.11 builds to CI
-* :ghpull:`23632`: Add discouraged admonitions
-* :ghpull:`23620`: Doc update deps
-* :ghpull:`23627`: Bump pypa/cibuildwheel from 2.8.1 to 2.9.0
-* :ghpull:`23628`: Change Title Case to Upper lower in templates
-* :ghpull:`23206`: Change exception type for incorrect SVG date metadata
-* :ghpull:`23387`: Remove setuptools_scm_git_archive dependency and add sdist test
-* :ghpull:`23605`: Fix issues in examples, docs, and tutorials
-* :ghpull:`23618`: [Doc]: Document the position parameter in apply_aspect()
-* :ghpull:`23355`: Revert "Try to unbreak CI by xfailing OSX Tk tests"
-* :ghpull:`23610`: TST: be more forgiving about IDing Noto
-* :ghpull:`23609`: print version number when building docs
-* :ghpull:`20832`: Implement multi-font embedding for PS Backend
-* :ghpull:`20804`: Implement multi-font embedding for PDF Backend
-* :ghpull:`23202`: MNT: Remove cached renderer from figure
-* :ghpull:`23497`: Avoid gridspec in more examples
-* :ghpull:`23602`: Editing "issues for new contributors"
-* :ghpull:`23600`: DOC: view_init docstring for 3d axes primary view angles
-* :ghpull:`23587`: BUG:datetime list starting with none
-* :ghpull:`23559`: re-base of font fallback for pdf and eps output + SVG support
-* :ghpull:`23557`: BLD: update the manylinux versions used
-* :ghpull:`23596`: Minor cleanup of axes_grid1
-* :ghpull:`23594`: Expire deprecation on passing bytes to FT2Font.set_text
-* :ghpull:`23435`: Add conda env to setup instructions
-* :ghpull:`23574`: Move colorbar() doc to method itself.
-* :ghpull:`23584`: Bump Ubuntu to 20.04 on GitHub Actions
-* :ghpull:`23561`: Clean up code in tri
-* :ghpull:`23582`: Cleanup axis3d.Axis.draw
-* :ghpull:`23510`: Refactor Widget tests
-* :ghpull:`20718`: Circle: Build docs in parallel.
-* :ghpull:`22452`: ENH: add ability to remove layout engine
-* :ghpull:`23516`: warning when scatter plot color settings discarded
-* :ghpull:`23577`: apply_aspect cleanups
-* :ghpull:`23575`: Cleanup parasite_simple example.
-* :ghpull:`23567`: Remove noop setattr_cm.
-* :ghpull:`23412`: Fix dash offset bug in Patch
-* :ghpull:`21756`: MNT: Clean up some UTF strings and memory autorelease
-* :ghpull:`23558`: MNT: Use UTF-8 string in macosx backend
-* :ghpull:`23550`: Change exception types, improve argument checking, and cleanups in mpl_toolkits
-* :ghpull:`23196`: Unify set_pickradius argument
-* :ghpull:`20740`: Implement Font-Fallback in Matplotlib
-* :ghpull:`22566`: Add rcparam for figure label size and weight
-* :ghpull:`23551`: Remove transform arguments from _iter_collection
-* :ghpull:`23444`: Deduplicate common parts in LatexManager.{__init__,_setup_latex_process}
-* :ghpull:`23017`: [ENH] : Provide axis('equal') for Axes3D (replace PR #22705)
-* :ghpull:`22950`: Simplify definition of mathtext symbols & correctly end tokens in mathtext parsing
-* :ghpull:`23409`: Provide axis('equal') for Axes3D (replaces PR #23017)
-* :ghpull:`23434`: Fix array-like linewidth for 3d scatter
-* :ghpull:`23500`: Move the common implementation of Axes.set_x/y/zscale to Axis.
-* :ghpull:`23533`: Add tests for sankey and minor fixes
-* :ghpull:`23535`: Make margins error as claimed in doc-string
-* :ghpull:`23546`: Simplify impl. of functions optionally used as context managers.
-* :ghpull:`23494`: Fix various issues from SonarQube
-* :ghpull:`23529`: Add workflow dispatch GitHub CI
-* :ghpull:`23539`: Small improvements to WebAgg example
-* :ghpull:`23541`: Change doc-build CI install order
-* :ghpull:`23526`: DOC: make "family" less ambiguous in FontProperties docs
-* :ghpull:`23537`: Move the deprecated RendererGTK{3,4}Cairo to a single place.
-* :ghpull:`23140`: [Features] Allow setting legend title alignment
-* :ghpull:`23538`: Fix imprecise docs re: backend dependencies.
-* :ghpull:`23532`: Add test for RGBAxes
-* :ghpull:`23453`: Add more tests for mplot3d
-* :ghpull:`23501`: Let Axes.clear iterate over Axises.
-* :ghpull:`23469`: Inline _init_axis_artists & _init_gridlines into clear.
-* :ghpull:`23475`: Add markerfacealt to pass-through arguments for error bar lines
-* :ghpull:`23527`: STY: fix whitespace on an assert
-* :ghpull:`23495`: Fix sgskip'd examples
-* :ghpull:`23404`: Restore matplotlib.__doc__ in Sphinx docs
-* :ghpull:`23507`: Add hint when More than {max_open_warning} figures have been opened
-* :ghpull:`23499`: Fix outdated comment re: event handlers in test_backends_interactive.
-* :ghpull:`23498`: Fix direct instantiation of webagg_core managers.
-* :ghpull:`23504`: Clarify formatting of the code-for-reproduction field in bug reports.
-* :ghpull:`23489`: Add missing test data to install
-* :ghpull:`23482`: Mathtext spaces must be independent of font style.
-* :ghpull:`23486`: Bump pypa/cibuildwheel from 2.8.0 to 2.8.1
-* :ghpull:`23461`: Tweak Axes repr.
-* :ghpull:`16931`: Make it easier to improve UI event metadata.
-* :ghpull:`23468`: Display grid in floating axes example.
-* :ghpull:`23467`: Remove old handling for factor=None in axisartist.
-* :ghpull:`23443`: Try running the pgf backend off the article class.
-* :ghpull:`23373`: Fix pan/zoom crashing when widget lock is unavailable
-* :ghpull:`23466`: Update filename in example.
-* :ghpull:`23464`: Deprecate macos close handler.
-* :ghpull:`23463`: Deprecate Tick.label
-* :ghpull:`23455`: Deprecate properties w_xaxis, w_yaxis, and w_zaxis
-* :ghpull:`23448`: Tweak callbacks to generate pick events.
-* :ghpull:`23233`: Default stem marker color follows the linecolor
-* :ghpull:`23452`: Generalize Axes __repr__ to 3D
-* :ghpull:`23445`: Compare thread native ids when checking whether running on main thread.
-* :ghpull:`20752`: Set norms using scale names.
-* :ghpull:`23438`: DOC: numpydoc-ify date Locator classes
-* :ghpull:`23427`: Tweak pgf escapes.
-* :ghpull:`23432`: Fixed typo in docs animation api
-* :ghpull:`23420`: Clean up test_chunksize_fails()
-* :ghpull:`23415`: Minor improvements to units_sample example
-* :ghpull:`21339`: Added linear scaling test to Hexbin marginals
-* :ghpull:`23414`: Bump pypa/cibuildwheel from 2.7.0 to 2.8.0
-* :ghpull:`23413`: Combine chunk size tests into one
-* :ghpull:`23403`: Small cleanup to VertexSelector.
-* :ghpull:`23291`: In the new/simplified backend API, don't customize draw_if_interactive.
-* :ghpull:`23350`: Fixed SVG-as-text image comparison tests.
-* :ghpull:`23406`: DOC: Fix calculation of bin centers in multi-histogram
-* :ghpull:`23407`: TST: Add missing warning type to pytest.warns
-* :ghpull:`23402`: Link 3D animation examples to one another.
-* :ghpull:`23401`: Upload wheel artifacts from the correct directory
-* :ghpull:`23374`: GOV: point CoC reports at CoC steering council subcomittee mailing list
-* :ghpull:`23393`: Clean up formatting of custom cmap example
-* :ghpull:`23146`: Update cibuildwheel
-* :ghpull:`23368`: Add a helper to generate closed paths.
-* :ghpull:`20220`: DOC: add mission statement
-* :ghpull:`22364`: Tweak mathtext/tex docs.
-* :ghpull:`23377`: Use tick_params more often over tick iteration
-* :ghpull:`22820`: [Doc] consolidate ``rect`` documentation
-* :ghpull:`23371`: Default animation.convert_args to ["-layers", "OptimizePlus"].
-* :ghpull:`23148`: DOC: change address to send security issues to
-* :ghpull:`23365`: DOC: add new showcase example, replace gendered one
-* :ghpull:`23033`: Fix issue with tex-encoding on non-Unicode platforms
-* :ghpull:`23358`: Shorten/clarify definition of extension types.
-* :ghpull:`23370`: Small cleanups to animation.
-* :ghpull:`23364`: Rename/change signature of PyGlyph_new.
-* :ghpull:`23363`: Simplify FigureCanvas multiple inheritance init by swapping bases order.
-* :ghpull:`23366`: MNT: use devel version of theme
-* :ghpull:`23357`: Fixed decimal points not appearing at end of Mathtext string.
-* :ghpull:`23351`: DOC/MNT install docs with dev version of sphinx theme
-* :ghpull:`23349`: CI: Remove old scipy-wheels-nightly uploads to ensure space
-* :ghpull:`23348`: Support multi-figure MultiCursor; prepare improving its signature.
-* :ghpull:`23360`: embedding_in_tk_sgskip.py: use root.destroy
-* :ghpull:`23354`: MNT: Use list comprehension
-* :ghpull:`23299`: FIX/API: do not reset backend key in rc_context
-* :ghpull:`23191`: ENH: add width_ratios and height_ratios to subplots
-* :ghpull:`23060`: MNT: Change objective C code to Automatic Reference Counting (ARC)
-* :ghpull:`23347`: Simplify/improve check for pycairo in Gtk-based backends.
-* :ghpull:`23316`: DOC: improve spines crosslinking
-* :ghpull:`23100`: Remove custom backend_nbagg.show(), putting logic in manager show.
-* :ghpull:`23342`: FIX: make sure addFont test removes the test font
-* :ghpull:`23266`: negative_linestyles kwarg in contour.py
-* :ghpull:`23332`: Validate Text linespacing on input.
-* :ghpull:`23336`: Remove ineffective exclusion of Arcs without parent Axes.
-* :ghpull:`23341`: MNT: Use '--pytest-test-first' option for naming clarity
-* :ghpull:`23337`: Remove now inexistent "datapath" rcParam from style blacklist.
-* :ghpull:`22004`: Make RendererCairo auto-infer surface size.
-* :ghpull:`23208`: ENH: enable stripey lines
-* :ghpull:`23288`: Correct URL area with rotated texts in PDFs
-* :ghpull:`23197`: Add tests for pan
-* :ghpull:`22167`: Deprecate selector ``visible`` attribute
-* :ghpull:`23322`: Cleanup FontProperties examples.
-* :ghpull:`23321`: Tweak examples capitalization/punctuation.
-* :ghpull:`23270`: Fix handling of nonmath hyphens in mathtext.
-* :ghpull:`23310`: Move Cursor demo from examples/misc to examples/event_handling
-* :ghpull:`23313`: Drop CSS styles that are in mpl-sphinx-theme
-* :ghpull:`23314`: Don't draw invisible 3D Axes
-* :ghpull:`23302`: Deprecate stem(..., use_line_collection=False)
-* :ghpull:`23309`: Remove front page examples
-* :ghpull:`23282`: Backport PR #22865 on branch v3.5.x (Fix issue with colorbar extend and drawedges)
-* :ghpull:`23231`: Add pytest-xvfb as test dependency
-* :ghpull:`23318`: No need to return OrderedDict from _gen_axes_spines.
-* :ghpull:`23295`: Replace re.sub by the faster str.translate.
-* :ghpull:`23300`: Modify example of "Fig Axes Customize Simple"
-* :ghpull:`23014`: Improve consistency in LogLocator and LogFormatter API
-* :ghpull:`23286`: Refactor URL handling in PDF backend
-* :ghpull:`23065`: Fix test_image_comparison_expect_rms
-* :ghpull:`23294`: Simplify binary data handling in ps backend.
-* :ghpull:`23284`: DOC: Switch to HTML5 and cleanup CSS
-* :ghpull:`23276`: Add get/set methods for DPI in SubFigure
-* :ghpull:`23207`: Update build environment and improve test
-* :ghpull:`23213`: DEV: Add name-tests-test to pre-commit hooks
-* :ghpull:`23289`: Properly make Name.hexify go through a deprecation cycle.
-* :ghpull:`23177`: Deprecate positional passing of most Artist constructor parameters
-* :ghpull:`23287`: Minor tweaks to pdf Name.
-* :ghpull:`23285`: In mathtext, replace manual caching (via ``glyphd``) by lru_cache.
-* :ghpull:`23034`: Correctly read the 'style' argument while processing 'genfrac'.
-* :ghpull:`23247`: Support inverted parentheses in mathtext.
-* :ghpull:`23190`: Deprecate unused methods in axis.py
-* :ghpull:`23219`: MNT: Rename example files with 'test' in name
-* :ghpull:`23277`: MNT: Remove dead code in SVG backend
-* :ghpull:`23261`: Bump actions/setup-python from 3 to 4
-* :ghpull:`23264`: Changing environment.yml for it to work on Windows
-* :ghpull:`23269`: MNT: Remove dead code in Colorbar
-* :ghpull:`23262`: Simplify qt_compat, in particular post-removal of qt4 support.
-* :ghpull:`23263`: Private helper to get requested backend without triggering resolution.
-* :ghpull:`23243`: Fix spacing after mathtext operators with sub/superscripts
-* :ghpull:`22839`: Fix spacing after mathtext operators with sub/superscripts
-* :ghpull:`23256`: DOC: Add note about Inkscape install on Windows
-* :ghpull:`23258`: DOC: remove Blue Book url
-* :ghpull:`23255`: Add a helper to generate mathtext error strings.
-* :ghpull:`23246`: Fix argument checking for set_interpolation_stage
-* :ghpull:`22881`: Support not embedding glyphs in svg mathtests.
-* :ghpull:`23198`: Rename ncol parameter in legend to ncols
-* :ghpull:`23251`: Small simplifications to mathtext tests.
-* :ghpull:`23249`: Don't allow ``r"$\left\\|\right.$"``, as in TeX.
-* :ghpull:`23248`: Rename test markers
-* :ghpull:`22507`: Remove *math* parameter of various mathtext internal APIs.
-* :ghpull:`23192`: Add tests, improve error messages in axis/_base, and code cleanup
-* :ghpull:`23241`: Fix invalid value in radio buttons example
-* :ghpull:`23187`: Correct docs and use keyword arguments in _mathtext.py
-* :ghpull:`23045`: MNT: Merge locally defined test marks
-* :ghpull:`22289`: ENH: compressed layout
-* :ghpull:`23237`: Expire BoxStyle._Base deprecation.
-* :ghpull:`23225`: DOC: Fix version switcher links to documentation
-* :ghpull:`23221`: DOC: recommend numpy random number generator class
-* :ghpull:`23223`: Changed offset reference, add small doc
-* :ghpull:`23215`: DOC: link the transforms tutorial from the module
-* :ghpull:`23201`: Rework tricontour and tricontourf documentation
-* :ghpull:`23013`: Add tests for date module
-* :ghpull:`23188`: Mnt new default dates
-* :ghpull:`22745`: MNT: Don't require renderer for window_extent and tightbbox
-* :ghpull:`23077`: MNT: Remove keyword arguments to gca()
-* :ghpull:`23182`: Simplify webagg blitting.
-* :ghpull:`23181`: Init FigureCanvasAgg._lastKey in ``__init__``.
-* :ghpull:`23175`: Point the version switcher to a name listed in switcher.json
-* :ghpull:`22669`: Cleanup documentation generation for pyplot
-* :ghpull:`22519`: fix markevery plot option with nans in data
-* :ghpull:`21584`: Move towards having get_shared_{x,y}_axes return immutable views.
-* :ghpull:`23170`: ENH: update ticks when requesting labels
-* :ghpull:`23169`: DOC: Migrate to sphinx-design
-* :ghpull:`23180`: Improve docstring of triplot() and PatchCollection
-* :ghpull:`23153`: Restore accidentally removed pytest.ini and tests.py.
-* :ghpull:`23166`: Deprecate passing most Legend arguments positionally
-* :ghpull:`23165`: DOCS Fix a few typos
-* :ghpull:`23167`: DOCS fix typo
-* :ghpull:`23062`: Add stackplot to plot types listing
-* :ghpull:`23161`: Added my (open access) book
-* :ghpull:`23141`: Minor fix for astropy units support broken in earlier PR
-* :ghpull:`23156`: No longer call draw_if_interactive in parasite_axes.
-* :ghpull:`23150`: DOC fix typo
-* :ghpull:`23149`: DOCS remove duplicate text
-* :ghpull:`23145`: Fix format error in switcher.json
-* :ghpull:`21755`: MNT: Clean up macosx backend set_message
-* :ghpull:`23128`: DOCS Fix typos
-* :ghpull:`23130`: Drop pytest warning config in nightly tests
-* :ghpull:`23135`: Unpin coverage again
-* :ghpull:`23133`: Make module deprecation messages consistent
-* :ghpull:`23134`: Remove newline from start of deprecation warnings
-* :ghpull:`22964`: Fix spelling errors
-* :ghpull:`22929`: Handle NaN in bar labels and error bars
-* :ghpull:`23093`: MNT: Removing 3.4 deprecations
-* :ghpull:`23090`: Derive new_figure_manager from FigureCanvas.new_manager.
-* :ghpull:`23099`: Remove unneeded cutout for webagg in show().
-* :ghpull:`23097`: Tweak check for IPython pylab mode.
-* :ghpull:`23088`: Improve error for invalid format strings / misspelled data keys.
-* :ghpull:`23092`: Ensure updated monkey-patching of sphinx-gallery EXAMPLE_HEADER
-* :ghpull:`23087`: Fix width/height inversion in dviread debug helper.
-* :ghpull:`23089`: Normalize tk load failures to ImportErrors.
-* :ghpull:`23091`: Move test that fig.add_axes() needs parameters
-* :ghpull:`23067`: more explicit in windows doc build instructions
-* :ghpull:`23081`: MNT: Deprecate date_ticker_factory
-* :ghpull:`23079`: MNT: Remove key_press and button_press from FigureManager
-* :ghpull:`23076`: MNT: Remove positional argument handling in LineCollection
-* :ghpull:`23078`: MNT: Remove deprecated axis.cla()
-* :ghpull:`23054`: Slightly simplify tcl/tk load in extension.
-* :ghpull:`23073`: MNT: Remove dummy_threading because threading is always available
-* :ghpull:`22405`: DOC: put the gallery keywords in the meta tag
-* :ghpull:`23071`: Fix installing contourpy on CI
-* :ghpull:`23068`: Slight refactor of _c_internal_utils to linewrap it better.
-* :ghpull:`23070`: Pathlibify autotools invocation in build.
-* :ghpull:`22755`: Maybe run autogen as part of freetype install
-* :ghpull:`23063`: doc: mathtext example: use axhspan() instead of fill_between() for backdrop rectangle shading
-* :ghpull:`23055`: Cleanup Annotation.update_position.
-* :ghpull:`22567`: Use contourpy for quad contour calculations
-* :ghpull:`22801`: TST: fully parameterize test_lazy_linux_headless
-* :ghpull:`22180`: ENH: Use rcParams savefig.directory on macosx backend
-* :ghpull:`23048`: Add rrulewrapper to docs
-* :ghpull:`23047`: Fix issue with hist and float16 data
-* :ghpull:`23044`: Fix missing section header for nightly builds
-* :ghpull:`23029`: Demonstrate both usetex and non-usetex in demo_text_path.py.
-* :ghpull:`23038`: Factor out errorevery parsing for 2D and 3D errorbars.
-* :ghpull:`23036`: Suppress traceback chaining for tex subprocess failures.
-* :ghpull:`23037`: Suppress exception chaining in FontProperties.
-* :ghpull:`23020`: Add test to close legend issue
-* :ghpull:`23031`: Specify that style files are utf-8.
-* :ghpull:`22991`: Enable ``plt.sca`` on subfigure's axes
-* :ghpull:`23030`: DOC: Fix charset declaration in redirects
-* :ghpull:`23022`: Fix some possible encoding issues for non-utf8 systems.
-* :ghpull:`23023`: Bump docker/setup-qemu-action from 1 to 2
-* :ghpull:`23024`: DOC: do not suggest to sudo pip install Matplotlib
-* :ghpull:`23018`: Fix typo in font family
-* :ghpull:`22627`: ENH: rect for constrained_layout
-* :ghpull:`22891`: Font example monospace
-* :ghpull:`23006`: docs: add subplot-mosaic string compact notation
-* :ghpull:`23009`: Fixed installation guide command typo
-* :ghpull:`22926`: Fix RangeSlider for same init values #22686
-* :ghpull:`22989`: Merge v3.5.x back into main
-* :ghpull:`22993`: STY: Fix typos in colormap
-* :ghpull:`22777`: DEV: Add codespell to pre-commit hooks
-* :ghpull:`22940`: Fixed dpi bug in rainbow text example
-* :ghpull:`22298`: MNT: Remove cmap_d colormap access
-* :ghpull:`22387`: Add a registry for color sequences
-* :ghpull:`21594`: Document text alignment
-* :ghpull:`22967`: TST: Add some tests for QuadMesh contains function
-* :ghpull:`22936`: ENH: Add full-screen toggle to the macosx backend
-* :ghpull:`22886`: MNT: remove mpl_toolkits.axes_grid
-* :ghpull:`22952`: Make MarkerStyle immutable
-* :ghpull:`22953`: MNT: Move set_cursor to the FigureCanvas
-* :ghpull:`18854`: Standardize creation of FigureManager from a given FigureCanvas class.
-* :ghpull:`22925`: Standardize creation of FigureManager from a given FigureCanvas class.
-* :ghpull:`22875`: Remove Forward definitions where possible.
-* :ghpull:`22928`: ENH: Add option to disable raising the window for macosx
-* :ghpull:`22912`: DOC: Better doc of colors
-* :ghpull:`22931`: BUG: Fix regression with ls=(0, ())
-* :ghpull:`22909`: FIX: skip sub directories when finding fonts on windows
-* :ghpull:`22911`: Clarify docstring of [un]install_repl_displayhook()
-* :ghpull:`22919`: CI: Add concurrency skips for GH Actions
-* :ghpull:`22899`: Fix documentation markup issues
-* :ghpull:`22906`: Clarify logic for repl displayhook.
-* :ghpull:`22892`: Remove support for IPython<4.
-* :ghpull:`22896`: Remove python-dateutil as test requirement
-* :ghpull:`22885`: Deprecate two-layered backend_pdf.Op enum.
-* :ghpull:`22883`: Tweak argument checking in tripcolor().
-* :ghpull:`22884`: Missing ``f`` prefix on f-strings fix
-* :ghpull:`22877`: Small cleanups to mathtext.
-* :ghpull:`21374`: Snap selectors
-* :ghpull:`22824`: Remove some unnecessary extra boundaries for colorbars with extensions.
-* :ghpull:`21448`: Use named groups in mathtext parser.
-* :ghpull:`22609`: Improve usability of dviread.Text by third parties.
-* :ghpull:`22809`: STY: Apply pre-commit hooks to codebase
-* :ghpull:`22730`: Fix removed cross-references
-* :ghpull:`22857`: Slightly simplify twin axes detection in MEP22 zoom.
-* :ghpull:`22813`: MNT: Deprecate figure callbacks
-* :ghpull:`22802`: MNT: make Axes.cla an alias for Axes.clear in all cases
-* :ghpull:`22855`: Remove non-needed remove_text=False.
-* :ghpull:`22854`: TST: Avoid floating point errors in asinh ticker
-* :ghpull:`22850`: Simplify tick creation
-* :ghpull:`22841`: Fix Tk error when updating toolbar checkbutton images
-* :ghpull:`22707`: Proposed ENH: Allow user to turn off breaking of streamlines in streamplot (rebased)
-* :ghpull:`22826`: Bump actions/upload-artifact from 2 to 3
-* :ghpull:`22825`: Bump codecov/codecov-action from 2 to 3
-* :ghpull:`22821`: Use bool for bool keyword arguments
-* :ghpull:`22815`: Fix pickling of globally available, dynamically generated norm classes.
-* :ghpull:`22702`: Doc tweak transform tutorial
-* :ghpull:`22613`: DOC: Add links to explicit vs implicit API everywhere "OO" is used
-* :ghpull:`22712`: Use repr in error messages
-* :ghpull:`22794`: Fix ps export of colored hatches with no linewidth
-* :ghpull:`22797`: Deprecate functions in backends
-* :ghpull:`22608`: Axes.inset_axes: enable Axes subclass creation
-* :ghpull:`22795`: Replace "marker simplification" by "marker subsampling" in docs.
-* :ghpull:`22768`: Fix inkscape tests
-* :ghpull:`22791`: Tweak _ConverterError reporting.
-* :ghpull:`22447`: Improve bar_label annotation
-* :ghpull:`22710`: Fix the error- TypeError: 'float' object is not iterable
-* :ghpull:`22444`: Revert "CI: skip test to work around gs bug"
-* :ghpull:`22785`: CI: Update weekly dependency test job
-* :ghpull:`22784`: Fix 'misspelled' transform variable
-* :ghpull:`22778`: Fix LaTeX formatting in examples
-* :ghpull:`22779`: Improve mlab documentation (and example)
-* :ghpull:`22759`: MNT: Skip existing wheels during nightly wheel upload
-* :ghpull:`22751`: BLD: do not put an upper bound on pyparsing
-* :ghpull:`22752`: DOC: Correct nightly wheels pip install command
-* :ghpull:`22742`: Fix deprecation of backend_tools.ToolBase.destroy
-* :ghpull:`22725`: Move towards making texmanager stateless.
-* :ghpull:`22734`: Added clim support to tripcolor
-* :ghpull:`22733`: CI: Add GHA workflow to upload nightly wheels
-* :ghpull:`21637`: Also upload a subset of nightly wheels
-* :ghpull:`22698`: Correct cross-references in documentation
-* :ghpull:`22263`: DOC: condense version switcher
-* :ghpull:`22361`: Revert datetime usetex ticklabels to use default tex font.
-* :ghpull:`22721`: Small style fixes.
-* :ghpull:`22356`: Cleanup tripcolor()
-* :ghpull:`22360`: Let TeX handle multiline strings itself.
-* :ghpull:`22418`: Deprecate auto-removal of overlapping Axes by plt.subplot{,2grid}.
-* :ghpull:`22722`: Rename confusingly-named cm_fallback.
-* :ghpull:`22697`: Deprecate in testing.decorators
-* :ghpull:`22556`: Add text.parse_math rcParams
-* :ghpull:`22163`: Change colour of Tk toolbar icons on dark backgrounds
-* :ghpull:`22704`: Small simplification to textpath.
-* :ghpull:`22498`: TST: increase coverage on tk tests
-* :ghpull:`21425`: Make Axis3D constructor signature closer to the one of 2D axis.
-* :ghpull:`22665`: Improve error message for incorrect color string
-* :ghpull:`22685`: Rewrite plot format detection from sphinx build target
-* :ghpull:`22670`: Update deprecated vmImage 'vs2017-win2016' in azure pipelines
-* :ghpull:`22503`: Deprecate backend_qt.qApp.
-* :ghpull:`22683`: Add missing space before : for parameters
-* :ghpull:`22591`: Fix Path/str-discrepancy in FontManager.addpath and improve documentation
-* :ghpull:`22680`: Bump actions/cache from 2 to 3
-* :ghpull:`22659`: Add description on quiver head parameters
-* :ghpull:`22668`: Raise on missing closing quotes in matplotlibrc
-* :ghpull:`22675`: Tweak colorbar_placement example.
-* :ghpull:`22276`: Merge "Scatter Symbol" and "Scatter Custom Symbol" examples
-* :ghpull:`22658`: Remove reference to now-deleted reminder note.
-* :ghpull:`22652`: Update documentation example and fix See also
-* :ghpull:`22587`: Refactor handling of tick and ticklabel visibility in Axis.clear()
-* :ghpull:`22148`: MNT: Deprecate ``docstring``
-* :ghpull:`22170`: Add example to polygon selector docstring showing how to set vertices programmatically
-* :ghpull:`22650`: Fix new leak in ft2font introduced in #22604
-* :ghpull:`22644`: FIX: Flush events after closing figures in macosx backend
-* :ghpull:`22643`: Suppress exception chaining in colormap lookup.
-* :ghpull:`22639`: ENH: MacOSX backend to use sRGB instead of GenericRGB colorspace
-* :ghpull:`22509`: Simplifications to ToolManager.{add,remove}_tool.
-* :ghpull:`22633`: DOC: remove space in directive.
-* :ghpull:`22631`: Add space between individual transform components in svg output.
-* :ghpull:`22523`: MNT: Use a context manager to change the norm in colorbar code
-* :ghpull:`22615`: FIX: Change get_axis_map to axis_map now
-* :ghpull:`22508`: Move tracking of autoscale status to Axis.
-* :ghpull:`22547`: Small cleanups around TexManager usage.
-* :ghpull:`22511`: Remove redundant rcParam-lookup in patches
-* :ghpull:`22516`: Expire deprecations in backends
-* :ghpull:`22612`: Updated grammar to reflect more common usage of output vs outputted in animation.py
-* :ghpull:`22589`: Support quoted strings in matplotlibrc
-* :ghpull:`22604`: MNT: Fix types in C-code to reduce warnings
-* :ghpull:`22610`: Fix alternative suggestion in epoch2num() deprecation
-* :ghpull:`22554`: Prepare for making create_dummy_axis not necessary.
-* :ghpull:`22607`: ENH: Add dark/light mode theme to the buttons
-* :ghpull:`21790`: FIX: Update blitting and drawing on the macosx backend
-* :ghpull:`22175`: FIX: Update macosx animation handling
-* :ghpull:`22569`: Require non-zero dash value
-* :ghpull:`22544`: Correct paper sizes
-* :ghpull:`20470`: Issues warnings for legend handles without handlers
-* :ghpull:`22558`: MNT: Simplify imports
-* :ghpull:`22580`: fix doc for annotation_clip parameter
-* :ghpull:`22581`: DOC: fix various typos
-* :ghpull:`22573`: Bump actions/setup-python from 2 to 3
-* :ghpull:`22568`: Rename qhull source to _qhull_wrapper.cpp.
-* :ghpull:`22561`: FIX: Handle stopped animation figure resize
-* :ghpull:`22562`: TST: Add a frame test for animations
-* :ghpull:`22514`: Expire deprecations in cbook.deprecation
-* :ghpull:`22555`: Use picklable callbacks for DraggableBase.
-* :ghpull:`22552`: Tweak dependency checking in doc/conf.py.
-* :ghpull:`22550`: Require sphinx>=3 & numpydoc>=1.0 for building docs.
-* :ghpull:`22539`: Deprecate toplevel mpl.text.get_rotation; normalize rotations early.
-* :ghpull:`22502`: Cleanup unused imports and variables in backends
-* :ghpull:`20071`: Document, test, and simplify impl. of auto_adjustable_area.
-* :ghpull:`22366`: Deprecation removal/updates in axes3d
-* :ghpull:`22484`: Simplify the internal API to connect picklable callbacks.
-* :ghpull:`22417`: Support passing rgbaFace as an array to agg's draw_path.
-* :ghpull:`22412`: Turn _get_axis_map() into a property and remove _get_axis_list()
-* :ghpull:`22486`: Expire deprecations in lines and patches
-* :ghpull:`22512`: Increase coverage
-* :ghpull:`22504`: Simplify FontProperties init.
-* :ghpull:`22497`: Remove entries of MathTextParser._backend_mapping deprecated in 3.4.
-* :ghpull:`22487`: Don't key MathTextParser cache off a mutable FontProperties.
-* :ghpull:`22468`: Turn _mathtext.ship into a plain function.
-* :ghpull:`22490`: Deprecate unused, untested Affine2D.identity().
-* :ghpull:`22491`: Linewrap setupext to 79 character lines.
-* :ghpull:`22488`: Some more maintenance for mathtext internal implementation.
-* :ghpull:`22485`: Change string representation of AxesImage
-* :ghpull:`22240`: Add minimum macosx version
-* :ghpull:`22480`: Remove _point_size_reduction.
-* :ghpull:`22204`: Cleanup _mathtext internal API
-* :ghpull:`22469`: Improve readability of mathtext internal structures.
-* :ghpull:`22477`: Un-pyplot some examples which were already explicitly referencing axes.
-* :ghpull:`22467`: Small cleanup to font handling in agg.
-* :ghpull:`21178`: Add asinh axis scaling (*smooth* symmetric logscale)
-* :ghpull:`22411`: Move cbook._define_aliases() to _api.define_aliases()
-* :ghpull:`22465`: Deprecate unused AddList.
-* :ghpull:`22451`: Clarify error message for bad keyword arguments.
-* :ghpull:`21267`: Cleanup AnnotationBbox.
-* :ghpull:`22464`: Small improvements related to radar_chart example.
-* :ghpull:`22421`: Make most params to figure()/Figure() kwonly.
-* :ghpull:`22457`: Copy arrowprops argument to FancyAnnotationBbox.
-* :ghpull:`22454`: move ``_toolbar_2`` from webagg_core to webagg
-* :ghpull:`22413`: Remove some trivial private getters/setters in axisartist
-* :ghpull:`21634`: TST: Add future dependency tests as a weekly CI job
-* :ghpull:`22079`: Share FigureManager class between gtk3 and gtk4.
-* :ghpull:`22440`: Clarify warning about labels with leading underscores.
-* :ghpull:`17488`: Make error message explicit in legend.py
-* :ghpull:`22453`: Simplify impl. of polar limits setting API.
-* :ghpull:`22449`: Small cleanup to quiver.
-* :ghpull:`22415`: Make emit and auto args of set_{x,y,z}lim keyword only.
-* :ghpull:`22422`: Deprecate backend_ps.convert_psfrags.
-* :ghpull:`22194`: Drop support for Python 3.7
-* :ghpull:`22234`: Partial fix for grid alpha
-* :ghpull:`22433`: Fix ambiguous link targets in docs.
-* :ghpull:`22420`: Update plt.figure() docstring.
-* :ghpull:`22388`: Make signature of Axes.annotate() more explicit.
-* :ghpull:`22419`: Remove "Matplotlib version" from docs issue template
-* :ghpull:`22423`: Avoid indiscriminate glob-remove in xpdf_distill.
-* :ghpull:`22406`: [DOC]: Removed a redundant 'The'
-* :ghpull:`21442`: Factor out common limits handling for x/y/z axes.
-* :ghpull:`22397`: Axes capitalization in widgets and axes3d
-* :ghpull:`22394`: Tweak Axes3D docstrings that refer to 2D plotting methods.
-* :ghpull:`22383`: TST: fix doc build
-* :ghpull:`21877`: DOC: attempt to explain the main different APIs
-* :ghpull:`21238`: Raise when unknown signals are connected to CallbackRegistries.
-* :ghpull:`22345`: MNT: make layout deprecations pending
-* :ghpull:`21597`: FIX: Remove the deepcopy override from transforms
-* :ghpull:`22370`: Replace tabs with spaces in C code.
-* :ghpull:`22371`: Corrected a mistake in comments (Issue #22369)
-* :ghpull:`21352`: Refactor hexbin().
-* :ghpull:`19214`: Improve autoscaling for high order Bezier curves
-* :ghpull:`22268`: Deprecated is_decade and is_close_to_int
-* :ghpull:`22359`: Slightly refactor TeX source generation.
-* :ghpull:`22365`: Remove deprecated ``MovieWriter.cleanup``
-* :ghpull:`22363`: Properly capitalize "Unicode".
-* :ghpull:`22025`: Deprecate various custom FigureFrameWx attributes/methods.
-* :ghpull:`21391`: Reuse imsave()'s background-blending code in FigureCanvasAgg.print_jpeg.
-* :ghpull:`22026`: Simplify wxframe deletion.
-* :ghpull:`22351`: Fix "trailing" whitespace in C docstrings.
-* :ghpull:`22342`: Docstrings for _qhull.
-* :ghpull:`21836`: Slightly shorten ft2font init.
-* :ghpull:`21962`: Privatize various internal APIs of backend_pgf.
-* :ghpull:`22114`: Rewrite AxesStack independently of cbook.Stack.
-* :ghpull:`22332`: Let TransformedPatchPath inherit most functionality from TransformedPath.
-* :ghpull:`22292`: Cleanup Axis._translate_tick_kw
-* :ghpull:`22339`: wx.App() should be init'ed in new_figure_manager_given_figure
-* :ghpull:`22315`: More standardization of floating point slop in mpl_toolkits.
-* :ghpull:`22337`: DOC: More cleanup axes -> Axes
-* :ghpull:`22323`: Replace sole use of maxdict by lru_cache.
-* :ghpull:`22229`: FIX: make safe to add / remove artists during ArtistList iteration
-* :ghpull:`22196`: ``dates`` classes and functions support ``tz`` both as string and ``tzinfo``
-* :ghpull:`22161`: Add box when setting ``PolygonSelector.verts``
-* :ghpull:`19368`: Raise warning and downsample if data given to _image.resample is too large
-* :ghpull:`22250`: Unify toolbar init across backends.
-* :ghpull:`22304`: Added tests for ContourSet.legend_elements
-* :ghpull:`21583`: Add pre-commit config and dev instructions
-* :ghpull:`21547`: Custom cap widths in box and whisker plots in bxp() and boxplot()
-* :ghpull:`20887`: Implement a consistent behavior in TkAgg backend for bad blit bbox
-* :ghpull:`22317`: Rename outdated seaborn styles.
-* :ghpull:`22271`: Rework/fix Text layout cache.
-* :ghpull:`22097`: In mpl_toolkits, use the same floating point slop as for standard ticks.
-* :ghpull:`22295`: Display bad format string in error message.
-* :ghpull:`22287`: Removed unused code and variables
-* :ghpull:`22244`: MNT: colorbar locators properties
-* :ghpull:`22270`: Expanded documentation of Axis.set_ticks as per discussion in issue #22262
-* :ghpull:`22280`: Simplify FontProperties.copy().
-* :ghpull:`22174`: Give the Tk toolbar buttons a flat look
-* :ghpull:`22046`: Add the ability to change the focal length of the camera for 3D plots
-* :ghpull:`22251`: Colorbar docstring reorg
-* :ghpull:`21933`: MNT: privatize colorbar attr
-* :ghpull:`22258`: DOC: fix version switcher
-* :ghpull:`22261`: DOC: fix switcher json
-* :ghpull:`22154`: Add some tests for minspan{x,y} in RectangleSelector
-* :ghpull:`22246`: DOC: add dropdown
-* :ghpull:`22133`: Deprecated ``afm``, ``fontconfig_pattern``, and ``type1font``
-* :ghpull:`22249`: DOC: More capitalization of Axes
-* :ghpull:`22021`: Ensure that all toolbar (old/new) subclasses can be init'ed consistently
-* :ghpull:`22213`: Improve ft2font error reporting.
-* :ghpull:`22245`: Deprecate cleared kwarg to get_renderer.
-* :ghpull:`22239`: Fix typos
-* :ghpull:`22216`: turn off the grid after creating colorbar axes
-* :ghpull:`22055`: FIX: Return value instead of enum in get_capstyle/_joinstyle
-* :ghpull:`22228`: Remove some unnecessary getattrs.
-* :ghpull:`20426`: ENH: Layout engine
-* :ghpull:`22224`: Trivial doc fix to annotations tutorial.
-* :ghpull:`21894`: Jointly track x and y in PolygonSelector.
-* :ghpull:`22205`: Bump minimum NumPy to 1.19
-* :ghpull:`22203`: Factor out underline-thickness lookups in mathtext.
-* :ghpull:`22189`: DOC: Add hatch API to reference
-* :ghpull:`22084`: Clean up 3d plot box_aspect zooming
-* :ghpull:`22098`: Expire axes_grid1/axisartist deprecations.
-* :ghpull:`22013`: Use standard toolbar in wx.
-* :ghpull:`22160`: Removed unused variables etc.
-* :ghpull:`22179`: FIX: macosx check case-insensitive app name
-* :ghpull:`22157`: Improved coverage of mathtext and removed unused code
-* :ghpull:`21781`: Use a fixture to get widget testing axes
-* :ghpull:`22140`: Ensure log formatters use Unicode minus
-* :ghpull:`21342`: Fix drawing animated artists changed in selector callback
-* :ghpull:`22134`: Deprecated ``tight_bbox`` and ``tight_layout`` modules
-* :ghpull:`21965`: Switch transOffset to offset_transform.
-* :ghpull:`22145`: Make Tk windows use the same icon as other backends
-* :ghpull:`22107`: Expire mathttext-related deprecations
-* :ghpull:`22139`: FIX: width/height were reversed in macosx rectangle creation
-* :ghpull:`22123`: Deprecate accepting arbitrary parameters in some get_window_extent() methods
-* :ghpull:`22122`: Hint at draw_without_rendering() in Text.get_window_extent
-* :ghpull:`22120`: Drop dependency on scipy in the docs.
-* :ghpull:`22063`: FIX: Autoposition title when yaxis has offset
-* :ghpull:`22119`: Micro-optimize skew().
-* :ghpull:`22109`: Remove unnecessary null checks in macosx.m, and some more maintenance
-* :ghpull:`21977`: Add corner coordinate helper methods to Ellipse/Rectangle
-* :ghpull:`21830`: Add option of bounding box for PolygonSelector
-* :ghpull:`22115`: Turn _localaxes into a plain list.
-* :ghpull:`22108`: Micro-optimize rotation transform.
-* :ghpull:`22043`: Cleanup differential equations examples.
-* :ghpull:`22080`: Simple style(ish) fixes.
-* :ghpull:`22110`: Right-aligned status text in backends
-* :ghpull:`21873`: DOC: Update and consolidate Custom Tick Formatter for Time Series example
-* :ghpull:`22112`: Fix a small typo
-* :ghpull:`20117`: Very soft-deprecate AxesDivider.new_{horizontal,vertical}.
-* :ghpull:`22034`: Update lines_with_ticks_demo.py
-* :ghpull:`22102`: DOC: rename usage tutorial to quick_start
-* :ghpull:`19228`: Validate text rotation in setter
-* :ghpull:`22081`: Expire colorbar-related deprecations.
-* :ghpull:`22008`: Added color keyword argument to math_to_image
-* :ghpull:`22058`: Remove exprired mplot3d deprecations for 3.6
-* :ghpull:`22073`: DOC: Add new tutorial to external resources.
-* :ghpull:`22054`: MNT: Set CapStyle member names automatically
-* :ghpull:`22061`: De-duplicate mplot3D API docs
-* :ghpull:`22075`: Remove unnecessary ``.figure`` qualifier in docs.
-* :ghpull:`22051`: Make required_interactive_framework required on FigureCanvas.
-* :ghpull:`22050`: Deprecate the noop, unused FigureCanvasBase.resize.
-* :ghpull:`22030`: Add explanatory comments to "broken" horizontal bar plot example
-* :ghpull:`22001`: Fix:    [Bug]: triplot with 'ls' argument yields TypeError #21995
-* :ghpull:`22045`: Fill in missing Axes3D box_aspect argument docstring
-* :ghpull:`22042`: Keep FontEntry helpers private.
-* :ghpull:`21042`: Make rcParams.copy() return a new RcParams instance.
-* :ghpull:`22032`: flipy only affects the drawing of texts, not of images.
-* :ghpull:`21993`: Added docstring to rrulewrapper class
-* :ghpull:`21935`: Significantly improve tight layout performance for cartopy axes
-* :ghpull:`22000`: Some gtk cleanups.
-* :ghpull:`21983`: Simplify canvas class control in FigureFrameWx.
-* :ghpull:`21985`: Slightly tighten the _get_layout_cache_key API.
-* :ghpull:`22020`: Simplify wx _print_image.
-* :ghpull:`22010`: Fix syntax highlighting in contrib guide.
-* :ghpull:`22003`: Initialize RendererCairo.{width,height} in constructor.
-* :ghpull:`21992`: Use _make_classic_style_pseudo_toolbar more.
-* :ghpull:`21916`: Fix picklability of make_norm_from_scale norms.
-* :ghpull:`21981`: FigureCanvasCairo can init RendererCairo; kill RendererCairo subclasses.
-* :ghpull:`21986`: InvLogTransform should only return masked arrays for masked inputs.
-* :ghpull:`21991`: PEP8ify wx callback names.
-* :ghpull:`21975`: DOC: remove experimental tag from CL
-* :ghpull:`21989`: Autoinfer norm bounds.
-* :ghpull:`21980`: Removed loaded modules logging
-* :ghpull:`21982`: Deprecate duplicated FigureManagerGTK{3,4}Agg classes.
-* :ghpull:`21963`: Clarify current behavior of draw_path_collection.
-* :ghpull:`21974`: Reword inset axes example.
-* :ghpull:`21835`: Small improvements to interactive examples
-* :ghpull:`21050`: Store dash_pattern as single attribute, not two.
-* :ghpull:`21557`: Fix transparency when exporting to png via pgf backend.
-* :ghpull:`21904`: Added _repr_html_ for fonts
-* :ghpull:`21696`: Use cycling iterators in RendererBase.
-* :ghpull:`21955`: Refactor common parts of ImageMagick{,File}Writer.
-* :ghpull:`21952`: Clarify coordinates for RectangleSelector properties
-* :ghpull:`21964`: Fix some more missing references.
-* :ghpull:`21516`: Make _request_autoscale_view more generalizable to 3D.
-* :ghpull:`21947`: Slightly cleanup RendererBase docs.
-* :ghpull:`21961`: Privatize various internal APIs of backend_pgf.
-* :ghpull:`21956`: Remove tests for avconv animation writers.
-* :ghpull:`21954`: DOC: Move Animation and MovieWriter inheritance diagrams ...
-* :ghpull:`21780`: Add a click_and_move widget test helper
-* :ghpull:`21941`: Merge branch v3.5.x into main
-* :ghpull:`21936`: Small ``__getstate__`` cleanups.
-* :ghpull:`21939`: Update comment re: register_at_fork.
-* :ghpull:`21910`: Fold _rgbacache into _imcache.
-* :ghpull:`21921`: Clean up RectangleSelector move code
-* :ghpull:`21925`: Drop labelling from PR welcome action
-* :ghpull:`14930`: Set Dock icon on the macosx backend
-* :ghpull:`21920`: Improve square state calculation in RectangleSelector
-* :ghpull:`21919`: Fix use_data_coordinates docstring
-* :ghpull:`21881`: Add a PolygonSelector.verts setter
-* :ghpull:`20839`: Fix centre and square state and add rotation for rectangle selector
-* :ghpull:`21874`: DOC: Add Date Tick Locators and Formatters example
-* :ghpull:`21799`: Added get_font_names() to fontManager
-* :ghpull:`21871`: DOC: Code from markevery_prop_cycle moved to test.
-* :ghpull:`21395`: Expire _check_savefig_extra_args-related deprecations.
-* :ghpull:`21867`: Remove unused bbox arg to _convert_agg_to_wx_bitmap.
-* :ghpull:`21868`: Use partialmethod for better signatures in backend_ps.
-* :ghpull:`21520`: Shorten some inset_locator docstrings.
-* :ghpull:`21737`: Update the "Rotating a 3D plot" gallery example to show all 3 rotation axes
-* :ghpull:`21851`: Re-order a widget test function
-* :ghpull:`10762`: Normalization of elevation and azimuth angles for surface plots
-* :ghpull:`21426`: Add ability to roll the camera in 3D plots
-* :ghpull:`21822`: Replace NSDictionary by switch-case.
-* :ghpull:`21512`: MNT: Add modifier key press handling to macosx backend
-* :ghpull:`21784`: Set macOS icon when using Qt backend
-* :ghpull:`21748`: Shorten PyObjectType defs in macosx.m.
-* :ghpull:`21809`: MNT: Turn all macosx warnings into errors while building
-* :ghpull:`21792`: Fix missing return value in closeButtonPressed.
-* :ghpull:`21767`: Inherit many macos backend docstrings.
-* :ghpull:`21766`: Don't hide build log on GHA.
-* :ghpull:`21728`: Factor out some macosx gil handling for py-method calls from callbacks.
-* :ghpull:`21754`: Update gitattributes so that objc diffs are correctly contextualized.
-* :ghpull:`21752`: Add a helper for directly output pdf streams.
-* :ghpull:`21750`: Don't sort pdf dicts.
-* :ghpull:`21745`: DOC: Clarify Coords Report Example
-* :ghpull:`21746`: Fix/add docstring signatures to many C++ methods.
-* :ghpull:`21631`: DOC: change gridspec tutorial to arranging_axes tutorial
-* :ghpull:`21318`: FIX: better error message for shared axes and axis('equal')
-* :ghpull:`21519`: mark_inset should manually unstale axes limits before drawing itself.
-* :ghpull:`21724`: Fix copyright date with SOURCE_DATE_EPOCH set
-* :ghpull:`21398`: FIX: logic of title repositioning
-* :ghpull:`21717`: Simplify macosx toolbar init.
-* :ghpull:`21690`: Whitespace/braces/#defines cleanup to macosx.
-* :ghpull:`21695`: Use _api.check_shape more.
-* :ghpull:`21698`: Small code cleanups and style fixes.
-* :ghpull:`21529`: Delay-load keymaps in toolmanager.
-* :ghpull:`21525`: Fix support for clim in scatter.
-* :ghpull:`21697`: Drop non-significant zeros from ps output.
-* :ghpull:`21692`: CI: Remove CI test runs from forks of matplotlib
-* :ghpull:`21591`: Make ToolFullScreen a Tool, not a ToolToggle.
-* :ghpull:`21677`: Simplify test for negative xerr/yerr.
-* :ghpull:`21657`: Replace some image_comparisons by return-value-tests/check_figures_e…
-* :ghpull:`21664`: Merge 3.5.x into main
-* :ghpull:`21490`: Make Line2D copy its inputs
-* :ghpull:`21639`: Skip some uses of packaging's PEP440 version for non-Python versions.
-* :ghpull:`21604`: Fix centre square rectangle selector part 1
-* :ghpull:`21593`: Check for images added-and-modified in a same PR
-* :ghpull:`20750`: Shorten issue templates
-* :ghpull:`21590`: Make gtk3 full_screen_toggle more robust against external changes.
-* :ghpull:`21582`: Organize checklist in PR template
-* :ghpull:`21580`: Rename/remove _lastCursor, as needed.
-* :ghpull:`21567`: Removed the range parameter from the validate_whiskers function's err…
-* :ghpull:`21565`: Further remove remnants of offset_position.
-* :ghpull:`21542`: [ENH]: Use new style format strings for colorbar ticks
-* :ghpull:`21564`: Skip invisible artists when doing 3d projection.
-* :ghpull:`21558`: Various small fixes for streamplot().
-* :ghpull:`21544`: Return minorticks as array, not as list.
-* :ghpull:`21546`: Added links to the mosaic docs in figure and pyplot module docstrings
-* :ghpull:`21545`: Turn mouseover into a mpl-style getset_property.
-* :ghpull:`21537`: Remove unnecessary False arg when constructing wx.App.
-* :ghpull:`21536`: Reword margins docstrings, and fix bounds on zmargin values.
-* :ghpull:`21535`: typo-correction-on-line-185
-* :ghpull:`21534`: Do not use space in directive calling.
-* :ghpull:`21494`: Adding tutorial links for blitting in widgets.py
-* :ghpull:`21407`: Stash exceptions when FT2Font closes the underlying stream.
-* :ghpull:`21431`: set_ticks([single_tick]) should also expand view limits.
-* :ghpull:`21444`: Make pipong example self-contained.
-* :ghpull:`21392`: Add label about workflow to new contributor PRs
-* :ghpull:`21440`: Install sphinx-panels along with development setup
-* :ghpull:`21434`: Remove coords_flat variable
-* :ghpull:`21415`: Move gui_support.macosx option to packages section.
-* :ghpull:`21412`: Privatize some SVG internal APIs.
-* :ghpull:`21401`: Uncamelcase some internal variables in axis.py; rename _get_tick_bboxes.
-* :ghpull:`21417`: Use Bbox.unit() more.
-* :ghpull:`20253`: Simplify parameter handling in FloatingAxesBase.
-* :ghpull:`21379`: Simplify filename tracking in FT2Font.
-* :ghpull:`21278`: Clear findfont cache when calling addfont().
-* :ghpull:`21400`: Use bbox.{size,bounds,width,height,p0,...} where appropriate.
-* :ghpull:`21408`: Reword annotations tutorial section titles.
-* :ghpull:`21371`: Rename default branch
-* :ghpull:`21389`: Log pixel coordinates in event_handling coords_demo example on terminal/console
-* :ghpull:`21376`: Factor common parts of saving to different formats using pillow.
-* :ghpull:`21377`: Enable tests for text path based markers
-* :ghpull:`21283`: Demonstrate inset_axes in scatter_hist example.
-* :ghpull:`21356`: Raise an exception when find_tex_file fails to find a file.
-* :ghpull:`21362`: Simplify wording of allowed errorbar() error values
-* :ghpull:`21274`: ENH: Add support to save images in WebP format
-* :ghpull:`21289`: Simplify _init_legend_box.
-* :ghpull:`21256`: Make image_comparison work even without the autoclose fixture.
-* :ghpull:`21343`: Fix type1font docstring markup/punctuation.
-* :ghpull:`21341`: Fix trivial docstring typo.
-* :ghpull:`21301`: Simplify ``Colormap.__call__`` a bit.
-* :ghpull:`21280`: Make ``Path.__deepcopy__`` interact better with subclasses, e.g. TextPath.
-* :ghpull:`21266`: Fix #21101 Add validator to errorbar method
-* :ghpull:`20921`: Fix problem with (deep)copy of TextPath
-* :ghpull:`20914`: 19195 rotated markers
-* :ghpull:`21276`: Add language about not assigning issues
-* :ghpull:`20715`: Improve Type-1 font parsing
-* :ghpull:`21218`: Parametrize/simplify test_missing_psfont.
-* :ghpull:`21213`: Compress comments in make_image.
-* :ghpull:`21187`: Deprecate error_msg_foo helpers.
-* :ghpull:`21190`: Deprecate mlab.stride_windows.
-* :ghpull:`21152`: Rename ``**kw`` to ``**kwargs``.
-* :ghpull:`21087`: Move colormap examples from userdemo to images_contours_and_fields.
-* :ghpull:`21074`: Deprecate MarkerStyle(None).
-* :ghpull:`20990`: Explicit registration of canvas-specific tool subclasses.
-* :ghpull:`21049`: Simplify setting Legend attributes
-* :ghpull:`21056`: Deprecate support for no-args MarkerStyle().
-* :ghpull:`21059`: Remove dummy test command from setup.py
-* :ghpull:`21015`: Prepare for rcParams.copy() returning a new RcParams instance in the future
-* :ghpull:`21021`: Factor out for_layout_only backcompat support in get_tightlayout.
-* :ghpull:`21023`: Inline ToolManager._trigger_tool to its sole call site.
-* :ghpull:`21005`: Test the rcParams deprecation machinery.
-* :ghpull:`21010`: Avoid TransformedBbox where unneeded.
-* :ghpull:`21019`: Reword custom_ticker1 example.
-* :ghpull:`20995`: Deprecate some backend_gtk3 helper globals.
-* :ghpull:`21004`: Remove now-unused rcParams _deprecated entries.
-* :ghpull:`20986`: Make HandlerLine2D{,Compound} inherit constructors from HandlerNpoints.
-* :ghpull:`20974`: Rename symbol_name to glyph_name where appropriate.
-* :ghpull:`20961`: Small cleanups to math_to_image.
-* :ghpull:`20957`: legend_handler_map cleanups.
-* :ghpull:`20955`: Remove unused HostAxes._get_legend_handles.
-* :ghpull:`20851`: Try to install the Noto Sans CJK font
+* :ghpull:`25201`: Backport PR #25196 on branch v3.7.x (Add deprecation for setting data with non sequence type in ``Line2D``)
+* :ghpull:`25196`: Add deprecation for setting data with non sequence type in ``Line2D``
+* :ghpull:`25197`: Backport PR #25193 on branch v3.7.x (Fix displacement of colorbar for eps with bbox_inches='tight')
+* :ghpull:`25193`: Fix displacement of colorbar for eps with bbox_inches='tight'
+* :ghpull:`24781`: DOC: restore SHA to footer
+* :ghpull:`25188`: Backport PR #25085 on branch v3.7.x (FIX: only try to update blit caches if the canvas we expect)
+* :ghpull:`25170`: Backport PR #25097 on branch v3.7.x (fix FigureCanvasTkAgg memory leak via weakrefs)
+* :ghpull:`25186`: Backport PR #24893 on branch v3.7.x (STY: make allowed line length 9 longer to 88 from 79)
+* :ghpull:`25185`: Backport PR #25183 on branch v3.7.x (FIX: do not use deprecated API internally)
+* :ghpull:`25184`: Backport PR #25174 on branch v3.7.x (Accept LA icons for the toolbar)
+* :ghpull:`25085`: FIX: only try to update blit caches if the canvas we expect
+* :ghpull:`25183`: FIX: do not use deprecated API internally
+* :ghpull:`25182`: Backport PR #25052 on branch v3.7.x (Support both Bbox and list for bbox to table/Table)
+* :ghpull:`25174`: Accept LA icons for the toolbar
+* :ghpull:`25052`: Support both Bbox and list for bbox to table/Table
+* :ghpull:`25095`: Backport PR #23442 on branch v3.7.x (Remove need to detect math mode in pgf strings)
+* :ghpull:`25097`: fix FigureCanvasTkAgg memory leak via weakrefs
+* :ghpull:`25167`: Backport PR #25122 on branch v3.7.x (FIX: scaling factor for window with negative value)
+* :ghpull:`25122`: FIX: scaling factor for window with negative value
+* :ghpull:`25161`: Backport PR #25158 on branch v3.7.x (Disconnect SubplotTool destroyer callback on tool_fig close)
+* :ghpull:`25160`: Backport PR #25129 on branch v3.7.x (Undeprecate Cursor event handlers)
+* :ghpull:`25158`: Disconnect SubplotTool destroyer callback on tool_fig close
+* :ghpull:`25129`: Undeprecate Cursor event handlers
+* :ghpull:`25154`: Backport PR #25151 on branch v3.7.x (Increase timeout to GitHub API)
+* :ghpull:`25151`: Increase timeout to GitHub API
+* :ghpull:`25136`: Backport PR #25126 on branch v3.7.x (FIX: fully invalidate TransformWrapper parents before swapping)
+* :ghpull:`25132`: Backport PR #24993 on branch v3.7.x ([DOC] GitHub spelling and links)
+* :ghpull:`25126`: FIX: fully invalidate TransformWrapper parents before swapping
+* :ghpull:`24993`: [DOC] GitHub spelling and links
+* :ghpull:`25118`: Backport PR #25113 on branch v3.7.x (Fix outdated comment re: _update_label_position.)
+* :ghpull:`25113`: Fix outdated comment re: _update_label_position.
+* :ghpull:`25111`: Backport PR #25110 on branch v3.7.x (Stop recommending ``ncol`` in legend examples)
+* :ghpull:`25110`: Stop recommending ``ncol`` in legend examples
+* :ghpull:`25106`: Fix cursor_demo wrt. Line2D.set_x/ydata not accepting scalars anymore.
+* :ghpull:`25103`: Backport PR #25098 on branch v3.7.x (Correctly pass valinit as keyword in SliderTool.)
+* :ghpull:`25098`: Correctly pass valinit as keyword in SliderTool.
+* :ghpull:`23442`: Remove need to detect math mode in pgf strings
+* :ghpull:`25093`: Backport PR #25092 on branch v3.7.x (Fix distribution of test data)
+* :ghpull:`24893`: STY: make allowed line length 9 longer to 88 from 79
+* :ghpull:`25092`: Fix distribution of test data
+* :ghpull:`25089`: Backport PR #25088 on branch v3.7.x (DOC: Fix broken cross-reference when building PDF)
+* :ghpull:`25088`: DOC: Fix broken cross-reference when building PDF
+* :ghpull:`25083`: Backport PR #25074 on branch v3.7.x (Revert "Use system distutils instead of the setuptools copy")
+* :ghpull:`25082`: Backport PR #25079 on branch v3.7.x (FIX: Only send one update signal when autoscaling norms)
+* :ghpull:`25084`: DOC: Fix typos in GitHub stats
+* :ghpull:`25074`: Revert "Use system distutils instead of the setuptools copy"
+* :ghpull:`25079`: FIX: Only send one update signal when autoscaling norms
+* :ghpull:`25072`: Merge v3.6.x into v3.7.x
+* :ghpull:`25071`: Backport PR #25039 on branch v3.7.x (Updated WebAgg JS to check and send request over wss if using HTTPS)
+* :ghpull:`25039`: Updated WebAgg JS to check and send request over wss if using HTTPS
+* :ghpull:`25070`: Backport PR #25058 on branch v3.7.x (fix for pcolormesh doesn't allow shading = 'flat' in the option)
+* :ghpull:`25058`: fix for pcolormesh doesn't allow shading = 'flat' in the option
+* :ghpull:`25067`: Backport PR #25054 on branch v3.7.x (Remove note that mathtext.fontset = "custom" is unsupported.)
+* :ghpull:`25066`: Backport PR #24999 on branch v3.7.x (DOC: figure explanation)
+* :ghpull:`25054`: Remove note that mathtext.fontset = "custom" is unsupported.
+* :ghpull:`25065`: Backport PR #24838 on branch v3.7.x (Add styling support to Check and Radio buttons )
+* :ghpull:`24999`: DOC: figure explanation
+* :ghpull:`24838`: Add styling support to Check and Radio buttons
+* :ghpull:`25056`: Backport PR #25055 on branch v3.7.x (Reword awkward sentence in FAQ.)
+* :ghpull:`25055`: Reword awkward sentence in FAQ.
+* :ghpull:`25049`: Backport PR #25047 on branch v3.7.x (Remove dead code from deprecated-and-removed block)
+* :ghpull:`25047`: Remove dead code from deprecated-and-removed block
+* :ghpull:`25037`: Backport PR #25018 on branch v3.7.x (Simplify "artist reference" example.)
+* :ghpull:`25018`: Simplify "artist reference" example.
+* :ghpull:`25034`: Backport PR #24812 on branch v3.7.x ([Doc] expanded basic pie example)
+* :ghpull:`24812`: [Doc] expanded basic pie example
+* :ghpull:`25029`: Backport PR #25019 on branch v3.7.x (Tweak titles pyplot examples.)
+* :ghpull:`25019`: Tweak titles pyplot examples.
+* :ghpull:`25026`: Backport PR #25017 on branch v3.7.x (Capitalize headings in example Gallery)
+* :ghpull:`25017`: Capitalize headings in example Gallery
+* :ghpull:`25010`: Backport PR #24989 on branch v3.7.x (Suppress pyparsing warning)
+* :ghpull:`25008`: Backport PR #25004 on branch v3.7.x (Bump pypa/cibuildwheel from 2.11.4 to 2.12.0)
+* :ghpull:`24989`: Suppress pyparsing warning
+* :ghpull:`25004`: Bump pypa/cibuildwheel from 2.11.4 to 2.12.0
+* :ghpull:`25001`: Backport PR #25000 on branch v3.7.x (Update matplotlibrc urls)
+* :ghpull:`25000`: Update matplotlibrc urls
+* :ghpull:`24977`: Backport PR #24970 on branch v3.7.x (FIX: Handle uint8 indices properly for colormap lookups)
+* :ghpull:`24970`: FIX: Handle uint8 indices properly for colormap lookups
+* :ghpull:`24975`: Backport PR #24971 on branch v3.7.x (FIX: adjust_bbox should not modify layout engine)
+* :ghpull:`24974`: Backport PR #24973 on branch v3.7.x (MNT: Fix double % signs in matplotlibrc)
+* :ghpull:`24966`: Backport PR #24965 on branch v3.7.x (Remove additional deprecations from 3.5)
+* :ghpull:`24971`: FIX: adjust_bbox should not modify layout engine
+* :ghpull:`24973`: MNT: Fix double % signs in matplotlibrc
+* :ghpull:`24965`: Remove additional deprecations from 3.5
+* :ghpull:`24963`: Backport PR #24912 on branch v3.7.x (Remove contour warning for "no-valid-levels".)
+* :ghpull:`24962`: Backport PR #24957 on branch v3.7.x (DOC: Enable Opensearch)
+* :ghpull:`24961`: Backport PR #24948 on branch v3.7.x (Remove remaining deprecations from 3.5)
+* :ghpull:`24959`: Backport PR #24254 on branch v3.7.x (Expire deprecations in widgets and keyword only arguments for Selectors)
+* :ghpull:`24912`: Remove contour warning for "no-valid-levels".
+* :ghpull:`24960`: Backport PR #24825 on branch v3.7.x (Allow non-default scales on polar axes)
+* :ghpull:`24957`: DOC: Enable Opensearch
+* :ghpull:`24948`: Remove remaining deprecations from 3.5
+* :ghpull:`24825`: Allow non-default scales on polar axes
+* :ghpull:`24254`: Expire deprecations in widgets and keyword only arguments for Selectors
+* :ghpull:`24956`: Backport PR #24955 on branch v3.7.x (Cleanup bullseye plot example.)
+* :ghpull:`24955`: Cleanup bullseye plot example.
+* :ghpull:`24949`: Backport PR #24918 on branch v3.7.x (DOC: animation faster)
+* :ghpull:`24947`: Auto backport of pr 24897 on v3.7.x
+* :ghpull:`24945`: Backport PR #24940 on branch v3.7.x ([MNT] specify which gallery sections come last)
+* :ghpull:`24918`: DOC: animation faster
+* :ghpull:`24917`: Backport PR #24897: DOC: Add ref for every under examples/animation
+* :ghpull:`24940`: [MNT] specify which gallery sections come last
+* :ghpull:`24941`: Backport PR #24655 on branch v3.7.x (Update font_manager to only use registry on Win)
+* :ghpull:`24655`: Update font_manager to only use registry on Win
+* :ghpull:`24937`: Backport PR #24470 on branch v3.7.x ([ENH] hatch keyword for pie + some pie documentation)
+* :ghpull:`24938`: Backport PR #23390 on branch v3.7.x (FIX: colorbar contour with log norm should default to log locator and formatter...)
+* :ghpull:`24935`: Backport PR #24934 on branch v3.7.x (Swap ipython directives for code-block directives)
+* :ghpull:`24470`: [ENH] hatch keyword for pie + some pie documentation
+* :ghpull:`24933`: Backport PR #24924 on branch v3.7.x (Fix toggling layout engines)
+* :ghpull:`24934`: Swap ipython directives for code-block directives
+* :ghpull:`24931`: Backport PR #24783 on branch v3.7.x (inset locator fix with tests added)
+* :ghpull:`24924`: Fix toggling layout engines
+* :ghpull:`24928`: Backport PR #24927 on branch v3.7.x (DOC: Remove space after directive name, before double-colon)
+* :ghpull:`24926`: Backport PR #24925 on branch v3.7.x (DOC: Improve documentation for set_loglevel)
+* :ghpull:`24925`: DOC: Improve documentation for set_loglevel
+* :ghpull:`24922`: Backport PR #24921 on branch v3.7.x (Pin sphinx != 6.1.2)
+* :ghpull:`24921`: Pin sphinx != 6.1.2
+* :ghpull:`24911`: Backport PR #24904 on branch v3.7.x (Deprecate AxisArtistHelpers with inconsistent loc/nth_coord.)
+* :ghpull:`24897`: DOC: Add ref for every under examples/animation
+* :ghpull:`24904`: Deprecate AxisArtistHelpers with inconsistent loc/nth_coord.
+* :ghpull:`22314`: Add a helper to generate xy coordinates for AxisArtistHelper.
+* :ghpull:`24841`: changed method in animation tutorial table of methods
+* :ghpull:`24902`: Remove provisional note from pyplot.subplot_mosaic
+* :ghpull:`24891`: DOC: mark mosaic as no longer provisional
+* :ghpull:`24889`: Harmonize exceptions for unknown keyword arguments.
+* :ghpull:`24085`: Set facecolor of FilledArrow axisline style and fix tight layout
+* :ghpull:`19743`: ENH: allow fig.legend outside axes...
+* :ghpull:`24887`: [MNT] Bump NumPy to 1.20
+* :ghpull:`24896`: changed contribute docs link to writing docs
+* :ghpull:`24894`: DOC: explain clipbox a bit better
+* :ghpull:`24864`: Deprecate BrokenBarHCollection.
+* :ghpull:`24869`: Skip displaying pan/zoom navigate mode in toolbar.
+* :ghpull:`24892`: FIX: error in formatting in error string in redirect extension
+* :ghpull:`24895`: add new & improved doc notices to what's new
+* :ghpull:`24888`: update install instructions for conda
+* :ghpull:`24886`: CI: rotate the circleci deploy key
+* :ghpull:`24879`: Document "." as a filled marker.
+* :ghpull:`24870`: Better default bool contour levels.
+* :ghpull:`24786`: Increase a few test tolerances on some arches
+* :ghpull:`24863`: Add parameter doc to PolarTransform
+* :ghpull:`24845`: Fix toggling of MultiCursor.{horizOn,vertOn}
+* :ghpull:`24862`: Fix argument checking in ``Axes3D.quiver``
+* :ghpull:`24868`: [pre-commit.ci] pre-commit autoupdate
+* :ghpull:`24840`: Simplify/robustify segment-point distance calculation.
+* :ghpull:`24850`: Improve PolarAffine docstring
+* :ghpull:`24851`: Variable rename t > theta
+* :ghpull:`24763`: Allow polar scales where zero is not in valid interval
+* :ghpull:`24846`: Promote pending cm deprecations to full deprecations
+* :ghpull:`24848`: ``Collection.set_linestyle``: remove redundant string handling
+* :ghpull:`24839`: Move geo/polar projections to their own pages
+* :ghpull:`24727`: Handle argument "facecolors=None" correctly in plot_surface()
+* :ghpull:`24847`: Avoid extra copy initializing empty Affine2D
+* :ghpull:`24837`: DOC: Replace .format by f-strings in examples
+* :ghpull:`24604`: Enh/extend mosaic kwargs
+* :ghpull:`24131`: Deprecate attributes and expire deprecation in animation
+* :ghpull:`23457`: Add blitting support to button widgets
+* :ghpull:`24832`: [MNT] Improve variable naming in bar
+* :ghpull:`24829`: Simplify shape-checking in QuadMesh.set_array.
+* :ghpull:`24835`: Delay nightly wheel builds by 2 hours
+* :ghpull:`24831`: [Doc] Fix ndarray-links for arguments
+* :ghpull:`24824`: Fix incorrect method in doc
+* :ghpull:`24826`: space in version added for reverse in legend
+* :ghpull:`24819`: Bump pypa/cibuildwheel from 2.11.3 to 2.11.4
+* :ghpull:`24811`: removed casting handles to list in legend
+* :ghpull:`24759`: Reverse legend
+* :ghpull:`24465`: Reparametrize offsetbox calculations in terms of bboxes.
+* :ghpull:`22316`: Arbitrary figure customization hooks.
+* :ghpull:`22329`: Enforce that Line data modifications are sequences
+* :ghpull:`24730`: Data access API for rcParams
+* :ghpull:`24699`: Implement nested four-level TeX cache
+* :ghpull:`24752`: DOC: Make event handling table scrollable
+* :ghpull:`24637`: Fixes #20044 pass AnnotationBbox to renderer
+* :ghpull:`24810`: Don't modify dictionary input to widgets
+* :ghpull:`24769`: Improve matplotlib.axes documentation
+* :ghpull:`24806`: Deprecate 'x' argument for widgets.TextBox.begin_typing
+* :ghpull:`24293`: Handle rasterization start & stop only from Artist
+* :ghpull:`24768`: Fix/zorder rasterization
+* :ghpull:`24474`: Use scatter for check boxes and set facecolors correctly in check boxes and radio buttons
+* :ghpull:`24262`: Fix issue with space allocated for single tick that should not be there
+* :ghpull:`24780`: Update environment.yml
+* :ghpull:`23576`: Soft deprecate the textpath module (import from text instead)
+* :ghpull:`24750`: Fix deprecations of \*Cursor widget event handlers
+* :ghpull:`24757`: Allow using masked in ``set_offsets``
+* :ghpull:`21661`: Fix plot directive with func calls
+* :ghpull:`24803`: Correct type in docstring of zorder for streamplot and LineCollection
+* :ghpull:`24801`: Correct docstring of RangeSlider.on_changed
+* :ghpull:`24802`: Correct docstring of CheckButtons.get_status
+* :ghpull:`24758`: MNT: Simplify code related to masked arrays
+* :ghpull:`24756`: DOC: Simplify some table markup
+* :ghpull:`24795`: DOC: Fix duplicate redirect
+* :ghpull:`24782`: DOC: update typos and grammar errors
+* :ghpull:`24794`: Update README.md
+* :ghpull:`24071`: Deprecate undefined label_mode to Grid
+* :ghpull:`24724`: Run delvewheel on Windows for wheels
+* :ghpull:`24538`: [Doc] Document legend_handles and legend_handlers
+* :ghpull:`24751`: DOC: Update Artist inheritance diagram
+* :ghpull:`24761`: Don't set the never-used Line2D._contains in set_picker.
+* :ghpull:`24760`: Remove unused dicts from backend_cairo.
+* :ghpull:`24736`: DOC: simplify CheckButton example
+* :ghpull:`22700`: MAINT: Move docstring of ``LogLocator`` to class
+* :ghpull:`19763`: Remove visibility changes in draw for \*Cursor widgets
+* :ghpull:`23473`: Separately track modifier keys for mouse events.
+* :ghpull:`24748`: DOC: remove research notice
+* :ghpull:`24734`: Support masked dates
+* :ghpull:`24737`: MNT: make fig.colorbar(..., ax=INPUT) even more forgiving
+* :ghpull:`24120`: don't try to start a new event loop in WebAgg when in an ipykernel
+* :ghpull:`24362`: Allow bool-like values for sharex/sharey
+* :ghpull:`24740`: Minor redundancy cleanup of code which sets 3D aspect 3D
+* :ghpull:`22273`: Improve inheritance diagrams
+* :ghpull:`24668`: Add test for remaining axis options
+* :ghpull:`9598`: ENH: rely on non-rectangular patch paths rather than bboxes for legend auto-placing (fix #9580)
+* :ghpull:`22920`: Mnt deprecate mlab
+* :ghpull:`24408`: Fix: restore make_axes to accept a tuple of axes
+* :ghpull:`24731`: DOC: Post warnings as reviews on PRs
+* :ghpull:`24652`: Offsetbox default arguments
+* :ghpull:`24720`: FIX: be more forgiving in default draw wrapper
+* :ghpull:`24719`: Remove quotes from EngFormatter.format_eng example
+* :ghpull:`24718`: Remove refresh function from polar ThetaLocator
+* :ghpull:`24710`: Drop support for Qt<5.10.
+* :ghpull:`24509`: Factor out & improve accuracy of derivatives calculations in axisartist.
+* :ghpull:`19591`: reverse order in which stackplot elements are added to axes
+* :ghpull:`24367`: STY: Update macosx zoom rect styling
+* :ghpull:`24706`: Bump pypa/cibuildwheel from 2.11.2 to 2.11.3
+* :ghpull:`24705`: Cleanup a few examples.
+* :ghpull:`21096`: FIX: improve symlog ticker
+* :ghpull:`24498`: DOC: Update multiple category bar chart examples
+* :ghpull:`24688`: Deprecate quiver_doc and barbs_doc class members
+* :ghpull:`24526`: [Doc] Fix spelling and grammar in tutorials
+* :ghpull:`24675`: TST: set style in mpl_toolkits to ease later transition
+* :ghpull:`24484`: Artist's draw method prevents rasterization by default
+* :ghpull:`24667`: Test scroll zoom bbox update
+* :ghpull:`24662`: Doc/git force
+* :ghpull:`24664`: Deprecate offsetbox.bbox_artist
+* :ghpull:`24670`: Tiny capitalization fix.
+* :ghpull:`24596`: ENH: Add ellipse class for annotation box styles
+* :ghpull:`24249`: Add legend tests for 3D plots
+* :ghpull:`24627`: MNT: when clearing an Axes via clear/cla fully detach children
+* :ghpull:`24653`: Directly call _long_axis()._set_axes_scale in Colorbar.
+* :ghpull:`24640`: Small TransformWrapper cleanups.
+* :ghpull:`24528`: BUG: Warn when an existing layout manager changes to tight layout
+* :ghpull:`24635`: Remove unneeded _update_transScale calls in _init_axis.
+* :ghpull:`24641`: Fix that font files never pass the test on Win
+* :ghpull:`24522`: Use pybind11 for tri module
+* :ghpull:`24603`: Shorten the definition of sawtooth boxstyle.
+* :ghpull:`24630`: Improve error message for gridspec when the index is not an integer.
+* :ghpull:`24634`: Init axes._children early enough to avoid need for some getattr calls.
+* :ghpull:`24629`: Doc/gitwash redirects
+* :ghpull:`24624`: Expire FancyBboxPatch deprecations.
+* :ghpull:`24619`: ENH: Allow RGB(A) arrays for pcolormesh
+* :ghpull:`23588`: Refactoring gitwash
+* :ghpull:`21549`: Unifying the Figure getter/setter interface to match its constructor
+* :ghpull:`24582`: Shorten demo_axes_grid example.
+* :ghpull:`24577`: Fold _set_ticklabels into set_ticklabels.
+* :ghpull:`24581`: Simplify implementation of _is_sorted.
+* :ghpull:`24575`: Use std::isnan and fix compiler warning
+* :ghpull:`24570`: FIX: VPacker and HPacker bottom/top alignment
+* :ghpull:`23812`: Ci add codeql
+* :ghpull:`24556`: Fix incorrect window_extent of AxesImage
+* :ghpull:`24566`: Improve argument checking for set_xticks().
+* :ghpull:`24544`: DOC: Add links to supported file formats in animations tutorial
+* :ghpull:`24511`: Add test for mutating input arrays #8990
+* :ghpull:`24558`: In mplot3d, fix a doc typo and autogen zaxis_inverted.
+* :ghpull:`24555`: ENH: Add warning for SymLogScale when values in linear scale range
+* :ghpull:`23417`: Consistently set label on axis with units
+* :ghpull:`24542`: DOC: Clarify supported animation formats in animation tutorial
+* :ghpull:`23685`: Add mathtext support for ``\middle`` and correct rendering of ``\|``
+* :ghpull:`24539`: Fix misnamed api changes entry.
+* :ghpull:`23692`: Add ``Axes.get_tick_params()`` method.
+* :ghpull:`24132`: CenteredNorm changes
+* :ghpull:`24529`: Transform ParasiteAxesBase._update_viewlim into standard callback.
+* :ghpull:`24304`: Simplify some patches path definitions.
+* :ghpull:`24431`: FIX: Support passing one alpha per event sequence to eventplot()
+* :ghpull:`24527`: Fix testing of whether backends use the new pyplot_show API.
+* :ghpull:`24537`: Fix triage tool due to test reorganization
+* :ghpull:`21831`: FIX: pre-composite animation frames to white background
+* :ghpull:`24205`: Plot directive: delegate file handling to Sphinx
+* :ghpull:`24274`: Animation Tutorial
+* :ghpull:`24519`: MNT: remove unused arguments to private methods and minor doc fixes
+* :ghpull:`24525`: [Doc] Fix spelling and grammar in examples
+* :ghpull:`24523`: [Doc] fix more spelling and grammar
+* :ghpull:`24218`: Document what pyplot expects from a backend.
+* :ghpull:`24513`: Modernize a bit floating_axes tests.
+* :ghpull:`24491`: Make Path3DCollection store indexed offset, and only apply z-ordered offset during draw
+* :ghpull:`24500`: DOC: Removed matplotlib from mission statement title
+* :ghpull:`24490`: DOC: Remove text rotation example
+* :ghpull:`24487`: Update tests to run with 3.11 (not rc)
+* :ghpull:`24439`: Remove custom polar behaviour in LogLocator
+* :ghpull:`24461`: Shorten and explain more calculations in axes_divider.
+* :ghpull:`24472`: [DOC] removed flake8 from PR template
+* :ghpull:`24467`: [DOC] swapped params in fig_compare_error msg
+* :ghpull:`24455`: Draw RadioButtons using scatter to ensure circular buttons.
+* :ghpull:`24462`: Don't pass unused xdescent to _get_packed_offsets.
+* :ghpull:`24446`: Remove axis() manual argument parsing.
+* :ghpull:`24334`: ENH: Check labels arg when kwargs passed in Axis.set_ticks()
+* :ghpull:`24430`: MNT: Issue a warning instead of logging if RGB(A) passed to scatter(..., c)
+* :ghpull:`24397`: Simplify appveyor to only use conda
+* :ghpull:`24447`: Factor out error generation for function calls with wrong nargs.
+* :ghpull:`24441`: DOC: Fix example for what's new imshow so it isn't cut off or crowded.
+* :ghpull:`24443`: Add valid values to ``get_*axis_transform`` docstring
+* :ghpull:`24440`: DOC: Fix colorbar what's new entry so it isn't cut off.
+* :ghpull:`23787`: Use pybind11 for C/C++ extensions
+* :ghpull:`24247`: Split toolkit tests into their toolkits
+* :ghpull:`24432`: DOC: Fix What's New entry for bar_label() formatting.
+* :ghpull:`23101`: Move show() to somewhere naturally inheritable / document what pyplot expects from a backend.
+* :ghpull:`24215`: Add :shows-source-link: option to Sphinx plot directive
+* :ghpull:`24423`: Tighten the Qt binding selection docs.
+* :ghpull:`24403`: Use ``repr`` in error message Addresses #21959
+* :ghpull:`24415`: made f2tfont error message explicit that it needs path to file
+* :ghpull:`24329`: Kill FontconfigPatternParser.
+* :ghpull:`23267`: Add location keyword argument to Colorbar
+* :ghpull:`24375`: DOC: Group pyplot plotting commands
+* :ghpull:`24307`: DOC: Organize Axes3D methods into sections
+* :ghpull:`22230`: FIX: add support for imshow extent to have units
+* :ghpull:`24252`: Change default rotation mode for 3D labels to 'anchor'
+* :ghpull:`24356`: Expire QuadMesh old signature deprecation
+* :ghpull:`24355`: Expire unused positional parameters in canvas subclasses
+* :ghpull:`24257`: Load style files from third-party packages.
+* :ghpull:`24279`: Cleanup BboxImage example.
+* :ghpull:`24342`: Use HTML5 for webagg files
+* :ghpull:`24339`: DOC: Minor cleanup in "Writing documentation"
+* :ghpull:`24338`: DOC: Group pyplot commands by category
+* :ghpull:`24314`: Minor improvements to Annotations Tutorial
+* :ghpull:`23914`: Add shading of Poly3DCollection
+* :ghpull:`24322`: GOV: change security reporting to use tidelift
+* :ghpull:`24305`: Unify logic of ConnectionStyle._Base.{_clip,_shrink}.
+* :ghpull:`24303`: Simplify generate_fontconfig_pattern.
+* :ghpull:`24319`: Bump mamba-org/provision-with-micromamba from 13 to 14
+* :ghpull:`24239`: Fix mathtext rendering of ``\|`` and sizing of ``|`` and ``\|``
+* :ghpull:`23606`: added offset section & restructured annotations tutorial
+* :ghpull:`24125`: Expire miscellaneous deprecations from 3.5
+* :ghpull:`24306`: Remove unnecessary/replaceable explicit str calls.
+* :ghpull:`24295`: Remove unnecessary np.{,as}array / astype calls.
+* :ghpull:`24302`: MNT: Remove redundant int after round
+* :ghpull:`24290`: Cleanup Barbs._find_tails.
+* :ghpull:`24298`: List all the places to update when adding a dependency.
+* :ghpull:`24289`: Cleanup image_zcoord example.
+* :ghpull:`23865`: Add test and example for VBoxDivider
+* :ghpull:`24287`:  Simplifying glyph stream logic in ps backend
+* :ghpull:`24291`: Rely on builtin round() instead of manual rounding.
+* :ghpull:`24062`: Replaced std::random_shuffle with std::shuffle in tri
+* :ghpull:`24278`: Use oldest-supported-numpy for build
+* :ghpull:`24161`: Versioning directives policy
+* :ghpull:`24013`: Deprecate matplotlib.tri.* submodules
+* :ghpull:`24031`: Add rcParams for 3D pane color
+* :ghpull:`24220`: Simplify and tighten parse_fontconfig_pattern.
+* :ghpull:`24251`: Expire deprecation for ``auto_add_to_figure=True`` in ``Axes3D``
+* :ghpull:`24160`: sample versioning directives, empty + description
+* :ghpull:`24253`: Expire deprecation of grid argument name
+* :ghpull:`14471`: FIX: don't close figures if switch_backend is a no-op
+* :ghpull:`24240`: Deprecate unit_cube-related methods in Axes3D
+* :ghpull:`24244`: Clarify that z must be finite for tricountour(f)
+* :ghpull:`23536`: Improve mpl_toolkit documentation
+* :ghpull:`24243`: Improve documentation for ticker
+* :ghpull:`24189`: Do not pass gridspec_kw to inner layouts in subplot_mosaic
+* :ghpull:`24242`: Add information about environment variables in matplotlib.__doc__
+* :ghpull:`24241`: Small animation docs/style fixes.
+* :ghpull:`24236`: DOC: Mark SubplotBase removals in code style
+* :ghpull:`24141`: Set figure options dynamically
+* :ghpull:`23796`: Remove useless semicolons in "Introductory / Basic Usage" tutorial
+* :ghpull:`23573`: Merge SubplotBase into AxesBase.
+* :ghpull:`23931`: Raise ValueError on negative number inputs for set_aspect
+* :ghpull:`24065`: Fixed the positioning of cursor in Textbox: no approximation
+* :ghpull:`24122`: Add textcolor to legend based on labelcolor string
+* :ghpull:`24182`: MNT: Remove redundant method, fix signature and add doc-string to ``draw_tex``
+* :ghpull:`24224`: Deprecate Julian date-related functions and constant
+* :ghpull:`24196`: MNT: Update pre-commit hooks
+* :ghpull:`24221`: Deprecate BufferRegion.to_string{,_argb}.
+* :ghpull:`23683`: Simplify/add pyparsing error messages on mathtext/fontconfig errors.
+* :ghpull:`24210`: Small cleanups to axislines docs.
+* :ghpull:`24213`: Cleanup make_compound_path_from_poly doc, example.
+* :ghpull:`24208`: Deprecate backend_webagg.ServerThread.
+* :ghpull:`24207`: Recommend multiple_yaxis_with_spines over parasite axes.
+* :ghpull:`24156`: Automatically update rebase label
+* :ghpull:`24198`: Deprecate unused backend_ps.{PsBackendHelper,ps_backend_helper}.
+* :ghpull:`24129`: Expire cursor-related deprecations
+* :ghpull:`24179`: MNT: Refactor ``Renderer.get_text_width_height_descent``
+* :ghpull:`24191`: BLD: be more cautious about checking editable mode
+* :ghpull:`24000`: Generalize validation that pyplot commands are documented
+* :ghpull:`24144`: Deprecate some label-related attributes on ContourLabeler.
+* :ghpull:`24162`: windows doc build parity
+* :ghpull:`24102`: Simplest pyproject.toml containing build-system only
+* :ghpull:`24091`: MNT: Clean up code in SecondaryAxis
+* :ghpull:`24140`: Replace ClabelText by set_transform_rotates_text.
+* :ghpull:`24143`: Add QuadContourSet.remove.
+* :ghpull:`24138`: [DOC] Fix some documentation typos
+* :ghpull:`24128`: Expire deprecations in dates and ticker
+* :ghpull:`23907`: Inherit OffsetBox.get_window_extent.
+* :ghpull:`23449`: Add pan and zoom toolbar handling to 3D Axes (Replaces PR#22614)
+* :ghpull:`24126`: Bump version when invalid hatches error
+* :ghpull:`23874`: Expire parameter renaming and deletion and attribute privatization from 3.5
+* :ghpull:`23592`: Polar errcaps
+* :ghpull:`24083`: Enable interactive figure resizing for webagg and nbagg backends
+* :ghpull:`24110`: test readme rendering
+* :ghpull:`24067`: README.rst to README.md
+* :ghpull:`23702`: Get Mathtext ``\times`` symbol from ``cmsy10`` when using ``cmr10``.
+* :ghpull:`24066`: Simplify svg font expansion logic.
+* :ghpull:`23730`: [DOC]: Add grid to style sheets
+* :ghpull:`24020`: [DOC]: adding a grid to the style sheet reference.
+* :ghpull:`23579`: Remove direct manipulation of HostAxes.parasites by end users.
+* :ghpull:`23553`: Add tests for ImageGrid
+* :ghpull:`23918`: Merge v3.6.x branch to main
+* :ghpull:`23902`:  Add test and improve examples for mpl_toolkits
+* :ghpull:`23950`: DOC: Don't import doctest because we're not using it
+* :ghpull:`21006`: Rotate errorbar caps in polar plots
+* :ghpull:`23870`: Implement Sphinx-Gallery's ``make html-noplot``
+* :ghpull:`23905`: made explicit that install link is install docs in readme
+* :ghpull:`23824`: Deprecate draw_gouraud_triangle
+* :ghpull:`23913`: Add draggable as param to Legend init
+* :ghpull:`23896`: Inline AnchoredOffsetBox._update_offset_func.
+* :ghpull:`23889`: Update image tutorial.
+* :ghpull:`23861`: Move axes_grid tests to axes_grid1
+* :ghpull:`23254`: Add PathCollection test for ps backend
+* :ghpull:`23542`: Add even more mplot3d tests
+* :ghpull:`23698`: Fix bug in ``Axes.bar_label(label_type='center')`` for non-linear scales.
+* :ghpull:`23767`: DEV: add flake8-force plugin
+* :ghpull:`23835`: Fix version switcher links
+* :ghpull:`23832`: Improve skip message for image comparison tests
+* :ghpull:`23690`: Add new-style string formatting option and callable option to ``fmt`` in ``Axes.bar_label()``.
+* :ghpull:`23804`: Fix TexManager's support for ``openin_any = p``
+* :ghpull:`23737`: Update grammar
+* :ghpull:`23552`: Provide ``adjustable='box'`` to 3D axes aspect ratio setting
+* :ghpull:`23769`: Bump mamba-org/provision-with-micromamba from 12 to 13
+* :ghpull:`23590`: Changing bar examples to tea and coffee
+* :ghpull:`21253`: Fix: axis, ticks are set to defaults fontsize after ax.clear()
+* :ghpull:`21968`: Changed fstring to make error clearer
+* :ghpull:`22614`: ENH: Add pan and zoom toolbar handling to 3D Axes
+* :ghpull:`21562`: Add a test for Hexbin Linear
 
-Issues (202):
+Issues (120):
 
-* :ghissue:`23827`: backend_gtk3agg.py calls set_device_scale
-* :ghissue:`23560`: [Doc]: mpl_toolkits.axes_grid still mentioned as maintained
-* :ghissue:`23794`: [Doc]: Version switcher broken in devdocs
-* :ghissue:`23806`: [Bug]: possible regression in axis ticks handling in matplotlib 3.6.0rc2
-* :ghissue:`22965`: [Bug]: triplot duplicates label legend
-* :ghissue:`23807`: streamplot raises ValueError when the input is zeros
-* :ghissue:`23761`: [Bug]: False positive legend handler warnings in 3.6.0.rc1
-* :ghissue:`23398`: [Bug]: Newer versions of matplotlib ignore xlabel on colorbar axis
-* :ghissue:`23699`: [Bug]: Bug with toolbar instantiation in notebook
-* :ghissue:`23745`: [Doc]: Minor rcParams/matplotlibrc doc issues
-* :ghissue:`23717`: [Bug]: AxesSubplot.get_yticks not returning the actual printed ticks
-* :ghissue:`21508`: [Doc]: Create diagram to show rotation directions for 3D plots
-* :ghissue:`23709`: [Bug]: colorbar with unattached mappables can't steal space
-* :ghissue:`23701`: [Bug]: plt.figure(), plt.close() leaks memory
-* :ghissue:`22409`: [Bug]: AttributeError: 'QResizeEvent' object has no attribute 'pos'
-* :ghissue:`19609`: DeprecationWarning when changing color maps
-* :ghissue:`23716`: MatplotlibDeprecationWarning removal hard-breaks seaborn in 3.6rc1
-* :ghissue:`23719`: [Bug]: register_cmap deprecation message seems wrong
-* :ghissue:`23707`: test_Normalize fails on aarch64/ppc64le/s390x
-* :ghissue:`21107`: [MNT]: Should plt.xticks() get a minor keyword argument
-* :ghissue:`23679`: [Doc]: Deprecated modules not in docs
-* :ghissue:`19550`: Arc and pathpatch_2d_to_3d plots full ellipse
-* :ghissue:`23329`: [Bug]: ``plt.autoscale()`` fails for partial ``Arc``
-* :ghissue:`11266`: Arc patch ignoring theta1/theta2 when added to Axes via PatchCollection
-* :ghissue:`4067`: 'Poly3DCollection' object has no attribute '_facecolors2d'
-* :ghissue:`23622`: [MNT]: make.bat not parsing sphinxopt
-* :ghissue:`23459`: [Bug]: 'Line3D' object has no attribute '_verts3d'
-* :ghissue:`23653`: [Bug]: macosx subplot tool causes segfault when window closed
-* :ghissue:`23660`: [Bug]: Test test_figure.py::test_subfigure_ss[png] FAILED on ppc64le
-* :ghissue:`23645`: [MNT]: Python 3.11 manylinux wheels
-* :ghissue:`23650`: TTF fonts loaded from file are not embedded/displayed properly when saved to pdf
-* :ghissue:`23583`: [Doc]: Document the position parameter in apply_aspect()
-* :ghissue:`23386`: setuptools_scm-git-archive is obsolete
-* :ghissue:`23220`: [Doc]: Clarify ``offset`` parameter in linestyle
-* :ghissue:`22746`: [Doc]: Document that rcParams['font.family'] can be a list
-* :ghissue:`8187`: Axes doesn't have ````legends```` attribute?
-* :ghissue:`23580`: [Bug]: TypeError when plotting against list of datetime.date where 0th element of list is None
-* :ghissue:`15514`: Relevant methods are only documented in base classes and thus not easily discoverable
-* :ghissue:`21611`: DOC: Add conda environment instructions to developers guide
-* :ghissue:`23487`: [Bug]: scatter plot color settings discarded unless c given
-* :ghissue:`22977`: [Bug]: offset dash linestyle has no effect in patch objects
-* :ghissue:`18883`: Matplotlib would not try to apply all the font in font list to draw all characters in the given string.
-* :ghissue:`22570`: [ENH]: Provide ``axis('equal')`` for ``Axes3D``.
-* :ghissue:`23433`: [Bug]: array-like linewidth raises an error for scatter3D
-* :ghissue:`12388`: Legend Title Left Alignment
-* :ghissue:`23375`: [Bug]: markerfacecoloralt not supported when drawing errorbars
-* :ghissue:`17973`: DOC: matplotlib.__doc__ not included in online docs ?
-* :ghissue:`23474`: [Bug]: ``\,`` and ``\mathrm{\,}`` are not identical in Mathtext when using CM and STIX
-* :ghissue:`8715`: event handlers have different signatures across backends
-* :ghissue:`18271`: PGF uses the minimal document class
-* :ghissue:`23324`: [Bug]: Exception not handled in widgetlock()
-* :ghissue:`15710`: doc for type of tz parameter is inconsistent throughout dates.py
-* :ghissue:`21165`: Hexbin marginals need a test for linear scaling
-* :ghissue:`23105`: [MNT]: Deprecate per-backend customization of draw_if_interactive
-* :ghissue:`23147`: [Bug]: with setuptools>=60, cannot find msbuild
-* :ghissue:`23379`: [Bug]: Offset notation on y-axis can overlap with a long title
-* :ghissue:`22819`: [Doc]: Make rect argument consistent in the docstrings
-* :ghissue:`23172`: [Bug]: Calling matplotlib.pyplot.show() outside of matplotlib.pyplot.rc_context no longer works
-* :ghissue:`23019`: [Bug]: ``UnicodeDecodeError`` when using some special and accented characters in TeX
-* :ghissue:`23334`: [Doc]: Tk embedding example crashes Spyder
-* :ghissue:`23298`: [Bug]: get_backend() clears figures from Gcf.figs if they were created under rc_context
-* :ghissue:`21942`: [ENH]: add width/height_ratios to subplots and friends
-* :ghissue:`23028`: [ENH]: contour kwarg for negative_linestyle
-* :ghissue:`19223`: Certain non-hashable parameters to text() give cryptic error messages
-* :ghissue:`18351`: Add the ability to plot striped lines
-* :ghissue:`23205`: [Bug]: URL-area not rotated in PDFs
-* :ghissue:`23268`: [Bug]: hyphen renders different length depending on presence of MathText
-* :ghissue:`23308`: [Bug]: set_visible() not working for 3d projection
-* :ghissue:`23296`: Set_color method for line2d object in latest document not work
-* :ghissue:`22992`: [Bug]: test_image_comparison_expect_rms nondeterministic failure
-* :ghissue:`23008`: [ENH]: Use ``\genfrac`` in display style?
-* :ghissue:`23214`: [MNT]: Rename examples with "test" in the name
-* :ghissue:`17852`: Thin space missing after mathtext operators
-* :ghissue:`12078`: Inconsistency in keyword-arguments ncol/ncols, nrow/nrows
-* :ghissue:`23239`: [Doc]: steps is not implemented in line styles.
-* :ghissue:`23151`: [MNT]: default date limits...
-* :ghissue:`9462`: Misaligned bottoms of subplots for png output with bbox_inches='tight'
-* :ghissue:`21369`: [Bug]: ax.invert_xaxis() and ax.invert_yaxis() both flip the X axis
-* :ghissue:`20797`: ``macosx`` cursors break with images
-* :ghissue:`23084`: [TST] Upcoming dependency test failures
-* :ghissue:`22910`: [Bug]: bar_label fails with nan errorbar values
-* :ghissue:`23074`: [Bug]: matplotlib crashes if ``_tkinter`` doesn't have ``__file__``
-* :ghissue:`23083`: [Bug]: Confusing error messages
-* :ghissue:`22391`: [Doc]: Remove "keywords" line at the bottom of all examples
-* :ghissue:`20202`: Daylocator causes frozen computer when used with FuncAnimation
-* :ghissue:`22529`: Replace C++ quad contouring code with use of ContourPy
-* :ghissue:`21710`: [ENH]: macosx backend does not respect rcParams["savefig.directory"]
-* :ghissue:`21880`: [Doc]: rrulewrapper not included in API docs
-* :ghissue:`22622`: [Bug]: Gaps and overlapping areas between bins when using float16
-* :ghissue:`23043`: [TST] Upcoming dependency test failures
-* :ghissue:`17960`: Line2D object markers are lost when retrieved from legend.get_lines() when linestyle='None'
-* :ghissue:`23026`: [MNT]: Require that matplotlibrc/style files use utf-8 (or have an encoding cookie)
-* :ghissue:`22947`: [Bug]: Can't use ``plt.sca()`` on axes created using subfigures
-* :ghissue:`22623`: [ENH]: support rect with constrained_layout ("layout only to part of the figure")
-* :ghissue:`22917`: "ab;cd" missing in subplot_mosaic tutorial
-* :ghissue:`22686`: [Bug]: can not give init value for RangeSlider widget
-* :ghissue:`22740`: [MNT]: Add codespell to pre-commit hooks
-* :ghissue:`22893`: rainbow text example is broken
-* :ghissue:`21571`: [Doc]: Clarify text positioning
-* :ghissue:`22092`: [Bug]: Configure subplots dialog freezes for TkAgg with toolmanager
-* :ghissue:`22760`: [Bug]: Macosx legend picker doesn't work anymore
-* :ghissue:`16369`: Call to input blocks slider input on osx with the default agg 'MacOSX'. It works fine on when TkAgg is used.
-* :ghissue:`22915`: [Bug]: figure.raise_window rcParam does not work on MacOSX backend
-* :ghissue:`22930`: [Bug]: Regression in dashes due to #22569
-* :ghissue:`22859`: [Bug]: findSystemFonts should not look in subdirectories of C:\Windows\Fonts\
-* :ghissue:`22882`: Missing ``f`` prefix on f-strings
-* :ghissue:`22738`: [MNT]: make Axes.cla an alias for Axes.clear in all cases
-* :ghissue:`22708`: [TST] Upcoming dependency test failures
-* :ghissue:`8388`: Proposed ENH: Allow user to turn off breaking of streamlines in streamplot
-* :ghissue:`20755`: [Bug]: make_norm_from_scale should create picklable classes even when used in-line.
-* :ghissue:`18249`: Expand the explanation of the Object-Oriented interface
-* :ghissue:`22792`: [Bug]: .eps greyscale hatching of patches when lw=0
-* :ghissue:`22630`: [ENH]: enable passing of projection keyword to Axes.inset_axes
-* :ghissue:`22414`: [Bug]: bar_label overlaps bars when y-axis is inverted
-* :ghissue:`22726`: [Bug]: tripcolor ignores clim
-* :ghissue:`21635`: [ENH]: Add a nightly wheel build
-* :ghissue:`9994`: document where nightly wheels are published
-* :ghissue:`22350`: [Bug]: text.usetex Vs. DateFormatter
-* :ghissue:`4976`: missing imshow() subplots when using tight_layout()
-* :ghissue:`22150`: [ENH]: Tool icons are hardly visible in Tk when using a dark theme
-* :ghissue:`22662`: Leave color parameter empty should be fine[ENH]:
-* :ghissue:`22671`: [Doc]: plot_format adaption invalidates sphinx cache
-* :ghissue:`22582`: [Bug]: FontManager.addfont doesn't accept pathlib.Path of TTF font
-* :ghissue:`22657`: [ENH]: vector map
-* :ghissue:`16181`: The great API cleanup
-* :ghissue:`22636`: [Bug]: Infinite loop when there is single double quote in matplotlibrc
-* :ghissue:`22266`: [Doc]: Improve examples in documentation
-* :ghissue:`11861`: Figure does not close until script finishes execution
-* :ghissue:`19288`: Escape # character in matplotlibrc
-* :ghissue:`22579`: [Bug]: Replacement for epoch2num behaves differently (does not accept arrays)
-* :ghissue:`22605`: [Bug]: Tool contrast low with dark theme on macosx backend
-* :ghissue:`17642`: bring osx backend flush_events to feature parity with other backend
-* :ghissue:`19268`: Drawing the canvas does not populate ticklabels on MacOSX backend
-* :ghissue:`17445`: MacOSX does not render frames in which new artists are added when blitting
-* :ghissue:`10980`: Current versions cannot reproduce rotate_axes_3d_demo.py
-* :ghissue:`18451`: MacOSX backend fails with animation in certain scripts
-* :ghissue:`22603`: [MNT]: Replace str(n)cpy etc with safe versions (C++)
-* :ghissue:`19121`: Handle and label not created for Text with label
-* :ghissue:`22563`: [Doc]: annotation_clip=None not correctly documented
-* :ghissue:`12528`: Empty axes on draw after blitted animation finishes
-* :ghissue:`20991`: [Bug]: Error when using path effect with a PolyCollection
-* :ghissue:`19563`: path_effects kwarg triggers exception on 3D scatterplot
-* :ghissue:`8650`: System Error in backend_agg. (with a fix!)
-* :ghissue:`20294`: ``AxesImage.__str__`` is wrong if the image does not span the full Axes.
-* :ghissue:`18066`: Document minimum supported OSX version for macos backend
-* :ghissue:`17018`: Add documentation about transparency of frame
-* :ghissue:`22403`: [MNT]: Confusing prompt in docs issue template
-* :ghissue:`8839`: mpl_connect silently does nothing when passed an invalid event type string
-* :ghissue:`22343`: [MNT]: Delay (or make pending) the deprecation of set_constrained_layout/set_tight_layout
-* :ghissue:`21554`: [Bug]: ``ValueError`` upon deepcopy of a ``Figure`` object
-* :ghissue:`22369`: [Doc]: Incorrect comment in example code for creating adjacent subplots
-* :ghissue:`19174`: connectionstyle arc3 with high rad value pushes up data interval of x-axis and y-axis.
-* :ghissue:`8351`: seaborn styles make "+", "x" markers invisible; proposed workaround for shipped styles
-* :ghissue:`22278`: Deprecate/remove maxdict
-* :ghissue:`19276`: imshow with very large arrays not working as expected
-* :ghissue:`22035`: [ENH]: Specify a custom focal length / FOV for the 3d camera
-* :ghissue:`22264`: [Bug]: new constrained_layout causes axes to go invisible(?)
-* :ghissue:`21774`: [MNT]: Improvements to widget tests
-* :ghissue:`18722`: Consider removing AFM+mathtext support
-* :ghissue:`21540`: [Bug]: cm fontset in log scale does not use Unicode minus
-* :ghissue:`22062`: [Bug]: Autopositioned title overlaps with offset text
-* :ghissue:`22093`: [Bug]: AttributeError: 'AxesSubplot' object has no attribute 'add_text'
-* :ghissue:`22012`: [Bug]: Mouseover coordinate/value text should be right aligned
-* :ghissue:`21995`: [Bug]: triplot with 'ls' argument yields TypeError
-* :ghissue:`20249`: MatplotlibDeprecationWarning when updating rcparams
-* :ghissue:`15781`: MatplotlibDeprecationWarning examples.directory is deprecated
-* :ghissue:`13118`: No MatplotlibDeprecationWarning for default rcParams
-* :ghissue:`21978`: Remove logging debug of loaded modules
-* :ghissue:`11738`: pgf backend doesn't make background transparent
-* :ghissue:`18039`: Add ``_repr_html_`` for fonts
-* :ghissue:`21970`: [Bug]: tight layout breaks with toolbar.push_current()
-* :ghissue:`14850`: No icon showing up with macosx backend
-* :ghissue:`17283`: Create Date Formatter/Locator Reference
-* :ghissue:`21761`: [Doc]: add how to know available fonts...
-* :ghissue:`21863`: [Doc]: Remove example "prop_cycle property markevery in rcParams"
-* :ghissue:`10241`: Axes3D.view_init elevation issue between 270 and 360 degrees
-* :ghissue:`14453`: add third angle to view_init()
-* :ghissue:`20486`: Modifier key press events not recognized on MacOSX backend
-* :ghissue:`9837`: MacOS: Key modifiers deprecated
-* :ghissue:`11416`: RuntimeError: adjustable='datalim' is not allowed when both axes are shared.
-* :ghissue:`17711`: inset_locator.mark_inset() misplaces box connectors
-* :ghissue:`20854`: [Doc]: Incorrect copyright start year at the bottom of devdocs page
-* :ghissue:`21394`: [Bug]: Subplot title does not obey padding
-* :ghissue:`20998`: [Bug]: ToolManager does not respect rcParams["keymap.<any>"] set after import time
-* :ghissue:`7075`: Superscripts in axis label cut when saving .eps with bbox_inches="tight"
-* :ghissue:`21514`: [Doc]: Error message of validate_whiskers is not updated
-* :ghissue:`21532`: [Doc]: subplot_mosaic docstring should link to the tutorial
-* :ghissue:`16550`: Docs: performance discussion of tight_layout
-* :ghissue:`21378`: [ENH]: use new style format strings for colorbar ticks
-* :ghissue:`19323`: Streamplot color mapping fails on (near-)empty array.
-* :ghissue:`19559`: Axes.get_xticks() returns a numpy array but Axes.get_xticks(minor=True) returns a plain list
-* :ghissue:`21526`: [Doc]: Little Typo on Introductory Tutorial
-* :ghissue:`19195`: Rotate Markers in functions like plot, scatter, etcetera
-* :ghissue:`21364`: [Bug]: double free when FT2Font constructor is interrupted by KeyboardInterrupt
-* :ghissue:`16581`: Can't not refresh new font in running interpreter
-* :ghissue:`21162`: [ENH]: saving images in webp format
-* :ghissue:`18168`: The example of the testing decorator does not work.
-* :ghissue:`20943`: [Bug]: Deepcopy of TextPath fails
-* :ghissue:`21101`: [Bug]: Errorbars separated from markers with negative errors
-* :ghissue:`17986`: MEP22 per-backend tool registration
-* :ghissue:`4938`: Feature request: add option to disable mathtext parsing
-* :ghissue:`11435`: plt.subplot eats my subplots
+* :ghissue:`25176`: [Bug]: Colorbar is displaced when saving as .eps with bbox_inches='tight'
+* :ghissue:`25075`: [Bug]: Widget blitting broken when saving as PDF
+* :ghissue:`25181`: unavoidable warnings in nbagg on ``plt.close``
+* :ghissue:`25134`: [Doc]: pyplot.boxplot whisker length wrong docs
+* :ghissue:`24395`: Any resizing of the plot after plt.show results in an error when closing the window
+* :ghissue:`25107`: [Doc]: annotated_cursor example seems broken
+* :ghissue:`25124`: [Bug]: ax.plot(x,y) disappears after changing y_scale
+* :ghissue:`8278`: FuncAnimation with generator defaults to arbitrary save_count=100
+* :ghissue:`22765`: Document distutil vs setuptools issues or fix usage
+* :ghissue:`25077`: [Bug]: Setting norm with existing colorbar fails with 3.6.3
+* :ghissue:`23999`: [Bug]: Annotation misplaced when rasterizing and saving as PDF
+* :ghissue:`25040`: [Bug]: Request to insecure websocket endpoint is blocked by browser
+* :ghissue:`24678`: [Bug]: pcolormesh doesn't allow shading = 'flat' in the option
+* :ghissue:`15388`: matplotlib.collections.QuadMesh.set_array() input arg format is weird and undocumented
+* :ghissue:`23779`: [ENH]: control the size of the tex cache
+* :ghissue:`24583`: [ENH]: provide public API for styling radio buttons
+* :ghissue:`21895`: [Bug]: slow rendering of multiple axes (time scales as 2nd power of label count)
+* :ghissue:`4781`: Add API to register styles
+* :ghissue:`24972`: [MNT]: UserWarning from pyparsing upon immediate import
+* :ghissue:`24865`: [Bug]: NumPy 1.24 deprecation warnings
+* :ghissue:`24954`: [Bug]: compressed layout setting can be forgotten on second save
+* :ghissue:`23778`: [ENH]: Allow override of contour level autoscaling
+* :ghissue:`20203`: contour edge case with all data below levels and a surrounding field of zeros
+* :ghissue:`12803`: pcolormesh in log polar coordinates
+* :ghissue:`24383`: log scale and polar broken
+* :ghissue:`22847`: [Bug]: Cannot toggle set_tight_layout
+* :ghissue:`23646`: [Bug]: matplotlib.set_loglevel() adds a console handler
+* :ghissue:`24673`: [Doc]: animation examples show controls; source does not reproduce them
+* :ghissue:`7617`: set_ylabel does not work as expected with SubplotZero
+* :ghissue:`13023`: constrained_layout support for figure.legend
+* :ghissue:`15973`: span_where fails with timeseries on the x-axis
+* :ghissue:`24867`: [Bug]: controlling text on toolbar in wx
+* :ghissue:`24421`: [Doc]: change to install from conda forge
+* :ghissue:`24890`: [Bug]: Clipping mask can shift in PDF and SVG file outputs when Bbox is adjusted
+* :ghissue:`23849`: [Bug]: The point marker is not actually unfilled
+* :ghissue:`24321`: [ENH]: Auto-detect bool arrays passed to contour()?
+* :ghissue:`24842`: axes3d.quiver() fails when providing args to Line3DCollection
+* :ghissue:`24093`: [Bug]: CenteredNorm gets stuck in infinite recursion when given all zeros
+* :ghissue:`24571`: [ENH]: gridspec_mosaic
+* :ghissue:`24815`: [TST] Upcoming dependency test failures
+* :ghissue:`24712`: [ENH]: Reverse legend
+* :ghissue:`22308`: [Bug] set_3d_properties type error in Matplotlib 3.5.1
+* :ghissue:`24741`: [Doc]: tables in "notes" cut off content
+* :ghissue:`20044`: AnnotationBbox gid not passed to renderer
+* :ghissue:`24762`: [Doc]: Development workflow doc has lots of typos and clunky sentences
+* :ghissue:`24235`: [Bug]: pcolormesh(rasterized=True) conflicts with set_rasterization_zorder()
+* :ghissue:`24471`: [Bug]: CheckBoxes should be square, not rectangular
+* :ghissue:`18804`: bugged pads on savefig
+* :ghissue:`20656`: Sphinx extension plot_directive not able to detect function
+* :ghissue:`24704`: [Bug]: ImportError: DLL load failed on Windows
+* :ghissue:`20639`: document Legend.legendHandles
+* :ghissue:`19633`: Multicursor disappears when not moving on nbagg with useblit=False + burns CPU
+* :ghissue:`24717`: Update Research Notice on README.md
+* :ghissue:`22754`: [Bug]: It is recommended for you  to run autogen before configuring freetype
+* :ghissue:`24349`: [Bug]: sharex and sharey don't accept 0 and 1 as bool values
+* :ghissue:`20577`: Using ``legend(labelcolor="markerfacecolor")`` with a scatter plot throws an error
+* :ghissue:`24424`: [Doc]: Inheritance diagrams
+* :ghissue:`9580`: Broken legend auto-position with step*-type histograms
+* :ghissue:`22176`: [MNT]: Write a bot to post doc build issues
+* :ghissue:`24623`: [Bug]: ``offsetbox`` classes have optional arguments that are really not optional
+* :ghissue:`24693`: [MNT]: Update minver policy re: GUI toolkits
+* :ghissue:`23566`: [ENH]: Z-axis/3D support for Figure options
+* :ghissue:`23777`: [ENH] Interactive Zoom Rectangle Color Review for MACOSX backend
+* :ghissue:`24676`: [Doc]: quiver_doc etc leads to documentation of the documentation string
+* :ghissue:`24568`: [ENH]: Ellipse annotation
+* :ghissue:`6982`: cla(), clf() should unset the ``.axes`` and ``.figure`` attributes of deparented artists
+* :ghissue:`11227`: fig.set_dpi() does not set the dpi correctly
+* :ghissue:`24418`: [ENH]: rgp or rgba option for pyplot pcolormesh and/or pcolor
+* :ghissue:`22236`: [Bug]: integer colours for pcolorfast / quadmesh
+* :ghissue:`4277`: RGB not supported in pcolormesh
+* :ghissue:`23155`: [ENH]: do_3d_projection could restore original verts order after draw() finishes
+* :ghissue:`24386`: [Bug]: ``align`` in ``HPacker`` is reversed
+* :ghissue:`23803`: Static code analysis
+* :ghissue:`8990`: Surprising behaviour of mutating input arrays to Axes.plot vs Axes3D.plot
+* :ghissue:`24550`: [ENH]: Warn when a SymLogScale receives values that are all in the linear regime
+* :ghissue:`23416`: [Bug]: Inconsistent y-axis unit label with plot/scatter
+* :ghissue:`23603`: [MNT]: Only a subset of attributes set via ``Axes.tick_params()`` are accessible via public methods and attributes
+* :ghissue:`13858`: matplotlib.sphinxext.plot_directive generates incorrect links when using dirhtml builder
+* :ghissue:`19376`: eventplot: allow a list of alpha channels as in the case with colors
+* :ghissue:`24508`: [Bug]: Re-organization of mpl_toolkits tests broke tools/triage_tests.py
+* :ghissue:`19040`: v3.3.0 Regression, Animation draws artists multiple times.
+* :ghissue:`12324`: DOC: Write a unified backend doc
+* :ghissue:`24464`: Issue with legend labelcolor='linecolor' for errorbar plots
+* :ghissue:`24273`: [ENH]: Axes.set_xticks/Axis.set_ticks only validates kwargs if ticklabels are set, but they should
+* :ghissue:`24454`: [Bug]: "import matplotlib.pyplot" gives ModuleNotFoundError
+* :ghissue:`24394`: [TST]: Appveyor Qt tests failing
+* :ghissue:`21959`: [ENH]: Use ``repr`` instead of ``str`` in the error message
+* :ghissue:`22676`: [ENH]: Colorbar should support location kwarg that sets both orientation and ticklocation
+* :ghissue:`23901`: [Doc]: add summary table to Axes3D similar to Axes
+* :ghissue:`22105`: [Bug]: imshow extents can't have units?
+* :ghissue:`21878`: [MNT]: make axis labels of 3d axis anchor-rotate
+* :ghissue:`17978`: Document how to distribute style files in python packages
+* :ghissue:`23965`: Simplify glyph stream logic in ps backend
+* :ghissue:`19509`: Adding lightsource when plotting Poly3DCollection
+* :ghissue:`17523`: Unclear if no gallery argument for doc builds works
+* :ghissue:`23250`: [Bug]: Incorrect mathtext rendering of ``r"$\|$"`` with default (dejavu) math fontfamily
+* :ghissue:`24010`: c++17 removed random_shuffle
+* :ghissue:`20424`: function shadowing their own definition modules
+* :ghissue:`20781`: Make the pane color in 3d plots configurable
+* :ghissue:`14426`: Existing FigureCanvasQT objects destroyed by call to plt.figure
+* :ghissue:`5908`: Unclear Documentation ticker class
+* :ghissue:`24099`: [Bug]: Error using width_ratios with nested mosaic in subplot_mosaic()
+* :ghissue:`6893`: List environment variables in matplotlib.__doc__
+* :ghissue:`11445`: The axes module structure
+* :ghissue:`23847`: [Bug]: set_aspect with negative argument leads to infinite loop
+* :ghissue:`24136`: [Doc]: document ``julian2num`` and ``num2julian``?
+* :ghissue:`5332`: QuadContourSet lacks remove method
+* :ghissue:`110`: pan and zoom are broken for mplot3d
+* :ghissue:`441`: Polar plot error bars don't rotate with angle
+* :ghissue:`24064`: Convert readme.rst to readme.md
+* :ghissue:`10029`: \times in minor ticklabels not recognized due to \mathdefault
+* :ghissue:`24080`: verify quoting method in svg backend for font names
+* :ghissue:`23601`: [Doc]: add gridlines to style sheet reference
+* :ghissue:`24075`: [ENH]: Resizing the figure with webagg backend by dragging the corner
+* :ghissue:`23352`: [Doc]: bar examples should probably not have "score by ... gender" in them...
+* :ghissue:`23819`: [MNT]: Make draw_gouraud_triangle optional
+* :ghissue:`9181`: legend draggable as keyword
+* :ghissue:`23688`: [Bug]: ``Axes.bar_label()`` on log scale does not center the label.
+* :ghissue:`23689`: [ENH]: Add f-string formatting to labels in ``Axes.bar_label()``
+* :ghissue:`23718`: [Bug]: Installing from source fails during Freetype compilation with spaces in working directory filepath
 
 
 Previous GitHub statistics

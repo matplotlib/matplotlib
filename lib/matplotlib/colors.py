@@ -46,7 +46,7 @@ import importlib
 import inspect
 import io
 import itertools
-from numbers import Number
+from numbers import Real
 import re
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
@@ -381,7 +381,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
     if len(c) not in [3, 4]:
         raise ValueError("RGBA sequence should have length 3 or 4")
-    if not all(isinstance(x, Number) for x in c):
+    if not all(isinstance(x, Real) for x in c):
         # Checks that don't work: `map(float, ...)`, `np.array(..., float)` and
         # `np.array(...).astype(float)` would all convert "0.5" to 0.5.
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
@@ -2050,8 +2050,7 @@ class NoNorm(Normalize):
 
 def rgb_to_hsv(arr):
     """
-    Convert float RGB values (in the range [0, 1]), in a numpy array to HSV
-    values.
+    Convert an array of float RGB values (in the range [0, 1]) to HSV values.
 
     Parameters
     ----------

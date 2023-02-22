@@ -1,4 +1,6 @@
 """
+.. _colorbar_placement:
+
 =================
 Placing Colorbars
 =================
@@ -10,7 +12,6 @@ The simplest case is just attaching a colorbar to each axes:
 """
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -41,9 +42,9 @@ for col in range(2):
 # %%
 # Relatively complicated colorbar layouts are possible using this
 # paradigm.  Note that this example works far better with
-# ``constrained_layout=True``
+# ``layout='constrained'``
 
-fig, axs = plt.subplots(3, 3, constrained_layout=True)
+fig, axs = plt.subplots(3, 3, layout='constrained')
 for ax in axs.flat:
     pcm = ax.pcolormesh(np.random.random((20, 20)))
 
@@ -59,7 +60,7 @@ fig.colorbar(pcm, ax=[axs[2, 1]], location='left')
 # Placing colorbars for axes with a fixed aspect ratio pose a particular
 # challenge as the parent axes changes size depending on the data view.
 
-fig, axs = plt.subplots(2, 2,  constrained_layout=True)
+fig, axs = plt.subplots(2, 2,  layout='constrained')
 cmaps = ['RdBu_r', 'viridis']
 for col in range(2):
     for row in range(2):
@@ -78,7 +79,7 @@ for col in range(2):
 # axes in axes coordinates.  Note that if you zoom in on the axes, and
 # change the shape of the axes, the colorbar will also change position.
 
-fig, axs = plt.subplots(2, 2, constrained_layout=True)
+fig, axs = plt.subplots(2, 2, layout='constrained')
 cmaps = ['RdBu_r', 'viridis']
 for col in range(2):
     for row in range(2):

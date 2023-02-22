@@ -16,8 +16,8 @@ The circular markers created with `.pyplot.plot` show the actual data
 positions so that it's easier to see the effect of *where*.
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 x = np.arange(14)
 y = np.sin(x / 2)

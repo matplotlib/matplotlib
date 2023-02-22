@@ -4,8 +4,9 @@ Parasite Simple2
 ================
 
 """
-import matplotlib.transforms as mtransforms
 import matplotlib.pyplot as plt
+
+import matplotlib.transforms as mtransforms
 from mpl_toolkits.axes_grid1.parasite_axes import HostAxes
 
 obs = [["01_S1", 3.88, 0.14, 1970, 63],

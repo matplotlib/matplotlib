@@ -15,7 +15,7 @@ directory.
 
 import ast
 from functools import lru_cache, reduce
-from numbers import Number
+from numbers import Real
 import operator
 import os
 import re
@@ -475,9 +475,9 @@ def _validate_linestyle(ls):
             offset = 0
             onoff = ls
 
-        if (isinstance(offset, Number)
+        if (isinstance(offset, Real)
                 and len(onoff) % 2 == 0
-                and all(isinstance(elem, Number) for elem in onoff)):
+                and all(isinstance(elem, Real) for elem in onoff)):
             return (offset, onoff)
 
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")

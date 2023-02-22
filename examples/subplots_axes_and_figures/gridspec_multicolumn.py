@@ -9,6 +9,7 @@ axes spanning all three columns, two columns, and two rows.
 
 """
 import matplotlib.pyplot as plt
+
 from matplotlib.gridspec import GridSpec
 
 
@@ -17,7 +18,7 @@ def format_axes(fig):
         ax.text(0.5, 0.5, "ax%d" % (i+1), va="center", ha="center")
         ax.tick_params(labelbottom=False, labelleft=False)
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout="constrained")
 
 gs = GridSpec(3, 3, figure=fig)
 ax1 = fig.add_subplot(gs[0, :])

@@ -19,11 +19,11 @@ For example usages see
 .. redirect-from:: /gallery/shapes_and_collections/marker_path
 """
 
-from matplotlib.markers import MarkerStyle
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-from matplotlib.transforms import Affine2D
 
+from matplotlib.lines import Line2D
+from matplotlib.markers import MarkerStyle
+from matplotlib.transforms import Affine2D
 
 text_style = dict(horizontalalignment='right', verticalalignment='center',
                   fontsize=12, fontfamily='monospace')
@@ -128,8 +128,9 @@ format_axes(ax)
 # simple paths *star* and *circle*, and a more elaborate path of a circle with
 # a cut-out star.
 
-import matplotlib.path as mpath
 import numpy as np
+
+import matplotlib.path as mpath
 
 star = mpath.Path.unit_regular_star(6)
 circle = mpath.Path.unit_circle()
@@ -192,7 +193,7 @@ fig.tight_layout()
 # Markers have default cap and join styles, but these can be
 # customized when creating a MarkerStyle.
 
-from matplotlib.markers import JoinStyle, CapStyle
+from matplotlib.markers import CapStyle, JoinStyle
 
 marker_inner = dict(markersize=35,
                     markerfacecolor='tab:blue',

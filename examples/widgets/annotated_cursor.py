@@ -20,9 +20,11 @@ currently tracked coordinates.
     movement, which triggers the cursor creation, is missing.
 
 """
-from matplotlib.widgets import Cursor
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.backend_bases import MouseEvent
+from matplotlib.widgets import Cursor
 
 
 class AnnotatedCursor(Cursor):
@@ -312,6 +314,12 @@ cursor = AnnotatedCursor(
     color='red',
     linewidth=2)
 
+# Simulate a mouse move to (-2, 10), needed for online docs
+t = ax.transData
+MouseEvent(
+    "motion_notify_event", ax.figure.canvas, *t.transform((-2, 10))
+)._process()
+
 plt.show()
 
 # %%
@@ -338,5 +346,11 @@ cursor = AnnotatedCursor(
     ax=ax,
     useblit=True,
     color='red', linewidth=2)
+
+# Simulate a mouse move to (-2, 10), needed for online docs
+t = ax.transData
+MouseEvent(
+    "motion_notify_event", ax.figure.canvas, *t.transform((-2, 10))
+)._process()
 
 plt.show()

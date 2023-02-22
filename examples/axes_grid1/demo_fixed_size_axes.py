@@ -2,6 +2,9 @@
 ===============================
 Axes with a fixed physical size
 ===============================
+
+Note that this can be accomplished with the main library for
+Axes on Figures that do not change size: :ref:`fixed_size_axes`
 """
 
 import matplotlib.pyplot as plt

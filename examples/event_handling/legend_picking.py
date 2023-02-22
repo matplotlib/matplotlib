@@ -14,9 +14,8 @@ Enable picking on the legend to toggle the original line on and off
     using the link at the bottom of the page.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 t = np.linspace(0, 1)
 y1 = 2 * np.sin(2*np.pi*t)

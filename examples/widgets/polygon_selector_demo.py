@@ -8,8 +8,8 @@ Shows how one can select indices of a polygon interactively.
 
 import numpy as np
 
-from matplotlib.widgets import PolygonSelector
 from matplotlib.path import Path
+from matplotlib.widgets import PolygonSelector
 
 
 class SelectFromCollection:

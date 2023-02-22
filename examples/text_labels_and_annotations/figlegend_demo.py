@@ -7,8 +7,8 @@ Instead of plotting a legend on each axis, a legend for all the artists on all
 the sub-axes of a figure can be plotted instead.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 fig, axs = plt.subplots(1, 2)
 
@@ -31,8 +31,8 @@ plt.show()
 
 # %%
 # Sometimes we do not want the legend to overlap the axes.  If you use
-# constrained_layout you can specify "outside right upper", and
-# constrained_layout will make room for the legend.
+# *constrained layout* you can specify "outside right upper", and
+# *constrained layout* will make room for the legend.
 
 fig, axs = plt.subplots(1, 2, layout='constrained')
 

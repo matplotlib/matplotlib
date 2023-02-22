@@ -8,10 +8,11 @@ available via an Axes method, but it is easily added to an
 Axes instance as shown here.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.image import NonUniformImage
+import numpy as np
+
 from matplotlib import cm
+from matplotlib.image import NonUniformImage
 
 interp = 'nearest'
 
@@ -25,7 +26,7 @@ y = np.linspace(-4, 4, 9)
 
 z = np.sqrt(x[np.newaxis, :]**2 + y[:, np.newaxis]**2)
 
-fig, axs = plt.subplots(nrows=2, ncols=2, constrained_layout=True)
+fig, axs = plt.subplots(nrows=2, ncols=2, layout='constrained')
 fig.suptitle('NonUniformImage class', fontsize='large')
 ax = axs[0, 0]
 im = NonUniformImage(ax, interpolation=interp, extent=(-4, 4, -4, 4),

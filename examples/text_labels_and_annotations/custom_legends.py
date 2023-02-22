@@ -18,11 +18,12 @@ you have plotted. For example, say you have plotted 10 lines, but don't
 want a legend item to show up for each one. If you simply plot the lines
 and call ``ax.legend()``, you will get the following:
 """
+import matplotlib.pyplot as plt
+import numpy as np
+
 # sphinx_gallery_thumbnail_number = 2
 import matplotlib as mpl
 from matplotlib import cycler
-import matplotlib.pyplot as plt
-import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -42,6 +43,7 @@ ax.legend()
 # explicitly tied to the data that was plotted. For example:
 
 from matplotlib.lines import Line2D
+
 custom_lines = [Line2D([0], [0], color=cmap(0.), lw=4),
                 Line2D([0], [0], color=cmap(.5), lw=4),
                 Line2D([0], [0], color=cmap(1.), lw=4)]
@@ -55,8 +57,8 @@ ax.legend(custom_lines, ['Cold', 'Medium', 'Hot'])
 # There are many other Matplotlib objects that can be used in this way. In the
 # code below we've listed a few common ones.
 
-from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 
 legend_elements = [Line2D([0], [0], color='b', lw=4, label='Line'),
                    Line2D([0], [0], marker='o', color='w', label='Scatter',

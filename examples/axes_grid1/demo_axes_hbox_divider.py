@@ -10,11 +10,11 @@ equal heights while maintaining their aspect ratios.
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider, VBoxDivider
 import mpl_toolkits.axes_grid1.axes_size as Size
-
 
 arr1 = np.arange(20).reshape((4, 5))
 arr2 = np.arange(20).reshape((5, 4))

@@ -7,15 +7,16 @@ This example illustrates the usage and effect of the various date locators and
 formatters.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.dates import (FR, MO, MONTHLY, SA, SU, TH, TU, WE,
+                              AutoDateFormatter, AutoDateLocator,
+                              ConciseDateFormatter, DateFormatter, DayLocator,
+                              HourLocator, MicrosecondLocator, MinuteLocator,
+                              MonthLocator, RRuleLocator, SecondLocator,
+                              WeekdayLocator, YearLocator, rrulewrapper)
 import matplotlib.ticker as ticker
-from matplotlib.dates import (AutoDateLocator, YearLocator, MonthLocator,
-                              DayLocator, WeekdayLocator, HourLocator,
-                              MinuteLocator, SecondLocator, MicrosecondLocator,
-                              RRuleLocator, rrulewrapper, MONTHLY,
-                              MO, TU, WE, TH, FR, SA, SU, DateFormatter,
-                              AutoDateFormatter, ConciseDateFormatter)
 
 locators = [
     ('AutoDateLocator(maxticks=8)', '2003-02-01', '%Y-%m'),

@@ -11,8 +11,9 @@ to link the subplot charts.
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import ConnectionPatch
 import numpy as np
+
+from matplotlib.patches import ConnectionPatch
 
 # make figure and assign axis objects
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 5))

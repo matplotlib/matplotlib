@@ -12,12 +12,12 @@ A version of the second subplot, not using the toolkit, is available in
 :doc:`/gallery/subplots_axes_and_figures/zoom_inset_axes`.
 """
 
-from matplotlib import cbook
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes, mark_inset
-from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
-
 import numpy as np
+
+from matplotlib import cbook
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset, zoomed_inset_axes
 
 
 def get_demo_image():

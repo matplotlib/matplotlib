@@ -8,8 +8,9 @@ Tick locators define the position of the ticks.
 This example illustrates the usage and effect of the most common locators.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.ticker as ticker
 
 
@@ -73,3 +74,20 @@ axs[7].xaxis.set_major_locator(ticker.LogLocator(base=10, numticks=15))
 
 plt.tight_layout()
 plt.show()
+
+# %%
+#
+# .. admonition:: References
+#
+#    The following functions, methods, classes and modules are used in this example:
+#
+#    - `matplotlib.axis.Axis.set_major_locator`
+#    - `matplotlib.axis.Axis.set_minor_locator`
+#    - `matplotlib.ticker.NullLocator`
+#    - `matplotlib.ticker.MultipleLocator`
+#    - `matplotlib.ticker.FixedLocator`
+#    - `matplotlib.ticker.LinearLocator`
+#    - `matplotlib.ticker.IndexLocator`
+#    - `matplotlib.ticker.AutoLocator`
+#    - `matplotlib.ticker.MaxNLocator`
+#    - `matplotlib.ticker.LogLocator`

@@ -16,6 +16,7 @@ This example illustrates various parameters of `~matplotlib.axes.Axes.pie`.
 # labels, pass a list of labels to the *labels* parameter
 
 import matplotlib.pyplot as plt
+
 labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
 sizes = [15, 30, 45, 10]
 

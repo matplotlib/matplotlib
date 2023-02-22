@@ -16,9 +16,9 @@ just make up some data for little Johnny Doe.
 """
 
 from collections import namedtuple
-import numpy as np
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
+import numpy as np
 
 Student = namedtuple('Student', ['name', 'grade', 'gender'])
 Score = namedtuple('Score', ['value', 'unit', 'percentile'])
@@ -45,7 +45,7 @@ def format_score(score):
 
 
 def plot_student_results(student, scores_by_test, cohort_size):
-    fig, ax1 = plt.subplots(figsize=(9, 7), constrained_layout=True)
+    fig, ax1 = plt.subplots(figsize=(9, 7), layout='constrained')
     fig.canvas.manager.set_window_title('Eldorado K-8 Fitness Chart')
 
     ax1.set_title(student.name)

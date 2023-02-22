@@ -593,6 +593,10 @@ class FreeType(SetupPackage):
                 0, str((src_path / 'objs/.libs/libfreetype').with_suffix(
                     '.lib' if sys.platform == 'win32' else '.a')))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
+            if sys.platform == 'darwin':
+                name = ext.name.split('.')[-1]
+                ext.extra_link_args.append(
+                    f'-Wl,-exported_symbol,_PyInit_{name}')
 
     def do_custom_build(self, env):
         # We're using a system freetype

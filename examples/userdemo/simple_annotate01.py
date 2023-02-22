@@ -6,8 +6,8 @@ Simple Annotate01
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 
+import matplotlib.patches as mpatches
 
 fig, axs = plt.subplots(2, 4)
 x1, y1 = 0.3, 0.3

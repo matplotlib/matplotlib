@@ -7,8 +7,8 @@ Example with different ways to specify markers.
 
 For a list of all markers see also the `matplotlib.markers` documentation.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

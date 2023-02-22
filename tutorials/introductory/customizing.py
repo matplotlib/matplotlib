@@ -29,10 +29,13 @@ See `matplotlib.rcParams` for a full list of configurable rcParams.
 rcParams can be modified directly, for example:
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 from cycler import cycler
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+import matplotlib as mpl
+
 mpl.rcParams['lines.linewidth'] = 2
 mpl.rcParams['lines.linestyle'] = '--'
 data = np.random.randn(50)

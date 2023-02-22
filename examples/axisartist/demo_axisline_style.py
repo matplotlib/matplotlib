@@ -11,10 +11,10 @@ rather check out the :doc:`/gallery/spines/centered_spines_with_arrows`
 example.
 """
 
-from mpl_toolkits.axisartist.axislines import AxesZero
 import matplotlib.pyplot as plt
 import numpy as np
 
+from mpl_toolkits.axisartist.axislines import AxesZero
 
 fig = plt.figure()
 ax = fig.add_subplot(axes_class=AxesZero)

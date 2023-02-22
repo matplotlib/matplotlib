@@ -5,6 +5,7 @@ Parasite Simple
 """
 
 import matplotlib.pyplot as plt
+
 from mpl_toolkits.axes_grid1 import host_subplot
 
 host = host_subplot(111)

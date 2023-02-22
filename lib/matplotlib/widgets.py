@@ -90,6 +90,22 @@ class Widget:
         """
         return not self.active
 
+    def _changed_canvas(self):
+        """
+        Someone has switched the canvas on us!
+
+        This happens if `savefig` needs to save to a format the previous
+        backend did not support (e.g. saving a figure using an Agg based
+        backend saved to a vector format).
+
+        Returns
+        -------
+        bool
+           True if the canvas has been changed.
+
+        """
+        return self.canvas is not self.ax.figure.canvas
+
 
 class AxesWidget(Widget):
     """
@@ -1088,7 +1104,7 @@ class CheckButtons(AxesWidget):
 
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
-        if self.ignore(event):
+        if self.ignore(event) or self._changed_canvas():
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._checks)
@@ -1700,7 +1716,7 @@ class RadioButtons(AxesWidget):
 
     def _clear(self, event):
         """Internal event handler to clear the buttons."""
-        if self.ignore(event):
+        if self.ignore(event) or self._changed_canvas():
             return
         self._background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.ax.draw_artist(self._buttons)
@@ -1953,8 +1969,8 @@ class Cursor(AxesWidget):
                  **lineprops):
         super().__init__(ax)
 
-        self.connect_event('motion_notify_event', self._onmove)
-        self.connect_event('draw_event', self._clear)
+        self.connect_event('motion_notify_event', self.onmove)
+        self.connect_event('draw_event', self.clear)
 
         self.visible = True
         self.horizOn = horizOn
@@ -1967,29 +1983,16 @@ class Cursor(AxesWidget):
         self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
 
         self.background = None
-        self._needclear = False
+        self.needclear = False
 
-    needclear = _api.deprecate_privatize_attribute("3.7")
-
-    @_api.deprecated('3.7')
     def clear(self, event):
         """Internal event handler to clear the cursor."""
-        self._clear(event)
-        if self.ignore(event):
-            return
-        self.linev.set_visible(False)
-        self.lineh.set_visible(False)
-
-    def _clear(self, event):
-        """Internal event handler to clear the cursor."""
-        if self.ignore(event):
+        if self.ignore(event) or self._changed_canvas():
             return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
-    onmove = _api.deprecate_privatize_attribute('3.7')
-
-    def _onmove(self, event):
+    def onmove(self, event):
         """Internal event handler to draw the cursor when the mouse moves."""
         if self.ignore(event):
             return
@@ -1999,11 +2002,11 @@ class Cursor(AxesWidget):
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
 
-            if self._needclear:
+            if self.needclear:
                 self.canvas.draw()
-                self._needclear = False
+                self.needclear = False
             return
-        self._needclear = True
+        self.needclear = True
 
         self.linev.set_xdata((event.xdata, event.xdata))
         self.linev.set_visible(self.visible and self.vertOn)
@@ -2106,8 +2109,8 @@ class MultiCursor(Widget):
         """Connect events."""
         for canvas, info in self._canvas_infos.items():
             info["cids"] = [
-                canvas.mpl_connect('motion_notify_event', self._onmove),
-                canvas.mpl_connect('draw_event', self._clear),
+                canvas.mpl_connect('motion_notify_event', self.onmove),
+                canvas.mpl_connect('draw_event', self.clear),
             ]
 
     def disconnect(self):
@@ -2117,26 +2120,21 @@ class MultiCursor(Widget):
                 canvas.mpl_disconnect(cid)
             info["cids"].clear()
 
-    @_api.deprecated('3.7')
     def clear(self, event):
-        """Clear the cursor."""
-        if self.ignore(event):
-            return
-        self._clear(event)
-        for line in self.vlines + self.hlines:
-            line.set_visible(False)
-
-    def _clear(self, event):
         """Clear the cursor."""
         if self.ignore(event):
             return
         if self.useblit:
             for canvas, info in self._canvas_infos.items():
+                # someone has switched the canvas on us!  This happens if
+                # `savefig` needs to save to a format the previous backend did
+                # not support (e.g. saving a figure using an Agg based backend
+                # saved to a vector format).
+                if canvas is not canvas.figure.canvas:
+                    continue
                 info["background"] = canvas.copy_from_bbox(canvas.figure.bbox)
 
-    onmove = _api.deprecate_privatize_attribute('3.7')
-
-    def _onmove(self, event):
+    def onmove(self, event):
         if (self.ignore(event)
                 or event.inaxes not in self.axes
                 or not event.canvas.widgetlock.available(self)):

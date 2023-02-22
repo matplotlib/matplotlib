@@ -8,11 +8,12 @@ This example showcases:
 - how animation across multiple subplots works,
 - using a figure artist in the animation.
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import matplotlib.animation as animation
 from matplotlib.patches import ConnectionPatch
 

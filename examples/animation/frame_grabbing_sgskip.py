@@ -7,13 +7,16 @@ Use a MovieWriter directly to grab individual frames and write them to a
 file.  This avoids any event loop integration, and thus works even with the Agg
 backend.  This is not recommended for use in an interactive setting.
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import numpy as np
+
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
 from matplotlib.animation import FFMpegWriter
 
 # Fixing random state for reproducibility

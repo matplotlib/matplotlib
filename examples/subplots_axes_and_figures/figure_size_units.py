@@ -12,6 +12,7 @@ efficiently.
 # sphinx_gallery_thumbnail_number = 2
 
 import matplotlib.pyplot as plt
+
 text_kwargs = dict(ha='center', va='center', fontsize=28, color='C1')
 
 # %%

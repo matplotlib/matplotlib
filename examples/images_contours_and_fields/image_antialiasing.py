@@ -25,8 +25,8 @@ Other anti-aliasing filters can be specified in `.Axes.imshow` using the
 *interpolation* keyword argument.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # %%
 # First we generate a 450x450 pixel image with varying frequency content:
@@ -66,7 +66,7 @@ a = aa
 # original colormap, so it is no longer possible to invert individual
 # pixels back to their data value.
 
-fig, axs = plt.subplots(2, 2, figsize=(5, 6), constrained_layout=True)
+fig, axs = plt.subplots(2, 2, figsize=(5, 6), layout='constrained')
 axs[0, 0].imshow(a, interpolation='nearest', cmap='RdBu_r')
 axs[0, 0].set_xlim(100, 200)
 axs[0, 0].set_ylim(275, 175)
@@ -104,7 +104,7 @@ plt.show()
 # Apart from the default 'hanning' antialiasing, `~.Axes.imshow` supports a
 # number of different interpolation algorithms, which may work better or
 # worse depending on the pattern.
-fig, axs = plt.subplots(1, 2, figsize=(7, 4), constrained_layout=True)
+fig, axs = plt.subplots(1, 2, figsize=(7, 4), layout='constrained')
 for ax, interp in zip(axs, ['hanning', 'lanczos']):
     ax.imshow(a, interpolation=interp, cmap='gray')
     ax.set_title(f"interpolation='{interp}'")

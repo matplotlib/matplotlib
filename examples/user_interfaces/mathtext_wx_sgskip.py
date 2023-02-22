@@ -9,11 +9,13 @@ controls on wxPython.
 
 from io import BytesIO
 
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wx import NavigationToolbar2Wx
-from matplotlib.figure import Figure
-import numpy as np
 import wx
+
+import numpy as np
+
+from matplotlib.backends.backend_wx import NavigationToolbar2Wx
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 IS_WIN = 'wxMSW' in wx.PlatformInfo
 

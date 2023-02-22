@@ -19,9 +19,9 @@ offset.
 """
 
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtransforms
 import numpy as np
 
+import matplotlib.transforms as mtransforms
 
 xs = np.arange(7)
 ys = xs**2

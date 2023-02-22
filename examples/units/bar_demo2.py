@@ -13,9 +13,10 @@ set the xlimits using scalars (ax3, current units assumed) or units
 
    This example requires :download:`basic_units.py <basic_units.py>`
 """
-import numpy as np
 from basic_units import cm, inch
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 cms = cm * np.arange(0, 10, 2)
 bottom = 0 * cm

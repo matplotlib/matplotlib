@@ -8,8 +8,8 @@ Examples of plots with logit axes.
 
 import math
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 xmax = 10
 x = np.linspace(-xmax, xmax, 10000)

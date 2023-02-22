@@ -8,14 +8,16 @@ This animation illustrates the double pendulum problem.
 Double pendulum formula translated from the C code at
 http://www.physics.usyd.edu.au/~wheat/dpend_html/solve_dpend.c
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
-from numpy import sin, cos
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 from collections import deque
+
+import matplotlib.pyplot as plt
+import numpy as np
+from numpy import cos, sin
+
+import matplotlib.animation as animation
 
 G = 9.8  # acceleration due to gravity, in m/s^2
 L1 = 1.0  # length of pendulum 1 in m

@@ -16,8 +16,8 @@ select these parameters:
 http://docs.astropy.org/en/stable/visualization/histogram.html
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 np.random.seed(19680801)
 

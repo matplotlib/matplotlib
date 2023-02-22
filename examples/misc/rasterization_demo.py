@@ -34,8 +34,8 @@ its physical size and the value of the ``dpi`` parameter passed to
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 d = np.arange(100).reshape(10, 10)  # the values to be color-mapped
 x, y = np.meshgrid(np.arange(11), np.arange(11))
@@ -44,7 +44,7 @@ theta = 0.25*np.pi
 xx = x*np.cos(theta) - y*np.sin(theta)  # rotate x by -theta
 yy = x*np.sin(theta) + y*np.cos(theta)  # rotate y by -theta
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, constrained_layout=True)
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, layout="constrained")
 
 # pcolormesh without rasterization
 ax1.set_aspect(1)

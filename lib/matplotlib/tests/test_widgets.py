@@ -1,4 +1,5 @@
 import functools
+import io
 from unittest import mock
 
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
@@ -21,6 +22,45 @@ import pytest
 @pytest.fixture
 def ax():
     return get_ax()
+
+
+def test_save_blitted_widget_as_pdf():
+    from matplotlib.widgets import CheckButtons, RadioButtons
+    from matplotlib.cbook import _get_running_interactive_framework
+    if _get_running_interactive_framework() not in ['headless', None]:
+        pytest.xfail("Callback exceptions are not raised otherwise.")
+
+    fig, ax = plt.subplots(
+        nrows=2, ncols=2, figsize=(5, 2), width_ratios=[1, 2]
+    )
+    default_rb = RadioButtons(ax[0, 0], ['Apples', 'Oranges'])
+    styled_rb = RadioButtons(
+        ax[0, 1], ['Apples', 'Oranges'],
+        label_props={'color': ['red', 'orange'],
+                     'fontsize': [16, 20]},
+        radio_props={'edgecolor': ['red', 'orange'],
+                     'facecolor': ['mistyrose', 'peachpuff']}
+    )
+
+    default_cb = CheckButtons(ax[1, 0], ['Apples', 'Oranges'],
+                              actives=[True, True])
+    styled_cb = CheckButtons(
+        ax[1, 1], ['Apples', 'Oranges'],
+        actives=[True, True],
+        label_props={'color': ['red', 'orange'],
+                     'fontsize': [16, 20]},
+        frame_props={'edgecolor': ['red', 'orange'],
+                     'facecolor': ['mistyrose', 'peachpuff']},
+        check_props={'color': ['darkred', 'darkorange']}
+    )
+
+    ax[0, 0].set_title('Default')
+    ax[0, 1].set_title('Stylized')
+    # force an Agg render
+    fig.canvas.draw()
+    # force a pdf save
+    with io.BytesIO() as result_after:
+        fig.savefig(result_after, format='pdf')
 
 
 @pytest.mark.parametrize('kwargs', [
@@ -1654,7 +1694,9 @@ def test_MultiCursor(horizOn, vertOn):
     # Can't use `do_event` as that helper requires the widget
     # to have a single .ax attribute.
     event = mock_event(ax1, xdata=.5, ydata=.25)
-    multi._onmove(event)
+    multi.onmove(event)
+    # force a draw + draw event to exercise clear
+    ax1.figure.canvas.draw()
 
     # the lines in the first two ax should both move
     for l in multi.vlines:
@@ -1671,7 +1713,7 @@ def test_MultiCursor(horizOn, vertOn):
     multi.horizOn = not multi.horizOn
     multi.vertOn = not multi.vertOn
     event = mock_event(ax1, xdata=.5, ydata=.25)
-    multi._onmove(event)
+    multi.onmove(event)
     assert len([line for line in multi.vlines if line.get_visible()]) == (
         0 if vertOn else 2)
     assert len([line for line in multi.hlines if line.get_visible()]) == (
@@ -1680,7 +1722,7 @@ def test_MultiCursor(horizOn, vertOn):
     # test a move event in an Axes not part of the MultiCursor
     # the lines in ax1 and ax2 should not have moved.
     event = mock_event(ax3, xdata=.75, ydata=.75)
-    multi._onmove(event)
+    multi.onmove(event)
     for l in multi.vlines:
         assert l.get_xdata() == (.5, .5)
     for l in multi.hlines:

@@ -10,10 +10,10 @@ second sets a `.Triangulation` object's mask and passes the object directly
 to plot_trisurf.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.tri as mtri
+import numpy as np
 
+import matplotlib.tri as mtri
 
 fig = plt.figure(figsize=plt.figaspect(0.5))
 

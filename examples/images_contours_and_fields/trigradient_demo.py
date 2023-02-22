@@ -6,10 +6,11 @@ Trigradient Demo
 Demonstrates computation of gradient with
 `matplotlib.tri.CubicTriInterpolator`.
 """
-from matplotlib.tri import (
-    Triangulation, UniformTriRefiner, CubicTriInterpolator)
 import matplotlib.pyplot as plt
 import numpy as np
+
+from matplotlib.tri import (CubicTriInterpolator, Triangulation,
+                            UniformTriRefiner)
 
 
 # ----------------------------------------------------------------------------

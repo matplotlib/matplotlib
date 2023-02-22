@@ -8,10 +8,11 @@ are left as blue lines. This example showcases the `.intersects_bbox` function.
 
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.transforms import Bbox
+import numpy as np
+
 from matplotlib.path import Path
+from matplotlib.transforms import Bbox
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

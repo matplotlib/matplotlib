@@ -1,2 +1,0 @@
-``ticklabels`` parameter of `.Axis.set_ticklabels` renamed to ``labels``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

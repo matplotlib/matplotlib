@@ -7,8 +7,8 @@ labels.
 
 .. _hat graph: https://doi.org/10.1186/s41235-019-0182-3
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def hat_graph(ax, xlabels, values, group_labels):

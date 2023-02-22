@@ -6,9 +6,8 @@ Figimage Demo
 This illustrates placing images directly in the figure, with no Axes objects.
 
 """
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 fig = plt.figure()
 Z = np.arange(10000).reshape((100, 100))

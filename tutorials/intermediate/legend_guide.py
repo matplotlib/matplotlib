@@ -81,8 +81,9 @@ Suppose we wanted to create a legend which has an entry for some data which
 is represented by a red color:
 """
 
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+
+import matplotlib.patches as mpatches
 
 fig, ax = plt.subplots()
 red_patch = mpatches.Patch(color='red', label='The red data')
@@ -140,7 +141,7 @@ ax_dict['bottom'].legend(bbox_to_anchor=(1.05, 1),
 # --------------
 #
 # Sometimes it makes more sense to place a legend relative to the (sub)figure
-# rather than individual Axes.  By using ``constrained_layout`` and
+# rather than individual Axes.  By using *constrained layout* and
 # specifying "outside" at the beginning of the *loc* keyword argument,
 # the legend is drawn outside the Axes on the (sub)figure.
 

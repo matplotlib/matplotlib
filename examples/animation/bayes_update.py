@@ -8,13 +8,14 @@ new data arrives.
 The vertical line represents the theoretical value to which the plotted
 distribution should converge.
 
-Output generate via `matplotlib.animation.Animation.to_jshtml`.
+Output generated via `matplotlib.animation.Animation.to_jshtml`.
 """
 
 import math
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.animation import FuncAnimation
 
 

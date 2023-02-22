@@ -13,9 +13,8 @@ category and passing the starting point as the cumulative sum of the
 already drawn bars via the parameter ``left``.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 category_names = ['Strongly disagree', 'Disagree',
                   'Neither agree nor disagree', 'Agree', 'Strongly agree']

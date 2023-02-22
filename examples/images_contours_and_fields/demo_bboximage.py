@@ -8,12 +8,11 @@ a bounding box. This demo shows how to show an image inside a `.text.Text`'s
 bounding box as well as how to manually create a bounding box for the image.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 
-import matplotlib.pyplot as plt
 from matplotlib.image import BboxImage
 from matplotlib.transforms import Bbox, TransformedBbox
-
 
 fig, (ax1, ax2) = plt.subplots(ncols=2)
 

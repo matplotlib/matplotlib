@@ -9,9 +9,10 @@ Note that it is faster than the similar `~.axes.Axes.pcolor`.
 """
 
 import matplotlib.pyplot as plt
+import numpy as np
+
 from matplotlib.colors import BoundaryNorm
 from matplotlib.ticker import MaxNLocator
-import numpy as np
 
 # %%
 # Basic pcolormesh

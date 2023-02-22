@@ -15,8 +15,9 @@ could use this code:
 """
 
 import matplotlib.pyplot as plt
-from matplotlib.path import Path
+
 import matplotlib.patches as patches
+from matplotlib.path import Path
 
 verts = [
    (0., 0.),  # left, bottom
@@ -187,6 +188,7 @@ plt.show()
 #     ax.add_patch(patch)
 
 import numpy as np
+
 import matplotlib.patches as patches
 import matplotlib.path as path
 

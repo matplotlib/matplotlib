@@ -10,9 +10,10 @@ axes) until the button is released.  A connected callback receives the click-
 and release-events.
 """
 
-from matplotlib.widgets import EllipseSelector, RectangleSelector
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.widgets import EllipseSelector, RectangleSelector
 
 
 def select_callback(eclick, erelease):
@@ -40,7 +41,7 @@ def toggle_selector(event):
                 selector.set_active(True)
 
 
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout='constrained')
 axs = fig.subplots(2)
 
 N = 100000  # If N is large one can see improvement by using blitting.

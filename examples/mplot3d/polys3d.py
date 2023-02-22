@@ -8,10 +8,12 @@ graph. In this example polygons are semi-transparent, creating a sort
 of 'jagged stained glass' effect.
 """
 
-from matplotlib.collections import PolyCollection
-import matplotlib.pyplot as plt
 import math
+
+import matplotlib.pyplot as plt
 import numpy as np
+
+from matplotlib.collections import PolyCollection
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

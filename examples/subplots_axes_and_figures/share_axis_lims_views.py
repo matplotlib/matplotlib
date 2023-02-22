@@ -10,8 +10,8 @@ other to move around with you.  To facilitate this, matplotlib Axes support a
 share with.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 t = np.arange(0, 10, 0.01)
 

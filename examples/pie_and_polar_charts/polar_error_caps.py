@@ -9,8 +9,8 @@ center.
 Radius error bars are straight lines oriented towards center with
 perpendicular caps.
 """
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 theta = np.arange(0, 2 * np.pi, np.pi / 4)
 r = theta / np.pi / 2 + 0.5

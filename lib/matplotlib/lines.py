@@ -60,6 +60,18 @@ def _get_dash_pattern(style):
     return offset, dashes
 
 
+def _get_inverse_dash_pattern(offset, dashes):
+    """Return the inverse of the given dash pattern, for filling the gaps."""
+    # Define the inverse pattern by moving the last gap to the start of the
+    # sequence.
+    gaps = dashes[-1:] + dashes[:-1]
+    # Set the offset so that this new first segment is skipped
+    # (see backend_bases.GraphicsContextBase.set_dashes for offset definition).
+    offset_gaps = offset + dashes[-1]
+
+    return offset_gaps, gaps
+
+
 def _scale_dashes(offset, dashes, lw):
     if not mpl.rcParams['lines.scale_dashes']:
         return offset, dashes
@@ -502,7 +514,7 @@ class Line2D(Artist):
         pickradius : float
             Pick radius, in points.
         """
-        if not isinstance(pickradius, Number) or pickradius < 0:
+        if not isinstance(pickradius, Real) or pickradius < 0:
             raise ValueError("pick radius should be a distance")
         self._pickradius = pickradius
 
@@ -780,14 +792,8 @@ class Line2D(Artist):
                     lc_rgba = mcolors.to_rgba(self._gapcolor, self._alpha)
                     gc.set_foreground(lc_rgba, isRGBA=True)
 
-                    # Define the inverse pattern by moving the last gap to the
-                    # start of the sequence.
-                    dashes = self._dash_pattern[1]
-                    gaps = dashes[-1:] + dashes[:-1]
-                    # Set the offset so that this new first segment is skipped
-                    # (see backend_bases.GraphicsContextBase.set_dashes for
-                    # offset definition).
-                    offset_gaps = self._dash_pattern[0] + dashes[-1]
+                    offset_gaps, gaps = _get_inverse_dash_pattern(
+                        *self._dash_pattern)
 
                     gc.set_dashes(offset_gaps, gaps)
                     renderer.draw_path(gc, tpath, affine.frozen())
@@ -1274,7 +1280,14 @@ class Line2D(Artist):
         x : 1D array
         """
         if not np.iterable(x):
-            raise RuntimeError('x must be a sequence')
+            # When deprecation cycle is completed
+            # raise RuntimeError('x must be a sequence')
+            _api.warn_deprecated(
+                since=3.7,
+                message="Setting data with a non sequence type "
+                "is deprecated since %(since)s and will be "
+                "remove %(removal)s")
+            x = [x, ]
         self._xorig = copy.copy(x)
         self._invalidx = True
         self.stale = True
@@ -1288,7 +1301,14 @@ class Line2D(Artist):
         y : 1D array
         """
         if not np.iterable(y):
-            raise RuntimeError('y must be a sequence')
+            # When deprecation cycle is completed
+            # raise RuntimeError('y must be a sequence')
+            _api.warn_deprecated(
+                since=3.7,
+                message="Setting data with a non sequence type "
+                "is deprecated since %(since)s and will be "
+                "remove %(removal)s")
+            y = [y, ]
         self._yorig = copy.copy(y)
         self._invalidy = True
         self.stale = True

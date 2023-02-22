@@ -8,13 +8,14 @@ treeview to store data.  Double-click on an entry to update plot data.
 """
 
 import gi
+
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gdk', '3.0')
-from gi.repository import Gtk, Gdk
-
-from matplotlib.backends.backend_gtk3agg import FigureCanvas  # or gtk3cairo.
+from gi.repository import Gdk, Gtk
 
 from numpy.random import random
+
+from matplotlib.backends.backend_gtk3agg import FigureCanvas  # or gtk3cairo.
 from matplotlib.figure import Figure
 
 

@@ -16,8 +16,8 @@ For more information on violin plots and KDE, the scikit-learn docs
 have a great section: https://scikit-learn.org/stable/modules/density.html
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)

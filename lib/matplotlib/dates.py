@@ -383,8 +383,6 @@ def _from_ordinalf(x, tz=None):
 
 # a version of _from_ordinalf that can operate on numpy arrays
 _from_ordinalf_np_vectorized = np.vectorize(_from_ordinalf, otypes="O")
-
-
 # a version of dateutil.parser.parse that can operate on numpy arrays
 _dateutil_parser_parse_np_vectorized = np.vectorize(dateutil.parser.parse)
 

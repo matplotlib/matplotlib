@@ -18,9 +18,10 @@ import os
 from pathlib import Path
 import unicodedata
 
+import matplotlib.pyplot as plt
+
 import matplotlib.font_manager as fm
 from matplotlib.ft2font import FT2Font
-import matplotlib.pyplot as plt
 
 
 def print_glyphs(path):

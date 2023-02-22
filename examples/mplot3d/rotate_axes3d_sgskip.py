@@ -11,8 +11,9 @@ See :doc:`wire3d_animation_sgskip` for another example of animating a 3D plot.
 intentionally takes a long time to run)
 """
 
-from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
+
+from mpl_toolkits.mplot3d import axes3d
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')

@@ -6,7 +6,6 @@ Simple Legend01
 """
 import matplotlib.pyplot as plt
 
-
 fig = plt.figure()
 
 ax = fig.add_subplot(211)

@@ -25,8 +25,8 @@ as three axes, the main axes for the scatter, and two marginal axes. It will
 then create the scatter and histograms inside the provided axes.
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -89,7 +89,7 @@ scatter_hist(x, y, ax, ax_histx, ax_histy)
 # of the axes.
 
 # Create a Figure, which doesn't have to be square.
-fig = plt.figure(constrained_layout=True)
+fig = plt.figure(layout='constrained')
 # Create the main axes, leaving 25% of the figure space at the top and on the
 # right to position marginals.
 ax = fig.add_gridspec(top=0.75, right=0.75).subplots()

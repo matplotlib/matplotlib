@@ -9,9 +9,8 @@ This example shows how the font tables relate to one another.
 import os
 
 import matplotlib
-from matplotlib.ft2font import (
-    FT2Font, KERNING_DEFAULT, KERNING_UNFITTED, KERNING_UNSCALED)
-
+from matplotlib.ft2font import (KERNING_DEFAULT, KERNING_UNFITTED,
+                                KERNING_UNSCALED, FT2Font)
 
 font = FT2Font(
     os.path.join(matplotlib.get_data_path(), 'fonts/ttf/DejaVuSans.ttf'))

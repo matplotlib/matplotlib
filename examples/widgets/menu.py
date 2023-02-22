@@ -5,9 +5,10 @@ Menu
 
 """
 
+import matplotlib.pyplot as plt
+
 import matplotlib.artist as artist
 import matplotlib.patches as patches
-import matplotlib.pyplot as plt
 from matplotlib.transforms import IdentityTransform
 
 
