@@ -45,11 +45,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # pin to node 18.13 until npm v9 is supported by reviewdog eslint
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18.13'
-
       - name: eslint
         uses: reviewdog/action-eslint@v1
         with:
