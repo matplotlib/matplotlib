@@ -1,8 +1,0 @@
-Maximum line length increased to 88 characters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The maximum line length for new contributions has been extended from 79 characters to
-88 characters.
-This change provides an extra 9 characters to allow code which is a single idea to fit
-on fewer lines (often a single line).
-The chosen length is the same as `black <https://black.readthedocs.io/en/stable/the_black_code_style/current_style.html#line-length>`_.

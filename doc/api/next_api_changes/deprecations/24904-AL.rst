@@ -1,4 +1,0 @@
-Passing inconsistent ``loc`` and ``nth_coord`` to axisartist helpers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Trying to construct for example a "top y-axis" or a "left x-axis" is now
-deprecated.
