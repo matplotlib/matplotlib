@@ -225,10 +225,10 @@ t = ax.text(0.5, 0.5, "Direction",
 #   Class        Name             Attrs
 #   ==========   ==============   ==========================
 #   Circle       ``circle``       pad=0.3
-#   DArrow       ``darrow``       pad=0.3
+#   DArrow       ``darrow``       pad=0.3,head_width=1.5,head_angle=90
 #   Ellipse      ``ellipse``      pad=0.3
-#   LArrow       ``larrow``       pad=0.3
-#   RArrow       ``rarrow``       pad=0.3
+#   LArrow       ``larrow``       pad=0.3,head_width=1.5,head_angle=90
+#   RArrow       ``rarrow``       pad=0.3,head_width=1.5,head_angle=90
 #   Round        ``round``        pad=0.3,rounding_size=None
 #   Round4       ``round4``       pad=0.3,rounding_size=None
 #   Roundtooth   ``roundtooth``   pad=0.3,tooth_size=None
@@ -287,8 +287,8 @@ def custom_box_style(x0, y0, width, height, mutation_size):
     x0, y0 = x0 - pad, y0 - pad
     x1, y1 = x0 + width, y0 + height
     # return the new path
-    return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1),
-                 (x0-pad, (y0+y1)/2), (x0, y0), (x0, y0)],
+    return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y1-pad),
+                 (x0-pad, (y0+y1)/2), (x0, y0+pad), (x0, y0), (x0, y0)],
                 closed=True)
 
 fig, ax = plt.subplots(figsize=(3, 3))

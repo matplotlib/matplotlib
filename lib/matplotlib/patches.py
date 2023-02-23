@@ -2373,14 +2373,35 @@ class BoxStyle(_Style):
     class LArrow:
         """A box in the shape of a left-pointing arrow."""
 
-        def __init__(self, pad=0.3):
+        def __init__(self, pad=0.3, head_width=1.5, head_angle=90.0):
             """
             Parameters
             ----------
             pad : float, default: 0.3
                 The amount of padding around the original box.
+            head_width : float, default: 1.5
+                The width of the arrow head versus the body. The minimum value
+                is 0.0 and the maximum value is 10.0. Any value smaller or
+                greater than this is contrained to the edge values.
+            head_angle : float, default: 90.0
+                The inside angle of the tip of the arrow. The minimum value is
+                10.0 and the maximum value is 179.0. Any value smaller or
+                greater than this is contrained to the edge values.
             """
             self.pad = pad
+            if head_width > 10:
+                self.head_width = 10
+            elif head_width < 0:
+                self.head_width = 0
+            else:
+                self.head_width = head_width
+
+            if head_angle >= 180:
+                self.head_angle = 179
+            elif head_angle < 10:
+                self.head_angle = 10
+            else:
+                self.head_angle = head_angle
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # padding
@@ -2395,10 +2416,26 @@ class BoxStyle(_Style):
             dxx = dx / 2
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
+            # The width adjustment is the value that must be added or
+            # subtracted from y_0 and y_1 for the ends of the head.
+            # The body width is 2dx.
+            # Subtracting 1 from the head_width gives what percentage of the
+            # body width is in the head, and there is .5x of that on each side.
+            # The .5 cancels out the 2dx for the body width.
+            width_adjustment = (self.head_width - 1) * dx
+
+            # The angle adjustment is the value that must be subtracted/added
+            # from x_0 or x_1 for the position of the tip.
+            # each half of the arrow head is a right angle triangle. Therefore,
+            # each half of the arrow head has the equation tan(head_angle/2)=
+            # (dx+width_adjustment)/(dxx+angle_adjustment).
+            angle_adjustment = ((dx + width_adjustment) / math.tan((self.
+                                head_angle/2) * (math.pi/180))) - dxx
+
             return Path._create_closed(
                 [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
-                 (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                 (x0 + dxx, y0 - dxx),  # arrow
+                 (x0 + dxx, y1 + width_adjustment), (x0 - angle_adjustment, y0
+                 + dx), (x0 + dxx, y0 - width_adjustment),  # arrow
                  (x0 + dxx, y0)])
 
     @_register_style(_style_list)
@@ -2416,14 +2453,35 @@ class BoxStyle(_Style):
         """A box in the shape of a two-way arrow."""
         # Modified from LArrow to add a right arrow to the bbox.
 
-        def __init__(self, pad=0.3):
+        def __init__(self, pad=0.3, head_width=1.5, head_angle=90.0):
             """
             Parameters
             ----------
             pad : float, default: 0.3
                 The amount of padding around the original box.
+            head_width : float, default: 1.5
+                The width of the arrow head versus the body. The minimum value
+                is 0.0 and the maximum value is 10.0. Any value smaller or
+                greater than this is contrained to the edge values.
+            head_angle : float, default: 90.0
+                The inside angle of the tip of the arrow. The minimum value is
+                10.0 and the maximum value is 179.0. Any value smaller or
+                greater than this is contrained to the edge values.
             """
             self.pad = pad
+            if head_width > 10:
+                self.head_width = 10
+            elif head_width < 0:
+                self.head_width = 0
+            else:
+                self.head_width = head_width
+
+            if head_angle >= 180:
+                self.head_angle = 179
+            elif head_angle < 10:
+                self.head_angle = 10
+            else:
+                self.head_angle = head_angle
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # padding
@@ -2439,13 +2497,31 @@ class BoxStyle(_Style):
             dxx = dx / 2
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
+            # The width adjustment is the value that must be added or
+            # subtracted from y_0 and y_1 for the ends of the head.
+            # The body width is 2dx.
+            # Subtracting 1 from the head_width gives what percentage of the
+            # body width is in the head, and there is .5x of that on each side.
+            # The .5 cancels out the 2dx for the body width.
+            width_adjustment = (self.head_width - 1) * dx
+
+            # The angle adjustment is the value that must be subtracted/added
+            # from x_0 or x_1 for the position of the tip.
+            # each half of the arrow head is a right angle triangle. Therefore,
+            # each half of the arrow head has the equation tan(head_angle/2)=
+            # (dx+width_adjustment)/(dxx+angle_adjustment).
+            angle_adjustment = ((dx + width_adjustment) / math.tan((self.
+                                head_angle/2) * (math.pi/180))) - dxx
+
             return Path._create_closed([
                 (x0 + dxx, y0), (x1, y0),  # bot-segment
-                (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
-                (x1, y1 + dxx),  # right-arrow
+                (x1, y0 - width_adjustment),
+                (x1 + angle_adjustment + dxx, y0 + dx),
+                (x1, y1 + width_adjustment),  # right-arrow
                 (x1, y1), (x0 + dxx, y1),  # top-segment
-                (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                (x0 + dxx, y0 - dxx),  # left-arrow
+                (x0 + dxx, y1 + width_adjustment),
+                (x0 - angle_adjustment, y0 + dx),
+                (x0 + dxx, y0 - width_adjustment),  # left-arrow
                 (x0 + dxx, y0)])
 
     @_register_style(_style_list)
