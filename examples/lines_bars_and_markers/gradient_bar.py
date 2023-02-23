@@ -15,15 +15,15 @@ lengths of the projections of the corner vectors on *v*.
 A similar approach can be used to create a gradient background for an Axes.
 In that case, it is helpful to use Axes coordinates (``extent=(0, 1, 0, 1),
 transform=ax.transAxes``) to be independent of the data coordinates.
-
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 np.random.seed(19680801)
 
 
-def gradient_image(ax, extent, direction=0.3, cmap_range=(0, 1), **kwargs):
+def gradient_image(ax, direction=0.3, cmap_range=(0, 1), **kwargs):
     """
     Draw a gradient image based on a colormap.
 
@@ -31,10 +31,6 @@ def gradient_image(ax, extent, direction=0.3, cmap_range=(0, 1), **kwargs):
     ----------
     ax : Axes
         The axes to draw on.
-    extent
-        The extent of the image as (xmin, xmax, ymin, ymax).
-        By default, this is in Axes coordinates but may be
-        changed using the *transform* keyword argument.
     direction : float
         The direction of the gradient. This is a number in
         range 0 (=vertical) to 1 (=horizontal).
@@ -43,7 +39,7 @@ def gradient_image(ax, extent, direction=0.3, cmap_range=(0, 1), **kwargs):
         used for the gradient, where the complete colormap is (0, 1).
     **kwargs
         Other parameters are passed on to `.Axes.imshow()`.
-        In particular useful is *cmap*.
+        In particular, *cmap*, *extent*, and *transform* may be useful.
     """
     phi = direction * np.pi / 2
     v = np.array([np.cos(phi), np.sin(phi)])
@@ -51,8 +47,8 @@ def gradient_image(ax, extent, direction=0.3, cmap_range=(0, 1), **kwargs):
                   [v @ [0, 0], v @ [0, 1]]])
     a, b = cmap_range
     X = a + (b - a) / X.max() * X
-    im = ax.imshow(X, extent=extent, interpolation='bicubic',
-                   vmin=0, vmax=1, **kwargs)
+    im = ax.imshow(X, interpolation='bicubic', clim=(0, 1),
+                   aspect='auto', **kwargs)
     return im
 
 
@@ -63,11 +59,8 @@ def gradient_bar(ax, x, y, width=0.5, bottom=0):
                        cmap=plt.cm.Blues_r, cmap_range=(0, 0.8))
 
 
-xmin, xmax = xlim = 0, 10
-ymin, ymax = ylim = 0, 1
-
 fig, ax = plt.subplots()
-ax.set(xlim=xlim, ylim=ylim, autoscale_on=False)
+ax.set(xlim=(0, 10), ylim=(0, 1))
 
 # background image
 gradient_image(ax, direction=1, extent=(0, 1, 0, 1), transform=ax.transAxes,
@@ -77,5 +70,4 @@ N = 10
 x = np.arange(N) + 0.15
 y = np.random.rand(N)
 gradient_bar(ax, x, y, width=0.7)
-ax.set_aspect('auto')
 plt.show()
