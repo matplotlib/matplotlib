@@ -7,6 +7,7 @@ See `~matplotlib.axes.Axes.bar`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
+
 plt.style.use('_mpl-gallery')
 
 # make data:
