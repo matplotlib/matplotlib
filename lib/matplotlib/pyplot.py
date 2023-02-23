@@ -2104,6 +2104,8 @@ def rgrids(
     if all(p is None for p in [radii, labels, angle, fmt]) and not kwargs:
         lines_out: list[Line2D] = ax.yaxis.get_gridlines()
         labels_out: list[Text] = ax.yaxis.get_ticklabels()
+    elif radii is None:
+        raise TypeError("'radii' cannot be None when other parameters are passed")
     else:
         lines_out, labels_out = ax.set_rgrids(
             radii, labels=labels, angle=angle, fmt=fmt, **kwargs)
@@ -2177,6 +2179,8 @@ def thetagrids(
     if all(param is None for param in [angles, labels, fmt]) and not kwargs:
         lines_out: list[Line2D] = ax.xaxis.get_ticklines()
         labels_out: list[Text] = ax.xaxis.get_ticklabels()
+    elif angles is None:
+        raise TypeError("'angles' cannot be None when other parameters are passed")
     else:
         lines_out, labels_out = ax.set_thetagrids(angles,
                                                   labels=labels, fmt=fmt,
