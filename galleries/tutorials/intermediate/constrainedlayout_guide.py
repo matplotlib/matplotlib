@@ -203,7 +203,7 @@ leg.set_in_layout(True)
 # we don't want the layout to change at this point.
 fig.set_layout_engine('none')
 try:
-    fig.savefig('../../doc/_static/constrained_layout_1b.png',
+    fig.savefig('../../../doc/_static/constrained_layout_1b.png',
                 bbox_inches='tight', dpi=100)
 except FileNotFoundError:
     # this allows the script to keep going if run interactively and
@@ -225,7 +225,7 @@ labels = [l.get_label() for l in lines]
 leg = fig.legend(lines, labels, loc='center left',
                  bbox_to_anchor=(0.8, 0.5), bbox_transform=axs[1].transAxes)
 try:
-    fig.savefig('../../doc/_static/constrained_layout_2b.png',
+    fig.savefig('../../../doc/_static/constrained_layout_2b.png',
                 bbox_inches='tight', dpi=100)
 except FileNotFoundError:
     # this allows the script to keep going if run interactively and

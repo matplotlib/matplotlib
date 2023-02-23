@@ -78,7 +78,7 @@ import numpy as np
 # convert the `PIL.Image.Image` object into an 8-bit (``dtype=uint8``) numpy
 # array.
 
-img = np.asarray(Image.open('../../doc/_static/stinkbug.png'))
+img = np.asarray(Image.open('../../../doc/_static/stinkbug.png'))
 print(repr(img))
 
 # %%
@@ -227,7 +227,7 @@ imgplot.set_clim(0, 175)
 # We'll use the Pillow library that we used to load the image also to resize
 # the image.
 
-img = Image.open('../../doc/_static/stinkbug.png')
+img = Image.open('../../../doc/_static/stinkbug.png')
 img.thumbnail((64, 64))  # resizes image in-place
 imgplot = plt.imshow(img)
 

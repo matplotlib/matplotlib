@@ -15,9 +15,9 @@ on:
     paths-ignore:
       # Skip running tests if changes are only in documentation directories
       - 'doc/**'
-      - 'examples/**'
-      - 'plot_types/**'
-      - 'tutorials/**'
+      - 'galleries/examples/**'
+      - 'galleries/plot_types/**'
+      - 'galleries/tutorials/**'
   schedule:
     # 5:47 UTC on Saturdays
     - cron: "47 5 * * 6"
