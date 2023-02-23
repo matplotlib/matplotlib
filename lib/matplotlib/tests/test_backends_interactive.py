@@ -72,7 +72,7 @@ def _get_testable_interactive_backends():
     return envs
 
 
-_test_timeout = 60  # A reasonably safe value for slower architectures.
+_test_timeout = 120  # A reasonably safe value for slower architectures.
 
 
 def _test_toolbar_button_la_mode_icon(fig):
