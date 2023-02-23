@@ -6,8 +6,9 @@ Triangular 3D surfaces
 See `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
 """
 import matplotlib.pyplot as plt
-from matplotlib import cm
 import numpy as np
+
+from matplotlib import cm
 
 plt.style.use('_mpl-gallery')
 

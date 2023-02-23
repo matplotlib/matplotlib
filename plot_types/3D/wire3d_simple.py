@@ -5,8 +5,9 @@
 
 See `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_wireframe`.
 """
-from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
+
+from mpl_toolkits.mplot3d import axes3d
 
 plt.style.use('_mpl-gallery')
 
