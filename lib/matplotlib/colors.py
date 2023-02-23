@@ -1214,8 +1214,8 @@ class Normalize:
             are mapped to 0 or 1, whichever is closer, and masked values are
             set to 1.  If ``False`` masked values remain masked.
 
-            Clipping silently defeats the purpose of setting the over, under,
-            and masked colors in a colormap, so it is likely to lead to
+            Clipping silently defeats the purpose of setting the over and
+            under colors in a colormap, so it is likely to lead to
             surprises; therefore the default is ``clip=False``.
 
         Notes
@@ -1775,8 +1775,8 @@ class FuncNorm(Normalize):
         are mapped to 0 or 1, whichever is closer, and masked values are
         set to 1.  If ``False`` masked values remain masked.
 
-        Clipping silently defeats the purpose of setting the over, under,
-        and masked colors in a colormap, so it is likely to lead to
+        Clipping silently defeats the purpose of setting the over and
+        under colors in a colormap, so it is likely to lead to
         surprises; therefore the default is ``clip=False``.
     """
 
@@ -1875,9 +1875,9 @@ class PowerNorm(Normalize):
         are mapped to 0 or 1, whichever is closer, and masked values
         remain masked.
 
-        Clipping silently defeats the purpose of setting the over, under,
-        and masked colors in a colormap, so it is likely to lead to
-        surprises; therefore the default is ``clip=False``.
+        Clipping silently defeats the purpose of setting the over and under
+        colors, so it is likely to lead to surprises; therefore the default
+        is ``clip=False``.
 
     Notes
     -----
