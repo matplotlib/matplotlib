@@ -383,6 +383,7 @@ Additional custom styling of button widgets may be achieved via the
 *label_props*, *frame_props*, and *check_props* arguments to `.CheckButtons`.
 
 .. plot::
+   :include-source: true
 
    from matplotlib.widgets import CheckButtons, RadioButtons
 
