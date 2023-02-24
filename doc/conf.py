@@ -216,8 +216,8 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
 gallery_dirs = [f'{ed}' for ed in ['gallery', 'tutorials', 'plot_types']
                 if f'{ed}/*' not in skip_subdirs]
 
-example_dirs = [f'../{gd}'.replace('gallery', 'examples') for gd in
-                gallery_dirs]
+example_dirs = [f'../galleries/{gd}'.replace('gallery', 'examples')
+                for gd in gallery_dirs]
 
 sphinx_gallery_conf = {
     'backreferences_dir': Path('api') / Path('_as_gen'),

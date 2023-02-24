@@ -47,4 +47,4 @@ repos:
     hooks:
       - id: isort
         name: isort (python)
-        files: ^tutorials/|^examples/|^plot_types/
+        files: ^galleries/tutorials/|^galleries/examples/|^galleries/plot_types/
