@@ -1214,8 +1214,8 @@ class Normalize:
             are mapped to 0 or 1, whichever is closer, and masked values are
             set to 1.  If ``False`` masked values remain masked.
 
-            Clipping silently defeats the purpose of setting the over, under,
-            and masked colors in a colormap, so it is likely to lead to
+            Clipping silently defeats the purpose of setting the over and
+            under colors in a colormap, so it is likely to lead to
             surprises; therefore the default is ``clip=False``.
 
         Notes
@@ -1775,8 +1775,8 @@ class FuncNorm(Normalize):
         are mapped to 0 or 1, whichever is closer, and masked values are
         set to 1.  If ``False`` masked values remain masked.
 
-        Clipping silently defeats the purpose of setting the over, under,
-        and masked colors in a colormap, so it is likely to lead to
+        Clipping silently defeats the purpose of setting the over and
+        under colors in a colormap, so it is likely to lead to
         surprises; therefore the default is ``clip=False``.
     """
 
@@ -1858,9 +1858,34 @@ class AsinhNorm(Normalize):
 
 
 class PowerNorm(Normalize):
-    """
+    r"""
     Linearly map a given value to the 0-1 range and then apply
     a power-law normalization over that range.
+
+    Parameters
+    ----------
+    gamma : float
+        Power law exponent.
+    vmin, vmax : float or None
+        If *vmin* and/or *vmax* is not given, they are initialized from the
+        minimum and maximum value, respectively, of the first input
+        processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
+    clip : bool, default: False
+        If ``True`` values falling outside the range ``[vmin, vmax]``,
+        are mapped to 0 or 1, whichever is closer, and masked values
+        remain masked.
+
+        Clipping silently defeats the purpose of setting the over and under
+        colors, so it is likely to lead to surprises; therefore the default
+        is ``clip=False``.
+
+    Notes
+    -----
+    The normalization formula is
+
+    .. math::
+
+        \left ( \frac{x - v_{min}}{v_{max}  - v_{min}} \right )^{\gamma}
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
         super().__init__(vmin, vmax, clip)
