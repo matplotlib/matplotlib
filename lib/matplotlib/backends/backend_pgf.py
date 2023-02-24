@@ -1017,10 +1017,7 @@ class PdfPages:
                 raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
 
-        try:
-            orig_canvas = figure.canvas
-            figure.canvas = FigureCanvasPgf(figure)
-
+        with cbook._setattr_cm(figure, canvas=FigureCanvasPgf(figure)):
             width, height = figure.get_size_inches()
             if self._n_figures == 0:
                 self._write_header(width, height)
@@ -1036,11 +1033,8 @@ class PdfPages:
                     br'\else\pageheight\fi=%ain'
                     b'%%\n' % (width, height)
                 )
-
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
-        finally:
-            figure.canvas = orig_canvas
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""

@@ -2766,12 +2766,8 @@ class PdfPages:
                 raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
         # Force use of pdf backend, as PdfPages is tightly coupled with it.
-        try:
-            orig_canvas = figure.canvas
-            figure.canvas = FigureCanvasPdf(figure)
+        with cbook._setattr_cm(figure, canvas=FigureCanvasPdf(figure)):
             figure.savefig(self, format="pdf", **kwargs)
-        finally:
-            figure.canvas = orig_canvas
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""
