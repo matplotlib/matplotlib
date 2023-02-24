@@ -2415,15 +2415,15 @@ class Figure(FigureBase):
                 The use of this parameter is discouraged. Please use
                 ``layout='constrained'`` instead.
 
-        layout : {'constrained', 'compressed', 'tight', `.LayoutEngine`, None}
+        layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, \
+None}, default: None
             The layout mechanism for positioning of plot elements to avoid
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
-            Defaults to *None*.
 
             - 'constrained': The constrained layout solver adjusts axes sizes
-               to avoid overlapping axes decorations.  Can handle complex plot
-               layouts and colorbars, and is thus recommended.
+              to avoid overlapping axes decorations.  Can handle complex plot
+              layouts and colorbars, and is thus recommended.
 
               See :doc:`/tutorials/intermediate/constrainedlayout_guide`
               for examples.
@@ -2436,6 +2436,8 @@ class Figure(FigureBase):
               simple algorithm that adjusts the subplot parameters so that
               decorations do not overlap. See `.Figure.set_tight_layout` for
               further details.
+
+            - 'none': Do not use a layout engine.
 
             - A `.LayoutEngine` instance. Builtin layout classes are
               `.ConstrainedLayoutEngine` and `.TightLayoutEngine`, more easily
