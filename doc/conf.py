@@ -213,11 +213,14 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
         gallery_conf['image_srcset'] = []
     return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
 
-gallery_dirs = [f'{ed}' for ed in ['gallery', 'tutorials', 'plot_types']
+gallery_dirs = [f'{ed}' for ed in
+                ['gallery', 'tutorials', 'plot_types', 'users/explain']
                 if f'{ed}/*' not in skip_subdirs]
 
-example_dirs = [f'../galleries/{gd}'.replace('gallery', 'examples')
-                for gd in gallery_dirs]
+example_dirs = []
+for gd in gallery_dirs:
+    gd = gd.replace('gallery', 'examples').replace('users/explain', 'users_explain')
+    example_dirs += [f'../galleries/{gd}']
 
 sphinx_gallery_conf = {
     'backreferences_dir': Path('api') / Path('_as_gen'),
@@ -244,6 +247,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order.subsectionorder,
     'capture_repr': (),
+    'copyfile_regex': r'.*\.rst',
 }
 
 if 'plot_gallery=0' in sys.argv:
