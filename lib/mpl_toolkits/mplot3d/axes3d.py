@@ -164,6 +164,7 @@ class Axes3D(Axes):
         # Enable drawing of axes by Axes3D class
         self.set_axis_on()
         self.M = None
+        self.invM = None
 
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
@@ -455,6 +456,7 @@ class Axes3D(Axes):
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
+        self.invM = np.linalg.inv(self.M)
 
         collections_and_patches = (
             artist for artist in self._children
@@ -1128,7 +1130,7 @@ class Axes3D(Axes):
             zv = -1 / self._focal_length
 
         # Convert point on view plane to data coordinates
-        p1 = np.array(proj3d.inv_transform(xv, yv, zv, self.M)).ravel()
+        p1 = np.array(proj3d.inv_transform(xv, yv, zv, self.invM)).ravel()
 
         # Get the vector from the camera to the point on the view plane
         vec = self._get_camera_loc() - p1

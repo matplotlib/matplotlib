@@ -3,7 +3,6 @@ Various transforms used for by the 3D code
 """
 
 import numpy as np
-import numpy.linalg as linalg
 
 from matplotlib import _api
 
@@ -190,13 +189,12 @@ def _proj_transform_vec_clip(vec, M):
     return txs, tys, tzs, tis
 
 
-def inv_transform(xs, ys, zs, M):
+def inv_transform(xs, ys, zs, invM):
     """
-    Transform the points by the inverse of the projection matrix *M*.
+    Transform the points by the inverse of the projection matrix, *invM*.
     """
-    iM = linalg.inv(M)
     vec = _vec_pad_ones(xs, ys, zs)
-    vecr = np.dot(iM, vec)
+    vecr = np.dot(invM, vec)
     if vecr.shape == (4,):
         vecr = vecr.reshape((4, 1))
     for i in range(vecr.shape[1]):
