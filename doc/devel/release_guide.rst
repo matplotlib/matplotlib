@@ -75,6 +75,14 @@ In addition the following test should be run and manually inspected::
 
    python tools/memleak.py agg 1000 agg.pdf
 
+Run the User Acceptance Tests for the NBAgg and ipympl backends::
+
+   jupyter notebook lib/matplotlib/backends/web_backend/nbagg_uat.ipynb
+
+For ipympl, restart the kernel, add a cell for ``%matplotlib widget`` and do
+not run the cell with ``matplotlib.use('nbagg')``. Tests which check
+``connection_info``, use ``reshow``, or test the OO interfeace are not expected
+to work for ``ipympl``.
 
 .. _release_ghstats:
 
@@ -458,8 +466,7 @@ version of the release notes along with acknowledgments should be sent to
 - matplotlib-announce@python.org
 
 In addition, announcements should be made on social networks (e.g., Twitter via the
-``@matplotlib`` account, any other via personal accounts). `NumFOCUS
-<https://numfocus.org/>`__ should be contacted for inclusion in their newsletter.
+``@matplotlib`` account, any other via personal accounts).
 
 
 Conda packages
