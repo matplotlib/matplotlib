@@ -613,7 +613,7 @@ class BboxBase(TransformNode):
         ----------
         w_pad : float
             Width pad
-        h_pad: float, optional
+        h_pad : float, optional
             Height pad.  Defaults to *w_pad*.
 
         """

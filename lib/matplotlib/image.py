@@ -1047,8 +1047,10 @@ class NonUniformImage(AxesImage):
         """
         Parameters
         ----------
+        ax : `~.axes.Axes`
+            The axes the image will belong to.
         interpolation : {'nearest', 'bilinear'}, default: 'nearest'
-
+            The interpolation scheme used in the resampling.
         **kwargs
             All other keyword arguments are identical to those of `.AxesImage`.
         """
