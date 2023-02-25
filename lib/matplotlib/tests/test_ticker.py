@@ -1449,7 +1449,6 @@ class TestPercentFormatter:
             assert fmt.format_pct(50, 100) == expected
 
 
-@pytest.mark.xfail
 def test_locale_comma():
     currentLocale = locale.getlocale()
     try:
@@ -1462,6 +1461,8 @@ def test_locale_comma():
         fmt = ',$\\mathdefault{,%1.1f},$'
         x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
         assert x == ',$\\mathdefault{,0{,}5},$'
+    except locale.Error:
+        pytest.skip("Locale fy_DE.UTF-8 is not supported on this machine")
     finally:
         locale.setlocale(locale.LC_ALL, currentLocale)
 
