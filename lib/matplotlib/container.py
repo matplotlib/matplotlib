@@ -16,7 +16,7 @@ class Container(tuple):
     def __new__(cls, *args, **kwargs):
         return tuple.__new__(cls, args[0])
 
-    def __init__(self, kl, label=None):
+    def __init__(self, label=None):
         self._callbacks = cbook.CallbackRegistry(signals=["pchanged"])
         self._remove_method = None
         self.set_label(label)
@@ -71,7 +71,7 @@ class BarContainer(Container):
         self.errorbar = errorbar
         self.datavalues = datavalues
         self.orientation = orientation
-        super().__init__(patches, **kwargs)
+        super().__init__(**kwargs)
 
 
 class ErrorbarContainer(Container):
@@ -103,7 +103,7 @@ class ErrorbarContainer(Container):
         self.lines = lines
         self.has_xerr = has_xerr
         self.has_yerr = has_yerr
-        super().__init__(lines, **kwargs)
+        super().__init__(**kwargs)
 
 
 class StemContainer(Container):
@@ -138,4 +138,4 @@ class StemContainer(Container):
         self.markerline = markerline
         self.stemlines = stemlines
         self.baseline = baseline
-        super().__init__(markerline_stemlines_baseline, **kwargs)
+        super().__init__(**kwargs)
