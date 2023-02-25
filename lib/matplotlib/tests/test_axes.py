@@ -7811,34 +7811,26 @@ def test_ytickcolor_is_not_yticklabelcolor():
         assert tick.label1.get_color() == 'blue'
 
 
-def test_xticklabelcolor_if_not_xtickcolor():
+def test_xaxis_offsetText_color():
     plt.rcParams['xtick.labelcolor'] = 'blue'
     ax = plt.axes()
-    ticks = ax.xaxis.get_major_ticks()
-    for tick in ticks:
-        assert tick.label1.get_color() == 'blue'
+    assert ax.xaxis.offsetText.get_color() == 'blue'
 
     plt.rcParams['xtick.color'] = 'yellow'
     plt.rcParams['xtick.labelcolor'] = 'inherit'
     ax = plt.axes()
-    ticks = ax.xaxis.get_major_ticks()
-    for tick in ticks:
-        assert tick.label1.get_color() == 'yellow'
+    assert ax.xaxis.offsetText.get_color() == 'yellow'
 
 
-def test_yticklabelcolor_if_not_ytickcolor():
+def test_yaxis_offsetText_color():
     plt.rcParams['ytick.labelcolor'] = 'green'
     ax = plt.axes()
-    ticks = ax.yaxis.get_major_ticks()
-    for tick in ticks:
-        assert tick.label1.get_color() == 'green'
+    assert ax.yaxis.offsetText.get_color() == 'green'
 
     plt.rcParams['ytick.color'] = 'red'
     plt.rcParams['ytick.labelcolor'] = 'inherit'
     ax = plt.axes()
-    ticks = ax.yaxis.get_major_ticks()
-    for tick in ticks:
-        assert tick.label1.get_color() == 'red'
+    assert ax.yaxis.offsetText.get_color() == 'red'
 
 
 @pytest.mark.parametrize('size', [size for size in mfont_manager.font_scalings
