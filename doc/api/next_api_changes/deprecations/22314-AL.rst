@@ -1,3 +1,0 @@
-``passthru_pt``
-~~~~~~~~~~~~~~~
-This attribute of ``AxisArtistHelper``\s is deprecated.

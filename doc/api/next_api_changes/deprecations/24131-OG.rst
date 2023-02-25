@@ -1,5 +1,0 @@
-``Animation`` attributes
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-The attributes ``repeat`` of `.TimedAnimation` and subclasses and
-``save_count`` of `.FuncAnimation` are considered private and deprecated.

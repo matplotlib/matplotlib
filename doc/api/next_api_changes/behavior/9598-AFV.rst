@@ -1,6 +1,0 @@
-Change of ``legend(loc="best")`` behavior
------------------------------------------
-
-The algorithm of the auto-legend locator has been tweaked to better handle
-non rectangular patches. Additional details on this change can be found in
-:ghissue:`9580` and :ghissue:`9598`.

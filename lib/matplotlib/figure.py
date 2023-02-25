@@ -28,7 +28,6 @@ Some situations call for directly instantiating a `~.figure.Figure` class,
 usually inside an application of some sort (see :ref:`user_interfaces` for a
 list of examples) .  More information about Figures can be found at
 :ref:`figure_explanation`.
-
 """
 
 from contextlib import ExitStack
@@ -2155,8 +2154,8 @@ class SubFigure(FigureBase):
             Defines the region in a parent gridspec where the subfigure will
             be placed.
 
-        facecolor : default: :rc:`figure.facecolor`
-            The figure patch face color.
+        facecolor : default: ``"none"``
+            The figure patch face color; transparent by default.
 
         edgecolor : default: :rc:`figure.edgecolor`
             The figure patch edge color.
@@ -2176,7 +2175,7 @@ class SubFigure(FigureBase):
         """
         super().__init__(**kwargs)
         if facecolor is None:
-            facecolor = mpl.rcParams['figure.facecolor']
+            facecolor = "none"
         if edgecolor is None:
             edgecolor = mpl.rcParams['figure.edgecolor']
         if frameon is None:
@@ -2421,15 +2420,15 @@ class Figure(FigureBase):
                 The use of this parameter is discouraged. Please use
                 ``layout='constrained'`` instead.
 
-        layout : {'constrained', 'compressed', 'tight', `.LayoutEngine`, None}
+        layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, \
+None}, default: None
             The layout mechanism for positioning of plot elements to avoid
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
-            Defaults to *None*.
 
             - 'constrained': The constrained layout solver adjusts axes sizes
-               to avoid overlapping axes decorations.  Can handle complex plot
-               layouts and colorbars, and is thus recommended.
+              to avoid overlapping axes decorations.  Can handle complex plot
+              layouts and colorbars, and is thus recommended.
 
               See :doc:`/tutorials/intermediate/constrainedlayout_guide`
               for examples.
@@ -2442,6 +2441,8 @@ class Figure(FigureBase):
               simple algorithm that adjusts the subplot parameters so that
               decorations do not overlap. See `.Figure.set_tight_layout` for
               further details.
+
+            - 'none': Do not use a layout engine.
 
             - A `.LayoutEngine` instance. Builtin layout classes are
               `.ConstrainedLayoutEngine` and `.TightLayoutEngine`, more easily

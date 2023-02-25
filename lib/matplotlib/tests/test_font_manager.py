@@ -317,7 +317,7 @@ def test_get_font_names():
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
             ttf_fonts.append(prop.name)
-        except:
+        except Exception:
             pass
     available_fonts = sorted(list(set(ttf_fonts)))
     mpl_font_names = sorted(fontManager.get_font_names())

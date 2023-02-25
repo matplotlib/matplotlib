@@ -1,4 +1,0 @@
-Deprecate unused parameter *x* to ``TextBox.begin_typing``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This parameter was unused in the method, but was a required argument.

@@ -879,6 +879,11 @@ class Axis(martist.Artist):
         - registered callbacks
         """
         self.label._reset_visual_defaults()
+        # The above resets the label formatting using text rcParams,
+        # so we then update the formatting using axes rcParams
+        self.label.set_color(mpl.rcParams['axes.labelcolor'])
+        self.label.set_fontsize(mpl.rcParams['axes.labelsize'])
+        self.label.set_fontweight(mpl.rcParams['axes.labelweight'])
         self.offsetText._reset_visual_defaults()
         self.labelpad = mpl.rcParams['axes.labelpad']
 
@@ -1723,16 +1728,7 @@ class Axis(martist.Artist):
         self.set_default_intervals()
 
     def have_units(self):
-        """
-        Return `True` if units or a converter have been set.
-        """
         return self.converter is not None or self.units is not None
-
-    def _have_units_and_converter(self):
-        """
-        Return `True` if units and a converter have been set.
-        """
-        return self.converter is not None and self.units is not None
 
     def convert_units(self, x):
         # If x is natively supported by Matplotlib, doesn't need converting

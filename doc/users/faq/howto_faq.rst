@@ -30,7 +30,7 @@ supplied.
     import matplotlib.pyplot as plt
     import numpy as np
 
-    fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(6, 2))
+    fig, ax = plt.subplots(1, 2, layout='constrained', figsize=(6, 2))
 
     ax[0].set_title('Ticks seem out of order / misplaced')
     x = ['5', '20', '1', '9']  # strings

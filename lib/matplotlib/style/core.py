@@ -153,7 +153,7 @@ def use(style):
                     path = (importlib_resources.files(pkg)
                             / f"{name}.{STYLE_EXTENSION}")
                     style = _rc_params_in_file(path)
-                except (ModuleNotFoundError, OSError) as exc:
+                except (ModuleNotFoundError, OSError, TypeError) as exc:
                     # There is an ambiguity whether a dotted name refers to a
                     # package.style_name or to a dotted file path.  Currently,
                     # we silently try the first form and then the second one;

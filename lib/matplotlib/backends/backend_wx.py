@@ -595,8 +595,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         """
         Update the displayed image on the GUI canvas, using the supplied
         wx.PaintDC device context.
-
-        The 'WXAgg' backend sets origin accordingly.
         """
         _log.debug("%s - gui_repaint()", type(self))
         # The "if self" check avoids a "wrapped C/C++ object has been deleted"
@@ -902,7 +900,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
 
 class FigureFrameWx(wx.Frame):
-    def __init__(self, num, fig, *, canvas_class=None):
+    def __init__(self, num, fig, *, canvas_class):
         # On non-Windows platform, explicitly set the position - fix
         # positioning bug on some Linux platforms
         if wx.Platform == '__WXMSW__':
@@ -914,16 +912,7 @@ class FigureFrameWx(wx.Frame):
         _log.debug("%s - __init__()", type(self))
         _set_frame_icon(self)
 
-        # The parameter will become required after the deprecation elapses.
-        if canvas_class is not None:
-            self.canvas = canvas_class(self, -1, fig)
-        else:
-            _api.warn_deprecated(
-                "3.6", message="The canvas_class parameter will become "
-                "required after the deprecation period starting in Matplotlib "
-                "%(since)s elapses.")
-            self.canvas = self.get_canvas(fig)
-
+        self.canvas = canvas_class(self, -1, fig)
         # Auto-attaches itself to self.canvas.manager
         manager = FigureManagerWx(self.canvas, num, self)
 

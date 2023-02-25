@@ -11,37 +11,37 @@ from sphinx_gallery.sorting import ExplicitOrder
 UNSORTED = "unsorted"
 
 examples_order = [
-    '../examples/lines_bars_and_markers',
-    '../examples/images_contours_and_fields',
-    '../examples/subplots_axes_and_figures',
-    '../examples/statistics',
-    '../examples/pie_and_polar_charts',
-    '../examples/text_labels_and_annotations',
-    '../examples/color',
-    '../examples/shapes_and_collections',
-    '../examples/style_sheets',
-    '../examples/pyplots',
-    '../examples/axes_grid1',
-    '../examples/axisartist',
-    '../examples/showcase',
+    '../galleries/examples/lines_bars_and_markers',
+    '../galleries/examples/images_contours_and_fields',
+    '../galleries/examples/subplots_axes_and_figures',
+    '../galleries/examples/statistics',
+    '../galleries/examples/pie_and_polar_charts',
+    '../galleries/examples/text_labels_and_annotations',
+    '../galleries/examples/color',
+    '../galleries/examples/shapes_and_collections',
+    '../galleries/examples/style_sheets',
+    '../galleries/examples/pyplots',
+    '../galleries/examples/axes_grid1',
+    '../galleries/examples/axisartist',
+    '../galleries/examples/showcase',
     UNSORTED,
-    '../examples/userdemo',
+    '../galleries/examples/userdemo',
 ]
 
 tutorials_order = [
-    '../tutorials/introductory',
-    '../tutorials/intermediate',
-    '../tutorials/advanced',
+    '../galleries/tutorials/introductory',
+    '../galleries/tutorials/intermediate',
+    '../galleries/tutorials/advanced',
     UNSORTED,
-    '../tutorials/provisional'
+    '../galleries/tutorials/provisional'
 ]
 
 plot_types_order = [
-    '../plot_types/basic',
-    '../plot_types/arrays',
-    '../plot_types/stats',
-    '../plot_types/unstructured',
-    '../plot_types/3D',
+    '../galleries/plot_types/basic',
+    '../galleries/plot_types/arrays',
+    '../galleries/plot_types/stats',
+    '../galleries/plot_types/unstructured',
+    '../galleries/plot_types/3D',
     UNSORTED
 ]
 

@@ -1,3 +1,0 @@
-``backend_ps.PsBackendHelper`` and ``backend_ps.ps_backend_helper``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... are deprecated with no replacement.

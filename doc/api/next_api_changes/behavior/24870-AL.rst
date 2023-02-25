@@ -1,5 +1,0 @@
-``contour`` and ``contourf`` auto-select suitable levels when given boolean inputs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If the height array given to `.Axes.contour` or `.Axes.contourf` is of bool
-dtype and *levels* is not specified, *levels* now defaults to ``[0.5]`` for
-`~.Axes.contour` and ``[0, 0.5, 1]`` for `.Axes.contourf`.

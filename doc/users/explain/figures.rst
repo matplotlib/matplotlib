@@ -42,7 +42,6 @@ Notebooks and IDEs
     generated via the default `inline
     <https://github.com/ipython/matplotlib-inline>`_ backend.
 
-
 If you are using a Notebook (e.g. `Jupyter <https://jupyter.org>`_) or an IDE
 that renders Notebooks (PyCharm, VSCode, etc), then they have a backend that
 will render the Matplotlib Figure when a code cell is executed.  One thing to

@@ -318,29 +318,25 @@ class Path:
 
     @classmethod
     def make_compound_path(cls, *args):
+        r"""
+        Concatenate a list of `Path`\s into a single `.Path`, removing all `.STOP`\s.
         """
-        Make a compound path from a list of `Path` objects. Blindly removes
-        all `Path.STOP` control points.
-        """
-        # Handle an empty list in args (i.e. no args).
         if not args:
             return Path(np.empty([0, 2], dtype=np.float32))
-        vertices = np.concatenate([x.vertices for x in args])
+        vertices = np.concatenate([path.vertices for path in args])
         codes = np.empty(len(vertices), dtype=cls.code_type)
         i = 0
         for path in args:
+            size = len(path.vertices)
             if path.codes is None:
-                codes[i] = cls.MOVETO
-                codes[i + 1:i + len(path.vertices)] = cls.LINETO
+                if size:
+                    codes[i] = cls.MOVETO
+                    codes[i+1:i+size] = cls.LINETO
             else:
-                codes[i:i + len(path.codes)] = path.codes
-            i += len(path.vertices)
-        # remove STOP's, since internal STOPs are a bug
-        not_stop_mask = codes != cls.STOP
-        vertices = vertices[not_stop_mask, :]
-        codes = codes[not_stop_mask]
-
-        return cls(vertices, codes)
+                codes[i:i+size] = path.codes
+            i += size
+        not_stop_mask = codes != cls.STOP  # Remove STOPs, as internal STOPs are a bug.
+        return cls(vertices[not_stop_mask], codes[not_stop_mask])
 
     def __repr__(self):
         return f"Path({self.vertices!r}, {self.codes!r})"
@@ -935,7 +931,7 @@ class Path:
 
            Masionobe, L.  2003.  `Drawing an elliptical arc using
            polylines, quadratic or cubic Bezier curves
-           <http://www.spaceroots.org/documents/ellipse/index.html>`_.
+           <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
         halfpi = np.pi * 0.5
 

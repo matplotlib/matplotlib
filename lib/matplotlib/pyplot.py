@@ -740,12 +740,38 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     clear : bool, default: False
         If True and the figure already exists, then it is cleared.
 
-    layout : {'constrained', 'tight', `.LayoutEngine`, None}, default: None
+    layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, None}, \
+default: None
         The layout mechanism for positioning of plot elements to avoid
         overlapping Axes decorations (labels, ticks, etc). Note that layout
-        managers can measurably slow down figure display. Defaults to *None*
-        (but see the documentation of the `.Figure` constructor regarding the
-        interaction with rcParams).
+        managers can measurably slow down figure display.
+
+        - 'constrained': The constrained layout solver adjusts axes sizes
+          to avoid overlapping axes decorations.  Can handle complex plot
+          layouts and colorbars, and is thus recommended.
+
+          See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+          for examples.
+
+        - 'compressed': uses the same algorithm as 'constrained', but
+          removes extra space between fixed-aspect-ratio Axes.  Best for
+          simple grids of axes.
+
+        - 'tight': Use the tight layout mechanism. This is a relatively
+          simple algorithm that adjusts the subplot parameters so that
+          decorations do not overlap. See `.Figure.set_tight_layout` for
+          further details.
+
+        - 'none': Do not use a layout engine.
+
+        - A `.LayoutEngine` instance. Builtin layout classes are
+          `.ConstrainedLayoutEngine` and `.TightLayoutEngine`, more easily
+          accessible by 'constrained' and 'tight'.  Passing an instance
+          allows third parties to provide their own layout engine.
+
+        If not given, fall back to using the parameters *tight_layout* and
+        *constrained_layout*, including their config defaults
+        :rc:`figure.autolayout` and :rc:`figure.constrained_layout.use`.
 
     **kwargs
         Additional keyword arguments are passed to the `.Figure` constructor.

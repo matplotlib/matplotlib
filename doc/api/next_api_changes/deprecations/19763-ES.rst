@@ -1,5 +1,0 @@
-``Cursor`` and ``MultiCursor`` event handlers are now private
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Access to the event handlers for the `.Cursor` and `.MultiCursor` widgets is
-now deprecated. The related *needclear* attribute is also deprecated.

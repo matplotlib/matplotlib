@@ -506,3 +506,13 @@ def test_disable_cache_warning(anim):
         )
     assert anim._cache_frame_data is False
     anim._init_draw()
+
+
+def test_movie_writer_invalid_path(anim):
+    if sys.platform == "win32":
+        match_str = re.escape("[WinError 3] The system cannot find the path specified:")
+    else:
+        match_str = re.escape("[Errno 2] No such file or directory: '/foo")
+    with pytest.raises(FileNotFoundError, match=match_str):
+        _ = anim.save("/foo/bar/aardvark/thiscannotreallyexist.mp4",
+                      writer=animation.FFMpegFileWriter())

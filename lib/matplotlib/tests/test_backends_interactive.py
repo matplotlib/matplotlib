@@ -72,7 +72,7 @@ def _get_testable_interactive_backends():
     return envs
 
 
-_test_timeout = 60  # A reasonably safe value for slower architectures.
+_test_timeout = 120  # A reasonably safe value for slower architectures.
 
 
 def _test_toolbar_button_la_mode_icon(fig):
@@ -150,6 +150,10 @@ def _test_interactive_impl():
     assert_equal(
         type(fig.canvas).__module__,
         f"matplotlib.backends.backend_{backend}")
+
+    if mpl.rcParams["toolbar"] == "toolmanager":
+        # test toolbar button icon LA mode see GH issue 25174
+        _test_toolbar_button_la_mode_icon(fig)
 
     if mpl.rcParams["toolbar"] == "toolmanager":
         # test toolbar button icon LA mode see GH issue 25174

@@ -12,6 +12,12 @@ on:
   pull_request:
     branches-ignore:
       - v[0-9]+.[0-9]+.[0-9x]+-doc
+    paths-ignore:
+      # Skip running tests if changes are only in documentation directories
+      - 'doc/**'
+      - 'galleries/examples/**'
+      - 'galleries/plot_types/**'
+      - 'galleries/tutorials/**'
   schedule:
     # 5:47 UTC on Saturdays
     - cron: "47 5 * * 6"

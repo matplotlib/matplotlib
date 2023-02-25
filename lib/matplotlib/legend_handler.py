@@ -63,7 +63,6 @@ class HandlerBase:
         """
         Parameters
         ----------
-
         xpad : float, optional
             Padding in x-direction.
         ypad : float, optional
