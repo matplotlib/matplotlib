@@ -457,7 +457,7 @@ Then they will receive messages like
 
 Avoid using pre-computed strings (``f-strings``, ``str.format``,etc.) for logging because of security and 
 performance issues, and because they interfere with style handlers. 
-e.g. `_log.error('hello %s', 'world')` versus  `_log.error('hello {}'.format('world'))`.
+e.g. ``_log.error('hello %s', 'world')`` versus  ``_log.error('hello {}'.format('world'))``.
 
 
 
