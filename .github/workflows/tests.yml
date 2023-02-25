@@ -31,15 +31,15 @@ env:
 
 jobs:
   test:
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (
-        github.repository == 'matplotlib/matplotlib' &&
-        !contains(github.event.head_commit.message, '[ci skip]') &&
-        !contains(github.event.head_commit.message, '[skip ci]') &&
-        !contains(github.event.head_commit.message, '[skip github]') &&
-        !contains(github.event.head_commit.message, '[ci doc]')
-      )
+#    if: |
+#      github.event_name == 'workflow_dispatch' ||
+#      (
+#        github.repository == 'matplotlib/matplotlib' &&
+#        !contains(github.event.head_commit.message, '[ci skip]') &&
+#        !contains(github.event.head_commit.message, '[skip ci]') &&
+#        !contains(github.event.head_commit.message, '[skip github]') &&
+#        !contains(github.event.head_commit.message, '[ci doc]')
+#      )
     permissions:
       contents: read
     name: "Python ${{ matrix.python-version }} on ${{ matrix.os }} ${{ matrix.name-suffix }}"
