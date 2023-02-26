@@ -1003,7 +1003,7 @@ class Colorbar:
 
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
+        scale : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
             The axis scale type to apply.
 
         **kwargs

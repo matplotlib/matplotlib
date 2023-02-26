@@ -1626,6 +1626,9 @@ class _AnnotationBase:
         state : bool or None
             - True or False: set the draggability.
             - None: toggle the draggability.
+        use_blit : bool, default: False
+            Use blitting for faster image composition. For details see
+            :ref:`func-animation`.
 
         Returns
         -------

@@ -2512,7 +2512,7 @@ class _SelectorWidget(AxesWidget):
 
         Parameters
         ----------
-        value : str
+        state : str
             Must be a supported state of the selector. See the
             `state_modifier_keys` parameters for details.
 

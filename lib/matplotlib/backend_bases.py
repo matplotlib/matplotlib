@@ -311,9 +311,11 @@ class RendererBase:
 
         Parameters
         ----------
-        points : (N, 3, 2) array-like
+        gc : `.GraphicsContextBase`
+            The graphics context.
+        triangles_array : (N, 3, 2) array-like
             Array of *N* (x, y) points for the triangles.
-        colors : (N, 3, 4) array-like
+        colors_array : (N, 3, 4) array-like
             Array of *N* RGBA colors for each point of the triangles.
         transform : `matplotlib.transforms.Transform`
             An affine transform to apply to the points.
@@ -609,6 +611,8 @@ class RendererBase:
 
         Parameters
         ----------
+        gc : `.GraphicsContextBase`
+            The graphics context.
         x : float
             The x location of the text in display coords.
         y : float
