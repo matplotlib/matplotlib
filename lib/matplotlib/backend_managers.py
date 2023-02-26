@@ -238,10 +238,8 @@ class ToolManager:
         tool : type
             Class of the tool to be added.  A subclass will be used
             instead if one was registered for the current canvas class.
-
-        Notes
-        -----
-        args and kwargs get passed directly to the tools constructor.
+        *args, **kwargs
+            Passed to the *tool*'s constructor.
 
         See Also
         --------

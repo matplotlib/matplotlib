@@ -167,7 +167,10 @@ class TightLayoutEngine(LayoutEngine):
         ----------
         fig : `.Figure` to perform layout on.
 
-        See also: `.figure.Figure.tight_layout` and `.pyplot.tight_layout`.
+        See Also
+        --------
+        .figure.Figure.tight_layout
+        .pyplot.tight_layout
         """
         info = self._params
         renderer = fig._get_renderer()

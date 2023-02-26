@@ -447,6 +447,10 @@ class GridSpec(GridSpecBase):
 
         Parameters
         ----------
+        figure : `.Figure`
+            The figure.
+        renderer :  `.RendererBase` subclass, optional
+            The renderer to be used.
         pad : float
             Padding between the figure edge and the edges of subplots, as a
             fraction of the font-size.
