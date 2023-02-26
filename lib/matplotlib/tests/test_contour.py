@@ -715,3 +715,12 @@ def test_bool_autolevel():
     assert plt.tricontour(x, y, z).levels.tolist() == [.5]
     assert plt.tricontourf(x, y, z.tolist()).levels.tolist() == [0, .5, 1]
     assert plt.tricontourf(x, y, z).levels.tolist() == [0, .5, 1]
+
+
+def test_contour_all_nan():
+    # Smoke test for gh#14124
+    x = np.array([[np.nan, np.nan], [np.nan, np.nan]])
+    with pytest.warns(UserWarning) as w:
+        plt.contour(x)
+    assert str(w._list[0].message) == "Warning: converting a masked element to nan."
+    assert str(w._list[1].message) == "Warning: converting a masked element to nan."
