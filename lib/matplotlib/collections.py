@@ -935,7 +935,7 @@ class _CollectionWithSizes(Collection):
     Base class for collections that have an array of sizes.
     """
     _factor = 1.0
-    _scaling = 2
+    _markerscale = 2
 
     def get_sizes(self):
         """
@@ -948,7 +948,7 @@ class _CollectionWithSizes(Collection):
         """
         return self._sizes
 
-    def set_sizes(self, sizes, dpi=72.0, scaling=2):
+    def set_sizes(self, sizes, dpi=72.0, markerscale=2):
         """
         Set the sizes of each member of the collection.
 
@@ -959,17 +959,20 @@ class _CollectionWithSizes(Collection):
             value is the 'area' of the element.
         dpi : float, default: 72
             The dpi of the canvas.
+        markerscale : int, default: 2
+            Scaling factor used to set the size as points or points**2.
+            Default value is set as 2 used for `s` and changed to 1 if
+            `markersize` is provided instead of `s`.
         """
-        self._scaling = scaling
+        self._markerscale = markerscale
         if sizes is None:
             self._sizes = np.array([])
             self._transforms = np.empty((0, 3, 3))
         else:
             self._sizes = np.asarray(sizes)
             self._transforms = np.zeros((len(self._sizes), 3, 3))
-            s = np.sqrt(self._sizes) if scaling == 2 else self._sizes
+            s = np.sqrt(self._sizes) if markerscale == 2 else self._sizes
             scale = s * dpi / 72.0 * self._factor
-            # scale = self._sizes * dpi / 72.0 * self._factor
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
@@ -977,7 +980,7 @@ class _CollectionWithSizes(Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi, self._scaling)
+        self.set_sizes(self._sizes, self.figure.dpi, self._markerscale)
         super().draw(renderer)
 
 
@@ -986,7 +989,7 @@ class PathCollection(_CollectionWithSizes):
     A collection of `~.path.Path`\s, as created by e.g. `~.Axes.scatter`.
     """
 
-    def __init__(self, paths, sizes=None, scaling=2, **kwargs):
+    def __init__(self, paths, sizes=None, markerscale=2, **kwargs):
         """
         Parameters
         ----------
@@ -1002,7 +1005,7 @@ class PathCollection(_CollectionWithSizes):
 
         super().__init__(**kwargs)
         self.set_paths(paths)
-        self.set_sizes(sizes, scaling=scaling)
+        self.set_sizes(sizes, markerscale=markerscale)
         self.stale = True
 
     def set_paths(self, paths):

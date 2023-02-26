@@ -4568,6 +4568,11 @@ default: :rc:`scatter.edgecolors`
             or ``nan``). If ``True`` the points are drawn with the *bad*
             colormap color (see `.Colormap.set_bad`).
 
+        markersize : float or array-like, shape (n, ), optional
+            The marker size in points. This differs from `s` as it sets the
+            size directly in points instead of points**2. `s` is used by
+            default to set the size if neither are passed.
+
         Returns
         -------
         `~matplotlib.collections.PathCollection`
@@ -4607,11 +4612,19 @@ default: :rc:`scatter.edgecolors`
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
 
+        if s is not None and markersize is not None:
+            raise ValueError(
+                "Only one of s or markersize should be passed. "
+                "Please refer to the docs for more details about usage.")
+
         if s is None:
             s = (20 if mpl.rcParams['_internal.classic_mode'] else
                  mpl.rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)
-        scaling = 2
+        markerscale = 2
+        if markersize is not None:
+            s = np.ma.ravel(markersize)
+            markerscale = 1
         if (len(s) not in (1, x.size) or
                 (not np.issubdtype(s.dtype, np.floating) and
                  not np.issubdtype(s.dtype, np.integer))):
@@ -4619,9 +4632,6 @@ default: :rc:`scatter.edgecolors`
                 "s must be a scalar, "
                 "or float array-like with the same size as x and y")
 
-        if markersize is not None:
-            s = np.ma.ravel(markersize)
-            scaling = 1
         # get the original edgecolor the user passed before we normalize
         orig_edgecolor = edgecolors
         if edgecolors is None:
@@ -4700,7 +4710,7 @@ default: :rc:`scatter.edgecolors`
 
         collection = mcoll.PathCollection(
             (path,), scales,
-            scaling=scaling,
+            markerscale=markerscale,
             facecolors=colors,
             edgecolors=edgecolors,
             linewidths=linewidths,
