@@ -949,7 +949,7 @@ default: %(va)s
 
         Parameters
         ----------
-        keep_observers: bool, default: False
+        keep_observers : bool, default: False
             Set *keep_observers* to True if, for example,
             a gui widget is tracking the Axes in the figure.
         """
@@ -989,7 +989,7 @@ default: %(va)s
 
         Parameters
         ----------
-        keep_observers: bool, default: False
+        keep_observers : bool, default: False
             Set *keep_observers* to True if, for example,
             a gui widget is tracking the Axes in the figure.
         """
