@@ -716,6 +716,7 @@ def test_bool_autolevel():
     assert plt.tricontourf(x, y, z.tolist()).levels.tolist() == [0, .5, 1]
     assert plt.tricontourf(x, y, z).levels.tolist() == [0, .5, 1]
 
+
 def test_all_nan():
     x = np.array([[np.nan, np.nan], [np.nan, np.nan]])
     assert_array_almost_equal(plt.contour(x).levels.tolist(),
