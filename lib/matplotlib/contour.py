@@ -1452,7 +1452,7 @@ class QuadContourSet(ContourSet):
         if self.logscale and self.zmin <= 0:
             z = ma.masked_where(z <= 0, z)
             _api.warn_external('Log scale: values of z <= 0 have been masked')
-            self.zmin = float(z.min())
+            self.zmin = z.min().astype(float)
         self._process_contour_level_args(args, z.dtype)
         return (x, y, z)
 
