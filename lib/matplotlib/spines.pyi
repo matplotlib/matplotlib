@@ -7,7 +7,7 @@ from matplotlib.colors import Color
 from matplotlib.path import Path
 from matplotlib.transforms import Transform
 
-from typing import Literal, TypeVar, Type
+from typing import Literal, TypeVar
 
 class Spine(mpatches.Patch):
     axes: Axes
@@ -37,17 +37,17 @@ class Spine(mpatches.Patch):
     def set_bounds(self, low: float | None = ..., high: float | None = ...) -> None: ...
     def get_bounds(self) -> tuple[float, float]: ...
 
-    T = TypeVar("T", bound=Spine)
+    _T = TypeVar("_T", bound=Spine)
     @classmethod
     def linear_spine(
-        cls: Type[T],
+        cls: type[_T],
         axes: Axes,
         spine_type: Literal["left", "right", "bottom", "top"],
         **kwargs
-    ) -> T: ...
+    ) -> _T: ...
     @classmethod
     def arc_spine(
-        cls: Type[T],
+        cls: type[_T],
         axes: Axes,
         spine_type: Literal["left", "right", "bottom", "top"],
         center: tuple[float, float],
@@ -55,11 +55,11 @@ class Spine(mpatches.Patch):
         theta1: float,
         theta2: float,
         **kwargs
-    ) -> T: ...
+    ) -> _T: ...
     @classmethod
     def circular_spine(
-        cls: Type[T], axes: Axes, center: tuple[float, float], radius: float, **kwargs
-    ) -> T: ...
+        cls: type[_T], axes: Axes, center: tuple[float, float], radius: float, **kwargs
+    ) -> _T: ...
     def set_color(self, c: Color | None) -> None: ...
 
 class SpinesProxy:

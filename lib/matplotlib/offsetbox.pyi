@@ -11,7 +11,8 @@ from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, Transform
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Any, Callable, Literal, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any, Literal
 
 DEBUG: bool
 

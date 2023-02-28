@@ -3,7 +3,8 @@ from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
-from typing import Any, Callable, Iterable
+from collections.abc import Callable, Iterable
+from typing import Any
 
 import numpy as np
 

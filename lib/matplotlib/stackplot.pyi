@@ -2,7 +2,8 @@ from matplotlib.axes import Axes
 from matplotlib.collections import PolyCollection
 from matplotlib.colors import Color
 
-from typing import Iterable, Literal
+from collections.abc import Iterable
+from typing import Literal
 from numpy.typing import ArrayLike
 
 def stackplot(

@@ -32,7 +32,8 @@ import matplotlib.streamplot as mstream
 
 import datetime
 import PIL
-from typing import Any, Callable, Literal, Sequence, Type, overload
+from collections.abc import Callable, Sequence
+from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -49,7 +50,7 @@ class Axes(_AxesBase):
         **kwargs
     ) -> Text: ...
     def get_legend_handles_labels(
-        self, legend_handler_map: dict[Type, HandlerBase] | None = ...
+        self, legend_handler_map: dict[type, HandlerBase] | None = ...
     ) -> tuple[list[Artist], list[Any]]: ...
     legend_: Legend
 

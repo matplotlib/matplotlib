@@ -11,7 +11,8 @@ from matplotlib.ticker import _DummyAxis
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Any, Literal, Sequence, overload
+from collections.abc import Sequence
+from typing import Any, Literal, overload
 
 class PolarTransform(mtransforms.Transform):
     input_dims: int

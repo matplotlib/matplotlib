@@ -19,7 +19,8 @@ from .transforms import (
 
 import numpy as np
 
-from typing import Any, NamedTuple, Callable, TextIO, Type, TypeVar, overload
+from collections.abc import Callable
+from typing import Any, NamedTuple, TextIO, overload
 from numpy.typing import ArrayLike
 
 def allow_rasterization(draw): ...
@@ -135,7 +136,7 @@ class Artist:
     def set(self, **kwargs: Any): ...
     def findobj(
         self,
-        match: None | Callable[[Artist], bool] | Type[Artist] = ...,
+        match: None | Callable[[Artist], bool] | type[Artist] = ...,
         include_self: bool = ...,
     ) -> list[Artist]: ...
     def get_cursor_data(self, event: MouseEvent) -> Any: ...
@@ -144,8 +145,8 @@ class Artist:
     def set_mouseover(self, mouseover: bool) -> None: ...
 
 class ArtistInspector:
-    oorig: Artist | Type[Artist]
-    o: Type[Artist]
+    oorig: Artist | type[Artist]
+    o: type[Artist]
     aliasd: dict[str, set[str]]
     def __init__(self, o) -> None: ...
     def get_aliases(self) -> dict[str, set[str]]: ...

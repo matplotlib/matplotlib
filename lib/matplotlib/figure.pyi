@@ -39,7 +39,8 @@ from matplotlib.transforms import (
 import numpy as np
 from numpy.typing import ArrayLike
 
-from typing import Any, Callable, Iterable, Literal, overload
+from collections.abc import Callable, Iterable
+from typing import Any, Literal, overload
 
 class SubplotParams:
     def __init__(

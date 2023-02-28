@@ -4,7 +4,8 @@ from matplotlib.axis import Axis, Tick
 from matplotlib.colors import Color
 from matplotlib.transforms import Transform
 
-from typing import Literal, Callable, Iterable
+from collections.abc import Callable, Iterable
+from typing import Literal
 from numpy.typing import ArrayLike
 
 class SecondaryAxis(_AxesBase):

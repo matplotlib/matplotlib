@@ -11,7 +11,8 @@ from matplotlib.ticker import Locator, Formatter
 
 from numpy.typing import ArrayLike
 import numpy as np
-from typing import Any, Callable, Literal, Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
+from typing import Literal
 
 class ClabelText(Text): ...
 

@@ -7,7 +7,8 @@ from .path import Path
 from .text import Text
 from .transforms import Bbox
 
-from typing import Any, Literal, Sequence
+from collections.abc import Sequence
+from typing import Any, Literal
 
 class Cell(Rectangle):
     PAD: float

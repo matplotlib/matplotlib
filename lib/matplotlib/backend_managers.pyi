@@ -1,8 +1,9 @@
-from matplotlib import backend_tools, cbook, widgets
+from matplotlib import backend_tools, widgets
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure
 
-from typing import Any, Callable, Iterable, TypeVar, Type
+from collections.abc import Callable, Iterable
+from typing import Any, TypeVar
 
 class ToolEvent:
     name: str
@@ -47,8 +48,8 @@ class ToolManager:
     def get_tool_keymap(self, name: str) -> list[str]: ...
     def update_keymap(self, name: str, key: str | Iterable[str]) -> None: ...
     def remove_tool(self, name: str) -> None: ...
-    T = TypeVar("T", bound=backend_tools.ToolBase)
-    def add_tool(self, name: str, tool: Type[T], *args, **kwargs) -> T: ...
+    _T = TypeVar("_T", bound=backend_tools.ToolBase)
+    def add_tool(self, name: str, tool: type[_T], *args, **kwargs) -> _T: ...
     def trigger_tool(
         self,
         name: str,

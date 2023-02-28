@@ -8,15 +8,16 @@ from matplotlib.lines import LineStyleType, MarkEveryType
 
 from cycler import Cycler
 
-from typing import Any, Callable, Iterable, Literal, TypeVar
+from collections.abc import Callable, Iterable
+from typing import Any, Literal, TypeVar
 
 interactive_bk: list[str]
 non_interactive_bk: list[str]
 all_backends: list[str]
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
-def _listify_validator(s: Callable[[Any], T]) -> Callable[[Any], list[T]]: ...
+def _listify_validator(s: Callable[[Any], _T]) -> Callable[[Any], list[_T]]: ...
 
 class ValidateInStrings:
     key: str
@@ -144,11 +145,8 @@ def validate_markeverylist(s: Any) -> list[MarkEveryType]: ...
 def validate_bbox(s: Any) -> Literal["tight", "standard"] | None: ...
 def validate_sketch(s: Any) -> None | tuple[float, float, float]: ...
 def validate_hatch(s: Any) -> str: ...
-def validate_hatchlist(s: Any):
-    list[str]
-
-def validate_dashlist(s: Any):
-    list[list[float]]
+def validate_hatchlist(s: Any) -> list[str]: ...
+def validate_dashlist(s: Any) -> list[list[float]]: ...
 
 # TODO: copy cycler overloads?
 def cycler(*args, **kwargs) -> Cycler: ...

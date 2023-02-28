@@ -32,14 +32,14 @@ import os
 from pathlib import Path
 
 from . import cbook, rcsetup
-from collections.abc import Generator, MutableMapping
+from collections.abc import Callable, Generator, MutableMapping
 import contextlib
 from packaging.version import Version
 
 from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.cbook import sanitize_sequence
 from matplotlib.rcsetup import cycler, validate_backend
-from typing import Any, Callable, NamedTuple
+from typing import Any, NamedTuple
 
 __bibtex__: str
 

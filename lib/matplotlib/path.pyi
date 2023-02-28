@@ -1,15 +1,15 @@
 from .bezier import BezierSegment as BezierSegment
 from .cbook import simple_linear_interpolation as simple_linear_interpolation
 from .transforms import Affine2D, Transform, Bbox
-from collections.abc import Generator
+from collections.abc import Generator, Iterable, Sequence
 
 import numpy as np
 from numpy.typing import ArrayLike
 
-from typing import Any, Iterable, Sequence, Type, overload
+from typing import Any, overload
 
 class Path:
-    code_type: Type[np.uint8]
+    code_type: type[np.uint8]
     STOP: np.uint8
     MOVETO: np.uint8
     LINETO: np.uint8

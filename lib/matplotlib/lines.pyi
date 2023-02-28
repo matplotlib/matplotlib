@@ -25,7 +25,8 @@ from .markers import (
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath, Transform
 
-from typing import Any, Literal, Sequence, Union, Callable, overload
+from collections.abc import Callable, Sequence
+from typing import Any, Literal, TypeAlias, overload
 from numpy.typing import ArrayLike
 
 def segment_hits(
@@ -155,8 +156,6 @@ lineMarkers: dict[str | int, str]
 drawStyles: dict[str, str]
 fillStyles: tuple[FillStyleType, ...]
 
-LineStyleType = Union[str, tuple[float, Sequence[float]]]
-DrawStyleType = Literal["default", "steps", "steps-pre", "steps-mid", "steps-post"]
-MarkEveryType = Union[
-    None, int, tuple[int, int], slice, list[int], float, tuple[float, float], list[bool]
-]
+LineStyleType: TypeAlias = str | tuple[float, Sequence[float]]
+DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid", "steps-post"]
+MarkEveryType: TypeAlias = None | int | tuple[int, int] | slice | list[int] | float | tuple[float, float] | list[bool]

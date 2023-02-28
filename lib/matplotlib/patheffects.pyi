@@ -4,7 +4,7 @@ from matplotlib.path import Path
 from matplotlib.patches import Patch
 from matplotlib.transforms import Transform
 
-from typing import Iterable, Sequence
+from collections.abc import Iterable, Sequence
 
 class AbstractPathEffect:
     def __init__(self, offset: tuple[float, float] = ...) -> None: ...

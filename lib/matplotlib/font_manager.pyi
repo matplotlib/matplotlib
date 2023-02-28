@@ -11,7 +11,8 @@ from matplotlib._fontconfig_pattern import (
 
 from pathlib import Path
 
-from typing import Any, Literal, Iterable
+from collections.abc import Iterable
+from typing import Any, Literal
 
 font_scalings: dict[str | None, float]
 stretch_dict: dict[str, int]

@@ -1,11 +1,11 @@
 from collections.abc import Generator
-from typing import Any
+from typing import Any, TypeAlias
 from pathlib import Path
 import contextlib
 
 from matplotlib import RcParams
 
-StyleType = str | dict[str, Any] | Path | list[str | Path | dict[str, Any]]
+StyleType: TypeAlias = str | dict[str, Any] | Path | list[str | Path | dict[str, Any]]
 
 USER_LIBRARY_PATHS: list[str] = ...
 STYLE_EXTENSION: str = ...

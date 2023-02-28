@@ -6,7 +6,8 @@ from matplotlib.ticker import Locator, Formatter
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Any, Literal, Sequence, overload
+from collections.abc import Sequence
+from typing import Any, Literal, overload
 
 class _ColorbarSpine(mspines.Spines):
     def __init__(self, axes: Axes): ...

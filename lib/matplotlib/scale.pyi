@@ -14,7 +14,8 @@ from matplotlib.ticker import (
 )
 from matplotlib.transforms import IdentityTransform, Transform
 
-from typing import Callable, Literal, Iterable, Type
+from collections.abc import Callable, Iterable
+from typing import Literal
 from numpy.typing import ArrayLike
 
 class ScaleBase:
@@ -190,4 +191,4 @@ class LogitScale(ScaleBase):
 
 def get_scale_names() -> list[str]: ...
 def scale_factory(scale: str, axis: Axis, **kwargs): ...
-def register_scale(scale_class: Type[ScaleBase]) -> None: ...
+def register_scale(scale_class: type[ScaleBase]) -> None: ...

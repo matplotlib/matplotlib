@@ -11,7 +11,8 @@ from .transforms import Affine2D, TransformedPatchPath
 
 import PIL
 
-from typing import Any, Callable, Literal, Iterable, Sequence, Collection
+from collections.abc import Callable, Collection, Iterable, Sequence
+from typing import Any, Literal
 from numpy.typing import ArrayLike
 import numpy as np
 

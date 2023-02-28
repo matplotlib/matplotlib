@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 from matplotlib.scale import ScaleBase
 from matplotlib._pylab_helpers import Gcf
 
-from typing import Any, Type
+from typing import Any
 
 class Cursors(enum.IntEnum):
     POINTER: int
@@ -119,6 +119,6 @@ default_tools: dict[str, ToolBase]
 default_toolbar_tools: list[list[str | list[str]]]
 
 def add_tools_to_manager(
-    toolmanager: ToolManager, tools: dict[str, Type[ToolBase]] = ...
+    toolmanager: ToolManager, tools: dict[str, type[ToolBase]] = ...
 ) -> None: ...
 def add_tools_to_container(container: ToolContainerBase, tools: list[Any]) -> None: ...

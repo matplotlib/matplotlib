@@ -1,14 +1,14 @@
 from ._color_data import BASE_COLORS, CSS4_COLORS, TABLEAU_COLORS, XKCD_COLORS
-from collections.abc import Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from matplotlib import cbook, scale
 import re
 
-from typing import Any, Callable, Sequence, Iterable, Iterator, Literal, Type, Union, overload
+from typing import Any, Literal, TypeAlias, overload
 
 import numpy as np
 from numpy.typing import ArrayLike
 
-Color = Union[tuple[float, float, float], tuple[float, float, float, float], str]
+Color: TypeAlias = tuple[float, float, float] | tuple[float, float, float, float] | str
 
 class _ColorMapping(dict[str, Color]):
     cache: dict[tuple[Color, float | None], tuple[float, float, float, float]]
@@ -39,7 +39,7 @@ def to_rgba_array(
 def to_rgb(c: Color) -> tuple[float, float, float]: ...
 def to_hex(c: Color, keep_alpha: bool = ...) -> str: ...
 
-cnames: dict[str, Color] = CSS4_COLORS
+cnames: dict[str, Color]
 hexColorPattern: re.Pattern
 rgb2hex = to_hex
 hex2color = to_rgb
@@ -69,7 +69,7 @@ class Colormap:
         self, X: ArrayLike, alpha: ArrayLike | None = ..., bytes: bool = ...
     ) -> tuple[float, float, float, float] | np.ndarray: ...
     def __copy__(self) -> Colormap: ...
-    def __eq__(self, other: Any) -> bool: ...
+    def __eq__(self, other: object) -> bool: ...
     def get_bad(self) -> np.ndarray: ...
     def set_bad(self, color: Color = ..., alpha: float | None = ...) -> None: ...
     def get_under(self) -> np.ndarray: ...
@@ -175,18 +175,18 @@ class CenteredNorm(Normalize):
 
 @overload
 def make_norm_from_scale(
-    scale_cls: Type[scale.ScaleBase],
-    base_norm_cls: Type[Normalize],
+    scale_cls: type[scale.ScaleBase],
+    base_norm_cls: type[Normalize],
     *,
     init: Callable | None = ...
-) -> Type[Normalize]: ...
+) -> type[Normalize]: ...
 @overload
 def make_norm_from_scale(
-    scale_cls: Type[scale.ScaleBase],
+    scale_cls: type[scale.ScaleBase],
     base_norm_cls: None = ...,
     *,
     init: Callable | None = ...
-) -> Callable[[Type[Normalize]], Type[Normalize]]: ...
+) -> Callable[[type[Normalize]], type[Normalize]]: ...
 
 class FuncNorm(Normalize): ...
 class LogNorm(Normalize): ...

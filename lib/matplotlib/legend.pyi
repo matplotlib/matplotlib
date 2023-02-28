@@ -38,7 +38,8 @@ from matplotlib.transforms import (
 
 
 import pathlib
-from typing import Any, Literal, Iterable, Type, overload
+from collections.abc import Iterable
+from typing import Any, Literal, overload
 
 class DraggableLegend(DraggableOffsetBox):
     legend: Legend
@@ -108,7 +109,7 @@ class Legend(Artist):
         | None = ...,
         bbox_transform: Transform | None = ...,
         frameon: bool | None = ...,
-        handler_map: dict[Artist | Type, HandlerBase] | None = ...,
+        handler_map: dict[Artist | type, HandlerBase] | None = ...,
         title_fontproperties: FontProperties | dict[str, Any] | None = ...,
         alignment: Literal["center", "left", "right"] = ...,
         *,
@@ -117,17 +118,17 @@ class Legend(Artist):
     ) -> None: ...
     def set_ncols(self, ncols: int) -> None: ...
     @classmethod
-    def get_default_handler_map(cls) -> dict[Type, HandlerBase]: ...
+    def get_default_handler_map(cls) -> dict[type, HandlerBase]: ...
     @classmethod
-    def set_default_handler_map(cls, handler_map: dict[Type, HandlerBase]) -> None: ...
+    def set_default_handler_map(cls, handler_map: dict[type, HandlerBase]) -> None: ...
     @classmethod
     def update_default_handler_map(
-        cls, handler_map: dict[Type, HandlerBase]
+        cls, handler_map: dict[type, HandlerBase]
     ) -> None: ...
-    def get_legend_handler_map(self) -> dict[Type, HandlerBase]: ...
+    def get_legend_handler_map(self) -> dict[type, HandlerBase]: ...
     @staticmethod
     def get_legend_handler(
-        legend_handler_map: dict[Type, HandlerBase], orig_handle: Any
+        legend_handler_map: dict[type, HandlerBase], orig_handle: Any
     ) -> HandlerBase | None: ...
     def get_children(self) -> list[Artist]: ...
     def get_frame(self) -> Rectangle: ...

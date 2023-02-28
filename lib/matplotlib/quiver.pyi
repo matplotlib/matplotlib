@@ -11,7 +11,8 @@ from matplotlib.transforms import Transform, Bbox
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Any, Literal, Sequence, overload
+from collections.abc import Sequence
+from typing import Any, Literal, overload
 
 class QuiverKey(martist.Artist):
     halign: dict[Literal["N", "S", "E", "W"], Literal["left", "center", "right"]]

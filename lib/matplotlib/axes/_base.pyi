@@ -1,7 +1,7 @@
 import matplotlib.artist as martist
 
 import datetime
-from collections.abc import MutableSequence
+from collections.abc import Callable, Iterable, Iterator, Sequence, MutableSequence
 from matplotlib import cbook, offsetbox
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis, Tick
@@ -28,7 +28,7 @@ from cycler import Cycler
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Any, Callable, Literal, Iterable, Iterator, Sequence, Type, overload
+from typing import Any, Literal, overload
 
 class _axis_method_wrapper:
     attr_name: str
@@ -129,8 +129,8 @@ class _AxesBase(martist.Artist):
             self,
             axes: _AxesBase,
             prop_name: str,
-            valid_types: list[Type] | None = ...,
-            invalid_types: tuple[Type] | None = ...,
+            valid_types: list[type] | None = ...,
+            invalid_types: tuple[type] | None = ...,
         ) -> None: ...
         def __len__(self) -> int: ...
         def __iter__(self) -> Iterator[Artist]: ...

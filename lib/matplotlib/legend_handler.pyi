@@ -1,13 +1,10 @@
-from collections.abc import Sequence
-from matplotlib import cbook
+from collections.abc import Callable, Sequence
 from matplotlib.artist import Artist
 from matplotlib.legend import Legend
-from matplotlib.lines import Line2D
 from matplotlib.offsetbox import OffsetBox
-from matplotlib.patches import Rectangle
 from matplotlib.transforms import Transform
 
-from typing import Callable, TypeVar
+from typing import TypeVar
 
 from numpy.typing import ArrayLike
 
@@ -147,7 +144,7 @@ class HandlerLineCollection(HandlerLine2D):
         trans: Transform,
     ) -> Sequence[Artist]: ...
 
-T = TypeVar("T", bound=Artist)
+_T = TypeVar("_T", bound=Artist)
 
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     def __init__(
@@ -172,11 +169,11 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     ) -> None: ...
     def create_collection(
         self,
-        orig_handle: T,
+        orig_handle: _T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
         offset_transform: Transform,
-    ) -> T: ...
+    ) -> _T: ...
     def create_artists(
         self,
         legend: Legend,
@@ -192,20 +189,20 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 class HandlerPathCollection(HandlerRegularPolyCollection):
     def create_collection(
         self,
-        orig_handle: T,
+        orig_handle: _T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
         offset_transform: Transform,
-    ) -> T: ...
+    ) -> _T: ...
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
     def create_collection(
         self,
-        orig_handle: T,
+        orig_handle: _T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
         offset_transform: Transform,
-    ) -> T: ...
+    ) -> _T: ...
 
 class HandlerErrorbar(HandlerLine2D):
     def __init__(

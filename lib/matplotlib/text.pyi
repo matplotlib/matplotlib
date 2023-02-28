@@ -16,7 +16,8 @@ from .transforms import (
     Transform,
 )
 
-from typing import Any, Callable, Iterable, Literal
+from collections.abc import Callable, Iterable
+from typing import Any, Literal
 
 class Text(Artist):
     zorder: float

@@ -9,7 +9,8 @@ from matplotlib.ticker import Locator, Formatter
 from matplotlib.transforms import Transform, Bbox
 
 import datetime
-from typing import Any, Literal, Type, Iterable, Callable
+from collections.abc import Callable, Iterable
+from typing import Any, Literal
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -93,7 +94,7 @@ class Ticker:
 
 class _LazyTickList:
     def __init__(self, major: bool) -> None: ...
-    def __get__(self, instance: Axis, cls: Type): ...
+    def __get__(self, instance: Axis, cls: type): ...
 
 class Axis(martist.Artist):
     OFFSETTEXTPAD: int

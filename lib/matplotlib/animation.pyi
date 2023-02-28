@@ -1,5 +1,5 @@
 import abc
-from collections.abc import Generator
+from collections.abc import Callable, Iterable, Generator
 import contextlib
 from pathlib import Path
 from matplotlib import cbook
@@ -13,7 +13,7 @@ from matplotlib.artist import Artist
 from matplotlib.backend_bases import TimerBase
 from matplotlib.figure import Figure
 
-from typing import Any, Callable, Iterable, Generator, Type
+from typing import Any
 
 subprocess_creation_flags: int
 
@@ -23,11 +23,11 @@ class MovieWriterRegistry:
     def __init__(self) -> None: ...
     def register(
         self, name: str
-    ) -> Callable[[Type[AbstractMovieWriter]], Type[AbstractMovieWriter]]: ...
+    ) -> Callable[[type[AbstractMovieWriter]], type[AbstractMovieWriter]]: ...
     def is_available(self, name: str) -> bool: ...
     def __iter__(self) -> Generator[str, None, None]: ...
     def list(self) -> list[str]: ...
-    def __getitem__(self, name: str) -> Type[AbstractMovieWriter]: ...
+    def __getitem__(self, name: str) -> type[AbstractMovieWriter]: ...
 
 writers: MovieWriterRegistry
 

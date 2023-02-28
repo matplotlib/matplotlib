@@ -1,11 +1,10 @@
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
 from matplotlib import cbook, colors, scale
 from matplotlib.colorbar import Colorbar
 from matplotlib._cm import datad
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Iterator
 
 class ColormapRegistry(Mapping[str, colors.Colormap]):
     def __init__(self, cmaps: Mapping[str, colors.Colormap]) -> None: ...

@@ -4,7 +4,8 @@ from matplotlib.lines import Line2D
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Rectangle
 
-from typing import Any, Callable, Literal
+from collections.abc import Callable
+from typing import Any, Literal
 from numpy.typing import ArrayLike
 
 class Container(tuple):

@@ -4,7 +4,7 @@ from .path import Path
 from .transforms import Affine2D, IdentityTransform, Transform
 
 from numpy.typing import ArrayLike
-from typing import Literal, Union
+from typing import Literal, TypeAlias
 
 TICKLEFT: int
 TICKRIGHT: int
@@ -51,5 +51,5 @@ class MarkerStyle:
     ) -> MarkerStyle: ...
     def scaled(self, sx: float, sy: float | None = ...) -> MarkerStyle: ...
 
-MarkerType = Union[str, Path, MarkerStyle]
-FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
+MarkerType: TypeAlias = str | Path | MarkerStyle
+FillStyleType: TypeAlias = Literal["full", "left", "right", "bottom", "top", "none"]
