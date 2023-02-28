@@ -4390,15 +4390,9 @@ class Axes(_AxesBase):
             if facecolors is None:
                 facecolors = kwcolor
 
-        ## NEW
-        if edgecolors is None and c is not None:
-            edgecolors = c
-            obj = ScalarMappable()
-            edgecolors = obj.to_rgba(edgecolors)
-        else:
 
-            if edgecolors is None and not mpl.rcParams['_internal.classic_mode']:
-                edgecolors = mpl.rcParams['scatter.edgecolors']
+        if edgecolors is None and not mpl.rcParams['_internal.classic_mode']:
+            edgecolors = mpl.rcParams['scatter.edgecolors']
 
         c_was_none = c is None
         if c is None:
@@ -4448,12 +4442,15 @@ class Axes(_AxesBase):
 
         #### NEW
         if c_is_mapped and facecolors == 'none':
+            obj = ScalarMappable()
+            edgecolors = obj.to_rgba(c)
             colors = []
             return c, colors, edgecolors
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 #### NEW
-                if(facecolors == 'none'):
+                if(facecolors == 'none' and edgecolors is None):
+                    edgecolors = mcolors.to_rgba_array(c)
                     colors = []
                 else:
                     colors = mcolors.to_rgba_array(c)
@@ -4484,7 +4481,7 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None, *,
-                edgecolors=[], plotnonfinite=False, **kwargs):
+                edgecolors=None, plotnonfinite=False, **kwargs):
         """
         A scatter plot of *y* vs. *x* with varying marker size and/or color.
 
