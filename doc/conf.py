@@ -453,9 +453,7 @@ html_theme_options = {
             'stable' if matplotlib.__version_info__.releaselevel == 'final'
             else 'devdocs')
     },
-    "logo": {"link": "index",
-             "image_light": "images/logo2.svg",
-             "image_dark": "images/logo_dark.svg"},
+    "logo": {"link": "index"},
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "secondary_sidebar_items": "page-toc.html",
      "footer_items": ["copyright", "sphinx-version", "doc_version"],
