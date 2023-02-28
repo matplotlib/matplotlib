@@ -158,8 +158,7 @@ scatteryoffsets : iterable of floats, default: ``[0.375, 0.5, 0.3125]``
     same height, set to ``[0.5]``.
 
 markerscale : float, default: :rc:`legend.markerscale`
-    The relative size of legend markers compared with the originally
-    drawn ones.
+    The relative size of legend markers compared to the originally drawn ones.
 
 markerfirst : bool, default: True
     If *True*, legend marker is placed to the left of the legend label.
@@ -254,52 +253,55 @@ draggable : bool, default: False
 """
 
 _loc_doc_base = """
-loc : str or pair of floats, {0}
+loc : str or pair of floats, default: {default}
     The location of the legend.
 
-    The strings
-    ``'upper left', 'upper right', 'lower left', 'lower right'``
-    place the legend at the corresponding corner of the axes/figure.
+    The strings ``'upper left'``, ``'upper right'``, ``'lower left'``,
+    ``'lower right'`` place the legend at the corresponding corner of the
+    {parent}.
 
-    The strings
-    ``'upper center', 'lower center', 'center left', 'center right'``
-    place the legend at the center of the corresponding edge of the
-    axes/figure.
+    The strings ``'upper center'``, ``'lower center'``, ``'center left'``,
+    ``'center right'`` place the legend at the center of the corresponding edge
+    of the {parent}.
 
-    The string ``'center'`` places the legend at the center of the axes/figure.
+    The string ``'center'`` places the legend at the center of the {parent}.
+{best}
+    The location can also be a 2-tuple giving the coordinates of the lower-left
+    corner of the legend in {parent} coordinates (in which case *bbox_to_anchor*
+    will be ignored).
 
+    For back-compatibility, ``'center right'`` (but no other location) can also
+    be spelled ``'right'``, and each "string" location can also be given as a
+    numeric value:
+
+        ==================   =============
+        Location String      Location Code
+        ==================   =============
+        'best' (Axes only)   0
+        'upper right'        1
+        'upper left'         2
+        'lower left'         3
+        'lower right'        4
+        'right'              5
+        'center left'        6
+        'center right'       7
+        'lower center'       8
+        'upper center'       9
+        'center'             10
+        ==================   =============
+    {outside}"""
+
+_loc_doc_best = """
     The string ``'best'`` places the legend at the location, among the nine
     locations defined so far, with the minimum overlap with other drawn
     artists.  This option can be quite slow for plots with large amounts of
     data; your plotting speed may benefit from providing a specific location.
+"""
 
-    The location can also be a 2-tuple giving the coordinates of the lower-left
-    corner of the legend in axes coordinates (in which case *bbox_to_anchor*
-    will be ignored).
-
-    For back-compatibility, ``'center right'`` (but no other location) can also
-    be spelled ``'right'``, and each "string" locations can also be given as a
-    numeric value:
-
-        ===============   =============
-        Location String   Location Code
-        ===============   =============
-        'best'            0
-        'upper right'     1
-        'upper left'      2
-        'lower left'      3
-        'lower right'     4
-        'right'           5
-        'center left'     6
-        'center right'    7
-        'lower center'    8
-        'upper center'    9
-        'center'          10
-        ===============   =============
-    {1}"""
-
-_legend_kw_axes_st = (_loc_doc_base.format("default: :rc:`legend.loc`", '') +
-                      _legend_kw_doc_base)
+_legend_kw_axes_st = (
+    _loc_doc_base.format(parent='axes', default=':rc:`legend.loc`',
+                         best=_loc_doc_best, outside='') +
+    _legend_kw_doc_base)
 _docstring.interpd.update(_legend_kw_axes=_legend_kw_axes_st)
 
 _outside_doc = """
@@ -314,21 +316,23 @@ _outside_doc = """
     :doc:`/tutorials/intermediate/legend_guide` for more details.
 """
 
-_legend_kw_figure_st = (_loc_doc_base.format("default: 'upper right'",
-                                             _outside_doc) +
-                        _legend_kw_doc_base)
+_legend_kw_figure_st = (
+    _loc_doc_base.format(parent='figure', default="'upper right'",
+                         best='', outside=_outside_doc) +
+    _legend_kw_doc_base)
 _docstring.interpd.update(_legend_kw_figure=_legend_kw_figure_st)
 
 _legend_kw_both_st = (
-    _loc_doc_base.format("default: 'best' for axes, 'upper right' for figures",
-                         _outside_doc) +
+    _loc_doc_base.format(parent='axes/figure',
+                         default=":rc:`legend.loc` for Axes, 'upper right' for Figure",
+                         best=_loc_doc_best, outside=_outside_doc) +
     _legend_kw_doc_base)
 _docstring.interpd.update(_legend_kw_doc=_legend_kw_both_st)
 
 
 class Legend(Artist):
     """
-    Place a legend on the axes at location loc.
+    Place a legend on the figure/axes.
     """
 
     # 'best' is only implemented for axes legends
@@ -407,17 +411,6 @@ class Legend(Artist):
             List of `.Artist` objects added as legend entries.
 
             .. versionadded:: 3.7
-
-        Notes
-        -----
-        Users can specify any arbitrary location for the legend using the
-        *bbox_to_anchor* keyword argument. *bbox_to_anchor* can be a
-        `.BboxBase` (or derived there from) or a tuple of 2 or 4 floats.
-        See `set_bbox_to_anchor` for more detail.
-
-        The legend location can be specified by setting *loc* with a tuple of
-        2 floats, which is interpreted as the lower-left corner of the legend
-        in the normalized axes coordinate.
         """
         # local import only to avoid circularity
         from matplotlib.axes import Axes
