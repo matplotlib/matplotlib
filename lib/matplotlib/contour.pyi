@@ -3,7 +3,7 @@ from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import MouseButton
 from matplotlib.collections import Collection, PathCollection
-from matplotlib.colors import Color, Colormap, Normalize
+from matplotlib.colors import Colormap, Normalize
 from matplotlib.font_manager import FontProperties
 from matplotlib.text import Text
 from matplotlib.transforms import Transform
@@ -13,6 +13,7 @@ from numpy.typing import ArrayLike
 import numpy as np
 from collections.abc import Callable, Iterable, Sequence
 from typing import Literal
+from .typing import ColorType
 
 class ClabelText(Text): ...
 
@@ -23,7 +24,7 @@ class ContourLabeler:
     labelLevelList: list[float]
     labelIndiceList: list[int]
     labelMappable: cm.ScalarMappable
-    labelCValueList: list[Color]
+    labelCValueList: list[ColorType]
     labelXYs: list[tuple[float, float]]
     def clabel(
         self,
@@ -33,7 +34,7 @@ class ContourLabeler:
         inline: bool = ...,
         inline_spacing: float = ...,
         fmt: str | Formatter | Callable[[float], str] | dict[float, str] | None = ...,
-        colors: Color | Sequence[Color] | None = ...,
+        colors: ColorType | Sequence[ColorType] | None = ...,
         use_clabeltext: bool = ...,
         manual: bool | Iterable[tuple[float, float]] = ...,
         rightside_up: bool = ...,
@@ -47,7 +48,7 @@ class ContourLabeler:
     def labelTextsList(self) -> list[Text]: ...
     def print_label(self, linecontour: ArrayLike, labelwidth: float) -> bool: ...
     def too_close(self, x: float, y: float, lw: float) -> bool: ...
-    def set_label_props(self, label: Text, text: str, color: Color) -> None: ...
+    def set_label_props(self, label: Text, text: str, color: ColorType) -> None: ...
     def get_text(
         self,
         lev: float,
@@ -65,10 +66,10 @@ class ContourLabeler:
         spacing: int = ...,
     ) -> tuple[float, list[ArrayLike]]: ...
     def add_label(
-        self, x: float, y: float, rotation: float, lev: float, cvalue: Color
+        self, x: float, y: float, rotation: float, lev: float, cvalue: ColorType
     ) -> None: ...
     def add_label_clabeltext(
-        self, x: float, y: float, rotation: float, lev: float, cvalue: Color
+        self, x: float, y: float, rotation: float, lev: float, cvalue: ColorType
     ) -> None: ...
     def add_label_near(
         self,
@@ -94,7 +95,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     alpha: float | None
     origin: Literal["upper", "lower", "image"] | None
     extent: tuple[float, float, float, float] | None
-    colors: Color | Sequence[Color]
+    colors: ColorType | Sequence[ColorType]
     extend: Literal["neither", "both", "min", "max"]
     antialiased: bool | None
     nchunk: int
@@ -105,7 +106,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     ] | Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
     collections: list[PathCollection]
     labelTexts: list[Text]
-    labelCValues: list[Color]
+    labelCValues: list[ColorType]
     allkinds: list[np.ndarray]
     tcolors: list[tuple[float, float, float, float]]
 
@@ -127,7 +128,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         origin: Literal["upper", "lower", "image"] | None = ...,
         extent: tuple[float, float, float, float] | None = ...,
         cmap: str | Colormap | None = ...,
-        colors: Color | Sequence[Color] | None = ...,
+        colors: ColorType | Sequence[ColorType] | None = ...,
         norm: str | Normalize | None = ...,
         vmin: float | None = ...,
         vmax: float | None = ...,

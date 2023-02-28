@@ -1,12 +1,12 @@
 from matplotlib.axes import Axes
-from matplotlib.colors import Color, Normalize, Colormap
+from matplotlib.colors import Normalize, Colormap
 from matplotlib.collections import LineCollection, PatchCollection
 from matplotlib.patches import ArrowStyle
 from matplotlib.transforms import Transform
 
 from typing import Literal
-
 from numpy.typing import ArrayLike
+from .typing import ColorType
 
 def streamplot(
     axes: Axes,
@@ -16,7 +16,7 @@ def streamplot(
     v: ArrayLike,
     density: float | tuple[float, float] = ...,
     linewidth: float | ArrayLike | None = ...,
-    color: Color | ArrayLike | None = ...,
+    color: ColorType | ArrayLike | None = ...,
     cmap: str | Colormap | None = ...,
     norm: str | Normalize | None = ...,
     arrowsize: float = ...,

@@ -3,9 +3,9 @@ from collections.abc import MutableMapping, Iterator
 from matplotlib.artist import allow_rasterization
 from matplotlib.axes import Axes
 from matplotlib.axis import Axis
-from matplotlib.colors import Color
 from matplotlib.path import Path
 from matplotlib.transforms import Transform
+from matplotlib.typing import ColorType
 
 from typing import Literal, TypeVar
 
@@ -60,7 +60,7 @@ class Spine(mpatches.Patch):
     def circular_spine(
         cls: type[_T], axes: Axes, center: tuple[float, float], radius: float, **kwargs
     ) -> _T: ...
-    def set_color(self, c: Color | None) -> None: ...
+    def set_color(self, c: ColorType | None) -> None: ...
 
 class SpinesProxy:
     def __init__(self, spine_dict: dict[str, Spine]) -> None: ...

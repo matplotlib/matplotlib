@@ -2,7 +2,6 @@ import matplotlib.artist as martist
 from matplotlib import cbook
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase
-from matplotlib.colors import Color
 from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from matplotlib.ticker import Locator, Formatter
@@ -13,6 +12,7 @@ from collections.abc import Callable, Iterable
 from typing import Any, Literal
 import numpy as np
 from numpy.typing import ArrayLike
+from matplotlib.typing import ColorType
 
 
 GRIDLINE_INTERPOLATION_STEPS: int
@@ -31,11 +31,11 @@ class Tick(martist.Artist):
         *,
         size: float | None = ...,
         width: float | None = ...,
-        color: Color | None = ...,
+        color: ColorType | None = ...,
         tickdir: Literal["in", "inout", "out"] | None = ...,
         pad: float | None = ...,
         labelsize: float | None = ...,
-        labelcolor: Color | None = ...,
+        labelcolor: ColorType | None = ...,
         zorder: float | None = ...,
         gridOn: bool | None = ...,
         tick1On: bool = ...,
@@ -44,7 +44,7 @@ class Tick(martist.Artist):
         label2On: bool = ...,
         major: bool = ...,
         labelrotation: float = ...,
-        grid_color: Color | None = ...,
+        grid_color: ColorType | None = ...,
         grid_linestyle: str | None = ...,
         grid_linewidth: float | None = ...,
         grid_alpha: float | None = ...,

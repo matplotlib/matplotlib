@@ -19,10 +19,8 @@ from matplotlib.axes import Axes
 from matplotlib.backend_managers import ToolManager
 from matplotlib.backend_tools import Cursors, ToolBase
 from matplotlib.colorbar import Colorbar
-from matplotlib.colors import Color
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
-from matplotlib.lines import LineStyleType
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
 from matplotlib.text import Text
@@ -31,6 +29,7 @@ from matplotlib.transforms import Affine2D, Transform, TransformedPath, Bbox
 from collections.abc import Callable, Sequence
 from typing import Any, Literal, NamedTuple, TypeVar
 from numpy.typing import ArrayLike
+from .typing import ColorType, LineStyleType
 
 def register_backend(
     format: str, backend: str | type[FigureCanvasBase], description: str | None = ...
@@ -46,7 +45,7 @@ class RendererBase:
         gc: GraphicsContextBase,
         path: Path,
         transform: Transform,
-        rgbFace: Color | None = ...,
+        rgbFace: ColorType | None = ...,
     ) -> None: ...
     def draw_markers(
         self,
@@ -55,7 +54,7 @@ class RendererBase:
         marker_trans: Transform,
         path: Path,
         trans: Transform,
-        rgbFace: Color | None = ...,
+        rgbFace: ColorType | None = ...,
     ) -> None: ...
     def draw_path_collection(
         self,
@@ -65,8 +64,8 @@ class RendererBase:
         all_transforms: Sequence[ArrayLike],
         offsets: ArrayLike | Sequence[ArrayLike],
         offset_trans: Transform,
-        facecolors: Color | Sequence[Color],
-        edgecolors: Color | Sequence[Color],
+        facecolors: ColorType | Sequence[ColorType],
+        edgecolors: ColorType | Sequence[ColorType],
         linewidths: float | Sequence[float],
         linestyles: LineStyleType | Sequence[LineStyleType],
         antialiaseds: bool | Sequence[bool],
@@ -82,9 +81,9 @@ class RendererBase:
         coordinates: ArrayLike,
         offsets: ArrayLike | Sequence[ArrayLike],
         offsetTrans: Transform,
-        facecolors: Sequence[Color],
+        facecolors: Sequence[ColorType],
         antialiased: bool,
-        edgecolors: Sequence[Color] | Color | None,
+        edgecolors: Sequence[ColorType] | ColorType | None,
     ): ...
     def draw_gouraud_triangle(
         self,
@@ -171,7 +170,7 @@ class GraphicsContextBase:
     def set_clip_rectangle(self, rectangle: Bbox | None) -> None: ...
     def set_clip_path(self, path: TransformedPath | None) -> None: ...
     def set_dashes(self, dash_offset: float, dash_list: ArrayLike | None) -> None: ...
-    def set_foreground(self, fg: Color, isRGBA: bool = ...) -> None: ...
+    def set_foreground(self, fg: ColorType, isRGBA: bool = ...) -> None: ...
     def set_joinstyle(self, js: JoinStyle) -> None: ...
     def set_linewidth(self, w: float) -> None: ...
     def set_url(self, url: str | None) -> None: ...
@@ -180,8 +179,8 @@ class GraphicsContextBase:
     def set_hatch(self, hatch: str) -> None: ...
     def get_hatch(self) -> str | None: ...
     def get_hatch_path(self, density: float = ...) -> Path: ...
-    def get_hatch_color(self) -> Color: ...
-    def set_hatch_color(self, hatch_color: Color) -> None: ...
+    def get_hatch_color(self) -> ColorType: ...
+    def set_hatch_color(self, hatch_color: ColorType) -> None: ...
     def get_hatch_linewidth(self) -> float: ...
     def get_sketch_params(self) -> tuple[float, float, float] | None: ...
     def set_sketch_params(
@@ -345,8 +344,8 @@ class FigureCanvasBase:
         self,
         filename: str | os.PathLike | io.FileIO,
         dpi: float | None = ...,
-        facecolor: Color | Literal["auto"] | None = ...,
-        edgecolor: Color | Literal["auto"] | None = ...,
+        facecolor: ColorType | Literal["auto"] | None = ...,
+        edgecolor: ColorType | Literal["auto"] | None = ...,
         orientation: str = ...,
         format: str | None = ...,
         *,

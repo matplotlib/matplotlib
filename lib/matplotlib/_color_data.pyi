@@ -1,6 +1,6 @@
-from .colors import Color
+from .typing import ColorType
 
-BASE_COLORS: dict[str, Color]
-TABLEAU_COLORS: dict[str, Color]
-XKCD_COLORS: dict[str, Color]
-CSS4_COLORS: dict[str, Color]
+BASE_COLORS: dict[str, ColorType]
+TABLEAU_COLORS: dict[str, ColorType]
+XKCD_COLORS: dict[str, ColorType]
+CSS4_COLORS: dict[str, ColorType]

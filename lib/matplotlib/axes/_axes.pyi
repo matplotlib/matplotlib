@@ -12,14 +12,13 @@ from matplotlib.collections import (
     EventCollection,
     QuadMesh,
 )
-from matplotlib.colors import Color, Colormap, Normalize
+from matplotlib.colors import Colormap, Normalize
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
 from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
-from matplotlib.lines import Line2D, LineStyleType
-from matplotlib.markers import MarkerType
+from matplotlib.lines import Line2D
 from matplotlib.mlab import GaussianKDE
 from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
@@ -36,6 +35,7 @@ from collections.abc import Callable, Sequence
 from typing import Any, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
+from matplotlib.typing import ColorType, MarkerType, LineStyleType
 
 class Axes(_AxesBase):
     def get_title(self, loc: Literal["left", "center", "right"] = ...) -> str: ...
@@ -77,8 +77,8 @@ class Axes(_AxesBase):
         inset_ax: Axes | None = ...,
         *,
         transform: Transform | None = ...,
-        facecolor: Color = ...,
-        edgecolor: Color = ...,
+        facecolor: ColorType = ...,
+        edgecolor: ColorType = ...,
         alpha: float = ...,
         zorder: float = ...,
         **kwargs
@@ -161,7 +161,7 @@ class Axes(_AxesBase):
         y: float | ArrayLike,
         xmin: float | ArrayLike,
         xmax: float | ArrayLike,
-        colors: Sequence[Color] | None = ...,
+        colors: Sequence[ColorType] | None = ...,
         linestyles: LineStyleType = ...,
         label: str = ...,
         **kwargs
@@ -171,7 +171,7 @@ class Axes(_AxesBase):
         x: float | ArrayLike,
         ymin: float | ArrayLike,
         ymax: float | ArrayLike,
-        colors: Sequence[Color] | None = ...,
+        colors: Sequence[ColorType] | None = ...,
         linestyles: LineStyleType = ...,
         label: str = ...,
         **kwargs
@@ -183,7 +183,7 @@ class Axes(_AxesBase):
         lineoffsets: float | Sequence[float] = ...,
         linelengths: float | Sequence[float] = ...,
         linewidths: float | Sequence[float] | None = ...,
-        colors: Color | Sequence[Color] | None = ...,
+        colors: ColorType | Sequence[ColorType] | None = ...,
         alpha: float | Sequence[float] | None = ...,
         linestyles: LineStyleType | Sequence[LineStyleType] = ...,
         **kwargs
@@ -285,7 +285,7 @@ class Axes(_AxesBase):
         x: ArrayLike,
         explode: ArrayLike | None = ...,
         labels: Sequence[str] | None = ...,
-        colors: Sequence[Color] | None = ...,
+        colors: Sequence[ColorType] | None = ...,
         autopct: str | Callable[[float], str] | None = ...,
         pctdistance: float = ...,
         shadow: bool = ...,
@@ -309,7 +309,7 @@ class Axes(_AxesBase):
         yerr: float | ArrayLike | None = ...,
         xerr: float | ArrayLike | None = ...,
         fmt: str = ...,
-        ecolor: Color | None = ...,
+        ecolor: ColorType | None = ...,
         elinewidth: float | None = ...,
         capsize: float | None = ...,
         barsabove: bool = ...,
@@ -379,7 +379,7 @@ class Axes(_AxesBase):
         x: float | ArrayLike,
         y: float | ArrayLike,
         s: float | ArrayLike | None = ...,
-        c: Sequence[Color] | Color | None = ...,
+        c: Sequence[ColorType] | ColorType | None = ...,
         marker: MarkerType | None = ...,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
@@ -388,7 +388,7 @@ class Axes(_AxesBase):
         alpha: float | None = ...,
         linewidths: float | Sequence[float] | None = ...,
         *,
-        edgecolors: Literal["face", "none"] | Color | Sequence[Color] | None = ...,
+        edgecolors: Literal["face", "none"] | ColorType | Sequence[ColorType] | None = ...,
         plotnonfinite: bool = ...,
         **kwargs
     ) -> PathCollection: ...
@@ -408,7 +408,7 @@ class Axes(_AxesBase):
         vmax: float | None = ...,
         alpha: float | None = ...,
         linewidths: float | None = ...,
-        edgecolors: Literal["face", "none"] | Color = ...,
+        edgecolors: Literal["face", "none"] | ColorType = ...,
         reduce_C_function: Callable[[np.ndarray], float] = ...,
         mincnt: int | None = ...,
         marginals: bool = ...,
@@ -515,7 +515,7 @@ class Axes(_AxesBase):
         orientation: Literal["vertical", "horizontal"] = ...,
         rwidth: float | None = ...,
         log: bool = ...,
-        color: Color | Sequence[Color] | None = ...,
+        color: ColorType | Sequence[ColorType] | None = ...,
         label: str | Sequence[str] | None = ...,
         stacked: bool = ...,
         **kwargs

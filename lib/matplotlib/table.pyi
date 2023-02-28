@@ -1,11 +1,11 @@
 from .artist import Artist, allow_rasterization
 from .axes import Axes
 from .backend_bases import RendererBase
-from .colors import Color
 from .patches import Rectangle
 from .path import Path
 from .text import Text
 from .transforms import Bbox
+from .typing import ColorType
 
 from collections.abc import Sequence
 from typing import Any, Literal
@@ -17,8 +17,8 @@ class Cell(Rectangle):
         xy: tuple[float, float],
         width: float,
         height: float,
-        edgecolor: Color = ...,
-        facecolor: Color = ...,
+        edgecolor: ColorType = ...,
+        facecolor: ColorType = ...,
         fill: bool = ...,
         text: str = ...,
         loc: Literal["left", "center", "right"] | None = ...,
@@ -69,14 +69,14 @@ class Table(Artist):
 def table(
     ax: Axes,
     cellText: Sequence[Sequence[str]] | None = ...,
-    cellColours: Sequence[Sequence[Color]] | None = ...,
+    cellColours: Sequence[Sequence[ColorType]] | None = ...,
     cellLoc: Literal["left", "center", "right"] = ...,
     colWidths: Sequence[float] | None = ...,
     rowLabels: Sequence[str] | None = ...,
-    rowColours: Sequence[Color] | None = ...,
+    rowColours: Sequence[ColorType] | None = ...,
     rowLoc: Literal["left", "center", "right"] = ...,
     colLabels: Sequence[str] | None = ...,
-    colColours: Sequence[Color] | None = ...,
+    colColours: Sequence[ColorType] | None = ...,
     colLoc: Literal["left", "center", "right"] = ...,
     loc: str = ...,
     bbox: Bbox | None = ...,

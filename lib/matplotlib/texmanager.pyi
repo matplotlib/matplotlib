@@ -1,7 +1,7 @@
 from .backend_bases import RendererBase
 
 from matplotlib import cbook, dviread
-from matplotlib.colors import Color
+from matplotlib.typing import ColorType
 
 import numpy as np
 
@@ -31,7 +31,7 @@ class TexManager:
         tex: str,
         fontsize: float | None = ...,
         dpi: float | None = ...,
-        rgb: Color = ...,
+        rgb: ColorType = ...,
     ) -> np.ndarray: ...
     @classmethod
     def get_text_width_height_descent(

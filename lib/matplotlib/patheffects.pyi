@@ -1,10 +1,10 @@
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase
-from matplotlib.colors import Color
 from matplotlib.path import Path
 from matplotlib.patches import Patch
 from matplotlib.transforms import Transform
 
 from collections.abc import Iterable, Sequence
+from matplotlib.typing import ColorType
 
 class AbstractPathEffect:
     def __init__(self, offset: tuple[float, float] = ...) -> None: ...
@@ -14,7 +14,7 @@ class AbstractPathEffect:
         gc: GraphicsContextBase,
         tpath: Path,
         affine: Transform,
-        rgbFace: Color | None = ...,
+        rgbFace: ColorType | None = ...,
     ) -> None: ...
 
 class PathEffectRenderer(RendererBase):
@@ -27,7 +27,7 @@ class PathEffectRenderer(RendererBase):
         gc: GraphicsContextBase,
         tpath: Path,
         affine: Transform,
-        rgbFace: Color | None = ...,
+        rgbFace: ColorType | None = ...,
     ) -> None: ...
     def draw_markers(
         self,
@@ -53,7 +53,7 @@ class Normal(AbstractPathEffect): ...
 class Stroke(AbstractPathEffect):
     def __init__(self, offset: tuple[float, float] = ..., **kwargs) -> None: ...
     # rgbFace becomes non-optional
-    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: Color = ...) -> None: ...  # type: ignore
+    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: ColorType = ...) -> None: ...  # type: ignore
 
 class withStroke(Stroke): ...
 
@@ -61,13 +61,13 @@ class SimplePatchShadow(AbstractPathEffect):
     def __init__(
         self,
         offset: tuple[float, float] = ...,
-        shadow_rgbFace: Color | None = ...,
+        shadow_rgbFace: ColorType | None = ...,
         alpha: float | None = ...,
         rho: float = ...,
         **kwargs
     ) -> None: ...
     # rgbFace becomes non-optional
-    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: Color = ...) -> None: ...  # type: ignore
+    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: ColorType = ...) -> None: ...  # type: ignore
 
 class withSimplePatchShadow(SimplePatchShadow): ...
 
@@ -75,19 +75,19 @@ class SimpleLineShadow(AbstractPathEffect):
     def __init__(
         self,
         offset: tuple[float, float] = ...,
-        shadow_color: Color = ...,
+        shadow_color: ColorType = ...,
         alpha: float = ...,
         rho: float = ...,
         **kwargs
     ) -> None: ...
     # rgbFace becomes non-optional
-    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: Color = ...) -> None: ...  # type: ignore
+    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: ColorType = ...) -> None: ...  # type: ignore
 
 class PathPatchEffect(AbstractPathEffect):
     patch: Patch
     def __init__(self, offset: tuple[float, float] = ..., **kwargs) -> None: ...
     # rgbFace becomes non-optional
-    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: Color = ...) -> None: ...  # type: ignore
+    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: ColorType = ...) -> None: ...  # type: ignore
 
 class TickedStroke(AbstractPathEffect):
     def __init__(
@@ -99,6 +99,6 @@ class TickedStroke(AbstractPathEffect):
         **kwargs
     ) -> None: ...
     # rgbFace becomes non-optional
-    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: Color = ...) -> None: ...  # type: ignore
+    def draw_path(self, gc: GraphicsContextBase, tpath: Path, affine: Transform, rgbFace: ColorType = ...) -> None: ...  # type: ignore
 
 class withTickedStroke(TickedStroke): ...

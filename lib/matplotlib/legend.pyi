@@ -11,7 +11,6 @@ from matplotlib.collections import (
     PolyCollection,
     RegularPolyCollection,
 )
-from matplotlib.colors import Color
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
@@ -40,6 +39,7 @@ from matplotlib.transforms import (
 import pathlib
 from collections.abc import Iterable
 from typing import Any, Literal, overload
+from .typing import ColorType
 
 class DraggableLegend(DraggableOffsetBox):
     legend: Legend
@@ -83,8 +83,8 @@ class Legend(Artist):
         scatteryoffsets: Iterable[float] | None = ...,
         prop: FontProperties | dict[str, Any] | None = ...,
         fontsize: float | str | None = ...,
-        labelcolor: Color
-        | Iterable[Color]
+        labelcolor: ColorType
+        | Iterable[ColorType]
         | Literal["linecolor", "markerfacecolor", "mfc", "markeredgecolor", "mec"]
         | None = ...,
         borderpad: float | None = ...,
@@ -101,8 +101,8 @@ class Legend(Artist):
         title: str | None = ...,
         title_fontsize: float | None = ...,
         framealpha: float | None = ...,
-        edgecolor: Literal["inherit"] | Color | None = ...,
-        facecolor: Literal["inherit"] | Color | None = ...,
+        edgecolor: Literal["inherit"] | ColorType | None = ...,
+        facecolor: Literal["inherit"] | ColorType | None = ...,
         bbox_to_anchor: BboxBase
         | tuple[float, float]
         | tuple[float, float, float, float]

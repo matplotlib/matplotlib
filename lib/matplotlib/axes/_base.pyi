@@ -9,7 +9,6 @@ from matplotlib.backend_bases import RendererBase, MouseButton, MouseEvent
 from matplotlib.cbook import index_of
 from matplotlib.container import Container
 from matplotlib.collections import Collection
-from matplotlib.colors import Color
 from matplotlib.cm import ScalarMappable
 from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
@@ -29,6 +28,7 @@ from cycler import Cycler
 import numpy as np
 from numpy.typing import ArrayLike
 from typing import Any, Literal, overload
+from matplotlib.typing import ColorType
 
 class _axis_method_wrapper:
     attr_name: str
@@ -57,7 +57,7 @@ class _AxesBase(martist.Artist):
         self,
         fig: Figure,
         *args: tuple[float, float, float, float] | Bbox | int,
-        facecolor: Color | None = ...,
+        facecolor: ColorType | None = ...,
         frameon: bool = ...,
         sharex: _AxesBase | None = ...,
         sharey: _AxesBase | None = ...,
@@ -167,8 +167,8 @@ class _AxesBase(martist.Artist):
     def tables(self) -> _AxesBase.ArtistList: ...
     @property
     def texts(self) -> _AxesBase.ArtistList: ...
-    def get_facecolor(self) -> Color: ...
-    def set_facecolor(self, color: Color | None) -> None: ...
+    def get_facecolor(self) -> ColorType: ...
+    def set_facecolor(self, color: ColorType | None) -> None: ...
     @overload
     def set_prop_cycle(self, cycler: Cycler) -> None: ...
     @overload

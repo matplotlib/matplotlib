@@ -2,7 +2,6 @@ import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib import cbook
 from matplotlib.axes import Axes
-from matplotlib.colors import Color
 from matplotlib.figure import Figure
 from matplotlib.patches import CirclePolygon
 from matplotlib.text import Text
@@ -13,6 +12,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Sequence
 from typing import Any, Literal, overload
+from matplotlib.typing import ColorType
 
 class QuiverKey(martist.Artist):
     halign: dict[Literal["N", "S", "E", "W"], Literal["left", "center", "right"]]
@@ -24,10 +24,10 @@ class QuiverKey(martist.Artist):
     U: float
     angle: float
     coord: Literal["axes", "figure", "data", "inches"]
-    color: Color | None
+    color: ColorType | None
     label: str
     labelpos: Literal["N", "S", "E", "W"]
-    labelcolor: Color | None
+    labelcolor: ColorType | None
     fontproperties: dict[str, Any]
     kw: dict[str, Any]
     text: Text
@@ -42,10 +42,10 @@ class QuiverKey(martist.Artist):
         *,
         angle: float = ...,
         coordinates: Literal["axes", "figure", "data", "inches"] = ...,
-        color: Color | None = ...,
+        color: ColorType | None = ...,
         labelsep: float = ...,
         labelpos: Literal["N", "S", "E", "W"] = ...,
-        labelcolor: Color | None = ...,
+        labelcolor: ColorType | None = ...,
         fontproperties: dict[str, Any] | None = ...,
         **kwargs
     ) -> None: ...
@@ -94,7 +94,7 @@ class Quiver(mcollections.PolyCollection):
         | None = ...,
         angles: Literal["uv", "xy"] | ArrayLike = ...,
         width: float | None = ...,
-        color: Color | Sequence[Color] = ...,
+        color: ColorType | Sequence[ColorType] = ...,
         pivot: Literal["tail", "mid", "middle", "tip"] = ...,
         **kwargs
     ) -> None: ...
@@ -118,7 +118,7 @@ class Quiver(mcollections.PolyCollection):
         | None = ...,
         angles: Literal["uv", "xy"] | ArrayLike = ...,
         width: float | None = ...,
-        color: Color | Sequence[Color] = ...,
+        color: ColorType | Sequence[ColorType] = ...,
         pivot: Literal["tail", "mid", "middle", "tip"] = ...,
         **kwargs
     ) -> None: ...
@@ -148,8 +148,8 @@ class Barbs(mcollections.PolyCollection):
         C: ArrayLike = ...,
         pivot: str = ...,
         length: int = ...,
-        barbcolor: Color | Sequence[Color] | None = ...,
-        flagcolor: Color | Sequence[Color] | None = ...,
+        barbcolor: ColorType | Sequence[ColorType] | None = ...,
+        flagcolor: ColorType | Sequence[ColorType] | None = ...,
         sizes: dict[str, float] | None = ...,
         fill_empty: bool = ...,
         barb_increments: dict[str, float] | None = ...,
@@ -168,8 +168,8 @@ class Barbs(mcollections.PolyCollection):
         C: ArrayLike = ...,
         pivot: str = ...,
         length: int = ...,
-        barbcolor: Color | Sequence[Color] | None = ...,
-        flagcolor: Color | Sequence[Color] | None = ...,
+        barbcolor: ColorType | Sequence[ColorType] | None = ...,
+        flagcolor: ColorType | Sequence[ColorType] | None = ...,
         sizes: dict[str, float] | None = ...,
         fill_empty: bool = ...,
         barb_increments: dict[str, float] | None = ...,

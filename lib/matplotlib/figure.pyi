@@ -12,7 +12,7 @@ from matplotlib.backend_bases import (
     NonGuiException,
     RendererBase,
 )
-from matplotlib.colors import Color, Colormap, Normalize
+from matplotlib.colors import Colormap, Normalize
 from matplotlib.colorbar import Colorbar
 from matplotlib.cm import ScalarMappable
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -41,6 +41,7 @@ from numpy.typing import ArrayLike
 
 from collections.abc import Callable, Iterable
 from typing import Any, Literal, overload
+from .typing import ColorType
 
 class SubplotParams:
     def __init__(
@@ -92,13 +93,13 @@ class FigureBase(Artist):
     def suptitle(self, t: str, **kwargs) -> Text: ...
     def supxlabel(self, t: str, **kwargs) -> Text: ...
     def supylabel(self, t: str, **kwargs) -> Text: ...
-    def get_edgecolor(self) -> Color: ...
-    def get_facecolor(self) -> Color: ...
+    def get_edgecolor(self) -> ColorType: ...
+    def get_facecolor(self) -> ColorType: ...
     def get_frameon(self) -> bool: ...
     def set_linewidth(self, linewidth: float) -> None: ...
     def get_linewidth(self) -> float: ...
-    def set_edgecolor(self, color: Color) -> None: ...
-    def set_facecolor(self, color: Color) -> None: ...
+    def set_edgecolor(self, color: ColorType) -> None: ...
+    def set_facecolor(self, color: ColorType) -> None: ...
     def set_frameon(self, b: bool) -> None: ...
     @property
     def frameon(self) -> bool: ...
@@ -264,8 +265,8 @@ class SubFigure(FigureBase):
         parent: Figure | SubFigure,
         subplotspec: SubplotSpec,
         *,
-        facecolor: Color | None = ...,
-        edgecolor: Color | None = ...,
+        facecolor: ColorType | None = ...,
+        edgecolor: ColorType | None = ...,
         linewidth: float = ...,
         frameon: bool | None = ...,
         **kwargs
@@ -298,8 +299,8 @@ class Figure(FigureBase):
         self,
         figsize: tuple[float, float] | None = ...,
         dpi: float | None = ...,
-        facecolor: Color | None = ...,
-        edgecolor: Color | None = ...,
+        facecolor: ColorType | None = ...,
+        edgecolor: ColorType | None = ...,
         linewidth: float = ...,
         frameon: bool | None = ...,
         subplotpars: SubplotParams | None = ...,

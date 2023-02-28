@@ -1,12 +1,12 @@
 from matplotlib.axes._base import _AxesBase
 from matplotlib.axis import Axis, Tick
 
-from matplotlib.colors import Color
 from matplotlib.transforms import Transform
 
 from collections.abc import Callable, Iterable
 from typing import Literal
 from numpy.typing import ArrayLike
+from matplotlib.typing import ColorType
 
 class SecondaryAxis(_AxesBase):
     def __init__(
@@ -42,4 +42,4 @@ class SecondaryAxis(_AxesBase):
         | Transform,
     ): ...
     def set_aspect(self, *args, **kwargs) -> None: ...
-    def set_color(self, color: Color) -> None: ...
+    def set_color(self, color: ColorType) -> None: ...

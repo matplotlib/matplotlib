@@ -8,6 +8,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Sequence
 from typing import Any, Literal, overload
+from .typing import ColorType
 
 class _ColorbarSpine(mspines.Spines):
     def __init__(self, axes: Axes): ...
@@ -79,7 +80,7 @@ class Colorbar:
     def add_lines(
         self,
         levels: ArrayLike,
-        colors: colors.Color | Sequence[colors.Color],
+        colors: ColorType | Sequence[ColorType],
         linewidths: float | ArrayLike,
         erase: bool = ...,
     ) -> None: ...

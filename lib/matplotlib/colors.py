@@ -48,7 +48,6 @@ import io
 import itertools
 from numbers import Real
 import re
-from typing import Union
 
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
@@ -57,12 +56,6 @@ import matplotlib as mpl
 import numpy as np
 from matplotlib import _api, _cm, cbook, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
-
-Color = Union[
-    tuple[float, float, float],
-    tuple[float, float, float, float],
-    str,
-]
 
 
 class _ColorMapping(dict):
