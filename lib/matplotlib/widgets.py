@@ -702,7 +702,7 @@ class RangeSlider(SliderBase):
                          valmin, valmax, valfmt, dragging, valstep)
 
         # Set a value to allow _value_in_bounds() to work.
-        self.val = [valmin, valmax]
+        self.val = (valmin, valmax)
         if valinit is None:
             # Place at the 25th and 75th percentiles
             extent = valmax - valmin
@@ -947,9 +947,9 @@ class RangeSlider(SliderBase):
         """
         val = np.sort(val)
         _api.check_shape((2,), val=val)
-        vmin, vmax = val
-        vmin = self._min_in_bounds(vmin)
-        vmax = self._max_in_bounds(vmax)
+        # Reset value to allow _value_in_bounds() to work.
+        self.val = (self.valmin, self.valmax)
+        vmin, vmax = self._value_in_bounds(val)
         self._update_selection_poly(vmin, vmax)
         if self.orientation == "vertical":
             self._handles[0].set_ydata([vmin])

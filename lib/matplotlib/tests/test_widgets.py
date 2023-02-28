@@ -1297,12 +1297,12 @@ def test_range_slider(orientation):
         else:
             return [h.get_xdata()[0] for h in slider._handles]
 
-    slider.set_val((0.2, 0.6))
-    assert_allclose(slider.val, (0.2, 0.6))
-    assert_allclose(handle_positions(slider), (0.2, 0.6))
+    slider.set_val((0.4, 0.6))
+    assert_allclose(slider.val, (0.4, 0.6))
+    assert_allclose(handle_positions(slider), (0.4, 0.6))
 
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.2, .25, 0.6, .75])
+    assert_allclose(box.get_points().flatten()[idx], [0.4, .25, 0.6, .75])
 
     slider.set_val((0.2, 0.1))
     assert_allclose(slider.val, (0.1, 0.2))
