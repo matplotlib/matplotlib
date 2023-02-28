@@ -4442,6 +4442,7 @@ class Axes(_AxesBase):
 
         #### NEW
         if c_is_mapped and facecolors == 'none':
+            print("test")
             obj = ScalarMappable()
             edgecolors = obj.to_rgba(c)
             colors = []
@@ -4449,7 +4450,8 @@ class Axes(_AxesBase):
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 #### NEW
-                if(facecolors == 'none' and edgecolors is None):
+                if(facecolors == 'none' and edgecolors == 'face'):
+                    print("test2")
                     edgecolors = mcolors.to_rgba_array(c)
                     colors = []
                 else:
@@ -4730,6 +4732,10 @@ default: :rc:`scatter.edgecolors`
 
         self.add_collection(collection)
         self._request_autoscale_view()
+
+        print("face:", collection.get_facecolor())
+        print("edge:", collection.get_edgecolor())
+
 
         return collection
 
