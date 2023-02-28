@@ -1102,7 +1102,6 @@ default: %(va)s
         ----------------
         %(_legend_kw_figure)s
 
-
         See Also
         --------
         .Axes.legend
