@@ -225,6 +225,7 @@ choice of:
     ``\mathfrak{Fraktur}``           :math-stix:`\mathfrak{Fraktur}`
     ``\mathsf{sansserif}``           :math-stix:`\mathsf{sansserif}`
     ``\mathrm{\mathsf{sansserif}}``  :math-stix:`\mathrm{\mathsf{sansserif}}`
+    ``\mathbfit{bolditalic}``        :math-stix:`\mathbfit{bolditalic}`
     ================================ =========================================
 
 There are also five global "font sets" to choose from, which are
@@ -290,7 +291,8 @@ for a particular set of math characters.
     ``mathtext.it``                ``\mathit{}`` or default italic
     ``mathtext.rm``                ``\mathrm{}`` Roman (upright)
     ``mathtext.tt``                ``\mathtt{}`` Typewriter (monospace)
-    ``mathtext.bf``                ``\mathbf{}`` bold italic
+    ``mathtext.bf``                ``\mathbf{}`` bold
+    ``mathtext.bfit``              ``\mathbfit{}`` bold italic
     ``mathtext.cal``               ``\mathcal{}`` calligraphic
     ``mathtext.sf``                ``\mathsf{}`` sans-serif
     ============================== =================================

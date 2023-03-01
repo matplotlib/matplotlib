@@ -172,7 +172,8 @@ font_test_specs: list[tuple[None | list[str], Any]] = [
     (['mathscr'], [uppercase, lowercase]),
     (['mathsf'], [digits, uppercase, lowercase]),
     (['mathrm', 'mathsf'], [digits, uppercase, lowercase]),
-    (['mathbf', 'mathsf'], [digits, uppercase, lowercase])
+    (['mathbf', 'mathsf'], [digits, uppercase, lowercase]),
+    (['mathbfit'], all),
     ]
 
 font_tests: list[None | str] = []
@@ -426,6 +427,7 @@ def test_mathtext_fallback(fallback, fontlist):
     mpl.rcParams['mathtext.rm'] = 'mpltest'
     mpl.rcParams['mathtext.it'] = 'mpltest:italic'
     mpl.rcParams['mathtext.bf'] = 'mpltest:bold'
+    mpl.rcParams['mathtext.bfit'] = 'mpltest:italic:bold'
     mpl.rcParams['mathtext.fallback'] = fallback
 
     test_str = r'a$A\AA\breve\gimel$'

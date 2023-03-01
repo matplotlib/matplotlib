@@ -937,10 +937,11 @@ _validators = {
     "mathtext.tt":             validate_font_properties,
     "mathtext.it":             validate_font_properties,
     "mathtext.bf":             validate_font_properties,
+    "mathtext.bfit":           validate_font_properties,
     "mathtext.sf":             validate_font_properties,
     "mathtext.fontset":        ["dejavusans", "dejavuserif", "cm", "stix",
                                 "stixsans", "custom"],
-    "mathtext.default":        ["rm", "cal", "it", "tt", "sf", "bf", "default",
+    "mathtext.default":        ["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default",
                                 "bb", "frak", "scr", "regular"],
     "mathtext.fallback":       _validate_mathtext_fallback,
 
