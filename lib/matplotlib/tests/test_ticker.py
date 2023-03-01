@@ -1452,7 +1452,7 @@ class TestPercentFormatter:
 def test_locale_comma():
     currentLocale = locale.getlocale()
     try:
-        locale.setlocale(locale.LC_ALL, 'fy_DE.UTF-8')
+        locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
         ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
         fmt = '$\\mathdefault{%1.1f}$'
         x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
@@ -1462,7 +1462,7 @@ def test_locale_comma():
         x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
         assert x == ',$\\mathdefault{,0{,}5},$'
     except locale.Error:
-        pytest.skip("Locale fy_DE.UTF-8 is not supported on this machine")
+        pytest.skip("Locale de_DE.UTF-8 is not supported on this machine")
     finally:
         locale.setlocale(locale.LC_ALL, currentLocale)
 
