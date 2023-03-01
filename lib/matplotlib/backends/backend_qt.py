@@ -152,6 +152,8 @@ def _create_qApp():
         app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)  # Only for Qt<6.
     except AttributeError:
         pass
+    except DeprecationWarning:
+        pass
 
     return app
 
