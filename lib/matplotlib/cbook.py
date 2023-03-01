@@ -786,61 +786,53 @@ class Grouper:
     """
 
     def __init__(self, init=()):
-        self._mapping = {weakref.ref(x): [weakref.ref(x)] for x in init}
+        self._mapping = weakref.WeakKeyDictionary(
+            {x: weakref.WeakSet([x]) for x in init})
 
     def __getstate__(self):
         return {
             **vars(self),
             # Convert weak refs to strong ones.
-            "_mapping": {k(): [v() for v in vs] for k, vs in self._mapping.items()},
+            "_mapping": {k: set(v) for k, v in self._mapping.items()},
         }
 
     def __setstate__(self, state):
         vars(self).update(state)
         # Convert strong refs to weak ones.
-        self._mapping = {weakref.ref(k): [*map(weakref.ref, vs)]
-                         for k, vs in self._mapping.items()}
+        self._mapping = weakref.WeakKeyDictionary(
+            {k: weakref.WeakSet(v) for k, v in self._mapping.items()})
 
     def __contains__(self, item):
-        return weakref.ref(item) in self._mapping
+        return item in self._mapping
 
+    @_api.deprecated("3.8", alternative="none, you no longer need to clean a Grouper")
     def clean(self):
         """Clean dead weak references from the dictionary."""
-        mapping = self._mapping
-        to_drop = [key for key in mapping if key() is None]
-        for key in to_drop:
-            val = mapping.pop(key)
-            val.remove(key)
 
     def join(self, a, *args):
         """
         Join given arguments into the same set.  Accepts one or more arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(weakref.ref(a), [weakref.ref(a)])
+        set_a = mapping.setdefault(a, weakref.WeakSet([a]))
 
         for arg in args:
-            set_b = mapping.get(weakref.ref(arg), [weakref.ref(arg)])
+            set_b = mapping.get(arg, weakref.WeakSet([arg]))
             if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
-                set_a.extend(set_b)
+                set_a.update(set_b)
                 for elem in set_b:
                     mapping[elem] = set_a
 
-        self.clean()
-
     def joined(self, a, b):
         """Return whether *a* and *b* are members of the same set."""
-        self.clean()
-        return (self._mapping.get(weakref.ref(a), object())
-                is self._mapping.get(weakref.ref(b)))
+        return (self._mapping.get(a, object()) is self._mapping.get(b))
 
     def remove(self, a):
-        self.clean()
-        set_a = self._mapping.pop(weakref.ref(a), None)
+        set_a = self._mapping.pop(a, None)
         if set_a:
-            set_a.remove(weakref.ref(a))
+            set_a.remove(a)
 
     def __iter__(self):
         """
@@ -848,16 +840,14 @@ class Grouper:
 
         The iterator is invalid if interleaved with calls to join().
         """
-        self.clean()
         unique_groups = {id(group): group for group in self._mapping.values()}
         for group in unique_groups.values():
-            yield [x() for x in group]
+            yield [x for x in group]
 
     def get_siblings(self, a):
         """Return all of the items joined with *a*, including itself."""
-        self.clean()
-        siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
-        return [x() for x in siblings]
+        siblings = self._mapping.get(a, [a])
+        return [x for x in siblings]
 
 
 class GrouperView:

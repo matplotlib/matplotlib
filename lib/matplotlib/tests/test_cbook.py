@@ -1,7 +1,6 @@
 import itertools
 import pickle
 
-from weakref import ref
 from unittest.mock import patch, Mock
 
 from datetime import datetime, date, timedelta
@@ -590,11 +589,11 @@ def test_grouper_private():
     mapping = g._mapping
 
     for o in objs:
-        assert ref(o) in mapping
+        assert o in mapping
 
-    base_set = mapping[ref(objs[0])]
+    base_set = mapping[objs[0]]
     for o in objs[1:]:
-        assert mapping[ref(o)] is base_set
+        assert mapping[o] is base_set
 
 
 def test_flatiter():
