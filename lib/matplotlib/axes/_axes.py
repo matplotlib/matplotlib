@@ -36,6 +36,8 @@ from matplotlib.axes._base import (
 from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
+from matplotlib.cm import ScalarMappable
+
 _log = logging.getLogger(__name__)
 
 
@@ -4367,6 +4369,7 @@ class Axes(_AxesBase):
         facecolors = kwargs.pop('facecolor', facecolors)
         edgecolors = kwargs.pop('edgecolor', edgecolors)
 
+
         kwcolor = kwargs.pop('color', None)
 
         if kwcolor is not None and c is not None:
@@ -4386,6 +4389,7 @@ class Axes(_AxesBase):
                 edgecolors = kwcolor
             if facecolors is None:
                 facecolors = kwcolor
+
 
         if edgecolors is None and not mpl.rcParams['_internal.classic_mode']:
             edgecolors = mpl.rcParams['scatter.edgecolors']
@@ -4435,9 +4439,23 @@ class Axes(_AxesBase):
                             "with a single row if you intend to specify "
                             "the same RGB or RGBA value for all points.")
                     valid_shape = False
+
+        #### NEW
+        if c_is_mapped and facecolors == 'none':
+            print("test")
+            obj = ScalarMappable()
+            edgecolors = obj.to_rgba(c)
+            colors = []
+            return c, colors, edgecolors
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
-                colors = mcolors.to_rgba_array(c)
+                #### NEW
+                if(facecolors == 'none' and edgecolors == 'face'):
+                    print("test2")
+                    edgecolors = mcolors.to_rgba_array(c)
+                    colors = []
+                else:
+                    colors = mcolors.to_rgba_array(c)
             except (TypeError, ValueError) as err:
                 if "RGBA values should be within 0-1 range" in str(err):
                     raise
@@ -4575,6 +4593,7 @@ default: :rc:`scatter.edgecolors`
           size matches the size of *x* and *y*.
 
         """
+
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
         x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
         # np.ma.ravel yields an ndarray, not a masked array,
@@ -4583,7 +4602,6 @@ default: :rc:`scatter.edgecolors`
         y = np.ma.ravel(y)
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
-
         if s is None:
             s = (20 if mpl.rcParams['_internal.classic_mode'] else
                  mpl.rcParams['lines.markersize'] ** 2.0)
@@ -4594,8 +4612,8 @@ default: :rc:`scatter.edgecolors`
             raise ValueError(
                 "s must be a scalar, "
                 "or float array-like with the same size as x and y")
-
         # get the original edgecolor the user passed before we normalize
+
         orig_edgecolor = edgecolors
         if edgecolors is None:
             orig_edgecolor = kwargs.get('edgecolor', None)
@@ -4603,6 +4621,7 @@ default: :rc:`scatter.edgecolors`
             self._parse_scatter_color_args(
                 c, edgecolors, kwargs, x.size,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
+
 
         if plotnonfinite and colors is None:
             c = np.ma.masked_invalid(c)
@@ -4681,6 +4700,7 @@ default: :rc:`scatter.edgecolors`
             alpha=alpha,
         )
         collection.set_transform(mtransforms.IdentityTransform())
+
         if colors is None:
             collection.set_array(c)
             collection.set_cmap(cmap)
@@ -4698,6 +4718,7 @@ default: :rc:`scatter.edgecolors`
                     f"Parameters {keys_str} will be ignored")
         collection._internal_update(kwargs)
 
+
         # Classic mode only:
         # ensure there are margins to allow for the
         # finite size of the symbols.  In v2.x, margins
@@ -4711,6 +4732,10 @@ default: :rc:`scatter.edgecolors`
 
         self.add_collection(collection)
         self._request_autoscale_view()
+
+        print("face:", collection.get_facecolor())
+        print("edge:", collection.get_edgecolor())
+
 
         return collection
 

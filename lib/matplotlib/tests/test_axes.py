@@ -2690,6 +2690,16 @@ class TestScatter:
         ax_test.scatter(np.ones(3), range(3), c=rgb)
         ax_test.scatter(np.ones(4)*2, range(4), c=rgba)
 
+
+    def test_scatter_nofacecolor(self):
+        x = np.arange(10)
+        fig, ax1 = plt.subplots()
+        pc1 = ax1.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
+        pc2 = ax1.scatter(x, x, facecolors='none', edgecolors=(1.0,0.0,0.0))
+
+        assert_array_equal(pc1.get_facecolor(), pc2.get_edgecolor())
+
+
     def test_scatter_linewidths(self):
         x = np.arange(5)
 
