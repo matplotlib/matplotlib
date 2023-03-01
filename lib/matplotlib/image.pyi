@@ -76,6 +76,7 @@ class AxesImage(_ImageBase):
     def __init__(
         self,
         ax: Axes,
+        *,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
         interpolation: str | None = ...,
@@ -84,7 +85,6 @@ class AxesImage(_ImageBase):
         filternorm: bool = ...,
         filterrad: float = ...,
         resample: bool = ...,
-        *,
         interpolation_stage: Literal["data", "rgba"] | None = ...,
         **kwargs
     ) -> None: ...
@@ -114,6 +114,7 @@ class PcolorImage(AxesImage):
         x: ArrayLike | None = ...,
         y: ArrayLike | None = ...,
         A: ArrayLike | None = ...,
+        *,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
         **kwargs
@@ -129,6 +130,7 @@ class FigureImage(_ImageBase):
     def __init__(
         self,
         fig: Figure,
+        *,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
         offsetx: int = ...,
@@ -142,6 +144,7 @@ class BboxImage(_ImageBase):
     def __init__(
         self,
         bbox: Bbox,
+        *,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
         interpolation: str | None = ...,

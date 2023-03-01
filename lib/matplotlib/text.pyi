@@ -26,6 +26,7 @@ class Text(Artist):
         x: float = ...,
         y: float = ...,
         text: Any = ...,
+        *,
         color: ColorType | None = ...,
         verticalalignment: Literal[
             "bottom", "baseline", "center", "center_baseline", "top"
@@ -39,7 +40,6 @@ class Text(Artist):
         usetex: bool | None = ...,
         wrap: bool = ...,
         transform_rotates_text: bool = ...,
-        *,
         parse_math: bool | None = ...,
         **kwargs
     ) -> None: ...

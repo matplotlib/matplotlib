@@ -79,6 +79,7 @@ class PaddedBox(OffsetBox):
         self,
         child: martist.Artist,
         pad: float | None = ...,
+        *,
         draw_frame: bool = ...,
         patch_attrs: dict[str, Any] | None = ...,
     ) -> None: ...
@@ -117,6 +118,7 @@ class TextArea(OffsetBox):
     def __init__(
         self,
         s: str,
+        *,
         textprops: dict[str, Any] | None = ...,
         multilinebaseline: bool = ...,
     ) -> None: ...
@@ -154,6 +156,7 @@ class AnchoredOffsetbox(OffsetBox):
     def __init__(
         self,
         loc: str,
+        *,
         pad: float = ...,
         borderpad: float = ...,
         child: OffsetBox | None = ...,
@@ -186,6 +189,7 @@ class AnchoredText(AnchoredOffsetbox):
         self,
         s: str,
         loc: str,
+        *,
         pad: float = ...,
         borderpad: float = ...,
         prop: dict[str, Any] | None = ...,
@@ -197,6 +201,7 @@ class OffsetImage(OffsetBox):
     def __init__(
         self,
         arr: ArrayLike,
+        *,
         zoom: float = ...,
         cmap: Colormap | str | None = ...,
         norm: Normalize | str | None = ...,
@@ -231,6 +236,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         offsetbox: OffsetBox,
         xy: tuple[float, float],
         xybox: tuple[float, float] | None = ...,
+        *,
         xycoords: str
         | tuple[str, str]
         | martist.Artist

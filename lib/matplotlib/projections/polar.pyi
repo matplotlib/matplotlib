@@ -22,6 +22,8 @@ class PolarTransform(mtransforms.Transform):
         axis: PolarAxes | None = ...,
         use_rmin: bool = ...,
         _apply_theta_transforms: bool = ...,
+        *,
+        scale_transform: mtransforms.Transform,
     ) -> None: ...
     def inverted(self) -> InvertedPolarTransform: ...
 
@@ -159,6 +161,7 @@ class PolarAxes(Axes):
         self,
         bottom: float | None = ...,
         top: float | None = ...,
+        *,
         emit: bool = ...,
         auto: bool = ...,
         **kwargs,

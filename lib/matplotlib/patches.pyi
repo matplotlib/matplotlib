@@ -25,6 +25,7 @@ class Patch(artist.Artist):
     zorder: float
     def __init__(
         self,
+        *,
         edgecolor: ColorType | None = ...,
         facecolor: ColorType | None = ...,
         color: ColorType | None = ...,
@@ -82,8 +83,8 @@ class Rectangle(Patch):
         xy: tuple[float, float],
         width: float,
         height: float,
-        angle: float = ...,
         *,
+        angle: float = ...,
         rotation_point: Literal["xy", "center"] | tuple[float, float] = ...,
         **kwargs,
     ) -> None: ...
@@ -125,6 +126,7 @@ class RegularPolygon(Patch):
         self,
         xy: tuple[float, float],
         numVertices: int,
+        *,
         radius: float = ...,
         orientation: float = ...,
         **kwargs,
@@ -156,7 +158,7 @@ class StepPatch(PathPatch):
     ) -> None: ...
 
 class Polygon(Patch):
-    def __init__(self, xy: ArrayLike, closed: bool = ..., **kwargs) -> None: ...
+    def __init__(self, xy: ArrayLike, *, closed: bool = ..., **kwargs) -> None: ...
     def get_closed(self) -> bool: ...
     def set_closed(self, closed: bool) -> None: ...
     def get_xy(self) -> np.ndarray: ...
@@ -175,6 +177,7 @@ class Wedge(Patch):
         r: float,
         theta1: float,
         theta2: float,
+        *,
         width: float | None = ...,
         **kwargs,
     ) -> None: ...
@@ -186,7 +189,7 @@ class Wedge(Patch):
 
 class Arrow(Patch):
     def __init__(
-        self, x: float, y: float, dx: float, dy: float, width: float = ..., **kwargs
+        self, x: float, y: float, dx: float, dy: float, *, width: float = ..., **kwargs
     ) -> None: ...
 
 class FancyArrow(Polygon):
@@ -196,6 +199,7 @@ class FancyArrow(Polygon):
         y: float,
         dx: float,
         dy: float,
+        *,
         width: float = ...,
         length_includes_head: bool = ...,
         head_width: float | None = ...,
@@ -222,6 +226,7 @@ class CirclePolygon(RegularPolygon):
         self,
         xy: tuple[float, float],
         radius: float = ...,
+        *,
         resolution: int = ...,
         **kwargs,
     ) -> None: ...
@@ -232,6 +237,7 @@ class Ellipse(Patch):
         xy: tuple[float, float],
         width: float,
         height: float,
+        *,
         angle: float = ...,
         **kwargs,
     ) -> None: ...
@@ -298,6 +304,7 @@ class Arc(Ellipse):
         xy: tuple[float, float],
         width: float,
         height: float,
+        *,
         angle: float = ...,
         theta1: float = ...,
         theta2: float = ...,
@@ -682,6 +689,7 @@ class FancyArrowPatch(Patch):
         self,
         posA: tuple[float, float] | None = ...,
         posB: tuple[float, float] | None = ...,
+        *,
         path: Path | None = ...,
         arrowstyle: str | ArrowStyle = ...,
         connectionstyle: str | ConnectionStyle = ...,
@@ -722,6 +730,7 @@ class ConnectionPatch(FancyArrowPatch):
         xyB: tuple[float, float],
         coordsA: str | Transform,
         coordsB: str | Transform | None = ...,
+        *,
         axesA: Axes | None = ...,
         axesB: Axes | None = ...,
         arrowstyle: str | ArrowStyle = ...,

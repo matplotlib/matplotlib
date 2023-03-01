@@ -8,6 +8,11 @@ from typing import Any
 
 import numpy as np
 
+__license__: str
+__credits__: list[str]
+__author__: str
+__version__: str
+
 RIGHT: int
 UP: int
 DOWN: int

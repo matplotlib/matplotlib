@@ -74,6 +74,7 @@ class Legend(Artist):
         parent: Axes | Figure,
         handles: Iterable[Artist],
         labels: Iterable[str],
+        *,
         loc: str | tuple[float, float] | int | None = ...,
         numpoints: int | None = ...,
         markerscale: float | None = ...,
@@ -112,7 +113,6 @@ class Legend(Artist):
         handler_map: dict[Artist | type, HandlerBase] | None = ...,
         title_fontproperties: FontProperties | dict[str, Any] | None = ...,
         alignment: Literal["center", "left", "right"] = ...,
-        *,
         ncol: int = ...,
         draggable: bool = ...
     ) -> None: ...

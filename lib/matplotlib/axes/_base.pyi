@@ -310,9 +310,9 @@ class _AxesBase(martist.Artist):
         self,
         left: float | None = ...,
         right: float | None = ...,
+        *,
         emit: bool = ...,
         auto: bool | None = ...,
-        *,
         xmin: float | None = ...,
         xmax: float | None = ...
     ) -> tuple[float, float]: ...
@@ -336,9 +336,9 @@ class _AxesBase(martist.Artist):
         self,
         bottom: float | None = ...,
         top: float | None = ...,
+        *,
         emit: bool = ...,
         auto: bool | None = ...,
-        *,
         ymin: float | None = ...,
         ymax: float | None = ...
     ) -> tuple[float, float]: ...

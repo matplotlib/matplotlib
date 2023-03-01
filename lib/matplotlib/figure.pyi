@@ -299,6 +299,7 @@ class Figure(FigureBase):
         self,
         figsize: tuple[float, float] | None = ...,
         dpi: float | None = ...,
+        *,
         facecolor: ColorType | None = ...,
         edgecolor: ColorType | None = ...,
         linewidth: float = ...,
@@ -306,7 +307,6 @@ class Figure(FigureBase):
         subplotpars: SubplotParams | None = ...,
         tight_layout: bool | dict[str, Any] | None = ...,
         constrained_layout: bool | dict[str, Any] | None = ...,
-        *,
         layout: Literal["constrained", "compressed", "tight"]
         | LayoutEngine
         | None = ...,

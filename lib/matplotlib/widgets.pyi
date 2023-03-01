@@ -155,7 +155,10 @@ class CheckButtons(AxesWidget):
         labels: Sequence[str],
         actives: Iterable[bool] | None = ...,
         *,
-        useblit: bool = ...
+        useblit: bool = ...,
+        label_props: dict[str, Any],
+        frame_props: dict[str, Any],
+        check_props: dict[str, Any],
     ) -> None: ...
     def set_active(self, index: int) -> None: ...
     def get_status(self) -> list[bool]: ...
@@ -199,6 +202,10 @@ class RadioButtons(AxesWidget):
         labels: Iterable[str],
         active: int = ...,
         activecolor: ColorType = ...,
+        *,
+        useblit: bool = ...,
+        label_props: dict[str, Any] | Sequence[dict[str, Any]],
+        radio_props: dict[str, Any],
     ) -> None: ...
     def set_active(self, index: int) -> None: ...
     def on_clicked(self, func: Callable[[str], Any]) -> int: ...
@@ -385,11 +392,10 @@ class RectangleSelector(_SelectorWidget):
         self,
         ax: Axes,
         onselect: Callable[[MouseEvent, MouseEvent], Any],
-        drawtype: str = ...,
+        *,
         minspanx: float = ...,
         minspany: float = ...,
         useblit: bool = ...,
-        lineprops: dict[str, Any] | None = ...,
         props: dict[str, Any] | None = ...,
         spancoords: Literal["data", "pixels"] = ...,
         button: MouseButton | Collection[MouseButton] | None = ...,

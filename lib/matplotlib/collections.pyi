@@ -17,6 +17,7 @@ from .typing import ColorType, LineStyleType
 class Collection(artist.Artist, cm.ScalarMappable):
     def __init__(
         self,
+        *,
         edgecolors: ColorType | Sequence[ColorType] | None = ...,
         facecolors: ColorType | Sequence[ColorType] | None = ...,
         linewidths: float | Sequence[float] | None = ...,
@@ -31,7 +32,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         pickradius: float = ...,
         hatch: str | None = ...,
         urls: Sequence[str] | None = ...,
-        *,
         zorder: float = ...,
         **kwargs
     ) -> None: ...
@@ -92,6 +92,7 @@ class PolyCollection(_CollectionWithSizes):
         self,
         verts: Sequence[ArrayLike],
         sizes: ArrayLike | None = ...,
+        *,
         closed: bool = ...,
         **kwargs
     ) -> None: ...
@@ -117,7 +118,7 @@ class BrokenBarHCollection(PolyCollection):
 
 class RegularPolyCollection(_CollectionWithSizes):
     def __init__(
-        self, numsides: int, rotation: float = ..., sizes: ArrayLike = ..., **kwargs
+        self, numsides: int, *, rotation: float = ..., sizes: ArrayLike = ..., **kwargs
     ) -> None: ...
     def get_numsides(self) -> int: ...
     def get_rotation(self) -> float: ...
@@ -143,6 +144,7 @@ class EventCollection(LineCollection):
         self,
         positions: ArrayLike,
         orientation: Literal["horizontal", "vertical"] = ...,
+        *,
         lineoffset: float = ...,
         linelength: float = ...,
         linewidth: float | Sequence[float] | None = ...,
@@ -179,6 +181,7 @@ class EllipseCollection(Collection):
         widths: ArrayLike,
         heights: ArrayLike,
         angles: ArrayLike,
+        *,
         units: Literal[
             "points", "inches", "dots", "width", "height", "x", "y", "xy"
         ] = ...,
@@ -187,7 +190,7 @@ class EllipseCollection(Collection):
 
 class PatchCollection(Collection):
     def __init__(
-        self, patches: Iterable[Patch], match_original: bool = ..., **kwargs
+        self, patches: Iterable[Patch], *, match_original: bool = ..., **kwargs
     ) -> None: ...
     def set_paths(self, patches: Iterable[Patch]) -> None: ...  # type: ignore[override]
 

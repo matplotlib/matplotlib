@@ -46,6 +46,7 @@ class Line2D(Artist):
         self,
         xdata: ArrayLike,
         ydata: ArrayLike,
+        *,
         linewidth: float | None = ...,
         linestyle: LineStyleType | None = ...,
         color: ColorType | None = ...,

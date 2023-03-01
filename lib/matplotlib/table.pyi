@@ -17,13 +17,13 @@ class Cell(Rectangle):
         xy: tuple[float, float],
         width: float,
         height: float,
+        *,
         edgecolor: ColorType = ...,
         facecolor: ColorType = ...,
         fill: bool = ...,
         text: str = ...,
         loc: Literal["left", "center", "right"] | None = ...,
         fontproperties: dict[str, Any] | None = ...,
-        *,
         visible_edges: str = ...
     ) -> None: ...
     def get_text(self) -> Text: ...

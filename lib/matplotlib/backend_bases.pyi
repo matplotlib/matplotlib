@@ -26,7 +26,7 @@ from matplotlib.texmanager import TexManager
 from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Transform, TransformedPath, Bbox
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal, NamedTuple, TypeVar
 from numpy.typing import ArrayLike
 from .typing import ColorType, LineStyleType
@@ -246,6 +246,8 @@ class LocationEvent(Event):
         x: int,
         y: int,
         guiEvent: Any | None = ...,
+        *,
+        modifiers: Iterable[str] | None = ...,
     ) -> None: ...
 
 class MouseButton(IntEnum):
@@ -271,6 +273,8 @@ class MouseEvent(LocationEvent):
         step: float = ...,
         dblclick: bool = ...,
         guiEvent: Any | None = ...,
+        *,
+        modifiers: Iterable[str] | None = ...,
     ) -> None: ...
 
 class PickEvent(Event):

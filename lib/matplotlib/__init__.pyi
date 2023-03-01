@@ -50,8 +50,9 @@ class _VersionInfo(NamedTuple):
     releaselevel: str
     serial: int
 
-__version__: str
-__version_info__: _VersionInfo
+class __getattr__:
+    __version__: str
+    __version_info__: _VersionInfo
 
 def set_loglevel(level: str) -> None: ...
 

@@ -101,7 +101,7 @@ to MATLAB®, a registered trademark of The MathWorks, Inc.
 
 """
 
-__all_ignore__ = [
+__all__ = [
     "__bibtex__",
     "__version__",
     "__version_info__",
