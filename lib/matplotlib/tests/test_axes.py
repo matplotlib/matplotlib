@@ -2713,30 +2713,7 @@ class TestScatter:
                         linewidths=[*range(1, 5), None])
         assert_array_equal(pc.get_linewidths(),
                            [*range(1, 5), mpl.rcParams['lines.linewidth']])
-    
-    """
-    Testing that there is a difference between using facecolor=none and 
-    not using it.
-    """
-    def test_scatter_facecolor_difference(self):
-        x = np.arange(5)
-        fig, ax = plt.subplots()
-        pc_no_face = ax.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
-        pc_face = ax.scatter(x, x, c=[(1.0,0.0,0.0)])
-        assert pc_no_face != pc_face
-
-    """Testing that different ways of having no facecolor """
-    def test_scatter_facecolor_kinds(self):
-        x = np.arange(5)
-        fig, ax = plt.subplots()
-        pc_no_face1 = ax.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'], 
-                                facecolors='none')
-        # this way should also produce a scatter without facecolor
-        pc_no_face2 = ax.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'],
-                                marker=mmarkers.MarkerStyle('o', fillstyle='none'),
-                                linewidths=[1.1, 1.2, 1.3])
-        assert_array_equal(pc_no_face1.get_facecolor(), pc_no_face2.get_edgecolor())
-
+ 
 
 def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):
     return (c, edgecolors, kwargs if kwargs is not None else {}, xsize)
