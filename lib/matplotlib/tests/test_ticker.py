@@ -249,6 +249,7 @@ class TestLogLocator:
         assert_array_equal(ll.tick_values(1, 1e7), test_value)
 
     def test_tick_values_not_empty(self):
+        mpl.rcParams['_internal.classic_mode'] = False
         ll = mticker.LogLocator(subs=(1, 2, 5))
         test_value = np.array([1.e-01, 2.e-01, 5.e-01, 1.e+00, 2.e+00, 5.e+00,
                                1.e+01, 2.e+01, 5.e+01, 1.e+02, 2.e+02, 5.e+02,
