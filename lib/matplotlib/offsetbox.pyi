@@ -36,10 +36,7 @@ class OffsetBox(martist.Artist):
     ) -> None: ...
     def get_offset(
         self,
-        width: float,
-        height: float,
-        xdescent: float,
-        ydescent: float,
+        bbox: Bbox,
         renderer: RendererBase,
     ) -> tuple[float, float]: ...
     def set_width(self, width: float) -> None: ...
@@ -178,10 +175,7 @@ class AnchoredOffsetbox(OffsetBox):
     ) -> None: ...
     def get_offset(
         self,
-        width: float,
-        height: float,
-        xdescent: float,
-        ydescent: float,
+        bbox: Bbox,
         renderer: RendererBase,
     ) -> tuple[float, float]: ...
     def update_frame(self, bbox: Bbox, fontsize: float | None = ...) -> None: ...
