@@ -45,23 +45,26 @@ from matplotlib.testing.decorators import (
 def test_scatter_nofacecolor_issue():
     x = np.arange(10)
     fig, ax1 = plt.subplots()
-    pc1 = ax1.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
-    pc2 = ax1.scatter(x, x, facecolors='none', edgecolors=(1.0,0.0,0.0))
+    pc1 = plt.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
+    fig2, ax2 = plt.subplots()
+    pc2 = plt.scatter(x, x, facecolors='none', edgecolors=(1.0,0.0,0.0))
 
     assert_array_equal(pc1.get_edgecolor(), pc2.get_edgecolor())
 
 
 @check_figures_equal(extensions=["png"])
-def test_scatter_nofacecolor_issue_example_plt():
+def test_scatter_nofacecolor_issue_example_plt(fig_test, fig_ref):
     x = np.arange(0, 10)
     norm = plt.Normalize(0, 10)
     cmap = mpl.colormaps['viridis'].resampled(10)
     cols = cmap(norm(x))
 
-    pc1 = plt.scatter(x, x, c=x, facecolors='none')
-    pc2 = plt.scatter(x, x, facecolors='none', edgecolors=cols)
+    fig1, ax1 = fig_ref.subplots()
+    pc1 = ax1.scatter(x, x, c=x, facecolors='none')
+    
+    fig2, ax2 = fig_test.subplots()
+    pc2 = ax2.scatter(x, x, facecolors='none', edgecolors=cols)
 
-    assert_array_equal(pc1.get_edgecolor(), pc2.get_edgecolor())
 
 
 @check_figures_equal(extensions=["png"])
