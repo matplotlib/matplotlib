@@ -2715,7 +2715,10 @@ class TestScatter:
         x = np.arange(5)
         fig, ax = plt.subplots()
         pc_no_face1 = ax.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
-        pc_no_face2 = ax.scatter(x, x, c=[(1.0,0.0,0.0)])
+        # this way should also produce a scatter without facecolor
+        pc_no_face2 = ax.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'],
+                                marker=mmarkers.MarkerStyle('o', fillstyle='none'),
+                                linewidths=[1.1, 1.2, 1.3])
         assert_array_equal(pc_no_face1.get_facecolor(), pc_no_face2.get_edgecolor())
 
 
