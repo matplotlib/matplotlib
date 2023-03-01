@@ -2703,6 +2703,20 @@ class TestScatter:
                         linewidths=[*range(1, 5), None])
         assert_array_equal(pc.get_linewidths(),
                            [*range(1, 5), mpl.rcParams['lines.linewidth']])
+    
+    def test_scatter_facecolor_difference(self):
+        x = np.arange(5)
+        fig, ax = plt.subplots()
+        pc_no_face = ax.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
+        pc_face = ax.scatter(x, x, c=[(1.0,0.0,0.0)])
+        assert pc_no_face != pc_face
+
+    def test_scatter_facecolor_kinds(self):
+        x = np.arange(5)
+        fig, ax = plt.subplots()
+        pc_no_face1 = ax.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
+        pc_no_face2 = ax.scatter(x, x, c=[(1.0,0.0,0.0)])
+        assert_array_equal(pc_no_face1.get_facecolor(), pc_no_face2.get_edgecolor())
 
 
 def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):
