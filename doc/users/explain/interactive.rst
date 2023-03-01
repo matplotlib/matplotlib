@@ -261,7 +261,7 @@ Jupyter Notebooks / JupyterLab
    cells.
 
 To get interactive figures in the 'classic' notebook or Jupyter lab,
-use the `ipympl <https://github.com/matplotlib/ipympl>`__ backend
+use the `ipympl <https://matplotlib.org/ipympl>`__ backend
 (must be installed separately) which uses the **ipywidget** framework.
 If ``ipympl`` is installed use the magic:
 
