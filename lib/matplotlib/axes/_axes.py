@@ -37,6 +37,8 @@ from matplotlib.axes._secondary_axes import SecondaryAxis
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 from matplotlib.cm import ScalarMappable
+import warnings
+
 
 _log = logging.getLogger(__name__)
 
@@ -4441,6 +4443,7 @@ class Axes(_AxesBase):
                     valid_shape = False
 
         #### NEW
+        warnings.simplefilter(action='ignore', category=FutureWarning)
         if c_is_mapped and facecolors == 'none':
             obj = ScalarMappable()
             edgecolors = obj.to_rgba(c)
@@ -4449,6 +4452,7 @@ class Axes(_AxesBase):
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 #### NEW
+                warnings.simplefilter(action='ignore', category=FutureWarning)
                 if(facecolors == 'none' and edgecolors == 'face'):
                     edgecolors = mcolors.to_rgba_array(c)
                     colors = []
