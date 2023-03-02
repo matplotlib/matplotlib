@@ -6,9 +6,9 @@ import ctypes
 
 from matplotlib.transforms import Bbox
 
-from .qt_compat import QT_API, _enum
+from .qt_compat import QT_API, QtCore, QtGui
 from .backend_agg import FigureCanvasAgg
-from .backend_qt import QtCore, QtGui, _BackendQT, FigureCanvasQT
+from .backend_qt import _BackendQT, FigureCanvasQT
 from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
     FigureManagerQT, NavigationToolbar2QT)
 
@@ -57,7 +57,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
             painter.eraseRect(rect)  # clear the widget canvas
             qimage = QtGui.QImage(ptr, buf.shape[1], buf.shape[0],
-                                  _enum("QtGui.QImage.Format").Format_RGBA8888)
+                                  QtGui.QImage.Format.Format_RGBA8888)
             qimage.setDevicePixelRatio(self.device_pixel_ratio)
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
