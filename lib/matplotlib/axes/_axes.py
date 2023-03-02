@@ -4453,7 +4453,7 @@ class Axes(_AxesBase):
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 #### NEW
                 warnings.simplefilter(action='ignore', category=FutureWarning)
-                if(facecolors == 'none' and edgecolors == 'face'):
+                if((edgecolors is not None) and edgecolors[0] == str and facecolors[0] == str and edgecolors == 'face' and facecolors == 'none'):
                     edgecolors = mcolors.to_rgba_array(c)
                     colors = []
                 else:
