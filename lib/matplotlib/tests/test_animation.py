@@ -514,5 +514,5 @@ def test_movie_writer_invalid_path(anim):
     else:
         match_str = re.escape("[Errno 2] No such file or directory: '/foo")
     with pytest.raises(FileNotFoundError, match=match_str):
-        _ = anim.save("/foo/bar/aardvark/thiscannotreallyexist.mp4",
-                      writer=animation.FFMpegFileWriter())
+        anim.save("/foo/bar/aardvark/thiscannotreallyexist.mp4",
+                  writer=animation.FFMpegFileWriter())
