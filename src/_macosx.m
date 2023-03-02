@@ -865,7 +865,6 @@ static PyTypeObject FigureManagerType = {
 
 typedef struct {
     PyObject_HEAD
-    NSPopUpButton* menu;
     NSTextView* messagebox;
     NavigationToolbar2Handler* handler;
     int height;
