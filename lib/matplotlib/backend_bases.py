@@ -55,7 +55,6 @@ from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 from matplotlib._enums import JoinStyle, CapStyle
 
-
 _log = logging.getLogger(__name__)
 _default_filetypes = {
     'eps': 'Encapsulated Postscript',
@@ -1042,6 +1041,10 @@ class GraphicsContextBase:
         """Get the hatch linewidth."""
         return self._hatch_linewidth
 
+    def set_hatch_linewidth(self, hatch_linewidth):
+        """Set the hatch linewidth."""
+        self._hatch_linewidth = hatch_linewidth
+
     def get_sketch_params(self):
         """
         Return the sketch parameters for the artist.
@@ -1201,10 +1204,10 @@ class TimerBase:
         if args or kwargs:
             _api.warn_deprecated(
                 "3.1", message="In a future version, Timer.remove_callback "
-                "will not take *args, **kwargs anymore, but remove all "
-                "callbacks where the callable matches; to keep a specific "
-                "callback removable by itself, pass it to add_callback as a "
-                "functools.partial object.")
+                               "will not take *args, **kwargs anymore, but remove all "
+                               "callbacks where the callable matches; to keep a specific "
+                               "callback removable by itself, pass it to add_callback as a "
+                               "functools.partial object.")
             self.callbacks.remove((func, args, kwargs))
         else:
             funcs = [c[0] for c in self.callbacks]
@@ -1286,6 +1289,7 @@ class DrawEvent(Event):
     renderer : `RendererBase`
         The renderer for the draw event.
     """
+
     def __init__(self, name, canvas, renderer):
         super().__init__(name, canvas)
         self.renderer = renderer
@@ -1348,8 +1352,8 @@ class LocationEvent(Event):
         # y position - pixels from right of canvas
         self.y = int(y) if y is not None else y
         self.inaxes = None  # the Axes instance the mouse is over
-        self.xdata = None   # x coord of mouse in data coords
-        self.ydata = None   # y coord of mouse in data coords
+        self.xdata = None  # x coord of mouse in data coords
+        self.ydata = None  # y coord of mouse in data coords
         self.modifiers = frozenset(modifiers if modifiers is not None else [])
 
         if x is None or y is None:
@@ -1602,13 +1606,15 @@ def _get_renderer(figure, print_method=None):
     If you need a renderer without any active draw methods use
     renderer._draw_disabled to temporary patch them out at your call site.
     """
+
     # This is implemented by triggering a draw, then immediately jumping out of
     # Figure.draw() by raising an exception.
 
     class Done(Exception):
         pass
 
-    def _draw(renderer): raise Done(renderer)
+    def _draw(renderer):
+        raise Done(renderer)
 
     with cbook._setattr_cm(figure, draw=_draw), ExitStack() as stack:
         if print_method is None:
@@ -1803,7 +1809,7 @@ class FigureCanvasBase:
                                  alternative="FigureManagerBase.resize")
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('draw_event', DrawEvent(...))"))
+            "callbacks.process('draw_event', DrawEvent(...))"))
     def draw_event(self, renderer):
         """Pass a `DrawEvent` to all functions connected to ``draw_event``."""
         s = 'draw_event'
@@ -1811,7 +1817,7 @@ class FigureCanvasBase:
         self.callbacks.process(s, event)
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('resize_event', ResizeEvent(...))"))
+            "callbacks.process('resize_event', ResizeEvent(...))"))
     def resize_event(self):
         """
         Pass a `ResizeEvent` to all functions connected to ``resize_event``.
@@ -1822,7 +1828,7 @@ class FigureCanvasBase:
         self.draw_idle()
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('close_event', CloseEvent(...))"))
+            "callbacks.process('close_event', CloseEvent(...))"))
     def close_event(self, guiEvent=None):
         """
         Pass a `CloseEvent` to all functions connected to ``close_event``.
@@ -1840,7 +1846,7 @@ class FigureCanvasBase:
             # with an open window; 'callbacks' attribute no longer exists.
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('key_press_event', KeyEvent(...))"))
+            "callbacks.process('key_press_event', KeyEvent(...))"))
     def key_press_event(self, key, guiEvent=None):
         """
         Pass a `KeyEvent` to all functions connected to ``key_press_event``.
@@ -1852,7 +1858,7 @@ class FigureCanvasBase:
         self.callbacks.process(s, event)
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('key_release_event', KeyEvent(...))"))
+            "callbacks.process('key_release_event', KeyEvent(...))"))
     def key_release_event(self, key, guiEvent=None):
         """
         Pass a `KeyEvent` to all functions connected to ``key_release_event``.
@@ -1864,7 +1870,7 @@ class FigureCanvasBase:
         self._key = None
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('pick_event', PickEvent(...))"))
+            "callbacks.process('pick_event', PickEvent(...))"))
     def pick_event(self, mouseevent, artist, **kwargs):
         """
         Callback processing for pick events.
@@ -1882,7 +1888,7 @@ class FigureCanvasBase:
         self.callbacks.process(s, event)
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('scroll_event', MouseEvent(...))"))
+            "callbacks.process('scroll_event', MouseEvent(...))"))
     def scroll_event(self, x, y, step, guiEvent=None):
         """
         Callback processing for scroll events.
@@ -1904,7 +1910,7 @@ class FigureCanvasBase:
         self.callbacks.process(s, mouseevent)
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('button_press_event', MouseEvent(...))"))
+            "callbacks.process('button_press_event', MouseEvent(...))"))
     def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
         """
         Callback processing for mouse button press events.
@@ -1923,7 +1929,7 @@ class FigureCanvasBase:
         self.callbacks.process(s, mouseevent)
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('button_release_event', MouseEvent(...))"))
+            "callbacks.process('button_release_event', MouseEvent(...))"))
     def button_release_event(self, x, y, button, guiEvent=None):
         """
         Callback processing for mouse button release events.
@@ -1950,7 +1956,7 @@ class FigureCanvasBase:
 
     # Also remove _lastx, _lasty when this goes away.
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('motion_notify_event', MouseEvent(...))"))
+            "callbacks.process('motion_notify_event', MouseEvent(...))"))
     def motion_notify_event(self, x, y, guiEvent=None):
         """
         Callback processing for mouse movement events.
@@ -1977,7 +1983,7 @@ class FigureCanvasBase:
         self.callbacks.process(s, event)
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('leave_notify_event', LocationEvent(...))"))
+            "callbacks.process('leave_notify_event', LocationEvent(...))"))
     def leave_notify_event(self, guiEvent=None):
         """
         Callback processing for the mouse cursor leaving the canvas.
@@ -1995,7 +2001,7 @@ class FigureCanvasBase:
         self._lastx, self._lasty = None, None
 
     @_api.deprecated("3.6", alternative=(
-        "callbacks.process('enter_notify_event', LocationEvent(...))"))
+            "callbacks.process('enter_notify_event', LocationEvent(...))"))
     def enter_notify_event(self, guiEvent=None, *, xy):
         """
         Callback processing for the mouse cursor entering the canvas.
@@ -2337,12 +2343,12 @@ class FigureCanvasBase:
 
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with cbook._setattr_cm(self, manager=None), \
-             self._switch_canvas_and_return_print_method(format, backend) \
-                 as print_method, \
-             cbook._setattr_cm(self.figure, dpi=dpi), \
-             cbook._setattr_cm(self.figure.canvas, _device_pixel_ratio=1), \
-             cbook._setattr_cm(self.figure.canvas, _is_saving=True), \
-             ExitStack() as stack:
+                self._switch_canvas_and_return_print_method(format, backend) \
+                        as print_method, \
+                cbook._setattr_cm(self.figure, dpi=dpi), \
+                cbook._setattr_cm(self.figure.canvas, _device_pixel_ratio=1), \
+                cbook._setattr_cm(self.figure.canvas, _is_saving=True), \
+                ExitStack() as stack:
 
             for prop in ["facecolor", "edgecolor"]:
                 color = locals()[prop]
@@ -2863,7 +2869,7 @@ class FigureManagerBase:
                 and self._toolbar2_class):
             self.toolbar = self._toolbar2_class(self.canvas)
         elif (mpl.rcParams["toolbar"] == "toolmanager"
-                and self._toolmanager_toolbar_class):
+              and self._toolmanager_toolbar_class):
             self.toolbar = self._toolmanager_toolbar_class(self.toolmanager)
         else:
             self.toolbar = None
@@ -3046,7 +3052,7 @@ class NavigationToolbar2:
         ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
         (None, None, None, None),
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
-      )
+    )
 
     def __init__(self, canvas):
         self.canvas = canvas
@@ -3615,8 +3621,8 @@ class _Backend:
         manager_class = cls.FigureCanvas.manager_class
         # Interactive backends reimplement start_main_loop or pyplot_show.
         backend_is_interactive = (
-            manager_class.start_main_loop != FigureManagerBase.start_main_loop
-            or manager_class.pyplot_show != FigureManagerBase.pyplot_show)
+                manager_class.start_main_loop != FigureManagerBase.start_main_loop
+                or manager_class.pyplot_show != FigureManagerBase.pyplot_show)
         if backend_is_interactive and is_interactive():
             manager = Gcf.get_active()
             if manager:
@@ -3656,13 +3662,13 @@ class _Backend:
     @staticmethod
     def export(cls):
         for name in [
-                "backend_version",
-                "FigureCanvas",
-                "FigureManager",
-                "new_figure_manager",
-                "new_figure_manager_given_figure",
-                "draw_if_interactive",
-                "show",
+            "backend_version",
+            "FigureCanvas",
+            "FigureManager",
+            "new_figure_manager",
+            "new_figure_manager_given_figure",
+            "draw_if_interactive",
+            "show",
         ]:
             setattr(sys.modules[cls.__module__], name, getattr(cls, name))
 

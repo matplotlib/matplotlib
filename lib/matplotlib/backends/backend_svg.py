@@ -513,11 +513,12 @@ class RendererSVG(RendererBase):
         edge = gc.get_hatch_color()
         if edge is not None:
             edge = tuple(edge)
-        dictkey = (gc.get_hatch(), rgbFace, edge)
+        lw = gc.get_hatch_linewidth()
+        dictkey = (gc.get_hatch(), rgbFace, edge, lw)
         oid = self._hatchd.get(dictkey)
         if oid is None:
             oid = self._make_id('h', dictkey)
-            self._hatchd[dictkey] = ((gc.get_hatch_path(), rgbFace, edge), oid)
+            self._hatchd[dictkey] = ((gc.get_hatch_path(), rgbFace, edge, lw), oid)
         else:
             _, oid = oid
         return oid
@@ -528,7 +529,7 @@ class RendererSVG(RendererBase):
         HATCH_SIZE = 72
         writer = self.writer
         writer.start('defs')
-        for (path, face, stroke), oid in self._hatchd.values():
+        for (path, face, stroke, lw), oid in self._hatchd.values():
             writer.start(
                 'pattern',
                 id=oid,
@@ -552,7 +553,7 @@ class RendererSVG(RendererBase):
             hatch_style = {
                     'fill': rgb2hex(stroke),
                     'stroke': rgb2hex(stroke),
-                    'stroke-width': str(mpl.rcParams['hatch.linewidth']),
+                    'stroke-width': str(lw),
                     'stroke-linecap': 'butt',
                     'stroke-linejoin': 'miter'
                     }

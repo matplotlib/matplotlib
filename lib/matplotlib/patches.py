@@ -73,6 +73,7 @@ class Patch(artist.Artist):
             joinstyle = JoinStyle.miter
 
         self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
+        self._hatch_linewidth = mpl.rcParams['hatch.linewidth']
         self._fill = True  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
@@ -530,6 +531,14 @@ class Patch(artist.Artist):
         """Return the hatching pattern."""
         return self._hatch
 
+    def set_hatch_linewidth(self, hatch_linewidth):
+        """Set the hatch linewidth."""
+        self._hatch_linewidth = hatch_linewidth
+
+    def get_hatch_linewidth(self):
+        """Return the hatch linewidth."""
+        return self._hatch_linewidth
+
     def _draw_paths_with_artist_properties(
             self, renderer, draw_path_args_list):
         """
@@ -564,6 +573,7 @@ class Patch(artist.Artist):
         if self._hatch:
             gc.set_hatch(self._hatch)
             gc.set_hatch_color(self._hatch_color)
+            mhatch._set_hatch_linewidth(gc, self._hatch_linewidth)
 
         if self.get_sketch_params() is not None:
             gc.set_sketch_params(*self.get_sketch_params())
