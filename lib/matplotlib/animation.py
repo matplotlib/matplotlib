@@ -992,6 +992,15 @@ class Animation:
         is a `.MovieWriter`, a `RuntimeError` will be raised.
         """
 
+        all_anim = [self]
+        if extra_anim is not None:
+            all_anim.extend(anim for anim in extra_anim
+                            if anim._fig is self._fig)
+
+        # Disable "Animation was deleted without rendering" warning.
+        for anim in all_anim:
+            anim._draw_was_started = True
+
         if writer is None:
             writer = mpl.rcParams['animation.writer']
         elif (not isinstance(writer, str) and
@@ -1029,11 +1038,6 @@ class Animation:
             writer_kwargs['extra_args'] = extra_args
         if metadata is not None:
             writer_kwargs['metadata'] = metadata
-
-        all_anim = [self]
-        if extra_anim is not None:
-            all_anim.extend(anim for anim in extra_anim
-                            if anim._fig is self._fig)
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
