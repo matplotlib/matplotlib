@@ -463,7 +463,7 @@ instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 
 Exception changes
 -----------------
-- `mpl_toolkits.axes_grid1.axes_size.GetExtentHelper` now raises `ValueError`
+- ``mpl_toolkits.axes_grid1.axes_size.GetExtentHelper`` now raises `ValueError`
   for invalid directions instead of `KeyError`.
 - Previously, subprocess failures in the animation framework would raise either
   in a `RuntimeError` or a `ValueError` depending on when the error occurred.

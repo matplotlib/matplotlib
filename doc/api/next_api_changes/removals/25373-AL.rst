@@ -1,0 +1,17 @@
+Removed deprecated APIs
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The following deprecated APIs have been removed:
+
+- In the `~.axes_size` module, the following classes: ``AddList`` (use
+  ``sum(sizes, start=Fixed(0))`` instead), ``Padded`` (use ``size + pad``
+  instead), ``SizeFromFunc``, ``GetExtentHelper``.
+- ``AxisArtistHelper.delta1``, ``AxisArtistHelper.delta2``,
+  ``GridHelperBase.new_gridlines``, ``GridHelperRectlinear.new_gridlines``.
+- ``Axes3D.dist``, ``axis3d.Axis.set_pane_pos``, ``axis3d.move_from_center``,
+  ``axis3d.tick_update_position``.
+- Support for positionally passing arguments *emit* and *auto* to
+  `.Axes.set_xlim`, `.Axes.set_ylim`, and `.Axes3D.set_zlim`.
+
+Unless a replacement is stated, inline the previous definition if the
+functionality is still needed.
