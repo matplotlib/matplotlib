@@ -4312,6 +4312,8 @@ class Axes(_AxesBase):
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
 
+
+
     @staticmethod
     def _parse_scatter_color_args(c, edgecolors, kwargs, xsize,
                                   get_next_color_func):
@@ -4446,14 +4448,26 @@ class Axes(_AxesBase):
         warnings.simplefilter(action='ignore', category=FutureWarning)
         if c_is_mapped and facecolors == 'none':
             obj = ScalarMappable()
+            #edgecolors = mcolors.to_rgba_array(c)
             edgecolors = obj.to_rgba(c)
             colors = []
             return c, colors, edgecolors
+        #### NEW
+        edgecolor_is_string_or_strings = (
+            isinstance(edgecolors, str)
+            or (np.iterable(edgecolors) and len(edgecolors) > 0
+                and isinstance(cbook._safe_first_finite(edgecolors), str)))
+        #### NEW
+        facecolor_is_string_or_strings = (
+            isinstance(facecolors, str)
+            or (np.iterable(facecolors) and len(facecolors) > 0
+                and isinstance(cbook._safe_first_finite(facecolors), str)))
+
         if not c_is_mapped:
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 #### NEW
                 warnings.simplefilter(action='ignore', category=FutureWarning)
-                if((edgecolors is not None) and edgecolors[0] == str and facecolors[0] == str and edgecolors == 'face' and facecolors == 'none'):
+                if(edgecolors is not None and facecolors is not None and edgecolor_is_string_or_strings and facecolor_is_string_or_strings and facecolors == 'none' and edgecolors == 'face'):
                     edgecolors = mcolors.to_rgba_array(c)
                     colors = []
                 else:
@@ -4734,7 +4748,6 @@ default: :rc:`scatter.edgecolors`
 
         self.add_collection(collection)
         self._request_autoscale_view()
-
 
         return collection
 
