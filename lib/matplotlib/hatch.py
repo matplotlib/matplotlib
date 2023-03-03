@@ -167,7 +167,6 @@ class Stars(Shapes):
         self.shape_codes[0] = Path.MOVETO
         super().__init__(hatch, density)
 
-
 _hatch_types = [
     HorizontalHatch,
     VerticalHatch,
@@ -177,7 +176,7 @@ _hatch_types = [
     LargeCircles,
     SmallFilledCircles,
     Stars
-]
+    ]
 
 
 def _validate_hatch_pattern(hatch):
