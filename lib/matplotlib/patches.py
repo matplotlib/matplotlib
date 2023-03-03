@@ -3196,29 +3196,18 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, default: 0.4
-                Length of the arrow head, relative to *mutation_scale*.
+                Length of the arrow head, relative to *mutation_size*.
             head_width : float, default: 0.2
-                Width of the arrow head, relative to *mutation_scale*.
-            widthA : float, default: 1.0
-                Width of the bracket at the beginning of the arrow
-            widthB : float, default: 1.0
-                Width of the bracket at the end of the arrow
-            lengthA : float, default: 0.2
-                Length of the bracket at the beginning of the arrow
-            lengthB : float, default: 0.2
-                Length of the bracket at the end of the arrow
-            angleA : float, default 0
-                Orientation of the bracket at the beginning, as a
-                counterclockwise angle. 0 degrees means perpendicular
-                to the line.
-            angleB : float, default 0
-                Orientation of the bracket at the beginning, as a
-                counterclockwise angle. 0 degrees means perpendicular
-                to the line.
-            scaleA : float, default *mutation_size*
-                The mutation_size for the beginning bracket
-            scaleB : float, default *mutation_size*
-                The mutation_size for the end bracket
+                Width of the arrow head, relative to *mutation_size*.
+            widthA, widthB : float, default: 1.0
+                Width of the bracket.
+            lengthA, lengthB : float, default: 0.2
+                Length of the bracket.
+            angleA, angleB : float, default: 0
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
+            scaleA, scaleB : float, default: *mutation_size*
+                The scale of the brackets.
             """
 
             self.head_length, self.head_width = head_length, head_width
