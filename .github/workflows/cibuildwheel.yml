@@ -61,6 +61,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Something changed somewhere that prevents the downloaded-at-build-time
+      # licenses from being included in built wheels, so pre-download them so
+      # that they exist before the build and are included.
+      - name: Pre-download bundled licenses
+        run: >
+          curl -Lo LICENSE/LICENSE_QHULL
+          https://github.com/qhull/qhull/raw/2020.2/COPYING.txt
+
       - name: Build wheels for CPython 3.11
         uses: pypa/cibuildwheel@v2.12.0
         env:
