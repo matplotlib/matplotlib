@@ -412,8 +412,8 @@ which will copy the built docs over.  If this is a final release, link the
   rm stable
   ln -s 3.7.0 stable
 
-You will need to manually edit :file:`versions.html` to show the last
-3 tagged versions.  You will also need to edit :file:`sitemap.xml` to include
+You will need to manually edit :file:`versions.html` to show the released version.
+You will also need to edit :file:`sitemap.xml` to include
 the newly released version.  Now commit and push everything to GitHub ::
 
   git add *
@@ -467,6 +467,9 @@ version of the release notes along with acknowledgments should be sent to
 
 In addition, announcements should be made on social networks (e.g., Twitter via the
 ``@matplotlib`` account, any other via personal accounts).
+
+Add a release announcement to the ``mpl-brochure-site`` "News" section of
+``docs/body.html``, linking to the discourse page for the announcement.
 
 
 Conda packages
