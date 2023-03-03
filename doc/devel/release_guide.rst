@@ -24,7 +24,7 @@ Making the release branch
 =========================
 
 When a new minor release (vX.Y.0) is approaching, a new release branch must be made.
-When precisely this happens is up to the release manager, but at this point is where
+When precisely this should happen is up to the release manager, but this point is where
 most new features intended for the minor release are merged and you are entering a
 feature freeze (i.e. newly implemented features will be going into vX.Y+1).
 This does not necessarily mean that no further changes will be made prior to release,
@@ -81,7 +81,7 @@ Run the User Acceptance Tests for the NBAgg and ipympl backends::
 
 For ipympl, restart the kernel, add a cell for ``%matplotlib widget`` and do
 not run the cell with ``matplotlib.use('nbagg')``. Tests which check
-``connection_info``, use ``reshow``, or test the OO interfeace are not expected
+``connection_info``, use ``reshow``, or test the OO interface are not expected
 to work for ``ipympl``.
 
 .. _release_ghstats:
@@ -440,7 +440,7 @@ notes, fixing broken links, and updating the version switcher) are bubbled up to
 ``main``.
 
 Git conflicts are very likely to arise, though aside from changes made directly to the
-release branch (mostly as part of the release), should be relatively trivially resolved
+release branch (mostly as part of the release), they should be relatively trivially resolved
 by using the version from ``main``. This is not a universal rule, and care should be
 taken to ensure correctness::
 
