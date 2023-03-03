@@ -4448,7 +4448,6 @@ class Axes(_AxesBase):
         warnings.simplefilter(action='ignore', category=FutureWarning)
         if c_is_mapped and facecolors == 'none':
             obj = ScalarMappable()
-            #edgecolors = mcolors.to_rgba_array(c)
             edgecolors = obj.to_rgba(c)
             colors = []
             return c, colors, edgecolors
