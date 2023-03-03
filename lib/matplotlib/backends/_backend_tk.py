@@ -677,8 +677,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                     # Text-only button is handled by the font setting instead.
                     pass
             elif isinstance(widget, tk.Frame):
-                widget.configure(height='22p', pady='1p')
-                widget.pack_configure(padx='4p')
+                widget.configure(height='18p')
+                widget.pack_configure(padx='3p')
             elif isinstance(widget, tk.Label):
                 pass  # Text is handled by the font setting instead.
             else:
