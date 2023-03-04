@@ -180,12 +180,12 @@ def _subclass_with_normal(effect_class):
 
     With this class you can use ::
 
-        artist.set_path_effects([path_effects.with{effect_class.__name__}()])
+        artist.set_path_effects([patheffects.with{effect_class.__name__}()])
 
     as a shortcut for ::
 
-        artist.set_path_effects([path_effects.{effect_class.__name__}(),
-                                 path_effects.Normal()])
+        artist.set_path_effects([patheffects.{effect_class.__name__}(),
+                                 patheffects.Normal()])
     """
     # Docstring inheritance doesn't work for locally-defined subclasses.
     withEffect.draw_path.__doc__ = effect_class.draw_path.__doc__
