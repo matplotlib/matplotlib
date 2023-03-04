@@ -1,6 +1,8 @@
 """
 .. _colorbar_placement:
 
+.. redirect-from:: /gallery/subplots_axes_and_figures/colorbar_placement
+
 =================
 Placing Colorbars
 =================

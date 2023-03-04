@@ -1,4 +1,6 @@
 """
+.. redirect_from:: /tutorial/intermediate/tight_layout_guide
+
 ==================
 Tight Layout guide
 ==================

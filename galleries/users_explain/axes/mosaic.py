@@ -1,5 +1,6 @@
 """
 .. redirect-from:: /tutorials/provisional/mosaic
+.. redirect-from:: /gallery/subplots_axes_and_figures/mosaic
 
 
 

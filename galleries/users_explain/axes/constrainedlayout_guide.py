@@ -1,4 +1,7 @@
 """
+
+.. redirect-from:: /tutorials/intermediate/constrainedlayout_guide
+
 ================================
 Constrained Layout Guide
 ================================

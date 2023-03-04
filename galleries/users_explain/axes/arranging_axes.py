@@ -1,5 +1,6 @@
 """
 .. redirect-from:: /tutorials/intermediate/gridspec
+.. redirect-from:: /tutorials/intermediate/arranging_axes
 
 .. _arranging_axes:
 
