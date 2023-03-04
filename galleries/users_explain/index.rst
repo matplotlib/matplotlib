@@ -11,6 +11,7 @@ Explanations
     quick_start
     figure/index
     axes/index
+    artists/index
     colors/index
     backends.rst
     fonts.rst

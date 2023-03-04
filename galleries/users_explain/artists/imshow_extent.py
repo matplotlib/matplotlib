@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /tutorials/intermediate/imshow_extent
+
 *origin* and *extent* in `~.Axes.imshow`
 ========================================
 

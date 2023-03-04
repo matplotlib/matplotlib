@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /tutorials/advanced/transforms_tutorial
+
 ========================
 Transformations Tutorial
 ========================
