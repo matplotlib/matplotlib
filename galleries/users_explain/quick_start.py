@@ -7,6 +7,7 @@ This tutorial covers some basic usage patterns and best practices to
 help you get started with Matplotlib.
 
 .. redirect-from:: /tutorials/introductory/usage
+.. redirect-from:: /tutorials/introductory/quick_start
 
 """
 

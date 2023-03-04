@@ -238,5 +238,4 @@ methods above. If ``name.of.the.backend`` is the module containing the
 backend, use ``module://name.of.the.backend`` as the backend name, e.g.
 ``matplotlib.use('module://name.of.the.backend')``.
 
-Information for backend implementers is available at
-:doc:`/users/explain/writing_a_backend_pyplot_interface`.
+Information for backend implementers is available at :ref:`writing_backend_interface`.

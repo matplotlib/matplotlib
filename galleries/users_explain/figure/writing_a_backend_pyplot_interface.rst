@@ -1,3 +1,7 @@
+.. redirect-from:: /users/explain/writing_a_backend_pyplot_interface
+
+.. _writing_backend_interface:
+
 =========================================
 Writing a backend -- the pyplot interface
 =========================================
