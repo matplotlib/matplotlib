@@ -1,5 +1,7 @@
 .. _tutorials-colors:
 
+.. redirect-from:: /tutorials/colors/index
+
 Colors
 ------
 

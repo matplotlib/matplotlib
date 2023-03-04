@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /tutorials/colors/colormaps
+
 ********************************
 Choosing Colormaps in Matplotlib
 ********************************

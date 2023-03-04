@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /tutorials/colors/colors
+
 *****************
 Specifying colors
 *****************

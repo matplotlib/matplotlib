@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /tutorials/colors/colormap_manipulation
+
 ********************************
 Creating Colormaps in Matplotlib
 ********************************

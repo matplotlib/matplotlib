@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /tutorials/colors/colorbar_only
+
 =============================
 Customized Colorbars Tutorial
 =============================

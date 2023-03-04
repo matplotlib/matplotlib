@@ -1,4 +1,7 @@
 """
+
+.. redirect-from:: /tutorials/colors/colormapnorms
+
 Colormap Normalization
 ======================
 

@@ -11,6 +11,7 @@ Explanations
     quick_start
     figure/index
     axes/index
+    colors/index
     backends.rst
     fonts.rst
     event_handling.rst
