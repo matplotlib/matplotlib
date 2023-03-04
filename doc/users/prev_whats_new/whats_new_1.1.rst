@@ -85,7 +85,7 @@ The usage of this functionality can be as simple as ::
 
 and it will adjust the spacing between subplots
 so that the axis labels do not overlap with neighboring subplots. A
-:doc:`/tutorials/intermediate/tight_layout_guide` has been created to show how to use
+:ref:`tight_layout_guide` has been created to show how to use
 this new tool.
 
 PyQT4, PySide, and IPython

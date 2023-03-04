@@ -9,7 +9,7 @@ New dependency
 
 `kiwisolver <https://github.com/nucleic/kiwi>`__ is now a required
 dependency to support the new constrained_layout,  see
-:doc:`/tutorials/intermediate/constrainedlayout_guide` for
+:ref:`constrainedlayout_guide` for
 more details.
 
 

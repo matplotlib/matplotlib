@@ -2,7 +2,7 @@
 .. redirect-from:: /tutorials/provisional/mosaic
 .. redirect-from:: /gallery/subplots_axes_and_figures/mosaic
 
-
+.. _mosaic:
 
 ========================================================
 Complex and semantic figure composition (subplot_mosaic)
@@ -12,7 +12,7 @@ Laying out Axes in a Figure in a non-uniform grid can be both tedious
 and verbose.  For dense, even grids we have `.Figure.subplots` but for
 more complex layouts, such as Axes that span multiple columns / rows
 of the layout or leave some areas of the Figure blank, you can use
-`.gridspec.GridSpec` (see :doc:`/tutorials/intermediate/arranging_axes`) or
+`.gridspec.GridSpec` (see :ref:`arranging_axes`) or
 manually place your axes.  `.Figure.subplot_mosaic` aims to provide an
 interface to visually lay out your axes (as either ASCII art or nested
 lists) to streamline this process.

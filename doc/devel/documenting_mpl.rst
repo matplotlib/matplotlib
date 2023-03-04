@@ -202,7 +202,7 @@ Documents can be linked with the ``:doc:`` directive:
 
    See the :doc:`/users/installing/index`
 
-   See the tutorial :doc:`/tutorials/introductory/quick_start`
+   See the tutorial :ref:`quick_start`
 
    See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
@@ -210,7 +210,7 @@ will render as:
 
   See the :doc:`/users/installing/index`
 
-  See the tutorial :doc:`/tutorials/introductory/quick_start`
+  See the tutorial :ref:`quick_start`
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
@@ -859,7 +859,7 @@ render as comments in :doc:`/gallery/lines_bars_and_markers/simple_plot`.
 
 Tutorials are made with the exact same mechanism, except they are longer, and
 typically have more than one comment block (i.e.
-:doc:`/tutorials/introductory/quick_start`).  The first comment block
+:ref:`quick_start`).  The first comment block
 can be the same as the example above.  Subsequent blocks of ReST text are
 delimited by the line ``# %%`` :
 

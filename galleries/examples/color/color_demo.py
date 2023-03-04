@@ -30,7 +30,7 @@ Matplotlib recognizes the following formats to specify a color:
 
 For more information on colors in matplotlib see
 
-* the :doc:`/tutorials/colors/colors` tutorial;
+* the :ref:`colors_def` tutorial;
 * the `matplotlib.colors` API;
 * the :doc:`/gallery/color/named_colors` example.
 """

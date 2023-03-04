@@ -23,7 +23,7 @@ Sophisticated subplot grid layout
 
 Jae-Joon Lee has written :mod:`~matplotlib.gridspec`, a new module for
 doing complex subplot layouts, featuring row and column spans and
-more.  See :doc:`/tutorials/intermediate/arranging_axes` for a tutorial
+more.  See :ref:`arranging_axes` for a tutorial
 overview.
 
 .. figure:: ../../gallery/userdemo/images/sphx_glr_demo_gridspec01_001.png

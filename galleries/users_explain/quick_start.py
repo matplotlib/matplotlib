@@ -1,13 +1,15 @@
 """
+.. redirect-from:: /tutorials/introductory/usage
+.. redirect-from:: /tutorials/introductory/quick_start
+
+.. _quick_start:
+
 *****************
 Quick start guide
 *****************
 
 This tutorial covers some basic usage patterns and best practices to
 help you get started with Matplotlib.
-
-.. redirect-from:: /tutorials/introductory/usage
-.. redirect-from:: /tutorials/introductory/quick_start
 
 """
 
@@ -254,7 +256,7 @@ l.set_linestyle(':')
 # ------
 #
 # Matplotlib has a very flexible array of colors that are accepted for most
-# Artists; see the :doc:`colors tutorial </tutorials/colors/colors>` for a
+# Artists; see :ref:`allowable color definitions <colors_def>` for a
 # list of specifications. Some Artists will take multiple colors.  i.e. for
 # a `~.Axes.scatter` plot, the edge of the markers can be different colors
 # from the interior:
@@ -409,7 +411,7 @@ axs[1].plot(xdata, data)
 # The scale sets the mapping from data values to spacing along the Axis. This
 # happens in both directions, and gets combined into a *transform*, which
 # is the way that Matplotlib maps from data coordinates to Axes, Figure, or
-# screen coordinates.  See :doc:`/tutorials/advanced/transforms_tutorial`.
+# screen coordinates.  See :ref:`transforms_tutorial`.
 #
 # Tick locators and formatters
 # ----------------------------
@@ -529,8 +531,8 @@ axs[1, 1].set_title('scatter()')
 # These are all examples of Artists that derive from  `~.ScalarMappable`
 # objects.  They all can set a linear mapping between *vmin* and *vmax* into
 # the colormap specified by *cmap*.  Matplotlib has many colormaps to choose
-# from (:doc:`/tutorials/colors/colormaps`) you can make your
-# own (:doc:`/tutorials/colors/colormap-manipulation`) or download as
+# from (:ref:`colormaps`) you can make your
+# own (:ref:`colormap-manipulation`) or download as
 # `third-party packages
 # <https://matplotlib.org/mpl-third-party/#colormaps-and-styles>`_.
 #
@@ -540,7 +542,7 @@ axs[1, 1].set_title('scatter()')
 # Sometimes we want a non-linear mapping of the data to the colormap, as
 # in the ``LogNorm`` example above.  We do this by supplying the
 # ScalarMappable with the *norm* argument instead of *vmin* and *vmax*.
-# More normalizations are shown at :doc:`/tutorials/colors/colormapnorms`.
+# More normalizations are shown at :ref:`colormapnorms`.
 #
 # Colorbars
 # ---------
@@ -577,8 +579,7 @@ axd['right'].set_title('right')
 
 # %%
 # Matplotlib has quite sophisticated tools for arranging Axes: See
-# :doc:`/tutorials/intermediate/arranging_axes` and
-# :doc:`/gallery/subplots_axes_and_figures/mosaic`.
+# :ref:`arranging_axes` and :ref:`mosaic`.
 #
 #
 # More reading

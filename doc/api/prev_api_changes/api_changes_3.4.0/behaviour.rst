@@ -24,7 +24,7 @@ library, so using it should be safe, but layouts may not be exactly the same as
 more development takes place.
 
 Details of using ``constrained_layout``, and its algorithm are available at
-:doc:`/tutorials/intermediate/constrainedlayout_guide`
+:ref:`constrainedlayout_guide`
 
 ``plt.subplot`` re-selection without keyword arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -57,13 +57,13 @@ per-file-ignores =
     doc/conf.py: E402
     galleries/tutorials/advanced/path_tutorial.py: E402
     galleries/tutorials/advanced/patheffects_guide.py: E402
-    galleries/tutorials/advanced/transforms_tutorial.py: E402, E501
-    galleries/tutorials/colors/colormaps.py: E501
-    galleries/tutorials/colors/colors.py: E402
+    galleries/users_explain/artists/transforms_tutorial.py: E402, E501
+    galleries/users_explain/colormaps.py: E501
+    galleries/users_explain/colors/colors.py: E402
     galleries/tutorials/intermediate/artists.py: E402
-    galleries/tutorials/intermediate/constrainedlayout_guide.py: E402
+    galleries/users_explain/figure/constrainedlayout_guide.py: E402
     galleries/tutorials/intermediate/legend_guide.py: E402
-    galleries/tutorials/intermediate/tight_layout_guide.py: E402
+    galleries/users_explain/figure/tight_layout_guide.py: E402
     galleries/tutorials/introductory/animation_tutorial.py: E501
     galleries/tutorials/introductory/images.py: E501
     galleries/tutorials/introductory/pyplot.py: E402, E501

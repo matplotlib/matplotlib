@@ -559,7 +559,7 @@ fig.subplots_adjust(top=0.8)
 # Some others more advanced options are:
 #
 # 1. A `.Transform` instance. For more information on transforms, see the
-# :doc:`../advanced/transforms_tutorial` For example, the
+# :ref:`transforms_tutorial` For example, the
 # ``Axes.transAxes`` transform positions the annotation relative to the Axes
 # coordinates and using it is therefore identical to setting the
 # coordinate system to "axes fraction":
@@ -689,7 +689,7 @@ fig.add_artist(con)
 # (with `~.Figure.add_artist`) rather than to either axes. This ensures that
 # the ConnectionPatch artist is drawn on top of both axes, and is also necessary
 # when using :doc:`constrained_layout
-# </tutorials/intermediate/constrainedlayout_guide>` for positioning the axes.
+# <:ref:`constrainedlayout_guide`>` for positioning the axes.
 #
 # Zoom effect between Axes
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -703,5 +703,5 @@ fig.add_artist(con)
 #
 # The code for this figure is at
 # :doc:`/gallery/subplots_axes_and_figures/axes_zoom_effect` and
-# familiarity with :doc:`../advanced/transforms_tutorial`
+# familiarity with :ref:`transforms_tutorial`
 # is recommended.

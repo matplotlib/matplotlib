@@ -42,8 +42,8 @@ interface maintains global state, and is very useful for quickly and easily
 experimenting with various plot settings.  The alternative is the explicit,
 which is more suitable for large application development.  For an explanation
 of the tradeoffs between the implicit and explicit interfaces see
-:ref:`api_interfaces` and the :doc:`Quick start guide
-</tutorials/introductory/quick_start>` to start using the explicit interface.
+:ref:`api_interfaces` and the :ref:`Quick start guide
+<quick_start>` to start using the explicit interface.
 For now, let's get on with the implicit approach:
 
 """

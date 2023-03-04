@@ -49,7 +49,7 @@ Learning resources
         Tutorials
         ^^^
 
-        - :doc:`Quick-start guide <tutorials/introductory/quick_start>`
+        - :ref:`Quick-start guide <quick_start>`
         - :doc:`Plot types <plot_types/index>`
         - :ref:`Introductory tutorials <tutorials-introductory>`
         - :doc:`External learning resources <users/resources/index>`

@@ -1,5 +1,7 @@
 """
-.. redirect_from:: /tutorial/intermediate/tight_layout_guide
+.. redirect-from:: /tutorial/intermediate/tight_layout_guide
+
+.. _tight_layout_guide:
 
 ==================
 Tight Layout guide
@@ -12,8 +14,8 @@ subplot(s) fits in to the figure area. This is an experimental
 feature and may not work for some cases. It only checks the extents
 of ticklabels, axis labels, and titles.
 
-An alternative to *tight_layout* is :doc:`constrained_layout
-</tutorials/intermediate/constrainedlayout_guide>`.
+An alternative to *tight_layout* is :ref:`constrained_layout
+<constrainedlayout_guide>`.
 
 
 Simple Example
@@ -119,7 +121,7 @@ plt.tight_layout()
 # %%
 # It works with subplots created with
 # :func:`~matplotlib.pyplot.subplot2grid`. In general, subplots created
-# from the gridspec (:doc:`/tutorials/intermediate/arranging_axes`) will work.
+# from the gridspec (:ref:`arranging_axes`) will work.
 
 plt.close('all')
 fig = plt.figure()

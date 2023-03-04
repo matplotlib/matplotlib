@@ -13,12 +13,12 @@ configured via keyword arguments to `~.Axes.set_title`, `~.Axes.set_xlabel`,
 Property                    Value Type
 ==========================  ======================================================================================================================
 alpha                       `float`
-backgroundcolor             any matplotlib :doc:`color </tutorials/colors/colors>`
+backgroundcolor             any matplotlib :ref:`color <colors_def>`
 bbox                        `~matplotlib.patches.Rectangle` prop dict plus key ``'pad'`` which is a pad in points
 clip_box                    a matplotlib.transform.Bbox instance
 clip_on                     bool
 clip_path                   a `~matplotlib.path.Path` instance and a `~matplotlib.transforms.Transform` instance, a `~matplotlib.patches.Patch`
-color                       any matplotlib :doc:`color </tutorials/colors/colors>`
+color                       any matplotlib :ref:`color <colors_def>`
 family                      [ ``'serif'`` | ``'sans-serif'`` | ``'cursive'`` | ``'fantasy'`` | ``'monospace'`` ]
 fontproperties              `~matplotlib.font_manager.FontProperties`
 horizontalalignment or ha   [ ``'center'`` | ``'right'`` | ``'left'`` ]

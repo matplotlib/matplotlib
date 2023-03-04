@@ -1,6 +1,8 @@
 """
 .. redirect-from:: /tutorials/colors/colormaps
 
+.. _colormaps:
+
 ********************************
 Choosing Colormaps in Matplotlib
 ********************************
@@ -11,7 +13,7 @@ have many extra colormaps, which can be viewed in the
 `Third-party colormaps`_ section of the Matplotlib documentation.
 Here we briefly discuss how to choose between the many options.  For
 help on creating your own colormaps, see
-:doc:`/tutorials/colors/colormap-manipulation`.
+:ref:`colormap-manipulation`.
 
 Overview
 ========

@@ -1,5 +1,7 @@
 """
-.. redirect-from:: /tutorials/colors/colormap_manipulation
+.. redirect-from:: /tutorials/colors/colormap-manipulation
+
+.. _colormap-manipulation:
 
 ********************************
 Creating Colormaps in Matplotlib
@@ -26,7 +28,7 @@ Getting colormaps and accessing their values
 ============================================
 
 First, getting a named colormap, most of which are listed in
-:doc:`/tutorials/colors/colormaps`, may be done using `.matplotlib.colormaps`,
+:ref:`colormaps`, may be done using `.matplotlib.colormaps`,
 which returns a colormap object.  The length of the list of colors used
 internally to define the colormap can be adjusted via `.Colormap.resampled`.
 Below we use a modest value of 8 so there are not a lot of values to look at.
@@ -117,7 +119,7 @@ plot_examples([cmap])
 
 # %%
 # In fact, that list may contain any valid
-# :doc:`Matplotlib color specification </tutorials/colors/colors>`.
+# :ref:`Matplotlib color specification <colors_def>`.
 # Particularly useful for creating custom colormaps are (N, 4)-shaped arrays.
 # Because with the variety of numpy operations that we can do on a such an
 # array, carpentry of new colormaps from existing colormaps become quite

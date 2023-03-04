@@ -2,6 +2,8 @@
 
 .. redirect-from:: /tutorials/intermediate/constrainedlayout_guide
 
+.. _constrainedlayout_guide:
+
 ================================
 Constrained Layout Guide
 ================================
@@ -12,8 +14,8 @@ Use *constrained layout* to fit plots within your figure cleanly.
 labels, legends, and colorbars do not overlap, while still preserving the
 logical layout requested by the user.
 
-*Constrained layout* is similar to :doc:`Tight
-layout</tutorials/intermediate/tight_layout_guide>`, but is substantially more
+*Constrained layout* is similar to :ref:`Tight
+layout<tight_layout_guide>`, but is substantially more
 flexible.  It handles colorbars placed on multiple Axes
 (:ref:`colorbar_placement`) nested layouts (`~.Figure.subfigures`) and Axes that
 span rows or columns (`~.pyplot.subplot_mosaic`), striving to align spines from

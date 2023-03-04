@@ -2,6 +2,8 @@
 
 .. redirect-from:: /tutorials/colors/colormapnorms
 
+.. _colormapnorms:
+
 Colormap Normalization
 ======================
 

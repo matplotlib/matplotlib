@@ -98,7 +98,7 @@ are only specified via hex values.  To access these colors outside of
 the property cycling the notation for colors ``'CN'``, where ``N``
 takes values 0-9, was added to
 denote the first 10 colors in :rc:`axes.prop_cycle`. See
-:doc:`/tutorials/colors/colors` for more details.
+:ref:`colors_def` for more details.
 
 To restore the old color cycle use
 
@@ -147,7 +147,7 @@ watch Nathaniel Smith and Stéfan van der Walt's talk from SciPy2015.
 See `here for many more details <https://bids.github.io/colormap/>`__
 about the other alternatives and the tools used to create the color
 map.  For details on all of the colormaps available in matplotlib see
-:doc:`/tutorials/colors/colormaps`.
+:ref:`colormaps`.
 
 .. raw:: html
 

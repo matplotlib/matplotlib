@@ -1805,7 +1805,7 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        See :doc:`/gallery/subplots_axes_and_figures/mosaic`
+        See :ref:`mosaic`
         for an example and full API documentation
 
         Parameters
@@ -2266,7 +2266,7 @@ class SubFigure(FigureBase):
         """
         Return whether constrained layout is being used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
         """
         return self._parent.get_constrained_layout()
 
@@ -2277,7 +2277,7 @@ class SubFigure(FigureBase):
         Returns a list of ``w_pad, h_pad`` in inches and
         ``wspace`` and ``hspace`` as fractions of the subplot.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2427,7 +2427,7 @@ None}, default: None
               to avoid overlapping axes decorations.  Can handle complex plot
               layouts and colorbars, and is thus recommended.
 
-              See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+              See :ref:`constrainedlayout_guide`
               for examples.
 
             - 'compressed': uses the same algorithm as 'constrained', but
@@ -2776,7 +2776,7 @@ None}, default: None
         """
         Return whether constrained layout is being used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
         """
         return isinstance(self.get_layout_engine(), ConstrainedLayoutEngine)
 
@@ -2819,7 +2819,7 @@ None}, default: None
         Tip: The parameters can be passed from a dictionary by using
         ``fig.set_constrained_layout(**pad_dict)``.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2853,7 +2853,7 @@ None}, default: None
         ``wspace`` and ``hspace`` as fractions of the subplot.
         All values are None if ``constrained_layout`` is not used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------

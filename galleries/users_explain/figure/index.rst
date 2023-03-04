@@ -1,5 +1,5 @@
 
-.. redirect_from:: /users/explain/figure
+.. redirect-from:: /users/explain/figure
 .. _figure_explanation:
 
 +++++++++++++++++
@@ -186,9 +186,9 @@ figure in expected ways, with *frameon* making the figure transparent if set to 
 
 Finally, the user can specify a layout engine for the figure with the *layout*
 parameter.  Currently Matplotlib supplies
-:doc:`"constrained" </tutorials/intermediate/constrainedlayout_guide>`,
+:ref:`"constrained" <constrainedlayout_guide>`,
 :ref:`"compressed" <compressed_layout>` and
-:doc:`"tight" </tutorials/intermediate/tight_layout_guide>` layout engines.  These
+:ref:`"tight" <tight_layout_guide>` layout engines.  These
 rescale axes inside the Figure to prevent overlap of ticklabels, and try and align
 axes, and can save significant manual adjustment of artists on a Figure for many
 common cases.
@@ -209,7 +209,7 @@ usually with care being taken to use the appropriate transform.  Usually these
 include ``Figure.transFigure`` which ranges from 0 to 1 in each direction, and
 represents the fraction of the current Figure size, or ``Figure.dpi_scale_trans``
 which will be in physical units of inches from the bottom left corner of the Figure
-(see :doc:`/tutorials/advanced/transforms_tutorial` for more details).
+(see :ref:`transforms_tutorial` for more details).
 
 
 .. _saving_figures:

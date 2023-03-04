@@ -1,4 +1,6 @@
 """
+.. _legend_guide:
+
 ============
 Legend guide
 ============

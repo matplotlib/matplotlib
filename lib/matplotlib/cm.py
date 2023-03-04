@@ -5,14 +5,13 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
   :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
 
-  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
-  make colormaps.
+  :ref:`colormap-manipulation` for examples of how to make
+  colormaps.
 
-  :doc:`/tutorials/colors/colormaps` an in-depth discussion of
-  choosing colormaps.
+  :ref:`colormaps` an in-depth discussion of choosing
+  colormaps.
 
-  :doc:`/tutorials/colors/colormapnorms` for more details about data
-  normalization.
+  :ref:`colormapnorms` for more details about data normalization.
 """
 
 from collections.abc import Mapping
@@ -681,7 +680,7 @@ norm : str or `~matplotlib.colors.Normalize`, optional
     If given, this can be one of the following:
 
     - An instance of `.Normalize` or one of its subclasses
-      (see :doc:`/tutorials/colors/colormapnorms`).
+      (see :ref:`colormapnorms`).
     - A scale name, i.e. one of "linear", "log", "symlog", "logit", etc.  For a
       list of available scales, call `matplotlib.scale.get_scale_names()`.
       In that case, a suitable `.Normalize` subclass is dynamically generated

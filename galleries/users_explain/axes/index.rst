@@ -3,8 +3,11 @@ Axes (or Subplots)
 ##################
 
 
-Matplotlib `~.axes.Axes` are the gateway to creating your data visualizations.  Once an Axes is placed on a figure there are many methods that can be used to add data to the Axes. An Axes typically has a pair of :ref:`Axis <../axis/>` Artists that define the data co-ordinate system, and include methods to add annotations like x- and y-labels, titles, and legends.
-
+Matplotlib `~.axes.Axes` are the gateway to creating your data visualizations.
+Once an Axes is placed on a figure there are many methods that can be used to
+add data to the Axes. An Axes typically has a pair of :ref:`Axis <../axis/>`
+Artists that define the data co-ordinate system, and include methods to add
+annotations like x- and y-labels, titles, and legends.
 
 .. _anatomy_local:
 
@@ -120,7 +123,6 @@ Usually we want to label the Axes with an xlabel, ylabel, and title, and often w
 These methods are relatively straight-forward, though there are a number of :ref:`text_props` that can be set on the text objects, like *fontsize*, *fontname*, *horizontalalignment*.  Legends can be much more complicated; see :ref:`legend_guide` for more details.
 
 Note that text can also be added to axes using `~.axes.Axes.text`, and `~.axes.Axes.annotate`.  This can be quite sophisticated: see :ref:`text_props` and :ref:`annotations` for more information.
-
 
 
 Axes limits, scales, and ticking

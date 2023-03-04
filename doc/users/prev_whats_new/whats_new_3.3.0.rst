@@ -50,7 +50,7 @@ or as a string (with single-character Axes labels):
                ha='center', va='center', fontsize=36,
                color='darkgrey')
 
-See :doc:`/gallery/subplots_axes_and_figures/mosaic` for more details and examples.
+See :ref:`mosaic` for more details and examples.
 
 ``GridSpec.subplots()``
 -----------------------
