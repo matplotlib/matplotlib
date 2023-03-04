@@ -5,6 +5,7 @@ Ishikawa Diagrams
 
 Ishikawa Diagrams, fishbone diagrams, herringbone diagrams, or cause-and-effect
 diagrams are useful for visualizing the effect to many cause relationships
+Source: https://en.wikipedia.org/wiki/Ishikawa_diagram
 
 """
 import logging
@@ -144,18 +145,18 @@ def drawspines(data: dict, ax: plt.Axes, parentspine: None, alpha_ps: float = 60
     return None
 
 
-def ishikawaplot(data, figsize=(20, 10), left_margin: float = 0.05,
+def ishikawaplot(data: dict, ax: plt.Axes, left_margin: float = 0.05,
                  right_margin: float = 0.05, alpha_ps: float = 60.0,
                  alpha_ss=0.0, primary_spines_rel_xpos: List[float] = [np.nan],
-                 pd_width: int = 0.1, spine_color: str = "black") -> plt.figure:
+                 pd_width: int = 0.1, spine_color: str = "black") -> None:
     """
 
     Parameters
     ----------
-    data : TYPE
-        DESCRIPTION.
-    figsize : TYPE, optional
-        Matplotlib figure size. The default is (20,10).
+    data : dict
+        Plot data structure.
+    ax : matplotlib.pyplot.Axes
+        Axes in which to drow the plot.
     left_margin : float, optional
         Left spacing from frame border. The default is 0.05.
     right_margin : float, optional
@@ -174,14 +175,9 @@ def ishikawaplot(data, figsize=(20, 10), left_margin: float = 0.05,
 
     Returns
     -------
-    fig : matplotlib.pyplot.figure
-        Figure object containing the Ishikawa plot
+    None
 
     """
-
-    fig = plt.figure(figsize=figsize)
-    ax = fig.gca()
-
     # format axis
     ax.set_xlim(0, 1.0)
     ax.set_ylim(0, 1.0)
@@ -210,8 +206,7 @@ def ishikawaplot(data, figsize=(20, 10), left_margin: float = 0.05,
                primary_spines_rel_xpos=primary_spines_rel_xpos,
                spine_color=spine_color)
 
-    plt.tight_layout()
-    return fig
+    return None
 
 
 # USER DATA
@@ -227,6 +222,8 @@ data = {'problem': {'machine': {'cause1': ''},
         }
 
 # Ishikawa plot generation
+fig = plt.figure(figsize=(12, 6), layout='constrained')
+ax = fig.gca()
+
 # try also without opt primary_spines rel_xpos
-fig = ishikawaplot(data, figsize=(20, 10),
-                   primary_spines_rel_xpos=[0.8, 0.7, 0.6, 0.4])
+ishikawaplot(data, ax, primary_spines_rel_xpos=[0.8, 0.7, 0.6, 0.4])
