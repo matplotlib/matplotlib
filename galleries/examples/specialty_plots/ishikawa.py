@@ -8,7 +8,6 @@ diagrams are useful for visualizing the effect to many cause relationships
 Source: https://en.wikipedia.org/wiki/Ishikawa_diagram
 
 """
-import logging
 from typing import List
 
 import matplotlib.pyplot as plt
@@ -16,14 +15,13 @@ import numpy as np
 
 import matplotlib
 
-_log = logging.getLogger(__name__)
 
-
-def drawspines(data: dict, ax: plt.Axes, parentspine: None, alpha_ps: float = 60.0,
-               alpha_ss: float = 0,
+def drawspines(data: dict, ax: plt.Axes, parentspine: None,
+               primary_spine_angle: float = 60.0,
+               secondary_spine_angle: float = 0,
                primary_spines_rel_xpos: List[float] = [np.nan],
                spine_color: str = "black", reclevel: int = 1,
-               max_recursion_level: int = 4, debug: bool = False):
+               max_recursion_level: int = 4):
     """
     Draw an Ishikawa spine with recursion
 
@@ -35,9 +33,9 @@ def drawspines(data: dict, ax: plt.Axes, parentspine: None, alpha_ps: float = 60
         Matplotlib current axes
     parentspine : None
         Parent spine object
-    alpha_ps : float, optional
+    primary_spine_angle : float, optional
         First spine angle using during recursion. The default is 60.0.
-    alpha_ss : float, optional
+    secondary_spine_angle : float, optional
         Secondary spine angle using during recursion. The default is 0.
     primary_spines_rel_xpos : List[float], optional
         Relative X-position of primary spines, a list of float is accepted.
@@ -48,8 +46,6 @@ def drawspines(data: dict, ax: plt.Axes, parentspine: None, alpha_ps: float = 60
         Current recursion level. The default is 1.
     max_recursion_level : int, optional
         Maximum recursion level set. The default is 4.
-    debug : bool, optional
-        Print debug variables. The default is False.
 
     Raises
     ------
@@ -68,9 +64,9 @@ def drawspines(data: dict, ax: plt.Axes, parentspine: None, alpha_ps: float = 60
     if isinstance(data, dict):
         # switch to correct angle depending on recursion level
         if reclevel % 2 != 0:
-            alpha = alpha_ps
+            alpha = primary_spine_angle
         else:
-            alpha = alpha_ss
+            alpha = secondary_spine_angle
 
         if isinstance(parentspine, matplotlib.lines.Line2D):
             # calculate parent data
@@ -81,22 +77,22 @@ def drawspines(data: dict, ax: plt.Axes, parentspine: None, alpha_ps: float = 60
         else:
             raise AttributeError('Wrong Spine Graphical Element')
 
-        plen = np.sqrt((xpe - xpb) ** 2 + (ype - ypb) ** 2)
+        plen = np.hypot(xpe - xpb, ype - ypb)
         palpha = np.round(np.degrees(np.arctan2(ype - ypb, xpe - xpb)))
 
         # calculate spine spacing
         # calculate couple pairs, at least 1 pair to start at middle branch
-        pairs = len(list(data.keys())) // 2 + len(list(data.keys())) % 2 + 1
+        pairs = np.ceil(len(data) / 2) + 1
         spacing = plen / pairs
 
         spine_count = 0
         s = spacing
         # draw spine
-        for k in data.keys():
+        for problem, cause in data.items():
             # calculate arrow position in the graph
             # fix primary spines spacing
             if reclevel == 1:
-                if len(primary_spines_rel_xpos) == len(list(data.keys())):
+                if len(primary_spines_rel_xpos) == len(data):
                     x_end = primary_spines_rel_xpos[spine_count]
                 else:
                     x_end = xpe - (s / 1.5) * np.cos(np.radians(palpha))
@@ -110,30 +106,26 @@ def drawspines(data: dict, ax: plt.Axes, parentspine: None, alpha_ps: float = 60
 
                 x_start = x_end - s * np.cos(np.radians(alpha))
                 y_start = y_end - s * np.sin(np.radians(alpha))
-            if debug:
-                _log.debug(
-                    f'k: {k}, x_start: {x_start}, y_start: {y_start}, '
-                    f'x_end: {x_end} y_end: {y_end}, alpha: {alpha} \n '
-                    f'reclevel: {reclevel}, '
-                    f's:{s}, plen:{plen}, palpha:{palpha}')
 
             # draw arrow arc
             if reclevel == 1:
                 props = dict(boxstyle='round', facecolor='lightsteelblue', alpha=1.0)
-                spine = ax.annotate(str.upper(k), xy=(x_end, y_end),
+                spine = ax.annotate(problem.upper(), xy=(x_end, y_end),
                                     xytext=(x_start, y_start),
                                     arrowprops=dict(arrowstyle="->",
                                                     facecolor=spine_color),
                                     bbox=props, weight='bold')
             else:
                 props = dict(boxstyle='round', facecolor='lavender', alpha=1.0)
-                spine = ax.annotate(k, xy=(x_end, y_end), xytext=(x_start, y_start),
+                spine = ax.annotate(problem, xy=(x_end, y_end),
+                                    xytext=(x_start, y_start),
                                     arrowprops=dict(arrowstyle="->",
                                                     facecolor=spine_color),
                                     bbox=props)
             # Call recursion to draw subspines
-            drawspines(data=data[k], ax=ax, parentspine=spine,
-                       alpha_ps=alpha_ps, alpha_ss=alpha_ss,
+            drawspines(data=cause, ax=ax, parentspine=spine,
+                       primary_spine_angle=primary_spine_angle,
+                       secondary_spine_angle=secondary_spine_angle,
                        spine_color=spine_color, reclevel=reclevel + 1,
                        max_recursion_level=max_recursion_level)
             # no primary_spines_rel_xpos is needed to be passed on recursion
@@ -146,8 +138,10 @@ def drawspines(data: dict, ax: plt.Axes, parentspine: None, alpha_ps: float = 60
 
 
 def ishikawaplot(data: dict, ax: plt.Axes, left_margin: float = 0.05,
-                 right_margin: float = 0.05, alpha_ps: float = 60.0,
-                 alpha_ss=0.0, primary_spines_rel_xpos: List[float] = [np.nan],
+                 right_margin: float = 0.05,
+                 primary_spine_angle: float = 60.0,
+                 secondary_spine_angle: float = 0.0,
+                 primary_spines_rel_xpos: List[float] = [np.nan],
                  pd_width: int = 0.1, spine_color: str = "black") -> None:
     """
 
@@ -161,9 +155,9 @@ def ishikawaplot(data: dict, ax: plt.Axes, left_margin: float = 0.05,
         Left spacing from frame border. The default is 0.05.
     right_margin : float, optional
         Right spacing from frame border. The default is 0.05.
-    alpha_ps : float, optional
+    primary_spine_angle : float, optional
         First spine angle using during recursion. The default is 60.0.
-    alpha_ss : TYPE, optional
+    secondary_spine_angle : float, optional
         Secondary spine angle using during recursion. The default is 0.0.
     primary_spines_rel_xpos : list, optional
         Relative X-position of primary spines, a list of float is accepted.
@@ -202,7 +196,8 @@ def ishikawaplot(data: dict, ax: plt.Axes, left_margin: float = 0.05,
 
     # draw spines with recursion
     drawspines(data=data[list(data.keys())[0]], ax=ax, parentspine=main_spine,
-               alpha_ps=alpha_ps, alpha_ss=alpha_ss,
+               primary_spine_angle=primary_spine_angle,
+               secondary_spine_angle=secondary_spine_angle,
                primary_spines_rel_xpos=primary_spines_rel_xpos,
                spine_color=spine_color)
 
@@ -222,8 +217,7 @@ data = {'problem': {'machine': {'cause1': ''},
         }
 
 # Ishikawa plot generation
-fig = plt.figure(figsize=(12, 6), layout='constrained')
-ax = fig.gca()
+fig, ax = plt.subplots(figsize=(12, 6), layout='constrained')
 
 # try also without opt primary_spines rel_xpos
 ishikawaplot(data, ax, primary_spines_rel_xpos=[0.8, 0.7, 0.6, 0.4])

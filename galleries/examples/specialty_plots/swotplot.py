@@ -11,12 +11,9 @@ Additional acronyms using the same components include TOWS and WOTS-UP.
 Source: https://en.wikipedia.org/wiki/SWOT_analysis
 
 """
-import logging
 from typing import Tuple
 
 import matplotlib.pyplot as plt
-
-_log = logging.getLogger(__name__)
 
 
 def draw_quadrant(q_data: dict, ax: plt.Axes, q_color: str,
@@ -42,10 +39,10 @@ def draw_quadrant(q_data: dict, ax: plt.Axes, q_color: str,
         Matplotlib current axes
     q_color : str
         Quadrant color.
-    q_x : Tuple[float]
-        Quadrant X relative coordinates. Format: Tuple(float,float,float,float)
-    q_y : Tuple[float]
-        Quadrant Y relative coordinates. Format: Tuple(float,float,float,float)
+    q_x : Tuple[float, float, float, float]
+        Quadrant X coordinates.
+    q_y : Tuple[float, float, float, float]
+        Quadrant Y coordinates.
     q_title_pos : Tuple[float,float]
         Plot title relative position
     q_title_props : dict, optional
@@ -74,7 +71,6 @@ def draw_quadrant(q_data: dict, ax: plt.Axes, q_color: str,
         ax.text(x=v[0], y=v[1], s=k, fontsize=12, weight='bold',
                 verticalalignment='center', horizontalalignment='center',
                 bbox=q_point_props)
-        _log.debug(f"k: {k}, v: {v}")
 
     return None
 
@@ -110,7 +106,6 @@ def swotplot(p_data: dict, ax: plt.Axes,
         Top spacing from frame border. The default is 0.05.
     bottom_margin : float, optional
         Bottom spacing from frame border. The default is 0.05.
-
 
     Returns
     -------
@@ -175,6 +170,6 @@ data = {'strength': {'SW automation': (0.3, 0.6),
         }
 
 # SWOT plot generation
-fig = plt.figure(figsize=(12, 6), layout='constrained')
-ax = fig.gca()
+fig, ax = plt.subplots(figsize=(12, 6), layout='constrained')
+
 swotplot(data, ax)
