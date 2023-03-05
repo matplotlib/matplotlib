@@ -2691,13 +2691,82 @@ class TestScatter:
         ax_test.scatter(np.ones(4)*2, range(4), c=rgba)
 
 
-    def test_scatter_nofacecolor(self):
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_nofacecolor_red(self, fig_test, fig_ref):
+        x = np.arange(0, 10)
+        norm = plt.Normalize(0, 10)
+        cmap = mpl.colormaps['viridis'].resampled(10)
+        cols = cmap(norm(x))
+        ax = fig_test.subplots()
+        ax.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
+        ax = fig_ref.subplots()
+        ax.scatter(x, x, facecolors='none', edgecolors=(1.0,0.0,0.0))
+
+
+    def test_scatter_nofacecolor_red_arrayEQ(self):
         x = np.arange(10)
         fig, ax1 = plt.subplots()
-        pc1 = ax1.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
-        pc2 = ax1.scatter(x, x, facecolors='none', edgecolors=(1.0,0.0,0.0))
+        plot1 = ax1.scatter(x, x, c=[(1.0,0.0,0.0)], facecolors='none')
+        plot2 = ax1.scatter(x, x, facecolors='none', edgecolors=(1.0,0.0,0.0))
 
-        assert_array_equal(pc1.get_facecolor(), pc2.get_edgecolor())
+        assert_array_equal(plot1.get_edgecolor(), plot2.get_edgecolor())
+        assert_array_equal(plot1.get_facecolor(), plot2.get_facecolor())
+
+
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_nofacecolor_specific_cols(self, fig_test, fig_ref):
+        x = np.arange(0, 10)
+        norm = plt.Normalize(0, 10)
+        cmap = mpl.colormaps['viridis'].resampled(10)
+        cols = cmap(norm(x))
+        ax = fig_test.subplots()
+        ax.scatter(x, x, c=[(1.0,0.0,0.0), (0.0,1.0,0.0), (0.0,0.0,1.0), 
+                            (0.75,0.0,0.0), (0.0,0.75,0.0), (0.0,0.0,0.75), 
+                            (0.23,1.0,0.0), (1.0,0.23,0.0), (1.0,0.0,0.23), 
+                            (0.25,0.25,0.25)], facecolors='none')
+        ax = fig_ref.subplots()
+        ax.scatter(x, x, facecolors='none', edgecolors=[(1.0,0.0,0.0), (0.0,1.0,0.0), (0.0,0.0,1.0), 
+                                                        (0.75,0.0,0.0), (0.0,0.75,0.0), (0.0,0.0,0.75), 
+                                                        (0.23,1.0,0.0), (1.0,0.23,0.0), (1.0,0.0,0.23),
+                                                        (0.25,0.25,0.25)])
+
+
+    def test_scatter_nofacecolor_specific_cols_arrauEQ(self):
+        x = np.arange(0, 10)
+        plot1 = plt.scatter(x, x, c=[(1.0,0.0,0.0), (0.0,1.0,0.0), (0.0,0.0,1.0), 
+                            (0.75,0.0,0.0), (0.0,0.75,0.0), (0.0,0.0,0.75), 
+                            (0.23,1.0,0.0), (1.0,0.23,0.0), (1.0,0.0,0.23), 
+                            (0.25,0.25,0.25)], facecolors='none')
+        plot2 = plt.scatter(x, x, facecolors='none', edgecolors=[(1.0,0.0,0.0), (0.0,1.0,0.0), (0.0,0.0,1.0), 
+                                                        (0.75,0.0,0.0), (0.0,0.75,0.0), (0.0,0.0,0.75), 
+                                                        (0.23,1.0,0.0), (1.0,0.23,0.0), (1.0,0.0,0.23),
+                                                        (0.25,0.25,0.25)])
+        assert_array_equal(plot1.get_edgecolor(), plot2.get_edgecolor())
+        assert_array_equal(plot1.get_facecolor(), plot2.get_facecolor())
+        
+
+    @check_figures_equal(extensions=["png"])
+    def test_scatter_nofacecolor_multiple_cols(self, fig_test, fig_ref):
+        x = np.arange(0, 10)
+        norm = plt.Normalize(0, 10)
+        cmap = mpl.colormaps['viridis']
+        cols = cmap(norm(x))
+        ax = fig_test.subplots()
+        ax.scatter(x, x, c=cols, facecolors='none')
+        ax = fig_ref.subplots()
+        ax.scatter(x, x, facecolors='none', edgecolors=cols)
+
+
+    def test_scatter_nofacecolor_multiple_cols_arrayEQ(self):
+        x = np.arange(0, 10)
+        norm = plt.Normalize(0, 10)
+        cmap = mpl.colormaps['viridis']
+        cols = cmap(norm(x))
+        plot1 = plt.scatter(x, x, c=cols, facecolors='none')
+        plot2 = plt.scatter(x, x, facecolors='none', edgecolors=cols)
+
+        assert_array_equal(plot1.get_edgecolor(), plot2.get_edgecolor())
+        assert_array_equal(plot1.get_facecolor(), plot2.get_facecolor())
 
 
     def test_scatter_linewidths(self):
