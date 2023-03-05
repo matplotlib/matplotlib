@@ -105,3 +105,19 @@ def test_scatter_facecolor_kinds(self):
                             marker=mmarkers.MarkerStyle('o', fillstyle='none'),
                             linewidths=[1.1, 1.2, 1.3])
     assert_array_equal(pc_no_face1.get_facecolor(), pc_no_face2.get_edgecolor())
+
+"""
+Make sure that edge color still tracks the face color in the cases where it currently does when changed post-hoc
+"""
+def test_scatter_edge_still_tracks_face(self):
+    fig, ax = plt.subplots()
+    pc1 = ax.scatter(1, 1, facecolors=(1.0, 0.0, 0.0), edgecolors='face')
+
+    # make sure it is the same before changing face color
+    assert_array_equal(pc1.get_facecolor(), pc1.get_edgecolor())
+
+    pc1.set_facecolors((0.0, 1.0, 0.0))
+
+    # make sure edge color tracks face color post-hoc
+    assert_array_equal(pc1.get_facecolor(), pc1.get_edgecolor())
+
