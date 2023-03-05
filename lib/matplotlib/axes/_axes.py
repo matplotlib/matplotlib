@@ -3102,8 +3102,12 @@ class Axes(_AxesBase):
             If set to ``None``, labels are not drawn but are still stored for
             use in `.legend`.
 
-        shadow : bool, default: False
-            Draw a shadow beneath the pie.
+        shadow : bool or dict, default: False
+            If bool, whether to draw a shadow beneath the pie. If dict, draw a shadow
+            passing the properties in the dict to `.Shadow`.
+
+            .. versionadded:: 3.8
+                *shadow* can be a dict.
 
         startangle : float, default: 0 degrees
             The angle by which the start of the pie is rotated,
@@ -3231,8 +3235,10 @@ class Axes(_AxesBase):
             if shadow:
                 # Make sure to add a shadow after the call to add_patch so the
                 # figure and transform props will be set.
-                shad = mpatches.Shadow(w, -0.02, -0.02, label='_nolegend_')
-                self.add_patch(shad)
+                shadow_dict = {'ox': -0.02, 'oy': -0.02, 'label': '_nolegend_'}
+                if isinstance(shadow, dict):
+                    shadow_dict.update(shadow)
+                self.add_patch(mpatches.Shadow(w, **shadow_dict))
 
             if labeldistance is not None:
                 xt = x + labeldistance * radius * math.cos(thetam)
