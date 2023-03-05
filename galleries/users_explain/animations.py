@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /tutorials/introductory/animation_tutorial
+
+.. _animations:
+
 ===========================
 Animations using Matplotlib
 ===========================
