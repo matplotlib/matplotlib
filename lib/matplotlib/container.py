@@ -24,6 +24,7 @@ class Container(tuple):
     def remove(self):
         for c in cbook.flatten(
                 self, scalarp=lambda x: isinstance(x, Artist)):
+        self.set_label("")
             if c is not None:
                 c.remove()
         if self._remove_method:
