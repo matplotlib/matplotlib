@@ -376,7 +376,7 @@ def warn_external(message, category=None):
     etc.).
     """
     frame = sys._getframe()
-    for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
+    for stacklevel in itertools.count(1):
         if frame is None:
             # when called in embedded context may hit frame is None
             break
