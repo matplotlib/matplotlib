@@ -28,3 +28,20 @@ def test_errorbar_remove():
 
     eb = ax.errorbar([1], [1], fmt='none')
     eb.remove()
+
+def test_removal_from_legend():
+    ax = plt.gca()
+
+    obj1 = ax.errorbar([1], [1], [1], marker="o", label="foo")
+
+    obj1.remove()
+
+    ax.errorbar([1.1], [1.1], [1], marker="o", label="bar")
+
+    plt.legend()
+
+    handles, labels = ax.get_legend_handles_labels()
+
+    assert "foo" not in labels
+
+    assert len(handles) == 1

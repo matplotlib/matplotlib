@@ -26,6 +26,7 @@ class Container(tuple):
                 self, scalarp=lambda x: isinstance(x, Artist)):
             if c is not None:
                 c.remove()
+        self.set_label("")
         if self._remove_method:
             self._remove_method(self)
 
