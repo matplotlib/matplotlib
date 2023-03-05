@@ -192,5 +192,6 @@ More details
 .. toctree::
     :maxdepth: 1
 
+    Concept: optimizing Artists for performance <performance>
     imshow_extent
     transforms_tutorial

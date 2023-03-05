@@ -1,3 +1,5 @@
+.. redirect-from:: /users/explain/performance
+
 .. _performance:
 
 Performance
