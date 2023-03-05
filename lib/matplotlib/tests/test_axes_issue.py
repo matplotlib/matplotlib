@@ -109,7 +109,7 @@ def test_scatter_facecolor_kinds(self):
 """
 Make sure that edge color still tracks the face color in the cases where it currently does when changed post-hoc
 """
-def test_scatter_edge_still_tracks_face(self):
+def test_scatter_edge_still_tracks_face():
     fig, ax = plt.subplots()
     pc1 = ax.scatter(1, 1, facecolors=(1.0, 0.0, 0.0), edgecolors='face')
 
@@ -120,4 +120,5 @@ def test_scatter_edge_still_tracks_face(self):
 
     # make sure edge color tracks face color post-hoc
     assert_array_equal(pc1.get_facecolor(), pc1.get_edgecolor())
+
 
