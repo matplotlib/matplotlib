@@ -172,6 +172,24 @@ def check_shape(_shape, **kwargs):
             )
 
 
+def check_tuple(**kwargs):
+    """
+    *kwargs* must consist of a tuple of length 2.
+
+    Examples
+    --------
+    >>> _api.check_tuple({1.1: 1.4})
+    """
+
+    if len(kwargs) != 1:
+        raise ValueError("check_tuple takes a single tuple argument")
+    (k, v), = kwargs.items()
+    if (len(v) != 2):
+        raise ValueError(
+            f"{v} is not a valid value for loc; expected a tuple of length 2") from None
+    return v
+
+
 def check_getitem(_mapping, **kwargs):
     """
     *kwargs* must consist of a single *key, value* pair.  If *key* is in
@@ -219,7 +237,7 @@ def caching_module_getattr(cls):
              if isinstance(prop, property)}
     instance = cls()
 
-    @functools.cache
+    @ functools.cache
     def __getattr__(name):
         if name in props:
             return props[name].__get__(instance)
@@ -251,7 +269,7 @@ def define_aliases(alias_d, cls=None):
         return functools.partial(define_aliases, alias_d)
 
     def make_alias(name):  # Enforce a closure over *name*.
-        @functools.wraps(getattr(cls, name))
+        @ functools.wraps(getattr(cls, name))
         def method(self, *args, **kwargs):
             return getattr(self, name)(*args, **kwargs)
         return method
