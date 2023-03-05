@@ -1,3 +1,5 @@
+.. redirect_from:: /users/explain/backends
+
 .. _backends:
 
 ========

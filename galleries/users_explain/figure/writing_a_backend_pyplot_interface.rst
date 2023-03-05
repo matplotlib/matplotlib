@@ -7,7 +7,7 @@ Writing a backend -- the pyplot interface
 =========================================
 
 This page assumes general understanding of the information in the
-:doc:`/users/explain/backends` page, and is instead intended as reference for
+:ref:`backends` page, and is instead intended as reference for
 third-party backend implementers.  It also only deals with the interaction
 between backends and `.pyplot`, not with the rendering side, which is described
 in `.backend_template`.

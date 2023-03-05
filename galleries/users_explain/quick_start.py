@@ -68,7 +68,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 #
 # It is often convenient to create the Axes together with the Figure, but you
 # can also manually add Axes later on.  Note that many
-# :doc:`Matplotlib backends </users/explain/backends>` support zooming and
+# :ref:`Matplotlib backends <backends>` support zooming and
 # panning on figure windows.
 #
 # For more on Figures, see :ref:`figure_explanation`.
