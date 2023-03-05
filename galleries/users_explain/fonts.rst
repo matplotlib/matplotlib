@@ -7,13 +7,13 @@ Matplotlib needs fonts to work with its text engine, some of which are shipped
 alongside the installation.  The default font is `DejaVu Sans
 <https://dejavu-fonts.github.io>`_ which covers most European writing systems.
 However, users can configure the default fonts, and provide their own custom
-fonts.  See :doc:`Customizing text properties </tutorials/text/text_props>` for
+fonts.  See :ref:`Customizing text properties <text_props>` for
 details and :ref:`font-nonlatin` in particular for glyphs not supported by
 DejaVu Sans.
 
 Matplotlib also provides an option to offload text rendering to a TeX engine
-(``usetex=True``), see :doc:`Text rendering with LaTeX
-</tutorials/text/usetex>`.
+(``usetex=True``), see :ref:`Text rendering with LaTeX
+<usetex>`.
 
 Fonts in PDF and PostScript
 ---------------------------

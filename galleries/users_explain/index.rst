@@ -2,17 +2,18 @@
 
 .. redirect-from:: /users/explain
 
-Explanations
-------------
+Using Matplotlib
+----------------
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     quick_start
     figure/index
     axes/index
     artists/index
     colors/index
+    text/index
     backends.rst
     fonts.rst
     event_handling.rst

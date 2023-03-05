@@ -1,4 +1,9 @@
 r"""
+
+.. redirect-from:: /tutorials/text/mathtext
+
+.. _mathtext:
+
 Writing mathematical expressions
 ================================
 
@@ -10,7 +15,7 @@ its own TeX expression parser, layout engine, and fonts.  The layout engine
 is a fairly direct adaptation of the layout algorithms in Donald Knuth's
 TeX, so the quality is quite good (Matplotlib also provides a ``usetex``
 option for those who do want to call out to TeX to generate their text; see
-:doc:`/tutorials/text/usetex`).
+:ref:`usetex`).
 
 Any text element can use math text.  You should use raw strings (precede the
 quotes with an ``'r'``), and surround the math text with dollar signs ($), as
@@ -50,7 +55,7 @@ produces ":mathmpl:`\alpha > \beta`".
 
    have special meaning outside of math mode in TeX.  Therefore, these
    characters will behave differently depending on :rc:`text.usetex`.  See the
-   :doc:`usetex tutorial </tutorials/text/usetex>` for more information.
+   :ref:`usetex tutorial <usetex>` for more information.
 
 Subscripts and superscripts
 ---------------------------
@@ -354,7 +359,7 @@ Example
 -------
 Here is an example illustrating many of these features in context.
 
-.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_mathtext_demo_001.png
-   :target: ../../gallery/text_labels_and_annotations/mathtext_demo.html
+.. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_mathtext_demo_001.png
+   :target: /gallery/text_labels_and_annotations/mathtext_demo.html
    :align: center
 """

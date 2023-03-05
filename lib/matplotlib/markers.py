@@ -70,7 +70,7 @@ constructing a `.MarkerStyle`, but note that there are other contexts where
 for `.Axes.scatter`).
 
 Note that special symbols can be defined via the
-:doc:`STIX math font </tutorials/text/mathtext>`,
+:ref:`STIX math font <mathtext>`,
 e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer to the
 `STIX font table <http://www.stixfonts.org/allGlyphs.html>`_.
 Also see the :doc:`/gallery/text_labels_and_annotations/stix_fonts_demo`.

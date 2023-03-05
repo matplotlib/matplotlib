@@ -1,4 +1,8 @@
 r"""
+.. redirect-from:: /tutorials/text/usetex
+
+.. _usetex:
+
 *************************
 Text rendering with LaTeX
 *************************
@@ -6,7 +10,7 @@ Text rendering with LaTeX
 Matplotlib can use LaTeX to render text.  This is activated by setting
 ``text.usetex : True`` in your rcParams, or by setting the ``usetex`` property
 to True on individual `.Text` objects.  Text handling through LaTeX is slower
-than Matplotlib's very capable :doc:`mathtext </tutorials/text/mathtext>`, but
+than Matplotlib's very capable :ref:`mathtext <mathtext>`, but
 is more flexible, since different LaTeX packages (font packages, math packages,
 etc.) can be used. The results can be striking, especially when you take care
 to use the same fonts in your figures as in the main document.
@@ -71,8 +75,8 @@ names and then configure the corresponding generic family; e.g.::
 Here is the standard example,
 :doc:`/gallery/text_labels_and_annotations/tex_demo`:
 
-.. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
-   :target: ../../gallery/text_labels_and_annotations/tex_demo.html
+.. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
+   :target: /gallery/text_labels_and_annotations/tex_demo.html
    :align: center
 
 Note that display math mode (``$$ e=mc^2 $$``) is not supported, but adding the

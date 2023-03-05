@@ -174,9 +174,9 @@ constructor; optional arguments are passed as keyword arguments.
 
 Note that when we add an Artist manually like this, it doesn't necessarily
 adjust the axis limits like most of the helper methods do, so the Artists can
-be clipped, as is the case above for the `clipped_circle` patch.
+be clipped, as is the case above for the ``clipped_circle`` patch.
 
-See :doc:`artist_reference` for other patches.
+See :ref:`artist_reference` for other patches.
 
 Removing Artists
 ~~~~~~~~~~~~~~~~

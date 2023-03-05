@@ -1,3 +1,5 @@
+.. redirect-from:: /tutorials/text
+
 .. _tutorials-text:
 
 Text

@@ -2,7 +2,7 @@ r"""
 A module for parsing a subset of the TeX math syntax and rendering it to a
 Matplotlib backend.
 
-For a tutorial of its usage, see :doc:`/tutorials/text/mathtext`.  This
+For a tutorial of its usage, see :ref:`mathtext`.  This
 document is primarily concerned with implementation details.
 
 The module uses pyparsing_ to parse the TeX expression.

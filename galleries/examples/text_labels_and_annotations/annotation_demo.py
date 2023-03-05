@@ -7,7 +7,7 @@ The following examples show how it is possible to annotate plots in Matplotlib.
 This includes highlighting specific points of interest and using various
 visual tools to call attention to this point. For a more complete and in-depth
 description of the annotation and text tools in Matplotlib, see the
-:doc:`tutorial on annotation </tutorials/text/annotations>`.
+:ref:`tutorial on annotation <annotations>`.
 """
 
 import matplotlib.pyplot as plt

@@ -325,7 +325,7 @@ plt.show()
 #
 # `~.pyplot.text` can be used to add text in an arbitrary location, and
 # `~.pyplot.xlabel`, `~.pyplot.ylabel` and `~.pyplot.title` are used to add
-# text in the indicated locations (see :doc:`/tutorials/text/text_intro` for a
+# text in the indicated locations (see :ref:`text_intro` for a
 # more detailed example)
 
 mu, sigma = 100, 15
@@ -350,7 +350,7 @@ plt.show()
 #
 #   t = plt.xlabel('my data', fontsize=14, color='red')
 #
-# These properties are covered in more detail in :doc:`/tutorials/text/text_props`.
+# These properties are covered in more detail in :ref:`text_props`.
 #
 #
 # Using mathematical expressions in text
@@ -366,11 +366,11 @@ plt.show()
 # that the string is a *raw* string and not to treat backslashes as
 # python escapes.  matplotlib has a built-in TeX expression parser and
 # layout engine, and ships its own math fonts -- for details see
-# :doc:`/tutorials/text/mathtext`.  Thus, you can use mathematical text across
+# :ref:`mathtext`.  Thus, you can use mathematical text across
 # platforms without requiring a TeX installation.  For those who have LaTeX
 # and dvipng installed, you can also use LaTeX to format your text and
 # incorporate the output directly into your display figures or saved
-# postscript -- see :doc:`/tutorials/text/usetex`.
+# postscript -- see :ref:`usetex`.
 #
 #
 # Annotating text

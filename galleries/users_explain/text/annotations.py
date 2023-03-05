@@ -6,6 +6,9 @@ r"""
 .. redirect-from:: /gallery/userdemo/anchored_box04
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord01
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord03
+.. redirect-from:: /tutorials/text/annotations
+
+.. _annotations:
 
 Annotations
 ===========
@@ -236,8 +239,8 @@ t = ax.text(0.5, 0.5, "Direction",
 #   Square       ``square``       pad=0.3
 #   ==========   ==============   ==========================
 #
-# .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
-#    :target: ../../gallery/shapes_and_collections/fancybox_demo.html
+# .. figure:: /gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
+#    :target: /gallery/shapes_and_collections/fancybox_demo.html
 #    :align: center
 #
 # The patch object (box) associated with the text can be accessed using::
@@ -326,8 +329,8 @@ ax.annotate("",
 # 4. The path is transmuted to an arrow patch, as specified by the *arrowstyle*
 #    parameter.
 #
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_explain_001.png
-#    :target: ../../gallery/userdemo/annotate_explain.html
+# .. figure:: /gallery/userdemo/images/sphx_glr_annotate_explain_001.png
+#    :target: /gallery/userdemo/annotate_explain.html
 #    :align: center
 #
 # The creation of the connecting path between two points is controlled by
@@ -352,8 +355,8 @@ ax.annotate("",
 # example below. (Warning: The behavior of the ``bar`` style is currently not
 # well-defined and may be changed in the future).
 #
-# .. figure:: ../../gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
-#    :target: ../../gallery/userdemo/connectionstyle_demo.html
+# .. figure:: /gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
+#    :target: /gallery/userdemo/connectionstyle_demo.html
 #    :align: center
 #
 # The connecting path (after clipping and shrinking) is then mutated to
@@ -376,8 +379,8 @@ ax.annotate("",
 #     ``wedge``    tail_width=0.3,shrink_factor=0.5
 #     ==========   =============================================
 #
-# .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_fancyarrow_demo_001.png
-#    :target: ../../gallery/text_labels_and_annotations/fancyarrow_demo.html
+# .. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_fancyarrow_demo_001.png
+#    :target: /gallery/text_labels_and_annotations/fancyarrow_demo.html
 #    :align: center
 #
 # Some arrowstyles only work with connection styles that generate a
@@ -688,8 +691,8 @@ fig.add_artist(con)
 # Here, we added the `.ConnectionPatch` to the *figure*
 # (with `~.Figure.add_artist`) rather than to either axes. This ensures that
 # the ConnectionPatch artist is drawn on top of both axes, and is also necessary
-# when using :doc:`constrained_layout
-# <:ref:`constrainedlayout_guide`>` for positioning the axes.
+# when using :ref:`constrained_layout <constrainedlayout_guide>`
+# for positioning the axes.
 #
 # Zoom effect between Axes
 # ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -697,8 +700,8 @@ fig.add_artist(con)
 # `mpl_toolkits.axes_grid1.inset_locator` defines some patch classes useful for
 # interconnecting two axes.
 #
-# .. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
-#    :target: ../../gallery/subplots_axes_and_figures/axes_zoom_effect.html
+# .. figure:: /gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
+#    :target: /gallery/subplots_axes_and_figures/axes_zoom_effect.html
 #    :align: center
 #
 # The code for this figure is at

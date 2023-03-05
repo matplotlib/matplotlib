@@ -297,7 +297,7 @@ ax.legend()
 # --------------------
 #
 # `~.Axes.set_xlabel`, `~.Axes.set_ylabel`, and `~.Axes.set_title` are used to
-# add text in the indicated locations (see :doc:`/tutorials/text/text_intro`
+# add text in the indicated locations (see :ref:`text_intro`
 # for more discussion).  Text can also be directly added to plots using
 # `~.Axes.text`:
 
@@ -322,7 +322,7 @@ ax.grid(True)
 #   t = ax.set_xlabel('my data', fontsize=14, color='red')
 #
 # These properties are covered in more detail in
-# :doc:`/tutorials/text/text_props`.
+# :ref:`text_props`.
 #
 # Using mathematical expressions in text
 # --------------------------------------
@@ -337,9 +337,9 @@ ax.grid(True)
 # *raw* string and not to treat backslashes as python escapes.
 # Matplotlib has a built-in TeX expression parser and
 # layout engine, and ships its own math fonts – for details see
-# :doc:`/tutorials/text/mathtext`.  You can also use LaTeX directly to format
+# :ref:`mathtext`.  You can also use LaTeX directly to format
 # your text and incorporate the output directly into your display figures or
-# saved postscript – see :doc:`/tutorials/text/usetex`.
+# saved postscript – see :ref:`usetex`.
 #
 # Annotations
 # -----------
@@ -552,7 +552,7 @@ axs[1, 1].set_title('scatter()')
 # a ScalarMappable (where they get their information about the norm and
 # colormap) and usually steal space from a parent Axes.  Placement of
 # colorbars can be complex: see
-# :doc:`/gallery/subplots_axes_and_figures/colorbar_placement` for
+# :ref:`colorbar_placement` for
 # details.  You can also change the appearance of colorbars with the
 # *extend* keyword to add arrows to the ends, and *shrink* and *aspect* to
 # control the size.  Finally, the colorbar will have default locators

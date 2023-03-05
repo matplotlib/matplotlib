@@ -54,7 +54,7 @@ Improvements
   to use the html.parser from the standard library.
 
 * Computation of text fragment positions could benefit from the OffsetFrom
-  class. See for example item 5 in `Using Complex Coordinates with Annotations <https://matplotlib.org/devdocs/tutorials/text/annotations.html#using-complex-coordinates-with-annotations>`_
+  class. See for example item 5 in `Using Complex Coordinates with Annotations <https://matplotlib.org/devdocs/users/explain/text/annotations.html#using-complex-coordinates-with-annotations>`_
 
 Problems
 --------

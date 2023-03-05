@@ -1,4 +1,9 @@
 """
+
+.. redirect-from:: /tutorials/text/text_props
+
+.. _text_props:
+
 ============================
  Text properties and layout
 ============================
@@ -248,8 +253,7 @@ plt.show()
 #    font.family: Source Han Sans TW, Arial, sans-serif
 #
 # To control the font used on per-artist basis use the *name*, *fontname* or
-# *fontproperties* keyword arguments documented :doc:`above
-# </tutorials/text/text_props>`.
+# *fontproperties* keyword arguments documented in :ref:`text_props`.
 #
 #
 # On linux, `fc-list <https://linux.die.net/man/1/fc-list>`__ can be a

@@ -1,4 +1,9 @@
 r"""
+
+.. redirect-from:: /tutorials/text/pgf
+
+.. _pgf:
+
 ************************************************************
 Text rendering with XeLaTeX/LuaLaTeX via the ``pgf`` backend
 ************************************************************
@@ -100,7 +105,7 @@ __ https://sourceforge.net/projects/cm-unicode/
 When saving to ``.pgf``, the font configuration Matplotlib used for the
 layout of the figure is included in the header of the text file.
 
-.. literalinclude:: ../../gallery/userdemo/pgf_fonts.py
+.. literalinclude:: /gallery/userdemo/pgf_fonts.py
    :end-before: fig.savefig
 
 
@@ -117,12 +122,12 @@ specified in the rc parameters, make sure to disable :rc:`pgf.rcfonts`.
 
 .. only:: html
 
-    .. literalinclude:: ../../gallery/userdemo/pgf_preamble_sgskip.py
+    .. literalinclude:: /gallery/userdemo/pgf_preamble_sgskip.py
         :end-before: fig.savefig
 
 .. only:: latex
 
-    .. literalinclude:: ../../gallery/userdemo/pgf_preamble_sgskip.py
+    .. literalinclude:: /gallery/userdemo/pgf_preamble_sgskip.py
         :end-before: import matplotlib.pyplot as plt
 
 
@@ -136,7 +141,7 @@ Possible values are ``'xelatex'`` (default), ``'lualatex'`` and ``'pdflatex'``.
 Please note that when selecting pdflatex, the fonts and Unicode handling must
 be configured in the preamble.
 
-.. literalinclude:: ../../gallery/userdemo/pgf_texsystem.py
+.. literalinclude:: /gallery/userdemo/pgf_texsystem.py
    :end-before: fig.savefig
 
 

@@ -1,4 +1,9 @@
 """
+
+.. redirect-from:: /tutorials/text/text_intro
+
+.. _text_intro:
+
 ========================
 Text in Matplotlib Plots
 ========================
@@ -24,8 +29,8 @@ weight, text location and color, etc.) with sensible defaults set in
 the :doc:`rc file </tutorials/introductory/customizing>`.
 And significantly, for those interested in mathematical
 or scientific figures, Matplotlib implements a large number of TeX
-math symbols and commands, supporting :doc:`mathematical expressions
-</tutorials/text/mathtext>` anywhere in your figure.
+math symbols and commands, supporting :ref:`mathematical expressions
+<mathtext>` anywhere in your figure.
 
 
 Basic text commands
@@ -420,5 +425,5 @@ plt.show()
 # =======================
 #
 # - Legends: :doc:`/tutorials/intermediate/legend_guide`
-# - Annotations: :doc:`/tutorials/text/annotations`
+# - Annotations: :ref:`annotations`
 #

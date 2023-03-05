@@ -309,7 +309,7 @@
 ## * LaTeX                                                                   *
 ## ***************************************************************************
 ## For more information on LaTeX properties, see
-## https://matplotlib.org/stable/tutorials/text/usetex.html
+## https://matplotlib.org/stable/users/explain/text/usetex.html
 #text.usetex: False  # use latex for all text handling. The following fonts
                      # are supported through the usual rc parameter settings:
                      # new century schoolbook, bookman, times, palatino,
