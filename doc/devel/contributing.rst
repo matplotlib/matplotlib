@@ -455,8 +455,8 @@ Then they will receive messages like
    DEBUG:matplotlib.yourmodulename:Here is some information
    DEBUG:matplotlib.yourmodulename:Here is some more detailed information
 
-Avoid using pre-computed strings (``f-strings``, ``str.format``,etc.) for logging because of security and 
-performance issues, and because they interfere with style handlers. For example, use ``_log.error('hello %s', 'world')``  rather than   
+Avoid using pre-computed strings (``f-strings``, ``str.format``,etc.) for logging because of security and
+performance issues, and because they interfere with style handlers. For example, use ``_log.error('hello %s', 'world')``  rather than
 ``_log.error('hello {}'.format('world'))`` or ``_log.error(f'hello {s}')``.
 
 
