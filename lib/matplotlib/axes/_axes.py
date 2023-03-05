@@ -4608,9 +4608,20 @@ default: :rc:`scatter.edgecolors`
           size matches the size of *x* and *y*.
 
         """
-
+  
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
         x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
+        
+        
+        #### NEW
+        noFaceColor = False
+        if 'edgecolors' not in kwargs and c is not None:
+            if 'facecolors' in kwargs:
+                fc = kwargs.get("facecolors")
+                if fc == 'none':
+                    edgecolors = c
+                    noFaceColor = True
+
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
         x = np.ma.ravel(x)
@@ -4715,6 +4726,11 @@ default: :rc:`scatter.edgecolors`
             alpha=alpha,
         )
         collection.set_transform(mtransforms.IdentityTransform())
+
+
+        #### NEW
+        if noFaceColor:
+            collection.set_facecolors('none')
 
         if colors is None:
             collection.set_array(c)
