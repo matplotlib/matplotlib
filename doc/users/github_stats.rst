@@ -62,7 +62,7 @@ Pull Requests (62):
 * :ghpull:`25305`: DOC: add layout='none' option to Figure constructor
 * :ghpull:`25315`: Backport PR #24878 on branch v3.7.x ( [Doc]: Add alt-text to images in 3.6 release notes #24844 )
 * :ghpull:`24878`: [Doc]: Add alt-text to images in 3.6 release notes #24844
-* :ghpull:`25312`: Backport PR #25308 on branch v3.7.x (DOC: add include source to a 3.7 whats new)
+* :ghpull:`25312`: Backport PR #25308 on branch v3.7.x (DOC: add include source to a 3.7 what's new)
 * :ghpull:`25309`: Backport PR #25302 on branch v3.7.x (Cleanup gradient_bar example.)
 * :ghpull:`25299`: Backport PR #25238 on branch v3.7.x (Check file path for animation and raise if it does not exist)
 * :ghpull:`25297`: Backport PR #25295 on branch v3.7.x (Increase timeout for interactive backend tests)
