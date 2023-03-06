@@ -1,4 +1,4 @@
-.. redirect_from:: /users/explain/backends
+.. redirect-from:: /users/explain/backends
 
 .. _backends:
 
