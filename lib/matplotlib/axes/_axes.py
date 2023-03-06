@@ -4467,7 +4467,8 @@ class Axes(_AxesBase):
                 #### NEW
                 warnings.simplefilter(action='ignore', category=FutureWarning)
                 if edgecolors is not None and facecolors is not None and edgecolor_is_string_or_strings\
-                        and facecolor_is_string_or_strings and facecolors == 'none' and edgecolors == 'face':
+                        and facecolor_is_string_or_strings and facecolors == 'none' \
+                        and edgecolors == 'face':
                         edgecolors = mcolors.to_rgba_array(c)
                         colors = []
                 else:
