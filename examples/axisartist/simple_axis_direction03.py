@@ -4,7 +4,7 @@ Simple axis tick label and tick directions
 ==========================================
 
 First subplot moves the tick labels to inside the spines.
-Second subplots moves the ticks to inside the spines.
+Second subplot moves the ticks to inside the spines.
 These effects can be obtained for a standard Axes by `~.Axes.tick_params`.
 """
 
