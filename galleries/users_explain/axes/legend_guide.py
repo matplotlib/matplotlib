@@ -1,4 +1,6 @@
 """
+.. redirect-from: /tutorials/intermediate/legend_guide
+
 .. _legend_guide:
 
 ============
@@ -12,7 +14,6 @@ Generating legends flexibly in Matplotlib.
 This legend guide is an extension of the documentation available at
 :func:`~matplotlib.pyplot.legend` - please ensure you are familiar with
 contents of that documentation before proceeding with this guide.
-
 
 This guide makes use of some common terms, which are documented here for
 clarity:

@@ -424,6 +424,6 @@ plt.show()
 # Legends and Annotations
 # =======================
 #
-# - Legends: :doc:`/tutorials/intermediate/legend_guide`
+# - Legends: :ref:`legend_guide`
 # - Annotations: :ref:`annotations`
 #

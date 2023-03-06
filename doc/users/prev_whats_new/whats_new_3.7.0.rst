@@ -336,7 +336,7 @@ by a *loc* keyword argument that starts with the string "outside". The
 codes are unique from axes codes, in that "outside upper right" will
 make room at the top of the figure for the legend, whereas
 "outside right upper" will make room on the right-hand side of the figure.
-See :doc:`/tutorials/intermediate/legend_guide` for details.
+See :ref:`legend_guide` for details.
 
 
 Per-subplot keyword arguments  in ``subplot_mosaic``

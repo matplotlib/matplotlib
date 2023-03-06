@@ -379,7 +379,7 @@ ax.legend()
 # %%
 # Legends in Matplotlib are quite flexible in layout, placement, and what
 # Artists they can represent. They are discussed in detail in
-# :doc:`/tutorials/intermediate/legend_guide`.
+# :ref:`legend_guide`.
 #
 # Axis scales and ticks
 # =====================

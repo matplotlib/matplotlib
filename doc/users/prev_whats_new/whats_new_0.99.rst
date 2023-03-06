@@ -11,7 +11,7 @@ What's new in Matplotlib 0.99 (Aug 29, 2009)
 New documentation
 -----------------
 
-Jae-Joon Lee has written two new guides :doc:`/tutorials/intermediate/legend_guide`
+Jae-Joon Lee has written two new guides :ref:`legend_guide`
 and :ref:`plotting-guide-annotation`.  Michael Sarahan has written
 :doc:`/tutorials/introductory/images`.  John Hunter has written two new tutorials on
 working with paths and transformations: :doc:`/tutorials/advanced/path_tutorial` and

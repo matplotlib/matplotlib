@@ -173,7 +173,8 @@ Sometimes it is important to set the aspect ratio of a plot in data space, which
 
     arranging_axes
     colorbar_placement
-    In depth: autoscaling axes <autoscale>
-    In depth: subplot mosaic <mosaic>
+    In depth: Autoscaling axes <autoscale>
+    In depth: Legends <legend_guide>
+    In depth: Subplot mosaic <mosaic>
     In depth: Constrained layout guide <constrainedlayout_guide>
     In depth: Tight layout guide (mildly discouraged) <tight_layout_guide>
