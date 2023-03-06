@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /tutorials/intermediate/color_cycle
+
+.. _color_cycle:
+
 ===================
 Styling with cycler
 ===================

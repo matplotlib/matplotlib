@@ -192,6 +192,7 @@ More details
 .. toctree::
     :maxdepth: 1
 
+    Concept: Automated color cycle <color_cycle>
     Concept: optimizing Artists for performance <performance>
     In Depth: understanding the extent keyword argument of imshow <imshow_extent>
     transforms_tutorial

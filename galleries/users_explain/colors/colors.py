@@ -131,7 +131,7 @@ ax.axis('off')
 # ====================
 #
 # Matplotlib converts "CN" colors to RGBA when drawing Artists. The
-# :doc:`/tutorials/intermediate/color_cycle` section contains additional
+# :ref:`color_cycle` section contains additional
 # information about controlling colors and style properties.
 
 

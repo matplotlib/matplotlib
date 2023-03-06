@@ -416,7 +416,7 @@
                   # As opposed to all other parameters in this file, the color
                   # values must be enclosed in quotes for this parameter,
                   # e.g. '1f77b4', instead of 1f77b4.
-                  # See also https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html
+                  # See also https://matplotlib.org/stable/users/explain/artists/color_cycle.html
                   # for more details on prop_cycle usage.
 #axes.xmargin:   .05  # x margin.  See `axes.Axes.margins`
 #axes.ymargin:   .05  # y margin.  See `axes.Axes.margins`
