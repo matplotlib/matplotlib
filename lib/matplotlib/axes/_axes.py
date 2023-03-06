@@ -4466,9 +4466,10 @@ class Axes(_AxesBase):
             try:  # Is 'c' acceptable as PathCollection facecolors?
                 #### NEW
                 warnings.simplefilter(action='ignore', category=FutureWarning)
-                if(edgecolors is not None and facecolors is not None and edgecolor_is_string_or_strings and facecolor_is_string_or_strings and facecolors == 'none' and edgecolors == 'face'):
-                    edgecolors = mcolors.to_rgba_array(c)
-                    colors = []
+                if edgecolors is not None and facecolors is not None and edgecolor_is_string_or_strings\
+                        and facecolor_is_string_or_strings and facecolors == 'none' and edgecolors == 'face':
+                        edgecolors = mcolors.to_rgba_array(c)
+                        colors = []
                 else:
                     colors = mcolors.to_rgba_array(c)
             except (TypeError, ValueError) as err:
@@ -4611,8 +4612,7 @@ default: :rc:`scatter.edgecolors`
   
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
         x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
-        
-        
+
         #### NEW
         noFaceColor = False
         if 'edgecolors' not in kwargs and c is not None:
@@ -4647,7 +4647,6 @@ default: :rc:`scatter.edgecolors`
             self._parse_scatter_color_args(
                 c, edgecolors, kwargs, x.size,
                 get_next_color_func=self._get_patches_for_fill.get_next_color)
-
 
         if plotnonfinite and colors is None:
             c = np.ma.masked_invalid(c)
@@ -4727,11 +4726,9 @@ default: :rc:`scatter.edgecolors`
         )
         collection.set_transform(mtransforms.IdentityTransform())
 
-
         #### NEW
         if noFaceColor:
             collection.set_facecolors('none')
-
         if colors is None:
             collection.set_array(c)
             collection.set_cmap(cmap)
@@ -4748,7 +4745,6 @@ default: :rc:`scatter.edgecolors`
                     "No data for colormapping provided via 'c'. "
                     f"Parameters {keys_str} will be ignored")
         collection._internal_update(kwargs)
-
 
         # Classic mode only:
         # ensure there are margins to allow for the

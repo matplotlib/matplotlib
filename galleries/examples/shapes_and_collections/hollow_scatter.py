@@ -5,22 +5,18 @@ Scatter plot
 
 This example showcases a simple scatter plot.
 """
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
 
+x = np.arange(0, 10)
+norm = plt.Normalize(0, 10)
+cmap = mpl.colormaps['viridis']
+cols = cmap(norm(x))
+scatter = plt.scatter(x, x, c=x, facecolors='none')
 
-N = 50
-x = np.random.rand(N)
-y = np.random.rand(N)
-colors = np.random.rand(N)
-area = (30 * np.random.rand(N))**2  # 0 to 15 point radii
-
-plt.scatter(x, y, s=area, c=colors, alpha=0.5)
 plt.show()
-
 # %%
 #
 # .. admonition:: References
