@@ -41,7 +41,7 @@ parameter are removed. Instead, use ``set_params(base=..., subs=...)``.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The canvas now takes care of the renderer and whether to cache it or not,
-so the ````Axes.get_renderer_cache`` method is removed. The
+so the ``Axes.get_renderer_cache`` method is removed. The
 alternative is to call ``axes.figure.canvas.get_renderer()``.
 
 Unused methods in ``Axis``, ``Tick``, ``XAxis``, and ``YAxis``

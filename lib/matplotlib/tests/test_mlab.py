@@ -6,68 +6,6 @@ import pytest
 from matplotlib import mlab
 
 
-class TestStride:
-    def get_base(self, x):
-        y = x
-        while y.base is not None:
-            y = y.base
-        return y
-
-    def calc_window_target(self, x, NFFT, noverlap=0):
-        """
-        This is an adaptation of the original window extraction algorithm.
-        This is here to test to make sure the new implementation has the same
-        result.
-        """
-        step = NFFT - noverlap
-        ind = np.arange(0, len(x) - NFFT + 1, step)
-        n = len(ind)
-        result = np.zeros((NFFT, n))
-
-        # do the ffts of the slices
-        for i in range(n):
-            result[:, i] = x[ind[i]:ind[i]+NFFT]
-        return result
-
-    @pytest.mark.parametrize('n, noverlap',
-                             [(2, 2), (2, 3)],
-                             ids=['noverlap greater than n',
-                                  'noverlap equal to n'])
-    def test_stride_windows_invalid_params(self, n, noverlap):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            mlab._stride_windows(x, n, noverlap)
-
-    @pytest.mark.parametrize('n, noverlap',
-                             [(1, 0), (5, 0), (15, 2), (13, -3)],
-                             ids=['n1-noverlap0', 'n5-noverlap0',
-                                  'n15-noverlap2', 'n13-noverlapn3'])
-    def test_stride_windows(self, n, noverlap):
-        x = np.arange(100)
-        y = mlab._stride_windows(x, n, noverlap=noverlap)
-
-        expected_shape = [0, 0]
-        expected_shape[0] = n
-        expected_shape[1] = 100 // (n - noverlap)
-        yt = self.calc_window_target(x, n, noverlap=noverlap)
-
-        assert yt.shape == y.shape
-        assert_array_equal(yt, y)
-        assert tuple(expected_shape) == y.shape
-        assert self.get_base(y) is x
-
-    def test_stride_windows_n32_noverlap0_unflatten(self):
-        n = 32
-        x = np.arange(n)[np.newaxis]
-        x1 = np.tile(x, (21, 1))
-        x2 = x1.flatten()
-        y = mlab._stride_windows(x2, n)
-
-        x1 = x1.T
-        assert y.shape == x1.shape
-        assert_array_equal(y, x1)
-
-
 def test_window():
     np.random.seed(0)
     n = 1000

@@ -183,12 +183,6 @@ class Axis(maxis.XAxis):
                 obj.set_transform(self.axes.transData)
         return ticks
 
-    def _set_pane_pos(self, xys):
-        xys = np.asarray(xys)
-        xys = xys[:, :2]
-        self.pane.xy = xys
-        self.stale = True
-
     def set_pane_color(self, color, alpha=None):
         """
         Set pane color.
@@ -319,8 +313,9 @@ class Axis(maxis.XAxis):
             plane = self._PLANES[2 * index]
         else:
             plane = self._PLANES[2 * index + 1]
-        xys = [tc[p] for p in plane]
-        self._set_pane_pos(xys)
+        xys = np.asarray([tc[p] for p in plane])
+        xys = xys[:, :2]
+        self.pane.xy = xys
         self.pane.draw(renderer)
 
         renderer.close_group('pane3d')

@@ -1225,8 +1225,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         return f"AnnotationBbox({self.xy[0]:g},{self.xy[1]:g})"
 
     @_docstring.dedent_interpd
-    def __init__(self, offsetbox, xy, *,
-                 xybox=None,
+    def __init__(self, offsetbox, xy, xybox=None, *,
                  xycoords='data',
                  boxcoords=None,
                  frameon=True, pad=0.4,  # FancyBboxPatch boxstyle.

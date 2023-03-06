@@ -11,7 +11,7 @@ line segments).
 
 import itertools
 import math
-from numbers import Number
+from numbers import Number, Real
 import warnings
 
 import numpy as np
@@ -439,9 +439,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         pickradius : float
             Pick radius, in points.
         """
-        if not isinstance(pickradius, Number):
+        if not isinstance(pickradius, Real):
             raise ValueError(
-                f"pickradius must be a number, not {pickradius!r}")
+                f"pickradius must be a real-valued number, not {pickradius!r}")
         self._pickradius = pickradius
 
     def get_pickradius(self):

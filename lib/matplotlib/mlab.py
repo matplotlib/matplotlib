@@ -210,39 +210,6 @@ def detrend_linear(y):
     return y - (b*x + a)
 
 
-def _stride_windows(x, n, noverlap=0):
-    """
-    Get all windows of *x* with length *n* as a single array,
-    using strides to avoid data duplication.
-
-    .. warning::
-
-        It is not safe to write to the output array.  Multiple
-        elements may point to the same piece of memory,
-        so modifying one value may change others.
-
-    Parameters
-    ----------
-    x : 1D array or sequence
-        Array or sequence containing the data.
-    n : int
-        The number of data points in each window.
-    noverlap : int, default: 0 (no overlap)
-        The overlap between adjacent windows.
-
-    References
-    ----------
-    `stackoverflow: Rolling window for 1D arrays in Numpy?
-    <https://stackoverflow.com/a/6811241>`_
-    `stackoverflow: Using strides for an efficient moving average filter
-    <https://stackoverflow.com/a/4947453>`_
-    """
-    if noverlap >= n:
-        raise ValueError('noverlap must be less than n')
-    return np.lib.stride_tricks.sliding_window_view(
-        x, n, axis=0)[::n - noverlap].T
-
-
 def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
                      window=None, noverlap=None, pad_to=None,
                      sides=None, scale_by_freq=None, mode=None):
@@ -271,6 +238,9 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
     # if NFFT is set to None use the whole signal
     if NFFT is None:
         NFFT = 256
+
+    if noverlap >= NFFT:
+        raise ValueError('noverlap must be less than NFFT')
 
     if mode is None or mode == 'default':
         mode = 'psd'
@@ -334,7 +304,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         raise ValueError(
             "The window length must match the data's first dimension")
 
-    result = _stride_windows(x, NFFT, noverlap)
+    result = np.lib.stride_tricks.sliding_window_view(
+        x, NFFT, axis=0)[::NFFT - noverlap].T
     result = detrend(result, detrend_func, axis=0)
     result = result * window.reshape((-1, 1))
     result = np.fft.fft(result, n=pad_to, axis=0)[:numFreqs, :]
@@ -342,7 +313,8 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 
     if not same_data:
         # if same_data is False, mode must be 'psd'
-        resultY = _stride_windows(y, NFFT, noverlap)
+        resultY = np.lib.stride_tricks.sliding_window_view(
+            y, NFFT, axis=0)[::NFFT - noverlap].T
         resultY = detrend(resultY, detrend_func, axis=0)
         resultY = resultY * window.reshape((-1, 1))
         resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]
