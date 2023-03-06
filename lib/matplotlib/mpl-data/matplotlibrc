@@ -16,7 +16,7 @@
 ##         $HOME/.matplotlib/matplotlibrc
 ## and edit that copy.
 ##
-## See https://matplotlib.org/stable/tutorials/introductory/customizing.html#customizing-with-matplotlibrc-files
+## See https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-matplotlibrc-files
 ## for more details on the paths which are checked for the configuration file.
 ##
 ## Blank lines, or lines starting with a comment symbol, are ignored, as are

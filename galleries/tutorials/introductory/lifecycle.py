@@ -149,7 +149,7 @@ plt.setp(labels, rotation=45, horizontalalignment='right')
 # that we create. To do this we set the ``autolayout`` value of our
 # rcParams. For more information on controlling the style, layout, and
 # other features of plots with rcParams, see
-# :doc:`/tutorials/introductory/customizing`.
+# :ref:`customizing`.
 
 plt.rcParams.update({'figure.autolayout': True})
 

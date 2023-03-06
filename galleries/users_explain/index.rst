@@ -12,11 +12,8 @@ Using Matplotlib
     figure/index
     axes/index
     artists/index
+    customizing
     axis/index
     colors/index
     text/index
     animations
-    backends.rst
-    fonts.rst
-    event_handling.rst
-    performance.rst

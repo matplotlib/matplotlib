@@ -1,5 +1,8 @@
 """
 .. redirect-from:: /users/customizing
+.. redirect-from:: /tutorials/introductory/customizing
+
+.. _customizing:
 
 =====================================================
 Customizing Matplotlib with style sheets and rcParams

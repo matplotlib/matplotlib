@@ -191,7 +191,7 @@ plt.show()
 #       matplotlib.font_manager.get_font_names()
 #
 # The mapping between the generic family aliases and actual font families
-# (mentioned at :doc:`default rcParams </tutorials/introductory/customizing>`)
+# (mentioned at :ref:`default rcParams <customizing>`)
 # is controlled by the following rcParams:
 #
 #

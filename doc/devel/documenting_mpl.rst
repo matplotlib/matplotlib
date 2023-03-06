@@ -858,10 +858,9 @@ The first comment block is treated as ReST_ text.  The other comment blocks
 render as comments in :doc:`/gallery/lines_bars_and_markers/simple_plot`.
 
 Tutorials are made with the exact same mechanism, except they are longer, and
-typically have more than one comment block (i.e.
-:ref:`quick_start`).  The first comment block
-can be the same as the example above.  Subsequent blocks of ReST text are
-delimited by the line ``# %%`` :
+typically have more than one comment block (i.e. :ref:`quick_start`).  The
+first comment block can be the same as the example above.  Subsequent blocks of
+ReST text are delimited by the line ``# %%`` :
 
 .. code-block:: python
 

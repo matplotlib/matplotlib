@@ -70,7 +70,9 @@ Figure.
 Axes plotting methods
 ---------------------
 
-Most of the high-level plotting methods are accessed from the `.axes.Axes` class.  See the API documentation for a full curated list, and :ref:`plot_types` for examples.  A basic example is `.axes.Axes.plot`:
+Most of the high-level plotting methods are accessed from the `.axes.Axes`
+class.  See the API documentation for a full curated list, and
+:ref:`plot_types` for examples.  A basic example is `.axes.Axes.plot`:
 
 .. plot::
     :include-source:
@@ -147,7 +149,6 @@ The Axes class also has helpers to deal with Axis ticks and their labels.  Most 
 
 Setting scales and controlling the Axis can be highly customized beyond these Axes-level helpers.  An introduction to these methods can be found in :ref:`users_axis`, or the API reference for `.axis.Axis`.
 
-
 Axes layout
 -----------
 
@@ -172,6 +173,7 @@ Sometimes it is important to set the aspect ratio of a plot in data space, which
 
     arranging_axes
     colorbar_placement
+    In depth: autoscaling axes <autoscale>
     In depth: subplot mosaic <mosaic>
     In depth: Constrained layout guide <constrainedlayout_guide>
     In depth: Tight layout guide (mildly discouraged) <tight_layout_guide>

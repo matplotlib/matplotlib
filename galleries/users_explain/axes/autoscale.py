@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /tutorials/intermediate/autoscale
+
+.. _autoscale:
+
 Autoscaling
 ===========
 

@@ -26,7 +26,7 @@ compliant font finding algorithm.
 
 The user has a great deal of control over text properties (font size, font
 weight, text location and color, etc.) with sensible defaults set in
-the :doc:`rc file </tutorials/introductory/customizing>`.
+the :ref:`rc file <customizing>`.
 And significantly, for those interested in mathematical
 or scientific figures, Matplotlib implements a large number of TeX
 math symbols and commands, supporting :ref:`mathematical expressions

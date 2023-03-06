@@ -20,7 +20,7 @@ For plots that have line segments (e.g. typical line plots, outlines
 of polygons, etc.), rendering performance can be controlled by
 :rc:`path.simplify` and :rc:`path.simplify_threshold`, which
 can be defined e.g. in the :file:`matplotlibrc` file (see
-:doc:`/tutorials/introductory/customizing` for more information about
+:ref:`customizing` for more information about
 the :file:`matplotlibrc` file). :rc:`path.simplify` is a Boolean
 indicating whether or not line segments are simplified at all.
 :rc:`path.simplify_threshold` controls how much line segments are simplified;
@@ -54,7 +54,7 @@ value, change the :file:`matplotlibrc` file. Alternatively, users
 can create a new style for interactive plotting (with maximal
 simplification) and another style for publication quality plotting
 (with minimal simplification) and activate them as necessary. See
-:doc:`/tutorials/introductory/customizing` for instructions on
+:ref:`customizing` for instructions on
 how to perform these actions.
 
 The simplification works by iteratively merging line segments

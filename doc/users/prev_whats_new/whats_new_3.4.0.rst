@@ -617,8 +617,8 @@ forward and inverse.
                     size=16, va='center', ha='center')
     plt.show()
 
-See :ref:`colormapnorms` for an example and more details
-about data normalization.
+See :ref:`colormapnorms` for an example and more details about data
+normalization.
 
 GridSpec-based colorbars can now be positioned above or to the left of the main axes
 ------------------------------------------------------------------------------------

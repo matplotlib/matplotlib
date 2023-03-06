@@ -55,8 +55,7 @@ To enable LaTeX and select a font, use e.g.::
         "font.family": "Helvetica"
     })
 
-or equivalently, set your :doc:`matplotlibrc
-</tutorials/introductory/customizing>` to::
+or equivalently, set your :ref:`matplotlibrc <customizing>` to::
 
     text.usetex : true
     font.family : Helvetica

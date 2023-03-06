@@ -219,7 +219,7 @@ example::
 
 This will give you additional information about which backends Matplotlib is
 loading, version information, and more. At this point you might want to make
-sure you understand Matplotlib's :doc:`configuration </tutorials/introductory/customizing>`
+sure you understand Matplotlib's :ref:`configuration <customizing>`
 process, governed by the :file:`matplotlibrc` configuration file which contains
 instructions within and the concept of the Matplotlib backend.
 

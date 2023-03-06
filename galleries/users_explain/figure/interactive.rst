@@ -211,8 +211,8 @@ Navigation keyboard shortcuts
 -----------------------------
 
 The following table holds all the default keys, which can be
-overwritten by use of your :doc:`matplotlibrc
-</tutorials/introductory/customizing>`.
+overwritten by use of your :ref:`matplotlibrc
+<customizing>`.
 
 ================================== ===============================
 Command                            Default key binding and rcParam

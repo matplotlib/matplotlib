@@ -266,6 +266,6 @@ More reading
     Concept: Matplotlib Application Interfaces (APIs) <api_interfaces>
     In depth: Interacting with figures <interactive>
     In depth: Interactive figures and asynchronous programming <interactive_guide>
-    In depth: Event handling <event-handling-tutorial>
+    In depth: Event handling <event_handling>
     In depth: Writing a backend -- the pyplot interface <writing_a_backend_pyplot_interface>
 

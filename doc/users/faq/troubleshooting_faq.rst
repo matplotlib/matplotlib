@@ -106,7 +106,7 @@ provide the following information in your e-mail to the `mailing list
   GitHub, PyPI, or `Anaconda <https://www.anaconda.com/>`_).
 
 * Any customizations to your ``matplotlibrc`` file (see
-  :doc:`/tutorials/introductory/customizing`).
+  :ref:`customizing`).
 
 * If the problem is reproducible, please try to provide a *minimal*, standalone
   Python script that demonstrates the problem.  This is *the* critical step.

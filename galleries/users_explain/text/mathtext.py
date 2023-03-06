@@ -24,7 +24,7 @@ Mathtext can use DejaVu Sans (default), DejaVu Serif, the Computer Modern fonts
 (from (La)TeX), `STIX <http://www.stixfonts.org/>`_ fonts (which are designed
 to blend well with Times), or a Unicode font that you provide.  The mathtext
 font can be selected via :rc:`mathtext.fontset` (see
-:doc:`/tutorials/introductory/customizing`)
+:ref:`customizing`)
 
 Here is a simple example::
 

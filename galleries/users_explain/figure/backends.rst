@@ -61,7 +61,7 @@ Here is a detailed description of the configuration methods:
 
        backend : qtagg   # use pyqt with antigrain (agg) rendering
 
-   See also :doc:`/tutorials/introductory/customizing`.
+   See also :ref:`customizing`.
 
 #. Setting the :envvar:`MPLBACKEND` environment variable:
 
