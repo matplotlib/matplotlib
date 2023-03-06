@@ -1,17 +1,14 @@
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 
-
-'''
+"""""
 Should create the same plots, running the saved figures in an
-external png difference checker gives the same result after the 
+external png difference checker gives the same result after the
 new implementation.
-'''
+"""
 
 fig, ax = plt.subplots()
-pc1 = ax.scatter(1, 1, facecolors='none', edgecolors=(1.0,0.0,0.0))
-pc2 = ax.scatter(1, 1, c=[(1.0,0.0,0.0)], facecolors='none')
+pc1 = ax.scatter(1, 1, facecolors='none', edgecolors=(1.0, 0.0, 0.0))
+pc2 = ax.scatter(1, 1, c=[(1.0, 0.0, 0.0)], facecolors='none')
 
 print("Figure1")
 print(pc1.get_facecolors())
