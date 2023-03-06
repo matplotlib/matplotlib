@@ -16,4 +16,4 @@ Using Matplotlib
     axis/index
     colors/index
     text/index
-    animations
+    animations/index

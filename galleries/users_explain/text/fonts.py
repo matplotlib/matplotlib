@@ -45,7 +45,8 @@ which are explained later in the guide):
      - Hinting supported (virtual machine processes the "hints")
    * - Non-subsetted through Matplotlib
      - Subsetted via external module ttconv
-     - Subsetted via external module `fontTools <https://github.com/fonttools/fonttools>`__
+     - Subsetted via external module
+       `fontTools <https://github.com/fonttools/fonttools>`__
 
 .. note::
 
@@ -58,9 +59,11 @@ Other font specifications which Matplotlib supports:
 - Type 42 fonts (PS):
 
   - PostScript wrapper around TrueType fonts
-  - 42 is the `Answer to Life, the Universe, and Everything! <https://en.wikipedia.org/wiki/Answer_to_Life,_the_Universe,_and_Everything>`_
-  - Matplotlib uses the external library `fontTools <https://github.com/fonttools/fonttools>`__
-    to subset these types of fonts
+  - 42 is the `Answer to Life, the Universe, and Everything!
+    <https://en.wikipedia.org/wiki/Answer_to_Life,_the_Universe,_and_Everything>`_
+  - Matplotlib uses the external library
+    `fontTools <https://github.com/fonttools/fonttools>`__ to subset these types of
+    fonts
 
 - OpenType fonts:
 

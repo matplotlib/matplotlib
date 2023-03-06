@@ -1067,7 +1067,7 @@ class Artist:
         using blitting.
 
         See also `matplotlib.animation` and
-        :doc:`/tutorials/advanced/blitting`.
+        :ref:`blitting`.
 
         Parameters
         ----------

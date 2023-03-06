@@ -1,4 +1,8 @@
 """
+.. redirected-from: /tutorials/advanced/blitting
+
+.. _blitting:
+
 ==================================
 Faster rendering by using blitting
 ==================================
