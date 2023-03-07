@@ -2457,15 +2457,16 @@ class _SelectorWidget(AxesWidget):
 
     def set_props(self, **props):
         """
-        Set the properties of the selector artist. See the `props` argument
-        in the selector docstring to know which properties are supported.
+        Set the properties of the selector artist.
+
+        See the *props* argument in the selector docstring to know which properties are
+        supported.
         """
         artist = self._selection_artist
         props = cbook.normalize_kwargs(props, artist)
         artist.set(**props)
         if self.useblit:
             self.update()
-        self._props.update(props)
 
     def set_handle_props(self, **handle_props):
         """
@@ -2658,7 +2659,6 @@ class SpanSelector(_SelectorWidget):
         # but we maintain it until it is removed
         self._pressv = None
 
-        self._props = props
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
@@ -2670,7 +2670,7 @@ class SpanSelector(_SelectorWidget):
 
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
-        self.new_axes(ax)
+        self.new_axes(ax, _props=props)
 
         # Setup handles
         self._handle_props = {
@@ -2686,7 +2686,7 @@ class SpanSelector(_SelectorWidget):
         # prev attribute is deprecated but we still need to maintain it
         self._prev = (0, 0)
 
-    def new_axes(self, ax):
+    def new_axes(self, ax, *, _props=None):
         """Set SpanSelector to operate on a new Axes."""
         self.ax = ax
         if self.canvas is not ax.figure.canvas:
@@ -2705,10 +2705,11 @@ class SpanSelector(_SelectorWidget):
         else:
             trans = ax.get_yaxis_transform()
             w, h = 1, 0
-        rect_artist = Rectangle((0, 0), w, h,
-                                transform=trans,
-                                visible=False,
-                                **self._props)
+        rect_artist = Rectangle((0, 0), w, h, transform=trans, visible=False)
+        if _props is not None:
+            rect_artist.update(_props)
+        elif self._selection_artist is not None:
+            rect_artist.update_from(self._selection_artist)
 
         self.ax.add_patch(rect_artist)
         self._selection_artist = rect_artist
@@ -3287,9 +3288,9 @@ class RectangleSelector(_SelectorWidget):
         if props is None:
             props = dict(facecolor='red', edgecolor='black',
                          alpha=0.2, fill=True)
-        self._props = {**props, 'animated': self.useblit}
-        self._visible = self._props.pop('visible', self._visible)
-        to_draw = self._init_shape(**self._props)
+        props = {**props, 'animated': self.useblit}
+        self._visible = props.pop('visible', self._visible)
+        to_draw = self._init_shape(**props)
         self.ax.add_patch(to_draw)
 
         self._selection_artist = to_draw
@@ -3305,8 +3306,7 @@ class RectangleSelector(_SelectorWidget):
 
         if self._interactive:
             self._handle_props = {
-                'markeredgecolor': (self._props or {}).get(
-                    'edgecolor', 'black'),
+                'markeredgecolor': (props or {}).get('edgecolor', 'black'),
                 **cbook.normalize_kwargs(handle_props, Line2D)}
 
             self._corner_order = ['SW', 'SE', 'NE', 'NW']
@@ -3942,13 +3942,13 @@ class PolygonSelector(_SelectorWidget):
 
         if props is None:
             props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
-        self._props = {**props, 'animated': self.useblit}
-        self._selection_artist = line = Line2D([], [], **self._props)
+        props = {**props, 'animated': self.useblit}
+        self._selection_artist = line = Line2D([], [], **props)
         self.ax.add_line(line)
 
         if handle_props is None:
             handle_props = dict(markeredgecolor='k',
-                                markerfacecolor=self._props.get('color', 'k'))
+                                markerfacecolor=props.get('color', 'k'))
         self._handle_props = handle_props
         self._polygon_handles = ToolHandles(self.ax, [], [],
                                             useblit=self.useblit,
