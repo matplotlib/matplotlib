@@ -473,10 +473,10 @@ class RendererBase:
             The distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
-        im : (N, M, 4) array-like of np.uint8
+        im : (N, M, 4) array of `numpy.uint8`
             An array of RGBA pixels.
 
-        transform : `matplotlib.transforms.Affine2DBase`
+        transform : `~matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
             `option_scale_image` returns ``True``, an affine transformation
             (i.e., an `.Affine2DBase`) *may* be passed to `draw_image`.  The

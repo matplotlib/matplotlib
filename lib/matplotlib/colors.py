@@ -681,7 +681,7 @@ class Colormap:
         self.colorbar_extend = False
 
     def __call__(self, X, alpha=None, bytes=False):
-        """
+        r"""
         Parameters
         ----------
         X : float or int, `~numpy.ndarray` or scalar
@@ -695,8 +695,8 @@ class Colormap:
             floats with shape matching X, or None.
         bytes : bool
             If False (default), the returned RGBA values will be floats in the
-            interval ``[0, 1]`` otherwise they will be uint8s in the interval
-            ``[0, 255]``.
+            interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
+            interval ``[0, 255]``.
 
         Returns
         -------

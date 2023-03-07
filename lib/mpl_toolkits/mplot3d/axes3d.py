@@ -2676,12 +2676,12 @@ class Axes3D(Axes):
             These parameters can be:
 
             - A single color value, to color all voxels the same color. This
-              can be either a string, or a 1D rgb/rgba array
+              can be either a string, or a 1D RGB/RGBA array
             - ``None``, the default, to use a single color for the faces, and
               the style default for the edges.
             - A 3D `~numpy.ndarray` of color names, with each item the color
               for the corresponding voxel. The size must match the voxels.
-            - A 4D `~numpy.ndarray` of rgb/rgba data, with the components
+            - A 4D `~numpy.ndarray` of RGB/RGBA data, with the components
               along the last axis.
 
         shade : bool, default: True

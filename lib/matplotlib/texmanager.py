@@ -346,7 +346,7 @@ class TexManager:
     @classmethod
     def get_rgba(cls, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
         r"""
-        Return latex's rendering of the tex string as an rgba array.
+        Return latex's rendering of the tex string as an RGBA array.
 
         Examples
         --------
