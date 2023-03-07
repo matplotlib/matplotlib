@@ -105,3 +105,30 @@ def test_scatter_facecolor_kinds(self):
                             marker=mmarkers.MarkerStyle('o', fillstyle='none'),
                             linewidths=[1.1, 1.2, 1.3])
     assert_array_equal(pc_no_face1.get_facecolor(), pc_no_face2.get_edgecolor())
+
+"""
+add tests of making empty markers with edges that are still mapped
+"""
+#Test Case 1: Empty markers with mapped edges
+
+def test_empty_markers_with_mapped_edges():
+    x = [1, 2, 3]
+    y = [4, 5, 6]
+    fig, ax = plt.subplots()
+    sc = ax.scatter(x, y, marker='o', facecolor='none', edgecolor=['r', 'g', 'b'])
+    # Check that the markers have no face color
+    assert np.all(sc.get_facecolor() == (0, 0, 0, 0))
+    # Check that the markers have the correct edge colors
+    assert np.all(sc.get_edgecolor() == [(1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1)])
+
+#Test Case 2: Empty markers with default mapped edges
+
+def test_empty_markers_with_default_mapped_edges():
+    x = [1, 2, 3]
+    y = [4, 5, 6]
+    fig, ax = plt.subplots()
+    sc = ax.scatter(x, y, marker='o', facecolor='none')
+    # Check that the markers have no face color
+    assert np.all(sc.get_facecolor() == (0, 0, 0, 0))
+    # Check that the markers have the default edge colors
+    assert np.all(sc.get_edgecolor() == (0, 0, 0, 1))
