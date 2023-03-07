@@ -26,7 +26,7 @@ Reinier Heeres has ported John Porter's mplot3d over to the new
 matplotlib transformations framework, and it is now available as a
 toolkit mpl_toolkits.mplot3d (which now comes standard with all mpl
 installs).  See :ref:`mplot3d-examples-index` and
-:doc:`/tutorials/toolkits/mplot3d`.
+:ref:`mplot3d`.
 
 .. plot::
 

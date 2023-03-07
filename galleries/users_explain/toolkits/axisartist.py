@@ -1,4 +1,9 @@
 r"""
+
+.. redirect-from:: /tutorials/toolkits/axisartist
+
+.. _axisartist:
+
 ======================
 The axisartist toolkit
 ======================
@@ -15,8 +20,8 @@ to draw ticks, ticklines, etc., axisartist uses a special
 artist (AxisArtist) that can handle ticks, ticklines, etc. for
 curved coordinate systems.
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
-   :target: ../../gallery/axisartist/demo_floating_axis.html
+.. figure:: /gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
+   :target: /gallery/axisartist/demo_floating_axis.html
    :align: center
 
 Since it uses special artists, some Matplotlib commands that work on
@@ -60,8 +65,8 @@ For example, you can hide the right and top spines using::
   ax.axis["right"].set_visible(False)
   ax.axis["top"].set_visible(False)
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axisline3_001.png
-   :target: ../../gallery/axisartist/simple_axisline3.html
+.. figure:: /gallery/axisartist/images/sphx_glr_simple_axisline3_001.png
+   :target: /gallery/axisartist/simple_axisline3.html
    :align: center
 
 It is also possible to add a horizontal axis. For example, you may have an
@@ -69,8 +74,8 @@ horizontal axis at y=0 (in data coordinate). ::
 
     ax.axis["y=0"] = ax.new_floating_axis(nth_coord=0, value=0)
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axisartist1_001.png
-   :target: ../../gallery/axisartist/simple_axisartist1.html
+.. figure:: /gallery/axisartist/images/sphx_glr_simple_axisartist1_001.png
+   :target: /gallery/axisartist/simple_axisartist1.html
    :align: center
 
 Or a fixed axis with some offset ::
@@ -92,8 +97,8 @@ to create a host subplot with axisartist.Axes, ::
 
 Here is an example that uses ParasiteAxes.
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_parasite_axes2_001.png
-   :target: ../../gallery/axisartist/demo_parasite_axes2.html
+.. figure:: /gallery/axisartist/images/sphx_glr_demo_parasite_axes2_001.png
+   :target: /gallery/axisartist/demo_parasite_axes2.html
    :align: center
 
 Curvilinear Grid
@@ -102,8 +107,8 @@ Curvilinear Grid
 The motivation behind the AxisArtist module is to support a curvilinear grid
 and ticks.
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
-   :target: ../../gallery/axisartist/demo_curvelinear_grid.html
+.. figure:: /gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
+   :target: /gallery/axisartist/demo_curvelinear_grid.html
    :align: center
 
 Floating Axes
@@ -112,8 +117,8 @@ Floating Axes
 AxisArtist also supports a Floating Axes whose outer axes are defined as
 floating axis.
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axes_001.png
-   :target: ../../gallery/axisartist/demo_floating_axes.html
+.. figure:: /gallery/axisartist/images/sphx_glr_demo_floating_axes_001.png
+   :target: /gallery/axisartist/demo_floating_axes.html
    :align: center
 
 axisartist namespace
@@ -144,8 +149,8 @@ In summary, all these changes was to support
 * a curvilinear grid.
 * a floating axis
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
-   :target: ../../gallery/axisartist/demo_floating_axis.html
+.. figure:: /gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
+   :target: /gallery/axisartist/demo_floating_axis.html
    :align: center
 
 *mpl_toolkits.axisartist.Axes* class defines a *axis* attribute, which
@@ -305,8 +310,8 @@ using "set_axis_direction" method. ::
   ax1.axis["left"].major_ticklabels.set_axis_direction("top")
   ax1.axis["right"].label.set_axis_direction("left")
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_direction01_001.png
-   :target: ../../gallery/axisartist/simple_axis_direction01.html
+.. figure:: /gallery/axisartist/images/sphx_glr_simple_axis_direction01_001.png
+   :target: /gallery/axisartist/simple_axis_direction01.html
    :align: center
 
 The parameter for set_axis_direction is one of ["left", "right",
@@ -330,8 +335,8 @@ You must understand some underlying concept of directions.
   to the *ticklabel_direction* or *label_direction*,
   respectively. The rotation of ticklabels and label is anchored.
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_001.png
-   :target: ../../gallery/axisartist/axis_direction.html
+.. figure:: /gallery/axisartist/images/sphx_glr_axis_direction_001.png
+   :target: /gallery/axisartist/axis_direction.html
    :align: center
 
 On the other hand, there is a concept of "axis_direction". This is a
@@ -355,8 +360,8 @@ And, 'set_axis_direction("top")' means to adjust the text rotation
 etc, for settings suitable for "top" axis. The concept of axis
 direction can be more clear with curved axis.
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_axis_direction_001.png
-   :target: ../../gallery/axisartist/demo_axis_direction.html
+.. figure:: /gallery/axisartist/images/sphx_glr_demo_axis_direction_001.png
+   :target: /gallery/axisartist/demo_axis_direction.html
    :align: center
 
 The axis_direction can be adjusted in the AxisArtist level, or in the
@@ -386,8 +391,8 @@ default direction). ::
 
    ax.axis[:].major_ticks.set_tick_out(True)
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_direction03_001.png
-   :target: ../../gallery/axisartist/simple_axis_direction03.html
+.. figure:: /gallery/axisartist/images/sphx_glr_simple_axis_direction03_001.png
+   :target: /gallery/axisartist/simple_axis_direction03.html
    :align: center
 
 So, in summary,
@@ -421,8 +426,8 @@ Adjusting ticklabels alignment
 
 Alignment of TickLabels are treated specially. See below
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_ticklabel_alignment_001.png
-   :target: ../../gallery/axisartist/demo_ticklabel_alignment.html
+.. figure:: /gallery/axisartist/images/sphx_glr_demo_ticklabel_alignment_001.png
+   :target: /gallery/axisartist/demo_ticklabel_alignment.html
    :align: center
 
 Adjusting pad
@@ -436,8 +441,8 @@ Or ticklabels and axis-label ::
 
   ax.axis["left"].label.set_pad(10)
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_pad_001.png
-   :target: ../../gallery/axisartist/simple_axis_pad.html
+.. figure:: /gallery/axisartist/images/sphx_glr_simple_axis_pad_001.png
+   :target: /gallery/axisartist/simple_axis_pad.html
    :align: center
 
 GridHelper
@@ -521,8 +526,8 @@ coordinates, or you may use Parasite Axes for convenience.::
     # note that ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.
 
-.. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
-   :target: ../../gallery/axisartist/demo_curvelinear_grid.html
+.. figure:: /gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
+   :target: /gallery/axisartist/demo_curvelinear_grid.html
    :align: center
 
 FloatingAxis

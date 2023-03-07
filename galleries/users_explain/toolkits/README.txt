@@ -1,5 +1,7 @@
 .. _tutorials-toolkits:
 
+.. redirect-from:: /tutorials/toolkits
+
 Toolkits
 --------
 

@@ -1,4 +1,9 @@
 """
+
+.. redirect-from:: /tutorials/toolkits/mplot3d
+
+.. _mplot3d:
+
 ===================
 The mplot3d toolkit
 ===================
@@ -20,8 +25,8 @@ keyword argument to `.Figure.add_subplot`::
 
 Multiple 3D subplots can be added on the same figure, as for 2D subplots.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_subplot3d_001.png
-   :target: ../../gallery/mplot3d/subplot3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_subplot3d_001.png
+   :target: /gallery/mplot3d/subplot3d.html
    :align: center
 
 .. versionchanged:: 3.2.0
@@ -38,8 +43,8 @@ Line plots
 ==========
 See `.Axes3D.plot` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_lines3d_001.png
-   :target: ../../gallery/mplot3d/lines3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_lines3d_001.png
+   :target: /gallery/mplot3d/lines3d.html
    :align: center
 
 .. _scatter3d:
@@ -48,8 +53,8 @@ Scatter plots
 =============
 See `.Axes3D.scatter` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_scatter3d_001.png
-   :target: ../../gallery/mplot3d/scatter3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_scatter3d_001.png
+   :target: /gallery/mplot3d/scatter3d.html
    :align: center
 
 .. _wireframe:
@@ -58,8 +63,8 @@ Wireframe plots
 ===============
 See `.Axes3D.plot_wireframe` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_wire3d_001.png
-   :target: ../../gallery/mplot3d/wire3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_wire3d_001.png
+   :target: /gallery/mplot3d/wire3d.html
    :align: center
 
 .. _surface:
@@ -68,8 +73,8 @@ Surface plots
 =============
 See `.Axes3D.plot_surface` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_surface3d_001.png
-   :target: ../../gallery/mplot3d/surface3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_surface3d_001.png
+   :target: /gallery/mplot3d/surface3d.html
    :align: center
 
 .. _trisurface:
@@ -78,8 +83,8 @@ Tri-Surface plots
 =================
 See `.Axes3D.plot_trisurf` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_trisurf3d_001.png
-   :target: ../../gallery/mplot3d/trisurf3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_trisurf3d_001.png
+   :target: /gallery/mplot3d/trisurf3d.html
    :align: center
 
 .. _contour3d:
@@ -88,8 +93,8 @@ Contour plots
 =============
 See `.Axes3D.contour` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_contour3d_001.png
-   :target: ../../gallery/mplot3d/contour3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_contour3d_001.png
+   :target: /gallery/mplot3d/contour3d.html
    :align: center
 
 .. _contourf3d:
@@ -98,8 +103,8 @@ Filled contour plots
 ====================
 See `.Axes3D.contourf` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_contourf3d_001.png
-   :target: ../../gallery/mplot3d/contourf3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_contourf3d_001.png
+   :target: /gallery/mplot3d/contourf3d.html
    :align: center
 
 .. versionadded:: 1.1.0
@@ -112,8 +117,8 @@ Polygon plots
 =============
 See `.Axes3D.add_collection3d` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_polys3d_001.png
-   :target: ../../gallery/mplot3d/polys3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_polys3d_001.png
+   :target: /gallery/mplot3d/polys3d.html
    :align: center
 
 .. _bar3d:
@@ -122,8 +127,8 @@ Bar plots
 =========
 See `.Axes3D.bar` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_bars3d_001.png
-   :target: ../../gallery/mplot3d/bars3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_bars3d_001.png
+   :target: /gallery/mplot3d/bars3d.html
    :align: center
 
 .. _quiver3d:
@@ -132,16 +137,16 @@ Quiver
 ======
 See `.Axes3D.quiver` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_quiver3d_001.png
-   :target: ../../gallery/mplot3d/quiver3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_quiver3d_001.png
+   :target: /gallery/mplot3d/quiver3d.html
    :align: center
 
 .. _2dcollections3d:
 
 2D plots in 3D
 ==============
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_2dcollections3d_001.png
-   :target: ../../gallery/mplot3d/2dcollections3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_2dcollections3d_001.png
+   :target: /gallery/mplot3d/2dcollections3d.html
    :align: center
 
 .. _text3d:
@@ -150,7 +155,7 @@ Text
 ====
 See `.Axes3D.text` for API documentation.
 
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_text3d_001.png
-   :target: ../../gallery/mplot3d/text3d.html
+.. figure:: /gallery/mplot3d/images/sphx_glr_text3d_001.png
+   :target: /gallery/mplot3d/text3d.html
    :align: center
 """

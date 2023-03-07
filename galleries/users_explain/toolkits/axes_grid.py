@@ -1,5 +1,8 @@
 r"""
+.. redirect-from:: /tutorials/toolkits/axes_grid
+
 .. _axes_grid1_users-guide-index:
+.. _axes_grid:
 
 ======================
 The axes_grid1 toolkit
@@ -16,8 +19,8 @@ The axes_grid1 toolkit
 - AnchoredArtists_ (custom artists which are placed at an anchored position,
   similarly to legends).
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
-   :target: ../../gallery/axes_grid1/demo_axes_grid.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
+   :target: /gallery/axes_grid1/demo_axes_grid.html
    :align: center
 
 axes_grid1
@@ -32,8 +35,8 @@ it difficult to achieve a fixed (absolute) padding between images.
 `~.axes_grid1.axes_grid.ImageGrid` can be used to achieve such a padding; see
 its docs for detailed API information.
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid_001.png
-   :target: ../../gallery/axes_grid1/simple_axesgrid.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_simple_axesgrid_001.png
+   :target: /gallery/axes_grid1/simple_axesgrid.html
    :align: center
 
 * The position of each axes is determined at the drawing time (see
@@ -48,14 +51,14 @@ its docs for detailed API information.
   the same row all have the same height.  These widths and heights are scaled
   in proportion to the axes' view limits (xlim or ylim).
 
-  .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid2_001.png
-     :target: ../../gallery/axes_grid1/simple_axesgrid2.html
+  .. figure:: /gallery/axes_grid1/images/sphx_glr_simple_axesgrid2_001.png
+     :target: /gallery/axes_grid1/simple_axesgrid2.html
      :align: center
 
 The examples below show what you can do with ImageGrid.
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
-   :target: ../../gallery/axes_grid1/demo_axes_grid.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
+   :target: /gallery/axes_grid1/demo_axes_grid.html
    :align: center
 
 AxesDivider Class
@@ -79,8 +82,8 @@ side ("left", "right", "top", "bottom") of the original axes.
 colorbar whose height (or width) is in sync with the main axes
 --------------------------------------------------------------
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
-   :target: ../../gallery/axes_grid1/simple_colorbar.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
+   :target: /gallery/axes_grid1/simple_colorbar.html
    :align: center
 
 scatter_hist.py with AxesDivider
@@ -106,8 +109,8 @@ rewritten using `~.axes_grid1.axes_divider.make_axes_locatable`::
 
 See the full source code below.
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_scatter_hist_locatable_axes_001.png
-   :target: ../../gallery/axes_grid1/scatter_hist_locatable_axes.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_scatter_hist_locatable_axes_001.png
+   :target: /gallery/axes_grid1/scatter_hist_locatable_axes.html
    :align: center
 
 The :doc:`/gallery/axes_grid1/scatter_hist_locatable_axes` using the
@@ -141,8 +144,8 @@ parasite axes.  To create a host axes, you may use ``host_subplot`` or
 Example 1: twinx
 ~~~~~~~~~~~~~~~~
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple_001.png
-   :target: ../../gallery/axes_grid1/parasite_simple.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_parasite_simple_001.png
+   :target: /gallery/axes_grid1/parasite_simple.html
    :align: center
 
 Example 2: twin
@@ -158,16 +161,16 @@ tick-formatter for bottom(or left)-axis. ::
                  labels=["0", r"$\frac{1}{2}\pi$",
                          r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axisline4_001.png
-   :target: ../../gallery/axes_grid1/simple_axisline4.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_simple_axisline4_001.png
+   :target: /gallery/axes_grid1/simple_axisline4.html
    :align: center
 
 A more sophisticated example using twin. Note that if you change the
 x-limit in the host axes, the x-limit of the parasite axes will change
 accordingly.
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple2_001.png
-   :target: ../../gallery/axes_grid1/parasite_simple2.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_parasite_simple2_001.png
+   :target: /gallery/axes_grid1/parasite_simple2.html
    :align: center
 
 AnchoredArtists
@@ -179,8 +182,8 @@ from `.offsetbox.OffsetBox`, and the artist need to be drawn in canvas
 coordinates.  There is limited support for arbitrary transforms.  For example,
 the ellipse in the example below will have width and height in data coordinates.
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_anchored_artists_001.png
-   :target: ../../gallery/axes_grid1/simple_anchored_artists.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_simple_anchored_artists_001.png
+   :target: /gallery/axes_grid1/simple_anchored_artists.html
    :align: center
 
 InsetLocator
@@ -214,15 +217,15 @@ that of the parent axes multiplied by some factor, e.g. ::
 creates an inset axes whose data scale is half of the parent axes.  This can be
 useful to mark the zoomed area on the parent axes:
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo_001.png
-   :target: ../../gallery/axes_grid1/inset_locator_demo.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_inset_locator_demo_001.png
+   :target: /gallery/axes_grid1/inset_locator_demo.html
    :align: center
 
 `.inset_locator.mark_inset` allows marking the location of the area represented
 by the inset axes:
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo2_001.png
-   :target: ../../gallery/axes_grid1/inset_locator_demo2.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_inset_locator_demo2_001.png
+   :target: /gallery/axes_grid1/inset_locator_demo2.html
    :align: center
 
 RGBAxes
@@ -240,8 +243,8 @@ yaxis of each axes are shared. ::
     r, g, b = get_rgb()  # r, g, b are 2D images.
     ax.imshow_rgb(r, g, b)
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_rgb_001.png
-   :target: ../../gallery/axes_grid1/demo_axes_rgb.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_demo_axes_rgb_001.png
+   :target: /gallery/axes_grid1/demo_axes_rgb.html
    :align: center
 
 AxesDivider
@@ -318,14 +321,14 @@ Locators that spans over multiple cells can be created with, e.g.::
 
 See the example,
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider1_001.png
-   :target: ../../gallery/axes_grid1/simple_axes_divider1.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_simple_axes_divider1_001.png
+   :target: /gallery/axes_grid1/simple_axes_divider1.html
    :align: center
 
 You can also adjust the size of each axes according to its x or y
 data limits (AxesX and AxesY).
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider3_001.png
-   :target: ../../gallery/axes_grid1/simple_axes_divider3.html
+.. figure:: /gallery/axes_grid1/images/sphx_glr_simple_axes_divider3_001.png
+   :target: /gallery/axes_grid1/simple_axes_divider3.html
    :align: center
 """

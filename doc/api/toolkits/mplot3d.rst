@@ -12,7 +12,7 @@ and feel as regular 2D plots.  Not the fastest or most feature complete 3D
 library out there, but it ships with Matplotlib and thus may be a lighter
 weight solution for some use cases.
 
-See the :doc:`mplot3d tutorial </tutorials/toolkits/mplot3d>` for
+See the :ref:`mplot3d tutorial <mplot3d>` for
 more information.
 
 .. image:: /_static/demo_mplot3d.png

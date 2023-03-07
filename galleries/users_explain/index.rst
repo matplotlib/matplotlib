@@ -17,3 +17,4 @@ Using Matplotlib
     colors/index
     text/index
     animations/index
+    toolkits/index
