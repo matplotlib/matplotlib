@@ -119,7 +119,7 @@ def test_empty_markers_with_mapped_edges():
     # Check that the markers have no face color
     assert np.all(sc.get_facecolor() == (0, 0, 0, 0))
     # Check that the markers have the correct edge colors
-    assert np.all(sc.get_edgecolor() == [(1, 0, 0, 1), (0, 1, 0, 1), (0, 0, 1, 1)])
+    assert np.all(sc.get_edgecolor() == [[1.0, 0.0, 0.0, 1.0], [0.0, 0.5, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0]])
 
 #Test Case 2: Empty markers with default mapped edges
 
