@@ -1,6 +1,7 @@
 .. redirect-from:: /users/event_handling
 
-.. _event-handling-tutorial:
+.. _event-handling:
+.. _event_handling:
 
 **************************
 Event handling and picking

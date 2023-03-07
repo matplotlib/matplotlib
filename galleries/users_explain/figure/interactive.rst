@@ -53,7 +53,7 @@ collected. `.Figure`\s can be closed and deregistered from `.pyplot` individuall
    For more discussion of Matplotlib's event system and integrated event loops:
 
    - :ref:`interactive_figures_and_eventloops`
-   - :ref:`event-handling-tutorial`
+   - :ref:`event-handling`
 
 
 .. _ipython-pylab:

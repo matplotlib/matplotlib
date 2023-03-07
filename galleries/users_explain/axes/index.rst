@@ -5,7 +5,7 @@ Axes (or Subplots)
 
 Matplotlib `~.axes.Axes` are the gateway to creating your data visualizations.
 Once an Axes is placed on a figure there are many methods that can be used to
-add data to the Axes. An Axes typically has a pair of :ref:`Axis <../axis/>`
+add data to the Axes. An Axes typically has a pair of :doc:`Axis <../axis/index>`
 Artists that define the data co-ordinate system, and include methods to add
 annotations like x- and y-labels, titles, and legends.
 
@@ -130,7 +130,7 @@ Note that text can also be added to axes using `~.axes.Axes.text`, and `~.axes.A
 Axes limits, scales, and ticking
 --------------------------------
 
-Each Axes has two (or more) `~.axis.Axis` objects, that can be accessed via :attr:`~matplotlib.axes.Axes.xaxis` and :attr:`~matplotlib.axes.Axes.yaxis` properties.  These have substantial number of methods on them, and for highly customizable Axis-es it is useful to read more about that API (:doc:`axis/index`).   However, the Axes class offers a number of helpers for the most common of these methods.  Indeed, the `~.axes.Axes.set_xlabel`, discussed above, is a helper for the `~.Axis.set_label_text`.
+Each Axes has two (or more) `~.axis.Axis` objects, that can be accessed via :attr:`~matplotlib.axes.Axes.xaxis` and :attr:`~matplotlib.axes.Axes.yaxis` properties.  These have substantial number of methods on them, and for highly customizable Axis-es it is useful to read more about that API (:doc:`../axis/index`).   However, the Axes class offers a number of helpers for the most common of these methods.  Indeed, the `~.axes.Axes.set_xlabel`, discussed above, is a helper for the `~.Axis.set_label_text`.
 
 Other important methods set the extent on the axes (`~.axes.Axes.set_xlim`, `~.axes.Axes.set_ylim`), or more fundamentally the scale of the axes.  So for instance, we can make an Axis have a logarithmic scale, and zoom in on a sub-portion of the data:
 

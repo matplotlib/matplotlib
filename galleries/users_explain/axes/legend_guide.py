@@ -1,5 +1,5 @@
 """
-.. redirect-from: /tutorials/intermediate/legend_guide
+.. redirect-from:: /tutorials/intermediate/legend_guide
 
 .. _legend_guide:
 

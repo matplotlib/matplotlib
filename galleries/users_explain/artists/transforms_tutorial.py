@@ -213,7 +213,7 @@ plt.show()
 #   This is one good reason why you rarely want to work in *display*
 #   space, but you can connect to the ``'on_draw'``
 #   :class:`~matplotlib.backend_bases.Event` to update *figure*
-#   coordinates on figure draws; see :ref:`event-handling-tutorial`.
+#   coordinates on figure draws; see :ref:`event-handling`.
 #
 # When you change the x or y limits of your axes, the data limits are
 # updated so the transformation yields a new display point.  Note that

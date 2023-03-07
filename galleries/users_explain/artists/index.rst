@@ -138,7 +138,7 @@ Changing Artist data
 In addition to styling properties like *color* and *linewidth*, the Line2D
 object has a *data* property.  You can set the data after the line has been
 created using `.Line2D.set_data`.  This is often used for Animations, where the
-same line is shown evolving over time (see :doc:`../animations`)
+same line is shown evolving over time (see :doc:`../animations/index`)
 
 .. plot::
     :include-source:

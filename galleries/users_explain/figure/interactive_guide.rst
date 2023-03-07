@@ -18,7 +18,7 @@ you can use to build sophisticated interactive graphs.
 This guide is meant to be an introduction to the low-level details of
 how Matplotlib integration with a GUI event loop works.  For a more
 practical introduction to the Matplotlib event API see :ref:`event
-handling system <event-handling-tutorial>`, `Interactive Tutorial
+handling system <event-handling>`, `Interactive Tutorial
 <https://github.com/matplotlib/interactive_tutorial>`__, and
 `Interactive Applications using Matplotlib
 <http://www.amazon.com/Interactive-Applications-using-Matplotlib-Benjamin/dp/1783988843>`__.
@@ -64,7 +64,7 @@ capturing user interactions and passing them back to the application
 details depend on the toolkit.  Matplotlib has a :ref:`backend
 <what-is-a-backend>` for each GUI toolkit we support which uses the
 toolkit API to bridge the toolkit UI events into Matplotlib's :ref:`event
-handling system <event-handling-tutorial>`.  You can then use
+handling system <event-handling>`.  You can then use
 `.FigureCanvasBase.mpl_connect` to connect your function to
 Matplotlib's event handling system.  This allows you to directly
 interact with your data and write GUI toolkit agnostic user

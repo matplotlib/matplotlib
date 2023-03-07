@@ -445,7 +445,7 @@ functions can e.g. attach callbacks or modify the toolbar.  See
 
 New & Improved Narrative Documentation
 ======================================
-* Brand new :doc:`Animations </tutorials/introductory/animation_tutorial>` tutorial.
+* Brand new :ref:`Animations <animations>` tutorial.
 * New grouped and stacked `bar chart <../../gallery/index.html#lines_bars_and_markers>`_ examples.
 * New section for new contributors and reorganized git instructions in the :ref:`contributing guide<contributing>`.
 * Restructured :ref:`annotations` tutorial.

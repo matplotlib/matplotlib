@@ -3,7 +3,7 @@
 Event handling
 ==============
 
-Matplotlib supports :doc:`event handling</users/explain/event_handling>` with
+Matplotlib supports :ref:`event handling <event_handling>` with
 a GUI neutral event model, so you can connect to Matplotlib events without
 knowledge of what user interface Matplotlib will ultimately be plugged in to.
 This has two advantages: the code you write will be more portable, and

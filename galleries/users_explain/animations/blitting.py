@@ -1,5 +1,5 @@
 """
-.. redirected-from: /tutorials/advanced/blitting
+.. redirect-from:: /tutorials/advanced/blitting
 
 .. _blitting:
 
