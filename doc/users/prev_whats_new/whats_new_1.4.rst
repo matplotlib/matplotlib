@@ -406,7 +406,7 @@ instead of ``:context:`` any time you want to reset the context.
 
 Legend and PathEffects documentation
 ------------------------------------
-The :ref:`legend_guide` and :doc:`/tutorials/advanced/patheffects_guide` have both been
+The :ref:`legend_guide` and :ref:`patheffects_guide` have both been
 updated to better reflect the full potential of each of these powerful
 features.
 

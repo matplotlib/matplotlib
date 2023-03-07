@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /tutorials/advanced/path_tutorial
+
+.. _paths:
+
 =============
 Path Tutorial
 =============

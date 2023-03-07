@@ -112,8 +112,8 @@ convention = "numpy"
 "lib/mpl_toolkits/axisartist/__init__.py" = ["F401"]
 "lib/pylab.py" = ["F401", "F403"]
 
-"galleries/tutorials/advanced/path_tutorial.py" = ["E402"]
-"galleries/tutorials/advanced/patheffects_guide.py" = ["E402"]
+"galleries/users_explain/artists/paths.py" = ["E402"]
+"galleries/users_explain/artists/patheffects_guide.py" = ["E402"]
 "galleries/users_explain/artists/transforms_tutorial.py" = ["E402", "E501"]
 "galleries/users_explain/colors/colormaps.py" = ["E501"]
 "galleries/users_explain/colors/colors.py" = ["E402"]

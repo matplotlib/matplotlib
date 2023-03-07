@@ -194,5 +194,7 @@ More details
 
     Concept: Automated color cycle <color_cycle>
     Concept: optimizing Artists for performance <performance>
+    Concept: Paths <paths>
+    Concept: Path effects guide <patheffects_guide>
     In Depth: understanding the extent keyword argument of imshow <imshow_extent>
     transforms_tutorial

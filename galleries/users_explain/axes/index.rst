@@ -6,7 +6,7 @@ Axes (or Subplots)
 Matplotlib `~.axes.Axes` are the gateway to creating your data visualizations.
 Once an Axes is placed on a figure there are many methods that can be used to
 add data to the Axes. An Axes typically has a pair of :doc:`Axis <../axis/index>`
-Artists that define the data co-ordinate system, and include methods to add
+Artists that define the data coordinate system, and include methods to add
 annotations like x- and y-labels, titles, and legends.
 
 .. _anatomy_local:

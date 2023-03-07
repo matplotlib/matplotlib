@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /tutorials/advance/patheffects_guide
+
+.. _patheffects_guide:
+
 ==================
 Path effects guide
 ==================
