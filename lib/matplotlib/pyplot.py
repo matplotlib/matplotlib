@@ -1203,10 +1203,11 @@ def sca(ax: Axes) -> None:
     """
     Set the current Axes to *ax* and the current Figure to the parent of *ax*.
     """
-    figure(ax.figure)
     # Mypy sees ax.figure as potentially None,
     # but if you are calling this, it won't be None
-    ax.figure.sca(ax)  # type: ignore
+    # Additionally the slight difference between `Figure` and `FigureBase` mypy catches
+    figure(ax.figure)  # type: ignore[arg-type]
+    ax.figure.sca(ax)  # type: ignore[union-attr]
 
 
 def cla() -> None:
