@@ -3082,6 +3082,9 @@ class ArrowStyle(_Style):
 
     %(ArrowStyle:table)s
 
+    For an overview of the visual appearance, see
+    :doc:`/gallery/text_labels_and_annotations/fancyarrow_demo`.
+
     An instance of any arrow style class is a callable object,
     whose call signature is::
 
