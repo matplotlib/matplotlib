@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /tutorials/intermediate/artists
+
+.. _artists_tutorial:
+
 ===============
 Artist tutorial
 ===============
@@ -716,6 +720,6 @@ plt.show()
 # dollar signs and colors them green on the right side of the yaxis.
 #
 #
-# .. include:: ../../gallery/ticks/dollar_ticks.rst
+# .. include:: ../gallery/ticks/dollar_ticks.rst
 #    :start-after: .. redirect-from:: /gallery/pyplots/dollar_ticks
 #    :end-before: .. admonition:: References

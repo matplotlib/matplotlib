@@ -1,4 +1,6 @@
 """
+.. redirect-from:: /tutorials/introductory/lifecycle
+
 =======================
 The Lifecycle of a Plot
 =======================
@@ -27,8 +29,8 @@ In the explicit object-oriented (OO) interface we directly utilize instances of
 :class:`axes.Axes` to build up the visualization in an instance of
 :class:`figure.Figure`.  In the implicit interface, inspired by and modeled on
 MATLAB, we use a global state-based interface which is encapsulated in the
-:mod:`.pyplot` module to plot to the "current Axes".  See the :doc:`pyplot
-tutorials </tutorials/introductory/pyplot>` for a more in-depth look at the
+:mod:`.pyplot` module to plot to the "current Axes".  See the :ref:`pyplot
+tutorials <pyplot_tutorial>` for a more in-depth look at the
 pyplot interface.
 
 Most of the terms are straightforward but the main thing to remember

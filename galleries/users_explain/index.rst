@@ -1,4 +1,5 @@
 .. _users-guide-explain:
+.. _users-guide-using:
 
 .. redirect-from:: /users/explain
 

@@ -1,4 +1,8 @@
 """
+.. redirect-from:: /tutorials/introductory/pyplot
+
+.. _pyplot_tutorial:
+
 ===============
 Pyplot tutorial
 ===============
@@ -307,7 +311,7 @@ plt.show()
 # it annoying that states (specifically the current image, figure and axes)
 # are being maintained for you behind the scenes, don't despair: this is just a thin
 # stateful wrapper around an object-oriented API, which you can use
-# instead (see :doc:`/tutorials/intermediate/artists`)
+# instead (see :ref:`artists_tutorial`)
 #
 # If you are making lots of figures, you need to be aware of one
 # more thing: the memory required for a figure is not completely

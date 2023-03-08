@@ -51,7 +51,7 @@ Learning resources
 
         - :ref:`Quick-start guide <quick_start>`
         - :doc:`Plot types <plot_types/index>`
-        - :ref:`Introductory tutorials <tutorials-introductory>`
+        - :ref:`users-guide-using`
         - :doc:`External learning resources <users/resources/index>`
 
     .. grid-item-card::
@@ -69,11 +69,8 @@ Learning resources
         Understand how Matplotlib works
         ^^^
 
-        - The :ref:`users-guide-explain` in the :doc:`Users guide
-          <users/index>`
-        - Many of the :ref:`Intermediate <tutorials-intermediate>` and
-          :ref:`Advanced <tutorials-advanced>` tutorials have explanatory
-          material
+        - :ref:`users-guide-explain` in the :doc:`Users guide
+          <users/index>` has a number of advanced topics.
 
     .. grid-item-card::
         :padding: 2

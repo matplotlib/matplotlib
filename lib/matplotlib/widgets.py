@@ -189,7 +189,7 @@ class Button(AxesWidget):
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
 
-            .. versionadded:: 3.7
+        .. versionadded:: 3.7
         """
         super().__init__(ax)
 
@@ -1030,13 +1030,10 @@ class CheckButtons(AxesWidget):
             same length as *labels*. If not given, all buttons are unchecked.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-<<<<<<< HEAD
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
 
             .. versionadded:: 3.7
-=======
-            See the tutorial :ref:`blitting` for details.
->>>>>>> b6f353389a (DOC: fix flake8 [ci doc])
+
         label_props : dict, optional
             Dictionary of `.Text` properties to be used for the labels.
 
@@ -1641,13 +1638,10 @@ class RadioButtons(AxesWidget):
             specified here or in *radio_props*.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-<<<<<<< HEAD
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
 
             .. versionadded:: 3.7
-=======
-            See the tutorial :ref:`blitting` for details.
->>>>>>> b6f353389a (DOC: fix flake8 [ci doc])
+
         label_props : dict or list of dict, optional
             Dictionary of `.Text` properties to be used for the labels.
 

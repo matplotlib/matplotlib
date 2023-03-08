@@ -13,7 +13,7 @@ New documentation
 
 Jae-Joon Lee has written two new guides :ref:`legend_guide`
 and :ref:`plotting-guide-annotation`.  Michael Sarahan has written
-:doc:`/tutorials/introductory/images`.  John Hunter has written two new tutorials on
+:ref:`image_tutorial`.  John Hunter has written two new tutorials on
 working with paths and transformations: :ref:`paths` and
 :ref:`transforms_tutorial`.
 

@@ -97,7 +97,7 @@ actually perform such a rendering and inspect the result.
 Find all objects in a figure of a certain type
 ----------------------------------------------
 
-Every Matplotlib artist (see :doc:`/tutorials/intermediate/artists`) has a method
+Every Matplotlib artist (see :ref:`artists_tutorial`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
 recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`

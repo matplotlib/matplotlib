@@ -111,7 +111,7 @@ Creating Figures
 ================
 
 By far the most common way to create a figure is using the
-:doc:`pyplot </tutorials/introductory/pyplot>` interface. As noted in
+:ref:`pyplot <pyplot_tutorial>` interface. As noted in
 :ref:`api_interfaces`, the pyplot interface serves two purposes.  One is to spin
 up the Backend and keep track of GUI windows. The other is a global state for
 Axes and Artists that allow a short-form API to plotting methods. In the
