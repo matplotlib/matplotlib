@@ -187,6 +187,16 @@ def check_tuple(**kwargs):
     if (len(v) != 2):
         raise ValueError(
             f"{v} is not a valid value for loc; expected a tuple of length 2") from None
+    try:
+        float(v[0])
+    except ValueError:
+        raise ValueError(
+            f"{v[0]} is not a valid value for loc; expected a float.") from None
+    try:
+        float(v[1])
+    except ValueError:
+        raise ValueError(
+            f"{v[1]} is not a valid value for loc; expected a float.") from None
     return v
 
 
