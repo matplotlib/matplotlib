@@ -8644,13 +8644,19 @@ def test_extent_units():
 
 def test_cla_clears_children_axes_and_fig():
     fig, ax = plt.subplots()
-    lines = ax.plot([], [], [], [])
+
+    lines = ax.plot([], [], [], [], label="line")
     img = ax.imshow([[1]])
-    for art in lines + [img]:
+    legend = ax.legend()
+
+    children = [*lines, img, legend]
+
+    for art in children:
         assert art.axes is ax
         assert art.figure is fig
+
     ax.clear()
-    for art in lines + [img]:
+    for art in children:
         assert art.axes is None
         assert art.figure is None
 

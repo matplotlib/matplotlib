@@ -32,6 +32,7 @@ import matplotlib.artist as martist
 import matplotlib.path as mpath
 import matplotlib.text as mtext
 import matplotlib.transforms as mtransforms
+from matplotlib.backend_tools import Cursors
 from matplotlib.font_manager import FontProperties
 from matplotlib.image import BboxImage
 from matplotlib.patches import (
@@ -1489,6 +1490,7 @@ class DraggableBase:
         if not ref_artist.pickable():
             ref_artist.set_picker(True)
         self.got_artist = False
+        self._hover = False
         self._use_blit = use_blit and self.canvas.supports_blit
         callbacks = ref_artist.figure._canvas_callbacks
         self._disconnectors = [
@@ -1508,7 +1510,33 @@ class DraggableBase:
         disconnect.args[0] for disconnect in self._disconnectors[:2]])
 
     def on_motion(self, evt):
-        if self._check_still_parented() and self.got_artist:
+        # Only check if the widget lock is available, setting it would prevent
+        # picking.
+        if not (
+            self._check_still_parented()
+            and self.canvas.widgetlock.available(self)
+            and self.ref_artist.pickable()
+        ):
+            return
+
+        picker = self.ref_artist.get_picker()
+        if callable(picker):
+            inside, _ = picker(self, evt)
+        else:
+            inside, _ = self.ref_artist.contains(evt)
+
+        # If the mouse is moving quickly while dragging, it may leave the artist,
+        # but should still use the move cursor.
+        if inside or self.got_artist:
+            self._hover = True
+            self.canvas.set_cursor(Cursors.MOVE)
+        elif self._hover:
+            # Only change the cursor back if this is the widget that set it, to
+            # avoid multiple draggable widgets fighting over the cursor.
+            self._hover = False
+            self.canvas.set_cursor(Cursors.POINTER)
+
+        if self.got_artist:
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
@@ -1553,6 +1581,10 @@ class DraggableBase:
         """Disconnect the callbacks."""
         for disconnector in self._disconnectors:
             disconnector()
+
+        if self._hover:
+            self._hover = False
+            self.canvas.set_cursor(Cursors.POINTER)
 
     def save_offset(self):
         pass

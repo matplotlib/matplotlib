@@ -1298,6 +1298,9 @@ class _AxesBase(martist.Artist):
         self.child_axes = []
         self._current_image = None  # strictly for pyplot via _sci, _gci
         self._projection_init = None  # strictly for pyplot.subplot
+
+        if hasattr(self, "legend_") and self.legend_ is not None:
+            self.legend_.axes = self.legend_.figure = None
         self.legend_ = None
         self.containers = []
 
