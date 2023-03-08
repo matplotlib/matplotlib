@@ -29,7 +29,7 @@ cursord = {
     cursors.MOVE: "fleur",
     cursors.HAND: "hand2",
     cursors.POINTER: "arrow",
-    cursors.SELECT_REGION: "tcross",
+    cursors.SELECT_REGION: "crosshair",
     cursors.WAIT: "watch",
     cursors.RESIZE_HORIZONTAL: "sb_h_double_arrow",
     cursors.RESIZE_VERTICAL: "sb_v_double_arrow",
