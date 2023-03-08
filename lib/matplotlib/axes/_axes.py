@@ -2886,9 +2886,8 @@ class Axes(_AxesBase):
         return col
 
     @_preprocess_data()
-    @_api.delete_parameter("3.6", "use_line_collection")
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-             label=None, use_line_collection=True, orientation='vertical'):
+             label=None, orientation='vertical'):
         """
         Create a stem plot.
 
@@ -2932,8 +2931,8 @@ class Axes(_AxesBase):
             cycle.
 
             Note: Markers specified through this parameter (e.g. 'x') will be
-            silently ignored (unless using ``use_line_collection=False``).
-            Instead, markers should be specified using *markerfmt*.
+            silently ignored. Instead, markers should be specified using
+            *markerfmt*.
 
         markerfmt : str, optional
             A string defining the color and/or shape of the markers at the stem
@@ -2952,14 +2951,6 @@ class Axes(_AxesBase):
 
         label : str, default: None
             The label to use for the stems in legends.
-
-        use_line_collection : bool, default: True
-            *Deprecated since 3.6*
-
-            If ``True``, store and plot the stem lines as a
-            `~.collections.LineCollection` instead of individual lines, which
-            significantly increases performance.  If ``False``, defaults to the
-            old behavior of using a list of `.Line2D` objects.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -3024,27 +3015,12 @@ class Axes(_AxesBase):
         basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
-        if use_line_collection:
-            if linestyle is None:
-                linestyle = mpl.rcParams['lines.linestyle']
-            xlines = self.vlines if orientation == "vertical" else self.hlines
-            stemlines = xlines(
-                locs, bottom, heads,
-                colors=linecolor, linestyles=linestyle, label="_nolegend_")
-        # Old behaviour is to plot each of the lines individually
-        else:
-            stemlines = []
-            for loc, head in zip(locs, heads):
-                if orientation == 'horizontal':
-                    xs = [bottom, head]
-                    ys = [loc, loc]
-                else:
-                    xs = [loc, loc]
-                    ys = [bottom, head]
-                l, = self.plot(xs, ys,
-                               color=linecolor, linestyle=linestyle,
-                               marker=linemarker, label="_nolegend_")
-                stemlines.append(l)
+        if linestyle is None:
+            linestyle = mpl.rcParams['lines.linestyle']
+        xlines = self.vlines if orientation == "vertical" else self.hlines
+        stemlines = xlines(
+            locs, bottom, heads,
+            colors=linecolor, linestyles=linestyle, label="_nolegend_")
 
         if orientation == 'horizontal':
             marker_x = heads

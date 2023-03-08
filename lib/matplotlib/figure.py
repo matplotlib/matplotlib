@@ -295,9 +295,7 @@ class FigureBase(Artist):
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}
 
-    @_api.delete_parameter("3.6", "args")
-    @_api.delete_parameter("3.6", "kwargs")
-    def get_window_extent(self, renderer=None, *args, **kwargs):
+    def get_window_extent(self, renderer=None):
         # docstring inherited
         return self.bbox
 
@@ -2361,10 +2359,10 @@ class Figure(FigureBase):
             naxes=len(self.axes),
         )
 
-    @_api.make_keyword_only("3.6", "facecolor")
     def __init__(self,
                  figsize=None,
                  dpi=None,
+                 *,
                  facecolor=None,
                  edgecolor=None,
                  linewidth=0.0,
@@ -2372,7 +2370,6 @@ class Figure(FigureBase):
                  subplotpars=None,  # rc figure.subplot.*
                  tight_layout=None,  # rc figure.autolayout
                  constrained_layout=None,  # rc figure.constrained_layout.use
-                 *,
                  layout=None,
                  **kwargs
                  ):
@@ -3476,21 +3473,6 @@ None}, default: None
             self, ["button_press_event", "key_press_event"], timeout, handler)
 
         return None if event is None else event.name == "key_press_event"
-
-    @_api.deprecated("3.6", alternative="figure.get_layout_engine().execute()")
-    def execute_constrained_layout(self, renderer=None):
-        """
-        Use ``layoutgrid`` to determine pos positions within Axes.
-
-        See also `.set_constrained_layout_pads`.
-
-        Returns
-        -------
-        layoutgrid : private debugging object
-        """
-        if not isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
-            return None
-        return self.get_layout_engine().execute(self)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """

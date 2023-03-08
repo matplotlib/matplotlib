@@ -92,11 +92,6 @@ _log = logging.getLogger(__name__)
 # * draw_quad_mesh
 
 
-@_api.deprecated("3.6", alternative="a vendored copy of _fill")
-def fill(strings, linelen=75):
-    return _fill(strings, linelen=linelen)
-
-
 def _fill(strings, linelen=75):
     """
     Make one string from sequence of strings, with whitespace in between.
@@ -442,27 +437,8 @@ class Name:
     def __hash__(self):
         return hash(self.name)
 
-    @staticmethod
-    @_api.deprecated("3.6")
-    def hexify(match):
-        return '#%02x' % ord(match.group())
-
     def pdfRepr(self):
         return b'/' + self.name
-
-
-@_api.deprecated("3.6")
-class Operator:
-    __slots__ = ('op',)
-
-    def __init__(self, op):
-        self.op = op
-
-    def __repr__(self):
-        return '<Operator %s>' % self.op
-
-    def pdfRepr(self):
-        return self.op
 
 
 class Verbatim:
@@ -514,8 +490,6 @@ class Op(Enum):
     setlinewidth = b'w'
     clip = b'W'
     shading = b'sh'
-
-    op = _api.deprecated('3.6')(property(lambda self: self.value))
 
     def pdfRepr(self):
         return self.value

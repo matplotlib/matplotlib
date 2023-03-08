@@ -342,10 +342,10 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
-    @_api.make_keyword_only("3.6", "loc")
     @_docstring.dedent_interpd
     def __init__(
         self, parent, handles, labels,
+        *,
         loc=None,
         numpoints=None,      # number of points in the legend line
         markerscale=None,    # relative size of legend markers vs. original
@@ -383,7 +383,6 @@ class Legend(Artist):
         handler_map=None,
         title_fontproperties=None,  # properties for the legend title
         alignment="center",       # control the alignment within the legend box
-        *,
         ncol=1,  # synonym for ncols (backward compatibility)
         draggable=False  # whether the legend can be dragged with the mouse
     ):

@@ -687,10 +687,10 @@ def xkcd(scale=1, length=100, randomness=2):
 
 ## Figures ##
 
-@_api.make_keyword_only("3.6", "facecolor")
 def figure(num=None,  # autoincrement if None, else integer from 1-N
            figsize=None,  # defaults to rc figure.figsize
            dpi=None,  # defaults to rc figure.dpi
+           *,
            facecolor=None,  # defaults to rc figure.facecolor
            edgecolor=None,  # defaults to rc figure.edgecolor
            frameon=True,
@@ -2922,14 +2922,10 @@ def stackplot(
 @_copy_docstring_and_deprecators(Axes.stem)
 def stem(
         *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-        label=None,
-        use_line_collection=_api.deprecation._deprecated_parameter,
-        orientation='vertical', data=None):
+        label=None, orientation='vertical', data=None):
     return gca().stem(
         *args, linefmt=linefmt, markerfmt=markerfmt, basefmt=basefmt,
-        bottom=bottom, label=label,
-        use_line_collection=use_line_collection,
-        orientation=orientation,
+        bottom=bottom, label=label, orientation=orientation,
         **({"data": data} if data is not None else {}))
 
 

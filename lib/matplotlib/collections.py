@@ -11,7 +11,7 @@ line segments).
 
 import itertools
 import math
-from numbers import Number
+from numbers import Number, Real
 import warnings
 
 import numpy as np
@@ -75,8 +75,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _edge_default = False
 
     @_docstring.interpd
-    @_api.make_keyword_only("3.6", name="edgecolors")
-    def __init__(self,
+    def __init__(self, *,
                  edgecolors=None,
                  facecolors=None,
                  linewidths=None,
@@ -91,7 +90,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  pickradius=5.0,
                  hatch=None,
                  urls=None,
-                 *,
                  zorder=1,
                  **kwargs
                  ):
@@ -224,7 +222,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 self._offset_transform._as_mpl_transform(self.axes)
         return self._offset_transform
 
-    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
     def set_offset_transform(self, offset_transform):
         """
         Set the artist offset transform.
@@ -433,7 +430,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
-    @_api.rename_parameter("3.6", "pr", "pickradius")
     def set_pickradius(self, pickradius):
         """
         Set the pick radius used for containment tests.
@@ -443,6 +439,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         pickradius : float
             Pick radius, in points.
         """
+        if not isinstance(pickradius, Real):
+            raise ValueError(
+                f"pickradius must be a real-valued number, not {pickradius!r}")
         self._pickradius = pickradius
 
     def get_pickradius(self):
@@ -1161,8 +1160,7 @@ class PathCollection(_CollectionWithSizes):
 
 class PolyCollection(_CollectionWithSizes):
 
-    @_api.make_keyword_only("3.6", name="closed")
-    def __init__(self, verts, sizes=None, closed=True, **kwargs):
+    def __init__(self, verts, sizes=None, *, closed=True, **kwargs):
         """
         Parameters
         ----------
@@ -1292,9 +1290,9 @@ class RegularPolyCollection(_CollectionWithSizes):
     _path_generator = mpath.Path.unit_regular_polygon
     _factor = np.pi ** (-1/2)
 
-    @_api.make_keyword_only("3.6", name="rotation")
     def __init__(self,
                  numsides,
+                 *,
                  rotation=0,
                  sizes=(1,),
                  **kwargs):
@@ -1558,10 +1556,10 @@ class EventCollection(LineCollection):
 
     _edge_default = True
 
-    @_api.make_keyword_only("3.6", name="lineoffset")
     def __init__(self,
                  positions,  # Cannot be None.
                  orientation='horizontal',
+                 *,
                  lineoffset=0,
                  linelength=1,
                  linewidth=None,
@@ -1754,8 +1752,7 @@ class CircleCollection(_CollectionWithSizes):
 class EllipseCollection(Collection):
     """A collection of ellipses, drawn using splines."""
 
-    @_api.make_keyword_only("3.6", name="units")
-    def __init__(self, widths, heights, angles, units='points', **kwargs):
+    def __init__(self, widths, heights, angles, *, units='points', **kwargs):
         """
         Parameters
         ----------
@@ -1842,8 +1839,7 @@ class PatchCollection(Collection):
     collection of patches.
     """
 
-    @_api.make_keyword_only("3.6", name="match_original")
-    def __init__(self, patches, match_original=False, **kwargs):
+    def __init__(self, patches, *, match_original=False, **kwargs):
         """
         Parameters
         ----------

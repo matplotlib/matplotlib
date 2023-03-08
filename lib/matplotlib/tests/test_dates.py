@@ -1371,19 +1371,6 @@ def test_concise_formatter_call():
     assert formatter.format_data_short(19002.0) == '2022-01-10 00:00:00'
 
 
-@pytest.mark.parametrize('span, expected_locator',
-                         ((0.02, mdates.MinuteLocator),
-                          (1, mdates.HourLocator),
-                          (19, mdates.DayLocator),
-                          (40, mdates.WeekdayLocator),
-                          (200, mdates.MonthLocator),
-                          (2000, mdates.YearLocator)))
-def test_date_ticker_factory(span, expected_locator):
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
-        locator, _ = mdates.date_ticker_factory(span)
-        assert isinstance(locator, expected_locator)
-
-
 def test_datetime_masked():
     # make sure that all-masked data falls back to the viewlim
     # set in convert.axisinfo....

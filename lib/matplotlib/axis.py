@@ -188,11 +188,6 @@ class Tick(martist.Artist):
 
         self.update_position(loc)
 
-    @property
-    @_api.deprecated("3.1", alternative="Tick.label1", removal="3.8")
-    def label(self):
-        return self.label1
-
     def _set_labelrotation(self, labelrotation):
         if isinstance(labelrotation, str):
             mode = labelrotation
@@ -239,10 +234,6 @@ class Tick(martist.Artist):
         super().set_clip_path(clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
         self.stale = True
-
-    @_api.deprecated("3.6")
-    def get_pad_pixels(self):
-        return self.figure.dpi * self._base_pad / 72
 
     def contains(self, mouseevent):
         """
@@ -640,8 +631,7 @@ class Axis(martist.Artist):
         return "{}({},{})".format(
             type(self).__name__, *self.axes.transAxes.transform((0, 0)))
 
-    @_api.make_keyword_only("3.6", name="pickradius")
-    def __init__(self, axes, pickradius=15):
+    def __init__(self, axes, *, pickradius=15):
         """
         Parameters
         ----------
@@ -1250,21 +1240,6 @@ class Axis(martist.Artist):
         if a is None:
             return
         a.set_figure(self.figure)
-
-    @_api.deprecated("3.6")
-    def get_ticklabel_extents(self, renderer):
-        """Get the extents of the tick labels on either side of the axes."""
-        ticks_to_draw = self._update_ticks()
-        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
-        if len(tlb1):
-            bbox1 = mtransforms.Bbox.union(tlb1)
-        else:
-            bbox1 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
-        if len(tlb2):
-            bbox2 = mtransforms.Bbox.union(tlb2)
-        else:
-            bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
-        return bbox1, bbox2
 
     def _update_ticks(self):
         """
@@ -2351,29 +2326,6 @@ class XAxis(Axis):
             y = top + self.OFFSETTEXTPAD * self.figure.dpi / 72
         self.offsetText.set_position((x, y))
 
-    @_api.deprecated("3.6")
-    def get_text_heights(self, renderer):
-        """
-        Return how much space should be reserved for text above and below the
-        Axes, as a pair of floats.
-        """
-        bbox, bbox2 = self.get_ticklabel_extents(renderer)
-        # MGDTODO: Need a better way to get the pad
-        pad_pixels = self.majorTicks[0].get_pad_pixels()
-
-        above = 0.0
-        if bbox2.height:
-            above += bbox2.height + pad_pixels
-        below = 0.0
-        if bbox.height:
-            below += bbox.height + pad_pixels
-
-        if self.get_label_position() == 'top':
-            above += self.label.get_window_extent(renderer).height + pad_pixels
-        else:
-            below += self.label.get_window_extent(renderer).height + pad_pixels
-        return above, below
-
     def set_ticks_position(self, position):
         """
         Set the ticks position.
@@ -2621,25 +2573,6 @@ class YAxis(Axis):
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))
         self.stale = True
-
-    @_api.deprecated("3.6")
-    def get_text_widths(self, renderer):
-        bbox, bbox2 = self.get_ticklabel_extents(renderer)
-        # MGDTODO: Need a better way to get the pad
-        pad_pixels = self.majorTicks[0].get_pad_pixels()
-
-        left = 0.0
-        if bbox.width:
-            left += bbox.width + pad_pixels
-        right = 0.0
-        if bbox2.width:
-            right += bbox2.width + pad_pixels
-
-        if self.get_label_position() == 'left':
-            left += self.label.get_window_extent(renderer).width + pad_pixels
-        else:
-            right += self.label.get_window_extent(renderer).width + pad_pixels
-        return left, right
 
     def set_ticks_position(self, position):
         """

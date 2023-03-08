@@ -57,7 +57,6 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
 
-    dist = _api.deprecate_privatize_attribute("3.6")
     vvec = _api.deprecate_privatize_attribute("3.7")
     eye = _api.deprecate_privatize_attribute("3.7")
     sx = _api.deprecate_privatize_attribute("3.7")
@@ -218,13 +217,6 @@ class Axes3D(Axes):
 
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
-
-    w_xaxis = _api.deprecated("3.1", alternative="xaxis", removal="3.8")(
-        property(lambda self: self.xaxis))
-    w_yaxis = _api.deprecated("3.1", alternative="yaxis", removal="3.8")(
-        property(lambda self: self.yaxis))
-    w_zaxis = _api.deprecated("3.1", alternative="zaxis", removal="3.8")(
-        property(lambda self: self.zaxis))
 
     @_api.deprecated("3.7")
     def unit_cube(self, vals=None):
@@ -683,9 +675,8 @@ class Axes3D(Axes):
         return minx, maxx, miny, maxy, minz, maxz
 
     # set_xlim, set_ylim are directly inherited from base Axes.
-    @_api.make_keyword_only("3.6", "emit")
-    def set_zlim(self, bottom=None, top=None, emit=True, auto=False,
-                 *, zmin=None, zmax=None):
+    def set_zlim(self, bottom=None, top=None, *, emit=True, auto=False,
+                 zmin=None, zmax=None):
         """
         Set 3D z limits.
 

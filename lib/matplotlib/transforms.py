@@ -1949,17 +1949,6 @@ class Affine2D(Affine2DBase):
         self._mtx = other.get_matrix()
         self.invalidate()
 
-    @staticmethod
-    @_api.deprecated("3.6", alternative="Affine2D()")
-    def identity():
-        """
-        Return a new `Affine2D` object that is the identity transform.
-
-        Unless this transform will be mutated later on, consider using
-        the faster `IdentityTransform` class instead.
-        """
-        return Affine2D()
-
     def clear(self):
         """
         Reset the underlying matrix to the identity transform.

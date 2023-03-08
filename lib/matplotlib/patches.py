@@ -45,8 +45,7 @@ class Patch(artist.Artist):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @_api.make_keyword_only("3.6", name="edgecolor")
-    def __init__(self,
+    def __init__(self, *,
                  edgecolor=None,
                  facecolor=None,
                  color=None,
@@ -687,9 +686,8 @@ class Rectangle(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0.0, *,
-                 rotation_point='xy', **kwargs):
+    def __init__(self, xy, width, height, *,
+                 angle=0.0, rotation_point='xy', **kwargs):
         """
         Parameters
         ----------
@@ -890,9 +888,8 @@ class RegularPolygon(Patch):
                     self.orientation)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="radius")
-    def __init__(self, xy, numVertices, radius=5, orientation=0,
-                 **kwargs):
+    def __init__(self, xy, numVertices, *,
+                 radius=5, orientation=0, **kwargs):
         """
         Parameters
         ----------
@@ -1078,8 +1075,7 @@ class Polygon(Patch):
             return "Polygon0()"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="closed")
-    def __init__(self, xy, closed=True, **kwargs):
+    def __init__(self, xy, *, closed=True, **kwargs):
         """
         Parameters
         ----------
@@ -1177,8 +1173,7 @@ class Wedge(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
+    def __init__(self, center, r, theta1, theta2, *, width=None, **kwargs):
         """
         A wedge centered at *x*, *y* center with radius *r* that
         sweeps *theta1* to *theta2* (in degrees).  If *width* is given,
@@ -1266,8 +1261,7 @@ class Arrow(Patch):
         [0.8, 0.3], [0.8, 0.1]])
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, x, y, dx, dy, width=1.0, **kwargs):
+    def __init__(self, x, y, dx, dy, *, width=1.0, **kwargs):
         """
         Draws an arrow from (*x*, *y*) to (*x* + *dx*, *y* + *dy*).
         The width of the arrow is scaled by *width*.
@@ -1322,9 +1316,9 @@ class FancyArrow(Polygon):
         return "FancyArrow()"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False,
-                 head_width=None, head_length=None, shape='full', overhang=0,
+    def __init__(self, x, y, dx, dy, *,
+                 width=0.001, length_includes_head=False, head_width=None,
+                 head_length=None, shape='full', overhang=0,
                  head_starts_at_zero=False, **kwargs):
         """
         Parameters
@@ -1493,8 +1487,7 @@ class CirclePolygon(RegularPolygon):
         return s % (self.xy[0], self.xy[1], self.radius, self.numvertices)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="resolution")
-    def __init__(self, xy, radius=5,
+    def __init__(self, xy, radius=5, *,
                  resolution=20,  # the number of vertices
                  ** kwargs):
         """
@@ -1521,8 +1514,7 @@ class Ellipse(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0, **kwargs):
+    def __init__(self, xy, width, height, *, angle=0, **kwargs):
         """
         Parameters
         ----------
@@ -1908,9 +1900,8 @@ class Arc(Ellipse):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0.0,
-                 theta1=0.0, theta2=360.0, **kwargs):
+    def __init__(self, xy, width, height, *,
+                 angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
         Parameters
         ----------
@@ -4046,13 +4037,10 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="path")
-    def __init__(self, posA=None, posB=None, path=None,
-                 arrowstyle="simple", connectionstyle="arc3",
-                 patchA=None, patchB=None,
-                 shrinkA=2, shrinkB=2,
-                 mutation_scale=1, mutation_aspect=1,
-                 **kwargs):
+    def __init__(self, posA=None, posB=None, *,
+                 path=None, arrowstyle="simple", connectionstyle="arc3",
+                 patchA=None, patchB=None, shrinkA=2, shrinkB=2,
+                 mutation_scale=1, mutation_aspect=1, **kwargs):
         """
         There are two ways for defining an arrow:
 
@@ -4375,8 +4363,7 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="axesA")
-    def __init__(self, xyA, xyB, coordsA, coordsB=None,
+    def __init__(self, xyA, xyB, coordsA, coordsB=None, *,
                  axesA=None, axesB=None,
                  arrowstyle="-",
                  connectionstyle="arc3",

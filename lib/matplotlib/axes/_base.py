@@ -796,12 +796,9 @@ class _AxesBase(martist.Artist):
         """Return the `.GridSpec` associated with the subplot, or None."""
         return self._subplotspec.get_gridspec() if self._subplotspec else None
 
-    @_api.delete_parameter("3.6", "args")
-    @_api.delete_parameter("3.6", "kwargs")
-    def get_window_extent(self, renderer=None, *args, **kwargs):
+    def get_window_extent(self, renderer=None):
         """
-        Return the Axes bounding box in display space; *args* and *kwargs*
-        are empty.
+        Return the Axes bounding box in display space.
 
         This bounding box does not include the spines, ticks, ticklabels,
         or other labels.  For a bounding box including these elements use
@@ -3081,10 +3078,6 @@ class _AxesBase(martist.Artist):
                 stack.enter_context(artist._cm_set(visible=False))
             self.draw(self.figure.canvas.get_renderer())
 
-    @_api.deprecated("3.6", alternative="Axes.figure.canvas.get_renderer()")
-    def get_renderer_cache(self):
-        return self.figure.canvas.get_renderer()
-
     # Axes rectangle characteristics
 
     def get_frame_on(self):
@@ -3568,9 +3561,8 @@ class _AxesBase(martist.Artist):
                 raise ValueError("Axis limits cannot be NaN or Inf")
             return converted_limit
 
-    @_api.make_keyword_only("3.6", "emit")
-    def set_xlim(self, left=None, right=None, emit=True, auto=False,
-                 *, xmin=None, xmax=None):
+    def set_xlim(self, left=None, right=None, *, emit=True, auto=False,
+                 xmin=None, xmax=None):
         """
         Set the x-axis view limits.
 
@@ -3800,9 +3792,8 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervaly)
 
-    @_api.make_keyword_only("3.6", "emit")
-    def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
-                 *, ymin=None, ymax=None):
+    def set_ylim(self, bottom=None, top=None, *, emit=True, auto=False,
+                 ymin=None, ymax=None):
         """
         Set the y-axis view limits.
 
