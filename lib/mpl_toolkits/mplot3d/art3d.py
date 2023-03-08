@@ -848,7 +848,7 @@ class Poly3DCollection(PolyCollection):
 
             .. versionadded:: 3.7
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
             .. versionadded:: 3.7
