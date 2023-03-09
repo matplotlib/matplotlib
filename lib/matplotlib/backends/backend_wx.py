@@ -537,8 +537,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             open_success = wx.TheClipboard.Open()
             if open_success:
                 wx.TheClipboard.SetData(bmp_obj)
-                wx.TheClipboard.Close()
                 wx.TheClipboard.Flush()
+                wx.TheClipboard.Close()
 
     def draw_idle(self):
         # docstring inherited
