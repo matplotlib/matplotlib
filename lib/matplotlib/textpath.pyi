@@ -43,7 +43,6 @@ class TextToPath:
         dict[str, tuple[np.ndarray, np.ndarray]],
         list[tuple[list[tuple[float, float]], list[int]]],
     ]: ...
-    def get_texmanager(self) -> TexManager: ...
     def get_glyphs_tex(
         self,
         prop: FontProperties,

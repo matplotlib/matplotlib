@@ -59,7 +59,14 @@ def get_sample_data(
     fname: str | os.PathLike | io.FileIO,
     asfileobj: Literal[True] = ...,
     *,
-    np_load: bool = ...
+    np_load: Literal[True]
+) -> np.ndarray: ...
+@overload
+def get_sample_data(
+    fname: str | os.PathLike | io.FileIO,
+    asfileobj: Literal[True] = ...,
+    *,
+    np_load: Literal[False] = ...
 ) -> io.FileIO: ...
 @overload
 def get_sample_data(

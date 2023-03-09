@@ -48,7 +48,10 @@ class _AxesBase(martist.Artist):
     yaxis: YAxis
     bbox: Bbox
     dataLim: Bbox
+    transAxes: Transform
     transScale: Transform
+    transLimits: Transform
+    transData: Transform
     ignore_existing_data_limits: bool
     axison: bool
     _projection_init: Any
@@ -199,6 +202,7 @@ class _AxesBase(martist.Artist):
     def axis(
         self,
         arg: tuple[float, float, float, float] | bool | str | None = ...,
+        /,
         *,
         emit: bool = ...
     ) -> tuple[float, float, float, float]: ...

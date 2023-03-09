@@ -266,7 +266,7 @@ class HandlerStem(HandlerNpointsYoffsets):
 
 class HandlerTuple(HandlerBase):
     def __init__(
-        self, ndivide: int = ..., pad: float | None = ..., **kwargs
+        self, ndivide: int | None = ..., pad: float | None = ..., **kwargs
     ) -> None: ...
     def create_artists(
         self,

@@ -23,9 +23,10 @@ class MarkerStyle:
     markers: dict[str | int, str]
     filled_markers: tuple[str, ...]
     fillstyles: tuple[FillStyleType, ...]
+
     def __init__(
         self,
-        marker: str | ArrayLike | Path | MarkerStyle | None = ...,
+        marker: str | ArrayLike | Path | MarkerStyle | None,
         fillstyle: FillStyleType | None = ...,
         transform: Transform | None = ...,
         capstyle: CapStyle | None = ...,

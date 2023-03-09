@@ -146,7 +146,8 @@ class VertexSelector:
     cid: int
     ind: set[int]
     def __init__(self, line: Line2D) -> None: ...
-    canvas: FigureCanvasBase
+    @property
+    def canvas(self) -> FigureCanvasBase: ...
     def process_selected(
         self, ind: Sequence[int], xs: ArrayLike, ys: ArrayLike
     ) -> None: ...

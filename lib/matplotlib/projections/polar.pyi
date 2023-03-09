@@ -23,7 +23,7 @@ class PolarTransform(mtransforms.Transform):
         use_rmin: bool = ...,
         _apply_theta_transforms: bool = ...,
         *,
-        scale_transform: mtransforms.Transform,
+        scale_transform: mtransforms.Transform | None = ...,
     ) -> None: ...
     def inverted(self) -> InvertedPolarTransform: ...
 

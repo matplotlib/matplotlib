@@ -12,7 +12,7 @@ from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, Transform
 import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Callable, Sequence
-from typing import Any, Literal
+from typing import Any, Literal, overload
 
 DEBUG: bool
 
@@ -34,15 +34,24 @@ class OffsetBox(martist.Artist):
         xy: tuple[float, float]
         | Callable[[float, float, float, float, RendererBase], tuple[float, float]],
     ) -> None: ...
+
+    @overload
+    def get_offset(self, bbox: Bbox, renderer: RendererBase) -> tuple[float, float]: ...
+    @overload
     def get_offset(
         self,
-        bbox: Bbox,
-        renderer: RendererBase,
+        width: float,
+        height: float,
+        xdescent: float,
+        ydescent: float,
+        renderer: RendererBase
     ) -> tuple[float, float]: ...
+
     def set_width(self, width: float) -> None: ...
     def set_height(self, height: float) -> None: ...
     def get_visible_children(self) -> list[martist.Artist]: ...
     def get_children(self) -> list[martist.Artist]: ...
+    def get_bbox(self, renderer: RendererBase) -> Bbox: ...
     def get_extent_offsets(
         self, renderer: RendererBase
     ) -> tuple[float, float, float, float, list[tuple[float, float]]]: ...
@@ -176,11 +185,6 @@ class AnchoredOffsetbox(OffsetBox):
     def set_bbox_to_anchor(
         self, bbox: Bbox, transform: Transform | None = ...
     ) -> None: ...
-    def get_offset(
-        self,
-        bbox: Bbox,
-        renderer: RendererBase,
-    ) -> tuple[float, float]: ...
     def update_frame(self, bbox: Bbox, fontsize: float | None = ...) -> None: ...
 
 class AnchoredText(AnchoredOffsetbox):
@@ -219,6 +223,7 @@ class OffsetImage(OffsetBox):
     def set_zoom(self, zoom: float) -> None: ...
     def get_zoom(self) -> float: ...
     def get_children(self) -> list[martist.Artist]: ...
+    def get_offset(self) -> tuple[float, float]: ...  # type: ignore[override]
 
 class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     zorder: float

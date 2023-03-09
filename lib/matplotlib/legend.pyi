@@ -2,6 +2,7 @@ from . import legend_handler
 from matplotlib import colors, offsetbox
 from matplotlib.axes import Axes
 from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.backend_bases import MouseEvent
 from matplotlib.cbook import silent_list
 from matplotlib.collections import (
     CircleCollection,
@@ -53,7 +54,7 @@ class Legend(Artist):
     zorder: float
     prop: FontProperties
     texts: list[Text]
-    legendHandles: list[Artist | None]
+    legend_handles: list[Artist | None]
     numpoints: int
     markerscale: float
     scatterpoints: int
@@ -116,6 +117,7 @@ class Legend(Artist):
         ncol: int = ...,
         draggable: bool = ...
     ) -> None: ...
+    def contains(self, event: MouseEvent) -> tuple[bool, dict[Any, Any]]: ...
     def set_ncols(self, ncols: int) -> None: ...
     @classmethod
     def get_default_handler_map(cls) -> dict[type, HandlerBase]: ...
@@ -163,3 +165,5 @@ class Legend(Artist):
         update: Literal["loc", "bbox"] = ...,
     ) -> None: ...
     def get_draggable(self) -> bool: ...
+    @property
+    def legendHandles(self) -> list[Artist | None]: ...

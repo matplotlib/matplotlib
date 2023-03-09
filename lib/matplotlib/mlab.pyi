@@ -44,34 +44,6 @@ def csd(
     sides: Literal["default", "onesided", "twosided"] | None = ...,
     scale_by_freq: bool | None = ...,
 ) -> tuple[ArrayLike, ArrayLike]: ...
-def complex_spectrum(
-    x: ArrayLike,
-    Fs: float | None = ...,
-    window: Callable[[ArrayLike], ArrayLike] | ArrayLike | None = ...,
-    pad_to: int | None = ...,
-    sides: Literal["default", "onesided", "twosided"] | None = ...,
-) -> tuple[ArrayLike, ArrayLike]: ...
-def magnitude_spectrum(
-    x: ArrayLike,
-    Fs: float | None = ...,
-    window: Callable[[ArrayLike], ArrayLike] | ArrayLike | None = ...,
-    pad_to: int | None = ...,
-    sides: Literal["default", "onesided", "twosided"] | None = ...,
-) -> tuple[ArrayLike, ArrayLike]: ...
-def angle_spectrum(
-    x: ArrayLike,
-    Fs: float | None = ...,
-    window: Callable[[ArrayLike], ArrayLike] | ArrayLike | None = ...,
-    pad_to: int | None = ...,
-    sides: Literal["default", "onesided", "twosided"] | None = ...,
-) -> tuple[ArrayLike, ArrayLike]: ...
-def phase_spectrum(
-    x: ArrayLike,
-    Fs: float | None = ...,
-    window: Callable[[ArrayLike], ArrayLike] | ArrayLike | None = ...,
-    pad_to: int | None = ...,
-    sides: Literal["default", "onesided", "twosided"] | None = ...,
-) -> tuple[ArrayLike, ArrayLike]: ...
 def specgram(
     x: ArrayLike,
     NFFT: int | None = ...,

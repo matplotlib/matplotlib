@@ -1,8 +1,10 @@
 import matplotlib.spines as mspines
 from matplotlib import cbook, cm, collections, colors, contour, ticker
 from matplotlib.axes import Axes
+from matplotlib.backend_bases import RendererBase
 from matplotlib.patches import Patch
 from matplotlib.ticker import Locator, Formatter
+from matplotlib.transforms import Bbox
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -12,6 +14,10 @@ from .typing import ColorType
 
 class _ColorbarSpine(mspines.Spines):
     def __init__(self, axes: Axes): ...
+    def get_window_extent(self, renderer: RendererBase | None = ...) -> Bbox:...
+    def set_xy(self, xy: ArrayLike) -> None: ...
+    def draw(self, renderer: RendererBase | None) -> None:...
+
 
 class Colorbar:
     n_rasterize: int

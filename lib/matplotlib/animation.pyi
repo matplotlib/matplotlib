@@ -1,5 +1,5 @@
 import abc
-from collections.abc import Callable, Iterable, Generator
+from collections.abc import Callable, Collection, Iterable, Sequence, Generator
 import contextlib
 from pathlib import Path
 from matplotlib import cbook
@@ -207,7 +207,7 @@ class TimedAnimation(Animation):
     ) -> None: ...
 
 class ArtistAnimation(TimedAnimation):
-    def __init__(self, fig: Figure, artists: list[Artist], *args, **kwargs) -> None: ...
+    def __init__(self, fig: Figure, artists: Sequence[Collection[Artist]], *args, **kwargs) -> None: ...
 
 class FuncAnimation(TimedAnimation):
     save_count: int
@@ -215,7 +215,7 @@ class FuncAnimation(TimedAnimation):
         self,
         fig: Figure,
         func: Callable[..., Iterable[Artist]],
-        frames: Iterable[Artist] | int | Generator[Artist, None, None] | None = ...,
+        frames: Iterable[Artist] | int | Callable[[], Generator] | None = ...,
         init_func: Callable[[], Iterable[Artist]] | None = ...,
         fargs: tuple[Any, ...] | None = ...,
         save_count: int | None = ...,

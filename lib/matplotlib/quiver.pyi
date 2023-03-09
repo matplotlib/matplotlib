@@ -74,7 +74,6 @@ class Quiver(mcollections.PolyCollection):
     pivot: Literal["tail", "middle", "tip"]
     transform: Transform
     polykw: dict[str, Any]
-    quiver_doc: str
 
     @overload
     def __init__(
@@ -83,6 +82,7 @@ class Quiver(mcollections.PolyCollection):
         U: ArrayLike,
         V: ArrayLike,
         C: ArrayLike = ...,
+        *,
         scale: float | None = ...,
         headwidth: float = ...,
         headlength: float = ...,
@@ -107,6 +107,7 @@ class Quiver(mcollections.PolyCollection):
         U: ArrayLike,
         V: ArrayLike,
         C: ArrayLike = ...,
+        *,
         scale: float | None = ...,
         headwidth: float = ...,
         headlength: float = ...,
@@ -126,6 +127,8 @@ class Quiver(mcollections.PolyCollection):
     def set_UVC(
         self, U: ArrayLike, V: ArrayLike, C: ArrayLike | None = ...
     ) -> None: ...
+    @property
+    def quiver_doc(self) -> str: ...
 
 class Barbs(mcollections.PolyCollection):
     sizes: dict[str, float]
@@ -137,7 +140,6 @@ class Barbs(mcollections.PolyCollection):
     y: ArrayLike
     u: ArrayLike
     v: ArrayLike
-    barbs_doc: str
 
     @overload
     def __init__(
@@ -146,6 +148,7 @@ class Barbs(mcollections.PolyCollection):
         U: ArrayLike,
         V: ArrayLike,
         C: ArrayLike = ...,
+        *,
         pivot: str = ...,
         length: int = ...,
         barbcolor: ColorType | Sequence[ColorType] | None = ...,
@@ -166,6 +169,7 @@ class Barbs(mcollections.PolyCollection):
         U: ArrayLike,
         V: ArrayLike,
         C: ArrayLike = ...,
+        *,
         pivot: str = ...,
         length: int = ...,
         barbcolor: ColorType | Sequence[ColorType] | None = ...,
@@ -181,3 +185,5 @@ class Barbs(mcollections.PolyCollection):
         self, U: ArrayLike, V: ArrayLike, C: ArrayLike | None = ...
     ) -> None: ...
     def set_offsets(self, xy: ArrayLike) -> None: ...
+    @property
+    def barbs_doc(self) -> str: ...

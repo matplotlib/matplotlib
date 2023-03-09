@@ -187,16 +187,40 @@ def make_norm_from_scale(
     init: Callable | None = ...
 ) -> Callable[[type[Normalize]], type[Normalize]]: ...
 
-class FuncNorm(Normalize): ...
+class FuncNorm(Normalize):
+    def __init__(
+            self,
+            functions: tuple[Callable, Callable],
+            vmin: float | None = ...,
+            vmax: float | None = ...,
+            clip: bool = ...,
+    ) -> None: ...
 class LogNorm(Normalize): ...
 
 class SymLogNorm(Normalize):
+    def __init__(
+            self,
+            linthresh: float,
+            linscale: float = ...,
+            vmin: float | None = ...,
+            vmax: float | None = ...,
+            clip: bool = ...,
+            *,
+            base: float = ...,
+    ) -> None: ...
     @property
     def linthresh(self) -> float: ...
     @linthresh.setter
     def linthresh(self, value: float) -> None: ...
 
 class AsinhNorm(Normalize):
+    def __init__(
+        self,
+        linear_width: float = ...,
+        vmin: float | None = ...,
+        vmax: float | None = ...,
+        clip: bool = ...,
+    ) -> None: ...
     @property
     def linear_width(self) -> float: ...
     @linear_width.setter

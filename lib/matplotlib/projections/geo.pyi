@@ -1,17 +1,6 @@
-from matplotlib.axes import Axes as Axes
-from matplotlib.patches import Circle as Circle
-from matplotlib.path import Path as Path
-from matplotlib.ticker import (
-    FixedLocator as FixedLocator,
-    Formatter as Formatter,
-    NullFormatter as NullFormatter,
-    NullLocator as NullLocator,
-)
-from matplotlib.transforms import (
-    Affine2D as Affine2D,
-    BboxTransformTo as BboxTransformTo,
-    Transform as Transform,
-)
+from matplotlib.axes import Axes
+from matplotlib.ticker import Formatter
+from matplotlib.transforms import Transform
 
 from typing import Any, Literal
 

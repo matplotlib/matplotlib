@@ -1,7 +1,7 @@
 from . import artist, cbook, colors, transforms
 from .axes import Axes
 from ._enums import CapStyle, JoinStyle
-from .backend_bases import RendererBase
+from .backend_bases import RendererBase, MouseEvent
 from .bezier import (
     NonIntersectingPathException,
     get_cos_sin,
@@ -39,6 +39,7 @@ class Patch(artist.Artist):
         **kwargs,
     ) -> None: ...
     def get_verts(self) -> ArrayLike: ...
+    def contains(self, mouseevent: MouseEvent, radius: float | None = None): ...
     def contains_point(
         self, point: tuple[float, float], radius: float | None = ...
     ) -> bool: ...
@@ -348,6 +349,18 @@ class BoxStyle(_Style):
         ) -> Path: ...
 
     class Circle:
+        pad: float
+        def __init__(self, pad: float = ...) -> None: ...
+        def __call__(
+            self,
+            x0: float,
+            y0: float,
+            width: float,
+            height: float,
+            mutation_size: float,
+        ) -> Path: ...
+
+    class Ellipse:
         pad: float
         def __init__(self, pad: float = ...) -> None: ...
         def __call__(
