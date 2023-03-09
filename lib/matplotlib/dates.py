@@ -230,7 +230,7 @@ def _get_tzinfo(tz=None):
         return tzinfo
     if isinstance(tz, datetime.tzinfo):
         return tz
-    raise TypeError("tz must be string or tzinfo subclass.")
+    raise TypeError(f"tz must be string or tzinfo subclass, not {tz!r}.")
 
 
 # Time-related constants.
