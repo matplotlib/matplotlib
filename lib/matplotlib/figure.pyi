@@ -41,7 +41,7 @@ from numpy.typing import ArrayLike
 
 from collections.abc import Callable, Iterable
 from typing import Any, Literal, overload
-from .typing import ColorType
+from .typing import ColorType, HashableList
 
 class SubplotParams:
     def __init__(
@@ -237,7 +237,7 @@ class FigureBase(Artist):
     # Any in list of list is recursive list[list[Hashable | list[Hashable | ...]]] but that can't really be type checked
     def subplot_mosaic(
         self,
-        mosaic: str | list[list[Any]],
+        mosaic: str | HashableList,
         *,
         sharex: bool = ...,
         sharey: bool = ...,

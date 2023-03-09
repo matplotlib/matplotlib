@@ -17,9 +17,6 @@ Classes
 
    Line2D
    VertexSelector
-   LineStyleType
-   DrawStyleType
-   MarkEveryType
 
 Functions
 ---------

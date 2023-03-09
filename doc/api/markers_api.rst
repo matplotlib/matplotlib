@@ -16,5 +16,3 @@ Classes
    :template: autosummary.rst
 
    MarkerStyle
-   MarkerType
-   FillStyleType

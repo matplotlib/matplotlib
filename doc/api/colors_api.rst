@@ -52,7 +52,6 @@ Other classes
 
    ColorSequenceRegistry
    LightSource
-   Color
 
 Functions
 ---------

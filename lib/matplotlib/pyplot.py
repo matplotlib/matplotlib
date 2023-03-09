@@ -123,7 +123,7 @@ if TYPE_CHECKING:
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
     from matplotlib.transforms import Transform, Bbox
-    from matplotlib.typing import ColorType, LineStyleType, MarkerType
+    from matplotlib.typing import ColorType, LineStyleType, MarkerType, HashableList
     from matplotlib.widgets import SubplotTool
 
 # We may not need the following imports here:
@@ -1415,7 +1415,7 @@ def subplots(
     subplot_kw: dict[str, Any] | None = None,
     gridspec_kw: dict[str, Any] | None = None,
     **fig_kw
-) -> tuple[Figure, Axes | np.ndarray | SubplotBase]:
+) -> tuple[Figure, Any]:
     """
     Create a figure and a set of subplots.
 
@@ -1568,7 +1568,7 @@ def subplots(
 
 
 def subplot_mosaic(
-    mosaic: str | list[list[Any]],
+    mosaic: str | HashableList,
     *,
     sharex: bool = False,
     sharey: bool = False,

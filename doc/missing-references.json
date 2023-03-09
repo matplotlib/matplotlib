@@ -146,7 +146,7 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.twinx:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.twiny:1"
     ],
-    "Color": [
+    "ColorType": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.errorbar:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.eventplot:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hist:1",
@@ -154,6 +154,9 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pie:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.scatter:1",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.vlines:1"
+    ],
+    "HashableList": [
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.subplot_mosaic:1"
     ],
     "LineStyleType": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.eventplot:1",

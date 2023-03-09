@@ -4,14 +4,14 @@ Typing support for Matplotlib
 This module contains Type aliases which are useful for Matplotlib and potentially
 downstream libraries.
 
-.. admonition::
+.. admonition:: Provisional status of typing
 
-    The ``typing`` module is considered provisional and may change at any time without
-    a deprecation period.
+    The ``typing`` module and type stub files are considered provisional and may change
+    at any time without a deprecation period.
 """
 from collections.abc import Sequence
 import pathlib
-from typing import Any, Literal, Union
+from typing import Any, Hashable, Literal, Union
 
 from . import path
 from .markers import MarkerStyle
@@ -41,3 +41,5 @@ FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
 RcStyleType = Union[
     str, dict[str, Any], pathlib.Path, list[Union[str, pathlib.Path, dict[str, Any]]]
 ]
+
+HashableList = list[Union[Hashable, "HashableList"]]
