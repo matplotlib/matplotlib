@@ -434,7 +434,6 @@ html_theme = "mpl_sphinx_theme"
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-html_logo = "_static/logo2.svg"
 html_theme_options = {
     "navbar_links": "internal",
     # collapse_navigation in pydata-sphinx-theme is slow, so skipped for local
