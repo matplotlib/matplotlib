@@ -3,7 +3,6 @@ Classes to support contour plotting and labelling for the Axes class.
 """
 
 import functools
-import itertools
 from numbers import Integral
 
 import numpy as np
@@ -767,6 +766,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.negative_linestyles = \
                 mpl.rcParams['contour.negative_linestyle']
 
+        # The base class _process_args will update _allpaths, which gets picked
+        # up by _get_allpaths below.  OTOH the _process_args of subclasses
+        # leave _allpaths as None and instead set _contour_generator.
+        self._allpaths = None
         kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
 
@@ -820,23 +823,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.norm.vmax = vmax
         self._process_colors()
 
-        if getattr(self, 'allsegs', None) is None:
-            self.allsegs, self.allkinds = self._get_allsegs_and_allkinds()
-        elif self.allkinds is None:
-            # allsegs specified in constructor may or may not have allkinds as
-            # well.  Must ensure allkinds can be zipped below.
-            self.allkinds = [None] * len(self.allsegs)
-
-        # Each entry in (allsegs, allkinds) is a list of (segs, kinds) which
-        # specifies a list of Paths: segs is a list of (N, 2) arrays of xy
-        # coordinates, kinds is a list of arrays of corresponding pathcodes.
-        # However, kinds can also be None; in which case all paths in that list
-        # are codeless.
-        allpaths = [
-            [*map(mpath.Path,
-                  segs,
-                  kinds if kinds is not None else itertools.repeat(None))]
-            for segs, kinds in zip(self.allsegs, self.allkinds)]
+        allpaths = self._get_allpaths()
 
         if self.filled:
             if self.linewidths is not None:
@@ -857,7 +844,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 for level, level_upper, paths
                 in zip(lowers, uppers, allpaths)]
         else:
-            self.tlinewidths = tlinewidths = self._process_linewidths()
+            tlinewidths = self._process_linewidths()
             tlinestyles = self._process_linestyles()
             aa = self.antialiased
             if aa is not None:
@@ -894,6 +881,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 'The following kwargs were not used by contour: ' +
                 ", ".join(map(repr, kwargs))
             )
+
+    allsegs = _api.deprecated("3.8", pending=True)(property(lambda self: [
+        p.vertices for c in self.collections for p in c.get_paths()]))
+    allkinds = _api.deprecated("3.8", pending=True)(property(lambda self: [
+        p.codes for c in self.collections for p in c.get_paths()]))
+    tcolors = _api.deprecated("3.8")(property(lambda self: [
+        (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
+    tlinewidths = _api.deprecated("3.8")(
+        property(lambda self: self._process_linewidths()))
 
     def get_transform(self):
         """Return the `.Transform` instance used by this ContourSet."""
@@ -979,51 +975,60 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Must set self.levels, self.zmin and self.zmax, and update axes limits.
         """
         self.levels = args[0]
-        self.allsegs = args[1]
-        self.allkinds = args[2] if len(args) > 2 else None
+        allsegs = args[1]
+        allkinds = args[2] if len(args) > 2 else None
         self.zmax = np.max(self.levels)
         self.zmin = np.min(self.levels)
 
+        if allkinds is None:
+            allkinds = [[None] * len(segs) for segs in allsegs]
+
         # Check lengths of levels and allsegs.
         if self.filled:
-            if len(self.allsegs) != len(self.levels) - 1:
+            if len(allsegs) != len(self.levels) - 1:
                 raise ValueError('must be one less number of segments as '
                                  'levels')
         else:
-            if len(self.allsegs) != len(self.levels):
+            if len(allsegs) != len(self.levels):
                 raise ValueError('must be same number of segments as levels')
 
         # Check length of allkinds.
-        if (self.allkinds is not None and
-                len(self.allkinds) != len(self.allsegs)):
+        if len(allkinds) != len(allsegs):
             raise ValueError('allkinds has different length to allsegs')
 
         # Determine x, y bounds and update axes data limits.
-        flatseglist = [s for seg in self.allsegs for s in seg]
+        flatseglist = [s for seg in allsegs for s in seg]
         points = np.concatenate(flatseglist, axis=0)
         self._mins = points.min(axis=0)
         self._maxs = points.max(axis=0)
 
+        # Each entry in (allsegs, allkinds) is a list of (segs, kinds) which
+        # specifies a list of Paths: segs is a list of (N, 2) arrays of xy
+        # coordinates, kinds is a list of arrays of corresponding pathcodes.
+        # However, kinds can also be None; in which case all paths in that list
+        # are codeless (this case is normalized above).
+        self._allpaths = [[*map(mpath.Path, segs, kinds)]
+                          for segs, kinds in zip(allsegs, allkinds)]
+
         return kwargs
 
-    def _get_allsegs_and_allkinds(self):
-        """Compute ``allsegs`` and ``allkinds`` using C extension."""
-        allsegs = []
-        allkinds = []
+    def _get_allpaths(self):
+        """Compute ``allpaths`` using C extension."""
+        if self._allpaths is not None:
+            return self._allpaths
+        allpaths = []
         if self.filled:
             lowers, uppers = self._get_lowers_and_uppers()
             for level, level_upper in zip(lowers, uppers):
                 vertices, kinds = \
                     self._contour_generator.create_filled_contour(
                         level, level_upper)
-                allsegs.append(vertices)
-                allkinds.append(kinds)
+                allpaths.append([*map(mpath.Path, vertices, kinds)])
         else:
             for level in self.levels:
                 vertices, kinds = self._contour_generator.create_contour(level)
-                allsegs.append(vertices)
-                allkinds.append(kinds)
-        return allsegs, allkinds
+                allpaths.append([*map(mpath.Path, vertices, kinds)])
+        return allpaths
 
     def _get_lowers_and_uppers(self):
         """
@@ -1052,7 +1057,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.norm.autoscale_None(self.levels)
         tcolors = [(tuple(rgba),)
                    for rgba in self.to_rgba(self.cvalues, alpha=self.alpha)]
-        self.tcolors = tcolors
         hatches = self.hatches * len(tcolors)
         for color, hatch, collection in zip(tcolors, hatches,
                                             self.collections):
