@@ -457,8 +457,13 @@ def _image_directories(func):
     ``$(pwd)/result_images/test_baz``.  The result directory is created if it
     doesn't exist.
     """
-    module_path = Path(inspect.getfile(func))
-    baseline_dir = module_path.parent / "baseline_images" / module_path.stem
-    result_dir = Path().resolve() / "result_images" / module_path.stem
+    mod = inspect.getmodule(func)
+    pkg_name, mod_name = mod.__name__.rsplit('.', maxsplit=1)
+    if external_images := os.environ.get("MPLTESTIMAGEPATH", ""):
+        file_base = Path(external_images) / pkg_name.replace('.', os.path.sep)
+    else:
+        file_base = Path(inspect.getfile(func)).parent
+    baseline_dir = file_base / "baseline_images" / mod_name
+    result_dir = Path().resolve() / "result_images" / mod_name
     result_dir.mkdir(parents=True, exist_ok=True)
     return baseline_dir, result_dir
