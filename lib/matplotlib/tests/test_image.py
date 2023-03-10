@@ -1468,3 +1468,21 @@ def test__resample_valid_output():
         resample(np.zeros((9, 9), np.uint8), np.zeros((9, 9)))
     with pytest.raises(ValueError, match="must be C-contiguous"):
         resample(np.zeros((9, 9)), np.zeros((9, 9)).T)
+
+
+def test_axesimage_get_size():
+    # generate dummy image to test get_size method
+    ax = plt.gca()
+    im = AxesImage(ax)
+    z = np.arange(12, dtype=float).reshape((4, 3))
+    im.set_data(z)
+    assert im.get_size() == (4, 3)
+
+
+def test_axesimage_get_shape():
+    # generate dummy image to test get_shape method
+    ax = plt.gca()
+    im = AxesImage(ax)
+    z = np.arange(12, dtype=float).reshape((4, 3))
+    im.set_data(z)
+    assert im.get_shape() == (4, 3)
