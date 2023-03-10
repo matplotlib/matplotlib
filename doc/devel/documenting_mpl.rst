@@ -342,8 +342,8 @@ Note that the python script that generates the plot is referred to, rather than
 any plot that is created.  Sphinx-gallery will provide the correct reference
 when the documentation is built.
 
-Writing mathematical expressions
---------------------------------
+Tools for writing mathematical expressions
+------------------------------------------
 
 In most cases, you will likely want to use one of `Sphinx's builtin Math
 extensions <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__.
