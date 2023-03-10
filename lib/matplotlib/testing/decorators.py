@@ -8,6 +8,7 @@ import shutil
 import string
 import sys
 import warnings
+import enum
 
 from packaging.version import parse as parse_version
 
@@ -116,6 +117,14 @@ class _ImageComparisonBase:
     This class provides *just* the comparison-related functionality and avoids
     any code that would be specific to any testing framework.
     """
+    class _ImageCheckMode(enum.Enum):
+        TEST = enum.auto()
+        GENERATE = enum.auto()
+
+    mode = (_ImageCheckMode.GENERATE
+            if os.environ.get("MPLGENERATEBASELINE")
+            else _ImageCheckMode.TEST
+            )
 
     def __init__(self, func, tol, remove_text, savefig_kwargs):
         self.func = func
@@ -127,6 +136,8 @@ class _ImageComparisonBase:
     def copy_baseline(self, baseline, extension):
         baseline_path = self.baseline_dir / baseline
         orig_expected_path = baseline_path.with_suffix(f'.{extension}')
+        if self.mode != self._ImageCheckMode.TEST:
+            return orig_expected_path
         if extension == 'eps' and not orig_expected_path.exists():
             orig_expected_path = orig_expected_path.with_suffix('.pdf')
         expected_fname = make_test_filename(
@@ -171,7 +182,11 @@ class _ImageComparisonBase:
                 # makes things more convenient for third-party users.
                 plt.close(fig)
             expected_path = self.copy_baseline(baseline, extension)
-            _raise_on_image_difference(expected_path, actual_path, self.tol)
+            if self.mode == self._ImageCheckMode.GENERATE:
+                expected_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(actual_path, expected_path)
+            else:
+                _raise_on_image_difference(expected_path, actual_path, self.tol)
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
