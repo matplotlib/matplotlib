@@ -2,6 +2,11 @@ r"""
 A role and directive to display mathtext in Sphinx
 ==================================================
 
+The ``mathmpl`` Sphinx extension creates a mathtext image in Matplotlib and
+shows it in html output. Thus, it is a true and faithful representation of what
+you will see if you write a given LaTeX string to Matplotlib (see
+:doc:`../tutorials/text/mathtext`).
+
 .. warning::
     In most cases, you will likely want to use one of `Sphinx's builtin Math
     extensions
@@ -9,11 +14,6 @@ A role and directive to display mathtext in Sphinx
     instead of this one. The Sphinx built-in math directive uses MathJax to
     render mathematical expressions, and addresses accessibility concerns that
     ``mathmpl`` doesn't address.
-
-The ``mathmpl`` Sphinx extension creates a mathtext image in Matplotlib and
-shows it in html output. Thus, it is a true and faithful representation of what
-you will see if you write a given LaTeX string to Matplotlib (see
-:doc:`../tutorials/text/mathtext`).
 
 Mathtext may be included in two ways:
 
