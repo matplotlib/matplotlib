@@ -24,35 +24,38 @@ Matplotlib community.
 Getting started with contributing?
 ==================================
 
-There is no pre-defined pathway for new contributors; you can look at existing
-issue and pull request discussions, and follow the discussions during code
-review. Or you can deep-dive into a subset of code-base to understand what is
-going on.
+There is no pre-defined pathway for new contributors -- we recommend looking at
+existing issue and pull request discussions, and following the conversations
+during pull request reviews to get context. Or you can deep-dive into a subset
+of the code-base to understand what is going on.
 
 There are a few typical new contributor profiles:
 
 * **You are a Matplotlib user, and you see a bug, a potential improvement, or
   something that annoys you, and you can fix it.**
 
-  This is how a lot of people approach open-source development. You can search
-  our issue tracker for an existing issue that describes your problem or open a
-  new issue to inform us of the problem you observed and discuss the best
-  approach to fix it. If your contributions would not be captured on GitHub
-  (social media, communication, educational content), you can also reach out to
-  us on gitter_, `Discourse <https://discourse.matplotlib.org/>`__ or attend any
-  of our `community meetings <https://scientific-python.org/calendars>`__.
+  You can search our issue tracker for an existing issue that describes your
+  problem or open a new issue to inform us of the problem you observed and
+  discuss the best approach to fix it. If your contributions would not be
+  captured on GitHub (social media, communication, educational content), you can
+  also reach out to us on gitter_,
+  `Discourse <https://discourse.matplotlib.org/>`__ or attend any of our
+  `community meetings <https://scientific-python.org/calendars>`__.
 
 * **You are not a regular Matplotlib user but a domain expert: you know about
   visualization, 3D plotting, design, technical writing, statistics, or some
   other field where Matplotlib could be improved.**
 
-  In this case, even if you need help with programming skills or don't know
-  where to start, you have a focus on a specific application and domain and can
+  Awesome -- you have a focus on a specific application and domain and can
   start there. In this case, maintainers can help you figure out the best
-  implementation; you can open an issue or pull request with a starting point,
-  and we'll be happy to discuss technical approaches. If you prefer, you can use the
+  implementation; open an issue or pull request with a starting point, and we'll
+  be happy to discuss technical approaches.
+
+  If you prefer, you can use the
   `GitHub functionality for "draft" pull requests <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
-  and request early feedback on whatever you are working on.
+  and request early feedback on whatever you are working on, but you should be
+  aware that maintainers may not review your contribution unless it has the
+  "Ready to review" state on GitHub.
 
 * **You are new to Matplotlib, both as a user and contributor, and want to start
   contributing but have yet to develop a particular interest.**
@@ -67,9 +70,9 @@ There are a few typical new contributor profiles:
 
   Understanding the entire codebase is a long-term project, and nobody expects
   you to do this right away. If you are determined to get started with
-  Matplotlib and want to learn, going through the basic functionality and
+  Matplotlib and want to learn, going through the basic functionality,
   choosing something to focus on (3d, testing, documentation, animations, etc.)
-  and gaining context on this area by reading from issues and pull requests
+  and gaining context on this area by reading the issues and pull requests
   touching these subjects is a reasonable approach.
 
 Get Connected
@@ -97,7 +100,7 @@ documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
 To join, please go to our public gitter_ community channel, and ask to be added
-added to ``#incubator``. One of our core developers will see your message and
+to ``#incubator``. One of our core developers will see your message and
 will add you.
 
 New Contributors meeting
@@ -115,7 +118,7 @@ new_contributor_meeting>`_.
 We recommend joining the meeting to clarify any doubts, or lingering
 questions you might have, and to get to know a few of the people behind the
 GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
-suggestions. We <3 feedback!
+suggestions. We ❤ feedback!
 
 .. _new_contributors:
 
