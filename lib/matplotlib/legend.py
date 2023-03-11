@@ -77,7 +77,7 @@ class DraggableLegend(DraggableOffsetBox):
         if self._update == "loc":
             self._update_loc(self.get_loc_in_canvas())
         elif self._update == "bbox":
-            self._bbox_to_anchor(self.get_loc_in_canvas())
+            self._update_bbox_to_anchor(self.get_loc_in_canvas())
 
     def _update_loc(self, loc_in_canvas):
         bbox = self.legend.get_bbox_to_anchor()
