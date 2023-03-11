@@ -147,7 +147,18 @@ Other important methods set the extent on the axes (`~.axes.Axes.set_xlim`, `~.a
 
 The Axes class also has helpers to deal with Axis ticks and their labels.  Most straight-forward is `~.axes.Axes.set_xticks` and `~.axes.Axes.set_yticks` which manually set the tick locations and optionally their labels.  Minor ticks can be toggled with `~.axes.Axes.minorticks_on` or `~.axes.Axes.minorticks_off`.
 
-Setting scales and controlling the Axis can be highly customized beyond these Axes-level helpers.  An introduction to these methods can be found in :ref:`users_axis`, or the API reference for `.axis.Axis`.
+Many aspects of Axes ticks and tick labeling can be adjusted using `~.axes.Axes.tick_params`. For instance, to label the top of the axes instead of the bottom,color the ticks red, and color the ticklabels green:
+
+.. plot::
+    :include-source:
+
+    fig, ax = plt.subplots(figsize=(4, 2.5))
+    ax.plot(np.arange(10))
+    ax.tick_params(top=True, labeltop=True, color='red', axis='x',
+                   labelcolor='green')
+
+
+More fine-grained control on ticks, setting scales, and controlling the Axis can be highly customized beyond these Axes-level helpers.  An introduction to these methods can be found in :ref:`users_axis`, or the API reference for `.axis.Axis`.
 
 Axes layout
 -----------
