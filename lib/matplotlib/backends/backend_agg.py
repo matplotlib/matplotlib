@@ -441,7 +441,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         return self.renderer.buffer_rgba()
 
-    def print_raw(self, filename_or_obj):
+    def print_raw(self, filename_or_obj, metadata=None):
+        if metadata is not None:
+            raise ValueError("metadata not supported for raw/rgba")
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         with cbook.open_file_cm(filename_or_obj, "wb") as fh:
@@ -518,22 +520,22 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
-    def print_jpg(self, filename_or_obj, *, pil_kwargs=None):
+    def print_jpg(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
         # savefig() has already applied savefig.facecolor; we now set it to
         # white to make imsave() blend semi-transparent figures against an
         # assumed white background.
         with mpl.rc_context({"savefig.facecolor": "white"}):
-            self._print_pil(filename_or_obj, "jpeg", pil_kwargs)
+            self._print_pil(filename_or_obj, "jpeg", pil_kwargs, metadata)
 
     print_jpeg = print_jpg
 
-    def print_tif(self, filename_or_obj, *, pil_kwargs=None):
-        self._print_pil(filename_or_obj, "tiff", pil_kwargs)
+    def print_tif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "tiff", pil_kwargs, metadata)
 
     print_tiff = print_tif
 
-    def print_webp(self, filename_or_obj, *, pil_kwargs=None):
-        self._print_pil(filename_or_obj, "webp", pil_kwargs)
+    def print_webp(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "webp", pil_kwargs, metadata)
 
     print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
         """
