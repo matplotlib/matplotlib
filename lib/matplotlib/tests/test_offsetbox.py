@@ -450,3 +450,11 @@ def test_paddedbox():
     pb = PaddedBox(ta, pad=15, draw_frame=True)
     ab = AnchoredOffsetbox('lower right', child=pb)
     ax.add_artist(ab)
+
+
+def test_remove_draggable():
+    fig, ax = plt.subplots()
+    an = ax.annotate("foo", (.5, .5))
+    an.draggable(True)
+    an.remove()
+    MouseEvent("button_release_event", fig.canvas, 1, 1)._process()
