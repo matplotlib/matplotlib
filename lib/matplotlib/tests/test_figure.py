@@ -358,6 +358,18 @@ def test_set_fig_size():
     assert fig.get_figwidth() == 1
     assert fig.get_figheight() == 3
 
+        # check using alias figsize
+    fig.set_figsize(2, 4)
+    assert fig.get_figwidth() == 2
+    assert fig.get_figheight() == 4
+
+    # check using tuple to first argument and alias figsize
+    fig.set_figsize((1, 3))
+    assert fig.get_figwidth() == 1
+    assert fig.get_figheight() == 3
+
+
+
 
 def test_axes_remove():
     fig, axs = plt.subplots(2, 2)
@@ -580,6 +592,22 @@ def test_valid_layouts():
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
+def test_valid_layouts_with_alias():
+   fig = Figure(layout=None)
+   assert not fig.get_tight_layout()
+   assert not fig.get_constrained_layout()
+
+
+   fig.set_layout('tight')
+   assert isinstance(fig.get_layout(), TightLayoutEngine)
+   assert fig.get_tight_layout()
+   assert not fig.get_constrained_layout()
+
+
+   fig.set_layout('constrained')
+   assert isinstance(fig.get_layout(), ConstrainedLayoutEngine)
+   assert not fig.get_tight_layout()
+   assert fig.get_constrained_layout()
 
 def test_invalid_layouts():
     fig, ax = plt.subplots(layout="constrained")
