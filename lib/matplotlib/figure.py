@@ -2318,6 +2318,10 @@ class SubFigure(FigureBase):
 
 
 @_docstring.interpd
+@_api.define_aliases({
+    "size_inches": ["figsize"],
+    "layout": ["layout_engine"]
+})
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
