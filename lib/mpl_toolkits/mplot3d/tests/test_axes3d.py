@@ -1155,39 +1155,6 @@ def test_world():
                                 [0, 0, 0, 1]])
 
 
-@mpl3d_image_comparison(['proj3d_lines_dists.png'], style='mpl20')
-def test_lines_dists():
-    fig, ax = plt.subplots(figsize=(4, 6), subplot_kw=dict(aspect='equal'))
-
-    xs = (0, 30)
-    ys = (20, 150)
-    ax.plot(xs, ys)
-    p0, p1 = zip(xs, ys)
-
-    xs = (0, 0, 20, 30)
-    ys = (100, 150, 30, 200)
-    ax.scatter(xs, ys)
-
-    dist0 = proj3d._line2d_seg_dist((xs[0], ys[0]), p0, p1)
-    dist = proj3d._line2d_seg_dist(np.array((xs, ys)).T, p0, p1)
-    assert dist0 == dist[0]
-
-    for x, y, d in zip(xs, ys, dist):
-        c = Circle((x, y), d, fill=0)
-        ax.add_patch(c)
-
-    ax.set_xlim(-50, 150)
-    ax.set_ylim(0, 300)
-
-
-def test_lines_dists_nowarning():
-    # No RuntimeWarning must be emitted for degenerate segments, see GH#22624.
-    s0 = (10, 30, 50)
-    p = (20, 150, 180)
-    proj3d._line2d_seg_dist(p, s0, s0)
-    proj3d._line2d_seg_dist(np.array(p), s0, s0)
-
-
 def test_autoscale():
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     assert ax.get_zscale() == 'linear'

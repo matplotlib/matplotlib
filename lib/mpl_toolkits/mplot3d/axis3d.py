@@ -305,8 +305,7 @@ class Axis(maxis.XAxis):
         else:
             loc = maxs[index]
             plane = self._PLANES[2 * index + 1]
-        xys = [tc[p] for p in plane]
-        self.pane.xy = xys
+        xys = np.array([tc[p] for p in plane])
         return xys, loc
 
     def draw_pane(self, renderer):
@@ -319,7 +318,7 @@ class Axis(maxis.XAxis):
         """
         renderer.open_group('pane3d', gid=self.get_gid())
         xys, loc = self.active_pane(renderer)
-        self.pane.xy = xys
+        self.pane.xy = xys[:, :2]
         self.pane.draw(renderer)
         renderer.close_group('pane3d')
 
