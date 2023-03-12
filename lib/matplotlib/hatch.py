@@ -236,4 +236,3 @@ def _set_hatch_linewidth(gc, hatch_linewidth):
                                      "backends is deprecated since %(since)s "
                                      "and will be removed "
                                      "%(removal)s.")
-                                     
