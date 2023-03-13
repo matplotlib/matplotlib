@@ -5,7 +5,7 @@ Patches are `.Artist`\s with a face color and an edge color.
 import functools
 import inspect
 import math
-from numbers import Number
+from numbers import Number, Real
 import textwrap
 from types import SimpleNamespace
 from collections import namedtuple
@@ -45,8 +45,7 @@ class Patch(artist.Artist):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @_api.make_keyword_only("3.6", name="edgecolor")
-    def __init__(self,
+    def __init__(self, *,
                  edgecolor=None,
                  facecolor=None,
                  color=None,
@@ -687,9 +686,8 @@ class Rectangle(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0.0, *,
-                 rotation_point='xy', **kwargs):
+    def __init__(self, xy, width, height, *,
+                 angle=0.0, rotation_point='xy', **kwargs):
         """
         Parameters
         ----------
@@ -769,7 +767,7 @@ class Rectangle(Patch):
     def rotation_point(self, value):
         if value in ['center', 'xy'] or (
                 isinstance(value, tuple) and len(value) == 2 and
-                isinstance(value[0], Number) and isinstance(value[1], Number)
+                isinstance(value[0], Real) and isinstance(value[1], Real)
                 ):
             self._rotation_point = value
         else:
@@ -890,9 +888,8 @@ class RegularPolygon(Patch):
                     self.orientation)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="radius")
-    def __init__(self, xy, numVertices, radius=5, orientation=0,
-                 **kwargs):
+    def __init__(self, xy, numVertices, *,
+                 radius=5, orientation=0, **kwargs):
         """
         Parameters
         ----------
@@ -1078,8 +1075,7 @@ class Polygon(Patch):
             return "Polygon0()"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="closed")
-    def __init__(self, xy, closed=True, **kwargs):
+    def __init__(self, xy, *, closed=True, **kwargs):
         """
         Parameters
         ----------
@@ -1177,8 +1173,7 @@ class Wedge(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
+    def __init__(self, center, r, theta1, theta2, *, width=None, **kwargs):
         """
         A wedge centered at *x*, *y* center with radius *r* that
         sweeps *theta1* to *theta2* (in degrees).  If *width* is given,
@@ -1266,8 +1261,7 @@ class Arrow(Patch):
         [0.8, 0.3], [0.8, 0.1]])
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, x, y, dx, dy, width=1.0, **kwargs):
+    def __init__(self, x, y, dx, dy, *, width=1.0, **kwargs):
         """
         Draws an arrow from (*x*, *y*) to (*x* + *dx*, *y* + *dy*).
         The width of the arrow is scaled by *width*.
@@ -1322,9 +1316,9 @@ class FancyArrow(Polygon):
         return "FancyArrow()"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False,
-                 head_width=None, head_length=None, shape='full', overhang=0,
+    def __init__(self, x, y, dx, dy, *,
+                 width=0.001, length_includes_head=False, head_width=None,
+                 head_length=None, shape='full', overhang=0,
                  head_starts_at_zero=False, **kwargs):
         """
         Parameters
@@ -1493,8 +1487,7 @@ class CirclePolygon(RegularPolygon):
         return s % (self.xy[0], self.xy[1], self.radius, self.numvertices)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="resolution")
-    def __init__(self, xy, radius=5,
+    def __init__(self, xy, radius=5, *,
                  resolution=20,  # the number of vertices
                  ** kwargs):
         """
@@ -1521,8 +1514,7 @@ class Ellipse(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0, **kwargs):
+    def __init__(self, xy, width, height, *, angle=0, **kwargs):
         """
         Parameters
         ----------
@@ -1908,9 +1900,8 @@ class Arc(Ellipse):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0.0,
-                 theta1=0.0, theta2=360.0, **kwargs):
+    def __init__(self, xy, width, height, *,
+                 angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
         Parameters
         ----------
@@ -2373,14 +2364,22 @@ class BoxStyle(_Style):
     class LArrow:
         """A box in the shape of a left-pointing arrow."""
 
-        def __init__(self, pad=0.3):
+        def __init__(self, pad=0.3, head_width=0, head_length=0):
             """
             Parameters
             ----------
             pad : float, default: 0.3
                 The amount of padding around the original box.
+            head_width : float, default: 0
+                The head-width of the arrow.
+                If head_width < width, use default head-width.
+            head_length: float, default: 0
+                The head-length of the arrow.
+                If head_length <= 0, use default head-length.
             """
             self.pad = pad
+            self.head_width = head_width
+            self.head_length = head_length
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # padding
@@ -2395,10 +2394,29 @@ class BoxStyle(_Style):
             dxx = dx / 2
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
+            # head width with padding added.
+            self.head_width = self.head_width + 2 * pad
+            self.head_width -= width
+            # check if self.head_width < width
+            if (self.head_width < 0):
+                # create default arrow
+                dy = dxx
+            else:
+                # create an arrow with given head_width
+                dy = self.head_width / 2
+
+            # head length.
+            if (self.head_length > 0):
+                # create an arrow with given head_length
+                dxxx = self.head_length
+            else:
+                # create default arrow
+                dxxx = dx
+
             return Path._create_closed(
                 [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
-                 (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                 (x0 + dxx, y0 - dxx),  # arrow
+                 (x0 + dxx, y1 + dy), (x0 - dxxx, y0 + dx),
+                 (x0 + dxx, y0 - dy),  # arrow
                  (x0 + dxx, y0)])
 
     @_register_style(_style_list)
@@ -2416,14 +2434,22 @@ class BoxStyle(_Style):
         """A box in the shape of a two-way arrow."""
         # Modified from LArrow to add a right arrow to the bbox.
 
-        def __init__(self, pad=0.3):
+        def __init__(self, pad=0.3, head_width=0, head_length=0):
             """
             Parameters
             ----------
             pad : float, default: 0.3
                 The amount of padding around the original box.
+            head_width : float, default: 0
+                The head-width of the arrow.
+                If head_width < width, use default head-width.
+            head_length: float, default: 0
+                The head-length of the arrow.
+                If head_length <= 0, use default head-length.
             """
             self.pad = pad
+            self.head_width = head_width
+            self.head_length = head_length
 
         def __call__(self, x0, y0, width, height, mutation_size):
             # padding
@@ -2439,13 +2465,33 @@ class BoxStyle(_Style):
             dxx = dx / 2
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
+            # head width with padding added.
+            self.head_width = self.head_width + 2 * pad
+            # width is not padded, so subtract with padding added
+            self.head_width -= width + 2 * pad
+            # check if self.head_width < width
+            if (self.head_width < 0):
+                # create default arrow
+                dy = dxx
+            else:
+                # create an arrow with given head_width
+                dy = self.head_width / 2
+
+            # head length.
+            if (self.head_length > 0):
+                # create an arrow with given head_length
+                dxxx = self.head_length
+            else:
+                # create default arrow
+                dxxx = dx
+
             return Path._create_closed([
                 (x0 + dxx, y0), (x1, y0),  # bot-segment
-                (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
-                (x1, y1 + dxx),  # right-arrow
+                (x1, y0 - dy), (x1 + dxxx + dxx, y0 + dx),
+                (x1, y1 + dy),  # right-arrow
                 (x1, y1), (x0 + dxx, y1),  # top-segment
-                (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                (x0 + dxx, y0 - dxx),  # left-arrow
+                (x0 + dxx, y1 + dy), (x0 - dxxx, y0 + dx),
+                (x0 + dxx, y0 - dy),  # left-arrow
                 (x0 + dxx, y0)])
 
     @_register_style(_style_list)
@@ -3083,6 +3129,9 @@ class ArrowStyle(_Style):
 
     %(ArrowStyle:table)s
 
+    For an overview of the visual appearance, see
+    :doc:`/gallery/text_labels_and_annotations/fancyarrow_demo`.
+
     An instance of any arrow style class is a callable object,
     whose call signature is::
 
@@ -3197,29 +3246,18 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, default: 0.4
-                Length of the arrow head, relative to *mutation_scale*.
+                Length of the arrow head, relative to *mutation_size*.
             head_width : float, default: 0.2
-                Width of the arrow head, relative to *mutation_scale*.
-            widthA : float, default: 1.0
-                Width of the bracket at the beginning of the arrow
-            widthB : float, default: 1.0
-                Width of the bracket at the end of the arrow
-            lengthA : float, default: 0.2
-                Length of the bracket at the beginning of the arrow
-            lengthB : float, default: 0.2
-                Length of the bracket at the end of the arrow
-            angleA : float, default 0
-                Orientation of the bracket at the beginning, as a
-                counterclockwise angle. 0 degrees means perpendicular
-                to the line.
-            angleB : float, default 0
-                Orientation of the bracket at the beginning, as a
-                counterclockwise angle. 0 degrees means perpendicular
-                to the line.
-            scaleA : float, default *mutation_size*
-                The mutation_size for the beginning bracket
-            scaleB : float, default *mutation_size*
-                The mutation_size for the end bracket
+                Width of the arrow head, relative to *mutation_size*.
+            widthA, widthB : float, default: 1.0
+                Width of the bracket.
+            lengthA, lengthB : float, default: 0.2
+                Length of the bracket.
+            angleA, angleB : float, default: 0
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
+            scaleA, scaleB : float, default: *mutation_size*
+                The scale of the brackets.
             """
 
             self.head_length, self.head_width = head_length, head_width
@@ -4054,13 +4092,10 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="path")
-    def __init__(self, posA=None, posB=None, path=None,
-                 arrowstyle="simple", connectionstyle="arc3",
-                 patchA=None, patchB=None,
-                 shrinkA=2, shrinkB=2,
-                 mutation_scale=1, mutation_aspect=1,
-                 **kwargs):
+    def __init__(self, posA=None, posB=None, *,
+                 path=None, arrowstyle="simple", connectionstyle="arc3",
+                 patchA=None, patchB=None, shrinkA=2, shrinkB=2,
+                 mutation_scale=1, mutation_aspect=1, **kwargs):
         """
         There are two ways for defining an arrow:
 
@@ -4383,8 +4418,7 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="axesA")
-    def __init__(self, xyA, xyB, coordsA, coordsB=None,
+    def __init__(self, xyA, xyB, coordsA, coordsB=None, *,
                  axesA=None, axesB=None,
                  arrowstyle="-",
                  connectionstyle="arc3",

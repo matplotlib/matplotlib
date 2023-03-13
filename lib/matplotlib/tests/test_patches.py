@@ -669,6 +669,156 @@ def test_fancyarrow_setdata():
     assert np.allclose(expected2, np.round(arrow.verts, 2))
 
 
+def test_arrow_boxstyle_head_width():
+    lArrow = BoxStyle.LArrow(pad=0.1, head_width=1.2)
+    lArrow_vertices = lArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedL = np.array(
+        [[0.82, 0.30],
+         [4.40, 0.30],
+         [4.40, 2.50],
+         [0.82, 2.50],
+         [0.82, 3.05],
+         [-0.83, 1.40],
+         [0.82, -0.25],
+         [0.82, 0.3],
+         [0.82, 0.3]]
+    )
+    assert np.allclose(expectedL, np.round(lArrow_vertices, 2))
+
+    rArrow = BoxStyle.RArrow(pad=0.1, head_width=1.2)
+    rArrow_vertices = rArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedR = np.array(
+        [[3.78, 0.3],
+         [0.2, 0.3],
+         [0.2, 2.5],
+         [3.78, 2.5],
+         [3.78, 3.05],
+         [5.43, 1.4],
+         [3.78, -0.25],
+         [3.78, 0.3],
+         [3.78, 0.3]]
+    )
+    assert np.allclose(expectedR, np.round(rArrow_vertices, 2))
+
+    dArrow = BoxStyle.DArrow(pad=0.1, head_width=1.2)
+    dArrow_vertices = dArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedD = np.array(
+        [[0.82, 0.3],
+         [4.2, 0.3],
+         [4.2, -0.25],
+         [5.85, 1.4],
+         [4.2, 3.05],
+         [4.2, 2.5],
+         [0.82, 2.5],
+         [0.82, 3.05],
+         [-0.83, 1.4],
+         [0.82, -0.25],
+         [0.82, 0.3],
+         [0.82, 0.3]]
+    )
+    assert np.allclose(expectedD, np.round(dArrow_vertices, 2))
+
+
+def test_arrow_boxstyle_head_length():
+    lArrow = BoxStyle.LArrow(pad=0.1, head_length=0.8)
+    lArrow_vertices = lArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedL = np.array(
+        [[0.82, 0.3],
+         [4.4, 0.3],
+         [4.4, 2.5],
+         [0.82, 2.5],
+         [0.82, 3.05],
+         [-0.53, 1.4],
+         [0.82, -0.25],
+         [0.82, 0.3],
+         [0.82, 0.3]]
+    )
+    assert np.allclose(expectedL, np.round(lArrow_vertices, 2))
+
+    rArrow = BoxStyle.RArrow(pad=0.1, head_length=0.8)
+    rArrow_vertices = rArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedR = np.array(
+        [[3.78, 0.3],
+         [0.2, 0.3],
+         [0.2, 2.5],
+         [3.78, 2.5],
+         [3.78, 3.05],
+         [5.13, 1.4],
+         [3.78, -0.25],
+         [3.78, 0.3],
+         [3.78, 0.3]]
+    )
+    assert np.allclose(expectedR, np.round(rArrow_vertices, 2))
+
+    dArrow = BoxStyle.DArrow(pad=0.1, head_length=0.8)
+    dArrow_vertices = dArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedD = np.array(
+        [[0.82, 0.3],
+         [4.2, 0.3],
+         [4.2, -0.25],
+         [5.55, 1.4],
+         [4.2, 3.05],
+         [4.2, 2.5],
+         [0.82, 2.5],
+         [0.82, 3.05],
+         [-0.53, 1.4],
+         [0.82, -0.25],
+         [0.82, 0.3],
+         [0.82, 0.3]]
+    )
+    assert np.allclose(expectedD, np.round(dArrow_vertices, 2))
+
+
+def test_arrow_boxstyle_head_length_head_width():
+    lArrow = BoxStyle.LArrow(pad=0.1, head_width=1.5, head_length=1.3)
+    lArrow_vertices = lArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedL = np.array(
+        [[0.82, 0.3],
+         [4.4, 0.3],
+         [4.4, 2.5],
+         [0.82, 2.5],
+         [0.82, 3.05],
+         [-1.03, 1.4],
+         [0.82, -0.25],
+         [0.82, 0.3],
+         [0.82, 0.3]]
+    )
+    assert np.allclose(expectedL, np.round(lArrow_vertices, 2))
+
+    rArrow = BoxStyle.RArrow(pad=0.1, head_width=1.5, head_length=1.3)
+    rArrow_vertices = rArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedR = np.array(
+        [[3.78, 0.3],
+         [0.2, 0.3],
+         [0.2, 2.5],
+         [3.78, 2.5],
+         [3.78, 3.05],
+         [5.63, 1.4],
+         [3.78, -0.25],
+         [3.78, 0.3],
+         [3.78, 0.3]]
+    )
+    assert np.allclose(expectedR, np.round(rArrow_vertices, 2))
+
+    dArrow = BoxStyle.DArrow(pad=0.1, head_width=1.5, head_length=1.3)
+    dArrow_vertices = dArrow(0.3, 0.4, 4, 2, 1).vertices
+    expectedD = np.array(
+        [[0.82, 0.3],
+         [4.2, 0.3],
+         [4.2, -0.25],
+         [6.05, 1.4],
+         [4.2, 3.05],
+         [4.2, 2.5],
+         [0.82, 2.5],
+         [0.82, 3.05],
+         [-1.03, 1.4],
+         [0.82, -0.25],
+         [0.82, 0.3],
+         [0.82, 0.3]]
+    )
+    assert np.allclose(expectedD, np.round(dArrow_vertices, 2))
+
+
 @image_comparison(["large_arc.svg"], style="mpl20")
 def test_large_arc():
     fig, (ax1, ax2) = plt.subplots(1, 2)
