@@ -590,6 +590,7 @@ def test_valid_layouts():
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
+
 def test_valid_layouts_with_alias():
     fig = Figure(layout=None)
     assert not fig.get_tight_layout()
@@ -604,6 +605,7 @@ def test_valid_layouts_with_alias():
     assert isinstance(fig.get_layout(), ConstrainedLayoutEngine)
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
+
 
 def test_invalid_layouts():
     fig, ax = plt.subplots(layout="constrained")
@@ -679,7 +681,7 @@ def test_set_subplotpars():
     subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
     fig = plt.figure()
     subplotparams = fig.get_subplotpars()
-    default_dict = {"left": 0.125, "bottom": 0.1, "right": 0.9, "top": 0.9, 
+    default_dict = {"left": 0.125, "bottom": 0.1, "right": 0.9, "top": 0.9,
                     "wspace": 0.2, "hspace": 0.2}
     test_dict = {"left": 0.25, "bottom": 0.2, "right": 1.8, "top": 1.8,
                  "wspace": 0.4, "hspace": 0.4}

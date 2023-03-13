@@ -1279,9 +1279,9 @@ default: %(va)s
 
     def set_subplotpars(self, subplotparams={}):
         """
-        Modify the parameters of the figure's subplot.
+        Modify the subplot parameters.
 
-        Parameters:
+        Parameters
         ----------
         subplotparams: dict or SubplotParams, optional
                     New parameters of the subplot
