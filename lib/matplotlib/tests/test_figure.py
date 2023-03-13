@@ -681,8 +681,8 @@ def test_set_subplotpars():
     subplotparams = fig.get_subplotpars()
     default_dict = {"left": 0.125, "bottom": 0.1, "right": 0.9, "top": 0.9, 
                     "wspace": 0.2, "hspace": 0.2}
-    test_dict = {"left": 0.25, "bottom": 0.2, "right": 1.8, "top": 1.8 ,
-                 "wspace":0.4, "hspace":0.4}
+    test_dict = {"left": 0.25, "bottom": 0.2, "right": 1.8, "top": 1.8,
+                 "wspace": 0.4, "hspace": 0.4}
 
     # initial value of subplot params
     for key in subplotparams_keys:
@@ -698,7 +698,8 @@ def test_set_subplotpars():
     # invalid key error
     test_dict['foo'] = 'bar'
     with pytest.warns(UserWarning,
-                    match="'foo' was ignored as it is not a valid key for set_subplotpars;"):
+                      match="'foo' was ignored as it is not a valid key for "
+                      "set_subplotpars;"):
         fig.set_subplotpars(test_dict)
 
     # passing in a list instead of a dictionary or instance of SubplotParams()
@@ -709,10 +710,10 @@ def test_set_subplotpars():
         fig.set_subplotpars(['foo'])
 
     # left cant be bigger than or equl to right ValueError: left cannot be >= right
-    test_dict_left_greater_right = {"left": 2, "bottom": 0.2, "right": 1.8, 
-                                    "top": 1.8 , "wspace": 0.4, "hspace": 0.4}
+    test_dict_left_greater_right = {"left": 2, "bottom": 0.2, "right": 1.8,
+                                    "top": 1.8, "wspace": 0.4, "hspace": 0.4}
     with pytest.raises(ValueError,
-                    match="left cannot be >= right"):
+                       match="left cannot be >= right"):
         fig.set_subplotpars(test_dict_left_greater_right)
 
 
