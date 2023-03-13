@@ -1277,35 +1277,35 @@ default: %(va)s
         self.stale = True
         return cb
 
-    def set_subplotpars(self, subplotparams = {}):
+    def set_subplotpars(self, subplotparams={}):
         """
         Modify the parameters of the figure's subplot.
 
         Parameters:
         ----------
-        subplotparams: dict or SubplotParams
+        subplotparams: dict or SubplotParams, optional
                     New parameters of the subplot
 
         """
-        kwargs = {"left": None, "bottom": None, "right": None, 
+
+        kwargs = {"left": None, "bottom": None, "right": None,
                   "top": None, "wspace": None, "hspace": None}
         if isinstance(subplotparams, SubplotParams):
             for key in kwargs:
-                kwargs[key] = getattr(subplotparams,key)
+                kwargs[key] = getattr(subplotparams, key)
         elif isinstance(subplotparams, dict):
             for key in subplotparams.keys():
                 if key in kwargs:
                     kwargs[key] = subplotparams[key]
                 else:
                     _api.warn_external(
-                        f"'{key}' was ignored as it is not a valid key for" 
+                        f"'{key}' was ignored as it is not a valid key for"
                         " set_subplotpars;")
         else:
             raise TypeError(
                 "subplotpars must be a dictionary of keyword-argument pairs or"
                 " an instance of SubplotParams()")
         self.subplots_adjust(**kwargs)
-        
 
     def get_subplotpars(self):
         """

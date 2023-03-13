@@ -591,21 +591,19 @@ def test_valid_layouts():
     assert fig.get_constrained_layout()
 
 def test_valid_layouts_with_alias():
-   fig = Figure(layout=None)
-   assert not fig.get_tight_layout()
-   assert not fig.get_constrained_layout()
+    fig = Figure(layout=None)
+    assert not fig.get_tight_layout()
+    assert not fig.get_constrained_layout()
 
+    fig.set_layout('tight')
+    assert isinstance(fig.get_layout(), TightLayoutEngine)
+    assert fig.get_tight_layout()
+    assert not fig.get_constrained_layout()
 
-   fig.set_layout('tight')
-   assert isinstance(fig.get_layout(), TightLayoutEngine)
-   assert fig.get_tight_layout()
-   assert not fig.get_constrained_layout()
-
-
-   fig.set_layout('constrained')
-   assert isinstance(fig.get_layout(), ConstrainedLayoutEngine)
-   assert not fig.get_tight_layout()
-   assert fig.get_constrained_layout()
+    fig.set_layout('constrained')
+    assert isinstance(fig.get_layout(), ConstrainedLayoutEngine)
+    assert not fig.get_tight_layout()
+    assert fig.get_constrained_layout()
 
 def test_invalid_layouts():
     fig, ax = plt.subplots(layout="constrained")
