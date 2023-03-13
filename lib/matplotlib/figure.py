@@ -1285,7 +1285,6 @@ default: %(va)s
         ----------
         subplotparams: dict or SubplotParams, optional
                     New parameters of the subplot
-
         """
 
         kwargs = {"left": None, "bottom": None, "right": None,
@@ -1312,7 +1311,7 @@ default: %(va)s
         Return the parameters of the figure's subplot.
         """
         return self.subplotpars
-    
+
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
                         wspace=None, hspace=None):
         """

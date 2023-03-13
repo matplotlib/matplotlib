@@ -676,43 +676,44 @@ def test_get_subplotpars():
 
 def test_set_subplotpars():
     # setup
-     subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
-     fig = plt.figure()
-     subplotparams = fig.get_subplotpars()
-     default_dict = {"left":0.125, "bottom":0.1, "right":0.9, "top":0.9 , "wspace":0.2, "hspace":0.2}
-     test_dict = {"left":0.25, "bottom":0.2, "right":1.8, "top":1.8 , "wspace":0.4, "hspace":0.4}
+    subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
+    fig = plt.figure()
+    subplotparams = fig.get_subplotpars()
+    default_dict = {"left": 0.125, "bottom": 0.1, "right": 0.9, "top": 0.9, 
+                    "wspace": 0.2, "hspace": 0.2}
+    test_dict = {"left": 0.25, "bottom": 0.2, "right": 1.8, "top": 1.8 ,
+                 "wspace":0.4, "hspace":0.4}
 
     # initial value of subplot params
-     for key in subplotparams_keys:
-         attr = getattr(subplotparams, key)
-         assert attr == default_dict[key]
+    for key in subplotparams_keys:
+        attr = getattr(subplotparams, key)
+        assert attr == default_dict[key]
 
     # set subplotpars to test_dict and check that the values are changed
-     fig.set_subplotpars(test_dict)
-     updated_subplotparams = fig.get_subplotpars()
-     for key, value in test_dict.items():
-         assert getattr(updated_subplotparams, key) == value
+    fig.set_subplotpars(test_dict)
+    updated_subplotparams = fig.get_subplotpars()
+    for key, value in test_dict.items():
+        assert getattr(updated_subplotparams, key) == value
 
     # invalid key error
-     test_dict['foo'] = 'bar'
-     with pytest.warns(UserWarning,
-                       match="'foo' was ignored as it is not a valid key for set_subplotpars;"):
-         fig.set_subplotpars(test_dict)
+    test_dict['foo'] = 'bar'
+    with pytest.warns(UserWarning,
+                    match="'foo' was ignored as it is not a valid key for set_subplotpars;"):
+        fig.set_subplotpars(test_dict)
 
     # passing in a list instead of a dictionary or instance of SubplotParams()
-     with pytest.raises(TypeError,
+    with pytest.raises(TypeError,
                         match="subplotpars must be a dictionary of "
                         "keyword-argument pairs or "
                         "an instance of SubplotParams()"):
-         fig.set_subplotpars(['foo'])
+        fig.set_subplotpars(['foo'])
 
     # left cant be bigger than or equl to right ValueError: left cannot be >= right
-     test_dict_left_greater_right = {"left":2, "bottom":0.2, "right":1.8, "top":1.8 , "wspace":0.4, "hspace":0.4}
-     with pytest.raises(ValueError,
+    test_dict_left_greater_right = {"left": 2, "bottom": 0.2, "right": 1.8, 
+                                    "top": 1.8 , "wspace": 0.4, "hspace": 0.4}
+    with pytest.raises(ValueError,
                     match="left cannot be >= right"):
-         fig.set_subplotpars(test_dict_left_greater_right)
-
-
+        fig.set_subplotpars(test_dict_left_greater_right)
 
 
 @check_figures_equal(extensions=["png", "pdf"])
