@@ -30,7 +30,7 @@ feature freeze (i.e. newly implemented features will be going into vX.Y+1).
 This does not necessarily mean that no further changes will be made prior to release,
 just that those changes will be made using the backport system.
 
-First create the branch ::
+For an upcoming ``v3.7.0`` release, first create the branch::
 
    git switch main
    git pull
@@ -440,7 +440,7 @@ notes, fixing broken links, and updating the version switcher) are bubbled up to
 ``main``.
 
 Git conflicts are very likely to arise, though aside from changes made directly to the
-release branch (mostly as part of the release), they should be relatively trivially resolved
+release branch (mostly as part of the release), they should be relatively-easily resolved
 by using the version from ``main``. This is not a universal rule, and care should be
 taken to ensure correctness::
 
