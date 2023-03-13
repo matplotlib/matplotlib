@@ -1068,6 +1068,11 @@ def get_path_collection_extents(
     from .transforms import Bbox
     if len(paths) == 0:
         raise ValueError("No paths provided")
+    if len(offsets) == 0:
+        _api.warn_deprecated(
+            "3.8", message="Calling get_path_collection_extents() with an"
+            " empty offsets list is deprecated since %(since)s. Support will"
+            " be removed %(removal)s.")
     extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform)
