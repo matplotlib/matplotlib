@@ -534,6 +534,7 @@ class Legend(Artist):
                         locs = locs[::-1]
                     loc = locs[0] + ' ' + locs[1]
             # check that loc is in acceptable strings
+            # ---------------------------example from issue
             loc = _api.check_getitem(self.codes, loc=loc)
 
         if self.isaxes and self._outside_loc:
@@ -617,11 +618,11 @@ class Legend(Artist):
         # set the text color
 
         color_getters = {  # getter function depends on line or patch
-            'linecolor':       ['get_color',           'get_facecolor'],
+            'linecolor': ['get_color', 'get_facecolor'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
-            'mfc':             ['get_markerfacecolor', 'get_facecolor'],
+            'mfc': ['get_markerfacecolor', 'get_facecolor'],
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
-            'mec':             ['get_markeredgecolor', 'get_edgecolor'],
+            'mec': ['get_markeredgecolor', 'get_edgecolor'],
         }
         if labelcolor is None:
             if mpl.rcParams['legend.labelcolor'] is not None:
@@ -682,6 +683,7 @@ class Legend(Artist):
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
         self._loc_used_default = False
+        loc = _api.check_tuple(loc=loc)
         self._loc_real = loc
         self.stale = True
         self._legend_box.set_offset(self._findoffset)
@@ -706,7 +708,7 @@ class Legend(Artist):
                                            self.get_bbox_to_anchor(),
                                            renderer)
         else:  # Axes or figure coordinates.
-            fx, fy = self._loc
+            fx, fy = self._loc  # error is caused here
             bbox = self.get_bbox_to_anchor()
             x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
 
@@ -760,7 +762,7 @@ class Legend(Artist):
         tuple: legend_handler.HandlerTuple(),
         PathCollection: legend_handler.HandlerPathCollection(),
         PolyCollection: legend_handler.HandlerPolyCollection()
-        }
+    }
 
     # (get|set|update)_default_handler_maps are public interfaces to
     # modify the default handler map.
@@ -850,12 +852,12 @@ class Legend(Artist):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
                 _api.warn_external(
-                             "Legend does not support handles for "
-                             f"{type(orig_handle).__name__} "
-                             "instances.\nA proxy artist may be used "
-                             "instead.\nSee: https://matplotlib.org/"
-                             "stable/tutorials/intermediate/legend_guide.html"
-                             "#controlling-the-legend-entries")
+                    "Legend does not support handles for "
+                    f"{type(orig_handle).__name__} "
+                    "instances.\nA proxy artist may be used "
+                    "instead.\nSee: https://matplotlib.org/"
+                    "stable/tutorials/intermediate/legend_guide.html"
+                    "#controlling-the-legend-entries")
                 # No handle for this artist, so we just defer to None.
                 handle_list.append(None)
             else:
@@ -1237,11 +1239,11 @@ def _get_legend_handles(axs, legend_handler_map=None):
         elif (label and not label.startswith('_') and
                 not has_handler(handler_map, handle)):
             _api.warn_external(
-                             "Legend does not support handles for "
-                             f"{type(handle).__name__} "
-                             "instances.\nSee: https://matplotlib.org/stable/"
-                             "tutorials/intermediate/legend_guide.html"
-                             "#implementing-a-custom-legend-handler")
+                "Legend does not support handles for "
+                f"{type(handle).__name__} "
+                "instances.\nSee: https://matplotlib.org/stable/"
+                "tutorials/intermediate/legend_guide.html"
+                "#implementing-a-custom-legend-handler")
             continue
 
 
