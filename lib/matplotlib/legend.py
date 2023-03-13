@@ -708,7 +708,7 @@ class Legend(Artist):
                                            self.get_bbox_to_anchor(),
                                            renderer)
         else:  # Axes or figure coordinates.
-            fx, fy = self._loc  # -------------------------------------------error is caused here
+            fx, fy = self._loc  # error is caused here
             bbox = self.get_bbox_to_anchor()
             x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
 
