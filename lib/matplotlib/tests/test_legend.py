@@ -1220,18 +1220,20 @@ def test_ncol_ncols(fig_test, fig_ref):
     fig_test.legend(strings, ncol=ncols)
     fig_ref.legend(strings, ncols=ncols)
 
+
 def test_check_tuple_not_single():
-    # check that exception is raised if more than one
+    # Check that exception is raised if more than one
     # tuple is given.
     with pytest.raises(ValueError):
         fig, ax = plt.subplots()
         x = np.arange(100)
         ax.plot(x, 50 - x, 'o', label='y=1')
         ax.plot(x, x - 50, 'o', label='y=-1')
-        ax.legend(loc=[(1.2, 1.5),(1.0, 2.0)])
+        ax.legend(loc=[(1.2, 1.5), (1.0, 2.0)])
+
 
 def test_check_tuple_not_tuple():
-    # check that exception is raised if not a tuple
+    # Check that exception is raised if not a tuple
     # is given.
     with pytest.raises(ValueError):
         fig, ax = plt.subplots()
@@ -1240,8 +1242,9 @@ def test_check_tuple_not_tuple():
         ax.plot(x, x - 50, 'o', label='y=-1')
         ax.legend(loc=1)
 
+
 def test_check_tuple_not_floats():
-    # check that exception is raised if values in
+    # Check that exception is raised if values in
     # tuple are not float.
     with pytest.raises(ValueError):
         fig, ax = plt.subplots()
@@ -1249,10 +1252,10 @@ def test_check_tuple_not_floats():
         ax.plot(x, 50 - x, 'o', label='y=1')
         ax.plot(x, x - 50, 'o', label='y=-1')
         ax.legend(loc=("not a float", 5.2))
-    
+
 
 def test_check_tuple_acceptance():
-    #acceptance test for check_tuples
+    # Acceptance test for check_tuples
     fig, ax = plt.subplots()
     x = np.arange(100)
     ax.plot(x, 50 - x, 'o', label='y=1')
@@ -1263,4 +1266,4 @@ def test_check_tuple_acceptance():
     y = np.arange(100)
     ay.plot(y, 50 - y, 'o', label='x=1')
     ay.plot(y, y - 50, 'o', label='x=-1')
-    ay.legend(loc=(2.6,5.1))
+    ay.legend(loc=(2.6, 5.1))
