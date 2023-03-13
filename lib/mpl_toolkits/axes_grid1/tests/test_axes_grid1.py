@@ -7,6 +7,7 @@ import matplotlib.ticker as mticker
 from matplotlib import _api, cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
+from matplotlib.patches import Circle, Ellipse
 from matplotlib.transforms import Bbox, TransformedBbox
 from matplotlib.testing.decorators import (
     check_figures_equal, image_comparison, remove_ticks_and_titles)
@@ -16,7 +17,8 @@ from mpl_toolkits.axes_grid1 import (
     host_subplot, make_axes_locatable,
     Grid, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
-    AnchoredSizeBar, AnchoredDirectionArrows)
+    AnchoredAuxTransformBox, AnchoredDrawingArea, AnchoredEllipse,
+    AnchoredDirectionArrows, AnchoredSizeBar)
 from mpl_toolkits.axes_grid1.axes_divider import (
     Divider, HBoxDivider, make_axes_area_auto_adjustable, SubplotDivider,
     VBoxDivider)
@@ -506,6 +508,34 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     assert big in event_rects
     if click_on == "small":
         assert small in event_rects
+
+
+@image_comparison(['anchored_artists.png'], remove_text=True, style='mpl20')
+def test_anchored_artists():
+    fig, ax = plt.subplots(figsize=(3, 3))
+    ada = AnchoredDrawingArea(40, 20, 0, 0, loc='upper right', pad=0.,
+                              frameon=False)
+    p1 = Circle((10, 10), 10)
+    ada.drawing_area.add_artist(p1)
+    p2 = Circle((30, 10), 5, fc="r")
+    ada.drawing_area.add_artist(p2)
+    ax.add_artist(ada)
+
+    box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
+    el = Ellipse((0, 0), width=0.1, height=0.4, angle=30, color='cyan')
+    box.drawing_area.add_artist(el)
+    ax.add_artist(box)
+
+    ae = AnchoredEllipse(ax.transData, width=0.1, height=0.25, angle=-60,
+                         loc='lower left', pad=0.5, borderpad=0.4,
+                         frameon=True)
+    ax.add_artist(ae)
+
+    asb = AnchoredSizeBar(ax.transData, 0.2, r"0.2 units", loc='lower right',
+                          pad=0.3, borderpad=0.4, sep=4, fill_bar=True,
+                          frameon=False, label_top=True, prop={'size': 20},
+                          size_vertical=0.05, color='green')
+    ax.add_artist(asb)
 
 
 def test_hbox_divider():
