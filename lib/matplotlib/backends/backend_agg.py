@@ -441,7 +441,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         return self.renderer.buffer_rgba()
 
-    def print_raw(self, filename_or_obj, metadata=None):
+    def print_raw(self, filename_or_obj, *, metadata=None):
         if metadata is not None:
             raise ValueError("metadata not supported for raw/rgba")
         FigureCanvasAgg.draw(self)
