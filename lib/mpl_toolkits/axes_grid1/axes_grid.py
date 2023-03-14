@@ -32,13 +32,16 @@ class CbarAxesBase:
 
     def toggle_label(self, b):
         axis = self.axis[self.orientation]
-        if self.orientation == "top":
-            b_axis = self.axis["bottom"]
-            b_axis.toggle(ticklabels=False, label=False)
-        elif self.orientation == "left":
-            r_axis = self.axis["right"]
-            r_axis.toggle(ticklabels=False, label=False)
-        axis.toggle(ticklabels=b, label=b)
+        axis.toggle(ticks=b, ticklabels=b, label=b)
+        opposite_axis = {
+            'top': 'bottom',
+            'bottom': 'top',
+            'right': 'left',
+            'left': 'right'
+        }
+
+        _axis = self.axis[opposite_axis.get(self.orientation)]
+        _axis.toggle(ticks=False, ticklabels=False, label=False)
 
     def cla(self):
         orientation = self.orientation
