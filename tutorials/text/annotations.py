@@ -225,10 +225,10 @@ t = ax.text(0.5, 0.5, "Direction",
 #   Class        Name             Attrs
 #   ==========   ==============   ==========================
 #   Circle       ``circle``       pad=0.3
-#   DArrow       ``darrow``       pad=0.3
+#   DArrow       ``darrow``       pad=0.3,head_width=0,head_length=0
 #   Ellipse      ``ellipse``      pad=0.3
-#   LArrow       ``larrow``       pad=0.3
-#   RArrow       ``rarrow``       pad=0.3
+#   LArrow       ``larrow``       pad=0.3,head_width=0,head_length=0
+#   RArrow       ``rarrow``       pad=0.3,head_width=0,head_length=0
 #   Round        ``round``        pad=0.3,rounding_size=None
 #   Round4       ``round4``       pad=0.3,rounding_size=None
 #   Roundtooth   ``roundtooth``   pad=0.3,tooth_size=None
