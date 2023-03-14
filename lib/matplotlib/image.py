@@ -1610,6 +1610,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         Metadata in the image file.  The supported keys depend on the output
         format, see the documentation of the respective backends for more
         information.
+        Currently only supported for "png", "pdf", "ps", "eps", and "svg".
     pil_kwargs : dict, optional
         Keyword arguments passed to `PIL.Image.Image.save`.  If the 'pnginfo'
         key is present, it completely overrides *metadata*, including the
@@ -1674,6 +1675,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
                 for k, v in metadata.items():
                     if v is not None:
                         pnginfo.add_text(k, v)
+        elif metadata is not None:
+            raise ValueError(f"metadata not supported for format {format!r}")
         if format in ["jpg", "jpeg"]:
             format = "jpeg"  # Pillow doesn't recognize "jpg".
             facecolor = mpl.rcParams["savefig.facecolor"]

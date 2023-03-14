@@ -3260,6 +3260,11 @@ None}, default: None
               `~.FigureCanvasSVG.print_svg`.
             - 'eps' and 'ps' with PS backend: Only 'Creator' is supported.
 
+            Not supported for 'pgf', 'raw', and 'rgba' as those formats do not support
+            embedding metadata.
+            Does not currently support 'jpg', 'tiff', or 'webp', but may include
+            embedding EXIF metadata in the future.
+
         bbox_inches : str or `.Bbox`, default: :rc:`savefig.bbox`
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.

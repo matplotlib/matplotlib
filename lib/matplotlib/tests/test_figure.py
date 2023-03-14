@@ -1548,3 +1548,14 @@ def test_gridspec_no_mutate_input():
     plt.subplots(1, 2, width_ratios=[1, 2], gridspec_kw=gs)
     assert gs == gs_orig
     plt.subplot_mosaic('AB', width_ratios=[1, 2], gridspec_kw=gs)
+
+
+@pytest.mark.parametrize('fmt', ['eps', 'pdf', 'png', 'ps', 'svg', 'svgz'])
+def test_savefig_metadata(fmt):
+    Figure().savefig(io.BytesIO(), format=fmt, metadata={})
+
+
+@pytest.mark.parametrize('fmt', ['jpeg', 'jpg', 'tif', 'tiff', 'webp', "raw", "rgba"])
+def test_savefig_metadata_error(fmt):
+    with pytest.raises(ValueError, match="metadata not supported"):
+        Figure().savefig(io.BytesIO(), format=fmt, metadata={})
