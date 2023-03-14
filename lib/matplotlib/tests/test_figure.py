@@ -377,7 +377,6 @@ def test_get_figsize():
     assert fig.get_figsize()[1] == 3
 
 
-
 def test_axes_remove():
     fig, axs = plt.subplots(2, 2)
     axs[-1, -1].remove()
