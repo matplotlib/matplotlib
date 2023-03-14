@@ -930,23 +930,42 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.stale = True
 
 
+@_api.define_aliases({
+    "sizes": ["s", "markersize"]
+})
 class _CollectionWithSizes(Collection):
     """
     Base class for collections that have an array of sizes.
     """
     _factor = 1.0
-    _markerscale = 2
 
     def get_sizes(self):
         """
-        Return the sizes ('areas') of the elements in the collection.
+        Return the sizes of the elements in the collection.
+
+        The sizes of the elements in the collection will be returned in
+        the last set scale of the markers, i.e. if the markerscale was
+        set to 1 then the sizes are set in points and if markerscale was
+        set to 2 then the sizes returned are such that the marker size is
+        in points**2.
 
         Returns
         -------
         array
-            The 'area' of each element.
+            The 'size' of each element.
         """
         return self._sizes
+
+    def get_markerscale(self):
+        """
+        Return the scale used for marker sizing.
+
+        Returns
+        -------
+        int
+            The scale used to set the marker sizes.
+        """
+        return self._markerscale
 
     def set_sizes(self, sizes, dpi=72.0, markerscale=2):
         """
@@ -959,11 +978,11 @@ class _CollectionWithSizes(Collection):
             value is the 'area' of the element.
         dpi : float, default: 72
             The dpi of the canvas.
-        markerscale : int, default: 2
-            Scaling factor used to set the size as points or points**2.
-            Default value is set as 2 used for `s` and changed to 1 if
-            `markersize` is provided instead of `s`.
+        markerscale : 1 or 2, default: 2
+            Scaling factor used to set the size as points (1) or points**2 (2).
         """
+        # breakpoint()
+        print(markerscale)
         self._markerscale = markerscale
         if sizes is None:
             self._sizes = np.array([])
@@ -971,7 +990,7 @@ class _CollectionWithSizes(Collection):
         else:
             self._sizes = np.asarray(sizes)
             self._transforms = np.zeros((len(self._sizes), 3, 3))
-            s = np.sqrt(self._sizes) if markerscale == 2 else self._sizes
+            s = np.sqrt(self._sizes) if self._markerscale == 2 else self._sizes
             scale = s * dpi / 72.0 * self._factor
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
@@ -999,6 +1018,8 @@ class PathCollection(_CollectionWithSizes):
             The factor by which to scale each drawn `~.path.Path`. One unit
             squared in the Path's data space is scaled to be ``sizes**2``
             points when rendered.
+        markerscale : 1 or 2, default: 2
+            Scaling factor used to set the size as points (1) or points**2 (2).
         **kwargs
             Forwarded to `.Collection`.
         """

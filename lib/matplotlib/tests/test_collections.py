@@ -1216,3 +1216,25 @@ def test_striped_lines(fig_test, fig_ref, gapcolor):
     for x, gcol, ls in zip(x, itertools.cycle(gapcolor),
                            itertools.cycle(linestyles)):
         ax_ref.axvline(x, 0, 1, linestyle=ls, gapcolor=gcol, alpha=0.5)
+
+
+@check_figures_equal(extensions=["png"])
+def test_markerscale(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+
+    x = np.arange(1, 6)**2
+
+    ax_test.scatter(x, x, s=x, markerscale=1)
+    ax_ref.scatter(x, x, s=x**2, markerscale=2)
+
+
+@check_figures_equal(extensions=["png"])
+def test_markersize_alias(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+
+    x = np.arange(1, 6)**2
+
+    ax_test.scatter(x, x, s=x)
+    ax_ref.scatter(x, x, markersize=x)

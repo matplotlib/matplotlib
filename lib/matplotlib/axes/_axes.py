@@ -4476,7 +4476,7 @@ class Axes(_AxesBase):
     @_docstring.interpd
     def scatter(self, x, y, s=None, c=None, marker=None, cmap=None, norm=None,
                 vmin=None, vmax=None, alpha=None, linewidths=None, *,
-                edgecolors=None, plotnonfinite=False, markersize=None, **kwargs):
+                edgecolors=None, plotnonfinite=False, markerscale=2, **kwargs):
         """
         A scatter plot of *y* vs. *x* with varying marker size and/or color.
 
@@ -4568,10 +4568,9 @@ default: :rc:`scatter.edgecolors`
             or ``nan``). If ``True`` the points are drawn with the *bad*
             colormap color (see `.Colormap.set_bad`).
 
-        markersize : float or array-like, shape (n, ), optional
-            The marker size in points. This differs from `s` as it sets the
-            size directly in points instead of points**2. `s` is used by
-            default to set the size if neither are passed.
+        markerscale : 1 or 2, optional, default: 2
+            Scaling factor used to set the size as points or points**2.
+            Default value is set as 2 to set the size values as points**2.
 
         Returns
         -------
@@ -4612,19 +4611,18 @@ default: :rc:`scatter.edgecolors`
         if x.size != y.size:
             raise ValueError("x and y must be the same size")
 
-        if s is not None and markersize is not None:
+        if s is not None and 'markersize' in kwargs:
             raise ValueError(
-                "Only one of s or markersize should be passed. "
+                "Only one of `s` or `markersize` should be passed. "
                 "Please refer to the docs for more details about usage.")
 
         if s is None:
-            s = (20 if mpl.rcParams['_internal.classic_mode'] else
-                 mpl.rcParams['lines.markersize'] ** 2.0)
+            if 'markersize' not in kwargs:
+                s = (20 if mpl.rcParams['_internal.classic_mode'] else
+                        mpl.rcParams['lines.markersize'] ** 2.0)
+            else:
+                s = kwargs.pop('markersize')
         s = np.ma.ravel(s)
-        markerscale = 2
-        if markersize is not None:
-            s = np.ma.ravel(markersize)
-            markerscale = 1
         if (len(s) not in (1, x.size) or
                 (not np.issubdtype(s.dtype, np.floating) and
                  not np.issubdtype(s.dtype, np.integer))):
