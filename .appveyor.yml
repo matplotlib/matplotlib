@@ -12,8 +12,8 @@ branches:
 skip_commits:
   message: /\[ci doc\]/
   files:
-    - 'doc/**'
-    - 'galleries/**'
+    - doc/
+    - galleries/
 
 clone_depth: 50
 
