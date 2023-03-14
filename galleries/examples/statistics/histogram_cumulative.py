@@ -8,11 +8,11 @@ step function in order to visualize the empirical cumulative
 distribution function (CDF) of a sample. We also show the theoretical CDF.
 
 A couple of other options to the ``hist`` function are demonstrated. Namely, we
-use the *normed* parameter to normalize the histogram and a couple of different
-options to the *cumulative* parameter. The *normed* parameter takes a boolean
+use the *density* parameter to normalize the histogram and a couple of different
+options to the *cumulative* parameter. The *density* parameter takes a boolean
 value. When ``True``, the bin heights are scaled such that the total area of
 the histogram is 1. The *cumulative* keyword argument is a little more nuanced.
-Like *normed*, you can pass it True or False, but you can also pass it -1 to
+Like *density*, you can pass it True or False, but you can also pass it -1 to
 reverse the distribution.
 
 Since we're showing a normalized and cumulative histogram, these curves
