@@ -598,9 +598,6 @@ class FigureManagerTk(FigureManagerBase):
 
 
 class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
-    window = _api.deprecated("3.6", alternative="self.master")(
-        property(lambda self: self.master))
-
     def __init__(self, canvas, window=None, *, pack_toolbar=True):
         """
         Parameters
@@ -726,9 +723,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if self.canvas._rubberband_rect_black:
             self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_black)
             self.canvas._rubberband_rect_black = None
-
-    lastrect = _api.deprecated("3.6")(
-        property(lambda self: self.canvas._rubberband_rect_black))
 
     def _set_image_for_button(self, button):
         """
@@ -965,9 +959,6 @@ class RubberbandTk(backend_tools.RubberbandBase):
     def remove_rubberband(self):
         NavigationToolbar2Tk.remove_rubberband(
             self._make_classic_style_pseudo_toolbar())
-
-    lastrect = _api.deprecated("3.6")(
-        property(lambda self: self.figure.canvas._rubberband_rect_black))
 
 
 class ToolbarTk(ToolContainerBase, tk.Frame):

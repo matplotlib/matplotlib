@@ -135,7 +135,6 @@ Examples showing the use of markers:
 import copy
 
 from collections.abc import Sized
-import inspect
 
 import numpy as np
 
@@ -223,10 +222,8 @@ class MarkerStyle:
     fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
     _half_fillstyles = ('left', 'right', 'bottom', 'top')
 
-    _unset = object()  # For deprecation of MarkerStyle(<noargs>).
-
-    def __init__(self, marker=_unset, fillstyle=None,
-                 transform=None, capstyle=None, joinstyle=None):
+    def __init__(self, marker,
+                 fillstyle=None, transform=None, capstyle=None, joinstyle=None):
         """
         Parameters
         ----------
@@ -255,24 +252,7 @@ class MarkerStyle:
         self._user_capstyle = capstyle
         self._user_joinstyle = joinstyle
         self._set_fillstyle(fillstyle)
-        # Remove _unset and signature rewriting after deprecation elapses.
-        if marker is self._unset:
-            marker = ""
-            _api.warn_deprecated(
-                "3.6", message="Calling MarkerStyle() with no parameters is "
-                "deprecated since %(since)s; support will be removed "
-                "%(removal)s.  Use MarkerStyle('') to construct an empty "
-                "MarkerStyle.")
-        if marker is None:
-            marker = ""
-            _api.warn_deprecated(
-                "3.6", message="MarkerStyle(None) is deprecated since "
-                "%(since)s; support will be removed %(removal)s.  Use "
-                "MarkerStyle('') to construct an empty MarkerStyle.")
         self._set_marker(marker)
-
-    __init__.__signature__ = inspect.signature(  # Only for deprecation period.
-        lambda self, marker, fillstyle=None: None)
 
     def _recache(self):
         if self._marker_function is None:

@@ -1262,15 +1262,13 @@ default: %(va)s
                 not self.get_layout_engine().colorbar_gridspec):
             use_gridspec = False
         if cax is None:
-            current_ax = self.gca()
             if ax is None:
-                _api.warn_deprecated("3.6", message=(
+                raise ValueError(
                     'Unable to determine Axes to steal space for Colorbar. '
-                    'Using gca(), but will raise in the future. '
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
-                    'from it, or add *mappable* to an Axes.'))
-                ax = current_ax
+                    'from it, or add *mappable* to an Axes.')
+            current_ax = self.gca()
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):

@@ -181,16 +181,6 @@ def findobj(o=None, match=None, include_self=True):
     return o.findobj(match, include_self=include_self)
 
 
-def _get_required_interactive_framework(backend_mod):
-    if not hasattr(getattr(backend_mod, "FigureCanvas", None),
-                   "required_interactive_framework"):
-        _api.warn_deprecated(
-            "3.6", name="Support for FigureCanvases without a "
-            "required_interactive_framework attribute")
-        return None
-    # Inline this once the deprecation elapses.
-    return backend_mod.FigureCanvas.required_interactive_framework
-
 _backend_mod = None
 
 
@@ -270,7 +260,7 @@ def switch_backend(newbackend):
     backend_mod = importlib.import_module(
         cbook._backend_module_name(newbackend))
 
-    required_framework = _get_required_interactive_framework(backend_mod)
+    required_framework = backend_mod.FigureCanvas.required_interactive_framework
     if required_framework is not None:
         current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
@@ -357,7 +347,7 @@ def switch_backend(newbackend):
 
 def _warn_if_gui_out_of_main_thread():
     warn = False
-    if _get_required_interactive_framework(_get_backend_mod()):
+    if _get_backend_mod().FigureCanvas.required_interactive_framework:
         if hasattr(threading, 'get_native_id'):
             # This compares native thread ids because even if Python-level
             # Thread objects match, the underlying OS thread (which is what
@@ -1322,31 +1312,18 @@ def subplot(*args, **kwargs):
     key = SubplotSpec._from_subplot_args(fig, args)
 
     for ax in fig.axes:
-        # if we found an Axes at the position sort out if we can re-use it
-        if ax.get_subplotspec() == key:
-            # if the user passed no kwargs, re-use
-            if kwargs == {}:
-                break
-            # if the axes class and kwargs are identical, reuse
-            elif ax._projection_init == fig._process_projection_requirements(
-                *args, **kwargs
-            ):
-                break
+        # If we found an Axes at the position, we can re-use it if the user passed no
+        # kwargs or if the axes class and kwargs are identical.
+        if (ax.get_subplotspec() == key
+            and (kwargs == {}
+                 or (ax._projection_init
+                     == fig._process_projection_requirements(*args, **kwargs)))):
+            break
     else:
         # we have exhausted the known Axes and none match, make a new one!
         ax = fig.add_subplot(*args, **kwargs)
 
     fig.sca(ax)
-
-    axes_to_delete = [other for other in fig.axes
-                      if other != ax and ax.bbox.fully_overlaps(other.bbox)]
-    if axes_to_delete:
-        _api.warn_deprecated(
-            "3.6", message="Auto-removal of overlapping axes is deprecated "
-            "since %(since)s and will be removed %(removal)s; explicitly call "
-            "ax.remove() as needed.")
-    for ax_to_del in axes_to_delete:
-        delaxes(ax_to_del)
 
     return ax
 
@@ -1659,27 +1636,12 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
         gs = fig.add_gridspec(nrows, ncols)
         ax = fig.add_subplot(gs[row:row+rowspan, col:col+colspan])
     """
-
     if fig is None:
         fig = gcf()
-
     rows, cols = shape
     gs = GridSpec._check_gridspec_exists(fig, rows, cols)
-
     subplotspec = gs.new_subplotspec(loc, rowspan=rowspan, colspan=colspan)
-    ax = fig.add_subplot(subplotspec, **kwargs)
-
-    axes_to_delete = [other for other in fig.axes
-                      if other != ax and ax.bbox.fully_overlaps(other.bbox)]
-    if axes_to_delete:
-        _api.warn_deprecated(
-            "3.6", message="Auto-removal of overlapping axes is deprecated "
-            "since %(since)s and will be removed %(removal)s; explicitly call "
-            "ax.remove() as needed.")
-    for ax_to_del in axes_to_delete:
-        delaxes(ax_to_del)
-
-    return ax
+    return fig.add_subplot(subplotspec, **kwargs)
 
 
 def twinx(ax=None):
