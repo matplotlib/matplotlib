@@ -4,7 +4,7 @@ A role and directive to display mathtext in Sphinx
 
 The ``mathmpl`` Sphinx extension creates a mathtext image in Matplotlib and
 shows it in html output. Thus, it is a true and faithful representation of what
-you will see if you write a given LaTeX string to Matplotlib (see
+you will see if you pass a given LaTeX string to Matplotlib (see
 :doc:`../tutorials/text/mathtext`).
 
 .. warning::
