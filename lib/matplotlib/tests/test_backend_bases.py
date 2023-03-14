@@ -95,6 +95,16 @@ def test_non_gui_warning(monkeypatch):
                 in str(rec[0].message))
 
 
+def test_grab_clear():
+    fig, ax = plt.subplots()
+
+    fig.canvas.grab_mouse(ax)
+    assert fig.canvas.mouse_grabber == ax
+
+    fig.clear()
+    assert fig.canvas.mouse_grabber is None
+
+
 @pytest.mark.parametrize(
     "x, y", [(42, 24), (None, 42), (None, None), (200, 100.01), (205.75, 2.0)])
 def test_location_event_position(x, y):
