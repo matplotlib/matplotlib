@@ -369,6 +369,15 @@ def test_set_fig_size():
     assert fig.get_figheight() == 3
 
 
+def test_get_figsize():
+    fig = plt.figure()
+    fig.set_size_inches((1, 3))
+
+    assert fig.get_figsize()[0] == 1
+    assert fig.get_figsize()[1] == 3
+
+
+
 def test_axes_remove():
     fig, axs = plt.subplots(2, 2)
     axs[-1, -1].remove()
