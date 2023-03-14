@@ -358,6 +358,24 @@ def test_set_fig_size():
     assert fig.get_figwidth() == 1
     assert fig.get_figheight() == 3
 
+    # check using alias figsize
+    fig.set_figsize(2, 4)
+    assert fig.get_figwidth() == 2
+    assert fig.get_figheight() == 4
+
+    # check using tuple to first argument and alias figsize
+    fig.set_figsize((1, 3))
+    assert fig.get_figwidth() == 1
+    assert fig.get_figheight() == 3
+
+
+def test_get_figsize():
+    fig = plt.figure()
+    fig.set_size_inches((1, 3))
+
+    assert fig.get_figsize()[0] == 1
+    assert fig.get_figsize()[1] == 3
+
 
 def test_axes_remove():
     fig, axs = plt.subplots(2, 2)
@@ -581,6 +599,22 @@ def test_valid_layouts():
     assert fig.get_constrained_layout()
 
 
+def test_valid_layouts_with_alias():
+    fig = Figure(layout=None)
+    assert not fig.get_tight_layout()
+    assert not fig.get_constrained_layout()
+
+    fig.set_layout('tight')
+    assert isinstance(fig.get_layout(), TightLayoutEngine)
+    assert fig.get_tight_layout()
+    assert not fig.get_constrained_layout()
+
+    fig.set_layout('constrained')
+    assert isinstance(fig.get_layout(), ConstrainedLayoutEngine)
+    assert not fig.get_tight_layout()
+    assert fig.get_constrained_layout()
+
+
 def test_invalid_layouts():
     fig, ax = plt.subplots(layout="constrained")
     with pytest.warns(UserWarning):
@@ -642,6 +676,55 @@ def test_layout_change_warning(layout):
     fig, ax = plt.subplots(layout=layout)
     with pytest.warns(UserWarning, match='The figure layout has changed to'):
         plt.tight_layout()
+
+
+def test_get_subplotpars():
+    fig = plt.figure()
+    # check get method works
+    assert fig.get_subplotpars() == fig.subplotpars
+
+
+def test_set_subplotpars():
+    # setup
+    subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
+    fig = plt.figure()
+    subplotparams = fig.get_subplotpars()
+    default_dict = {"left": 0.125, "bottom": 0.1, "right": 0.9, "top": 0.9,
+                    "wspace": 0.2, "hspace": 0.2}
+    test_dict = {"left": 0.25, "bottom": 0.2, "right": 1.8, "top": 1.8,
+                 "wspace": 0.4, "hspace": 0.4}
+
+    # initial value of subplot params
+    for key in subplotparams_keys:
+        attr = getattr(subplotparams, key)
+        assert attr == default_dict[key]
+
+    # set subplotpars to test_dict and check that the values are changed
+    fig.set_subplotpars(test_dict)
+    updated_subplotparams = fig.get_subplotpars()
+    for key, value in test_dict.items():
+        assert getattr(updated_subplotparams, key) == value
+
+    # invalid key error
+    test_dict['foo'] = 'bar'
+    with pytest.warns(UserWarning,
+                      match="'foo' was ignored as it is not a valid key for "
+                      "set_subplotpars;"):
+        fig.set_subplotpars(test_dict)
+
+    # passing in a list instead of a dictionary or instance of SubplotParams()
+    with pytest.raises(TypeError,
+                        match="subplotpars must be a dictionary of "
+                        "keyword-argument pairs or "
+                        "an instance of SubplotParams()"):
+        fig.set_subplotpars(['foo'])
+
+    # left cant be bigger than or equl to right ValueError: left cannot be >= right
+    test_dict_left_greater_right = {"left": 2, "bottom": 0.2, "right": 1.8,
+                                    "top": 1.8, "wspace": 0.4, "hspace": 0.4}
+    with pytest.raises(ValueError,
+                       match="left cannot be >= right"):
+        fig.set_subplotpars(test_dict_left_greater_right)
 
 
 @check_figures_equal(extensions=["png", "pdf"])
