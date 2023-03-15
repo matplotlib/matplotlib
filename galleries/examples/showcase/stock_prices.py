@@ -22,16 +22,10 @@ import numpy as np
 from matplotlib.cbook import get_sample_data
 import matplotlib.transforms as mtransforms
 
-
-def convertdate(x):
-    return np.datetime64(x, 'D')
-
-
-fname = get_sample_data('Stocks.csv', asfileobj=False)
-stock_data = np.genfromtxt(fname, encoding='utf-8', delimiter=',',
-                           names=True, dtype=None, converters={0: convertdate},
-                           skip_header=1)
-
+with get_sample_data('Stocks.csv') as file:
+    stock_data = np.genfromtxt(
+        file, delimiter=',', names=True, dtype=None,
+        converters={0: lambda x: np.datetime64(x, 'D')}, skip_header=1)
 
 fig, ax = plt.subplots(1, 1, figsize=(6, 8), layout='constrained')
 
