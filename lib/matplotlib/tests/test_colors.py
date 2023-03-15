@@ -961,7 +961,7 @@ def test_autoscale_masked():
 @image_comparison(['light_source_shading_topo.png'])
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
-    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz')
     elev = dem['elevation']
     dx, dy = dem['dx'], dem['dy']
     # Get the true cellsize in meters for accurate vertical exaggeration

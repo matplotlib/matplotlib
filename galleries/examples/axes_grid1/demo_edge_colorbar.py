@@ -14,8 +14,7 @@ from mpl_toolkits.axes_grid1 import AxesGrid
 
 
 def get_demo_image():
-    z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
-    # z is a numpy array of 15x15
+    z = cbook.get_sample_data("axes_grid/bivariate_normal.npy")  # 15x15 array
     return z, (-3, 4, -4, 3)
 
 

@@ -249,7 +249,7 @@ plt.show()
 # elevation range than the water has depth range, and they are often
 # represented by a different colormap.
 
-dem = cbook.get_sample_data('topobathy.npz', np_load=True)
+dem = cbook.get_sample_data('topobathy.npz')
 topo = dem['topo']
 longitude = dem['longitude']
 latitude = dem['latitude']
