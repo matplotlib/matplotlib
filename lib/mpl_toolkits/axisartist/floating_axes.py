@@ -260,7 +260,6 @@ class FloatingAxesBase:
         _api.check_isinstance(GridHelperCurveLinear, grid_helper=grid_helper)
         super().__init__(*args, grid_helper=grid_helper, **kwargs)
         self.set_aspect(1.)
-        self.adjust_axes_lim()
 
     def _gen_axes_patch(self):
         # docstring inherited
@@ -281,6 +280,7 @@ class FloatingAxesBase:
         orig_patch.set_transform(self.transAxes)
         self.patch.set_clip_path(orig_patch)
         self.gridlines.set_clip_path(orig_patch)
+        self.adjust_axes_lim()
 
     def adjust_axes_lim(self):
         bbox = self.patch.get_path().get_extents(
