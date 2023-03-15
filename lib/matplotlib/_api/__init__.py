@@ -385,4 +385,6 @@ def warn_external(message, category=None):
                         frame.f_globals.get("__name__", "")):
             break
         frame = frame.f_back
+    # premetively break reference cycle between locals and the frame
+    del frame
     warnings.warn(message, category, stacklevel)
