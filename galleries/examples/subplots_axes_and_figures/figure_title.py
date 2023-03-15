@@ -10,6 +10,7 @@ Each axes can have a title (or actually three - one each with *loc* "left",
 We can also add figure-level x- and y-labels using `.FigureBase.supxlabel` and
 `.FigureBase.supylabel`.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -34,13 +35,10 @@ fig.suptitle('Different types of oscillations', fontsize=16)
 # `.FigureBase.supylabel` methods.
 
 
-def convertdate(x):
-    return np.datetime64(x, 'D')
-
-fname = get_sample_data('Stocks.csv', asfileobj=False)
-stocks = np.genfromtxt(fname, encoding='utf-8', delimiter=',',
-                       names=True, dtype=None, converters={0: convertdate},
-                       skip_header=1)
+with get_sample_data('Stocks.csv') as file:
+    stocks = np.genfromtxt(
+        file, delimiter=',', names=True, dtype=None,
+        converters={0: lambda x: np.datetime64(x, 'D')}, skip_header=1)
 
 fig, axs = plt.subplots(4, 2, figsize=(9, 5), layout='constrained',
                         sharex=True, sharey=True)
@@ -51,3 +49,5 @@ for nn, ax in enumerate(axs.flat):
     ax.set_title(column_name, fontsize='small', loc='left')
 fig.supxlabel('Year')
 fig.supylabel('Stock price relative to max')
+
+plt.show()
