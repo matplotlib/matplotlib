@@ -31,7 +31,7 @@ import matplotlib.dates as mdates
 # low, close, volume, adj_close from the mpl-data/sample_data directory. The
 # record array stores the date as an np.datetime64 with a day unit ('D') in
 # the date column.
-data = cbook.get_sample_data('goog.npz', np_load=True)['price_data']
+data = cbook.get_sample_data('goog.npz')['price_data']
 
 fig, axs = plt.subplots(3, 1, figsize=(6.4, 7), layout='constrained')
 # common to all three:

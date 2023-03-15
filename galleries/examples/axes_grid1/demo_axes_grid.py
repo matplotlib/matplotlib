@@ -11,8 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cbook
 from mpl_toolkits.axes_grid1 import ImageGrid
 
-Z = cbook.get_sample_data(  # (15, 15) array
-    "axes_grid/bivariate_normal.npy", np_load=True)
+Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy")  # 15x15 array
 extent = (-3, 4, -4, 3)
 
 
