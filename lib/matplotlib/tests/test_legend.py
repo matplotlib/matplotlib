@@ -1219,3 +1219,19 @@ def test_ncol_ncols(fig_test, fig_ref):
     ncols = 3
     fig_test.legend(strings, ncol=ncols)
     fig_ref.legend(strings, ncols=ncols)
+
+
+def test_fig_legend_method_bbox_to_anchor():
+    # Check passing Axes.bbox to bbox_to_anchor argument behaviour
+    data_left = np.arange(10)
+    data_right = np.random.random(10)
+    fig, ax = plt.subplots()
+    ax.plot(data_left, label='left axis', color='C0')
+    ax2 = ax.twinx()
+    ax2.plot(data_right, label='right axis', color='C1')
+    legend = fig.legend(bbox_to_anchor=ax.bbox)
+
+    colors = [line.get_color() for line in ax.lines + ax2.lines]
+    legend_colors = [line.get_color() for line in legend.get_lines()]
+    assert colors == legend_colors
+    assert legend.get_bbox_to_anchor() == ax.bbox

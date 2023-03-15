@@ -101,8 +101,8 @@ bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     `figure.bbox` (if `.Figure.legend`).  This argument allows arbitrary
     placement of the legend.
 
-    Bbox coordinates are interpreted in the coordinate system given by
-    *bbox_transform*, with the default transform
+    If 2- or 4-tuple is given, bbox coordinates are interpreted in the
+    coordinate system given by *bbox_transform*, with the default transform
     Axes or Figure coordinates, depending on which ``legend`` is called.
 
     If a 4-tuple or `.BboxBase` is given, then it specifies the bbox
@@ -1084,11 +1084,11 @@ class Legend(Artist):
 
             self._bbox_to_anchor = Bbox.from_bounds(*bbox)
 
-        if transform is None:
-            transform = BboxTransformTo(self.parent.bbox)
+            if transform is None:
+                transform = BboxTransformTo(self.parent.bbox)
 
-        self._bbox_to_anchor = TransformedBbox(self._bbox_to_anchor,
-                                               transform)
+            self._bbox_to_anchor = TransformedBbox(self._bbox_to_anchor,
+                                                   transform)
         self.stale = True
 
     def _get_anchored_bbox(self, loc, bbox, parentbbox, renderer):
