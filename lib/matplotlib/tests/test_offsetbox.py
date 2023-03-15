@@ -393,3 +393,11 @@ def test_paddedbox():
     pb = PaddedBox(at, patch_attrs={'facecolor': 'r'}, draw_frame=True)
     ax.add_artist(pb)
     fig.draw_without_rendering()
+
+
+def test_remove_draggable():
+    fig, ax = plt.subplots()
+    an = ax.annotate("foo", (.5, .5))
+    an.draggable(True)
+    an.remove()
+    MouseEvent("button_release_event", fig.canvas, 1, 1)._process()
