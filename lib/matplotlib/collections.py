@@ -981,8 +981,6 @@ class _CollectionWithSizes(Collection):
         markerscale : 1 or 2, default: 2
             Scaling factor used to set the size as points (1) or points**2 (2).
         """
-        # breakpoint()
-        print(markerscale)
         self._markerscale = markerscale
         if sizes is None:
             self._sizes = np.array([])
