@@ -24,6 +24,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - 'light' is an invalid weight value, remove it.
 
 from base64 import b64encode
+from collections import namedtuple
 import copy
 import dataclasses
 from functools import lru_cache
@@ -126,6 +127,7 @@ font_family_aliases = {
     'sans',
 }
 
+_ExceptionProxy = namedtuple('_ExceptionProxy', ['klass', 'message'])
 
 # OS Font paths
 try:
@@ -1259,8 +1261,8 @@ class FontManager:
         ret = self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
-        if isinstance(ret, Exception):
-            raise ret
+        if isinstance(ret, _ExceptionProxy):
+            raise ret.klass(ret.message)
         return ret
 
     def get_font_names(self):
@@ -1411,10 +1413,12 @@ class FontManager:
                                      fallback_to_default=False)
             else:
                 # This return instead of raise is intentional, as we wish to
-                # cache the resulting exception, which will not occur if it was
+                # cache that it was not found, which will not occur if it was
                 # actually raised.
-                return ValueError(f"Failed to find font {prop}, and fallback "
-                                  f"to the default font was disabled")
+                return _ExceptionProxy(
+                    ValueError,
+                    f"Failed to find font {prop}, and fallback to the default font was disabled"
+                )
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
                        prop, best_font.name, best_font.fname, best_score)
@@ -1434,9 +1438,9 @@ class FontManager:
                     prop, fontext, directory, rebuild_if_missing=False)
             else:
                 # This return instead of raise is intentional, as we wish to
-                # cache the resulting exception, which will not occur if it was
+                # cache that it was not found, which will not occur if it was
                 # actually raised.
-                return ValueError("No valid font could be found")
+                return _ExceptionProxy(ValueError, "No valid font could be found")
 
         return _cached_realpath(result)
 
