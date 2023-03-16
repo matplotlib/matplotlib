@@ -77,23 +77,21 @@ The base matplotlib namespace includes:
         figure is created, because it is not possible to switch between
         different GUI backends after that.
 
-The following environment variables can be used to customize the behavior::
+The following environment variables can be used to customize the behavior:
 
-    .. envvar:: MPLBACKEND
+    :envvar:`MPLBACKEND`
+        This optional variable can be set to choose the Matplotlib backend. See
+        :ref:`what-is-a-backend`.
 
-      This optional variable can be set to choose the Matplotlib backend. See
-      :ref:`what-is-a-backend`.
-
-    .. envvar:: MPLCONFIGDIR
-
-      This is the directory used to store user customizations to
-      Matplotlib, as well as some caches to improve performance. If
-      :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
-      and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
-      :file:`{HOME}/.matplotlib` on other platforms, if they are
-      writable. Otherwise, the Python standard library's `tempfile.gettempdir`
-      is used to find a base directory in which the :file:`matplotlib`
-      subdirectory is created.
+    :envvar:`MPLCONFIGDIR`
+        This is the directory used to store user customizations to
+        Matplotlib, as well as some caches to improve performance. If
+        :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
+        and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+        :file:`{HOME}/.matplotlib` on other platforms, if they are
+        writable. Otherwise, the Python standard library's `tempfile.gettempdir`
+        is used to find a base directory in which the :file:`matplotlib`
+        subdirectory is created.
 
 Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
