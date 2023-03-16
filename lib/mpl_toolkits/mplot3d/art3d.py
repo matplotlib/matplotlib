@@ -769,11 +769,11 @@ class Path3DCollection(PathCollection):
         )
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
-        
+
         if self._alpha is not None:
-            converted_alphas = color_array[:,3] * self._alpha
+            converted_alphas = color_array[:, 3] * self._alpha
         else:
-            converted_alphas = color_array[:,3]
+            converted_alphas = color_array[:, 3]
         return mcolors.to_rgba_array(color_array, converted_alphas)
 
     def get_facecolor(self):
