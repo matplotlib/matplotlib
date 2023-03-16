@@ -286,9 +286,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def get_size(self):
         """Return the size of the image as tuple (numrows, numcols)."""
-        if self._A is None:
-            self.get_shape()
-
         return self._A.shape[:2]
 
     def get_shape(self):
