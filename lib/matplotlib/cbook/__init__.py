@@ -83,6 +83,8 @@ def _get_running_interactive_framework():
                 if frame.f_code in codes:
                     return "tk"
                 frame = frame.f_back
+        # premetively break reference cycle between locals and the frame
+        del frame
     macosx = sys.modules.get("matplotlib.backends._macosx")
     if macosx and macosx.event_loop_is_running():
         return "macosx"
