@@ -11,8 +11,6 @@ import numpy as np
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-
-plt.rcdefaults()
 fig, ax = plt.subplots()
 
 # Example data
