@@ -35,20 +35,29 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-      CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
-      MACOSX_DEPLOYMENT_TARGET: "10.12"
+      CIBW_BEFORE_BUILD: >-
+        pip install certifi oldest-supported-numpy &&
+        git clean -fxd build
       CIBW_BEFORE_BUILD_WINDOWS: >-
         pip install certifi delvewheel oldest-supported-numpy &&
         git clean -fxd build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
+      CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+      CIBW_SKIP: "*-musllinux*"
+      MACOSX_DEPLOYMENT_TARGET: "10.12"
+      MPL_DISABLE_FH4: "yes"
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-latest, macos-11]
-        cibw_archs: ["auto"]
         include:
           - os: ubuntu-20.04
+            cibw_archs: "x86_64"
+          - os: ubuntu-20.04
             cibw_archs: "aarch64"
+          - os: windows-latest
+            cibw_archs: "auto"
+          - os: macos-11
+            cibw_archs: "x86_64 universal2 arm64"
 
     steps:
       - name: Set up QEMU
@@ -73,49 +82,24 @@ jobs:
         uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_BUILD: "cp311-*"
-          CIBW_SKIP: "*-musllinux*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          CIBW_BEFORE_BUILD: >-
-            pip install certifi oldest-supported-numpy &&
-            git clean -fxd build
-          MPL_DISABLE_FH4: "yes"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
         uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_BUILD: "cp310-*"
-          CIBW_SKIP: "*-musllinux*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          CIBW_BEFORE_BUILD: >-
-            pip install certifi oldest-supported-numpy &&
-            git clean -fxd build
-          MPL_DISABLE_FH4: "yes"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
         uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_BUILD: "cp39-*"
-          CIBW_SKIP: "*-musllinux*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          CIBW_BEFORE_BUILD: >-
-            pip install certifi oldest-supported-numpy &&
-            git clean -fxd build
-          MPL_DISABLE_FH4: "yes"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
         uses: pypa/cibuildwheel@v2.12.1
         env:
           CIBW_BUILD: "pp39-*"
-          CIBW_SKIP: "*-musllinux*"
-          CIBW_BEFORE_BUILD: >-
-            pip install certifi oldest-supported-numpy &&
-            git clean -fxd build
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
         if: matrix.cibw_archs != 'aarch64'
 
