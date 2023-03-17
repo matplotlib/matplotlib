@@ -476,7 +476,10 @@ class Axes3D(Axes):
             # Draw panes first
             for axis in self._axis_map.values():
                 axis.draw_pane(renderer)
-            # Then axes
+            # Then gridlines
+            for axis in self._axis_map.values():
+                axis.draw_grid(renderer)
+            # Then axes, labels, text, and ticks
             for axis in self._axis_map.values():
                 axis.draw(renderer)
 
