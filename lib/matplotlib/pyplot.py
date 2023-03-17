@@ -750,7 +750,7 @@ default: None
           to avoid overlapping axes decorations.  Can handle complex plot
           layouts and colorbars, and is thus recommended.
 
-          See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+          See :ref:`constrainedlayout_guide`
           for examples.
 
         - 'compressed': uses the same algorithm as 'constrained', but
@@ -1514,7 +1514,7 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     This is a helper function to build complex GridSpec layouts visually.
 
-    See :doc:`/gallery/subplots_axes_and_figures/mosaic`
+    See :ref:`mosaic`
     for an example and full API documentation
 
     Parameters

@@ -6,8 +6,8 @@ drawing legends associated with axes and/or figures.
 
     It is unlikely that you would ever create a Legend instance manually.
     Most users would normally create a legend via the `~.Axes.legend`
-    function. For more details on legends there is also a :doc:`legend guide
-    </tutorials/intermediate/legend_guide>`.
+    function. For more details on legends there is also a :ref:`legend guide
+    <legend_guide>`.
 
 The `Legend` class is a container of legend handles and legend texts.
 
@@ -17,7 +17,7 @@ defined in the :mod:`~matplotlib.legend_handler` module. While not all artist
 types are covered by the default legend handlers, custom legend handlers can be
 defined to support arbitrary objects.
 
-See the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
+See the :ref`<legend_guide>` for more
 information.
 """
 
@@ -314,7 +314,7 @@ _outside_doc = """
     right side of the layout.  In addition to the values of *loc*
     listed above, we have 'outside right upper', 'outside right lower',
     'outside left upper', and 'outside left lower'.  See
-    :doc:`/tutorials/intermediate/legend_guide` for more details.
+    :ref:`legend_guide` for more details.
 """
 
 _legend_kw_figure_st = (
@@ -863,7 +863,7 @@ class Legend(Artist):
                              f"{type(orig_handle).__name__} "
                              "instances.\nA proxy artist may be used "
                              "instead.\nSee: https://matplotlib.org/"
-                             "stable/tutorials/intermediate/legend_guide.html"
+                             "stable/users/explain/axes/legend_guide.html"
                              "#controlling-the-legend-entries")
                 # No handle for this artist, so we just defer to None.
                 handle_list.append(None)

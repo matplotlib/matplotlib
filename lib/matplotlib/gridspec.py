@@ -7,8 +7,7 @@ the grid are referenced by `SubplotSpec`\s.
 
 Often, users need not access this module directly, and can use higher-level
 methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
-`~.Figure.subfigures`. See the tutorial
-:doc:`/tutorials/intermediate/arranging_axes` for a guide.
+`~.Figure.subfigures`. See the tutorial :ref:`arranging_axes` for a guide.
 """
 
 import copy

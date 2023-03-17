@@ -8,7 +8,7 @@ Set the special text objects `~.pyplot.title`, `~.pyplot.xlabel`, and
 objects can be placed in the axes using `~.pyplot.text`.
 
 You can use TeX-like mathematical typesetting in all texts; see also
-:doc:`/tutorials/text/mathtext`.
+:ref:`mathtext`.
 
 .. redirect-from:: /gallery/pyplots/pyplot_mathtext
 """

@@ -60,7 +60,7 @@ def scatter_hist(x, y, ax, ax_histx, ax_histy):
 # --------------------------------------------
 #
 # We define a gridspec with unequal width- and height-ratios to achieve desired
-# layout.  Also see the :doc:`/tutorials/intermediate/arranging_axes` tutorial.
+# layout.  Also see the :ref:`arranging_axes` tutorial.
 
 # Start with a square Figure.
 fig = plt.figure(figsize=(6, 6))

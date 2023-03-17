@@ -4431,8 +4431,8 @@ class ConnectionPatch(FancyArrowPatch):
         .. note::
 
            Using `ConnectionPatch` across two `~.axes.Axes` instances
-           is not directly compatible with :doc:`constrained layout
-           </tutorials/intermediate/constrainedlayout_guide>`. Add the artist
+           is not directly compatible with :ref:`constrained layout
+           <constrainedlayout_guide>`. Add the artist
            directly to the `.Figure` instead of adding it to a specific Axes,
            or exclude it from the layout using ``con.set_in_layout(False)``.
 

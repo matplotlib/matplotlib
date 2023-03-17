@@ -75,7 +75,7 @@ programmatic plot generation.
 Further reading:
 
 - The `matplotlib.pyplot` function reference
-- :doc:`/tutorials/introductory/pyplot`
+- :ref:`pyplot_tutorial`
 - :ref:`Pyplot examples <pyplots_examples>`
 
 .. _api-index:

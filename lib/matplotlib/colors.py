@@ -16,12 +16,12 @@ makes a colormap from a list of colors.
 
 .. seealso::
 
-  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
+  :ref:`colormap-manipulation` for examples of how to
   make colormaps and
 
-  :doc:`/tutorials/colors/colormaps` for a list of built-in colormaps.
+  :ref:`colormaps` for a list of built-in colormaps.
 
-  :doc:`/tutorials/colors/colormapnorms` for more details about data
+  :ref:`colormapnorms` for more details about data
   normalization
 
   More colormaps are available at palettable_.
@@ -33,7 +33,7 @@ to an RGBA tuple (`to_rgba`) or to an HTML-like hex string in the
 RGBA array (`to_rgba_array`).  Caching is used for efficiency.
 
 Colors that Matplotlib recognizes are listed at
-:doc:`/tutorials/colors/colors`.
+:ref:`colors_def`.
 
 .. _palettable: https://jiffyclub.github.io/palettable/
 .. _xkcd color survey: https://xkcd.com/color/rgb/
@@ -502,7 +502,7 @@ def to_hex(c, keep_alpha=False):
 
     Parameters
     ----------
-    c : :doc:`color </tutorials/colors/colors>` or `numpy.ma.masked`
+    c : :ref:`color <colors_def>` or `numpy.ma.masked`
 
     keep_alpha : bool, default: False
       If False, use the ``#rrggbb`` format, otherwise use ``#rrggbbaa``.

@@ -3,7 +3,7 @@ Defines classes for path effects. The path effects are supported in `.Text`,
 `.Line2D` and `.Patch`.
 
 .. seealso::
-   :doc:`/tutorials/advanced/patheffects_guide`
+   :ref:`patheffects_guide`
 """
 
 from matplotlib.backend_bases import RendererBase

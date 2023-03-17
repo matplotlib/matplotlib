@@ -857,7 +857,7 @@ class Artist:
         Return boolean flag, ``True`` if artist is included in layout
         calculations.
 
-        E.g. :doc:`/tutorials/intermediate/constrainedlayout_guide`,
+        E.g. :ref:`constrainedlayout_guide`,
         `.Figure.tight_layout()`, and
         ``fig.savefig(fname, bbox_inches='tight')``.
         """
@@ -1067,7 +1067,7 @@ class Artist:
         using blitting.
 
         See also `matplotlib.animation` and
-        :doc:`/tutorials/advanced/blitting`.
+        :ref:`blitting`.
 
         Parameters
         ----------
@@ -1080,7 +1080,7 @@ class Artist:
     def set_in_layout(self, in_layout):
         """
         Set if artist is to be included in layout calculations,
-        E.g. :doc:`/tutorials/intermediate/constrainedlayout_guide`,
+        E.g. :ref:`constrainedlayout_guide`,
         `.Figure.tight_layout()`, and
         ``fig.savefig(fname, bbox_inches='tight')``.
 

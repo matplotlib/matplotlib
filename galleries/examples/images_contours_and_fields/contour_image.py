@@ -9,8 +9,8 @@ For contour labelling, see also the :doc:`contour demo example
 
 The emphasis in this demo is on showing how to make contours register
 correctly on images, and on how to get both of them oriented as desired.
-In particular, note the usage of the :doc:`"origin" and "extent"
-</tutorials/intermediate/imshow_extent>` keyword arguments to imshow and
+In particular, note the usage of the :ref:`"origin" and "extent"
+<imshow_extent>` keyword arguments to imshow and
 contour.
 """
 import matplotlib.pyplot as plt

@@ -187,9 +187,9 @@ class Button(AxesWidget):
             The color of the button when the mouse is over it.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
 
-            .. versionadded:: 3.7
+        .. versionadded:: 3.7
         """
         super().__init__(ax)
 
@@ -1030,9 +1030,10 @@ class CheckButtons(AxesWidget):
             same length as *labels*. If not given, all buttons are unchecked.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
 
             .. versionadded:: 3.7
+
         label_props : dict, optional
             Dictionary of `.Text` properties to be used for the labels.
 
@@ -1637,9 +1638,10 @@ class RadioButtons(AxesWidget):
             specified here or in *radio_props*.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
 
             .. versionadded:: 3.7
+
         label_props : dict or list of dict, optional
             Dictionary of `.Text` properties to be used for the labels.
 
@@ -1958,7 +1960,7 @@ class Cursor(AxesWidget):
         Whether to draw the vertical line.
     useblit : bool, default: False
         Use blitting for faster drawing if supported by the backend.
-        See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+        See the tutorial :ref:`blitting` for details.
 
     Other Parameters
     ----------------
@@ -2052,7 +2054,7 @@ class MultiCursor(Widget):
 
     useblit : bool, default: True
         Use blitting for faster drawing if supported by the backend.
-        See the tutorial :doc:`/tutorials/advanced/blitting`
+        See the tutorial :ref:`blitting`
         for details.
 
     horizOn : bool, default: False
@@ -2567,7 +2569,7 @@ class SpanSelector(_SelectorWidget):
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
-        canvas updates. See the tutorial :doc:`/tutorials/advanced/blitting`
+        canvas updates. See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -2984,7 +2986,7 @@ class ToolLineHandles:
         Additional line properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 
@@ -3095,7 +3097,7 @@ class ToolHandles:
         Additional marker properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 
@@ -3172,7 +3174,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -3798,7 +3800,7 @@ class LassoSelector(_SelectorWidget):
         passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
@@ -3874,7 +3876,7 @@ class PolygonSelector(_SelectorWidget):
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -4223,7 +4225,7 @@ class Lasso(AxesWidget):
         passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 

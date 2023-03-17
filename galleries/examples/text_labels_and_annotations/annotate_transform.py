@@ -5,7 +5,7 @@ Annotate Transform
 
 This example shows how to use different coordinate systems for annotations.
 For a complete overview of the annotation capabilities, also see the
-:doc:`annotation tutorial</tutorials/text/annotations>`.
+:ref:`annotation tutorial<annotations>`.
 
 .. redirect-from:: /gallery/pyplots/annotate_transform
 """

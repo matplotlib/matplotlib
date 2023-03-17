@@ -39,7 +39,7 @@ PGF/TikZ backend
 Peter Würtz wrote a backend that allows matplotlib to export figures as
 drawing commands for LaTeX. These can be processed by PdfLaTeX, XeLaTeX or
 LuaLaTeX using the PGF/TikZ package. Usage examples and documentation are
-found in :doc:`/tutorials/text/pgf`.
+found in :ref:`pgf`.
 
 .. image:: /_static/pgf_preamble.*
 

@@ -6,7 +6,7 @@ TickedStroke patheffect
 Matplotlib's :mod:`.patheffects` can be used to alter the way paths
 are drawn at a low enough level that they can affect almost anything.
 
-The :doc:`patheffects guide</tutorials/advanced/patheffects_guide>`
+The :ref:`patheffects guide<patheffects_guide>`
 details the use of patheffects.
 
 The `~matplotlib.patheffects.TickedStroke` patheffect illustrated here

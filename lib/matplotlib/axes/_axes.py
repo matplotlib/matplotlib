@@ -303,7 +303,7 @@ class Axes(_AxesBase):
         Notes
         -----
         Some artists are not supported by this function.  See
-        :doc:`/tutorials/intermediate/legend_guide` for details.
+        :ref:`legend_guide` for details.
 
         Examples
         --------
@@ -5551,7 +5551,7 @@ default: :rc:`scatter.edgecolors`
             Note that the vertical axis points upward for 'lower'
             but downward for 'upper'.
 
-            See the :doc:`/tutorials/intermediate/imshow_extent` tutorial for
+            See the :ref:`imshow_extent` tutorial for
             examples and a more detailed description.
 
         extent : floats (left, right, bottom, top), optional
@@ -5572,7 +5572,7 @@ default: :rc:`scatter.edgecolors`
             - For ``origin == 'lower'`` the default is
               ``(-0.5, numcols-0.5, -0.5, numrows-0.5)``.
 
-            See the :doc:`/tutorials/intermediate/imshow_extent` tutorial for
+            See the :ref:`imshow_extent` tutorial for
             examples and a more detailed description.
 
         filternorm : bool, default: True

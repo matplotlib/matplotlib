@@ -12,14 +12,14 @@ Programmatically controlling subplot adjustment
     almost always simpler and good enough to either set the subplot parameters
     manually using `.Figure.subplots_adjust`, or use one of the automatic
     layout mechanisms
-    (:doc:`/tutorials/intermediate/constrainedlayout_guide` or
-    :doc:`/tutorials/intermediate/tight_layout_guide`).
+    (:ref:`constrainedlayout_guide` or
+    :ref:`tight_layout_guide`).
 
 This example describes a user-defined way to read out Artist sizes and
 set the subplot parameters accordingly. Its main purpose is to illustrate
 some advanced concepts like reading out text positions, working with
 bounding boxes and transforms and using
-:ref:`events <event-handling-tutorial>`. But it can also serve as a starting
+:ref:`events <event-handling>`. But it can also serve as a starting
 point if you want to automate the layouting and need more flexibility than
 tight layout and constrained layout.
 
