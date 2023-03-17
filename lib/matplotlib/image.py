@@ -275,8 +275,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def __str__(self):
         try:
-            size = self.get_size()
-            return f"{type(self).__name__}(size={size!r})"
+            shape = self.get_shape()
+            return f"{type(self).__name__}(shape={shape!r})"
         except RuntimeError:
             return type(self).__name__
 
@@ -286,10 +286,16 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def get_size(self):
         """Return the size of the image as tuple (numrows, numcols)."""
+        return self.get_shape()[:2]
+
+    def get_shape(self):
+        """
+        Return the shape of the image as tuple (numrows, numcols, channels).
+        """
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        return self._A.shape[:2]
+        return self._A.shape
 
     def set_alpha(self, alpha):
         """
