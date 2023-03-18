@@ -36,7 +36,7 @@ dependencies:
   - pyyaml
   - sphinx>=1.8.1,!=2.0.0
   - sphinx-copybutton
-  - sphinx-gallery>=0.10
+  - sphinx-gallery>=0.12
   - sphinx-design
   - pip
   - pip:
