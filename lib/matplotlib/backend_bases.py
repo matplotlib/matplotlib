@@ -2930,8 +2930,8 @@ class FigureManagerBase:
             # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
             # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
             # set to False).
-            ipython_pylab = hasattr(
-                getattr(sys.modules.get("pyplot"), "show", None), "_needmain")
+            pyplot_show = getattr(sys.modules.get("matplotlib.pyplot"), "show", None)
+            ipython_pylab = hasattr(pyplot_show, "_needmain")
             block = not ipython_pylab and not is_interactive()
         if block:
             cls.start_main_loop()
@@ -3645,8 +3645,8 @@ class _Backend:
             # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
             # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
             # set to False).
-            ipython_pylab = hasattr(
-                getattr(sys.modules.get("pyplot"), "show", None), "_needmain")
+            pyplot_show = getattr(sys.modules.get("matplotlib.pyplot"), "show", None)
+            ipython_pylab = hasattr(pyplot_show, "_needmain")
             block = not ipython_pylab and not is_interactive()
         if block:
             cls.mainloop()
