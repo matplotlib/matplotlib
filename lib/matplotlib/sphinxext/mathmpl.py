@@ -11,7 +11,7 @@ you will see if you pass a given LaTeX string to Matplotlib (see
     In most cases, you will likely want to use one of `Sphinx's builtin Math
     extensions
     <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__
-    instead of this one. The Sphinx built-in math directive uses MathJax to
+    instead of this one. The builtin Sphinx math directive uses MathJax to
     render mathematical expressions, and addresses accessibility concerns that
     ``mathmpl`` doesn't address.
 
