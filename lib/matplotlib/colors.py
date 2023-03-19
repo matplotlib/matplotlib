@@ -315,6 +315,13 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     *alpha* is ignored for the color value ``"none"`` (case-insensitive),
     which always maps to ``(0, 0, 0, 0)``.
     """
+    if isinstance(c, tuple) and len(c) == 2:
+        if alpha is None:
+            c, alpha = c
+        else:
+            c = c[0]
+    if alpha is not None and not 0 <= alpha <= 1:
+        raise ValueError("'alpha' must be between 0 and 1, inclusive")
     orig_c = c
     if c is np.ma.masked:
         return (0., 0., 0., 0.)
@@ -425,6 +432,11 @@ def to_rgba_array(c, alpha=None):
         (n, 4) array of RGBA colors,  where each channel (red, green, blue,
         alpha) can assume values between 0 and 1.
     """
+    if isinstance(c, tuple) and len(c) == 2:
+        if alpha is None:
+            c, alpha = c
+        else:
+            c = c[0]
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
@@ -464,9 +476,12 @@ def to_rgba_array(c, alpha=None):
             return np.array([to_rgba(c, a) for a in alpha], float)
         else:
             return np.array([to_rgba(c, alpha)], float)
-    except (ValueError, TypeError):
+    except TypeError:
         pass
-
+    except ValueError as e:
+        if e.args == ("'alpha' must be between 0 and 1, inclusive", ):
+            # ValueError is from _to_rgba_no_colorcycle().
+            raise e
     if isinstance(c, str):
         raise ValueError(f"{c!r} is not a valid color value.")
 
