@@ -258,8 +258,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self.figure.set_size_inches(winch, hinch, forward=False)
 
         self._tkcanvas.delete(self._tkcanvas_image_region)
-        self._tkphoto = tk.PhotoImage(
-            master=self._tkcanvas, width=int(width), height=int(height))
+        self._tkphoto.configure(width=int(width), height=int(height))
         self._tkcanvas_image_region = self._tkcanvas.create_image(
             int(width / 2), int(height / 2), image=self._tkphoto)
         ResizeEvent("resize_event", self)._process()
