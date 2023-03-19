@@ -12,7 +12,7 @@ except ImportError as err:
 import numpy as np
 
 
-def run_memleak_test(bench, iterations, report):
+def run_memleak_test(bench, iterations, report, collect):
     tracemalloc.start()
 
     starti = min(50, iterations // 2)
@@ -31,7 +31,8 @@ def run_memleak_test(bench, iterations, report):
     for i in range(endi):
         bench()
 
-        gc.collect()
+        if collect:
+            gc.collect()
 
         rss = p.memory_info().rss
         malloc, peak = tracemalloc.get_traced_memory()
@@ -135,6 +136,8 @@ if __name__ == '__main__':
     parser.add_argument('--interactive', action='store_true',
                         help="Turn on interactive mode to actually open "
                         "windows.  Only works with some GUI backends.")
+    parser.add_argument('--gc-collect', action='store_true',
+                        help="Run `gc.collect()` after every iteration")
 
     args = parser.parse_args()
 
@@ -146,4 +149,4 @@ if __name__ == '__main__':
         plt.ion()
 
     run_memleak_test(
-        MemleakTest(args.empty), args.iterations[0], args.report[0])
+        MemleakTest(args.empty), args.iterations[0], args.report[0], args.gc_collect)
