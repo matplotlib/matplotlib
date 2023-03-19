@@ -176,7 +176,8 @@ class FigureCanvasTk(FigureCanvasBase):
             width=w, height=h, borderwidth=0, highlightthickness=0)
         self._tkphoto = tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
-        self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
+        self._tkcanvas_image_region = self._tkcanvas.create_image(
+            w//2, h//2, image=self._tkphoto)
         self._tkcanvas.bind("<Configure>", self.resize)
         if sys.platform == 'win32':
             self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
@@ -256,10 +257,10 @@ class FigureCanvasTk(FigureCanvasBase):
         hinch = height / dpival
         self.figure.set_size_inches(winch, hinch, forward=False)
 
-        self._tkcanvas.delete(self._tkphoto)
+        self._tkcanvas.delete(self._tkcanvas_image_region)
         self._tkphoto = tk.PhotoImage(
             master=self._tkcanvas, width=int(width), height=int(height))
-        self._tkcanvas.create_image(
+        self._tkcanvas_image_region = self._tkcanvas.create_image(
             int(width / 2), int(height / 2), image=self._tkphoto)
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
