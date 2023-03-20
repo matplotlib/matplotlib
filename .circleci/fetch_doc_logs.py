@@ -22,7 +22,7 @@ import os
 from pathlib import Path
 import sys
 from urllib.parse import urlparse
-from urllib.request import urlopen
+from urllib.request import URLError, urlopen
 
 
 if len(sys.argv) != 2:
@@ -38,8 +38,11 @@ artifact_url = (
     f'{organization}/{repository}/{build_id}/artifacts'
 )
 print(artifact_url)
-with urlopen(artifact_url) as response:
-    artifacts = json.load(response)
+try:
+    with urlopen(artifact_url) as response:
+        artifacts = json.load(response)
+except URLError:
+    artifacts = {'items': []}
 artifact_count = len(artifacts['items'])
 print(f'Found {artifact_count} artifacts')
 
