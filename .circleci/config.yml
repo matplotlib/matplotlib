@@ -97,12 +97,9 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
-            # remove when sphinx-gallery releases #1071:
             python -m pip install --user \
                 numpy<< parameters.numpy_version >> codecov coverage \
                 -r requirements/doc/doc-requirements.txt
-            python -m pip install --no-deps --user \
-                git+https://github.com/sphinx-gallery/sphinx-gallery.git
             python -m pip install --no-deps --user \
                 git+https://github.com/matplotlib/mpl-sphinx-theme.git
 
