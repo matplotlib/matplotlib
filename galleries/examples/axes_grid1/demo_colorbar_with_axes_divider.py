@@ -1,7 +1,7 @@
 """
-==================================
-Colorbar with :obj:`~.AxesDivider`
-==================================
+=========================
+Colorbar with AxesDivider
+=========================
 
 The `.axes_divider.make_axes_locatable` function takes an existing axes, adds
 it to a new `.AxesDivider` and returns the `.AxesDivider`.  The `.append_axes`
