@@ -113,16 +113,17 @@ ax.set_ylim(-2, 2)
 import matplotlib.patches as mpatches
 
 fig, ax = plt.subplots(figsize=(3, 3))
-arr = mpatches.FancyArrowPatch((1.25, 1.25), (1.75, 1.75),
+arr = mpatches.FancyArrowPatch((1.25, 1.5), (1.75, 1.5),
                                arrowstyle='->,head_width=.15', mutation_scale=20)
 ax.add_patch(arr)
-ax.annotate("label", (.5, .5), xycoords=arr, ha='center', va='center')
+ax.annotate("label", (.5, .5), xycoords=arr, ha='center', va='bottom')
 ax.set(xlim=(1, 2), ylim=(1, 2))
 
 # %%
 # Here the annotation is placed at position (.5,.5) relative to the arrow's
-# lower left corner and is vertically and horizontally centered at that
-# position. For an example of chaining annotation Artists, see the
+# lower left corner and is vertically and horizontally at that position.
+# Vertically, the bottom aligns to that reference point so that the label
+# is above the line. For an example of chaining annotation Artists, see the
 # :ref:`Artist section <artist_annotation_coord>` of
 # :ref:`annotating_coordinate_systems`.
 #
@@ -568,23 +569,25 @@ fig.subplots_adjust(top=0.8)
 # coordinate system to "axes fraction":
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
-ax1.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transAxes)
-ax2.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
+ax1.annotate("Test", xy=(0.2, 0.2), xycoords=ax1.transAxes)
+ax2.annotate("Test", xy=(0.2, 0.2), xycoords="axes fraction")
 
 # %%
 # Another commonly used `.Transform` instance is ``Axes.transData``. This
 # transform  is the coordinate system of the data plotted in the axes. In this
-# example, it is used to draw an arrow from a point in *ax1* to text in *ax2*,
-# where the point and text are positioned relative to the coordinates of *ax1*
-# and *ax2* respectively:
+# example, it is used to draw an arrow between related data points in two
+# Axes. We have passed an empty text because in this case, the annotation
+# connects data points.
+
+x = np.linspace(-1, 1)
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
-
-ax1.annotate("Test1", xy=(0.5, 0.5), xycoords="axes fraction")
-ax2.annotate("Test2",
-               xy=(0.5, 0.5), xycoords=ax1.transData,
-               xytext=(0.5, 0.5), textcoords=ax2.transData,
-               arrowprops=dict(arrowstyle="->"))
+ax1.plot(x, -x**3)
+ax2.plot(x, -3*x**2)
+ax2.annotate("",
+             xy=(0, 0), xycoords=ax1.transData,
+             xytext=(0, 0), textcoords=ax2.transData,
+             arrowprops=dict(arrowstyle="<->"))
 
 # %%
 # .. _artist_annotation_coord:
