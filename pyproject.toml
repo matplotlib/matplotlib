@@ -131,3 +131,4 @@ convention = "numpy"
 
 [tool.mypy]
 exclude = ["lib/matplotlib/(sphinxext|backends|testing)", "lib/mpl_toolkits"]
+ignore_missing_imports = true
