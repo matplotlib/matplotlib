@@ -569,8 +569,8 @@ fig.subplots_adjust(top=0.8)
 # coordinate system to "axes fraction":
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
-ax1.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transAxes)
-ax2.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
+ax1.annotate("Test", xy=(0.2, 0.2), xycoords=ax1.transAxes)
+ax2.annotate("Test", xy=(0.2, 0.2), xycoords="axes fraction")
 
 # %%
 # Another commonly used `.Transform` instance is ``Axes.transData``. This
