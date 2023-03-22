@@ -1580,7 +1580,7 @@ def subplot_mosaic(
     gridspec_kw: dict[str, Any] | None = None,
     per_subplot_kw: dict[Any, dict[str, Any]] | None = None,
     **fig_kw
-) -> tuple[Figure, dict[Any, Axes]]:
+) -> tuple[Figure, dict[Any, matplotlib.axes.Axes]]:
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1744,7 +1744,7 @@ def subplot2grid(
     return fig.add_subplot(subplotspec, **kwargs)
 
 
-def twinx(ax: Axes | None = None) -> _AxesBase:
+def twinx(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
     """
     Make and return a second axes that shares the *x*-axis.  The new axes will
     overlay *ax* (or the current axes if *ax* is *None*), and its ticks will be
@@ -1760,7 +1760,7 @@ def twinx(ax: Axes | None = None) -> _AxesBase:
     return ax1
 
 
-def twiny(ax: Axes | None = None) -> _AxesBase:
+def twiny(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
     """
     Make and return a second axes that shares the *y*-axis.  The new axes will
     overlay *ax* (or the current axes if *ax* is *None*), and its ticks will be
@@ -2219,8 +2219,8 @@ def _get_pyplot_commands() -> list[str]:
 @_copy_docstring_and_deprecators(Figure.colorbar)
 def colorbar(
     mappable: ScalarMappable | None = None,
-    cax: Axes | None = None,
-    ax: Axes | Iterable[Axes] | None = None,
+    cax: matplotlib.axes.Axes | None = None,
+    ax: matplotlib.axes.Axes | Iterable[matplotlib.axes.Axes] | None = None,
     **kwargs
 ) -> Colorbar:
     if mappable is None:
