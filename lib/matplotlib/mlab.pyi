@@ -1,7 +1,9 @@
 from matplotlib import cbook
 
 from collections.abc import Callable
+import functools
 from typing import Literal
+
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -44,6 +46,12 @@ def csd(
     sides: Literal["default", "onesided", "twosided"] | None = ...,
     scale_by_freq: bool | None = ...,
 ) -> tuple[ArrayLike, ArrayLike]: ...
+
+complex_spectrum = functools.partial(tuple[ArrayLike, ArrayLike])
+magnitude_spectrum = functools.partial(tuple[ArrayLike, ArrayLike])
+angle_spectrum = functools.partial(tuple[ArrayLike, ArrayLike])
+phase_spectrum = functools.partial(tuple[ArrayLike, ArrayLike])
+
 def specgram(
     x: ArrayLike,
     NFFT: int | None = ...,

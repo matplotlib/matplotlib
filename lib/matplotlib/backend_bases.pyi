@@ -410,7 +410,7 @@ class FigureManagerBase:
     def get_window_title(self) -> str: ...
     def set_window_title(self, title: str) -> None: ...
 
-cursors: Cursors
+cursors = Cursors
 
 class _Mode(str, Enum):
     NONE: str
