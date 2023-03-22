@@ -130,5 +130,5 @@ convention = "numpy"
 "galleries/users_explain/text/text_props.py" = ["E501"]
 
 [tool.mypy]
-exclude = ["lib/matplotlib/(sphinxext|backends|testing)", "lib/mpl_toolkits"]
+exclude = [".*/matplotlib/(sphinxext|backends|testing)", ".*/mpl_toolkits"]
 ignore_missing_imports = true
