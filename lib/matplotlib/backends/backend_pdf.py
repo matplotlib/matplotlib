@@ -933,7 +933,7 @@ class PdfFile:
         if dvi_info is not None:
             return dvi_info.pdfname
 
-        tex_font_map = dviread.PsfontsMap(dviread._find_tex_file('pdftex.map'))
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
         psfont = tex_font_map[dvifont.texname]
         if psfont.filename is None:
             raise ValueError(

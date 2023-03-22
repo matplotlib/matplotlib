@@ -488,8 +488,6 @@ class Colorbar:
         del self.ax.cla
         self.ax.cla()
 
-    filled = _api.deprecate_privatize_attribute("3.6")
-
     def update_normal(self, mappable):
         """
         Update solid patches, lines, etc.
@@ -517,14 +515,6 @@ class Colorbar:
             if not CS.filled:
                 self.add_lines(CS)
         self.stale = True
-
-    @_api.deprecated("3.6", alternative="fig.draw_without_rendering()")
-    def draw_all(self):
-        """
-        Calculate any free parameters based on the current cmap and norm,
-        and do all the drawing.
-        """
-        self._draw_all()
 
     def _draw_all(self):
         """

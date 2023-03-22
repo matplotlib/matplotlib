@@ -39,18 +39,6 @@ _log = logging.getLogger(__name__)
 PIXELS_PER_INCH = 75
 
 
-@_api.deprecated("3.6")
-def error_msg_wx(msg, parent=None):
-    """Signal an error condition with a popup error dialog."""
-    dialog = wx.MessageDialog(parent=parent,
-                              message=msg,
-                              caption='Matplotlib backend_wx error',
-                              style=wx.OK | wx.CENTRE)
-    dialog.ShowModal()
-    dialog.Destroy()
-    return None
-
-
 # lru_cache holds a reference to the App and prevents it from being gc'ed.
 @functools.lru_cache(1)
 def _create_wxapp():
@@ -148,10 +136,6 @@ class RendererWx(RendererBase):
 
     def flipy(self):
         # docstring inherited
-        return True
-
-    @_api.deprecated("3.6")
-    def offset_text_height(self):
         return True
 
     def get_text_width_height_descent(self, s, prop, ismath):
@@ -930,28 +914,6 @@ class FigureFrameWx(wx.Frame):
         self.Fit()
 
         self.Bind(wx.EVT_CLOSE, self._on_close)
-
-    sizer = _api.deprecated("3.6", alternative="frame.GetSizer()")(
-        property(lambda self: self.GetSizer()))
-    figmgr = _api.deprecated("3.6", alternative="frame.canvas.manager")(
-        property(lambda self: self.canvas.manager))
-    num = _api.deprecated("3.6", alternative="frame.canvas.manager.num")(
-        property(lambda self: self.canvas.manager.num))
-    toolbar = _api.deprecated("3.6", alternative="frame.GetToolBar()")(
-        property(lambda self: self.GetToolBar()))
-    toolmanager = _api.deprecated(
-        "3.6", alternative="frame.canvas.manager.toolmanager")(
-            property(lambda self: self.canvas.manager.toolmanager))
-
-    @_api.deprecated(
-        "3.6", alternative="the canvas_class constructor parameter")
-    def get_canvas(self, fig):
-        return FigureCanvasWx(self, -1, fig)
-
-    @_api.deprecated("3.6", alternative="frame.canvas.manager")
-    def get_figure_manager(self):
-        _log.debug("%s - get_figure_manager()", type(self))
-        return self.canvas.manager
 
     def _on_close(self, event):
         _log.debug("%s - on_close()", type(self))

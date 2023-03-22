@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import markers
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.path import Path
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.transforms import Affine2D
@@ -38,15 +37,6 @@ def test_marker_fillstyle():
 def test_markers_valid(marker):
     # Checking this doesn't fail.
     markers.MarkerStyle(marker)
-
-
-def test_deprecated_marker():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ms = markers.MarkerStyle()
-    markers.MarkerStyle(ms)  # No warning on copy.
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ms = markers.MarkerStyle(None)
-    markers.MarkerStyle(ms)  # No warning on copy.
 
 
 @pytest.mark.parametrize('marker', [

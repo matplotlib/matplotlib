@@ -996,9 +996,9 @@ class PsfontsMap:
         if basename is None:
             basename = tfmname
         if encodingfile is not None:
-            encodingfile = _find_tex_file(encodingfile)
+            encodingfile = find_tex_file(encodingfile)
         if fontfile is not None:
-            fontfile = _find_tex_file(fontfile)
+            fontfile = find_tex_file(fontfile)
         self._parsed[tfmname] = PsFont(
             texname=tfmname, psname=basename, effects=effects,
             encoding=encodingfile, filename=fontfile)
@@ -1053,7 +1053,7 @@ class _LuatexKpsewhich:
 
 
 @lru_cache
-def _find_tex_file(filename):
+def find_tex_file(filename):
     """
     Find a file in the texmf tree using kpathsea_.
 
@@ -1111,24 +1111,9 @@ def _find_tex_file(filename):
             f"{filename!r} in your texmf tree, but could not find it")
 
 
-# After the deprecation period elapses, delete this shim and rename
-# _find_tex_file to find_tex_file everywhere.
-def find_tex_file(filename):
-    try:
-        return _find_tex_file(filename)
-    except FileNotFoundError as exc:
-        _api.warn_deprecated(
-            "3.6", message=f"{exc.args[0]}; in the future, this will raise a "
-            f"FileNotFoundError.")
-        return ""
-
-
-find_tex_file.__doc__ = _find_tex_file.__doc__
-
-
 @lru_cache
 def _fontfile(cls, suffix, texname):
-    return cls(_find_tex_file(texname + suffix))
+    return cls(find_tex_file(texname + suffix))
 
 
 _tfmfile = partial(_fontfile, Tfm, ".tfm")
@@ -1144,7 +1129,7 @@ if __name__ == '__main__':
     parser.add_argument("dpi", nargs="?", type=float, default=None)
     args = parser.parse_args()
     with Dvi(args.filename, args.dpi) as dvi:
-        fontmap = PsfontsMap(_find_tex_file('pdftex.map'))
+        fontmap = PsfontsMap(find_tex_file('pdftex.map'))
         for page in dvi:
             print(f"=== new page === "
                   f"(w: {page.width}, h: {page.height}, d: {page.descent})")

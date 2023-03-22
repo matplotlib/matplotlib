@@ -8,8 +8,6 @@ from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     ResizeEvent, TimerBase)
-from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
 
 
 class TimerMac(_macosx.Timer, TimerBase):
@@ -132,15 +130,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
             mpl.rcParams['savefig.directory'] = os.path.dirname(filename)
         self.canvas.figure.savefig(filename)
 
-    @_api.deprecated("3.6", alternative='configure_subplots()')
-    def prepare_configure_subplots(self):
-        toolfig = Figure(figsize=(6, 3))
-        canvas = FigureCanvasMac(toolfig)
-        toolfig.subplots_adjust(top=0.9)
-        # Need to keep a reference to the tool.
-        _tool = SubplotTool(self.canvas.figure, toolfig)
-        return canvas
-
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
@@ -160,10 +149,6 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     def _close_button_pressed(self):
         Gcf.destroy(self)
         self.canvas.flush_events()
-
-    @_api.deprecated("3.6")
-    def close(self):
-        return self._close_button_pressed()
 
     @classmethod
     def start_main_loop(cls):

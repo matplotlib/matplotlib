@@ -2074,8 +2074,7 @@ class MultiCursor(Widget):
     See :doc:`/gallery/widgets/multicursor`.
     """
 
-    @_api.make_keyword_only("3.6", "useblit")
-    def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
+    def __init__(self, canvas, axes, *, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
         # canvas is stored only to provide the deprecated .canvas attribute;
         # once it goes away the unused argument won't need to be stored at all.
@@ -2108,9 +2107,6 @@ class MultiCursor(Widget):
 
         self.connect()
 
-    canvas = _api.deprecate_privatize_attribute("3.6")
-    background = _api.deprecated("3.6")(lambda self: (
-        self._backgrounds[self.axes[0].figure.canvas] if self.axes else None))
     needclear = _api.deprecated("3.7")(lambda self: False)
 
     def connect(self):
@@ -2207,8 +2203,6 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
-
-    state_modifier_keys = _api.deprecate_privatize_attribute("3.6")
 
     def set_active(self, active):
         super().set_active(active)
