@@ -575,17 +575,19 @@ ax2.annotate("Test", xy=(0.2, 0.2), xycoords="axes fraction")
 # %%
 # Another commonly used `.Transform` instance is ``Axes.transData``. This
 # transform  is the coordinate system of the data plotted in the axes. In this
-# example, it is used to draw an arrow from a point in *ax1* to text in *ax2*,
-# where the point and text are positioned relative to the coordinates of *ax1*
-# and *ax2* respectively:
+# example, it is used to draw an arrow between related data points in two
+# Axes. We have passed an empty text because in this case, the annotation
+# connects data points.
+
+x = np.linspace(-1, 1)
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
-
-ax1.annotate("Test1", xy=(0.5, 0.5), xycoords="axes fraction")
-ax2.annotate("Test2",
-               xy=(0.5, 0.5), xycoords=ax1.transData,
-               xytext=(0.5, 0.5), textcoords=ax2.transData,
-               arrowprops=dict(arrowstyle="->"))
+ax1.plot(x, -x**3)
+ax2.plot(x, -3*x**2)
+ax2.annotate("",
+             xy=(0, 0), xycoords=ax1.transData,
+             xytext=(0, 0), textcoords=ax2.transData,
+             arrowprops=dict(arrowstyle="<->"))
 
 # %%
 # .. _artist_annotation_coord:
