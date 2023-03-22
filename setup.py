@@ -228,8 +228,9 @@ class Sdist(setuptools.command.sdist.sdist):
         update_matplotlibrc(
             Path(base_dir, "lib/matplotlib/mpl-data/matplotlibrc"))
 
-
-package_data = {}  # Will be filled below by the various components.
+# Start with type hint data
+# Will be further filled below by the various components.
+package_data = {"matplotlib": ["py.typed", "**/*.pyi"]}
 
 # If the user just queries for information, don't bother figuring out which
 # packages to build or install.
