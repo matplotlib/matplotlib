@@ -113,16 +113,17 @@ ax.set_ylim(-2, 2)
 import matplotlib.patches as mpatches
 
 fig, ax = plt.subplots(figsize=(3, 3))
-arr = mpatches.FancyArrowPatch((1.25, 1.25), (1.75, 1.75),
+arr = mpatches.FancyArrowPatch((1.25, 1.5), (1.75, 1.5),
                                arrowstyle='->,head_width=.15', mutation_scale=20)
 ax.add_patch(arr)
-ax.annotate("label", (.5, .5), xycoords=arr, ha='center', va='center')
+ax.annotate("label", (.5, .5), xycoords=arr, ha='center', va='bottom')
 ax.set(xlim=(1, 2), ylim=(1, 2))
 
 # %%
 # Here the annotation is placed at position (.5,.5) relative to the arrow's
-# lower left corner and is vertically and horizontally centered at that
-# position. For an example of chaining annotation Artists, see the
+# lower left corner and is vertically and horizontally at that position.
+# Vertically, the bottom aligns to that reference point so that the label
+# is above the line. For an example of chaining annotation Artists, see the
 # :ref:`Artist section <artist_annotation_coord>` of
 # :ref:`annotating_coordinate_systems`.
 #
