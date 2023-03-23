@@ -868,12 +868,8 @@ static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT, "_path", NULL, 0, module_functions
 };
 
-#pragma GCC visibility push(default)
-
 PyMODINIT_FUNC PyInit__path(void)
 {
     import_array();
     return PyModule_Create(&moduledef);
 }
-
-#pragma GCC visibility pop

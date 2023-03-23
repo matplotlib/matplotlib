@@ -1605,8 +1605,6 @@ static PyTypeObject *PyFT2Font_init_type()
 
 static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "ft2font" };
 
-#pragma GCC visibility push(default)
-
 PyMODINIT_FUNC PyInit_ft2font(void)
 {
     import_array();
@@ -1671,5 +1669,3 @@ PyMODINIT_FUNC PyInit_ft2font(void)
 
     return m;
 }
-
-#pragma GCC visibility pop
