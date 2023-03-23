@@ -22,6 +22,7 @@ tea_means = [15*cm, 10*cm, 8*cm, 12*cm, 5*cm]
 tea_std = [2*cm, 1*cm, 1*cm, 4*cm, 2*cm]
 
 fig, ax = plt.subplots()
+ax.yaxis.set_units(inch)
 
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars
@@ -36,7 +37,6 @@ ax.set_title('Cup height by group and beverage choice')
 ax.set_xticks(ind + width / 2, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 
 ax.legend()
-ax.yaxis.set_units(inch)
 ax.autoscale_view()
 
 plt.show()
