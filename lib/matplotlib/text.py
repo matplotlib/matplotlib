@@ -213,20 +213,15 @@ class Text(Artist):
         Return whether the mouse event occurred inside the axis-aligned
         bounding-box of the text.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
-        if not self.get_visible() or self._renderer is None:
+        if (self._different_canvas(mouseevent) or not self.get_visible()
+                or self._renderer is None):
             return False, {}
-
         # Explicitly use Text.get_window_extent(self) and not
         # self.get_window_extent() so that Annotation.contains does not
         # accidentally cover the entire annotation bounding box.
         bbox = Text.get_window_extent(self)
         inside = (bbox.x0 <= mouseevent.x <= bbox.x1
                   and bbox.y0 <= mouseevent.y <= bbox.y1)
-
         cattr = {}
         # if the text has a surrounding patch, also check containment for it,
         # and merge the results with the results for the text.
@@ -234,7 +229,6 @@ class Text(Artist):
             patch_inside, patch_cattr = self._bbox_patch.contains(mouseevent)
             inside = inside or patch_inside
             cattr["bbox_patch"] = patch_cattr
-
         return inside, cattr
 
     def _get_xy_display(self):
@@ -1855,9 +1849,8 @@ or callable, default: value of *xycoords*
         Text.__init__(self, x, y, text, **kwargs)
 
     def contains(self, event):
-        inside, info = self._default_contains(event)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(event):
+            return False, {}
         contains, tinfo = Text.contains(self, event)
         if self.arrow_patch is not None:
             in_patch, _ = self.arrow_patch.contains(event)

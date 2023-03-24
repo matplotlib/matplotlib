@@ -289,9 +289,8 @@ class FigureBase(Artist):
         -------
             bool, {}
         """
-        inside, info = self._default_contains(mouseevent, figure=self)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}
 

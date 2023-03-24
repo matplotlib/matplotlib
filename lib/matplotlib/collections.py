@@ -454,24 +454,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns ``bool, dict(ind=itemlist)``, where every item in itemlist
         contains the event.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
-        if not self.get_visible():
+        if self._different_canvas(mouseevent) or not self.get_visible():
             return False, {}
-
         pickradius = (
             float(self._picker)
             if isinstance(self._picker, Number) and
                self._picker is not True  # the bool, not just nonzero or 1
             else self._pickradius)
-
         if self.axes:
             self.axes._unstale_viewLim()
-
         transform, offset_trf, offsets, paths = self._prepare_points()
-
         # Tests if the point is contained on one of the polygons formed
         # by the control points of each of the paths. A point is considered
         # "on" a path if it would lie within a stroke of width 2*pickradius
@@ -481,7 +473,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
             offsets, offset_trf, pickradius <= 0)
-
         return len(ind) > 0, dict(ind=ind)
 
     def set_urls(self, urls):

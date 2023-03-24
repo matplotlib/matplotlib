@@ -242,9 +242,6 @@ class Tick(martist.Artist):
         This function always returns false.  It is more useful to test if the
         axis as a whole contains the mouse rather than the set of tick marks.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
         return False, {}
 
     def set_pad(self, val):
@@ -2230,10 +2227,8 @@ class XAxis(Axis):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the x-axis."""
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
+        if self._different_canvas(mouseevent):
+            return False, {}
         x, y = mouseevent.x, mouseevent.y
         try:
             trans = self.axes.transAxes.inverted()
@@ -2473,10 +2468,8 @@ class YAxis(Axis):
 
     def contains(self, mouseevent):
         # docstring inherited
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
+        if self._different_canvas(mouseevent):
+            return False, {}
         x, y = mouseevent.x, mouseevent.y
         try:
             trans = self.axes.transAxes.inverted()
