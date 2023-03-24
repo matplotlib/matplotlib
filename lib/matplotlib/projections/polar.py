@@ -1228,8 +1228,8 @@ class PolarAxes(Axes):
     def get_rsign(self):
         return np.sign(self._originViewLim.y1 - self._originViewLim.y0)
 
-    @_api.make_keyword_only("3.6", "emit")
-    def set_rlim(self, bottom=None, top=None, emit=True, auto=False, **kwargs):
+    def set_rlim(self, bottom=None, top=None, *,
+                 emit=True, auto=False, **kwargs):
         """
         Set the radial axis view limits.
 

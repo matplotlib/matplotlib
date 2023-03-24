@@ -19,12 +19,6 @@ from matplotlib import cbook
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset, zoomed_inset_axes
 
-
-def get_demo_image():
-    z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
-    # z is a numpy array of 15x15
-    return z, (-3, 4, -4, 3)
-
 fig, (ax, ax2) = plt.subplots(ncols=2, figsize=[6, 3])
 
 
@@ -51,9 +45,9 @@ add_sizebar(ax, 0.5)
 add_sizebar(axins, 0.5)
 
 
-# Second subplot, showing an image with an inset zoom
-# and a marked inset
-Z, extent = get_demo_image()
+# Second subplot, showing an image with an inset zoom and a marked inset
+Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy")  # 15x15 array
+extent = (-3, 4, -4, 3)
 Z2 = np.zeros((150, 150))
 ny, nx = Z.shape
 Z2[30:30+ny, 30:30+nx] = Z

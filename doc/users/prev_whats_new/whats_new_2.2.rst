@@ -32,7 +32,7 @@ Features include:
   - Nested `~.GridSpec` layouts using `~.GridSpecFromSubplotSpec`.
 
   For more details and capabilities please see the new tutorial:
-  :doc:`/tutorials/intermediate/constrainedlayout_guide`
+  :ref:`constrainedlayout_guide`
 
 Note the new API to access this:
 

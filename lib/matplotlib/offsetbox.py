@@ -533,8 +533,7 @@ class PaddedBox(OffsetBox):
     it when rendering.
     """
 
-    @_api.make_keyword_only("3.6", name="draw_frame")
-    def __init__(self, child, pad=0., draw_frame=False, patch_attrs=None):
+    def __init__(self, child, pad=0., *, draw_frame=False, patch_attrs=None):
         """
         Parameters
         ----------
@@ -715,8 +714,8 @@ class TextArea(OffsetBox):
     child text.
     """
 
-    @_api.make_keyword_only("3.6", name="textprops")
     def __init__(self, s,
+                 *,
                  textprops=None,
                  multilinebaseline=False,
                  ):
@@ -929,8 +928,7 @@ class AnchoredOffsetbox(OffsetBox):
              'center': 10,
              }
 
-    @_api.make_keyword_only("3.6", name="pad")
-    def __init__(self, loc,
+    def __init__(self, loc, *,
                  pad=0.4, borderpad=0.5,
                  child=None, prop=None, frameon=True,
                  bbox_to_anchor=None,
@@ -1103,8 +1101,7 @@ class AnchoredText(AnchoredOffsetbox):
     AnchoredOffsetbox with Text.
     """
 
-    @_api.make_keyword_only("3.6", name="pad")
-    def __init__(self, s, loc, pad=0.4, borderpad=0.5, prop=None, **kwargs):
+    def __init__(self, s, loc, *, pad=0.4, borderpad=0.5, prop=None, **kwargs):
         """
         Parameters
         ----------
@@ -1144,8 +1141,7 @@ class AnchoredText(AnchoredOffsetbox):
 
 class OffsetImage(OffsetBox):
 
-    @_api.make_keyword_only("3.6", name="zoom")
-    def __init__(self, arr,
+    def __init__(self, arr, *,
                  zoom=1,
                  cmap=None,
                  norm=None,
@@ -1229,9 +1225,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         return f"AnnotationBbox({self.xy[0]:g},{self.xy[1]:g})"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="xycoords")
-    def __init__(self, offsetbox, xy,
-                 xybox=None,
+    def __init__(self, offsetbox, xy, xybox=None, *,
                  xycoords='data',
                  boxcoords=None,
                  frameon=True, pad=0.4,  # FancyBboxPatch boxstyle.
@@ -1506,15 +1500,22 @@ class DraggableBase:
             ref_artist.set_picker(True)
         self.got_artist = False
         self._use_blit = use_blit and self.canvas.supports_blit
-        self.cids = [
-            self.canvas.callbacks._connect_picklable(
-                'pick_event', self.on_pick),
-            self.canvas.callbacks._connect_picklable(
-                'button_release_event', self.on_release),
+        callbacks = ref_artist.figure._canvas_callbacks
+        self._disconnectors = [
+            functools.partial(
+                callbacks.disconnect, callbacks._connect_picklable(name, func))
+            for name, func in [
+                ("pick_event", self.on_pick),
+                ("button_release_event", self.on_release),
+                ("motion_notify_event", self.on_motion),
+            ]
         ]
 
     # A property, not an attribute, to maintain picklability.
     canvas = property(lambda self: self.ref_artist.figure.canvas)
+
+    cids = property(lambda self: [
+        disconnect.args[0] for disconnect in self._disconnectors[:2]])
 
     def on_motion(self, evt):
         if self._check_still_parented() and self.got_artist:
@@ -1542,16 +1543,12 @@ class DraggableBase:
                 self.ref_artist.draw(
                     self.ref_artist.figure._get_renderer())
                 self.canvas.blit()
-            self._c1 = self.canvas.callbacks._connect_picklable(
-                "motion_notify_event", self.on_motion)
             self.save_offset()
 
     def on_release(self, event):
         if self._check_still_parented() and self.got_artist:
             self.finalize_offset()
             self.got_artist = False
-            self.canvas.mpl_disconnect(self._c1)
-
             if self._use_blit:
                 self.ref_artist.set_animated(False)
 
@@ -1564,14 +1561,8 @@ class DraggableBase:
 
     def disconnect(self):
         """Disconnect the callbacks."""
-        for cid in self.cids:
-            self.canvas.mpl_disconnect(cid)
-        try:
-            c1 = self._c1
-        except AttributeError:
-            pass
-        else:
-            self.canvas.mpl_disconnect(c1)
+        for disconnector in self._disconnectors:
+            disconnector()
 
     def save_offset(self):
         pass

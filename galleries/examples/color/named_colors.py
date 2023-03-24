@@ -6,7 +6,7 @@ List of named colors
 This plots a list of the named colors supported in matplotlib.
 For more information on colors in matplotlib see
 
-* the :doc:`/tutorials/colors/colors` tutorial;
+* the :ref:`colors_def` tutorial;
 * the `matplotlib.colors` API;
 * the :doc:`/gallery/color/color_demo`.
 

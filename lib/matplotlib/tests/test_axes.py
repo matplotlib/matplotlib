@@ -4047,23 +4047,15 @@ def test_hist_stacked_weighted():
     ax.hist((d1, d2), weights=(w1, w2), histtype="stepfilled", stacked=True)
 
 
-@pytest.mark.parametrize("use_line_collection", [True, False],
-                         ids=['w/ line collection', 'w/o line collection'])
 @image_comparison(['stem.png'], style='mpl20', remove_text=True)
-def test_stem(use_line_collection):
+def test_stem():
     x = np.linspace(0.1, 2 * np.pi, 100)
 
     fig, ax = plt.subplots()
     # Label is a single space to force a legend to be drawn, but to avoid any
     # text being drawn
-    if use_line_collection:
-        ax.stem(x, np.cos(x),
-                linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
-    else:
-        with pytest.warns(MatplotlibDeprecationWarning, match='deprecated'):
-            ax.stem(x, np.cos(x),
-                    linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ',
-                    use_line_collection=False)
+    ax.stem(x, np.cos(x),
+            linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
     ax.legend()
 
 
@@ -4162,23 +4154,14 @@ def test_stem_dates():
     ax.stem(xs, ys)
 
 
-@pytest.mark.parametrize("use_line_collection", [True, False],
-                         ids=['w/ line collection', 'w/o line collection'])
 @image_comparison(['stem_orientation.png'], style='mpl20', remove_text=True)
-def test_stem_orientation(use_line_collection):
+def test_stem_orientation():
     x = np.linspace(0.1, 2*np.pi, 50)
 
     fig, ax = plt.subplots()
-    if use_line_collection:
-        ax.stem(x, np.cos(x),
-                linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
-                orientation='horizontal')
-    else:
-        with pytest.warns(MatplotlibDeprecationWarning, match='deprecated'):
-            ax.stem(x, np.cos(x),
-                    linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
-                    use_line_collection=False,
-                    orientation='horizontal')
+    ax.stem(x, np.cos(x),
+            linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
+            orientation='horizontal')
 
 
 @image_comparison(['hist_stacked_stepfilled_alpha'])

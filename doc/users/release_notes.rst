@@ -7,7 +7,9 @@ Release notes
 =============
 
 .. include from another document so that it's easy to exclude this for releases
-.. include:: release_notes_next.rst
+.. ifconfig:: releaselevel == 'dev'
+
+   .. include:: release_notes_next.rst
 
 
 Version 3.7
@@ -18,7 +20,7 @@ Version 3.7
     prev_whats_new/whats_new_3.7.0.rst
     ../api/prev_api_changes/api_changes_3.7.0.rst
     github_stats.rst
-
+    prev_whats_new/github_stats_3.7.0.rst
 
 Version 3.6
 ===========

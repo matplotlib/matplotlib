@@ -23,34 +23,6 @@ from .transforms import (
 _log = logging.getLogger(__name__)
 
 
-@_api.deprecated("3.6")
-def get_rotation(rotation):
-    """
-    Return *rotation* normalized to an angle between 0 and 360 degrees.
-
-    Parameters
-    ----------
-    rotation : float or {None, 'horizontal', 'vertical'}
-        Rotation angle in degrees. *None* and 'horizontal' equal 0,
-        'vertical' equals 90.
-
-    Returns
-    -------
-    float
-    """
-    try:
-        return float(rotation) % 360
-    except (ValueError, TypeError) as err:
-        if cbook._str_equal(rotation, 'horizontal') or rotation is None:
-            return 0.
-        elif cbook._str_equal(rotation, 'vertical'):
-            return 90.
-        else:
-            raise ValueError(f"rotation is {rotation!r}; expected either "
-                             "'horizontal', 'vertical', numeric value, or "
-                             "None") from err
-
-
 def _get_textbox(text, renderer):
     """
     Calculate the bounding box of the text.
@@ -129,9 +101,8 @@ class Text(Artist):
     def __repr__(self):
         return f"Text({self._x}, {self._y}, {self._text!r})"
 
-    @_api.make_keyword_only("3.6", name="color")
     def __init__(self,
-                 x=0, y=0, text='',
+                 x=0, y=0, text='', *,
                  color=None,           # defaults to rc params
                  verticalalignment='baseline',
                  horizontalalignment='left',
@@ -143,7 +114,6 @@ class Text(Artist):
                  usetex=None,          # defaults to rcParams['text.usetex']
                  wrap=False,
                  transform_rotates_text=False,
-                 *,
                  parse_math=None,    # defaults to rcParams['text.parse_math']
                  **kwargs
                  ):

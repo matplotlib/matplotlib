@@ -23,7 +23,10 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     locator_list = []
     sentinel = object()
     for ax in fig.axes:
-        locator_list.append(ax.get_axes_locator())
+        locator = ax.get_axes_locator()
+        if locator is not None:
+            ax.apply_aspect(locator(ax, None))
+        locator_list.append(locator)
         current_pos = ax.get_position(original=False).frozen()
         ax.set_axes_locator(lambda a, r, _pos=current_pos: _pos)
         # override the method that enforces the aspect ratio on the Axes

@@ -14,7 +14,7 @@ import weakref
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, font_manager as fm
+from matplotlib import cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
@@ -31,28 +31,6 @@ _log = logging.getLogger(__name__)
 # Note: When formatting floating point values, it is important to use the
 # %f/{:f} format rather than %s/{} to avoid triggering scientific notation,
 # which is not recognized by TeX.
-
-
-@_api.caching_module_getattr
-class __getattr__:
-    NO_ESCAPE = _api.deprecated("3.6", obj_type="")(
-        property(lambda self: r"(?<!\\)(?:\\\\)*"))
-    re_mathsep = _api.deprecated("3.6", obj_type="")(
-        property(lambda self: r"(?<!\\)(?:\\\\)*\$"))
-
-
-@_api.deprecated("3.6")
-def get_fontspec():
-    """Build fontspec preamble from rc."""
-    with mpl.rc_context({"pgf.preamble": ""}):
-        return _get_preamble()
-
-
-@_api.deprecated("3.6")
-def get_preamble():
-    """Get LaTeX preamble from rc."""
-    return mpl.rcParams["pgf.preamble"]
-
 
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
@@ -89,22 +67,12 @@ mpl_pt_to_in = 1. / 72.
 mpl_in_to_pt = 1. / mpl_pt_to_in
 
 
-@_api.deprecated("3.6")
-def common_texification(text):
-    return _tex_escape(text)
-
-
 def _tex_escape(text):
     r"""
     Do some necessary and/or useful substitutions for texts to be included in
     LaTeX documents.
     """
     return text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
-
-
-@_api.deprecated("3.6")
-def writeln(fh, line):
-    return _writeln(fh, line)
 
 
 def _writeln(fh, line):
@@ -294,11 +262,6 @@ class LatexManager:
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
         self._get_box_metrics = functools.lru_cache(self._get_box_metrics)
-
-    texcommand = _api.deprecated("3.6")(
-        property(lambda self: mpl.rcParams["pgf.texsystem"]))
-    latex_header = _api.deprecated("3.6")(
-        property(lambda self: self._build_latex_header()))
 
     def _setup_latex_process(self, *, expect_reply=True):
         # Open LaTeX process for real work; register it for deletion.  On

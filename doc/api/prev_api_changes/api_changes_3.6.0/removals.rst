@@ -94,7 +94,7 @@ The following module-level classes/variables have been removed:
   ``mathtext.latex_to_standard``
 - ``mathtext.MathtextBackendPdf``, ``mathtext.MathtextBackendPs``,
   ``mathtext.MathtextBackendSvg``, ``mathtext.MathtextBackendCairo``; use
-  `.MathtextBackendPath` instead.
+  ``.MathtextBackendPath`` instead.
 - ``mathtext.Node`` and all its subclasses
 - ``mathtext.NUM_SIZE_LEVELS``
 - ``mathtext.Parser``

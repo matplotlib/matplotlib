@@ -8,9 +8,9 @@ Reference for colormaps included with Matplotlib.
 A reversed version of each of these colormaps is available by appending
 ``_r`` to the name, as shown in :ref:`reverse-cmap`.
 
-See :doc:`/tutorials/colors/colormaps` for an in-depth discussion about
+See :ref:`colormaps` for an in-depth discussion about
 colormaps, including colorblind-friendliness, and
-:doc:`/tutorials/colors/colormap-manipulation` for a guide to creating
+:ref:`colormap-manipulation` for a guide to creating
 colormaps.
 """
 

@@ -6,8 +6,8 @@ drawing legends associated with axes and/or figures.
 
     It is unlikely that you would ever create a Legend instance manually.
     Most users would normally create a legend via the `~.Axes.legend`
-    function. For more details on legends there is also a :doc:`legend guide
-    </tutorials/intermediate/legend_guide>`.
+    function. For more details on legends there is also a :ref:`legend guide
+    <legend_guide>`.
 
 The `Legend` class is a container of legend handles and legend texts.
 
@@ -17,12 +17,13 @@ defined in the :mod:`~matplotlib.legend_handler` module. While not all artist
 types are covered by the default legend handlers, custom legend handlers can be
 defined to support arbitrary objects.
 
-See the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
+See the :ref`<legend_guide>` for more
 information.
 """
 
 import itertools
 import logging
+import numbers
 import time
 
 import numpy as np
@@ -77,7 +78,7 @@ class DraggableLegend(DraggableOffsetBox):
         if self._update == "loc":
             self._update_loc(self.get_loc_in_canvas())
         elif self._update == "bbox":
-            self._bbox_to_anchor(self.get_loc_in_canvas())
+            self._update_bbox_to_anchor(self.get_loc_in_canvas())
 
     def _update_loc(self, loc_in_canvas):
         bbox = self.legend.get_bbox_to_anchor()
@@ -313,7 +314,7 @@ _outside_doc = """
     right side of the layout.  In addition to the values of *loc*
     listed above, we have 'outside right upper', 'outside right lower',
     'outside left upper', and 'outside left lower'.  See
-    :doc:`/tutorials/intermediate/legend_guide` for more details.
+    :ref:`legend_guide` for more details.
 """
 
 _legend_kw_figure_st = (
@@ -342,10 +343,10 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
-    @_api.make_keyword_only("3.6", "loc")
     @_docstring.dedent_interpd
     def __init__(
         self, parent, handles, labels,
+        *,
         loc=None,
         numpoints=None,      # number of points in the legend line
         markerscale=None,    # relative size of legend markers vs. original
@@ -383,7 +384,6 @@ class Legend(Artist):
         handler_map=None,
         title_fontproperties=None,  # properties for the legend title
         alignment="center",       # control the alignment within the legend box
-        *,
         ncol=1,  # synonym for ncols (backward compatibility)
         draggable=False  # whether the legend can be dragged with the mouse
     ):
@@ -510,6 +510,9 @@ class Legend(Artist):
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
 
+        type_err_message = ("loc must be string, coordinate tuple, or"
+                            f" an integer 0-10, not {loc!r}")
+
         # handle outside legends:
         self._outside_loc = None
         if isinstance(loc, str):
@@ -528,6 +531,19 @@ class Legend(Artist):
                     loc = locs[0] + ' ' + locs[1]
             # check that loc is in acceptable strings
             loc = _api.check_getitem(self.codes, loc=loc)
+        elif np.iterable(loc):
+            # coerce iterable into tuple
+            loc = tuple(loc)
+            # validate the tuple represents Real coordinates
+            if len(loc) != 2 or not all(isinstance(e, numbers.Real) for e in loc):
+                raise ValueError(type_err_message)
+        elif isinstance(loc, int):
+            # validate the integer represents a string numeric value
+            if loc < 0 or loc > 10:
+                raise ValueError(type_err_message)
+        else:
+            # all other cases are invalid values of loc
+            raise ValueError(type_err_message)
 
         if self.isaxes and self._outside_loc:
             raise ValueError(
@@ -847,7 +863,7 @@ class Legend(Artist):
                              f"{type(orig_handle).__name__} "
                              "instances.\nA proxy artist may be used "
                              "instead.\nSee: https://matplotlib.org/"
-                             "stable/tutorials/intermediate/legend_guide.html"
+                             "stable/users/explain/axes/legend_guide.html"
                              "#controlling-the-legend-entries")
                 # No handle for this artist, so we just defer to None.
                 handle_list.append(None)

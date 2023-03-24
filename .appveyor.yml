@@ -9,6 +9,12 @@ branches:
     - /auto-backport-.*/
     - /^v\d+\.\d+\.[\dx]+-doc$/
 
+skip_commits:
+  message: /\[ci doc\]/
+  files:
+    - doc/
+    - galleries/
+
 clone_depth: 50
 
 image: Visual Studio 2017

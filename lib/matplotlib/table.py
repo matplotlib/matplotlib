@@ -51,14 +51,12 @@ class Cell(Rectangle):
                      'vertical':     'RL'
                      }
 
-    @_api.make_keyword_only("3.6", name="edgecolor")
-    def __init__(self, xy, width, height,
+    def __init__(self, xy, width, height, *,
                  edgecolor='k', facecolor='w',
                  fill=True,
                  text='',
                  loc=None,
                  fontproperties=None,
-                 *,
                  visible_edges='closed',
                  ):
         """

@@ -236,9 +236,14 @@ jobs:
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
-        if: ${{ github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)' }}
+        if: |
+          github.event_name == 'schedule' &&
+          matrix.name-suffix != '(Minimum Versions)'
         run: |
-          python -m pip install -i https://pypi.anaconda.org/scipy-wheels-nightly/simple --upgrade --only-binary=:all: numpy pandas
+          python -m pip install pytz  # Must be installed for Pandas.
+          python -m pip install \
+            --index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+            --upgrade --only-binary=:all: numpy pandas
 
       - name: Install Matplotlib
         run: |

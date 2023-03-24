@@ -20,7 +20,7 @@ from pyparsing import (
     pyparsing_common)
 
 import matplotlib as mpl
-from . import _api, cbook
+from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
@@ -35,8 +35,7 @@ _log = logging.getLogger("matplotlib.mathtext")
 # FONTS
 
 
-@_api.delete_parameter("3.6", "math")
-def get_unicode_index(symbol, math=False):  # Publicly exported.
+def get_unicode_index(symbol):  # Publicly exported.
     r"""
     Return the integer index (from the Unicode table) of *symbol*.
 
@@ -45,17 +44,7 @@ def get_unicode_index(symbol, math=False):  # Publicly exported.
     symbol : str
         A single (Unicode) character, a TeX command (e.g. r'\pi') or a Type1
         symbol name (e.g. 'phi').
-    math : bool, default: False
-        If True (deprecated), replace ASCII hyphen-minus by Unicode minus.
     """
-    # From UTF #25: U+2212 minus sign is the preferred
-    # representation of the unary and binary minus sign rather than
-    # the ASCII-derived U+002D hyphen-minus, because minus sign is
-    # unambiguous and because it is rendered with a more desirable
-    # length, usually longer than a hyphen.
-    # Remove this block when the 'math' parameter is deleted.
-    if math and symbol == '-':
-        return 0x2212
     try:  # This will succeed if symbol is a single Unicode char
         return ord(symbol)
     except TypeError:

@@ -615,18 +615,6 @@ class ImageMagickBase:
     _exec_key = 'animation.convert_path'
     _args_key = 'animation.convert_args'
 
-    @_api.deprecated("3.6")
-    @property
-    def delay(self):
-        return 100. / self.fps
-
-    @_api.deprecated("3.6")
-    @property
-    def output_args(self):
-        extra_args = (self.extra_args if self.extra_args is not None
-                      else mpl.rcParams[self._args_key])
-        return [*extra_args, self.outfile]
-
     def _args(self):
         # ImageMagick does not recognize "raw".
         fmt = "rgba" if self.frame_format == "raw" else self.frame_format

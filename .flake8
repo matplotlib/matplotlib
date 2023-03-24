@@ -55,22 +55,22 @@ per-file-ignores =
     lib/pylab.py: F401, F403
 
     doc/conf.py: E402
-    galleries/tutorials/advanced/path_tutorial.py: E402
-    galleries/tutorials/advanced/patheffects_guide.py: E402
-    galleries/tutorials/advanced/transforms_tutorial.py: E402, E501
-    galleries/tutorials/colors/colormaps.py: E501
-    galleries/tutorials/colors/colors.py: E402
-    galleries/tutorials/intermediate/artists.py: E402
-    galleries/tutorials/intermediate/constrainedlayout_guide.py: E402
-    galleries/tutorials/intermediate/legend_guide.py: E402
-    galleries/tutorials/intermediate/tight_layout_guide.py: E402
-    galleries/tutorials/introductory/animation_tutorial.py: E501
-    galleries/tutorials/introductory/images.py: E501
-    galleries/tutorials/introductory/pyplot.py: E402, E501
-    galleries/tutorials/text/annotations.py: E402, E501
-    galleries/tutorials/text/mathtext.py: E501
-    galleries/tutorials/text/text_intro.py: E402
-    galleries/tutorials/text/text_props.py: E501
+    galleries/users_explain/artists/paths.py: E402
+    galleries/users_explain/artists/patheffects_guide.py: E402
+    galleries/users_explain/artists/transforms_tutorial.py: E402, E501
+    galleries/users_explain/colors/colormaps.py: E501
+    galleries/users_explain/colors/colors.py: E402
+    galleries/tutorials/artists.py: E402
+    galleries/users_explain/axes/constrainedlayout_guide.py: E402
+    galleries/users_explain/axes/legend_guide.py: E402
+    galleries/users_explain/axes/tight_layout_guide.py: E402
+    galleries/users_explain/animations/animations.py: E501
+    galleries/tutorials/images.py: E501
+    galleries/tutorials/pyplot.py: E402, E501
+    galleries/users_explain/text/annotations.py: E402, E501
+    galleries/users_explain/text/mathtext.py: E501
+    galleries/users_explain/text/text_intro.py: E402
+    galleries/users_explain/text/text_props.py: E501
 
     galleries/examples/animation/frame_grabbing_sgskip.py: E402
     galleries/examples/images_contours_and_fields/tricontour_demo.py: E201

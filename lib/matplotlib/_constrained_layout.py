@@ -10,7 +10,7 @@ using `~matplotlib.gridspec.GridSpecFromSubplotSpec`).  Axes placed using
 ``figure.subplots()`` or ``figure.add_subplots()`` will participate in the
 layout.  Axes manually placed via ``figure.add_axes()`` will not.
 
-See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
+See Tutorial: :ref:`constrainedlayout_guide`
 
 General idea:
 -------------
@@ -43,7 +43,7 @@ With these constraints, the solver then finds appropriate bounds for the
 columns and rows.  It's possible that the margins take up the whole figure,
 in which case the algorithm is not applied and a warning is raised.
 
-See the tutorial doc:`/tutorials/intermediate/constrainedlayout_guide`
+See the tutorial :ref:`constrainedlayout_guide`
 for more discussion of the algorithm with examples.
 """
 

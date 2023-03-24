@@ -28,7 +28,7 @@ assumed to occur after the non-affine.  For any transform::
 The backends are not expected to handle non-affine transformations
 themselves.
 
-See the tutorial :doc:`/tutorials/advanced/transforms_tutorial` for examples
+See the tutorial :ref:`transforms_tutorial` for examples
 of how to use transforms.
 """
 
@@ -1948,17 +1948,6 @@ class Affine2D(Affine2DBase):
         _api.check_isinstance(Affine2DBase, other=other)
         self._mtx = other.get_matrix()
         self.invalidate()
-
-    @staticmethod
-    @_api.deprecated("3.6", alternative="Affine2D()")
-    def identity():
-        """
-        Return a new `Affine2D` object that is the identity transform.
-
-        Unless this transform will be mutated later on, consider using
-        the faster `IdentityTransform` class instead.
-        """
-        return Affine2D()
 
     def clear(self):
         """

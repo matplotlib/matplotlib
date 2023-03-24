@@ -10,6 +10,7 @@ Each axes can have a title (or actually three - one each with *loc* "left",
 We can also add figure-level x- and y-labels using `.FigureBase.supxlabel` and
 `.FigureBase.supylabel`.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -33,31 +34,20 @@ fig.suptitle('Different types of oscillations', fontsize=16)
 # A global x- or y-label can be set using the `.FigureBase.supxlabel` and
 # `.FigureBase.supylabel` methods.
 
-fig, axs = plt.subplots(3, 5, figsize=(8, 5), layout='constrained',
+
+with get_sample_data('Stocks.csv') as file:
+    stocks = np.genfromtxt(
+        file, delimiter=',', names=True, dtype=None,
+        converters={0: lambda x: np.datetime64(x, 'D')}, skip_header=1)
+
+fig, axs = plt.subplots(4, 2, figsize=(9, 5), layout='constrained',
                         sharex=True, sharey=True)
-
-fname = get_sample_data('percent_bachelors_degrees_women_usa.csv',
-                        asfileobj=False)
-gender_degree_data = np.genfromtxt(fname, delimiter=',', names=True)
-
-majors = ['Health Professions', 'Public Administration', 'Education',
-          'Psychology', 'Foreign Languages', 'English',
-          'Art and Performance', 'Biology',
-          'Agriculture', 'Business',
-          'Math and Statistics', 'Architecture', 'Physical Sciences',
-          'Computer Science', 'Engineering']
-
 for nn, ax in enumerate(axs.flat):
-    ax.set_xlim(1969.5, 2011.1)
-    column = majors[nn]
-    column_rec_name = column.replace('\n', '_').replace(' ', '_')
-
-    line, = ax.plot('Year', column_rec_name, data=gender_degree_data,
-                    lw=2.5)
-    ax.set_title(column, fontsize='small', loc='left')
-    ax.set_ylim([0, 100])
-    ax.grid()
+    column_name = stocks.dtype.names[1+nn]
+    y = stocks[column_name]
+    line, = ax.plot(stocks['Date'], y / np.nanmax(y), lw=2.5)
+    ax.set_title(column_name, fontsize='small', loc='left')
 fig.supxlabel('Year')
-fig.supylabel('Percent Degrees Awarded To Women')
+fig.supylabel('Stock price relative to max')
 
 plt.show()

@@ -11,7 +11,7 @@ Here we create a layout with the bottom two axes in the last column combined.
 To start with this layout (rather than removing the overlapping axes) use
 `~.pyplot.subplot_mosaic`.
 
-See also :doc:`/tutorials/intermediate/arranging_axes`.
+See also :ref:`arranging_axes`.
 """
 
 import matplotlib.pyplot as plt

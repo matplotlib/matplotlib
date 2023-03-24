@@ -29,7 +29,7 @@ def add_inner_title(ax, title, loc, **kwargs):
 fig = plt.figure(figsize=(6, 6))
 
 # Prepare images
-Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
+Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy")
 extent = (-3, 4, -4, 3)
 ZS = [Z[i::3, :] for i in range(3)]
 extent = extent[0], extent[1]/3., extent[2], extent[3]

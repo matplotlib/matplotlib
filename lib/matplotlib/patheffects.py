@@ -3,7 +3,7 @@ Defines classes for path effects. The path effects are supported in `.Text`,
 `.Line2D` and `.Patch`.
 
 .. seealso::
-   :doc:`/tutorials/advanced/patheffects_guide`
+   :ref:`patheffects_guide`
 """
 
 from matplotlib.backend_bases import RendererBase
@@ -386,11 +386,7 @@ class TickedStroke(AbstractPathEffect):
 
     This line style is sometimes referred to as a hatched line.
 
-    See also the :doc:`contour demo example
-    </gallery/lines_bars_and_markers/lines_with_ticks_demo>`.
-
-    See also the :doc:`contours in optimization example
-    </gallery/images_contours_and_fields/contours_in_optimization_demo>`.
+    See also the :doc:`/gallery/misc/tickedstroke_demo` example.
     """
 
     def __init__(self, offset=(0, 0),
@@ -407,7 +403,8 @@ class TickedStroke(AbstractPathEffect):
             The angle between the path and the tick in degrees.  The angle
             is measured as if you were an ant walking along the curve, with
             zero degrees pointing directly ahead, 90 to your left, -90
-            to your right, and 180 behind you.
+            to your right, and 180 behind you. To change side of the ticks,
+            change sign of the angle.
         length : float, default: 1.414
             The length of the tick relative to spacing.
             Recommended length = 1.414 (sqrt(2)) when angle=45, length=1.0

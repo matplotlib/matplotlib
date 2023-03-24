@@ -4,7 +4,7 @@ Colors in the default property cycle
 ====================================
 
 Display the colors from the default prop_cycle, which is obtained from the
-:doc:`rc parameters</tutorials/introductory/customizing>`.
+:ref:`rc parameters<customizing>`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
