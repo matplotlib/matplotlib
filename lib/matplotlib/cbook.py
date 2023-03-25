@@ -1619,13 +1619,13 @@ def safe_first_element(obj):
 
 def _safe_first_finite(obj, *, skip_nonfinite=True):
     """
-    Return the first non-None (and optionally finite) element in *obj*.
+    Return the first finite element in *obj* if one is available and skip_nonfinite is
+    True. Otherwise return the first element.
 
     This is a method for internal use.
 
-    This is a type-independent way of obtaining the first non-None element,
-    supporting both index access and the iterator protocol.
-    The first non-None element will be obtained when skip_none is True.
+    This is a type-independent way of obtaining the first finite element, supporting
+    both index access and the iterator protocol.
     """
     def safe_isfinite(val):
         if val is None:
@@ -1657,7 +1657,7 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        return next(val for val in obj if safe_isfinite(val))
+        return next((val for val in obj if safe_isfinite(val)), safe_first_element(obj))
 
 
 def sanitize_sequence(data):
