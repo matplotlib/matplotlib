@@ -68,7 +68,7 @@ def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
     elif (is_button and event.button == MouseButton.LEFT
           # On macOS/gtk, some keys return None.
           or is_key and event.key is not None):
-        if event.inaxes == cs.axes:
+        if cs.axes.contains(event)[0]:
             cs.add_label_near(event.x, event.y, transform=False,
                               inline=inline, inline_spacing=inline_spacing)
             canvas.draw()
