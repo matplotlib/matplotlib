@@ -3985,35 +3985,30 @@ class _AxesBase(martist.Artist):
         """
         Save information required to reproduce the current view.
 
-        Called before a view is changed, such as during a pan or zoom
-        initiated by the user. You may return any information you deem
-        necessary to describe the view.
+        This method is called before a view is changed, such as during a pan or zoom
+        initiated by the user.  It returns an opaque object that describes the current
+        view, in a format compatible with :meth:`_set_view`.
 
-        .. note::
-
-            Intended to be overridden by new projection types, but if not, the
-            default implementation saves the view limits. You *must* implement
-            :meth:`_set_view` if you implement this method.
+        The default implementation saves the view limits and autoscaling state.
+        Subclasses may override this as needed, as long as :meth:`_set_view` is also
+        adjusted accordingly.
         """
-        xmin, xmax = self.get_xlim()
-        ymin, ymax = self.get_ylim()
-        return xmin, xmax, ymin, ymax
+        return {
+            "xlim": self.get_xlim(), "autoscalex_on": self.get_autoscalex_on(),
+            "ylim": self.get_ylim(), "autoscaley_on": self.get_autoscaley_on(),
+        }
 
     def _set_view(self, view):
         """
         Apply a previously saved view.
 
-        Called when restoring a view, such as with the navigation buttons.
+        This method is called when restoring a view (with the return value of
+        :meth:`_get_view` as argument), such as with the navigation buttons.
 
-        .. note::
-
-            Intended to be overridden by new projection types, but if not, the
-            default implementation restores the view limits. You *must*
-            implement :meth:`_get_view` if you implement this method.
+        Subclasses that override :meth:`_get_view` also need to override this method
+        accordingly.
         """
-        xmin, xmax, ymin, ymax = view
-        self.set_xlim((xmin, xmax))
-        self.set_ylim((ymin, ymax))
+        self.set(**view)
 
     def _prepare_view_from_bbox(self, bbox, direction='in',
                                 mode=None, twinx=False, twiny=False):
