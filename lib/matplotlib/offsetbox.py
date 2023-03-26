@@ -268,9 +268,8 @@ class OffsetBox(martist.Artist):
         --------
         .Artist.contains
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         for c in self.get_children():
             a, b = c.contains(mouseevent)
             if a:
@@ -1353,9 +1352,8 @@ or callable, default: value of *xycoords*
         self.stale = True
 
     def contains(self, mouseevent):
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         if not self._check_xy(None):
             return False, {}
         return self.offsetbox.contains(mouseevent)
