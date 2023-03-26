@@ -3969,10 +3969,29 @@ class _AxesBase(martist.Artist):
 
     def format_coord(self, x, y):
         """Return a format string formatting the *x*, *y* coordinates."""
+        twins = self._twinned_axes.get_siblings(self)
+        if len(twins) == 1:
+            return "x={} y={}".format(
+                "???" if x is None else self.format_xdata(x),
+                "???" if y is None else self.format_ydata(y))
+        x_twins = []
+        y_twins = []
+        # Retrieve twins in the order of self.figure.axes to sort tied zorders (which is
+        # the common case) by the order in which they are added to the figure.
+        for ax in self.figure.axes:
+            if ax in twins:
+                if ax is self or ax._sharex is self or self._sharex is ax:
+                    x_twins.append(ax)
+                if ax is self or ax._sharey is self or self._sharey is ax:
+                    y_twins.append(ax)
+        screen_xy = self.transData.transform((x, y))
         return "x={} y={}".format(
-            "???" if x is None else self.format_xdata(x),
-            "???" if y is None else self.format_ydata(y),
-        )
+            " | ".join(
+                ax.format_xdata(ax.transData.inverted().transform(screen_xy)[0])
+                for ax in sorted(y_twins, key=attrgetter("zorder"))),
+            " | ".join(
+                ax.format_xdata(ax.transData.inverted().transform(screen_xy)[1])
+                for ax in sorted(x_twins, key=attrgetter("zorder"))))
 
     def minorticks_on(self):
         """
