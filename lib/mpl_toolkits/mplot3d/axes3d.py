@@ -1000,13 +1000,16 @@ class Axes3D(Axes):
 
     def _get_view(self):
         # docstring inherited
-        return (self.get_xlim(), self.get_ylim(), self.get_zlim(),
-                self.elev, self.azim, self.roll)
+        return {
+            "xlim": self.get_xlim(), "autoscalex_on": self.get_autoscalex_on(),
+            "ylim": self.get_ylim(), "autoscaley_on": self.get_autoscaley_on(),
+            "zlim": self.get_zlim(), "autoscalez_on": self.get_autoscalez_on(),
+        }, (self.elev, self.azim, self.roll)
 
     def _set_view(self, view):
         # docstring inherited
-        xlim, ylim, zlim, elev, azim, roll = view
-        self.set(xlim=xlim, ylim=ylim, zlim=zlim)
+        props, (elev, azim, roll) = view
+        self.set(**props)
         self.elev = elev
         self.azim = azim
         self.roll = roll
