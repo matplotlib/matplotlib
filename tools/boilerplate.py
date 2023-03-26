@@ -246,6 +246,7 @@ def boilerplate_gen():
         'contour',
         'contourf',
         'csd',
+        'ecdf',
         'errorbar',
         'eventplot',
         'fill',
