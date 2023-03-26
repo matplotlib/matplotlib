@@ -2651,10 +2651,6 @@ class SpanSelector(_SelectorWidget):
         self._extents_on_press = None
         self.snap_values = snap_values
 
-        # self._pressv is deprecated and we don't use it internally anymore
-        # but we maintain it until it is removed
-        self._pressv = None
-
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
@@ -2678,9 +2674,6 @@ class SpanSelector(_SelectorWidget):
             self._setup_edge_handles(self._handle_props)
 
         self._active_handle = None
-
-        # prev attribute is deprecated but we still need to maintain it
-        self._prev = (0, 0)
 
     def new_axes(self, ax, *, _props=None):
         """Set SpanSelector to operate on a new Axes."""
@@ -2758,10 +2751,6 @@ class SpanSelector(_SelectorWidget):
             self.update()
 
         v = event.xdata if self.direction == 'horizontal' else event.ydata
-        # self._pressv and self._prev are deprecated but we still need to
-        # maintain them
-        self._pressv = v
-        self._prev = self._get_data(event)
 
         if self._active_handle is None and not self.ignore_event_outside:
             # when the press event outside the span, we initially set the
@@ -2801,8 +2790,6 @@ class SpanSelector(_SelectorWidget):
     def _release(self, event):
         """Button release event handler."""
         self._set_cursor(False)
-        # self._pressv is deprecated but we still need to maintain it
-        self._pressv = None
 
         if not self._interactive:
             self._selection_artist.set_visible(False)
@@ -2848,9 +2835,6 @@ class SpanSelector(_SelectorWidget):
 
     def _onmove(self, event):
         """Motion notify event handler."""
-
-        # self._prev are deprecated but we still need to maintain it
-        self._prev = self._get_data(event)
 
         v = event.xdata if self.direction == 'horizontal' else event.ydata
         if self.direction == 'horizontal':
