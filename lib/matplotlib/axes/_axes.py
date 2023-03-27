@@ -2533,7 +2533,7 @@ class Axes(_AxesBase):
         return bar_container
     
     # starter code from feature 24313
-    def grouped_bar(x, heights, *, group_labels=None):
+    def grouped_bar(self, x, heights, width, group_labels=None):
         """
         Parameters
         -----------
@@ -2545,6 +2545,15 @@ class Axes(_AxesBase):
         group_labels : array-like of str, optional
             The labels of the data groups.
         """
+        multiplier = 0
+
+        for attribute, measurement in heights.items():
+            offset = width * multiplier
+            rects = self.bar(x + offset, measurement, width, label=attribute)
+            self.bar_label(rects, padding=3)
+            multiplier += 1
+
+
 
     # @_preprocess_data() # let 'bar' do the unpacking..
     @_docstring.dedent_interpd
