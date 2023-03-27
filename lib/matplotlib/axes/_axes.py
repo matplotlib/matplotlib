@@ -2531,6 +2531,20 @@ class Axes(_AxesBase):
             tick_label_axis.set_ticklabels(tick_labels)
 
         return bar_container
+    
+    # starter code from feature 24313
+    def grouped_bar(x, heights, *, group_labels=None):
+        """
+        Parameters
+        -----------
+        x : array-like of str
+            The labels.
+        heights : list of array-like:
+            An iterable of array-like: The iteration runs over the groups.
+            Each individual array-like is the list of label values for that group.
+        group_labels : array-like of str, optional
+            The labels of the data groups.
+        """
 
     # @_preprocess_data() # let 'bar' do the unpacking..
     @_docstring.dedent_interpd
