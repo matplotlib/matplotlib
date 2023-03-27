@@ -10,3 +10,4 @@ pillow==8.0.0
 pyparsing==2.3.1
 python-dateutil==2.7
 fonttools==4.22.0
+pytest==3.6.0
