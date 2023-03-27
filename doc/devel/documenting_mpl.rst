@@ -349,9 +349,9 @@ In most cases, you will likely want to use one of `Sphinx's builtin Math
 extensions <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__.
 In rare cases we want the rendering of the mathematical text in the
 documentation html to exactly match with the rendering of the mathematical
- expression in the Matplotlib figure. In these cases, you can use the
+expression in the Matplotlib figure. In these cases, you can use the
 `matplotlib.sphinxext.mathmpl` Sphinx extension (See also the
-:doc:`../tutorials/text/mathtext` tutorial.)
+:doc:`../users/explain/text/mathtext` tutorial.)
 
 .. _writing-docstrings:
 
