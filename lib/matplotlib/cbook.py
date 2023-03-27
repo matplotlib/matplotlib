@@ -847,21 +847,29 @@ class Grouper:
     """
 
     def __init__(self, init=()):
-        self._mapping = weakref.WeakKeyDictionary(
-            {x: weakref.WeakSet([x]) for x in init})
+        self._count = itertools.count()
+        # For each item, we store (order_in_which_item_was_seen, group_of_item), which
+        # lets __iter__ and get_siblings return items in the order in which they have
+        # been seen.
+        self._mapping = weakref.WeakKeyDictionary()
+        for x in init:
+            if x not in self._mapping:
+                self._mapping[x] = (next(self._count), weakref.WeakSet([x]))
 
     def __getstate__(self):
         return {
             **vars(self),
-            # Convert weak refs to strong ones.
-            "_mapping": {k: set(v) for k, v in self._mapping.items()},
+            # Convert weak refs to strong ones, and counter to index.
+            "_mapping": {k: (i, set(v)) for k, (i, v) in self._mapping.items()},
+            "_count": next(self._count),
         }
 
     def __setstate__(self, state):
         vars(self).update(state)
-        # Convert strong refs to weak ones.
+        # Convert strong refs to weak ones, and index to counter.
         self._mapping = weakref.WeakKeyDictionary(
-            {k: weakref.WeakSet(v) for k, v in self._mapping.items()})
+            {k: (i, weakref.WeakSet(v)) for k, (i, v) in self._mapping.items()})
+        self._count = itertools.count(self._count)
 
     def __contains__(self, item):
         return item in self._mapping
@@ -874,25 +882,32 @@ class Grouper:
         """
         Join given arguments into the same set.  Accepts one or more arguments.
         """
-        mapping = self._mapping
-        set_a = mapping.setdefault(a, weakref.WeakSet([a]))
-
-        for arg in args:
-            set_b = mapping.get(arg, weakref.WeakSet([arg]))
+        m = self._mapping
+        try:
+            _, set_a = m[a]
+        except KeyError:
+            _, set_a = m[a] = (next(self._count), weakref.WeakSet([a]))
+        for b in args:
+            try:
+                _, set_b = m[b]
+            except KeyError:
+                _, set_b = m[b] = (next(self._count), weakref.WeakSet([b]))
             if set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
                 set_a.update(set_b)
                 for elem in set_b:
-                    mapping[elem] = set_a
+                    i, _ = m[elem]
+                    m[elem] = (i, set_a)
 
     def joined(self, a, b):
         """Return whether *a* and *b* are members of the same set."""
-        return (self._mapping.get(a, object()) is self._mapping.get(b))
+        return (self._mapping.get(a, (None, object()))[1]
+                is self._mapping.get(b, (None, object()))[1])
 
     def remove(self, a):
         """Remove *a* from the grouper, doing nothing if it is not there."""
-        set_a = self._mapping.pop(a, None)
+        _, set_a = self._mapping.pop(a, (None, None))
         if set_a:
             set_a.remove(a)
 
@@ -902,14 +917,14 @@ class Grouper:
 
         The iterator is invalid if interleaved with calls to join().
         """
-        unique_groups = {id(group): group for group in self._mapping.values()}
+        unique_groups = {id(group): group for _, group in self._mapping.values()}
         for group in unique_groups.values():
-            yield [x for x in group]
+            yield sorted(group, key=self._mapping.__getitem__)
 
     def get_siblings(self, a):
         """Return all of the items joined with *a*, including itself."""
-        siblings = self._mapping.get(a, [a])
-        return [x for x in siblings]
+        _, siblings = self._mapping.get(a, (None, [a]))
+        return sorted(siblings, key=self._mapping.get)
 
 
 class GrouperView:
