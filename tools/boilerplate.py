@@ -236,6 +236,7 @@ def boilerplate_gen():
         'axvline',
         'axvspan',
         'bar',
+        'grouped_bar',
         'barbs',
         'barh',
         'bar_label',
