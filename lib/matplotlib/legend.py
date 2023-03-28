@@ -1173,8 +1173,9 @@ class Legend(Artist):
 
         return l, b
 
-    def contains(self, event):
-        return self.legendPatch.contains(event)
+    @_api.rename_parameter("3.8", "event", "mouseevent")
+    def contains(self, mouseevent):
+        return self.legendPatch.contains(mouseevent)
 
     def set_draggable(self, state, use_blit=False, update='loc'):
         """
