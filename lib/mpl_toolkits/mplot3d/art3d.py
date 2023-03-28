@@ -1063,7 +1063,7 @@ class Poly3DCollection(PolyCollection):
         if not hasattr(self, '_facecolors2d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return self._facecolors2d
+        return np.asarray(self._facecolors2d)
 
     def get_edgecolor(self):
         # docstring inherited
@@ -1071,7 +1071,7 @@ class Poly3DCollection(PolyCollection):
         if not hasattr(self, '_edgecolors2d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return self._edgecolors2d
+        return np.asarray(self._edgecolors2d)
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
