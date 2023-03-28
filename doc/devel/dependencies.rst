@@ -232,7 +232,7 @@ This section lists the additional software required for
 
 Required:
 
-- pytest_ (>= 3.6)
+- pytest_ (>= 7.0.0)
 
 Optional:
 
