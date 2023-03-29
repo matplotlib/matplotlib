@@ -5,10 +5,12 @@ Manual Contour
 
 Example of displaying your own contour lines and polygons using ContourSet.
 """
+
 import matplotlib.pyplot as plt
 
 import matplotlib.cm as cm
 from matplotlib.contour import ContourSet
+from matplotlib.path import Path
 
 # %%
 # Contour lines for each level are a list/tuple of polygons.
@@ -43,11 +45,12 @@ ax.set(xlim=(-0.5, 3.5), ylim=(-0.5, 4.5),
 # Multiple filled contour lines can be specified in a single list of polygon
 # vertices along with a list of vertex kinds (code types) as described in the
 # Path class.  This is particularly useful for polygons with holes.
-# Here a code type of 1 is a MOVETO, and 2 is a LINETO.
 
 fig, ax = plt.subplots()
 filled01 = [[[0, 0], [3, 0], [3, 3], [0, 3], [1, 1], [1, 2], [2, 2], [2, 1]]]
-kinds01 = [[1, 2, 2, 2, 1, 2, 2, 2]]
+M = Path.MOVETO
+L = Path.LINETO
+kinds01 = [[M, L, L, L, M, L, L, L]]
 cs = ContourSet(ax, [0, 1], [filled01], [kinds01], filled=True)
 cbar = fig.colorbar(cs)
 
