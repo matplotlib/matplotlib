@@ -1,4 +1,64 @@
 #!/usr/bin/env python
+"""
+Perform AST checks to validate consistency of type hints with implementation.
+
+NOTE: in most cases ``stubtest`` (distributed as part of ``mypy``)  should be preferred
+
+This script was written before the configuration of ``stubtest`` was well understood.
+It still has some utility, particularly for checking certain deprecations or other
+decorators which modify the runtime signature where you want the type hint to match
+the python source rather than runtime signature, perhaps.
+
+The basic kinds of checks performed are:
+
+- Set of items defined by the stubs vs implementation
+  - Missing stub: MISSING_STUB = 1
+  - Missing implementation: MISSING_IMPL = 2
+- Signatures of functions/methods
+  - Positional Only Args: POS_ARGS = 4
+  - Keyword or Positional Args: ARGS = 8
+  - Variadic Positional Args: VARARG = 16
+  - Keyword Only Args: KWARGS = 32
+  - Variadic Keyword Only Args: VARKWARG = 64
+
+There are some exceptions to when these are checked:
+
+- Set checks (MISSING_STUB/MISSING_IMPL) only apply at the module level
+  - i.e. not for classes
+  - Inheritance makes the set arithmetic harder when only loading AST
+  - Attributes also make it more complicated when defined in init
+- Functions type hinted with ``overload`` are ignored for argument checking
+  - Usually this means the implementation is is less strict in signature but will raise
+    if an invalid signature is used, type checking allows such errors to be caught by
+    the type checker instead of at runtime.
+- Private attribute/functions are ignored
+  - Not expecting a type hint
+  - applies to anything beginning, but not ending in ``__``
+  - If ``__all__`` is defined, also applies to anything not in ``__all__``
+- Deprecated methods are not checked for missing stub
+  - Only applies to wholesale deprecation, not deprecation of an individual arg
+  - Other kinds of deprecations (e.g. argument deletion or rename) the type hint should
+    match the current python definition line still.
+      - For renames, the new name is used
+      - For deletions/make keyword only, it is removed upon expiry
+
+Usage:
+
+Currently there is not any argument handling/etc, so all configuration is done in
+source.
+Since stubtest has almost completely superseded this script, this is unlikely to change.
+
+The categories outlined above can each be ignored, and ignoring multiple can be done
+using the bitwise or (``|``) operator, e.g. ``ARGS | VARKWARG``.
+
+This can be done globally or on a per file basis, by editing ``per_file_ignore``.
+For the latter, the key is the Pathlib Path to the affected file, and the value is the
+integer ignore.
+
+Must be run from repository root:
+
+``python tools/check_typehints.py``
+"""
 
 import ast
 import pathlib
