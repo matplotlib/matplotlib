@@ -214,10 +214,12 @@ class TimerBase:
 class Event:
     name: str
     canvas: FigureCanvasBase
-    guiEvent: Any
     def __init__(
         self, name: str, canvas: FigureCanvasBase, guiEvent: Any | None = ...
     ) -> None: ...
+
+    @property
+    def guiEvent(self) -> Any: ...
 
 class DrawEvent(Event):
     renderer: RendererBase

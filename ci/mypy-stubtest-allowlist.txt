@@ -17,7 +17,7 @@ matplotlib.*\.set$
 matplotlib.pyplot.*
 matplotlib.typing.*
 
-# data arg "decorator"
+# _preprocess_data arg decorator
 matplotlib.axes.*Axes.acorr
 matplotlib.axes.*Axes.angle_spectrum
 matplotlib.axes.*Axes.bar
@@ -28,6 +28,7 @@ matplotlib.axes.*Axes.cohere
 matplotlib.axes.*Axes.contour
 matplotlib.axes.*Axes.contourf
 matplotlib.axes.*Axes.csd
+matplotlib.axes.*Axes.ecdf
 matplotlib.axes.*Axes.errorbar
 matplotlib.axes.*Axes.eventplot
 matplotlib.axes.*Axes.fill_between
@@ -58,7 +59,7 @@ matplotlib.axes.*Axes.xcorr
 matplotlib.axis.Axis.draw
 matplotlib.offsetbox.*Offset[Bb]ox.get_offset
 
-# Inconsistent super/sub class signatures (other than just name)
+# Inconsistent super/sub class signatures (other than just arg name)
 matplotlib.ticker.MultipleLocator.set_params
 matplotlib.text.Annotation.get_window_extent
 
@@ -87,7 +88,6 @@ matplotlib.scale.SymmetricalLogTransform.transform_non_affine
 matplotlib.table.Cell.set_transform
 matplotlib.ticker.LogLocator.nonsingular
 matplotlib.ticker.LogitLocator.nonsingular
-matplotlib.text.Annotation.contains
 matplotlib.transforms.Affine2DBase.transform_affine
 matplotlib.transforms.AffineBase.transform_non_affine
 matplotlib.transforms.BlendedGenericTransform.transform_non_affine

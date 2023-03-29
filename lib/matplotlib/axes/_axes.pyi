@@ -552,6 +552,16 @@ class Axes(_AxesBase):
         cmax: float | None = ...,
         **kwargs
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, QuadMesh]: ...
+    def ecdf(
+        self,
+        x: ArrayLike,
+        weights: ArrayLike | None = ...,
+        *,
+        complementary: bool=...,
+        orientation: Literal["vertical", "horizonatal"]=...,
+        compress: bool=...,
+        **kwargs
+    ) -> Line2D: ...
     def psd(
         self,
         x: ArrayLike,
