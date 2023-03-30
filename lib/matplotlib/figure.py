@@ -1327,7 +1327,7 @@ default: %(va)s
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
-    def align_title(self, axs=None):
+    def align_titles(self, axs=None):
         """
         Align the xlabels of subplots in the same subplot column if label
         alignment is being done automatically (i.e. the label position is
