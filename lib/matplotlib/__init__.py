@@ -101,6 +101,38 @@ to MATLAB®, a registered trademark of The MathWorks, Inc.
 
 """
 
+__all__ = [
+    "__bibtex__",
+    "__version__",
+    "__version_info__",
+    "set_loglevel",
+    "ExecutableNotFoundError",
+    "get_configdir",
+    "get_cachedir",
+    "get_data_path",
+    "matplotlib_fname",
+    "MatplotlibDeprecationWarning",
+    "RcParams",
+    "rc_params",
+    "rc_params_from_file",
+    "rcParamsDefault",
+    "rcParams",
+    "rcParamsOrig",
+    "defaultParams",
+    "rc",
+    "rcdefaults",
+    "rc_file_defaults",
+    "rc_file",
+    "rc_context",
+    "use",
+    "get_backend",
+    "interactive",
+    "is_interactive",
+    "colormaps",
+    "color_sequences",
+]
+
+
 import atexit
 from collections import namedtuple
 from collections.abc import MutableMapping

@@ -51,7 +51,7 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
-            import gi
+            import gi  # type: ignore
             version = env["MPLBACKEND"][3]
             repo = gi.Repository.get_default()
             if f'{version}.0' not in repo.enumerate_versions('Gtk'):

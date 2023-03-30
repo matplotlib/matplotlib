@@ -15,9 +15,8 @@ import pytest
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
-    MSUserFontDirectories, _get_fontconfig_fonts, ft2font,
-    ttfFontProperty, cbook)
-from matplotlib import pyplot as plt, rc_context, figure as mfigure
+    MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
+from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 
 has_fclist = shutil.which('fc-list') is not None
 
