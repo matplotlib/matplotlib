@@ -636,6 +636,27 @@ def test_concise_formatter_show_offset(t_delta, expected):
     assert formatter.get_offset() == expected
 
 
+def test_concise_converter_stays():
+    # This test demonstrates problems introduced by gh-23417 (reverted in gh-25278)
+    # In particular, downstream libraries like Pandas had their designated converters
+    # overridden by actions like setting xlim (or plotting additional points using
+    # stdlib/numpy dates and string date representation, which otherwise work fine with
+    # their date converters)
+    # While this is a bit of a toy example that would be unusual to see it demonstrates
+    # the same ideas (namely having a valid converter already applied that is desired)
+    # without introducing additional subclasses.
+    # See also discussion at gh-25219 for how Pandas was affected
+    x = [datetime.datetime(2000, 1, 1), datetime.datetime(2020, 2, 20)]
+    y = [0, 1]
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
+    # Bypass Switchable date converter
+    ax.xaxis.converter = conv = mdates.ConciseDateConverter()
+    assert ax.xaxis.units is None
+    ax.set_xlim(*x)
+    assert ax.xaxis.converter == conv
+
+
 def test_offset_changes():
     fig, ax = plt.subplots()
 
@@ -1348,19 +1369,6 @@ def test_concise_formatter_call():
     formatter = mdates.ConciseDateFormatter(locator)
     assert formatter(19002.0) == '2022'
     assert formatter.format_data_short(19002.0) == '2022-01-10 00:00:00'
-
-
-@pytest.mark.parametrize('span, expected_locator',
-                         ((0.02, mdates.MinuteLocator),
-                          (1, mdates.HourLocator),
-                          (19, mdates.DayLocator),
-                          (40, mdates.WeekdayLocator),
-                          (200, mdates.MonthLocator),
-                          (2000, mdates.YearLocator)))
-def test_date_ticker_factory(span, expected_locator):
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
-        locator, _ = mdates.date_ticker_factory(span)
-        assert isinstance(locator, expected_locator)
 
 
 def test_datetime_masked():

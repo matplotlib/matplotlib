@@ -51,5 +51,5 @@ Where to go next
 
 - Check out :doc:`Plot types </plot_types/index>` to get an overview of the
   types of plots you can create with Matplotlib.
-- Learn Matplotlib from the ground up in the
-  :doc:`Quick-start guide </tutorials/introductory/quick_start>`.
+- Learn Matplotlib from the ground up in the :ref:`Quick-start guide
+  <quick_start>`.

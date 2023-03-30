@@ -187,7 +187,9 @@ class Button(AxesWidget):
             The color of the button when the mouse is over it.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
+
+        .. versionadded:: 3.7
         """
         super().__init__(ax)
 
@@ -702,7 +704,7 @@ class RangeSlider(SliderBase):
                          valmin, valmax, valfmt, dragging, valstep)
 
         # Set a value to allow _value_in_bounds() to work.
-        self.val = [valmin, valmax]
+        self.val = (valmin, valmax)
         if valinit is None:
             # Place at the 25th and 75th percentiles
             extent = valmax - valmin
@@ -947,9 +949,9 @@ class RangeSlider(SliderBase):
         """
         val = np.sort(val)
         _api.check_shape((2,), val=val)
-        vmin, vmax = val
-        vmin = self._min_in_bounds(vmin)
-        vmax = self._max_in_bounds(vmax)
+        # Reset value to allow _value_in_bounds() to work.
+        self.val = (self.valmin, self.valmax)
+        vmin, vmax = self._value_in_bounds(val)
         self._update_selection_poly(vmin, vmax)
         if self.orientation == "vertical":
             self._handles[0].set_ydata([vmin])
@@ -1028,7 +1030,10 @@ class CheckButtons(AxesWidget):
             same length as *labels*. If not given, all buttons are unchecked.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
+
+            .. versionadded:: 3.7
+
         label_props : dict, optional
             Dictionary of `.Text` properties to be used for the labels.
 
@@ -1633,7 +1638,10 @@ class RadioButtons(AxesWidget):
             specified here or in *radio_props*.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
+
+            .. versionadded:: 3.7
+
         label_props : dict or list of dict, optional
             Dictionary of `.Text` properties to be used for the labels.
 
@@ -1952,7 +1960,7 @@ class Cursor(AxesWidget):
         Whether to draw the vertical line.
     useblit : bool, default: False
         Use blitting for faster drawing if supported by the backend.
-        See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+        See the tutorial :ref:`blitting` for details.
 
     Other Parameters
     ----------------
@@ -2046,7 +2054,7 @@ class MultiCursor(Widget):
 
     useblit : bool, default: True
         Use blitting for faster drawing if supported by the backend.
-        See the tutorial :doc:`/tutorials/advanced/blitting`
+        See the tutorial :ref:`blitting`
         for details.
 
     horizOn : bool, default: False
@@ -2066,8 +2074,7 @@ class MultiCursor(Widget):
     See :doc:`/gallery/widgets/multicursor`.
     """
 
-    @_api.make_keyword_only("3.6", "useblit")
-    def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
+    def __init__(self, canvas, axes, *, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
         # canvas is stored only to provide the deprecated .canvas attribute;
         # once it goes away the unused argument won't need to be stored at all.
@@ -2100,9 +2107,6 @@ class MultiCursor(Widget):
 
         self.connect()
 
-    canvas = _api.deprecate_privatize_attribute("3.6")
-    background = _api.deprecated("3.6")(lambda self: (
-        self._backgrounds[self.axes[0].figure.canvas] if self.axes else None))
     needclear = _api.deprecated("3.7")(lambda self: False)
 
     def connect(self):
@@ -2199,8 +2203,6 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
-
-    state_modifier_keys = _api.deprecate_privatize_attribute("3.6")
 
     def set_active(self, active):
         super().set_active(active)
@@ -2451,15 +2453,16 @@ class _SelectorWidget(AxesWidget):
 
     def set_props(self, **props):
         """
-        Set the properties of the selector artist. See the `props` argument
-        in the selector docstring to know which properties are supported.
+        Set the properties of the selector artist.
+
+        See the *props* argument in the selector docstring to know which properties are
+        supported.
         """
         artist = self._selection_artist
         props = cbook.normalize_kwargs(props, artist)
         artist.set(**props)
         if self.useblit:
             self.update()
-        self._props.update(props)
 
     def set_handle_props(self, **handle_props):
         """
@@ -2512,7 +2515,7 @@ class _SelectorWidget(AxesWidget):
 
         Parameters
         ----------
-        value : str
+        state : str
             Must be a supported state of the selector. See the
             `state_modifier_keys` parameters for details.
 
@@ -2560,7 +2563,7 @@ class SpanSelector(_SelectorWidget):
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
-        canvas updates. See the tutorial :doc:`/tutorials/advanced/blitting`
+        canvas updates. See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -2648,11 +2651,6 @@ class SpanSelector(_SelectorWidget):
         self._extents_on_press = None
         self.snap_values = snap_values
 
-        # self._pressv is deprecated and we don't use it internally anymore
-        # but we maintain it until it is removed
-        self._pressv = None
-
-        self._props = props
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
@@ -2664,7 +2662,7 @@ class SpanSelector(_SelectorWidget):
 
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
-        self.new_axes(ax)
+        self.new_axes(ax, _props=props)
 
         # Setup handles
         self._handle_props = {
@@ -2677,10 +2675,7 @@ class SpanSelector(_SelectorWidget):
 
         self._active_handle = None
 
-        # prev attribute is deprecated but we still need to maintain it
-        self._prev = (0, 0)
-
-    def new_axes(self, ax):
+    def new_axes(self, ax, *, _props=None):
         """Set SpanSelector to operate on a new Axes."""
         self.ax = ax
         if self.canvas is not ax.figure.canvas:
@@ -2699,10 +2694,11 @@ class SpanSelector(_SelectorWidget):
         else:
             trans = ax.get_yaxis_transform()
             w, h = 1, 0
-        rect_artist = Rectangle((0, 0), w, h,
-                                transform=trans,
-                                visible=False,
-                                **self._props)
+        rect_artist = Rectangle((0, 0), w, h, transform=trans, visible=False)
+        if _props is not None:
+            rect_artist.update(_props)
+        elif self._selection_artist is not None:
+            rect_artist.update_from(self._selection_artist)
 
         self.ax.add_patch(rect_artist)
         self._selection_artist = rect_artist
@@ -2755,10 +2751,6 @@ class SpanSelector(_SelectorWidget):
             self.update()
 
         v = event.xdata if self.direction == 'horizontal' else event.ydata
-        # self._pressv and self._prev are deprecated but we still need to
-        # maintain them
-        self._pressv = v
-        self._prev = self._get_data(event)
 
         if self._active_handle is None and not self.ignore_event_outside:
             # when the press event outside the span, we initially set the
@@ -2798,8 +2790,6 @@ class SpanSelector(_SelectorWidget):
     def _release(self, event):
         """Button release event handler."""
         self._set_cursor(False)
-        # self._pressv is deprecated but we still need to maintain it
-        self._pressv = None
 
         if not self._interactive:
             self._selection_artist.set_visible(False)
@@ -2845,9 +2835,6 @@ class SpanSelector(_SelectorWidget):
 
     def _onmove(self, event):
         """Motion notify event handler."""
-
-        # self._prev are deprecated but we still need to maintain it
-        self._prev = self._get_data(event)
 
         v = event.xdata if self.direction == 'horizontal' else event.ydata
         if self.direction == 'horizontal':
@@ -2977,7 +2964,7 @@ class ToolLineHandles:
         Additional line properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 
@@ -3088,7 +3075,7 @@ class ToolHandles:
         Additional marker properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 
@@ -3165,7 +3152,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -3281,9 +3268,9 @@ class RectangleSelector(_SelectorWidget):
         if props is None:
             props = dict(facecolor='red', edgecolor='black',
                          alpha=0.2, fill=True)
-        self._props = {**props, 'animated': self.useblit}
-        self._visible = self._props.pop('visible', self._visible)
-        to_draw = self._init_shape(**self._props)
+        props = {**props, 'animated': self.useblit}
+        self._visible = props.pop('visible', self._visible)
+        to_draw = self._init_shape(**props)
         self.ax.add_patch(to_draw)
 
         self._selection_artist = to_draw
@@ -3299,8 +3286,7 @@ class RectangleSelector(_SelectorWidget):
 
         if self._interactive:
             self._handle_props = {
-                'markeredgecolor': (self._props or {}).get(
-                    'edgecolor', 'black'),
+                'markeredgecolor': (props or {}).get('edgecolor', 'black'),
                 **cbook.normalize_kwargs(handle_props, Line2D)}
 
             self._corner_order = ['SW', 'SE', 'NE', 'NW']
@@ -3792,7 +3778,7 @@ class LassoSelector(_SelectorWidget):
         passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
@@ -3868,7 +3854,7 @@ class PolygonSelector(_SelectorWidget):
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -3936,13 +3922,13 @@ class PolygonSelector(_SelectorWidget):
 
         if props is None:
             props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
-        self._props = {**props, 'animated': self.useblit}
-        self._selection_artist = line = Line2D([], [], **self._props)
+        props = {**props, 'animated': self.useblit}
+        self._selection_artist = line = Line2D([], [], **props)
         self.ax.add_line(line)
 
         if handle_props is None:
             handle_props = dict(markeredgecolor='k',
-                                markerfacecolor=self._props.get('color', 'k'))
+                                markerfacecolor=props.get('color', 'k'))
         self._handle_props = handle_props
         self._polygon_handles = ToolHandles(self.ax, [], [],
                                             useblit=self.useblit,
@@ -4217,7 +4203,7 @@ class Lasso(AxesWidget):
         passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 
@@ -4244,7 +4230,7 @@ class Lasso(AxesWidget):
             self.verts.append((event.xdata, event.ydata))
             if len(self.verts) > 2:
                 self.callback(self.verts)
-            self.ax.lines.remove(self.line)
+            self.line.remove()
         self.verts = None
         self.disconnect_events()
 

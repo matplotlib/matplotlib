@@ -5,11 +5,12 @@ import re
 import contourpy
 import numpy as np
 from numpy.testing import (
-    assert_array_almost_equal, assert_array_almost_equal_nulp)
+    assert_array_almost_equal, assert_array_almost_equal_nulp, assert_array_equal)
 import matplotlib as mpl
-from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt, rc_context, ticker
+from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.colors import LogNorm, same_color
+from matplotlib.testing.decorators import image_comparison
 import pytest
 
 
@@ -365,7 +366,9 @@ def test_contour_linewidth(
         fig, ax = plt.subplots()
         X = np.arange(4*3).reshape(4, 3)
         cs = ax.contour(X, linewidths=call_linewidths)
-        assert cs.tlinewidths[0][0] == expected
+        assert cs.collections[0].get_linewidths()[0] == expected
+        with pytest.warns(MatplotlibDeprecationWarning, match="tlinewidths"):
+            assert cs.tlinewidths[0][0] == expected
 
 
 @pytest.mark.backend("pdf")
@@ -715,3 +718,23 @@ def test_bool_autolevel():
     assert plt.tricontour(x, y, z).levels.tolist() == [.5]
     assert plt.tricontourf(x, y, z.tolist()).levels.tolist() == [0, .5, 1]
     assert plt.tricontourf(x, y, z).levels.tolist() == [0, .5, 1]
+
+
+def test_all_nan():
+    x = np.array([[np.nan, np.nan], [np.nan, np.nan]])
+    assert_array_almost_equal(plt.contour(x).levels,
+                              [-1e-13, -7.5e-14, -5e-14, -2.4e-14, 0.0,
+                                2.4e-14, 5e-14, 7.5e-14, 1e-13])
+
+
+def test_deprecated_apis():
+    cs = plt.contour(np.arange(16).reshape((4, 4)))
+    colls = cs.collections
+    with pytest.warns(PendingDeprecationWarning, match="allsegs"):
+        assert cs.allsegs == [p.vertices for c in colls for p in c.get_paths()]
+    with pytest.warns(PendingDeprecationWarning, match="allkinds"):
+        assert cs.allkinds == [p.codes for c in colls for p in c.get_paths()]
+    with pytest.warns(MatplotlibDeprecationWarning, match="tcolors"):
+        assert_array_equal(cs.tcolors, [c.get_edgecolor() for c in colls])
+    with pytest.warns(MatplotlibDeprecationWarning, match="tlinewidths"):
+        assert cs.tlinewidths == [c.get_linewidth() for c in colls]

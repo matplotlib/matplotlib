@@ -88,13 +88,6 @@ cursord = {
 }
 
 
-@_api.caching_module_getattr
-class __getattr__:
-    qApp = _api.deprecated(
-        "3.6", alternative="QtWidgets.QApplication.instance()")(
-            property(lambda self: QtWidgets.QApplication.instance()))
-
-
 # lru_cache keeps a reference to the QApplication instance, keeping it from
 # being GC'd.
 @functools.lru_cache(1)

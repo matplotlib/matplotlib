@@ -127,7 +127,7 @@ class PlaceHolderLayoutEngine(LayoutEngine):
 class TightLayoutEngine(LayoutEngine):
     """
     Implements the ``tight_layout`` geometry management.  See
-    :doc:`/tutorials/intermediate/tight_layout_guide` for details.
+    :ref:`tight_layout_guide` for details.
     """
     _adjust_compatible = True
     _colorbar_gridspec = True
@@ -167,7 +167,10 @@ class TightLayoutEngine(LayoutEngine):
         ----------
         fig : `.Figure` to perform layout on.
 
-        See also: `.figure.Figure.tight_layout` and `.pyplot.tight_layout`.
+        See Also
+        --------
+        .figure.Figure.tight_layout
+        .pyplot.tight_layout
         """
         info = self._params
         renderer = fig._get_renderer()
@@ -188,7 +191,7 @@ class TightLayoutEngine(LayoutEngine):
 class ConstrainedLayoutEngine(LayoutEngine):
     """
     Implements the ``constrained_layout`` geometry management.  See
-    :doc:`/tutorials/intermediate/constrainedlayout_guide` for details.
+    :ref:`constrainedlayout_guide` for details.
     """
 
     _adjust_compatible = False

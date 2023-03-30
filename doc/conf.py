@@ -213,11 +213,14 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
         gallery_conf['image_srcset'] = []
     return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
 
-gallery_dirs = [f'{ed}' for ed in ['gallery', 'tutorials', 'plot_types']
+gallery_dirs = [f'{ed}' for ed in
+                ['gallery', 'tutorials', 'plot_types', 'users/explain']
                 if f'{ed}/*' not in skip_subdirs]
 
-example_dirs = [f'../{gd}'.replace('gallery', 'examples') for gd in
-                gallery_dirs]
+example_dirs = []
+for gd in gallery_dirs:
+    gd = gd.replace('gallery', 'examples').replace('users/explain', 'users_explain')
+    example_dirs += [f'../galleries/{gd}']
 
 sphinx_gallery_conf = {
     'backreferences_dir': Path('api') / Path('_as_gen'),
@@ -244,6 +247,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order.subsectionorder,
     'capture_repr': (),
+    'copyfile_regex': r'.*\.rst',
 }
 
 if 'plot_gallery=0' in sys.argv:
@@ -285,7 +289,7 @@ gen_rst.EXAMPLE_HEADER = """
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download_{1}>`
+        :ref:`Go to the end <sphx_glr_download_{1}>`
         to download the full example code{2}
 
 .. rst-class:: sphx-glr-example-title
@@ -434,7 +438,6 @@ html_theme = "mpl_sphinx_theme"
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-html_logo = "_static/logo2.svg"
 html_theme_options = {
     "navbar_links": "internal",
     # collapse_navigation in pydata-sphinx-theme is slow, so skipped for local
@@ -442,19 +445,20 @@ html_theme_options = {
     "collapse_navigation": not is_release_build,
     "show_prev_next": False,
     "switcher": {
-        "json_url": "https://matplotlib.org/devdocs/_static/switcher.json",
+        # Add a unique query to the switcher.json url.  This will be ignored by
+        # the server, but will be used as part of the key for caching by browsers
+        # so when we do a new minor release the switcher will update "promptly" on
+        # the stable and devdocs.
+        "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
             'stable' if matplotlib.__version_info__.releaselevel == 'final'
             else 'devdocs')
     },
-    "logo": {"link": "index",
-             "image_light": "images/logo2.svg",
-             "image_dark": "images/logo_dark.svg"},
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "secondary_sidebar_items": "page-toc.html",
-     "footer_items": ["copyright", "sphinx-version", "doc_version"],
+     "footer_start": ["copyright", "sphinx-version", "doc_version"],
 }
 include_analytics = is_release_build
 if include_analytics:

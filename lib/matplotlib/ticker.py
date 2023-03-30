@@ -154,32 +154,25 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
 class _DummyAxis:
     __name__ = "dummy"
 
-    # Once the deprecation elapses, replace dataLim and viewLim by plain
-    # _view_interval and _data_interval private tuples.
-    dataLim = _api.deprecate_privatize_attribute(
-        "3.6", alternative="get_data_interval() and set_data_interval()")
-    viewLim = _api.deprecate_privatize_attribute(
-        "3.6", alternative="get_view_interval() and set_view_interval()")
-
     def __init__(self, minpos=0):
-        self._dataLim = mtransforms.Bbox.unit()
-        self._viewLim = mtransforms.Bbox.unit()
+        self._data_interval = (0, 1)
+        self._view_interval = (0, 1)
         self._minpos = minpos
 
     def get_view_interval(self):
-        return self._viewLim.intervalx
+        return self._view_interval
 
     def set_view_interval(self, vmin, vmax):
-        self._viewLim.intervalx = vmin, vmax
+        self._view_interval = (vmin, vmax)
 
     def get_minpos(self):
         return self._minpos
 
     def get_data_interval(self):
-        return self._dataLim.intervalx
+        return self._data_interval
 
     def set_data_interval(self, vmin, vmax):
-        self._dataLim.intervalx = vmin, vmax
+        self._data_interval = (vmin, vmax)
 
     def get_tick_space(self):
         # Just use the long-standing default of nbins==9
@@ -517,8 +510,14 @@ class ScalarFormatter(Formatter):
         """
         Format *arg* with *fmt*, applying Unicode minus and locale if desired.
         """
-        return self.fix_minus(locale.format_string(fmt, (arg,), True)
-                              if self._useLocale else fmt % arg)
+        return self.fix_minus(
+                # Escape commas introduced by format_string but not those present
+                # from the beginning in fmt.
+                ",".join(locale.format_string(part, (arg,), True)
+                         .replace(",", "{,}")
+                         for part in fmt.split(","))
+                if self._useLocale
+                else fmt % arg)
 
     def get_useMathText(self):
         """
@@ -882,16 +881,6 @@ class LogFormatter(Formatter):
         self._sublabels = None
         self._linthresh = linthresh
 
-    @_api.deprecated("3.6", alternative='set_base()')
-    def base(self, base):
-        """
-        Change the *base* for labeling.
-
-        .. warning::
-           Should always match the base used for :class:`LogLocator`
-        """
-        self.set_base(base)
-
     def set_base(self, base):
         """
         Change the *base* for labeling.
@@ -900,18 +889,6 @@ class LogFormatter(Formatter):
            Should always match the base used for :class:`LogLocator`
         """
         self._base = float(base)
-
-    @_api.deprecated("3.6", alternative='set_label_minor()')
-    def label_minor(self, labelOnlyBase):
-        """
-        Switch minor tick labeling on or off.
-
-        Parameters
-        ----------
-        labelOnlyBase : bool
-            If True, label ticks only at integer powers of base.
-        """
-        self.set_label_minor(labelOnlyBase)
 
     def set_label_minor(self, labelOnlyBase):
         """
@@ -2169,16 +2146,6 @@ class MaxNLocator(Locator):
             return dmin, dmax
 
 
-@_api.deprecated("3.6")
-def is_decade(x, base=10, *, rtol=1e-10):
-    if not np.isfinite(x):
-        return False
-    if x == 0.0:
-        return True
-    lx = np.log(abs(x)) / np.log(base)
-    return is_close_to_int(lx, atol=rtol)
-
-
 def _is_decade(x, *, base=10, rtol=None):
     """Return True if *x* is an integer power of *base*."""
     if not np.isfinite(x):
@@ -2242,11 +2209,6 @@ def _decade_greater(x, base):
     return greater
 
 
-@_api.deprecated("3.6")
-def is_close_to_int(x, *, atol=1e-10):
-    return abs(x - np.round(x)) < atol
-
-
 def _is_close_to_int(x):
     return math.isclose(x, round(x))
 
@@ -2304,18 +2266,6 @@ class LogLocator(Locator):
             self.numdecs = numdecs
         if numticks is not None:
             self.numticks = numticks
-
-    @_api.deprecated("3.6", alternative='set_params(base=...)')
-    def base(self, base):
-        """Set the log base (major tick every ``base**i``, i integer)."""
-        self._base = float(base)
-
-    @_api.deprecated("3.6", alternative='set_params(subs=...)')
-    def subs(self, subs):
-        """
-        Set the minor ticks for the log scaling every ``base**i*subs[j]``.
-        """
-        self._set_subs(subs)
 
     def _set_subs(self, subs):
         """
@@ -2386,7 +2336,7 @@ class LogLocator(Locator):
         # Get decades between major ticks.
         stride = (max(math.ceil(numdec / (numticks - 1)), 1)
                   if mpl.rcParams['_internal.classic_mode'] else
-                  (numdec + 1) // numticks + 1)
+                  numdec // numticks + 1)
 
         # if we have decided that the stride is as big or bigger than
         # the range, clip the stride back to the available range - 1

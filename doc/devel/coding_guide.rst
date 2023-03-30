@@ -38,7 +38,7 @@ rules before submitting a pull request:
 
   or your editor may provide integration with it.  Note that Matplotlib
   intentionally does not use the black_ auto-formatter (1__), in particular due
-  to its unability to understand the semantics of mathematical expressions
+  to its inability to understand the semantics of mathematical expressions
   (2__, 3__).
 
   .. _PEP8: https://www.python.org/dev/peps/pep-0008/
@@ -352,7 +352,7 @@ will run on all supported platforms and versions of Python.
     - On the overview page *artifacts* are listed in the section *Related*.
 
 
-* Codecov and LGTM are currently for information only. Their failure is not
+* Codecov and CodeQL are currently for information only. Their failure is not
   necessarily a blocker.
 
 * tox_ is not used in the automated testing. It is supported for testing
@@ -461,19 +461,19 @@ should not be backported to this branch.
 Automated backports
 -------------------
 
-We use meeseeksdev bot to automatically backport merges to the correct
+We use MeeseeksDev bot to automatically backport merges to the correct
 maintenance branch base on the milestone.  To work properly the
 milestone must be set before merging.  If you have commit rights, the
 bot can also be manually triggered after a merge by leaving a message
 ``@meeseeksdev backport to BRANCH`` on the PR.  If there are conflicts
-meeseekdevs will inform you that the backport needs to be done
+MeeseeksDev will inform you that the backport needs to be done
 manually.
 
 The target branch is configured by putting ``on-merge: backport to
 TARGETBRANCH`` in the milestone description on it's own line.
 
 If the bot is not working as expected, please report issues to
-`Meeseeksdev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
+`MeeseeksDev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
 
 
 .. _manual-backports:
@@ -481,7 +481,7 @@ If the bot is not working as expected, please report issues to
 Manual backports
 ----------------
 
-When doing backports please copy the form used by meeseekdev,
+When doing backports please copy the form used by MeeseeksDev,
 ``Backport PR #XXXX: TITLE OF PR``.  If you need to manually resolve
 conflicts make note of them and how you resolved them in the commit
 message.

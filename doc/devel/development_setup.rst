@@ -72,7 +72,7 @@ Change into this directory before continuing::
 
   * `Git documentation <https://git-scm.com/doc>`_
   * `GitHub-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
-  * `Introduction to GitHub <https://lab.github.com/githubtraining/introduction-to-github>`_
+  * `GitHub Skills <https://skills.github.com/>`_
   * :ref:`using-git`
   * :ref:`git-resources`
   * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
@@ -137,10 +137,6 @@ of Matplotlib without re-installing after every change. Note that this is only
 true for ``*.py`` files.  If you change the C-extension source (which might
 also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
-
-Install additional development dependencies
-===========================================
-See :ref:`development-dependencies`.
 
 Install pre-commit hooks (optional)
 ===================================

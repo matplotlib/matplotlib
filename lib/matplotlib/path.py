@@ -29,37 +29,37 @@ class Path:
     The underlying storage is made up of two parallel numpy arrays:
 
     - *vertices*: an (N, 2) float array of vertices
-    - *codes*: an N-length uint8 array of path codes, or None
+    - *codes*: an N-length `numpy.uint8` array of path codes, or None
 
     These two arrays always have the same length in the first
     dimension.  For example, to represent a cubic curve, you must
-    provide three vertices and three ``CURVE4`` codes.
+    provide three vertices and three `CURVE4` codes.
 
     The code types are:
 
-    - ``STOP``   :  1 vertex (ignored)
+    - `STOP`   :  1 vertex (ignored)
         A marker for the end of the entire path (currently not required and
         ignored)
 
-    - ``MOVETO`` :  1 vertex
+    - `MOVETO` :  1 vertex
         Pick up the pen and move to the given vertex.
 
-    - ``LINETO`` :  1 vertex
+    - `LINETO` :  1 vertex
         Draw a line from the current position to the given vertex.
 
-    - ``CURVE3`` :  1 control point, 1 endpoint
+    - `CURVE3` :  1 control point, 1 endpoint
         Draw a quadratic Bézier curve from the current position, with the given
         control point, to the given end point.
 
-    - ``CURVE4`` :  2 control points, 1 endpoint
+    - `CURVE4` :  2 control points, 1 endpoint
         Draw a cubic Bézier curve from the current position, with the given
         control points, to the given end point.
 
-    - ``CLOSEPOLY`` : 1 vertex (ignored)
+    - `CLOSEPOLY` : 1 vertex (ignored)
         Draw a line segment to the start point of the current polyline.
 
-    If *codes* is None, it is interpreted as a ``MOVETO`` followed by a series
-    of ``LINETO``.
+    If *codes* is None, it is interpreted as a `MOVETO` followed by a series
+    of `LINETO`.
 
     Users of Path objects should not access the vertices and codes arrays
     directly.  Instead, they should use `iter_segments` or `cleaned` to get the
@@ -121,7 +121,7 @@ class Path:
             If *codes* is None and closed is True, vertices will be treated as
             line segments of a closed polygon.  Note that the last vertex will
             then be ignored (as the corresponding code will be set to
-            CLOSEPOLY).
+            `CLOSEPOLY`).
         readonly : bool, optional
             Makes the path behave in an immutable way and sets the vertices
             and codes as read-only arrays.
@@ -318,29 +318,25 @@ class Path:
 
     @classmethod
     def make_compound_path(cls, *args):
+        r"""
+        Concatenate a list of `Path`\s into a single `Path`, removing all `STOP`\s.
         """
-        Make a compound path from a list of `Path` objects. Blindly removes
-        all `Path.STOP` control points.
-        """
-        # Handle an empty list in args (i.e. no args).
         if not args:
             return Path(np.empty([0, 2], dtype=np.float32))
-        vertices = np.concatenate([x.vertices for x in args])
+        vertices = np.concatenate([path.vertices for path in args])
         codes = np.empty(len(vertices), dtype=cls.code_type)
         i = 0
         for path in args:
+            size = len(path.vertices)
             if path.codes is None:
-                codes[i] = cls.MOVETO
-                codes[i + 1:i + len(path.vertices)] = cls.LINETO
+                if size:
+                    codes[i] = cls.MOVETO
+                    codes[i+1:i+size] = cls.LINETO
             else:
-                codes[i:i + len(path.codes)] = path.codes
-            i += len(path.vertices)
-        # remove STOP's, since internal STOPs are a bug
-        not_stop_mask = codes != cls.STOP
-        vertices = vertices[not_stop_mask, :]
-        codes = codes[not_stop_mask]
-
-        return cls(vertices, codes)
+                codes[i:i+size] = path.codes
+            i += size
+        not_stop_mask = codes != cls.STOP  # Remove STOPs, as internal STOPs are a bug.
+        return cls(vertices[not_stop_mask], codes[not_stop_mask])
 
     def __repr__(self):
         return f"Path({self.vertices!r}, {self.codes!r})"
@@ -416,7 +412,7 @@ class Path:
 
     def iter_bezier(self, **kwargs):
         """
-        Iterate over each Bézier curve (lines included) in a Path.
+        Iterate over each Bézier curve (lines included) in a `Path`.
 
         Parameters
         ----------
@@ -425,15 +421,15 @@ class Path:
 
         Yields
         ------
-        B : matplotlib.bezier.BezierSegment
+        B : `~matplotlib.bezier.BezierSegment`
             The Bézier curves that make up the current path. Note in particular
             that freestanding points are Bézier curves of order 0, and lines
             are Bézier curves of order 1 (with two control points).
-        code : Path.code_type
+        code : `~matplotlib.path.Path.code_type`
             The code describing what kind of curve is being returned.
-            Path.MOVETO, Path.LINETO, Path.CURVE3, Path.CURVE4 correspond to
+            `MOVETO`, `LINETO`, `CURVE3`, and `CURVE4` correspond to
             Bézier curves with 1, 2, 3, and 4 control points (respectively).
-            Path.CLOSEPOLY is a Path.LINETO with the control points correctly
+            `CLOSEPOLY` is a `LINETO` with the control points correctly
             chosen based on the start/end points of the current stroke.
         """
         first_vert = None
@@ -465,7 +461,7 @@ class Path:
                 *, simplify=False, curves=False,
                 stroke_width=1.0, snap=False, sketch=None):
         """
-        Return a new Path with vertices and codes cleaned according to the
+        Return a new `Path` with vertices and codes cleaned according to the
         parameters.
 
         See Also
@@ -498,14 +494,14 @@ class Path:
         Return whether the area enclosed by the path contains the given point.
 
         The path is always treated as closed; i.e. if the last code is not
-        CLOSEPOLY an implicit segment connecting the last vertex to the first
+        `CLOSEPOLY` an implicit segment connecting the last vertex to the first
         vertex is assumed.
 
         Parameters
         ----------
         point : (float, float)
             The point (x, y) to check.
-        transform : `matplotlib.transforms.Transform`, optional
+        transform : `~matplotlib.transforms.Transform`, optional
             If not ``None``, *point* will be compared to ``self`` transformed
             by *transform*; i.e. for a correct check, *transform* should
             transform the path into the coordinate system of *point*.
@@ -548,14 +544,14 @@ class Path:
         Return whether the area enclosed by the path contains the given points.
 
         The path is always treated as closed; i.e. if the last code is not
-        CLOSEPOLY an implicit segment connecting the last vertex to the first
+        `CLOSEPOLY` an implicit segment connecting the last vertex to the first
         vertex is assumed.
 
         Parameters
         ----------
         points : (N, 2) array
             The points to check. Columns contain x and y values.
-        transform : `matplotlib.transforms.Transform`, optional
+        transform : `~matplotlib.transforms.Transform`, optional
             If not ``None``, *points* will be compared to ``self`` transformed
             by *transform*; i.e. for a correct check, *transform* should
             transform the path into the coordinate system of *points*.
@@ -604,7 +600,7 @@ class Path:
 
         Parameters
         ----------
-        transform : matplotlib.transforms.Transform, optional
+        transform : `~matplotlib.transforms.Transform`, optional
             Transform to apply to path before computing extents, if any.
         **kwargs
             Forwarded to `.iter_bezier`.
@@ -662,9 +658,9 @@ class Path:
 
     def interpolated(self, steps):
         """
-        Return a new path resampled to length N x steps.
+        Return a new path resampled to length N x *steps*.
 
-        Codes other than LINETO are not handled correctly.
+        Codes other than `LINETO` are not handled correctly.
         """
         if steps == 1:
             return self
@@ -683,7 +679,7 @@ class Path:
         """
         Convert this path to a list of polygons or polylines.  Each
         polygon/polyline is an (N, 2) array of vertices.  In other words,
-        each polygon has no ``MOVETO`` instructions or curves.  This
+        each polygon has no `MOVETO` instructions or curves.  This
         is useful for displaying in backends that do not support
         compound paths or Bézier curves.
 
@@ -935,7 +931,7 @@ class Path:
 
            Masionobe, L.  2003.  `Drawing an elliptical arc using
            polylines, quadratic or cubic Bezier curves
-           <http://www.spaceroots.org/documents/ellipse/index.html>`_.
+           <https://web.archive.org/web/20190318044212/http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
         halfpi = np.pi * 0.5
 
@@ -1020,7 +1016,7 @@ class Path:
     @lru_cache(8)
     def hatch(hatchpattern, density=6):
         """
-        Given a hatch specifier, *hatchpattern*, generates a Path that
+        Given a hatch specifier, *hatchpattern*, generates a `Path` that
         can be used in a repeated hatching pattern.  *density* is the
         number of lines per unit square.
         """
@@ -1046,32 +1042,40 @@ class Path:
 def get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_transform):
     r"""
-    Given a sequence of `Path`\s, `.Transform`\s objects, and offsets, as
-    found in a `.PathCollection`, returns the bounding box that encapsulates
-    all of them.
+    Get bounding box of a `.PathCollection`\s internal objects.
+
+    That is, given a sequence of `Path`\s, `.Transform`\s objects, and offsets, as found
+    in a `.PathCollection`, return the bounding box that encapsulates all of them.
 
     Parameters
     ----------
-    master_transform : `.Transform`
+    master_transform : `~matplotlib.transforms.Transform`
         Global transformation applied to all paths.
     paths : list of `Path`
-    transforms : list of `.Affine2D`
+    transforms : list of `~matplotlib.transforms.Affine2DBase`
     offsets : (N, 2) array-like
-    offset_transform : `.Affine2D`
+    offset_transform : `~matplotlib.transforms.Affine2DBase`
         Transform applied to the offsets before offsetting the path.
 
     Notes
     -----
-    The way that *paths*, *transforms* and *offsets* are combined
-    follows the same method as for collections:  Each is iterated over
-    independently, so if you have 3 paths, 2 transforms and 1 offset,
-    their combinations are as follows:
+    The way that *paths*, *transforms* and *offsets* are combined follows the same
+    method as for collections: each is iterated over independently, so if you have 3
+    paths (A, B, C), 2 transforms (α, β) and 1 offset (O), their combinations are as
+    follows:
 
-        (A, A, A), (B, B, A), (C, A, A)
+    - (A, α, O)
+    - (B, β, O)
+    - (C, α, O)
     """
     from .transforms import Bbox
     if len(paths) == 0:
         raise ValueError("No paths provided")
+    if len(offsets) == 0:
+        _api.warn_deprecated(
+            "3.8", message="Calling get_path_collection_extents() with an"
+            " empty offsets list is deprecated since %(since)s. Support will"
+            " be removed %(removal)s.")
     extents, minpos = _path.get_path_collection_extents(
         master_transform, paths, np.atleast_3d(transforms),
         offsets, offset_transform)

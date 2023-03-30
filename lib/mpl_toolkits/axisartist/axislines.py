@@ -90,11 +90,6 @@ class AxisArtistHelper:
         def update_lim(self, axes):
             pass
 
-        delta1 = _api.deprecated("3.6")(
-            property(lambda self: 0.00001, lambda self, value: None))
-        delta2 = _api.deprecated("3.6")(
-            property(lambda self: 0.00001, lambda self, value: None))
-
         def _to_xy(self, values, const):
             """
             Create a (*values.shape, 2)-shape array representing (x, y) pairs.
@@ -323,29 +318,6 @@ class GridHelperBase:
         """
         return []
 
-    @_api.deprecated("3.6")
-    def new_gridlines(self, ax):
-        """
-        Create and return a new GridlineCollection instance.
-
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
-
-        """
-        gridlines = GridlinesCollection(
-            None, transform=ax.transData, colors=mpl.rcParams['grid.color'],
-            linestyles=mpl.rcParams['grid.linestyle'],
-            linewidths=mpl.rcParams['grid.linewidth'])
-        ax._set_artist_props(gridlines)
-        gridlines.set_grid_helper(self)
-
-        ax.axes._set_artist_props(gridlines)
-        # gridlines.set_clip_path(self.axes.patch)
-        # set_clip_path need to be deferred after Axes.cla is completed.
-        # It is done inside the cla.
-
-        return gridlines
-
 
 class GridHelperRectlinear(GridHelperBase):
 
@@ -454,21 +426,6 @@ class Axes(maxes.Axes):
     @property
     def axis(self):
         return self._axislines
-
-    @_api.deprecated("3.6")
-    def new_gridlines(self, grid_helper=None):
-        """
-        Create and return a new GridlineCollection instance.
-
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
-
-        """
-        if grid_helper is None:
-            grid_helper = self.get_grid_helper()
-
-        gridlines = grid_helper.new_gridlines(self)
-        return gridlines
 
     def clear(self):
         # docstring inherited

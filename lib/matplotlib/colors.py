@@ -16,12 +16,12 @@ makes a colormap from a list of colors.
 
 .. seealso::
 
-  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
+  :ref:`colormap-manipulation` for examples of how to
   make colormaps and
 
-  :doc:`/tutorials/colors/colormaps` for a list of built-in colormaps.
+  :ref:`colormaps` for a list of built-in colormaps.
 
-  :doc:`/tutorials/colors/colormapnorms` for more details about data
+  :ref:`colormapnorms` for more details about data
   normalization
 
   More colormaps are available at palettable_.
@@ -33,7 +33,7 @@ to an RGBA tuple (`to_rgba`) or to an HTML-like hex string in the
 RGBA array (`to_rgba_array`).  Caching is used for efficiency.
 
 Colors that Matplotlib recognizes are listed at
-:doc:`/tutorials/colors/colors`.
+:ref:`colors_def`.
 
 .. _palettable: https://jiffyclub.github.io/palettable/
 .. _xkcd color survey: https://xkcd.com/color/rgb/
@@ -315,6 +315,13 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     *alpha* is ignored for the color value ``"none"`` (case-insensitive),
     which always maps to ``(0, 0, 0, 0)``.
     """
+    if isinstance(c, tuple) and len(c) == 2:
+        if alpha is None:
+            c, alpha = c
+        else:
+            c = c[0]
+    if alpha is not None and not 0 <= alpha <= 1:
+        raise ValueError("'alpha' must be between 0 and 1, inclusive")
     orig_c = c
     if c is np.ma.masked:
         return (0., 0., 0., 0.)
@@ -425,6 +432,11 @@ def to_rgba_array(c, alpha=None):
         (n, 4) array of RGBA colors,  where each channel (red, green, blue,
         alpha) can assume values between 0 and 1.
     """
+    if isinstance(c, tuple) and len(c) == 2:
+        if alpha is None:
+            c, alpha = c
+        else:
+            c = c[0]
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
@@ -464,9 +476,12 @@ def to_rgba_array(c, alpha=None):
             return np.array([to_rgba(c, a) for a in alpha], float)
         else:
             return np.array([to_rgba(c, alpha)], float)
-    except (ValueError, TypeError):
+    except TypeError:
         pass
-
+    except ValueError as e:
+        if e.args == ("'alpha' must be between 0 and 1, inclusive", ):
+            # ValueError is from _to_rgba_no_colorcycle().
+            raise e
     if isinstance(c, str):
         raise ValueError(f"{c!r} is not a valid color value.")
 
@@ -502,7 +517,7 @@ def to_hex(c, keep_alpha=False):
 
     Parameters
     ----------
-    c : :doc:`color </tutorials/colors/colors>` or `numpy.ma.masked`
+    c : :ref:`color <colors_def>` or `numpy.ma.masked`
 
     keep_alpha : bool, default: False
       If False, use the ``#rrggbb`` format, otherwise use ``#rrggbbaa``.
@@ -681,7 +696,7 @@ class Colormap:
         self.colorbar_extend = False
 
     def __call__(self, X, alpha=None, bytes=False):
-        """
+        r"""
         Parameters
         ----------
         X : float or int, `~numpy.ndarray` or scalar
@@ -695,8 +710,8 @@ class Colormap:
             floats with shape matching X, or None.
         bytes : bool
             If False (default), the returned RGBA values will be floats in the
-            interval ``[0, 1]`` otherwise they will be uint8s in the interval
-            ``[0, 255]``.
+            interval ``[0, 1]`` otherwise they will be `numpy.uint8`\s in the
+            interval ``[0, 255]``.
 
         Returns
         -------
@@ -1214,8 +1229,8 @@ class Normalize:
             are mapped to 0 or 1, whichever is closer, and masked values are
             set to 1.  If ``False`` masked values remain masked.
 
-            Clipping silently defeats the purpose of setting the over, under,
-            and masked colors in a colormap, so it is likely to lead to
+            Clipping silently defeats the purpose of setting the over and
+            under colors in a colormap, so it is likely to lead to
             surprises; therefore the default is ``clip=False``.
 
         Notes
@@ -1311,7 +1326,7 @@ class Normalize:
         ----------
         value
             Data to normalize.
-        clip : bool
+        clip : bool, optional
             If ``None``, defaults to ``self.clip`` (which defaults to
             ``False``).
 
@@ -1450,7 +1465,7 @@ class TwoSlopeNorm(Normalize):
 
     def __call__(self, value, clip=None):
         """
-        Map value to the interval [0, 1]. The clip argument is unused.
+        Map value to the interval [0, 1]. The *clip* argument is unused.
         """
         result, is_scalar = self.process_value(value)
         self.autoscale_None(result)  # sets self.vmin, self.vmax if None
@@ -1499,6 +1514,10 @@ class CenteredNorm(Normalize):
             *vcenter* + *halfrange* is ``1.0`` in the normalization.
             Defaults to the largest absolute difference to *vcenter* for
             the values in the dataset.
+        clip : bool, default: False
+            If ``True`` values falling outside the range ``[vmin, vmax]``,
+            are mapped to 0 or 1, whichever is closer, and masked values are
+            set to 1.  If ``False`` masked values remain masked.
 
         Examples
         --------
@@ -1775,8 +1794,8 @@ class FuncNorm(Normalize):
         are mapped to 0 or 1, whichever is closer, and masked values are
         set to 1.  If ``False`` masked values remain masked.
 
-        Clipping silently defeats the purpose of setting the over, under,
-        and masked colors in a colormap, so it is likely to lead to
+        Clipping silently defeats the purpose of setting the over and
+        under colors in a colormap, so it is likely to lead to
         surprises; therefore the default is ``clip=False``.
     """
 
@@ -1858,9 +1877,34 @@ class AsinhNorm(Normalize):
 
 
 class PowerNorm(Normalize):
-    """
+    r"""
     Linearly map a given value to the 0-1 range and then apply
     a power-law normalization over that range.
+
+    Parameters
+    ----------
+    gamma : float
+        Power law exponent.
+    vmin, vmax : float or None
+        If *vmin* and/or *vmax* is not given, they are initialized from the
+        minimum and maximum value, respectively, of the first input
+        processed; i.e., ``__call__(A)`` calls ``autoscale_None(A)``.
+    clip : bool, default: False
+        If ``True`` values falling outside the range ``[vmin, vmax]``,
+        are mapped to 0 or 1, whichever is closer, and masked values
+        remain masked.
+
+        Clipping silently defeats the purpose of setting the over and under
+        colors, so it is likely to lead to surprises; therefore the default
+        is ``clip=False``.
+
+    Notes
+    -----
+    The normalization formula is
+
+    .. math::
+
+        \left ( \frac{x - v_{min}}{v_{max}  - v_{min}} \right )^{\gamma}
     """
     def __init__(self, gamma, vmin=None, vmax=None, clip=False):
         super().__init__(vmin, vmax, clip)
@@ -2398,7 +2442,8 @@ class LightSource:
             full illumination or shadow (and clipping any values that move
             beyond 0 or 1). Note that this is not visually or mathematically
             the same as vertical exaggeration.
-        Additional kwargs are passed on to the *blend_mode* function.
+        **kwargs
+            Additional kwargs are passed on to the *blend_mode* function.
 
         Returns
         -------
@@ -2459,7 +2504,8 @@ class LightSource:
             The x-spacing (columns) of the input *elevation* grid.
         dy : number, optional
             The y-spacing (rows) of the input *elevation* grid.
-        Additional kwargs are passed on to the *blend_mode* function.
+        **kwargs
+            Additional kwargs are passed on to the *blend_mode* function.
 
         Returns
         -------

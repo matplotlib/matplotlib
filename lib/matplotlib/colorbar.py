@@ -301,11 +301,6 @@ class Colorbar:
         if mappable is None:
             mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
 
-        # Ensure the given mappable's norm has appropriate vmin and vmax
-        # set even if mappable.draw has not yet been called.
-        if mappable.get_array() is not None:
-            mappable.autoscale_None()
-
         self.mappable = mappable
         cmap = mappable.cmap
         norm = mappable.norm
@@ -488,8 +483,6 @@ class Colorbar:
         del self.ax.cla
         self.ax.cla()
 
-    filled = _api.deprecate_privatize_attribute("3.6")
-
     def update_normal(self, mappable):
         """
         Update solid patches, lines, etc.
@@ -517,14 +510,6 @@ class Colorbar:
             if not CS.filled:
                 self.add_lines(CS)
         self.stale = True
-
-    @_api.deprecated("3.6", alternative="fig.draw_without_rendering()")
-    def draw_all(self):
-        """
-        Calculate any free parameters based on the current cmap and norm,
-        and do all the drawing.
-        """
-        self._draw_all()
 
     def _draw_all(self):
         """
@@ -774,8 +759,8 @@ class Colorbar:
             # TODO: Make colorbar lines auto-follow changes in contour lines.
             return self.add_lines(
                 CS.levels,
-                [c[0] for c in CS.tcolors],
-                [t[0] for t in CS.tlinewidths],
+                CS.to_rgba(CS.cvalues, CS.alpha),
+                [coll.get_linewidths()[0] for coll in CS.collections],
                 erase=erase)
         else:
             self, levels, colors, linewidths, erase = params.values()
@@ -1003,7 +988,7 @@ class Colorbar:
 
         Parameters
         ----------
-        value : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
+        scale : {"linear", "log", "symlog", "logit", ...} or `.ScaleBase`
             The axis scale type to apply.
 
         **kwargs
@@ -1101,7 +1086,10 @@ class Colorbar:
             b = np.hstack((b, b[-1] + 1))
 
         # transform from 0-1 to vmin-vmax:
+        if self.mappable.get_array() is not None:
+            self.mappable.autoscale_None()
         if not self.norm.scaled():
+            # If we still aren't scaled after autoscaling, use 0, 1 as default
             self.norm.vmin = 0
             self.norm.vmax = 1
         self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(

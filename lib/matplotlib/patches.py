@@ -45,8 +45,7 @@ class Patch(artist.Artist):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @_api.make_keyword_only("3.6", name="edgecolor")
-    def __init__(self,
+    def __init__(self, *,
                  edgecolor=None,
                  facecolor=None,
                  color=None,
@@ -133,9 +132,8 @@ class Patch(artist.Artist):
         -------
         (bool, empty dict)
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         radius = self._process_radius(radius)
         codes = self.get_path().codes
         if codes is not None:
@@ -687,9 +685,8 @@ class Rectangle(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0.0, *,
-                 rotation_point='xy', **kwargs):
+    def __init__(self, xy, width, height, *,
+                 angle=0.0, rotation_point='xy', **kwargs):
         """
         Parameters
         ----------
@@ -890,9 +887,8 @@ class RegularPolygon(Patch):
                     self.orientation)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="radius")
-    def __init__(self, xy, numVertices, radius=5, orientation=0,
-                 **kwargs):
+    def __init__(self, xy, numVertices, *,
+                 radius=5, orientation=0, **kwargs):
         """
         Parameters
         ----------
@@ -1078,8 +1074,7 @@ class Polygon(Patch):
             return "Polygon0()"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="closed")
-    def __init__(self, xy, closed=True, **kwargs):
+    def __init__(self, xy, *, closed=True, **kwargs):
         """
         Parameters
         ----------
@@ -1177,8 +1172,7 @@ class Wedge(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
+    def __init__(self, center, r, theta1, theta2, *, width=None, **kwargs):
         """
         A wedge centered at *x*, *y* center with radius *r* that
         sweeps *theta1* to *theta2* (in degrees).  If *width* is given,
@@ -1266,8 +1260,7 @@ class Arrow(Patch):
         [0.8, 0.3], [0.8, 0.1]])
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, x, y, dx, dy, width=1.0, **kwargs):
+    def __init__(self, x, y, dx, dy, *, width=1.0, **kwargs):
         """
         Draws an arrow from (*x*, *y*) to (*x* + *dx*, *y* + *dy*).
         The width of the arrow is scaled by *width*.
@@ -1322,9 +1315,9 @@ class FancyArrow(Polygon):
         return "FancyArrow()"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False,
-                 head_width=None, head_length=None, shape='full', overhang=0,
+    def __init__(self, x, y, dx, dy, *,
+                 width=0.001, length_includes_head=False, head_width=None,
+                 head_length=None, shape='full', overhang=0,
                  head_starts_at_zero=False, **kwargs):
         """
         Parameters
@@ -1493,8 +1486,7 @@ class CirclePolygon(RegularPolygon):
         return s % (self.xy[0], self.xy[1], self.radius, self.numvertices)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="resolution")
-    def __init__(self, xy, radius=5,
+    def __init__(self, xy, radius=5, *,
                  resolution=20,  # the number of vertices
                  ** kwargs):
         """
@@ -1521,8 +1513,7 @@ class Ellipse(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0, **kwargs):
+    def __init__(self, xy, width, height, *, angle=0, **kwargs):
         """
         Parameters
         ----------
@@ -1908,9 +1899,8 @@ class Arc(Ellipse):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0.0,
-                 theta1=0.0, theta2=360.0, **kwargs):
+    def __init__(self, xy, width, height, *,
+                 angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
         Parameters
         ----------
@@ -3083,6 +3073,9 @@ class ArrowStyle(_Style):
 
     %(ArrowStyle:table)s
 
+    For an overview of the visual appearance, see
+    :doc:`/gallery/text_labels_and_annotations/fancyarrow_demo`.
+
     An instance of any arrow style class is a callable object,
     whose call signature is::
 
@@ -3197,29 +3190,18 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, default: 0.4
-                Length of the arrow head, relative to *mutation_scale*.
+                Length of the arrow head, relative to *mutation_size*.
             head_width : float, default: 0.2
-                Width of the arrow head, relative to *mutation_scale*.
-            widthA : float, default: 1.0
-                Width of the bracket at the beginning of the arrow
-            widthB : float, default: 1.0
-                Width of the bracket at the end of the arrow
-            lengthA : float, default: 0.2
-                Length of the bracket at the beginning of the arrow
-            lengthB : float, default: 0.2
-                Length of the bracket at the end of the arrow
-            angleA : float, default 0
-                Orientation of the bracket at the beginning, as a
-                counterclockwise angle. 0 degrees means perpendicular
-                to the line.
-            angleB : float, default 0
-                Orientation of the bracket at the beginning, as a
-                counterclockwise angle. 0 degrees means perpendicular
-                to the line.
-            scaleA : float, default *mutation_size*
-                The mutation_size for the beginning bracket
-            scaleB : float, default *mutation_size*
-                The mutation_size for the end bracket
+                Width of the arrow head, relative to *mutation_size*.
+            widthA, widthB : float, default: 1.0
+                Width of the bracket.
+            lengthA, lengthB : float, default: 0.2
+                Length of the bracket.
+            angleA, angleB : float, default: 0
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
+            scaleA, scaleB : float, default: *mutation_size*
+                The scale of the brackets.
             """
 
             self.head_length, self.head_width = head_length, head_width
@@ -4054,13 +4036,10 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="path")
-    def __init__(self, posA=None, posB=None, path=None,
-                 arrowstyle="simple", connectionstyle="arc3",
-                 patchA=None, patchB=None,
-                 shrinkA=2, shrinkB=2,
-                 mutation_scale=1, mutation_aspect=1,
-                 **kwargs):
+    def __init__(self, posA=None, posB=None, *,
+                 path=None, arrowstyle="simple", connectionstyle="arc3",
+                 patchA=None, patchB=None, shrinkA=2, shrinkB=2,
+                 mutation_scale=1, mutation_aspect=1, **kwargs):
         """
         There are two ways for defining an arrow:
 
@@ -4383,8 +4362,7 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="axesA")
-    def __init__(self, xyA, xyB, coordsA, coordsB=None,
+    def __init__(self, xyA, xyB, coordsA, coordsB=None, *,
                  axesA=None, axesB=None,
                  arrowstyle="-",
                  connectionstyle="arc3",
@@ -4452,8 +4430,8 @@ class ConnectionPatch(FancyArrowPatch):
         .. note::
 
            Using `ConnectionPatch` across two `~.axes.Axes` instances
-           is not directly compatible with :doc:`constrained layout
-           </tutorials/intermediate/constrainedlayout_guide>`. Add the artist
+           is not directly compatible with :ref:`constrained layout
+           <constrainedlayout_guide>`. Add the artist
            directly to the `.Figure` instead of adding it to a specific Axes,
            or exclude it from the layout using ``con.set_in_layout(False)``.
 

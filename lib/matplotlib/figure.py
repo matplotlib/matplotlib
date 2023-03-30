@@ -28,7 +28,6 @@ Some situations call for directly instantiating a `~.figure.Figure` class,
 usually inside an application of some sort (see :ref:`user_interfaces` for a
 list of examples) .  More information about Figures can be found at
 :ref:`figure_explanation`.
-
 """
 
 from contextlib import ExitStack
@@ -290,15 +289,12 @@ class FigureBase(Artist):
         -------
             bool, {}
         """
-        inside, info = self._default_contains(mouseevent, figure=self)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}
 
-    @_api.delete_parameter("3.6", "args")
-    @_api.delete_parameter("3.6", "kwargs")
-    def get_window_extent(self, renderer=None, *args, **kwargs):
+    def get_window_extent(self, renderer=None):
         # docstring inherited
         return self.bbox
 
@@ -934,6 +930,7 @@ default: %(va)s
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
         self._localaxes.remove(ax)
+        self.canvas.release_mouse(ax)
 
         # Break link between any shared axes
         for name in ax._axis_names:
@@ -950,7 +947,7 @@ default: %(va)s
 
         Parameters
         ----------
-        keep_observers: bool, default: False
+        keep_observers : bool, default: False
             Set *keep_observers* to True if, for example,
             a gui widget is tracking the Axes in the figure.
         """
@@ -990,7 +987,7 @@ default: %(va)s
 
         Parameters
         ----------
-        keep_observers: bool, default: False
+        keep_observers : bool, default: False
             Set *keep_observers* to True if, for example,
             a gui widget is tracking the Axes in the figure.
         """
@@ -1103,7 +1100,6 @@ default: %(va)s
         ----------------
         %(_legend_kw_figure)s
 
-
         See Also
         --------
         .Axes.legend
@@ -1111,7 +1107,7 @@ default: %(va)s
         Notes
         -----
         Some artists are not supported by this function.  See
-        :doc:`/tutorials/intermediate/legend_guide` for details.
+        :ref:`legend_guide` for details.
         """
 
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
@@ -1265,15 +1261,13 @@ default: %(va)s
                 not self.get_layout_engine().colorbar_gridspec):
             use_gridspec = False
         if cax is None:
-            current_ax = self.gca()
             if ax is None:
-                _api.warn_deprecated("3.6", message=(
+                raise ValueError(
                     'Unable to determine Axes to steal space for Colorbar. '
-                    'Using gca(), but will raise in the future. '
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
-                    'from it, or add *mappable* to an Axes.'))
-                ax = current_ax
+                    'from it, or add *mappable* to an Axes.')
+            current_ax = self.gca()
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):
@@ -1808,7 +1802,7 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        See :doc:`/gallery/subplots_axes_and_figures/mosaic`
+        See :ref:`mosaic`
         for an example and full API documentation
 
         Parameters
@@ -2155,8 +2149,8 @@ class SubFigure(FigureBase):
             Defines the region in a parent gridspec where the subfigure will
             be placed.
 
-        facecolor : default: :rc:`figure.facecolor`
-            The figure patch face color.
+        facecolor : default: ``"none"``
+            The figure patch face color; transparent by default.
 
         edgecolor : default: :rc:`figure.edgecolor`
             The figure patch edge color.
@@ -2176,7 +2170,7 @@ class SubFigure(FigureBase):
         """
         super().__init__(**kwargs)
         if facecolor is None:
-            facecolor = mpl.rcParams['figure.facecolor']
+            facecolor = "none"
         if edgecolor is None:
             edgecolor = mpl.rcParams['figure.edgecolor']
         if frameon is None:
@@ -2269,7 +2263,7 @@ class SubFigure(FigureBase):
         """
         Return whether constrained layout is being used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
         """
         return self._parent.get_constrained_layout()
 
@@ -2280,7 +2274,7 @@ class SubFigure(FigureBase):
         Returns a list of ``w_pad, h_pad`` in inches and
         ``wspace`` and ``hspace`` as fractions of the subplot.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2363,10 +2357,10 @@ class Figure(FigureBase):
             naxes=len(self.axes),
         )
 
-    @_api.make_keyword_only("3.6", "facecolor")
     def __init__(self,
                  figsize=None,
                  dpi=None,
+                 *,
                  facecolor=None,
                  edgecolor=None,
                  linewidth=0.0,
@@ -2374,7 +2368,6 @@ class Figure(FigureBase):
                  subplotpars=None,  # rc figure.subplot.*
                  tight_layout=None,  # rc figure.autolayout
                  constrained_layout=None,  # rc figure.constrained_layout.use
-                 *,
                  layout=None,
                  **kwargs
                  ):
@@ -2421,17 +2414,17 @@ class Figure(FigureBase):
                 The use of this parameter is discouraged. Please use
                 ``layout='constrained'`` instead.
 
-        layout : {'constrained', 'compressed', 'tight', `.LayoutEngine`, None}
+        layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, \
+None}, default: None
             The layout mechanism for positioning of plot elements to avoid
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
-            Defaults to *None*.
 
             - 'constrained': The constrained layout solver adjusts axes sizes
-               to avoid overlapping axes decorations.  Can handle complex plot
-               layouts and colorbars, and is thus recommended.
+              to avoid overlapping axes decorations.  Can handle complex plot
+              layouts and colorbars, and is thus recommended.
 
-              See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+              See :ref:`constrainedlayout_guide`
               for examples.
 
             - 'compressed': uses the same algorithm as 'constrained', but
@@ -2442,6 +2435,8 @@ class Figure(FigureBase):
               simple algorithm that adjusts the subplot parameters so that
               decorations do not overlap. See `.Figure.set_tight_layout` for
               further details.
+
+            - 'none': Do not use a layout engine.
 
             - A `.LayoutEngine` instance. Builtin layout classes are
               `.ConstrainedLayoutEngine` and `.TightLayoutEngine`, more easily
@@ -2778,7 +2773,7 @@ class Figure(FigureBase):
         """
         Return whether constrained layout is being used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
         """
         return isinstance(self.get_layout_engine(), ConstrainedLayoutEngine)
 
@@ -2821,7 +2816,7 @@ class Figure(FigureBase):
         Tip: The parameters can be passed from a dictionary by using
         ``fig.set_constrained_layout(**pad_dict)``.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2855,7 +2850,7 @@ class Figure(FigureBase):
         ``wspace`` and ``hspace`` as fractions of the subplot.
         All values are None if ``constrained_layout`` is not used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -3262,6 +3257,11 @@ class Figure(FigureBase):
               `~.FigureCanvasSVG.print_svg`.
             - 'eps' and 'ps' with PS backend: Only 'Creator' is supported.
 
+            Not supported for 'pgf', 'raw', and 'rgba' as those formats do not support
+            embedding metadata.
+            Does not currently support 'jpg', 'tiff', or 'webp', but may include
+            embedding EXIF metadata in the future.
+
         bbox_inches : str or `.Bbox`, default: :rc:`savefig.bbox`
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
@@ -3476,21 +3476,6 @@ class Figure(FigureBase):
             self, ["button_press_event", "key_press_event"], timeout, handler)
 
         return None if event is None else event.name == "key_press_event"
-
-    @_api.deprecated("3.6", alternative="figure.get_layout_engine().execute()")
-    def execute_constrained_layout(self, renderer=None):
-        """
-        Use ``layoutgrid`` to determine pos positions within Axes.
-
-        See also `.set_constrained_layout_pads`.
-
-        Returns
-        -------
-        layoutgrid : private debugging object
-        """
-        if not isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
-            return None
-        return self.get_layout_engine().execute(self)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """

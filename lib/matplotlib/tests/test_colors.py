@@ -545,6 +545,9 @@ def test_LogNorm_inverse():
 
 
 def test_PowerNorm():
+    # Check an exponent of 1 gives same results as a normal linear
+    # normalization. Also implicitly checks that vmin/vmax are
+    # automatically initialized from first array input.
     a = np.array([0, 0.5, 1, 1.5], dtype=float)
     pnorm = mcolors.PowerNorm(1)
     norm = mcolors.Normalize()
@@ -561,18 +564,21 @@ def test_PowerNorm():
     # Clip = True
     a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
     expected = [0, 0, 0, 1, 1]
+    # Clip = True when creating the norm
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=True)
     assert_array_almost_equal(pnorm(a), expected)
     assert pnorm(a[0]) == expected[0]
     assert pnorm(a[-1]) == expected[-1]
-
     # Clip = True at call time
-    a = np.array([-0.5, 0, 1, 8, 16], dtype=float)
-    expected = [0, 0, 0, 1, 1]
     pnorm = mcolors.PowerNorm(2, vmin=2, vmax=8, clip=False)
     assert_array_almost_equal(pnorm(a, clip=True), expected)
     assert pnorm(a[0], clip=True) == expected[0]
     assert pnorm(a[-1], clip=True) == expected[-1]
+
+    # Check clip=True preserves masked values
+    a = np.ma.array([5, 2], mask=[True, False])
+    out = pnorm(a, clip=True)
+    assert_array_equal(out.mask, [True, False])
 
 
 def test_PowerNorm_translation_invariance():
@@ -955,7 +961,7 @@ def test_autoscale_masked():
 @image_comparison(['light_source_shading_topo.png'])
 def test_light_source_topo_surface():
     """Shades a DEM using different v.e.'s and blend modes."""
-    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz')
     elev = dem['elevation']
     dx, dy = dem['dx'], dem['dy']
     # Get the true cellsize in meters for accurate vertical exaggeration
@@ -1299,6 +1305,51 @@ def test_to_rgba_array_alpha_array():
     assert_array_equal(c[:, 3], alpha)
     c = mcolors.to_rgba_array(['r', 'g'], alpha=alpha)
     assert_array_equal(c[:, 3], alpha)
+
+
+def test_to_rgba_array_accepts_color_alpha_tuple():
+    assert_array_equal(
+        mcolors.to_rgba_array(('black', 0.9)),
+        [[0, 0, 0, 0.9]])
+
+
+def test_to_rgba_array_explicit_alpha_overrides_tuple_alpha():
+    assert_array_equal(
+        mcolors.to_rgba_array(('black', 0.9), alpha=0.5),
+        [[0, 0, 0, 0.5]])
+
+
+def test_to_rgba_array_accepts_color_alpha_tuple_with_multiple_colors():
+    color_array = np.array([[1., 1., 1., 1.], [0., 0., 1., 0.]])
+    assert_array_equal(
+        mcolors.to_rgba_array((color_array, 0.2)),
+        [[1., 1., 1., 0.2], [0., 0., 1., 0.2]])
+
+    color_sequence = [[1., 1., 1., 1.], [0., 0., 1., 0.]]
+    assert_array_equal(
+        mcolors.to_rgba_array((color_sequence, 0.4)),
+        [[1., 1., 1., 0.4], [0., 0., 1., 0.4]])
+
+
+def test_to_rgba_array_error_with_color_invalid_alpha_tuple():
+    with pytest.raises(ValueError, match="'alpha' must be between 0 and 1,"):
+        mcolors.to_rgba_array(('black', 2.0))
+
+
+@pytest.mark.parametrize('rgba_alpha',
+                         [('white', 0.5), ('#ffffff', 0.5), ('#ffffff00', 0.5),
+                          ((1.0, 1.0, 1.0, 1.0), 0.5)])
+def test_to_rgba_accepts_color_alpha_tuple(rgba_alpha):
+    assert mcolors.to_rgba(rgba_alpha) == (1, 1, 1, 0.5)
+
+
+def test_to_rgba_explicit_alpha_overrides_tuple_alpha():
+    assert mcolors.to_rgba(('red', 0.1), alpha=0.9) == (1, 0, 0, 0.9)
+
+
+def test_to_rgba_error_with_color_invalid_alpha_tuple():
+    with pytest.raises(ValueError, match="'alpha' must be between 0 and 1"):
+        mcolors.to_rgba(('blue', 2.0))
 
 
 def test_failed_conversions():

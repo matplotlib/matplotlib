@@ -16,7 +16,7 @@
 ##         $HOME/.matplotlib/matplotlibrc
 ## and edit that copy.
 ##
-## See https://matplotlib.org/stable/tutorials/introductory/customizing.html#customizing-with-matplotlibrc-files
+## See https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-matplotlibrc-files
 ## for more details on the paths which are checked for the configuration file.
 ##
 ## Blank lines, or lines starting with a comment symbol, are ignored, as are
@@ -309,7 +309,7 @@
 ## * LaTeX                                                                   *
 ## ***************************************************************************
 ## For more information on LaTeX properties, see
-## https://matplotlib.org/stable/tutorials/text/usetex.html
+## https://matplotlib.org/stable/users/explain/text/usetex.html
 #text.usetex: False  # use latex for all text handling. The following fonts
                      # are supported through the usual rc parameter settings:
                      # new century schoolbook, bookman, times, palatino,
@@ -416,7 +416,7 @@
                   # As opposed to all other parameters in this file, the color
                   # values must be enclosed in quotes for this parameter,
                   # e.g. '1f77b4', instead of 1f77b4.
-                  # See also https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html
+                  # See also https://matplotlib.org/stable/users/explain/artists/color_cycle.html
                   # for more details on prop_cycle usage.
 #axes.xmargin:   .05  # x margin.  See `axes.Axes.margins`
 #axes.ymargin:   .05  # y margin.  See `axes.Axes.margins`

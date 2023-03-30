@@ -1,6 +1,0 @@
-``unit_cube``, ``tunit_cube``, and ``tunit_edges``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... of `.Axes3D` are deprecated without replacements. If you rely on them,
-please copy the code of the corresponding private function (name starting
-with ``_``).

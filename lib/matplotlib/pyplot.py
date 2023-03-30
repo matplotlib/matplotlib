@@ -181,16 +181,6 @@ def findobj(o=None, match=None, include_self=True):
     return o.findobj(match, include_self=include_self)
 
 
-def _get_required_interactive_framework(backend_mod):
-    if not hasattr(getattr(backend_mod, "FigureCanvas", None),
-                   "required_interactive_framework"):
-        _api.warn_deprecated(
-            "3.6", name="Support for FigureCanvases without a "
-            "required_interactive_framework attribute")
-        return None
-    # Inline this once the deprecation elapses.
-    return backend_mod.FigureCanvas.required_interactive_framework
-
 _backend_mod = None
 
 
@@ -270,7 +260,7 @@ def switch_backend(newbackend):
     backend_mod = importlib.import_module(
         cbook._backend_module_name(newbackend))
 
-    required_framework = _get_required_interactive_framework(backend_mod)
+    required_framework = backend_mod.FigureCanvas.required_interactive_framework
     if required_framework is not None:
         current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
@@ -357,7 +347,7 @@ def switch_backend(newbackend):
 
 def _warn_if_gui_out_of_main_thread():
     warn = False
-    if _get_required_interactive_framework(_get_backend_mod()):
+    if _get_backend_mod().FigureCanvas.required_interactive_framework:
         if hasattr(threading, 'get_native_id'):
             # This compares native thread ids because even if Python-level
             # Thread objects match, the underlying OS thread (which is what
@@ -687,10 +677,10 @@ def xkcd(scale=1, length=100, randomness=2):
 
 ## Figures ##
 
-@_api.make_keyword_only("3.6", "facecolor")
 def figure(num=None,  # autoincrement if None, else integer from 1-N
            figsize=None,  # defaults to rc figure.figsize
            dpi=None,  # defaults to rc figure.dpi
+           *,
            facecolor=None,  # defaults to rc figure.facecolor
            edgecolor=None,  # defaults to rc figure.edgecolor
            frameon=True,
@@ -740,12 +730,38 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     clear : bool, default: False
         If True and the figure already exists, then it is cleared.
 
-    layout : {'constrained', 'tight', `.LayoutEngine`, None}, default: None
+    layout : {'constrained', 'compressed', 'tight', 'none', `.LayoutEngine`, None}, \
+default: None
         The layout mechanism for positioning of plot elements to avoid
         overlapping Axes decorations (labels, ticks, etc). Note that layout
-        managers can measurably slow down figure display. Defaults to *None*
-        (but see the documentation of the `.Figure` constructor regarding the
-        interaction with rcParams).
+        managers can measurably slow down figure display.
+
+        - 'constrained': The constrained layout solver adjusts axes sizes
+          to avoid overlapping axes decorations.  Can handle complex plot
+          layouts and colorbars, and is thus recommended.
+
+          See :ref:`constrainedlayout_guide`
+          for examples.
+
+        - 'compressed': uses the same algorithm as 'constrained', but
+          removes extra space between fixed-aspect-ratio Axes.  Best for
+          simple grids of axes.
+
+        - 'tight': Use the tight layout mechanism. This is a relatively
+          simple algorithm that adjusts the subplot parameters so that
+          decorations do not overlap. See `.Figure.set_tight_layout` for
+          further details.
+
+        - 'none': Do not use a layout engine.
+
+        - A `.LayoutEngine` instance. Builtin layout classes are
+          `.ConstrainedLayoutEngine` and `.TightLayoutEngine`, more easily
+          accessible by 'constrained' and 'tight'.  Passing an instance
+          allows third parties to provide their own layout engine.
+
+        If not given, fall back to using the parameters *tight_layout* and
+        *constrained_layout*, including their config defaults
+        :rc:`figure.autolayout` and :rc:`figure.constrained_layout.use`.
 
     **kwargs
         Additional keyword arguments are passed to the `.Figure` constructor.
@@ -1296,31 +1312,18 @@ def subplot(*args, **kwargs):
     key = SubplotSpec._from_subplot_args(fig, args)
 
     for ax in fig.axes:
-        # if we found an Axes at the position sort out if we can re-use it
-        if ax.get_subplotspec() == key:
-            # if the user passed no kwargs, re-use
-            if kwargs == {}:
-                break
-            # if the axes class and kwargs are identical, reuse
-            elif ax._projection_init == fig._process_projection_requirements(
-                *args, **kwargs
-            ):
-                break
+        # If we found an Axes at the position, we can re-use it if the user passed no
+        # kwargs or if the axes class and kwargs are identical.
+        if (ax.get_subplotspec() == key
+            and (kwargs == {}
+                 or (ax._projection_init
+                     == fig._process_projection_requirements(*args, **kwargs)))):
+            break
     else:
         # we have exhausted the known Axes and none match, make a new one!
         ax = fig.add_subplot(*args, **kwargs)
 
     fig.sca(ax)
-
-    axes_to_delete = [other for other in fig.axes
-                      if other != ax and ax.bbox.fully_overlaps(other.bbox)]
-    if axes_to_delete:
-        _api.warn_deprecated(
-            "3.6", message="Auto-removal of overlapping axes is deprecated "
-            "since %(since)s and will be removed %(removal)s; explicitly call "
-            "ax.remove() as needed.")
-    for ax_to_del in axes_to_delete:
-        delaxes(ax_to_del)
 
     return ax
 
@@ -1488,7 +1491,7 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     This is a helper function to build complex GridSpec layouts visually.
 
-    See :doc:`/gallery/subplots_axes_and_figures/mosaic`
+    See :ref:`mosaic`
     for an example and full API documentation
 
     Parameters
@@ -1633,27 +1636,12 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
         gs = fig.add_gridspec(nrows, ncols)
         ax = fig.add_subplot(gs[row:row+rowspan, col:col+colspan])
     """
-
     if fig is None:
         fig = gcf()
-
     rows, cols = shape
     gs = GridSpec._check_gridspec_exists(fig, rows, cols)
-
     subplotspec = gs.new_subplotspec(loc, rowspan=rowspan, colspan=colspan)
-    ax = fig.add_subplot(subplotspec, **kwargs)
-
-    axes_to_delete = [other for other in fig.axes
-                      if other != ax and ax.bbox.fully_overlaps(other.bbox)]
-    if axes_to_delete:
-        _api.warn_deprecated(
-            "3.6", message="Auto-removal of overlapping axes is deprecated "
-            "since %(since)s and will be removed %(removal)s; explicitly call "
-            "ax.remove() as needed.")
-    for ax_to_del in axes_to_delete:
-        delaxes(ax_to_del)
-
-    return ax
+    return fig.add_subplot(subplotspec, **kwargs)
 
 
 def twinx(ax=None):
@@ -2528,6 +2516,17 @@ def csd(
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@_copy_docstring_and_deprecators(Axes.ecdf)
+def ecdf(
+        x, weights=None, *, complementary=False,
+        orientation='vertical', compress=False, data=None, **kwargs):
+    return gca().ecdf(
+        x, weights=weights, complementary=complementary,
+        orientation=orientation, compress=compress,
+        **({"data": data} if data is not None else {}), **kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.errorbar)
 def errorbar(
         x, y, yerr=None, xerr=None, fmt='', ecolor=None,
@@ -2896,14 +2895,10 @@ def stackplot(
 @_copy_docstring_and_deprecators(Axes.stem)
 def stem(
         *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-        label=None,
-        use_line_collection=_api.deprecation._deprecated_parameter,
-        orientation='vertical', data=None):
+        label=None, orientation='vertical', data=None):
     return gca().stem(
         *args, linefmt=linefmt, markerfmt=markerfmt, basefmt=basefmt,
-        bottom=bottom, label=label,
-        use_line_collection=use_line_collection,
-        orientation=orientation,
+        bottom=bottom, label=label, orientation=orientation,
         **({"data": data} if data is not None else {}))
 
 

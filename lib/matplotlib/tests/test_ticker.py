@@ -239,6 +239,26 @@ class TestLogLocator:
         assert loc._base == 4
         assert list(loc._subs) == [2.0]
 
+    def test_tick_values_correct(self):
+        ll = mticker.LogLocator(subs=(1, 2, 5))
+        test_value = np.array([1.e-01, 2.e-01, 5.e-01, 1.e+00, 2.e+00, 5.e+00,
+                               1.e+01, 2.e+01, 5.e+01, 1.e+02, 2.e+02, 5.e+02,
+                               1.e+03, 2.e+03, 5.e+03, 1.e+04, 2.e+04, 5.e+04,
+                               1.e+05, 2.e+05, 5.e+05, 1.e+06, 2.e+06, 5.e+06,
+                               1.e+07, 2.e+07, 5.e+07, 1.e+08, 2.e+08, 5.e+08])
+        assert_almost_equal(ll.tick_values(1, 1e7), test_value)
+
+    def test_tick_values_not_empty(self):
+        mpl.rcParams['_internal.classic_mode'] = False
+        ll = mticker.LogLocator(subs=(1, 2, 5))
+        test_value = np.array([1.e-01, 2.e-01, 5.e-01, 1.e+00, 2.e+00, 5.e+00,
+                               1.e+01, 2.e+01, 5.e+01, 1.e+02, 2.e+02, 5.e+02,
+                               1.e+03, 2.e+03, 5.e+03, 1.e+04, 2.e+04, 5.e+04,
+                               1.e+05, 2.e+05, 5.e+05, 1.e+06, 2.e+06, 5.e+06,
+                               1.e+07, 2.e+07, 5.e+07, 1.e+08, 2.e+08, 5.e+08,
+                               1.e+09, 2.e+09, 5.e+09])
+        assert_almost_equal(ll.tick_values(1, 1e8), test_value)
+
 
 class TestNullLocator:
     def test_set_params(self):
@@ -1447,6 +1467,24 @@ class TestPercentFormatter:
         fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
         with mpl.rc_context(rc={'text.usetex': usetex}):
             assert fmt.format_pct(50, 100) == expected
+
+
+def test_locale_comma():
+    currentLocale = locale.getlocale()
+    try:
+        locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
+        ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
+        fmt = '$\\mathdefault{%1.1f}$'
+        x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+        assert x == '$\\mathdefault{0{,}5}$'
+        # Do not change , in the format string
+        fmt = ',$\\mathdefault{,%1.1f},$'
+        x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+        assert x == ',$\\mathdefault{,0{,}5},$'
+    except locale.Error:
+        pytest.skip("Locale de_DE.UTF-8 is not supported on this machine")
+    finally:
+        locale.setlocale(locale.LC_ALL, currentLocale)
 
 
 def test_majformatter_type():

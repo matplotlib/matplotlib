@@ -97,11 +97,11 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
-            python -m pip install --no-deps --user \
-                git+https://github.com/matplotlib/mpl-sphinx-theme.git
             python -m pip install --user \
                 numpy<< parameters.numpy_version >> codecov coverage \
                 -r requirements/doc/doc-requirements.txt
+            python -m pip install --no-deps --user \
+                git+https://github.com/matplotlib/mpl-sphinx-theme.git
 
   mpl-install:
     steps:

@@ -987,6 +987,19 @@ def test_lasso_selector(ax, kwargs):
     onselect.assert_called_once_with([(100, 100), (125, 125), (150, 150)])
 
 
+def test_lasso_selector_set_props(ax):
+    onselect = mock.Mock(spec=noop, return_value=None)
+
+    tool = widgets.LassoSelector(ax, onselect, props=dict(color='b', alpha=0.2))
+
+    artist = tool._selection_artist
+    assert mcolors.same_color(artist.get_color(), 'b')
+    assert artist.get_alpha() == 0.2
+    tool.set_props(color='r', alpha=0.3)
+    assert mcolors.same_color(artist.get_color(), 'r')
+    assert artist.get_alpha() == 0.3
+
+
 def test_CheckButtons(ax):
     check = widgets.CheckButtons(ax, ('a', 'b', 'c'), (True, False, True))
     assert check.get_status() == [True, False, True]
@@ -1297,12 +1310,12 @@ def test_range_slider(orientation):
         else:
             return [h.get_xdata()[0] for h in slider._handles]
 
-    slider.set_val((0.2, 0.6))
-    assert_allclose(slider.val, (0.2, 0.6))
-    assert_allclose(handle_positions(slider), (0.2, 0.6))
+    slider.set_val((0.4, 0.6))
+    assert_allclose(slider.val, (0.4, 0.6))
+    assert_allclose(handle_positions(slider), (0.4, 0.6))
 
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.2, .25, 0.6, .75])
+    assert_allclose(box.get_points().flatten()[idx], [0.4, .25, 0.6, .75])
 
     slider.set_val((0.2, 0.1))
     assert_allclose(slider.val, (0.1, 0.2))

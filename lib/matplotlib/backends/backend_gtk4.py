@@ -74,7 +74,11 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
         self.set_focusable(True)
 
         css = Gtk.CssProvider()
-        css.load_from_data(b".matplotlib-canvas { background-color: white; }")
+        style = '.matplotlib-canvas { background-color: white; }'
+        if Gtk.check_version(4, 9, 3) is None:
+            css.load_from_data(style, -1)
+        else:
+            css.load_from_data(style.encode('utf-8'))
         style_ctx = self.get_style_context()
         style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         style_ctx.add_class("matplotlib-canvas")
@@ -284,9 +288,7 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
 
 
 class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
-    @_api.delete_parameter("3.6", "window")
-    def __init__(self, canvas, window=None):
-        self._win = window
+    def __init__(self, canvas):
         Gtk.Box.__init__(self)
 
         self.add_css_class('toolbar')
@@ -327,8 +329,6 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         self.append(self.message)
 
         _NavigationToolbar2GTK.__init__(self, canvas)
-
-    win = _api.deprecated("3.6")(property(lambda self: self._win))
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserNative(

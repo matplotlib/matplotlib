@@ -2,7 +2,6 @@ import numpy as np
 
 from matplotlib import _api
 from matplotlib.collections import PolyCollection, TriMesh
-from matplotlib.colors import Normalize
 from matplotlib.tri._triangulation import Triangulation
 
 
@@ -115,7 +114,6 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     if 'antialiaseds' not in kwargs and ec.lower() == "none":
         kwargs['antialiaseds'] = False
 
-    _api.check_isinstance((Normalize, None), norm=norm)
     if shading == 'gouraud':
         if facecolors is not None:
             raise ValueError(

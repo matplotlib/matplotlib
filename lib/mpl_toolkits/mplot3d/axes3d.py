@@ -57,7 +57,6 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
 
-    dist = _api.deprecate_privatize_attribute("3.6")
     vvec = _api.deprecate_privatize_attribute("3.7")
     eye = _api.deprecate_privatize_attribute("3.7")
     sx = _api.deprecate_privatize_attribute("3.7")
@@ -218,13 +217,6 @@ class Axes3D(Axes):
 
     get_zgridlines = _axis_method_wrapper("zaxis", "get_gridlines")
     get_zticklines = _axis_method_wrapper("zaxis", "get_ticklines")
-
-    w_xaxis = _api.deprecated("3.1", alternative="xaxis", removal="3.8")(
-        property(lambda self: self.xaxis))
-    w_yaxis = _api.deprecated("3.1", alternative="yaxis", removal="3.8")(
-        property(lambda self: self.yaxis))
-    w_zaxis = _api.deprecated("3.1", alternative="zaxis", removal="3.8")(
-        property(lambda self: self.zaxis))
 
     @_api.deprecated("3.7")
     def unit_cube(self, vals=None):
@@ -640,7 +632,6 @@ class Axes3D(Axes):
             _tight = self._tight = bool(tight)
 
         if scalex and self.get_autoscalex_on():
-            self._shared_axes["x"].clean()
             x0, x1 = self.xy_dataLim.intervalx
             xlocator = self.xaxis.get_major_locator()
             x0, x1 = xlocator.nonsingular(x0, x1)
@@ -653,7 +644,6 @@ class Axes3D(Axes):
             self.set_xbound(x0, x1)
 
         if scaley and self.get_autoscaley_on():
-            self._shared_axes["y"].clean()
             y0, y1 = self.xy_dataLim.intervaly
             ylocator = self.yaxis.get_major_locator()
             y0, y1 = ylocator.nonsingular(y0, y1)
@@ -666,7 +656,6 @@ class Axes3D(Axes):
             self.set_ybound(y0, y1)
 
         if scalez and self.get_autoscalez_on():
-            self._shared_axes["z"].clean()
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
             z0, z1 = zlocator.nonsingular(z0, z1)
@@ -686,9 +675,8 @@ class Axes3D(Axes):
         return minx, maxx, miny, maxy, minz, maxz
 
     # set_xlim, set_ylim are directly inherited from base Axes.
-    @_api.make_keyword_only("3.6", "emit")
-    def set_zlim(self, bottom=None, top=None, emit=True, auto=False,
-                 *, zmin=None, zmax=None):
+    def set_zlim(self, bottom=None, top=None, *, emit=True, auto=False,
+                 zmin=None, zmax=None):
         """
         Set 3D z limits.
 
@@ -1012,13 +1000,16 @@ class Axes3D(Axes):
 
     def _get_view(self):
         # docstring inherited
-        return (self.get_xlim(), self.get_ylim(), self.get_zlim(),
-                self.elev, self.azim, self.roll)
+        return {
+            "xlim": self.get_xlim(), "autoscalex_on": self.get_autoscalex_on(),
+            "ylim": self.get_ylim(), "autoscaley_on": self.get_autoscaley_on(),
+            "zlim": self.get_zlim(), "autoscalez_on": self.get_autoscalez_on(),
+        }, (self.elev, self.azim, self.roll)
 
     def _set_view(self, view):
         # docstring inherited
-        xlim, ylim, zlim, elev, azim, roll = view
-        self.set(xlim=xlim, ylim=ylim, zlim=zlim)
+        props, (elev, azim, roll) = view
+        self.set(**props)
         self.elev = elev
         self.azim = azim
         self.roll = roll
@@ -2679,12 +2670,12 @@ class Axes3D(Axes):
             These parameters can be:
 
             - A single color value, to color all voxels the same color. This
-              can be either a string, or a 1D rgb/rgba array
+              can be either a string, or a 1D RGB/RGBA array
             - ``None``, the default, to use a single color for the faces, and
               the style default for the edges.
             - A 3D `~numpy.ndarray` of color names, with each item the color
               for the corresponding voxel. The size must match the voxels.
-            - A 4D `~numpy.ndarray` of rgb/rgba data, with the components
+            - A 4D `~numpy.ndarray` of RGB/RGBA data, with the components
               along the last axis.
 
         shade : bool, default: True

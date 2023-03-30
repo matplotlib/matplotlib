@@ -5,7 +5,7 @@
 Styles are predefined sets of `.rcParams` that define the visual appearance of
 a plot.
 
-:doc:`/tutorials/introductory/customizing` describes the mechanism and usage
+:ref:`customizing` describes the mechanism and usage
 of styles.
 
 The :doc:`/gallery/style_sheets/style_sheets_reference` gives an overview of

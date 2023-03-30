@@ -91,7 +91,7 @@ class Text3D(mtext.Text):
     ----------------
     **kwargs
          All other parameters are passed on to `~matplotlib.text.Text`.
-   """
+    """
 
     def __init__(self, x=0, y=0, z=0, text='', zdir='z', **kwargs):
         mtext.Text.__init__(self, x, y, text, **kwargs)
@@ -848,7 +848,7 @@ class Poly3DCollection(PolyCollection):
 
             .. versionadded:: 3.7
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
             .. versionadded:: 3.7

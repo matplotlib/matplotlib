@@ -88,7 +88,7 @@ original location:
 * The legend handler interface has changed from a callable, to any object
   which implements the ``legend_artists`` method (a deprecation phase will
   see this interface be maintained for v1.4). See
-  :doc:`/tutorials/intermediate/legend_guide` for further details. Further legend changes
+  :ref:`legend_guide` for further details. Further legend changes
   include:
 
    * ``matplotlib.axes.Axes._get_legend_handles`` now returns a generator of

@@ -376,7 +376,7 @@ def warn_external(message, category=None):
     etc.).
     """
     frame = sys._getframe()
-    for stacklevel in itertools.count(1):  # lgtm[py/unused-loop-variable]
+    for stacklevel in itertools.count(1):
         if frame is None:
             # when called in embedded context may hit frame is None
             break
@@ -385,4 +385,6 @@ def warn_external(message, category=None):
                         frame.f_globals.get("__name__", "")):
             break
         frame = frame.f_back
+    # premetively break reference cycle between locals and the frame
+    del frame
     warnings.warn(message, category, stacklevel)

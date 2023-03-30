@@ -270,9 +270,6 @@ Aliases and deprecated methods
     tunit_cube
     tunit_edges
     unit_cube
-    w_xaxis
-    w_yaxis
-    w_zaxis
 
 
 Other

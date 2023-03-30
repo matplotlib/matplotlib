@@ -193,6 +193,8 @@ class AbstractMovieWriter(abc.ABC):
             The DPI (or resolution) for the file.  This controls the size
             in pixels of the resulting movie file.
         """
+        # Check that path is valid
+        Path(outfile).parent.resolve(strict=True)
         self.outfile = outfile
         self.fig = fig
         if dpi is None:
@@ -405,6 +407,8 @@ class FileMovieWriter(MovieWriter):
             deleted by `finish`; if not *None*, no temporary files are
             deleted.
         """
+        # Check that path is valid
+        Path(outfile).parent.resolve(strict=True)
         self.fig = fig
         self.outfile = outfile
         if dpi is None:
@@ -423,7 +427,7 @@ class FileMovieWriter(MovieWriter):
         self.fname_format_str = '%s%%07d.%s'
 
     def __del__(self):
-        if self._tmpdir:
+        if hasattr(self, '_tmpdir') and self._tmpdir:
             self._tmpdir.cleanup()
 
     @property
@@ -610,18 +614,6 @@ class ImageMagickBase:
 
     _exec_key = 'animation.convert_path'
     _args_key = 'animation.convert_args'
-
-    @_api.deprecated("3.6")
-    @property
-    def delay(self):
-        return 100. / self.fps
-
-    @_api.deprecated("3.6")
-    @property
-    def output_args(self):
-        extra_args = (self.extra_args if self.extra_args is not None
-                      else mpl.rcParams[self._args_key])
-        return [*extra_args, self.outfile]
 
     def _args(self):
         # ImageMagick does not recognize "raw".
@@ -988,6 +980,15 @@ class Animation:
         is a `.MovieWriter`, a `RuntimeError` will be raised.
         """
 
+        all_anim = [self]
+        if extra_anim is not None:
+            all_anim.extend(anim for anim in extra_anim
+                            if anim._fig is self._fig)
+
+        # Disable "Animation was deleted without rendering" warning.
+        for anim in all_anim:
+            anim._draw_was_started = True
+
         if writer is None:
             writer = mpl.rcParams['animation.writer']
         elif (not isinstance(writer, str) and
@@ -1025,11 +1026,6 @@ class Animation:
             writer_kwargs['extra_args'] = extra_args
         if metadata is not None:
             writer_kwargs['metadata'] = metadata
-
-        all_anim = [self]
-        if extra_anim is not None:
-            all_anim.extend(anim for anim in extra_anim
-                            if anim._fig is self._fig)
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.

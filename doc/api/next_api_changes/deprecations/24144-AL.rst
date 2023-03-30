@@ -1,5 +1,0 @@
-``ContourLabeler`` attributes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``labelFontProps``, ``labelFontSizeList``, and ``labelTextsList``
-attributes of `.ContourLabeler` have been deprecated.  Use the ``labelTexts``
-attribute and the font properties of the corresponding text objects instead.

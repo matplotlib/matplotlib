@@ -72,7 +72,7 @@ def _get_testable_interactive_backends():
     return envs
 
 
-_test_timeout = 60  # A reasonably safe value for slower architectures.
+_test_timeout = 120  # A reasonably safe value for slower architectures.
 
 
 def _test_toolbar_button_la_mode_icon(fig):
@@ -150,6 +150,10 @@ def _test_interactive_impl():
     assert_equal(
         type(fig.canvas).__module__,
         f"matplotlib.backends.backend_{backend}")
+
+    if mpl.rcParams["toolbar"] == "toolmanager":
+        # test toolbar button icon LA mode see GH issue 25174
+        _test_toolbar_button_la_mode_icon(fig)
 
     if mpl.rcParams["toolbar"] == "toolmanager":
         # test toolbar button icon LA mode see GH issue 25174
@@ -303,37 +307,23 @@ def _implqt5agg():
     assert 'pyside6' not in sys.modules
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
 
-    import matplotlib.backends.backend_qt5
-    with pytest.warns(DeprecationWarning,
-                      match="QtWidgets.QApplication.instance"):
-        matplotlib.backends.backend_qt5.qApp
-
 
 def _implcairo():
-    import matplotlib.backends.backend_qt5cairo # noqa
+    import matplotlib.backends.backend_qt5cairo  # noqa
     import sys
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
-
-    import matplotlib.backends.backend_qt5
-    with pytest.warns(DeprecationWarning,
-                      match="QtWidgets.QApplication.instance"):
-        matplotlib.backends.backend_qt5.qApp
 
 
 def _implcore():
-    import matplotlib.backends.backend_qt5
+    import matplotlib.backends.backend_qt5  # noqa
     import sys
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
-
-    with pytest.warns(DeprecationWarning,
-                      match="QtWidgets.QApplication.instance"):
-        matplotlib.backends.backend_qt5.qApp
 
 
 def test_qt5backends_uses_qt5():
@@ -459,7 +449,7 @@ def _lazy_headless():
     try:
         plt.switch_backend(backend)
     except ImportError:
-        ...
+        pass
     else:
         sys.exit(1)
 
@@ -473,20 +463,6 @@ def test_lazy_linux_headless(env):
         timeout=_test_timeout,
         extra_env={**env, 'DISPLAY': '', 'WAYLAND_DISPLAY': ''}
     )
-
-
-def _qApp_warn_impl():
-    import matplotlib.backends.backend_qt
-    import pytest
-
-    with pytest.warns(
-            DeprecationWarning, match="QtWidgets.QApplication.instance"):
-        matplotlib.backends.backend_qt.qApp
-
-
-@pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_qApp_warn():
-    _run_helper(_qApp_warn_impl, timeout=_test_timeout)
 
 
 def _test_number_of_draws_script():

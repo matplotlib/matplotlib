@@ -4047,23 +4047,15 @@ def test_hist_stacked_weighted():
     ax.hist((d1, d2), weights=(w1, w2), histtype="stepfilled", stacked=True)
 
 
-@pytest.mark.parametrize("use_line_collection", [True, False],
-                         ids=['w/ line collection', 'w/o line collection'])
 @image_comparison(['stem.png'], style='mpl20', remove_text=True)
-def test_stem(use_line_collection):
+def test_stem():
     x = np.linspace(0.1, 2 * np.pi, 100)
 
     fig, ax = plt.subplots()
     # Label is a single space to force a legend to be drawn, but to avoid any
     # text being drawn
-    if use_line_collection:
-        ax.stem(x, np.cos(x),
-                linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
-    else:
-        with pytest.warns(MatplotlibDeprecationWarning, match='deprecated'):
-            ax.stem(x, np.cos(x),
-                    linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ',
-                    use_line_collection=False)
+    ax.stem(x, np.cos(x),
+            linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
     ax.legend()
 
 
@@ -4162,23 +4154,14 @@ def test_stem_dates():
     ax.stem(xs, ys)
 
 
-@pytest.mark.parametrize("use_line_collection", [True, False],
-                         ids=['w/ line collection', 'w/o line collection'])
 @image_comparison(['stem_orientation.png'], style='mpl20', remove_text=True)
-def test_stem_orientation(use_line_collection):
+def test_stem_orientation():
     x = np.linspace(0.1, 2*np.pi, 50)
 
     fig, ax = plt.subplots()
-    if use_line_collection:
-        ax.stem(x, np.cos(x),
-                linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
-                orientation='horizontal')
-    else:
-        with pytest.warns(MatplotlibDeprecationWarning, match='deprecated'):
-            ax.stem(x, np.cos(x),
-                    linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
-                    use_line_collection=False,
-                    orientation='horizontal')
+    ax.stem(x, np.cos(x),
+            linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
+            orientation='horizontal')
 
 
 @image_comparison(['hist_stacked_stepfilled_alpha'])
@@ -7811,6 +7794,28 @@ def test_ytickcolor_is_not_yticklabelcolor():
         assert tick.label1.get_color() == 'blue'
 
 
+def test_xaxis_offsetText_color():
+    plt.rcParams['xtick.labelcolor'] = 'blue'
+    ax = plt.axes()
+    assert ax.xaxis.offsetText.get_color() == 'blue'
+
+    plt.rcParams['xtick.color'] = 'yellow'
+    plt.rcParams['xtick.labelcolor'] = 'inherit'
+    ax = plt.axes()
+    assert ax.xaxis.offsetText.get_color() == 'yellow'
+
+
+def test_yaxis_offsetText_color():
+    plt.rcParams['ytick.labelcolor'] = 'green'
+    ax = plt.axes()
+    assert ax.yaxis.offsetText.get_color() == 'green'
+
+    plt.rcParams['ytick.color'] = 'red'
+    plt.rcParams['ytick.labelcolor'] = 'inherit'
+    ax = plt.axes()
+    assert ax.yaxis.offsetText.get_color() == 'red'
+
+
 @pytest.mark.parametrize('size', [size for size in mfont_manager.font_scalings
                                   if size is not None] + [8, 10, 12])
 @mpl.style.context('default')
@@ -8431,3 +8436,48 @@ def test_zorder_and_explicit_rasterization():
     ln, = ax.plot(range(5), rasterized=True, zorder=1)
     with io.BytesIO() as b:
         fig.savefig(b, format='pdf')
+
+
+@mpl.style.context('default')
+def test_rc_axes_label_formatting():
+    mpl.rcParams['axes.labelcolor'] = 'red'
+    mpl.rcParams['axes.labelsize'] = 20
+    mpl.rcParams['axes.labelweight'] = 'bold'
+
+    ax = plt.axes()
+    assert ax.xaxis.label.get_color() == 'red'
+    assert ax.xaxis.label.get_fontsize() == 20
+    assert ax.xaxis.label.get_fontweight() == 'bold'
+
+
+@check_figures_equal(extensions=["png"])
+def test_ecdf(fig_test, fig_ref):
+    data = np.array([0, -np.inf, -np.inf, np.inf, 1, 1, 2])
+    weights = range(len(data))
+    axs_test = fig_test.subplots(1, 2)
+    for ax, orientation in zip(axs_test, ["vertical", "horizontal"]):
+        l0 = ax.ecdf(data, orientation=orientation)
+        l1 = ax.ecdf("d", "w", data={"d": np.ma.array(data), "w": weights},
+                     orientation=orientation,
+                     complementary=True, compress=True, ls=":")
+        assert len(l0.get_xdata()) == (~np.isnan(data)).sum() + 1
+        assert len(l1.get_xdata()) == len({*data[~np.isnan(data)]}) + 1
+    axs_ref = fig_ref.subplots(1, 2)
+    axs_ref[0].plot([-np.inf, -np.inf, -np.inf, 0, 1, 1, 2, np.inf],
+                    np.arange(8) / 7, ds="steps-post")
+    axs_ref[0].plot([-np.inf, 0, 1, 2, np.inf, np.inf],
+                    np.array([21, 20, 18, 14, 3, 0]) / 21,
+                    ds="steps-pre", ls=":")
+    axs_ref[1].plot(np.arange(8) / 7,
+                    [-np.inf, -np.inf, -np.inf, 0, 1, 1, 2, np.inf],
+                    ds="steps-pre")
+    axs_ref[1].plot(np.array([21, 20, 18, 14, 3, 0]) / 21,
+                    [-np.inf, 0, 1, 2, np.inf, np.inf],
+                    ds="steps-post", ls=":")
+
+
+def test_ecdf_invalid():
+    with pytest.raises(ValueError):
+        plt.ecdf([1, np.nan])
+    with pytest.raises(ValueError):
+        plt.ecdf(np.ma.array([1, 2], mask=[True, False]))

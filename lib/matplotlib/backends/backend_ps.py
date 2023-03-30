@@ -11,7 +11,6 @@ import itertools
 import logging
 import os
 import pathlib
-import re
 import shutil
 from tempfile import TemporaryDirectory
 import time
@@ -90,20 +89,6 @@ def _get_papertype(w, h):
 
 def _nums_to_str(*args):
     return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
-
-
-@_api.deprecated("3.6", alternative="a vendored copy of this function")
-def quote_ps_string(s):
-    """
-    Quote dangerous characters of S for use in a PostScript string constant.
-    """
-    s = s.replace(b"\\", b"\\\\")
-    s = s.replace(b"(", b"\\(")
-    s = s.replace(b")", b"\\)")
-    s = s.replace(b"'", b"\\251")
-    s = s.replace(b"`", b"\\301")
-    s = re.sub(br"[^ -~\n]", lambda x: br"\%03o" % ord(x.group()), s)
-    return s.decode('ascii')
 
 
 def _move_path_to_path_or_stream(src, dst):
@@ -1094,13 +1079,6 @@ showpage
     def draw(self):
         self.figure.draw_without_rendering()
         return super().draw()
-
-
-@_api.deprecated("3.6")
-def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
-                    paper_width, paper_height, orientation):
-    return _convert_psfrags(
-        pathlib.Path(tmpfile), psfrags, paper_width, paper_height, orientation)
 
 
 def _convert_psfrags(tmppath, psfrags, paper_width, paper_height, orientation):

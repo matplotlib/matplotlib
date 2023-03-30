@@ -14,4 +14,4 @@
        BboxTransformFrom, ScaledTranslation, TransformedPath, nonsingular,
        interval_contains, interval_contains_open
    :show-inheritance:
-   :special-members:
+   :special-members: __add__, __sub__

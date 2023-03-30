@@ -70,7 +70,7 @@ constructing a `.MarkerStyle`, but note that there are other contexts where
 for `.Axes.scatter`).
 
 Note that special symbols can be defined via the
-:doc:`STIX math font </tutorials/text/mathtext>`,
+:ref:`STIX math font <mathtext>`,
 e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer to the
 `STIX font table <http://www.stixfonts.org/allGlyphs.html>`_.
 Also see the :doc:`/gallery/text_labels_and_annotations/stix_fonts_demo`.
@@ -135,7 +135,6 @@ Examples showing the use of markers:
 import copy
 
 from collections.abc import Sized
-import inspect
 
 import numpy as np
 
@@ -223,10 +222,8 @@ class MarkerStyle:
     fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
     _half_fillstyles = ('left', 'right', 'bottom', 'top')
 
-    _unset = object()  # For deprecation of MarkerStyle(<noargs>).
-
-    def __init__(self, marker=_unset, fillstyle=None,
-                 transform=None, capstyle=None, joinstyle=None):
+    def __init__(self, marker,
+                 fillstyle=None, transform=None, capstyle=None, joinstyle=None):
         """
         Parameters
         ----------
@@ -255,24 +252,7 @@ class MarkerStyle:
         self._user_capstyle = capstyle
         self._user_joinstyle = joinstyle
         self._set_fillstyle(fillstyle)
-        # Remove _unset and signature rewriting after deprecation elapses.
-        if marker is self._unset:
-            marker = ""
-            _api.warn_deprecated(
-                "3.6", message="Calling MarkerStyle() with no parameters is "
-                "deprecated since %(since)s; support will be removed "
-                "%(removal)s.  Use MarkerStyle('') to construct an empty "
-                "MarkerStyle.")
-        if marker is None:
-            marker = ""
-            _api.warn_deprecated(
-                "3.6", message="MarkerStyle(None) is deprecated since "
-                "%(since)s; support will be removed %(removal)s.  Use "
-                "MarkerStyle('') to construct an empty MarkerStyle.")
         self._set_marker(marker)
-
-    __init__.__signature__ = inspect.signature(  # Only for deprecation period.
-        lambda self, marker, fillstyle=None: None)
 
     def _recache(self):
         if self._marker_function is None:
@@ -418,7 +398,7 @@ class MarkerStyle:
 
         Parameters
         ----------
-        transform : Affine2D, default: None
+        transform : `~matplotlib.transforms.Affine2D`, default: None
             Transform will be combined with current user supplied transform.
         """
         new_marker = MarkerStyle(self)

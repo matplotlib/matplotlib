@@ -1,3 +1,0 @@
-``RadioButtons.circles``
-~~~~~~~~~~~~~~~~~~~~~~~~
-... is deprecated.  (RadioButtons now draws itself using `~.Axes.scatter`.)

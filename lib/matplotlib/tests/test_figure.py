@@ -16,6 +16,7 @@ import matplotlib as mpl
 from matplotlib import gridspec
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
+from matplotlib.backend_bases import KeyEvent, MouseEvent
 from matplotlib.figure import Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
                                       TightLayoutEngine,
@@ -287,6 +288,20 @@ def test_suptitle_fontproperties():
     assert txt.get_weight() == fps.get_weight()
 
 
+def test_suptitle_subfigures():
+    fig = plt.figure(figsize=(4, 3))
+    sf1, sf2 = fig.subfigures(1, 2)
+    sf2.set_facecolor('white')
+    sf1.subplots()
+    sf2.subplots()
+    fig.suptitle("This is a visible suptitle.")
+
+    # verify the first subfigure facecolor is the default transparent
+    assert sf1.get_facecolor() == (0.0, 0.0, 0.0, 0.0)
+    # verify the second subfigure facecolor is white
+    assert sf2.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
+
+
 @image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
@@ -532,11 +547,22 @@ def test_savefig_pixel_ratio(backend):
     assert ratio1 == ratio2
 
 
-def test_savefig_preserve_layout_engine(tmp_path):
+def test_savefig_preserve_layout_engine():
     fig = plt.figure(layout='compressed')
-    fig.savefig(tmp_path / 'foo.png', bbox_inches='tight')
+    fig.savefig(io.BytesIO(), bbox_inches='tight')
 
     assert fig.get_layout_engine()._compress
+
+
+def test_savefig_locate_colorbar():
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh(np.random.randn(2, 2))
+    cbar = fig.colorbar(pc, aspect=40)
+    fig.savefig(io.BytesIO(), bbox_inches=mpl.transforms.Bbox([[0, 0], [4, 4]]))
+
+    # Check that an aspect ratio has been applied.
+    assert (cbar.ax.get_position(original=True).bounds !=
+            cbar.ax.get_position(original=False).bounds)
 
 
 @mpl.rc_context({"savefig.transparent": True})
@@ -1211,12 +1237,14 @@ def test_subfigure():
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
     sub[0].colorbar(pc, ax=axs)
     sub[0].suptitle('Left Side')
+    sub[0].set_facecolor('white')
 
     axs = sub[1].subplots(1, 3)
     for ax in axs.flat:
         pc = ax.pcolormesh(np.random.randn(30, 30), vmin=-2, vmax=2)
     sub[1].colorbar(pc, ax=axs, location='bottom')
     sub[1].suptitle('Right Side')
+    sub[1].set_facecolor('white')
 
     fig.suptitle('Figure suptitle', fontsize='xx-large')
 
@@ -1443,19 +1471,20 @@ def test_add_axes_kwargs():
 def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig, ax = plt.subplots()
+    trans = ax.transData.transform
 
     def single_press():
-        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
+        MouseEvent("button_press_event", fig.canvas, *trans((.1, .2)), 1)._process()
 
     Timer(.1, single_press).start()
     assert fig.ginput() == [(.1, .2)]
 
     def multi_presses():
-        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
-        fig.canvas.key_press_event("backspace")
-        fig.canvas.button_press_event(*ax.transData.transform((.3, .4)), 1)
-        fig.canvas.button_press_event(*ax.transData.transform((.5, .6)), 1)
-        fig.canvas.button_press_event(*ax.transData.transform((0, 0)), 2)
+        MouseEvent("button_press_event", fig.canvas, *trans((.1, .2)), 1)._process()
+        KeyEvent("key_press_event", fig.canvas, "backspace")._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((.3, .4)), 1)._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((.5, .6)), 1)._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((0, 0)), 2)._process()
 
     Timer(.1, multi_presses).start()
     np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
@@ -1465,9 +1494,9 @@ def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig = plt.figure()
     assert fig.waitforbuttonpress(timeout=.1) is None
-    Timer(.1, fig.canvas.key_press_event, ("z",)).start()
+    Timer(.1, KeyEvent("key_press_event", fig.canvas, "z")._process).start()
     assert fig.waitforbuttonpress() is True
-    Timer(.1, fig.canvas.button_press_event, (0, 0, 1)).start()
+    Timer(.1, MouseEvent("button_press_event", fig.canvas, 0, 0, 1)._process).start()
     assert fig.waitforbuttonpress() is False
 
 
@@ -1532,3 +1561,14 @@ def test_gridspec_no_mutate_input():
     plt.subplots(1, 2, width_ratios=[1, 2], gridspec_kw=gs)
     assert gs == gs_orig
     plt.subplot_mosaic('AB', width_ratios=[1, 2], gridspec_kw=gs)
+
+
+@pytest.mark.parametrize('fmt', ['eps', 'pdf', 'png', 'ps', 'svg', 'svgz'])
+def test_savefig_metadata(fmt):
+    Figure().savefig(io.BytesIO(), format=fmt, metadata={})
+
+
+@pytest.mark.parametrize('fmt', ['jpeg', 'jpg', 'tif', 'tiff', 'webp', "raw", "rgba"])
+def test_savefig_metadata_error(fmt):
+    with pytest.raises(ValueError, match="metadata not supported"):
+        Figure().savefig(io.BytesIO(), format=fmt, metadata={})

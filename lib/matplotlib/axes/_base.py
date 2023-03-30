@@ -796,12 +796,9 @@ class _AxesBase(martist.Artist):
         """Return the `.GridSpec` associated with the subplot, or None."""
         return self._subplotspec.get_gridspec() if self._subplotspec else None
 
-    @_api.delete_parameter("3.6", "args")
-    @_api.delete_parameter("3.6", "kwargs")
-    def get_window_extent(self, renderer=None, *args, **kwargs):
+    def get_window_extent(self, renderer=None):
         """
-        Return the Axes bounding box in display space; *args* and *kwargs*
-        are empty.
+        Return the Axes bounding box in display space.
 
         This bounding box does not include the spines, ticks, ticklabels,
         or other labels.  For a bounding box including these elements use
@@ -1363,8 +1360,6 @@ class _AxesBase(martist.Artist):
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
 
-        self._shared_axes["x"].clean()
-        self._shared_axes["y"].clean()
         if self._sharex is not None:
             self.xaxis.set_visible(xaxis_visible)
             self.patch.set_visible(patch_visible)
@@ -2545,9 +2540,7 @@ class _AxesBase(martist.Artist):
             except KeyError:
                 raise ValueError(f"Invalid axis name: {axis_name!r}") from None
             # Update from data if axis is already set but no unit is set yet.
-            if (axis is not None and
-                    data is not None and
-                    not axis._have_units_and_converter()):
+            if axis is not None and data is not None and not axis.have_units():
                 axis.update_units(data)
         for axis_name, axis in axis_map.items():
             # Return if no axis is set.
@@ -3085,10 +3078,6 @@ class _AxesBase(martist.Artist):
                 stack.enter_context(artist._cm_set(visible=False))
             self.draw(self.figure.canvas.get_renderer())
 
-    @_api.deprecated("3.6", alternative="Axes.figure.canvas.get_renderer()")
-    def get_renderer_cache(self):
-        return self.figure.canvas.get_renderer()
-
     # Axes rectangle characteristics
 
     def get_frame_on(self):
@@ -3572,9 +3561,8 @@ class _AxesBase(martist.Artist):
                 raise ValueError("Axis limits cannot be NaN or Inf")
             return converted_limit
 
-    @_api.make_keyword_only("3.6", "emit")
-    def set_xlim(self, left=None, right=None, emit=True, auto=False,
-                 *, xmin=None, xmax=None):
+    def set_xlim(self, left=None, right=None, *, emit=True, auto=False,
+                 xmin=None, xmax=None):
         """
         Set the x-axis view limits.
 
@@ -3804,9 +3792,8 @@ class _AxesBase(martist.Artist):
         """
         return tuple(self.viewLim.intervaly)
 
-    @_api.make_keyword_only("3.6", "emit")
-    def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
-                 *, ymin=None, ymax=None):
+    def set_ylim(self, bottom=None, top=None, *, emit=True, auto=False,
+                 ymin=None, ymax=None):
         """
         Set the y-axis view limits.
 
@@ -3998,35 +3985,30 @@ class _AxesBase(martist.Artist):
         """
         Save information required to reproduce the current view.
 
-        Called before a view is changed, such as during a pan or zoom
-        initiated by the user. You may return any information you deem
-        necessary to describe the view.
+        This method is called before a view is changed, such as during a pan or zoom
+        initiated by the user.  It returns an opaque object that describes the current
+        view, in a format compatible with :meth:`_set_view`.
 
-        .. note::
-
-            Intended to be overridden by new projection types, but if not, the
-            default implementation saves the view limits. You *must* implement
-            :meth:`_set_view` if you implement this method.
+        The default implementation saves the view limits and autoscaling state.
+        Subclasses may override this as needed, as long as :meth:`_set_view` is also
+        adjusted accordingly.
         """
-        xmin, xmax = self.get_xlim()
-        ymin, ymax = self.get_ylim()
-        return xmin, xmax, ymin, ymax
+        return {
+            "xlim": self.get_xlim(), "autoscalex_on": self.get_autoscalex_on(),
+            "ylim": self.get_ylim(), "autoscaley_on": self.get_autoscaley_on(),
+        }
 
     def _set_view(self, view):
         """
         Apply a previously saved view.
 
-        Called when restoring a view, such as with the navigation buttons.
+        This method is called when restoring a view (with the return value of
+        :meth:`_get_view` as argument), such as with the navigation buttons.
 
-        .. note::
-
-            Intended to be overridden by new projection types, but if not, the
-            default implementation restores the view limits. You *must*
-            implement :meth:`_get_view` if you implement this method.
+        Subclasses that override :meth:`_get_view` also need to override this method
+        accordingly.
         """
-        xmin, xmax, ymin, ymax = view
-        self.set_xlim((xmin, xmax))
-        self.set_ylim((ymin, ymax))
+        self.set(**view)
 
     def _prepare_view_from_bbox(self, bbox, direction='in',
                                 mode=None, twinx=False, twiny=False):
@@ -4284,9 +4266,6 @@ class _AxesBase(martist.Artist):
 
     def contains(self, mouseevent):
         # docstring inherited.
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
         return self.patch.contains(mouseevent)
 
     def contains_point(self, point):
