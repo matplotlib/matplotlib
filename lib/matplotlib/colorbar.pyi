@@ -57,7 +57,6 @@ class Colorbar:
         ticks: Sequence[float] | Locator | None = ...,
         format: str | Formatter | None = ...,
         drawedges: bool = ...,
-        filled: bool = ...,
         extendfrac: Literal["auto"] | float | Sequence[float] | None = ...,
         extendrect: bool = ...,
         label: str = ...,
