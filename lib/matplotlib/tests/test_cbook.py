@@ -440,6 +440,81 @@ def test_sanitize_sequence():
     assert k == cbook.sanitize_sequence(k)
 
 
+def test_define_aliases():
+    @cbook._define_aliases({'prop': ['alias1', 'alias2']})
+    class NoGetter:
+        def set_prop(self):
+            pass
+
+    @cbook._define_aliases({'prop': ['alias1', 'alias2']})
+    class NoSetter:
+        def get_prop(self):
+            pass
+
+    assert getattr(NoGetter, 'get_alias1', None) is None
+    assert getattr(NoGetter, 'set_alias1', None) is not None
+    assert getattr(NoGetter, 'get_alias2', None) is None
+    assert getattr(NoGetter, 'set_alias2', None) is not None
+    assert NoGetter._alias_map == {'prop': ['alias1', 'alias2']}
+
+    assert getattr(NoSetter, 'get_alias1', None) is not None
+    assert getattr(NoSetter, 'set_alias1', None) is None
+    assert getattr(NoSetter, 'get_alias2', None) is not None
+    assert getattr(NoSetter, 'set_alias2', None) is None
+    assert NoSetter._alias_map == {'prop': ['alias1', 'alias2']}
+
+
+def test_define_aliases_invalid():
+    class Invalid:
+        pass
+
+    with pytest.raises(ValueError,
+                       match="Neither getter nor setter exists for 'prop'"):
+        cbook._define_aliases({'prop': ['alias1', 'alias2']})(Invalid)
+
+
+def test_define_aliases_subclass():
+    @cbook._define_aliases({'prop': ['alias']})
+    class Base:
+        def __init__(self):
+            self.call_count = {'Base:set_prop': 0}
+
+        def set_prop(self):
+            self.call_count['Base:set_prop'] += 1
+
+    class Derived(Base):
+        def __init__(self):
+            super().__init__()
+            self.call_count['Derived:set_prop'] = 0
+
+        def set_prop(self):
+            self.call_count['Derived:set_prop'] += 1
+
+    # Calling original or alias should run the same method.
+    b = Base()
+    b.set_prop()
+    assert b.call_count['Base:set_prop'] == 1
+    b.set_alias()
+    assert b.call_count['Base:set_prop'] == 2
+
+    d = Derived()
+    # Calling original or alias should run the same derived method.
+    d.set_prop()
+    assert d.call_count['Base:set_prop'] == 0
+    assert d.call_count['Derived:set_prop'] == 1
+    d.set_alias()
+    assert d.call_count['Base:set_prop'] == 0
+    assert d.call_count['Derived:set_prop'] == 2
+
+    # Calling original or alias should run the same base method.
+    Base.set_prop(d)
+    assert d.call_count['Base:set_prop'] == 1
+    assert d.call_count['Derived:set_prop'] == 2
+    Base.set_alias(d)
+    assert d.call_count['Base:set_prop'] == 2
+    assert d.call_count['Derived:set_prop'] == 2
+
+
 fail_mapping = (
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
