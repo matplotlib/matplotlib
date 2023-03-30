@@ -90,11 +90,10 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
     from typing import (
-        Any, Callable, Literal, Sequence, Iterable, Type, Generator
+        Any, Callable, Hashable, Literal, Sequence, Iterable, Type, Generator
     )
 
     from matplotlib.axis import Tick
-    from matplotlib.axes import SubplotBase
     from matplotlib.axes._base import _AxesBase
     from matplotlib.backend_bases import RendererBase, Event
     from matplotlib.cm import ScalarMappable
@@ -1578,9 +1577,9 @@ def subplot_mosaic(
     empty_sentinel: Any = '.',
     subplot_kw: dict[str, Any] | None = None,
     gridspec_kw: dict[str, Any] | None = None,
-    per_subplot_kw: dict[Any, dict[str, Any]] | None = None,
+    per_subplot_kw: dict[Hashable, dict[str, Any]] | None = None,
     **fig_kw
-) -> tuple[Figure, dict[Any, matplotlib.axes.Axes]]:
+) -> tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]:
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -2189,7 +2188,7 @@ def thetagrids(
 
 
 @_api.deprecated("3.7", pending=True)
-def get_plot_commands() -> Generator[str, None, None]:
+def get_plot_commands() -> list[str]:
     """
     Get a sorted list of all of the plotting commands.
     """

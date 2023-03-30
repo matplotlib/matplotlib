@@ -8,6 +8,7 @@ __all__ = [
     "get_cachedir",
     "get_data_path",
     "matplotlib_fname",
+    "MatplotlibDeprecationWarning",
     "RcParams",
     "rc_params",
     "rc_params_from_file",

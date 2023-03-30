@@ -28,7 +28,7 @@ There are some exceptions to when these are checked:
   - Inheritance makes the set arithmetic harder when only loading AST
   - Attributes also make it more complicated when defined in init
 - Functions type hinted with ``overload`` are ignored for argument checking
-  - Usually this means the implementation is is less strict in signature but will raise
+  - Usually this means the implementation is less strict in signature but will raise
     if an invalid signature is used, type checking allows such errors to be caught by
     the type checker instead of at runtime.
 - Private attribute/functions are ignored
