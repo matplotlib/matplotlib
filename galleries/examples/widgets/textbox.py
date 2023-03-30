@@ -32,7 +32,7 @@ def submit(expression):
     *expression* is a string using "t" as its independent variable, e.g.
     "t ** 3".
     """
-    ydata = eval(expression)
+    ydata = eval(expression, {'np': np}, {'t': t})
     l.set_ydata(ydata)
     ax.relim()
     ax.autoscale_view()
