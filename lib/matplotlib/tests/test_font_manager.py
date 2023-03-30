@@ -340,7 +340,7 @@ def test_donot_cache_tracebacks():
         with BytesIO() as out:
             with warnings.catch_warnings():
                 warnings.filterwarnings('ignore')
-                fig.savefig(out, format='svg')
+                fig.savefig(out, format='raw')
 
     inner()
 
