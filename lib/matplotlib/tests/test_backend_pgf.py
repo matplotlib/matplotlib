@@ -92,15 +92,12 @@ except mpl.ExecutableNotFoundError:
 
 # test compiling a figure to pdf with pdflatex
 @needs_pgf_pdflatex
+@pytest.mark.skipif(not _has_tex_package('type1ec'), reason='needs type1ec.sty')
 @pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_pdflatex.pdf'], style='default',
                   tol=11.71 if _old_gs_version else 0)
 def test_pdflatex():
-    if os.environ.get('APPVEYOR'):
-        pytest.xfail("pdflatex test does not work on appveyor due to missing "
-                     "LaTeX fonts")
-
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
                    'pgf.texsystem': 'pdflatex',
