@@ -1405,6 +1405,39 @@ default: %(va)s
                         # grouper for groups of xlabels to align
                         self._align_label_groups['title'].join(ax, axc)
 
+
+        ####################################################################
+        #
+        #
+        #                MOST BRILLIANT FIX IN THE WORLD INCOMMING
+        #
+        #
+        ####################################################################
+        # Fixes the issue that the bbox is too small to fit the alligned title
+        # axs[0] because axs contains all plots in order (because of np.raval(axs))
+        # and there must be at least one plot at axs 0
+        axs[0].get_tightbbox()
+
+        # if axs is None:
+        #    axs = self.axes
+        # axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
+        # for ax in axs:
+        #     _log.debug(' Working on: %s', ax.get_xlabel())
+        #     rowspan = ax.get_subplotspec().rowspan
+        #     pos = ax.xaxis.get_label_position()  # top or bottom
+        #     # Search through other axes for label positions that are same as
+        #     # this one and that share the appropriate row number.
+        #     # Add to a grouper associated with each axes of siblings.
+        #     # This list is inspected in `axis.draw` by
+        #     # `axis._update_label_position`.
+        #     for axc in axs:
+        #         if axc.xaxis.get_label_position() == pos:
+        #             rowspanc = axc.get_subplotspec().rowspan
+        #             if (pos == 'top' and rowspan.start == rowspanc.start or
+        #                     pos == 'bottom' and rowspan.stop == rowspanc.stop):
+        #                 # grouper for groups of xlabels to align
+        #                 self._align_label_groups['title'].join(ax, axc)
+
     def align_xlabels(self, axs=None):
         """
         Align the xlabels of subplots in the same subplot column if label
@@ -1549,6 +1582,7 @@ default: %(va)s
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
+        self.align_titlelabels(axs=axs)
 
     def add_gridspec(self, nrows=1, ncols=1, **kwargs):
         """
