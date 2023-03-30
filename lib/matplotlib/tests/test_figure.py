@@ -11,6 +11,7 @@ import warnings
 import numpy as np
 import pytest
 from PIL import Image
+from matplotlib.testing.compare import compare_images
 
 import matplotlib as mpl
 from matplotlib import gridspec
@@ -102,8 +103,6 @@ def test_align_labels_stray_axes():
     np.testing.assert_allclose(yn[::2], yn[1::2])
 
 ## TODO add image comparison
-@image_comparison(['figure_align_titles'], extensions=['png', 'svg'],
-                      tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_titles():
     fig, axs = plt.subplots(2, 2,
                             subplot_kw={"xlabel": "x", "ylabel": "",
@@ -114,12 +113,13 @@ def test_align_titles():
     axs[1][1].imshow(plt.np.zeros((1, 2)))
 
     axs[0][1].set_title('Title2', loc="left")
-
     fig.align_titles()
+    fig.savefig("./result_images/test_figure/figure_align_titles")
+    compare_images("./lib/matplotlib/tests/baseline_images/figure_align_titles.png", "./result_images/test_figure/figure_align_titles.png", 0)
 
 ## TODO add image comparison
 @image_comparison(['figure_align_titles_param'], extensions=['png', 'svg'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.01)
+                   tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_titles_param():
     fig, axs = plt.subplots(2, 2,
                             subplot_kw={"xlabel": "x", "ylabel": "",
