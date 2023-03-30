@@ -2429,7 +2429,7 @@ class _SelectorWidget(AxesWidget):
 
     @property
     def visible(self):
-        _api.warn_deprecated("3.6", alternative="get_visible")
+        _api.warn_deprecated("3.8", alternative="get_visible")
         return self.get_visible()
 
     def clear(self):

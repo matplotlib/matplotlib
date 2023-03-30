@@ -138,7 +138,7 @@ def test_deprecation_selector_visible_attribute(ax):
     assert tool.get_visible()
 
     with pytest.warns(mpl.MatplotlibDeprecationWarning,
-                      match="was deprecated in Matplotlib 3.6"):
+                      match="was deprecated in Matplotlib 3.8"):
         tool.visible = False
     assert not tool.get_visible()
 
