@@ -1327,7 +1327,7 @@ default: %(va)s
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
-    def align_titlelabels(self, axs=None):
+    def align_title(self, axs=None):
         """
         Align the xlabels of subplots in the same subplot column if label
         alignment is being done automatically (i.e. the label position is
@@ -1406,17 +1406,7 @@ default: %(va)s
                         self._align_label_groups['title'].join(ax, axc)
 
 
-        ####################################################################
-        #
-        #
-        #                MOST BRILLIANT FIX IN THE WORLD INCOMMING
-        #
-        #
-        ####################################################################
-        # Fixes the issue that the bbox is too small to fit the alligned title
-        # axs[0] because axs contains all plots in order (because of np.raval(axs))
-        # and there must be at least one plot at axs 0
-        axs[0].get_tightbbox()
+        axs[0].get_tightbbox()  # Fixes the issue that the bbox is too small to fit the alligned title when saving the figure
 
         # if axs is None:
         #    axs = self.axes
@@ -1582,7 +1572,6 @@ default: %(va)s
         """
         self.align_xlabels(axs=axs)
         self.align_ylabels(axs=axs)
-        self.align_titlelabels(axs=axs)
 
     def add_gridspec(self, nrows=1, ncols=1, **kwargs):
         """
