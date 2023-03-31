@@ -2750,6 +2750,8 @@ del _result
      (dict(c='b', edgecolor='r', edgecolors='g'), 'r'),
      (dict(color='r'), 'r'),
      (dict(color='r', edgecolor='g'), 'g'),
+     (dict(facecolors='none'), None),
+     (dict(c='b', facecolors='none'), np.array([[0, 0, 1, 1]]))
      ])
 def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     def get_next_color():
