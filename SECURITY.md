@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The following table lists versions and whether they are supported. Security
+The following table lists versions, and whether they are supported. Security
 vulnerability reports will be accepted and acted upon for all supported
 versions.
 
