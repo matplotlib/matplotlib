@@ -213,14 +213,15 @@ class LogTransform(Transform):
         return "{}(base={}, nonpositive={!r})".format(
             type(self).__name__, self.base, "clip" if self._clip else "mask")
 
-    def transform_non_affine(self, a):
+    @_api.rename_parameter("3.8", "a", "values")
+    def transform_non_affine(self, values):
         # Ignore invalid values due to nans being passed to the transform.
         with np.errstate(divide="ignore", invalid="ignore"):
             log = {np.e: np.log, 2: np.log2, 10: np.log10}.get(self.base)
             if log:  # If possible, do everything in a single call to NumPy.
-                out = log(a)
+                out = log(values)
             else:
-                out = np.log(a)
+                out = np.log(values)
                 out /= np.log(self.base)
             if self._clip:
                 # SVG spec says that conforming viewers must support values up
@@ -232,7 +233,7 @@ class LogTransform(Transform):
                 # pass. On the other hand, in practice, we want to clip beyond
                 #     np.log10(np.nextafter(0, 1)) ~ -323
                 # so 1000 seems safe.
-                out[a <= 0] = -1000
+                out[values <= 0] = -1000
         return out
 
     def inverted(self):
@@ -249,8 +250,9 @@ class InvertedLogTransform(Transform):
     def __str__(self):
         return f"{type(self).__name__}(base={self.base})"
 
-    def transform_non_affine(self, a):
-        return np.power(self.base, a)
+    @_api.rename_parameter("3.8", "a", "values")
+    def transform_non_affine(self, values):
+        return np.power(self.base, values)
 
     def inverted(self):
         return LogTransform(self.base)
@@ -360,14 +362,15 @@ class SymmetricalLogTransform(Transform):
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
         self._log_base = np.log(base)
 
-    def transform_non_affine(self, a):
-        abs_a = np.abs(a)
+    @_api.rename_parameter("3.8", "a", "values")
+    def transform_non_affine(self, values):
+        abs_a = np.abs(values)
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(a) * self.linthresh * (
+            out = np.sign(values) * self.linthresh * (
                 self._linscale_adj +
                 np.log(abs_a / self.linthresh) / self._log_base)
             inside = abs_a <= self.linthresh
-        out[inside] = a[inside] * self._linscale_adj
+        out[inside] = values[inside] * self._linscale_adj
         return out
 
     def inverted(self):
@@ -387,19 +390,20 @@ class InvertedSymmetricalLogTransform(Transform):
         self.linscale = linscale
         self._linscale_adj = (linscale / (1.0 - self.base ** -1))
 
-    def transform_non_affine(self, a):
-        abs_a = np.abs(a)
+    @_api.rename_parameter("3.8", "a", "values")
+    def transform_non_affine(self, values):
+        abs_a = np.abs(values)
         if (abs_a < self.linthresh).all():
             _api.warn_external(
                 "All values for SymLogScale are below linthresh, making "
                 "it effectively linear. You likely should lower the value "
                 "of linthresh. ")
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(a) * self.linthresh * (
+            out = np.sign(values) * self.linthresh * (
                 np.power(self.base,
                          abs_a / self.linthresh - self._linscale_adj))
             inside = abs_a <= self.invlinthresh
-        out[inside] = a[inside] / self._linscale_adj
+        out[inside] = values[inside] / self._linscale_adj
         return out
 
     def inverted(self):
@@ -473,8 +477,9 @@ class AsinhTransform(Transform):
                              "must be strictly positive")
         self.linear_width = linear_width
 
-    def transform_non_affine(self, a):
-        return self.linear_width * np.arcsinh(a / self.linear_width)
+    @_api.rename_parameter("3.8", "a", "values")
+    def transform_non_affine(self, values):
+        return self.linear_width * np.arcsinh(values / self.linear_width)
 
     def inverted(self):
         return InvertedAsinhTransform(self.linear_width)
@@ -488,8 +493,9 @@ class InvertedAsinhTransform(Transform):
         super().__init__()
         self.linear_width = linear_width
 
-    def transform_non_affine(self, a):
-        return self.linear_width * np.sinh(a / self.linear_width)
+    @_api.rename_parameter("3.8", "a", "values")
+    def transform_non_affine(self, values):
+        return self.linear_width * np.sinh(values / self.linear_width)
 
     def inverted(self):
         return AsinhTransform(self.linear_width)
@@ -588,13 +594,14 @@ class LogitTransform(Transform):
         self._nonpositive = nonpositive
         self._clip = {"clip": True, "mask": False}[nonpositive]
 
-    def transform_non_affine(self, a):
+    @_api.rename_parameter("3.8", "a", "values")
+    def transform_non_affine(self, values):
         """logit transform (base 10), masked or clipped"""
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.log10(a / (1 - a))
+            out = np.log10(values / (1 - values))
         if self._clip:  # See LogTransform for choice of clip value.
-            out[a <= 0] = -1000
-            out[1 <= a] = 1000
+            out[values <= 0] = -1000
+            out[1 <= values] = 1000
         return out
 
     def inverted(self):
@@ -611,9 +618,10 @@ class LogisticTransform(Transform):
         super().__init__()
         self._nonpositive = nonpositive
 
-    def transform_non_affine(self, a):
+    @_api.rename_parameter("3.8", "a", "values")
+    def transform_non_affine(self, values):
         """logistic transform (base 10)"""
-        return 1.0 / (1 + 10**(-a))
+        return 1.0 / (1 + 10**(-values))
 
     def inverted(self):
         return LogitTransform(self._nonpositive)

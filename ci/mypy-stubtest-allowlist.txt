@@ -68,34 +68,10 @@ matplotlib.axis.Axis.set_clip_path
 matplotlib.axis.Tick.set_clip_path
 matplotlib.image.NonUniformImage.set_filternorm
 matplotlib.image.NonUniformImage.set_filterrad
-matplotlib.projections.geo.AitoffAxes.AitoffTransform.transform_non_affine
-matplotlib.projections.geo.AitoffAxes.InvertedAitoffTransform.transform_non_affine
-matplotlib.projections.geo.HammerAxes.HammerTransform.transform_non_affine
-matplotlib.projections.geo.HammerAxes.InvertedHammerTransform.transform_non_affine
-matplotlib.projections.geo.LambertAxes.InvertedLambertTransform.transform_non_affine
-matplotlib.projections.geo.LambertAxes.LambertTransform.transform_non_affine
-matplotlib.projections.geo.MollweideAxes.InvertedMollweideTransform.transform_non_affine
-matplotlib.projections.geo.MollweideAxes.MollweideTransform.transform_non_affine
-matplotlib.projections.polar.InvertedPolarTransform.transform_non_affine
-matplotlib.projections.polar.PolarTransform.transform_non_affine
 matplotlib.projections.polar.RadialLocator.nonsingular
-matplotlib.scale.AsinhTransform.transform_non_affine
-matplotlib.scale.InvertedAsinhTransform.transform_non_affine
-matplotlib.scale.InvertedSymmetricalLogTransform.transform_non_affine
-matplotlib.scale.LogisticTransform.transform_non_affine
-matplotlib.scale.LogitTransform.transform_non_affine
-matplotlib.scale.SymmetricalLogTransform.transform_non_affine
 matplotlib.table.Cell.set_transform
 matplotlib.ticker.LogLocator.nonsingular
 matplotlib.ticker.LogitLocator.nonsingular
-matplotlib.transforms.Affine2DBase.transform_affine
-matplotlib.transforms.AffineBase.transform_non_affine
-matplotlib.transforms.BlendedGenericTransform.transform_non_affine
-matplotlib.transforms.CompositeGenericTransform.transform_affine
-matplotlib.transforms.CompositeGenericTransform.transform_non_affine
-matplotlib.transforms.IdentityTransform.transform_affine
-matplotlib.transforms.IdentityTransform.transform_non_affine
-matplotlib.transforms.IdentityTransform.transform
 
 # Stdlib/Enum considered inconsistent (no fault of ours, I don't think)
 matplotlib.backend_bases._Mode.__new__
