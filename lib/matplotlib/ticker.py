@@ -510,8 +510,14 @@ class ScalarFormatter(Formatter):
         """
         Format *arg* with *fmt*, applying Unicode minus and locale if desired.
         """
-        return self.fix_minus(locale.format_string(fmt, (arg,), True)
-                              if self._useLocale else fmt % arg)
+        return self.fix_minus(
+                # Escape commas introduced by format_string but not those present
+                # from the beginning in fmt.
+                ",".join(locale.format_string(part, (arg,), True)
+                         .replace(",", "{,}")
+                         for part in fmt.split(","))
+                if self._useLocale
+                else fmt % arg)
 
     def get_useMathText(self):
         """
@@ -2330,7 +2336,7 @@ class LogLocator(Locator):
         # Get decades between major ticks.
         stride = (max(math.ceil(numdec / (numticks - 1)), 1)
                   if mpl.rcParams['_internal.classic_mode'] else
-                  (numdec + 1) // numticks + 1)
+                  numdec // numticks + 1)
 
         # if we have decided that the stride is as big or bigger than
         # the range, clip the stride back to the available range - 1
@@ -2398,7 +2404,8 @@ class LogLocator(Locator):
                 "log-scaled.")
             vmin, vmax = 1, 10
         else:
-            minpos = self.axis.get_minpos()
+            # Consider shared axises
+            minpos = min(axis.get_minpos() for axis in self.axis._get_shared_axis())
             if not np.isfinite(minpos):
                 minpos = 1e-300  # This should never take effect.
             if vmin <= 0:

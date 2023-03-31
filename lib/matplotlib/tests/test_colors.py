@@ -10,13 +10,14 @@ import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cbook, cm, cycler
+from matplotlib import cbook, cm
 import matplotlib
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.colorbar as mcolorbar
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
+from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
@@ -1388,7 +1389,7 @@ def test_ndarray_subclass_norm():
     # which objects when adding or subtracting with other
     # arrays. See #6622 and #8696
     class MyArray(np.ndarray):
-        def __isub__(self, other):
+        def __isub__(self, other):  # type: ignore
             raise RuntimeError
 
         def __add__(self, other):

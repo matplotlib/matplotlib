@@ -55,7 +55,7 @@ build the documentation.
 Building the docs
 -----------------
 
-The documentation sources are found in the :file:`doc/` directory in the trunk.
+The documentation sources are found in the :file:`doc/` directory.
 The configuration file for Sphinx is :file:`doc/conf.py`. It controls which
 directories Sphinx parses, how the docs are built, and how the extensions are
 used. To build the documentation in html format, cd into :file:`doc/` and run:
@@ -144,9 +144,9 @@ are some formatting and style conventions that are used.
 Section formatting
 ~~~~~~~~~~~~~~~~~~
 
-For everything but top-level chapters,  use ``Upper lower`` for
-section titles, e.g., ``Possible hangups`` rather than ``Possible
-Hangups``
+Use `sentence case <https://apastyle.apa.org/style-grammar-guidelines/capitalization/sentence-case>`__
+``Upper lower`` for section titles, e.g., ``Possible hangups`` rather than
+``Possible Hangups``.
 
 We aim to follow the recommendations from the
 `Python documentation <https://devguide.python.org/documenting/#sections>`_
@@ -342,6 +342,16 @@ Note that the python script that generates the plot is referred to, rather than
 any plot that is created.  Sphinx-gallery will provide the correct reference
 when the documentation is built.
 
+Tools for writing mathematical expressions
+------------------------------------------
+
+In most cases, you will likely want to use one of `Sphinx's builtin Math
+extensions <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__.
+In rare cases we want the rendering of the mathematical text in the
+documentation html to exactly match with the rendering of the mathematical
+expression in the Matplotlib figure. In these cases, you can use the
+`matplotlib.sphinxext.mathmpl` Sphinx extension (See also the
+:doc:`../users/explain/text/mathtext` tutorial.)
 
 .. _writing-docstrings:
 

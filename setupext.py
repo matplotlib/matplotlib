@@ -468,15 +468,15 @@ class Matplotlib(SetupPackage):
             cxx_std=11)
         yield ext
         # ttconv
-        ext = Extension(
+        ext = Pybind11Extension(
             "matplotlib._ttconv", [
                 "src/_ttconv.cpp",
                 "extern/ttconv/pprdrv_tt.cpp",
                 "extern/ttconv/pprdrv_tt2.cpp",
                 "extern/ttconv/ttutil.cpp",
             ],
-            include_dirs=["extern"])
-        add_numpy_flags(ext)
+            include_dirs=["extern"],
+            cxx_std=11)
         yield ext
 
 

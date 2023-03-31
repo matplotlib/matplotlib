@@ -1,0 +1,30 @@
+---
+name: Mypy Stubtest
+on: [pull_request]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  mypy-stubtest:
+    name: mypy-stubtest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install mypy
+        run: |
+          pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
+          pip3 install .
+
+      - name: Run mypy stubtest
+        run: |
+          # the ignore missing imports can be removed when typed cycler is released and used
+          MPLBACKEND=agg python -m mypy.stubtest matplotlib --mypy-config-file pyproject.toml \
+                                --allowlist ci/mypy-stubtest-allowlist.txt

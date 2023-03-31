@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import io
 from pathlib import Path
 import platform
 import re
 import shlex
 from xml.etree import ElementTree as ET
+from typing import Any
 
 import numpy as np
 import pytest
@@ -146,7 +149,7 @@ all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 # stub should be of the form (None, N) where N is the number of strings that
 # used to be tested
 # Add new tests at the end.
-font_test_specs = [
+font_test_specs: list[tuple[None | list[str], Any]] = [
     ([], all),
     (['mathrm'], all),
     (['mathbf'], all),
@@ -170,10 +173,10 @@ font_test_specs = [
     (['mathbf', 'mathsf'], [digits, uppercase, lowercase])
     ]
 
-font_tests = []
+font_tests: list[None | str] = []
 for fonts, chars in font_test_specs:
     if fonts is None:
-        font_tests.extend([None] * chars)
+        font_tests.extend([None] * chars)  # type: ignore
     else:
         wrapper = ''.join([
             ' '.join(fonts),

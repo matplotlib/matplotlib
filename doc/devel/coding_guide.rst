@@ -82,6 +82,11 @@ rules before submitting a pull request:
   by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
   information)
 
+* If you add new public API or change public API, update or add the
+  corresponding type hints. Most often this is found in the corresponding
+  ``.pyi`` file for the ``.py`` file which was edited. Changes in ``pyplot.py``
+  are type hinted inline.
+
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
 

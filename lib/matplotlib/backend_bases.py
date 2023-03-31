@@ -1257,11 +1257,26 @@ class Event:
     def __init__(self, name, canvas, guiEvent=None):
         self.name = name
         self.canvas = canvas
-        self.guiEvent = guiEvent
+        self._guiEvent = guiEvent
+        self._guiEvent_deleted = False
 
     def _process(self):
-        """Generate an event with name ``self.name`` on ``self.canvas``."""
+        """Process this event on ``self.canvas``, then unset ``guiEvent``."""
         self.canvas.callbacks.process(self.name, self)
+        self._guiEvent_deleted = True
+
+    @property
+    def guiEvent(self):
+        # After deprecation elapses: remove _guiEvent_deleted; make guiEvent a plain
+        # attribute set to None by _process.
+        if self._guiEvent_deleted:
+            _api.warn_deprecated(
+                "3.8", message="Accessing guiEvent outside of the original GUI event "
+                "handler is unsafe and deprecated since %(since)s; in the future, the "
+                "attribute will be set to None after quitting the event handler.  You "
+                "may separately record the value of the guiEvent attribute at your own "
+                "risk.")
+        return self._guiEvent
 
 
 class DrawEvent(Event):

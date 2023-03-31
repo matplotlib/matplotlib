@@ -395,7 +395,7 @@ def test_EllipseCollection():
 
 @image_comparison(['polycollection_close.png'], remove_text=True)
 def test_polycollection_close():
-    from mpl_toolkits.mplot3d import Axes3D
+    from mpl_toolkits.mplot3d import Axes3D  # type: ignore
 
     vertsQuad = [
         [[0., 0.], [0., 1.], [1., 1.], [1., 0.]],
