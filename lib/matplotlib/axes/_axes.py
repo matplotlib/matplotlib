@@ -4459,7 +4459,7 @@ class Axes(_AxesBase):
             size, and can lead to artifacts if the marker size is smaller than
             the linewidth.
 
-            If the linewidth is greater than 0 and the edegecolor is anything
+            If the linewidth is greater than 0 and the edgecolor is anything
             but *'none'*, then the effective size of the marker will be
             increased by half the linewidth because the stroke will be centered
             on the edge of the shape.
