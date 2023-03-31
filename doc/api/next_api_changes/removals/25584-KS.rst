@@ -1,5 +1,5 @@
-``Figure.callbacks`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``Figure.callbacks`` is removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Figure ``callbacks`` property is deprecated. The only signal was
 "dpi_changed", which can be replaced by connecting to the "resize_event" on the
