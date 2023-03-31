@@ -4371,9 +4371,9 @@ class Axes(_AxesBase):
         if edgecolors is None and c is not None:
             edge_from_c = True
 
-        facecolors_none = type(facecolors) == str and facecolors == 'none'
-        if edgecolors is None and not mpl.rcParams['_internal.classic_mode']\
-                and (not edge_from_c or not facecolors_none):
+        facecolors_none = isinstance(facecolors, str) and facecolors == 'none'
+        if (edgecolors is None and not mpl.rcParams['_internal.classic_mode']
+                and (not edge_from_c or not facecolors_none)):
 
             edgecolors = mpl.rcParams['scatter.edgecolors']
 
@@ -4684,8 +4684,8 @@ default: :rc:`scatter.edgecolors`
             alpha=alpha,
         )
         collection.set_transform(mtransforms.IdentityTransform())
-        if (colors is None or edgecolors is None) and not mcolors.is_color_like(c)\
-                and not type(c) == np.ndarray:
+        if ((colors is None or edgecolors is None) and not mcolors.is_color_like(c)
+                and not type(c) == np.ndarray):
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
