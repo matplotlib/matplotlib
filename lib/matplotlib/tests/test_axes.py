@@ -2760,7 +2760,10 @@ def test_parse_scatter_color_args_edgecolors(kwargs, expected_edgecolors):
     _, _, result_edgecolors = \
         mpl.axes.Axes._parse_scatter_color_args(
             c, edgecolors, kwargs, xsize=2, get_next_color_func=get_next_color)
-    assert result_edgecolors == expected_edgecolors
+    if type(expected_edgecolors) == np.ndarray:
+        assert_allclose(result_edgecolors, expected_edgecolors)
+    else:
+        assert result_edgecolors == expected_edgecolors
 
 
 def test_parse_scatter_color_args_error():
