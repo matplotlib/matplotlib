@@ -1,0 +1,22 @@
+Method parameters renamed to match base classes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The only parameter of ``Transform.transform_non_affine`` in subclasses are renamed
+to *values*
+
+The only parameter of ``Transform.transform_affine`` in subclasses are renamed to
+*values*
+
+The parameter of ``transforms.IdentityTransform.transform`` is renamed to *values*
+
+The parameter of ``table.Cell.set_transform`` is renamed to *t* consistently with
+`.Artist.set_transform`.
+
+The parameters of ``axis.Axis.set_clip_path``  and ``axis.Tick.set_clip_Ppath`` are
+renamed to *path* consistently with `.Artist.set_clip_path`.
+
+The parameter of ``images.NonUniformImage.set_filternorm`` is renamed to *filternorm*
+consistently with ```_ImageBase.set_filternorm``.
+
+The parameter of ``images.NonUniformImage.set_filterrad`` is renamed to *filterrad*
+consistently with ```_ImageBase.set_filterrad``.
