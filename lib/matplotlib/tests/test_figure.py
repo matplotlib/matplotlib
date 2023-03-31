@@ -102,6 +102,7 @@ def test_align_labels_stray_axes():
     np.testing.assert_allclose(xn[:2], xn[2:])
     np.testing.assert_allclose(yn[::2], yn[1::2])
 
+
 ## TODO add image comparison
 def test_align_titles():
     fig, axs = plt.subplots(2, 2,
@@ -115,7 +116,9 @@ def test_align_titles():
     axs[0][1].set_title('Title2', loc="left")
     fig.align_titles()
     fig.savefig("./result_images/test_figure/figure_align_titles")
-    compare_images("./lib/matplotlib/tests/baseline_images/figure_align_titles.png", "./result_images/test_figure/figure_align_titles.png", 0)
+    compare_images("./lib/matplotlib/tests/baseline_images/figure_align_titles.png",
+                   "./result_images/test_figure/figure_align_titles.png", 0)
+
 
 ## TODO add image comparison
 @image_comparison(['figure_align_titles_param'], extensions=['png', 'svg'],
