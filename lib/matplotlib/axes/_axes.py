@@ -4456,15 +4456,13 @@ class Axes(_AxesBase):
             Default is ``rcParams['lines.markersize'] ** 2``.
 
             The linewidth and edgecolor can visually interact with the marker
-            size.
+            size, and can lead to artifacts if the marker size is smaller than
+            the linewidth.
 
             If the linewidth is greater than 0 and the edegecolor is anything
             but *'none'*, then the effective size of the marker will be
-            increased by half the linewidth as the stroke drawn for the edge
-            will be centered on the edge of the shape.
-
-            If the marker size is smaller than the linewidth there will be
-            visual artifacts.
+            increased by half the linewidth because the stroke will be centered
+            on the edge of the shape.
 
             To eliminate the marker edge either set *linewidth=0* or
             *edgecolor='none'*.
