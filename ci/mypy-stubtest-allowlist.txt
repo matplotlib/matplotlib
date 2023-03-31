@@ -64,12 +64,7 @@ matplotlib.ticker.MultipleLocator.set_params
 matplotlib.text.Annotation.get_window_extent
 
 # Inconsistent super/sub class parameter name (maybe rename for consistency)
-matplotlib.axis.Axis.set_clip_path
-matplotlib.axis.Tick.set_clip_path
-matplotlib.image.NonUniformImage.set_filternorm
-matplotlib.image.NonUniformImage.set_filterrad
 matplotlib.projections.polar.RadialLocator.nonsingular
-matplotlib.table.Cell.set_transform
 matplotlib.ticker.LogLocator.nonsingular
 matplotlib.ticker.LogitLocator.nonsingular
 
