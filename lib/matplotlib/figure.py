@@ -1329,27 +1329,26 @@ default: %(va)s
 
     def align_titles(self, axs=None):
         """
-        Align the xlabels of subplots in the same subplot column if label
-        alignment is being done automatically (i.e. the label position is
+        Align the titles of subplots in the same subplot column if title
+        alignment is being done automatically (i.e. the title position is
         not manually set).
 
         Alignment persists for draw events after this is called.
 
-        If a label is on the bottom, it is aligned with labels on Axes that
-        also have their label on the bottom and that have the same
-        bottom-most subplot row.  If the label is on the top,
-        it is aligned with labels on Axes with the same top-most row.
+        If the title is on the top,
+        it is aligned with titles on Axes with the same top-most row.
 
         Parameters
         ----------
         axs : list of `~matplotlib.axes.Axes`
             Optional list of (or `~numpy.ndarray`) `~matplotlib.axes.Axes`
-            to align the xlabels.
-            Default is to align all Axes on the figure.
+            to align the titles.
+            Default is to align all titles on the figure.
 
         See Also
         --------
         matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_xlabels
         matplotlib.figure.Figure.align_labels
 
         Notes
@@ -1361,12 +1360,16 @@ default: %(va)s
         --------
         Example with rotated xtick labels::
 
-            fig, axs = plt.subplots(1, 2)
-            for tick in axs[0].get_xticklabels():
-                tick.set_rotation(55)
-            axs[0].set_xlabel('XLabel 0')
-            axs[1].set_xlabel('XLabel 1')
-            fig.align_xlabels()
+            fig, axs = plt.subplots(2, 2,
+                            subplot_kw={"xlabel": "x", "ylabel": "",
+                                        "title": "Title"})
+            axs[0][0].imshow(plt.np.zeros((5, 3)))
+            axs[0][1].imshow(plt.np.zeros((3, 5)))
+            axs[1][0].imshow(plt.np.zeros((2, 1)))
+            axs[1][1].imshow(plt.np.zeros((1, 2)))
+
+            axs[0][1].set_title('Title2', loc="left")
+            fig.align_titles()
         """
         if axs is None:
             axs = self.axes
