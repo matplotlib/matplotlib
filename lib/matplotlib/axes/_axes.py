@@ -5531,11 +5531,15 @@ default: :rc:`scatter.edgecolors`
             'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
             'sinc', 'lanczos', 'blackman'.
 
-            If *interpolation* is 'none', then no interpolation is performed
-            on the Agg, ps, pdf and svg backends. Other backends will fall back
-            to 'nearest'. Note that most SVG renderers perform interpolation at
-            rendering and that the default interpolation method they implement
-            may differ.
+            The data *X* is resampled to the pixel size of the image on the
+            figure canvas, using the interpolation method to either up- or
+            downsample the data.
+
+            If *interpolation* is 'none', then for the ps, pdf, and svg
+            backends no down- or upsampling occurs, and the image data is
+            passed to the backend as a native image.  Note that different ps,
+            pdf, and svg viewers may display these raw pixels differently. On
+            other backends, 'none' is the same as 'nearest'.
 
             If *interpolation* is the default 'antialiased', then 'nearest'
             interpolation is used if the image is upsampled by more than a
