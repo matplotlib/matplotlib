@@ -2215,7 +2215,8 @@ class _AxesBase(martist.Artist):
         self._children.append(a)
         a._remove_method = self._children.remove
         self._set_artist_props(a)
-        a.set_clip_path(self.patch)
+        if a.get_clip_path() is None:
+            a.set_clip_path(self.patch)
         self.stale = True
         return a
 
@@ -2423,7 +2424,8 @@ class _AxesBase(martist.Artist):
         _api.check_isinstance(mtable.Table, tab=tab)
         self._set_artist_props(tab)
         self._children.append(tab)
-        tab.set_clip_path(self.patch)
+        if tab.get_clip_path() is None:
+            tab.set_clip_path(self.patch)
         tab._remove_method = self._children.remove
         return tab
 
