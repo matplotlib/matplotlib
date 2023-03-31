@@ -186,7 +186,8 @@ class FigureBase(Artist):
         # groupers to keep track of x, y and title labels we want to align.
         # see self.align_xlabels, self.align_ylabels, self.align_titles and
         # axis._get_tick_boxes_siblings
-        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper(), "title": cbook.Grouper()}
+        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper(),
+                                    "title": cbook.Grouper()}
 
         self.figure = self
         self._localaxes = []  # track all axes
