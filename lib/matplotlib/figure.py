@@ -184,7 +184,7 @@ class FigureBase(Artist):
         self._supylabel = None
 
         # groupers to keep track of x, y and title labels we want to align.
-        # see self.align_xlabels, self.align_ylabels, self.align_titlelabels and
+        # see self.align_xlabels, self.align_ylabels, self.align_titles and
         # axis._get_tick_boxes_siblings
         self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper(), "title": cbook.Grouper()}
 
@@ -1358,7 +1358,7 @@ default: %(va)s
 
         Examples
         --------
-        Example with rotated xtick labels::
+        Example with aligned titles on multiple rows::
 
             fig, axs = plt.subplots(2, 2,
                             subplot_kw={"xlabel": "x", "ylabel": "",
@@ -1373,43 +1373,21 @@ default: %(va)s
         """
         if axs is None:
             axs = self.axes
-        axs = np.ravel(axs)
-        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
+        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
         locs = ['left', 'center', 'right']
         for ax in axs:
             for loc in locs:
                 if ax.get_title(loc=loc):
-                    _log.debug(' Working on: %s', ax.get_title(loc=loc))
                     rowspan = ax.get_subplotspec().rowspan
                     for axc in axs:
-                        for loc in locs:
-                            rowspanc = axc.get_subplotspec().rowspan
-                            if rowspan.start == rowspanc.start or \
-                                    rowspan.stop == rowspanc.stop:
-                                self._align_label_groups['title'].join(ax, axc)
+                        rowspanc = axc.get_subplotspec().rowspan
+                        if rowspan.start == rowspanc.start or \
+                                rowspan.stop == rowspanc.stop:
+                            self._align_label_groups['title'].join(ax, axc)
 
-        if axs is None:
-            axs = self.axes
-        axs = [ax for ax in np.ravel(axs) if ax.get_subplotspec() is not None]
-        for ax in axs:
-            _log.debug(' Working on: %s', ax.get_xlabel())
-            rowspan = ax.get_subplotspec().rowspan
-            pos = ax.xaxis.get_label_position()  # top or bottom
-            # Search through other axes for label positions that are same as
-            # this one and that share the appropriate row number.
-            # Add to a grouper associated with each axes of siblings.
-            # This list is inspected in `axis.draw` by
-            # `axis._update_label_position`.
-            for axc in axs:
-                if axc.xaxis.get_label_position() == pos:
-                    rowspanc = axc.get_subplotspec().rowspan
-                    if (pos == 'top' and rowspan.start == rowspanc.start or
-                            pos == 'bottom' and rowspan.stop == rowspanc.stop):
-                        # grouper for groups of xlabels to align
-                        self._align_label_groups['title'].join(ax, axc)
-
-
-        axs[0].get_tightbbox()  # Fixes the issue that the bbox is too small to fit the alligned title when saving the figure
+        # Fixes the issue that the bbox is too small to fit the aligned
+        # title when saving the figure
+        axs[0].get_tightbbox()
 
     def align_xlabels(self, axs=None):
         """
