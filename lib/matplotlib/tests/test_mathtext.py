@@ -133,6 +133,7 @@ lightweight_math_tests = [
     r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
     r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
     r'$1.$ $2.$ $19680801.$ $a.$ $b.$ $mpl.$',
+    r'Matplotlib: $\underline{Plotting}$ $\underline{\mathrm{with}}$ Python',  # GitHub issue 14235
 ]
 
 digits = "0123456789"
