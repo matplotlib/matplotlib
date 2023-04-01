@@ -4455,6 +4455,18 @@ class Axes(_AxesBase):
             The marker size in points**2 (typographic points are 1/72 in.).
             Default is ``rcParams['lines.markersize'] ** 2``.
 
+            The linewidth and edgecolor can visually interact with the marker
+            size, and can lead to artifacts if the marker size is smaller than
+            the linewidth.
+
+            If the linewidth is greater than 0 and the edgecolor is anything
+            but *'none'*, then the effective size of the marker will be
+            increased by half the linewidth because the stroke will be centered
+            on the edge of the shape.
+
+            To eliminate the marker edge either set *linewidth=0* or
+            *edgecolor='none'*.
+
         c : array-like or list of colors or color, optional
             The marker colors. Possible values:
 
