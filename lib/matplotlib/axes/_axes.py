@@ -4262,11 +4262,13 @@ class Axes(_AxesBase):
                 if not (facecolor is None):
                     if isinstance(facecolor, list):
                         # if facecolor is a list of colors
-                        box.set_facecolor(facecolor[facecolor_index])
-                        facecolor_index += 1
-                    else:
+                        if facecolor_index < len(facecolor):
+                            box.set_facecolor(facecolor[facecolor_index])
+                            facecolor_index += 1
+                    elif isinstance(facecolor, str):
                         # if facecolor is a color
                         box.set_facecolor(facecolor)
+                    # if type is not str or list, don't fill the color
                 boxes.append(box)
             # draw the whiskers
             whiskers.append(do_plot(whis_x, whislo_y, **whisker_kw))
