@@ -1388,7 +1388,7 @@ default: %(va)s
 
         # Fixes the issue that the bbox is too small to fit the aligned
         # title when saving the figure
-        axs[0].get_tightbbox()
+        self.canvas.draw_idle()
 
     def align_xlabels(self, axs=None):
         """
