@@ -134,8 +134,8 @@ __all__ = [
 
 
 import atexit
-from collections import namedtuple
-from collections.abc import MutableMapping
+from collections import namedtuple, ChainMap, defaultdict
+from collections.abc import MutableMapping, Mapping
 import contextlib
 import functools
 import importlib
@@ -155,6 +155,7 @@ import warnings
 
 import numpy
 from packaging.version import parse as parse_version
+from copy import deepcopy
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -650,7 +651,7 @@ _deprecated_remain_as_none = {}
 @_docstring.Substitution(
     "\n".join(map("- {}".format, sorted(rcsetup._validators, key=str.lower)))
 )
-class RcParams(MutableMapping, dict):
+class RcParams(MutableMapping):
     """
     A dict-like key-value store for config parameters, including validation.
 
@@ -665,14 +666,71 @@ class RcParams(MutableMapping, dict):
     --------
     :ref:`customizing-with-matplotlibrc-files`
     """
-
     validate = rcsetup._validators
+    namespaces = (
+        "backends",
+        "lines",
+        "patches",
+        "hatches",
+        "boxplot",
+        "font",
+        "text",
+        "latex",
+        "axes",
+        "date",
+        "xtick",
+        "ytick",
+        "grid",
+        "legend",
+        "figure",
+        "image",
+        "contour",
+        "errorbar",
+        "hist",
+        "scatter",
+        "agg",
+        "path",
+        "savefig",
+        "tk",
+        "ps",
+        "pdf",
+        "svg",
+        "pgf",
+        "docstring",
+        "keymap",
+        "animation",
+        "_internal",
+        "webagg",
+        "markers",
+        "pcolor",
+        "pcolormesh",
+        "patch",
+        "hatch",
+        "mathtext",
+        "polaraxes",
+        "axes3d",
+        "xaxis",
+        "yaxis",
+        "default"
+    )
 
-    # validate values on the way in
+    single_key_set = {"backend", "toolbar", "interactive",
+                      "timezone", "backend_fallback"}
+
     def __init__(self, *args, **kwargs):
+        self._namespace_maps = {name: ChainMap({}) for name in self.namespaces}
         self.update(*args, **kwargs)
+        self._namespace_maps = {
+            name: mapping.new_child()
+            for name, mapping in self._namespace_maps.items()
+        }
+        self._mapping = ChainMap(*self._namespace_maps.values())
 
-    def _set(self, key, val):
+    def _split_key(self, key, sep="."):
+        keys = key.split(sep, maxsplit=1)
+        return keys, len(keys)
+
+    def _set(self, key, value):
         """
         Directly write data bypassing deprecation and validation logic.
 
@@ -690,7 +748,13 @@ class RcParams(MutableMapping, dict):
 
         :meta public:
         """
-        dict.__setitem__(self, key, val)
+        keys, depth = self._split_key(key)
+        if depth == 1:
+            if key in self.single_key_set:
+                self._namespace_maps["default"][key] = value
+            self._namespace_maps[key] = value
+        elif depth == 2:
+            self._namespace_maps[keys[0]][keys[1]] = value
 
     def _get(self, key):
         """
@@ -711,7 +775,13 @@ class RcParams(MutableMapping, dict):
 
         :meta public:
         """
-        return dict.__getitem__(self, key)
+        keys, depth = self._split_key(key)
+        if depth == 1:
+            if key in self.single_key_set:
+                return self._namespace_maps["default"].get(key)
+            return self._namespace_maps[key]
+        elif depth == 2:
+            return self._namespace_maps[keys[0]].get(keys[1])
 
     def __setitem__(self, key, val):
         try:
@@ -733,10 +803,13 @@ class RcParams(MutableMapping, dict):
                 if val is rcsetup._auto_backend_sentinel:
                     if 'backend' in self:
                         return
+            if key in self.single_key_set:
+                key = f"default.{key}"
             try:
                 cval = self.validate[key](val)
             except ValueError as ve:
                 raise ValueError(f"Key {key}: {ve}") from None
+            # breakpoint()
             self._set(key, cval)
         except KeyError as err:
             raise KeyError(
@@ -768,51 +841,97 @@ class RcParams(MutableMapping, dict):
 
     def _get_backend_or_none(self):
         """Get the requested backend, if any, without triggering resolution."""
-        backend = self._get("backend")
+        backend = self._get("default.backend")
         return None if backend is rcsetup._auto_backend_sentinel else backend
 
-    def __repr__(self):
-        class_name = self.__class__.__name__
-        indent = len(class_name) + 1
-        with _api.suppress_matplotlib_deprecation_warning():
-            repr_split = pprint.pformat(dict(self), indent=1,
-                                        width=80 - indent).split('\n')
-        repr_indented = ('\n' + ' ' * indent).join(repr_split)
-        return f'{class_name}({repr_indented})'
+    def __delitem__(self, key):
+        keys, depth = self._split_key(key)
+        if depth == 1:
+            del self._namespace_maps[key]
+        elif depth == 2:
+            del self._namespace_maps[keys[0]][keys[1]]
 
-    def __str__(self):
-        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
+    def __contains__(self, key):
+        keys, depth = self._split_key(key)
+        if depth == 1:
+            if key in self.single_key_set:
+                return key in self._namespace_maps["default"]
+            return key in self._namespace_maps
+        elif depth == 2:
+            return any(key in mapping for mapping in self._namespace_maps)
 
     def __iter__(self):
-        """Yield sorted list of keys."""
+        """Yield from sorted list of keys"""
         with _api.suppress_matplotlib_deprecation_warning():
-            yield from sorted(dict.__iter__(self))
+            yield from sorted(self.keys())
 
     def __len__(self):
-        return dict.__len__(self)
+        return sum(len(mapping) for mapping in self._namespace_maps)
 
-    def find_all(self, pattern):
+    def __repr__(self):
+        return repr(dict(self.items()))
+
+    def keys(self):
+        keys = (
+            ".".join((space, key))
+            for space, mapping in self._namespace_maps.items()
+            for key in mapping.keys()
+        )
+        return keys
+
+    def values(self):
+        for key in self.keys():
+            yield self[key]
+
+    def items(self):
+        for key, value in zip(self.keys(), self.values()):
+            yield key, value
+
+    def pop(self, key):
+        keys, depth = self._split_key(key)
+        if depth == 1:
+            self._mapping.pop()
+        elif depth == 2:
+            self._namespace_mapping[keys[0]].pop(keys[1])
+
+    def popitem(self):
+        return self._mapping.popitem()
+
+    def clear(self):
+        self._mapping.clear()
+
+    def setdefault(self, key, default=None):
+        self[key] = default
+        return default
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError as e:
+            return default
+
+    def update(self, other=(), /, **kwds):
+        """D.update([E, ]**F) -> None.  Update D from mapping/iterable E and F.
+        If E present and has a .keys() method, does:     for k in E: D[k] = E[k]
+        If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v
+        In either case, this is followed by: for k, v in F.items(): D[k] = v
         """
-        Return the subset of this RcParams dictionary whose keys match,
-        using :func:`re.search`, the given ``pattern``.
-
-        .. note::
-
-            Changes to the returned dictionary are *not* propagated to
-            the parent RcParams dictionary.
-
-        """
-        pattern_re = re.compile(pattern)
-        return RcParams((key, value)
-                        for key, value in self.items()
-                        if pattern_re.search(key))
+        if isinstance(other, Mapping):
+            for key in other:
+                self[key] = other[key]
+        elif hasattr(other, "keys"):
+            for key in other.keys():
+                self[key] = other[key]
+        else:
+            for key, value in other:
+                self[key] = value
+        for key, value in kwds.items():
+            self[key] = value
 
     def copy(self):
-        """Copy this RcParams instance."""
-        rccopy = RcParams()
-        for k in self:  # Skip deprecations and revalidation.
-            rccopy._set(k, self._get(k))
-        return rccopy
+        return deepcopy(self)
+
+# MutableMapping.register(RcParams)
 
 
 def rc_params(fail_on_error=False):
@@ -962,36 +1081,34 @@ Please do not ask for support with these customizations active.
     return config
 
 
-# When constructing the global instances, we need to perform certain updates
-# by explicitly calling the superclass (dict.update, dict.items) to avoid
-# triggering resolution of _auto_backend_sentinel.
 rcParamsDefault = _rc_params_in_file(
     cbook._get_data_path("matplotlibrc"),
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
-dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
+rcParamsDefault.update(rcsetup._hardcoded_defaults)
 # Normally, the default matplotlibrc file contains *no* entry for backend (the
 # corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
 # in that case.  However, packagers can set a different default backend
 # (resulting in a normal `#backend: foo` line) in which case we should *not*
 # fill in _auto_backend_sentinel.
-dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
-rcParams = RcParams()  # The global instance.
-dict.update(rcParams, dict.items(rcParamsDefault))
-dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
-rcParamsOrig = rcParams.copy()
+rcParamsDefault.setdefault("default.backend", rcsetup._auto_backend_sentinel)
+params_dict = RcParams()
+params_dict.update(rcParamsDefault.items())
+params_dict.update(_rc_params_in_file(matplotlib_fname()))
+rcParamsOrig = params_dict.copy()
 with _api.suppress_matplotlib_deprecation_warning():
     # This also checks that all rcParams are indeed listed in the template.
     # Assigning to rcsetup.defaultParams is left only for backcompat.
     defaultParams = rcsetup.defaultParams = {
         # We want to resolve deprecated rcParams, but not backend...
-        key: [(rcsetup._auto_backend_sentinel if key == "backend" else
+        key: [(rcsetup._auto_backend_sentinel if key == "default.backend" else
                rcParamsDefault[key]),
               validator]
         for key, validator in rcsetup._validators.items()}
-if rcParams['axes.formatter.use_locale']:
+if params_dict['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
+rcParams = RcParams(params_dict)
 
 
 def rc(group, **kwargs):
@@ -1133,7 +1250,7 @@ def rc_file(fname, *, use_default_template=True):
         from .style.core import STYLE_BLACKLIST
         rc_from_file = rc_params_from_file(
             fname, use_default_template=use_default_template)
-        rcParams.update({k: rc_from_file[k] for k in rc_from_file
+        rcParams.update({k: rc_from_file[k] for k in rc_from_file.keys()
                          if k not in STYLE_BLACKLIST})
 
 
@@ -1182,16 +1299,24 @@ def rc_context(rc=None, fname=None):
             plt.plot(x, y)
 
     """
-    orig = dict(rcParams.copy())
-    del orig['backend']
     try:
+        for space in rcParams._namespace_maps.keys():
+            rcParams._namespace_maps[space] = rcParams._namespace_maps[
+                space
+            ].new_child()
         if fname:
             rc_file(fname)
         if rc:
             rcParams.update(rc)
         yield
     finally:
-        dict.update(rcParams, orig)  # Revert to the original rcs.
+        # Revert to the original rcs.
+        backend = rcParams["backend"]
+        for space in rcParams._namespace_maps.keys():
+            rcParams._namespace_maps[space] = rcParams._namespace_maps[
+                space
+            ].parents
+        rcParams["backend"] = backend
 
 
 def use(backend, *, force=True):
@@ -1259,14 +1384,14 @@ def use(backend, *, force=True):
         # value which will be respected when the user finally imports
         # pyplot
         else:
-            rcParams['backend'] = backend
+            rcParams['default.backend'] = backend
     # if the user has asked for a given backend, do not helpfully
     # fallback
-    rcParams['backend_fallback'] = False
+    rcParams['default.backend_fallback'] = False
 
 
 if os.environ.get('MPLBACKEND'):
-    rcParams['backend'] = os.environ.get('MPLBACKEND')
+    rcParams['default.backend'] = os.environ.get('MPLBACKEND')
 
 
 def get_backend():
@@ -1277,14 +1402,14 @@ def get_backend():
     --------
     matplotlib.use
     """
-    return rcParams['backend']
+    return rcParams['default.backend']
 
 
 def interactive(b):
     """
     Set whether to redraw after every plotting command (e.g. `.pyplot.xlabel`).
     """
-    rcParams['interactive'] = b
+    rcParams['default.interactive'] = b
 
 
 def is_interactive():
@@ -1296,7 +1421,7 @@ def is_interactive():
         This function is only intended for use in backends. End users should
         use `.pyplot.isinteractive` instead.
     """
-    return rcParams['interactive']
+    return rcParams['default.interactive']
 
 
 def _val_or_rc(val, rc_name):

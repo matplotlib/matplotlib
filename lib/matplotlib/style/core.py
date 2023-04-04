@@ -39,9 +39,9 @@ USER_LIBRARY_PATHS = [os.path.join(mpl.get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
 # A list of rcParams that should not be applied from styles
 STYLE_BLACKLIST = {
-    'interactive', 'backend', 'webagg.port', 'webagg.address',
-    'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
-    'toolbar', 'timezone', 'figure.max_open_warning',
+    'default.interactive', 'default.backend', 'webagg.port', 'webagg.address',
+    'webagg.port_retries', 'webagg.open_in_browser', 'default.backend_fallback',
+    'default.toolbar', 'default.timezone', 'figure.max_open_warning',
     'figure.raise_window', 'savefig.directory', 'tk.window_focus',
     'docstring.hardcopy', 'date.epoch'}
 

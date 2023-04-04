@@ -327,16 +327,16 @@ def switch_backend(newbackend: str) -> None:
             except ImportError:
                 continue
             else:
-                rcParamsOrig['backend'] = candidate
+                rcParamsOrig['default.backend'] = candidate
                 return
         else:
             # Switching to Agg should always succeed; if it doesn't, let the
             # exception propagate out.
             switch_backend("agg")
-            rcParamsOrig["backend"] = "agg"
+            rcParamsOrig["default.backend"] = "agg"
             return
     # have to escape the switch on access logic
-    old_backend = dict.__getitem__(rcParams, 'backend')
+    old_backend = rcParams['default.backend']
 
     module = importlib.import_module(cbook._backend_module_name(newbackend))
     canvas_class = module.FigureCanvas
@@ -413,7 +413,7 @@ def switch_backend(newbackend: str) -> None:
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
 
-    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
+    rcParams['default.backend'] = rcParamsDefault['default.backend'] = newbackend
     _backend_mod = backend_mod
     for func_name in ["new_figure_manager", "draw_if_interactive", "show"]:
         globals()[func_name].__signature__ = inspect.signature(
@@ -745,7 +745,7 @@ def xkcd(
             "xkcd mode is not compatible with text.usetex = True")
 
     stack = ExitStack()
-    stack.callback(dict.update, rcParams, rcParams.copy())  # type: ignore
+    stack.callback(rcParams.update, rcParams.copy()) # type: ignore
 
     from matplotlib import patheffects
     rcParams.update({
@@ -2472,11 +2472,11 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # If rcParams['backend_fallback'] is true, and an interactive backend is
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
-if (rcParams["backend_fallback"]
+if (rcParams["default.backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore
             set(rcsetup.interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):  # type: ignore
-    rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
+    rcParams._set("default.backend", rcsetup._auto_backend_sentinel)  # type: ignore
 
 # fmt: on
 
