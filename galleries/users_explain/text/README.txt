@@ -11,4 +11,4 @@ vector outputs, newline separated text with arbitrary
 rotations, and Unicode support. These tutorials cover
 the basics of working with text in Matplotlib.
 
-For even more information see the :ref:`examples page <_text_labels_and_annotations>`.
+For even more information see the :ref:`examples page <text_labels_and_annotations>`.
