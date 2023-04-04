@@ -693,7 +693,7 @@ def cycler(*args, **kwargs):
     elif len(args) == 2:
         pairs = [(args[0], args[1])]
     elif len(args) > 2:
-        raise TypeError("No more than 2 positional arguments allowed")
+        _api.nargs_error('cycler', '0-2', len(args))
     else:
         pairs = kwargs.items()
 
