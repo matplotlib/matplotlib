@@ -1392,8 +1392,8 @@ class Normalize:
         always eq false such as comparing a TwoSlopeNorm with a CenteredNorm
         """
         #Cheeky List Comprehension
-        selfItems = [(attribute,value) for attribute, value in self.__dict__.items()]
-        otherItems = [(attribute,value) for attribute, value in other.__dict__.items()]
+        selfItems = {(attribute,value) for attribute, value in self.__dict__.items()}
+        otherItems = {(attribute,value) for attribute, value in other.__dict__.items()}
         return selfItems == otherItems
 
 
