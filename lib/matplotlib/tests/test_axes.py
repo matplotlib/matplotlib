@@ -157,16 +157,16 @@ def test_acorr(fig_test, fig_ref):
     np.random.seed(19680801)
     Nx = 512
     x = np.random.normal(0, 1, Nx).cumsum()
-    maxlags = Nx-1
+    maxlags = Nx - 1
 
     ax_test = fig_test.subplots()
     ax_test.acorr(x, maxlags=maxlags)
 
     ax_ref = fig_ref.subplots()
     # Normalized autocorrelation
-    norm_auto_corr = np.correlate(x, x, mode="full")/np.dot(x, x)
-    lags = np.arange(-maxlags, maxlags+1)
-    norm_auto_corr = norm_auto_corr[Nx-1-maxlags:Nx+maxlags]
+    norm_auto_corr = np.correlate(x, x, mode="full") / np.dot(x, x)
+    lags = np.arange(-maxlags, maxlags + 1)
+    norm_auto_corr = norm_auto_corr[Nx - 1 - maxlags:Nx + maxlags]
     ax_ref.vlines(lags, [0], norm_auto_corr)
     ax_ref.axhline(y=0, xmin=0, xmax=1)
 
@@ -227,9 +227,9 @@ def test_formatter_ticker():
 
     # This essentially test to see if user specified labels get overwritten
     # by the auto labeler functionality of the axes.
-    xdata = [x*units.sec for x in range(10)]
-    ydata1 = [(1.5*y - 0.5)*units.km for y in range(10)]
-    ydata2 = [(1.75*y - 1.0)*units.km for y in range(10)]
+    xdata = [x * units.sec for x in range(10)]
+    ydata1 = [(1.5 * y - 0.5) * units.km for y in range(10)]
+    ydata2 = [(1.75 * y - 1.0) * units.km for y in range(10)]
 
     ax = plt.figure().subplots()
     ax.set_xlabel("x-label 001")
@@ -452,7 +452,7 @@ def test_inverted_cla():
     # 3. test that clearing and plotting a line, axes are
     # not inverted
     ax.cla()
-    x = np.linspace(0, 2*np.pi, 100)
+    x = np.linspace(0, 2 * np.pi, 100)
     ax.plot(x, np.cos(x))
     assert not ax.xaxis_inverted()
     assert not ax.yaxis_inverted()
@@ -646,7 +646,7 @@ def test_sticky_shared_axes(fig_test, fig_ref):
 def test_basic_annotate():
     # Setup some data
     t = np.arange(0.0, 5.0, 0.01)
-    s = np.cos(2.0*np.pi * t)
+    s = np.cos(2.0 * np.pi * t)
 
     # Offset Points
 
@@ -677,7 +677,7 @@ def test_arrow_simple():
         theta = 2 * np.pi * i / 12
         # Draw arrow
         ax.arrow(0, 0, np.sin(theta), np.cos(theta),
-                 width=theta/100,
+                 width=theta / 100,
                  length_includes_head=length_includes_head,
                  shape=shape,
                  head_starts_at_zero=head_starts_at_zero,
@@ -863,7 +863,7 @@ def test_axvspan_epoch():
 
     ax = plt.gca()
     ax.axvspan(t0, tf, facecolor="blue", alpha=0.25)
-    ax.set_xlim(t0 - 5.0*dt, tf + 5.0*dt)
+    ax.set_xlim(t0 - 5.0 * dt, tf + 5.0 * dt)
 
 
 @image_comparison(['axhspan_epoch'], tol=0.02)
@@ -878,7 +878,7 @@ def test_axhspan_epoch():
 
     ax = plt.gca()
     ax.axhspan(t0, tf, facecolor="blue", alpha=0.25)
-    ax.set_ylim(t0 - 5.0*dt, tf + 5.0*dt)
+    ax.set_ylim(t0 - 5.0 * dt, tf + 5.0 * dt)
 
 
 @image_comparison(['hexbin_extent.png', 'hexbin_extent.png'], remove_text=True)
@@ -989,7 +989,7 @@ def test_nonfinite_limits():
     # silence divide by zero warning from log(0)
     with np.errstate(divide='ignore'):
         y = np.log(x)
-    x[len(x)//2] = np.nan
+    x[len(x) // 2] = np.nan
     fig, ax = plt.subplots()
     ax.plot(x, y)
 
@@ -1018,9 +1018,9 @@ def test_imshow():
     # Create a NxN image
     N = 100
     (x, y) = np.indices((N, N))
-    x -= N//2
-    y -= N//2
-    r = np.sqrt(x**2+y**2-x*y)
+    x -= N // 2
+    y -= N // 2
+    r = np.sqrt(x**2 + y**2 - x * y)
 
     # Create a contour plot at N/4 and extract both the clip path and transform
     fig, ax = plt.subplots()
@@ -1043,14 +1043,14 @@ def test_imshow_clip():
     # Create a NxN image
     N = 100
     (x, y) = np.indices((N, N))
-    x -= N//2
-    y -= N//2
-    r = np.sqrt(x**2+y**2-x*y)
+    x -= N // 2
+    y -= N // 2
+    r = np.sqrt(x**2 + y**2 - x * y)
 
     # Create a contour plot at N/4 and extract both the clip path and transform
     fig, ax = plt.subplots()
 
-    c = ax.contour(r, [N/4])
+    c = ax.contour(r, [N / 4])
     x = c.collections[0]
     clip_path = x.get_paths()[0]
     clip_transform = x.get_transform()
@@ -1119,8 +1119,8 @@ def test_fill_betweenx_input(y, x1, x2):
 @image_comparison(['fill_between_interpolate'], remove_text=True)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
-    y1 = np.sin(2*np.pi*x)
-    y2 = 1.2*np.sin(4*np.pi*x)
+    y1 = np.sin(2 * np.pi * x)
+    y2 = 1.2 * np.sin(4 * np.pi * x)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
     ax1.plot(x, y1, x, y2, color='black')
@@ -1227,7 +1227,7 @@ def test_pcolormesh():
 
     n = 12
     x = np.linspace(-1.5, 1.5, n)
-    y = np.linspace(-1.5, 1.5, n*2)
+    y = np.linspace(-1.5, 1.5, n * 2)
     X, Y = np.meshgrid(x, y)
     Qx = np.cos(Y) - np.cos(X)
     Qz = np.sin(Y) + np.sin(X)
@@ -1248,7 +1248,7 @@ def test_pcolormesh():
 def test_pcolormesh_small():
     n = 3
     x = np.linspace(-1.5, 1.5, n)
-    y = np.linspace(-1.5, 1.5, n*2)
+    y = np.linspace(-1.5, 1.5, n * 2)
     X, Y = np.meshgrid(x, y)
     Qx = np.cos(Y) - np.cos(X)
     Qz = np.sin(Y) + np.sin(X)
@@ -1274,7 +1274,7 @@ def test_pcolormesh_alpha():
     n = 12
     X, Y = np.meshgrid(
         np.linspace(-1.5, 1.5, n),
-        np.linspace(-1.5, 1.5, n*2)
+        np.linspace(-1.5, 1.5, n * 2)
     )
     Qx = X
     Qy = Y + np.sin(X)
@@ -1283,7 +1283,7 @@ def test_pcolormesh_alpha():
     vir = mpl.colormaps["viridis"].resampled(16)
     # make another colormap with varying alpha
     colors = vir(np.arange(16))
-    colors[:, 3] = 0.5 + 0.5*np.sin(np.arange(16))
+    colors[:, 3] = 0.5 + 0.5 * np.sin(np.arange(16))
     cmap = mcolors.ListedColormap(colors)
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
@@ -1367,7 +1367,7 @@ def test_pcolor_datetime_axis():
 def test_pcolorargs():
     n = 12
     x = np.linspace(-1.5, 1.5, n)
-    y = np.linspace(-1.5, 1.5, n*2)
+    y = np.linspace(-1.5, 1.5, n * 2)
     X, Y = np.meshgrid(x, y)
     Z = np.hypot(X, Y) / 5
 
@@ -1554,7 +1554,7 @@ def test_marker_as_markerstyle():
 @image_comparison(['markevery'], remove_text=True)
 def test_markevery():
     x = np.linspace(0, 10, 100)
-    y = np.sin(x) * np.sqrt(x/10 + 0.5)
+    y = np.sin(x) * np.sqrt(x / 10 + 0.5)
 
     # check marker only plot
     fig, ax = plt.subplots()
@@ -1572,7 +1572,7 @@ def test_markevery_line():
     # to pass. One may try to remove this hack once Travis' Inkscape version
     # is modern enough. FWIW, no failure with 0.92.3 on my computer (#11358).
     x = np.linspace(0, 10, 100)
-    y = np.sin(x) * np.sqrt(x/10 + 0.5)
+    y = np.sin(x) * np.sqrt(x / 10 + 0.5)
 
     # check line/marker combos
     fig, ax = plt.subplots()
@@ -1605,7 +1605,7 @@ def test_markevery_linear_scales():
         col = i % cols
         plt.subplot(gs[row, col])
         plt.title('markevery=%s' % str(case))
-        plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
+        plt.plot(x, y, 'o', ls='-', ms=4, markevery=case)
 
 
 @image_comparison(['markevery_linear_scales_zoomed'], remove_text=True)
@@ -1630,7 +1630,7 @@ def test_markevery_linear_scales_zoomed():
         col = i % cols
         plt.subplot(gs[row, col])
         plt.title('markevery=%s' % str(case))
-        plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
+        plt.plot(x, y, 'o', ls='-', ms=4, markevery=case)
         plt.xlim((6, 6.7))
         plt.ylim((1.1, 1.7))
 
@@ -1659,7 +1659,7 @@ def test_markevery_log_scales():
         plt.title('markevery=%s' % str(case))
         plt.xscale('log')
         plt.yscale('log')
-        plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
+        plt.plot(x, y, 'o', ls='-', ms=4, markevery=case)
 
 
 @image_comparison(['markevery_polar'], style='default', remove_text=True)
@@ -1683,7 +1683,7 @@ def test_markevery_polar():
         col = i % cols
         plt.subplot(gs[row, col], polar=True)
         plt.title('markevery=%s' % str(case))
-        plt.plot(theta, r, 'o', ls='-', ms=4,  markevery=case)
+        plt.plot(theta, r, 'o', ls='-', ms=4, markevery=case)
 
 
 @image_comparison(['markevery_linear_scales_nans'], remove_text=True)
@@ -1709,7 +1709,7 @@ def test_markevery_linear_scales_nans():
         col = i % cols
         plt.subplot(gs[row, col])
         plt.title('markevery=%s' % str(case))
-        plt.plot(x, y, 'o', ls='-', ms=4,  markevery=case)
+        plt.plot(x, y, 'o', ls='-', ms=4, markevery=case)
 
 
 @image_comparison(['marker_edges'], remove_text=True)
@@ -1717,8 +1717,8 @@ def test_marker_edges():
     x = np.linspace(0, 1, 10)
     fig, ax = plt.subplots()
     ax.plot(x, np.sin(x), 'y.', ms=30.0, mew=0, mec='r')
-    ax.plot(x+0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
-    ax.plot(x+0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
+    ax.plot(x + 0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
+    ax.plot(x + 0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
 
 
 @image_comparison(['bar_tick_label_single.png', 'bar_tick_label_single.png'])
@@ -1773,6 +1773,42 @@ def test_bar_decimal_center(fig_test, fig_ref):
     # Reference image
     ax = fig_ref.subplots()
     ax.bar(x0, y0, align='center')
+
+
+def test_run_group_bar_values():
+    ax = plt.subplots()
+    ax.grouped_bar(np.arange(len(('R', 'A'))), {
+                   'R': (0, 0), 'A': (0, 0)}, 0.0, ('R', 'A'))
+
+
+def test_nan_group_bar_values():
+    ax = plt.subplots()
+    ax.grouped_bar(np.arange(len((''))), {'': (0)}, 0.0, (''))
+
+
+@check_figures_equal(extensions=["png"])
+def test_match_bar_group_values(fig_test, fig_ref):
+    heights = {'River Depth': (8.9, 12.3, 1.2), 'River Length': (
+        40.0, 47.0, 75.0), 'River Volume': (56.34, 15.2, 12.29)}
+    rivers = ('Mackenzie River', 'Saskatchewan River', 'Fraser River')
+    width = 0.25
+    x = np.arange(len(rivers))
+    ax = fig_test.subplots()
+    ax.grouped_bar(x, heights, width, rivers)
+
+    heights1 = {'River Depth': (8.9, 12.3, 1.2), 'River Length': (
+        40.0, 47.0, 75.0), 'River Volume': (56.34, 15.2, 12.29)}
+    rivers1 = ('Mackenzie River', 'Saskatchewan River', 'Fraser River')
+    width1 = 0.25
+    x1 = np.arange(len(rivers1))
+    ax = fig_ref.subplots()
+    multiplier = 0
+    for attribute, measurement in heights1.items():
+        offset = width * multiplier
+        rects = ax.bar(x1 + offset, measurement, width1, label=attribute)
+        ax.bar_label(rects, padding=3)
+        multiplier += 1
+    ax.set_xticks(x + width, rivers1)
 
 
 @check_figures_equal(extensions=["png"])
@@ -2056,7 +2092,7 @@ def test_hist_float16():
     bc = h[2]
     # Check that there are no overlapping rectangles
     for r in range(1, len(bc)):
-        rleft = bc[r-1].get_corners()
+        rleft = bc[r - 1].get_corners()
         rright = bc[r].get_corners()
         # right hand position of left rectangle <=
         # left hand position of right rectangle
@@ -2076,8 +2112,8 @@ def test_hist_step_filled():
     x = np.random.randn(1000, 3)
     n_bins = 10
 
-    kwargs = [{'fill': True}, {'fill': False}, {'fill': None}, {}]*2
-    types = ['step']*4+['stepfilled']*4
+    kwargs = [{'fill': True}, {'fill': False}, {'fill': None}, {}] * 2
+    types = ['step'] * 4 + ['stepfilled'] * 4
     fig, axs = plt.subplots(nrows=2, ncols=4)
 
     for kg, _type, ax in zip(kwargs, types, axs.flat):
@@ -2168,7 +2204,7 @@ def test_hist_zorder(histtype, zorder):
 @check_figures_equal(extensions=['png'])
 def test_stairs(fig_test, fig_ref):
     import matplotlib.lines as mlines
-    y = np.array([6, 14, 32, 37, 48, 32, 21,  4])  # hist
+    y = np.array([6, 14, 32, 37, 48, 32, 21, 4])  # hist
     x = np.array([1., 2., 3., 4., 5., 6., 7., 8., 9.])  # bins
 
     test_axes = fig_test.subplots(3, 2).flatten()
@@ -2228,10 +2264,10 @@ def test_stairs_fill(fig_test, fig_ref):
     ref_axes[1].fill_betweenx(bins, np.append(h, h[-1]), step='post', lw=0)
     ref_axes[1].set_xlim(0, None)
     ref_axes[2].fill_between(bins, np.append(h, h[-1]),
-                             np.ones(len(h)+1)*bs, step='post', lw=0)
+                             np.ones(len(h) + 1) * bs, step='post', lw=0)
     ref_axes[2].set_ylim(bs, None)
     ref_axes[3].fill_betweenx(bins, np.append(h, h[-1]),
-                              np.ones(len(h)+1)*bs, step='post', lw=0)
+                              np.ones(len(h) + 1) * bs, step='post', lw=0)
     ref_axes[3].set_xlim(bs, None)
 
 
@@ -2244,8 +2280,8 @@ def test_stairs_update(fig_test, fig_ref):
     h = test_ax.stairs([1, 2, 3])
     test_ax.set_ylim(ylim)
     h.set_data([3, 2, 1])
-    h.set_data(edges=np.arange(4)+2)
-    h.set_data([1, 2, 1], np.arange(4)/2)
+    h.set_data(edges=np.arange(4) + 2)
+    h.set_data([1, 2, 1], np.arange(4) / 2)
     h.set_data([1, 2, 3])
     h.set_data(None, np.arange(4))
     assert np.allclose(h.get_data()[0], np.arange(1, 4))
@@ -2308,19 +2344,19 @@ def test_stairs_options():
     yn[1] = np.nan
 
     fig, ax = plt.subplots()
-    ax.stairs(y*3, x, color='green', fill=True, label="A")
-    ax.stairs(y, x*3-3, color='red', fill=True,
+    ax.stairs(y * 3, x, color='green', fill=True, label="A")
+    ax.stairs(y, x * 3 - 3, color='red', fill=True,
               orientation='horizontal', label="B")
     ax.stairs(yn, x, color='orange', ls='--', lw=2, label="C")
-    ax.stairs(yn/3, x*3-2, ls='--', lw=2, baseline=0.5,
+    ax.stairs(yn / 3, x * 3 - 2, ls='--', lw=2, baseline=0.5,
               orientation='horizontal', label="D")
-    ax.stairs(y[::-1]*3+13, x-1, color='red', ls='--', lw=2, baseline=None,
+    ax.stairs(y[::-1] * 3 + 13, x - 1, color='red', ls='--', lw=2, baseline=None,
               label="E")
-    ax.stairs(y[::-1]*3+14, x, baseline=26,
+    ax.stairs(y[::-1] * 3 + 14, x, baseline=26,
               color='purple', ls='--', lw=2, label="F")
-    ax.stairs(yn[::-1]*3+15, x+1, baseline=np.linspace(27, 25, len(y)),
+    ax.stairs(yn[::-1] * 3 + 15, x + 1, baseline=np.linspace(27, 25, len(y)),
               color='blue', ls='--', label="G", fill=True)
-    ax.stairs(y[:-1][::-1]*2+11, x[:-1]+0.5, color='black', ls='--', lw=2,
+    ax.stairs(y[:-1][::-1] * 2 + 11, x[:-1] + 0.5, color='black', ls='--', lw=2,
               baseline=12, hatch='//', label="H")
     ax.legend(loc=0)
 
@@ -2393,8 +2429,8 @@ def test_hist2d():
 
     np.random.seed(0)
     # make it not symmetric in case we switch x and y axis
-    x = np.random.randn(100)*2+5
-    y = np.random.randn(100)-2
+    x = np.random.randn(100) * 2 + 5
+    y = np.random.randn(100) - 2
     fig, ax = plt.subplots()
     ax.hist2d(x, y, bins=10, rasterized=True)
 
@@ -2412,8 +2448,8 @@ def test_hist2d_transpose():
     np.random.seed(0)
     # make sure the output from np.histogram is transposed before
     # passing to pcolorfast
-    x = np.array([5]*100)
-    y = np.random.randn(100)-2
+    x = np.array([5] * 100)
+    y = np.random.randn(100) - 2
     fig, ax = plt.subplots()
     ax.hist2d(x, y, bins=10, rasterized=True)
 
@@ -2494,12 +2530,12 @@ class TestScatter:
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
 
     @pytest.mark.parametrize('kwargs',
-                                [
-                                    {'cmap': 'gray'},
-                                    {'norm': mcolors.Normalize()},
-                                    {'vmin': 0},
-                                    {'vmax': 0}
-                                ])
+                             [
+                                 {'cmap': 'gray'},
+                                 {'norm': mcolors.Normalize()},
+                                 {'vmin': 0},
+                                 {'vmax': 0}
+                             ])
     def test_scatter_color_warning(self, kwargs):
         warn_match = "No data for colormapping provided "
         # Warn for cases where 'cmap', 'norm', 'vmin', 'vmax'
@@ -2545,10 +2581,10 @@ class TestScatter:
     def test_scatter_edgecolor_RGB(self):
         # GitHub issue 19066
         coll = plt.scatter([1, 2, 3], [1, np.nan, np.nan],
-                            edgecolor=(1, 0, 0))
+                           edgecolor=(1, 0, 0))
         assert mcolors.same_color(coll.get_edgecolor(), (1, 0, 0))
         coll = plt.scatter([1, 2, 3, 4], [1, np.nan, np.nan, 1],
-                            edgecolor=(1, 0, 0, 1))
+                           edgecolor=(1, 0, 0, 1))
         assert mcolors.same_color(coll.get_edgecolor(), (1, 0, 0, 1))
 
     @check_figures_equal(extensions=["png"])
@@ -2620,27 +2656,27 @@ class TestScatter:
         # Non-valid color spec (FWIW, 'jaune' means yellow in French)
         ("jaune", "conversion"),
         (["jaune"], "conversion"),  # wrong type before wrong size
-        (["jaune"]*4, "conversion"),
+        (["jaune"] * 4, "conversion"),
         # Value-mapping like
-        ([0.5]*3, None),  # should emit a warning for user's eyes though
-        ([0.5]*4, None),  # NB: no warning as matching size allows mapping
-        ([0.5]*5, "shape"),
+        ([0.5] * 3, None),  # should emit a warning for user's eyes though
+        ([0.5] * 4, None),  # NB: no warning as matching size allows mapping
+        ([0.5] * 5, "shape"),
         # list of strings:
         (['0.5', '0.4', '0.6', '0.7'], None),
         (['0.5', 'red', '0.6', 'C5'], None),
         (['0.5', 0.5, '0.6', 'C5'], "conversion"),
         # RGB values
         ([[1, 0, 0]], None),
-        ([[1, 0, 0]]*3, "shape"),
-        ([[1, 0, 0]]*4, None),
-        ([[1, 0, 0]]*5, "shape"),
+        ([[1, 0, 0]] * 3, "shape"),
+        ([[1, 0, 0]] * 4, None),
+        ([[1, 0, 0]] * 5, "shape"),
         # RGBA values
         ([[1, 0, 0, 0.5]], None),
-        ([[1, 0, 0, 0.5]]*3, "shape"),
-        ([[1, 0, 0, 0.5]]*4, None),
-        ([[1, 0, 0, 0.5]]*5, "shape"),
+        ([[1, 0, 0, 0.5]] * 3, "shape"),
+        ([[1, 0, 0, 0.5]] * 4, None),
+        ([[1, 0, 0, 0.5]] * 5, "shape"),
         # Mix of valid color specs
-        ([[1, 0, 0, 0.5]]*3 + [[1, 0, 0]], None),
+        ([[1, 0, 0, 0.5]] * 3 + [[1, 0, 0]], None),
         ([[1, 0, 0, 0.5], "red", "0.0"], "shape"),
         ([[1, 0, 0, 0.5], "red", "0.0", "C5"], None),
         ([[1, 0, 0, 0.5], "red", "0.0", "C5", [0, 1, 0]], "shape"),
@@ -2660,7 +2696,7 @@ class TestScatter:
         REGEXP = {
             "shape": "^'c' argument has [0-9]+ elements",  # shape mismatch
             "conversion": "^'c' argument must be a color",  # bad vals
-            }
+        }
 
         assert_context = (
             pytest.raises(ValueError, match=REGEXP[re_key])
@@ -2683,12 +2719,12 @@ class TestScatter:
         # set via color kwarg
         ax_ref = fig_ref.subplots()
         ax_ref.scatter(np.ones(3), range(3), color=rgb)
-        ax_ref.scatter(np.ones(4)*2, range(4), color=rgba)
+        ax_ref.scatter(np.ones(4) * 2, range(4), color=rgba)
 
         # set via broadcasting via c
         ax_test = fig_test.subplots()
         ax_test.scatter(np.ones(3), range(3), c=rgb)
-        ax_test.scatter(np.ones(4)*2, range(4), c=rgba)
+        ax_test.scatter(np.ones(4) * 2, range(4), c=rgba)
 
     def test_scatter_linewidths(self):
         x = np.arange(5)
@@ -2707,6 +2743,8 @@ class TestScatter:
 
 def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):
     return (c, edgecolors, kwargs if kwargs is not None else {}, xsize)
+
+
 _result = namedtuple('_result', 'c, colors')
 
 
@@ -2732,6 +2770,7 @@ def test_parse_scatter_color_args(params, expected_result):
         *params, get_next_color_func=get_next_color)
     assert c == expected_result.c
     assert_allclose(colors, expected_result.colors)
+
 
 del _params
 del _result
@@ -3665,7 +3704,7 @@ def test_errorbar():
     x = np.arange(0.1, 4, 0.5, dtype=np.longdouble)
     y = np.exp(-x)
 
-    yerr = 0.1 + 0.2*np.sqrt(x)
+    yerr = 0.1 + 0.2 * np.sqrt(x)
     xerr = 0.1 + yerr
 
     # First illustrate basic pyplot interface, using defaults where possible.
@@ -3688,7 +3727,7 @@ def test_errorbar():
     ax.set_title('Hor. symmetric w/ alpha')
 
     ax = axs[1, 0]
-    ax.errorbar(x, y, yerr=[yerr, 2*yerr], xerr=[xerr, 2*xerr], fmt='--o')
+    ax.errorbar(x, y, yerr=[yerr, 2 * yerr], xerr=[xerr, 2 * xerr], fmt='--o')
     ax.set_title('H, V asymmetric')
 
     ax = axs[1, 1]
@@ -3697,7 +3736,7 @@ def test_errorbar():
     ylower = np.maximum(1e-2, y - yerr)
     yerr_lower = y - ylower
 
-    ax.errorbar(x, y, yerr=[yerr_lower, 2*yerr], xerr=xerr,
+    ax.errorbar(x, y, yerr=[yerr_lower, 2 * yerr], xerr=xerr,
                 fmt='o', ecolor='g', capthick=2)
     ax.set_title('Mixed sym., log y')
     # Force limits due to floating point slop potentially expanding the range
@@ -3727,17 +3766,17 @@ def test_mixed_errorbar_polar_caps():
 
     # symmetric errorbars
     th_sym = [1, 2, 3]
-    r_sym = [0.9]*3
+    r_sym = [0.9] * 3
     ax.errorbar(th_sym, r_sym, xerr=0.35, yerr=0.2, fmt="o")
 
     # long errorbars
-    th_long = [np.pi/2 + .1, np.pi + .1]
+    th_long = [np.pi / 2 + .1, np.pi + .1]
     r_long = [1.8, 2.2]
     ax.errorbar(th_long, r_long, xerr=0.8 * np.pi, yerr=0.15, fmt="o")
 
     # asymmetric errorbars
-    th_asym = [4*np.pi/3 + .1, 5*np.pi/3 + .1, 2*np.pi-0.1]
-    r_asym = [1.1]*3
+    th_asym = [4 * np.pi / 3 + .1, 5 * np.pi / 3 + .1, 2 * np.pi - 0.1]
+    r_asym = [1.1] * 3
     xerr = [[.3, .3, .2], [.2, .3, .3]]
     yerr = [[.35, .5, .5], [.5, .35, .5]]
     ax.errorbar(th_asym, r_asym, xerr=xerr, yerr=yerr, fmt="o")
@@ -3752,11 +3791,11 @@ def test_errorbar_colorcycle():
 
     f, ax = plt.subplots()
     x = np.arange(10)
-    y = 2*x
+    y = 2 * x
 
     e1, _, _ = ax.errorbar(x, y, c=None)
-    e2, _, _ = ax.errorbar(x, 2*y, c=None)
-    ln1, = ax.plot(x, 4*y)
+    e2, _, _ = ax.errorbar(x, 2 * y, c=None)
+    ln1, = ax.plot(x, 4 * y)
 
     assert mcolors.to_rgba(e1.get_color()) == mcolors.to_rgba('C0')
     assert mcolors.to_rgba(e2.get_color()) == mcolors.to_rgba('C1')
@@ -3766,7 +3805,7 @@ def test_errorbar_colorcycle():
 @check_figures_equal()
 def test_errorbar_cycle_ecolor(fig_test, fig_ref):
     x = np.arange(0.1, 4, 0.5)
-    y = [np.exp(-x+n) for n in range(4)]
+    y = [np.exp(-x + n) for n in range(4)]
 
     axt = fig_test.subplots()
     axr = fig_ref.subplots()
@@ -3784,8 +3823,8 @@ def test_errorbar_shape():
 
     x = np.arange(0.1, 4, 0.5)
     y = np.exp(-x)
-    yerr1 = 0.1 + 0.2*np.sqrt(x)
-    yerr = np.vstack((yerr1, 2*yerr1)).T
+    yerr1 = 0.1 + 0.2 * np.sqrt(x)
+    yerr = np.vstack((yerr1, 2 * yerr1)).T
     xerr = 0.1 + yerr
 
     with pytest.raises(ValueError):
@@ -3812,17 +3851,17 @@ def test_errorbar_limits():
     # including upper limits
     uplims = np.zeros_like(x)
     uplims[[1, 5, 9]] = True
-    ax.errorbar(x, y+0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
+    ax.errorbar(x, y + 0.5, xerr=xerr, yerr=yerr, uplims=uplims, ls=ls,
                 color='green')
 
     # including lower limits
     lolims = np.zeros_like(x)
     lolims[[2, 4, 8]] = True
-    ax.errorbar(x, y+1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
+    ax.errorbar(x, y + 1.0, xerr=xerr, yerr=yerr, lolims=lolims, ls=ls,
                 color='red')
 
     # including upper and lower limits
-    ax.errorbar(x, y+1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
+    ax.errorbar(x, y + 1.5, marker='o', ms=8, xerr=xerr, yerr=yerr,
                 lolims=lolims, uplims=uplims, ls=ls, color='magenta')
 
     # including xlower and xupper limits
@@ -3835,7 +3874,7 @@ def test_errorbar_limits():
     uplims = np.zeros_like(x)
     lolims[[6]] = True
     uplims[[3]] = True
-    ax.errorbar(x, y+2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
+    ax.errorbar(x, y + 2.1, marker='o', ms=8, xerr=xerr, yerr=yerr,
                 xlolims=xlolims, xuplims=xuplims, uplims=uplims,
                 lolims=lolims, ls='none', mec='blue', capsize=0,
                 color='cyan')
@@ -3894,8 +3933,8 @@ def test_errorbar_with_prop_cycle(fig_test, fig_ref):
 
 def test_errorbar_every_invalid():
     x = np.linspace(0, 1, 15)
-    y = x * (1-x)
-    yerr = y/6
+    y = x * (1 - x)
+    yerr = y / 6
 
     ax = plt.figure().subplots()
 
@@ -3933,8 +3972,8 @@ def test_xerr_yerr_not_negative():
 @check_figures_equal()
 def test_errorbar_every(fig_test, fig_ref):
     x = np.linspace(0, 1, 15)
-    y = x * (1-x)
-    yerr = y/6
+    y = x * (1 - x)
+    yerr = y / 6
 
     ax_ref = fig_ref.subplots()
     ax_test = fig_test.subplots()
@@ -4166,7 +4205,7 @@ def test_stem_dates():
                          ids=['w/ line collection', 'w/o line collection'])
 @image_comparison(['stem_orientation.png'], style='mpl20', remove_text=True)
 def test_stem_orientation(use_line_collection):
-    x = np.linspace(0.1, 2*np.pi, 50)
+    x = np.linspace(0.1, 2 * np.pi, 50)
 
     fig, ax = plt.subplots()
     if use_line_collection:
@@ -4271,12 +4310,12 @@ def test_hist_stacked_stepfilled_geometry():
 
     assert len(patches) == 2
 
-    polygon,  = patches[0]
+    polygon, = patches[0]
     xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1],
           [3, 0], [2, 0], [2, 0], [1, 0], [1, 0], [0, 0]]
     assert_array_equal(polygon.get_xy(), xy)
 
-    polygon,  = patches[1]
+    polygon, = patches[1]
     xy = [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2],
           [3, 1], [2, 1], [2, 3], [1, 3], [1, 2], [0, 2]]
     assert_array_equal(polygon.get_xy(), xy)
@@ -4293,11 +4332,11 @@ def test_hist_stacked_step_geometry():
 
     assert len(patches) == 2
 
-    polygon,  = patches[0]
+    polygon, = patches[0]
     xy = [[0, 0], [0, 2], [1, 2], [1, 3], [2, 3], [2, 1], [3, 1], [3, 0]]
     assert_array_equal(polygon.get_xy(), xy)
 
-    polygon,  = patches[1]
+    polygon, = patches[1]
     xy = [[0, 2], [0, 3], [1, 3], [1, 4], [2, 4], [2, 2], [3, 2], [3, 1]]
     assert_array_equal(polygon.get_xy(), xy)
 
@@ -4314,12 +4353,12 @@ def test_hist_stacked_stepfilled_bottom_geometry():
 
     assert len(patches) == 2
 
-    polygon,  = patches[0]
+    polygon, = patches[0]
     xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5],
           [3, 1.5], [2, 1.5], [2, 2], [1, 2], [1, 1], [0, 1]]
     assert_array_equal(polygon.get_xy(), xy)
 
-    polygon,  = patches[1]
+    polygon, = patches[1]
     xy = [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5],
           [3, 2.5], [2, 2.5], [2, 5], [1, 5], [1, 3], [0, 3]]
     assert_array_equal(polygon.get_xy(), xy)
@@ -4337,11 +4376,11 @@ def test_hist_stacked_step_bottom_geometry():
 
     assert len(patches) == 2
 
-    polygon,  = patches[0]
+    polygon, = patches[0]
     xy = [[0, 1], [0, 3], [1, 3], [1, 5], [2, 5], [2, 2.5], [3, 2.5], [3, 1.5]]
     assert_array_equal(polygon.get_xy(), xy)
 
-    polygon,  = patches[1]
+    polygon, = patches[1]
     xy = [[0, 3], [0, 4], [1, 4], [1, 6], [2, 6], [2, 3.5], [3, 3.5], [3, 2.5]]
     assert_array_equal(polygon.get_xy(), xy)
 
@@ -4409,9 +4448,9 @@ def test_rgba_markers():
     for i, alpha in enumerate(alphas):
         for j, rcolor in enumerate(rcolors):
             for k, bcolor in enumerate(bcolors):
-                axs[i].plot(j+1, k+1, 'o', mfc=bcolor, mec=rcolor,
+                axs[i].plot(j + 1, k + 1, 'o', mfc=bcolor, mec=rcolor,
                             alpha=alpha, **kw)
-                axs[i].plot(j+1, k+3, 'x', mec=rcolor, alpha=alpha, **kw)
+                axs[i].plot(j + 1, k + 3, 'x', mec=rcolor, alpha=alpha, **kw)
     for ax in axs:
         ax.axis([-1, 4, 0, 5])
 
@@ -4673,12 +4712,12 @@ def test_marker_styles():
     # we can avoid regenerating the test image. This can be removed if the
     # test image has to be regenerated for other reasons.
     markers = sorted(matplotlib.markers.MarkerStyle.markers,
-                     key=lambda x: str(type(x))+str(x))
+                     key=lambda x: str(type(x)) + str(x))
     markers.remove('none')
     markers = ['none', *markers]
     for y, marker in enumerate(markers):
-        ax.plot((y % 2)*5 + np.arange(10)*10, np.ones(10)*10*y, linestyle='',
-                marker=marker, markersize=10+y/5, label=marker)
+        ax.plot((y % 2) * 5 + np.arange(10) * 10, np.ones(10) * 10 * y, linestyle='',
+                marker=marker, markersize=10 + y / 5, label=marker)
 
 
 @image_comparison(['rc_markerfill.png'])
@@ -4688,7 +4727,7 @@ def test_markers_fillstyle_rcparams():
     for idx, (style, marker) in enumerate(
             [('top', 's'), ('bottom', 'o'), ('none', '^')]):
         matplotlib.rcParams['markers.fillstyle'] = style
-        ax.plot(x+idx, marker=marker)
+        ax.plot(x + idx, marker=marker)
 
 
 @image_comparison(['vertex_markers.png'], remove_text=True)
@@ -4956,7 +4995,7 @@ def test_step_linestyle():
         ax.set_ylim([-1, 7])
 
     # Reuse testcase from above for a labeled data test
-    data = {"X": x, "Y0": y, "Y1": y+1, "Y2": y+2}
+    data = {"X": x, "Y0": y, "Y1": y + 1, "Y2": y + 2}
     fig, ax_lst = plt.subplots(2, 2)
     ax_lst = ax_lst.flatten()
     ln_styles = ['-', '--', '-.', ':']
@@ -5013,9 +5052,9 @@ def test_specgram():
     n = 1000
     Fs = 10.
 
-    fstims = [[Fs/4, Fs/5, Fs/11], [Fs/4.7, Fs/5.6, Fs/11.9]]
+    fstims = [[Fs / 4, Fs / 5, Fs / 11], [Fs / 4.7, Fs / 5.6, Fs / 11.9]]
     NFFT_freqs = int(10 * Fs / np.min(fstims))
-    x = np.arange(0, n, 1/Fs)
+    x = np.arange(0, n, 1 / Fs)
     y_freqs = np.concatenate(
         np.sin(2 * np.pi * np.multiply.outer(fstims, x)).sum(axis=1))
 
@@ -5049,9 +5088,9 @@ def test_specgram_magnitude():
     n = 1000
     Fs = 10.
 
-    fstims = [[Fs/4, Fs/5, Fs/11], [Fs/4.7, Fs/5.6, Fs/11.9]]
+    fstims = [[Fs / 4, Fs / 5, Fs / 11], [Fs / 4.7, Fs / 5.6, Fs / 11.9]]
     NFFT_freqs = int(100 * Fs / np.min(fstims))
-    x = np.arange(0, n, 1/Fs)
+    x = np.arange(0, n, 1 / Fs)
     y = np.sin(2 * np.pi * np.multiply.outer(fstims, x)).sum(axis=1)
     y[:, -1] = 1
     y_freqs = np.hstack(y)
@@ -5086,9 +5125,9 @@ def test_specgram_angle():
     n = 1000
     Fs = 10.
 
-    fstims = [[Fs/4, Fs/5, Fs/11], [Fs/4.7, Fs/5.6, Fs/11.9]]
+    fstims = [[Fs / 4, Fs / 5, Fs / 11], [Fs / 4.7, Fs / 5.6, Fs / 11.9]]
     NFFT_freqs = int(10 * Fs / np.min(fstims))
-    x = np.arange(0, n, 1/Fs)
+    x = np.arange(0, n, 1 / Fs)
     y = np.sin(2 * np.pi * np.multiply.outer(fstims, x)).sum(axis=1)
     y[:, -1] = 1
     y_freqs = np.hstack(y)
@@ -5152,9 +5191,9 @@ def test_psd_csd():
     n = 10000
     Fs = 100.
 
-    fstims = [[Fs/4, Fs/5, Fs/11], [Fs/4.7, Fs/5.6, Fs/11.9]]
+    fstims = [[Fs / 4, Fs / 5, Fs / 11], [Fs / 4.7, Fs / 5.6, Fs / 11.9]]
     NFFT_freqs = int(1000 * Fs / np.min(fstims))
-    x = np.arange(0, n, 1/Fs)
+    x = np.arange(0, n, 1 / Fs)
     ys_freqs = np.sin(2 * np.pi * np.multiply.outer(fstims, x)).sum(axis=1)
 
     NFFT_noise = int(1000 * Fs / 11)
@@ -5193,11 +5232,11 @@ def test_spectrum():
     n = 10000
     Fs = 100.
 
-    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims1 = [Fs / 4, Fs / 5, Fs / 11]
     NFFT = int(1000 * Fs / min(fstims1))
     pad_to = int(2 ** np.ceil(np.log2(NFFT)))
 
-    x = np.arange(0, n, 1/Fs)
+    x = np.arange(0, n, 1 / Fs)
     y_freqs = ((np.sin(2 * np.pi * np.outer(x, fstims1)) * 10**np.arange(3))
                .sum(axis=1))
     np.random.seed(0)
@@ -5305,14 +5344,14 @@ def test_twin_spines_on_top():
 
     ax2 = ax1.twinx()
 
-    ax1.plot(data[0], data[1]/1E3, color='#BEAED4')
-    ax1.fill_between(data[0], data[1]/1E3, color='#BEAED4', alpha=.8)
+    ax1.plot(data[0], data[1] / 1E3, color='#BEAED4')
+    ax1.fill_between(data[0], data[1] / 1E3, color='#BEAED4', alpha=.8)
 
-    ax2.plot(data[0], data[1]/1E3, color='#7FC97F')
-    ax2.fill_between(data[0], data[1]/1E3, color='#7FC97F', alpha=.5)
+    ax2.plot(data[0], data[1] / 1E3, color='#7FC97F')
+    ax2.fill_between(data[0], data[1] / 1E3, color='#7FC97F', alpha=.5)
 
     # Reuse testcase from above for a labeled data test
-    data = {"i": data[0], "j": data[1]/1E3}
+    data = {"i": data[0], "j": data[1] / 1E3}
     fig = plt.figure()
     ax1 = fig.add_subplot(1, 1, 1)
     ax2 = ax1.twinx()
@@ -5954,15 +5993,15 @@ def test_set_margin_updates_limits():
 
 
 @pytest.mark.parametrize('err, args, kwargs, match', (
-        (ValueError, (-1,), {}, r'margin must be greater than -0\.5'),
-        (ValueError, (1, -1), {}, r'margin must be greater than -0\.5'),
-        (ValueError, tuple(), {'x': -1}, r'margin must be greater than -0\.5'),
-        (ValueError, tuple(), {'y': -1}, r'margin must be greater than -0\.5'),
-        (TypeError, (1, ), {'x': 1, 'y': 1},
-         'Cannot pass both positional and keyword arguments for x and/or y'),
-        (TypeError, (1, ), {'x': 1},
-         'Cannot pass both positional and keyword arguments for x and/or y'),
-        (TypeError, (1, 1, 1), {}, 'Must pass a single positional argument'),
+    (ValueError, (-1,), {}, r'margin must be greater than -0\.5'),
+    (ValueError, (1, -1), {}, r'margin must be greater than -0\.5'),
+    (ValueError, tuple(), {'x': -1}, r'margin must be greater than -0\.5'),
+    (ValueError, tuple(), {'y': -1}, r'margin must be greater than -0\.5'),
+    (TypeError, (1, ), {'x': 1, 'y': 1},
+     'Cannot pass both positional and keyword arguments for x and/or y'),
+    (TypeError, (1, ), {'x': 1},
+     'Cannot pass both positional and keyword arguments for x and/or y'),
+    (TypeError, (1, 1, 1), {}, 'Must pass a single positional argument'),
 ))
 def test_margins_errors(err, args, kwargs, match):
     with pytest.raises(err, match=match):
@@ -6254,7 +6293,7 @@ def test_dash_offset():
     x = np.linspace(0, 10)
     y = np.ones_like(x)
     for j in range(0, 100, 2):
-        ax.plot(x, j*y, ls=(j, (10, 10)), lw=5, color='k')
+        ax.plot(x, j * y, ls=(j, (10, 10)), lw=5, color='k')
 
 
 def test_title_pad():
@@ -6906,7 +6945,7 @@ def test_log_margins():
 def test_color_length_mismatch():
     N = 5
     x, y = np.arange(N), np.arange(N)
-    colors = np.arange(N+1)
+    colors = np.arange(N + 1)
     fig, ax = plt.subplots()
     with pytest.raises(ValueError):
         ax.scatter(x, y, c=colors)
@@ -7046,7 +7085,7 @@ def test_zoom_inset():
     # generate 2 2d grids for the x & y bounds
     y, x = np.mgrid[slice(1, 5 + dy, dy),
                     slice(1, 5 + dx, dx)]
-    z = np.sin(x)**10 + np.cos(10 + y*x) * np.cos(x)
+    z = np.sin(x)**10 + np.cos(10 + y * x) * np.cos(x)
 
     fig, ax = plt.subplots()
     ax.pcolormesh(x, y, z[:-1, :-1])
@@ -7065,7 +7104,7 @@ def test_zoom_inset():
     rec, connectors = ax.indicate_inset_zoom(axin1)
     assert len(connectors) == 4
     fig.canvas.draw()
-    xx = np.array([[1.5,  2.],
+    xx = np.array([[1.5, 2.],
                    [2.15, 2.5]])
     assert np.all(rec.get_bbox().get_points() == xx)
     xx = np.array([[0.6325, 0.692308],
@@ -7241,7 +7280,7 @@ def test_secondary_xy():
 
         secax(0.2, functions=(invert, invert))
         secax(0.4, functions=(lambda x: 2 * x, lambda x: x / 2))
-        secax(0.6, functions=(lambda x: x**2, lambda x: x**(1/2)))
+        secax(0.6, functions=(lambda x: x**2, lambda x: x**(1 / 2)))
         secax(0.8)
 
 
@@ -7625,7 +7664,7 @@ def test_aspect_nonlinear_adjustable_box():
     ax = fig.add_subplot()
     ax.plot([.4, .6], [.4, .6])  # Set minpos to keep logit happy.
     ax.set(xscale="log", xlim=(1, 10),
-           yscale="logit", ylim=(1/11, 1/1001),
+           yscale="logit", ylim=(1 / 11, 1 / 1001),
            aspect=1, adjustable="box")
     ax.margins(0)
     pos = fig.transFigure.transform_bbox(ax.get_position())
@@ -7643,7 +7682,7 @@ def test_aspect_nonlinear_adjustable_datalim():
     ax.margins(0)
     ax.apply_aspect()
 
-    assert ax.get_xlim() == pytest.approx([1*10**(1/2), 100/10**(1/2)])
+    assert ax.get_xlim() == pytest.approx([1 * 10**(1 / 2), 100 / 10**(1 / 2)])
     assert ax.get_ylim() == (1 / 101, 1 / 11)
 
 
@@ -7777,10 +7816,10 @@ def test_unautoscale(axis, auto):
 
 @check_figures_equal(extensions=["png"])
 def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
-    l, = fig_test.add_subplot(projection="polar").plot([0, np.pi/2], [1, 2])
+    l, = fig_test.add_subplot(projection="polar").plot([0, np.pi / 2], [1, 2])
     l.get_path()._interpolation_steps = 100
     fig_ref.add_subplot(projection="polar").plot(
-        np.linspace(0, np.pi/2, 101), np.linspace(1, 2, 101))
+        np.linspace(0, np.pi / 2, 101), np.linspace(1, 2, 101))
 
 
 @mpl.style.context('default')
@@ -7865,7 +7904,7 @@ def test_2dcolor_plot(fig_test, fig_ref):
 
 @check_figures_equal(extensions=['png'])
 def test_shared_axes_clear(fig_test, fig_ref):
-    x = np.arange(0.0, 2*np.pi, 0.01)
+    x = np.arange(0.0, 2 * np.pi, 0.01)
     y = np.sin(x)
 
     axs = fig_ref.subplots(2, 2, sharex=True, sharey=True)
@@ -8089,9 +8128,9 @@ def test_nan_barlabels():
 def test_patch_bounds():  # PR 19078
     fig, ax = plt.subplots()
     ax.add_patch(mpatches.Wedge((0, -1), 1.05, 60, 120, width=0.1))
-    bot = 1.9*np.sin(15*np.pi/180)**2
+    bot = 1.9 * np.sin(15 * np.pi / 180)**2
     np.testing.assert_array_almost_equal_nulp(
-        np.array((-0.525, -(bot+0.05), 1.05, bot+0.1)), ax.dataLim.bounds, 16)
+        np.array((-0.525, -(bot + 0.05), 1.05, bot + 0.1)), ax.dataLim.bounds, 16)
 
 
 @mpl.style.context('default')
@@ -8236,7 +8275,7 @@ def test_clim():
     for plot_method in [
             partial(ax.scatter, range(3), range(3), c=range(3)),
             partial(ax.imshow, [[0, 1], [2, 3]]),
-            partial(ax.pcolor,  [[0, 1], [2, 3]]),
+            partial(ax.pcolor, [[0, 1], [2, 3]]),
             partial(ax.pcolormesh, [[0, 1], [2, 3]]),
             partial(ax.pcolorfast, [[0, 1], [2, 3]]),
     ]:
@@ -8330,7 +8369,7 @@ def test_bar_leading_nan():
 
     barx = np.arange(3, dtype=float)
     barheights = np.array([0.5, 1.5, 2.0])
-    barstarts = np.array([0.77]*3)
+    barstarts = np.array([0.77] * 3)
 
     barx[0] = np.NaN
 
@@ -8368,7 +8407,7 @@ def test_extent_units():
     _, axs = plt.subplots(2, 2)
     date_first = np.datetime64('2020-01-01', 'D')
     date_last = np.datetime64('2020-01-11', 'D')
-    arr = [[i+j for i in range(10)] for j in range(10)]
+    arr = [[i + j for i in range(10)] for j in range(10)]
 
     axs[0, 0].set_title('Date extents on y axis')
     im = axs[0, 0].imshow(arr, origin='lower',
@@ -8416,9 +8455,9 @@ def test_scatter_color_repr_error():
     def get_next_color():
         return 'blue'  # pragma: no cover
     msg = (
-            r"'c' argument must be a color, a sequence of colors"
-            r", or a sequence of numbers, not 'red\\n'"
-        )
+        r"'c' argument must be a color, a sequence of colors"
+        r", or a sequence of numbers, not 'red\\n'"
+    )
     with pytest.raises(ValueError, match=msg):
         c = 'red\n'
         mpl.axes.Axes._parse_scatter_color_args(
