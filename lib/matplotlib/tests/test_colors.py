@@ -1557,6 +1557,13 @@ def test_like_norms_same():
     norm2 = mcolors.SymLogNorm(3, vmax=5, linscale=1, base=np.e)
     assert norm1 == norm2
 
+def test_like_norms_same_diff_order():
+    #Norms should pass if exactly the same
+    norm1 = mcolors.SymLogNorm(3, linscale=1, vmax=5, base=np.e)
+    norm2 = mcolors.SymLogNorm(3, vmax=5, linscale=1, base=np.e)
+    assert norm1 == norm2
+
+
 def test_like_norms_diff():
     #Same type of norms with different values should false
     norm1 = mcolors.SymLogNorm(3, vmax=8, linscale=2, base=np.e)
