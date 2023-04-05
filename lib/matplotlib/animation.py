@@ -213,7 +213,13 @@ class AbstractMovieWriter(abc.ABC):
         Grab the image information from the figure and save as a movie frame.
 
         All keyword arguments in *savefig_kwargs* are passed on to the
-        `~.Figure.savefig` call that saves the figure.
+        `~.Figure.savefig` call that saves the figure.  However, several
+        keyword arguments that are supported by `~.Figure.savefig` may not be
+        passed as they are controlled by the MovieWriter:
+
+        - *dpi*, *bbox_inches*:  These may not be passed because each frame of the
+           animation much be exactly the same size in pixels.
+        - *format*: This is controlled by the MovieWriter.
         """
 
     @abc.abstractmethod
@@ -351,6 +357,7 @@ class MovieWriter(AbstractMovieWriter):
 
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
+        _validate_grabframe_kwargs(savefig_kwargs)
         _log.debug('MovieWriter.grab_frame: Grabbing frame.')
         # Readjust the figure size in case it has been changed by the user.
         # All frames must have the same size to save the movie correctly.
@@ -457,6 +464,7 @@ class FileMovieWriter(MovieWriter):
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
         # Creates a filename for saving using basename and counter.
+        _validate_grabframe_kwargs(savefig_kwargs)
         path = Path(self._base_temp_name() % self._frame_counter)
         self._temp_paths.append(path)  # Record the filename for later use.
         self._frame_counter += 1  # Ensures each created name is unique.
@@ -491,6 +499,7 @@ class PillowWriter(AbstractMovieWriter):
         self._frames = []
 
     def grab_frame(self, **savefig_kwargs):
+        _validate_grabframe_kwargs(savefig_kwargs)
         buf = BytesIO()
         self.fig.savefig(
             buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
@@ -747,6 +756,7 @@ class HTMLWriter(FileMovieWriter):
         self._clear_temp = False
 
     def grab_frame(self, **savefig_kwargs):
+        _validate_grabframe_kwargs(savefig_kwargs)
         if self.embed_frames:
             # Just stop processing if we hit the limit
             if self._hit_limit:
@@ -1776,3 +1786,16 @@ class FuncAnimation(TimedAnimation):
                 a.set_animated(self._blit)
 
     save_count = _api.deprecate_privatize_attribute("3.7")
+
+
+def _validate_grabframe_kwargs(savefig_kwargs):
+    if mpl.rcParams['savefig.bbox'] == 'tight':
+        raise ValueError(
+            f"{mpl.rcParams['savefig.bbox']=} must not be 'tight' as it "
+            "may cause frame size to vary, which is inappropriate for animation."
+        )
+    for k in ('dpi', 'bbox_inches', 'format'):
+        if k in savefig_kwargs:
+            raise TypeError(
+                f"grab_frame got an unexpected keyword argument {k!r}"
+            )
