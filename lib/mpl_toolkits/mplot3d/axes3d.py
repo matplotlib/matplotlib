@@ -337,9 +337,8 @@ class Axes3D(Axes):
             ptp = np.ptp(view_intervals, axis=1)
             if self._adjustable == 'datalim':
                 mean = np.mean(view_intervals, axis=1)
-                delta = max(ptp[ax_indices])
-                scale = self._box_aspect[ptp == delta][0]
-                deltas = delta * self._box_aspect / scale
+                scale = max(ptp[ax_indices] / self._box_aspect[ax_indices])
+                deltas = scale * self._box_aspect
 
                 for i, set_lim in enumerate((self.set_xlim3d,
                                              self.set_ylim3d,
