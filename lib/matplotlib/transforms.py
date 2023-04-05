@@ -1838,7 +1838,7 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         if isinstance(points, np.ma.MaskedArray):
             tpoints = affine_transform(points.data, mtx)
-            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(points))
+            return np.ma.MaskedArray(tpoints, mask=np.ma.getmaskarray(points))
         return affine_transform(points, mtx)
 
     if DEBUG:

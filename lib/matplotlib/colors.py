@@ -1313,9 +1313,8 @@ class Normalize:
             dtype = np.promote_types(dtype, np.float32)
         # ensure data passed in as an ndarray subclass are interpreted as
         # an ndarray. See issue #6622.
-        mask = np.ma.getmask(value)
-        data = np.asarray(value)
-        result = np.ma.array(data, mask=mask, dtype=dtype, copy=True)
+        result = np.ma.array(np.asarray(value), mask=np.ma.getmaskarray(value),
+                             dtype=dtype, copy=True)
         return result, is_scalar
 
     def __call__(self, value, clip=None):
@@ -1352,9 +1351,8 @@ class Normalize:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         else:
             if clip:
-                mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                     mask=mask)
+                                     mask=np.ma.getmaskarray(result))
             # ma division is very slow; we can take a shortcut
             resdat = result.data
             resdat -= vmin
@@ -1477,7 +1475,7 @@ class TwoSlopeNorm(Normalize):
         result = np.ma.masked_array(
             np.interp(result, [self.vmin, self.vcenter, self.vmax],
                       [0, 0.5, 1], left=-np.inf, right=np.inf),
-            mask=np.ma.getmask(result))
+            mask=np.ma.getmaskarray(result))
         if is_scalar:
             result = np.atleast_1d(result)[0]
         return result
@@ -1926,9 +1924,8 @@ class PowerNorm(Normalize):
             result.fill(0)
         else:
             if clip:
-                mask = np.ma.getmask(result)
                 result = np.ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                     mask=mask)
+                                     mask=np.ma.getmaskarray(result))
             resdat = result.data
             resdat -= vmin
             resdat[resdat < 0] = 0
