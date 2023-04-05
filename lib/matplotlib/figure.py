@@ -3512,7 +3512,7 @@ None}, default: None
                     and previous_engine is not None:
                 _api.warn_external('The figure layout has changed to tight')
         finally:
-            self.set_layout_engine(None)
+            self.set_layout_engine('none')
 
 
 def figaspect(arg):
