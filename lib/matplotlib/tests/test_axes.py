@@ -3102,6 +3102,87 @@ def test_bxp_no_flier_stats():
                      bxp_kwargs=dict(showfliers=False))
 
 
+def test_bxp_no_facecolor():
+    np.random.seed(0)
+    all_data = [np.random.normal(0, std, size=100) for std in range(1, 4)]
+
+    fig, axs = plt.subplots(nrows=1, ncols=1)
+
+    bplot = axs.boxplot(all_data, patch_artist=True)
+
+    for patch, color in zip(bplot['boxes'], []):
+        assert mcolors.to_hex(patch.get_facecolor()) == "#1f77b4"
+
+
+def test_bxp_one_facecolor():
+    np.random.seed(0)
+    all_data = [np.random.normal(0, std, size=100) for std in range(1, 4)]
+
+    fig, axs = plt.subplots(nrows=1, ncols=1)
+
+    colors = "yellow"
+    bplot = axs.boxplot(all_data, patch_artist=True, facecolor=colors)
+
+    for patch, color in zip(bplot['boxes'], [colors]):
+        assert mcolors.to_rgba(patch.get_facecolor()) == mcolors.to_rgba(color)
+
+
+def test_bxp_arr_facecolor():
+    np.random.seed(0)
+    all_data = [np.random.normal(0, std, size=100) for std in range(1, 4)]
+
+    fig, axs = plt.subplots(nrows=1, ncols=1)
+
+    # number of color > number of boxes
+    colors = ['pink', 'lightblue', 'lightgreen', 'yellow']
+    bplot = axs.boxplot(all_data, patch_artist=True, facecolor=colors)
+
+    for patch, color in zip(bplot['boxes'], colors):
+        assert mcolors.to_rgba(patch.get_facecolor()) == mcolors.to_rgba(color)
+
+    # number of color == number of boxes
+    colors.pop()
+    bplot = axs.boxplot(all_data, patch_artist=True, facecolor=colors)
+
+    for patch, color in zip(bplot['boxes'], colors):
+        assert mcolors.to_rgba(patch.get_facecolor()) == mcolors.to_rgba(color)
+
+    # number of color < number of boxes
+    colors.pop()
+    bplot = axs.boxplot(all_data, patch_artist=True, facecolor=colors)
+
+    color_num = len(colors)
+    for patch, color in zip(bplot['boxes'], colors):
+        if color_num > 0:
+            assert mcolors.to_rgba(patch.get_facecolor()) == mcolors.to_rgba(color)
+            color_num -= 1
+        else:
+            assert mcolors.to_hex(patch.get_facecolor()) == "#1f77b4"
+
+
+def test_bxp_overwritten_facecolor():
+    # if set_facecolor() is used additionally (overwrite)
+    np.random.seed(0)
+    all_data = [np.random.normal(0, std, size=100) for std in range(1, 4)]
+
+    fig, axs = plt.subplots(nrows=1, ncols=1)
+
+    # notch shape box plot with color parameter
+    colors = ['pink', 'lightblue', 'lightgreen']
+    bplot = axs.boxplot(all_data, patch_artist=True, facecolor=colors)
+
+    # Overwrite color
+    colors = ['yellow', 'white']
+    color_num = len(colors)
+    for patch, color in zip(bplot['boxes'], colors):
+        if color_num > 0:
+            patch.set_facecolor(color)
+            assert mcolors.to_hex(patch.get_facecolor()) == mcolors.to_hex(color)
+            color_num -= 1
+        else:
+            assert mcolors.to_hex(patch.get_facecolor()) == mcolors.to_hex("lightgreen")
+
+
 @image_comparison(['bxp_withmean_point.png'],
                   remove_text=True,
                   savefig_kwarg={'dpi': 40},
