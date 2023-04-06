@@ -5236,6 +5236,25 @@ default: :rc:`scatter.edgecolors`
         self._request_autoscale_view()
         return patches
 
+    def _fill_above_x_or_y(
+            self, ind_dir, ind, dep1, dep2=0, *,
+            where=None, interpolate=False, step=None, **kwargs):
+        pass
+
+    def _fill_below_x_or_y(
+            self, ind_dir, ind, dep1, dep2=0, *,
+            where=None, interpolate=False, step=None, **kwargs):
+        pass
+
+    def fill_above():
+        pass
+
+    def fill_below():
+        pass
+
+    def fill_outside():
+        pass
+
     def _fill_between_x_or_y(
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, **kwargs):
