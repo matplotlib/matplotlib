@@ -1188,10 +1188,12 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('Must set data first')
         return self._Ax[0], self._Ax[-1], self._Ay[0], self._Ay[-1]
 
-    def set_filternorm(self, s):
+    @_api.rename_parameter("3.8", "s", "filternorm")
+    def set_filternorm(self, filternorm):
         pass
 
-    def set_filterrad(self, s):
+    @_api.rename_parameter("3.8", "s", "filterrad")
+    def set_filterrad(self, filterrad):
         pass
 
     def set_norm(self, norm):
