@@ -15,7 +15,8 @@ import numpy as np
 try:
     import cairo
     if cairo.version_info < (1, 14, 0):  # Introduced set_device_scale.
-        raise ImportError
+        raise ImportError(f"Cairo backend requires cairo>=1.14.0, "
+                          f"but only {cairo.version_info} is available")
 except ImportError:
     try:
         import cairocffi as cairo
