@@ -3183,6 +3183,24 @@ def test_bxp_overwritten_facecolor():
             assert mcolors.to_hex(patch.get_facecolor()) == mcolors.to_hex("lightgreen")
 
 
+def test_bxp_bad_facecolor():
+    # if given facecolor is invalid
+    with pytest.raises(ValueError):
+        _bxp_test_helper(bxp_kwargs=dict(capwidths=[1]))
+        np.random.seed(0)
+        all_data = [np.random.normal(0, std, size=100) for std in range(1, 4)]
+
+        fig, axs = plt.subplots(nrows=1, ncols=1)
+
+        # one of the colors is not specified in Matplotlib library
+        colors = ["yellow", "popcornyellow"]
+        bplot = axs.boxplot(all_data, patch_artist=True, facecolor=colors)
+
+        # TypeError
+        colors = [1, 2, 3]
+        bplot = axs.boxplot(all_data, patch_artist=True, facecolor=colors)
+
+
 @image_comparison(['bxp_withmean_point.png'],
                   remove_text=True,
                   savefig_kwarg={'dpi': 40},
