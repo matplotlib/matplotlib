@@ -1846,14 +1846,21 @@ class Annulus(Patch):
 class BoundedArea(Patch):
     """
     A bounded area (Will use to bound area above or below lines in a plot so
-    they can be filled)
+    they can be filled. We will use the top or bottom y-border to bound)
     """
     def __str__(self):
         pass
 
     @_docstring.dedent_interpd
-    def __init__(self, xy, **kwargs):
+    def __init__(self, xy, location, **kwargs):
         super.__init__(xy, **kwargs)
+        self.set_location(location)
+
+    def set_location(self, location):
+        self._location = location
+
+    def get_location(self):
+        return self._location
 
 
 class Circle(Ellipse):
