@@ -1843,6 +1843,19 @@ class Annulus(Patch):
         return self._path
 
 
+class BoundedArea(Patch):
+    """
+    A bounded area (Will use to bound area above or below lines in a plot so
+    they can be filled)
+    """
+    def __str__(self):
+        pass
+
+    @_docstring.dedent_interpd
+    def __init__(self, xy, **kwargs):
+        super.__init__(xy, **kwargs)
+
+
 class Circle(Ellipse):
     """
     A circle patch.
