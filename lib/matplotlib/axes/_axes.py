@@ -5257,9 +5257,7 @@ default: :rc:`scatter.edgecolors`
             ind_values[ind_order], dep1_values[ind_order])
         return diff_root_ind, diff_root_dep
 
-    def helper(
-            self, ind_dir, ind, dep1, dep2,
-            where=None, interpolate=False, step=None, **kwargs):
+    def validate_input(self, ind_dir, ind, dep1, dep2, where=None, **kwargs):
 
         dep_dir = {"x": "y", "y": "x"}[ind_dir]
 
@@ -5297,8 +5295,8 @@ default: :rc:`scatter.edgecolors`
             self, ind_dir, ind, dep1, dep2=0, *, where=None, interpolate=False,
             step=None, fill_above=False, fill_below=False, **kwargs):
 
-        ind, dep1, dep2, where = self.helper(ind_dir, ind, dep1, dep2,
-                                             where, interpolate, step, **kwargs)
+        ind, dep1, dep2, where = self.validate_input(ind_dir, ind, dep1, dep2,
+                                                     where, **kwargs)
 
         poly = []
         for idx0, idx1 in cbook.contiguous_regions(where):
@@ -5471,8 +5469,8 @@ default: :rc:`scatter.edgecolors`
         fill_betweenx : Fill between two sets of x-values.
         """
 
-        ind, dep1, dep2, where = self.helper(ind_dir, ind, dep1, dep2,
-                                             where, interpolate, step, **kwargs)
+        ind, dep1, dep2, where = self.validate_input(ind_dir, ind, dep1, dep2,
+                                                     where, **kwargs)
 
         polys = []
         for idx0, idx1 in cbook.contiguous_regions(where):
