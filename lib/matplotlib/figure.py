@@ -2249,42 +2249,36 @@ class SubFigure(FigureBase):
         # need to figure out *where* this subplotspec is.
         gs = self._subplotspec.get_gridspec()
         subplot_params = gs.get_subplot_params(self)
-
         wr = np.asarray(gs.get_width_ratios())
         hr = np.asarray(gs.get_height_ratios())
-
         dx = wr[self._subplotspec.colspan].sum() / wr.sum()
         dy = hr[self._subplotspec.rowspan].sum() / hr.sum()
-
         x0 = wr[:self._subplotspec.colspan.start].sum() / wr.sum()
         y0 = 1 - hr[:self._subplotspec.rowspan.stop].sum() / hr.sum()
-
         wspace = subplot_params.wspace
         hspace = subplot_params.hspace
         if not self._subplotspec.is_first_row():
-            # add space to the top based on hspace
+            # add space to the top
             avg_width = 1 / len(wr)
             padding = (hspace * avg_width) * dy
             dy -= padding
-
         if not self._subplotspec.is_first_col():
-            # add space to the left based on wspace
+            # add space to the left
             avg_width = 1 / len(wr)
             padding = (wspace * avg_width) * dx
             dx -= padding
             x0 += padding
         if not self._subplotspec.is_last_row():
-            # add space to the bottom based on hspace
+            # add space to the bottom
             avg_width = 1 / len(wr)
             padding = (hspace * avg_width) * dy
             dy -= padding
             y0 += padding
         if not self._subplotspec.is_last_col():
-            # add space to the right based on wspace
+            # add space to the right
             avg_width = 1 / len(wr)
             padding = (wspace * avg_width) * dx
             dx -= padding
-
         if self.bbox_relative is None:
             self.bbox_relative = Bbox.from_bounds(x0, y0, dx, dy)
         else:
