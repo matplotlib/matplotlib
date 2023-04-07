@@ -5236,23 +5236,154 @@ default: :rc:`scatter.edgecolors`
         self._request_autoscale_view()
         return patches
 
+    def helper(
+            self, ind_dir, ind, dep1, dep2,
+            where=None, interpolate=False, step=None, **kwargs):
+
+        dep_dir = {"x": "y", "y": "x"}[ind_dir]
+
+        if not mpl.rcParams["_internal.classic_mode"]:
+            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
+            if not any(c in kwargs for c in ("color", "facecolor")):
+                kwargs["facecolor"] = \
+                    self._get_patches_for_fill.get_next_color()
+
+        # Handle united data, such as dates
+        ind, dep1, dep2 = map(
+            ma.masked_invalid, self._process_unit_info(
+                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
+
+        for name, array in [
+                (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
+            if array.ndim > 1:
+                raise ValueError(f"{name!r} is not 1-dimensional")
+
+        if where is None:
+            where = True
+        else:
+            where = np.asarray(where, dtype=bool)
+            if where.size != ind.size:
+                raise ValueError(f"where size ({where.size}) does not match "
+                                 f"{ind_dir} size ({ind.size})")
+        where = where & ~functools.reduce(
+            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
+
+        ind, dep1, dep2 = np.broadcast_arrays(
+            np.atleast_1d(ind), dep1, dep2, subok=True)
+        return ind, dep1, dep2, where
+
     def _fill_above_x_or_y(
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, **kwargs):
-        pass
+
+        ind, dep1, dep2, where = self.helper(ind_dir, ind, dep1, dep2,
+                                             where, interpolate, step, **kwargs)
+
+        poly = []
+        for idx0, idx1 in cbook.contiguous_regions(where):
+            indslice = ind[idx0:idx1]
+            dep1slice = dep1[idx0:idx1]
+            dep2slice = dep2[idx0:idx1]
+
+            if step is not None:
+                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
+                indslice, dep1slice, dep2slice = \
+                    step_func(indslice, dep1slice, dep2slice)
+
+            if not len(indslice):
+                continue
+
+            if interpolate:
+                # TODO: Implement code for interpolate
+                continue
+
+            N = len(indslice)
+
+            vertices = np.zeros((N, 2))
+            vertices[0:N, 0] = indslice
+            vertices[0:N, 1] = np.amax(np.stack([dep1slice, dep2slice]), axis=0)
+
+            top = self.axes.get_ylim()[1]
+            bound = np.zeros((2, 2))
+            bound[0] = [np.amin(vertices, axis=0)[0], top]
+            bound[1] = [np.amax(vertices, axis=0)[0], top]
+
+            plane_above = mpatches.BoundedArea(vertices, bound, **kwargs)
+
+            self.add_artist(plane_above)
+            poly.append(plane_above)
+
+        # now update the datalim and autoscale
+        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
+                            np.column_stack([ind[where], dep2[where]])])
+        self.update_datalim(pts, updatex=True, updatey=True)
+        self._request_autoscale_view()
+
+        return poly
 
     def _fill_below_x_or_y(
             self, ind_dir, ind, dep1, dep2=0, *,
             where=None, interpolate=False, step=None, **kwargs):
-        pass
 
-    def fill_above():
-        pass
+        ind, dep1, dep2, where = self.helper(ind_dir, ind, dep1, dep2,
+                                             where, interpolate, step, **kwargs)
 
-    def fill_below():
-        pass
+        poly = []
+        for idx0, idx1 in cbook.contiguous_regions(where):
+            indslice = ind[idx0:idx1]
+            dep1slice = dep1[idx0:idx1]
+            dep2slice = dep2[idx0:idx1]
 
-    def fill_outside():
+            if step is not None:
+                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
+                indslice, dep1slice, dep2slice = \
+                    step_func(indslice, dep1slice, dep2slice)
+
+            if not len(indslice):
+                continue
+
+            if interpolate:
+                # TODO: Implement code for interpolate
+                continue
+
+            N = len(indslice)
+
+            vertices = np.zeros((N, 2))
+            vertices[0:N, 0] = indslice
+            vertices[0:N, 1] = np.amin(np.stack([dep1slice, dep2slice]), axis=0)
+
+            bottom = self.axes.get_ylim()[0]
+            bound = np.zeros((2, 2))
+            bound[0] = [np.amin(vertices, axis=0)[0], bottom]
+            bound[1] = [np.amax(vertices, axis=0)[0], bottom]
+
+            plane_above = mpatches.BoundedArea(vertices, bound, **kwargs)
+
+            self.add_artist(plane_above)
+            poly.append(plane_above)
+
+        # now update the datalim and autoscale
+        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
+                            np.column_stack([ind[where], dep2[where]])])
+        self.update_datalim(pts, updatex=True, updatey=True)
+        self._request_autoscale_view()
+
+        return poly
+
+    def fill_above(self, x, y1, y2, where=None, interpolate=False,
+                     step=None, **kwargs):
+        return self._fill_above_x_or_y("y", x, y1, y2, where=where,
+                                         interpolate=interpolate, step=step,
+                                         **kwargs)
+
+    def fill_below(self, x, y1, y2, where=None, interpolate=False,
+                     step=None, **kwargs):
+        return self._fill_below_x_or_y("y", x, y1, y2, where=where,
+                                         interpolate=interpolate, step=step,
+                                         **kwargs)
+
+    def fill_outside(self, x, y1, y2, where=None, interpolate=False,
+                     step=None, **kwargs):
         pass
 
     def _fill_between_x_or_y(
@@ -5344,36 +5475,8 @@ default: :rc:`scatter.edgecolors`
         fill_betweenx : Fill between two sets of x-values.
         """
 
-        dep_dir = {"x": "y", "y": "x"}[ind_dir]
-
-        if not mpl.rcParams["_internal.classic_mode"]:
-            kwargs = cbook.normalize_kwargs(kwargs, mcoll.Collection)
-            if not any(c in kwargs for c in ("color", "facecolor")):
-                kwargs["facecolor"] = \
-                    self._get_patches_for_fill.get_next_color()
-
-        # Handle united data, such as dates
-        ind, dep1, dep2 = map(
-            ma.masked_invalid, self._process_unit_info(
-                [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
-
-        for name, array in [
-                (ind_dir, ind), (f"{dep_dir}1", dep1), (f"{dep_dir}2", dep2)]:
-            if array.ndim > 1:
-                raise ValueError(f"{name!r} is not 1-dimensional")
-
-        if where is None:
-            where = True
-        else:
-            where = np.asarray(where, dtype=bool)
-            if where.size != ind.size:
-                raise ValueError(f"where size ({where.size}) does not match "
-                                 f"{ind_dir} size ({ind.size})")
-        where = where & ~functools.reduce(
-            np.logical_or, map(np.ma.getmaskarray, [ind, dep1, dep2]))
-
-        ind, dep1, dep2 = np.broadcast_arrays(
-            np.atleast_1d(ind), dep1, dep2, subok=True)
+        ind, dep1, dep2, where = self.helper(ind_dir, ind, dep1, dep2,
+                                             where, interpolate, step, **kwargs)
 
         polys = []
         for idx0, idx1 in cbook.contiguous_regions(where):

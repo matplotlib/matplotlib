@@ -1845,22 +1845,89 @@ class Annulus(Patch):
 
 class BoundedArea(Patch):
     """
-    A bounded area (Will use to bound area above or below lines in a plot so
-    they can be filled. We will use the top or bottom y-border to bound)
+    A bounded polygon
     """
     def __str__(self):
         pass
 
     @_docstring.dedent_interpd
-    def __init__(self, xy, location, **kwargs):
-        super.__init__(xy, **kwargs)
-        self.set_location(location)
+    def __init__(self, line, bound, **kwargs):
+        """
+        Parameters
+        ----------
+        line : 2D array of (floats)
+            numpy array representing straight line that represents unbounded
+            polygon
+        bound : [(float, float), (float, float)]
+            numpy array representing straight lines that bounds the shape
+        **kwargs
+            Keyword arguments control the `Patch` properties:
 
-    def set_location(self, location):
-        self._location = location
+            %(Patch:kwdoc)s
+        """
+        super().__init__(**kwargs)
+        self.set_bound(bound)
+        self.set_line(line)
+        self.update_bounded_area()
 
-    def get_location(self):
-        return self._location
+    def set_bound(self, bound):
+        """
+        Set the bound.
+
+        Parameters
+        ----------
+        bound : [(float, float), (float, float)]
+        """
+        bound = np.asarray(bound)
+        sorted_idxs = np.argsort(bound[:, 0])
+        bound = bound[sorted_idxs]
+        self._bound = bound
+        self.stale = True
+
+    def get_bound(self):
+        """
+        Retrieves the bound.
+        """
+        return self._bound
+
+    def set_line(self, xy):
+        """
+        Sets the unbound polygon.
+
+        Parameters
+        ----------
+        line : 2D array of (floats)
+            numpy array representing straight line that represents unbounded
+            polygon
+        """
+        xy = np.asarray(xy)
+        sorted_idxs = np.argsort(xy[:, 0])
+        xy = xy[sorted_idxs]
+        self._line = xy
+        self.stale = True
+
+    def get_line(self):
+        """
+        Retrieves the unbound polygon.
+        """
+        return self._line
+
+    def get_path(self):
+        self.update_bounded_area()
+        return self._path
+
+    def update_bounded_area(self):
+        """
+        Sets the vertices of the newly bound polygon.
+        """
+        N = self._line.shape[0]
+        vertices = np.empty((N+2, 2))
+
+        vertices[1:N+1] = self._line
+        vertices[0] = self._bound[0]
+        vertices[N+1] = self._bound[1]
+
+        self._path = Path(vertices)
 
 
 class Circle(Ellipse):

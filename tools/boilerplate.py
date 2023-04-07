@@ -249,6 +249,8 @@ def boilerplate_gen():
         'errorbar',
         'eventplot',
         'fill',
+        'fill_above',
+        'fill_below',
         'fill_between',
         'fill_betweenx',
         'grid',
