@@ -8304,3 +8304,19 @@ such objects
         ll, ur = self.get_position() * figure_size
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
+
+    def label_by_line(self, fig, labels, data, names, date):
+        """
+        Display the labels next to the line.
+        """
+
+        for nn, column in enumerate(labels):
+
+            y_pos = data[column][-1]
+
+            trans = mtransforms.ScaledTranslation(0, 0, fig.dpi_scale_trans)
+            trans = self.transData + trans
+
+            # Again, make sure that all labels are large enough to be easily read
+            # by the viewer.
+            self.text(date, y_pos, names[nn], color='black', transform=trans)

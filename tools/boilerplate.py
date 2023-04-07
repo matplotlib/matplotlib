@@ -44,6 +44,7 @@ from matplotlib.figure import Figure
 def enum_str_back_compat_patch(self):
     return f'{type(self).__name__}.{self.name}'
 
+
 # only monkey patch if we have to.
 if str(MouseButton.LEFT) != 'MouseButton.Left':
     MouseButton.__str__ = enum_str_back_compat_patch
@@ -170,7 +171,7 @@ def generate_function(name, called_fullname, template, **kwargs):
            '{0}'
            if param.kind in [
                Parameter.POSITIONAL_OR_KEYWORD]
-              and param.default is Parameter.empty else
+        and param.default is Parameter.empty else
            # Only pass the data kwarg if it is actually set, to avoid forcing
            # third-party subclasses to support it.
            '**({{"data": data}} if data is not None else {{}})'
@@ -189,7 +190,7 @@ def generate_function(name, called_fullname, template, **kwargs):
            '**{0}'
            if param.kind is Parameter.VAR_KEYWORD else
            None).format(param.name)
-       for param in params) + ')'
+        for param in params) + ')'
     MAX_CALL_PREFIX = 18  # len('    __ret = gca().')
     if MAX_CALL_PREFIX + max(len(name), len(called_name)) + len(call) >= 80:
         call = '(\n' + text_wrapper.fill(call[1:]).replace('\0', ' ')
@@ -260,6 +261,7 @@ def boilerplate_gen():
         'hlines',
         'imshow',
         'legend',
+        'line_label',
         'locator_params',
         'loglog',
         'magnitude_spectrum',
