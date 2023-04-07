@@ -6258,7 +6258,7 @@ def test_violin_point_mass():
     plt.violinplot(np.array([0, 0]))
 
 
-def _label_by_line_test_helper(names=[], labels=[]):
+def _label_by_line_test_helper(names=[]):
     def convertdate(x):
         return np.datetime64(x, 'D')
 
@@ -6276,7 +6276,9 @@ def _label_by_line_test_helper(names=[], labels=[]):
         '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d',
         '#17becf', '#9edae5'])
 
-    for nn, column in enumerate(labels):
+    stocks_ticker = ['AAPL', 'MSFT', 'XRX', 'ADBE']
+
+    for nn, column in enumerate(stocks_ticker):
         # Plot each line separately with its own color
         good = np.nonzero(np.isfinite(stock_data[column]))
         line, = ax.plot(stock_data['Date'][good],
@@ -6284,7 +6286,7 @@ def _label_by_line_test_helper(names=[], labels=[]):
 
     date = np.datetime64('2022-10-01')
 
-    ax.label_by_data(names, fig, labels, stock_data, date)
+    ax.label_by_data(names, fig, stocks_ticker, stock_data, date)
 
     ax.set_xlim(np.datetime64('1989-06-01'), np.datetime64('2023-01-01'))
 
@@ -6306,29 +6308,25 @@ def _label_by_line_test_helper(names=[], labels=[]):
 def test_label_by_data_none():
     # Name is not given (names == [])
     stocks_name = []
-    stocks_ticker = ['AAPL', 'MSFT', 'XRX', 'ADBE']
-    _label_by_line_test_helper(stocks_name, stocks_ticker)
+    _label_by_line_test_helper(stocks_name)
 
 
 @image_comparison(['label_by_data_many.png'], style='default')
 def test_label_by_data_many():
     # Multiple names for label are given
     stocks_name = ['Apple', 'Microsoft', 'Xerox', 'Adobe']
-    stocks_ticker = ['AAPL', 'MSFT', 'XRX', 'ADBE']
-    _label_by_line_test_helper(stocks_name, stocks_ticker)
+    _label_by_line_test_helper(stocks_name)
 
 
 @image_comparison(['label_by_data_less.png', 'label_by_data_more.png'], style='default')
 def test_label_by_data_boundary():
-    stocks_ticker = ['AAPL', 'MSFT', 'XRX', 'ADBE']
-
     # len(names) < len(data)
     stocks_name = ['Apple']
-    _label_by_line_test_helper(stocks_name, stocks_ticker)
+    _label_by_line_test_helper(stocks_name)
 
     # len(names) > len(data)
     stocks_name = ['Apple', 'Microsoft', 'Xerox', 'Adobe', 'Alphabet']
-    _label_by_line_test_helper(stocks_name, stocks_ticker)
+    _label_by_line_test_helper(stocks_name)
 
 
 def generate_errorbar_inputs():
