@@ -8305,13 +8305,14 @@ such objects
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
 
-    def label_by_data(self, names, fig=None, labels=None, data=None, static_pos=None, offsets=None):
+    def label_by_data(self, names, fig=None, labels=None,
+                      data=None, static_pos=None, offsets=None):
         """
         Display the labels next to the line or on top of the bars.
         """
         import matplotlib.pyplot as plt
 
-        if (offsets == None):
+        if (offsets is None):
             offsets = {k: 0 for k in labels}
 
         if (len(self.lines) > 0):
@@ -8327,14 +8328,15 @@ such objects
 
                     if i < len(names):
                         self.text(static_pos, dynamic_pos,
-                                names[i], color='black', transform=trans)
+                                  names[i], color='black', transform=trans)
 
         elif (len(self.patches) > 0):
             if isinstance(self.patches[0], plt.Rectangle):
                 for i, column in enumerate(self.patches):
                     if i < len(names):
-                        self.text(self.patches[i].get_x() + (self.patches[i].get_width() / 2), self.patches[i].get_height(),
-                                names[i], ha='center', va='bottom')
+                        x = self.patches[i].get_x() + (self.patches[i].get_width() / 2)
+                        self.text(x, self.patches[i].get_height(), names[i],
+                                  ha='center', va='bottom')
 
         else:
             print("Not a supported graph.")
