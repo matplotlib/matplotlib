@@ -5293,49 +5293,73 @@ default: :rc:`scatter.edgecolors`
             if not len(indslice):
                 continue
 
-            if interpolate:
-                # TODO: Implement code for interpolate
-                continue
-
             N = len(indslice)
+            pts = np.zeros((2 * (N + 2), 2))
+            if interpolate:
+                def get_interp_point(idx):
+                    im1 = max(idx - 1, 0)
+                    ind_values = ind[im1:idx+1]
+                    diff_values = dep1[im1:idx+1] - dep2[im1:idx+1]
+                    dep1_values = dep1[im1:idx+1]
+
+                    if len(diff_values) == 2:
+                        if np.ma.is_masked(diff_values[1]):
+                            return ind[im1], dep1[im1]
+                        elif np.ma.is_masked(diff_values[0]):
+                            return ind[idx], dep1[idx]
+
+                    diff_order = diff_values.argsort()
+                    diff_root_ind = np.interp(
+                        0, diff_values[diff_order], ind_values[diff_order])
+                    ind_order = ind_values.argsort()
+                    diff_root_dep = np.interp(
+                        diff_root_ind,
+                        ind_values[ind_order], dep1_values[ind_order])
+                    return diff_root_ind, diff_root_dep
+
+                start = get_interp_point(idx0)
+                end = get_interp_point(idx1)
+            else:
+                # Handle scalar dep2 (e.g. 0): the fill should go all
+                # the way down to 0 even if none of the dep1 sample points do.
+                start = indslice[0], dep2slice[0]
+                end = indslice[-1], dep2slice[-1]
 
             if fill_above:
-                vertices = np.zeros((N, 2))
-                vertices[0:N, 0] = indslice
-                vertices[0:N, 1] = np.amax(np.stack([dep1slice, dep2slice]), axis=0)
+                vertices = np.zeros((N + 2, 2))
+                vertices[1:N+1, 0] = indslice
+                vertices[1:N+1, 1] = np.amax(np.stack([dep1slice, dep2slice]), axis=0)
 
                 top = self.axes.get_ylim()[1]
-                bound = np.zeros((2, 2))
-                bound[0] = [np.amin(vertices, axis=0)[0], top]
-                bound[1] = [np.amax(vertices, axis=0)[0], top]
-
-                plane_above = mpatches.BoundedArea(vertices, bound, **kwargs)
-
-                self.add_artist(plane_above)
-                poly.append(plane_above)
+                vertices[0] = [start[0], top]
+                vertices[N+1] = [end[0], top]
+                pts[:N+2] = vertices
+                poly.append(vertices)
 
             if fill_below:
-                vertices = np.zeros((N, 2))
-                vertices[0:N, 0] = indslice
-                vertices[0:N, 1] = np.amin(np.stack([dep1slice, dep2slice]), axis=0)
+                vertices = np.zeros((N + 2, 2))
+                vertices[1:N+1, 0] = indslice
+                vertices[1:N+1, 1] = np.amin(np.stack([dep1slice, dep2slice]), axis=0)
 
                 bottom = self.axes.get_ylim()[0]
-                bound = np.zeros((2, 2))
-                bound[0] = [np.amin(vertices, axis=0)[0], bottom]
-                bound[1] = [np.amax(vertices, axis=0)[0], bottom]
+                vertices[0] = [start[0], bottom]
+                vertices[N+1] = [end[0], bottom]
+                pts[N+2:] = vertices
+                poly.append(vertices)
 
-                plane_above = mpatches.BoundedArea(vertices, bound, **kwargs)
+                if ind_dir == "y":
+                    pts = pts[:, ::-1]
 
-                self.add_artist(plane_above)
-                poly.append(plane_above)
+        collection = mcoll.PolyCollection(poly, **kwargs)
 
         # now update the datalim and autoscale
         pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
                             np.column_stack([ind[where], dep2[where]])])
-        self.update_datalim(pts, updatex=True, updatey=True)
+        if ind_dir == "y":
+            pts = pts[:, ::-1]
+        self.add_collection(collection, autolim=False)
         self._request_autoscale_view()
-
-        return poly
+        return collection
 
     def fill_above(self, x, y1, y2, where=None, interpolate=False,
                      step=None, **kwargs):
