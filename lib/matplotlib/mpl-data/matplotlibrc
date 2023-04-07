@@ -425,8 +425,19 @@
 #axes.autolimit_mode: data  # If "data", use axes.xmargin and axes.ymargin as is.
                             # If "round_numbers", after application of margins, axis
                             # limits are further expanded to the nearest "round" number.
-#polaraxes.grid: True  # display grid on polar axes
-#axes3d.grid:    True  # display grid on 3D axes
+#axes.adjustable: box       # {box, adjustable}
+#axes.anchor:    C          # {C, E, N, S, W, NE, NW, SE, SW} or two-tuple of floats
+#axes.aspect:    auto       # {equal, auto} or a number
+#axes.box_aspect: None      # None or a number
+
+#polaraxes.grid: True       # display grid on polar axes
+
+#axes3d.grid:    True       # display grid on 3D axes
+#axes3d.adjustable: box     # {box, adjustable}
+#axes3d.anchor:     C       # {C, E, N, S, W, NE, NW, SE, SW} or two-tuple of floats
+#axes3d.aspect:     auto
+#axes3d.box_aspect: 4, 4, 3 # three floats: x, y, z
+#axes3d.proj_type:  persp   # {persp, ortho}
 
 #axes3d.xaxis.panecolor:    (0.95, 0.95, 0.95, 0.5)  # background pane on 3D axes
 #axes3d.yaxis.panecolor:    (0.90, 0.90, 0.90, 0.5)  # background pane on 3D axes

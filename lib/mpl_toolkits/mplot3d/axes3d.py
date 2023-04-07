@@ -64,7 +64,7 @@ class Axes3D(Axes):
 
     def __init__(
             self, fig, rect=None, *args,
-            elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
+            elev=30, azim=-60, roll=0, sharez=None, proj_type=None,
             box_aspect=None, computed_zorder=True, focal_length=None,
             **kwargs):
         """
@@ -89,8 +89,12 @@ class Axes3D(Axes):
             scene to rotate counter-clockwise.
         sharez : Axes3D, optional
             Other Axes to share z-limits with.
-        proj_type : {'persp', 'ortho'}
-            The projection type, default 'persp'.
+        proj_type : {'persp', 'ortho'}, optional
+            The projection type, default :rc:`axes3d.proj_type`.
+
+            .. versionadded:: 3.8
+               rcParam added, in earlier versions, the default is 'persp'.
+
         box_aspect : 3-tuple of floats, default: None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
@@ -124,7 +128,7 @@ class Axes3D(Axes):
         self.initial_azim = azim
         self.initial_elev = elev
         self.initial_roll = roll
-        self.set_proj_type(proj_type, focal_length)
+        self.set_proj_type(proj_type or mpl.rcParams["axes3d.proj_type"], focal_length)
         self.computed_zorder = computed_zorder
 
         self.xy_viewLim = Bbox.unit()
@@ -148,6 +152,12 @@ class Axes3D(Axes):
                 'Use fig.add_axes(ax) instead.'
             )
 
+        if 'aspect' not in kwargs:
+            kwargs['aspect'] = mpl.rcParams["axes3d.aspect"]
+        if 'adjustable' not in kwargs:
+            kwargs['adjustable'] = mpl.rcParams["axes3d.adjustable"]
+        if 'anchor' not in kwargs:
+            kwargs['anchor'] = mpl.rcParams["axes3d.anchor"]
         super().__init__(
             fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
         )
@@ -376,10 +386,10 @@ class Axes3D(Axes):
         """
         Set the Axes box aspect.
 
-        The box aspect is the ratio of height to width in display
-        units for each face of the box when viewed perpendicular to
-        that face.  This is not to be confused with the data aspect (see
-        `~.Axes3D.set_aspect`). The default ratios are 4:4:3 (x:y:z).
+        The box aspect is the ratio of height to width in display units for each face
+        of the box when viewed perpendicular to that face.  This is not to be confused
+        with the data aspect (see `~.Axes3D.set_aspect`). The default ratios are
+        :rc:`axes3d.box_aspect` (x, y, z).
 
         To simulate having equal aspect in data space, set the box
         aspect to match your data range in each dimension.
@@ -391,7 +401,7 @@ class Axes3D(Axes):
         aspect : 3-tuple of floats or None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
-            If None, defaults to (4, 4, 3).
+            If None, defaults to :rc:`axes3d.box_aspect`.
 
         zoom : float, default: 1
             Control overall size of the Axes3D in the figure. Must be > 0.
@@ -400,7 +410,7 @@ class Axes3D(Axes):
             raise ValueError(f'Argument zoom = {zoom} must be > 0')
 
         if aspect is None:
-            aspect = np.asarray((4, 4, 3), dtype=float)
+            aspect = np.asarray(mpl.rcParams['axes3d.box_aspect'], dtype=float)
         else:
             aspect = np.asarray(aspect, dtype=float)
             _api.check_shape((3,), aspect=aspect)
