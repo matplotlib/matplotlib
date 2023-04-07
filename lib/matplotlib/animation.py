@@ -233,12 +233,18 @@ class AbstractMovieWriter(abc.ABC):
 
         ``*args, **kw`` are any parameters that should be passed to `setup`.
         """
+        if mpl.rcParams['savefig.bbox'] == 'tight':
+            _log.info("Disabling savefig.bbox = 'tight', as it may cause "
+                      "frame size to vary, which is inappropriate for "
+                      "animation.")
+
         # This particular sequence is what contextlib.contextmanager wants
         self.setup(fig, outfile, dpi, *args, **kwargs)
-        try:
-            yield self
-        finally:
-            self.finish()
+        with mpl.rc_context({'savefig.bbox': None}):
+            try:
+                yield self
+            finally:
+                self.finish()
 
 
 class MovieWriter(AbstractMovieWriter):
@@ -1061,10 +1067,6 @@ class Animation:
         # TODO: Right now, after closing the figure, saving a movie won't work
         # since GUI widgets are gone. Either need to remove extra code to
         # allow for this non-existent use case or find a way to make it work.
-        if mpl.rcParams['savefig.bbox'] == 'tight':
-            _log.info("Disabling savefig.bbox = 'tight', as it may cause "
-                      "frame size to vary, which is inappropriate for "
-                      "animation.")
 
         facecolor = savefig_kwargs.get('facecolor',
                                        mpl.rcParams['savefig.facecolor'])
@@ -1080,10 +1082,8 @@ class Animation:
         # canvas._is_saving = True makes the draw_event animation-starting
         # callback a no-op; canvas.manager = None prevents resizing the GUI
         # widget (both are likewise done in savefig()).
-        with mpl.rc_context({'savefig.bbox': None}), \
-             writer.saving(self._fig, filename, dpi), \
-             cbook._setattr_cm(self._fig.canvas,
-                               _is_saving=True, manager=None):
+        with writer.saving(self._fig, filename, dpi), \
+             cbook._setattr_cm(self._fig.canvas, _is_saving=True, manager=None):
             for anim in all_anim:
                 anim._init_draw()  # Clear the initial frame
             frame_number = 0
