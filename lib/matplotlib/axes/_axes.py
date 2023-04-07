@@ -5272,9 +5272,9 @@ default: :rc:`scatter.edgecolors`
             np.atleast_1d(ind), dep1, dep2, subok=True)
         return ind, dep1, dep2, where
 
-    def _fill_above_x_or_y(
-            self, ind_dir, ind, dep1, dep2=0, *,
-            where=None, interpolate=False, step=None, **kwargs):
+    def _fill_above_or_below_x_or_y(
+            self, ind_dir, ind, dep1, dep2=0, *, where=None, interpolate=False,
+            step=None, fill_above=False, fill_below=False, **kwargs):
 
         ind, dep1, dep2, where = self.helper(ind_dir, ind, dep1, dep2,
                                              where, interpolate, step, **kwargs)
@@ -5299,68 +5299,35 @@ default: :rc:`scatter.edgecolors`
 
             N = len(indslice)
 
-            vertices = np.zeros((N, 2))
-            vertices[0:N, 0] = indslice
-            vertices[0:N, 1] = np.amax(np.stack([dep1slice, dep2slice]), axis=0)
+            if fill_above:
+                vertices = np.zeros((N, 2))
+                vertices[0:N, 0] = indslice
+                vertices[0:N, 1] = np.amax(np.stack([dep1slice, dep2slice]), axis=0)
 
-            top = self.axes.get_ylim()[1]
-            bound = np.zeros((2, 2))
-            bound[0] = [np.amin(vertices, axis=0)[0], top]
-            bound[1] = [np.amax(vertices, axis=0)[0], top]
+                top = self.axes.get_ylim()[1]
+                bound = np.zeros((2, 2))
+                bound[0] = [np.amin(vertices, axis=0)[0], top]
+                bound[1] = [np.amax(vertices, axis=0)[0], top]
 
-            plane_above = mpatches.BoundedArea(vertices, bound, **kwargs)
+                plane_above = mpatches.BoundedArea(vertices, bound, **kwargs)
 
-            self.add_artist(plane_above)
-            poly.append(plane_above)
+                self.add_artist(plane_above)
+                poly.append(plane_above)
 
-        # now update the datalim and autoscale
-        pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
-                            np.column_stack([ind[where], dep2[where]])])
-        self.update_datalim(pts, updatex=True, updatey=True)
-        self._request_autoscale_view()
+            if fill_below:
+                vertices = np.zeros((N, 2))
+                vertices[0:N, 0] = indslice
+                vertices[0:N, 1] = np.amin(np.stack([dep1slice, dep2slice]), axis=0)
 
-        return poly
+                bottom = self.axes.get_ylim()[0]
+                bound = np.zeros((2, 2))
+                bound[0] = [np.amin(vertices, axis=0)[0], bottom]
+                bound[1] = [np.amax(vertices, axis=0)[0], bottom]
 
-    def _fill_below_x_or_y(
-            self, ind_dir, ind, dep1, dep2=0, *,
-            where=None, interpolate=False, step=None, **kwargs):
+                plane_above = mpatches.BoundedArea(vertices, bound, **kwargs)
 
-        ind, dep1, dep2, where = self.helper(ind_dir, ind, dep1, dep2,
-                                             where, interpolate, step, **kwargs)
-
-        poly = []
-        for idx0, idx1 in cbook.contiguous_regions(where):
-            indslice = ind[idx0:idx1]
-            dep1slice = dep1[idx0:idx1]
-            dep2slice = dep2[idx0:idx1]
-
-            if step is not None:
-                step_func = cbook.STEP_LOOKUP_MAP["steps-" + step]
-                indslice, dep1slice, dep2slice = \
-                    step_func(indslice, dep1slice, dep2slice)
-
-            if not len(indslice):
-                continue
-
-            if interpolate:
-                # TODO: Implement code for interpolate
-                continue
-
-            N = len(indslice)
-
-            vertices = np.zeros((N, 2))
-            vertices[0:N, 0] = indslice
-            vertices[0:N, 1] = np.amin(np.stack([dep1slice, dep2slice]), axis=0)
-
-            bottom = self.axes.get_ylim()[0]
-            bound = np.zeros((2, 2))
-            bound[0] = [np.amin(vertices, axis=0)[0], bottom]
-            bound[1] = [np.amax(vertices, axis=0)[0], bottom]
-
-            plane_above = mpatches.BoundedArea(vertices, bound, **kwargs)
-
-            self.add_artist(plane_above)
-            poly.append(plane_above)
+                self.add_artist(plane_above)
+                poly.append(plane_above)
 
         # now update the datalim and autoscale
         pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
@@ -5372,19 +5339,24 @@ default: :rc:`scatter.edgecolors`
 
     def fill_above(self, x, y1, y2, where=None, interpolate=False,
                      step=None, **kwargs):
-        return self._fill_above_x_or_y("y", x, y1, y2, where=where,
-                                         interpolate=interpolate, step=step,
-                                         **kwargs)
+        return self._fill_above_or_below_x_or_y("y", x, y1, y2, where=where,
+                                                interpolate=interpolate, step=step,
+                                                fill_above=True, fill_below=False,
+                                                **kwargs)
 
     def fill_below(self, x, y1, y2, where=None, interpolate=False,
                      step=None, **kwargs):
-        return self._fill_below_x_or_y("y", x, y1, y2, where=where,
-                                         interpolate=interpolate, step=step,
-                                         **kwargs)
+        return self._fill_above_or_below_x_or_y("y", x, y1, y2, where=where,
+                                                interpolate=interpolate, step=step,
+                                                fill_above=False, fill_below=True,
+                                                **kwargs)
 
     def fill_outside(self, x, y1, y2, where=None, interpolate=False,
                      step=None, **kwargs):
-        pass
+        return self._fill_above_or_below_x_or_y("y", x, y1, y2, where=where,
+                                                interpolate=interpolate, step=step,
+                                                fill_above=True, fill_below=True,
+                                                **kwargs)
 
     def _fill_between_x_or_y(
             self, ind_dir, ind, dep1, dep2=0, *,
