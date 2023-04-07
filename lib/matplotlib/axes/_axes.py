@@ -8305,9 +8305,9 @@ such objects
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
 
-    def label_by_line(self, fig, names, labels=None, data=None, static_pos=None):
+    def label_by_line(self, names, fig=None, labels=None, data=None, static_pos=None):
         """
-        Display the labels next to the line.
+        Display the labels next to the line or on top of the bars.
         """
         import matplotlib.pyplot as plt
 
@@ -8327,7 +8327,7 @@ such objects
             if (len(self.patches) > 0):
                 if isinstance(self.patches[0], plt.Rectangle):
                     for i, column in enumerate(self.patches):
-                        self.text(i, self.patches[i].get_height(),
+                        self.text(self.patches[i].get_x() + (self.patches[i].get_width() / 2), self.patches[i].get_height(),
                                   names[i], ha='center', va='bottom')
 
         except ValueError:
