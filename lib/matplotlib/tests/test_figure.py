@@ -892,6 +892,15 @@ def test_tightbbox_box_aspect():
     ax2.set_box_aspect((2, 1, 1))
 
 
+@image_comparison(['test_wspace_hspace_subfigure.png'],
+                  remove_text=True)
+def test_wspace_hspace_subfigure():
+    figs = plt.figure().subfigures(2, 2, hspace=0.2, wspace=0.2)
+    for fig, color in zip(figs.flat, 'cmyw'):
+        fig.set_facecolor(color)
+        fig.subplots().plot([1, 2])
+
+
 @check_figures_equal(extensions=["svg", "pdf", "eps", "png"])
 def test_animated_with_canvas_change(fig_test, fig_ref):
     ax_ref = fig_ref.subplots()
