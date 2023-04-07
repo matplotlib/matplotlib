@@ -8311,24 +8311,23 @@ such objects
         """
         import matplotlib.pyplot as plt
 
-        try:
-            if (len(self.lines) > 0):
-                if isinstance(self.lines[0], plt.Line2D):
-                    for i, column in enumerate(labels):
+        if (len(self.lines) > 0):
+            if isinstance(self.lines[0], plt.Line2D):
+                for i, column in enumerate(labels):
 
-                        dynamic_pos = data[column][-1]
+                    dynamic_pos = data[column][-1]
 
-                        trans = mtransforms.ScaledTranslation(0, 0, fig.dpi_scale_trans)
-                        trans = self.transData + trans
+                    trans = mtransforms.ScaledTranslation(0, 0, fig.dpi_scale_trans)
+                    trans = self.transData + trans
 
-                        self.text(static_pos, dynamic_pos,
-                                  names[i], color='black', transform=trans)
+                    self.text(static_pos, dynamic_pos,
+                              names[i], color='black', transform=trans)
 
-            if (len(self.patches) > 0):
-                if isinstance(self.patches[0], plt.Rectangle):
-                    for i, column in enumerate(self.patches):
-                        self.text(self.patches[i].get_x() + (self.patches[i].get_width() / 2), self.patches[i].get_height(),
-                                  names[i], ha='center', va='bottom')
+        elif (len(self.patches) > 0):
+            if isinstance(self.patches[0], plt.Rectangle):
+                for i, column in enumerate(self.patches):
+                    self.text(self.patches[i].get_x() + (self.patches[i].get_width() / 2), self.patches[i].get_height(),
+                              names[i], ha='center', va='bottom')
 
-        except ValueError:
+        else:
             print("Not a supported graph.")
