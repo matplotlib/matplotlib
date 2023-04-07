@@ -8305,18 +8305,30 @@ such objects
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
 
-    def label_by_line(self, fig, labels, data, names, date):
+    def label_by_line(self, fig, names, labels=None, data=None, static_pos=None):
         """
         Display the labels next to the line.
         """
+        import matplotlib.pyplot as plt
 
-        for nn, column in enumerate(labels):
+        try:
+            if (len(self.lines) > 0):
+                if isinstance(self.lines[0], plt.Line2D):
+                    for i, column in enumerate(labels):
 
-            y_pos = data[column][-1]
+                        dynamic_pos = data[column][-1]
 
-            trans = mtransforms.ScaledTranslation(0, 0, fig.dpi_scale_trans)
-            trans = self.transData + trans
+                        trans = mtransforms.ScaledTranslation(0, 0, fig.dpi_scale_trans)
+                        trans = self.transData + trans
 
-            # Again, make sure that all labels are large enough to be easily read
-            # by the viewer.
-            self.text(date, y_pos, names[nn], color='black', transform=trans)
+                        self.text(static_pos, dynamic_pos,
+                                  names[i], color='black', transform=trans)
+
+            if (len(self.patches) > 0):
+                if isinstance(self.patches[0], plt.Rectangle):
+                    for i, column in enumerate(self.patches):
+                        self.text(i, self.patches[i].get_height(),
+                                  names[i], ha='center', va='bottom')
+
+        except ValueError:
+            print("Not a supported graph.")
