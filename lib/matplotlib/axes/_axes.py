@@ -8325,14 +8325,16 @@ such objects
                         0, offset, fig.dpi_scale_trans)
                     trans = self.transData + trans
 
-                    self.text(static_pos, dynamic_pos,
-                              names[i], color='black', transform=trans)
+                    if i < len(names):
+                        self.text(static_pos, dynamic_pos,
+                                names[i], color='black', transform=trans)
 
         elif (len(self.patches) > 0):
             if isinstance(self.patches[0], plt.Rectangle):
                 for i, column in enumerate(self.patches):
-                    self.text(self.patches[i].get_x() + (self.patches[i].get_width() / 2), self.patches[i].get_height(),
-                              names[i], ha='center', va='bottom')
+                    if i < len(names):
+                        self.text(self.patches[i].get_x() + (self.patches[i].get_width() / 2), self.patches[i].get_height(),
+                                names[i], ha='center', va='bottom')
 
         else:
             print("Not a supported graph.")

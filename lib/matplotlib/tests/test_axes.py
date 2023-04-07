@@ -6258,6 +6258,79 @@ def test_violin_point_mass():
     plt.violinplot(np.array([0, 0]))
 
 
+def _label_by_line_test_helper(names=[], labels=[]):
+    def convertdate(x):
+        return np.datetime64(x, 'D')
+
+    fname = mpl.cbook.get_sample_data('Stocks.csv', asfileobj=False)
+    stock_data = np.genfromtxt(fname, encoding='utf-8', delimiter=',',
+                                names=True, dtype=None, converters={0: convertdate},
+                                skip_header=1)
+
+    fig, ax = plt.subplots(1, 1, figsize=(6, 8), layout='constrained')
+
+    # These are the colors that will be used in the plot
+    ax.set_prop_cycle(color=[
+        '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a',
+        '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94',
+        '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d',
+        '#17becf', '#9edae5'])
+
+    for nn, column in enumerate(labels):
+        # Plot each line separately with its own color
+        good = np.nonzero(np.isfinite(stock_data[column]))
+        line, = ax.plot(stock_data['Date'][good],
+                        stock_data[column][good], lw=2.5)
+
+    date = np.datetime64('2022-10-01')
+
+    ax.label_by_data(names, fig, labels, stock_data, date)
+
+    ax.set_xlim(np.datetime64('1989-06-01'), np.datetime64('2023-01-01'))
+
+    # Remove the plot frame lines
+    ax.spines[:].set_visible(False)
+
+    ax.set_yscale('log')
+
+    # Provide tick lines across the plot
+    ax.grid(True, 'major', 'both', ls='--', lw=.5, c='k', alpha=.3)
+
+    # Remove the tick marks
+    ax.tick_params(axis='both', which='both', labelsize='large',
+                   bottom=False, top=False, labelbottom=True,
+                   left=False, right=False, labelleft=True)
+
+
+@image_comparison(['label_by_data_none.png'], style='default')
+def test_label_by_data_none():
+    # Name is not given (names == [])
+    stocks_name = []
+    stocks_ticker = ['AAPL', 'MSFT', 'XRX', 'ADBE']
+    _label_by_line_test_helper(stocks_name, stocks_ticker)
+
+
+@image_comparison(['label_by_data_many.png'], style='default')
+def test_label_by_data_many():
+    # Multiple names for label are given
+    stocks_name = ['Apple', 'Microsoft', 'Xerox', 'Adobe']
+    stocks_ticker = ['AAPL', 'MSFT', 'XRX', 'ADBE']
+    _label_by_line_test_helper(stocks_name, stocks_ticker)
+
+
+@image_comparison(['label_by_data_less.png', 'label_by_data_more.png'], style='default')
+def test_label_by_data_boundary():
+    stocks_ticker = ['AAPL', 'MSFT', 'XRX', 'ADBE']
+
+    # len(names) < len(data)
+    stocks_name = ['Apple']
+    _label_by_line_test_helper(stocks_name, stocks_ticker)
+
+    # len(names) > len(data)
+    stocks_name = ['Apple', 'Microsoft', 'Xerox', 'Adobe', 'Alphabet']
+    _label_by_line_test_helper(stocks_name, stocks_ticker)
+
+
 def generate_errorbar_inputs():
     base_xy = cycler('x', [np.arange(5)]) + cycler('y', [np.ones(5)])
     err_cycler = cycler('err', [1,
