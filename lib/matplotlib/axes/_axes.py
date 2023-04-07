@@ -5236,6 +5236,27 @@ default: :rc:`scatter.edgecolors`
         self._request_autoscale_view()
         return patches
 
+    def get_interp_point(self, idx, ind, dep1, dep2):
+        im1 = max(idx - 1, 0)
+        ind_values = ind[im1:idx+1]
+        diff_values = dep1[im1:idx+1] - dep2[im1:idx+1]
+        dep1_values = dep1[im1:idx+1]
+
+        if len(diff_values) == 2:
+            if np.ma.is_masked(diff_values[1]):
+                return ind[im1], dep1[im1]
+            elif np.ma.is_masked(diff_values[0]):
+                return ind[idx], dep1[idx]
+
+        diff_order = diff_values.argsort()
+        diff_root_ind = np.interp(
+            0, diff_values[diff_order], ind_values[diff_order])
+        ind_order = ind_values.argsort()
+        diff_root_dep = np.interp(
+            diff_root_ind,
+            ind_values[ind_order], dep1_values[ind_order])
+        return diff_root_ind, diff_root_dep
+
     def helper(
             self, ind_dir, ind, dep1, dep2,
             where=None, interpolate=False, step=None, **kwargs):
@@ -5296,29 +5317,8 @@ default: :rc:`scatter.edgecolors`
             N = len(indslice)
             pts = np.zeros((2 * (N + 2), 2))
             if interpolate:
-                def get_interp_point(idx):
-                    im1 = max(idx - 1, 0)
-                    ind_values = ind[im1:idx+1]
-                    diff_values = dep1[im1:idx+1] - dep2[im1:idx+1]
-                    dep1_values = dep1[im1:idx+1]
-
-                    if len(diff_values) == 2:
-                        if np.ma.is_masked(diff_values[1]):
-                            return ind[im1], dep1[im1]
-                        elif np.ma.is_masked(diff_values[0]):
-                            return ind[idx], dep1[idx]
-
-                    diff_order = diff_values.argsort()
-                    diff_root_ind = np.interp(
-                        0, diff_values[diff_order], ind_values[diff_order])
-                    ind_order = ind_values.argsort()
-                    diff_root_dep = np.interp(
-                        diff_root_ind,
-                        ind_values[ind_order], dep1_values[ind_order])
-                    return diff_root_ind, diff_root_dep
-
-                start = get_interp_point(idx0)
-                end = get_interp_point(idx1)
+                start = self.get_interp_point(idx0, ind, dep1, dep2)
+                end = self.get_interp_point(idx1, ind, dep1, dep2)
             else:
                 # Handle scalar dep2 (e.g. 0): the fill should go all
                 # the way down to 0 even if none of the dep1 sample points do.
@@ -5491,29 +5491,8 @@ default: :rc:`scatter.edgecolors`
             pts = np.zeros((2 * N + 2, 2))
 
             if interpolate:
-                def get_interp_point(idx):
-                    im1 = max(idx - 1, 0)
-                    ind_values = ind[im1:idx+1]
-                    diff_values = dep1[im1:idx+1] - dep2[im1:idx+1]
-                    dep1_values = dep1[im1:idx+1]
-
-                    if len(diff_values) == 2:
-                        if np.ma.is_masked(diff_values[1]):
-                            return ind[im1], dep1[im1]
-                        elif np.ma.is_masked(diff_values[0]):
-                            return ind[idx], dep1[idx]
-
-                    diff_order = diff_values.argsort()
-                    diff_root_ind = np.interp(
-                        0, diff_values[diff_order], ind_values[diff_order])
-                    ind_order = ind_values.argsort()
-                    diff_root_dep = np.interp(
-                        diff_root_ind,
-                        ind_values[ind_order], dep1_values[ind_order])
-                    return diff_root_ind, diff_root_dep
-
-                start = get_interp_point(idx0)
-                end = get_interp_point(idx1)
+                start = self.get_interp_point(idx0, ind, dep1, dep2)
+                end = self.get_interp_point(idx1, ind, dep1, dep2)
             else:
                 # Handle scalar dep2 (e.g. 0): the fill should go all
                 # the way down to 0 even if none of the dep1 sample points do.
