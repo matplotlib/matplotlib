@@ -8305,11 +8305,14 @@ such objects
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
 
-    def label_by_line(self, names, fig=None, labels=None, data=None, static_pos=None):
+    def label_by_data(self, names, fig=None, labels=None, data=None, static_pos=None, offsets=None):
         """
         Display the labels next to the line or on top of the bars.
         """
         import matplotlib.pyplot as plt
+
+        if (offsets == None):
+            offsets = {k: 0 for k in labels}
 
         if (len(self.lines) > 0):
             if isinstance(self.lines[0], plt.Line2D):
@@ -8317,7 +8320,9 @@ such objects
 
                     dynamic_pos = data[column][-1]
 
-                    trans = mtransforms.ScaledTranslation(0, 0, fig.dpi_scale_trans)
+                    offset = offsets[column] / 72
+                    trans = mtransforms.ScaledTranslation(
+                        0, offset, fig.dpi_scale_trans)
                     trans = self.transData + trans
 
                     self.text(static_pos, dynamic_pos,

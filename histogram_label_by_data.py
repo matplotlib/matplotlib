@@ -9,6 +9,6 @@ ax.hist(data, bins=4)
 
 names = ['lowest', 'low', 'high', 'highest']
 
-ax.label_by_line(names)
+ax.label_by_data(names)
 
 plt.show()

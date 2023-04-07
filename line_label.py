@@ -55,7 +55,7 @@ for nn, column in enumerate(stocks_ticker):
 
 date = np.datetime64('2022-10-01')
 
-ax.label_by_line(stocks_name, fig, stocks_ticker, stock_data, date)
+ax.label_by_data(stocks_name, fig, stocks_ticker, stock_data, date)
 
 ax.set_xlim(np.datetime64('1989-06-01'), np.datetime64('2023-01-01'))
 
