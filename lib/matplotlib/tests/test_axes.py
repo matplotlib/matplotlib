@@ -8,6 +8,7 @@ import io
 from itertools import product
 import platform
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import dateutil.tz
 
@@ -8482,3 +8483,43 @@ def test_get_interp_point():
 
     interp_y_expected = np.interp(interp_x, ind[idx-1:idx+2], dep1[idx-1:idx+2])
     assert np.isclose(interp_y, interp_y_expected)
+
+def test_fill_above_calls_fill_above_or_below_x_or_y_with_correct_params():
+    x = np.arange(0.0, 2, 0.01)
+    y1 = np.sin(2*np.pi*x)
+    y2 = 1.2*np.sin(4*np.pi*x)
+    where = y2 >= y1
+    ax = plt.axes()
+    with patch.object(ax, '_fill_above_or_below_x_or_y') as mock_method:
+        ax.fill_above(x, y1, y2, where=where, interpolate=True, step=None,
+                      facecolor='blue')
+        mock_method.assert_called_once_with("y", x, y1, y2, where=where,
+                                             interpolate=True, step=None,
+                                             fill_above=True, fill_below=False,
+                                             facecolor='blue')
+        
+def test_fill_below_calls_fill_above_or_below_x_or_y_with_correct_params():
+    x = np.arange(0.0, 2, 0.01)
+    y1 = np.sin(2*np.pi*x)
+    y2 = 1.2*np.sin(4*np.pi*x)
+    where = y2 >= y1
+    ax = plt.axes()
+    with patch.object(ax, '_fill_above_or_below_x_or_y') as mock_method:
+        ax.fill_below(x, y1, y2, where=where, interpolate=True, step=None, color='blue')
+        mock_method.assert_called_once_with("y", x, y1, y2, where=where,
+                                             interpolate=True, step=None,
+                                             fill_above=False, fill_below=True,
+                                             color='blue')
+
+def test_fill_outside_calls_fill_above_or_below_x_or_y_with_correct_params():
+    x = np.arange(0.0, 2, 0.01)
+    y1 = np.sin(2*np.pi*x)
+    y2 = 1.2*np.sin(4*np.pi*x)
+    where = y2 >= y1
+    ax = plt.axes()
+    with patch.object(ax, '_fill_above_or_below_x_or_y') as mock_method:
+        ax.fill_outside(x, y1, y2, where=where, interpolate=True, step=None, color='blue')
+        mock_method.assert_called_once_with("y", x, y1, y2, where=where,
+                                             interpolate=True, step=None,
+                                             fill_above=True, fill_below=True,
+                                             color='blue')
