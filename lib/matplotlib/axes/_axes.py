@@ -3784,7 +3784,7 @@ class Axes(_AxesBase):
                 labels=None, flierprops=None, medianprops=None,
                 meanprops=None, capprops=None, whiskerprops=None,
                 manage_ticks=True, autorange=False, zorder=None,
-                capwidths=None):
+                capwidths=None, facecolor=None):
         """
         Draw a box and whisker plot.
 
@@ -3954,6 +3954,8 @@ class Axes(_AxesBase):
             The style of the caps.
         capwidths : float or array, default: None
             The widths of the caps.
+        facecolor : string or array of strings, default: None
+            The facecolor of the box.
         boxprops : dict, default: None
             The style of the box.
         whiskerprops : dict, default: None
@@ -4083,7 +4085,7 @@ class Axes(_AxesBase):
                            meanline=meanline, showfliers=showfliers,
                            capprops=capprops, whiskerprops=whiskerprops,
                            manage_ticks=manage_ticks, zorder=zorder,
-                           capwidths=capwidths)
+                           capwidths=capwidths, facecolor=facecolor)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
@@ -4092,7 +4094,7 @@ class Axes(_AxesBase):
             boxprops=None, whiskerprops=None, flierprops=None,
             medianprops=None, capprops=None, meanprops=None,
             meanline=False, manage_ticks=True, zorder=None,
-            capwidths=None):
+            capwidths=None, facecolor=None):
         """
         Drawing function for box and whisker plots.
 
@@ -4133,6 +4135,11 @@ class Axes(_AxesBase):
         capwidths : float or array-like, default: None
           Either a scalar or a vector and sets the width of each cap.
           The default is ``0.5*(with of the box)``, see *widths*.
+
+        facecolor : string or array of strings, default: None
+          If string, then all boxes have same color. If array, the boxes
+          will cycle through the sequence of colors.
+          The default is None, so the box will not be filled.
 
         vert : bool, default: True
           If `True` (default), makes the boxes vertical.
@@ -4273,6 +4280,8 @@ class Axes(_AxesBase):
         elif len(capwidths) != N:
             raise ValueError(datashape_message.format("capwidths"))
 
+        # if facecolor variable is an array of colors
+        facecolor_index = 0
         for pos, width, stats, capwidth in zip(positions, widths, bxpstats,
                                                capwidths):
             # try to find a new label
@@ -4314,7 +4323,19 @@ class Axes(_AxesBase):
             # maybe draw the box
             if showbox:
                 do_box = do_patch if patch_artist else do_plot
-                boxes.append(do_box(box_x, box_y, **box_kw))
+                box = do_box(box_x, box_y, **box_kw)
+                # if facecolor is given
+                if not (facecolor is None):
+                    if isinstance(facecolor, list):
+                        # if facecolor is a list of colors
+                        if facecolor_index < len(facecolor):
+                            box.set_facecolor(facecolor[facecolor_index])
+                            facecolor_index += 1
+                    elif isinstance(facecolor, str):
+                        # if facecolor is a color
+                        box.set_facecolor(facecolor)
+                    # if type is not str or list, don't fill the color
+                boxes.append(box)
             # draw the whiskers
             whiskers.append(do_plot(whis_x, whislo_y, **whisker_kw))
             whiskers.append(do_plot(whis_x, whishi_y, **whisker_kw))
