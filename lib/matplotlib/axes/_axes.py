@@ -8308,7 +8308,29 @@ such objects
     def label_by_data(self, names, fig=None, labels=None,
                       data=None, static_pos=None, offsets=None, color='black'):
         """
-        Display the labels next to the line or on top of the bars.
+        Display the names of the labels next to the line or on top of the bars.
+
+        names : Array.
+          Names of the labels.
+
+        fig : Figure Object.
+          The fig associated with the graph.
+
+        labels : Array.
+          The column names of the line graph.
+
+        data : numpy array.
+          The input data associated with the line graph.
+
+        static_pos : float.
+          Position on the x axis to line the labels up with.
+
+        offsets : Array.
+          Offset of the y position of the labels.
+
+        color : String representing the color.
+          The color of the labels.
+
         """
         import matplotlib.pyplot as plt
 
