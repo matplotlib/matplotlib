@@ -2532,29 +2532,70 @@ class Axes(_AxesBase):
 
         return bar_container
 
+    def labels_match_values(self, x, measurement):
+        """
+        Check if the number of labels matches the number of measurements.
+
+        Parameters
+        -----------
+        x : Array of integers
+            Entry for each type of bar in group.
+        measurement : Tuple of floats
+            Heights of the bars in a group.
+        """
+        if isinstance(measurement, int):
+            if (x.size > measurement):
+                raise ValueError("Not enough values provided.")
+        else:
+            if (x.size > len(measurement)):
+                raise ValueError("Not enough values provided.")
+            if (x.size < len(measurement)):
+                raise ValueError("Not enough groups provided.")
+
     # starter code from feature 24313
     def grouped_bar(self, x, heights, width, group_labels=None):
         """
+        Add grouped bars to a bar graph. Each group has a bar from 
+        each possible type of bar. Can be labeled with the labels 
+        in grouped_bar.
+
         Parameters
         -----------
-        x : array-like of str
-            The labels.
-        heights : list of array-like:
-            An iterable of array-like: The iteration runs over the groups.
-            Each individual array-like is the list of label values for that group.
+        x : Array of integers
+            Entry for each type of bar in group.
+        heights : dictionary where key is string / value is tuple:
+            string: label representing the current type of bar.
+            tuple: heights of the bars corrresponding to that type bar.
+        width: Integer
+            Width of the bars
         group_labels : array-like of str, optional
             The labels of the data groups.
         """
         multiplier = 0
 
+        # Loop through the bars adding them to the currect group
         for attribute, measurement in heights.items():
+
+            # Make sure number of bar type matches number of bars
+            self.labels_match_values(x, measurement)
+
+            # Get x position
             offset = width * multiplier
+
+            # set bars
             rects = self.bar(x + offset, measurement, width,
                              label=attribute)
+            # set bar labels
             self.bar_label(rects, padding=3)
             multiplier += 1
 
-        self.set_xticks(x + width, group_labels)
+        if (group_labels != None):
+            if (x.size > 0):
+                if (x[-1] + 1 == len(group_labels)):
+                    # If enough group labels are given set group labels
+                    self.set_xticks(x + width, group_labels)
+            else:
+                raise ValueError("Not enough group labels provided.")
 
     # @_preprocess_data() # let 'bar' do the unpacking..
 

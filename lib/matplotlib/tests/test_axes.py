@@ -1054,7 +1054,6 @@ def test_imshow_clip():
     x = c.collections[0]
     clip_path = x.get_paths()[0]
     clip_transform = x.get_transform()
-
     clip_path = mtransforms.TransformedPath(clip_path, clip_transform)
 
     # Plot the image clipped by the contour
@@ -1774,41 +1773,94 @@ def test_bar_decimal_center(fig_test, fig_ref):
     ax = fig_ref.subplots()
     ax.bar(x0, y0, align='center')
 
-
-def test_run_group_bar_values():
-    ax = plt.subplots()
-    ax.grouped_bar(np.arange(len(('R', 'A'))), {
-                   'R': (0, 0), 'A': (0, 0)}, 0.0, ('R', 'A'))
+# Test the api with the wrong number of group labels.Should cause a ValueError.
 
 
-def test_nan_group_bar_values():
-    ax = plt.subplots()
-    ax.grouped_bar(np.arange(len((''))), {'': (0)}, 0.0, (''))
+def test_wrong_num_of_group_labels_group_bar():
+    with pytest.raises(ValueError):
+        fig, ax = plt.subplots()
+        ax.grouped_bar(np.arange(len((''))), {'': (1, 2, 3)}, 0.0, ('A', 'B'))
+
+# Test the api with more values than labels. Should cause a ValueError.
+
+
+def test_too_many_values_group_bar():
+    with pytest.raises(ValueError):
+        fig, ax = plt.subplots()
+        ax.grouped_bar(np.arange(len((''))), {'': (1, 2, 3)}, 0.0, (''))
+
+# Test the api runs with more labels than values. Should cause a ValueError.
+
+
+def test_too_many_labels_group_bar():
+    with pytest.raises(ValueError):
+        fig, ax = plt.subplots()
+        ax.grouped_bar(np.arange(len(('A', 'B'))), {'': (0)}, 0.0, ('A', 'B'))
+
+# Test the api runs with zero and empty strings:
+
+
+def test_empty_group_bar_value():
+    fig, ax = plt.subplots()
+    ax.grouped_bar(np.arange(len((''))), {'': (0)}, 0.0)
+
+# Tests that the api creates a bar graph equal to a bar graph made by looping
+# through the original bar functionality with the same values. Use a small
+# number of values.
 
 
 @check_figures_equal(extensions=["png"])
-def test_match_bar_group_values(fig_test, fig_ref):
-    heights = {'River Depth': (8.9, 12.3, 1.2), 'River Length': (
-        40.0, 47.0, 75.0), 'River Volume': (56.34, 15.2, 12.29)}
-    rivers = ('Mackenzie River', 'Saskatchewan River', 'Fraser River')
-    width = 0.25
-    x = np.arange(len(rivers))
+def test_match_simple_group_bar_values(fig_test, fig_ref):
+    # Test image
     ax = fig_test.subplots()
-    ax.grouped_bar(x, heights, width, rivers)
+    ax.grouped_bar(np.arange(len(('R', 'A'))), {
+                   'R': (1, 1), 'A': (1, 1)}, 1.0, ('R', 'A'))
 
-    heights1 = {'River Depth': (8.9, 12.3, 1.2), 'River Length': (
-        40.0, 47.0, 75.0), 'River Volume': (56.34, 15.2, 12.29)}
-    rivers1 = ('Mackenzie River', 'Saskatchewan River', 'Fraser River')
-    width1 = 0.25
-    x1 = np.arange(len(rivers1))
+    # Reference image
+    y1 = {'R': (1, 1), 'A': (1, 1)}
+    labels1 = ('R', 'A')
+    width1 = 1.0
+    x1 = np.arange(len(y1.items()))
     ax = fig_ref.subplots()
     multiplier = 0
-    for attribute, measurement in heights1.items():
-        offset = width * multiplier
+    for attribute, measurement in y1.items():
+        offset = width1 * multiplier
         rects = ax.bar(x1 + offset, measurement, width1, label=attribute)
         ax.bar_label(rects, padding=3)
         multiplier += 1
-    ax.set_xticks(x + width, rivers1)
+    ax.set_xticks(x1 + width1, labels1)
+
+# Tests that the api creates a bar graph equal to a bar graph made by looping
+# through the original bar functionality with the same values. Use many values.
+
+
+@check_figures_equal(extensions=["png"])
+def test_match_many_bar_group_values(fig_test, fig_ref):
+    # Test image
+    y = {'R': (8.9, 12.3, 1.2, 8.9, 12.3, 1.2), 'R': (40.0, 47.0, 75.0, 8.9, 12.3, 1.2),
+         'R': (56.34, 15.2, 12.29, 8.9, 12.3, 1.2), 'R': (8.9, 12.3, 1.2, 8.9, 12.3, 1.2),
+         'R': (40.0, 47.0, 75.0, 8.9, 12.3, 1.2), 'R': (56.34, 15.2, 12.29, 8.9, 12.3, 1.2)}
+    labels = ('M', 'S', 'F', 'M', 'S', 'F')
+    width = 0.25
+    x = np.arange(len(labels))
+    ax = fig_test.subplots()
+    ax.grouped_bar(x, y, width, labels)
+
+    # Reference image
+    y1 = {'R': (8.9, 12.3, 1.2, 8.9, 12.3, 1.2), 'R': (40.0, 47.0, 75.0, 8.9, 12.3, 1.2),
+          'R': (56.34, 15.2, 12.29, 8.9, 12.3, 1.2), 'R': (8.9, 12.3, 1.2, 8.9, 12.3, 1.2),
+          'R': (40.0, 47.0, 75.0, 8.9, 12.3, 1.2), 'R': (56.34, 15.2, 12.29, 8.9, 12.3, 1.2)}
+    labels1 = ('M', 'S', 'F', 'M', 'S', 'F')
+    width1 = 0.25
+    x1 = np.arange(len(labels1))
+    ax = fig_ref.subplots()
+    multiplier = 0
+    for attribute, measurement in y1.items():
+        offset = width1 * multiplier
+        rects = ax.bar(x1 + offset, measurement, width1, label=attribute)
+        ax.bar_label(rects, padding=3)
+        multiplier += 1
+    ax.set_xticks(x1 + width1, labels1)
 
 
 @check_figures_equal(extensions=["png"])
