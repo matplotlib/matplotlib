@@ -8306,17 +8306,16 @@ such objects
         return height / (width * self.get_data_ratio())
 
     def label_by_data(self, names, fig=None, labels=None,
-                      data=None, static_pos=None, offsets=None):
+                      data=None, static_pos=None, offsets=None, color='black'):
         """
         Display the labels next to the line or on top of the bars.
         """
         import matplotlib.pyplot as plt
 
-        if (offsets is None):
-            offsets = {k: 0 for k in labels}
-
-        if (len(self.lines) > 0):
+        if (len(self.lines) > 0 and labels != None and fig != None):
             if isinstance(self.lines[0], plt.Line2D):
+                if (offsets is None):
+                    offsets = {k: 0 for k in labels}
                 for i, column in enumerate(labels):
 
                     dynamic_pos = data[column][-1]
@@ -8328,7 +8327,7 @@ such objects
 
                     if i < len(names):
                         self.text(static_pos, dynamic_pos,
-                                  names[i], color='black', transform=trans)
+                                  names[i], color=color, transform=trans)
 
         elif (len(self.patches) > 0):
             if isinstance(self.patches[0], plt.Rectangle):
