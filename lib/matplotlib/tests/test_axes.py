@@ -6258,7 +6258,7 @@ def test_violin_point_mass():
     plt.violinplot(np.array([0, 0]))
 
 
-def _label_by_line_test_helper(names=[]):
+def _label_by_data_test_helper_line(names=[]):
     def convertdate(x):
         return np.datetime64(x, 'D')
 
@@ -6304,29 +6304,70 @@ def _label_by_line_test_helper(names=[]):
                    left=False, right=False, labelleft=True)
 
 
-@image_comparison(['label_by_data_none.png'], style='default')
+def _label_by_data_test_helper_histogram(names):
+    data = [0.94, -0.94, 0.41, 1.09, 0.06, -0.82]
+    fig, ax = plt.subplots()
+    ax.hist(data, bins=4)
+
+    ax.label_by_data(names)
+
+
+def _label_by_data_test_helper_bar(names):
+    x = ['T1', 'T2', 'T3', 'T4']
+    y = [10, 13, 5, 16]
+
+    fig, ax = plt.subplots()
+    ax.bar(x, y)
+
+    ax.label_by_data(names, fig)
+
+
+@image_comparison(['label_by_data_none_line.png',
+                   'label_by_data_none_histogram.png',
+                   'label_by_data_none_bar.png'],
+                   style='default')
 def test_label_by_data_none():
     # Name is not given (names == [])
-    stocks_name = []
-    _label_by_line_test_helper(stocks_name)
+    names = []
+    _label_by_data_test_helper_line(names)
+    _label_by_data_test_helper_histogram(names)
+    _label_by_data_test_helper_bar(names)
 
 
-@image_comparison(['label_by_data_many.png'], style='default')
+@image_comparison(['label_by_data_many_line.png',
+                   'label_by_data_many_histogram.png',
+                   'label_by_data_many_bar.png'],
+                   style='default')
 def test_label_by_data_many():
     # Multiple names for label are given
     stocks_name = ['Apple', 'Microsoft', 'Xerox', 'Adobe']
-    _label_by_line_test_helper(stocks_name)
+    _label_by_data_test_helper_line(stocks_name)
+    names = ['lowest', 'low', 'high', 'highest']
+    _label_by_data_test_helper_histogram(names)
+    names = ['Mapel', 'Hazel', 'Willow', 'Birch']
+    _label_by_data_test_helper_bar(names)
 
 
-@image_comparison(['label_by_data_less.png', 'label_by_data_more.png'], style='default')
+@image_comparison(['label_by_data_less_line.png',
+                   'label_by_data_less_histogram.png',
+                   'label_by_data_less_bar.png',
+                   'label_by_data_more_line.png',
+                   'label_by_data_more_histogram.png',
+                   'label_by_data_more_bar.png'],
+                   style='default')
 def test_label_by_data_boundary():
     # len(names) < len(data)
-    stocks_name = ['Apple']
-    _label_by_line_test_helper(stocks_name)
+    _label_by_data_test_helper_line(['Apple'])
+    _label_by_data_test_helper_histogram(['lowest'])
+    _label_by_data_test_helper_bar(['Mapel'])
 
     # len(names) > len(data)
     stocks_name = ['Apple', 'Microsoft', 'Xerox', 'Adobe', 'Alphabet']
-    _label_by_line_test_helper(stocks_name)
+    _label_by_data_test_helper_line(stocks_name)
+    names = ['lowest', 'low', 'high', 'highest', 'medium']
+    _label_by_data_test_helper_histogram(names)
+    names = ['Mapel', 'Hazel', 'Willow', 'Birch', 'Oak']
+    _label_by_data_test_helper_bar(names)
 
 
 def generate_errorbar_inputs():
