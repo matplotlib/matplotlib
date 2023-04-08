@@ -174,7 +174,7 @@ def check_shape(_shape, **kwargs):
 
 def check_tuple(**kwargs):
     """
-    *kwargs* must consist of a tuple of length 2 containing two floating 
+    *kwargs* must consist of a tuple of length 2 containing two floating
     point numbers.
 
     Examples

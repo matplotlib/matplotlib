@@ -54,7 +54,14 @@ for nn, column in enumerate(stocks_ticker):
 
 date = np.datetime64('2022-10-01')
 
-ax.label_by_data(stocks_name, fig, stocks_ticker, stock_data, date)
+y_offsets = {k: 0 for k in stocks_ticker}
+y_offsets['IBM'] = 5
+y_offsets['AAPL'] = -5
+y_offsets['AMZN'] = -6
+
+color = 'pink'
+
+ax.label_by_data(stocks_name, fig, stocks_ticker, stock_data, date, y_offsets, color)
 
 ax.set_xlim(np.datetime64('1989-06-01'), np.datetime64('2023-01-01'))
 

@@ -8346,30 +8346,71 @@ such objects
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
 
-    def label_by_line(self, names, fig=None, labels=None, data=None, static_pos=None):
+    def label_by_data(self, names, fig=None, labels=None,
+                      data=None, static_pos=None, offsets=None, color='black'):
         """
-        Display the labels next to the line or on top of the bars.
+        Display the names of the labels next to the line or on top of the bars.
+
+        names : Array.
+          Names of the labels.
+
+        fig : Figure Object.
+          The fig associated with the graph.
+
+        labels : Array.
+          The column names of the line graph.
+
+        data : numpy array.
+          The input data associated with the line graph.
+
+        static_pos : float.
+          Position on the x axis to line the labels up with.
+
+        offsets : Array.
+          Offset of the y position of the labels.
+
+        color : String representing the color.
+          The color of the labels.
+
         """
         import matplotlib.pyplot as plt
 
-        try:
-            if (len(self.lines) > 0):
-                if isinstance(self.lines[0], plt.Line2D):
-                    for i, column in enumerate(labels):
+        # self represents a line graph
+        if (len(self.lines) > 0 and labels is not None and fig is not None):
+            if isinstance(self.lines[0], plt.Line2D):
+                # set offset to zero if none is provided
+                if (offsets is None):
+                    offsets = {k: 0 for k in labels}
 
-                        dynamic_pos = data[column][-1]
+                for i, column in enumerate(labels):
 
-                        trans = mtransforms.ScaledTranslation(0, 0, fig.dpi_scale_trans)
-                        trans = self.transData + trans
+                    dynamic_pos = data[column][-1]
 
+                    offset = offsets[column] / 72
+                    trans = mtransforms.ScaledTranslation(
+                        0, offset, fig.dpi_scale_trans)
+
+                    # transformation of labels
+                    trans = self.transData + trans
+
+                    if i < len(names):
+
+                        # add labels to figure
                         self.text(static_pos, dynamic_pos,
-                                  names[i], color='black', transform=trans)
+                                  names[i], color=color, transform=trans)
 
-            if (len(self.patches) > 0):
-                if isinstance(self.patches[0], plt.Rectangle):
-                    for i, column in enumerate(self.patches):
-                        self.text(self.patches[i].get_x() + (self.patches[i].get_width() / 2), self.patches[i].get_height(),
-                                  names[i], ha='center', va='bottom')
+        # self represents a bar graph
+        elif (len(self.patches) > 0):
+            if isinstance(self.patches[0], plt.Rectangle):
+                for i, column in enumerate(self.patches):
+                    if i < len(names):
 
-        except ValueError:
+                        # set position of labels
+                        x = self.patches[i].get_x() + (self.patches[i].get_width() / 2)
+
+                        # add labels to figure
+                        self.text(x, self.patches[i].get_height(), names[i],
+                                  ha='center', va='bottom')
+
+        else:
             print("Not a supported graph.")
