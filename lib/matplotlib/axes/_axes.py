@@ -8334,10 +8334,13 @@ such objects
         """
         import matplotlib.pyplot as plt
 
+        # self represents a line graph
         if (len(self.lines) > 0 and labels is not None and fig is not None):
             if isinstance(self.lines[0], plt.Line2D):
+                # set offset to zero if none is provided
                 if (offsets is None):
                     offsets = {k: 0 for k in labels}
+
                 for i, column in enumerate(labels):
 
                     dynamic_pos = data[column][-1]
@@ -8345,17 +8348,26 @@ such objects
                     offset = offsets[column] / 72
                     trans = mtransforms.ScaledTranslation(
                         0, offset, fig.dpi_scale_trans)
+
+                    # transformation of labels
                     trans = self.transData + trans
 
                     if i < len(names):
+
+                        # add labels to figure
                         self.text(static_pos, dynamic_pos,
                                   names[i], color=color, transform=trans)
 
+        # self represents a bar graph
         elif (len(self.patches) > 0):
             if isinstance(self.patches[0], plt.Rectangle):
                 for i, column in enumerate(self.patches):
                     if i < len(names):
+
+                        # set position of labels
                         x = self.patches[i].get_x() + (self.patches[i].get_width() / 2)
+
+                        # add labels to figure
                         self.text(x, self.patches[i].get_height(), names[i],
                                   ha='center', va='bottom')
 
