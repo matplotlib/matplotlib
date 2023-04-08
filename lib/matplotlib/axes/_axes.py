@@ -8334,7 +8334,7 @@ such objects
         """
         import matplotlib.pyplot as plt
 
-        if (len(self.lines) > 0 and labels != None and fig != None):
+        if (len(self.lines) > 0 and labels is not None and fig is not None):
             if isinstance(self.lines[0], plt.Line2D):
                 if (offsets is None):
                     offsets = {k: 0 for k in labels}

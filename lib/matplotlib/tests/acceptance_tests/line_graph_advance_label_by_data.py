@@ -17,7 +17,6 @@ code.
 """
 
 import numpy as np
-import matplotlib.transforms as mtransforms
 import matplotlib.pyplot as plt
 from matplotlib.cbook import get_sample_data
 
