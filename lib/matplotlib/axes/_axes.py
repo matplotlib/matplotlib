@@ -74,7 +74,7 @@ class Axes(_AxesBase):
         The view limits in data coordinates.
 
     """
-    ### Labelling, legend and texts
+    # Labelling, legend and texts
 
     def get_title(self, loc="center"):
         """
@@ -310,9 +310,9 @@ class Axes(_AxesBase):
         .. plot:: gallery/text_labels_and_annotations/legend.py
         """
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                [self],
-                *args,
-                **kwargs)
+            [self],
+            *args,
+            **kwargs)
         if len(extra_args):
             raise TypeError('legend only accepts two non-keyword arguments')
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
@@ -386,7 +386,7 @@ class Axes(_AxesBase):
         inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
         projection_class, pkw = self.figure._process_projection_requirements(
-                bounds, **kwargs)
+            bounds, **kwargs)
         inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
 
         # this locator lets the axes move if in data coordinates.
@@ -705,7 +705,7 @@ class Axes(_AxesBase):
         self._add_text(a)
         return a
     annotate.__doc__ = mtext.Annotation.__init__.__doc__
-    #### Lines and spans
+    # Lines and spans
 
     @_docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
@@ -1302,7 +1302,7 @@ class Axes(_AxesBase):
         """
 
         lineoffsets, linelengths = self._process_unit_info(
-                [("y", lineoffsets), ("y", linelengths)], kwargs)
+            [("y", lineoffsets), ("y", linelengths)], kwargs)
 
         # fix positions, noting that it can be a list of lists:
         if not np.iterable(positions):
@@ -1436,7 +1436,7 @@ class Axes(_AxesBase):
 
         return colls
 
-    #### Basic plotting
+    # Basic plotting
 
     # Uses a custom implementation of data-kwarg handling in
     # _process_plot_var_args.
@@ -2104,7 +2104,7 @@ class Axes(_AxesBase):
             b = None
         return lags, correls, a, b
 
-    #### Specialized plotting
+    # Specialized plotting
 
     # @_preprocess_data() # let 'plot' do the unpacking..
     def step(self, x, y, *args, where='pre', data=None, **kwargs):
@@ -2484,7 +2484,7 @@ class Axes(_AxesBase):
                 linewidth=lw,
                 label=lbl,
                 hatch=htch,
-                )
+            )
             r._internal_update(kwargs)
             r.get_path()._interpolation_steps = 100
             if orientation == 'vertical':
@@ -2532,7 +2532,73 @@ class Axes(_AxesBase):
 
         return bar_container
 
+    def labels_match_values(self, x, measurement):
+        """
+        Check if the number of labels matches the number of measurements.
+
+        Parameters
+        -----------
+        x : Array of integers
+            Entry for each type of bar in group.
+        measurement : Tuple of floats
+            Heights of the bars in a group.
+        """
+        if isinstance(measurement, int):
+            if (x.size > measurement):
+                raise ValueError("Not enough values provided.")
+        else:
+            if (x.size > len(measurement)):
+                raise ValueError("Not enough values provided.")
+            if (x.size < len(measurement)):
+                raise ValueError("Not enough groups provided.")
+
+    # starter code from feature 24313
+    def grouped_bar(self, x, heights, width, group_labels=None):
+        """
+        Add grouped bars to a bar graph. Each group has a bar from 
+        each possible type of bar. Can be labeled with the labels 
+        in grouped_bar.
+
+        Parameters
+        -----------
+        x : Array of integers
+            Entry for each type of bar in group.
+        heights : dictionary where key is string / value is tuple:
+            string: label representing the current type of bar.
+            tuple: heights of the bars corrresponding to that type bar.
+        width: Integer
+            Width of the bars
+        group_labels : array-like of str, optional
+            The labels of the data groups.
+        """
+        multiplier = 0
+
+        # Loop through the bars adding them to the currect group
+        for attribute, measurement in heights.items():
+
+            # Make sure number of bar type matches number of bars
+            self.labels_match_values(x, measurement)
+
+            # Get x position
+            offset = width * multiplier
+
+            # set bars
+            rects = self.bar(x + offset, measurement, width,
+                             label=attribute)
+            # set bar labels
+            self.bar_label(rects, padding=3)
+            multiplier += 1
+
+        if (group_labels != None):
+            if (x.size > 0):
+                if (x[-1] + 1 == len(group_labels)):
+                    # If enough group labels are given set group labels
+                    self.set_xticks(x + width, group_labels)
+            else:
+                raise ValueError("Not enough group labels provided.")
+
     # @_preprocess_data() # let 'bar' do the unpacking..
+
     @_docstring.dedent_interpd
     def barh(self, y, width, height=0.8, left=None, *, align="center",
              data=None, **kwargs):
@@ -4688,8 +4754,8 @@ default: :rc:`scatter.edgecolors`
             collection._scale_norm(norm, vmin, vmax)
         else:
             extra_kwargs = {
-                    'cmap': cmap, 'norm': norm, 'vmin': vmin, 'vmax': vmax
-                    }
+                'cmap': cmap, 'norm': norm, 'vmin': vmin, 'vmax': vmax
+            }
             extra_keys = [k for k, v in extra_kwargs.items() if v is not None]
             if any(extra_keys):
                 keys_str = ", ".join(f"'{k}'" for k in extra_keys)
@@ -5000,7 +5066,7 @@ default: :rc:`scatter.edgecolors`
                 polygons,
                 edgecolors=edgecolors,
                 linewidths=linewidths,
-                )
+            )
         else:
             collection = mcoll.PolyCollection(
                 [polygon],
@@ -5375,9 +5441,9 @@ default: :rc:`scatter.edgecolors`
             if interpolate:
                 def get_interp_point(idx):
                     im1 = max(idx - 1, 0)
-                    ind_values = ind[im1:idx+1]
-                    diff_values = dep1[im1:idx+1] - dep2[im1:idx+1]
-                    dep1_values = dep1[im1:idx+1]
+                    ind_values = ind[im1:idx + 1]
+                    diff_values = dep1[im1:idx + 1] - dep2[im1:idx + 1]
+                    dep1_values = dep1[im1:idx + 1]
 
                     if len(diff_values) == 2:
                         if np.ma.is_masked(diff_values[1]):
@@ -5405,10 +5471,10 @@ default: :rc:`scatter.edgecolors`
             pts[0] = start
             pts[N + 1] = end
 
-            pts[1:N+1, 0] = indslice
-            pts[1:N+1, 1] = dep1slice
-            pts[N+2:, 0] = indslice[::-1]
-            pts[N+2:, 1] = dep2slice[::-1]
+            pts[1:N + 1, 0] = indslice
+            pts[1:N + 1, 1] = dep1slice
+            pts[N + 2:, 0] = indslice[::-1]
+            pts[N + 2:, 1] = dep2slice[::-1]
 
             if ind_dir == "y":
                 pts = pts[:, ::-1]
@@ -5455,7 +5521,7 @@ default: :rc:`scatter.edgecolors`
         _docstring.dedent_interpd(fill_betweenx),
         replace_names=["y", "x1", "x2", "where"])
 
-    #### plotting z(x, y): imshow, pcolor and relatives, contour
+    # plotting z(x, y): imshow, pcolor and relatives, contour
 
     @_preprocess_data()
     @_docstring.interpd
@@ -5765,7 +5831,7 @@ default: :rc:`scatter.edgecolors`
                 def _interp_grid(X):
                     # helper for below
                     if np.shape(X)[1] > 1:
-                        dX = np.diff(X, axis=1)/2.
+                        dX = np.diff(X, axis=1) / 2.
                         if not (np.all(dX >= 0) or np.all(dX <= 0)):
                             _api.warn_external(
                                 f"The input coordinates to {funcname} are "
@@ -6486,7 +6552,7 @@ default: :rc:`scatter.edgecolors`
         """
         return CS.clabel(levels, **kwargs)
 
-    #### Data analysis
+    # Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
     def hist(self, x, bins=None, range=None, density=False, weights=None,
@@ -6845,7 +6911,7 @@ such objects
                     height = top - bottom
                 else:
                     height = top
-                bars = _barfunc(bins[:-1]+boffset, height, width,
+                bars = _barfunc(bins[:-1] + boffset, height, width,
                                 align='center', log=log,
                                 color=color, **{bottom_kwarg: bottom})
                 patches.append(bars)
@@ -6864,14 +6930,14 @@ such objects
             x = np.zeros(4 * len(bins) - 3)
             y = np.zeros(4 * len(bins) - 3)
 
-            x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
-            x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
+            x[0:2 * len(bins) - 1:2], x[1:2 * len(bins) - 1:2] = bins, bins[:-1]
+            x[2 * len(bins) - 1:] = x[1:2 * len(bins) - 1][::-1]
 
             if bottom is None:
                 bottom = 0
 
-            y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = bottom
-            y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+            y[1:2 * len(bins) - 1:2] = y[2:2 * len(bins):2] = bottom
+            y[2 * len(bins) - 1:] = y[1:2 * len(bins) - 1][::-1]
 
             if log:
                 if orientation == 'horizontal':
@@ -6880,9 +6946,9 @@ such objects
                     self.set_yscale('log', nonpositive='clip')
 
             if align == 'left':
-                x -= 0.5*(bins[1]-bins[0])
+                x -= 0.5 * (bins[1] - bins[0])
             elif align == 'right':
-                x += 0.5*(bins[1]-bins[0])
+                x += 0.5 * (bins[1] - bins[0])
 
             # If fill kwarg is set, it will be passed to the patch collection,
             # overriding this
@@ -6892,9 +6958,9 @@ such objects
             for top in tops:
                 if stacked:
                     # top of the previous polygon becomes the bottom
-                    y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+                    y[2 * len(bins) - 1:] = y[1:2 * len(bins) - 1][::-1]
                 # set the top of this polygon
-                y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = top + bottom
+                y[1:2 * len(bins) - 1:2] = y[2:2 * len(bins):2] = top + bottom
 
                 # The starting point of the polygon has not yet been
                 # updated. So far only the endpoint was adjusted. This
@@ -7778,7 +7844,7 @@ such objects
 
         if xextent is None:
             # padding is needed for first and last segment:
-            pad_xextent = (NFFT-noverlap) / Fs / 2
+            pad_xextent = (NFFT - noverlap) / Fs / 2
             xextent = np.min(t) - pad_xextent, np.max(t) + pad_xextent
         xmin, xmax = xextent
         freqs += Fc
@@ -8279,3 +8345,31 @@ such objects
         ll, ur = self.get_position() * figure_size
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
+
+    def label_by_line(self, names, fig=None, labels=None, data=None, static_pos=None):
+        """
+        Display the labels next to the line or on top of the bars.
+        """
+        import matplotlib.pyplot as plt
+
+        try:
+            if (len(self.lines) > 0):
+                if isinstance(self.lines[0], plt.Line2D):
+                    for i, column in enumerate(labels):
+
+                        dynamic_pos = data[column][-1]
+
+                        trans = mtransforms.ScaledTranslation(0, 0, fig.dpi_scale_trans)
+                        trans = self.transData + trans
+
+                        self.text(static_pos, dynamic_pos,
+                                  names[i], color='black', transform=trans)
+
+            if (len(self.patches) > 0):
+                if isinstance(self.patches[0], plt.Rectangle):
+                    for i, column in enumerate(self.patches):
+                        self.text(self.patches[i].get_x() + (self.patches[i].get_width() / 2), self.patches[i].get_height(),
+                                  names[i], ha='center', va='bottom')
+
+        except ValueError:
+            print("Not a supported graph.")
