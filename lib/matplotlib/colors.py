@@ -1380,6 +1380,25 @@ class Normalize:
     def scaled(self):
         """Return whether vmin and vmax are set."""
         return self.vmin is not None and self.vmax is not None
+    
+
+    def __eq__(self, other):
+        """Return the whether this norm and another norm share
+        the same attributes. 
+        
+        Examples include that Normalize of the same type with 
+        same settings such as a TwoSlopeNorm(0, -1, 1), will == true.
+        However comparisong of Normalizes without like attributes will
+        always eq false such as comparing a TwoSlopeNorm with a CenteredNorm
+
+        Explicitly even if two norms would return the same normalized results
+        we say that two norms are not equal if their attribute value pairs are
+        not equal, due to the chance of "lucky input".
+        """
+        #Cheeky List Comprehension
+        selfItems = {(attribute,value) for attribute, value in self.__dict__.items()}
+        otherItems = {(attribute,value) for attribute, value in other.__dict__.items()}
+        return selfItems == otherItems
 
 
 class TwoSlopeNorm(Normalize):

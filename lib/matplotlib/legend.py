@@ -688,8 +688,6 @@ class Legend(Artist):
         # _legend_box will draw itself at the location of the return
         # value of the find_offset.
         self._loc_used_default = False
-        loc = _api.check_tuple(loc=loc)
-
         self._loc_real = loc
         self.stale = True
         self._legend_box.set_offset(self._findoffset)
