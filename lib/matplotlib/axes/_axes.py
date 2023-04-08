@@ -5411,30 +5411,34 @@ default: :rc:`scatter.edgecolors`
                 start = indslice[0], dep2slice[0]
                 end = indslice[-1], dep2slice[-1]
 
-            pts = np.zeros((2 * (N + 3), 2))
+            pts = np.zeros((2 * (N + 4), 2))
             bottom, top = self.axes.get_ylim()
             if fill_above:
-                vertices = np.zeros((N + 3, 2))
-                vertices[1:N+1, 0] = indslice
-                vertices[1:N+1, 1] = np.amax(np.stack([dep1slice, dep2slice]), axis=0)
+                vertices = np.zeros((N + 4, 2))
+                vertices[2:N+2, 0] = indslice
+                vertices[2:N+2, 1] = np.amax(np.stack([dep1slice, dep2slice]), axis=0)
+                vertices[1] = [start[0], top]
                 vertices[0] = [start[0], top]
-                vertices[N+1] = [end[0], top]
                 vertices[N+2] = [end[0], top]
+                vertices[N+3] = [end[0], top]
                 if interpolate:
-                    vertices[N+1] = end
-                pts[:N+3] = vertices
+                    vertices[N+2] = end
+                    vertices[1] = start
+                pts[:N+4] = vertices
                 poly.append(vertices)
 
             if fill_below:
-                vertices = np.zeros((N + 3, 2))
-                vertices[1:N+1, 0] = indslice
-                vertices[1:N+1, 1] = np.amin(np.stack([dep1slice, dep2slice]), axis=0)
+                vertices = np.zeros((N + 4, 2))
+                vertices[2:N+2, 0] = indslice
+                vertices[2:N+2, 1] = np.amin(np.stack([dep1slice, dep2slice]), axis=0)
                 vertices[0] = [start[0], bottom]
-                vertices[N+1] = [end[0], bottom]
+                vertices[1] = [start[0], bottom]
                 vertices[N+2] = [end[0], bottom]
+                vertices[N+3] = [end[0], bottom]
                 if interpolate:
-                    vertices[N+1] = end
-                pts[N+3:] = vertices
+                    vertices[N+2] = end
+                    vertices[1] = start
+                pts[N+4:] = vertices
                 poly.append(vertices)
 
         collection = mcoll.PolyCollection(poly, **kwargs)
