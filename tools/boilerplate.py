@@ -251,6 +251,7 @@ def boilerplate_gen():
         'fill',
         'fill_above',
         'fill_below',
+        'fill_outside',
         'fill_between',
         'fill_betweenx',
         'grid',

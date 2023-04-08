@@ -5412,12 +5412,11 @@ default: :rc:`scatter.edgecolors`
                 start = indslice[0], dep2slice[0]
                 end = indslice[-1], dep2slice[-1]
 
+            bottom, top = self.axes.get_ylim()
             if fill_above:
                 vertices = np.zeros((N + 2, 2))
                 vertices[1:N+1, 0] = indslice
                 vertices[1:N+1, 1] = np.amax(np.stack([dep1slice, dep2slice]), axis=0)
-
-                top = self.axes.get_ylim()[1]
                 vertices[0] = [start[0], top]
                 vertices[N+1] = [end[0], top]
                 pts[:N+2] = vertices
@@ -5427,8 +5426,6 @@ default: :rc:`scatter.edgecolors`
                 vertices = np.zeros((N + 2, 2))
                 vertices[1:N+1, 0] = indslice
                 vertices[1:N+1, 1] = np.amin(np.stack([dep1slice, dep2slice]), axis=0)
-
-                bottom = self.axes.get_ylim()[0]
                 vertices[0] = [start[0], bottom]
                 vertices[N+1] = [end[0], bottom]
                 pts[N+2:] = vertices
@@ -5439,8 +5436,6 @@ default: :rc:`scatter.edgecolors`
         # now update the datalim and autoscale
         pts = np.row_stack([np.column_stack([ind[where], dep1[where]]),
                             np.column_stack([ind[where], dep2[where]])])
-        if ind_dir == "y":
-            pts = pts[:, ::-1]
         self.add_collection(collection, autolim=False)
         self._request_autoscale_view()
         return collection
