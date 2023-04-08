@@ -8,6 +8,7 @@ import io
 from itertools import product
 import platform
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import dateutil.tz
 
@@ -8431,3 +8432,94 @@ def test_zorder_and_explicit_rasterization():
     ln, = ax.plot(range(5), rasterized=True, zorder=1)
     with io.BytesIO() as b:
         fig.savefig(b, format='pdf')
+
+
+def test_validate_input_passes():
+    x = np.arange(0.0, 2, 0.01)
+    y1 = np.sin(2*np.pi*x)
+    y2 = 1.2*np.sin(4*np.pi*x)
+    plt.plot(x, y1, color='black')
+    plt.plot(x, y2, color='green')
+    ax = plt.axes()
+    ax.validate_input("y", x, y1, y2, where=y2 >= y1, facecolor='blue',
+                        interpolate=True)
+    
+def test_validate_input_fails_when_y_not_one_dimensional():
+    x = np.random.rand(10, 10)
+    y1 = np.random.rand(10, 10)
+    y2 = np.random.rand(10, 10)
+    plt.plot(x, y1, color='black')
+    plt.plot(x, y2, color='green')
+    ax = plt.axes()
+    with pytest.raises(ValueError,
+                       match="'y' is not 1-dimensional"):
+                ax.validate_input("y", x, y1, y2, where=y2 >= y1, facecolor='blue',
+                        interpolate=True)
+                
+def test_validate_input_fails_when_where_array_not_the_same_size_input_array():
+    x = np.arange(0.0, 2, 0.01)
+    y1 = np.sin(2*np.pi*x)
+    y2 = 1.2*np.sin(4*np.pi*x)
+    # create a boolean array of size 100x100
+    where = np.zeros((100, 100), dtype=bool)
+    # set some elements to True
+    where[25:75, 10:90] = True
+    plt.plot(x, y1, color='black')
+    plt.plot(x, y2, color='green')
+    ax = plt.axes()
+    with pytest.raises(ValueError):
+                ax.validate_input("y", x, y1, y2, where=where, facecolor='blue',
+                        interpolate=True)
+    
+def test_get_interp_point():
+    idx = 5
+    ind = np.linspace(0, 2, 20)
+    dep1 = np.sin(ind)
+    dep2 = np.cos(ind)
+    ax = plt.axes()
+    interp_x, interp_y = ax.get_interp_point(idx, ind, dep1, dep2)
+
+    assert interp_x > ind[idx-1] and interp_x < ind[idx+1]
+
+    interp_y_expected = np.interp(interp_x, ind[idx-1:idx+2], dep1[idx-1:idx+2])
+    assert np.isclose(interp_y, interp_y_expected)
+
+def test_fill_above_calls_fill_above_or_below_x_or_y_with_correct_params():
+    x = np.arange(0.0, 2, 0.01)
+    y1 = np.sin(2*np.pi*x)
+    y2 = 1.2*np.sin(4*np.pi*x)
+    where = y2 >= y1
+    ax = plt.axes()
+    with patch.object(ax, '_fill_above_or_below_x_or_y') as mock_method:
+        ax.fill_above(x, y1, y2, where=where, interpolate=True, step=None,
+                      facecolor='blue')
+        mock_method.assert_called_once_with("y", x, y1, y2, where=where,
+                                             interpolate=True, step=None,
+                                             fill_above=True, fill_below=False,
+                                             facecolor='blue')
+        
+def test_fill_below_calls_fill_above_or_below_x_or_y_with_correct_params():
+    x = np.arange(0.0, 2, 0.01)
+    y1 = np.sin(2*np.pi*x)
+    y2 = 1.2*np.sin(4*np.pi*x)
+    where = y2 >= y1
+    ax = plt.axes()
+    with patch.object(ax, '_fill_above_or_below_x_or_y') as mock_method:
+        ax.fill_below(x, y1, y2, where=where, interpolate=True, step=None, color='blue')
+        mock_method.assert_called_once_with("y", x, y1, y2, where=where,
+                                             interpolate=True, step=None,
+                                             fill_above=False, fill_below=True,
+                                             color='blue')
+
+def test_fill_outside_calls_fill_above_or_below_x_or_y_with_correct_params():
+    x = np.arange(0.0, 2, 0.01)
+    y1 = np.sin(2*np.pi*x)
+    y2 = 1.2*np.sin(4*np.pi*x)
+    where = y2 >= y1
+    ax = plt.axes()
+    with patch.object(ax, '_fill_above_or_below_x_or_y') as mock_method:
+        ax.fill_outside(x, y1, y2, where=where, interpolate=True, step=None, color='blue')
+        mock_method.assert_called_once_with("y", x, y1, y2, where=where,
+                                             interpolate=True, step=None,
+                                             fill_above=True, fill_below=True,
+                                             color='blue')
