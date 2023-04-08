@@ -5294,6 +5294,95 @@ default: :rc:`scatter.edgecolors`
     def _fill_above_or_below_x_or_y(
             self, ind_dir, ind, dep1, dep2=0, *, where=None, interpolate=False,
             step=None, fill_above=False, fill_below=False, **kwargs):
+        """
+        Fill the area above and/or below two {dir} curves.
+
+        The curves are defined by the points (*{ind}*, *{dep}1*) and (*{ind}*,
+        *{dep}2*) and along with the points representing
+
+        You may exclude some {dir} sections from filling using *where*.
+
+        By default, the edges connect the given points directly.  Use *step*
+        if the filling should be a step function, i.e. constant in between
+        *{ind}*.
+
+        Parameters
+        ----------
+        {ind} : array (length N)
+            The {ind} coordinates of the nodes defining the curves.
+
+        {dep}1 : array (length N) or scalar
+            The {dep} coordinates of the nodes defining the first curve.
+
+        {dep}2 : array (length N) or scalar, default: 0
+            The {dep} coordinates of the nodes defining the second curve.
+
+        where : array of bool (length N), optional
+            Define *where* to exclude some {dir} regions from being filled.
+            The filled regions are defined by the coordinates ``{ind}[where]``.
+            More precisely, fill between ``{ind}[i]`` and ``{ind}[i+1]`` if
+            ``where[i] and where[i+1]``.  Note that this definition implies
+            that an isolated *True* value between two *False* values in *where*
+            will not result in filling.  Both sides of the *True* position
+            remain unfilled due to the adjacent *False* values.
+
+        interpolate : bool, default: False
+            This option is only relevant if *where* is used and the two curves
+            are crossing each other.
+
+            Semantically, *where* is often used for *{dep}1* > *{dep}2* or
+            similar.  By default, the nodes of the polygon defining the filled
+            region will only be placed at the positions in the *{ind}* array.
+            Such a polygon cannot describe the above semantics close to the
+            intersection.  The {ind}-sections containing the intersection are
+            simply clipped.
+
+            Setting *interpolate* to *True* will calculate the actual
+            intersection point and extend the filled region up to this point.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+            Define *step* if the filling should be a step function,
+            i.e. constant in between *{ind}*.  The value determines where the
+            step will occur:
+
+            - 'pre': The y value is continued constantly to the left from
+              every *x* position, i.e. the interval ``(x[i-1], x[i]]`` has the
+              value ``y[i]``.
+            - 'post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[x[i], x[i+1])`` has the
+              value ``y[i]``.
+            - 'mid': Steps occur half-way between the *x* positions.
+
+        fill_above : bool, default : False
+            Defines whether or not the area above the two curves should be filled
+
+        fill_below : bool, default : False
+            Defines whether or not the area below the two curves should be filled
+
+        Returns
+        -------
+        `.PolyCollection`
+            A `.PolyCollection` containing the plotted polygons.
+
+        Other Parameters
+        ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs
+            All other keyword arguments are passed on to `.PolyCollection`.
+            They control the `.Polygon` properties:
+
+            %(PolyCollection:kwdoc)s
+
+        See Also
+        --------
+        fill_above : Fill above two lines / curves.
+        fill_below : Fill below two lines / curves.
+        fill_outside : Fill above and below two lines / curves.
+        """
+        if not fill_above and not fill_below:
+            return
 
         ind, dep1, dep2, where = self.validate_input(ind_dir, ind, dep1, dep2,
                                                      where, **kwargs)
@@ -5344,9 +5433,6 @@ default: :rc:`scatter.edgecolors`
                 vertices[N+1] = [end[0], bottom]
                 pts[N+2:] = vertices
                 poly.append(vertices)
-
-                if ind_dir == "y":
-                    pts = pts[:, ::-1]
 
         collection = mcoll.PolyCollection(poly, **kwargs)
 
