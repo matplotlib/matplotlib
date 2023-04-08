@@ -8433,7 +8433,7 @@ def test_zorder_and_explicit_rasterization():
         fig.savefig(b, format='pdf')
 
 
-def test_validate_input():
+def test_validate_input_passes():
     x = np.arange(0.0, 2, 0.01)
     y1 = np.sin(2*np.pi*x)
     y2 = 1.2*np.sin(4*np.pi*x)
@@ -8470,3 +8470,15 @@ def test_validate_input_fails_when_where_array_not_the_same_size_input_array():
                 ax.validate_input("y", x, y1, y2, where=where, facecolor='blue',
                         interpolate=True)
     
+def test_get_interp_point():
+    idx = 5
+    ind = np.linspace(0, 2, 20)
+    dep1 = np.sin(ind)
+    dep2 = np.cos(ind)
+    ax = plt.axes()
+    interp_x, interp_y = ax.get_interp_point(idx, ind, dep1, dep2)
+
+    assert interp_x > ind[idx-1] and interp_x < ind[idx+1]
+
+    interp_y_expected = np.interp(interp_x, ind[idx-1:idx+2], dep1[idx-1:idx+2])
+    assert np.isclose(interp_y, interp_y_expected)
