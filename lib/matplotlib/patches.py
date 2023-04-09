@@ -349,6 +349,7 @@ class Patch(artist.Artist):
     def set_facecolor(self, color):
         """
         Set the patch face color.
+        If facecolor is already set, the latest color will be applied.
 
         Parameters
         ----------

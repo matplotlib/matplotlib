@@ -74,7 +74,7 @@ class Axes(_AxesBase):
         The view limits in data coordinates.
 
     """
-    ### Labelling, legend and texts
+    # Labelling, legend and texts
 
     def get_title(self, loc="center"):
         """
@@ -310,9 +310,9 @@ class Axes(_AxesBase):
         .. plot:: gallery/text_labels_and_annotations/legend.py
         """
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                [self],
-                *args,
-                **kwargs)
+            [self],
+            *args,
+            **kwargs)
         if len(extra_args):
             raise TypeError('legend only accepts two non-keyword arguments')
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
@@ -386,7 +386,7 @@ class Axes(_AxesBase):
         inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
         projection_class, pkw = self.figure._process_projection_requirements(
-                bounds, **kwargs)
+            bounds, **kwargs)
         inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
 
         # this locator lets the axes move if in data coordinates.
@@ -705,7 +705,7 @@ class Axes(_AxesBase):
         self._add_text(a)
         return a
     annotate.__doc__ = mtext.Annotation.__init__.__doc__
-    #### Lines and spans
+    # Lines and spans
 
     @_docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
@@ -1302,7 +1302,7 @@ class Axes(_AxesBase):
         """
 
         lineoffsets, linelengths = self._process_unit_info(
-                [("y", lineoffsets), ("y", linelengths)], kwargs)
+            [("y", lineoffsets), ("y", linelengths)], kwargs)
 
         # fix positions, noting that it can be a list of lists:
         if not np.iterable(positions):
@@ -1436,7 +1436,7 @@ class Axes(_AxesBase):
 
         return colls
 
-    #### Basic plotting
+    # Basic plotting
 
     # Uses a custom implementation of data-kwarg handling in
     # _process_plot_var_args.
@@ -2104,7 +2104,7 @@ class Axes(_AxesBase):
             b = None
         return lags, correls, a, b
 
-    #### Specialized plotting
+    # Specialized plotting
 
     # @_preprocess_data() # let 'plot' do the unpacking..
     def step(self, x, y, *args, where='pre', data=None, **kwargs):
@@ -2484,7 +2484,7 @@ class Axes(_AxesBase):
                 linewidth=lw,
                 label=lbl,
                 hatch=htch,
-                )
+            )
             r._internal_update(kwargs)
             r.get_path()._interpolation_steps = 100
             if orientation == 'vertical':
@@ -2532,7 +2532,73 @@ class Axes(_AxesBase):
 
         return bar_container
 
+    def labels_match_values(self, x, measurement):
+        """
+        Check if the number of labels matches the number of measurements.
+
+        Parameters
+        -----------
+        x : Array of integers
+            Entry for each type of bar in group.
+        measurement : Tuple of floats
+            Heights of the bars in a group.
+        """
+        if isinstance(measurement, int):
+            if (x.size > measurement):
+                raise ValueError("Not enough values provided.")
+        else:
+            if (x.size > len(measurement)):
+                raise ValueError("Not enough values provided.")
+            if (x.size < len(measurement)):
+                raise ValueError("Not enough groups provided.")
+
+    # starter code from feature 24313
+    def grouped_bar(self, x, heights, width, group_labels=None):
+        """
+        Add grouped bars to a bar graph. Each group has a bar from 
+        each possible type of bar. Can be labeled with the labels 
+        in grouped_bar.
+
+        Parameters
+        -----------
+        x : Array of integers
+            Entry for each type of bar in group.
+        heights : dictionary where key is string / value is tuple:
+            string: label representing the current type of bar.
+            tuple: heights of the bars corrresponding to that type bar.
+        width: Integer
+            Width of the bars
+        group_labels : array-like of str, optional
+            The labels of the data groups.
+        """
+        multiplier = 0
+
+        # Loop through the bars adding them to the currect group
+        for attribute, measurement in heights.items():
+
+            # Make sure number of bar type matches number of bars
+            self.labels_match_values(x, measurement)
+
+            # Get x position
+            offset = width * multiplier
+
+            # set bars
+            rects = self.bar(x + offset, measurement, width,
+                             label=attribute)
+            # set bar labels
+            self.bar_label(rects, padding=3)
+            multiplier += 1
+
+        if (group_labels != None):
+            if (x.size > 0):
+                if (x[-1] + 1 == len(group_labels)):
+                    # If enough group labels are given set group labels
+                    self.set_xticks(x + width, group_labels)
+            else:
+                raise ValueError("Not enough group labels provided.")
+
     # @_preprocess_data() # let 'bar' do the unpacking..
+
     @_docstring.dedent_interpd
     def barh(self, y, width, height=0.8, left=None, *, align="center",
              data=None, **kwargs):
@@ -3718,7 +3784,7 @@ class Axes(_AxesBase):
                 labels=None, flierprops=None, medianprops=None,
                 meanprops=None, capprops=None, whiskerprops=None,
                 manage_ticks=True, autorange=False, zorder=None,
-                capwidths=None):
+                capwidths=None, facecolor=None):
         """
         Draw a box and whisker plot.
 
@@ -3888,6 +3954,8 @@ class Axes(_AxesBase):
             The style of the caps.
         capwidths : float or array, default: None
             The widths of the caps.
+        facecolor : string or array of strings, default: None
+            The facecolor of the box.
         boxprops : dict, default: None
             The style of the box.
         whiskerprops : dict, default: None
@@ -4017,7 +4085,7 @@ class Axes(_AxesBase):
                            meanline=meanline, showfliers=showfliers,
                            capprops=capprops, whiskerprops=whiskerprops,
                            manage_ticks=manage_ticks, zorder=zorder,
-                           capwidths=capwidths)
+                           capwidths=capwidths, facecolor=facecolor)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
@@ -4026,7 +4094,7 @@ class Axes(_AxesBase):
             boxprops=None, whiskerprops=None, flierprops=None,
             medianprops=None, capprops=None, meanprops=None,
             meanline=False, manage_ticks=True, zorder=None,
-            capwidths=None):
+            capwidths=None, facecolor=None):
         """
         Drawing function for box and whisker plots.
 
@@ -4067,6 +4135,11 @@ class Axes(_AxesBase):
         capwidths : float or array-like, default: None
           Either a scalar or a vector and sets the width of each cap.
           The default is ``0.5*(with of the box)``, see *widths*.
+
+        facecolor : string or array of strings, default: None
+          If string, then all boxes have same color. If array, the boxes
+          will cycle through the sequence of colors.
+          The default is None, so the box will not be filled.
 
         vert : bool, default: True
           If `True` (default), makes the boxes vertical.
@@ -4207,6 +4280,8 @@ class Axes(_AxesBase):
         elif len(capwidths) != N:
             raise ValueError(datashape_message.format("capwidths"))
 
+        # if facecolor variable is an array of colors
+        facecolor_index = 0
         for pos, width, stats, capwidth in zip(positions, widths, bxpstats,
                                                capwidths):
             # try to find a new label
@@ -4248,7 +4323,19 @@ class Axes(_AxesBase):
             # maybe draw the box
             if showbox:
                 do_box = do_patch if patch_artist else do_plot
-                boxes.append(do_box(box_x, box_y, **box_kw))
+                box = do_box(box_x, box_y, **box_kw)
+                # if facecolor is given
+                if not (facecolor is None):
+                    if isinstance(facecolor, list):
+                        # if facecolor is a list of colors
+                        if facecolor_index < len(facecolor):
+                            box.set_facecolor(facecolor[facecolor_index])
+                            facecolor_index += 1
+                    elif isinstance(facecolor, str):
+                        # if facecolor is a color
+                        box.set_facecolor(facecolor)
+                    # if type is not str or list, don't fill the color
+                boxes.append(box)
             # draw the whiskers
             whiskers.append(do_plot(whis_x, whislo_y, **whisker_kw))
             whiskers.append(do_plot(whis_x, whishi_y, **whisker_kw))
@@ -4688,8 +4775,8 @@ default: :rc:`scatter.edgecolors`
             collection._scale_norm(norm, vmin, vmax)
         else:
             extra_kwargs = {
-                    'cmap': cmap, 'norm': norm, 'vmin': vmin, 'vmax': vmax
-                    }
+                'cmap': cmap, 'norm': norm, 'vmin': vmin, 'vmax': vmax
+            }
             extra_keys = [k for k, v in extra_kwargs.items() if v is not None]
             if any(extra_keys):
                 keys_str = ", ".join(f"'{k}'" for k in extra_keys)
@@ -5000,7 +5087,7 @@ default: :rc:`scatter.edgecolors`
                 polygons,
                 edgecolors=edgecolors,
                 linewidths=linewidths,
-                )
+            )
         else:
             collection = mcoll.PolyCollection(
                 [polygon],
@@ -5596,10 +5683,10 @@ default: :rc:`scatter.edgecolors`
             pts[0] = start
             pts[N + 1] = end
 
-            pts[1:N+1, 0] = indslice
-            pts[1:N+1, 1] = dep1slice
-            pts[N+2:, 0] = indslice[::-1]
-            pts[N+2:, 1] = dep2slice[::-1]
+            pts[1:N + 1, 0] = indslice
+            pts[1:N + 1, 1] = dep1slice
+            pts[N + 2:, 0] = indslice[::-1]
+            pts[N + 2:, 1] = dep2slice[::-1]
 
             if ind_dir == "y":
                 pts = pts[:, ::-1]
@@ -5646,7 +5733,7 @@ default: :rc:`scatter.edgecolors`
         _docstring.dedent_interpd(fill_betweenx),
         replace_names=["y", "x1", "x2", "where"])
 
-    #### plotting z(x, y): imshow, pcolor and relatives, contour
+    # plotting z(x, y): imshow, pcolor and relatives, contour
 
     @_preprocess_data()
     @_docstring.interpd
@@ -5956,7 +6043,7 @@ default: :rc:`scatter.edgecolors`
                 def _interp_grid(X):
                     # helper for below
                     if np.shape(X)[1] > 1:
-                        dX = np.diff(X, axis=1)/2.
+                        dX = np.diff(X, axis=1) / 2.
                         if not (np.all(dX >= 0) or np.all(dX <= 0)):
                             _api.warn_external(
                                 f"The input coordinates to {funcname} are "
@@ -6677,7 +6764,7 @@ default: :rc:`scatter.edgecolors`
         """
         return CS.clabel(levels, **kwargs)
 
-    #### Data analysis
+    # Data analysis
 
     @_preprocess_data(replace_names=["x", 'weights'], label_namer="x")
     def hist(self, x, bins=None, range=None, density=False, weights=None,
@@ -7036,7 +7123,7 @@ such objects
                     height = top - bottom
                 else:
                     height = top
-                bars = _barfunc(bins[:-1]+boffset, height, width,
+                bars = _barfunc(bins[:-1] + boffset, height, width,
                                 align='center', log=log,
                                 color=color, **{bottom_kwarg: bottom})
                 patches.append(bars)
@@ -7055,14 +7142,14 @@ such objects
             x = np.zeros(4 * len(bins) - 3)
             y = np.zeros(4 * len(bins) - 3)
 
-            x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
-            x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
+            x[0:2 * len(bins) - 1:2], x[1:2 * len(bins) - 1:2] = bins, bins[:-1]
+            x[2 * len(bins) - 1:] = x[1:2 * len(bins) - 1][::-1]
 
             if bottom is None:
                 bottom = 0
 
-            y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = bottom
-            y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+            y[1:2 * len(bins) - 1:2] = y[2:2 * len(bins):2] = bottom
+            y[2 * len(bins) - 1:] = y[1:2 * len(bins) - 1][::-1]
 
             if log:
                 if orientation == 'horizontal':
@@ -7071,9 +7158,9 @@ such objects
                     self.set_yscale('log', nonpositive='clip')
 
             if align == 'left':
-                x -= 0.5*(bins[1]-bins[0])
+                x -= 0.5 * (bins[1] - bins[0])
             elif align == 'right':
-                x += 0.5*(bins[1]-bins[0])
+                x += 0.5 * (bins[1] - bins[0])
 
             # If fill kwarg is set, it will be passed to the patch collection,
             # overriding this
@@ -7083,9 +7170,9 @@ such objects
             for top in tops:
                 if stacked:
                     # top of the previous polygon becomes the bottom
-                    y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+                    y[2 * len(bins) - 1:] = y[1:2 * len(bins) - 1][::-1]
                 # set the top of this polygon
-                y[1:2*len(bins)-1:2] = y[2:2*len(bins):2] = top + bottom
+                y[1:2 * len(bins) - 1:2] = y[2:2 * len(bins):2] = top + bottom
 
                 # The starting point of the polygon has not yet been
                 # updated. So far only the endpoint was adjusted. This
@@ -7969,7 +8056,7 @@ such objects
 
         if xextent is None:
             # padding is needed for first and last segment:
-            pad_xextent = (NFFT-noverlap) / Fs / 2
+            pad_xextent = (NFFT - noverlap) / Fs / 2
             xextent = np.min(t) - pad_xextent, np.max(t) + pad_xextent
         xmin, xmax = xextent
         freqs += Fc
@@ -8470,3 +8557,72 @@ such objects
         ll, ur = self.get_position() * figure_size
         width, height = ur - ll
         return height / (width * self.get_data_ratio())
+
+    def label_by_data(self, names, fig=None, labels=None,
+                      data=None, static_pos=None, offsets=None, color='black'):
+        """
+        Display the names of the labels next to the line or on top of the bars.
+
+        names : Array.
+          Names of the labels.
+
+        fig : Figure Object.
+          The fig associated with the graph.
+
+        labels : Array.
+          The column names of the line graph.
+
+        data : numpy array.
+          The input data associated with the line graph.
+
+        static_pos : float.
+          Position on the x axis to line the labels up with.
+
+        offsets : Array.
+          Offset of the y position of the labels.
+
+        color : String representing the color.
+          The color of the labels.
+
+        """
+        import matplotlib.pyplot as plt
+
+        # self represents a line graph
+        if (len(self.lines) > 0 and labels is not None and fig is not None):
+            if isinstance(self.lines[0], plt.Line2D):
+                # set offset to zero if none is provided
+                if (offsets is None):
+                    offsets = {k: 0 for k in labels}
+
+                for i, column in enumerate(labels):
+
+                    dynamic_pos = data[column][-1]
+
+                    offset = offsets[column] / 72
+                    trans = mtransforms.ScaledTranslation(
+                        0, offset, fig.dpi_scale_trans)
+
+                    # transformation of labels
+                    trans = self.transData + trans
+
+                    if i < len(names):
+
+                        # add labels to figure
+                        self.text(static_pos, dynamic_pos,
+                                  names[i], color=color, transform=trans)
+
+        # self represents a bar graph
+        elif (len(self.patches) > 0):
+            if isinstance(self.patches[0], plt.Rectangle):
+                for i, column in enumerate(self.patches):
+                    if i < len(names):
+
+                        # set position of labels
+                        x = self.patches[i].get_x() + (self.patches[i].get_width() / 2)
+
+                        # add labels to figure
+                        self.text(x, self.patches[i].get_height(), names[i],
+                                  ha='center', va='bottom')
+
+        else:
+            print("Not a supported graph.")

@@ -1510,6 +1510,7 @@ class _AxesBase(martist.Artist):
     def set_facecolor(self, color):
         """
         Set the facecolor of the Axes.
+        If facecolor is already set, the latest color will be applied.
 
         Parameters
         ----------
