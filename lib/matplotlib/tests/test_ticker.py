@@ -11,6 +11,7 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+from matplotlib._api import MatplotlibDeprecationWarning
 
 
 class TestMaxNLocator:
@@ -233,9 +234,11 @@ class TestLogLocator:
         See if change was successful. Should not raise exception.
         """
         loc = mticker.LogLocator()
-        loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4)
+        with pytest.warns(MatplotlibDeprecationWarning, match="numdecs"):
+            loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4)
         assert loc.numticks == 7
-        assert loc.numdecs == 8
+        with pytest.warns(MatplotlibDeprecationWarning, match="numdecs"):
+            assert loc.numdecs == 8
         assert loc._base == 4
         assert list(loc._subs) == [2.0]
 
