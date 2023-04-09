@@ -5412,7 +5412,11 @@ default: :rc:`scatter.edgecolors`
                 end = indslice[-1], dep2slice[-1]
 
             pts = np.zeros((2 * (N + 4), 2))
+
+            # Get top and bottom of plot view
             bottom, top = self.axes.get_ylim()
+
+            # Fill area above lines
             if fill_above:
                 vertices = np.zeros((N + 4, 2))
                 vertices[2:N+2, 0] = indslice
@@ -5427,6 +5431,7 @@ default: :rc:`scatter.edgecolors`
                 pts[:N+4] = vertices
                 poly.append(vertices)
 
+            # Fill area below lines
             if fill_below:
                 vertices = np.zeros((N + 4, 2))
                 vertices[2:N+2, 0] = indslice
