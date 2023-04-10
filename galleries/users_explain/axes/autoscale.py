@@ -29,12 +29,14 @@ ax.plot(x, y)
 # %%
 # Margins
 # -------
-# The default margin around the data limits is 5%:
+# The default margin around the data limits is 5%, which is based on the default
+# configuration setting of rcParam:
 
 print(ax.margins())
 
 # %%
-# The margins can be made larger using `~matplotlib.axes.Axes.margins`:
+# The margin size can be overridden to make them smaller or larger using
+# `~matplotlib.axes.Axes.margins`:
 
 fig, ax = plt.subplots()
 ax.plot(x, y)
