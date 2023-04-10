@@ -260,8 +260,6 @@ class Colorbar:
     drawedges : bool
         Whether to draw lines at color boundaries.
 
-    filled : bool
-
     %(_colormap_kw_doc)s
 
     location : None or {'left', 'right', 'top', 'bottom'}
