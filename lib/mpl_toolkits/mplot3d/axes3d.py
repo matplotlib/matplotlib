@@ -1319,13 +1319,10 @@ class Axes3D(Axes):
 
     # Axes rectangle characteristics
 
-    def get_frame_on(self):
-        """Currently not implemented for 3D axes, and returns *None*."""
-        return None
-
-    def set_frame_on(self, b):
-        """Currently not implemented for 3D axes, and returns *None*."""
-        return None
+    # The frame_on methods are not available for 3D axes.
+    # Python will raise a TypeError if they are called.
+    get_frame_on = None
+    set_frame_on = None
 
     def grid(self, visible=True, **kwargs):
         """
