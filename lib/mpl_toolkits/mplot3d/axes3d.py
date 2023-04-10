@@ -1319,6 +1319,14 @@ class Axes3D(Axes):
 
     # Axes rectangle characteristics
 
+    def get_frame_on(self):
+        """Currently not implemented for 3D axes, and returns *None*."""
+        return None
+
+    def set_frame_on(self, b):
+        """Currently not implemented for 3D axes, and returns *None*."""
+        return None
+
     def grid(self, visible=True, **kwargs):
         """
         Set / unset 3D grid.
