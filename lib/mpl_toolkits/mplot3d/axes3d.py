@@ -2158,7 +2158,7 @@ class Axes3D(Axes):
         self._auto_scale_contourf(X, Y, Z, zdir, levels, had_data)
         return cset
 
-    def add_collection3d(self, col, zs=0, zdir='z'):
+    def add_collection3d(self, col, zs=0, zdir='z', autolim=True):
         """
         Add a 3D collection object to the plot.
 
@@ -2171,6 +2171,9 @@ class Axes3D(Axes):
         - LineCollection
         - PatchCollection
         """
+
+        had_data = self.has_data()
+
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
                     else 0)  # FIXME: arbitrary default
@@ -2178,8 +2181,16 @@ class Axes3D(Axes):
         # FIXME: use issubclass() (although, then a 3D collection
         #       object would also pass.)  Maybe have a collection3d
         #       abstract class to test for and exclude?
+
+        if autolim and type(col) is art3d.Line3DCollection:
+            # Calcuate bounds of Line3DCollection:
+            tSeg = np.array(col._segments3d)  # Copy Coordinates
+            # Unpack, and format coordinates, for passing to auto_scale_xyz:
+            self.auto_scale_xyz(*tSeg[:, 0].transpose(), had_data=had_data)
         if type(col) is mcoll.PolyCollection:
             art3d.poly_collection_2d_to_3d(col, zs=zs, zdir=zdir)
+            if autolim:  # calculate bounds of poly collection:
+                self.auto_scale_xyz(*col._vec[:-1], had_data=had_data)
             col.set_sort_zpos(zsortval)
         elif type(col) is mcoll.LineCollection:
             art3d.line_collection_2d_to_3d(col, zs=zs, zdir=zdir)
@@ -2187,8 +2198,8 @@ class Axes3D(Axes):
         elif type(col) is mcoll.PatchCollection:
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
             col.set_sort_zpos(zsortval)
-
         collection = super().add_collection(col)
+
         return collection
 
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
