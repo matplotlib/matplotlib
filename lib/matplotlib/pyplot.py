@@ -82,7 +82,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import datetime
-    import io
     import pathlib
     import os
 
@@ -90,7 +89,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
     from typing import (
-        Any, Callable, Hashable, Literal, Sequence, Iterable, Type, Generator
+        Any, BinaryIO, Callable, Hashable, Literal, Sequence, Iterable, Type
     )
 
     from matplotlib.axis import Tick
@@ -2289,13 +2288,15 @@ def set_cmap(cmap: Colormap | str) -> None:
 
 
 @_copy_docstring_and_deprecators(matplotlib.image.imread)
-def imread(fname: str | io.FileIO, format: str | None = None) -> np.ndarray:
+def imread(
+        fname: str | pathlib.Path | BinaryIO, format: str | None = None
+) -> np.ndarray:
     return matplotlib.image.imread(fname, format)
 
 
 @_copy_docstring_and_deprecators(matplotlib.image.imsave)
 def imsave(
-    fname: str | os.PathLike | io.FileIO, arr: ArrayLike, **kwargs
+    fname: str | os.PathLike | BinaryIO, arr: ArrayLike, **kwargs
 ) -> None:
     return matplotlib.image.imsave(fname, arr, **kwargs)
 

@@ -1,6 +1,5 @@
 from enum import Enum, IntEnum
 import os
-import io
 from matplotlib import (
     cbook,
     colors,
@@ -27,7 +26,7 @@ from matplotlib.text import Text
 from matplotlib.transforms import Affine2D, Transform, TransformedPath, Bbox
 
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any, Literal, NamedTuple, TypeVar
+from typing import Any, IO, Literal, NamedTuple, TypeVar
 from numpy.typing import ArrayLike
 from .typing import ColorType, LineStyleType
 
@@ -347,7 +346,7 @@ class FigureCanvasBase:
     def get_supported_filetypes_grouped(cls) -> dict[str, list[str]]: ...
     def print_figure(
         self,
-        filename: str | os.PathLike | io.FileIO,
+        filename: str | os.PathLike | IO,
         dpi: float | None = ...,
         facecolor: ColorType | Literal["auto"] | None = ...,
         edgecolor: ColorType | Literal["auto"] | None = ...,
