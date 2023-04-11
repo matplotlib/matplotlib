@@ -11,6 +11,7 @@ import os
 import re
 import types
 import unicodedata
+import string
 
 import numpy as np
 from pyparsing import (
@@ -1811,6 +1812,11 @@ class Parser:
     _right_delims = set(r") ] \} > \rfloor \rangle \rceil".split())
     _delims = _left_delims | _right_delims | _ambi_delims
 
+    _small_greek = set([unicodedata.name(chr(i)).split()[-1].lower() for i in
+                       range(ord('\N{GREEK SMALL LETTER ALPHA}'),
+                             ord('\N{GREEK SMALL LETTER OMEGA}') + 1)])
+    _latin_alphabets = set(string.ascii_letters)
+
     def __init__(self):
         p = types.SimpleNamespace()
 
@@ -1933,6 +1939,9 @@ class Parser:
 
         p.operatorname = cmd(r"\operatorname", "{" + ZeroOrMore(p.simple)("name") + "}")
 
+        p.boldsymbol = cmd(
+            r"\boldsymbol", "{" + ZeroOrMore(p.simple)("value") + "}")
+
         p.placeable     <<= (
             p.accent     # Must be before symbol as all accents are symbols
             | p.symbol   # Must be second to catch all named symbols and single
@@ -1949,6 +1958,7 @@ class Parser:
             | p.sqrt
             | p.overline
             | p.text
+            | p.boldsymbol
         )
 
         p.auto_delim    <<= (
@@ -2597,3 +2607,29 @@ class Parser:
             # if "mid" in toks ... can be removed when requiring pyparsing 3.
             toks["mid"].asList() if "mid" in toks else [],
             toks["right"])
+
+    def boldsymbol(self, s, loc, toks):
+        self.push_state()
+        state = self.get_state()
+        hlist = []
+        name = toks["value"]
+        for c in name:
+            if isinstance(c, Hlist):
+                k = c.children[1]
+                if isinstance(k, Char):
+                    k.font = "bf"
+                    k._update_metrics()
+                hlist.append(c)
+            elif isinstance(c, Char):
+                c.font = "bf"
+                if (c.c in self._latin_alphabets or
+                   c.c[1:] in self._small_greek):
+                    c.font = "bfit"
+                    c._update_metrics()
+                c._update_metrics()
+                hlist.append(c)
+            else:
+                hlist.append(c)
+        self.pop_state()
+
+        return Hlist(hlist)
