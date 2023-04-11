@@ -421,6 +421,7 @@ def test_autofmt_xdate(which):
         warnings.filterwarnings(
             'ignore',
             'FixedFormatter should only be used together with FixedLocator')
+        warnings.filterwarnings('ignore', 'Converter .* got unexpected formatter .*')
         ax.xaxis.set_minor_formatter(FixedFormatter(minors))
 
     fig.autofmt_xdate(0.2, angle, 'right', which)

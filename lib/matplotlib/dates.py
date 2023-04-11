@@ -1836,6 +1836,13 @@ class DateConverter(units.ConversionInterface):
             pass
         return None
 
+    @staticmethod
+    def validate_formatter(formatter):
+        return isinstance(formatter, (DateFormatter,
+                                      ConciseDateFormatter,
+                                      AutoDateFormatter,
+                                      ticker.NullFormatter))
+
 
 class ConciseDateConverter(DateConverter):
     # docstring inherited
@@ -1887,6 +1894,9 @@ class _SwitchableDateConverter:
 
     def convert(self, *args, **kwargs):
         return self._get_converter().convert(*args, **kwargs)
+
+    def validate_formatter(self, formatter):
+        return self._get_converter().validate_formatter(formatter)
 
 
 units.registry[np.datetime64] = \

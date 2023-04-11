@@ -114,6 +114,10 @@ class StrCategoryConverter(units.ConversionInterface):
                 f'Provided unit "{unit}" is not valid for a categorical '
                 'converter, as it does not have a _mapping attribute.')
 
+    @staticmethod
+    def validate_formatter(formatter):
+        return isinstance(formatter, (StrCategoryFormatter, ticker.NullFormatter))
+
 
 class StrCategoryLocator(ticker.Locator):
     """Tick at every integer mapping of the string data."""
