@@ -1,0 +1,48 @@
+# Author: Bassim Eledath
+# University of San Francisco Masters in Data Science inspired Matplotlib Style Sheet
+
+axes.prop_cycle: cycler('color', ['01543c', 'f7b512' ,'eb811e', '05b8a0', 'cc542c', '8e0f75', 'aed135', 'b30100'])
+axes.facecolor: ffffff
+axes.labelcolor: lightgrey
+axes.axisbelow: true
+axes.grid: false
+axes.edgecolor: lightgrey
+axes.linewidth: 2.0
+axes.titlesize: large
+axes.titleweight: semibold
+axes.titlepad: 20
+axes.labelpad: 10
+axes.labelsize: small
+axes.titlelocation: left
+
+# secret sauce
+figure.dpi: 150
+figure.figsize: 5, 3
+
+lines.linewidth: 4
+lines.solid_capstyle: projecting
+
+legend.fancybox: true
+legend.fontsize: small
+
+patch.edgecolor: ffffff
+patch.linewidth: 0.5
+
+xtick.labelsize: smaller
+xtick.color: 75787b
+xtick.major.size: 0
+xtick.minor.size: 0
+xtick.major.pad: 8
+
+ytick.labelsize: smaller
+ytick.color: 75787b
+ytick.major.size: 0
+ytick.minor.size: 0
+ytick.major.pad: 8
+
+savefig.edgecolor: ffffff
+savefig.facecolor: ffffff
+
+# Removing top and right axis lines
+axes.spines.top: false
+axes.spines.right: false
