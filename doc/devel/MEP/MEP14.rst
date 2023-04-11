@@ -62,7 +62,7 @@ has a number of shortcomings.
 - It only handles right-to-left languages, and doesn't handle many
   special features of Unicode, such as combining diacriticals.
 - The multiline support is imperfect and only supports manual
-  line-breaking -- it can not break up a paragraph into lines of a
+  line-breaking -- it cannot break up a paragraph into lines of a
   certain length.
 - It also does not handle inline formatting changes in order to
   support something like Markdown, reStructuredText or HTML.  (Though
@@ -112,7 +112,7 @@ complicated than it seems at first.
 The "built-in" and "usetex" renderers have very different ways of
 handling font selection, given their different technologies.  TeX
 requires the installation of TeX-specific font packages, for example,
-and can not use TrueType fonts directly.  Unfortunately, despite the
+and cannot use TrueType fonts directly.  Unfortunately, despite the
 different semantics for font selection, the same set of font
 properties are used for each.  This is true of both the
 `.FontProperties` class and the font-related `.rcParams` (which

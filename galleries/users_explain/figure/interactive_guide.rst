@@ -110,7 +110,7 @@ Blocking the prompt
 
 The simplest "integration" is to start the GUI event loop in
 'blocking' mode and take over the CLI.  While the GUI event loop is
-running you can not enter new commands into the prompt (your terminal
+running you cannot enter new commands into the prompt (your terminal
 may echo the characters typed into the terminal, but they will not be
 sent to the Python interpreter because it is busy running the GUI
 event loop), but the figure windows will be responsive.  Once the
