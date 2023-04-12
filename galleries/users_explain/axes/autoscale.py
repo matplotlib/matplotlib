@@ -30,7 +30,7 @@ ax.plot(x, y)
 # Margins
 # -------
 # The default margin around the data limits is 5%, which is based on the default
-# configuration setting of rcParam:
+# configuration setting of :rc:`axes.xmargin`, :rc:`axes.ymargin`, and :rc:`axes.zmargin`:
 
 print(ax.margins())
 
