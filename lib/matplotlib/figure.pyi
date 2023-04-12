@@ -1,4 +1,3 @@
-import io
 import os
 
 from matplotlib import backend_bases, projections
@@ -40,7 +39,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from collections.abc import Callable, Iterable
-from typing import Any, Literal, overload
+from typing import Any, IO, Literal, overload
 from .typing import ColorType, HashableList
 
 class SubplotParams:
@@ -372,7 +371,7 @@ class Figure(FigureBase):
     def add_axobserver(self, func: Callable[[Figure], Any]): ...
     def savefig(
         self,
-        fname: str | os.PathLike | io.FileIO,
+        fname: str | os.PathLike | IO,
         *,
         transparent: bool | None = ...,
         **kwargs
