@@ -171,7 +171,7 @@ Font fallback
 -------------
 
 There is no font that covers the entire Unicode space thus it is possible for the
-users to require a mix of glyphs that can not be satisfied from a single font.
+users to require a mix of glyphs that cannot be satisfied from a single font.
 While it has been possible to use multiple fonts within a Figure, on distinct
 `.Text` instances, it was not previous possible to use multiple fonts in the
 same `.Text` instance (as a web browser does).  As of Matplotlib 3.6 the Agg,

@@ -587,7 +587,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             return
         if not drawDC:  # not called from OnPaint use a ClientDC
             drawDC = wx.ClientDC(self)
-        # For 'WX' backend on Windows, the bitmap can not be in use by another
+        # For 'WX' backend on Windows, the bitmap cannot be in use by another
         # DC (see GraphicsContextWx._cache).
         bmp = (self.bitmap.ConvertToImage().ConvertToBitmap()
                if wx.Platform == '__WXMSW__'

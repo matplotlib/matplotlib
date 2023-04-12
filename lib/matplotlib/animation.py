@@ -797,7 +797,7 @@ class HTMLWriter(FileMovieWriter):
                                              **mode_dict))
 
         # Duplicate the temporary file clean up logic from
-        # FileMovieWriter.finish.  We can not call the inherited version of
+        # FileMovieWriter.finish.  We cannot call the inherited version of
         # finish because it assumes that there is a subprocess that we either
         # need to call to merge many frames together or that there is a
         # subprocess call that we need to clean up.
@@ -963,10 +963,10 @@ class Animation:
 
                 def func(current_frame: int, total_frames: int) -> Any
 
-            where *current_frame* is the current frame number and
-            *total_frames* is the total number of frames to be saved.
-            *total_frames* is set to None, if the total number of frames can
-            not be determined. Return values may exist but are ignored.
+            where *current_frame* is the current frame number and *total_frames* is the
+            total number of frames to be saved. *total_frames* is set to None, if the
+            total number of frames cannot be determined. Return values may exist but are
+            ignored.
 
             Example code to write the progress to stdout::
 

@@ -2036,7 +2036,7 @@ default: %(va)s
                 this_level[(start_row, start_col)] = (name, slc, 'axes')
 
             # do the same thing for the nested mosaics (simpler because these
-            # can not be spans yet!)
+            # cannot be spans yet!)
             for (j, k), nested_mosaic in nested.items():
                 this_level[(j, k)] = (None, nested_mosaic, 'nested')
 
