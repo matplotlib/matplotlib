@@ -4824,7 +4824,7 @@ default: :rc:`scatter.edgecolors`
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
         linewidths : float, default: *None*
-            If *None*, defaults to 1.0.
+            If *None*, defaults to :rc:`patch.linewidth`.
 
         edgecolors : {'face', 'none', *None*} or color, default: 'face'
             The color of the hexagon edges. Possible values are:
@@ -4970,7 +4970,7 @@ default: :rc:`scatter.edgecolors`
             [[.5, -.5], [.5, .5], [0., 1.], [-.5, .5], [-.5, -.5], [0., -1.]])
 
         if linewidths is None:
-            linewidths = [1.0]
+            linewidths = [mpl.rcParams['patch.linewidth']]
 
         if xscale == 'log' or yscale == 'log':
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
