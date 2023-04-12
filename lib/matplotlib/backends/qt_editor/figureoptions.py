@@ -233,7 +233,7 @@ def figure_edit(axes, parent=None):
             elif len(mappable_settings) == 4:
                 label, cmap, low, high = mappable_settings
             mappable.set_label(label)
-            mappable.set_cmap(cm.get_cmap(cmap))
+            mappable.set_cmap(cmap)
             mappable.set_clim(*sorted([low, high]))
 
         # re-generate legend, if checkbox is checked
