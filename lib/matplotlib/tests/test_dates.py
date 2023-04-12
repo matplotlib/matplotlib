@@ -1315,7 +1315,7 @@ def test_DateLocator():
     iceland_tz = dateutil.tz.gettz(tz_str)
     # Check not Iceland
     assert locator.tz != iceland_tz
-    # Set it to to Iceland
+    # Set it to Iceland
     locator.set_tzinfo('Iceland')
     # Check now it is Iceland
     assert locator.tz == iceland_tz
