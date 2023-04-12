@@ -2285,11 +2285,20 @@ class Axes(_AxesBase):
         height : float or array-like
             The height(s) of the bars.
 
+            Note that if *bottom* has units (e.g. datetime), *height* should be in
+            units that are a difference from the value of *bottom* (e.g. timedelta).
+
         width : float or array-like, default: 0.8
             The width(s) of the bars.
 
+            Note that if *x* has units (e.g. datetime), then *width* should be in
+            units that are a difference (e.g. timedelta) around the *x* values.
+
         bottom : float or array-like, default: 0
             The y coordinate(s) of the bottom side(s) of the bars.
+
+            Note that if *bottom* has units, then the y-axis will get a Locator and
+            Formatter appropriate for the units (e.g. dates, or categorical).
 
         align : {'center', 'edge'}, default: 'center'
             Alignment of the bars to the *x* coordinates:
@@ -2416,13 +2425,19 @@ class Axes(_AxesBase):
                 x = 0
 
         if orientation == 'vertical':
+            # It is possible for y (bottom) to contain unit information.
+            # However, it is also possible for y=0 for the default and height
+            # to contain unit information.  This will prioritize the units of y.
             self._process_unit_info(
-                [("x", x), ("y", height)], kwargs, convert=False)
+                [("x", x), ("y", y), ("y", height)], kwargs, convert=False)
             if log:
                 self.set_yscale('log', nonpositive='clip')
         else:  # horizontal
+            # It is possible for x (left) to contain unit information.
+            # However, it is also possible for x=0 for the default and width
+            # to contain unit information.  This will prioritize the units of x.
             self._process_unit_info(
-                [("x", width), ("y", y)], kwargs, convert=False)
+                [("x", x), ("x", width), ("y", y)], kwargs, convert=False)
             if log:
                 self.set_xscale('log', nonpositive='clip')
 
@@ -2582,11 +2597,20 @@ class Axes(_AxesBase):
         width : float or array-like
             The width(s) of the bars.
 
+            Note that if *left* has units (e.g. datetime), *width* should be in
+            units that are a difference from the value of *left* (e.g. timedelta).
+
         height : float or array-like, default: 0.8
             The heights of the bars.
 
+            Note that if *y* has units (e.g. datetime), then *height* should be in
+            units that are a difference (e.g. timedelta) around the *y* values.
+
         left : float or array-like, default: 0
             The x coordinates of the left side(s) of the bars.
+
+            Note that if *left* has units, then the x-axis will get a Locator and
+            Formatter appropriate for the units (e.g. dates, or categorical).
 
         align : {'center', 'edge'}, default: 'center'
             Alignment of the base to the *y* coordinates*:
