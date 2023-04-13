@@ -19,7 +19,7 @@ x2, y2 = 0.7, 0.7
 # First subplot: connect arrow style
 ax = axs.flat[0]
 ax.plot([x1, x2], [y1, y2], ".")    # plot the two points
-el = mpatches.Ellipse((x1, y1), 0.3, 0.4, angle=30, alpha=0.2)# create an ellipse patch
+el = mpatches.Ellipse((x1, y1), 0.3, 0.4, angle=30, alpha=0.2)  # create ellipse patch
 ax.add_artist(el)    # add the ellipse patch to the plot
 
 # add an arrow connecting the two points with the connect style
