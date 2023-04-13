@@ -2269,7 +2269,8 @@ class LogLocator(Locator):
         if numticks is not None:
             self.numticks = numticks
 
-    numdecs = _api.deprecate_privatize_attribute("3.8", addendum="This attribute has no effect.")
+    numdecs = _api.deprecate_privatize_attribute(
+        "3.8", addendum="This attribute has no effect.")
 
     def _set_subs(self, subs):
         """
