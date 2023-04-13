@@ -118,6 +118,8 @@ matplotlib.contour.ContourSet.allsegs
 matplotlib.contour.ContourSet.tcolors
 matplotlib.contour.ContourSet.tlinewidths
 matplotlib.figure.FigureBase.get_tightbbox
+matplotlib.ticker.LogLocator.__init__
+matplotlib.ticker.LogLocator.set_params
 
 # positional-only argument name lacking leading underscores
 matplotlib.axes._base._AxesBase.axis
