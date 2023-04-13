@@ -1936,7 +1936,7 @@ class Arc(Ellipse):
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
-            raise ValueError("Arc objects can not be filled")
+            raise ValueError("Arc objects cannot be filled")
 
         super().__init__(xy, width, height, angle=angle, **kwargs)
 

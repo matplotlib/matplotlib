@@ -446,8 +446,8 @@ Backport strategy
 
 We will always backport to the patch release branch (*v3.N.x*):
 
-- critical bug fixes (segfault, failure to import, things that the
-  user can not work around)
+- critical bug fixes (segfault, failure to import, things that the user cannot
+  work around)
 - fixes for regressions against the last two releases.
 
 Everything else (regressions against older releases, bugs/api

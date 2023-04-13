@@ -1183,7 +1183,7 @@ Issues (202):
 * :ghissue:`22947`: [Bug]: Can't use ``plt.sca()`` on axes created using subfigures
 * :ghissue:`22623`: [ENH]: support rect with constrained_layout ("layout only to part of the figure")
 * :ghissue:`22917`: "ab;cd" missing in subplot_mosaic tutorial
-* :ghissue:`22686`: [Bug]: can not give init value for RangeSlider widget
+* :ghissue:`22686`: [Bug]: cannot give init value for RangeSlider widget
 * :ghissue:`22740`: [MNT]: Add codespell to pre-commit hooks
 * :ghissue:`22893`: rainbow text example is broken
 * :ghissue:`21571`: [Doc]: Clarify text positioning

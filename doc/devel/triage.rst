@@ -157,7 +157,7 @@ The following workflow [1]_ is a good way to approach issue triaging:
    If a reproducible example is provided, but you see a simplification,
    add your simpler reproducible example.
 
-   If you can not reproduce the issue, please report that along with your
+   If you cannot reproduce the issue, please report that along with your
    OS, Python, and Matplotlib versions.
 
    If we need more information from either this or the previous step

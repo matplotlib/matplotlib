@@ -149,7 +149,7 @@ will save a lot of time.
 You will likely get a faster response writing to the mailing list than
 filing a bug in the bug tracker.  Most developers check the bug
 tracker only periodically.  If your problem has been determined to be
-a bug and can not be quickly solved, you may be asked to file a bug in
+a bug and cannot be quickly solved, you may be asked to file a bug in
 the tracker so the issue doesn't get lost.
 
 .. _git-trouble:

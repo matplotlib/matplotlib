@@ -145,7 +145,7 @@ Radicals can be produced with the ``\sqrt[]{}`` command.  For example::
     \sqrt{2}
 
 Any base can (optionally) be provided inside square brackets.  Note that the
-base must be a simple expression, and can not contain layout commands such as
+base must be a simple expression, and cannot contain layout commands such as
 fractions or sub/superscripts::
 
     r'$\sqrt[3]{x}$'
@@ -306,7 +306,7 @@ that is not contained in your custom fonts, you can set
 :rc:`mathtext.fallback` to either ``'cm'``, ``'stix'`` or ``'stixsans'``
 which will cause the mathtext system to use
 characters from an alternative font whenever a particular
-character can not be found in the custom font.
+character cannot be found in the custom font.
 
 Note that the math glyphs specified in Unicode have evolved over time, and many
 fonts may not have glyphs in the correct place for mathtext.

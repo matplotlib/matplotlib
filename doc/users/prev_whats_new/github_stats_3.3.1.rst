@@ -114,7 +114,7 @@ Issues (25):
 * :ghissue:`18232`: different behaviour between 3.3.0 and 3.2.2 (and earlier) for ploting in a Tk canvas
 * :ghissue:`18212`: Updated WxAgg NavigationToolbar2 breaks custom toolbars
 * :ghissue:`18129`: Error reading png image from URL with imread in matplotlib 3.3
-* :ghissue:`18163`: Figure can not be closed if it has associated Agg canvas
+* :ghissue:`18163`: Figure cannot be closed if it has associated Agg canvas
 * :ghissue:`17974`: Major speed regression introduced in "plt.bar" definition clipping between 3.0.3 and 3.3.0.
 * :ghissue:`17998`: New warning: Substituting symbol \perp from STIXGeneral
 * :ghissue:`18057`: Fails to install in FreeBSD
