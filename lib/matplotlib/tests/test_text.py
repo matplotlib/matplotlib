@@ -248,10 +248,10 @@ def test_annotation_contains():
 
 
 @pytest.mark.parametrize('err, xycoords, match', (
-    (RuntimeError, print, "Unknown return type"),
-    (RuntimeError, [0, 0], r"Unknown coordinate type: \[0, 0\]"),
-    (ValueError, "foo", "'foo' is not a recognized coordinate"),
-    (ValueError, "foo bar", "'foo bar' is not a recognized coordinate"),
+    (RuntimeError, print, "Unexpected return type from callable"),
+    (RuntimeError, [0, 0], r"Unexpected type for 'xycoords'"),
+    (ValueError, "foo", "'foo' is not a valid coordinate"),
+    (ValueError, "foo bar", "'foo bar' is not a valid coordinate"),
     (ValueError, "offset foo", "xycoords cannot be an offset coordinate"),
     (ValueError, "axes foo", "'foo' is not a recognized unit"),
 ))
