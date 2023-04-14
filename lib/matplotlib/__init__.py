@@ -740,7 +740,13 @@ class RcParams(MutableMapping):
         if depth == 1:
             if key in self.single_key_set:
                 return self._namespace_maps["default"].get(key)
-            return self._namespace_maps[key]
+            # Comment the following line and remove the raise statement
+            # to enable getting namespace parameters.
+            # return self._namespace_maps[key]
+            else:
+                raise KeyError(
+                    f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                    f"a list of valid parameters)")
         elif depth == 2:
             return self._namespace_maps[keys[0]].get(keys[1])
 
@@ -770,7 +776,6 @@ class RcParams(MutableMapping):
                 cval = self.validate[key](val)
             except ValueError as ve:
                 raise ValueError(f"Key {key}: {ve}") from None
-            # breakpoint()
             self._set(key, cval)
         except KeyError as err:
             raise KeyError(
