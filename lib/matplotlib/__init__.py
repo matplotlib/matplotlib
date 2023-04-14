@@ -835,7 +835,16 @@ class RcParams(MutableMapping):
         return sum(len(mapping) for mapping in self._namespace_maps)
 
     def __repr__(self):
-        return repr(dict(self.items()))
+        class_name = self.__class__.__name__
+        indent = len(class_name) + 1
+        with _api.suppress_matplotlib_deprecation_warning():
+            repr_split = pprint.pformat(dict(self.items()), indent=1,
+                                        width=80 - indent).split('\n')
+        repr_indented = ('\n' + ' ' * indent).join(repr_split)
+        return f'{class_name}({repr_indented})'
+
+    def __str__(self):
+        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
 
     def keys(self):
         keys = (
@@ -897,7 +906,21 @@ class RcParams(MutableMapping):
     def copy(self):
         return deepcopy(self)
 
-# MutableMapping.register(RcParams)
+    def find_all(self, pattern):
+        """
+        Return the subset of this RcParams dictionary whose keys match,
+        using :func:`re.search`, the given ``pattern``.
+
+        .. note::
+
+            Changes to the returned dictionary are *not* propagated to
+            the parent RcParams dictionary.
+
+        """
+        pattern_re = re.compile(pattern)
+        return RcParams((key, value)
+                        for key, value in self.items()
+                        if pattern_re.search(key))
 
 
 def rc_params(fail_on_error=False):
