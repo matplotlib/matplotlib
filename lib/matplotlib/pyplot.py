@@ -745,7 +745,7 @@ def xkcd(
             "xkcd mode is not compatible with text.usetex = True")
 
     stack = ExitStack()
-    stack.callback(rcParams.update, rcParams.copy()) # type: ignore
+    stack.callback(rcParams.update, rcParams.copy())  # type: ignore
 
     from matplotlib import patheffects
     rcParams.update({
