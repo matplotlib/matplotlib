@@ -9,7 +9,6 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
-from matplotlib._api import MatplotlibDeprecationWarning
 
 
 def test_pyplot_up_to_date(tmpdir):
@@ -56,9 +55,9 @@ def test_copy_docstring_and_deprecators(recwarn):
     wrapper_func(None, kwo=None)
     wrapper_func(new=None, kwo=None)
     assert not recwarn
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         wrapper_func(old=None)
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         wrapper_func(None, None)
 
 
