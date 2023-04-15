@@ -642,8 +642,6 @@ class Text(Artist):
         """
         Return the width of a given text string, in pixels.
         """
-        # Determine if text contains mathtext
-        has_math = '$' in text
 
         w, h, d = self._renderer.get_text_width_height_descent(
             text,
