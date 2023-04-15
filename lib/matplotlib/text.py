@@ -642,10 +642,11 @@ class Text(Artist):
         """
         Return the width of a given text string, in pixels.
         """
+
         w, h, d = self._renderer.get_text_width_height_descent(
             text,
             self.get_fontproperties(),
-            False)
+            cbook.is_math_text(text))
         return math.ceil(w)
 
     def _get_wrapped_text(self):
