@@ -701,6 +701,15 @@ def test_wrap():
                                         'times.')
 
 
+def test_mathwrap():
+    fig = plt.figure(figsize=(6, 4))
+    s = r'This is a very $\overline{\mathrm{long}}$ line of Mathtext.'
+    text = fig.text(0, 0.5, s, size=40, wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == ('This is a very $\\overline{\\mathrm{long}}$\n'
+                                        'line of Mathtext.')
+
+
 def test_get_window_extent_wrapped():
     # Test that a long title that wraps to two lines has the same vertical
     # extent as an explicit two line title.
