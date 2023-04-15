@@ -8040,8 +8040,8 @@ def test_centered_bar_label_nonlinear():
     ax.set_axis_off()
 
 
-def test_centered_bar_label_label_beyond_limits(tmp_path):
-    _, ax = plt.subplots()
+def test_centered_bar_label_label_beyond_limits():
+    fig, ax = plt.subplots()
 
     last = 0
     for label, value in zip(['a', 'b', 'c'], [10, 20, 50]):
@@ -8050,7 +8050,7 @@ def test_centered_bar_label_label_beyond_limits(tmp_path):
         last += value
     ax.set_xlim(None, 20)
 
-    plt.savefig(tmp_path / 'test')
+    fig.draw_without_rendering()
 
 
 def test_bar_label_location_errorbars():
