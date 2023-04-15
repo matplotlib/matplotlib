@@ -67,6 +67,8 @@ def create_figure():
              ha='right', fontsize=20)
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')
+    plt.text(1, 1, 'should be clipped as default clip_box is Axes bbox',
+             fontsize=20, clip_on=True)
 
     plt.xlim(0, 1)
     plt.ylim(0, 1)

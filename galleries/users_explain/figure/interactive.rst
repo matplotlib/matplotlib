@@ -266,7 +266,7 @@ Jupyter Notebooks / JupyterLab
    the inline backend, is not.  `~ipykernel.pylab.backend_inline`
    renders the figure once and inserts a static image into the
    notebook when the cell is executed.  Because the images are static, they
-   can not be panned / zoomed, take user input, or be updated from other
+   cannot be panned / zoomed, take user input, or be updated from other
    cells.
 
 To get interactive figures in the 'classic' notebook or Jupyter lab,

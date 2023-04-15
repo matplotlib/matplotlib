@@ -1229,7 +1229,7 @@ Issues (187):
 * :ghissue:`19259`: Set legend title font properties
 * :ghissue:`20049`: add legend.labelcolor "argument" to mplstyle stylesheet
 * :ghissue:`20452`: Wrong/not useful error message when plotting incompatible x and y
-* :ghissue:`20266`: "$$" can not be displayed by ax.text()
+* :ghissue:`20266`: "$$" cannot be displayed by ax.text()
 * :ghissue:`20517`: Wrong shape of Z in documentation of contour
 * :ghissue:`19423`: Switch to pydata-sphinx-theme
 * :ghissue:`20435`: Legend Text's ``axes`` attribute is ``None``

@@ -2270,7 +2270,7 @@ recent changes, please refer to the :doc:`/users/release_notes`.
     Fix a "local variable unreferenced" bug in plotfile - MM
 
 2008-05-19
-    Fix crash when Windows can not access the registry to determine font path
+    Fix crash when Windows cannot access the registry to determine font path
     [Bug 1966974, thanks Patrik Simons] - MGD
 
 2008-05-16
@@ -2493,7 +2493,7 @@ recent changes, please refer to the :doc:`/users/release_notes`.
 
 2008-01-10
     Fix bug when displaying a tick value offset with scientific notation.
-    (Manifests itself as a warning that the \times symbol can not be found). -
+    (Manifests itself as a warning that the \times symbol cannot be found). -
     MGD
 
 2008-01-10

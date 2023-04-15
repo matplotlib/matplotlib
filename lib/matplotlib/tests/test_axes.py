@@ -6906,6 +6906,31 @@ def test_eventplot_legend():
     plt.legend()
 
 
+@pytest.mark.parametrize('err, args, kwargs, match', (
+        (ValueError, [[1]], {'lineoffsets': []}, 'lineoffsets cannot be empty'),
+        (ValueError, [[1]], {'linelengths': []}, 'linelengths cannot be empty'),
+        (ValueError, [[1]], {'linewidths': []}, 'linewidths cannot be empty'),
+        (ValueError, [[1]], {'linestyles': []}, 'linestyles cannot be empty'),
+        (ValueError, [[1]], {'alpha': []}, 'alpha cannot be empty'),
+        (ValueError, [1], {}, 'positions must be one-dimensional'),
+        (ValueError, [[1]], {'lineoffsets': [1, 2]},
+         'lineoffsets and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linelengths': [1, 2]},
+         'linelengths and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linewidths': [1, 2]},
+         'linewidths and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linestyles': [1, 2]},
+         'linestyles and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'alpha': [1, 2]},
+         'alpha and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'colors': [1, 2]},
+         'colors and positions are unequal sized sequences'),
+))
+def test_eventplot_errors(err, args, kwargs, match):
+    with pytest.raises(err, match=match):
+        plt.eventplot(*args, **kwargs)
+
+
 def test_bar_broadcast_args():
     fig, ax = plt.subplots()
     # Check that a bar chart with a single height for all bars works.
