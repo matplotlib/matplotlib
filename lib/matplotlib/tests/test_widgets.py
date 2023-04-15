@@ -2,7 +2,7 @@ import functools
 import io
 from unittest import mock
 
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
@@ -137,9 +137,8 @@ def test_deprecation_selector_visible_attribute(ax):
 
     assert tool.get_visible()
 
-    with pytest.warns(
-        MatplotlibDeprecationWarning,
-            match="was deprecated in Matplotlib 3.6"):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="was deprecated in Matplotlib 3.6"):
         tool.visible = False
     assert not tool.get_visible()
 
