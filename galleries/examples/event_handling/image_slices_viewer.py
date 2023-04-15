@@ -28,6 +28,10 @@ class IndexTracker:
         self.update()
 
     def on_scroll(self, event):
+        # Bug fixed : Mouse Scroll Event is not caputred if ALT key is pressed 
+        if event.key == 'alt':
+            pass
+        
         print(event.button, event.step)
         increment = 1 if event.button == 'up' else -1
         max_index = self.X.shape[-1] - 1
