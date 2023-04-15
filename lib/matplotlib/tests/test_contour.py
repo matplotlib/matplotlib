@@ -8,7 +8,6 @@ from numpy.testing import (
     assert_array_almost_equal, assert_array_almost_equal_nulp, assert_array_equal)
 import matplotlib as mpl
 from matplotlib import pyplot as plt, rc_context, ticker
-from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.colors import LogNorm, same_color
 from matplotlib.testing.decorators import image_comparison
 import pytest
@@ -367,7 +366,7 @@ def test_contour_linewidth(
         X = np.arange(4*3).reshape(4, 3)
         cs = ax.contour(X, linewidths=call_linewidths)
         assert cs.collections[0].get_linewidths()[0] == expected
-        with pytest.warns(MatplotlibDeprecationWarning, match="tlinewidths"):
+        with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tlinewidths"):
             assert cs.tlinewidths[0][0] == expected
 
 
@@ -734,7 +733,7 @@ def test_deprecated_apis():
         assert cs.allsegs == [p.vertices for c in colls for p in c.get_paths()]
     with pytest.warns(PendingDeprecationWarning, match="allkinds"):
         assert cs.allkinds == [p.codes for c in colls for p in c.get_paths()]
-    with pytest.warns(MatplotlibDeprecationWarning, match="tcolors"):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tcolors"):
         assert_array_equal(cs.tcolors, [c.get_edgecolor() for c in colls])
-    with pytest.warns(MatplotlibDeprecationWarning, match="tlinewidths"):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tlinewidths"):
         assert cs.tlinewidths == [c.get_linewidth() for c in colls]

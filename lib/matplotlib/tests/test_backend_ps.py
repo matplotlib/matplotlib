@@ -8,7 +8,6 @@ import numpy as np
 import pytest
 
 from matplotlib import cbook, path, patheffects, font_manager as fm
-from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.figure import Figure
 from matplotlib.patches import Ellipse
 from matplotlib.testing._markers import needs_ghostscript, needs_usetex
@@ -60,7 +59,7 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
         if rcParams.get("text.usetex"):
             allowable_exceptions.append(RuntimeError)
         if rcParams.get("ps.useafm"):
-            allowable_exceptions.append(MatplotlibDeprecationWarning)
+            allowable_exceptions.append(mpl.MatplotlibDeprecationWarning)
         try:
             fig.savefig(s_buf, format=format, orientation=orientation)
             fig.savefig(b_buf, format=format, orientation=orientation)
