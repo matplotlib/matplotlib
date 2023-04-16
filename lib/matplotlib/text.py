@@ -1411,7 +1411,7 @@ class OffsetFrom:
         elif isinstance(self._artist, Transform):
             x, y = self._artist.transform(self._ref_coord)
         else:
-            raise RuntimeError("unknown type")
+            _api.check_isinstance((Artist, BboxBase, Transform), artist=self._artist)
 
         sc = self._get_scale(renderer)
         tr = Affine2D().scale(sc).translate(x, y)
@@ -1458,7 +1458,9 @@ class _AnnotationBase:
             elif isinstance(tr, Transform):
                 return tr
             else:
-                raise RuntimeError("Unknown return type")
+                raise RuntimeError(
+                    f"Unexpected return type from callable: "
+                    f"expected BboxBase or Transform, but got {type(tr).__name__}.")
         elif isinstance(s, Artist):
             bbox = s.get_window_extent(renderer)
             return BboxTransformTo(bbox)
@@ -1467,7 +1469,9 @@ class _AnnotationBase:
         elif isinstance(s, Transform):
             return s
         elif not isinstance(s, str):
-            raise RuntimeError(f"Unknown coordinate type: {s!r}")
+            raise RuntimeError(
+                f"Unexpected type for 'xycoords'. This must be one of str, (str, str), "
+                f"Artist, Transform, or callable, but got {type(s).__name__}.")
 
         if s == 'data':
             return self.axes.transData
@@ -1479,7 +1483,7 @@ class _AnnotationBase:
 
         s_ = s.split()
         if len(s_) != 2:
-            raise ValueError(f"{s!r} is not a recognized coordinate")
+            raise ValueError(f"{s!r} is not a valid coordinate")
 
         bbox0, xy0 = None, None
 
@@ -1524,7 +1528,7 @@ class _AnnotationBase:
             return tr.translate(ref_x, ref_y)
 
         else:
-            raise ValueError(f"{s!r} is not a recognized coordinate")
+            raise ValueError(f"{s!r} is not a valid coordinate")
 
     def _get_ref_xy(self, renderer):
         """
@@ -2010,7 +2014,7 @@ or callable, default: value of *xycoords*
         if self._renderer is None:
             self._renderer = self.figure._get_renderer()
         if self._renderer is None:
-            raise RuntimeError('Cannot get window extent w/o renderer')
+            raise RuntimeError('Cannot get window extent without renderer')
 
         self.update_positions(self._renderer)
 
