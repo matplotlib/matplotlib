@@ -76,6 +76,10 @@ class Tick(martist.Artist):
         grid_linestyle=None,
         grid_linewidth=None,
         grid_alpha=None,
+        label_horizontal_alignment=None,
+        label_vertical_alignment=None,
+        label_font_properties=None,
+        label_rotation_mode=None,
         **kwargs,  # Other Line2D kwargs applied to gridlines.
     ):
         """
@@ -129,7 +133,7 @@ class Tick(martist.Artist):
         if labelsize is None:
             labelsize = mpl.rcParams[f"{name}.labelsize"]
 
-        self._set_labelrotation(labelrotation)
+        self._set_labelrotation(labelrotation) # kind sus
 
         if zorder is None:
             if major:
@@ -153,6 +157,22 @@ class Tick(martist.Artist):
             grid_alpha = mpl.rcParams["grid.alpha"]
         grid_kw = {k[5:]: v for k, v in kwargs.items()}
 
+        if label_horizontal_alignment is None:
+            label_horizontal_alignment = mpl.rcParams[f"{name}.label_horizontal"]
+        self._label_horizontal_alignment = label_horizontal_alignment
+            
+        if label_vertical_alignment is None:
+            label_vertical_alignment = mpl.rcParams[f"{name}.label_vertical"]
+        self._label_vertical_alignment = label_vertical_alignment
+
+        if label_font_properties is None:
+            label_font_properties = mpl.rcParams[f"{name}.label_font"]
+        self._label_font_properties = label_font_properties
+
+        if label_rotation_mode is None:
+            label_rotation_mode = mpl.rcParams[f"{name}.label_rotation"]
+        self._label_rotation_mode = label_rotation_mode
+        
         self.tick1line = mlines.Line2D(
             [], [],
             color=color, linestyle="none", zorder=zorder, visible=tick1On,
@@ -373,6 +393,23 @@ class Tick(martist.Artist):
             self._set_labelrotation(kwargs.pop('labelrotation'))
             self.label1.set(rotation=self._labelrotation[1])
             self.label2.set(rotation=self._labelrotation[1])
+
+        if 'labelhorizontalalignment' in kwargs:
+            self._label_horizontal_alignment = kwargs.pop('horizontalalignment')
+            self.label1.set_horizontalalignment(self._label_horizontal_alignment)
+            self.label2.set_horizontalalignment(self._label_horizontal_alignment)
+        if 'labelverticalalignment' in kwargs:
+            self._label_vertical_alignment = kwargs.pop('verticalalignment')
+            self.label1.set_verticalalignment(self._label_vertical_alignment)
+            self.label2.set_verticalalignment(self._label_vertical_alignment)
+        if 'labelfontproperties' in kwargs:
+            self._label_font_properties = kwargs.pop('labelfontproperties')
+            self.label1.set_fontproperties(self._label_font_properties)
+            self.label2.set_fontproperties(self._label_font_properties)
+        if 'labelrotationmode' in kwargs:
+            self._label_rotation_mode = kwargs.pop('labelrotationmode')
+            self.label1.set_rotation_mode(self._label_rotation_mode)
+            self.label2.set_rotation_mode(self._label_rotation_mode)
 
         label_kw = {k[5:]: v for k, v in kwargs.items()
                     if k in ['labelsize', 'labelcolor']}
@@ -1039,8 +1076,9 @@ class Axis(martist.Artist):
             'tick1On', 'tick2On', 'label1On', 'label2On',
             'length', 'direction', 'left', 'bottom', 'right', 'top',
             'labelleft', 'labelbottom', 'labelright', 'labeltop',
-            'labelrotation',
-            *_gridline_param_names]
+            'labelrotation', 'label_horizontal_alignment',
+            'label_vertical_alignment', 'label_font_properties',
+            'label_rotation_mode', *_gridline_param_names]
 
         keymap = {
             # tick_params key -> axis key
@@ -1055,6 +1093,10 @@ class Axis(martist.Artist):
             'labelbottom': 'label1On',
             'labelright': 'label2On',
             'labeltop': 'label2On',
+            'labelhorizontalalignment': 'label_horizontal_alignment',
+            'labelverticalalignment': 'label_vertical_alignment',
+            'labelfontproperties': 'label_font_properties',
+            'labelrotationmode': 'label_rotation_mode',
         }
         if reverse:
             kwtrans = {
