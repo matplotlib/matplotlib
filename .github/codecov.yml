@@ -21,10 +21,12 @@ coverage:
         if_no_uploads: error
         if_not_found: success
         if_ci_failed: failure
-        paths: '!lib/.*/tests/.*'
+        paths:
+          - '!lib/.*/tests/.*'
       tests:
         target: auto
         if_no_uploads: error
         if_not_found: success
         if_ci_failed: failure
-        paths: 'lib/.*/tests/.*'
+        paths:
+          - 'lib/.*/tests/.*'
