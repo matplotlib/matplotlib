@@ -497,5 +497,6 @@ class ShowBase(_Backend):
     def __call__(self, block: bool | None = ...): ...
 
 class HoverEvent:
-    def __init__(self, canvas, x, y, guiEvent=None):
+    def __init__(self, name, canvas, mouseevent, artist, 
+                 guiEvent=None, **kwargs):
         pass
