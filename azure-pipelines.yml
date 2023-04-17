@@ -11,6 +11,10 @@ pr:
   branches:
     exclude:
       - v*-doc
+  paths:
+    exclude:
+      - doc/**/*
+      - galleries/**/*
 
 stages:
 
