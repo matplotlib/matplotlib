@@ -51,46 +51,46 @@ _log = logging.getLogger(__name__)
 
 font_scalings = {
     'xx-small': 0.579,
-    'x-small':  0.694,
-    'small':    0.833,
-    'medium':   1.0,
-    'large':    1.200,
-    'x-large':  1.440,
+    'x-small': 0.694,
+    'small': 0.833,
+    'medium': 1.0,
+    'large': 1.200,
+    'x-large': 1.440,
     'xx-large': 1.728,
-    'larger':   1.2,
-    'smaller':  0.833,
-    None:       1.0,
+    'larger': 1.2,
+    'smaller': 0.833,
+    None: 1.0,
 }
 stretch_dict = {
     'ultra-condensed': 100,
     'extra-condensed': 200,
-    'condensed':       300,
-    'semi-condensed':  400,
-    'normal':          500,
-    'semi-expanded':   600,
-    'semi-extended':   600,
-    'expanded':        700,
-    'extended':        700,
-    'extra-expanded':  800,
-    'extra-extended':  800,
-    'ultra-expanded':  900,
-    'ultra-extended':  900,
+    'condensed': 300,
+    'semi-condensed': 400,
+    'normal': 500,
+    'semi-expanded': 600,
+    'semi-extended': 600,
+    'expanded': 700,
+    'extended': 700,
+    'extra-expanded': 800,
+    'extra-extended': 800,
+    'ultra-expanded': 900,
+    'ultra-extended': 900,
 }
 weight_dict = {
     'ultralight': 100,
-    'light':      200,
-    'normal':     400,
-    'regular':    400,
-    'book':       400,
-    'medium':     500,
-    'roman':      500,
-    'semibold':   600,
-    'demibold':   600,
-    'demi':       600,
-    'bold':       700,
-    'heavy':      800,
+    'light': 200,
+    'normal': 400,
+    'regular': 400,
+    'book': 400,
+    'medium': 500,
+    'roman': 500,
+    'semibold': 600,
+    'demibold': 600,
+    'demi': 600,
+    'bold': 700,
+    'heavy': 800,
     'extra bold': 800,
-    'black':      900,
+    'black': 900,
 }
 _weight_regexes = [
     # From fontconfig's FcFreeTypeQueryFaceInternal; not the same as
@@ -878,7 +878,8 @@ class FontProperties:
             The name of the font family.
 
             Available font families are defined in the
-            `matplotlibrc` file located at :file:`lib/matplotlib/mpl-data/matplotlibrc`.
+            lib/matplotlib/mpl-data/matplotlibrc file
+            :ref:`here <customizing-with-matplotlibrc-files>`
 
         See Also
         --------
