@@ -1571,7 +1571,7 @@ class PickEvent(Event):
         self.__dict__.update(kwargs)
 
 
-class KeyEvent(LocationEvent):
+class KeyEvent(LocationEvent): 
     """
     A key event (key press, key release).
 
