@@ -134,7 +134,7 @@ __all__ = [
 
 
 import atexit
-from collections import namedtuple, ChainMap, defaultdict
+from collections import namedtuple, ChainMap
 from collections.abc import MutableMapping, Mapping
 import contextlib
 import functools
@@ -691,7 +691,7 @@ class RcParams(MutableMapping):
         keys = key.split(sep, maxsplit=1)
         return keys, len(keys)
 
-    def _set(self, key, value):
+    def _set(self, key, val):
         """
         Directly write data bypassing deprecation and validation logic.
 
@@ -712,10 +712,22 @@ class RcParams(MutableMapping):
         keys, depth = self._split_key(key)
         if depth == 1:
             if key in self.single_key_set:
-                self._namespace_maps["default"][key] = value
-            self._namespace_maps[key] = value
+                self._namespace_maps["default"][key] = val
+            # Uncomment the following line and remove the raise statement
+            # to enable setting namespaces.
+            # else:
+            #     if isinstance(val, dict):
+            #         self._namespace_maps[key] = ChainMap({}, val)
+            #     else:
+            #         raise ValueError(
+            #             f"{key} should be set using a dictionary but found "
+            #             f"{type(val)}")
+            else:
+                raise KeyError(
+                    f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                    f"a list of valid parameters)")
         elif depth == 2:
-            self._namespace_maps[keys[0]][keys[1]] = value
+            self._namespace_maps[keys[0]][keys[1]] = val
 
     def _get(self, key):
         """
@@ -740,7 +752,7 @@ class RcParams(MutableMapping):
         if depth == 1:
             if key in self.single_key_set:
                 return self._namespace_maps["default"].get(key)
-            # Comment the following line and remove the raise statement
+            # Uncomment the following line and remove the raise statement
             # to enable getting namespace parameters.
             # return self._namespace_maps[key]
             else:
@@ -807,22 +819,31 @@ class RcParams(MutableMapping):
 
     def _get_backend_or_none(self):
         """Get the requested backend, if any, without triggering resolution."""
-        backend = self._get("default.backend")
+        backend = self._get("backend")
         return None if backend is rcsetup._auto_backend_sentinel else backend
 
     def __delitem__(self, key):
         keys, depth = self._split_key(key)
-        if depth == 1:
-            del self._namespace_maps[key]
-        elif depth == 2:
-            del self._namespace_maps[keys[0]][keys[1]]
+        try:
+            if depth == 1:
+                if key in self.single_key_set:
+                    del self._namespace_maps["default"][key]
+                else:
+                    raise KeyError
+            elif depth == 2:
+                del self._namespace_maps[keys[0]][keys[1]]
+        except KeyError as err:
+            raise KeyError(
+                f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                f"a list of valid parameters)") from err
 
     def __contains__(self, key):
         keys, depth = self._split_key(key)
         if depth == 1:
             if key in self.single_key_set:
                 return key in self._namespace_maps["default"]
-            return key in self._namespace_maps
+            else:
+                return False
         elif depth == 2:
             return any(key in mapping for mapping in self._namespace_maps)
 
@@ -865,15 +886,22 @@ class RcParams(MutableMapping):
     def pop(self, key):
         keys, depth = self._split_key(key)
         if depth == 1:
-            self._mapping.pop()
+            if key in self.single_key_set:
+                return self._namespace_mapping["default"][key]
+            else:
+                raise KeyError(
+                    f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                    f"a list of valid parameters)")
         elif depth == 2:
-            self._namespace_mapping[keys[0]].pop(keys[1])
+            return self._namespace_mapping[keys[0]].pop(keys[1])
 
     def popitem(self):
-        return self._mapping.popitem()
+        raise NotImplementedError(
+            "popitem is not implemented for RcParams.")
 
     def clear(self):
-        self._mapping.clear()
+        for namespace in self._namespace_maps:
+            self._namespace_maps[namespace].clear()
 
     def setdefault(self, key, default=None):
         self[key] = default
@@ -1005,6 +1033,8 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
     config = RcParams()
 
     for key, (val, line, line_no) in rc_temp.items():
+        if key in config.single_key_set:
+            key = f"default.{key}"
         if key in rcsetup._validators:
             if fail_on_error:
                 config[key] = val  # try to convert to proper type or raise

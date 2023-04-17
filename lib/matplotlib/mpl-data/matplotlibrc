@@ -82,7 +82,7 @@
 ##     PS PDF SVG Template
 ## You can also deploy your own backend outside of Matplotlib by referring to
 ## the module name (which must be in the PYTHONPATH) as 'module://my_backend'.
-##default.backend: Agg
+##backend: Agg
 
 ## The port to use for the web server in the WebAgg backend.
 #webagg.port: 8988
@@ -100,12 +100,12 @@
 ## If you are running pyplot inside a GUI and your backend choice
 ## conflicts, we will automatically try to find a compatible one for
 ## you if backend_fallback is True
-#default.backend_fallback: True
+#backend_fallback: True
 
-#default.interactive: False
+#interactive: False
 #figure.hooks:          # list of dotted.module.name:dotted.callable.name
-#default.toolbar:     toolbar2  # {None, toolbar2, toolmanager}
-#default.timezone:    UTC       # a pytz timezone string, e.g., US/Central or Europe/Paris
+#toolbar:     toolbar2  # {None, toolbar2, toolmanager}
+#timezone:    UTC       # a pytz timezone string, e.g., US/Central or Europe/Paris
 
 
 ## ***************************************************************************
