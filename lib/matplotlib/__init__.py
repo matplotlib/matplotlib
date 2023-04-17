@@ -766,7 +766,7 @@ class RcParams(MutableMapping):
                 _api.warn_deprecated(
                     version, name=key, obj_type="rcparam", alternative=alt_key)
                 return
-            elif key == 'backend':
+            elif key == 'backend' or key == "default.backend":
                 if val is rcsetup._auto_backend_sentinel:
                     if 'backend' in self:
                         return
@@ -1391,7 +1391,7 @@ def get_backend():
     --------
     matplotlib.use
     """
-    return rcParams['default.backend']
+    return rcParams['backend']
 
 
 def interactive(b):
