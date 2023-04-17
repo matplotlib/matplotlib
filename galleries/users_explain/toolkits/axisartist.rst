@@ -1,5 +1,3 @@
-r"""
-
 .. redirect-from:: /tutorials/toolkits/axisartist
 
 .. _axisartist:
