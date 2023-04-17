@@ -139,8 +139,7 @@ def test_deprecation_selector_visible_attribute(ax):
 
     with pytest.warns(mpl.MatplotlibDeprecationWarning,
                       match="was deprecated in Matplotlib 3.8"):
-        tool.visible = False
-    assert not tool.get_visible()
+        tool.visible
 
 
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
