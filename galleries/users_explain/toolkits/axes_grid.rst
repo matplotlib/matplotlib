@@ -1,4 +1,3 @@
-r"""
 .. redirect-from:: /tutorials/toolkits/axes_grid
 
 .. _axes_grid1_users-guide-index:
@@ -331,4 +330,3 @@ data limits (AxesX and AxesY).
 .. figure:: /gallery/axes_grid1/images/sphx_glr_simple_axes_divider3_001.png
    :target: /gallery/axes_grid1/simple_axes_divider3.html
    :align: center
-"""
