@@ -1103,8 +1103,7 @@ class Text(Artist):
             The name of the font family.
 
             Available font families are defined in the
-            :ref:`matplotlibrc.template file
-            <customizing-with-matplotlibrc-files>`.
+            `matplotlibrc` file located at :file:`lib/matplotlib/mpl-data/matplotlibrc`.
 
         See Also
         --------

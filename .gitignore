@@ -31,7 +31,7 @@
 ################
 # setup.py working directory
 build
-
+venv/
 # setup.py dist directory
 dist
 # Egg metadata
