@@ -1473,7 +1473,54 @@ class MouseEvent(LocationEvent):
                 f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
                 f"button={self.button} dblclick={self.dblclick} "
                 f"inaxes={self.inaxes}")
+    
+class HoverEvent(Event):
+    """
+    A hover event.
 
+    This event is fired when the mouse is moved on the canvas
+    sufficiently close to an artist that has been made hoverable with
+    `.Artist.set_hover`.
+
+    A HoverEvent has a number of special attributes in addition to those defined
+    by the parent `Event` class.
+
+    Attributes
+    ----------
+    mouseevent : `MouseEvent`
+        The mouse event that generated the hover.
+    artist : `matplotlib.artist.Artist`
+        The hovered artist.  Note that artists are not hoverable by default
+        (see `.Artist.set_hover`).
+    other
+        Additional attributes may be present depending on the type of the
+        hovered object; e.g., a `.Line2D` hover may define different extra
+        attributes than a `.PatchCollection` hover.
+
+    Examples
+    --------
+    Bind a function ``on_hover()`` to hover events, that prints the coordinates
+    of the hovered data point::
+
+        ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
+
+        def on_hover(event):
+            line = event.artist
+            xdata, ydata = line.get_data()
+            ind = event.ind
+            print(f'on hover line: {xdata[ind]:.3f}, {ydata[ind]:.3f}')
+
+        cid = fig.canvas.mpl_connect('motion_notify_event', on_hover)
+    """
+
+    def __init__(self, name, canvas, mouseevent, artist,
+                 guiEvent=None, **kwargs):
+        if guiEvent is None:
+            guiEvent = mouseevent.guiEvent
+        super().__init__(name, canvas, guiEvent)
+        self.mouseevent = mouseevent
+        self.artist = artist
+        self.__dict__.update(kwargs)
 
 class PickEvent(Event):
     """
