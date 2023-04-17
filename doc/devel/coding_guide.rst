@@ -369,7 +369,8 @@ will run on all supported platforms and versions of Python.
   individual commits by including the following substrings in commit messages:
 
   - ``[ci doc]``: restrict the CI to documentation checks. For when you only
-    changed documentation.
+    changed documentation (this skip is automatic if the changes are only under
+    ``doc/`` or ``galleries/``).
   - ``[skip circle]``: skip the documentation build check. For when you didn't
     change documentation.
   - Unit tests can be turned off for individual platforms with
