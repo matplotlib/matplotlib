@@ -560,4 +560,3 @@ The code need more refinement. Here is a incomplete list of issues and TODO's
 
 * The location of axislabel of FloatingAxis needs to be optionally
   given as a coordinate value. ex, a floating axis of x=0 with label at y=1
-"""
