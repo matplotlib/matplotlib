@@ -193,6 +193,7 @@ class Artist:
         self._clipon = True
         self._label = ''
         self._picker = None
+        self._hover = None
         self._rasterized = False
         self._agg_filter = None
         # Normally, artist classes need to be queried for mouseover info if and
@@ -594,6 +595,49 @@ class Artist:
         set_picker, pickable, pick
         """
         return self._picker
+    
+    def set_hover(self, hover):
+        """
+        Define the hover status of the artist.
+
+        Parameters
+        ----------
+        hover : None or bool or float or callable
+            This can be one of the following:
+
+            - *None*: Hover is disabled for this artist (default).
+
+            - A boolean: If *True* then hover will be enabled and the
+              artist will fire a hover event if the mouse event is hovering over
+              the artist.
+
+            - A float: If hover is a number it is interpreted as an
+              epsilon tolerance in points and the artist will fire
+              off an event if its data is within epsilon of the mouse
+              event.  For some artists like lines and patch collections,
+              the artist may provide additional data to the hover event
+              that is generated, e.g., the indices of the data within
+              epsilon of the hover event
+
+            - A function: If hover is callable, it is a user supplied
+              function which determines whether the artist is hit by the
+              mouse event to determine the hit test.  if the mouse event 
+              is over the artist, return *hit=True* and props is a dictionary of
+              properties you want added to the HoverEvent attributes.
+        """
+        self._hover = hover
+    
+    def get_hover(self):
+        """
+        Return the hover status of the artist.
+
+        The possible values are described in `.set_hover`.
+
+        See Also
+        --------
+        set_hover
+        """
+        return self._hover
 
     def get_url(self):
         """Return the url."""

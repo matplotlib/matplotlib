@@ -495,3 +495,7 @@ class _Backend:
 
 class ShowBase(_Backend):
     def __call__(self, block: bool | None = ...): ...
+
+class HoverEvent:
+    def __init__(self, canvas, x, y, guiEvent=None):
+        pass
