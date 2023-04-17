@@ -248,8 +248,8 @@ def test_annotation_contains():
 
 
 @pytest.mark.parametrize('err, xycoords, match', (
-    (RuntimeError, print, "Unexpected return type from callable"),
-    (RuntimeError, [0, 0], r"Unexpected type for 'xycoords'"),
+    (TypeError, print, "xycoords callable must return a BboxBase or Transform, not a"),
+    (TypeError, [0, 0], r"'xycoords' must be an instance of str, tuple"),
     (ValueError, "foo", "'foo' is not a valid coordinate"),
     (ValueError, "foo bar", "'foo bar' is not a valid coordinate"),
     (ValueError, "offset foo", "xycoords cannot be an offset coordinate"),
