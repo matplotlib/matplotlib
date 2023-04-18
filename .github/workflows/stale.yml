@@ -8,10 +8,10 @@ jobs:
     if: github.repository == 'matplotlib/matplotlib'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v7
+      - uses: actions/stale@v8
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          operations-per-run: 125
+          operations-per-run: 150
           stale-pr-message: 'Since this Pull Request has not been updated in 60 days, it has been marked "inactive." This does not mean that it will be closed, though it may be moved to a "Draft" state.  This helps maintainers prioritize their reviewing efforts. You can pick the PR back up anytime - please ping us if you need a review or guidance to move the PR forward!  If you do not plan on continuing the work, please let us know so that we can either find someone to take the PR over, or close it.'
           stale-pr-label: 'inactive'
           days-before-pr-stale: 60

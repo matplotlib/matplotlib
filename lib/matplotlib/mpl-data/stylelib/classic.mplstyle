@@ -158,7 +158,7 @@ mathtext.sf  : sans\-serif
 mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
                       # 'stixsans' or 'custom'
 mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
-                       # 'stixsans'] when a symbol can not be found in one of the
+                       # 'stixsans'] when a symbol cannot be found in one of the
                        # custom math fonts. Select 'None' to not perform fallback
                        # and replace the missing character by a dummy.
 

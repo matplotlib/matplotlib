@@ -302,6 +302,19 @@ def test_suptitle_subfigures():
     assert sf2.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
 
 
+def test_get_suptitle_supxlabel_supylabel():
+    fig, ax = plt.subplots()
+    assert fig.get_suptitle() == ""
+    assert fig.get_supxlabel() == ""
+    assert fig.get_supylabel() == ""
+    fig.suptitle('suptitle')
+    assert fig.get_suptitle() == 'suptitle'
+    fig.supxlabel('supxlabel')
+    assert fig.get_supxlabel() == 'supxlabel'
+    fig.supylabel('supylabel')
+    assert fig.get_supylabel() == 'supylabel'
+
+
 @image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
@@ -657,6 +670,15 @@ def test_invalid_layouts():
 
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("constrained")
+
+
+@check_figures_equal(extensions=["png"])
+def test_tightlayout_autolayout_deconflict(fig_test, fig_ref):
+    for fig, autolayout in zip([fig_ref, fig_test], [False, True]):
+        with mpl.rc_context({'figure.autolayout': autolayout}):
+            axes = fig.subplots(ncols=2)
+            fig.tight_layout(w_pad=10)
+        assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
 
 
 @pytest.mark.parametrize('layout', ['constrained', 'compressed'])

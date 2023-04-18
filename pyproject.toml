@@ -128,3 +128,13 @@ convention = "numpy"
 "galleries/users_explain/text/mathtext.py" = ["E501"]
 "galleries/users_explain/text/text_intro.py" = ["E402"]
 "galleries/users_explain/text/text_props.py" = ["E501"]
+
+[tool.mypy]
+exclude = [
+  ".*/matplotlib/(sphinxext|backends|testing)",
+  ".*/mpl_toolkits",
+  # tinypages is used for testing the sphinx ext,
+  # stubtest will import and run, opening a figure if not excluded
+  ".*/tinypages",
+]
+ignore_missing_imports = true

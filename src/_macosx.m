@@ -1869,7 +1869,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     CFTimeInterval interval;
     PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
     int single;
-    runloop = CFRunLoopGetCurrent();
+    runloop = CFRunLoopGetMain();
     if (!runloop) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to obtain run loop");
         return NULL;

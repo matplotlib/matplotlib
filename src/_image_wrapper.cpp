@@ -286,8 +286,6 @@ static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT, "_image", NULL, 0, module_functions,
 };
 
-#pragma GCC visibility push(default)
-
 PyMODINIT_FUNC PyInit__image(void)
 {
     PyObject *m;
@@ -324,5 +322,3 @@ PyMODINIT_FUNC PyInit__image(void)
 
     return m;
 }
-
-#pragma GCC visibility pop

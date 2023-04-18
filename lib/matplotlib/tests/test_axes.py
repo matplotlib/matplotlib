@@ -18,8 +18,7 @@ import pytest
 
 import matplotlib
 import matplotlib as mpl
-from matplotlib import rc_context
-from matplotlib._api import MatplotlibDeprecationWarning
+from matplotlib import rc_context, patheffects
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
@@ -34,7 +33,7 @@ import matplotlib.pyplot as plt
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
-import mpl_toolkits.axisartist as AA
+import mpl_toolkits.axisartist as AA  # type: ignore
 from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
@@ -4613,7 +4612,7 @@ def test_eventplot_problem_kwargs(recwarn):
                     linestyle=['dashdot', 'dotted'])
 
     assert len(recwarn) == 3
-    assert all(issubclass(wi.category, MatplotlibDeprecationWarning)
+    assert all(issubclass(wi.category, mpl.MatplotlibDeprecationWarning)
                for wi in recwarn)
 
 
@@ -4921,8 +4920,11 @@ def test_lines_with_colors(fig_test, fig_ref, data):
                                         colors=expect_color, linewidth=5)
 
 
-@image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True)
+@image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True,
+                  tol=0.2)
 def test_step_linestyle():
+    # Tolerance caused by reordering of floating-point operations
+    # Remove when regenerating the images
     x = y = np.arange(10)
 
     # First illustrate basic pyplot interface, using defaults where possible.
@@ -6903,6 +6905,31 @@ def test_eventplot_legend():
     plt.legend()
 
 
+@pytest.mark.parametrize('err, args, kwargs, match', (
+        (ValueError, [[1]], {'lineoffsets': []}, 'lineoffsets cannot be empty'),
+        (ValueError, [[1]], {'linelengths': []}, 'linelengths cannot be empty'),
+        (ValueError, [[1]], {'linewidths': []}, 'linewidths cannot be empty'),
+        (ValueError, [[1]], {'linestyles': []}, 'linestyles cannot be empty'),
+        (ValueError, [[1]], {'alpha': []}, 'alpha cannot be empty'),
+        (ValueError, [1], {}, 'positions must be one-dimensional'),
+        (ValueError, [[1]], {'lineoffsets': [1, 2]},
+         'lineoffsets and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linelengths': [1, 2]},
+         'linelengths and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linewidths': [1, 2]},
+         'linewidths and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linestyles': [1, 2]},
+         'linestyles and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'alpha': [1, 2]},
+         'alpha and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'colors': [1, 2]},
+         'colors and positions are unequal sized sequences'),
+))
+def test_eventplot_errors(err, args, kwargs, match):
+    with pytest.raises(err, match=match):
+        plt.eventplot(*args, **kwargs)
+
+
 def test_bar_broadcast_args():
     fig, ax = plt.subplots()
     # Check that a bar chart with a single height for all bars works.
@@ -8013,6 +8040,19 @@ def test_centered_bar_label_nonlinear():
     ax.set_axis_off()
 
 
+def test_centered_bar_label_label_beyond_limits():
+    fig, ax = plt.subplots()
+
+    last = 0
+    for label, value in zip(['a', 'b', 'c'], [10, 20, 50]):
+        bar_container = ax.barh('col', value, label=label, left=last)
+        ax.bar_label(bar_container, label_type='center')
+        last += value
+    ax.set_xlim(None, 20)
+
+    fig.draw_without_rendering()
+
+
 def test_bar_label_location_errorbars():
     ax = plt.gca()
     xs, heights = [1, 2], [3, -4]
@@ -8438,6 +8478,43 @@ def test_zorder_and_explicit_rasterization():
         fig.savefig(b, format='pdf')
 
 
+@image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20")
+def test_preset_clip_paths():
+    fig, ax = plt.subplots()
+
+    poly = mpl.patches.Polygon(
+        [[1, 0], [0, 1], [-1, 0], [0, -1]], facecolor="#ddffdd",
+        edgecolor="#00ff00", linewidth=2, alpha=0.5)
+
+    ax.add_patch(poly)
+
+    line = mpl.lines.Line2D((-1, 1), (0.5, 0.5), clip_on=True, clip_path=poly)
+    line.set_path_effects([patheffects.withTickedStroke()])
+    ax.add_artist(line)
+
+    line = mpl.lines.Line2D((-1, 1), (-0.5, -0.5), color='r', clip_on=True,
+                            clip_path=poly)
+    ax.add_artist(line)
+
+    poly2 = mpl.patches.Polygon(
+        [[-1, 1], [0, 1], [0, -0.25]], facecolor="#beefc0", alpha=0.3,
+        edgecolor="#faded0", linewidth=2, clip_on=True, clip_path=poly)
+    ax.add_artist(poly2)
+
+    # When text clipping works, the "Annotation" text should be clipped
+    ax.annotate('Annotation', (-0.75, -0.75), xytext=(0.1, 0.75),
+                arrowprops={'color': 'k'}, clip_on=True, clip_path=poly)
+
+    poly3 = mpl.patches.Polygon(
+        [[0, 0], [0, 0.5], [0.5, 0.5], [0.5, 0]], facecolor="g", edgecolor="y",
+        linewidth=2, alpha=0.3, clip_on=True, clip_path=poly)
+
+    fig.add_artist(poly3, clip=True)
+
+    ax.set_xlim(-1, 1)
+    ax.set_ylim(-1, 1)
+
+
 @mpl.style.context('default')
 def test_rc_axes_label_formatting():
     mpl.rcParams['axes.labelcolor'] = 'red'
@@ -8448,3 +8525,36 @@ def test_rc_axes_label_formatting():
     assert ax.xaxis.label.get_color() == 'red'
     assert ax.xaxis.label.get_fontsize() == 20
     assert ax.xaxis.label.get_fontweight() == 'bold'
+
+
+@check_figures_equal(extensions=["png"])
+def test_ecdf(fig_test, fig_ref):
+    data = np.array([0, -np.inf, -np.inf, np.inf, 1, 1, 2])
+    weights = range(len(data))
+    axs_test = fig_test.subplots(1, 2)
+    for ax, orientation in zip(axs_test, ["vertical", "horizontal"]):
+        l0 = ax.ecdf(data, orientation=orientation)
+        l1 = ax.ecdf("d", "w", data={"d": np.ma.array(data), "w": weights},
+                     orientation=orientation,
+                     complementary=True, compress=True, ls=":")
+        assert len(l0.get_xdata()) == (~np.isnan(data)).sum() + 1
+        assert len(l1.get_xdata()) == len({*data[~np.isnan(data)]}) + 1
+    axs_ref = fig_ref.subplots(1, 2)
+    axs_ref[0].plot([-np.inf, -np.inf, -np.inf, 0, 1, 1, 2, np.inf],
+                    np.arange(8) / 7, ds="steps-post")
+    axs_ref[0].plot([-np.inf, 0, 1, 2, np.inf, np.inf],
+                    np.array([21, 20, 18, 14, 3, 0]) / 21,
+                    ds="steps-pre", ls=":")
+    axs_ref[1].plot(np.arange(8) / 7,
+                    [-np.inf, -np.inf, -np.inf, 0, 1, 1, 2, np.inf],
+                    ds="steps-pre")
+    axs_ref[1].plot(np.array([21, 20, 18, 14, 3, 0]) / 21,
+                    [-np.inf, 0, 1, 2, np.inf, np.inf],
+                    ds="steps-post", ls=":")
+
+
+def test_ecdf_invalid():
+    with pytest.raises(ValueError):
+        plt.ecdf([1, np.nan])
+    with pytest.raises(ValueError):
+        plt.ecdf(np.ma.array([1, 2], mask=[True, False]))

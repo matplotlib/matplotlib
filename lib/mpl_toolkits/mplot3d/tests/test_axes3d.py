@@ -24,6 +24,15 @@ mpl3d_image_comparison = functools.partial(
     image_comparison, remove_text=True, style='default')
 
 
+def plot_cuboid(ax, scale):
+    # plot a rectangular cuboid with side lengths given by scale (x, y, z)
+    r = [0, 1]
+    pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
+    for start, end in pts:
+        if np.sum(np.abs(start - end)) == r[1] - r[0]:
+            ax.plot3D(*zip(start*np.array(scale), end*np.array(scale)))
+
+
 @check_figures_equal(extensions=["png"])
 def test_invisible_axes(fig_test, fig_ref):
     ax = fig_test.subplots(subplot_kw=dict(projection='3d'))
@@ -32,20 +41,19 @@ def test_invisible_axes(fig_test, fig_ref):
 
 @mpl3d_image_comparison(['aspects.png'], remove_text=False)
 def test_aspects():
-    aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz')
-    fig, axs = plt.subplots(1, len(aspects), subplot_kw={'projection': '3d'})
+    aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz', 'equal')
+    _, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'})
 
-    # Draw rectangular cuboid with side lengths [1, 1, 5]
-    r = [0, 1]
-    scale = np.array([1, 1, 5])
-    pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
-    for start, end in pts:
-        if np.sum(np.abs(start - end)) == r[1] - r[0]:
-            for ax in axs:
-                ax.plot3D(*zip(start*scale, end*scale))
-    for i, ax in enumerate(axs):
+    for ax in axs.flatten()[0:-1]:
+        plot_cuboid(ax, scale=[1, 1, 5])
+    # plot a cube as well to cover github #25443
+    plot_cuboid(axs[1][2], scale=[1, 1, 1])
+
+    for i, ax in enumerate(axs.flatten()):
+        ax.set_title(aspects[i])
         ax.set_box_aspect((3, 4, 5))
         ax.set_aspect(aspects[i], adjustable='datalim')
+    axs[1][2].set_title('equal (cube)')
 
 
 @mpl3d_image_comparison(['aspects_adjust_box.png'], remove_text=False)
@@ -54,15 +62,9 @@ def test_aspects_adjust_box():
     fig, axs = plt.subplots(1, len(aspects), subplot_kw={'projection': '3d'},
                             figsize=(11, 3))
 
-    # Draw rectangular cuboid with side lengths [4, 3, 5]
-    r = [0, 1]
-    scale = np.array([4, 3, 5])
-    pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
-    for start, end in pts:
-        if np.sum(np.abs(start - end)) == r[1] - r[0]:
-            for ax in axs:
-                ax.plot3D(*zip(start*scale, end*scale))
     for i, ax in enumerate(axs):
+        plot_cuboid(ax, scale=[4, 3, 5])
+        ax.set_title(aspects[i])
         ax.set_aspect(aspects[i], adjustable='box')
 
 

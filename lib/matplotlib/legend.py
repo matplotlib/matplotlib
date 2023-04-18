@@ -1173,11 +1173,9 @@ class Legend(Artist):
 
         return l, b
 
-    def contains(self, event):
-        inside, info = self._default_contains(event)
-        if inside is not None:
-            return inside, info
-        return self.legendPatch.contains(event)
+    @_api.rename_parameter("3.8", "event", "mouseevent")
+    def contains(self, mouseevent):
+        return self.legendPatch.contains(mouseevent)
 
     def set_draggable(self, state, use_blit=False, update='loc'):
         """
@@ -1354,11 +1352,8 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
 
     # Two arguments:
     #   * user defined handles and labels
-    elif len(args) >= 2:
+    else:
         handles, labels = args[:2]
         extra_args = args[2:]
-
-    else:
-        raise TypeError('Invalid arguments to legend.')
 
     return handles, labels, extra_args, kwargs

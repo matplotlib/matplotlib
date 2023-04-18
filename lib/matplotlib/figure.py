@@ -289,9 +289,8 @@ class FigureBase(Artist):
         -------
             bool, {}
         """
-        inside, info = self._default_contains(mouseevent, figure=self)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}
 
@@ -389,6 +388,11 @@ default: %(va)s
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
+    def get_suptitle(self):
+        """Return the suptitle as string or an empty string if not set."""
+        text_obj = self._suptitle
+        return "" if text_obj is None else text_obj.get_text()
+
     @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
                              va='bottom', rc='label')
     @_docstring.copy(_suplabels)
@@ -398,6 +402,11 @@ default: %(va)s
                 'ha': 'center', 'va': 'bottom', 'rotation': 0,
                 'size': 'figure.labelsize', 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
+
+    def get_supxlabel(self):
+        """Return the supxlabel as string or an empty string if not set."""
+        text_obj = self._supxlabel
+        return "" if text_obj is None else text_obj.get_text()
 
     @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
                              va='center', rc='label')
@@ -409,6 +418,11 @@ default: %(va)s
                 'rotation_mode': 'anchor', 'size': 'figure.labelsize',
                 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
+
+    def get_supylabel(self):
+        """Return the supylabel as string or an empty string if not set."""
+        text_obj = self._supylabel
+        return "" if text_obj is None else text_obj.get_text()
 
     def get_edgecolor(self):
         """Get the edge color of the Figure rectangle."""
@@ -506,7 +520,7 @@ default: %(va)s
         if not artist.is_transform_set():
             artist.set_transform(self.transSubfigure)
 
-        if clip:
+        if clip and artist.get_clip_path() is None:
             artist.set_clip_path(self.patch)
 
         self.stale = True
@@ -2037,7 +2051,7 @@ default: %(va)s
                 this_level[(start_row, start_col)] = (name, slc, 'axes')
 
             # do the same thing for the nested mosaics (simpler because these
-            # can not be spans yet!)
+            # cannot be spans yet!)
             for (j, k), nested_mosaic in nested.items():
                 this_level[(j, k)] = (None, nested_mosaic, 'nested')
 
@@ -3516,7 +3530,7 @@ None}, default: None
                     and previous_engine is not None:
                 _api.warn_external('The figure layout has changed to tight')
         finally:
-            self.set_layout_engine(None)
+            self.set_layout_engine('none')
 
 
 def figaspect(arg):

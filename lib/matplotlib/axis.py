@@ -229,10 +229,11 @@ class Tick(martist.Artist):
                     self.gridline, self.label1, self.label2]
         return children
 
-    def set_clip_path(self, clippath, transform=None):
+    @_api.rename_parameter("3.8", "clippath", "path")
+    def set_clip_path(self, path, transform=None):
         # docstring inherited
-        super().set_clip_path(clippath, transform)
-        self.gridline.set_clip_path(clippath, transform)
+        super().set_clip_path(path, transform)
+        self.gridline.set_clip_path(path, transform)
         self.stale = True
 
     def contains(self, mouseevent):
@@ -242,9 +243,6 @@ class Tick(martist.Artist):
         This function always returns false.  It is more useful to test if the
         axis as a whole contains the mouse rather than the set of tick marks.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
         return False, {}
 
     def set_pad(self, val):
@@ -1082,10 +1080,11 @@ class Axis(martist.Artist):
         kwtrans.update(kw_)
         return kwtrans
 
-    def set_clip_path(self, clippath, transform=None):
-        super().set_clip_path(clippath, transform)
+    @_api.rename_parameter("3.8", "clippath", "path")
+    def set_clip_path(self, path, transform=None):
+        super().set_clip_path(path, transform)
         for child in self.majorTicks + self.minorTicks:
-            child.set_clip_path(clippath, transform)
+            child.set_clip_path(path, transform)
         self.stale = True
 
     def get_view_interval(self):
@@ -2230,10 +2229,8 @@ class XAxis(Axis):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the x-axis."""
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
+        if self._different_canvas(mouseevent):
+            return False, {}
         x, y = mouseevent.x, mouseevent.y
         try:
             trans = self.axes.transAxes.inverted()
@@ -2473,10 +2470,8 @@ class YAxis(Axis):
 
     def contains(self, mouseevent):
         # docstring inherited
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
+        if self._different_canvas(mouseevent):
+            return False, {}
         x, y = mouseevent.x, mouseevent.y
         try:
             trans = self.axes.transAxes.inverted()

@@ -132,9 +132,8 @@ class Patch(artist.Artist):
         -------
         (bool, empty dict)
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         radius = self._process_radius(radius)
         codes = self.get_path().codes
         if codes is not None:
@@ -1937,7 +1936,7 @@ class Arc(Ellipse):
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
-            raise ValueError("Arc objects can not be filled")
+            raise ValueError("Arc objects cannot be filled")
 
         super().__init__(xy, width, height, angle=angle, **kwargs)
 

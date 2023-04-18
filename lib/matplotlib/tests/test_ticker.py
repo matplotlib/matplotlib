@@ -233,11 +233,46 @@ class TestLogLocator:
         See if change was successful. Should not raise exception.
         """
         loc = mticker.LogLocator()
-        loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4)
+        with pytest.warns(mpl.MatplotlibDeprecationWarning, match="numdecs"):
+            loc.set_params(numticks=7, numdecs=8, subs=[2.0], base=4)
         assert loc.numticks == 7
-        assert loc.numdecs == 8
+        with pytest.warns(mpl.MatplotlibDeprecationWarning, match="numdecs"):
+            assert loc.numdecs == 8
         assert loc._base == 4
         assert list(loc._subs) == [2.0]
+
+    def test_tick_values_correct(self):
+        ll = mticker.LogLocator(subs=(1, 2, 5))
+        test_value = np.array([1.e-01, 2.e-01, 5.e-01, 1.e+00, 2.e+00, 5.e+00,
+                               1.e+01, 2.e+01, 5.e+01, 1.e+02, 2.e+02, 5.e+02,
+                               1.e+03, 2.e+03, 5.e+03, 1.e+04, 2.e+04, 5.e+04,
+                               1.e+05, 2.e+05, 5.e+05, 1.e+06, 2.e+06, 5.e+06,
+                               1.e+07, 2.e+07, 5.e+07, 1.e+08, 2.e+08, 5.e+08])
+        assert_almost_equal(ll.tick_values(1, 1e7), test_value)
+
+    def test_tick_values_not_empty(self):
+        mpl.rcParams['_internal.classic_mode'] = False
+        ll = mticker.LogLocator(subs=(1, 2, 5))
+        test_value = np.array([1.e-01, 2.e-01, 5.e-01, 1.e+00, 2.e+00, 5.e+00,
+                               1.e+01, 2.e+01, 5.e+01, 1.e+02, 2.e+02, 5.e+02,
+                               1.e+03, 2.e+03, 5.e+03, 1.e+04, 2.e+04, 5.e+04,
+                               1.e+05, 2.e+05, 5.e+05, 1.e+06, 2.e+06, 5.e+06,
+                               1.e+07, 2.e+07, 5.e+07, 1.e+08, 2.e+08, 5.e+08,
+                               1.e+09, 2.e+09, 5.e+09])
+        assert_almost_equal(ll.tick_values(1, 1e8), test_value)
+
+    def test_multiple_shared_axes(self):
+        rng = np.random.default_rng(19680801)
+        dummy_data = [rng.normal(size=100), [], []]
+        fig, axes = plt.subplots(len(dummy_data), sharex=True, sharey=True)
+
+        for ax, data in zip(axes.flatten(), dummy_data):
+            ax.hist(data, bins=10)
+            ax.set_yscale('log', nonpositive='clip')
+
+        for ax in axes.flatten():
+            assert all(ax.get_yticks() == axes[0].get_yticks())
+            assert ax.get_ylim() == axes[0].get_ylim()
 
 
 class TestNullLocator:
@@ -1447,6 +1482,24 @@ class TestPercentFormatter:
         fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
         with mpl.rc_context(rc={'text.usetex': usetex}):
             assert fmt.format_pct(50, 100) == expected
+
+
+def test_locale_comma():
+    currentLocale = locale.getlocale()
+    try:
+        locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
+        ticks = mticker.ScalarFormatter(useMathText=True, useLocale=True)
+        fmt = '$\\mathdefault{%1.1f}$'
+        x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+        assert x == '$\\mathdefault{0{,}5}$'
+        # Do not change , in the format string
+        fmt = ',$\\mathdefault{,%1.1f},$'
+        x = ticks._format_maybe_minus_and_locale(fmt, 0.5)
+        assert x == ',$\\mathdefault{,0{,}5},$'
+    except locale.Error:
+        pytest.skip("Locale de_DE.UTF-8 is not supported on this machine")
+    finally:
+        locale.setlocale(locale.LC_ALL, currentLocale)
 
 
 def test_majformatter_type():

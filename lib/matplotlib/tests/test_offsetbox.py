@@ -137,7 +137,7 @@ def test_get_packed_offsets(widths, total, sep, mode):
     _get_packed_offsets(widths, total, sep, mode=mode)
 
 
-_Params = namedtuple('_params', 'wd_list, total, sep, expected')
+_Params = namedtuple('_Params', 'wd_list, total, sep, expected')
 
 
 @pytest.mark.parametrize('widths, total, sep, expected', [

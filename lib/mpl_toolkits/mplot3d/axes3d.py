@@ -329,9 +329,8 @@ class Axes3D(Axes):
             ptp = np.ptp(view_intervals, axis=1)
             if self._adjustable == 'datalim':
                 mean = np.mean(view_intervals, axis=1)
-                delta = max(ptp[ax_indices])
-                scale = self._box_aspect[ptp == delta][0]
-                deltas = delta * self._box_aspect / scale
+                scale = max(ptp[ax_indices] / self._box_aspect[ax_indices])
+                deltas = scale * self._box_aspect
 
                 for i, set_lim in enumerate((self.set_xlim3d,
                                              self.set_ylim3d,
@@ -1000,13 +999,16 @@ class Axes3D(Axes):
 
     def _get_view(self):
         # docstring inherited
-        return (self.get_xlim(), self.get_ylim(), self.get_zlim(),
-                self.elev, self.azim, self.roll)
+        return {
+            "xlim": self.get_xlim(), "autoscalex_on": self.get_autoscalex_on(),
+            "ylim": self.get_ylim(), "autoscaley_on": self.get_autoscaley_on(),
+            "zlim": self.get_zlim(), "autoscalez_on": self.get_autoscalez_on(),
+        }, (self.elev, self.azim, self.roll)
 
     def _set_view(self, view):
         # docstring inherited
-        xlim, ylim, zlim, elev, azim, roll = view
-        self.set(xlim=xlim, ylim=ylim, zlim=zlim)
+        props, (elev, azim, roll) = view
+        self.set(**props)
         self.elev = elev
         self.azim = azim
         self.roll = roll

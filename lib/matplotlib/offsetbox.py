@@ -268,9 +268,8 @@ class OffsetBox(martist.Artist):
         --------
         .Artist.contains
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         for c in self.get_children():
             a, b = c.contains(mouseevent)
             if a:
@@ -1353,9 +1352,8 @@ or callable, default: value of *xycoords*
         self.stale = True
 
     def contains(self, mouseevent):
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         if not self._check_xy(None):
             return False, {}
         return self.offsetbox.contains(mouseevent)
@@ -1402,19 +1400,9 @@ or callable, default: value of *xycoords*
                            for child in self.get_children()])
 
     def update_positions(self, renderer):
-        """
-        Update pixel positions for the annotated point, the text and the arrow.
-        """
+        """Update pixel positions for the annotated point, the text, and the arrow."""
 
-        x, y = self.xybox
-        if isinstance(self.boxcoords, tuple):
-            xcoord, ycoord = self.boxcoords
-            x1, y1 = self._get_xy(renderer, x, y, xcoord)
-            x2, y2 = self._get_xy(renderer, x, y, ycoord)
-            ox0, oy0 = x1, y2
-        else:
-            ox0, oy0 = self._get_xy(renderer, x, y, self.boxcoords)
-
+        ox0, oy0 = self._get_xy(renderer, self.xybox, self.boxcoords)
         bbox = self.offsetbox.get_bbox(renderer)
         fw, fh = self._box_alignment
         self.offsetbox.set_offset(

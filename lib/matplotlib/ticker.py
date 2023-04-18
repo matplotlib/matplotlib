@@ -510,8 +510,14 @@ class ScalarFormatter(Formatter):
         """
         Format *arg* with *fmt*, applying Unicode minus and locale if desired.
         """
-        return self.fix_minus(locale.format_string(fmt, (arg,), True)
-                              if self._useLocale else fmt % arg)
+        return self.fix_minus(
+                # Escape commas introduced by format_string but not those present
+                # from the beginning in fmt.
+                ",".join(locale.format_string(part, (arg,), True)
+                         .replace(",", "{,}")
+                         for part in fmt.split(","))
+                if self._useLocale
+                else fmt % arg)
 
     def get_useMathText(self):
         """
@@ -2238,6 +2244,7 @@ class LogLocator(Locator):
 
     """
 
+    @_api.delete_parameter("3.8", "numdecs")
     def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=None):
         """Place ticks on the locations : subs[j] * base**i."""
         if numticks is None:
@@ -2247,9 +2254,10 @@ class LogLocator(Locator):
                 numticks = 'auto'
         self._base = float(base)
         self._set_subs(subs)
-        self.numdecs = numdecs
+        self._numdecs = numdecs
         self.numticks = numticks
 
+    @_api.delete_parameter("3.8", "numdecs")
     def set_params(self, base=None, subs=None, numdecs=None, numticks=None):
         """Set parameters within this locator."""
         if base is not None:
@@ -2257,9 +2265,12 @@ class LogLocator(Locator):
         if subs is not None:
             self._set_subs(subs)
         if numdecs is not None:
-            self.numdecs = numdecs
+            self._numdecs = numdecs
         if numticks is not None:
             self.numticks = numticks
+
+    numdecs = _api.deprecate_privatize_attribute(
+        "3.8", addendum="This attribute has no effect.")
 
     def _set_subs(self, subs):
         """
@@ -2303,8 +2314,7 @@ class LogLocator(Locator):
 
             if vmin <= 0.0 or not np.isfinite(vmin):
                 raise ValueError(
-                    "Data has no positive values, and therefore can not be "
-                    "log-scaled.")
+                    "Data has no positive values, and therefore cannot be log-scaled.")
 
         _log.debug('vmin %s vmax %s', vmin, vmax)
 
@@ -2330,7 +2340,7 @@ class LogLocator(Locator):
         # Get decades between major ticks.
         stride = (max(math.ceil(numdec / (numticks - 1)), 1)
                   if mpl.rcParams['_internal.classic_mode'] else
-                  (numdec + 1) // numticks + 1)
+                  numdec // numticks + 1)
 
         # if we have decided that the stride is as big or bigger than
         # the range, clip the stride back to the available range - 1
@@ -2398,7 +2408,8 @@ class LogLocator(Locator):
                 "log-scaled.")
             vmin, vmax = 1, 10
         else:
-            minpos = self.axis.get_minpos()
+            # Consider shared axises
+            minpos = min(axis.get_minpos() for axis in self.axis._get_shared_axis())
             if not np.isfinite(minpos):
                 minpos = 1e-300  # This should never take effect.
             if vmin <= 0:

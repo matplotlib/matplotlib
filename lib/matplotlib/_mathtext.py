@@ -462,7 +462,7 @@ class UnicodeFonts(TruetypeFonts):
     complete set of math symbols is STIX.
 
     This class will "fallback" on the Bakoma fonts when a required
-    symbol can not be found in the font.
+    symbol cannot be found in the font.
     """
 
     # Some glyphs are not present in the `cmr10` font, and must be brought in
@@ -1333,7 +1333,7 @@ class Vrule(Rule):
 
 _GlueSpec = namedtuple(
     "_GlueSpec", "width stretch stretch_order shrink shrink_order")
-_GlueSpec._named = {
+_GlueSpec._named = {  # type: ignore[attr-defined]
     'fil':         _GlueSpec(0., 1., 1, 0., 0),
     'fill':        _GlueSpec(0., 1., 2, 0., 0),
     'filll':       _GlueSpec(0., 1., 3, 0., 0),
@@ -1857,6 +1857,7 @@ class Parser:
         p.optional_group   = Forward()
         p.sqrt             = Forward()
         p.subsuper         = Forward()
+        p.text             = Forward()
         p.token            = Forward()
         p.underset         = Forward()
 
@@ -1907,6 +1908,8 @@ class Parser:
             r"\underset",
             p.optional_group("annotation") + p.optional_group("body"))
 
+        p.text <<= cmd(r"\text", QuotedString('{', '\\', endQuoteChar="}"))
+
         p.placeable     <<= (
             p.accent     # Must be before symbol as all accents are symbols
             | p.symbol   # Must be second to catch all named symbols and single
@@ -1922,6 +1925,7 @@ class Parser:
             | p.underset
             | p.sqrt
             | p.overline
+            | p.text
         )
 
         p.simple        <<= (
@@ -2021,6 +2025,14 @@ class Parser:
         return [hlist]
 
     float_literal = staticmethod(pyparsing_common.convertToFloat)
+
+    def text(self, s, loc, toks):
+        self.push_state()
+        state = self.get_state()
+        state.font = 'rm'
+        hlist = Hlist([Char(c, state) for c in toks[1]])
+        self.pop_state()
+        return [hlist]
 
     def _make_space(self, percentage):
         # In TeX, an em (the unit usually used to measure horizontal lengths)

@@ -34,7 +34,7 @@ consider the following points:
   link to any relevant issues.
 
 - If you are contributing fixes to docstrings, please pay attention to
-  http://matplotlib.org/devel/documenting_mpl.html#formatting.  In particular,
+  https://matplotlib.org/stable/devel/documenting_mpl.html#formatting-conventions.  In particular,
   note the difference between using single backquotes, double backquotes, and
   asterisks in the markup.
 

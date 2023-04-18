@@ -82,6 +82,11 @@ rules before submitting a pull request:
   by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
   information)
 
+* If you add new public API or change public API, update or add the
+  corresponding type hints. Most often this is found in the corresponding
+  ``.pyi`` file for the ``.py`` file which was edited. Changes in ``pyplot.py``
+  are type hinted inline.
+
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
 
@@ -268,25 +273,28 @@ Labels
 Milestones
 ----------
 
-* Set the milestone according to these rules:
+Set the milestone according to these guidelines:
 
-  * *New features and API changes* are milestoned for the next minor release
-    ``v3.N.0``.
+* *New features and API changes* are milestoned for the next minor release
+  ``v3.N.0``.
 
-  * *Bugfixes, tests for released code, and docstring changes* are milestoned
-    for the next patch release ``v3.N.M``.
+* *Bugfixes, tests for released code, and docstring changes* may be milestoned
+  for the next patch release ``v3.N.M``.
 
-  * *Documentation changes* (all .rst files and examples) are milestoned
-    ``v3.N-doc``.
+* *Documentation changes* (all .rst files and examples) may be milestoned
+  ``v3.N-doc``.
 
-  If multiple rules apply, choose the first matching from the above list.
+If multiple rules apply, choose the first matching from the above list.  See
+:ref:`backport-strategy` for detailed guidance on what should or should not be
+backported.
 
-  Setting a milestone does not imply or guarantee that a PR will be merged for that
-  release, but if it were to be merged what release it would be in.
+The milestone marks the release a PR should go into.  It is an intent but can
+be changed because of re-evaluation of the PR scope and maturity or release
+planning.
 
-  All of these PRs should target the main branch. The milestone tag triggers
-  an :ref:`automatic backport <automated-backports>` for milestones which have
-  a corresponding branch.
+All Pull Requests should target the main branch. The milestone tag triggers
+an :ref:`automatic backport <automated-backports>` for milestones which have
+a corresponding branch.
 
 .. _pr-merging:
 
@@ -364,7 +372,8 @@ will run on all supported platforms and versions of Python.
   individual commits by including the following substrings in commit messages:
 
   - ``[ci doc]``: restrict the CI to documentation checks. For when you only
-    changed documentation.
+    changed documentation (this skip is automatic if the changes are only under
+    ``doc/`` or ``galleries/``).
   - ``[skip circle]``: skip the documentation build check. For when you didn't
     change documentation.
   - Unit tests can be turned off for individual platforms with
@@ -434,26 +443,34 @@ Other branches are fed through :ref:`automatic <automated-backports>` or
 targeting other branches is only rarely necessary for special maintenance
 work.
 
-.. backport_strategy:
+.. _backport-strategy:
 
 Backport strategy
 -----------------
 
-We will always backport to the patch release branch (*v3.N.x*):
+Backports to the patch release branch (*v3.N.x*) are the changes that will be
+included in the next patch (aka bug-fix) release.  The goal of the patch
+releases is to fix bugs without adding any new regressions or behavior changes.
+We will always attempt to backport:
 
 - critical bug fixes (segfault, failure to import, things that the
   user can not work around)
-- fixes for regressions against the last two releases.
+- fixes for regressions introduced in last two minor releases
 
-Everything else (regressions against older releases, bugs/api
-inconsistencies the user can work around in their code) are on a
-case-by-case basis, should be low-risk, and need someone to advocate
-for and shepherd through the backport.
+and may attempt to backport regressions introduced in older releases.
+
+In the case where the backport is not clean, for example if the bug fix is
+built on top of other code changes we do not want to backport, balance the
+effort and risk of re-implementing the bug fix vs the severity of the bug.
+When in doubt, err on the side of not backporting.
+
+When backporting a Pull Request fails or is declined re-milestone the original
+PR to the next minor release and leave a comment explaining why.
 
 The only changes to be backported to the documentation branch (*v3.N.M-doc*)
-are changes to :file:`doc`, :file:`examples`, or :file:`tutorials`.
-Any changes to :file:`lib` or :file:`src` including docstring-only changes
-should not be backported to this branch.
+are changes to :file:`doc`, :file:`examples`, or :file:`tutorials`.  Any
+changes to :file:`lib` or :file:`src`, including docstring-only changes, must
+not be backported to this branch.
 
 
 .. _automated-backports:

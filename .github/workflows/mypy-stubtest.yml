@@ -1,0 +1,54 @@
+---
+name: Mypy Stubtest
+on: [pull_request]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  mypy-stubtest:
+    name: mypy-stubtest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install mypy
+        run: |
+          pip3 install -r requirements/testing/mypy.txt \
+            -r requirements/testing/all.txt
+          pip3 install -e .
+
+      - name: Set up reviewdog
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -sfL \
+            https://github.com/reviewdog/reviewdog/raw/master/install.sh | \
+              sh -s -- -b "$HOME/bin"
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Run mypy stubtest
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -o pipefail
+          MPLBACKEND=agg python -m mypy.stubtest \
+            --mypy-config-file pyproject.toml \
+            --allowlist ci/mypy-stubtest-allowlist.txt \
+            matplotlib | \
+              reviewdog \
+                -efm '%Eerror: %m' \
+                -efm '%CStub: in file %f:%l' \
+                -efm '%CStub: in file %f' \
+                -efm '%+CRuntime:%.%#' \
+                -efm '%+CMISSING' \
+                -efm '%+Cdef %.%#' \
+                -efm '%+C<%.%#>' \
+                -efm '%Z' \
+                -reporter=github-check -tee -name=mypy-stubtest \
+                -filter-mode=nofilter

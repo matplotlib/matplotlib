@@ -153,6 +153,7 @@ Alphabetical list of modules:
    transformations.rst
    tri_api.rst
    type1font.rst
+   typing_api.rst
    units_api.rst
    widgets_api.rst
    _api_api.rst

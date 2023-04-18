@@ -4,7 +4,7 @@ import platform
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-from matplotlib import _api, cbook
+from matplotlib import cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.patches import Circle, Ellipse
@@ -417,7 +417,7 @@ def test_image_grid_label_mode_deprecation_warning():
     imdata = np.arange(9).reshape((3, 3))
 
     fig = plt.figure()
-    with pytest.warns(_api.MatplotlibDeprecationWarning,
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
                       match="Passing an undefined label_mode"):
         grid = ImageGrid(fig, (0, 0, 1, 1), (2, 1), label_mode="foo")
 
@@ -608,9 +608,14 @@ def test_grid_axes_position(direction):
     fig = plt.figure()
     grid = Grid(fig, 111, (2, 2), direction=direction)
     loc = [ax.get_axes_locator() for ax in np.ravel(grid.axes_row)]
-    assert loc[1]._nx > loc[0]._nx and loc[2]._ny < loc[0]._ny
-    assert loc[0]._nx == loc[2]._nx and loc[0]._ny == loc[1]._ny
-    assert loc[3]._nx == loc[1]._nx and loc[3]._ny == loc[2]._ny
+    # Test nx.
+    assert loc[1].args[0] > loc[0].args[0]
+    assert loc[0].args[0] == loc[2].args[0]
+    assert loc[3].args[0] == loc[1].args[0]
+    # Test ny.
+    assert loc[2].args[1] < loc[0].args[1]
+    assert loc[0].args[1] == loc[1].args[1]
+    assert loc[3].args[1] == loc[2].args[1]
 
 
 @pytest.mark.parametrize('rect, ngrids, error, message', (

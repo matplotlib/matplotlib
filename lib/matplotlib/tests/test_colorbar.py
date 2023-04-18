@@ -653,6 +653,12 @@ def test_colorbar_scale_reset():
 
     assert cbar.outline.get_edgecolor() == mcolors.to_rgba('red')
 
+    # log scale with no vmin/vmax set should scale to the data if there
+    # is a mappable already associated with the colorbar, not (0, 1)
+    pcm.norm = LogNorm()
+    assert pcm.norm.vmin == z.min()
+    assert pcm.norm.vmax == z.max()
+
 
 def test_colorbar_get_ticks_2():
     plt.rcParams['_internal.classic_mode'] = False

@@ -1633,8 +1633,8 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         try:
             return np.isfinite(val) if np.isscalar(val) else True
         except TypeError:
-            # This is something that numpy can not make heads or tails
-            # of, assume "finite"
+            # This is something that NumPy cannot make heads or tails of,
+            # assume "finite"
             return True
     if skip_nonfinite is False:
         if isinstance(obj, collections.abc.Iterator):

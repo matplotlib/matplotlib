@@ -110,11 +110,12 @@ Statistics
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.ecdf
    Axes.boxplot
    Axes.violinplot
 
-   Axes.violin
    Axes.bxp
+   Axes.violin
 
 Binned
 ------
