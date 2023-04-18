@@ -101,6 +101,8 @@ to MATLAB®, a registered trademark of The MathWorks, Inc.
 
 """
 
+from matplotlib.colors import _color_sequences as color_sequences
+from matplotlib.cm import _colormaps as colormaps
 __all__ = [
     "__bibtex__",
     "__version__",
@@ -908,7 +910,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
             _log.warning("""
 Bad key %(key)s in file %(fname)s, line %(line_no)s (%(line)r)
 You probably need to get an updated matplotlibrc file from
-https://github.com/matplotlib/matplotlib/blob/main/lib/matplotlib/mpl-data/matplotlibrc
+https://github.com/matplotlib/matplotlib/blob/%(version)s/main/lib/matplotlib/mpl-data/matplotlibrc
 or from the matplotlib source distribution""",
                          dict(key=key, fname=fname, line_no=line_no,
                               line=line.rstrip('\n'), version=version))
@@ -1037,14 +1039,14 @@ def rc(group, **kwargs):
     """
 
     aliases = {
-        'lw':  'linewidth',
-        'ls':  'linestyle',
-        'c':   'color',
-        'fc':  'facecolor',
-        'ec':  'edgecolor',
+        'lw': 'linewidth',
+        'ls': 'linestyle',
+        'c': 'color',
+        'fc': 'facecolor',
+        'ec': 'edgecolor',
         'mew': 'markeredgewidth',
-        'aa':  'antialiased',
-        }
+        'aa': 'antialiased',
+    }
 
     if isinstance(group, str):
         group = (group,)
@@ -1488,5 +1490,3 @@ _log.debug('platform is %s', sys.platform)
 
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
-from matplotlib.cm import _colormaps as colormaps
-from matplotlib.colors import _color_sequences as color_sequences
