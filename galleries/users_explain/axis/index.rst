@@ -10,7 +10,7 @@ of the usage of Axis objects and controlling them in Matplotlib.
 For information on the `~matplotlib.artist.Artist` class, see the
 :ref: `tutorial page <artists_tutorial>`.
 
-For even more information see the  :ref: `examples page <axis_artist_examples>`.
+For even more information see the :ref: `examples page <axis_artist_examples>`.
 
 
 
