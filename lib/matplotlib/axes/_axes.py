@@ -1047,9 +1047,9 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : list of colors, default: :rc:`lines.color`
+        colors : color or list of colors, default: :rc:`lines.color`
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
         label : str, default: ''
 
@@ -1127,9 +1127,9 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : list of colors, default: :rc:`lines.color`
+        colors : color or list of colors, default: :rc:`lines.color`
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
         label : str, default: ''
 
@@ -3072,7 +3072,7 @@ class Axes(_AxesBase):
         labels : list, default: None
             A sequence of strings providing the labels for each wedge
 
-        colors : array-like, default: None
+        colors : color or array-like of color, default: None
             A sequence of colors through which the pie chart will cycle.  If
             *None*, will use the colors in the currently active cycle.
 
