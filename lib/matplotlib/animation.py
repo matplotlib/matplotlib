@@ -276,9 +276,10 @@ class MovieWriter(AbstractMovieWriter):
             means higher quality movies, but increase the file size.  A value
             of -1 lets the underlying movie encoder select the bitrate.
         extra_args : list of str or None, optional
-            Extra command-line arguments passed to the underlying movie
-            encoder.  The default, None, means to use
-            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+            Extra command-line arguments passed to the underlying movie encoder. These
+            arguments are passed last to the encoder, just before the filename. The
+            default, None, means to use :rc:`animation.[name-of-encoder]_args` for the
+            builtin writers.
         metadata : dict[str, str], default: {}
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
@@ -538,9 +539,9 @@ class FFMpegBase:
                          'split [a][b];[a] palettegen [p];[b][p] paletteuse'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
-        args.extend(extra_args)
         for k, v in self.metadata.items():
             args.extend(['-metadata', f'{k}={v}'])
+        args.extend(extra_args)
 
         return args + ['-y', self.outfile]
 
@@ -937,9 +938,10 @@ class Animation:
             of -1 lets the underlying movie encoder select the bitrate.
 
         extra_args : list of str or None, optional
-            Extra command-line arguments passed to the underlying movie
-            encoder.  The default, None, means to use
-            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+            Extra command-line arguments passed to the underlying movie encoder. These
+            arguments are passed last to the encoder, just before the output filename.
+            The default, None, means to use :rc:`animation.[name-of-encoder]_args` for
+            the builtin writers.
 
         metadata : dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
