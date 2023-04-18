@@ -71,10 +71,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         finally:
             painter.end()
 
-    def print_figure(self, *args, **kwargs):
-        super().print_figure(*args, **kwargs)
-        self.draw()
-
 
 @_BackendQT.export
 class _BackendQTAgg(_BackendQT):
