@@ -552,8 +552,12 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
     """
     Pipe-based ffmpeg writer.
 
-    Frames are streamed directly to ffmpeg via a pipe and written in a single
-    pass.
+    Frames are streamed directly to ffmpeg via a pipe and written in a single pass.
+
+    This effectively works as a slideshow input to ffmpeg with the fps passed as
+    ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     def _args(self):
         # Returns the command line parameters for subprocess to use
@@ -576,8 +580,12 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     File-based ffmpeg writer.
 
-    Frames are written to temporary files on disk and then stitched
-    together at the end.
+    Frames are written to temporary files on disk and then stitched together at the end.
+
+    This effectively works as a slideshow input to ffmpeg with the fps passed as
+    ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
