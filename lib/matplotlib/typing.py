@@ -38,8 +38,8 @@ MarkEveryType = Union[
 
 MarkerType = Union[str, path.Path, MarkerStyle]
 FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
-JoinStyleType = JoinStyle | Literal["miter", "round", "bevel"]
-CapStyleType = CapStyle | Literal["butt", "projecting", "round"]
+JoinStyleType = Union[JoinStyle, Literal["miter", "round", "bevel"]]
+CapStyleType = Union[CapStyle, Literal["butt", "projecting", "round"]]
 
 RcStyleType = Union[
     str, dict[str, Any], pathlib.Path, list[Union[str, pathlib.Path, dict[str, Any]]]
