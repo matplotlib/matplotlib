@@ -312,7 +312,7 @@ class _AxesBase(martist.Artist):
     def get_xlim(self) -> tuple[float, float]: ...
     def set_xlim(
         self,
-        left: float | None = ...,
+        left: float | tuple[float, float] | None = ...,
         right: float | None = ...,
         *,
         emit: bool = ...,
@@ -338,7 +338,7 @@ class _AxesBase(martist.Artist):
     def get_ylim(self) -> tuple[float, float]: ...
     def set_ylim(
         self,
-        bottom: float | None = ...,
+        bottom: float | tuple[float, float] | None = ...,
         top: float | None = ...,
         *,
         emit: bool = ...,
