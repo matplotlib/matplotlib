@@ -14,6 +14,7 @@ import pathlib
 from typing import Any, Hashable, Literal, Union
 
 from . import path
+from ._enums import JoinStyle, CapStyle
 from .markers import MarkerStyle
 
 # The following are type aliases. Once python 3.9 is dropped, they should be annotated
@@ -37,6 +38,8 @@ MarkEveryType = Union[
 
 MarkerType = Union[str, path.Path, MarkerStyle]
 FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
+JoinStyleType = JoinStyle | Literal["miter", "round", "bevel"]
+CapStyleType = CapStyle | Literal["butt", "projecting", "round"]
 
 RcStyleType = Union[
     str, dict[str, Any], pathlib.Path, list[Union[str, pathlib.Path, dict[str, Any]]]
