@@ -2429,12 +2429,8 @@ class _SelectorWidget(AxesWidget):
 
     @property
     def visible(self):
+        _api.warn_deprecated("3.8", alternative="get_visible")
         return self.get_visible()
-
-    @visible.setter
-    def visible(self, visible):
-        _api.warn_deprecated("3.6", alternative="set_visible")
-        self.set_visible(visible)
 
     def clear(self):
         """Clear the selection and set the selector ready to make a new one."""
