@@ -252,7 +252,7 @@ testing the following will be used if they are installed.
 - pytest-xvfb_ to run tests without windows popping up (Linux)
 - pytz_ used to test pytz int
 - sphinx_ used to test our sphinx extensions
-- WenQuanYi Zen Hei and `Noto Sans CJK <https://fonts.google.com/noto/use>`_
+- `Noto Sans CJK <https://fonts.google.com/noto/use>`_
   fonts for testing font fallback and non-western fonts
 - xarray_ used to test compatibility with xarray
 
