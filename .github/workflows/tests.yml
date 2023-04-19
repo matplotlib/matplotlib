@@ -84,6 +84,7 @@ jobs:
         run: |
           case "${{ runner.os }}" in
           Linux)
+            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt-get update -yy
             sudo apt-get install -yy \
               ccache \
