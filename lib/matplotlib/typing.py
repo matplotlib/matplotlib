@@ -19,7 +19,7 @@ from .markers import MarkerStyle
 # The following are type aliases. Once python 3.9 is dropped, they should be annotated
 # using ``typing.TypeAlias`` and Unions should be converted to using ``|`` syntax.
 
-RGBColorType = Union[tuple[float, float, float], tuple[float, float, float, float], str]
+RGBColorType = Union[tuple[float, float, float], str]
 RGBAColorType = Union[
     str,  # "none" or "#RRGGBBAA"/"#RGBA" hex strings
     tuple[float, float, float, float],
