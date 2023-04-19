@@ -58,8 +58,8 @@ recent changes, please refer to the :doc:`/users/release_notes`.
     one.
 
 2014-05-20
-    Added logic to in FontManager to invalidate font-cache if if font-family
-    rcparams have changed.
+    Added logic in FontManager to invalidate font-cache if font-family rcparams
+    have changed.
 
 2014-05-16
     Fixed the positioning of multi-line text in the PGF backend.
@@ -6103,7 +6103,7 @@ recent changes, please refer to the :doc:`/users/release_notes`.
     5X speedup for ps. - JDH
 
 2004-05-14
-    On second thought... created an "nx" namespace in in numerix which maps
+    On second thought... created an "nx" namespace in numerix which maps
     type names onto typecodes the same way for both numarray and Numeric.  This
     undoes my previous change immediately below. To get a typename for Int16
     usable in a Numeric extension: say nx.Int16. - JTM

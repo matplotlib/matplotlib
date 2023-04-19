@@ -1122,7 +1122,7 @@ Issues (187):
 * :ghissue:`21300`: [Bug]: zooming in on contour plot gives false extra contour lines
 * :ghissue:`21466`: [Bug]: EPS export shows hidden tick labels when using tex for text rendering
 * :ghissue:`21463`: [Bug]: Plotting lables with Greek latters in math mode produces Parsing error when plt.show() runs
-* :ghissue:`20534`: Document formatting for for sections
+* :ghissue:`20534`: Document formatting for sections
 * :ghissue:`21246`: [Doc]: Install info takes up too much room on new front page
 * :ghissue:`21432`: [Doc]: Double clicking parameter name also highlights next item of text
 * :ghissue:`21310`: [Bug]: contour on 3d plot fails if x and y are 1d and different lengths
