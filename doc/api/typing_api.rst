@@ -8,4 +8,6 @@
 .. autodata:: matplotlib.typing.DrawStyleType
 .. autodata:: matplotlib.typing.MarkEveryType
 .. autodata:: matplotlib.typing.FillStyleType
+.. autodata:: matplotlib.typing.CapStyleType
+.. autodata:: matplotlib.typing.JoinStyleType
 .. autodata:: matplotlib.typing.RcStyleType
