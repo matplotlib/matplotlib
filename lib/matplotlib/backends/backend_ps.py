@@ -914,7 +914,8 @@ class FigureCanvasPS(FigureCanvasBase):
                       f"%%DocumentPaperSizes: {papertype}\n"
                       f"%%Pages: 1\n",
                       end="", file=fh)
-            print(f"{dsc_comments}\n"
+            print(f"%%LanguageLevel: 3\n"
+                  f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
                   f"{get_bbox_header(bbox)[0]}\n"
                   f"%%EndComments\n",
@@ -1024,6 +1025,7 @@ class FigureCanvasPS(FigureCanvasBase):
             tmppath.write_text(
                 f"""\
 %!PS-Adobe-3.0 EPSF-3.0
+%%LanguageLevel: 3
 {dsc_comments}
 {get_bbox_header(bbox)[0]}
 %%EndComments
@@ -1196,7 +1198,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
              "-dEPSCrop" if eps else "-sPAPERSIZE#%s" % ptype,
              tmpfile, tmppdf], _log)
         cbook._check_and_log_subprocess(
-            ["pdftops", "-paper", "match", "-level2", tmppdf, tmpps], _log)
+            ["pdftops", "-paper", "match", "-level3", tmppdf, tmpps], _log)
         shutil.move(tmpps, tmpfile)
     if eps:
         pstoeps(tmpfile)
