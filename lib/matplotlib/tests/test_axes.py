@@ -19,7 +19,6 @@ import pytest
 import matplotlib
 import matplotlib as mpl
 from matplotlib import rc_context, patheffects
-from matplotlib._api import MatplotlibDeprecationWarning
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
@@ -4618,7 +4617,7 @@ def test_eventplot_problem_kwargs(recwarn):
                     linestyle=['dashdot', 'dotted'])
 
     assert len(recwarn) == 3
-    assert all(issubclass(wi.category, MatplotlibDeprecationWarning)
+    assert all(issubclass(wi.category, mpl.MatplotlibDeprecationWarning)
                for wi in recwarn)
 
 
@@ -4924,6 +4923,20 @@ def test_lines_with_colors(fig_test, fig_ref, data):
                                         colors=expect_color, linewidth=5)
     fig_ref.add_subplot(2, 1, 2).hlines(expect_xy, 0, 1,
                                         colors=expect_color, linewidth=5)
+
+
+@image_comparison(['vlines_hlines_blended_transform'],
+                  extensions=['png'], style='mpl20')
+def test_vlines_hlines_blended_transform():
+    t = np.arange(5.0, 10.0, 0.1)
+    s = np.exp(-t) + np.sin(2 * np.pi * t) + 10
+    fig, (hax, vax) = plt.subplots(2, 1, figsize=(6, 6))
+    hax.plot(t, s, '^')
+    hax.hlines([10, 9], xmin=0, xmax=0.5,
+               transform=hax.get_yaxis_transform(), colors='r')
+    vax.plot(t, s, '^')
+    vax.vlines([6, 7], ymin=0, ymax=0.15, transform=vax.get_xaxis_transform(),
+               colors='r')
 
 
 @image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True,
@@ -6911,6 +6924,31 @@ def test_eventplot_legend():
     plt.legend()
 
 
+@pytest.mark.parametrize('err, args, kwargs, match', (
+        (ValueError, [[1]], {'lineoffsets': []}, 'lineoffsets cannot be empty'),
+        (ValueError, [[1]], {'linelengths': []}, 'linelengths cannot be empty'),
+        (ValueError, [[1]], {'linewidths': []}, 'linewidths cannot be empty'),
+        (ValueError, [[1]], {'linestyles': []}, 'linestyles cannot be empty'),
+        (ValueError, [[1]], {'alpha': []}, 'alpha cannot be empty'),
+        (ValueError, [1], {}, 'positions must be one-dimensional'),
+        (ValueError, [[1]], {'lineoffsets': [1, 2]},
+         'lineoffsets and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linelengths': [1, 2]},
+         'linelengths and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linewidths': [1, 2]},
+         'linewidths and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'linestyles': [1, 2]},
+         'linestyles and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'alpha': [1, 2]},
+         'alpha and positions are unequal sized sequences'),
+        (ValueError, [[1]], {'colors': [1, 2]},
+         'colors and positions are unequal sized sequences'),
+))
+def test_eventplot_errors(err, args, kwargs, match):
+    with pytest.raises(err, match=match):
+        plt.eventplot(*args, **kwargs)
+
+
 def test_bar_broadcast_args():
     fig, ax = plt.subplots()
     # Check that a bar chart with a single height for all bars works.
@@ -8019,6 +8057,19 @@ def test_centered_bar_label_nonlinear():
     ax.set_xlim(1, None)
     ax.bar_label(bar_container, label_type='center')
     ax.set_axis_off()
+
+
+def test_centered_bar_label_label_beyond_limits():
+    fig, ax = plt.subplots()
+
+    last = 0
+    for label, value in zip(['a', 'b', 'c'], [10, 20, 50]):
+        bar_container = ax.barh('col', value, label=label, left=last)
+        ax.bar_label(bar_container, label_type='center')
+        last += value
+    ax.set_xlim(None, 20)
+
+    fig.draw_without_rendering()
 
 
 def test_bar_label_location_errorbars():

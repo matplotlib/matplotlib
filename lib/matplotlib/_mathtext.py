@@ -462,7 +462,7 @@ class UnicodeFonts(TruetypeFonts):
     complete set of math symbols is STIX.
 
     This class will "fallback" on the Bakoma fonts when a required
-    symbol can not be found in the font.
+    symbol cannot be found in the font.
     """
 
     # Some glyphs are not present in the `cmr10` font, and must be brought in

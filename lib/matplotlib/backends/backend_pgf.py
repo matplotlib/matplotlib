@@ -657,6 +657,7 @@ class RendererPgf(RendererBase):
         s = _escape_and_apply_props(s, prop)
 
         _writeln(self.fh, r"\begin{pgfscope}")
+        self._print_pgf_clip(gc)
 
         alpha = gc.get_alpha()
         if alpha != 1.0:

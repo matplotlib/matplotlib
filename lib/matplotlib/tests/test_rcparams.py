@@ -555,33 +555,33 @@ def test_deprecation(monkeypatch):
     monkeypatch.setitem(
         mpl._deprecated_map, "patch.linewidth",
         ("0.0", "axes.linewidth", lambda old: 2 * old, lambda new: new / 2))
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert mpl.rcParams["patch.linewidth"] \
             == mpl.rcParams["axes.linewidth"] / 2
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         mpl.rcParams["patch.linewidth"] = 1
     assert mpl.rcParams["axes.linewidth"] == 2
 
     monkeypatch.setitem(
         mpl._deprecated_ignore_map, "patch.edgecolor",
         ("0.0", "axes.edgecolor"))
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert mpl.rcParams["patch.edgecolor"] \
             == mpl.rcParams["axes.edgecolor"]
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         mpl.rcParams["patch.edgecolor"] = "#abcd"
     assert mpl.rcParams["axes.edgecolor"] != "#abcd"
 
     monkeypatch.setitem(
         mpl._deprecated_ignore_map, "patch.force_edgecolor",
         ("0.0", None))
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert mpl.rcParams["patch.force_edgecolor"] is None
 
     monkeypatch.setitem(
         mpl._deprecated_remain_as_none, "svg.hashsalt",
         ("0.0",))
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         mpl.rcParams["svg.hashsalt"] = "foobar"
     assert mpl.rcParams["svg.hashsalt"] == "foobar"  # Doesn't warn.
     mpl.rcParams["svg.hashsalt"] = None  # Doesn't warn.

@@ -1,7 +1,6 @@
 import collections.abc
 from collections.abc import Callable, Collection, Generator, Iterable, Iterator
 import contextlib
-import io
 import os
 from pathlib import Path
 
@@ -12,7 +11,9 @@ from numpy.typing import ArrayLike
 
 from typing import (
     Any,
+    ContextManager,
     Generic,
+    IO,
     Literal,
     TypeVar,
     overload,
@@ -42,35 +43,50 @@ class silent_list(list[_T]):
 def strip_math(s: str) -> str: ...
 def is_writable_file_like(obj: Any) -> bool: ...
 def file_requires_unicode(x: Any) -> bool: ...
+@overload
 def to_filehandle(
-    fname: str | os.PathLike | io.FileIO,
+    fname: str | os.PathLike | IO,
     flag: str = ...,
-    return_opened: bool = ...,
+    return_opened: Literal[False] = ...,
     encoding: str | None = ...,
-) -> io.FileIO: ...
+) -> IO: ...
+@overload
+def to_filehandle(
+    fname: str | os.PathLike | IO,
+    flag: str,
+    return_opened: Literal[True],
+    encoding: str | None = ...,
+) -> tuple[IO, bool]: ...
+@overload
+def to_filehandle(
+    fname: str | os.PathLike | IO,
+    *, # if flag given, will match previous sig
+    return_opened: Literal[True],
+    encoding: str | None = ...,
+) -> tuple[IO, bool]: ...
 def open_file_cm(
-    path_or_file: str | os.PathLike | io.FileIO,
+    path_or_file: str | os.PathLike | IO,
     mode: str = ...,
     encoding: str | None = ...,
-): ...
+) -> ContextManager[IO]: ...
 def is_scalar_or_string(val: Any) -> bool: ...
 @overload
 def get_sample_data(
-    fname: str | os.PathLike | io.FileIO,
+    fname: str | os.PathLike,
     asfileobj: Literal[True] = ...,
     *,
     np_load: Literal[True]
 ) -> np.ndarray: ...
 @overload
 def get_sample_data(
-    fname: str | os.PathLike | io.FileIO,
+    fname: str | os.PathLike,
     asfileobj: Literal[True] = ...,
     *,
     np_load: Literal[False] = ...
-) -> io.FileIO: ...
+) -> IO: ...
 @overload
 def get_sample_data(
-    fname: str | os.PathLike | io.FileIO,
+    fname: str | os.PathLike,
     asfileobj: Literal[False],
     *,
     np_load: bool = ...
@@ -96,7 +112,7 @@ class Stack(Generic[_T]):
 
 def safe_masked_invalid(x: ArrayLike, copy: bool = ...) -> np.ndarray: ...
 def print_cycles(
-    objects: Iterable[Any], outstream: io.FileIO = ..., show_progress: bool = ...
+    objects: Iterable[Any], outstream: IO = ..., show_progress: bool = ...
 ) -> None: ...
 
 class Grouper(Generic[_T]):

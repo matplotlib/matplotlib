@@ -26,9 +26,7 @@ in order::
 
 .. redirect-from:: /gallery/font_family_rc_sgskip
 
-
-
-The font font.family defaults are OS dependent and can be viewed with
+The ``font.family`` defaults are OS dependent and can be viewed with:
 """
 import matplotlib.pyplot as plt
 

@@ -147,9 +147,9 @@ class RendererAgg(RendererBase):
             except OverflowError:
                 cant_chunk = ''
                 if rgbFace is not None:
-                    cant_chunk += "- can not split filled path\n"
+                    cant_chunk += "- cannot split filled path\n"
                 if gc.get_hatch() is not None:
-                    cant_chunk += "- can not split hatched path\n"
+                    cant_chunk += "- cannot split hatched path\n"
                 if not path.should_simplify:
                     cant_chunk += "- path.should_simplify is False\n"
                 if len(cant_chunk):
@@ -157,7 +157,7 @@ class RendererAgg(RendererBase):
                         "Exceeded cell block limit in Agg, however for the "
                         "following reasons:\n\n"
                         f"{cant_chunk}\n"
-                        "we can not automatically split up this path to draw."
+                        "we cannot automatically split up this path to draw."
                         "\n\nPlease manually simplify your path."
                     )
 

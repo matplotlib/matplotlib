@@ -259,6 +259,7 @@ class MultiCursor(Widget):
         self,
         canvas: Any,
         axes: Sequence[Axes],
+        *,
         useblit: bool = ...,
         horizOn: bool = ...,
         vertOn: bool = ...,
@@ -297,8 +298,6 @@ class _SelectorWidget(AxesWidget):
     def get_visible(self) -> bool: ...
     @property
     def visible(self) -> bool: ...
-    @visible.setter
-    def visible(self, visible: bool) -> None: ...
     def clear(self) -> None: ...
     @property
     def artists(self) -> tuple[Artist]: ...

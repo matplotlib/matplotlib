@@ -42,11 +42,10 @@ Implementation
    a text file.
 2. Classes should be reorganized so setter and getter methods are
    sequential in the code, with getter methods first.
-3. Getter and setter methods the provide additional optional optional
-   arguments should have those arguments accessible in another manner,
-   either as additional getter or setter methods or attributes of
-   other classes.  If those classes are not accessible, getters for
-   them should be added.
+3. Getter and setter methods that provide additional optional arguments should
+   have those arguments accessible in another manner, either as additional
+   getter or setter methods or attributes of other classes. If those classes
+   are not accessible, getters for them should be added.
 4. Property decorators will be added to the setter and getter methods
    without the prefix.  Those with the prefix will be marked as
    deprecated.

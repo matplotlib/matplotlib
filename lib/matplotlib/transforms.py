@@ -1777,9 +1777,10 @@ class AffineBase(Transform):
         raise NotImplementedError('Affine subclasses should override this '
                                   'method.')
 
-    def transform_non_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
-        return points
+        return values
 
     def transform_path(self, path):
         # docstring inherited
@@ -1834,26 +1835,28 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         return tuple(mtx[:2].swapaxes(0, 1).flat)
 
-    def transform_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_affine(self, values):
         mtx = self.get_matrix()
-        if isinstance(points, np.ma.MaskedArray):
-            tpoints = affine_transform(points.data, mtx)
-            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(points))
-        return affine_transform(points, mtx)
+        if isinstance(values, np.ma.MaskedArray):
+            tpoints = affine_transform(values.data, mtx)
+            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(values))
+        return affine_transform(values, mtx)
 
     if DEBUG:
         _transform_affine = transform_affine
 
-        def transform_affine(self, points):
+        @_api.rename_parameter("3.8", "points", "values")
+        def transform_affine(self, values):
             # docstring inherited
             # The major speed trap here is just converting to the
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
-            if not isinstance(points, np.ndarray):
+            if not isinstance(values, np.ndarray):
                 _api.warn_external(
-                    f'A non-numpy array of type {type(points)} was passed in '
+                    f'A non-numpy array of type {type(values)} was passed in '
                     f'for transformation, which results in poor performance.')
-            return self._transform_affine(points)
+            return self._transform_affine(values)
 
     def inverted(self):
         # docstring inherited
@@ -2106,17 +2109,20 @@ class IdentityTransform(Affine2DBase):
         # docstring inherited
         return self._mtx
 
-    def transform(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform(self, values):
         # docstring inherited
-        return np.asanyarray(points)
+        return np.asanyarray(values)
 
-    def transform_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_affine(self, values):
         # docstring inherited
-        return np.asanyarray(points)
+        return np.asanyarray(values)
 
-    def transform_non_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
-        return np.asanyarray(points)
+        return np.asanyarray(values)
 
     def transform_path(self, path):
         # docstring inherited
@@ -2202,26 +2208,27 @@ class BlendedGenericTransform(_BlendedMixin, Transform):
         # docstring inherited
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
 
-    def transform_non_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
         if self._x.is_affine and self._y.is_affine:
-            return points
+            return values
         x = self._x
         y = self._y
 
         if x == y and x.input_dims == 2:
-            return x.transform_non_affine(points)
+            return x.transform_non_affine(values)
 
         if x.input_dims == 2:
-            x_points = x.transform_non_affine(points)[:, 0:1]
+            x_points = x.transform_non_affine(values)[:, 0:1]
         else:
-            x_points = x.transform_non_affine(points[:, 0])
+            x_points = x.transform_non_affine(values[:, 0])
             x_points = x_points.reshape((len(x_points), 1))
 
         if y.input_dims == 2:
-            y_points = y.transform_non_affine(points)[:, 1:]
+            y_points = y.transform_non_affine(values)[:, 1:]
         else:
-            y_points = y.transform_non_affine(points[:, 1])
+            y_points = y.transform_non_affine(values[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
         if (isinstance(x_points, np.ma.MaskedArray) or
@@ -2385,18 +2392,20 @@ class CompositeGenericTransform(Transform):
 
     __str__ = _make_str_method("_a", "_b")
 
-    def transform_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_affine(self, values):
         # docstring inherited
-        return self.get_affine().transform(points)
+        return self.get_affine().transform(values)
 
-    def transform_non_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
         if self._a.is_affine and self._b.is_affine:
-            return points
+            return values
         elif not self._a.is_affine and self._b.is_affine:
-            return self._a.transform_non_affine(points)
+            return self._a.transform_non_affine(values)
         else:
-            return self._b.transform_non_affine(self._a.transform(points))
+            return self._b.transform_non_affine(self._a.transform(values))
 
     def transform_path_non_affine(self, path):
         # docstring inherited

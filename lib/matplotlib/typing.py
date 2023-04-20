@@ -14,12 +14,27 @@ import pathlib
 from typing import Any, Hashable, Literal, Union
 
 from . import path
+from ._enums import JoinStyle, CapStyle
 from .markers import MarkerStyle
 
 # The following are type aliases. Once python 3.9 is dropped, they should be annotated
 # using ``typing.TypeAlias`` and Unions should be converted to using ``|`` syntax.
 
-ColorType = Union[tuple[float, float, float], tuple[float, float, float, float], str]
+RGBColorType = Union[tuple[float, float, float], str]
+RGBAColorType = Union[
+    str,  # "none" or "#RRGGBBAA"/"#RGBA" hex strings
+    tuple[float, float, float, float],
+    # 2 tuple (color, alpha) representations, not infinitely recursive
+    # RGBColorType includes the (str, float) tuple, even for RGBA strings
+    tuple[RGBColorType, float],
+    # (4-tuple, float) is odd, but accepted as the outer float overriding A of 4-tuple
+    tuple[tuple[float, float, float, float], float]
+]
+
+ColorType = Union[RGBColorType, RGBAColorType]
+
+RGBColourType = RGBColorType
+RGBAColourType = RGBAColorType
 ColourType = ColorType
 
 LineStyleType = Union[str, tuple[float, Sequence[float]]]
@@ -37,9 +52,12 @@ MarkEveryType = Union[
 
 MarkerType = Union[str, path.Path, MarkerStyle]
 FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
+JoinStyleType = Union[JoinStyle, Literal["miter", "round", "bevel"]]
+CapStyleType = Union[CapStyle, Literal["butt", "projecting", "round"]]
 
 RcStyleType = Union[
     str, dict[str, Any], pathlib.Path, list[Union[str, pathlib.Path, dict[str, Any]]]
 ]
 
 HashableList = list[Union[Hashable, "HashableList"]]
+"""A nested list of Hashable values."""

@@ -20,11 +20,35 @@ jobs:
 
       - name: Install mypy
         run: |
-          pip3 install -r requirements/testing/mypy.txt -r requirements/testing/all.txt
-          pip3 install .
+          pip3 install -r requirements/testing/mypy.txt \
+            -r requirements/testing/all.txt
+          pip3 install -e .
+
+      - name: Set up reviewdog
+        run: |
+          mkdir -p "$HOME/bin"
+          curl -sfL \
+            https://github.com/reviewdog/reviewdog/raw/master/install.sh | \
+              sh -s -- -b "$HOME/bin"
+          echo "$HOME/bin" >> $GITHUB_PATH
 
       - name: Run mypy stubtest
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # the ignore missing imports can be removed when typed cycler is released and used
-          MPLBACKEND=agg python -m mypy.stubtest matplotlib --mypy-config-file pyproject.toml \
-                                --allowlist ci/mypy-stubtest-allowlist.txt
+          set -o pipefail
+          MPLBACKEND=agg python -m mypy.stubtest \
+            --mypy-config-file pyproject.toml \
+            --allowlist ci/mypy-stubtest-allowlist.txt \
+            matplotlib | \
+              reviewdog \
+                -efm '%Eerror: %m' \
+                -efm '%CStub: in file %f:%l' \
+                -efm '%CStub: in file %f' \
+                -efm '%+CRuntime:%.%#' \
+                -efm '%+CMISSING' \
+                -efm '%+Cdef %.%#' \
+                -efm '%+C<%.%#>' \
+                -efm '%Z' \
+                -reporter=github-check -tee -name=mypy-stubtest \
+                -filter-mode=nofilter

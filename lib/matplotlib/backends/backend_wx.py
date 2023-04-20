@@ -587,7 +587,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             return
         if not drawDC:  # not called from OnPaint use a ClientDC
             drawDC = wx.ClientDC(self)
-        # For 'WX' backend on Windows, the bitmap can not be in use by another
+        # For 'WX' backend on Windows, the bitmap cannot be in use by another
         # DC (see GraphicsContextWx._cache).
         bmp = (self.bitmap.ConvertToImage().ConvertToBitmap()
                if wx.Platform == '__WXMSW__'
@@ -613,15 +613,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         'tiff': 'Tagged Image Format File',
         'xpm': 'X pixmap',
     }
-
-    def print_figure(self, filename, *args, **kwargs):
-        # docstring inherited
-        super().print_figure(filename, *args, **kwargs)
-        # Restore the current view; this is needed because the artist contains
-        # methods rely on particular attributes of the rendered figure for
-        # determining things like bounding boxes.
-        if self._isDrawn:
-            self.draw()
 
     def _on_paint(self, event):
         """Called when wxPaintEvt is generated."""

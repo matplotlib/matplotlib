@@ -314,7 +314,7 @@ class Axes(_AxesBase):
                 *args,
                 **kwargs)
         if len(extra_args):
-            raise TypeError('legend only accepts two non-keyword arguments')
+            _api.nargs_error('legend', '0-2', len(args))
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         self.legend_._remove_method = self._remove_legend
         return self.legend_
@@ -1047,9 +1047,9 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : list of colors, default: :rc:`lines.color`
+        colors : color or list of colors, default: :rc:`lines.color`
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
         label : str, default: ''
 
@@ -1101,14 +1101,25 @@ class Axes(_AxesBase):
             # Extreme values of xmin/xmax/y.  Using masked_verts here handles
             # the case of y being a masked *object* array (as can be generated
             # e.g. by errorbar()), which would make nanmin/nanmax stumble.
-            minx = np.nanmin(masked_verts[..., 0])
-            maxx = np.nanmax(masked_verts[..., 0])
-            miny = np.nanmin(masked_verts[..., 1])
-            maxy = np.nanmax(masked_verts[..., 1])
-            corners = (minx, miny), (maxx, maxy)
-            self.update_datalim(corners)
-            self._request_autoscale_view()
+            updatex = True
+            updatey = True
+            if self.name == "rectilinear":
+                datalim = lines.get_datalim(self.transData)
+                t = lines.get_transform()
+                updatex, updatey = t.contains_branch_seperately(self.transData)
+                minx = np.nanmin(datalim.xmin)
+                maxx = np.nanmax(datalim.xmax)
+                miny = np.nanmin(datalim.ymin)
+                maxy = np.nanmax(datalim.ymax)
+            else:
+                minx = np.nanmin(masked_verts[..., 0])
+                maxx = np.nanmax(masked_verts[..., 0])
+                miny = np.nanmin(masked_verts[..., 1])
+                maxy = np.nanmax(masked_verts[..., 1])
 
+            corners = (minx, miny), (maxx, maxy)
+            self.update_datalim(corners, updatex, updatey)
+            self._request_autoscale_view()
         return lines
 
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
@@ -1127,9 +1138,9 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : list of colors, default: :rc:`lines.color`
+        colors : color or list of colors, default: :rc:`lines.color`
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
         label : str, default: ''
 
@@ -1181,14 +1192,25 @@ class Axes(_AxesBase):
             # Extreme values of x/ymin/ymax.  Using masked_verts here handles
             # the case of x being a masked *object* array (as can be generated
             # e.g. by errorbar()), which would make nanmin/nanmax stumble.
-            minx = np.nanmin(masked_verts[..., 0])
-            maxx = np.nanmax(masked_verts[..., 0])
-            miny = np.nanmin(masked_verts[..., 1])
-            maxy = np.nanmax(masked_verts[..., 1])
-            corners = (minx, miny), (maxx, maxy)
-            self.update_datalim(corners)
-            self._request_autoscale_view()
+            updatex = True
+            updatey = True
+            if self.name == "rectilinear":
+                datalim = lines.get_datalim(self.transData)
+                t = lines.get_transform()
+                updatex, updatey = t.contains_branch_seperately(self.transData)
+                minx = np.nanmin(datalim.xmin)
+                maxx = np.nanmax(datalim.xmax)
+                miny = np.nanmin(datalim.ymin)
+                maxy = np.nanmax(datalim.ymax)
+            else:
+                minx = np.nanmin(masked_verts[..., 0])
+                maxx = np.nanmax(masked_verts[..., 0])
+                miny = np.nanmin(masked_verts[..., 1])
+                maxy = np.nanmax(masked_verts[..., 1])
 
+            corners = (minx, miny), (maxx, maxy)
+            self.update_datalim(corners, updatex, updatey)
+            self._request_autoscale_view()
         return lines
 
     @_preprocess_data(replace_names=["positions", "lineoffsets",
@@ -1313,9 +1335,6 @@ class Axes(_AxesBase):
         else:
             positions = [np.asanyarray(positions)]
 
-        if len(positions) == 0:
-            return []
-
         poss = []
         for position in positions:
             poss += self._process_unit_info([("x", position)], kwargs)
@@ -1345,13 +1364,15 @@ class Axes(_AxesBase):
         linewidths = np.asarray(linewidths)
 
         if len(lineoffsets) == 0:
-            lineoffsets = [None]
+            raise ValueError('lineoffsets cannot be empty')
         if len(linelengths) == 0:
-            linelengths = [None]
+            raise ValueError('linelengths cannot be empty')
+        if len(linestyles) == 0:
+            raise ValueError('linestyles cannot be empty')
         if len(linewidths) == 0:
-            lineoffsets = [None]
-        if len(linewidths) == 0:
-            lineoffsets = [None]
+            raise ValueError('linewidths cannot be empty')
+        if len(alpha) == 0:
+            raise ValueError('alpha cannot be empty')
         if len(colors) == 0:
             colors = [None]
         try:
@@ -2770,7 +2791,7 @@ class Axes(_AxesBase):
                     lambda r, b=bar:
                         mtransforms.Bbox.intersection(
                             b.get_window_extent(r), b.get_clip_box()
-                        )
+                        ) or mtransforms.Bbox.null()
                 )
             else:  # edge
                 if orientation == "vertical":
@@ -2830,11 +2851,11 @@ class Axes(_AxesBase):
         Parameters
         ----------
         xranges : sequence of tuples (*xmin*, *xwidth*)
-            The x-positions and extends of the rectangles. For each tuple
+            The x-positions and extents of the rectangles. For each tuple
             (*xmin*, *xwidth*) a rectangle is drawn from *xmin* to *xmin* +
             *xwidth*.
         yrange : (*ymin*, *yheight*)
-            The y-position and extend for all the rectangles.
+            The y-position and extent for all the rectangles.
 
         Returns
         -------
@@ -2970,8 +2991,7 @@ class Axes(_AxesBase):
             which inspired this method.
         """
         if not 1 <= len(args) <= 3:
-            raise TypeError('stem expected between 1 or 3 positional '
-                            f'arguments, got {args}')
+            _api.nargs_error('stem', '1-3', len(args))
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         if len(args) == 1:
@@ -3074,7 +3094,7 @@ class Axes(_AxesBase):
         labels : list, default: None
             A sequence of strings providing the labels for each wedge
 
-        colors : array-like, default: None
+        colors : color or array-like of color, default: None
             A sequence of colors through which the pie chart will cycle.  If
             *None*, will use the colors in the currently active cycle.
 
@@ -4654,7 +4674,7 @@ default: :rc:`scatter.edgecolors`
                     "ignoring the edgecolor in favor of the facecolor.  This "
                     "behavior may change in the future."
                 )
-            # We need to handle markers that can not be filled (like
+            # We need to handle markers that cannot be filled (like
             # '+' and 'x') differently than markers that can be
             # filled, but have their fillstyle set to 'none'.  This is
             # to get:
@@ -4669,7 +4689,7 @@ default: :rc:`scatter.edgecolors`
                 # promote the facecolor to be the edgecolor
                 edgecolors = colors
                 # set the facecolor to 'none' (at the last chance) because
-                # we can not fill a path if the facecolor is non-null
+                # we cannot fill a path if the facecolor is non-null
                 # (which is defendable at the renderer level).
                 colors = 'none'
             else:
@@ -4907,13 +4927,13 @@ default: :rc:`scatter.edgecolors`
 
         if xscale == 'log':
             if np.any(x <= 0.0):
-                raise ValueError("x contains non-positive values, so can not "
-                                 "be log-scaled")
+                raise ValueError(
+                    "x contains non-positive values, so cannot be log-scaled")
             tx = np.log10(tx)
         if yscale == 'log':
             if np.any(y <= 0.0):
-                raise ValueError("y contains non-positive values, so can not "
-                                 "be log-scaled")
+                raise ValueError(
+                    "y contains non-positive values, so cannot be log-scaled")
             ty = np.log10(ty)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
@@ -6410,7 +6430,7 @@ default: :rc:`scatter.edgecolors`
             else:
                 raise TypeError("arguments do not match valid signatures")
         else:
-            raise TypeError("need 1 argument or 3 arguments")
+            _api.nargs_error('pcolorfast', '1 or 3', len(args))
 
         if style == "quadmesh":
             # data point in each cell is value at lower left corner

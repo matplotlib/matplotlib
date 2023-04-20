@@ -1,4 +1,4 @@
-"""
+
 
 .. redirect-from:: /tutorials/toolkits/mplot3d
 
@@ -158,4 +158,3 @@ See `.Axes3D.text` for API documentation.
 .. figure:: /gallery/mplot3d/images/sphx_glr_text3d_001.png
    :target: /gallery/mplot3d/text3d.html
    :align: center
-"""

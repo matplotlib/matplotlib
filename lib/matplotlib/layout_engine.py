@@ -104,9 +104,8 @@ class PlaceHolderLayoutEngine(LayoutEngine):
     """
     This layout engine does not adjust the figure layout at all.
 
-    The purpose of this `.LayoutEngine` is to act as a placeholder when the
-    user removes a layout engine to ensure an incompatible `.LayoutEngine` can
-    not be set later.
+    The purpose of this `.LayoutEngine` is to act as a placeholder when the user removes
+    a layout engine to ensure an incompatible `.LayoutEngine` cannot be set later.
 
     Parameters
     ----------
