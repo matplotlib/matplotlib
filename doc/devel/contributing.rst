@@ -89,6 +89,9 @@ though not necessarily all at the same time:
 - It involves Python features such as decorators and context managers, which
   have subtleties due to our implementation decisions.
 
+Assigning issues and duplicating pull requests
+----------------------------------------------
+
 In general, the Matplotlib project does not assign issues. Issues are
 "assigned" or "claimed" by opening a PR; there is no other assignment
 mechanism. If you have opened such a PR, please comment on the issue thread to
