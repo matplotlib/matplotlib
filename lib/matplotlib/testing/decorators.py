@@ -1,21 +1,27 @@
 import contextlib
+import enum
 import functools
 import inspect
+import json
 import os
-from platform import uname
 from pathlib import Path
+from platform import uname
 import shutil
 import string
+import subprocess
 import sys
+import time
 import warnings
-import enum
 
 from packaging.version import parse as parse_version
 
+from matplotlib import _pylab_helpers, cbook, ft2font
+from matplotlib import pyplot as plt
+from matplotlib import ticker
 import matplotlib.style
-import matplotlib.units
 import matplotlib.testing
-from matplotlib import _pylab_helpers, cbook, ft2font, pyplot as plt, ticker
+import matplotlib.units
+
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -128,7 +134,8 @@ class _ImageComparisonBase:
 
     def __init__(self, func, tol, remove_text, savefig_kwargs):
         self.func = func
-        self.baseline_dir, self.result_dir = _image_directories(func)
+        (self.baseline_dir, self.result_dir,
+         self.root_dir, self.image_revs,) = _image_directories(func)
         self.tol = tol
         self.remove_text = remove_text
         self.savefig_kwargs = savefig_kwargs
@@ -136,12 +143,14 @@ class _ImageComparisonBase:
     def copy_baseline(self, baseline, extension):
         baseline_path = self.baseline_dir / baseline
         orig_expected_path = baseline_path.with_suffix(f'.{extension}')
+        rel_path = orig_expected_path.relative_to(self.root_dir)
+        assert rel_path in self.image_revs
         if self.mode != self._ImageCheckMode.TEST:
             return orig_expected_path
         if extension == 'eps' and not orig_expected_path.exists():
             orig_expected_path = orig_expected_path.with_suffix('.pdf')
-        expected_fname = make_test_filename(
-            self.result_dir / orig_expected_path.name, 'expected')
+        expected_fname = Path(make_test_filename(
+            self.result_dir / orig_expected_path.name, 'expected'))
         try:
             # os.symlink errors if the target already exists.
             with contextlib.suppress(OSError):
@@ -182,10 +191,24 @@ class _ImageComparisonBase:
                 # makes things more convenient for third-party users.
                 plt.close(fig)
             expected_path = self.copy_baseline(baseline, extension)
+            # TODO make sure the file exists (and cache?)
+            with open(self.root_dir / 'metadata.json') as fin:
+                md = json.load(fin)
             if self.mode == self._ImageCheckMode.GENERATE:
+                rel_path = expected_path.relative_to(self.root_dir)
+
                 expected_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(actual_path, expected_path)
+
+                md[str(rel_path)] = {'mpl_version': matplotlib.__version__,
+                                     **{k: self.image_revs[rel_path][k]
+                                        for k in ('sha', 'rev')}}
+                with open(self.root_dir / 'metadata.json', 'w') as fout:
+                    json.dump(md, fout, sort_keys=True, indent='  ')
             else:
+                rel_path = actual_path.relative_to(self.result_dir.parent)
+                if md[str(rel_path)]['sha'] != self.image_revs[rel_path]['sha']:
+                    raise RuntimeError("Baseline images do not match checkout.")
                 _raise_on_image_difference(expected_path, actual_path, self.tol)
 
 
@@ -402,7 +425,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
     def decorator(func):
         import pytest
 
-        _, result_dir = _image_directories(func)
+        _, result_dir, *_ = _image_directories(func)
         old_sig = inspect.signature(func)
 
         if not {"fig_test", "fig_ref"}.issubset(old_sig.parameters):
@@ -463,6 +486,84 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
     return decorator
 
 
+# TODO make these functions share a cache
+def _load_imagelist(target_file):
+    """
+    Get the filename, rev, and time stamps from the files.
+
+    This is a sub-set of what _load_blame will provide
+
+
+    """
+    ret = []
+    with open(target_file) as fin:
+        for ln in fin:
+            fname, rev, ts = ln.strip().split(":")
+            ret.append([fname, int(rev), float(ts)])
+
+    return {fname: {"rev": rev, "ts": ts} for fname, rev, ts in ret}
+
+
+def _load_blame(target_file):
+    """
+    Extract the commit a given test image was last updated in.
+
+    Parameters
+    ----------
+    target_file : str | Path
+       The data file to read.
+
+    Returns
+    -------
+    Dict[str, Dict[str, str]]
+        Mapping of file same to a dictionary mapping to a union of the git
+        metadata, the rev number of the file and the timestamp of the last
+        revision.
+
+    """
+    blame_result = subprocess.run(
+        ["git", "blame", "-l", "--line-porcelain", str(target_file)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    ret = {}
+
+    cur_line = {}
+
+    for ln in blame_result.stdout.decode().split("\n"):
+        if not ln:
+            continue
+
+        if ln[0] != "\t":
+            if len(cur_line) == 0:
+                sha, *_ = ln.split(" ")
+                cur_line["sha"] = sha
+            else:
+                key, _, val = ln.partition(" ")
+                cur_line[key] = val
+        else:
+            fname, rev, ts = ln[1:].strip().split(":")
+            cur_line["rev"] = int(rev)
+            cur_line["ts"] = float(ts)
+            ret[Path(fname)] = cur_line
+            cur_line = {}
+    return ret
+
+
+def _write_imagelist(data, *, target_file):
+    with open(target_file, "w") as fout:
+        for fname, v in sorted(data.items()):
+            fout.write(f"{fname}:{v['rev']}:{v['ts']}\n")
+
+
+def _rev_fname(fname, *, target_file="image_list.txt"):
+    data = _load_imagelist()
+    old_rev = data[fname]["rev"]
+    data[fname] = {"rev": old_rev + 1, "ts": time.time()}
+    _write_imagelist(data)
+
+
 def _image_directories(func):
     """
     Compute the baseline and result image directories for testing *func*.
@@ -473,12 +574,15 @@ def _image_directories(func):
     doesn't exist.
     """
     mod = inspect.getmodule(func)
-    pkg_name, mod_name = mod.__name__.rsplit('.', maxsplit=1)
+    *pkg_name, mod_name = mod.__name__.split('.')
+    file_base = Path(inspect.getfile(func)).parent
     if external_images := os.environ.get("MPLTESTIMAGEPATH", ""):
-        file_base = Path(external_images) / pkg_name.replace('.', os.path.sep)
+        image_base = Path(external_images) / Path(*pkg_name)
     else:
-        file_base = Path(inspect.getfile(func)).parent
-    baseline_dir = file_base / "baseline_images" / mod_name
+        image_base = file_base
+    root_dir = image_base / "baseline_images"
+    baseline_dir = root_dir / mod_name
     result_dir = Path().resolve() / "result_images" / mod_name
+    image_list = file_base / "image_list.txt"
     result_dir.mkdir(parents=True, exist_ok=True)
-    return baseline_dir, result_dir
+    return baseline_dir, result_dir, root_dir, _load_blame(image_list)
