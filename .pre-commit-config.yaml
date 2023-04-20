@@ -17,6 +17,7 @@ repos:
     hooks:
       - id: check-added-large-files
       - id: check-docstring-first
+        exclude: lib/matplotlib/typing.py  # docstring used for attribute flagged by check
       - id: end-of-file-fixer
         exclude_types: [svg]
       - id: mixed-line-ending
