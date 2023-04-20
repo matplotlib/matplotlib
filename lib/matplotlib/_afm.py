@@ -1,5 +1,5 @@
 """
-A python interface to Adobe Font Metrics Files.
+A Python interface to Adobe Font Metrics Files.
 
 Although a number of other Python implementations exist, and may be more
 complete than this, it was decided not to go with them because they were
@@ -16,19 +16,13 @@ It is pretty easy to use, and has no external dependencies:
 >>> from pathlib import Path
 >>> afm_path = Path(mpl.get_data_path(), 'fonts', 'afm', 'ptmr8a.afm')
 >>>
->>> from matplotlib.afm import AFM
+>>> from matplotlib._afm import AFM
 >>> with afm_path.open('rb') as fh:
 ...     afm = AFM(fh)
 >>> afm.string_width_height('What the heck?')
 (6220.0, 694)
 >>> afm.get_fontname()
 'Times-Roman'
->>> afm.get_kern_dist('A', 'f')
-0
->>> afm.get_kern_dist('A', 'y')
--92.0
->>> afm.get_bbox_char('!')
-[130, -9, 238, 676]
 
 As in the Adobe Font Metrics File Format Specification, all dimensions
 are given in units of 1/1000 of the scale factor (point size) of the font
@@ -363,11 +357,6 @@ class AFM:
         self._metrics, self._metrics_by_name = _parse_char_metrics(fh)
         self._kern, self._composite = _parse_optional(fh)
 
-    def get_bbox_char(self, c, isord=False):
-        if not isord:
-            c = ord(c)
-        return self._metrics[c].bbox
-
     def string_width_height(self, s):
         """
         Return the string width (including kerning) and string height
@@ -423,10 +412,6 @@ class AFM:
 
         return left, miny, total_width, maxy - miny, -miny
 
-    def get_str_bbox(self, s):
-        """Return the string bounding box."""
-        return self.get_str_bbox_and_descent(s)[:4]
-
     def get_name_char(self, c, isord=False):
         """Get the name of the character, i.e., ';' is 'semicolon'."""
         if not isord:
@@ -444,19 +429,6 @@ class AFM:
     def get_width_from_char_name(self, name):
         """Get the width of the character from a type1 character name."""
         return self._metrics_by_name[name].width
-
-    def get_height_char(self, c, isord=False):
-        """Get the bounding box (ink) height of character *c* (space is 0)."""
-        if not isord:
-            c = ord(c)
-        return self._metrics[c].bbox[-1]
-
-    def get_kern_dist(self, c1, c2):
-        """
-        Return the kerning pair distance (possibly 0) for chars *c1* and *c2*.
-        """
-        name1, name2 = self.get_name_char(c1), self.get_name_char(c2)
-        return self.get_kern_dist_from_name(name1, name2)
 
     def get_kern_dist_from_name(self, name1, name2):
         """
@@ -505,10 +477,6 @@ class AFM:
         """Return the fontangle as float."""
         return self._header[b'ItalicAngle']
 
-    def get_capheight(self):
-        """Return the cap height as float."""
-        return self._header[b'CapHeight']
-
     def get_xheight(self):
         """Return the xheight as float."""
         return self._header[b'XHeight']
@@ -516,17 +484,3 @@ class AFM:
     def get_underline_thickness(self):
         """Return the underline thickness as float."""
         return self._header[b'UnderlineThickness']
-
-    def get_horizontal_stem_width(self):
-        """
-        Return the standard horizontal stem width as float, or *None* if
-        not specified in AFM file.
-        """
-        return self._header.get(b'StdHW', None)
-
-    def get_vertical_stem_width(self):
-        """
-        Return the standard vertical stem width as float, or *None* if
-        not specified in AFM file.
-        """
-        return self._header.get(b'StdVW', None)
