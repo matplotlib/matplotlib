@@ -185,7 +185,7 @@ SVG, PDF, and PS backends will "fallback" through multiple fonts in a single
    fig, ax = plt.subplots()
    ax.text(
        .5, .5, "There are 几个汉字 in between!",
-       family=['DejaVu Sans', 'Noto Sans CJK'],
+       family=['DejaVu Sans', 'Noto Sans CJK JP'],
        ha='center'
    )
 
