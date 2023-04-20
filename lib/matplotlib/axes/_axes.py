@@ -4717,7 +4717,7 @@ default: :rc:`scatter.edgecolors`
         )
         collection.set_transform(mtransforms.IdentityTransform())
         if ((colors is None or edgecolors is None) and not mcolors.is_color_like(c)
-                and not type(c) == np.ndarray):
+                and not isinstance(c, np.ndarray)):
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
