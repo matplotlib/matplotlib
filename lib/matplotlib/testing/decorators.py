@@ -192,8 +192,13 @@ class _ImageComparisonBase:
                 plt.close(fig)
             expected_path = self.copy_baseline(baseline, extension)
             # TODO make sure the file exists (and cache?)
-            with open(self.root_dir / 'metadata.json') as fin:
-                md = json.load(fin)
+            json_path = self.root_dir / 'metadata.json'
+            if json_path.exists():
+                with open(json_path) as fin:
+                    md = json.load(fin)
+            else:
+                md = {}
+                json_path.parent.mkdir(parents=True, exist_ok=True)
             if self.mode == self._ImageCheckMode.GENERATE:
                 rel_path = expected_path.relative_to(self.root_dir)
 
