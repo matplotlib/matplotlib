@@ -407,7 +407,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         clip = []
         rect = gc.get_clip_rectangle()
         if rect is not None:
-            clip.append("%s clipbox\n" % _nums_to_str(*rect.size, *rect.p0))
+            clip.append(f"{_nums_to_str(*rect.p0, *rect.size)} rectclip\n")
         path, trf = gc.get_clip_path()
         if path is not None:
             key = (path, id(trf))
@@ -953,8 +953,7 @@ class FigureCanvasPS(FigureCanvasBase):
             print("%s translate" % _nums_to_str(xo, yo), file=fh)
             if rotation:
                 print("%d rotate" % rotation, file=fh)
-            print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
-                  file=fh)
+            print(f"0 0 {_nums_to_str(width*72, height*72)} rectclip", file=fh)
 
             # write the figure
             print(self._pswriter.getvalue(), file=fh)
@@ -1038,7 +1037,7 @@ end
 %%EndProlog
 mpldict begin
 {_nums_to_str(xo, yo)} translate
-{_nums_to_str(width*72, height*72)} 0 0 clipbox
+0 0 {_nums_to_str(width*72, height*72)} rectclip
 {self._pswriter.getvalue()}
 end
 showpage
@@ -1316,20 +1315,6 @@ _psDefs = [
     "/cl { closepath } _d",
     # *ce*  -
     "/ce { closepath eofill } _d",
-    # w h x y  *box*  -
-    """/box {
-      m
-      1 index 0 r
-      0 exch r
-      neg 0 r
-      cl
-    } _d""",
-    # w h x y  *clipbox*  -
-    """/clipbox {
-      box
-      clip
-      newpath
-    } _d""",
     # wx wy llx lly urx ury  *setcachedevice*  -
     "/sc { setcachedevice } _d",
 ]
