@@ -133,7 +133,7 @@ class Tick(martist.Artist):
         if labelsize is None:
             labelsize = mpl.rcParams[f"{name}.labelsize"]
 
-        self._set_labelrotation(labelrotation) # kind sus
+        self._set_labelrotation(labelrotation)
 
         if zorder is None:
             if major:
