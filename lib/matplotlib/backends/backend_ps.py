@@ -49,6 +49,7 @@ class __getattr__:
     # module-level deprecations
     ps_backend_helper = _api.deprecated("3.7", obj_type="")(
         property(lambda self: PsBackendHelper()))
+    psDefs = _api.deprecated("3.8", obj_type="")(property(lambda self: _psDefs))
 
 
 papersize = {'letter': (8.5, 11),
@@ -921,13 +922,13 @@ class FigureCanvasPS(FigureCanvasBase):
                   f"%%EndComments\n",
                   end="", file=fh)
 
-            Ndict = len(psDefs)
+            Ndict = len(_psDefs)
             print("%%BeginProlog", file=fh)
             if not mpl.rcParams['ps.useafm']:
                 Ndict += len(ps_renderer._character_tracker.used)
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
-            print("\n".join(psDefs), file=fh)
+            print("\n".join(_psDefs), file=fh)
             if not mpl.rcParams['ps.useafm']:
                 for font_path, chars \
                         in ps_renderer._character_tracker.used.items():
@@ -1030,9 +1031,9 @@ class FigureCanvasPS(FigureCanvasBase):
 {get_bbox_header(bbox)[0]}
 %%EndComments
 %%BeginProlog
-/mpldict {len(psDefs)} dict def
+/mpldict {len(_psDefs)} dict def
 mpldict begin
-{"".join(psDefs)}
+{"".join(_psDefs)}
 end
 %%EndProlog
 mpldict begin
@@ -1297,7 +1298,7 @@ FigureManagerPS = FigureManagerBase
 
 # The usage comments use the notation of the operator summary
 # in the PostScript Language reference manual.
-psDefs = [
+_psDefs = [
     # name proc  *_d*  -
     # Note that this cannot be bound to /d, because when embedding a Type3 font
     # we may want to define a "d" glyph using "/d{...} d" which would locally
