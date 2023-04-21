@@ -690,10 +690,16 @@ def test_large_subscript_title():
     ax.set_xticklabels([])
 
 
-def test_wrap():
-    fig = plt.figure(figsize=(6, 4))
+@pytest.mark.parametrize(
+    "x, rotation, halign",
+    [(0.7, 0, 'left'),
+     (0.5, 95, 'left'),
+     (0.3, 0, 'right'),
+     (0.3, 185, 'left')])
+def test_wrap(x, rotation, halign):
+    fig = plt.figure(figsize=(6, 6))
     s = 'This is a very long text that should be wrapped multiple times.'
-    text = fig.text(0.7, 0.5, s, wrap=True)
+    text = fig.text(x, 0.7, s, wrap=True, rotation=rotation, ha=halign)
     fig.canvas.draw()
     assert text._get_wrapped_text() == ('This is a very long\n'
                                         'text that should be\n'
