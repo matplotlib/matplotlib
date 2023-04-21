@@ -504,7 +504,7 @@ def _load_imagelist(target_file):
     with open(target_file) as fin:
         for ln in fin:
             fname, rev, ts = ln.strip().split(":")
-            ret.append([fname, int(rev), float(ts)])
+            ret.append([Path(fname), int(rev), float(ts)])
 
     return {fname: {"rev": rev, "ts": ts} for fname, rev, ts in ret}
 
