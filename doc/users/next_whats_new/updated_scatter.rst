@@ -1,11 +1,11 @@
 Enable configuration of empty markers in `~matplotlib.axes.Axes.scatter`
 ------------------------------------------------------------------------
 
-`~matplotlib.axes.Axes.scatter` can now be configured to plot empty 
-markers without additional code. Setting ``facecolors`` to *'none'* and 
-defining ``c`` now draws only the edge colors for fillable markers. This 
-allows empty face colors and non-empty edge colors without disrupting 
-existing color-mapping capabilites.
+`~matplotlib.axes.Axes.scatter` can now be configured to plot empty markers 
+without additional code. Setting ``facecolors`` to *'none'* and
+defining ``c`` now draws only the edge colors for fillable markers. This
+allows empty face colors and non-empty edge colors without disrupting
+existing color-mapping capabilities.
 
 .. plot::
     :include-source: true

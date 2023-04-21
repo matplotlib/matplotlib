@@ -2583,9 +2583,10 @@ class TestScatter:
         ax = fig_test.subplots()
         cmap = mpl.colormaps["viridis"].resampled(16)
         cmap.set_bad("k", 1)
-        # Squelches warning in #25593 by testing a nonfinite plot with edgecolors set to None
+        # Squelches warning in #25593 by testing a 
+        # nonfinite plot with edgecolors set to None
         ax.scatter(range(4), range(4),
-                   c=[1, np.nan, 2, np.nan], s=[1, 2, 3, 4],
+                   c=[1, np.nan, 2, np.nan], s=[1, 2, 3, 4], 
                    cmap=cmap,edgecolors=None, plotnonfinite=True)
         ax = fig_ref.subplots()
         cmap = mpl.colormaps["viridis"].resampled(16)
