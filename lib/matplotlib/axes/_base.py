@@ -3337,6 +3337,8 @@ class _AxesBase(martist.Artist):
             Tick label font size in points or as a string (e.g., 'large').
         labelcolor : color
             Tick label color.
+        labelfontfamily : str
+            Tick label font.
         colors : color
             Tick color and label color.
         zorder : float
