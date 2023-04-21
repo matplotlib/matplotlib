@@ -113,6 +113,7 @@ class Text(Artist):
                  rotation_mode=None,
                  usetex=None,          # defaults to rcParams['text.usetex']
                  wrap=False,
+                 antialiased=True,
                  transform_rotates_text=False,
                  parse_math=None,    # defaults to rcParams['text.parse_math']
                  **kwargs
@@ -146,10 +147,13 @@ class Text(Artist):
             horizontalalignment=horizontalalignment,
             multialignment=multialignment,
             rotation=rotation,
+            antialiased=True,
             transform_rotates_text=transform_rotates_text,
             linespacing=linespacing,
             rotation_mode=rotation_mode,
         )
+        self.antialiased = antialiased
+        self.annotation = None
         self.update(kwargs)
 
     def _reset_visual_defaults(
@@ -207,6 +211,14 @@ class Text(Artist):
         # remove the cached _renderer (if it exists)
         d['_renderer'] = None
         return d
+    
+    def get_antialiased(self):
+        return self.antialiased
+
+    def set_antialiased(self, antialiased):
+        self.antialiased = antialiased
+        if self._annotation is not None:
+            self._annotation.set_antialiased(antialiased)
 
     def contains(self, mouseevent):
         """
@@ -642,10 +654,11 @@ class Text(Artist):
         """
         Return the width of a given text string, in pixels.
         """
+
         w, h, d = self._renderer.get_text_width_height_descent(
             text,
             self.get_fontproperties(),
-            False)
+            cbook.is_math_text(text))
         return math.ceil(w)
 
     def _get_wrapped_text(self):
@@ -1410,7 +1423,7 @@ class OffsetFrom:
         elif isinstance(self._artist, Transform):
             x, y = self._artist.transform(self._ref_coord)
         else:
-            raise RuntimeError("unknown type")
+            _api.check_isinstance((Artist, BboxBase, Transform), artist=self._artist)
 
         sc = self._get_scale(renderer)
         tr = Affine2D().scale(sc).translate(x, y)
@@ -1430,55 +1443,56 @@ class _AnnotationBase:
 
         self._draggable = None
 
-    def _get_xy(self, renderer, x, y, s):
-        if isinstance(s, tuple):
-            s1, s2 = s
-        else:
-            s1, s2 = s, s
-        if s1 == 'data':
+    def _get_xy(self, renderer, xy, coords):
+        x, y = xy
+        xcoord, ycoord = coords if isinstance(coords, tuple) else (coords, coords)
+        if xcoord == 'data':
             x = float(self.convert_xunits(x))
-        if s2 == 'data':
+        if ycoord == 'data':
             y = float(self.convert_yunits(y))
-        return self._get_xy_transform(renderer, s).transform((x, y))
+        return self._get_xy_transform(renderer, coords).transform((x, y))
 
-    def _get_xy_transform(self, renderer, s):
+    def _get_xy_transform(self, renderer, coords):
 
-        if isinstance(s, tuple):
-            s1, s2 = s
+        if isinstance(coords, tuple):
+            xcoord, ycoord = coords
             from matplotlib.transforms import blended_transform_factory
-            tr1 = self._get_xy_transform(renderer, s1)
-            tr2 = self._get_xy_transform(renderer, s2)
-            tr = blended_transform_factory(tr1, tr2)
-            return tr
-        elif callable(s):
-            tr = s(renderer)
+            tr1 = self._get_xy_transform(renderer, xcoord)
+            tr2 = self._get_xy_transform(renderer, ycoord)
+            return blended_transform_factory(tr1, tr2)
+        elif callable(coords):
+            tr = coords(renderer)
             if isinstance(tr, BboxBase):
                 return BboxTransformTo(tr)
             elif isinstance(tr, Transform):
                 return tr
             else:
-                raise RuntimeError("Unknown return type")
-        elif isinstance(s, Artist):
-            bbox = s.get_window_extent(renderer)
+                raise TypeError(
+                    f"xycoords callable must return a BboxBase or Transform, not a "
+                    f"{type(tr).__name__}")
+        elif isinstance(coords, Artist):
+            bbox = coords.get_window_extent(renderer)
             return BboxTransformTo(bbox)
-        elif isinstance(s, BboxBase):
-            return BboxTransformTo(s)
-        elif isinstance(s, Transform):
-            return s
-        elif not isinstance(s, str):
-            raise RuntimeError(f"Unknown coordinate type: {s!r}")
+        elif isinstance(coords, BboxBase):
+            return BboxTransformTo(coords)
+        elif isinstance(coords, Transform):
+            return coords
+        elif not isinstance(coords, str):
+            raise TypeError(
+                f"'xycoords' must be an instance of str, tuple[str, str], Artist, "
+                f"Transform, or Callable, not a {type(coords).__name__}")
 
-        if s == 'data':
+        if coords == 'data':
             return self.axes.transData
-        elif s == 'polar':
+        elif coords == 'polar':
             from matplotlib.projections import PolarAxes
             tr = PolarAxes.PolarTransform()
             trans = tr + self.axes.transData
             return trans
 
-        s_ = s.split()
+        s_ = coords.split()
         if len(s_) != 2:
-            raise ValueError(f"{s!r} is not a recognized coordinate")
+            raise ValueError(f"{coords!r} is not a valid coordinate")
 
         bbox0, xy0 = None, None
 
@@ -1490,16 +1504,11 @@ class _AnnotationBase:
             bbox0 = self.figure.bbox
         elif bbox_name == "axes":
             bbox0 = self.axes.bbox
-        # elif bbox_name == "bbox":
-        #     if bbox is None:
-        #         raise RuntimeError("bbox is specified as a coordinate but "
-        #                            "never set")
-        #     bbox0 = self._get_bbox(renderer, bbox)
 
         if bbox0 is not None:
             xy0 = bbox0.p0
         elif bbox_name == "offset":
-            xy0 = self._get_ref_xy(renderer)
+            xy0 = self._get_position_xy(renderer)
 
         if xy0 is not None:
             # reference x, y in display coordinate
@@ -1523,24 +1532,7 @@ class _AnnotationBase:
             return tr.translate(ref_x, ref_y)
 
         else:
-            raise ValueError(f"{s!r} is not a recognized coordinate")
-
-    def _get_ref_xy(self, renderer):
-        """
-        Return x, y (in display coordinates) that is to be used for a reference
-        of any offset coordinate.
-        """
-        return self._get_xy(renderer, *self.xy, self.xycoords)
-
-    # def _get_bbox(self, renderer):
-    #     if hasattr(bbox, "bounds"):
-    #         return bbox
-    #     elif hasattr(bbox, "get_window_extent"):
-    #         bbox = bbox.get_window_extent()
-    #         return bbox
-    #     else:
-    #         raise ValueError("A bbox instance is expected but got %s" %
-    #                          str(bbox))
+            raise ValueError(f"{coords!r} is not a valid coordinate")
 
     def set_annotation_clip(self, b):
         """
@@ -1567,8 +1559,7 @@ class _AnnotationBase:
 
     def _get_position_xy(self, renderer):
         """Return the pixel position of the annotated point."""
-        x, y = self.xy
-        return self._get_xy(renderer, x, y, self.xycoords)
+        return self._get_xy(renderer, self.xy, self.xycoords)
 
     def _check_xy(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
@@ -2009,7 +2000,7 @@ or callable, default: value of *xycoords*
         if self._renderer is None:
             self._renderer = self.figure._get_renderer()
         if self._renderer is None:
-            raise RuntimeError('Cannot get window extent w/o renderer')
+            raise RuntimeError('Cannot get window extent without renderer')
 
         self.update_positions(self._renderer)
 
