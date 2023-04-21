@@ -4387,11 +4387,9 @@ class Axes(_AxesBase):
             if facecolors is None:
                 facecolors = kwcolor
 
-        edge_from_c = False
-        if edgecolors is None and c is not None:
-            edge_from_c = True
+            edge_from_c = edgecolors is None and c is not None
 
-        facecolors_none = isinstance(facecolors, str) and facecolors == 'none'
+        facecolors_none = cbook._str_lower_equal(facecolors, 'none')
         if (edgecolors is None and not mpl.rcParams['_internal.classic_mode']
                 and (not edge_from_c or not facecolors_none)):
 
