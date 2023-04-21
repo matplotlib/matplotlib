@@ -272,6 +272,34 @@ class TestLogLocator:
             assert all(ax.get_yticks() == axes[0].get_yticks())
             assert ax.get_ylim() == axes[0].get_ylim()
 
+    def test_tick_params_modify_label(self):
+        # Create a figure
+        fig = plt.figure()
+
+        # Generate some sample data
+        x = np.arange(0, 10, 0.1)
+        y = np.sin(x)
+
+        # Plot the data
+        ax = fig.add_subplot(111)
+        ax.plot(x, y)
+
+        # Modify the tick labels
+        tick_params = {
+            'labelhorizontalalignment': 'right',
+            'labelverticalalignment': 'top',
+            'labelfontproperties': {'family': 'serif', 'size': 12},
+            'labelrotation_mode': 'anchor'
+        }
+        ax.xaxis.set_tick_params(**tick_params)
+        ax.yaxis.set_tick_params(**tick_params)
+
+        # Verify that the tick labels have been modified
+        assert ax.xaxis.get_ticklabels()[0].get_horizontalalignment() == 'right'
+        assert ax.xaxis.get_ticklabels()[0].get_verticalalignment() == 'top'
+        assert ax.xaxis.get_ticklabels()[0].get_fontproperties().get_family() == 'serif'
+        assert ax.xaxis.get_ticklabels()[0].get_fontproperties().get_size() == 12
+        assert ax.xaxis.get_ticklabels()[0].get_rotation_mode() == 'anchor'
 
 class TestNullLocator:
     def test_set_params(self):
