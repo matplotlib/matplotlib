@@ -281,16 +281,16 @@ Set the milestone according to these guidelines:
 * *Bugfixes, tests for released code, and docstring changes* may be milestoned
   for the next patch release ``v3.N.M``.
 
-* *Documentation changes* (all .rst files and examples) may be milestoned
+* *Documentation changes* (only .rst files and examples) may be milestoned
   ``v3.N-doc``.
 
 If multiple rules apply, choose the first matching from the above list.  See
 :ref:`backport-strategy` for detailed guidance on what should or should not be
 backported.
 
-The milestone marks the release a PR should go into.  It is an intent but can
-be changed because of re-evaluation of the PR scope and maturity or release
-planning.
+The milestone marks the release a PR should go into.  It states intent, but can
+be changed because of release planning or re-evaluation of the PR scope and
+maturity.
 
 All Pull Requests should target the main branch. The milestone tag triggers
 an :ref:`automatic backport <automated-backports>` for milestones which have
@@ -454,23 +454,23 @@ releases is to fix bugs without adding any new regressions or behavior changes.
 We will always attempt to backport:
 
 - critical bug fixes (segfault, failure to import, things that the
-  user can not work around)
-- fixes for regressions introduced in last two minor releases
+  user cannot work around)
+- fixes for regressions introduced in the last two minor releases
 
-and may attempt to backport regressions introduced in older releases.
+and may attempt to backport fixes for regressions introduced in older releases.
 
 In the case where the backport is not clean, for example if the bug fix is
 built on top of other code changes we do not want to backport, balance the
 effort and risk of re-implementing the bug fix vs the severity of the bug.
 When in doubt, err on the side of not backporting.
 
-When backporting a Pull Request fails or is declined re-milestone the original
+When backporting a Pull Request fails or is declined, re-milestone the original
 PR to the next minor release and leave a comment explaining why.
 
-The only changes to be backported to the documentation branch (*v3.N.M-doc*)
-are changes to :file:`doc`, :file:`examples`, or :file:`tutorials`.  Any
-changes to :file:`lib` or :file:`src`, including docstring-only changes, must
-not be backported to this branch.
+The only changes backported to the documentation branch (*v3.N.M-doc*)
+are changes to :file:`doc` or :file:`galleries`.  Any changes to :file:`lib`
+or :file:`src`, including docstring-only changes, must not be backported to
+this branch.
 
 
 .. _automated-backports:
