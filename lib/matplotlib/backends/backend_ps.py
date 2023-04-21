@@ -88,8 +88,8 @@ def _get_papertype(w, h):
     return 'a0'
 
 
-def _nums_to_str(*args):
-    return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
+def _nums_to_str(*args, sep=" "):
+    return sep.join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
 
 
 def _move_path_to_path_or_stream(src, dst):
@@ -293,16 +293,16 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
     def set_color(self, r, g, b, store=True):
         if (r, g, b) != self.color:
-            self._pswriter.write(f"{r:1.3f} setgray\n"
+            self._pswriter.write(f"{_nums_to_str(r)} setgray\n"
                                  if r == g == b else
-                                 f"{r:1.3f} {g:1.3f} {b:1.3f} setrgbcolor\n")
+                                 f"{_nums_to_str(r, g, b)} setrgbcolor\n")
             if store:
                 self.color = (r, g, b)
 
     def set_linewidth(self, linewidth, store=True):
         linewidth = float(linewidth)
         if linewidth != self.linewidth:
-            self._pswriter.write("%1.3f setlinewidth\n" % linewidth)
+            self._pswriter.write(f"{_nums_to_str(linewidth)} setlinewidth\n")
             if store:
                 self.linewidth = linewidth
 
@@ -338,8 +338,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if np.array_equal(seq, oldseq) and oldo == offset:
                 return
 
-        self._pswriter.write(f"[{_nums_to_str(*seq)}]"
-                             f" {_nums_to_str(offset)} setdash\n"
+        self._pswriter.write(f"[{_nums_to_str(*seq)}] {_nums_to_str(offset)} setdash\n"
                              if seq is not None and len(seq) else
                              "[] 0 setdash\n")
         if store:
@@ -474,9 +473,9 @@ grestore
         ps_color = (
             None
             if self._is_transparent(rgbFace)
-            else '%1.3f setgray' % rgbFace[0]
+            else f'{_nums_to_str(rgbFace[0])} setgray'
             if rgbFace[0] == rgbFace[1] == rgbFace[2]
-            else '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3])
+            else f'{_nums_to_str(*rgbFace[:3])} setrgbcolor')
 
         # construct the generic marker command:
 
@@ -582,7 +581,7 @@ translate
         w, h, bl = self.get_text_width_height_descent(s, prop, ismath="TeX")
         fontsize = prop.get_size_in_points()
         thetext = 'psmarker%d' % self.textcnt
-        color = '%1.3f,%1.3f,%1.3f' % gc.get_rgb()[:3]
+        color = _nums_to_str(*gc.get_rgb()[:3], sep=',')
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(
                        mpl.rcParams['font.family'][0], r'{\rmfamily %s}')
@@ -784,8 +783,8 @@ grestore
         if hatch:
             hatch_name = self.create_hatch(hatch)
             write("gsave\n")
-            write("%f %f %f " % gc.get_hatch_color()[:3])
-            write("%s setpattern fill grestore\n" % hatch_name)
+            write(_nums_to_str(*gc.get_hatch_color()[:3]))
+            write(f" {hatch_name} setpattern fill grestore\n")
 
         if stroke:
             write("stroke\n")
