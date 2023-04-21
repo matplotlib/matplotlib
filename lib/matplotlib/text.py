@@ -1633,6 +1633,7 @@ class Annotation(Text, _AnnotationBase):
                  textcoords=None,
                  arrowprops=None,
                  annotation_clip=None,
+                 antialiased = None,
                  **kwargs):
         """
         Annotate the point *xy* with text *text*.
@@ -1800,6 +1801,7 @@ or callable, default: value of *xycoords*
         :ref:`plotting-guide-annotation`
 
         """
+        self.antialiased = antialiased
         _AnnotationBase.__init__(self,
                                  xy,
                                  xycoords=xycoords,
@@ -1871,6 +1873,14 @@ or callable, default: value of *xycoords*
         See also *xytext* in `.Annotation`.
         """
         return self.get_position()
+    
+    def get_antialiased(self):
+        return self.antialiased
+
+    def set_antialiased(self, antialiased):
+        self.antialiased = antialiased
+        if self._text is not None:
+            self._text.set_antialiased(antialiased)
 
     @xyann.setter
     def xyann(self, xytext):
