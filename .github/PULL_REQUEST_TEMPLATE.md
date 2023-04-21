@@ -4,7 +4,7 @@
 
 <!-- Please mark any checkboxes that do not apply to this PR as [N/A]. -->
 **Linked Issue**
-- [ ] Mentioned issue that it closes using a phrase like "closes #123" to link it back to the issue.
+- [ ] Added "closes #0000" in the PR description to link it to the original issue.
 
 **Documentation and Tests**
 - [ ] Has pytest style unit tests (and `pytest` passes)
