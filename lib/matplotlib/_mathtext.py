@@ -484,7 +484,7 @@ class UnicodeFonts(TruetypeFonts):
 
         super().__init__(*args, **kwargs)
         self.fontmap = {}
-        for texfont in "cal rm tt it bf sf".split():
+        for texfont in "cal rm tt it bf sf bfit".split():
             prop = mpl.rcParams['mathtext.' + texfont]
             font = findfont(prop)
             self.fontmap[texfont] = font
@@ -631,6 +631,7 @@ class DejaVuSerifFonts(DejaVuFonts):
         'rm': 'DejaVu Serif',
         'it': 'DejaVu Serif:italic',
         'bf': 'DejaVu Serif:weight=bold',
+        'bfit': 'DejaVu Serif:italic:bold',
         'sf': 'DejaVu Sans',
         'tt': 'DejaVu Sans Mono',
         'ex': 'DejaVu Serif Display',
@@ -648,6 +649,7 @@ class DejaVuSansFonts(DejaVuFonts):
         'rm': 'DejaVu Sans',
         'it': 'DejaVu Sans:italic',
         'bf': 'DejaVu Sans:weight=bold',
+        'bfit': 'DejaVu Sans:italic:bold',
         'sf': 'DejaVu Sans',
         'tt': 'DejaVu Sans Mono',
         'ex': 'DejaVu Sans Display',
@@ -671,6 +673,7 @@ class StixFonts(UnicodeFonts):
         'rm': 'STIXGeneral',
         'it': 'STIXGeneral:italic',
         'bf': 'STIXGeneral:weight=bold',
+        'bfit': 'STIXGeneral:italic:bold',
         'nonunirm': 'STIXNonUnicode',
         'nonuniit': 'STIXNonUnicode:italic',
         'nonunibf': 'STIXNonUnicode:weight=bold',
@@ -736,7 +739,7 @@ class StixFonts(UnicodeFonts):
             uniindex = stix_glyph_fixes.get(uniindex, uniindex)
 
         # Handle private use area glyphs
-        if fontname in ('it', 'rm', 'bf') and 0xe000 <= uniindex <= 0xf8ff:
+        if fontname in ('it', 'rm', 'bf', 'bfit') and 0xe000 <= uniindex <= 0xf8ff:
             fontname = 'nonuni' + fontname
 
         return fontname, uniindex
@@ -1665,7 +1668,7 @@ class ParserState:
 
     @font.setter
     def font(self, name):
-        if name in ('rm', 'it', 'bf'):
+        if name in ('rm', 'it', 'bf', 'bfit'):
             self.font_class = name
         self._font = name
 
@@ -1771,7 +1774,8 @@ class Parser:
 
     _dropsub_symbols = set(r'''\int \oint'''.split())
 
-    _fontnames = set("rm cal it tt sf bf default bb frak scr regular".split())
+    _fontnames = set("rm cal it tt sf bf bfit "
+                     "default bb frak scr regular".split())
 
     _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
