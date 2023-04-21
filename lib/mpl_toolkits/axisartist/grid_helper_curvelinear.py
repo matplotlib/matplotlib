@@ -234,18 +234,27 @@ class GridHelperCurveLinear(GridHelperBase):
                  tick_formatter1=None,
                  tick_formatter2=None):
         """
-        aux_trans : a transform from the source (curved) coordinate to
-        target (rectilinear) coordinate. An instance of MPL's Transform
-        (inverse transform should be defined) or a tuple of two callable
-        objects which defines the transform and its inverse. The callables
-        need take two arguments of array of source coordinates and
-        should return two target coordinates.
+        Parameters
+        ----------
+        aux_trans : `.Transform` or tuple[Callable, Callable]
+            The transform from curved coordinates to rectilinear coordinate:
+            either a `.Transform` instance (which provides also its inverse),
+            or a pair of callables ``(trans, inv_trans)`` that define the
+            transform and its inverse.  The callables should have signature::
 
-        e.g., ``x2, y2 = trans(x1, y1)``
+                x_rect, y_rect = trans(x_curved, y_curved)
+                x_curved, y_curved = inv_trans(x_rect, y_rect)
+
+        extreme_finder
+
+        grid_locator1, grid_locator2
+            Grid locators for each axis.
+
+        tick_formatter1, tick_formatter2
+            Tick formatters for each axis.
         """
         super().__init__()
         self._grid_info = None
-        self._aux_trans = aux_trans
         self.grid_finder = GridFinder(aux_trans,
                                       extreme_finder,
                                       grid_locator1,
