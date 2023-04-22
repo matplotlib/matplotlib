@@ -19,7 +19,6 @@ import pytest
 import matplotlib
 import matplotlib as mpl
 from matplotlib import rc_context, patheffects
-from matplotlib._api import MatplotlibDeprecationWarning
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
@@ -4613,7 +4612,7 @@ def test_eventplot_problem_kwargs(recwarn):
                     linestyle=['dashdot', 'dotted'])
 
     assert len(recwarn) == 3
-    assert all(issubclass(wi.category, MatplotlibDeprecationWarning)
+    assert all(issubclass(wi.category, mpl.MatplotlibDeprecationWarning)
                for wi in recwarn)
 
 

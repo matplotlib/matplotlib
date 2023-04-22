@@ -20,7 +20,6 @@ from matplotlib.path import Path
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
 
 def test_segment_hits():
@@ -94,10 +93,10 @@ def test_invalid_line_data():
     line = mlines.Line2D([], [])
     # when deprecation cycle is completed
     # with pytest.raises(RuntimeError, match='x must be'):
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         line.set_xdata(0)
     # with pytest.raises(RuntimeError, match='y must be'):
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         line.set_ydata(0)
 
 
