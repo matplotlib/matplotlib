@@ -2158,7 +2158,7 @@ class Axes3D(Axes):
         self._auto_scale_contourf(X, Y, Z, zdir, levels, had_data)
         return cset
 
-    def add_collection3d(self, col, zs=0, zdir='z'):
+    def add_collection3d(self, col, zs=0, zdir='z', autolim=True):
         """
         Add a 3D collection object to the plot.
 
@@ -2171,6 +2171,9 @@ class Axes3D(Axes):
         - LineCollection
         - PatchCollection
         """
+
+        had_data = self.has_data()
+
         zvals = np.atleast_1d(zs)
         zsortval = (np.min(zvals) if zvals.size
                     else 0)  # FIXME: arbitrary default
@@ -2187,6 +2190,26 @@ class Axes3D(Axes):
         elif type(col) is mcoll.PatchCollection:
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
             col.set_sort_zpos(zsortval)
+
+        # FIXME: Implement auto-scaling function for Patch3DCollection
+        # Currently unable to do so due to issues with Patch3DCollection
+        # See issue #14298 for details
+
+        # Bounding box checks
+        # If a 2D collection was passed, it has been converted to 3D
+
+        if autolim:
+            if type(col) is art3d.Line3DCollection:
+                # Calculate bounds of Line3DCollection
+                tSeg = np.array(col._segments3d)  # Copy coordinates
+                # Auto-scale with start points
+                self.auto_scale_xyz(*tSeg[:, 0].transpose(), had_data=had_data)
+                # Auto-scale with end points
+                self.auto_scale_xyz(*tSeg[:, 1].transpose(), had_data=True)
+
+            if type(col) is art3d.Poly3DCollection:
+                # Calculate bounds of poly collection
+                self.auto_scale_xyz(*col._vec[:-1], had_data=had_data)
 
         collection = super().add_collection(col)
         return collection
