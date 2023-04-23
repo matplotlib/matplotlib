@@ -876,8 +876,7 @@ class FontProperties:
             The name of the font family.
 
             Available font families are defined in the
-            matplotlibrc.template file
-            :ref:`here <customizing-with-matplotlibrc-files>`
+            :ref:`default matplotlibrc file <customizing-with-matplotlibrc-files>`.
 
         See Also
         --------
