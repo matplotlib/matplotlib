@@ -1102,8 +1102,8 @@ class Text(Artist):
         fontfamily : str
             The name of the font family.
 
-            See
-            :ref:`available font families
+            Available font families are defined in the
+            :ref:`default matplotlibrc file
             <customizing-with-matplotlibrc-files>`.
 
         See Also
