@@ -163,7 +163,7 @@ class Axes(_AxesBase):
         y: float | ArrayLike,
         xmin: float | ArrayLike,
         xmax: float | ArrayLike,
-        colors: Sequence[ColorType] | None = ...,
+        colors: ColorType | Sequence[ColorType] | None = ...,
         linestyles: LineStyleType = ...,
         label: str = ...,
         **kwargs
@@ -173,7 +173,7 @@ class Axes(_AxesBase):
         x: float | ArrayLike,
         ymin: float | ArrayLike,
         ymax: float | ArrayLike,
-        colors: Sequence[ColorType] | None = ...,
+        colors: ColorType | Sequence[ColorType] | None = ...,
         linestyles: LineStyleType = ...,
         label: str = ...,
         **kwargs
@@ -287,7 +287,7 @@ class Axes(_AxesBase):
         x: ArrayLike,
         explode: ArrayLike | None = ...,
         labels: Sequence[str] | None = ...,
-        colors: Sequence[ColorType] | None = ...,
+        colors: ColorType | Sequence[ColorType] | None = ...,
         autopct: str | Callable[[float], str] | None = ...,
         wedgelabels: str | None = ...,
         wedgelabelsfmt: str | Callable[[float], str] | None = ...,

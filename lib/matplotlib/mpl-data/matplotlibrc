@@ -340,6 +340,7 @@
 ## settings which map a TeX font name to a fontconfig font pattern.  (These
 ## settings are not used for other font sets.)
 #mathtext.bf:  sans:bold
+#mathtext.bfit: sans:italic:bold
 #mathtext.cal: cursive
 #mathtext.it:  sans:italic
 #mathtext.rm:  sans

@@ -614,15 +614,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         'xpm': 'X pixmap',
     }
 
-    def print_figure(self, filename, *args, **kwargs):
-        # docstring inherited
-        super().print_figure(filename, *args, **kwargs)
-        # Restore the current view; this is needed because the artist contains
-        # methods rely on particular attributes of the rendered figure for
-        # determining things like bounding boxes.
-        if self._isDrawn:
-            self.draw()
-
     def _on_paint(self, event):
         """Called when wxPaintEvt is generated."""
         _log.debug("%s - _on_paint()", type(self))

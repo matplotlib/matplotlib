@@ -9,8 +9,8 @@ and is referenced throughout Matplotlib.
 
 The default values of the rc settings are set in the default matplotlibrc file.
 Any additions or deletions to the parameter set listed here should also be
-propagated to the :file:`matplotlibrc.template` in Matplotlib's root source
-directory.
+propagated to the :file:`lib/matplotlib/mpl-data/matplotlibrc` in Matplotlib's
+root source directory.
 """
 
 import ast
@@ -808,8 +808,8 @@ def _convert_validator_spec(key, conv):
 # Mapping of rcParams to validators.
 # Converters given as lists or _ignorecase are converted to ValidateInStrings
 # immediately below.
-# The rcParams defaults are defined in matplotlibrc.template, which gets copied
-# to matplotlib/mpl-data/matplotlibrc by the setup script.
+# The rcParams defaults are defined in lib/matplotlib/mpl-data/matplotlibrc, which
+# gets copied to matplotlib/mpl-data/matplotlibrc by the setup script.
 _validators = {
     "backend":           validate_backend,
     "backend_fallback":  validate_bool,
@@ -937,10 +937,11 @@ _validators = {
     "mathtext.tt":             validate_font_properties,
     "mathtext.it":             validate_font_properties,
     "mathtext.bf":             validate_font_properties,
+    "mathtext.bfit":           validate_font_properties,
     "mathtext.sf":             validate_font_properties,
     "mathtext.fontset":        ["dejavusans", "dejavuserif", "cm", "stix",
                                 "stixsans", "custom"],
-    "mathtext.default":        ["rm", "cal", "it", "tt", "sf", "bf", "default",
+    "mathtext.default":        ["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default",
                                 "bb", "frak", "scr", "regular"],
     "mathtext.fallback":       _validate_mathtext_fallback,
 
@@ -1255,7 +1256,8 @@ _validators = {
     # altogether.  For that use `matplotlib.style.use("classic")`.
     "_internal.classic_mode": validate_bool
 }
-_hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
+_hardcoded_defaults = {  # Defaults not inferred from
+    # lib/matplotlib/mpl-data/matplotlibrc...
     # ... because they are private:
     "_internal.classic_mode": False,
     # ... because they are deprecated:

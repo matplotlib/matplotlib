@@ -1047,9 +1047,9 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : list of colors, default: :rc:`lines.color`
+        colors : color or list of colors, default: :rc:`lines.color`
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
         label : str, default: ''
 
@@ -1101,14 +1101,25 @@ class Axes(_AxesBase):
             # Extreme values of xmin/xmax/y.  Using masked_verts here handles
             # the case of y being a masked *object* array (as can be generated
             # e.g. by errorbar()), which would make nanmin/nanmax stumble.
-            minx = np.nanmin(masked_verts[..., 0])
-            maxx = np.nanmax(masked_verts[..., 0])
-            miny = np.nanmin(masked_verts[..., 1])
-            maxy = np.nanmax(masked_verts[..., 1])
-            corners = (minx, miny), (maxx, maxy)
-            self.update_datalim(corners)
-            self._request_autoscale_view()
+            updatex = True
+            updatey = True
+            if self.name == "rectilinear":
+                datalim = lines.get_datalim(self.transData)
+                t = lines.get_transform()
+                updatex, updatey = t.contains_branch_seperately(self.transData)
+                minx = np.nanmin(datalim.xmin)
+                maxx = np.nanmax(datalim.xmax)
+                miny = np.nanmin(datalim.ymin)
+                maxy = np.nanmax(datalim.ymax)
+            else:
+                minx = np.nanmin(masked_verts[..., 0])
+                maxx = np.nanmax(masked_verts[..., 0])
+                miny = np.nanmin(masked_verts[..., 1])
+                maxy = np.nanmax(masked_verts[..., 1])
 
+            corners = (minx, miny), (maxx, maxy)
+            self.update_datalim(corners, updatex, updatey)
+            self._request_autoscale_view()
         return lines
 
     @_preprocess_data(replace_names=["x", "ymin", "ymax", "colors"],
@@ -1127,9 +1138,9 @@ class Axes(_AxesBase):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : list of colors, default: :rc:`lines.color`
+        colors : color or list of colors, default: :rc:`lines.color`
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
 
         label : str, default: ''
 
@@ -1181,14 +1192,25 @@ class Axes(_AxesBase):
             # Extreme values of x/ymin/ymax.  Using masked_verts here handles
             # the case of x being a masked *object* array (as can be generated
             # e.g. by errorbar()), which would make nanmin/nanmax stumble.
-            minx = np.nanmin(masked_verts[..., 0])
-            maxx = np.nanmax(masked_verts[..., 0])
-            miny = np.nanmin(masked_verts[..., 1])
-            maxy = np.nanmax(masked_verts[..., 1])
-            corners = (minx, miny), (maxx, maxy)
-            self.update_datalim(corners)
-            self._request_autoscale_view()
+            updatex = True
+            updatey = True
+            if self.name == "rectilinear":
+                datalim = lines.get_datalim(self.transData)
+                t = lines.get_transform()
+                updatex, updatey = t.contains_branch_seperately(self.transData)
+                minx = np.nanmin(datalim.xmin)
+                maxx = np.nanmax(datalim.xmax)
+                miny = np.nanmin(datalim.ymin)
+                maxy = np.nanmax(datalim.ymax)
+            else:
+                minx = np.nanmin(masked_verts[..., 0])
+                maxx = np.nanmax(masked_verts[..., 0])
+                miny = np.nanmin(masked_verts[..., 1])
+                maxy = np.nanmax(masked_verts[..., 1])
 
+            corners = (minx, miny), (maxx, maxy)
+            self.update_datalim(corners, updatex, updatey)
+            self._request_autoscale_view()
         return lines
 
     @_preprocess_data(replace_names=["positions", "lineoffsets",
@@ -2769,7 +2791,7 @@ class Axes(_AxesBase):
                     lambda r, b=bar:
                         mtransforms.Bbox.intersection(
                             b.get_window_extent(r), b.get_clip_box()
-                        )
+                        ) or mtransforms.Bbox.null()
                 )
             else:  # edge
                 if orientation == "vertical":
@@ -3072,7 +3094,7 @@ class Axes(_AxesBase):
         labels : list, default: None
             A sequence of strings providing the labels for each wedge
 
-        colors : array-like, default: None
+        colors : color or array-like of color, default: None
             A sequence of colors through which the pie chart will cycle.  If
             *None*, will use the colors in the currently active cycle.
 

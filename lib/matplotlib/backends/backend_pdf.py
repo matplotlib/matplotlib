@@ -2254,7 +2254,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # font. A text entry is ['text', x, y, glyphs, x+w] where x
         # and y are the starting coordinates, w is the width, and
         # glyphs is a list; in this phase it will always contain just
-        # one one-character string, but later it may have longer
+        # one single-character string, but later it may have longer
         # strings interspersed with kern amounts.
         oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:

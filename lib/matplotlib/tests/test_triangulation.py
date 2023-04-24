@@ -280,6 +280,8 @@ def test_tripcolor_color():
     with pytest.raises(TypeError,
                        match="positional.*'c'.*keyword-only.*'facecolors'"):
         ax.tripcolor(x, y, C=[1, 2, 3, 4])
+    with pytest.raises(TypeError, match="Unexpected positional parameter"):
+        ax.tripcolor(x, y, [1, 2], 'unused_positional')
 
     # smoke test for valid color specifications (via C or facecolors)
     ax.tripcolor(x, y, [1, 2, 3, 4])  # edges
@@ -303,9 +305,6 @@ def test_tripcolor_warnings():
     y = [0, -1, 0, 1]
     c = [0.4, 0.5]
     fig, ax = plt.subplots()
-    # additional parameters
-    with pytest.warns(DeprecationWarning, match="Additional positional param"):
-        ax.tripcolor(x, y, c, 'unused_positional')
     # facecolors takes precedence over c
     with pytest.warns(UserWarning, match="Positional parameter c .*no effect"):
         ax.tripcolor(x, y, c, facecolors=c)

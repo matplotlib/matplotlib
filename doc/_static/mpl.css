@@ -62,12 +62,11 @@ html[data-theme="dark"] .sphx-glr-thumbcontainer {
     padding: 0;
 }
 
-/* hide note linking to the download section at the bottom of galleries
- * as suggested in https://github.com/sphinx-gallery/sphinx-gallery/issues/760
+/* hide download buttons in example headers
+ * https://sphinx-gallery.github.io/stable/advanced.html#hide-the-download-buttons-in-the-example-headers
  */
 div.sphx-glr-download-link-note {
-    height: 0px;
-    visibility: hidden;
+    display: none;
 }
 
 /* re-style the download button */

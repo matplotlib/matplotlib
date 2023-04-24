@@ -159,7 +159,7 @@ class PolarAxes(Axes):
     def get_rsign(self) -> float: ...
     def set_rlim(
         self,
-        bottom: float | None = ...,
+        bottom: float | tuple[float, float] | None = ...,
         top: float | None = ...,
         *,
         emit: bool = ...,

@@ -4920,6 +4920,20 @@ def test_lines_with_colors(fig_test, fig_ref, data):
                                         colors=expect_color, linewidth=5)
 
 
+@image_comparison(['vlines_hlines_blended_transform'],
+                  extensions=['png'], style='mpl20')
+def test_vlines_hlines_blended_transform():
+    t = np.arange(5.0, 10.0, 0.1)
+    s = np.exp(-t) + np.sin(2 * np.pi * t) + 10
+    fig, (hax, vax) = plt.subplots(2, 1, figsize=(6, 6))
+    hax.plot(t, s, '^')
+    hax.hlines([10, 9], xmin=0, xmax=0.5,
+               transform=hax.get_yaxis_transform(), colors='r')
+    vax.plot(t, s, '^')
+    vax.vlines([6, 7], ymin=0, ymax=0.15, transform=vax.get_xaxis_transform(),
+               colors='r')
+
+
 @image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True,
                   tol=0.2)
 def test_step_linestyle():
@@ -8047,6 +8061,19 @@ def test_centered_bar_label_nonlinear():
     ax.set_xlim(1, None)
     ax.bar_label(bar_container, label_type='center')
     ax.set_axis_off()
+
+
+def test_centered_bar_label_label_beyond_limits():
+    fig, ax = plt.subplots()
+
+    last = 0
+    for label, value in zip(['a', 'b', 'c'], [10, 20, 50]):
+        bar_container = ax.barh('col', value, label=label, left=last)
+        ax.bar_label(bar_container, label_type='center')
+        last += value
+    ax.set_xlim(None, 20)
+
+    fig.draw_without_rendering()
 
 
 def test_bar_label_location_errorbars():

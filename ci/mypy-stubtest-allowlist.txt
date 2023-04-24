@@ -84,13 +84,10 @@ matplotlib.transforms.TransformWrapper.input_dims
 matplotlib.transforms.TransformWrapper.is_separable
 matplotlib.transforms.TransformWrapper.output_dims
 
-# 3.6 deprecations
-matplotlib.colorbar.Colorbar.__init__
-matplotlib.figure.Figure.callbacks
+# 3.6 Pending deprecations
 matplotlib.figure.Figure.set_constrained_layout
 matplotlib.figure.Figure.set_constrained_layout_pads
 matplotlib.figure.Figure.set_tight_layout
-matplotlib.figure.SubFigure.callbacks
 
 # 3.7 deprecations
 matplotlib.cm.register_cmap
@@ -103,7 +100,6 @@ matplotlib.widgets.Slider.__init__
 matplotlib.widgets.RangeSlider.__init__
 matplotlib.widgets.TextBox.__init__
 matplotlib.widgets.Cursor.__init__
-matplotlib.widgets.MultiCursor.__init__
 matplotlib.widgets.SpanSelector.__init__
 matplotlib.widgets.ToolLineHandles.__init__
 matplotlib.widgets.ToolHandles.__init__
