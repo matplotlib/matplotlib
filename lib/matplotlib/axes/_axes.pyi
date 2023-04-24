@@ -289,6 +289,8 @@ class Axes(_AxesBase):
         labels: Sequence[str] | None = ...,
         colors: Sequence[ColorType] | None = ...,
         autopct: str | Callable[[float], str] | None = ...,
+        wedgelabels: str | None = ...,
+        wedgelabelsfmt: str | Callable[[float], str] | None = ...,
         pctdistance: float = ...,
         shadow: bool = ...,
         labeldistance: float = ...,

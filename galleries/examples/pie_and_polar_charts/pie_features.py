@@ -32,10 +32,10 @@ ax.pie(sizes, labels=labels)
 # Auto-label slices
 # -----------------
 #
-# Pass a function or format string to *autopct* to label slices.
+# Pass a function or format string to *wedgelabelsfmt* to label slices.
 
 fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels, autopct='%1.1f%%')
+ax.pie(sizes, labels=labels, wedgelabelsfmt='%1.1f%%')
 
 # %%
 # By default, the label values are obtained from the percent size of the slice.
@@ -59,13 +59,13 @@ fig, ax = plt.subplots()
 ax.pie(sizes, labels=labels, hatch=['**O', 'oO', 'O.O', '.||.'])
 
 # %%
-# Swap label and autopct text positions
+# Swap label and wedgelabelsfmt text positions
 # -------------------------------------
 # Use the *labeldistance* and *pctdistance* parameters to position the *labels*
-# and *autopct* text respectively.
+# and *wedgelabelsfmt* text respectively.
 
 fig, ax = plt.subplots()
-ax.pie(sizes, labels=labels, autopct='%1.1f%%',
+ax.pie(sizes, labels=labels, wedgelabelsfmt='%1.1f%%',
        pctdistance=1.25, labeldistance=.6)
 
 # %%
@@ -87,7 +87,7 @@ ax.pie(sizes, labels=labels, autopct='%1.1f%%',
 explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
 fig, ax = plt.subplots()
-ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+ax.pie(sizes, explode=explode, labels=labels, wedgelabelsfmt='%1.1f%%',
         shadow=True, startangle=90)
 plt.show()
 
