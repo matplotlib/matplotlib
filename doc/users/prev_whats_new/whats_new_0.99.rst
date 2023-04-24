@@ -11,11 +11,11 @@ What's new in Matplotlib 0.99 (Aug 29, 2009)
 New documentation
 -----------------
 
-Jae-Joon Lee has written two new guides :doc:`/tutorials/intermediate/legend_guide`
+Jae-Joon Lee has written two new guides :ref:`legend_guide`
 and :ref:`plotting-guide-annotation`.  Michael Sarahan has written
-:doc:`/tutorials/introductory/images`.  John Hunter has written two new tutorials on
-working with paths and transformations: :doc:`/tutorials/advanced/path_tutorial` and
-:doc:`/tutorials/advanced/transforms_tutorial`.
+:ref:`image_tutorial`.  John Hunter has written two new tutorials on
+working with paths and transformations: :ref:`paths` and
+:ref:`transforms_tutorial`.
 
 .. _whats-new-mplot3d:
 
@@ -26,7 +26,7 @@ Reinier Heeres has ported John Porter's mplot3d over to the new
 matplotlib transformations framework, and it is now available as a
 toolkit mpl_toolkits.mplot3d (which now comes standard with all mpl
 installs).  See :ref:`mplot3d-examples-index` and
-:doc:`/tutorials/toolkits/mplot3d`.
+:ref:`mplot3d`.
 
 .. plot::
 

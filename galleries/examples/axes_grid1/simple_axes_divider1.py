@@ -3,7 +3,7 @@
 Simple Axes Divider 1
 =====================
 
-See also :doc:`/tutorials/toolkits/axes_grid`.
+See also :ref:`axes_grid`.
 """
 
 import matplotlib.pyplot as plt

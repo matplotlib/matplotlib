@@ -289,15 +289,12 @@ class FigureBase(Artist):
         -------
             bool, {}
         """
-        inside, info = self._default_contains(mouseevent, figure=self)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}
 
-    @_api.delete_parameter("3.6", "args")
-    @_api.delete_parameter("3.6", "kwargs")
-    def get_window_extent(self, renderer=None, *args, **kwargs):
+    def get_window_extent(self, renderer=None):
         # docstring inherited
         return self.bbox
 
@@ -391,6 +388,11 @@ default: %(va)s
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
+    def get_suptitle(self):
+        """Return the suptitle as string or an empty string if not set."""
+        text_obj = self._suptitle
+        return "" if text_obj is None else text_obj.get_text()
+
     @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
                              va='bottom', rc='label')
     @_docstring.copy(_suplabels)
@@ -400,6 +402,11 @@ default: %(va)s
                 'ha': 'center', 'va': 'bottom', 'rotation': 0,
                 'size': 'figure.labelsize', 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
+
+    def get_supxlabel(self):
+        """Return the supxlabel as string or an empty string if not set."""
+        text_obj = self._supxlabel
+        return "" if text_obj is None else text_obj.get_text()
 
     @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
                              va='center', rc='label')
@@ -411,6 +418,11 @@ default: %(va)s
                 'rotation_mode': 'anchor', 'size': 'figure.labelsize',
                 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
+
+    def get_supylabel(self):
+        """Return the supylabel as string or an empty string if not set."""
+        text_obj = self._supylabel
+        return "" if text_obj is None else text_obj.get_text()
 
     def get_edgecolor(self):
         """Get the edge color of the Figure rectangle."""
@@ -508,7 +520,7 @@ default: %(va)s
         if not artist.is_transform_set():
             artist.set_transform(self.transSubfigure)
 
-        if clip:
+        if clip and artist.get_clip_path() is None:
             artist.set_clip_path(self.patch)
 
         self.stale = True
@@ -933,6 +945,7 @@ default: %(va)s
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
         self._localaxes.remove(ax)
+        self.canvas.release_mouse(ax)
 
         # Break link between any shared axes
         for name in ax._axis_names:
@@ -1102,7 +1115,6 @@ default: %(va)s
         ----------------
         %(_legend_kw_figure)s
 
-
         See Also
         --------
         .Axes.legend
@@ -1110,7 +1122,7 @@ default: %(va)s
         Notes
         -----
         Some artists are not supported by this function.  See
-        :doc:`/tutorials/intermediate/legend_guide` for details.
+        :ref:`legend_guide` for details.
         """
 
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
@@ -1264,15 +1276,13 @@ default: %(va)s
                 not self.get_layout_engine().colorbar_gridspec):
             use_gridspec = False
         if cax is None:
-            current_ax = self.gca()
             if ax is None:
-                _api.warn_deprecated("3.6", message=(
+                raise ValueError(
                     'Unable to determine Axes to steal space for Colorbar. '
-                    'Using gca(), but will raise in the future. '
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
-                    'from it, or add *mappable* to an Axes.'))
-                ax = current_ax
+                    'from it, or add *mappable* to an Axes.')
+            current_ax = self.gca()
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):
@@ -1807,7 +1817,7 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        See :doc:`/gallery/subplots_axes_and_figures/mosaic`
+        See :ref:`mosaic`
         for an example and full API documentation
 
         Parameters
@@ -2041,7 +2051,7 @@ default: %(va)s
                 this_level[(start_row, start_col)] = (name, slc, 'axes')
 
             # do the same thing for the nested mosaics (simpler because these
-            # can not be spans yet!)
+            # cannot be spans yet!)
             for (j, k), nested_mosaic in nested.items():
                 this_level[(j, k)] = (None, nested_mosaic, 'nested')
 
@@ -2132,10 +2142,6 @@ class SubFigure(FigureBase):
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
     """
-    callbacks = _api.deprecated(
-            "3.6", alternative=("the 'resize_event' signal in "
-                                "Figure.canvas.callbacks")
-            )(property(lambda self: self._fig_callbacks))
 
     def __init__(self, parent, subplotspec, *,
                  facecolor=None,
@@ -2184,7 +2190,6 @@ class SubFigure(FigureBase):
         self._subplotspec = subplotspec
         self._parent = parent
         self.figure = parent.figure
-        self._fig_callbacks = parent._fig_callbacks
 
         # subfigures use the parent axstack
         self._axstack = parent._axstack
@@ -2268,7 +2273,7 @@ class SubFigure(FigureBase):
         """
         Return whether constrained layout is being used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
         """
         return self._parent.get_constrained_layout()
 
@@ -2279,7 +2284,7 @@ class SubFigure(FigureBase):
         Returns a list of ``w_pad, h_pad`` in inches and
         ``wspace`` and ``hspace`` as fractions of the subplot.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2345,12 +2350,6 @@ class Figure(FigureBase):
         depending on the renderer option_image_nocomposite function.  If
         *suppressComposite* is a boolean, this will override the renderer.
     """
-    # Remove the self._fig_callbacks properties on figure and subfigure
-    # after the deprecation expires.
-    callbacks = _api.deprecated(
-        "3.6", alternative=("the 'resize_event' signal in "
-                            "Figure.canvas.callbacks")
-        )(property(lambda self: self._fig_callbacks))
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
@@ -2362,10 +2361,10 @@ class Figure(FigureBase):
             naxes=len(self.axes),
         )
 
-    @_api.make_keyword_only("3.6", "facecolor")
     def __init__(self,
                  figsize=None,
                  dpi=None,
+                 *,
                  facecolor=None,
                  edgecolor=None,
                  linewidth=0.0,
@@ -2373,7 +2372,6 @@ class Figure(FigureBase):
                  subplotpars=None,  # rc figure.subplot.*
                  tight_layout=None,  # rc figure.autolayout
                  constrained_layout=None,  # rc figure.constrained_layout.use
-                 *,
                  layout=None,
                  **kwargs
                  ):
@@ -2430,7 +2428,7 @@ None}, default: None
               to avoid overlapping axes decorations.  Can handle complex plot
               layouts and colorbars, and is thus recommended.
 
-              See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+              See :ref:`constrainedlayout_guide`
               for examples.
 
             - 'compressed': uses the same algorithm as 'constrained', but
@@ -2492,7 +2490,6 @@ None}, default: None
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)
 
-        self._fig_callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
         # Callbacks traditionally associated with the canvas (and exposed with
         # a proxy property), but that actually need to be on the figure for
         # pickling.
@@ -2741,7 +2738,6 @@ None}, default: None
         self.dpi_scale_trans.clear().scale(dpi)
         w, h = self.get_size_inches()
         self.set_size_inches(w, h, forward=forward)
-        self._fig_callbacks.process('dpi_changed', self)
 
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
@@ -2779,7 +2775,7 @@ None}, default: None
         """
         Return whether constrained layout is being used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
         """
         return isinstance(self.get_layout_engine(), ConstrainedLayoutEngine)
 
@@ -2822,7 +2818,7 @@ None}, default: None
         Tip: The parameters can be passed from a dictionary by using
         ``fig.set_constrained_layout(**pad_dict)``.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2856,7 +2852,7 @@ None}, default: None
         ``wspace`` and ``hspace`` as fractions of the subplot.
         All values are None if ``constrained_layout`` is not used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -3263,6 +3259,11 @@ None}, default: None
               `~.FigureCanvasSVG.print_svg`.
             - 'eps' and 'ps' with PS backend: Only 'Creator' is supported.
 
+            Not supported for 'pgf', 'raw', and 'rgba' as those formats do not support
+            embedding metadata.
+            Does not currently support 'jpg', 'tiff', or 'webp', but may include
+            embedding EXIF metadata in the future.
+
         bbox_inches : str or `.Bbox`, default: :rc:`savefig.bbox`
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
@@ -3478,21 +3479,6 @@ None}, default: None
 
         return None if event is None else event.name == "key_press_event"
 
-    @_api.deprecated("3.6", alternative="figure.get_layout_engine().execute()")
-    def execute_constrained_layout(self, renderer=None):
-        """
-        Use ``layoutgrid`` to determine pos positions within Axes.
-
-        See also `.set_constrained_layout_pads`.
-
-        Returns
-        -------
-        layoutgrid : private debugging object
-        """
-        if not isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
-            return None
-        return self.get_layout_engine().execute(self)
-
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """
         Adjust the padding between and around subplots.
@@ -3531,7 +3517,7 @@ None}, default: None
                     and previous_engine is not None:
                 _api.warn_external('The figure layout has changed to tight')
         finally:
-            self.set_layout_engine(None)
+            self.set_layout_engine('none')
 
 
 def figaspect(arg):

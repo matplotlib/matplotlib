@@ -84,6 +84,7 @@ jobs:
         run: |
           case "${{ runner.os }}" in
           Linux)
+            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt-get update -yy
             sudo apt-get install -yy \
               ccache \
@@ -103,6 +104,7 @@ jobs:
               libgirepository1.0-dev \
               libsdl2-2.0-0 \
               libxkbcommon-x11-0 \
+              libxcb-cursor0 \
               libxcb-icccm4 \
               libxcb-image0 \
               libxcb-keysyms1 \
@@ -236,9 +238,14 @@ jobs:
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
-        if: ${{ github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)' }}
+        if: |
+          github.event_name == 'schedule' &&
+          matrix.name-suffix != '(Minimum Versions)'
         run: |
-          python -m pip install -i https://pypi.anaconda.org/scipy-wheels-nightly/simple --upgrade --only-binary=:all: numpy pandas
+          python -m pip install pytz  # Must be installed for Pandas.
+          python -m pip install \
+            --index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+            --upgrade --only-binary=:all: numpy pandas
 
       - name: Install Matplotlib
         run: |

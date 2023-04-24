@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import itertools
 import pickle
 
-from weakref import ref
+from typing import Any
 from unittest.mock import patch, Mock
 
 from datetime import datetime, date, timedelta
@@ -441,12 +443,12 @@ def test_sanitize_sequence():
     assert k == cbook.sanitize_sequence(k)
 
 
-fail_mapping = (
+fail_mapping: tuple[tuple[dict, dict], ...] = (
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
 )
 
-pass_mapping = (
+pass_mapping: tuple[tuple[Any, dict, dict], ...] = (
     (None, {}, {}),
     ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
     ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
@@ -590,11 +592,11 @@ def test_grouper_private():
     mapping = g._mapping
 
     for o in objs:
-        assert ref(o) in mapping
+        assert o in mapping
 
-    base_set = mapping[ref(objs[0])]
+    base_set = mapping[objs[0]]
     for o in objs[1:]:
-        assert mapping[ref(o)] is base_set
+        assert mapping[o] is base_set
 
 
 def test_flatiter():

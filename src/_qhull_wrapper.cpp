@@ -328,13 +328,9 @@ static struct PyModuleDef qhull_module = {
     "qhull", "Computing Delaunay triangulations.\n", -1, qhull_methods
 };
 
-#pragma GCC visibility push(default)
-
 PyMODINIT_FUNC
 PyInit__qhull(void)
 {
     import_array();
     return PyModule_Create(&qhull_module);
 }
-
-#pragma GCC visibility pop

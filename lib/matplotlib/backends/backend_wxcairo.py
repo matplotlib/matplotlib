@@ -1,17 +1,9 @@
 import wx.lib.wxcairo as wxcairo
 
-from .. import _api
 from .backend_cairo import cairo, FigureCanvasCairo
-from .backend_wx import _BackendWx, _FigureCanvasWxBase, FigureFrameWx
+from .backend_wx import _BackendWx, _FigureCanvasWxBase
 from .backend_wx import (  # noqa: F401 # pylint: disable=W0611
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
-
-
-@_api.deprecated(
-    "3.6", alternative="FigureFrameWx(..., canvas_class=FigureCanvasWxCairo)")
-class FigureFrameWxCairo(FigureFrameWx):
-    def get_canvas(self, fig):
-        return FigureCanvasWxCairo(self, -1, fig)
 
 
 class FigureCanvasWxCairo(FigureCanvasCairo, _FigureCanvasWxBase):

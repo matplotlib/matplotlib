@@ -88,13 +88,6 @@ cursord = {
 }
 
 
-@_api.caching_module_getattr
-class __getattr__:
-    qApp = _api.deprecated(
-        "3.6", alternative="QtWidgets.QApplication.instance()")(
-            property(lambda self: QtWidgets.QApplication.instance()))
-
-
 # lru_cache keeps a reference to the QApplication instance, keeping it from
 # being GC'd.
 @functools.lru_cache(1)
@@ -629,7 +622,8 @@ class FigureManagerQT(FigureManagerBase):
 
 
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
-    message = QtCore.Signal(str)
+    _message = QtCore.Signal(str)  # Remove once deprecation below elapses.
+    message = _api.deprecate_privatize_attribute("3.8")
 
     toolitems = [*NavigationToolbar2.toolitems]
     toolitems.insert(
@@ -748,7 +742,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._update_buttons_checked()
 
     def set_message(self, s):
-        self.message.emit(s)
+        self._message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
 

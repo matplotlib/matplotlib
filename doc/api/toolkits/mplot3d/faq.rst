@@ -25,14 +25,14 @@ of another object, even though it is physically behind it. This can result in
 plots that do not look "physically correct."
 
 Unfortunately, while some work is being done to reduce the occurrence of this
-artifact, it is currently an intractable problem, and can not be fully solved
+artifact, it is currently an intractable problem, and cannot be fully solved
 until matplotlib supports 3D graphics rendering at its core.
 
 The problem occurs due to the reduction of 3D data down to 2D + z-order
 scalar. A single value represents the 3rd dimension for all parts of 3D
 objects in a collection. Therefore, when the bounding boxes of two collections
 intersect, it becomes possible for this artifact to occur. Furthermore, the
-intersection of two 3D objects (such as polygons or patches) can not be
+intersection of two 3D objects (such as polygons or patches) cannot be
 rendered properly in matplotlib's 2D rendering engine.
 
 This problem will likely not be solved until OpenGL support is added to all of

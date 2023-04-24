@@ -104,8 +104,8 @@ defining property cycles. Adding cyclers together will be like you are
 You can even multiply cyclers, which is like using `itertools.product`
 on two or more property cycles.
 
-.. figure:: ../../tutorials/intermediate/images/sphx_glr_color_cycle_001.png
-   :target: ../../tutorials/intermediate/color_cycle.html
+.. figure:: /users/explain/artists/images/sphx_glr_color_cycle_001.png
+   :target: /users/explain/artists/color_cycle.html
    :align: center
    :scale: 50
 

@@ -20,7 +20,7 @@ grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  )
 
 # demo image
-Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
+Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy")
 im1 = Z
 im2 = Z[:, :10]
 im3 = Z[:, 10:]

@@ -74,7 +74,7 @@ def composite_images(images, renderer, magnification=1.0):
 
     Returns
     -------
-    image : uint8 array (M, N, 4)
+    image : (M, N, 4) `numpy.uint8` array
         The composited RGBA image.
     offset_x, offset_y : float
         The (left, bottom) offset where the composited image should be placed
@@ -275,8 +275,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def __str__(self):
         try:
-            size = self.get_size()
-            return f"{type(self).__name__}(size={size!r})"
+            shape = self.get_shape()
+            return f"{type(self).__name__}(shape={shape!r})"
         except RuntimeError:
             return type(self).__name__
 
@@ -286,10 +286,16 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def get_size(self):
         """Return the size of the image as tuple (numrows, numcols)."""
+        return self.get_shape()[:2]
+
+    def get_shape(self):
+        """
+        Return the shape of the image as tuple (numrows, numcols, channels).
+        """
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        return self._A.shape[:2]
+        return self._A.shape
 
     def set_alpha(self, alpha):
         """
@@ -333,9 +339,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         the given *clip_bbox* (also in pixel space), and magnified by the
         *magnification* factor.
 
-        *A* may be a greyscale image (M, N) with a dtype of float32, float64,
-        float128, uint16 or uint8, or an (M, N, 4) RGBA image with a dtype of
-        float32, float64, float128, or uint8.
+        *A* may be a greyscale image (M, N) with a dtype of `~numpy.float32`,
+        `~numpy.float64`, `~numpy.float128`, `~numpy.uint16` or `~numpy.uint8`,
+        or an (M, N, 4) RGBA image with a dtype of `~numpy.float32`,
+        `~numpy.float64`, `~numpy.float128`, or `~numpy.uint8`.
 
         If *unsampled* is True, the image will not be scaled, but an
         appropriate affine transformation will be returned instead.
@@ -347,12 +354,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Returns
         -------
-        image : (M, N, 4) uint8 array
+        image : (M, N, 4) `numpy.uint8` array
             The RGBA image, resampled unless *unsampled* is True.
         x, y : float
             The upper left corner where the image should be drawn, in pixel
             space.
-        trans : Affine2D
+        trans : `~matplotlib.transforms.Affine2D`
             The affine transformation from image to pixel space.
         """
         if A is None:
@@ -596,12 +603,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Returns
         -------
-        image : (M, N, 4) uint8 array
+        image : (M, N, 4) `numpy.uint8` array
             The RGBA image, resampled unless *unsampled* is True.
         x, y : float
             The upper left corner where the image should be drawn, in pixel
             space.
-        trans : Affine2D
+        trans : `~matplotlib.transforms.Affine2D`
             The affine transformation from image to pixel space.
         """
         raise NotImplementedError('The make_image method must be overridden')
@@ -647,9 +654,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         # 1) This doesn't work for figimage; but figimage also needs a fix
         #    below (as the check cannot use x/ydata and extents).
         # 2) As long as the check below uses x/ydata, we need to test axes
@@ -781,7 +787,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         s : {'data', 'rgba'} or None
-            Whether to apply up/downsampling interpolation in data or rgba
+            Whether to apply up/downsampling interpolation in data or RGBA
             space.
         """
         if s is None:
@@ -901,8 +907,8 @@ class AxesImage(_ImageBase):
     **kwargs : `.Artist` properties
     """
 
-    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, ax,
+                 *,
                  cmap=None,
                  norm=None,
                  interpolation=None,
@@ -911,7 +917,6 @@ class AxesImage(_ImageBase):
                  filternorm=True,
                  filterrad=4.0,
                  resample=False,
-                 *,
                  interpolation_stage=None,
                  **kwargs
                  ):
@@ -1183,10 +1188,12 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('Must set data first')
         return self._Ax[0], self._Ax[-1], self._Ay[0], self._Ay[-1]
 
-    def set_filternorm(self, s):
+    @_api.rename_parameter("3.8", "s", "filternorm")
+    def set_filternorm(self, filternorm):
         pass
 
-    def set_filterrad(self, s):
+    @_api.rename_parameter("3.8", "s", "filterrad")
+    def set_filterrad(self, filterrad):
         pass
 
     def set_norm(self, norm):
@@ -1208,11 +1215,11 @@ class PcolorImage(AxesImage):
     and it is used by pcolorfast for the corresponding grid type.
     """
 
-    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, ax,
                  x=None,
                  y=None,
                  A=None,
+                 *,
                  cmap=None,
                  norm=None,
                  **kwargs
@@ -1360,8 +1367,8 @@ class FigureImage(_ImageBase):
 
     _interpolation = 'nearest'
 
-    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, fig,
+                 *,
                  cmap=None,
                  norm=None,
                  offsetx=0,
@@ -1419,8 +1426,8 @@ class FigureImage(_ImageBase):
 class BboxImage(_ImageBase):
     """The Image class whose size is determined by the given bbox."""
 
-    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, bbox,
+                 *,
                  cmap=None,
                  norm=None,
                  interpolation=None,
@@ -1462,16 +1469,10 @@ class BboxImage(_ImageBase):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
-        if not self.get_visible():  # or self.get_figure()._renderer is None:
+        if self._different_canvas(mouseevent) or not self.get_visible():
             return False, {}
-
         x, y = mouseevent.x, mouseevent.y
         inside = self.get_window_extent().contains(x, y)
-
         return inside, {}
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
@@ -1610,6 +1611,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         Metadata in the image file.  The supported keys depend on the output
         format, see the documentation of the respective backends for more
         information.
+        Currently only supported for "png", "pdf", "ps", "eps", and "svg".
     pil_kwargs : dict, optional
         Keyword arguments passed to `PIL.Image.Image.save`.  If the 'pnginfo'
         key is present, it completely overrides *metadata*, including the
@@ -1674,6 +1676,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
                 for k, v in metadata.items():
                     if v is not None:
                         pnginfo.add_text(k, v)
+        elif metadata is not None:
+            raise ValueError(f"metadata not supported for format {format!r}")
         if format in ["jpg", "jpeg"]:
             format = "jpeg"  # Pillow doesn't recognize "jpg".
             facecolor = mpl.rcParams["savefig.facecolor"]

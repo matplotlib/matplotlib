@@ -463,7 +463,7 @@ instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 
 Exception changes
 -----------------
-- `mpl_toolkits.axes_grid1.axes_size.GetExtentHelper` now raises `ValueError`
+- ``mpl_toolkits.axes_grid1.axes_size.GetExtentHelper`` now raises `ValueError`
   for invalid directions instead of `KeyError`.
 - Previously, subprocess failures in the animation framework would raise either
   in a `RuntimeError` or a `ValueError` depending on when the error occurred.
@@ -932,9 +932,9 @@ internal datetime representation; or use ``dates.datestr2num``.
 Axes3D
 ~~~~~~
 
-- `.axes3d.Axes3D.w_xaxis`
-- `.axes3d.Axes3D.w_yaxis`
-- `.axes3d.Axes3D.w_zaxis`
+- ``.axes3d.Axes3D.w_xaxis``
+- ``.axes3d.Axes3D.w_yaxis``
+- ``.axes3d.Axes3D.w_zaxis``
 
 Use ``axes3d.Axes3D.xaxis``, ``axes3d.Axes3D.yaxis`` and
 ``axes3d.Axes3D.zaxis`` instead.

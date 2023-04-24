@@ -282,8 +282,7 @@ class Line2D(Artist):
             return "Line2D(%s)" % ",".join(
                 map("({:g},{:g})".format, self._x, self._y))
 
-    @_api.make_keyword_only("3.6", name="linewidth")
-    def __init__(self, xdata, ydata,
+    def __init__(self, xdata, ydata, *,
                  linewidth=None,  # all Nones default to rc
                  linestyle=None,
                  color=None,
@@ -404,7 +403,7 @@ class Line2D(Artist):
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
         self._internal_update(kwargs)
-        self._pickradius = pickradius
+        self.pickradius = pickradius
         self.ind_offset = 0
         if (isinstance(self._picker, Number) and
                 not isinstance(self._picker, bool)):
@@ -448,9 +447,8 @@ class Line2D(Artist):
 
             TODO: sort returned indices by distance
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
 
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
@@ -502,7 +500,6 @@ class Line2D(Artist):
         """
         return self._pickradius
 
-    @_api.rename_parameter("3.6", "d", "pickradius")
     def set_pickradius(self, pickradius):
         """
         Set the pick radius used for containment tests.

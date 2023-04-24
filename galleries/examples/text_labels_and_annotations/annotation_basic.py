@@ -7,7 +7,7 @@ This example shows how to annotate a plot with an arrow pointing to provided
 coordinates. We modify the defaults of the arrow, to "shrink" it.
 
 For a complete overview of the annotation capabilities, also see the
-:doc:`annotation tutorial</tutorials/text/annotations>`.
+:ref:`annotation tutorial<annotations>`.
 
 .. redirect-from:: /gallery/pyplots/annotation_basic
 """

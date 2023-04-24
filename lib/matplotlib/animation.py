@@ -615,18 +615,6 @@ class ImageMagickBase:
     _exec_key = 'animation.convert_path'
     _args_key = 'animation.convert_args'
 
-    @_api.deprecated("3.6")
-    @property
-    def delay(self):
-        return 100. / self.fps
-
-    @_api.deprecated("3.6")
-    @property
-    def output_args(self):
-        extra_args = (self.extra_args if self.extra_args is not None
-                      else mpl.rcParams[self._args_key])
-        return [*extra_args, self.outfile]
-
     def _args(self):
         # ImageMagick does not recognize "raw".
         fmt = "rgba" if self.frame_format == "raw" else self.frame_format
@@ -809,7 +797,7 @@ class HTMLWriter(FileMovieWriter):
                                              **mode_dict))
 
         # Duplicate the temporary file clean up logic from
-        # FileMovieWriter.finish.  We can not call the inherited version of
+        # FileMovieWriter.finish.  We cannot call the inherited version of
         # finish because it assumes that there is a subprocess that we either
         # need to call to merge many frames together or that there is a
         # subprocess call that we need to clean up.
@@ -975,10 +963,10 @@ class Animation:
 
                 def func(current_frame: int, total_frames: int) -> Any
 
-            where *current_frame* is the current frame number and
-            *total_frames* is the total number of frames to be saved.
-            *total_frames* is set to None, if the total number of frames can
-            not be determined. Return values may exist but are ignored.
+            where *current_frame* is the current frame number and *total_frames* is the
+            total number of frames to be saved. *total_frames* is set to None, if the
+            total number of frames cannot be determined. Return values may exist but are
+            ignored.
 
             Example code to write the progress to stdout::
 
@@ -991,6 +979,15 @@ class Animation:
         *writer* is a string.  If they are passed as non-*None* and *writer*
         is a `.MovieWriter`, a `RuntimeError` will be raised.
         """
+
+        all_anim = [self]
+        if extra_anim is not None:
+            all_anim.extend(anim for anim in extra_anim
+                            if anim._fig is self._fig)
+
+        # Disable "Animation was deleted without rendering" warning.
+        for anim in all_anim:
+            anim._draw_was_started = True
 
         if writer is None:
             writer = mpl.rcParams['animation.writer']
@@ -1029,11 +1026,6 @@ class Animation:
             writer_kwargs['extra_args'] = extra_args
         if metadata is not None:
             writer_kwargs['metadata'] = metadata
-
-        all_anim = [self]
-        if extra_anim is not None:
-            all_anim.extend(anim for anim in extra_anim
-                            if anim._fig is self._fig)
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.

@@ -1,4 +1,6 @@
 """
+.. _artist_reference:
+
 ================================
 Reference for Matplotlib artists
 ================================

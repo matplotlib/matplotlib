@@ -20,7 +20,7 @@ from pyparsing import (
     pyparsing_common)
 
 import matplotlib as mpl
-from . import _api, cbook
+from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
@@ -35,8 +35,7 @@ _log = logging.getLogger("matplotlib.mathtext")
 # FONTS
 
 
-@_api.delete_parameter("3.6", "math")
-def get_unicode_index(symbol, math=False):  # Publicly exported.
+def get_unicode_index(symbol):  # Publicly exported.
     r"""
     Return the integer index (from the Unicode table) of *symbol*.
 
@@ -45,17 +44,7 @@ def get_unicode_index(symbol, math=False):  # Publicly exported.
     symbol : str
         A single (Unicode) character, a TeX command (e.g. r'\pi') or a Type1
         symbol name (e.g. 'phi').
-    math : bool, default: False
-        If True (deprecated), replace ASCII hyphen-minus by Unicode minus.
     """
-    # From UTF #25: U+2212 minus sign is the preferred
-    # representation of the unary and binary minus sign rather than
-    # the ASCII-derived U+002D hyphen-minus, because minus sign is
-    # unambiguous and because it is rendered with a more desirable
-    # length, usually longer than a hyphen.
-    # Remove this block when the 'math' parameter is deleted.
-    if math and symbol == '-':
-        return 0x2212
     try:  # This will succeed if symbol is a single Unicode char
         return ord(symbol)
     except TypeError:
@@ -473,7 +462,7 @@ class UnicodeFonts(TruetypeFonts):
     complete set of math symbols is STIX.
 
     This class will "fallback" on the Bakoma fonts when a required
-    symbol can not be found in the font.
+    symbol cannot be found in the font.
     """
 
     # Some glyphs are not present in the `cmr10` font, and must be brought in
@@ -495,7 +484,7 @@ class UnicodeFonts(TruetypeFonts):
 
         super().__init__(*args, **kwargs)
         self.fontmap = {}
-        for texfont in "cal rm tt it bf sf".split():
+        for texfont in "cal rm tt it bf sf bfit".split():
             prop = mpl.rcParams['mathtext.' + texfont]
             font = findfont(prop)
             self.fontmap[texfont] = font
@@ -642,6 +631,7 @@ class DejaVuSerifFonts(DejaVuFonts):
         'rm': 'DejaVu Serif',
         'it': 'DejaVu Serif:italic',
         'bf': 'DejaVu Serif:weight=bold',
+        'bfit': 'DejaVu Serif:italic:bold',
         'sf': 'DejaVu Sans',
         'tt': 'DejaVu Sans Mono',
         'ex': 'DejaVu Serif Display',
@@ -659,6 +649,7 @@ class DejaVuSansFonts(DejaVuFonts):
         'rm': 'DejaVu Sans',
         'it': 'DejaVu Sans:italic',
         'bf': 'DejaVu Sans:weight=bold',
+        'bfit': 'DejaVu Sans:italic:bold',
         'sf': 'DejaVu Sans',
         'tt': 'DejaVu Sans Mono',
         'ex': 'DejaVu Sans Display',
@@ -682,6 +673,7 @@ class StixFonts(UnicodeFonts):
         'rm': 'STIXGeneral',
         'it': 'STIXGeneral:italic',
         'bf': 'STIXGeneral:weight=bold',
+        'bfit': 'STIXGeneral:italic:bold',
         'nonunirm': 'STIXNonUnicode',
         'nonuniit': 'STIXNonUnicode:italic',
         'nonunibf': 'STIXNonUnicode:weight=bold',
@@ -747,7 +739,7 @@ class StixFonts(UnicodeFonts):
             uniindex = stix_glyph_fixes.get(uniindex, uniindex)
 
         # Handle private use area glyphs
-        if fontname in ('it', 'rm', 'bf') and 0xe000 <= uniindex <= 0xf8ff:
+        if fontname in ('it', 'rm', 'bf', 'bfit') and 0xe000 <= uniindex <= 0xf8ff:
             fontname = 'nonuni' + fontname
 
         return fontname, uniindex
@@ -1344,7 +1336,7 @@ class Vrule(Rule):
 
 _GlueSpec = namedtuple(
     "_GlueSpec", "width stretch stretch_order shrink shrink_order")
-_GlueSpec._named = {
+_GlueSpec._named = {  # type: ignore[attr-defined]
     'fil':         _GlueSpec(0., 1., 1, 0., 0),
     'fill':        _GlueSpec(0., 1., 2, 0., 0),
     'filll':       _GlueSpec(0., 1., 3, 0., 0),
@@ -1676,7 +1668,7 @@ class ParserState:
 
     @font.setter
     def font(self, name):
-        if name in ('rm', 'it', 'bf'):
+        if name in ('rm', 'it', 'bf', 'bfit'):
             self.font_class = name
         self._font = name
 
@@ -1782,7 +1774,8 @@ class Parser:
 
     _dropsub_symbols = set(r'''\int \oint'''.split())
 
-    _fontnames = set("rm cal it tt sf bf default bb frak scr regular".split())
+    _fontnames = set("rm cal it tt sf bf bfit "
+                     "default bb frak scr regular".split())
 
     _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
@@ -1868,6 +1861,7 @@ class Parser:
         p.optional_group   = Forward()
         p.sqrt             = Forward()
         p.subsuper         = Forward()
+        p.text             = Forward()
         p.token            = Forward()
         p.underset         = Forward()
 
@@ -1918,6 +1912,8 @@ class Parser:
             r"\underset",
             p.optional_group("annotation") + p.optional_group("body"))
 
+        p.text <<= cmd(r"\text", QuotedString('{', '\\', endQuoteChar="}"))
+
         p.placeable     <<= (
             p.accent     # Must be before symbol as all accents are symbols
             | p.symbol   # Must be second to catch all named symbols and single
@@ -1933,6 +1929,7 @@ class Parser:
             | p.underset
             | p.sqrt
             | p.overline
+            | p.text
         )
 
         p.simple        <<= (
@@ -2032,6 +2029,14 @@ class Parser:
         return [hlist]
 
     float_literal = staticmethod(pyparsing_common.convertToFloat)
+
+    def text(self, s, loc, toks):
+        self.push_state()
+        state = self.get_state()
+        state.font = 'rm'
+        hlist = Hlist([Char(c, state) for c in toks[1]])
+        self.pop_state()
+        return [hlist]
 
     def _make_space(self, percentage):
         # In TeX, an em (the unit usually used to measure horizontal lengths)

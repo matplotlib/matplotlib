@@ -668,7 +668,7 @@ class Path3DCollection(PathCollection):
             ys = []
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         # In the base draw methods we access the attributes directly which
-        # means we can not resolve the shuffling in the getter methods like
+        # means we cannot resolve the shuffling in the getter methods like
         # we do for the edge and face colors.
         #
         # This means we need to carry around a cache of the unsorted sizes and
@@ -727,7 +727,7 @@ class Path3DCollection(PathCollection):
         # we have to special case the sizes because of code in collections.py
         # as the draw method does
         #      self.set_sizes(self._sizes, self.figure.dpi)
-        # so we can not rely on doing the sorting on the way out via get_*
+        # so we cannot rely on doing the sorting on the way out via get_*
 
         if len(self._sizes3d) > 1:
             self._sizes = self._sizes3d[z_markers_idx]
@@ -848,7 +848,7 @@ class Poly3DCollection(PolyCollection):
 
             .. versionadded:: 3.7
 
-        lightsource : `~matplotlib.colors.LightSource`
+        lightsource : `~matplotlib.colors.LightSource`, optional
             The lightsource to use when *shade* is True.
 
             .. versionadded:: 3.7
@@ -1063,7 +1063,7 @@ class Poly3DCollection(PolyCollection):
         if not hasattr(self, '_facecolors2d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return self._facecolors2d
+        return np.asarray(self._facecolors2d)
 
     def get_edgecolor(self):
         # docstring inherited
@@ -1071,7 +1071,7 @@ class Poly3DCollection(PolyCollection):
         if not hasattr(self, '_edgecolors2d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return self._edgecolors2d
+        return np.asarray(self._edgecolors2d)
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):

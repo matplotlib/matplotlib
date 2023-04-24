@@ -134,8 +134,8 @@ plt.show()
 # x[0, 0] in the upper left or lower right by using the origin parameter.
 # You can also control the default setting image.origin in your
 # :ref:`matplotlibrc file <customizing-with-matplotlibrc-files>`. For more on
-# this topic see the :doc:`complete guide on origin and extent
-# </tutorials/intermediate/imshow_extent>`.
+# this topic see the :ref:`complete guide on origin and extent
+# <imshow_extent>`.
 
 x = np.arange(120).reshape((10, 12))
 

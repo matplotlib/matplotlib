@@ -13,15 +13,6 @@ from matplotlib import (
 from . import art3d, proj3d
 
 
-@_api.deprecated("3.6", alternative="a vendored copy of _move_from_center")
-def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
-    """
-    For each coordinate where *axmask* is True, move *coord* away from
-    *centers* by *deltas*.
-    """
-    return _move_from_center(coord, centers, deltas, axmask=axmask)
-
-
 def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     """
     For each coordinate where *axmask* is True, move *coord* away from
@@ -29,12 +20,6 @@ def _move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     """
     coord = np.asarray(coord)
     return coord + axmask * np.copysign(1, coord - centers) * deltas
-
-
-@_api.deprecated("3.6", alternative="a vendored copy of _tick_update_position")
-def tick_update_position(tick, tickxs, tickys, labelpos):
-    """Update tick line and label position and style."""
-    _tick_update_position(tick, tickxs, tickys, labelpos)
 
 
 def _tick_update_position(tick, tickxs, tickys, labelpos):
@@ -198,17 +183,6 @@ class Axis(maxis.XAxis):
                 obj.set_transform(self.axes.transData)
         return ticks
 
-    @_api.deprecated("3.6")
-    def set_pane_pos(self, xys):
-        """Set pane position."""
-        self._set_pane_pos(xys)
-
-    def _set_pane_pos(self, xys):
-        xys = np.asarray(xys)
-        xys = xys[:, :2]
-        self.pane.xy = xys
-        self.stale = True
-
     def set_pane_color(self, color, alpha=None):
         """
         Set pane color.
@@ -339,8 +313,9 @@ class Axis(maxis.XAxis):
             plane = self._PLANES[2 * index]
         else:
             plane = self._PLANES[2 * index + 1]
-        xys = [tc[p] for p in plane]
-        self._set_pane_pos(xys)
+        xys = np.asarray([tc[p] for p in plane])
+        xys = xys[:, :2]
+        self.pane.xy = xys
         self.pane.draw(renderer)
 
         renderer.close_group('pane3d')

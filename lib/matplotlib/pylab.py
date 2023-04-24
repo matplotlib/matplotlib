@@ -48,3 +48,7 @@ import datetime
 # This is needed, or bytes will be numpy.random.bytes from
 # "from numpy.random import *" above
 bytes = __import__("builtins").bytes
+# We also don't want the numpy version of these functions
+max = __import__("builtins").max
+min = __import__("builtins").min
+round = __import__("builtins").round

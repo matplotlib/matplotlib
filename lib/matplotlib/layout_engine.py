@@ -104,9 +104,8 @@ class PlaceHolderLayoutEngine(LayoutEngine):
     """
     This layout engine does not adjust the figure layout at all.
 
-    The purpose of this `.LayoutEngine` is to act as a placeholder when the
-    user removes a layout engine to ensure an incompatible `.LayoutEngine` can
-    not be set later.
+    The purpose of this `.LayoutEngine` is to act as a placeholder when the user removes
+    a layout engine to ensure an incompatible `.LayoutEngine` cannot be set later.
 
     Parameters
     ----------
@@ -127,7 +126,7 @@ class PlaceHolderLayoutEngine(LayoutEngine):
 class TightLayoutEngine(LayoutEngine):
     """
     Implements the ``tight_layout`` geometry management.  See
-    :doc:`/tutorials/intermediate/tight_layout_guide` for details.
+    :ref:`tight_layout_guide` for details.
     """
     _adjust_compatible = True
     _colorbar_gridspec = True
@@ -191,7 +190,7 @@ class TightLayoutEngine(LayoutEngine):
 class ConstrainedLayoutEngine(LayoutEngine):
     """
     Implements the ``constrained_layout`` geometry management.  See
-    :doc:`/tutorials/intermediate/constrainedlayout_guide` for details.
+    :ref:`constrainedlayout_guide` for details.
     """
 
     _adjust_compatible = False

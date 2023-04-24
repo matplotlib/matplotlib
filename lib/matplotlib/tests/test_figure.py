@@ -16,6 +16,7 @@ import matplotlib as mpl
 from matplotlib import gridspec
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
+from matplotlib.backend_bases import KeyEvent, MouseEvent
 from matplotlib.figure import Figure, FigureBase
 from matplotlib.layout_engine import (ConstrainedLayoutEngine,
                                       TightLayoutEngine,
@@ -301,6 +302,19 @@ def test_suptitle_subfigures():
     assert sf2.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
 
 
+def test_get_suptitle_supxlabel_supylabel():
+    fig, ax = plt.subplots()
+    assert fig.get_suptitle() == ""
+    assert fig.get_supxlabel() == ""
+    assert fig.get_supylabel() == ""
+    fig.suptitle('suptitle')
+    assert fig.get_suptitle() == 'suptitle'
+    fig.supxlabel('supxlabel')
+    assert fig.get_supxlabel() == 'supxlabel'
+    fig.supylabel('supylabel')
+    assert fig.get_supylabel() == 'supylabel'
+
+
 @image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
@@ -546,11 +560,22 @@ def test_savefig_pixel_ratio(backend):
     assert ratio1 == ratio2
 
 
-def test_savefig_preserve_layout_engine(tmp_path):
+def test_savefig_preserve_layout_engine():
     fig = plt.figure(layout='compressed')
-    fig.savefig(tmp_path / 'foo.png', bbox_inches='tight')
+    fig.savefig(io.BytesIO(), bbox_inches='tight')
 
     assert fig.get_layout_engine()._compress
+
+
+def test_savefig_locate_colorbar():
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh(np.random.randn(2, 2))
+    cbar = fig.colorbar(pc, aspect=40)
+    fig.savefig(io.BytesIO(), bbox_inches=mpl.transforms.Bbox([[0, 0], [4, 4]]))
+
+    # Check that an aspect ratio has been applied.
+    assert (cbar.ax.get_position(original=True).bounds !=
+            cbar.ax.get_position(original=False).bounds)
 
 
 @mpl.rc_context({"savefig.transparent": True})
@@ -645,6 +670,15 @@ def test_invalid_layouts():
 
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("constrained")
+
+
+@check_figures_equal(extensions=["png"])
+def test_tightlayout_autolayout_deconflict(fig_test, fig_ref):
+    for fig, autolayout in zip([fig_ref, fig_test], [False, True]):
+        with mpl.rc_context({'figure.autolayout': autolayout}):
+            axes = fig.subplots(ncols=2)
+            fig.tight_layout(w_pad=10)
+        assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
 
 
 @pytest.mark.parametrize('layout', ['constrained', 'compressed'])
@@ -1459,19 +1493,20 @@ def test_add_axes_kwargs():
 def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig, ax = plt.subplots()
+    trans = ax.transData.transform
 
     def single_press():
-        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
+        MouseEvent("button_press_event", fig.canvas, *trans((.1, .2)), 1)._process()
 
     Timer(.1, single_press).start()
     assert fig.ginput() == [(.1, .2)]
 
     def multi_presses():
-        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
-        fig.canvas.key_press_event("backspace")
-        fig.canvas.button_press_event(*ax.transData.transform((.3, .4)), 1)
-        fig.canvas.button_press_event(*ax.transData.transform((.5, .6)), 1)
-        fig.canvas.button_press_event(*ax.transData.transform((0, 0)), 2)
+        MouseEvent("button_press_event", fig.canvas, *trans((.1, .2)), 1)._process()
+        KeyEvent("key_press_event", fig.canvas, "backspace")._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((.3, .4)), 1)._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((.5, .6)), 1)._process()
+        MouseEvent("button_press_event", fig.canvas, *trans((0, 0)), 2)._process()
 
     Timer(.1, multi_presses).start()
     np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
@@ -1481,9 +1516,9 @@ def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig = plt.figure()
     assert fig.waitforbuttonpress(timeout=.1) is None
-    Timer(.1, fig.canvas.key_press_event, ("z",)).start()
+    Timer(.1, KeyEvent("key_press_event", fig.canvas, "z")._process).start()
     assert fig.waitforbuttonpress() is True
-    Timer(.1, fig.canvas.button_press_event, (0, 0, 1)).start()
+    Timer(.1, MouseEvent("button_press_event", fig.canvas, 0, 0, 1)._process).start()
     assert fig.waitforbuttonpress() is False
 
 
@@ -1548,3 +1583,14 @@ def test_gridspec_no_mutate_input():
     plt.subplots(1, 2, width_ratios=[1, 2], gridspec_kw=gs)
     assert gs == gs_orig
     plt.subplot_mosaic('AB', width_ratios=[1, 2], gridspec_kw=gs)
+
+
+@pytest.mark.parametrize('fmt', ['eps', 'pdf', 'png', 'ps', 'svg', 'svgz'])
+def test_savefig_metadata(fmt):
+    Figure().savefig(io.BytesIO(), format=fmt, metadata={})
+
+
+@pytest.mark.parametrize('fmt', ['jpeg', 'jpg', 'tif', 'tiff', 'webp', "raw", "rgba"])
+def test_savefig_metadata_error(fmt):
+    with pytest.raises(ValueError, match="metadata not supported"):
+        Figure().savefig(io.BytesIO(), format=fmt, metadata={})

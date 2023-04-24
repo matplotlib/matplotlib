@@ -106,7 +106,7 @@ provide the following information in your e-mail to the `mailing list
   GitHub, PyPI, or `Anaconda <https://www.anaconda.com/>`_).
 
 * Any customizations to your ``matplotlibrc`` file (see
-  :doc:`/tutorials/introductory/customizing`).
+  :ref:`customizing`).
 
 * If the problem is reproducible, please try to provide a *minimal*, standalone
   Python script that demonstrates the problem.  This is *the* critical step.
@@ -149,7 +149,7 @@ will save a lot of time.
 You will likely get a faster response writing to the mailing list than
 filing a bug in the bug tracker.  Most developers check the bug
 tracker only periodically.  If your problem has been determined to be
-a bug and can not be quickly solved, you may be asked to file a bug in
+a bug and cannot be quickly solved, you may be asked to file a bug in
 the tracker so the issue doesn't get lost.
 
 .. _git-trouble:

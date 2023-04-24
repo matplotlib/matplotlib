@@ -409,7 +409,7 @@ class TestLegendFunction:
             "be discarded.")
 
     def test_parasite(self):
-        from mpl_toolkits.axes_grid1 import host_subplot
+        from mpl_toolkits.axes_grid1 import host_subplot  # type: ignore
 
         host = host_subplot(111)
         par = host.twinx()
@@ -1219,3 +1219,79 @@ def test_ncol_ncols(fig_test, fig_ref):
     ncols = 3
     fig_test.legend(strings, ncol=ncols)
     fig_ref.legend(strings, ncols=ncols)
+
+
+def test_loc_invalid_tuple_exception():
+    # check that exception is raised if the loc arg
+    # of legend is not a 2-tuple of numbers
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match=('loc must be string, coordinate '
+                       'tuple, or an integer 0-10, not \\(1.1,\\)')):
+        ax.legend(loc=(1.1, ))
+
+    with pytest.raises(ValueError, match=('loc must be string, coordinate '
+                       'tuple, or an integer 0-10, not \\(0.481, 0.4227, 0.4523\\)')):
+        ax.legend(loc=(0.481, 0.4227, 0.4523))
+
+    with pytest.raises(ValueError, match=('loc must be string, coordinate '
+                       'tuple, or an integer 0-10, not \\(0.481, \'go blue\'\\)')):
+        ax.legend(loc=(0.481, "go blue"))
+
+
+def test_loc_valid_tuple():
+    fig, ax = plt.subplots()
+    ax.legend(loc=(0.481, 0.442))
+    ax.legend(loc=(1, 2))
+
+
+def test_loc_valid_list():
+    fig, ax = plt.subplots()
+    ax.legend(loc=[0.481, 0.442])
+    ax.legend(loc=[1, 2])
+
+
+def test_loc_invalid_list_exception():
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match=('loc must be string, coordinate '
+                       'tuple, or an integer 0-10, not \\[1.1, 2.2, 3.3\\]')):
+        ax.legend(loc=[1.1, 2.2, 3.3])
+
+
+def test_loc_invalid_type():
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match=("loc must be string, coordinate "
+                       "tuple, or an integer 0-10, not {'not': True}")):
+        ax.legend(loc={'not': True})
+
+
+def test_loc_validation_numeric_value():
+    fig, ax = plt.subplots()
+    ax.legend(loc=0)
+    ax.legend(loc=1)
+    ax.legend(loc=5)
+    ax.legend(loc=10)
+    with pytest.raises(ValueError, match=('loc must be string, coordinate '
+                       'tuple, or an integer 0-10, not 11')):
+        ax.legend(loc=11)
+
+    with pytest.raises(ValueError, match=('loc must be string, coordinate '
+                       'tuple, or an integer 0-10, not -1')):
+        ax.legend(loc=-1)
+
+
+def test_loc_validation_string_value():
+    fig, ax = plt.subplots()
+    ax.legend(loc='best')
+    ax.legend(loc='upper right')
+    ax.legend(loc='best')
+    ax.legend(loc='upper right')
+    ax.legend(loc='upper left')
+    ax.legend(loc='lower left')
+    ax.legend(loc='lower right')
+    ax.legend(loc='right')
+    ax.legend(loc='center left')
+    ax.legend(loc='center right')
+    ax.legend(loc='lower center')
+    ax.legend(loc='upper center')
+    with pytest.raises(ValueError, match="'wrong' is not a valid value for"):
+        ax.legend(loc='wrong')

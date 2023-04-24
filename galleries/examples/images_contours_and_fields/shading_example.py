@@ -22,7 +22,7 @@ def main():
     x, y = np.mgrid[-5:5:0.05, -5:5:0.05]
     z = 5 * (np.sqrt(x**2 + y**2) + np.sin(x**2 + y**2))
 
-    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz')
     elev = dem['elevation']
 
     fig = compare(z, plt.cm.copper)

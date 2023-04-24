@@ -75,7 +75,7 @@ programmatic plot generation.
 Further reading:
 
 - The `matplotlib.pyplot` function reference
-- :doc:`/tutorials/introductory/pyplot`
+- :ref:`pyplot_tutorial`
 - :ref:`Pyplot examples <pyplots_examples>`
 
 .. _api-index:
@@ -153,6 +153,7 @@ Alphabetical list of modules:
    transformations.rst
    tri_api.rst
    type1font.rst
+   typing_api.rst
    units_api.rst
    widgets_api.rst
    _api_api.rst

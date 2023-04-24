@@ -7,7 +7,7 @@ You can explicitly set which font family is picked up, either by specifying
 family names of fonts installed on user's system, or generic-families
 (e.g., 'serif', 'sans-serif', 'monospace', 'fantasy' or 'cursive'),
 or a combination of both.
-(see :doc:`font tutorial </tutorials/text/text_props>`)
+(see :ref:`text_props`)
 
 In the example below, we are overriding the default sans-serif generic family
 to include a specific (Tahoma) font. (Note that the best way to achieve this
@@ -26,9 +26,7 @@ in order::
 
 .. redirect-from:: /gallery/font_family_rc_sgskip
 
-
-
-The font font.family defaults are OS dependent and can be viewed with
+The ``font.family`` defaults are OS dependent and can be viewed with:
 """
 import matplotlib.pyplot as plt
 

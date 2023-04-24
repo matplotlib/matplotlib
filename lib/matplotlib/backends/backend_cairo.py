@@ -15,7 +15,8 @@ import numpy as np
 try:
     import cairo
     if cairo.version_info < (1, 14, 0):  # Introduced set_device_scale.
-        raise ImportError
+        raise ImportError(f"Cairo backend requires cairo>=1.14.0, "
+                          f"but only {cairo.version_info} is available")
 except ImportError:
     try:
         import cairocffi as cairo
@@ -99,15 +100,6 @@ class RendererCairo(RendererBase):
             ctx.restore()
         self.gc.ctx = ctx
         self.width, self.height = size
-
-    @_api.deprecated("3.6", alternative="set_context")
-    def set_ctx_from_surface(self, surface):
-        self.gc.ctx = cairo.Context(surface)
-
-    @_api.deprecated("3.6")
-    def set_width_height(self, width, height):
-        self.width = width
-        self.height = height
 
     def _fill_and_stroke(self, ctx, fill_c, alpha, alpha_overrides):
         if fill_c is not None:
@@ -499,19 +491,6 @@ class FigureCanvasCairo(FigureCanvasBase):
     print_ps = functools.partialmethod(_save, "ps")
     print_svg = functools.partialmethod(_save, "svg")
     print_svgz = functools.partialmethod(_save, "svgz")
-
-
-@_api.deprecated("3.6")
-class _RendererGTKCairo(RendererCairo):
-    def set_context(self, ctx):
-        if (cairo.__name__ == "cairocffi"
-                and not isinstance(ctx, cairo.Context)):
-            ctx = cairo.Context._from_pointer(
-                cairo.ffi.cast(
-                    'cairo_t **',
-                    id(ctx) + object.__basicsize__)[0],
-                incref=True)
-        self.gc.ctx = ctx
 
 
 @_Backend.export

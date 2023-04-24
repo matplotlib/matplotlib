@@ -21,8 +21,8 @@ The example below serves two purposes:
 * It provides a ready-to-use solution for the problem of easily drawing angles
   in graphs.
 * It shows how to subclass a Matplotlib artist to enhance its functionality, as
-  well as giving a hands-on example on how to use Matplotlib's :doc:`transform
-  system </tutorials/advanced/transforms_tutorial>`.
+  well as giving a hands-on example on how to use Matplotlib's :ref:`transform
+  system <transforms_tutorial>`.
 
 If mainly interested in the former, you may copy the below class and jump to
 the :ref:`angle-annotation-usage` section.

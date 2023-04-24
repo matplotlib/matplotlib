@@ -147,9 +147,9 @@ class RendererAgg(RendererBase):
             except OverflowError:
                 cant_chunk = ''
                 if rgbFace is not None:
-                    cant_chunk += "- can not split filled path\n"
+                    cant_chunk += "- cannot split filled path\n"
                 if gc.get_hatch() is not None:
-                    cant_chunk += "- can not split hatched path\n"
+                    cant_chunk += "- cannot split hatched path\n"
                 if not path.should_simplify:
                     cant_chunk += "- path.should_simplify is False\n"
                 if len(cant_chunk):
@@ -157,7 +157,7 @@ class RendererAgg(RendererBase):
                         "Exceeded cell block limit in Agg, however for the "
                         "following reasons:\n\n"
                         f"{cant_chunk}\n"
-                        "we can not automatically split up this path to draw."
+                        "we cannot automatically split up this path to draw."
                         "\n\nPlease manually simplify your path."
                     )
 
@@ -280,6 +280,7 @@ class RendererAgg(RendererBase):
     def tostring_argb(self):
         return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
 
+    @_api.deprecated("3.8", alternative="buffer_rgba")
     def tostring_rgb(self):
         return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
 
@@ -402,18 +403,16 @@ class FigureCanvasAgg(FigureCanvasBase):
             # don't forget to call the superclass.
             super().draw()
 
-    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
-    def get_renderer(self, cleared=False):
+    def get_renderer(self):
         w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
         reuse_renderer = (self._lastKey == key)
         if not reuse_renderer:
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
-        elif cleared:
-            self.renderer.clear()
         return self.renderer
 
+    @_api.deprecated("3.8", alternative="buffer_rgba")
     def tostring_rgb(self):
         """
         Get the image as RGB `bytes`.
@@ -441,7 +440,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         return self.renderer.buffer_rgba()
 
-    def print_raw(self, filename_or_obj):
+    def print_raw(self, filename_or_obj, *, metadata=None):
+        if metadata is not None:
+            raise ValueError("metadata not supported for raw/rgba")
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         with cbook.open_file_cm(filename_or_obj, "wb") as fh:
@@ -518,22 +519,22 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
-    def print_jpg(self, filename_or_obj, *, pil_kwargs=None):
+    def print_jpg(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
         # savefig() has already applied savefig.facecolor; we now set it to
         # white to make imsave() blend semi-transparent figures against an
         # assumed white background.
         with mpl.rc_context({"savefig.facecolor": "white"}):
-            self._print_pil(filename_or_obj, "jpeg", pil_kwargs)
+            self._print_pil(filename_or_obj, "jpeg", pil_kwargs, metadata)
 
     print_jpeg = print_jpg
 
-    def print_tif(self, filename_or_obj, *, pil_kwargs=None):
-        self._print_pil(filename_or_obj, "tiff", pil_kwargs)
+    def print_tif(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "tiff", pil_kwargs, metadata)
 
     print_tiff = print_tif
 
-    def print_webp(self, filename_or_obj, *, pil_kwargs=None):
-        self._print_pil(filename_or_obj, "webp", pil_kwargs)
+    def print_webp(self, filename_or_obj, *, metadata=None, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "webp", pil_kwargs, metadata)
 
     print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
         """

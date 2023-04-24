@@ -13,7 +13,7 @@ from matplotlib import cbook, cm
 from matplotlib.colors import LightSource
 
 # Load and format data
-dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+dem = cbook.get_sample_data('jacksboro_fault_dem.npz')
 z = dem['elevation']
 nrows, ncols = z.shape
 x = np.linspace(dem['xmin'], dem['xmax'], ncols)

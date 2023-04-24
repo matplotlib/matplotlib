@@ -5,7 +5,7 @@ Rendering math equations using TeX
 
 You can use TeX to render all of your Matplotlib text by setting
 :rc:`text.usetex` to True.  This requires that you have TeX and the other
-dependencies described in the :doc:`/tutorials/text/usetex` tutorial properly
+dependencies described in the :ref:`usetex` tutorial properly
 installed on your system.  Matplotlib caches processed TeX expressions, so that
 only the first occurrence of an expression triggers a TeX compilation. Later
 occurrences reuse the rendered image from the cache and are thus faster.

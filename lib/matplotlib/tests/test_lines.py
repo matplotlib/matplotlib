@@ -20,7 +20,6 @@ from matplotlib.path import Path
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
 
 def test_segment_hits():
@@ -94,15 +93,17 @@ def test_invalid_line_data():
     line = mlines.Line2D([], [])
     # when deprecation cycle is completed
     # with pytest.raises(RuntimeError, match='x must be'):
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         line.set_xdata(0)
     # with pytest.raises(RuntimeError, match='y must be'):
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         line.set_ydata(0)
 
 
-@image_comparison(['line_dashes'], remove_text=True)
+@image_comparison(['line_dashes'], remove_text=True, tol=0.002)
 def test_line_dashes():
+    # Tolerance introduced after reordering of floating-point operations
+    # Remove when regenerating the images
     fig, ax = plt.subplots()
 
     ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
@@ -185,7 +186,7 @@ def test_set_drawstyle():
 
 @image_comparison(
     ['line_collection_dashes'], remove_text=True, style='mpl20',
-    tol=0.62 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
+    tol=0.65 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_set_line_coll_dash_image():
     fig, ax = plt.subplots()
     np.random.seed(0)

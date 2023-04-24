@@ -4,7 +4,7 @@ import urllib.parse
 
 import numpy as np
 
-from matplotlib import _api, _text_helpers, dviread
+from matplotlib import _text_helpers, dviread
 from matplotlib.font_manager import (
     FontProperties, get_font, fontManager as _fontManager
 )
@@ -210,13 +210,6 @@ class TextToPath:
 
         return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
-
-    @_api.deprecated("3.6", alternative="TexManager()")
-    def get_texmanager(self):
-        """Return the cached `~.texmanager.TexManager` instance."""
-        if self._texmanager is None:
-            self._texmanager = TexManager()
-        return self._texmanager
 
     def get_glyphs_tex(self, prop, s, glyph_map=None,
                        return_new_glyphs_only=False):

@@ -6,18 +6,17 @@ TickedStroke patheffect
 Matplotlib's :mod:`.patheffects` can be used to alter the way paths
 are drawn at a low enough level that they can affect almost anything.
 
-The :doc:`patheffects guide</tutorials/advanced/patheffects_guide>`
+The :ref:`patheffects guide<patheffects_guide>`
 details the use of patheffects.
 
 The `~matplotlib.patheffects.TickedStroke` patheffect illustrated here
 draws a path with a ticked style.  The spacing, length, and angle of
 ticks can be controlled.
 
-See also the :doc:`contour demo example
-</gallery/lines_bars_and_markers/lines_with_ticks_demo>`.
+See also the :doc:`/gallery/lines_bars_and_markers/lines_with_ticks_demo` example.
 
-See also the :doc:`contours in optimization example
-</gallery/images_contours_and_fields/contours_in_optimization_demo>`.
+See also the :doc:`/gallery/images_contours_and_fields/contours_in_optimization_demo`
+example.
 """
 
 import matplotlib.pyplot as plt
@@ -103,4 +102,21 @@ plt.setp(cg3.collections,
 ax.set_xlim(0, 4)
 ax.set_ylim(0, 4)
 
+plt.show()
+
+# %%
+# Direction/side of the ticks
+# ===========================
+#
+# To change which side of the line the ticks are drawn, change the sign of the angle.
+
+fig, ax = plt.subplots(figsize=(6, 6))
+line_x = line_y = [0, 1]
+ax.plot(line_x, line_y, label="Line",
+        path_effects=[patheffects.withTickedStroke(spacing=7, angle=135)])
+
+ax.plot(line_x, line_y, label="Opposite side",
+        path_effects=[patheffects.withTickedStroke(spacing=7, angle=-135)])
+
+ax.legend()
 plt.show()

@@ -114,6 +114,7 @@ Statistics
    :template: autosummary.rst
    :nosignatures:
 
+   ecdf
    boxplot
    violinplot
 

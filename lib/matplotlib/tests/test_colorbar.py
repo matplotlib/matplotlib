@@ -3,7 +3,6 @@ import platform
 import numpy as np
 import pytest
 
-from matplotlib import _api
 from matplotlib import cm
 import matplotlib.colors as mcolors
 import matplotlib as mpl
@@ -322,11 +321,8 @@ def test_colorbarbase():
 
 
 def test_parentless_mappable():
-    pc = mpl.collections.PatchCollection([], cmap=plt.get_cmap('viridis'))
-    pc.set_array([])
-
-    with pytest.warns(_api.MatplotlibDeprecationWarning,
-                      match='Unable to determine Axes to steal'):
+    pc = mpl.collections.PatchCollection([], cmap=plt.get_cmap('viridis'), array=[])
+    with pytest.raises(ValueError, match='Unable to determine Axes to steal'):
         plt.colorbar(pc)
 
 
@@ -656,6 +652,12 @@ def test_colorbar_scale_reset():
     assert cbar.ax.yaxis.get_scale() == 'linear'
 
     assert cbar.outline.get_edgecolor() == mcolors.to_rgba('red')
+
+    # log scale with no vmin/vmax set should scale to the data if there
+    # is a mappable already associated with the colorbar, not (0, 1)
+    pcm.norm = LogNorm()
+    assert pcm.norm.vmin == z.min()
+    assert pcm.norm.vmax == z.max()
 
 
 def test_colorbar_get_ticks_2():

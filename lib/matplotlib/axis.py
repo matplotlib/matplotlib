@@ -188,11 +188,6 @@ class Tick(martist.Artist):
 
         self.update_position(loc)
 
-    @property
-    @_api.deprecated("3.1", alternative="Tick.label1", removal="3.8")
-    def label(self):
-        return self.label1
-
     def _set_labelrotation(self, labelrotation):
         if isinstance(labelrotation, str):
             mode = labelrotation
@@ -234,15 +229,12 @@ class Tick(martist.Artist):
                     self.gridline, self.label1, self.label2]
         return children
 
-    def set_clip_path(self, clippath, transform=None):
+    @_api.rename_parameter("3.8", "clippath", "path")
+    def set_clip_path(self, path, transform=None):
         # docstring inherited
-        super().set_clip_path(clippath, transform)
-        self.gridline.set_clip_path(clippath, transform)
+        super().set_clip_path(path, transform)
+        self.gridline.set_clip_path(path, transform)
         self.stale = True
-
-    @_api.deprecated("3.6")
-    def get_pad_pixels(self):
-        return self.figure.dpi * self._base_pad / 72
 
     def contains(self, mouseevent):
         """
@@ -251,9 +243,6 @@ class Tick(martist.Artist):
         This function always returns false.  It is more useful to test if the
         axis as a whole contains the mouse rather than the set of tick marks.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
         return False, {}
 
     def set_pad(self, val):
@@ -640,8 +629,7 @@ class Axis(martist.Artist):
         return "{}({},{})".format(
             type(self).__name__, *self.axes.transAxes.transform((0, 0)))
 
-    @_api.make_keyword_only("3.6", name="pickradius")
-    def __init__(self, axes, pickradius=15):
+    def __init__(self, axes, *, pickradius=15):
         """
         Parameters
         ----------
@@ -1092,10 +1080,11 @@ class Axis(martist.Artist):
         kwtrans.update(kw_)
         return kwtrans
 
-    def set_clip_path(self, clippath, transform=None):
-        super().set_clip_path(clippath, transform)
+    @_api.rename_parameter("3.8", "clippath", "path")
+    def set_clip_path(self, path, transform=None):
+        super().set_clip_path(path, transform)
         for child in self.majorTicks + self.minorTicks:
-            child.set_clip_path(clippath, transform)
+            child.set_clip_path(path, transform)
         self.stale = True
 
     def get_view_interval(self):
@@ -1251,21 +1240,6 @@ class Axis(martist.Artist):
             return
         a.set_figure(self.figure)
 
-    @_api.deprecated("3.6")
-    def get_ticklabel_extents(self, renderer):
-        """Get the extents of the tick labels on either side of the axes."""
-        ticks_to_draw = self._update_ticks()
-        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
-        if len(tlb1):
-            bbox1 = mtransforms.Bbox.union(tlb1)
-        else:
-            bbox1 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
-        if len(tlb2):
-            bbox2 = mtransforms.Bbox.union(tlb2)
-        else:
-            bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
-        return bbox1, bbox2
-
     def _update_ticks(self):
         """
         Update ticks (position and labels) using the current data interval of
@@ -1274,7 +1248,6 @@ class Axis(martist.Artist):
         major_locs = self.get_majorticklocs()
         major_labels = self.major.formatter.format_ticks(major_locs)
         major_ticks = self.get_major_ticks(len(major_locs))
-        self.major.formatter.set_locs(major_locs)
         for tick, loc, label in zip(major_ticks, major_locs, major_labels):
             tick.update_position(loc)
             tick.set_label1(label)
@@ -1282,7 +1255,6 @@ class Axis(martist.Artist):
         minor_locs = self.get_minorticklocs()
         minor_labels = self.minor.formatter.format_ticks(minor_locs)
         minor_ticks = self.get_minor_ticks(len(minor_locs))
-        self.minor.formatter.set_locs(minor_locs)
         for tick, loc, label in zip(minor_ticks, minor_locs, minor_labels):
             tick.update_position(loc)
             tick.set_label1(label)
@@ -2240,22 +2212,25 @@ class XAxis(Axis):
         )
         self.label_position = 'bottom'
 
+        if mpl.rcParams['xtick.labelcolor'] == 'inherit':
+            tick_color = mpl.rcParams['xtick.color']
+        else:
+            tick_color = mpl.rcParams['xtick.labelcolor']
+
         self.offsetText.set(
             x=1, y=0,
             verticalalignment='top', horizontalalignment='right',
             transform=mtransforms.blended_transform_factory(
                 self.axes.transAxes, mtransforms.IdentityTransform()),
             fontsize=mpl.rcParams['xtick.labelsize'],
-            color=mpl.rcParams['xtick.color'],
+            color=tick_color
         )
         self.offset_text_position = 'bottom'
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the x-axis."""
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
+        if self._different_canvas(mouseevent):
+            return False, {}
         x, y = mouseevent.x, mouseevent.y
         try:
             trans = self.axes.transAxes.inverted()
@@ -2345,29 +2320,6 @@ class XAxis(Axis):
                 top = bbox.y1
             y = top + self.OFFSETTEXTPAD * self.figure.dpi / 72
         self.offsetText.set_position((x, y))
-
-    @_api.deprecated("3.6")
-    def get_text_heights(self, renderer):
-        """
-        Return how much space should be reserved for text above and below the
-        Axes, as a pair of floats.
-        """
-        bbox, bbox2 = self.get_ticklabel_extents(renderer)
-        # MGDTODO: Need a better way to get the pad
-        pad_pixels = self.majorTicks[0].get_pad_pixels()
-
-        above = 0.0
-        if bbox2.height:
-            above += bbox2.height + pad_pixels
-        below = 0.0
-        if bbox.height:
-            below += bbox.height + pad_pixels
-
-        if self.get_label_position() == 'top':
-            above += self.label.get_window_extent(renderer).height + pad_pixels
-        else:
-            below += self.label.get_window_extent(renderer).height + pad_pixels
-        return above, below
 
     def set_ticks_position(self, position):
         """
@@ -2499,6 +2451,12 @@ class YAxis(Axis):
                 mtransforms.IdentityTransform(), self.axes.transAxes),
         )
         self.label_position = 'left'
+
+        if mpl.rcParams['ytick.labelcolor'] == 'inherit':
+            tick_color = mpl.rcParams['ytick.color']
+        else:
+            tick_color = mpl.rcParams['ytick.labelcolor']
+
         # x in axes coords, y in display coords(!).
         self.offsetText.set(
             x=0, y=0.5,
@@ -2506,16 +2464,14 @@ class YAxis(Axis):
             transform=mtransforms.blended_transform_factory(
                 self.axes.transAxes, mtransforms.IdentityTransform()),
             fontsize=mpl.rcParams['ytick.labelsize'],
-            color=mpl.rcParams['ytick.color'],
+            color=tick_color
         )
         self.offset_text_position = 'left'
 
     def contains(self, mouseevent):
         # docstring inherited
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
+        if self._different_canvas(mouseevent):
+            return False, {}
         x, y = mouseevent.x, mouseevent.y
         try:
             trans = self.axes.transAxes.inverted()
@@ -2610,25 +2566,6 @@ class YAxis(Axis):
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x, y))
         self.stale = True
-
-    @_api.deprecated("3.6")
-    def get_text_widths(self, renderer):
-        bbox, bbox2 = self.get_ticklabel_extents(renderer)
-        # MGDTODO: Need a better way to get the pad
-        pad_pixels = self.majorTicks[0].get_pad_pixels()
-
-        left = 0.0
-        if bbox.width:
-            left += bbox.width + pad_pixels
-        right = 0.0
-        if bbox2.width:
-            right += bbox2.width + pad_pixels
-
-        if self.get_label_position() == 'left':
-            left += self.label.get_window_extent(renderer).width + pad_pixels
-        else:
-            right += self.label.get_window_extent(renderer).width + pad_pixels
-        return left, right
 
     def set_ticks_position(self, position):
         """

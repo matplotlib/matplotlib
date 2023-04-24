@@ -89,6 +89,9 @@ though not necessarily all at the same time:
 - It involves Python features such as decorators and context managers, which
   have subtleties due to our implementation decisions.
 
+Assigning issues and duplicating pull requests
+----------------------------------------------
+
 In general, the Matplotlib project does not assign issues. Issues are
 "assigned" or "claimed" by opening a PR; there is no other assignment
 mechanism. If you have opened such a PR, please comment on the issue thread to
@@ -454,6 +457,12 @@ Then they will receive messages like
    DEBUG:matplotlib.backends:backend MacOSX version unknown
    DEBUG:matplotlib.yourmodulename:Here is some information
    DEBUG:matplotlib.yourmodulename:Here is some more detailed information
+
+Avoid using pre-computed strings (``f-strings``, ``str.format``,etc.) for logging because of security and
+performance issues, and because they interfere with style handlers. For example, use ``_log.error('hello %s', 'world')``  rather than
+``_log.error('hello {}'.format('world'))`` or ``_log.error(f'hello {s}')``.
+
+
 
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
