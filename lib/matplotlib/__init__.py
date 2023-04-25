@@ -685,9 +685,10 @@ class RcParams(MutableMapping):
             name: mapping.new_child()
             for name, mapping in self._namespace_maps.items()
         }
-        self._mapping = ChainMap(*self._namespace_maps.values())
 
-    def _split_key(self, key, sep="."):
+    @staticmethod
+    @functools.lru_cache
+    def _split_key(key, sep="."):
         keys = key.split(sep, maxsplit=1)
         return keys, len(keys)
 
