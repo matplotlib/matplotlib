@@ -1821,6 +1821,11 @@ class Axis(martist.Artist):
             _api.warn_external('FixedFormatter should only be used together '
                                'with FixedLocator')
 
+        assert isinstance(formatter, mticker.Formatter)
+
+        if hasattr(self, "converter") and self.converter is not None:
+            formatter.validate_converter(self.converter)
+
         if level == self.major:
             self.isDefault_majfmt = False
         else:

@@ -651,6 +651,12 @@ class DateFormatter(ticker.Formatter):
     def set_tzinfo(self, tz):
         self.tz = _get_tzinfo(tz)
 
+    def validate_converter(self, converter):
+        if not isinstance(converter, (DateConverter, _SwitchableDateConverter)):
+            raise TypeError(
+                f"Expected a DateConverter for DateFormatter, got {type(converter)}"
+            )
+
 
 class ConciseDateFormatter(ticker.Formatter):
     """
@@ -872,6 +878,13 @@ class ConciseDateFormatter(ticker.Formatter):
     def format_data_short(self, value):
         return num2date(value, tz=self._tz).strftime('%Y-%m-%d %H:%M:%S')
 
+    def validate_converter(self, converter):
+        if not isinstance(converter, (DateConverter, _SwitchableDateConverter)):
+            raise TypeError(
+                "Expected a DateConverter for ConciseDateFormatter, "
+                f"got {type(converter)}"
+            )
+
 
 class AutoDateFormatter(ticker.Formatter):
     """
@@ -991,6 +1004,9 @@ class AutoDateFormatter(ticker.Formatter):
             raise TypeError(f'Unexpected type passed to {self!r}.')
 
         return result
+
+    def validate_converter(self, converter):
+        self._formatter.validate_converter(converter)
 
 
 class rrulewrapper:
