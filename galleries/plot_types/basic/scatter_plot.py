@@ -12,7 +12,6 @@ plt.style.use('_mpl-gallery')
 
 # make the data
 rng = np.random.default_rng(seed=None)
-np.random.seed(3)
 
 x = 4 + rng.normal(0, 2, 24)
 y = 4 + rng.normal(0, 2, len(x))
