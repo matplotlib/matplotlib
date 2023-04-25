@@ -1,6 +1,6 @@
 .. _users_axis:
 
-Controlling and labelling Axis objects
+Controlling and Labelling Axis Objects
 --------------------------------------
 
 Matplotlib `~matplotlib.axis.Axis` objects can be controlled and manipulated
