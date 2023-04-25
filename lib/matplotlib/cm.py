@@ -146,6 +146,11 @@ class ColormapRegistry(Mapping):
                                "that was already in the registry.")
 
         self._cmaps[name] = cmap.copy()
+        # Someone may set the extremes of a builtin colormap and want to register it
+        # with a different name for future lookups. The object would still have the
+        # builtin name, so we should update it to the registered name
+        if self._cmaps[name].name != name:
+            self._cmaps[name].name = name
 
     def unregister(self, name):
         """
