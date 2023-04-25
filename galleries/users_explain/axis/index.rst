@@ -3,8 +3,8 @@
 Controlling and Labelling Axis Objects
 --------------------------------------
 
-Matplotlib `~matplotlib.axis.Axis` objects can be controlled and manipulated
-using the `~matplotlib.artist.Artist` class. These tutorials cover the basics
+Matplotlib `~.axis.Axis` objects can be controlled and manipulated
+using the `~.artist.Artist` class. These tutorials cover the basics
 of the usage of Axis objects and controlling them in Matplotlib.
 
 For information on the `~matplotlib.artist.Artist` class, see the
