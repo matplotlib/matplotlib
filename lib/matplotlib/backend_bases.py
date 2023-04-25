@@ -1473,7 +1473,8 @@ class MouseEvent(LocationEvent):
                 f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
                 f"button={self.button} dblclick={self.dblclick} "
                 f"inaxes={self.inaxes}")
-    
+
+
 class HoverEvent(Event):
     """
     A hover event.
@@ -1521,6 +1522,7 @@ class HoverEvent(Event):
         self.mouseevent = mouseevent
         self.artist = artist
         self.__dict__.update(kwargs)
+
 
 class PickEvent(Event):
     """
@@ -1571,7 +1573,7 @@ class PickEvent(Event):
         self.__dict__.update(kwargs)
 
 
-class KeyEvent(LocationEvent): 
+class KeyEvent(LocationEvent):
     """
     A key event (key press, key release).
 

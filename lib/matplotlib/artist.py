@@ -595,7 +595,7 @@ class Artist:
         set_picker, pickable, pick
         """
         return self._picker
-    
+
     def set_hover(self, hover):
         """
         Define the hover status of the artist.
@@ -621,12 +621,12 @@ class Artist:
 
             - A function: If hover is callable, it is a user supplied
               function which determines whether the artist is hit by the
-              mouse event to determine the hit test.  if the mouse event 
+              mouse event to determine the hit test. If the mouse event
               is over the artist, return *hit=True* and props is a dictionary of
               properties you want added to the HoverEvent attributes.
         """
         self._hover = hover
-    
+
     def get_hover(self):
         """
         Return the hover status of the artist.
