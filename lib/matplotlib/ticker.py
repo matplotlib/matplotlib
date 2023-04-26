@@ -203,7 +203,7 @@ class TickHelper:
                 self._repr = TickHelper._get_representation(child.__name__, args, kwargs)
 
         def _default_init(self):
-            self._repr = TickHelper._get_args_representation(child.__name__, [], {})
+            self._repr = TickHelper._get_representation(child.__name__, [], {})
 
         if (child.__init__):
             child.__init__ = _init_repr_wrapper
