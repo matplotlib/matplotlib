@@ -200,10 +200,13 @@ class TickHelper:
 
         def _init_repr(self, *args, **kwargs):
             if (not hasattr(self, "_repr")):
-                self._repr = TickHelper._get_representation(child.__name__, args, kwargs)
+                self._repr = \
+                    TickHelper._get_representation(child.__name__, args, kwargs)
 
         def _default_init(self):
-            self._repr = TickHelper._get_representation(child.__name__, [], {})
+            if (not hasattr(self, "_repr")):
+                self._repr = \
+                    TickHelper._get_representation(child.__name__, [], {})
 
         if (child.__init__):
             child.__init__ = _init_repr_wrapper
