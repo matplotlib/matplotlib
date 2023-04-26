@@ -440,7 +440,7 @@ class Axes(maxes.Axes):
 
         # Init gridlines before clear() as clear() calls grid().
         self.gridlines = gridlines = GridlinesCollection(
-            None, transform=self.transData,
+            [], transform=self.transData,
             colors=mpl.rcParams['grid.color'],
             linestyles=mpl.rcParams['grid.linestyle'],
             linewidths=mpl.rcParams['grid.linewidth'])
