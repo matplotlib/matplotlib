@@ -781,12 +781,12 @@ class RcParams(MutableMapping):
                 return
             elif key == 'backend' or key == "default.backend":
                 if val is rcsetup._auto_backend_sentinel:
-                    if 'backend' in self:
+                    if 'backend' in self or 'default.backend' in self:
                         return
-            if key in self.single_key_set:
-                key = f"default.{key}"
             try:
                 cval = self.validate[key](val)
+                if key in self.single_key_set:
+                    key = f"default.{key}"
             except ValueError as ve:
                 raise ValueError(f"Key {key}: {ve}") from None
             self._set(key, cval)
@@ -851,7 +851,7 @@ class RcParams(MutableMapping):
     def __iter__(self):
         """Yield from sorted list of keys"""
         keys = (
-            ".".join((space, key))
+            ".".join((space, key)) if space != 'default' else key
             for space, mapping in self._namespace_maps.items()
             for key in mapping.keys()
         )
@@ -1023,8 +1023,6 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
     config = RcParams()
 
     for key, (val, line, line_no) in rc_temp.items():
-        if key in config.single_key_set:
-            key = f"default.{key}"
         if key in rcsetup._validators:
             if fail_on_error:
                 config[key] = val  # try to convert to proper type or raise
@@ -1101,23 +1099,22 @@ rcParamsDefault.update(rcsetup._hardcoded_defaults)
 # in that case.  However, packagers can set a different default backend
 # (resulting in a normal `#backend: foo` line) in which case we should *not*
 # fill in _auto_backend_sentinel.
-rcParamsDefault.setdefault("default.backend", rcsetup._auto_backend_sentinel)
-params_dict = RcParams()
-params_dict.update(rcParamsDefault.items())
-params_dict.update(_rc_params_in_file(matplotlib_fname()))
-rcParamsOrig = params_dict.copy()
+rcParamsDefault.setdefault("backend", rcsetup._auto_backend_sentinel)
+rcParams = RcParams()
+rcParams.update(rcParamsDefault.items())
+rcParams.update(_rc_params_in_file(matplotlib_fname()))
+rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
     # This also checks that all rcParams are indeed listed in the template.
     # Assigning to rcsetup.defaultParams is left only for backcompat.
     defaultParams = rcsetup.defaultParams = {
         # We want to resolve deprecated rcParams, but not backend...
-        key: [(rcsetup._auto_backend_sentinel if key == "default.backend" else
+        key: [(rcsetup._auto_backend_sentinel if key == "backend" else
                rcParamsDefault[key]),
               validator]
         for key, validator in rcsetup._validators.items()}
-if params_dict['axes.formatter.use_locale']:
+if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
-rcParams = RcParams(params_dict)
 
 
 def rc(group, **kwargs):
@@ -1393,14 +1390,14 @@ def use(backend, *, force=True):
         # value which will be respected when the user finally imports
         # pyplot
         else:
-            rcParams['default.backend'] = backend
+            rcParams['backend'] = backend
     # if the user has asked for a given backend, do not helpfully
     # fallback
-    rcParams['default.backend_fallback'] = False
+    rcParams['backend_fallback'] = False
 
 
 if os.environ.get('MPLBACKEND'):
-    rcParams['default.backend'] = os.environ.get('MPLBACKEND')
+    rcParams['backend'] = os.environ.get('MPLBACKEND')
 
 
 def get_backend():
@@ -1418,7 +1415,7 @@ def interactive(b):
     """
     Set whether to redraw after every plotting command (e.g. `.pyplot.xlabel`).
     """
-    rcParams['default.interactive'] = b
+    rcParams['interactive'] = b
 
 
 def is_interactive():
@@ -1430,7 +1427,7 @@ def is_interactive():
         This function is only intended for use in backends. End users should
         use `.pyplot.isinteractive` instead.
     """
-    return rcParams['default.interactive']
+    return rcParams['interactive']
 
 
 def _val_or_rc(val, rc_name):

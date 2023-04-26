@@ -1029,7 +1029,7 @@ def test_CheckButtons(ax):
 @pytest.mark.parametrize("toolbar", ["none", "toolbar2", "toolmanager"])
 def test_TextBox(ax, toolbar):
     # Avoid "toolmanager is provisional" warning.
-    plt.rcParams._set("default.toolbar", toolbar)
+    plt.rcParams._set("toolbar", toolbar)
 
     submit_event = mock.Mock(spec=noop, return_value=None)
     text_change_event = mock.Mock(spec=noop, return_value=None)

@@ -892,12 +892,12 @@ def _convert_validator_spec(key, conv):
 # The rcParams defaults are defined in lib/matplotlib/mpl-data/matplotlibrc, which
 # gets copied to matplotlib/mpl-data/matplotlibrc by the setup script.
 _validators = {
-    "default.backend":           validate_backend,
-    "default.backend_fallback":  validate_bool,
+    "backend":           validate_backend,
+    "backend_fallback":  validate_bool,
     "figure.hooks":      validate_stringlist,
-    "default.toolbar":           _validate_toolbar,
-    "default.interactive":       validate_bool,
-    "default.timezone":          validate_string,
+    "toolbar":           _validate_toolbar,
+    "interactive":       validate_bool,
+    "timezone":          validate_string,
 
     "webagg.port":            validate_int,
     "webagg.address":         validate_string,
