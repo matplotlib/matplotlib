@@ -2946,9 +2946,6 @@ class AutoMinorLocator(Locator):
             vmin, vmax = vmax, vmin
 
         t0 = majorlocs[0]
-        tmin = ((vmin - t0) // minorstep + 1) * minorstep
-        tmax = ((vmax - t0) // minorstep + 1) * minorstep
-        locs = np.arange(tmin, tmax, minorstep) + t0
 
         return self.raise_if_exceeds(locs)
 
