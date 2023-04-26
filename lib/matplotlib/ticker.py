@@ -204,8 +204,6 @@ class TickHelper:
 
         if (child.__init__):
             child.__init__ = _init_repr_wrapper
-        else:
-            child.__init__ = _init_repr
 
     def __repr__(self):
         return self._repr
