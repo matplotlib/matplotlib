@@ -189,6 +189,37 @@ class TickHelper:
         if self.axis is None:
             self.axis = _DummyAxis(**kwargs)
 
+    def __init_subclass__(child):
+        originalInit = child.__init__
+
+        def init_repr_wrapper(self, *args, **kwargs):
+            init_repr(self, *args, **kwargs)
+            originalInit(self, *args, **kwargs)
+
+        def init_repr(self, *args, **kwargs):
+            if (not hasattr(self, "_repr")):
+                self._repr = TickHelper.get_representation(child.__name__, args, kwargs)
+        
+        if (child.__init__):
+            child.__init__ = init_repr_wrapper
+        else:
+            child.__init__ = init_repr
+
+    def __repr__(self):
+        return self._repr
+
+    @staticmethod
+    def get_representation(name, args, kwargs):
+        return f"{name}({TickHelper.get_args_representation(args)}{', ' if (len(args) != 0  and len(kwargs) != 0) else ''}{TickHelper.get_kwargs_representation(kwargs)})"
+    
+    @staticmethod
+    def get_args_representation(args):
+        return ", ".join([arg.__repr__() for arg in args])
+    
+    @staticmethod
+    def get_kwargs_representation(kwargs):
+        return ", ".join([f"{key}={val.__repr__()}" for key,val in kwargs.items()])
+
 
 class Formatter(TickHelper):
     """
@@ -2908,9 +2939,9 @@ class AutoMinorLocator(Locator):
             vmin, vmax = vmax, vmin
 
         t0 = majorlocs[0]
-        tmin = round((vmin - t0) / minorstep)
-        tmax = round((vmax - t0) / minorstep) + 1
-        locs = (np.arange(tmin, tmax) * minorstep) + t0
+        tmin = ((vmin - t0) // minorstep + 1) * minorstep
+        tmax = ((vmax - t0) // minorstep + 1) * minorstep
+        locs = np.arange(tmin, tmax, minorstep) + t0
 
         return self.raise_if_exceeds(locs)
 
