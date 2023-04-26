@@ -136,6 +136,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib import transforms as mtransforms
+from functools import wraps
 
 _log = logging.getLogger(__name__)
 
@@ -192,6 +193,7 @@ class TickHelper:
     def __init_subclass__(child):
         originalInit = child.__init__
 
+        @wraps(originalInit)
         def _init_repr_wrapper(self, *args, **kwargs):
             _init_repr(self, *args, **kwargs)
             originalInit(self, *args, **kwargs)
