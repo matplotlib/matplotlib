@@ -208,8 +208,8 @@ class TickHelper:
                 self._repr = \
                     TickHelper._get_representation(child.__name__, [], {})
 
-        if (child.__init__):
-            child.__init__ = _init_repr_wrapper
+        if (child.__init__ and not hasattr(child.__init__, "__wrapped__")):
+                child.__init__ = _init_repr_wrapper
         else:
             child.__init__ = _default_init
 
