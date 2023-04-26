@@ -192,34 +192,34 @@ class TickHelper:
     def __init_subclass__(child):
         originalInit = child.__init__
 
-        def init_repr_wrapper(self, *args, **kwargs):
-            init_repr(self, *args, **kwargs)
+        def _init_repr_wrapper(self, *args, **kwargs):
+            _init_repr(self, *args, **kwargs)
             originalInit(self, *args, **kwargs)
 
-        def init_repr(self, *args, **kwargs):
+        def _init_repr(self, *args, **kwargs):
             if (not hasattr(self, "_repr")):
-                self._repr = TickHelper.get_representation(child.__name__, args, kwargs)
+                self._repr = TickHelper._get_representation(child.__name__, args, kwargs)
 
         if (child.__init__):
-            child.__init__ = init_repr_wrapper
+            child.__init__ = _init_repr_wrapper
         else:
-            child.__init__ = init_repr
+            child.__init__ = _init_repr
 
     def __repr__(self):
         return self._repr
 
     @staticmethod
-    def get_representation(name, args, kwargs):
-        return f"{name}({TickHelper.get_args_representation(args)}\
+    def _get_representation(name, args, kwargs):
+        return f"{name}({TickHelper._get_args_representation(args)}\
             {', ' if (len(args) != 0  and len(kwargs) != 0) else ''}\
-            {TickHelper.get_kwargs_representation(kwargs)})"
+            {TickHelper._get_kwargs_representation(kwargs)})"
 
     @staticmethod
-    def get_args_representation(args):
+    def _get_args_representation(args):
         return ", ".join([arg.__repr__() for arg in args])
 
     @staticmethod
-    def get_kwargs_representation(kwargs):
+    def _get_kwargs_representation(kwargs):
         return ", ".join([f"{key}={val.__repr__()}" for key, val in kwargs.items()])
 
 
