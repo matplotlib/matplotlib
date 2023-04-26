@@ -217,7 +217,7 @@ class TickHelper:
     @staticmethod
     def get_args_representation(args):
         return ", ".join([arg.__repr__() for arg in args])
-    
+
     @staticmethod
     def get_kwargs_representation(kwargs):
         return ", ".join([f"{key}={val.__repr__()}" for key, val in kwargs.items()])
