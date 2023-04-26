@@ -135,7 +135,7 @@ __all__ = [
 
 import atexit
 from collections import namedtuple, ChainMap
-from collections.abc import MutableMapping, Mapping
+from collections.abc import MutableMapping, Mapping, KeysView, ValuesView, ItemsView
 import contextlib
 import functools
 import importlib
@@ -850,8 +850,13 @@ class RcParams(MutableMapping):
 
     def __iter__(self):
         """Yield from sorted list of keys"""
+        keys = (
+            ".".join((space, key))
+            for space, mapping in self._namespace_maps.items()
+            for key in mapping.keys()
+        )
         with _api.suppress_matplotlib_deprecation_warning():
-            yield from sorted(self.keys())
+            yield from sorted(keys)
 
     def __len__(self):
         return sum(len(mapping) for mapping in self._namespace_maps)
@@ -867,22 +872,6 @@ class RcParams(MutableMapping):
 
     def __str__(self):
         return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
-
-    def keys(self):
-        keys = (
-            ".".join((space, key))
-            for space, mapping in self._namespace_maps.items()
-            for key in mapping.keys()
-        )
-        return keys
-
-    def values(self):
-        for key in self.keys():
-            yield self[key]
-
-    def items(self):
-        for key, value in zip(self.keys(), self.values()):
-            yield key, value
 
     def pop(self, key):
         keys, depth = self._split_key(key)
