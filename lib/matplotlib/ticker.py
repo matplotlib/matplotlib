@@ -208,12 +208,12 @@ class TickHelper:
                 self._repr = \
                     TickHelper._get_representation(child.__name__, [], {})
 
-        if (child.__init__ and not child.__init__._is_initing_repr):
+        if (child.__init__ and not hasattr(child.__init__, "_is_initing_repr")):
             child.__init__ = _init_repr_wrapper
-            child.__init__._is_initing_repr = True
         else:
             child.__init__ = _default_init
-            child.__init__._is_initing_repr = True
+
+        child.__init__._is_initing_repr = True
 
     def __repr__(self):
         return self._repr
