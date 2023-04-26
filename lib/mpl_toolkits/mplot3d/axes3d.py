@@ -1319,20 +1319,10 @@ class Axes3D(Axes):
 
     # Axes rectangle characteristics
 
-    def get_frame_on(self):
-        """Get whether the 3D axes panels are drawn."""
-        return self._frameon
-
-    def set_frame_on(self, b):
-        """
-        Set whether the 3D axes panels are drawn.
-
-        Parameters
-        ----------
-        b : bool
-        """
-        self._frameon = bool(b)
-        self.stale = True
+    # The frame_on methods are not available for 3D axes.
+    # Python will raise a TypeError if they are called.
+    get_frame_on = None
+    set_frame_on = None
 
     def grid(self, visible=True, **kwargs):
         """

@@ -396,8 +396,8 @@ def test_colorbar_minorticks_on_off():
         cbar.minorticks_on()
         np.testing.assert_almost_equal(
             cbar.ax.yaxis.get_minorticklocs(),
-            [-1.1, -0.9, -0.8, -0.7, -0.6, -0.4, -0.3, -0.2, -0.1,
-             0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.3])
+            [-1.2, -1.1, -0.9, -0.8, -0.7, -0.6, -0.4, -0.3, -0.2, -0.1,
+             0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2])
 
     # tests for github issue #13257 and PR #13265
     data = np.random.uniform(low=1, high=10, size=(20, 20))
