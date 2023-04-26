@@ -199,7 +199,7 @@ class TickHelper:
         def init_repr(self, *args, **kwargs):
             if (not hasattr(self, "_repr")):
                 self._repr = TickHelper.get_representation(child.__name__, args, kwargs)
-        
+
         if (child.__init__):
             child.__init__ = init_repr_wrapper
         else:
@@ -210,15 +210,17 @@ class TickHelper:
 
     @staticmethod
     def get_representation(name, args, kwargs):
-        return f"{name}({TickHelper.get_args_representation(args)}{', ' if (len(args) != 0  and len(kwargs) != 0) else ''}{TickHelper.get_kwargs_representation(kwargs)})"
-    
+        return f"{name}({TickHelper.get_args_representation(args)}\
+            {', ' if (len(args) != 0  and len(kwargs) != 0) else ''}\
+            {TickHelper.get_kwargs_representation(kwargs)})"
+
     @staticmethod
     def get_args_representation(args):
         return ", ".join([arg.__repr__() for arg in args])
     
     @staticmethod
     def get_kwargs_representation(kwargs):
-        return ", ".join([f"{key}={val.__repr__()}" for key,val in kwargs.items()])
+        return ", ".join([f"{key}={val.__repr__()}" for key, val in kwargs.items()])
 
 
 class Formatter(TickHelper):
