@@ -1,0 +1,4 @@
+Callable axisartist Axes
+~~~~~~~~~~~~~~~~~~~~~~~~
+Calling an axisartist Axes to mean `~pyplot.axis` is deprecated; explicitly
+call the method instead.
