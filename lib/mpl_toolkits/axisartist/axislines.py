@@ -407,6 +407,7 @@ class GridHelperRectlinear(GridHelperBase):
 
 class Axes(maxes.Axes):
 
+    @_api.deprecated("3.8", alternative="ax.axis")
     def __call__(self, *args, **kwargs):
         return maxes.Axes.axis(self.axes, *args, **kwargs)
 
@@ -440,7 +441,7 @@ class Axes(maxes.Axes):
 
         # Init gridlines before clear() as clear() calls grid().
         self.gridlines = gridlines = GridlinesCollection(
-            [], transform=self.transData,
+            [],
             colors=mpl.rcParams['grid.color'],
             linestyles=mpl.rcParams['grid.linestyle'],
             linewidths=mpl.rcParams['grid.linewidth'])
