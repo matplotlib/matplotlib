@@ -1806,7 +1806,7 @@ class Axes(_AxesBase):
             are automatically chosen depending on the number of decades in the
             plot. See `.Axes.set_xscale`/`.Axes.set_yscale` for details.
 
-        nonpositive : {'mask', 'clip'}, default: 'mask'
+        nonpositive : {'mask', 'clip'}, default: 'clip'
             Non-positive values can be masked as invalid, or clipped to a very
             small positive number.
 
