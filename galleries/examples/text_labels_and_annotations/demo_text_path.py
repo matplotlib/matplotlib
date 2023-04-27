@@ -54,8 +54,7 @@ if __name__ == "__main__":
     arr = plt.imread(get_sample_data("grace_hopper.jpg"))
 
     text_path = TextPath((0, 0), "!?", size=150)
-    p = PathClippedImagePatch(text_path, arr, ec="k",
-                              transform=IdentityTransform())
+    p = PathClippedImagePatch(text_path, arr, ec="k")
 
     # make offset box
     offsetbox = AuxTransformBox(IdentityTransform())
@@ -73,10 +72,8 @@ if __name__ == "__main__":
     ]:
         text_path = TextPath((0, 0), string, size=20, usetex=usetex)
 
-        p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
-                       transform=IdentityTransform())
-        p2 = PathPatch(text_path, ec="none", fc="k",
-                       transform=IdentityTransform())
+        p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9)
+        p2 = PathPatch(text_path, ec="none", fc="k")
 
         offsetbox2 = AuxTransformBox(IdentityTransform())
         offsetbox2.add_artist(p1)
@@ -95,7 +92,7 @@ if __name__ == "__main__":
 
     # EXAMPLE 2
 
-    arr = np.arange(256).reshape(1, 256) / 256
+    arr = np.arange(256).reshape(1, 256)
 
     for usetex, xpos, string in [
             (False, 0.25,
@@ -105,9 +102,7 @@ if __name__ == "__main__":
              r"\frac{-e^{i\pi}}{2^n}\right]$!"),
     ]:
         text_path = TextPath((0, 0), string, size=40, usetex=usetex)
-        text_patch = PathClippedImagePatch(text_path, arr, ec="none",
-                                           transform=IdentityTransform())
-
+        text_patch = PathClippedImagePatch(text_path, arr, ec="none")
         shadow1 = Shadow(text_patch, 1, -1, fc="none", ec="0.6", lw=3)
         shadow2 = Shadow(text_patch, 1, -1, fc="0.3", ec="none")
 
