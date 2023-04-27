@@ -13,5 +13,3 @@ For information on the `~matplotlib.artist.Artist` class, see the
 For even more information see the :ref: `examples page <axis_artist_examples>`.
 
 
-
-Some good material in artist tutorial that should be cribbed from or used here.
