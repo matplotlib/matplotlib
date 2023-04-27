@@ -526,9 +526,11 @@ def test_anchored_artists():
     box.drawing_area.add_artist(el)
     ax.add_artist(box)
 
-    ae = AnchoredEllipse(ax.transData, width=0.1, height=0.25, angle=-60,
-                         loc='lower left', pad=0.5, borderpad=0.4,
-                         frameon=True)
+    # Manually construct the ellipse instead, once the deprecation elapses.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ae = AnchoredEllipse(ax.transData, width=0.1, height=0.25, angle=-60,
+                             loc='lower left', pad=0.5, borderpad=0.4,
+                             frameon=True)
     ax.add_artist(ae)
 
     asb = AnchoredSizeBar(ax.transData, 0.2, r"0.2 units", loc='lower right',
