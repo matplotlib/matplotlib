@@ -1,7 +1,7 @@
 """
-============
+=======================
 Ellipse with arrow Demo
-============
+=======================
 
 Draw an ellipses with an arrow showing rotation direction. Compare this
 to the :doc:`Ellipse collection example
