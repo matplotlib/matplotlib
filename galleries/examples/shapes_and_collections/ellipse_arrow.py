@@ -23,7 +23,7 @@ x = np.real(xVec * np.exp(1j * 2 * np.pi * n / sampling))
 y = np.real(yVec * np.exp(1j * 2 * np.pi * n / sampling))
 
 # Draw ellipse
-fig, ax = plt.subplots(1, 1, subplot_kw={"aspect": "equal"})
+ax = plt.subplot()
 ax.plot(x, y)
 
 # Calculate arrow position and orientation
