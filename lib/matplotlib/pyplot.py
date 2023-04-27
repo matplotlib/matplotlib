@@ -3587,8 +3587,8 @@ def scatter(
     *,
     edgecolors: Literal["face", "none"] | ColorType | Sequence[ColorType] | None = None,
     plotnonfinite: bool = False,
+    markerscale=2,
     data=None,
-    markersize: int | None = None,
     **kwargs,
 ) -> PathCollection:
     __ret = gca().scatter(
@@ -3605,7 +3605,7 @@ def scatter(
         linewidths=linewidths,
         edgecolors=edgecolors,
         plotnonfinite=plotnonfinite,
-        markersize=markersize,
+        markerscale=markerscale,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )
