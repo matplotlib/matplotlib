@@ -867,8 +867,10 @@ class FigureCanvasPS(FigureCanvasBase):
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
         if papertype == 'auto':
-            papertype = _get_papertype(
-                *orientation.swap_if_landscape((width, height)))
+            _api.warn_deprecated("3.8", name="papertype='auto'",
+                                 addendum="Pass an explicit paper type, or omit the "
+                                 "*papertype* argument entirely.")
+            papertype = _get_papertype(*orientation.swap_if_landscape((width, height)))
 
         if is_eps:
             paper_width, paper_height = width, height
@@ -1059,6 +1061,9 @@ showpage
                     self.figure.get_size_inches())
             else:
                 if papertype == 'auto':
+                    _api.warn_deprecated("3.8", name="papertype='auto'",
+                                         addendum="Pass an explicit paper type, or "
+                                         "omit the *papertype* argument entirely.")
                     papertype = _get_papertype(width, height)
                 paper_width, paper_height = papersize[papertype]
 
