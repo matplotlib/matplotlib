@@ -5410,7 +5410,7 @@ default: :rc:`scatter.edgecolors`
         if ind_dir == "y":
             pts = pts[:, ::-1]
 
-        up_x, up_y = True, True
+        up_x = up_y = True
         if "transform" in kwargs:
             up_x, up_y = kwargs["transform"].contains_branch_seperately(self.transData)
         self.update_datalim(pts, updatex=up_x, updatey=up_y)
