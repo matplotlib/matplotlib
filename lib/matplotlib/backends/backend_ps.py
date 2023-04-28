@@ -588,8 +588,10 @@ translate
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
 
-        # Stick to the bottom alignment.
-        pos = _nums_to_str(x, y-bl)
+        # Stick to bottom-left alignment, so subtract descent from the text-normal
+        # direction since text is normally positioned by its baseline.
+        rangle = np.radians(angle + 90)
+        pos = _nums_to_str(x - bl * np.cos(rangle), y - bl * np.sin(rangle))
         self.psfrag.append(
             r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
                 thetext, angle, fontsize, fontsize*1.25, tex))
