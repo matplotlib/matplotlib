@@ -869,16 +869,20 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype == 'auto':
             papertype = _get_papertype(
                 *orientation.swap_if_landscape((width, height)))
-        paper_width, paper_height = orientation.swap_if_landscape(
-            papersize[papertype])
 
-        if mpl.rcParams['ps.usedistiller']:
-            # distillers improperly clip eps files if pagesize is too small
-            if width > paper_width or height > paper_height:
-                papertype = _get_papertype(
-                    *orientation.swap_if_landscape((width, height)))
-                paper_width, paper_height = orientation.swap_if_landscape(
-                    papersize[papertype])
+        if is_eps:
+            paper_width, paper_height = width, height
+        else:
+            paper_width, paper_height = orientation.swap_if_landscape(
+                papersize[papertype])
+
+            if mpl.rcParams['ps.usedistiller']:
+                # distillers improperly clip eps files if pagesize is too small
+                if width > paper_width or height > paper_height:
+                    papertype = _get_papertype(
+                        *orientation.swap_if_landscape((width, height)))
+                    paper_width, paper_height = orientation.swap_if_landscape(
+                        papersize[papertype])
 
         # center the figure on the paper
         xo = 72 * 0.5 * (paper_width - width)
