@@ -2,16 +2,10 @@ from enum import Enum, IntEnum
 import os
 from matplotlib import (
     cbook,
-    colors,
-    get_backend,
-    is_interactive,
-    rcParams,
-    textpath,
     transforms,
     widgets,
     _api,
 )
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.backend_managers import ToolManager
@@ -22,7 +16,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
 from matplotlib.text import Text
-from matplotlib.transforms import Affine2D, Transform, TransformedPath, Bbox
+from matplotlib.transforms import Transform, TransformedPath, Bbox
 
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any, IO, Literal, NamedTuple, TypeVar

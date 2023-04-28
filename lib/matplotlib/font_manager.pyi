@@ -1,13 +1,8 @@
 from dataclasses import dataclass
-import json
 import os
 
 from matplotlib._afm import AFM
-from matplotlib import cbook, ft2font
-from matplotlib._fontconfig_pattern import (
-    generate_fontconfig_pattern,
-    parse_fontconfig_pattern,
-)
+from matplotlib import ft2font
 
 from pathlib import Path
 

@@ -1,23 +1,16 @@
-import io
 import os
 import pathlib
 
 from matplotlib._image import *
 import matplotlib.artist as martist
 from matplotlib.axes import Axes
-from matplotlib import cbook, cm
-from matplotlib.backend_bases import FigureCanvasBase, RendererBase, MouseEvent
+from matplotlib import cm
+from matplotlib.backend_bases import RendererBase, MouseEvent
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.figure import Figure
 from matplotlib.transforms import (
     Affine2D,
-    Bbox,
     BboxBase,
-    BboxTransform,
-    BboxTransformTo,
-    IdentityTransform,
-    TransformedBbox,
-    Transform,
 )
 
 from collections.abc import Sequence

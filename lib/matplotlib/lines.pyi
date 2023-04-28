@@ -1,25 +1,8 @@
-from . import cbook
-from .artist import Artist, allow_rasterization
+from .artist import Artist
 from .axes import Axes
 from .backend_bases import MouseEvent, FigureCanvasBase
-from .cbook import STEP_LOOKUP_MAP, ls_mapper, ls_mapper_r
-from .markers import (
-    CARETDOWN,
-    CARETDOWNBASE,
-    CARETLEFT,
-    CARETLEFTBASE,
-    CARETRIGHT,
-    CARETRIGHTBASE,
-    CARETUP,
-    CARETUPBASE,
-    TICKDOWN,
-    TICKLEFT,
-    TICKRIGHT,
-    TICKUP,
-    MarkerStyle,
-)
 from .path import Path
-from .transforms import Bbox, BboxTransformTo, TransformedPath, Transform
+from .transforms import Bbox, Transform
 
 from collections.abc import Callable, Sequence
 from typing import Any, Literal, overload

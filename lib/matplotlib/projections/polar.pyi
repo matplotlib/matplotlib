@@ -1,13 +1,9 @@
 import matplotlib.axis as maxis
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
-from matplotlib import cbook
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
-from matplotlib.path import Path
-from matplotlib.spines import Spine
 from matplotlib.text import Text
-from matplotlib.ticker import _DummyAxis
 
 import numpy as np
 from numpy.typing import ArrayLike

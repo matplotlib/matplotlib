@@ -1,17 +1,12 @@
-from . import artist, cbook
 from .artist import Artist
 from .backend_bases import RendererBase
 from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation
 from .path import Path
-from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
-from .textpath import TextPath
+from .patches import FancyArrowPatch, FancyBboxPatch
 from .transforms import (
-    Affine2D,
     Bbox,
     BboxBase,
-    BboxTransformTo,
-    IdentityTransform,
     Transform,
 )
 

@@ -1,18 +1,12 @@
-from . import cbook as cbook
-from .axes import Axes
 from .axes._base import _AxesBase
 from .backend_bases import RendererBase, MouseEvent
-from .cm import ScalarMappable
-from .colors import BoundaryNorm
 from .figure import Figure, SubFigure
 from .path import Path
 from .patches import Patch
 from .patheffects import AbstractPathEffect
 from .transforms import (
     Bbox,
-    IdentityTransform,
     Transform,
-    TransformedBbox,
     TransformedPatchPath,
     TransformedPath,
 )

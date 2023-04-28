@@ -1,7 +1,6 @@
-from . import cbook
 from ._enums import CapStyle, JoinStyle
 from .path import Path
-from .transforms import Affine2D, IdentityTransform, Transform
+from .transforms import Affine2D, Transform
 
 from numpy.typing import ArrayLike
 from .typing import FillStyleType

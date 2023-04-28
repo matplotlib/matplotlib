@@ -1,4 +1,4 @@
-from .artist import Artist, allow_rasterization
+from .artist import Artist
 from .axes import Axes
 from .backend_bases import RendererBase
 from .patches import Rectangle

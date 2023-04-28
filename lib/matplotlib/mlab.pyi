@@ -1,5 +1,3 @@
-from matplotlib import cbook
-
 from collections.abc import Callable
 import functools
 from typing import Literal
