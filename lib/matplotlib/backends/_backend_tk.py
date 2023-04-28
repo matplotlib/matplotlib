@@ -649,6 +649,12 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                                        justify=tk.RIGHT)
         self._message_label.pack(side=tk.RIGHT)
 
+        self.hover_message = tk.StringVar(master=self)
+        self._hover_label = tk.Label(master=self, font=self._label_font,
+                                       textvariable=self.hover_message,
+                                       justify=tk.RIGHT)
+        self._hover_label.pack(side=tk.RIGHT)
+
         NavigationToolbar2.__init__(self, canvas)
         if pack_toolbar:
             self.pack(side=tk.BOTTOM, fill=tk.X)
@@ -699,6 +705,9 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
     def set_message(self, s):
         self.message.set(s)
+
+    def set_hover_message(self, s):
+        self.hover_message.set(s)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         # Block copied from remove_rubberband for backend_tools convenience.
@@ -976,6 +985,12 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         self._message_label = tk.Label(master=self, font=self._label_font,
                                        textvariable=self._message)
         self._message_label.pack(side=tk.RIGHT)
+
+        self._hover_message = tk.StringVar(master=self)
+        self._hover_label = tk.Label(master=self, font=self._label_font,
+                                       textvariable=self._hover_message)
+        self._hover_label.pack(side=tk.RIGHT)
+
         self._toolitems = {}
         self.pack(side=tk.TOP, fill=tk.X)
         self._groups = {}
@@ -1032,6 +1047,8 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
     def set_message(self, s):
         self._message.set(s)
 
+    def set_hover_message(self, s):
+        self._hover_message.set(s)
 
 @backend_tools._register_tool_class(FigureCanvasTk)
 class SaveFigureTk(backend_tools.SaveFigureBase):
