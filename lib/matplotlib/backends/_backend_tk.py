@@ -311,6 +311,17 @@ class FigureCanvasTk(FigureCanvasBase):
                       modifiers=self._mpl_modifiers(event),
                       guiEvent=event)._process()
 
+    def hover_event(self, event):
+        artist = event.artist
+        if not artist.get_hover:
+            thismouse = MouseEvent("motion_hover_event", self,
+                       *self.mouseEventCoords(event),
+                       modifiers=self._mpl_modifiers(),
+                       guiEvent=event)
+            HoverEvent("motion_hover_event", self,
+                                thismouse, artist, None)._process()
+        # make tooltip corresponding to this? this part doesn't exactly work
+
     def button_press_event(self, event, dblclick=False):
         # set focus to the canvas so that it can receive keyboard events
         self._tkcanvas.focus_set()
