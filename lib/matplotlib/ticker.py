@@ -2106,6 +2106,11 @@ class MaxNLocator(Locator):
             steps = steps[igood]
 
         raw_step = ((_vmax - _vmin) / nbins)
+        if hasattr(self.axis, "axes") and self.axis.axes.name == '3d':
+            # Due to the change in automargin behavior in mpl3.9, we need to
+            # adjust the raw step to match the mpl3.8 appearance. The zoom
+            # factor of 2/48, gives us the 23/24 modifier.
+            raw_step = raw_step * 23/24
         large_steps = steps >= raw_step
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
             # Classic round_numbers mode may require a larger step.

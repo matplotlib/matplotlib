@@ -855,13 +855,14 @@ class Axis(martist.Artist):
     def _set_autoscale_on(self, b):
         """
         Set whether this Axis is autoscaled when drawing or by
-        `.Axes.autoscale_view`.
+        `.Axes.autoscale_view`. If b is None, then the value is not changed.
 
         Parameters
         ----------
         b : bool
         """
-        self._autoscale_on = b
+        if b is not None:
+            self._autoscale_on = b
 
     def get_children(self):
         return [self.label, self.offsetText,
@@ -1244,8 +1245,7 @@ class Axis(martist.Artist):
         # Mark viewlims as no longer stale without triggering an autoscale.
         for ax in self._get_shared_axes():
             ax._stale_viewlims[name] = False
-        if auto is not None:
-            self._set_autoscale_on(bool(auto))
+        self._set_autoscale_on(auto)
 
         if emit:
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
@@ -1291,6 +1291,17 @@ class Axis(martist.Artist):
         view_low, view_high = self.get_view_interval()
         if view_low > view_high:
             view_low, view_high = view_high, view_low
+
+        if (hasattr(self, "axes") and self.axes.name == '3d'
+                and mpl.rcParams['axes3d.automargin']):
+            # In mpl3.8, the margin was 1/48. Due to the change in automargin
+            # behavior in mpl3.9, we need to adjust this to compensate for a
+            # zoom factor of 2/48, giving us a 23/24 modifier. So the new
+            # margin is 0.019965277777777776 = 1/48*23/24.
+            margin = 0.019965277777777776
+            delta = view_high - view_low
+            view_high = view_high - delta * margin
+            view_low = view_low + delta * margin
 
         interval_t = self.get_transform().transform([view_low, view_high])
 

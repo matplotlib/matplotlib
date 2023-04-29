@@ -401,6 +401,7 @@ def test_EllipseCollection():
 @image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
 def test_polycollection_close():
     from mpl_toolkits.mplot3d import Axes3D  # type: ignore
+    plt.rcParams['axes3d.automargin'] = True
 
     vertsQuad = [
         [[0., 0.], [0., 1.], [1., 1.], [1., 0.]],

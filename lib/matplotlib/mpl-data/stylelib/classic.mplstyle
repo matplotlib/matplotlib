@@ -223,7 +223,8 @@ axes.spines.left    : True
 axes.spines.right   : True
 axes.spines.top     : True
 polaraxes.grid      : True    # display grid on polar axes
-axes3d.grid         : True    # display grid on 3d axes
+axes3d.grid         : True    # display grid on 3D axes
+axes3d.automargin   : False   # automatically add margin when manually setting 3D axis limits
 
 date.autoformatter.year   : %Y
 date.autoformatter.month  : %b %Y
