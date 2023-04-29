@@ -188,7 +188,6 @@ class FigureBase(Artist):
         # axis._get_tick_boxes_siblings
         self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
 
-        self.figure = self
         self._localaxes = []  # track all axes
         self.artists = []
         self.lines = []
@@ -2458,6 +2457,7 @@ None}, default: None
             %(Figure:kwdoc)s
         """
         super().__init__(**kwargs)
+        self.figure = self
         self._layout_engine = None
 
         if layout is not None:
