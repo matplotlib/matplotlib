@@ -1,39 +1,91 @@
 """
-=======================
-Ellipse with arrow Demo
-=======================
+===================================
+Ellipse with orientation arrow Demo
+===================================
 
-Draw an ellipses with an arrow showing rotation direction. Compare this
-to the :doc:`Ellipse collection example
+This demo shows how to draw an ellipse with an orientation arrow.
+Compare this to the :doc:`Ellipse collection example
 </gallery/shapes_and_collections/ellipse_collection>`.
 """
 
+# Import of namespaces
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
+from matplotlib.markers import MarkerStyle
+from matplotlib.transforms import Affine2D
+
 import numpy as np
+from typing import Tuple
 
-# Define start position of ellipse
-xVec = 0.5 + 0.5j
-yVec = 0.2 + 0.5j
 
-sampling = 101
-n = np.linspace(0, sampling, sampling)
+def getMinorMajor(ellipse: Ellipse) -> Tuple[list, list]:
+    """Calculates the end points of minor and major axis of an ellipse.
 
-# Calculate ellipse data points
-x = np.real(xVec * np.exp(1j * 2 * np.pi * n / sampling))
-y = np.real(yVec * np.exp(1j * 2 * np.pi * n / sampling))
+    Args:
+        ellipse (Ellipse): Ellipse patch.
 
-# Draw ellipse
-ax = plt.subplot()
-ax.plot(x, y)
+    Returns:
+        Tuple[list, list]: Coordinates of minor end points and major end points.
+    """
+    # Calculate the endpoints of the minor axis
+    x0_minor = ellipse.center[0] - ellipse.height / 2 * np.sin(
+        np.deg2rad(ellipse.angle)
+    )
+    y0_minor = ellipse.center[1] + ellipse.height / 2 * np.cos(
+        np.deg2rad(ellipse.angle)
+    )
+    x1_minor = ellipse.center[0] + ellipse.height / 2 * np.sin(
+        np.deg2rad(ellipse.angle)
+    )
+    y1_minor = ellipse.center[1] - ellipse.height / 2 * np.cos(
+        np.deg2rad(ellipse.angle)
+    )
 
-# Calculate arrow position and orientation
-dx = x[-1] - x[-2]
-dy = y[-1] - y[-2]
-ax.arrow(x=x[-1], y=y[-1], dx=dx, dy=dy, head_width=0.05)
+    # Calculate the endpoints of the major axis
+    x0_major = ellipse.center[0] - ellipse.width / 2 * np.cos(np.deg2rad(ellipse.angle))
+    y0_major = ellipse.center[1] - ellipse.width / 2 * np.sin(np.deg2rad(ellipse.angle))
+    x1_major = ellipse.center[0] + ellipse.width / 2 * np.cos(np.deg2rad(ellipse.angle))
+    y1_major = ellipse.center[1] + ellipse.width / 2 * np.sin(np.deg2rad(ellipse.angle))
+    return [(x0_minor, y0_minor), (x1_minor, y1_minor)], [
+        (x0_major, y0_major),
+        (x1_major, y1_major),
+    ]
 
-ax.set_xlim((-1, 1))
-ax.set_ylim((-1, 1))
+
+# Define the ellipse
+center = (2, 4)
+width = 30
+height = 20
+angle = 35
+ellipse = Ellipse(
+    xy=center,
+    width=width,
+    height=height,
+    angle=angle,
+    facecolor="none",
+    edgecolor="b",
+)
+
+minor, major = getMinorMajor(ellipse)
+
+# Create a figure and axis
+fig, ax = plt.subplots(1, 1, subplot_kw={"aspect": "equal"})
+
+# Add the ellipse patch to the axis
+ax.add_patch(ellipse)
+
+# Plot a arrow marker at the end point of minor axis
+t = Affine2D().rotate_deg(angle)
+ax.plot(
+    minor[0][0],
+    minor[0][1],
+    color="b",
+    marker=MarkerStyle(">", "full", t),
+    markersize=10,
+)
+
 plt.show()
+
 
 # %%
 #
