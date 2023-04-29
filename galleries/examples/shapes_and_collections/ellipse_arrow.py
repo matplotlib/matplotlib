@@ -23,9 +23,9 @@ from typing import Tuple
 # A method to calculate the end points of the ellipse major, minor axis
 # """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 #
-# Calculates the minor axis and major axis end points of the ellipse. 
-# It needs the ellipse parameter like widht, height, angle. 
-# The output are 2 lists of 2 xy coordinates 
+# Calculates the minor axis and major axis end points of the ellipse.
+# It needs the ellipse parameter like widht, height, angle.
+# The output are 2 lists of 2 xy coordinates
 # (minor((x0, y0), (x1, y1)), major((x0, y0), (x1, y1))).
 
 
