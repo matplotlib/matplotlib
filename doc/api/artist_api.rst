@@ -44,6 +44,10 @@ Interactive
    Artist.pickable
    Artist.set_picker
    Artist.get_picker
+   Artist.hover
+   Artist.hoverable
+   Artist.set_hover
+   Artist.get_hover
 
 Clipping
 --------

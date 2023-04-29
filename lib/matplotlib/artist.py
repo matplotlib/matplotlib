@@ -595,6 +595,44 @@ class Artist:
         set_picker, pickable, pick
         """
         return self._picker
+    
+    def hoverable(self):
+        """
+        Return whether the artist is hoverable.
+
+        See Also
+        --------
+        set_hover, get_hover, hover
+        """
+        return self.figure is not None and self._hover is not None
+    
+    def hover(self, mouseevent):
+        """
+        Process a hover event.
+
+        Each child artist will fire a hover event if *mouseevent* is over
+        the artist and the artist has hover set.
+
+        See Also
+        --------
+        set_hover, get_hover, hoverable
+        """
+        from .backend_bases import HoverEvent  # Circular import.
+        # Hover self
+        if self.hoverable():
+            hoverer = self.get_hover()
+            inside, prop = self.contains(mouseevent)
+            if inside:
+                HoverEvent("hover_event", self.figure.canvas,
+                          mouseevent, self, **prop)._process()
+
+        # Pick children
+        for a in self.get_children():
+            # make sure the event happened in the same Axes
+            ax = getattr(a, 'axes', None)
+            if (mouseevent.inaxes is None or ax is None
+                    or mouseevent.inaxes == ax):
+                a.hover(mouseevent)
 
     def set_hover(self, hover):
         """
@@ -602,7 +640,7 @@ class Artist:
 
         Parameters
         ----------
-        hover : None or bool or float or callable
+        hover : None or bool
             This can be one of the following:
 
             - *None*: Hover is disabled for this artist (default).
