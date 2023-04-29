@@ -15,17 +15,22 @@ from matplotlib.markers import MarkerStyle
 from matplotlib.transforms import Affine2D
 
 import numpy as np
+
 from typing import Tuple
 
 
 def getMinorMajor(ellipse: Ellipse) -> Tuple[list, list]:
-    """Calculates the end points of minor and major axis of an ellipse.
+    """
+    Calculates the end points of minor and major axis of an ellipse.
 
-    Args:
-        ellipse (Ellipse): Ellipse patch.
+    Parameters
+    ----------
+    ellipse : ~matplotlib.patches.Ellipse
+        Ellipse patch.
 
-    Returns:
-        Tuple[list, list]: Coordinates of minor end points and major end points.
+    Returns
+    -------
+    ~typing.Tuple[list, list]
     """
     # Calculate the endpoints of the minor axis
     x0_minor = ellipse.center[0] - ellipse.height / 2 * np.sin(
