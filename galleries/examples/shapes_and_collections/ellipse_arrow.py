@@ -3,7 +3,8 @@
 Ellipse with orientation arrow Demo
 ===================================
 
-This demo shows how to draw an ellipse with an orientation arrow (clockwise or counterclockwise).
+This demo shows how to draw an ellipse with 
+an orientation arrow (clockwise or counterclockwise).
 Compare this to the :doc:`Ellipse collection example
 </gallery/shapes_and_collections/ellipse_collection>`.
 """
