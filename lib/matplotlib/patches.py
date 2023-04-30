@@ -1665,7 +1665,7 @@ class Ellipse(Patch):
         x1 = self._center[0] + self._width / 2 * np.cos(np.deg2rad(self._angle))
         y1 = self._center[1] + self._width / 2 * np.sin(np.deg2rad(self._angle))
         return [(x0, y0), (x1, y1)]
-    
+
     def get_co_vertices(self):
         """
         Return the left and right co-vertex coordinates of the ellipse.
