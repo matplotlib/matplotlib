@@ -104,6 +104,28 @@ def test_corner_center():
     assert_almost_equal(ellipse.get_corners(), corners_rot)
 
 
+def test_ellipse_vertices():
+    center = (2, 4)
+    width = 30
+    height = 20
+    angle = 35
+    ellipse = Ellipse(xy=center, width=width, height=height, angle=angle)
+    assert_almost_equal(
+        ellipse.get_vertices(),
+        [
+            (-10.287280664334878, -4.60364654526569),
+            (14.287280664334878, 12.60364654526569),
+        ],
+    )
+    assert_almost_equal(
+        ellipse.get_co_vertices(),
+        [
+            (-3.7357643635104605, 12.191520442889917),
+            (7.7357643635104605, -4.191520442889917),
+        ],
+    )
+
+
 def test_rotate_rect():
     loc = np.asarray([1.0, 2.0])
     width = 2

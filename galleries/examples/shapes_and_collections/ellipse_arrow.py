@@ -1,6 +1,6 @@
 """
 ===================================
-Ellipse with orientation arrow Demo
+Ellipse with orientation arrow demo
 ===================================
 
 This demo shows how to draw an ellipse with
@@ -9,65 +9,81 @@ Compare this to the :doc:`Ellipse collection example
 </gallery/shapes_and_collections/ellipse_collection>`.
 """
 
-from typing import Tuple
-
 import matplotlib.pyplot as plt
-import numpy as np
-
 from matplotlib.markers import MarkerStyle
 from matplotlib.patches import Ellipse
 from matplotlib.transforms import Affine2D
 
-# %%
-#
-# A method to calculate the end points of the ellipse major, minor axis
-# """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-#
-# Calculates the minor axis and major axis end points of the ellipse.
-# It needs the ellipse parameter like width, height, angle.
-# The output are 2 lists of 2 xy coordinates
-# (minor((x0, y0), (x1, y1)), major((x0, y0), (x1, y1))).
+
+# Create a figure and axis
+fig, ax = plt.subplots(1, 1, subplot_kw={"aspect": "equal"})
+
+# Define an ellipse clockwise
+center = (2, 4)
+width = 30
+height = 20
+angle = 35
+ellipse_clockwise = Ellipse(
+    xy=center,
+    width=width,
+    height=height,
+    angle=angle,
+    facecolor="none",
+    edgecolor="b",
+    label="clockwise"
+)
+
+# Get position of vertex for arrow marker
+vertices = ellipse_clockwise.get_co_vertices()
+
+# Add the ellipse patch to the axis
+ax.add_patch(ellipse_clockwise)
+
+# Plot a arrow marker at the end point of minor axis
+t = Affine2D().rotate_deg(ellipse_clockwise.angle)
+ax.plot(
+    vertices[0][0],
+    vertices[0][1],
+    color="b",
+    marker=MarkerStyle(">", "full", t),
+    markersize=10
+)
+
+# Define an second ellipse counterclockwise
+center = (2, 4)
+width = 30
+height = 15
+angle = -20
+ellipse_counterclockwise = Ellipse(
+    xy=center,
+    width=width,
+    height=height,
+    angle=angle,
+    facecolor="none",
+    edgecolor="g",
+    label="counterclockwise"
+)
+
+# Add the ellipse patch to the axis
+ax.add_patch(ellipse_counterclockwise)
+
+# Get position of vertex for arrow marker
+vertices = ellipse_counterclockwise.get_co_vertices()
+
+# Plot a arrow marker at the end point of minor axis
+t = Affine2D().rotate_deg(ellipse_counterclockwise.angle)
+ax.plot(
+    vertices[0][0],
+    vertices[0][1],
+    color="g",
+    marker=MarkerStyle("<", "full", t),
+    markersize=10
+)
 
 
-def getMinorMajor(ellipse: Ellipse) -> Tuple[list, list]:
-    """
-    Calculates the end points of minor and major axis of an ellipse.
+plt.legend()
+plt.show()
 
-    Parameters
-    ----------
-    ellipse : ~matplotlib.patches.Ellipse
-        Ellipse patch.
-
-    Returns
-    -------
-    ~typing.Tuple[list, list]
-    """
-    # Calculate the endpoints of the minor axis
-    x0_minor = ellipse.center[0] - ellipse.height / 2 * np.sin(
-        np.deg2rad(ellipse.angle)
-    )
-    y0_minor = ellipse.center[1] + ellipse.height / 2 * np.cos(
-        np.deg2rad(ellipse.angle)
-    )
-    x1_minor = ellipse.center[0] + ellipse.height / 2 * np.sin(
-        np.deg2rad(ellipse.angle)
-    )
-    y1_minor = ellipse.center[1] - ellipse.height / 2 * np.cos(
-        np.deg2rad(ellipse.angle)
-    )
-
-    # Calculate the endpoints of the major axis
-    x0_major = ellipse.center[0] - ellipse.width / 2 * np.cos(np.deg2rad(ellipse.angle))
-    y0_major = ellipse.center[1] - ellipse.width / 2 * np.sin(np.deg2rad(ellipse.angle))
-    x1_major = ellipse.center[0] + ellipse.width / 2 * np.cos(np.deg2rad(ellipse.angle))
-    y1_major = ellipse.center[1] + ellipse.width / 2 * np.sin(np.deg2rad(ellipse.angle))
-    return [(x0_minor, y0_minor), (x1_minor, y1_minor)], [
-        (x0_major, y0_major),
-        (x1_major, y1_major),
-    ]
-
-
-# Define the ellipse
 center = (2, 4)
 width = 30
 height = 20
@@ -76,31 +92,10 @@ ellipse = Ellipse(
     xy=center,
     width=width,
     height=height,
-    angle=angle,
-    facecolor="none",
-    edgecolor="b",
+    angle=angle
 )
-
-minor, major = getMinorMajor(ellipse)
-
-# Create a figure and axis
-fig, ax = plt.subplots(1, 1, subplot_kw={"aspect": "equal"})
-
-# Add the ellipse patch to the axis
-ax.add_patch(ellipse)
-
-# Plot a arrow marker at the end point of minor axis
-t = Affine2D().rotate_deg(angle)
-ax.plot(
-    minor[0][0],
-    minor[0][1],
-    color="b",
-    marker=MarkerStyle(">", "full", t),
-    markersize=10,
-)
-
-plt.show()
-
+print(ellipse.get_vertices())
+print(ellipse.get_co_vertices())
 
 # %%
 #
