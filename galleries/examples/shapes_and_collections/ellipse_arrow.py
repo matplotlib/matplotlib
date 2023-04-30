@@ -9,15 +9,14 @@ Compare this to the :doc:`Ellipse collection example
 </gallery/shapes_and_collections/ellipse_collection>`.
 """
 
-# Import of namespaces
-import numpy as np
-import matplotlib.pyplot as plt
-
-from matplotlib.transforms import Affine2D
-from matplotlib.patches import Ellipse
-from matplotlib.markers import MarkerStyle
-
 from typing import Tuple
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.markers import MarkerStyle
+from matplotlib.patches import Ellipse
+from matplotlib.transforms import Affine2D
 
 # %%
 #
