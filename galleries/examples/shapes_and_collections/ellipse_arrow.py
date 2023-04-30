@@ -10,12 +10,12 @@ Compare this to the :doc:`Ellipse collection example
 """
 
 # Import of namespaces
+import numpy as np
 import matplotlib.pyplot as plt
+
+from matplotlib.transforms import Affine2D
 from matplotlib.patches import Ellipse
 from matplotlib.markers import MarkerStyle
-from matplotlib.transforms import Affine2D
-
-import numpy as np
 
 from typing import Tuple
 
