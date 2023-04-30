@@ -19,8 +19,7 @@ is expected to abide by our
 Below, you can find a number of ways to contribute, and how to connect with the
 Matplotlib community.
 
-Get Connected
-=============
+.. _new_contributors:
 
 Do I really have something to contribute to Matplotlib?
 -------------------------------------------------------
@@ -31,42 +30,6 @@ When in doubt, we recommend going together! Get connected with our community of
 active contributors, many of whom felt just like you when they started out and
 are happy to welcome you and support you as you get to know how we work, and
 where things are. Take a look at the next sections to learn more.
-
-Contributor incubator
----------------------
-
-The incubator is our non-public communication channel for new contributors. It
-is a private gitter room moderated by core Matplotlib developers where you can
-get guidance and support for your first few PRs. It's a place you can ask
-questions about anything: how to use git, GitHub, how our PR review process
-works, technical questions about the code, what makes for good documentation
-or a blog post, how to get involved in community work, or get
-"pre-review" on your PR.
-
-To join, please go to our public `gitter
-<https://gitter.im/matplotlib/matplotlib>`_ community channel, and ask to be
-added to '#incubator'. One of our core developers will see your message and will
-add you.
-
-New Contributors meeting
-------------------------
-
-Once a month, we host a meeting to discuss topics that interest new
-contributors. Anyone can attend, present, or sit in and listen to the call.
-Among our attendees are fellow new contributors, as well as maintainers, and
-veteran contributors, who are keen to support onboarding of new folks and
-share their experience. You can find our community calendar link at the
-`Scientific Python website <https://scientific-python.org/calendars/>`_, and
-you can browse previous meeting notes on `GitHub
-<https://github.com/matplotlib/ProjectManagement/tree/master/
-new_contributor_meeting>`_.
-We recommend joining the meeting to clarify any doubts, or lingering
-questions you might have, and to get to know a few of the people behind the
-GitHub handles 😉. You can reach out to @noatamir on `gitter
-<https://gitter.im/matplotlib/matplotlib>`_ for any clarifications or
-suggestions. We <3 feedback!
-
-.. _new_contributors:
 
 Issues for new contributors
 ---------------------------
@@ -101,6 +64,43 @@ submitting reviews of their code or commenting on the PR rather than opening
 a new PR; duplicate PRs are subject to being closed.  However, if the existing
 PR is an outline, unlikely to work, or stalled, and the original author is
 unresponsive, feel free to open a new PR referencing the old one.
+
+Get Connected
+=============
+
+Contributor incubator
+---------------------
+
+The incubator is our non-public communication channel for new contributors. It
+is a private gitter room moderated by core Matplotlib developers where you can
+get guidance and support for your first few PRs. It's a place you can ask
+questions about anything: how to use git, GitHub, how our PR review process
+works, technical questions about the code, what makes for good documentation
+or a blog post, how to get involved in community work, or get
+"pre-review" on your PR.
+
+To join, please go to our public `gitter
+<https://gitter.im/matplotlib/matplotlib>`_ community channel, and ask to be
+added to '#incubator'. One of our core developers will see your message and will
+add you.
+
+New Contributors meeting
+------------------------
+
+Once a month, we host a meeting to discuss topics that interest new
+contributors. Anyone can attend, present, or sit in and listen to the call.
+Among our attendees are fellow new contributors, as well as maintainers, and
+veteran contributors, who are keen to support onboarding of new folks and
+share their experience. You can find our community calendar link at the
+`Scientific Python website <https://scientific-python.org/calendars/>`_, and
+you can browse previous meeting notes on `GitHub
+<https://github.com/matplotlib/ProjectManagement/tree/master/
+new_contributor_meeting>`_.
+We recommend joining the meeting to clarify any doubts, or lingering
+questions you might have, and to get to know a few of the people behind the
+GitHub handles 😉. You can reach out to @noatamir on `gitter
+<https://gitter.im/matplotlib/matplotlib>`_ for any clarifications or
+suggestions. We <3 feedback!
 
 .. _submitting-a-bug-report:
 
