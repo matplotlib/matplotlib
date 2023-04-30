@@ -595,7 +595,7 @@ class Artist:
         set_picker, pickable, pick
         """
         return self._picker
-    
+
     def hoverable(self):
         """
         Return whether the artist is hoverable.
@@ -605,7 +605,7 @@ class Artist:
         set_hover, get_hover, hover
         """
         return self.figure is not None and self._hover is not None
-    
+
     def hover(self, mouseevent):
         """
         Process a hover event.
@@ -624,7 +624,7 @@ class Artist:
             inside, prop = self.contains(mouseevent)
             if inside:
                 HoverEvent("hover_event", self.figure.canvas,
-                          mouseevent, self, **prop)._process()
+                           mouseevent, self, **prop)._process()
 
         # Pick children
         for a in self.get_children():
@@ -650,7 +650,7 @@ class Artist:
               the artist.
         """
         self._hover = hover
-    
+
     def get_hover(self):
         """
         Return the hover status of the artist.
