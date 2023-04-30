@@ -333,12 +333,12 @@ def test_set_hover():
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(36).reshape(6, 6)) # non-blank canvasses
     ln, = ax.plot(range(5))
-    im.set_hover(True)
-    assert im.get_hover() == True
-    im.set_hover(1.0)
-    assert ln.get_hover() == 1.0
-    ln.set_hover(art.__str__)
-    assert ln.get_hover() is not None
+    im.set_hover(True) # set hover variable to possible values given a figure exists
+    assert im.get_hover()
+    im.set_hover(False)
+    assert not im.get_hover()
+    im.set_hover(None)
+    assert im.get_hover() is None
 
     im.remove()
     ln.remove()
