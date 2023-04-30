@@ -209,6 +209,7 @@ Sharing
    :nosignatures:
 
    sharez
+   shareview
 
 
 Interactive

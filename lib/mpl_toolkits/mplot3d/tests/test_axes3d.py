@@ -1689,6 +1689,20 @@ def test_set_zlim():
         ax.set_zlim(top=0, zmax=1)
 
 
+@check_figures_equal(extensions=["png"])
+def test_shared_view(fig_test, fig_ref):
+    elev, azim, roll = 5, 20, 30
+    ax1 = fig_test.add_subplot(131, projection="3d")
+    ax2 = fig_test.add_subplot(132, projection="3d", shareview=ax1)
+    ax3 = fig_test.add_subplot(133, projection="3d")
+    ax3.shareview(ax1)
+    ax2.view_init(elev=elev, azim=azim, roll=roll, share=True)
+
+    for subplot_num in (131, 132, 133):
+        ax = fig_ref.add_subplot(subplot_num, projection="3d")
+        ax.view_init(elev=elev, azim=azim, roll=roll)
+
+
 def test_shared_axes_retick():
     fig = plt.figure()
     ax1 = fig.add_subplot(211, projection="3d")
