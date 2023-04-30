@@ -1473,7 +1473,8 @@ class MouseEvent(LocationEvent):
                 f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
                 f"button={self.button} dblclick={self.dblclick} "
                 f"inaxes={self.inaxes}")
-    
+
+
 class HoverEvent(Event):
     """
     A hover event.
@@ -1521,6 +1522,7 @@ class HoverEvent(Event):
         self.mouseevent = mouseevent
         self.artist = artist
         self.__dict__.update(kwargs)
+
 
 class PickEvent(Event):
     """
@@ -1571,7 +1573,7 @@ class PickEvent(Event):
         self.__dict__.update(kwargs)
 
 
-class KeyEvent(LocationEvent): 
+class KeyEvent(LocationEvent):
     """
     A key event (key press, key release).
 
@@ -1744,7 +1746,8 @@ class FigureCanvasBase:
         'figure_leave_event',
         'axes_enter_event',
         'axes_leave_event',
-        'close_event'
+        'close_event',
+        'hover_event'
     ]
 
     fixed_dpi = None
@@ -2295,7 +2298,8 @@ class FigureCanvasBase:
             - 'figure_leave_event',
             - 'axes_enter_event',
             - 'axes_leave_event'
-            - 'close_event'.
+            - 'close_event'
+            - 'hover_event'
 
         func : callable
             The callback function to be executed, which must have the
@@ -3007,8 +3011,19 @@ class NavigationToolbar2:
         return ""
 
     def mouse_move(self, event):
+        from .patches import Rectangle
         self._update_cursor(event)
         self.set_message(self._mouse_event_to_message(event))
+
+        if callable(getattr(self, 'set_hover_message', None)):
+            for a in self.canvas.figure.findobj(match=lambda x: not isinstance(x,
+                                                Rectangle), include_self=False):
+                inside, prop = a.contains(event)
+                if inside:
+                    self.set_hover_message(self._mouse_event_to_message(event))
+                else:
+                    self.set_hover_message("")
+                break
 
     def _zoom_pan_handler(self, event):
         if self.mode == _Mode.PAN:
