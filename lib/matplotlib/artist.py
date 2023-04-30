@@ -640,7 +640,7 @@ class Artist:
 
         Parameters
         ----------
-        hover : None or bool
+        hover : None or bool or float or function
             This can be one of the following:
 
             - *None*: Hover is disabled for this artist (default).
@@ -663,6 +663,8 @@ class Artist:
               is over the artist, return *hit=True* and props is a dictionary of
               properties you want added to the HoverEvent attributes.
         """
+        if not self.figure and hover is not None:
+            raise ValueError("Cannot hover without an existing figure")
         self._hover = hover
 
     def get_hover(self):
