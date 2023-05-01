@@ -258,6 +258,9 @@ class Ellipse(Patch):
     angle = property(get_angle, set_angle)
 
     def get_corners(self) -> np.ndarray: ...
+    
+    def get_vertices(self) -> list[float, float]: ...
+    def get_co_vertices(self) -> list[float, float]: ...
 
 class Annulus(Patch):
     a: float

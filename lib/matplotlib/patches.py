@@ -1658,7 +1658,7 @@ class Ellipse(Patch):
         """
         Return the left and right vertex coordinates of the ellipse.
 
-        The definition can be found `here<https://en.wikipedia.org/wiki/Ellipse>`_
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
         """
         x0 = self._center[0] - self._width / 2 * np.cos(np.deg2rad(self._angle))
         y0 = self._center[1] - self._width / 2 * np.sin(np.deg2rad(self._angle))
@@ -1670,7 +1670,7 @@ class Ellipse(Patch):
         """
         Return the left and right co-vertex coordinates of the ellipse.
 
-        The definition can be found `here<https://en.wikipedia.org/wiki/Ellipse>`_
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
         """
         x0 = self._center[0] - self._height / 2 * np.sin(np.deg2rad(self._angle))
         y0 = self._center[1] + self._height / 2 * np.cos(np.deg2rad(self._angle))
