@@ -1893,7 +1893,7 @@ def ylim(*args, **kwargs) -> tuple[float, float]:
 
 
 def xticks(
-    ticks: Sequence[float] | None = None,
+    ticks: ArrayLike | None = None,
     labels: Sequence[str] | None = None,
     *,
     minor: bool = False,
@@ -1963,7 +1963,7 @@ def xticks(
 
 
 def yticks(
-    ticks: Sequence[float] | None = None,
+    ticks: ArrayLike | None = None,
     labels: Sequence[str] | None = None,
     *,
     minor: bool = False,
