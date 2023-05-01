@@ -10,10 +10,10 @@ Compare this to the :doc:`Ellipse collection example
 """
 
 import matplotlib.pyplot as plt
+
 from matplotlib.markers import MarkerStyle
 from matplotlib.patches import Ellipse
 from matplotlib.transforms import Affine2D
-
 
 # Create a figure and axis
 fig, ax = plt.subplots(subplot_kw={"aspect": "equal"})
