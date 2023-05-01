@@ -322,69 +322,63 @@ class Axis(maxis.XAxis):
         self.pane.draw(renderer)
         renderer.close_group('pane3d')
 
-    @artist.allow_rasterization
-    def draw(self, renderer):
-        self.label._transform = self.axes.transData
-        self.offsetText._transform = self.axes.transData
-        renderer.open_group("axis3d", gid=self.get_gid())
 
+    def _axmask(self):
+        info = self._axinfo
+        index = info["i"]
+        axmask = [True, True, True]
+        axmask[index] = False
+        return axmask
+
+
+    def _draw_ticks(self, renderer, edgep1, deltas_per_point):
+        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
         ticks = self._update_ticks()
+        info = self._axinfo
+        index = info["i"]
+
+        # Draw ticks:
+        tickdir = self._get_tickdir()
+        tickdelta = deltas[tickdir] if highs[tickdir] else -deltas[tickdir]
+
+        tick_info = info['tick']
+        tick_out = tick_info['outward_factor'] * tickdelta
+        tick_in = tick_info['inward_factor'] * tickdelta
+        tick_lw = tick_info['linewidth']
+        edgep1_tickdir = edgep1[tickdir]
+        out_tickdir = edgep1_tickdir + tick_out
+        in_tickdir = edgep1_tickdir - tick_in
+
+        default_label_offset = 8.  # A rough estimate
+        points = deltas_per_point * deltas
+        for tick in ticks:
+            # Get tick line positions
+            pos = edgep1.copy()
+            pos[index] = tick.get_loc()
+            pos[tickdir] = out_tickdir
+            x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
+            pos[tickdir] = in_tickdir
+            x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
+
+            # Get position of label
+            labeldeltas = (tick.get_pad() + default_label_offset) * points
+
+            pos[tickdir] = edgep1_tickdir
+            pos = _move_from_center(pos, centers, labeldeltas, self._axmask())
+            lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
+
+            _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
+            tick.tick1line.set_linewidth(tick_lw[tick._major])
+            tick.draw(renderer)
+
+
+    def _draw_offset_text(self, renderer, edgep1, edgep2, labeldeltas, pep, dx, dy):
+        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
         # Get general axis information:
         info = self._axinfo
         index = info["i"]
         juggled = info["juggled"]
-
-        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
-
-        minmax = np.where(highs, maxs, mins)
-        maxmin = np.where(~highs, maxs, mins)
-
-        # Create edge points for the black bolded axis line:
-        edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
-
-        # Project the edge points along the current position and
-        # create the line:
-        pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
-        pep = np.asarray(pep)
-        self.line.set_data(pep[0], pep[1])
-        self.line.draw(renderer)
-
-        # Draw labels
-        # The transAxes transform is used because the Text object
-        # rotates the text relative to the display coordinate system.
-        # Therefore, if we want the labels to remain parallel to the
-        # axis regardless of the aspect ratio, we need to convert the
-        # edge points of the plane to display coordinates and calculate
-        # an angle from that.
-        # TODO: Maybe Text objects should handle this themselves?
-        dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
-                  self.axes.transAxes.transform([pep[0:2, 0]]))[0]
-
-        lxyz = 0.5 * (edgep1 + edgep2)
-
-        # A rough estimate; points are ambiguous since 3D plots rotate
-        reltoinches = self.figure.dpi_scale_trans.inverted()
-        ax_inches = reltoinches.transform(self.axes.bbox.size)
-        ax_points_estimate = sum(72. * ax_inches)
-        deltas_per_point = 48 / ax_points_estimate
-        default_offset = 21.
-        labeldeltas = (
-            (self.labelpad + default_offset) * deltas_per_point * deltas)
-        axmask = [True, True, True]
-        axmask[index] = False
-        lxyz = _move_from_center(lxyz, centers, labeldeltas, axmask)
-        tlx, tly, tlz = proj3d.proj_transform(*lxyz, self.axes.M)
-        self.label.set_position((tlx, tly))
-        if self.get_rotate_label(self.label.get_text()):
-            angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
-            self.label.set_rotation(angle)
-        self.label.set_va(info['label']['va'])
-        self.label.set_ha(info['label']['ha'])
-        self.label.set_rotation_mode(info['label']['rotation_mode'])
-        self.label.draw(renderer)
-
-        # Draw Offset text
 
         # Which of the two edge points do we want to
         # use for locating the offset text?
@@ -395,7 +389,7 @@ class Axis(maxis.XAxis):
             outeredgep = edgep2
             outerindex = 1
 
-        pos = _move_from_center(outeredgep, centers, labeldeltas, axmask)
+        pos = _move_from_center(outeredgep, centers, labeldeltas, self._axmask())
         olx, oly, olz = proj3d.proj_transform(*pos, self.axes.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
@@ -448,39 +442,74 @@ class Axis(maxis.XAxis):
         self.offsetText.set_ha(align)
         self.offsetText.draw(renderer)
 
-        # Draw ticks:
-        tickdir = self._get_tickdir()
-        tickdelta = deltas[tickdir] if highs[tickdir] else -deltas[tickdir]
 
-        tick_info = info['tick']
-        tick_out = tick_info['outward_factor'] * tickdelta
-        tick_in = tick_info['inward_factor'] * tickdelta
-        tick_lw = tick_info['linewidth']
-        edgep1_tickdir = edgep1[tickdir]
-        out_tickdir = edgep1_tickdir + tick_out
-        in_tickdir = edgep1_tickdir - tick_in
+    def _draw_labels(self, renderer, edgep1, edgep2, labeldeltas, dx, dy):
+        info = self._axinfo
+        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
-        default_label_offset = 8.  # A rough estimate
-        points = deltas_per_point * deltas
-        for tick in ticks:
-            # Get tick line positions
-            pos = edgep1.copy()
-            pos[index] = tick.get_loc()
-            pos[tickdir] = out_tickdir
-            x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
-            pos[tickdir] = in_tickdir
-            x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
+        # Draw labels
+        lxyz = 0.5 * (edgep1 + edgep2)
+        lxyz = _move_from_center(lxyz, centers, labeldeltas, self._axmask())
+        tlx, tly, tlz = proj3d.proj_transform(*lxyz, self.axes.M)
+        self.label.set_position((tlx, tly))
+        if self.get_rotate_label(self.label.get_text()):
+            angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
+            self.label.set_rotation(angle)
+        self.label.set_va(info['label']['va'])
+        self.label.set_ha(info['label']['ha'])
+        self.label.set_rotation_mode(info['label']['rotation_mode'])
+        self.label.draw(renderer)
 
-            # Get position of label
-            labeldeltas = (tick.get_pad() + default_label_offset) * points
 
-            pos[tickdir] = edgep1_tickdir
-            pos = _move_from_center(pos, centers, labeldeltas, axmask)
-            lx, ly, lz = proj3d.proj_transform(*pos, self.axes.M)
+    @artist.allow_rasterization
+    def draw(self, renderer):
+        self.label._transform = self.axes.transData
+        self.offsetText._transform = self.axes.transData
+        renderer.open_group("axis3d", gid=self.get_gid())
 
-            _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
-            tick.tick1line.set_linewidth(tick_lw[tick._major])
-            tick.draw(renderer)
+        # Get general axis information:
+        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
+
+        minmax = np.where(highs, maxs, mins)
+        maxmin = np.where(~highs, maxs, mins)
+
+        # Create edge points for the black bolded axis line:
+        edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
+
+        # Draw the lines
+        # Project the edge points along the current position
+        pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
+        pep = np.asarray(pep)
+        self.line.set_data(pep[0], pep[1])
+        self.line.draw(renderer)
+
+        # Calculate offset distances
+        # A rough estimate; points are ambiguous since 3D plots rotate
+        reltoinches = self.figure.dpi_scale_trans.inverted()
+        ax_inches = reltoinches.transform(self.axes.bbox.size)
+        ax_points_estimate = sum(72. * ax_inches)
+        deltas_per_point = 48 / ax_points_estimate
+        default_offset = 21.
+        labeldeltas = (
+            (self.labelpad + default_offset) * deltas_per_point * deltas)
+        # The transAxes transform is used because the Text object
+        # rotates the text relative to the display coordinate system.
+        # Therefore, if we want the labels to remain parallel to the
+        # axis regardless of the aspect ratio, we need to convert the
+        # edge points of the plane to display coordinates and calculate
+        # an angle from that.
+        # TODO: Maybe Text objects should handle this themselves?
+        dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
+                  self.axes.transAxes.transform([pep[0:2, 0]]))[0]
+
+        # Draw labels
+        self._draw_labels(renderer, edgep1, edgep2, labeldeltas, dx, dy)
+
+        # Draw Offset text
+        self._draw_offset_text(renderer, edgep1, edgep2, labeldeltas, pep, dx, dy)
+
+        # Draw ticks
+        self._draw_ticks(renderer, edgep1, deltas_per_point)
 
         renderer.close_group('axis3d')
         self.stale = False
