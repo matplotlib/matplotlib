@@ -125,6 +125,42 @@ def test_ellipse_vertices():
         ],
     )
 
+    assert_almost_equal(
+        Ellipse(xy=(0, 0), width=0, height=0, angle=0).get_vertices(),
+        [(0.0, 0.0), (0.0, 0.0)],
+    )
+    assert_almost_equal(
+        Ellipse(xy=(0, 0), width=0, height=0, angle=0).get_co_vertices(),
+        [(0.0, 0.0), (0.0, 0.0)],
+    )
+
+    assert_almost_equal(
+        Ellipse(xy=(0, 0), width=1, height=0, angle=0).get_vertices(),
+        [(-0.5, 0.0), (0.5, 0.0)],
+    )
+    assert_almost_equal(
+        Ellipse(xy=(0, 0), width=1, height=0, angle=0).get_co_vertices(),
+        [(0.0, 0.0), (0.0, 0.0)],
+    )
+
+    assert_almost_equal(
+        Ellipse(xy=(0, 0), width=1, height=1, angle=0).get_vertices(),
+        [(-0.5, 0.0), (0.5, 0.0)],
+    )
+    assert_almost_equal(
+        Ellipse(xy=(0, 0), width=1, height=1, angle=0).get_co_vertices(),
+        [(0.0, 0.5), (0.0, -0.5)],
+    )
+
+    assert_almost_equal(
+        Ellipse(xy=(0, 0), width=1, height=0.5, angle=90).get_vertices(),
+        [(0.0, -0.5), (0.0, 0.5)],
+    )
+    assert_almost_equal(
+        Ellipse(xy=(0, 0), width=1, height=0.5, angle=90).get_co_vertices(),
+        [(-0.25, 0.0), (0.25, 0.0)],
+    )
+
 
 def test_rotate_rect():
     loc = np.asarray([1.0, 2.0])
