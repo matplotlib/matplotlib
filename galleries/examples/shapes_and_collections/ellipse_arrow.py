@@ -19,10 +19,10 @@ from matplotlib.transforms import Affine2D
 fig, ax = plt.subplots(subplot_kw={"aspect": "equal"})
 
 # Define an ellipse clockwise
-center=(2, 4)
-width=30
-height=20
-angle=35
+center = (2, 4)
+width = 30
+height = 20
+angle = 35
 ellipse = Ellipse(
     xy=center,
     width=width,
@@ -43,6 +43,7 @@ ax.plot(
     marker=MarkerStyle(">", "full", t),
     markersize=10
 )
+# Note: To reverse the orientation arrow, switch the marker type from > to <.
 
 plt.show()
 
