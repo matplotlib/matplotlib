@@ -116,6 +116,13 @@ class Axes(_AxesBase):
             Text to use for the title
 
         fontdict : dict
+
+            .. admonition:: Discouraged
+
+               The use of *fontdict* is discouraged. Parameters should be passed as
+               individual keyword arguments or using dictionary-unpacking
+               ``set_title(..., **fontdict)``.
+
             A dictionary controlling the appearance of the title text,
             the default *fontdict* is::
 
@@ -641,6 +648,13 @@ class Axes(_AxesBase):
             The text.
 
         fontdict : dict, default: None
+
+            .. admonition:: Discouraged
+
+               The use of *fontdict* is discouraged. Parameters should be passed as
+               individual keyword arguments or using dictionary-unpacking
+               ``text(..., **fontdict)``.
+
             A dictionary to override the default text properties. If fontdict
             is None, the defaults are determined by `.rcParams`.
 
