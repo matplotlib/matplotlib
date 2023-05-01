@@ -17,44 +17,6 @@ matplotlib.*\.set$
 matplotlib.pyplot.*
 matplotlib.typing.*
 
-# _preprocess_data arg decorator
-matplotlib.axes.*Axes.acorr
-matplotlib.axes.*Axes.angle_spectrum
-matplotlib.axes.*Axes.bar
-matplotlib.axes.*Axes.barbs
-matplotlib.axes.*Axes.boxplot
-matplotlib.axes.*Axes.broken_barh
-matplotlib.axes.*Axes.cohere
-matplotlib.axes.*Axes.contour
-matplotlib.axes.*Axes.contourf
-matplotlib.axes.*Axes.csd
-matplotlib.axes.*Axes.ecdf
-matplotlib.axes.*Axes.errorbar
-matplotlib.axes.*Axes.eventplot
-matplotlib.axes.*Axes.fill_between
-matplotlib.axes.*Axes.fill_betweenx
-matplotlib.axes.*Axes.hexbin
-matplotlib.axes.*Axes.hist
-matplotlib.axes.*Axes.hist2d
-matplotlib.axes.*Axes.hlines
-matplotlib.axes.*Axes.imshow
-matplotlib.axes.*Axes.magnitude_spectrum
-matplotlib.axes.*Axes.pcolor
-matplotlib.axes.*Axes.pcolorfast
-matplotlib.axes.*Axes.pcolormesh
-matplotlib.axes.*Axes.phase_spectrum
-matplotlib.axes.*Axes.pie
-matplotlib.axes.*Axes.plot_date
-matplotlib.axes.*Axes.psd
-matplotlib.axes.*Axes.quiver
-matplotlib.axes.*Axes.scatter
-matplotlib.axes.*Axes.specgram
-matplotlib.axes.*Axes.stairs
-matplotlib.axes.*Axes.stem
-matplotlib.axes.*Axes.violinplot
-matplotlib.axes.*Axes.vlines
-matplotlib.axes.*Axes.xcorr
-
 # Other decorator modifying signature (maybe investigate)
 matplotlib.axis.Axis.draw
 matplotlib.offsetbox.*Offset[Bb]ox.get_offset
