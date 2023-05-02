@@ -105,61 +105,54 @@ def test_corner_center():
 
 
 def test_ellipse_vertices():
-    center = (2, 4)
-    width = 30
-    height = 20
-    angle = 35
-    ellipse = Ellipse(xy=center, width=width, height=height, angle=angle)
+    # expect 0 for 0 ellipse widht, height
+    ellipse = Ellipse(xy=(0, 0), width=0, height=0, angle=0)
+    assert_almost_equal(
+        ellipse.get_vertices(),
+        [(0.0, 0.0), (0.0, 0.0)],
+    )
+    assert_almost_equal(
+        ellipse.get_co_vertices(),
+        [(0.0, 0.0), (0.0, 0.0)],
+    )
+
+    ellipse = Ellipse(xy=(0, 0), width=2, height=1, angle=30)
     assert_almost_equal(
         ellipse.get_vertices(),
         [
-            (-10.287280664334878, -4.60364654526569),
-            (14.287280664334878, 12.60364654526569),
+            (
+                ellipse.center[0] - ellipse.width / 4 * np.sqrt(3),
+                ellipse.center[1] - ellipse.width / 4,
+            ),
+            (
+                ellipse.center[0] + ellipse.width / 4 * np.sqrt(3),
+                ellipse.center[1] + ellipse.width / 4,
+            ),
         ],
     )
     assert_almost_equal(
         ellipse.get_co_vertices(),
         [
-            (-3.7357643635104605, 12.191520442889917),
-            (7.7357643635104605, -4.191520442889917),
+            (
+                ellipse.center[0] - ellipse.height / 4,
+                ellipse.center[1] + ellipse.height / 4 * np.sqrt(3),
+            ),
+            (
+                ellipse.center[0] + ellipse.height / 4,
+                ellipse.center[1] - ellipse.height / 4 * np.sqrt(3),
+            ),
         ],
     )
+    v1, v2 = np.array(ellipse.get_vertices())
+    np.testing.assert_almost_equal((v1 + v2) / 2, ellipse.center)
+    v1, v2 = np.array(ellipse.get_co_vertices())
+    np.testing.assert_almost_equal((v1 + v2) / 2, ellipse.center)
 
-    assert_almost_equal(
-        Ellipse(xy=(0, 0), width=0, height=0, angle=0).get_vertices(),
-        [(0.0, 0.0), (0.0, 0.0)],
-    )
-    assert_almost_equal(
-        Ellipse(xy=(0, 0), width=0, height=0, angle=0).get_co_vertices(),
-        [(0.0, 0.0), (0.0, 0.0)],
-    )
-
-    assert_almost_equal(
-        Ellipse(xy=(0, 0), width=1, height=0, angle=0).get_vertices(),
-        [(-0.5, 0.0), (0.5, 0.0)],
-    )
-    assert_almost_equal(
-        Ellipse(xy=(0, 0), width=1, height=0, angle=0).get_co_vertices(),
-        [(0.0, 0.0), (0.0, 0.0)],
-    )
-
-    assert_almost_equal(
-        Ellipse(xy=(0, 0), width=1, height=1, angle=0).get_vertices(),
-        [(-0.5, 0.0), (0.5, 0.0)],
-    )
-    assert_almost_equal(
-        Ellipse(xy=(0, 0), width=1, height=1, angle=0).get_co_vertices(),
-        [(0.0, 0.5), (0.0, -0.5)],
-    )
-
-    assert_almost_equal(
-        Ellipse(xy=(0, 0), width=1, height=0.5, angle=90).get_vertices(),
-        [(0.0, -0.5), (0.0, 0.5)],
-    )
-    assert_almost_equal(
-        Ellipse(xy=(0, 0), width=1, height=0.5, angle=90).get_co_vertices(),
-        [(-0.25, 0.0), (0.25, 0.0)],
-    )
+    ellipse = Ellipse(xy=(2.252, -10.859), width=2.265, height=1.98, angle=68.78)
+    v1, v2 = np.array(ellipse.get_vertices())
+    np.testing.assert_almost_equal((v1 + v2) / 2, ellipse.center)
+    v1, v2 = np.array(ellipse.get_co_vertices())
+    np.testing.assert_almost_equal((v1 + v2) / 2, ellipse.center)
 
 
 def test_rotate_rect():
