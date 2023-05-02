@@ -9,7 +9,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, MouseButton,
-    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent, HoverEvent)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
@@ -304,6 +304,17 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
+
+    def mouseOverEvent(self, event):
+        artist = event.artist
+        if not artist.get_hover:
+            thismouse = MouseEvent("motion_hover_event", self,
+                                   *self.mouseEventCoords(event),
+                                   modifiers=self._mpl_modifiers(),
+                                   guiEvent=event)
+            hovering = HoverEvent("motion_hover_event", self,
+                                  thismouse, artist, None)
+            hovering._process()
 
     def wheelEvent(self, event):
         # from QWheelEvent::pixelDelta doc: pixelDelta is sometimes not

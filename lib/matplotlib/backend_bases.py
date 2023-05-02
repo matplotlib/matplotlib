@@ -3016,8 +3016,9 @@ class NavigationToolbar2:
         self.set_message(self._mouse_event_to_message(event))
 
         if callable(getattr(self, 'set_hover_message', None)):
-            for a in self.canvas.figure.findobj(match=lambda x: not isinstance(x,
-                                                Rectangle), include_self=False):
+            def nonrect(x):
+                return not isinstance(x, Rectangle)
+            for a in self.canvas.figure.findobj(match=nonrect, include_self=False):
                 inside, prop = a.contains(event)
                 if inside:
                     self.set_hover_message(self._mouse_event_to_message(event))
