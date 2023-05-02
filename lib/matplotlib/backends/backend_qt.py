@@ -309,11 +309,11 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         artist = event.artist
         if not artist.get_hover:
             thismouse = MouseEvent("motion_hover_event", self,
-                       *self.mouseEventCoords(event),
-                       modifiers=self._mpl_modifiers(),
-                       guiEvent=event)
+                                   *self.mouseEventCoords(event),
+                                   modifiers=self._mpl_modifiers(),
+                                   guiEvent=event)
             hovering = HoverEvent("motion_hover_event", self,
-                                thismouse, artist, None)
+                                  thismouse, artist, None)
             hovering._process()
 
     def wheelEvent(self, event):

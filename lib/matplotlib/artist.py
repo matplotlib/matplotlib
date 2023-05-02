@@ -624,7 +624,7 @@ class Artist:
             inside, prop = self.contains(mouseevent)
             if inside:
                 HoverEvent("hover_event", self.figure.canvas,
-                        mouseevent, self, **prop)._process()
+                           mouseevent, self, **prop)._process()
 
         # Pick children
         for a in self.get_children():
