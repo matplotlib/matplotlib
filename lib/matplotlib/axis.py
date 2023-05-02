@@ -2009,9 +2009,11 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        ticks : list of floats
-            List of tick locations.  The axis `.Locator` is replaced by a
+        ticks : 1D ArrayLike
+            Array of tick locations.  The axis `.Locator` is replaced by a
             `~.ticker.FixedLocator`.
+
+            The values may be either floats or in axis units.
 
             Some tick formatters will not label arbitrary tick positions;
             e.g. log formatters only label decade ticks by default. In
