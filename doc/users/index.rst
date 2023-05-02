@@ -4,7 +4,7 @@
 
 
 ###########
-Users guide
+User guide
 ###########
 
 General
