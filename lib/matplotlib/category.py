@@ -164,9 +164,11 @@ class StrCategoryFormatter(ticker.Formatter):
             value = str(value)
         return value
 
-    def validate_converter(self, converter):
+    def validate_converter(self, converter, axisinfo):
         if not isinstance(converter, StrCategoryConverter):
-            raise TypeError("Expected a StrCategoryConverter for StrCategoryFormatter")
+            _api.warn_external(
+                "Expected a StrCategoryConverter for StrCategoryFormatter"
+            )
 
 
 class UnitData:
