@@ -105,7 +105,7 @@ def test_corner_center():
 
 
 def test_ellipse_vertices():
-    # expect 0 for 0 ellipse widht, height
+    # expect 0 for 0 ellipse width, height
     ellipse = Ellipse(xy=(0, 0), width=0, height=0, angle=0)
     assert_almost_equal(
         ellipse.get_vertices(),
