@@ -331,7 +331,7 @@ def test_set_hover():
         art.set_hover(True)
 
     fig, ax = plt.subplots()
-    im = ax.imshow(np.arange(36).reshape(6, 6))  # non-blank canvasses
+    im = ax.imshow(np.arange(36).reshape(6, 6))  # non-blank canvas
 
     im.set_hover(True)  # set hover variable to possible values given a figure exists
     assert im.get_hover()
@@ -341,6 +341,7 @@ def test_set_hover():
     assert im.get_hover() is None
 
     im.remove()
+
 
 def test_callbacks():
     def func(artist):
