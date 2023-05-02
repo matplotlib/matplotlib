@@ -595,7 +595,7 @@ class Artist:
         set_picker, pickable, pick
         """
         return self._picker
-    
+
     def hoverable(self):
         """
         Return whether the artist is hoverable.
@@ -605,7 +605,7 @@ class Artist:
         set_hover, get_hover, hover
         """
         return self.figure is not None and self._hover is not None
-    
+
     def hover(self, mouseevent):
         """
         Process a hover event.
@@ -624,7 +624,7 @@ class Artist:
             inside, prop = self.contains(mouseevent)
             if inside:
                 HoverEvent("hover_event", self.figure.canvas,
-                          mouseevent, self, **prop)._process()
+                        mouseevent, self, **prop)._process()
 
         # Pick children
         for a in self.get_children():
@@ -640,7 +640,7 @@ class Artist:
 
         Parameters
         ----------
-        hover : None or bool or float or function
+        hover : None or bool
             This can be one of the following:
 
             - *None*: Hover is disabled for this artist (default).
@@ -648,20 +648,6 @@ class Artist:
             - A boolean: If *True* then hover will be enabled and the
               artist will fire a hover event if the mouse event is hovering over
               the artist.
-
-            - A float: If hover is a number it is interpreted as an
-              epsilon tolerance in points and the artist will fire
-              off an event if its data is within epsilon of the mouse
-              event.  For some artists like lines and patch collections,
-              the artist may provide additional data to the hover event
-              that is generated, e.g., the indices of the data within
-              epsilon of the hover event
-
-            - A function: If hover is callable, it is a user supplied
-              function which determines whether the artist is hit by the
-              mouse event to determine the hit test. If the mouse event
-              is over the artist, return *hit=True* and props is a dictionary of
-              properties you want added to the HoverEvent attributes.
         """
         if not self.figure and hover is not None:
             raise ValueError("Cannot hover without an existing figure")

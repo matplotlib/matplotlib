@@ -1050,6 +1050,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
     def set_hover_message(self, s):
         self._hover_message.set(s)
 
+
 @backend_tools._register_tool_class(FigureCanvasTk)
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
