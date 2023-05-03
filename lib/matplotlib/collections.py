@@ -641,8 +641,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         self._capstyle = CapStyle(cs)
 
+    @_docstring.interpd
     def get_capstyle(self):
-        return self._capstyle.name
+        """
+        Return the cap style for the collection (for all its elements).
+
+        Returns
+        -------
+        %(CapStyle)s or None
+        """
+        return self._capstyle.name if self._capstyle else None
 
     @_docstring.interpd
     def set_joinstyle(self, js):
@@ -655,8 +663,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         self._joinstyle = JoinStyle(js)
 
+    @_docstring.interpd
     def get_joinstyle(self):
-        return self._joinstyle.name
+        """
+        Return the join style for the collection (for all its elements).
+
+        Returns
+        -------
+        %(JoinStyle)s or None
+        """
+        return self._joinstyle.name if self._joinstyle else None
 
     @staticmethod
     def _bcast_lwls(linewidths, dashes):
