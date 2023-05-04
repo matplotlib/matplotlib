@@ -156,6 +156,17 @@ def test_jpl_barh_units():
     ax.set_xlim([b - 1 * day, b + w[-1] + (1.001) * day])
 
 
+def test_jpl_datetime_units_consistent():
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    dt = datetime(2009, 4, 26)
+    jpl = units.Epoch("ET", dt=dt)
+    dt_conv = munits.registry.get_converter(dt).convert(dt, None, None)
+    jpl_conv = munits.registry.get_converter(jpl).convert(jpl, None, None)
+    assert dt_conv == jpl_conv
+
+
 def test_empty_arrays():
     # Check that plotting an empty array with a dtype works
     plt.scatter(np.array([], dtype='datetime64[ns]'), np.array([]))
