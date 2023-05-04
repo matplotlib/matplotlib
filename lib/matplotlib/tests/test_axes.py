@@ -856,8 +856,8 @@ def test_axvspan_epoch():
     units.register()
 
     # generate some data
-    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 20))
-    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
+    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
+    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 22))
     dt = units.Duration("ET", units.day.convert("sec"))
 
     ax = plt.gca()
@@ -871,8 +871,8 @@ def test_axhspan_epoch():
     units.register()
 
     # generate some data
-    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 20))
-    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
+    t0 = units.Epoch("ET", dt=datetime.datetime(2009, 1, 21))
+    tf = units.Epoch("ET", dt=datetime.datetime(2009, 1, 22))
     dt = units.Duration("ET", units.day.convert("sec"))
 
     ax = plt.gca()
