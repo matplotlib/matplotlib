@@ -1686,6 +1686,52 @@ def test_polygon_selector_box(ax):
         tool._box.extents, (20.0, 40.0, 30.0, 40.0))
 
 
+def test_polygon_selector_clear_method(ax):
+    onselect = mock.Mock(spec=noop, return_value=None)
+    tool = widgets.PolygonSelector(ax, onselect)
+
+    event_sequence = [
+        *polygon_place_vertex(50, 50),
+        *polygon_place_vertex(150, 50),
+        *polygon_place_vertex(50, 150),
+        *polygon_place_vertex(50, 50),
+    ]
+    expected_result = [(50, 50), (150, 50), (50, 150), (50, 50)]
+
+    for (etype, event_args) in event_sequence:
+        do_event(tool, etype, **event_args)
+
+    artist = tool._selection_artist
+
+    assert tool._selection_completed
+    assert tool.get_visible()
+    assert artist.get_visible()
+    np.testing.assert_equal(artist.get_xydata(), expected_result)
+    assert onselect.call_args == ((expected_result[:-1],), {})
+
+    tool.clear()
+    assert not tool._selection_completed
+    np.testing.assert_equal(artist.get_xydata(), [(0, 0)])
+
+    # Do another cycle of events to make sure we can
+    event_sequence = [
+        *polygon_place_vertex(50, 50),
+        *polygon_place_vertex(100, 50),
+        *polygon_place_vertex(50, 150),
+        *polygon_place_vertex(50, 50),
+    ]
+    expected_result2 = [(50, 50), (100, 50), (50, 150), (50, 50)]
+
+    for (etype, event_args) in event_sequence:
+        do_event(tool, etype, **event_args)
+
+    assert tool._selection_completed
+    assert tool.get_visible()
+    assert artist.get_visible()
+    np.testing.assert_equal(artist.get_xydata(), expected_result2)
+    assert onselect.call_args == ((expected_result2[:-1],), {})
+
+
 @pytest.mark.parametrize("horizOn", [False, True])
 @pytest.mark.parametrize("vertOn", [False, True])
 def test_MultiCursor(horizOn, vertOn):
