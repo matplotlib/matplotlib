@@ -28,7 +28,7 @@ class SecondaryAxis(_AxesBase):
     ) -> None: ...
     def set_ticks(
         self,
-        ticks: Iterable[float],
+        ticks: ArrayLike,
         labels: Iterable[str] | None = ...,
         *,
         minor: bool = ...,

@@ -393,7 +393,7 @@ def test_EllipseCollection():
     ax.autoscale_view()
 
 
-@image_comparison(['polycollection_close.png'], remove_text=True)
+@image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
 def test_polycollection_close():
     from mpl_toolkits.mplot3d import Axes3D  # type: ignore
 

@@ -21,3 +21,4 @@ jobs:
         with:
           dirtyLabel: "status: needs rebase"
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          retryMax: 10

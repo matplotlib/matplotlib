@@ -4,8 +4,10 @@ Contour Corner Mask
 ===================
 
 Illustrate the difference between ``corner_mask=False`` and
-``corner_mask=True`` for masked contour plots.
+``corner_mask=True`` for masked contour plots.  The default is controlled by
+:rc:`contour.corner_mask`.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
 

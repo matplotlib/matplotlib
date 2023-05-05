@@ -1,18 +1,13 @@
-## PR Summary
+## PR summary
 
-## PR Checklist
+## PR checklist
+<!-- Please mark any checkboxes that do not apply to this PR as [N/A].-->
 
-<!-- Please mark any checkboxes that do not apply to this PR as [N/A]. -->
-
-**Documentation and Tests**
-- [ ] Has pytest style unit tests (and `pytest` passes)
-- [ ] Documentation is sphinx and numpydoc compliant (the docs should [build](https://matplotlib.org/devel/documenting_mpl.html#building-the-docs) without error).
-- [ ] New plotting related features are documented with examples.
-
-**Release Notes**
-- [ ] New features are marked with a `.. versionadded::` directive in the docstring and documented in `doc/users/next_whats_new/`
-- [ ] API changes are marked with a `.. versionchanged::` directive in the docstring and documented in `doc/api/next_api_changes/`
-- [ ] Release notes conform with instructions in  `next_whats_new/README.rst` or `next_api_changes/README.rst`
+- [ ] "closes #0000" is in the body of the PR description to [link the related issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)
+- [ ] new and changed code is [tested](https://matplotlib.org/devdocs/devel/testing.html)
+- [ ] *Plotting related* features are demonstrated in an [example](https://matplotlib.org/devdocs/devel/documenting_mpl.html#writing-examples-and-tutorials)
+- [ ] *New Features* and *API Changes* are noted with a [directive and release note](https://matplotlib.org/devdocs/devel/coding_guide.html#new-features-and-api-changes)
+- [ ] Documentation complies with [general](https://matplotlib.org/devdocs/devel/documenting_mpl.html#writing-rest-pages) and [docstring](https://matplotlib.org/devdocs/devel/documenting_mpl.html#writing-docstrings) guidelines
 
 <!--
 Thank you so much for your PR!  To help us review your contribution, please
@@ -20,8 +15,7 @@ consider the following points:
 
 - A development guide is available at https://matplotlib.org/devdocs/devel/index.html.
 
-- Help with git and github is available at
-  https://matplotlib.org/devel/gitwash/development_workflow.html.
+- Help with git and github is available at https://matplotlib.org/devdocs/devel/development_workflow.html
 
 - Create a separate branch for your changes and open the PR from this branch. Please avoid working on `main`.
 
