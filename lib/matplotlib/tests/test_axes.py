@@ -4433,7 +4433,8 @@ def test_mollweide_forward_inverse_closure():
 
     # set up 1-degree grid in longitude, latitude
     lon = np.linspace(-np.pi, np.pi, 360)
-    lat = np.linspace(-np.pi / 2.0, np.pi / 2.0, 180)
+    # The poles are degenerate and thus sensitive to floating point precision errors
+    lat = np.linspace(-np.pi / 2.0, np.pi / 2.0, 180)[1:-1]
     lon, lat = np.meshgrid(lon, lat)
     ll = np.vstack((lon.flatten(), lat.flatten())).T
 
