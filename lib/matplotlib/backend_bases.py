@@ -3024,7 +3024,9 @@ class NavigationToolbar2:
                         hover = a.get_hover()
                         if callable(hover):
                             newX, newY = hover(event)
-                            self.set_hover_message("modified x = " + str(newX) + " modified y = " + str(newY) + "         Original coords: ")
+                            (self.set_hover_message("modified x = " + str(newX) 
+                                                  + " modified y = " + str(newY) 
+                                                + "         Original coords: "))
                         else:
                             self.set_hover_message(self._mouse_event_to_message(event))
                 else:
