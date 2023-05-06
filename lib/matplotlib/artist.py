@@ -649,8 +649,6 @@ class Artist:
               artist will fire a hover event if the mouse event is hovering over
               the artist.
         """
-        if not self.figure and hover is not None:
-            raise ValueError("Cannot hover without an existing figure")
         self._hover = hover
 
     def get_hover(self):

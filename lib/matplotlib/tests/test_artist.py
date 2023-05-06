@@ -326,10 +326,6 @@ def test_set_alpha_for_array():
 
 
 def test_set_hover():
-    art = martist.Artist()  # blank canvas
-    with pytest.raises(ValueError, match="Cannot hover without an existing figure"):
-        art.set_hover(True)
-
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(36).reshape(6, 6))  # non-blank canvas
 
