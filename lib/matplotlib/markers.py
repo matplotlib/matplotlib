@@ -161,11 +161,11 @@ class MarkerStyle:
 
     Attributes
     ----------
-    markers : list
+    markers : dict
         All known markers.
-    filled_markers : list
+    filled_markers : tuple
         All known filled markers. This is a subset of *markers*.
-    fillstyles : list
+    fillstyles : tuple
         The supported fillstyles.
     """
 
