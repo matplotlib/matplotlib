@@ -241,16 +241,16 @@ class MarkerStyle:
             Transform that will be combined with the native transform of the
             marker.
 
-        capstyle : CapStyle, default: None
+        capstyle : `.CapStyle` or %(CapStyle)s, default: None
             Cap style that will override the default cap style of the marker.
 
-        joinstyle : JoinStyle, default: None
+        joinstyle : `.JoinStyle` or %(JoinStyle)s, default: None
             Join style that will override the default join style of the marker.
         """
         self._marker_function = None
         self._user_transform = transform
-        self._user_capstyle = capstyle
-        self._user_joinstyle = joinstyle
+        self._user_capstyle = CapStyle(capstyle) if capstyle is not None else None
+        self._user_joinstyle = JoinStyle(joinstyle) if joinstyle is not None else None
         self._set_fillstyle(fillstyle)
         self._set_marker(marker)
 
