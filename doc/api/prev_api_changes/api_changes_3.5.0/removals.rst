@@ -351,7 +351,7 @@ rcParams
   - ``validate_orientation``
   - ``validate_pgf_texsystem``
   - ``validate_ps_papersize``
-  - ``validate_svg_fontset``
+  - ``validate_svg_fonttype``
   - ``validate_toolbar``
   - ``validate_webagg_address``
 

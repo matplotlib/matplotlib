@@ -260,6 +260,7 @@ class Colorbar:
     drawedges : bool
         Whether to draw lines at color boundaries.
 
+
     %(_colormap_kw_doc)s
 
     location : None or {'left', 'right', 'top', 'bottom'}
@@ -863,7 +864,7 @@ class Colorbar:
 
         Parameters
         ----------
-        ticks : list of floats
+        ticks : 1D array-like
             List of tick locations.
         labels : list of str, optional
             List of tick labels. If not set, the labels show the data value.

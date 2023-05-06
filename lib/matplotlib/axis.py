@@ -1753,6 +1753,13 @@ class Axis(martist.Artist):
             Text string.
         fontdict : dict
             Text properties.
+
+            .. admonition:: Discouraged
+
+               The use of *fontdict* is discouraged. Parameters should be passed as
+               individual keyword arguments or using dictionary-unpacking
+               ``set_label_text(..., **fontdict)``.
+
         **kwargs
             Merged into fontdict.
         """
@@ -1913,6 +1920,13 @@ class Axis(martist.Artist):
             If True, set minor ticks instead of major ticks.
 
         fontdict : dict, optional
+
+            .. admonition:: Discouraged
+
+               The use of *fontdict* is discouraged. Parameters should be passed as
+               individual keyword arguments or using dictionary-unpacking
+               ``set_ticklabels(..., **fontdict)``.
+
             A dictionary controlling the appearance of the ticklabels.
             The default *fontdict* is::
 
@@ -2009,9 +2023,11 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        ticks : list of floats
-            List of tick locations.  The axis `.Locator` is replaced by a
+        ticks : 1D ArrayLike
+            Array of tick locations.  The axis `.Locator` is replaced by a
             `~.ticker.FixedLocator`.
+
+            The values may be either floats or in axis units.
 
             Some tick formatters will not label arbitrary tick positions;
             e.g. log formatters only label decade ticks by default. In

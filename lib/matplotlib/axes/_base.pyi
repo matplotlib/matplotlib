@@ -399,7 +399,7 @@ class _AxesBase(martist.Artist):
     def get_xticks(self, *, minor: bool = ...) -> np.ndarray: ...
     def set_xticks(
         self,
-        ticks: Iterable[float],
+        ticks: ArrayLike,
         labels: Iterable[str] | None = ...,
         *,
         minor: bool = ...,
@@ -424,7 +424,7 @@ class _AxesBase(martist.Artist):
     def get_yticks(self, *, minor: bool = ...) -> np.ndarray: ...
     def set_yticks(
         self,
-        ticks: Iterable[float],
+        ticks: ArrayLike,
         labels: Iterable[str] | None = ...,
         *,
         minor: bool = ...,
