@@ -28,5 +28,5 @@ matplotlib.use('tkagg')
 fig, ax = plt.subplots()
 plt.ylabel('some numbers')
 
-ax.plot(rand(3), 'o', hover=['London','Paris','Barcelona'])
+ax.plot(rand(3), 'o', hover=['London', 'Paris', 'Barcelona'])
 plt.show()
