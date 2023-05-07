@@ -3048,9 +3048,9 @@ class NavigationToolbar2:
                                         distance = ((event.xdata - x_data[i])**2
                                                     + (event.ydata - y_data[i])**2)**0.5
                                         if distance < 0.05:
-                                            (self.set_hover_message("Data Label: " 
+                                            (self.set_hover_message("Data Label: "
                                                                     + hover[i] +
-                                            "         Original coords: "
+                                                    "         Original coords: "
                                             ))
                         else:
                             self.set_hover_message(self._mouse_event_to_message(event))
