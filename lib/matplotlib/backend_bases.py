@@ -3045,10 +3045,11 @@ class NavigationToolbar2:
                                     x_data = line.get_xdata()
                                     y_data = line.get_ydata()
                                     for i in range(len(x_data)):
-                                        distance = ((event.xdata - x_data[i])**2 
+                                        distance = ((event.xdata - x_data[i])**2
                                                     + (event.ydata - y_data[i])**2)**0.5
                                         if distance < 0.05:
-                                            (self.set_hover_message("Data Label: "+ hover[i] +
+                                            (self.set_hover_message("Data Label: " 
+                                                                    + hover[i] +
                                             "         Original coords: "
                                             ))
                         else:
