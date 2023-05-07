@@ -13,20 +13,20 @@ matplotlib.use('tkagg')
 
 # print(matplotlib.__version__, matplotlib.__file__)
 
-fig, ax = plt.subplots()
-plt.ylabel('some numbers')
-
-
-def user_defined_function(event):
-    return round(event.xdata * 10, 1), round(event.ydata + 3, 3)
-
-ax.plot(rand(100), 'o', hover=user_defined_function)
-plt.show()
-
-# Alternative test for testing out string literals as tooltips:
-
 # fig, ax = plt.subplots()
 # plt.ylabel('some numbers')
 
-# ax.plot(rand(3), 'o', hover=['London','Paris','Barcelona'])
+
+# def user_defined_function(event):
+#     return round(event.xdata * 10, 1), round(event.ydata + 3, 3)
+
+# ax.plot(rand(100), 'o', hover=user_defined_function)
 # plt.show()
+
+# Alternative test for testing out string literals as tooltips:
+
+fig, ax = plt.subplots()
+plt.ylabel('some numbers')
+
+ax.plot(rand(3), 'o', hover=['London','Paris','Barcelona'])
+plt.show()
