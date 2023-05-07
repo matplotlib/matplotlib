@@ -3031,13 +3031,12 @@ class NavigationToolbar2:
                                                     ))
                         elif type(hover) == list:
                             import matplotlib.pyplot as plt
-                            #get number of data points first
                             lines = plt.gca().get_lines()
-                            num_of_points =0
+                            num_of_points = 0
                             for line in lines:
-                                num_of_points+=1
+                                num_of_points += 1
                             if num_of_points >= len(hover):
-                                raise ValueError("""Number of data points 
+                                raise ValueError("""Number of data points
                                 does not match up woth number of labels""")
                             else:
                                 mouse_x = event.xdata
@@ -3046,17 +3045,12 @@ class NavigationToolbar2:
                                     x_data = line.get_xdata()
                                     y_data = line.get_ydata()
                                     for i in range(len(x_data)):
-                                        # calculate distance between cursor position and data point
-                                        distance = ((event.xdata - x_data[i])**2 + (event.ydata - y_data[i])**2)**0.5
-                                        if distance < 0.05:  # modify this threshold as needed
+                                        distance = ((event.xdata - x_data[i])**2 
+                                                    + (event.ydata - y_data[i])**2)**0.5
+                                        if distance < 0.05:
                                             (self.set_hover_message("Data Label: "+ hover[i] +
                                             "         Original coords: "
                                             ))
-                          
-
-
-
-
                         else:
                             self.set_hover_message(self._mouse_event_to_message(event))
                 else:
