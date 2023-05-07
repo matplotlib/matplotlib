@@ -76,7 +76,8 @@ class Axis(maxis.XAxis):
 
         name = self.axis_name
 
-        self.position = 'auto'
+        self._label_position = 'default'
+        self._tick_position = 'default'
 
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
@@ -185,6 +186,54 @@ class Axis(maxis.XAxis):
                 obj.set_transform(self.axes.transData)
         return ticks
 
+    def set_ticks_position(self, position):
+        """
+        Set the ticks position.
+
+        Parameters
+        ----------
+        position : {'lower', 'upper', 'both', 'default', 'none'}
+            The position of the bolded axis lines, ticks, and tick labels.
+        """
+        _api.check_in_list(['lower', 'upper', 'both', 'default', 'none'],
+                           position=position)
+        self._tick_position = position
+
+    def get_ticks_position(self):
+        """
+        Get the ticks position.
+
+        Returns
+        -------
+        position : {'lower', 'upper', 'both', 'default', 'none'}
+            The position of the bolded axis lines, ticks, and tick labels.
+        """
+        return self._tick_position
+
+    def set_label_position(self, position):
+        """
+        Set the label position.
+
+        Parameters
+        ----------
+        position : {'lower', 'upper', 'both', 'default', 'none'}
+            The position of the axis label.
+        """
+        _api.check_in_list(['lower', 'upper', 'both', 'default', 'none'],
+                           position=position)
+        self._label_position = position
+
+    def get_label_position(self):
+        """
+        Get the label position.
+
+        Returns
+        -------
+        position : {'lower', 'upper', 'both', 'default', 'none'}
+            The position of the axis label.
+        """
+        return self._label_position
+
     def set_pane_color(self, color, alpha=None):
         """
         Set pane color.
@@ -262,7 +311,7 @@ class Axis(maxis.XAxis):
         # When changing vertical axis some of the axes has to be
         # moved to the other plane so it looks the same as if the z-axis
         # was the vertical axis.
-        mb = [minmax, maxmin]  # line from origin to near invisible corner
+        mb = [minmax, maxmin]  # line from origin to nearest corner to camera
         mb_rev = mb[::-1]
         mm = [[mb, mb_rev, mb_rev], [mb_rev, mb_rev, mb], [mb, mb, mb]]
         mm = mm[self.axes._vertical_axis][self._axinfo["i"]]
@@ -282,6 +331,25 @@ class Axis(maxis.XAxis):
         edge_point_1[juggled[1]] = mm[1][juggled[1]]
 
         return edge_point_0, edge_point_1
+
+    def _get_all_axis_line_edge_points(self, minmax, maxmin, position=None):
+        # Determine edge points for the axis lines
+        edgep1s = []
+        edgep2s = []
+        if position in (None, 'default'):
+            edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
+            edgep1s = [edgep1]
+            edgep2s = [edgep2]
+        else:
+            edgep1_l, edgep2_l = self._get_axis_line_edge_points(minmax, maxmin, position='lower')
+            edgep1_u, edgep2_u = self._get_axis_line_edge_points(minmax, maxmin, position='upper')
+            if position in ('lower', 'both'):
+                edgep1s.append(edgep1_l)
+                edgep2s.append(edgep2_l)
+            if position in ('upper', 'both'):
+                edgep1s.append(edgep1_u)
+                edgep2s.append(edgep2_u)
+        return edgep1s, edgep2s
 
     def _get_tickdir(self):
         """
@@ -339,8 +407,8 @@ class Axis(maxis.XAxis):
         return axmask
 
 
-    def _draw_ticks(self, renderer, edgep1, deltas_per_point):
-        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
+    def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
+                    deltas_per_point):
         ticks = self._update_ticks()
         info = self._axinfo
         index = info["i"]
@@ -380,10 +448,8 @@ class Axis(maxis.XAxis):
             tick.draw(renderer)
 
 
-    def _draw_offset_text(self, renderer, edgep1, edgep2, labeldeltas, pep,
-                          dx, dy):
-        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
-
+    def _draw_offset_text(self, renderer, edgep1, edgep2, labeldeltas, centers,
+                          highs, pep, dx, dy):
         # Get general axis information:
         info = self._axinfo
         index = info["i"]
@@ -453,9 +519,9 @@ class Axis(maxis.XAxis):
         self.offsetText.draw(renderer)
 
 
-    def _draw_labels(self, renderer, edgep1, edgep2, labeldeltas, dx, dy):
+    def _draw_labels(self, renderer, edgep1, edgep2, labeldeltas, centers,
+                     dx, dy):
         info = self._axinfo
-        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
         # Draw labels
         lxyz = 0.5 * (edgep1 + edgep2)
@@ -491,31 +557,14 @@ class Axis(maxis.XAxis):
             (self.labelpad + default_offset) * deltas_per_point * deltas)
 
         # Determine edge points for the axis lines
-        edgep1s = []
-        edgep2s = []
         minmax = np.where(highs, maxs, mins)  # "origin" point
         maxmin = np.where(~highs, maxs, mins)  # "opposite" corner near camera
-        if self.position == 'auto':
-            edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
-            edgep1s = [edgep1]
-            edgep2s = [edgep2]
-        else:
-            edgep1_l, edgep2_l = self._get_axis_line_edge_points(minmax, maxmin, position='lower')
-            edgep1_u, edgep2_u = self._get_axis_line_edge_points(minmax, maxmin, position='upper')
-            if self.position in ('lower', 'both'):
-                edgep1s.append(edgep1_l)
-                edgep2s.append(edgep2_l)
-            if self.position in ('upper', 'both'):
-                edgep1s.append(edgep1_u)
-                edgep2s.append(edgep2_u)
 
-        for edgep1, edgep2 in zip(edgep1s, edgep2s):
-            # Draw the lines
+        for edgep1, edgep2 in zip(*self._get_all_axis_line_edge_points(
+                                      minmax, maxmin, self._tick_position)):
             # Project the edge points along the current position
             pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
             pep = np.asarray(pep)
-            self.line.set_data(pep[0], pep[1])
-            self.line.draw(renderer)
 
             # The transAxes transform is used because the Text object
             # rotates the text relative to the display coordinate system.
@@ -527,15 +576,29 @@ class Axis(maxis.XAxis):
             dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
                       self.axes.transAxes.transform([pep[0:2, 0]]))[0]
 
-            # Draw labels
-            self._draw_labels(renderer, edgep1, edgep2, labeldeltas, dx, dy)
-
-            # Draw Offset text
-            self._draw_offset_text(renderer, edgep1, edgep2, labeldeltas, pep,
-                                   dx, dy)
+            # Draw the lines
+            self.line.set_data(pep[0], pep[1])
+            self.line.draw(renderer)
 
             # Draw ticks
-            self._draw_ticks(renderer, edgep1, deltas_per_point)
+            self._draw_ticks(renderer, edgep1, centers, deltas, highs,
+                             deltas_per_point)
+
+            # Draw Offset text
+            self._draw_offset_text(renderer, edgep1, edgep2, labeldeltas,
+                                   centers, highs, pep, dx, dy)
+
+        for edgep1, edgep2 in zip(*self._get_all_axis_line_edge_points(
+                                      minmax, maxmin, self._label_position)):
+            # See comments above
+            pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
+            pep = np.asarray(pep)
+            dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
+                      self.axes.transAxes.transform([pep[0:2, 0]]))[0]
+
+            # Draw labels
+            self._draw_labels(renderer, edgep1, edgep2, labeldeltas, centers,
+                              dx, dy)
 
         renderer.close_group('axis3d')
         self.stale = False
