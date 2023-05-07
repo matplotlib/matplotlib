@@ -22,3 +22,15 @@ def user_defined_function(event):
 
 ax.plot(rand(100), 'o', hover=user_defined_function)
 plt.show()
+
+
+
+############################################################################
+
+#Alternative test for testing out string literals as tooltips
+
+# fig, ax = plt.subplots()
+# plt.ylabel('some numbers')
+
+# ax.plot(rand(3), 'o', hover=['London','Paris','Barcelona'])
+# plt.show()
