@@ -76,6 +76,8 @@ class Axis(maxis.XAxis):
 
         name = self.axis_name
 
+        self.position = 'auto'
+
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[name].copy()
@@ -225,8 +227,7 @@ class Axis(maxis.XAxis):
         # Get the mean value for each bound:
         centers = 0.5 * (maxs + mins)
 
-        # Add a small offset between min/max point and the edge of the
-        # plot:
+        # Add a small offset between min/max point and the edge of the plot:
         deltas = (maxs - mins) / 12
         mins -= 0.25 * deltas
         maxs += 0.25 * deltas
@@ -256,19 +257,26 @@ class Axis(maxis.XAxis):
 
         return mins, maxs, centers, deltas, bounds_proj, highs
 
-    def _get_axis_line_edge_points(self, minmax, maxmin):
+    def _get_axis_line_edge_points(self, minmax, maxmin, position=None):
         """Get the edge points for the black bolded axis line."""
         # When changing vertical axis some of the axes has to be
         # moved to the other plane so it looks the same as if the z-axis
         # was the vertical axis.
-        mb = [minmax, maxmin]
+        mb = [minmax, maxmin]  # line from origin to near invisible corner
         mb_rev = mb[::-1]
         mm = [[mb, mb_rev, mb_rev], [mb_rev, mb_rev, mb], [mb, mb, mb]]
         mm = mm[self.axes._vertical_axis][self._axinfo["i"]]
 
         juggled = self._axinfo["juggled"]
-        edge_point_0 = mm[0].copy()
-        edge_point_0[juggled[0]] = mm[1][juggled[0]]
+        edge_point_0 = mm[0].copy()  # origin point
+
+        if (   (position == 'lower'
+                and mm[1][juggled[-1]] < mm[0][juggled[-1]])
+            or (position == 'upper'
+                and mm[1][juggled[-1]] > mm[0][juggled[-1]])):
+            edge_point_0[juggled[-1]] = mm[1][juggled[-1]]
+        else:
+            edge_point_0[juggled[0]] = mm[1][juggled[0]]
 
         edge_point_1 = edge_point_0.copy()
         edge_point_1[juggled[1]] = mm[1][juggled[1]]
@@ -372,7 +380,8 @@ class Axis(maxis.XAxis):
             tick.draw(renderer)
 
 
-    def _draw_offset_text(self, renderer, edgep1, edgep2, labeldeltas, pep, dx, dy):
+    def _draw_offset_text(self, renderer, edgep1, edgep2, labeldeltas, pep,
+                          dx, dy):
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
         # Get general axis information:
@@ -389,7 +398,8 @@ class Axis(maxis.XAxis):
             outeredgep = edgep2
             outerindex = 1
 
-        pos = _move_from_center(outeredgep, centers, labeldeltas, self._axmask())
+        pos = _move_from_center(outeredgep, centers, labeldeltas,
+                                self._axmask())
         olx, oly, olz = proj3d.proj_transform(*pos, self.axes.M)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.set_position((olx, oly))
@@ -470,19 +480,6 @@ class Axis(maxis.XAxis):
         # Get general axis information:
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
-        minmax = np.where(highs, maxs, mins)
-        maxmin = np.where(~highs, maxs, mins)
-
-        # Create edge points for the black bolded axis line:
-        edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
-
-        # Draw the lines
-        # Project the edge points along the current position
-        pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
-        pep = np.asarray(pep)
-        self.line.set_data(pep[0], pep[1])
-        self.line.draw(renderer)
-
         # Calculate offset distances
         # A rough estimate; points are ambiguous since 3D plots rotate
         reltoinches = self.figure.dpi_scale_trans.inverted()
@@ -492,24 +489,53 @@ class Axis(maxis.XAxis):
         default_offset = 21.
         labeldeltas = (
             (self.labelpad + default_offset) * deltas_per_point * deltas)
-        # The transAxes transform is used because the Text object
-        # rotates the text relative to the display coordinate system.
-        # Therefore, if we want the labels to remain parallel to the
-        # axis regardless of the aspect ratio, we need to convert the
-        # edge points of the plane to display coordinates and calculate
-        # an angle from that.
-        # TODO: Maybe Text objects should handle this themselves?
-        dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
-                  self.axes.transAxes.transform([pep[0:2, 0]]))[0]
 
-        # Draw labels
-        self._draw_labels(renderer, edgep1, edgep2, labeldeltas, dx, dy)
+        # Determine edge points for the axis lines
+        edgep1s = []
+        edgep2s = []
+        minmax = np.where(highs, maxs, mins)  # "origin" point
+        maxmin = np.where(~highs, maxs, mins)  # "opposite" corner near camera
+        if self.position == 'auto':
+            edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
+            edgep1s = [edgep1]
+            edgep2s = [edgep2]
+        else:
+            edgep1_l, edgep2_l = self._get_axis_line_edge_points(minmax, maxmin, position='lower')
+            edgep1_u, edgep2_u = self._get_axis_line_edge_points(minmax, maxmin, position='upper')
+            if self.position in ('lower', 'both'):
+                edgep1s.append(edgep1_l)
+                edgep2s.append(edgep2_l)
+            if self.position in ('upper', 'both'):
+                edgep1s.append(edgep1_u)
+                edgep2s.append(edgep2_u)
 
-        # Draw Offset text
-        self._draw_offset_text(renderer, edgep1, edgep2, labeldeltas, pep, dx, dy)
+        for edgep1, edgep2 in zip(edgep1s, edgep2s):
+            # Draw the lines
+            # Project the edge points along the current position
+            pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
+            pep = np.asarray(pep)
+            self.line.set_data(pep[0], pep[1])
+            self.line.draw(renderer)
 
-        # Draw ticks
-        self._draw_ticks(renderer, edgep1, deltas_per_point)
+            # The transAxes transform is used because the Text object
+            # rotates the text relative to the display coordinate system.
+            # Therefore, if we want the labels to remain parallel to the
+            # axis regardless of the aspect ratio, we need to convert the
+            # edge points of the plane to display coordinates and calculate
+            # an angle from that.
+            # TODO: Maybe Text objects should handle this themselves?
+            dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
+                      self.axes.transAxes.transform([pep[0:2, 0]]))[0]
+
+            # Draw labels
+            self._draw_labels(renderer, edgep1, edgep2, labeldeltas, dx, dy)
+
+            # Draw Offset text
+            self._draw_offset_text(renderer, edgep1, edgep2, labeldeltas, pep,
+                                   dx, dy)
+
+            # Draw ticks
+            self._draw_ticks(renderer, edgep1, deltas_per_point)
 
         renderer.close_group('axis3d')
         self.stale = False
