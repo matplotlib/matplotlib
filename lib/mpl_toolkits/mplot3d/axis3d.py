@@ -192,7 +192,7 @@ class Axis(maxis.XAxis):
 
         Parameters
         ----------
-        position : {'lower', 'upper', 'both', 'default', 'none'}
+        str : {'lower', 'upper', 'both', 'default', 'none'}
             The position of the bolded axis lines, ticks, and tick labels.
         """
         _api.check_in_list(['lower', 'upper', 'both', 'default', 'none'],
@@ -205,7 +205,7 @@ class Axis(maxis.XAxis):
 
         Returns
         -------
-        position : {'lower', 'upper', 'both', 'default', 'none'}
+        str : {'lower', 'upper', 'both', 'default', 'none'}
             The position of the bolded axis lines, ticks, and tick labels.
         """
         return self._tick_position
@@ -216,7 +216,7 @@ class Axis(maxis.XAxis):
 
         Parameters
         ----------
-        position : {'lower', 'upper', 'both', 'default', 'none'}
+        str : {'lower', 'upper', 'both', 'default', 'none'}
             The position of the axis label.
         """
         _api.check_in_list(['lower', 'upper', 'both', 'default', 'none'],
@@ -229,7 +229,7 @@ class Axis(maxis.XAxis):
 
         Returns
         -------
-        position : {'lower', 'upper', 'both', 'default', 'none'}
+        str : {'lower', 'upper', 'both', 'default', 'none'}
             The position of the axis label.
         """
         return self._label_position
@@ -319,10 +319,8 @@ class Axis(maxis.XAxis):
         juggled = self._axinfo["juggled"]
         edge_point_0 = mm[0].copy()  # origin point
 
-        if (   (position == 'lower'
-                and mm[1][juggled[-1]] < mm[0][juggled[-1]])
-            or (position == 'upper'
-                and mm[1][juggled[-1]] > mm[0][juggled[-1]])):
+        if ((position == 'lower' and mm[1][juggled[-1]] < mm[0][juggled[-1]]) or
+                (position == 'upper' and mm[1][juggled[-1]] > mm[0][juggled[-1]])):
             edge_point_0[juggled[-1]] = mm[1][juggled[-1]]
         else:
             edge_point_0[juggled[0]] = mm[1][juggled[0]]
@@ -332,28 +330,39 @@ class Axis(maxis.XAxis):
 
         return edge_point_0, edge_point_1
 
-    def _get_all_axis_line_edge_points(self, minmax, maxmin, position=None):
+    def _get_all_axis_line_edge_points(self, minmax, maxmin, axis_position=None):
         # Determine edge points for the axis lines
         edgep1s = []
         edgep2s = []
-        if position in (None, 'default'):
+        position = []
+        if axis_position in (None, 'default'):
             edgep1, edgep2 = self._get_axis_line_edge_points(minmax, maxmin)
             edgep1s = [edgep1]
             edgep2s = [edgep2]
+            position = ['default']
         else:
-            edgep1_l, edgep2_l = self._get_axis_line_edge_points(minmax, maxmin, position='lower')
-            edgep1_u, edgep2_u = self._get_axis_line_edge_points(minmax, maxmin, position='upper')
+            edgep1_l, edgep2_l = self._get_axis_line_edge_points(minmax, maxmin,
+                                                                 position='lower')
+            edgep1_u, edgep2_u = self._get_axis_line_edge_points(minmax, maxmin,
+                                                                 position='upper')
             if position in ('lower', 'both'):
                 edgep1s.append(edgep1_l)
                 edgep2s.append(edgep2_l)
-            if position in ('upper', 'both'):
+                position.append('lower')
+            if axis_position in ('upper', 'both'):
                 edgep1s.append(edgep1_u)
                 edgep2s.append(edgep2_u)
-        return edgep1s, edgep2s
+                position.append('upper')
+        return edgep1s, edgep2s, position
 
-    def _get_tickdir(self):
+    def _get_tickdir(self, position):
         """
         Get the direction of the tick.
+
+        Parameters
+        ----------
+        position : str, optional : {'upper', 'lower', 'default'}
+            The position of the axis.
 
         Returns
         -------
@@ -361,13 +370,32 @@ class Axis(maxis.XAxis):
             Index which indicates which coordinate the tick line will
             align with.
         """
+        _api.check_in_list(('upper', 'lower', 'default'), position=position)
+
         # TODO: Move somewhere else where it's triggered less:
-        tickdirs_base = [v["tickdir"] for v in self._AXINFO.values()]
+        tickdirs_base = [v["tickdir"] for v in self._AXINFO.values()]  # default
+        elev_mod = np.mod(self.axes.elev + 180, 360) - 180
+        azim_mod = np.mod(self.axes.azim, 360)
+        if position == 'upper':
+            if elev_mod >= 0:
+                tickdirs_base = [2, 2, 0]
+            else:
+                tickdirs_base = [1, 0, 0]
+            if (0 <= azim_mod < 180):
+                tickdirs_base[2] = 1
+        elif position == 'lower':
+            if elev_mod >= 0:
+                tickdirs_base = [1, 0, 1]
+            else:
+                tickdirs_base = [2, 2, 1]
+            if (0 <= azim_mod < 180):
+                tickdirs_base[2] = 0
         info_i = [v["i"] for v in self._AXINFO.values()]
 
         i = self._axinfo["i"]
-        j = self.axes._vertical_axis - 2
-        # tickdir = [[1, 2, 1], [2, 2, 0], [1, 0, 0]][i]
+        vert_ax = self.axes._vertical_axis
+        j = vert_ax - 2
+        # default: tickdir = [[1, 2, 1], [2, 2, 0], [1, 0, 0]][vert_ax][i]
         tickdir = np.roll(info_i, -j)[np.roll(tickdirs_base, j)][i]
         return tickdir
 
@@ -398,23 +426,19 @@ class Axis(maxis.XAxis):
         self.pane.draw(renderer)
         renderer.close_group('pane3d')
 
-
     def _axmask(self):
-        info = self._axinfo
-        index = info["i"]
         axmask = [True, True, True]
-        axmask[index] = False
+        axmask[self._axinfo["i"]] = False
         return axmask
 
-
     def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
-                    deltas_per_point):
+                    deltas_per_point, pos):
         ticks = self._update_ticks()
         info = self._axinfo
         index = info["i"]
 
         # Draw ticks:
-        tickdir = self._get_tickdir()
+        tickdir = self._get_tickdir(pos)
         tickdelta = deltas[tickdir] if highs[tickdir] else -deltas[tickdir]
 
         tick_info = info['tick']
@@ -447,13 +471,13 @@ class Axis(maxis.XAxis):
             tick.tick1line.set_linewidth(tick_lw[tick._major])
             tick.draw(renderer)
 
-
     def _draw_offset_text(self, renderer, edgep1, edgep2, labeldeltas, centers,
                           highs, pep, dx, dy):
         # Get general axis information:
         info = self._axinfo
         index = info["i"]
         juggled = info["juggled"]
+        tickdir = info["tickdir"]
 
         # Which of the two edge points do we want to
         # use for locating the offset text?
@@ -484,14 +508,14 @@ class Axis(maxis.XAxis):
         # using the wrong reference points).
         #
         # (TT, FF, TF, FT) are the shorthand for the tuple of
-        #   (centpt[info['tickdir']] <= pep[info['tickdir'], outerindex],
+        #   (centpt[tickdir] <= pep[tickdir, outerindex],
         #    centpt[index] <= pep[index, outerindex])
         #
         # Three-letters (e.g., TFT, FTT) are short-hand for the array of bools
         # from the variable 'highs'.
         # ---------------------------------------------------------------------
         centpt = proj3d.proj_transform(*centers, self.axes.M)
-        if centpt[info['tickdir']] > pep[info['tickdir'], outerindex]:
+        if centpt[tickdir] > pep[tickdir, outerindex]:
             # if FT and if highs has an even number of Trues
             if (centpt[index] <= pep[index, outerindex]
                     and np.count_nonzero(highs) % 2 == 0):
@@ -518,10 +542,8 @@ class Axis(maxis.XAxis):
         self.offsetText.set_ha(align)
         self.offsetText.draw(renderer)
 
-
-    def _draw_labels(self, renderer, edgep1, edgep2, labeldeltas, centers,
-                     dx, dy):
-        info = self._axinfo
+    def _draw_labels(self, renderer, edgep1, edgep2, labeldeltas, centers, dx, dy):
+        label = self._axinfo["label"]
 
         # Draw labels
         lxyz = 0.5 * (edgep1 + edgep2)
@@ -531,11 +553,10 @@ class Axis(maxis.XAxis):
         if self.get_rotate_label(self.label.get_text()):
             angle = art3d._norm_text_angle(np.rad2deg(np.arctan2(dy, dx)))
             self.label.set_rotation(angle)
-        self.label.set_va(info['label']['va'])
-        self.label.set_ha(info['label']['ha'])
-        self.label.set_rotation_mode(info['label']['rotation_mode'])
+        self.label.set_va(label['va'])
+        self.label.set_ha(label['ha'])
+        self.label.set_rotation_mode(label['rotation_mode'])
         self.label.draw(renderer)
-
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -553,15 +574,14 @@ class Axis(maxis.XAxis):
         ax_points_estimate = sum(72. * ax_inches)
         deltas_per_point = 48 / ax_points_estimate
         default_offset = 21.
-        labeldeltas = (
-            (self.labelpad + default_offset) * deltas_per_point * deltas)
+        labeldeltas = (self.labelpad + default_offset) * deltas_per_point * deltas
 
         # Determine edge points for the axis lines
         minmax = np.where(highs, maxs, mins)  # "origin" point
         maxmin = np.where(~highs, maxs, mins)  # "opposite" corner near camera
 
-        for edgep1, edgep2 in zip(*self._get_all_axis_line_edge_points(
-                                      minmax, maxmin, self._tick_position)):
+        for edgep1, edgep2, pos in zip(*self._get_all_axis_line_edge_points(
+                                           minmax, maxmin, self._tick_position)):
             # Project the edge points along the current position
             pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
             pep = np.asarray(pep)
@@ -582,14 +602,14 @@ class Axis(maxis.XAxis):
 
             # Draw ticks
             self._draw_ticks(renderer, edgep1, centers, deltas, highs,
-                             deltas_per_point)
+                             deltas_per_point, pos)
 
             # Draw Offset text
             self._draw_offset_text(renderer, edgep1, edgep2, labeldeltas,
                                    centers, highs, pep, dx, dy)
 
-        for edgep1, edgep2 in zip(*self._get_all_axis_line_edge_points(
-                                      minmax, maxmin, self._label_position)):
+        for edgep1, edgep2, pos in zip(*self._get_all_axis_line_edge_points(
+                                           minmax, maxmin, self._label_position)):
             # See comments above
             pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
             pep = np.asarray(pep)
@@ -597,8 +617,7 @@ class Axis(maxis.XAxis):
                       self.axes.transAxes.transform([pep[0:2, 0]]))[0]
 
             # Draw labels
-            self._draw_labels(renderer, edgep1, edgep2, labeldeltas, centers,
-                              dx, dy)
+            self._draw_labels(renderer, edgep1, edgep2, labeldeltas, centers, dx, dy)
 
         renderer.close_group('axis3d')
         self.stale = False
@@ -652,7 +671,7 @@ class Axis(maxis.XAxis):
         # (and hope they are up to date) because at draw time we
         # shift the ticks and their labels around in (x, y) space
         # based on the projection, the current view port, and their
-        # position in 3D space.  If we extend the transforms framework
+        # position in 3D space. If we extend the transforms framework
         # into 3D we would not need to do this different book keeping
         # than we do in the normal axis
         major_locs = self.get_majorticklocs()

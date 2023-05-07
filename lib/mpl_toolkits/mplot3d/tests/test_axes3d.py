@@ -2156,7 +2156,7 @@ def test_view_init_vertical_axis(
 
         # Assert ticks are correctly aligned:
         tickdir_expected = tickdirs_expected[i]
-        tickdir_actual = axis._get_tickdir()
+        tickdir_actual = axis._get_tickdir('default')
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
 
 
