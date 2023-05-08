@@ -2954,7 +2954,7 @@ class AutoLocator(MaxNLocator):
     """
 
     def __repr__(self):
-        return f"{self.__call__.__name__}()"
+        return f"{self.__class__.__name__}()"
 
     def __init__(self):
         """
