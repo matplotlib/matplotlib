@@ -287,6 +287,9 @@ class ThetaLocator(mticker.Locator):
     locations of every 45 degrees are returned.
     """
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(base={self.base.__repr__()})"
+
     def __init__(self, base):
         self.base = base
         self.axis = self.base.axis = _AxisWrapper(self.base.axis)
@@ -454,6 +457,11 @@ class RadialLocator(mticker.Locator):
     delegates to the base `.Locator` (which may be different depending on the
     scale of the *r*-axis).
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"base={self.base.__repr__()}, " + \
+            f"axes={self._axes.__repr__()})"
 
     def __init__(self, base, axes=None):
         self.base = base
