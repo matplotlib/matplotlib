@@ -1661,7 +1661,7 @@ class TestReprImplementation:
         result = sut.__repr__()
 
         assert result.startswith("FixedLocator(")
-        assert "locs=[0, 1, 5]" in result
+        assert "locs=array([0, 1, 5])" in result
         assert "nbins=None" in result
         assert result.endswith(")")
 
@@ -1691,12 +1691,11 @@ class TestReprImplementation:
         assert sut.__repr__() == "AutoLocator()"
 
     def test_MaxNLocator(self):
-        sut = mticker.MaxNLocator(n=4)
+        sut = mticker.MaxNLocator(nbins=4)
 
         result = sut.__repr__()
         assert result.startswith("MaxNLocator(")
-        assert "nbins=None" in result
-        assert "n=4" in result
+        assert "nbins=4" in result
         assert result.endswith(")")
 
 
@@ -1758,7 +1757,7 @@ class EvalTestReprImplementation:
         assert result.__class__ == sut.__class__
 
     def test_MaxNLocator(self):
-        sut = mticker.MaxNLocator(n=4)
+        sut = mticker.MaxNLocator(nbins=4)
 
         result = eval(sut.__repr__())
 
