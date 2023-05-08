@@ -1633,3 +1633,133 @@ def test_set_offset_string(formatter):
     assert formatter.get_offset() == ''
     formatter.set_offset_string('mpl')
     assert formatter.get_offset() == 'mpl'
+
+class TestReprImplementation:
+    def test_LogLocator():
+        sut = mticker.LogLocator(base=10, numticks=15)
+
+        result = sut.__repr__()
+
+        assert result.startswith("LogLocator(")
+        assert "base=10" in result
+        assert "numticks=15" in result
+        assert result.endswith(")")
+
+    def test_NullLocator():
+        sut = mticker.NullFormatter()
+
+        assert sut.__repr__() == "NullFormatter()"
+
+    def test_MultipleLocator():
+        sut = mticker.MultipleLocator(0.5)
+
+        assert sut.__repr__() == "MultipleLocator(base=0.5)"
+
+    def test_FixedLocator():
+        sut = mticker.FixedLocator([0, 1, 5])
+        result = sut.__repr__()
+
+        assert result.startswith("FixedLocator(")
+        assert "locs=[0, 1, 5]" in result
+        assert "nbins=None" in result
+        assert result.endswith(")")
+
+    def test_LinearLocator():
+        sut = mticker.LinearLocator(numticks=3)
+
+        result = sut.__repr__()
+
+        assert result.startswith("LinearLocator(")
+        assert "numticks=3" in result
+        assert r"presets={}" in result
+        assert result.endswith(")")
+
+    def test_IndexLocator():
+        sut = mticker.IndexLocator(base=0.5, offset=0.25)
+
+        result = sut.__repr__()
+
+        assert result.startswith("IndexLocator(")
+        assert "base=0.5" in result
+        assert "offset=0.25" in result
+        assert result.endswith(")")
+
+    def test_AutoLocator():
+        sut = mticker.AutoLocator()
+
+        assert sut.__repr__() == "AutoLocator()"
+
+    def test_MaxNLocator():
+        sut = mticker.MaxNLocator(n=4)
+
+        result = sut.__repr__()
+        assert result.startswith("MaxNLocator(")
+        assert "nbins=None" in result 
+        assert "n=4" in result
+        assert result.endswith(")")
+
+
+class EvalTestReprImplementation:
+    def test_LogLocator():
+        sut = mticker.LogLocator(base=10, numticks=15)
+
+        result = eval(sut.__repr__())
+
+        assert result.__class__ == sut.__class__
+        assert result._base == 10
+        assert result._subs == 15
+
+    def test_NullLocator():
+        sut = mticker.NullFormatter()
+
+        result = eval(sut.__repr__())
+
+        assert result.__class__ == sut.__class__
+
+    def test_MultipleLocator():
+        sut = mticker.MultipleLocator(0.5)
+
+        result = eval(sut.__repr__())
+
+        assert result.__class__ == sut.__class__
+        assert result._edge.step == sut._edge.step
+
+    def test_FixedLocator():
+        sut = mticker.FixedLocator([0, 1, 5])
+
+        result = eval(sut.__repr__())
+
+        assert result.__class__ == sut.__class__
+        assert result.locs == [0, 1, 5]
+
+    def test_LinearLocator():
+        sut = mticker.LinearLocator(numticks=3)
+
+        result = eval(sut.__repr__())
+
+        assert result.__class__ == sut.__class__
+        assert result.numticks == sut.numticks
+
+    def test_IndexLocator():
+        sut = mticker.IndexLocator(base=0.5, offset=0.25)
+
+        result = eval(sut.__repr__())
+
+        assert result.__class__ == sut.__class__
+        assert result._base == sut._base
+        assert result.offset == sut.offset
+
+    def test_AutoLocator():
+        sut = mticker.AutoLocator()
+
+        result = eval(sut.__repr__())
+
+        assert result.__class__ == sut.__class__
+
+    def test_MaxNLocator():
+        sut = mticker.MaxNLocator(n=4)
+
+        result = eval(sut.__repr__())
+
+        assert result.__class__ == sut.__class__
+        assert result._nbins == sut._nbins
