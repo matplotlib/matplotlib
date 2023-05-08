@@ -3010,49 +3010,47 @@ class NavigationToolbar2:
                 return s
         return ""
 
-    def mouse_move(self, event):
+    def _nonrect(self, x):
         from .patches import Rectangle
+        return not isinstance(x, Rectangle)
+
+    def _tooltip_list(self, event, hover):
+        import matplotlib.pyplot as plt
+        if event.xdata and event.ydata:
+            lines = plt.gca().get_lines()
+            num_of_points = 0
+            for line in lines:
+                num_of_points += 1
+            if num_of_points >= len(hover):
+                raise ValueError("""Number of data points
+                does not match up with number of labels""")
+            else:
+                mouse_x = event.xdata
+                mouse_y = event.ydata
+                for line in lines:
+                    x_data = line.get_xdata()
+                    y_data = line.get_ydata()
+                    for i in range(len(x_data)):
+                        distance = ((event.xdata - x_data[i])**2
+                                    + (event.ydata - y_data[i])**2)**0.5
+                        if distance < 0.05:
+                            return "Data Label: " + hover[i]
+
+    def mouse_move(self, event):
         self._update_cursor(event)
         self.set_message(self._mouse_event_to_message(event))
 
         if callable(getattr(self, 'set_hover_message', None)):
-            for a in self.canvas.figure.findobj(match=lambda x: not isinstance(x,
-                                                Rectangle), include_self=False):
+            for a in self.canvas.figure.findobj(match=self._nonrect, 
+                                                include_self=False):
                 inside = a.contains(event)
                 if inside:
                     if a.hoverable():
                         hover = a.get_hover()
                         if callable(hover):
-                            newX, newY = hover(event)
-                            (self.set_hover_message("modified x = " + str(newX)
-                                                    + " modified y = " +
-                                                    str(newY) +
-                                                    "         Original coords: "
-                                                    ))
+                            self.set_hover_message(hover(event))
                         elif type(hover) == list:
-                            import matplotlib.pyplot as plt
-                            lines = plt.gca().get_lines()
-                            num_of_points = 0
-                            for line in lines:
-                                num_of_points += 1
-                            if num_of_points >= len(hover):
-                                raise ValueError("""Number of data points
-                                does not match up woth number of labels""")
-                            else:
-                                mouse_x = event.xdata
-                                mouse_y = event.ydata
-                                for line in lines:
-                                    x_data = line.get_xdata()
-                                    y_data = line.get_ydata()
-                                    for i in range(len(x_data)):
-                                        distance = ((event.xdata - x_data[i])**2
-                                                    + (event.ydata - y_data[i])**2)**0.5
-                                        if distance < 0.05:
-                                            (self.set_hover_message("Data Label: "
-                                                                    + hover[i] +
-                                                                    "         " +
-                                                                    "Original coords: "
-                                                                    ))
+                            self.set_hover_message(self._tooltip_list(event, hover))
                         else:
                             self.set_hover_message(self._mouse_event_to_message(event))
                 else:
