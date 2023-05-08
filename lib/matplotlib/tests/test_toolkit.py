@@ -12,6 +12,7 @@ def user_defined_function(event):
         return f'({x}, {y})'
     return ''
 
+
 ax.plot(rand(100), 'o', hover=user_defined_function)
 plt.show()
 

@@ -85,7 +85,7 @@ class Artist:
         | list[str]
         | Callable[[Artist, MouseEvent], tuple[bool, dict[Any, Any]]],
     ) -> None: ...
-    def get_picker(
+    def get_hover(
         self,
     ) -> None | bool | list[str] | Callable[
         [Artist, MouseEvent], tuple[bool, dict[Any, Any]]
