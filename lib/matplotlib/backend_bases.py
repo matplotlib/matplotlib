@@ -3016,25 +3016,24 @@ class NavigationToolbar2:
 
     def _tooltip_list(self, event, hover):
         import matplotlib.pyplot as plt
-        if event.xdata and event.ydata:
-            lines = plt.gca().get_lines()
-            num_of_points = 0
+        lines = plt.gca().get_lines()
+        num_of_points = 0
+        for line in lines:
+            num_of_points += 1
+        if num_of_points >= len(hover):
+            raise ValueError("""Number of data points
+            does not match up with number of labels""")
+        else:
+            mouse_x = event.xdata
+            mouse_y = event.ydata
             for line in lines:
-                num_of_points += 1
-            if num_of_points >= len(hover):
-                raise ValueError("""Number of data points
-                does not match up with number of labels""")
-            else:
-                mouse_x = event.xdata
-                mouse_y = event.ydata
-                for line in lines:
-                    x_data = line.get_xdata()
-                    y_data = line.get_ydata()
-                    for i in range(len(x_data)):
-                        distance = ((event.xdata - x_data[i])**2
-                                    + (event.ydata - y_data[i])**2)**0.5
-                        if distance < 0.05:
-                            return "Data Label: " + hover[i]
+                x_data = line.get_xdata()
+                y_data = line.get_ydata()
+                for i in range(len(x_data)):
+                    distance = ((event.xdata - x_data[i])**2
+                                + (event.ydata - y_data[i])**2)**0.5
+                    if distance < 0.05:
+                        return "Data Label: " + hover[i]
 
     def mouse_move(self, event):
         self._update_cursor(event)
