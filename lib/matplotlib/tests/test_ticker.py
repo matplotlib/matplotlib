@@ -1706,8 +1706,8 @@ class EvalTestReprImplementation:
         result = eval(sut.__repr__())
 
         assert result.__class__ == sut.__class__
-        assert result._base == 10
-        assert result._subs == 15
+        assert result._base == sut._base
+        assert result._subs == sut._subs
 
     def test_NullLocator(self):
         sut = mticker.NullFormatter()
@@ -1730,7 +1730,7 @@ class EvalTestReprImplementation:
         result = eval(sut.__repr__())
 
         assert result.__class__ == sut.__class__
-        assert result.locs == [0, 1, 5]
+        assert result.locs == sut.locs
 
     def test_LinearLocator(self):
         sut = mticker.LinearLocator(numticks=3)
