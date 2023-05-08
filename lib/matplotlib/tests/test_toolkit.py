@@ -6,6 +6,7 @@ matplotlib.use('tkagg')
 fig, ax = plt.subplots()
 plt.ylabel('some numbers')
 
+
 def user_defined_function(event):
     if event.xdata and event.ydata:
         x, y = round(event.xdata * 10, 1), round(event.ydata + 3, 3)
