@@ -28,7 +28,7 @@ ellipse = Ellipse(
 )
 ax.add_patch(ellipse)
 
-# Plot a arrow marker at the end point of minor axis
+# Plot an arrow marker at the end point of minor axis
 vertices = ellipse.get_co_vertices()
 t = Affine2D().rotate_deg(ellipse.angle)
 ax.plot(
