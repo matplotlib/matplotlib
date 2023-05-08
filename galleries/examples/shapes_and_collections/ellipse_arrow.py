@@ -18,16 +18,11 @@ from matplotlib.transforms import Affine2D
 # Create a figure and axis
 fig, ax = plt.subplots(subplot_kw={"aspect": "equal"})
 
-# Define an ellipse clockwise
-center = (2, 4)
-width = 30
-height = 20
-angle = 35
 ellipse = Ellipse(
-    xy=center,
-    width=width,
-    height=height,
-    angle=angle,
+    xy=(2, 4),
+    width=30,
+    height=20,
+    angle=35,
     facecolor="none",
     edgecolor="b"
 )
