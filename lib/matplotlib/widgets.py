@@ -4142,8 +4142,7 @@ class PolygonSelector(_SelectorWidget):
             self.set_visible(True)
 
     def _draw_polygon_without_update(self):
-        """Redraw the polygon based on the new vertex positions, no update().
-        """
+        """Redraw the polygon based on new vertex positions, no update()."""
         xs, ys = zip(*self._xys) if self._xys else ([], [])
         self._selection_artist.set_data(xs, ys)
         self._update_box()
