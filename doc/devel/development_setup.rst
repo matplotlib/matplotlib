@@ -59,12 +59,28 @@ should replace ``<your-username>`` with your GitHub username):
 
 
 This will place the sources in a directory :file:`matplotlib` below your
-current working directory, set up the ``origin`` remote to point to your own
-fork, and set up the ``upstream`` remote to point to the Matplotlib main
-repository (see also `Managing remote repositories <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__.)
-Change into this directory before continuing::
+current working directory and set up the ``origin`` remote to point to your own
+fork.  Change into this directory before continuing::
 
     cd matplotlib
+
+Now set up the ``upstream`` remote to point to the Matplotlib main repository,
+so that you can access the latest changes there (see also `Managing remote repositories
+<https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__.):
+
+.. tab-set::
+
+   .. tab-item:: https
+
+      .. code-block:: bash
+
+         git remote add upstream https://github.com/matplotlib/matplotlib.git
+
+   .. tab-item:: ssh
+
+      .. code-block:: bash
+
+         git remote add upstream git@github.com:matplotlib/matplotlib.git
 
 .. note::
 
