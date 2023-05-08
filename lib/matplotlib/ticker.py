@@ -192,6 +192,7 @@ class TickHelper:
         if self.axis is None:
             self.axis = _DummyAxis(**kwargs)
 
+
 class Formatter(TickHelper):
     """
     Create a string based on a tick value and location.
@@ -437,7 +438,7 @@ class ScalarFormatter(Formatter):
             f"useOffset={self._useOffset.__repr__()}, " + \
             f"useMathText={self._useMathText.__repr__()},  " + \
             f"useLocale={self._useLocale.__repr__()})"
-    
+
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
         if useOffset is None:
             useOffset = mpl.rcParams['axes.formatter.useoffset']
@@ -1137,7 +1138,7 @@ class LogitFormatter(Formatter):
     """
 
     def __repr__(self):
-        return f"{self.__class__.__name__}("+ \
+        return f"{self.__class__.__name__}(" + \
             f"use_overline={self._use_overline.__repr__()})" + \
             f"one_half={self._one_half.__repr__()}" + \
             f"minor={self._minor.__repr__()}" + \
@@ -1372,7 +1373,7 @@ class EngFormatter(Formatter):
             f"places={self.places.__repr__()}, " + \
             f"sep={self.sep.__repr__()}, " + \
             f"usetex={self.usetex.__repr__()}, " + \
-            f"useMathText={self.useMathText.__repr__()})" 
+            f"useMathText={self.useMathText.__repr__()})"
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
                  useMathText=None):
@@ -1529,7 +1530,7 @@ class PercentFormatter(Formatter):
             f"decimals={self.decimals.__repr__()}, " + \
             f"symbol={self.symbol.__repr__()}, " + \
             f"is_latex={self._is_latex.__repr__()})"
-    
+
     def __init__(self, xmax=100, decimals=None, symbol='%', is_latex=False):
         self.xmax = xmax + 0.0
         self.decimals = decimals
@@ -2025,7 +2026,7 @@ class MaxNLocator(Locator):
             f"symmetric={self._symmetric.__repr__()}, " + \
             f"prune={self._prune.__repr__()}, " + \
             f"min_n_ticks={self._min_n_ticks.__repr__()})"
-     
+
     def __init__(self, nbins=None, **kwargs):
         """
         Parameters
@@ -2518,7 +2519,7 @@ class SymmetricalLogLocator(Locator):
             f"subs={self._subs.__repr__()}, " + \
             f"linthresh={self._linthresh.__repr__()}, " + \
             f"base={self._base.__repr__()})"
-    
+
     def __init__(self, transform=None, subs=None, linthresh=None, base=None):
         """
         Parameters
@@ -2977,7 +2978,7 @@ class AutoMinorLocator(Locator):
     """
 
     def __repr__(self):
-        return f"{self.__call__.__name__}(n={self.ndivs.__repr__()})" 
+        return f"{self.__call__.__name__}(n={self.ndivs.__repr__()})"
 
     def __init__(self, n=None):
         """
