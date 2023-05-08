@@ -2330,7 +2330,6 @@ class LogLocator(Locator):
         return f"{self.__class__.__name__}(" + \
             f"base={self._base.__repr__()}, " + \
             f"subs={self._subs.__repr__()}, " + \
-            f"numdecs={self.numdecs.__repr__()}, " + \
             f"numticks={self.numticks.__repr__()})"
 
     @_api.delete_parameter("3.8", "numdecs")
