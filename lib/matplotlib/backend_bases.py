@@ -3043,7 +3043,7 @@ class NavigationToolbar2:
         if callable(getattr(self, 'set_hover_message', None)):
             for a in self.canvas.figure.findobj(match=self._nonrect,
                                                 include_self=False):
-                inside = a.contains(event)
+                inside, prop = a.contains(event)
                 if inside:
                     if a.hoverable():
                         hover = a.get_hover()
