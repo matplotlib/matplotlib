@@ -640,7 +640,7 @@ class Artist:
 
         Parameters
         ----------
-        hover : None or bool
+        hover : None or bool or callable or list
             This can be one of the following:
 
             - *None*: Hover is disabled for this artist (default).
@@ -648,6 +648,15 @@ class Artist:
             - A boolean: If *True* then hover will be enabled and the
               artist will fire a hover event if the mouse event is hovering over
               the artist.
+
+            - A function: If hover is callable, it is a user supplied
+              function which sets the hover message to be displayed.
+
+            - A list: If hover is a list of string literals, each string represents
+              an additional information assigned to each data point. These arbitrary
+              data labels will appear as a tooltip in the bottom right hand corner
+              of the screen when the cursor is detected to be hovering over a data
+              point that corresponds with one of the data labels.
         """
         self._hover = hover
 
