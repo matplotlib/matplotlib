@@ -2348,7 +2348,7 @@ def contour_dat():
     return x, y, z
 
 
-@image_comparison(['contour_hatching'], remove_text=True, style='mpl20', tol=0.06)
+@image_comparison(['contour_hatching'], remove_text=True, style='mpl20')
 def test_contour_hatching():
     x, y, z = contour_dat()
     fig, ax = plt.subplots()
@@ -2357,7 +2357,9 @@ def test_contour_hatching():
                 extend='both', alpha=0.5)
 
 
-@image_comparison(['contour_colorbar'], style='mpl20', tol=1.6)
+@image_comparison(
+    ['contour_colorbar'], style='mpl20',
+    tol=0.02 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour_colorbar():
     x, y, z = contour_dat()
 

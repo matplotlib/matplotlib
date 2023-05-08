@@ -205,7 +205,7 @@ def test_bar3d_lightsource():
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(['contour3d.png'], style='mpl20', tol=1.7)
+@mpl3d_image_comparison(['contour3d.png'], style='mpl20')
 def test_contour3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -285,7 +285,7 @@ def test_contourf3d_extend(fig_test, fig_ref, extend, levels):
         ax.set_zlim(-10, 10)
 
 
-@mpl3d_image_comparison(['tricontour.png'], tol=0.9, style='mpl20')
+@mpl3d_image_comparison(['tricontour.png'], tol=0.02, style='mpl20')
 def test_tricontour():
     fig = plt.figure()
 

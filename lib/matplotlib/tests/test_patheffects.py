@@ -25,7 +25,7 @@ def test_patheffect1():
     ax1.grid(True, linestyle="-", path_effects=pe)
 
 
-@image_comparison(['patheffect2'], remove_text=True, style='mpl20', tol=0.03)
+@image_comparison(['patheffect2'], remove_text=True, style='mpl20')
 def test_patheffect2():
 
     ax2 = plt.subplot()
@@ -114,7 +114,7 @@ def test_SimplePatchShadow_offset():
     assert pe._offset == (4, 5)
 
 
-@image_comparison(['collection'], tol=5.1, style='mpl20')
+@image_comparison(['collection'], tol=0.03, style='mpl20')
 def test_collection():
     x, y = np.meshgrid(np.linspace(0, 10, 150), np.linspace(-5, 5, 100))
     data = np.sin(x) + np.cos(y)
