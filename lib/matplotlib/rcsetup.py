@@ -14,6 +14,7 @@ root source directory.
 """
 
 import ast
+import numbers
 from functools import lru_cache, reduce
 from numbers import Real
 import operator
@@ -74,11 +75,21 @@ class ValidateInStrings:
             return self.valid[s]
         msg = (f"{s!r} is not a valid value for {self.key}; supported values "
                f"are {[*self.valid.values()]}")
-        if (isinstance(s, str)
-                and (s.startswith('"') and s.endswith('"')
-                     or s.startswith("'") and s.endswith("'"))
-                and s[1:-1] in self.valid):
-            msg += "; remove quotes surrounding your string"
+        if isinstance(s, str):
+            if (s.startswith('"') and s.endswith('"')
+                or s.startswith("'") and s.endswith("'")) \
+                    and s[1:-1] in self.valid:
+                msg += "; remove quotes surrounding your string"
+            else:
+                tuple_pattern = r'\((\s*(?:\d+\.\d+|\.\d+|\d+)\s*,' \
+                                r'\s*(?:\d+\.\d+|\.\d+|\d+)\s*)\)'
+                matches = list(filter(None, re.findall(tuple_pattern, s)))
+                tuples = [tuple(map(float, match.split(','))) for match in matches]
+                if matches and len(tuples) == 1:
+                    s = tuples[0]
+        if isinstance(s, tuple):
+            if len(s) == 2 and all(isinstance(e, numbers.Real) for e in s):
+                return s
         raise ValueError(msg)
 
 

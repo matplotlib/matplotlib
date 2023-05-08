@@ -1,7 +1,6 @@
 import copy
 import os
 from pathlib import Path
-import re
 import subprocess
 import sys
 from unittest import mock
@@ -592,8 +591,12 @@ def test_deprecation(monkeypatch):
     # suppress_matplotlib_deprecation_warning, rather than any explicit check.
 
 
-def test_rcparams_legend_loc():
-    value = (0.9, .7)
-    match_str = f"{value} is not a valid value for legend.loc;"
-    with pytest.raises(ValueError, match=re.escape(match_str)):
-        mpl.RcParams({'legend.loc': value})
+@pytest.mark.parametrize('value', [
+    (0.9, .7),
+    '(0.9, .7)'
+])
+def test_rcparams_legend_loc(value):
+    mpl.rcParams['legend.loc'] = value
+    # match_str = f"{value} is not a valid value for legend.loc;"
+    # with pytest.raises(ValueError, match=re.escape(match_str)):
+    #     mpl.RcParams({'legend.loc': value})
