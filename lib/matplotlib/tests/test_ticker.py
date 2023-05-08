@@ -1695,7 +1695,7 @@ class TestReprImplementation:
 
         result = sut.__repr__()
         assert result.startswith("MaxNLocator(")
-        assert "nbins=None" in result 
+        assert "nbins=None" in result
         assert "n=4" in result
         assert result.endswith(")")
 
