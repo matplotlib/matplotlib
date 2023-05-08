@@ -596,7 +596,7 @@ def test_deprecation(monkeypatch):
     '(0.9, .7)'
 ])
 def test_rcparams_legend_loc(value):
+    # rcParams['legend.loc'] should allow any of the following formats.
+    # if any of these are not allowed, an exception will be raised
+    # test for gh issue #22338
     mpl.rcParams['legend.loc'] = value
-    # match_str = f"{value} is not a valid value for legend.loc;"
-    # with pytest.raises(ValueError, match=re.escape(match_str)):
-    #     mpl.RcParams({'legend.loc': value})
