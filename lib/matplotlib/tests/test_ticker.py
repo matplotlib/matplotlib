@@ -1703,7 +1703,7 @@ class TestEvalReprImplementation:
     def test_LogLocator(self):
         sut = mticker.LogLocator(base=10, numticks=15)
 
-        result = eval(sut.__repr__())
+        result = eval("mticker."+sut.__repr__())
 
         assert result.__class__ == sut.__class__
         assert result._base == sut._base
@@ -1712,14 +1712,14 @@ class TestEvalReprImplementation:
     def test_NullLocator(self):
         sut = mticker.NullFormatter()
 
-        result = eval(sut.__repr__())
+        result = eval("mticker."+sut.__repr__())
 
         assert result.__class__ == sut.__class__
 
     def test_MultipleLocator(self):
         sut = mticker.MultipleLocator(0.5)
 
-        result = eval(sut.__repr__())
+        result = eval("mticker."+sut.__repr__())
 
         assert result.__class__ == sut.__class__
         assert result._edge.step == sut._edge.step
@@ -1727,7 +1727,7 @@ class TestEvalReprImplementation:
     def test_FixedLocator(self):
         sut = mticker.FixedLocator([0, 1, 5])
 
-        result = eval(sut.__repr__())
+        result = eval("mticker."+sut.__repr__())
 
         assert result.__class__ == sut.__class__
         assert result.locs == sut.locs
@@ -1735,7 +1735,7 @@ class TestEvalReprImplementation:
     def test_LinearLocator(self):
         sut = mticker.LinearLocator(numticks=3)
 
-        result = eval(sut.__repr__())
+        result = eval("mticker."+sut.__repr__())
 
         assert result.__class__ == sut.__class__
         assert result.numticks == sut.numticks
@@ -1743,7 +1743,7 @@ class TestEvalReprImplementation:
     def test_IndexLocator(self):
         sut = mticker.IndexLocator(base=0.5, offset=0.25)
 
-        result = eval(sut.__repr__())
+        result = eval("mticker."+sut.__repr__())
 
         assert result.__class__ == sut.__class__
         assert result._base == sut._base
@@ -1752,14 +1752,14 @@ class TestEvalReprImplementation:
     def test_AutoLocator(self):
         sut = mticker.AutoLocator()
 
-        result = eval(sut.__repr__())
+        result = eval("mticker."+sut.__repr__())
 
         assert result.__class__ == sut.__class__
 
     def test_MaxNLocator(self):
         sut = mticker.MaxNLocator(nbins=4)
 
-        result = eval(sut.__repr__())
+        result = eval("mticker."+sut.__repr__())
 
         assert result.__class__ == sut.__class__
         assert result._nbins == sut._nbins
