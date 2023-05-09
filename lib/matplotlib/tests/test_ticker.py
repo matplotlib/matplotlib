@@ -1699,7 +1699,7 @@ class TestReprImplementation:
         assert result.endswith(")")
 
 
-class EvalTestReprImplementation:
+class TestEvalReprImplementation:
     def test_LogLocator(self):
         sut = mticker.LogLocator(base=10, numticks=15)
 
