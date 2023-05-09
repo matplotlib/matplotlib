@@ -5,6 +5,7 @@ import logging
 import re
 
 import numpy as np
+import importlib
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
@@ -1703,8 +1704,7 @@ class TestEvalReprImplementation:
     def test_LogLocator(self):
         sut = mticker.LogLocator(base=10, numticks=15)
 
-        eval("from numpy import array")
-        result = eval("mticker."+sut.__repr__())
+        result = eval("mticker."+sut.__repr__(), {"array": np.array})
 
         assert result.__class__ == sut.__class__
         assert result._base == sut._base
@@ -1728,8 +1728,7 @@ class TestEvalReprImplementation:
     def test_FixedLocator(self):
         sut = mticker.FixedLocator([0, 1, 5])
 
-        eval("from numpy import array")
-        result = eval("mticker."+sut.__repr__())
+        result = eval("mticker."+sut.__repr__(), {"array": np.array})
 
         assert result.__class__ == sut.__class__
         assert result.locs == sut.locs
@@ -1761,8 +1760,7 @@ class TestEvalReprImplementation:
     def test_MaxNLocator(self):
         sut = mticker.MaxNLocator(nbins=4)
 
-        eval("from numpy import array")
-        result = eval("mticker."+sut.__repr__())
+        result = eval("mticker."+sut.__repr__(), {"array": np.array})
 
         assert result.__class__ == sut.__class__
         assert result._nbins == sut._nbins
