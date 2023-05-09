@@ -960,6 +960,8 @@ class _CollectionWithSizes(Collection):
         """
         Return the scale used for marker sizing.
 
+        .. versionadded:: 3.9
+
         Returns
         -------
         int
@@ -980,6 +982,8 @@ class _CollectionWithSizes(Collection):
             The dpi of the canvas.
         markerscale : 1 or 2, default: 2
             Scaling factor used to set the size as points (1) or points**2 (2).
+
+            .. versionadded:: 3.9
         """
         self._markerscale = markerscale
         if sizes is None:
@@ -1018,6 +1022,9 @@ class PathCollection(_CollectionWithSizes):
             points when rendered.
         markerscale : 1 or 2, default: 2
             Scaling factor used to set the size as points (1) or points**2 (2).
+
+            .. versionadded:: 3.9
+
         **kwargs
             Forwarded to `.Collection`.
         """

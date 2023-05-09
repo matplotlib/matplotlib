@@ -4572,6 +4572,8 @@ default: :rc:`scatter.edgecolors`
             Scaling factor used to set the size as points or points**2.
             Default value is set as 2 to set the size values as points**2.
 
+            .. versionadded:: 3.9
+
         Returns
         -------
         `~matplotlib.collections.PathCollection`
