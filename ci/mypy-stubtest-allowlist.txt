@@ -17,13 +17,11 @@ matplotlib.*\.set$
 matplotlib.pyplot.*
 matplotlib.typing.*
 
-# Other decorator modifying signature (maybe investigate)
+# Other decorator modifying signature
+# Runtime picks up  *args **kwargs, but only decorated by a decorator that uses @wraps so?
 matplotlib.axis.Axis.draw
+# Backcompat decorator which does not modify runtime reported signature
 matplotlib.offsetbox.*Offset[Bb]ox.get_offset
-
-# Inconsistent super/sub class signatures (other than just arg name)
-matplotlib.ticker.MultipleLocator.set_params
-matplotlib.text.Annotation.get_window_extent
 
 # Inconsistent super/sub class parameter name (maybe rename for consistency)
 matplotlib.projections.polar.RadialLocator.nonsingular
@@ -163,12 +161,6 @@ matplotlib.axes._base._AxesBase.get_fc
 matplotlib.axes._base._AxesBase.set_fc
 
 # Other dynamic python behaviors not type hinted
-matplotlib.projections.polar.PolarAxes.InvertedPolarTransform
-matplotlib.projections.polar.PolarAxes.PolarAffine
-matplotlib.projections.polar.PolarAxes.PolarTransform
-matplotlib.projections.polar.PolarAxes.RadialLocator
-matplotlib.projections.polar.PolarAxes.ThetaFormatter
-matplotlib.projections.polar.PolarAxes.ThetaLocator
 matplotlib.rcsetup.defaultParams
 
 # Maybe should be abstractmethods, required for subclasses, stubs define once
@@ -177,10 +169,6 @@ matplotlib.tri.*TriInterpolator.gradient
 
 # Functionally a method call, but actually a class instance, type hinted as former
 matplotlib.rcsetup.validate_fillstyle
-
-# C-defined method without docstring indicating signature
-matplotlib.transforms.count_bboxes_overlapping_bbox
-matplotlib.transforms.update_path_extents
 
 # TypeVar used only in type hints
 matplotlib.backend_bases.FigureCanvasBase._T

@@ -1,11 +1,6 @@
 from .path import Path
 from .patches import Patch
 from .figure import Figure
-from matplotlib._path import (
-    affine_transform as affine_transform,
-    count_bboxes_overlapping_bbox as count_bboxes_overlapping_bbox,
-    update_path_extents as update_path_extents,
-)
 import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Iterable, Sequence
