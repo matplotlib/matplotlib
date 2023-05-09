@@ -1732,7 +1732,7 @@ class TestEvalReprImplementation:
                                         "FixedLocator": mticker.FixedLocator})
 
         assert result.__class__ == sut.__class__
-        assert result.locs == sut.locs
+        assert np.array_equal(sut.locs, result.locs)
 
     def test_LinearLocator(self):
         sut = mticker.LinearLocator(numticks=3)
