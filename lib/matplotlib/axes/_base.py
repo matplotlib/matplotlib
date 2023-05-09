@@ -646,9 +646,9 @@ class _AxesBase(martist.Artist):
             raise ValueError('Width and height specified must be non-negative')
         self._originalPosition = self._position.frozen()
         self.axes = self
-        self._aspect = 'auto'
-        self._adjustable = 'box'
-        self._anchor = 'C'
+        self._aspect = mpl.rcParams['axes.aspect']
+        self._adjustable = mpl.rcParams['axes.adjustable']
+        self._anchor = mpl.rcParams['axes.anchor']
         self._stale_viewlims = {name: False for name in self._axis_names}
         self._sharex = sharex
         self._sharey = sharey

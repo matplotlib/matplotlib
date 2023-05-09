@@ -347,6 +347,17 @@ def validate_aspect(s):
         raise ValueError('not a valid aspect specification') from e
 
 
+def validate_anchor(s):
+    if s in ('C', 'E', 'N', 'S', 'W', 'NE', 'NW', 'SE', 'SW'):
+        return s
+    if isinstance(s, tuple):
+        try:
+            return (float(s[0]), float(s[1]))
+        except ValueError as e:
+            raise ValueError('not a valid anchor specification') from e
+    raise ValueError(f'not a valid anchor specification: {s!r}')
+
+
 def validate_fontsize_None(s):
     if s is None or s == 'None':
         return None
@@ -1015,9 +1026,18 @@ _validators = {
     "axes.xmargin": _range_validators["0 <= x <= 1"],  # margin added to xaxis
     "axes.ymargin": _range_validators["0 <= x <= 1"],  # margin added to yaxis
     'axes.zmargin': _range_validators["0 <= x <= 1"],  # margin added to zaxis
+    "axes.adjustable": ["box", "datalim"],
+    "axes.anchor": validate_anchor,
+    "axes.aspect": validate_aspect,  # equal, auto, a number
+    "axes.box_aspect": validate_float_or_None,
 
     "polaraxes.grid": validate_bool,  # display polar grid or not
     "axes3d.grid":    validate_bool,  # display 3d grid
+    "axes3d.adjustable": ["box", "datalim"],
+    "axes3d.anchor": validate_anchor,
+    "axes3d.aspect": ["auto", "equal", "equalxy", "equalxz", "equalyz"],
+    "axes3d.proj_type": ["persp", "ortho"],
+    "axes3d.box_aspect": _listify_validator(validate_float, n=3),
 
     "axes3d.xaxis.panecolor":    validate_color,  # 3d background pane
     "axes3d.yaxis.panecolor":    validate_color,  # 3d background pane
