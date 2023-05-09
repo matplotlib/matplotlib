@@ -5,7 +5,6 @@ import logging
 import re
 
 import numpy as np
-import importlib
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
