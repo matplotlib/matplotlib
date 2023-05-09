@@ -1703,7 +1703,8 @@ class TestEvalReprImplementation:
     def test_LogLocator(self):
         sut = mticker.LogLocator(base=10, numticks=15)
 
-        result = eval("mticker."+sut.__repr__(), {"array": np.array})
+        result = eval(sut.__repr__(), {"array": np.array,
+                                        "LogLocator": mticker.LogLocator})
 
         assert result.__class__ == sut.__class__
         assert result._base == sut._base
@@ -1727,7 +1728,8 @@ class TestEvalReprImplementation:
     def test_FixedLocator(self):
         sut = mticker.FixedLocator([0, 1, 5])
 
-        result = eval(sut.__repr__(), {"array": np.array, "FixedLocator": mticker.FixedLocator})
+        result = eval(sut.__repr__(), {"array": np.array,
+                                        "FixedLocator": mticker.FixedLocator})
 
         assert result.__class__ == sut.__class__
         assert result.locs == sut.locs
@@ -1759,7 +1761,8 @@ class TestEvalReprImplementation:
     def test_MaxNLocator(self):
         sut = mticker.MaxNLocator(nbins=4)
 
-        result = eval(sut.__repr__(), {"array": np.array, "MaxNLocator": mticker.MaxNLocator})
+        result = eval(sut.__repr__(), {"array": np.array,
+                                        "MaxNLocator": mticker.MaxNLocator})
 
         assert result.__class__ == sut.__class__
         assert result._nbins == sut._nbins
