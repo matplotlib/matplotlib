@@ -148,8 +148,8 @@ def heatmap(data, row_labels, col_labels, ax=None,
     plt.setp(ax.get_xticklabels(), rotation=-30, ha="right",
              rotation_mode="anchor")
 
-    # Turn spines off and create white grid.
-    ax.spines[:].set_visible(False)
+    # Turn spines on and create white grid.
+    ax.spines[:].set_color('w')
 
     ax.set_xticks(np.arange(data.shape[1]+1)-.5, minor=True)
     ax.set_yticks(np.arange(data.shape[0]+1)-.5, minor=True)
