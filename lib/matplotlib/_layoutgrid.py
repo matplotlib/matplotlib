@@ -77,14 +77,8 @@ class LayoutGrid:
 
         sol = self.solver
 
-        # These are redundant, but make life easier if
-        # we define them all.  All that is really
-        # needed is left/right, margin['left'], and margin['right']
-        self.widths = [Variable(f'{sn}widths[{i}]') for i in range(ncols)]
         self.lefts = [Variable(f'{sn}lefts[{i}]') for i in range(ncols)]
         self.rights = [Variable(f'{sn}rights[{i}]') for i in range(ncols)]
-        self.inner_widths = [Variable(f'{sn}inner_widths[{i}]')
-                             for i in range(ncols)]
         for todo in ['left', 'right', 'leftcb', 'rightcb']:
             self.margins[todo] = [Variable(f'{sn}margins[{todo}][{i}]')
                                   for i in range(ncols)]
@@ -95,9 +89,6 @@ class LayoutGrid:
             self.margins[todo] = np.empty((nrows), dtype=object)
             self.margin_vals[todo] = np.zeros(nrows)
 
-        self.heights = [Variable(f'{sn}heights[{i}]') for i in range(nrows)]
-        self.inner_heights = [Variable(f'{sn}inner_heights[{i}]')
-                              for i in range(nrows)]
         self.bottoms = [Variable(f'{sn}bottoms[{i}]') for i in range(nrows)]
         self.tops = [Variable(f'{sn}tops[{i}]') for i in range(nrows)]
         for todo in ['bottom', 'top', 'bottomcb', 'topcb']:
@@ -119,14 +110,14 @@ class LayoutGrid:
         for i in range(self.nrows):
             for j in range(self.ncols):
                 str += f'{i}, {j}: '\
-                       f'L({self.lefts[j].value():1.3f}, ' \
+                       f'L{self.lefts[j].value():1.3f}, ' \
                        f'B{self.bottoms[i].value():1.3f}, ' \
-                       f'W{self.widths[j].value():1.3f}, ' \
-                       f'H{self.heights[i].value():1.3f}, ' \
-                       f'innerW{self.inner_widths[j].value():1.3f}, ' \
-                       f'innerH{self.inner_heights[i].value():1.3f}, ' \
+                       f'R{self.rights[j].value():1.3f}, ' \
+                       f'T{self.tops[i].value():1.3f}, ' \
                        f'ML{self.margins["left"][j].value():1.3f}, ' \
-                       f'MR{self.margins["right"][j].value():1.3f}, \n'
+                       f'MR{self.margins["right"][j].value():1.3f}, ' \
+                       f'MB{self.margins["bottom"][i].value():1.3f}, ' \
+                       f'MT{self.margins["top"][i].value():1.3f}, \n'
         return str
 
     def reset_margins(self):
