@@ -585,10 +585,14 @@
 #figure.constrained_layout.use: False  # When True, automatically make plot
                                        # elements fit on the figure. (Not
                                        # compatible with `autolayout`, above).
-#figure.constrained_layout.h_pad:  0.04167  # Padding around axes objects. Float representing
-#figure.constrained_layout.w_pad:  0.04167  # inches. Default is 3/72 inches (3 points)
-#figure.constrained_layout.hspace: 0.02     # Space between subplot groups. Float representing
-#figure.constrained_layout.wspace: 0.02     # a fraction of the subplot widths being separated.
+## Padding (in inches) around axes; defaults to 3/72 inches, i.e. 3 points.
+#figure.constrained_layout.h_pad:  0.04167
+#figure.constrained_layout.w_pad:  0.04167
+## Spacing between subplots, relative to the subplot sizes.  Much smaller than for
+## tight_layout (figure.subplot.hspace, figure.subplot.wspace) as constrained_layout
+## already takes surrounding texts (titles, labels, # ticklabels) into account.
+#figure.constrained_layout.hspace: 0.02
+#figure.constrained_layout.wspace: 0.02
 
 
 ## ***************************************************************************
