@@ -35,8 +35,8 @@ Retrieve the latest version of the code
 =======================================
 
 Now that your fork of the repository lives under your GitHub username, you can
-retrieve the latest sources with one of the following commands (where your
-should replace ``<your-username>`` with your GitHub username):
+retrieve the most recent version of the source code with one of the following
+commands (replace ``<your-username>`` with your GitHub username):
 
 .. tab-set::
 
@@ -59,14 +59,12 @@ should replace ``<your-username>`` with your GitHub username):
 
 
 This will place the sources in a directory :file:`matplotlib` below your
-current working directory and set up the ``origin`` remote to point to your own
-fork.  Change into this directory before continuing::
+current working directory and set the remote name ``origin`` to point to your
+fork. Change into this directory before continuing::
 
     cd matplotlib
 
-Now set up the ``upstream`` remote to point to the Matplotlib main repository,
-so that you can access the latest changes there (see also `Managing remote repositories
-<https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__.):
+Now set the remote name ``upstream`` to point to the Matplotlib main repository:
 
 .. tab-set::
 
@@ -81,6 +79,10 @@ so that you can access the latest changes there (see also `Managing remote repos
       .. code-block:: bash
 
          git remote add upstream git@github.com:matplotlib/matplotlib.git
+
+You can now use ``upstream`` to retrieve the most current snapshot of the source
+code, as described in :ref:`development-workflow`.  See also `Managing remote repositories
+<https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__.
 
 .. note::
 
