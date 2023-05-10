@@ -2641,6 +2641,18 @@ None}, default: None
 
     def get_layout_engine(self):
         return self._layout_engine
+    
+    def set_subplotparams(self, subplotpars=None, **kwargs):
+        """
+        When a subplotpars element is not included, a new one will be created 
+        and intiliazed with the provided kwargs.
+        """
+        if subplotpars is None:
+            subplotpars = SubplotParams(**kwargs)
+        self.subplotpars = subplotpars
+    
+    def get_subplotparams(self):
+        return self.subplotpars
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
