@@ -38,7 +38,6 @@ class LayoutGrid:
                  h_pad=None, w_pad=None, width_ratios=None,
                  height_ratios=None):
         Variable = kiwi.Variable
-        self.parent = parent
         self.parent_pos = parent_pos
         self.parent_inner = parent_inner
         self.name = name + seq_id()
@@ -57,12 +56,10 @@ class LayoutGrid:
         if not isinstance(parent, LayoutGrid):
             # parent can be a rect if not a LayoutGrid
             # allows specifying a rectangle to contain the layout.
-            self.parent = parent
             self.solver = kiwi.Solver()
         else:
-            self.parent = parent
             parent.add_child(self, *parent_pos)
-            self.solver = self.parent.solver
+            self.solver = parent.solver
         # keep track of artist associated w/ this layout.  Can be none
         self.artists = np.empty((nrows, ncols), dtype=object)
         self.children = np.empty((nrows, ncols), dtype=object)
@@ -100,7 +97,7 @@ class LayoutGrid:
         # set these margins to zero by default. They will be edited as
         # children are filled.
         self.reset_margins()
-        self.add_constraints()
+        self.add_constraints(parent)
 
         self.h_pad = h_pad
         self.w_pad = w_pad
@@ -130,11 +127,11 @@ class LayoutGrid:
                      'leftcb', 'rightcb', 'bottomcb', 'topcb']:
             self.edit_margins(todo, 0.0)
 
-    def add_constraints(self):
+    def add_constraints(self, parent):
         # define self-consistent constraints
         self.hard_constraints()
         # define relationship with parent layoutgrid:
-        self.parent_constraints()
+        self.parent_constraints(parent)
         # define relative widths of the grid cells to each other
         # and stack horizontally and vertically.
         self.grid_constraints()
@@ -168,12 +165,11 @@ class LayoutGrid:
         # np.ix_ returns the cross product of i and j indices
         self.children[np.ix_(np.atleast_1d(i), np.atleast_1d(j))] = child
 
-    def parent_constraints(self):
+    def parent_constraints(self, parent):
         # constraints that are due to the parent...
         # i.e. the first column's left is equal to the
         # parent's left, the last column right equal to the
         # parent's right...
-        parent = self.parent
         if not isinstance(parent, LayoutGrid):
             # specify a rectangle in figure coordinates
             hc = [self.lefts[0] == parent[0],
