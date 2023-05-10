@@ -91,98 +91,6 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args)
     return results.pyobj();
 }
 
-const char *Py_point_on_path__doc__ =
-    "point_on_path(x, y, radius, path, trans)\n"
-    "--\n\n";
-
-static PyObject *Py_point_on_path(PyObject *self, PyObject *args)
-{
-    double x, y, r;
-    py::PathIterator path;
-    agg::trans_affine trans;
-    bool result;
-
-    if (!PyArg_ParseTuple(args,
-                          "dddO&O&:point_on_path",
-                          &x,
-                          &y,
-                          &r,
-                          &convert_path,
-                          &path,
-                          &convert_trans_affine,
-                          &trans)) {
-        return NULL;
-    }
-
-    CALL_CPP("point_on_path", (result = point_on_path(x, y, r, path, trans)));
-
-    if (result) {
-        Py_RETURN_TRUE;
-    } else {
-        Py_RETURN_FALSE;
-    }
-}
-
-const char *Py_points_on_path__doc__ =
-    "points_on_path(points, radius, path, trans)\n"
-    "--\n\n";
-
-static PyObject *Py_points_on_path(PyObject *self, PyObject *args)
-{
-    numpy::array_view<const double, 2> points;
-    double r;
-    py::PathIterator path;
-    agg::trans_affine trans;
-
-    if (!PyArg_ParseTuple(args,
-                          "O&dO&O&:points_on_path",
-                          &convert_points,
-                          &points,
-                          &r,
-                          &convert_path,
-                          &path,
-                          &convert_trans_affine,
-                          &trans)) {
-        return NULL;
-    }
-
-    npy_intp dims[] = { (npy_intp)points.size() };
-    numpy::array_view<uint8_t, 1> results(dims);
-
-    CALL_CPP("points_on_path", (points_on_path(points, r, path, trans, results)));
-
-    return results.pyobj();
-}
-
-const char *Py_get_path_extents__doc__ =
-    "get_path_extents(path, trans)\n"
-    "--\n\n";
-
-static PyObject *Py_get_path_extents(PyObject *self, PyObject *args)
-{
-    py::PathIterator path;
-    agg::trans_affine trans;
-
-    if (!PyArg_ParseTuple(
-             args, "O&O&:get_path_extents", &convert_path, &path, &convert_trans_affine, &trans)) {
-        return NULL;
-    }
-
-    extent_limits e;
-
-    CALL_CPP("get_path_extents", (reset_limits(e)));
-    CALL_CPP("get_path_extents", (update_path_extents(path, trans, e)));
-
-    npy_intp dims[] = { 2, 2 };
-    numpy::array_view<double, 2> extents(dims);
-    extents(0, 0) = e.x0;
-    extents(0, 1) = e.y0;
-    extents(1, 0) = e.x1;
-    extents(1, 1) = e.y1;
-
-    return extents.pyobj();
-}
-
 const char *Py_update_path_extents__doc__ =
     "update_path_extents(path, trans, rect, minpos, ignore)\n"
     "--\n\n";
@@ -845,9 +753,6 @@ static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
 static PyMethodDef module_functions[] = {
     {"point_in_path", (PyCFunction)Py_point_in_path, METH_VARARGS, Py_point_in_path__doc__},
     {"points_in_path", (PyCFunction)Py_points_in_path, METH_VARARGS, Py_points_in_path__doc__},
-    {"point_on_path", (PyCFunction)Py_point_on_path, METH_VARARGS, Py_point_on_path__doc__},
-    {"points_on_path", (PyCFunction)Py_points_on_path, METH_VARARGS, Py_points_on_path__doc__},
-    {"get_path_extents", (PyCFunction)Py_get_path_extents, METH_VARARGS, Py_get_path_extents__doc__},
     {"update_path_extents", (PyCFunction)Py_update_path_extents, METH_VARARGS, Py_update_path_extents__doc__},
     {"get_path_collection_extents", (PyCFunction)Py_get_path_collection_extents, METH_VARARGS, Py_get_path_collection_extents__doc__},
     {"point_in_path_collection", (PyCFunction)Py_point_in_path_collection, METH_VARARGS, Py_point_in_path_collection__doc__},
