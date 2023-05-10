@@ -1214,7 +1214,39 @@ class Legend(Artist):
     def get_draggable(self):
         """Return ``True`` if the legend is draggable, ``False`` otherwise."""
         return self._draggable is not None
-
+    
+    def emphasize(max_pop, max_pull, time):
+        """
+        An animation that increases and decreases the size of the legend so that
+        it appears to grow and reduce, or 'pop', as a means of emphasis.
+        After growing and reducing happens, the legend returns to its original size.
+        It is recommened to make the max_pop larger than the max_pull for the best
+        visual effect.
+        
+        Parameters
+        ----------
+        max_pop : float
+            a positive decimal value to represent the percentage of which the legend will increase in size.
+        max_pull : float
+            a positive decimal value to represent the percentage of which the legend will decrease in size.
+        time : int
+            The duration of the animation in frames.
+        """
+        
+        total_scale = max_pop + max_pull
+        time_inc = (time * max_pop/total_scale) / 2
+        time_dec = (time * max_pull/total_scale) / 2
+        fs_step = (self.fontsize * total_scale * 2) / time
+        handle_height_step = (self.handleheight * total_scale * 2) / time
+        handle_length_step = (self.handlelength * total_scale * 2) / time
+        
+        for time,direction in [(time_inc, 1),(time_inc, -1),(time_dec, -1),(time_dec, 1)]:
+            for _ in time:
+                self.fontsize += direction * fs_step
+                self.handleheight += direction * handle_height_step
+                self.handlelength += direction * handle_length_step
+                self.draw()   
+        
 
 # Helper functions to parse legend arguments for both `figure.legend` and
 # `axes.legend`:
