@@ -657,3 +657,10 @@ def test_rcparams_path_sketch_from_file(tmpdir, value):
 def test_rcparams_getdefault():
     with mpl.rc_context({"image.lut": 128}):
         assert mpl.rcParams.getdefault("image.lut") == 256
+
+
+def test_rcparams_getdefaults():
+    mpl.rc("image", lut=128)
+    defaults = mpl.rcParams.getdefaults()
+    mpl.rcParams.clear()
+    assert defaults == mpl.rcParams

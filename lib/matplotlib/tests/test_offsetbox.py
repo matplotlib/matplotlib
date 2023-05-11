@@ -257,9 +257,14 @@ def test_anchoredtext_horizontal_alignment():
     ax.add_artist(text2)
 
 
+<<<<<<< HEAD
 @pytest.mark.parametrize("extent_kind", ["window_extent", "tightbbox"])
 def test_annotationbbox_extents(extent_kind):
     plt.rcParams.update(plt.rcParamsDefault)
+=======
+def test_annotationbbox_extents():
+    plt.rcParams.clear()
+>>>>>>> 57d742c95e (Remove `rcParamsDefault`)
     fig, ax = plt.subplots(figsize=(4, 3), dpi=100)
 
     ax.axis([0, 1, 0, 1])

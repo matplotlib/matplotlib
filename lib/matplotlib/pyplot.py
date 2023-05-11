@@ -65,7 +65,8 @@ from matplotlib.backend_bases import (
     FigureCanvasBase, FigureManagerBase, MouseButton)
 from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
-from matplotlib import rcsetup, rcParamsDefault, rcParamsOrig
+from matplotlib import rcParams, get_backend, rcParamsOrig
+from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes, Subplot  # type: ignore
 from matplotlib.projections import PolarAxes  # type: ignore
@@ -413,7 +414,7 @@ def switch_backend(newbackend: str) -> None:
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
 
-    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
+    rcParams['backend'] = newbackend
     _backend_mod = backend_mod
     for func_name in ["new_figure_manager", "draw_if_interactive", "show"]:
         globals()[func_name].__signature__ = inspect.signature(

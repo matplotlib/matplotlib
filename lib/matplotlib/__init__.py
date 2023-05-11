@@ -853,6 +853,12 @@ class RcParams(MutableMapping):
 
         return self._get_default(key)
 
+    def getdefaults(self):
+        """Return default values set during initialization."""
+        defaults = self.copy()
+        defaults.clear()
+        return defaults
+
     def _get_backend_or_none(self):
         """Get the requested backend, if any, without triggering resolution."""
         backend = self._get("backend")
@@ -1110,7 +1116,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     with _api.suppress_matplotlib_deprecation_warning():
-        config = RcParams({**rcParamsDefault, **config_from_file})
+        config = RcParams({**rcParams.getdefaults(), **config_from_file})
 
     if "".join(config['text.latex.preamble']):
         _log.info("""
@@ -1125,21 +1131,22 @@ Please do not ask for support with these customizations active.
     return config
 
 
-rcParamsDefault = _rc_params_in_file(
+rcParams = _rc_params_in_file(
     cbook._get_data_path("matplotlibrc"),
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
-rcParamsDefault.update(rcsetup._hardcoded_defaults)
+for key in rcsetup._hardcoded_defaults:
+    space, subkey = key.split(".")
+    if not rcParams._namespace_maps[space]:
+        rcParams._namespace_maps[space] = ChainMap({})
+rcParams.update(rcsetup._hardcoded_defaults)
 # Normally, the default matplotlibrc file contains *no* entry for backend (the
 # corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
 # in that case.  However, packagers can set a different default backend
 # (resulting in a normal `#backend: foo` line) in which case we should *not*
 # fill in _auto_backend_sentinel.
-rcParamsDefault.setdefault("backend", rcsetup._auto_backend_sentinel)
-rcParams = RcParams()
-rcParams._parents()
-rcParams.update(rcParamsDefault.items())
+rcParams.setdefault("backend", rcsetup._auto_backend_sentinel)
 rcParams.update(_rc_params_in_file(matplotlib_fname()))
 rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
@@ -1148,12 +1155,11 @@ with _api.suppress_matplotlib_deprecation_warning():
     defaultParams = rcsetup.defaultParams = {
         # We want to resolve deprecated rcParams, but not backend...
         key: [(rcsetup._auto_backend_sentinel if key == "backend" else
-               rcParamsDefault[key]),
+               rcParams.getdefault(key)),
               validator]
         for key, validator in rcsetup._validators.items()}
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
-rcParams._new_child()
 
 
 def rc(group, **kwargs):
@@ -1253,8 +1259,8 @@ def rcdefaults():
     with _api.suppress_matplotlib_deprecation_warning():
         from .style.core import STYLE_BLACKLIST
         rcParams.clear()
-        rcParams.update({k: v for k, v in rcParamsDefault.items()
-                         if k not in STYLE_BLACKLIST})
+        # rcParams.update({k: v for k, v in rcParams.items()
+        #                  if k not in STYLE_BLACKLIST})
 
 
 def rc_file_defaults():

@@ -26,7 +26,7 @@ else:
     import importlib_resources
 
 import matplotlib as mpl
-from matplotlib import _api, _docstring, _rc_params_in_file, rcParamsDefault
+from matplotlib import _api, _docstring, _rc_params_in_file
 
 _log = logging.getLogger(__name__)
 
@@ -114,7 +114,7 @@ def use(style):
                 # rcParamsDefault, no need to reemit them here.
                 with _api.suppress_matplotlib_deprecation_warning():
                     # don't trigger RcParams.__getitem__('backend')
-                    style = {k: rcParamsDefault[k] for k in rcParamsDefault
+                    style = {k: mpl.rcParams.getdefault(k) for k in mpl.rcParams
                              if k not in STYLE_BLACKLIST}
             elif style in library:
                 style = library[style]
