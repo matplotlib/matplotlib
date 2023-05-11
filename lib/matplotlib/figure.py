@@ -640,7 +640,7 @@ default: %(va)s
             _api.warn_deprecated(
                 "3.8",
                 name="Passing more than one positional argument to Figure.add_axes",
-                addendum="Any additional positional arguments are now ignored.")
+                addendum="Any additional positional arguments are currently ignored.")
         return self._add_axes_internal(a, key)
 
     @_docstring.dedent_interpd
