@@ -35,8 +35,8 @@ Retrieve the latest version of the code
 =======================================
 
 Now that your fork of the repository lives under your GitHub username, you can
-retrieve the latest sources with one of the following commands (where your
-should replace ``<your-username>`` with your GitHub username):
+retrieve the most recent version of the source code with one of the following
+commands (replace ``<your-username>`` with your GitHub username):
 
 .. tab-set::
 
@@ -59,25 +59,46 @@ should replace ``<your-username>`` with your GitHub username):
 
 
 This will place the sources in a directory :file:`matplotlib` below your
-current working directory, set up the ``origin`` remote to point to your own
-fork, and set up the ``upstream`` remote to point to the Matplotlib main
-repository (see also `Managing remote repositories <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`__.)
-Change into this directory before continuing::
+current working directory and set the remote name ``origin`` to point to your
+fork. Change into this directory before continuing::
 
     cd matplotlib
 
-.. note::
+Now set the remote name ``upstream`` to point to the Matplotlib main repository:
 
-  For more information on ``git`` and ``GitHub``, check the following resources.
+.. tab-set::
 
-  * `Git documentation <https://git-scm.com/doc>`_
-  * `GitHub-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
-  * `GitHub Skills <https://skills.github.com/>`_
-  * :ref:`using-git`
-  * :ref:`git-resources`
-  * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
-  * https://tacaswell.github.io/think-like-git.html
-  * https://tom.preston-werner.com/2009/05/19/the-git-parable.html
+   .. tab-item:: https
+
+      .. code-block:: bash
+
+         git remote add upstream https://github.com/matplotlib/matplotlib.git
+
+   .. tab-item:: ssh
+
+      .. code-block:: bash
+
+         git remote add upstream git@github.com:matplotlib/matplotlib.git
+
+You can now use ``upstream`` to retrieve the most current snapshot of the source
+code, as described in :ref:`development-workflow`.
+
+.. dropdown:: Additional ``git`` and ``GitHub`` resources
+   :color: info
+   :open:
+
+   For more information on ``git`` and ``GitHub``, see:
+
+   * `Git documentation <https://git-scm.com/doc>`_
+   * `GitHub-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+   * `GitHub Skills <https://skills.github.com/>`_
+   * :ref:`using-git`
+   * :ref:`git-resources`
+   * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
+   * `Managing remote repositories <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`_
+   * https://tacaswell.github.io/think-like-git.html
+   * https://tom.preston-werner.com/2009/05/19/the-git-parable.html
+
 
 .. _dev-environment:
 

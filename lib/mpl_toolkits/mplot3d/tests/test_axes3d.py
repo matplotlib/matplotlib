@@ -200,9 +200,9 @@ def test_bar3d_lightsource():
 
     # Testing that the custom 90° lightsource produces different shading on
     # the top facecolors compared to the default, and that those colors are
-    # precisely the colors from the colormap, due to the illumination parallel
-    # to the z-axis.
-    np.testing.assert_array_equal(color, collection._facecolor3d[1::6])
+    # precisely (within floating point rounding errors of 4 ULP) the colors
+    # from the colormap, due to the illumination parallel to the z-axis.
+    np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
 @mpl3d_image_comparison(['contour3d.png'], style='mpl20')
@@ -1687,6 +1687,20 @@ def test_set_zlim():
     with pytest.raises(
             TypeError, match="Cannot pass both 'top' and 'zmax'"):
         ax.set_zlim(top=0, zmax=1)
+
+
+@check_figures_equal(extensions=["png"])
+def test_shared_view(fig_test, fig_ref):
+    elev, azim, roll = 5, 20, 30
+    ax1 = fig_test.add_subplot(131, projection="3d")
+    ax2 = fig_test.add_subplot(132, projection="3d", shareview=ax1)
+    ax3 = fig_test.add_subplot(133, projection="3d")
+    ax3.shareview(ax1)
+    ax2.view_init(elev=elev, azim=azim, roll=roll, share=True)
+
+    for subplot_num in (131, 132, 133):
+        ax = fig_ref.add_subplot(subplot_num, projection="3d")
+        ax.view_init(elev=elev, azim=azim, roll=roll)
 
 
 def test_shared_axes_retick():

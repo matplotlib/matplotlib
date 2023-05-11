@@ -678,7 +678,7 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
         width and height padding (in fraction of figure)
     hspace, wspace : float
         width and height padding as fraction of figure size divided by
-        number of  columns or rows
+        number of columns or rows
     margin : array-like
         offset the colorbar needs to be pushed to in order to
         account for multiple colorbars
