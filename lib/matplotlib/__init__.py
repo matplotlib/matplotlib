@@ -1254,13 +1254,10 @@ def rcdefaults():
         Use a specific style file.  Call ``style.use('default')`` to restore
         the default style.
     """
-    # Deprecation warnings were already handled when creating rcParamsDefault,
-    # no need to reemit them here.
-    with _api.suppress_matplotlib_deprecation_warning():
-        from .style.core import STYLE_BLACKLIST
-        rcParams.clear()
-        # rcParams.update({k: v for k, v in rcParams.items()
-        #                  if k not in STYLE_BLACKLIST})
+    # # Deprecation warnings were already handled when creating rcParamsDefault,
+    # # no need to reemit them here.
+    from .style import core
+    core.use('default')
 
 
 def rc_file_defaults():

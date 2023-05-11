@@ -664,3 +664,17 @@ def test_rcparams_getdefaults():
     defaults = mpl.rcParams.getdefaults()
     mpl.rcParams.clear()
     assert defaults == mpl.rcParams
+
+
+def test_rcdefaults():
+    # webagg.port is a style blacklisted key that shouldn't be
+    # updated when resetting rcParams to default values.
+    mpl.rcParams["webagg.port"] = 9000
+    # lines.linewidth is not a style blacklisted key and should be
+    # reset to the default value.
+    # breakpoint()
+    lw = mpl.rcParams.getdefault("lines.linewidth")
+    mpl.rcParams["lines.linewidth"] = lw + 1
+    mpl.rcdefaults()
+    assert mpl.rcParams["webagg.port"] == 9000
+    assert mpl.rcParams["lines.linewidth"] == lw
