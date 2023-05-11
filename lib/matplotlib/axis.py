@@ -291,6 +291,7 @@ class Tick(martist.Artist):
         renderer.close_group(self.__name__)
         self.stale = False
 
+    @_api.deprecated("3.8")
     def set_label1(self, s):
         """
         Set the label1 text.
@@ -304,6 +305,7 @@ class Tick(martist.Artist):
 
     set_label = set_label1
 
+    @_api.deprecated("3.8")
     def set_label2(self, s):
         """
         Set the label2 text.
@@ -1250,15 +1252,15 @@ class Axis(martist.Artist):
         major_ticks = self.get_major_ticks(len(major_locs))
         for tick, loc, label in zip(major_ticks, major_locs, major_labels):
             tick.update_position(loc)
-            tick.set_label1(label)
-            tick.set_label2(label)
+            tick.label1.set_text(label)
+            tick.label2.set_text(label)
         minor_locs = self.get_minorticklocs()
         minor_labels = self.minor.formatter.format_ticks(minor_locs)
         minor_ticks = self.get_minor_ticks(len(minor_locs))
         for tick, loc, label in zip(minor_ticks, minor_locs, minor_labels):
             tick.update_position(loc)
-            tick.set_label1(label)
-            tick.set_label2(label)
+            tick.label1.set_text(label)
+            tick.label2.set_text(label)
         ticks = [*major_ticks, *minor_ticks]
 
         view_low, view_high = self.get_view_interval()
