@@ -321,7 +321,7 @@ class Axes(_AxesBase):
                 *args,
                 **kwargs)
         if len(extra_args):
-            _api.nargs_error('legend', '0-2', len(args))
+            raise _api.nargs_error('legend', '0-2', len(args))
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         self.legend_._remove_method = self._remove_legend
         return self.legend_
@@ -3005,7 +3005,7 @@ class Axes(_AxesBase):
             which inspired this method.
         """
         if not 1 <= len(args) <= 3:
-            _api.nargs_error('stem', '1-3', len(args))
+            raise _api.nargs_error('stem', '1-3', len(args))
         _api.check_in_list(['horizontal', 'vertical'], orientation=orientation)
 
         if len(args) == 1:
@@ -6422,7 +6422,7 @@ default: :rc:`scatter.edgecolors`
             else:
                 raise TypeError("arguments do not match valid signatures")
         else:
-            _api.nargs_error('pcolorfast', '1 or 3', len(args))
+            raise _api.nargs_error('pcolorfast', '1 or 3', len(args))
 
         if style == "quadmesh":
             # data point in each cell is value at lower left corner
