@@ -681,16 +681,21 @@ class RcParams(MutableMapping):
     def __init__(self, *args, **kwargs):
         self._namespace_maps = {name: ChainMap({}) for name in self.namespaces}
         self.update(*args, **kwargs)
-        self._namespace_maps = {
-            name: mapping.new_child()
-            for name, mapping in self._namespace_maps.items()
-        }
+        self._new_child()
 
     @staticmethod
     @functools.lru_cache
     def _split_key(key, sep="."):
         keys = key.split(sep, maxsplit=1)
         return keys, len(keys)
+
+    def _new_child(self):
+        for space in self._namespace_maps.keys():
+            self._namespace_maps[space] = self._namespace_maps[space].new_child()
+
+    def _parents(self):
+        for space in self._namespace_maps.keys():
+            self._namespace_maps[space] = self._namespace_maps[space].parents
 
     def _set(self, key, val):
         """
@@ -817,6 +822,36 @@ class RcParams(MutableMapping):
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
 
         return self._get(key)
+
+    def _get_default(self, key):
+        keys, depth = self._split_key(key)
+        if depth == 1:
+            if key in self.single_key_set:
+                return self._namespace_maps["default"].get(key)
+            # Uncomment the following line and remove the raise statement
+            # to enable getting namespace parameters.
+            # return self._namespace_maps[key]
+            else:
+                raise KeyError(
+                    f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                    f"a list of valid parameters)")
+        elif depth == 2:
+            return self._namespace_maps[keys[0]].maps[-1].get(keys[1])
+
+    def getdefault(self, key):
+        if key in _deprecated_map:
+            version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
+            _api.warn_deprecated(
+                version, name=key, obj_type="rcparam", alternative=alt_key)
+            return inverse_alt(self._get(alt_key))
+
+        elif key in _deprecated_ignore_map:
+            version, alt_key = _deprecated_ignore_map[key]
+            _api.warn_deprecated(
+                version, name=key, obj_type="rcparam", alternative=alt_key)
+            return self._get_default(alt_key) if alt_key else None
+
+        return self._get_default(key)
 
     def _get_backend_or_none(self):
         """Get the requested backend, if any, without triggering resolution."""
@@ -1021,6 +1056,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
             raise
 
     config = RcParams()
+    config._parents()
 
     for key, (val, line, line_no) in rc_temp.items():
         if key in rcsetup._validators:
@@ -1049,6 +1085,7 @@ https://github.com/matplotlib/matplotlib/blob/%(version)s/lib/matplotlib/mpl-dat
 or from the matplotlib source distribution""",
                          dict(key=key, fname=fname, line_no=line_no,
                               line=line.rstrip('\n'), version=version))
+    config._new_child()
     return config
 
 
@@ -1101,6 +1138,7 @@ rcParamsDefault.update(rcsetup._hardcoded_defaults)
 # fill in _auto_backend_sentinel.
 rcParamsDefault.setdefault("backend", rcsetup._auto_backend_sentinel)
 rcParams = RcParams()
+rcParams._parents()
 rcParams.update(rcParamsDefault.items())
 rcParams.update(_rc_params_in_file(matplotlib_fname()))
 rcParamsOrig = rcParams.copy()
@@ -1115,6 +1153,7 @@ with _api.suppress_matplotlib_deprecation_warning():
         for key, validator in rcsetup._validators.items()}
 if rcParams['axes.formatter.use_locale']:
     locale.setlocale(locale.LC_ALL, '')
+rcParams._new_child()
 
 
 def rc(group, **kwargs):
@@ -1318,10 +1357,7 @@ def rc_context(rc=None, fname=None):
     finally:
         # Revert to the original rcs.
         backend = rcParams["backend"]
-        for space in rcParams._namespace_maps.keys():
-            rcParams._namespace_maps[space] = rcParams._namespace_maps[
-                space
-            ].parents
+        rcParams._parents()
         rcParams["backend"] = backend
 
 

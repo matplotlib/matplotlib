@@ -652,3 +652,8 @@ def test_rcparams_path_sketch_from_file(tmpdir, value):
     rc_path.write(f"path.sketch: {value}")
     with mpl.rc_context(fname=rc_path):
         assert mpl.rcParams["path.sketch"] == (1, 2, 3)
+
+
+def test_rcparams_getdefault():
+    with mpl.rc_context({"image.lut": 128}):
+        assert mpl.rcParams.getdefault("image.lut") == 256
