@@ -1220,12 +1220,16 @@ default: %(va)s
                 fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
 
         cax : `~matplotlib.axes.Axes`, optional
-            Axes into which the colorbar will be drawn.
+            Axes into which the colorbar will be drawn.  If `None`, then space
+            will be stolen from the Axes(s) specified in *ax*
 
         ax : `~.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
-            One or more parent axes from which space for a new colorbar axes
-            will be stolen, if *cax* is None.  This has no effect if *cax* is
-            set.
+            If `None`, defaults to ``mappable.axes``.
+
+            If *cax* is None, specifies the one or more parent axes from which
+            space for a new colorbar axes will be stolen.
+
+            This has no effect if *cax* is set.
 
         use_gridspec : bool, optional
             If *cax* is ``None``, a new *cax* is created as an instance of
