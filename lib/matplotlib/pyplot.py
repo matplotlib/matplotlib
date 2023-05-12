@@ -1394,7 +1394,7 @@ def subplot(*args, **kwargs) -> Axes:
         if (ax.get_subplotspec() == key
             and (kwargs == {}
                  or (ax._projection_init
-                     == fig._process_projection_requirements(*args, **kwargs)))):
+                     == fig._process_projection_requirements(**kwargs)))):
             break
     else:
         # we have exhausted the known Axes and none match, make a new one!

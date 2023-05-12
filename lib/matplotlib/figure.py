@@ -621,22 +621,26 @@ default: %(va)s
             args = (kwargs.pop('rect'), )
 
         if isinstance(args[0], Axes):
-            a = args[0]
+            a, *extra_args = args
             key = a._projection_init
             if a.get_figure() is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
         else:
-            rect = args[0]
+            rect, *extra_args = args
             if not np.isfinite(rect).all():
-                raise ValueError('all entries in rect must be finite '
-                                 f'not {rect}')
-            projection_class, pkw = self._process_projection_requirements(
-                *args, **kwargs)
+                raise ValueError(f'all entries in rect must be finite not {rect}')
+            projection_class, pkw = self._process_projection_requirements(**kwargs)
 
             # create the new axes using the axes class given
             a = projection_class(self, rect, **pkw)
             key = (projection_class, pkw)
+
+        if extra_args:
+            _api.warn_deprecated(
+                "3.8",
+                name="Passing more than one positional argument to Figure.add_axes",
+                addendum="Any additional positional arguments are currently ignored.")
         return self._add_axes_internal(a, key)
 
     @_docstring.dedent_interpd
@@ -762,8 +766,7 @@ default: %(va)s
             if (len(args) == 1 and isinstance(args[0], Integral)
                     and 100 <= args[0] <= 999):
                 args = tuple(map(int, str(args[0])))
-            projection_class, pkw = self._process_projection_requirements(
-                *args, **kwargs)
+            projection_class, pkw = self._process_projection_requirements(**kwargs)
             ax = projection_class(self, *args, **pkw)
             key = (projection_class, pkw)
         return self._add_axes_internal(ax, key)
@@ -1662,9 +1665,8 @@ default: %(va)s
                 return im
         return None
 
-    def _process_projection_requirements(
-            self, *args, axes_class=None, polar=False, projection=None,
-            **kwargs):
+    def _process_projection_requirements(self, *, axes_class=None, polar=False,
+                                         projection=None, **kwargs):
         """
         Handle the args/kwargs to add_axes/add_subplot/gca, returning::
 
