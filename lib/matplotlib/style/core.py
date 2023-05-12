@@ -149,7 +149,6 @@ def use(style):
             else:
                 filtered[k] = style[k]
         mpl.rcParams.update(filtered)
-    mpl.rcParams._new_child()
 
 
 @contextlib.contextmanager

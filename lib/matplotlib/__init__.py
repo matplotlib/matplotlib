@@ -667,19 +667,19 @@ class RcParams(MutableMapping):
     :ref:`customizing-with-matplotlibrc-files`
     """
     validate = rcsetup._validators
-    namespaces = ("backends", "lines", "patches", "hatches", "boxplot", "font", "text",
-                  "latex", "axes", "date", "xtick", "ytick", "grid", "legend",
-                  "figure", "image", "contour", "errorbar", "hist", "scatter", "agg",
-                  "path", "savefig", "tk", "ps", "pdf", "svg", "pgf", "docstring",
-                  "keymap", "animation", "_internal", "webagg", "markers", "pcolor",
-                  "pcolormesh", "patch", "hatch", "mathtext", "polaraxes", "axes3d",
-                  "xaxis", "yaxis", "default")
+    _namespaces = ("backends", "lines", "patches", "hatches", "boxplot", "font", "text",
+                   "latex", "axes", "date", "xtick", "ytick", "grid", "legend",
+                   "figure", "image", "contour", "errorbar", "hist", "scatter", "agg",
+                   "path", "savefig", "tk", "ps", "pdf", "svg", "pgf", "docstring",
+                   "keymap", "animation", "_internal", "webagg", "markers", "pcolor",
+                   "pcolormesh", "patch", "hatch", "mathtext", "polaraxes", "axes3d",
+                   "xaxis", "yaxis", "default")
 
-    single_key_set = {"backend", "toolbar", "interactive",
-                      "timezone", "backend_fallback"}
+    _single_key_set = {"backend", "toolbar", "interactive",
+                       "timezone", "backend_fallback"}
 
     def __init__(self, *args, **kwargs):
-        self._namespace_maps = {name: ChainMap({}) for name in self.namespaces}
+        self._namespace_maps = {name: ChainMap({}) for name in self._namespaces}
         self.update(*args, **kwargs)
         self._new_child()
 
@@ -717,7 +717,7 @@ class RcParams(MutableMapping):
         """
         keys, depth = self._split_key(key)
         if depth == 1:
-            if key in self.single_key_set:
+            if key in self._single_key_set:
                 self._namespace_maps["default"][key] = val
             # Uncomment the following line and remove the raise statement
             # to enable setting namespaces.
@@ -756,7 +756,7 @@ class RcParams(MutableMapping):
         """
         keys, depth = self._split_key(key)
         if depth == 1:
-            if key in self.single_key_set:
+            if key in self._single_key_set:
                 return self._namespace_maps["default"].get(key)
             # Uncomment the following line and remove the raise statement
             # to enable getting namespace parameters.
@@ -790,7 +790,7 @@ class RcParams(MutableMapping):
                         return
             try:
                 cval = self.validate[key](val)
-                if key in self.single_key_set:
+                if key in self._single_key_set:
                     key = f"default.{key}"
             except ValueError as ve:
                 raise ValueError(f"Key {key}: {ve}") from None
@@ -826,7 +826,7 @@ class RcParams(MutableMapping):
     def _get_default(self, key):
         keys, depth = self._split_key(key)
         if depth == 1:
-            if key in self.single_key_set:
+            if key in self._single_key_set:
                 return self._namespace_maps["default"].get(key)
             # Uncomment the following line and remove the raise statement
             # to enable getting namespace parameters.
@@ -868,7 +868,7 @@ class RcParams(MutableMapping):
         keys, depth = self._split_key(key)
         try:
             if depth == 1:
-                if key in self.single_key_set:
+                if key in self._single_key_set:
                     del self._namespace_maps["default"][key]
                 else:
                     raise KeyError
@@ -882,7 +882,7 @@ class RcParams(MutableMapping):
     def __contains__(self, key):
         keys, depth = self._split_key(key)
         if depth == 1:
-            if key in self.single_key_set:
+            if key in self._single_key_set:
                 return key in self._namespace_maps["default"]
             else:
                 return False
@@ -917,7 +917,7 @@ class RcParams(MutableMapping):
     def pop(self, key):
         keys, depth = self._split_key(key)
         if depth == 1:
-            if key in self.single_key_set:
+            if key in self._single_key_set:
                 return self._namespace_mapping["default"][key]
             else:
                 raise KeyError(
@@ -935,6 +935,12 @@ class RcParams(MutableMapping):
             self._namespace_maps[namespace].clear()
 
     def setdefault(self, key, default=None):
+        """Insert key with a value of default if key is not in the dictionary.
+
+        Return the value for key if key is in the dictionary, else default.
+        """
+        if key in self:
+            return self[key]
         self[key] = default
         return default
 
