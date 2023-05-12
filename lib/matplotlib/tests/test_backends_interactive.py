@@ -623,6 +623,21 @@ def test_blitting_events(env):
     assert 0 < ndraws < 5
 
 
+def _fallback_check():
+    import IPython.core.interactiveshell as ipsh
+    import matplotlib.pyplot
+    ipsh.InteractiveShell.instance()
+    matplotlib.pyplot.figure()
+
+
+def test_fallback_to_different_backend():
+    pytest.importorskip("IPython")
+    # Runs the process that caused the GH issue 23770
+    # making sure that this doesn't crash
+    # since we're supposed to be switching to a different backend instead.
+    response = _run_helper(_fallback_check, timeout=_test_timeout)
+
+
 def _impl_test_interactive_timers():
     # A timer with <1 millisecond gets converted to int and therefore 0
     # milliseconds, which the mac framework interprets as singleshot.

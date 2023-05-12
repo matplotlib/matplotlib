@@ -518,7 +518,11 @@ def switch_backend(newbackend: str) -> None:
     matplotlib.backends.backend = newbackend  # type: ignore[attr-defined]
 
     # Make sure the repl display hook is installed in case we become interactive.
-    install_repl_displayhook()
+    try:
+        install_repl_displayhook()
+    except NotImplementedError as err:
+        _log.warning("Fallback to a different backend")
+        raise ImportError from err
 
 
 def _warn_if_gui_out_of_main_thread() -> None:
