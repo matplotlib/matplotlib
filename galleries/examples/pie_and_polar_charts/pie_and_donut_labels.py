@@ -15,7 +15,7 @@ as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 # Now it's time for the pie. Starting with a pie recipe, we create the data
 # and a list of labels from it.
 #
-# We can provide a function to the ``autopct`` argument, which will expand
+# We can provide a function to the ``wedgelabelsfmt`` argument, which will expand
 # automatic percentage labeling by showing absolute values; we calculate
 # the latter back from relative data and the known sum of all values.
 #
@@ -47,7 +47,7 @@ def func(pct, allvals):
     return f"{pct:.1f}%\n({absolute:d} g)"
 
 
-wedges, texts, autotexts = ax.pie(data, autopct=lambda pct: func(pct, data),
+wedges, texts, autotexts = ax.pie(data, wedgelabelsfmt=lambda pct: func(pct, data),
                                   textprops=dict(color="w"))
 
 ax.legend(wedges, ingredients,

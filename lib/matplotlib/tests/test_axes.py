@@ -5714,6 +5714,15 @@ def test_pie_nolabel_but_legend():
     plt.legend()
 
 
+@image_comparison(['pie_absolutevalues.png'], style='mpl20')
+def test_pie_absolutevalues():
+    plt.figure()
+    sizes = [3, 12, 5, 8]
+    labels = ['toph', 'katara', 'aang', 'sokka']
+    plt.pie(sizes, labels=labels, wedgelabels="absolute",
+            shadow=True, wedgelabelsfmt="%1.1f")
+
+
 def test_pie_textprops():
     data = [23, 34, 45]
     labels = ["Long name 1", "Long name 2", "Long name 3"]
