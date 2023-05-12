@@ -611,6 +611,18 @@ def test_flatiter():
     assert 1 == next(it)
 
 
+def test__safe_first_finite_all_nan():
+    arr = np.full(2, np.nan)
+    ret = cbook._safe_first_finite(arr)
+    assert np.isnan(ret)
+
+
+def test__safe_first_finite_all_inf():
+    arr = np.full(2, np.inf)
+    ret = cbook._safe_first_finite(arr)
+    assert np.isinf(ret)
+
+
 def test_reshape2d():
 
     class Dummy:
