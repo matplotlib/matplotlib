@@ -1,3 +1,4 @@
+import gc
 import numpy as np
 import pytest
 
@@ -678,3 +679,16 @@ def test_constrained_toggle():
         assert not fig.get_constrained_layout()
         fig.set_constrained_layout(True)
         assert fig.get_constrained_layout()
+
+
+def test_layout_leak():
+    # Make sure there aren't any cyclic references when using LayoutGrid
+    # GH #25853
+    fig = plt.figure(constrained_layout=True, figsize=(10, 10))
+    fig.add_subplot()
+    fig.draw_without_rendering()
+    plt.close("all")
+    del fig
+    gc.collect()
+    assert not any(isinstance(obj, mpl._layoutgrid.LayoutGrid)
+                   for obj in gc.get_objects())
