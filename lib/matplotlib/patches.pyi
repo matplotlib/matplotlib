@@ -74,7 +74,7 @@ class Patch(artist.Artist):
 
 class Shadow(Patch):
     patch: Patch
-    def __init__(self, patch: Patch, ox: float, oy: float, **kwargs) -> None: ...
+    def __init__(self, patch: Patch, ox: float, oy: float, *, shade: float = ..., **kwargs) -> None: ...
 
 class Rectangle(Patch):
     angle: float
