@@ -1271,9 +1271,6 @@ default: %(va)s
         if ax is None:
             ax = getattr(mappable, "axes", None)
 
-        if (self.get_layout_engine() is not None and
-                not self.get_layout_engine().colorbar_gridspec):
-            use_gridspec = False
         if cax is None:
             if ax is None:
                 raise ValueError(
@@ -1281,7 +1278,14 @@ default: %(va)s
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
                     'from it, or add *mappable* to an Axes.')
-            current_ax = self.gca()
+            fig = (  # Figure of first axes; logic copied from make_axes.
+                [*ax.flat] if isinstance(ax, np.ndarray)
+                else [*ax] if np.iterable(ax)
+                else [ax])[0].figure
+            current_ax = fig.gca()
+            if (fig.get_layout_engine() is not None and
+                    not fig.get_layout_engine().colorbar_gridspec):
+                use_gridspec = False
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):
@@ -1289,14 +1293,14 @@ default: %(va)s
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
             # make_axes calls add_{axes,subplot} which changes gca; undo that.
-            self.sca(current_ax)
+            fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
         cb = cbar.Colorbar(cax, mappable, **{
             k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
-        self.stale = True
+        cax.figure.stale = True
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
