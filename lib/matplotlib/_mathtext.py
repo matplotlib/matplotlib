@@ -1748,7 +1748,7 @@ class Parser:
       \in         \ni         \propto  \vdash
       \dashv      \dots       \doteqdot
       \leqq       \geqq       \lneqq   \gneqq
-      \lessgtr \leqslant \eqgtr \eqless
+      \lessgtr \leqslant \geqslant \eqgtr \eqless
       \eqslantless \eqslantgtr \lesseqgtr
       \backsim \backsimeq \lesssim \gtrsim
       \precsim \precnsim \gnsim \lnsim
