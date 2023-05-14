@@ -1220,11 +1220,13 @@ default: %(va)s
                 fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
 
         cax : `~matplotlib.axes.Axes`, optional
-            Axes into which the colorbar will be drawn.  If `None`, then space
-            will be stolen from the Axes(s) specified in *ax*
+            Axes into which the colorbar will be drawn.  If `None`, then a new
+            Axes is created and the space for it will be stolen from the Axes(s)
+            specified in *ax*.
 
         ax : `~.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
-            If `None`, defaults to ``mappable.axes``.
+            If `None`, defaults to the axes that contains the mappable used to
+            create the colorbar.
 
             If *cax* is None, specifies the one or more parent axes from which
             space for a new colorbar axes will be stolen.
@@ -1270,6 +1272,7 @@ default: %(va)s
         However, this has negative consequences in other circumstances, e.g.
         with semi-transparent images (alpha < 1) and colorbar extensions;
         therefore, this workaround is not used by default (see issue #1188).
+
         """
 
         if ax is None:
