@@ -52,7 +52,6 @@ def _get_running_interactive_framework():
     if Gtk:
         if Gtk.MAJOR_VERSION == 4:
             from gi.repository import GLib
-
             if GLib.main_depth():
                 return "gtk4"
         if Gtk.MAJOR_VERSION == 3 and Gtk.main_level():
@@ -188,14 +187,9 @@ class CallbackRegistry:
             **vars(self),
             # In general, callbacks may not be pickled, so we just drop them,
             # unless directed otherwise by self._pickled_cids.
-            "callbacks": {
-                s: {
-                    cid: proxy()
-                    for cid, proxy in d.items()
-                    if cid in self._pickled_cids
-                }
-                for s, d in self.callbacks.items()
-            },
+            "callbacks": {s: {cid: proxy() for cid, proxy in d.items()
+                              if cid in self._pickled_cids}
+                          for s, d in self.callbacks.items()},
             # It is simpler to reconstruct this from callbacks in __setstate__.
             "_func_cid_map": None,
         }
@@ -203,16 +197,12 @@ class CallbackRegistry:
     def __setstate__(self, state):
         vars(self).update(state)
         self.callbacks = {
-            s: {
-                cid: _weak_or_strong_ref(func, self._remove_proxy)
-                for cid, func in d.items()
-            }
-            for s, d in self.callbacks.items()
-        }
+            s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
+                for cid, func in d.items()}
+            for s, d in self.callbacks.items()}
         self._func_cid_map = {
             s: {proxy: cid for cid, proxy in d.items()}
-            for s, d in self.callbacks.items()
-        }
+            for s, d in self.callbacks.items()}
 
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
@@ -367,8 +357,8 @@ class silent_list(list):
 
 
 def _local_over_kwdict(
-    local_var, kwargs, *keys, warning_cls=_api.MatplotlibDeprecationWarning
-):
+        local_var, kwargs, *keys,
+        warning_cls=_api.MatplotlibDeprecationWarning):
     out = local_var
     for key in keys:
         kwarg_val = kwargs.pop(key, None)
@@ -376,9 +366,8 @@ def _local_over_kwdict(
             if out is None:
                 out = kwarg_val
             else:
-                _api.warn_external(
-                    f'"{key}" keyword argument will be ignored', warning_cls
-                )
+                _api.warn_external(f'"{key}" keyword argument will be ignored',
+                                   warning_cls)
     return out
 
 
@@ -391,15 +380,15 @@ def strip_math(s):
     if len(s) >= 2 and s[0] == s[-1] == "$":
         s = s[1:-1]
         for tex, plain in [
-            (r"\times", "x"),  # Specifically for Formatter support.
-            (r"\mathdefault", ""),
-            (r"\rm", ""),
-            (r"\cal", ""),
-            (r"\tt", ""),
-            (r"\it", ""),
-            ("\\", ""),
-            ("{", ""),
-            ("}", ""),
+                (r"\times", "x"),  # Specifically for Formatter support.
+                (r"\mathdefault", ""),
+                (r"\rm", ""),
+                (r"\cal", ""),
+                (r"\tt", ""),
+                (r"\it", ""),
+                ("\\", ""),
+                ("{", ""),
+                ("}", ""),
         ]:
             s = s.replace(tex, plain)
     return s
@@ -410,7 +399,7 @@ def _strip_comment(s):
     pos = 0
     while True:
         quote_pos = s.find('"', pos)
-        hash_pos = s.find("#", pos)
+        hash_pos = s.find('#', pos)
         if quote_pos < 0:
             without_comment = s if hash_pos < 0 else s[:hash_pos]
             return without_comment.strip()
@@ -421,14 +410,13 @@ def _strip_comment(s):
             if closing_quote_pos < 0:
                 raise ValueError(
                     f"Missing closing quote in: {s!r}. If you need a double-"
-                    'quote inside a string, use escaping: e.g. "the " char"'
-                )
+                    'quote inside a string, use escaping: e.g. "the \" char"')
             pos = closing_quote_pos + 1  # behind closing quote
 
 
 def is_writable_file_like(obj):
     """Return whether *obj* looks like a file object with a *write* method."""
-    return callable(getattr(obj, "write", None))
+    return callable(getattr(obj, 'write', None))
 
 
 def file_requires_unicode(x):
@@ -437,14 +425,14 @@ def file_requires_unicode(x):
     written to it.
     """
     try:
-        x.write(b"")
+        x.write(b'')
     except TypeError:
         return True
     else:
         return False
 
 
-def to_filehandle(fname, flag="r", return_opened=False, encoding=None):
+def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
     Convert a path to an open file handle or pass-through a file-like object.
 
@@ -476,22 +464,21 @@ def to_filehandle(fname, flag="r", return_opened=False, encoding=None):
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if isinstance(fname, str):
-        if fname.endswith(".gz"):
+        if fname.endswith('.gz'):
             fh = gzip.open(fname, flag)
-        elif fname.endswith(".bz2"):
+        elif fname.endswith('.bz2'):
             # python may not be compiled with bz2 support,
             # bury import until we need it
             import bz2
-
             fh = bz2.BZ2File(fname, flag)
         else:
             fh = open(fname, flag, encoding=encoding)
         opened = True
-    elif hasattr(fname, "seek"):
+    elif hasattr(fname, 'seek'):
         fh = fname
         opened = False
     else:
-        raise ValueError("fname must be a PathLike or file handle")
+        raise ValueError('fname must be a PathLike or file handle')
     if return_opened:
         return fh, opened
     return fh
@@ -509,8 +496,7 @@ def is_scalar_or_string(val):
 
 
 @_api.delete_parameter(
-    "3.8", "np_load", alternative="open(get_sample_data(..., asfileobj=False))"
-)
+    "3.8", "np_load", alternative="open(get_sample_data(..., asfileobj=False))")
 def get_sample_data(fname, asfileobj=True, *, np_load=True):
     """
     Return a sample data file.  *fname* is a path relative to the
@@ -524,20 +510,20 @@ def get_sample_data(fname, asfileobj=True, *, np_load=True):
     filename ends with .npy or .npz, and *asfileobj* is `True`, the file is
     loaded with `numpy.load`.
     """
-    path = _get_data_path("sample_data", fname)
+    path = _get_data_path('sample_data', fname)
     if asfileobj:
         suffix = path.suffix.lower()
-        if suffix == ".gz":
+        if suffix == '.gz':
             return gzip.open(path)
-        elif suffix in [".npy", ".npz"]:
+        elif suffix in ['.npy', '.npz']:
             if np_load:
                 return np.load(path)
             else:
-                return path.open("rb")
-        elif suffix in [".csv", ".xrc", ".txt"]:
-            return path.open("r")
+                return path.open('rb')
+        elif suffix in ['.csv', '.xrc', '.txt']:
+            return path.open('r')
         else:
-            return path.open("rb")
+            return path.open('rb')
     else:
         return str(path)
 
@@ -614,7 +600,7 @@ class Stack:
 
         *o* is returned.
         """
-        self._elements = self._elements[: self._pos + 1] + [o]
+        self._elements = self._elements[:self._pos + 1] + [o]
         self._pos = len(self._elements) - 1
         return self()
 
@@ -648,7 +634,7 @@ class Stack:
             If *o* is not in the stack.
         """
         if o not in self._elements:
-            raise ValueError("Given element not contained in the stack")
+            raise ValueError('Given element not contained in the stack')
         old_elements = self._elements.copy()
         self.clear()
         top_elements = []
@@ -671,7 +657,7 @@ class Stack:
             If *o* is not in the stack.
         """
         if o not in self._elements:
-            raise ValueError("Given element not contained in the stack")
+            raise ValueError('Given element not contained in the stack')
         old_elements = self._elements.copy()
         self.clear()
         for elem in old_elements:
@@ -684,7 +670,7 @@ def safe_masked_invalid(x, copy=False):
     if not x.dtype.isnative:
         # If we have already made a copy, do the byteswap in place, else make a
         # copy with the byte order swapped.
-        x = x.byteswap(inplace=copy).newbyteorder("N")  # Swap to native order.
+        x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
     try:
         xm = np.ma.masked_invalid(x, copy=False)
         xm.shrink_mask()
@@ -798,8 +784,7 @@ class Grouper:
 
     def __init__(self, init=()):
         self._mapping = weakref.WeakKeyDictionary(
-            {x: weakref.WeakSet([x]) for x in init}
-        )
+            {x: weakref.WeakSet([x]) for x in init})
 
     def __getstate__(self):
         return {
@@ -812,8 +797,7 @@ class Grouper:
         vars(self).update(state)
         # Convert strong refs to weak ones.
         self._mapping = weakref.WeakKeyDictionary(
-            {k: weakref.WeakSet(v) for k, v in self._mapping.items()}
-        )
+            {k: weakref.WeakSet(v) for k, v in self._mapping.items()})
 
     def __contains__(self, item):
         return item in self._mapping
@@ -840,7 +824,7 @@ class Grouper:
 
     def joined(self, a, b):
         """Return whether *a* and *b* are members of the same set."""
-        return self._mapping.get(a, object()) is self._mapping.get(b)
+        return (self._mapping.get(a, object()) is self._mapping.get(b))
 
     def remove(self, a):
         set_a = self._mapping.pop(a, None)
@@ -866,20 +850,11 @@ class Grouper:
 class GrouperView:
     """Immutable view over a `.Grouper`."""
 
-    def __init__(self, grouper):
-        self._grouper = grouper
-
-    def __contains__(self, item):
-        return item in self._grouper
-
-    def __iter__(self):
-        return iter(self._grouper)
-
-    def joined(self, a, b):
-        return self._grouper.joined(a, b)
-
-    def get_siblings(self, a):
-        return self._grouper.get_siblings(a)
+    def __init__(self, grouper): self._grouper = grouper
+    def __contains__(self, item): return item in self._grouper
+    def __iter__(self): return iter(self._grouper)
+    def joined(self, a, b): return self._grouper.joined(a, b)
+    def get_siblings(self, a): return self._grouper.get_siblings(a)
 
 
 def simple_linear_interpolation(a, steps):
@@ -902,9 +877,8 @@ def simple_linear_interpolation(a, steps):
     fps = a.reshape((len(a), -1))
     xp = np.arange(len(a)) * steps
     x = np.arange((len(a) - 1) * steps + 1)
-    return np.column_stack([np.interp(x, xp, fp) for fp in fps.T]).reshape(
-        (len(x),) + a.shape[1:]
-    )
+    return (np.column_stack([np.interp(x, xp, fp) for fp in fps.T])
+            .reshape((len(x),) + a.shape[1:]))
 
 
 def delete_masked_points(*args):
@@ -1022,7 +996,7 @@ def _combine_masks(*args):
     nrecs = len(args[0])
     margs = []  # Output args; some may be modified.
     seqlist = [False] * len(args)  # Flags: True if output will be masked.
-    masks = []  # List of masks.
+    masks = []    # List of masks.
     for i, x in enumerate(args):
         if is_scalar_or_string(x) or len(x) != nrecs:
             margs.append(x)  # Leave it unmodified.
@@ -1049,7 +1023,8 @@ def _combine_masks(*args):
     return margs
 
 
-def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
+def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
+                  autorange=False):
     r"""
     Return a list of dictionaries of statistics used to draw a series of box
     and whisker plots using `~.Axes.bxp`.
@@ -1148,6 +1123,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
             notch_min = CI[0]
             notch_max = CI[1]
         else:
+
             N = len(data)
             notch_min = med - 1.57 * iqr / np.sqrt(N)
             notch_max = med + 1.57 * iqr / np.sqrt(N)
@@ -1168,10 +1144,11 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
 
     input_whis = whis
     for ii, (x, label) in enumerate(zip(X, labels)):
+
         # empty dict
         stats = {}
         if label is not None:
-            stats["label"] = label
+            stats['label'] = label
 
         # restore whis to the input values in case it got changed in the loop
         whis = input_whis
@@ -1181,76 +1158,74 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
 
         # if empty, bail
         if len(x) == 0:
-            stats["fliers"] = np.array([])
-            stats["mean"] = np.nan
-            stats["med"] = np.nan
-            stats["q1"] = np.nan
-            stats["q3"] = np.nan
-            stats["iqr"] = np.nan
-            stats["cilo"] = np.nan
-            stats["cihi"] = np.nan
-            stats["whislo"] = np.nan
-            stats["whishi"] = np.nan
+            stats['fliers'] = np.array([])
+            stats['mean'] = np.nan
+            stats['med'] = np.nan
+            stats['q1'] = np.nan
+            stats['q3'] = np.nan
+            stats['iqr'] = np.nan
+            stats['cilo'] = np.nan
+            stats['cihi'] = np.nan
+            stats['whislo'] = np.nan
+            stats['whishi'] = np.nan
             continue
 
         # up-convert to an array, just to be safe
         x = np.asarray(x)
 
         # arithmetic mean
-        stats["mean"] = np.mean(x)
+        stats['mean'] = np.mean(x)
 
         # medians and quartiles
         q1, med, q3 = np.percentile(x, [25, 50, 75])
 
         # interquartile range
-        stats["iqr"] = q3 - q1
-        if stats["iqr"] == 0 and autorange:
+        stats['iqr'] = q3 - q1
+        if stats['iqr'] == 0 and autorange:
             whis = (0, 100)
 
         # conf. interval around median
-        stats["cilo"], stats["cihi"] = _compute_conf_interval(
-            x, med, stats["iqr"], bootstrap
+        stats['cilo'], stats['cihi'] = _compute_conf_interval(
+            x, med, stats['iqr'], bootstrap
         )
 
         # lowest/highest non-outliers
         if np.iterable(whis) and not isinstance(whis, str):
             loval, hival = np.percentile(x, whis)
         elif np.isreal(whis):
-            loval = q1 - whis * stats["iqr"]
-            hival = q3 + whis * stats["iqr"]
+            loval = q1 - whis * stats['iqr']
+            hival = q3 + whis * stats['iqr']
         else:
-            raise ValueError("whis must be a float or list of percentiles")
+            raise ValueError('whis must be a float or list of percentiles')
 
         # get high extreme
         wiskhi = x[x <= hival]
         if len(wiskhi) == 0 or np.max(wiskhi) < q3:
-            stats["whishi"] = q3
+            stats['whishi'] = q3
         else:
-            stats["whishi"] = np.max(wiskhi)
+            stats['whishi'] = np.max(wiskhi)
 
         # get low extreme
         wisklo = x[x >= loval]
         if len(wisklo) == 0 or np.min(wisklo) > q1:
-            stats["whislo"] = q1
+            stats['whislo'] = q1
         else:
-            stats["whislo"] = np.min(wisklo)
+            stats['whislo'] = np.min(wisklo)
 
         # compute a single array of outliers
-        stats["fliers"] = np.concatenate(
-            [
-                x[x < stats["whislo"]],
-                x[x > stats["whishi"]],
-            ]
-        )
+        stats['fliers'] = np.concatenate([
+            x[x < stats['whislo']],
+            x[x > stats['whishi']],
+        ])
 
         # add in the remaining stats
-        stats["q1"], stats["med"], stats["q3"] = q1, med, q3
+        stats['q1'], stats['med'], stats['q3'] = q1, med, q3
 
     return bxpstats
 
 
 #: Maps short codes for line style to their full name used by backends.
-ls_mapper = {"-": "solid", "--": "dashed", "-.": "dashdot", ":": "dotted"}
+ls_mapper = {'-': 'solid', '--': 'dashed', '-.': 'dashdot', ':': 'dotted'}
 #: Maps full names for line styles used by backends to their short codes.
 ls_mapper_r = {v: k for k, v in ls_mapper.items()}
 
@@ -1266,7 +1241,7 @@ def contiguous_regions(mask):
         return []
 
     # Find the indices of region changes, and correct offset
-    (idx,) = np.nonzero(mask[:-1] != mask[1:])
+    idx, = np.nonzero(mask[:-1] != mask[1:])
     idx += 1
 
     # List operations are faster for moderately sized arrays
@@ -1289,8 +1264,8 @@ def is_math_text(s):
     non-escaped dollar signs.
     """
     s = str(s)
-    dollar_count = s.count(r"$") - s.count(r"\$")
-    even_dollars = dollar_count > 0 and dollar_count % 2 == 0
+    dollar_count = s.count(r'$') - s.count(r'\$')
+    even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
     return even_dollars
 
 
@@ -1299,7 +1274,7 @@ def _to_unmasked_float_array(x):
     Convert a sequence to a float array; if input was a masked array, masked
     values are converted to nans.
     """
-    if hasattr(x, "mask"):
+    if hasattr(x, 'mask'):
         return np.ma.asarray(x, float).filled(np.nan)
     else:
         return np.asarray(x, float)
@@ -1312,7 +1287,9 @@ def _check_1d(x):
     # plot requires `shape` and `ndim`.  If passed an
     # object that doesn't provide them, then force to numpy array.
     # Note this will strip unit information.
-    if not hasattr(x, "shape") or not hasattr(x, "ndim") or len(x.shape) < 1:
+    if (not hasattr(x, 'shape') or
+            not hasattr(x, 'ndim') or
+            len(x.shape) < 1):
         return np.atleast_1d(x)
     else:
         return x
@@ -1346,7 +1323,7 @@ def _reshape_2D(X, name):
             # 2D array, or 1D array of iterables: flatten them first.
             return [np.reshape(x, -1) for x in X]
         else:
-            raise ValueError(f"{name} must have 2 or fewer dimensions")
+            raise ValueError(f'{name} must have 2 or fewer dimensions')
 
     # Iterate over list of iterables.
     if len(X) == 0:
@@ -1367,7 +1344,7 @@ def _reshape_2D(X, name):
         xi = np.asanyarray(xi)
         nd = np.ndim(xi)
         if nd > 1:
-            raise ValueError(f"{name} must have 2 or fewer dimensions")
+            raise ValueError(f'{name} must have 2 or fewer dimensions')
         result.append(xi.reshape(-1))
 
     if is_1d:
@@ -1445,13 +1422,11 @@ def violin_stats(X, method, points=100, quantiles=None):
 
     # quantiles should have the same size as dataset
     if len(X) != len(quantiles):
-        raise ValueError(
-            "List of violinplot statistics and quantiles values"
-            " must have the same length"
-        )
+        raise ValueError("List of violinplot statistics and quantiles values"
+                         " must have the same length")
 
     # Zip x and quantiles
-    for x, q in zip(X, quantiles):
+    for (x, q) in zip(X, quantiles):
         # Dictionary of results for this distribution
         stats = {}
 
@@ -1462,15 +1437,15 @@ def violin_stats(X, method, points=100, quantiles=None):
 
         # Evaluate the kernel density estimate
         coords = np.linspace(min_val, max_val, points)
-        stats["vals"] = method(x, coords)
-        stats["coords"] = coords
+        stats['vals'] = method(x, coords)
+        stats['coords'] = coords
 
         # Store additional statistics for this distribution
-        stats["mean"] = np.mean(x)
-        stats["median"] = np.median(x)
-        stats["min"] = min_val
-        stats["max"] = max_val
-        stats["quantiles"] = np.atleast_1d(quantile_val)
+        stats['mean'] = np.mean(x)
+        stats['median'] = np.median(x)
+        stats['min'] = min_val
+        stats['max'] = max_val
+        stats['quantiles'] = np.atleast_1d(quantile_val)
 
         # Append to output
         vpstats.append(stats)
@@ -1590,13 +1565,11 @@ def pts_to_midstep(x, *args):
     return steps
 
 
-STEP_LOOKUP_MAP = {
-    "default": lambda x, y: (x, y),
-    "steps": pts_to_prestep,
-    "steps-pre": pts_to_prestep,
-    "steps-post": pts_to_poststep,
-    "steps-mid": pts_to_midstep,
-}
+STEP_LOOKUP_MAP = {'default': lambda x, y: (x, y),
+                   'steps': pts_to_prestep,
+                   'steps-pre': pts_to_prestep,
+                   'steps-post': pts_to_poststep,
+                   'steps-mid': pts_to_midstep}
 
 
 def index_of(y):
@@ -1631,7 +1604,7 @@ def index_of(y):
         pass
     else:
         return np.arange(y.shape[0], dtype=float), y
-    raise ValueError("Input could not be cast to an at-least-1D NumPy array")
+    raise ValueError('Input could not be cast to an at-least-1D NumPy array')
 
 
 def safe_first_element(obj):
@@ -1654,7 +1627,6 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
     This is a type-independent way of obtaining the first finite element, supporting
     both index access and the iterator protocol.
     """
-
     def safe_isfinite(val):
         if val is None:
             return False
@@ -1664,7 +1636,6 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
             # This is something that NumPy cannot make heads or tails of,
             # assume "finite"
             return True
-
     if skip_nonfinite is False:
         if isinstance(obj, collections.abc.Iterator):
             # needed to accept `array.flat` as input.
@@ -1676,13 +1647,15 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
                 return obj[0]
             except TypeError:
                 pass
-            raise RuntimeError("matplotlib does not support generators " "as input")
+            raise RuntimeError("matplotlib does not support generators "
+                               "as input")
         return next(iter(obj))
     elif isinstance(obj, np.flatiter):
         # TODO do the finite filtering on this
         return obj[0]
     elif isinstance(obj, collections.abc.Iterator):
-        raise RuntimeError("matplotlib does not " "support generators as input")
+        raise RuntimeError("matplotlib does not "
+                           "support generators as input")
     else:
         return next((val for val in obj if safe_isfinite(val)), safe_first_element(obj))
 
@@ -1691,7 +1664,8 @@ def sanitize_sequence(data):
     """
     Convert dictview objects to list. Other inputs are returned unchanged.
     """
-    return list(data) if isinstance(data, collections.abc.MappingView) else data
+    return (list(data) if isinstance(data, collections.abc.MappingView)
+            else data)
 
 
 def normalize_kwargs(kw, alias_mapping=None):
@@ -1729,28 +1703,21 @@ def normalize_kwargs(kw, alias_mapping=None):
     # deal with default value of alias_mapping
     if alias_mapping is None:
         alias_mapping = dict()
-    elif (
-        isinstance(alias_mapping, type)
-        and issubclass(alias_mapping, Artist)
-        or isinstance(alias_mapping, Artist)
-    ):
+    elif (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
+          or isinstance(alias_mapping, Artist)):
         alias_mapping = getattr(alias_mapping, "_alias_map", {})
 
-    to_canonical = {
-        alias: canonical
-        for canonical, alias_list in alias_mapping.items()
-        for alias in alias_list
-    }
+    to_canonical = {alias: canonical
+                    for canonical, alias_list in alias_mapping.items()
+                    for alias in alias_list}
     canonical_to_seen = {}
     ret = {}  # output dictionary
 
     for k, v in kw.items():
         canonical = to_canonical.get(k, k)
         if canonical in canonical_to_seen:
-            raise TypeError(
-                f"Got both {canonical_to_seen[canonical]!r} and "
-                f"{k!r}, which are aliases of one another"
-            )
+            raise TypeError(f"Got both {canonical_to_seen[canonical]!r} and "
+                            f"{k!r}, which are aliases of one another")
         canonical_to_seen[canonical] = k
         ret[canonical] = v
 
@@ -1784,15 +1751,12 @@ def _lock_path(path):
         except FileExistsError:
             time.sleep(sleeptime)
     else:
-        raise TimeoutError(
-            """\
+        raise TimeoutError("""\
 Lock error: Matplotlib failed to acquire the following lock file:
     {}
 This maybe due to another process holding this lock file.  If you are sure no
 other Matplotlib process is running, remove this file and try again.""".format(
-                lock_path
-            )
-        )
+            lock_path))
     try:
         yield
     finally:
@@ -1800,8 +1764,8 @@ other Matplotlib process is running, remove this file and try again.""".format(
 
 
 def _topmost_artist(
-    artists, _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))
-):
+        artists,
+        _cached_max=functools.partial(max, key=operator.attrgetter("zorder"))):
     """
     Get the topmost artist of a list.
 
@@ -1863,16 +1827,14 @@ def _array_perimeter(arr):
     """
     # note we use Python's half-open ranges to avoid repeating
     # the corners
-    forward = np.s_[0:-1]  # [0 ... -1)
+    forward = np.s_[0:-1]      # [0 ... -1)
     backward = np.s_[-1:0:-1]  # [-1 ... 0)
-    return np.concatenate(
-        (
-            arr[0, forward],
-            arr[forward, -1],
-            arr[-1, backward],
-            arr[backward, 0],
-        )
-    )
+    return np.concatenate((
+        arr[0, forward],
+        arr[forward, -1],
+        arr[-1, backward],
+        arr[backward, 0],
+    ))
 
 
 def _unfold(arr, axis, size, step):
@@ -1919,9 +1881,10 @@ def _unfold(arr, axis, size, step):
     new_strides = [*arr.strides, arr.strides[axis]]
     new_shape[axis] = (new_shape[axis] - size) // step + 1
     new_strides[axis] = new_strides[axis] * step
-    return np.lib.stride_tricks.as_strided(
-        arr, shape=new_shape, strides=new_strides, writeable=False
-    )
+    return np.lib.stride_tricks.as_strided(arr,
+                                           shape=new_shape,
+                                           strides=new_strides,
+                                           writeable=False)
 
 
 def _array_patch_perimeters(x, rstride, cstride):
@@ -1969,9 +1932,8 @@ def _array_patch_perimeters(x, rstride, cstride):
     bottom = _unfold(x[rstride::rstride, 1:], 1, cstride, cstride)[..., ::-1]
     right = _unfold(x[:-1, cstride::cstride], 0, rstride, rstride)
     left = _unfold(x[1:, :-1:cstride], 0, rstride, rstride)[..., ::-1]
-    return np.concatenate((top, right, bottom, left), axis=2).reshape(
-        -1, 2 * (rstride + cstride)
-    )
+    return (np.concatenate((top, right, bottom, left), axis=2)
+              .reshape(-1, 2 * (rstride + cstride)))
 
 
 @contextlib.contextmanager
@@ -2048,16 +2010,16 @@ def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
     Convert a premultiplied ARGB32 buffer to an unmultiplied RGBA8888 buffer.
     """
     rgba = np.take(  # .take() ensures C-contiguity of the result.
-        buf, [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2
-    )
+        buf,
+        [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
     rgb = rgba[..., :-1]
     alpha = rgba[..., -1]
     # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
     mask = alpha != 0
     for channel in np.rollaxis(rgb, -1):
-        channel[mask] = (channel[mask].astype(int) * 255 + alpha[mask] // 2) // alpha[
-            mask
-        ]
+        channel[mask] = (
+            (channel[mask].astype(int) * 255 + alpha[mask] // 2)
+            // alpha[mask])
     return rgba
 
 
@@ -2076,8 +2038,8 @@ def _unmultiplied_rgba8888_to_premultiplied_argb32(rgba8888):
     # Only bother premultiplying when the alpha channel is not fully opaque,
     # as the cost is not negligible.  The unsafe cast is needed to do the
     # multiplication in-place in an integer buffer.
-    if alpha8.min() != 0xFF:
-        np.multiply(rgb24, alpha8 / 0xFF, out=rgb24, casting="unsafe")
+    if alpha8.min() != 0xff:
+        np.multiply(rgb24, alpha8 / 0xff, out=rgb24, casting="unsafe")
     return argb32
 
 
@@ -2089,8 +2051,8 @@ def _get_nonzero_slices(buf):
     that encloses all non-zero entries in *buf*.  If *buf* is fully zero, then
     ``(slice(0, 0), slice(0, 0))`` is returned.
     """
-    (x_nz,) = buf.any(axis=0).nonzero()
-    (y_nz,) = buf.any(axis=1).nonzero()
+    x_nz, = buf.any(axis=0).nonzero()
+    y_nz, = buf.any(axis=1).nonzero()
     if len(x_nz) and len(y_nz):
         l, r = x_nz[[0, -1]]
         b, t = y_nz[[0, -1]]
@@ -2101,11 +2063,8 @@ def _get_nonzero_slices(buf):
 
 def _pformat_subprocess(command):
     """Pretty-format a subprocess command for printing/logging purposes."""
-    return (
-        command
-        if isinstance(command, str)
-        else " ".join(shlex.quote(os.fspath(arg)) for arg in command)
-    )
+    return (command if isinstance(command, str)
+            else " ".join(shlex.quote(os.fspath(arg)) for arg in command))
 
 
 def _check_and_log_subprocess(command, logger, **kwargs):
@@ -2118,7 +2077,7 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     Regardless of the return code, the command is logged at DEBUG level on
     *logger*.  In case of success, the output is likewise logged.
     """
-    logger.debug("%s", _pformat_subprocess(command))
+    logger.debug('%s', _pformat_subprocess(command))
     proc = subprocess.run(command, capture_output=True, **kwargs)
     if proc.returncode:
         stdout = proc.stdout
@@ -2133,8 +2092,7 @@ def _check_and_log_subprocess(command, logger, **kwargs):
             f"failed and generated the following output:\n"
             f"{stdout}\n"
             f"and the following error:\n"
-            f"{stderr}"
-        )
+            f"{stderr}")
     if proc.stdout:
         logger.debug("stdout:\n%s", proc.stdout)
     if proc.stderr:
@@ -2147,11 +2105,8 @@ def _backend_module_name(name):
     Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
     or a custom backend -- "module://...") to the corresponding module name).
     """
-    return (
-        name[9:]
-        if name.startswith("module://")
-        else f"matplotlib.backends.backend_{name.lower()}"
-    )
+    return (name[9:] if name.startswith("module://")
+            else f"matplotlib.backends.backend_{name.lower()}")
 
 
 def _setup_new_guiapp():
@@ -2164,7 +2119,8 @@ def _setup_new_guiapp():
     try:
         _c_internal_utils.Win32_GetCurrentProcessExplicitAppUserModelID()
     except OSError:
-        _c_internal_utils.Win32_SetCurrentProcessExplicitAppUserModelID("matplotlib")
+        _c_internal_utils.Win32_SetCurrentProcessExplicitAppUserModelID(
+            "matplotlib")
 
 
 def _format_approx(number, precision):
@@ -2172,7 +2128,7 @@ def _format_approx(number, precision):
     Format the number with at most the number of decimals given as precision.
     Remove trailing zeros and possibly the decimal point.
     """
-    return f"{number:.{precision}f}".rstrip("0").rstrip(".") or "0"
+    return f'{number:.{precision}f}'.rstrip('0').rstrip('.') or '0'
 
 
 def _g_sig_digits(value, delta):
@@ -2190,15 +2146,10 @@ def _g_sig_digits(value, delta):
     # is 4 significant digits.  A value of 0 contributes 1 "digit" before the
     # decimal point.
     # For inf or nan, the precision doesn't matter.
-    return (
-        max(
-            0,
-            (math.floor(math.log10(abs(value))) + 1 if value else 1)
-            - math.floor(math.log10(delta)),
-        )
-        if math.isfinite(value)
-        else 0
-    )
+    return max(
+        0,
+        (math.floor(math.log10(abs(value))) + 1 if value else 1)
+        - math.floor(math.log10(delta))) if math.isfinite(value) else 0
 
 
 def _unikey_or_keysym_to_mplkey(unikey, keysym):
@@ -2263,11 +2214,9 @@ def _make_class_factory(mixin_class, fmt, attr_name=None):
             __module__ = mixin_class.__module__
 
             def __reduce__(self):
-                return (
-                    _picklable_class_constructor,
-                    (mixin_class, fmt, attr_name, base_class),
-                    self.__getstate__(),
-                )
+                return (_picklable_class_constructor,
+                        (mixin_class, fmt, attr_name, base_class),
+                        self.__getstate__())
 
         subcls.__name__ = subcls.__qualname__ = fmt.format(base_class.__name__)
         if attr_name is not None:
@@ -2293,23 +2242,23 @@ def _unpack_to_numpy(x):
     if isinstance(x, np.generic):
         # If numpy scalar, return directly
         return x
-    if hasattr(x, "to_numpy"):
+    if hasattr(x, 'to_numpy'):
         # Assume that any to_numpy() method actually returns a numpy array
         return x.to_numpy()
-    if hasattr(x, "values"):
+    if hasattr(x, 'values'):
         xtmp = x.values
         # For example a dict has a 'values' attribute, but it is not a property
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
-    if hasattr(x, "__array__"):
+    if hasattr(x, '__array__'):
         # Assume that any to __array__() method returns a numpy array
         # (e.g. TensorFlow, JAX or PyTorch arrays)
-        x = x.__array__()
-        # Anything that doesn't return ndarray via __array__() method,
+        xtmp = x.__array__()
+        # Anything that doesn't return ndarray via __array__() method
         # will be filtered by the following check
-        if isinstance(x, np.ndarray):
-            return x
+        if isinstance(xtmp, np.ndarray):
+            return xtmp
     return x
 
 
