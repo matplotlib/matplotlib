@@ -5,8 +5,8 @@ Triangular 3D filled contour plot
 
 Filled contour plots of unstructured triangular grids.
 
-The data used is the same as in the second plot of trisurf3d_demo2.
-tricontour3d_demo shows the unfilled version of this example.
+The data used is the same as in the second plot of :doc:`trisurf3d_2`.
+:doc:`tricontour3d` shows the unfilled version of this example.
 """
 
 import matplotlib.pyplot as plt
