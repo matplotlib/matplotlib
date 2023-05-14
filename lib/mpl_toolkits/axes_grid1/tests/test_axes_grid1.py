@@ -701,11 +701,7 @@ def test_insetposition():
 @image_comparison(['imagegrid_cbar_mode.png'],
                   remove_text=True, style='mpl20', tol=0.3)
 def test_imagegrid_cbar_mode_edge():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
-    X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))
-    arr = np.sin(X) * np.cos(Y) + 1j*(np.sin(3*Y) * np.cos(Y/2.))
+    arr = np.arange(16).reshape((4, 4))
 
     fig = plt.figure(figsize=(18, 9))
 
@@ -721,12 +717,12 @@ def test_imagegrid_cbar_mode_edge():
                          cbar_location=location,
                          cbar_size='20%',
                          cbar_mode='edge')
-        ax1, ax2, ax3, ax4, = grid
+        ax1, ax2, ax3, ax4 = grid
 
-        ax1.imshow(arr.real, cmap='nipy_spectral')
-        ax2.imshow(arr.imag, cmap='hot')
-        ax3.imshow(np.abs(arr), cmap='jet')
-        ax4.imshow(np.arctan2(arr.imag, arr.real), cmap='hsv')
+        ax1.imshow(arr, cmap='nipy_spectral')
+        ax2.imshow(arr.T, cmap='hot')
+        ax3.imshow(np.hypot(arr, arr.T), cmap='jet')
+        ax4.imshow(np.arctan2(arr, arr.T), cmap='hsv')
 
         # In each row/column, the "first" colorbars must be overwritten by the
         # "second" ones.  To achieve this, clear out the axes first.

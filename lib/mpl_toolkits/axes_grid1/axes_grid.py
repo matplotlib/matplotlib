@@ -22,22 +22,13 @@ class CbarAxesBase:
         self.orientation = orientation
         super().__init__(*args, **kwargs)
 
-    def colorbar(self, mappable, *, ticks=None, **kwargs):
-        orientation = (
-            "horizontal" if self.orientation in ["top", "bottom"] else
-            "vertical")
-        cb = self.figure.colorbar(mappable, cax=self, orientation=orientation,
-                                  ticks=ticks, **kwargs)
-        return cb
+    def colorbar(self, mappable, **kwargs):
+        return self.figure.colorbar(
+            mappable, cax=self, location=self.orientation, **kwargs)
 
     def toggle_label(self, b):
         axis = self.axis[self.orientation]
         axis.toggle(ticklabels=b, label=b)
-
-    def cla(self):
-        orientation = self.orientation
-        super().cla()
-        self.orientation = orientation
 
 
 _cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
