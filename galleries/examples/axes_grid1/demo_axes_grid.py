@@ -36,7 +36,7 @@ for ax in grid:
     im = ax.imshow(Z, extent=extent)
 grid.cbar_axes[0].colorbar(im)
 for cax in grid.cbar_axes:
-    cax.toggle_label(False)
+    cax.tick_params(labeltop=False)
 # This affects all axes as share_all = True.
 grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
@@ -49,7 +49,7 @@ grid = ImageGrid(
 for ax, cax in zip(grid, grid.cbar_axes):
     im = ax.imshow(Z, extent=extent)
     cax.colorbar(im)
-    cax.toggle_label(False)
+    cax.tick_params(labeltop=False)
 # This affects all axes as share_all = True.
 grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
