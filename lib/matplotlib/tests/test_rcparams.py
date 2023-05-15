@@ -118,6 +118,14 @@ def test_rcparams_init():
         mpl.RcParams({'figure.figsize': (3.5, 42, 1)})
 
 
+def test_nargs_cycler():
+    from matplotlib.rcsetup import cycler as ccl
+    with pytest.raises(TypeError) as e:
+        # cycler() takes 0-2 arguments.
+        ccl(ccl(color=list('rgb')), 2, 3)
+    assert "cycler() takes 0-2" in str(e.value)
+
+
 def test_Bug_2543():
     # Test that it possible to add all values to itself / deepcopy
     # https://github.com/matplotlib/matplotlib/issues/2543

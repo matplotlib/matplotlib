@@ -641,6 +641,31 @@ def test_sticky_shared_axes(fig_test, fig_ref):
     ax0.pcolormesh(Z)
 
 
+def test_nargs_stem():
+    with pytest.raises(TypeError) as e:
+        # stem() takes 1-3 arguments.
+        plt.stem()
+    assert "stem() takes 1-3" in str(e.value)
+
+
+def test_nargs_legend():
+    with pytest.raises(TypeError) as e:
+        ax = plt.subplot()
+        # legend() takes 0-2 arguments.
+        ax.legend(['First'], ['Second'], 3)
+    assert "legend() takes 0-2" in str(e.value)
+
+
+def test_nargs_pcolorfast():
+    with pytest.raises(TypeError) as e:
+        ax = plt.subplot()
+        # pcolorfast() takes 1 or 3 arguments,
+        # not passing any arguments fails at C = args[-1]
+        # before nargs_err is raised.
+        ax.pcolorfast([(0, 1), (0, 2)], [[1, 2, 3], [1, 2, 3]])
+    assert "pcolorfast() takes 1 or 3" in str(e.value)
+
+
 @image_comparison(['offset_points'], remove_text=True)
 def test_basic_annotate():
     # Setup some data
