@@ -1225,13 +1225,11 @@ default: %(va)s
             specified in *ax*.
 
         ax : `~.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
-            If `None`, defaults to the axes that contains the mappable used to
-            create the colorbar.
+            The one or more parent Axes from which space for a new colorbar Axes
+            will be stolen. This parameter is only used if *cax* is not set.
 
-            If *cax* is None, specifies the one or more parent axes from which
-            space for a new colorbar axes will be stolen.
-
-            This has no effect if *cax* is set.
+            Defaults to the Axes that contains the mappable used to create the
+            colorbar.
 
         use_gridspec : bool, optional
             If *cax* is ``None``, a new *cax* is created as an instance of
