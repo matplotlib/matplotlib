@@ -26,6 +26,7 @@ class CbarAxesBase:
         return self.figure.colorbar(
             mappable, cax=self, location=self.orientation, **kwargs)
 
+    @_api.deprecated("3.8", alternative="ax.tick_params and colorbar.set_label")
     def toggle_label(self, b):
         axis = self.axis[self.orientation]
         axis.toggle(ticklabels=b, label=b)
