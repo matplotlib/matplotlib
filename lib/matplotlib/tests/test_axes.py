@@ -642,20 +642,20 @@ def test_sticky_shared_axes(fig_test, fig_ref):
 
 
 def test_nargs_stem():
-    with pytest.raises(TypeError, match='0 were given') as e:
+    with pytest.raises(TypeError, match='0 were given'):
         # stem() takes 1-3 arguments.
         plt.stem()
 
 
 def test_nargs_legend():
-    with pytest.raises(TypeError, match='3 were given') as e:
+    with pytest.raises(TypeError, match='3 were given'):
         ax = plt.subplot()
         # legend() takes 0-2 arguments.
         ax.legend(['First'], ['Second'], 3)
 
 
 def test_nargs_pcolorfast():
-    with pytest.raises(TypeError, match='2 were given') as e:
+    with pytest.raises(TypeError, match='2 were given'):
         ax = plt.subplot()
         # pcolorfast() takes 1 or 3 arguments,
         # not passing any arguments fails at C = args[-1]
