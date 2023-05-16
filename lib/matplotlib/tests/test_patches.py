@@ -121,12 +121,12 @@ def test_ellipse_vertices():
         ellipse.get_vertices(),
         [
             (
-                ellipse.center[0] - ellipse.width / 4 * np.sqrt(3),
-                ellipse.center[1] - ellipse.width / 4,
-            ),
-            (
                 ellipse.center[0] + ellipse.width / 4 * np.sqrt(3),
                 ellipse.center[1] + ellipse.width / 4,
+            ),
+            (
+                ellipse.center[0] - ellipse.width / 4 * np.sqrt(3),
+                ellipse.center[1] - ellipse.width / 4,
             ),
         ],
     )
