@@ -115,7 +115,7 @@ This is especially helpful to generate *really lightweight* documents::
     ax.text(0.5, 0.5, chars)
 
     fig.savefig("AFM_PDF.pdf", format="pdf")
-    fig.savefig("AFM_PS.ps", format="ps)
+    fig.savefig("AFM_PS.ps", format="ps")
 
 Fonts in SVG
 ------------
