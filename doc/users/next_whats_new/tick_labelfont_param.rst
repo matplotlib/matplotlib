@@ -5,4 +5,4 @@ label font separately from the rest of the text objects:
 
 .. code-block:: python
 
-    Axis.tick_params(labelfontfamily*='monospace')
+    Axis.tick_params(labelfontfamily='monospace')
