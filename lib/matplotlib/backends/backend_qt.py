@@ -310,7 +310,9 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # provided (`isNull()`) and is unreliable on X11 ("xcb").
         if (event.pixelDelta().isNull()
                 or QtWidgets.QApplication.instance().platformName() == "xcb"):
-            steps = event.angleDelta().y() / 120
+            # When using the 'alt' modifier QWheelEvent reverse the coordinates
+            steps = event.angleDelta().y() / 120 if ("alt" not in self._mpl_modifiers()
+                                                     ) else event.angleDelta().x() / 120
         else:
             steps = event.pixelDelta().y()
         if steps:
