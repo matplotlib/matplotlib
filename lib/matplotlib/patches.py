@@ -1657,37 +1657,6 @@ class Ellipse(Patch):
     def _calculate_length_between_points(self, x0, y0, x1, y1):
         return np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
 
-    def _calculate_vertices_coordinates(self, return_major: bool = True):
-        # calculate the vertices of width axis
-        w_x0 = self._center[0] - self._width / 2 * np.cos(np.deg2rad(self._angle))
-        w_y0 = self._center[1] - self._width / 2 * np.sin(np.deg2rad(self._angle))
-        w_x1 = self._center[0] + self._width / 2 * np.cos(np.deg2rad(self._angle))
-        w_y1 = self._center[1] + self._width / 2 * np.sin(np.deg2rad(self._angle))
-
-        # calculate the vertices of height axis
-        h_x0 = self._center[0] - self._height / 2 * np.sin(np.deg2rad(self._angle))
-        h_y0 = self._center[1] + self._height / 2 * np.cos(np.deg2rad(self._angle))
-        h_x1 = self._center[0] + self._height / 2 * np.sin(np.deg2rad(self._angle))
-        h_y1 = self._center[1] - self._height / 2 * np.cos(np.deg2rad(self._angle))
-
-        if self._calculate_length_between_points(
-            w_x0, w_y0, w_x1, w_y1
-        ) >= self._calculate_length_between_points(
-            h_x0, h_y0, h_x1, h_y1
-        ):  # width is major
-            major = [(w_x0, w_y0), (w_x1, w_y1)]
-            minor = [(h_x0, h_y0), (h_x1, h_y1)]
-        else:  # minor
-            major = [(h_x0, h_y0), (h_x1, h_y1)]
-            minor = [(w_x0, w_y0), (w_x1, w_y1)]
-
-        if return_major:
-            coordinates = major
-        else:
-            coordinates = minor
-
-        return coordinates
-
     def get_vertices(self):
         """
         Return the vertices coordinates of the ellipse.
@@ -1696,7 +1665,11 @@ class Ellipse(Patch):
 
         .. versionadded:: 3.8
         """
-        return self._calculate_vertices_coordinates()
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        else:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        return [tuple(x) for x in ret]
 
     def get_co_vertices(self):
         """
@@ -1706,7 +1679,11 @@ class Ellipse(Patch):
 
         .. versionadded:: 3.8
         """
-        return self._calculate_vertices_coordinates(return_major=False)
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        else:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        return [tuple(x) for x in ret]
 
 
 class Annulus(Patch):
