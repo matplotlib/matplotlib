@@ -1,7 +1,4 @@
 from matplotlib.axes import Axes
-from matplotlib.patches import PathPatch
-from matplotlib.path import Path
-from matplotlib.transforms import Affine2D
 
 from collections.abc import Callable, Iterable
 from typing import Any

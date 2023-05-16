@@ -1,7 +1,6 @@
 from collections.abc import Iterator, Mapping
-from matplotlib import cbook, colors, scale
+from matplotlib import cbook, colors
 from matplotlib.colorbar import Colorbar
-from matplotlib._cm import datad
 
 import numpy as np
 from numpy.typing import ArrayLike

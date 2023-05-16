@@ -1,14 +1,11 @@
 import os
 
-from matplotlib import backend_bases, projections
-from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.artist import Artist
 from matplotlib.axes import Axes, SubplotBase
 from matplotlib.backend_bases import (
-    DrawEvent,
     FigureCanvasBase,
     MouseButton,
     MouseEvent,
-    NonGuiException,
     RendererBase,
 )
 from matplotlib.colors import Colormap, Normalize
@@ -16,24 +13,12 @@ from matplotlib.colorbar import Colorbar
 from matplotlib.cm import ScalarMappable
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib.image import _ImageBase, FigureImage
-from matplotlib.layout_engine import (
-    ConstrainedLayoutEngine,
-    LayoutEngine,
-    PlaceHolderLayoutEngine,
-    TightLayoutEngine,
-)
+from matplotlib.layout_engine import LayoutEngine
 from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
-from matplotlib.transforms import (
-    Affine2D,
-    Bbox,
-    BboxBase,
-    BboxTransformTo,
-    TransformedBbox,
-    Transform,
-)
+from matplotlib.transforms import Affine2D, Bbox, Transform
 
 import numpy as np
 from numpy.typing import ArrayLike

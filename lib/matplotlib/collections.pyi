@@ -1,4 +1,4 @@
-from . import artist, cbook, cm, transforms
+from . import artist, cm, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
 from .colors import Normalize, Colormap
@@ -6,7 +6,6 @@ from .path import Path
 from .patches import Patch
 from .ticker import Locator, Formatter
 from .tri import Triangulation
-from ._enums import CapStyle, JoinStyle
 
 import numpy as np
 from numpy.typing import ArrayLike

@@ -1,8 +1,12 @@
-import io
 import os
-from ._mathtext import RasterParse, VectorParse, get_unicode_index
 from matplotlib.font_manager import FontProperties
-from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
+
+# Re-exported API from _mathtext.
+from ._mathtext import (
+    RasterParse as RasterParse,
+    VectorParse as VectorParse,
+    get_unicode_index as get_unicode_index,
+)
 
 from typing import IO, Literal
 from matplotlib.typing import ColorType

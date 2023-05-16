@@ -1,13 +1,11 @@
-from . import backend_tools, cbook, colors, ticker, transforms
 from .artist import Artist
 from .axes import Axes
 from .backend_bases import FigureCanvasBase, Event, MouseEvent, MouseButton
 from .collections import LineCollection
 from .figure import Figure
 from .lines import Line2D
-from .patches import Circle, Ellipse, Polygon, Rectangle
+from .patches import Circle, Polygon, Rectangle
 from .text import Text
-from .transforms import Affine2D, TransformedPatchPath
 
 import PIL
 

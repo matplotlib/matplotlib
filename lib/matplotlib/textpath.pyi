@@ -1,10 +1,7 @@
-from matplotlib import dviread
-from matplotlib.font_manager import FontProperties, get_font
-from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT, FT2Font
+from matplotlib.font_manager import FontProperties
+from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
-from matplotlib.texmanager import TexManager
-from matplotlib.transforms import Affine2D
 
 import numpy as np
 

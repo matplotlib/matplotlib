@@ -1,18 +1,5 @@
 from matplotlib.axis import Axis
-from matplotlib.ticker import (
-    AsinhLocator,
-    AutoLocator,
-    AutoMinorLocator,
-    LogFormatterSciNotation,
-    LogLocator,
-    LogitFormatter,
-    LogitLocator,
-    NullFormatter,
-    NullLocator,
-    ScalarFormatter,
-    SymmetricalLogLocator,
-)
-from matplotlib.transforms import IdentityTransform, Transform
+from matplotlib.transforms import Transform
 
 from collections.abc import Callable, Iterable
 from typing import Literal

@@ -1,9 +1,3 @@
-import ast
-from matplotlib import cbook
-from matplotlib._enums import CapStyle, JoinStyle
-from matplotlib._fontconfig_pattern import parse_fontconfig_pattern
-from matplotlib.cbook import ls_mapper
-from matplotlib.colors import Colormap, is_color_like
 
 from cycler import Cycler
 

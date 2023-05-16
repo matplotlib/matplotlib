@@ -1,16 +1,6 @@
-from . import artist, cbook, colors, transforms
+from . import artist
 from .axes import Axes
 from .backend_bases import RendererBase, MouseEvent
-from .bezier import (
-    NonIntersectingPathException,
-    get_cos_sin,
-    get_intersection,
-    get_parallels,
-    inside_circle,
-    make_wedged_bezier2,
-    split_bezier_intersecting_with_closedpath,
-    split_path_inout,
-)
 from .path import Path
 from .transforms import Transform, Bbox
 

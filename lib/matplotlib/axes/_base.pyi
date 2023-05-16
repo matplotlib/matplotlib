@@ -1,12 +1,11 @@
 import matplotlib.artist as martist
 
 import datetime
-from collections.abc import Callable, Iterable, Iterator, Sequence, MutableSequence
-from matplotlib import cbook, offsetbox
+from collections.abc import Callable, Iterable, Iterator, Sequence
+from matplotlib import cbook
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis, Tick
 from matplotlib.backend_bases import RendererBase, MouseButton, MouseEvent
-from matplotlib.cbook import index_of
 from matplotlib.container import Container
 from matplotlib.collections import Collection
 from matplotlib.cm import ScalarMappable
@@ -20,8 +19,7 @@ from matplotlib.scale import ScaleBase
 from matplotlib.spines import Spines
 from matplotlib.table import Table
 from matplotlib.text import Text
-from matplotlib.rcsetup import cycler, validate_axisbelow
-from matplotlib.transforms import Transform, BboxBase, Bbox
+from matplotlib.transforms import Transform, Bbox
 
 from cycler import Cycler
 

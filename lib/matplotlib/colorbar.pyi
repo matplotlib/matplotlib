@@ -1,5 +1,5 @@
 import matplotlib.spines as mspines
-from matplotlib import cbook, cm, collections, colors, contour, ticker
+from matplotlib import cm, collections, colors, contour
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase
 from matplotlib.patches import Patch

@@ -1,7 +1,6 @@
 import matplotlib.cm as cm
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
-from matplotlib.backend_bases import MouseButton
 from matplotlib.collections import Collection, PathCollection
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.font_manager import FontProperties
