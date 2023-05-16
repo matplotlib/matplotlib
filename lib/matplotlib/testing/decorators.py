@@ -2,6 +2,7 @@ import contextlib
 import functools
 import inspect
 import os
+from platform import uname
 from pathlib import Path
 import shutil
 import string
@@ -199,6 +200,8 @@ class _ImageComparisonBase:
             with contextlib.suppress(OSError):
                 os.remove(expected_fname)
             try:
+                if 'microsoft' in uname().release.lower():
+                    raise OSError  # On WSL, symlink breaks silently
                 os.symlink(orig_expected_path, expected_fname)
             except OSError:  # On Windows, symlink *may* be unavailable.
                 shutil.copyfile(orig_expected_path, expected_fname)
