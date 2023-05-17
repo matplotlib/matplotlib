@@ -2403,7 +2403,7 @@ class SubFigure(FigureBase):
 @_docstring.interpd
 @_api.define_aliases({
     "size_inches": ["figsize"],
-    "layout_engine": ["layout"]
+    "layout_engine": ["layout"],
 })
 class Figure(FigureBase):
     """
