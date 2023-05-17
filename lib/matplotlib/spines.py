@@ -479,7 +479,7 @@ class Spine(mpatches.Patch):
 
 class SpinesProxy:
     """
-    A proxy to broadcast ``set_*`` method calls to all contained `.Spines`.
+    A proxy to broadcast ``set_*()`` and ``set()`` method calls to contained `.Spines`.
 
     The proxy cannot be used for any other operations on its members.
 
@@ -493,7 +493,7 @@ class SpinesProxy:
     def __getattr__(self, name):
         broadcast_targets = [spine for spine in self._spine_dict.values()
                              if hasattr(spine, name)]
-        if not name.startswith('set_') or not broadcast_targets:
+        if (name != 'set' and not name.startswith('set_')) or not broadcast_targets:
             raise AttributeError(
                 f"'SpinesProxy' object has no attribute '{name}'")
 
@@ -531,8 +531,8 @@ class Spines(MutableMapping):
 
         spines[:].set_visible(False)
 
-    The latter two indexing methods will return a `SpinesProxy` that broadcasts
-    all ``set_*`` calls to its members, but cannot be used for any other
+    The latter two indexing methods will return a `SpinesProxy` that broadcasts all
+    ``set_*()`` and ``set()`` calls to its members, but cannot be used for any other
     operation.
     """
     def __init__(self, **kwargs):
