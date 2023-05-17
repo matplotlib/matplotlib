@@ -64,6 +64,7 @@ class Tick(martist.Artist):
         pad=None,
         labelsize=None,
         labelcolor=None,
+        labelfontfamily=None,
         zorder=None,
         gridOn=None,  # defaults to axes.grid depending on axes.grid.which
         tick1On=True,
@@ -174,11 +175,11 @@ class Tick(martist.Artist):
         self.label1 = mtext.Text(
             np.nan, np.nan,
             fontsize=labelsize, color=labelcolor, visible=label1On,
-            rotation=self._labelrotation[1])
+            fontfamily=labelfontfamily, rotation=self._labelrotation[1])
         self.label2 = mtext.Text(
             np.nan, np.nan,
             fontsize=labelsize, color=labelcolor, visible=label2On,
-            rotation=self._labelrotation[1])
+            fontfamily=labelfontfamily, rotation=self._labelrotation[1])
 
         self._apply_tickdir(tickdir)
 
@@ -378,7 +379,7 @@ class Tick(martist.Artist):
             self.label2.set(rotation=self._labelrotation[1])
 
         label_kw = {k[5:]: v for k, v in kwargs.items()
-                    if k in ['labelsize', 'labelcolor']}
+                    if k in ['labelsize', 'labelcolor', 'labelfontfamily']}
         self.label1.set(**label_kw)
         self.label2.set(**label_kw)
 
@@ -1038,7 +1039,7 @@ class Axis(martist.Artist):
         # The following lists may be moved to a more accessible location.
         allowed_keys = [
             'size', 'width', 'color', 'tickdir', 'pad',
-            'labelsize', 'labelcolor', 'zorder', 'gridOn',
+            'labelsize', 'labelcolor', 'labelfontfamily', 'zorder', 'gridOn',
             'tick1On', 'tick2On', 'label1On', 'label2On',
             'length', 'direction', 'left', 'bottom', 'right', 'top',
             'labelleft', 'labelbottom', 'labelright', 'labeltop',

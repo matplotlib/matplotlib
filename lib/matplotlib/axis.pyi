@@ -8,7 +8,7 @@ from matplotlib.ticker import Locator, Formatter
 from matplotlib.transforms import Transform, Bbox
 
 import datetime
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from typing import Any, Literal
 import numpy as np
 from numpy.typing import ArrayLike
@@ -36,6 +36,7 @@ class Tick(martist.Artist):
         pad: float | None = ...,
         labelsize: float | None = ...,
         labelcolor: ColorType | None = ...,
+        labelfontfamily: str | Sequence[str] | None = ...,
         zorder: float | None = ...,
         gridOn: bool | None = ...,
         tick1On: bool = ...,
