@@ -2,10 +2,10 @@ from pathlib import Path
 import os
 
 
-if (base_path := os.environ.get("MPLTESTIMAGEPATH", None)) is None:
+if (base_path_str := os.environ.get("MPLTESTIMAGEPATH", None)) is None:
     base_path = Path(__file__).parent / 'baseline_images'
 else:
-    base_path = Path(base_path) / 'matplotlib' / 'tests' / 'baseline_images'
+    base_path = Path(base_path_str) / 'matplotlib' / 'tests' / 'baseline_images'
 
 
 # Check that the test directories exist.
@@ -17,3 +17,4 @@ if not (base_path).exists():
         'test data.')
 
 del base_path
+del base_path_str
