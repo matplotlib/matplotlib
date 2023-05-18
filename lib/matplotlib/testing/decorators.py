@@ -134,8 +134,12 @@ class _ImageComparisonBase:
 
     def __init__(self, func, tol, remove_text, savefig_kwargs):
         self.func = func
-        (self.baseline_dir, self.result_dir,
-         self.root_dir, self.image_revs,) = _image_directories(func)
+        self.result_dir = _results_directory(func)
+        (self.root_dir, mod_dir, image_list, self.md_path) = _baseline_directory(
+             func, os.environ.get("MPLTESTIMAGEPATH", None)
+         )
+        self.image_revs = _load_blame(image_list)
+        self.baseline_dir = self.root_dir / mod_dir
         self.tol = tol
         self.remove_text = remove_text
         self.savefig_kwargs = savefig_kwargs
@@ -192,13 +196,12 @@ class _ImageComparisonBase:
                 plt.close(fig)
             expected_path = self.copy_baseline(baseline, extension)
             # TODO make sure the file exists (and cache?)
-            json_path = self.root_dir / 'metadata.json'
-            if json_path.exists():
-                with open(json_path) as fin:
+            if self.md_path.exists():
+                with open(self.md_path) as fin:
                     md = json.load(fin)
             else:
                 md = {}
-                json_path.parent.mkdir(parents=True, exist_ok=True)
+                self.md_path.parent.mkdir(parents=True, exist_ok=True)
             if self.mode == self._ImageCheckMode.GENERATE:
                 rel_path = expected_path.relative_to(self.root_dir)
 
@@ -208,7 +211,7 @@ class _ImageComparisonBase:
                 md[str(rel_path)] = {'mpl_version': matplotlib.__version__,
                                      **{k: self.image_revs[rel_path][k]
                                         for k in ('sha', 'rev')}}
-                with open(self.root_dir / 'metadata.json', 'w') as fout:
+                with open(self.md_path, 'w') as fout:
                     json.dump(md, fout, sort_keys=True, indent='  ')
             else:
                 rel_path = actual_path.relative_to(self.result_dir.parent)
@@ -430,7 +433,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
     def decorator(func):
         import pytest
 
-        _, result_dir, *_ = _image_directories(func)
+        result_dir = _results_directory(func)
         old_sig = inspect.signature(func)
 
         if not {"fig_test", "fig_ref"}.issubset(old_sig.parameters):
@@ -569,25 +572,73 @@ def _rev_fname(fname, *, target_file="image_list.txt"):
     _write_imagelist(data)
 
 
-def _image_directories(func):
+def _baseline_directory(func, external_images):
     """
     Compute the baseline and result image directories for testing *func*.
 
     For test module ``foo.bar.test_baz``, the baseline directory is at
-    ``foo/bar/baseline_images/test_baz`` and the result directory at
-    ``$(pwd)/result_images/test_baz``.  The result directory is created if it
-    doesn't exist.
+    ``($base)/foo/bar/baseline_images/test_baz``.
+
+    If *external_images* is not None then it will be used as th ``$base``,
+    if not ``$base`` will be the base path of the source code.
+
+    Parameters
+    ----------
+    func : callable
+        The function to compute the file locations for.
+
+    external_images : str or None
+        If not None, the root of an external set of baseline images.
+
+    Returns
+    -------
+    root_dir : Path
+        The root of the baseline file tree
+
+    mod_dir : Path
+        Path relative to *root_dir* for the images
+
+    image_list : Path
+        Path to the list of images (with their versions)
+
+    md_path : Path
+        Path to the json meta-data about the generate images
+
     """
-    mod = inspect.getmodule(func)
-    *pkg_name, mod_name = mod.__name__.split('.')
+    *pkg_name, mod_name = inspect.getmodule(func).__name__.split('.')
     file_base = Path(inspect.getfile(func)).parent
-    if external_images := os.environ.get("MPLTESTIMAGEPATH", ""):
+    if external_images is not None:
         image_base = Path(external_images) / Path(*pkg_name)
     else:
         image_base = file_base
     root_dir = image_base / "baseline_images"
-    baseline_dir = root_dir / mod_name
-    result_dir = Path().resolve() / "result_images" / mod_name
+    mod_dir = Path(mod_name)
+
     image_list = file_base / "image_list.txt"
+
+    return root_dir, mod_dir, image_list, root_dir / 'metadata.json'
+
+
+def _results_directory(func):
+    """
+    Compute the result image directories for testing *func*.
+
+    For test module ``foo.bar.test_baz``,  the result directory at
+    ``$(pwd)/result_images/test_baz``.
+
+    The result directory is created if it doesn't exist.
+
+    Parameters
+    ----------
+    func : callable
+        The function to compute the file locations for.
+
+    Returns
+    -------
+    Path
+        The path to the directory in which to write the result images
+    """
+    *pkg_name, mod_name = inspect.getmodule(func).__name__.split('.')
+    result_dir = Path().resolve() / "result_images" / mod_name
     result_dir.mkdir(parents=True, exist_ok=True)
-    return baseline_dir, result_dir, root_dir, _load_blame(image_list)
+    return result_dir
