@@ -1,8 +1,10 @@
+.. redirect-from:: /devel/contributing
+
 .. _contributing:
 
-============
-Contributing
-============
+==========
+Contribute
+==========
 
 You've discovered a bug or something else you want to change
 in Matplotlib — excellent!
@@ -21,8 +23,8 @@ Matplotlib community.
 
 .. _start-contributing:
 
-Getting started with contributing?
-==================================
+Get started
+===========
 
 There is no pre-defined pathway for new contributors -- we recommend looking at
 existing issue and pull request discussions, and following the conversations
@@ -99,11 +101,11 @@ process works, technical questions about the code, what makes for good
 documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
-To join, please go to our public community_ channel, and ask to be added
-to ``#incubator``. One of our core developers will see your message and
-will add you.
+To join, please go to our public community_ channel, and ask
+to be added to ``#incubator``. One of our core developers will see your message
+and will add you.
 
-New Contributors meeting
+New Contributors Meeting
 ------------------------
 
 Once a month, we host a meeting to discuss topics that interest new
@@ -122,8 +124,8 @@ suggestions. We ❤ feedback!
 
 .. _new_contributors:
 
-Issues for new contributors
----------------------------
+Good first issues
+-----------------
 
 While any contributions are welcome, we have marked some issues as
 particularly suited for new contributors by the label `good first issue
@@ -143,8 +145,9 @@ though not necessarily all at the same time:
 - It involves Python features such as decorators and context managers, which
   have subtleties due to our implementation decisions.
 
-Assigning issues and duplicating pull requests
-----------------------------------------------
+
+Work on an issue
+----------------
 
 In general, the Matplotlib project does not assign issues. Issues are
 "assigned" or "claimed" by opening a PR; there is no other assignment
@@ -158,8 +161,8 @@ unresponsive, feel free to open a new PR referencing the old one.
 
 .. _submitting-a-bug-report:
 
-Submitting a bug report
-=======================
+Submit a bug report
+===================
 
 If you find a bug in the code or documentation, do not hesitate to submit a
 ticket to the
@@ -196,8 +199,8 @@ Thank you for your help in keeping bug reports complete, targeted and descriptiv
 
 .. _request-a-new-feature:
 
-Requesting a new feature
-========================
+Request a new feature
+=====================
 
 Please post feature requests to the
 `Issue Tracker <https://github.com/matplotlib/matplotlib/issues>`_.
@@ -209,8 +212,8 @@ users to then also
 
 .. _contributing-code:
 
-Contributing code
-=================
+Contribute code
+===============
 
 .. _how-to-contribute:
 
@@ -262,8 +265,8 @@ best practices for contribution, see :ref:`installing_for_devs`.
 
 .. _contributing_documentation:
 
-Contributing documentation
-==========================
+Contribute documentation
+========================
 
 You as an end-user of Matplotlib can make a valuable contribution because you
 more clearly see the potential for improvement than a core developer. For example, you can:
@@ -589,23 +592,5 @@ and running the same script will display
    my_matplotlib_module.set_range(0, 0)  # set range
 
 .. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
-
-.. _sample-data:
-
-Writing examples
-----------------
-
-We have hundreds of examples in subdirectories of :file:`matplotlib/examples`,
-and these are automatically generated when the website is built to show up in
-the :ref:`examples <gallery>` section of the website.
-
-Any sample data that the example uses should be kept small and
-distributed with Matplotlib in the
-:file:`lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
-example code you can load it into a file handle with::
-
-    import matplotlib.cbook as cbook
-    fh = cbook.get_sample_data('mydata.dat')
-
 .. _gitter: https://gitter.im/matplotlib/matplotlib
 .. _community: https://gitter.im/matplotlib/community
