@@ -147,12 +147,14 @@ class _ImageComparisonBase:
     def copy_baseline(self, baseline, extension):
         baseline_path = self.baseline_dir / baseline
         orig_expected_path = baseline_path.with_suffix(f'.{extension}')
-        rel_path = orig_expected_path.relative_to(self.root_dir)
-        assert rel_path in self.image_revs
-        if self.mode != self._ImageCheckMode.TEST:
-            return orig_expected_path
         if extension == 'eps' and not orig_expected_path.exists():
             orig_expected_path = orig_expected_path.with_suffix('.pdf')
+
+        rel_path = orig_expected_path.relative_to(self.root_dir)
+        if rel_path not in self.image_revs:
+            raise ValueError(f'{rel_path} is not known.')
+        if self.mode != self._ImageCheckMode.TEST:
+            return orig_expected_path
         expected_fname = Path(make_test_filename(
             self.result_dir / orig_expected_path.name, 'expected'))
         try:
