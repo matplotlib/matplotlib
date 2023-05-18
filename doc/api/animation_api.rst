@@ -167,30 +167,22 @@ artists and functions.  A fourth method is to create a class.
 
 Examples
 ~~~~~~~~
-
-.. toctree::
-   :maxdepth: 1
-
-   ../gallery/animation/animate_decay
-   ../gallery/animation/bayes_update
-   ../gallery/animation/double_pendulum
-   ../gallery/animation/animated_histogram
-   ../gallery/animation/rain
-   ../gallery/animation/random_walk
-   ../gallery/animation/simple_anim
-   ../gallery/animation/strip_chart
-   ../gallery/animation/unchained
+* :doc:`../gallery/animation/animate_decay`
+* :doc:`../gallery/animation/bayes_update`
+* :doc:`../gallery/animation/double_pendulum`
+* :doc:`../gallery/animation/animated_histogram`
+* :doc:`../gallery/animation/rain`
+* :doc:`../gallery/animation/random_walk`
+* :doc:`../gallery/animation/simple_anim`
+* :doc:`../gallery/animation/strip_chart`
+* :doc:`../gallery/animation/unchained`
 
 ``ArtistAnimation``
 -------------------
 
 Examples
 ~~~~~~~~
-
-.. toctree::
-   :maxdepth: 1
-
-   ../gallery/animation/dynamic_image
+* :doc:`../gallery/animation/dynamic_image`
 
 Writer Classes
 ==============
@@ -272,11 +264,7 @@ to ensure that setup and cleanup are performed as necessary.
 
 Examples
 --------
-
-.. toctree::
-   :maxdepth: 1
-
-   ../gallery/animation/frame_grabbing_sgskip
+* :doc:`../gallery/animation/frame_grabbing_sgskip`
 
 .. _ani_writer_classes:
 
