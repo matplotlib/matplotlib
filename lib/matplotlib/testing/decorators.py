@@ -534,7 +534,7 @@ def _load_blame(target_file):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-
+    blame_result.check_returncode()
     ret = {}
 
     cur_line = {}
