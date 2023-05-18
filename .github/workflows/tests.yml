@@ -316,7 +316,7 @@ jobs:
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
         env:
-          MPLTESTIMAGEPATH: /tmp/test_imags
+          MPLTESTIMAGEPATH: /tmp/test_images/
 
       - name: Filter C coverage
         run: |
