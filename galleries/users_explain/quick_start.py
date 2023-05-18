@@ -206,8 +206,8 @@ plt.legend()
 #    You may find older examples that use the ``pylab`` interface,
 #    via ``from pylab import *``. This approach is strongly deprecated.
 #
-# Making a helper functions
-# -------------------------
+# Making helper functions
+# -----------------------
 #
 # If you need to make the same plots over and over again with different data
 # sets, or want to easily wrap Matplotlib methods, use the recommended
@@ -558,8 +558,29 @@ axs[1, 1].set_title('scatter()')
 # control the size.  Finally, the colorbar will have default locators
 # and formatters appropriate to the norm.  These can be changed as for
 # other Axis objects.
+
+# %%
+# Patches
+# =======
 #
-#
+# Patches are Artists with a face color and an edge color, which can be used to
+# draw arbitrary two dimensional regions. In addition to the more general
+# Polygon, there are wrappers and helpers for common shapes like Rectangles,
+# Circles, Boxes, Ellipses, and more.
+
+fig, ax = plt.subplots()
+
+polygon = mpl.patches.Polygon(np.array([[1, 0], [0.5, 1.5], [2, 1]]), closed=True)
+ax.add_patch(polygon)
+
+circle = mpl.patches.Circle((2, 2), 0.5, facecolor='orange', edgecolor='black')
+ax.add_patch(circle)
+
+ax.set_xlim(0, 3)
+ax.set_ylim(0, 3)
+ax.set_box_aspect(1)
+
+# %%
 # Working with multiple Figures and Axes
 # ======================================
 #
@@ -588,3 +609,6 @@ axd['right'].set_title('right')
 # For more plot types see :doc:`Plot types </plot_types/index>` and the
 # :doc:`API reference </api/index>`, in particular the
 # :doc:`Axes API </api/axes_api>`.
+#
+# For more information on coordinate systems and transformations, see the
+# :ref:`transforms_tutorial`.
