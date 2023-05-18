@@ -873,7 +873,7 @@ default: %(va)s
             y = np.sin(x**2)
 
             # Create a figure
-            plt.figure()
+            fig = plt.figure()
 
             # Create a subplot
             ax = fig.subplots()
