@@ -3015,25 +3015,26 @@ class NavigationToolbar2:
         return not isinstance(x, Rectangle)
 
     def _tooltip_list(self, event, hover):
-        import matplotlib.pyplot as plt
-        lines = plt.gca().get_lines()
-        num_of_points = 0
-        for line in lines:
-            num_of_points += 1
-        if num_of_points >= len(hover):
+        lines = self.canvas.figure.gca().get_lines()[0]
+        coor_data = list(zip(lines.get_xdata(), lines.get_ydata()))
+
+        if len(coor_data) != len(hover):
             raise ValueError("""Number of data points
-            does not match up with number of labels""")
+             does not match up with number of labels""")
         else:
-            mouse_x = event.xdata
-            mouse_y = event.ydata
-            for line in lines:
-                x_data = line.get_xdata()
-                y_data = line.get_ydata()
-                for i in range(len(x_data)):
-                    distance = ((event.xdata - x_data[i])**2
-                                + (event.ydata - y_data[i])**2)**0.5
-                    if distance < 0.05:
-                        return "Data Label: " + hover[i]
+            distances = []
+            for a in coor_data:
+                distances.append(((event.xdata - a[0])**2 +
+                                  (event.ydata - a[1])**2)**0.5)
+            if (min(distances) < 0.05):
+                return f"Data Label: {hover[distances.index(min(distances))]}"
+
+    def _tooltip_dict(self, event, hover):
+        distances = {}
+        for a in hover.keys():
+            distances[a] = ((event.xdata - a[0])**2 + (event.ydata - a[1])**2)**0.5
+        if (min(distances.values()) < 0.05):
+            return f"Data Label: {hover[min(distances, key=distances.get)]}"
 
     def mouse_move(self, event):
         self._update_cursor(event)
@@ -3050,6 +3051,8 @@ class NavigationToolbar2:
                             self.set_hover_message(hover(event))
                         elif type(hover) == list:
                             self.set_hover_message(self._tooltip_list(event, hover))
+                        elif type(hover) == dict:
+                            self.set_hover_message(self._tooltip_dict(event, hover))
                         else:
                             self.set_hover_message(self._mouse_event_to_message(event))
                 else:

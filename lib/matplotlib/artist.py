@@ -653,10 +653,18 @@ class Artist:
               function which sets the hover message to be displayed.
 
             - A list: If hover is a list of string literals, each string represents
-              an additional information assigned to each data point. These arbitrary
-              data labels will appear as a tooltip in the bottom right hand corner
+              an additional information assigned to each data point. These data labels
+              will appear as a tooltip in the bottom right hand corner
               of the screen when the cursor is detected to be hovering over a data
-              point that corresponds with one of the data labels.
+              point that corresponds with the data labels in the same order that
+              was passed in.
+
+            - A dictionary: If hover is a dictionary of key value paris, each key
+              represents a tuple of x and y coordinate and each value represnets
+              additional information assigned to each data point. These data labels
+              will appear as a tooltip in the bottom right hand corner of the
+              screen when the cursor is detected to be hovering over a data point
+              that corresponds with one of the data labels.
         """
         self._hover = hover
 

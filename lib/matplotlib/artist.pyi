@@ -83,11 +83,12 @@ class Artist:
         hover: None
         | bool
         | list[str]
+        | dict[tuple[float, float], str]
         | Callable[[Artist, MouseEvent], tuple[bool, dict[Any, Any]]],
     ) -> None: ...
     def get_hover(
         self,
-    ) -> None | bool | list[str] | Callable[
+    ) -> None | bool | list[str] | dict[tuple[float, float], str] | Callable[
         [Artist, MouseEvent], tuple[bool, dict[Any, Any]]
     ]: ...
     def get_url(self) -> str | None: ...

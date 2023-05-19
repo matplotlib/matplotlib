@@ -1051,6 +1051,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.AddStretchableSpace()
             self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
             self.AddControl(self._label_text)
+            self._hover_message = wx.StaticText(self, style=wx.ALIGN_LEFT)
+            self.AddControl(self._hover_message)
 
         self.Realize()
 
@@ -1143,6 +1145,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         if self._coordinates:
             self._label_text.SetLabel(s)
 
+    def set_hover_message(self, s):
+        if self._coordinates:
+            self._hover_message.SetLabel(s)
+
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
         can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
@@ -1163,6 +1169,10 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         self._space = self.AddStretchableSpace()
         self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
         self.AddControl(self._label_text)
+
+        self._hover_message = wx.StaticText(self, style=wx.ALIGN_LEFT)
+        self.AddControl(self._hover_message)
+
         self._toolitems = {}
         self._groups = {}  # Mapping of groups to the separator after them.
 
@@ -1239,6 +1249,9 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
 
     def set_message(self, s):
         self._label_text.SetLabel(s)
+
+    def set_hover_message(self, s):
+        self._hover_message.SetLabel(s)
 
 
 @backend_tools._register_tool_class(_FigureCanvasWxBase)

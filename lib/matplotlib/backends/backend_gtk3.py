@@ -395,6 +395,11 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._message = Gtk.Label()
         self._message.set_justify(Gtk.Justification.RIGHT)
         self.pack_end(self._message, False, False, 0)
+
+        self.hover_message = Gtk.Label()
+        self.hover_message.set_justify(Gtk.Justification.RIGHT)
+        self.pack_end(self.hover_message, False, False, 0)
+
         self.show_all()
         self._groups = {}
         self._toolitems = {}
@@ -464,6 +469,9 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
     def set_message(self, s):
         self._message.set_label(s)
+
+    def set_hover_message(self, s):
+        self._hover_message.set_label(s)
 
 
 @backend_tools._register_tool_class(FigureCanvasGTK3)

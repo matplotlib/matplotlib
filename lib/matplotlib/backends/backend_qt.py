@@ -677,9 +677,19 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 _enum("QtWidgets.QSizePolicy.Policy").Expanding,
                 _enum("QtWidgets.QSizePolicy.Policy").Ignored,
             ))
+            self.hover_message = QtWidgets.QLabel("", self)
+            self.hover_message.setAlignment(QtCore.Qt.AlignmentFlag(
+                _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignRight) |
+                _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignVCenter)))
+            self.hover_message.setSizePolicy(QtWidgets.QSizePolicy(
+                _enum("QtWidgets.QSizePolicy.Policy").Expanding,
+                _enum("QtWidgets.QSizePolicy.Policy").Ignored,
+            ))
+            labelActionHover = self.addWidget(self.hover_message)
+            labelActionHover.setVisible(True)
+
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
-
         NavigationToolbar2.__init__(self, canvas)
 
     def _icon(self, name):
@@ -755,6 +765,11 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
+
+    def set_hover_message(self, s):
+        self.message.emit(s)
+        if self.coordinates:
+            self.hover_message.setText(s)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height

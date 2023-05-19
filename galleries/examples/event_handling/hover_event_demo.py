@@ -19,6 +19,9 @@ The hover behavior depends on the type of the argument passed to the
 * list of string literals - hovering is enabled, and hovering over a point
   displays the corresponding string literal.
 
+* dictionary - hovering is enabled, and hovering over a point
+  displays the string literal corresponding to the coordinate tuple.
+
 * function - if hover is callable, it is a user supplied function which
   takes a ``mouseevent`` object (see below), and returns a tuple of transformed
   coordinates
@@ -69,16 +72,26 @@ import matplotlib.pyplot as plt
 from numpy.random import rand
 
 fig, ax = plt.subplots()
-plt.ylabel('some numbers')
 
 ax.plot(rand(3), 'o', hover=['London', 'Paris', 'Barcelona'])
+plt.show()
+
+# %%
+# Hover with dictionary data
+# --------------------------------
+fig, ax = plt.subplots()
+x = rand(3)
+y = rand(3)
+ax.plot(x, y, 'o', hover={
+    (x[0], y[0]): "London",
+    (x[1], y[1]): "Paris",
+    (x[2], y[2]): "Barcelona"})
 plt.show()
 
 # %%
 # Hover with a callable transformation function
 # ---------------------------------------------
 fig, ax = plt.subplots()
-plt.ylabel('some numbers')
 
 
 def user_defined_function(event):
