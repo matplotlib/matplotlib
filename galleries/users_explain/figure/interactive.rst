@@ -204,6 +204,79 @@ The windows created by :mod:`~.pyplot` have an interactive toolbar with navigati
 buttons and a readout of the data values the cursor is pointing at.  A number of
 helpful keybindings are registered by default.
 
+UI navigation buttons
+---------------------
+
+The following table holds description of all GUI buttons.
+
++-------------------+----------------------------------------------------------+
+| Button            | Description                                              |
++===================+==========================================================+
+| Home/Reset        | Moves the plot to the start                              |
+|                   | position                                                 |
+|                   |                                                          |
+|                   | .. figure:: /_static/home.gif                            |
++-------------------+----------------------------------------------------------+
+| Back              | Moves the plot to the previous                           |
+|                   | position                                                 |
+|                   |                                                          |
+|                   | .. figure:: /_static/back.gif                            |
++-------------------+----------------------------------------------------------+
+| Forward           | Replays cancelled changes                                |
+|                   |                                                          |
+|                   | .. figure:: /_static/forward.gif                         |
++-------------------+----------------------------------------------------------+
+| Move              | Activates the mode of changing                           |
+|                   | position of the plot relative                            |
+|                   | to the current axes                                      |
+|                   |                                                          |
+|                   | .. figure:: /_static/move.gif                            |
++-------------------+----------------------------------------------------------+
+| Zoom to rectangle | Select area with left mouse button (for mouse users)     |
+|                   | or one finger (for touchpad users) to zoom in the plot   |
+|                   |                                                          |
+|                   | Select area with right mouse button (for mouse users)    |
+|                   | or two fingers (for touchpad users) to zoom out the plot |
+|                   |                                                          |
+|                   | .. figure:: /_static/zoom.gif                            |
++-------------------+----------------------------------------------------------+
+| Additional        | `left/bottom/right/top sliders:`                         |
+|                   |     3D: Regulates left/bottom/right/top                  |
+|                   |     margin of figure with                                |
+|                   |     keeping proportions of the figure                    |
+|                   |                                                          |
+|                   |     .. figure:: /_static/ad_left_3d.gif                  |
+|                   |                                                          |
+|                   |     2D: Regulates left/bottom/right/top                  |
+|                   |     margin of figure without                             |
+|                   |     keeping proportions of the figure                    |
+|                   |                                                          |
+|                   |     .. figure:: /_static/ad_left_2d.gif                  |
+|                   |                                                          |
+|                   | `wspace/hspace sliders:`                                 |
+|                   |     3D: Regulates horizontal/vertical                    |
+|                   |     offset between different axes with                   |
+|                   |     keeping proportions of the figure                    |
+|                   |                                                          |
+|                   |     .. figure:: /_static/ad_wspace_3d.gif                |
+|                   |                                                          |
+|                   |     2D: Regulates horizontal/vertical                    |
+|                   |     offset between different axes                        |
+|                   |     without keeping proportions of the                   |
+|                   |     figure                                               |
+|                   |                                                          |
+|                   |     .. figure:: /_static/ad_wspace_2d.gif                |
+|                   |                                                          |
+|                   |     **This option makes sense if there                   |
+|                   |     are two or more plots                                |
+|                   |     with different axes**                                |
++-------------------+----------------------------------------------------------+
+| Save              | Saves .png image of the current                          |
+|                   | plot position                                            |
+|                   |                                                          |
+|                   | .. figure:: /_static/save.gif                            |
++-------------------+----------------------------------------------------------+
+
 
 .. _key-event-handling:
 
