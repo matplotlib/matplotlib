@@ -240,7 +240,7 @@ The following table holds description of all GUI buttons.
 |                   |                                                          |
 |                   | .. figure:: /_static/zoom.gif                            |
 +-------------------+----------------------------------------------------------+
-| Additional        | `left/bottom/right/top sliders:`                         |
+| Additional        | `left, bottom, right, top sliders:`                      |
 |                   |     3D: Regulates left/bottom/right/top                  |
 |                   |     margin of figure with                                |
 |                   |     keeping proportions of the figure                    |
@@ -253,7 +253,7 @@ The following table holds description of all GUI buttons.
 |                   |                                                          |
 |                   |     .. figure:: /_static/ad_left_2d.gif                  |
 |                   |                                                          |
-|                   | `wspace/hspace sliders:`                                 |
+|                   | `wspace, hspace sliders:`                                |
 |                   |     3D: Regulates horizontal/vertical                    |
 |                   |     offset between different axes with                   |
 |                   |     keeping proportions of the figure                    |
