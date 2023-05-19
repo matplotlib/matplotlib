@@ -1,6 +1,8 @@
-- The signature and implementation of the `set_hover()` and `get_hover()` methods of the `Artist` class, as well as the `HoverEvent(Event)` Class, have been added:
+Data Tooltip Support
+~~~~~~~~~~~~~~~~~~~~
 
-  .. versionchanged:: 3.7.2
+- The signature and implementation of the ``set_hover()`` and ``get_hover()`` methods of the ``Artist`` class, as well as the ``HoverEvent(Event)`` Class, have been added:
+
     The `set_hover()` method takes two arguments, `self` and `hover`. `hover` is the hover status that the object is then set to.
     The `get_hover()` methods take a single argument `self` and returns the hover status of the object.
     The `HoverEvent(Event)` Class takes a single argument  `Event` and fires when the mouse hovers over a canvas.
