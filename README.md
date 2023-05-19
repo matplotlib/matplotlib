@@ -33,6 +33,12 @@ See the [install
 documentation](https://matplotlib.org/stable/users/installing/index.html),
 which is generated from `/doc/users/installing/index.rst`
 
+## Learn
+
+Check out the [Tutorial
+documentation](https://matplotlib.org/stable/tutorials/index.html) ->
+Learn to apply this powerful library 
+
 ## Contribute
 
 You've discovered a bug or something else you want to change — excellent!
