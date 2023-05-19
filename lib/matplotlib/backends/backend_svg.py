@@ -1,7 +1,6 @@
 import base64
 import codecs
-from datetime import timezone
-from datetime import datetime
+import datetime
 import gzip
 import hashlib
 from io import BytesIO
@@ -381,7 +380,7 @@ class RendererSVG(RendererBase):
             # See https://reproducible-builds.org/specs/source-date-epoch/
             date = os.getenv("SOURCE_DATE_EPOCH")
             if date:
-                date = datetime.datetime.fromtimestamp(int(date), timezone.utc)
+                date = datetime.datetime.fromtimestamp(int(date), datetime.timezone.utc)
                 metadata['Date'] = date.replace(tzinfo=UTC).isoformat()
             else:
                 metadata['Date'] = datetime.datetime.today().isoformat()
