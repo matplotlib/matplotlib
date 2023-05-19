@@ -3,7 +3,8 @@ A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
 import codecs
-import datetime
+from datetime import timezone
+from datetime import datetime
 from enum import Enum
 import functools
 from io import StringIO
