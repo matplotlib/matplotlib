@@ -1,5 +1,4 @@
 import contextlib
-import enum
 import functools
 import inspect
 import json
@@ -123,15 +122,6 @@ class _ImageComparisonBase:
     This class provides *just* the comparison-related functionality and avoids
     any code that would be specific to any testing framework.
     """
-    class _ImageCheckMode(enum.Enum):
-        TEST = enum.auto()
-        GENERATE = enum.auto()
-
-    mode = (_ImageCheckMode.GENERATE
-            if os.environ.get("MPLGENERATEBASELINE")
-            else _ImageCheckMode.TEST
-            )
-
     def __init__(self, func, tol, remove_text, savefig_kwargs):
         self.func = func
         self.result_dir = _results_directory(func)
@@ -144,17 +134,7 @@ class _ImageComparisonBase:
         self.remove_text = remove_text
         self.savefig_kwargs = savefig_kwargs
 
-    def copy_baseline(self, baseline, extension):
-        baseline_path = self.baseline_dir / baseline
-        orig_expected_path = baseline_path.with_suffix(f'.{extension}')
-        if extension == 'eps' and not orig_expected_path.exists():
-            orig_expected_path = orig_expected_path.with_suffix('.pdf')
-
-        rel_path = orig_expected_path.relative_to(self.root_dir)
-        if rel_path not in self.image_revs:
-            raise ValueError(f'{rel_path!r} is not known.')
-        if self.mode != self._ImageCheckMode.TEST:
-            return orig_expected_path
+    def copy_baseline(self, orig_expected_path):
         expected_fname = Path(make_test_filename(
             self.result_dir / orig_expected_path.name, 'expected'))
         try:
@@ -174,8 +154,26 @@ class _ImageComparisonBase:
                 f"{orig_expected_path}") from err
         return expected_fname
 
-    def compare(self, fig, baseline, extension, *, _lock=False):
-        __tracebackhide__ = True
+    # TODO add caching?
+    def _get_md(self):
+        if self.md_path.exists():
+            with open(self.md_path) as fin:
+                md = {Path(k): v for k, v in json.load(fin).items()}
+        else:
+            md = {}
+            self.md_path.parent.mkdir(parents=True, exist_ok=True)
+        return md
+
+    def _write_md(self, md):
+        with open(self.md_path, 'w') as fout:
+            json.dump(
+                {str(PurePosixPath(*k.parts)): v for k, v in md.items()},
+                fout,
+                sort_keys=True,
+                indent='  '
+            )
+
+    def _prep_figure(self, fig, baseline, extension):
 
         if self.remove_text:
             remove_ticks_and_titles(fig)
@@ -186,50 +184,75 @@ class _ImageComparisonBase:
             kwargs.setdefault('metadata',
                               {'Creator': None, 'Producer': None,
                                'CreationDate': None})
+        orig_expected_path = self._compute_baseline_filename(baseline, extension)
 
-        lock = (cbook._lock_path(actual_path)
-                if _lock else contextlib.nullcontext())
+        return actual_path, kwargs, orig_expected_path
+
+    def _compute_baseline_filename(self, baseline, extension):
+        baseline_path = self.baseline_dir / baseline
+        orig_expected_path = baseline_path.with_suffix(f'.{extension}')
+        rel_path = orig_expected_path.relative_to(self.root_dir)
+
+        if extension == 'eps' and rel_path not in self.image_revs:
+            orig_expected_path = orig_expected_path.with_suffix('.pdf')
+            rel_path = orig_expected_path.relative_to(self.root_dir)
+
+        if rel_path not in self.image_revs:
+            raise ValueError(f'{rel_path!r} is not known.')
+        return orig_expected_path
+
+    def _save_and_close(self, fig, actual_path, kwargs):
+        try:
+            fig.savefig(actual_path, **kwargs)
+        finally:
+            # Matplotlib has an autouse fixture to close figures, but this
+            # makes things more convenient for third-party users.
+            plt.close(fig)
+
+    def generate(self, fig, baseline, extension, *, _lock=False):
+        __tracebackhide__ = True
+        md = self._get_md()
+
+        actual_path, kwargs, orig_expected_path = self._prep_figure(
+            fig, baseline, extension
+        )
+
+        lock = (cbook._lock_path(actual_path) if _lock else contextlib.nullcontext())
         with lock:
-            try:
-                fig.savefig(actual_path, **kwargs)
-            finally:
-                # Matplotlib has an autouse fixture to close figures, but this
-                # makes things more convenient for third-party users.
-                plt.close(fig)
-            expected_path = self.copy_baseline(baseline, extension)
-            # TODO make sure the file exists (and cache?)
-            if self.md_path.exists():
-                with open(self.md_path) as fin:
-                    md = {Path(k): v for k, v in json.load(fin).items()}
+            self._save_and_close(fig, actual_path, kwargs)
 
-            else:
-                md = {}
-                self.md_path.parent.mkdir(parents=True, exist_ok=True)
-            if self.mode == self._ImageCheckMode.GENERATE:
-                rel_path = expected_path.relative_to(self.root_dir)
-                if rel_path not in md and rel_path.suffix == '.eps':
-                    rel_path = rel_path.with_suffix('.pdf')
-                expected_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(actual_path, expected_path)
+            rel_path = orig_expected_path.relative_to(self.root_dir)
+            if rel_path not in self.image_revs and rel_path.suffix == '.eps':
+                rel_path = rel_path.with_suffix('.pdf')
+            orig_expected_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(actual_path, orig_expected_path)
 
-                md[rel_path] = {
-                    'mpl_version': matplotlib.__version__,
-                    **{k: self.image_revs[rel_path][k]for k in ('sha', 'rev')}
-                }
-                with open(self.md_path, 'w') as fout:
-                    json.dump(
-                        {str(PurePosixPath(*k.parts)): v for k, v in md.items()},
-                        fout,
-                        sort_keys=True,
-                        indent='  '
-                    )
-            else:
-                rel_path = actual_path.relative_to(self.result_dir.parent)
-                if rel_path not in md and rel_path.suffix == '.eps':
-                    rel_path = rel_path.with_suffix('.pdf')
-                if md[rel_path]['sha'] != self.image_revs[rel_path]['sha']:
-                    raise RuntimeError("Baseline images do not match checkout.")
-                _raise_on_image_difference(expected_path, actual_path, self.tol)
+            md[rel_path] = {
+                'mpl_version': matplotlib.__version__,
+                **{k: self.image_revs[rel_path][k]for k in ('sha', 'rev')}
+            }
+            self._write_md(md)
+
+    def compare(self, fig, baseline, extension, *, _lock=False):
+        __tracebackhide__ = True
+        md = self._get_md()
+        actual_path, kwargs, orig_expected_path = self._prep_figure(
+            fig, baseline, extension
+        )
+
+        lock = (cbook._lock_path(actual_path) if _lock else contextlib.nullcontext())
+        with lock:
+            self._save_and_close(fig, actual_path, kwargs)
+
+            expected_path = self.copy_baseline(orig_expected_path)
+
+            rel_path = actual_path.relative_to(self.result_dir.parent)
+            if rel_path not in md and rel_path.suffix == '.eps':
+                rel_path = rel_path.with_suffix('.pdf')
+            if md[rel_path]['sha'] != self.image_revs[rel_path]['sha']:
+                raise RuntimeError("Baseline images do not match checkout.")
+
+            _raise_on_image_difference(expected_path, actual_path, self.tol)
 
 
 def _pytest_image_comparison(baseline_images, extensions, tol,
@@ -293,8 +316,14 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
             assert len(figs) == len(our_baseline_images), (
                 f"Test generated {len(figs)} images but there are "
                 f"{len(our_baseline_images)} baseline images")
+
+            generating = bool(os.environ.get("MPLGENERATEBASELINE"))
+
             for fig, baseline in zip(figs, our_baseline_images):
-                img.compare(fig, baseline, extension, _lock=needs_lock)
+                if generating:
+                    img.generate(fig, baseline, extension, _lock=needs_lock)
+                else:
+                    img.compare(fig, baseline, extension, _lock=needs_lock)
 
         parameters = list(old_sig.parameters.values())
         if 'extension' not in old_sig.parameters:

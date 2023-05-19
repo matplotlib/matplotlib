@@ -10,7 +10,7 @@ else:
     base_path = Path(__file__).parent / "baseline_images"
 
 # Check that the test directories exist.
-if not (base_path).exists():
+if not (base_path).exists() and not os.environ.get("MPLGENERATEBASELINE"):
     raise OSError(
         f"The baseline image directory ({base_path!r}) does not exist. "
         "This is most likely because the test data is not installed. "
