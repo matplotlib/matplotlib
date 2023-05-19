@@ -5,8 +5,8 @@ Author: Jouni K Seppänen <jks@iki.fi> and others.
 """
 
 import codecs
-from datetime import datetime
 from datetime import timezone
+from datetime import datetime
 from enum import Enum
 from functools import total_ordering
 from io import BytesIO
