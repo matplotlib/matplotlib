@@ -827,7 +827,7 @@ class FigureCanvasPS(FigureCanvasBase):
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         dsc_comments["CreationDate"] = (
             datetime.datetime.fromtimestamp(
-                int(source_date_epoch), datetime.utc).strftime("%a %b %d %H:%M:%S %Y")
+                int(source_date_epoch), datetime.timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
             if source_date_epoch
             else time.ctime())
         dsc_comments = "\n".join(
