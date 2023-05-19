@@ -24,6 +24,7 @@ import yaml
 import matplotlib
 
 from datetime import datetime
+from datetime import timezone
 import time
 
 # debug that building expected version
@@ -73,8 +74,8 @@ if 'skip_sub_dirs=1' in sys.argv:
 
 # Parse year using SOURCE_DATE_EPOCH, falling back to current time.
 # https://reproducible-builds.org/specs/source-date-epoch/
-sourceyear = datetime.datetime.fromtimestamp(
-    int(os.environ.get('SOURCE_DATE_EPOCH', time.time())), datetime.utc).year
+sourceyear = datetime.fromtimestamp(
+    int(os.environ.get('SOURCE_DATE_EPOCH', time.time())), datetime.timezone.utc).year
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
