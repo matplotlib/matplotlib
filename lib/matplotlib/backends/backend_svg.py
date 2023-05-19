@@ -380,7 +380,7 @@ class RendererSVG(RendererBase):
             # See https://reproducible-builds.org/specs/source-date-epoch/
             date = os.getenv("SOURCE_DATE_EPOCH")
             if date:
-                date = datetime.datetime.fromtimestamp(int(date), datetime.timezone.utc)
+                date = datetime.datetime.fromtimestamp(int(date), datetime.utc)
                 metadata['Date'] = date.replace(tzinfo=UTC).isoformat()
             else:
                 metadata['Date'] = datetime.datetime.today().isoformat()
