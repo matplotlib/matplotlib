@@ -586,6 +586,8 @@ non-rectilinear Axes.
    Axes.get_yaxis_text1_transform
    Axes.get_yaxis_text2_transform
 
+   Axes.transData
+
 
 Other
 =====
