@@ -207,7 +207,8 @@ class _ImageComparisonBase:
                 self.md_path.parent.mkdir(parents=True, exist_ok=True)
             if self.mode == self._ImageCheckMode.GENERATE:
                 rel_path = expected_path.relative_to(self.root_dir)
-
+                if rel_path not in md and rel_path.suffix == '.eps':
+                    rel_path = rel_path.with_suffix('.pdf')
                 expected_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(actual_path, expected_path)
 
@@ -224,6 +225,8 @@ class _ImageComparisonBase:
                     )
             else:
                 rel_path = actual_path.relative_to(self.result_dir.parent)
+                if rel_path not in md and rel_path.suffix == '.eps':
+                    rel_path = rel_path.with_suffix('.pdf')
                 if md[rel_path]['sha'] != self.image_revs[rel_path]['sha']:
                     raise RuntimeError("Baseline images do not match checkout.")
                 _raise_on_image_difference(expected_path, actual_path, self.tol)
