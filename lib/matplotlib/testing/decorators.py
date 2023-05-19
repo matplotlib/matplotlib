@@ -4,7 +4,7 @@ import functools
 import inspect
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from platform import uname
 import shutil
 import string
@@ -152,7 +152,7 @@ class _ImageComparisonBase:
 
         rel_path = orig_expected_path.relative_to(self.root_dir)
         if rel_path not in self.image_revs:
-            raise ValueError(f'{rel_path} is not known.')
+            raise ValueError(f'{rel_path!r} is not known.')
         if self.mode != self._ImageCheckMode.TEST:
             return orig_expected_path
         expected_fname = Path(make_test_filename(
@@ -200,7 +200,8 @@ class _ImageComparisonBase:
             # TODO make sure the file exists (and cache?)
             if self.md_path.exists():
                 with open(self.md_path) as fin:
-                    md = json.load(fin)
+                    md = {Path(k): v for k, v in json.load(fin).items()}
+
             else:
                 md = {}
                 self.md_path.parent.mkdir(parents=True, exist_ok=True)
@@ -210,14 +211,20 @@ class _ImageComparisonBase:
                 expected_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(actual_path, expected_path)
 
-                md[str(rel_path)] = {'mpl_version': matplotlib.__version__,
-                                     **{k: self.image_revs[rel_path][k]
-                                        for k in ('sha', 'rev')}}
+                md[rel_path] = {
+                    'mpl_version': matplotlib.__version__,
+                    **{k: self.image_revs[rel_path][k]for k in ('sha', 'rev')}
+                }
                 with open(self.md_path, 'w') as fout:
-                    json.dump(md, fout, sort_keys=True, indent='  ')
+                    json.dump(
+                        {str(PurePosixPath(*k.parts)): v for k, v in md.items()},
+                        fout,
+                        sort_keys=True,
+                        indent='  '
+                    )
             else:
                 rel_path = actual_path.relative_to(self.result_dir.parent)
-                if md[str(rel_path)]['sha'] != self.image_revs[rel_path]['sha']:
+                if md[rel_path]['sha'] != self.image_revs[rel_path]['sha']:
                     raise RuntimeError("Baseline images do not match checkout.")
                 _raise_on_image_difference(expected_path, actual_path, self.tol)
 
