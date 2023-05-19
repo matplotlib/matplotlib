@@ -99,7 +99,7 @@ process works, technical questions about the code, what makes for good
 documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
-To join, please go to our public gitter_ community channel, and ask to be added
+To join, please go to our public community_ channel, and ask to be added
 to ``#incubator``. One of our core developers will see your message and
 will add you.
 
@@ -602,3 +602,4 @@ example code you can load it into a file handle with::
     fh = cbook.get_sample_data('mydata.dat')
 
 .. _gitter: https://gitter.im/matplotlib/matplotlib
+.. _community: https://gitter.im/matplotlib/community
