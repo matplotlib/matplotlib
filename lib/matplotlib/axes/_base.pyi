@@ -49,7 +49,6 @@ class _AxesBase(martist.Artist):
     transAxes: Transform
     transScale: Transform
     transLimits: Transform
-    transData: Transform
     ignore_existing_data_limits: bool
     axison: bool
     _projection_init: Any
