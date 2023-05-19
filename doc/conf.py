@@ -23,8 +23,8 @@ import yaml
 
 import matplotlib
 
-from datetime import datetime
 from datetime import timezone
+from datetime import datetime
 import time
 
 # debug that building expected version
