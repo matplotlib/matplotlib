@@ -73,7 +73,7 @@ if 'skip_sub_dirs=1' in sys.argv:
 
 # Parse year using SOURCE_DATE_EPOCH, falling back to current time.
 # https://reproducible-builds.org/specs/source-date-epoch/
-sourceyear = datetime.fromtimestamp(
+sourceyear = datetime.datetime.fromtimestamp(
     int(os.environ.get('SOURCE_DATE_EPOCH', time.time())), datetime.utc).year
 
 # If your extensions are in another directory, add it here. If the directory
