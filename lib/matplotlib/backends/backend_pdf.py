@@ -148,8 +148,7 @@ def _create_pdf_info_dict(backend, metadata):
     # See https://reproducible-builds.org/specs/source-date-epoch/
     source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
     if source_date_epoch:
-        source_date = datetime.fromtimestamp(int(source_date_epoch), 
-                                             datetime.utc)
+        source_date = datetime.fromtimestamp(int(source_date_epoch), datetime.utc)
         source_date = source_date.replace(tzinfo=UTC)
     else:
         source_date = datetime.today()
