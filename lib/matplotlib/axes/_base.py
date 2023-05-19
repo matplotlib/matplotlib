@@ -561,6 +561,12 @@ class _AxesBase(martist.Artist):
 
     _subclass_uses_cla = False
 
+    transData = None  # Transform object
+    """
+    a transformation object that converts data coordinates into a
+    coordinate system used to display data on graph axes
+    """
+
     @property
     def _axis_map(self):
         """A mapping of axis names, e.g. 'x', to `Axis` instances."""
