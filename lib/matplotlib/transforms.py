@@ -2968,6 +2968,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     `Transform` subclass
         Transform with applied offset.
     """
+    _api.check_in_list(['dots', 'points', 'inches'], units=units)
     if units == 'dots':
         return trans + Affine2D().translate(x, y)
     if fig is None:
@@ -2975,8 +2976,5 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     if units == 'points':
         x /= 72.0
         y /= 72.0
-    elif units == 'inches':
-        pass
-    else:
-        _api.check_in_list(['dots', 'points', 'inches'], units=units)
+    # Default units are 'inches'
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
