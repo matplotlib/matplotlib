@@ -53,7 +53,7 @@ from matplotlib.text import OffsetFrom
 #   any key for matplotlib.patches.polygon  (e.g., facecolor)
 
 # Create our figure and data we'll use for plotting
-fig, ax = plt.subplots(figsize=(3, 3))
+fig, ax = plt.subplots(figsize=(4, 4))
 
 t = np.arange(0.0, 5.0, 0.01)
 s = np.cos(2*np.pi*t)
@@ -63,7 +63,8 @@ line, = ax.plot(t, s)
 ax.annotate('figure pixels',
             xy=(10, 10), xycoords='figure pixels')
 ax.annotate('figure points',
-            xy=(80, 80), xycoords='figure points')
+            xy=(107, 110), xycoords='figure points',
+            fontsize=12)
 ax.annotate('figure fraction',
             xy=(.025, .975), xycoords='figure fraction',
             horizontalalignment='left', verticalalignment='top',
@@ -72,14 +73,14 @@ ax.annotate('figure fraction',
 # The following examples show off how these arrows are drawn.
 
 ax.annotate('point offset from data',
-            xy=(2, 1), xycoords='data',
-            xytext=(-15, 25), textcoords='offset points',
+            xy=(3, 1), xycoords='data',
+            xytext=(-10, 90), textcoords='offset points',
             arrowprops=dict(facecolor='black', shrink=0.05),
-            horizontalalignment='right', verticalalignment='bottom')
+            horizontalalignment='center', verticalalignment='bottom')
 
 ax.annotate('axes fraction',
-            xy=(3, 1), xycoords='data',
-            xytext=(0.8, 0.95), textcoords='axes fraction',
+            xy=(2, 1), xycoords='data',
+            xytext=(0.36, 0.68), textcoords='axes fraction',
             arrowprops=dict(facecolor='black', shrink=0.05),
             horizontalalignment='right', verticalalignment='top')
 
