@@ -3,6 +3,7 @@ import itertools
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib.axes import Axes, SubplotBase
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -283,3 +284,80 @@ def test_old_subplot_compat():
     assert not isinstance(fig.add_axes(rect=[0, 0, 1, 1]), SubplotBase)
     with pytest.raises(TypeError):
         Axes(fig, [0, 0, 1, 1], rect=[0, 0, 1, 1])
+
+
+class TestAxesArray:
+    @staticmethod
+    def contain_same_axes(axs1, axs2):
+        return all(ax1 is ax2 for ax1, ax2 in zip(axs1.flat, axs2.flat))
+
+    def test_1d(self):
+        axs = plt.figure().subplots(1, 3)
+        # shape and size
+        assert axs.shape == (3,)
+        assert axs.size == 3
+        assert axs.ndim == 1
+        # flat
+        assert all(isinstance(ax, Axes) for ax in axs.flat)
+        assert len(set(id(ax) for ax in axs.flat)) == 3
+        # flatten
+        assert all(isinstance(ax, Axes) for ax in axs.flatten())
+        assert len(set(id(ax) for ax in axs.flatten())) == 3
+        # ravel
+        assert all(isinstance(ax, Axes) for ax in axs.ravel())
+        assert len(set(id(ax) for ax in axs.ravel())) == 3
+        # single index
+        assert all(isinstance(axs[i], Axes) for i in range(axs.size))
+        assert len(set(axs[i] for i in range(axs.size))) == 3
+# iteration
+        assert all(ax1 is ax2 for ax1, ax2 in zip(axs, axs.flat))
+
+    def test_1d_no_squeeze(self):
+        axs = plt.figure().subplots(1, 3, squeeze=False)
+        # shape and size
+        assert axs.shape == (1, 3)
+        assert axs.size == 3
+        assert axs.ndim == 2
+        # flat
+        assert all(isinstance(ax, Axes) for ax in axs.flat)
+        assert len(set(id(ax) for ax in axs.flat)) == 3
+        # 2d indexing
+        assert axs[0, 0] is axs.flat[0]
+        assert axs[0, 2] is axs.flat[-1]
+        # single index
+        axs_type = type(axs)
+        assert type(axs[0]) is axs_type
+        assert axs[0].shape == (3,)
+        # iteration
+        assert all(self.contain_same_axes(axi, axs[i]) for i, axi in enumerate(axs))
+
+    def test_2d(self):
+        axs = plt.figure().subplots(2, 3)
+        # shape and size
+        assert axs.shape == (2, 3)
+        assert axs.size == 6
+        assert axs.ndim == 2
+        # flat
+        assert all(isinstance(ax, Axes) for ax in axs.flat)
+        assert len(set(id(ax) for ax in axs.flat)) == 6
+        # flatten
+        assert all(isinstance(ax, Axes) for ax in axs.flatten())
+        assert len(set(id(ax) for ax in axs.flatten())) == 6
+        # ravel
+        assert all(isinstance(ax, Axes) for ax in axs.ravel())
+        assert len(set(id(ax) for ax in axs.ravel())) == 6
+        # 2d indexing
+        assert axs[0, 0] is axs.flat[0]
+        assert axs[1, 2] is axs.flat[-1]
+        # single index
+        axs_type = type(axs)
+        assert type(axs[0]) is axs_type
+        assert axs[0].shape == (3,)
+        # iteration
+        assert all(self.contain_same_axes(axi, axs[i]) for i, axi in enumerate(axs))
+
+    def test_deprecated(self):
+        axs = plt.figure().subplots(2, 2)
+        with pytest.warns(PendingDeprecationWarning,
+                          match="Using 'diagonal' on AxesArray"):
+            axs.diagonal()
