@@ -744,3 +744,14 @@ def test_scale_swapping(fig_test, fig_ref):
         ax.plot(x, np.exp(-(x**2) / 2) / np.sqrt(2 * np.pi))
         fig.canvas.draw()
         ax.set_yscale('linear')
+
+
+def test_offset_copy_errors():
+    with pytest.raises(ValueError,
+                       match="'fontsize' is not a valid value for units;"
+                             " supported values are 'dots', 'points', 'inches'"):
+        mtransforms.offset_copy(None, units='fontsize')
+
+    with pytest.raises(ValueError,
+                       match='For units of inches or points a fig kwarg is needed'):
+        mtransforms.offset_copy(None, units='inches')
