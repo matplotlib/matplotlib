@@ -215,22 +215,22 @@ The following table holds description of all GUI buttons.
 | Home/Reset        | Moves the plot to the start                              |
 |                   | position                                                 |
 |                   |                                                          |
-|                   | .. figure:: /_static/home.gif                            |
+|                   | .. figure:: /_static/home.jpeg                           |
 +-------------------+----------------------------------------------------------+
 | Back              | Moves the plot to the previous                           |
 |                   | position                                                 |
 |                   |                                                          |
-|                   | .. figure:: /_static/back.gif                            |
+|                   | .. figure:: /_static/back.jpeg                           |
 +-------------------+----------------------------------------------------------+
 | Forward           | Replays cancelled changes                                |
 |                   |                                                          |
-|                   | .. figure:: /_static/forward.gif                         |
+|                   | .. figure:: /_static/forward.jpeg                        |
 +-------------------+----------------------------------------------------------+
 | Move              | Activates the mode of changing                           |
 |                   | position of the plot relative                            |
 |                   | to the current axes                                      |
 |                   |                                                          |
-|                   | .. figure:: /_static/move.gif                            |
+|                   | .. figure:: /_static/move.jpeg                           |
 +-------------------+----------------------------------------------------------+
 | Zoom to rectangle | Select area with left mouse button (for mouse users)     |
 |                   | or one finger (for touchpad users) to zoom in the plot   |
@@ -238,43 +238,45 @@ The following table holds description of all GUI buttons.
 |                   | Select area with right mouse button (for mouse users)    |
 |                   | or two fingers (for touchpad users) to zoom out the plot |
 |                   |                                                          |
-|                   | .. figure:: /_static/zoom.gif                            |
+|                   | .. figure:: /_static/zoom.jpeg                           |
 +-------------------+----------------------------------------------------------+
-| Additional        | `left, bottom, right, top sliders:`                      |
-|                   |     3D: Regulates left/bottom/right/top                  |
-|                   |     margin of figure with                                |
-|                   |     keeping proportions of the figure                    |
+| Additional        | Click on icon "additional" to open additional settings   |
 |                   |                                                          |
-|                   |     .. figure:: /_static/ad_left_3d.gif                  |
+|                   | .. figure:: /_static/additional.jpeg                     |
 |                   |                                                          |
-|                   |     2D: Regulates left/bottom/right/top                  |
-|                   |     margin of figure without                             |
-|                   |     keeping proportions of the figure                    |
+|                   | **left, bottom, right, top sliders:**                    |
 |                   |                                                          |
-|                   |     .. figure:: /_static/ad_left_2d.gif                  |
+|                   | .. figure:: /_static/ad_lbrt_sliders.jpeg                |
 |                   |                                                          |
-|                   | `wspace, hspace sliders:`                                |
-|                   |     3D: Regulates horizontal/vertical                    |
-|                   |     offset between different axes with                   |
-|                   |     keeping proportions of the figure                    |
+|                   | For 3D: Regulates left/bottom/right/top                  |
+|                   | margin of figure with                                    |
+|                   | keeping proportions of the figure                        |
 |                   |                                                          |
-|                   |     .. figure:: /_static/ad_wspace_3d.gif                |
+|                   | For 2D: Regulates left/bottom/right/top                  |
+|                   | margin of figure without                                 |
+|                   | keeping proportions of the figure                        |
 |                   |                                                          |
-|                   |     2D: Regulates horizontal/vertical                    |
-|                   |     offset between different axes                        |
-|                   |     without keeping proportions of the                   |
-|                   |     figure                                               |
+|                   | **wspace, hspace sliders:**                              |
 |                   |                                                          |
-|                   |     .. figure:: /_static/ad_wspace_2d.gif                |
+|                   | .. figure:: /_static/ad_wh_sliders.jpeg                  |
 |                   |                                                          |
-|                   |     **This option makes sense if there                   |
-|                   |     are two or more plots                                |
-|                   |     with different axes**                                |
+|                   | 3D: Regulates horizontal/vertical                        |
+|                   | offset between different axes with                       |
+|                   | keeping proportions of the figure                        |
+|                   |                                                          |
+|                   | 2D: Regulates horizontal/vertical                        |
+|                   | offset between different axes                            |
+|                   | without keeping proportions of the                       |
+|                   | figure                                                   |
+|                   |                                                          |
+|                   | **This option makes sense if there                       |
+|                   | are two or more plots                                    |
+|                   | with different axes**                                    |
 +-------------------+----------------------------------------------------------+
 | Save              | Saves .png image of the current                          |
 |                   | plot position                                            |
 |                   |                                                          |
-|                   | .. figure:: /_static/save.gif                            |
+|                   | .. figure:: /_static/save.jpeg                           |
 +-------------------+----------------------------------------------------------+
 
 
