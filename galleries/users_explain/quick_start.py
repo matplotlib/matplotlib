@@ -563,10 +563,12 @@ axs[1, 1].set_title('scatter()')
 # Patches
 # =======
 #
-# Patches are Artists with a face color and an edge color, which can be used to
-# draw arbitrary two dimensional regions. In addition to the more general
-# Polygon, there are wrappers and helpers for common shapes like Rectangles,
-# Circles, Boxes, Ellipses, and more.
+# :mod:`Patches <matplotlib.patches>` are a family of Artists that can be used
+# when drawing arbitrary two-dimensional regions. In addition to the general
+# Patch Artists :class:`~.patches.PathPatch` and :class:`~.patches.Polygon`,
+# common shapes have corresponding Patch Artists such as
+# :class:`~.patches.Circle`, :class:`~.patches.Rectangle`,
+# :class:`~.patches.Ellipse`, etc.
 
 fig, ax = plt.subplots()
 
