@@ -23,17 +23,16 @@ overlaying them on top of each other with ``plt.plot`` and a small value of
 histogram, with optional interpolation between data points, by using
 ``np.histogram2d`` and ``plt.pcolormesh``.
 """
-from copy import copy
+
 import time
 
 import matplotlib.pyplot as plt
 import numpy as np
-import numpy.matlib
-
-from matplotlib.colors import LogNorm
 
 fig, axes = plt.subplots(nrows=3, figsize=(6, 8), layout='constrained')
 
+# Fix random state for reproducibility
+np.random.seed(19680801)
 # Make some data; a 1D random walk + small fraction of sine waves
 num_series = 1000
 num_points = 100
@@ -45,8 +44,8 @@ Y = np.cumsum(np.random.randn(num_series, num_points), axis=-1)
 num_signal = round(SNR * num_series)
 phi = (np.pi / 8) * np.random.randn(num_signal, 1)  # small random offset
 Y[-num_signal:] = (
-    np.sqrt(np.arange(num_points))[None, :]  # random walk RMS scaling factor
-    * (np.sin(x[None, :] - phi)
+    np.sqrt(np.arange(num_points))  # random walk RMS scaling factor
+    * (np.sin(x - phi)
        + 0.05 * np.random.randn(num_signal, num_points))  # small random noise
 )
 
@@ -68,21 +67,18 @@ tic = time.time()
 # Linearly interpolate between the points in each time series
 num_fine = 800
 x_fine = np.linspace(x.min(), x.max(), num_fine)
-y_fine = np.empty((num_series, num_fine), dtype=float)
-for i in range(num_series):
-    y_fine[i, :] = np.interp(x_fine, x, Y[i, :])
-y_fine = y_fine.flatten()
-x_fine = np.matlib.repmat(x_fine, num_series, 1).flatten()
+y_fine = np.concatenate([np.interp(x_fine, x, y_row) for y_row in Y])
+x_fine = np.broadcast_to(x_fine, (num_series, num_fine)).ravel()
 
 
 # Plot (x, y) points in 2d histogram with log colorscale
 # It is pretty evident that there is some kind of structure under the noise
 # You can tune vmax to make signal more visible
-cmap = copy(plt.cm.plasma)
-cmap.set_bad(cmap(0))
+cmap = plt.colormaps["plasma"]
+cmap = cmap.with_extremes(bad=cmap(0))
 h, xedges, yedges = np.histogram2d(x_fine, y_fine, bins=[400, 100])
 pcm = axes[1].pcolormesh(xedges, yedges, h.T, cmap=cmap,
-                         norm=LogNorm(vmax=1.5e2), rasterized=True)
+                         norm="log", vmax=1.5e2, rasterized=True)
 fig.colorbar(pcm, ax=axes[1], label="# points", pad=0)
 axes[1].set_title("2d histogram and log color scale")
 
