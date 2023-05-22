@@ -70,7 +70,7 @@ jobs:
       - name: Upload wheels to Anaconda Cloud as nightlies
         run: |
           anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} upload \
-            --user scipy-wheels-nightly \
+            --user scientific-python-nightly-wheels \
             --skip-existing \
             dist/matplotlib-*.whl
 
@@ -82,13 +82,13 @@ jobs:
           # N.B.: `anaconda show` places the newest packages at the bottom of
           # the output of the 'Versions' section and package versions are
           # preceded with a '   + '.
-          anaconda show scipy-wheels-nightly/matplotlib &> >(grep '+') | \
+          anaconda show scientific-python-nightly-wheels/matplotlib &> >(grep '+') | \
               sed 's/.* + //' | \
               head --lines "-${N_LATEST_UPLOADS}" > remove-package-versions.txt
 
           while LANG=C IFS= read -r package_version ; do
-              echo "Removing scipy-wheels-nightly/matplotlib/${package_version}"
+              echo "Removing scientific-python-nightly-wheels/matplotlib/${package_version}"
               anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} remove \
                 --force \
-                "scipy-wheels-nightly/matplotlib/${package_version}"
+                "scientific-python-nightly-wheels/matplotlib/${package_version}"
           done <remove-package-versions.txt
