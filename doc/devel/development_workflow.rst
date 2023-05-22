@@ -13,7 +13,7 @@ To keep your work well organized, with readable history, and in turn make it
 easier for project maintainers (that might be you) to see what you've done, and
 why you did it, we recommend the following:
 
-* Don't make changes in your local ``main`` branch! Consider deleting it.
+* Don't make changes in your local ``main`` branch!
 * Before starting a new set of changes, fetch all changes from
   ``upstream/main``, and start a new *feature branch* from that.
 * Make a new branch for each feature or bug fix — "one task, one branch".
@@ -24,14 +24,6 @@ why you did it, we recommend the following:
 * When you're ready or need feedback on your code, open a pull request so that the
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.
-
-.. note::
-
-   It may sound strange, but deleting your own ``main`` branch can help reduce
-   confusion about which branch you are on.  See `deleting main on GitHub`_ for
-   details.
-
-.. _deleting main on GitHub: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
 
 .. _update-mirror-main:
 
