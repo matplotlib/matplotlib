@@ -60,7 +60,7 @@ jobs:
 
         # N.B. anaconda-client is only maintained on the main channel
       - name: Install anaconda-client
-        uses: mamba-org/provision-with-micromamba@v15
+        uses: mamba-org/provision-with-micromamba@v16
         with:
           environment-file: false
           environment-name: nightlies
