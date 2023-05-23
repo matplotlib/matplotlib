@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        # The login shell is necessary for the provision-with-micromamba setup
+        # The login shell is necessary for the setup-micromamba setup
         # to work in subsequent jobs.
-        # https://github.com/mamba-org/provision-with-micromamba#important
+        # https://github.com/mamba-org/setup-micromamba#about-login-shells
         shell: bash -e -l {0}
     if: github.repository_owner == 'matplotlib'
 
@@ -60,12 +60,13 @@ jobs:
 
         # N.B. anaconda-client is only maintained on the main channel
       - name: Install anaconda-client
-        uses: mamba-org/provision-with-micromamba@v15
+        uses: mamba-org/setup-micromamba@v1
         with:
-          environment-file: false
           environment-name: nightlies
           extra-specs: anaconda-client=1.10.0
-          channels: main
+          condarc: |
+            channels:
+              - main
 
       - name: Upload wheels to Anaconda Cloud as nightlies
         run: |
