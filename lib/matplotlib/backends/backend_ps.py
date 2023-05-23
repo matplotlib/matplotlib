@@ -841,8 +841,9 @@ class FigureCanvasPS(FigureCanvasBase):
         # See https://reproducible-builds.org/specs/source-date-epoch/
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         dsc_comments["CreationDate"] = (
-            datetime.datetime.utcfromtimestamp(
-                int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
+            datetime.datetime.fromtimestamp(
+                int(source_date_epoch),
+                datetime.timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
             if source_date_epoch
             else time.ctime())
         dsc_comments = "\n".join(
