@@ -8,7 +8,7 @@ from matplotlib.text import Text
 import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Sequence
-from typing import Any, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 
 class PolarTransform(mtransforms.Transform):
     input_dims: int
@@ -80,6 +80,14 @@ class _WedgeBbox(mtransforms.Bbox):
     ) -> None: ...
 
 class PolarAxes(Axes):
+
+    PolarTransform: ClassVar[type] = PolarTransform
+    PolarAffine: ClassVar[type] = PolarAffine
+    InvertedPolarTransform: ClassVar[type] = InvertedPolarTransform
+    ThetaFormatter: ClassVar[type] = ThetaFormatter
+    RadialLocator: ClassVar[type] = RadialLocator
+    ThetaLocator: ClassVar[type] = ThetaLocator
+
     name: str
     use_sticky_edges: bool
     def __init__(
