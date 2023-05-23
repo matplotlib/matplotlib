@@ -1552,6 +1552,9 @@ default: %(va)s
         the same as a figure, but cannot print itself.
         See :doc:`/gallery/subplots_axes_and_figures/subfigures`.
 
+        .. note::
+            The *subfigure* concept is new in v3.4, and the API is still provisional.
+
         Parameters
         ----------
         nrows, ncols : int, default: 1
@@ -2151,6 +2154,9 @@ class SubFigure(FigureBase):
         axsR = sfigs[1].subplots(2, 1)
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
+
+    .. note::
+        The *subfigure* concept is new in v3.4, and the API is still provisional.
     """
 
     def __init__(self, parent, subplotspec, *,
