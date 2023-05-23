@@ -1478,13 +1478,13 @@ class _AnnotationBase:
             trans = tr + self.axes.transData
             return trans
 
-        s_ = coords.split()
-        if len(s_) != 2:
-            raise ValueError(f"{coords!r} is not a valid coordinate")
+        try:
+            bbox_name, unit = coords.split()
+        except ValueError:  # i.e. len(coords.split()) != 2.
+            raise ValueError(f"{coords!r} is not a valid coordinate") from None
 
         bbox0, xy0 = None, None
 
-        bbox_name, unit = s_
         # if unit is offset-like
         if bbox_name == "figure":
             bbox0 = self.figure.figbbox
@@ -1493,34 +1493,26 @@ class _AnnotationBase:
         elif bbox_name == "axes":
             bbox0 = self.axes.bbox
 
+        # reference x, y in display coordinate
         if bbox0 is not None:
             xy0 = bbox0.p0
         elif bbox_name == "offset":
             xy0 = self._get_position_xy(renderer)
-
-        if xy0 is not None:
-            # reference x, y in display coordinate
-            ref_x, ref_y = xy0
-            if unit == "points":
-                # dots per points
-                dpp = self.figure.dpi / 72
-                tr = Affine2D().scale(dpp)
-            elif unit == "pixels":
-                tr = Affine2D()
-            elif unit == "fontsize":
-                fontsize = self.get_size()
-                dpp = fontsize * self.figure.dpi / 72
-                tr = Affine2D().scale(dpp)
-            elif unit == "fraction":
-                w, h = bbox0.size
-                tr = Affine2D().scale(w, h)
-            else:
-                raise ValueError(f"{unit!r} is not a recognized unit")
-
-            return tr.translate(ref_x, ref_y)
-
         else:
             raise ValueError(f"{coords!r} is not a valid coordinate")
+
+        if unit == "points":
+            tr = Affine2D().scale(self.figure.dpi / 72)  # dpi/72 dots per point
+        elif unit == "pixels":
+            tr = Affine2D()
+        elif unit == "fontsize":
+            tr = Affine2D().scale(self.get_size() * self.figure.dpi / 72)
+        elif unit == "fraction":
+            tr = Affine2D().scale(*bbox0.size)
+        else:
+            raise ValueError(f"{unit!r} is not a recognized unit")
+
+        return tr.translate(*xy0)
 
     def set_annotation_clip(self, b):
         """
@@ -1701,15 +1693,15 @@ callable, default: 'data'
 or callable, default: value of *xycoords*
             The coordinate system that *xytext* is given in.
 
-            All *xycoords* values are valid as well as the following
-            strings:
+            All *xycoords* values are valid as well as the following strings:
 
-            =================   =========================================
+            =================   =================================================
             Value               Description
-            =================   =========================================
-            'offset points'     Offset (in points) from the *xy* value
-            'offset pixels'     Offset (in pixels) from the *xy* value
-            =================   =========================================
+            =================   =================================================
+            'offset points'     Offset, in points, from the *xy* value
+            'offset pixels'     Offset, in pixels, from the *xy* value
+            'offset fontsize'   Offset, relative to fontsize, from the *xy* value
+            =================   =================================================
 
         arrowprops : dict, optional
             The properties used to draw a `.FancyArrowPatch` arrow between the
