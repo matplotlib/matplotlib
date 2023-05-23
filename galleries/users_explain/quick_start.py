@@ -578,9 +578,7 @@ ax.add_patch(polygon)
 circle = mpl.patches.Circle((2, 2), 0.5, facecolor='orange', edgecolor='black')
 ax.add_patch(circle)
 
-ax.set_xlim(0, 3)
-ax.set_ylim(0, 3)
-ax.set_box_aspect(1)
+ax.set(xlim=(0, 3), ylim=(0, 3), box_aspect=1)
 
 # %%
 # Working with multiple Figures and Axes
