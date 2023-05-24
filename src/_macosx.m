@@ -305,6 +305,43 @@ event_loop_is_running(PyObject* self)
     }
 }
 
+static PyObject*
+wake_on_fd_write(PyObject* unused, PyObject* args)
+{
+    int fd;
+    if (!PyArg_ParseTuple(args, "i", &fd)) { return NULL; }
+    NSFileHandle* fh = [[NSFileHandle alloc] initWithFileDescriptor: fd];
+    [fh waitForDataInBackgroundAndNotify];
+    [[NSNotificationCenter defaultCenter]
+        addObserverForName: NSFileHandleDataAvailableNotification
+                    object: fh
+                     queue: nil
+                usingBlock: ^(NSNotification* note) {
+                    PyGILState_STATE gstate = PyGILState_Ensure();
+                    PyErr_CheckSignals();
+                    PyGILState_Release(gstate);
+                }];
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+stop(PyObject* self)
+{
+    [NSApp stop: nil];
+    // Post an event to trigger the actual stopping.
+    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
+                                         location: NSZeroPoint
+                                    modifierFlags: 0
+                                        timestamp: 0
+                                     windowNumber: 0
+                                          context: nil
+                                          subtype: 0
+                                            data1: 0
+                                            data2: 0]
+             atStart: YES];
+    Py_RETURN_NONE;
+}
+
 static CGFloat _get_device_scale(CGContextRef cr)
 {
     CGSize pixelSize = CGContextConvertSizeToDeviceSpace(cr, CGSizeMake(1, 1));
@@ -1953,6 +1990,15 @@ static struct PyModuleDef moduledef = {
          (PyCFunction)event_loop_is_running,
          METH_NOARGS,
          "Return whether the OSX backend has set up the NSApp main event loop."},
+        {"wake_on_fd_write",
+         (PyCFunction)wake_on_fd_write,
+         METH_VARARGS,
+         "Arrange for Python to invoke its signal handlers when (any) data is\n"
+         "written on the file descriptor given as argument."},
+        {"stop",
+         (PyCFunction)stop,
+         METH_NOARGS,
+         "Stop the NSApp."},
         {"show",
          (PyCFunction)show,
          METH_NOARGS,
