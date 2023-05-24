@@ -3613,6 +3613,11 @@ class _AxesBase(martist.Artist):
         The *left* value may be greater than the *right* value, in which
         case the x-axis values will decrease from left to right.
 
+        To set limits with additional `.margins` applied, then instead
+        of `.set_xlim`, modify the ``x0`` and/or ``x1`` attributes on
+        the ``Axes.dataLim`` `.Bbox` and call `.autoscale` with an
+        *axis* argument of 'x'.
+
         Examples
         --------
         >>> set_xlim(left, right)
@@ -3843,6 +3848,11 @@ class _AxesBase(martist.Artist):
         -----
         The *bottom* value may be greater than the *top* value, in which
         case the y-axis values will decrease from *bottom* to *top*.
+
+        To set limits with additional `.margins` applied, then instead
+        of `.set_ylim`, modify the ``y0`` and/or ``y1`` attributes on
+        the ``Axes.dataLim`` `.Bbox` and call `.autoscale` with an
+        *axis* argument of 'y'.
 
         Examples
         --------
