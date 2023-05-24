@@ -2869,7 +2869,11 @@ class AutoMinorLocator(Locator):
         major ticks; e.g., n=2 will place a single minor tick midway
         between major ticks.
 
-        If *n* is omitted or None, it will be set to 5 or 4.
+        If *n* is omitted or None, the value stored in rcParams will be used.
+        In case *n* is set to 'auto', it will be set to 4 or 5. If the distance
+        between the major ticks equals 1, 2.5, 5 or 10 it can be perfectly
+        divided in 5 equidistant sub-intervals with a length multiple of
+        0.05. Otherwise it is divided in 4 sub-intervals.
         """
         self.ndivs = n
 
@@ -2891,6 +2895,14 @@ class AutoMinorLocator(Locator):
             return []
 
         if self.ndivs is None:
+
+            if self.axis.axis_name == 'y':
+                self.ndivs = mpl.rcParams['ytick.minor.ndivs']
+            else:
+                # for x and z axis
+                self.ndivs = mpl.rcParams['xtick.minor.ndivs']
+
+        if self.ndivs == 'auto':
 
             majorstep_no_exponent = 10 ** (np.log10(majorstep) % 1)
 
