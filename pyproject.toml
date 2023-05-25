@@ -4,6 +4,7 @@ requires = [
     "certifi>=2020.06.20",
     "oldest-supported-numpy",
     "pybind11>=2.6",
+    "setuptools>=42",
     "setuptools_scm>=7",
 ]
 
