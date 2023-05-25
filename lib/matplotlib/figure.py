@@ -2872,7 +2872,7 @@ None}, default: None
         """
         if not isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
             return None, None, None, None
-        info = self.get_layout_engine().get_info()
+        info = self.get_layout_engine().get()
         w_pad = info['w_pad']
         h_pad = info['h_pad']
         wspace = info['wspace']
