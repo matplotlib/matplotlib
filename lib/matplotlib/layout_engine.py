@@ -64,6 +64,9 @@ class LayoutEngine:
         self._params = {}
 
     def set(self, **kwargs):
+        """
+        Set the parameters for the layout engine.
+        """
         raise NotImplementedError
 
     @property
@@ -121,6 +124,9 @@ class PlaceHolderLayoutEngine(LayoutEngine):
         super().__init__(**kwargs)
 
     def execute(self, fig):
+        """
+        Do nothing.
+        """
         return
 
 
@@ -139,7 +145,7 @@ class TightLayoutEngine(LayoutEngine):
 
         Parameters
         ----------
-        pad : float, 1.08
+        pad : float, default: 1.08
             Padding between the figure edge and the edges of subplots, as a
             fraction of the font size.
         h_pad, w_pad : float
@@ -183,6 +189,21 @@ class TightLayoutEngine(LayoutEngine):
             fig.subplots_adjust(**kwargs)
 
     def set(self, *, pad=None, w_pad=None, h_pad=None, rect=None):
+        """
+        Set the pads for tight_layout.
+
+        Parameters
+        ----------
+        pad : float
+            Padding between the figure edge and the edges of subplots, as a
+            fraction of the font size.
+        w_pad, h_pad : float
+            Padding (width/height) between edges of adjacent subplots.
+            Defaults to *pad*.
+        rect : tuple (left, bottom, right, top)
+            rectangle in normalized figure coordinates that the subplots
+            (including labels) will fit into.
+        """
         for td in self.set.__kwdefaults__:
             if locals()[td] is not None:
                 self._params[td] = locals()[td]
