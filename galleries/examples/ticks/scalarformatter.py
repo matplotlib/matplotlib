@@ -3,82 +3,36 @@
 The default tick formatter
 ==========================
 
-The example shows use of the default `.ScalarFormatter` with different
-settings.
+By default, tick labels are formatted using a `.ScalarFormatter`, which can be
+configured via `~.axes.Axes.ticklabel_format`.  This example illustrates some
+possible configurations:
 
-Example 1 : Default
-
-Example 2 : With no Numerical Offset
-
-Example 3 : With Mathtext
+- Default.
+- ``useMathText=True``: Fancy formatting of mathematical expressions.
+- ``useOffset=False``: Do not use offset notation; see
+  `.ScalarFormatter.set_useOffset`.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-# %%
-# Example 1
-
 x = np.arange(0, 1, .01)
-fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
-fig.text(0.5, 0.975, 'Default settings',
-         horizontalalignment='center',
-         verticalalignment='top')
+fig, axs = plt.subplots(
+    3, 3, figsize=(9, 9), layout="constrained", gridspec_kw={"hspace": 0.1})
 
-ax1.plot(x * 1e5 + 1e10, x * 1e-10 + 1e-5)
+for col in axs.T:
+    col[0].plot(x * 1e5 + 1e10, x * 1e-10 + 1e-5)
+    col[1].plot(x * 1e5, x * 1e-4)
+    col[2].plot(-x * 1e5 - 1e10, -x * 1e-5 - 1e-10)
 
-ax2.plot(x * 1e5, x * 1e-4)
+for ax in axs[:, 1]:
+    ax.ticklabel_format(useMathText=True)
+for ax in axs[:, 2]:
+    ax.ticklabel_format(useOffset=False)
 
-ax3.plot(-x * 1e5 - 1e10, -x * 1e-5 - 1e-10)
-
-ax4.plot(-x * 1e5, -x * 1e-4)
-
-fig.subplots_adjust(wspace=0.7, hspace=0.6)
-
-# %%
-# Example 2
-
-x = np.arange(0, 1, .01)
-fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
-fig.text(0.5, 0.975, 'No numerical offset',
-         horizontalalignment='center',
-         verticalalignment='top')
-
-ax1.plot(x * 1e5 + 1e10, x * 1e-10 + 1e-5)
-ax1.ticklabel_format(useOffset=False)
-
-ax2.plot(x * 1e5, x * 1e-4)
-ax2.ticklabel_format(useOffset=False)
-
-ax3.plot(-x * 1e5 - 1e10, -x * 1e-5 - 1e-10)
-ax3.ticklabel_format(useOffset=False)
-
-ax4.plot(-x * 1e5, -x * 1e-4)
-ax4.ticklabel_format(useOffset=False)
-
-fig.subplots_adjust(wspace=0.7, hspace=0.6)
-
-# %%
-# Example 3
-
-x = np.arange(0, 1, .01)
-fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2, figsize=(6, 6))
-fig.text(0.5, 0.975, 'With mathtext',
-         horizontalalignment='center',
-         verticalalignment='top')
-
-ax1.plot(x * 1e5 + 1e10, x * 1e-10 + 1e-5)
-ax1.ticklabel_format(useMathText=True)
-
-ax2.plot(x * 1e5, x * 1e-4)
-ax2.ticklabel_format(useMathText=True)
-
-ax3.plot(-x * 1e5 - 1e10, -x * 1e-5 - 1e-10)
-ax3.ticklabel_format(useMathText=True)
-
-ax4.plot(-x * 1e5, -x * 1e-4)
-ax4.ticklabel_format(useMathText=True)
-
-fig.subplots_adjust(wspace=0.7, hspace=0.6)
+plt.rcParams.update({"axes.titleweight": "bold", "axes.titley": 1.1})
+axs[0, 0].set_title("default settings")
+axs[0, 1].set_title("useMathText=True")
+axs[0, 2].set_title("useOffset=False")
 
 plt.show()
