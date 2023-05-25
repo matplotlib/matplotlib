@@ -21,3 +21,4 @@ and :doc:`Axes <../axes/index>` are Artists, and generally contain
     Path effects guide <patheffects_guide>
     Understanding the extent keyword argument of imshow <imshow_extent>
     transforms_tutorial
+    patches

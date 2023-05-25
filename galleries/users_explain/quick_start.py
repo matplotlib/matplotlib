@@ -111,6 +111,26 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 # Artists are drawn to the **canvas**.  Most Artists are tied to an Axes; such
 # an Artist cannot be shared by multiple Axes, or moved from one to another.
 #
+# .. _plot_types_quickstart:
+#
+# Plot types
+# ==========
+#
+# For an overview of the different types of plot you can create with Matplotlib,
+# see the :ref:`Plot types gallery <plot_types>`. If you don't find the plot
+# type you need, it may still be possible to create the visualization you want
+# by combining existing Artists and plot elements.
+#
+# * To manipulate and customize points, see :class:`~.markers.MarkerStyle`
+# * To manipulate and customize lines, see :class:`~.lines.Line2D` or
+#   :class:`~.collections.LineCollection`
+# * To manipulate and customize regions, see :mod:`matplotlib.patches`
+# * To manipulate and customize :mod:`images <matplotlib.image>`, see
+#   :class:`~.image.AxesImage`
+# * To manipulate and customize contours and (vector) fields, see
+#   `~.axes.Axes.contour` and `~.axes.Axes.quiver`, respectively.
+# * For anything else, see :ref:`artists_tutorial`.
+#
 # .. _input_types:
 #
 # Types of inputs to plotting functions
@@ -558,27 +578,6 @@ axs[1, 1].set_title('scatter()')
 # control the size.  Finally, the colorbar will have default locators
 # and formatters appropriate to the norm.  These can be changed as for
 # other Axis objects.
-
-# %%
-# Patches
-# =======
-#
-# :mod:`Patches <matplotlib.patches>` are a family of Artists that can be used
-# when drawing arbitrary two-dimensional regions. In addition to the general
-# Patch Artists :class:`~.patches.PathPatch` and :class:`~.patches.Polygon`,
-# common shapes have corresponding Patch Artists such as
-# :class:`~.patches.Circle`, :class:`~.patches.Rectangle`,
-# :class:`~.patches.Ellipse`, etc.
-
-fig, ax = plt.subplots()
-
-polygon = mpl.patches.Polygon(np.array([[1, 0], [0.5, 1.5], [2, 1]]), closed=True)
-ax.add_patch(polygon)
-
-circle = mpl.patches.Circle((2, 2), 0.5, facecolor='orange', edgecolor='black')
-ax.add_patch(circle)
-
-ax.set(xlim=(0, 3), ylim=(0, 3), box_aspect=1)
 
 # %%
 # Working with multiple Figures and Axes
