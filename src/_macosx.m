@@ -198,7 +198,6 @@ static int wait_for_stdin(void)
 @interface View : NSView <NSWindowDelegate>
 {   PyObject* canvas;
     NSRect rubberband;
-    NSTrackingRectTag tracking;
     @public double device_scale;
 }
 - (void)dealloc;
@@ -210,7 +209,6 @@ static int wait_for_stdin(void)
 - (void)setCanvas: (PyObject*)newCanvas;
 - (void)windowWillClose:(NSNotification*)notification;
 - (BOOL)windowShouldClose:(NSNotification*)notification;
-- (BOOL)isFlipped;
 - (void)mouseEntered:(NSEvent*)event;
 - (void)mouseExited:(NSEvent*)event;
 - (void)mouseDown:(NSEvent*)event;
@@ -1245,11 +1243,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 @end
 
 @implementation View
-- (BOOL)isFlipped
-{
-    return NO;
-}
-
 - (View*)initWithFrame:(NSRect)rect
 {
     self = [super initWithFrame: rect];
