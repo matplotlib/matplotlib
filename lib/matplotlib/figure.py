@@ -1209,7 +1209,7 @@ default: %(va)s
         parameters are copied, or a dictionary of subplot layout parameters.
         If a dictionary is provided, this function is a convenience wrapper for
         `matplotlib.figure.Figure.subplots_adjust`
-       
+
         Parameters
         ----------
         subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys
@@ -1218,7 +1218,7 @@ default: %(va)s
         of SubplotParams constructor arguments.
         By default, an empty dictionary is passed, which maintains the
         current state of the figure's `.SubplotParams`
-       
+
         See Also
         --------
         matplotlib.figure.Figure.subplots_adjust
@@ -1250,11 +1250,11 @@ default: %(va)s
     def get_subplotparams(self):
         """
         Return the `.SubplotParams` object associated with the Figure.
-       
+
         Returns
         -------
         `.SubplotParams`
-       
+
         See Also
         --------
         matplotlib.figure.Figure.subplots_adjust
@@ -2771,7 +2771,7 @@ None}, default: None
             self.canvas.manager.show()
         except NonGuiException as exc:
             if warn:
-                api.warn_external(str(exc))
+                _api.warn_external(str(exc))
 
     @property
     def axes(self):
