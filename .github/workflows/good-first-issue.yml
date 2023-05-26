@@ -1,0 +1,22 @@
+name: Add comment on good first issues
+on:
+  issues:
+    types:
+      - labeled
+jobs:
+  add-comment:
+    if: github.event.label.name == 'Good first issue'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            Please see [our Contributing guide](https://matplotlib.org/stable/devel/index) for
+            more information on how to contribute.
+            **We do not assign issues**, and unless there is a PR for this issue already, feel free
+            to start working on it. Do not hesitate to ask if something needs clarification - see
+            also [our different communication channels](https://matplotlib.org/stable/devel/contributing.html#get-connected).

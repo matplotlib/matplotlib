@@ -63,7 +63,7 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           environment-name: nightlies
-          extra-specs: anaconda-client=1.10.0
+          create-args: anaconda-client=1.10.0
           condarc: |
             channels:
               - main
