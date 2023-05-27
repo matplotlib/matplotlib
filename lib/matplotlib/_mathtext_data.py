@@ -1056,11 +1056,16 @@ stix_virtual_fonts = {
             (0x0053, 0x0059, 'rm', 0x1d54a), # S-Y
             (0x005a, 0x005a, 'rm', 0x2124),  # Z
             (0x0061, 0x007a, 'rm', 0x1d552), # a-z
-            (0x0393, 0x0393, 'rm', 0x213e),  # \Gamma
-            (0x03a0, 0x03a0, 'rm', 0x213f),  # \Pi
-            (0x03a3, 0x03a3, 'rm', 0x2140),  # \Sigma
-            (0x03b3, 0x03b3, 'rm', 0x213d),  # \gamma
-            (0x03c0, 0x03c0, 'rm', 0x213c),  # \pi
+            ("\N{GREEK CAPITAL LETTER GAMMA}", "\N{GREEK CAPITAL LETTER GAMMA}",
+                'rm', 0x213e),
+            ("\N{GREEK CAPITAL LETTER PI}", "\N{GREEK CAPITAL LETTER PI}",
+                'rm', 0x213f),
+            ("\N{GREEK CAPITAL LETTER SIGMA}", "\N{GREEK CAPITAL LETTER SIGMA}",
+                'rm', 0x2140),
+            ("\N{GREEK SMALL LETTER GAMMA}", "\N{GREEK SMALL LETTER GAMMA}",
+                'rm', 0x213d),
+            ("\N{GREEK SMALL LETTER PI}", "\N{GREEK SMALL LETTER PI}",
+                'rm', 0x213c),
             ],
         'it':
             [
@@ -1082,11 +1087,16 @@ stix_virtual_fonts = {
             (0x0066, 0x0068, 'it', 0xe169),  # f-h
             (0x0069, 0x006a, 'it', 0x2148),  # i-j
             (0x006b, 0x007a, 'it', 0xe16c),  # k-z
-            (0x0393, 0x0393, 'it', 0x213e),  # \Gamma (not in beta STIX fonts)
-            (0x03a0, 0x03a0, 'it', 0x213f),  # \Pi
-            (0x03a3, 0x03a3, 'it', 0x2140),  # \Sigma (not in beta STIX fonts)
-            (0x03b3, 0x03b3, 'it', 0x213d),  # \gamma (not in beta STIX fonts)
-            (0x03c0, 0x03c0, 'it', 0x213c),  # \pi
+            ("\N{GREEK CAPITAL LETTER GAMMA}", "\N{GREEK CAPITAL LETTER GAMMA}",
+                'it', 0x213e),
+            ("\N{GREEK CAPITAL LETTER PI}", "\N{GREEK CAPITAL LETTER PI}",
+                'it', 0x213f),
+            ("\N{GREEK CAPITAL LETTER SIGMA}", "\N{GREEK CAPITAL LETTER SIGMA}",
+                'it', 0x2140),
+            ("\N{GREEK SMALL LETTER GAMMA}", "\N{GREEK SMALL LETTER GAMMA}",
+                'it', 0x213d),
+            ("\N{GREEK SMALL LETTER PI}", "\N{GREEK SMALL LETTER PI}",
+                'it', 0x213c),
             ],
         'bf':
             [
@@ -1108,11 +1118,16 @@ stix_virtual_fonts = {
             (0x0066, 0x0068, 'bf', 0xe3a2),  # f-h
             (0x0069, 0x006a, 'bf', 0x2148),  # i-j
             (0x006b, 0x007a, 'bf', 0xe3a7),  # k-z
-            (0x0393, 0x0393, 'bf', 0x213e),  # \Gamma
-            (0x03a0, 0x03a0, 'bf', 0x213f),  # \Pi
-            (0x03a3, 0x03a3, 'bf', 0x2140),  # \Sigma
-            (0x03b3, 0x03b3, 'bf', 0x213d),  # \gamma
-            (0x03c0, 0x03c0, 'bf', 0x213c),  # \pi
+            ("\N{GREEK CAPITAL LETTER GAMMA}", "\N{GREEK CAPITAL LETTER GAMMA}",
+                'bf', 0x213e),
+            ("\N{GREEK CAPITAL LETTER PI}", "\N{GREEK CAPITAL LETTER PI}",
+                'bf', 0x213f),
+            ("\N{GREEK CAPITAL LETTER SIGMA}", "\N{GREEK CAPITAL LETTER SIGMA}",
+                'bf', 0x2140),
+            ("\N{GREEK SMALL LETTER GAMMA}", "\N{GREEK SMALL LETTER GAMMA}",
+                'bf', 0x213d),
+            ("\N{GREEK SMALL LETTER PI}", "\N{GREEK SMALL LETTER PI}",
+                'bf', 0x213c),
             ],
         },
     'cal':
@@ -1170,14 +1185,17 @@ stix_virtual_fonts = {
             (0x0030, 0x0039, 'rm', 0x1d7e2), # 0-9
             (0x0041, 0x005a, 'rm', 0x1d5a0), # A-Z
             (0x0061, 0x007a, 'rm', 0x1d5ba), # a-z
-            (0x0391, 0x03a9, 'rm', 0xe17d),  # \Alpha-\Omega
-            (0x03b1, 0x03c9, 'rm', 0xe196),  # \alpha-\omega
-            (0x03d1, 0x03d1, 'rm', 0xe1b0),  # theta variant
-            (0x03d5, 0x03d5, 'rm', 0xe1b1),  # phi variant
-            (0x03d6, 0x03d6, 'rm', 0xe1b3),  # pi variant
-            (0x03f1, 0x03f1, 'rm', 0xe1b2),  # rho variant
-            (0x03f5, 0x03f5, 'rm', 0xe1af),  # lunate epsilon
-            (0x2202, 0x2202, 'rm', 0xe17c),  # partial differential
+            ("\N{GREEK CAPITAL LETTER ALPHA}", "\N{GREEK CAPITAL LETTER OMEGA}",
+                'rm', 0xe17d),
+            ("\N{GREEK SMALL LETTER ALPHA}", "\N{GREEK SMALL LETTER OMEGA}",
+                'rm', 0xe196),
+            ("\N{GREEK THETA SYMBOL}", "\N{GREEK THETA SYMBOL}", 'rm', 0xe1b0),
+            ("\N{GREEK PHI SYMBOL}", "\N{GREEK PHI SYMBOL}", 'rm', 0xe1b1),
+            ("\N{GREEK PI SYMBOL}", "\N{GREEK PI SYMBOL}", 'rm', 0xe1b3),
+            ("\N{GREEK RHO SYMBOL}", "\N{GREEK RHO SYMBOL}", 'rm', 0xe1b2),
+            ("\N{GREEK LUNATE EPSILON SYMBOL}", "\N{GREEK LUNATE EPSILON SYMBOL}",
+                'rm', 0xe1af),
+            ("\N{PARTIAL DIFFERENTIAL}", "\N{PARTIAL DIFFERENTIAL}", 'rm', 0xe17c),
             ],
         'it':
             [
@@ -1186,29 +1204,35 @@ stix_virtual_fonts = {
             (0x0030, 0x0039, 'rm', 0x1d7e2), # 0-9
             (0x0041, 0x005a, 'it', 0x1d608), # A-Z
             (0x0061, 0x007a, 'it', 0x1d622), # a-z
-            (0x0391, 0x03a9, 'rm', 0xe17d),  # \Alpha-\Omega
-            (0x03b1, 0x03c9, 'it', 0xe1d8),  # \alpha-\omega
-            (0x03d1, 0x03d1, 'it', 0xe1f2),  # theta variant
-            (0x03d5, 0x03d5, 'it', 0xe1f3),  # phi variant
-            (0x03d6, 0x03d6, 'it', 0xe1f5),  # pi variant
-            (0x03f1, 0x03f1, 'it', 0xe1f4),  # rho variant
-            (0x03f5, 0x03f5, 'it', 0xe1f1),  # lunate epsilon
+            ("\N{GREEK CAPITAL LETTER ALPHA}", "\N{GREEK CAPITAL LETTER OMEGA}",
+                'rm', 0xe17d),
+            ("\N{GREEK SMALL LETTER ALPHA}", "\N{GREEK SMALL LETTER OMEGA}",
+                'it', 0xe196),
+            ("\N{GREEK THETA SYMBOL}", "\N{GREEK THETA SYMBOL}", 'it', 0xe1b0),
+            ("\N{GREEK PHI SYMBOL}", "\N{GREEK PHI SYMBOL}", 'it', 0xe1b1),
+            ("\N{GREEK PI SYMBOL}", "\N{GREEK PI SYMBOL}", 'it', 0xe1b3),
+            ("\N{GREEK RHO SYMBOL}", "\N{GREEK RHO SYMBOL}", 'it', 0xe1b2),
+            ("\N{GREEK LUNATE EPSILON SYMBOL}", "\N{GREEK LUNATE EPSILON SYMBOL}",
+                'it', 0xe1af),
             ],
         'bf':
             [
             (0x0030, 0x0039, 'bf', 0x1d7ec), # 0-9
             (0x0041, 0x005a, 'bf', 0x1d5d4), # A-Z
             (0x0061, 0x007a, 'bf', 0x1d5ee), # a-z
-            (0x0391, 0x03a9, 'bf', 0x1d756), # \Alpha-\Omega
-            (0x03b1, 0x03c9, 'bf', 0x1d770), # \alpha-\omega
-            (0x03d1, 0x03d1, 'bf', 0x1d78b), # theta variant
-            (0x03d5, 0x03d5, 'bf', 0x1d78d), # phi variant
-            (0x03d6, 0x03d6, 'bf', 0x1d78f), # pi variant
-            (0x03f0, 0x03f0, 'bf', 0x1d78c), # kappa variant
-            (0x03f1, 0x03f1, 'bf', 0x1d78e), # rho variant
-            (0x03f5, 0x03f5, 'bf', 0x1d78a), # lunate epsilon
-            (0x2202, 0x2202, 'bf', 0x1d789), # partial differential
-            (0x2207, 0x2207, 'bf', 0x1d76f), # \Nabla
+            ("\N{GREEK CAPITAL LETTER ALPHA}", "\N{GREEK CAPITAL LETTER OMEGA}",
+                'bf', 0x1d756),
+            ("\N{GREEK SMALL LETTER ALPHA}", "\N{GREEK SMALL LETTER OMEGA}",
+                'bf', 0x1d770),
+            ("\N{GREEK THETA SYMBOL}", "\N{GREEK THETA SYMBOL}", 'bf', 0x1d78b),
+            ("\N{GREEK PHI SYMBOL}", "\N{GREEK PHI SYMBOL}", 'bf', 0x1d78d),
+            ("\N{GREEK PI SYMBOL}", "\N{GREEK PI SYMBOL}", 'bf', 0x1d78f),
+            ("\N{GREEK KAPPA SYMBOL}", "\N{GREEK KAPPA SYMBOL}", 'bf', 0x1d78c),
+            ("\N{GREEK RHO SYMBOL}", "\N{GREEK RHO SYMBOL}", 'bf', 0x1d78e),
+            ("\N{GREEK LUNATE EPSILON SYMBOL}", "\N{GREEK LUNATE EPSILON SYMBOL}",
+                'bf', 0x1d78a),
+            ("\N{PARTIAL DIFFERENTIAL}", "\N{PARTIAL DIFFERENTIAL}", 'bf', 0x1d789),
+            ("\N{NABLA}", "\N{NABLA}", 'bf', 0x1d76f),
             ],
         },
     'tt':
