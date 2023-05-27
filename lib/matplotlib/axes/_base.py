@@ -3188,7 +3188,7 @@ class _AxesBase(martist.Artist):
         if axis in ['y', 'both']:
             self.yaxis.grid(visible, which=which, **kwargs)
 
-    def ticklabel_format(self, *, axis='both', style='', scilimits=None,
+    def ticklabel_format(self, *, axis='both', style=None, scilimits=None,
                          useOffset=None, useLocale=None, useMathText=None):
         r"""
         Configure the `.ScalarFormatter` used by default for linear Axes.
