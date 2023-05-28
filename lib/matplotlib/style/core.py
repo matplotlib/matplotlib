@@ -114,7 +114,7 @@ def use(style):
                 # rcParamsDefault, no need to reemit them here.
                 with _api.suppress_matplotlib_deprecation_warning():
                     # don't trigger RcParams.__getitem__('backend')
-                    style = {k: mpl.rcParams.getdefault(k) for k in mpl.rcParams
+                    style = {k: mpl.rcParams.get_default(k) for k in mpl.rcParams
                              if k not in STYLE_BLACKLIST}
             elif style in library:
                 style = library[style]

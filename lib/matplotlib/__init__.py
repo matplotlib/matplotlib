@@ -667,35 +667,11 @@ class RcParams(MutableMapping):
     :ref:`customizing-with-matplotlibrc-files`
     """
     validate = rcsetup._validators
-    _namespaces = ("backends", "lines", "patches", "hatches", "boxplot", "font", "text",
-                   "latex", "axes", "date", "xtick", "ytick", "grid", "legend",
-                   "figure", "image", "contour", "errorbar", "hist", "scatter", "agg",
-                   "path", "savefig", "tk", "ps", "pdf", "svg", "pgf", "docstring",
-                   "keymap", "animation", "_internal", "webagg", "markers", "pcolor",
-                   "pcolormesh", "patch", "hatch", "mathtext", "polaraxes", "axes3d",
-                   "xaxis", "yaxis", "default")
-
-    _single_key_set = {"backend", "toolbar", "interactive",
-                       "timezone", "backend_fallback"}
 
     def __init__(self, *args, **kwargs):
-        self._namespace_maps = {name: ChainMap({}) for name in self._namespaces}
+        self._rcvalues = ChainMap({})
         self.update(*args, **kwargs)
-        self._new_child()
-
-    @staticmethod
-    @functools.lru_cache
-    def _split_key(key, sep="."):
-        keys = key.split(sep, maxsplit=1)
-        return keys, len(keys)
-
-    def _new_child(self):
-        for space in self._namespace_maps.keys():
-            self._namespace_maps[space] = self._namespace_maps[space].new_child()
-
-    def _parents(self):
-        for space in self._namespace_maps.keys():
-            self._namespace_maps[space] = self._namespace_maps[space].parents
+        self._rcvalues.new_child()
 
     def _set(self, key, val):
         """
@@ -715,25 +691,7 @@ class RcParams(MutableMapping):
 
         :meta public:
         """
-        keys, depth = self._split_key(key)
-        if depth == 1:
-            if key in self._single_key_set:
-                self._namespace_maps["default"][key] = val
-            # Uncomment the following line and remove the raise statement
-            # to enable setting namespaces.
-            # else:
-            #     if isinstance(val, dict):
-            #         self._namespace_maps[key] = ChainMap({}, val)
-            #     else:
-            #         raise ValueError(
-            #             f"{key} should be set using a dictionary but found "
-            #             f"{type(val)}")
-            else:
-                raise KeyError(
-                    f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                    f"a list of valid parameters)")
-        elif depth == 2:
-            self._namespace_maps[keys[0]][keys[1]] = val
+        self._rcvalues[key] = val
 
     def _get(self, key):
         """
@@ -754,19 +712,7 @@ class RcParams(MutableMapping):
 
         :meta public:
         """
-        keys, depth = self._split_key(key)
-        if depth == 1:
-            if key in self._single_key_set:
-                return self._namespace_maps["default"].get(key)
-            # Uncomment the following line and remove the raise statement
-            # to enable getting namespace parameters.
-            # return self._namespace_maps[key]
-            else:
-                raise KeyError(
-                    f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                    f"a list of valid parameters)")
-        elif depth == 2:
-            return self._namespace_maps[keys[0]].get(keys[1])
+        return self._rcvalues[key]
 
     def __setitem__(self, key, val):
         try:
@@ -790,8 +736,8 @@ class RcParams(MutableMapping):
                         return
             try:
                 cval = self.validate[key](val)
-                if key in self._single_key_set:
-                    key = f"default.{key}"
+                # if key in self._single_key_set:
+                #     key = f"default.{key}"
             except ValueError as ve:
                 raise ValueError(f"Key {key}: {ve}") from None
             self._set(key, cval)
@@ -824,21 +770,9 @@ class RcParams(MutableMapping):
         return self._get(key)
 
     def _get_default(self, key):
-        keys, depth = self._split_key(key)
-        if depth == 1:
-            if key in self._single_key_set:
-                return self._namespace_maps["default"].get(key)
-            # Uncomment the following line and remove the raise statement
-            # to enable getting namespace parameters.
-            # return self._namespace_maps[key]
-            else:
-                raise KeyError(
-                    f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                    f"a list of valid parameters)")
-        elif depth == 2:
-            return self._namespace_maps[keys[0]].maps[-1].get(keys[1])
+        return self._rcvalues.maps[-1][key]
 
-    def getdefault(self, key):
+    def get_default(self, key):
         if key in _deprecated_map:
             version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
             _api.warn_deprecated(
@@ -853,7 +787,7 @@ class RcParams(MutableMapping):
 
         return self._get_default(key)
 
-    def getdefaults(self):
+    def get_defaults(self):
         """Return default values set during initialization."""
         defaults = self.copy()
         defaults.clear()
@@ -865,54 +799,35 @@ class RcParams(MutableMapping):
         return None if backend is rcsetup._auto_backend_sentinel else backend
 
     def __delitem__(self, key):
-        keys, depth = self._split_key(key)
         try:
-            if depth == 1:
-                if key in self._single_key_set:
-                    del self._namespace_maps["default"][key]
-                else:
-                    raise KeyError
-            elif depth == 2:
-                del self._namespace_maps[keys[0]][keys[1]]
+            del self._rcvalues[key]
         except KeyError as err:
             raise KeyError(
                 f"{key} is not a valid rc parameter (see rcParams.keys() for "
                 f"a list of valid parameters)") from err
 
     def __contains__(self, key):
-        keys, depth = self._split_key(key)
-        if depth == 1:
-            if key in self._single_key_set:
-                return key in self._namespace_maps["default"]
-            else:
-                return False
-        elif depth == 2:
-            return any(key in mapping for mapping in self._namespace_maps)
+        return key in self._rcvalues
 
     def __iter__(self):
         """Yield from sorted list of keys"""
-        keys = (
-            ".".join((space, key)) if space != 'default' else key
-            for space, mapping in self._namespace_maps.items()
-            for key in mapping.keys()
-        )
         with _api.suppress_matplotlib_deprecation_warning():
-            yield from sorted(keys)
+            yield from sorted(self._rcvalues.keys())
 
     def __len__(self):
-        return sum(len(mapping) for mapping in self._namespace_maps)
+        return len(self._rcvalues)
 
     def __repr__(self):
         class_name = self.__class__.__name__
         indent = len(class_name) + 1
         with _api.suppress_matplotlib_deprecation_warning():
-            repr_split = pprint.pformat(dict(self.items()), indent=1,
+            repr_split = pprint.pformat(dict(self._rcvalues.items()), indent=1,
                                         width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
         return f'{class_name}({repr_indented})'
 
     def __str__(self):
-        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
+        return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self._rcvalues.items())))
 
     def pop(self, key):
         keys, depth = self._split_key(key)
@@ -931,8 +846,7 @@ class RcParams(MutableMapping):
             "popitem is not implemented for RcParams.")
 
     def clear(self):
-        for namespace in self._namespace_maps:
-            self._namespace_maps[namespace].clear()
+        self._rcvalues.clear()
 
     def setdefault(self, key, default=None):
         """Insert key with a value of default if key is not in the dictionary.
@@ -1067,8 +981,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                          fname)
             raise
 
-    config = RcParams()
-    config._parents()
+    config = dict()
 
     for key, (val, line, line_no) in rc_temp.items():
         if key in rcsetup._validators:
@@ -1097,8 +1010,7 @@ https://github.com/matplotlib/matplotlib/blob/%(version)s/lib/matplotlib/mpl-dat
 or from the matplotlib source distribution""",
                          dict(key=key, fname=fname, line_no=line_no,
                               line=line.rstrip('\n'), version=version))
-    config._new_child()
-    return config
+    return RcParams(config)
 
 
 def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
@@ -1122,7 +1034,7 @@ def rc_params_from_file(fname, fail_on_error=False, use_default_template=True):
         return config_from_file
 
     with _api.suppress_matplotlib_deprecation_warning():
-        config = RcParams({**rcParams.getdefaults(), **config_from_file})
+        config = RcParams({**rcParams.get_defaults(), **config_from_file})
 
     if "".join(config['text.latex.preamble']):
         _log.info("""
@@ -1142,10 +1054,10 @@ rcParams = _rc_params_in_file(
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
-for key in rcsetup._hardcoded_defaults:
-    space, subkey = key.split(".")
-    if not rcParams._namespace_maps[space]:
-        rcParams._namespace_maps[space] = ChainMap({})
+# for key in rcsetup._hardcoded_defaults:
+#     space, subkey = key.split(".")
+#     if not rcParams._namespace_maps[space]:
+#         rcParams._namespace_maps[space] = ChainMap({})
 rcParams.update(rcsetup._hardcoded_defaults)
 # Normally, the default matplotlibrc file contains *no* entry for backend (the
 # corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
@@ -1161,7 +1073,7 @@ with _api.suppress_matplotlib_deprecation_warning():
     defaultParams = rcsetup.defaultParams = {
         # We want to resolve deprecated rcParams, but not backend...
         key: [(rcsetup._auto_backend_sentinel if key == "backend" else
-               rcParams.getdefault(key)),
+               rcParams.get_default(key)),
               validator]
         for key, validator in rcsetup._validators.items()}
 if rcParams['axes.formatter.use_locale']:
@@ -1354,10 +1266,7 @@ def rc_context(rc=None, fname=None):
 
     """
     try:
-        for space in rcParams._namespace_maps.keys():
-            rcParams._namespace_maps[space] = rcParams._namespace_maps[
-                space
-            ].new_child()
+        rcParams._rcvalues = rcParams._rcvalues.new_child()
         if fname:
             rc_file(fname)
         if rc:
@@ -1366,7 +1275,7 @@ def rc_context(rc=None, fname=None):
     finally:
         # Revert to the original rcs.
         backend = rcParams["backend"]
-        rcParams._parents()
+        rcParams._rcvalues = rcParams._rcvalues.parents
         rcParams["backend"] = backend
 
 

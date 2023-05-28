@@ -656,12 +656,12 @@ def test_rcparams_path_sketch_from_file(tmpdir, value):
 
 def test_rcparams_getdefault():
     with mpl.rc_context({"image.lut": 128}):
-        assert mpl.rcParams.getdefault("image.lut") == 256
+        assert mpl.rcParams.get_default("image.lut") == 256
 
 
 def test_rcparams_getdefaults():
     mpl.rc("image", lut=128)
-    defaults = mpl.rcParams.getdefaults()
+    defaults = mpl.rcParams.get_defaults()
     mpl.rcParams.clear()
     assert defaults == mpl.rcParams
 
@@ -673,8 +673,14 @@ def test_rcdefaults():
     # lines.linewidth is not a style blacklisted key and should be
     # reset to the default value.
     # breakpoint()
-    lw = mpl.rcParams.getdefault("lines.linewidth")
+    lw = mpl.rcParams.get_default("lines.linewidth")
     mpl.rcParams["lines.linewidth"] = lw + 1
     mpl.rcdefaults()
     assert mpl.rcParams["webagg.port"] == 9000
     assert mpl.rcParams["lines.linewidth"] == lw
+
+
+def test_rcparams_clear():
+    mpl.rcParams["image.lut"] = 128
+    mpl.rcParams.clear()
+    assert mpl.rcParams["image.lut"] == 256
