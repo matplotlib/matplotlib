@@ -2496,11 +2496,11 @@ class SymmetricalLogLocator(Locator):
         # We could also add ticks at t, but that seems to usually be
         # uninteresting.
         #
-        # "simple" mode is when the range falls entirely within (-t,
-        # t) -- it should just display (vmin, 0, vmax)
-        if -linthresh < vmin < vmax < linthresh:
+        # "simple" mode is when the range falls entirely within [-t, t]
+        #  -- it should just display (vmin, 0, vmax)
+        if -linthresh <= vmin < vmax <= linthresh:
             # only the linear range is present
-            return [vmin, vmax]
+            return sorted({vmin, 0, vmax})
 
         # Lower log range is present
         has_a = (vmin < -linthresh)
