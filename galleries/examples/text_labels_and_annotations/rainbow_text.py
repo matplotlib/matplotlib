@@ -1,3 +1,28 @@
+"""
+============
+Rainbow text
+============
+
+The example shows how to string together several text objects.
+
+History
+-------
+On the matplotlib-users list back in February 2012, Gökhan Sever asked the
+following question:
+
+  | Is there a way in matplotlib to partially specify the color of a string?
+  |
+  | Example:
+  |
+  | plt.ylabel("Today is cloudy.")
+  |
+  | How can I show "today" as red, "is" as green and "cloudy." as blue?
+  |
+  | Thanks.
+
+The solution below is modified from Paul Ivanov's original answer.
+"""
+
 import matplotlib.pyplot as plt
 
 
