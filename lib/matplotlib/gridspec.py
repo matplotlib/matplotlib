@@ -419,6 +419,8 @@ class GridSpec(GridSpecBase):
         - non-*None* attributes of the GridSpec
         - the provided *figure*
         - :rc:`figure.subplot.*`
+
+        Note that the ``figure`` attribute of the GridSpec is always ignored.
         """
         if figure is None:
             kw = {k: mpl.rcParams["figure.subplot."+k]
