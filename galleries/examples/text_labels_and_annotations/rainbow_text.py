@@ -54,19 +54,17 @@ def rainbow_text(x, y, strings, colors, orientation='horizontal',
     if orientation == 'horizontal':
         txt = ax.text(x, y, strings[0], color=colors[0], **kwargs)
         for s, c in zip(strings[1:], colors[1:]):
-            t = ax.annotate(s, xy=(1, 0), xycoords=txt,
-                            xytext=(.5, 0), textcoords="offset fontsize",
-                            va="bottom", color=c, **kwargs)
-            txt = t
+            txt = ax.annotate(s, xy=(1, 0), xycoords=txt,
+                              xytext=(.5, 0), textcoords="offset fontsize",
+                              va="bottom", color=c, **kwargs)
 
     elif orientation == 'vertical':
         kwargs.update(rotation=90, verticalalignment='bottom')
         txt = ax.text(x, y, strings[0], color=colors[0], **kwargs)
         for s, c in zip(strings[1:], colors[1:]):
-            t = ax.annotate(s, xy=(0, 1), xycoords=txt,
-                            xytext=(0, .5), textcoords="offset fontsize",
-                            va="bottom", color=c, **kwargs)
-            txt = t
+            txt = ax.annotate(s, xy=(0, 1), xycoords=txt,
+                              xytext=(0, .5), textcoords="offset fontsize",
+                              va="bottom", color=c, **kwargs)
 
 
 words = "all unicorns poop rainbows ! ! !".split()
