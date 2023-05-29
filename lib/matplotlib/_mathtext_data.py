@@ -1043,148 +1043,196 @@ stix_virtual_fonts = {
         {
         'rm':
             [
-            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
-            (0x0041, 0x0042, 'rm', 0x1d538), # A-B
-            (0x0043, 0x0043, 'rm', 0x2102),  # C
-            (0x0044, 0x0047, 'rm', 0x1d53b), # D-G
-            (0x0048, 0x0048, 'rm', 0x210d),  # H
-            (0x0049, 0x004d, 'rm', 0x1d540), # I-M
-            (0x004e, 0x004e, 'rm', 0x2115),  # N
-            (0x004f, 0x004f, 'rm', 0x1d546), # O
-            (0x0050, 0x0051, 'rm', 0x2119),  # P-Q
-            (0x0052, 0x0052, 'rm', 0x211d),  # R
-            (0x0053, 0x0059, 'rm', 0x1d54a), # S-Y
-            (0x005a, 0x005a, 'rm', 0x2124),  # Z
-            (0x0061, 0x007a, 'rm', 0x1d552), # a-z
+            (ord('0'), ord('9'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}")), # 0-9
+            (ord('A'), ord('B'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL A}")), # A-B
+            (ord('C'), ord('C'), 'rm',
+                ord("\N{DOUBLE-STRUCK CAPITAL C}")),  # C
+            (ord('D'), ord('G'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL D}")), # D-G
+            (ord('H'), ord('H'), 'rm',
+                ord("\N{DOUBLE-STRUCK CAPITAL H}")),  # H
+            (ord('I'), ord('M'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL I}")), # I-M
+            (ord('N'), ord('N'), 'rm',
+                ord("\N{DOUBLE-STRUCK CAPITAL N}")),  # N
+            (ord('O'), ord('O'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL O}")), # O
+            (ord('P'), ord('Q'), 'rm',
+                ord("\N{DOUBLE-STRUCK CAPITAL P}")),  # P-Q
+            (ord('R'), ord('R'), 'rm',
+                ord("\N{DOUBLE-STRUCK CAPITAL R}")),  # R
+            (ord('S'), ord('Y'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL S}")), # S-Y
+            (ord('Z'), ord('Z'), 'rm',
+                ord("\N{DOUBLE-STRUCK CAPITAL Z}")),  # Z
+            (ord('a'), ord('z'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK SMALL A}")), # a-z
             (ord("\N{GREEK CAPITAL LETTER GAMMA}"),
-                ord("\N{GREEK CAPITAL LETTER GAMMA}"), 'rm', 0x213e),
+                ord("\N{GREEK CAPITAL LETTER GAMMA}"), 'rm',
+                ord("\N{DOUBLE-STRUCK CAPITAL GAMMA}")),
             (ord("\N{GREEK CAPITAL LETTER PI}"),
-                ord("\N{GREEK CAPITAL LETTER PI}"), 'rm', 0x213f),
+                ord("\N{GREEK CAPITAL LETTER PI}"), 'rm',
+                ord("\N{DOUBLE-STRUCK CAPITAL PI}")),
             (ord("\N{GREEK CAPITAL LETTER SIGMA}"),
-                ord("\N{GREEK CAPITAL LETTER SIGMA}"), 'rm', 0x2140),
+                ord("\N{GREEK CAPITAL LETTER SIGMA}"), 'rm',
+                ord("\N{DOUBLE-STRUCK N-ARY SUMMATION}")),
             (ord("\N{GREEK SMALL LETTER GAMMA}"),
-                ord("\N{GREEK SMALL LETTER GAMMA}"), 'rm', 0x213d),
+                ord("\N{GREEK SMALL LETTER GAMMA}"), 'rm',
+                ord("\N{DOUBLE-STRUCK SMALL GAMMA}")),
             (ord("\N{GREEK SMALL LETTER PI}"),
-                ord("\N{GREEK SMALL LETTER PI}"), 'rm', 0x213c),
+                ord("\N{GREEK SMALL LETTER PI}"), 'rm',
+                ord("\N{DOUBLE-STRUCK SMALL PI}")),
             ],
         'it':
             [
-            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
-            (0x0041, 0x0042, 'it', 0xe154),  # A-B
-            (0x0043, 0x0043, 'it', 0x2102),  # C
-            (0x0044, 0x0044, 'it', 0x2145),  # D
-            (0x0045, 0x0047, 'it', 0xe156),  # E-G
-            (0x0048, 0x0048, 'it', 0x210d),  # H
-            (0x0049, 0x004d, 'it', 0xe159),  # I-M
-            (0x004e, 0x004e, 'it', 0x2115),  # N
-            (0x004f, 0x004f, 'it', 0xe15e),  # O
-            (0x0050, 0x0051, 'it', 0x2119),  # P-Q
-            (0x0052, 0x0052, 'it', 0x211d),  # R
-            (0x0053, 0x0059, 'it', 0xe15f),  # S-Y
-            (0x005a, 0x005a, 'it', 0x2124),  # Z
-            (0x0061, 0x0063, 'it', 0xe166),  # a-c
-            (0x0064, 0x0065, 'it', 0x2146),  # d-e
-            (0x0066, 0x0068, 'it', 0xe169),  # f-h
-            (0x0069, 0x006a, 'it', 0x2148),  # i-j
-            (0x006b, 0x007a, 'it', 0xe16c),  # k-z
+            (ord('0'), ord('9'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}")), # 0-9
+            (ord('A'), ord('B'), 'it', 0xe154),  # A-B
+            (ord('C'), ord('C'), 'it',
+                ord("\N{DOUBLE-STRUCK CAPITAL C}")),  # C
+            (ord('D'), ord('D'), 'it',
+                ord("\N{DOUBLE-STRUCK ITALIC CAPITAL D}")),  # D
+            (ord('E'), ord('G'), 'it', 0xe156),  # E-G
+            (ord('H'), ord('H'), 'it',
+                ord("\N{DOUBLE-STRUCK CAPITAL H}")),  # H
+            (ord('I'), ord('M'), 'it', 0xe159),  # I-M
+            (ord('N'), ord('N'), 'it',
+                ord("\N{DOUBLE-STRUCK CAPITAL N}")),  # N
+            (ord('O'), ord('O'), 'it', 0xe15e),  # O
+            (ord('P'), ord('Q'), 'it',
+                ord("\N{DOUBLE-STRUCK CAPITAL P}")),  # P-Q
+            (ord('R'), ord('R'), 'it',
+                ord("\N{DOUBLE-STRUCK CAPITAL R}")),  # R
+            (ord('S'), ord('Y'), 'it', 0xe15f),  # S-Y
+            (ord('Z'), ord('Z'), 'it',
+                ord("\N{DOUBLE-STRUCK CAPITAL Z}")),  # Z
+            (ord('a'), ord('c'), 'it', 0xe166),  # a-c
+            (ord('d'), ord('e'), 'it',
+                ord("\N{DOUBLE-STRUCK ITALIC SMALL D}")),  # d-e
+            (ord('f'), ord('h'), 'it', 0xe169),  # f-h
+            (ord('i'), ord('j'), 'it',
+                ord("\N{DOUBLE-STRUCK ITALIC SMALL I}")),  # i-j
+            (ord('k'), ord('z'), 'it', 0xe16c),  # k-z
             (ord("\N{GREEK CAPITAL LETTER GAMMA}"),
-                ord("\N{GREEK CAPITAL LETTER GAMMA}"), 'it', 0x213e),
+                ord("\N{GREEK CAPITAL LETTER GAMMA}"), 'it',
+                ord("\N{DOUBLE-STRUCK CAPITAL GAMMA}")),
             (ord("\N{GREEK CAPITAL LETTER PI}"),
-                ord("\N{GREEK CAPITAL LETTER PI}"), 'it', 0x213f),
+                ord("\N{GREEK CAPITAL LETTER PI}"), 'it',
+                ord("\N{DOUBLE-STRUCK CAPITAL PI}")),
             (ord("\N{GREEK CAPITAL LETTER SIGMA}"),
-                ord("\N{GREEK CAPITAL LETTER SIGMA}"), 'it', 0x2140),
+                ord("\N{GREEK CAPITAL LETTER SIGMA}"), 'it',
+                ord("\N{DOUBLE-STRUCK N-ARY SUMMATION}")),
             (ord("\N{GREEK SMALL LETTER GAMMA}"),
-                ord("\N{GREEK SMALL LETTER GAMMA}"), 'it', 0x213d),
+                ord("\N{GREEK SMALL LETTER GAMMA}"), 'it',
+                ord("\N{DOUBLE-STRUCK SMALL GAMMA}")),
             (ord("\N{GREEK SMALL LETTER PI}"),
-                ord("\N{GREEK SMALL LETTER PI}"), 'it', 0x213c),
+                ord("\N{GREEK SMALL LETTER PI}"), 'it',
+                ord("\N{DOUBLE-STRUCK SMALL PI}")),
             ],
         'bf':
             [
-            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
-            (0x0041, 0x0042, 'bf', 0xe38a),  # A-B
-            (0x0043, 0x0043, 'bf', 0x2102),  # C
-            (0x0044, 0x0044, 'bf', 0x2145),  # D
-            (0x0045, 0x0047, 'bf', 0xe38d),  # E-G
-            (0x0048, 0x0048, 'bf', 0x210d),  # H
-            (0x0049, 0x004d, 'bf', 0xe390),  # I-M
-            (0x004e, 0x004e, 'bf', 0x2115),  # N
-            (0x004f, 0x004f, 'bf', 0xe395),  # O
-            (0x0050, 0x0051, 'bf', 0x2119),  # P-Q
-            (0x0052, 0x0052, 'bf', 0x211d),  # R
-            (0x0053, 0x0059, 'bf', 0xe396),  # S-Y
-            (0x005a, 0x005a, 'bf', 0x2124),  # Z
-            (0x0061, 0x0063, 'bf', 0xe39d),  # a-c
-            (0x0064, 0x0065, 'bf', 0x2146),  # d-e
-            (0x0066, 0x0068, 'bf', 0xe3a2),  # f-h
-            (0x0069, 0x006a, 'bf', 0x2148),  # i-j
-            (0x006b, 0x007a, 'bf', 0xe3a7),  # k-z
+            (ord('0'), ord('9'), 'rm',
+                ord("\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}")), # 0-9
+            (ord('A'), ord('B'), 'bf', 0xe38a),  # A-B
+            (ord('C'), ord('C'), 'bf',
+                ord("\N{DOUBLE-STRUCK CAPITAL C}")),  # C
+            (ord('D'), ord('D'), 'bf',
+                ord("\N{DOUBLE-STRUCK ITALIC CAPITAL D}")),  # D
+            (ord('E'), ord('G'), 'bf', 0xe38d),  # E-G
+            (ord('H'), ord('H'), 'bf',
+                ord("\N{DOUBLE-STRUCK CAPITAL H}")),  # H
+            (ord('I'), ord('M'), 'bf', 0xe390),  # I-M
+            (ord('N'), ord('N'), 'bf',
+                ord("\N{DOUBLE-STRUCK CAPITAL N}")),  # N
+            (ord('O'), ord('O'), 'bf', 0xe395),  # O
+            (ord('P'), ord('Q'), 'bf',
+                ord("\N{DOUBLE-STRUCK CAPITAL P}")),  # P-Q
+            (ord('R'), ord('R'), 'bf',
+                ord("\N{DOUBLE-STRUCK CAPITAL R}")),  # R
+            (ord('S'), ord('Y'), 'bf', 0xe396),  # S-Y
+            (ord('Z'), ord('Z'), 'bf',
+                ord("\N{DOUBLE-STRUCK CAPITAL Z}")),  # Z
+            (ord('a'), ord('c'), 'bf', 0xe39d),  # a-c
+            (ord('d'), ord('e'), 'bf',
+                ord("\N{DOUBLE-STRUCK ITALIC SMALL D}")),  # d-e
+            (ord('f'), ord('h'), 'bf', 0xe3a2),  # f-h
+            (ord('i'), ord('j'), 'bf',
+                ord("\N{DOUBLE-STRUCK ITALIC SMALL I}")),  # i-j
+            (ord('k'), ord('z'), 'bf', 0xe3a7),  # k-z
             (ord("\N{GREEK CAPITAL LETTER GAMMA}"),
-                ord("\N{GREEK CAPITAL LETTER GAMMA}"), 'bf', 0x213e),
+                ord("\N{GREEK CAPITAL LETTER GAMMA}"),
+                'bf', ord("\N{DOUBLE-STRUCK CAPITAL GAMMA}")),
             (ord("\N{GREEK CAPITAL LETTER PI}"),
-                ord("\N{GREEK CAPITAL LETTER PI}"), 'bf', 0x213f),
+                ord("\N{GREEK CAPITAL LETTER PI}"),
+                'bf', ord("\N{DOUBLE-STRUCK CAPITAL PI}")),
             (ord("\N{GREEK CAPITAL LETTER SIGMA}"),
-                ord("\N{GREEK CAPITAL LETTER SIGMA}"), 'bf', 0x2140),
+                ord("\N{GREEK CAPITAL LETTER SIGMA}"),
+                'bf', ord("\N{DOUBLE-STRUCK N-ARY SUMMATION}")),
             (ord("\N{GREEK SMALL LETTER GAMMA}"),
-                ord("\N{GREEK SMALL LETTER GAMMA}"), 'bf', 0x213d),
+                ord("\N{GREEK SMALL LETTER GAMMA}"),
+                'bf', ord("\N{DOUBLE-STRUCK SMALL GAMMA}")),
             (ord("\N{GREEK SMALL LETTER PI}"),
-                ord("\N{GREEK SMALL LETTER PI}"), 'bf', 0x213c),
+                ord("\N{GREEK SMALL LETTER PI}"),
+                'bf', ord("\N{DOUBLE-STRUCK SMALL PI}")),
             ],
         },
     'cal':
         [
-        (0x0041, 0x005a, 'it', 0xe22d), # A-Z
+        (ord('A'), ord('Z'), 'it', 0xe22d), # A-Z
         ],
     'frak':
         {
         'rm':
             [
-            (0x0041, 0x0042, 'rm', 0x1d504), # A-B
-            (0x0043, 0x0043, 'rm', 0x212d),  # C
-            (0x0044, 0x0047, 'rm', 0x1d507), # D-G
-            (0x0048, 0x0048, 'rm', 0x210c),  # H
-            (0x0049, 0x0049, 'rm', 0x2111),  # I
-            (0x004a, 0x0051, 'rm', 0x1d50d), # J-Q
-            (0x0052, 0x0052, 'rm', 0x211c),  # R
-            (0x0053, 0x0059, 'rm', 0x1d516), # S-Y
-            (0x005a, 0x005a, 'rm', 0x2128),  # Z
-            (0x0061, 0x007a, 'rm', 0x1d51e), # a-z
+            (ord('A'), ord('B'), 'rm', 0x1d504), # A-B
+            (ord('C'), ord('C'), 'rm', 0x212d),  # C
+            (ord('D'), ord('G'), 'rm', 0x1d507), # D-G
+            (ord('H'), ord('H'), 'rm', 0x210c),  # H
+            (ord('I'), ord('I'), 'rm', 0x2111),  # I
+            (ord('J'), ord('Q'), 'rm', 0x1d50d), # J-Q
+            (ord('R'), ord('R'), 'rm', 0x211c),  # R
+            (ord('S'), ord('Y'), 'rm', 0x1d516), # S-Y
+            (ord('Z'), ord('Z'), 'rm', 0x2128),  # Z
+            (ord('a'), ord('z'), 'rm', 0x1d51e), # a-z
             ],
         'bf':
             [
-            (0x0041, 0x005a, 'bf', 0x1d56c), # A-Z
-            (0x0061, 0x007a, 'bf', 0x1d586), # a-z
+            (ord('A'), ord('Z'), 'bf', 0x1d56c), # A-Z
+            (ord('a'), ord('z'), 'bf', 0x1d586), # a-z
             ],
         },
     'scr':
         [
-        (0x0041, 0x0041, 'it', 0x1d49c), # A
-        (0x0042, 0x0042, 'it', 0x212c),  # B
-        (0x0043, 0x0044, 'it', 0x1d49e), # C-D
-        (0x0045, 0x0046, 'it', 0x2130),  # E-F
-        (0x0047, 0x0047, 'it', 0x1d4a2), # G
-        (0x0048, 0x0048, 'it', 0x210b),  # H
-        (0x0049, 0x0049, 'it', 0x2110),  # I
-        (0x004a, 0x004b, 'it', 0x1d4a5), # J-K
-        (0x004c, 0x004c, 'it', 0x2112),  # L
-        (0x004d, 0x004d, 'it', 0x2133),  # M
-        (0x004e, 0x0051, 'it', 0x1d4a9), # N-Q
-        (0x0052, 0x0052, 'it', 0x211b),  # R
-        (0x0053, 0x005a, 'it', 0x1d4ae), # S-Z
-        (0x0061, 0x0064, 'it', 0x1d4b6), # a-d
-        (0x0065, 0x0065, 'it', 0x212f),  # e
-        (0x0066, 0x0066, 'it', 0x1d4bb), # f
-        (0x0067, 0x0067, 'it', 0x210a),  # g
-        (0x0068, 0x006e, 'it', 0x1d4bd), # h-n
-        (0x006f, 0x006f, 'it', 0x2134),  # o
-        (0x0070, 0x007a, 'it', 0x1d4c5), # p-z
+        (ord('A'), ord('A'), 'it', 0x1d49c), # A
+        (ord('B'), ord('B'), 'it', 0x212c),  # B
+        (ord('C'), ord('D'), 'it', 0x1d49e), # C-D
+        (ord('E'), ord('F'), 'it', 0x2130),  # E-F
+        (ord('G'), ord('G'), 'it', 0x1d4a2), # G
+        (ord('H'), ord('H'), 'it', 0x210b),  # H
+        (ord('I'), ord('I'), 'it', 0x2110),  # I
+        (ord('J'), ord('K'), 'it', 0x1d4a5), # J-K
+        (ord('L'), ord('L'), 'it', 0x2112),  # L
+        (ord('M'), ord('M'), 'it', 0x2133),  # M
+        (ord('N'), ord('Q'), 'it', 0x1d4a9), # N-Q
+        (ord('R'), ord('R'), 'it', 0x211b),  # R
+        (ord('S'), ord('Z'), 'it', 0x1d4ae), # S-Z
+        (ord('a'), ord('d'), 'it', 0x1d4b6), # a-d
+        (ord('e'), ord('e'), 'it', 0x212f),  # e
+        (ord('f'), ord('f'), 'it', 0x1d4bb), # f
+        (ord('g'), ord('g'), 'it', 0x210a),  # g
+        (ord('h'), ord('n'), 'it', 0x1d4bd), # h-n
+        (ord('o'), ord('o'), 'it', 0x2134),  # o
+        (ord('p'), ord('z'), 'it', 0x1d4c5), # p-z
         ],
     'sf':
         {
         'rm':
             [
-            (0x0030, 0x0039, 'rm', 0x1d7e2), # 0-9
-            (0x0041, 0x005a, 'rm', 0x1d5a0), # A-Z
-            (0x0061, 0x007a, 'rm', 0x1d5ba), # a-z
+            (ord('0'), ord('9'), 'rm', 0x1d7e2), # 0-9
+            (ord('A'), ord('Z'), 'rm', 0x1d5a0), # A-Z
+            (ord('a'), ord('z'), 'rm', 0x1d5ba), # a-z
             (ord("\N{GREEK CAPITAL LETTER ALPHA}"),
                 ord("\N{GREEK CAPITAL LETTER OMEGA}"), 'rm', 0xe17d),
             (ord("\N{GREEK SMALL LETTER ALPHA}"),
@@ -1206,9 +1254,9 @@ stix_virtual_fonts = {
             [
             # These numerals are actually upright.  We don't actually
             # want italic numerals ever.
-            (0x0030, 0x0039, 'rm', 0x1d7e2), # 0-9
-            (0x0041, 0x005a, 'it', 0x1d608), # A-Z
-            (0x0061, 0x007a, 'it', 0x1d622), # a-z
+            (ord('0'), ord('9'), 'rm', 0x1d7e2), # 0-9
+            (ord('A'), ord('Z'), 'it', 0x1d608), # A-Z
+            (ord('a'), ord('z'), 'it', 0x1d622), # a-z
             (ord("\N{GREEK CAPITAL LETTER ALPHA}"),
                 ord("\N{GREEK CAPITAL LETTER OMEGA}"), 'rm', 0xe17d),
             (ord("\N{GREEK SMALL LETTER ALPHA}"),
@@ -1226,9 +1274,9 @@ stix_virtual_fonts = {
             ],
         'bf':
             [
-            (0x0030, 0x0039, 'bf', 0x1d7ec), # 0-9
-            (0x0041, 0x005a, 'bf', 0x1d5d4), # A-Z
-            (0x0061, 0x007a, 'bf', 0x1d5ee), # a-z
+            (ord('0'), ord('9'), 'bf', 0x1d7ec), # 0-9
+            (ord('A'), ord('Z'), 'bf', 0x1d5d4), # A-Z
+            (ord('a'), ord('z'), 'bf', 0x1d5ee), # a-z
             (ord("\N{GREEK CAPITAL LETTER ALPHA}"),
                 ord("\N{GREEK CAPITAL LETTER OMEGA}"), 'bf', 0x1d756),
             (ord("\N{GREEK SMALL LETTER ALPHA}"),
@@ -1252,9 +1300,9 @@ stix_virtual_fonts = {
         },
     'tt':
         [
-        (0x0030, 0x0039, 'rm', 0x1d7f6), # 0-9
-        (0x0041, 0x005a, 'rm', 0x1d670), # A-Z
-        (0x0061, 0x007a, 'rm', 0x1d68a)  # a-z
+        (ord('0'), ord('9'), 'rm', 0x1d7f6), # 0-9
+        (ord('A'), ord('Z'), 'rm', 0x1d670), # A-Z
+        (ord('a'), ord('z'), 'rm', 0x1d68a)  # a-z
         ],
     }
 
