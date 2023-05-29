@@ -79,25 +79,25 @@ jobs:
           https://github.com/qhull/qhull/raw/2020.2/COPYING.txt
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@v2.12.3
+        uses: pypa/cibuildwheel@v2.13.0
         env:
           CIBW_BUILD: "cp311-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@v2.12.3
+        uses: pypa/cibuildwheel@v2.13.0
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@v2.12.3
+        uses: pypa/cibuildwheel@v2.13.0
         env:
           CIBW_BUILD: "cp39-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@v2.12.3
+        uses: pypa/cibuildwheel@v2.13.0
         env:
           CIBW_BUILD: "pp39-*"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
