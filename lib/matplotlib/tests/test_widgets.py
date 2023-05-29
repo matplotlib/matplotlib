@@ -71,7 +71,7 @@ def test_save_blitted_widget_as_pdf():
 def test_rectangle_selector(ax, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect, **kwargs)
+    tool = widgets.RectangleSelector(ax, onselect=onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
 
@@ -105,7 +105,7 @@ def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
         minspanx, minspany = (ax.transData.transform((x1, y1)) -
                               ax.transData.transform((x0, y0)))
 
-    tool = widgets.RectangleSelector(ax, onselect, interactive=True,
+    tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=True,
                                      spancoords=spancoords,
                                      minspanx=minspanx, minspany=minspany)
     # Too small to create a selector
@@ -132,7 +132,7 @@ def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
 
 
 def test_deprecation_selector_visible_attribute(ax):
-    tool = widgets.RectangleSelector(ax, lambda *args: None)
+    tool = widgets.RectangleSelector(ax)
 
     assert tool.get_visible()
 
@@ -145,7 +145,7 @@ def test_deprecation_selector_visible_attribute(ax):
                          [[True, (60, 75)],
                           [False, (30, 20)]])
 def test_rectangle_drag(ax, drag_from_anywhere, new_center):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True,
+    tool = widgets.RectangleSelector(ax, interactive=True,
                                      drag_from_anywhere=drag_from_anywhere)
     # Create rectangle
     click_and_drag(tool, start=(0, 10), end=(100, 120))
@@ -166,7 +166,7 @@ def test_rectangle_drag(ax, drag_from_anywhere, new_center):
 
 
 def test_rectangle_selector_set_props_handle_props(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True,
+    tool = widgets.RectangleSelector(ax, interactive=True,
                                      props=dict(facecolor='b', alpha=0.2),
                                      handle_props=dict(alpha=0.5))
     # Create rectangle
@@ -187,7 +187,7 @@ def test_rectangle_selector_set_props_handle_props(ax):
 
 
 def test_rectangle_resize(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(0, 10), end=(100, 120))
     assert tool.extents == (0.0, 100.0, 10.0, 120.0)
@@ -222,7 +222,7 @@ def test_rectangle_resize(ax):
 
 
 def test_rectangle_add_state(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(125, 130))
 
@@ -238,7 +238,7 @@ def test_rectangle_add_state(ax):
 
 @pytest.mark.parametrize('add_state', [True, False])
 def test_rectangle_resize_center(ax, add_state):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(125, 130))
     assert tool.extents == (70.0, 125.0, 65.0, 130.0)
@@ -312,7 +312,7 @@ def test_rectangle_resize_center(ax, add_state):
 
 @pytest.mark.parametrize('add_state', [True, False])
 def test_rectangle_resize_square(ax, add_state):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(120, 115))
     assert tool.extents == (70.0, 120.0, 65.0, 115.0)
@@ -385,7 +385,7 @@ def test_rectangle_resize_square(ax, add_state):
 
 
 def test_rectangle_resize_square_center(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(120, 115))
     tool.add_state('square')
@@ -450,7 +450,7 @@ def test_rectangle_resize_square_center(ax):
 @pytest.mark.parametrize('selector_class',
                          [widgets.RectangleSelector, widgets.EllipseSelector])
 def test_rectangle_rotate(ax, selector_class):
-    tool = selector_class(ax, onselect=noop, interactive=True)
+    tool = selector_class(ax, interactive=True)
     # Draw rectangle
     click_and_drag(tool, start=(100, 100), end=(130, 140))
     assert tool.extents == (100, 130, 100, 140)
@@ -483,7 +483,7 @@ def test_rectangle_rotate(ax, selector_class):
 
 
 def test_rectangle_add_remove_set(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+    tool = widgets.RectangleSelector(ax, interactive=True)
     # Draw rectangle
     click_and_drag(tool, start=(100, 100), end=(130, 140))
     assert tool.extents == (100, 130, 100, 140)
@@ -499,7 +499,7 @@ def test_rectangle_add_remove_set(ax):
 def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
     ax.set_aspect(0.8)
 
-    tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True,
+    tool = widgets.RectangleSelector(ax, interactive=True,
                                      use_data_coordinates=use_data_coordinates)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(120, 115))
@@ -531,8 +531,7 @@ def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
 
 def test_ellipse(ax):
     """For ellipse, test out the key modifiers"""
-    tool = widgets.EllipseSelector(ax, onselect=noop,
-                                   grab_range=10, interactive=True)
+    tool = widgets.EllipseSelector(ax, grab_range=10, interactive=True)
     tool.extents = (100, 150, 100, 150)
 
     # drag the rectangle
@@ -558,9 +557,7 @@ def test_ellipse(ax):
 
 
 def test_rectangle_handles(ax):
-    tool = widgets.RectangleSelector(ax, onselect=noop,
-                                     grab_range=10,
-                                     interactive=True,
+    tool = widgets.RectangleSelector(ax, grab_range=10, interactive=True,
                                      handle_props={'markerfacecolor': 'r',
                                                    'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
@@ -595,7 +592,7 @@ def test_rectangle_selector_onselect(ax, interactive):
     # check when press and release events take place at the same position
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect, interactive=interactive)
+    tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=interactive)
     # move outside of axis
     click_and_drag(tool, start=(100, 110), end=(150, 120))
 
@@ -611,7 +608,7 @@ def test_rectangle_selector_onselect(ax, interactive):
 def test_rectangle_selector_ignore_outside(ax, ignore_event_outside):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.RectangleSelector(ax, onselect,
+    tool = widgets.RectangleSelector(ax, onselect=onselect,
                                      ignore_event_outside=ignore_event_outside)
     click_and_drag(tool, start=(100, 110), end=(150, 120))
     onselect.assert_called_once()
@@ -773,10 +770,11 @@ def test_span_selector_set_props_handle_props(ax):
 
 @pytest.mark.parametrize('selector', ['span', 'rectangle'])
 def test_selector_clear(ax, selector):
-    kwargs = dict(ax=ax, onselect=noop, interactive=True)
+    kwargs = dict(ax=ax, interactive=True)
     if selector == 'span':
         Selector = widgets.SpanSelector
         kwargs['direction'] = 'horizontal'
+        kwargs['onselect'] = noop
     else:
         Selector = widgets.RectangleSelector
 
@@ -807,7 +805,7 @@ def test_selector_clear_method(ax, selector):
                                     interactive=True,
                                     ignore_event_outside=True)
     else:
-        tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
+        tool = widgets.RectangleSelector(ax, interactive=True)
     click_and_drag(tool, start=(10, 10), end=(100, 120))
     assert tool._selection_completed
     assert tool.get_visible()
@@ -1000,7 +998,7 @@ def test_span_selector_extents(ax):
 def test_lasso_selector(ax, kwargs):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.LassoSelector(ax, onselect, **kwargs)
+    tool = widgets.LassoSelector(ax, onselect=onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
     do_event(tool, 'release', xdata=150, ydata=150, button=1)
@@ -1011,7 +1009,8 @@ def test_lasso_selector(ax, kwargs):
 def test_lasso_selector_set_props(ax):
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.LassoSelector(ax, onselect, props=dict(color='b', alpha=0.2))
+    tool = widgets.LassoSelector(ax, onselect=onselect,
+                                 props=dict(color='b', alpha=0.2))
 
     artist = tool._selection_artist
     assert mcolors.same_color(artist.get_color(), 'b')
@@ -1380,7 +1379,7 @@ def check_polygon_selector(event_sequence, expected_result, selections_count,
 
     onselect = mock.Mock(spec=noop, return_value=None)
 
-    tool = widgets.PolygonSelector(ax, onselect, **kwargs)
+    tool = widgets.PolygonSelector(ax, onselect=onselect, **kwargs)
 
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
@@ -1517,7 +1516,7 @@ def test_polygon_selector(draw_bounding_box):
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
 def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box):
-    tool = widgets.PolygonSelector(ax, onselect=noop,
+    tool = widgets.PolygonSelector(ax,
                                    props=dict(color='b', alpha=0.2),
                                    handle_props=dict(alpha=0.5),
                                    draw_bounding_box=draw_bounding_box)
@@ -1554,8 +1553,7 @@ def test_rect_visibility(fig_test, fig_ref):
     ax_test = fig_test.subplots()
     _ = fig_ref.subplots()
 
-    tool = widgets.RectangleSelector(ax_test, onselect=noop,
-                                     props={'visible': False})
+    tool = widgets.RectangleSelector(ax_test, props={'visible': False})
     tool.extents = (0.2, 0.8, 0.3, 0.7)
 
 
@@ -1608,8 +1606,7 @@ def test_polygon_selector_redraw(ax, draw_bounding_box):
         *polygon_place_vertex(*verts[1]),
     ]
 
-    tool = widgets.PolygonSelector(ax, onselect=noop,
-                                   draw_bounding_box=draw_bounding_box)
+    tool = widgets.PolygonSelector(ax, draw_bounding_box=draw_bounding_box)
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
     # After removing two verts, only one remains, and the
@@ -1623,14 +1620,12 @@ def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
     verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
     ax_test = fig_test.add_subplot()
 
-    tool_test = widgets.PolygonSelector(
-        ax_test, onselect=noop, draw_bounding_box=draw_bounding_box)
+    tool_test = widgets.PolygonSelector(ax_test, draw_bounding_box=draw_bounding_box)
     tool_test.verts = verts
     assert tool_test.verts == verts
 
     ax_ref = fig_ref.add_subplot()
-    tool_ref = widgets.PolygonSelector(
-        ax_ref, onselect=noop, draw_bounding_box=draw_bounding_box)
+    tool_ref = widgets.PolygonSelector(ax_ref, draw_bounding_box=draw_bounding_box)
     event_sequence = [
         *polygon_place_vertex(*verts[0]),
         *polygon_place_vertex(*verts[1]),
@@ -1654,7 +1649,7 @@ def test_polygon_selector_box(ax):
     ]
 
     # Create selector
-    tool = widgets.PolygonSelector(ax, onselect=noop, draw_bounding_box=True)
+    tool = widgets.PolygonSelector(ax, draw_bounding_box=True)
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
 

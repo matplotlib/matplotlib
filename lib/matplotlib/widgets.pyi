@@ -276,7 +276,7 @@ class _SelectorWidget(AxesWidget):
     def __init__(
         self,
         ax: Axes,
-        onselect: Callable[[float, float], Any],
+        onselect: Callable[[float, float], Any] | None = ...,
         useblit: bool = ...,
         button: MouseButton | Collection[MouseButton] | None = ...,
         state_modifier_keys: dict[str, str] | None = ...,
@@ -403,7 +403,7 @@ class RectangleSelector(_SelectorWidget):
     def __init__(
         self,
         ax: Axes,
-        onselect: Callable[[MouseEvent, MouseEvent], Any],
+        onselect: Callable[[MouseEvent, MouseEvent], Any] | None = ...,
         *,
         minspanx: float = ...,
         minspany: float = ...,
@@ -443,7 +443,7 @@ class LassoSelector(_SelectorWidget):
     def __init__(
         self,
         ax: Axes,
-        onselect: Callable[[list[tuple[float, float]]], Any],
+        onselect: Callable[[list[tuple[float, float]]], Any] | None = ...,
         *,
         useblit: bool = ...,
         props: dict[str, Any] | None = ...,
@@ -455,7 +455,7 @@ class PolygonSelector(_SelectorWidget):
     def __init__(
         self,
         ax: Axes,
-        onselect: Callable[[ArrayLike, ArrayLike], Any],
+        onselect: Callable[[ArrayLike, ArrayLike], Any] | None = ...,
         *,
         useblit: bool = ...,
         props: dict[str, Any] | None = ...,
