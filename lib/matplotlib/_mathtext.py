@@ -1737,34 +1737,33 @@ class Parser:
 
     _relation_symbols = set(r'''
       = < > :
-      \leq        \geq        \equiv   \models
-      \prec       \succ       \sim     \perp
-      \preceq     \succeq     \simeq   \mid
-      \ll         \gg         \asymp   \parallel
-      \subset     \supset     \approx  \bowtie
-      \subseteq   \supseteq   \cong    \Join
-      \sqsubset   \sqsupset   \neq     \smile
-      \sqsubseteq \sqsupseteq \doteq   \frown
-      \in         \ni         \propto  \vdash
-      \dashv      \dots       \doteqdot
-      \leqq       \geqq       \lneqq   \gneqq
-      \lessgtr \leqslant \geqslant \eqgtr \eqless
-      \eqslantless \eqslantgtr \lesseqgtr
-      \backsim \backsimeq \lesssim \gtrsim
-      \precsim \precnsim \gnsim \lnsim
-      \succsim  \succnsim \nsim
-      \lesseqqgtr \gtreqqless \gtreqless
-      \subseteqq \supseteqq  \subsetneqq \supsetneqq
-      \lessapprox \approxeq \gtrapprox \precapprox
-      \succapprox \precnapprox \succnapprox
-      \lnapprox \gnapprox \napprox \approxeq
-      \approxident \lll \ggg \triangleeq
-      \triangleq \triangleleft \triangleright \ntriangleleft
-      \ntriangleright \trianglelefteq \ntrianglelefteq
-      \trianglerighteq \ntrianglerighteq \blacktriangleleft
-      \blacktriangleright \parallel \nparallel
-      \Vdash \Vvdash \nVdash \nvdash
-      \vDash \nvDash \nVDash
+      \leq          \geq          \equiv       \models
+      \prec         \succ         \sim         \perp
+      \preceq       \succeq       \simeq       \mid
+      \ll           \gg           \asymp       \parallel
+      \subset       \supset       \approx      \bowtie
+      \subseteq     \supseteq     \cong        \Join
+      \sqsubset     \sqsupset     \neq         \smile
+      \sqsubseteq   \sqsupseteq   \doteq       \frown
+      \in           \ni           \propto      \vdash
+      \dashv        \dots         \doteqdot    \leqq
+      \geqq         \lneqq        \gneqq       \lessgtr
+      \leqslant     \geqslant     \eqgtr       \eqless
+      \eqslantless  \eqslantgtr   \lesseqgtr   \backsim
+      \backsimeq    \lesssim      \gtrsim      \precsim
+      \precnsim     \gnsim        \lnsim       \succsim
+      \succnsim     \nsim         \lesseqqgtr  \gtreqqless
+      \gtreqless    \subseteqq    \supseteqq   \subsetneqq
+      \supsetneqq   \lessapprox   \approxeq    \gtrapprox
+      \precapprox   \succapprox   \precnapprox \succnapprox
+      \lnapprox     \gnapprox     \napprox     \approxeq
+      \approxident  \lll          \ggg         \parallel
+      \nparallel    \Vdash        \Vvdash      \nVdash
+      \nvdash       \vDash        \nvDash      \nVDash
+      \triangleq         \triangleeq         \triangleleft
+      \triangleright     \ntriangleleft      \ntriangleright
+      \trianglelefteq    \ntrianglelefteq    \trianglerighteq
+      \ntrianglerighteq  \blacktriangleleft  \blacktriangleright
       '''.split())
 
     _arrow_symbols = set(r'''
