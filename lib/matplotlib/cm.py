@@ -46,6 +46,13 @@ def _gen_cmap_registry():
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
         cmap_d[rmap.name] = rmap
+
+    # Register colormap aliases for gray and grey.
+    cmap_d['grey'] = cmap_d['gist_grey'] = cmap_d['gray']
+    cmap_d['Grays'] = cmap_d['Greys']
+    cmap_d['gist_yerg'] = cmap_d['gist_yarg'] = cmap_d['gray_r']
+    cmap_d['grey_r'] = cmap_d['gray_r']
+
     return cmap_d
 
 
