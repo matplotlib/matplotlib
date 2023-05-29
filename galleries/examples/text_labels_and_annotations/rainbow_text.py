@@ -29,23 +29,23 @@ import matplotlib.pyplot as plt
 def rainbow_text(x, y, strings, colors, orientation='horizontal',
                  ax=None, **kwargs):
     """
-        Take a list of *strings* and *colors* and place them next to each
-        other, with text strings[i] being shown in colors[i].
+    Take a list of *strings* and *colors* and place them next to each
+    other, with text strings[i] being shown in colors[i].
 
-        Parameters
-        ----------
-        x, y : float
-            Text position in data coordinates.
-        strings : list of str
-            The strings to draw.
-        colors : list of color
-            The colors to use.
-        orientation : {'horizontal', 'vertical'}
-        ax : Axes, optional
-            The Axes to draw into. If None, the current axes will be used.
-        **kwargs
-            All other keyword arguments are passed to plt.text(), so you can
-            set the font size, family, etc.
+    Parameters
+    ----------
+    x, y : float
+        Text position in data coordinates.
+    strings : list of str
+        The strings to draw.
+    colors : list of color
+        The colors to use.
+    orientation : {'horizontal', 'vertical'}
+    ax : Axes, optional
+        The Axes to draw into. If None, the current axes will be used.
+    **kwargs :
+        All other keyword arguments are passed to plt.text() and plt.annotate(), so you can
+        set the font size, family, etc.
     """
     if ax is None:
         ax = plt.gca()
