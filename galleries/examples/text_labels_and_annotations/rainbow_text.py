@@ -44,8 +44,8 @@ def rainbow_text(x, y, strings, colors, orientation='horizontal',
     ax : Axes, optional
         The Axes to draw into. If None, the current axes will be used.
     **kwargs :
-        All other keyword arguments are passed to plt.text() and plt.annotate(), so you can
-        set the font size, family, etc.
+        All other keyword arguments are passed to plt.text() and plt.annotate(), so you
+        can set the font size, family, etc.
     """
     if ax is None:
         ax = plt.gca()
