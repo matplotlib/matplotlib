@@ -201,7 +201,7 @@ def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     if linestyle is None and marker is None:
         linestyle = mpl.rcParams['lines.linestyle']
     if linestyle is None:
-        linestyle = 'none'
+        linestyle = 'None'
     if marker is None:
         marker = 'None'
 
