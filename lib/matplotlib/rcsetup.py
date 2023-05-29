@@ -348,7 +348,7 @@ def validate_aspect(s):
 
 
 def validate_fontsize_None(s):
-    if s is None or s == 'None':
+    if s is None or s == 'None' or s == 'none':
         return None
     else:
         return validate_fontsize(s)

@@ -572,7 +572,7 @@ class HandlerErrorbar(HandlerLine2D):
             legline.set_marker('none')
 
             self.update_prop(legline_marker, plotlines, legend)
-            legline_marker.set_linestyle('None')
+            legline_marker.set_linestyle('none')
 
             if legend.markerscale != 1:
                 newsz = legline_marker.get_markersize() * legend.markerscale

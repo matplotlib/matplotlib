@@ -36,7 +36,7 @@ def _get_dash_pattern(style):
     if isinstance(style, str):
         style = ls_mapper.get(style, style)
     # un-dashed styles
-    if style in ['solid', 'None']:
+    if style in ['solid', 'none', 'None']:
         offset = 0
         dashes = None
     # dashed styles
@@ -240,6 +240,7 @@ class Line2D(Artist):
         '-.':   '_draw_dash_dot',
         ':':    '_draw_dotted',
         'None': '_draw_nothing',
+        'none': '_draw_nothing',
         ' ':    '_draw_nothing',
         '':     '_draw_nothing',
     }
@@ -476,7 +477,7 @@ class Line2D(Artist):
         # the error flags accordingly.
         with np.errstate(all='ignore'):
             # Check for collision
-            if self._linestyle in ['None', None]:
+            if self._linestyle in ['none', 'None', None]:
                 # If no line, return the nearby point(s)
                 ind, = np.nonzero(
                     (xt - mouseevent.x) ** 2 + (yt - mouseevent.y) ** 2
@@ -1168,8 +1169,8 @@ class Line2D(Artist):
             For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         if isinstance(ls, str):
-            if ls in [' ', '', 'none']:
-                ls = 'None'
+            if ls in [' ', '', 'None']:
+                ls = 'none'
             _api.check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
             if ls not in self._lineStyles:
                 ls = ls_mapper_r[ls]

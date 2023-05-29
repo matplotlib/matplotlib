@@ -421,8 +421,8 @@ class Patch(artist.Artist):
         """
         if ls is None:
             ls = "solid"
-        if ls in [' ', '', 'none']:
-            ls = 'None'
+        if ls in [' ', '', 'None']:
+            ls = 'none'
         self._linestyle = ls
         self._unscaled_dash_pattern = mlines._get_dash_pattern(ls)
         self._dash_pattern = mlines._scale_dashes(

@@ -3939,7 +3939,7 @@ def test_errorbar_line_specific_kwargs():
     x = np.arange(5)
     y = np.arange(5)
 
-    plotline, _, _ = plt.errorbar(x, y, xerr=1, yerr=1, ls='None',
+    plotline, _, _ = plt.errorbar(x, y, xerr=1, yerr=1, ls='none',
                                   marker='s', fillstyle='full',
                                   drawstyle='steps-mid',
                                   dash_capstyle='round',

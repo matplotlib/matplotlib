@@ -3048,7 +3048,7 @@ class Axes3D(Axes):
                 eb_lines_style[key] = kwargs[key]
 
         # Make the style dict for caps (the "hats").
-        eb_cap_style = {**base_style, 'linestyle': 'None'}
+        eb_cap_style = {**base_style, 'linestyle': 'none'}
         if capsize is None:
             capsize = mpl.rcParams["errorbar.capsize"]
         if capsize > 0:
