@@ -67,6 +67,8 @@ jobs:
             extra-requirements: '-r requirements/testing/extra.txt'
           - os: ubuntu-20.04
             python-version: '3.11'
+          - os: ubuntu-20.04
+            python-version: 'pypy-3.9'
           - os: macos-latest
             python-version: 3.9
 
@@ -208,17 +210,19 @@ jobs:
           # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
           # pyside2 (the latest version (5.13.2) with 10.12 wheels has a
           # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
-          python -mpip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
-            python -c 'import PyQt5.QtCore' &&
-            echo 'PyQt5 is available' ||
-            echo 'PyQt5 is not available'
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+          if [[ "${{ matrix.python-version }}" != "pypy-3.9" ]]; then
+            python -mpip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
+              python -c 'import PyQt5.QtCore' &&
+              echo 'PyQt5 is available' ||
+              echo 'PyQt5 is not available'
+          fi
+          if [[ "${{ runner.os }}" != "macOS" && "${{ matrix.python-version }}" != "pypy-3.9" ]]; then
             python -mpip install --upgrade pyside2${{ matrix.pyside2-ver }} &&
               python -c 'import PySide2.QtCore' &&
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
+          if [[ "${{ matrix.os }}" = "ubuntu-20.04" && "${{ matrix.python-version }}" != "pypy-3.9" ]]; then
             python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
               python -c 'import PyQt6.QtCore' &&
               echo 'PyQt6 is available' ||
