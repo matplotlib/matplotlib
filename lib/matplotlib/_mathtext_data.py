@@ -1037,272 +1037,341 @@ tex2uni = {
 
 # Each element is a 4-tuple of the form:
 #   src_start, src_end, dst_font, dst_start
-#
+
+# list of the unicodes used in stix_virtual_fonts dict
+list_uni = [
+  '0', '9',
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+  'O', 'P', 'Q', 'R', 'S', 'Y', 'Z',
+  'a', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'n', 'o', 'p', 'z',
+  "\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}",
+  "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL A}",
+  "\N{DOUBLE-STRUCK CAPITAL C}",
+  "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL D}",
+  "\N{DOUBLE-STRUCK CAPITAL H}",
+  "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL I}",
+  "\N{DOUBLE-STRUCK CAPITAL N}",
+  "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL O}",
+  "\N{DOUBLE-STRUCK CAPITAL P}",
+  "\N{DOUBLE-STRUCK CAPITAL R}",
+  "\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL S}",
+  "\N{DOUBLE-STRUCK CAPITAL Z}",
+  "\N{MATHEMATICAL DOUBLE-STRUCK SMALL A}",
+  "\N{GREEK CAPITAL LETTER GAMMA}",
+  "\N{GREEK CAPITAL LETTER GAMMA}",
+  "\N{DOUBLE-STRUCK CAPITAL GAMMA}",
+  "\N{GREEK CAPITAL LETTER PI}",
+  "\N{GREEK CAPITAL LETTER PI}",
+  "\N{DOUBLE-STRUCK CAPITAL PI}",
+  "\N{GREEK CAPITAL LETTER SIGMA}",
+  "\N{DOUBLE-STRUCK N-ARY SUMMATION}",
+  "\N{GREEK SMALL LETTER GAMMA}",
+  "\N{DOUBLE-STRUCK SMALL GAMMA}",
+  "\N{GREEK SMALL LETTER PI}",
+  "\N{DOUBLE-STRUCK SMALL PI}",
+  "\N{DOUBLE-STRUCK ITALIC SMALL D}",
+  "\N{DOUBLE-STRUCK ITALIC SMALL I}",
+  "\N{GREEK CAPITAL LETTER ALPHA}",
+  "\N{GREEK CAPITAL LETTER OMEGA}",
+  "\N{GREEK SMALL LETTER ALPHA}",
+  "\N{GREEK SMALL LETTER OMEGA}",
+  "\N{GREEK THETA SYMBOL}",
+  "\N{GREEK PHI SYMBOL}",
+  "\N{GREEK PI SYMBOL}",
+  "\N{GREEK RHO SYMBOL}",
+  "\N{GREEK LUNATE EPSILON SYMBOL}",
+  "\N{PARTIAL DIFFERENTIAL}",
+  "\N{NABLA}"
+]
+
+# unicodes dict
+uni_map = {x: ord(x) for x in list_uni}
+
 stix_virtual_fonts = {
     'bb':
         {
         'rm':
             [
-            (ord('0'), ord('9'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}")), # 0-9
-            (ord('A'), ord('B'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL A}")), # A-B
-            (ord('C'), ord('C'), 'rm',
-                ord("\N{DOUBLE-STRUCK CAPITAL C}")),  # C
-            (ord('D'), ord('G'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL D}")), # D-G
-            (ord('H'), ord('H'), 'rm',
-                ord("\N{DOUBLE-STRUCK CAPITAL H}")),  # H
-            (ord('I'), ord('M'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL I}")), # I-M
-            (ord('N'), ord('N'), 'rm',
-                ord("\N{DOUBLE-STRUCK CAPITAL N}")),  # N
-            (ord('O'), ord('O'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL O}")), # O
-            (ord('P'), ord('Q'), 'rm',
-                ord("\N{DOUBLE-STRUCK CAPITAL P}")),  # P-Q
-            (ord('R'), ord('R'), 'rm',
-                ord("\N{DOUBLE-STRUCK CAPITAL R}")),  # R
-            (ord('S'), ord('Y'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL S}")), # S-Y
-            (ord('Z'), ord('Z'), 'rm',
-                ord("\N{DOUBLE-STRUCK CAPITAL Z}")),  # Z
-            (ord('a'), ord('z'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK SMALL A}")), # a-z
-            (ord("\N{GREEK CAPITAL LETTER GAMMA}"),
-                ord("\N{GREEK CAPITAL LETTER GAMMA}"), 'rm',
-                ord("\N{DOUBLE-STRUCK CAPITAL GAMMA}")),
-            (ord("\N{GREEK CAPITAL LETTER PI}"),
-                ord("\N{GREEK CAPITAL LETTER PI}"), 'rm',
-                ord("\N{DOUBLE-STRUCK CAPITAL PI}")),
-            (ord("\N{GREEK CAPITAL LETTER SIGMA}"),
-                ord("\N{GREEK CAPITAL LETTER SIGMA}"), 'rm',
-                ord("\N{DOUBLE-STRUCK N-ARY SUMMATION}")),
-            (ord("\N{GREEK SMALL LETTER GAMMA}"),
-                ord("\N{GREEK SMALL LETTER GAMMA}"), 'rm',
-                ord("\N{DOUBLE-STRUCK SMALL GAMMA}")),
-            (ord("\N{GREEK SMALL LETTER PI}"),
-                ord("\N{GREEK SMALL LETTER PI}"), 'rm',
-                ord("\N{DOUBLE-STRUCK SMALL PI}")),
+            (uni_map["0"], uni_map["9"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}"]),
+            (uni_map["A"], uni_map["B"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL A}"]),
+            (uni_map["C"], uni_map["C"],
+                'rm', uni_map["\N{DOUBLE-STRUCK CAPITAL C}"]),
+            (uni_map["D"], uni_map["G"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL D}"]),
+            (uni_map["H"], uni_map["H"],
+                'rm', uni_map["\N{DOUBLE-STRUCK CAPITAL H}"]),
+            (uni_map["I"], uni_map["M"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL I}"]),
+            (uni_map["N"], uni_map["N"],
+                'rm', uni_map["\N{DOUBLE-STRUCK CAPITAL N}"]),
+            (uni_map["O"], uni_map["O"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL O}"]),
+            (uni_map["P"], uni_map["Q"],
+                'rm', uni_map["\N{DOUBLE-STRUCK CAPITAL P}"]),
+            (uni_map["R"], uni_map["R"],
+                'rm', uni_map["\N{DOUBLE-STRUCK CAPITAL R}"]),
+            (uni_map["S"], uni_map["Y"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK CAPITAL S}"]),
+            (uni_map["Z"], uni_map["Z"],
+                'rm', uni_map["\N{DOUBLE-STRUCK CAPITAL Z}"]),
+            (uni_map["a"], uni_map["z"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK SMALL A}"]),
+            (uni_map["\N{GREEK CAPITAL LETTER GAMMA}"],
+                uni_map["\N{GREEK CAPITAL LETTER GAMMA}"],
+                'rm', uni_map["\N{DOUBLE-STRUCK CAPITAL GAMMA}"]),
+            (uni_map["\N{GREEK CAPITAL LETTER PI}"],
+                uni_map["\N{GREEK CAPITAL LETTER PI}"],
+                'rm', uni_map["\N{DOUBLE-STRUCK CAPITAL PI}"]),
+            (uni_map["\N{GREEK CAPITAL LETTER SIGMA}"],
+                uni_map["\N{GREEK CAPITAL LETTER SIGMA}"],
+                'rm', uni_map["\N{DOUBLE-STRUCK N-ARY SUMMATION}"]),
+            (uni_map["\N{GREEK SMALL LETTER GAMMA}"],
+                uni_map["\N{GREEK SMALL LETTER GAMMA}"],
+                'rm', uni_map["\N{DOUBLE-STRUCK SMALL GAMMA}"]),
+            (uni_map["\N{GREEK SMALL LETTER PI}"],
+                uni_map["\N{GREEK SMALL LETTER PI}"],
+                'rm', uni_map["\N{DOUBLE-STRUCK SMALL PI}"]),
             ],
         'it':
             [
-            (ord('0'), ord('9'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}")), # 0-9
-            (ord('A'), ord('B'), 'it', 0xe154),  # A-B
-            (ord('C'), ord('C'), 'it',
-                ord("\N{DOUBLE-STRUCK CAPITAL C}")),  # C
-            (ord('D'), ord('D'), 'it',
-                ord("\N{DOUBLE-STRUCK ITALIC CAPITAL D}")),  # D
-            (ord('E'), ord('G'), 'it', 0xe156),  # E-G
-            (ord('H'), ord('H'), 'it',
-                ord("\N{DOUBLE-STRUCK CAPITAL H}")),  # H
-            (ord('I'), ord('M'), 'it', 0xe159),  # I-M
-            (ord('N'), ord('N'), 'it',
-                ord("\N{DOUBLE-STRUCK CAPITAL N}")),  # N
-            (ord('O'), ord('O'), 'it', 0xe15e),  # O
-            (ord('P'), ord('Q'), 'it',
-                ord("\N{DOUBLE-STRUCK CAPITAL P}")),  # P-Q
-            (ord('R'), ord('R'), 'it',
-                ord("\N{DOUBLE-STRUCK CAPITAL R}")),  # R
-            (ord('S'), ord('Y'), 'it', 0xe15f),  # S-Y
-            (ord('Z'), ord('Z'), 'it',
-                ord("\N{DOUBLE-STRUCK CAPITAL Z}")),  # Z
-            (ord('a'), ord('c'), 'it', 0xe166),  # a-c
-            (ord('d'), ord('e'), 'it',
-                ord("\N{DOUBLE-STRUCK ITALIC SMALL D}")),  # d-e
-            (ord('f'), ord('h'), 'it', 0xe169),  # f-h
-            (ord('i'), ord('j'), 'it',
-                ord("\N{DOUBLE-STRUCK ITALIC SMALL I}")),  # i-j
-            (ord('k'), ord('z'), 'it', 0xe16c),  # k-z
-            (ord("\N{GREEK CAPITAL LETTER GAMMA}"),
-                ord("\N{GREEK CAPITAL LETTER GAMMA}"), 'it',
-                ord("\N{DOUBLE-STRUCK CAPITAL GAMMA}")),
-            (ord("\N{GREEK CAPITAL LETTER PI}"),
-                ord("\N{GREEK CAPITAL LETTER PI}"), 'it',
-                ord("\N{DOUBLE-STRUCK CAPITAL PI}")),
-            (ord("\N{GREEK CAPITAL LETTER SIGMA}"),
-                ord("\N{GREEK CAPITAL LETTER SIGMA}"), 'it',
-                ord("\N{DOUBLE-STRUCK N-ARY SUMMATION}")),
-            (ord("\N{GREEK SMALL LETTER GAMMA}"),
-                ord("\N{GREEK SMALL LETTER GAMMA}"), 'it',
-                ord("\N{DOUBLE-STRUCK SMALL GAMMA}")),
-            (ord("\N{GREEK SMALL LETTER PI}"),
-                ord("\N{GREEK SMALL LETTER PI}"), 'it',
-                ord("\N{DOUBLE-STRUCK SMALL PI}")),
+            (uni_map["0"], uni_map["9"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}"]),
+            (uni_map["A"], uni_map["B"], 'it', 0xe154),
+            (uni_map["C"], uni_map["C"],
+                'it', uni_map["\N{DOUBLE-STRUCK CAPITAL C}"]),
+            (uni_map["D"], uni_map["D"],
+                'it', uni_map["\N{DOUBLE-STRUCK ITALIC CAPITAL D}"]),
+            (uni_map["E"], uni_map["G"], 'it', 0xe156),
+            (uni_map["H"], uni_map["H"],
+                'it', uni_map["\N{DOUBLE-STRUCK CAPITAL H}"]),
+            (uni_map["I"], uni_map["M"], 'it', 0xe159),
+            (uni_map["N"], uni_map["N"],
+                'it', uni_map["\N{DOUBLE-STRUCK CAPITAL N}"]),
+            (uni_map["O"], uni_map["O"], 'it', 0xe15e),
+            (uni_map["P"], uni_map["Q"],
+                'it', uni_map["\N{DOUBLE-STRUCK CAPITAL P}"]),
+            (uni_map["R"], uni_map["R"],
+                'it', uni_map["\N{DOUBLE-STRUCK CAPITAL R}"]),
+            (uni_map["S"], uni_map["Y"], 'it', 0xe15f),
+            (uni_map["Z"], uni_map["Z"],
+                'it', uni_map["\N{DOUBLE-STRUCK CAPITAL Z}"]),
+            (uni_map["a"], uni_map["c"], 'it', 0xe166),
+            (uni_map["d"], uni_map["e"],
+                'it', uni_map["\N{DOUBLE-STRUCK ITALIC SMALL D}"]),
+            (uni_map["f"], uni_map["h"], 'it', 0xe169),
+            (uni_map["i"], uni_map["j"],
+                'it', uni_map["\N{DOUBLE-STRUCK ITALIC SMALL I}"]),
+            (uni_map["k"], uni_map["z"], 'it', 0xe16c),
+            (uni_map["\N{GREEK CAPITAL LETTER GAMMA}"],
+                uni_map["\N{GREEK CAPITAL LETTER GAMMA}"],
+                'it', uni_map["\N{DOUBLE-STRUCK CAPITAL GAMMA}"]),
+            (uni_map["\N{GREEK CAPITAL LETTER PI}"],
+                uni_map["\N{GREEK CAPITAL LETTER PI}"],
+                'it', uni_map["\N{DOUBLE-STRUCK CAPITAL PI}"]),
+            (uni_map["\N{GREEK CAPITAL LETTER SIGMA}"],
+                uni_map["\N{GREEK CAPITAL LETTER SIGMA}"],
+                'it', uni_map["\N{DOUBLE-STRUCK N-ARY SUMMATION}"]),
+            (uni_map["\N{GREEK SMALL LETTER GAMMA}"],
+                uni_map["\N{GREEK SMALL LETTER GAMMA}"],
+                'it', uni_map["\N{DOUBLE-STRUCK SMALL GAMMA}"]),
+            (uni_map["\N{GREEK SMALL LETTER PI}"],
+                uni_map["\N{GREEK SMALL LETTER PI}"],
+                'it', uni_map["\N{DOUBLE-STRUCK SMALL PI}"]),
             ],
         'bf':
             [
-            (ord('0'), ord('9'), 'rm',
-                ord("\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}")), # 0-9
-            (ord('A'), ord('B'), 'bf', 0xe38a),  # A-B
-            (ord('C'), ord('C'), 'bf',
-                ord("\N{DOUBLE-STRUCK CAPITAL C}")),  # C
-            (ord('D'), ord('D'), 'bf',
-                ord("\N{DOUBLE-STRUCK ITALIC CAPITAL D}")),  # D
-            (ord('E'), ord('G'), 'bf', 0xe38d),  # E-G
-            (ord('H'), ord('H'), 'bf',
-                ord("\N{DOUBLE-STRUCK CAPITAL H}")),  # H
-            (ord('I'), ord('M'), 'bf', 0xe390),  # I-M
-            (ord('N'), ord('N'), 'bf',
-                ord("\N{DOUBLE-STRUCK CAPITAL N}")),  # N
-            (ord('O'), ord('O'), 'bf', 0xe395),  # O
-            (ord('P'), ord('Q'), 'bf',
-                ord("\N{DOUBLE-STRUCK CAPITAL P}")),  # P-Q
-            (ord('R'), ord('R'), 'bf',
-                ord("\N{DOUBLE-STRUCK CAPITAL R}")),  # R
-            (ord('S'), ord('Y'), 'bf', 0xe396),  # S-Y
-            (ord('Z'), ord('Z'), 'bf',
-                ord("\N{DOUBLE-STRUCK CAPITAL Z}")),  # Z
-            (ord('a'), ord('c'), 'bf', 0xe39d),  # a-c
-            (ord('d'), ord('e'), 'bf',
-                ord("\N{DOUBLE-STRUCK ITALIC SMALL D}")),  # d-e
-            (ord('f'), ord('h'), 'bf', 0xe3a2),  # f-h
-            (ord('i'), ord('j'), 'bf',
-                ord("\N{DOUBLE-STRUCK ITALIC SMALL I}")),  # i-j
-            (ord('k'), ord('z'), 'bf', 0xe3a7),  # k-z
-            (ord("\N{GREEK CAPITAL LETTER GAMMA}"),
-                ord("\N{GREEK CAPITAL LETTER GAMMA}"),
-                'bf', ord("\N{DOUBLE-STRUCK CAPITAL GAMMA}")),
-            (ord("\N{GREEK CAPITAL LETTER PI}"),
-                ord("\N{GREEK CAPITAL LETTER PI}"),
-                'bf', ord("\N{DOUBLE-STRUCK CAPITAL PI}")),
-            (ord("\N{GREEK CAPITAL LETTER SIGMA}"),
-                ord("\N{GREEK CAPITAL LETTER SIGMA}"),
-                'bf', ord("\N{DOUBLE-STRUCK N-ARY SUMMATION}")),
-            (ord("\N{GREEK SMALL LETTER GAMMA}"),
-                ord("\N{GREEK SMALL LETTER GAMMA}"),
-                'bf', ord("\N{DOUBLE-STRUCK SMALL GAMMA}")),
-            (ord("\N{GREEK SMALL LETTER PI}"),
-                ord("\N{GREEK SMALL LETTER PI}"),
-                'bf', ord("\N{DOUBLE-STRUCK SMALL PI}")),
+            (uni_map["0"], uni_map["9"],
+                'rm', uni_map["\N{MATHEMATICAL DOUBLE-STRUCK DIGIT ZERO}"]),
+            (uni_map["A"], uni_map["B"], 'bf', 0xe38a),
+            (uni_map["C"], uni_map["C"],
+                'bf', uni_map["\N{DOUBLE-STRUCK CAPITAL C}"]),
+            (uni_map["D"], uni_map["D"],
+                'bf', uni_map["\N{DOUBLE-STRUCK ITALIC CAPITAL D}"]),
+            (uni_map["E"], uni_map["G"], 'bf', 0xe38d),
+            (uni_map["H"], uni_map["H"],
+                'bf', uni_map["\N{DOUBLE-STRUCK CAPITAL H}"]),
+            (uni_map["I"], uni_map["M"], 'bf', 0xe390),
+            (uni_map["N"], uni_map["N"],
+                'bf', uni_map["\N{DOUBLE-STRUCK CAPITAL N}"]),
+            (uni_map["O"], uni_map["O"], 'bf', 0xe395),
+            (uni_map["P"], uni_map["Q"],
+                'bf', uni_map["\N{DOUBLE-STRUCK CAPITAL P}"]),
+            (uni_map["R"], uni_map["R"],
+                'bf', uni_map["\N{DOUBLE-STRUCK CAPITAL R}"]),
+            (uni_map["S"], uni_map["Y"], 'bf', 0xe396),
+            (uni_map["Z"], uni_map["Z"],
+                'bf', uni_map["\N{DOUBLE-STRUCK CAPITAL Z}"]),
+            (uni_map["a"], uni_map["c"], 'bf', 0xe39d),
+            (uni_map["d"], uni_map["e"],
+                'bf', uni_map["\N{DOUBLE-STRUCK ITALIC SMALL D}"]),
+            (uni_map["f"], uni_map["h"], 'bf', 0xe3a2),
+            (uni_map["i"], uni_map["j"],
+                'bf', uni_map["\N{DOUBLE-STRUCK ITALIC SMALL I}"]),
+            (uni_map["k"], uni_map["z"], 'bf', 0xe3a7),
+            (uni_map["\N{GREEK CAPITAL LETTER GAMMA}"],
+                uni_map["\N{GREEK CAPITAL LETTER GAMMA}"],
+                'bf', uni_map["\N{DOUBLE-STRUCK CAPITAL GAMMA}"]),
+            (uni_map["\N{GREEK CAPITAL LETTER PI}"],
+                uni_map["\N{GREEK CAPITAL LETTER PI}"],
+                'bf', uni_map["\N{DOUBLE-STRUCK CAPITAL PI}"]),
+            (uni_map["\N{GREEK CAPITAL LETTER SIGMA}"],
+                uni_map["\N{GREEK CAPITAL LETTER SIGMA}"],
+                'bf', uni_map["\N{DOUBLE-STRUCK N-ARY SUMMATION}"]),
+            (uni_map["\N{GREEK SMALL LETTER GAMMA}"],
+                uni_map["\N{GREEK SMALL LETTER GAMMA}"],
+                'bf', uni_map["\N{DOUBLE-STRUCK SMALL GAMMA}"]),
+            (uni_map["\N{GREEK SMALL LETTER PI}"],
+                uni_map["\N{GREEK SMALL LETTER PI}"],
+                'bf', uni_map["\N{DOUBLE-STRUCK SMALL PI}"]),
             ],
         },
     'cal':
         [
-        (ord('A'), ord('Z'), 'it', 0xe22d), # A-Z
+        (uni_map["A"], uni_map["Z"], 'it', 0xe22d),
         ],
     'frak':
         {
         'rm':
             [
-            (ord('A'), ord('B'), 'rm', 0x1d504), # A-B
-            (ord('C'), ord('C'), 'rm', 0x212d),  # C
-            (ord('D'), ord('G'), 'rm', 0x1d507), # D-G
-            (ord('H'), ord('H'), 'rm', 0x210c),  # H
-            (ord('I'), ord('I'), 'rm', 0x2111),  # I
-            (ord('J'), ord('Q'), 'rm', 0x1d50d), # J-Q
-            (ord('R'), ord('R'), 'rm', 0x211c),  # R
-            (ord('S'), ord('Y'), 'rm', 0x1d516), # S-Y
-            (ord('Z'), ord('Z'), 'rm', 0x2128),  # Z
-            (ord('a'), ord('z'), 'rm', 0x1d51e), # a-z
+            (uni_map["A"], uni_map["B"], 'rm', 0x1d504),
+            (uni_map["C"], uni_map["C"], 'rm', 0x212d),
+            (uni_map["D"], uni_map["G"], 'rm', 0x1d507),
+            (uni_map["H"], uni_map["H"], 'rm', 0x210c),
+            (uni_map["I"], uni_map["I"], 'rm', 0x2111),
+            (uni_map["J"], uni_map["Q"], 'rm', 0x1d50d),
+            (uni_map["R"], uni_map["R"], 'rm', 0x211c),
+            (uni_map["S"], uni_map["Y"], 'rm', 0x1d516),
+            (uni_map["Z"], uni_map["Z"], 'rm', 0x2128),
+            (uni_map["a"], uni_map["z"], 'rm', 0x1d51e),
             ],
         'bf':
             [
-            (ord('A'), ord('Z'), 'bf', 0x1d56c), # A-Z
-            (ord('a'), ord('z'), 'bf', 0x1d586), # a-z
+            (uni_map["A"], uni_map["Z"], 'bf', 0x1d56c),
+            (uni_map["a"], uni_map["z"], 'bf', 0x1d586),
             ],
         },
     'scr':
         [
-        (ord('A'), ord('A'), 'it', 0x1d49c), # A
-        (ord('B'), ord('B'), 'it', 0x212c),  # B
-        (ord('C'), ord('D'), 'it', 0x1d49e), # C-D
-        (ord('E'), ord('F'), 'it', 0x2130),  # E-F
-        (ord('G'), ord('G'), 'it', 0x1d4a2), # G
-        (ord('H'), ord('H'), 'it', 0x210b),  # H
-        (ord('I'), ord('I'), 'it', 0x2110),  # I
-        (ord('J'), ord('K'), 'it', 0x1d4a5), # J-K
-        (ord('L'), ord('L'), 'it', 0x2112),  # L
-        (ord('M'), ord('M'), 'it', 0x2133),  # M
-        (ord('N'), ord('Q'), 'it', 0x1d4a9), # N-Q
-        (ord('R'), ord('R'), 'it', 0x211b),  # R
-        (ord('S'), ord('Z'), 'it', 0x1d4ae), # S-Z
-        (ord('a'), ord('d'), 'it', 0x1d4b6), # a-d
-        (ord('e'), ord('e'), 'it', 0x212f),  # e
-        (ord('f'), ord('f'), 'it', 0x1d4bb), # f
-        (ord('g'), ord('g'), 'it', 0x210a),  # g
-        (ord('h'), ord('n'), 'it', 0x1d4bd), # h-n
-        (ord('o'), ord('o'), 'it', 0x2134),  # o
-        (ord('p'), ord('z'), 'it', 0x1d4c5), # p-z
+        (uni_map["A"], uni_map["A"], 'it', 0x1d49c),
+        (uni_map["B"], uni_map["B"], 'it', 0x212c),
+        (uni_map["C"], uni_map["D"], 'it', 0x1d49e),
+        (uni_map["E"], uni_map["F"], 'it', 0x2130),
+        (uni_map["G"], uni_map["G"], 'it', 0x1d4a2),
+        (uni_map["H"], uni_map["H"], 'it', 0x210b),
+        (uni_map["I"], uni_map["I"], 'it', 0x2110),
+        (uni_map["J"], uni_map["K"], 'it', 0x1d4a5),
+        (uni_map["L"], uni_map["L"], 'it', 0x2112),
+        (uni_map["M"], uni_map["M"], 'it', 0x2133),
+        (uni_map["N"], uni_map["Q"], 'it', 0x1d4a9),
+        (uni_map["R"], uni_map["R"], 'it', 0x211b),
+        (uni_map["S"], uni_map["Z"], 'it', 0x1d4ae),
+        (uni_map["a"], uni_map["d"], 'it', 0x1d4b6),
+        (uni_map["e"], uni_map["e"], 'it', 0x212f),
+        (uni_map["f"], uni_map["f"], 'it', 0x1d4bb),
+        (uni_map["g"], uni_map["g"], 'it', 0x210a),
+        (uni_map["h"], uni_map["n"], 'it', 0x1d4bd),
+        (uni_map["o"], uni_map["o"], 'it', 0x2134),
+        (uni_map["p"], uni_map["z"], 'it', 0x1d4c5),
         ],
     'sf':
         {
         'rm':
             [
-            (ord('0'), ord('9'), 'rm', 0x1d7e2), # 0-9
-            (ord('A'), ord('Z'), 'rm', 0x1d5a0), # A-Z
-            (ord('a'), ord('z'), 'rm', 0x1d5ba), # a-z
-            (ord("\N{GREEK CAPITAL LETTER ALPHA}"),
-                ord("\N{GREEK CAPITAL LETTER OMEGA}"), 'rm', 0xe17d),
-            (ord("\N{GREEK SMALL LETTER ALPHA}"),
-                ord("\N{GREEK SMALL LETTER OMEGA}"), 'rm', 0xe196),
-            (ord("\N{GREEK THETA SYMBOL}"),
-                ord("\N{GREEK THETA SYMBOL}"), 'rm', 0xe1b0),
-            (ord("\N{GREEK PHI SYMBOL}"),
-                ord("\N{GREEK PHI SYMBOL}"), 'rm', 0xe1b1),
-            (ord("\N{GREEK PI SYMBOL}"),
-                ord("\N{GREEK PI SYMBOL}"), 'rm', 0xe1b3),
-            (ord("\N{GREEK RHO SYMBOL}"),
-                ord("\N{GREEK RHO SYMBOL}"), 'rm', 0xe1b2),
-            (ord("\N{GREEK LUNATE EPSILON SYMBOL}"),
-                ord("\N{GREEK LUNATE EPSILON SYMBOL}"), 'rm', 0xe1af),
-            (ord("\N{PARTIAL DIFFERENTIAL}"),
-                ord("\N{PARTIAL DIFFERENTIAL}"), 'rm', 0xe17c),
+            (uni_map["0"], uni_map["9"], 'rm', 0x1d7e2),
+            (uni_map["A"], uni_map["Z"], 'rm', 0x1d5a0),
+            (uni_map["a"], uni_map["z"], 'rm', 0x1d5ba),
+            (uni_map["\N{GREEK CAPITAL LETTER ALPHA}"],
+                uni_map["\N{GREEK CAPITAL LETTER OMEGA}"],
+                'rm', 0xe17d),
+            (uni_map["\N{GREEK SMALL LETTER ALPHA}"],
+                uni_map["\N{GREEK SMALL LETTER OMEGA}"],
+                'rm', 0xe196),
+            (uni_map["\N{GREEK THETA SYMBOL}"], uni_map["\N{GREEK THETA SYMBOL}"],
+                'rm', 0xe1b0),
+            (uni_map["\N{GREEK PHI SYMBOL}"], uni_map["\N{GREEK PHI SYMBOL}"],
+                'rm', 0xe1b1),
+            (uni_map["\N{GREEK PI SYMBOL}"], uni_map["\N{GREEK PI SYMBOL}"],
+                'rm', 0xe1b3),
+            (uni_map["\N{GREEK RHO SYMBOL}"], uni_map["\N{GREEK RHO SYMBOL}"],
+                'rm', 0xe1b2),
+            (uni_map["\N{GREEK LUNATE EPSILON SYMBOL}"],
+                uni_map["\N{GREEK LUNATE EPSILON SYMBOL}"],
+                'rm', 0xe1af),
+            (uni_map["\N{PARTIAL DIFFERENTIAL}"], uni_map["\N{PARTIAL DIFFERENTIAL}"],
+                'rm', 0xe17c),
             ],
         'it':
             [
             # These numerals are actually upright.  We don't actually
             # want italic numerals ever.
-            (ord('0'), ord('9'), 'rm', 0x1d7e2), # 0-9
-            (ord('A'), ord('Z'), 'it', 0x1d608), # A-Z
-            (ord('a'), ord('z'), 'it', 0x1d622), # a-z
-            (ord("\N{GREEK CAPITAL LETTER ALPHA}"),
-                ord("\N{GREEK CAPITAL LETTER OMEGA}"), 'rm', 0xe17d),
-            (ord("\N{GREEK SMALL LETTER ALPHA}"),
-                ord("\N{GREEK SMALL LETTER OMEGA}"), 'it', 0xe196),
-            (ord("\N{GREEK THETA SYMBOL}"),
-                ord("\N{GREEK THETA SYMBOL}"), 'it', 0xe1b0),
-            (ord("\N{GREEK PHI SYMBOL}"),
-                ord("\N{GREEK PHI SYMBOL}"), 'it', 0xe1b1),
-            (ord("\N{GREEK PI SYMBOL}"),
-                ord("\N{GREEK PI SYMBOL}"), 'it', 0xe1b3),
-            (ord("\N{GREEK RHO SYMBOL}"),
-                ord("\N{GREEK RHO SYMBOL}"), 'it', 0xe1b2),
-            (ord("\N{GREEK LUNATE EPSILON SYMBOL}"),
-                ord("\N{GREEK LUNATE EPSILON SYMBOL}"), 'it', 0xe1af),
+            (uni_map["0"], uni_map["9"], 'rm', 0x1d7e2),
+            (uni_map["A"], uni_map["Z"], 'it', 0x1d608),
+            (uni_map["a"], uni_map["z"], 'it', 0x1d622),
+            (uni_map["\N{GREEK CAPITAL LETTER ALPHA}"],
+                uni_map["\N{GREEK CAPITAL LETTER OMEGA}"],
+                'rm', 0xe17d),
+            (uni_map["\N{GREEK SMALL LETTER ALPHA}"],
+                uni_map["\N{GREEK SMALL LETTER OMEGA}"],
+                'it', 0xe1d8),
+            (uni_map["\N{GREEK THETA SYMBOL}"], uni_map["\N{GREEK THETA SYMBOL}"],
+                'it', 0xe1f2),
+            (uni_map["\N{GREEK PHI SYMBOL}"], uni_map["\N{GREEK PHI SYMBOL}"],
+                'it', 0xe1f3),
+            (uni_map["\N{GREEK PI SYMBOL}"], uni_map["\N{GREEK PI SYMBOL}"],
+                'it', 0xe1f5),
+            (uni_map["\N{GREEK RHO SYMBOL}"], uni_map["\N{GREEK RHO SYMBOL}"],
+                'it', 0xe1f4),
+            (uni_map["\N{GREEK LUNATE EPSILON SYMBOL}"],
+                uni_map["\N{GREEK LUNATE EPSILON SYMBOL}"],
+                'it', 0xe1f1),
             ],
         'bf':
             [
-            (ord('0'), ord('9'), 'bf', 0x1d7ec), # 0-9
-            (ord('A'), ord('Z'), 'bf', 0x1d5d4), # A-Z
-            (ord('a'), ord('z'), 'bf', 0x1d5ee), # a-z
-            (ord("\N{GREEK CAPITAL LETTER ALPHA}"),
-                ord("\N{GREEK CAPITAL LETTER OMEGA}"), 'bf', 0x1d756),
-            (ord("\N{GREEK SMALL LETTER ALPHA}"),
-                ord("\N{GREEK SMALL LETTER OMEGA}"), 'bf', 0x1d770),
-            (ord("\N{GREEK THETA SYMBOL}"),
-                ord("\N{GREEK THETA SYMBOL}"), 'bf', 0x1d78b),
-            (ord("\N{GREEK PHI SYMBOL}"),
-                ord("\N{GREEK PHI SYMBOL}"), 'bf', 0x1d78d),
-            (ord("\N{GREEK PI SYMBOL}"),
-                ord("\N{GREEK PI SYMBOL}"), 'bf', 0x1d78f),
-            (ord("\N{GREEK KAPPA SYMBOL}"),
-                ord("\N{GREEK KAPPA SYMBOL}"), 'bf', 0x1d78c),
-            (ord("\N{GREEK RHO SYMBOL}"),
-                ord("\N{GREEK RHO SYMBOL}"), 'bf', 0x1d78e),
-            (ord("\N{GREEK LUNATE EPSILON SYMBOL}"),
-                ord("\N{GREEK LUNATE EPSILON SYMBOL}"), 'bf', 0x1d78a),
-            (ord("\N{PARTIAL DIFFERENTIAL}"),
-                ord("\N{PARTIAL DIFFERENTIAL}"), 'bf', 0x1d789),
-            (ord("\N{NABLA}"), ord("\N{NABLA}"), 'bf', 0x1d76f),
+            (uni_map["0"], uni_map["9"], 'bf', 0x1d7ec),
+            (uni_map["A"], uni_map["Z"], 'bf', 0x1d5d4),
+            (uni_map["a"], uni_map["z"], 'bf', 0x1d5ee),
+            (uni_map["\N{GREEK CAPITAL LETTER ALPHA}"],
+                uni_map["\N{GREEK CAPITAL LETTER OMEGA}"],
+                'bf', 0x1d756),
+            (uni_map["\N{GREEK SMALL LETTER ALPHA}"],
+                uni_map["\N{GREEK SMALL LETTER OMEGA}"],
+                'bf', 0x1d770),
+            (uni_map["\N{GREEK THETA SYMBOL}"],
+                uni_map["\N{GREEK THETA SYMBOL}"], 'bf', 0x1d78b),
+            (uni_map["\N{GREEK PHI SYMBOL}"],
+                uni_map["\N{GREEK PHI SYMBOL}"], 'bf', 0x1d78d),
+            (uni_map["\N{GREEK PI SYMBOL}"],
+                uni_map["\N{GREEK PI SYMBOL}"], 'bf', 0x1d78f),
+            (uni_map["\N{GREEK KAPPA SYMBOL}"],
+                uni_map["\N{GREEK KAPPA SYMBOL}"], 'bf', 0x1d78c),
+            (uni_map["\N{GREEK RHO SYMBOL}"],
+                uni_map["\N{GREEK RHO SYMBOL}"], 'bf', 0x1d78e),
+            (uni_map["\N{GREEK LUNATE EPSILON SYMBOL}"],
+                uni_map["\N{GREEK LUNATE EPSILON SYMBOL}"],
+                'bf', 0x1d78a),
+            (uni_map["\N{PARTIAL DIFFERENTIAL}"],
+                uni_map["\N{PARTIAL DIFFERENTIAL}"], 'bf', 0x1d789),
+            (uni_map["\N{NABLA}"], uni_map["\N{NABLA}"], 'bf', 0x1d76f),
+            ],
+        'bfit':
+            [
+            (uni_map["A"], uni_map["Z"], 'bfit', 0x1d468),
+            (uni_map["a"], uni_map["z"], 'bfit', 0x1d482),
+            (uni_map["\N{GREEK CAPITAL LETTER GAMMA}"],
+                uni_map["\N{GREEK CAPITAL LETTER OMEGA}"],
+                'bfit', 0x1d71e),
+            (uni_map["\N{GREEK SMALL LETTER ALPHA}"],
+                uni_map["\N{GREEK SMALL LETTER OMEGA}"],
+                'bfit', 0x1d736),
             ],
         },
     'tt':
         [
-        (ord('0'), ord('9'), 'rm', 0x1d7f6), # 0-9
-        (ord('A'), ord('Z'), 'rm', 0x1d670), # A-Z
-        (ord('a'), ord('z'), 'rm', 0x1d68a)  # a-z
+        (uni_map["0"], uni_map["9"], 'rm', 0x1d7f6),
+        (uni_map["A"], uni_map["Z"], 'rm', 0x1d670),
+        (uni_map["a"], uni_map["z"], 'rm', 0x1d68a)
         ],
     }
 
