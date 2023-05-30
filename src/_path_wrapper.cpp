@@ -781,14 +781,14 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args)
 }
 
 
-const char *Py_is_sorted__doc__ =
-    "is_sorted(array)\n"
+const char *Py_is_sorted_and_has_non_nan__doc__ =
+    "is_sorted_and_has_non_nan(array, /)\n"
     "--\n\n"
-    "Return whether the 1D *array* is monotonically increasing, ignoring NaNs.\n";
+    "Return whether the 1D *array* is monotonically increasing, ignoring NaNs,\n"
+    "and has at least one non-nan value.";
 
-static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
+static PyObject *Py_is_sorted_and_has_non_nan(PyObject *self, PyObject *obj)
 {
-    npy_intp size;
     bool result;
 
     PyArrayObject *array = (PyArrayObject *)PyArray_FromAny(
@@ -798,30 +798,22 @@ static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
         return NULL;
     }
 
-    size = PyArray_DIM(array, 0);
-
-    if (size < 2) {
-        Py_DECREF(array);
-        Py_RETURN_TRUE;
-    }
-
-    /* Handle just the most common types here, otherwise coerce to
-    double */
+    /* Handle just the most common types here, otherwise coerce to double */
     switch (PyArray_TYPE(array)) {
     case NPY_INT:
-        result = is_sorted<npy_int>(array);
+        result = is_sorted_and_has_non_nan<npy_int>(array);
         break;
     case NPY_LONG:
-        result = is_sorted<npy_long>(array);
+        result = is_sorted_and_has_non_nan<npy_long>(array);
         break;
     case NPY_LONGLONG:
-        result = is_sorted<npy_longlong>(array);
+        result = is_sorted_and_has_non_nan<npy_longlong>(array);
         break;
     case NPY_FLOAT:
-        result = is_sorted<npy_float>(array);
+        result = is_sorted_and_has_non_nan<npy_float>(array);
         break;
     case NPY_DOUBLE:
-        result = is_sorted<npy_double>(array);
+        result = is_sorted_and_has_non_nan<npy_double>(array);
         break;
     default:
         Py_DECREF(array);
@@ -829,7 +821,7 @@ static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
         if (array == NULL) {
             return NULL;
         }
-        result = is_sorted<npy_double>(array);
+        result = is_sorted_and_has_non_nan<npy_double>(array);
     }
 
     Py_DECREF(array);
@@ -860,7 +852,7 @@ static PyMethodDef module_functions[] = {
     {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS|METH_KEYWORDS, Py_convert_path_to_polygons__doc__},
     {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
     {"convert_to_string", (PyCFunction)Py_convert_to_string, METH_VARARGS, Py_convert_to_string__doc__},
-    {"is_sorted", (PyCFunction)Py_is_sorted, METH_O, Py_is_sorted__doc__},
+    {"is_sorted_and_has_non_nan", (PyCFunction)Py_is_sorted_and_has_non_nan, METH_O, Py_is_sorted_and_has_non_nan__doc__},
     {NULL}
 };
 

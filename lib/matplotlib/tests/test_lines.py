@@ -14,6 +14,7 @@ import pytest
 
 import matplotlib
 import matplotlib as mpl
+from matplotlib import _path
 import matplotlib.lines as mlines
 from matplotlib.markers import MarkerStyle
 from matplotlib.path import Path
@@ -243,11 +244,12 @@ def test_lw_scaling():
             ax.plot(th, j*np.ones(50) + .1 * lw, linestyle=ls, lw=lw, **sty)
 
 
-def test_nan_is_sorted():
-    line = mlines.Line2D([], [])
-    assert line._is_sorted(np.array([1, 2, 3]))
-    assert line._is_sorted(np.array([1, np.nan, 3]))
-    assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
+def test_is_sorted_and_has_non_nan():
+    assert _path.is_sorted_and_has_non_nan(np.array([1, 2, 3]))
+    assert _path.is_sorted_and_has_non_nan(np.array([1, np.nan, 3]))
+    assert not _path.is_sorted_and_has_non_nan([3, 5] + [np.nan] * 100 + [0, 2])
+    n = 2 * mlines.Line2D._subslice_optim_min_size
+    plt.plot([np.nan] * n, range(n))
 
 
 @check_figures_equal()
