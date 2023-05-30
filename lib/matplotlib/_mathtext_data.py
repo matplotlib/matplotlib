@@ -1359,14 +1359,10 @@ stix_virtual_fonts = {
             ],
         'bfit':
             [
-            (uni_map["A"], uni_map["Z"], 'bfit', 0x1d468),
-            (uni_map["a"], uni_map["z"], 'bfit', 0x1d482),
-            (uni_map["\N{GREEK CAPITAL LETTER GAMMA}"],
-                uni_map["\N{GREEK CAPITAL LETTER OMEGA}"],
-                'bfit', 0x1d71e),
-            (uni_map["\N{GREEK SMALL LETTER ALPHA}"],
-                uni_map["\N{GREEK SMALL LETTER OMEGA}"],
-                'bfit', 0x1d736),
+            (0x0041, 0x005a, 'bfit', 0x1d468),
+            (0x0061, 0x007a, 'bfit', 0x1d482),
+            (0x0393, 0x03a9, 'bfit', 0x1d71e),
+            (0x03b1, 0x03c9, 'bfit', 0x1d736),
             ],
         },
     'tt':
