@@ -1241,11 +1241,13 @@ class Axis(martist.Artist):
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
             # Call all of the other axes that are shared with this one
             for other in self._get_shared_axes():
-                if other is not self.axes:
-                    other._axis_map[name]._set_lim(
-                        v0, v1, emit=False, auto=auto)
-                    if other.figure != self.figure:
-                        other.figure.canvas.draw_idle()
+                if other is self.axes:
+                    continue
+                other._axis_map[name]._set_lim(v0, v1, emit=False, auto=auto)
+                if emit:
+                    other.callbacks.process(f"{name}lim_changed", other)
+                if other.figure != self.figure:
+                    other.figure.canvas.draw_idle()
 
         self.stale = True
         return v0, v1
