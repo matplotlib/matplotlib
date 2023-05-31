@@ -112,6 +112,61 @@ def _weak_or_strong_ref(func, callback):
         return _StrongRef(func)
 
 
+class _UnhashDict:
+    """
+    A minimal dict-like class that also supports unhashable keys, storing them
+    in a list of key-value pairs.
+
+    This class only implements the interface needed for `CallbackRegistry`, and
+    tries to minimize the overhead for the hashable case.
+    """
+
+    def __init__(self, pairs):
+        self._dict = {}
+        self._pairs = []
+        for k, v in pairs:
+            self[k] = v
+
+    def __setitem__(self, key, value):
+        try:
+            self._dict[key] = value
+        except TypeError:
+            for i, (k, v) in enumerate(self._pairs):
+                if k == key:
+                    self._pairs[i] = (key, value)
+                    break
+            else:
+                self._pairs.append((key, value))
+
+    def __getitem__(self, key):
+        try:
+            return self._dict[key]
+        except TypeError:
+            pass
+        for k, v in self._pairs:
+            if k == key:
+                return v
+        raise KeyError(key)
+
+    def pop(self, key, *args):
+        try:
+            if key in self._dict:
+                return self._dict.pop(key)
+        except TypeError:
+            for i, (k, v) in enumerate(self._pairs):
+                if k == key:
+                    del self._pairs[i]
+                    return v
+        if args:
+            return args[0]
+        raise KeyError(key)
+
+    def __iter__(self):
+        yield from self._dict
+        for k, v in self._pairs:
+            yield k
+
+
 class CallbackRegistry:
     """
     Handle registering, processing, blocking, and disconnecting
@@ -178,7 +233,7 @@ class CallbackRegistry:
         self.exception_handler = exception_handler
         self.callbacks = {}
         self._cid_gen = itertools.count()
-        self._func_cid_map = {}
+        self._func_cid_map = _UnhashDict([])
         # A hidden variable that marks cids that need to be pickled.
         self._pickled_cids = set()
 
@@ -202,9 +257,9 @@ class CallbackRegistry:
             s: {cid: _weak_or_strong_ref(func, functools.partial(self._remove_proxy, s))
                 for cid, func in d.items()}
             for s, d in self.callbacks.items()}
-        self._func_cid_map = {
-            (s, proxy): cid
-            for s, d in self.callbacks.items() for cid, proxy in d.items()}
+        self._func_cid_map = _UnhashDict(
+            ((s, proxy), cid)
+            for s, d in self.callbacks.items() for cid, proxy in d.items())
         self._cid_gen = itertools.count(cid_count)
 
     def connect(self, signal, func):
@@ -258,7 +313,7 @@ class CallbackRegistry:
             return
         assert self.callbacks[signal][cid] == proxy
         del self.callbacks[signal][cid]
-        del self._func_cid_map[signal, proxy]
+        self._func_cid_map.pop((signal, proxy))
         if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
 

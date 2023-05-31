@@ -178,6 +178,15 @@ class Test_boxplot_stats:
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
 
+class Hashable:
+    def dummy(self): pass
+
+
+class Unhashable:
+    __hash__ = None  # type: ignore
+    def dummy(self): pass
+
+
 class Test_callback_registry:
     def setup_method(self):
         self.signal = 'test'
@@ -200,13 +209,13 @@ class Test_callback_registry:
 
     def is_empty(self):
         np.testing.break_cycles()
-        assert self.callbacks._func_cid_map == {}
+        assert [*self.callbacks._func_cid_map] == []
         assert self.callbacks.callbacks == {}
         assert self.callbacks._pickled_cids == set()
 
     def is_not_empty(self):
         np.testing.break_cycles()
-        assert self.callbacks._func_cid_map != {}
+        assert [*self.callbacks._func_cid_map] != []
         assert self.callbacks.callbacks != {}
 
     def test_cid_restore(self):
@@ -217,12 +226,13 @@ class Test_callback_registry:
         assert cid == 1
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_complete(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_complete(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
@@ -233,7 +243,7 @@ class Test_callback_registry:
         cid2 = self.connect(self.signal, mini_me.dummy, pickle)
         assert cid1 == cid2
         self.is_not_empty()
-        assert len(self.callbacks._func_cid_map) == 1
+        assert len([*self.callbacks._func_cid_map]) == 1
         assert len(self.callbacks.callbacks) == 1
 
         del mini_me
@@ -242,12 +252,13 @@ class Test_callback_registry:
         self.is_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_disconnect(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
@@ -260,12 +271,13 @@ class Test_callback_registry:
         self.is_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_callback_wrong_disconnect(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_wrong_disconnect(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # create a class for testing
-        mini_me = Test_callback_registry()
+        mini_me = cls()
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
@@ -278,20 +290,21 @@ class Test_callback_registry:
         self.is_not_empty()
 
     @pytest.mark.parametrize('pickle', [True, False])
-    def test_registration_on_non_empty_registry(self, pickle):
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_registration_on_non_empty_registry(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
 
         # setup the registry with a callback
-        mini_me = Test_callback_registry()
+        mini_me = cls()
         self.connect(self.signal, mini_me.dummy, pickle)
 
         # Add another callback
-        mini_me2 = Test_callback_registry()
+        mini_me2 = cls()
         self.connect(self.signal, mini_me2.dummy, pickle)
 
         # Remove and add the second callback
-        mini_me2 = Test_callback_registry()
+        mini_me2 = cls()
         self.connect(self.signal, mini_me2.dummy, pickle)
 
         # We still have 2 references
@@ -302,9 +315,6 @@ class Test_callback_registry:
         mini_me = None
         mini_me2 = None
         self.is_empty()
-
-    def dummy(self):
-        pass
 
     def test_pickling(self):
         assert hasattr(pickle.loads(pickle.dumps(cbook.CallbackRegistry())),
