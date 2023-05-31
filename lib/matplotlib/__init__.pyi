@@ -37,6 +37,8 @@ import contextlib
 from packaging.version import Version
 
 from matplotlib._api import MatplotlibDeprecationWarning
+from matplotlib.cm import ColormapRegistry
+from matplotlib._colors import ColorSequenceRegistry
 from typing import Any, NamedTuple
 
 __bibtex__: str
@@ -51,6 +53,8 @@ class _VersionInfo(NamedTuple):
 class __getattr__:
     __version__: str
     __version_info__: _VersionInfo
+    colormaps: ColormapRegistry
+    color_sequences: ColorSequenceRegistry
 
 def set_loglevel(level: str) -> None: ...
 
@@ -110,6 +114,3 @@ def _preprocess_data(
     replace_names: list[str] | None = ...,
     label_namer: str | None = ...
 ) -> Callable: ...
-
-from matplotlib.cm import _colormaps as colormaps
-from matplotlib.colors import _color_sequences as color_sequences

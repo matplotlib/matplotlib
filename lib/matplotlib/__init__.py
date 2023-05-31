@@ -236,6 +236,18 @@ class __getattr__:
     __version_info__ = property(
         lambda self: _parse_to_version_info(self.__version__))
 
+    # workaround: we must defer colormaps import to after loading rcParams, because
+    # colormap creation depends on rcParams
+    @property
+    def colormaps(self):
+        from matplotlib.cm import _colormaps
+        return _colormaps
+
+    @property
+    def color_sequences(self):
+        from matplotlib._colors import _color_sequences
+        return _color_sequences
+
 
 def _check_versions():
 
@@ -1490,9 +1502,3 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 
 _log.debug('interactive is %s', is_interactive())
 _log.debug('platform is %s', sys.platform)
-
-
-# workaround: we must defer colormaps import to after loading rcParams, because
-# colormap creation depends on rcParams
-from matplotlib.cm import _colormaps as colormaps
-from matplotlib.colors import _color_sequences as color_sequences
