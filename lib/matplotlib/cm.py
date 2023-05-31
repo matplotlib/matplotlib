@@ -26,7 +26,7 @@ from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
 
-_LUTSIZE = mpl.rcParams['image.lut']
+_LUTSIZE = mpl.rcParams["image.lut"]
 
 
 def _gen_cmap_registry():
@@ -38,20 +38,21 @@ def _gen_cmap_registry():
     for name, spec in datad.items():
         cmap_d[name] = (  # Precache the cmaps at a fixed lutsize..
             colors.LinearSegmentedColormap(name, spec, _LUTSIZE)
-            if 'red' in spec else
-            colors.ListedColormap(spec['listed'], name)
-            if 'listed' in spec else
-            colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
+            if "red" in spec
+            else colors.ListedColormap(spec["listed"], name)
+            if "listed" in spec
+            else colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE)
+        )
+
+        # Register colormap aliases for gray and grey.
+    cmap_d["grey"] = cmap_d["gray"]
+    cmap_d["Greys"] = cmap_d["Grays"]
+    cmap_d["gist_grey"] = cmap_d["gist_gray"]
+
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
         cmap_d[rmap.name] = rmap
-
-    # Register colormap aliases for gray and grey.
-    cmap_d['grey'] = cmap_d['gist_grey'] = cmap_d['gray']
-    cmap_d['Grays'] = cmap_d['Greys']
-    cmap_d['gist_yerg'] = cmap_d['gist_yarg'] = cmap_d['gray_r']
-    cmap_d['grey_r'] = cmap_d['gray_r']
 
     return cmap_d
 
@@ -75,6 +76,7 @@ class ColormapRegistry(Mapping):
 
         mpl.colormaps.register(my_colormap)
     """
+
     def __init__(self, cmaps):
         self._cmaps = cmaps
         self._builtin_cmaps = tuple(cmaps)
@@ -94,8 +96,9 @@ class ColormapRegistry(Mapping):
         return len(self._cmaps)
 
     def __str__(self):
-        return ('ColormapRegistry; available colormaps:\n' +
-                ', '.join(f"'{name}'" for name in self))
+        return "ColormapRegistry; available colormaps:\n" + ", ".join(
+            f"'{name}'" for name in self
+        )
 
     def __call__(self):
         """
@@ -139,18 +142,18 @@ class ColormapRegistry(Mapping):
             if not force:
                 # don't allow registering an already existing cmap
                 # unless explicitly asked to
-                raise ValueError(
-                    f'A colormap named "{name}" is already registered.')
-            elif (name in self._builtin_cmaps
-                    and not self._allow_override_builtin):
+                raise ValueError(f'A colormap named "{name}" is already registered.')
+            elif name in self._builtin_cmaps and not self._allow_override_builtin:
                 # We don't allow overriding a builtin unless privately
                 # coming from register_cmap()
-                raise ValueError("Re-registering the builtin cmap "
-                                 f"{name!r} is not allowed.")
+                raise ValueError(
+                    "Re-registering the builtin cmap " f"{name!r} is not allowed."
+                )
 
             # Warn that we are updating an already existing colormap
-            _api.warn_external(f"Overwriting the cmap {name!r} "
-                               "that was already in the registry.")
+            _api.warn_external(
+                f"Overwriting the cmap {name!r} " "that was already in the registry."
+            )
 
         self._cmaps[name] = cmap.copy()
 
@@ -182,8 +185,9 @@ class ColormapRegistry(Mapping):
             If you try to remove a default built-in colormap.
         """
         if name in self._builtin_cmaps:
-            raise ValueError(f"cannot unregister {name!r} which is a builtin "
-                             "colormap.")
+            raise ValueError(
+                f"cannot unregister {name!r} which is a builtin " "colormap."
+            )
         self._cmaps.pop(name, None)
 
     def get_cmap(self, cmap):
@@ -214,8 +218,8 @@ class ColormapRegistry(Mapping):
             # otherwise, it must be a string so look it up
             return self[cmap]
         raise TypeError(
-            'get_cmap expects None or an instance of a str or Colormap . ' +
-            f'you passed {cmap!r} of type {type(cmap)}'
+            "get_cmap expects None or an instance of a str or Colormap . "
+            + f"you passed {cmap!r} of type {type(cmap)}"
         )
 
 
@@ -260,8 +264,7 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
         try:
             name = cmap.name
         except AttributeError as err:
-            raise ValueError("Arguments must include a name or a "
-                             "Colormap") from err
+            raise ValueError("Arguments must include a name or a " "Colormap") from err
     # override_builtin is allowed here for backward compatibility
     # this is just a shim to enable that to work privately in
     # the global ColormapRegistry
@@ -289,7 +292,7 @@ def _get_cmap(name=None, lut=None):
     Colormap
     """
     if name is None:
-        name = mpl.rcParams['image.cmap']
+        name = mpl.rcParams["image.cmap"]
     if isinstance(name, colors.Colormap):
         return name
     _api.check_in_list(sorted(_colormaps), name=name)
@@ -298,20 +301,19 @@ def _get_cmap(name=None, lut=None):
     else:
         return _colormaps[name].resampled(lut)
 
+
 # do it in two steps like this so we can have an un-deprecated version in
 # pyplot.
 get_cmap = _api.deprecated(
-    '3.7',
-    name='get_cmap',
+    "3.7",
+    name="get_cmap",
     alternative=(
-        "``matplotlib.colormaps[name]`` " +
-        "or ``matplotlib.colormaps.get_cmap(obj)``"
-    )
+        "``matplotlib.colormaps[name]`` " + "or ``matplotlib.colormaps.get_cmap(obj)``"
+    ),
 )(_get_cmap)
 
 
-@_api.deprecated("3.7",
-                 alternative="``matplotlib.colormaps.unregister(name)``")
+@_api.deprecated("3.7", alternative="``matplotlib.colormaps.unregister(name)``")
 def unregister_cmap(name):
     """
     Remove a colormap recognized by :func:`get_cmap`.
@@ -369,11 +371,10 @@ def _auto_norm_from_scale(scale_cls):
     # ``nonpositive="mask"`` is supported.
     try:
         norm = colors.make_norm_from_scale(
-            functools.partial(scale_cls, nonpositive="mask"))(
-            colors.Normalize)()
+            functools.partial(scale_cls, nonpositive="mask")
+        )(colors.Normalize)()
     except TypeError:
-        norm = colors.make_norm_from_scale(scale_cls)(
-            colors.Normalize)()
+        norm = colors.make_norm_from_scale(scale_cls)(colors.Normalize)()
     return type(norm)
 
 
@@ -424,7 +425,8 @@ class ScalarMappable:
                 raise ValueError(
                     "Passing a Normalize instance simultaneously with "
                     "vmin/vmax is not supported.  Please pass vmin/vmax "
-                    "directly to the norm when creating it.")
+                    "directly to the norm when creating it."
+                )
 
         # always resolve the autoscaling so we have concrete limits
         # rather than deferring to draw time.
@@ -476,18 +478,22 @@ class ScalarMappable:
                     xx = x
                 else:
                     raise ValueError("Third dimension must be 3 or 4")
-                if xx.dtype.kind == 'f':
+                if xx.dtype.kind == "f":
                     if norm and (xx.max() > 1 or xx.min() < 0):
-                        raise ValueError("Floating point image RGB values "
-                                         "must be in the 0..1 range.")
+                        raise ValueError(
+                            "Floating point image RGB values "
+                            "must be in the 0..1 range."
+                        )
                     if bytes:
                         xx = (xx * 255).astype(np.uint8)
                 elif xx.dtype == np.uint8:
                     if not bytes:
                         xx = xx.astype(np.float32) / 255
                 else:
-                    raise ValueError("Image RGB array must be uint8 or "
-                                     "floating point; found %s" % xx.dtype)
+                    raise ValueError(
+                        "Image RGB array must be uint8 or "
+                        "floating point; found %s" % xx.dtype
+                    )
                 return xx
         except AttributeError:
             # e.g., x is not an ndarray; so try mapping it
@@ -518,8 +524,9 @@ class ScalarMappable:
 
         A = cbook.safe_masked_invalid(A, copy=True)
         if not np.can_cast(A.dtype, float, "same_kind"):
-            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
-                            "converted to float")
+            raise TypeError(
+                f"Image data of dtype {A.dtype} cannot be " "converted to float"
+            )
 
         self._A = A
 
@@ -576,7 +583,7 @@ class ScalarMappable:
             Always returns 1.
         """
         # This method is intended to be overridden by Artist sub-classes
-        return 1.
+        return 1.0
 
     def set_cmap(self, cmap):
         """
@@ -620,8 +627,7 @@ class ScalarMappable:
         if not in_init:
             self.norm.callbacks.disconnect(self._id_norm)
         self._norm = norm
-        self._id_norm = self.norm.callbacks.connect('changed',
-                                                    self.changed)
+        self._id_norm = self.norm.callbacks.connect("changed", self.changed)
         if not in_init:
             self.changed()
 
@@ -647,7 +653,7 @@ class ScalarMappable:
         current array
         """
         if self._A is None:
-            raise TypeError('You must first set_array for mappable')
+            raise TypeError("You must first set_array for mappable")
         # If the norm's limits are updated self.changed() will be called
         # through the callbacks attached to the norm
         self.norm.autoscale(self._A)
@@ -658,7 +664,7 @@ class ScalarMappable:
         current array, changing only limits that are None
         """
         if self._A is None:
-            raise TypeError('You must first set_array for mappable')
+            raise TypeError("You must first set_array for mappable")
         # If the norm's limits are updated self.changed() will be called
         # through the callbacks attached to the norm
         self.norm.autoscale_None(self._A)
@@ -668,7 +674,7 @@ class ScalarMappable:
         Call this whenever the mappable is changed to notify all the
         callbackSM listeners to the 'changed' signal.
         """
-        self.callbacks.process('changed', self)
+        self.callbacks.process("changed", self)
         self.stale = True
 
 
