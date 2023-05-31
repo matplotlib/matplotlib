@@ -199,7 +199,7 @@ class CallbackRegistry:
         cid_count = state.pop('_cid_gen')
         vars(self).update(state)
         self.callbacks = {
-            s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
+            s: {cid: _weak_or_strong_ref(func, functools.partial(self._remove_proxy, s))
                 for cid, func in d.items()}
             for s, d in self.callbacks.items()}
         self._func_cid_map = {
@@ -212,7 +212,7 @@ class CallbackRegistry:
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=signal)
         self._func_cid_map.setdefault(signal, {})
-        proxy = _weak_or_strong_ref(func, self._remove_proxy)
+        proxy = _weak_or_strong_ref(func, functools.partial(self._remove_proxy, signal))
         if proxy in self._func_cid_map[signal]:
             return self._func_cid_map[signal][proxy]
         cid = next(self._cid_gen)
@@ -233,18 +233,15 @@ class CallbackRegistry:
 
     # Keep a reference to sys.is_finalizing, as sys may have been cleared out
     # at that point.
-    def _remove_proxy(self, proxy, *, _is_finalizing=sys.is_finalizing):
+    def _remove_proxy(self, signal, proxy, *, _is_finalizing=sys.is_finalizing):
         if _is_finalizing():
             # Weakrefs can't be properly torn down at that point anymore.
             return
-        for signal, proxy_to_cid in list(self._func_cid_map.items()):
-            cid = proxy_to_cid.pop(proxy, None)
-            if cid is not None:
-                del self.callbacks[signal][cid]
-                self._pickled_cids.discard(cid)
-                break
-        else:
-            # Not found
+        cid = self._func_cid_map[signal].pop(proxy, None)
+        if cid is not None:
+            del self.callbacks[signal][cid]
+            self._pickled_cids.discard(cid)
+        else:  # Not found
             return
         # Clean up empty dicts
         if len(self.callbacks[signal]) == 0:
@@ -263,10 +260,8 @@ class CallbackRegistry:
             proxy = cid_to_proxy.pop(cid, None)
             if proxy is not None:
                 break
-        else:
-            # Not found
+        else:  # Not found
             return
-
         proxy_to_cid = self._func_cid_map[signal]
         for current_proxy, current_cid in list(proxy_to_cid.items()):
             if current_cid == cid:
