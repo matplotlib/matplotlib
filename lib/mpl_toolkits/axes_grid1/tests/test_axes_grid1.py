@@ -767,3 +767,7 @@ def test_anchored_locator_base_call():
     axins.set(xticks=[], yticks=[])
 
     axins.imshow(Z, extent=extent, origin="lower")
+
+
+def test_grid_with_axes_class_not_overriding_axis():
+    Grid(plt.figure(), 111, (2, 2), axes_class=mpl.axes.Axes)

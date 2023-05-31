@@ -1,5 +1,6 @@
 from numbers import Number
 import functools
+from types import MethodType
 
 import numpy as np
 
@@ -7,14 +8,20 @@ from matplotlib import _api, cbook
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
-from .mpl_axes import Axes
+from .mpl_axes import Axes, SimpleAxisArtist
 
 
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
     left_off = not left_on
-    ax.axis["bottom"].toggle(ticklabels=bottom_off, label=bottom_off)
-    ax.axis["left"].toggle(ticklabels=left_off, label=left_off)
+    if isinstance(ax.axis, MethodType):
+        bottom = SimpleAxisArtist(ax.xaxis, 1, ax.spines["bottom"])
+        left = SimpleAxisArtist(ax.yaxis, 1, ax.spines["left"])
+    else:
+        bottom = ax.axis["bottom"]
+        left = ax.axis["left"]
+    bottom.toggle(ticklabels=bottom_off, label=bottom_off)
+    left.toggle(ticklabels=left_off, label=left_off)
 
 
 class CbarAxesBase:
