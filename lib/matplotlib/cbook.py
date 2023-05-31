@@ -171,7 +171,7 @@ class CallbackRegistry:
 
     # We maintain two mappings:
     #   callbacks: signal -> {cid -> weakref-to-callback}
-    #   _func_cid_map: signal -> {weakref-to-callback -> cid}
+    #   _func_cid_map: {(signal, weakref-to-callback) -> cid}
 
     def __init__(self, exception_handler=_exception_printer, *, signals=None):
         self._signals = None if signals is None else list(signals)  # Copy it.
@@ -203,23 +203,21 @@ class CallbackRegistry:
                 for cid, func in d.items()}
             for s, d in self.callbacks.items()}
         self._func_cid_map = {
-            s: {proxy: cid for cid, proxy in d.items()}
-            for s, d in self.callbacks.items()}
+            (s, proxy): cid
+            for s, d in self.callbacks.items() for cid, proxy in d.items()}
         self._cid_gen = itertools.count(cid_count)
 
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=signal)
-        self._func_cid_map.setdefault(signal, {})
         proxy = _weak_or_strong_ref(func, functools.partial(self._remove_proxy, signal))
-        if proxy in self._func_cid_map[signal]:
-            return self._func_cid_map[signal][proxy]
-        cid = next(self._cid_gen)
-        self._func_cid_map[signal][proxy] = cid
-        self.callbacks.setdefault(signal, {})
-        self.callbacks[signal][cid] = proxy
-        return cid
+        try:
+            return self._func_cid_map[signal, proxy]
+        except KeyError:
+            cid = self._func_cid_map[signal, proxy] = next(self._cid_gen)
+            self.callbacks.setdefault(signal, {})[cid] = proxy
+            return cid
 
     def _connect_picklable(self, signal, func):
         """
@@ -237,16 +235,14 @@ class CallbackRegistry:
         if _is_finalizing():
             # Weakrefs can't be properly torn down at that point anymore.
             return
-        cid = self._func_cid_map[signal].pop(proxy, None)
+        cid = self._func_cid_map.pop((signal, proxy), None)
         if cid is not None:
             del self.callbacks[signal][cid]
             self._pickled_cids.discard(cid)
         else:  # Not found
             return
-        # Clean up empty dicts
-        if len(self.callbacks[signal]) == 0:
+        if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
-            del self._func_cid_map[signal]
 
     def disconnect(self, cid):
         """
@@ -255,22 +251,16 @@ class CallbackRegistry:
         No error is raised if such a callback does not exist.
         """
         self._pickled_cids.discard(cid)
-        # Clean up callbacks
-        for signal, cid_to_proxy in list(self.callbacks.items()):
-            proxy = cid_to_proxy.pop(cid, None)
-            if proxy is not None:
+        for signal, proxy in self._func_cid_map:
+            if self._func_cid_map[signal, proxy] == cid:
                 break
         else:  # Not found
             return
-        proxy_to_cid = self._func_cid_map[signal]
-        for current_proxy, current_cid in list(proxy_to_cid.items()):
-            if current_cid == cid:
-                assert proxy is current_proxy
-                del proxy_to_cid[current_proxy]
-        # Clean up empty dicts
-        if len(self.callbacks[signal]) == 0:
+        assert self.callbacks[signal][cid] == proxy
+        del self.callbacks[signal][cid]
+        del self._func_cid_map[signal, proxy]
+        if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
-            del self._func_cid_map[signal]
 
     def process(self, s, *args, **kwargs):
         """
