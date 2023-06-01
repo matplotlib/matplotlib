@@ -63,22 +63,3 @@ jobs:
         with:
           artifacts_path: dist
           anaconda_nightly_upload_token: ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }}
-
-      - name: Remove old uploads to save space
-        run: |
-          N_LATEST_UPLOADS=5
-
-          # Remove all _but_ the last "${N_LATEST_UPLOADS}" package versions
-          # N.B.: `anaconda show` places the newest packages at the bottom of
-          # the output of the 'Versions' section and package versions are
-          # preceded with a '   + '.
-          anaconda show scientific-python-nightly-wheels/matplotlib &> >(grep '+') | \
-              sed 's/.* + //' | \
-              head --lines "-${N_LATEST_UPLOADS}" > remove-package-versions.txt
-
-          while LANG=C IFS= read -r package_version ; do
-              echo "Removing scientific-python-nightly-wheels/matplotlib/${package_version}"
-              anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} remove \
-                --force \
-                "scientific-python-nightly-wheels/matplotlib/${package_version}"
-          done <remove-package-versions.txt
