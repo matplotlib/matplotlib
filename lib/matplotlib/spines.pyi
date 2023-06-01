@@ -1,6 +1,5 @@
 import matplotlib.patches as mpatches
 from collections.abc import MutableMapping, Iterator
-from matplotlib.artist import allow_rasterization
 from matplotlib.axes import Axes
 from matplotlib.axis import Axis
 from matplotlib.path import Path

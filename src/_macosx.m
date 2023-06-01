@@ -193,13 +193,11 @@ static int wait_for_stdin(void)
 - (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager;
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
 - (BOOL)closeButtonPressed;
-- (void)dealloc;
 @end
 
 @interface View : NSView <NSWindowDelegate>
 {   PyObject* canvas;
     NSRect rubberband;
-    NSTrackingRectTag tracking;
     @public double device_scale;
 }
 - (void)dealloc;
@@ -211,7 +209,6 @@ static int wait_for_stdin(void)
 - (void)setCanvas: (PyObject*)newCanvas;
 - (void)windowWillClose:(NSNotification*)notification;
 - (BOOL)windowShouldClose:(NSNotification*)notification;
-- (BOOL)isFlipped;
 - (void)mouseEntered:(NSEvent*)event;
 - (void)mouseExited:(NSEvent*)event;
 - (void)mouseDown:(NSEvent*)event;
@@ -1239,28 +1236,13 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     /* This is needed for show(), which should exit from [NSApp run]
      * after all windows are closed.
      */
-}
-
-- (void)dealloc
-{
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
+    // For each new window, we have incremented the manager reference, so
+    // we need to bring that down during close and not just dealloc.
     Py_DECREF(manager);
-    PyGILState_Release(gstate);
-    /* The reference count of the view that was added as a subview to the
-     * content view of this window was increased during the call to addSubview,
-     * and is decreased during the call to [super dealloc].
-     */
-    [super dealloc];
 }
 @end
 
 @implementation View
-- (BOOL)isFlipped
-{
-    return NO;
-}
-
 - (View*)initWithFrame:(NSRect)rect
 {
     self = [super initWithFrame: rect];

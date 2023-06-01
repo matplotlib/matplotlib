@@ -207,18 +207,16 @@ def test_marker_init_transforms():
 
 def test_marker_init_joinstyle():
     marker = markers.MarkerStyle("*")
-    jstl = markers.JoinStyle.round
-    styled_marker = markers.MarkerStyle("*", joinstyle=jstl)
-    assert styled_marker.get_joinstyle() == jstl
-    assert marker.get_joinstyle() != jstl
+    styled_marker = markers.MarkerStyle("*", joinstyle="round")
+    assert styled_marker.get_joinstyle() == "round"
+    assert marker.get_joinstyle() != "round"
 
 
 def test_marker_init_captyle():
     marker = markers.MarkerStyle("*")
-    capstl = markers.CapStyle.round
-    styled_marker = markers.MarkerStyle("*", capstyle=capstl)
-    assert styled_marker.get_capstyle() == capstl
-    assert marker.get_capstyle() != capstl
+    styled_marker = markers.MarkerStyle("*", capstyle="round")
+    assert styled_marker.get_capstyle() == "round"
+    assert marker.get_capstyle() != "round"
 
 
 @pytest.mark.parametrize("marker,transform,expected", [

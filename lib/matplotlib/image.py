@@ -405,7 +405,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # So that the image is aligned with the edge of the axes, we want to
         # round up the output width to the next integer.  This also means
         # scaling the transform slightly to account for the extra subpixel.
-        if (t.is_affine and round_to_pixel_border and
+        if ((not unsampled) and t.is_affine and round_to_pixel_border and
                 (out_width_base % 1.0 != 0.0 or out_height_base % 1.0 != 0.0)):
             out_width = math.ceil(out_width_base)
             out_height = math.ceil(out_height_base)
@@ -1188,10 +1188,12 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('Must set data first')
         return self._Ax[0], self._Ax[-1], self._Ay[0], self._Ay[-1]
 
-    def set_filternorm(self, s):
+    @_api.rename_parameter("3.8", "s", "filternorm")
+    def set_filternorm(self, filternorm):
         pass
 
-    def set_filterrad(self, s):
+    @_api.rename_parameter("3.8", "s", "filterrad")
+    def set_filterrad(self, filterrad):
         pass
 
     def set_norm(self, norm):

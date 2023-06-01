@@ -9,10 +9,11 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing import subprocess_run_for_testing
 from matplotlib import pyplot as plt
-from matplotlib._api import MatplotlibDeprecationWarning
 
 
 def test_pyplot_up_to_date(tmpdir):
+    pytest.importorskip("black")
+
     gen_script = Path(mpl.__file__).parents[2] / "tools/boilerplate.py"
     if not gen_script.exists():
         pytest.skip("boilerplate.py not found")
@@ -56,9 +57,9 @@ def test_copy_docstring_and_deprecators(recwarn):
     wrapper_func(None, kwo=None)
     wrapper_func(new=None, kwo=None)
     assert not recwarn
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         wrapper_func(old=None)
-    with pytest.warns(MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         wrapper_func(None, None)
 
 

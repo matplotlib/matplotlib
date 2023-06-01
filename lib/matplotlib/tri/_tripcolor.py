@@ -80,10 +80,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
                 "tripcolor() missing 1 required positional argument: 'c'; or "
                 "1 required keyword-only argument: 'facecolors'")
         elif len(args) > 1:
-            _api.warn_deprecated(
-                "3.6", message=f"Additional positional parameters "
-                f"{args[1:]!r} are ignored; support for them is deprecated "
-                f"since %(since)s and will be removed %(removal)s")
+            raise TypeError(f"Unexpected positional parameters: {args[1:]!r}")
         c = np.asarray(args[0])
         if len(c) == len(tri.x):
             # having this before the len(tri.triangles) comparison gives

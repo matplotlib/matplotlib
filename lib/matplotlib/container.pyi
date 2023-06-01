@@ -1,4 +1,3 @@
-from matplotlib import cbook
 from matplotlib.artist import Artist
 from matplotlib.lines import Line2D
 from matplotlib.collections import LineCollection

@@ -46,18 +46,6 @@ def draw_circle(ax):
     ax.add_artist(ada)
 
 
-def draw_ellipse(ax):
-    """
-    Draw an ellipse of width=0.1, height=0.15 in data coordinates
-    """
-    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredEllipse
-    ae = AnchoredEllipse(ax.transData, width=0.1, height=0.15, angle=0.,
-                         loc='lower left', pad=0.5, borderpad=0.4,
-                         frameon=True)
-
-    ax.add_artist(ae)
-
-
 def draw_sizebar(ax):
     """
     Draw a horizontal bar with length of 0.1 in data coordinates,
@@ -78,7 +66,6 @@ ax.set_aspect(1.)
 
 draw_text(ax)
 draw_circle(ax)
-draw_ellipse(ax)
 draw_sizebar(ax)
 
 plt.show()

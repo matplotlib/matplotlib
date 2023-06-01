@@ -77,8 +77,6 @@ Appearance
    set_axis_off
    set_axis_on
    grid
-   get_frame_on
-   set_frame_on
 
 
 Axis
@@ -211,6 +209,7 @@ Sharing
    :nosignatures:
 
    sharez
+   shareview
 
 
 Interactive

@@ -1,5 +1,5 @@
 from matplotlib.axes._base import _AxesBase
-from matplotlib.axis import Axis, Tick
+from matplotlib.axis import Tick
 
 from matplotlib.transforms import Transform
 
@@ -28,7 +28,7 @@ class SecondaryAxis(_AxesBase):
     ) -> None: ...
     def set_ticks(
         self,
-        ticks: Iterable[float],
+        ticks: ArrayLike,
         labels: Iterable[str] | None = ...,
         *,
         minor: bool = ...,

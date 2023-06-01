@@ -17,85 +17,16 @@ matplotlib.*\.set$
 matplotlib.pyplot.*
 matplotlib.typing.*
 
-# _preprocess_data arg decorator
-matplotlib.axes.*Axes.acorr
-matplotlib.axes.*Axes.angle_spectrum
-matplotlib.axes.*Axes.bar
-matplotlib.axes.*Axes.barbs
-matplotlib.axes.*Axes.boxplot
-matplotlib.axes.*Axes.broken_barh
-matplotlib.axes.*Axes.cohere
-matplotlib.axes.*Axes.contour
-matplotlib.axes.*Axes.contourf
-matplotlib.axes.*Axes.csd
-matplotlib.axes.*Axes.ecdf
-matplotlib.axes.*Axes.errorbar
-matplotlib.axes.*Axes.eventplot
-matplotlib.axes.*Axes.fill_between
-matplotlib.axes.*Axes.fill_betweenx
-matplotlib.axes.*Axes.hexbin
-matplotlib.axes.*Axes.hist
-matplotlib.axes.*Axes.hist2d
-matplotlib.axes.*Axes.hlines
-matplotlib.axes.*Axes.imshow
-matplotlib.axes.*Axes.magnitude_spectrum
-matplotlib.axes.*Axes.pcolor
-matplotlib.axes.*Axes.pcolorfast
-matplotlib.axes.*Axes.pcolormesh
-matplotlib.axes.*Axes.phase_spectrum
-matplotlib.axes.*Axes.pie
-matplotlib.axes.*Axes.plot_date
-matplotlib.axes.*Axes.psd
-matplotlib.axes.*Axes.quiver
-matplotlib.axes.*Axes.scatter
-matplotlib.axes.*Axes.specgram
-matplotlib.axes.*Axes.stairs
-matplotlib.axes.*Axes.stem
-matplotlib.axes.*Axes.violinplot
-matplotlib.axes.*Axes.vlines
-matplotlib.axes.*Axes.xcorr
-
-# Other decorator modifying signature (maybe investigate)
+# Other decorator modifying signature
+# Runtime picks up  *args **kwargs, but only decorated by a decorator that uses @wraps so?
 matplotlib.axis.Axis.draw
+# Backcompat decorator which does not modify runtime reported signature
 matplotlib.offsetbox.*Offset[Bb]ox.get_offset
 
-# Inconsistent super/sub class signatures (other than just arg name)
-matplotlib.ticker.MultipleLocator.set_params
-matplotlib.text.Annotation.get_window_extent
-
 # Inconsistent super/sub class parameter name (maybe rename for consistency)
-matplotlib.axis.Axis.set_clip_path
-matplotlib.axis.Tick.set_clip_path
-matplotlib.image.NonUniformImage.set_filternorm
-matplotlib.image.NonUniformImage.set_filterrad
-matplotlib.projections.geo.AitoffAxes.AitoffTransform.transform_non_affine
-matplotlib.projections.geo.AitoffAxes.InvertedAitoffTransform.transform_non_affine
-matplotlib.projections.geo.HammerAxes.HammerTransform.transform_non_affine
-matplotlib.projections.geo.HammerAxes.InvertedHammerTransform.transform_non_affine
-matplotlib.projections.geo.LambertAxes.InvertedLambertTransform.transform_non_affine
-matplotlib.projections.geo.LambertAxes.LambertTransform.transform_non_affine
-matplotlib.projections.geo.MollweideAxes.InvertedMollweideTransform.transform_non_affine
-matplotlib.projections.geo.MollweideAxes.MollweideTransform.transform_non_affine
-matplotlib.projections.polar.InvertedPolarTransform.transform_non_affine
-matplotlib.projections.polar.PolarTransform.transform_non_affine
 matplotlib.projections.polar.RadialLocator.nonsingular
-matplotlib.scale.AsinhTransform.transform_non_affine
-matplotlib.scale.InvertedAsinhTransform.transform_non_affine
-matplotlib.scale.InvertedSymmetricalLogTransform.transform_non_affine
-matplotlib.scale.LogisticTransform.transform_non_affine
-matplotlib.scale.LogitTransform.transform_non_affine
-matplotlib.scale.SymmetricalLogTransform.transform_non_affine
-matplotlib.table.Cell.set_transform
 matplotlib.ticker.LogLocator.nonsingular
 matplotlib.ticker.LogitLocator.nonsingular
-matplotlib.transforms.Affine2DBase.transform_affine
-matplotlib.transforms.AffineBase.transform_non_affine
-matplotlib.transforms.BlendedGenericTransform.transform_non_affine
-matplotlib.transforms.CompositeGenericTransform.transform_affine
-matplotlib.transforms.CompositeGenericTransform.transform_non_affine
-matplotlib.transforms.IdentityTransform.transform_affine
-matplotlib.transforms.IdentityTransform.transform_non_affine
-matplotlib.transforms.IdentityTransform.transform
 
 # Stdlib/Enum considered inconsistent (no fault of ours, I don't think)
 matplotlib.backend_bases._Mode.__new__
@@ -113,13 +44,10 @@ matplotlib.transforms.TransformWrapper.input_dims
 matplotlib.transforms.TransformWrapper.is_separable
 matplotlib.transforms.TransformWrapper.output_dims
 
-# 3.6 deprecations
-matplotlib.colorbar.Colorbar.__init__
-matplotlib.figure.Figure.callbacks
+# 3.6 Pending deprecations
 matplotlib.figure.Figure.set_constrained_layout
 matplotlib.figure.Figure.set_constrained_layout_pads
 matplotlib.figure.Figure.set_tight_layout
-matplotlib.figure.SubFigure.callbacks
 
 # 3.7 deprecations
 matplotlib.cm.register_cmap
@@ -132,7 +60,6 @@ matplotlib.widgets.Slider.__init__
 matplotlib.widgets.RangeSlider.__init__
 matplotlib.widgets.TextBox.__init__
 matplotlib.widgets.Cursor.__init__
-matplotlib.widgets.MultiCursor.__init__
 matplotlib.widgets.SpanSelector.__init__
 matplotlib.widgets.ToolLineHandles.__init__
 matplotlib.widgets.ToolHandles.__init__
@@ -147,6 +74,8 @@ matplotlib.contour.ContourSet.allsegs
 matplotlib.contour.ContourSet.tcolors
 matplotlib.contour.ContourSet.tlinewidths
 matplotlib.figure.FigureBase.get_tightbbox
+matplotlib.ticker.LogLocator.__init__
+matplotlib.ticker.LogLocator.set_params
 
 # positional-only argument name lacking leading underscores
 matplotlib.axes._base._AxesBase.axis
@@ -232,12 +161,6 @@ matplotlib.axes._base._AxesBase.get_fc
 matplotlib.axes._base._AxesBase.set_fc
 
 # Other dynamic python behaviors not type hinted
-matplotlib.projections.polar.PolarAxes.InvertedPolarTransform
-matplotlib.projections.polar.PolarAxes.PolarAffine
-matplotlib.projections.polar.PolarAxes.PolarTransform
-matplotlib.projections.polar.PolarAxes.RadialLocator
-matplotlib.projections.polar.PolarAxes.ThetaFormatter
-matplotlib.projections.polar.PolarAxes.ThetaLocator
 matplotlib.rcsetup.defaultParams
 
 # Maybe should be abstractmethods, required for subclasses, stubs define once
@@ -246,10 +169,6 @@ matplotlib.tri.*TriInterpolator.gradient
 
 # Functionally a method call, but actually a class instance, type hinted as former
 matplotlib.rcsetup.validate_fillstyle
-
-# C-defined method without docstring indicating signature
-matplotlib.transforms.count_bboxes_overlapping_bbox
-matplotlib.transforms.update_path_extents
 
 # TypeVar used only in type hints
 matplotlib.backend_bases.FigureCanvasBase._T

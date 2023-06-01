@@ -1,10 +1,14 @@
-import io
 import os
-from ._mathtext import RasterParse, VectorParse, get_unicode_index
 from matplotlib.font_manager import FontProperties
-from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
 
-from typing import Literal
+# Re-exported API from _mathtext.
+from ._mathtext import (
+    RasterParse as RasterParse,
+    VectorParse as VectorParse,
+    get_unicode_index as get_unicode_index,
+)
+
+from typing import IO, Literal
 from matplotlib.typing import ColorType
 
 class MathTextParser:
@@ -13,7 +17,7 @@ class MathTextParser:
 
 def math_to_image(
     s: str,
-    filename_or_obj: str | os.PathLike | io.FileIO,
+    filename_or_obj: str | os.PathLike | IO,
     prop: FontProperties | None = ...,
     dpi: float | None = ...,
     format: str | None = ...,

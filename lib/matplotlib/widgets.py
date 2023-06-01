@@ -2429,12 +2429,8 @@ class _SelectorWidget(AxesWidget):
 
     @property
     def visible(self):
+        _api.warn_deprecated("3.8", alternative="get_visible")
         return self.get_visible()
-
-    @visible.setter
-    def visible(self, visible):
-        _api.warn_deprecated("3.6", alternative="set_visible")
-        self.set_visible(visible)
 
     def clear(self):
         """Clear the selection and set the selector ready to make a new one."""
@@ -4145,8 +4141,8 @@ class PolygonSelector(_SelectorWidget):
             self._remove_box()
             self.set_visible(True)
 
-    def _draw_polygon(self):
-        """Redraw the polygon based on the new vertex positions."""
+    def _draw_polygon_without_update(self):
+        """Redraw the polygon based on new vertex positions, no update()."""
         xs, ys = zip(*self._xys) if self._xys else ([], [])
         self._selection_artist.set_data(xs, ys)
         self._update_box()
@@ -4159,6 +4155,10 @@ class PolygonSelector(_SelectorWidget):
             self._polygon_handles.set_data(xs[:-1], ys[:-1])
         else:
             self._polygon_handles.set_data(xs, ys)
+
+    def _draw_polygon(self):
+        """Redraw the polygon based on the new vertex positions."""
+        self._draw_polygon_without_update()
         self.update()
 
     @property
@@ -4180,6 +4180,11 @@ class PolygonSelector(_SelectorWidget):
         if self._draw_box and self._box is None:
             self._add_box()
         self._draw_polygon()
+
+    def _clear_without_update(self):
+        self._selection_completed = False
+        self._xys = [(0, 0)]
+        self._draw_polygon_without_update()
 
 
 class Lasso(AxesWidget):

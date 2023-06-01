@@ -69,10 +69,21 @@ static void PyFT2Image_dealloc(PyFT2Image *self)
 const char *PyFT2Image_draw_rect__doc__ =
     "draw_rect(self, x0, y0, x1, y1)\n"
     "--\n\n"
-    "Draw an empty rectangle to the image.\n";
+    "Draw an empty rectangle to the image.\n"
+    "\n"
+    ".. deprecated:: 3.8\n";
+;
 
 static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args)
 {
+    char const* msg =
+        "FT2Image.draw_rect is deprecated since Matplotlib 3.8 and will be removed "
+        "two minor releases later as it is not used in the library. If you rely on "
+        "it, please let us know.";
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
+        return NULL;
+    }
+
     double x0, y0, x1, y1;
 
     if (!PyArg_ParseTuple(args, "dddd:draw_rect", &x0, &y0, &x1, &y1)) {
@@ -820,10 +831,20 @@ static PyObject *PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, PyObject *args
 const char *PyFT2Font_get_xys__doc__ =
     "get_xys(self, antialiased=True)\n"
     "--\n\n"
-    "Get the xy locations of the current glyphs.\n";
+    "Get the xy locations of the current glyphs.\n"
+    "\n"
+    ".. deprecated:: 3.8\n";
 
 static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
+    char const* msg =
+        "FT2Font.get_xys is deprecated since Matplotlib 3.8 and will be removed two "
+        "minor releases later as it is not used in the library. If you rely on it, "
+        "please let us know.";
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
+        return NULL;
+    }
+
     bool antialiased = true;
     std::vector<double> xys;
     const char *names[] = { "antialiased", NULL };

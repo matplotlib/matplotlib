@@ -1,4 +1,6 @@
 """
+.. redirect-from:: gallery/pie_and_polar_charts/pie_demo2
+
 ==========
 Pie charts
 ==========
@@ -88,7 +90,7 @@ explode = (0, 0.1, 0, 0)  # only "explode" the 2nd slice (i.e. 'Hogs')
 
 fig, ax = plt.subplots()
 ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
-        shadow=True, startangle=90)
+       shadow=True, startangle=90)
 plt.show()
 
 # %%
@@ -97,6 +99,31 @@ plt.show()
 # slices are rotated counter-clockwise by 90 degrees, and the frog slice starts
 # on the positive y-axis.
 #
+# Controlling the size
+# --------------------
+#
+# By changing the *radius* parameter, and often the text size for better visual
+# appearance, the pie chart can be scaled.
+
+fig, ax = plt.subplots()
+
+ax.pie(sizes, labels=labels, autopct='%.0f%%',
+       textprops={'size': 'smaller'}, radius=0.5)
+plt.show()
+
+# %%
+# Modifying the shadow
+# --------------------
+#
+# The *shadow* parameter may optionally take a dictionary with arguments to
+# the `.Shadow` patch. This can be used to modify the default shadow.
+
+fig, ax = plt.subplots()
+ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+       shadow={'ox': -0.04, 'edgecolor': 'none', 'shade': 0.9}, startangle=90)
+plt.show()
+
+# %%
 # .. admonition:: References
 #
 #    The use of the following functions, methods, classes and modules is shown

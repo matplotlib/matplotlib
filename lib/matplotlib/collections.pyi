@@ -1,4 +1,4 @@
-from . import artist, cbook, cm, transforms
+from . import artist, cm, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
 from .colors import Normalize, Colormap
@@ -6,13 +6,12 @@ from .path import Path
 from .patches import Patch
 from .ticker import Locator, Formatter
 from .tri import Triangulation
-from ._enums import CapStyle, JoinStyle
 
 import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Callable, Iterable, Sequence
 from typing import Literal
-from .typing import ColorType, LineStyleType
+from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
 
 class Collection(artist.Artist, cm.ScalarMappable):
     def __init__(
@@ -22,8 +21,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         facecolors: ColorType | Sequence[ColorType] | None = ...,
         linewidths: float | Sequence[float] | None = ...,
         linestyles: LineStyleType | Sequence[LineStyleType] = ...,
-        capstyle: CapStyle | None = ...,
-        joinstyle: JoinStyle | None = ...,
+        capstyle: CapStyleType | None = ...,
+        joinstyle: JoinStyleType | None = ...,
         antialiaseds: bool | Sequence[bool] | None = ...,
         offsets: tuple[float, float] | Sequence[tuple[float, float]] | None = ...,
         offset_transform: transforms.Transform | None = ...,
@@ -51,10 +50,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_offsets(self) -> ArrayLike: ...
     def set_linewidth(self, lw: float | Sequence[float]) -> None: ...
     def set_linestyle(self, ls: LineStyleType | Sequence[LineStyleType]) -> None: ...
-    def set_capstyle(self, cs: CapStyle | Sequence[CapStyle]) -> None: ...
-    def get_capstyle(self) -> CapStyle | Sequence[CapStyle]: ...
-    def set_joinstyle(self, js: JoinStyle | Sequence[JoinStyle]) -> None: ...
-    def get_joinstyle(self) -> JoinStyle | Sequence[JoinStyle]: ...
+    def set_capstyle(self, cs: CapStyleType) -> None: ...
+    def get_capstyle(self) -> Literal["butt", "projecting", "round"]: ...
+    def set_joinstyle(self, js: JoinStyleType) -> None: ...
+    def get_joinstyle(self) -> Literal["miter", "round", "bevel"]: ...
     def set_antialiased(self, aa: bool | Sequence[bool]) -> None: ...
     def set_color(self, c: ColorType | Sequence[ColorType]) -> None: ...
     def set_facecolor(self, c: ColorType | Sequence[ColorType]) -> None: ...

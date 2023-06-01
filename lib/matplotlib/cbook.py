@@ -827,6 +827,7 @@ class Grouper:
         return (self._mapping.get(a, object()) is self._mapping.get(b))
 
     def remove(self, a):
+        """Remove *a* from the grouper, doing nothing if it is not there."""
         set_a = self._mapping.pop(a, None)
         if set_a:
             set_a.remove(a)
@@ -1619,13 +1620,13 @@ def safe_first_element(obj):
 
 def _safe_first_finite(obj, *, skip_nonfinite=True):
     """
-    Return the first non-None (and optionally finite) element in *obj*.
+    Return the first finite element in *obj* if one is available and skip_nonfinite is
+    True. Otherwise return the first element.
 
     This is a method for internal use.
 
-    This is a type-independent way of obtaining the first non-None element,
-    supporting both index access and the iterator protocol.
-    The first non-None element will be obtained when skip_none is True.
+    This is a type-independent way of obtaining the first finite element, supporting
+    both index access and the iterator protocol.
     """
     def safe_isfinite(val):
         if val is None:
@@ -1633,8 +1634,8 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         try:
             return np.isfinite(val) if np.isscalar(val) else True
         except TypeError:
-            # This is something that numpy can not make heads or tails
-            # of, assume "finite"
+            # This is something that NumPy cannot make heads or tails of,
+            # assume "finite"
             return True
     if skip_nonfinite is False:
         if isinstance(obj, collections.abc.Iterator):
@@ -1657,7 +1658,7 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        return next(val for val in obj if safe_isfinite(val))
+        return next((val for val in obj if safe_isfinite(val)), safe_first_element(obj))
 
 
 def sanitize_sequence(data):

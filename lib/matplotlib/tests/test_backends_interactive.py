@@ -63,6 +63,10 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
+        elif (env['MPLBACKEND'] == 'tkagg' and 'TF_BUILD' in os.environ and
+              sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+            marks.append(  # https://github.com/actions/setup-python/issues/649
+                pytest.mark.xfail(reason='Tk version mismatch on Azure macOS CI'))
         envs.append(
             pytest.param(
                 {**env, 'BACKEND_DEPS': ','.join(deps)},
@@ -271,6 +275,10 @@ for param in _thread_safe_backends:
                 reason='PyPy does not support Tkinter threading: '
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
+    elif (backend == 'tkagg' and 'TF_BUILD' in os.environ and
+          sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+        param.marks.append(  # https://github.com/actions/setup-python/issues/649
+            pytest.mark.xfail('Tk version mismatch on Azure macOS CI'))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
@@ -341,6 +349,26 @@ def test_qt5backends_uses_qt5():
     if importlib.util.find_spec('pycairo') is not None:
         _run_helper(_implcairo, timeout=_test_timeout)
     _run_helper(_implcore, timeout=_test_timeout)
+
+
+def _impl_missing():
+    import sys
+    # Simulate uninstalled
+    sys.modules["PyQt6"] = None
+    sys.modules["PyQt5"] = None
+    sys.modules["PySide2"] = None
+    sys.modules["PySide6"] = None
+
+    import matplotlib.pyplot as plt
+    with pytest.raises(ImportError, match="Failed to import any of the following Qt"):
+        plt.switch_backend("qtagg")
+    # Specifically ensure that Pyside6/Pyqt6 are not in the error message for qt5agg
+    with pytest.raises(ImportError, match="^(?:(?!(PySide6|PyQt6)).)*$"):
+        plt.switch_backend("qt5agg")
+
+
+def test_qt_missing():
+    _run_helper(_impl_missing, timeout=_test_timeout)
 
 
 def _impl_test_cross_Qt_imports():
@@ -520,6 +548,11 @@ for param in _blit_backends:
     elif backend == "wx":
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))
+    elif (backend == 'tkagg' and 'TF_BUILD' in os.environ and
+          sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+        param.marks.append(  # https://github.com/actions/setup-python/issues/649
+            pytest.mark.xfail('Tk version mismatch on Azure macOS CI')
+        )
 
 
 @pytest.mark.parametrize("env", _blit_backends)

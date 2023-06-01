@@ -3,6 +3,7 @@ import re
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib import _api
 
 
@@ -27,9 +28,9 @@ def test_classproperty_deprecation():
         @_api.classproperty
         def f(cls):
             pass
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         A.f
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         a = A()
         a.f
 
@@ -42,13 +43,13 @@ def test_deprecate_privatize_attribute():
         meth = _api.deprecate_privatize_attribute("0.0")
 
     c = C()
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert c.attr == 1
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         c.attr = 2
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert c.attr == 2
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert c.meth(42) == 42
 
 
@@ -63,14 +64,14 @@ def test_delete_parameter():
 
     for func in [func1, func2]:
         func()  # No warning.
-        with pytest.warns(_api.MatplotlibDeprecationWarning):
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
             func(foo="bar")
 
     def pyplot_wrapper(foo=_api.deprecation._deprecated_parameter):
         func1(foo)
 
     pyplot_wrapper()  # No warning.
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         func(foo="bar")
 
 
@@ -81,9 +82,9 @@ def test_make_keyword_only():
 
     func(1, arg=2)  # Check that no warning is emitted.
 
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         func(1, 2)
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         func(1, 2, 3)
 
 

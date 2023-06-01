@@ -7,8 +7,7 @@ from mpl_toolkits.mplot3d import art3d
 
 
 # Update style when regenerating the test image
-@image_comparison(['legend_plot.png'], remove_text=True,
-                  style=('classic', '_classic_test_patch'))
+@image_comparison(['legend_plot.png'], remove_text=True, style=('mpl20'))
 def test_legend_plot():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     x = np.arange(10)
@@ -18,8 +17,7 @@ def test_legend_plot():
 
 
 # Update style when regenerating the test image
-@image_comparison(['legend_bar.png'], remove_text=True,
-                  style=('classic', '_classic_test_patch'))
+@image_comparison(['legend_bar.png'], remove_text=True, style=('mpl20'))
 def test_legend_bar():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     x = np.arange(10)
@@ -29,8 +27,7 @@ def test_legend_bar():
 
 
 # Update style when regenerating the test image
-@image_comparison(['fancy.png'], remove_text=True,
-                  style=('classic', '_classic_test_patch'))
+@image_comparison(['fancy.png'], remove_text=True, style=('mpl20'))
 def test_fancy():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     ax.plot(np.arange(10), np.full(10, 5), np.full(10, 5), 'o--', label='line')

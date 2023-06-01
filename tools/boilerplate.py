@@ -386,7 +386,8 @@ def build_pyplot(pyplot_path):
 
     # Run black to autoformat pyplot
     subprocess.run(
-        [sys.executable, "-m", "black", "--line-length=88", pyplot_path]
+        [sys.executable, "-m", "black", "--line-length=88", pyplot_path],
+        check=True
     )
 
 

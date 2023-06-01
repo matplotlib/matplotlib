@@ -1,38 +1,17 @@
-from . import legend_handler
-from matplotlib import colors, offsetbox
 from matplotlib.axes import Axes
-from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.artist import Artist
 from matplotlib.backend_bases import MouseEvent
-from matplotlib.cbook import silent_list
-from matplotlib.collections import (
-    CircleCollection,
-    Collection,
-    LineCollection,
-    PathCollection,
-    PolyCollection,
-    RegularPolyCollection,
-)
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D
 from matplotlib.offsetbox import (
-    AnchoredOffsetbox,
     DraggableOffsetBox,
-    DrawingArea,
-    HPacker,
-    TextArea,
-    VPacker,
 )
-from matplotlib.patches import FancyBboxPatch, Patch, Rectangle, Shadow, StepPatch
+from matplotlib.patches import FancyBboxPatch, Patch, Rectangle
 from matplotlib.text import Text
 from matplotlib.transforms import (
-    Bbox,
     BboxBase,
-    BboxTransformFrom,
-    BboxTransformTo,
-    TransformedBbox,
     Transform,
 )
 

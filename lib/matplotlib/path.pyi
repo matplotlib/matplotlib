@@ -1,5 +1,4 @@
-from .bezier import BezierSegment as BezierSegment
-from .cbook import simple_linear_interpolation as simple_linear_interpolation
+from .bezier import BezierSegment
 from .transforms import Affine2D, Transform, Bbox
 from collections.abc import Generator, Iterable, Sequence
 
