@@ -76,7 +76,9 @@ def _get_testable_interactive_backends():
     return envs
 
 
-_test_timeout = 120  # A reasonably safe value for slower architectures.
+_test_timeout = 20  # Default to a short timeout for most contributors
+if os.getenv('CI'):  # Check if running in a CI environment
+    _test_timeout = 120  # A reasonably safe value for slower architectures.
 
 
 def _test_toolbar_button_la_mode_icon(fig):
