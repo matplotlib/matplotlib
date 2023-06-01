@@ -2,7 +2,7 @@ import functools
 import io
 from unittest import mock
 
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
@@ -137,11 +137,9 @@ def test_deprecation_selector_visible_attribute(ax):
 
     assert tool.get_visible()
 
-    with pytest.warns(
-        MatplotlibDeprecationWarning,
-            match="was deprecated in Matplotlib 3.6"):
-        tool.visible = False
-    assert not tool.get_visible()
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="was deprecated in Matplotlib 3.8"):
+        tool.visible
 
 
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
@@ -1686,6 +1684,29 @@ def test_polygon_selector_box(ax):
         tool.verts, [(20, 30), (30, 40), (40, 30)])
     np.testing.assert_allclose(
         tool._box.extents, (20.0, 40.0, 30.0, 40.0))
+
+
+def test_polygon_selector_clear_method(ax):
+    onselect = mock.Mock(spec=noop, return_value=None)
+    tool = widgets.PolygonSelector(ax, onselect)
+
+    for result in ([(50, 50), (150, 50), (50, 150), (50, 50)],
+                   [(50, 50), (100, 50), (50, 150), (50, 50)]):
+        for x, y in result:
+            for etype, event_args in polygon_place_vertex(x, y):
+                do_event(tool, etype, **event_args)
+
+        artist = tool._selection_artist
+
+        assert tool._selection_completed
+        assert tool.get_visible()
+        assert artist.get_visible()
+        np.testing.assert_equal(artist.get_xydata(), result)
+        assert onselect.call_args == ((result[:-1],), {})
+
+        tool.clear()
+        assert not tool._selection_completed
+        np.testing.assert_equal(artist.get_xydata(), [(0, 0)])
 
 
 @pytest.mark.parametrize("horizOn", [False, True])

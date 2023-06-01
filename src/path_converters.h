@@ -25,7 +25,7 @@
 
    3. PathClipper: Clips line segments to a given rectangle.  This is
       helpful for data reduction, and also to avoid a limitation in
-      Agg where coordinates can not be larger than 24-bit signed
+      Agg where coordinates cannot be larger than 24-bit signed
       integers.
 
    4. PathSnapper: Rounds the path to the nearest center-pixels.
@@ -257,7 +257,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 m_last_segment_valid = (std::isfinite(*x) && std::isfinite(*y));
                 queue_push(code, *x, *y);
 
-                /* Note: this test can not be short-circuited, since we need to
+                /* Note: this test cannot be short-circuited, since we need to
                    advance through the entire curve no matter what */
                 for (size_t i = 0; i < num_extra_points; ++i) {
                     m_source->vertex(x, y);

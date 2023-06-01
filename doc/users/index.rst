@@ -3,9 +3,9 @@
 .. redirect-from:: /contents
 
 
-###########
-Users guide
-###########
+##########
+User guide
+##########
 
 General
 #######

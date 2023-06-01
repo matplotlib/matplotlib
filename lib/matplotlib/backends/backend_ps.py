@@ -49,6 +49,7 @@ class __getattr__:
     # module-level deprecations
     ps_backend_helper = _api.deprecated("3.7", obj_type="")(
         property(lambda self: PsBackendHelper()))
+    psDefs = _api.deprecated("3.8", obj_type="")(property(lambda self: _psDefs))
 
 
 papersize = {'letter': (8.5, 11),
@@ -87,8 +88,8 @@ def _get_papertype(w, h):
     return 'a0'
 
 
-def _nums_to_str(*args):
-    return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
+def _nums_to_str(*args, sep=" "):
+    return sep.join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
 
 
 def _move_path_to_path_or_stream(src, dst):
@@ -292,16 +293,16 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
     def set_color(self, r, g, b, store=True):
         if (r, g, b) != self.color:
-            self._pswriter.write(f"{r:1.3f} setgray\n"
+            self._pswriter.write(f"{_nums_to_str(r)} setgray\n"
                                  if r == g == b else
-                                 f"{r:1.3f} {g:1.3f} {b:1.3f} setrgbcolor\n")
+                                 f"{_nums_to_str(r, g, b)} setrgbcolor\n")
             if store:
                 self.color = (r, g, b)
 
     def set_linewidth(self, linewidth, store=True):
         linewidth = float(linewidth)
         if linewidth != self.linewidth:
-            self._pswriter.write("%1.3f setlinewidth\n" % linewidth)
+            self._pswriter.write(f"{_nums_to_str(linewidth)} setlinewidth\n")
             if store:
                 self.linewidth = linewidth
 
@@ -337,8 +338,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if np.array_equal(seq, oldseq) and oldo == offset:
                 return
 
-        self._pswriter.write(f"[{_nums_to_str(*seq)}]"
-                             f" {_nums_to_str(offset)} setdash\n"
+        self._pswriter.write(f"[{_nums_to_str(*seq)}] {_nums_to_str(offset)} setdash\n"
                              if seq is not None and len(seq) else
                              "[] 0 setdash\n")
         if store:
@@ -406,7 +406,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         clip = []
         rect = gc.get_clip_rectangle()
         if rect is not None:
-            clip.append("%s clipbox\n" % _nums_to_str(*rect.size, *rect.p0))
+            clip.append(f"{_nums_to_str(*rect.p0, *rect.size)} rectclip\n")
         path, trf = gc.get_clip_path()
         if path is not None:
             key = (path, id(trf))
@@ -473,9 +473,9 @@ grestore
         ps_color = (
             None
             if self._is_transparent(rgbFace)
-            else '%1.3f setgray' % rgbFace[0]
+            else f'{_nums_to_str(rgbFace[0])} setgray'
             if rgbFace[0] == rgbFace[1] == rgbFace[2]
-            else '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3])
+            else f'{_nums_to_str(*rgbFace[:3])} setrgbcolor')
 
         # construct the generic marker command:
 
@@ -581,7 +581,7 @@ translate
         w, h, bl = self.get_text_width_height_descent(s, prop, ismath="TeX")
         fontsize = prop.get_size_in_points()
         thetext = 'psmarker%d' % self.textcnt
-        color = '%1.3f,%1.3f,%1.3f' % gc.get_rgb()[:3]
+        color = _nums_to_str(*gc.get_rgb()[:3], sep=',')
         fontcmd = {'sans-serif': r'{\sffamily %s}',
                    'monospace': r'{\ttfamily %s}'}.get(
                        mpl.rcParams['font.family'][0], r'{\rmfamily %s}')
@@ -783,8 +783,8 @@ grestore
         if hatch:
             hatch_name = self.create_hatch(hatch)
             write("gsave\n")
-            write("%f %f %f " % gc.get_hatch_color()[:3])
-            write("%s setpattern fill grestore\n" % hatch_name)
+            write(_nums_to_str(*gc.get_hatch_color()[:3]))
+            write(f" {hatch_name} setpattern fill grestore\n")
 
         if stroke:
             write("stroke\n")
@@ -826,8 +826,9 @@ class FigureCanvasPS(FigureCanvasBase):
         # See https://reproducible-builds.org/specs/source-date-epoch/
         source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
         dsc_comments["CreationDate"] = (
-            datetime.datetime.utcfromtimestamp(
-                int(source_date_epoch)).strftime("%a %b %d %H:%M:%S %Y")
+            datetime.datetime.fromtimestamp(
+                int(source_date_epoch),
+                datetime.timezone.utc).strftime("%a %b %d %H:%M:%S %Y")
             if source_date_epoch
             else time.ctime())
         dsc_comments = "\n".join(
@@ -914,19 +915,20 @@ class FigureCanvasPS(FigureCanvasBase):
                       f"%%DocumentPaperSizes: {papertype}\n"
                       f"%%Pages: 1\n",
                       end="", file=fh)
-            print(f"{dsc_comments}\n"
+            print(f"%%LanguageLevel: 3\n"
+                  f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
                   f"{get_bbox_header(bbox)[0]}\n"
                   f"%%EndComments\n",
                   end="", file=fh)
 
-            Ndict = len(psDefs)
+            Ndict = len(_psDefs)
             print("%%BeginProlog", file=fh)
             if not mpl.rcParams['ps.useafm']:
                 Ndict += len(ps_renderer._character_tracker.used)
             print("/mpldict %d dict def" % Ndict, file=fh)
             print("mpldict begin", file=fh)
-            print("\n".join(psDefs), file=fh)
+            print("\n".join(_psDefs), file=fh)
             if not mpl.rcParams['ps.useafm']:
                 for font_path, chars \
                         in ps_renderer._character_tracker.used.items():
@@ -951,8 +953,7 @@ class FigureCanvasPS(FigureCanvasBase):
             print("%s translate" % _nums_to_str(xo, yo), file=fh)
             if rotation:
                 print("%d rotate" % rotation, file=fh)
-            print("%s clipbox" % _nums_to_str(width*72, height*72, 0, 0),
-                  file=fh)
+            print(f"0 0 {_nums_to_str(width*72, height*72)} rectclip", file=fh)
 
             # write the figure
             print(self._pswriter.getvalue(), file=fh)
@@ -1024,18 +1025,19 @@ class FigureCanvasPS(FigureCanvasBase):
             tmppath.write_text(
                 f"""\
 %!PS-Adobe-3.0 EPSF-3.0
+%%LanguageLevel: 3
 {dsc_comments}
 {get_bbox_header(bbox)[0]}
 %%EndComments
 %%BeginProlog
-/mpldict {len(psDefs)} dict def
+/mpldict {len(_psDefs)} dict def
 mpldict begin
-{"".join(psDefs)}
+{"".join(_psDefs)}
 end
 %%EndProlog
 mpldict begin
 {_nums_to_str(xo, yo)} translate
-{_nums_to_str(width*72, height*72)} 0 0 clipbox
+0 0 {_nums_to_str(width*72, height*72)} rectclip
 {self._pswriter.getvalue()}
 end
 showpage
@@ -1196,7 +1198,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
              "-dEPSCrop" if eps else "-sPAPERSIZE#%s" % ptype,
              tmpfile, tmppdf], _log)
         cbook._check_and_log_subprocess(
-            ["pdftops", "-paper", "match", "-level2", tmppdf, tmpps], _log)
+            ["pdftops", "-paper", "match", "-level3", tmppdf, tmpps], _log)
         shutil.move(tmpps, tmpfile)
     if eps:
         pstoeps(tmpfile)
@@ -1295,7 +1297,7 @@ FigureManagerPS = FigureManagerBase
 
 # The usage comments use the notation of the operator summary
 # in the PostScript Language reference manual.
-psDefs = [
+_psDefs = [
     # name proc  *_d*  -
     # Note that this cannot be bound to /d, because when embedding a Type3 font
     # we may want to define a "d" glyph using "/d{...} d" which would locally
@@ -1313,20 +1315,6 @@ psDefs = [
     "/cl { closepath } _d",
     # *ce*  -
     "/ce { closepath eofill } _d",
-    # w h x y  *box*  -
-    """/box {
-      m
-      1 index 0 r
-      0 exch r
-      neg 0 r
-      cl
-    } _d""",
-    # w h x y  *clipbox*  -
-    """/clipbox {
-      box
-      clip
-      newpath
-    } _d""",
     # wx wy llx lly urx ury  *setcachedevice*  -
     "/sc { setcachedevice } _d",
 ]

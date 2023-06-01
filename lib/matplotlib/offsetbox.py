@@ -1400,19 +1400,9 @@ or callable, default: value of *xycoords*
                            for child in self.get_children()])
 
     def update_positions(self, renderer):
-        """
-        Update pixel positions for the annotated point, the text and the arrow.
-        """
+        """Update pixel positions for the annotated point, the text, and the arrow."""
 
-        x, y = self.xybox
-        if isinstance(self.boxcoords, tuple):
-            xcoord, ycoord = self.boxcoords
-            x1, y1 = self._get_xy(renderer, x, y, xcoord)
-            x2, y2 = self._get_xy(renderer, x, y, ycoord)
-            ox0, oy0 = x1, y2
-        else:
-            ox0, oy0 = self._get_xy(renderer, x, y, self.boxcoords)
-
+        ox0, oy0 = self._get_xy(renderer, self.xybox, self.boxcoords)
         bbox = self.offsetbox.get_bbox(renderer)
         fw, fh = self._box_alignment
         self.offsetbox.set_offset(

@@ -32,7 +32,7 @@ def draw_text(ax):
 
 def draw_circles(ax):
     """Draw circles in axes coordinates."""
-    area = DrawingArea(40, 20, 0, 0)
+    area = DrawingArea(width=40, height=20)
     area.add_artist(Circle((10, 10), 10, fc="tab:blue"))
     area.add_artist(Circle((30, 10), 5, fc="tab:red"))
     box = AnchoredOffsetbox(
@@ -48,38 +48,21 @@ def draw_ellipse(ax):
     ax.add_artist(box)
 
 
-class AnchoredSizeBar(AnchoredOffsetbox):
-    def __init__(self, transform, size, label, loc,
-                 pad=0.1, borderpad=0.1, sep=2, prop=None, frameon=True):
-        """
-        Draw a horizontal bar with the size in data coordinate of the given
-        axes. A label will be drawn underneath (center-aligned).
-
-        pad, borderpad in fraction of the legend font size (or prop)
-        sep in points.
-        """
-        self.size_bar = AuxTransformBox(transform)
-        self.size_bar.add_artist(Line2D([0, size], [0, 0], color="black"))
-        self.txt_label = TextArea(label)
-        self._box = VPacker(children=[self.size_bar, self.txt_label],
-                            align="center",
-                            pad=0, sep=sep)
-        super().__init__(loc, pad=pad, borderpad=borderpad,
-                         child=self._box, prop=prop, frameon=frameon)
-
-
 def draw_sizebar(ax):
     """
     Draw a horizontal bar with length of 0.1 in data coordinates,
-    with a fixed label underneath.
+    with a fixed label center-aligned underneath.
     """
-    asb = AnchoredSizeBar(ax.transData,
-                          0.1,
-                          r"1$^{\prime}$",
-                          loc='lower center',
-                          pad=0.1, borderpad=0.5, sep=5,
-                          frameon=False)
-    ax.add_artist(asb)
+    size = 0.1
+    text = r"1$^{\prime}$"
+    sizebar = AuxTransformBox(ax.transData)
+    sizebar.add_artist(Line2D([0, size], [0, 0], color="black"))
+    text = TextArea(text)
+    packer = VPacker(
+        children=[sizebar, text], align="center", sep=5)  # separation in points.
+    ax.add_artist(AnchoredOffsetbox(
+        child=packer, loc="lower center", frameon=False,
+        pad=0.1, borderpad=0.5))  # paddings relative to the legend fontsize.
 
 
 fig, ax = plt.subplots()

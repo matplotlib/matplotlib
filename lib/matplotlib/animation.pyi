@@ -2,13 +2,6 @@ import abc
 from collections.abc import Callable, Collection, Iterable, Sequence, Generator
 import contextlib
 from pathlib import Path
-from matplotlib import cbook
-from matplotlib._animation_data import (
-    DISPLAY_TEMPLATE,
-    INCLUDED_FRAMES,
-    JS_INCLUDE,
-    STYLE_INCLUDE,
-)
 from matplotlib.artist import Artist
 from matplotlib.backend_bases import TimerBase
 from matplotlib.figure import Figure

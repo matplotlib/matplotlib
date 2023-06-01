@@ -1210,6 +1210,13 @@ stix_virtual_fonts = {
             (0x2202, 0x2202, 'bf', 0x1d789), # partial differential
             (0x2207, 0x2207, 'bf', 0x1d76f), # \Nabla
             ],
+        'bfit':
+            [
+            (0x0041, 0x005a, 'bfit', 0x1d468), # A-Z
+            (0x0061, 0x007a, 'bfit', 0x1d482), # a-z
+            (0x0393, 0x03a9, 'bfit', 0x1d71e), # \Gamma-\Omega
+            (0x03b1, 0x03c9, 'bfit', 0x1d736), # \alpha-\omega
+            ],
         },
     'tt':
         [

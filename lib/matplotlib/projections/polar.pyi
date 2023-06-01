@@ -1,18 +1,14 @@
 import matplotlib.axis as maxis
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
-from matplotlib import cbook
 from matplotlib.axes import Axes
 from matplotlib.lines import Line2D
-from matplotlib.path import Path
-from matplotlib.spines import Spine
 from matplotlib.text import Text
-from matplotlib.ticker import _DummyAxis
 
 import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Sequence
-from typing import Any, Literal, overload
+from typing import Any, ClassVar, Literal, overload
 
 class PolarTransform(mtransforms.Transform):
     input_dims: int
@@ -84,6 +80,14 @@ class _WedgeBbox(mtransforms.Bbox):
     ) -> None: ...
 
 class PolarAxes(Axes):
+
+    PolarTransform: ClassVar[type] = PolarTransform
+    PolarAffine: ClassVar[type] = PolarAffine
+    InvertedPolarTransform: ClassVar[type] = InvertedPolarTransform
+    ThetaFormatter: ClassVar[type] = ThetaFormatter
+    RadialLocator: ClassVar[type] = RadialLocator
+    ThetaLocator: ClassVar[type] = ThetaLocator
+
     name: str
     use_sticky_edges: bool
     def __init__(
@@ -159,7 +163,7 @@ class PolarAxes(Axes):
     def get_rsign(self) -> float: ...
     def set_rlim(
         self,
-        bottom: float | None = ...,
+        bottom: float | tuple[float, float] | None = ...,
         top: float | None = ...,
         *,
         emit: bool = ...,

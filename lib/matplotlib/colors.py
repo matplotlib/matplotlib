@@ -774,7 +774,7 @@ class Colormap:
         return cmapobject
 
     def __eq__(self, other):
-        if (not isinstance(other, Colormap) or self.name != other.name or
+        if (not isinstance(other, Colormap) or
                 self.colorbar_extend != other.colorbar_extend):
             return False
         # To compare lookup tables the Colormaps have to be initialized

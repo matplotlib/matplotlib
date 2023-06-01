@@ -11,12 +11,9 @@ import matplotlib.pyplot as plt
 from matplotlib import cbook
 from mpl_toolkits.axes_grid1 import ImageGrid
 
+fig = plt.figure(figsize=(10.5, 2.5))
 Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy")  # 15x15 array
 extent = (-3, 4, -4, 3)
-
-
-fig = plt.figure(figsize=(10.5, 2.5))
-fig.subplots_adjust(left=0.05, right=0.95)
 
 
 # A grid of 2x2 images with 0.05 inch pad between images and only the
@@ -27,11 +24,10 @@ grid = ImageGrid(
 for ax in grid:
     ax.imshow(Z, extent=extent)
 # This only affects axes in first column and second row as share_all=False.
-grid.axes_llc.set_xticks([-2, 0, 2])
-grid.axes_llc.set_yticks([-2, 0, 2])
+grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
 
-# A grid of 2x2 images with a single colorbar
+# A grid of 2x2 images with a single colorbar.
 grid = ImageGrid(
     fig, 142,  # similar to fig.add_subplot(142).
     nrows_ncols=(2, 2), axes_pad=0.0, label_mode="L", share_all=True,
@@ -40,10 +36,9 @@ for ax in grid:
     im = ax.imshow(Z, extent=extent)
 grid.cbar_axes[0].colorbar(im)
 for cax in grid.cbar_axes:
-    cax.toggle_label(False)
+    cax.tick_params(labeltop=False)
 # This affects all axes as share_all = True.
-grid.axes_llc.set_xticks([-2, 0, 2])
-grid.axes_llc.set_yticks([-2, 0, 2])
+grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
 
 # A grid of 2x2 images. Each image has its own colorbar.
@@ -54,10 +49,9 @@ grid = ImageGrid(
 for ax, cax in zip(grid, grid.cbar_axes):
     im = ax.imshow(Z, extent=extent)
     cax.colorbar(im)
-    cax.toggle_label(False)
-# This affects all axes because we set share_all = True.
-grid.axes_llc.set_xticks([-2, 0, 2])
-grid.axes_llc.set_yticks([-2, 0, 2])
+    cax.tick_params(labeltop=False)
+# This affects all axes as share_all = True.
+grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
 
 # A grid of 2x2 images. Each image has its own colorbar.
@@ -71,9 +65,8 @@ for ax, cax, vlim in zip(grid, grid.cbar_axes, limits):
     im = ax.imshow(Z, extent=extent, vmin=vlim[0], vmax=vlim[1])
     cb = cax.colorbar(im)
     cb.set_ticks((vlim[0], vlim[1]))
-# This affects all axes because we set share_all = True.
-grid.axes_llc.set_xticks([-2, 0, 2])
-grid.axes_llc.set_yticks([-2, 0, 2])
+# This affects all axes as share_all = True.
+grid.axes_llc.set(xticks=[-2, 0, 2], yticks=[-2, 0, 2])
 
 
 plt.show()

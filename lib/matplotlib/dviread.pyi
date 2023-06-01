@@ -1,4 +1,3 @@
-from matplotlib import cbook as cbook
 from pathlib import Path
 import io
 import os

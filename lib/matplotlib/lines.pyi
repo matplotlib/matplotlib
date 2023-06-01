@@ -1,31 +1,20 @@
-from . import cbook
-from ._enums import CapStyle, JoinStyle
-from .artist import Artist, allow_rasterization
+from .artist import Artist
 from .axes import Axes
 from .backend_bases import MouseEvent, FigureCanvasBase
-from .cbook import STEP_LOOKUP_MAP, ls_mapper, ls_mapper_r
-from .markers import (
-    CARETDOWN,
-    CARETDOWNBASE,
-    CARETLEFT,
-    CARETLEFTBASE,
-    CARETRIGHT,
-    CARETRIGHTBASE,
-    CARETUP,
-    CARETUPBASE,
-    TICKDOWN,
-    TICKLEFT,
-    TICKRIGHT,
-    TICKUP,
-    MarkerStyle,
-)
 from .path import Path
-from .transforms import Bbox, BboxTransformTo, TransformedPath, Transform
+from .transforms import Bbox, Transform
 
 from collections.abc import Callable, Sequence
-from typing import Any, overload
+from typing import Any, Literal, overload
 from .typing import (
-    ColorType, DrawStyleType, FillStyleType, LineStyleType, MarkEveryType, MarkerType
+    ColorType,
+    DrawStyleType,
+    FillStyleType,
+    LineStyleType,
+    CapStyleType,
+    JoinStyleType,
+    MarkEveryType,
+    MarkerType,
 )
 from numpy.typing import ArrayLike
 
@@ -59,10 +48,10 @@ class Line2D(Artist):
         markerfacecoloralt: ColorType = ...,
         fillstyle: FillStyleType | None = ...,
         antialiased: bool | None = ...,
-        dash_capstyle: CapStyle | None = ...,
-        solid_capstyle: CapStyle | None = ...,
-        dash_joinstyle: JoinStyle | None = ...,
-        solid_joinstyle: JoinStyle | None = ...,
+        dash_capstyle: CapStyleType | None = ...,
+        solid_capstyle: CapStyleType | None = ...,
+        dash_joinstyle: JoinStyleType | None = ...,
+        solid_joinstyle: JoinStyleType | None = ...,
         pickradius: float = ...,
         drawstyle: DrawStyleType | None = ...,
         markevery: MarkEveryType | None = ...,
@@ -121,14 +110,14 @@ class Line2D(Artist):
     def set_ydata(self, y: ArrayLike) -> None: ...
     def set_dashes(self, seq: Sequence[float] | tuple[None, None]) -> None: ...
     def update_from(self, other: Artist) -> None: ...
-    def set_dash_joinstyle(self, s: JoinStyle) -> None: ...
-    def set_solid_joinstyle(self, s: JoinStyle) -> None: ...
-    def get_dash_joinstyle(self) -> str: ...
-    def get_solid_joinstyle(self) -> str: ...
-    def set_dash_capstyle(self, s: CapStyle) -> None: ...
-    def set_solid_capstyle(self, s: CapStyle) -> None: ...
-    def get_dash_capstyle(self) -> str: ...
-    def get_solid_capstyle(self) -> str: ...
+    def set_dash_joinstyle(self, s: JoinStyleType) -> None: ...
+    def set_solid_joinstyle(self, s: JoinStyleType) -> None: ...
+    def get_dash_joinstyle(self) -> Literal["miter", "round", "bevel"]: ...
+    def get_solid_joinstyle(self) -> Literal["miter", "round", "bevel"]: ...
+    def set_dash_capstyle(self, s: CapStyleType) -> None: ...
+    def set_solid_capstyle(self, s: CapStyleType) -> None: ...
+    def get_dash_capstyle(self) -> Literal["butt", "projecting", "round"]: ...
+    def get_solid_capstyle(self) -> Literal["butt", "projecting", "round"]: ...
     def is_dashed(self) -> bool: ...
 
 class _AxLine(Line2D):

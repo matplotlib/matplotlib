@@ -1,4 +1,3 @@
-from ._color_data import BASE_COLORS, CSS4_COLORS, TABLEAU_COLORS, XKCD_COLORS
 from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from matplotlib import cbook, scale
 import re
@@ -8,6 +7,12 @@ from .typing import ColorType
 
 import numpy as np
 from numpy.typing import ArrayLike
+
+# Explicitly export colors dictionaries which are imported in the impl
+BASE_COLORS: dict[str, ColorType]
+CSS4_COLORS: dict[str, ColorType]
+TABLEAU_COLORS: dict[str, ColorType]
+XKCD_COLORS: dict[str, ColorType]
 
 class _ColorMapping(dict[str, ColorType]):
     cache: dict[tuple[ColorType, float | None], tuple[float, float, float, float]]

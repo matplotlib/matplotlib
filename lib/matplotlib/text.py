@@ -642,10 +642,11 @@ class Text(Artist):
         """
         Return the width of a given text string, in pixels.
         """
+
         w, h, d = self._renderer.get_text_width_height_descent(
             text,
             self.get_fontproperties(),
-            False)
+            cbook.is_math_text(text))
         return math.ceil(w)
 
     def _get_wrapped_text(self):
@@ -1102,7 +1103,7 @@ class Text(Artist):
             The name of the font family.
 
             Available font families are defined in the
-            :ref:`matplotlibrc.template file
+            :ref:`default matplotlibrc file
             <customizing-with-matplotlibrc-files>`.
 
         See Also
@@ -1410,7 +1411,7 @@ class OffsetFrom:
         elif isinstance(self._artist, Transform):
             x, y = self._artist.transform(self._ref_coord)
         else:
-            raise RuntimeError("unknown type")
+            _api.check_isinstance((Artist, BboxBase, Transform), artist=self._artist)
 
         sc = self._get_scale(renderer)
         tr = Affine2D().scale(sc).translate(x, y)
@@ -1430,59 +1431,60 @@ class _AnnotationBase:
 
         self._draggable = None
 
-    def _get_xy(self, renderer, x, y, s):
-        if isinstance(s, tuple):
-            s1, s2 = s
-        else:
-            s1, s2 = s, s
-        if s1 == 'data':
+    def _get_xy(self, renderer, xy, coords):
+        x, y = xy
+        xcoord, ycoord = coords if isinstance(coords, tuple) else (coords, coords)
+        if xcoord == 'data':
             x = float(self.convert_xunits(x))
-        if s2 == 'data':
+        if ycoord == 'data':
             y = float(self.convert_yunits(y))
-        return self._get_xy_transform(renderer, s).transform((x, y))
+        return self._get_xy_transform(renderer, coords).transform((x, y))
 
-    def _get_xy_transform(self, renderer, s):
+    def _get_xy_transform(self, renderer, coords):
 
-        if isinstance(s, tuple):
-            s1, s2 = s
+        if isinstance(coords, tuple):
+            xcoord, ycoord = coords
             from matplotlib.transforms import blended_transform_factory
-            tr1 = self._get_xy_transform(renderer, s1)
-            tr2 = self._get_xy_transform(renderer, s2)
-            tr = blended_transform_factory(tr1, tr2)
-            return tr
-        elif callable(s):
-            tr = s(renderer)
+            tr1 = self._get_xy_transform(renderer, xcoord)
+            tr2 = self._get_xy_transform(renderer, ycoord)
+            return blended_transform_factory(tr1, tr2)
+        elif callable(coords):
+            tr = coords(renderer)
             if isinstance(tr, BboxBase):
                 return BboxTransformTo(tr)
             elif isinstance(tr, Transform):
                 return tr
             else:
-                raise RuntimeError("Unknown return type")
-        elif isinstance(s, Artist):
-            bbox = s.get_window_extent(renderer)
+                raise TypeError(
+                    f"xycoords callable must return a BboxBase or Transform, not a "
+                    f"{type(tr).__name__}")
+        elif isinstance(coords, Artist):
+            bbox = coords.get_window_extent(renderer)
             return BboxTransformTo(bbox)
-        elif isinstance(s, BboxBase):
-            return BboxTransformTo(s)
-        elif isinstance(s, Transform):
-            return s
-        elif not isinstance(s, str):
-            raise RuntimeError(f"Unknown coordinate type: {s!r}")
+        elif isinstance(coords, BboxBase):
+            return BboxTransformTo(coords)
+        elif isinstance(coords, Transform):
+            return coords
+        elif not isinstance(coords, str):
+            raise TypeError(
+                f"'xycoords' must be an instance of str, tuple[str, str], Artist, "
+                f"Transform, or Callable, not a {type(coords).__name__}")
 
-        if s == 'data':
+        if coords == 'data':
             return self.axes.transData
-        elif s == 'polar':
+        elif coords == 'polar':
             from matplotlib.projections import PolarAxes
             tr = PolarAxes.PolarTransform()
             trans = tr + self.axes.transData
             return trans
 
-        s_ = s.split()
-        if len(s_) != 2:
-            raise ValueError(f"{s!r} is not a recognized coordinate")
+        try:
+            bbox_name, unit = coords.split()
+        except ValueError:  # i.e. len(coords.split()) != 2.
+            raise ValueError(f"{coords!r} is not a valid coordinate") from None
 
         bbox0, xy0 = None, None
 
-        bbox_name, unit = s_
         # if unit is offset-like
         if bbox_name == "figure":
             bbox0 = self.figure.figbbox
@@ -1490,57 +1492,27 @@ class _AnnotationBase:
             bbox0 = self.figure.bbox
         elif bbox_name == "axes":
             bbox0 = self.axes.bbox
-        # elif bbox_name == "bbox":
-        #     if bbox is None:
-        #         raise RuntimeError("bbox is specified as a coordinate but "
-        #                            "never set")
-        #     bbox0 = self._get_bbox(renderer, bbox)
 
+        # reference x, y in display coordinate
         if bbox0 is not None:
             xy0 = bbox0.p0
         elif bbox_name == "offset":
-            xy0 = self._get_ref_xy(renderer)
-
-        if xy0 is not None:
-            # reference x, y in display coordinate
-            ref_x, ref_y = xy0
-            if unit == "points":
-                # dots per points
-                dpp = self.figure.dpi / 72
-                tr = Affine2D().scale(dpp)
-            elif unit == "pixels":
-                tr = Affine2D()
-            elif unit == "fontsize":
-                fontsize = self.get_size()
-                dpp = fontsize * self.figure.dpi / 72
-                tr = Affine2D().scale(dpp)
-            elif unit == "fraction":
-                w, h = bbox0.size
-                tr = Affine2D().scale(w, h)
-            else:
-                raise ValueError(f"{unit!r} is not a recognized unit")
-
-            return tr.translate(ref_x, ref_y)
-
+            xy0 = self._get_position_xy(renderer)
         else:
-            raise ValueError(f"{s!r} is not a recognized coordinate")
+            raise ValueError(f"{coords!r} is not a valid coordinate")
 
-    def _get_ref_xy(self, renderer):
-        """
-        Return x, y (in display coordinates) that is to be used for a reference
-        of any offset coordinate.
-        """
-        return self._get_xy(renderer, *self.xy, self.xycoords)
+        if unit == "points":
+            tr = Affine2D().scale(self.figure.dpi / 72)  # dpi/72 dots per point
+        elif unit == "pixels":
+            tr = Affine2D()
+        elif unit == "fontsize":
+            tr = Affine2D().scale(self.get_size() * self.figure.dpi / 72)
+        elif unit == "fraction":
+            tr = Affine2D().scale(*bbox0.size)
+        else:
+            raise ValueError(f"{unit!r} is not a recognized unit")
 
-    # def _get_bbox(self, renderer):
-    #     if hasattr(bbox, "bounds"):
-    #         return bbox
-    #     elif hasattr(bbox, "get_window_extent"):
-    #         bbox = bbox.get_window_extent()
-    #         return bbox
-    #     else:
-    #         raise ValueError("A bbox instance is expected but got %s" %
-    #                          str(bbox))
+        return tr.translate(*xy0)
 
     def set_annotation_clip(self, b):
         """
@@ -1567,8 +1539,7 @@ class _AnnotationBase:
 
     def _get_position_xy(self, renderer):
         """Return the pixel position of the annotated point."""
-        x, y = self.xy
-        return self._get_xy(renderer, x, y, self.xycoords)
+        return self._get_xy(renderer, self.xy, self.xycoords)
 
     def _check_xy(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
@@ -1722,15 +1693,15 @@ callable, default: 'data'
 or callable, default: value of *xycoords*
             The coordinate system that *xytext* is given in.
 
-            All *xycoords* values are valid as well as the following
-            strings:
+            All *xycoords* values are valid as well as the following strings:
 
-            =================   =========================================
+            =================   =================================================
             Value               Description
-            =================   =========================================
-            'offset points'     Offset (in points) from the *xy* value
-            'offset pixels'     Offset (in pixels) from the *xy* value
-            =================   =========================================
+            =================   =================================================
+            'offset points'     Offset, in points, from the *xy* value
+            'offset pixels'     Offset, in pixels, from the *xy* value
+            'offset fontsize'   Offset, relative to fontsize, from the *xy* value
+            =================   =================================================
 
         arrowprops : dict, optional
             The properties used to draw a `.FancyArrowPatch` arrow between the
@@ -2009,7 +1980,7 @@ or callable, default: value of *xycoords*
         if self._renderer is None:
             self._renderer = self.figure._get_renderer()
         if self._renderer is None:
-            raise RuntimeError('Cannot get window extent w/o renderer')
+            raise RuntimeError('Cannot get window extent without renderer')
 
         self.update_positions(self._renderer)
 

@@ -2665,10 +2665,10 @@ class _AxesBase(martist.Artist):
 
         The padding added to each limit of the Axes is the *margin*
         times the data interval. All input parameters must be floats
-        within the range [0, 1]. Passing both positional and keyword
+        greater than -0.5. Passing both positional and keyword
         arguments is invalid and will raise a TypeError. If no
         arguments (positional or otherwise) are provided, the current
-        margins will remain in place and simply be returned.
+        margins will remain unchanged and simply be returned.
 
         Specifying any margin changes only the autoscaling; for example,
         if *xmargin* is not None, then *xmargin* times the X data
@@ -3337,6 +3337,8 @@ class _AxesBase(martist.Artist):
             Tick label font size in points or as a string (e.g., 'large').
         labelcolor : color
             Tick label color.
+        labelfontfamily : str
+            Tick label font.
         colors : color
             Tick color and label color.
         zorder : float

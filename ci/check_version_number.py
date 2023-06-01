@@ -9,15 +9,11 @@ To run:
     $ pip install dist/matplotlib*.whl for wheel
     $ ./ci/check_version_number.py
 """
-import matplotlib
-
 import sys
 
-EXIT_SUCCESS = 0
-EXIT_FAILURE = 1
+import matplotlib
 
 
 print(f"Version {matplotlib.__version__} installed")
 if matplotlib.__version__[0] == "0":
-    sys.exit(EXIT_FAILURE)
-sys.exit(EXIT_SUCCESS)
+    sys.exit("Version incorrectly starts with 0")

@@ -302,6 +302,19 @@ def test_suptitle_subfigures():
     assert sf2.get_facecolor() == (1.0, 1.0, 1.0, 1.0)
 
 
+def test_get_suptitle_supxlabel_supylabel():
+    fig, ax = plt.subplots()
+    assert fig.get_suptitle() == ""
+    assert fig.get_supxlabel() == ""
+    assert fig.get_supylabel() == ""
+    fig.suptitle('suptitle')
+    assert fig.get_suptitle() == 'suptitle'
+    fig.supxlabel('supxlabel')
+    assert fig.get_supxlabel() == 'supxlabel'
+    fig.supylabel('supylabel')
+    assert fig.get_supylabel() == 'supylabel'
+
+
 @image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
@@ -472,11 +485,20 @@ def test_invalid_figure_add_axes():
     with pytest.raises(TypeError, match="multiple values for argument 'rect'"):
         fig.add_axes([0, 0, 1, 1], rect=[0, 0, 1, 1])
 
-    _, ax = plt.subplots()
+    fig2, ax = plt.subplots()
     with pytest.raises(ValueError,
                        match="The Axes must have been created in the present "
                              "figure"):
         fig.add_axes(ax)
+
+    fig2.delaxes(ax)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="Passing more than one positional argument"):
+        fig2.add_axes(ax, "extra positional argument")
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="Passing more than one positional argument"):
+        fig.add_axes([0, 0, 1, 1], "extra positional argument")
 
 
 def test_subplots_shareax_loglabels():
@@ -657,6 +679,15 @@ def test_invalid_layouts():
 
     with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
         fig.set_layout_engine("constrained")
+
+
+@check_figures_equal(extensions=["png"])
+def test_tightlayout_autolayout_deconflict(fig_test, fig_ref):
+    for fig, autolayout in zip([fig_ref, fig_test], [False, True]):
+        with mpl.rc_context({'figure.autolayout': autolayout}):
+            axes = fig.subplots(ncols=2)
+            fig.tight_layout(w_pad=10)
+        assert isinstance(fig.get_layout_engine(), PlaceHolderLayoutEngine)
 
 
 @pytest.mark.parametrize('layout', ['constrained', 'compressed'])
@@ -1572,3 +1603,11 @@ def test_savefig_metadata(fmt):
 def test_savefig_metadata_error(fmt):
     with pytest.raises(ValueError, match="metadata not supported"):
         Figure().savefig(io.BytesIO(), format=fmt, metadata={})
+
+
+def test_get_constrained_layout_pads():
+    params = {'w_pad': 0.01, 'h_pad': 0.02, 'wspace': 0.03, 'hspace': 0.04}
+    expected = tuple([*params.values()])
+    fig = plt.figure(layout=mpl.layout_engine.ConstrainedLayoutEngine(**params))
+    with pytest.warns(PendingDeprecationWarning, match="will be deprecated"):
+        assert fig.get_constrained_layout_pads() == expected

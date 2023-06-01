@@ -145,7 +145,7 @@ Radicals can be produced with the ``\sqrt[]{}`` command.  For example::
     \sqrt{2}
 
 Any base can (optionally) be provided inside square brackets.  Note that the
-base must be a simple expression, and can not contain layout commands such as
+base must be a simple expression, and cannot contain layout commands such as
 fractions or sub/superscripts::
 
     r'$\sqrt[3]{x}$'
@@ -225,6 +225,7 @@ choice of:
     ``\mathfrak{Fraktur}``           :math-stix:`\mathfrak{Fraktur}`
     ``\mathsf{sansserif}``           :math-stix:`\mathsf{sansserif}`
     ``\mathrm{\mathsf{sansserif}}``  :math-stix:`\mathrm{\mathsf{sansserif}}`
+    ``\mathbfit{bolditalic}``        :math-stix:`\mathbfit{bolditalic}`
     ================================ =========================================
 
 There are also five global "font sets" to choose from, which are
@@ -290,7 +291,8 @@ for a particular set of math characters.
     ``mathtext.it``                ``\mathit{}`` or default italic
     ``mathtext.rm``                ``\mathrm{}`` Roman (upright)
     ``mathtext.tt``                ``\mathtt{}`` Typewriter (monospace)
-    ``mathtext.bf``                ``\mathbf{}`` bold italic
+    ``mathtext.bf``                ``\mathbf{}`` bold
+    ``mathtext.bfit``              ``\mathbfit{}`` bold italic
     ``mathtext.cal``               ``\mathcal{}`` calligraphic
     ``mathtext.sf``                ``\mathsf{}`` sans-serif
     ============================== =================================
@@ -306,7 +308,7 @@ that is not contained in your custom fonts, you can set
 :rc:`mathtext.fallback` to either ``'cm'``, ``'stix'`` or ``'stixsans'``
 which will cause the mathtext system to use
 characters from an alternative font whenever a particular
-character can not be found in the custom font.
+character cannot be found in the custom font.
 
 Note that the math glyphs specified in Unicode have evolved over time, and many
 fonts may not have glyphs in the correct place for mathtext.

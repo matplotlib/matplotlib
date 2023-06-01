@@ -37,7 +37,7 @@ The "Axes" interface is how Matplotlib is implemented, and many customizations
 and fine-tuning end up being done at this level.
 
 This interface works by instantiating an instance of a
-`~.matplotlib.figure.Figure` class (``fig`` below), using a method
+`~.matplotlib.figure.Figure` class (``fig`` below), using a
 `~.Figure.subplots` method (or similar) on that object to create one or more
 `~.matplotlib.axes.Axes` objects (``ax`` below), and then calling drawing
 methods on the Axes (``plot`` in this example):

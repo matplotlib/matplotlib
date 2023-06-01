@@ -1,17 +1,12 @@
-from . import artist, cbook
 from .artist import Artist
 from .backend_bases import RendererBase
 from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation
 from .path import Path
-from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
-from .textpath import TextPath
+from .patches import FancyArrowPatch, FancyBboxPatch
 from .transforms import (
-    Affine2D,
     Bbox,
     BboxBase,
-    BboxTransformTo,
-    IdentityTransform,
     Transform,
 )
 
@@ -208,3 +203,5 @@ class Annotation(Text, _AnnotationBase):
         | Callable[[RendererBase], Bbox | Transform],
     ) -> None: ...
     def update_positions(self, renderer: RendererBase) -> None: ...
+    # Drops `dpi` parameter from superclass
+    def get_window_extent(self, renderer: RendererBase | None = ...) -> Bbox: ...  # type: ignore[override]

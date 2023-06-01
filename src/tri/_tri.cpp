@@ -133,11 +133,6 @@ double XYZ::dot(const XYZ& other) const
     return x*other.x + y*other.y + z*other.z;
 }
 
-double XYZ::length_squared() const
-{
-    return x*x + y*y + z*z;
-}
-
 XYZ XYZ::operator-(const XYZ& other) const
 {
     return XYZ(x - other.x, y - other.y, z - other.z);
@@ -181,12 +176,6 @@ void BoundingBox::expand(const XY& delta)
 ContourLine::ContourLine()
     : std::vector<XY>()
 {}
-
-void ContourLine::insert_unique(iterator pos, const XY& point)
-{
-    if (empty() || pos == end() || point != *pos)
-        std::vector<XY>::insert(pos, point);
-}
 
 void ContourLine::push_back(const XY& point)
 {

@@ -1,46 +1,30 @@
-import io
 import os
 
-from matplotlib import backend_bases, projections
-from matplotlib.artist import Artist, allow_rasterization
+from matplotlib.artist import Artist
 from matplotlib.axes import Axes, SubplotBase
 from matplotlib.backend_bases import (
-    DrawEvent,
     FigureCanvasBase,
     MouseButton,
     MouseEvent,
-    NonGuiException,
     RendererBase,
 )
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.colorbar import Colorbar
 from matplotlib.cm import ScalarMappable
 from matplotlib.gridspec import GridSpec, SubplotSpec
-from matplotlib.image import _ImageBase
-from matplotlib.layout_engine import (
-    ConstrainedLayoutEngine,
-    LayoutEngine,
-    PlaceHolderLayoutEngine,
-    TightLayoutEngine,
-)
+from matplotlib.image import _ImageBase, FigureImage
+from matplotlib.layout_engine import LayoutEngine
 from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
-from matplotlib.transforms import (
-    Affine2D,
-    Bbox,
-    BboxBase,
-    BboxTransformTo,
-    TransformedBbox,
-    Transform,
-)
+from matplotlib.transforms import Affine2D, Bbox, Transform
 
 import numpy as np
 from numpy.typing import ArrayLike
 
 from collections.abc import Callable, Iterable
-from typing import Any, Literal, overload
+from typing import Any, IO, Literal, overload
 from .typing import ColorType, HashableList
 
 class SubplotParams:
@@ -70,7 +54,6 @@ class SubplotParams:
     ) -> None: ...
 
 class FigureBase(Artist):
-    figure: FigureBase | None
     artists: list[Artist]
     lines: list[Line2D]
     patches: list[Patch]
@@ -91,8 +74,11 @@ class FigureBase(Artist):
     def get_children(self) -> list[Artist]: ...
     def contains(self, mouseevent: MouseEvent) -> tuple[bool, dict[Any, Any]]: ...
     def suptitle(self, t: str, **kwargs) -> Text: ...
+    def get_suptitle(self) -> str: ...
     def supxlabel(self, t: str, **kwargs) -> Text: ...
+    def get_supxlabel(self) -> str: ...
     def supylabel(self, t: str, **kwargs) -> Text: ...
+    def get_supylabel(self) -> str: ...
     def get_edgecolor(self) -> ColorType: ...
     def get_facecolor(self) -> ColorType: ...
     def get_frameon(self) -> bool: ...
@@ -152,7 +138,7 @@ class FigureBase(Artist):
         *,
         sharex: bool | Literal["none", "all", "row", "col"] = ...,
         sharey: bool | Literal["none", "all", "row", "col"] = ...,
-        squeeze: Literal[True] = ...,
+        squeeze: bool = ...,
         width_ratios: ArrayLike | None = ...,
         height_ratios: ArrayLike | None = ...,
         subplot_kw: dict[str, Any] | None = ...,
@@ -160,7 +146,7 @@ class FigureBase(Artist):
     ) -> np.ndarray | SubplotBase | Axes: ...
     def delaxes(self, ax: Axes) -> None: ...
     def clear(self, keep_observers: bool = ...) -> None: ...
-    def clf(self, keep_observers: bool = ...): ...
+    def clf(self, keep_observers: bool = ...) -> None: ...
 
     @overload
     def legend(self) -> Legend: ...
@@ -201,7 +187,7 @@ class FigureBase(Artist):
     def align_xlabels(self, axs: Iterable[Axes] | None = ...) -> None: ...
     def align_ylabels(self, axs: Iterable[Axes] | None = ...) -> None: ...
     def align_labels(self, axs: Iterable[Axes] | None = ...) -> None: ...
-    def add_gridspec(self, nrows: int = ..., ncols: int = ..., **kwargs): ...
+    def add_gridspec(self, nrows: int = ..., ncols: int = ..., **kwargs) -> GridSpec: ...
     @overload
     def subfigures(
         self,
@@ -231,8 +217,8 @@ class FigureBase(Artist):
     def gca(self) -> Axes: ...
     def _gci(self) -> ScalarMappable | None: ...
     def _process_projection_requirements(
-        self, *args, axes_class=None, polar=False, projection=None, **kwargs
-    ): ...
+        self, *, axes_class=None, polar=False, projection=None, **kwargs
+    ) -> tuple[type[Axes], dict[str, Any]]: ...
     def get_default_bbox_extra_artists(self) -> list[Artist]: ...
     def get_tightbbox(
         self,
@@ -256,7 +242,7 @@ class FigureBase(Artist):
     ) -> dict[Any, Axes]: ...
 
 class SubFigure(FigureBase):
-    figure: FigureBase
+    figure: Figure
     subplotpars: SubplotParams
     dpi_scale_trans: Affine2D
     canvas: FigureCanvasBase
@@ -293,6 +279,7 @@ class SubFigure(FigureBase):
     def get_axes(self) -> list[Axes]: ...
 
 class Figure(FigureBase):
+    figure: Figure
     bbox_inches: Bbox
     dpi_scale_trans: Affine2D
     bbox: Bbox
@@ -355,7 +342,7 @@ class Figure(FigureBase):
         origin: Literal["upper", "lower"] | None = ...,
         resize: bool = ...,
         **kwargs
-    ): ...
+    ) -> FigureImage: ...
     def set_size_inches(
         self, w: float | tuple[float, float], h: float | None = ..., forward: bool = ...
     ) -> None: ...
@@ -369,10 +356,10 @@ class Figure(FigureBase):
     def clear(self, keep_observers: bool = ...) -> None: ...
     def draw_without_rendering(self) -> None: ...
     def draw_artist(self, a: Artist) -> None: ...
-    def add_axobserver(self, func: Callable[[Figure], Any]): ...
+    def add_axobserver(self, func: Callable[[Figure], Any]) -> None: ...
     def savefig(
         self,
-        fname: str | os.PathLike | io.FileIO,
+        fname: str | os.PathLike | IO,
         *,
         transparent: bool | None = ...,
         **kwargs
@@ -386,7 +373,7 @@ class Figure(FigureBase):
         mouse_pop: MouseButton = ...,
         mouse_stop: MouseButton = ...,
     ) -> list[tuple[int, int]]: ...
-    def waitforbuttonpress(self, timeout: float = ...): ...
+    def waitforbuttonpress(self, timeout: float = ...) -> None | bool: ...
     def tight_layout(
         self,
         *,

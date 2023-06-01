@@ -13,11 +13,12 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           operations-per-run: 150
           stale-pr-message: 'Since this Pull Request has not been updated in 60 days, it has been marked "inactive." This does not mean that it will be closed, though it may be moved to a "Draft" state.  This helps maintainers prioritize their reviewing efforts. You can pick the PR back up anytime - please ping us if you need a review or guidance to move the PR forward!  If you do not plan on continuing the work, please let us know so that we can either find someone to take the PR over, or close it.'
-          stale-pr-label: 'inactive'
+          stale-pr-label: "status: inactive"
           days-before-pr-stale: 60
           days-before-pr-close: -1
           stale-issue-message: 'This issue has been marked "inactive" because it has been 365 days since the last comment. If this issue is still present in recent Matplotlib releases, or the feature request is still wanted, please leave a comment and this label will be removed. If there are no updates in another 30 days, this issue will be automatically closed, but you are free to re-open or create a new issue if needed. We value issue reports, and this procedure is meant to help us resurface and prioritize issues that have not been addressed yet, not make them disappear.  Thanks for your help!'
-          stale-issue-label: 'inactive'
+          stale-issue-label: "status: inactive"
+          close-issue-label: "status: closed as inactive"
           days-before-issue-stale: 365
           days-before-issue-close: 30
           ascending: true

@@ -26,35 +26,21 @@ def demo_simple_image(ax):
 
 
 def demo_locatable_axes_hard(fig):
-
     from mpl_toolkits.axes_grid1 import Size, SubplotDivider
-    from mpl_toolkits.axes_grid1.mpl_axes import Axes
 
     divider = SubplotDivider(fig, 2, 2, 2, aspect=True)
 
     # axes for image
-    ax = fig.add_axes(divider.get_position(), axes_class=Axes)
-
+    ax = fig.add_subplot(axes_locator=divider.new_locator(nx=0, ny=0))
     # axes for colorbar
-    # (the label prevents Axes.add_axes from incorrectly believing that the two
-    # axes are the same)
-    ax_cb = fig.add_axes(divider.get_position(), axes_class=Axes, label="cb")
+    ax_cb = fig.add_subplot(axes_locator=divider.new_locator(nx=2, ny=0))
 
-    h = [Size.AxesX(ax),  # main axes
-         Size.Fixed(0.05),  # padding, 0.1 inch
-         Size.Fixed(0.2),  # colorbar, 0.3 inch
-         ]
-
-    v = [Size.AxesY(ax)]
-
-    divider.set_horizontal(h)
-    divider.set_vertical(v)
-
-    ax.set_axes_locator(divider.new_locator(nx=0, ny=0))
-    ax_cb.set_axes_locator(divider.new_locator(nx=2, ny=0))
-
-    ax_cb.axis["left"].toggle(all=False)
-    ax_cb.axis["right"].toggle(ticks=True)
+    divider.set_horizontal([
+        Size.AxesX(ax),  # main axes
+        Size.Fixed(0.05),  # padding, 0.1 inch
+        Size.Fixed(0.2),  # colorbar, 0.3 inch
+    ])
+    divider.set_vertical([Size.AxesY(ax)])
 
     Z, extent = get_demo_image()
 
@@ -96,7 +82,6 @@ def demo_images_side_by_side(ax):
 
 
 def demo():
-
     fig = plt.figure(figsize=(6, 6))
 
     # PLOT 1
@@ -105,21 +90,16 @@ def demo():
     demo_simple_image(ax)
 
     # PLOT 2
-    # image and colorbar whose location is adjusted in the drawing time.
-    # a hard way
-
+    # image and colorbar with draw-time positioning -- a hard way
     demo_locatable_axes_hard(fig)
 
     # PLOT 3
-    # image and colorbar whose location is adjusted in the drawing time.
-    # an easy way
-
+    # image and colorbar with draw-time positioning -- an easy way
     ax = fig.add_subplot(2, 2, 3)
     demo_locatable_axes_easy(ax)
 
     # PLOT 4
     # two images side by side with fixed padding.
-
     ax = fig.add_subplot(2, 2, 4)
     demo_images_side_by_side(ax)
 

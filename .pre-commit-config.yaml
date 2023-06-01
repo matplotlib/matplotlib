@@ -17,6 +17,7 @@ repos:
     hooks:
       - id: check-added-large-files
       - id: check-docstring-first
+        exclude: lib/matplotlib/typing.py  # docstring used for attribute flagged by check
       - id: end-of-file-fixer
         exclude_types: [svg]
       - id: mixed-line-ending
@@ -31,7 +32,7 @@ repos:
         additional_dependencies: [pydocstyle>5.1.0, flake8-docstrings>1.4.0, flake8-force]
         args: ["--docstring-convention=all"]
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.2
+    rev: v2.2.4
     hooks:
       - id: codespell
         files: ^.*\.(py|c|cpp|h|m|md|rst|yml)$

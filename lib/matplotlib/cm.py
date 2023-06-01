@@ -42,6 +42,13 @@ def _gen_cmap_registry():
             colors.ListedColormap(spec['listed'], name)
             if 'listed' in spec else
             colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
+
+    # Register colormap aliases for gray and grey.
+    cmap_d['grey'] = cmap_d['gray']
+    cmap_d['gist_grey'] = cmap_d['gist_gray']
+    cmap_d['gist_yerg'] = cmap_d['gist_yarg']
+    cmap_d['Grays'] = cmap_d['Greys']
+
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
@@ -146,6 +153,11 @@ class ColormapRegistry(Mapping):
                                "that was already in the registry.")
 
         self._cmaps[name] = cmap.copy()
+        # Someone may set the extremes of a builtin colormap and want to register it
+        # with a different name for future lookups. The object would still have the
+        # builtin name, so we should update it to the registered name
+        if self._cmaps[name].name != name:
+            self._cmaps[name].name = name
 
     def unregister(self, name):
         """

@@ -657,7 +657,7 @@ behavior for the line width was different depending on backend:
 - PS:  1 px
 - Agg: 1 px
 
-The old line width behavior can not be restored across all backends
+The old line width behavior cannot be restored across all backends
 simultaneously, but can be restored for a single backend by setting::
 
    mpl.rcParams['hatch.linewidth'] = 0.1  # previous pdf hatch linewidth

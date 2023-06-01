@@ -4,7 +4,7 @@ import platform
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-from matplotlib import _api, cbook
+from matplotlib import cbook
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.patches import Circle, Ellipse
@@ -417,7 +417,7 @@ def test_image_grid_label_mode_deprecation_warning():
     imdata = np.arange(9).reshape((3, 3))
 
     fig = plt.figure()
-    with pytest.warns(_api.MatplotlibDeprecationWarning,
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
                       match="Passing an undefined label_mode"):
         grid = ImageGrid(fig, (0, 0, 1, 1), (2, 1), label_mode="foo")
 
@@ -526,9 +526,11 @@ def test_anchored_artists():
     box.drawing_area.add_artist(el)
     ax.add_artist(box)
 
-    ae = AnchoredEllipse(ax.transData, width=0.1, height=0.25, angle=-60,
-                         loc='lower left', pad=0.5, borderpad=0.4,
-                         frameon=True)
+    # Manually construct the ellipse instead, once the deprecation elapses.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ae = AnchoredEllipse(ax.transData, width=0.1, height=0.25, angle=-60,
+                             loc='lower left', pad=0.5, borderpad=0.4,
+                             frameon=True)
     ax.add_artist(ae)
 
     asb = AnchoredSizeBar(ax.transData, 0.2, r"0.2 units", loc='lower right',
@@ -699,11 +701,7 @@ def test_insetposition():
 @image_comparison(['imagegrid_cbar_mode.png'],
                   remove_text=True, style='mpl20', tol=0.3)
 def test_imagegrid_cbar_mode_edge():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
-    X, Y = np.meshgrid(np.linspace(0, 6, 30), np.linspace(0, 6, 30))
-    arr = np.sin(X) * np.cos(Y) + 1j*(np.sin(3*Y) * np.cos(Y/2.))
+    arr = np.arange(16).reshape((4, 4))
 
     fig = plt.figure(figsize=(18, 9))
 
@@ -719,12 +717,12 @@ def test_imagegrid_cbar_mode_edge():
                          cbar_location=location,
                          cbar_size='20%',
                          cbar_mode='edge')
-        ax1, ax2, ax3, ax4, = grid
+        ax1, ax2, ax3, ax4 = grid
 
-        ax1.imshow(arr.real, cmap='nipy_spectral')
-        ax2.imshow(arr.imag, cmap='hot')
-        ax3.imshow(np.abs(arr), cmap='jet')
-        ax4.imshow(np.arctan2(arr.imag, arr.real), cmap='hsv')
+        ax1.imshow(arr, cmap='nipy_spectral')
+        ax2.imshow(arr.T, cmap='hot')
+        ax3.imshow(np.hypot(arr, arr.T), cmap='jet')
+        ax4.imshow(np.arctan2(arr, arr.T), cmap='hsv')
 
         # In each row/column, the "first" colorbars must be overwritten by the
         # "second" ones.  To achieve this, clear out the axes first.
@@ -769,3 +767,7 @@ def test_anchored_locator_base_call():
     axins.set(xticks=[], yticks=[])
 
     axins.imshow(Z, extent=extent, origin="lower")
+
+
+def test_grid_with_axes_class_not_overriding_axis():
+    Grid(plt.figure(), 111, (2, 2), axes_class=mpl.axes.Axes)

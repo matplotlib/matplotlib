@@ -196,8 +196,10 @@ def test_alpha_rcparam():
         leg.legendPatch.set_facecolor([1, 0, 0, 0.5])
 
 
-@image_comparison(['fancy'], remove_text=True)
+@image_comparison(['fancy'], remove_text=True, tol=0.05)
 def test_fancy():
+    # Tolerance caused by changing default shadow "shade" from 0.3 to 1 - 0.7 =
+    # 0.30000000000000004
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.subplot(121)
     plt.plot([5] * 10, 'o--', label='XX')

@@ -277,8 +277,15 @@
     "mpl_toolkits.axisartist.axisline_style._FancyAxislineStyle.SimpleArrow": [
       "lib/mpl_toolkits/axisartist/axisline_style.py:docstring of mpl_toolkits.axisartist.axisline_style.AxislineStyle:1"
     ],
-    "mpl_toolkits.axisartist.axislines.AxisArtistHelper._Base": [
-      "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper:1"
+    "mpl_toolkits.axisartist.axislines._FixedAxisArtistHelperBase": [
+      "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper:1",
+      "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.FixedAxisArtistHelperRectilinear:1",
+      "lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py:docstring of mpl_toolkits.axisartist.grid_helper_curvelinear.FixedAxisArtistHelper:1"
+    ],
+    "mpl_toolkits.axisartist.axislines._FloatingAxisArtistHelperBase": [
+      "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper:1",
+      "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.FloatingAxisArtistHelperRectilinear:1",
+      "lib/mpl_toolkits/axisartist/grid_helper_curvelinear.py:docstring of mpl_toolkits.axisartist.grid_helper_curvelinear.FloatingAxisArtistHelper:1"
     ],
     "mpl_toolkits.axisartist.floating_axes.FloatingAxesHostAxes": [
       "doc/api/_as_gen/mpl_toolkits.axisartist.floating_axes.rst:32:<autosummary>:1",

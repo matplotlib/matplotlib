@@ -260,7 +260,6 @@ class Colorbar:
     drawedges : bool
         Whether to draw lines at color boundaries.
 
-    filled : bool
 
     %(_colormap_kw_doc)s
 
@@ -278,7 +277,6 @@ class Colorbar:
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
 
-    @_api.delete_parameter("3.6", "filled")
     def __init__(self, ax, mappable=None, *, cmap=None,
                  norm=None,
                  alpha=None,
@@ -291,7 +289,6 @@ class Colorbar:
                  ticks=None,
                  format=None,
                  drawedges=False,
-                 filled=True,
                  extendfrac=None,
                  extendrect=False,
                  label='',
@@ -305,6 +302,7 @@ class Colorbar:
         cmap = mappable.cmap
         norm = mappable.norm
 
+        filled = True
         if isinstance(mappable, contour.ContourSet):
             cs = mappable
             alpha = cs.get_alpha()
@@ -866,7 +864,7 @@ class Colorbar:
 
         Parameters
         ----------
-        ticks : list of floats
+        ticks : 1D array-like
             List of tick locations.
         labels : list of str, optional
             List of tick labels. If not set, the labels show the data value.
