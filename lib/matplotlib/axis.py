@@ -60,7 +60,7 @@ class Tick(martist.Artist):
         size=None, width=None, color=None, major=True, pad=None, zorder=None,  # global
         tickdir=None, tick1On=True, tick2On=True,  # tick prop
         labelsize=None, labelcolor=None, labelrotation=0,  # label prop
-        label1On=True, label2On=False,  # label prop
+        labelfontfamily=None, label1On=True, label2On=False,  # label prop
         grid_color=None, grid_linestyle=None, grid_linewidth=None,  # grid prop
         grid_alpha=None, gridOn=None,  # grid prop
         **kwargs,  # Other Line2D kwargs applied to gridlines.
