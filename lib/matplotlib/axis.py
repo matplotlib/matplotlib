@@ -57,25 +57,12 @@ class Tick(martist.Artist):
     """
     def __init__(
         self, axes, loc, *,
-        size=None,  # points
-        width=None,
-        color=None,
-        tickdir=None,
-        pad=None,
-        labelsize=None,
-        labelcolor=None,
-        zorder=None,
-        gridOn=None,  # defaults to axes.grid depending on axes.grid.which
-        tick1On=True,
-        tick2On=True,
-        label1On=True,
-        label2On=False,
-        major=True,
-        labelrotation=0,
-        grid_color=None,
-        grid_linestyle=None,
-        grid_linewidth=None,
-        grid_alpha=None,
+        size=None, width=None, color=None, major=True, pad=None, zorder=None,  # global
+        tickdir=None, tick1On=True, tick2On=True,  # tick prop
+        labelsize=None, labelcolor=None, labelrotation=0,  # label prop
+        label1On=True, label2On=False,  # label prop
+        grid_color=None, grid_linestyle=None, grid_linewidth=None,  # grid prop
+        grid_alpha=None, gridOn=None,  # grid prop
         **kwargs,  # Other Line2D kwargs applied to gridlines.
     ):
         """
@@ -152,6 +139,11 @@ class Tick(martist.Artist):
             # so the that the rcParams default would override color alpha.
             grid_alpha = mpl.rcParams["grid.alpha"]
         grid_kw = {k[5:]: v for k, v in kwargs.items()}
+
+        remaining_kwargs = {
+            k: v for k, v in kwargs.items() if not k.startswith('grid_')}
+        if remaining_kwargs:
+            raise ValueError(f"Invalid kwargs: {remaining_kwargs.keys()}")
 
         self.tick1line = mlines.Line2D(
             [], [],
