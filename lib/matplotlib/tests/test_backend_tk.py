@@ -38,6 +38,11 @@ def _isolated_tk_test(success_count, func=None):
         sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
         reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
     )
+    @pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
+        'TF_BUILD' in os.environ and sys.platform == 'darwin' and
+        sys.version_info[:2] == (3, 10),
+        reason='Tk version mismatch on Azure macOS CI'
+    )
     @functools.wraps(func)
     def test_func():
         # even if the package exists, may not actually be importable this can
