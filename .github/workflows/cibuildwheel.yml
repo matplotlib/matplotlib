@@ -136,7 +136,7 @@ jobs:
           path: dist/
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@v2.13.0
+        uses: pypa/cibuildwheel@51f5c7fe68ff24694d5a6ac0eb3ad476ddd062a8 # v2.13.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -144,7 +144,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.10
-        uses: pypa/cibuildwheel@v2.13.0
+        uses: pypa/cibuildwheel@51f5c7fe68ff24694d5a6ac0eb3ad476ddd062a8 # v2.13.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -152,7 +152,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        uses: pypa/cibuildwheel@v2.13.0
+        uses: pypa/cibuildwheel@51f5c7fe68ff24694d5a6ac0eb3ad476ddd062a8 # v2.13.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -160,7 +160,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@v2.13.0
+        uses: pypa/cibuildwheel@51f5c7fe68ff24694d5a6ac0eb3ad476ddd062a8 # v2.13.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
