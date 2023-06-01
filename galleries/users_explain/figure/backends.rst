@@ -133,6 +133,9 @@ point to this point" and hence are scale free. Raster backends
 generate a pixel representation of the line whose accuracy depends on a
 DPI setting.
 
+Static backends
+^^^^^^^^^^^^^^^
+
 Here is a summary of the Matplotlib renderers (there is an eponymous
 backend for each; these are *non-interactive backends*, capable of
 writing to a file):
@@ -152,6 +155,10 @@ Cairo     png, ps,   raster_ or vector_ graphics -- using the Cairo_ library
 
 To save plots using the non-interactive backends, use the
 ``matplotlib.pyplot.savefig('filename')`` method.
+
+
+Interactive backends
+^^^^^^^^^^^^^^^^^^^^
 
 These are the user interfaces and renderer combinations supported;
 these are *interactive backends*, capable of displaying to the screen
