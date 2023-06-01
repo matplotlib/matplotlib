@@ -925,38 +925,28 @@ default: %(va)s
         Remove the `~.axes.Axes` *ax* from the figure; update the current Axes.
         """
 
-        def _reset_locators_and_formatters(axis):
-            # Set the formatters and locators to be associated with axis
-            # (where previously they may have been associated with another
-            # Axis instance)
-            axis.get_major_formatter().set_axis(axis)
-            axis.get_major_locator().set_axis(axis)
-            axis.get_minor_formatter().set_axis(axis)
-            axis.get_minor_locator().set_axis(axis)
-
-        def _break_share_link(ax, grouper):
-            siblings = grouper.get_siblings(ax)
-            if len(siblings) > 1:
-                grouper.remove(ax)
-                for last_ax in siblings:
-                    if ax is not last_ax:
-                        return last_ax
-            return None
-
         self._axstack.remove(ax)
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
         self._localaxes.remove(ax)
         self.canvas.release_mouse(ax)
 
-        # Break link between any shared axes
-        for name in ax._axis_names:
-            last_ax = _break_share_link(ax, ax._shared_axes[name])
-            if last_ax is not None:
-                _reset_locators_and_formatters(last_ax._axis_map[name])
+        for name in ax._axis_names:  # Break link between any shared axes
+            grouper = ax._shared_axes[name]
+            siblings = [other for other in grouper.get_siblings(ax) if other is not ax]
+            if not siblings:  # Axes was not shared along this axis; we're done.
+                continue
+            grouper.remove(ax)
+            # Formatters and locators may previously have been associated with the now
+            # removed axis.  Update them to point to an axis still there (we can pick
+            # any of them, and use the first sibling).
+            remaining_axis = siblings[0]._axis_map[name]
+            remaining_axis.get_major_formatter().set_axis(remaining_axis)
+            remaining_axis.get_major_locator().set_axis(remaining_axis)
+            remaining_axis.get_minor_formatter().set_axis(remaining_axis)
+            remaining_axis.get_minor_locator().set_axis(remaining_axis)
 
-        # Break link between any twinned axes
-        _break_share_link(ax, ax._twinned_axes)
+        ax._twinned_axes.remove(ax)  # Break link between any twinned axes.
 
     def clear(self, keep_observers=False):
         """
