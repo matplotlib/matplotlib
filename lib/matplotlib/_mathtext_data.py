@@ -1079,7 +1079,8 @@ tex2uni = {
     'nis'                      : 8956,
     'varniobar'                : 8957,
     'niobar'                   : 8958,
-    'bagmember'                : 8959
+    'bagmember'                : 8959,
+    'triangle'                 : 9651
 }
 
 # Each element is a 4-tuple of the form:
