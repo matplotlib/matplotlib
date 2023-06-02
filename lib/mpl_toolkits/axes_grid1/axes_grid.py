@@ -157,17 +157,14 @@ class Grid:
         self.set_label_mode(label_mode)
 
     def _init_locators(self):
-        h = [Size.Scaled(1), self._horiz_pad_size] * (self._ncols-1) + [Size.Scaled(1)]
-        h_indices = range(0, 2 * self._ncols, 2)  # Indices of Scaled(1).
-        v = [Size.Scaled(1), self._vert_pad_size] * (self._nrows-1) + [Size.Scaled(1)]
-        v_indices = range(0, 2 * self._nrows, 2)  # Indices of Scaled(1).
+        self._divider.set_horizontal(
+            [Size.Scaled(1), self._horiz_pad_size] * (self._ncols-1) + [Size.Scaled(1)])
+        self._divider.set_vertical(
+            [Size.Scaled(1), self._vert_pad_size] * (self._nrows-1) + [Size.Scaled(1)])
         for i in range(self.ngrids):
             col, row = self._get_col_row(i)
-            locator = self._divider.new_locator(
-                nx=h_indices[col], ny=v_indices[self._nrows - 1 - row])
-            self.axes_all[i].set_axes_locator(locator)
-        self._divider.set_horizontal(h)
-        self._divider.set_vertical(v)
+            self.axes_all[i].set_axes_locator(
+                self._divider.new_locator(nx=2 * col, ny=2 * (self._nrows - 1 - row)))
 
     def _get_col_row(self, n):
         if self._direction == "column":
