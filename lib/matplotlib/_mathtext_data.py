@@ -1008,8 +1008,6 @@ tex2uni = {
     'leftparen'                : 40,
     'rightparen'               : 41,
     'bigoplus'                 : 10753,
-    'langle'                   : 10216,
-    'rangle'                   : 10217,
     'leftbrace'                : 124,
     'rightbrace'               : 125,
     'jmath'                    : 567,
