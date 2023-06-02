@@ -206,7 +206,7 @@ class RendererAgg(RendererBase):
         # space) in the following call to draw_text_image).
         font.set_text(s, 0, flags=get_hinting_flag())
         font.draw_glyphs_to_bitmap(
-            antialiased=mpl.rcParams['text.antialiased'])
+            antialiased=gc.get_antialiased())
         d = font.get_descent() / 64.0
         # The descent needs to be adjusted for the angle.
         xo, yo = font.get_bitmap_offset()
