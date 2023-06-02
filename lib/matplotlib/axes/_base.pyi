@@ -367,9 +367,9 @@ class _AxesBase(martist.Artist):
     def get_tightbbox(
         self,
         renderer: RendererBase | None = ...,
+        *,
         call_axes_locator: bool = ...,
         bbox_extra_artists: Sequence[Artist] | None = ...,
-        *,
         for_layout_only: bool = ...
     ) -> Bbox | None: ...
     def twinx(self) -> _AxesBase: ...
