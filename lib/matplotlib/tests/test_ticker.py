@@ -1700,3 +1700,136 @@ def test_set_offset_string(formatter):
     assert formatter.get_offset() == ''
     formatter.set_offset_string('mpl')
     assert formatter.get_offset() == 'mpl'
+
+
+class TestReprImplementation:
+    def test_LogLocator(self):
+        sut = mticker.LogLocator(base=10, numticks=15)
+
+        result = sut.__repr__()
+
+        assert result.startswith("LogLocator(")
+        assert "base=10" in result
+        assert "numticks=15" in result
+        assert result.endswith(")")
+
+    def test_NullLocator(self):
+        sut = mticker.NullFormatter()
+
+        assert sut.__repr__() == "NullFormatter()"
+
+    def test_MultipleLocator(self):
+        sut = mticker.MultipleLocator(0.5)
+
+        assert sut.__repr__() == "MultipleLocator(base=0.5)"
+
+    def test_FixedLocator(self):
+        sut = mticker.FixedLocator([0, 1, 5])
+        result = sut.__repr__()
+
+        assert result.startswith("FixedLocator(")
+        assert "locs=array([0, 1, 5])" in result
+        assert "nbins=None" in result
+        assert result.endswith(")")
+
+    def test_LinearLocator(self):
+        sut = mticker.LinearLocator(numticks=3)
+
+        result = sut.__repr__()
+
+        assert result.startswith("LinearLocator(")
+        assert "numticks=3" in result
+        assert r"presets={}" in result
+        assert result.endswith(")")
+
+    def test_IndexLocator(self):
+        sut = mticker.IndexLocator(base=0.5, offset=0.25)
+
+        result = sut.__repr__()
+
+        assert result.startswith("IndexLocator(")
+        assert "base=0.5" in result
+        assert "offset=0.25" in result
+        assert result.endswith(")")
+
+    def test_AutoLocator(self):
+        sut = mticker.AutoLocator()
+
+        assert sut.__repr__() == "AutoLocator()"
+
+    def test_MaxNLocator(self):
+        sut = mticker.MaxNLocator(nbins=4)
+
+        result = sut.__repr__()
+        assert result.startswith("MaxNLocator(")
+        assert "nbins=4" in result
+        assert result.endswith(")")
+
+
+class TestEvalReprImplementation:
+    def test_LogLocator(self):
+        sut = mticker.LogLocator(base=10, numticks=15)
+
+        result = eval(sut.__repr__(), {"array": np.array,
+                                        "LogLocator": mticker.LogLocator})
+
+        assert result.__class__ == sut.__class__
+        assert result._base == sut._base
+        assert result._subs == sut._subs
+
+    def test_NullLocator(self):
+        sut = mticker.NullFormatter()
+
+        result = eval(sut.__repr__(), {"NullFormatter": mticker.NullFormatter})
+
+        assert result.__class__ == sut.__class__
+
+    def test_MultipleLocator(self):
+        sut = mticker.MultipleLocator(0.5)
+
+        result = eval(sut.__repr__(), {"MultipleLocator": mticker.MultipleLocator})
+
+        assert result.__class__ == sut.__class__
+        assert result._edge.step == sut._edge.step
+
+    def test_FixedLocator(self):
+        sut = mticker.FixedLocator([0, 1, 5])
+
+        result = eval(sut.__repr__(), {"array": np.array,
+                                        "FixedLocator": mticker.FixedLocator})
+
+        assert result.__class__ == sut.__class__
+        assert np.array_equal(sut.locs, result.locs)
+
+    def test_LinearLocator(self):
+        sut = mticker.LinearLocator(numticks=3)
+
+        result = eval(sut.__repr__(), {"LinearLocator": mticker.LinearLocator})
+
+        assert result.__class__ == sut.__class__
+        assert result.numticks == sut.numticks
+
+    def test_IndexLocator(self):
+        sut = mticker.IndexLocator(base=0.5, offset=0.25)
+
+        result = eval(sut.__repr__(), {"IndexLocator": mticker.IndexLocator})
+
+        assert result.__class__ == sut.__class__
+        assert result._base == sut._base
+        assert result.offset == sut.offset
+
+    def test_AutoLocator(self):
+        sut = mticker.AutoLocator()
+
+        result = eval(sut.__repr__(), {"AutoLocator": mticker.AutoLocator})
+
+        assert result.__class__ == sut.__class__
+
+    def test_MaxNLocator(self):
+        sut = mticker.MaxNLocator(nbins=4)
+
+        result = eval(sut.__repr__(), {"array": np.array,
+                                        "MaxNLocator": mticker.MaxNLocator})
+
+        assert result.__class__ == sut.__class__
+        assert result._nbins == sut._nbins

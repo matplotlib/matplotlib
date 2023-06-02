@@ -182,6 +182,9 @@ class _DummyAxis:
 class TickHelper:
     axis = None
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
     def set_axis(self, axis):
         self.axis = axis
 
@@ -271,6 +274,9 @@ class FixedFormatter(Formatter):
         Otherwise, the labels may end up in unexpected positions.
     """
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(seq={self.seq.__repr__()})"
+
     def __init__(self, seq):
         """Set the sequence *seq* of strings that will be used for labels."""
         self.seq = seq
@@ -305,6 +311,9 @@ class FuncFormatter(Formatter):
     tick label.
     """
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(func={self.func.__repr__()})"
+
     def __init__(self, func):
         self.func = func
         self.offset_string = ""
@@ -335,6 +344,9 @@ class FormatStrFormatter(Formatter):
     to get a Unicode minus by wrapping the format specifier with $ (e.g.
     "$%g$").
     """
+    def __repr__(self):
+        return f"{self.__class__.__name__}(fmt={self.fmt.__repr__()})"
+
     def __init__(self, fmt):
         self.fmt = fmt
 
@@ -354,6 +366,10 @@ class StrMethodFormatter(Formatter):
     The field used for the tick value must be labeled *x* and the field used
     for the tick position must be labeled *pos*.
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(fmt={self.fmt.__repr__()})"
+
     def __init__(self, fmt):
         self.fmt = fmt
 
@@ -416,6 +432,12 @@ class ScalarFormatter(Formatter):
         ax3.xaxis.get_major_formatter().set_scientific(False)
 
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"useOffset={self._useOffset.__repr__()}, " + \
+            f"useMathText={self._useMathText.__repr__()},  " + \
+            f"useLocale={self._useLocale.__repr__()})"
 
     def __init__(self, useOffset=None, useMathText=None, useLocale=None):
         if useOffset is None:
@@ -866,6 +888,13 @@ class LogFormatter(Formatter):
     decades, use ``minor_thresholds=(1.5, 1.5)``.
     """
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" +\
+            f"base={self._base.__repr__()}, " + \
+            f"labelOnlyBase={self.labelOnlyBase.__repr__()}, " + \
+            f"minor_thresholds={self.minor_thresholds.__repr__()}, " + \
+            f"linthresh={self._linthresh.__repr__()})"
+
     def __init__(self, base=10.0, labelOnlyBase=False,
                  minor_thresholds=None,
                  linthresh=None):
@@ -1108,6 +1137,14 @@ class LogitFormatter(Formatter):
     Probability formatter (using Math text).
     """
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"use_overline={self._use_overline.__repr__()})" + \
+            f"one_half={self._one_half.__repr__()}" + \
+            f"minor={self._minor.__repr__()}" + \
+            f"minor_threshold={self._minor_threshold.__repr__()}" + \
+            f"minor_number={self._minor_number.__repr__()}"
+
     def __init__(
         self,
         *,
@@ -1330,6 +1367,14 @@ class EngFormatter(Formatter):
          30: "Q"
     }
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"unit={self.unit.__repr__()}, " + \
+            f"places={self.places.__repr__()}, " + \
+            f"sep={self.sep.__repr__()}, " + \
+            f"usetex={self.usetex.__repr__()}, " + \
+            f"useMathText={self.useMathText.__repr__()})"
+
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
                  useMathText=None):
         r"""
@@ -1478,6 +1523,14 @@ class PercentFormatter(Formatter):
     is_latex : bool
         If *False*, reserved LaTeX characters in *symbol* will be escaped.
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"xmax={self.xmax.__repr__()}, " + \
+            f"decimals={self.decimals.__repr__()}, " + \
+            f"symbol={self.symbol.__repr__()}, " + \
+            f"is_latex={self._is_latex.__repr__()})"
+
     def __init__(self, xmax=100, decimals=None, symbol='%', is_latex=False):
         self.xmax = xmax + 0.0
         self.decimals = decimals
@@ -1659,6 +1712,12 @@ class IndexLocator(Locator):
     index plotting; i.e., the axis is 0, len(data).  This is mainly
     useful for x ticks.
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"base={self._base.__repr__()}, " + \
+            f"offset={self.offset.__repr__()})"
+
     def __init__(self, base, offset):
         """Place ticks every *base* data point, starting at *offset*."""
         self._base = base
@@ -1691,6 +1750,11 @@ class FixedLocator(Locator):
     array of possibilities, then it is guaranteed to be one of
     the chosen ticks.
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"locs={self.locs.__repr__()}, " + \
+            f"nbins={self.nbins.__repr__()})"
 
     def __init__(self, locs, nbins=None):
         self.locs = np.asarray(locs)
@@ -1756,6 +1820,12 @@ class LinearLocator(Locator):
     be nice
 
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"numticks={self.numticks.__repr__()}, " + \
+            f"presets={self.presets.__repr__()})"
+
     def __init__(self, numticks=None, presets=None):
         """
         Parameters
@@ -1834,6 +1904,9 @@ class MultipleLocator(Locator):
     Set a tick on each integer multiple of the *base* within the view
     interval.
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(base={self._edge.step})"
 
     def __init__(self, base=1.0):
         self._edge = _Edge_integer(base, 0)
@@ -1944,6 +2017,15 @@ class MaxNLocator(Locator):
                           symmetric=False,
                           prune=None,
                           min_n_ticks=2)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"nbins={self._nbins.__repr__()}, " + \
+            f"steps={self._steps.__repr__()}, " + \
+            f"integer={self._integer.__repr__()}, " + \
+            f"symmetric={self._symmetric.__repr__()}, " + \
+            f"prune={self._prune.__repr__()}, " + \
+            f"min_n_ticks={self._min_n_ticks.__repr__()})"
 
     def __init__(self, nbins=None, **kwargs):
         """
@@ -2244,6 +2326,12 @@ class LogLocator(Locator):
 
     """
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"base={self._base.__repr__()}, " + \
+            f"subs={self._subs.__repr__()}, " + \
+            f"numticks={self.numticks.__repr__()})"
+
     @_api.delete_parameter("3.8", "numdecs")
     def __init__(self, base=10.0, subs=(1.0,), numdecs=4, numticks=None):
         """Place ticks on the locations : subs[j] * base**i."""
@@ -2425,6 +2513,12 @@ class SymmetricalLogLocator(Locator):
     Determine the tick locations for symmetric log axes.
     """
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"subs={self._subs.__repr__()}, " + \
+            f"linthresh={self._linthresh.__repr__()}, " + \
+            f"base={self._base.__repr__()})"
+
     def __init__(self, transform=None, subs=None, linthresh=None, base=None):
         """
         Parameters
@@ -2590,6 +2684,15 @@ class AsinhLocator(Locator):
        This API is provisional and may be revised in the future
        based on early user feedback.
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"linear_width={self.linear_width.__repr__()}, " + \
+            f"numticks={self.numticks.__repr__()}, " + \
+            f"symthresh={self.symthresh.__repr__()}, " + \
+            f"base={self.base.__repr__()}, " + \
+            f"subs={self.subs.__repr__()})"
+
     def __init__(self, linear_width, numticks=11, symthresh=0.2,
                  base=10, subs=None):
         """
@@ -2694,6 +2797,11 @@ class LogitLocator(MaxNLocator):
     """
     Determine the tick locations for logit axes
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(" + \
+            f"minor={self._minor.__repr__()}, " + \
+            f"nbins={self._nbins.__repr__()})"
 
     def __init__(self, minor=False, *, nbins="auto"):
         """
@@ -2844,6 +2952,10 @@ class AutoLocator(MaxNLocator):
     of `~matplotlib.ticker.MaxNLocator`, with parameters *nbins = 'auto'*
     and *steps = [1, 2, 2.5, 5, 10]*.
     """
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
     def __init__(self):
         """
         To know the values of the non-public parameters, please have a
@@ -2863,6 +2975,10 @@ class AutoMinorLocator(Locator):
     Dynamically find minor tick positions based on the positions of
     major ticks. The scale must be linear with major ticks evenly spaced.
     """
+
+    def __repr__(self):
+        return f"{self.__call__.__name__}(n={self.ndivs.__repr__()})"
+
     def __init__(self, n=None):
         """
         *n* is the number of subdivisions of the interval between
