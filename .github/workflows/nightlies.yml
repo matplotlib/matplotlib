@@ -58,38 +58,8 @@ jobs:
           mv *.whl dist/
           ls -l dist/
 
-        # N.B. anaconda-client is only maintained on the main channel
-      - name: Install anaconda-client
-        uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-name: nightlies
-          create-args: anaconda-client=1.10.0
-          condarc: |
-            channels:
-              - main
-
       - name: Upload wheels to Anaconda Cloud as nightlies
-        run: |
-          anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} upload \
-            --user scientific-python-nightly-wheels \
-            --skip-existing \
-            dist/matplotlib-*.whl
-
-      - name: Remove old uploads to save space
-        run: |
-          N_LATEST_UPLOADS=5
-
-          # Remove all _but_ the last "${N_LATEST_UPLOADS}" package versions
-          # N.B.: `anaconda show` places the newest packages at the bottom of
-          # the output of the 'Versions' section and package versions are
-          # preceded with a '   + '.
-          anaconda show scientific-python-nightly-wheels/matplotlib &> >(grep '+') | \
-              sed 's/.* + //' | \
-              head --lines "-${N_LATEST_UPLOADS}" > remove-package-versions.txt
-
-          while LANG=C IFS= read -r package_version ; do
-              echo "Removing scientific-python-nightly-wheels/matplotlib/${package_version}"
-              anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} remove \
-                --force \
-                "scientific-python-nightly-wheels/matplotlib/${package_version}"
-          done <remove-package-versions.txt
+        uses: scientific-python/upload-nightly-action@8f0394fd2aa0c85d7364a9958652e8994e06b23c # 0.1.0
+        with:
+          artifacts_path: dist
+          anaconda_nightly_upload_token: ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }}
