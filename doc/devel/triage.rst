@@ -77,8 +77,8 @@ If you would like to join the triage team:
 3. Responsibly exercise your new power!
 
 Anyone with commit or triage rights may also nominate a user to be
-invited to join the triage team.
-
+invited to join the triage team by emailing
+matplotlib-steering-council@numfocus.org .
 
 
 Triaging operations for members of the core and triage teams
