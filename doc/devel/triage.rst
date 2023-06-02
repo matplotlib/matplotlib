@@ -18,7 +18,7 @@ are not part of the Matplotlib organization do not have `permissions
 to change milestones, add labels, or close issue
 <https://docs.github.com/en/organizations/managing-access-to-your-organizations-repositories/repository-permission-levels-for-an-organization>`_.
 If you do not have enough GitHub permissions do something (e.g. add a
-label, close an issue), please leave a comment tagging with your
+label, close an issue), please leave a comment with your
 recommendations!
 
 Working on issues to improve them
