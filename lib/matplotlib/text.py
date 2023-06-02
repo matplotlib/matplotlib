@@ -315,21 +315,21 @@ class Text(Artist):
         """Return the text rotation mode."""
         return self._rotation_mode
 
-    def set_antialiased(self, b):
+    def set_antialiased(self, antialiased):
         """
         Set whether to use antialiased rendering.
 
         Parameters
         ----------
-        b : bool
+        antialiased : bool
 
         Notes
         -----
-        Antialiasing will be determined by ``rcParams['text.antialiased']``
-        and parameter ``antialiased`` will have no effect if the text contains
+        Antialiasing will be determined by :rc:`text.antialiased`
+        and the parameter *antialiased* will have no effect if the text contains
         math expressions.
         """
-        self._antialiased = b
+        self._antialiased = antialiased
         self.stale = True
 
     def get_antialiased(self):

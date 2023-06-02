@@ -1,9 +1,9 @@
 Support customizing antialiasing for text and annotation
 --------------------------------------------------------
-``matplotlib.pyplot.annotate()`` and ``matplotlib.pyplot.text()`` now support parameter ``antialiased``.
-When ``antialiased`` is set to ``True``, antialiasing will be applied to the text.
-When ``antialiased`` is set to ``False``, antialiasing will not be applied to the text.
-When ``antialiased`` is not specified, antialiasing will be set by ``rcParams['text.antialiased']`` at the creation time of ``Text`` and ``Annotation`` object.
+``matplotlib.pyplot.annotate()`` and ``matplotlib.pyplot.text()`` now support parameter *antialiased*.
+When *antialiased* is set to ``True``, antialiasing will be applied to the text.
+When *antialiased* is set to ``False``, antialiasing will not be applied to the text.
+When *antialiased* is not specified, antialiasing will be set by :rc:`text.antialiased` at the creation time of ``Text`` and ``Annotation`` object.
 Examples:
 
 .. code-block::
@@ -12,7 +12,7 @@ Examples:
     plt.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)
     ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5), antialiased=False)
 
-If the text contains math expression, then anaialiasing will be set by ``rcParams['text.antialiased']``, and ``antialiased`` will have no effect
+If the text contains math expression, then antialiasing will be set by :rc:`text.antialiased`, and *antialiased* will have no effect
 This applies to the whole text.
 Examples:
 
@@ -21,7 +21,7 @@ Examples:
     # no part will be antialiased for the text below
     plt.text(0.5, 0.25, r"$I'm \sqrt{x}$", antialiased=False)
 
-Also note that antialiasing for tick labeles will be set with ``rcParams['text.antialiased']`` when they are created (usually when a ``Figure`` is created) and cannot be changed afterwards.
+Also note that antialiasing for tick labels will be set with :rc:`text.antialiased` when they are created (usually when a ``Figure`` is created) and cannot be changed afterwards.
 
 Furthermore, with this new feature, you may want to make sure that you are creating and saving/showing the figure under the same context::
 
