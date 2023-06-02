@@ -18,8 +18,8 @@ are not part of the Matplotlib organization do not have `permissions
 to change milestones, add labels, or close issue
 <https://docs.github.com/en/organizations/managing-access-to-your-organizations-repositories/repository-permission-levels-for-an-organization>`_.
 If you do not have enough GitHub permissions do something (e.g. add a
-label, close an issue), please leave a comment tagging
-``@matplotlib/triageteam`` with your recommendations!
+label, close an issue), please leave a comment with your
+recommendations!
 
 Working on issues to improve them
 ---------------------------------
@@ -69,16 +69,14 @@ Triage team
 If you would like to join the triage team:
 
 1. Correctly triage 2-3 issues.
-2. Ask someone on the `triage team
-   <https://github.com/orgs/matplotlib/teams/triageteam>`_ (publicly
-   or privately) to recommend you to the triage team .  If you worked
-   with someone on the issue triaged, they would be a good person to
-   ask.
+2. Ask someone on in the Matplotlib organization (publicly or privately) to
+   recommend you to the triage team (look for "Member" on the top-right of
+   comments on GitHub).  If you worked with someone on the issues triaged, they
+   would be a good person to ask.
 3. Responsibly exercise your new power!
 
-Anyone with commit or triage rights may also nominate a user to be
-invited to join the triage team.
-
+Anyone with commit or triage rights may nominate a user to be invited to join
+the triage team by emailing matplotlib-steering-council@numfocus.org .
 
 
 Triaging operations for members of the core and triage teams
