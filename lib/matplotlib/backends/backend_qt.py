@@ -106,8 +106,10 @@ def _create_qApp():
         # of Qt is not instantiated in the process
         if QT_API in {'PyQt6', 'PySide6'}:
             other_bindings = ('PyQt5', 'PySide2')
+            qt_version = 6
         elif QT_API in {'PyQt5', 'PySide2'}:
             other_bindings = ('PyQt6', 'PySide6')
+            qt_version = 5
         else:
             raise RuntimeError("Should never be here")
 
@@ -123,11 +125,11 @@ def _create_qApp():
                     'versions may not work as expected.'
                 )
                 break
-        try:
-            QtWidgets.QApplication.setAttribute(
-                QtCore.Qt.AA_EnableHighDpiScaling)
-        except AttributeError:  # Only for Qt>=5.6, <6.
-            pass
+        if qt_version == 5:
+            try:
+                QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+            except AttributeError:  # Only for Qt>=5.6, <6.
+                pass
         try:
             QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
                 QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
@@ -141,10 +143,8 @@ def _create_qApp():
         app.lastWindowClosed.connect(app.quit)
         cbook._setup_new_guiapp()
 
-    try:
-        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)  # Only for Qt<6.
-    except AttributeError:
-        pass
+        if qt_version == 5:
+            app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
     return app
 
