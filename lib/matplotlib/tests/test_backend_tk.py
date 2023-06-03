@@ -158,7 +158,6 @@ def test_figuremanager_cleans_own_mainloop():
     thread.join()
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=0)
 def test_never_update():
@@ -199,7 +198,6 @@ def test_missing_back_button():
     print("success")
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=1)
 def test_canvas_focus():
     import tkinter as tk
