@@ -216,6 +216,14 @@ class FigureBase(Artist):
         *,
         bbox_extra_artists: Iterable[Artist] | None = ...,
     ) -> Bbox: ...
+
+    def subfigure_mosaic(
+        self,
+        mosaic: str | HashableList,
+        **kwargs
+    ) -> dict[Any, Axes]: ...
+
+    # Any in list of list is recursive list[list[Hashable | list[Hashable | ...]]] but that can't really be type checked
     @overload
     def subplot_mosaic(
         self,

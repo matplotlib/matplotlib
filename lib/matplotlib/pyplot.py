@@ -1776,6 +1776,29 @@ def subplots(
     return fig, axs
 
 
+def subfigure_mosaic(
+    mosaic: str | HashableList,
+    *,
+    width_ratios: ArrayLike | None = None,
+    height_ratios: ArrayLike | None = None,
+    empty_sentinel: Any = '.',
+    subfigure_kw: dict[str, Any] | None = None,
+    gridspec_kw: dict[str, Any] | None = None,
+    per_subfigure_kw: dict[Hashable, dict[str, Any]] | None = None,
+    **fig_kw
+) -> tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]:
+
+    fig = figure(**fig_kw)
+    ax_dict = fig.subfigure_mosaic(
+        mosaic,
+        height_ratios=height_ratios, width_ratios=width_ratios,
+        subfigure_kw=subfigure_kw, gridspec_kw=gridspec_kw,
+        empty_sentinel=empty_sentinel,
+        per_subfigure_kw=per_subfigure_kw,
+    )
+    return fig, ax_dict
+
+
 @overload
 def subplot_mosaic(
     mosaic: str,
