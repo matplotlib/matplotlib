@@ -522,9 +522,6 @@ class FigureManagerQT(FigureManagerBase):
     def __init__(self, canvas, num):
         self.window = MainWindow()
         super().__init__(canvas, num)
-        self.window.closing.connect(
-            # The lambda prevents the event from being immediately gc'd.
-            lambda: CloseEvent("close_event", self.canvas)._process())
         self.window.closing.connect(self._widgetclosed)
 
         if sys.platform != "darwin":
@@ -569,6 +566,7 @@ class FigureManagerQT(FigureManagerBase):
             self.window.showFullScreen()
 
     def _widgetclosed(self):
+        CloseEvent("close_event", self.canvas)._process()
         if self.window._destroying:
             return
         self.window._destroying = True
