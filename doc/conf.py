@@ -164,6 +164,7 @@ from sphinx_gallery import gen_rst
 os.environ.pop("DISPLAY", None)
 
 autosummary_generate = True
+autodoc_typehints = "none"
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
