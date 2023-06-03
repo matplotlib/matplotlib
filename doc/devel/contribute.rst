@@ -356,7 +356,7 @@ Introducing
 
    You can use standard rst cross references in *alternative*.
 
-3. Make appropriate changes to the type hints in the associated `.pyi` file.
+3. Make appropriate changes to the type hints in the associated ``.pyi`` file.
    The general guideline is to match runtime reported behavior.
 
   - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
@@ -384,7 +384,7 @@ Expiring
    information. For the content, you can usually copy the deprecation notice
    and adapt it slightly.
 2. Change the code functionality and remove any related deprecation warnings.
-3. Make appropriate changes to the type hints in the associated `.pyi` file.
+3. Make appropriate changes to the type hints in the associated ``.pyi`` file.
 
   - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
     are to be removed on expiry.
