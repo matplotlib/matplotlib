@@ -5,6 +5,7 @@ Classes for the ticks and x- and y-axis.
 import datetime
 import functools
 import logging
+import warnings
 from numbers import Real
 
 import numpy as np
@@ -143,7 +144,9 @@ class Tick(martist.Artist):
         remaining_kwargs = {
             k: v for k, v in kwargs.items() if not k.startswith('grid_')}
         if remaining_kwargs:
-            raise ValueError(f"Invalid kwargs: {remaining_kwargs.keys()}")
+            warnings.warn(
+                f"Invalid kwargs (not starting with 'grid_'):{remaining_kwargs.keys()}"
+                )
 
         self.tick1line = mlines.Line2D(
             [], [],
