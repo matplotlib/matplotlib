@@ -25,8 +25,6 @@ The solution below is modified from Paul Ivanov's original answer.
 
 import matplotlib.pyplot as plt
 
-from matplotlib.transforms import Affine2D, offset_copy
-
 
 def rainbow_text(x, y, strings, colors, orientation='horizontal',
                  ax=None, **kwargs):
@@ -45,42 +43,32 @@ def rainbow_text(x, y, strings, colors, orientation='horizontal',
     orientation : {'horizontal', 'vertical'}
     ax : Axes, optional
         The Axes to draw into. If None, the current axes will be used.
-    **kwargs
-        All other keyword arguments are passed to plt.text(), so you can
-        set the font size, family, etc.
+    **kwargs :
+        All other keyword arguments are passed to plt.text() and plt.annotate(), so you
+        can set the font size, family, etc.
     """
     if ax is None:
         ax = plt.gca()
-    t = ax.transData
-    fig = ax.figure
-    canvas = fig.canvas
 
     assert orientation in ['horizontal', 'vertical']
-    if orientation == 'vertical':
+    if orientation == 'horizontal':
+        txt = ax.text(x, y, strings[0], color=colors[0], **kwargs)
+        for s, c in zip(strings[1:], colors[1:]):
+            txt = ax.annotate(' ' + s, xy=(1, 0), xycoords=txt,
+                              va="bottom", color=c, **kwargs)
+
+    elif orientation == 'vertical':
         kwargs.update(rotation=90, verticalalignment='bottom')
-
-    for s, c in zip(strings, colors):
-        text = ax.text(x, y, s + " ", color=c, transform=t, **kwargs)
-
-        # Need to draw to update the text position.
-        text.draw(canvas.get_renderer())
-        ex = text.get_window_extent()
-        # Convert window extent from pixels to inches
-        # to avoid issues displaying at different dpi
-        ex = fig.dpi_scale_trans.inverted().transform_bbox(ex)
-
-        if orientation == 'horizontal':
-            t = text.get_transform() + \
-                offset_copy(Affine2D(), fig=fig, x=ex.width, y=0)
-        else:
-            t = text.get_transform() + \
-                offset_copy(Affine2D(), fig=fig, x=0, y=ex.height)
+        txt = ax.text(x, y, strings[0], color=colors[0], **kwargs)
+        for s, c in zip(strings[1:], colors[1:]):
+            txt = ax.annotate(' ' + s, xy=(0, 1), xycoords=txt,
+                              va="bottom", color=c, **kwargs)
 
 
 words = "all unicorns poop rainbows ! ! !".split()
 colors = ['red', 'orange', 'gold', 'lawngreen', 'lightseagreen', 'royalblue',
           'blueviolet']
-plt.figure(figsize=(6, 6))
+plt.figure(figsize=(8, 8))
 rainbow_text(0.1, 0.05, words, colors, size=18)
 rainbow_text(0.05, 0.1, words, colors, orientation='vertical', size=18)
 
