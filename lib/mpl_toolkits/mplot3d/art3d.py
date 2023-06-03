@@ -633,7 +633,7 @@ class Patch3DCollection(PatchCollection):
         # We need this check here to make sure we do not double-apply the depth
         # based alpha shading when the edge color is "face" which means the
         # edge colour should be identical to the face colour.
-        if cbook._str_equal(self._edgecolors, 'face'):
+        if cbook._str_equal(self._edgecolor, 'face'):
             return self.get_facecolor()
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
 
@@ -709,7 +709,7 @@ class Path3DCollection(PathCollection):
         #
         # Grab the current sizes and linewidths to preserve them.
         self._sizes3d = self._sizes
-        self._linewidths3d = np.array(self._linewidths)
+        self._linewidth3d = np.array(self._linewidth)
         xs, ys, zs = self._offsets3d
 
         # Sort the points based on z coordinates
@@ -727,7 +727,7 @@ class Path3DCollection(PathCollection):
     def set_linewidth(self, lw):
         super().set_linewidth(lw)
         if not self._in_draw:
-            self._linewidths3d = np.array(self._linewidths)
+            self._linewidth3d = np.array(self._linewidth)
 
     def get_depthshade(self):
         return self._depthshade
@@ -763,8 +763,8 @@ class Path3DCollection(PathCollection):
         if len(self._sizes3d) > 1:
             self._sizes = self._sizes3d[z_markers_idx]
 
-        if len(self._linewidths3d) > 1:
-            self._linewidths = self._linewidths3d[z_markers_idx]
+        if len(self._linewidth3d) > 1:
+            self._linewidth = self._linewidth3d[z_markers_idx]
 
         PathCollection.set_offsets(self, np.column_stack((vxs, vys)))
 
@@ -809,7 +809,7 @@ class Path3DCollection(PathCollection):
         # We need this check here to make sure we do not double-apply the depth
         # based alpha shading when the edge color is "face" which means the
         # edge colour should be identical to the face colour.
-        if cbook._str_equal(self._edgecolors, 'face'):
+        if cbook._str_equal(self._edgecolor, 'face'):
             return self.get_facecolor()
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
 
@@ -890,8 +890,8 @@ class Poly3DCollection(PolyCollection):
 
         Notes
         -----
-        Note that this class does a bit of magic with the _facecolors
-        and _edgecolors properties.
+        Note that this class does a bit of magic with the _facecolor
+        and _edgecolor properties.
         """
         if shade:
             normals = _generate_normals(verts)
@@ -1009,9 +1009,9 @@ class Poly3DCollection(PolyCollection):
             # passed in) and sort the 2D version by view depth.
             self.update_scalarmappable()
             if self._face_is_mapped:
-                self._facecolor3d = self._facecolors
+                self._facecolor3d = self._facecolor
             if self._edge_is_mapped:
-                self._edgecolor3d = self._edgecolors
+                self._edgecolor3d = self._edgecolor
         txs, tys, tzs = proj3d._proj_transform_vec(self._vec, self.axes.M)
         xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
 
@@ -1034,12 +1034,12 @@ class Poly3DCollection(PolyCollection):
                  in enumerate(zip(xyzlist, cface, cedge))),
                 key=lambda x: x[0], reverse=True)
 
-            _, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
+            _, segments_2d, self._facecolor2d, self._edgecolor2d, idxs = \
                 zip(*z_segments_2d)
         else:
             segments_2d = []
-            self._facecolors2d = np.empty((0, 4))
-            self._edgecolors2d = np.empty((0, 4))
+            self._facecolor2d = np.empty((0, 4))
+            self._edgecolor2d = np.empty((0, 4))
             idxs = []
 
         if self._codes3d is not None:
@@ -1049,7 +1049,7 @@ class Poly3DCollection(PolyCollection):
             PolyCollection.set_verts(self, segments_2d, self._closed)
 
         if len(self._edgecolor3d) != len(cface):
-            self._edgecolors2d = self._edgecolor3d
+            self._edgecolor2d = self._edgecolor3d
 
         # Return zorder value
         if self._sort_zpos is not None:
@@ -1083,7 +1083,7 @@ class Poly3DCollection(PolyCollection):
         except (AttributeError, TypeError, IndexError):
             pass
         try:
-            self._edgecolors = mcolors.to_rgba_array(
+            self._edgecolor = mcolors.to_rgba_array(
                     self._edgecolor3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
@@ -1091,19 +1091,19 @@ class Poly3DCollection(PolyCollection):
 
     def get_facecolor(self):
         # docstring inherited
-        # self._facecolors2d is not initialized until do_3d_projection
-        if not hasattr(self, '_facecolors2d'):
+        # self._facecolor2d is not initialized until do_3d_projection
+        if not hasattr(self, '_facecolor2d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return np.asarray(self._facecolors2d)
+        return np.asarray(self._facecolor2d)
 
     def get_edgecolor(self):
         # docstring inherited
-        # self._edgecolors2d is not initialized until do_3d_projection
-        if not hasattr(self, '_edgecolors2d'):
+        # self._edgecolor2d is not initialized until do_3d_projection
+        if not hasattr(self, '_edgecolor2d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return np.asarray(self._edgecolors2d)
+        return np.asarray(self._edgecolor2d)
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):

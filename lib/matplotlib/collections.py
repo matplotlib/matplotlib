@@ -156,12 +156,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
-        self._us_linestyles = [(0, None)]
+        self._us_linestyle = [(0, None)]
         # list of dash patterns
-        self._linestyles = [(0, None)]
+        self._linestyle = [(0, None)]
         # list of unbroadcast/scaled linewidths
         self._us_lw = [0]
-        self._linewidths = [0]
+        self._linewidth = [0]
 
         self._gapcolor = None  # Currently only used by LineCollection.
 
@@ -380,9 +380,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         do_single_path_optimization = False
         if (len(paths) == 1 and len(trans) <= 1 and
                 len(facecolors) == 1 and len(edgecolors) == 1 and
-                len(self._linewidths) == 1 and
-                all(ls[1] is None for ls in self._linestyles) and
-                len(self._antialiaseds) == 1 and len(self._urls) == 1 and
+                len(self._linewidth) == 1 and
+                all(ls[1] is None for ls in self._linestyle) and
+                len(self._antialiased) == 1 and len(self._urls) == 1 and
                 self.get_hatch() is None):
             if len(trans):
                 combined_transform = transforms.Affine2D(trans[0]) + transform
@@ -401,9 +401,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if do_single_path_optimization:
             gc.set_foreground(tuple(edgecolors[0]))
-            gc.set_linewidth(self._linewidths[0])
-            gc.set_dashes(*self._linestyles[0])
-            gc.set_antialiased(self._antialiaseds[0])
+            gc.set_linewidth(self._linewidth[0])
+            gc.set_dashes(*self._linestyle[0])
+            gc.set_antialiased(self._antialiased[0])
             gc.set_url(self._urls[0])
             renderer.draw_markers(
                 gc, paths[0], combined_transform.frozen(),
@@ -411,21 +411,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             if self._gapcolor is not None:
                 # First draw paths within the gaps.
-                ipaths, ilinestyles = self._get_inverse_paths_linestyles()
+                ipaths, ilinestyles = self._get_inverse_paths_linestyle()
                 renderer.draw_path_collection(
                     gc, transform.frozen(), ipaths,
                     self.get_transforms(), offsets, offset_trf,
                     [mcolors.to_rgba("none")], self._gapcolor,
-                    self._linewidths, ilinestyles,
-                    self._antialiaseds, self._urls,
+                    self._linewidth, ilinestyles,
+                    self._antialiased, self._urls,
                     "screen")
 
             renderer.draw_path_collection(
                 gc, transform.frozen(), paths,
                 self.get_transforms(), offsets, offset_trf,
                 self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles,
-                self._antialiaseds, self._urls,
+                self._linewidth, self._linestyle,
+                self._antialiased, self._urls,
                 "screen")  # offset_position, kept for backcompat.
 
         gc.restore()
@@ -584,8 +584,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._us_lw = np.atleast_1d(lw)
 
         # scale all of the dash patterns.
-        self._linewidths, self._linestyles = self._bcast_lwls(
-            self._us_lw, self._us_linestyles)
+        self._linewidth, self._linestyle = self._bcast_lwls(
+            self._us_lw, self._us_linestyle)
         self.stale = True
 
     def set_linestyle(self, ls):
@@ -624,11 +624,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 raise ValueError(emsg) from err
 
         # get the list of raw 'unscaled' dash patterns
-        self._us_linestyles = dashes
+        self._us_linestyle = dashes
 
         # broadcast and scale the lw and dash patterns
-        self._linewidths, self._linestyles = self._bcast_lwls(
-            self._us_lw, self._us_linestyles)
+        self._linewidth, self._linestyle = self._bcast_lwls(
+            self._us_lw, self._us_linestyle)
 
     @_docstring.interpd
     def set_capstyle(self, cs):
@@ -732,7 +732,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if aa is None:
             aa = self._get_default_antialiased()
-        self._antialiaseds = np.atleast_1d(np.asarray(aa, bool))
+        self._antialiased = np.atleast_1d(np.asarray(aa, bool))
         self.stale = True
 
     def _get_default_antialiased(self):
@@ -763,7 +763,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if c is None:
             c = self._get_default_facecolor()
 
-        self._facecolors = mcolors.to_rgba_array(c, self._alpha)
+        self._facecolor = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
 
     def set_facecolor(self, c):
@@ -784,13 +784,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._set_facecolor(c)
 
     def get_facecolor(self):
-        return self._facecolors
+        return self._facecolor
 
     def get_edgecolor(self):
-        if cbook._str_equal(self._edgecolors, 'face'):
+        if cbook._str_equal(self._edgecolor, 'face'):
             return self.get_facecolor()
         else:
-            return self._edgecolors
+            return self._edgecolor
 
     def _get_default_edgecolor(self):
         # This may be overridden in a subclass.
@@ -807,12 +807,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 c = 'none'
                 set_hatch_color = False
         if cbook._str_lower_equal(c, 'face'):
-            self._edgecolors = 'face'
+            self._edgecolor = 'face'
             self.stale = True
             return
-        self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
-        if set_hatch_color and len(self._edgecolors):
-            self._hatch_color = tuple(self._edgecolors[0])
+        self._edgecolor = mcolors.to_rgba_array(c, self._alpha)
+        if set_hatch_color and len(self._edgecolor):
+            self._hatch_color = tuple(self._edgecolor[0])
         self.stale = True
 
     def set_edgecolor(self, c):
@@ -852,10 +852,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
     set_alpha.__doc__ = artist.Artist._set_alpha_for_array.__doc__
 
     def get_linewidth(self):
-        return self._linewidths
+        return self._linewidth
 
     def get_linestyle(self):
-        return self._linestyles
+        return self._linestyle
 
     def _set_mappable_flags(self):
         """
@@ -920,11 +920,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._mapped_colors = self.to_rgba(self._A, self._alpha)
 
         if self._face_is_mapped:
-            self._facecolors = self._mapped_colors
+            self._facecolor = self._mapped_colors
         else:
             self._set_facecolor(self._original_facecolor)
         if self._edge_is_mapped:
-            self._edgecolors = self._mapped_colors
+            self._edgecolor = self._mapped_colors
         else:
             self._set_edgecolor(self._original_edgecolor)
         self.stale = True
@@ -937,17 +937,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """Copy properties from other to self."""
 
         artist.Artist.update_from(self, other)
-        self._antialiaseds = other._antialiaseds
+        self._antialiased = other._antialiased
         self._mapped_colors = other._mapped_colors
         self._edge_is_mapped = other._edge_is_mapped
         self._original_edgecolor = other._original_edgecolor
-        self._edgecolors = other._edgecolors
+        self._edgecolor = other._edgecolor
         self._face_is_mapped = other._face_is_mapped
         self._original_facecolor = other._original_facecolor
-        self._facecolors = other._facecolors
-        self._linewidths = other._linewidths
-        self._linestyles = other._linestyles
-        self._us_linestyles = other._us_linestyles
+        self._facecolor = other._facecolor
+        self._linewidth = other._linewidth
+        self._linestyle = other._linestyle
+        self._us_linestyle = other._us_linestyle
         self._pickradius = other._pickradius
         self._hatch = other._hatch
 
@@ -1465,7 +1465,7 @@ class LineCollection(Collection):
     set_colors = set_color
 
     def get_color(self):
-        return self._edgecolors
+        return self._edgecolor
 
     get_colors = get_color  # for compatibility with old versions
 
@@ -1499,7 +1499,7 @@ class LineCollection(Collection):
     def get_gapcolor(self):
         return self._gapcolor
 
-    def _get_inverse_paths_linestyles(self):
+    def _get_inverse_paths_linestyle(self):
         """
         Returns the path and pattern for the gaps in the non-solid lines.
 
@@ -1512,7 +1512,7 @@ class LineCollection(Collection):
             if ls == (0, None) else
             (path, mlines._get_inverse_dash_pattern(*ls))
             for (path, ls) in
-            zip(self._paths, itertools.cycle(self._linestyles))]
+            zip(self._paths, itertools.cycle(self._linestyle))]
 
         return zip(*path_patterns)
 
@@ -1914,7 +1914,7 @@ class TriMesh(Collection):
         verts = np.stack((tri.x[triangles], tri.y[triangles]), axis=-1)
 
         self.update_scalarmappable()
-        colors = self._facecolors[triangles]
+        colors = self._facecolor[triangles]
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
@@ -2179,7 +2179,7 @@ class QuadMesh(_MeshData, Collection):
                 coordinates, offsets, offset_trf,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+                self._antialiased, self.get_edgecolor().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False

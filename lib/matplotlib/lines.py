@@ -362,7 +362,7 @@ class Line2D(Artist):
         self.set_solid_capstyle(solid_capstyle)
         self.set_solid_joinstyle(solid_joinstyle)
 
-        self._linestyles = None
+        self._linestyle = None
         self._drawstyle = None
         self._linewidth = linewidth
         self._unscaled_dash_pattern = (0, None)  # offset, dash
