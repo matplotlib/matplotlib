@@ -105,6 +105,7 @@ extensions = [
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.plot_directive',
+    'matplotlib.sphinxext.figmpl_directive',
     'sphinxcontrib.inkscapeconverter',
     'sphinxext.custom_roles',
     'sphinxext.github',
@@ -379,7 +380,8 @@ default_role = 'obj'
 formats = {'html': ('png', 100), 'latex': ('pdf', 100)}
 plot_formats = [formats[target] for target in ['html', 'latex']
                 if target in sys.argv] or list(formats.values())
-
+# make 2x images for srcset argument to <img>
+plot_srcset = ['2x']
 
 # GitHub extension
 
