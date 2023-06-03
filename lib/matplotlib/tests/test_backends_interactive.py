@@ -636,7 +636,7 @@ def _impl_test_interactive_timers():
     import matplotlib.pyplot as plt
     # increase pause duration on CI to let things spin up
     # particularly relevant for gtk3cairo
-    pause_time = 5 if os.getenv("CI") else 0.5
+    pause_time = 2 if os.getenv("CI") else 0.5
     fig = plt.figure()
     plt.pause(pause_time)
     timer = fig.canvas.new_timer(0.1)
@@ -663,5 +663,9 @@ def _impl_test_interactive_timers():
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 def test_interactive_timers(env):
+    if env["MPLBACKEND"] == "gtk3cairo" and os.getenv("CI"):
+        pytest.skip("gtk3cairo timers do not work in remote CI")
+    if env["MPLBACKEND"] == "wx":
+        pytest.skip("wx backend is deprecated; tests failed on appveyor")
     _run_helper(_impl_test_interactive_timers,
                 timeout=_test_timeout, extra_env=env)
