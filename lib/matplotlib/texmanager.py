@@ -31,7 +31,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, dviread
+from matplotlib import _api, cbook, dviread
 
 _log = logging.getLogger(__name__)
 
@@ -57,10 +57,14 @@ class TexManager:
     """
     Convert strings to dvi files using TeX, caching the results to a directory.
 
+    The cache directory is called ``tex.cache`` and is located is the directory
+    returned by `.get_cachedir`.
+
     Repeated calls to this constructor always return the same instance.
     """
 
-    texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
+    texcache = _api.deprecate_privatize_attribute("3.8")
+    _texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
     _grey_arrayd = {}
 
     _font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
@@ -102,7 +106,7 @@ class TexManager:
 
     @functools.lru_cache  # Always return the same instance.
     def __new__(cls):
-        Path(cls.texcache).mkdir(parents=True, exist_ok=True)
+        Path(cls._texcache).mkdir(parents=True, exist_ok=True)
         return object.__new__(cls)
 
     @classmethod
@@ -168,7 +172,7 @@ class TexManager:
         """
         src = cls._get_tex_source(tex, fontsize) + str(dpi)
         filehash = hashlib.md5(src.encode('utf-8')).hexdigest()
-        filepath = Path(cls.texcache)
+        filepath = Path(cls._texcache)
 
         num_letters, num_levels = 2, 2
         for i in range(0, num_letters*num_levels, num_letters):
@@ -244,7 +248,7 @@ class TexManager:
         _log.debug(cbook._pformat_subprocess(command))
         try:
             report = subprocess.check_output(
-                command, cwd=cwd if cwd is not None else cls.texcache,
+                command, cwd=cwd if cwd is not None else cls._texcache,
                 stderr=subprocess.STDOUT)
         except FileNotFoundError as exc:
             raise RuntimeError(
@@ -330,7 +334,7 @@ class TexManager:
         alpha = cls._grey_arrayd.get(key)
         if alpha is None:
             pngfile = cls.make_png(tex, fontsize, dpi)
-            rgba = mpl.image.imread(os.path.join(cls.texcache, pngfile))
+            rgba = mpl.image.imread(os.path.join(cls._texcache, pngfile))
             cls._grey_arrayd[key] = alpha = rgba[:, :, -1]
         return alpha
 
