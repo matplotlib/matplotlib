@@ -2098,6 +2098,8 @@ class QuadMesh(Collection):
         ], axis=2).reshape((-1, 3, 2))
 
         c = self.get_facecolor().reshape((*coordinates.shape[:2], 4))
+        mask = c[..., 3] == 0
+        c[mask, 3] = np.nan
         c_a = c[:-1, :-1]
         c_b = c[:-1, 1:]
         c_c = c[1:, 1:]
@@ -2109,8 +2111,8 @@ class QuadMesh(Collection):
             c_c, c_d, c_center,
             c_d, c_a, c_center,
         ], axis=2).reshape((-1, 3, 4))
-
-        return triangles, colors
+        mask = np.isnan(colors[..., 2, 3])
+        return triangles[~mask], colors[~mask]
 
     @artist.allow_rasterization
     def draw(self, renderer):
