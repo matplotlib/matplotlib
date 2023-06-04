@@ -701,6 +701,10 @@
                                 # background by default
 #savefig.orientation: portrait  # orientation of saved figure, for PostScript output only
 
+### macosx backend params
+#macosx.window_mode : system   # How to open new figures (system, tab, window)
+                               # system uses the MacOS system preferences
+
 ### tk backend params
 #tk.window_focus:   False  # Maintain shell focus for TkAgg
 
