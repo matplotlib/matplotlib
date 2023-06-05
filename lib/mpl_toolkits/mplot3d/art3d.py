@@ -22,6 +22,72 @@ from matplotlib.patches import Patch
 from . import proj3d
 
 
+# shape (6, 4, 3)
+# All faces are oriented facing outwards - when viewed from the
+# outside, their vertices are in a counterclockwise ordering.
+CUBOID = np.array([
+    # -z
+    (
+        (0, 0, 0),
+        (0, 1, 0),
+        (1, 1, 0),
+        (1, 0, 0),
+    ),
+    # +z
+    (
+        (0, 0, 1),
+        (1, 0, 1),
+        (1, 1, 1),
+        (0, 1, 1),
+    ),
+    # -y
+    (
+        (0, 0, 0),
+        (1, 0, 0),
+        (1, 0, 1),
+        (0, 0, 1),
+    ),
+    # +y
+    (
+        (0, 1, 0),
+        (0, 1, 1),
+        (1, 1, 1),
+        (1, 1, 0),
+    ),
+    # -x
+    (
+        (0, 0, 0),
+        (0, 0, 1),
+        (0, 1, 1),
+        (0, 1, 0),
+    ),
+    # +x
+    (
+        (1, 0, 0),
+        (1, 1, 0),
+        (1, 1, 1),
+        (1, 0, 1),
+    ),
+])
+
+CAMERA_VIEW_QUADRANT_TO_CUBE_FACE_ZORDER = {
+    #          -z, +z, -y, +y, -x, +x
+    #           0,  1,  2,  3,  4,  5
+
+# Base hexagon for creating prisms (HexBar3DCollection).
+# sides are ordered anti-clockwise from left: ['W', 'SW', 'SE', 'E', 'NE', 'NW']
+HEXAGON = np.array([
+    [-2, 1],
+    [-2, -1],
+    [0, -2],
+    [2, -1],
+    [2, 1],
+    [0, 2]
+]) / 4
+
+# ---------------------------------------------------------------------------- #
+
+
 def _norm_angle(a):
     """Return the given angle normalized to -180 < *a* <= 180 degrees."""
     a = (a + 360) % 360
@@ -1443,7 +1509,7 @@ class Poly3DCollection(PolyCollection):
             pass
         try:
             self._edgecolors = mcolors.to_rgba_array(
-                    self._edgecolor3d, self._alpha)
+                self._edgecolor3d, self._alpha)
         except (AttributeError, TypeError, IndexError):
             pass
         self.stale = True
@@ -1463,6 +1529,254 @@ class Poly3DCollection(PolyCollection):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
         return np.asarray(self._edgecolors2d)
+
+class Bar3DCollection(Poly3DCollection):
+    """
+    Bars (rectangular prisms) with constant square cross section, bases located
+    on z-plane at *z0*, arranged in a regular grid at *x*, *y* locations and
+    with height *z - z0*.
+    """
+
+    _n_faces = 6
+
+    def __init__(self, x, y, z, dxy='0.8', z0=0, shade=True, lightsource=None,
+                 cmap=None, **kws):
+        #
+        x, y, z, z0 = np.ma.atleast_1d(x, y, z, z0)
+        assert x.shape == y.shape == z.shape
+
+        # array for bar positions, height (x, y, z)
+        self._xyz = np.empty((3, *x.shape))
+        for i, p in enumerate((x, y, z)):
+            if p is not None:
+                self._xyz[i] = p
+
+        # bar width and breadth
+        self.dxy = dxy
+        self.dx, self.dy = self._resolve_dx_dy(dxy)
+
+        if z0 is not None:
+            self.z0 = float(z0)
+
+        # Shade faces by angle to light source
+        self._original_alpha = kws.pop('alpha', 1)
+        self._shade = bool(shade)
+        # resolve light source
+        if lightsource is None:
+            # chosen for backwards-compatibility
+            lightsource = CLASSIC_LIGHTSOURCE
+        else:
+            assert isinstance(lightsource, mcolors.LightSource)
+        self._lightsource = lightsource
+
+        # resolve cmap
+        if cmap is not None:
+            COLOR_KWS = {'color', 'facecolor', 'facecolors'}
+            if (ckw := COLOR_KWS.intersection(kws)):
+                warnings.warn(f'Ignoring cmap since {ckw!r} provided.')
+            else:
+                kws.update(cmap=cmap)
+
+        # init Poly3DCollection
+        #                               rectangle side panel vertices
+        Poly3DCollection.__init__(self, self._compute_verts(), **kws)
+
+        if cmap:
+            self.set_array(self.z.ravel())
+
+    def _resolve_dx_dy(self, dxy):
+
+        d = list(cbook.duplicate_if_scalar(dxy))
+
+        for i, xy in enumerate(self.xy):
+            # if dxy a number -> use it directly else if str,
+            # scale dxy to data step.
+            # get x/y step along axis -1/-2 (x/y considered constant along axis
+            # -2/-1)
+            data_step = _get_grid_step(xy, -i - 1) if isinstance(d[i], str) else 1
+            d[i] = float(d[i]) * data_step
+
+        dx, dy = d
+        assert (dx != 0)
+        assert (dy != 0)
+
+        return dx, dy
+
+    @property
+    def x(self):
+        return self._xyz[0]
+
+    @x.setter
+    def x(self, x):
+        self.set_data(x=x)
+
+    @property
+    def y(self):
+        return self._xyz[1]
+
+    @y.setter
+    def y(self, y):
+        self.set_data(y=y)
+
+    @property
+    def xy(self):
+        return self._xyz[:2]
+
+    @property
+    def z(self):
+        return self._xyz[2]
+
+    def set_z(self, z, z0=None, clim=None):
+        self.set_data(z=z, z0=z0, clim=clim)
+
+    def set_z0(self, z0):
+        self.z0 = float(z0)
+        super().set_verts(self._compute_verts())
+
+    def set_data(self, x=None, y=None, z=None, z0=None, clim=None):
+        # self._xyz = np.atleast_3d(xyz)
+        assert not all(map(is_none, (x, y, z, z0)))
+
+        if (x is not None) or (y is not None):
+            self.dx, self.dy = self._resolve_dx_dy(self.dxy)
+
+        for i, p in enumerate((x, y, z)):
+            if p is not None:
+                self._xyz[i] = p
+
+        for i, p in enumerate((x, y, z)):
+            if p is not None:
+                self._xyz[i] = p
+
+        if z0 is not None:
+            self.z0 = float(z0)
+
+        # compute points
+        super().set_verts(self._compute_verts())
+        self.set_array(z := self.z.ravel())
+
+        if clim is None or clim is True:
+            clim = (z.min(), z.max())
+
+        if clim is not False:
+            self.set_clim(*clim)
+
+        if not self.axes:
+            return
+
+        if self.axes.M is not None:
+            self.do_3d_projection()
+
+    def _compute_verts(self):
+
+        x, y = self.xy
+        z = np.full(x.shape, self.z0)
+
+        # indexed by [bar, face, vertex, axis]
+        xyz = np.expand_dims(np.moveaxis([x, y, z], 0, -1), (-2, -3))
+        dxyz = np.empty_like(xyz)
+        dxyz[..., :2] = np.array([[[self.dx]], [[self.dy]]]).T
+        dxyz[..., 2] = np.array(self.z - self.z0)[..., np.newaxis, np.newaxis]
+        polys = xyz + dxyz * CUBOID[np.newaxis, :]  # (n, 6, 4, 3)
+
+        # collapse the first two axes
+        return polys.reshape((-1, 4, 3))  # *polys.shape[-2:]
+
+    def do_3d_projection(self):
+        """
+        Perform the 3D projection for this object.
+        """
+        if self._A is not None:
+            # force update of color mapping because we re-order them
+            # below.  If we do not do this here, the 2D draw will call
+            # this, but we will never port the color mapped values back
+            # to the 3D versions.
+            #
+            # We hold the 3D versions in a fixed order (the order the user
+            # passed in) and sort the 2D version by view depth.
+            self.update_scalarmappable()
+            if self._face_is_mapped:
+                self._facecolor3d = self._facecolors
+            if self._edge_is_mapped:
+                self._edgecolor3d = self._edgecolors
+
+        txs, tys, tzs = proj3d._proj_transform_vec(self._vec, self.axes.M)
+        xyzlist = [(txs[sl], tys[sl], tzs[sl]) for sl in self._segslices]
+
+        # get panel facecolors
+        cface, cedge = self._compute_colors(xyzlist, self._lightsource)
+
+        if xyzlist:
+            zorder = self._compute_zorder()
+            occluded = np.isnan(zorder)
+
+            z_segments_2d = sorted(
+                ((zo, np.column_stack([xs, ys]), fc, ec, idx)
+                 for idx, (ok, zo, (xs, ys, _), fc, ec)
+                 in enumerate(zip(~occluded, zorder, xyzlist, cface, cedge))
+                 if ok),
+                key=lambda x: x[0], reverse=True)
+
+            _, segments_2d, self._facecolors2d, self._edgecolors2d, idxs = \
+                zip(*z_segments_2d)
+        else:
+            segments_2d = []
+            self._facecolors2d = np.empty((0, 4))
+            self._edgecolors2d = np.empty((0, 4))
+            idxs = []
+
+        if self._codes3d is None:
+            PolyCollection.set_verts(self, segments_2d, self._closed)
+        else:
+            codes = [self._codes3d[idx] for idx in idxs]
+            PolyCollection.set_verts_and_codes(self, segments_2d, codes)
+
+        if len(self._edgecolor3d) != len(cface):
+            self._edgecolors2d = self._edgecolor3d
+
+        # Return zorder value
+        if self._sort_zpos is not None:
+            zvec = np.array([[0], [0], [self._sort_zpos], [1]])
+            ztrans = proj3d._proj_transform_vec(zvec, self.axes.M)
+            return ztrans[2][0]
+
+        return np.min(tzs) if tzs.size > 0 else np.nan
+
+    def _compute_colors(self, xyzlist, lightsource):
+        # This extra fuss is to re-order face / edge colors
+        cface = self._facecolor3d
+        cedge = self._edgecolor3d
+        n, nc = len(xyzlist), len(cface)
+
+        if (nc == 1) or (nc * self._n_faces == n):
+            cface = cface.repeat(n // nc, axis=0)
+            if self._shade:
+                verts = self._compute_verts()
+                normals = _generate_normals(verts)
+                cface = _shade_colors(cface, normals, lightsource)
+
+            if self._original_alpha is not None:
+                cface[:, -1] = self._original_alpha
+
+        if len(cface) != n:
+            raise ValueError
+            # cface = cface.repeat(n, axis=0)
+
+        if len(cedge) != n:
+            cedge = cface if len(cedge) == 0 else cedge.repeat(n, axis=0)
+
+        return cface, cedge
+
+    def _compute_zorder(self):
+        # sort by depth (furthest drawn first)
+        zorder = camera_distance(self.axes, *self.xy)
+        zorder = (zorder - zorder.min()) / (np.ptp(zorder) or 1)
+        zorder = zorder.ravel() * len(zorder)
+        face_zorder = get_prism_face_zorder(self.axes,
+                                            self._original_alpha == 1,
+                                            self._n_faces - 2)
+        return (zorder[..., None] + face_zorder).ravel()
+
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
@@ -1668,3 +1982,101 @@ def _shade_colors(color, normals, lightsource=None):
         colors = np.asanyarray(color).copy()
 
     return colors
+
+
+def camera_distance(ax, x, y, z=None):
+    z = np.zeros_like(x) if z is None else z
+    # camera = xyz(ax)
+    # print(camera)
+    return np.sqrt(np.square(
+        # location of points
+        [x, y, z] -
+        # camera position in xyz
+        np.array(sph2cart(*_camera_position(ax)), ndmin=3).T
+    ).sum(0))
+
+
+def sph2cart(r, theta, phi):
+    r_sinθ = r * np.sin(theta)
+    return (r_sinθ * np.cos(phi),
+            r_sinθ * np.sin(phi),
+            r * np.cos(theta))
+
+
+def _camera_position(ax):
+    """
+    Returns the camera position for 3D axes in spherical coordinates.
+    """
+    r = np.square(np.max([ax.get_xlim(),
+                          ax.get_ylim()], 1)).sum()
+    theta, phi = np.radians((90 - ax.elev, ax.azim))
+    return r, theta, phi
+
+
+def _get_grid_step(x, axis=0):
+    # for data arrange in a regular grid, get the size of the data step by
+    # looking for the first non-zero step along an axis.
+    # If axis is singular, return 1
+
+    # deal with singular dimension (this ignores axis param)
+    if x.ndim == 1:
+        if d := next(filter(None, map(np.diff, cbook.pairwise(x))), None):
+            return d
+
+    if x.shape[axis % x.ndim] == 1:
+        return 1
+
+    key = [0] * x.ndim
+    key[axis] = np.s_[:2]
+    return np.diff(x[tuple(key)]).item()
+
+
+def get_prism_face_zorder(ax, mask_occluded=True, nfaces=4):
+    # compute panel sequence based on camera position
+
+    # these index positions are determined by the order of the faces returned
+    # by `_compute_verts`
+    base, top = nfaces, nfaces + 1
+    if ax.elev < 0:
+        base, top = top, base
+
+    # this is to figure out which of the vertical faces to draw first
+    angle_step = 360 / nfaces
+    zero = -angle_step / 2
+    flip = (np.abs(ax.elev) % 180 > 90)
+    sector = (((ax.azim - zero + 180 * flip) % 360) / angle_step) % nfaces
+
+    # get indices for panels in plot order
+    first = int(sector)
+    second = (first + 1) % nfaces
+    third = (first + nfaces - 1) % nfaces
+    if (sector - first) < 0.5:
+        second, third = third, second
+
+    sequence = [base, first, second, third]
+    sequence = [*sequence, *np.setdiff1d(np.arange(nfaces), sequence), top]
+
+    # reverse the panel sequence if elevation has flipped the axes by 180 multiple
+    if np.abs(ax.elev) % 360 > 180:
+        sequence = sequence[::-1]
+
+    # normalize zorder to < 1
+    zorder = np.argsort(sequence) / len(sequence)
+
+    if mask_occluded:
+        #  we don't need to draw back panels since they are behind others
+        zorder[zorder < 0.5] = np.nan
+
+    # This order is determined by the ordering of `CUBOID` and `HEXAGON` globals
+    # names = {4: ['+x', '+y', '-x', '-y', '-z', '+z'],
+    #          6: ['W', 'SW', 'SE', 'E', 'NE', 'NW', 'BASE', 'TOP']}[nfaces]
+    # print('',
+    #       f'Panel draw sequence ({ax.azim = :}, {ax.elev = :}):',
+    #       f'{sector = :}',
+    #       f'{sequence = :}',
+    #       f'names = {list(np.take(names, sequence))}',
+    #       f'{zorder = :}',
+    #       f'zorder = {pformat(dict(zip(*cosort(zorder, names)[::-1])))}',
+    #       sep='\n')
+
+    return zorder
