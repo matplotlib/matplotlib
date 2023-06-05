@@ -92,11 +92,10 @@ def causes(data: list, cause_x: float, cause_y: float,
                   [-0.92, [-2, 2]],
                   [1.15, [2.5, -2.5]]]
         if top:
-            cause_x -= coords[index][0]
             cause_y += coords[index][1][0]
         else:
-            cause_x -= coords[index][0]
             cause_y += coords[index][1][1]
+        cause_x -= coords[index][0]
 
         ax.annotate(cause, xy=(cause_x, cause_y),
                     horizontalalignment='center',
