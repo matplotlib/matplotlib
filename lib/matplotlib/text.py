@@ -1745,15 +1745,15 @@ or callable, default: value of *xycoords*
             If *arrowprops* does not contain the key 'arrowstyle' the
             allowed keys are:
 
-            ==========   ======================================================
-            Key          Description
-            ==========   ======================================================
-            width        The width of the arrow in points
-            headwidth    The width of the base of the arrow head in points
-            headlength   The length of the arrow head in points
-            shrink       Fraction of total length to shrink from both ends
-            ?            Any key to :class:`matplotlib.patches.FancyArrowPatch`
-            ==========   ======================================================
+            ==========  =================================================
+            Key         Description
+            ==========  =================================================
+            width       The width of the arrow in points
+            headwidth   The width of the base of the arrow head in points
+            headlength  The length of the arrow head in points
+            shrink      Fraction of total length to shrink from both ends
+            ?           Any `.FancyArrowPatch` property
+            ==========  =================================================
 
             The arrow is attached to the edge of the text box, the exact
             position (corners or centers) depending on where it's pointing to.
@@ -1762,23 +1762,22 @@ or callable, default: value of *xycoords*
 
             This is used if 'arrowstyle' is provided in the *arrowprops*.
 
-            Valid keys are the following `~matplotlib.patches.FancyArrowPatch`
-            parameters:
+            Valid keys are the following `.FancyArrowPatch` parameters:
 
-            ===============  ==================================================
+            ===============  ===================================
             Key              Description
-            ===============  ==================================================
-            arrowstyle       the arrow style
-            connectionstyle  the connection style
-            relpos           see below; default is (0.5, 0.5)
-            patchA           default is bounding box of the text
-            patchB           default is None
-            shrinkA          default is 2 points
-            shrinkB          default is 2 points
-            mutation_scale   default is text size (in points)
-            mutation_aspect  default is 1.
-            ?                any key for :class:`matplotlib.patches.PathPatch`
-            ===============  ==================================================
+            ===============  ===================================
+            arrowstyle       The arrow style
+            connectionstyle  The connection style
+            relpos           See below; default is (0.5, 0.5)
+            patchA           Default is bounding box of the text
+            patchB           Default is None
+            shrinkA          Default is 2 points
+            shrinkB          Default is 2 points
+            mutation_scale   Default is text size (in points)
+            mutation_aspect  Default is 1
+            ?                Any `.FancyArrowPatch` property
+            ===============  ===================================
 
             The exact starting point position of the arrow is defined by
             *relpos*. It's a tuple of relative coordinates of the text box,
@@ -1798,7 +1797,7 @@ or callable, default: value of *xycoords*
               the axes and *xycoords* is 'data'.
 
         **kwargs
-            Additional kwargs are passed to `~matplotlib.text.Text`.
+            Additional kwargs are passed to `.Text`.
 
         Returns
         -------
