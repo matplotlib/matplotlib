@@ -113,11 +113,7 @@ if __name__ == "__main__":
         offsetbox.add_artist(text_patch)
 
         # place the anchored offset box using AnnotationBbox
-        ab = AnnotationBbox(offsetbox, (xpos, 0.5),
-                            xycoords='data',
-                            boxcoords="offset points",
-                            box_alignment=(0.5, 0.5),
-                            )
+        ab = AnnotationBbox(offsetbox, (xpos, 0.5), box_alignment=(0.5, 0.5))
 
         ax2.add_artist(ab)
 

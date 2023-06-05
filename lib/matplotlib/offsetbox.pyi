@@ -240,7 +240,6 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         offsetbox: OffsetBox,
         xy: tuple[float, float],
         xybox: tuple[float, float] | None = ...,
-        *,
         xycoords: str
         | tuple[str, str]
         | martist.Artist
@@ -252,6 +251,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         | Transform
         | Callable[[RendererBase], Bbox | Transform]
         | None = ...,
+        *,
         frameon: bool = ...,
         pad: float = ...,
         annotation_clip: bool | None = ...,
