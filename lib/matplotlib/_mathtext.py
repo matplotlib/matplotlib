@@ -1756,14 +1756,18 @@ class Parser:
       \gtreqless    \subseteqq    \supseteqq   \subsetneqq
       \supsetneqq   \lessapprox   \approxeq    \gtrapprox
       \precapprox   \succapprox   \precnapprox \succnapprox
-      \lnapprox     \gnapprox     \napprox     \approxeq
-      \approxident  \lll          \ggg         \parallel
-      \nparallel    \Vdash        \Vvdash      \nVdash
-      \nvdash       \vDash        \nvDash      \nVDash
+      \npreccurlyeq \nsucccurlyeq \nsqsubseteq \nsqsupseteq
+      \sqsubsetneq  \sqsupsetneq  \nlesssim    \ngtrsim
+      \nlessgtr     \ngtrless     \lnapprox    \gnapprox
+      \napprox      \approxeq     \approxident \lll
+      \ggg          \nparallel    \Vdash       \Vvdash
+      \nVdash       \nvdash       \vDash       \nvDash
+      \nVDash       \oequal       \simneqq     \triangle
       \triangleq         \triangleeq         \triangleleft
       \triangleright     \ntriangleleft      \ntriangleright
       \trianglelefteq    \ntrianglelefteq    \trianglerighteq
       \ntrianglerighteq  \blacktriangleleft  \blacktriangleright
+      \equalparallel     \measuredrightangle \varlrtriangle
       '''.split())
 
     _arrow_symbols = set(r'''
