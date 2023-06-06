@@ -1837,9 +1837,12 @@ or callable, default: value of *xycoords*
                 self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
             else:
                 # modified YAArrow API to be used with FancyArrowPatch
-                for key in [
-                        'width', 'headwidth', 'headlength', 'shrink', 'frac']:
+                for key in ['width', 'headwidth', 'headlength', 'shrink']:
                     arrowprops.pop(key, None)
+                if 'frac' in arrowprops:
+                    _api.warn_deprecated(
+                        "3.8", name="the (unused) 'frac' key in 'arrowprops'")
+                    arrowprops.pop("frac")
             self.arrow_patch = FancyArrowPatch((0, 0), (1, 1), **arrowprops)
         else:
             self.arrow_patch = None
@@ -1932,10 +1935,6 @@ or callable, default: value of *xycoords*
             shrink = arrowprops.get('shrink', 0.0)
             width = arrowprops.get('width', 4)
             headwidth = arrowprops.get('headwidth', 12)
-            if 'frac' in arrowprops:
-                _api.warn_external(
-                    "'frac' option in 'arrowprops' is no longer supported;"
-                    " use 'headlength' to set the head length in points.")
             headlength = arrowprops.get('headlength', 12)
 
             # NB: ms is in pts
