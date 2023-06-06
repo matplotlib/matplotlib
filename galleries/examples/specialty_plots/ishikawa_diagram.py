@@ -18,10 +18,9 @@ fig, ax = plt.subplots(figsize=(10, 6), layout='constrained')
 ax.set_xlim(-5, 5)
 ax.set_ylim(-5, 5)
 ax.axis('off')
-COLOR = 'C0'
 
 
-def problems(data: list,
+def problems(data: str,
              problem_x: float, problem_y: float,
              prob_angle_x: float, prob_angle_y: float):
     """
@@ -29,8 +28,8 @@ def problems(data: list,
 
     Parameters
     ----------
-    data : indexable object
-        The input data (can be list or tuple).
+    data : str
+        The category name.
     problem_x, problem_y : float, optional
         The `X` and `Y` positions of the problem arrows (`Y` defaults to zero).
     prob_angle_x, prob_angle_y : float, optional
@@ -42,18 +41,18 @@ def problems(data: list,
     None.
 
     """
-    ax.annotate(str.upper(data[0]), xy=(problem_x, problem_y),
+    ax.annotate(str.upper(data), xy=(problem_x, problem_y),
                 xytext=(prob_angle_x, prob_angle_y),
                 fontsize='10',
                 color='white',
                 weight='bold',
                 xycoords='data',
-                verticalalignment="center",
-                horizontalalignment="center",
+                verticalalignment='center',
+                horizontalalignment='center',
                 textcoords='offset fontsize',
                 arrowprops=dict(arrowstyle="->", facecolor='black'),
                 bbox=dict(boxstyle='square',
-                          facecolor=COLOR,
+                          facecolor='tab:blue',
                           pad=0.8))
 
 
@@ -65,8 +64,8 @@ def causes(data: list, cause_x: float, cause_y: float,
 
     Parameters
     ----------
-    data : indexible object
-        The input data (can be list or tuple). IndexError is
+    data : indexable object
+        The input data. IndexError is
         raised if more than six arguments are passed.
     cause_x, cause_y : float
         The `X` and `Y` position of the cause annotations.
@@ -80,7 +79,7 @@ def causes(data: list, cause_x: float, cause_y: float,
     None.
 
     """
-    for index, cause in enumerate(data[1]):
+    for index, cause in enumerate(data):
         # First cause annotation is placed in the middle of the problems arrow
         # and each subsequent cause is plotted above or below it in succession.
 
@@ -107,14 +106,14 @@ def causes(data: list, cause_x: float, cause_y: float,
                                     facecolor='black'))
 
 
-def draw_body(*args):
+def draw_body(data: dict):
     """
     Place each section in its correct place by changing
     the coordinates on each loop.
 
     Parameters
     ----------
-    *args : indexable object
+    data : dict
         The input data (can be list or tuple). ValueError is
         raised if more than six arguments are passed.
 
@@ -127,18 +126,18 @@ def draw_body(*args):
     third_sections = []
     # Resize diagram to automatically scale in response to the number
     # of problems in the input data.
-    if len(args) == 1 or len(args) == 2:
+    if len(data) == 1 or len(data) == 2:
         spine_length = (-2.1, 2)
         head_pos = (2, 0)
         tail_pos = ((-2.8, 0.8), (-2.8, -0.8), (-2.0, -0.01))
         first_section = [1.6, 0.8]
-    elif len(args) == 3 or len(args) == 4:
+    elif len(data) == 3 or len(data) == 4:
         spine_length = (-3.1, 3)
         head_pos = (3, 0)
         tail_pos = ((-3.8, 0.8), (-3.8, -0.8), (-3.0, -0.01))
         first_section = [2.6, 1.8]
         second_sections = [-0.4, -1.2]
-    else:  # num == 5 or 6
+    else:  # len(data) == 5 or 6
         spine_length = (-4.1, 4)
         head_pos = (4, 0)
         tail_pos = ((-4.8, 0.8), (-4.8, -0.8), (-4.0, -0.01))
@@ -147,7 +146,7 @@ def draw_body(*args):
         third_sections = [-1.5, -2.3]
 
     # Change the coordinates of the annotations on each loop.
-    for index, problem in enumerate(args):
+    for index, problem in enumerate(data.values()):
         top_row = True
         cause_arrow_y = 1.7
         if index % 2 != 0:  # Plot problems below the spine.
@@ -168,33 +167,37 @@ def draw_body(*args):
             cause_arrow_x = third_sections[1]
         if index > 5:
             raise ValueError(f'Maximum number of problems is 6, you have entered '
-                             f'{len(args)}')
+                             f'{len(data)}')
 
         # draw main spine
-        ax.plot(spine_length, [0, 0], color=COLOR, linewidth=2)
+        ax.plot(spine_length, [0, 0], color='tab:blue', linewidth=2)
         # draw fish head
         ax.text(head_pos[0] + 0.1, head_pos[1] - 0.05, 'PROBLEM', fontsize=10,
-                color='white')
-        semicircle = Wedge(head_pos, 1, 270, 90, fc=COLOR)
+                weight='bold', color='white')
+        semicircle = Wedge(head_pos, 1, 270, 90, fc='tab:blue')
         ax.add_patch(semicircle)
         # draw fishtail
-        triangle = Polygon(tail_pos, fc=COLOR)
+        triangle = Polygon(tail_pos, fc='tab:blue')
         ax.add_patch(triangle)
-
-        problems(problem, prob_arrow_x, 0, -12, y_prob_angle)
+        # Pass each category name to the problems function as a string on each loop.
+        problems(list(data.keys())[index], prob_arrow_x, 0, -12, y_prob_angle)
+        # Start the cause function with the first annotation being plotted at
+        # the cause_arrow_x, cause_arrow_y coordinates.
         causes(problem, cause_arrow_x, cause_arrow_y, top=top_row)
 
 
 # Input data
-method = ['Method', ['Time consumption', 'Cost', 'Procedures',
-                     'Inefficient process', 'Sampling']]
-machine = ['Machine', ['Faulty equipment', 'Compatibility']]
-material = ['Material', ['Poor-quality input', 'Raw materials', 'Supplier',
-                         'Shortage']]
-measure = ['Measurement', ['Calibration', 'Performance', 'Wrong measurements']]
-env = ['Environment', ['Bad conditions']]
-people = ['People', ['Lack of training', 'Managers', 'Labor shortage',
-                     'Procedures', 'Sales strategy']]
+categories = {
+    'Method': ['Time consumption', 'Cost', 'Procedures', 'Inefficient process',
+               'Sampling'],
+    'Machine': ['Faulty equipment', 'Compatibility'],
+    'Material': ['Poor-quality input', 'Raw materials', 'Supplier',
+                 'Shortage'],
+    'Measurement': ['Calibration', 'Performance', 'Wrong measurements'],
+    'Environment': ['Bad conditions'],
+    'People': ['Lack of training', 'Managers', 'Labor shortage',
+               'Procedures', 'Sales strategy']
+}
 
-draw_body(method, machine, material, measure, env, people)
+draw_body(categories)
 plt.show()
