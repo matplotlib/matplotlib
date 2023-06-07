@@ -13,12 +13,17 @@ propagated to the :file:`lib/matplotlib/mpl-data/matplotlibrc` in Matplotlib's
 root source directory.
 """
 
+
 import ast
+from dataclasses import dataclass
 from functools import lru_cache, reduce
 from numbers import Real
 import operator
 import os
+from pathlib import Path
 import re
+from typing import Any
+from collections.abc import Callable
 
 import numpy as np
 
@@ -66,6 +71,36 @@ class ValidateInStrings:
                 and s[1:-1] in self.valid):
             msg += "; remove quotes surrounding your string"
         raise ValueError(msg)
+
+    def __repr__(self):
+        return (f"{self.__class__.__name__}("
+                f"key={self.key!r}, valid={[*self.valid.values()]}, "
+                f"ignorecase={self.ignorecase})")
+
+    def __eq__(self, other):
+        if self is other:
+            return True
+        if not isinstance(other, ValidateInStrings):
+            return NotImplemented
+        return (
+            self.key,
+            self.ignorecase,
+            self._deprecated_since,
+            tuple(sorted(self.valid.items()))
+        ) == (
+            other.key,
+            other.ignorecase,
+            other._deprecated_since,
+            tuple(sorted(other.valid.items()))
+        )
+
+    def __hash__(self):
+        return hash((
+            self.key,
+            self.ignorecase,
+            self._deprecated_since,
+            tuple(sorted(self.valid.items()))
+        ))
 
 
 def _single_string_color_list(s, scalar_validator):
@@ -215,10 +250,11 @@ validate_stringlist = _listify_validator(
     validate_string, doc='return a list of strings')
 validate_int = _make_type_validator(int)
 validate_int_or_None = _make_type_validator(int, allow_none=True)
+validate_intlist = _listify_validator(validate_int, n=2)
 validate_float = _make_type_validator(float)
 validate_float_or_None = _make_type_validator(float, allow_none=True)
 validate_floatlist = _listify_validator(
-    validate_float, doc='return a list of floats')
+    validate_float)
 
 
 def _validate_marker(s):
@@ -1112,7 +1148,7 @@ _validators = {
     "axes.labelcolor":    validate_color,  # color of axis label
     # use scientific notation if log10 of the axis range is smaller than the
     # first or larger than the second
-    "axes.formatter.limits": _listify_validator(validate_int, n=2),
+    "axes.formatter.limits": validate_intlist,
     # use current locale to format ticks
     "axes.formatter.use_locale": validate_bool,
     "axes.formatter.use_mathtext": validate_bool,
@@ -1405,3 +1441,1853 @@ _hardcoded_defaults = {  # Defaults not inferred from
 }
 _validators = {k: _convert_validator_spec(k, conv)
                for k, conv in _validators.items()}
+
+
+@dataclass
+class _Param:
+    name: str
+    default: Any
+    validator: Callable[[Any], Any]
+    description: str = None
+
+
+_params = [
+    _Param(
+        "webagg.port",
+        default=8988,
+        validator=validate_int,
+        description="The port to use for the web server in the WebAgg backend."
+    ),
+    _Param(
+        "webagg.address",
+        default="127.0.0.1",
+        validator=validate_string,
+        description="The address on which the WebAgg web server should be reachable."
+    ),
+    _Param(
+        "webagg.port_retries",
+        default=50,
+        validator=validate_int,
+        description="If webagg.port is unavailable, a number of other random ports "
+                    "will be tried until one that is available is found."
+    ),
+    _Param(
+        "webagg.open_in_browser",
+        default=True,
+        validator=validate_bool,
+        description="When True, open the web browser to the plot that is shown"
+    ),
+    _Param(
+        "backend_fallback",
+        default=True,
+        validator=validate_bool,
+        description="If you are running pyplot inside a GUI and your backend choice "
+                    "conflicts, we will automatically try to find a compatible one for "
+                    "you if backend_fallback is True"
+    ),
+    _Param(
+        "interactive",
+        default=False,
+        validator=validate_bool
+    ),
+    _Param(
+        "figure.hooks",
+        default=[],
+        validator=validate_stringlist,
+        description="list of dotted.module.name:dotted.callable.name"
+    ),
+    _Param(
+        "toolbar",
+        default="toolbar2",
+        validator=_validate_toolbar,
+        description="{None, toolbar2, toolmanager}"
+    ),
+    _Param(
+        "timezone",
+        default="UTC",
+        validator=validate_string,
+        description="a pytz timezone string, e.g., US/Central or Europe/Paris"
+    ),
+    _Param(
+        "lines.linewidth",
+        default=1.5,
+        validator=validate_float,
+        description="line width in points"
+    ),
+    _Param(
+        "lines.linestyle",
+        default="-",
+        validator=_validate_linestyle,
+        description="solid line"
+    ),
+    _Param(
+        "lines.color",
+        default="C0",
+        validator=validate_color,
+        description="has no affect on plot(); see axes.prop_cycle"
+    ),
+    _Param(
+        "lines.marker",
+        default="None",
+        validator=_validate_marker,
+        description="the default marker"
+    ),
+    _Param(
+        "lines.markerfacecolor",
+        default="auto",
+        validator=validate_color_or_auto,
+        description="the default marker face color"
+    ),
+    _Param(
+        "lines.markeredgecolor",
+        default="auto",
+        validator=validate_color_or_auto,
+        description="the default marker edge color"
+    ),
+    _Param(
+        "lines.markeredgewidth",
+        default=1.0,
+        validator=validate_float,
+        description="the line width around the marker symbol"
+    ),
+    _Param(
+        "lines.markersize",
+        default=6.0,
+        validator=validate_float,
+        description="marker size, in points"
+    ),
+    _Param(
+        "lines.dash_joinstyle",
+        default="round",
+        validator=JoinStyle,
+        description="{miter, round, bevel}"
+    ),
+    _Param(
+        "lines.dash_capstyle",
+        default="butt",
+        validator=CapStyle,
+        description="{butt, round, projecting}"
+    ),
+    _Param(
+        "lines.solid_joinstyle",
+        default="round",
+        validator=JoinStyle,
+        description="{miter, round, bevel}"
+    ),
+    _Param(
+        "lines.solid_capstyle",
+        default="projecting",
+        validator=CapStyle,
+        description="{butt, round, projecting}"
+    ),
+    _Param(
+        "lines.antialiased",
+        default=True,
+        validator=validate_bool,
+        description="render lines in antialiased (no jaggies)"
+    ),
+    _Param(
+        "lines.dashed_pattern",
+        default=[3.7, 1.6],
+        validator=validate_floatlist,
+        description="The dash pattern for linestyle 'dashed'"
+    ),
+    _Param(
+        "lines.dashdot_pattern",
+        default=[6.4, 1.6, 1.0, 1.6],
+        validator=validate_floatlist,
+        description="The dash pattern for linestyle 'dashdot'"
+    ),
+    _Param(
+        "lines.dotted_pattern",
+        default=[1.0, 1.65],
+        validator=validate_floatlist,
+        description="The dash pattern for linestyle 'dotted'"
+    ),
+    _Param(
+        "lines.scale_dashes",
+        default=True,
+        validator=validate_bool
+    ),
+    _Param(
+        "markers.fillstyle",
+        default="full",
+        validator=validate_fillstyle,
+        description="{full, left, right, bottom, top, none}"
+    ),
+    _Param(
+        "pcolor.shading",
+        default="auto",
+        validator=["auto", "flat", "nearest", "gouraud"]
+    ),
+    _Param(
+        "pcolormesh.snap",
+        default=True,
+        validator=validate_bool,
+        description="Whether to snap the mesh to pixel boundaries. This is provided "
+                    "solely to allow old test images to remain unchanged. Set to False "
+                    "to obtain the previous behavior."
+    ),
+    _Param(
+        "patch.linewidth",
+        default=1.0,
+        validator=validate_float,
+        description="edge width in points."
+    ),
+    _Param(
+        "patch.facecolor",
+        default="C0",
+        validator=validate_color
+    ),
+    _Param(
+        "patch.edgecolor",
+        default="black",
+        validator=validate_color,
+        description='By default, Patches and Collections do not draw edges. This value '
+                    'is only used if facecolor is "none" (an Artist without facecolor '
+                    'and edgecolor would be invisible)  or if patch.force_edgecolor '
+                    'is True.'
+    ),
+    _Param(
+        "patch.force_edgecolor",
+        default=False,
+        validator=validate_bool,
+        description="By default, Patches and Collections do not draw edges. Set this "
+                    "to True to draw edges with patch.edgedcolor as the default "
+                    "edgecolor. This is mainly relevant for styles."
+    ),
+    _Param(
+        "patch.antialiased",
+        default=True,
+        validator=validate_bool,
+        description="render patches in antialiased (no jaggies)"
+    ),
+    _Param("hatch.color", "edge", _validate_color_or_edge),
+    _Param("hatch.linewidth", 1.0, validate_float),
+    _Param("boxplot.notch", False, validate_bool),
+    _Param("boxplot.vertical", True, validate_bool),
+    _Param("boxplot.whiskers", 1.5, validate_whiskers),
+    _Param("boxplot.bootstrap", None, validate_int_or_None),
+    _Param("boxplot.patchartist", False, validate_bool),
+    _Param("boxplot.showmeans", False, validate_bool),
+    _Param("boxplot.showcaps", True, validate_bool),
+    _Param("boxplot.showbox", True, validate_bool),
+    _Param("boxplot.showfliers", True, validate_bool),
+    _Param("boxplot.meanline", False, validate_bool),
+    _Param("boxplot.flierprops.color", "black", validate_color),
+    _Param("boxplot.flierprops.marker", "o", _validate_marker),
+    _Param("boxplot.flierprops.markerfacecolor", "none", validate_color_or_auto),
+    _Param("boxplot.flierprops.markeredgecolor", "black", validate_color),
+    _Param("boxplot.flierprops.markeredgewidth", 1.0, validate_float),
+    _Param("boxplot.flierprops.markersize", 6.0, validate_float),
+    _Param("boxplot.flierprops.linestyle", "none", _validate_linestyle),
+    _Param("boxplot.flierprops.linewidth", 1.0, validate_float),
+    _Param("boxplot.boxprops.color", "black", validate_color),
+    _Param("boxplot.boxprops.linewidth", 1.0, validate_float),
+    _Param("boxplot.boxprops.linestyle", "-", _validate_linestyle),
+    _Param("boxplot.whiskerprops.color", "black", validate_color),
+    _Param("boxplot.whiskerprops.linewidth", 1.0, validate_float),
+    _Param("boxplot.whiskerprops.linestyle", "-", _validate_linestyle),
+    _Param("boxplot.capprops.color", "black", validate_color),
+    _Param("boxplot.capprops.linewidth", 1.0, validate_float),
+    _Param("boxplot.capprops.linestyle", "-", _validate_linestyle),
+    _Param("boxplot.medianprops.color", "C1", validate_color),
+    _Param("boxplot.medianprops.linewidth", 1.0, validate_float),
+    _Param("boxplot.medianprops.linestyle", "-", _validate_linestyle),
+    _Param("boxplot.meanprops.color", "C2", validate_color),
+    _Param("boxplot.meanprops.marker", "^", _validate_marker),
+    _Param("boxplot.meanprops.markerfacecolor", "C2", validate_color),
+    _Param("boxplot.meanprops.markeredgecolor", "C2", validate_color),
+    _Param("boxplot.meanprops.markersize", 6.0, validate_float),
+    _Param("boxplot.meanprops.linestyle", "--", _validate_linestyle),
+    _Param("boxplot.meanprops.linewidth", 1.0, validate_float),
+    _Param("font.family", ["sans-serif"], validate_stringlist),
+    _Param("font.style", "normal", validate_string),
+    _Param("font.variant", "normal", validate_string),
+    _Param("font.weight", "normal", validate_fontweight),
+    _Param("font.stretch", "normal", validate_fontstretch),
+    _Param("font.size", 10.0, validate_float),
+    _Param(
+        "font.serif",
+        default=[
+            "DejaVu Serif", "Bitstream Vera Serif", "Computer Modern Roman",
+            "New Century Schoolbook", "Century Schoolbook L", "Utopia", "ITC Bookman",
+            "Bookman", "Nimbus Roman No9 L", "Times New Roman", "Times", "Palatino",
+            "Charter", "serif",
+        ],
+        validator=validate_stringlist
+    ),
+    _Param(
+        "font.sans-serif",
+        default=[
+            "DejaVu Sans", "Bitstream Vera Sans", "Computer Modern Sans Serif",
+            "Lucida Grande", "Verdana", "Geneva", "Lucid", "Arial", "Helvetica",
+            "Avant Garde", "sans-serif",
+        ],
+        validator=validate_stringlist
+    ),
+    _Param(
+        "font.cursive",
+        default=[
+            "Apple Chancery", "Textile", "Zapf Chancery", "Sand", "Script MT", "Felipa",
+            "Comic Neue", "Comic Sans MS", "cursive",
+        ],
+        validator=validate_stringlist
+    ),
+    _Param(
+        "font.fantasy",
+        default=["Chicago", "Charcoal", "Impact", "Western", "xkcd script", "fantasy"],
+        validator=validate_stringlist
+    ),
+    _Param(
+        "font.monospace",
+        default=[
+            "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
+            "Computer Modern Typewriter", "Andale Mono", "Nimbus Mono L", "Courier New",
+            "Courier", "Fixed", "Terminal", "monospace",
+        ],
+        validator=validate_stringlist
+    ),
+    _Param(
+        "font.enable_last_resort",
+        default=True,
+        validator=validate_bool,
+        description="If True, then Unicode Consortium's Last Resort font will be "
+                    "appended to all font selections. This ensures that there will "
+                    "always be a glyph displayed."
+    ),
+    _Param(
+        "text.color",
+        default="black",
+        validator=validate_color
+    ),
+    _Param("text.hinting",
+        default="force_autohint",
+        validator=[
+            "default", "no_autohint", "force_autohint", "no_hinting", "auto", "native",
+            "either", "none",
+        ],
+        description="FreeType hinting flag (\"foo\" corresponds to FT_LOAD_FOO); may "
+                    "be one of the following (Proprietary Matplotlib-specific synonyms "
+                    "are given in parentheses, but their use is discouraged): "
+                    "- default: Use the font's native hinter if possible, else "
+                    "  FreeType's auto-hinter. (\"either\" is a synonym)."
+                    "- no_autohint: Use the font's native hinter if possible, else "
+                    "  don't hint. (\"native\" is a synonym.)"
+                    "- force_autohint: Use FreeType's auto-hinter. (\"auto\" is a "
+                    "  synonym.)"
+                    "- no_hinting: Disable hinting. (\"none\" is a synonym.)"
+    ),
+    _Param(
+        "text.hinting_factor",
+        default=8,
+        validator=validate_int,
+        description="Specifies the amount of softness for hinting in the horizontal "
+                    "direction.  A value of 1 will hint to full pixels.  A value of 2 "
+                    "will hint to half pixels etc."
+    ),
+    _Param(
+        "text.kerning_factor",
+        default=0,
+        validator=validate_int,
+        description="Specifies the scaling factor for kerning values. This is "
+                    "provided solely to allow old test images to remain unchanged. "
+                    "Set to 6 to obtain previous behavior. Values  other than 0 or 6 "
+                    "have no defined meaning."
+    ),
+    _Param(
+        "text.antialiased",
+        default=True,
+        validator=validate_bool,
+        description="If True (default), the text will be antialiased. This only "
+                    "affects raster outputs."
+    ),
+    _Param(
+        "text.parse_math",
+        default=True,
+        validator=validate_bool,
+        description="Use mathtext if there is an even number of unescaped dollar signs."
+
+    ),
+    _Param(
+        "text.usetex",
+        default=False,
+        validator=validate_bool,
+        description="use latex for all text handling. The following fonts are "
+                    "supported through the usual rc parameter settings: "
+                    "new century schoolbook, bookman, times, palatino, zapf chancery, "
+                    "charter, serif, sans-serif, helvetica, avant garde, courier, "
+                    "monospace, computer modern roman, computer modern sans serif, "
+                    "computer modern typewriter"
+    ),
+    _Param(
+        "text.latex.preamble",
+        default="",
+        validator=validate_string,
+        description='IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES AND IS '
+                    'THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP IF THIS FEATURE '
+                    'DOES NOT DO WHAT YOU EXPECT IT TO. text.latex.preamble is a '
+                    'single line of LaTeX code that will be passed on to the LaTeX '
+                    'system. It may contain any code that is valid for the LaTeX '
+                    '"preamble", i.e. between the "\\documentclass" and '
+                    '"\\begin{document}" statements. Note that it has to be put on a '
+                    'single line, which may become quite long. The following packages '
+                    'are always loaded with usetex, so beware of package collisions: '
+                    '   color, fix-cm, geometry, graphicx, textcomp. PostScript '
+                    '(PSNFSS) font packages may also be loaded, depending on your font '
+                    'settings.'
+    ),
+    _Param(
+        "mathtext.fontset",
+        default="dejavusans",
+        validator=["dejavusans", "dejavuserif", "cm", "stix", "stixsans", "custom"],
+        description="Should be 'dejavusans' (default), 'dejavuserif', "
+                    "'cm' (Computer Modern), 'stix', 'stixsans' or 'custom'"
+    ),
+    _Param("mathtext.bf", "sans:bold", validate_font_properties),
+    _Param("mathtext.bfit", "sans:italic:bold", validate_font_properties),
+    _Param("mathtext.cal", "cursive", validate_font_properties),
+    _Param("mathtext.it", "sans:italic", validate_font_properties),
+    _Param("mathtext.rm", "sans", validate_font_properties),
+    _Param("mathtext.sf", "sans", validate_font_properties),
+    _Param("mathtext.tt", "monospace", validate_font_properties),
+    _Param(
+        "mathtext.fallback",
+        default="cm",
+        validator=_validate_mathtext_fallback,
+        description="Select fallback font from ['cm' (Computer Modern), 'stix', "
+                    "'stixsans'] when a symbol cannot be found in one of the custom "
+                    "math fonts. Select 'None' to not perform fallback and replace the "
+                    "missing character by a dummy symbol."
+    ),
+    _Param("mathtext.default", "it",
+           ["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default", "bb", "frak", "scr",
+            "regular", ],
+           description='The default font to use for math. Can be any of the LaTeX font '
+                    'names, including the special name "regular" for the same font '
+                    'used in regular text.',
+           ),
+    _Param(
+        "axes.facecolor",
+        default="white",
+        validator=validate_color,
+        description="axes background color"
+    ),
+    _Param(
+        "axes.edgecolor",
+        default="black",
+        validator=validate_color,
+        description="axes edge color"
+    ),
+    _Param(
+        "axes.linewidth",
+        default=0.8,
+        validator=validate_float,
+        description="edge line width"
+    ),
+    _Param(
+        "axes.grid",
+        default=False,
+        validator=validate_bool,
+        description="display grid or not"
+    ),
+    _Param(
+        "axes.grid.axis",
+        default="both",
+        validator=["x", "y", "both"],
+        description="which axis the grid should apply to"
+    ),
+    _Param(
+        "axes.grid.which",
+        default="major",
+        validator=["minor", "both", "major"],
+        description="grid lines at {major, minor, both} ticks"
+    ),
+    _Param(
+        "axes.titlelocation",
+        default="center",
+        validator=["left", "center", "right"],
+        description="alignment of the title: {left, right, center}"
+    ),
+    _Param(
+        "axes.titlesize",
+        default="large",
+        validator=validate_fontsize,
+        description="font size of the axes title"
+    ),
+    _Param(
+        "axes.titleweight",
+        default="normal",
+        validator=validate_fontweight,
+        description="font weight of title"
+    ),
+    _Param(
+        "axes.titlecolor",
+        default="auto",
+        validator=validate_color_or_auto,
+        description="color of the axes title, auto falls back to text.color as default "
+                    "value"
+    ),
+    _Param(
+        "axes.titley",
+        default=None,
+        validator=validate_float_or_None,
+        description="position title (axes relative units).  None implies auto"
+    ),
+    _Param(
+        "axes.titlepad",
+        default=6.0,
+        validator=validate_float,
+        description="pad between axes and title in points"
+    ),
+    _Param(
+        "axes.labelsize",
+        default="medium",
+        validator=validate_fontsize,
+        description="font size of the x and y labels"
+    ),
+    _Param(
+        "axes.labelpad",
+        default=4.0,
+        validator=validate_float,
+        description="space between label and axis"
+    ),
+    _Param(
+        "axes.labelweight",
+        default="normal",
+        validator=validate_fontweight,
+        description="weight of the x and y labels"
+    ),
+    _Param(
+        "axes.labelcolor",
+        default="black",
+        validator=validate_color
+    ),
+    _Param(
+        "axes.axisbelow",
+        default="line",
+        validator=validate_axisbelow,
+        description="draw axis gridlines and ticks: "
+                    "- below patches (True) "
+                    "- above patches but below lines ('line') "
+                    "- above all (False)"
+    ),
+    _Param(
+        "axes.formatter.limits",
+        default=[-5, 6],
+        validator=validate_intlist,
+        description="use scientific notation if log10 of the axis range is smaller "
+                    "than the first or larger than the second"
+    ),
+    _Param(
+        "axes.formatter.use_locale",
+        default=False,
+        validator=validate_bool,
+        description="When True, format tick labels according to the user's locale. "
+                    "For example, use ',' as a decimal separator in the fr_FR locale."
+    ),
+    _Param(
+        "axes.formatter.use_mathtext",
+        default=False,
+        validator=validate_bool,
+        description="When True, use mathtext for scientific notation."
+    ),
+    _Param(
+        "axes.formatter.min_exponent",
+        default=0,
+        validator=validate_int,
+        description="minimum exponent to format in scientific notation"
+    ),
+    _Param(
+        "axes.formatter.useoffset",
+        default=True,
+        validator=validate_bool,
+        description="If True, the tick label formatter will default to labeling ticks "
+                    "relative to an offset when the data range is small compared to "
+                    "the minimum absolute value of the data."
+    ),
+    _Param(
+        "axes.formatter.offset_threshold",
+        default=4,
+        validator=validate_int,
+        description="When useoffset is True, the offset will be used when it can "
+                    "remove at least this number of significant digits from tick "
+                    "labels."
+    ),
+    _Param(
+        "axes.spines.left",
+        default=True,
+        validator=validate_bool,
+        description="display axis spines"
+    ),
+    _Param("axes.spines.bottom", True, validate_bool),
+    _Param("axes.spines.top", True, validate_bool),
+    _Param(
+        "axes.spines.right",
+        default=True,
+        validator=validate_bool
+    ),
+    _Param(
+        "axes.unicode_minus",
+        default=True,
+        validator=validate_bool,
+        description="use Unicode for the minus symbol rather than hyphen. See "
+                    "https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes"
+
+    ),
+    _Param("axes.prop_cycle",
+        default=cycler(
+            "color",
+            [(0.12156862745098039, 0.4666666666666667, 0.7058823529411765),
+             (1.0, 0.4980392156862745, 0.054901960784313725),
+             (0.17254901960784313, 0.6274509803921569, 0.17254901960784313),
+             (0.8392156862745098, 0.15294117647058825, 0.1568627450980392),
+             (0.5803921568627451, 0.403921568627451, 0.7411764705882353),
+             (0.5490196078431373, 0.33725490196078434, 0.29411764705882354),
+             (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),
+             (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),
+             (0.7372549019607844, 0.7411764705882353, 0.13333333333333333),
+             (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),
+            ],
+        ),
+        validator=validate_cycler
+    ),
+    _Param(
+        "axes.xmargin",
+        default=0.05,
+        validator=_validate_greaterthan_minushalf,
+        description="x margin.  See `~.axes.Axes.margins`"
+    ),
+    _Param(
+        "axes.ymargin",
+        default=0.05,
+        validator=_validate_greaterthan_minushalf,
+        description="y margin.  See `~.axes.Axes.margins`"
+    ),
+    _Param(
+        "axes.zmargin",
+        default=0.05,
+        validator=_validate_greaterthan_minushalf,
+        description="z margin.  See `~.axes.Axes.margins`"
+    ),
+    _Param(
+        "axes.autolimit_mode",
+        default="data",
+        validator=["data", "round_numbers"],
+        description='If "data", use axes.xmargin and axes.ymargin as is. If '
+                    '"round_numbers", after application of margins, axis limits are '
+                    'further expanded to the nearest "round" number.',
+    ),
+    _Param(
+        "polaraxes.grid",
+        default=True,
+        validator=validate_bool,
+        description="display grid on polar axes"
+    ),
+    _Param(
+        "axes3d.grid",
+        default=True,
+        validator=validate_bool, description="display grid on 3D axes"
+    ),
+    _Param(
+        "axes3d.automargin",
+        default=False,
+        validator=validate_bool,
+        description="automatically add margin when manually setting 3D axis limits"
+    ),
+    _Param(
+        "axes3d.xaxis.panecolor",
+        default=(0.95, 0.95, 0.95, 0.5),
+        validator=validate_color,
+        description="background pane on 3D axes"
+    ),
+    _Param(
+        "axes3d.yaxis.panecolor",
+        default=(0.9, 0.9, 0.9, 0.5),
+        validator=validate_color,
+        description="background pane on 3D axes"
+    ),
+    _Param(
+        "axes3d.zaxis.panecolor",
+        default=(0.925, 0.925, 0.925, 0.5),
+        validator=validate_color,
+        description="background pane on 3D axes"
+    ),
+    _Param(
+        "axes3d.depthshade",
+        default=True,
+        validator=validate_bool,
+        description="depth shade for 3D scatter plots"
+    ),
+    _Param(
+        "axes3d.depthshade_minalpha",
+        default=0.3,
+        validator=validate_float,
+        description="minimum alpha value for depth shading"
+    ),
+    _Param(
+        "axes3d.mouserotationstyle",
+        default="arcball",
+        validator=["azel", "trackball", "sphere", "arcball"],
+        description="{azel, trackball, sphere, arcball} See also "
+                    "https://matplotlib.org/stable/api/toolkits/mplot3d/view_angles.html#rotation-with-mouse"),  # noqa
+    _Param(
+        "axes3d.trackballsize",
+        default=0.667,
+        validator=validate_float,
+        description="trackball diameter, in units of the Axes bbox"
+    ),
+    _Param(
+        "axes3d.trackballborder",
+        default=0.2,
+        validator=validate_float,
+        description="trackball border width, in units of the Axes bbox (only for "
+                    "'sphere' and 'arcball' style)"
+    ),
+    _Param(
+        "xaxis.labellocation",
+        default="center",
+        validator=["left", "center", "right"],
+        description="alignment of the xaxis label: {left, right, center}"
+    ),
+    _Param(
+        "yaxis.labellocation",
+        default="center",
+        validator=["bottom", "center", "top"],
+        description="alignment of the yaxis label: {bottom, top, center}"
+    ),
+    _Param("date.autoformatter.year", "%Y", validate_string),
+    _Param("date.autoformatter.month", "%Y-%m", validate_string),
+    _Param("date.autoformatter.day", "%Y-%m-%d", validate_string),
+    _Param("date.autoformatter.hour", "%m-%d %H", validate_string),
+    _Param("date.autoformatter.minute", "%d %H:%M", validate_string),
+    _Param("date.autoformatter.second", "%H:%M:%S", validate_string),
+    _Param("date.autoformatter.microsecond", "%M:%S.%f", validate_string),
+    _Param(
+        "date.epoch",
+        default="1970-01-01T00:00:00",
+        validator=_validate_date,
+        description="The reference date for Matplotlib's internal date representation. "
+                    "See https://matplotlib.org/stable/gallery/ticks/date_precision_and_epochs.html"),  #noqa
+    _Param(
+        "date.converter",
+        default="auto",
+        validator=["auto", "concise"],
+        description="'auto', 'concise'"
+    ),
+    _Param(
+        "date.interval_multiples",
+        default=True,
+        validator=validate_bool,
+        description="For auto converter whether to use interval_multiples"
+    ),
+    _Param(
+        "xtick.top",
+        default=False,
+        validator=validate_bool,
+        description="draw ticks on the top side"
+    ),
+    _Param(
+        "xtick.bottom",
+        default=True,
+        validator=validate_bool,
+        description="draw ticks on the bottom side"
+    ),
+    _Param(
+        "xtick.labeltop",
+        default=False,
+        validator=validate_bool,
+        description="draw label on the top"
+    ),
+    _Param(
+        "xtick.labelbottom",
+        default=True,
+        validator=validate_bool,
+        description="draw label on the bottom"
+    ),
+    _Param(
+        "xtick.major.size",
+        default=3.5,
+        validator=validate_float,
+        description="major tick size in points"
+    ),
+    _Param(
+        "xtick.minor.size",
+        default=2.0,
+        validator=validate_float,
+        description="minor tick size in points"
+    ),
+    _Param(
+        "xtick.major.width",
+        default=0.8,
+        validator=validate_float,
+        description="major tick width in points"
+    ),
+    _Param(
+        "xtick.minor.width",
+        default=0.6,
+        validator=validate_float,
+        description="minor tick width in points"
+    ),
+    _Param(
+        "xtick.major.pad",
+        default=3.5,
+        validator=validate_float,
+        description="distance to major tick label in points"
+    ),
+    _Param(
+        "xtick.minor.pad",
+        default=3.4,
+        validator=validate_float,
+        description="distance to the minor tick label in points"
+    ),
+    _Param(
+        "xtick.color",
+        default="black",
+        validator=validate_color,
+        description="color of the ticks"
+    ),
+    _Param(
+        "xtick.labelcolor",
+        default="inherit",
+        validator=validate_color_or_inherit,
+        description="color of the tick labels or inherit from xtick.color"
+    ),
+    _Param(
+        "xtick.labelsize",
+        default="medium",
+        validator=validate_fontsize,
+        description="font size of the tick labels"
+    ),
+    _Param(
+        "xtick.direction",
+        default="out",
+        validator=["out", "in", "inout"],
+        description="direction: {in, out, inout}"
+    ),
+    _Param(
+        "xtick.minor.visible",
+        default=False,
+        validator=validate_bool,
+        description="visibility of minor ticks on x-axis"
+    ),
+    _Param(
+        "xtick.major.top",
+        default=True,
+        validator=validate_bool,
+        description="draw x axis top major ticks"
+    ),
+    _Param(
+        "xtick.major.bottom",
+        default=True,
+        validator=validate_bool,
+        description="draw x axis bottom major ticks"
+    ),
+    _Param(
+        "xtick.minor.top",
+        default=True,
+        validator=validate_bool,
+        description="draw x axis top minor ticks"
+    ),
+    _Param(
+        "xtick.minor.bottom",
+        default=True,
+        validator=validate_bool,
+        description="draw x axis bottom minor ticks"
+    ),
+    _Param(
+        "xtick.minor.ndivs",
+        default="auto",
+        validator=_validate_minor_tick_ndivs,
+        description="number of minor ticks between the major ticks on x-axis"
+    ),
+    _Param(
+        "xtick.alignment",
+        default="center",
+        validator=["center", "right", "left"],
+        description="alignment of xticks"
+    ),
+    _Param(
+        "ytick.left",
+        default=True,
+        validator=validate_bool,
+        description="draw ticks on the left side"
+    ),
+    _Param(
+        "ytick.right",
+        default=False,
+        validator=validate_bool,
+        description="draw ticks on the right side"
+    ),
+    _Param(
+        "ytick.labelleft",
+        default=True,
+        validator=validate_bool,
+        description="draw tick labels on the left side"
+    ),
+    _Param(
+        "ytick.labelright",
+        default=False,
+        validator=validate_bool,
+        description="draw tick labels on the right side"
+    ),
+    _Param(
+        "ytick.major.size",
+        default=3.5,
+        validator=validate_float,
+        description="major tick size in points"
+    ),
+    _Param(
+        "ytick.minor.size",
+        default=2.0,
+        validator=validate_float,
+        description="minor tick size in points"
+    ),
+    _Param(
+        "ytick.major.width",
+        default=0.8,
+        validator=validate_float,
+        description="major tick width in points"
+    ),
+    _Param(
+        "ytick.minor.width",
+        default=0.6,
+        validator=validate_float,
+        description="minor tick width in points"
+    ),
+    _Param(
+        "ytick.major.pad",
+        default=3.5,
+        validator=validate_float,
+        description="distance to major tick label in points"
+    ),
+    _Param(
+        "ytick.minor.pad",
+        default=3.4,
+        validator=validate_float,
+        description="distance to the minor tick label in points"
+    ),
+    _Param(
+        "ytick.color",
+        default="black",
+        validator=validate_color,
+        description="color of the ticks"
+    ),
+    _Param(
+        "ytick.labelcolor",
+        default="inherit",
+        validator=validate_color_or_inherit,
+        description="color of the tick labels or inherit from ytick.color"
+    ),
+    _Param(
+        "ytick.labelsize",
+        default="medium",
+        validator=validate_fontsize,
+        description="font size of the tick labels"
+    ),
+    _Param(
+        "ytick.direction",
+        default="out",
+        validator=["out", "in", "inout"],
+        description="direction: {in, out, inout}"
+    ),
+    _Param(
+        "ytick.minor.visible",
+        default=False,
+        validator=validate_bool,
+        description="visibility of minor ticks on y-axis"
+    ),
+    _Param(
+        "ytick.major.left",
+        default=True,
+        validator=validate_bool,
+        description="draw y axis left major ticks"
+    ),
+    _Param(
+        "ytick.major.right",
+        default=True,
+        validator=validate_bool,
+        description="draw y axis right major ticks"
+    ),
+    _Param(
+        "ytick.minor.left",
+        default=True,
+        validator=validate_bool,
+        description="draw y axis left minor ticks"
+    ),
+    _Param(
+        "ytick.minor.right",
+        default=True,
+        validator=validate_bool,
+        description="draw y axis right minor ticks"
+    ),
+    _Param(
+        "ytick.minor.ndivs",
+        default="auto",
+        validator=_validate_minor_tick_ndivs,
+        description="number of minor ticks between the major ticks on y-axis"
+    ),
+    _Param("ytick.alignment", "center_baseline",
+           ["center", "top", "bottom", "baseline", "center_baseline"],
+           description="alignment of yticks"
+           ),
+    _Param(
+        "grid.color",
+        default="#b0b0b0",
+        validator=validate_color,
+        description='b0b0b0"  # grid color'
+    ),
+    _Param(
+        "grid.linestyle",
+        default="-",
+        validator=_validate_linestyle,
+        description="solid"
+    ),
+    _Param(
+        "grid.linewidth",
+        default=0.8,
+        validator=validate_float,
+        description="in points"
+    ),
+    _Param(
+        "grid.alpha",
+        default=1.0,
+        validator=validate_float,
+        description="transparency, between 0.0 and 1.0"
+    ),
+    _Param(
+        "grid.major.color",
+        default=None,
+        validator=_validate_color_or_None,
+        description="If None defaults to grid.color"
+    ),
+    _Param(
+        "grid.major.linestyle",
+        default=None,
+        validator=_validate_linestyle_or_None,
+        description="If None defaults to grid.linestyle"
+    ),
+    _Param(
+        "grid.major.linewidth",
+        default=None,
+        validator=validate_float_or_None,
+        description="If None defaults to grid.linewidth"
+    ),
+    _Param(
+        "grid.major.alpha",
+        default=None,
+        validator=validate_float_or_None,
+        description="If None defaults to grid.alpha"
+    ),
+    _Param(
+        "grid.minor.color",
+        default=None,
+        validator=_validate_color_or_None,
+        description="If None defaults to grid.color"
+    ),
+    _Param(
+        "grid.minor.linestyle",
+        default=None,
+        validator=_validate_linestyle_or_None,
+        description="If None defaults to grid.linestyle"
+    ),
+    _Param(
+        "grid.minor.linewidth",
+        default=None,
+        validator=validate_float_or_None,
+        description="If None defaults to grid.linewidth"
+    ),
+    _Param(
+        "grid.minor.alpha",
+        default=None,
+        validator=validate_float_or_None,
+        description="If None defaults to grid.alpha"
+    ),
+    _Param(
+        "legend.loc",
+        default="best",
+        validator=_validate_legend_loc
+    ),
+    _Param(
+        "legend.frameon",
+        default=True,
+        validator=validate_bool,
+        description="if True, draw the legend on a background patch"
+    ),
+    _Param(
+        "legend.framealpha",
+        default=0.8,
+        validator=validate_float_or_None,
+        description="legend patch transparency"
+    ),
+    _Param(
+        "legend.facecolor",
+        default="inherit",
+        validator=validate_color_or_inherit,
+        description="inherit from axes.facecolor; or color spec"
+    ),
+    _Param(
+        "legend.edgecolor",
+        default="0.8",
+        validator=validate_color_or_inherit,
+        description="background patch boundary color"
+    ),
+    _Param(
+        "legend.linewidth",
+        default=None,
+        validator=validate_float_or_None,
+        description="line width of the legend frame, None means inherit from "
+                    "patch.linewidth"
+    ),
+    _Param(
+        "legend.fancybox",
+        default=True,
+        validator=validate_bool,
+        description="if True, use a rounded box for the legend background, else a "
+                    "rectangle"
+    ),
+    _Param(
+        "legend.shadow",
+        default=False,
+        validator=validate_bool,
+        description="if True, give background a shadow effect"
+    ),
+    _Param(
+        "legend.numpoints",
+        default=1,
+        validator=validate_int,
+        description="the number of marker points in the legend line"
+    ),
+    _Param(
+        "legend.scatterpoints",
+        default=1,
+        validator=validate_int,
+        description="number of scatter points"
+    ),
+    _Param(
+        "legend.markerscale",
+        default=1.0,
+        validator=validate_float,
+        description="the relative size of legend markers vs. original"
+    ),
+    _Param(
+        "legend.fontsize",
+        default="medium",
+        validator=validate_fontsize
+    ),
+    _Param(
+        "legend.labelcolor",
+        default="None",
+        validator=_validate_color_or_linecolor
+    ),
+    _Param(
+        "legend.title_fontsize",
+        default=None,
+        validator=validate_fontsize_None,
+        description="None sets to the same as the default axes."
+    ),
+    _Param(
+        "legend.borderpad",
+        default=0.4,
+        validator=validate_float,
+        description="border whitespace"
+    ),
+    _Param(
+        "legend.labelspacing",
+        default=0.5,
+        validator=validate_float,
+        description="the vertical space between the legend entries"
+    ),
+    _Param(
+        "legend.handlelength",
+        default=2.0,
+        validator=validate_float,
+        description="the length of the legend lines"
+    ),
+    _Param(
+        "legend.handleheight",
+        default=0.7,
+        validator=validate_float,
+        description="the height of the legend handle"
+    ),
+    _Param(
+        "legend.handletextpad",
+        default=0.8,
+        validator=validate_float,
+        description="the space between the legend line and legend text"
+    ),
+    _Param(
+        "legend.borderaxespad",
+        default=0.5,
+        validator=validate_float,
+        description="the border between the axes and legend edge"
+    ),
+    _Param(
+        "legend.columnspacing",
+        default=2.0,
+        validator=validate_float, description="column separation"
+    ),
+    _Param(
+        "figure.titlesize",
+        default="large",
+        validator=validate_fontsize,
+        description="size of the figure title (``Figure.suptitle()``)"
+    ),
+    _Param(
+        "figure.titleweight",
+        default="normal",
+        validator=validate_fontweight,
+        description="weight of the figure title"
+    ),
+    _Param(
+        "figure.labelsize",
+        default="large",
+        validator=validate_fontsize,
+        description="size of the figure label (``Figure.sup[x|y]label()``)"
+    ),
+    _Param(
+        "figure.labelweight",
+        default="normal",
+        validator=validate_fontweight,
+        description="weight of the figure label"
+    ),
+    _Param(
+        "figure.figsize",
+        default=[6.4, 4.8],
+        validator=_listify_validator(validate_float, n=2),
+        description="figure size in inches"
+    ),
+    _Param(
+        "figure.dpi",
+        default=100.0,
+        validator=validate_float, description="figure dots per inch"
+    ),
+    _Param(
+        "figure.facecolor",
+        default="white",
+        validator=validate_color, description="figure face color"
+    ),
+    _Param(
+        "figure.edgecolor",
+        default="white",
+        validator=validate_color, description="figure edge color"
+    ),
+    _Param(
+        "figure.frameon",
+        default=True,
+        validator=validate_bool, description="enable figure frame"
+    ),
+    _Param(
+        "figure.max_open_warning",
+        default=20,
+        validator=validate_int,
+        description="The maximum number of figures to open through the pyplot "
+                    "interface before emitting a warning. If less than one this "
+                    "feature is disabled."
+    ),
+    _Param(
+        "figure.raise_window",
+        default=True,
+        validator=validate_bool,
+        description="Raise the GUI window to front when show() is called. If set to "
+                    "False, we currently do not take any further actions and whether "
+                    "the window appears on the front may depend on the GUI framework "
+                    "and window manager."
+    ),
+    _Param(
+        "figure.subplot.left",
+        default=0.125,
+        validator=validate_float,
+        description="the left side of the subplots of the figure"
+    ),
+    _Param(
+        "figure.subplot.right",
+        default=0.9,
+        validator=validate_float,
+        description="the right side of the subplots of the figure"
+    ),
+    _Param(
+        "figure.subplot.bottom",
+        default=0.11,
+        validator=validate_float,
+        description="the bottom of the subplots of the figure"
+    ),
+    _Param(
+        "figure.subplot.top",
+        default=0.88,
+        validator=validate_float,
+        description="the top of the subplots of the figure"
+    ),
+    _Param(
+        "figure.subplot.wspace",
+        default=0.2,
+        validator=validate_float,
+        description="the amount of width reserved for space between subplots, "
+                    "expressed as a fraction of the average axis width"
+    ),
+    _Param(
+        "figure.subplot.hspace",
+        default=0.2,
+        validator=validate_float,
+        description="the amount of height reserved for space between subplots, "
+                    "expressed as a fraction of the average axis height"
+    ),
+    _Param(
+        "figure.autolayout",
+        default=False,
+        validator=validate_bool,
+        description="When True, automatically adjust subplot parameters to make the "
+                    "plot fit the figure using `~.Figure.tight_layout`"
+    ),
+    _Param(
+        "figure.constrained_layout.use",
+        default=False,
+        validator=validate_bool,
+        description="When True, automatically make plot elements fit on the figure. "
+                    '(Not compatible with "figure.autolayout", above).'
+    ),
+    _Param(
+        "figure.constrained_layout.h_pad",
+        default=0.04167,
+        validator=validate_float,
+        description="Padding (in inches) around axes; defaults to 3/72 inches, "
+                    "i.e. 3 points"
+    ),
+    _Param(
+        "figure.constrained_layout.w_pad",
+        default=0.04167,
+        validator=validate_float,
+        description="Padding (in inches) around axes; defaults to 3/72 inches, "
+                    "i.e. 3 points"
+    ),
+    _Param(
+        "figure.constrained_layout.hspace",
+        default=0.02,
+        validator=validate_float,
+        description="Spacing between subplots, relative to the subplot sizes.  Much "
+                    "smaller than for tight_layout (figure.subplot.hspace, "
+                    "figure.subplot.wspace) as constrained_layout already takes "
+                    "surrounding texts (titles, labels, # ticklabels) into account."
+    ),
+    _Param(
+        "figure.constrained_layout.wspace",
+        default=0.02,
+        validator=validate_float,
+        description="Spacing between subplots, relative to the subplot sizes.  Much "
+                    "smaller than for tight_layout (figure.subplot.hspace, "
+                    "figure.subplot.wspace) as constrained_layout already takes "
+                    "surrounding texts (titles, labels, # ticklabels) into account."
+    ),
+    _Param(
+        "image.aspect",
+        default="equal",
+        validator=validate_aspect,
+        description="{equal, auto} or a number"
+    ),
+    _Param(
+        "image.interpolation",
+        default="auto",
+        validator=validate_string,
+        description="see help(imshow) for options"
+    ),
+    _Param(
+        "image.interpolation_stage",
+        default="auto",
+        validator=["auto", "data", "rgba"],
+        description="see help(imshow) for options"
+    ),
+    _Param(
+        "image.cmap",
+        default="viridis",
+        validator=_validate_cmap,
+        description="A colormap name (plasma, magma, etc.)"
+    ),
+    _Param(
+        "image.lut",
+        default=256,
+        validator=validate_int,
+        description="the size of the colormap lookup table"
+    ),
+    _Param(
+        "image.origin",
+        default="upper",
+        validator=["upper", "lower"], description="{lower, upper}"
+    ),
+    _Param(
+        "image.resample",
+        default=True,
+        validator=validate_bool
+    ),
+    _Param(
+        "image.composite_image",
+        default=True,
+        validator=validate_bool,
+        description="When True, all the images on a set of axes are combined into a "
+                    "single composite image before saving a figure as a vector "
+                    "graphics file, such as a PDF."
+    ),
+    _Param(
+        "contour.negative_linestyle",
+        default="dashed",
+        validator=_validate_linestyle,
+        description="string or on-off ink sequence"
+    ),
+    _Param(
+        "contour.corner_mask",
+        default=True,
+        validator=validate_bool, description="{True, False}"
+    ),
+    _Param(
+        "contour.linewidth",
+        default=None,
+        validator=validate_float_or_None,
+        description="{float, None} Size of the contour line widths. If set to None, it "
+                    'falls back to "line.linewidth".'
+    ),
+    _Param(
+        "contour.algorithm",
+        default="mpl2014",
+        validator=["mpl2005", "mpl2014", "serial", "threaded"],
+        description="{mpl2005, mpl2014, serial, threaded}"
+    ),
+    _Param(
+        "errorbar.capsize",
+        default=0.0,
+        validator=validate_float,
+        description="length of end cap on error bars in pixels"
+    ),
+    _Param(
+        "hist.bins",
+        default=10,
+        validator=validate_hist_bins,
+        description="The default number of histogram bins or 'auto'."
+    ),
+    _Param(
+        "scatter.marker",
+        default="o",
+        validator=_validate_marker,
+        description="The default marker type for scatter plots."
+    ),
+    _Param(
+        "scatter.edgecolors",
+        default="face",
+        validator=validate_string,
+        description="The default edge colors for scatter plots."
+    ),
+    _Param(
+        "agg.path.chunksize",
+        default=0,
+        validator=validate_int,
+        description="0 to disable; values in the range 10000 to 100000 can improve "
+                    "speed slightly and prevent an Agg rendering failure when plotting "
+                    "very large data sets, especially if they are very gappy. It may "
+                    "cause minor artifacts, though. A value of 20000 is probably a "
+                    "good starting point."
+    ),
+    _Param(
+        "path.simplify",
+        default=True,
+        validator=validate_bool,
+        description='When True, simplify paths by removing "invisible" points to '
+                    'reduce file size and increase rendering speed',
+    ),
+    _Param(
+        "path.simplify_threshold",
+        default=0.111111111111,
+        validator=_validate_greaterequal0_lessequal1,
+        description="The threshold of similarity below which vertices will be removed "
+                    "in the simplification process."
+    ),
+    _Param(
+        "path.snap",
+        default=True,
+        validator=validate_bool,
+        description="When True, rectilinear axis-aligned paths will be snapped to the "
+                    "nearest pixel when certain criteria are met. When False, paths "
+                    "will never be snapped."
+    ),
+    _Param(
+        "path.sketch",
+        default=None,
+        validator=validate_sketch,
+        description="May be None, or a tuple of the form:"
+                    "path.sketch: (scale, length, randomness)"
+                    "- *scale* is the amplitude of the wiggle perpendicular to the line"
+                    "  (in pixels)."
+                    "- *length* is the length of the wiggle along the line (in pixels)."
+                    "- *randomness* is the factor by which the length is  randomly "
+                    "  scaled."
+    ),
+    _Param(
+        "path.effects",
+        default=[],
+        validator=validate_anylist
+    ),
+    _Param(
+        "savefig.dpi",
+        default="figure",
+        validator=validate_dpi,
+        description="figure dots per inch or 'figure'"
+    ),
+    _Param(
+        "savefig.facecolor",
+        default="auto",
+        validator=validate_color_or_auto,
+        description="figure face color when saving"
+    ),
+    _Param(
+        "savefig.edgecolor",
+        default="auto",
+        validator=validate_color_or_auto,
+        description="figure edge color when saving"
+    ),
+    _Param(
+        "savefig.format",
+        default="png",
+        validator=validate_string, description="{png, ps, pdf, svg}"
+    ),
+    _Param(
+        "savefig.bbox",
+        default=None,
+        validator=validate_bbox,
+        description="{tight, standard} 'tight' is incompatible with generating frames "
+                    "for animation"
+    ),
+    _Param(
+        "savefig.pad_inches",
+        default=0.1,
+        validator=validate_float,
+        description="padding to be used, when bbox is set to 'tight'"
+    ),
+    _Param(
+        "savefig.directory",
+        default="~",
+        validator=_validate_pathlike,
+        description="default directory in savefig dialog, gets updated after "
+                    "interactive saves, unless set to the empty string (i.e. the "
+                    "current directory); use '.' to start at the current directory but "
+                    "update after interactive saves"
+    ),
+    _Param(
+        "savefig.transparent",
+        default=False,
+        validator=validate_bool,
+        description="whether figures are saved with a transparent background by default"
+
+    ),
+    _Param(
+        "savefig.orientation",
+        default="portrait",
+        validator=["landscape", "portrait"],
+        description="orientation of saved figure, for PostScript output only"
+    ),
+    _Param(
+        "macosx.window_mode",
+        default="system",
+        validator=["system", "tab", "window"],
+        description="How to open new figures (system, tab, window) system uses "
+                    "the MacOS system preferences"
+    ),
+    _Param(
+        "tk.window_focus",
+        default=False,
+        validator=validate_bool,
+        description="Maintain shell focus for TkAgg"
+    ),
+    _Param(
+        "ps.papersize",
+        default="letter",
+        validator=_ignorecase(
+            ["figure", "letter", "legal", "ledger",
+             *[f"{ab}{i}" for ab in "ab" for i in range(11)],
+             ],
+        ),
+        description="{figure, letter, legal, ledger, A0-A10, B0-B10}"
+    ),
+    _Param(
+        "ps.useafm",
+        default=False,
+        validator=validate_bool,
+        description="use AFM fonts, results in small files"
+    ),
+    _Param(
+        "ps.usedistiller",
+        default=None,
+        validator=validate_ps_distiller,
+        description="{ghostscript, xpdf, None} Experimental: may produce smaller "
+                    "files. xpdf intended for production of publication quality files, "
+                    "but requires ghostscript, xpdf and ps2eps"
+    ),
+    _Param(
+        "ps.distiller.res",
+        default=6000,
+        validator=validate_int, description="dpi"
+    ),
+    _Param(
+        "ps.fonttype",
+        default=3,
+        validator=validate_fonttype,
+        description="Output Type 3 (Type3) or Type 42 (TrueType)"
+    ),
+    _Param(
+        "pdf.compression",
+        default=6,
+        validator=validate_int,
+        description="integer from 0 to 9 0 disables compression (good for debugging)"
+    ),
+    _Param(
+        "pdf.fonttype",
+        default=3,
+        validator=validate_fonttype,
+        description="Output Type 3 (Type3) or Type 42 (TrueType)"
+    ),
+    _Param(
+        "pdf.use14corefonts",
+        default=False,
+        validator=validate_bool
+    ),
+    _Param(
+        "pdf.inheritcolor",
+        default=False,
+        validator=validate_bool
+    ),
+    _Param(
+        "svg.image_inline",
+        default=True,
+        validator=validate_bool,
+        description="Write raster image data directly into the SVG file"
+    ),
+    _Param(
+        "svg.fonttype",
+        default="path",
+        validator=["none", "path"],
+        description="How to handle SVG fonts: "
+                    "path: Embed characters as paths -- supported by most SVG "
+                    "      renderers"
+                    "none: Assume fonts are installed on the machine where the SVG "
+                    "will be viewed."
+    ),
+    _Param(
+        "svg.hashsalt",
+        default=None,
+        validator=validate_string_or_None,
+        description="If not None, use this string as hash salt instead of uuid4"
+    ),
+    _Param(
+        "svg.id",
+        default=None,
+        validator=validate_string_or_None,
+        description="If not None, use this string as the value for the `id` attribute "
+                    "in the top <svg> tag"
+    ),
+    _Param(
+        "pgf.rcfonts",
+        default=True,
+        validator=validate_bool
+    ),
+    _Param(
+        "pgf.preamble",
+        default="",
+        validator=validate_string,
+        description="See text.latex.preamble for documentation"
+    ),
+    _Param(
+        "pgf.texsystem",
+        default="xelatex",
+        validator=["xelatex", "lualatex", "pdflatex"]
+    ),
+    _Param(
+        "docstring.hardcopy",
+        default=False,
+        validator=validate_bool,
+        description="set this when you want to generate hardcopy docstring"
+    ),
+    _Param(
+        "keymap.fullscreen",
+        default=["f", "ctrl+f"],
+        validator=validate_stringlist,
+        description="toggling"
+    ),
+    _Param(
+        "keymap.home",
+        default=["h", "r", "home"],
+        validator=validate_stringlist,
+        description="home or reset mnemonic"
+    ),
+    _Param(
+        "keymap.back",
+        default=["left", "c", "backspace", "MouseButton.BACK"],
+        validator=validate_stringlist, description="forward / backward keys"
+    ),
+    _Param(
+        "keymap.forward",
+        default=["right", "v", "MouseButton.FORWARD"],
+        validator=validate_stringlist,
+        description="for quick navigation"
+    ),
+    _Param(
+        "keymap.pan",
+        default=["p"],
+        validator=validate_stringlist, description="pan mnemonic"
+    ),
+    _Param(
+        "keymap.zoom",
+        default=["o"],
+        validator=validate_stringlist, description="zoom mnemonic"
+    ),
+    _Param(
+        "keymap.save",
+        default=["s", "ctrl+s"],
+        validator=validate_stringlist,
+        description="saving current figure"
+    ),
+    _Param(
+        "keymap.help",
+        default=["f1"],
+        validator=validate_stringlist,
+        description="display help about active tools"
+    ),
+    _Param(
+        "keymap.quit",
+        default=["ctrl+w", "cmd+w", "q"],
+        validator=validate_stringlist,
+        description="close the current figure"
+    ),
+    _Param(
+        "keymap.quit_all",
+        default=[],
+        validator=validate_stringlist, description="close all figures"
+    ),
+    _Param(
+        "keymap.grid",
+        default=["g"],
+        validator=validate_stringlist,
+        description="switching on/off major grids in current axes"
+    ),
+    _Param(
+        "keymap.grid_minor",
+        default=["G"],
+        validator=validate_stringlist,
+        description="switching on/off minor grids in current axes"
+    ),
+    _Param(
+        "keymap.yscale",
+        default=["l"],
+        validator=validate_stringlist,
+        description="toggle scaling of y-axes ('log'/'linear')"
+    ),
+    _Param(
+        "keymap.xscale",
+        default=["k", "L"],
+        validator=validate_stringlist,
+        description="toggle scaling of x-axes ('log'/'linear')"
+    ),
+    _Param(
+        "keymap.copy",
+        default=["ctrl+c", "cmd+c"],
+        validator=validate_stringlist,
+        description="copy figure to clipboard"
+    ),
+    _Param(
+        "animation.html",
+        default="none",
+        validator=["html5", "jshtml", "none"],
+        description="How to display the animation as HTML in the IPython notebook: "
+                    "- 'html5' uses HTML5 video tag "
+                    "- 'jshtml' creates a JavaScript animation"
+    ),
+    _Param(
+        "animation.writer",
+        default="ffmpeg",
+        validator=validate_string,
+        description="MovieWriter 'backend' to use"
+    ),
+    _Param(
+        "animation.codec",
+        default="h264",
+        validator=validate_string,
+        description="Codec to use for writing movie"
+    ),
+    _Param(
+        "animation.bitrate",
+        default=-1,
+        validator=validate_int,
+        description="Controls size/quality trade-off for movie. -1 implies let "
+                    "utility auto-determine"
+    ),
+    _Param("animation.frame_format", "png",
+           ["png", "jpeg", "tiff", "raw", "rgba", "ppm", "sgi", "bmp", "pbm", "svg"],
+           description="Controls frame format used by temp files"
+           ),
+    _Param(
+        "animation.ffmpeg_path",
+        default="ffmpeg",
+        validator=_validate_pathlike,
+        description="Path to ffmpeg binary.  Unqualified paths are resolved by "
+                    "subprocess.Popen."
+    ),
+    _Param(
+        "animation.ffmpeg_args",
+        default=[],
+        validator=validate_stringlist,
+        description="Additional arguments to pass to ffmpeg"
+    ),
+    _Param(
+        "animation.convert_path",
+        default="convert",
+        validator=_validate_pathlike,
+        description="Path to ImageMagick's convert binary.  Unqualified paths are "
+                    "resolved by subprocess.Popen, except that on Windows, we look up "
+                    "an install of ImageMagick in the registry (as convert is also the "
+                    "name of a system tool)."
+    ),
+    _Param(
+        "animation.convert_args",
+        default=["-layers", "OptimizePlus"],
+        validator=validate_stringlist,
+        description="Additional arguments to pass to convert"
+    ),
+    _Param(
+        "animation.embed_limit",
+        default=20.0,
+        validator=validate_float,
+        description="Limit, in MB, of size of base64 encoded animation in HTML (i.e. "
+                    "IPython notebook)"
+    ),
+    _Param(
+        "_internal.classic_mode",
+        default=False,
+        validator=validate_bool
+    ),
+    _Param("backend", None, validate_backend),
+]
+
+
+def _generate_rst():  # pragma: no cover
+    """
+    Generate rst documentation for rcParams.
+
+    Note: The style is very simple, but will be refined later.
+    """
+
+    text = """\
+..
+   autogenerated rcParams documentation. Update via
+   > python -c "from matplotlib import rcsetup; rcsetup._write_rcParam_rst()"
+
+"""
+    for param in _params:
+        text += f"""
+{param.name}: ``{param.default!r}``
+    {param.description if param.description else "*no description*"}
+"""
+    return text
+
+
+def _write_rcParam_rst():  # pragma: no cover
+    """Write the generated rst documentation to /users/_rcparams_generated.rst."""
+    docpath = Path(os.path.dirname(__file__)) / "../../doc"
+    if not docpath.exists():
+        raise RuntimeError("Cannot find the doc/api/ directory")
+
+    (docpath / "users/_rcparams_generated.rst").write_text(_generate_rst())
