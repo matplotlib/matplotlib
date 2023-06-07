@@ -58,7 +58,7 @@ class MathTextParser:
             {"path": "vector", "agg": "raster", "macosx": "raster"},
             output=output.lower())
 
-    def parse(self, s, dpi=72, prop=None):
+    def parse(self, s, dpi=72, prop=None, antialiased=None):
         """
         Parse the given math expression *s* at the given *dpi*.  If *prop* is
         provided, it is a `.FontProperties` object specifying the "default"
@@ -74,10 +74,10 @@ class MathTextParser:
         # is mutable; key the cache using an internal copy (see
         # text._get_text_metrics_with_cache for a similar case).
         prop = prop.copy() if prop is not None else None
-        return self._parse_cached(s, dpi, prop)
+        return self._parse_cached(s, dpi, prop, antialiased)
 
     @functools.lru_cache(50)
-    def _parse_cached(self, s, dpi, prop):
+    def _parse_cached(self, s, dpi, prop, antialiased):
         from matplotlib.backends import backend_agg
 
         if prop is None:
@@ -100,7 +100,7 @@ class MathTextParser:
         if self._output_type == "vector":
             return output.to_vector()
         elif self._output_type == "raster":
-            return output.to_raster()
+            return output.to_raster(antialiased=antialiased)
 
 
 def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None,
