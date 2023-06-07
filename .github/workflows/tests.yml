@@ -79,6 +79,7 @@ jobs:
             pyqt6-ver: '!=6.5.1'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
           - os: macos-latest
             python-version: 3.9
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
