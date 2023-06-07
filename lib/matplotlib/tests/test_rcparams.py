@@ -1,5 +1,6 @@
 import copy
 import os
+import textwrap
 from pathlib import Path
 import re
 import subprocess
@@ -27,9 +28,13 @@ from matplotlib.rcsetup import (
     validate_hist_bins,
     validate_int,
     validate_markevery,
+    validate_string,
     validate_stringlist,
     _validate_linestyle,
-    _listify_validator)
+    _listify_validator,
+    RcParamsDefinition,
+    Param, Comment,
+)
 
 
 def test_rcparams(tmpdir):
@@ -604,3 +609,77 @@ def test_rcparams_legend_loc():
     match_str = f"{value} is not a valid value for legend.loc;"
     with pytest.raises(ValueError, match=re.escape(match_str)):
         mpl.RcParams({'legend.loc': value})
+
+
+class TestRcParamsDefinition:
+
+    # sample definition for testing
+    rc_def = RcParamsDefinition([
+        Comment("""\
+            # ***************************************************************************
+            # * LINES                                                                   *
+            # ***************************************************************************
+            # See https://matplotlib.org/stable/api/artist_api.html#module-matplotlib.lines
+            # for more information on line properties.
+            """),
+        Param("lines.linewidth", 1.5, validate_float, "line width in points"),
+        Param("lines.linestyle", "-", validate_string, "solid line"),
+        Param("lines.antialiased", True, validate_bool, "antialiasing on lines"),
+    ])
+
+    @staticmethod
+    def unindented(text):
+        """Helper function to be able to use indented multi-line strings."""
+        return textwrap.dedent(text).lstrip()
+
+    def test_create_default_rcparams(self):
+        params = self.rc_def.create_default_rcparams()
+        assert type(params) is mpl.RcParams
+        # TODO: check why rcParams.items() returns the elements in an order
+        # different from the order given at setup - for now, just sort
+        assert sorted(params.items()) == sorted([
+            ("lines.linewidth", 1.5),
+            ("lines.linestyle", "-"),
+            ("lines.antialiased", True),
+        ])
+
+    def test_write_default_matplotlibrc(self, tmp_path):
+        self.rc_def.write_default_matplotlibrc(tmp_path / "matplotlibrc")
+
+        lines = (tmp_path / "matplotlibrc").read_text()
+        assert lines == self.unindented("""
+            # ***************************************************************************
+            # * LINES                                                                   *
+            # ***************************************************************************
+            # See https://matplotlib.org/stable/api/artist_api.html#module-matplotlib.lines
+            # for more information on line properties.
+            lines.linewidth: 1.5  # line width in points
+            lines.linestyle: -  # solid line
+            lines.antialiased: True  # antialiasing on lines
+            """)
+
+    def test_read_matplotlibrc(self, tmp_path):
+        (tmp_path / "matplotlibrc").write_text(self.unindented("""
+            lines.linewidth: 2  # line width in points
+            lines.linestyle: --
+            """))
+        params = self.rc_def.read_matplotlibrc(tmp_path / "matplotlibrc")
+        assert params == {
+            "lines.linewidth": 2,
+            "lines.linestyle": "--",
+        }
+
+    def test_read_matplotlibrc_unknown_key(self, tmp_path):
+        (tmp_path / "matplotlibrc").write_text(self.unindented("""
+            lines.linewidth: 2  # line width in points
+            lines.unkown_param: "fail"
+            """))
+        with pytest.raises(ValueError, match="Unknown rcParam 'lines.unkown_param'"):
+            self.rc_def.read_matplotlibrc(tmp_path / "matplotlibrc")
+
+    def test_read_matplotlibrc_invalid_value(self, tmp_path):
+        (tmp_path / "matplotlibrc").write_text(self.unindented("""
+            lines.linewidth: two  # line width in points
+            """))
+        with pytest.raises(ValueError, match="Could not convert 'two' to float"):
+            self.rc_def.read_matplotlibrc(tmp_path / "matplotlibrc")

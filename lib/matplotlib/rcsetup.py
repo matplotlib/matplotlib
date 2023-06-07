@@ -14,11 +14,14 @@ root source directory.
 """
 
 import ast
+from dataclasses import dataclass
 from functools import lru_cache, reduce
 from numbers import Real
 import operator
 import os
 import re
+import textwrap
+from typing import Any, Callable
 
 import numpy as np
 
@@ -1290,3 +1293,131 @@ _hardcoded_defaults = {  # Defaults not inferred from
 }
 _validators = {k: _convert_validator_spec(k, conv)
                for k, conv in _validators.items()}
+
+
+@dataclass
+class Param:
+    name: str
+    default: Any
+    validator: Callable[[Any], Any]
+    desc: str = None
+
+    def to_matplotlibrc(self):
+        return f"{self.name}: {self.default}  # {self.desc}\n"
+
+
+class Comment:
+    def __init__(self, text):
+        self.text = textwrap.dedent(text).strip("\n")
+
+    def to_matplotlibrc(self):
+        return self.text + "\n"
+
+
+class RcParamsDefinition:
+    """
+    Definition of config parameters.
+
+    Parameters
+    ----------
+    content: list of Param and Comment objects
+        This contains:
+
+        - Param objects specifying config parameters
+        - Comment objects specifying comments to be included in the generated
+          matplotlibrc file
+    """
+
+    def __init__(self, content):
+        self._content = content
+        self._params = {item.name: item for item in content if isinstance(item, Param)}
+
+    def create_default_rcparams(self):
+        """
+        Return a RcParams object with the default values.
+
+        Note: The result is equivalent to ``matplotlib.rcParamsDefault``, but
+        generated from this definition and not from a matplotlibrc file.
+        """
+        from matplotlib import RcParams  # TODO: avoid circular import
+        return RcParams({
+            name: param.default for name, param in self._params.items()
+        })
+
+    def write_default_matplotlibrc(self, filename):
+        """
+        Write the default matplotlibrc file.
+
+        Note: This aspires to fully generate lib/matplotlib/mpl-data/matplotlibrc.
+        """
+        with open(filename, "w") as f:
+            for item in self._content:
+                f.write(item.to_matplotlibrc())
+
+    def read_matplotlibrc(self, filename):
+        """
+        Read a matplotlibrc file and return a dict with the values.
+
+        Note: This is the core of file-reading.
+        ``RcParams(read_matplotlibrc(filename))`` is equivalent to
+        `matplotlib._rc_params_in_file` (modulo handling of the
+        additional parameters.
+
+        Also note that we have the validation in here, and currently
+        again in RcParams itself. The validators are currently necessary
+        to transform the string representation of the values into their
+        actual type. We may split transformation and validation into
+        separate steps in the future.
+        """
+        params = {}
+        with open(filename) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                name, value = line.split(":", 1)
+                name = name.strip()
+                value = value.split("#", 1)[0].strip()
+                try:
+                    param_def = self._params[name]
+                except KeyError:
+                    raise ValueError(f"Unknown rcParam {name!r} in {filename!r}")
+                else:
+                    params[name] = param_def.validator(value)
+        return params
+
+
+# This is how the valid rcParams will be defined in the future.
+# The Comment sections are a bit ad-hoc, but are necessary for now if we want the
+# definition to be the leading source of truth and also be able to generate the
+# current matplotlibrc file from it.
+rc_def = RcParamsDefinition([
+    Comment("""
+        # ***************************************************************************
+        # * LINES                                                                   *
+        # ***************************************************************************
+        # See https://matplotlib.org/stable/api/artist_api.html#module-matplotlib.lines
+        # for more information on line properties.
+        """),
+    Param("lines.linewidth", 1.5, validate_float, "line width in points"),
+    Param("lines.linestyle", "-", validate_string, "solid line"),
+    Param("lines.color", "C0", validate_string, "has no affect on plot(); see axes.prop_cycle"),
+    Param("lines.marker", "None", validate_string, "the default marker"),
+    Param("lines.markerfacecolor", "auto", validate_string, "the default marker face color"),
+    Param("lines.markeredgecolor", "auto", validate_string, "the default marker edge color"),
+    Param("lines.markeredgewidth", 1.0, validate_float, "the line width around the marker symbol"),
+    Param("lines.markersize", 6, validate_float, "marker size, in points"),
+    Param("lines.dash_joinstyle", "round", validate_string, "{miter, round, bevel}"),
+    Param("lines.dash_capstyle", "butt", validate_string, "{butt, round, projecting}"),
+    Param("lines.solid_joinstyle", "round", validate_string, "{miter, round, bevel}"),
+    Param("lines.solid_capstyle", "projecting", validate_string, "{butt, round, projecting}"),
+    Param("lines.antialiased", True, validate_bool, "render lines in antialiased (no jaggies)"),
+    Comment("""
+    
+        # The three standard dash patterns.  These are scaled by the linewidth.
+        """),
+    Param("lines.dashed_pattern", [3.7, 1.6], validate_floatlist),
+    Param("lines.dashdot_pattern", [6.4, 1.6, 1, 1.6], validate_floatlist),
+    Param("lines.dotted_pattern", [1, 1.65], validate_floatlist),
+    Param("lines.scale_dashes", True, validate_bool),
+])
