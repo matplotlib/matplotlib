@@ -662,8 +662,7 @@ def test_rcparams_getdefault():
 def test_rcparams_getdefaults():
     mpl.rc("image", lut=128)
     defaults = mpl.rcParams.get_defaults()
-    mpl.rcParams.clear()
-    assert defaults == mpl.rcParams
+    assert defaults == mpl.rcParams._defaults
 
 
 def test_rcdefaults():
@@ -680,7 +679,12 @@ def test_rcdefaults():
     assert mpl.rcParams["lines.linewidth"] == lw
 
 
-def test_rcparams_clear():
+def test_rcparams_reset():
     mpl.rcParams["image.lut"] = 128
-    mpl.rcParams.clear()
+    mpl.rcParams.reset()
     assert mpl.rcParams["image.lut"] == 256
+
+
+def test_rcparams_clear():
+    with pytest.raises(mpl.MatplotlibDeprecationWarning):
+        mpl.rcParams.clear()

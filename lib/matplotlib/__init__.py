@@ -671,7 +671,8 @@ class RcParams(MutableMapping):
     def __init__(self, *args, **kwargs):
         self._rcvalues = ChainMap({})
         self.update(*args, **kwargs)
-        self._rcvalues.new_child()
+        self._rcvalues = self._rcvalues.new_child()
+        self._defaults = self._rcvalues.maps[-1]
 
     def _set(self, key, val):
         """
@@ -730,14 +731,12 @@ class RcParams(MutableMapping):
                 _api.warn_deprecated(
                     version, name=key, obj_type="rcparam", alternative=alt_key)
                 return
-            elif key == 'backend' or key == "default.backend":
+            elif key == 'backend':
                 if val is rcsetup._auto_backend_sentinel:
-                    if 'backend' in self or 'default.backend' in self:
+                    if 'backend' in self:
                         return
             try:
                 cval = self.validate[key](val)
-                # if key in self._single_key_set:
-                #     key = f"default.{key}"
             except ValueError as ve:
                 raise ValueError(f"Key {key}: {ve}") from None
             self._set(key, cval)
@@ -769,10 +768,8 @@ class RcParams(MutableMapping):
 
         return self._get(key)
 
-    def _get_default(self, key):
-        return self._rcvalues.maps[-1][key]
-
     def get_default(self, key):
+        """Return default value for the key set during initialization."""
         if key in _deprecated_map:
             version, alt_key, alt_val, inverse_alt = _deprecated_map[key]
             _api.warn_deprecated(
@@ -783,15 +780,13 @@ class RcParams(MutableMapping):
             version, alt_key = _deprecated_ignore_map[key]
             _api.warn_deprecated(
                 version, name=key, obj_type="rcparam", alternative=alt_key)
-            return self._get_default(alt_key) if alt_key else None
+            return self._defaults[alt_key] if alt_key else None
 
-        return self._get_default(key)
+        return self._defaults[key]
 
     def get_defaults(self):
         """Return default values set during initialization."""
-        defaults = self.copy()
-        defaults.clear()
-        return defaults
+        return self._defaults.copy()
 
     def _get_backend_or_none(self):
         """Get the requested backend, if any, without triggering resolution."""
@@ -845,7 +840,11 @@ class RcParams(MutableMapping):
         raise NotImplementedError(
             "popitem is not implemented for RcParams.")
 
+    @_api.deprecated("3.8")
     def clear(self):
+        pass
+
+    def reset(self):
         self._rcvalues.clear()
 
     def setdefault(self, key, default=None):
@@ -857,30 +856,6 @@ class RcParams(MutableMapping):
             return self[key]
         self[key] = default
         return default
-
-    def get(self, key, default=None):
-        try:
-            return self[key]
-        except KeyError as e:
-            return default
-
-    def update(self, other=(), /, **kwds):
-        """D.update([E, ]**F) -> None.  Update D from mapping/iterable E and F.
-        If E present and has a .keys() method, does:     for k in E: D[k] = E[k]
-        If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v
-        In either case, this is followed by: for k, v in F.items(): D[k] = v
-        """
-        if isinstance(other, Mapping):
-            for key in other:
-                self[key] = other[key]
-        elif hasattr(other, "keys"):
-            for key in other.keys():
-                self[key] = other[key]
-        else:
-            for key, value in other:
-                self[key] = value
-        for key, value in kwds.items():
-            self[key] = value
 
     def copy(self):
         return deepcopy(self)
@@ -1054,18 +1029,16 @@ rcParams = _rc_params_in_file(
     # Strip leading comment.
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
-# for key in rcsetup._hardcoded_defaults:
-#     space, subkey = key.split(".")
-#     if not rcParams._namespace_maps[space]:
-#         rcParams._namespace_maps[space] = ChainMap({})
+rcParams._rcvalues = rcParams._rcvalues.parents
 rcParams.update(rcsetup._hardcoded_defaults)
 # Normally, the default matplotlibrc file contains *no* entry for backend (the
 # corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
 # in that case.  However, packagers can set a different default backend
 # (resulting in a normal `#backend: foo` line) in which case we should *not*
 # fill in _auto_backend_sentinel.
-rcParams.setdefault("backend", rcsetup._auto_backend_sentinel)
 rcParams.update(_rc_params_in_file(matplotlib_fname()))
+rcParams._rcvalues = rcParams._rcvalues.new_child()
+rcParams.setdefault("backend", rcsetup._auto_backend_sentinel)
 rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
     # This also checks that all rcParams are indeed listed in the template.
