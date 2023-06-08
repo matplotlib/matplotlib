@@ -73,10 +73,8 @@ jobs:
             pyqt6-ver: '!=6.5.1'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             python-version: '3.11'
-            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
-            pyqt6-ver: '!=6.5.1'
             # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
             pyside6-ver: '!=6.5.1'
             extra-requirements: '-r requirements/testing/extra.txt'
@@ -139,7 +137,9 @@ jobs:
               texlive-xetex \
               ttf-wqy-zenhei
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
-              sudo apt install -yy libopengl0
+              sudo apt-get install -yy libopengl0
+            else  # ubuntu-22.04
+              sudo apt-get install -yy gir1.2-gtk-4.0 libnotify4
             fi
             ;;
           macOS)
@@ -180,10 +180,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
+            3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -233,7 +233,7 @@ jobs:
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
             python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
               python -c 'import PyQt6.QtCore' &&
               echo 'PyQt6 is available' ||
