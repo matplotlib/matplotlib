@@ -2219,6 +2219,12 @@ class SubFigure(FigureBase):
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
+    def get_size_inches(self):
+        w, h = self.figure.get_size_inches()
+        figbbox = self.figure.bbox
+        return (w*self.bbox.width/figbbox.width,
+                h*self.bbox.height/figbbox.height)
+
     @property
     def dpi(self):
         return self._parent.dpi
