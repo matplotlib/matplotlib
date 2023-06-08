@@ -794,12 +794,16 @@ class RcParams(MutableMapping):
         return None if backend is rcsetup._auto_backend_sentinel else backend
 
     def __delitem__(self, key):
+        if key not in self.validate:
+            raise KeyError(
+                f"{key} is not a valid rc parameter (see rcParams.keys() for "
+                f"a list of valid parameters)")
         try:
             del self._rcvalues[key]
         except KeyError as err:
             raise KeyError(
-                f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                f"a list of valid parameters)") from err
+                f"No custom value set for {key}. Cannot delete default value."
+            ) from err
 
     def __contains__(self, key):
         return key in self._rcvalues
@@ -823,22 +827,6 @@ class RcParams(MutableMapping):
 
     def __str__(self):
         return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self._rcvalues.items())))
-
-    def pop(self, key):
-        keys, depth = self._split_key(key)
-        if depth == 1:
-            if key in self._single_key_set:
-                return self._namespace_mapping["default"][key]
-            else:
-                raise KeyError(
-                    f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                    f"a list of valid parameters)")
-        elif depth == 2:
-            return self._namespace_mapping[keys[0]].pop(keys[1])
-
-    def popitem(self):
-        raise NotImplementedError(
-            "popitem is not implemented for RcParams.")
 
     @_api.deprecated("3.8")
     def clear(self):
@@ -1037,8 +1025,8 @@ rcParams.update(rcsetup._hardcoded_defaults)
 # (resulting in a normal `#backend: foo` line) in which case we should *not*
 # fill in _auto_backend_sentinel.
 rcParams.update(_rc_params_in_file(matplotlib_fname()))
-rcParams._rcvalues = rcParams._rcvalues.new_child()
 rcParams.setdefault("backend", rcsetup._auto_backend_sentinel)
+rcParams._rcvalues = rcParams._rcvalues.new_child()
 rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
     # This also checks that all rcParams are indeed listed in the template.
