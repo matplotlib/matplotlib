@@ -150,7 +150,7 @@ The plot directive has the following configuration options:
         directive) in the intermediary rst file that is generated.
         The plot_srcset option is incompatible with *singlehtml* builds, and an
         error will be raised.
-    
+
     plot_rst_directory
         By default, the directory for RST files is automatically determined
         from the name of the Python file. This works fine with, e.g., the
@@ -765,7 +765,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     context_opt = None if not keep_context else options['context']
 
     rst_file = document.attributes['source']
-    
+
     if not config.plot_rst_directory:
         rst_dir = os.path.dirname(rst_file)
     else:
