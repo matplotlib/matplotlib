@@ -1280,10 +1280,10 @@ def test_pcolormesh():
     # The color array can include masked values:
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
 
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
-    ax1.pcolormesh(Qx, Qz, Z[:-1, :-1], lw=0.5, edgecolors='k')
-    ax2.pcolormesh(Qx, Qz, Z[:-1, :-1], lw=2, edgecolors=['b', 'w'])
-    ax3.pcolormesh(Qx, Qz, Z, shading="gouraud")
+    _, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    ax1.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=0.5, edgecolors='k')
+    ax2.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=2, edgecolors=['b', 'w'])
+    ax3.pcolormesh(Qx, Qz, Zm, shading="gouraud")
 
 
 @image_comparison(['pcolormesh_small'], extensions=["eps"])
@@ -1298,11 +1298,16 @@ def test_pcolormesh_small():
     Z = np.hypot(X, Y) / 5
     Z = (Z - Z.min()) / Z.ptp()
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
+    Zm2 = ma.masked_where(Qz < -0.5 * np.max(Qz), Z)
 
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     ax1.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=0.5, edgecolors='k')
     ax2.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=2, edgecolors=['b', 'w'])
+    # gouraud with Zm yields a blank plot; there are no unmasked triangles.
     ax3.pcolormesh(Qx, Qz, Zm, shading="gouraud")
+    # Reduce the masking to get a plot.
+    ax4.pcolormesh(Qx, Qz, Zm2, shading="gouraud")
+
     for ax in fig.axes:
         ax.set_axis_off()
 
