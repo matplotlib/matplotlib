@@ -158,7 +158,8 @@ The plot directive has the following configuration options:
         path if RST files are generated in another directory. This is the
         case if you use the ``autodoc2`` extension.
 
-        For it to work, you need to set the ``plot_rst_directory`` option to:
+        For it to work, you need to set the ``plot_rst_directory`` option
+        in ``conf.py``:
 
         .. code:: python
 
