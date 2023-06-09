@@ -164,7 +164,7 @@ The plot directive has the following configuration options:
 
             plot_rst_directory = "source/apidocs/<your_package>/"
 
-        .. node::
+        .. note::
 
             This currently only support one directory, and can cause potential
             problems if you have multiple packages documented with ``autodoc2``.
