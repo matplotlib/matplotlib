@@ -795,6 +795,7 @@ tex2uni = {
     'eth'                      : 240,
     'colon'                    : 58,
     'sqcup'                    : 8852,
+    'bigsqcup'                 : 10758,
     'rightrightarrows'         : 8649,
     'sqsupset'                 : 8848,
     'mapsto'                   : 8614,
@@ -1078,7 +1079,8 @@ tex2uni = {
     'varniobar'                : 8957,
     'niobar'                   : 8958,
     'bagmember'                : 8959,
-    'triangle'                 : 9651
+    'triangle'                 : 9651,
+    'iiiint'                   : 10764,
 }
 
 # Each element is a 4-tuple of the form:

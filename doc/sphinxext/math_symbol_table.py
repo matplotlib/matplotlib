@@ -9,28 +9,23 @@ symbols = [
      r"""\alpha \beta \gamma \chi \delta \epsilon \eta \iota \kappa
          \lambda \mu \nu \omega \phi \pi \psi \rho \sigma \tau \theta
          \upsilon \xi \zeta \digamma \varepsilon \varkappa \varphi
-         \varpi \varrho \varsigma \vartheta"""],
+         \varpi \varrho \varsigma \vartheta""".split()],
     ["Upper-case Greek",
      8,
      r"""\Delta \Gamma \Lambda \Omega \Phi \Pi \Psi \Sigma \Theta
-     \Upsilon \Xi \mho \nabla"""],
+     \Upsilon \Xi \mho \nabla""".split()],
     ["Hebrew",
      6,
-     r"""\aleph \beth \daleth \gimel"""],
+     r"""\aleph \beth \daleth \gimel""".split()],
     ["Delimiters",
      6,
-     r"""| \{ \lfloor / \Uparrow \llcorner \vert \} \rfloor \backslash
-         \uparrow \lrcorner \| \langle \lceil [ \Downarrow \ulcorner
-         \Vert \rangle \rceil ] \downarrow \urcorner"""],
+     _mathtext.Parser._delims],
     ["Big symbols",
      6,
-     r"""\bigcap \bigcup \bigodot \bigoplus \bigotimes \biguplus
-         \bigvee \bigwedge \coprod \oint \prod \sum \int"""],
+     _mathtext.Parser._overunder_symbols | _mathtext.Parser._dropsub_symbols],
     ["Standard function names",
      6,
-     r"""\arccos \csc \ker \min \arcsin \deg \lg \Pr \arctan \det \lim
-         \gcd \ln \sup \cot \hom \log \tan \coth \inf \max \tanh
-         \sec \arg \dim \liminf \sin \cos \exp \limsup \sinh \cosh"""],
+     {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
     ["Binary operation and relation symbols",
      4,
      r"""\ast \pm \slash \cap \star \mp \cup \cdot \uplus
@@ -62,7 +57,7 @@ symbols = [
      \lneqq \gneqq \ntriangleright \lnsim \gnsim \ntrianglerighteq
      \coloneq \eqsim \nequiv \napprox \nsupset \doublebarwedge \nVdash
      \Doteq \nsubset \eqcolon \ne
-     """],
+     """.split()],
     ["Arrow symbols",
      4,
      r"""\leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
@@ -85,7 +80,7 @@ symbols = [
      \nrightarrow \nLeftarrow \nRightarrow \nleftrightarrow
      \nLeftrightarrow \to \Swarrow \Searrow \Nwarrow \Nearrow
      \leftsquigarrow
-     """],
+     """.split()],
     ["Miscellaneous symbols",
      4,
      r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
@@ -95,7 +90,7 @@ symbols = [
      \hslash \vdots \blacksquare \ldots \blacktriangle \ddots \sharp
      \prime \blacktriangledown \Im \flat \backprime \Re \natural
      \circledS \P \copyright \ss \circledR \S \yen \AA \checkmark \$
-     \iiint \iint \oiiint"""]
+     \cent \triangle \QED \sinewave""".split()]
 ]
 
 
@@ -110,7 +105,7 @@ def run(state_machine):
 
     lines = []
     for category, columns, syms in symbols:
-        syms = sorted(syms.split())
+        syms = sorted(list(syms))
         columns = min(columns, len(syms))
         lines.append("**%s**" % category)
         lines.append('')
@@ -155,7 +150,6 @@ if __name__ == "__main__":
     for category, columns, syms in symbols:
         if category == "Standard Function Names":
             continue
-        syms = syms.split()
         for sym in syms:
             if len(sym) > 1:
                 all_symbols[sym[1:]] = None
