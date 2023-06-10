@@ -818,6 +818,8 @@ class Axis(martist.Artist):
             self.axes.autoscale_view(
                 **{f"scale{k}": k == name for k in self.axes._axis_names})
 
+        self.axes.callbacks.process(f"{name}scale_changed", value)
+
     def limit_range_for_scale(self, vmin, vmax):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
