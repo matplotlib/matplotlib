@@ -8,7 +8,8 @@ User guide
 
 .. grid:: 1 1 2 2
 
-   .. grid-item-card::
+   .. grid-item-card:: Starting information
+      :padding: 2
 
       .. raw:: html
 
@@ -23,36 +24,40 @@ User guide
          faq/index.rst
          resources/index.rst
 
-   .. grid-item-card::
+   .. grid-item-card:: Users guide
+      :padding: 2
 
       .. toctree::
          :maxdepth: 2
 
          explain/index.rst
 
-
-.. grid:: 1 1 2 2
-
-   .. grid-item-card::
+   .. grid-item-card:: Tutorials and examples
+      :padding: 2
 
       .. toctree::
          :maxdepth: 1
 
-         ../api/index.rst
-         ../devel/index.rst
          ../plot_types/index.rst
-         ../tutorials/index.rst
          ../gallery/index.rst
+         ../tutorials/index.rst
 
       .. raw:: html
 
          <div class="grid__intro" id="image_rotator2"></div>
 
 
-   .. grid-item-card::
+   .. grid-item-card:: More information
+      :padding: 2
+
+      .. toctree::
+         :maxdepth: 1
+
+         Reference <../api/index.rst>
+         Contribute <../devel/index.rst>
+         Releases <release_notes.rst>
 
       .. toctree::
          :maxdepth: 2
 
-         release_notes.rst
          project/index.rst
