@@ -1,16 +1,16 @@
 """
-================================================
-Let twin-axis aligned at the specified positions
-================================================
+===============================================
+Let twin-axis aligned at the specified position
+===============================================
 
-Let the left-axis and right-axis aligned at the specified positions.
+Let the left-axis and right-axis aligned at the specified position.
 
 In some data that need twin-axis plot, a point at left-axis and
 another point at right-axis have same meaning, they shoud be aligned.
 For example, we plot netvalue curve of a portfolio at twin-left-axis
 and profit raito curve at twin-right-axis, the point 1.0 at the
 left-axis and the point 0.0 at the right-axis both mean the begin
-state or the portifolio, so the should be aligned.
+state of the portifolio, so they should be aligned.
 """
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -58,19 +58,37 @@ def twinxalign(ax_left, ax_right, v_left, v_right):
     return ax_left, ax_right
 
 
-plt.figure(figsize=(10, 7))
-ax1 = plt.subplot(111)
-ax1.plot(df["value_net"], "-k")
-ax1.axhline(1, c="k", lw=1, ls="--")
-ax1.set_ylabel("NetValue(black)", fontsize=16)
-ax2 = ax1.twinx()
-ax2.plot(df["gain_pct"], "-b")
-ax2.axhline(0, c="r", lw=1, ls="--")
-ax2.set_ylabel("GainPct(blue)", fontsize=16)
-twinxalign(ax1, ax2, 1, 0)
-plt.title("align left-axis 1 with right-axis 0", fontsize=16)
-plt.show()
+def general_plot():
+    plt.figure(figsize=(10, 7))
+    ax1 = plt.subplot(111)
+    ax1.plot(df["value_net"], "-k")
+    ax1.axhline(1, c="k", lw=1, ls="--")
+    ax1.set_ylabel("NetValue(black)", fontsize=16)
+    ax2 = ax1.twinx()
+    ax2.plot(df["gain_pct"], "-b")
+    ax2.axhline(0, c="r", lw=1, ls="--")
+    ax2.set_ylabel("GainPct(blue)", fontsize=16)
+    plt.title("no align plot", fontsize=16)
+    plt.show()
 
+
+def twinx_align_plot():
+    plt.figure(figsize=(10, 7))
+    ax1 = plt.subplot(111)
+    ax1.plot(df["value_net"], "-k")
+    ax1.axhline(1, c="k", lw=1, ls="--")
+    ax1.set_ylabel("NetValue(black)", fontsize=16)
+    ax2 = ax1.twinx()
+    ax2.plot(df["gain_pct"], "-b")
+    ax2.axhline(0, c="r", lw=1, ls="--")
+    ax2.set_ylabel("GainPct(blue)", fontsize=16)
+    twinxalign(ax1, ax2, 1, 0)
+    plt.title("align left-axis 1 with right-axis 0", fontsize=16)
+    plt.show()
+
+
+general_plot()
+twinx_align_plot()
 
 
 
