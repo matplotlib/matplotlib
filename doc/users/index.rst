@@ -13,26 +13,38 @@ User guide
 
       .. plot::
 
-         x = np.linspace(0, 2, 100)  # Sample data.
-
+         rng = np.random.default_rng(seed=19680808)
+         x = np.linspace(0, 4, 1000)  # Sample data.
+         y = rng.normal(size=len(x)) * 1.5 + x**2 + np.cumsum(rng.normal(size=len(x))) / 6
+         x = x[::10]
+         y = y[::10]
          fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
-         ax.scatter(x, np.random.randn(len(x)) + x**2,
-                    s=13 * np.random.rand(len(x)), c=np.random.randn(len(x)),
-                    label='noisy data')
-         ax.plot(x, x, label='linear')  # Plot some data on the axes.
-         ax.plot(x, x**2, label='quadratic')  # Plot more data on the axes...
-         ax.plot(x, x**3, label='cubic')  # ... and some more.
-         ax.set_xlabel('x label')  # Add an x-label to the axes.
-         ax.set_ylabel('y label')  # Add a y-label to the axes.
-         ax.set_title("Simple plot")  # Add a title to the axes.
-         ax.legend()  # Add a legend.
+
+         ax.plot(x, x**2, label='underlying data', linewidth=4, alpha=0.6, color='k')
+         ax.scatter(x, y, s=13 * rng.random(size=len(x)), c=rng.normal(size=len(x)),
+               label='noisy data')
+         # p = np.polyfit(x, y, deg=1)
+         # print(p)
+         p = np.array([ 3.81283983, -2.00111268])
+         out = np.polyval(p, x)
+         ax.plot(x, out, label='linear fit')  # Plot some data on the axes.
+         # p = np.polyfit(x, y, deg=2)
+         # print(p)
+         p = np.array([ 1.18076933, -0.86768725,  1.05989268])
+         out = np.polyval(p, x)
+         ax.plot(x, out, label='quadratic fit')
+         ax.set_xlabel('x label')
+         ax.set_ylabel('y label')
+         ax.set_title("Simple plot")
+         ax.legend()
+
 
       .. toctree::
          :maxdepth: 1
 
          getting_started/index.rst
          installing/index.rst
-         faq/index.rst
+         FAQ: How-to and troubleshooting <faq/index.rst>
 
    .. grid-item-card:: Users guide
       :padding: 2
