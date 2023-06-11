@@ -7,35 +7,50 @@
 User guide
 ##########
 
-General
-#######
+
+.. grid:: 1 1 2 2
+
+   .. grid-item-card::
+
+      .. toctree::
+         :maxdepth: 1
+
+         getting_started/index.rst
+         installing/index.rst
+         faq/index.rst
+         resources/index.rst
+
+   .. grid-item-card::
+
+      .. toctree::
+         :maxdepth: 1
+
+         ../api/index.rst
+         ../devel/index.rst
+         ../plot_types/index.rst
+         ../tutorials/index.rst
+         ../gallery/index.rst
+
+
 
 .. toctree::
-   :maxdepth: 2
-
-   getting_started/index.rst
-   installing/index.rst
-   explain/index.rst
-   faq/index.rst
-   resources/index.rst
-
-Tutorials and examples
-######################
-
-.. toctree::
+   :hidden:
    :maxdepth: 1
 
-   ../plot_types/index.rst
-   ../tutorials/index.rst
-   ../gallery/index.rst
 
-Reference
-#########
+.. grid:: 1 1 2 2
 
-.. toctree::
-   :maxdepth: 2
+   .. grid-item-card::
 
-   ../api/index.rst
-   ../devel/index.rst
-   project/index.rst
-   release_notes.rst
+      .. toctree::
+         :maxdepth: 2
+
+         explain/index.rst
+
+   .. grid-item-card::
+
+      .. toctree::
+         :maxdepth: 2
+
+         release_notes.rst
+         project/index.rst
