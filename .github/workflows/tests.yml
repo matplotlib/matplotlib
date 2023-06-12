@@ -259,7 +259,7 @@ jobs:
         run: |
           python -m pip install pytz  # Must be installed for Pandas.
           python -m pip install \
-            --index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
 
       - name: Install Matplotlib
