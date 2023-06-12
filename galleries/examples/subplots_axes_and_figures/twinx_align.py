@@ -12,20 +12,17 @@ and profit raito curve at twin-right-axis, the point 1.0 at the
 left-axis and the point 0.0 at the right-axis both mean the begin
 state of the portifolio, so they should be aligned.
 """
-import pandas as pd
+import numpy as np
 from matplotlib import pyplot as plt
 
 
 # Sim data
-net_in = [100, 0, 0, 0, 20, 0, 0, 0, 0, -20, 
-          0, 0, 30, 0, 0, 0, 0, 0, -30, 0]
-net_gain= [0, -2, -3, 5, 2, 3, 4, 5, 5, -1,
-           -4, -10, 2, 5, 9, 6, 0, 1, -1, 9]
-df = pd.DataFrame({"net_in": net_in, "net_gain": net_gain})
-df["total_in"] = df["net_in"].cumsum()
-df["value"] = df["total_in"] + df["net_gain"].cumsum()
-df["value_net"] = df["value"] / df["value"].iloc[0] 
-df["gain_pct"] = df["value"] / df["total_in"] - 1 
+net_value = np.array([1.0, 0.98, 0.95, 1.0, 1.22, 1.25, 1.29, 1.34,
+                      1.39, 1.18, 1.14, 1.04, 1.36, 1.41, 1.5, 1.56,
+                      1.56, 1.57, 1.26, 1.35])
+gain_pct = np.array([0.0, -0.02, -0.05, 0.0, 0.02, 0.04, 0.07,
+                     0.12, 0.16, 0.18, 0.14, 0.04, 0.05, 0.08,
+                     0.15, 0.2, 0.2, 0.21, 0.26, 0.35])
 
 
 def twinxalign(ax_left, ax_right, v_left, v_right):
@@ -48,48 +45,29 @@ def twinxalign(ax_left, ax_right, v_left, v_right):
         right_max_new = ((left_max-dif) - b) / k
         k_new = (left_max-v_left) / (right_max_new-v_right)
         b_new = v_left - k_new * v_right
-        right_min_new = (left_min - b_new) / k_new    
-    def _forward(x):
-        return k_new * x + b_new
-    def _inverse(x):
-        return (x - b_new) / k_new
+        right_min_new = (left_min - b_new) / k_new
     ax_right.set_ylim([right_min_new, right_max_new])
-    ax_right.set_yscale("function", functions=(_forward, _inverse))
     return ax_left, ax_right
 
 
-def general_plot():
+def plot_example(align=False):
+    """plot sim data"""
     plt.figure(figsize=(10, 7))
     ax1 = plt.subplot(111)
-    ax1.plot(df["value_net"], "-k")
+    ax1.plot(net_value, "-k")
     ax1.axhline(1, c="k", lw=1, ls="--")
     ax1.set_ylabel("NetValue(black)", fontsize=16)
     ax2 = ax1.twinx()
-    ax2.plot(df["gain_pct"], "-b")
+    ax2.plot(gain_pct, "-b")
     ax2.axhline(0, c="r", lw=1, ls="--")
     ax2.set_ylabel("GainPct(blue)", fontsize=16)
-    plt.title("no align plot", fontsize=16)
+    if align:
+        twinxalign(ax1, ax2, 1, 0)
+        plt.title("aligned", fontsize=16)
+    else:
+        plt.title("not align", fontsize=16)
     plt.show()
 
 
-def twinx_align_plot():
-    plt.figure(figsize=(10, 7))
-    ax1 = plt.subplot(111)
-    ax1.plot(df["value_net"], "-k")
-    ax1.axhline(1, c="k", lw=1, ls="--")
-    ax1.set_ylabel("NetValue(black)", fontsize=16)
-    ax2 = ax1.twinx()
-    ax2.plot(df["gain_pct"], "-b")
-    ax2.axhline(0, c="r", lw=1, ls="--")
-    ax2.set_ylabel("GainPct(blue)", fontsize=16)
-    twinxalign(ax1, ax2, 1, 0)
-    plt.title("align left-axis 1 with right-axis 0", fontsize=16)
-    plt.show()
-
-
-general_plot()
-twinx_align_plot()
-
-
-
-
+plot_example()
+plot_example(align=True)
