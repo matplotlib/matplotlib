@@ -13,8 +13,8 @@ left-axis and the point 0.0 at the right-axis both mean the begin
 state of the portifolio, so they should be aligned.
 """
 import numpy as np
-from matplotlib import pyplot as plt
 
+from matplotlib import pyplot as plt
 
 # Sim data
 net_value = np.array([1.0, 0.98, 0.95, 1.0, 1.22, 1.25, 1.29, 1.34,
