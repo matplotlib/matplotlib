@@ -1662,6 +1662,37 @@ class Ellipse(Patch):
         return self.get_patch_transform().transform(
             [(-1, -1), (1, -1), (1, 1), (-1, 1)])
 
+    def _calculate_length_between_points(self, x0, y0, x1, y1):
+        return np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
+
+    def get_vertices(self):
+        """
+        Return the vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        else:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        return [tuple(x) for x in ret]
+
+    def get_co_vertices(self):
+        """
+        Return the co-vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        else:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        return [tuple(x) for x in ret]
+
 
 class Annulus(Patch):
     """
