@@ -6,7 +6,7 @@ Let twin-axis aligned at the specified position
 Let the left-axis and right-axis aligned at the specified position.
 
 In some data that need twin-axis plot, a point at left-axis and
-another point at right-axis have same meaning, they shoud be aligned.
+another point at right-axis have same meaning, they should be aligned.
 For example, we plot netvalue curve of a portfolio at twin-left-axis
 and profit raito curve at twin-right-axis, the point 1.0 at the
 left-axis and the point 0.0 at the right-axis both mean the begin
