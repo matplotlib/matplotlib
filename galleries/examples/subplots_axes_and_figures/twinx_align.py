@@ -12,9 +12,9 @@ and profit raito curve at twin-right-axis, the point 1.0 at the
 left-axis and the point 0.0 at the right-axis both mean the begin
 state of the portifolio, so they should be aligned.
 """
-import numpy as np
 
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import numpy as np
 
 # Sim data
 net_value = np.array([1.0, 0.98, 0.95, 1.0, 1.22, 1.25, 1.29, 1.34,
@@ -51,7 +51,7 @@ def twinxalign(ax_left, ax_right, v_left, v_right):
 
 
 def plot_example(align=False):
-    """plot sim data"""
+    """Plot sim data"""
     plt.figure(figsize=(10, 7))
     ax1 = plt.subplot(111)
     ax1.plot(net_value, "-k")
