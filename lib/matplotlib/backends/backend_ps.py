@@ -424,30 +424,41 @@ newpath
             clip.append(f"{custom_clip_cmd}\n")
         return "".join(clip)
 
+    def option_true_bbox_image(self):
+        return True
+
     @_log_if_debug_on
-    def draw_image(self, gc, x, y, im, transform=None):
+    def draw_image(self, gc, x, y, im, transform=None, true_size=None):
         # docstring inherited
 
         h, w = im.shape[:2]
+
+        if h == 0 or w == 0:
+            return
+
         imagecmd = "false 3 colorimage"
         data = im[::-1, :, :3]  # Vertically flipped rgb values.
         hexdata = data.tobytes().hex("\n", -64)  # Linewrap to 128 chars.
 
         if transform is None:
             matrix = "1 0 0 1 0 0"
-            xscale = w / self.image_magnification
-            yscale = h / self.image_magnification
+            if true_size is None:
+                xscale = w / self.image_magnification
+                yscale = h / self.image_magnification
+            else:
+                xscale = true_size[0]
+                yscale = true_size[1]
         else:
-            matrix = " ".join(map(str, transform.frozen().to_values()))
             xscale = 1.0
             yscale = 1.0
+            matrix = " ".join(map(str, transform.frozen().to_values()))
 
         self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
-{x:g} {y:g} translate
+{x:.2f} {y:.2f} translate
 [{matrix}] concat
-{xscale:g} {yscale:g} scale
+{xscale:.2f} {yscale:.2f} scale
 /DataString {w:d} string def
 {w:d} {h:d} 8 [ {w:d} 0 0 -{h:d} 0 {h:d} ]
 {{

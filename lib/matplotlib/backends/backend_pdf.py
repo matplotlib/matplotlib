@@ -1981,12 +1981,18 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def get_image_magnification(self):
         return self.image_dpi/72.0
 
-    def draw_image(self, gc, x, y, im, transform=None):
+    def option_true_bbox_image(self):
+        return True
+
+    def draw_image(self, gc, x, y, im, transform=None, true_size=None):
         # docstring inherited
 
         h, w = im.shape[:2]
         if w == 0 or h == 0:
             return
+
+        if true_size is not None:
+            w, h = true_size
 
         if transform is None:
             # If there's no transform, alpha has already been applied
@@ -1994,8 +2000,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         self.check_gc(gc)
 
-        w = 72.0 * w / self.image_dpi
-        h = 72.0 * h / self.image_dpi
+        if true_size is None:
+            w = 72.0 * w / self.image_dpi
+            h = 72.0 * h / self.image_dpi
 
         imob = self.file.imageObject(im)
 

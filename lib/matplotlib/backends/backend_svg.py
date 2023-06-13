@@ -915,10 +915,13 @@ class RendererSVG(RendererBase):
         # docstring inherited
         return True
 
+    def option_true_bbox_image(self):
+        return True
+
     def get_image_magnification(self):
         return self.image_dpi / 72.0
 
-    def draw_image(self, gc, x, y, im, transform=None):
+    def draw_image(self, gc, x, y, im, transform=None, true_size=None):
         # docstring inherited
 
         h, w = im.shape[:2]
@@ -960,12 +963,28 @@ class RendererSVG(RendererBase):
             w = 72.0 * w / self.image_dpi
             h = 72.0 * h / self.image_dpi
 
+            if true_size is not None:
+                width, height = true_size
+                # because rasterization happens only for integer pixels, the
+                # round-trip width w = # int(width/72*image_dpi)*72/image_dpi
+                # need not match the "real" width
+                scale_x = width/w
+                scale_y = height/h
+                real_h = height
+            else:
+                scale_x = 1
+                scale_y = 1
+                real_h = h
+
             self.writer.element(
                 'image',
                 transform=_generate_transform([
-                    ('scale', (1, -1)), ('translate', (0, -h))]),
+                    ('translate',
+                     (x*(1 - scale_x), y*(1 - scale_y) + real_h)),
+                    ('scale', (scale_x, -scale_y))
+                ]),
                 x=_short_float_fmt(x),
-                y=_short_float_fmt(-(self.height - y - h)),
+                y=_short_float_fmt(-(self.height - y - real_h)),
                 width=_short_float_fmt(w), height=_short_float_fmt(h),
                 attrib=attrib)
         else:

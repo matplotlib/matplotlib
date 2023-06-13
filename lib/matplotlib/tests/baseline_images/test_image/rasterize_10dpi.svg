@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.org/) -->
+<!-- Created with matplotlib (https://matplotlib.org/) -->
 <svg height="72pt" version="1.1" viewBox="0 0 216 72" width="216pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -26,9 +26,9 @@ L 27 11.742353
 z
 " style="fill:#ffffff;"/>
    </g>
-   <g clip-path="url(#p8508da2591)">
-    <image height="50.4" id="image271ed3a4fb" transform="scale(1 -1)translate(0 -50.4)" width="50.4" x="27" xlink:href="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAABHNCSVQICAgIfAhkiAAAACdJREFUCJljNN1e8Z8BCk4YrGFABkwMeAD5kowujCFwO9+kWVLJWAAQpwc3TBJsUAAAAABJRU5ErkJggg==" y="-10.577647"/>
+   <g clip-path="url(#p42a669232d)">
+    <image height="50.4" id="image9064811d50" transform="translate(0 50.4)scale(1 -1)" width="50.4" x="27" xlink:href="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAJ0lEQVR4nGM03V7xnwEKThisYUAGTAx4APmSjC6MIXA736RZUslYABCnBzcAKyGbAAAAAElFTkSuQmCC" y="-10.577647"/>
    </g>
    <g id="matplotlib.axis_1"/>
    <g id="matplotlib.axis_2"/>
@@ -44,8 +44,8 @@ z
    </g>
    <g id="matplotlib.axis_3"/>
    <g id="matplotlib.axis_4"/>
-   <image height="43.2" id="image1a04ba45e5" transform="scale(1 -1)translate(0 -43.2)" width="50.4" x="86.4" xlink:href="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAABHNCSVQICAgIfAhkiAAAAGRJREFUCJldybENglAUQNHzHEQo3ILSkhWMugWMwBJEElaAztgxBglO8i30G+Mtz42imXrcsGxdnfwURTNlWDFg3Lr6+T9zCQ8MO5xw/yAEjhgjpbeV7bzHGRcc4DtzZTsHKlxfkMke1VjXFTwAAAAASUVORK5CYII=" y="-14.4"/>
+   <image height="43.2" id="image9c1cebf19b" transform="translate(1.989298 33.586667)scale(0.976891 -0.427778)" width="50.4" x="86.082353" xlink:href="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAAcAAAAGCAYAAAAPDoR2AAAAZElEQVR4nF3JsQ2CUBRA0fMcRCjcgtKSFYy6BYzAEkQSVoDO2DEGCU7yLfQb4y3PjaKZetywbF2d/BRFM2VYMWDcuvr5P3MJDww7nHD/IASOGCOlt5XtvMcZFxzgO3NlOwcqXF+QyR7VQm1NWAAAAABJRU5ErkJggg==" y="-27.12"/>
   </g>
   <g id="axes_3">
    <g id="patch_4">
@@ -59,17 +59,17 @@ z
    <g id="matplotlib.axis_5"/>
    <g id="matplotlib.axis_6"/>
    <g id="line2d_1">
-    <path clip-path="url(#p21fb5c1da8)" d="M 145.164706 45.6 
+    <path clip-path="url(#p9df65864ac)" d="M 145.164706 45.6 
 L 194.4 27.12 
 " style="fill:none;stroke:#1f77b4;stroke-linecap:square;stroke-width:20;"/>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="p8508da2591">
+  <clipPath id="p42a669232d">
    <rect height="49.235294" width="49.235294" x="27" y="11.742353"/>
   </clipPath>
-  <clipPath id="p21fb5c1da8">
+  <clipPath id="p9df65864ac">
    <rect height="55.44" width="49.235294" x="145.164706" y="8.64"/>
   </clipPath>
  </defs>

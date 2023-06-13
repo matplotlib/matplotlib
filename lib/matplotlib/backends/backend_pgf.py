@@ -605,12 +605,18 @@ class RendererPgf(RendererBase):
         # docstring inherited
         return not mpl.rcParams['image.composite_image']
 
-    def draw_image(self, gc, x, y, im, transform=None):
+    def option_true_bbox_image(self):
+        return True
+
+    def draw_image(self, gc, x, y, im, transform=None, true_size=None):
         # docstring inherited
 
         h, w = im.shape[:2]
         if w == 0 or h == 0:
             return
+
+        if true_size is not None:
+            w, h = true_size
 
         if not os.path.exists(getattr(self.fh, "name", "")):
             raise ValueError(
