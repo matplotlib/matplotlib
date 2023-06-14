@@ -139,19 +139,24 @@ class Tick(martist.Artist):
                 zorder = mlines.Line2D.zorder
         self._zorder = zorder
 
+        if major:
+            grid_name = "grid"
+        else:
+            grid_name = "grid.minor"
+
         if grid_color is None:
-            grid_color = mpl.rcParams["grid.color"]
+            grid_color = mpl.rcParams[f"{grid_name}.color"]
         if grid_linestyle is None:
-            grid_linestyle = mpl.rcParams["grid.linestyle"]
+            grid_linestyle = mpl.rcParams[f"{grid_name}.linestyle"]
         if grid_linewidth is None:
-            grid_linewidth = mpl.rcParams["grid.linewidth"]
+            grid_linewidth = mpl.rcParams[f"{grid_name}.linewidth"]
         if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
             # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
             # Note: only resolve to rcParams if the color does not have alpha
             # otherwise `grid(color=(1, 1, 1, 0.5))` would work like
             #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
             # so the that the rcParams default would override color alpha.
-            grid_alpha = mpl.rcParams["grid.alpha"]
+            grid_alpha = mpl.rcParams[f"{grid_name}.alpha"]
         grid_kw = {k[5:]: v for k, v in kwargs.items()}
 
         self.tick1line = mlines.Line2D(

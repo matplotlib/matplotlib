@@ -1154,6 +1154,11 @@ _validators = {
     "grid.linewidth":    validate_float,     # in points
     "grid.alpha":        validate_float,
 
+    "grid.minor.color":        validate_color,  # minor grid color
+    "grid.minor.linestyle":    _validate_linestyle,  # solid
+    "grid.minor.linewidth":    validate_float,     # in points
+    "grid.minor.alpha":        validate_float,
+
     ## figure props
     # figure title
     "figure.titlesize":   validate_fontsize,
