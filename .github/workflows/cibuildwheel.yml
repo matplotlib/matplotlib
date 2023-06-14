@@ -118,7 +118,7 @@ jobs:
           - os: ubuntu-20.04
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "auto"
+            cibw_archs: "auto64"
           - os: macos-11
             cibw_archs: "x86_64 universal2 arm64"
 

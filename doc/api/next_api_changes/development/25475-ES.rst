@@ -1,5 +1,5 @@
-Wheels for 32-bit Linux are no longer distributed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Wheels for 32-bit systems are no longer distributed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pre-compiled wheels for 32-bit Linux are no longer provided on PyPI since
-Matplotlib 3.8.
+Pre-compiled wheels for 32-bit Linux and Windows are no longer provided on PyPI
+since Matplotlib 3.8.
