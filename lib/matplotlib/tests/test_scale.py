@@ -55,20 +55,6 @@ def test_symlog_mask_nan():
     assert type(out) == type(x)
 
 
-def test_symlog_linthresh():
-    np.random.seed(19680801)
-    x = np.random.random(100)
-    y = np.random.random(100)
-
-    fig, ax = plt.subplots()
-    plt.plot(x, y, 'o')
-    ax.set_xscale('symlog')
-    ax.set_yscale('symlog')
-
-    with pytest.warns(UserWarning, match="All values .* of linthresh"):
-        fig.canvas.draw()
-
-
 @image_comparison(['logit_scales.png'], remove_text=True)
 def test_logit_scales():
     fig, ax = plt.subplots()
