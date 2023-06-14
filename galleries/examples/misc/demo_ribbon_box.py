@@ -86,7 +86,7 @@ def main():
     background_gradient[:, :, :3] = [1, 1, 0]
     background_gradient[:, :, 3] = [[0.1, 0.3], [0.3, 0.5]]  # alpha channel
     ax.imshow(background_gradient, interpolation="bicubic", zorder=0.1,
-              extent=(0, 1, 0, 1), transform=ax.transAxes, aspect="auto")
+              extent=(0, 1, 0, 1), transform=ax.transAxes)
 
     plt.show()
 
