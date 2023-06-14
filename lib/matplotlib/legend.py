@@ -178,8 +178,10 @@ fancybox : bool, default: :rc:`legend.fancybox`
     Whether round edges should be enabled around the `.FancyBboxPatch` which
     makes up the legend's background.
 
-shadow : bool, default: :rc:`legend.shadow`
+shadow : None, bool or dict, default: :rc:`legend.shadow`
     Whether to draw a shadow behind the legend.
+    The shadow can be configured using `.Patch` keywords.
+    Customization via :rc:`legend.shadow` is currently not supported.
 
 framealpha : float, default: :rc:`legend.framealpha`
     The alpha transparency of the legend's background.
@@ -558,6 +560,22 @@ class Legend(Artist):
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
 
+        # Figure out if self.shadow is valid
+        # If shadow was None, rcParams loads False
+        # So it shouldn't be None here
+
+        self._shadow_props = {'ox': 2, 'oy': -2}  # default location offsets
+        if isinstance(self.shadow, dict):
+            self._shadow_props.update(self.shadow)
+            self.shadow = True
+        elif self.shadow in (0, 1, True, False):
+            self.shadow = bool(self.shadow)
+        else:
+            raise ValueError(
+                'Legend shadow must be a dict or bool, not '
+                f'{self.shadow!r} of type {type(self.shadow)}.'
+            )
+
         # We use FancyBboxPatch to draw a legend frame. The location
         # and size of the box will be updated during the drawing time.
 
@@ -743,8 +761,11 @@ class Legend(Artist):
         self.legendPatch.set_bounds(bbox.bounds)
         self.legendPatch.set_mutation_scale(fontsize)
 
+        # self.shadow is validated in __init__
+        # So by here it is a bool and self._shadow_props contains any configs
+
         if self.shadow:
-            Shadow(self.legendPatch, 2, -2).draw(renderer)
+            Shadow(self.legendPatch, **self._shadow_props).draw(renderer)
 
         self.legendPatch.draw(renderer)
         self._legend_box.draw(renderer)

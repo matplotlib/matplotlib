@@ -1078,6 +1078,7 @@ _validators = {
     "legend.labelcolor":     _validate_color_or_linecolor,
     # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
+    # using dict in rcParams not yet supported, so make sure it is bool
     "legend.shadow":         validate_bool,
     # whether or not to draw a frame around legend
     "legend.frameon":        validate_bool,

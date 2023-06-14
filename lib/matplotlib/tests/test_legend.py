@@ -663,6 +663,38 @@ def test_empty_bar_chart_with_legend():
     plt.legend()
 
 
+@image_comparison(['shadow_argument_types.png'], remove_text=True,
+                  style='mpl20')
+def test_shadow_argument_types():
+    # Test that different arguments for shadow work as expected
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], label='test')
+
+    # Test various shadow configurations
+    # as well as different ways of specifying colors
+    legs = (ax.legend(loc='upper left', shadow=True),    # True
+            ax.legend(loc='upper right', shadow=False),  # False
+            ax.legend(loc='center left',                 # string
+                      shadow={'color': 'red', 'alpha': 0.1}),
+            ax.legend(loc='center right',                # tuple
+                      shadow={'color': (0.1, 0.2, 0.5), 'oy': -5}),
+            ax.legend(loc='lower left',                   # tab
+                      shadow={'color': 'tab:cyan', 'ox': 10})
+            )
+    for l in legs:
+        ax.add_artist(l)
+    ax.legend(loc='lower right')  # default
+
+
+def test_shadow_invalid_argument():
+    # Test if invalid argument to legend shadow
+    # (i.e. not [color|bool]) raises ValueError
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], label='test')
+    with pytest.raises(ValueError, match="dict or bool"):
+        ax.legend(loc="upper left", shadow="aardvark")  # Bad argument
+
+
 def test_shadow_framealpha():
     # Test if framealpha is activated when shadow is True
     # and framealpha is not explicitly passed'''
