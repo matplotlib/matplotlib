@@ -70,7 +70,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--libpath",
         help="Relative path to package source.",
-        default="",
+        default="lib",
         required=False,
     )
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         "fname", type=str, help="The (relative) name of the file to version rev."
     )
 
-    # create the parser for the "add" command
+    # create the parser for the "validate" command
     parser_add = subparsers.add_parser("validate", help="Check if the baseline dir .")
     parser_add.add_argument(
         "package", type=str, help="The dotted name of the test (sub-)package."
