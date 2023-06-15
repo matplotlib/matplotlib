@@ -991,7 +991,7 @@ def test_text_annotation_get_window_extent():
     renderer = RendererAgg(200, 200, 100)
 
     # Only text annotation
-    annotation = Annotation('test', xy=(0, 0))
+    annotation = Annotation('test', xy=(0, 0), xycoords='figure pixels')
     annotation.set_figure(figure)
 
     text = Text(text='test', x=0, y=0)
