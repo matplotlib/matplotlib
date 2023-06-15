@@ -307,10 +307,10 @@ jobs:
 
       - name: Filter C coverage
         run: |
-          lcov --capture --directory . --output-file coverage.info
-          lcov --output-file coverage.info \
+          lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.info
+          lcov --rc lcov_branch_coverage=1 --output-file coverage.info \
             --extract coverage.info $PWD/src/'*' $PWD/lib/'*'
-          lcov --list coverage.info
+          lcov --rc lcov_branch_coverage=1 --list coverage.info
           find . -name '*.gc*' -delete
         if: ${{ runner.os != 'macOS' }}
       - name: Upload code coverage
