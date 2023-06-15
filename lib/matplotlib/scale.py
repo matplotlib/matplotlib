@@ -393,11 +393,6 @@ class InvertedSymmetricalLogTransform(Transform):
     @_api.rename_parameter("3.8", "a", "values")
     def transform_non_affine(self, values):
         abs_a = np.abs(values)
-        if (abs_a < self.linthresh).all():
-            _api.warn_external(
-                "All values for SymLogScale are below linthresh, making "
-                "it effectively linear. You likely should lower the value "
-                "of linthresh. ")
         with np.errstate(divide="ignore", invalid="ignore"):
             out = np.sign(values) * self.linthresh * (
                 np.power(self.base,
