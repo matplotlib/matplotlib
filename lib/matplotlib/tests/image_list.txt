@@ -1010,9 +1010,6 @@ test_mathtext/mathtext_cm_20.svg:0:0
 test_mathtext/mathtext_cm_21.pdf:0:0
 test_mathtext/mathtext_cm_21.png:0:0
 test_mathtext/mathtext_cm_21.svg:0:0
-test_mathtext/mathtext_cm_22.pdf:0:0
-test_mathtext/mathtext_cm_22.png:0:0
-test_mathtext/mathtext_cm_22.svg:0:0
 test_mathtext/mathtext_cm_23.pdf:0:0
 test_mathtext/mathtext_cm_23.png:0:0
 test_mathtext/mathtext_cm_23.svg:0:0
@@ -1043,9 +1040,6 @@ test_mathtext/mathtext_cm_32.svg:0:0
 test_mathtext/mathtext_cm_33.pdf:0:0
 test_mathtext/mathtext_cm_33.png:0:0
 test_mathtext/mathtext_cm_33.svg:0:0
-test_mathtext/mathtext_cm_34.pdf:0:0
-test_mathtext/mathtext_cm_34.png:0:0
-test_mathtext/mathtext_cm_34.svg:0:0
 test_mathtext/mathtext_cm_35.pdf:0:0
 test_mathtext/mathtext_cm_35.png:0:0
 test_mathtext/mathtext_cm_35.svg:0:0
@@ -1139,9 +1133,6 @@ test_mathtext/mathtext_cm_64.svg:0:0
 test_mathtext/mathtext_cm_65.pdf:0:0
 test_mathtext/mathtext_cm_65.png:0:0
 test_mathtext/mathtext_cm_65.svg:0:0
-test_mathtext/mathtext_cm_67.pdf:0:0
-test_mathtext/mathtext_cm_67.png:0:0
-test_mathtext/mathtext_cm_67.svg:0:0
 test_mathtext/mathtext_cm_68.pdf:0:0
 test_mathtext/mathtext_cm_68.png:0:0
 test_mathtext/mathtext_cm_68.svg:0:0
@@ -1250,9 +1241,6 @@ test_mathtext/mathtext_dejavusans_20.svg:0:0
 test_mathtext/mathtext_dejavusans_21.pdf:0:0
 test_mathtext/mathtext_dejavusans_21.png:0:0
 test_mathtext/mathtext_dejavusans_21.svg:0:0
-test_mathtext/mathtext_dejavusans_22.pdf:0:0
-test_mathtext/mathtext_dejavusans_22.png:0:0
-test_mathtext/mathtext_dejavusans_22.svg:0:0
 test_mathtext/mathtext_dejavusans_23.pdf:0:0
 test_mathtext/mathtext_dejavusans_23.png:0:0
 test_mathtext/mathtext_dejavusans_23.svg:0:0
@@ -1283,9 +1271,6 @@ test_mathtext/mathtext_dejavusans_32.svg:0:0
 test_mathtext/mathtext_dejavusans_33.pdf:0:0
 test_mathtext/mathtext_dejavusans_33.png:0:0
 test_mathtext/mathtext_dejavusans_33.svg:0:0
-test_mathtext/mathtext_dejavusans_34.pdf:0:0
-test_mathtext/mathtext_dejavusans_34.png:0:0
-test_mathtext/mathtext_dejavusans_34.svg:0:0
 test_mathtext/mathtext_dejavusans_35.pdf:0:0
 test_mathtext/mathtext_dejavusans_35.png:0:0
 test_mathtext/mathtext_dejavusans_35.svg:0:0
@@ -1379,9 +1364,6 @@ test_mathtext/mathtext_dejavusans_64.svg:0:0
 test_mathtext/mathtext_dejavusans_65.pdf:0:0
 test_mathtext/mathtext_dejavusans_65.png:0:0
 test_mathtext/mathtext_dejavusans_65.svg:0:0
-test_mathtext/mathtext_dejavusans_67.pdf:0:0
-test_mathtext/mathtext_dejavusans_67.png:0:0
-test_mathtext/mathtext_dejavusans_67.svg:0:0
 test_mathtext/mathtext_dejavusans_68.pdf:0:0
 test_mathtext/mathtext_dejavusans_68.png:0:0
 test_mathtext/mathtext_dejavusans_68.svg:0:0
@@ -1490,9 +1472,6 @@ test_mathtext/mathtext_dejavuserif_20.svg:0:0
 test_mathtext/mathtext_dejavuserif_21.pdf:0:0
 test_mathtext/mathtext_dejavuserif_21.png:0:0
 test_mathtext/mathtext_dejavuserif_21.svg:0:0
-test_mathtext/mathtext_dejavuserif_22.pdf:0:0
-test_mathtext/mathtext_dejavuserif_22.png:0:0
-test_mathtext/mathtext_dejavuserif_22.svg:0:0
 test_mathtext/mathtext_dejavuserif_23.pdf:0:0
 test_mathtext/mathtext_dejavuserif_23.png:0:0
 test_mathtext/mathtext_dejavuserif_23.svg:0:0
@@ -1523,9 +1502,6 @@ test_mathtext/mathtext_dejavuserif_32.svg:0:0
 test_mathtext/mathtext_dejavuserif_33.pdf:0:0
 test_mathtext/mathtext_dejavuserif_33.png:0:0
 test_mathtext/mathtext_dejavuserif_33.svg:0:0
-test_mathtext/mathtext_dejavuserif_34.pdf:0:0
-test_mathtext/mathtext_dejavuserif_34.png:0:0
-test_mathtext/mathtext_dejavuserif_34.svg:0:0
 test_mathtext/mathtext_dejavuserif_35.pdf:0:0
 test_mathtext/mathtext_dejavuserif_35.png:0:0
 test_mathtext/mathtext_dejavuserif_35.svg:0:0
@@ -1619,9 +1595,6 @@ test_mathtext/mathtext_dejavuserif_64.svg:0:0
 test_mathtext/mathtext_dejavuserif_65.pdf:0:0
 test_mathtext/mathtext_dejavuserif_65.png:0:0
 test_mathtext/mathtext_dejavuserif_65.svg:0:0
-test_mathtext/mathtext_dejavuserif_67.pdf:0:0
-test_mathtext/mathtext_dejavuserif_67.png:0:0
-test_mathtext/mathtext_dejavuserif_67.svg:0:0
 test_mathtext/mathtext_dejavuserif_68.pdf:0:0
 test_mathtext/mathtext_dejavuserif_68.png:0:0
 test_mathtext/mathtext_dejavuserif_68.svg:0:0
@@ -1730,9 +1703,6 @@ test_mathtext/mathtext_stix_20.svg:0:0
 test_mathtext/mathtext_stix_21.pdf:0:0
 test_mathtext/mathtext_stix_21.png:0:0
 test_mathtext/mathtext_stix_21.svg:0:0
-test_mathtext/mathtext_stix_22.pdf:0:0
-test_mathtext/mathtext_stix_22.png:0:0
-test_mathtext/mathtext_stix_22.svg:0:0
 test_mathtext/mathtext_stix_23.pdf:0:0
 test_mathtext/mathtext_stix_23.png:0:0
 test_mathtext/mathtext_stix_23.svg:0:0
@@ -1763,9 +1733,6 @@ test_mathtext/mathtext_stix_32.svg:0:0
 test_mathtext/mathtext_stix_33.pdf:0:0
 test_mathtext/mathtext_stix_33.png:0:0
 test_mathtext/mathtext_stix_33.svg:0:0
-test_mathtext/mathtext_stix_34.pdf:0:0
-test_mathtext/mathtext_stix_34.png:0:0
-test_mathtext/mathtext_stix_34.svg:0:0
 test_mathtext/mathtext_stix_35.pdf:0:0
 test_mathtext/mathtext_stix_35.png:0:0
 test_mathtext/mathtext_stix_35.svg:0:0
@@ -1859,9 +1826,6 @@ test_mathtext/mathtext_stix_64.svg:0:0
 test_mathtext/mathtext_stix_65.pdf:0:0
 test_mathtext/mathtext_stix_65.png:0:0
 test_mathtext/mathtext_stix_65.svg:0:0
-test_mathtext/mathtext_stix_67.pdf:0:0
-test_mathtext/mathtext_stix_67.png:0:0
-test_mathtext/mathtext_stix_67.svg:0:0
 test_mathtext/mathtext_stix_68.pdf:0:0
 test_mathtext/mathtext_stix_68.png:0:0
 test_mathtext/mathtext_stix_68.svg:0:0
@@ -1970,9 +1934,6 @@ test_mathtext/mathtext_stixsans_20.svg:0:0
 test_mathtext/mathtext_stixsans_21.pdf:0:0
 test_mathtext/mathtext_stixsans_21.png:0:0
 test_mathtext/mathtext_stixsans_21.svg:0:0
-test_mathtext/mathtext_stixsans_22.pdf:0:0
-test_mathtext/mathtext_stixsans_22.png:0:0
-test_mathtext/mathtext_stixsans_22.svg:0:0
 test_mathtext/mathtext_stixsans_23.pdf:0:0
 test_mathtext/mathtext_stixsans_23.png:0:0
 test_mathtext/mathtext_stixsans_23.svg:0:0
@@ -2003,9 +1964,6 @@ test_mathtext/mathtext_stixsans_32.svg:0:0
 test_mathtext/mathtext_stixsans_33.pdf:0:0
 test_mathtext/mathtext_stixsans_33.png:0:0
 test_mathtext/mathtext_stixsans_33.svg:0:0
-test_mathtext/mathtext_stixsans_34.pdf:0:0
-test_mathtext/mathtext_stixsans_34.png:0:0
-test_mathtext/mathtext_stixsans_34.svg:0:0
 test_mathtext/mathtext_stixsans_35.pdf:0:0
 test_mathtext/mathtext_stixsans_35.png:0:0
 test_mathtext/mathtext_stixsans_35.svg:0:0
@@ -2099,9 +2057,6 @@ test_mathtext/mathtext_stixsans_64.svg:0:0
 test_mathtext/mathtext_stixsans_65.pdf:0:0
 test_mathtext/mathtext_stixsans_65.png:0:0
 test_mathtext/mathtext_stixsans_65.svg:0:0
-test_mathtext/mathtext_stixsans_67.pdf:0:0
-test_mathtext/mathtext_stixsans_67.png:0:0
-test_mathtext/mathtext_stixsans_67.svg:0:0
 test_mathtext/mathtext_stixsans_68.pdf:0:0
 test_mathtext/mathtext_stixsans_68.png:0:0
 test_mathtext/mathtext_stixsans_68.svg:0:0
