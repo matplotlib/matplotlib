@@ -107,7 +107,7 @@ jobs:
         python {package}/ci/check_version_number.py
       # Apple Silicon machines are not available for testing, so silence the
       # warning from cibuildwheel. Remove the skip when they're available.
-      CIBW_TEST_SKIP: "*-macosx_arm64 *-macosx_universal2:arm64"
+      CIBW_TEST_SKIP: "*-macosx_arm64"
       MACOSX_DEPLOYMENT_TARGET: "10.12"
       MPL_DISABLE_FH4: "yes"
     strategy:
@@ -118,9 +118,9 @@ jobs:
           - os: ubuntu-20.04
             cibw_archs: "aarch64"
           - os: windows-latest
-            cibw_archs: "auto"
+            cibw_archs: "auto64"
           - os: macos-11
-            cibw_archs: "x86_64 universal2 arm64"
+            cibw_archs: "x86_64 arm64"
 
     steps:
       - name: Set up QEMU
