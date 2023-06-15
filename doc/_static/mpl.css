@@ -120,3 +120,16 @@ div.wide-table table th.stub {
     left: 0;
     position: sticky;
 }
+
+.imrot-img {
+    display: flex;
+    margin: auto;
+    max-width:15em;
+    align-self: center;
+  }
+
+  .imrot-cap {
+    text-align: center;
+    font-style: italic;
+    font-size:  large;
+  }
