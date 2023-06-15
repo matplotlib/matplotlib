@@ -1,312 +1,312 @@
 {
   "test_axes3d/add_collection3d_zs_array.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/add_collection3d_zs_scalar.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/arc_pathpatch.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/aspects.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/aspects_adjust_box.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/axes3d_cla.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/axes3d_focal_length.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/axes3d_isometric.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/axes3d_labelpad.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/axes3d_ortho.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/axes3d_primary_views.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/axes3d_rotated.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/bar3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/bar3d_notshaded.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/bar3d_shaded.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/computed_zorder.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/contour3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/contour3d_extend3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/contourf3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/contourf3d_fill.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/equal_box_aspect.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/errorbar3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/errorbar3d_errorevery.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/grid_off.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/invisible_ticks_axis.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/lines3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/minor_ticks.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/mixedsubplot.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/panecolor_rcparams.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/plot_3d_from_2d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/poly3dcollection_alpha.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/poly3dcollection_closed.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/proj3d_axes_cube.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/proj3d_axes_cube_ortho.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/proj3d_lines_dists.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/quiver3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/quiver3d_masked.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/scatter3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/scatter3d_color.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/scatter3d_linewidth.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/scatter_spiral.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/stem3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/surface3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/surface3d_masked.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/surface3d_masked_strides.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/surface3d_shaded.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/text3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/tricontour.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/trisurf3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/trisurf3d_shaded.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/voxels-alpha.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/voxels-edge-style.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/voxels-named-colors.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/voxels-rgb-data.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/voxels-simple.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/voxels-xyz.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/wireframe3d.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/wireframe3dzerocstride.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_axes3d/wireframe3dzerorstride.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_legend3d/fancy.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_legend3d/legend_bar.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   },
   "test_legend3d/legend_plot.png": {
-    "mpl_version": "3.8.0.dev1102+g24033ea414.d20230518",
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
     "rev": 0,
-    "sha": "24033ea4143935e4aaccefa008dbc97ee6f1a77d"
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
   }
 }
