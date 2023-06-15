@@ -604,13 +604,13 @@ def _load_blame(target_file):
 def _write_imagelist(data, *, target_file):
     with open(target_file, "w") as fout:
         for fname, v in sorted(data.items()):
-            fout.write(f"{fname}:{v['rev']}:{v['ts']}\n")
+            fout.write(f"{fname}:{v['rev']}:{int(v['ts'])}\n")
 
 
 def _rev_fname(fname, *, target_file="image_list.txt"):
     data = _load_imagelist()
     old_rev = data[fname]["rev"]
-    data[fname] = {"rev": old_rev + 1, "ts": time.time()}
+    data[fname] = {"rev": old_rev + 1, "ts": time.time()*100}
     _write_imagelist(data)
 
 
