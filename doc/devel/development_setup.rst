@@ -106,6 +106,9 @@ The simplest way to do this is to use either Python's virtual environment
         <file folder location>\Scripts\activate.bat  # Windows cmd.exe
         <file folder location>\Scripts\Activate.ps1  # Windows PowerShell
 
+      On some systems, you may need to type ``python3`` instead of ``python``.
+      For a discussion of the technical reasons, see `PEP-394 <https://peps.python.org/pep-0394>`_.
+
    .. tab-item:: conda environment
 
       Create a new `conda`_ environment with ::
@@ -122,6 +125,7 @@ The simplest way to do this is to use either Python's virtual environment
         conda activate mpl-dev
 
 Remember to activate the environment whenever you start working on Matplotlib.
+
 
 Installing Matplotlib in editable mode
 ======================================
