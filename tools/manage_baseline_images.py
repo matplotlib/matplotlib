@@ -39,21 +39,39 @@ def _rev(args):
 
 
 def _validate(args):
-    image_list_path = _find_imagelist(args.libpath, args.package + ".a")
-    data = mtd._load_blame(image_list_path)
-    json_path = (
-        Path(args.baseline_path)
-        / Path(*args.package.split("."))
-        / "baseline_images"
-        / "metadata.json"
-    )
+    fail = False
+    for pkg in args.package:
+        image_list_path = _find_imagelist(args.libpath, pkg + ".a")
+        data = mtd._load_blame(image_list_path)
+        json_path = (
+            Path(args.baseline_path)
+            / Path(*pkg.split("."))
+            / "baseline_images"
+            / "metadata.json"
+        )
+        fail |= _validate_one(json_path, data)
+    if fail:
+        sys.exit(1)
+
+
+def _validate_one(json_path, data):
+    fail = False
     with open(json_path) as fin:
         md = {Path(k): v for k, v in json.load(fin).items()}
 
-    if extra := set(md) ^ set(data):
+    if extra := set(md) - set(data):
         # TODO good error messages about where the extra files are
-        print(f"{extra=}")
-        sys.exit(1)
+        print("in json not in image list: ")
+        for p in sorted(extra):
+            print(f' - {p!s}')
+        fail = True
+
+    if extra := set(data) - set(md):
+        # TODO good error messages about where the extra files are
+        print("in image list not in json: ")
+        for p in sorted(extra):
+            print(f' - {p!s}')
+        fail = True
 
     mismatch = set()
     for k in md:
@@ -61,7 +79,8 @@ def _validate(args):
             mismatch.add(k)
     if mismatch:
         print(f"{mismatch=}")
-        sys.exit(1)
+        fail = True
+    return fail
 
 
 if __name__ == "__main__":
@@ -93,12 +112,14 @@ if __name__ == "__main__":
     # create the parser for the "validate" command
     parser_add = subparsers.add_parser("validate", help="Check if the baseline dir .")
     parser_add.add_argument(
-        "package", type=str, help="The dotted name of the test (sub-)package."
-    )
-    parser_add.add_argument(
         "baseline_path",
         type=str,
-        help="The dotted name of the test (sub-)package.",
+        help="Path to the root of the baseline images.",
+    )
+    parser_add.add_argument(
+        "package", type=str, help="The dotted name of the test (sub-)package.",
+        default=['matplotlib.tests'],
+        nargs='*'
     )
 
     # parse some argument lists
