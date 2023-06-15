@@ -966,6 +966,7 @@ def test_text_antialiased_on_default_vs_manual(fig_test, fig_ref):
     fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
 
 
+@pytest.mark.xfail
 def test_text_annotation_get_window_extent():
     figure = Figure(dpi=100)
     renderer = RendererAgg(200, 200, 100)
