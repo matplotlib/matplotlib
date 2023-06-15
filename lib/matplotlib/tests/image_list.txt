@@ -643,6 +643,7 @@ test_legend/scatter_rc1.svg:0:0
 test_legend/scatter_rc3.pdf:0:0
 test_legend/scatter_rc3.png:0:0
 test_legend/scatter_rc3.svg:0:0
+test_legend/shadow_argument_types.png:0:1686853922
 test_lines/drawstyle_variants.png:0:0
 test_lines/line_collection_dashes.pdf:0:0
 test_lines/line_collection_dashes.png:0:0
