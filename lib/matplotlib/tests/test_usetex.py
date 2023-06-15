@@ -1,6 +1,7 @@
 from tempfile import TemporaryFile
 
 import numpy as np
+from packaging.version import parse as parse_version
 import pytest
 
 import matplotlib as mpl
@@ -155,8 +156,14 @@ def test_missing_psfont(fmt, monkeypatch):
         fig.savefig(tmpfile, format=fmt)
 
 
+try:
+    _old_gs_version = mpl._get_executable_info('gs').version < parse_version('9.55')
+except mpl.ExecutableNotFoundError:
+    _old_gs_version = True
+
+
 @image_comparison(baseline_images=['rotation'], extensions=['eps', 'pdf', 'png', 'svg'],
-                  style='mpl20')
+                  style='mpl20', tol=3.91 if _old_gs_version else 0)
 def test_rotation():
     mpl.rcParams['text.usetex'] = True
 
