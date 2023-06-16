@@ -23,5 +23,10 @@
       ],
       "settings": {}
     }
-  }
+},
+"portsAttributes": {
+	"6080": {
+		"label": "desktop"
+	}
+}
 }
