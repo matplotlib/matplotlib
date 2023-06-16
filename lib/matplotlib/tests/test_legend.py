@@ -755,6 +755,26 @@ def test_legend_alignment(alignment):
     assert leg.get_alignment() == alignment
 
 
+@pytest.mark.parametrize('loc', ('center', 'best',))
+def test_ax_legend_set_loc(loc):
+    fig, ax = plt.subplots()
+    ax.plot(range(10), label='test')
+    leg = ax.legend()
+    leg.set_loc(loc)
+    assert leg._get_loc() == mlegend.Legend.codes[loc]
+
+
+@pytest.mark.parametrize('loc', ('outside right', 'right',))
+def test_fig_legend_set_loc(loc):
+    fig, ax = plt.subplots()
+    ax.plot(range(10), label='test')
+    leg = fig.legend()
+    leg.set_loc(loc)
+
+    loc = loc.split()[1] if loc.startswith("outside") else loc
+    assert leg._get_loc() == mlegend.Legend.codes[loc]
+
+
 @pytest.mark.parametrize('alignment', ('center', 'left', 'right'))
 def test_legend_set_alignment(alignment):
     fig, ax = plt.subplots()
