@@ -8,10 +8,10 @@ artists into 3D versions which can be added to an Axes3D.
 """
 
 import math
+import warnings
+from contextlib import contextmanager
 
 import numpy as np
-
-from contextlib import contextmanager
 
 from matplotlib import (
     _api, artist, cbook, colors as mcolors, lines, text as mtext,
@@ -19,13 +19,47 @@ from matplotlib import (
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
+
 from . import proj3d
 
+# ---------------------------------------------------------------------------- #
+# chosen for backwards-compatibility
+CLASSIC_LIGHTSOURCE = mcolors.LightSource(azdeg=225, altdeg=19.4712)
 
-# shape (6, 4, 3)
+# Unit cube
 # All faces are oriented facing outwards - when viewed from the
 # outside, their vertices are in a counterclockwise ordering.
+# shape (6, 4, 3)
+# panel order:  -x, -y, +x, +y, -z, +z
 CUBOID = np.array([
+    # -x
+    (
+        (0, 0, 0),
+        (0, 0, 1),
+        (0, 1, 1),
+        (0, 1, 0),
+    ),
+    # -y
+    (
+        (0, 0, 0),
+        (1, 0, 0),
+        (1, 0, 1),
+        (0, 0, 1),
+    ),
+    # +x
+    (
+        (1, 0, 0),
+        (1, 1, 0),
+        (1, 1, 1),
+        (1, 0, 1),
+    ),
+    # +y
+    (
+        (0, 1, 0),
+        (0, 1, 1),
+        (1, 1, 1),
+        (1, 1, 0),
+    ),
     # -z
     (
         (0, 0, 0),
@@ -40,39 +74,9 @@ CUBOID = np.array([
         (1, 1, 1),
         (0, 1, 1),
     ),
-    # -y
-    (
-        (0, 0, 0),
-        (1, 0, 0),
-        (1, 0, 1),
-        (0, 0, 1),
-    ),
-    # +y
-    (
-        (0, 1, 0),
-        (0, 1, 1),
-        (1, 1, 1),
-        (1, 1, 0),
-    ),
-    # -x
-    (
-        (0, 0, 0),
-        (0, 0, 1),
-        (0, 1, 1),
-        (0, 1, 0),
-    ),
-    # +x
-    (
-        (1, 0, 0),
-        (1, 1, 0),
-        (1, 1, 1),
-        (1, 0, 1),
-    ),
+
 ])
 
-CAMERA_VIEW_QUADRANT_TO_CUBE_FACE_ZORDER = {
-    #          -z, +z, -y, +y, -x, +x
-    #           0,  1,  2,  3,  4,  5
 
 # Base hexagon for creating prisms (HexBar3DCollection).
 # sides are ordered anti-clockwise from left: ['W', 'SW', 'SE', 'E', 'NE', 'NW']
@@ -86,6 +90,10 @@ HEXAGON = np.array([
 ]) / 4
 
 # ---------------------------------------------------------------------------- #
+
+def is_none(*args):
+    for a in args:
+        yield a is None
 
 
 def _norm_angle(a):
@@ -1530,6 +1538,7 @@ class Poly3DCollection(PolyCollection):
             self.do_3d_projection()
         return np.asarray(self._edgecolors2d)
 
+
 class Bar3DCollection(Poly3DCollection):
     """
     Bars (rectangular prisms) with constant square cross section, bases located
@@ -1639,10 +1648,6 @@ class Bar3DCollection(Poly3DCollection):
 
         if (x is not None) or (y is not None):
             self.dx, self.dy = self._resolve_dx_dy(self.dxy)
-
-        for i, p in enumerate((x, y, z)):
-            if p is not None:
-                self._xyz[i] = p
 
         for i, p in enumerate((x, y, z)):
             if p is not None:
@@ -1778,6 +1783,49 @@ class Bar3DCollection(Poly3DCollection):
         return (zorder[..., None] + face_zorder).ravel()
 
 
+class HexBar3DCollection(Bar3DCollection):
+    """
+    Hexagonal prisms with uniform cross section, bases located on z-plane at *z0*,
+    arranged in a regular grid at *x*, *y* locations and height *z - z0*.
+    """
+    _n_faces = 8
+
+    def _compute_verts(self):
+
+        # scale the base hexagon
+        hexagon = np.array([self.dx, self.dy]).T * HEXAGON
+        xy_pairs = np.moveaxis([hexagon, np.roll(hexagon, -1, 0)], 0, 1)
+        xy_sides = xy_pairs[np.newaxis] + self.xy[:, None, None].T  # (n,6,2,2)
+
+        # sides (rectangle faces)
+        # Array of vertices of the faces composing the prism moving counter
+        # clockwise when looking from above starting at west (-x) facing panel.
+        # Vertex sequence is counter-clockwise when viewed from outside.
+        # shape:     (n, [...], 6,    4,      3)
+        # indexed by [bars...,  face, vertex, axis]
+        data_shape = np.shape(self.z)
+        shape = (*data_shape, 6, 2, 1)
+        z0 = np.full(shape, self.z0)
+        z1 = self.z0 + (self.z * np.ones(shape[::-1])).T
+        sides = np.concatenate(
+            [np.concatenate([xy_sides, z0], -1),
+             np.concatenate([xy_sides, z1], -1)[..., ::-1, :]],
+            axis=-2)  # (n, [...], 6, 4, 3)
+
+        # endcaps (hexagons) # (n, [...], 6, 3)
+        xy_ends = (self.xy[..., None] + hexagon.T[:, None])
+        z0 = self.z0 * np.ones((1, *data_shape, 6))
+        z1 = z0 + self.z[None, ..., None]
+        base = np.moveaxis(np.vstack([xy_ends, z0]), 0, -1)
+        top = np.moveaxis(np.vstack([xy_ends, z1]), 0, -1)
+
+        # get list of arrays of polygon vertices
+        verts = []
+        for s, b, t in zip(sides, base, top):
+            verts.extend([*s, b, t])
+
+        return verts
+
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
     """
@@ -1795,7 +1843,7 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
         See `.get_dir_vector` for a description of the values.
     """
     segments_3d, codes = _paths_to_3d_segments_with_codes(
-            col.get_paths(), zs, zdir)
+        col.get_paths(), zs, zdir)
     col.__class__ = Poly3DCollection
     col.set_verts_and_codes(segments_3d, codes)
     col.set_3d_properties()
@@ -1930,7 +1978,7 @@ def _generate_normals(polygons):
         # optimization: polygons all have the same number of points, so can
         # vectorize
         n = polygons.shape[-2]
-        i1, i2, i3 = 0, n//3, 2*n//3
+        i1, i2, i3 = 0, n // 3, 2 * n // 3
         v1 = polygons[..., i1, :] - polygons[..., i2, :]
         v2 = polygons[..., i2, :] - polygons[..., i3, :]
     else:
@@ -1940,7 +1988,7 @@ def _generate_normals(polygons):
         for poly_i, ps in enumerate(polygons):
             n = len(ps)
             ps = np.asarray(ps)
-            i1, i2, i3 = 0, n//3, 2*n//3
+            i1, i2, i3 = 0, n // 3, 2 * n // 3
             v1[poly_i, :] = ps[i1, :] - ps[i2, :]
             v2[poly_i, :] = ps[i2, :] - ps[i3, :]
     return np.cross(v1, v2)
@@ -1986,17 +2034,16 @@ def _shade_colors(color, normals, lightsource=None):
 
 def camera_distance(ax, x, y, z=None):
     z = np.zeros_like(x) if z is None else z
-    # camera = xyz(ax)
-    # print(camera)
     return np.sqrt(np.square(
         # location of points
         [x, y, z] -
         # camera position in xyz
-        np.array(sph2cart(*_camera_position(ax)), ndmin=3).T
+        np.array(sph2cart(*_camera_position(ax)), ndmin=x.ndim + 1).T
     ).sum(0))
 
 
 def sph2cart(r, theta, phi):
+    """Spherical to cartesian transform."""
     r_sinθ = r * np.sin(theta)
     return (r_sinθ * np.cos(phi),
             r_sinθ * np.sin(phi),
@@ -2021,7 +2068,7 @@ def _get_grid_step(x, axis=0):
     # deal with singular dimension (this ignores axis param)
     if x.ndim == 1:
         if d := next(filter(None, map(np.diff, cbook.pairwise(x))), None):
-            return d
+            return d.item()
 
     if x.shape[axis % x.ndim] == 1:
         return 1
