@@ -64,7 +64,7 @@ def _get_testable_interactive_backends():
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
         elif (env['MPLBACKEND'] == 'tkagg' and 'TF_BUILD' in os.environ and
-              sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+              sys.platform == 'darwin' and sys.version_info[:2] < (3, 11)):
             marks.append(  # https://github.com/actions/setup-python/issues/649
                 pytest.mark.xfail(reason='Tk version mismatch on Azure macOS CI'))
         envs.append(
@@ -272,7 +272,7 @@ for param in _thread_safe_backends:
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
     elif (backend == 'tkagg' and 'TF_BUILD' in os.environ and
-          sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+          sys.platform == 'darwin' and sys.version_info[:2] < (3, 11)):
         param.marks.append(  # https://github.com/actions/setup-python/issues/649
             pytest.mark.xfail('Tk version mismatch on Azure macOS CI'))
 
@@ -553,7 +553,7 @@ for param in _blit_backends:
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))
     elif (backend == 'tkagg' and 'TF_BUILD' in os.environ and
-          sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+          sys.platform == 'darwin' and sys.version_info[:2] < (3, 11)):
         param.marks.append(  # https://github.com/actions/setup-python/issues/649
             pytest.mark.xfail('Tk version mismatch on Azure macOS CI')
         )
