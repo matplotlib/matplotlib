@@ -332,6 +332,12 @@ _legend_kw_both_st = (
     _legend_kw_doc_base)
 _docstring.interpd.update(_legend_kw_doc=_legend_kw_both_st)
 
+_legend_kw_set_loc_st = (
+    _loc_doc_base.format(parent='axes/figure',
+                         default=":rc:`legend.loc` for Axes, 'upper right' for Figure",
+                         best=_loc_doc_best, outside=_outside_doc))
+_docstring.interpd.update(_legend_kw_set_loc_doc=_legend_kw_set_loc_st)
+
 
 class Legend(Artist):
     """
@@ -505,58 +511,6 @@ class Legend(Artist):
             )
         self.parent = parent
 
-        loc0 = loc
-        self._loc_used_default = loc is None
-        if loc is None:
-            loc = mpl.rcParams["legend.loc"]
-            if not self.isaxes and loc in [0, 'best']:
-                loc = 'upper right'
-
-        type_err_message = ("loc must be string, coordinate tuple, or"
-                            f" an integer 0-10, not {loc!r}")
-
-        # handle outside legends:
-        self._outside_loc = None
-        if isinstance(loc, str):
-            if loc.split()[0] == 'outside':
-                # strip outside:
-                loc = loc.split('outside ')[1]
-                # strip "center" at the beginning
-                self._outside_loc = loc.replace('center ', '')
-                # strip first
-                self._outside_loc = self._outside_loc.split()[0]
-                locs = loc.split()
-                if len(locs) > 1 and locs[0] in ('right', 'left'):
-                    # locs doesn't accept "left upper", etc, so swap
-                    if locs[0] != 'center':
-                        locs = locs[::-1]
-                    loc = locs[0] + ' ' + locs[1]
-            # check that loc is in acceptable strings
-            loc = _api.check_getitem(self.codes, loc=loc)
-        elif np.iterable(loc):
-            # coerce iterable into tuple
-            loc = tuple(loc)
-            # validate the tuple represents Real coordinates
-            if len(loc) != 2 or not all(isinstance(e, numbers.Real) for e in loc):
-                raise ValueError(type_err_message)
-        elif isinstance(loc, int):
-            # validate the integer represents a string numeric value
-            if loc < 0 or loc > 10:
-                raise ValueError(type_err_message)
-        else:
-            # all other cases are invalid values of loc
-            raise ValueError(type_err_message)
-
-        if self.isaxes and self._outside_loc:
-            raise ValueError(
-                f"'outside' option for loc='{loc0}' keyword argument only "
-                "works for figure legends")
-
-        if not self.isaxes and loc == 0:
-            raise ValueError(
-                "Automatic legend placement (loc='best') not implemented for "
-                "figure legend")
-
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
 
@@ -616,9 +570,8 @@ class Legend(Artist):
         # init with null renderer
         self._init_legend_box(handles, labels, markerfirst)
 
-        tmp = self._loc_used_default
-        self._set_loc(loc)
-        self._loc_used_default = tmp  # ignore changes done by _set_loc
+        # Set legend location
+        self.set_loc(loc)
 
         # figure out title font properties:
         if title_fontsize is not None and title_fontproperties is not None:
@@ -703,6 +656,73 @@ class Legend(Artist):
             a.axes = self.axes
 
         a.set_transform(self.get_transform())
+
+    @_docstring.dedent_interpd
+    def set_loc(self, loc=None):
+        """
+        Set the location of the legend.
+
+        .. versionadded:: 3.8
+
+        Parameters
+        ----------
+        %(_legend_kw_set_loc_doc)s
+        """
+        loc0 = loc
+        self._loc_used_default = loc is None
+        if loc is None:
+            loc = mpl.rcParams["legend.loc"]
+            if not self.isaxes and loc in [0, 'best']:
+                loc = 'upper right'
+
+        type_err_message = ("loc must be string, coordinate tuple, or"
+                            f" an integer 0-10, not {loc!r}")
+
+        # handle outside legends:
+        self._outside_loc = None
+        if isinstance(loc, str):
+            if loc.split()[0] == 'outside':
+                # strip outside:
+                loc = loc.split('outside ')[1]
+                # strip "center" at the beginning
+                self._outside_loc = loc.replace('center ', '')
+                # strip first
+                self._outside_loc = self._outside_loc.split()[0]
+                locs = loc.split()
+                if len(locs) > 1 and locs[0] in ('right', 'left'):
+                    # locs doesn't accept "left upper", etc, so swap
+                    if locs[0] != 'center':
+                        locs = locs[::-1]
+                    loc = locs[0] + ' ' + locs[1]
+            # check that loc is in acceptable strings
+            loc = _api.check_getitem(self.codes, loc=loc)
+        elif np.iterable(loc):
+            # coerce iterable into tuple
+            loc = tuple(loc)
+            # validate the tuple represents Real coordinates
+            if len(loc) != 2 or not all(isinstance(e, numbers.Real) for e in loc):
+                raise ValueError(type_err_message)
+        elif isinstance(loc, int):
+            # validate the integer represents a string numeric value
+            if loc < 0 or loc > 10:
+                raise ValueError(type_err_message)
+        else:
+            # all other cases are invalid values of loc
+            raise ValueError(type_err_message)
+
+        if self.isaxes and self._outside_loc:
+            raise ValueError(
+                f"'outside' option for loc='{loc0}' keyword argument only "
+                "works for figure legends")
+
+        if not self.isaxes and loc == 0:
+            raise ValueError(
+                "Automatic legend placement (loc='best') not implemented for "
+                "figure legend")
+
+        tmp = self._loc_used_default
+        self._set_loc(loc)
+        self._loc_used_default = tmp  # ignore changes done by _set_loc
 
     def _set_loc(self, loc):
         # find_offset function will be provided to _legend_box and
