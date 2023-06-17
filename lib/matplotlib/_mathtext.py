@@ -1772,7 +1772,7 @@ class Parser:
 
     _overunder_functions = set("lim liminf limsup sup max min".split())
 
-    _dropsub_symbols = set(r'''\int \oint'''.split())
+    _dropsub_symbols = set(r'\int \oint \iint \oiint \iiint \oiiint \iiiint'.split())
 
     _fontnames = set("rm cal it tt sf bf bfit "
                      "default bb frak scr regular".split())
