@@ -9,7 +9,7 @@ Using Matplotlib
 ----------------
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     quick_start
     figure/index

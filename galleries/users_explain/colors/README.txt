@@ -11,3 +11,14 @@ these colormaps look, how you can create your own, and how you can
 customize colormaps for your use case.
 
 For even more information see the :ref:`examples page <color_examples>`.
+
+.. toctree::
+    :maxdepth: 1
+
+    colors
+    colorbar_only
+    colormap-manipulation
+    colormapnorms
+    colormaps
+
+
