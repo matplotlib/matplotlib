@@ -20,5 +20,3 @@ For even more information see the :ref:`examples page <color_examples>`.
     colormap-manipulation
     colormapnorms
     colormaps
-
-
