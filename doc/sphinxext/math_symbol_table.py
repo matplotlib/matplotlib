@@ -6,17 +6,16 @@ from matplotlib import _mathtext, _mathtext_data
 symbols = [
     ["Lower-case Greek",
      6,
-     r"""\alpha \beta \gamma \chi \delta \epsilon \eta \iota \kappa
-         \lambda \mu \nu \omega \phi \pi \psi \rho \sigma \tau \theta
-         \upsilon \xi \zeta \digamma \varepsilon \varkappa \varphi
-         \varpi \varrho \varsigma \vartheta""".split()],
+     r"""\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota \kappa \lambda \mu
+         \nu \xi \pi \rho \sigma \tau \upsilon \phi  \psi  \chi \omega \digamma
+         \varepsilon \vartheta \varkappa \varphi \varpi \varrho \varsigma""".split()],
     ["Upper-case Greek",
-     8,
-     r"""\Delta \Gamma \Lambda \Omega \Phi \Pi \Psi \Sigma \Theta
-     \Upsilon \Xi \mho \nabla""".split()],
+     6,
+     r"""\Gamma \Delta  \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi \Omega
+      """.split()],
     ["Hebrew",
      6,
-     r"""\aleph \beth \daleth \gimel""".split()],
+     r"""\aleph \beth \gimel \daleth""".split()],
     ["Delimiters",
      6,
      _mathtext.Parser._delims],
@@ -28,7 +27,7 @@ symbols = [
      {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
     ["Binary operation and relation symbols",
      4,
-     r"""\ast \pm \slash \cap \star \mp \cup \cdot \uplus
+     set(r"""\ast \pm \slash \cap \star \mp \cup \cdot \uplus
      \triangleleft \circ \odot \sqcap \triangleright \bullet \ominus
      \sqcup \bigcirc \oplus \wedge \diamond \oslash \vee
      \bigtriangledown \times \otimes \dag \bigtriangleup \div \wr
@@ -57,10 +56,10 @@ symbols = [
      \lneqq \gneqq \ntriangleright \lnsim \gnsim \ntrianglerighteq
      \coloneq \eqsim \nequiv \napprox \nsupset \doublebarwedge \nVdash
      \Doteq \nsubset \eqcolon \ne
-     """.split()],
+     """.split())],
     ["Arrow symbols",
      4,
-     r"""\leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
+     set(r"""\leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
      \Uparrow \rightarrow \longrightarrow \downarrow \Rightarrow
      \Longrightarrow \Downarrow \leftrightarrow \updownarrow
      \longleftrightarrow \updownarrow \Leftrightarrow
@@ -80,17 +79,17 @@ symbols = [
      \nrightarrow \nLeftarrow \nRightarrow \nleftrightarrow
      \nLeftrightarrow \to \Swarrow \Searrow \Nwarrow \Nearrow
      \leftsquigarrow
-     """.split()],
+     """.split())],
     ["Miscellaneous symbols",
      4,
-     r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
+     set(r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
      \nexists \measuredangle \eth \emptyset \sphericalangle \clubsuit
      \varnothing \complement \diamondsuit \imath \Finv \triangledown
      \heartsuit \jmath \Game \spadesuit \ell \hbar \vartriangle \cdots
      \hslash \vdots \blacksquare \ldots \blacktriangle \ddots \sharp
      \prime \blacktriangledown \Im \flat \backprime \Re \natural
      \circledS \P \copyright \ss \circledR \S \yen \AA \checkmark \$
-     \cent \triangle \QED \sinewave""".split()]
+     \cent \triangle \QED \sinewave \mho \nabla""".split())]
 ]
 
 
@@ -105,7 +104,9 @@ def run(state_machine):
 
     lines = []
     for category, columns, syms in symbols:
-        syms = sorted(list(syms))
+        # Assume that lists are correctly sorted
+        if isinstance(syms, set):
+            syms = sorted(list(syms))
         columns = min(columns, len(syms))
         lines.append("**%s**" % category)
         lines.append('')
