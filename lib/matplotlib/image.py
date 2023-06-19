@@ -556,7 +556,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     A = self.to_rgba(A, alpha=self.get_alpha())
                 elif A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
-                    if alpha := self.get_alpha is not None:
+                    if (alpha := self.get_alpha) is not None:
                         A[:, :, 3] = self.get_alpha()
                 alpha = self._get_scalar_alpha()
                 output_alpha = _resample(  # resample alpha channel
