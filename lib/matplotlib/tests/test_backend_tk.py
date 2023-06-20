@@ -39,8 +39,8 @@ def _isolated_tk_test(success_count, func=None):
         reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
     )
     @pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
-        'TF_BUILD' in os.environ and sys.platform == 'darwin' and
-        sys.version_info[:2] < (3, 11),
+        ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+        sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
         reason='Tk version mismatch on Azure macOS CI'
     )
     @functools.wraps(func)
