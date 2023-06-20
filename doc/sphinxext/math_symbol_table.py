@@ -107,7 +107,8 @@ def run(state_machine):
     for category, columns, syms in symbols:
         syms = sorted(list(syms))
         columns = min(columns, len(syms))
-        lines.append("**%s**" % category)
+        # lines.append("**%s**" % category)
+        lines.append(f"**{category}**")
         lines.append('')
         max_width = max(map(len, syms)) * 2 + 16
         header = "    " + (('=' * max_width) + ' ') * columns
