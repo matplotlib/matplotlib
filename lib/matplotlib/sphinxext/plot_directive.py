@@ -167,7 +167,7 @@ The plot directive has the following configuration options:
 
         .. note::
 
-            This currently only support one directory, and can cause potential
+            This currently only supports one directory, and can cause potential
             problems if you have multiple packages documented with ``autodoc2``.
 
 Notes on how it works
