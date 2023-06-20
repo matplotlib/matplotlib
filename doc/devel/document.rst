@@ -1,8 +1,10 @@
+.. redirect-from:: /devel/documenting_mpl
+
 .. _documenting-matplotlib:
 
-=====================
-Writing documentation
-=====================
+===================
+Write documentation
+===================
 
 Getting started
 ===============
@@ -39,8 +41,8 @@ contents of :file:`index.rst` of the subdirectory.  See
   (excepting :file:`doc/api/api_changes/`).  Sphinx_ regenerates
   files in these directories when building documentation.
 
-Setting up the doc build
-------------------------
+Set up the build
+----------------
 
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
 using the Sphinx_ documentation generation tool.
@@ -50,8 +52,8 @@ To build the documentation you will need to
 particular the :ref:`additional dependencies <doc-dependencies>` required to
 build the documentation.
 
-Building the docs
------------------
+Build the docs
+--------------
 
 The documentation sources are found in the :file:`doc/` directory.
 The configuration file for Sphinx is :file:`doc/conf.py`. It controls which
@@ -105,8 +107,8 @@ On Windows, set the options as environment variables, e.g.:
 
    set SPHINXOPTS= & set O=-j4 -Dplot_formats=png:100 & make html
 
-Showing locally built docs
---------------------------
+Show locally built docs
+-----------------------
 
 The built docs are available in the folder :file:`build/html`. A shortcut
 for opening them in your default browser is:
@@ -117,8 +119,8 @@ for opening them in your default browser is:
 
 .. _writing-rest-pages:
 
-Writing ReST pages
-==================
+Write ReST pages
+================
 
 Most documentation is either in the docstrings of individual
 classes and methods, in explicit ``.rst`` files, or in examples and tutorials.
@@ -189,8 +191,8 @@ nor the ````literal```` role:
 
 .. _internal-section-refs:
 
-Referring to other documents and sections
------------------------------------------
+Refer to other documents and sections
+-------------------------------------
 
 Sphinx_ allows internal references_ between documents.
 
@@ -254,8 +256,8 @@ hyphens to separate words.
 
 .. _referring-to-other-code:
 
-Referring to other code
------------------------
+Refer to other code
+-------------------
 
 To link to other methods, classes, or modules in Matplotlib you can use
 back ticks, for example:
@@ -313,8 +315,8 @@ commands::
 
 .. _rst-figures-and-includes:
 
-Including figures and files
----------------------------
+Include figures and files
+-------------------------
 
 Image files can directly included in pages with the ``image::`` directive.
 e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays
@@ -353,8 +355,8 @@ expression in the Matplotlib figure. In these cases, you can use the
 
 .. _writing-docstrings:
 
-Writing docstrings
-==================
+Write docstrings
+================
 
 Most of the API documentation is written in docstrings. These are comment
 blocks in source code that explain how the code works.
@@ -516,8 +518,8 @@ Non-numeric homogeneous sequences are described as lists, e.g.::
   list of str
   list of `.Artist`
 
-Referencing types
-~~~~~~~~~~~~~~~~~
+Reference types
+~~~~~~~~~~~~~~~
 Generally, the rules from referring-to-other-code_ apply. More specifically:
 
 Use full references ```~matplotlib.colors.Normalize``` with an
@@ -584,8 +586,8 @@ also`` sections. No need to use backticks there::
    vlines : vertical lines
    axhline : horizontal line across the Axes
 
-Wrapping parameter lists
-~~~~~~~~~~~~~~~~~~~~~~~~
+Wrap parameter lists
+~~~~~~~~~~~~~~~~~~~~
 Long parameter lists should be wrapped using a ``\`` for continuation and
 starting on the new line without any indent (no indent because pydoc will
 parse the docstring and strip the line continuation so that indent would
@@ -744,8 +746,8 @@ point, `.kwdoc` can list the properties and interpolate them into
 ``__init__.__doc__``.
 
 
-Inheriting docstrings
----------------------
+Inherit docstrings
+------------------
 
 If a subclass overrides a method but does not change the semantics, we can
 reuse the parent docstring for the method of the child class. Python does this
@@ -768,8 +770,8 @@ the future::
 
 .. _docstring-adding-figures:
 
-Adding figures
---------------
+Add figures
+-----------
 
 As above (see :ref:`rst-figures-and-includes`), figures in the examples gallery
 can be referenced with a ``.. plot::`` directive pointing to the python script
@@ -813,8 +815,8 @@ code will also appear in interactive docstrings.
 
 .. _writing-examples-and-tutorials:
 
-Writing examples and tutorials
-==============================
+Write examples and tutorials
+============================
 
 Examples and tutorials are Python scripts that are run by `Sphinx Gallery`_.
 Sphinx Gallery finds ``*.py`` files in source directories and runs the files to
@@ -841,8 +843,8 @@ these ``*.rst`` files from the source location to the build location (see
 In the Python files, to exclude an example from having a plot generated, insert
 "sgskip" somewhere in the filename.
 
-Formatting the example
-----------------------
+Format examples
+---------------
 
 The format of these files is relatively straightforward.  Properly
 formatted comment blocks are treated as ReST_ text, the code is
@@ -913,8 +915,26 @@ ReST text are delimited by the line ``# %%`` :
 
 In this way text, code, and figures are output in a "notebook" style.
 
-References for sphinx-gallery
------------------------------
+.. _sample-data:
+
+Sample data
+-----------
+
+When sample data comes from a public dataset, please cite the source of the
+data. Sample data should be written out in the code. When this is not
+feasible, the data can be loaded using `.cbook.get_sample_data`.
+
+.. code-block:: python
+
+    import matplotlib.cbook as cbook
+    fh = cbook.get_sample_data('mydata.dat')
+
+
+If the data is too large to be included in the code, it should be added to
+:file:`lib/matplotlib/mpl-data/sample_data/`
+
+Create mini-gallery
+-------------------
 
 The showcased Matplotlib functions should be listed in an admonition at the
 bottom as follows
@@ -942,8 +962,9 @@ Functions that exist in ``pyplot`` as well as in Axes or Figure should mention
 both references no matter which one is used in the example code. The ``pyplot``
 reference should always be the second to mention; see the example above.
 
-Order of examples in the gallery
---------------------------------
+
+Order examples
+--------------
 
 The order of the sections of the :ref:`tutorials` and the :ref:`gallery`, as
 well as the order of the examples within each section are determined in a
@@ -984,8 +1005,8 @@ manual ``index.rst``.
 Miscellaneous
 =============
 
-Moving documentation
---------------------
+Move documentation
+------------------
 
 Sometimes it is desirable to move or consolidate documentation.  With no
 action this will lead to links either going dead (404) or pointing to old
@@ -1020,8 +1041,8 @@ For clarity, do not use relative links.
 
 .. _inheritance-diagrams:
 
-Generating inheritance diagrams
--------------------------------
+Generate inheritance diagrams
+-----------------------------
 
 Class inheritance diagrams can be generated with the Sphinx
 `inheritance-diagram`_ directive.
