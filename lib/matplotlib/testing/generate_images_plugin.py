@@ -3,7 +3,7 @@ import pytest
 
 def pytest_addoption(parser):
     parser.addoption(
-            "--generate_images",
+            "--generate-images",
              action="store_true",
              default=False,
              help="run matplotlib baseline image generation tests"
@@ -11,7 +11,7 @@ def pytest_addoption(parser):
 
 
 def pytest_collection_modifyitems(config, items):
-    if config.getoption("--generate_images"):
+    if config.getoption("--generate-images"):
         skip_non_matplotlib_baseline_image_generation_tests = pytest.mark.skip(
             reason="No need to run non image generation tests"
         )

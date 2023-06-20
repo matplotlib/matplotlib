@@ -319,7 +319,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 f"Test generated {len(figs)} images but there are "
                 f"{len(our_baseline_images)} baseline images")
 
-            generating = request.config.getoption("--generate_images")
+            generating = request.config.getoption("--generate-images")
 
             for fig, baseline in zip(figs, our_baseline_images):
                 if generating:
