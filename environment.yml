@@ -19,7 +19,7 @@ dependencies:
   - pillow>=6.2
   - pybind11>=2.6.0
   - pygobject
-  - pyparsing
+  - pyparsing!=3.1.0
   - pyqt
   - python-dateutil>=2.1
   - setuptools
