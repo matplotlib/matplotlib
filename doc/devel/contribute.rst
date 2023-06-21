@@ -18,6 +18,8 @@ contribute. Everyone within the community
 is expected to abide by our
 `code of conduct <https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md>`_.
 
+
+
 Below, you can find a number of ways to contribute, and how to connect with the
 Matplotlib community.
 
@@ -77,7 +79,9 @@ There are a few typical new contributor profiles:
   and gaining context on this area by reading the issues and pull requests
   touching these subjects is a reasonable approach.
 
-Get Connected
+.. _get_connected:
+
+Get connected
 =============
 
 Do I really have something to contribute to Matplotlib?
@@ -145,6 +149,7 @@ though not necessarily all at the same time:
 - It involves Python features such as decorators and context managers, which
   have subtleties due to our implementation decisions.
 
+.. _managing_issues_prs:
 
 Work on an issue
 ----------------

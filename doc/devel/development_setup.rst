@@ -148,8 +148,8 @@ The simplest way to do this is to use either Python's virtual environment
 Remember to activate the environment whenever you start working on Matplotlib.
 
 
-Installing Matplotlib in editable mode
-======================================
+Install Matplotlib in editable mode
+===================================
 Install Matplotlib in editable mode from the :file:`matplotlib` directory
 using the command ::
 
