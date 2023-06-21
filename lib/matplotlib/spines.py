@@ -214,15 +214,22 @@ class Spine(mpatches.Patch):
         properties when needed.
         """
         self.axis = axis
-        if self.axis is not None:
-            self.axis.clear()
         self.stale = True
 
     def clear(self):
         """Clear the current spine."""
-        self._position = None  # clear position
+        self._clear()
         if self.axis is not None:
             self.axis.clear()
+
+    def _clear(self):
+        """
+        Clear things directly related to the spine.
+
+        In this way it is possible to avoid clearing the Axis as well when calling
+        from library code where it is known that the Axis is cleared separately.
+        """
+        self._position = None  # clear position
 
     def _adjust_location(self):
         """Automatically set spine bounds to the view interval."""

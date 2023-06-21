@@ -105,7 +105,8 @@ class Axis(martist.Artist):
     offsetText: Text
     labelpad: float
     pickradius: float
-    def __init__(self, axes, *, pickradius: float = ...) -> None: ...
+    def __init__(self, axes, *, pickradius: float = ...,
+                 clear: bool = ...) -> None: ...
     @property
     def isDefault_majloc(self) -> bool: ...
     @isDefault_majloc.setter

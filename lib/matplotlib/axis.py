@@ -32,6 +32,12 @@ _line_param_aliases = [list(d)[0] for d in _line_inspector.aliasd.values()]
 _gridline_param_names = ['grid_' + name
                          for name in _line_param_names + _line_param_aliases]
 
+_MARKER_DICT = {
+    'out': (mlines.TICKDOWN, mlines.TICKUP),
+    'in': (mlines.TICKUP, mlines.TICKDOWN),
+    'inout': ('|', '|'),
+}
+
 
 class Tick(martist.Artist):
     """
@@ -87,11 +93,10 @@ class Tick(martist.Artist):
         super().__init__()
 
         if gridOn is None:
-            if major and (mpl.rcParams['axes.grid.which']
-                          in ('both', 'major')):
+            which = mpl.rcParams['axes.grid.which']
+            if major and (which in ('both', 'major')):
                 gridOn = mpl.rcParams['axes.grid']
-            elif (not major) and (mpl.rcParams['axes.grid.which']
-                                  in ('both', 'minor')):
+            elif (not major) and (which in ('both', 'minor')):
                 gridOn = mpl.rcParams['axes.grid']
             else:
                 gridOn = False
@@ -209,7 +214,8 @@ class Tick(martist.Artist):
         # further updates ticklabel positions using the new pads.
         if tickdir is None:
             tickdir = mpl.rcParams[f'{self.__name__}.direction']
-        _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
+        else:
+            _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
         self._pad = self._base_pad + self.get_tick_padding()
 
@@ -436,11 +442,7 @@ class XTick(Tick):
     def _apply_tickdir(self, tickdir):
         # docstring inherited
         super()._apply_tickdir(tickdir)
-        mark1, mark2 = {
-            'out': (mlines.TICKDOWN, mlines.TICKUP),
-            'in': (mlines.TICKUP, mlines.TICKDOWN),
-            'inout': ('|', '|'),
-        }[self._tickdir]
+        mark1, mark2 = _MARKER_DICT[self._tickdir]
         self.tick1line.set_marker(mark1)
         self.tick2line.set_marker(mark2)
 
@@ -632,7 +634,7 @@ class Axis(martist.Artist):
         return "{}({},{})".format(
             type(self).__name__, *self.axes.transAxes.transform((0, 0)))
 
-    def __init__(self, axes, *, pickradius=15):
+    def __init__(self, axes, *, pickradius=15, clear=True):
         """
         Parameters
         ----------
@@ -641,6 +643,10 @@ class Axis(martist.Artist):
         pickradius : float
             The acceptance radius for containment tests. See also
             `.Axis.contains`.
+        clear : bool, default: True
+            Whether to clear the Axis on creation. This is not required, e.g.,  when
+            creating an Axis as part of an Axes, as ``Axes.clear`` will call
+            ``Axis.clear``.
         """
         super().__init__()
         self._remove_overlapping_locs = True
@@ -674,7 +680,12 @@ class Axis(martist.Artist):
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
 
-        self.clear()
+        if clear:
+            self.clear()
+        else:
+            self.converter = None
+            self.units = None
+
         self._autoscale_on = True
 
     @property
@@ -2353,8 +2364,6 @@ class XAxis(Axis):
             can be used if you don't want any ticks. 'none' and 'both'
             affect only the ticks, not the labels.
         """
-        _api.check_in_list(['top', 'bottom', 'both', 'default', 'none'],
-                           position=position)
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
@@ -2377,7 +2386,8 @@ class XAxis(Axis):
             self._tick_position = 'bottom'
             self.offsetText.set_verticalalignment('top')
         else:
-            assert False, "unhandled parameter not caught by _check_in_list"
+            _api.check_in_list(['top', 'bottom', 'both', 'default', 'none'],
+                               position=position)
         self.stale = True
 
     def tick_top(self):
@@ -2599,8 +2609,6 @@ class YAxis(Axis):
             can be used if you don't want any ticks. 'none' and 'both'
             affect only the ticks, not the labels.
         """
-        _api.check_in_list(['left', 'right', 'both', 'default', 'none'],
-                           position=position)
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,
                                  left=False, labelleft=False)
@@ -2619,7 +2627,8 @@ class YAxis(Axis):
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
         else:
-            assert False, "unhandled parameter not caught by _check_in_list"
+            _api.check_in_list(['left', 'right', 'both', 'default', 'none'],
+                               position=position)
         self.stale = True
 
     def tick_right(self):
