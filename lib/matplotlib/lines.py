@@ -1464,13 +1464,24 @@ class Line2D(Artist):
         return self._linestyle in ('--', '-.', ':')
 
 
-class _AxLine(Line2D):
+class AxLine(Line2D):
     """
     A helper class that implements `~.Axes.axline`, by recomputing the artist
     transform at draw time.
     """
 
     def __init__(self, xy1, xy2, slope, **kwargs):
+        """
+        Parameters
+        ----------
+        xy1 : (float, float)
+            The first set of (x, y) coordinates for the line to pass through.
+        xy2 : (float, float) or None
+            The second set of (x, y) coordinates for the line to pass through.
+            Either *xy2* or *slope* has to be given.
+        slope : float or None
+            The slope of the line. Either *xy2* or *slope* has to be given.
+        """
         super().__init__([0, 1], [0, 1], **kwargs)
 
         if (xy2 is None and slope is None or
@@ -1526,6 +1537,65 @@ class _AxLine(Line2D):
     def draw(self, renderer):
         self._transformed_path = None  # Force regen.
         super().draw(renderer)
+
+    def get_xy1(self):
+        """
+        Return the *xy1* value of the line.
+        """
+        return self._xy1
+
+    def get_xy2(self):
+        """
+        Return the *xy2* value of the line.
+        """
+        return self._xy2
+
+    def get_slope(self):
+        """
+        Return the *slope* value of the line.
+        """
+        return self._slope
+
+    def set_xy1(self, x, y):
+        """
+        Set the *xy1* value of the line.
+
+        Parameters
+        ----------
+        x, y : (float, float)
+            Points for the line to pass through.
+        """
+        self._xy1 = x, y
+
+    def set_xy2(self, x, y):
+        """
+        Set the *xy2* value of the line.
+
+        Parameters
+        ----------
+        x, y : (float, float)
+            Points for the line to pass through.
+        """
+        if self._slope is None:
+            self._xy2 = x, y
+        else:
+            raise ValueError("Cannot set an 'xy2' value while 'slope' is set;"
+                             " they differ but their functionalities overlap")
+
+    def set_slope(self, slope):
+        """
+        Set the *slope* value of the line.
+
+        Parameters
+        ----------
+        slope : float
+            The slope of the line.
+        """
+        if self._xy2 is None:
+            self._slope = slope
+        else:
+            raise ValueError("Cannot set a 'slope' value while 'xy2' is set;"
+                             " they differ but their functionalities overlap")
 
 
 class VertexSelector:
