@@ -1191,6 +1191,7 @@ class TestSubfigureMosaic:
     def test_user_order(self, str_pattern):
         fig, ax_dict = plt.subfigure_mosaic(str_pattern)
         assert list(str_pattern) == list(ax_dict)
+        assert list(fig.subfigs) == list(ax_dict.values())
 
     def test_nested_user_order(self):
         layout = [
@@ -1200,8 +1201,9 @@ class TestSubfigureMosaic:
             [".", [["H", [["I"],
                           ["."]]]]]
         ]
-        nf, ax_dict = plt.subfigure_mosaic(layout)
+        fig, ax_dict = plt.subfigure_mosaic(layout)
         assert list(ax_dict) == list("ABCDEFGHI")
+        assert list(fig.subfigs) == list(ax_dict.values())
 
 
 class TestSubplotMosaic:
