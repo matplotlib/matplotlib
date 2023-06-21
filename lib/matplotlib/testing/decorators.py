@@ -542,6 +542,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
 
 
 # TODO make these functions share a cache
+@functools.lru_cache
 def _load_imagelist(target_file):
     """
     Get the filename, rev, and time stamps from the files.
@@ -559,6 +560,7 @@ def _load_imagelist(target_file):
     return {fname: {"rev": rev, "ts": ts} for fname, rev, ts in ret}
 
 
+@functools.lru_cache
 def _load_blame(target_file):
     """
     Extract the commit a given test image was last updated in.
