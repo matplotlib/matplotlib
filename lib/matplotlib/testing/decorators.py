@@ -122,11 +122,12 @@ class _ImageComparisonBase:
     This class provides *just* the comparison-related functionality and avoids
     any code that would be specific to any testing framework.
     """
-    def __init__(self, func, tol, remove_text, savefig_kwargs):
+    def __init__(self, func, tol, remove_text, savefig_kwargs, external_images):
         self.func = func
         self.result_dir = _results_directory(func)
+        print(external_images)
         (self.root_dir, mod_dir, image_list, self.md_path) = _baseline_directory(
-             func, os.environ.get("MPLTESTIMAGEPATH", None)
+             func, external_images
          )
         self.image_revs = _load_blame(image_list)
         self.baseline_dir = self.root_dir / mod_dir
@@ -293,8 +294,11 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 }.get(extension, 'on this system')
                 pytest.skip(f"Cannot compare {extension} files {reason}")
 
-            img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
-                                       savefig_kwargs=savefig_kwargs)
+            img = _ImageComparisonBase(
+                func,
+                tol=tol, remove_text=remove_text, savefig_kwargs=savefig_kwargs,
+                external_images=request.config.getoption("--image-baseline")
+            )
             matplotlib.testing.set_font_settings_for_testing()
 
             with _collect_new_figures() as figs:

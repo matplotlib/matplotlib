@@ -1,12 +1,19 @@
 import pytest
+import os
 
 
 def pytest_addoption(parser):
     parser.addoption(
             "--generate-images",
              action="store_true",
-             default=False,
+             default=bool(os.environ.get('MPLGENERATEBASELINE', False)),
              help="run matplotlib baseline image generation tests"
+    )
+    parser.addoption(
+            "--image-baseline",
+             default=os.environ.get('MPLBASELINEIMAGES', None),
+             help="run matplotlib baseline image generation tests",
+        type=str
     )
 
 
