@@ -155,6 +155,22 @@ class _ImageComparisonBase:
                 f"{orig_expected_path}") from err
         return expected_fname
 
+    def can_use_imega_cache(self, baseline_images, extension):
+        """
+        If any of the images are stale or missing.
+        """
+        md = self._get_md()
+        for baseline in baseline_images:
+            actual_path = (self.result_dir / baseline).with_suffix(f'.{extension}')
+            orig_expected_path, rel_path = self._compute_baseline_filename(
+                baseline, extension
+            )
+            if rel_path not in md:
+                return False
+            if md[rel_path]['sha'] != self.image_revs[rel_path]['sha']:
+                return False
+        return True
+
     # TODO add caching?
     def _get_md(self):
         if self.md_path.exists():
@@ -185,7 +201,9 @@ class _ImageComparisonBase:
             kwargs.setdefault('metadata',
                               {'Creator': None, 'Producer': None,
                                'CreationDate': None})
-        orig_expected_path = self._compute_baseline_filename(baseline, extension)
+        orig_expected_path, rel_path = self._compute_baseline_filename(
+            baseline, extension
+        )
 
         return actual_path, kwargs, orig_expected_path
 
@@ -200,7 +218,7 @@ class _ImageComparisonBase:
 
         if rel_path not in self.image_revs:
             raise ValueError(f'{rel_path!r} is not known.')
-        return orig_expected_path
+        return orig_expected_path, rel_path
 
     def _save_and_close(self, fig, actual_path, kwargs):
         try:
@@ -230,6 +248,7 @@ class _ImageComparisonBase:
 
             md[rel_path] = {
                 'mpl_version': matplotlib.__version__,
+                'ft_version': ft2font.__freetype_version__,
                 **{k: self.image_revs[rel_path][k]for k in ('sha', 'rev')}
             }
             self._write_md(md)
@@ -294,13 +313,26 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 }.get(extension, 'on this system')
                 pytest.skip(f"Cannot compare {extension} files {reason}")
 
+            generating = request.config.getoption("--generate-images")
+
+            if baseline_images is not None:
+                our_baseline_images = baseline_images
+            else:
+                # Allow baseline image list to be produced on the fly based on
+                # current parametrization.
+                our_baseline_images = request.getfixturevalue(
+                    'baseline_images')
+
             img = _ImageComparisonBase(
                 func,
                 tol=tol, remove_text=remove_text, savefig_kwargs=savefig_kwargs,
                 external_images=request.config.getoption("--image-baseline")
             )
-            matplotlib.testing.set_font_settings_for_testing()
 
+            if generating and img.can_use_imega_cache(our_baseline_images, extension):
+                pytest.skip(reason="Suitable file already exists.")
+
+            matplotlib.testing.set_font_settings_for_testing()
             with _collect_new_figures() as figs:
                 func(*args, **kwargs)
 
@@ -311,19 +343,9 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 marker.args[0] != 'extension'
                 for marker in request.node.iter_markers('parametrize'))
 
-            if baseline_images is not None:
-                our_baseline_images = baseline_images
-            else:
-                # Allow baseline image list to be produced on the fly based on
-                # current parametrization.
-                our_baseline_images = request.getfixturevalue(
-                    'baseline_images')
-
             assert len(figs) == len(our_baseline_images), (
                 f"Test generated {len(figs)} images but there are "
                 f"{len(our_baseline_images)} baseline images")
-
-            generating = request.config.getoption("--generate-images")
 
             for fig, baseline in zip(figs, our_baseline_images):
                 if generating:
