@@ -350,9 +350,6 @@ class Line2D(Artist):
         if solid_joinstyle is None:
             solid_joinstyle = mpl.rcParams['lines.solid_joinstyle']
 
-        if drawstyle is None:
-            drawstyle = 'default'
-
         self._dashcapstyle = None
         self._dashjoinstyle = None
         self._solidjoinstyle = None
@@ -1090,7 +1087,8 @@ class Line2D(Artist):
         """
         if drawstyle is None:
             drawstyle = 'default'
-        _api.check_in_list(self.drawStyles, drawstyle=drawstyle)
+        else:
+            _api.check_in_list(self.drawStyles, drawstyle=drawstyle)
         if self._drawstyle != drawstyle:
             self.stale = True
             # invalidate to trigger a recache of the path

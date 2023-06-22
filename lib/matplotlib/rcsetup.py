@@ -930,8 +930,8 @@ _validators = {
 
     ## font props
     "font.family":     validate_stringlist,  # used by text object
-    "font.style":      validate_string,
-    "font.variant":    validate_string,
+    "font.style":      ['normal', 'italic', 'oblique'],
+    "font.variant":    ['normal', 'small-caps'],
     "font.stretch":    validate_fontstretch,
     "font.weight":     validate_fontweight,
     "font.size":       validate_float,  # Base font size in points

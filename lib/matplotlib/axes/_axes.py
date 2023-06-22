@@ -2757,6 +2757,7 @@ class Axes(_AxesBase):
             if key in kwargs:
                 raise ValueError(
                     f"Passing {key!r} to bar_label() is not supported.")
+        _api.check_in_list(['edge', 'center'], label_type=label_type)
 
         a, b = self.yaxis.get_view_interval()
         y_inverted = a > b
@@ -2767,8 +2768,6 @@ class Axes(_AxesBase):
         # cannot use np.sign here because it will return 0 if x == 0
         def sign(x):
             return 1 if x >= 0 else -1
-
-        _api.check_in_list(['edge', 'center'], label_type=label_type)
 
         bars = container.patches
         errorbar = container.errorbar

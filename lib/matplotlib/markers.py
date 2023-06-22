@@ -291,7 +291,8 @@ class MarkerStyle:
         """
         if fillstyle is None:
             fillstyle = mpl.rcParams['markers.fillstyle']
-        _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
+        else:
+            _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
         self._recache()
 

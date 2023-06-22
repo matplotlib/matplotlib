@@ -260,7 +260,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         if origin is None:
             origin = mpl.rcParams['image.origin']
-        _api.check_in_list(["upper", "lower"], origin=origin)
+        else:
+            _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
@@ -792,7 +793,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         if s is None:
             s = "data"  # placeholder for maybe having rcParam
-        _api.check_in_list(['data', 'rgba'], s=s)
+        else:
+            _api.check_in_list(['data', 'rgba'], s=s)
         self._interpolation_stage = s
         self.stale = True
 

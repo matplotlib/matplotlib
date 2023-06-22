@@ -740,7 +740,8 @@ class FontProperties:
         """
         if style is None:
             style = mpl.rcParams['font.style']
-        _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
+        else:
+            _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
         self._slant = style
 
     def set_variant(self, variant):
@@ -753,7 +754,8 @@ class FontProperties:
         """
         if variant is None:
             variant = mpl.rcParams['font.variant']
-        _api.check_in_list(['normal', 'small-caps'], variant=variant)
+        else:
+            _api.check_in_list(['normal', 'small-caps'], variant=variant)
         self._variant = variant
 
     def set_weight(self, weight):
