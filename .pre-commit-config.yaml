@@ -25,6 +25,8 @@ repos:
         args: ["--pytest-test-first"]
       - id: trailing-whitespace
         exclude_types: [svg]
+      - id: no-commit-to-branch #default is master and main
+        name: don't commit to main branch. rename `git branch -m <newname>` then rebase `git rebase -i upstream\main`
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:
