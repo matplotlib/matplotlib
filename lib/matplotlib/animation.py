@@ -173,10 +173,8 @@ class AbstractMovieWriter(abc.ABC):
     def __init__(self, fps=5, metadata=None, codec=None, bitrate=None):
         self.fps = fps
         self.metadata = metadata if metadata is not None else {}
-        self.codec = (
-            mpl.rcParams['animation.codec'] if codec is None else codec)
-        self.bitrate = (
-            mpl.rcParams['animation.bitrate'] if bitrate is None else bitrate)
+        self.codec = mpl._val_or_rc(codec, 'animation.codec')
+        self.bitrate = mpl._val_or_rc(bitrate, 'animation.bitrate')
 
     @abc.abstractmethod
     def setup(self, fig, outfile, dpi=None):
@@ -733,10 +731,7 @@ class HTMLWriter(FileMovieWriter):
                            default_mode=self.default_mode)
 
         # Save embed limit, which is given in MB
-        if embed_limit is None:
-            self._bytes_limit = mpl.rcParams['animation.embed_limit']
-        else:
-            self._bytes_limit = embed_limit
+        self._bytes_limit = mpl._val_or_rc(embed_limit, 'animation.embed_limit')
         # Convert from MB to bytes
         self._bytes_limit *= 1024 * 1024
 
@@ -1028,8 +1023,7 @@ class Animation:
             fps = 1000. / self._interval
 
         # Re-use the savefig DPI for ours if none is given
-        if dpi is None:
-            dpi = mpl.rcParams['savefig.dpi']
+        dpi = mpl._val_or_rc(dpi, 'savefig.dpi')
         if dpi == 'figure':
             dpi = self._fig.dpi
 
@@ -1267,8 +1261,7 @@ class Animation:
         # Cache the rendering of the video as HTML
         if not hasattr(self, '_base64_video'):
             # Save embed limit, which is given in MB
-            if embed_limit is None:
-                embed_limit = mpl.rcParams['animation.embed_limit']
+            embed_limit = mpl._val_or_rc(embed_limit, 'animation.embed_limit')
 
             # Convert from MB to bytes
             embed_limit *= 1024 * 1024

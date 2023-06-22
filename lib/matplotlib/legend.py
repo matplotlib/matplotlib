@@ -427,11 +427,7 @@ class Legend(Artist):
         super().__init__()
 
         if prop is None:
-            if fontsize is not None:
-                self.prop = FontProperties(size=fontsize)
-            else:
-                self.prop = FontProperties(
-                    size=mpl.rcParams["legend.fontsize"])
+            self.prop = FontProperties(size=mpl._val_or_rc(fontsize, "legend.fontsize"))
         else:
             self.prop = FontProperties._from_any(prop)
             if isinstance(prop, dict) and "size" not in prop:
@@ -447,20 +443,17 @@ class Legend(Artist):
         #: instance.
         self._custom_handler_map = handler_map
 
-        def val_or_rc(val, rc_name):
-            return val if val is not None else mpl.rcParams[rc_name]
-
-        self.numpoints = val_or_rc(numpoints, 'legend.numpoints')
-        self.markerscale = val_or_rc(markerscale, 'legend.markerscale')
-        self.scatterpoints = val_or_rc(scatterpoints, 'legend.scatterpoints')
-        self.borderpad = val_or_rc(borderpad, 'legend.borderpad')
-        self.labelspacing = val_or_rc(labelspacing, 'legend.labelspacing')
-        self.handlelength = val_or_rc(handlelength, 'legend.handlelength')
-        self.handleheight = val_or_rc(handleheight, 'legend.handleheight')
-        self.handletextpad = val_or_rc(handletextpad, 'legend.handletextpad')
-        self.borderaxespad = val_or_rc(borderaxespad, 'legend.borderaxespad')
-        self.columnspacing = val_or_rc(columnspacing, 'legend.columnspacing')
-        self.shadow = val_or_rc(shadow, 'legend.shadow')
+        self.numpoints = mpl._val_or_rc(numpoints, 'legend.numpoints')
+        self.markerscale = mpl._val_or_rc(markerscale, 'legend.markerscale')
+        self.scatterpoints = mpl._val_or_rc(scatterpoints, 'legend.scatterpoints')
+        self.borderpad = mpl._val_or_rc(borderpad, 'legend.borderpad')
+        self.labelspacing = mpl._val_or_rc(labelspacing, 'legend.labelspacing')
+        self.handlelength = mpl._val_or_rc(handlelength, 'legend.handlelength')
+        self.handleheight = mpl._val_or_rc(handleheight, 'legend.handleheight')
+        self.handletextpad = mpl._val_or_rc(handletextpad, 'legend.handletextpad')
+        self.borderaxespad = mpl._val_or_rc(borderaxespad, 'legend.borderaxespad')
+        self.columnspacing = mpl._val_or_rc(columnspacing, 'legend.columnspacing')
+        self.shadow = mpl._val_or_rc(shadow, 'legend.shadow')
         # trim handles and labels if illegal label...
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
@@ -533,18 +526,15 @@ class Legend(Artist):
         # We use FancyBboxPatch to draw a legend frame. The location
         # and size of the box will be updated during the drawing time.
 
-        if facecolor is None:
-            facecolor = mpl.rcParams["legend.facecolor"]
+        facecolor = mpl._val_or_rc(facecolor, "legend.facecolor")
         if facecolor == 'inherit':
             facecolor = mpl.rcParams["axes.facecolor"]
 
-        if edgecolor is None:
-            edgecolor = mpl.rcParams["legend.edgecolor"]
+        edgecolor = mpl._val_or_rc(edgecolor, "legend.edgecolor")
         if edgecolor == 'inherit':
             edgecolor = mpl.rcParams["axes.edgecolor"]
 
-        if fancybox is None:
-            fancybox = mpl.rcParams["legend.fancybox"]
+        fancybox = mpl._val_or_rc(fancybox, "legend.fancybox")
 
         self.legendPatch = FancyBboxPatch(
             xy=(0, 0), width=1, height=1,
@@ -559,8 +549,7 @@ class Legend(Artist):
                       else "square,pad=0"),
             mutation_scale=self._fontsize,
             snap=True,
-            visible=(frameon if frameon is not None
-                     else mpl.rcParams["legend.frameon"])
+            visible=mpl._val_or_rc(frameon, "legend.frameon")
         )
         self._set_artist_props(self.legendPatch)
 
@@ -603,11 +592,9 @@ class Legend(Artist):
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
             'mec':             ['get_markeredgecolor', 'get_edgecolor'],
         }
+        labelcolor = mpl._val_or_rc(labelcolor, 'legend.labelcolor')
         if labelcolor is None:
-            if mpl.rcParams['legend.labelcolor'] is not None:
-                labelcolor = mpl.rcParams['legend.labelcolor']
-            else:
-                labelcolor = mpl.rcParams['text.color']
+            labelcolor = mpl.rcParams['text.color']
         if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legend_handles, self.texts):

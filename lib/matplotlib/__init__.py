@@ -1294,6 +1294,13 @@ def is_interactive():
     return rcParams['interactive']
 
 
+def _val_or_rc(val, rc_name):
+    """
+    If *val* is None, return ``mpl.rcParams[rc_name]``, otherwise return val.
+    """
+    return val if val is not None else rcParams[rc_name]
+
+
 def _init_tests():
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`

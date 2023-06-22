@@ -773,10 +773,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', \
 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'} or None
         """
-        if s is None:
-            s = mpl.rcParams['image.interpolation']
-        s = s.lower()
-        _api.check_in_list(_interpd_, interpolation=s)
+        s = mpl._val_or_rc(s, 'image.interpolation').lower()
+        _api.check_in_list(interpolations_names, interpolation=s)
         self._interpolation = s
         self.stale = True
 
@@ -813,8 +811,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         v : bool or None
             If None, use :rc:`image.resample`.
         """
-        if v is None:
-            v = mpl.rcParams['image.resample']
+        v = mpl._val_or_rc(v, 'image.resample')
         self._resample = v
         self.stale = True
 
@@ -1614,6 +1611,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         # size when dividing and then multiplying by dpi.
         if origin is None:
             origin = mpl.rcParams["image.origin"]
+        else:
+            _api.check_in_list(('upper', 'lower'), origin=origin)
         if origin == "lower":
             arr = arr[::-1]
         if (isinstance(arr, memoryview) and arr.format == "B"
