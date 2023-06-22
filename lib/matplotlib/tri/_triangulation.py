@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 
 from matplotlib import _api
@@ -55,7 +57,7 @@ class Triangulation:
         if triangles is None:
             # No triangulation specified, so use matplotlib._qhull to obtain
             # Delaunay triangulation.
-            self.triangles, self._neighbors = _qhull.delaunay(x, y)
+            self.triangles, self._neighbors = _qhull.delaunay(x, y, sys.flags.verbose)
             self.is_delaunay = True
         else:
             # Triangulation specified. Copy, since we may correct triangle
