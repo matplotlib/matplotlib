@@ -1737,16 +1737,38 @@ class Parser:
 
     _relation_symbols = set(r'''
       = < > :
-      \leq        \geq        \equiv   \models
-      \prec       \succ       \sim     \perp
-      \preceq     \succeq     \simeq   \mid
-      \ll         \gg         \asymp   \parallel
-      \subset     \supset     \approx  \bowtie
-      \subseteq   \supseteq   \cong    \Join
-      \sqsubset   \sqsupset   \neq     \smile
-      \sqsubseteq \sqsupseteq \doteq   \frown
-      \in         \ni         \propto  \vdash
-      \dashv      \dots       \doteqdot'''.split())
+      \leq          \geq          \equiv       \models
+      \prec         \succ         \sim         \perp
+      \preceq       \succeq       \simeq       \mid
+      \ll           \gg           \asymp       \parallel
+      \subset       \supset       \approx      \bowtie
+      \subseteq     \supseteq     \cong        \Join
+      \sqsubset     \sqsupset     \neq         \smile
+      \sqsubseteq   \sqsupseteq   \doteq       \frown
+      \in           \ni           \propto      \vdash
+      \dashv        \dots         \doteqdot    \leqq
+      \geqq         \lneqq        \gneqq       \lessgtr
+      \leqslant     \geqslant     \eqgtr       \eqless
+      \eqslantless  \eqslantgtr   \lesseqgtr   \backsim
+      \backsimeq    \lesssim      \gtrsim      \precsim
+      \precnsim     \gnsim        \lnsim       \succsim
+      \succnsim     \nsim         \lesseqqgtr  \gtreqqless
+      \gtreqless    \subseteqq    \supseteqq   \subsetneqq
+      \supsetneqq   \lessapprox   \approxeq    \gtrapprox
+      \precapprox   \succapprox   \precnapprox \succnapprox
+      \npreccurlyeq \nsucccurlyeq \nsqsubseteq \nsqsupseteq
+      \sqsubsetneq  \sqsupsetneq  \nlesssim    \ngtrsim
+      \nlessgtr     \ngtrless     \lnapprox    \gnapprox
+      \napprox      \approxeq     \approxident \lll
+      \ggg          \nparallel    \Vdash       \Vvdash
+      \nVdash       \nvdash       \vDash       \nvDash
+      \nVDash       \oequal       \simneqq     \triangle
+      \triangleq         \triangleeq         \triangleleft
+      \triangleright     \ntriangleleft      \ntriangleright
+      \trianglelefteq    \ntrianglelefteq    \trianglerighteq
+      \ntrianglerighteq  \blacktriangleleft  \blacktriangleright
+      \equalparallel     \measuredrightangle \varlrtriangle
+      '''.split())
 
     _arrow_symbols = set(r'''
       \leftarrow              \longleftarrow           \uparrow
