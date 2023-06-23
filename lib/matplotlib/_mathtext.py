@@ -1734,7 +1734,17 @@ class Parser:
       \cap            \triangleleft            \dagger
       \cup            \triangleright           \ddagger
       \uplus          \lhd                     \amalg
-      \dotplus        \dotminus'''.split())
+      \dotplus        \dotminus                \Cap
+      \Cup            \barwedge                \boxdot
+      \boxminus       \boxplus                 \boxtimes
+      \curlyvee       \curlywedge              \divideontimes
+      \doublebarwedge \leftthreetimes          \rightthreetimes
+      \slash          \veebar                  \barvee
+      \cupdot         \intercal                \amalg
+      \circledcirc    \circleddash             \circledast
+      \boxbar         \obar                    \merge
+      \minuscolon     \dotsminusdots
+      '''.split())
 
     _relation_symbols = set(r'''
       = < > :
@@ -1768,21 +1778,54 @@ class Parser:
       \triangleright     \ntriangleleft      \ntriangleright
       \trianglelefteq    \ntrianglelefteq    \trianglerighteq
       \ntrianglerighteq  \blacktriangleleft  \blacktriangleright
-      \equalparallel     \measuredrightangle \varlrtriangle
-      '''.split())
+      \equalparallel     \measuredrightangle \lrtriangle
+      \Doteq        \Bumpeq       \Subset      \Supset
+      \backepsilon  \because      \therefore   \bot
+      \top          \bumpeq       \circeq      \coloneq
+      \curlyeqprec  \curlyeqsucc  \eqcirc      \eqcolon
+      \eqsim        \fallingdotseq \gtrdot     \gtrless
+      \ltimes       \rtimes       \lessdot     \ne
+      \ncong        \nequiv       \ngeq        \ngtr
+      \nleq         \nless        \nmid        \notin
+      \nprec        \nsubset      \nsubseteq   \nsucc
+      \nsupset      \nsupseteq    \pitchfork   \preccurlyeq
+      \risingdotseq \subsetneq    \succcurlyeq \supsetneq
+      \varpropto    \vartriangleleft \scurel
+      \vartriangleright \rightangle \equal     \backcong
+      \eqdef        \wedgeq       \questeq     \between
+      \veeeq        \disin        \varisins    \isins
+      \isindot      \varisinobar  \isinobar    \isinvb
+      \isinE        \nisd         \varnis      \nis
+      \varniobar    \niobar       \bagmember   \ratio
+      \Equiv        \stareq       \measeq      \arceq
+      \rightassert  \rightModels  \smallin     \smallowns
+      \notsmallowns'''.split())
 
-    _arrow_symbols = set(r'''
-      \leftarrow              \longleftarrow           \uparrow
-      \Leftarrow              \Longleftarrow           \Uparrow
-      \rightarrow             \longrightarrow          \downarrow
-      \Rightarrow             \Longrightarrow          \Downarrow
-      \leftrightarrow         \longleftrightarrow      \updownarrow
-      \Leftrightarrow         \Longleftrightarrow      \Updownarrow
-      \mapsto                 \longmapsto              \nearrow
-      \hookleftarrow          \hookrightarrow          \searrow
-      \leftharpoonup          \rightharpoonup          \swarrow
-      \leftharpoondown        \rightharpoondown        \nwarrow
-      \rightleftharpoons      \leadsto'''.split())
+    _arrow_symbols = set(r"""
+     \leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
+     \Uparrow \rightarrow \longrightarrow \downarrow \Rightarrow
+     \Longrightarrow \Downarrow \leftrightarrow \updownarrow
+     \longleftrightarrow \updownarrow \Leftrightarrow
+     \Longleftrightarrow \Updownarrow \mapsto \longmapsto \nearrow
+     \hookleftarrow \hookrightarrow \searrow \leftharpoonup
+     \rightharpoonup \swarrow \leftharpoondown \rightharpoondown
+     \nwarrow \rightleftharpoons \leadsto \dashrightarrow
+     \dashleftarrow \leftleftarrows \leftrightarrows \Lleftarrow
+     \Rrightarrow \twoheadleftarrow \leftarrowtail \looparrowleft
+     \leftrightharpoons \curvearrowleft \circlearrowleft \Lsh
+     \upuparrows \upharpoonleft \downharpoonleft \multimap
+     \leftrightsquigarrow \rightrightarrows \rightleftarrows
+     \rightrightarrows \rightleftarrows \twoheadrightarrow
+     \rightarrowtail \looparrowright \rightleftharpoons
+     \curvearrowright \circlearrowright \Rsh \downdownarrows
+     \upharpoonright \downharpoonright \rightsquigarrow \nleftarrow
+     \nrightarrow \nLeftarrow \nRightarrow \nleftrightarrow
+     \nLeftrightarrow \to \Swarrow \Searrow \Nwarrow \Nearrow
+     \leftsquigarrow \overleftarrow \overleftrightarrow \cwopencirclearrow
+     \downzigzagarrow \cupleftarrow \rightzigzagarrow \twoheaddownarrow
+     \updownarrowbar \twoheaduparrow \rightarrowbar \updownarrows
+     \barleftarrow \mapsfrom \mapsdown \mapsup \Ldsh \Rdsh
+     """.split())
 
     _spaced_symbols = _binary_operators | _relation_symbols | _arrow_symbols
 

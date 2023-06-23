@@ -800,6 +800,8 @@ tex2uni = {
     'eta'                      : 951,
     'forall'                   : 8704,
     'eth'                      : 240,
+    'dh'                       : 240,
+    'DH'                       : 208,
     'colon'                    : 58,
     'sqcup'                    : 8852,
     'bigsqcup'                 : 10758,
@@ -1066,7 +1068,7 @@ tex2uni = {
     'hermitmatrix'             : 8889,
     'barvee'                   : 8893,
     'measuredrightangle'       : 8894,
-    'varlrtriangle'            : 8895,
+    'lrtriangle'               : 8895,
     'equalparallel'            : 8917,
     'npreccurlyeq'             : 8928,
     'nsucccurlyeq'             : 8929,
@@ -1090,6 +1092,8 @@ tex2uni = {
     'bagmember'                : 8959,
     'triangle'                 : 9651,
     'iiiint'                   : 10764,
+    'amalg'                    : 10815,
+    'merge'                    : 10837,
 }
 
 # Each element is a 4-tuple of the form:
