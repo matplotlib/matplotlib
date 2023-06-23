@@ -207,6 +207,13 @@ class Test_callback_registry:
         assert self.callbacks._func_cid_map != {}
         assert self.callbacks.callbacks != {}
 
+    def test_cid_restore(self):
+        cb = cbook.CallbackRegistry()
+        cb.connect('a', lambda: None)
+        cb2 = pickle.loads(pickle.dumps(cb))
+        cid = cb2.connect('c', lambda: None)
+        assert cid == 1
+
     @pytest.mark.parametrize('pickle', [True, False])
     def test_callback_complete(self, pickle):
         # ensure we start with an empty registry
