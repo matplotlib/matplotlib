@@ -288,9 +288,10 @@ class MovieWriter(AbstractMovieWriter):
             means higher quality movies, but increase the file size.  A value
             of -1 lets the underlying movie encoder select the bitrate.
         extra_args : list of str or None, optional
-            Extra command-line arguments passed to the underlying movie
-            encoder.  The default, None, means to use
-            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+            Extra command-line arguments passed to the underlying movie encoder. These
+            arguments are passed last to the encoder, just before the filename. The
+            default, None, means to use :rc:`animation.[name-of-encoder]_args` for the
+            builtin writers.
         metadata : dict[str, str], default: {}
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
@@ -553,9 +554,9 @@ class FFMpegBase:
                          'split [a][b];[a] palettegen [p];[b][p] paletteuse'])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])  # %dk: bitrate in kbps.
-        args.extend(extra_args)
         for k, v in self.metadata.items():
             args.extend(['-metadata', f'{k}={v}'])
+        args.extend(extra_args)
 
         return args + ['-y', self.outfile]
 
@@ -566,15 +567,19 @@ class FFMpegWriter(FFMpegBase, MovieWriter):
     """
     Pipe-based ffmpeg writer.
 
-    Frames are streamed directly to ffmpeg via a pipe and written in a single
-    pass.
+    Frames are streamed directly to ffmpeg via a pipe and written in a single pass.
+
+    This effectively works as a slideshow input to ffmpeg with the fps passed as
+    ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe.
         args = [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
                 '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
-                '-r', str(self.fps)]
+                '-framerate', str(self.fps)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
         # If you have a lot of frames in your animation and set logging to
         # DEBUG, you will have a buffer overrun.
@@ -590,8 +595,12 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     """
     File-based ffmpeg writer.
 
-    Frames are written to temporary files on disk and then stitched
-    together at the end.
+    Frames are written to temporary files on disk and then stitched together at the end.
+
+    This effectively works as a slideshow input to ffmpeg with the fps passed as
+    ``-framerate``, so see also `their notes on frame rates`_ for further details.
+
+    .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
@@ -605,10 +614,10 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
                 '-f', 'image2', '-vcodec', 'rawvideo',
                 '-video_size', '%dx%d' % self.frame_size,
                 '-pixel_format', 'rgba',
-                '-framerate', str(self.fps),
             ]
-        args += ['-r', str(self.fps), '-i', self._base_temp_name(),
-                 '-vframes', str(self._frame_counter)]
+        args += ['-framerate', str(self.fps), '-i', self._base_temp_name()]
+        if not self._tmpdir:
+            args += ['-frames:v', str(self._frame_counter)]
         # Logging is quieted because subprocess.PIPE has limited buffer size.
         # If you have a lot of frames in your animation and set logging to
         # DEBUG, you will have a buffer overrun.
@@ -953,9 +962,10 @@ class Animation:
             of -1 lets the underlying movie encoder select the bitrate.
 
         extra_args : list of str or None, optional
-            Extra command-line arguments passed to the underlying movie
-            encoder.  The default, None, means to use
-            :rc:`animation.[name-of-encoder]_args` for the builtin writers.
+            Extra command-line arguments passed to the underlying movie encoder. These
+            arguments are passed last to the encoder, just before the output filename.
+            The default, None, means to use :rc:`animation.[name-of-encoder]_args` for
+            the builtin writers.
 
         metadata : dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
