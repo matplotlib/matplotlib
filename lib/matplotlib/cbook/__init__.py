@@ -208,9 +208,11 @@ class CallbackRegistry:
                           for s, d in self.callbacks.items()},
             # It is simpler to reconstruct this from callbacks in __setstate__.
             "_func_cid_map": None,
+            "_cid_gen": next(self._cid_gen)
         }
 
     def __setstate__(self, state):
+        cid_count = state.pop('_cid_gen')
         vars(self).update(state)
         self.callbacks = {
             s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
@@ -219,6 +221,7 @@ class CallbackRegistry:
         self._func_cid_map = {
             s: {proxy: cid for cid, proxy in d.items()}
             for s, d in self.callbacks.items()}
+        self._cid_gen = itertools.count(cid_count)
 
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
