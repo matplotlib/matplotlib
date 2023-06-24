@@ -2,37 +2,29 @@ from docutils.parsers.rst import Directive
 
 from matplotlib import _mathtext, _mathtext_data
 
-
 symbols = [
     ["Lower-case Greek",
-     6,
      r"""\alpha \beta \gamma \chi \delta \epsilon \eta \iota \kappa
          \lambda \mu \nu \omega \phi \pi \psi \rho \sigma \tau \theta
          \upsilon \xi \zeta \digamma \varepsilon \varkappa \varphi
          \varpi \varrho \varsigma \vartheta"""],
     ["Upper-case Greek",
-     8,
      r"""\Delta \Gamma \Lambda \Omega \Phi \Pi \Psi \Sigma \Theta
      \Upsilon \Xi \mho \nabla"""],
     ["Hebrew",
-     6,
      r"""\aleph \beth \daleth \gimel"""],
     ["Delimiters",
-     6,
      r"""| \{ \lfloor / \Uparrow \llcorner \vert \} \rfloor \backslash
          \uparrow \lrcorner \| \langle \lceil [ \Downarrow \ulcorner
          \Vert \rangle \rceil ] \downarrow \urcorner"""],
     ["Big symbols",
-     6,
      r"""\bigcap \bigcup \bigodot \bigoplus \bigotimes \biguplus
          \bigvee \bigwedge \coprod \oint \prod \sum \int"""],
     ["Standard function names",
-     6,
      r"""\arccos \csc \ker \min \arcsin \deg \lg \Pr \arctan \det \lim
          \gcd \ln \sup \cot \hom \log \tan \coth \inf \max \tanh
          \sec \arg \dim \liminf \sin \cos \exp \limsup \sinh \cosh"""],
     ["Binary operation and relation symbols",
-     4,
      r"""\ast \pm \slash \cap \star \mp \cup \cdot \uplus
      \triangleleft \circ \odot \sqcap \triangleright \bullet \ominus
      \sqcup \bigcirc \oplus \wedge \diamond \oslash \vee
@@ -64,7 +56,6 @@ symbols = [
      \Doteq \nsubset \eqcolon \ne
      """],
     ["Arrow symbols",
-     4,
      r"""\leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
      \Uparrow \rightarrow \longrightarrow \downarrow \Rightarrow
      \Longrightarrow \Downarrow \leftrightarrow \updownarrow
@@ -86,8 +77,7 @@ symbols = [
      \nLeftrightarrow \to \Swarrow \Searrow \Nwarrow \Nearrow
      \leftsquigarrow
      """],
-    ["Miscellaneous symbols",
-     4,
+    ["Miscellaneous symbols", 
      r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
      \nexists \measuredangle \eth \emptyset \sphericalangle \clubsuit
      \varnothing \complement \diamondsuit \imath \Finv \triangledown
@@ -98,7 +88,6 @@ symbols = [
      \iiint \iint \oiiint"""]
 ]
 
-
 def run(state_machine):
     def render_symbol(sym):
         if sym.startswith("\\"):
@@ -107,11 +96,24 @@ def run(state_machine):
                            _mathtext.Parser._function_names):
                 sym = chr(_mathtext_data.tex2uni[sym])
         return f'\\{sym}' if sym in ('\\', '|') else sym
+    
+    def columns_calculation(list):
+        remainder = max_columns = columns = 10
+        max_remainder = 0
+        for columns_number in range(max_columns - 1, 3, -1):
+          # print(columns_number)
+          remainder = len(list) % columns_number
+          if remainder > max_remainder:
+               columns = columns_number
+            
+        return columns
 
     lines = []
-    for category, columns, syms in symbols:
+    # for category, columns, syms in symbols:
+    for category, syms in symbols:
         syms = sorted(syms.split())
-        columns = min(columns, len(syms))
+        columns = columns_calculation(syms)
+        # columns = min(columns, len(syms))
         lines.append("**%s**" % category)
         lines.append('')
         max_width = max(map(len, syms)) * 2 + 16
