@@ -74,11 +74,15 @@ def _get_testable_interactive_backends():
             )
         )
     return envs
+_test_timeout=120
+def timeout_handler(signum, frame):
+    raise TimeoutError('test timer out')
 
-
-_test_timeout = 120  # A reasonably safe value for slower architectures.
-
-
+def run_test_with_timeout():
+    _test_timeout = 120  # A reasonably safe value for slower architectures.
+    
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(_test_timeout)
 def _test_toolbar_button_la_mode_icon(fig):
     # test a toolbar button icon using an image in LA mode (GH issue 25174)
     # create an icon in LA mode
