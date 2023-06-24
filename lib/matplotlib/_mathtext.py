@@ -1778,7 +1778,7 @@ class Parser:
       \triangleright     \ntriangleleft      \ntriangleright
       \trianglelefteq    \ntrianglelefteq    \trianglerighteq
       \ntrianglerighteq  \blacktriangleleft  \blacktriangleright
-      \equalparallel     \measuredrightangle \lrtriangle
+      \equalparallel     \measuredrightangle \varlrtriangle
       \Doteq        \Bumpeq       \Subset      \Supset
       \backepsilon  \because      \therefore   \bot
       \top          \bumpeq       \circeq      \coloneq
@@ -1799,7 +1799,7 @@ class Parser:
       \varniobar    \niobar       \bagmember   \ratio
       \Equiv        \stareq       \measeq      \arceq
       \rightassert  \rightModels  \smallin     \smallowns
-      \notsmallowns'''.split())
+      \notsmallowns \nsimeq'''.split())
 
     _arrow_symbols = set(r"""
      \leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
@@ -2154,9 +2154,11 @@ class Parser:
             # such as ${ -2}$, $ -2$, or $   -2$.
             prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
             # Binary operators at start of string should not be spaced
-            if (c in self._binary_operators and
-                    (len(s[:loc].split()) == 0 or prev_char == '{' or
-                     prev_char in self._left_delims)):
+            # Also, operators in sub- or superscripts should not be spaced
+            if (self._in_subscript_or_superscript or (
+                    c in self._binary_operators and (
+                    len(s[:loc].split()) == 0 or prev_char == '{' or
+                    prev_char in self._left_delims))):
                 return [char]
             else:
                 return [Hlist([self._make_space(0.2),

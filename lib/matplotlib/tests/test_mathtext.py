@@ -525,7 +525,7 @@ def test_mathtext_operators():
     \ngtrsim \nlessgtr \ngtrless
     \cupleftarrow \oequal \rightassert
     \rightModels \hermitmatrix \barvee
-    \measuredrightangle \lrtriangle
+    \measuredrightangle \varlrtriangle
     \equalparallel \npreccurlyeq \nsucccurlyeq
     \nsqsubseteq \nsqsupseteq \sqsubsetneq
     \sqsupsetneq  \disin \varisins

@@ -67,8 +67,8 @@ symbols = [
      \hslash \blacksquare \blacktriangle \sharp \increment
      \prime \blacktriangledown \Im \flat \backprime \Re \natural
      \circledS \P \copyright \circledR \S \yen \checkmark \$
-     \cent \triangle \QED \sinewave \dag \ddag \perthousand
-     \lambdabar \L \l \degree \danger \maltese
+     \cent \triangle \QED \sinewave \dag \ddag \perthousand \ac
+     \lambdabar \L \l \degree \danger \maltese \clubsuitopen
      \i \hermitmatrix \sterling \nabla \mho""".split()],
 ]
 
@@ -76,14 +76,14 @@ symbols = [
 def run(state_machine):
 
     def render_symbol(sym, ignore_variant=False):
-        if ignore_variant and sym != r"\varnothing":
+        if ignore_variant and sym not in (r"\varnothing", r"\varlrtriangle"):
             sym = sym.replace(r"\var", "\\")
         if sym.startswith("\\"):
             sym = sym.lstrip("\\")
             if sym not in (_mathtext.Parser._overunder_functions |
                            _mathtext.Parser._function_names):
                 sym = chr(_mathtext_data.tex2uni[sym])
-        return f'\\{sym}' if sym in ('\\', '|') else sym
+        return f'\\{sym}' if sym in ('\\', '|', '+', '-', '*') else sym
 
     lines = []
     for category, columns, syms in symbols:
@@ -145,6 +145,7 @@ if __name__ == "__main__":
 
     # Add accents
     all_symbols.update({v[1:]: k for k, v in _mathtext.Parser._accent_map.items()})
+    all_symbols.update({v: v for v in _mathtext.Parser._wide_accents})
     print("SYMBOLS NOT IN TABLE:")
     for sym, val in _mathtext_data.tex2uni.items():
         if sym not in all_symbols:
