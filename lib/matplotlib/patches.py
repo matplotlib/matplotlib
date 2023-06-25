@@ -622,7 +622,7 @@ class Shadow(Patch):
 
         Parameters
         ----------
-        patch : `.Patch`
+        patch : `~matplotlib.patches.Patch`
             The patch to create the shadow for.
         ox, oy : float
             The shift of the shadow in data coordinates, scaled by a factor
@@ -713,7 +713,7 @@ class Rectangle(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
@@ -1967,7 +1967,7 @@ class Arc(Ellipse):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             Most `.Patch` properties are supported as keyword arguments,
             except *fill* and *facecolor* because filling is not supported.
 
@@ -3841,7 +3841,7 @@ class FancyBboxPatch(Patch):
         height : float
             The height of the box.
 
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the fancy box. This can either be a `.BoxStyle`
             instance or a string of the style name and optionally comma
             separated attributes (e.g. "Round, pad=0.2"). This string is
@@ -3864,7 +3864,7 @@ class FancyBboxPatch(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
 
         %(Patch:kwdoc)s
         """
@@ -3890,7 +3890,7 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the box: either a `.BoxStyle` instance, or a string,
             which is the style name and optionally comma separated attributes
             (e.g. "Round,pad=0.2"). Such a string is used to construct a
@@ -4118,7 +4118,7 @@ default: 'arc3'
 
             %(ConnectionStyle:table)s
 
-        patchA, patchB : `.Patch`, default: None
+        patchA, patchB : `~matplotlib.patches.Patch`, default: None
             Head and tail patches, respectively.
 
         shrinkA, shrinkB : float, default: 2
@@ -4135,7 +4135,7 @@ default: 'arc3'
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties, optional
+        **kwargs : `~matplotlib.patches.Patch` properties, optional
             Here is a list of available `.Patch` properties:
 
         %(Patch:kwdoc)s
@@ -4225,7 +4225,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        connectionstyle : str or `matplotlib.patches.ConnectionStyle`
+        connectionstyle : str or `~matplotlib.patches.ConnectionStyle`
             The style of the connection: either a `.ConnectionStyle` instance,
             or a string, which is the style name and optionally comma separated
             attributes (e.g. "Arc,armA=30,rad=10"). Such a string is used to
@@ -4268,7 +4268,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        arrowstyle : str or `matplotlib.patches.ArrowStyle`
+        arrowstyle : str or `~matplotlib.patches.ArrowStyle`
             The style of the arrow: either a `.ArrowStyle` instance, or a
             string, which is the style name and optionally comma separated
             attributes (e.g. "Fancy,head_length=0.2"). Such a string is used to

@@ -253,7 +253,7 @@ class QuiverKey(martist.Artist):
 
         Parameters
         ----------
-        Q : `matplotlib.quiver.Quiver`
+        Q : `~matplotlib.quiver.Quiver`
             A `.Quiver` object as returned by a call to `~.Axes.quiver()`.
         X, Y : float
             The location of the key.

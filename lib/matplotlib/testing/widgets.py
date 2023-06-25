@@ -32,7 +32,7 @@ def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         The axes the event will be in.
     xdata : int
         x coord of mouse in data coords.
@@ -95,7 +95,7 @@ def click_and_drag(tool, start, end, key=None):
 
     Parameters
     ----------
-    tool : `matplotlib.widgets.Widget`
+    tool : `~matplotlib.widgets.Widget`
     start : [float, float]
         Starting point in data coordinates.
     end : [float, float]

@@ -436,7 +436,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
@@ -1561,7 +1561,7 @@ class VertexSelector:
         """
         Parameters
         ----------
-        line : `.Line2D`
+        line : `~matplotlib.lines.Line2D`
             The line must already have been added to an `~.axes.Axes` and must
             have its picker property set.
         """

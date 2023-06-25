@@ -634,7 +634,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     Parameters
     ----------
-    ax : `~.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
 
     levels : [level0, level1, ..., leveln]
         A list of floating point numbers indicating the contour levels.
@@ -686,7 +686,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Parameters
         ----------
-        ax : `~.axes.Axes`
+        ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` object to draw on.
 
         levels : [level0, level1, ..., leveln]
