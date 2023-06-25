@@ -1389,11 +1389,15 @@ or callable, default: value of *xycoords*
         # docstring inherited
         if renderer is None:
             renderer = self.figure._get_renderer()
+        self.update_positions(renderer)
         return Bbox.union([child.get_window_extent(renderer)
                            for child in self.get_children()])
 
     def get_tightbbox(self, renderer=None):
         # docstring inherited
+        if renderer is None:
+            renderer = self.figure._get_renderer()
+        self.update_positions(renderer)
         return Bbox.union([child.get_tightbbox(renderer)
                            for child in self.get_children()])
 
