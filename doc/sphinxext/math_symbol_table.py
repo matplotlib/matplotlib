@@ -2,28 +2,25 @@ from docutils.parsers.rst import Directive
 
 from matplotlib import _mathtext, _mathtext_data
 
+
 symbols = [
     ["Lower-case Greek",
-     r"""\alpha \beta \gamma \chi \delta \epsilon \eta \iota \kappa
-         \lambda \mu \nu \omega \phi \pi \psi \rho \sigma \tau \theta
-         \upsilon \xi \zeta \digamma \varepsilon \varkappa \varphi
-         \varpi \varrho \varsigma \vartheta"""],
+     (r"\alpha", r"\beta", r"\gamma",  r"\chi", r"\delta", r"\epsilon",
+      r"\eta", r"\iota",  r"\kappa", r"\lambda", r"\mu", r"\nu",  r"\omega",
+      r"\phi",  r"\pi", r"\psi", r"\rho",  r"\sigma",  r"\tau", r"\theta",
+      r"\upsilon", r"\xi", r"\zeta",  r"\digamma", r"\varepsilon", r"\varkappa",
+      r"\varphi", r"\varpi", r"\varrho", r"\varsigma",  r"\vartheta")],
     ["Upper-case Greek",
-     r"""\Delta \Gamma \Lambda \Omega \Phi \Pi \Psi \Sigma \Theta
-     \Upsilon \Xi \mho \nabla"""],
+     (r"\Delta", r"\Gamma", r"\Lambda", r"\Omega", r"\Phi", r"\Pi", r"\Psi",
+      r"\Sigma", r"\Theta", r"\Upsilon", r"\Xi")],
     ["Hebrew",
-     r"""\aleph \beth \daleth \gimel"""],
+     (r"\aleph", r"\beth", r"\gimel", r"\daleth")],
     ["Delimiters",
-     r"""| \{ \lfloor / \Uparrow \llcorner \vert \} \rfloor \backslash
-         \uparrow \lrcorner \| \langle \lceil [ \Downarrow \ulcorner
-         \Vert \rangle \rceil ] \downarrow \urcorner"""],
+     _mathtext.Parser._delims],
     ["Big symbols",
-     r"""\bigcap \bigcup \bigodot \bigoplus \bigotimes \biguplus
-         \bigvee \bigwedge \coprod \oint \prod \sum \int"""],
+     _mathtext.Parser._overunder_symbols | _mathtext.Parser._dropsub_symbols],
     ["Standard function names",
-     r"""\arccos \csc \ker \min \arcsin \deg \lg \Pr \arctan \det \lim
-         \gcd \ln \sup \cot \hom \log \tan \coth \inf \max \tanh
-         \sec \arg \dim \liminf \sin \cos \exp \limsup \sinh \cosh"""],
+     {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
     ["Binary operation and relation symbols",
      r"""\ast \pm \slash \cap \star \mp \cup \cdot \uplus
      \triangleleft \circ \odot \sqcap \triangleright \bullet \ominus
@@ -54,7 +51,7 @@ symbols = [
      \lneqq \gneqq \ntriangleright \lnsim \gnsim \ntrianglerighteq
      \coloneq \eqsim \nequiv \napprox \nsupset \doublebarwedge \nVdash
      \Doteq \nsubset \eqcolon \ne
-     """],
+     """.split()],
     ["Arrow symbols",
      r"""\leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
      \Uparrow \rightarrow \longrightarrow \downarrow \Rightarrow
@@ -76,8 +73,8 @@ symbols = [
      \nrightarrow \nLeftarrow \nRightarrow \nleftrightarrow
      \nLeftrightarrow \to \Swarrow \Searrow \Nwarrow \Nearrow
      \leftsquigarrow
-     """],
-    ["Miscellaneous symbols", 
+     """.split()],
+    ["Miscellaneous symbols",
      r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
      \nexists \measuredangle \eth \emptyset \sphericalangle \clubsuit
      \varnothing \complement \diamondsuit \imath \Finv \triangledown
@@ -85,13 +82,17 @@ symbols = [
      \hslash \vdots \blacksquare \ldots \blacktriangle \ddots \sharp
      \prime \blacktriangledown \Im \flat \backprime \Re \natural
      \circledS \P \copyright \ss \circledR \S \yen \AA \checkmark \$
-     \iiint \iint \oiiint"""]
+     \cent \triangle \QED \sinewave \nabla \mho""".split()]
 ]
 
+
 def run(state_machine):
-    def render_symbol(sym):
+
+    def render_symbol(sym, ignore_variant=False):
+        if ignore_variant and sym != r"\varnothing":
+            sym = sym.replace(r"\var", "\\")
         if sym.startswith("\\"):
-            sym = sym[1:]
+            sym = sym.lstrip("\\")
             if sym not in (_mathtext.Parser._overunder_functions |
                            _mathtext.Parser._function_names):
                 sym = chr(_mathtext_data.tex2uni[sym])
@@ -101,7 +102,6 @@ def run(state_machine):
         remainder = max_columns = columns = 10
         max_remainder = 0
         for columns_number in range(max_columns - 1, 3, -1):
-          # print(columns_number)
           remainder = len(list) % columns_number
           if remainder > max_remainder:
                columns = columns_number
@@ -109,11 +109,14 @@ def run(state_machine):
         return columns
 
     lines = []
-    # for category, columns, syms in symbols:
     for category, syms in symbols:
-        syms = sorted(syms.split())
+        syms = sorted(syms,
+                      # Sort by Unicode and place variants immediately
+                      # after standard versions.
+                      key=lambda sym: (render_symbol(sym, ignore_variant=True),
+                                       sym.startswith(r"\var")),
+                      reverse=(category == "Hebrew"))  # Hebrew is rtl
         columns = columns_calculation(syms)
-        # columns = min(columns, len(syms))
         lines.append("**%s**" % category)
         lines.append('')
         max_width = max(map(len, syms)) * 2 + 16
@@ -157,7 +160,6 @@ if __name__ == "__main__":
     for category, columns, syms in symbols:
         if category == "Standard Function Names":
             continue
-        syms = syms.split()
         for sym in syms:
             if len(sym) > 1:
                 all_symbols[sym[1:]] = None
