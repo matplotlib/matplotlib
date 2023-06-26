@@ -7,11 +7,14 @@ This script demonstrates the different available style sheets on a
 common set of example plots: scatter plot, image, bar graph, patches,
 line plot and histogram.
 
-Any of these style sheets can be imported (i.e. activated) by its name with:
+Any of these style sheets can be imported (i.e. activated) by its name.
+For example for the ggplot style:
 
 >>> plt.style.use('ggplot')
 
-while name of the available style sheets (printed in corner of the plots below) can be found in the list `matplotlib.style.available`.
+The names of the available style sheets can be found
+in the list `matplotlib.style.available`
+(they are also printed in the corner of each plot below).
 
 See more details in :ref:`Customizing Matplotlib using style sheets<customizing-with-style-sheets>`.
 """
