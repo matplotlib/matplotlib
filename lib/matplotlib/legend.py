@@ -465,9 +465,12 @@ class Legend(Artist):
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
             if isinstance(label, str) and label.startswith('_'):
-                _api.warn_external(f"The label {label!r} of {handle!r} starts "
-                                   "with '_'. It is thus excluded from the "
-                                   "legend.")
+                _api.warn_deprecated("3.8", message=(
+                    "An artist whose label starts with an underscore was passed to "
+                    "legend(); such artists will no longer be ignored in the future.  "
+                    "To suppress this warning, explicitly filter out such artists, "
+                    "e.g. with `[art for art in artists if not "
+                    "art.get_label().startswith('_')]`."))
             else:
                 _lab.append(label)
                 _hand.append(handle)
