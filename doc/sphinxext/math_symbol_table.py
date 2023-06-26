@@ -98,14 +98,14 @@ def run(state_machine):
                 sym = chr(_mathtext_data.tex2uni[sym])
         return f'\\{sym}' if sym in ('\\', '|') else sym
     
-    def columns_calculation(list):
+    def columns_calculation(my_list):
         remainder = max_columns = columns = 10
         max_remainder = 0
         for columns_number in range(max_columns - 1, 3, -1):
-          remainder = len(list) % columns_number
-          if remainder > max_remainder:
-               columns = columns_number
-            
+            remainder = len(my_list) % columns_number
+            if remainder > max_remainder:
+                columns = columns_number
+                
         return columns
 
     lines = []
