@@ -1128,25 +1128,10 @@ default: %(va)s
         :ref:`legend_guide` for details.
         """
 
-        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                self.axes,
-                *args,
-                **kwargs)
-        # check for third arg
-        if len(extra_args):
-            # _api.warn_deprecated(
-            #     "2.1",
-            #     message="Figure.legend will accept no more than two "
-            #     "positional arguments in the future.  Use "
-            #     "'fig.legend(handles, labels, loc=location)' "
-            #     "instead.")
-            # kwargs['loc'] = extra_args[0]
-            # extra_args = extra_args[1:]
-            pass
-        transform = kwargs.pop('bbox_transform', self.transSubfigure)
+        handles, labels, kwargs = mlegend._parse_legend_args(self.axes, *args, **kwargs)
         # explicitly set the bbox transform if the user hasn't.
-        l = mlegend.Legend(self, handles, labels, *extra_args,
-                           bbox_transform=transform, **kwargs)
+        kwargs.setdefault("bbox_transform", self.transSubfigure)
+        l = mlegend.Legend(self, handles, labels, **kwargs)
         self.legends.append(l)
         l._remove_method = self.legends.remove
         self.stale = True

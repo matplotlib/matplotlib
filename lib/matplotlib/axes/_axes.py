@@ -316,12 +316,7 @@ class Axes(_AxesBase):
         --------
         .. plot:: gallery/text_labels_and_annotations/legend.py
         """
-        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                [self],
-                *args,
-                **kwargs)
-        if len(extra_args):
-            raise _api.nargs_error('legend', '0-2', len(args))
+        handles, labels, kwargs = mlegend._parse_legend_args([self], *args, **kwargs)
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         self.legend_._remove_method = self._remove_legend
         return self.legend_
