@@ -511,7 +511,7 @@ int convert_points(PyObject *obj, void *pointsp)
         return 1;
     }
     if (!points->set(obj)
-        || points->size() && !check_trailing_shape(*points, "points", 2)) {
+        || (points->size() && !check_trailing_shape(*points, "points", 2))) {
         return 0;
     }
     return 1;
@@ -524,7 +524,7 @@ int convert_transforms(PyObject *obj, void *transp)
         return 1;
     }
     if (!trans->set(obj)
-        || trans->size() && !check_trailing_shape(*trans, "transforms", 3, 3)) {
+        || (trans->size() && !check_trailing_shape(*trans, "transforms", 3, 3))) {
         return 0;
     }
     return 1;
@@ -537,7 +537,7 @@ int convert_bboxes(PyObject *obj, void *bboxp)
         return 1;
     }
     if (!bbox->set(obj)
-        || bbox->size() && !check_trailing_shape(*bbox, "bbox array", 2, 2)) {
+        || (bbox->size() && !check_trailing_shape(*bbox, "bbox array", 2, 2))) {
         return 0;
     }
     return 1;
@@ -550,7 +550,7 @@ int convert_colors(PyObject *obj, void *colorsp)
         return 1;
     }
     if (!colors->set(obj)
-        || colors->size() && !check_trailing_shape(*colors, "colors", 4)) {
+        || (colors->size() && !check_trailing_shape(*colors, "colors", 4))) {
         return 0;
     }
     return 1;

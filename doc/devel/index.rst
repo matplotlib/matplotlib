@@ -1,18 +1,19 @@
 .. _developers-guide-index:
 
-############
-Contributing
-############
+##########
+Contribute
+##########
 
 Thank you for your interest in helping to improve Matplotlib! There are various
-ways to contribute to Matplotlib. All of them are super valuable but don't necessarily
-require writing code at all. For example:
+ways to contribute to Matplotlib. All of them are super valuable! For example:
 
-- contributing to the documentation
-- opening new issues for bugs
-- requesting new features
-- asking for clarification on things you find unclear
-- fixing bugs
+- cleaning up and optimizing the code base
+- creating and sharing examples of using the library
+- detailing unclear and missing documentation
+- reporting and fixing bugs
+- requesting and implementing new features
+- helping the community with all of the above
+
 
 If you have any questions on the
 process or how to fix something feel free to ask on `gitter
@@ -54,12 +55,12 @@ process or how to fix something feel free to ask on `gitter
 .. toctree::
    :maxdepth: 2
 
-   contributing.rst
+   contribute.rst
    triage.rst
    development_setup.rst
    development_workflow.rst
    testing.rst
-   documenting_mpl.rst
+   document.rst
    style_guide.rst
    coding_guide.rst
    release_guide.rst

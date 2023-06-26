@@ -258,10 +258,12 @@ delaunay(PyObject *self, PyObject *args)
     npy_intp npoints;
     const double* x;
     const double* y;
+    int verbose = 0;
 
-    if (!PyArg_ParseTuple(args, "O&O&",
+    if (!PyArg_ParseTuple(args, "O&O&i:delaunay",
                           &xarray.converter_contiguous, &xarray,
-                          &yarray.converter_contiguous, &yarray)) {
+                          &yarray.converter_contiguous, &yarray,
+                          &verbose)) {
         return NULL;
     }
 
@@ -288,7 +290,7 @@ delaunay(PyObject *self, PyObject *args)
     }
 
     CALL_CPP("qhull.delaunay",
-             (ret = delaunay_impl(npoints, x, y, Py_VerboseFlag == 0)));
+             (ret = delaunay_impl(npoints, x, y, verbose == 0)));
 
     return ret;
 }
@@ -302,7 +304,7 @@ version(PyObject *self, PyObject *arg)
 
 static PyMethodDef qhull_methods[] = {
     {"delaunay", delaunay, METH_VARARGS,
-     "delaunay(x, y, /)\n"
+     "delaunay(x, y, verbose, /)\n"
      "--\n\n"
      "Compute a Delaunay triangulation.\n"
      "\n"
@@ -311,6 +313,8 @@ static PyMethodDef qhull_methods[] = {
      "x, y : 1d arrays\n"
      "    The coordinates of the point set, which must consist of at least\n"
      "    three unique points.\n"
+     "verbose : int\n"
+     "    Python's verbosity level.\n"
      "\n"
      "Returns\n"
      "-------\n"

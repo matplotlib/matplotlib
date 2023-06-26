@@ -58,6 +58,8 @@ to address the most common layout issues.
 
 .. plot::
 
+    plt.style.use('classic')
+
     plt.rcParams['savefig.facecolor'] = "0.8"
     plt.rcParams['figure.figsize'] = 4, 3
 

@@ -63,8 +63,11 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
-        elif (env['MPLBACKEND'] == 'tkagg' and 'TF_BUILD' in os.environ and
-              sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+        elif (env['MPLBACKEND'] == 'tkagg' and
+              ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+              sys.platform == 'darwin' and
+              sys.version_info[:2] < (3, 11)
+              ):
             marks.append(  # https://github.com/actions/setup-python/issues/649
                 pytest.mark.xfail(reason='Tk version mismatch on Azure macOS CI'))
         envs.append(
@@ -107,7 +110,8 @@ def _test_interactive_impl():
     import io
     import json
     import sys
-    from unittest import TestCase
+
+    import pytest
 
     import matplotlib as mpl
     from matplotlib import pyplot as plt
@@ -119,8 +123,6 @@ def _test_interactive_impl():
 
     mpl.rcParams.update(json.loads(sys.argv[1]))
     backend = plt.rcParams["backend"].lower()
-    assert_equal = TestCase().assertEqual
-    assert_raises = TestCase().assertRaises
 
     if backend.endswith("agg") and not backend.startswith(("gtk", "web")):
         # Force interactive framework setup.
@@ -135,15 +137,14 @@ def _test_interactive_impl():
         # uses no interactive framework).
 
         if backend != "tkagg":
-            with assert_raises(ImportError):
+            with pytest.raises(ImportError):
                 mpl.use("tkagg", force=True)
 
         def check_alt_backend(alt_backend):
             mpl.use(alt_backend, force=True)
             fig = plt.figure()
-            assert_equal(
-                type(fig.canvas).__module__,
-                f"matplotlib.backends.backend_{alt_backend}")
+            assert (type(fig.canvas).__module__ ==
+                    f"matplotlib.backends.backend_{alt_backend}")
 
         if importlib.util.find_spec("cairocffi"):
             check_alt_backend(backend[:-3] + "cairo")
@@ -151,9 +152,9 @@ def _test_interactive_impl():
     mpl.use(backend, force=True)
 
     fig, ax = plt.subplots()
-    assert_equal(
-        type(fig.canvas).__module__,
-        f"matplotlib.backends.backend_{backend}")
+    assert type(fig.canvas).__module__ == f"matplotlib.backends.backend_{backend}"
+
+    assert fig.canvas.manager.get_window_title() == "Figure 1"
 
     if mpl.rcParams["toolbar"] == "toolmanager":
         # test toolbar button icon LA mode see GH issue 25174
@@ -189,7 +190,7 @@ def _test_interactive_impl():
     if not backend.startswith('qt5') and sys.platform == 'darwin':
         # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS
         # to not resize incorrectly.
-        assert_equal(result.getvalue(), result_after.getvalue())
+        assert result.getvalue() == result_after.getvalue()
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
@@ -241,7 +242,7 @@ def _test_thread_impl():
     future.result()  # Joins the thread; rethrows any exception.
     plt.close()  # backend is responsible for flushing any events here
     if plt.rcParams["backend"].startswith("WX"):
-        # TODO: debug why WX needs this only on py3.8
+        # TODO: debug why WX needs this only on py >= 3.8
         fig.canvas.flush_events()
 
 
@@ -275,8 +276,9 @@ for param in _thread_safe_backends:
                 reason='PyPy does not support Tkinter threading: '
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
-    elif (backend == 'tkagg' and 'TF_BUILD' in os.environ and
-          sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+    elif (backend == 'tkagg' and
+          ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+          sys.platform == 'darwin' and sys.version_info[:2] < (3, 11)):
         param.marks.append(  # https://github.com/actions/setup-python/issues/649
             pytest.mark.xfail('Tk version mismatch on Azure macOS CI'))
 
@@ -548,8 +550,11 @@ for param in _blit_backends:
     elif backend == "wx":
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))
-    elif (backend == 'tkagg' and 'TF_BUILD' in os.environ and
-          sys.platform == 'darwin' and sys.version_info[:2] == (3, 10)):
+    elif (backend == 'tkagg' and
+          ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+          sys.platform == 'darwin' and
+          sys.version_info[:2] < (3, 11)
+          ):
         param.marks.append(  # https://github.com/actions/setup-python/issues/649
             pytest.mark.xfail('Tk version mismatch on Azure macOS CI')
         )

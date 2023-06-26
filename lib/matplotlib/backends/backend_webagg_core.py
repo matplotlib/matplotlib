@@ -427,6 +427,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     # This must be None to not break ipympl
     _toolbar2_class = None
     ToolbarCls = NavigationToolbar2WebAgg
+    _window_title = "Matplotlib"
 
     def __init__(self, canvas, num):
         self.web_sockets = set()
@@ -444,6 +445,10 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
     def set_window_title(self, title):
         self._send_event('figure_label', label=title)
+        self._window_title = title
+
+    def get_window_title(self):
+        return self._window_title
 
     # The following methods are specific to FigureManagerWebAgg
 

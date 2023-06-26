@@ -78,6 +78,8 @@ minimum and maximum colorbar extensions.
 
     import matplotlib.pyplot as plt
     import numpy as np
+    
+    plt.style.use('classic')
 
     x = y = np.linspace(0., 2*np.pi, 100)
     X, Y = np.meshgrid(x, y)
