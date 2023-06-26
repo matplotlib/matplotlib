@@ -5,30 +5,23 @@ from matplotlib import _mathtext, _mathtext_data
 
 symbols = [
     ["Lower-case Greek",
-     4,
      (r"\alpha", r"\beta", r"\gamma",  r"\chi", r"\delta", r"\epsilon",
       r"\eta", r"\iota",  r"\kappa", r"\lambda", r"\mu", r"\nu",  r"\omega",
       r"\phi",  r"\pi", r"\psi", r"\rho",  r"\sigma",  r"\tau", r"\theta",
       r"\upsilon", r"\xi", r"\zeta",  r"\digamma", r"\varepsilon", r"\varkappa",
       r"\varphi", r"\varpi", r"\varrho", r"\varsigma",  r"\vartheta")],
     ["Upper-case Greek",
-     4,
      (r"\Delta", r"\Gamma", r"\Lambda", r"\Omega", r"\Phi", r"\Pi", r"\Psi",
       r"\Sigma", r"\Theta", r"\Upsilon", r"\Xi")],
     ["Hebrew",
-     6,
      (r"\aleph", r"\beth", r"\gimel", r"\daleth")],
     ["Delimiters",
-     5,
      _mathtext.Parser._delims],
     ["Big symbols",
-     5,
      _mathtext.Parser._overunder_symbols | _mathtext.Parser._dropsub_symbols],
     ["Standard function names",
-     5,
      {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
     ["Binary operation and relation symbols",
-     4,
      r"""\ast \pm \slash \cap \star \mp \cup \cdot \uplus
      \triangleleft \circ \odot \sqcap \triangleright \bullet \ominus
      \sqcup \bigcirc \oplus \wedge \diamond \oslash \vee
@@ -60,7 +53,6 @@ symbols = [
      \Doteq \nsubset \eqcolon \ne
      """.split()],
     ["Arrow symbols",
-     4,
      r"""\leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
      \Uparrow \rightarrow \longrightarrow \downarrow \Rightarrow
      \Longrightarrow \Downarrow \leftrightarrow \updownarrow
@@ -83,7 +75,6 @@ symbols = [
      \leftsquigarrow
      """.split()],
     ["Miscellaneous symbols",
-     4,
      r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
      \nexists \measuredangle \eth \emptyset \sphericalangle \clubsuit
      \varnothing \complement \diamondsuit \imath \Finv \triangledown
@@ -106,16 +97,26 @@ def run(state_machine):
                            _mathtext.Parser._function_names):
                 sym = chr(_mathtext_data.tex2uni[sym])
         return f'\\{sym}' if sym in ('\\', '|') else sym
+    
+    def columns_calculation(list):
+        remainder = max_columns = columns = 10
+        max_remainder = 0
+        for columns_number in range(max_columns - 1, 3, -1):
+          remainder = len(list) % columns_number
+          if remainder > max_remainder:
+               columns = columns_number
+            
+        return columns
 
     lines = []
-    for category, columns, syms in symbols:
+    for category, syms in symbols:
         syms = sorted(syms,
                       # Sort by Unicode and place variants immediately
                       # after standard versions.
                       key=lambda sym: (render_symbol(sym, ignore_variant=True),
                                        sym.startswith(r"\var")),
                       reverse=(category == "Hebrew"))  # Hebrew is rtl
-        columns = min(columns, len(syms))
+        columns = columns_calculation(syms)
         lines.append("**%s**" % category)
         lines.append('')
         max_width = max(map(len, syms)) * 2 + 16
