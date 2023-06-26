@@ -17,7 +17,7 @@ import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-from matplotlib import rc_context
+from matplotlib import _api, rc_context
 from matplotlib.font_manager import FontProperties
 
 
@@ -144,8 +144,7 @@ def test_legend_label_with_leading_underscore():
     """
     fig, ax = plt.subplots()
     line, = ax.plot([0, 1], label='_foo')
-    with pytest.warns(UserWarning,
-                      match=r"starts with '_'.*excluded from the legend."):
+    with pytest.warns(_api.MatplotlibDeprecationWarning, match="with an underscore"):
         legend = ax.legend(handles=[line])
     assert len(legend.legend_handles) == 0
 
