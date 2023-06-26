@@ -222,39 +222,96 @@ How to contribute
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
-then submit a "pull request" (PR).
+then submit a "pull request" (PR). You can do this by cloning a copy of the
+Maplotlib repository to your own computer, or alternatively using
+`GitHub Codespaces <https://docs.github.com/codespaces>`_ (a cloud-based
+in-browser development environment, that comes with the appropriated setup to
+contribute to Matplotlib).
 
-A brief overview is:
+A brief overview of the workflows is as follows.
 
-1. `Create an account <https://github.com/join>`_ on GitHub if you do not
-   already have one.
+.. tab-set::
 
-2. Fork the `project repository <https://github.com/matplotlib/matplotlib>`_:
-   click on the 'Fork' button near the top of the page. This creates a copy of
-   the code under your account on the GitHub server.
+    .. tab-item:: Local development
 
-3. Clone this copy to your local disk::
+        1. `Create an account <https://github.com/join>`_ on GitHub if you do
+           not already have one.
 
-      git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
+        2. Fork the
+           `project repository <https://github.com/matplotlib/matplotlib>`_:
+           click on the 'Fork' button near the top of the page. This creates a
+           copy of the code under your account on the GitHub server.
 
-4. Enter the directory and install the local version of Matplotlib.
-   See :ref:`installing_for_devs` for instructions
+        3. Clone this copy to your local disk::
 
-5. Create a branch to hold your changes::
+             git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
 
-      git checkout -b my-feature origin/main
+        4. Enter the directory and install the local version of Matplotlib.
+           See :ref:`installing_for_devs` for instructions
 
-   and start making changes. Never work in the ``main`` branch!
+        5. Create a branch to hold your changes::
 
-6. Work on this copy, on your computer, using Git to do the version control.
-   When you're done editing e.g., ``lib/matplotlib/collections.py``, do::
+             git checkout -b my-feature origin/main
 
-      git add lib/matplotlib/collections.py
-      git commit
+           and start making changes. Never work in the ``main`` branch!
 
-   to record your changes in Git, then push them to GitHub with::
+        6. Work on this copy, on your computer, using Git to do the version
+           control. When you're done editing e.g.,
+           ``lib/matplotlib/collections.py``, do::
 
-      git push -u origin my-feature
+             git add lib/matplotlib/collections.py
+             git commit
+
+           to record your changes in Git, then push them to GitHub with::
+
+             git push -u origin my-feature
+
+    .. tab-item:: Using GitHub Codespaces
+
+        1. `Create an account <https://github.com/join>`_ on GitHub if you do
+           not already have one.
+
+        2. Fork the
+           `project repository <https://github.com/matplotlib/matplotlib>`_:
+           click on the 'Fork' button near the top of the page. This creates a
+           copy of the code under your account on the GitHub server.
+
+        3. Open codespaces on your fork by clicking on the green "Code" button
+           on the GitHub web interface and selecting the "Codespaces" tab. Next,
+           click on "Open codespaces on <your fork name>". You will be able to
+           change branches later, so you can select the default ``main`` branch.
+
+           After the codespace is created, you will be taken to a new browser
+           tab where you can use the terminal to activate a pre-defined conda
+           environment called ``mpl-dev``::
+
+            conda activate mpl-dev
+
+        4. Install the local version of Matplotlib with::
+
+             python -m pip install -e .
+
+           (See :ref:`installing_for_devs` for detailed instructions.)
+
+        5. Create a branch to hold your changes::
+
+             git checkout -b my-feature origin/main
+
+           and start making changes. Never work in the ``main`` branch!
+
+        6. Work on this task using Git to do the version control. Codespaces
+           persist for some time (check the `documentation for details
+           <https://docs.github.com/codespaces/getting-started/the-codespace-lifecycle>`_)
+           and can be managed on https://github.com/codespaces. When you're done
+           editing e.g., ``lib/matplotlib/collections.py``, do::
+
+             git add lib/matplotlib/collections.py
+             git commit
+
+           to record your changes in Git, then push them to your GitHub fork
+           with::
+
+             git push -u origin my-feature
 
 Finally, go to the web page of your fork of the Matplotlib repo, and click
 'Pull request' to send your changes to the maintainers for review.

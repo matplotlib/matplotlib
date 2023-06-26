@@ -1,4 +1,3 @@
-
 {
   "hostRequirements": {
     "memory": "8gb",
@@ -22,11 +21,17 @@
         "ms-vscode.live-server"
       ],
       "settings": {}
+    },
+    "codespaces": {
+      "openFiles": [
+        "README.md",
+        "doc/devel/codespaces.md"
+      ]
     }
-},
-"portsAttributes": {
-	"6080": {
-		"label": "desktop"
-	}
-}
+  },
+  "portsAttributes": {
+    "6080": {
+      "label": "desktop"
+    }
+  }
 }
