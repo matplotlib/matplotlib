@@ -12,6 +12,12 @@
   },
   "onCreateCommand": ".devcontainer/setup.sh",
   "postCreateCommand": "",
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "desktop"
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -27,11 +33,6 @@
         "README.md",
         "doc/devel/codespaces.md"
       ]
-    }
-  },
-  "portsAttributes": {
-    "6080": {
-      "label": "desktop"
     }
   }
 }
