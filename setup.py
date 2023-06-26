@@ -181,6 +181,14 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
         env = self.add_optimization_flags()
         for package in good_packages:
             package.do_custom_build(env)
+        # Make sure we don't accidentally use too modern C++ constructs, even
+        # though modern compilers default to enabling them.  Enabling this for
+        # a single platform is enough; also only do this for C++-only
+        # extensions as clang refuses to compile C/ObjC with -std=c++11.
+        if sys.platform != "win32":
+            for ext in self.distribution.ext_modules[:]:
+                if not any(src.endswith((".c", ".m")) for src in ext.sources):
+                    ext.extra_compile_args.append("-std=c++11")
         return super().build_extensions()
 
     def build_extension(self, ext):
