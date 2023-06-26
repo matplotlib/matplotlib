@@ -189,6 +189,12 @@ jobs:
           # possible.
           python -m pip install --upgrade pip setuptools wheel
 
+          # Install pre-release versions during our weekly upcoming dependency tests.
+          if [[ "${{ github.event_name == 'schedule' && \
+                     matrix.name-suffix != '(Minimum Versions)' }}' ]]; then
+            PRE="--pre"
+          fi
+
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
             'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
