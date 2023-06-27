@@ -180,12 +180,13 @@ class TightLayoutEngine(LayoutEngine):
         info = self._params
         renderer = fig._get_renderer()
         with getattr(renderer, "_draw_disabled", nullcontext)():
-            kwargs = get_tight_layout_figure(
-                fig, fig.axes, get_subplotspec_list(fig.axes), renderer,
-                pad=info['pad'], h_pad=info['h_pad'], w_pad=info['w_pad'],
-                rect=info['rect'])
-        if kwargs:
-            fig.subplots_adjust(**kwargs)
+            for _ in range(2):
+                kwargs = get_tight_layout_figure(
+                    fig, fig.axes, get_subplotspec_list(fig.axes), renderer,
+                    pad=info['pad'], h_pad=info['h_pad'], w_pad=info['w_pad'],
+                    rect=info['rect'])
+                if kwargs:
+                    fig.subplots_adjust(**kwargs)
 
     def set(self, *, pad=None, w_pad=None, h_pad=None, rect=None):
         """
