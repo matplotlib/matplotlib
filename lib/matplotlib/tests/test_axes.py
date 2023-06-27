@@ -8754,7 +8754,7 @@ def test_scale_changed_event():
     assert yscale_changed
     assert zscale_changed
 
-    
+
 def test_fill_between_axes_limits():
     fig, ax = plt.subplots()
     x = np.arange(0, 4 * np.pi, 0.01)
@@ -8780,4 +8780,3 @@ def test_tick_param_labelfont():
     plt.title('Title in sans-serif')
     for text in ax.get_xticklabels():
         assert text.get_fontfamily()[0] == 'monospace'
-
