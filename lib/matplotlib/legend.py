@@ -1347,8 +1347,6 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         The legend handles.
     labels : list of str
         The legend labels.
-    extra_args : tuple
-        *args* with positional handles and labels removed.
     kwargs : dict
         *kwargs* with keywords handles and labels removed.
 
@@ -1356,7 +1354,6 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     log = logging.getLogger(__name__)
 
     handlers = kwargs.get('handler_map')
-    extra_args = ()
 
     if (handles is not None or labels is not None) and args:
         _api.warn_external("You have mixed positional and keyword arguments, "
@@ -1374,8 +1371,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         handles = [handle for handle, label
                    in zip(_get_legend_handles(axs, handlers), labels)]
 
-    # No arguments - automatically detect labels and handles.
-    elif len(args) == 0:
+    elif len(args) == 0:  # 0 args: automatically detect labels and handles.
         handles, labels = _get_legend_handles_labels(axs, handlers)
         if not handles:
             log.warning(
@@ -1383,8 +1379,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
                 "artists whose label start with an underscore are ignored "
                 "when legend() is called with no argument.")
 
-    # One argument. User defined labels - automatic handle detection.
-    elif len(args) == 1:
+    elif len(args) == 1:  # 1 arg: user defined labels, automatic handle detection.
         labels, = args
         if any(isinstance(l, Artist) for l in labels):
             raise TypeError("A single argument passed to legend() must be a "
@@ -1394,10 +1389,10 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
         handles = [handle for handle, label
                    in zip(_get_legend_handles(axs, handlers), labels)]
 
-    # Two arguments:
-    #   * user defined handles and labels
-    else:
+    elif len(args) == 2:  # 2 args: user defined handles and labels.
         handles, labels = args[:2]
-        extra_args = args[2:]
 
-    return handles, labels, extra_args, kwargs
+    else:
+        raise _api.nargs_error('legend', '0-2', len(args))
+
+    return handles, labels, kwargs

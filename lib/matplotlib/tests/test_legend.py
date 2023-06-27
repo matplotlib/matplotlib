@@ -453,17 +453,9 @@ class TestLegendFigureFunction:
     def test_legend_label_three_args(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10))
-        with mock.patch('matplotlib.legend.Legend') as Legend:
+        with pytest.raises(TypeError, match="0-2"):
             fig.legend(lines, ['foobar'], 'right')
-        Legend.assert_called_with(fig, lines, ['foobar'], 'right',
-                                  bbox_transform=fig.transFigure)
-
-    def test_legend_label_three_args_pluskw(self):
-        # test that third argument and loc=  called together give
-        # Exception
-        fig, ax = plt.subplots()
-        lines = ax.plot(range(10))
-        with pytest.raises(Exception):
+        with pytest.raises(TypeError, match="0-2"):
             fig.legend(lines, ['foobar'], 'right', loc='left')
 
     def test_legend_kw_args(self):
