@@ -9,6 +9,7 @@ from matplotlib import scale
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
+from matplotlib.transforms import Affine2D, Bbox, TransformedBbox
 from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
@@ -744,3 +745,25 @@ def test_scale_swapping(fig_test, fig_ref):
         ax.plot(x, np.exp(-(x**2) / 2) / np.sqrt(2 * np.pi))
         fig.canvas.draw()
         ax.set_yscale('linear')
+
+
+def test_offset_copy_errors():
+    with pytest.raises(ValueError,
+                       match="'fontsize' is not a valid value for units;"
+                             " supported values are 'dots', 'points', 'inches'"):
+        mtransforms.offset_copy(None, units='fontsize')
+
+    with pytest.raises(ValueError,
+                       match='For units of inches or points a fig kwarg is needed'):
+        mtransforms.offset_copy(None, units='inches')
+
+
+def test_transformedbbox_contains():
+    bb = TransformedBbox(Bbox.unit(), Affine2D().rotate_deg(30))
+    assert bb.contains(.8, .5)
+    assert bb.contains(-.4, .85)
+    assert not bb.contains(.9, .5)
+    bb = TransformedBbox(Bbox.unit(), Affine2D().translate(.25, .5))
+    assert bb.contains(1.25, 1.5)
+    assert not bb.fully_contains(1.25, 1.5)
+    assert not bb.fully_contains(.1, .1)

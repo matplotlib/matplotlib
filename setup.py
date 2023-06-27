@@ -29,7 +29,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from setuptools import setup, find_packages, Distribution, Extension
+from setuptools import setup, find_namespace_packages, Distribution, Extension
 import setuptools.command.build_ext
 import setuptools.command.build_py
 import setuptools.command.sdist
@@ -181,6 +181,14 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
         env = self.add_optimization_flags()
         for package in good_packages:
             package.do_custom_build(env)
+        # Make sure we don't accidentally use too modern C++ constructs, even
+        # though modern compilers default to enabling them.  Enabling this for
+        # a single platform is enough; also only do this for C++-only
+        # extensions as clang refuses to compile C/ObjC with -std=c++11.
+        if sys.platform != "win32":
+            for ext in self.distribution.ext_modules[:]:
+                if not any(src.endswith((".c", ".m")) for src in ext.sources):
+                    ext.extra_compile_args.append("-std=c++11")
         return super().build_extensions()
 
     def build_extension(self, ext):
@@ -301,8 +309,10 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
     ],
 
     package_dir={"": "lib"},
-    packages=find_packages("lib"),
-    namespace_packages=["mpl_toolkits"],
+    packages=find_namespace_packages(
+        where="lib",
+        exclude=["*baseline_images*", "*tinypages*", "*mpl-data*", "*web_backend*"],
+    ),
     py_modules=["pylab"],
     # Dummy extension to trigger build_ext, which will swap it out with
     # real extensions that can depend on numpy for the build.
@@ -325,7 +335,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "numpy>=1.21",
         "packaging>=20.0",
         "pillow>=6.2.0",
-        "pyparsing>=2.3.1",
+        "pyparsing>=2.3.1,<3.1",
         "python-dateutil>=2.7",
     ] + (
         # Installing from a git checkout that is not producing a wheel.

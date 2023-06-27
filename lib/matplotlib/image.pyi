@@ -1,27 +1,20 @@
-import io
 import os
 import pathlib
 
 from matplotlib._image import *
 import matplotlib.artist as martist
 from matplotlib.axes import Axes
-from matplotlib import cbook, cm
-from matplotlib.backend_bases import FigureCanvasBase, RendererBase, MouseEvent
+from matplotlib import cm
+from matplotlib.backend_bases import RendererBase, MouseEvent
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.figure import Figure
 from matplotlib.transforms import (
     Affine2D,
-    Bbox,
     BboxBase,
-    BboxTransform,
-    BboxTransformTo,
-    IdentityTransform,
-    TransformedBbox,
-    Transform,
 )
 
 from collections.abc import Sequence
-from typing import Any, Literal
+from typing import Any, BinaryIO, Literal
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -76,7 +69,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self, renderer: RendererBase, magnification: float = ..., unsampled: bool = ...
     ) -> tuple[np.ndarray, float, float, Affine2D]: ...
     def draw(self, renderer: RendererBase, *args, **kwargs) -> None: ...
-    def write_png(self, fname: str | pathlib.Path | io.FileIO) -> None: ...
+    def write_png(self, fname: str | pathlib.Path | BinaryIO) -> None: ...
     def set_data(self, A: ArrayLike | None) -> None: ...
     def set_array(self, A: ArrayLike | None) -> None: ...
     def get_shape(self) -> tuple[int, int, int]: ...
@@ -176,9 +169,11 @@ class BboxImage(_ImageBase):
     ) -> None: ...
     def get_window_extent(self, renderer: RendererBase | None = ...): ...
 
-def imread(fname: str | io.FileIO, format: str | None = ...) -> np.ndarray: ...
+def imread(
+    fname: str | pathlib.Path |  BinaryIO, format: str | None = ...
+) -> np.ndarray: ...
 def imsave(
-    fname: str | os.PathLike | io.FileIO,
+    fname: str | os.PathLike | BinaryIO,
     arr: ArrayLike,
     vmin: float | None = ...,
     vmax: float | None = ...,
@@ -192,8 +187,8 @@ def imsave(
 ) -> None: ...
 def pil_to_array(pilImage: PIL.Image.Image) -> np.ndarray: ...
 def thumbnail(
-    infile: str | io.FileIO,
-    thumbfile: str | io.FileIO,
+    infile: str | BinaryIO,
+    thumbfile: str | BinaryIO,
     scale: float = ...,
     interpolation: str = ...,
     preview: bool = ...,

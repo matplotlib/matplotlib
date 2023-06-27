@@ -37,6 +37,8 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
         super().__init__(figure=figure)
         self._draw_pending = False
         self._is_drawing = False
+        # Keep track of the timers that are alive
+        self._timers = set()
 
     def draw(self):
         """Render the figure and update the macosx canvas."""
@@ -59,14 +61,16 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
 
     def _single_shot_timer(self, callback):
         """Add a single shot timer with the given callback"""
-        # We need to explicitly stop (called from delete) the timer after
+        # We need to explicitly stop and remove the timer after
         # firing, otherwise segfaults will occur when trying to deallocate
         # the singleshot timers.
         def callback_func(callback, timer):
             callback()
-            del timer
+            self._timers.remove(timer)
+            timer.stop()
         timer = self.new_timer(interval=0)
         timer.add_callback(callback_func, callback, timer)
+        self._timers.add(timer)
         timer.start()
 
     def _draw_idle(self):
@@ -149,6 +153,14 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     def _close_button_pressed(self):
         Gcf.destroy(self)
         self.canvas.flush_events()
+
+    def destroy(self):
+        # We need to clear any pending timers that never fired, otherwise
+        # we get a memory leak from the timer callbacks holding a reference
+        while self.canvas._timers:
+            timer = self.canvas._timers.pop()
+            timer.stop()
+        super().destroy()
 
     @classmethod
     def start_main_loop(cls):

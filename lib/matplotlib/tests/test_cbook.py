@@ -209,6 +209,13 @@ class Test_callback_registry:
         assert self.callbacks._func_cid_map != {}
         assert self.callbacks.callbacks != {}
 
+    def test_cid_restore(self):
+        cb = cbook.CallbackRegistry()
+        cb.connect('a', lambda: None)
+        cb2 = pickle.loads(pickle.dumps(cb))
+        cid = cb2.connect('c', lambda: None)
+        assert cid == 1
+
     @pytest.mark.parametrize('pickle', [True, False])
     def test_callback_complete(self, pickle):
         # ensure we start with an empty registry
@@ -609,6 +616,18 @@ def test_flatiter():
 
     assert 0 == next(it)
     assert 1 == next(it)
+
+
+def test__safe_first_finite_all_nan():
+    arr = np.full(2, np.nan)
+    ret = cbook._safe_first_finite(arr)
+    assert np.isnan(ret)
+
+
+def test__safe_first_finite_all_inf():
+    arr = np.full(2, np.inf)
+    ret = cbook._safe_first_finite(arr)
+    assert np.isinf(ret)
 
 
 def test_reshape2d():

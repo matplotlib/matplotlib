@@ -13,7 +13,7 @@ To keep your work well organized, with readable history, and in turn make it
 easier for project maintainers (that might be you) to see what you've done, and
 why you did it, we recommend the following:
 
-* Don't use your ``main`` branch for anything.  Consider deleting it.
+* Don't make changes in your local ``main`` branch!
 * Before starting a new set of changes, fetch all changes from
   ``upstream/main``, and start a new *feature branch* from that.
 * Make a new branch for each feature or bug fix — "one task, one branch".
@@ -24,14 +24,6 @@ why you did it, we recommend the following:
 * When you're ready or need feedback on your code, open a pull request so that the
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.
-
-.. note::
-
-   It may sound strange, but deleting your own ``main`` branch can help reduce
-   confusion about which branch you are on.  See `deleting main on GitHub`_ for
-   details.
-
-.. _deleting main on GitHub: https://matthew-brett.github.io/pydagogue/gh_delete_master.html
 
 .. _update-mirror-main:
 
@@ -71,10 +63,15 @@ what the changes in the branch are for.  For example ``add-ability-to-fly``, or
     git branch my-new-feature upstream/main
     git checkout my-new-feature
 
+If you started making changes on your local ``main`` branch, you can convert the
+branch to a feature branch by renaming it::
+
+   git branch -m <newname>
+
 Generally, you will want to keep your feature branches on your public GitHub
 fork of Matplotlib.  To do this, you ``git push`` this new branch up to your
-GitHub repo.  Generally (if you followed the instructions in these pages, and by
-default), git will have a link to your fork of the GitHub repo, called
+GitHub repo.  Generally, if you followed the instructions in these pages, and by
+default, git will have a link to your fork of the GitHub repo, called
 ``origin``.  You push up to your own fork with::
 
    git push origin my-new-feature
@@ -86,6 +83,12 @@ In git >= 1.7 you can ensure that the link is correctly set by using the
 
 From now on git will know that ``my-new-feature`` is related to the
 ``my-new-feature`` branch in the GitHub repo.
+
+If you first opened the pull request from your ``main`` branch and then
+converted it to a feature branch, you will need to close the original pull
+request and open a new pull request from the renamed branch. See
+`GitHub: working with branches
+<https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-branches#working-with-branches>`_.
 
 .. _edit-flow:
 
@@ -153,8 +156,8 @@ If you don't think your request is ready to be merged, just say so in your pull
 request message and use the "Draft PR" feature of GitHub. This is a good way of
 getting some preliminary code review.
 
-Some other things you might want to do
-======================================
+Manage commit history
+=====================
 
 Explore your repository
 -----------------------
@@ -171,8 +174,8 @@ To see a linear list of commits for this branch::
 
 .. _recovering-from-mess-up:
 
-Recovering from mess-ups
-------------------------
+Recover from mistakes
+---------------------
 
 Sometimes, you mess up merges or rebases. Luckily, in git it is
 relatively straightforward to recover from such mistakes.
@@ -201,8 +204,8 @@ If you forgot to make a backup branch::
 
 .. _rewriting-commit-history:
 
-Rewriting commit history
-------------------------
+Rewrite commit history
+----------------------
 
 .. note::
 
@@ -293,7 +296,7 @@ to replace your already published commits with the new ones.
 
 .. _rebase-on-main:
 
-Rebasing on ``upstream/main``
+Rebase onto ``upstream/main``
 -----------------------------
 
 Let's say you thought of some work you'd like to do. You
@@ -371,8 +374,8 @@ to replace your already published commits with the new ones.
 .. _force-push:
 
 
-Pushing, with force
--------------------
+Push with force
+---------------
 
 
 If you have in some way re-written already pushed history (e.g. via

@@ -613,12 +613,12 @@ class Shadow(Patch):
         return f"Shadow({self.patch})"
 
     @_docstring.dedent_interpd
-    def __init__(self, patch, ox, oy, **kwargs):
+    def __init__(self, patch, ox, oy, *, shade=0.7, **kwargs):
         """
         Create a shadow of the given *patch*.
 
         By default, the shadow will have the same face color as the *patch*,
-        but darkened.
+        but darkened. The darkness can be controlled by *shade*.
 
         Parameters
         ----------
@@ -627,6 +627,12 @@ class Shadow(Patch):
         ox, oy : float
             The shift of the shadow in data coordinates, scaled by a factor
             of dpi/72.
+        shade : float, default: 0.7
+            How the darkness of the shadow relates to the original color. If 1, the
+            shadow is black, if 0, the shadow has the same color as the *patch*.
+
+            .. versionadded:: 3.8
+
         **kwargs
             Properties of the shadow patch. Supported keys are:
 
@@ -638,7 +644,9 @@ class Shadow(Patch):
         self._shadow_transform = transforms.Affine2D()
 
         self.update_from(self.patch)
-        color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
+        if not 0 <= shade <= 1:
+            raise ValueError("shade must be between 0 and 1.")
+        color = (1 - shade) * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
         self.update({'facecolor': color, 'edgecolor': color, 'alpha': 0.5,
                      # Place shadow patch directly behind the inherited patch.
                      'zorder': np.nextafter(self.patch.zorder, -np.inf),
@@ -1654,6 +1662,37 @@ class Ellipse(Patch):
         return self.get_patch_transform().transform(
             [(-1, -1), (1, -1), (1, 1), (-1, 1)])
 
+    def _calculate_length_between_points(self, x0, y0, x1, y1):
+        return np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
+
+    def get_vertices(self):
+        """
+        Return the vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        else:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        return [tuple(x) for x in ret]
+
+    def get_co_vertices(self):
+        """
+        Return the co-vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        else:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        return [tuple(x) for x in ret]
+
 
 class Annulus(Patch):
     """
@@ -1936,7 +1975,7 @@ class Arc(Ellipse):
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
-            raise ValueError("Arc objects can not be filled")
+            raise ValueError("Arc objects cannot be filled")
 
         super().__init__(xy, width, height, angle=angle, **kwargs)
 

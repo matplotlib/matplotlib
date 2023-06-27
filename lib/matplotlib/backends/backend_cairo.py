@@ -15,7 +15,8 @@ import numpy as np
 try:
     import cairo
     if cairo.version_info < (1, 14, 0):  # Introduced set_device_scale.
-        raise ImportError
+        raise ImportError(f"Cairo backend requires cairo>=1.14.0, "
+                          f"but only {cairo.version_info} is available")
 except ImportError:
     try:
         import cairocffi as cairo
@@ -24,7 +25,6 @@ except ImportError:
             "cairo backend requires that pycairo>=1.14.0 or cairocffi "
             "is installed") from err
 
-import matplotlib as mpl
 from .. import _api, cbook, font_manager
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -203,9 +203,7 @@ class RendererCairo(RendererBase):
             ctx.select_font_face(*_cairo_font_args_from_font_prop(prop))
             ctx.set_font_size(self.points_to_pixels(prop.get_size_in_points()))
             opts = cairo.FontOptions()
-            opts.set_antialias(
-                cairo.ANTIALIAS_DEFAULT if mpl.rcParams["text.antialiased"]
-                else cairo.ANTIALIAS_NONE)
+            opts.set_antialias(gc.get_antialiased())
             ctx.set_font_options(opts)
             if angle:
                 ctx.rotate(np.deg2rad(-angle))
@@ -310,6 +308,9 @@ class GraphicsContextCairo(GraphicsContextBase):
     def set_antialiased(self, b):
         self.ctx.set_antialias(
             cairo.ANTIALIAS_DEFAULT if b else cairo.ANTIALIAS_NONE)
+
+    def get_antialiased(self):
+        return self.ctx.get_antialias()
 
     def set_capstyle(self, cs):
         self.ctx.set_line_cap(_api.check_getitem(self._capd, capstyle=cs))

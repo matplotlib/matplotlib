@@ -462,7 +462,7 @@ class UnicodeFonts(TruetypeFonts):
     complete set of math symbols is STIX.
 
     This class will "fallback" on the Bakoma fonts when a required
-    symbol can not be found in the font.
+    symbol cannot be found in the font.
     """
 
     # Some glyphs are not present in the `cmr10` font, and must be brought in
@@ -484,7 +484,7 @@ class UnicodeFonts(TruetypeFonts):
 
         super().__init__(*args, **kwargs)
         self.fontmap = {}
-        for texfont in "cal rm tt it bf sf".split():
+        for texfont in "cal rm tt it bf sf bfit".split():
             prop = mpl.rcParams['mathtext.' + texfont]
             font = findfont(prop)
             self.fontmap[texfont] = font
@@ -631,6 +631,7 @@ class DejaVuSerifFonts(DejaVuFonts):
         'rm': 'DejaVu Serif',
         'it': 'DejaVu Serif:italic',
         'bf': 'DejaVu Serif:weight=bold',
+        'bfit': 'DejaVu Serif:italic:bold',
         'sf': 'DejaVu Sans',
         'tt': 'DejaVu Sans Mono',
         'ex': 'DejaVu Serif Display',
@@ -648,6 +649,7 @@ class DejaVuSansFonts(DejaVuFonts):
         'rm': 'DejaVu Sans',
         'it': 'DejaVu Sans:italic',
         'bf': 'DejaVu Sans:weight=bold',
+        'bfit': 'DejaVu Sans:italic:bold',
         'sf': 'DejaVu Sans',
         'tt': 'DejaVu Sans Mono',
         'ex': 'DejaVu Sans Display',
@@ -671,6 +673,7 @@ class StixFonts(UnicodeFonts):
         'rm': 'STIXGeneral',
         'it': 'STIXGeneral:italic',
         'bf': 'STIXGeneral:weight=bold',
+        'bfit': 'STIXGeneral:italic:bold',
         'nonunirm': 'STIXNonUnicode',
         'nonuniit': 'STIXNonUnicode:italic',
         'nonunibf': 'STIXNonUnicode:weight=bold',
@@ -736,7 +739,7 @@ class StixFonts(UnicodeFonts):
             uniindex = stix_glyph_fixes.get(uniindex, uniindex)
 
         # Handle private use area glyphs
-        if fontname in ('it', 'rm', 'bf') and 0xe000 <= uniindex <= 0xf8ff:
+        if fontname in ('it', 'rm', 'bf', 'bfit') and 0xe000 <= uniindex <= 0xf8ff:
             fontname = 'nonuni' + fontname
 
         return fontname, uniindex
@@ -1665,7 +1668,7 @@ class ParserState:
 
     @font.setter
     def font(self, name):
-        if name in ('rm', 'it', 'bf'):
+        if name in ('rm', 'it', 'bf', 'bfit'):
             self.font_class = name
         self._font = name
 
@@ -1734,16 +1737,38 @@ class Parser:
 
     _relation_symbols = set(r'''
       = < > :
-      \leq        \geq        \equiv   \models
-      \prec       \succ       \sim     \perp
-      \preceq     \succeq     \simeq   \mid
-      \ll         \gg         \asymp   \parallel
-      \subset     \supset     \approx  \bowtie
-      \subseteq   \supseteq   \cong    \Join
-      \sqsubset   \sqsupset   \neq     \smile
-      \sqsubseteq \sqsupseteq \doteq   \frown
-      \in         \ni         \propto  \vdash
-      \dashv      \dots       \doteqdot'''.split())
+      \leq          \geq          \equiv       \models
+      \prec         \succ         \sim         \perp
+      \preceq       \succeq       \simeq       \mid
+      \ll           \gg           \asymp       \parallel
+      \subset       \supset       \approx      \bowtie
+      \subseteq     \supseteq     \cong        \Join
+      \sqsubset     \sqsupset     \neq         \smile
+      \sqsubseteq   \sqsupseteq   \doteq       \frown
+      \in           \ni           \propto      \vdash
+      \dashv        \dots         \doteqdot    \leqq
+      \geqq         \lneqq        \gneqq       \lessgtr
+      \leqslant     \geqslant     \eqgtr       \eqless
+      \eqslantless  \eqslantgtr   \lesseqgtr   \backsim
+      \backsimeq    \lesssim      \gtrsim      \precsim
+      \precnsim     \gnsim        \lnsim       \succsim
+      \succnsim     \nsim         \lesseqqgtr  \gtreqqless
+      \gtreqless    \subseteqq    \supseteqq   \subsetneqq
+      \supsetneqq   \lessapprox   \approxeq    \gtrapprox
+      \precapprox   \succapprox   \precnapprox \succnapprox
+      \npreccurlyeq \nsucccurlyeq \nsqsubseteq \nsqsupseteq
+      \sqsubsetneq  \sqsupsetneq  \nlesssim    \ngtrsim
+      \nlessgtr     \ngtrless     \lnapprox    \gnapprox
+      \napprox      \approxeq     \approxident \lll
+      \ggg          \nparallel    \Vdash       \Vvdash
+      \nVdash       \nvdash       \vDash       \nvDash
+      \nVDash       \oequal       \simneqq     \triangle
+      \triangleq         \triangleeq         \triangleleft
+      \triangleright     \ntriangleleft      \ntriangleright
+      \trianglelefteq    \ntrianglelefteq    \trianglerighteq
+      \ntrianglerighteq  \blacktriangleleft  \blacktriangleright
+      \equalparallel     \measuredrightangle \varlrtriangle
+      '''.split())
 
     _arrow_symbols = set(r'''
       \leftarrow              \longleftarrow           \uparrow
@@ -1769,9 +1794,10 @@ class Parser:
 
     _overunder_functions = set("lim liminf limsup sup max min".split())
 
-    _dropsub_symbols = set(r'''\int \oint'''.split())
+    _dropsub_symbols = set(r'\int \oint \iint \oiint \iiint \oiiint \iiiint'.split())
 
-    _fontnames = set("rm cal it tt sf bf default bb frak scr regular".split())
+    _fontnames = set("rm cal it tt sf bf bfit "
+                     "default bb frak scr regular".split())
 
     _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim

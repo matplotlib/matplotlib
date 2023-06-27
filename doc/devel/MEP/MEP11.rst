@@ -135,7 +135,7 @@ ordered from best/hardest to worst/easiest):
 
 2. Continue to ship dateutil_, pytz_, six_ and pyparsing_ in
    our installer, but use the post-install-script to install them
-   *only* if they can not already be found.
+   *only* if they cannot already be found.
 
 3. Move all of these packages inside a (new) ``matplotlib.extern``
    namespace so it is clear for outside users that these are

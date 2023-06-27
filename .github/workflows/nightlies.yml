@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        # The login shell is necessary for the provision-with-micromamba setup
+        # The login shell is necessary for the setup-micromamba setup
         # to work in subsequent jobs.
-        # https://github.com/mamba-org/provision-with-micromamba#important
+        # https://github.com/mamba-org/setup-micromamba#about-login-shells
         shell: bash -e -l {0}
     if: github.repository_owner == 'matplotlib'
 
@@ -58,37 +58,8 @@ jobs:
           mv *.whl dist/
           ls -l dist/
 
-        # N.B. anaconda-client is only maintained on the main channel
-      - name: Install anaconda-client
-        uses: mamba-org/provision-with-micromamba@v15
-        with:
-          environment-file: false
-          environment-name: nightlies
-          extra-specs: anaconda-client=1.10.0
-          channels: main
-
       - name: Upload wheels to Anaconda Cloud as nightlies
-        run: |
-          anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} upload \
-            --user scipy-wheels-nightly \
-            --skip-existing \
-            dist/matplotlib-*.whl
-
-      - name: Remove old uploads to save space
-        run: |
-          N_LATEST_UPLOADS=5
-
-          # Remove all _but_ the last "${N_LATEST_UPLOADS}" package versions
-          # N.B.: `anaconda show` places the newest packages at the bottom of
-          # the output of the 'Versions' section and package versions are
-          # preceded with a '   + '.
-          anaconda show scipy-wheels-nightly/matplotlib &> >(grep '+') | \
-              sed 's/.* + //' | \
-              head --lines "-${N_LATEST_UPLOADS}" > remove-package-versions.txt
-
-          while LANG=C IFS= read -r package_version ; do
-              echo "Removing scipy-wheels-nightly/matplotlib/${package_version}"
-              anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} remove \
-                --force \
-                "scipy-wheels-nightly/matplotlib/${package_version}"
-          done <remove-package-versions.txt
+        uses: scientific-python/upload-nightly-action@8f0394fd2aa0c85d7364a9958652e8994e06b23c # 0.1.0
+        with:
+          artifacts_path: dist
+          anaconda_nightly_upload_token: ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }}

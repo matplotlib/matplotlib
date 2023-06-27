@@ -12,6 +12,9 @@ Contents:
     :maxdepth: 2
 
     some_plots
+    nestedpage/index
+    nestedpage2/index
+
 
 Indices and tables
 ==================

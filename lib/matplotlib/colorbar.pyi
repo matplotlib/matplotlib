@@ -1,5 +1,5 @@
 import matplotlib.spines as mspines
-from matplotlib import cbook, cm, collections, colors, contour, ticker
+from matplotlib import cm, collections, colors, contour
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase
 from matplotlib.patches import Patch
@@ -57,7 +57,6 @@ class Colorbar:
         ticks: Sequence[float] | Locator | None = ...,
         format: str | Formatter | None = ...,
         drawedges: bool = ...,
-        filled: bool = ...,
         extendfrac: Literal["auto"] | float | Sequence[float] | None = ...,
         extendrect: bool = ...,
         label: str = ...,

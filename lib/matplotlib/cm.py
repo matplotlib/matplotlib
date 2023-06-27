@@ -42,6 +42,13 @@ def _gen_cmap_registry():
             colors.ListedColormap(spec['listed'], name)
             if 'listed' in spec else
             colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
+
+    # Register colormap aliases for gray and grey.
+    cmap_d['grey'] = cmap_d['gray']
+    cmap_d['gist_grey'] = cmap_d['gist_gray']
+    cmap_d['gist_yerg'] = cmap_d['gist_yarg']
+    cmap_d['Grays'] = cmap_d['Greys']
+
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
@@ -146,6 +153,11 @@ class ColormapRegistry(Mapping):
                                "that was already in the registry.")
 
         self._cmaps[name] = cmap.copy()
+        # Someone may set the extremes of a builtin colormap and want to register it
+        # with a different name for future lookups. The object would still have the
+        # builtin name, so we should update it to the registered name
+        if self._cmaps[name].name != name:
+            self._cmaps[name].name = name
 
     def unregister(self, name):
         """
@@ -438,7 +450,7 @@ class ScalarMappable:
         treated as an RGB or RGBA array, and no mapping will be done.
         The array can be `~numpy.uint8`, or it can be floats with
         values in the 0-1 range; otherwise a ValueError will be raised.
-        If it is a masked array, the mask will be ignored.
+        If it is a masked array, any masked elements will be set to 0 alpha.
         If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
         will be used to fill in the transparency.  If the last dimension
         is 4, the *alpha* kwarg is ignored; it does not
@@ -481,6 +493,10 @@ class ScalarMappable:
                 else:
                     raise ValueError("Image RGB array must be uint8 or "
                                      "floating point; found %s" % xx.dtype)
+                # Account for any masked entries in the original array
+                # If any of R, G, B, or A are masked for an entry, we set alpha to 0
+                if np.ma.is_masked(x):
+                    xx[np.any(np.ma.getmaskarray(x), axis=2), 3] = 0
                 return xx
         except AttributeError:
             # e.g., x is not an ndarray; so try mapping it

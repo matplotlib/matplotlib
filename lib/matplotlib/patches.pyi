@@ -1,17 +1,6 @@
-from . import artist, cbook, colors, transforms
+from . import artist
 from .axes import Axes
-from ._enums import CapStyle, JoinStyle
 from .backend_bases import RendererBase, MouseEvent
-from .bezier import (
-    NonIntersectingPathException,
-    get_cos_sin,
-    get_intersection,
-    get_parallels,
-    inside_circle,
-    make_wedged_bezier2,
-    split_bezier_intersecting_with_closedpath,
-    split_path_inout,
-)
 from .path import Path
 from .transforms import Transform, Bbox
 
@@ -19,7 +8,7 @@ from typing import Any, Literal, overload
 
 import numpy as np
 from numpy.typing import ArrayLike
-from .typing import ColorType, LineStyleType
+from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
 
 class Patch(artist.Artist):
     zorder: float
@@ -34,8 +23,8 @@ class Patch(artist.Artist):
         antialiased: bool | None = ...,
         hatch: str | None = ...,
         fill: bool = ...,
-        capstyle: CapStyle | None = ...,
-        joinstyle: JoinStyle | None = ...,
+        capstyle: CapStyleType | None = ...,
+        joinstyle: JoinStyleType | None = ...,
         **kwargs,
     ) -> None: ...
     def get_verts(self) -> ArrayLike: ...
@@ -65,17 +54,17 @@ class Patch(artist.Artist):
     def set_fill(self, b: bool) -> None: ...
     def get_fill(self) -> bool: ...
     fill = property(get_fill, set_fill)
-    def set_capstyle(self, s: CapStyle) -> None: ...
-    def get_capstyle(self) -> CapStyle: ...
-    def set_joinstyle(self, s: JoinStyle) -> None: ...
-    def get_joinstyle(self) -> JoinStyle: ...
+    def set_capstyle(self, s: CapStyleType) -> None: ...
+    def get_capstyle(self) -> Literal["butt", "projecting", "round"]: ...
+    def set_joinstyle(self, s: JoinStyleType) -> None: ...
+    def get_joinstyle(self) -> Literal["miter", "round", "bevel"]: ...
     def set_hatch(self, hatch: str) -> None: ...
     def get_hatch(self) -> str: ...
     def get_path(self) -> Path: ...
 
 class Shadow(Patch):
     patch: Patch
-    def __init__(self, patch: Patch, ox: float, oy: float, **kwargs) -> None: ...
+    def __init__(self, patch: Patch, ox: float, oy: float, *, shade: float = ..., **kwargs) -> None: ...
 
 class Rectangle(Patch):
     angle: float
@@ -259,6 +248,10 @@ class Ellipse(Patch):
     angle = property(get_angle, set_angle)
 
     def get_corners(self) -> np.ndarray: ...
+
+    def get_vertices(self) -> list[tuple[float, float]]: ...
+    def get_co_vertices(self) -> list[tuple[float, float]]: ...
+
 
 class Annulus(Patch):
     a: float

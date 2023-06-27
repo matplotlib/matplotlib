@@ -1,18 +1,5 @@
 from matplotlib.axis import Axis
-from matplotlib.ticker import (
-    AsinhLocator,
-    AutoLocator,
-    AutoMinorLocator,
-    LogFormatterSciNotation,
-    LogLocator,
-    LogitFormatter,
-    LogitLocator,
-    NullFormatter,
-    NullLocator,
-    ScalarFormatter,
-    SymmetricalLogLocator,
-)
-from matplotlib.transforms import IdentityTransform, Transform
+from matplotlib.transforms import Transform
 
 from collections.abc import Callable, Iterable
 from typing import Literal
@@ -37,7 +24,6 @@ class FuncTransform(Transform):
         forward: Callable[[ArrayLike], ArrayLike],
         inverse: Callable[[ArrayLike], ArrayLike],
     ) -> None: ...
-    def transform_non_affine(self, values: ArrayLike) -> ArrayLike: ...
     def inverted(self) -> FuncTransform: ...
 
 class FuncScale(ScaleBase):
@@ -57,7 +43,6 @@ class LogTransform(Transform):
     def __init__(
         self, base: float, nonpositive: Literal["clip", "mask"] = ...
     ) -> None: ...
-    def transform_non_affine(self, a: ArrayLike) -> ArrayLike: ...
     def inverted(self) -> InvertedLogTransform: ...
 
 class InvertedLogTransform(Transform):
@@ -65,7 +50,6 @@ class InvertedLogTransform(Transform):
     output_dims: int
     base: float
     def __init__(self, base: float) -> None: ...
-    def transform_non_affine(self, a: ArrayLike) -> ArrayLike: ...
     def inverted(self) -> LogTransform: ...
 
 class LogScale(ScaleBase):

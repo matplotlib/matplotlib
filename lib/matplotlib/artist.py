@@ -215,8 +215,6 @@ class Artist:
 
     def __getstate__(self):
         d = self.__dict__.copy()
-        # remove the unpicklable remove method, this will get re-added on load
-        # (by the Axes) if the artist lives on an Axes.
         d['stale_callback'] = None
         return d
 
@@ -361,8 +359,9 @@ class Artist:
 
         Returns
         -------
-        `.Bbox`
+        `.Bbox` or None
             The enclosing bounding box (in figure pixel coordinates).
+            Returns None if clipping results in no intersection.
         """
         bbox = self.get_window_extent(renderer)
         if self.get_clip_on():
@@ -370,7 +369,7 @@ class Artist:
             if clip_box is not None:
                 bbox = Bbox.intersection(bbox, clip_box)
             clip_path = self.get_clip_path()
-            if clip_path is not None:
+            if clip_path is not None and bbox is not None:
                 clip_path = clip_path.get_fully_transformed_path()
                 bbox = Bbox.intersection(bbox, clip_path.get_extents())
         return bbox

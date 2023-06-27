@@ -11,6 +11,10 @@ pr:
   branches:
     exclude:
       - v*-doc
+  paths:
+    exclude:
+      - doc/**/*
+      - galleries/**/*
 
 stages:
 
@@ -86,6 +90,7 @@ stages:
           set -e
           case "$(python -c 'import sys; print(sys.platform)')" in
           linux)
+            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt update
             sudo apt install \
               cm-super \

@@ -161,11 +161,11 @@ class MarkerStyle:
 
     Attributes
     ----------
-    markers : list
+    markers : dict
         All known markers.
-    filled_markers : list
+    filled_markers : tuple
         All known filled markers. This is a subset of *markers*.
-    fillstyles : list
+    fillstyles : tuple
         The supported fillstyles.
     """
 
@@ -241,16 +241,16 @@ class MarkerStyle:
             Transform that will be combined with the native transform of the
             marker.
 
-        capstyle : CapStyle, default: None
+        capstyle : `.CapStyle` or %(CapStyle)s, default: None
             Cap style that will override the default cap style of the marker.
 
-        joinstyle : JoinStyle, default: None
+        joinstyle : `.JoinStyle` or %(JoinStyle)s, default: None
             Join style that will override the default join style of the marker.
         """
         self._marker_function = None
         self._user_transform = transform
-        self._user_capstyle = capstyle
-        self._user_joinstyle = joinstyle
+        self._user_capstyle = CapStyle(capstyle) if capstyle is not None else None
+        self._user_joinstyle = JoinStyle(joinstyle) if joinstyle is not None else None
         self._set_fillstyle(fillstyle)
         self._set_marker(marker)
 
@@ -509,14 +509,12 @@ class MarkerStyle:
         if len(text.vertices) == 0:
             return
 
-        xmin, ymin = text.vertices.min(axis=0)
-        xmax, ymax = text.vertices.max(axis=0)
-        width = xmax - xmin
-        height = ymax - ymin
-        max_dim = max(width, height)
-        self._transform = Affine2D() \
-            .translate(-xmin + 0.5 * -width, -ymin + 0.5 * -height) \
-            .scale(1.0 / max_dim)
+        bbox = text.get_extents()
+        max_dim = max(bbox.width, bbox.height)
+        self._transform = (
+            Affine2D()
+            .translate(-bbox.xmin + 0.5 * -bbox.width, -bbox.ymin + 0.5 * -bbox.height)
+            .scale(1.0 / max_dim))
         self._path = text
         self._snap = False
 

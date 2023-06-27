@@ -1,12 +1,11 @@
 import matplotlib.artist as martist
 
 import datetime
-from collections.abc import Callable, Iterable, Iterator, Sequence, MutableSequence
-from matplotlib import cbook, offsetbox
+from collections.abc import Callable, Iterable, Iterator, Sequence
+from matplotlib import cbook
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis, Tick
 from matplotlib.backend_bases import RendererBase, MouseButton, MouseEvent
-from matplotlib.cbook import index_of
 from matplotlib.container import Container
 from matplotlib.collections import Collection
 from matplotlib.cm import ScalarMappable
@@ -20,8 +19,7 @@ from matplotlib.scale import ScaleBase
 from matplotlib.spines import Spines
 from matplotlib.table import Table
 from matplotlib.text import Text
-from matplotlib.rcsetup import cycler, validate_axisbelow
-from matplotlib.transforms import Transform, BboxBase, Bbox
+from matplotlib.transforms import Transform, Bbox
 
 from cycler import Cycler
 
@@ -312,7 +310,7 @@ class _AxesBase(martist.Artist):
     def get_xlim(self) -> tuple[float, float]: ...
     def set_xlim(
         self,
-        left: float | None = ...,
+        left: float | tuple[float, float] | None = ...,
         right: float | None = ...,
         *,
         emit: bool = ...,
@@ -338,7 +336,7 @@ class _AxesBase(martist.Artist):
     def get_ylim(self) -> tuple[float, float]: ...
     def set_ylim(
         self,
-        bottom: float | None = ...,
+        bottom: float | tuple[float, float] | None = ...,
         top: float | None = ...,
         *,
         emit: bool = ...,
@@ -399,7 +397,7 @@ class _AxesBase(martist.Artist):
     def get_xticks(self, *, minor: bool = ...) -> np.ndarray: ...
     def set_xticks(
         self,
-        ticks: Iterable[float],
+        ticks: ArrayLike,
         labels: Iterable[str] | None = ...,
         *,
         minor: bool = ...,
@@ -424,7 +422,7 @@ class _AxesBase(martist.Artist):
     def get_yticks(self, *, minor: bool = ...) -> np.ndarray: ...
     def set_yticks(
         self,
-        ticks: Iterable[float],
+        ticks: ArrayLike,
         labels: Iterable[str] | None = ...,
         *,
         minor: bool = ...,

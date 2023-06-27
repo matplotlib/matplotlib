@@ -5,7 +5,6 @@ from matplotlib.backend_bases import ToolContainerBase, FigureCanvasBase
 from matplotlib.backend_managers import ToolManager, ToolEvent
 from matplotlib.figure import Figure
 from matplotlib.scale import ScaleBase
-from matplotlib._pylab_helpers import Gcf
 
 from typing import Any
 

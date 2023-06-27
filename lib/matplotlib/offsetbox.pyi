@@ -1,5 +1,4 @@
 import matplotlib.artist as martist
-from matplotlib.axes import Axes
 from matplotlib.backend_bases import RendererBase, Event, FigureCanvasBase
 from matplotlib.colors import Colormap, Normalize
 import matplotlib.text as mtext
@@ -7,7 +6,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib.image import BboxImage
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, Transform
+from matplotlib.transforms import Bbox, BboxBase, Transform
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -241,7 +240,6 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         offsetbox: OffsetBox,
         xy: tuple[float, float],
         xybox: tuple[float, float] | None = ...,
-        *,
         xycoords: str
         | tuple[str, str]
         | martist.Artist
@@ -253,6 +251,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         | Transform
         | Callable[[RendererBase], Bbox | Transform]
         | None = ...,
+        *,
         frameon: bool = ...,
         pad: float = ...,
         annotation_clip: bool | None = ...,

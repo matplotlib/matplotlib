@@ -27,6 +27,7 @@ import pytest
 @image_comparison(['image_interps'], style='mpl20')
 def test_image_interps():
     """Make the basic nearest, bilinear and bicubic interps."""
+    # Remove texts when this image is regenerated.
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
@@ -754,11 +755,7 @@ def test_log_scale_image():
     ax.set(yscale='log')
 
 
-# Increased tolerance is needed for PDF test to avoid failure. After the PDF
-# backend was modified to use indexed color, there are ten pixels that differ
-# due to how the subpixel calculation is done when converting the PDF files to
-# PNG images.
-@image_comparison(['rotate_image'], remove_text=True, tol=0.35)
+@image_comparison(['rotate_image'], remove_text=True)
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
@@ -1154,6 +1151,21 @@ def test_exact_vmin():
 
     # check than the RBGA values are the same
     assert np.all(from_image == direct_computation)
+
+
+@image_comparison(['image_placement'], extensions=['svg', 'pdf'],
+                  remove_text=True, style='mpl20')
+def test_image_placement():
+    """
+    The red box should line up exactly with the outside of the image.
+    """
+    fig, ax = plt.subplots()
+    ax.plot([0, 0, 1, 1, 0], [0, 1, 1, 0, 0], color='r', lw=0.1)
+    np.random.seed(19680801)
+    ax.imshow(np.random.randn(16, 16), cmap='Blues', extent=(0, 1, 0, 1),
+              interpolation='none', vmin=-1, vmax=1)
+    ax.set_xlim(-0.1, 1+0.1)
+    ax.set_ylim(-0.1, 1+0.1)
 
 
 # A basic ndarray subclass that implements a quantity

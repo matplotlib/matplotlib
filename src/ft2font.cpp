@@ -725,11 +725,6 @@ FT_UInt FT2Font::get_char_index(FT_ULong charcode, bool fallback = false)
     return ft_get_char_index_or_warn(ft_object->get_face(), charcode, false);
 }
 
-void FT2Font::get_cbox(FT_BBox &bbox)
-{
-    FT_Glyph_Get_CBox(glyphs.back(), ft_glyph_bbox_subpixels, &bbox);
-}
-
 void FT2Font::get_width_height(long *width, long *height)
 {
     *width = advance;

@@ -2,7 +2,7 @@ import functools
 import io
 from unittest import mock
 
-from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
@@ -137,11 +137,9 @@ def test_deprecation_selector_visible_attribute(ax):
 
     assert tool.get_visible()
 
-    with pytest.warns(
-        MatplotlibDeprecationWarning,
-            match="was deprecated in Matplotlib 3.6"):
-        tool.visible = False
-    assert not tool.get_visible()
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match="was deprecated in Matplotlib 3.8"):
+        tool.visible
 
 
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
@@ -645,6 +643,13 @@ def test_span_selector(ax, orientation, onmove_callback, kwargs):
     if onmove_callback:
         kwargs['onmove_callback'] = onmove
 
+    # While at it, also test that span selectors work in the presence of twin axes on
+    # top of the axes that contain the selector.  Note that we need to unforce the axes
+    # aspect here, otherwise the twin axes forces the original axes' limits (to respect
+    # aspect=1) which makes some of the values below go out of bounds.
+    ax.set_aspect("auto")
+    tax = ax.twinx()
+
     tool = widgets.SpanSelector(ax, onselect, orientation, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     # move outside of axis
@@ -927,7 +932,7 @@ def test_span_selector_animated_artists_callback():
 
     # Change span selector and check that the line is drawn/updated after its
     # value was updated by the callback
-    press_data = [4, 2]
+    press_data = [4, 0]
     move_data = [5, 2]
     release_data = [5, 2]
     do_event(span, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
@@ -1035,7 +1040,7 @@ def test_TextBox(ax, toolbar):
 
     assert submit_event.call_count == 2
 
-    do_event(tool, '_click')
+    do_event(tool, '_click', xdata=.5, ydata=.5)  # Ensure the click is in the axes.
     do_event(tool, '_keypress', key='+')
     do_event(tool, '_keypress', key='5')
 
@@ -1634,7 +1639,8 @@ def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
 
 
 def test_polygon_selector_box(ax):
-    # Create a diamond shape
+    # Create a diamond (adjusting axes lims s.t. the diamond lies within axes limits).
+    ax.set(xlim=(-10, 50), ylim=(-10, 50))
     verts = [(20, 0), (0, 20), (20, 40), (40, 20)]
     event_sequence = [
         *polygon_place_vertex(*verts[0]),
@@ -1686,6 +1692,29 @@ def test_polygon_selector_box(ax):
         tool.verts, [(20, 30), (30, 40), (40, 30)])
     np.testing.assert_allclose(
         tool._box.extents, (20.0, 40.0, 30.0, 40.0))
+
+
+def test_polygon_selector_clear_method(ax):
+    onselect = mock.Mock(spec=noop, return_value=None)
+    tool = widgets.PolygonSelector(ax, onselect)
+
+    for result in ([(50, 50), (150, 50), (50, 150), (50, 50)],
+                   [(50, 50), (100, 50), (50, 150), (50, 50)]):
+        for x, y in result:
+            for etype, event_args in polygon_place_vertex(x, y):
+                do_event(tool, etype, **event_args)
+
+        artist = tool._selection_artist
+
+        assert tool._selection_completed
+        assert tool.get_visible()
+        assert artist.get_visible()
+        np.testing.assert_equal(artist.get_xydata(), result)
+        assert onselect.call_args == ((result[:-1],), {})
+
+        tool.clear()
+        assert not tool._selection_completed
+        np.testing.assert_equal(artist.get_xydata(), [(0, 0)])
 
 
 @pytest.mark.parametrize("horizOn", [False, True])

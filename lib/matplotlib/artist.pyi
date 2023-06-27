@@ -1,18 +1,12 @@
-from . import cbook as cbook
-from .axes import Axes
 from .axes._base import _AxesBase
 from .backend_bases import RendererBase, MouseEvent
-from .cm import ScalarMappable
-from .colors import BoundaryNorm
-from .figure import Figure, FigureBase
+from .figure import Figure, SubFigure
 from .path import Path
 from .patches import Patch
 from .patheffects import AbstractPathEffect
 from .transforms import (
     Bbox,
-    IdentityTransform,
     Transform,
-    TransformedBbox,
     TransformedPatchPath,
     TransformedPath,
 )
@@ -35,7 +29,7 @@ class Artist:
     zorder: float
     def __init_subclass__(cls): ...
     stale_callback: Callable[[Artist, bool], None] | None
-    figure: FigureBase | None
+    figure: Figure | SubFigure | None
     clipbox: Bbox | None
     def __init__(self) -> None: ...
     def remove(self) -> None: ...

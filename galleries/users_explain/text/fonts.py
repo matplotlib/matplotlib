@@ -115,7 +115,7 @@ This is especially helpful to generate *really lightweight* documents::
     ax.text(0.5, 0.5, chars)
 
     fig.savefig("AFM_PDF.pdf", format="pdf")
-    fig.savefig("AFM_PS.ps", format="ps)
+    fig.savefig("AFM_PS.ps", format="ps")
 
 Fonts in SVG
 ------------
@@ -171,7 +171,7 @@ Font fallback
 -------------
 
 There is no font that covers the entire Unicode space thus it is possible for the
-users to require a mix of glyphs that can not be satisfied from a single font.
+users to require a mix of glyphs that cannot be satisfied from a single font.
 While it has been possible to use multiple fonts within a Figure, on distinct
 `.Text` instances, it was not previous possible to use multiple fonts in the
 same `.Text` instance (as a web browser does).  As of Matplotlib 3.6 the Agg,
@@ -185,7 +185,7 @@ SVG, PDF, and PS backends will "fallback" through multiple fonts in a single
    fig, ax = plt.subplots()
    ax.text(
        .5, .5, "There are 几个汉字 in between!",
-       family=['DejaVu Sans', 'WenQuanYi Zen Hei'],
+       family=['DejaVu Sans', 'Noto Sans CJK JP'],
        ha='center'
    )
 

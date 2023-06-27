@@ -15,9 +15,7 @@ on:
     paths-ignore:
       # Skip running tests if changes are only in documentation directories
       - 'doc/**'
-      - 'galleries/examples/**'
-      - 'galleries/plot_types/**'
-      - 'galleries/tutorials/**'
+      - 'galleries/**'
   schedule:
     # 5:47 UTC on Saturdays
     - cron: "47 5 * * 6"
@@ -62,13 +60,26 @@ jobs:
             python-version: 3.9
             extra-requirements: '-r requirements/testing/extra.txt'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
+            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
+            pyqt6-ver: '!=6.5.1'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
           - os: ubuntu-20.04
             python-version: '3.10'
             extra-requirements: '-r requirements/testing/extra.txt'
-          - os: ubuntu-20.04
+            # https://github.com/matplotlib/matplotlib/pull/26052#issuecomment-1574595954
+            pyqt6-ver: '!=6.5.1'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+          - os: ubuntu-22.04
             python-version: '3.11'
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
+            extra-requirements: '-r requirements/testing/extra.txt'
           - os: macos-latest
             python-version: 3.9
+            # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-2346
+            pyside6-ver: '!=6.5.1'
 
     steps:
       - uses: actions/checkout@v3
@@ -84,6 +95,7 @@ jobs:
         run: |
           case "${{ runner.os }}" in
           Linux)
+            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt-get update -yy
             sudo apt-get install -yy \
               ccache \
@@ -103,6 +115,7 @@ jobs:
               libgirepository1.0-dev \
               libsdl2-2.0-0 \
               libxkbcommon-x11-0 \
+              libxcb-cursor0 \
               libxcb-icccm4 \
               libxcb-image0 \
               libxcb-keysyms1 \
@@ -122,7 +135,9 @@ jobs:
               texlive-xetex \
               ttf-wqy-zenhei
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
-              sudo apt install -yy libopengl0
+              sudo apt-get install -yy libopengl0
+            else  # ubuntu-22.04
+              sudo apt-get install -yy gir1.2-gtk-4.0 libnotify4
             fi
             ;;
           macOS)
@@ -163,10 +178,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            2-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
+            3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -174,10 +189,16 @@ jobs:
           # possible.
           python -m pip install --upgrade pip setuptools wheel
 
+          # Install pre-release versions during our weekly upcoming dependency tests.
+          if [[ "${{ github.event_name == 'schedule' &&
+                     matrix.name-suffix != '(Minimum Versions)' }}" = "true" ]]; then
+            PRE="--pre"
+          fi
+
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
             'contourpy>=1.0.1' cycler fonttools kiwisolver importlib_resources \
-            numpy packaging pillow pyparsing python-dateutil setuptools-scm \
+            numpy packaging pillow 'pyparsing!=3.1.0' python-dateutil setuptools-scm \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
@@ -216,7 +237,7 @@ jobs:
               echo 'PySide2 is available' ||
               echo 'PySide2 is not available'
           fi
-          if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
             python -mpip install --upgrade pyqt6${{ matrix.pyqt6-ver }} &&
               python -c 'import PyQt6.QtCore' &&
               echo 'PyQt6 is available' ||
@@ -242,7 +263,7 @@ jobs:
         run: |
           python -m pip install pytz  # Must be installed for Pandas.
           python -m pip install \
-            --index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
 
       - name: Install Matplotlib

@@ -396,8 +396,8 @@ def test_colorbar_minorticks_on_off():
         cbar.minorticks_on()
         np.testing.assert_almost_equal(
             cbar.ax.yaxis.get_minorticklocs(),
-            [-1.1, -0.9, -0.8, -0.7, -0.6, -0.4, -0.3, -0.2, -0.1,
-             0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.3])
+            [-1.2, -1.1, -0.9, -0.8, -0.7, -0.6, -0.4, -0.3, -0.2, -0.1,
+             0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2])
 
     # tests for github issue #13257 and PR #13265
     data = np.random.uniform(low=1, high=10, size=(20, 20))
@@ -1217,3 +1217,16 @@ def test_colorbar_axes_parmeters():
     fig.colorbar(im, ax=(ax[0], ax[1]))
     fig.colorbar(im, ax={i: _ax for i, _ax in enumerate(ax)}.values())
     fig.draw_without_rendering()
+
+
+def test_colorbar_wrong_figure():
+    # If we decide in the future to disallow calling colorbar() on the "wrong" figure,
+    # just delete this test.
+    fig_tl = plt.figure(layout="tight")
+    fig_cl = plt.figure(layout="constrained")
+    im = fig_cl.add_subplot().imshow([[0, 1]])
+    # Make sure this doesn't try to setup a gridspec-controlled colorbar on fig_cl,
+    # which would crash CL.
+    fig_tl.colorbar(im)
+    fig_tl.draw_without_rendering()
+    fig_cl.draw_without_rendering()

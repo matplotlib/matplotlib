@@ -183,6 +183,12 @@ def text_2d_to_3d(obj, z=0, zdir='z'):
 class Line3D(lines.Line2D):
     """
     3D line object.
+
+    .. note:: Use `get_data_3d` to obtain the data associated with the line.
+            `~.Line2D.get_data`, `~.Line2D.get_xdata`, and `~.Line2D.get_ydata` return
+            the x- and y-coordinates of the projected 2D-line, not the x- and y-data of
+            the 3D-line. Similarly, use `set_data_3d` to set the data, not
+            `~.Line2D.set_data`, `~.Line2D.set_xdata`, and `~.Line2D.set_ydata`.
     """
 
     def __init__(self, xs, ys, zs, *args, **kwargs):
@@ -196,8 +202,8 @@ class Line3D(lines.Line2D):
             The y-data to be plotted.
         zs : array-like
             The z-data to be plotted.
-
-        Additional arguments are passed onto :func:`~matplotlib.lines.Line2D`.
+        *args, **kwargs :
+            Additional arguments are passed to `~matplotlib.lines.Line2D`.
         """
         super().__init__([], [], *args, **kwargs)
         self.set_data_3d(xs, ys, zs)
@@ -668,7 +674,7 @@ class Path3DCollection(PathCollection):
             ys = []
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         # In the base draw methods we access the attributes directly which
-        # means we can not resolve the shuffling in the getter methods like
+        # means we cannot resolve the shuffling in the getter methods like
         # we do for the edge and face colors.
         #
         # This means we need to carry around a cache of the unsorted sizes and
@@ -727,7 +733,7 @@ class Path3DCollection(PathCollection):
         # we have to special case the sizes because of code in collections.py
         # as the draw method does
         #      self.set_sizes(self._sizes, self.figure.dpi)
-        # so we can not rely on doing the sorting on the way out via get_*
+        # so we cannot rely on doing the sorting on the way out via get_*
 
         if len(self._sizes3d) > 1:
             self._sizes = self._sizes3d[z_markers_idx]

@@ -3,7 +3,8 @@ from packaging.version import parse as parse_version
 
 # -- General configuration ------------------------------------------------
 
-extensions = ['matplotlib.sphinxext.plot_directive']
+extensions = ['matplotlib.sphinxext.plot_directive',
+              'matplotlib.sphinxext.figmpl_directive']
 templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
