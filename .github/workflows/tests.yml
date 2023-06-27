@@ -190,8 +190,8 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
 
           # Install pre-release versions during our weekly upcoming dependency tests.
-          if [[ "${{ github.event_name == 'schedule' && \
-                     matrix.name-suffix != '(Minimum Versions)' }}' ]]; then
+          if [[ "${{ github.event_name == 'schedule' &&
+                     matrix.name-suffix != '(Minimum Versions)' }}" = "true" ]]; then
             PRE="--pre"
           fi
 
