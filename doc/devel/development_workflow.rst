@@ -145,8 +145,8 @@ If you don't think your request is ready to be merged, just say so in your pull
 request message and use the "Draft PR" feature of GitHub. This is a good way of
 getting some preliminary code review.
 
-Some other things you might want to do
-======================================
+Manage commit history
+=====================
 
 Explore your repository
 -----------------------
@@ -163,8 +163,8 @@ To see a linear list of commits for this branch::
 
 .. _recovering-from-mess-up:
 
-Recovering from mess-ups
-------------------------
+Recover from mistakes
+---------------------
 
 Sometimes, you mess up merges or rebases. Luckily, in git it is
 relatively straightforward to recover from such mistakes.
@@ -193,8 +193,8 @@ If you forgot to make a backup branch::
 
 .. _rewriting-commit-history:
 
-Rewriting commit history
-------------------------
+Rewrite commit history
+----------------------
 
 .. note::
 
@@ -285,7 +285,7 @@ to replace your already published commits with the new ones.
 
 .. _rebase-on-main:
 
-Rebasing on ``upstream/main``
+Rebase onto ``upstream/main``
 -----------------------------
 
 Let's say you thought of some work you'd like to do. You
@@ -363,8 +363,8 @@ to replace your already published commits with the new ones.
 .. _force-push:
 
 
-Pushing, with force
--------------------
+Push with force
+---------------
 
 
 If you have in some way re-written already pushed history (e.g. via
