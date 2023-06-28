@@ -4,6 +4,10 @@ from .font_manager import FontProperties
 from .offsetbox import DraggableAnnotation
 from .path import Path
 from .patches import FancyArrowPatch, FancyBboxPatch
+from .textpath import (  # noqa: reexported API
+    TextPath as TextPath,
+    TextToPath as TextToPath,
+)
 from .transforms import (
     Bbox,
     BboxBase,
