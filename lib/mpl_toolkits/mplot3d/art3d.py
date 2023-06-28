@@ -17,7 +17,7 @@ from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext,
     path as mpath)
 from matplotlib.collections import (
-    LineCollection, PolyCollection, PatchCollection, PathCollection)
+    Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
 from . import proj3d
@@ -342,6 +342,31 @@ def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     else:
         segments, codes = [], []
     return list(segments), list(codes)
+
+
+class Collection3D(Collection):
+    """A collection of 3D paths."""
+
+    def do_3d_projection(self):
+        """Project the points according to renderer matrix."""
+        xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M)
+                     for vs, _ in self._3dverts_codes]
+        self._paths = [mpath.Path(np.column_stack([xs, ys]), cs)
+                       for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
+        zs = np.concatenate([zs for _, _, zs in xyzs_list])
+        return zs.min() if len(zs) else 1e9
+
+
+def collection_2d_to_3d(col, zs=0, zdir='z'):
+    """Convert a `.Collection` to a `.Collection3D` object."""
+    zs = np.broadcast_to(zs, len(col.get_paths()))
+    col._3dverts_codes = [
+        (np.column_stack(juggle_axes(
+            *np.column_stack([p.vertices, np.broadcast_to(z, len(p.vertices))]).T,
+            zdir)),
+         p.codes)
+        for p, z in zip(col.get_paths(), zs)]
+    col.__class__ = cbook._make_class_factory(Collection3D, "{}3D")(type(col))
 
 
 class Line3DCollection(LineCollection):

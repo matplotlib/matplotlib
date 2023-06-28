@@ -1132,11 +1132,7 @@ def test_imshow_clip():
     fig, ax = plt.subplots()
 
     c = ax.contour(r, [N/4])
-    x = c.collections[0]
-    clip_path = x.get_paths()[0]
-    clip_transform = x.get_transform()
-
-    clip_path = mtransforms.TransformedPath(clip_path, clip_transform)
+    clip_path = mtransforms.TransformedPath(c.get_paths()[0], c.get_transform())
 
     # Plot the image clipped by the contour
     ax.imshow(r, clip_path=clip_path)
