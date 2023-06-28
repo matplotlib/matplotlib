@@ -16,7 +16,8 @@ The names of the available style sheets can be found
 in the list `matplotlib.style.available`
 (they are also printed in the corner of each plot below).
 
-See more details in :ref:`Customizing Matplotlib using style sheets<customizing-with-style-sheets>`.
+See more details in :ref:`Customizing Matplotlib
+using style sheets<customizing-with-style-sheets>`.
 """
 
 import matplotlib.pyplot as plt
