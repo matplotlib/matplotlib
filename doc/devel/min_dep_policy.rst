@@ -1,8 +1,8 @@
 .. _min_deps_policy:
 
-======================================
-Minimum version of dependencies policy
-======================================
+=========================
+Dependency version policy
+=========================
 
 For the purpose of this document, 'minor version' is in the sense of
 SemVer (major, minor, patch) and includes both major and minor

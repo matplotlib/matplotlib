@@ -83,7 +83,6 @@ Development workflow
          :maxdepth: 1
 
          dependencies
-         Minimum versions <min_dep_policy>
 
 
    .. grid-item-card:: Workflow
@@ -133,6 +132,7 @@ Contribution guides
          :maxdepth: 1
 
          release_guide
+         min_dep_policy
          MEP/index
 
 .. toctree::
