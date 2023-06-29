@@ -77,6 +77,8 @@ The default minor locator is `NullLocator`, i.e., no minor ticks on by default.
         ax.xaxis.set_major_locator(MultipleLocator(5))
         ax2.xaxis.set_major_locator(MultipleLocator(5))
 
+.. _formatters:
+
 Tick formatting
 ---------------
 

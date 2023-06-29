@@ -8,6 +8,23 @@ is formatted as a string.
 
 This example illustrates the usage and effect of the most common formatters.
 
+The tick format is configured via the function `~.Axis.set_major_formatter`
+or `~.Axis.set_minor_formatter`. It accepts:
+
+- a format string, which implicitly creates a `.StrMethodFormatter`.
+- a function,  implicitly creates a `.FuncFormatter`.
+- an instance of a `.Formatter` subclass. The most common are
+
+  - `.NullFormatter`: No labels on the ticks.
+  - `.StrMethodFormatter`: Use string `str.format` method.
+  - `.FormatStrFormatter`: Use %-style formatting.
+  - `.FuncFormatter`: Define labels through a function.
+  - `.FixedFormatter`: Set the label strings explicitly.
+  - `.ScalarFormatter`: Default formatter for scalars: auto-pick the format string.
+  - `.PercentFormatter`: Format labels as a percentage.
+
+  See :ref:`formatters` for a complete list.
+
 """
 
 import matplotlib.pyplot as plt
@@ -34,103 +51,55 @@ def setup(ax, title):
             fontsize=14, fontname='Monospace', color='tab:blue')
 
 
-# %%
-# Tick formatters can be set in one of two ways, either by passing a ``str``
-# or function to `~.Axis.set_major_formatter` or `~.Axis.set_minor_formatter`,
-# or by creating an instance of one of the various `~.ticker.Formatter` classes
-# and providing that to `~.Axis.set_major_formatter` or
-# `~.Axis.set_minor_formatter`.
-#
-# The first two examples directly pass a ``str`` or function.
+fig = plt.figure(figsize=(8, 8), layout='constrained')
+fig0, fig1, fig2 = fig.subfigures(3, height_ratios=[1.5, 1.5, 7.5])
 
-fig0, axs0 = plt.subplots(2, 1, figsize=(8, 2))
-fig0.suptitle('Simple Formatting')
+fig0.suptitle('String Formatting', fontsize=16, x=0, ha='left')
+ax0 = fig0.subplots()
 
-# A ``str``, using format string function syntax, can be used directly as a
-# formatter.  The variable ``x`` is the tick value and the variable ``pos`` is
-# tick position.  This creates a StrMethodFormatter automatically.
-setup(axs0[0], title="'{x} km'")
-axs0[0].xaxis.set_major_formatter('{x} km')
-
-# A function can also be used directly as a formatter. The function must take
-# two arguments: ``x`` for the tick value and ``pos`` for the tick position,
-# and must return a ``str``. This creates a FuncFormatter automatically.
-setup(axs0[1], title="lambda x, pos: str(x-5)")
-axs0[1].xaxis.set_major_formatter(lambda x, pos: str(x-5))
-
-fig0.tight_layout()
+setup(ax0, title="'{x} km'")
+ax0.xaxis.set_major_formatter('{x} km')
 
 
-# %%
-# The remaining examples use `.Formatter` objects.
+fig1.suptitle('Function Formatting', fontsize=16, x=0, ha='left')
+ax1 = fig1.subplots()
 
-fig1, axs1 = plt.subplots(7, 1, figsize=(8, 6))
-fig1.suptitle('Formatter Object Formatting')
-
-# Null formatter
-setup(axs1[0], title="NullFormatter()")
-axs1[0].xaxis.set_major_formatter(ticker.NullFormatter())
-
-# StrMethod formatter
-setup(axs1[1], title="StrMethodFormatter('{x:.3f}')")
-axs1[1].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.3f}"))
+setup(ax1, title="def(x, pos): return str(x-5)")
+ax1.xaxis.set_major_formatter(lambda x, pos: str(x-5))
 
 
-# FuncFormatter can be used as a decorator
-@ticker.FuncFormatter
-def major_formatter(x, pos):
+fig2.suptitle('Formatter Object Formatting', fontsize=16, x=0, ha='left')
+axs2 = fig2.subplots(7, 1)
+
+setup(axs2[0], title="NullFormatter()")
+axs2[0].xaxis.set_major_formatter(ticker.NullFormatter())
+
+setup(axs2[1], title="StrMethodFormatter('{x:.3f}')")
+axs2[1].xaxis.set_major_formatter(ticker.StrMethodFormatter("{x:.3f}"))
+
+setup(axs2[2], title="FormatStrFormatter('#%d')")
+axs2[2].xaxis.set_major_formatter(ticker.FormatStrFormatter("#%d"))
+
+
+def fmt_two_digits(x, pos):
     return f'[{x:.2f}]'
 
 
-setup(axs1[2], title='FuncFormatter("[{:.2f}]".format)')
-axs1[2].xaxis.set_major_formatter(major_formatter)
+setup(axs2[3], title='FuncFormatter("[{:.2f}]".format)')
+axs2[3].xaxis.set_major_formatter(ticker.FuncFormatter(fmt_two_digits))
 
-# Fixed formatter
-setup(axs1[3], title="FixedFormatter(['A', 'B', 'C', ...])")
+setup(axs2[4], title="FixedFormatter(['A', 'B', 'C', 'D', 'E', 'F'])")
 # FixedFormatter should only be used together with FixedLocator.
 # Otherwise, one cannot be sure where the labels will end up.
 positions = [0, 1, 2, 3, 4, 5]
 labels = ['A', 'B', 'C', 'D', 'E', 'F']
-axs1[3].xaxis.set_major_locator(ticker.FixedLocator(positions))
-axs1[3].xaxis.set_major_formatter(ticker.FixedFormatter(labels))
+axs2[4].xaxis.set_major_locator(ticker.FixedLocator(positions))
+axs2[4].xaxis.set_major_formatter(ticker.FixedFormatter(labels))
 
-# Scalar formatter
-setup(axs1[4], title="ScalarFormatter()")
-axs1[4].xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+setup(axs2[5], title="ScalarFormatter()")
+axs2[5].xaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
 
-# FormatStr formatter
-setup(axs1[5], title="FormatStrFormatter('#%d')")
-axs1[5].xaxis.set_major_formatter(ticker.FormatStrFormatter("#%d"))
+setup(axs2[6], title="PercentFormatter(xmax=5)")
+axs2[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
 
-# Percent formatter
-setup(axs1[6], title="PercentFormatter(xmax=5)")
-axs1[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
-
-fig1.tight_layout()
 plt.show()
-
-
-# %%
-#
-# .. admonition:: References
-#
-#    The use of the following functions, methods, classes and modules is shown
-#    in this example:
-#
-#    - `matplotlib.pyplot.subplots`
-#    - `matplotlib.axes.Axes.text`
-#    - `matplotlib.axis.Axis.set_major_formatter`
-#    - `matplotlib.axis.Axis.set_major_locator`
-#    - `matplotlib.axis.Axis.set_minor_locator`
-#    - `matplotlib.axis.XAxis.set_ticks_position`
-#    - `matplotlib.axis.YAxis.set_ticks_position`
-#    - `matplotlib.ticker.FixedFormatter`
-#    - `matplotlib.ticker.FixedLocator`
-#    - `matplotlib.ticker.FormatStrFormatter`
-#    - `matplotlib.ticker.FuncFormatter`
-#    - `matplotlib.ticker.MultipleLocator`
-#    - `matplotlib.ticker.NullFormatter`
-#    - `matplotlib.ticker.NullLocator`
-#    - `matplotlib.ticker.PercentFormatter`
-#    - `matplotlib.ticker.ScalarFormatter`
-#    - `matplotlib.ticker.StrMethodFormatter`
