@@ -9,6 +9,29 @@
     margin: 0;
 }
 
+/* Make announcement an error colour for unreleased documentation, and sticky. */
+#unreleased-message.bd-header-announcement {
+    border-bottom: solid var(--pst-color-danger-highlight);
+    color: var(--pst-color-danger-text);
+    font-weight: var(--pst-admonition-font-weight-heading);
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+}
+
+#unreleased-message.bd-header-announcement:after {
+    background-color: var(--pst-color-danger);
+    opacity: 1;
+}
+
+#unreleased-message.bd-header-announcement a {
+    color: var(--pst-color-danger-text);
+}
+
+#unreleased-message.bd-header-announcement + .bd-navbar {
+    top: 3rem;  /* Minimum height of announcement header. */
+}
+
 /* multi column TOC */
 .contents ul {
     list-style-type: none;

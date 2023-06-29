@@ -462,7 +462,11 @@ html_theme_options = {
     },
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "secondary_sidebar_items": "page-toc.html",
-     "footer_start": ["copyright", "sphinx-version", "doc_version"],
+    "footer_start": ["copyright", "sphinx-version", "doc_version"],
+    # We override the announcement template from pydata-sphinx-theme, where
+    # this special value indicates the use of the unreleased banner. If we need
+    # an actual announcement, then just place the text here as usual.
+    "announcement": "unreleased" if not is_release_build else "",
 }
 include_analytics = is_release_build
 if include_analytics:
