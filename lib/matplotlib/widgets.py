@@ -1350,7 +1350,7 @@ class TextBox(AxesWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
-    label : `.Text`
+    label : `~matplotlib.text.Text`
 
     color : color
         The color of the text box when not hovering.
@@ -1950,7 +1950,7 @@ class Cursor(AxesWidget):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
     horizOn : bool, default: True
         Whether to draw the horizontal line.
@@ -2548,7 +2548,7 @@ class SpanSelector(_SelectorWidget):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
 
     onselect : callable
         A callback function that is called after a release event and the
@@ -2973,7 +2973,7 @@ class ToolLineHandles:
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         Matplotlib Axes where tool handles are displayed.
     positions : 1D array
         Positions of handles in data coordinates.
@@ -3084,7 +3084,7 @@ class ToolHandles:
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         Matplotlib Axes where tool handles are displayed.
     x, y : 1D arrays
         Coordinates of control handles.

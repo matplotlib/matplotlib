@@ -143,7 +143,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : `.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
             Other keyword arguments are text properties, see `.Text` for a list
             of valid text properties.
         """
@@ -1574,7 +1574,7 @@ class Axes(_AxesBase):
             data limits. The values are passed on to
             `~.axes.Axes.autoscale_view`.
 
-        **kwargs : `.Line2D` properties, optional
+        **kwargs : `~matplotlib.lines.Line2D` properties, optional
             *kwargs* are used to specify properties like a line label (for
             auto legends), linewidth, antialiasing, marker face color.
             Example::
@@ -1966,13 +1966,13 @@ class Axes(_AxesBase):
 
             - `.LineCollection` if *usevlines* is True.
             - `.Line2D` if *usevlines* is False.
-        b : `.Line2D` or None
+        b : `~matplotlib.lines.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False.
 
         Other Parameters
         ----------------
-        linestyle : `.Line2D` property, optional
+        linestyle : `~matplotlib.lines.Line2D` property, optional
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -2043,13 +2043,13 @@ class Axes(_AxesBase):
 
             - `.LineCollection` if *usevlines* is True.
             - `.Line2D` if *usevlines* is False.
-        b : `.Line2D` or None
+        b : `~matplotlib.lines.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False.
 
         Other Parameters
         ----------------
-        linestyle : `.Line2D` property, optional
+        linestyle : `~matplotlib.lines.Line2D` property, optional
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -3425,8 +3425,10 @@ class Axes(_AxesBase):
         `.ErrorbarContainer`
             The container contains:
 
-            - plotline: `.Line2D` instance of x, y plot markers and/or line.
-            - caplines: A tuple of `.Line2D` instances of the error bar caps.
+            - plotline: `~matplotlib.lines.Line2D` instance of x, y plot markers
+              and/or line.
+            - caplines: A tuple of `~matplotlib.lines.Line2D` instances of the error
+              bar caps.
             - barlinecols: A tuple of `.LineCollection` with the horizontal and
               vertical error ranges.
 
@@ -6984,7 +6986,7 @@ such objects
 
         Returns
         -------
-        StepPatch : `matplotlib.patches.StepPatch`
+        StepPatch : `~matplotlib.patches.StepPatch`
 
         Other Parameters
         ----------------

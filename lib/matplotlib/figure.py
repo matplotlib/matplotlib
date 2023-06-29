@@ -557,7 +557,7 @@ default: %(va)s
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
             of the shared axes.
@@ -689,7 +689,7 @@ default: %(va)s
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
             of the shared axes.
@@ -1225,7 +1225,7 @@ default: %(va)s
             Axes is created and the space for it will be stolen from the Axes(s)
             specified in *ax*.
 
-        ax : `~.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
+        ax : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
             The one or more parent Axes from which space for a new colorbar Axes
             will be stolen. This parameter is only used if *cax* is not set.
 

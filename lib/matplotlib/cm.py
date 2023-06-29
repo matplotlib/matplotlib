@@ -270,7 +270,7 @@ def _get_cmap(name=None, lut=None):
 
     Parameters
     ----------
-    name : `matplotlib.colors.Colormap` or str or None, default: None
+    name : `~matplotlib.colors.Colormap` or str or None, default: None
         If a `.Colormap` instance, it will be returned. Otherwise, the name of
         a colormap known to Matplotlib, which will be resampled by *lut*. The
         default, None, means :rc:`image.cmap`.

@@ -604,7 +604,7 @@ class _AxesBase(martist.Artist):
             being created.  Finally, ``*args`` can also directly be a
             `.SubplotSpec` instance.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             The x- or y-`~.matplotlib.axis` is shared with the x- or y-axis in
             the input `~.axes.Axes`.
 
@@ -3172,7 +3172,7 @@ class _AxesBase(martist.Artist):
         axis : {'both', 'x', 'y'}, optional
             The axis to apply the changes on.
 
-        **kwargs : `.Line2D` properties
+        **kwargs : `~matplotlib.lines.Line2D` properties
             Define the line properties of the grid, e.g.::
 
                 grid(color='r', linestyle='-', linewidth=2)
@@ -3438,7 +3438,7 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-        **kwargs : `.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
             `.Text` properties control the appearance of the label.
 
         See Also
@@ -3687,7 +3687,7 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-        **kwargs : `.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
             `.Text` properties control the appearance of the label.
 
         See Also
