@@ -753,11 +753,7 @@ def test_log_scale_image():
     ax.set(yscale='log')
 
 
-# Increased tolerance is needed for PDF test to avoid failure. After the PDF
-# backend was modified to use indexed color, there are ten pixels that differ
-# due to how the subpixel calculation is done when converting the PDF files to
-# PNG images.
-@image_comparison(['rotate_image'], remove_text=True, tol=0.35)
+@image_comparison(['rotate_image'], remove_text=True)
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
