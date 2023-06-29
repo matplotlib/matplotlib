@@ -323,6 +323,7 @@ class Axis(maxis.XAxis):
     @artist.allow_rasterization
     def draw(self, renderer):
         self.label._transform = self.axes.transData
+        self.offsetText._transform = self.axes.transData
         renderer.open_group("axis3d", gid=self.get_gid())
 
         ticks = self._update_ticks()
