@@ -132,7 +132,6 @@ Contribution guides
       .. toctree::
          :maxdepth: 1
 
-         maintainer_workflow
          release_guide
          MEP/index
 

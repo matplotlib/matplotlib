@@ -147,6 +147,8 @@ See also :ref:`contributing` for how to make a PR.
 Summary for pull request reviewers
 ==================================
 
+.. redirect-from:: /devel/maintainer_workflow
+
 .. note::
 
    * If you have commit rights, then you are trusted to use them.
