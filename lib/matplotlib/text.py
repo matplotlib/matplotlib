@@ -1372,7 +1372,7 @@ class OffsetFrom:
         """
         Parameters
         ----------
-        artist : `.Artist` or `.BboxBase` or `.Transform`
+        artist : `~matplotlib.artist.Artist` or `.BboxBase` or `.Transform`
             The object to compute the offset from.
 
         ref_coord : (float, float)

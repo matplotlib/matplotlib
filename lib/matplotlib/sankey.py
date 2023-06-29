@@ -70,7 +70,7 @@ class Sankey:
 
         Other Parameters
         ----------------
-        ax : `~.axes.Axes`
+        ax : `~matplotlib.axes.Axes`
             Axes onto which the data should be plotted.  If *ax* isn't
             provided, new Axes will be created.
         scale : float
