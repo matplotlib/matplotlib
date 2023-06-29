@@ -81,16 +81,14 @@ import numpy as np
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Hashable, Iterable, Sequence
     import datetime
     import pathlib
     import os
+    from typing import Any, BinaryIO, Literal
 
     import PIL
-
     from numpy.typing import ArrayLike
-    from typing import (
-        Any, BinaryIO, Callable, Hashable, Literal, Sequence, Iterable, Type
-    )
 
     from matplotlib.axis import Tick
     from matplotlib.axes._base import _AxesBase
@@ -229,7 +227,7 @@ def set_loglevel(*args, **kwargs) -> None:
 @_copy_docstring_and_deprecators(Artist.findobj)
 def findobj(
     o: Artist | None = None,
-    match: Callable[[Artist], bool] | Type[Artist] | None = None,
+    match: Callable[[Artist], bool] | type[Artist] | None = None,
     include_self: bool = True
 ) -> list[Artist]:
     if o is None:
@@ -751,7 +749,7 @@ def figure(
     # defaults to rc figure.edgecolor
     edgecolor: ColorType | None = None,
     frameon: bool = True,
-    FigureClass: Type[Figure] = Figure,
+    FigureClass: type[Figure] = Figure,
     clear: bool = False,
     **kwargs
 ) -> Figure:

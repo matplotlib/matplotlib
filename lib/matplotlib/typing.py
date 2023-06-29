@@ -9,9 +9,9 @@ downstream libraries.
     The ``typing`` module and type stub files are considered provisional and may change
     at any time without a deprecation period.
 """
-from collections.abc import Sequence
+from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Hashable, Literal, Union
+from typing import Any, Literal, Union
 
 from . import path
 from ._enums import JoinStyle, CapStyle
