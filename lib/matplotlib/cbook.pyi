@@ -11,7 +11,6 @@ from numpy.typing import ArrayLike
 
 from typing import (
     Any,
-    ContextManager,
     Generic,
     IO,
     Literal,
@@ -68,7 +67,7 @@ def open_file_cm(
     path_or_file: str | os.PathLike | IO,
     mode: str = ...,
     encoding: str | None = ...,
-) -> ContextManager[IO]: ...
+) -> contextlib.AbstractContextManager[IO]: ...
 def is_scalar_or_string(val: Any) -> bool: ...
 @overload
 def get_sample_data(
