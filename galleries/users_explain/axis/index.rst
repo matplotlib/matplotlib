@@ -10,9 +10,7 @@ include alignment, direction, style, curve, and more.
 .. inheritance-diagram:: Tick Ticker XAxis YAxis XTick YTick
    :private-bases:
 
-Almost every object interacted with on a Matplotlib plot is an "Artist,"
-which are a subclass of the `~matplotlib.artist.Artist` class. For more
-information on the `~matplotlib.artist.Artist` class and manipulating
+For more information on the `~matplotlib.artist.Artist` class and manipulating
 artists, see the :ref: `tutorial page <artists_tutorial>`.
 
 For more information on  `~.axis.Axis` objects, see the
