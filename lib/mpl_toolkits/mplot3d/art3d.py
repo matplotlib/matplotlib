@@ -773,10 +773,12 @@ class Path3DCollection(PathCollection):
         if color_array.shape[1] == 3: # color_array is RGB instead of RGBA
             return mcolors.to_rgba_array(color_array, self._alpha)
         
-        if self._alpha is not None:
-            converted_alphas = color_array[:, 3] * self._alpha
-        else:
-            converted_alphas = color_array[:, 3]
+        converted_alphas = (
+            color_array[:, 3] * self._alpha
+            if self._alpha is not None
+            else color_array[:, 3]
+        )
+        
         return mcolors.to_rgba_array(color_array, converted_alphas)
 
     def get_facecolor(self):
