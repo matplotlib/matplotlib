@@ -325,9 +325,9 @@ class TextPath(Path):
             Font size in points. Defaults to the size specified via the font
             properties *prop*.
 
-        prop : `matplotlib.font_manager.FontProperties`, optional
+        prop : `~matplotlib.font_manager.FontProperties`, optional
             Font property. If not provided, will use a default
-            ``FontProperties`` with parameters from the
+            `.FontProperties` with parameters from the
             :ref:`rcParams<customizing-with-dynamic-rc-settings>`.
 
         _interpolation_steps : int, optional

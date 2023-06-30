@@ -124,7 +124,7 @@ ncols : int, default: 1
     For backward compatibility, the spelling *ncol* is also supported
     but it is discouraged. If both are given, *ncols* takes precedence.
 
-prop : None or `matplotlib.font_manager.FontProperties` or dict
+prop : None or `~matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend. If None (default), the current
     :data:`matplotlib.rcParams` will be used.
 
@@ -198,7 +198,7 @@ mode : {"expand", None}
     expanded to fill the axes area (or *bbox_to_anchor* if defines
     the legend's size).
 
-bbox_transform : None or `matplotlib.transforms.Transform`
+bbox_transform : None or `~matplotlib.transforms.Transform`
     The transform for the bounding box (*bbox_to_anchor*). For a value
     of ``None`` (default) the Axes'
     :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
@@ -206,7 +206,7 @@ bbox_transform : None or `matplotlib.transforms.Transform`
 title : str or None
     The legend's title. Default is no title (``None``).
 
-title_fontproperties : None or `matplotlib.font_manager.FontProperties` or dict
+title_fontproperties : None or `~matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend's title. If None (default), the
     *title_fontsize* argument will be used if present; if *title_fontsize* is
     also None, the current :rc:`legend.title_fontsize` will be used.

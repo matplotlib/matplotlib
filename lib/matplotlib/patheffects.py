@@ -87,7 +87,7 @@ class PathEffectRenderer(RendererBase):
         ----------
         path_effects : iterable of :class:`AbstractPathEffect`
             The path effects which this renderer represents.
-        renderer : `matplotlib.backend_bases.RendererBase` subclass
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass
 
         """
         self._path_effects = path_effects

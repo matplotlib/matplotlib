@@ -43,15 +43,15 @@ class Tick(martist.Artist):
 
     Attributes
     ----------
-    tick1line : `.Line2D`
+    tick1line : `~matplotlib.lines.Line2D`
         The left/bottom tick marker.
-    tick2line : `.Line2D`
+    tick2line : `~matplotlib.lines.Line2D`
         The right/top tick marker.
-    gridline : `.Line2D`
+    gridline : `~matplotlib.lines.Line2D`
         The grid line associated with the label position.
-    label1 : `.Text`
+    label1 : `~matplotlib.text.Text`
         The left/bottom tick label.
-    label2 : `.Text`
+    label2 : `~matplotlib.text.Text`
         The right/top tick label.
 
     """
@@ -534,9 +534,9 @@ class Ticker:
 
     Attributes
     ----------
-    locator : `matplotlib.ticker.Locator` subclass
+    locator : `~matplotlib.ticker.Locator` subclass
         Determines the positions of the ticks.
-    formatter : `matplotlib.ticker.Formatter` subclass
+    formatter : `~matplotlib.ticker.Formatter` subclass
         Determines the format of the tick labels.
     """
 
@@ -609,20 +609,20 @@ class Axis(martist.Artist):
     ----------
     isDefault_label : bool
 
-    axes : `matplotlib.axes.Axes`
+    axes : `~matplotlib.axes.Axes`
         The `~.axes.Axes` to which the Axis belongs.
-    major : `matplotlib.axis.Ticker`
+    major : `~matplotlib.axis.Ticker`
         Determines the major tick positions and their label format.
-    minor : `matplotlib.axis.Ticker`
+    minor : `~matplotlib.axis.Ticker`
         Determines the minor tick positions and their label format.
-    callbacks : `matplotlib.cbook.CallbackRegistry`
+    callbacks : `~matplotlib.cbook.CallbackRegistry`
 
-    label : `.Text`
+    label : `~matplotlib.text.Text`
         The axis label.
     labelpad : float
         The distance between the axis label and the tick labels.
         Defaults to :rc:`axes.labelpad` = 4.
-    offsetText : `.Text`
+    offsetText : `~matplotlib.text.Text`
         A `.Text` object containing the data offset of the ticks (if any).
     pickradius : float
         The acceptance radius for containment tests. See also `.Axis.contains`.
@@ -645,7 +645,7 @@ class Axis(martist.Artist):
         """
         Parameters
         ----------
-        axes : `matplotlib.axes.Axes`
+        axes : `~matplotlib.axes.Axes`
             The `~.axes.Axes` to which the created Axis belongs.
         pickradius : float
             The acceptance radius for containment tests. See also
@@ -1634,7 +1634,7 @@ class Axis(martist.Artist):
         which : {'major', 'minor', 'both'}
             The grid lines to apply the changes on.
 
-        **kwargs : `.Line2D` properties
+        **kwargs : `~matplotlib.lines.Line2D` properties
             Define the line properties of the grid, e.g.::
 
                 grid(color='r', linestyle='-', linewidth=2)

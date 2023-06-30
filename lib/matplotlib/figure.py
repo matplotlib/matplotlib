@@ -557,7 +557,7 @@ default: %(va)s
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
             of the shared axes.
@@ -689,7 +689,7 @@ default: %(va)s
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
             of the shared axes.
@@ -1221,12 +1221,16 @@ default: %(va)s
                 fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
 
         cax : `~matplotlib.axes.Axes`, optional
-            Axes into which the colorbar will be drawn.
+            Axes into which the colorbar will be drawn.  If `None`, then a new
+            Axes is created and the space for it will be stolen from the Axes(s)
+            specified in *ax*.
 
-        ax : `~.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
-            One or more parent axes from which space for a new colorbar axes
-            will be stolen, if *cax* is None.  This has no effect if *cax* is
-            set.
+        ax : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
+            The one or more parent Axes from which space for a new colorbar Axes
+            will be stolen. This parameter is only used if *cax* is not set.
+
+            Defaults to the Axes that contains the mappable used to create the
+            colorbar.
 
         use_gridspec : bool, optional
             If *cax* is ``None``, a new *cax* is created as an instance of
@@ -1267,6 +1271,7 @@ default: %(va)s
         However, this has negative consequences in other circumstances, e.g.
         with semi-transparent images (alpha < 1) and colorbar extensions;
         therefore, this workaround is not used by default (see issue #1188).
+
         """
 
         if ax is None:

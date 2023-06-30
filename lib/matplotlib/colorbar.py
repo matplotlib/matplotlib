@@ -1394,13 +1394,13 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     Parameters
     ----------
-    parents : `~.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
+    parents : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
     %(_make_axes_kw_doc)s
 
     Returns
     -------
-    cax : `~.axes.Axes`
+    cax : `~matplotlib.axes.Axes`
         The child axes.
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
@@ -1508,13 +1508,13 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
 
     Parameters
     ----------
-    parent : `~.axes.Axes`
+    parent : `~matplotlib.axes.Axes`
         The Axes to use as parent for placing the colorbar.
     %(_make_axes_kw_doc)s
 
     Returns
     -------
-    cax : `~.axes.Axes`
+    cax : `~matplotlib.axes.Axes`
         The child axes.
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar

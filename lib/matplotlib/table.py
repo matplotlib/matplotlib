@@ -280,7 +280,7 @@ class Table(Artist):
         """
         Parameters
         ----------
-        ax : `matplotlib.axes.Axes`
+        ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` to plot the table into.
         loc : str
             The position of the cell with respect to *ax*. This must be one of

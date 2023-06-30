@@ -490,7 +490,7 @@ class Artist:
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
@@ -781,7 +781,7 @@ class Artist:
 
         Parameters
         ----------
-        path : `.Patch` or `.Path` or `.TransformedPath` or None
+        path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath` or None
             The clip path. If given a `.Path`, *transform* must be provided as
             well. If *None*, a previously set clip path is removed.
         transform : `~matplotlib.transforms.Transform`, optional
@@ -1307,7 +1307,7 @@ class Artist:
 
         Parameters
         ----------
-        event : `matplotlib.backend_bases.MouseEvent`
+        event : `~matplotlib.backend_bases.MouseEvent`
 
         See Also
         --------
@@ -1721,7 +1721,7 @@ def getp(obj, property=None):
 
     Parameters
     ----------
-    obj : `.Artist`
+    obj : `~matplotlib.artist.Artist`
         The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.
 
     property : str or None, default: None
@@ -1760,7 +1760,7 @@ def setp(obj, *args, file=None, **kwargs):
 
     Parameters
     ----------
-    obj : `.Artist` or list of `.Artist`
+    obj : `~matplotlib.artist.Artist` or list of `.Artist`
         The artist(s) whose properties are being set or queried.  When setting
         properties, all artists are affected; when querying the allowed values,
         only the first instance in the sequence is queried.

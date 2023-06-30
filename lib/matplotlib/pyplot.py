@@ -1070,7 +1070,7 @@ def axes(arg=None, **kwargs):
     polar : bool, default: False
         If True, equivalent to projection='polar'.
 
-    sharex, sharey : `~.axes.Axes`, optional
+    sharex, sharey : `~matplotlib.axes.Axes`, optional
         Share the x or y `~matplotlib.axis` with sharex and/or sharey.
         The axis will have the same limits, ticks, and scale as the axis
         of the shared Axes.
@@ -1193,7 +1193,7 @@ def subplot(*args, **kwargs):
     polar : bool, default: False
         If True, equivalent to projection='polar'.
 
-    sharex, sharey : `~.axes.Axes`, optional
+    sharex, sharey : `~matplotlib.axes.Axes`, optional
         Share the x or y `~matplotlib.axis` with sharex and/or sharey. The
         axis will have the same limits, ticks, and scale as the axis of the
         shared axes.
@@ -1428,7 +1428,7 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
     -------
     fig : `.Figure`
 
-    ax : `~.axes.Axes` or array of Axes
+    ax : `~matplotlib.axes.Axes` or array of Axes
         *ax* can be either a single `~.axes.Axes` object, or an array of Axes
         objects if more than one subplot was created.  The dimensions of the
         resulting array can be controlled with the squeeze keyword, see above.

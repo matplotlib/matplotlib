@@ -207,9 +207,9 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
-        marker_trans : `matplotlib.transforms.Transform`
+        marker_trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the marker.
-        trans : `matplotlib.transforms.Transform`
+        trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the path.
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
@@ -299,7 +299,7 @@ class RendererBase:
             Array of (x, y) points for the triangle.
         colors : (3, 4) array-like
             RGBA colors for each point of the triangle.
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
         raise NotImplementedError
@@ -317,7 +317,7 @@ class RendererBase:
             Array of *N* (x, y) points for the triangles.
         colors_array : (N, 3, 4) array-like
             Array of *N* RGBA colors for each point of the triangles.
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
         raise NotImplementedError
@@ -521,7 +521,7 @@ class RendererBase:
             The font properties.
         angle : float
             The rotation angle in degrees anti-clockwise.
-        mtext : `matplotlib.text.Text`
+        mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
@@ -546,7 +546,7 @@ class RendererBase:
             The rotation angle in degrees anti-clockwise.
         ismath : bool or "TeX"
             If True, use mathtext parser. If "TeX", use tex for rendering.
-        mtext : `matplotlib.text.Text`
+        mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
 
         Notes
@@ -1325,7 +1325,7 @@ class LocationEvent(Event):
     ----------
     x, y : int or None
         Event location in pixels from bottom left of canvas.
-    inaxes : `~.axes.Axes` or None
+    inaxes : `~matplotlib.axes.Axes` or None
         The `~.axes.Axes` instance over which the mouse is, if any.
     xdata, ydata : float or None
         Data coordinates of the mouse within *inaxes*, or *None* if the mouse
@@ -1465,7 +1465,7 @@ class PickEvent(Event):
     ----------
     mouseevent : `MouseEvent`
         The mouse event that generated the pick.
-    artist : `matplotlib.artist.Artist`
+    artist : `~matplotlib.artist.Artist`
         The picked artist.  Note that artists are not pickable by default
         (see `.Artist.set_picker`).
     other
@@ -1630,7 +1630,7 @@ class FigureCanvasBase:
 
     Attributes
     ----------
-    figure : `matplotlib.figure.Figure`
+    figure : `~matplotlib.figure.Figure`
         A high-level figure instance.
     """
 
