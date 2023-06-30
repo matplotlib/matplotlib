@@ -4,7 +4,7 @@ Controlling and Labelling Axis Objects
 --------------------------------------
 
 Matplotlib `~.axis.Axis` objects are a type of Artist that
-are the underlying abstraction and the basis for the axes
+are the underlying abstraction and the basis for a single axis
 on a Matplotlib figure or visualization. Axis objects are
 capable of controlling and modifying axis on a figure,
 which can include alignment, direction, style, curve,
