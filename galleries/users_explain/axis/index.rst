@@ -1,6 +1,6 @@
 .. _users_axis:
 
-Controlling and Labelling Axis Objects
+Controlling and labelling Axis objects
 --------------------------------------
 
 Matplotlib `~.axis.Axis` objects are a type of Artist that
