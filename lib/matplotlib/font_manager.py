@@ -878,8 +878,7 @@ class FontProperties:
             The name of the font family.
 
             Available font families are defined in the
-            matplotlibrc.template file
-            :ref:`here <customizing-with-matplotlibrc-files>`
+            :ref:`default matplotlibrc file <customizing-with-matplotlibrc-files>`.
 
         See Also
         --------
@@ -1479,7 +1478,7 @@ def is_opentype_cff_font(filename):
     """
     Return whether the given font is a Postscript Compact Font Format Font
     embedded in an OpenType wrapper.  Used by the PostScript and PDF backends
-    that can not subset these fonts.
+    that cannot subset these fonts.
     """
     if os.path.splitext(filename)[1].lower() == '.otf':
         with open(filename, 'rb') as fd:

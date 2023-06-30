@@ -101,7 +101,7 @@ format_axes(ax)
 # Markers created from TeX symbols
 # ================================
 #
-# Use :doc:`MathText </tutorials/text/mathtext>`, to use custom marker symbols,
+# Use :ref:`MathText <mathtext>`, to use custom marker symbols,
 # like e.g. ``"$\u266B$"``. For an overview over the STIX font symbols refer
 # to the `STIX font table <http://www.stixfonts.org/allGlyphs.html>`_.
 # Also see the :doc:`/gallery/text_labels_and_annotations/stix_fonts_demo`.

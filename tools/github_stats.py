@@ -137,7 +137,7 @@ def issues_closed_since(period=timedelta(days=365),
 
 
 def sorted_by_field(issues, field='closed_at', reverse=False):
-    """Return a list of issues sorted by closing date date."""
+    """Return a list of issues sorted by closing date."""
     return sorted(issues, key=lambda i: i[field], reverse=reverse)
 
 

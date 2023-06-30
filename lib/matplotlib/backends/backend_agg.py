@@ -147,9 +147,9 @@ class RendererAgg(RendererBase):
             except OverflowError:
                 cant_chunk = ''
                 if rgbFace is not None:
-                    cant_chunk += "- can not split filled path\n"
+                    cant_chunk += "- cannot split filled path\n"
                 if gc.get_hatch() is not None:
-                    cant_chunk += "- can not split hatched path\n"
+                    cant_chunk += "- cannot split hatched path\n"
                 if not path.should_simplify:
                     cant_chunk += "- path.should_simplify is False\n"
                 if len(cant_chunk):
@@ -157,7 +157,7 @@ class RendererAgg(RendererBase):
                         "Exceeded cell block limit in Agg, however for the "
                         "following reasons:\n\n"
                         f"{cant_chunk}\n"
-                        "we can not automatically split up this path to draw."
+                        "we cannot automatically split up this path to draw."
                         "\n\nPlease manually simplify your path."
                     )
 
@@ -206,7 +206,7 @@ class RendererAgg(RendererBase):
         # space) in the following call to draw_text_image).
         font.set_text(s, 0, flags=get_hinting_flag())
         font.draw_glyphs_to_bitmap(
-            antialiased=mpl.rcParams['text.antialiased'])
+            antialiased=gc.get_antialiased())
         d = font.get_descent() / 64.0
         # The descent needs to be adjusted for the angle.
         xo, yo = font.get_bitmap_offset()
@@ -280,6 +280,7 @@ class RendererAgg(RendererBase):
     def tostring_argb(self):
         return np.asarray(self._renderer).take([3, 0, 1, 2], axis=2).tobytes()
 
+    @_api.deprecated("3.8", alternative="buffer_rgba")
     def tostring_rgb(self):
         return np.asarray(self._renderer).take([0, 1, 2], axis=2).tobytes()
 
@@ -402,18 +403,16 @@ class FigureCanvasAgg(FigureCanvasBase):
             # don't forget to call the superclass.
             super().draw()
 
-    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
-    def get_renderer(self, cleared=False):
+    def get_renderer(self):
         w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
         reuse_renderer = (self._lastKey == key)
         if not reuse_renderer:
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
-        elif cleared:
-            self.renderer.clear()
         return self.renderer
 
+    @_api.deprecated("3.8", alternative="buffer_rgba")
     def tostring_rgb(self):
         """
         Get the image as RGB `bytes`.

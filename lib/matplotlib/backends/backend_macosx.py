@@ -8,8 +8,6 @@ from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     ResizeEvent, TimerBase)
-from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
 
 
 class TimerMac(_macosx.Timer, TimerBase):
@@ -39,6 +37,8 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
         super().__init__(figure=figure)
         self._draw_pending = False
         self._is_drawing = False
+        # Keep track of the timers that are alive
+        self._timers = set()
 
     def draw(self):
         """Render the figure and update the macosx canvas."""
@@ -61,14 +61,16 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
 
     def _single_shot_timer(self, callback):
         """Add a single shot timer with the given callback"""
-        # We need to explicitly stop (called from delete) the timer after
+        # We need to explicitly stop and remove the timer after
         # firing, otherwise segfaults will occur when trying to deallocate
         # the singleshot timers.
         def callback_func(callback, timer):
             callback()
-            del timer
+            self._timers.remove(timer)
+            timer.stop()
         timer = self.new_timer(interval=0)
         timer.add_callback(callback_func, callback, timer)
+        self._timers.add(timer)
         timer.start()
 
     def _draw_idle(self):
@@ -132,15 +134,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
             mpl.rcParams['savefig.directory'] = os.path.dirname(filename)
         self.canvas.figure.savefig(filename)
 
-    @_api.deprecated("3.6", alternative='configure_subplots()')
-    def prepare_configure_subplots(self):
-        toolfig = Figure(figsize=(6, 3))
-        canvas = FigureCanvasMac(toolfig)
-        toolfig.subplots_adjust(top=0.9)
-        # Need to keep a reference to the tool.
-        _tool = SubplotTool(self.canvas.figure, toolfig)
-        return canvas
-
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
@@ -161,9 +154,13 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         Gcf.destroy(self)
         self.canvas.flush_events()
 
-    @_api.deprecated("3.6")
-    def close(self):
-        return self._close_button_pressed()
+    def destroy(self):
+        # We need to clear any pending timers that never fired, otherwise
+        # we get a memory leak from the timer callbacks holding a reference
+        while self.canvas._timers:
+            timer = self.canvas._timers.pop()
+            timer.stop()
+        super().destroy()
 
     @classmethod
     def start_main_loop(cls):

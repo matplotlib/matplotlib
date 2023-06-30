@@ -159,7 +159,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     Attributes
     ----------
-    figure : `matplotlib.figure.Figure`
+    figure : `~matplotlib.figure.Figure`
         A high-level Figure instance
     """
 

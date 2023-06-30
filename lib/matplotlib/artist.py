@@ -215,8 +215,6 @@ class Artist:
 
     def __getstate__(self):
         d = self.__dict__.copy()
-        # remove the unpicklable remove method, this will get re-added on load
-        # (by the Axes) if the artist lives on an Axes.
         d['stale_callback'] = None
         return d
 
@@ -361,8 +359,9 @@ class Artist:
 
         Returns
         -------
-        `.Bbox`
+        `.Bbox` or None
             The enclosing bounding box (in figure pixel coordinates).
+            Returns None if clipping results in no intersection.
         """
         bbox = self.get_window_extent(renderer)
         if self.get_clip_on():
@@ -370,7 +369,7 @@ class Artist:
             if clip_box is not None:
                 bbox = Bbox.intersection(bbox, clip_box)
             clip_path = self.get_clip_path()
-            if clip_path is not None:
+            if clip_path is not None and bbox is not None:
                 clip_path = clip_path.get_fully_transformed_path()
                 bbox = Bbox.intersection(bbox, clip_path.get_extents())
         return bbox
@@ -461,28 +460,22 @@ class Artist:
         r"""Return a list of the child `.Artist`\s of this `.Artist`."""
         return []
 
-    def _default_contains(self, mouseevent, figure=None):
+    def _different_canvas(self, event):
         """
-        Base impl. for checking whether a mouseevent happened in an artist.
+        Check whether an *event* occurred on a canvas other that this artist's canvas.
 
-        1. If the artist figure is known and the event did not occur in that
-           figure (by checking its ``canvas`` attribute), reject it.
-        2. Otherwise, return `None, {}`, indicating that the subclass'
-           implementation should be used.
+        If this method returns True, the event definitely occurred on a different
+        canvas; if it returns False, either it occurred on the same canvas, or we may
+        not have enough information to know.
 
-        Subclasses should start their definition of `contains` as follows:
+        Subclasses should start their definition of `contains` as follows::
 
-            inside, info = self._default_contains(mouseevent)
-            if inside is not None:
-                return inside, info
+            if self._different_canvas(mouseevent):
+                return False, {}
             # subclass-specific implementation follows
-
-        The *figure* kwarg is provided for the implementation of
-        `.Figure.contains`.
         """
-        if figure is not None and mouseevent.canvas is not figure.canvas:
-            return False, {}
-        return None, {}
+        return (getattr(event, "canvas", None) is not None and self.figure is not None
+                and event.canvas is not self.figure.canvas)
 
     def contains(self, mouseevent):
         """
@@ -490,7 +483,7 @@ class Artist:
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
@@ -781,7 +774,7 @@ class Artist:
 
         Parameters
         ----------
-        path : `.Patch` or `.Path` or `.TransformedPath` or None
+        path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath` or None
             The clip path. If given a `.Path`, *transform* must be provided as
             well. If *None*, a previously set clip path is removed.
         transform : `~matplotlib.transforms.Transform`, optional
@@ -857,7 +850,7 @@ class Artist:
         Return boolean flag, ``True`` if artist is included in layout
         calculations.
 
-        E.g. :doc:`/tutorials/intermediate/constrainedlayout_guide`,
+        E.g. :ref:`constrainedlayout_guide`,
         `.Figure.tight_layout()`, and
         ``fig.savefig(fname, bbox_inches='tight')``.
         """
@@ -1067,7 +1060,7 @@ class Artist:
         using blitting.
 
         See also `matplotlib.animation` and
-        :doc:`/tutorials/advanced/blitting`.
+        :ref:`blitting`.
 
         Parameters
         ----------
@@ -1080,7 +1073,7 @@ class Artist:
     def set_in_layout(self, in_layout):
         """
         Set if artist is to be included in layout calculations,
-        E.g. :doc:`/tutorials/intermediate/constrainedlayout_guide`,
+        E.g. :ref:`constrainedlayout_guide`,
         `.Figure.tight_layout()`, and
         ``fig.savefig(fname, bbox_inches='tight')``.
 
@@ -1307,7 +1300,7 @@ class Artist:
 
         Parameters
         ----------
-        event : `matplotlib.backend_bases.MouseEvent`
+        event : `~matplotlib.backend_bases.MouseEvent`
 
         See Also
         --------
@@ -1721,7 +1714,7 @@ def getp(obj, property=None):
 
     Parameters
     ----------
-    obj : `.Artist`
+    obj : `~matplotlib.artist.Artist`
         The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.
 
     property : str or None, default: None
@@ -1760,7 +1753,7 @@ def setp(obj, *args, file=None, **kwargs):
 
     Parameters
     ----------
-    obj : `.Artist` or list of `.Artist`
+    obj : `~matplotlib.artist.Artist` or list of `.Artist`
         The artist(s) whose properties are being set or queried.  When setting
         properties, all artists are affected; when querying the allowed values,
         only the first instance in the sequence is queried.

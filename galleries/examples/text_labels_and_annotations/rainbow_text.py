@@ -1,87 +1,31 @@
 """
-============
-Rainbow text
-============
+====================================================
+Concatenating text objects with different properties
+====================================================
 
-The example shows how to string together several text objects.
-
-History
--------
-On the matplotlib-users list back in February 2012, Gökhan Sever asked the
-following question:
-
-  | Is there a way in matplotlib to partially specify the color of a string?
-  |
-  | Example:
-  |
-  | plt.ylabel("Today is cloudy.")
-  |
-  | How can I show "today" as red, "is" as green and "cloudy." as blue?
-  |
-  | Thanks.
-
-The solution below is modified from Paul Ivanov's original answer.
+The example strings together several Text objects with different properties
+(e.g., color or font), positioning each one after the other.  The first Text
+is created directly using `~.Axes.text`; all subsequent ones are created with
+`~.Axes.annotate`, which allows positioning the Text's lower left corner at the
+lower right corner (``xy=(1, 0)``) of the previous one (``xycoords=text``).
 """
 
 import matplotlib.pyplot as plt
 
-from matplotlib.transforms import Affine2D, offset_copy
+plt.rcParams["font.size"] = 20
+ax = plt.figure().add_subplot(xticks=[], yticks=[])
 
-
-def rainbow_text(x, y, strings, colors, orientation='horizontal',
-                 ax=None, **kwargs):
-    """
-    Take a list of *strings* and *colors* and place them next to each
-    other, with text strings[i] being shown in colors[i].
-
-    Parameters
-    ----------
-    x, y : float
-        Text position in data coordinates.
-    strings : list of str
-        The strings to draw.
-    colors : list of color
-        The colors to use.
-    orientation : {'horizontal', 'vertical'}
-    ax : Axes, optional
-        The Axes to draw into. If None, the current axes will be used.
-    **kwargs
-        All other keyword arguments are passed to plt.text(), so you can
-        set the font size, family, etc.
-    """
-    if ax is None:
-        ax = plt.gca()
-    t = ax.transData
-    fig = ax.figure
-    canvas = fig.canvas
-
-    assert orientation in ['horizontal', 'vertical']
-    if orientation == 'vertical':
-        kwargs.update(rotation=90, verticalalignment='bottom')
-
-    for s, c in zip(strings, colors):
-        text = ax.text(x, y, s + " ", color=c, transform=t, **kwargs)
-
-        # Need to draw to update the text position.
-        text.draw(canvas.get_renderer())
-        ex = text.get_window_extent()
-        # Convert window extent from pixels to inches
-        # to avoid issues displaying at different dpi
-        ex = fig.dpi_scale_trans.inverted().transform_bbox(ex)
-
-        if orientation == 'horizontal':
-            t = text.get_transform() + \
-                offset_copy(Affine2D(), fig=fig, x=ex.width, y=0)
-        else:
-            t = text.get_transform() + \
-                offset_copy(Affine2D(), fig=fig, x=0, y=ex.height)
-
-
-words = "all unicorns poop rainbows ! ! !".split()
-colors = ['red', 'orange', 'gold', 'lawngreen', 'lightseagreen', 'royalblue',
-          'blueviolet']
-plt.figure(figsize=(6, 6))
-rainbow_text(0.1, 0.05, words, colors, size=18)
-rainbow_text(0.05, 0.1, words, colors, orientation='vertical', size=18)
+# The first word, created with text().
+text = ax.text(.1, .5, "Matplotlib", color="red")
+# Subsequent words, positioned with annotate(), relative to the preceding one.
+text = ax.annotate(
+    " says,", xycoords=text, xy=(1, 0), verticalalignment="bottom",
+    color="gold", weight="bold")  # custom properties
+text = ax.annotate(
+    " hello", xycoords=text, xy=(1, 0), verticalalignment="bottom",
+    color="green", style="italic")  # custom properties
+text = ax.annotate(
+    " world!", xycoords=text, xy=(1, 0), verticalalignment="bottom",
+    color="blue", family="serif")  # custom properties
 
 plt.show()

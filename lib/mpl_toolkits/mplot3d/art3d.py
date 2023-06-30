@@ -17,7 +17,7 @@ from matplotlib import (
     artist, cbook, colors as mcolors, lines, text as mtext,
     path as mpath)
 from matplotlib.collections import (
-    LineCollection, PolyCollection, PatchCollection, PathCollection)
+    Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
 from matplotlib.patches import Patch
 from . import proj3d
@@ -183,6 +183,12 @@ def text_2d_to_3d(obj, z=0, zdir='z'):
 class Line3D(lines.Line2D):
     """
     3D line object.
+
+    .. note:: Use `get_data_3d` to obtain the data associated with the line.
+            `~.Line2D.get_data`, `~.Line2D.get_xdata`, and `~.Line2D.get_ydata` return
+            the x- and y-coordinates of the projected 2D-line, not the x- and y-data of
+            the 3D-line. Similarly, use `set_data_3d` to set the data, not
+            `~.Line2D.set_data`, `~.Line2D.set_xdata`, and `~.Line2D.set_ydata`.
     """
 
     def __init__(self, xs, ys, zs, *args, **kwargs):
@@ -196,8 +202,8 @@ class Line3D(lines.Line2D):
             The y-data to be plotted.
         zs : array-like
             The z-data to be plotted.
-
-        Additional arguments are passed onto :func:`~matplotlib.lines.Line2D`.
+        *args, **kwargs :
+            Additional arguments are passed to `~matplotlib.lines.Line2D`.
         """
         super().__init__([], [], *args, **kwargs)
         self.set_data_3d(xs, ys, zs)
@@ -336,6 +342,31 @@ def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
     else:
         segments, codes = [], []
     return list(segments), list(codes)
+
+
+class Collection3D(Collection):
+    """A collection of 3D paths."""
+
+    def do_3d_projection(self):
+        """Project the points according to renderer matrix."""
+        xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M)
+                     for vs, _ in self._3dverts_codes]
+        self._paths = [mpath.Path(np.column_stack([xs, ys]), cs)
+                       for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
+        zs = np.concatenate([zs for _, _, zs in xyzs_list])
+        return zs.min() if len(zs) else 1e9
+
+
+def collection_2d_to_3d(col, zs=0, zdir='z'):
+    """Convert a `.Collection` to a `.Collection3D` object."""
+    zs = np.broadcast_to(zs, len(col.get_paths()))
+    col._3dverts_codes = [
+        (np.column_stack(juggle_axes(
+            *np.column_stack([p.vertices, np.broadcast_to(z, len(p.vertices))]).T,
+            zdir)),
+         p.codes)
+        for p, z in zip(col.get_paths(), zs)]
+    col.__class__ = cbook._make_class_factory(Collection3D, "{}3D")(type(col))
 
 
 class Line3DCollection(LineCollection):
@@ -668,7 +699,7 @@ class Path3DCollection(PathCollection):
             ys = []
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
         # In the base draw methods we access the attributes directly which
-        # means we can not resolve the shuffling in the getter methods like
+        # means we cannot resolve the shuffling in the getter methods like
         # we do for the edge and face colors.
         #
         # This means we need to carry around a cache of the unsorted sizes and
@@ -727,7 +758,7 @@ class Path3DCollection(PathCollection):
         # we have to special case the sizes because of code in collections.py
         # as the draw method does
         #      self.set_sizes(self._sizes, self.figure.dpi)
-        # so we can not rely on doing the sorting on the way out via get_*
+        # so we cannot rely on doing the sorting on the way out via get_*
 
         if len(self._sizes3d) > 1:
             self._sizes = self._sizes3d[z_markers_idx]
@@ -1073,7 +1104,7 @@ class Poly3DCollection(PolyCollection):
         if not hasattr(self, '_facecolors2d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return self._facecolors2d
+        return np.asarray(self._facecolors2d)
 
     def get_edgecolor(self):
         # docstring inherited
@@ -1081,7 +1112,7 @@ class Poly3DCollection(PolyCollection):
         if not hasattr(self, '_edgecolors2d'):
             self.axes.M = self.axes.get_proj()
             self.do_3d_projection()
-        return self._edgecolors2d
+        return np.asarray(self._edgecolors2d)
 
 
 def poly_collection_2d_to_3d(col, zs=0, zdir='z'):

@@ -5,8 +5,8 @@ Default legend handlers.
 
     This is a low-level legend API, which most end users do not need.
 
-    We recommend that you are familiar with the :doc:`legend guide
-    </tutorials/intermediate/legend_guide>` before reading this documentation.
+    We recommend that you are familiar with the :ref:`legend guide
+    <legend_guide>` before reading this documentation.
 
 Legend handlers are expected to be a callable object with a following
 signature::
@@ -115,7 +115,7 @@ class HandlerBase:
         fontsize : int
             The fontsize in pixels. The artists being created should
             be scaled according to the given fontsize.
-        handlebox : `matplotlib.offsetbox.OffsetBox`
+        handlebox : `~matplotlib.offsetbox.OffsetBox`
             The box which has been created to hold this legend entry's
             artists. Artists created in the `legend_artist` method must
             be added to this handlebox inside this method.
@@ -725,7 +725,7 @@ class HandlerTuple(HandlerBase):
         """
         Parameters
         ----------
-        ndivide : int, default: 1
+        ndivide : int or None, default: 1
             The number of sections to divide the legend area into.  If None,
             use the length of the input tuple.
         pad : float, default: :rc:`legend.borderpad`

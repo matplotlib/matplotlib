@@ -41,6 +41,8 @@ OTHER DEALINGS IN THE SOFTWARE.
 __version__ = '1.0.10'
 __license__ = __doc__
 
+from ast import literal_eval
+
 import copy
 import datetime
 import logging
@@ -351,7 +353,7 @@ class FormWidget(QtWidgets.QWidget):
                 else:
                     value = date_.toPython()
             else:
-                value = eval(str(field.text()))
+                value = literal_eval(str(field.text()))
             valuelist.append(value)
         return valuelist
 

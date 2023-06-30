@@ -63,10 +63,12 @@ def create_figure():
 
     # text and typesetting
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+    plt.text(0.9, 0.5, 'unicode (ü, °, \N{Section Sign}) and math ($\\mu_i = x_i^2$)',
              ha='right', fontsize=20)
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')
+    plt.text(1, 1, 'should be clipped as default clip_box is Axes bbox',
+             fontsize=20, clip_on=True)
 
     plt.xlim(0, 1)
     plt.ylim(0, 1)
@@ -92,15 +94,12 @@ except mpl.ExecutableNotFoundError:
 
 # test compiling a figure to pdf with pdflatex
 @needs_pgf_pdflatex
+@pytest.mark.skipif(not _has_tex_package('type1ec'), reason='needs type1ec.sty')
 @pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_pdflatex.pdf'], style='default',
                   tol=11.71 if _old_gs_version else 0)
 def test_pdflatex():
-    if os.environ.get('APPVEYOR'):
-        pytest.xfail("pdflatex test does not work on appveyor due to missing "
-                     "LaTeX fonts")
-
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
                    'pgf.texsystem': 'pdflatex',

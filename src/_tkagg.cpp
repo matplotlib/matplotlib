@@ -324,11 +324,16 @@ void load_tkinter_funcs(void)
 
 exit:
     // We don't need to keep a reference open as the main program & tkinter
-    // have been imported.  Use a non-short-circuiting "or" to try closing both
-    // handles before handling errors.
-    if ((main_program && dlclose(main_program))
-        | (tkinter_lib && dlclose(tkinter_lib))) {
+    // have been imported.  Try to close each library separately (otherwise the
+    // second dlclose could clear a dlerror from the first dlclose).
+    bool raised_dlerror = false;
+    if (main_program && dlclose(main_program) && !raised_dlerror) {
         PyErr_SetString(PyExc_RuntimeError, dlerror());
+        raised_dlerror = true;
+    }
+    if (tkinter_lib && dlclose(tkinter_lib) && !raised_dlerror) {
+        PyErr_SetString(PyExc_RuntimeError, dlerror());
+        raised_dlerror = true;
     }
     Py_XDECREF(module);
     Py_XDECREF(py_path);
@@ -339,8 +344,6 @@ exit:
 static PyModuleDef _tkagg_module = {
     PyModuleDef_HEAD_INIT, "_tkagg", NULL, -1, functions
 };
-
-#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__tkagg(void)
 {
@@ -365,5 +368,3 @@ PyMODINIT_FUNC PyInit__tkagg(void)
     }
     return PyModule_Create(&_tkagg_module);
 }
-
-#pragma GCC visibility pop

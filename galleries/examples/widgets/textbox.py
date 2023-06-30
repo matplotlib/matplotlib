@@ -9,7 +9,7 @@ This method triggers the execution of the *submit* function when the
 user presses enter in the textbox or leaves the textbox.
 
 Note:  The `matplotlib.widgets.TextBox` widget is different from the following
-static elements: :doc:`/tutorials/text/annotations` and
+static elements: :ref:`annotations` and
 :doc:`/gallery/text_labels_and_annotations/placing_text_boxes`.
 """
 
@@ -32,7 +32,7 @@ def submit(expression):
     *expression* is a string using "t" as its independent variable, e.g.
     "t ** 3".
     """
-    ydata = eval(expression)
+    ydata = eval(expression, {'np': np}, {'t': t})
     l.set_ydata(ydata)
     ax.relim()
     ax.autoscale_view()

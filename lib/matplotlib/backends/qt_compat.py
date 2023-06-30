@@ -133,7 +133,8 @@ elif QT_API is None:  # See above re: dict.__getitem__.
     else:
         raise ImportError(
             "Failed to import any of the following Qt binding modules: {}"
-            .format(", ".join(_ETS.values())))
+            .format(", ".join([QT_API for _, QT_API in _candidates]))
+        )
 else:  # We should not get there.
     raise AssertionError(f"Unexpected QT_API: {QT_API}")
 _version_info = tuple(QtCore.QLibraryInfo.version().segments())

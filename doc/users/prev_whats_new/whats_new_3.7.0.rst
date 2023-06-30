@@ -336,7 +336,7 @@ by a *loc* keyword argument that starts with the string "outside". The
 codes are unique from axes codes, in that "outside upper right" will
 make room at the top of the figure for the legend, whereas
 "outside right upper" will make room on the right-hand side of the figure.
-See :doc:`/tutorials/intermediate/legend_guide` for details.
+See :ref:`legend_guide` for details.
 
 
 Per-subplot keyword arguments  in ``subplot_mosaic``
@@ -445,7 +445,7 @@ functions can e.g. attach callbacks or modify the toolbar.  See
 
 New & Improved Narrative Documentation
 ======================================
-* Brand new :doc:`Animations </tutorials/introductory/animation_tutorial>` tutorial.
+* Brand new :ref:`Animations <animations>` tutorial.
 * New grouped and stacked `bar chart <../../gallery/index.html#lines_bars_and_markers>`_ examples.
 * New section for new contributors and reorganized git instructions in the :ref:`contributing guide<contributing>`.
-* Restructured :doc:`/tutorials/text/annotations` tutorial.
+* Restructured :ref:`annotations` tutorial.

@@ -28,7 +28,7 @@ assumed to occur after the non-affine.  For any transform::
 The backends are not expected to handle non-affine transformations
 themselves.
 
-See the tutorial :doc:`/tutorials/advanced/transforms_tutorial` for examples
+See the tutorial :ref:`transforms_tutorial` for examples
 of how to use transforms.
 """
 
@@ -1138,6 +1138,14 @@ class TransformedBbox(BboxBase):
             self._check(points)
             return points
 
+    def contains(self, x, y):
+        # Docstring inherited.
+        return self._bbox.contains(*self._transform.inverted().transform((x, y)))
+
+    def fully_contains(self, x, y):
+        # Docstring inherited.
+        return self._bbox.fully_contains(*self._transform.inverted().transform((x, y)))
+
 
 class LockableBbox(BboxBase):
     """
@@ -1777,9 +1785,10 @@ class AffineBase(Transform):
         raise NotImplementedError('Affine subclasses should override this '
                                   'method.')
 
-    def transform_non_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
-        return points
+        return values
 
     def transform_path(self, path):
         # docstring inherited
@@ -1834,26 +1843,28 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         return tuple(mtx[:2].swapaxes(0, 1).flat)
 
-    def transform_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_affine(self, values):
         mtx = self.get_matrix()
-        if isinstance(points, np.ma.MaskedArray):
-            tpoints = affine_transform(points.data, mtx)
-            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(points))
-        return affine_transform(points, mtx)
+        if isinstance(values, np.ma.MaskedArray):
+            tpoints = affine_transform(values.data, mtx)
+            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(values))
+        return affine_transform(values, mtx)
 
     if DEBUG:
         _transform_affine = transform_affine
 
-        def transform_affine(self, points):
+        @_api.rename_parameter("3.8", "points", "values")
+        def transform_affine(self, values):
             # docstring inherited
             # The major speed trap here is just converting to the
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
-            if not isinstance(points, np.ndarray):
+            if not isinstance(values, np.ndarray):
                 _api.warn_external(
-                    f'A non-numpy array of type {type(points)} was passed in '
+                    f'A non-numpy array of type {type(values)} was passed in '
                     f'for transformation, which results in poor performance.')
-            return self._transform_affine(points)
+            return self._transform_affine(values)
 
     def inverted(self):
         # docstring inherited
@@ -2106,17 +2117,20 @@ class IdentityTransform(Affine2DBase):
         # docstring inherited
         return self._mtx
 
-    def transform(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform(self, values):
         # docstring inherited
-        return np.asanyarray(points)
+        return np.asanyarray(values)
 
-    def transform_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_affine(self, values):
         # docstring inherited
-        return np.asanyarray(points)
+        return np.asanyarray(values)
 
-    def transform_non_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
-        return np.asanyarray(points)
+        return np.asanyarray(values)
 
     def transform_path(self, path):
         # docstring inherited
@@ -2202,26 +2216,27 @@ class BlendedGenericTransform(_BlendedMixin, Transform):
         # docstring inherited
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
 
-    def transform_non_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
         if self._x.is_affine and self._y.is_affine:
-            return points
+            return values
         x = self._x
         y = self._y
 
         if x == y and x.input_dims == 2:
-            return x.transform_non_affine(points)
+            return x.transform_non_affine(values)
 
         if x.input_dims == 2:
-            x_points = x.transform_non_affine(points)[:, 0:1]
+            x_points = x.transform_non_affine(values)[:, 0:1]
         else:
-            x_points = x.transform_non_affine(points[:, 0])
+            x_points = x.transform_non_affine(values[:, 0])
             x_points = x_points.reshape((len(x_points), 1))
 
         if y.input_dims == 2:
-            y_points = y.transform_non_affine(points)[:, 1:]
+            y_points = y.transform_non_affine(values)[:, 1:]
         else:
-            y_points = y.transform_non_affine(points[:, 1])
+            y_points = y.transform_non_affine(values[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
         if (isinstance(x_points, np.ma.MaskedArray) or
@@ -2357,14 +2372,9 @@ class CompositeGenericTransform(Transform):
         return frozen
 
     def _invalidate_internal(self, level, invalidating_node):
-        # In some cases for a composite transform, an invalidating call to
-        # AFFINE_ONLY needs to be extended to invalidate the NON_AFFINE part
-        # too. These cases are when the right hand transform is non-affine and
-        # either:
-        # (a) the left hand transform is non affine
-        # (b) it is the left hand node which has triggered the invalidation
-        if (not self._b.is_affine and
-                (not self._a.is_affine or invalidating_node is self._a)):
+        # When the left child is invalidated at AFFINE_ONLY level and the right child is
+        # non-affine, the composite transform is FULLY invalidated.
+        if invalidating_node is self._a and not self._b.is_affine:
             level = Transform._INVALID_FULL
         super()._invalidate_internal(level, invalidating_node)
 
@@ -2390,18 +2400,20 @@ class CompositeGenericTransform(Transform):
 
     __str__ = _make_str_method("_a", "_b")
 
-    def transform_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_affine(self, values):
         # docstring inherited
-        return self.get_affine().transform(points)
+        return self.get_affine().transform(values)
 
-    def transform_non_affine(self, points):
+    @_api.rename_parameter("3.8", "points", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
         if self._a.is_affine and self._b.is_affine:
-            return points
+            return values
         elif not self._a.is_affine and self._b.is_affine:
-            return self._a.transform_non_affine(points)
+            return self._a.transform_non_affine(values)
         else:
-            return self._b.transform_non_affine(self._a.transform(points))
+            return self._b.transform_non_affine(self._a.transform(values))
 
     def transform_path_non_affine(self, path):
         # docstring inherited
@@ -2948,6 +2960,7 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     `Transform` subclass
         Transform with applied offset.
     """
+    _api.check_in_list(['dots', 'points', 'inches'], units=units)
     if units == 'dots':
         return trans + Affine2D().translate(x, y)
     if fig is None:
@@ -2955,8 +2968,5 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     if units == 'points':
         x /= 72.0
         y /= 72.0
-    elif units == 'inches':
-        pass
-    else:
-        _api.check_in_list(['dots', 'points', 'inches'], units=units)
+    # Default units are 'inches'
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)

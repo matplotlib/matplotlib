@@ -16,12 +16,12 @@ makes a colormap from a list of colors.
 
 .. seealso::
 
-  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
+  :ref:`colormap-manipulation` for examples of how to
   make colormaps and
 
-  :doc:`/tutorials/colors/colormaps` for a list of built-in colormaps.
+  :ref:`colormaps` for a list of built-in colormaps.
 
-  :doc:`/tutorials/colors/colormapnorms` for more details about data
+  :ref:`colormapnorms` for more details about data
   normalization
 
   More colormaps are available at palettable_.
@@ -33,7 +33,7 @@ to an RGBA tuple (`to_rgba`) or to an HTML-like hex string in the
 RGBA array (`to_rgba_array`).  Caching is used for efficiency.
 
 Colors that Matplotlib recognizes are listed at
-:doc:`/tutorials/colors/colors`.
+:ref:`colors_def`.
 
 .. _palettable: https://jiffyclub.github.io/palettable/
 .. _xkcd color survey: https://xkcd.com/color/rgb/
@@ -48,6 +48,7 @@ import io
 import itertools
 from numbers import Real
 import re
+
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
@@ -315,6 +316,13 @@ def _to_rgba_no_colorcycle(c, alpha=None):
     *alpha* is ignored for the color value ``"none"`` (case-insensitive),
     which always maps to ``(0, 0, 0, 0)``.
     """
+    if isinstance(c, tuple) and len(c) == 2:
+        if alpha is None:
+            c, alpha = c
+        else:
+            c = c[0]
+    if alpha is not None and not 0 <= alpha <= 1:
+        raise ValueError("'alpha' must be between 0 and 1, inclusive")
     orig_c = c
     if c is np.ma.masked:
         return (0., 0., 0., 0.)
@@ -425,6 +433,11 @@ def to_rgba_array(c, alpha=None):
         (n, 4) array of RGBA colors,  where each channel (red, green, blue,
         alpha) can assume values between 0 and 1.
     """
+    if isinstance(c, tuple) and len(c) == 2:
+        if alpha is None:
+            c, alpha = c
+        else:
+            c = c[0]
     # Special-case inputs that are already arrays, for performance.  (If the
     # array has the wrong kind or shape, raise the error during one-at-a-time
     # conversion.)
@@ -464,9 +477,12 @@ def to_rgba_array(c, alpha=None):
             return np.array([to_rgba(c, a) for a in alpha], float)
         else:
             return np.array([to_rgba(c, alpha)], float)
-    except (ValueError, TypeError):
+    except TypeError:
         pass
-
+    except ValueError as e:
+        if e.args == ("'alpha' must be between 0 and 1, inclusive", ):
+            # ValueError is from _to_rgba_no_colorcycle().
+            raise e
     if isinstance(c, str):
         raise ValueError(f"{c!r} is not a valid color value.")
 
@@ -502,7 +518,7 @@ def to_hex(c, keep_alpha=False):
 
     Parameters
     ----------
-    c : :doc:`color </tutorials/colors/colors>` or `numpy.ma.masked`
+    c : :ref:`color <colors_def>` or `numpy.ma.masked`
 
     keep_alpha : bool, default: False
       If False, use the ``#rrggbb`` format, otherwise use ``#rrggbbaa``.
@@ -758,7 +774,7 @@ class Colormap:
         return cmapobject
 
     def __eq__(self, other):
-        if (not isinstance(other, Colormap) or self.name != other.name or
+        if (not isinstance(other, Colormap) or
                 self.colorbar_extend != other.colorbar_extend):
             return False
         # To compare lookup tables the Colormaps have to be initialized

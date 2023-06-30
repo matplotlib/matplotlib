@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import io
 from pathlib import Path
 import platform
 import re
 import shlex
 from xml.etree import ElementTree as ET
+from typing import Any
 
 import numpy as np
 import pytest
@@ -130,6 +133,8 @@ lightweight_math_tests = [
     r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
     r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
     r'$1.$ $2.$ $19680801.$ $a.$ $b.$ $mpl.$',
+    r'$\text{text}_{\text{sub}}^{\text{sup}} + \text{\$foo\$} + \frac{\text{num}}{\mathbf{\text{den}}}\text{with space, curly brackets \{\}, and dash -}$',
+
 ]
 
 digits = "0123456789"
@@ -146,7 +151,7 @@ all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 # stub should be of the form (None, N) where N is the number of strings that
 # used to be tested
 # Add new tests at the end.
-font_test_specs = [
+font_test_specs: list[tuple[None | list[str], Any]] = [
     ([], all),
     (['mathrm'], all),
     (['mathbf'], all),
@@ -167,13 +172,14 @@ font_test_specs = [
     (['mathscr'], [uppercase, lowercase]),
     (['mathsf'], [digits, uppercase, lowercase]),
     (['mathrm', 'mathsf'], [digits, uppercase, lowercase]),
-    (['mathbf', 'mathsf'], [digits, uppercase, lowercase])
+    (['mathbf', 'mathsf'], [digits, uppercase, lowercase]),
+    (['mathbfit'], all),
     ]
 
-font_tests = []
+font_tests: list[None | str] = []
 for fonts, chars in font_test_specs:
     if fonts is None:
-        font_tests.extend([None] * chars)
+        font_tests.extend([None] * chars)  # type: ignore
     else:
         wrapper = ''.join([
             ' '.join(fonts),
@@ -421,6 +427,7 @@ def test_mathtext_fallback(fallback, fontlist):
     mpl.rcParams['mathtext.rm'] = 'mpltest'
     mpl.rcParams['mathtext.it'] = 'mpltest:italic'
     mpl.rcParams['mathtext.bf'] = 'mpltest:bold'
+    mpl.rcParams['mathtext.bfit'] = 'mpltest:italic:bold'
     mpl.rcParams['mathtext.fallback'] = fallback
 
     test_str = r'a$A\AA\breve\gimel$'
@@ -503,3 +510,31 @@ def test_mathtext_cmr10_minus_sign():
     ax.plot(range(-1, 1), range(-1, 1))
     # draw to make sure we have no warnings
     fig.canvas.draw()
+
+
+def test_mathtext_operators():
+    test_str = r'''
+    \increment \smallin \notsmallowns
+    \smallowns \QED \rightangle
+    \smallintclockwise \smallvarointclockwise
+    \smallointctrcclockwise
+    \ratio \minuscolon \dotsminusdots
+    \sinewave \simneqq \nlesssim
+    \ngtrsim \nlessgtr \ngtrless
+    \cupleftarrow \oequal \rightassert
+    \rightModels \hermitmatrix \barvee
+    \measuredrightangle \varlrtriangle
+    \equalparallel \npreccurlyeq \nsucccurlyeq
+    \nsqsubseteq \nsqsupseteq \sqsubsetneq
+    \sqsupsetneq  \disin \varisins
+    \isins \isindot \varisinobar
+    \isinobar \isinvb \isinE
+    \nisd \varnis \nis
+    \varniobar \niobar \bagmember
+    \triangle'''.split()
+
+    fig = plt.figure()
+    for x, i in enumerate(test_str):
+        fig.text(0.5, (x + 0.5)/len(test_str), r'${%s}$' % i)
+
+    fig.draw_without_rendering()

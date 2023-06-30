@@ -23,6 +23,7 @@ import yaml
 
 import matplotlib
 
+from datetime import timezone
 from datetime import datetime
 import time
 
@@ -73,8 +74,8 @@ if 'skip_sub_dirs=1' in sys.argv:
 
 # Parse year using SOURCE_DATE_EPOCH, falling back to current time.
 # https://reproducible-builds.org/specs/source-date-epoch/
-sourceyear = datetime.utcfromtimestamp(
-    int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))).year
+sourceyear = datetime.fromtimestamp(
+    int(os.environ.get('SOURCE_DATE_EPOCH', time.time())), timezone.utc).year
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -104,6 +105,7 @@ extensions = [
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.plot_directive',
+    'matplotlib.sphinxext.figmpl_directive',
     'sphinxcontrib.inkscapeconverter',
     'sphinxext.custom_roles',
     'sphinxext.github',
@@ -162,6 +164,7 @@ from sphinx_gallery import gen_rst
 os.environ.pop("DISPLAY", None)
 
 autosummary_generate = True
+autodoc_typehints = "none"
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
@@ -213,11 +216,14 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
         gallery_conf['image_srcset'] = []
     return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
 
-gallery_dirs = [f'{ed}' for ed in ['gallery', 'tutorials', 'plot_types']
+gallery_dirs = [f'{ed}' for ed in
+                ['gallery', 'tutorials', 'plot_types', 'users/explain']
                 if f'{ed}/*' not in skip_subdirs]
 
-example_dirs = [f'../galleries/{gd}'.replace('gallery', 'examples')
-                for gd in gallery_dirs]
+example_dirs = []
+for gd in gallery_dirs:
+    gd = gd.replace('gallery', 'examples').replace('users/explain', 'users_explain')
+    example_dirs += [f'../galleries/{gd}']
 
 sphinx_gallery_conf = {
     'backreferences_dir': Path('api') / Path('_as_gen'),
@@ -244,6 +250,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order.subsectionorder,
     'capture_repr': (),
+    'copyfile_regex': r'.*\.rst',
 }
 
 if 'plot_gallery=0' in sys.argv:
@@ -374,7 +381,8 @@ default_role = 'obj'
 formats = {'html': ('png', 100), 'latex': ('pdf', 100)}
 plot_formats = [formats[target] for target in ['html', 'latex']
                 if target in sys.argv] or list(formats.values())
-
+# make 2x images for srcset argument to <img>
+plot_srcset = ['2x']
 
 # GitHub extension
 
@@ -764,4 +772,5 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
+    app.add_js_file('image-rotator.js')
     app.connect('html-page-context', add_html_cache_busting, priority=1000)

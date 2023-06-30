@@ -77,23 +77,21 @@ The base matplotlib namespace includes:
         figure is created, because it is not possible to switch between
         different GUI backends after that.
 
-The following environment variables can be used to customize the behavior::
+The following environment variables can be used to customize the behavior:
 
-    .. envvar:: MPLBACKEND
+    :envvar:`MPLBACKEND`
+        This optional variable can be set to choose the Matplotlib backend. See
+        :ref:`what-is-a-backend`.
 
-      This optional variable can be set to choose the Matplotlib backend. See
-      :ref:`what-is-a-backend`.
-
-    .. envvar:: MPLCONFIGDIR
-
-      This is the directory used to store user customizations to
-      Matplotlib, as well as some caches to improve performance. If
-      :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
-      and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
-      :file:`{HOME}/.matplotlib` on other platforms, if they are
-      writable. Otherwise, the Python standard library's `tempfile.gettempdir`
-      is used to find a base directory in which the :file:`matplotlib`
-      subdirectory is created.
+    :envvar:`MPLCONFIGDIR`
+        This is the directory used to store user customizations to
+        Matplotlib, as well as some caches to improve performance. If
+        :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
+        and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+        :file:`{HOME}/.matplotlib` on other platforms, if they are
+        writable. Otherwise, the Python standard library's `tempfile.gettempdir`
+        is used to find a base directory in which the :file:`matplotlib`
+        subdirectory is created.
 
 Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
@@ -102,6 +100,38 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB®, a registered trademark of The MathWorks, Inc.
 
 """
+
+__all__ = [
+    "__bibtex__",
+    "__version__",
+    "__version_info__",
+    "set_loglevel",
+    "ExecutableNotFoundError",
+    "get_configdir",
+    "get_cachedir",
+    "get_data_path",
+    "matplotlib_fname",
+    "MatplotlibDeprecationWarning",
+    "RcParams",
+    "rc_params",
+    "rc_params_from_file",
+    "rcParamsDefault",
+    "rcParams",
+    "rcParamsOrig",
+    "defaultParams",
+    "rc",
+    "rcdefaults",
+    "rc_file_defaults",
+    "rc_file",
+    "rc_context",
+    "use",
+    "get_backend",
+    "interactive",
+    "is_interactive",
+    "colormaps",
+    "color_sequences",
+]
+
 
 import atexit
 from collections import namedtuple
@@ -500,15 +530,21 @@ def _get_config_or_cache_dir(xdg_base_getter):
             return str(configdir)
     # If the config or cache directory cannot be created or is not a writable
     # directory, create a temporary one.
-    tmpdir = os.environ["MPLCONFIGDIR"] = \
-        tempfile.mkdtemp(prefix="matplotlib-")
+    try:
+        tmpdir = tempfile.mkdtemp(prefix="matplotlib-")
+    except OSError as exc:
+        raise OSError(
+            f"Matplotlib requires access to a writable cache directory, but the "
+            f"default path ({configdir}) is not a writable directory, and a temporary "
+            f"directory could not be created; set the MPLCONFIGDIR environment "
+            f"variable to a writable directory") from exc
+    os.environ["MPLCONFIGDIR"] = tmpdir
     atexit.register(shutil.rmtree, tmpdir)
     _log.warning(
-        "Matplotlib created a temporary config/cache directory at %s because "
-        "the default path (%s) is not a writable directory; it is highly "
-        "recommended to set the MPLCONFIGDIR environment variable to a "
-        "writable directory, in particular to speed up the import of "
-        "Matplotlib and to better support multiprocessing.",
+        "Matplotlib created a temporary cache directory at %s because the default path "
+        "(%s) is not a writable directory; it is highly recommended to set the "
+        "MPLCONFIGDIR environment variable to a writable directory, in particular to "
+        "speed up the import of Matplotlib and to better support multiprocessing.",
         tmpdir, configdir)
     return tmpdir
 
@@ -878,7 +914,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
             _log.warning("""
 Bad key %(key)s in file %(fname)s, line %(line_no)s (%(line)r)
 You probably need to get an updated matplotlibrc file from
-https://github.com/matplotlib/matplotlib/blob/%(version)s/matplotlibrc.template
+https://github.com/matplotlib/matplotlib/blob/%(version)s/lib/matplotlib/mpl-data/matplotlibrc
 or from the matplotlib source distribution""",
                          dict(key=key, fname=fname, line_no=line_no,
                               line=line.rstrip('\n'), version=version))

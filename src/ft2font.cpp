@@ -236,8 +236,8 @@ ft_outline_move_to(FT_Vector const* to, void* user)
             *(d->vertices++) = 0;
             *(d->codes++) = CLOSEPOLY;
         }
-        *(d->vertices++) = to->x / 64.;
-        *(d->vertices++) = to->y / 64.;
+        *(d->vertices++) = to->x * (1. / 64.);
+        *(d->vertices++) = to->y * (1. / 64.);
         *(d->codes++) = MOVETO;
     }
     d->index += d->index ? 2 : 1;
@@ -249,8 +249,8 @@ ft_outline_line_to(FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
     if (d->codes) {
-        *(d->vertices++) = to->x / 64.;
-        *(d->vertices++) = to->y / 64.;
+        *(d->vertices++) = to->x * (1. / 64.);
+        *(d->vertices++) = to->y * (1. / 64.);
         *(d->codes++) = LINETO;
     }
     d->index++;
@@ -262,10 +262,10 @@ ft_outline_conic_to(FT_Vector const* control, FT_Vector const* to, void* user)
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
     if (d->codes) {
-        *(d->vertices++) = control->x / 64.;
-        *(d->vertices++) = control->y / 64.;
-        *(d->vertices++) = to->x / 64.;
-        *(d->vertices++) = to->y / 64.;
+        *(d->vertices++) = control->x * (1. / 64.);
+        *(d->vertices++) = control->y * (1. / 64.);
+        *(d->vertices++) = to->x * (1. / 64.);
+        *(d->vertices++) = to->y * (1. / 64.);
         *(d->codes++) = CURVE3;
         *(d->codes++) = CURVE3;
     }
@@ -279,12 +279,12 @@ ft_outline_cubic_to(
 {
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
     if (d->codes) {
-        *(d->vertices++) = c1->x / 64.;
-        *(d->vertices++) = c1->y / 64.;
-        *(d->vertices++) = c2->x / 64.;
-        *(d->vertices++) = c2->y / 64.;
-        *(d->vertices++) = to->x / 64.;
-        *(d->vertices++) = to->y / 64.;
+        *(d->vertices++) = c1->x * (1. / 64.);
+        *(d->vertices++) = c1->y * (1. / 64.);
+        *(d->vertices++) = c2->x * (1. / 64.);
+        *(d->vertices++) = c2->y * (1. / 64.);
+        *(d->vertices++) = to->x * (1. / 64.);
+        *(d->vertices++) = to->y * (1. / 64.);
         *(d->codes++) = CURVE4;
         *(d->codes++) = CURVE4;
         *(d->codes++) = CURVE4;
@@ -485,13 +485,16 @@ void FT2Font::set_text(
 {
     FT_Matrix matrix; /* transformation matrix */
 
-    angle = angle / 360.0 * 2 * M_PI;
+    angle = angle * (2 * M_PI / 360.0);
 
     // this computes width and height in subpixels so we have to multiply by 64
-    matrix.xx = (FT_Fixed)(cos(angle) * 0x10000L);
-    matrix.xy = (FT_Fixed)(-sin(angle) * 0x10000L);
-    matrix.yx = (FT_Fixed)(sin(angle) * 0x10000L);
-    matrix.yy = (FT_Fixed)(cos(angle) * 0x10000L);
+    double cosangle = cos(angle) * 0x10000L;
+    double sinangle = sin(angle) * 0x10000L;
+
+    matrix.xx = (FT_Fixed)cosangle;
+    matrix.xy = (FT_Fixed)-sinangle;
+    matrix.yx = (FT_Fixed)sinangle;
+    matrix.yy = (FT_Fixed)cosangle;
 
     clear();
 
@@ -722,11 +725,6 @@ FT_UInt FT2Font::get_char_index(FT_ULong charcode, bool fallback = false)
     return ft_get_char_index_or_warn(ft_object->get_face(), charcode, false);
 }
 
-void FT2Font::get_cbox(FT_BBox &bbox)
-{
-    FT_Glyph_Get_CBox(glyphs.back(), ft_glyph_bbox_subpixels, &bbox);
-}
-
 void FT2Font::get_width_height(long *width, long *height)
 {
     *width = advance;
@@ -762,8 +760,8 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
         // now, draw to our target surface (convert position)
 
         // bitmap left and top in pixel, string bbox in subpixel
-        FT_Int x = (FT_Int)(bitmap->left - (bbox.xMin / 64.));
-        FT_Int y = (FT_Int)((bbox.yMax / 64.) - bitmap->top + 1);
+        FT_Int x = (FT_Int)(bitmap->left - (bbox.xMin * (1. / 64.)));
+        FT_Int y = (FT_Int)((bbox.yMax * (1. / 64.)) - bitmap->top + 1);
 
         image.draw_bitmap(&bitmap->bitmap, x, y);
     }
@@ -782,8 +780,8 @@ void FT2Font::get_xys(bool antialiased, std::vector<double> &xys)
         FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[n];
 
         // bitmap left and top in pixel, string bbox in subpixel
-        FT_Int x = (FT_Int)(bitmap->left - bbox.xMin / 64.);
-        FT_Int y = (FT_Int)(bbox.yMax / 64. - bitmap->top + 1);
+        FT_Int x = (FT_Int)(bitmap->left - bbox.xMin * (1. / 64.));
+        FT_Int y = (FT_Int)(bbox.yMax * (1. / 64.) - bitmap->top + 1);
         // make sure the index is non-neg
         x = x < 0 ? 0 : x;
         y = y < 0 ? 0 : y;

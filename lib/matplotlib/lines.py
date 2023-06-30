@@ -268,6 +268,8 @@ class Line2D(Artist):
 
     zorder = 2
 
+    _subslice_optim_min_size = 1000
+
     def __str__(self):
         if self._label != "":
             return f"Line2D({self._label})"
@@ -434,7 +436,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
@@ -447,9 +449,8 @@ class Line2D(Artist):
 
             TODO: sort returned indices by distance
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
 
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
@@ -678,12 +679,14 @@ class Line2D(Artist):
         self._x, self._y = self._xy.T  # views
 
         self._subslice = False
-        if (self.axes and len(x) > 1000 and self._is_sorted(x) and
-                self.axes.name == 'rectilinear' and
-                self.axes.get_xscale() == 'linear' and
-                self._markevery is None and
-                self.get_clip_on() and
-                self.get_transform() == self.axes.transData):
+        if (self.axes
+                and len(x) > self._subslice_optim_min_size
+                and _path.is_sorted_and_has_non_nan(x)
+                and self.axes.name == 'rectilinear'
+                and self.axes.get_xscale() == 'linear'
+                and self._markevery is None
+                and self.get_clip_on()
+                and self.get_transform() == self.axes.transData):
             self._subslice = True
             nanmask = np.isnan(x)
             if nanmask.any():
@@ -731,11 +734,6 @@ class Line2D(Artist):
         self._invalidx = True
         self._invalidy = True
         super().set_transform(t)
-
-    def _is_sorted(self, x):
-        """Return whether x is sorted in ascending order."""
-        # We don't handle the monotonically decreasing case.
-        return _path.is_sorted(x)
 
     @allow_rasterization
     def draw(self, renderer):
@@ -1563,7 +1561,7 @@ class VertexSelector:
         """
         Parameters
         ----------
-        line : `.Line2D`
+        line : `~matplotlib.lines.Line2D`
             The line must already have been added to an `~.axes.Axes` and must
             have its picker property set.
         """

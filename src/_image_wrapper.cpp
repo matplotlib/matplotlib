@@ -102,19 +102,6 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
 }
 
 
-template<class T>
-static void
-resample(PyArrayObject* input, PyArrayObject* output, resample_params_t params)
-{
-    Py_BEGIN_ALLOW_THREADS
-    resample(
-        (T*)PyArray_DATA(input), PyArray_DIM(input, 1), PyArray_DIM(input, 0),
-        (T*)PyArray_DATA(output), PyArray_DIM(output, 1), PyArray_DIM(output, 0),
-        params);
-    Py_END_ALLOW_THREADS
-}
-
-
 static PyObject *
 image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 {
@@ -127,6 +114,7 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     PyArrayObject *output = NULL;
     PyArrayObject *transform_mesh = NULL;
     int ndim;
+    int type;
 
     params.interpolation = NEAREST;
     params.transform_mesh = NULL;
@@ -159,6 +147,7 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         goto error;
     }
     ndim = PyArray_NDIM(input);
+    type = PyArray_TYPE(input);
 
     if (!PyArray_Check(py_output)) {
         PyErr_SetString(PyExc_ValueError, "Output array must be a NumPy array");
@@ -181,7 +170,7 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
             " respectively", PyArray_DIM(input, 2), PyArray_DIM(output, 2));
         goto error;
     }
-    if (PyArray_TYPE(input) != PyArray_TYPE(output)) {
+    if (PyArray_TYPE(output) != type) {
         PyErr_SetString(PyExc_ValueError, "Mismatched types");
         goto error;
     }
@@ -221,50 +210,34 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         }
     }
 
-    if (ndim == 3) {
-        switch (PyArray_TYPE(input)) {
-        case NPY_UINT8:
-        case NPY_INT8:
-            resample<agg::rgba8>(input, output, params);
-            break;
-        case NPY_UINT16:
-        case NPY_INT16:
-            resample<agg::rgba16>(input, output, params);
-            break;
-        case NPY_FLOAT32:
-            resample<agg::rgba32>(input, output, params);
-            break;
-        case NPY_FLOAT64:
-            resample<agg::rgba64>(input, output, params);
-            break;
-        default:
-            PyErr_SetString(
-                PyExc_ValueError,
-                "arrays must be of dtype byte, short, float32 or float64");
-            goto error;
-        }
-    } else { // ndim == 2
-        switch (PyArray_TYPE(input)) {
-        case NPY_UINT8:
-        case NPY_INT8:
-            resample<unsigned char>(input, output, params);
-            break;
-        case NPY_UINT16:
-        case NPY_INT16:
-            resample<unsigned short>(input, output, params);
-            break;
-        case NPY_FLOAT32:
-            resample<float>(input, output, params);
-            break;
-        case NPY_FLOAT64:
-            resample<double>(input, output, params);
-            break;
-        default:
-            PyErr_SetString(
-                PyExc_ValueError,
-                "arrays must be of dtype byte, short, float32 or float64");
-            goto error;
-        }
+    if (auto resampler =
+            (ndim == 2) ? (
+                (type == NPY_UINT8) ? resample<agg::gray8> :
+                (type == NPY_INT8) ? resample<agg::gray8> :
+                (type == NPY_UINT16) ? resample<agg::gray16> :
+                (type == NPY_INT16) ? resample<agg::gray16> :
+                (type == NPY_FLOAT32) ? resample<agg::gray32> :
+                (type == NPY_FLOAT64) ? resample<agg::gray64> :
+                nullptr) : (
+            // ndim == 3
+                (type == NPY_UINT8) ? resample<agg::rgba8> :
+                (type == NPY_INT8) ? resample<agg::rgba8> :
+                (type == NPY_UINT16) ? resample<agg::rgba16> :
+                (type == NPY_INT16) ? resample<agg::rgba16> :
+                (type == NPY_FLOAT32) ? resample<agg::rgba32> :
+                (type == NPY_FLOAT64) ? resample<agg::rgba64> :
+                nullptr)) {
+        Py_BEGIN_ALLOW_THREADS
+        resampler(
+            PyArray_DATA(input), PyArray_DIM(input, 1), PyArray_DIM(input, 0),
+            PyArray_DATA(output), PyArray_DIM(output, 1), PyArray_DIM(output, 0),
+            params);
+        Py_END_ALLOW_THREADS
+    } else {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "arrays must be of dtype byte, short, float32 or float64");
+        goto error;
     }
 
     Py_DECREF(input);
@@ -285,8 +258,6 @@ static PyMethodDef module_functions[] = {
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT, "_image", NULL, 0, module_functions,
 };
-
-#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__image(void)
 {
@@ -324,5 +295,3 @@ PyMODINIT_FUNC PyInit__image(void)
 
     return m;
 }
-
-#pragma GCC visibility pop

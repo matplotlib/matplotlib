@@ -232,7 +232,7 @@ Deprecated rcParams validators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_fontset``, ``validate_mathtext_default``, ``validate_alignment``,
-``validate_svg_fontset``, ``validate_pgf_texsystem``,
+``validate_svg_fonttype``, ``validate_pgf_texsystem``,
 ``validate_movie_frame_fmt``, ``validate_axis_locator``,
 ``validate_movie_html_fmt``, ``validate_grid_axis``,
 ``validate_axes_titlelocation``, ``validate_toolbar``,

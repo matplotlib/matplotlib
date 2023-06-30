@@ -582,7 +582,7 @@ If the center of symmetry is different from 0, it can be set with the *vcenter*
 argument. To manually set the range of `~.matplotlib.colors.CenteredNorm`, use
 the *halfrange* argument.
 
-See :doc:`/tutorials/colors/colormapnorms` for an example and more details
+See :ref:`colormapnorms` for an example and more details
 about data normalization.
 
 New ``FuncNorm`` for arbitrary normalizations
@@ -617,8 +617,8 @@ forward and inverse.
                     size=16, va='center', ha='center')
     plt.show()
 
-See :doc:`/tutorials/colors/colormapnorms` for an example and more details
-about data normalization.
+See :ref:`colormapnorms` for an example and more details about data
+normalization.
 
 GridSpec-based colorbars can now be positioned above or to the left of the main axes
 ------------------------------------------------------------------------------------

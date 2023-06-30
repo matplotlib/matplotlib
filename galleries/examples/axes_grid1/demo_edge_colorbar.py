@@ -42,7 +42,6 @@ def demo_bottom_cbar(fig):
             grid.cbar_axes[i//2].colorbar(im)
 
     for cax in grid.cbar_axes:
-        cax.toggle_label(True)
         cax.axis[cax.orientation].set_label("Bar")
 
     # This affects all axes as share_all = True.
@@ -72,7 +71,6 @@ def demo_right_cbar(fig):
             grid.cbar_axes[i//2].colorbar(im)
 
     for cax in grid.cbar_axes:
-        cax.toggle_label(True)
         cax.axis[cax.orientation].set_label('Foo')
 
     # This affects all axes because we set share_all = True.
@@ -80,8 +78,7 @@ def demo_right_cbar(fig):
     grid.axes_llc.set_yticks([-2, 0, 2])
 
 
-fig = plt.figure(figsize=(5.5, 2.5))
-fig.subplots_adjust(left=0.05, right=0.93)
+fig = plt.figure()
 
 demo_bottom_cbar(fig)
 demo_right_cbar(fig)

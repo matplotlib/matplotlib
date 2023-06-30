@@ -10,7 +10,7 @@ Composing custom legends piece-by-piece.
    For more information on creating and customizing legends, see the following
    pages:
 
-   * :doc:`/tutorials/intermediate/legend_guide`
+   * :ref:`legend_guide`
    * :doc:`/gallery/text_labels_and_annotations/legend_demo`
 
 Sometimes you don't want a legend that is explicitly tied to data that

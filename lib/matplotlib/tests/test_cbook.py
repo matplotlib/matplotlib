@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import itertools
 import pickle
 
+from typing import Any
 from unittest.mock import patch, Mock
 
 from datetime import datetime, date, timedelta
@@ -205,6 +208,13 @@ class Test_callback_registry:
         np.testing.break_cycles()
         assert self.callbacks._func_cid_map != {}
         assert self.callbacks.callbacks != {}
+
+    def test_cid_restore(self):
+        cb = cbook.CallbackRegistry()
+        cb.connect('a', lambda: None)
+        cb2 = pickle.loads(pickle.dumps(cb))
+        cid = cb2.connect('c', lambda: None)
+        assert cid == 1
 
     @pytest.mark.parametrize('pickle', [True, False])
     def test_callback_complete(self, pickle):
@@ -440,12 +450,12 @@ def test_sanitize_sequence():
     assert k == cbook.sanitize_sequence(k)
 
 
-fail_mapping = (
+fail_mapping: tuple[tuple[dict, dict], ...] = (
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
 )
 
-pass_mapping = (
+pass_mapping: tuple[tuple[Any, dict, dict], ...] = (
     (None, {}, {}),
     ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
     ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
@@ -606,6 +616,18 @@ def test_flatiter():
 
     assert 0 == next(it)
     assert 1 == next(it)
+
+
+def test__safe_first_finite_all_nan():
+    arr = np.full(2, np.nan)
+    ret = cbook._safe_first_finite(arr)
+    assert np.isnan(ret)
+
+
+def test__safe_first_finite_all_inf():
+    arr = np.full(2, np.inf)
+    ret = cbook._safe_first_finite(arr)
+    assert np.isinf(ret)
 
 
 def test_reshape2d():

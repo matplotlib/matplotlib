@@ -7,8 +7,8 @@ Resizing axes with constrained layout
 a figure so that there are no overlaps between axes objects and labels
 on the axes.
 
-See :doc:`/tutorials/intermediate/constrainedlayout_guide` for more details and
-:doc:`/tutorials/intermediate/tight_layout_guide` for an alternative.
+See :ref:`constrainedlayout_guide` for more details and
+:ref:`tight_layout_guide` for an alternative.
 
 """
 

@@ -3,7 +3,7 @@ Defines classes for path effects. The path effects are supported in `.Text`,
 `.Line2D` and `.Patch`.
 
 .. seealso::
-   :doc:`/tutorials/advanced/patheffects_guide`
+   :ref:`patheffects_guide`
 """
 
 from matplotlib.backend_bases import RendererBase
@@ -87,7 +87,7 @@ class PathEffectRenderer(RendererBase):
         ----------
         path_effects : iterable of :class:`AbstractPathEffect`
             The path effects which this renderer represents.
-        renderer : `matplotlib.backend_bases.RendererBase` subclass
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass
 
         """
         self._path_effects = path_effects
@@ -368,7 +368,7 @@ class PathPatchEffect(AbstractPathEffect):
         self.patch.set_transform(affine + self._offset_transform(renderer))
         self.patch.set_clip_box(gc.get_clip_rectangle())
         clip_path = gc.get_clip_path()
-        if clip_path:
+        if clip_path and self.patch.get_clip_path() is None:
             self.patch.set_clip_path(*clip_path)
         self.patch.draw(renderer)
 

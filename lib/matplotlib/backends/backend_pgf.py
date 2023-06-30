@@ -349,7 +349,7 @@ class RendererPgf(RendererBase):
 
         Attributes
         ----------
-        figure : `matplotlib.figure.Figure`
+        figure : `~matplotlib.figure.Figure`
             Matplotlib figure to initialize height, width and dpi from.
         fh : file-like
             File handle for the output of the drawing commands.
@@ -657,6 +657,7 @@ class RendererPgf(RendererBase):
         s = _escape_and_apply_props(s, prop)
 
         _writeln(self.fh, r"\begin{pgfscope}")
+        self._print_pgf_clip(gc)
 
         alpha = gc.get_alpha()
         if alpha != 1.0:

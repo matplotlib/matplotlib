@@ -454,24 +454,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns ``bool, dict(ind=itemlist)``, where every item in itemlist
         contains the event.
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
-
-        if not self.get_visible():
+        if self._different_canvas(mouseevent) or not self.get_visible():
             return False, {}
-
         pickradius = (
             float(self._picker)
             if isinstance(self._picker, Number) and
                self._picker is not True  # the bool, not just nonzero or 1
             else self._pickradius)
-
         if self.axes:
             self.axes._unstale_viewLim()
-
         transform, offset_trf, offsets, paths = self._prepare_points()
-
         # Tests if the point is contained on one of the polygons formed
         # by the control points of each of the paths. A point is considered
         # "on" a path if it would lie within a stroke of width 2*pickradius
@@ -481,7 +473,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
             offsets, offset_trf, pickradius <= 0)
-
         return len(ind) > 0, dict(ind=ind)
 
     def set_urls(self, urls):
@@ -2107,6 +2098,10 @@ class QuadMesh(Collection):
         ], axis=2).reshape((-1, 3, 2))
 
         c = self.get_facecolor().reshape((*coordinates.shape[:2], 4))
+        z = self.get_array()
+        mask = z.mask if np.ma.is_masked(z) else None
+        if mask is not None:
+            c[mask, 3] = np.nan
         c_a = c[:-1, :-1]
         c_b = c[:-1, 1:]
         c_c = c[1:, 1:]
@@ -2118,8 +2113,8 @@ class QuadMesh(Collection):
             c_c, c_d, c_center,
             c_d, c_a, c_center,
         ], axis=2).reshape((-1, 3, 4))
-
-        return triangles, colors
+        tmask = np.isnan(colors[..., 2, 3])
+        return triangles[~tmask], colors[~tmask]
 
     @artist.allow_rasterization
     def draw(self, renderer):

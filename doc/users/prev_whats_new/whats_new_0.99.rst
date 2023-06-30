@@ -11,11 +11,11 @@ What's new in Matplotlib 0.99 (Aug 29, 2009)
 New documentation
 -----------------
 
-Jae-Joon Lee has written two new guides :doc:`/tutorials/intermediate/legend_guide`
+Jae-Joon Lee has written two new guides :ref:`legend_guide`
 and :ref:`plotting-guide-annotation`.  Michael Sarahan has written
-:doc:`/tutorials/introductory/images`.  John Hunter has written two new tutorials on
-working with paths and transformations: :doc:`/tutorials/advanced/path_tutorial` and
-:doc:`/tutorials/advanced/transforms_tutorial`.
+:ref:`image_tutorial`.  John Hunter has written two new tutorials on
+working with paths and transformations: :ref:`paths` and
+:ref:`transforms_tutorial`.
 
 .. _whats-new-mplot3d:
 
@@ -26,12 +26,15 @@ Reinier Heeres has ported John Porter's mplot3d over to the new
 matplotlib transformations framework, and it is now available as a
 toolkit mpl_toolkits.mplot3d (which now comes standard with all mpl
 installs).  See :ref:`mplot3d-examples-index` and
-:doc:`/tutorials/toolkits/mplot3d`.
+:ref:`mplot3d`.
 
 .. plot::
 
     from matplotlib import cm
     from mpl_toolkits.mplot3d import Axes3D
+
+
+    plt.style.use('classic')
 
     X = np.arange(-5, 5, 0.25)
     Y = np.arange(-5, 5, 0.25)
@@ -92,6 +95,9 @@ new mpl installs.   See :ref:`axes_grid1-examples-index`,
 
 
     fig = plt.figure()
+
+    plt.style.use('classic')
+
     ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
 
     r, g, b = get_rgb()
@@ -138,6 +144,8 @@ well as "detach" the spine to offset it away from the data.  See
             ax.xaxis.set_ticks([])
 
     fig = plt.figure()
+
+    plt.style.use('classic')
 
     x = np.linspace(0, 2*np.pi, 100)
     y = 2*np.sin(x)

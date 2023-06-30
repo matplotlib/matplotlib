@@ -630,8 +630,6 @@ static PyTypeObject *PyRendererAgg_init_type()
 
 static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_backend_agg" };
 
-#pragma GCC visibility push(default)
-
 PyMODINIT_FUNC PyInit__backend_agg(void)
 {
     import_array();
@@ -646,5 +644,3 @@ PyMODINIT_FUNC PyInit__backend_agg(void)
     }
     return m;
 }
-
-#pragma GCC visibility pop

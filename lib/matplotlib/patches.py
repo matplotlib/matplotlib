@@ -132,9 +132,8 @@ class Patch(artist.Artist):
         -------
         (bool, empty dict)
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         radius = self._process_radius(radius)
         codes = self.get_path().codes
         if codes is not None:
@@ -614,20 +613,26 @@ class Shadow(Patch):
         return f"Shadow({self.patch})"
 
     @_docstring.dedent_interpd
-    def __init__(self, patch, ox, oy, **kwargs):
+    def __init__(self, patch, ox, oy, *, shade=0.7, **kwargs):
         """
         Create a shadow of the given *patch*.
 
         By default, the shadow will have the same face color as the *patch*,
-        but darkened.
+        but darkened. The darkness can be controlled by *shade*.
 
         Parameters
         ----------
-        patch : `.Patch`
+        patch : `~matplotlib.patches.Patch`
             The patch to create the shadow for.
         ox, oy : float
             The shift of the shadow in data coordinates, scaled by a factor
             of dpi/72.
+        shade : float, default: 0.7
+            How the darkness of the shadow relates to the original color. If 1, the
+            shadow is black, if 0, the shadow has the same color as the *patch*.
+
+            .. versionadded:: 3.8
+
         **kwargs
             Properties of the shadow patch. Supported keys are:
 
@@ -639,7 +644,9 @@ class Shadow(Patch):
         self._shadow_transform = transforms.Affine2D()
 
         self.update_from(self.patch)
-        color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
+        if not 0 <= shade <= 1:
+            raise ValueError("shade must be between 0 and 1.")
+        color = (1 - shade) * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
         self.update({'facecolor': color, 'edgecolor': color, 'alpha': 0.5,
                      # Place shadow patch directly behind the inherited patch.
                      'zorder': np.nextafter(self.patch.zorder, -np.inf),
@@ -706,7 +713,7 @@ class Rectangle(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
@@ -1655,6 +1662,37 @@ class Ellipse(Patch):
         return self.get_patch_transform().transform(
             [(-1, -1), (1, -1), (1, 1), (-1, 1)])
 
+    def _calculate_length_between_points(self, x0, y0, x1, y1):
+        return np.sqrt((x1 - x0)**2 + (y1 - y0)**2)
+
+    def get_vertices(self):
+        """
+        Return the vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        else:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        return [tuple(x) for x in ret]
+
+    def get_co_vertices(self):
+        """
+        Return the co-vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        else:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        return [tuple(x) for x in ret]
+
 
 class Annulus(Patch):
     """
@@ -1929,7 +1967,7 @@ class Arc(Ellipse):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             Most `.Patch` properties are supported as keyword arguments,
             except *fill* and *facecolor* because filling is not supported.
 
@@ -1937,7 +1975,7 @@ class Arc(Ellipse):
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
-            raise ValueError("Arc objects can not be filled")
+            raise ValueError("Arc objects cannot be filled")
 
         super().__init__(xy, width, height, angle=angle, **kwargs)
 
@@ -3803,7 +3841,7 @@ class FancyBboxPatch(Patch):
         height : float
             The height of the box.
 
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the fancy box. This can either be a `.BoxStyle`
             instance or a string of the style name and optionally comma
             separated attributes (e.g. "Round, pad=0.2"). This string is
@@ -3826,7 +3864,7 @@ class FancyBboxPatch(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
 
         %(Patch:kwdoc)s
         """
@@ -3852,7 +3890,7 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the box: either a `.BoxStyle` instance, or a string,
             which is the style name and optionally comma separated attributes
             (e.g. "Round,pad=0.2"). Such a string is used to construct a
@@ -4080,7 +4118,7 @@ default: 'arc3'
 
             %(ConnectionStyle:table)s
 
-        patchA, patchB : `.Patch`, default: None
+        patchA, patchB : `~matplotlib.patches.Patch`, default: None
             Head and tail patches, respectively.
 
         shrinkA, shrinkB : float, default: 2
@@ -4097,7 +4135,7 @@ default: 'arc3'
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties, optional
+        **kwargs : `~matplotlib.patches.Patch` properties, optional
             Here is a list of available `.Patch` properties:
 
         %(Patch:kwdoc)s
@@ -4187,7 +4225,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        connectionstyle : str or `matplotlib.patches.ConnectionStyle`
+        connectionstyle : str or `~matplotlib.patches.ConnectionStyle`
             The style of the connection: either a `.ConnectionStyle` instance,
             or a string, which is the style name and optionally comma separated
             attributes (e.g. "Arc,armA=30,rad=10"). Such a string is used to
@@ -4230,7 +4268,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        arrowstyle : str or `matplotlib.patches.ArrowStyle`
+        arrowstyle : str or `~matplotlib.patches.ArrowStyle`
             The style of the arrow: either a `.ArrowStyle` instance, or a
             string, which is the style name and optionally comma separated
             attributes (e.g. "Fancy,head_length=0.2"). Such a string is used to
@@ -4431,8 +4469,8 @@ class ConnectionPatch(FancyArrowPatch):
         .. note::
 
            Using `ConnectionPatch` across two `~.axes.Axes` instances
-           is not directly compatible with :doc:`constrained layout
-           </tutorials/intermediate/constrainedlayout_guide>`. Add the artist
+           is not directly compatible with :ref:`constrained layout
+           <constrainedlayout_guide>`. Add the artist
            directly to the `.Figure` instead of adding it to a specific Axes,
            or exclude it from the layout using ``con.set_in_layout(False)``.
 

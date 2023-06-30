@@ -38,6 +38,11 @@ def _isolated_tk_test(success_count, func=None):
         sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
         reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
     )
+    @pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
+        ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+        sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
+        reason='Tk version mismatch on Azure macOS CI'
+    )
     @functools.wraps(func)
     def test_func():
         # even if the package exists, may not actually be importable this can
@@ -153,7 +158,6 @@ def test_figuremanager_cleans_own_mainloop():
     thread.join()
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=0)
 def test_never_update():
@@ -194,7 +198,6 @@ def test_missing_back_button():
     print("success")
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=1)
 def test_canvas_focus():
     import tkinter as tk

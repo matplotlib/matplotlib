@@ -149,6 +149,16 @@ class AxesWidget(Widget):
         for c in self._cids:
             self.canvas.mpl_disconnect(c)
 
+    def _get_data_coords(self, event):
+        """Return *event*'s data coordinates in this widget's Axes."""
+        # This method handles the possibility that event.inaxes != self.ax (which may
+        # occur if multiple axes are overlaid), in which case event.xdata/.ydata will
+        # be wrong.  Note that we still special-case the common case where
+        # event.inaxes == self.ax and avoid re-running the inverse data transform,
+        # because that can introduce floating point errors for synthetic events.
+        return ((event.xdata, event.ydata) if event.inaxes is self.ax
+                else self.ax.transData.inverted().transform((event.x, event.y)))
+
 
 class Button(AxesWidget):
     """
@@ -187,9 +197,9 @@ class Button(AxesWidget):
             The color of the button when the mouse is over it.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
 
-            .. versionadded:: 3.7
+        .. versionadded:: 3.7
         """
         super().__init__(ax)
 
@@ -215,7 +225,7 @@ class Button(AxesWidget):
         self.hovercolor = hovercolor
 
     def _click(self, event):
-        if self.ignore(event) or event.inaxes != self.ax or not self.eventson:
+        if not self.eventson or self.ignore(event) or not self.ax.contains(event)[0]:
             return
         if event.canvas.mouse_grabber != self.ax:
             event.canvas.grab_mouse(self.ax)
@@ -224,13 +234,13 @@ class Button(AxesWidget):
         if self.ignore(event) or event.canvas.mouse_grabber != self.ax:
             return
         event.canvas.release_mouse(self.ax)
-        if self.eventson and event.inaxes == self.ax:
+        if self.eventson and self.ax.contains(event)[0]:
             self._observers.process('clicked', event)
 
     def _motion(self, event):
         if self.ignore(event):
             return
-        c = self.hovercolor if event.inaxes == self.ax else self.color
+        c = self.hovercolor if self.ax.contains(event)[0] else self.color
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
@@ -531,23 +541,22 @@ class Slider(SliderBase):
         if self.ignore(event) or event.button != 1:
             return
 
-        if event.name == 'button_press_event' and event.inaxes == self.ax:
+        if event.name == 'button_press_event' and self.ax.contains(event)[0]:
             self.drag_active = True
             event.canvas.grab_mouse(self.ax)
 
         if not self.drag_active:
             return
 
-        elif ((event.name == 'button_release_event') or
-              (event.name == 'button_press_event' and
-               event.inaxes != self.ax)):
+        if (event.name == 'button_release_event'
+              or event.name == 'button_press_event' and not self.ax.contains(event)[0]):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
             return
-        if self.orientation == 'vertical':
-            val = self._value_in_bounds(event.ydata)
-        else:
-            val = self._value_in_bounds(event.xdata)
+
+        xdata, ydata = self._get_data_coords(event)
+        val = self._value_in_bounds(
+            xdata if self.orientation == 'horizontal' else ydata)
         if val not in [None, self.val]:
             self.set_val(val)
 
@@ -869,30 +878,26 @@ class RangeSlider(SliderBase):
         if self.ignore(event) or event.button != 1:
             return
 
-        if event.name == "button_press_event" and event.inaxes == self.ax:
+        if event.name == "button_press_event" and self.ax.contains(event)[0]:
             self.drag_active = True
             event.canvas.grab_mouse(self.ax)
 
         if not self.drag_active:
             return
 
-        elif (event.name == "button_release_event") or (
-            event.name == "button_press_event" and event.inaxes != self.ax
-        ):
+        if (event.name == "button_release_event"
+              or event.name == "button_press_event" and not self.ax.contains(event)[0]):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
             self._active_handle = None
             return
 
         # determine which handle was grabbed
-        if self.orientation == "vertical":
-            handle_index = np.argmin(
-                np.abs([h.get_ydata()[0] - event.ydata for h in self._handles])
-            )
-        else:
-            handle_index = np.argmin(
-                np.abs([h.get_xdata()[0] - event.xdata for h in self._handles])
-            )
+        xdata, ydata = self._get_data_coords(event)
+        handle_index = np.argmin(np.abs(
+            [h.get_xdata()[0] - xdata for h in self._handles]
+            if self.orientation == "horizontal" else
+            [h.get_ydata()[0] - ydata for h in self._handles]))
         handle = self._handles[handle_index]
 
         # these checks ensure smooth behavior if the handles swap which one
@@ -900,10 +905,7 @@ class RangeSlider(SliderBase):
         if handle is not self._active_handle:
             self._active_handle = handle
 
-        if self.orientation == "vertical":
-            self._update_val_from_pos(event.ydata)
-        else:
-            self._update_val_from_pos(event.xdata)
+        self._update_val_from_pos(xdata if self.orientation == "horizontal" else ydata)
 
     def _format(self, val):
         """Pretty-print *val*."""
@@ -1030,9 +1032,10 @@ class CheckButtons(AxesWidget):
             same length as *labels*. If not given, all buttons are unchecked.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
 
             .. versionadded:: 3.7
+
         label_props : dict, optional
             Dictionary of `.Text` properties to be used for the labels.
 
@@ -1118,7 +1121,7 @@ class CheckButtons(AxesWidget):
                 self.ax.draw_artist(l2)
 
     def _clicked(self, event):
-        if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
+        if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
             return
         pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
         distances = {}
@@ -1350,7 +1353,7 @@ class TextBox(AxesWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
-    label : `.Text`
+    label : `~matplotlib.text.Text`
 
     color : color
         The color of the text box when not hovering.
@@ -1550,7 +1553,7 @@ class TextBox(AxesWidget):
     def _click(self, event):
         if self.ignore(event):
             return
-        if event.inaxes != self.ax:
+        if not self.ax.contains(event)[0]:
             self.stop_typing()
             return
         if not self.eventson:
@@ -1568,7 +1571,7 @@ class TextBox(AxesWidget):
     def _motion(self, event):
         if self.ignore(event):
             return
-        c = self.hovercolor if event.inaxes == self.ax else self.color
+        c = self.hovercolor if self.ax.contains(event)[0] else self.color
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
@@ -1637,9 +1640,10 @@ class RadioButtons(AxesWidget):
             specified here or in *radio_props*.
         useblit : bool, default: True
             Use blitting for faster drawing if supported by the backend.
-            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+            See the tutorial :ref:`blitting` for details.
 
             .. versionadded:: 3.7
+
         label_props : dict or list of dict, optional
             Dictionary of `.Text` properties to be used for the labels.
 
@@ -1731,7 +1735,7 @@ class RadioButtons(AxesWidget):
                 self.ax.draw_artist(circle)
 
     def _clicked(self, event):
-        if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
+        if self.ignore(event) or event.button != 1 or not self.ax.contains(event)[0]:
             return
         pclicked = self.ax.transAxes.inverted().transform((event.x, event.y))
         _, inds = self._buttons.contains(event)
@@ -1950,7 +1954,7 @@ class Cursor(AxesWidget):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
     horizOn : bool, default: True
         Whether to draw the horizontal line.
@@ -1958,7 +1962,7 @@ class Cursor(AxesWidget):
         Whether to draw the vertical line.
     useblit : bool, default: False
         Use blitting for faster drawing if supported by the backend.
-        See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+        See the tutorial :ref:`blitting` for details.
 
     Other Parameters
     ----------------
@@ -2004,7 +2008,7 @@ class Cursor(AxesWidget):
             return
         if not self.canvas.widgetlock.available(self):
             return
-        if event.inaxes != self.ax:
+        if not self.ax.contains(event)[0]:
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
 
@@ -2014,10 +2018,10 @@ class Cursor(AxesWidget):
             return
         self.needclear = True
 
-        self.linev.set_xdata((event.xdata, event.xdata))
+        xdata, ydata = self._get_data_coords(event)
+        self.linev.set_xdata((xdata, xdata))
         self.linev.set_visible(self.visible and self.vertOn)
-
-        self.lineh.set_ydata((event.ydata, event.ydata))
+        self.lineh.set_ydata((ydata, ydata))
         self.lineh.set_visible(self.visible and self.horizOn)
 
         if self.visible and (self.vertOn or self.horizOn):
@@ -2052,7 +2056,7 @@ class MultiCursor(Widget):
 
     useblit : bool, default: True
         Use blitting for faster drawing if supported by the backend.
-        See the tutorial :doc:`/tutorials/advanced/blitting`
+        See the tutorial :ref:`blitting`
         for details.
 
     horizOn : bool, default: False
@@ -2072,8 +2076,7 @@ class MultiCursor(Widget):
     See :doc:`/gallery/widgets/multicursor`.
     """
 
-    @_api.make_keyword_only("3.6", "useblit")
-    def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
+    def __init__(self, canvas, axes, *, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
         # canvas is stored only to provide the deprecated .canvas attribute;
         # once it goes away the unused argument won't need to be stored at all.
@@ -2106,9 +2109,6 @@ class MultiCursor(Widget):
 
         self.connect()
 
-    canvas = _api.deprecate_privatize_attribute("3.6")
-    background = _api.deprecated("3.6")(lambda self: (
-        self._backgrounds[self.axes[0].figure.canvas] if self.axes else None))
     needclear = _api.deprecated("3.7")(lambda self: False)
 
     def connect(self):
@@ -2141,15 +2141,17 @@ class MultiCursor(Widget):
                 info["background"] = canvas.copy_from_bbox(canvas.figure.bbox)
 
     def onmove(self, event):
-        if (self.ignore(event)
-                or event.inaxes not in self.axes
-                or not event.canvas.widgetlock.available(self)):
+        axs = [ax for ax in self.axes if ax.contains(event)[0]]
+        if self.ignore(event) or not axs or not event.canvas.widgetlock.available(self):
             return
+        ax = cbook._topmost_artist(axs)
+        xdata, ydata = ((event.xdata, event.ydata) if event.inaxes is ax
+                        else ax.transData.inverted().transform((event.x, event.y)))
         for line in self.vlines:
-            line.set_xdata((event.xdata, event.xdata))
+            line.set_xdata((xdata, xdata))
             line.set_visible(self.visible and self.vertOn)
         for line in self.hlines:
-            line.set_ydata((event.ydata, event.ydata))
+            line.set_ydata((ydata, ydata))
             line.set_visible(self.visible and self.horizOn)
         if self.visible and (self.vertOn or self.horizOn):
             self._update()
@@ -2205,8 +2207,6 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
-
-    state_modifier_keys = _api.deprecate_privatize_attribute("3.6")
 
     def set_active(self, active):
         super().set_active(active)
@@ -2275,15 +2275,14 @@ class _SelectorWidget(AxesWidget):
         if (self.validButtons is not None
                 and event.button not in self.validButtons):
             return True
-        # If no button was pressed yet ignore the event if it was out
-        # of the Axes
+        # If no button was pressed yet ignore the event if it was out of the Axes.
         if self._eventpress is None:
-            return event.inaxes != self.ax
+            return not self.ax.contains(event)[0]
         # If a button was pressed, check if the release-button is the same.
         if event.button == self._eventpress.button:
             return False
         # If a button was pressed, check if the release-button is the same.
-        return (event.inaxes != self.ax or
+        return (not self.ax.contains(event)[0] or
                 event.button != self._eventpress.button)
 
     def update(self):
@@ -2311,8 +2310,9 @@ class _SelectorWidget(AxesWidget):
         """Get the xdata and ydata for event, with limits."""
         if event.xdata is None:
             return None, None
-        xdata = np.clip(event.xdata, *self.ax.get_xbound())
-        ydata = np.clip(event.ydata, *self.ax.get_ybound())
+        xdata, ydata = self._get_data_coords(event)
+        xdata = np.clip(xdata, *self.ax.get_xbound())
+        ydata = np.clip(ydata, *self.ax.get_ybound())
         return xdata, ydata
 
     def _clean_event(self, event):
@@ -2320,7 +2320,8 @@ class _SelectorWidget(AxesWidget):
         Preprocess an event:
 
         - Replace *event* by the previous event if *event* has no ``xdata``.
-        - Clip ``xdata`` and ``ydata`` to the axes limits.
+        - Get ``xdata`` and ``ydata`` from this widget's axes, and clip them to the axes
+          limits.
         - Update the previous event.
         """
         if event.xdata is None:
@@ -2433,12 +2434,8 @@ class _SelectorWidget(AxesWidget):
 
     @property
     def visible(self):
+        _api.warn_deprecated("3.8", alternative="get_visible")
         return self.get_visible()
-
-    @visible.setter
-    def visible(self, visible):
-        _api.warn_deprecated("3.6", alternative="set_visible")
-        self.set_visible(visible)
 
     def clear(self):
         """Clear the selection and set the selector ready to make a new one."""
@@ -2549,7 +2546,7 @@ class SpanSelector(_SelectorWidget):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
 
     onselect : callable
         A callback function that is called after a release event and the
@@ -2567,7 +2564,7 @@ class SpanSelector(_SelectorWidget):
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
-        canvas updates. See the tutorial :doc:`/tutorials/advanced/blitting`
+        canvas updates. See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -2655,10 +2652,6 @@ class SpanSelector(_SelectorWidget):
         self._extents_on_press = None
         self.snap_values = snap_values
 
-        # self._pressv is deprecated and we don't use it internally anymore
-        # but we maintain it until it is removed
-        self._pressv = None
-
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
@@ -2682,9 +2675,6 @@ class SpanSelector(_SelectorWidget):
             self._setup_edge_handles(self._handle_props)
 
         self._active_handle = None
-
-        # prev attribute is deprecated but we still need to maintain it
-        self._prev = (0, 0)
 
     def new_axes(self, ax, *, _props=None):
         """Set SpanSelector to operate on a new Axes."""
@@ -2761,11 +2751,8 @@ class SpanSelector(_SelectorWidget):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-        v = event.xdata if self.direction == 'horizontal' else event.ydata
-        # self._pressv and self._prev are deprecated but we still need to
-        # maintain them
-        self._pressv = v
-        self._prev = self._get_data(event)
+        xdata, ydata = self._get_data_coords(event)
+        v = xdata if self.direction == 'horizontal' else ydata
 
         if self._active_handle is None and not self.ignore_event_outside:
             # when the press event outside the span, we initially set the
@@ -2805,8 +2792,6 @@ class SpanSelector(_SelectorWidget):
     def _release(self, event):
         """Button release event handler."""
         self._set_cursor(False)
-        # self._pressv is deprecated but we still need to maintain it
-        self._pressv = None
 
         if not self._interactive:
             self._selection_artist.set_visible(False)
@@ -2853,13 +2838,12 @@ class SpanSelector(_SelectorWidget):
     def _onmove(self, event):
         """Motion notify event handler."""
 
-        # self._prev are deprecated but we still need to maintain it
-        self._prev = self._get_data(event)
-
-        v = event.xdata if self.direction == 'horizontal' else event.ydata
+        xdata, ydata = self._get_data_coords(event)
         if self.direction == 'horizontal':
+            v = xdata
             vpress = self._eventpress.xdata
         else:
+            v = ydata
             vpress = self._eventpress.ydata
 
         # move existing span
@@ -2974,7 +2958,7 @@ class ToolLineHandles:
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         Matplotlib Axes where tool handles are displayed.
     positions : 1D array
         Positions of handles in data coordinates.
@@ -2984,7 +2968,7 @@ class ToolLineHandles:
         Additional line properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 
@@ -3085,7 +3069,7 @@ class ToolHandles:
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         Matplotlib Axes where tool handles are displayed.
     x, y : 1D arrays
         Coordinates of control handles.
@@ -3095,7 +3079,7 @@ class ToolHandles:
         Additional marker properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 
@@ -3172,7 +3156,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -3341,8 +3325,7 @@ class RectangleSelector(_SelectorWidget):
 
     def _press(self, event):
         """Button press event handler."""
-        # make the drawn box/line visible get the click-coordinates,
-        # button, ...
+        # make the drawn box/line visible get the click-coordinates, button, ...
         if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
         else:
@@ -3355,8 +3338,7 @@ class RectangleSelector(_SelectorWidget):
 
         if (self._active_handle is None and not self.ignore_event_outside and
                 self._allow_creation):
-            x = event.xdata
-            y = event.ydata
+            x, y = self._get_data_coords(event)
             self._visible = False
             self.extents = x, x, y, y
             self._visible = True
@@ -3431,21 +3413,19 @@ class RectangleSelector(_SelectorWidget):
         # The calculations are done for rotation at zero: we apply inverse
         # transformation to events except when we rotate and move
         state = self._state
-        rotate = ('rotate' in state and
-                  self._active_handle in self._corner_order)
+        rotate = 'rotate' in state and self._active_handle in self._corner_order
         move = self._active_handle == 'C'
         resize = self._active_handle and not move
 
+        xdata, ydata = self._get_data_coords(event)
         if resize:
             inv_tr = self._get_rotation_transform().inverted()
-            event.xdata, event.ydata = inv_tr.transform(
-                [event.xdata, event.ydata])
+            xdata, ydata = inv_tr.transform([xdata, ydata])
             eventpress.xdata, eventpress.ydata = inv_tr.transform(
-                [eventpress.xdata, eventpress.ydata]
-                )
+                (eventpress.xdata, eventpress.ydata))
 
-        dx = event.xdata - eventpress.xdata
-        dy = event.ydata - eventpress.ydata
+        dx = xdata - eventpress.xdata
+        dy = ydata - eventpress.ydata
         # refmax is used when moving the corner handle with the square state
         # and is the maximum between refx and refy
         refmax = None
@@ -3460,16 +3440,16 @@ class RectangleSelector(_SelectorWidget):
         # rotate an existing shape
         if rotate:
             # calculate angle abc
-            a = np.array([eventpress.xdata, eventpress.ydata])
-            b = np.array(self.center)
-            c = np.array([event.xdata, event.ydata])
+            a = (eventpress.xdata, eventpress.ydata)
+            b = self.center
+            c = (xdata, ydata)
             angle = (np.arctan2(c[1]-b[1], c[0]-b[0]) -
                      np.arctan2(a[1]-b[1], a[0]-b[0]))
             self.rotation = np.rad2deg(self._rotation_on_press + angle)
 
         elif resize:
             size_on_press = [x1 - x0, y1 - y0]
-            center = [x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2]
+            center = (x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2)
 
             # Keeping the center fixed
             if 'center' in state:
@@ -3479,19 +3459,19 @@ class RectangleSelector(_SelectorWidget):
                     if self._active_handle in self._corner_order:
                         refmax = max(refx, refy, key=abs)
                     if self._active_handle in ['E', 'W'] or refmax == refx:
-                        hw = event.xdata - center[0]
+                        hw = xdata - center[0]
                         hh = hw / self._aspect_ratio_correction
                     else:
-                        hh = event.ydata - center[1]
+                        hh = ydata - center[1]
                         hw = hh * self._aspect_ratio_correction
                 else:
                     hw = size_on_press[0] / 2
                     hh = size_on_press[1] / 2
                     # cancel changes in perpendicular direction
                     if self._active_handle in ['E', 'W'] + self._corner_order:
-                        hw = abs(event.xdata - center[0])
+                        hw = abs(xdata - center[0])
                     if self._active_handle in ['N', 'S'] + self._corner_order:
-                        hh = abs(event.ydata - center[1])
+                        hh = abs(ydata - center[1])
 
                 x0, x1, y0, y1 = (center[0] - hw, center[0] + hw,
                                   center[1] - hh, center[1] + hh)
@@ -3504,26 +3484,24 @@ class RectangleSelector(_SelectorWidget):
                 if 'S' in self._active_handle:
                     y0 = y1
                 if self._active_handle in ['E', 'W'] + self._corner_order:
-                    x1 = event.xdata
+                    x1 = xdata
                 if self._active_handle in ['N', 'S'] + self._corner_order:
-                    y1 = event.ydata
+                    y1 = ydata
                 if 'square' in state:
                     # when using a corner, find which reference to use
                     if self._active_handle in self._corner_order:
                         refmax = max(refx, refy, key=abs)
                     if self._active_handle in ['E', 'W'] or refmax == refx:
-                        sign = np.sign(event.ydata - y0)
-                        y1 = y0 + sign * abs(x1 - x0) / \
-                            self._aspect_ratio_correction
+                        sign = np.sign(ydata - y0)
+                        y1 = y0 + sign * abs(x1 - x0) / self._aspect_ratio_correction
                     else:
-                        sign = np.sign(event.xdata - x0)
-                        x1 = x0 + sign * abs(y1 - y0) * \
-                            self._aspect_ratio_correction
+                        sign = np.sign(xdata - x0)
+                        x1 = x0 + sign * abs(y1 - y0) * self._aspect_ratio_correction
 
         elif move:
             x0, x1, y0, y1 = self._extents_on_press
-            dx = event.xdata - eventpress.xdata
-            dy = event.ydata - eventpress.ydata
+            dx = xdata - eventpress.xdata
+            dy = ydata - eventpress.ydata
             x0 += dx
             x1 += dx
             y0 += dy
@@ -3538,8 +3516,8 @@ class RectangleSelector(_SelectorWidget):
                     not self._allow_creation):
                 return
             center = [eventpress.xdata, eventpress.ydata]
-            dx = (event.xdata - center[0]) / 2.
-            dy = (event.ydata - center[1]) / 2.
+            dx = (xdata - center[0]) / 2
+            dy = (ydata - center[1]) / 2
 
             # square shape
             if 'square' in state:
@@ -3798,7 +3776,7 @@ class LassoSelector(_SelectorWidget):
         passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
@@ -3874,7 +3852,7 @@ class PolygonSelector(_SelectorWidget):
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
 
     props : dict, optional
@@ -4082,7 +4060,7 @@ class PolygonSelector(_SelectorWidget):
         elif (not self._selection_completed
               and 'move_all' not in self._state
               and 'move_vertex' not in self._state):
-            self._xys.insert(-1, (event.xdata, event.ydata))
+            self._xys.insert(-1, self._get_data_coords(event))
 
         if self._selection_completed:
             self.onselect(self.verts)
@@ -4104,16 +4082,17 @@ class PolygonSelector(_SelectorWidget):
         # Move the active vertex (ToolHandle).
         if self._active_handle_idx >= 0:
             idx = self._active_handle_idx
-            self._xys[idx] = event.xdata, event.ydata
+            self._xys[idx] = self._get_data_coords(event)
             # Also update the end of the polygon line if the first vertex is
             # the active handle and the polygon is completed.
             if idx == 0 and self._selection_completed:
-                self._xys[-1] = event.xdata, event.ydata
+                self._xys[-1] = self._get_data_coords(event)
 
         # Move all vertices.
         elif 'move_all' in self._state and self._eventpress:
-            dx = event.xdata - self._eventpress.xdata
-            dy = event.ydata - self._eventpress.ydata
+            xdata, ydata = self._get_data_coords(event)
+            dx = xdata - self._eventpress.xdata
+            dy = ydata - self._eventpress.ydata
             for k in range(len(self._xys)):
                 x_at_press, y_at_press = self._xys_at_press[k]
                 self._xys[k] = x_at_press + dx, y_at_press + dy
@@ -4133,7 +4112,7 @@ class PolygonSelector(_SelectorWidget):
             if len(self._xys) > 3 and v0_dist < self.grab_range:
                 self._xys[-1] = self._xys[0]
             else:
-                self._xys[-1] = event.xdata, event.ydata
+                self._xys[-1] = self._get_data_coords(event)
 
         self._draw_polygon()
 
@@ -4155,18 +4134,18 @@ class PolygonSelector(_SelectorWidget):
                 and
                 (event.key == self._state_modifier_keys.get('move_vertex')
                  or event.key == self._state_modifier_keys.get('move_all'))):
-            self._xys.append((event.xdata, event.ydata))
+            self._xys.append(self._get_data_coords(event))
             self._draw_polygon()
         # Reset the polygon if the released key is the 'clear' key.
         elif event.key == self._state_modifier_keys.get('clear'):
             event = self._clean_event(event)
-            self._xys = [(event.xdata, event.ydata)]
+            self._xys = [self._get_data_coords(event)]
             self._selection_completed = False
             self._remove_box()
             self.set_visible(True)
 
-    def _draw_polygon(self):
-        """Redraw the polygon based on the new vertex positions."""
+    def _draw_polygon_without_update(self):
+        """Redraw the polygon based on new vertex positions, no update()."""
         xs, ys = zip(*self._xys) if self._xys else ([], [])
         self._selection_artist.set_data(xs, ys)
         self._update_box()
@@ -4179,6 +4158,10 @@ class PolygonSelector(_SelectorWidget):
             self._polygon_handles.set_data(xs[:-1], ys[:-1])
         else:
             self._polygon_handles.set_data(xs, ys)
+
+    def _draw_polygon(self):
+        """Redraw the polygon based on the new vertex positions."""
+        self._draw_polygon_without_update()
         self.update()
 
     @property
@@ -4200,6 +4183,11 @@ class PolygonSelector(_SelectorWidget):
         if self._draw_box and self._box is None:
             self._add_box()
         self._draw_polygon()
+
+    def _clear_without_update(self):
+        self._selection_completed = False
+        self._xys = [(0, 0)]
+        self._draw_polygon_without_update()
 
 
 class Lasso(AxesWidget):
@@ -4223,7 +4211,7 @@ class Lasso(AxesWidget):
         passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        backend). See the tutorial :ref:`blitting`
         for details.
     """
 
@@ -4247,7 +4235,7 @@ class Lasso(AxesWidget):
         if self.ignore(event):
             return
         if self.verts is not None:
-            self.verts.append((event.xdata, event.ydata))
+            self.verts.append(self._get_data_coords(event))
             if len(self.verts) > 2:
                 self.callback(self.verts)
             self.line.remove()
@@ -4255,16 +4243,12 @@ class Lasso(AxesWidget):
         self.disconnect_events()
 
     def onmove(self, event):
-        if self.ignore(event):
+        if (self.ignore(event)
+                or self.verts is None
+                or event.button != 1
+                or not self.ax.contains(event)[0]):
             return
-        if self.verts is None:
-            return
-        if event.inaxes != self.ax:
-            return
-        if event.button != 1:
-            return
-        self.verts.append((event.xdata, event.ydata))
-
+        self.verts.append(self._get_data_coords(event))
         self.line.set_data(list(zip(*self.verts)))
 
         if self.useblit:

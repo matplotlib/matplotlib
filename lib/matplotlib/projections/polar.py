@@ -63,9 +63,10 @@ class PolarTransform(mtransforms.Transform):
         return self._scale_transform.transform(
             (0, self._axis.get_rorigin()))[1]
 
-    def transform_non_affine(self, tr):
+    @_api.rename_parameter("3.8", "tr", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
-        theta, r = np.transpose(tr)
+        theta, r = np.transpose(values)
         # PolarAxes does not use the theta transforms here, but apply them for
         # backwards-compatibility if not being used by it.
         if self._apply_theta_transforms and self._axis is not None:
@@ -214,9 +215,10 @@ class InvertedPolarTransform(mtransforms.Transform):
         use_rmin="_use_rmin",
         _apply_theta_transforms="_apply_theta_transforms")
 
-    def transform_non_affine(self, xy):
+    @_api.rename_parameter("3.8", "xy", "values")
+    def transform_non_affine(self, values):
         # docstring inherited
-        x, y = xy.T
+        x, y = values.T
         r = np.hypot(x, y)
         theta = (np.arctan2(y, x) + 2 * np.pi) % (2 * np.pi)
         # PolarAxes does not use the theta transforms here, but apply them for

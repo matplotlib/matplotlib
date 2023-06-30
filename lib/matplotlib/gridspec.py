@@ -7,8 +7,7 @@ the grid are referenced by `SubplotSpec`\s.
 
 Often, users need not access this module directly, and can use higher-level
 methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
-`~.Figure.subfigures`. See the tutorial
-:doc:`/tutorials/intermediate/arranging_axes` for a guide.
+`~.Figure.subfigures`. See the tutorial :ref:`arranging_axes` for a guide.
 """
 
 import copy
@@ -419,6 +418,8 @@ class GridSpec(GridSpecBase):
         - non-*None* attributes of the GridSpec
         - the provided *figure*
         - :rc:`figure.subplot.*`
+
+        Note that the ``figure`` attribute of the GridSpec is always ignored.
         """
         if figure is None:
             kw = {k: mpl.rcParams["figure.subplot."+k]

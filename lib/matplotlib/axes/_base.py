@@ -604,7 +604,7 @@ class _AxesBase(martist.Artist):
             being created.  Finally, ``*args`` can also directly be a
             `.SubplotSpec` instance.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             The x- or y-`~.matplotlib.axis` is shared with the x- or y-axis in
             the input `~.axes.Axes`.
 
@@ -2171,15 +2171,9 @@ class _AxesBase(martist.Artist):
         ``pyplot.viridis``, and other functions such as `~.pyplot.clim`.  The
         current image is an attribute of the current Axes.
         """
-        _api.check_isinstance(
-            (mpl.contour.ContourSet, mcoll.Collection, mimage.AxesImage),
-            im=im)
-        if isinstance(im, mpl.contour.ContourSet):
-            if im.collections[0] not in self._children:
-                raise ValueError("ContourSet must be in current Axes")
-        elif im not in self._children:
-            raise ValueError("Argument must be an image, collection, or "
-                             "ContourSet in this Axes")
+        _api.check_isinstance((mcoll.Collection, mimage.AxesImage), im=im)
+        if im not in self._children:
+            raise ValueError("Argument must be an image or collection in this Axes")
         self._current_image = im
 
     def _gci(self):
@@ -2215,7 +2209,8 @@ class _AxesBase(martist.Artist):
         self._children.append(a)
         a._remove_method = self._children.remove
         self._set_artist_props(a)
-        a.set_clip_path(self.patch)
+        if a.get_clip_path() is None:
+            a.set_clip_path(self.patch)
         self.stale = True
         return a
 
@@ -2423,7 +2418,8 @@ class _AxesBase(martist.Artist):
         _api.check_isinstance(mtable.Table, tab=tab)
         self._set_artist_props(tab)
         self._children.append(tab)
-        tab.set_clip_path(self.patch)
+        if tab.get_clip_path() is None:
+            tab.set_clip_path(self.patch)
         tab._remove_method = self._children.remove
         return tab
 
@@ -2663,10 +2659,10 @@ class _AxesBase(martist.Artist):
 
         The padding added to each limit of the Axes is the *margin*
         times the data interval. All input parameters must be floats
-        within the range [0, 1]. Passing both positional and keyword
+        greater than -0.5. Passing both positional and keyword
         arguments is invalid and will raise a TypeError. If no
         arguments (positional or otherwise) are provided, the current
-        margins will remain in place and simply be returned.
+        margins will remain unchanged and simply be returned.
 
         Specifying any margin changes only the autoscaling; for example,
         if *xmargin* is not None, then *xmargin* times the X data
@@ -3163,7 +3159,7 @@ class _AxesBase(martist.Artist):
         axis : {'both', 'x', 'y'}, optional
             The axis to apply the changes on.
 
-        **kwargs : `.Line2D` properties
+        **kwargs : `~matplotlib.lines.Line2D` properties
             Define the line properties of the grid, e.g.::
 
                 grid(color='r', linestyle='-', linewidth=2)
@@ -3335,6 +3331,8 @@ class _AxesBase(martist.Artist):
             Tick label font size in points or as a string (e.g., 'large').
         labelcolor : color
             Tick label color.
+        labelfontfamily : str
+            Tick label font.
         colors : color
             Tick color and label color.
         zorder : float
@@ -3429,7 +3427,7 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-        **kwargs : `.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
             `.Text` properties control the appearance of the label.
 
         See Also
@@ -3677,7 +3675,7 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-        **kwargs : `.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
             `.Text` properties control the appearance of the label.
 
         See Also
@@ -3985,35 +3983,30 @@ class _AxesBase(martist.Artist):
         """
         Save information required to reproduce the current view.
 
-        Called before a view is changed, such as during a pan or zoom
-        initiated by the user. You may return any information you deem
-        necessary to describe the view.
+        This method is called before a view is changed, such as during a pan or zoom
+        initiated by the user.  It returns an opaque object that describes the current
+        view, in a format compatible with :meth:`_set_view`.
 
-        .. note::
-
-            Intended to be overridden by new projection types, but if not, the
-            default implementation saves the view limits. You *must* implement
-            :meth:`_set_view` if you implement this method.
+        The default implementation saves the view limits and autoscaling state.
+        Subclasses may override this as needed, as long as :meth:`_set_view` is also
+        adjusted accordingly.
         """
-        xmin, xmax = self.get_xlim()
-        ymin, ymax = self.get_ylim()
-        return xmin, xmax, ymin, ymax
+        return {
+            "xlim": self.get_xlim(), "autoscalex_on": self.get_autoscalex_on(),
+            "ylim": self.get_ylim(), "autoscaley_on": self.get_autoscaley_on(),
+        }
 
     def _set_view(self, view):
         """
         Apply a previously saved view.
 
-        Called when restoring a view, such as with the navigation buttons.
+        This method is called when restoring a view (with the return value of
+        :meth:`_get_view` as argument), such as with the navigation buttons.
 
-        .. note::
-
-            Intended to be overridden by new projection types, but if not, the
-            default implementation restores the view limits. You *must*
-            implement :meth:`_get_view` if you implement this method.
+        Subclasses that override :meth:`_get_view` also need to override this method
+        accordingly.
         """
-        xmin, xmax, ymin, ymax = view
-        self.set_xlim((xmin, xmax))
-        self.set_ylim((ymin, ymax))
+        self.set(**view)
 
     def _prepare_view_from_bbox(self, bbox, direction='in',
                                 mode=None, twinx=False, twiny=False):
@@ -4271,9 +4264,6 @@ class _AxesBase(martist.Artist):
 
     def contains(self, mouseevent):
         # docstring inherited.
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
         return self.patch.contains(mouseevent)
 
     def contains_point(self, point):
@@ -4451,6 +4441,7 @@ class _AxesBase(martist.Artist):
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
         ax2.patch.set_visible(False)
+        ax2.xaxis.units = self.xaxis.units
         return ax2
 
     def twiny(self):
@@ -4480,6 +4471,7 @@ class _AxesBase(martist.Artist):
         self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
         ax2.patch.set_visible(False)
+        ax2.yaxis.units = self.yaxis.units
         return ax2
 
     def get_shared_x_axes(self):

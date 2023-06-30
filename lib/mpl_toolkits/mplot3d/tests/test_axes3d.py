@@ -24,45 +24,66 @@ mpl3d_image_comparison = functools.partial(
     image_comparison, remove_text=True, style='default')
 
 
+def plot_cuboid(ax, scale):
+    # plot a rectangular cuboid with side lengths given by scale (x, y, z)
+    r = [0, 1]
+    pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
+    for start, end in pts:
+        if np.sum(np.abs(start - end)) == r[1] - r[0]:
+            ax.plot3D(*zip(start*np.array(scale), end*np.array(scale)))
+
+
 @check_figures_equal(extensions=["png"])
 def test_invisible_axes(fig_test, fig_ref):
     ax = fig_test.subplots(subplot_kw=dict(projection='3d'))
     ax.set_visible(False)
 
 
-@mpl3d_image_comparison(['aspects.png'], remove_text=False)
-def test_aspects():
-    aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz')
-    fig, axs = plt.subplots(1, len(aspects), subplot_kw={'projection': '3d'})
+@mpl3d_image_comparison(['grid_off.png'], style='mpl20')
+def test_grid_off():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.grid(False)
 
-    # Draw rectangular cuboid with side lengths [1, 1, 5]
-    r = [0, 1]
-    scale = np.array([1, 1, 5])
-    pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
-    for start, end in pts:
-        if np.sum(np.abs(start - end)) == r[1] - r[0]:
-            for ax in axs:
-                ax.plot3D(*zip(start*scale, end*scale))
-    for i, ax in enumerate(axs):
+
+@mpl3d_image_comparison(['invisible_ticks_axis.png'], style='mpl20')
+def test_invisible_ticks_axis():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_zticks([])
+    for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
+        axis.line.set_visible(False)
+
+
+@mpl3d_image_comparison(['aspects.png'], remove_text=False, style='mpl20')
+def test_aspects():
+    aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz', 'equal')
+    _, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'})
+
+    for ax in axs.flatten()[0:-1]:
+        plot_cuboid(ax, scale=[1, 1, 5])
+    # plot a cube as well to cover github #25443
+    plot_cuboid(axs[1][2], scale=[1, 1, 1])
+
+    for i, ax in enumerate(axs.flatten()):
+        ax.set_title(aspects[i])
         ax.set_box_aspect((3, 4, 5))
         ax.set_aspect(aspects[i], adjustable='datalim')
+    axs[1][2].set_title('equal (cube)')
 
 
-@mpl3d_image_comparison(['aspects_adjust_box.png'], remove_text=False)
+@mpl3d_image_comparison(['aspects_adjust_box.png'],
+                        remove_text=False, style='mpl20')
 def test_aspects_adjust_box():
     aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz')
     fig, axs = plt.subplots(1, len(aspects), subplot_kw={'projection': '3d'},
                             figsize=(11, 3))
 
-    # Draw rectangular cuboid with side lengths [4, 3, 5]
-    r = [0, 1]
-    scale = np.array([4, 3, 5])
-    pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
-    for start, end in pts:
-        if np.sum(np.abs(start - end)) == r[1] - r[0]:
-            for ax in axs:
-                ax.plot3D(*zip(start*scale, end*scale))
     for i, ax in enumerate(axs):
+        plot_cuboid(ax, scale=[4, 3, 5])
+        ax.set_title(aspects[i])
         ax.set_aspect(aspects[i], adjustable='box')
 
 
@@ -79,7 +100,7 @@ def test_axes3d_repr():
         "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 
-@mpl3d_image_comparison(['axes3d_primary_views.png'])
+@mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20')
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
@@ -100,7 +121,7 @@ def test_axes3d_primary_views():
     plt.tight_layout()
 
 
-@mpl3d_image_comparison(['bar3d.png'])
+@mpl3d_image_comparison(['bar3d.png'], style='mpl20')
 def test_bar3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -124,7 +145,7 @@ def test_bar3d_colors():
         ax.bar3d(xs, ys, zs, 1, 1, 1, color=c)
 
 
-@mpl3d_image_comparison(['bar3d_shaded.png'])
+@mpl3d_image_comparison(['bar3d_shaded.png'], style='mpl20')
 def test_bar3d_shaded():
     x = np.arange(4)
     y = np.arange(5)
@@ -144,7 +165,7 @@ def test_bar3d_shaded():
     fig.canvas.draw()
 
 
-@mpl3d_image_comparison(['bar3d_notshaded.png'])
+@mpl3d_image_comparison(['bar3d_notshaded.png'], style='mpl20')
 def test_bar3d_notshaded():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -179,12 +200,12 @@ def test_bar3d_lightsource():
 
     # Testing that the custom 90° lightsource produces different shading on
     # the top facecolors compared to the default, and that those colors are
-    # precisely the colors from the colormap, due to the illumination parallel
-    # to the z-axis.
-    np.testing.assert_array_equal(color, collection._facecolor3d[1::6])
+    # precisely (within floating point rounding errors of 4 ULP) the colors
+    # from the colormap, due to the illumination parallel to the z-axis.
+    np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(['contour3d.png'])
+@mpl3d_image_comparison(['contour3d.png'], style='mpl20')
 def test_contour3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -197,7 +218,7 @@ def test_contour3d():
     ax.set_zlim(-100, 100)
 
 
-@mpl3d_image_comparison(['contour3d_extend3d.png'])
+@mpl3d_image_comparison(['contour3d_extend3d.png'], style='mpl20')
 def test_contour3d_extend3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -208,7 +229,7 @@ def test_contour3d_extend3d():
     ax.set_zlim(-80, 80)
 
 
-@mpl3d_image_comparison(['contourf3d.png'])
+@mpl3d_image_comparison(['contourf3d.png'], style='mpl20')
 def test_contourf3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -221,7 +242,7 @@ def test_contourf3d():
     ax.set_zlim(-100, 100)
 
 
-@mpl3d_image_comparison(['contourf3d_fill.png'])
+@mpl3d_image_comparison(['contourf3d_fill.png'], style='mpl20')
 def test_contourf3d_fill():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -264,7 +285,7 @@ def test_contourf3d_extend(fig_test, fig_ref, extend, levels):
         ax.set_zlim(-10, 10)
 
 
-@mpl3d_image_comparison(['tricontour.png'], tol=0.02)
+@mpl3d_image_comparison(['tricontour.png'], tol=0.02, style='mpl20')
 def test_tricontour():
     fig = plt.figure()
 
@@ -290,7 +311,7 @@ def test_contour3d_1d_input():
     ax.contour(x, y, z, [0.5])
 
 
-@mpl3d_image_comparison(['lines3d.png'])
+@mpl3d_image_comparison(['lines3d.png'], style='mpl20')
 def test_lines3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -327,7 +348,7 @@ def test_invalid_line_data():
         line.set_data_3d([], [], 0)
 
 
-@mpl3d_image_comparison(['mixedsubplot.png'])
+@mpl3d_image_comparison(['mixedsubplot.png'], style='mpl20')
 def test_mixedsubplots():
     def f(t):
         return np.cos(2*np.pi*t) * np.exp(-t)
@@ -364,7 +385,7 @@ def test_tight_layout_text(fig_test, fig_ref):
     ax2.text(.5, .5, .5, s='some string')
 
 
-@mpl3d_image_comparison(['scatter3d.png'])
+@mpl3d_image_comparison(['scatter3d.png'], style='mpl20')
 def test_scatter3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -377,7 +398,7 @@ def test_scatter3d():
     ax.scatter([], [], [], c='r', marker='X')
 
 
-@mpl3d_image_comparison(['scatter3d_color.png'])
+@mpl3d_image_comparison(['scatter3d_color.png'], style='mpl20')
 def test_scatter3d_color():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -393,7 +414,7 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
-@mpl3d_image_comparison(['scatter3d_linewidth.png'])
+@mpl3d_image_comparison(['scatter3d_linewidth.png'], style='mpl20')
 def test_scatter3d_linewidth():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -539,7 +560,7 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
     ax.view_init(elev=0, azim=azim - 180, roll=0)  # view rotated by 180 deg
 
 
-@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.015)
+@mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.015, style='mpl20')
 def test_plot_3d_from_2d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -549,7 +570,7 @@ def test_plot_3d_from_2d():
     ax.plot(xs, ys, zs=0, zdir='y')
 
 
-@mpl3d_image_comparison(['surface3d.png'])
+@mpl3d_image_comparison(['surface3d.png'], style='mpl20')
 def test_surface3d():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -567,7 +588,22 @@ def test_surface3d():
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
 
-@mpl3d_image_comparison(['surface3d_shaded.png'])
+@image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
+def test_surface3d_label_offset_tick_position():
+    ax = plt.figure().add_subplot(projection="3d")
+
+    x, y = np.mgrid[0:6 * np.pi:0.25, 0:4 * np.pi:0.25]
+    z = np.sqrt(np.abs(np.cos(x) + np.cos(y)))
+
+    ax.plot_surface(x * 1e5, y * 1e6, z * 1e8, cmap='autumn', cstride=2, rstride=2)
+    ax.set_xlabel("X label")
+    ax.set_ylabel("Y label")
+    ax.set_zlabel("Z label")
+
+    ax.figure.canvas.draw()
+
+
+@mpl3d_image_comparison(['surface3d_shaded.png'], style='mpl20')
 def test_surface3d_shaded():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -581,7 +617,7 @@ def test_surface3d_shaded():
     ax.set_zlim(-1.01, 1.01)
 
 
-@mpl3d_image_comparison(['surface3d_masked.png'])
+@mpl3d_image_comparison(['surface3d_masked.png'], style='mpl20')
 def test_surface3d_masked():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -618,7 +654,7 @@ def test_plot_surface_None_arg(fig_test, fig_ref):
     ax_ref.plot_surface(x, y, z)
 
 
-@mpl3d_image_comparison(['surface3d_masked_strides.png'])
+@mpl3d_image_comparison(['surface3d_masked_strides.png'], style='mpl20')
 def test_surface3d_masked_strides():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -630,7 +666,7 @@ def test_surface3d_masked_strides():
     ax.view_init(60, -45, 0)
 
 
-@mpl3d_image_comparison(['text3d.png'], remove_text=False)
+@mpl3d_image_comparison(['text3d.png'], remove_text=False, style='mpl20')
 def test_text3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -679,7 +715,7 @@ def test_text3d_modification(fig_ref, fig_test):
         ax_ref.text(x, y, z, f'({x}, {y}, {z}), dir={zdir}', zdir=zdir)
 
 
-@mpl3d_image_comparison(['trisurf3d.png'], tol=0.061)
+@mpl3d_image_comparison(['trisurf3d.png'], tol=0.061, style='mpl20')
 def test_trisurf3d():
     n_angles = 36
     n_radii = 8
@@ -697,7 +733,7 @@ def test_trisurf3d():
     ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.2)
 
 
-@mpl3d_image_comparison(['trisurf3d_shaded.png'], tol=0.03)
+@mpl3d_image_comparison(['trisurf3d_shaded.png'], tol=0.03, style='mpl20')
 def test_trisurf3d_shaded():
     n_angles = 36
     n_radii = 8
@@ -715,7 +751,7 @@ def test_trisurf3d_shaded():
     ax.plot_trisurf(x, y, z, color=[1, 0.5, 0], linewidth=0.2)
 
 
-@mpl3d_image_comparison(['wireframe3d.png'])
+@mpl3d_image_comparison(['wireframe3d.png'], style='mpl20')
 def test_wireframe3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -723,7 +759,7 @@ def test_wireframe3d():
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=13)
 
 
-@mpl3d_image_comparison(['wireframe3dzerocstride.png'])
+@mpl3d_image_comparison(['wireframe3dzerocstride.png'], style='mpl20')
 def test_wireframe3dzerocstride():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -731,7 +767,7 @@ def test_wireframe3dzerocstride():
     ax.plot_wireframe(X, Y, Z, rcount=13, ccount=0)
 
 
-@mpl3d_image_comparison(['wireframe3dzerorstride.png'])
+@mpl3d_image_comparison(['wireframe3dzerorstride.png'], style='mpl20')
 def test_wireframe3dzerorstride():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -786,7 +822,7 @@ def test_quiver3d_empty(fig_test, fig_ref):
     ax.quiver(x, y, z, u, v, w, length=0.1, pivot='tip', normalize=True)
 
 
-@mpl3d_image_comparison(['quiver3d_masked.png'])
+@mpl3d_image_comparison(['quiver3d_masked.png'], style='mpl20')
 def test_quiver3d_masked():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -855,7 +891,7 @@ def test_poly3dcollection_verts_validation():
         art3d.Poly3DCollection(poly)  # should be Poly3DCollection([poly])
 
 
-@mpl3d_image_comparison(['poly3dcollection_closed.png'])
+@mpl3d_image_comparison(['poly3dcollection_closed.png'], style='mpl20')
 def test_poly3dcollection_closed():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -885,7 +921,7 @@ def test_poly_collection_2d_to_3d_empty():
     fig.canvas.draw()
 
 
-@mpl3d_image_comparison(['poly3dcollection_alpha.png'])
+@mpl3d_image_comparison(['poly3dcollection_alpha.png'], style='mpl20')
 def test_poly3dcollection_alpha():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -904,7 +940,7 @@ def test_poly3dcollection_alpha():
     ax.add_collection3d(c2)
 
 
-@mpl3d_image_comparison(['add_collection3d_zs_array.png'])
+@mpl3d_image_comparison(['add_collection3d_zs_array.png'], style='mpl20')
 def test_add_collection3d_zs_array():
     theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
     z = np.linspace(-2, 2, 100)
@@ -932,7 +968,7 @@ def test_add_collection3d_zs_array():
     ax.set_zlim(-2, 2)
 
 
-@mpl3d_image_comparison(['add_collection3d_zs_scalar.png'])
+@mpl3d_image_comparison(['add_collection3d_zs_scalar.png'], style='mpl20')
 def test_add_collection3d_zs_scalar():
     theta = np.linspace(0, 2 * np.pi, 100)
     z = 1
@@ -958,7 +994,8 @@ def test_add_collection3d_zs_scalar():
     ax.set_zlim(0, 2)
 
 
-@mpl3d_image_comparison(['axes3d_labelpad.png'], remove_text=False)
+@mpl3d_image_comparison(['axes3d_labelpad.png'],
+                        remove_text=False, style='mpl20')
 def test_axes3d_labelpad():
     fig = plt.figure()
     ax = fig.add_axes(Axes3D(fig))
@@ -980,7 +1017,7 @@ def test_axes3d_labelpad():
         tick.set_pad(tick.get_pad() - i * 5)
 
 
-@mpl3d_image_comparison(['axes3d_cla.png'], remove_text=False)
+@mpl3d_image_comparison(['axes3d_cla.png'], remove_text=False, style='mpl20')
 def test_axes3d_cla():
     # fixed in pull request 4553
     fig = plt.figure()
@@ -989,7 +1026,8 @@ def test_axes3d_cla():
     ax.cla()  # make sure the axis displayed is 3D (not 2D)
 
 
-@mpl3d_image_comparison(['axes3d_rotated.png'], remove_text=False)
+@mpl3d_image_comparison(['axes3d_rotated.png'],
+                        remove_text=False, style='mpl20')
 def test_axes3d_rotated():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
@@ -1053,7 +1091,7 @@ def _test_proj_draw_axes(M, s=1, *args, **kwargs):
     return fig, ax
 
 
-@mpl3d_image_comparison(['proj3d_axes_cube.png'])
+@mpl3d_image_comparison(['proj3d_axes_cube.png'], style='mpl20')
 def test_proj_axes_cube():
     M = _test_proj_make_M()
 
@@ -1075,7 +1113,7 @@ def test_proj_axes_cube():
     ax.set_ylim(-0.2, 0.2)
 
 
-@mpl3d_image_comparison(['proj3d_axes_cube_ortho.png'])
+@mpl3d_image_comparison(['proj3d_axes_cube_ortho.png'], style='mpl20')
 def test_proj_axes_cube_ortho():
     E = np.array([200, 100, 100])
     R = np.array([0, 0, 0])
@@ -1116,7 +1154,7 @@ def test_world():
                                 [0, 0, 0, 1]])
 
 
-@mpl3d_image_comparison(['proj3d_lines_dists.png'])
+@mpl3d_image_comparison(['proj3d_lines_dists.png'], style='mpl20')
 def test_lines_dists():
     fig, ax = plt.subplots(figsize=(4, 6), subplot_kw=dict(aspect='equal'))
 
@@ -1195,21 +1233,22 @@ def test_axes3d_focal_length_checks():
         ax.set_proj_type('ortho', focal_length=1)
 
 
-@mpl3d_image_comparison(['axes3d_focal_length.png'], remove_text=False)
+@mpl3d_image_comparison(['axes3d_focal_length.png'],
+                        remove_text=False, style='mpl20')
 def test_axes3d_focal_length():
     fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
     axs[0].set_proj_type('persp', focal_length=np.inf)
     axs[1].set_proj_type('persp', focal_length=0.15)
 
 
-@mpl3d_image_comparison(['axes3d_ortho.png'], remove_text=False)
+@mpl3d_image_comparison(['axes3d_ortho.png'], remove_text=False, style='mpl20')
 def test_axes3d_ortho():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.set_proj_type('ortho')
 
 
-@mpl3d_image_comparison(['axes3d_isometric.png'])
+@mpl3d_image_comparison(['axes3d_isometric.png'], style='mpl20')
 def test_axes3d_isometric():
     from itertools import combinations, product
     fig, ax = plt.subplots(subplot_kw=dict(
@@ -1243,7 +1282,7 @@ def test_invalid_axes_limits(setter, side, value):
 
 
 class TestVoxels:
-    @mpl3d_image_comparison(['voxels-simple.png'])
+    @mpl3d_image_comparison(['voxels-simple.png'], style='mpl20')
     def test_simple(self):
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
@@ -1251,7 +1290,7 @@ class TestVoxels:
         voxels = (x == y) | (y == z)
         ax.voxels(voxels)
 
-    @mpl3d_image_comparison(['voxels-edge-style.png'])
+    @mpl3d_image_comparison(['voxels-edge-style.png'], style='mpl20')
     def test_edge_style(self):
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
@@ -1262,7 +1301,7 @@ class TestVoxels:
         # change the edge color of one voxel
         v[max(v.keys())].set_edgecolor('C2')
 
-    @mpl3d_image_comparison(['voxels-named-colors.png'])
+    @mpl3d_image_comparison(['voxels-named-colors.png'], style='mpl20')
     def test_named_colors(self):
         """Test with colors set to a 3D object array of strings."""
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
@@ -1275,7 +1314,7 @@ class TestVoxels:
         colors[(x + z) < 10] = 'cyan'
         ax.voxels(voxels, facecolors=colors)
 
-    @mpl3d_image_comparison(['voxels-rgb-data.png'])
+    @mpl3d_image_comparison(['voxels-rgb-data.png'], style='mpl20')
     def test_rgb_data(self):
         """Test with colors set to a 4d float array of rgb data."""
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
@@ -1288,7 +1327,7 @@ class TestVoxels:
         colors[..., 2] = z / 9
         ax.voxels(voxels, facecolors=colors)
 
-    @mpl3d_image_comparison(['voxels-alpha.png'])
+    @mpl3d_image_comparison(['voxels-alpha.png'], style='mpl20')
     def test_alpha(self):
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
@@ -1306,7 +1345,8 @@ class TestVoxels:
             assert voxels[coord], "faces returned for absent voxel"
             assert isinstance(poly, art3d.Poly3DCollection)
 
-    @mpl3d_image_comparison(['voxels-xyz.png'], tol=0.01, remove_text=False)
+    @mpl3d_image_comparison(['voxels-xyz.png'],
+                            tol=0.01, remove_text=False, style='mpl20')
     def test_xyz(self):
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
@@ -1498,7 +1538,7 @@ def test_minor_ticks():
     ax.set_zticklabels(["half"], minor=True)
 
 
-@mpl3d_image_comparison(['errorbar3d_errorevery.png'])
+@mpl3d_image_comparison(['errorbar3d_errorevery.png'], style='mpl20')
 def test_errorbar3d_errorevery():
     """Tests errorevery functionality for 3D errorbars."""
     t = np.arange(0, 2*np.pi+.1, 0.01)
@@ -1516,7 +1556,7 @@ def test_errorbar3d_errorevery():
                 errorevery=estep)
 
 
-@mpl3d_image_comparison(['errorbar3d.png'])
+@mpl3d_image_comparison(['errorbar3d.png'], style='mpl20')
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()
@@ -1532,8 +1572,7 @@ def test_errorbar3d():
     ax.legend()
 
 
-@image_comparison(['stem3d.png'], style='mpl20',
-                  tol=0.003)
+@image_comparison(['stem3d.png'], style='mpl20', tol=0.003)
 def test_stem3d():
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
                             constrained_layout=True,
@@ -1663,6 +1702,20 @@ def test_set_zlim():
     with pytest.raises(
             TypeError, match="Cannot pass both 'top' and 'zmax'"):
         ax.set_zlim(top=0, zmax=1)
+
+
+@check_figures_equal(extensions=["png"])
+def test_shared_view(fig_test, fig_ref):
+    elev, azim, roll = 5, 20, 30
+    ax1 = fig_test.add_subplot(131, projection="3d")
+    ax2 = fig_test.add_subplot(132, projection="3d", shareview=ax1)
+    ax3 = fig_test.add_subplot(133, projection="3d")
+    ax3.shareview(ax1)
+    ax2.view_init(elev=elev, azim=azim, roll=roll, share=True)
+
+    for subplot_num in (131, 132, 133):
+        ax = fig_ref.add_subplot(subplot_num, projection="3d")
+        ax.view_init(elev=elev, azim=azim, roll=roll)
 
 
 def test_shared_axes_retick():
@@ -1823,7 +1876,7 @@ def test_subfigure_simple():
 
 # Update style when regenerating the test image
 @image_comparison(baseline_images=['computed_zorder'], remove_text=True,
-                  extensions=['png'], style=('classic', '_classic_test_patch'))
+                  extensions=['png'], style=('mpl20'))
 def test_computed_zorder():
     fig = plt.figure()
     ax1 = fig.add_subplot(221, projection='3d')
@@ -2004,7 +2057,7 @@ def test_pathpatch_3d(fig_test, fig_ref):
 
 @image_comparison(baseline_images=['scatter_spiral.png'],
                   remove_text=True,
-                  style='default')
+                  style='mpl20')
 def test_scatter_spiral():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -2129,7 +2182,7 @@ def test_view_init_vertical_axis(
 
 @image_comparison(baseline_images=['arc_pathpatch.png'],
                   remove_text=True,
-                  style='default')
+                  style='mpl20')
 def test_arc_pathpatch():
     ax = plt.subplot(1, 1, 1, projection="3d")
     a = mpatch.Arc((0.5, 0.5), width=0.5, height=0.9,

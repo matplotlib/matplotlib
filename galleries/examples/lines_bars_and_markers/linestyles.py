@@ -13,7 +13,7 @@ See also `.Line2D.set_linestyle`.
 *Note*: The dash style can also be configured via `.Line2D.set_dashes`
 as shown in :doc:`/gallery/lines_bars_and_markers/line_demo_dash_control`
 and passing a list of dash sequences using the keyword *dashes* to the
-cycler in :doc:`property_cycle </tutorials/intermediate/color_cycle>`.
+cycler in :ref:`property_cycle <color_cycle>`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

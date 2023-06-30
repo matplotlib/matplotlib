@@ -105,6 +105,17 @@ class _AxesStack:
         """Return the active axes, or None if the stack is empty."""
         return max(self._axes, key=self._axes.__getitem__, default=None)
 
+    def __getstate__(self):
+        return {
+            **vars(self),
+            "_counter": max(self._axes.values(), default=0)
+        }
+
+    def __setstate__(self, state):
+        next_counter = state.pop('_counter')
+        vars(self).update(state)
+        self._counter = itertools.count(next_counter)
+
 
 class SubplotParams:
     """
@@ -188,7 +199,6 @@ class FigureBase(Artist):
         # axis._get_tick_boxes_siblings
         self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
 
-        self.figure = self
         self._localaxes = []  # track all axes
         self.artists = []
         self.lines = []
@@ -289,9 +299,8 @@ class FigureBase(Artist):
         -------
             bool, {}
         """
-        inside, info = self._default_contains(mouseevent, figure=self)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}
 
@@ -389,6 +398,11 @@ default: %(va)s
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
+    def get_suptitle(self):
+        """Return the suptitle as string or an empty string if not set."""
+        text_obj = self._suptitle
+        return "" if text_obj is None else text_obj.get_text()
+
     @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
                              va='bottom', rc='label')
     @_docstring.copy(_suplabels)
@@ -398,6 +412,11 @@ default: %(va)s
                 'ha': 'center', 'va': 'bottom', 'rotation': 0,
                 'size': 'figure.labelsize', 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
+
+    def get_supxlabel(self):
+        """Return the supxlabel as string or an empty string if not set."""
+        text_obj = self._supxlabel
+        return "" if text_obj is None else text_obj.get_text()
 
     @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
                              va='center', rc='label')
@@ -409,6 +428,11 @@ default: %(va)s
                 'rotation_mode': 'anchor', 'size': 'figure.labelsize',
                 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
+
+    def get_supylabel(self):
+        """Return the supylabel as string or an empty string if not set."""
+        text_obj = self._supylabel
+        return "" if text_obj is None else text_obj.get_text()
 
     def get_edgecolor(self):
         """Get the edge color of the Figure rectangle."""
@@ -506,7 +530,7 @@ default: %(va)s
         if not artist.is_transform_set():
             artist.set_transform(self.transSubfigure)
 
-        if clip:
+        if clip and artist.get_clip_path() is None:
             artist.set_clip_path(self.patch)
 
         self.stale = True
@@ -543,7 +567,7 @@ default: %(va)s
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
             of the shared axes.
@@ -608,22 +632,26 @@ default: %(va)s
             args = (kwargs.pop('rect'), )
 
         if isinstance(args[0], Axes):
-            a = args[0]
+            a, *extra_args = args
             key = a._projection_init
             if a.get_figure() is not self:
                 raise ValueError(
                     "The Axes must have been created in the present figure")
         else:
-            rect = args[0]
+            rect, *extra_args = args
             if not np.isfinite(rect).all():
-                raise ValueError('all entries in rect must be finite '
-                                 f'not {rect}')
-            projection_class, pkw = self._process_projection_requirements(
-                *args, **kwargs)
+                raise ValueError(f'all entries in rect must be finite not {rect}')
+            projection_class, pkw = self._process_projection_requirements(**kwargs)
 
             # create the new axes using the axes class given
             a = projection_class(self, rect, **pkw)
             key = (projection_class, pkw)
+
+        if extra_args:
+            _api.warn_deprecated(
+                "3.8",
+                name="Passing more than one positional argument to Figure.add_axes",
+                addendum="Any additional positional arguments are currently ignored.")
         return self._add_axes_internal(a, key)
 
     @_docstring.dedent_interpd
@@ -675,7 +703,7 @@ default: %(va)s
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
             of the shared axes.
@@ -749,8 +777,7 @@ default: %(va)s
             if (len(args) == 1 and isinstance(args[0], Integral)
                     and 100 <= args[0] <= 999):
                 args = tuple(map(int, str(args[0])))
-            projection_class, pkw = self._process_projection_requirements(
-                *args, **kwargs)
+            projection_class, pkw = self._process_projection_requirements(**kwargs)
             ax = projection_class(self, *args, **pkw)
             key = (projection_class, pkw)
         return self._add_axes_internal(ax, key)
@@ -857,7 +884,7 @@ default: %(va)s
             y = np.sin(x**2)
 
             # Create a figure
-            plt.figure()
+            fig = plt.figure()
 
             # Create a subplot
             ax = fig.subplots()
@@ -909,38 +936,28 @@ default: %(va)s
         Remove the `~.axes.Axes` *ax* from the figure; update the current Axes.
         """
 
-        def _reset_locators_and_formatters(axis):
-            # Set the formatters and locators to be associated with axis
-            # (where previously they may have been associated with another
-            # Axis instance)
-            axis.get_major_formatter().set_axis(axis)
-            axis.get_major_locator().set_axis(axis)
-            axis.get_minor_formatter().set_axis(axis)
-            axis.get_minor_locator().set_axis(axis)
-
-        def _break_share_link(ax, grouper):
-            siblings = grouper.get_siblings(ax)
-            if len(siblings) > 1:
-                grouper.remove(ax)
-                for last_ax in siblings:
-                    if ax is not last_ax:
-                        return last_ax
-            return None
-
         self._axstack.remove(ax)
         self._axobservers.process("_axes_change_event", self)
         self.stale = True
         self._localaxes.remove(ax)
         self.canvas.release_mouse(ax)
 
-        # Break link between any shared axes
-        for name in ax._axis_names:
-            last_ax = _break_share_link(ax, ax._shared_axes[name])
-            if last_ax is not None:
-                _reset_locators_and_formatters(last_ax._axis_map[name])
+        for name in ax._axis_names:  # Break link between any shared axes
+            grouper = ax._shared_axes[name]
+            siblings = [other for other in grouper.get_siblings(ax) if other is not ax]
+            if not siblings:  # Axes was not shared along this axis; we're done.
+                continue
+            grouper.remove(ax)
+            # Formatters and locators may previously have been associated with the now
+            # removed axis.  Update them to point to an axis still there (we can pick
+            # any of them, and use the first sibling).
+            remaining_axis = siblings[0]._axis_map[name]
+            remaining_axis.get_major_formatter().set_axis(remaining_axis)
+            remaining_axis.get_major_locator().set_axis(remaining_axis)
+            remaining_axis.get_minor_formatter().set_axis(remaining_axis)
+            remaining_axis.get_minor_locator().set_axis(remaining_axis)
 
-        # Break link between any twinned axes
-        _break_share_link(ax, ax._twinned_axes)
+        ax._twinned_axes.remove(ax)  # Break link between any twinned axes.
 
     def clear(self, keep_observers=False):
         """
@@ -1108,28 +1125,13 @@ default: %(va)s
         Notes
         -----
         Some artists are not supported by this function.  See
-        :doc:`/tutorials/intermediate/legend_guide` for details.
+        :ref:`legend_guide` for details.
         """
 
-        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                self.axes,
-                *args,
-                **kwargs)
-        # check for third arg
-        if len(extra_args):
-            # _api.warn_deprecated(
-            #     "2.1",
-            #     message="Figure.legend will accept no more than two "
-            #     "positional arguments in the future.  Use "
-            #     "'fig.legend(handles, labels, loc=location)' "
-            #     "instead.")
-            # kwargs['loc'] = extra_args[0]
-            # extra_args = extra_args[1:]
-            pass
-        transform = kwargs.pop('bbox_transform', self.transSubfigure)
+        handles, labels, kwargs = mlegend._parse_legend_args(self.axes, *args, **kwargs)
         # explicitly set the bbox transform if the user hasn't.
-        l = mlegend.Legend(self, handles, labels, *extra_args,
-                           bbox_transform=transform, **kwargs)
+        kwargs.setdefault("bbox_transform", self.transSubfigure)
+        l = mlegend.Legend(self, handles, labels, **kwargs)
         self.legends.append(l)
         l._remove_method = self.legends.remove
         self.stale = True
@@ -1207,12 +1209,16 @@ default: %(va)s
                 fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
 
         cax : `~matplotlib.axes.Axes`, optional
-            Axes into which the colorbar will be drawn.
+            Axes into which the colorbar will be drawn.  If `None`, then a new
+            Axes is created and the space for it will be stolen from the Axes(s)
+            specified in *ax*.
 
-        ax : `~.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
-            One or more parent axes from which space for a new colorbar axes
-            will be stolen, if *cax* is None.  This has no effect if *cax* is
-            set.
+        ax : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
+            The one or more parent Axes from which space for a new colorbar Axes
+            will be stolen. This parameter is only used if *cax* is not set.
+
+            Defaults to the Axes that contains the mappable used to create the
+            colorbar.
 
         use_gridspec : bool, optional
             If *cax* is ``None``, a new *cax* is created as an instance of
@@ -1253,24 +1259,27 @@ default: %(va)s
         However, this has negative consequences in other circumstances, e.g.
         with semi-transparent images (alpha < 1) and colorbar extensions;
         therefore, this workaround is not used by default (see issue #1188).
+
         """
 
         if ax is None:
             ax = getattr(mappable, "axes", None)
 
-        if (self.get_layout_engine() is not None and
-                not self.get_layout_engine().colorbar_gridspec):
-            use_gridspec = False
         if cax is None:
-            current_ax = self.gca()
             if ax is None:
-                _api.warn_deprecated("3.6", message=(
+                raise ValueError(
                     'Unable to determine Axes to steal space for Colorbar. '
-                    'Using gca(), but will raise in the future. '
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
-                    'from it, or add *mappable* to an Axes.'))
-                ax = current_ax
+                    'from it, or add *mappable* to an Axes.')
+            fig = (  # Figure of first axes; logic copied from make_axes.
+                [*ax.flat] if isinstance(ax, np.ndarray)
+                else [*ax] if np.iterable(ax)
+                else [ax])[0].figure
+            current_ax = fig.gca()
+            if (fig.get_layout_engine() is not None and
+                    not fig.get_layout_engine().colorbar_gridspec):
+                use_gridspec = False
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):
@@ -1278,14 +1287,14 @@ default: %(va)s
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
             # make_axes calls add_{axes,subplot} which changes gca; undo that.
-            self.sca(current_ax)
+            fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
             'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
         cb = cbar.Colorbar(cax, mappable, **{
             k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
-        self.stale = True
+        cax.figure.stale = True
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
@@ -1529,6 +1538,9 @@ default: %(va)s
         the same as a figure, but cannot print itself.
         See :doc:`/gallery/subplots_axes_and_figures/subfigures`.
 
+        .. note::
+            The *subfigure* concept is new in v3.4, and the API is still provisional.
+
         Parameters
         ----------
         nrows, ncols : int, default: 1
@@ -1651,9 +1663,8 @@ default: %(va)s
                 return im
         return None
 
-    def _process_projection_requirements(
-            self, *args, axes_class=None, polar=False, projection=None,
-            **kwargs):
+    def _process_projection_requirements(self, *, axes_class=None, polar=False,
+                                         projection=None, **kwargs):
         """
         Handle the args/kwargs to add_axes/add_subplot/gca, returning::
 
@@ -1805,7 +1816,7 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        See :doc:`/gallery/subplots_axes_and_figures/mosaic`
+        See :ref:`mosaic`
         for an example and full API documentation
 
         Parameters
@@ -2039,7 +2050,7 @@ default: %(va)s
                 this_level[(start_row, start_col)] = (name, slc, 'axes')
 
             # do the same thing for the nested mosaics (simpler because these
-            # can not be spans yet!)
+            # cannot be spans yet!)
             for (j, k), nested_mosaic in nested.items():
                 this_level[(j, k)] = (None, nested_mosaic, 'nested')
 
@@ -2129,11 +2140,10 @@ class SubFigure(FigureBase):
         axsR = sfigs[1].subplots(2, 1)
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
+
+    .. note::
+        The *subfigure* concept is new in v3.4, and the API is still provisional.
     """
-    callbacks = _api.deprecated(
-            "3.6", alternative=("the 'resize_event' signal in "
-                                "Figure.canvas.callbacks")
-            )(property(lambda self: self._fig_callbacks))
 
     def __init__(self, parent, subplotspec, *,
                  facecolor=None,
@@ -2182,7 +2192,6 @@ class SubFigure(FigureBase):
         self._subplotspec = subplotspec
         self._parent = parent
         self.figure = parent.figure
-        self._fig_callbacks = parent._fig_callbacks
 
         # subfigures use the parent axstack
         self._axstack = parent._axstack
@@ -2266,7 +2275,7 @@ class SubFigure(FigureBase):
         """
         Return whether constrained layout is being used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
         """
         return self._parent.get_constrained_layout()
 
@@ -2277,7 +2286,7 @@ class SubFigure(FigureBase):
         Returns a list of ``w_pad, h_pad`` in inches and
         ``wspace`` and ``hspace`` as fractions of the subplot.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2343,12 +2352,6 @@ class Figure(FigureBase):
         depending on the renderer option_image_nocomposite function.  If
         *suppressComposite* is a boolean, this will override the renderer.
     """
-    # Remove the self._fig_callbacks properties on figure and subfigure
-    # after the deprecation expires.
-    callbacks = _api.deprecated(
-        "3.6", alternative=("the 'resize_event' signal in "
-                            "Figure.canvas.callbacks")
-        )(property(lambda self: self._fig_callbacks))
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
@@ -2427,7 +2430,7 @@ None}, default: None
               to avoid overlapping axes decorations.  Can handle complex plot
               layouts and colorbars, and is thus recommended.
 
-              See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+              See :ref:`constrainedlayout_guide`
               for examples.
 
             - 'compressed': uses the same algorithm as 'constrained', but
@@ -2457,6 +2460,7 @@ None}, default: None
             %(Figure:kwdoc)s
         """
         super().__init__(**kwargs)
+        self.figure = self
         self._layout_engine = None
 
         if layout is not None:
@@ -2489,7 +2493,6 @@ None}, default: None
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)
 
-        self._fig_callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
         # Callbacks traditionally associated with the canvas (and exposed with
         # a proxy property), but that actually need to be on the figure for
         # pickling.
@@ -2738,7 +2741,6 @@ None}, default: None
         self.dpi_scale_trans.clear().scale(dpi)
         w, h = self.get_size_inches()
         self.set_size_inches(w, h, forward=forward)
-        self._fig_callbacks.process('dpi_changed', self)
 
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
@@ -2776,7 +2778,7 @@ None}, default: None
         """
         Return whether constrained layout is being used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
         """
         return isinstance(self.get_layout_engine(), ConstrainedLayoutEngine)
 
@@ -2819,7 +2821,7 @@ None}, default: None
         Tip: The parameters can be passed from a dictionary by using
         ``fig.set_constrained_layout(**pad_dict)``.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2853,7 +2855,7 @@ None}, default: None
         ``wspace`` and ``hspace`` as fractions of the subplot.
         All values are None if ``constrained_layout`` is not used.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        See :ref:`constrainedlayout_guide`.
 
         Parameters
         ----------
@@ -2862,7 +2864,7 @@ None}, default: None
         """
         if not isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
             return None, None, None, None
-        info = self.get_layout_engine().get_info()
+        info = self.get_layout_engine().get()
         w_pad = info['w_pad']
         h_pad = info['h_pad']
         wspace = info['wspace']
@@ -3518,7 +3520,7 @@ None}, default: None
                     and previous_engine is not None:
                 _api.warn_external('The figure layout has changed to tight')
         finally:
-            self.set_layout_engine(None)
+            self.set_layout_engine('none')
 
 
 def figaspect(arg):

@@ -10,13 +10,14 @@ import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cbook, cm, cycler
+from matplotlib import cbook, cm
 import matplotlib
 import matplotlib as mpl
 import matplotlib.colors as mcolors
 import matplotlib.colorbar as mcolorbar
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
+from matplotlib.rcsetup import cycler
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
@@ -194,10 +195,10 @@ def test_colormap_equals():
     # Make sure we can compare different sizes without failure
     cm_copy._lut = cm_copy._lut[:10, :]
     assert cm_copy != cmap
-    # Test different names are not equal
+    # Test different names are equal if the lookup table is the same
     cm_copy = cmap.copy()
     cm_copy.name = "Test"
-    assert cm_copy != cmap
+    assert cm_copy == cmap
     # Test colorbar extends
     cm_copy = cmap.copy()
     cm_copy.colorbar_extend = not cmap.colorbar_extend
@@ -1307,6 +1308,93 @@ def test_to_rgba_array_alpha_array():
     assert_array_equal(c[:, 3], alpha)
 
 
+def test_to_rgba_array_accepts_color_alpha_tuple():
+    assert_array_equal(
+        mcolors.to_rgba_array(('black', 0.9)),
+        [[0, 0, 0, 0.9]])
+
+
+def test_to_rgba_array_explicit_alpha_overrides_tuple_alpha():
+    assert_array_equal(
+        mcolors.to_rgba_array(('black', 0.9), alpha=0.5),
+        [[0, 0, 0, 0.5]])
+
+
+def test_to_rgba_array_accepts_color_alpha_tuple_with_multiple_colors():
+    color_array = np.array([[1., 1., 1., 1.], [0., 0., 1., 0.]])
+    assert_array_equal(
+        mcolors.to_rgba_array((color_array, 0.2)),
+        [[1., 1., 1., 0.2], [0., 0., 1., 0.2]])
+
+    color_sequence = [[1., 1., 1., 1.], [0., 0., 1., 0.]]
+    assert_array_equal(
+        mcolors.to_rgba_array((color_sequence, 0.4)),
+        [[1., 1., 1., 0.4], [0., 0., 1., 0.4]])
+
+
+def test_to_rgba_array_error_with_color_invalid_alpha_tuple():
+    with pytest.raises(ValueError, match="'alpha' must be between 0 and 1,"):
+        mcolors.to_rgba_array(('black', 2.0))
+
+
+@pytest.mark.parametrize('rgba_alpha',
+                         [('white', 0.5), ('#ffffff', 0.5), ('#ffffff00', 0.5),
+                          ((1.0, 1.0, 1.0, 1.0), 0.5)])
+def test_to_rgba_accepts_color_alpha_tuple(rgba_alpha):
+    assert mcolors.to_rgba(rgba_alpha) == (1, 1, 1, 0.5)
+
+
+def test_to_rgba_explicit_alpha_overrides_tuple_alpha():
+    assert mcolors.to_rgba(('red', 0.1), alpha=0.9) == (1, 0, 0, 0.9)
+
+
+def test_to_rgba_error_with_color_invalid_alpha_tuple():
+    with pytest.raises(ValueError, match="'alpha' must be between 0 and 1"):
+        mcolors.to_rgba(('blue', 2.0))
+
+
+@pytest.mark.parametrize("bytes", (True, False))
+def test_scalarmappable_to_rgba(bytes):
+    sm = cm.ScalarMappable()
+    alpha_1 = 255 if bytes else 1
+
+    # uint8 RGBA
+    x = np.ones((2, 3, 4), dtype=np.uint8)
+    expected = x.copy() if bytes else x.astype(np.float32)/255
+    np.testing.assert_array_equal(sm.to_rgba(x, bytes=bytes), expected)
+    # uint8 RGB
+    expected[..., 3] = alpha_1
+    np.testing.assert_array_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
+    # uint8 masked RGBA
+    xm = np.ma.masked_array(x, mask=np.zeros_like(x))
+    xm.mask[0, 0, 0] = True
+    expected = x.copy() if bytes else x.astype(np.float32)/255
+    expected[0, 0, 3] = 0
+    np.testing.assert_array_equal(sm.to_rgba(xm, bytes=bytes), expected)
+    # uint8 masked RGB
+    expected[..., 3] = alpha_1
+    expected[0, 0, 3] = 0
+    np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
+
+    # float RGBA
+    x = np.ones((2, 3, 4), dtype=float) * 0.5
+    expected = (x * 255).astype(np.uint8) if bytes else x.copy()
+    np.testing.assert_array_equal(sm.to_rgba(x, bytes=bytes), expected)
+    # float RGB
+    expected[..., 3] = alpha_1
+    np.testing.assert_array_equal(sm.to_rgba(x[..., :3], bytes=bytes), expected)
+    # float masked RGBA
+    xm = np.ma.masked_array(x, mask=np.zeros_like(x))
+    xm.mask[0, 0, 0] = True
+    expected = (x * 255).astype(np.uint8) if bytes else x.copy()
+    expected[0, 0, 3] = 0
+    np.testing.assert_array_equal(sm.to_rgba(xm, bytes=bytes), expected)
+    # float masked RGB
+    expected[..., 3] = alpha_1
+    expected[0, 0, 3] = 0
+    np.testing.assert_array_equal(sm.to_rgba(xm[..., :3], bytes=bytes), expected)
+
+
 def test_failed_conversions():
     with pytest.raises(ValueError):
         mcolors.to_rgba('5')
@@ -1343,7 +1431,7 @@ def test_ndarray_subclass_norm():
     # which objects when adding or subtracting with other
     # arrays. See #6622 and #8696
     class MyArray(np.ndarray):
-        def __isub__(self, other):
+        def __isub__(self, other):  # type: ignore
             raise RuntimeError
 
         def __add__(self, other):
@@ -1603,3 +1691,15 @@ def test_cm_set_cmap_error():
     bad_cmap = 'AardvarksAreAwkward'
     with pytest.raises(ValueError, match=bad_cmap):
         sm.set_cmap(bad_cmap)
+
+
+def test_set_cmap_mismatched_name():
+    cmap = matplotlib.colormaps["viridis"].with_extremes(over='r')
+    # register it with different names
+    cmap.name = "test-cmap"
+    matplotlib.colormaps.register(name='wrong-cmap', cmap=cmap)
+
+    plt.set_cmap("wrong-cmap")
+    cmap_returned = plt.get_cmap("wrong-cmap")
+    assert cmap_returned == cmap
+    assert cmap_returned.name == "wrong-cmap"

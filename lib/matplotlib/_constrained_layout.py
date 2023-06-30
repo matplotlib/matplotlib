@@ -10,7 +10,7 @@ using `~matplotlib.gridspec.GridSpecFromSubplotSpec`).  Axes placed using
 ``figure.subplots()`` or ``figure.add_subplots()`` will participate in the
 layout.  Axes manually placed via ``figure.add_axes()`` will not.
 
-See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
+See Tutorial: :ref:`constrainedlayout_guide`
 
 General idea:
 -------------
@@ -43,7 +43,7 @@ With these constraints, the solver then finds appropriate bounds for the
 columns and rows.  It's possible that the margins take up the whole figure,
 in which case the algorithm is not applied and a warning is raised.
 
-See the tutorial doc:`/tutorials/intermediate/constrainedlayout_guide`
+See the tutorial :ref:`constrainedlayout_guide`
 for more discussion of the algorithm with examples.
 """
 
@@ -346,13 +346,15 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
     """
     for sfig in fig.subfigs:  # recursively make child panel margins
         ss = sfig._subplotspec
+        gs = ss.get_gridspec()
+
         make_layout_margins(layoutgrids, sfig, renderer,
                             w_pad=w_pad, h_pad=h_pad,
                             hspace=hspace, wspace=wspace)
 
         margins = get_margin_from_padding(sfig, w_pad=0, h_pad=0,
                                           hspace=hspace, wspace=wspace)
-        layoutgrids[sfig].parent.edit_outer_margin_mins(margins, ss)
+        layoutgrids[gs].edit_outer_margin_mins(margins, ss)
 
     for ax in fig._localaxes:
         if not ax.get_subplotspec() or not ax.get_in_layout():
@@ -678,7 +680,7 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
         width and height padding (in fraction of figure)
     hspace, wspace : float
         width and height padding as fraction of figure size divided by
-        number of  columns or rows
+        number of columns or rows
     margin : array-like
         offset the colorbar needs to be pushed to in order to
         account for multiple colorbars

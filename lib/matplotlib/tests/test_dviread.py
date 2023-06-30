@@ -7,7 +7,7 @@ import pytest
 
 
 def test_PsfontsMap(monkeypatch):
-    monkeypatch.setattr(dr, '_find_tex_file', lambda x: x)
+    monkeypatch.setattr(dr, 'find_tex_file', lambda x: x)
 
     filename = str(Path(__file__).parent / 'baseline_images/dviread/test.map')
     fontmap = dr.PsfontsMap(filename)

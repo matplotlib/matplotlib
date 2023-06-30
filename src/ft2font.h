@@ -37,7 +37,6 @@ class FT2Image
 
     void resize(long width, long height);
     void draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y);
-    void write_bitmap(FILE *fp) const;
     void draw_rect(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1);
     void draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1, unsigned long y1);
 
@@ -106,7 +105,6 @@ class FT2Font
     void get_glyph_name(unsigned int glyph_number, char *buffer, bool fallback);
     long get_name_index(char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
-    void get_cbox(FT_BBox &bbox);
     PyObject* get_path();
     bool get_char_fallback_index(FT_ULong charcode, int& index) const;
 

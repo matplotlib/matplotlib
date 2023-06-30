@@ -88,13 +88,6 @@ cursord = {
 }
 
 
-@_api.caching_module_getattr
-class __getattr__:
-    qApp = _api.deprecated(
-        "3.6", alternative="QtWidgets.QApplication.instance()")(
-            property(lambda self: QtWidgets.QApplication.instance()))
-
-
 # lru_cache keeps a reference to the QApplication instance, keeping it from
 # being GC'd.
 @functools.lru_cache(1)
@@ -113,8 +106,10 @@ def _create_qApp():
         # of Qt is not instantiated in the process
         if QT_API in {'PyQt6', 'PySide6'}:
             other_bindings = ('PyQt5', 'PySide2')
+            qt_version = 6
         elif QT_API in {'PyQt5', 'PySide2'}:
             other_bindings = ('PyQt6', 'PySide6')
+            qt_version = 5
         else:
             raise RuntimeError("Should never be here")
 
@@ -130,11 +125,11 @@ def _create_qApp():
                     'versions may not work as expected.'
                 )
                 break
-        try:
-            QtWidgets.QApplication.setAttribute(
-                QtCore.Qt.AA_EnableHighDpiScaling)
-        except AttributeError:  # Only for Qt>=5.6, <6.
-            pass
+        if qt_version == 5:
+            try:
+                QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+            except AttributeError:  # Only for Qt>=5.6, <6.
+                pass
         try:
             QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
                 QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
@@ -148,10 +143,8 @@ def _create_qApp():
         app.lastWindowClosed.connect(app.quit)
         cbook._setup_new_guiapp()
 
-    try:
-        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)  # Only for Qt<6.
-    except AttributeError:
-        pass
+        if qt_version == 5:
+            app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
     return app
 
@@ -529,9 +522,6 @@ class FigureManagerQT(FigureManagerBase):
     def __init__(self, canvas, num):
         self.window = MainWindow()
         super().__init__(canvas, num)
-        self.window.closing.connect(
-            # The lambda prevents the event from being immediately gc'd.
-            lambda: CloseEvent("close_event", self.canvas)._process())
         self.window.closing.connect(self._widgetclosed)
 
         if sys.platform != "darwin":
@@ -576,6 +566,7 @@ class FigureManagerQT(FigureManagerBase):
             self.window.showFullScreen()
 
     def _widgetclosed(self):
+        CloseEvent("close_event", self.canvas)._process()
         if self.window._destroying:
             return
         self.window._destroying = True
@@ -629,7 +620,8 @@ class FigureManagerQT(FigureManagerBase):
 
 
 class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
-    message = QtCore.Signal(str)
+    _message = QtCore.Signal(str)  # Remove once deprecation below elapses.
+    message = _api.deprecate_privatize_attribute("3.8")
 
     toolitems = [*NavigationToolbar2.toolitems]
     toolitems.insert(
@@ -748,7 +740,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._update_buttons_checked()
 
     def set_message(self, s):
-        self.message.emit(s)
+        self._message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
 

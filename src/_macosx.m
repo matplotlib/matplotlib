@@ -45,6 +45,8 @@ static bool keyChangeControl = false;
 static bool keyChangeShift = false;
 static bool keyChangeOption = false;
 static bool keyChangeCapsLock = false;
+/* Keep track of the current mouse up/down state for open/closed cursor hand */
+static bool leftMouseGrabbing = false;
 
 /* -------------------------- Helper function ---------------------------- */
 
@@ -193,13 +195,11 @@ static int wait_for_stdin(void)
 - (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager;
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
 - (BOOL)closeButtonPressed;
-- (void)dealloc;
 @end
 
 @interface View : NSView <NSWindowDelegate>
 {   PyObject* canvas;
     NSRect rubberband;
-    NSTrackingRectTag tracking;
     @public double device_scale;
 }
 - (void)dealloc;
@@ -211,7 +211,6 @@ static int wait_for_stdin(void)
 - (void)setCanvas: (PyObject*)newCanvas;
 - (void)windowWillClose:(NSNotification*)notification;
 - (BOOL)windowShouldClose:(NSNotification*)notification;
-- (BOOL)isFlipped;
 - (void)mouseEntered:(NSEvent*)event;
 - (void)mouseExited:(NSEvent*)event;
 - (void)mouseDown:(NSEvent*)event;
@@ -460,7 +459,13 @@ FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
       case 1: [[NSCursor arrowCursor] set]; break;
       case 2: [[NSCursor pointingHandCursor] set]; break;
       case 3: [[NSCursor crosshairCursor] set]; break;
-      case 4: [[NSCursor openHandCursor] set]; break;
+      case 4:
+        if (leftMouseGrabbing) {
+            [[NSCursor closedHandCursor] set];
+        } else {
+            [[NSCursor openHandCursor] set];
+        }
+        break;
       /* OSX handles busy state itself so no need to set a cursor here */
       case 5: break;
       case 6: [[NSCursor resizeLeftRightCursor] set]; break;
@@ -1239,28 +1244,13 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     /* This is needed for show(), which should exit from [NSApp run]
      * after all windows are closed.
      */
-}
-
-- (void)dealloc
-{
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
+    // For each new window, we have incremented the manager reference, so
+    // we need to bring that down during close and not just dealloc.
     Py_DECREF(manager);
-    PyGILState_Release(gstate);
-    /* The reference count of the view that was added as a subview to the
-     * content view of this window was increased during the call to addSubview,
-     * and is decreased during the call to [super dealloc].
-     */
-    [super dealloc];
 }
 @end
 
 @implementation View
-- (BOOL)isFlipped
-{
-    return NO;
-}
-
 - (View*)initWithFrame:(NSRect)rect
 {
     self = [super initWithFrame: rect];
@@ -1521,8 +1511,10 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
              else
              {
                  button = 1;
-                 if ([NSCursor currentCursor]==[NSCursor openHandCursor])
+                 if ([NSCursor currentCursor]==[NSCursor openHandCursor]) {
+                     leftMouseGrabbing = true;
                      [[NSCursor closedHandCursor] set];
+                 }
              }
              break;
          }
@@ -1549,6 +1541,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     switch ([event type])
     {    case NSEventTypeLeftMouseUp:
+             leftMouseGrabbing = false;
              button = 1;
              if ([NSCursor currentCursor]==[NSCursor closedHandCursor])
                  [[NSCursor openHandCursor] set];
@@ -1869,7 +1862,7 @@ Timer__timer_start(Timer* self, PyObject* args)
     CFTimeInterval interval;
     PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
     int single;
-    runloop = CFRunLoopGetCurrent();
+    runloop = CFRunLoopGetMain();
     if (!runloop) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to obtain run loop");
         return NULL;

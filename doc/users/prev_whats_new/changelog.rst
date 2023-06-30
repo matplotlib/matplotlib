@@ -58,8 +58,8 @@ recent changes, please refer to the :doc:`/users/release_notes`.
     one.
 
 2014-05-20
-    Added logic to in FontManager to invalidate font-cache if if font-family
-    rcparams have changed.
+    Added logic in FontManager to invalidate font-cache if font-family rcparams
+    have changed.
 
 2014-05-16
     Fixed the positioning of multi-line text in the PGF backend.
@@ -2270,7 +2270,7 @@ recent changes, please refer to the :doc:`/users/release_notes`.
     Fix a "local variable unreferenced" bug in plotfile - MM
 
 2008-05-19
-    Fix crash when Windows can not access the registry to determine font path
+    Fix crash when Windows cannot access the registry to determine font path
     [Bug 1966974, thanks Patrik Simons] - MGD
 
 2008-05-16
@@ -2493,7 +2493,7 @@ recent changes, please refer to the :doc:`/users/release_notes`.
 
 2008-01-10
     Fix bug when displaying a tick value offset with scientific notation.
-    (Manifests itself as a warning that the \times symbol can not be found). -
+    (Manifests itself as a warning that the \times symbol cannot be found). -
     MGD
 
 2008-01-10
@@ -6103,7 +6103,7 @@ recent changes, please refer to the :doc:`/users/release_notes`.
     5X speedup for ps. - JDH
 
 2004-05-14
-    On second thought... created an "nx" namespace in in numerix which maps
+    On second thought... created an "nx" namespace in numerix which maps
     type names onto typecodes the same way for both numarray and Numeric.  This
     undoes my previous change immediately below. To get a typename for Int16
     usable in a Numeric extension: say nx.Int16. - JTM

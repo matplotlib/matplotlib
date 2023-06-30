@@ -260,7 +260,6 @@ class Colorbar:
     drawedges : bool
         Whether to draw lines at color boundaries.
 
-    filled : bool
 
     %(_colormap_kw_doc)s
 
@@ -278,7 +277,6 @@ class Colorbar:
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
 
-    @_api.delete_parameter("3.6", "filled")
     def __init__(self, ax, mappable=None, *, cmap=None,
                  norm=None,
                  alpha=None,
@@ -291,7 +289,6 @@ class Colorbar:
                  ticks=None,
                  format=None,
                  drawedges=False,
-                 filled=True,
                  extendfrac=None,
                  extendrect=False,
                  label='',
@@ -301,15 +298,11 @@ class Colorbar:
         if mappable is None:
             mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
 
-        # Ensure the given mappable's norm has appropriate vmin and vmax
-        # set even if mappable.draw has not yet been called.
-        if mappable.get_array() is not None:
-            mappable.autoscale_None()
-
         self.mappable = mappable
         cmap = mappable.cmap
         norm = mappable.norm
 
+        filled = True
         if isinstance(mappable, contour.ContourSet):
             cs = mappable
             alpha = cs.get_alpha()
@@ -488,8 +481,6 @@ class Colorbar:
         del self.ax.cla
         self.ax.cla()
 
-    filled = _api.deprecate_privatize_attribute("3.6")
-
     def update_normal(self, mappable):
         """
         Update solid patches, lines, etc.
@@ -517,14 +508,6 @@ class Colorbar:
             if not CS.filled:
                 self.add_lines(CS)
         self.stale = True
-
-    @_api.deprecated("3.6", alternative="fig.draw_without_rendering()")
-    def draw_all(self):
-        """
-        Calculate any free parameters based on the current cmap and norm,
-        and do all the drawing.
-        """
-        self._draw_all()
 
     def _draw_all(self):
         """
@@ -767,15 +750,15 @@ class Colorbar:
              lambda self, levels, colors, linewidths, erase=True: locals()],
             self, *args, **kwargs)
         if "CS" in params:
-            self, CS, erase = params.values()
-            if not isinstance(CS, contour.ContourSet) or CS.filled:
+            self, cs, erase = params.values()
+            if not isinstance(cs, contour.ContourSet) or cs.filled:
                 raise ValueError("If a single artist is passed to add_lines, "
                                  "it must be a ContourSet of lines")
             # TODO: Make colorbar lines auto-follow changes in contour lines.
             return self.add_lines(
-                CS.levels,
-                CS.to_rgba(CS.cvalues, CS.alpha),
-                [coll.get_linewidths()[0] for coll in CS.collections],
+                cs.levels,
+                cs.to_rgba(cs.cvalues, cs.alpha),
+                cs.get_linewidths(),
                 erase=erase)
         else:
             self, levels, colors, linewidths, erase = params.values()
@@ -881,7 +864,7 @@ class Colorbar:
 
         Parameters
         ----------
-        ticks : list of floats
+        ticks : 1D array-like
             List of tick locations.
         labels : list of str, optional
             List of tick labels. If not set, the labels show the data value.
@@ -1101,7 +1084,10 @@ class Colorbar:
             b = np.hstack((b, b[-1] + 1))
 
         # transform from 0-1 to vmin-vmax:
+        if self.mappable.get_array() is not None:
+            self.mappable.autoscale_None()
         if not self.norm.scaled():
+            # If we still aren't scaled after autoscaling, use 0, 1 as default
             self.norm.vmin = 0
             self.norm.vmax = 1
         self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
@@ -1394,13 +1380,13 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     Parameters
     ----------
-    parents : `~.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
+    parents : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
     %(_make_axes_kw_doc)s
 
     Returns
     -------
-    cax : `~.axes.Axes`
+    cax : `~matplotlib.axes.Axes`
         The child axes.
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
@@ -1508,13 +1494,13 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
 
     Parameters
     ----------
-    parent : `~.axes.Axes`
+    parent : `~matplotlib.axes.Axes`
         The Axes to use as parent for placing the colorbar.
     %(_make_axes_kw_doc)s
 
     Returns
     -------
-    cax : `~.axes.Axes`
+    cax : `~matplotlib.axes.Axes`
         The child axes.
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
