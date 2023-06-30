@@ -3,9 +3,12 @@
 Controlling and Labelling Axis Objects
 --------------------------------------
 
-Matplotlib `~.axis.Axis` objects are a type of Artist that can help
-control and modify axis on a Matplotlib figure or visualization, which can
-include alignment, direction, style, curve, and more.
+Matplotlib `~.axis.Axis` objects are a type of Artist that
+are the underlying abstraction and the basis for the axes
+on a Matplotlib figure or visualization. Axis objects are
+capable of controlling and modifying axis on a figure,
+which can include alignment, direction, style, curve,
+and more.
 
 .. inheritance-diagram:: Tick Ticker XAxis YAxis XTick YTick
    :private-bases:
