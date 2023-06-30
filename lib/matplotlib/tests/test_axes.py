@@ -1482,6 +1482,7 @@ def test_pcolorargs():
 def test_pcolorargs_with_read_only():
     x = np.arange(6).reshape(2, 3)
     xmask = np.broadcast_to([False, True, False], x.shape)  # read-only array
+    assert xmask.flags.writeable is False
     masked_x = np.ma.array(x, mask=xmask)
     plt.pcolormesh(masked_x)
 
@@ -1490,6 +1491,7 @@ def test_pcolorargs_with_read_only():
     X, Y = np.meshgrid(x, y)
     Z = np.sin(2 * np.pi * X) * np.cos(2 * np.pi * Y)
     Zmask = np.broadcast_to([True, False] * 5, Z.shape)
+    assert Zmask.flags.writeable is False
     masked_Z = np.ma.array(Z, mask=Zmask)
     plt.pcolormesh(X, Y, masked_Z)
 
