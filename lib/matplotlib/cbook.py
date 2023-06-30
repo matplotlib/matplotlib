@@ -668,7 +668,7 @@ class Stack:
                 self.push(elem)
 
 
-def safe_masked_invalid(x, copy=True):
+def safe_masked_invalid(x, copy=False):
     x = np.array(x, subok=True, copy=copy)
     if not x.dtype.isnative:
         # If we have already made a copy, do the byteswap in place, else make a
