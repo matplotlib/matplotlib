@@ -1350,8 +1350,7 @@ def test_tricontour_path():
 
     # Line strip from boundary to boundary
     cs = ax.tricontour(triang, [1, 0, 0, 0, 0], levels=[0.5])
-    assert len(cs.collections) == 1
-    paths = cs.collections[0].get_paths()
+    paths = cs.get_paths()
     assert len(paths) == 1
     expected_vertices = [[2, 0], [1, 1], [0, 2]]
     assert_array_almost_equal(paths[0].vertices, expected_vertices)
@@ -1361,8 +1360,7 @@ def test_tricontour_path():
 
     # Closed line loop inside domain
     cs = ax.tricontour(triang, [0, 0, 0, 0, 1], levels=[0.5])
-    assert len(cs.collections) == 1
-    paths = cs.collections[0].get_paths()
+    paths = cs.get_paths()
     assert len(paths) == 1
     expected_vertices = [[3, 1], [3, 3], [1, 3], [1, 1], [3, 1]]
     assert_array_almost_equal(paths[0].vertices, expected_vertices)
@@ -1378,8 +1376,7 @@ def test_tricontourf_path():
 
     # Polygon inside domain
     cs = ax.tricontourf(triang, [0, 0, 0, 0, 1], levels=[0.5, 1.5])
-    assert len(cs.collections) == 1
-    paths = cs.collections[0].get_paths()
+    paths = cs.get_paths()
     assert len(paths) == 1
     expected_vertices = [[3, 1], [3, 3], [1, 3], [1, 1], [3, 1]]
     assert_array_almost_equal(paths[0].vertices, expected_vertices)
@@ -1388,8 +1385,7 @@ def test_tricontourf_path():
 
     # Polygon following boundary and inside domain
     cs = ax.tricontourf(triang, [1, 0, 0, 0, 0], levels=[0.5, 1.5])
-    assert len(cs.collections) == 1
-    paths = cs.collections[0].get_paths()
+    paths = cs.get_paths()
     assert len(paths) == 1
     expected_vertices = [[2, 0], [1, 1], [0, 2], [0, 0], [2, 0]]
     assert_array_almost_equal(paths[0].vertices, expected_vertices)
@@ -1398,8 +1394,7 @@ def test_tricontourf_path():
 
     # Polygon is outer boundary with hole
     cs = ax.tricontourf(triang, [0, 0, 0, 0, 1], levels=[-0.5, 0.5])
-    assert len(cs.collections) == 1
-    paths = cs.collections[0].get_paths()
+    paths = cs.get_paths()
     assert len(paths) == 1
     expected_vertices = [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0],
                          [1, 1], [1, 3], [3, 3], [3, 1], [1, 1]]
