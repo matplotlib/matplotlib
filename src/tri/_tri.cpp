@@ -733,6 +733,9 @@ py::tuple TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
             *segs_ptr++ = point->y;
             *codes_ptr++ = (point == line->begin() ? MOVETO : LINETO);
         }
+
+        if (line->size() > 1)
+            *(codes_ptr-1) = CLOSEPOLY;
     }
 
     py::list vertices_list(1);
@@ -849,11 +852,8 @@ void TriContourGenerator::find_boundary_lines_filled(Contour& contour,
                                        lower_level, upper_level, on_upper);
                     } while (tri_edge != start_tri_edge);
 
-                    // Filled contour lines must not have same first and last
-                    // points.
-                    if (contour_line.size() > 1 &&
-                            contour_line.front() == contour_line.back())
-                        contour_line.pop_back();
+                    // Close polygon.
+                    contour_line.push_back(contour_line.front());
                 }
             }
         }
@@ -872,6 +872,9 @@ void TriContourGenerator::find_boundary_lines_filled(Contour& contour,
                 for (Boundary::size_type j = 0; j < boundary.size(); ++j)
                     contour_line.push_back(triang.get_point_coords(
                                       triang.get_triangle_point(boundary[j])));
+
+                // Close polygon.
+                contour_line.push_back(contour_line.front());
             }
         }
     }
@@ -904,13 +907,8 @@ void TriContourGenerator::find_interior_lines(Contour& contour,
         TriEdge tri_edge = triang.get_neighbor_edge(tri, edge);
         follow_interior(contour_line, tri_edge, false, level, on_upper);
 
-        if (!filled)
-            // Non-filled contour lines must be closed.
-            contour_line.push_back(contour_line.front());
-        else if (contour_line.size() > 1 &&
-                 contour_line.front() == contour_line.back())
-            // Filled contour lines must not have same first and last points.
-            contour_line.pop_back();
+        // Close line loop
+        contour_line.push_back(contour_line.front());
     }
 }
 
