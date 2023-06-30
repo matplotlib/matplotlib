@@ -5740,6 +5740,9 @@ default: :rc:`scatter.edgecolors`
         self.add_image(im)
         return im
 
+    def _is_unwritable(self, c):
+        return np.ma.is_masked(c) and not c.mask.flags.writeable
+
     def _pcolorargs(self, funcname, *args, shading='auto', **kwargs):
         # - create X and Y if not present;
         # - reshape X and Y as needed if they are 1-D;
@@ -5764,7 +5767,8 @@ default: :rc:`scatter.edgecolors`
             else:
                 X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
                 shading = 'flat'
-            C = cbook.safe_masked_invalid(C, copy=True)
+            copy = self._is_unwritable(C)
+            C = cbook.safe_masked_invalid(C, copy=copy)
             return X, Y, C, shading
 
         if len(args) == 3:
@@ -5853,7 +5857,8 @@ default: :rc:`scatter.edgecolors`
                     Y = _interp_grid(Y.T).T
                 shading = 'flat'
 
-        C = cbook.safe_masked_invalid(C, copy=True)
+        copy = self._is_unwritable(C)
+        C = cbook.safe_masked_invalid(C, copy=copy)
         return X, Y, C, shading
 
     @_preprocess_data()
