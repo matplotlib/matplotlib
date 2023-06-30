@@ -1489,7 +1489,7 @@ def test_pcolorargs():
     X, Y = np.meshgrid(x, y)
     Z = np.sin(2 * np.pi * X) * np.cos(2 * np.pi * Y)
     Zmask = np.broadcast_to([True, False]*5, Z.shape)
-    masked_Z = np.ma.array(Z, mask = Zmask)
+    masked_Z = np.ma.array(Z, mask=Zmask)
     plt.pcolormesh(X, Y, masked_Z)
 
 
