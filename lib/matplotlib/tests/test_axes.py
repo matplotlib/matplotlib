@@ -1478,17 +1478,18 @@ def test_pcolorargs():
                       match='are not monotonically increasing or decreasing'):
         ax.pcolormesh(X, Y, Z, shading='auto')
 
-    # GH 26093
+
+def test_pcolorargs_with_read_only():
     x = np.arange(6).reshape(2, 3)
-    mask = np.broadcast_to([False, True, False], x.shape)  # read-only array
-    masked_x = np.ma.array(x, mask=mask)
+    xmask = np.broadcast_to([False, True, False], x.shape)  # read-only array
+    masked_x = np.ma.array(x, mask=xmask)
     plt.pcolormesh(masked_x)
 
     x = np.linspace(0, 1, 10)
     y = np.linspace(0, 1, 10)
     X, Y = np.meshgrid(x, y)
     Z = np.sin(2 * np.pi * X) * np.cos(2 * np.pi * Y)
-    Zmask = np.broadcast_to([True, False]*5, Z.shape)
+    Zmask = np.broadcast_to([True, False] * 5, Z.shape)
     masked_Z = np.ma.array(Z, mask=Zmask)
     plt.pcolormesh(X, Y, masked_Z)
 
