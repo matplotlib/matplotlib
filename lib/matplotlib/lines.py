@@ -1562,7 +1562,7 @@ class AxLine(Line2D):
 
         Parameters
         ----------
-        x, y : (float, float)
+        x, y : float
             Points for the line to pass through.
         """
         self._xy1 = x, y
@@ -1573,7 +1573,7 @@ class AxLine(Line2D):
 
         Parameters
         ----------
-        x, y : (float, float)
+        x, y : float
             Points for the line to pass through.
         """
         if self._slope is None:

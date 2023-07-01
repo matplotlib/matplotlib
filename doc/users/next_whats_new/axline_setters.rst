@@ -1,6 +1,7 @@
 Axline setters and getters
 --------------------------
-The returned object from ``Axes.axline`` now supports getter and setter
+
+The returned object from `.axes.Axes.axline` now supports getter and setter
 methods for its *xy1*, *xy2* and *slope* attributes:
 
 .. code-block:: python

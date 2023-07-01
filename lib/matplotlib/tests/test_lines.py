@@ -429,10 +429,10 @@ def test_axline_setters():
     assert line2.get_xy2() == (.6, .8)
     # Testing setting xy2 and slope together.
     # These test should raise a ValueError
-    with pytest.raises(ValueError, match="Cannot set an 'xy2' value while "
-                                         "'slope' is set"):
+    with pytest.raises(ValueError,
+                       match="Cannot set an 'xy2' value while 'slope' is set"):
         line1.set_xy2(.2, .3)
 
-    with pytest.raises(ValueError, match="Cannot set a 'slope' value while "
-                                         "'xy2' is set"):
+    with pytest.raises(ValueError,
+                       match="Cannot set a 'slope' value while 'xy2' is set"):
         line2.set_slope(3)
