@@ -5708,7 +5708,7 @@ default: :rc:`scatter.edgecolors`
             # unit conversion allows e.g. datetime objects as axis values
             X, Y = args[:2]
             X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
-            X, Y = [cbook.safe_masked_invalid(a) for a in [X, Y]]
+            X, Y = [cbook.safe_masked_invalid(a, copy=True) for a in [X, Y]]
 
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):
