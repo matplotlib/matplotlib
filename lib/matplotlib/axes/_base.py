@@ -1276,8 +1276,10 @@ class _AxesBase(martist.Artist):
             axis.clear()  # Also resets the scale to linear.
         for spine in self.spines.values():
             # avoid expensive methods in the clearing of the spine, gh-26243
+            tmp_axis = spine.axis
             spine.axis = None
             spine.clear()
+            spine.axis = tmp_axis
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(
