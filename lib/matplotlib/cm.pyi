@@ -24,6 +24,10 @@ class ScalarMappable:
     cmap: colors.Colormap | None
     colorbar: Colorbar | None
     callbacks: cbook.CallbackRegistry
+
+    # private use
+    _A: ArrayLike | None
+
     def __init__(
         self,
         norm: colors.Normalize | None = ...,

@@ -1086,12 +1086,12 @@ def draw(*, fig: Figure | None = None) -> None:
 
 @_copy_docstring_and_deprecators(Figure.savefig)
 def savefig(*args, **kwargs) -> None:
+    fig = kwargs.pop('fig', None) or gcf()
     # savefig default implementation has no return, so mypy is unhappy
     # presumably this is here because subclasses can return?
-    fig = kwargs.pop('fig', None) or gcf()
-    res = fig.savefig(*args, **kwargs)
+    res = fig.savefig(*args, **kwargs)  # type: ignore[func-returns-value]
     fig.canvas.draw_idle()  # Need this if 'transparent=True', to reset colors.
-    return res
+    return res  # type: ignore[return-value]
 
 
 ## Putting things in figures ##
