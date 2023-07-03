@@ -562,7 +562,7 @@ class FontProperties:
       absolute font size, e.g., 10. Default: :rc:`font.size`
 
     - math_fontfamily: The family of fonts used to render math text.
-      Supported values are: 'dejavusans', 'dejavuserif', 'cm',
+      Supported values are: 'lm', 'dejavusans', 'dejavuserif', 'cm',
       'stix', 'stixsans' and 'custom'. Default: :rc:`mathtext.fontset`
 
     Alternatively, a font may be specified using the absolute path to a font

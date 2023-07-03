@@ -41,6 +41,7 @@ class MathTextParser:
         'dejavusans':  _mathtext.DejaVuSansFonts,
         'stix':        _mathtext.StixFonts,
         'stixsans':    _mathtext.StixSansFonts,
+        'lm':          _mathtext.LatinModernFonts,
         'custom':      _mathtext.UnicodeFonts,
     }
 

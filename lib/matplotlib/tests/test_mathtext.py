@@ -247,7 +247,7 @@ def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
 @pytest.mark.parametrize(
     'index, text', enumerate(font_tests), ids=range(len(font_tests)))
 @pytest.mark.parametrize(
-    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
+    'fontset', ['lm', 'cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
 @image_comparison(baseline_images=None, extensions=['png'],
                   tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
