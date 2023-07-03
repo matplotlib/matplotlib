@@ -2013,19 +2013,19 @@ class FigureCanvasBase:
             if not hasattr(canvas_class, f"print_{fmt}"):
                 raise ValueError(
                     f"The {backend!r} backend does not support {fmt} output")
+            canvas = canvas_class(self.figure)
         elif hasattr(self, f"print_{fmt}"):
             # Return the current canvas if it supports the requested format.
             canvas = self
-            canvas_class = None  # Skip call to switch_backends.
         else:
             # Return a default canvas for the requested format, if it exists.
             canvas_class = get_registered_canvas_class(fmt)
-        if canvas_class:
-            canvas = self.switch_backends(canvas_class)
-        if canvas is None:
-            raise ValueError(
-                "Format {!r} is not supported (supported formats: {})".format(
-                    fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            if canvas_class is None:
+                raise ValueError(
+                    "Format {!r} is not supported (supported formats: {})".format(
+                        fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            canvas = canvas_class(self.figure)
+        canvas._is_saving = self._is_saving
         meth = getattr(canvas, f"print_{fmt}")
         mod = (meth.func.__module__
                if hasattr(meth, "func")  # partialmethod, e.g. backend_wx.
@@ -2214,6 +2214,7 @@ class FigureCanvasBase:
         filename = basename + '.' + filetype
         return filename
 
+    @_api.deprecated("3.8")
     def switch_backends(self, FigureCanvasClass):
         """
         Instantiate an instance of FigureCanvasClass
