@@ -3799,7 +3799,7 @@ class FancyBboxPatch(Patch):
         """
         Parameters
         ----------
-        xy : float, float
+        xy : (float, float)
           The lower left corner of the box.
 
         width : float
