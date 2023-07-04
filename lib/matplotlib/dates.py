@@ -99,6 +99,8 @@ easy to place ticks on any kinds of dates.  See examples below.
 
 .. _dateutil: https://dateutil.readthedocs.io
 
+.. _date-tickers:
+
 Date tickers
 ------------
 
@@ -153,6 +155,8 @@ The available date tickers are:
   sensible multiples of the tick intervals.  For example, if the interval is
   4 hours, it will pick hours 0, 4, 8, etc. as ticks.  This behaviour is not
   guaranteed by default.
+
+.. _date-formatters:
 
 Date formatters
 ---------------
