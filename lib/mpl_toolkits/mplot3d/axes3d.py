@@ -1702,10 +1702,10 @@ class Axes3D(Axes):
                     if fcolors is not None:
                         colset.append(fcolors[rs][cs])
 
-        # In cases where there are NaNs in the data (possibly from masked
-        # arrays), artifacts can be introduced. Here check whether NaNs exist
-        # and remove the entries if so
-        if not isinstance(polys, np.ndarray) or np.isnan(polys).any():
+        # In cases where there are non-finite values in the data (possibly NaNs from
+        # masked arrays), artifacts can be introduced. Here check whether such values are
+        # present and remove them.
+        if not isinstance(polys, np.ndarray) or not np.isfinite(polys).all():
             new_polys = []
             new_colset = []
 
@@ -1713,7 +1713,7 @@ class Axes3D(Axes):
             # many elements as polys. In the former case new_colset results in
             # a list with None entries, that is discarded later.
             for p, col in itertools.zip_longest(polys, colset):
-                new_poly = np.array(p)[~np.isnan(p).any(axis=1)]
+                new_poly = p[np.isfinite(p).all(axis=1)].copy()
                 if len(new_poly):
                     new_polys.append(new_poly)
                     new_colset.append(col)
