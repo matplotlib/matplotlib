@@ -1703,8 +1703,8 @@ class Axes3D(Axes):
                         colset.append(fcolors[rs][cs])
 
         # In cases where there are non-finite values in the data (possibly NaNs from
-        # masked arrays), artifacts can be introduced. Here check whether such values are
-        # present and remove them.
+        # masked arrays), artifacts can be introduced. Here check whether such values
+        # are present and remove them.
         if not isinstance(polys, np.ndarray) or not np.isfinite(polys).all():
             new_polys = []
             new_colset = []
