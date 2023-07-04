@@ -6,7 +6,7 @@ By default, Matplotlib uses the units machinery described in
 `~matplotlib.units` to convert `datetime.datetime`, and `numpy.datetime64`
 objects when plotted on an x- or y-axis. The user does not
 need to do anything for dates to be formatted, but dates often have strict
-formatting needs, so this module provides many axis locators and formatters.
+formatting needs, so this module provides many tick locators and formatters.
 A basic example using `numpy.datetime64` is::
 
     import numpy as np
@@ -82,12 +82,12 @@ objects and Matplotlib dates:
      In [1]: date(2006, 4, 1).toordinal() - date(1, 1, 1).toordinal()
      Out[1]: 732401
 
-All the Matplotlib date converters, tickers and formatters are timezone aware.
+All the Matplotlib date converters, locators and formatters are timezone aware.
 If no explicit timezone is provided, :rc:`timezone` is assumed, provided as a
 string.  If you want to use a different timezone, pass the *tz* keyword
-argument of `num2date` to any date tickers or locators you create.  This can
-be either a `datetime.tzinfo` instance or a string with the timezone name that
-can be parsed by `~dateutil.tz.gettz`.
+argument of `num2date` to any date tick locators or formatters you create. This
+can be either a `datetime.tzinfo` instance or a string with the timezone name
+that can be parsed by `~dateutil.tz.gettz`.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
@@ -99,12 +99,12 @@ easy to place ticks on any kinds of dates.  See examples below.
 
 .. _dateutil: https://dateutil.readthedocs.io
 
-.. _date-tickers:
+.. _date-locators:
 
-Date tickers
-------------
+Date tick locators
+------------------
 
-Most of the date tickers can locate single or multiple values.  For example::
+Most of the date tick locators can locate single or multiple ticks. For example::
 
     # import constants for the days of the week
     from matplotlib.dates import MO, TU, WE, TH, FR, SA, SU
@@ -126,7 +126,7 @@ The rrule locator allows completely general date ticking::
     rule = rrulewrapper(YEARLY, byeaster=1, interval=5)
     loc = RRuleLocator(rule)
 
-The available date tickers are:
+The available date tick locators are:
 
 * `MicrosecondLocator`: Locate microseconds.
 
@@ -622,7 +622,7 @@ def _wrap_in_tex(text):
     return ret_text
 
 
-## date tickers and formatters ###
+## date tick locators and formatters ###
 
 
 class DateFormatter(ticker.Formatter):

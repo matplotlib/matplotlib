@@ -35,8 +35,8 @@ def plot_axis(ax, locator=None, xmax='2002-02-01', fmt=None, formatter=None):
             fontsize=14, fontname='Monospace', color='tab:blue')
 
 # %%
-# :ref:`Date locators <date-tickers>`
-# -----------------------------------
+# :ref:`date-locators`
+# --------------------
 
 
 locators = [
