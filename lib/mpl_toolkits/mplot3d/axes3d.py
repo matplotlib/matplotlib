@@ -2249,7 +2249,11 @@ class Axes3D(Axes):
             *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+        xs, ys, zs, s, c, color = cbook.delete_masked_points(
+            xs, ys, zs, s, c, kwargs.get('color', None)
+            )
+        if kwargs.get('color', None):
+            kwargs['color'] = color
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
