@@ -2,8 +2,9 @@
 
 .. redirect-from:: /tutorials/colors/index
 
+++++++
 Colors
-------
+++++++
 
 Matplotlib has support for visualizing information with a wide array
 of colors and colormaps. These tutorials cover the basics of how
