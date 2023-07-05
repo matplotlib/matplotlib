@@ -251,7 +251,9 @@ would be saved if ``bbox_inches='tight'`` were used in savefig.
     ax.set_aspect(1)
     bb = ax.get_tightbbox()
     bb = bb.padded(10)
+    bb = bb.transformed(fig.dpi_scale_trans.inverted())
     fancy = FancyBboxPatch(bb.p0, bb.width, bb.height, fc='none',
                            ec=(0, 0.0, 0, 0.5), lw=2, linestyle='--',
-                           transform=None, clip_on=False)
+                           transform=fig.dpi_scale_trans,
+                           clip_on=False, boxstyle='Square, pad=0')
     ax.add_patch(fancy)
