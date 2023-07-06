@@ -57,6 +57,8 @@ def test_get_labels():
     ax.set_ylabel('y label')
     assert ax.get_xlabel() == 'x label'
     assert ax.get_ylabel() == 'y label'
+    assert ax.xaxis.get_label_text() == 'x label'
+    assert ax.yaxis.get_label_text() == 'y label'
 
 
 def test_repr():
@@ -6055,6 +6057,17 @@ def test_empty_ticks_fixed_loc():
     ax.set_xticklabels([])
 
 
+@image_comparison(['set_label_coords.png'])
+def test_set_label_coords():
+    fig, axes = plt.subplots(2, 1, figsize=(5, 4))
+    axes[0].plot([0, 1])
+    axes[0].set_ylabel('Label 1')
+    axes[1].plot([0, 1000])
+    axes[1].set_ylabel('Red label', fontdict={'color': 'red'})
+    for n in range(2):
+        axes[n].yaxis.set_label_coords(-0.1, 0.2)
+
+
 @image_comparison(['retain_tick_visibility.png'])
 def test_retain_tick_visibility():
     fig, ax = plt.subplots()
@@ -7699,6 +7712,11 @@ def test_tickdirs():
                 targetbb = mtransforms.Bbox.from_bounds(*targets[dnum][nn])
                 assert_allclose(
                     bbspines[num].bounds, targetbb.bounds, atol=1e-2)
+            assert all(ax.xaxis.get_ticks_direction() == [dirs]*6)
+            assert all(ax.yaxis.get_ticks_direction() == [dirs]*6)
+            # No minor ticks
+            assert ax.xaxis.get_ticks_direction(True).size == 0
+            assert ax.yaxis.get_ticks_direction(True).size == 0
 
 
 def test_minor_accountedfor():

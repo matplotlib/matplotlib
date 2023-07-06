@@ -1430,14 +1430,13 @@ class Axis(martist.Artist):
         list of `~matplotlib.text.Text`
         """
         if which is not None:
+            _api.check_in_list(['major', 'minor', 'both'], which=which)
             if which == 'minor':
                 return self.get_minorticklabels()
             elif which == 'major':
                 return self.get_majorticklabels()
-            elif which == 'both':
+            else:  # 'both'
                 return self.get_majorticklabels() + self.get_minorticklabels()
-            else:
-                _api.check_in_list(['major', 'minor', 'both'], which=which)
         if minor:
             return self.get_minorticklabels()
         return self.get_majorticklabels()
@@ -1523,10 +1522,10 @@ class Axis(martist.Artist):
         """
         if minor:
             return np.array(
-                [tick._tickdir for tick in self.get_minor_ticks()])
+                [tick.get_tickdir() for tick in self.get_minor_ticks()])
         else:
             return np.array(
-                [tick._tickdir for tick in self.get_major_ticks()])
+                [tick.get_tickdir() for tick in self.get_major_ticks()])
 
     def _get_tick(self, major):
         """Return the default tick instance."""
@@ -2371,13 +2370,11 @@ class XAxis(Axis):
         elif position == 'none':
             self.set_tick_params(which='both', top=False,
                                  bottom=False)
-        elif position == 'default':
+        else:  # 'default'
             self.set_tick_params(which='both', top=True, labeltop=False,
                                  bottom=True, labelbottom=True)
             self._tick_position = 'bottom'
             self.offsetText.set_verticalalignment('top')
-        else:
-            assert False, "unhandled parameter not caught by _check_in_list"
         self.stale = True
 
     def tick_top(self):
@@ -2615,11 +2612,9 @@ class YAxis(Axis):
         elif position == 'none':
             self.set_tick_params(which='both', right=False,
                                  left=False)
-        elif position == 'default':
+        else:  # 'default'
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
-        else:
-            assert False, "unhandled parameter not caught by _check_in_list"
         self.stale = True
 
     def tick_right(self):
