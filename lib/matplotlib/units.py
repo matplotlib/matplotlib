@@ -78,7 +78,7 @@ class AxisInfo:
     """
     def __init__(self, majloc=None, minloc=None,
                  majfmt=None, minfmt=None, label=None,
-                 default_limits=None):
+                 default_limits=None, description=None):
         """
         Parameters
         ----------
@@ -89,8 +89,10 @@ class AxisInfo:
         label : str, optional
             The default axis label.
         default_limits : optional
-            The default min and max limits of the axis if no data has
-            been plotted.
+            The default min and max limits of the axis if no data has been plotted.
+        description: str, optional
+            A human readable description which may additionally be used to validate
+            converters.
 
         Notes
         -----
@@ -103,6 +105,7 @@ class AxisInfo:
         self.minfmt = minfmt
         self.label = label
         self.default_limits = default_limits
+        self.description = description
 
 
 class ConversionInterface:

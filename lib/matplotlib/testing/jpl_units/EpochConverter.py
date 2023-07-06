@@ -21,7 +21,15 @@ class EpochConverter(units.ConversionInterface):
         # docstring inherited
         majloc = date_ticker.AutoDateLocator()
         majfmt = date_ticker.AutoDateFormatter(majloc)
-        return units.AxisInfo(majloc=majloc, majfmt=majfmt, label=unit)
+
+        # There is actually an off by one error here, but allow DateFormatters
+        descr = "days since matplotlib epoch"
+        return units.AxisInfo(
+            majloc=majloc,
+            majfmt=majfmt,
+            label=unit,
+            description=descr,
+        )
 
     @staticmethod
     def float2epoch(value, unit):

@@ -655,6 +655,11 @@ class DateFormatter(ticker.Formatter):
     def set_tzinfo(self, tz):
         self.tz = _get_tzinfo(tz)
 
+    def validate_converter(self, converter, axisinfo):
+        if axisinfo.description != "days since matplotlib epoch":
+            print(converter, axisinfo.majfmt)
+            _api.warn_external("Converter may not be compatible with date formatting.")
+
 
 class ConciseDateFormatter(ticker.Formatter):
     """
@@ -876,6 +881,10 @@ class ConciseDateFormatter(ticker.Formatter):
     def format_data_short(self, value):
         return num2date(value, tz=self._tz).strftime('%Y-%m-%d %H:%M:%S')
 
+    def validate_converter(self, converter, axisinfo):
+        if axisinfo.description != "days since matplotlib epoch":
+            _api.warn_external("Converter may not be compatible with date formatting.")
+
 
 class AutoDateFormatter(ticker.Formatter):
     """
@@ -995,6 +1004,9 @@ class AutoDateFormatter(ticker.Formatter):
             raise TypeError(f'Unexpected type passed to {self!r}.')
 
         return result
+
+    def validate_converter(self, converter, axisinfo):
+        self._formatter.validate_converter(converter, axisinfo)
 
 
 class rrulewrapper:
@@ -1808,7 +1820,8 @@ class DateConverter(units.ConversionInterface):
         datemax = datetime.date(1970, 1, 2)
 
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
-                              default_limits=(datemin, datemax))
+                              default_limits=(datemin, datemax),
+                              description="days since matplotlib epoch")
 
     @staticmethod
     def convert(value, unit, axis):
@@ -1865,7 +1878,8 @@ class ConciseDateConverter(DateConverter):
         datemin = datetime.date(1970, 1, 1)
         datemax = datetime.date(1970, 1, 2)
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
-                              default_limits=(datemin, datemax))
+                              default_limits=(datemin, datemax),
+                              description="days since matplotlib epoch")
 
 
 class _SwitchableDateConverter:

@@ -1,6 +1,7 @@
 from matplotlib.axis import Axis
-from matplotlib.transforms import Transform
 from matplotlib.projections.polar import _AxisWrapper
+from matplotlib.transforms import Transform
+from matplotlib.units import ConversionInterface, AxisInfo
 
 from collections.abc import Callable, Sequence
 from typing import Any, Literal
@@ -31,6 +32,7 @@ class Formatter(TickHelper):
     def set_locs(self, locs: list[float]) -> None: ...
     @staticmethod
     def fix_minus(s: str) -> str: ...
+    def validate_converter(self, converter: ConversionInterface, axisinfo: AxisInfo) -> None: ...
 
 class NullFormatter(Formatter): ...
 

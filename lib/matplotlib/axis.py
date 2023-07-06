@@ -674,6 +674,8 @@ class Axis(martist.Artist):
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
 
+        self._axisinfo = None
+
         self.clear()
         self._autoscale_on = True
 
@@ -1677,6 +1679,7 @@ class Axis(martist.Artist):
             return
 
         info = self.converter.axisinfo(self.units, self)
+        self._axisinfo = info
 
         if info is None:
             return
@@ -1830,6 +1833,11 @@ class Axis(martist.Artist):
                 and not isinstance(level.locator, mticker.FixedLocator)):
             _api.warn_external('FixedFormatter should only be used together '
                                'with FixedLocator')
+
+        assert isinstance(formatter, mticker.Formatter)
+
+        if hasattr(self, "converter") and self.converter is not None:
+            formatter.validate_converter(self.converter, self._axisinfo)
 
         if level == self.major:
             self.isDefault_majfmt = False

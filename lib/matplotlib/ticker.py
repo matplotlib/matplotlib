@@ -255,6 +255,11 @@ class Formatter(TickHelper):
         """Subclasses may want to override this to set a locator."""
         pass
 
+    def validate_converter(self, converter, axisinfo):
+        """Raise an exception if the converter is not valid for this formatter."""
+        # By default, accept any converter
+        pass
+
 
 class NullFormatter(Formatter):
     """Always return the empty string."""
