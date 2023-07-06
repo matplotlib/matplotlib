@@ -71,7 +71,7 @@ def annotate(x, y, text, code):
         color = 'white' if path_effects else royal_blue
         ax.text(x, y-0.2, text, zorder=100,
                 ha='center', va='top', weight='bold', color=color,
-                style='italic', fontfamily='Courier New',
+                style='italic', fontfamily='monospace',
                 path_effects=path_effects)
 
         color = 'white' if path_effects else 'black'
