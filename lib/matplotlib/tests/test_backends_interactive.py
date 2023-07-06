@@ -79,7 +79,29 @@ def _get_testable_interactive_backends():
     return envs
 
 
-_test_timeout = 120  # A reasonably safe value for slower architectures.
+def is_ci_environment():
+    # Common CI variables
+    ci_environment_variables = [
+        'CI',        # Generic CI environment variable
+        'CONTINUOUS_INTEGRATION',  # Generic CI environment variable
+        'TRAVIS',    # Travis CI
+        'CIRCLECI',  # CircleCI
+        'JENKINS',   # Jenkins
+        'GITLAB_CI',  # GitLab CI
+        'GITHUB_ACTIONS',  # GitHub Actions
+        'TEAMCITY_VERSION'  # TeamCity
+        # Add other CI environment variables as needed
+    ]
+
+    for env_var in ci_environment_variables:
+        if os.getenv(env_var):
+            return True
+
+    return False
+
+
+# Reasonable safe values for slower CI/Remote and local architectures.
+_test_timeout = 120 if is_ci_environment() else 20
 
 
 def _test_toolbar_button_la_mode_icon(fig):
@@ -204,15 +226,15 @@ def test_interactive_backend(env, toolbar):
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
     try:
         proc = _run_helper(
-                _test_interactive_impl,
-                json.dumps({"toolbar": toolbar}),
-                timeout=_test_timeout,
-                extra_env=env,
-                )
+            _test_interactive_impl,
+            json.dumps({"toolbar": toolbar}),
+            timeout=_test_timeout,
+            extra_env=env,
+        )
     except subprocess.CalledProcessError as err:
         pytest.fail(
-                "Subprocess failed to test intended behavior\n"
-                + str(err.stderr))
+            "Subprocess failed to test intended behavior\n"
+            + str(err.stderr))
     assert proc.stdout.count("CloseEvent") == 1
 
 
