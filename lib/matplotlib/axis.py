@@ -647,7 +647,6 @@ class Axis(martist.Artist):
             Whether to clear the Axis on creation. This is not required, e.g.,  when
             creating an Axis as part of an Axes, as ``Axes.clear`` will call
             ``Axis.clear``.
-            
             .. versionadded:: 3.8
         """
         super().__init__()
