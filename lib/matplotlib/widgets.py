@@ -199,7 +199,7 @@ class Button(AxesWidget):
             Use blitting for faster drawing if supported by the backend.
             See the tutorial :ref:`blitting` for details.
 
-        .. versionadded:: 3.7
+            .. versionadded:: 3.7
         """
         super().__init__(ax)
 

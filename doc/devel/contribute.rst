@@ -13,12 +13,9 @@ You've worked out a way to fix it — even better!
 
 You want to tell us about it — best of all!
 
-This project is a community effort, and everyone is welcome to
-contribute. Everyone within the community
-is expected to abide by our
-`code of conduct <https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md>`_.
-
-
+This project is a community effort, and everyone is welcome to contribute. Everyone
+within the community is expected to abide by our `code of conduct
+<https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md>`_.
 
 Below, you can find a number of ways to contribute, and how to connect with the
 Matplotlib community.
@@ -38,13 +35,12 @@ There are a few typical new contributor profiles:
 * **You are a Matplotlib user, and you see a bug, a potential improvement, or
   something that annoys you, and you can fix it.**
 
-  You can search our issue tracker for an existing issue that describes your
-  problem or open a new issue to inform us of the problem you observed and
-  discuss the best approach to fix it. If your contributions would not be
-  captured on GitHub (social media, communication, educational content), you can
-  also reach out to us on gitter_,
-  `Discourse <https://discourse.matplotlib.org/>`__ or attend any of our
-  `community meetings <https://scientific-python.org/calendars>`__.
+  You can search our issue tracker for an existing issue that describes your problem or
+  open a new issue to inform us of the problem you observed and discuss the best approach
+  to fix it. If your contributions would not be captured on GitHub (social media,
+  communication, educational content), you can also reach out to us on gitter_,
+  `Discourse <https://discourse.matplotlib.org/>`__ or attend any of our `community
+  meetings <https://scientific-python.org/calendars>`__.
 
 * **You are not a regular Matplotlib user but a domain expert: you know about
   visualization, 3D plotting, design, technical writing, statistics, or some
@@ -55,8 +51,8 @@ There are a few typical new contributor profiles:
   implementation; open an issue or pull request with a starting point, and we'll
   be happy to discuss technical approaches.
 
-  If you prefer, you can use the
-  `GitHub functionality for "draft" pull requests <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
+  If you prefer, you can use the `GitHub functionality for "draft" pull requests
+  <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request#converting-a-pull-request-to-a-draft>`__
   and request early feedback on whatever you are working on, but you should be
   aware that maintainers may not review your contribution unless it has the
   "Ready to review" state on GitHub.
@@ -105,9 +101,8 @@ process works, technical questions about the code, what makes for good
 documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
-To join, please go to our public community_ channel, and ask
-to be added to ``#incubator``. One of our core developers will see your message
-and will add you.
+To join, please go to our public community_ channel, and ask to be added to
+``#incubator``. One of our core developers will see your message and will add you.
 
 New Contributors Meeting
 ------------------------
@@ -119,8 +114,7 @@ veteran contributors, who are keen to support onboarding of new folks and
 share their experience. You can find our community calendar link at the
 `Scientific Python website <https://scientific-python.org/calendars/>`_, and
 you can browse previous meeting notes on `GitHub
-<https://github.com/matplotlib/ProjectManagement/tree/master/
-new_contributor_meeting>`_.
+<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_.
 We recommend joining the meeting to clarify any doubts, or lingering
 questions you might have, and to get to know a few of the people behind the
 GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
@@ -520,11 +514,10 @@ Then they will receive messages like
    DEBUG:matplotlib.yourmodulename:Here is some information
    DEBUG:matplotlib.yourmodulename:Here is some more detailed information
 
-Avoid using pre-computed strings (``f-strings``, ``str.format``,etc.) for logging because of security and
-performance issues, and because they interfere with style handlers. For example, use ``_log.error('hello %s', 'world')``  rather than
-``_log.error('hello {}'.format('world'))`` or ``_log.error(f'hello {s}')``.
-
-
+Avoid using pre-computed strings (``f-strings``, ``str.format``,etc.) for logging because
+of security and performance issues, and because they interfere with style handlers. For
+example, use ``_log.error('hello %s', 'world')``  rather than ``_log.error('hello
+{}'.format('world'))`` or ``_log.error(f'hello {s}')``.
 
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

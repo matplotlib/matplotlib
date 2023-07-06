@@ -90,15 +90,16 @@ code, as described in :ref:`development-workflow`.
    For more information on ``git`` and ``GitHub``, see:
 
    * `Git documentation <https://git-scm.com/doc>`_
-   * `GitHub-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
+   * `GitHub-Contributing to a Project
+     <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
    * `GitHub Skills <https://skills.github.com/>`_
    * :ref:`using-git`
    * :ref:`git-resources`
    * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
-   * `Managing remote repositories <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`_
+   * `Managing remote repositories
+     <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`_
    * https://tacaswell.github.io/think-like-git.html
    * https://tom.preston-werner.com/2009/05/19/the-git-parable.html
-
 
 .. _dev-environment:
 
@@ -147,9 +148,9 @@ The simplest way to do this is to use either Python's virtual environment
 
 Remember to activate the environment whenever you start working on Matplotlib.
 
-
 Install Matplotlib in editable mode
 ===================================
+
 Install Matplotlib in editable mode from the :file:`matplotlib` directory
 using the command ::
 
