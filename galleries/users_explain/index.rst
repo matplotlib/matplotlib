@@ -13,6 +13,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             quick_start
 
@@ -21,6 +22,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             figure/index
 
@@ -29,6 +31,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             axes/index
 
@@ -37,6 +40,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             artists/index
 
@@ -45,6 +49,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             customizing
 
@@ -53,6 +58,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             axis/index
 
@@ -61,6 +67,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             colors/index
 
@@ -69,6 +76,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             text/index
 
@@ -77,6 +85,7 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             animations/index
 
@@ -85,5 +94,6 @@ Using Matplotlib
 
         .. toctree::
             :maxdepth: 2
+            :includehidden:
 
             toolkits/index
