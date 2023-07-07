@@ -51,7 +51,7 @@ const char* image_resample__doc__ =
 
 
 static pybind11::array_t<double> _get_transform_mesh(const pybind11::object& transform,
-                                                     const ssize_t *dims)
+                                                     const pybind11::ssize_t *dims)
 {
     /* TODO: Could we get away with float, rather than double, arrays here? */
 
@@ -62,7 +62,8 @@ static pybind11::array_t<double> _get_transform_mesh(const pybind11::object& tra
     // If attribute doesn't exist, raises Python AttributeError
     auto inverse = transform.attr("inverted")();
 
-    pybind11::array_t<double> input_mesh({dims[0]*dims[1], 2L});
+    pybind11::ssize_t mesh_dims[2] = {dims[0]*dims[2], 2};
+    pybind11::array_t<double> input_mesh(mesh_dims);
     auto p = input_mesh.mutable_data();
 
     for (auto y = 0; y < dims[0]; ++y) {
