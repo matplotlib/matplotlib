@@ -136,7 +136,6 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
-        self._antialiased = mpl.rcParams['text.antialiased']
         self._reset_visual_defaults(
             text=text,
             color=color,
@@ -191,8 +190,8 @@ class Text(Artist):
             linespacing = 1.2  # Maybe use rcParam later.
         self.set_linespacing(linespacing)
         self.set_rotation_mode(rotation_mode)
-        if antialiased is not None:
-            self.set_antialiased(antialiased)
+        self.set_antialiased(antialiased if antialiased is not None else
+                             mpl.rcParams['text.antialiased'])
 
     def update(self, kwargs):
         # docstring inherited
@@ -303,11 +302,15 @@ class Text(Artist):
         Parameters
         ----------
         m : {None, 'default', 'anchor'}
-            If ``None`` or ``"default"``, the text will be first rotated, then
-            aligned according to their horizontal and vertical alignments.  If
-            ``"anchor"``, then alignment occurs before rotation.
+            If ``"default"``, the text will be first rotated, then aligned according
+            to their horizontal and vertical alignments.  If ``"anchor"``, then
+            alignment occurs before rotation. Passing ``None`` will set the rotation
+            mode to ``"default"``.
         """
-        _api.check_in_list(["anchor", "default", None], rotation_mode=m)
+        if m is None:
+            m = "default"
+        else:
+            _api.check_in_list(("anchor", "default"), rotation_mode=m)
         self._rotation_mode = m
         self.stale = True
 

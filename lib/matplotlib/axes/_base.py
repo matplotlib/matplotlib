@@ -814,10 +814,10 @@ class _AxesBase(martist.Artist):
 
     def _init_axis(self):
         # This is moved out of __init__ because non-separable axes don't use it
-        self.xaxis = maxis.XAxis(self)
+        self.xaxis = maxis.XAxis(self, clear=False)
         self.spines.bottom.register_axis(self.xaxis)
         self.spines.top.register_axis(self.xaxis)
-        self.yaxis = maxis.YAxis(self)
+        self.yaxis = maxis.YAxis(self, clear=False)
         self.spines.left.register_axis(self.yaxis)
         self.spines.right.register_axis(self.yaxis)
 
@@ -1275,7 +1275,7 @@ class _AxesBase(martist.Artist):
         for axis in self._axis_map.values():
             axis.clear()  # Also resets the scale to linear.
         for spine in self.spines.values():
-            spine.clear()
+            spine._clear()  # Use _clear to not clear Axis again
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(
