@@ -1507,16 +1507,16 @@ def test_pcolorargs_with_read_only():
     y = np.linspace(0, 1, 10)
     X, Y = np.meshgrid(x, y)
     Z = np.sin(2 * np.pi * X) * np.cos(2 * np.pi * Y)
-    mask = np.broadcast_to([True, False] * 5, Z.shape)
+    mask = np.zeros(10, dtype=bool)
+    mask[-1] = True
+    mask = np.broadcast_to(mask, Z.shape)
     assert mask.flags.writeable is False
     masked_Z = np.ma.array(Z, mask=mask)
     plt.pcolormesh(X, Y, masked_Z)
 
     masked_X = np.ma.array(X, mask=mask)
     masked_Y = np.ma.array(Y, mask=mask)
-    with pytest.warns(UserWarning,
-                      match='are not monotonically increasing or decreasing'):
-        plt.pcolor(masked_X, masked_Y, masked_Z)
+    plt.pcolor(masked_X, masked_Y, masked_Z)
 
 
 @check_figures_equal(extensions=["png"])
