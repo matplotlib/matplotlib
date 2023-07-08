@@ -1155,6 +1155,13 @@ class TestLogFormatter:
         label_test = [fmt(x) != '' for x in minor_tlocs]
         assert label_test == label_expected
 
+    def _no_minor_labels(self, axis):
+        fmt = axis.get_minor_formatter()
+        minor_tlocs = axis.get_minorticklocs()
+        fmt.set_locs(minor_tlocs)
+        label_test = [fmt(x) == '' for x in minor_tlocs]
+        assert all(label_test)
+
     @mpl.style.context('default')
     def test_sublabel(self):
         # test label locator
@@ -1192,6 +1199,15 @@ class TestLogFormatter:
         # axis range at 0 to 0.4 decades, label all
         ax.set_xlim(0.5, 0.9)
         self._sub_labels(ax.xaxis, subs=np.arange(2, 10, dtype=int))
+
+        # minor_thresholds=(0, 0), no minor tick will be labeled
+        ax.xaxis.set_minor_formatter(
+            mticker.LogFormatter(
+                labelOnlyBase=False,
+                minor_thresholds=(0, 0)
+            )
+        )
+        self._no_minor_labels(ax.xaxis)
 
     @pytest.mark.parametrize('val', [1, 10, 100, 1000])
     def test_LogFormatter_call(self, val):

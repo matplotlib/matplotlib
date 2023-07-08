@@ -952,8 +952,8 @@ class LogFormatter(Formatter):
             numdec = abs(vmax - vmin)
 
         if numdec > self.minor_thresholds[0]:
-            # Label only bases
-            self._sublabels = {1}
+            # No minor ticks will be labeled
+            self._sublabels = {}
         elif numdec > self.minor_thresholds[1]:
             # Add labels between bases at log-spaced coefficients;
             # include base powers in case the locations include
@@ -987,9 +987,10 @@ class LogFormatter(Formatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self.labelOnlyBase and not is_x_decade:
-            return ''
-        if self._sublabels is not None and coeff not in self._sublabels:
+        if self.labelOnlyBase:
+            if not is_x_decade:
+                return ''
+        elif self._sublabels is not None and coeff not in self._sublabels:
             return ''
 
         vmin, vmax = self.axis.get_view_interval()
@@ -1073,9 +1074,10 @@ class LogFormatterMathtext(LogFormatter):
         if is_x_decade:
             fx = round(fx)
 
-        if self.labelOnlyBase and not is_x_decade:
-            return ''
-        if self._sublabels is not None and coeff not in self._sublabels:
+        if self.labelOnlyBase:
+            if not is_x_decade:
+                return ''
+        elif self._sublabels is not None and coeff not in self._sublabels:
             return ''
 
         # use string formatting of the base if it is not an integer
