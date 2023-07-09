@@ -60,15 +60,6 @@ Using Matplotlib
             :maxdepth: 2
             :includehidden:
 
-            axis/index
-
-    .. grid-item-card::
-        :padding: 2
-
-        .. toctree::
-            :maxdepth: 2
-            :includehidden:
-
             colors/index
 
     .. grid-item-card::
