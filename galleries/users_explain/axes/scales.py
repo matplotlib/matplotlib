@@ -1,4 +1,6 @@
 """
+.. _user_axes_scales:
+
 ===========
 Axis scales
 ===========
