@@ -2055,8 +2055,8 @@ class Axis(martist.Artist):
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
         **kwargs
-            `.Text` properties for the labels. These take effect only if you
-            pass *labels*. In other cases, please use `~.Axes.tick_params`.
+            `.Text` properties for the labels. Using these is only allowed if
+            you pass *labels*. In other cases, please use `~.Axes.tick_params`.
 
         Notes
         -----
@@ -2066,8 +2066,11 @@ class Axis(martist.Artist):
         ticks.
         """
         if labels is None and kwargs:
-            raise ValueError('labels argument cannot be None when '
-                             'kwargs are passed')
+            first_key = next(iter(kwargs))
+            raise ValueError(
+                f"Incorrect use of keyword argument {first_key!r}. Keyword arguments "
+                "other than 'minor' modify the text labels and can only be used if "
+                "'labels' are passed as well.")
         result = self._set_tick_locations(ticks, minor=minor)
         if labels is not None:
             self.set_ticklabels(labels, minor=minor, **kwargs)

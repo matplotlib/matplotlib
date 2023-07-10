@@ -5987,7 +5987,7 @@ def test_set_ticks_kwargs_raise_error_without_labels():
     """
     fig, ax = plt.subplots()
     ticks = [1, 2, 3]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Incorrect use of keyword argument 'alpha'"):
         ax.xaxis.set_ticks(ticks, alpha=0.5)
 
 
