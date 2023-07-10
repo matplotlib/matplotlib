@@ -36,6 +36,7 @@ annotations like x- and y-labels, titles, and legends.
     arranging_axes
     colorbar_placement
     Autoscaling axes <autoscale>
+    scales
     Legends <legend_guide>
     Subplot mosaic <mosaic>
     Constrained layout guide <constrainedlayout_guide>

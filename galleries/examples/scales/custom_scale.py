@@ -1,4 +1,6 @@
 """
+.. _custom_scale:
+
 ============
 Custom scale
 ============
