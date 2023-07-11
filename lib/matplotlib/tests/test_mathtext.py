@@ -134,7 +134,7 @@ lightweight_math_tests = [
     r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
     r'$1.$ $2.$ $19680801.$ $a.$ $b.$ $mpl.$',
     r'$\text{text}_{\text{sub}}^{\text{sup}} + \text{\$foo\$} + \frac{\text{num}}{\mathbf{\text{den}}}\text{with space, curly brackets \{\}, and dash -}$',
-
+    r'$\boldsymbol{abcde} \boldsymbol{+} \boldsymbol{\Gamma + \Omega} \boldsymbol{01234} \boldsymbol{\alpha * \beta}$',
 ]
 
 digits = "0123456789"
@@ -538,3 +538,9 @@ def test_mathtext_operators():
         fig.text(0.5, (x + 0.5)/len(test_str), r'${%s}$' % i)
 
     fig.draw_without_rendering()
+
+
+@check_figures_equal(extensions=["png"])
+def test_boldsymbol(fig_test, fig_ref):
+    fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")
