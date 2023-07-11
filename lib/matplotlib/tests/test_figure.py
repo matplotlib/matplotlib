@@ -1013,14 +1013,16 @@ class TestSubfigureMosaic:
 
         gs = fig_ref.add_gridspec(1, 2)
         gs_left = gs[0, 0].subgridspec(2, 2)
+        subfig_left = fig_ref.add_subfigure(gs[0, 0])
         for j, r in enumerate(x):
             for k, label in enumerate(r):
-                fig_ref.add_subfigure(gs_left[j, k]).text(0.5, 0.5, label)
+                subfig_left.add_subfigure(gs_left[j, k]).text(0.5, 0.5, label)
 
         gs_right = gs[0, 1].subgridspec(2, 2)
+        subfig_right = fig_ref.add_subfigure(gs[0, 1])
         for j, r in enumerate(y):
             for k, label in enumerate(r):
-                fig_ref.add_subfigure(gs_right[j, k]).text(0.5, 0.5, label)
+                subfig_right.add_subfigure(gs_right[j, k]).text(0.5, 0.5, label)
 
     @check_figures_equal(extensions=["png"])
     def test_nested(self, fig_test, fig_ref):
@@ -1033,24 +1035,23 @@ class TestSubfigureMosaic:
         y = [["F"], [x]]
 
         grid_axes = fig_test.subfigure_mosaic(y)
-
         for k, ax in grid_axes.items():
             ax.text(0.5, 0.5, k)
 
         gs = fig_ref.add_gridspec(2, 1)
-
+        subfig_bottom = fig_ref.add_subfigure(gs[1, 0])
         gs_n = gs[1, 0].subgridspec(2, 2)
 
-        axA = fig_ref.add_subfigure(gs_n[0, 0])
+        axA = subfig_bottom.add_subfigure(gs_n[0, 0])
         axA.text(0.5, 0.5, "A")
 
-        axB = fig_ref.add_subfigure(gs_n[0, 1])
+        axB = subfig_bottom.add_subfigure(gs_n[0, 1])
         axB.text(0.5, 0.5, "B")
 
-        axC = fig_ref.add_subfigure(gs_n[1, 0])
+        axC = subfig_bottom.add_subfigure(gs_n[1, 0])
         axC.text(0.5, 0.5, "C")
 
-        axD = fig_ref.add_subfigure(gs_n[1, 1])
+        axD = subfig_bottom.add_subfigure(gs_n[1, 1])
         axD.text(0.5, 0.5, "D")
 
         axF = fig_ref.add_subfigure(gs[0, 0])
@@ -1063,6 +1064,30 @@ class TestSubfigureMosaic:
 
         fig_ref.subfigure_mosaic([["F"], [x]])
         fig_test.subfigure_mosaic([["F"], [xt]])
+
+    def test_nested_width_ratios(self):
+        x = [["A", [["B"],
+                    ["C"]]]]
+        width_ratios = [2, 1]
+
+        fig, axd = plt.subfigure_mosaic(x, width_ratios=width_ratios)
+
+        outer = list(axd.values())[0]._subplotspec.get_gridspec().get_width_ratios()
+        inner = list(axd.values())[1]._subplotspec.get_gridspec().get_width_ratios()
+        assert outer == width_ratios
+        assert inner != width_ratios
+
+    def test_nested_height_ratios(self):
+        x = [["A", [["B"],
+                    ["C"]]], ["D", "D"]]
+        height_ratios = [1, 2]
+
+        fig, axd = plt.subfigure_mosaic(x, height_ratios=height_ratios)
+
+        outer = list(axd.values())[0]._subplotspec.get_gridspec().get_height_ratios()
+        inner = list(axd.values())[1]._subplotspec.get_gridspec().get_height_ratios()
+        assert outer == height_ratios
+        assert inner != height_ratios
 
     @check_figures_equal(extensions=["png"])
     @pytest.mark.parametrize(
@@ -1202,8 +1227,17 @@ class TestSubfigureMosaic:
                           ["."]]]]]
         ]
         fig, ax_dict = plt.subfigure_mosaic(layout)
+        # getting all of the subfigures of subfigures
+        def _get_subs_nested(fig, child_list=[]):
+            for subfig in fig.subfigs:
+                if len(subfig.subfigs):
+                    _get_subs_nested(subfig, child_list=child_list)
+                else:
+                    child_list.append(subfig)
+            return child_list
+        child_list = _get_subs_nested(fig)
         assert list(ax_dict) == list("ABCDEFGHI")
-        assert list(fig.subfigs) == list(ax_dict.values())
+        assert set(child_list) == set(ax_dict.values())
 
 
 class TestSubplotMosaic:

@@ -1792,7 +1792,7 @@ def subfigure_mosaic(
 
     This is a helper function to build complex GridSpec layouts visually.
 
-    See :doc:`/gallery/subplots_axes_and_figures/two_scales`
+    See :doc:`/gallery/subplots_axes_and_figures/subfig_mosaic`
     for an example and full API documentation
 
     Parameters
@@ -1884,7 +1884,7 @@ def subfigure_mosaic(
     Returns
     -------
     fig : `.Figure`
-       The new figure
+       The new figure.
 
     dict[label, SubFigure]
        A dictionary mapping the labels to the SubFigure objects.  The order of

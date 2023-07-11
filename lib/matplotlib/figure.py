@@ -49,7 +49,7 @@ import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes
-from matplotlib.gridspec import GridSpec, SubplotParams
+from matplotlib.gridspec import GridSpec, SubplotSpec, SubplotParams
 from matplotlib.layout_engine import (
     ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
     PlaceHolderLayoutEngine
@@ -2011,6 +2011,17 @@ default: %(va)s
                     out[j, k] = v
             return out
 
+        def _get_subfigs_from_nested(nested, parent, gridspec):
+            subfigs_dict = {}
+            for item in nested.keys():
+                # Getting the correct cell number for SubplotSpec
+                cell = item[0]*gridspec.ncols + item[1]
+                subplotspec = SubplotSpec(gridspec, cell)
+                # Adding an 'intermediate' SubFigure
+                # where the nested ones will be placed.
+                subfigs_dict[item] = parent.add_subfigure(subplotspec)
+            return subfigs_dict
+
         def _identify_keys_and_nested(mosaic):
             """
             Given a 2D object array, identify unique IDs and nested mosaics
@@ -2039,7 +2050,7 @@ default: %(va)s
 
             return tuple(unique_ids), nested
 
-        def _do_layout(gs, mosaic, unique_ids, nested):
+        def _do_layout(gs, mosaic, unique_ids, nested, sub_add_func, parent_fig=None):
             """
             Recursively do the mosaic.
 
@@ -2052,6 +2063,11 @@ default: %(va)s
                 The identified scalar labels at this level of nesting.
             nested : dict[tuple[int, int]], 2D object array
                 The identified nested mosaics, if any.
+            sub_add_func : `.Figure.add_subplot` for `.Figure.subplot_mosaic` and
+                        `.Figure.add_subfigure` for `.Figure.subfigure_mosaic`
+                The function that gets called for the mosaic creation.
+            parent_fig : None or 'figure.SubFigure'
+                The parent figure for nested layouts with `.Figure.subfigure_mosaic`.
 
             Returns
             -------
@@ -2068,6 +2084,14 @@ default: %(va)s
             # This will stash the upper left index of each object (axes or
             # nested mosaic) at this level
             this_level = dict()
+
+            # When dealing with .add_subfigure - need to create
+            # separate SubFigures for nested layouts,
+            # otherwise they will all create without nesting.
+            subfigs_for_nested = {}
+            if sub_add_func.__name__ == 'add_subfigure':
+                parent = parent_fig or self.figure
+                subfigs_for_nested = _get_subfigs_from_nested(nested, parent, gs)
 
             # go through the unique keys,
             for name in unique_ids:
@@ -2090,7 +2114,6 @@ default: %(va)s
             # cannot be spans yet!)
             for (j, k), nested_mosaic in nested.items():
                 this_level[(j, k)] = (None, nested_mosaic, 'nested')
-
             # now go through the things in this level and add them
             # in order left-to-right top-to-bottom
             for key in sorted(this_level):
@@ -2104,13 +2127,24 @@ default: %(va)s
                     if name in output:
                         raise ValueError(f"There are duplicate keys {name} "
                                          f"in the layout\n{mosaic!r}")
-                    ax = self.add_subplot(
-                        gs[slc], **{
-                            'label': str(name),
-                            **subplot_kw,
-                            **per_subplot_kw.get(name, {})
-                        }
-                    )
+                    if parent_fig:
+                        # for nested subfigs
+                        ax = parent_fig.add_subfigure(
+                            gs[slc], **{
+                                'label': str(name),
+                                **subthing_kw,
+                                **per_subthing_kw.get(name, {})
+                            }
+                        )
+                    else:
+                        ax = sub_add_func(
+                            gs[slc], **{
+                                'label': str(name),
+                                **subthing_kw,
+                                **per_subthing_kw.get(name, {})
+                                }
+                        )
+
                     output[name] = ax
                 elif method == 'nested':
                     nested_mosaic = arg
@@ -2120,7 +2154,9 @@ default: %(va)s
                     nested_output = _do_layout(
                         gs[j, k].subgridspec(rows, cols),
                         nested_mosaic,
-                        *_identify_keys_and_nested(nested_mosaic)
+                        *_identify_keys_and_nested(nested_mosaic),
+                        sub_add_func,
+                        parent_fig=(subfigs_for_nested.get(key) or None)
                     )
                     overlap = set(output) & set(nested_output)
                     if overlap:
@@ -2160,7 +2196,7 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        See :ref:`mosaic`
+        See :doc:`/gallery/subplots_axes_and_figures/subfig_mosaic`
         for an example and full API documentation
 
         Parameters
@@ -2236,8 +2272,6 @@ default: %(va)s
             Dictionary with keywords passed to the `.GridSpec` constructor used
             to create the grid the subfigures are placed on. In the case of
             nested layouts, this argument applies only to the outer layout.
-            For more complex layouts, users should use `.Figure.subfigures`
-            to create the nesting.
 
         empty_sentinel : object, optional
             Entry in the layout to mean "leave this space empty".  Defaults
