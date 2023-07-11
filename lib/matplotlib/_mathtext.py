@@ -27,8 +27,8 @@ from ._mathtext_data import (
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import FT2Image, KERNING_DEFAULT
 
-from pyparsing import __version_info__ as pyparsing_version
-if pyparsing_version < (3, 0):
+from pyparsing import __version__ as pyparsing_version
+if pyparsing_version < '3.0.0':
     from pyparsing import nestedExpr as nested_expr
 else:
     from pyparsing import nested_expr
