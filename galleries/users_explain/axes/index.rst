@@ -45,5 +45,10 @@ annotations like x- and y-labels, titles, and legends.
     ticks
     Legends <legend_guide>
     Subplot mosaic <mosaic>
+
+.. toctree::
+    :maxdepth: 1
+    :includehidden:
+
     Constrained layout guide <constrainedlayout_guide>
     Tight layout guide (mildly discouraged) <tight_layout_guide>
