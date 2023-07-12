@@ -231,7 +231,7 @@ axs2[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
 # ===============================
 #
 # The appearance of ticks can be controlled at a low level by finding the
-# individual `~.ticker.Ticks` on the axis.  However, usually it is simplest to
+# individual `~.axis.Tick` on the axis.  However, usually it is simplest to
 # use `~.axes.Axes.tick_params` to change all the objects at once.
 #
 # The ``tick_params`` method can change the properties of ticks:

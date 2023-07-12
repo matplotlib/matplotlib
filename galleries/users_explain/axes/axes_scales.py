@@ -89,7 +89,7 @@ ax.set_title('loglog(x, y)')
 # =====================
 #
 # There are other scales that can be used.  The list of registered
-# scales can be returned from `.scales.get_scale_names`:
+# scales can be returned from `.scale.get_scale_names`:
 
 print(mscale.get_scale_names())
 
@@ -122,7 +122,7 @@ for td in todo:
 #
 # Some of the default scales have optional arguments.  These are
 # documented in the API reference for the respective scales at
-# `~.matplotlib.scales`.  One can change the base of the logarithm
+# `~.matplotlib.scale`.  One can change the base of the logarithm
 # being plotted (eg 2 below) or the linear threshold range
 # for ``'symlog'``.
 
@@ -183,9 +183,9 @@ ax.yaxis.set_major_locator(FixedLocator(np.arange(0, 90, 10)))
 # ==================
 #
 # A scale is an object that gets attached to an axis.  The class documentation
-# is at `~.scale`. `~.axes.Axes.set_xscale` and `~.axes.Axes.set_yscale` are
-# helper methods for `~.axis.Axis.set_scale`.  You can also determine the scale
-# on an axis with:
+# is at `~matplotlib.scale`. `~.axes.Axes.set_xscale` and `~.axes.Axes.set_yscale`
+# set the scale on the respective Axis objects.  You can determine the scale
+# on an axis with `~.axis.Axis.get_scale`:
 
 fig, ax = plt.subplots(layout='constrained',
                               figsize=(3.2, 3))
@@ -198,7 +198,7 @@ print(ax.yaxis.get_scale())
 #
 # Setting a scale does three things.  First it defines a transform on the axis
 # that maps between data values to position along the axis.  This transform can
-# be accessed via `~.axis.Axis.get_transform`.
+# be accessed via ``get_transform``:
 
 print(ax.yaxis.get_transform())
 
