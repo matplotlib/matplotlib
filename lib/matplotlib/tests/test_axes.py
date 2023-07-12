@@ -6129,6 +6129,14 @@ def test_margins():
                               ymax + (ymax - ymin) * 0.5)
 
 
+def test_margin_getters():
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.margins(0.2)
+    assert ax.get_xmargin() == 0.2
+    assert ax.get_ymargin() == 0.2
+
+
 def test_set_margin_updates_limits():
     mpl.style.use("default")
     fig, ax = plt.subplots()

@@ -2609,6 +2609,26 @@ class _AxesBase(martist.Artist):
         self._use_sticky_edges = bool(b)
         # No effect until next autoscaling, which will mark the Axes as stale.
 
+    def get_xmargin(self):
+        """
+        Retrieve autoscaling margin of the x-axis.
+
+        Returns
+        -------
+        xmargin : float
+        """
+        return self._xmargin
+
+    def get_ymargin(self):
+        """
+        Retrieve autoscaling margin of the y-axis.
+
+        Returns
+        -------
+        ymargin : float
+        """
+        return self._ymargin
+
     def set_xmargin(self, m):
         """
         Set padding of X data limits prior to autoscaling.
