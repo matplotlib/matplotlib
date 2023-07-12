@@ -691,7 +691,8 @@ def test_rgb_axes():
 def test_insetposition():
     fig, ax = plt.subplots(figsize=(2, 2))
     ax_ins = plt.axes([0, 0, 1, 1])
-    ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
     ax_ins.set_axes_locator(ip)
 
 

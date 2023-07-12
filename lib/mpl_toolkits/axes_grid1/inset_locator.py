@@ -13,6 +13,7 @@ from . import axes_size as Size
 from .parasite_axes import HostAxes
 
 
+@_api.deprecated("3.8", alternative="Axes.inset_axes")
 class InsetPosition:
     @_docstring.dedent_interpd
     def __init__(self, parent, lbwh):
