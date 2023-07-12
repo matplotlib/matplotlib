@@ -370,7 +370,10 @@ class ContourLabeler:
         # path always starts with a MOVETO, and we consider there's an implicit
         # MOVETO (closing the last path) at the end.
         movetos = (codes == Path.MOVETO).nonzero()[0]
-        start = movetos[movetos < idx][-1]
+        try:
+            start = movetos[movetos < idx][-1]
+        except IndexError:
+            start = idx
         try:
             stop = movetos[movetos > idx][0]
         except IndexError:
