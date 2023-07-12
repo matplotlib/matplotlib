@@ -322,7 +322,7 @@ class ContourLabeler:
         Parameters
         ----------
         path : Path
-            The path where the label will be inserted, in data space.
+            The path where the label will be inserted, in screen space.
         idx : int
             The vertex index after which the label will be inserted.
         screen_pos : (float, float)
@@ -352,7 +352,7 @@ class ContourLabeler:
         if hasattr(self, "_old_style_split_collections"):
             del self._old_style_split_collections  # Invalidate them.
 
-        xys = path.vertices
+        xys = self.get_transform().inverted().transform(path.vertices)
         codes = path.codes
 
         # Insert a vertex at idx/pos (converting back to data space), if there isn't yet
@@ -582,7 +582,8 @@ class ContourLabeler:
 
         idx_level_min, idx_vtx_min, proj = self._find_nearest_contour(
             (x, y), self.labelIndiceList)
-        path = self._paths[idx_level_min]
+        path = self.get_transform().transform_path(self._paths[idx_level_min])
+
         level = self.labelIndiceList.index(idx_level_min)
         label_width = self._get_nth_label_width(level)
         rotation, path = self._split_path_and_get_label_rotation(
@@ -614,8 +615,9 @@ class ContourLabeler:
             trans = self.get_transform()
             label_width = self._get_nth_label_width(idx)
             additions = []
-            for subpath in self._paths[icon]._iter_connected_components():
-                screen_xys = trans.transform(subpath.vertices)
+            for subpath in trans.transform_path(
+                    self._paths[icon])._iter_connected_components():
+                screen_xys = subpath.vertices
                 # Check if long enough for a label
                 if self.print_label(screen_xys, label_width):
                     x, y, idx = self.locate_label(screen_xys, label_width)
@@ -626,7 +628,7 @@ class ContourLabeler:
                     if inline:  # If inline, add new contours
                         additions.append(path)
                 else:  # If not adding label, keep old path
-                    additions.append(subpath)
+                    additions.append(trans.inverted().transform_path(subpath))
             # After looping over all segments on a contour, replace old path by new one
             # if inlining.
             if inline:
