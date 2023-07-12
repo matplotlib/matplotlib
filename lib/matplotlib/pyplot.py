@@ -1874,8 +1874,6 @@ def subfigure_mosaic(
         Dictionary with keywords passed to the `.GridSpec` constructor used
         to create the grid the subfigures are placed on. In the case of
         nested layouts, this argument applies only to the outer layout.
-        For more complex layouts, users should use `.Figure.subfigures`
-        to create the nesting.
 
     **fig_kw
         All additional keyword arguments are passed to the
