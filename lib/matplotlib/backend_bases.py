@@ -170,7 +170,6 @@ class RendererBase:
     * `draw_path_collection`
     * `draw_quad_mesh`
     """
-
     def __init__(self):
         super().__init__()
         self._texmanager = None
@@ -2147,9 +2146,10 @@ class FigureCanvasBase:
                     functools.partial(
                         print_method, orientation=orientation)
                 )
+                # we do this instead of `self.figure.draw_without_rendering`
+                # so that we can inject the orientation
                 with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
-
             if bbox_inches:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(

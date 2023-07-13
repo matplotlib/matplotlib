@@ -35,6 +35,7 @@ import inspect
 import itertools
 import logging
 from numbers import Integral
+import threading
 
 import numpy as np
 
@@ -2365,6 +2366,18 @@ class Figure(FigureBase):
         *suppressComposite* is a boolean, this will override the renderer.
     """
 
+    # we want to cache the fonts and mathtext at a global level so that when
+    # multiple figures are created we can reuse them.  This helps with a bug on
+    # windows where the creation of too many figures leads to too many open
+    # file handles and improves the performance of parsing mathtext.  However,
+    # these global caches are not thread safe.  The solution here is to let the
+    # Figure acquire a shared lock at the start of the draw, and release it when it
+    # is done.  This allows multiple renderers to share the cached fonts and
+    # parsed text, but only one figure can draw at a time and so the font cache
+    # and mathtext cache are used by only one renderer at a time.
+
+    _render_lock = threading.RLock()
+
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
 
@@ -3124,33 +3137,33 @@ None}, default: None
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited
-
-        # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
 
-        artists = self._get_draw_artists(renderer)
-        try:
-            renderer.open_group('figure', gid=self.get_gid())
-            if self.axes and self.get_layout_engine() is not None:
-                try:
-                    self.get_layout_engine().execute(self)
-                except ValueError:
-                    pass
-                    # ValueError can occur when resizing a window.
+        with self._render_lock:
 
-            self.patch.draw(renderer)
-            mimage._draw_list_compositing_images(
-                renderer, self, artists, self.suppressComposite)
+            artists = self._get_draw_artists(renderer)
+            try:
+                renderer.open_group('figure', gid=self.get_gid())
+                if self.axes and self.get_layout_engine() is not None:
+                    try:
+                        self.get_layout_engine().execute(self)
+                    except ValueError:
+                        pass
+                        # ValueError can occur when resizing a window.
 
-            for sfig in self.subfigs:
-                sfig.draw(renderer)
+                self.patch.draw(renderer)
+                mimage._draw_list_compositing_images(
+                    renderer, self, artists, self.suppressComposite)
 
-            renderer.close_group('figure')
-        finally:
-            self.stale = False
+                for sfig in self.subfigs:
+                    sfig.draw(renderer)
 
-        DrawEvent("draw_event", self.canvas, renderer)._process()
+                renderer.close_group('figure')
+            finally:
+                self.stale = False
+
+            DrawEvent("draw_event", self.canvas, renderer)._process()
 
     def draw_without_rendering(self):
         """
