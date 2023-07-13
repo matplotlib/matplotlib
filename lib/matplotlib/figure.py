@@ -3536,14 +3536,14 @@ None}, default: None
         # note that here we do not permanently set the figures engine to
         # tight_layout but rather just perform the layout in place and remove
         # any previous engines.
-        engine = TightLayoutEngine(pad=pad, h_pad=h_pad, w_pad=w_pad,
-                                   rect=rect)
+        engine = TightLayoutEngine(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         try:
             previous_engine = self.get_layout_engine()
             self.set_layout_engine(engine)
             engine.execute(self)
-            if not isinstance(previous_engine, TightLayoutEngine) \
-                    and previous_engine is not None:
+            if previous_engine is not None and not isinstance(
+                previous_engine, (TightLayoutEngine, PlaceHolderLayoutEngine)
+            ):
                 _api.warn_external('The figure layout has changed to tight')
         finally:
             self.set_layout_engine('none')
