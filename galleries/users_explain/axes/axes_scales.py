@@ -5,8 +5,10 @@
 Axis scales
 ===========
 
-By default Matplotlib displays data on axis objects that have linear scales.
-This behavior can be changed, usually directly by using the
+By default Matplotlib displays data on the axis using a linear scale.
+Matplotlib also supports `logarithmic scales
+<https://en.wikipedia.org/wiki/Logarithmic_scale>`_, and other less common
+scales as well. Usually this can be done directly by using the
 `~.axes.Axes.set_xscale` or `~.axes.Axes.set_yscale` methods.
 
 """
