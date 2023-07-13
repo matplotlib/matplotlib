@@ -110,7 +110,7 @@ class TransformNode:
     invalidated, even if 'self' is already invalid.
     """
 
-    def __init__(self, shorthand_name=None):
+    def __init__(self, shorthand_name=''):
         """
         Parameters
         ----------
@@ -122,7 +122,7 @@ class TransformNode:
         self._parents = {}
         # Initially invalid, until first computation.
         self._invalid = self._INVALID_FULL
-        self._shorthand_name = shorthand_name or ''
+        self._shorthand_name = shorthand_name
 
     if DEBUG:
         def __str__(self):
@@ -671,6 +671,8 @@ class BboxBase(TransformNode):
         y1 = np.minimum(bbox1.ymax, bbox2.ymax)
         return Bbox([[x0, y0], [x1, y1]]) if x0 <= x1 and y0 <= y1 else None
 
+_default_minpos = np.array([np.inf, np.inf])
+
 
 class Bbox(BboxBase):
     """
@@ -766,7 +768,7 @@ class Bbox(BboxBase):
             raise ValueError('Bbox points must be of the form '
                              '"[[x0, y0], [x1, y1]]".')
         self._points = points
-        self._minpos = np.array([np.inf, np.inf])
+        self._minpos = _default_minpos.copy()
         self._ignore = True
         # it is helpful in some contexts to know if the bbox is a
         # default or has been mutated; we store the orig points to
