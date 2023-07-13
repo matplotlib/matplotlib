@@ -1620,7 +1620,6 @@ def safe_first_element(obj):
     """
     return _safe_first_finite(obj, skip_nonfinite=False)
 
-_NoValue = object()
 
 def _safe_first_finite(obj, *, skip_nonfinite=True):
     """
@@ -1664,11 +1663,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        value = next((val for val in obj if safe_isfinite(val)), _NoValue)
-        if value is _NoValue:
-            return safe_first_element(obj)
-        else:
-            return value
+        for val in obj:
+            if safe_isfinite(val):
+                return val
+        return safe_first_element(obj)
 
 
 def sanitize_sequence(data):
