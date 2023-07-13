@@ -641,6 +641,14 @@ def test_layout_change_warning(layout):
         plt.tight_layout()
 
 
+def test_repeated_tightlayout():
+    fig = Figure()
+    fig.tight_layout()
+    # subsequent calls should not warn
+    fig.tight_layout()
+    fig.tight_layout()
+
+
 @check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
     fig_test.dpi = 100
