@@ -5715,6 +5715,18 @@ default: :rc:`scatter.edgecolors`
         `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
         (unassociated) alpha representation.
         """
+        if not isinstance(vmax, (int, float)):
+            try:
+                vmax = vmax.to_tuple()[0]
+            except AttributeError:
+                raise AttributeError("vmax must be a scalar or a 1-element array")
+
+        if not isinstance(vmin, (int, float)):
+            try:
+                vmin = vmin.to_tuple()[0]
+            except AttributeError:
+                raise AttributeError("vmin must be a scalar or a 1-element array")
+
         if aspect is None:
             aspect = mpl.rcParams['image.aspect']
         self.set_aspect(aspect)
