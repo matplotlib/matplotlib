@@ -891,7 +891,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     def set_history_buttons(self):
         state_map = {True: tk.NORMAL, False: tk.DISABLED}
         can_back = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
 
         if "Back" in self._buttons:
             self._buttons['Back']['state'] = state_map[can_back]

@@ -479,8 +479,8 @@ class ToolViewsPositions(ToolBase):
         """Add the current figure to the stack of views and positions."""
 
         if figure not in self.views:
-            self.views[figure] = cbook.Stack()
-            self.positions[figure] = cbook.Stack()
+            self.views[figure] = cbook._Stack()
+            self.positions[figure] = cbook._Stack()
             self.home_views[figure] = WeakKeyDictionary()
             # Define Home
             self.push_current(figure)

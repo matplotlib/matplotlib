@@ -562,6 +562,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@_api.deprecated("3.8")
 class Stack:
     """
     Stack of elements with a movable cursor.
@@ -666,6 +667,61 @@ class Stack:
         for elem in old_elements:
             if elem != o:
                 self.push(elem)
+
+
+class _Stack:
+    """
+    Stack of elements with a movable cursor.
+
+    Mimics home/back/forward in a web browser.
+    """
+
+    def __init__(self):
+        self._pos = -1
+        self._elements = []
+
+    def clear(self):
+        """Empty the stack."""
+        self._pos = -1
+        self._elements = []
+
+    def __call__(self):
+        """Return the current element, or None."""
+        return self._elements[self._pos] if self._elements else None
+
+    def __len__(self):
+        return len(self._elements)
+
+    def __getitem__(self, ind):
+        return self._elements[ind]
+
+    def forward(self):
+        """Move the position forward and return the current element."""
+        self._pos = min(self._pos + 1, len(self._elements) - 1)
+        return self()
+
+    def back(self):
+        """Move the position back and return the current element."""
+        self._pos = max(self._pos - 1, 0)
+        return self()
+
+    def push(self, o):
+        """
+        Push *o* to the stack after the current position, and return *o*.
+
+        Discard all later elements.
+        """
+        self._elements[self._pos + 1:] = [o]
+        self._pos = len(self._elements) - 1
+        return o
+
+    def home(self):
+        """
+        Push the first element onto the top of the stack.
+
+        The first element is returned.
+        """
+        return self.push(self._elements[0]) if self._elements else None
 
 
 def safe_masked_invalid(x, copy=False):
