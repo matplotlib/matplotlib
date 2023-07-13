@@ -286,7 +286,7 @@ class CallbackRegistry:
         """
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=s)
-        for ref in self.callbacks.get(s, {}).values():
+        for ref in list(self.callbacks.get(s, {}).values()):
             func = ref()
             if func is not None:
                 try:
