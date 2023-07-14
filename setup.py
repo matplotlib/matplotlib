@@ -6,6 +6,16 @@ mplsetup.cfg.template for more information.
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
 # to ensure that we error out properly for people with outdated setuptools
 # and/or pip.
+from setupext import print_raw, print_status
+import setupext
+import setuptools.command.sdist
+import setuptools.command.build_py
+import setuptools.command.build_ext
+from setuptools import setup, find_namespace_packages, Distribution, Extension
+import subprocess
+import shutil
+from pathlib import Path
+import os
 import sys
 
 py_min_version = (3, 9)  # minimal supported python version
@@ -24,21 +34,9 @@ Make sure you have pip >= 9.0.1.
            '.'.join(str(n) for n in sys.version_info[:3]))
     sys.exit(error)
 
-import os
-from pathlib import Path
-import shutil
-import subprocess
-
-from setuptools import setup, find_namespace_packages, Distribution, Extension
-import setuptools.command.build_ext
-import setuptools.command.build_py
-import setuptools.command.sdist
 
 # sys.path modified to find setupext.py during pyproject.toml builds.
 sys.path.append(str(Path(__file__).resolve().parent))
-
-import setupext
-from setupext import print_raw, print_status
 
 
 # These are the packages in the order we want to display them.
@@ -50,7 +48,7 @@ mpl_packages = [
     setupext.Qhull(),
     setupext.Tests(),
     setupext.BackendMacOSX(),
-    ]
+]
 
 
 # From https://bugs.python.org/issue26689
@@ -236,6 +234,7 @@ class Sdist(setuptools.command.sdist.sdist):
         update_matplotlibrc(
             Path(base_dir, "lib/matplotlib/mpl-data/matplotlibrc"))
 
+
 # Start with type hint data
 # Will be further filled below by the various components.
 package_data = {"matplotlib": ["py.typed", "**/*.pyi"]}
@@ -311,7 +310,8 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
     package_dir={"": "lib"},
     packages=find_namespace_packages(
         where="lib",
-        exclude=["*baseline_images*", "*tinypages*", "*mpl-data*", "*web_backend*"],
+        exclude=["*baseline_images*", "*tinypages*",
+                 "*mpl-data*", "*web_backend*"],
     ),
     py_modules=["pylab"],
     # Dummy extension to trigger build_ext, which will swap it out with
