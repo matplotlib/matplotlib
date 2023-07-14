@@ -110,7 +110,7 @@ class TransformNode:
     invalidated, even if 'self' is already invalid.
     """
 
-    def __init__(self, shorthand_name=''):
+    def __init__(self, shorthand_name=None):
         """
         Parameters
         ----------
@@ -122,7 +122,7 @@ class TransformNode:
         self._parents = {}
         # Initially invalid, until first computation.
         self._invalid = self._INVALID_FULL
-        self._shorthand_name = shorthand_name
+        self._shorthand_name = shorthand_name or ''
 
     if DEBUG:
         def __str__(self):
