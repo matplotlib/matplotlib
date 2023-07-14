@@ -1,0 +1,4 @@
+Colorbars of single-value norms now map that value to the lowest color, not the midpoint color
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This behavior is consistent with e.g. how `~.Axes.imshow` handle inputs with
+``vmin == vmax``.
