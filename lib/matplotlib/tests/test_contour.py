@@ -9,6 +9,7 @@ from numpy.testing import (
 import matplotlib as mpl
 from matplotlib import pyplot as plt, rc_context, ticker
 from matplotlib.colors import LogNorm, same_color
+import matplotlib.patches as mpatches
 from matplotlib.testing.decorators import image_comparison
 import pytest
 
@@ -750,6 +751,14 @@ def test_contour_no_args():
     data = [[0, 1], [1, 0]]
     with pytest.raises(TypeError, match=r"contour\(\) takes from 1 to 4"):
         ax.contour(Z=data)
+
+
+def test_contour_clip_path():
+    fig, ax = plt.subplots()
+    data = [[0, 1], [1, 0]]
+    circle = mpatches.Circle([0.5, 0.5], 0.5, transform=ax.transAxes)
+    cs = ax.contour(data, clip_path=circle)
+    assert cs.get_clip_path() is not None
 
 
 def test_bool_autolevel():

@@ -751,7 +751,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                  hatches=(None,), alpha=None, origin=None, extent=None,
                  cmap=None, colors=None, norm=None, vmin=None, vmax=None,
                  extend='neither', antialiased=None, nchunk=0, locator=None,
-                 transform=None, negative_linestyles=None,
+                 transform=None, negative_linestyles=None, clip_path=None,
                  **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -805,6 +805,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         super().__init__(
             antialiaseds=antialiased,
             alpha=alpha,
+            clip_path=clip_path,
             transform=transform,
         )
         self.axes = ax
@@ -1869,6 +1870,11 @@ algorithm : {'mpl2005', 'mpl2014', 'serial', 'threaded'}, optional
     further information.
 
     The default is taken from :rc:`contour.algorithm`.
+
+clip_path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath`
+    Set the clip path.  See `~matplotlib.artist.Artist.set_clip_path`.
+
+    .. versionadded:: 3.8
 
 data : indexable object, optional
     DATA_PARAMETER_PLACEHOLDER
