@@ -1808,8 +1808,12 @@ class Parser:
     _ambi_delims = set(r"""
       | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
       \Downarrow \Updownarrow . \vert \Vert""".split())
-    _left_delims = set(r"( [ \{ < \lfloor \langle \lceil".split())
-    _right_delims = set(r") ] \} > \rfloor \rangle \rceil".split())
+    _left_delims = set(r"""
+      ( [ \{ < \lfloor \langle \lceil \lbrace \leftbrace \lbrack \leftparen \lgroup
+      """.split())
+    _right_delims = set(r"""
+      ) ] \} > \rfloor \rangle \rceil \rbrace \rightbrace \rbrack \rightparen \rgroup
+      """.split())
     _delims = _left_delims | _right_delims | _ambi_delims
 
     _small_greek = set([unicodedata.name(chr(i)).split()[-1].lower() for i in
