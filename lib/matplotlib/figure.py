@@ -2081,7 +2081,6 @@ default: %(va)s
                         gs[slc], **{
                             'label': str(name),
                             **subplot_kw,
-                            # **{**subplot_kw, "sharex": "row"},
                             **per_subplot_kw.get(name, {})
                         }
                     )
@@ -2108,42 +2107,66 @@ default: %(va)s
                     raise RuntimeError("This should never happen")
             return output
 
+        def _find_row_col_groups(unique_ids):
+            row_group = {}
+            col_group = {}
+            for name in unique_ids:
+                indx = np.argwhere(mosaic == name)
+                start_row, start_col = np.min(indx, axis=0)
+                end_row, end_col = np.max(indx, axis=0) + 1
+                # sort out where each axes starts/ends
+                # and construct the slice object
+
+                if (start_col, end_col) not in col_group:
+                    col_group[(start_col, end_col)] = [name]
+                else:
+                    col_group[(start_col, end_col)].append(name)
+
+                if (start_row, end_row) not in row_group:
+                    row_group[(start_row, end_row)] = [name]
+                else:
+                    row_group[(start_row, end_row)].append(name)
+
+            return row_group, col_group
+
+
         mosaic = _make_array(mosaic)
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
         ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
-        if sharex:
-            if sharex == "row":
-                for row in range(mosaic.shape[0]):
-                    for col in range(mosaic.shape[1]):
-                        if col == 0:
-                            continue
-                        ax0 = ret[mosaic[row][0]]
-                        ax = ret[mosaic[row][col]]
-                        ax.sharex(ax0)
-            elif sharex == "col":
-                for col in range(mosaic.shape[1]):
-                    for row in range(mosaic.shape[0]):
-                        if row == 0:
-                            continue
-                        ax0 = ret[mosaic[0][col]]
-                        ax = ret[mosaic[row][col]]
-                        ax.sharex(ax0)
-                        ax._label_outer_xaxis(check_patch=True)
-                        ax0._label_outer_xaxis(check_patch=True)
-            elif sharex is True:
-                ax0 = next(iter(ret.values()))
-                for ax in ret.values():
-                    if sharex:
-                        ax.sharex(ax0)
-                        ax._label_outer_xaxis(check_patch=True)
-                        ax0._label_outer_xaxis(check_patch=True)
-        if sharey:
-            ax0 = next(iter(ret.values()))
-            for ax in ret.values():
-                if sharey:
-                    ax.sharey(ax0)
-                    ax._label_outer_yaxis(check_patch=True)
+        row_groups, col_groups = _find_row_col_groups(_identify_keys_and_nested(mosaic)[0])
+        if sharex == "row":
+            for row_group in row_groups.values():
+                for name in row_group[1:]:
+                    ret[name].sharex(ret[row_group[0]])
+                #     ret[name]._label_outer_xaxis(check_patch=True)
+
+                # ret[row_group[0]]._label_outer_xaxis(check_patch=True)
+
+        if sharex == "col":
+            for col_group in col_groups.values():
+                for name in col_group[1:]:
+                    ret[name].sharex(ret[col_group[0]])
+                    ret[name]._label_outer_xaxis(check_patch=True)
+
+                if len(col_group) > 1:
+                    ret[col_group[0]]._label_outer_xaxis(check_patch=True)
+
+        if sharey == "row":
+            for row_group in row_groups.values():
+                for name in row_group[1:]:
+                    ret[name].sharey(ret[row_group[0]])
+                    ret[name]._label_outer_yaxis(check_patch=True)
+
+                if len(row_group) > 1:
+                    ret[row_group[0]]._label_outer_yaxis(check_patch=True)
+
+        if sharey == "col":
+            for col_group in col_groups.values():
+                for name in col_group[1:]:
+                    ret[name].sharey(ret[col_group[0]])
+                #     ret[name]._label_outer_yaxis(check_patch=True)
+
         if extra := set(per_subplot_kw) - set(ret):
             raise ValueError(
                 f"The keys {extra} are in *per_subplot_kw* "
