@@ -241,6 +241,13 @@ class FigureBase(Artist):
         gridspec_kw: dict[str, Any] | None = ...
     ) -> dict[Any, Axes]: ...
 
+    def set_subplotparams(
+            self,
+            subplotparams: SubplotParams | dict[str, Any] = ...,
+    ) -> None: ...
+
+    def get_subplotparams(self) -> SubplotParams: ...
+
 class SubFigure(FigureBase):
     figure: Figure
     subplotpars: SubplotParams
