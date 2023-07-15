@@ -4029,7 +4029,11 @@ class FancyBboxPatch(Patch):
 
 class FancyArrowPatch(Patch):
     """
-    A fancy arrow patch. It draws an arrow using the `ArrowStyle`.
+    A fancy arrow patch.
+
+    It draws an arrow using the `ArrowStyle`. It is primarily used by the
+    `~.axes.Axes.annotate` method.  For most purposes, use the annotate method for
+    drawing arrows.
 
     The head and tail positions are fixed at the specified start and end points
     of the arrow, but the size and shape (in display coordinates) of the arrow
