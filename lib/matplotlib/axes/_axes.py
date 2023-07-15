@@ -1715,7 +1715,7 @@ class Axes(_AxesBase):
         (``'green'``) or hex strings (``'#008000'``).
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
-        lines = [*self._get_lines(*args, data=data, **kwargs)]
+        lines = [*self._get_lines(self, *args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
         if scalex:
@@ -3575,7 +3575,7 @@ class Axes(_AxesBase):
         # that would call self._process_unit_info again, and do other indirect
         # data processing.
         (data_line, base_style), = self._get_lines._plot_args(
-            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+            self, (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
 
         # Do this after creating `data_line` to avoid modifying `base_style`.
         if barsabove:
@@ -5283,7 +5283,7 @@ default: :rc:`scatter.edgecolors`
         # For compatibility(!), get aliases from Line2D rather than Patch.
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # _get_patches_for_fill returns a generator, convert it to a list.
-        patches = [*self._get_patches_for_fill(*args, data=data, **kwargs)]
+        patches = [*self._get_patches_for_fill(self, *args, data=data, **kwargs)]
         for poly in patches:
             self.add_patch(poly)
         self._request_autoscale_view()

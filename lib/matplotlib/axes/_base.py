@@ -219,14 +219,14 @@ class _process_plot_var_args:
 
     an arbitrary number of *x*, *y*, *fmt* are allowed
     """
-    def __init__(self, axes, command='plot'):
-        self.axes = axes
+
+    def __init__(self, command='plot'):
         self.command = command
         self.set_prop_cycle(None)
 
     def __getstate__(self):
         # note: it is not possible to pickle a generator (and thus a cycler).
-        return {'axes': self.axes, 'command': self.command}
+        return {'command': self.command}
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
@@ -238,8 +238,8 @@ class _process_plot_var_args:
         self.prop_cycler = itertools.cycle(cycler)
         self._prop_keys = cycler.keys  # This should make a copy
 
-    def __call__(self, *args, data=None, **kwargs):
-        self.axes._process_unit_info(kwargs=kwargs)
+    def __call__(self, axes, *args, data=None, **kwargs):
+        axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
             if pos_only in kwargs:
@@ -309,7 +309,7 @@ class _process_plot_var_args:
                 this += args[0],
                 args = args[1:]
             yield from self._plot_args(
-                this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
+                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
 
     def get_next_color(self):
         """Return the next color in the cycle."""
@@ -344,17 +344,17 @@ class _process_plot_var_args:
             if kw.get(k, None) is None:
                 kw[k] = defaults[k]
 
-    def _makeline(self, x, y, kw, kwargs):
+    def _makeline(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
         default_dict = self._getdefaults(set(), kw)
         self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
-    def _makefill(self, x, y, kw, kwargs):
+    def _makefill(self, axes, x, y, kw, kwargs):
         # Polygon doesn't directly support unitized inputs.
-        x = self.axes.convert_xunits(x)
-        y = self.axes.convert_yunits(y)
+        x = axes.convert_xunits(x)
+        y = axes.convert_yunits(y)
 
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
@@ -403,7 +403,7 @@ class _process_plot_var_args:
         seg.set(**kwargs)
         return seg, kwargs
 
-    def _plot_args(self, tup, kwargs, *,
+    def _plot_args(self, axes, tup, kwargs, *,
                    return_kwargs=False, ambiguous_fmt_datakey=False):
         """
         Process the arguments of ``plot([x], y, [fmt], **kwargs)`` calls.
@@ -495,10 +495,10 @@ class _process_plot_var_args:
         else:
             x, y = index_of(xy[-1])
 
-        if self.axes.xaxis is not None:
-            self.axes.xaxis.update_units(x)
-        if self.axes.yaxis is not None:
-            self.axes.yaxis.update_units(y)
+        if axes.xaxis is not None:
+            axes.xaxis.update_units(x)
+        if axes.yaxis is not None:
+            axes.yaxis.update_units(y)
 
         if x.shape[0] != y.shape[0]:
             raise ValueError(f"x and y must have same first dimension, but "
@@ -534,7 +534,7 @@ class _process_plot_var_args:
         else:
             labels = [label] * n_datasets
 
-        result = (make_artist(x[:, j % ncx], y[:, j % ncy], kw,
+        result = (make_artist(axes, x[:, j % ncx], y[:, j % ncy], kw,
                               {**kwargs, 'label': label})
                   for j, label in enumerate(labels))
 
@@ -1292,8 +1292,8 @@ class _AxesBase(martist.Artist):
         self._tight = None
         self._use_sticky_edges = True
 
-        self._get_lines = _process_plot_var_args(self)
-        self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
+        self._get_lines = _process_plot_var_args()
+        self._get_patches_for_fill = _process_plot_var_args('fill')
 
         self._gridOn = mpl.rcParams['axes.grid']
         old_children, self._children = self._children, []
