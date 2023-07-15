@@ -738,6 +738,51 @@ class _DunderChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
 
+# A validator dedicated to the named legend loc
+_validate_named_legend_loc = ValidateInStrings(
+    'legend.loc',
+    [
+        "best",
+        "upper right", "upper left", "lower left", "lower right", "right",
+        "center left", "center right", "lower center", "upper center",
+        "center"],
+    ignorecase=True)
+
+
+def _validate_legend_loc(loc):
+    """
+    Confirm that loc is a type which rc.Params["legend.loc"] supports.
+
+    .. versionadded:: 3.8
+
+    Parameters
+    ----------
+    loc : str | int | (float, float) | str((float, float))
+        The location of the legend.
+
+    Returns
+    -------
+    loc : str | int | (float, float) or raise ValueError exception
+        The location of the legend.
+    """
+    if isinstance(loc, str):
+        try:
+            return _validate_named_legend_loc(loc)
+        except ValueError:
+            pass
+        try:
+            loc = ast.literal_eval(loc)
+        except (SyntaxError, ValueError):
+            pass
+    if isinstance(loc, int):
+        if 0 <= loc <= 10:
+            return loc
+    if isinstance(loc, tuple):
+        if len(loc) == 2 and all(isinstance(e, Real) for e in loc):
+            return loc
+    raise ValueError(f"{loc} is not a valid legend location.")
+
+
 def validate_cycler(s):
     """Return a Cycler object from a string repr or the object itself."""
     if isinstance(s, str):
@@ -1062,11 +1107,7 @@ _validators = {
 
     # legend properties
     "legend.fancybox": validate_bool,
-    "legend.loc": _ignorecase([
-        "best",
-        "upper right", "upper left", "lower left", "lower right", "right",
-        "center left", "center right", "lower center", "upper center",
-        "center"]),
+    "legend.loc": _validate_legend_loc,
 
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
