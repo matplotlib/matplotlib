@@ -1931,6 +1931,11 @@ default: %(va)s
         gridspec_kw = dict(gridspec_kw or {})
         per_subplot_kw = per_subplot_kw or {}
 
+        if not isinstance(sharex, str):
+            sharex = "all" if sharex else "none"
+        if not isinstance(sharey, str):
+            sharey = "all" if sharey else "none"
+
         if height_ratios is not None:
             if 'height_ratios' in gridspec_kw:
                 raise ValueError("'height_ratios' must not be defined both as "
@@ -2012,6 +2017,33 @@ default: %(va)s
 
             return tuple(unique_ids), nested
 
+        def _parse_mosaic_to_span(mosaic, unique_ids):
+            """
+            Maps the mosaic label/ids to the row and column span.
+
+            Returns
+            -------
+            dict[str, (row_slice, col_slice)]
+            """
+            ids_to_span = {}
+            for id_ in unique_ids:
+                # sort out where each axes starts/ends
+                indx = np.argwhere(mosaic == id_)
+                start_row, start_col = np.min(indx, axis=0)
+                end_row, end_col = np.max(indx, axis=0) + 1
+                # and construct the slice object
+                slc = (slice(start_row, end_row), slice(start_col, end_col))
+
+                if (mosaic[slc] != id_).any():
+                    raise ValueError(
+                        f"While trying to layout\n{mosaic!r}\n"
+                        f"we found that the label {id_!r} specifies a "
+                        "non-rectangular or non-contiguous area.")
+
+                ids_to_span[id_] = slc
+
+            return ids_to_span
+
         def _do_layout(gs, mosaic, unique_ids, nested):
             """
             Recursively do the mosaic.
@@ -2042,22 +2074,16 @@ default: %(va)s
             # nested mosaic) at this level
             this_level = dict()
 
+            label_to_span = _parse_mosaic_to_span(mosaic, unique_ids)
+
             # go through the unique keys,
-            for name in unique_ids:
-                # sort out where each axes starts/ends
-                indx = np.argwhere(mosaic == name)
-                start_row, start_col = np.min(indx, axis=0)
-                end_row, end_col = np.max(indx, axis=0) + 1
-                # and construct the slice object
-                slc = (slice(start_row, end_row), slice(start_col, end_col))
-                # some light error checking
-                if (mosaic[slc] != name).any():
-                    raise ValueError(
-                        f"While trying to layout\n{mosaic!r}\n"
-                        f"we found that the label {name!r} specifies a "
-                        "non-rectangular or non-contiguous area.")
+            for label, slc in label_to_span.items():
                 # and stash this slice for later
-                this_level[(start_row, start_col)] = (name, slc, 'axes')
+                start_row = slc[0].start
+                start_col = slc[1].start
+                this_level[(start_row, start_col)] = (label, slc, 'axes')
+
+
 
             # do the same thing for the nested mosaics (simpler because these
             # cannot be spans yet!)
@@ -2067,24 +2093,26 @@ default: %(va)s
             # now go through the things in this level and add them
             # in order left-to-right top-to-bottom
             for key in sorted(this_level):
-                name, arg, method = this_level[key]
+                label, arg, method = this_level[key]
                 # we are doing some hokey function dispatch here based
                 # on the 'method' string stashed above to sort out if this
                 # element is an Axes or a nested mosaic.
                 if method == 'axes':
                     slc = arg
                     # add a single axes
-                    if name in output:
-                        raise ValueError(f"There are duplicate keys {name} "
+                    if label in output:
+                        raise ValueError(f"There are duplicate keys {label} "
                                          f"in the layout\n{mosaic!r}")
+
+                    # shared_with = {"none": None, "all": "all", "row": "row", "col": "col"}
                     ax = self.add_subplot(
                         gs[slc], **{
-                            'label': str(name),
+                            'label': str(label),
                             **subplot_kw,
-                            **per_subplot_kw.get(name, {})
+                            **per_subplot_kw.get(label, {})
                         }
                     )
-                    output[name] = ax
+                    output[label] = ax
                 elif method == 'nested':
                     nested_mosaic = arg
                     j, k = key
@@ -2107,65 +2135,59 @@ default: %(va)s
                     raise RuntimeError("This should never happen")
             return output
 
-        def _find_row_col_groups(unique_ids):
+        def _find_row_col_groups(mosaic, unique_labels):
+            label_to_span = _parse_mosaic_to_span(mosaic, unique_labels)
+
             row_group = {}
             col_group = {}
-            for name in unique_ids:
-                indx = np.argwhere(mosaic == name)
-                start_row, start_col = np.min(indx, axis=0)
-                end_row, end_col = np.max(indx, axis=0) + 1
-                # sort out where each axes starts/ends
-                # and construct the slice object
+            for label, (row_slice, col_slice) in label_to_span.items():
+                start_row, end_row = row_slice.start, row_slice.stop
+                start_col, end_col = col_slice.start, col_slice.stop
 
                 if (start_col, end_col) not in col_group:
-                    col_group[(start_col, end_col)] = [name]
+                    col_group[(start_col, end_col)] = [label]
                 else:
-                    col_group[(start_col, end_col)].append(name)
+                    col_group[(start_col, end_col)].append(label)
 
                 if (start_row, end_row) not in row_group:
-                    row_group[(start_row, end_row)] = [name]
+                    row_group[(start_row, end_row)] = [label]
                 else:
-                    row_group[(start_row, end_row)].append(name)
+                    row_group[(start_row, end_row)].append(label)
 
-            return row_group, col_group
+
+            return (
+                {v[i]: v[0] for v in row_group.values() for i in range(len(v))},
+                {v[i]: v[0] for v in col_group.values() for i in range(len(v))}
+            )
 
 
         mosaic = _make_array(mosaic)
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
         ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
-        row_groups, col_groups = _find_row_col_groups(_identify_keys_and_nested(mosaic)[0])
-        if sharex == "row":
-            for row_group in row_groups.values():
-                for name in row_group[1:]:
-                    ret[name].sharex(ret[row_group[0]])
-                #     ret[name]._label_outer_xaxis(check_patch=True)
 
-                # ret[row_group[0]]._label_outer_xaxis(check_patch=True)
+        # Handle axes sharing
+        row_groups, col_groups = _find_row_col_groups(mosaic, ret.keys())
 
-        if sharex == "col":
-            for col_group in col_groups.values():
-                for name in col_group[1:]:
-                    ret[name].sharex(ret[col_group[0]])
-                    ret[name]._label_outer_xaxis(check_patch=True)
+        for label, ax in ret.items():
+            shared_with = {
+                "all": next(iter(ret.values())),
+                "row": ret[row_groups[label]],
+                "col": ret[col_groups[label]]
+            }
 
-                if len(col_group) > 1:
-                    ret[col_group[0]]._label_outer_xaxis(check_patch=True)
-
-        if sharey == "row":
-            for row_group in row_groups.values():
-                for name in row_group[1:]:
-                    ret[name].sharey(ret[row_group[0]])
-                    ret[name]._label_outer_yaxis(check_patch=True)
-
-                if len(row_group) > 1:
-                    ret[row_group[0]]._label_outer_yaxis(check_patch=True)
-
-        if sharey == "col":
-            for col_group in col_groups.values():
-                for name in col_group[1:]:
-                    ret[name].sharey(ret[col_group[0]])
-                #     ret[name]._label_outer_yaxis(check_patch=True)
+            if sharex in shared_with:
+                ax0 = shared_with[sharex]
+                ax.sharex(ax0)
+                if sharex in ["col", "all"] and ax0 is not ax:
+                    ax0._label_outer_xaxis(check_patch=True)
+                    ax._label_outer_xaxis(check_patch=True)
+            if sharey in shared_with:
+                ax0 = shared_with[sharey]
+                ax.sharey(ax0)
+                if sharey in ["row", "all"] and ax0 is not ax:
+                    ax0._label_outer_yaxis(check_patch=True)
+                    ax._label_outer_yaxis(check_patch=True)
 
         if extra := set(per_subplot_kw) - set(ret):
             raise ValueError(
