@@ -2934,7 +2934,7 @@ class _AxesBase(martist.Artist):
             _log.debug('title position was updated manually, not adjusting')
             return
 
-        titles = (self.title, self._left_title, self._right_title)
+        titles = [self.title, self._left_title, self._right_title]
 
         # Need to check all our twins too, and all the children as well.
         axs = self._twinned_axes.get_siblings(self) + self.child_axes
@@ -2985,6 +2985,17 @@ class _AxesBase(martist.Artist):
             # now line up all the titles at the highest baseline.
             x, _ = title.get_position()
             title.set_position((x, ymax))
+
+        # Align bboxes of grouped axes to highest in group
+        grouped_axs = self.figure._align_label_groups['title'] \
+                          .get_siblings(self)
+        bb_ymax = None
+        ax_max = None
+        for ax in grouped_axs:
+            if bb_ymax is None or ax.bbox.ymax > bb_ymax:
+                bb_ymax = ax.bbox.ymax
+                ax_max = ax
+        self.bbox = ax_max.bbox
 
     # Drawing
     @martist.allow_rasterization

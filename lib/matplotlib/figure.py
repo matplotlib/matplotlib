@@ -197,7 +197,8 @@ class FigureBase(Artist):
         # groupers to keep track of x and y labels we want to align.
         # see self.align_xlabels and self.align_ylabels and
         # axis._get_tick_boxes_siblings
-        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
+        self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper(),
+                                    "title": cbook.Grouper()}
 
         self._localaxes = []  # track all axes
         self.artists = []
@@ -1399,6 +1400,60 @@ default: %(va)s
                             pos == 'bottom' and rowspan.stop == rowspanc.stop):
                         # grouper for groups of xlabels to align
                         self._align_label_groups['x'].join(ax, axc)
+
+    def align_titles(self, axs=None):
+        """
+        Align the titles of subplots in the same subplot column if title
+        alignment is being done automatically (i.e. the title position is
+        not manually set).
+
+        Alignment persists for draw events after this is called.
+
+        Parameters
+        ----------
+        axs : list of `~matplotlib.axes.Axes`
+            Optional list of (or ndarray) `~matplotlib.axes.Axes`
+            to align the titles.
+            Default is to align all Axes on the figure.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.align_xlabels
+        matplotlib.figure.Figure.align_ylabels
+        matplotlib.figure.Figure.align_labels
+
+        Notes
+        -----
+        This assumes that ``axs`` are from the same `.GridSpec`, so that
+        their `.SubplotSpec` positions correspond to figure positions.
+
+        Examples
+        --------
+        Example with titles::
+
+            fig, axs = subplots(1, 2,
+            subplot_kw={"xlabel": "x", "ylabel": "y", "title": "t"})
+            axs[0].imshow(zeros((3, 5)))
+            axs[1].imshow(zeros((5, 3)))
+            fig.align_labels()
+            fig.align_titles()
+        """
+        if axs is None:
+            axs = self.axes
+        axs = np.ravel(axs)
+        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
+        locs = ['left', 'center', 'right']
+        for ax in axs:
+            for loc in locs:
+                if ax.get_title(loc=loc):
+                    _log.debug(' Working on: %s', ax.get_title(loc=loc))
+                    rowspan = ax.get_subplotspec().rowspan
+                    for axc in axs:
+                        for loc in locs:
+                            rowspanc = axc.get_subplotspec().rowspan
+                            if rowspan.start == rowspanc.start or \
+                               rowspan.stop == rowspanc.stop:
+                                self._align_label_groups['title'].join(ax, axc)
 
     def align_ylabels(self, axs=None):
         """
@@ -3131,6 +3186,7 @@ None}, default: None
 
         artists = self._get_draw_artists(renderer)
         try:
+
             renderer.open_group('figure', gid=self.get_gid())
             if self.axes and self.get_layout_engine() is not None:
                 try:
