@@ -39,22 +39,20 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _blocking_input, backend_bases, _docstring, projections
-from matplotlib.artist import (
-    Artist, allow_rasterization, _finalize_rasterization)
-from matplotlib.backend_bases import (
-    DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
+from matplotlib import _blocking_input, _docstring, backend_bases, projections
 import matplotlib._api as _api
+from matplotlib.artist import (Artist, _finalize_rasterization,
+                               allow_rasterization)
+from matplotlib.axes import Axes
+from matplotlib.backend_bases import (DrawEvent, FigureCanvasBase, MouseButton,
+                                      NonGuiException, _get_renderer)
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
-import matplotlib.image as mimage
-
-from matplotlib.axes import Axes
 from matplotlib.gridspec import GridSpec
-from matplotlib.layout_engine import (
-    ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
-    PlaceHolderLayoutEngine
-)
+import matplotlib.image as mimage
+from matplotlib.layout_engine import (ConstrainedLayoutEngine, LayoutEngine,
+                                      PlaceHolderLayoutEngine,
+                                      TightLayoutEngine)
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
@@ -1954,7 +1952,7 @@ default: %(va)s
         per_subplot_kw = self._norm_per_subplot_kw(per_subplot_kw)
 
         # Only accept strict bools to allow a possible future API expansion.
-        _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
+        # _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
 
         def _make_array(inp):
             """
@@ -2113,14 +2111,38 @@ default: %(va)s
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
         ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
-        ax0 = next(iter(ret.values()))
-        for ax in ret.values():
-            if sharex:
-                ax.sharex(ax0)
-                ax._label_outer_xaxis(check_patch=True)
-            if sharey:
-                ax.sharey(ax0)
-                ax._label_outer_yaxis(check_patch=True)
+        if sharex:
+            if sharex == "row":
+                for row in range(mosaic.shape[0]):
+                    for col in range(mosaic.shape[1]):
+                        if col == 0:
+                            continue
+                        ax0 = ret[mosaic[row][0]]
+                        ax = ret[mosaic[row][col]]
+                        ax.sharex(ax0)
+                        ax._label_outer_xaxis(check_patch=True)
+            elif sharex == "col":
+                for col in range(mosaic.shape[1]):
+                    for row in range(mosaic.shape[0]):
+                        if row == 0:
+                            continue
+                        ax0 = ret[mosaic[0][col]]
+                        ax = ret[mosaic[row][col]]
+                        ax.sharex(ax0)
+                        ax._label_outer_xaxis(check_patch=True)
+            elif sharex is True:
+                ax0 = next(iter(ret.values()))
+                for ax in ret.values():
+                    if sharex:
+                        ax.sharex(ax0)
+                        ax._label_outer_xaxis(check_patch=True)
+
+        if sharey:
+            ax0 = next(iter(ret.values()))
+            for ax in ret.values():
+                if sharey:
+                    ax.sharey(ax0)
+                    ax._label_outer_yaxis(check_patch=True)
         if extra := set(per_subplot_kw) - set(ret):
             raise ValueError(
                 f"The keys {extra} are in *per_subplot_kw* "
@@ -2154,7 +2176,7 @@ class SubFigure(FigureBase):
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
 
     .. note::
-        The *subfigure* concept is new in v3.4, and the API is still provisional.
+        The *subfigure* concept is new in v3.4, and API is still provisional.
     """
 
     def __init__(self, parent, subplotspec, *,
@@ -3204,6 +3226,7 @@ None}, default: None
         if restore_to_pylab:
             # lazy import to avoid circularity
             import matplotlib.pyplot as plt
+
             import matplotlib._pylab_helpers as pylab_helpers
             allnums = plt.get_fignums()
             num = max(allnums) + 1 if allnums else 1
