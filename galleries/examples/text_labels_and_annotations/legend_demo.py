@@ -13,6 +13,7 @@ First we'll show off how to make a legend for specific lines.
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pylab
 
 import matplotlib.collections as mcol
 from matplotlib.legend_handler import HandlerLineCollection, HandlerTuple
@@ -116,6 +117,44 @@ l = ax2.legend([(rpos, rneg), (rneg, rpos)], ['pad!=0', 'pad=0'],
                             (rneg, rpos): HandlerTuple(ndivide=None, pad=0.)})
 plt.show()
 
+#%%
+# Here we attached tabular legend layout for matplotlib
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
+im1 ,= ax.plot(range(10), pylab.randn(10), "r--")
+im2 ,= ax.plot(range(10), pylab.randn(10), "g--")
+im3 ,= ax.plot(range(10), pylab.randn(10), "b--")
+im4 ,= ax.plot(range(10), pylab.randn(10), "r.")
+im5 ,= ax.plot(range(10), pylab.randn(10), "g.")
+im6 ,= ax.plot(range(10), pylab.randn(10), "b.")
+im7 ,= ax.plot(range(10), pylab.randn(10), "r^")
+im8 ,= ax.plot(range(10), pylab.randn(10), "g^")
+im9 ,= ax.plot(range(10), pylab.randn(10), "b^")
+
+# create blank rectangle
+extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+
+#Create organized list containing all handles for table. Extra represent empty space
+legend_handle = [extra, extra, extra, extra, extra, im1, im2, im3, extra, im4, im5, im6, extra, im7, im8, im9]
+
+#Define the labels
+label_row_1 = [r"$f_{i,j}$", r"$i = 1$", r"$i = 2$", r"$i = 3$"]
+label_j_1 = [r"$j = 1$"]
+label_j_2 = [r"$j = 2$"]
+label_j_3 = [r"$j = 3$"]
+label_empty = [""]
+
+#organize labels for table construction
+legend_labels = numpy.concatenate([label_row_1, label_j_1, label_empty * 3, label_j_2, label_empty * 3, label_j_3, label_empty * 3])
+
+#Create legend
+ax.legend(legend_handle, legend_labels,
+          loc = 9, ncol = 4, shadow = True, handletextpad = -2)
+
+plt.show()
+
 # %%
 # Finally, it is also possible to write custom classes that define
 # how to stylize legends.
@@ -180,3 +219,5 @@ ax.legend([lc], ['multi-line'], handler_map={type(lc): HandlerDashedLines()},
           handlelength=2.5, handleheight=3)
 
 plt.show()
+
+
