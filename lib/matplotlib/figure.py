@@ -2081,6 +2081,7 @@ default: %(va)s
                         gs[slc], **{
                             'label': str(name),
                             **subplot_kw,
+                            # **{**subplot_kw, "sharex": "row"},
                             **per_subplot_kw.get(name, {})
                         }
                     )
@@ -2120,7 +2121,6 @@ default: %(va)s
                         ax0 = ret[mosaic[row][0]]
                         ax = ret[mosaic[row][col]]
                         ax.sharex(ax0)
-                        ax._label_outer_xaxis(check_patch=True)
             elif sharex == "col":
                 for col in range(mosaic.shape[1]):
                     for row in range(mosaic.shape[0]):
@@ -2130,13 +2130,14 @@ default: %(va)s
                         ax = ret[mosaic[row][col]]
                         ax.sharex(ax0)
                         ax._label_outer_xaxis(check_patch=True)
+                        ax0._label_outer_xaxis(check_patch=True)
             elif sharex is True:
                 ax0 = next(iter(ret.values()))
                 for ax in ret.values():
                     if sharex:
                         ax.sharex(ax0)
                         ax._label_outer_xaxis(check_patch=True)
-
+                        ax0._label_outer_xaxis(check_patch=True)
         if sharey:
             ax0 = next(iter(ret.values()))
             for ax in ret.values():
