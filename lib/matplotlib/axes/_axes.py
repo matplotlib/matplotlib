@@ -5820,9 +5820,13 @@ default: :rc:`scatter.edgecolors`
                                 f" see help({funcname})")
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
+                if (Nx, Ny) == (ncols + 1, nrows + 1):
+                    X = (X[1:, 1:] + X[:1, :-1]) / 2
+                    Y = (Y[1:, :-1] + Y[:-1, :-1]) / 2
+                else:
+                    raise TypeError('Dimensions of C %s are incompatible with'
+                                    ' X (%d) and/or Y (%d); see help(%s)' % (
+                                        C.shape, Nx, Ny, funcname))
             if shading == 'nearest':
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
