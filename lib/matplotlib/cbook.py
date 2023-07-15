@@ -1634,8 +1634,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
     def safe_isfinite(val):
         if val is None:
             return False
-        if isinstance(val, int):
-            return True
+        try:
+            return math.isfinite(val)
+        except TypeError:
+            pass
         try:
             return np.isfinite(val) if np.isscalar(val) else True
         except TypeError:
