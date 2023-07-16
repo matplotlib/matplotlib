@@ -1248,6 +1248,49 @@ class TestSubplotMosaic:
         assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
                    for ax in ax_dict.values())
 
+    @check_figures_equal(extensions=["png"])
+    def test_sharex_row(self, fig_test, fig_ref):
+        fig_test.subplot_mosaic([["A", "B"], ["C", "D"]],
+                                sharex="row", sharey=False)
+
+        axes_ref = fig_ref.subplot_mosaic([["A", "B"], ["C", "D"]],
+                               sharex=False, sharey=False)
+        axes_ref["A"].sharex(axes_ref["B"])
+        axes_ref["C"].sharex(axes_ref["D"])
+
+    @check_figures_equal(extensions=["png"])
+    def test_sharey_row(self, fig_test, fig_ref):
+        fig_test.subplot_mosaic([["A", "B"], ["C", "D"]],
+                                sharex=False, sharey="row")
+
+        axes_ref = fig_ref.subplot_mosaic([["A", "B"], ["C", "D"]],
+                               sharex=False, sharey=False)
+        axes_ref["A"].sharey(axes_ref["B"])
+        axes_ref["C"].sharey(axes_ref["D"])
+        axes_ref["B"].yaxis.set_tick_params(which="both", labelleft=False)
+        axes_ref["D"].yaxis.set_tick_params(which="both", labelleft=False)
+
+    @check_figures_equal(extensions=["png"])
+    def test_sharex_col(self, fig_test, fig_ref):
+        fig_test.subplot_mosaic([["A", "B"], ["C", "D"]],
+                                sharex="col", sharey=False)
+
+        axes_ref = fig_ref.subplot_mosaic([["A", "B"], ["C", "D"]],
+                               sharex=False, sharey=False)
+        axes_ref["A"].sharex(axes_ref["B"])
+        axes_ref["B"].sharex(axes_ref["D"])
+        axes_ref["A"].xaxis.set_tick_params(which="both", labelbottom=False)
+        axes_ref["B"].xaxis.set_tick_params(which="both", labelbottom=False)
+
+    @check_figures_equal(extensions=["png"])
+    def test_sharey_col(self, fig_test, fig_ref):
+        fig_test.subplot_mosaic([["A", "B"], ["C", "D"]],
+                                sharex=False, sharey="col")
+
+        axes_ref = fig_ref.subplot_mosaic([["A", "B"], ["C", "D"]],
+                               sharex=False, sharey=False)
+        axes_ref["A"].sharey(axes_ref["C"])
+        axes_ref["B"].sharey(axes_ref["D"])
 
 def test_reused_gridspec():
     """Test that these all use the same gridspec"""
