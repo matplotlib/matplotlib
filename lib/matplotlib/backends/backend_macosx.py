@@ -69,6 +69,7 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
             self._timers.remove(timer)
             timer.stop()
         timer = self.new_timer(interval=0)
+        timer.single_shot = True
         timer.add_callback(callback_func, callback, timer)
         self._timers.add(timer)
         timer.start()
