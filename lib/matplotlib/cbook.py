@@ -286,7 +286,7 @@ class CallbackRegistry:
         """
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=s)
-        for cid, ref in list(self.callbacks.get(s, {}).items()):
+        for ref in list(self.callbacks.get(s, {}).values()):
             func = ref()
             if func is not None:
                 try:
@@ -1691,6 +1691,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         if val is None:
             return False
         try:
+            return math.isfinite(val)
+        except TypeError:
+            pass
+        try:
             return np.isfinite(val) if np.isscalar(val) else True
         except TypeError:
             # This is something that NumPy cannot make heads or tails of,
@@ -1717,7 +1721,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        return next((val for val in obj if safe_isfinite(val)), safe_first_element(obj))
+        for val in obj:
+            if safe_isfinite(val):
+                return val
+        return safe_first_element(obj)
 
 
 def sanitize_sequence(data):
