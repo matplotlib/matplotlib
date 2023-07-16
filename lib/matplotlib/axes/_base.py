@@ -1374,6 +1374,8 @@ class _AxesBase(martist.Artist):
             if share is not None:
                 getattr(self, f"share{name}")(share)
             else:
+                # Although the scale was set to linear as part of clear,
+                # polar requires that it is set again
                 axis._set_scale("linear")
                 axis._set_lim(0, 1, auto=True)
         self._update_transScale()
