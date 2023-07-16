@@ -2148,7 +2148,8 @@ default: %(va)s
         mosaic = _make_array(mosaic)
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
-        ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
+        unique_labels, nested_coord_to_labels = _identify_keys_and_nested(mosaic)
+        ret = _do_layout(gs, mosaic, unique_labels, nested_coord_to_labels)
 
         # Handle axes sharing
 
@@ -2174,16 +2175,22 @@ default: %(va)s
 
             return row_group, col_group
 
-        row_groups, col_groups = _find_row_col_groups(mosaic, ret.keys())
-
         # Pairs of axes where the first axes is meant to call sharex/sharey on
         # the second axes. The second axes depends on if the sharex/sharey is
         # set to "row", "col", or "all".
-        share_axes_pairs = {
-            "row": ((ret[label], ret[row_group[0]]) for row_group in row_groups.values() for label in row_group),
-            "col": ((ret[label], ret[col_group[0]]) for col_group in col_groups.values() for label in col_group),
-            "all": ((ax, next(iter(ret.values()))) for ax in ret.values())
-        }
+
+        share_axes_pairs = {"all": tuple((ax, next(iter(ret.values()))) for ax in ret.values())}
+        if sharex in ("row", "col") or sharey in ("row", "col"):
+            if nested_coord_to_labels:
+                raise ValueError("Cannot share axes by row or column when using nested mosaic")
+            else:
+                row_groups, col_groups = _find_row_col_groups(mosaic, unique_labels)
+
+            share_axes_pairs.update({
+                "row": tuple((ret[label], ret[row_group[0]]) for row_group in row_groups.values() for label in row_group),
+                "col": tuple((ret[label], ret[col_group[0]]) for col_group in col_groups.values() for label in col_group),
+            })
+
         if sharex in share_axes_pairs:
             for ax, ax0 in share_axes_pairs[sharex]:
                 ax.sharex(ax0)
