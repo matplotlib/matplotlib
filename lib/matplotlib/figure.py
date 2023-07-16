@@ -2092,8 +2092,6 @@ default: %(va)s
                 start_col = slc[1].start
                 this_level[(start_row, start_col)] = (label, slc, 'axes')
 
-
-
             # do the same thing for the nested mosaics (simpler because these
             # cannot be spans yet!)
             for (j, k), nested_mosaic in nested.items():
@@ -2113,7 +2111,6 @@ default: %(va)s
                         raise ValueError(f"There are duplicate keys {label} "
                                          f"in the layout\n{mosaic!r}")
 
-                    # shared_with = {"none": None, "all": "all", "row": "row", "col": "col"}
                     ax = self.add_subplot(
                         gs[slc], **{
                             'label': str(label),
@@ -2144,14 +2141,12 @@ default: %(va)s
                     raise RuntimeError("This should never happen")
             return output
 
-
         mosaic = _make_array(mosaic)
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
         ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
 
         # Handle axes sharing
-
         def _find_row_col_groups(mosaic, unique_labels):
             label_to_span = _parse_mosaic_to_span(mosaic, unique_labels)
 
@@ -2171,7 +2166,6 @@ default: %(va)s
                 else:
                     row_group[(start_row, end_row)].append(label)
 
-
             return row_group, col_group
 
         # Pairs of axes where the first axes is meant to call sharex/sharey on
@@ -2185,16 +2179,31 @@ default: %(va)s
                     return True
             return False
 
-        share_axes_pairs = {"all": tuple((ax, next(iter(ret.values()))) for ax in ret.values())}
+        share_axes_pairs = {
+            "all": tuple(
+                (ax, next(iter(ret.values())))
+                for ax in ret.values()
+            )
+            }
         if sharex in ("row", "col") or sharey in ("row", "col"):
             if check_is_nested():
-                raise ValueError("Cannot share axes by row or column when using nested mosaic")
+                raise ValueError(
+                    "Cannot share axes by row or column when using nested mosaic"
+                )
             else:
                 row_groups, col_groups = _find_row_col_groups(mosaic, ret.keys())
 
             share_axes_pairs.update({
-                "row": tuple((ret[label], ret[row_group[0]]) for row_group in row_groups.values() for label in row_group),
-                "col": tuple((ret[label], ret[col_group[0]]) for col_group in col_groups.values() for label in col_group),
+                "row": tuple(
+                    (ret[label], ret[row_group[0]])
+                    for row_group in row_groups.values()
+                    for label in row_group
+                ),
+                "col": tuple(
+                    (ret[label], ret[col_group[0]])
+                    for col_group in col_groups.values()
+                    for label in col_group
+                ),
             })
 
         if sharex in share_axes_pairs:
