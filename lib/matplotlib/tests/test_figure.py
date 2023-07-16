@@ -1234,7 +1234,8 @@ class TestSubplotMosaic:
         assert list(ax_dict) == list("ABCDEFGHI")
         assert list(fig.axes) == list(ax_dict.values())
 
-    def test_share_all(self):
+    @pytest.mark.parametrize("sharex,sharey", [(True, True), ("all", "all")])
+    def test_share_all(self, sharex, sharey):
         layout = [
             ["A", [["B", "C"],
                    ["D", "E"]]],
@@ -1243,7 +1244,7 @@ class TestSubplotMosaic:
                           ["."]]]]]
         ]
         fig = plt.figure()
-        ax_dict = fig.subplot_mosaic(layout, sharex=True, sharey=True)
+        ax_dict = fig.subplot_mosaic(layout, sharex=sharex, sharey=sharey)
         ax_dict["A"].set(xscale="log", yscale="logit")
         assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
                    for ax in ax_dict.values())
@@ -1253,8 +1254,14 @@ class TestSubplotMosaic:
         fig_test.subplot_mosaic([["A", "B"], ["C", "D"]],
                                 sharex="row", sharey=False)
 
-        axes_ref = fig_ref.subplot_mosaic([["A", "B"], ["C", "D"]],
-                               sharex=False, sharey=False)
+        axes_ref = fig_ref.subplot_mosaic(
+            [
+                ["A", "B"],
+                ["C", "D"]
+            ],
+            sharex=False,
+            sharey=False
+        )
         axes_ref["A"].sharex(axes_ref["B"])
         axes_ref["C"].sharex(axes_ref["D"])
 
@@ -1263,8 +1270,14 @@ class TestSubplotMosaic:
         fig_test.subplot_mosaic([["A", "B"], ["C", "D"]],
                                 sharex=False, sharey="row")
 
-        axes_ref = fig_ref.subplot_mosaic([["A", "B"], ["C", "D"]],
-                               sharex=False, sharey=False)
+        axes_ref = fig_ref.subplot_mosaic(
+            [
+                ["A", "B"],
+                ["C", "D"]
+            ],
+            sharex=False,
+            sharey=False
+        )
         axes_ref["A"].sharey(axes_ref["B"])
         axes_ref["C"].sharey(axes_ref["D"])
         axes_ref["B"].yaxis.set_tick_params(which="both", labelleft=False)
@@ -1274,9 +1287,14 @@ class TestSubplotMosaic:
     def test_sharex_col(self, fig_test, fig_ref):
         fig_test.subplot_mosaic([["A", "B"], ["C", "D"]],
                                 sharex="col", sharey=False)
-
-        axes_ref = fig_ref.subplot_mosaic([["A", "B"], ["C", "D"]],
-                               sharex=False, sharey=False)
+        axes_ref = fig_ref.subplot_mosaic(
+            [
+                ["A", "B"],
+                ["C", "D"]
+            ],
+            sharex=False,
+            sharey=False
+        )
         axes_ref["A"].sharex(axes_ref["B"])
         axes_ref["B"].sharex(axes_ref["D"])
         axes_ref["A"].xaxis.set_tick_params(which="both", labelbottom=False)
@@ -1287,10 +1305,39 @@ class TestSubplotMosaic:
         fig_test.subplot_mosaic([["A", "B"], ["C", "D"]],
                                 sharex=False, sharey="col")
 
-        axes_ref = fig_ref.subplot_mosaic([["A", "B"], ["C", "D"]],
-                               sharex=False, sharey=False)
+        axes_ref = fig_ref.subplot_mosaic(
+            [
+                ["A", "B"],
+                ["C", "D"]
+            ],
+            sharex=False,
+            sharey=False
+        )
         axes_ref["A"].sharey(axes_ref["C"])
         axes_ref["B"].sharey(axes_ref["D"])
+
+    @pytest.mark.parametrize(
+        "sharex,sharey",
+        [
+            ("row", False),
+            (False, "row"),
+            ("col", False),
+            (False, "col"),
+            ("row", "col")
+        ]
+    )
+    def test_share_row_col_fails_if_nested_mosaic(self, sharex, sharey):
+        mosaic = [
+            ["A", [["B", "C"],
+                   ["D", "E"]]],
+            ["F", "G"],
+            [".", [["H", [["I"],
+                          ["."]]]]]
+        ]
+        fig = plt.figure()
+        with pytest.raises(ValueError):
+            fig.subplot_mosaic(mosaic, sharex=sharex, sharey=sharey)
+
 
 def test_reused_gridspec():
     """Test that these all use the same gridspec"""
