@@ -39,20 +39,22 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _blocking_input, _docstring, backend_bases, projections
+from matplotlib import _blocking_input, backend_bases, _docstring, projections
+from matplotlib.artist import (
+    Artist, allow_rasterization, _finalize_rasterization)
+from matplotlib.backend_bases import (
+    DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
-from matplotlib.artist import (Artist, _finalize_rasterization,
-                               allow_rasterization)
-from matplotlib.axes import Axes
-from matplotlib.backend_bases import (DrawEvent, FigureCanvasBase, MouseButton,
-                                      NonGuiException, _get_renderer)
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
-from matplotlib.gridspec import GridSpec
 import matplotlib.image as mimage
-from matplotlib.layout_engine import (ConstrainedLayoutEngine, LayoutEngine,
-                                      PlaceHolderLayoutEngine,
-                                      TightLayoutEngine)
+
+from matplotlib.axes import Axes
+from matplotlib.gridspec import GridSpec
+from matplotlib.layout_engine import (
+    ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
+    PlaceHolderLayoutEngine
+)
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
@@ -1868,11 +1870,18 @@ default: %(va)s
             The Axes identifiers may be `str` or a non-iterable hashable
             object (e.g. `tuple` s may not be used).
 
-        sharex, sharey : bool, default: False
-            If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
-            among all subplots.  In that case, tick label visibility and axis
-            units behave as for `subplots`.  If False, each subplot's x- or
-            y-axis will be independent.
+        sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
+            Controls sharing of x-axis (*sharex*) or y-axis (*sharey*):
+
+            - True or 'all': x- or y-axis will be shared among all subplots.
+            - False or 'none': each subplot x- or y-axis will be independent.
+            - 'row': each subplot with the same rows span will share an x- or
+              y-axis.
+            - 'col': each subplot with the same column span will share an x- or
+              y-axis.
+
+              Tick label visibility and axis units behave as for `subplots`.
+
 
         width_ratios : array-like of length *ncols*, optional
             Defines the relative widths of the columns. Each column gets a
@@ -1957,7 +1966,7 @@ default: %(va)s
         per_subplot_kw = self._norm_per_subplot_kw(per_subplot_kw)
 
         # Only accept strict bools to allow a possible future API expansion.
-        # _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
+        _api.check_isinstance((bool, str), sharex=sharex, sharey=sharey)
 
         def _make_array(inp):
             """
