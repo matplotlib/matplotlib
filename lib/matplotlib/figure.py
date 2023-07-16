@@ -2148,8 +2148,7 @@ default: %(va)s
         mosaic = _make_array(mosaic)
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
-        unique_labels, nested_coord_to_labels = _identify_keys_and_nested(mosaic)
-        ret = _do_layout(gs, mosaic, unique_labels, nested_coord_to_labels)
+        ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
 
         # Handle axes sharing
 
@@ -2179,12 +2178,19 @@ default: %(va)s
         # the second axes. The second axes depends on if the sharex/sharey is
         # set to "row", "col", or "all".
 
+        def check_is_nested():
+            gs0 = self.axes[0].get_subplotspec().get_gridspec()
+            for ax in self.axes[1:]:
+                if ax.get_subplotspec().get_gridspec() != gs0:
+                    return True
+            return False
+
         share_axes_pairs = {"all": tuple((ax, next(iter(ret.values()))) for ax in ret.values())}
         if sharex in ("row", "col") or sharey in ("row", "col"):
-            if nested_coord_to_labels:
+            if check_is_nested():
                 raise ValueError("Cannot share axes by row or column when using nested mosaic")
             else:
-                row_groups, col_groups = _find_row_col_groups(mosaic, unique_labels)
+                row_groups, col_groups = _find_row_col_groups(mosaic, ret.keys())
 
             share_axes_pairs.update({
                 "row": tuple((ret[label], ret[row_group[0]]) for row_group in row_groups.values() for label in row_group),
