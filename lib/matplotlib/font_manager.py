@@ -621,10 +621,10 @@ class FontProperties:
         - a `str`: it is parsed as a fontconfig pattern;
         - a `dict`: it is passed as ``**kwargs`` to `.FontProperties`.
         """
-        if isinstance(arg, cls):
-            return arg
-        elif arg is None:
+        if arg is None:
             return cls()
+        elif isinstance(arg, cls):
+            return arg
         elif isinstance(arg, os.PathLike):
             return cls(fname=arg)
         elif isinstance(arg, str):

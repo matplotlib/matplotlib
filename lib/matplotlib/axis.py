@@ -908,7 +908,6 @@ class Axis(martist.Artist):
 
         self.converter = None
         self.units = None
-        self.set_units(None)
         self.stale = True
 
     def reset_ticks(self):

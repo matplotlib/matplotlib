@@ -321,7 +321,7 @@ class Artist:
         # if the artist is animated it does not take normal part in the
         # draw stack and is not expected to be drawn as part of the normal
         # draw loop (when not saving) so do not propagate this change
-        if self.get_animated():
+        if self._animated:
             return
 
         if val and self.stale_callback is not None:
@@ -1096,10 +1096,7 @@ class Artist:
         s : object
             *s* will be converted to a string by calling `str`.
         """
-        if s is not None:
-            self._label = str(s)
-        else:
-            self._label = None
+        self._label = str(s) if s is not None else None
         self.pchanged()
         self.stale = True
 

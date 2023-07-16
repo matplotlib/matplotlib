@@ -1769,7 +1769,7 @@ def normalize_kwargs(kw, alias_mapping=None):
 
     # deal with default value of alias_mapping
     if alias_mapping is None:
-        alias_mapping = dict()
+        alias_mapping = {}
     elif (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
           or isinstance(alias_mapping, Artist)):
         alias_mapping = getattr(alias_mapping, "_alias_map", {})
