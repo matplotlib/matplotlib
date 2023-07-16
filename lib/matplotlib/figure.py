@@ -2135,6 +2135,14 @@ default: %(va)s
                     raise RuntimeError("This should never happen")
             return output
 
+
+        mosaic = _make_array(mosaic)
+        rows, cols = mosaic.shape
+        gs = self.add_gridspec(rows, cols, **gridspec_kw)
+        ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
+
+        # Handle axes sharing
+
         def _find_row_col_groups(mosaic, unique_labels):
             label_to_span = _parse_mosaic_to_span(mosaic, unique_labels)
 
@@ -2155,35 +2163,27 @@ default: %(va)s
                     row_group[(start_row, end_row)].append(label)
 
 
-            return (
-                {v[i]: v[0] for v in row_group.values() for i in range(len(v))},
-                {v[i]: v[0] for v in col_group.values() for i in range(len(v))}
-            )
+            return row_group, col_group
 
-
-        mosaic = _make_array(mosaic)
-        rows, cols = mosaic.shape
-        gs = self.add_gridspec(rows, cols, **gridspec_kw)
-        ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
-
-        # Handle axes sharing
         row_groups, col_groups = _find_row_col_groups(mosaic, ret.keys())
 
-        for label, ax in ret.items():
-            shared_with = {
-                "all": next(iter(ret.values())),
-                "row": ret[row_groups[label]],
-                "col": ret[col_groups[label]]
-            }
-
-            if sharex in shared_with:
-                ax0 = shared_with[sharex]
+        # Pairs of axes where the first axes is meant to call sharex/sharey on
+        # the second axes. The second axes depends on if the sharex/sharey is
+        # set to "row", "col", or "all".
+        share_axes_pairs = {
+            "row": ((ret[label], ret[row_group[0]]) for row_group in row_groups.values() for label in row_group),
+            "col": ((ret[label], ret[col_group[0]]) for col_group in col_groups.values() for label in col_group),
+            "all": ((ax, next(iter(ret.values()))) for ax in ret.values())
+        }
+        if sharex in share_axes_pairs:
+            for ax, ax0 in share_axes_pairs[sharex]:
                 ax.sharex(ax0)
                 if sharex in ["col", "all"] and ax0 is not ax:
                     ax0._label_outer_xaxis(check_patch=True)
                     ax._label_outer_xaxis(check_patch=True)
-            if sharey in shared_with:
-                ax0 = shared_with[sharey]
+
+        if sharey in share_axes_pairs:
+            for ax, ax0 in share_axes_pairs[sharey]:
                 ax.sharey(ax0)
                 if sharey in ["row", "all"] and ax0 is not ax:
                     ax0._label_outer_yaxis(check_patch=True)
