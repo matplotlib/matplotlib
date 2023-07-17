@@ -96,7 +96,7 @@ class DraggableLegend(DraggableOffsetBox):
 
 
 _legend_kw_doc_base = """
-bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
+bbox_to_anchor : `~matplotlib.transforms.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
     Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
     `figure.bbox` (if `.Figure.legend`).  This argument allows arbitrary

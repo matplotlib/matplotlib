@@ -568,7 +568,8 @@ class ContourLabeler:
             Space in pixels to leave on each side of label when placing
             inline. This spacing will be exact for labels at locations where
             the contour is straight, less so for labels on curved contours.
-        transform : `.Transform` or `False`, default: ``self.axes.transData``
+        transform : `~matplotlib.transforms.Transform` or `False`, default: \
+``self.axes.transData``
             A transform applied to ``(x, y)`` before labeling.  The default
             causes ``(x, y)`` to be interpreted as data coordinates.  `False`
             is a synonym for `.IdentityTransform`; i.e. ``(x, y)`` should be

@@ -67,7 +67,7 @@ def composite_images(images, renderer, magnification=1.0):
         enforced by this function.  Each image must have a purely
         affine transformation with no shear.
 
-    renderer : `.RendererBase`
+    renderer : `~matplotlib.backend_bases.RendererBase` subclass
 
     magnification : float, default: 1
         The additional magnification to apply for the renderer in use.

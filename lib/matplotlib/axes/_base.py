@@ -4143,7 +4143,7 @@ class _AxesBase(martist.Artist):
         ----------
         x, y : float
             The mouse coordinates in display coords.
-        button : `.MouseButton`
+        button : `~matplotlib.backend_bases.MouseButton`
             The pressed mouse button.
 
         Notes
@@ -4236,7 +4236,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        button : `.MouseButton`
+        button : `~matplotlib.backend_bases.MouseButton`
             The pressed mouse button.
         key : str or None
             The pressed key, if any.
@@ -4319,7 +4319,7 @@ class _AxesBase(martist.Artist):
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass, optional
             renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 

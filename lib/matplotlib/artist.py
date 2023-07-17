@@ -715,7 +715,7 @@ class Artist:
 
         Parameters
         ----------
-        path_effects : `.AbstractPathEffect`
+        path_effects : `~matplotlib.patheffects.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True

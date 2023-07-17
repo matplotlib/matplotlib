@@ -72,9 +72,6 @@ def do_constrained_layout(fig, h_pad, w_pad,
     fig : Figure
         ``Figure`` instance to do the layout in.
 
-    renderer : Renderer
-        Renderer to use.
-
     h_pad, w_pad : float
       Padding around the axes elements in figure-normalized units.
 
@@ -675,7 +672,7 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
     cbax : Axes
         Axes for the colorbar
 
-    renderer :
+    renderer : `~matplotlib.backend_bases.RendererBase` subclass
     w_pad, h_pad : float
         width and height padding (in fraction of figure)
     hspace, wspace : float

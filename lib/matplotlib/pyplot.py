@@ -1485,7 +1485,7 @@ def subplots(
 
     Returns
     -------
-    fig : `.Figure`
+    fig : `~matplotlib.figure.Figure`
 
     ax : `~matplotlib.axes.Axes` or array of Axes
         *ax* can be either a single `~.axes.Axes` object, or an array of Axes
@@ -1669,7 +1669,7 @@ def subplot_mosaic(
 
     Returns
     -------
-    fig : `.Figure`
+    fig : `~matplotlib.figure.Figure`
        The new figure
 
     dict[label, Axes]
@@ -1708,7 +1708,7 @@ def subplot2grid(
         Number of rows for the axis to span downwards.
     colspan : int, default: 1
         Number of columns for the axis to span to the right.
-    fig : `.Figure`, optional
+    fig : `~matplotlib.figure.Figure`, optional
         Figure to place the subplot in. Defaults to the current figure.
     **kwargs
         Additional keyword arguments are handed to `~.Figure.add_subplot`.

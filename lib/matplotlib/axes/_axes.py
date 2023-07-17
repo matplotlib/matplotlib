@@ -68,9 +68,9 @@ class Axes(_AxesBase):
 
     Attributes
     ----------
-    dataLim : `.Bbox`
+    dataLim : `~matplotlib.transforms.Bbox`
         The bounding box enclosing all data displayed in the Axes.
-    viewLim : `.Bbox`
+    viewLim : `~matplotlib.transforms.Bbox`
         The view limits in data coordinates.
 
     """
@@ -337,7 +337,7 @@ class Axes(_AxesBase):
         bounds : [x0, y0, width, height]
             Lower-left corner of inset Axes, and its width and height.
 
-        transform : `.Transform`
+        transform : `~matplotlib.transforms.Transform`
             Defaults to `ax.transAxes`, i.e. the units of *rect* are in
             Axes-relative coordinates.
 
@@ -422,7 +422,7 @@ class Axes(_AxesBase):
             drawn connecting the indicator box to the inset Axes on corners
             chosen so as to not overlap with the indicator box.
 
-        transform : `.Transform`
+        transform : `~matplotlib.transforms.Transform`
             Transform for the rectangle coordinates. Defaults to
             `ax.transAxes`, i.e. the units of *rect* are in Axes-relative
             coordinates.
@@ -447,7 +447,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.patches.Rectangle`
+        rectangle_patch : `~matplotlib.patches.Rectangle`
              The indicator frame.
 
         connector_lines : 4-tuple of `.patches.ConnectionPatch`
@@ -533,7 +533,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        rectangle_patch : `.patches.Rectangle`
+        rectangle_patch : `~matplotlib.patches.Rectangle`
              Rectangle artist.
 
         connector_lines : 4-tuple of `.patches.ConnectionPatch`
@@ -1991,7 +1991,7 @@ class Axes(_AxesBase):
             The lag vector.
         c : array  (length ``2*maxlags+1``)
             The auto correlation vector.
-        line : `.LineCollection` or `.Line2D`
+        line : `~matplotlib.collections.LineCollection` or `~matplotlib.lines.Line2D`
             `.Artist` added to the Axes of the correlation:
 
             - `.LineCollection` if *usevlines* is True.
@@ -2068,7 +2068,7 @@ class Axes(_AxesBase):
             The lag vector.
         c : array  (length ``2*maxlags+1``)
             The auto correlation vector.
-        line : `.LineCollection` or `.Line2D`
+        line : `~matplotlib.collections.LineCollection` or `~matplotlib.lines.Line2D`
             `.Artist` added to the Axes of the correlation:
 
             - `.LineCollection` if *usevlines* is True.
@@ -2706,7 +2706,7 @@ class Axes(_AxesBase):
 
         Parameters
         ----------
-        container : `.BarContainer`
+        container : `~matplotlib.container.BarContainer`
             Container with all the bars and optionally errorbars, likely
             returned from `.bar` or `.barh`.
 
@@ -6703,8 +6703,8 @@ default: :rc:`scatter.edgecolors`
             edge of last bin).  Always a single array even when multiple data
             sets are passed in.
 
-        patches : `.BarContainer` or list of a single `.Polygon` or list of \
-such objects
+        patches : `~matplotlib.container.BarContainer` or list of a single \
+`~matplotlib.patches.Polygon` or list of such objects
             Container of individual artists used to create the histogram
             or list of such containers if there are multiple input datasets.
 

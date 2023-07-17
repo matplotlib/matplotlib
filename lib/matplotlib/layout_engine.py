@@ -170,7 +170,7 @@ class TightLayoutEngine(LayoutEngine):
 
         Parameters
         ----------
-        fig : `.Figure` to perform layout on.
+        fig : `~matplotlib.figure.Figure` to perform layout on.
 
         See Also
         --------
@@ -263,7 +263,7 @@ class ConstrainedLayoutEngine(LayoutEngine):
 
         Parameters
         ----------
-        fig : `.Figure` to perform layout on.
+        fig : `~matplotlib.figure.Figure` to perform layout on.
         """
         width, height = fig.get_size_inches()
         # pads are relative to the current state of the figure...

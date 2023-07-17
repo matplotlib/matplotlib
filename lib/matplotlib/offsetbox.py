@@ -305,8 +305,8 @@ class OffsetBox(martist.Artist):
 
         Parameters
         ----------
-        bbox : `.Bbox`
-        renderer : `.RendererBase` subclass
+        bbox : `~matplotlib.transforms.Bbox`
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass
         """
         return (
             self._offset(bbox.width, bbox.height, -bbox.x0, -bbox.y0, renderer)
@@ -351,7 +351,7 @@ class OffsetBox(martist.Artist):
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass
 
         Returns
         -------
@@ -954,7 +954,8 @@ class AnchoredOffsetbox(OffsetBox):
             :rc:`legend.fontsize` is used.
         frameon : bool
             Whether to draw a frame around the box.
-        bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
+        bbox_to_anchor : `~matplotlib.transforms.BboxBase`, 2-tuple, or 4-tuple of \
+floats
             Box that is used to position the legend in conjunction with *loc*.
         bbox_transform : None or :class:`matplotlib.transforms.Transform`
             The transform for the bounding box (*bbox_to_anchor*).

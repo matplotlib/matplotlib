@@ -335,7 +335,7 @@ class GridSpec(GridSpecBase):
         nrows, ncols : int
             The number of rows and columns of the grid.
 
-        figure : `.Figure`, optional
+        figure : `~matplotlib.figure.Figure`, optional
             Only used for constrained layout to create a proper layoutgrid.
 
         left, right, top, bottom : float, optional
@@ -448,9 +448,9 @@ class GridSpec(GridSpecBase):
 
         Parameters
         ----------
-        figure : `.Figure`
+        figure : `~matplotlib.figure.Figure`
             The figure.
-        renderer :  `.RendererBase` subclass, optional
+        renderer :  `~matplotlib.backend_bases.RendererBase` subclass, optional
             The renderer to be used.
         pad : float
             Padding between the figure edge and the edges of subplots, as a

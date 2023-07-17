@@ -1883,9 +1883,9 @@ class SubplotTool(Widget):
         """
         Parameters
         ----------
-        targetfig : `.Figure`
+        targetfig : `~matplotlib.figure.Figure`
             The figure instance to adjust.
-        toolfig : `.Figure`
+        toolfig : `~matplotlib.figure.Figure`
             The figure instance to embed the subplot tool into.
         """
 
@@ -2584,7 +2584,8 @@ class SpanSelector(_SelectorWidget):
         Whether to draw a set of handles that allow interaction with the
         widget after it is drawn.
 
-    button : `.MouseButton` or list of `.MouseButton`, default: all buttons
+    button : `~matplotlib.backend_bases.MouseButton` or list of \
+`~matplotlib.backend_bases.MouseButton`, default: all buttons
         The mouse buttons which activate the span selector.
 
     handle_props : dict, default: None
@@ -3170,7 +3171,8 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         Whether to interpret *minspanx* and *minspany* in data or in pixel
         coordinates.
 
-    button : `.MouseButton`, list of `.MouseButton`, default: all buttons
+    button : `~matplotlib.backend_bases.MouseButton`, list of \
+`~matplotlib.backend_bases.MouseButton`, default: all buttons
         Button(s) that trigger rectangle selection.
 
     grab_range : float, default: 10
@@ -3781,7 +3783,8 @@ class LassoSelector(_SelectorWidget):
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
         for valid properties. Default values are defined in ``mpl.rcParams``.
-    button : `.MouseButton` or list of `.MouseButton`, optional
+    button : `~matplotlib.backend_bases.MouseButton` or list of \
+`~matplotlib.backend_bases.MouseButton`, optional
         The mouse buttons used for rectangle selection.  Default is ``None``,
         which corresponds to all buttons.
     """

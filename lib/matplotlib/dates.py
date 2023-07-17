@@ -667,7 +667,7 @@ class ConciseDateFormatter(ticker.Formatter):
 
     Parameters
     ----------
-    locator : `.ticker.Locator`
+    locator : `~matplotlib.ticker.Locator`
         Locator that this axis is using.
 
     tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
@@ -940,7 +940,7 @@ class AutoDateFormatter(ticker.Formatter):
 
         Parameters
         ----------
-        locator : `.ticker.Locator`
+        locator : `~matplotlib.ticker.Locator`
             Locator that this axis is using.
 
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`

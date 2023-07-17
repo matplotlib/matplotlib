@@ -4199,7 +4199,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        patchA : `.patches.Patch`
+        patchA : `~matplotlib.patches.Patch`
         """
         self.patchA = patchA
         self.stale = True
@@ -4210,7 +4210,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        patchB : `.patches.Patch`
+        patchB : `~matplotlib.patches.Patch`
         """
         self.patchB = patchB
         self.stale = True

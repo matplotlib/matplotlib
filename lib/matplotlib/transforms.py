@@ -405,7 +405,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        other : `.BboxBase`
+        other : `~matplotlib.transforms.BboxBase`
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
@@ -446,7 +446,7 @@ class BboxBase(TransformNode):
 
         Parameters
         ----------
-        other : `.BboxBase`
+        other : `~matplotlib.transforms.BboxBase`
         """
         ax1, ay1, ax2, ay2 = self.extents
         bx1, by1, bx2, by2 = other.extents
