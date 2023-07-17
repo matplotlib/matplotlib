@@ -277,7 +277,14 @@ class Grid:
 
 
 class ImageGrid(Grid):
-    # docstring inherited
+    """
+    A grid of Axes for Image display.
+
+    This class is a specialization of `~.axes_grid1.axes_grid.Grid` for displaying a
+    grid of images.  In particular, it forces all axes in a column to share their x-axis
+    and all axes in a row to share their y-axis.  It further provides helpers to add
+    colorbars to some or all axes.
+    """
 
     def __init__(self, fig,
                  rect,
@@ -316,7 +323,9 @@ class ImageGrid(Grid):
             Padding or (horizontal padding, vertical padding) between axes, in
             inches.
         share_all : bool, default: False
-            Whether all axes share their x- and y-axis.
+            Whether all axes share their x- and y-axis.  Note that in any case,
+            all axes in a column share their x-axis and all axes in a row share
+            their y-axis.
         aspect : bool, default: True
             Whether the axes aspect ratio follows the aspect ratio of the data
             limits.
