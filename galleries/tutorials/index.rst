@@ -115,7 +115,7 @@ a :ref:`FAQ <faq-index>` in our :ref:`user guide <users-guide-index>`.
 User guide tutorials
 --------------------
 
-Many of our tutorials were moved from this section to :ref:`users-guide-explain`:
+Many of our tutorials were moved from this section to :ref:`users-guide-index`:
 
 Introductory
 ~~~~~~~~~~~~

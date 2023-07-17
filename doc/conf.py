@@ -311,7 +311,7 @@ source_suffix = '.rst'
 source_encoding = "utf-8"
 
 # The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
-root_doc = master_doc = 'users/index'
+root_doc = master_doc = 'index'
 
 # General substitutions.
 try:
