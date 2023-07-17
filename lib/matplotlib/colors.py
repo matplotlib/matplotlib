@@ -1391,7 +1391,7 @@ class Normalize:
         """If vmin or vmax are not set, use the min/max of *A* to set them."""
         A = np.asanyarray(A)
 
-        if isinstance(A, np.ma.MaskedArray) and A.mask is False:
+        if isinstance(A, np.ma.MaskedArray) and not A.mask:
             A = A.data
 
         if self.vmin is None and A.size:
