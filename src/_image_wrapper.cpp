@@ -62,7 +62,7 @@ static pybind11::array_t<double> _get_transform_mesh(const pybind11::object& tra
     // If attribute doesn't exist, raises Python AttributeError
     auto inverse = transform.attr("inverted")();
 
-    pybind11::ssize_t mesh_dims[2] = {dims[0]*dims[2], 2};
+    pybind11::ssize_t mesh_dims[2] = {dims[0]*dims[1], 2};
     pybind11::array_t<double> input_mesh(mesh_dims);
     auto p = input_mesh.mutable_data();
 
@@ -102,7 +102,7 @@ static void image_resample(pybind11::array input_array,
     auto dtype = input_array.dtype();  // Validated when determine resampler below
     auto ndim = input_array.ndim();
 
-    if (ndim < 2 || ndim > 3)
+    if (ndim != 2 && ndim != 3)
         throw std::invalid_argument("Input array must be a 2D or 3D array");
 
     if (ndim == 3 && input_array.shape(2) != 4)
@@ -211,7 +211,6 @@ PYBIND11_MODULE(_image, m) {
         .value("SINC", SINC)
         .value("LANCZOS", LANCZOS)
         .value("BLACKMAN", BLACKMAN)
-        .value("_n_interpolation", _n_interpolation)
         .export_values();
 
     m.def("resample", &image_resample,
