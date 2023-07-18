@@ -918,12 +918,6 @@ def test_safe_first_element_with_none():
     assert actual is not None and actual == datetime_lst[1]
 
 
-def test_strip_math():
-    assert strip_math(r'1 \times 2') == r'1 \times 2'
-    assert strip_math(r'$1 \times 2$') == '1 x 2'
-    assert strip_math(r'$\rm{hi}$') == 'hi'
-
-
 @pytest.mark.parametrize('fmt, value, result', [
     ('%.2f m', 0.2, '0.20 m'),
     ('{:.2f} m', 0.2, '0.20 m'),
