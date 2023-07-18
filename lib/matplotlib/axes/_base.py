@@ -1375,8 +1375,9 @@ class _AxesBase(martist.Artist):
                 getattr(self, f"share{name}")(share)
             else:
                 # Although the scale was set to linear as part of clear,
-                # polar requires that it is set again
-                axis._set_scale("linear")
+                # polar requires that _set_scale is called again
+                if self.name == "polar":
+                    axis._set_scale("linear")
                 axis._set_lim(0, 1, auto=True)
         self._update_transScale()
 
@@ -2239,8 +2240,7 @@ class _AxesBase(martist.Artist):
         Add a `.Collection` to the Axes; return the collection.
         """
         _api.check_isinstance(mcoll.Collection, collection=collection)
-        label = collection.get_label()
-        if not label:
+        if not collection.get_label():
             collection.set_label(f'_child{len(self._children)}')
         self._children.append(collection)
         collection._remove_method = self._children.remove

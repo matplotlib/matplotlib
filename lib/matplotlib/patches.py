@@ -72,7 +72,7 @@ class Patch(artist.Artist):
             joinstyle = JoinStyle.miter
 
         self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
-        self._fill = True  # needed for set_facecolor call
+        self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
                 _api.warn_external(
@@ -87,7 +87,6 @@ class Patch(artist.Artist):
         self._unscaled_dash_pattern = (0, None)  # offset, dash
         self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
 
-        self.set_fill(fill)
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
         self.set_antialiased(antialiased)
@@ -880,8 +879,7 @@ class Rectangle(Patch):
 
     def get_bbox(self):
         """Return the `.Bbox`."""
-        x0, y0, x1, y1 = self._convert_units()
-        return transforms.Bbox.from_extents(x0, y0, x1, y1)
+        return transforms.Bbox.from_extents(*self._convert_units())
 
     xy = property(get_xy, set_xy)
 
