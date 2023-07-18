@@ -2,7 +2,6 @@ from collections.abc import Iterable, Sequence
 from contextlib import ExitStack
 import functools
 import inspect
-import itertools
 import logging
 from numbers import Real
 from operator import attrgetter
@@ -224,18 +223,11 @@ class _process_plot_var_args:
         self.command = command
         self.set_prop_cycle(None)
 
-    def __getstate__(self):
-        # note: it is not possible to pickle a generator (and thus a cycler).
-        return {'command': self.command}
-
-    def __setstate__(self, state):
-        self.__dict__ = state.copy()
-        self.set_prop_cycle(None)
-
     def set_prop_cycle(self, cycler):
         if cycler is None:
             cycler = mpl.rcParams['axes.prop_cycle']
-        self.prop_cycler = itertools.cycle(cycler)
+        self._idx = 0
+        self._cycler_items = [*cycler]
         self._prop_keys = cycler.keys  # This should make a copy
 
     def __call__(self, axes, *args, data=None, **kwargs):
@@ -315,7 +307,9 @@ class _process_plot_var_args:
         """Return the next color in the cycle."""
         if 'color' not in self._prop_keys:
             return 'k'
-        return next(self.prop_cycler)['color']
+        c = self._cycler_items[self._idx]['color']
+        self._idx = (self._idx + 1) % len(self._cycler_items)
+        return c
 
     def _getdefaults(self, ignore, kw):
         """
@@ -328,7 +322,8 @@ class _process_plot_var_args:
         if any(kw.get(k, None) is None for k in prop_keys):
             # Need to copy this dictionary or else the next time around
             # in the cycle, the dictionary could be missing entries.
-            default_dict = next(self.prop_cycler).copy()
+            default_dict = self._cycler_items[self._idx].copy()
+            self._idx = (self._idx + 1) % len(self._cycler_items)
             for p in ignore:
                 default_dict.pop(p, None)
         else:
