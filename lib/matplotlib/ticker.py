@@ -657,12 +657,12 @@ class ScalarFormatter(Formatter):
         # docstring inherited
         e = math.floor(math.log10(abs(value)))
         s = round(value / 10**e, 10)
-        exponent = self._format_maybe_minus_and_locale("%d", e)
         significand = self._format_maybe_minus_and_locale(
             "%d" if s % 1 == 0 else "%1.10g", s)
         if e == 0:
             return significand
-        elif self._useMathText or self._usetex:
+        exponent = self._format_maybe_minus_and_locale("%d", e)
+        if self._useMathText or self._usetex:
             exponent = "10^{%s}" % exponent
             return (exponent if s == 1  # reformat 1x10^y as 10^y
                     else rf"{significand} \times {exponent}")
@@ -675,7 +675,6 @@ class ScalarFormatter(Formatter):
         """
         if len(self.locs) == 0:
             return ''
-        s = ''
         if self.orderOfMagnitude or self.offset:
             offsetStr = ''
             sciNotStr = ''
@@ -694,8 +693,8 @@ class ScalarFormatter(Formatter):
                 s = fr'${sciNotStr}\mathdefault{{{offsetStr}}}$'
             else:
                 s = ''.join((sciNotStr, offsetStr))
-
-        return self.fix_minus(s)
+            return self.fix_minus(s)
+        return ''
 
     def set_locs(self, locs):
         # docstring inherited
@@ -1055,9 +1054,6 @@ class LogFormatterMathtext(LogFormatter):
 
     def __call__(self, x, pos=None):
         # docstring inherited
-        usetex = mpl.rcParams['text.usetex']
-        min_exp = mpl.rcParams['axes.formatter.min_exponent']
-
         if x == 0:  # Symlog
             return r'$\mathdefault{0}$'
 
@@ -1070,13 +1066,14 @@ class LogFormatterMathtext(LogFormatter):
         is_x_decade = _is_close_to_int(fx)
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
-        if is_x_decade:
-            fx = round(fx)
 
         if self.labelOnlyBase and not is_x_decade:
             return ''
         if self._sublabels is not None and coeff not in self._sublabels:
             return ''
+
+        if is_x_decade:
+            fx = round(fx)
 
         # use string formatting of the base if it is not an integer
         if b % 1 == 0.0:
@@ -1084,9 +1081,10 @@ class LogFormatterMathtext(LogFormatter):
         else:
             base = '%s' % b
 
-        if abs(fx) < min_exp:
+        if abs(fx) < mpl.rcParams['axes.formatter.min_exponent']:
             return r'$\mathdefault{%s%g}$' % (sign_string, x)
         elif not is_x_decade:
+            usetex = mpl.rcParams['text.usetex']
             return self._non_decade_format(sign_string, base, fx, usetex)
         else:
             return r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
@@ -1554,7 +1552,7 @@ class PercentFormatter(Formatter):
         symbol = self._symbol
         if not symbol:
             symbol = ''
-        elif mpl.rcParams['text.usetex'] and not self._is_latex:
+        elif not self._is_latex and mpl.rcParams['text.usetex']:
             # Source: http://www.personal.ceu.hu/tex/specchar.htm
             # Backslash must be first for this to work correctly since
             # it keeps getting added in
@@ -1801,8 +1799,6 @@ class LinearLocator(Locator):
 
     def tick_values(self, vmin, vmax):
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        if vmax < vmin:
-            vmin, vmax = vmax, vmin
 
         if (vmin, vmax) in self.presets:
             return self.presets[(vmin, vmax)]
@@ -2356,13 +2352,13 @@ class LogLocator(Locator):
         numdec = math.floor(log_vmax) - math.ceil(log_vmin)
 
         if isinstance(self._subs, str):
-            _first = 2.0 if self._subs == 'auto' else 1.0
             if numdec > 10 or b < 3:
                 if self._subs == 'auto':
                     return np.array([])  # no minor or major ticks
                 else:
                     subs = np.array([1.0])  # major ticks
             else:
+                _first = 2.0 if self._subs == 'auto' else 1.0
                 subs = np.arange(_first, b)
         else:
             subs = self._subs
@@ -2386,23 +2382,14 @@ class LogLocator(Locator):
         decades = np.arange(math.floor(log_vmin) - stride,
                             math.ceil(log_vmax) + 2 * stride, stride)
 
-        if hasattr(self, '_transform'):
-            ticklocs = self._transform.inverted().transform(decades)
-            if have_subs:
-                if stride == 1:
-                    ticklocs = np.ravel(np.outer(subs, ticklocs))
-                else:
-                    # No ticklocs if we have >1 decade between major ticks.
-                    ticklocs = np.array([])
-        else:
-            if have_subs:
-                if stride == 1:
-                    ticklocs = np.concatenate(
-                        [subs * decade_start for decade_start in b ** decades])
-                else:
-                    ticklocs = np.array([])
+        if have_subs:
+            if stride == 1:
+                ticklocs = np.concatenate(
+                    [subs * decade_start for decade_start in b ** decades])
             else:
-                ticklocs = b ** decades
+                ticklocs = np.array([])
+        else:
+            ticklocs = b ** decades
 
         _log.debug('ticklocs %r', ticklocs)
         if (len(subs) > 1
@@ -2422,8 +2409,8 @@ class LogLocator(Locator):
         vmin, vmax = self.nonsingular(vmin, vmax)
 
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
-            vmin = _decade_less_equal(vmin, self._base)
-            vmax = _decade_greater_equal(vmax, self._base)
+            vmin = _decade_less_equal(vmin, b)
+            vmax = _decade_greater_equal(vmax, b)
 
         return vmin, vmax
 
@@ -2503,7 +2490,6 @@ class SymmetricalLogLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
-        base = self._base
         linthresh = self._linthresh
 
         if vmax < vmin:
@@ -2540,6 +2526,8 @@ class SymmetricalLogLocator(Locator):
         # Check if linear range is present
         has_b = (has_a and vmax > -linthresh) or (has_c and vmin < linthresh)
 
+        base = self._base
+
         def get_log_range(lo, hi):
             lo = np.floor(np.log(lo) / np.log(base))
             hi = np.ceil(np.log(hi) / np.log(base))
@@ -2573,11 +2561,7 @@ class SymmetricalLogLocator(Locator):
         if has_c:
             decades.extend(base ** (np.arange(c_lo, c_hi, stride)))
 
-        # Add the subticks if requested
-        if self._subs is None:
-            subs = np.arange(2.0, base)
-        else:
-            subs = np.asarray(self._subs)
+        subs = np.asarray(self._subs)
 
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
@@ -2604,8 +2588,7 @@ class SymmetricalLogLocator(Locator):
                 vmin = _decade_less(vmin, b)
                 vmax = _decade_greater(vmax, b)
 
-        result = mtransforms.nonsingular(vmin, vmax)
-        return result
+        return mtransforms.nonsingular(vmin, vmax)
 
 
 class AsinhLocator(Locator):
@@ -2773,7 +2756,7 @@ class LogitLocator(MaxNLocator):
         # linscale: ... 1e-3 1e-2 1e-1 1/2 1-1e-1 1-1e-2 1-1e-3 ...
         # b-scale : ... -3   -2   -1   0   1      2      3      ...
         def ideal_ticks(x):
-            return 10 ** x if x < 0 else 1 - (10 ** (-x)) if x > 0 else 1 / 2
+            return 10 ** x if x < 0 else 1 - (10 ** (-x)) if x > 0 else 0.5
 
         vmin, vmax = self.nonsingular(vmin, vmax)
         binf = int(
