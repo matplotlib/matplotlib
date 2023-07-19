@@ -252,7 +252,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
         if not (isinstance(offset_trf, transforms.IdentityTransform)
-                or offset_trf.contains_branch(transData)):
+                or offset_trf.contains_branch(transData)
+                or isinstance(transData, transforms.IdentityTransform)):
             # if the offsets are in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
@@ -270,7 +271,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # transforms.get_affine().contains_branch(transData).  But later,
             # be careful to only apply the affine part that remains.
 
-        if any(transform.contains_branch_seperately(transData)):
+        # if any(transform.contains_branch_seperately(transData)):
+        if (any(transform.contains_branch_seperately(transData)) or
+            isinstance(transData, transforms.IdentityTransform)):
             # collections that are just in data units (like quiver)
             # can properly have the axes limits set by their shape +
             # offset.  LineCollections that have no offsets can
@@ -975,6 +978,10 @@ class _CollectionWithSizes(Collection):
     def draw(self, renderer):
         self.set_sizes(self._sizes, self.figure.dpi)
         super().draw(renderer)
+
+    def get_window_extent(self, renderer=None):
+        self.set_sizes(self._sizes, self.figure.dpi)
+        return super().get_window_extent(renderer)
 
 
 class PathCollection(_CollectionWithSizes):
