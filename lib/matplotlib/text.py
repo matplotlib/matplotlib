@@ -577,10 +577,10 @@ class Text(Artist):
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
 
     def _update_clip_properties(self):
-        clipprops = dict(clip_box=self.clipbox,
-                         clip_path=self._clippath,
-                         clip_on=self._clipon)
         if self._bbox_patch:
+            clipprops = dict(clip_box=self.clipbox,
+                             clip_path=self._clippath,
+                             clip_on=self._clipon)
             self._bbox_patch.update(clipprops)
 
     def set_clip_box(self, clipbox):
@@ -1271,10 +1271,9 @@ class Text(Artist):
             Any object gets converted to its `str` representation, except for
             ``None`` which is converted to an empty string.
         """
-        if s is None:
-            s = ''
+        s = '' if s is None else str(s)
         if s != self._text:
-            self._text = str(s)
+            self._text = s
             self.stale = True
 
     def _preprocess_math(self, s):

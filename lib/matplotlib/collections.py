@@ -256,7 +256,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # if the offsets are in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
-        offsets = self.get_offsets()
 
         paths = self.get_paths()
         if not len(paths):
@@ -269,6 +268,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # we may have transform.contains_branch(transData) but not
             # transforms.get_affine().contains_branch(transData).  But later,
             # be careful to only apply the affine part that remains.
+
+        offsets = self.get_offsets()
 
         if any(transform.contains_branch_seperately(transData)):
             # collections that are just in data units (like quiver)
