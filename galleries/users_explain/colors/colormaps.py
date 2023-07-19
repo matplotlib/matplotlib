@@ -410,10 +410,10 @@ for cmap_category, cmap_list in cmaps.items():
     plot_color_gradients(cmap_category, cmap_list)
 
 
-# New function to list the actually colormpas on matplotlib
-# Issue #26244
 
+# New function to list the actually colormpas on matplotlib
 def listColormaps(category):
+    # Define a dictionary that maps each category to its corresponding list of colormaps
     colormaps_by_category = {
         'Perceptually': ['viridis', 'plasma', 'inferno', 'magma', 'cividis'],
         'Sequential': ['Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
@@ -422,6 +422,8 @@ def listColormaps(category):
         'Sequential2': ['binary', 'gist_yarg', 'gist_gray', 'gray', 'bone',
                         'pink', 'spring', 'summer', 'autumn', 'winter', 'cool',
                         'Wistia', 'hot', 'afmhot', 'gist_heat', 'copper'],
+        'Diverging': ['PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu',
+                      'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic'],
         'Cyclic': ['twilight', 'twilight_shifted', 'hsv'],
         'Qualitative': ['Pastel1', 'Pastel2', 'Paired', 'Accent', 'Dark2',
                         'Set1', 'Set2', 'Set3', 'tab10', 'tab20', 'tab20b',
@@ -432,6 +434,7 @@ def listColormaps(category):
                           'turbo', 'nipy_spectral', 'gist_ncar']
     }
 
+    # Return the list of colormaps for the given category, or an empty list if the category is not found
     return colormaps_by_category.get(category, [])
 
     
