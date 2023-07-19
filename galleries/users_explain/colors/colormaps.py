@@ -410,7 +410,6 @@ for cmap_category, cmap_list in cmaps.items():
     plot_color_gradients(cmap_category, cmap_list)
 
 
-
 # New function to list the actually colormaps on matplotlib
 def listColormaps(category):
     # Define a dictionary that maps each category to its corresponding list of colormaps
