@@ -207,7 +207,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._paths
 
     def set_paths(self, paths):
-        raise NotImplementedError
+        self._paths = paths
+        self.stale = True
 
     def get_transforms(self):
         return self._transforms
@@ -1000,10 +1001,6 @@ class PathCollection(_CollectionWithSizes):
         super().__init__(**kwargs)
         self.set_paths(paths)
         self.set_sizes(sizes)
-        self.stale = True
-
-    def set_paths(self, paths):
-        self._paths = paths
         self.stale = True
 
     def get_paths(self):
