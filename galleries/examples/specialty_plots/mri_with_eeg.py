@@ -11,26 +11,30 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import matplotlib.cbook as cbook
-import matplotlib.cm as cm
-from matplotlib.collections import LineCollection
 
-fig = plt.figure("MRI_with_EEG")
+fig, axd = plt.subplot_mosaic(
+    [["image", "density"],
+     ["EEG", "EEG"]],
+    layout="constrained",
+    # "image" will contain a square image. We fine-tune the width so that
+    # there is no excess horizontal or vertical margin around the image.
+    width_ratios=[1.05, 2],
+)
 
 # Load the MRI data (256x256 16-bit integers)
 with cbook.get_sample_data('s1045.ima.gz') as dfile:
     im = np.frombuffer(dfile.read(), np.uint16).reshape((256, 256))
 
 # Plot the MRI image
-ax0 = fig.add_subplot(2, 2, 1)
-ax0.imshow(im, cmap=cm.gray)
-ax0.axis('off')
+axd["image"].imshow(im, cmap="gray")
+axd["image"].axis('off')
 
 # Plot the histogram of MRI intensity
-ax1 = fig.add_subplot(2, 2, 2)
 im = im[im.nonzero()]  # Ignore the background
-ax1.hist(im, bins=np.arange(0, 2**16+1, 512))
-ax1.set(xlabel='Intensity (a.u.)', ylabel='MRI density', yticks=[])
-ax1.minorticks_on()
+axd["density"].hist(im, bins=np.arange(0, 2**16+1, 512))
+axd["density"].set(xlabel='Intensity (a.u.)', xlim=(0, 2**16),
+                   ylabel='MRI density', yticks=[])
+axd["density"].minorticks_on()
 
 # Load the EEG data
 n_samples, n_rows = 800, 4
@@ -39,32 +43,13 @@ with cbook.get_sample_data('eeg.dat') as eegfile:
 t = 10 * np.arange(n_samples) / n_samples
 
 # Plot the EEG
-ticklocs = []
-ax2 = fig.add_subplot(2, 1, 2)
-ax2.set_xlim(0, 10)
-ax2.set_xticks(np.arange(10))
-dmin = data.min()
-dmax = data.max()
-dr = (dmax - dmin) * 0.7  # Crowd them a bit.
-y0 = dmin
-y1 = (n_rows - 1) * dr + dmax
-ax2.set_ylim(y0, y1)
+axd["EEG"].set_xlabel('Time (s)')
+axd["EEG"].set_xlim(0, 10)
+dy = (data.min() - data.max()) * 0.7  # Crowd them a bit.
+axd["EEG"].set_ylim(-dy, n_rows * dy)
+axd["EEG"].set_yticks([0, dy, 2*dy, 3*dy], labels=['PG3', 'PG5', 'PG7', 'PG9'])
 
-segs = []
-for i in range(n_rows):
-    segs.append(np.column_stack((t, data[:, i])))
-    ticklocs.append(i * dr)
+for i, data_col in enumerate(data.T):
+    axd["EEG"].plot(t, data_col + i*dy, color="C0")
 
-offsets = np.zeros((n_rows, 2), dtype=float)
-offsets[:, 1] = ticklocs
-
-lines = LineCollection(segs, offsets=offsets, offset_transform=None)
-ax2.add_collection(lines)
-
-# Set the yticks to use axes coordinates on the y-axis
-ax2.set_yticks(ticklocs, labels=['PG3', 'PG5', 'PG7', 'PG9'])
-
-ax2.set_xlabel('Time (s)')
-
-plt.tight_layout()
 plt.show()
