@@ -774,6 +774,7 @@ class Axis(martist.Artist):
         self.stale = True
 
     def get_transform(self):
+        """Return the transform used in the Axis' scale"""
         return self._scale.get_transform()
 
     def get_scale(self):
