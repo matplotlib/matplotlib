@@ -18,7 +18,7 @@ from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle, Patch
 from matplotlib.text import Text
-from matplotlib.transforms import Affine2D, Bbox, Transform
+from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -249,8 +249,8 @@ class SubFigure(FigureBase):
     canvas: FigureCanvasBase
     transFigure: Transform
     bbox_relative: Bbox
-    figbbox: Bbox
-    bbox: Bbox
+    figbbox: BboxBase
+    bbox: BboxBase
     transSubfigure: Transform
     patch: Rectangle
     def __init__(
@@ -283,8 +283,8 @@ class Figure(FigureBase):
     figure: Figure
     bbox_inches: Bbox
     dpi_scale_trans: Affine2D
-    bbox: Bbox
-    figbbox: Bbox
+    bbox: BboxBase
+    figbbox: BboxBase
     transFigure: Transform
     transSubfigure: Transform
     patch: Rectangle

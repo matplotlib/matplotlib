@@ -757,7 +757,7 @@ class Artist:
 
         Parameters
         ----------
-        clipbox : `.Bbox` or None
+        clipbox : `.BboxBase` or None
             Typically would be created from a `.TransformedBbox`. For
             instance ``TransformedBbox(Bbox([[0, 0], [1, 1]]), ax.transAxes)``
             is the default clipping for an artist added to an Axes.
