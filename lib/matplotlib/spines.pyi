@@ -11,7 +11,7 @@ from typing import Literal, TypeVar, overload
 class Spine(mpatches.Patch):
     axes: Axes
     spine_type: str
-    axis: Path
+    axis: Axis | None
     def __init__(self, axes: Axes, spine_type: str, path: Path, **kwargs) -> None: ...
     def set_patch_arc(
         self, center: tuple[float, float], radius: float, theta1: float, theta2: float

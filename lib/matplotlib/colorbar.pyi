@@ -23,7 +23,7 @@ class Colorbar:
     n_rasterize: int
     mappable: cm.ScalarMappable
     ax: Axes
-    alpha: float
+    alpha: float | None
     cmap: colors.Colormap
     norm: colors.Normalize
     values: Sequence[float] | None

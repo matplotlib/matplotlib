@@ -78,7 +78,7 @@ from matplotlib.colors import _color_sequences
 
 import numpy as np
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Sequence
@@ -1803,7 +1803,7 @@ def twiny(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
     return ax1
 
 
-def subplot_tool(targetfig: Figure | None = None) -> SubplotTool:
+def subplot_tool(targetfig: Figure | None = None) -> SubplotTool | None:
     """
     Launch a subplot tool window for a figure.
 
@@ -1815,9 +1815,12 @@ def subplot_tool(targetfig: Figure | None = None) -> SubplotTool:
         targetfig = gcf()
     tb = targetfig.canvas.manager.toolbar  # type: ignore[union-attr]
     if hasattr(tb, "configure_subplots"):  # toolbar2
-        return tb.configure_subplots()
+        from matplotlib.backend_bases import NavigationToolbar2
+        return cast(NavigationToolbar2, tb).configure_subplots()
     elif hasattr(tb, "trigger_tool"):  # toolmanager
-        return tb.trigger_tool("subplots")
+        from matplotlib.backend_bases import ToolContainerBase
+        cast(ToolContainerBase, tb).trigger_tool("subplots")
+        return None
     else:
         raise ValueError("subplot_tool can only be launched for figures with "
                          "an associated toolbar")
