@@ -1279,7 +1279,7 @@ class Line2D(Artist):
             # When deprecation cycle is completed
             # raise RuntimeError('x must be a sequence')
             _api.warn_deprecated(
-                since=3.7,
+                since="3.7",
                 message="Setting data with a non sequence type "
                 "is deprecated since %(since)s and will be "
                 "remove %(removal)s")
@@ -1300,7 +1300,7 @@ class Line2D(Artist):
             # When deprecation cycle is completed
             # raise RuntimeError('y must be a sequence')
             _api.warn_deprecated(
-                since=3.7,
+                since="3.7",
                 message="Setting data with a non sequence type "
                 "is deprecated since %(since)s and will be "
                 "remove %(removal)s")
