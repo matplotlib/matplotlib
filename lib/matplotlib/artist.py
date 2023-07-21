@@ -715,7 +715,7 @@ class Artist:
 
         Parameters
         ----------
-        path_effects : `.AbstractPathEffect`
+        path_effects : list of `.AbstractPathEffect`
         """
         self._path_effects = path_effects
         self.stale = True
