@@ -2213,7 +2213,7 @@ class SubFigure(FigureBase):
         self._axobservers = parent._axobservers
         self.canvas = parent.canvas
         self.transFigure = parent.transFigure
-        self.bbox_relative = None
+        self.bbox_relative = Bbox.null()
         self._redo_transform_rel_fig()
         self.figbbox = self._parent.figbbox
         self.bbox = TransformedBbox(self.bbox_relative,
@@ -2278,11 +2278,8 @@ class SubFigure(FigureBase):
         dy = hr[self._subplotspec.rowspan].sum() / hr.sum()
         x0 = wr[:self._subplotspec.colspan.start].sum() / wr.sum()
         y0 = 1 - hr[:self._subplotspec.rowspan.stop].sum() / hr.sum()
-        if self.bbox_relative is None:
-            self.bbox_relative = Bbox.from_bounds(x0, y0, dx, dy)
-        else:
-            self.bbox_relative.p0 = (x0, y0)
-            self.bbox_relative.p1 = (x0 + dx, y0 + dy)
+        self.bbox_relative.p0 = (x0, y0)
+        self.bbox_relative.p1 = (x0 + dx, y0 + dy)
 
     def get_constrained_layout(self):
         """
