@@ -2054,6 +2054,11 @@ class _AxesBase(martist.Artist):
         --------
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
+
+        Notes
+        -----
+        For 3D axes, this method additionally takes *zmin*, *zmax* as
+        parameters and likewise returns them.
         """
         if isinstance(arg, (str, bool)):
             if arg is True:
@@ -2097,28 +2102,34 @@ class _AxesBase(martist.Artist):
                                  "try 'on' or 'off'")
         else:
             if arg is not None:
-                try:
-                    xmin, xmax, ymin, ymax = arg
-                except (TypeError, ValueError) as err:
-                    raise TypeError('the first argument to axis() must be an '
-                                    'iterable of the form '
-                                    '[xmin, xmax, ymin, ymax]') from err
+                if len(arg) != 2*len(self._axis_names):
+                    raise TypeError(
+                        "The first argument to axis() must be an iterable of the form "
+                        "[{}]".format(", ".join(
+                            f"{name}min, {name}max" for name in self._axis_names)))
+                limits = {
+                    name: arg[2*i:2*(i+1)]
+                    for i, name in enumerate(self._axis_names)
+                }
             else:
-                xmin = kwargs.pop('xmin', None)
-                xmax = kwargs.pop('xmax', None)
-                ymin = kwargs.pop('ymin', None)
-                ymax = kwargs.pop('ymax', None)
-            xauto = (None  # Keep autoscale state as is.
-                     if xmin is None and xmax is None
-                     else False)  # Turn off autoscale.
-            yauto = (None
-                     if ymin is None and ymax is None
-                     else False)
-            self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
-            self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
+                limits = {}
+                for name in self._axis_names:
+                    ax_min = kwargs.pop(f'{name}min', None)
+                    ax_max = kwargs.pop(f'{name}max', None)
+                    limits[name] = (ax_min, ax_max)
+            for name, (ax_min, ax_max) in limits.items():
+                ax_auto = (None  # Keep autoscale state as is.
+                           if ax_min is None and ax_max is None
+                           else False)  # Turn off autoscale.
+                set_ax_lim = getattr(self, f'set_{name}lim')
+                set_ax_lim(ax_min, ax_max, emit=emit, auto=ax_auto)
         if kwargs:
             raise _api.kwarg_error("axis", kwargs)
-        return (*self.get_xlim(), *self.get_ylim())
+        lims = ()
+        for name in self._axis_names:
+            get_ax_lim = getattr(self, f'get_{name}lim')
+            lims += get_ax_lim()
+        return lims
 
     def get_legend(self):
         """Return the `.Legend` instance, or None if no legend is defined."""

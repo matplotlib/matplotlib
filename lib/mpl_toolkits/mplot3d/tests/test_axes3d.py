@@ -213,9 +213,7 @@ def test_contour3d():
     ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
     ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
     ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
-    ax.set_xlim(-40, 40)
-    ax.set_ylim(-40, 40)
-    ax.set_zlim(-100, 100)
+    ax.axis(xmin=-40, xmax=40, ymin=-40, ymax=40, zmin=-100, zmax=100)
 
 
 @mpl3d_image_comparison(['contour3d_extend3d.png'], style='mpl20')
