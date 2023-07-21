@@ -249,9 +249,9 @@ class Artist:
                 _ax_flag = True
 
             if self.figure:
-                self.figure = None
                 if not _ax_flag:
-                    self.figure = True
+                    self.figure.stale = True
+                self.figure = None
 
         else:
             raise NotImplementedError('cannot remove artist')
