@@ -1965,9 +1965,10 @@ class Parser:
             | p.boldsymbol
         )
 
+        mdelim = r"\middle" - (p.delim("mdelim") | Error("Expected a delimiter"))
         p.auto_delim    <<= (
             r"\left" - (p.delim("left") | Error("Expected a delimiter"))
-            + ZeroOrMore(p.simple | p.auto_delim)("mid")
+            + ZeroOrMore(p.simple | p.auto_delim | mdelim)("mid")
             + r"\right" - (p.delim("right") | Error("Expected a delimiter"))
         )
 
@@ -2586,13 +2587,23 @@ class Parser:
     def _auto_sized_delimiter(self, front, middle, back):
         state = self.get_state()
         if len(middle):
-            height = max(x.height for x in middle)
-            depth = max(x.depth for x in middle)
+            height = max([x.height for x in middle if not isinstance(x, str)])
+            depth = max([x.depth for x in middle if not isinstance(x, str)])
             factor = None
+            for idx, el in enumerate(middle):
+                if isinstance(el, str) and el == '\\middle':
+                    c = middle[idx + 1]
+                    if c != '.':
+                        middle[idx + 1] = AutoHeightChar(
+                                c, height, depth, state, factor=factor)
+                    else:
+                        middle.remove(c)
+                    del middle[idx]
         else:
             height = 0
             depth = 0
             factor = 1.0
+
         parts = []
         # \left. and \right. aren't supposed to produce any symbols
         if front != '.':
