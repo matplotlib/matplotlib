@@ -8143,13 +8143,12 @@ def test_axes_labels_position():
         ax.set_xlabel(r'x-axis label')
         ax.set_ylabel(r'y-axis label')
 
-    fig = plt.figure(figsize=(8, 8), constrained_layout=True)
+    fig, axs = plt.subplots(nrows=3, ncols=2, figsize=(8, 8), constrained_layout=True)
     fig.suptitle('set_label_position')
-    subfigs = fig.subfigures(nrows=3, ncols=1)
 
-    subfigs[0].suptitle('Bottom and left spines', weight='bold')
-    axs = subfigs[0].subplots(nrows=1, ncols=2)
-    for ax in axs:
+    # Bottom and left spines
+    irow = 0
+    for ax in axs[irow]:
         do_plot(ax)
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
@@ -8158,19 +8157,19 @@ def test_axes_labels_position():
         ax.spines['bottom'].set_position('zero')
         ax.spines['left'].set_position('zero')
 
-    ax = axs[0]
+    ax = axs[irow, 0]
     ax.set_title('bottom & left', {'fontweight': 'bold'})
     ax.xaxis.set_label_position('bottom')
     ax.yaxis.set_label_position('left')
 
-    ax = axs[1]
+    ax = axs[irow, 1]
     ax.set_title('axesbottom & axesleft', {'fontweight': 'bold'})
     ax.xaxis.set_label_position('axesbottom')
     ax.yaxis.set_label_position('axesleft')
 
-    subfigs[1].suptitle('Top and right spines', weight='bold')
-    axs = subfigs[1].subplots(nrows=1, ncols=2)
-    for ax in axs:
+    # Top and right spines
+    irow = 1
+    for ax in axs[irow]:
         do_plot(ax)
         ax.spines['bottom'].set_visible(False)
         ax.spines['left'].set_visible(False)
@@ -8181,29 +8180,29 @@ def test_axes_labels_position():
         ax.spines['top'].set_position('zero')
         ax.spines['right'].set_position('zero')
 
-    ax = axs[0]
+    ax = axs[irow, 0]
     ax.set_title('top & right', {'fontweight': 'bold'})
     ax.xaxis.set_label_position('top')
     ax.yaxis.set_label_position('right')
 
-    ax = axs[1]
+    ax = axs[irow, 1]
     ax.set_title('axestop & axesright', {'fontweight': 'bold'})
     ax.xaxis.set_label_position('axestop')
     ax.yaxis.set_label_position('axesright')
 
-    subfigs[2].suptitle('Non-floating spines', weight='bold')
-    axs = subfigs[2].subplots(nrows=1, ncols=2)
-    for ax in axs:
+    # Non-floating spines
+    irow = 2
+    for ax in axs[irow]:
         do_plot(ax)
 
-    ax = axs[0]
+    ax = axs[irow, 0]
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_title('axesbottom & axesleft', {'fontweight': 'bold'})
     ax.xaxis.set_label_position('axesbottom')
     ax.yaxis.set_label_position('axesleft')
 
-    ax = axs[1]
+    ax = axs[irow, 1]
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
     ax.xaxis.set_tick_params(labeltop=True, labelbottom=False,
