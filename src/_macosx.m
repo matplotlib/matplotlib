@@ -854,7 +854,7 @@ static PyTypeObject FigureManagerType = {
         {"_set_window_mode",
          (PyCFunction)FigureManager__set_window_mode,
          METH_VARARGS,
-         "Set the window open mode (auto, tab, window)"},
+         "Set the window open mode (system, tab, window)"},
         {"set_icon",
          (PyCFunction)FigureManager_set_icon,
          METH_STATIC | METH_VARARGS,
