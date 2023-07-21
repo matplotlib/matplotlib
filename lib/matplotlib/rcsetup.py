@@ -1214,6 +1214,7 @@ _validators = {
     "figure.autolayout":       validate_bool,
     "figure.max_open_warning": validate_int,
     "figure.raise_window":     validate_bool,
+    "macosx.window_mode":      ["system", "tab", "window"],
 
     "figure.subplot.left":   validate_float,
     "figure.subplot.right":  validate_float,

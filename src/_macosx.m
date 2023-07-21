@@ -690,6 +690,25 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject*
+FigureManager__set_window_mode(FigureManager* self, PyObject* args)
+{
+    const char* window_mode;
+    if (!PyArg_ParseTuple(args, "s", &window_mode) || !self->window) {
+        return NULL;
+    }
+
+    NSString* window_mode_str = [NSString stringWithUTF8String: window_mode];
+    if ([window_mode_str isEqualToString: @"tab"]) {
+        [self->window setTabbingMode: NSWindowTabbingModePreferred];
+    } else if ([window_mode_str isEqualToString: @"window"]) {
+        [self->window setTabbingMode: NSWindowTabbingModeDisallowed];
+    } else { // system settings
+        [self->window setTabbingMode: NSWindowTabbingModeAutomatic];
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 FigureManager_repr(FigureManager* self)
 {
     return PyUnicode_FromFormat("FigureManager object %p wrapping NSWindow %p",
@@ -832,6 +851,10 @@ static PyTypeObject FigureManagerType = {
         {"destroy",
          (PyCFunction)FigureManager_destroy,
          METH_NOARGS},
+        {"_set_window_mode",
+         (PyCFunction)FigureManager__set_window_mode,
+         METH_VARARGS,
+         "Set the window open mode (system, tab, window)"},
         {"set_icon",
          (PyCFunction)FigureManager_set_icon,
          METH_STATIC | METH_VARARGS,
