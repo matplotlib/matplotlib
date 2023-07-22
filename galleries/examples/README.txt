@@ -1,3 +1,4 @@
+For an overview of the plotting methods we provide, see :ref:plot_types
 .. _examples-index:
 
 .. _gallery:
