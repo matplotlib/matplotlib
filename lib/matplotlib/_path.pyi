@@ -1,5 +1,7 @@
-from typing import Sequence
+from collections.abc import Sequence
+
 import numpy as np
+
 from .transforms import BboxBase
 
 def affine_transform(points: np.ndarray, trans: np.ndarray) -> np.ndarray: ...

@@ -215,8 +215,6 @@ class Artist:
 
     def __getstate__(self):
         d = self.__dict__.copy()
-        # remove the unpicklable remove method, this will get re-added on load
-        # (by the Axes) if the artist lives on an Axes.
         d['stale_callback'] = None
         return d
 
@@ -251,9 +249,9 @@ class Artist:
                 _ax_flag = True
 
             if self.figure:
-                self.figure = None
                 if not _ax_flag:
-                    self.figure = True
+                    self.figure.stale = True
+                self.figure = None
 
         else:
             raise NotImplementedError('cannot remove artist')
@@ -323,7 +321,7 @@ class Artist:
         # if the artist is animated it does not take normal part in the
         # draw stack and is not expected to be drawn as part of the normal
         # draw loop (when not saving) so do not propagate this change
-        if self.get_animated():
+        if self._animated:
             return
 
         if val and self.stale_callback is not None:
@@ -485,7 +483,7 @@ class Artist:
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
@@ -776,7 +774,7 @@ class Artist:
 
         Parameters
         ----------
-        path : `.Patch` or `.Path` or `.TransformedPath` or None
+        path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath` or None
             The clip path. If given a `.Path`, *transform* must be provided as
             well. If *None*, a previously set clip path is removed.
         transform : `~matplotlib.transforms.Transform`, optional
@@ -1098,10 +1096,7 @@ class Artist:
         s : object
             *s* will be converted to a string by calling `str`.
         """
-        if s is not None:
-            self._label = str(s)
-        else:
-            self._label = None
+        self._label = str(s) if s is not None else None
         self.pchanged()
         self.stale = True
 
@@ -1302,7 +1297,7 @@ class Artist:
 
         Parameters
         ----------
-        event : `matplotlib.backend_bases.MouseEvent`
+        event : `~matplotlib.backend_bases.MouseEvent`
 
         See Also
         --------
@@ -1716,7 +1711,7 @@ def getp(obj, property=None):
 
     Parameters
     ----------
-    obj : `.Artist`
+    obj : `~matplotlib.artist.Artist`
         The queried artist; e.g., a `.Line2D`, a `.Text`, or an `~.axes.Axes`.
 
     property : str or None, default: None
@@ -1755,7 +1750,7 @@ def setp(obj, *args, file=None, **kwargs):
 
     Parameters
     ----------
-    obj : `.Artist` or list of `.Artist`
+    obj : `~matplotlib.artist.Artist` or list of `.Artist`
         The artist(s) whose properties are being set or queried.  When setting
         properties, all artists are affected; when querying the allowed values,
         only the first instance in the sequence is queried.

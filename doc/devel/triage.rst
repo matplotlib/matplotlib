@@ -62,6 +62,8 @@ The following actions are typically useful:
    explores how to lead online discussions in the context of open source.
 
 
+.. _triage_team:
+
 Triage team
 -----------
 
@@ -120,6 +122,8 @@ can do the following important tasks:
     question or has been considered as unclear for many years, then it
     should be closed.
 
+
+.. _triage_workflow:
 
 A typical workflow for triaging issues
 --------------------------------------

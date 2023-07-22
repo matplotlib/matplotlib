@@ -136,7 +136,6 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
-        self._antialiased = mpl.rcParams['text.antialiased']
         self._reset_visual_defaults(
             text=text,
             color=color,
@@ -191,8 +190,8 @@ class Text(Artist):
             linespacing = 1.2  # Maybe use rcParam later.
         self.set_linespacing(linespacing)
         self.set_rotation_mode(rotation_mode)
-        if antialiased is not None:
-            self.set_antialiased(antialiased)
+        self.set_antialiased(antialiased if antialiased is not None else
+                             mpl.rcParams['text.antialiased'])
 
     def update(self, kwargs):
         # docstring inherited
@@ -303,11 +302,15 @@ class Text(Artist):
         Parameters
         ----------
         m : {None, 'default', 'anchor'}
-            If ``None`` or ``"default"``, the text will be first rotated, then
-            aligned according to their horizontal and vertical alignments.  If
-            ``"anchor"``, then alignment occurs before rotation.
+            If ``"default"``, the text will be first rotated, then aligned according
+            to their horizontal and vertical alignments.  If ``"anchor"``, then
+            alignment occurs before rotation. Passing ``None`` will set the rotation
+            mode to ``"default"``.
         """
-        _api.check_in_list(["anchor", "default", None], rotation_mode=m)
+        if m is None:
+            m = "default"
+        else:
+            _api.check_in_list(("anchor", "default"), rotation_mode=m)
         self._rotation_mode = m
         self.stale = True
 
@@ -574,10 +577,10 @@ class Text(Artist):
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
 
     def _update_clip_properties(self):
-        clipprops = dict(clip_box=self.clipbox,
-                         clip_path=self._clippath,
-                         clip_on=self._clipon)
         if self._bbox_patch:
+            clipprops = dict(clip_box=self.clipbox,
+                             clip_path=self._clippath,
+                             clip_on=self._clipon)
             self._bbox_patch.update(clipprops)
 
     def set_clip_box(self, clipbox):
@@ -1268,10 +1271,9 @@ class Text(Artist):
             Any object gets converted to its `str` representation, except for
             ``None`` which is converted to an empty string.
         """
-        if s is None:
-            s = ''
+        s = '' if s is None else str(s)
         if s != self._text:
-            self._text = str(s)
+            self._text = s
             self.stale = True
 
     def _preprocess_math(self, s):
@@ -1372,7 +1374,7 @@ class OffsetFrom:
         """
         Parameters
         ----------
-        artist : `.Artist` or `.BboxBase` or `.Transform`
+        artist : `~matplotlib.artist.Artist` or `.BboxBase` or `.Transform`
             The object to compute the offset from.
 
         ref_coord : (float, float)
@@ -1837,9 +1839,12 @@ or callable, default: value of *xycoords*
                 self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
             else:
                 # modified YAArrow API to be used with FancyArrowPatch
-                for key in [
-                        'width', 'headwidth', 'headlength', 'shrink', 'frac']:
+                for key in ['width', 'headwidth', 'headlength', 'shrink']:
                     arrowprops.pop(key, None)
+                if 'frac' in arrowprops:
+                    _api.warn_deprecated(
+                        "3.8", name="the (unused) 'frac' key in 'arrowprops'")
+                    arrowprops.pop("frac")
             self.arrow_patch = FancyArrowPatch((0, 0), (1, 1), **arrowprops)
         else:
             self.arrow_patch = None
@@ -1932,10 +1937,6 @@ or callable, default: value of *xycoords*
             shrink = arrowprops.get('shrink', 0.0)
             width = arrowprops.get('width', 4)
             headwidth = arrowprops.get('headwidth', 12)
-            if 'frac' in arrowprops:
-                _api.warn_external(
-                    "'frac' option in 'arrowprops' is no longer supported;"
-                    " use 'headlength' to set the head length in points.")
             headlength = arrowprops.get('headlength', 12)
 
             # NB: ms is in pts

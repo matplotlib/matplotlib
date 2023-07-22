@@ -134,7 +134,9 @@ lightweight_math_tests = [
     r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
     r'$1.$ $2.$ $19680801.$ $a.$ $b.$ $mpl.$',
     r'$\text{text}_{\text{sub}}^{\text{sup}} + \text{\$foo\$} + \frac{\text{num}}{\mathbf{\text{den}}}\text{with space, curly brackets \{\}, and dash -}$',
-
+    r'$\boldsymbol{abcde} \boldsymbol{+} \boldsymbol{\Gamma + \Omega} \boldsymbol{01234} \boldsymbol{\alpha * \beta}$',
+    r'$\left\lbrace\frac{\left\lbrack A^b_c\right\rbrace}{\left\leftbrace D^e_f \right\rbrack}\right\rightbrace\ \left\leftparen\max_{x} \left\lgroup \frac{A}{B}\right\rgroup \right\rightparen$',
+    r'$\left( a\middle. b \right)$ $\left( \frac{a}{b} \middle\vert x_i \in P^S \right)$ $\left[ 1 - \middle| a\middle| + \left( x  - \left\lfloor \dfrac{a}{b}\right\rfloor \right)  \right]$',
 ]
 
 digits = "0123456789"
@@ -510,3 +512,37 @@ def test_mathtext_cmr10_minus_sign():
     ax.plot(range(-1, 1), range(-1, 1))
     # draw to make sure we have no warnings
     fig.canvas.draw()
+
+
+def test_mathtext_operators():
+    test_str = r'''
+    \increment \smallin \notsmallowns
+    \smallowns \QED \rightangle
+    \smallintclockwise \smallvarointclockwise
+    \smallointctrcclockwise
+    \ratio \minuscolon \dotsminusdots
+    \sinewave \simneqq \nlesssim
+    \ngtrsim \nlessgtr \ngtrless
+    \cupleftarrow \oequal \rightassert
+    \rightModels \hermitmatrix \barvee
+    \measuredrightangle \varlrtriangle
+    \equalparallel \npreccurlyeq \nsucccurlyeq
+    \nsqsubseteq \nsqsupseteq \sqsubsetneq
+    \sqsupsetneq  \disin \varisins
+    \isins \isindot \varisinobar
+    \isinobar \isinvb \isinE
+    \nisd \varnis \nis
+    \varniobar \niobar \bagmember
+    \triangle'''.split()
+
+    fig = plt.figure()
+    for x, i in enumerate(test_str):
+        fig.text(0.5, (x + 0.5)/len(test_str), r'${%s}$' % i)
+
+    fig.draw_without_rendering()
+
+
+@check_figures_equal(extensions=["png"])
+def test_boldsymbol(fig_test, fig_ref):
+    fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")

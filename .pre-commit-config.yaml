@@ -23,8 +23,10 @@ repos:
       - id: mixed-line-ending
       - id: name-tests-test
         args: ["--pytest-test-first"]
+      - id: no-commit-to-branch #default is master and main
       - id: trailing-whitespace
         exclude_types: [svg]
+
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:

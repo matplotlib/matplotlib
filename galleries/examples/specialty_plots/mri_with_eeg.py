@@ -13,7 +13,6 @@ import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.cm as cm
 from matplotlib.collections import LineCollection
-from matplotlib.ticker import MultipleLocator
 
 fig = plt.figure("MRI_with_EEG")
 
@@ -28,15 +27,10 @@ ax0.axis('off')
 
 # Plot the histogram of MRI intensity
 ax1 = fig.add_subplot(2, 2, 2)
-im = np.ravel(im)
-im = im[np.nonzero(im)]  # Ignore the background
-im = im / (2**16 - 1)  # Normalize
-ax1.hist(im, bins=100)
-ax1.xaxis.set_major_locator(MultipleLocator(0.4))
+im = im[im.nonzero()]  # Ignore the background
+ax1.hist(im, bins=np.arange(0, 2**16+1, 512))
+ax1.set(xlabel='Intensity (a.u.)', ylabel='MRI density', yticks=[])
 ax1.minorticks_on()
-ax1.set_yticks([])
-ax1.set_xlabel('Intensity (a.u.)')
-ax1.set_ylabel('MRI density')
 
 # Load the EEG data
 n_samples, n_rows = 800, 4
@@ -71,7 +65,6 @@ ax2.add_collection(lines)
 ax2.set_yticks(ticklocs, labels=['PG3', 'PG5', 'PG7', 'PG9'])
 
 ax2.set_xlabel('Time (s)')
-
 
 plt.tight_layout()
 plt.show()

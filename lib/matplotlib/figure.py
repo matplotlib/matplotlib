@@ -35,6 +35,7 @@ import inspect
 import itertools
 import logging
 from numbers import Integral
+import threading
 
 import numpy as np
 
@@ -104,6 +105,17 @@ class _AxesStack:
     def current(self):
         """Return the active axes, or None if the stack is empty."""
         return max(self._axes, key=self._axes.__getitem__, default=None)
+
+    def __getstate__(self):
+        return {
+            **vars(self),
+            "_counter": max(self._axes.values(), default=0)
+        }
+
+    def __setstate__(self, state):
+        next_counter = state.pop('_counter')
+        vars(self).update(state)
+        self._counter = itertools.count(next_counter)
 
 
 class SubplotParams:
@@ -556,7 +568,7 @@ default: %(va)s
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
             of the shared axes.
@@ -692,7 +704,7 @@ default: %(va)s
             is incompatible with *projection* and *polar*.  See
             :ref:`axisartist_users-guide-index` for examples.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             Share the x or y `~matplotlib.axis` with sharex and/or sharey.
             The axis will have the same limits, ticks, and scale as the axis
             of the shared axes.
@@ -1117,25 +1129,10 @@ default: %(va)s
         :ref:`legend_guide` for details.
         """
 
-        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                self.axes,
-                *args,
-                **kwargs)
-        # check for third arg
-        if len(extra_args):
-            # _api.warn_deprecated(
-            #     "2.1",
-            #     message="Figure.legend will accept no more than two "
-            #     "positional arguments in the future.  Use "
-            #     "'fig.legend(handles, labels, loc=location)' "
-            #     "instead.")
-            # kwargs['loc'] = extra_args[0]
-            # extra_args = extra_args[1:]
-            pass
-        transform = kwargs.pop('bbox_transform', self.transSubfigure)
+        handles, labels, kwargs = mlegend._parse_legend_args(self.axes, *args, **kwargs)
         # explicitly set the bbox transform if the user hasn't.
-        l = mlegend.Legend(self, handles, labels, *extra_args,
-                           bbox_transform=transform, **kwargs)
+        kwargs.setdefault("bbox_transform", self.transSubfigure)
+        l = mlegend.Legend(self, handles, labels, **kwargs)
         self.legends.append(l)
         l._remove_method = self.legends.remove
         self.stale = True
@@ -1217,7 +1214,7 @@ default: %(va)s
             Axes is created and the space for it will be stolen from the Axes(s)
             specified in *ax*.
 
-        ax : `~.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
+        ax : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
             The one or more parent Axes from which space for a new colorbar Axes
             will be stolen. This parameter is only used if *cax* is not set.
 
@@ -1557,8 +1554,9 @@ default: %(va)s
         wspace, hspace : float, default: None
             The amount of width/height reserved for space between subfigures,
             expressed as a fraction of the average subfigure width/height.
-            If not given, the values will be inferred from a figure or
-            rcParams when necessary.
+            If not given, the values will be inferred from rcParams if using
+            constrained layout (see `~.ConstrainedLayoutEngine`), or zero if
+            not using a layout engine.
 
         width_ratios : array-like of length *ncols*, optional
             Defines the relative widths of the columns. Each column gets a
@@ -1573,12 +1571,23 @@ default: %(va)s
         gs = GridSpec(nrows=nrows, ncols=ncols, figure=self,
                       wspace=wspace, hspace=hspace,
                       width_ratios=width_ratios,
-                      height_ratios=height_ratios)
+                      height_ratios=height_ratios,
+                      left=0, right=1, bottom=0, top=1)
 
         sfarr = np.empty((nrows, ncols), dtype=object)
         for i in range(ncols):
             for j in range(nrows):
                 sfarr[j, i] = self.add_subfigure(gs[j, i], **kwargs)
+
+        if self.get_layout_engine() is None and (wspace is not None or
+                                                 hspace is not None):
+            # Gridspec wspace and hspace is ignored on subfigure instantiation,
+            # and no space is left.  So need to account for it here if required.
+            bottoms, tops, lefts, rights = gs.get_grid_positions(self)
+            for sfrow, bottom, top in zip(sfarr, bottoms, tops):
+                for sf, left, right in zip(sfrow, lefts, rights):
+                    bbox = Bbox.from_extents(left, bottom, right, top)
+                    sf._redo_transform_rel_fig(bbox=bbox)
 
         if squeeze:
             # Discarding unneeded dimensions that equal 1.  If we only have one
@@ -2357,6 +2366,18 @@ class Figure(FigureBase):
         *suppressComposite* is a boolean, this will override the renderer.
     """
 
+    # we want to cache the fonts and mathtext at a global level so that when
+    # multiple figures are created we can reuse them.  This helps with a bug on
+    # windows where the creation of too many figures leads to too many open
+    # file handles and improves the performance of parsing mathtext.  However,
+    # these global caches are not thread safe.  The solution here is to let the
+    # Figure acquire a shared lock at the start of the draw, and release it when it
+    # is done.  This allows multiple renderers to share the cached fonts and
+    # parsed text, but only one figure can draw at a time and so the font cache
+    # and mathtext cache are used by only one renderer at a time.
+
+    _render_lock = threading.RLock()
+
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
 
@@ -3116,33 +3137,33 @@ None}, default: None
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited
-
-        # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
             return
 
-        artists = self._get_draw_artists(renderer)
-        try:
-            renderer.open_group('figure', gid=self.get_gid())
-            if self.axes and self.get_layout_engine() is not None:
-                try:
-                    self.get_layout_engine().execute(self)
-                except ValueError:
-                    pass
-                    # ValueError can occur when resizing a window.
+        with self._render_lock:
 
-            self.patch.draw(renderer)
-            mimage._draw_list_compositing_images(
-                renderer, self, artists, self.suppressComposite)
+            artists = self._get_draw_artists(renderer)
+            try:
+                renderer.open_group('figure', gid=self.get_gid())
+                if self.axes and self.get_layout_engine() is not None:
+                    try:
+                        self.get_layout_engine().execute(self)
+                    except ValueError:
+                        pass
+                        # ValueError can occur when resizing a window.
 
-            for sfig in self.subfigs:
-                sfig.draw(renderer)
+                self.patch.draw(renderer)
+                mimage._draw_list_compositing_images(
+                    renderer, self, artists, self.suppressComposite)
 
-            renderer.close_group('figure')
-        finally:
-            self.stale = False
+                for sfig in self.subfigs:
+                    sfig.draw(renderer)
 
-        DrawEvent("draw_event", self.canvas, renderer)._process()
+                renderer.close_group('figure')
+            finally:
+                self.stale = False
+
+            DrawEvent("draw_event", self.canvas, renderer)._process()
 
     def draw_without_rendering(self):
         """
@@ -3514,14 +3535,14 @@ None}, default: None
         # note that here we do not permanently set the figures engine to
         # tight_layout but rather just perform the layout in place and remove
         # any previous engines.
-        engine = TightLayoutEngine(pad=pad, h_pad=h_pad, w_pad=w_pad,
-                                   rect=rect)
+        engine = TightLayoutEngine(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         try:
             previous_engine = self.get_layout_engine()
             self.set_layout_engine(engine)
             engine.execute(self)
-            if not isinstance(previous_engine, TightLayoutEngine) \
-                    and previous_engine is not None:
+            if previous_engine is not None and not isinstance(
+                previous_engine, (TightLayoutEngine, PlaceHolderLayoutEngine)
+            ):
                 _api.warn_external('The figure layout has changed to tight')
         finally:
             self.set_layout_engine('none')

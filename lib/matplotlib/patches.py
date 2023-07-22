@@ -72,7 +72,7 @@ class Patch(artist.Artist):
             joinstyle = JoinStyle.miter
 
         self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
-        self._fill = True  # needed for set_facecolor call
+        self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
                 _api.warn_external(
@@ -87,7 +87,6 @@ class Patch(artist.Artist):
         self._unscaled_dash_pattern = (0, None)  # offset, dash
         self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
 
-        self.set_fill(fill)
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
         self.set_antialiased(antialiased)
@@ -622,7 +621,7 @@ class Shadow(Patch):
 
         Parameters
         ----------
-        patch : `.Patch`
+        patch : `~matplotlib.patches.Patch`
             The patch to create the shadow for.
         ox, oy : float
             The shift of the shadow in data coordinates, scaled by a factor
@@ -713,7 +712,7 @@ class Rectangle(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
@@ -880,8 +879,7 @@ class Rectangle(Patch):
 
     def get_bbox(self):
         """Return the `.Bbox`."""
-        x0, y0, x1, y1 = self._convert_units()
-        return transforms.Bbox.from_extents(x0, y0, x1, y1)
+        return transforms.Bbox.from_extents(*self._convert_units())
 
     xy = property(get_xy, set_xy)
 
@@ -1662,6 +1660,34 @@ class Ellipse(Patch):
         return self.get_patch_transform().transform(
             [(-1, -1), (1, -1), (1, 1), (-1, 1)])
 
+    def get_vertices(self):
+        """
+        Return the vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        else:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        return [tuple(x) for x in ret]
+
+    def get_co_vertices(self):
+        """
+        Return the co-vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        else:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        return [tuple(x) for x in ret]
+
 
 class Annulus(Patch):
     """
@@ -1936,7 +1962,7 @@ class Arc(Ellipse):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             Most `.Patch` properties are supported as keyword arguments,
             except *fill* and *facecolor* because filling is not supported.
 
@@ -2587,9 +2613,7 @@ class BoxStyle(_Style):
             # the sizes of the vertical and horizontal sawtooth are
             # separately adjusted to fit the given box size.
             dsx_n = round((width - tooth_size) / (tooth_size * 2)) * 2
-            dsx = (width - tooth_size) / dsx_n
             dsy_n = round((height - tooth_size) / (tooth_size * 2)) * 2
-            dsy = (height - tooth_size) / dsy_n
 
             x0, y0 = x0 - pad + hsz, y0 - pad + hsz
             x1, y1 = x0 + width, y0 + height
@@ -3801,7 +3825,7 @@ class FancyBboxPatch(Patch):
         """
         Parameters
         ----------
-        xy : float, float
+        xy : (float, float)
           The lower left corner of the box.
 
         width : float
@@ -3810,7 +3834,7 @@ class FancyBboxPatch(Patch):
         height : float
             The height of the box.
 
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the fancy box. This can either be a `.BoxStyle`
             instance or a string of the style name and optionally comma
             separated attributes (e.g. "Round, pad=0.2"). This string is
@@ -3833,7 +3857,7 @@ class FancyBboxPatch(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
 
         %(Patch:kwdoc)s
         """
@@ -3859,7 +3883,7 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the box: either a `.BoxStyle` instance, or a string,
             which is the style name and optionally comma separated attributes
             (e.g. "Round,pad=0.2"). Such a string is used to construct a
@@ -4028,7 +4052,11 @@ class FancyBboxPatch(Patch):
 
 class FancyArrowPatch(Patch):
     """
-    A fancy arrow patch. It draws an arrow using the `ArrowStyle`.
+    A fancy arrow patch.
+
+    It draws an arrow using the `ArrowStyle`. It is primarily used by the
+    `~.axes.Axes.annotate` method.  For most purposes, use the annotate method for
+    drawing arrows.
 
     The head and tail positions are fixed at the specified start and end points
     of the arrow, but the size and shape (in display coordinates) of the arrow
@@ -4087,7 +4115,7 @@ default: 'arc3'
 
             %(ConnectionStyle:table)s
 
-        patchA, patchB : `.Patch`, default: None
+        patchA, patchB : `~matplotlib.patches.Patch`, default: None
             Head and tail patches, respectively.
 
         shrinkA, shrinkB : float, default: 2
@@ -4104,7 +4132,7 @@ default: 'arc3'
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties, optional
+        **kwargs : `~matplotlib.patches.Patch` properties, optional
             Here is a list of available `.Patch` properties:
 
         %(Patch:kwdoc)s
@@ -4194,7 +4222,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        connectionstyle : str or `matplotlib.patches.ConnectionStyle`
+        connectionstyle : str or `~matplotlib.patches.ConnectionStyle`
             The style of the connection: either a `.ConnectionStyle` instance,
             or a string, which is the style name and optionally comma separated
             attributes (e.g. "Arc,armA=30,rad=10"). Such a string is used to
@@ -4237,7 +4265,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        arrowstyle : str or `matplotlib.patches.ArrowStyle`
+        arrowstyle : str or `~matplotlib.patches.ArrowStyle`
             The style of the arrow: either a `.ArrowStyle` instance, or a
             string, which is the style name and optionally comma separated
             attributes (e.g. "Fancy,head_length=0.2"). Such a string is used to

@@ -750,15 +750,15 @@ class Colorbar:
              lambda self, levels, colors, linewidths, erase=True: locals()],
             self, *args, **kwargs)
         if "CS" in params:
-            self, CS, erase = params.values()
-            if not isinstance(CS, contour.ContourSet) or CS.filled:
+            self, cs, erase = params.values()
+            if not isinstance(cs, contour.ContourSet) or cs.filled:
                 raise ValueError("If a single artist is passed to add_lines, "
                                  "it must be a ContourSet of lines")
             # TODO: Make colorbar lines auto-follow changes in contour lines.
             return self.add_lines(
-                CS.levels,
-                CS.to_rgba(CS.cvalues, CS.alpha),
-                [coll.get_linewidths()[0] for coll in CS.collections],
+                cs.levels,
+                cs.to_rgba(cs.cvalues, cs.alpha),
+                cs.get_linewidths(),
                 erase=erase)
         else:
             self, levels, colors, linewidths, erase = params.values()
@@ -1380,13 +1380,13 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 
     Parameters
     ----------
-    parents : `~.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
+    parents : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of `~.axes.Axes`
         The Axes to use as parents for placing the colorbar.
     %(_make_axes_kw_doc)s
 
     Returns
     -------
-    cax : `~.axes.Axes`
+    cax : `~matplotlib.axes.Axes`
         The child axes.
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
@@ -1494,13 +1494,13 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
 
     Parameters
     ----------
-    parent : `~.axes.Axes`
+    parent : `~matplotlib.axes.Axes`
         The Axes to use as parent for placing the colorbar.
     %(_make_axes_kw_doc)s
 
     Returns
     -------
-    cax : `~.axes.Axes`
+    cax : `~matplotlib.axes.Axes`
         The child axes.
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar

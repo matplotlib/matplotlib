@@ -56,9 +56,7 @@ cset2 = axs[0].contour(X, Y, Z, cset1.levels, colors='k')
 
 # We don't really need dashed contour lines to indicate negative
 # regions, so let's turn them off.
-
-for c in cset2.collections:
-    c.set_linestyle('solid')
+cset2.set_linestyle('solid')
 
 # It is easier here to make a separate call to contour than
 # to set up an array of colors and linewidths.

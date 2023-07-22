@@ -69,6 +69,7 @@ class FigureCanvasMac(FigureCanvasAgg, _macosx.FigureCanvas, FigureCanvasBase):
             self._timers.remove(timer)
             timer.stop()
         timer = self.new_timer(interval=0)
+        timer.single_shot = True
         timer.add_callback(callback_func, callback, timer)
         self._timers.add(timer)
         timer.start()
@@ -144,6 +145,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
         FigureManagerBase.__init__(self, canvas, num)
+        self._set_window_mode(mpl.rcParams.get("macosx.window_mode", "system"))
         if self.toolbar is not None:
             self.toolbar.update()
         if mpl.is_interactive():

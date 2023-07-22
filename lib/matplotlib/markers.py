@@ -293,7 +293,6 @@ class MarkerStyle:
             fillstyle = mpl.rcParams['markers.fillstyle']
         _api.check_in_list(self.fillstyles, fillstyle=fillstyle)
         self._fillstyle = fillstyle
-        self._recache()
 
     def get_joinstyle(self):
         return self._joinstyle.name
@@ -317,23 +316,20 @@ class MarkerStyle:
             - For other possible marker values see the module docstring
               `matplotlib.markers`.
         """
-        if (isinstance(marker, np.ndarray) and marker.ndim == 2 and
+        if isinstance(marker, str) and cbook.is_math_text(marker):
+            self._marker_function = self._set_mathtext_path
+        elif isinstance(marker, (int, str)) and marker in self.markers:
+            self._marker_function = getattr(self, '_set_' + self.markers[marker])
+        elif (isinstance(marker, np.ndarray) and marker.ndim == 2 and
                 marker.shape[1] == 2):
             self._marker_function = self._set_vertices
-        elif isinstance(marker, str) and cbook.is_math_text(marker):
-            self._marker_function = self._set_mathtext_path
         elif isinstance(marker, Path):
             self._marker_function = self._set_path_marker
         elif (isinstance(marker, Sized) and len(marker) in (2, 3) and
                 marker[1] in (0, 1, 2)):
             self._marker_function = self._set_tuple_marker
-        elif (not isinstance(marker, (np.ndarray, list)) and
-              marker in self.markers):
-            self._marker_function = getattr(
-                self, '_set_' + self.markers[marker])
         elif isinstance(marker, MarkerStyle):
             self.__dict__ = copy.deepcopy(marker.__dict__)
-
         else:
             try:
                 Path(marker)
@@ -509,14 +505,12 @@ class MarkerStyle:
         if len(text.vertices) == 0:
             return
 
-        xmin, ymin = text.vertices.min(axis=0)
-        xmax, ymax = text.vertices.max(axis=0)
-        width = xmax - xmin
-        height = ymax - ymin
-        max_dim = max(width, height)
-        self._transform = Affine2D() \
-            .translate(-xmin + 0.5 * -width, -ymin + 0.5 * -height) \
-            .scale(1.0 / max_dim)
+        bbox = text.get_extents()
+        max_dim = max(bbox.width, bbox.height)
+        self._transform = (
+            Affine2D()
+            .translate(-bbox.xmin + 0.5 * -bbox.width, -bbox.ymin + 0.5 * -bbox.height)
+            .scale(1.0 / max_dim))
         self._path = text
         self._snap = False
 

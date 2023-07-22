@@ -891,7 +891,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
     def set_history_buttons(self):
         state_map = {True: tk.NORMAL, False: tk.DISABLED}
         can_back = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
 
         if "Back" in self._buttons:
             self._buttons['Back']['state'] = state_map[can_back]
@@ -972,6 +972,13 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
                           width=int(width), height=int(height),
                           borderwidth=2)
         self._label_font = tkinter.font.Font(size=10)
+        # This filler item ensures the toolbar is always at least two text
+        # lines high. Otherwise the canvas gets redrawn as the mouse hovers
+        # over images because those use two-line messages which resize the
+        # toolbar.
+        label = tk.Label(master=self, font=self._label_font,
+                         text='\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}')
+        label.pack(side=tk.RIGHT)
         self._message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, font=self._label_font,
                                        textvariable=self._message)

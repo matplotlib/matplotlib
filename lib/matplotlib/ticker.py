@@ -9,6 +9,9 @@ custom ones.
 Although the locators know nothing about major or minor ticks, they are used
 by the Axis class to support major and minor tick locating and formatting.
 
+.. _tick_locating:
+.. _locators:
+
 Tick locating
 -------------
 
@@ -76,6 +79,8 @@ The default minor locator is `NullLocator`, i.e., no minor ticks on by default.
 
         ax.xaxis.set_major_locator(MultipleLocator(5))
         ax2.xaxis.set_major_locator(MultipleLocator(5))
+
+.. _formatters:
 
 Tick formatting
 ---------------

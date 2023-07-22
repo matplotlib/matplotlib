@@ -23,7 +23,6 @@ Still TODO:
 
 from contextlib import nullcontext
 from math import radians, cos, sin
-import threading
 
 import numpy as np
 
@@ -61,19 +60,6 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-
-    # we want to cache the fonts at the class level so that when
-    # multiple figures are created we can reuse them.  This helps with
-    # a bug on windows where the creation of too many figures leads to
-    # too many open file handles.  However, storing them at the class
-    # level is not thread safe.  The solution here is to let the
-    # FigureCanvas acquire a lock on the fontd at the start of the
-    # draw, and release it when it is done.  This allows multiple
-    # renderers to share the cached fonts, but only one figure can
-    # draw at time and so the font cache is used by only one
-    # renderer at a time.
-
-    lock = threading.RLock()
 
     def __init__(self, width, height, dpi):
         super().__init__()
@@ -395,8 +381,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         self.renderer = self.get_renderer()
         self.renderer.clear()
         # Acquire a lock on the shared font cache.
-        with RendererAgg.lock, \
-             (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
+        with (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
               else nullcontext()):
             self.figure.draw(self.renderer)
             # A GUI class may be need to update a window using this draw, so

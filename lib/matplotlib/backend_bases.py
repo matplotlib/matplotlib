@@ -170,7 +170,6 @@ class RendererBase:
     * `draw_path_collection`
     * `draw_quad_mesh`
     """
-
     def __init__(self):
         super().__init__()
         self._texmanager = None
@@ -209,9 +208,9 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
-        marker_trans : `matplotlib.transforms.Transform`
+        marker_trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the marker.
-        trans : `matplotlib.transforms.Transform`
+        trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the path.
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
@@ -301,7 +300,7 @@ class RendererBase:
             Array of (x, y) points for the triangle.
         colors : (3, 4) array-like
             RGBA colors for each point of the triangle.
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
         raise NotImplementedError
@@ -319,7 +318,7 @@ class RendererBase:
             Array of *N* (x, y) points for the triangles.
         colors_array : (N, 3, 4) array-like
             Array of *N* RGBA colors for each point of the triangles.
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
         raise NotImplementedError
@@ -523,7 +522,7 @@ class RendererBase:
             The font properties.
         angle : float
             The rotation angle in degrees anti-clockwise.
-        mtext : `matplotlib.text.Text`
+        mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
@@ -548,7 +547,7 @@ class RendererBase:
             The rotation angle in degrees anti-clockwise.
         ismath : bool or "TeX"
             If True, use mathtext parser. If "TeX", use tex for rendering.
-        mtext : `matplotlib.text.Text`
+        mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
 
         Notes
@@ -1164,7 +1163,8 @@ class TimerBase:
     def interval(self, interval):
         # Force to int since none of the backends actually support fractional
         # milliseconds, and some error or give warnings.
-        interval = int(interval)
+        # Some backends also fail when interval == 0, so ensure >= 1 msec
+        interval = max(int(interval), 1)
         self._interval = interval
         self._timer_set_interval()
 
@@ -1342,7 +1342,7 @@ class LocationEvent(Event):
     ----------
     x, y : int or None
         Event location in pixels from bottom left of canvas.
-    inaxes : `~.axes.Axes` or None
+    inaxes : `~matplotlib.axes.Axes` or None
         The `~.axes.Axes` instance over which the mouse is, if any.
     xdata, ydata : float or None
         Data coordinates of the mouse within *inaxes*, or *None* if the mouse
@@ -1491,7 +1491,7 @@ class PickEvent(Event):
     ----------
     mouseevent : `MouseEvent`
         The mouse event that generated the pick.
-    artist : `matplotlib.artist.Artist`
+    artist : `~matplotlib.artist.Artist`
         The picked artist.  Note that artists are not pickable by default
         (see `.Artist.set_picker`).
     other
@@ -1669,7 +1669,7 @@ class FigureCanvasBase:
 
     Attributes
     ----------
-    figure : `matplotlib.figure.Figure`
+    figure : `~matplotlib.figure.Figure`
         A high-level figure instance.
     """
 
@@ -2013,19 +2013,19 @@ class FigureCanvasBase:
             if not hasattr(canvas_class, f"print_{fmt}"):
                 raise ValueError(
                     f"The {backend!r} backend does not support {fmt} output")
+            canvas = canvas_class(self.figure)
         elif hasattr(self, f"print_{fmt}"):
             # Return the current canvas if it supports the requested format.
             canvas = self
-            canvas_class = None  # Skip call to switch_backends.
         else:
             # Return a default canvas for the requested format, if it exists.
             canvas_class = get_registered_canvas_class(fmt)
-        if canvas_class:
-            canvas = self.switch_backends(canvas_class)
-        if canvas is None:
-            raise ValueError(
-                "Format {!r} is not supported (supported formats: {})".format(
-                    fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            if canvas_class is None:
+                raise ValueError(
+                    "Format {!r} is not supported (supported formats: {})".format(
+                        fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            canvas = canvas_class(self.figure)
+        canvas._is_saving = self._is_saving
         meth = getattr(canvas, f"print_{fmt}")
         mod = (meth.func.__module__
                if hasattr(meth, "func")  # partialmethod, e.g. backend_wx.
@@ -2147,9 +2147,10 @@ class FigureCanvasBase:
                     functools.partial(
                         print_method, orientation=orientation)
                 )
+                # we do this instead of `self.figure.draw_without_rendering`
+                # so that we can inject the orientation
                 with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
-
             if bbox_inches:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(
@@ -2214,6 +2215,7 @@ class FigureCanvasBase:
         filename = basename + '.' + filetype
         return filename
 
+    @_api.deprecated("3.8")
     def switch_backends(self, FigureCanvasClass):
         """
         Instantiate an instance of FigureCanvasClass
@@ -2834,7 +2836,7 @@ class NavigationToolbar2:
     def __init__(self, canvas):
         self.canvas = canvas
         canvas.toolbar = self
-        self._nav_stack = cbook.Stack()
+        self._nav_stack = cbook._Stack()
         # This cursor will be set after the initial draw.
         self._last_cursor = tools.Cursors.POINTER
 

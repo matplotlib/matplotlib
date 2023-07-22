@@ -150,7 +150,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        **kwargs : `.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
             Other keyword arguments are text properties, see `.Text` for a list
             of valid text properties.
         """
@@ -316,12 +316,7 @@ class Axes(_AxesBase):
         --------
         .. plot:: gallery/text_labels_and_annotations/legend.py
         """
-        handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                [self],
-                *args,
-                **kwargs)
-        if len(extra_args):
-            raise _api.nargs_error('legend', '0-2', len(args))
+        handles, labels, kwargs = mlegend._parse_legend_args([self], *args, **kwargs)
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         self.legend_._remove_method = self._remove_legend
         return self.legend_
@@ -925,7 +920,7 @@ class Axes(_AxesBase):
             # data limits should not be adjusted.
             datalim = []
 
-        line = mlines._AxLine(xy1, xy2, slope, **kwargs)
+        line = mlines.AxLine(xy1, xy2, slope, **kwargs)
         # Like add_line, but correctly handling data limits.
         self._set_artist_props(line)
         if line.get_clip_path() is None:
@@ -1609,7 +1604,7 @@ class Axes(_AxesBase):
             data limits. The values are passed on to
             `~.axes.Axes.autoscale_view`.
 
-        **kwargs : `.Line2D` properties, optional
+        **kwargs : `~matplotlib.lines.Line2D` properties, optional
             *kwargs* are used to specify properties like a line label (for
             auto legends), linewidth, antialiasing, marker face color.
             Example::
@@ -1720,7 +1715,7 @@ class Axes(_AxesBase):
         (``'green'``) or hex strings (``'#008000'``).
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
-        lines = [*self._get_lines(*args, data=data, **kwargs)]
+        lines = [*self._get_lines(self, *args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
         if scalex:
@@ -2001,13 +1996,13 @@ class Axes(_AxesBase):
 
             - `.LineCollection` if *usevlines* is True.
             - `.Line2D` if *usevlines* is False.
-        b : `.Line2D` or None
+        b : `~matplotlib.lines.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False.
 
         Other Parameters
         ----------------
-        linestyle : `.Line2D` property, optional
+        linestyle : `~matplotlib.lines.Line2D` property, optional
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -2078,13 +2073,13 @@ class Axes(_AxesBase):
 
             - `.LineCollection` if *usevlines* is True.
             - `.Line2D` if *usevlines* is False.
-        b : `.Line2D` or None
+        b : `~matplotlib.lines.Line2D` or None
             Horizontal line at 0 if *usevlines* is True
             None *usevlines* is False.
 
         Other Parameters
         ----------------
-        linestyle : `.Line2D` property, optional
+        linestyle : `~matplotlib.lines.Line2D` property, optional
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -3465,8 +3460,10 @@ class Axes(_AxesBase):
         `.ErrorbarContainer`
             The container contains:
 
-            - plotline: `.Line2D` instance of x, y plot markers and/or line.
-            - caplines: A tuple of `.Line2D` instances of the error bar caps.
+            - plotline: `~matplotlib.lines.Line2D` instance of x, y plot markers
+              and/or line.
+            - caplines: A tuple of `~matplotlib.lines.Line2D` instances of the error
+              bar caps.
             - barlinecols: A tuple of `.LineCollection` with the horizontal and
               vertical error ranges.
 
@@ -3578,7 +3575,7 @@ class Axes(_AxesBase):
         # that would call self._process_unit_info again, and do other indirect
         # data processing.
         (data_line, base_style), = self._get_lines._plot_args(
-            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+            self, (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
 
         # Do this after creating `data_line` to avoid modifying `base_style`.
         if barsabove:
@@ -5014,7 +5011,7 @@ default: :rc:`scatter.edgecolors`
             if mincnt is None:
                 mincnt = 0
             accum = np.array(
-                [reduce_C_function(acc) if len(acc) > mincnt else np.nan
+                [reduce_C_function(acc) if len(acc) >= mincnt else np.nan
                  for Cs_at_i in [Cs_at_i1, Cs_at_i2]
                  for acc in Cs_at_i[1:]],  # [1:] drops out-of-range points.
                 float)
@@ -5286,7 +5283,7 @@ default: :rc:`scatter.edgecolors`
         # For compatibility(!), get aliases from Line2D rather than Patch.
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # _get_patches_for_fill returns a generator, convert it to a list.
-        patches = [*self._get_patches_for_fill(*args, data=data, **kwargs)]
+        patches = [*self._get_patches_for_fill(self, *args, data=data, **kwargs)]
         for poly in patches:
             self.add_patch(poly)
         self._request_autoscale_view()
@@ -5530,12 +5527,12 @@ default: :rc:`scatter.edgecolors`
 
         The input may either be actual RGB(A) data, or 2D scalar data, which
         will be rendered as a pseudocolor image. For displaying a grayscale
-        image set up the colormapping using the parameters
+        image, set up the colormapping using the parameters
         ``cmap='gray', vmin=0, vmax=255``.
 
         The number of pixels used to render an image is set by the Axes size
-        and the *dpi* of the figure. This can lead to aliasing artifacts when
-        the image is resampled because the displayed image size will usually
+        and the figure *dpi*. This can lead to aliasing artifacts when
+        the image is resampled, because the displayed image size will usually
         not match the size of *X* (see
         :doc:`/gallery/images_contours_and_fields/image_antialiasing`).
         The resampling can be controlled via the *interpolation* parameter
@@ -5570,7 +5567,7 @@ default: :rc:`scatter.edgecolors`
 
             This parameter is ignored if *X* is RGB(A).
 
-        aspect : {'equal', 'auto'} or float, default: :rc:`image.aspect`
+        aspect : {'equal', 'auto'} or float or None, default: None
             The aspect ratio of the Axes.  This parameter is particularly
             relevant for images since it determines whether data pixels are
             square.
@@ -5584,6 +5581,11 @@ default: :rc:`scatter.edgecolors`
             - 'auto': The Axes is kept fixed and the aspect is adjusted so
               that the data fit in the Axes. In general, this will result in
               non-square pixels.
+
+            Normally, None (the default) means to use :rc:`image.aspect`.  However, if
+            the image uses a transform that does not contain the axes data transform,
+            then None means to not modify the axes aspect at all (in that case, directly
+            call `.Axes.set_aspect` if desired).
 
         interpolation : str, default: :rc:`image.interpolation`
             The interpolation method used.
@@ -5718,15 +5720,19 @@ default: :rc:`scatter.edgecolors`
         `~matplotlib.pyplot.imshow` expects RGB images adopting the straight
         (unassociated) alpha representation.
         """
-        if aspect is None:
-            aspect = mpl.rcParams['image.aspect']
-        self.set_aspect(aspect)
         im = mimage.AxesImage(self, cmap=cmap, norm=norm,
                               interpolation=interpolation, origin=origin,
                               extent=extent, filternorm=filternorm,
                               filterrad=filterrad, resample=resample,
                               interpolation_stage=interpolation_stage,
                               **kwargs)
+
+        if aspect is None and not (
+                im.is_transform_set()
+                and not im.get_transform().contains_branch(self.transData)):
+            aspect = mpl.rcParams['image.aspect']
+        if aspect is not None:
+            self.set_aspect(aspect)
 
         im.set_data(X)
         im.set_alpha(alpha)
@@ -5767,7 +5773,7 @@ default: :rc:`scatter.edgecolors`
             else:
                 X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
                 shading = 'flat'
-            C = cbook.safe_masked_invalid(C)
+            C = cbook.safe_masked_invalid(C, copy=True)
             return X, Y, C, shading
 
         if len(args) == 3:
@@ -5776,20 +5782,14 @@ default: :rc:`scatter.edgecolors`
             # unit conversion allows e.g. datetime objects as axis values
             X, Y = args[:2]
             X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
-            X, Y = [cbook.safe_masked_invalid(a) for a in [X, Y]]
+            X, Y = [cbook.safe_masked_invalid(a, copy=True) for a in [X, Y]]
 
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):
                     raise ValueError(
                         'x and y arguments to pcolormesh cannot have '
                         'non-finite values or be of type '
-                        'numpy.ma.core.MaskedArray with masked values')
-                # safe_masked_invalid() returns an ndarray for dtypes other
-                # than floating point.
-                if isinstance(X, np.ma.core.MaskedArray):
-                    X = X.data  # strip mask as downstream doesn't like it...
-                if isinstance(Y, np.ma.core.MaskedArray):
-                    Y = Y.data
+                        'numpy.ma.MaskedArray with masked values')
             nrows, ncols = C.shape[:2]
         else:
             raise _api.nargs_error(funcname, takes="1 or 3", given=len(args))
@@ -5839,9 +5839,11 @@ default: :rc:`scatter.edgecolors`
                                 "This may lead to incorrectly calculated cell "
                                 "edges, in which case, please supply "
                                 f"explicit cell edges to {funcname}.")
-                        X = np.hstack((X[:, [0]] - dX[:, [0]],
-                                       X[:, :-1] + dX,
-                                       X[:, [-1]] + dX[:, [-1]]))
+
+                        hstack = np.ma.hstack if np.ma.isMA(X) else np.hstack
+                        X = hstack((X[:, [0]] - dX[:, [0]],
+                                    X[:, :-1] + dX,
+                                    X[:, [-1]] + dX[:, [-1]]))
                     else:
                         # This is just degenerate, but we can't reliably guess
                         # a dX if there is just one value.
@@ -5856,7 +5858,7 @@ default: :rc:`scatter.edgecolors`
                     Y = _interp_grid(Y.T).T
                 shading = 'flat'
 
-        C = cbook.safe_masked_invalid(C)
+        C = cbook.safe_masked_invalid(C, copy=True)
         return X, Y, C, shading
 
     @_preprocess_data()
@@ -5959,7 +5961,7 @@ default: :rc:`scatter.edgecolors`
 
         Returns
         -------
-        `matplotlib.collections.Collection`
+        `matplotlib.collections.PolyQuadMesh`
 
         Other Parameters
         ----------------
@@ -5977,7 +5979,7 @@ default: :rc:`scatter.edgecolors`
 
         **kwargs
             Additionally, the following arguments are allowed. They are passed
-            along to the `~matplotlib.collections.PolyCollection` constructor:
+            along to the `~matplotlib.collections.PolyQuadMesh` constructor:
 
         %(PolyCollection:kwdoc)s
 
@@ -6011,35 +6013,6 @@ default: :rc:`scatter.edgecolors`
         shading = shading.lower()
         X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading,
                                             kwargs=kwargs)
-        Ny, Nx = X.shape
-
-        # convert to MA, if necessary.
-        C = ma.asarray(C)
-        X = ma.asarray(X)
-        Y = ma.asarray(Y)
-
-        mask = ma.getmaskarray(X) + ma.getmaskarray(Y)
-        xymask = (mask[0:-1, 0:-1] + mask[1:, 1:] +
-                  mask[0:-1, 1:] + mask[1:, 0:-1])
-        # don't plot if C or any of the surrounding vertices are masked.
-        mask = ma.getmaskarray(C) + xymask
-
-        unmask = ~mask
-        X1 = ma.filled(X[:-1, :-1])[unmask]
-        Y1 = ma.filled(Y[:-1, :-1])[unmask]
-        X2 = ma.filled(X[1:, :-1])[unmask]
-        Y2 = ma.filled(Y[1:, :-1])[unmask]
-        X3 = ma.filled(X[1:, 1:])[unmask]
-        Y3 = ma.filled(Y[1:, 1:])[unmask]
-        X4 = ma.filled(X[:-1, 1:])[unmask]
-        Y4 = ma.filled(Y[:-1, 1:])[unmask]
-        npoly = len(X1)
-
-        xy = np.stack([X1, Y1, X2, Y2, X3, Y3, X4, Y4, X1, Y1], axis=-1)
-        verts = xy.reshape((npoly, 5, 2))
-
-        C = ma.filled(C[:Ny - 1, :Nx - 1])[unmask]
-
         linewidths = (0.25,)
         if 'linewidth' in kwargs:
             kwargs['linewidths'] = kwargs.pop('linewidth')
@@ -6053,19 +6026,29 @@ default: :rc:`scatter.edgecolors`
         # unless the boundary is not stroked, in which case the
         # default will be False; with unstroked boundaries, aa
         # makes artifacts that are often disturbing.
-        if 'antialiased' in kwargs:
-            kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        if 'antialiaseds' not in kwargs and cbook._str_lower_equal(ec, "none"):
-            kwargs['antialiaseds'] = False
+        if 'antialiaseds' in kwargs:
+            kwargs['antialiased'] = kwargs.pop('antialiaseds')
+        if 'antialiased' not in kwargs and cbook._str_lower_equal(ec, "none"):
+            kwargs['antialiased'] = False
 
         kwargs.setdefault('snap', False)
 
-        collection = mcoll.PolyCollection(
-            verts, array=C, cmap=cmap, norm=norm, alpha=alpha, **kwargs)
-        collection._scale_norm(norm, vmin, vmax)
+        if np.ma.isMaskedArray(X) or np.ma.isMaskedArray(Y):
+            stack = np.ma.stack
+            X = np.ma.asarray(X)
+            Y = np.ma.asarray(Y)
+            # For bounds collections later
+            x = X.compressed()
+            y = Y.compressed()
+        else:
+            stack = np.stack
+            x = X
+            y = Y
+        coords = stack([X, Y], axis=-1)
 
-        x = X.compressed()
-        y = Y.compressed()
+        collection = mcoll.PolyQuadMesh(
+            coords, array=C, cmap=cmap, norm=norm, alpha=alpha, **kwargs)
+        collection._scale_norm(norm, vmin, vmax)
 
         # Transform from native to data coordinates?
         t = collection._transform
@@ -6258,7 +6241,7 @@ default: :rc:`scatter.edgecolors`
 
         The main difference lies in the created object and internal data
         handling:
-        While `~.Axes.pcolor` returns a `.PolyCollection`, `~.Axes.pcolormesh`
+        While `~.Axes.pcolor` returns a `.PolyQuadMesh`, `~.Axes.pcolormesh`
         returns a `.QuadMesh`. The latter is more specialized for the given
         purpose and thus is faster. It should almost always be preferred.
 
@@ -6267,12 +6250,13 @@ default: :rc:`scatter.edgecolors`
         for *C*. However, only `~.Axes.pcolor` supports masked arrays for *X*
         and *Y*. The reason lies in the internal handling of the masked values.
         `~.Axes.pcolor` leaves out the respective polygons from the
-        PolyCollection. `~.Axes.pcolormesh` sets the facecolor of the masked
+        PolyQuadMesh. `~.Axes.pcolormesh` sets the facecolor of the masked
         elements to transparent. You can see the difference when using
         edgecolors. While all edges are drawn irrespective of masking in a
         QuadMesh, the edge between two adjacent masked quadrilaterals in
         `~.Axes.pcolor` is not drawn as the corresponding polygons do not
-        exist in the PolyCollection.
+        exist in the PolyQuadMesh. Because PolyQuadMesh draws each individual
+        polygon, it also supports applying hatches and linestyles to the collection.
 
         Another difference is the support of Gouraud shading in
         `~.Axes.pcolormesh`, which is not available with `~.Axes.pcolor`.
@@ -7051,7 +7035,7 @@ such objects
 
         Returns
         -------
-        StepPatch : `matplotlib.patches.StepPatch`
+        StepPatch : `~matplotlib.patches.StepPatch`
 
         Other Parameters
         ----------------

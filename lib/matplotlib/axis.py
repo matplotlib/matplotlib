@@ -32,6 +32,12 @@ _line_param_aliases = [list(d)[0] for d in _line_inspector.aliasd.values()]
 _gridline_param_names = ['grid_' + name
                          for name in _line_param_names + _line_param_aliases]
 
+_MARKER_DICT = {
+    'out': (mlines.TICKDOWN, mlines.TICKUP),
+    'in': (mlines.TICKUP, mlines.TICKDOWN),
+    'inout': ('|', '|'),
+}
+
 
 class Tick(martist.Artist):
     """
@@ -43,15 +49,15 @@ class Tick(martist.Artist):
 
     Attributes
     ----------
-    tick1line : `.Line2D`
+    tick1line : `~matplotlib.lines.Line2D`
         The left/bottom tick marker.
-    tick2line : `.Line2D`
+    tick2line : `~matplotlib.lines.Line2D`
         The right/top tick marker.
-    gridline : `.Line2D`
+    gridline : `~matplotlib.lines.Line2D`
         The grid line associated with the label position.
-    label1 : `.Text`
+    label1 : `~matplotlib.text.Text`
         The left/bottom tick label.
-    label2 : `.Text`
+    label2 : `~matplotlib.text.Text`
         The right/top tick label.
 
     """
@@ -87,11 +93,10 @@ class Tick(martist.Artist):
         super().__init__()
 
         if gridOn is None:
-            if major and (mpl.rcParams['axes.grid.which']
-                          in ('both', 'major')):
+            which = mpl.rcParams['axes.grid.which']
+            if major and (which in ('both', 'major')):
                 gridOn = mpl.rcParams['axes.grid']
-            elif (not major) and (mpl.rcParams['axes.grid.which']
-                                  in ('both', 'minor')):
+            elif (not major) and (which in ('both', 'minor')):
                 gridOn = mpl.rcParams['axes.grid']
             else:
                 gridOn = False
@@ -209,7 +214,8 @@ class Tick(martist.Artist):
         # further updates ticklabel positions using the new pads.
         if tickdir is None:
             tickdir = mpl.rcParams[f'{self.__name__}.direction']
-        _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
+        else:
+            _api.check_in_list(['in', 'out', 'inout'], tickdir=tickdir)
         self._tickdir = tickdir
         self._pad = self._base_pad + self.get_tick_padding()
 
@@ -436,11 +442,7 @@ class XTick(Tick):
     def _apply_tickdir(self, tickdir):
         # docstring inherited
         super()._apply_tickdir(tickdir)
-        mark1, mark2 = {
-            'out': (mlines.TICKDOWN, mlines.TICKUP),
-            'in': (mlines.TICKUP, mlines.TICKDOWN),
-            'inout': ('|', '|'),
-        }[self._tickdir]
+        mark1, mark2 = _MARKER_DICT[self._tickdir]
         self.tick1line.set_marker(mark1)
         self.tick2line.set_marker(mark2)
 
@@ -526,9 +528,9 @@ class Ticker:
 
     Attributes
     ----------
-    locator : `matplotlib.ticker.Locator` subclass
+    locator : `~matplotlib.ticker.Locator` subclass
         Determines the positions of the ticks.
-    formatter : `matplotlib.ticker.Formatter` subclass
+    formatter : `~matplotlib.ticker.Formatter` subclass
         Determines the format of the tick labels.
     """
 
@@ -601,20 +603,20 @@ class Axis(martist.Artist):
     ----------
     isDefault_label : bool
 
-    axes : `matplotlib.axes.Axes`
+    axes : `~matplotlib.axes.Axes`
         The `~.axes.Axes` to which the Axis belongs.
-    major : `matplotlib.axis.Ticker`
+    major : `~matplotlib.axis.Ticker`
         Determines the major tick positions and their label format.
-    minor : `matplotlib.axis.Ticker`
+    minor : `~matplotlib.axis.Ticker`
         Determines the minor tick positions and their label format.
-    callbacks : `matplotlib.cbook.CallbackRegistry`
+    callbacks : `~matplotlib.cbook.CallbackRegistry`
 
-    label : `.Text`
+    label : `~matplotlib.text.Text`
         The axis label.
     labelpad : float
         The distance between the axis label and the tick labels.
         Defaults to :rc:`axes.labelpad` = 4.
-    offsetText : `.Text`
+    offsetText : `~matplotlib.text.Text`
         A `.Text` object containing the data offset of the ticks (if any).
     pickradius : float
         The acceptance radius for containment tests. See also `.Axis.contains`.
@@ -632,15 +634,20 @@ class Axis(martist.Artist):
         return "{}({},{})".format(
             type(self).__name__, *self.axes.transAxes.transform((0, 0)))
 
-    def __init__(self, axes, *, pickradius=15):
+    def __init__(self, axes, *, pickradius=15, clear=True):
         """
         Parameters
         ----------
-        axes : `matplotlib.axes.Axes`
+        axes : `~matplotlib.axes.Axes`
             The `~.axes.Axes` to which the created Axis belongs.
         pickradius : float
             The acceptance radius for containment tests. See also
             `.Axis.contains`.
+        clear : bool, default: True
+            Whether to clear the Axis on creation. This is not required, e.g.,  when
+            creating an Axis as part of an Axes, as ``Axes.clear`` will call
+            ``Axis.clear``.
+            .. versionadded:: 3.8
         """
         super().__init__()
         self._remove_overlapping_locs = True
@@ -674,7 +681,12 @@ class Axis(martist.Artist):
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
 
-        self.clear()
+        if clear:
+            self.clear()
+        else:
+            self.converter = None
+            self.units = None
+
         self._autoscale_on = True
 
     @property
@@ -762,6 +774,7 @@ class Axis(martist.Artist):
         self.stale = True
 
     def get_transform(self):
+        """Return the transform used in the Axis' scale"""
         return self._scale.get_transform()
 
     def get_scale(self):
@@ -896,7 +909,6 @@ class Axis(martist.Artist):
 
         self.converter = None
         self.units = None
-        self.set_units(None)
         self.stale = True
 
     def reset_ticks(self):
@@ -1621,7 +1633,7 @@ class Axis(martist.Artist):
         which : {'major', 'minor', 'both'}
             The grid lines to apply the changes on.
 
-        **kwargs : `.Line2D` properties
+        **kwargs : `~matplotlib.lines.Line2D` properties
             Define the line properties of the grid, e.g.::
 
                 grid(color='r', linestyle='-', linewidth=2)
@@ -2043,8 +2055,8 @@ class Axis(martist.Artist):
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
         **kwargs
-            `.Text` properties for the labels. These take effect only if you
-            pass *labels*. In other cases, please use `~.Axes.tick_params`.
+            `.Text` properties for the labels. Using these is only allowed if
+            you pass *labels*. In other cases, please use `~.Axes.tick_params`.
 
         Notes
         -----
@@ -2054,8 +2066,11 @@ class Axis(martist.Artist):
         ticks.
         """
         if labels is None and kwargs:
-            raise ValueError('labels argument cannot be None when '
-                             'kwargs are passed')
+            first_key = next(iter(kwargs))
+            raise ValueError(
+                f"Incorrect use of keyword argument {first_key!r}. Keyword arguments "
+                "other than 'minor' modify the text labels and can only be used if "
+                "'labels' are passed as well.")
         result = self._set_tick_locations(ticks, minor=minor)
         if labels is not None:
             self.set_ticklabels(labels, minor=minor, **kwargs)
@@ -2353,8 +2368,6 @@ class XAxis(Axis):
             can be used if you don't want any ticks. 'none' and 'both'
             affect only the ticks, not the labels.
         """
-        _api.check_in_list(['top', 'bottom', 'both', 'default', 'none'],
-                           position=position)
         if position == 'top':
             self.set_tick_params(which='both', top=True, labeltop=True,
                                  bottom=False, labelbottom=False)
@@ -2377,7 +2390,8 @@ class XAxis(Axis):
             self._tick_position = 'bottom'
             self.offsetText.set_verticalalignment('top')
         else:
-            assert False, "unhandled parameter not caught by _check_in_list"
+            _api.check_in_list(['top', 'bottom', 'both', 'default', 'none'],
+                               position=position)
         self.stale = True
 
     def tick_top(self):
@@ -2599,8 +2613,6 @@ class YAxis(Axis):
             can be used if you don't want any ticks. 'none' and 'both'
             affect only the ticks, not the labels.
         """
-        _api.check_in_list(['left', 'right', 'both', 'default', 'none'],
-                           position=position)
         if position == 'right':
             self.set_tick_params(which='both', right=True, labelright=True,
                                  left=False, labelleft=False)
@@ -2619,7 +2631,8 @@ class YAxis(Axis):
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
         else:
-            assert False, "unhandled parameter not caught by _check_in_list"
+            _api.check_in_list(['left', 'right', 'both', 'default', 'none'],
+                               position=position)
         self.stale = True
 
     def tick_right(self):

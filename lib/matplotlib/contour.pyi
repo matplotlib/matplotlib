@@ -4,8 +4,10 @@ from matplotlib.axes import Axes
 from matplotlib.collections import Collection, PathCollection
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.font_manager import FontProperties
+from matplotlib.path import Path
+from matplotlib.patches import Patch
 from matplotlib.text import Text
-from matplotlib.transforms import Transform
+from matplotlib.transforms import Transform, TransformedPatchPath, TransformedPath
 from matplotlib.ticker import Locator, Formatter
 
 from numpy.typing import ArrayLike
@@ -82,16 +84,12 @@ class ContourLabeler:
     def labels(self, inline: bool, inline_spacing: int) -> None: ...
     def remove(self) -> None: ...
 
-class ContourSet(cm.ScalarMappable, ContourLabeler):
+class ContourSet(ContourLabeler, Collection):
     axes: Axes
     levels: Iterable[float]
     filled: bool
     linewidths: float | ArrayLike | None
-    linestyles: None | Literal["solid", "dashed", "dashdot", "dotted"] | Iterable[
-        Literal["solid", "dashed", "dashdot", "dotted"]
-    ]
     hatches: Iterable[str | None]
-    alpha: float | None
     origin: Literal["upper", "lower", "image"] | None
     extent: tuple[float, float, float, float] | None
     colors: ColorType | Sequence[ColorType]
@@ -103,7 +101,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     negative_linestyles: None | Literal[
         "solid", "dashed", "dashdot", "dotted"
     ] | Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
-    collections: list[PathCollection]
+    clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None
     labelTexts: list[Text]
     labelCValues: list[ColorType]
     allkinds: list[np.ndarray]
@@ -111,6 +109,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     # only for not filled
     tlinewidths: list[tuple[float]]
+
+    @property
+    def alpha(self) -> float | None: ...
+    @property
+    def collections(self) -> list[PathCollection]: ...
+    @property
+    def linestyles(self) -> (
+        None |
+        Literal["solid", "dashed", "dashdot", "dotted"] |
+        Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
+    ): ...
 
     def __init__(
         self,
@@ -139,14 +148,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         negative_linestyles: Literal["solid", "dashed", "dashdot", "dotted"]
         | Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
         | None = ...,
+        clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None = ...,
         **kwargs
     ) -> None: ...
-    def get_transform(self) -> Transform: ...
     def legend_elements(
         self, variable_name: str = ..., str_format: Callable[[float], str] = ...
     ) -> tuple[list[Artist], list[str]]: ...
-    def get_alpha(self) -> float | None: ...
-    def set_alpha(self, alpha: float | None) -> None: ...
     def find_nearest_contour(
         self, x: float, y: float, indices: Iterable[int] | None = ..., pixel: bool = ...
     ) -> tuple[Collection, int, int, float, float, float]: ...

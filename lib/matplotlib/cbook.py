@@ -192,9 +192,11 @@ class CallbackRegistry:
                           for s, d in self.callbacks.items()},
             # It is simpler to reconstruct this from callbacks in __setstate__.
             "_func_cid_map": None,
+            "_cid_gen": next(self._cid_gen)
         }
 
     def __setstate__(self, state):
+        cid_count = state.pop('_cid_gen')
         vars(self).update(state)
         self.callbacks = {
             s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
@@ -203,6 +205,7 @@ class CallbackRegistry:
         self._func_cid_map = {
             s: {proxy: cid for cid, proxy in d.items()}
             for s, d in self.callbacks.items()}
+        self._cid_gen = itertools.count(cid_count)
 
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
@@ -283,7 +286,7 @@ class CallbackRegistry:
         """
         if self._signals is not None:
             _api.check_in_list(self._signals, signal=s)
-        for cid, ref in list(self.callbacks.get(s, {}).items()):
+        for ref in list(self.callbacks.get(s, {}).values()):
             func = ref()
             if func is not None:
                 try:
@@ -559,6 +562,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@_api.deprecated("3.8")
 class Stack:
     """
     Stack of elements with a movable cursor.
@@ -663,6 +667,61 @@ class Stack:
         for elem in old_elements:
             if elem != o:
                 self.push(elem)
+
+
+class _Stack:
+    """
+    Stack of elements with a movable cursor.
+
+    Mimics home/back/forward in a web browser.
+    """
+
+    def __init__(self):
+        self._pos = -1
+        self._elements = []
+
+    def clear(self):
+        """Empty the stack."""
+        self._pos = -1
+        self._elements = []
+
+    def __call__(self):
+        """Return the current element, or None."""
+        return self._elements[self._pos] if self._elements else None
+
+    def __len__(self):
+        return len(self._elements)
+
+    def __getitem__(self, ind):
+        return self._elements[ind]
+
+    def forward(self):
+        """Move the position forward and return the current element."""
+        self._pos = min(self._pos + 1, len(self._elements) - 1)
+        return self()
+
+    def back(self):
+        """Move the position back and return the current element."""
+        self._pos = max(self._pos - 1, 0)
+        return self()
+
+    def push(self, o):
+        """
+        Push *o* to the stack after the current position, and return *o*.
+
+        Discard all later elements.
+        """
+        self._elements[self._pos + 1:] = [o]
+        self._pos = len(self._elements) - 1
+        return o
+
+    def home(self):
+        """
+        Push the first element onto the top of the stack.
+
+        The first element is returned.
+        """
+        return self.push(self._elements[0]) if self._elements else None
 
 
 def safe_masked_invalid(x, copy=False):
@@ -1632,6 +1691,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         if val is None:
             return False
         try:
+            return math.isfinite(val)
+        except TypeError:
+            pass
+        try:
             return np.isfinite(val) if np.isscalar(val) else True
         except TypeError:
             # This is something that NumPy cannot make heads or tails of,
@@ -1658,7 +1721,10 @@ def _safe_first_finite(obj, *, skip_nonfinite=True):
         raise RuntimeError("matplotlib does not "
                            "support generators as input")
     else:
-        return next((val for val in obj if safe_isfinite(val)), safe_first_element(obj))
+        for val in obj:
+            if safe_isfinite(val):
+                return val
+        return safe_first_element(obj)
 
 
 def sanitize_sequence(data):
@@ -1703,7 +1769,7 @@ def normalize_kwargs(kw, alias_mapping=None):
 
     # deal with default value of alias_mapping
     if alias_mapping is None:
-        alias_mapping = dict()
+        alias_mapping = {}
     elif (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
           or isinstance(alias_mapping, Artist)):
         alias_mapping = getattr(alias_mapping, "_alias_map", {})

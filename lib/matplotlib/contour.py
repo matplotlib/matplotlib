@@ -3,6 +3,7 @@ Classes to support contour plotting and labelling for the Axes class.
 """
 
 import functools
+import math
 from numbers import Integral
 
 import numpy as np
@@ -11,8 +12,9 @@ from numpy import ma
 import matplotlib as mpl
 from matplotlib import _api, _docstring
 from matplotlib.backend_bases import MouseButton
+from matplotlib.lines import Line2D
+from matplotlib.path import Path
 from matplotlib.text import Text
-import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
@@ -21,14 +23,6 @@ import matplotlib.font_manager as font_manager
 import matplotlib.cbook as cbook
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
-
-
-# We can't use a single line collection for contour because a line
-# collection can have only a single line style, and we want to be able to have
-# dashed negative contours, for example, and solid positive contours.
-# We could use a single polygon collection for filled contours, but it
-# seems better to keep line and filled contours similar, with one collection
-# per level.
 
 
 @_api.deprecated("3.7", alternative="Text.set_transform_rotates_text")
@@ -68,7 +62,7 @@ def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
     elif (is_button and event.button == MouseButton.LEFT
           # On macOS/gtk, some keys return None.
           or is_key and event.key is not None):
-        if event.inaxes == cs.axes:
+        if cs.axes.contains(event)[0]:
             cs.add_label_near(event.x, event.y, transform=False,
                               inline=inline, inline_spacing=inline_spacing)
             canvas.draw()
@@ -180,10 +174,7 @@ class ContourLabeler:
         # Detect if manual selection is desired and remove from argument list.
         self.labelManual = manual
         self.rightside_up = rightside_up
-        if zorder is None:
-            self._clabel_zorder = 2+self._contour_zorder
-        else:
-            self._clabel_zorder = zorder
+        self._clabel_zorder = 2 + self.get_zorder() if zorder is None else zorder
 
         if levels is None:
             levels = self.levels
@@ -251,7 +242,8 @@ class ContourLabeler:
     def print_label(self, linecontour, labelwidth):
         """Return whether a contour is long enough to hold a label."""
         return (len(linecontour) > 10 * labelwidth
-                or (np.ptp(linecontour, axis=0) > 1.2 * labelwidth).any())
+                or (len(linecontour)
+                    and (np.ptp(linecontour, axis=0) > 1.2 * labelwidth).any()))
 
     def too_close(self, x, y, lw):
         """Return whether a label is already near this location."""
@@ -323,6 +315,127 @@ class ContourLabeler:
                 break
         return x, y, (idx * block_size + hbsize) % ctr_size
 
+    def _split_path_and_get_label_rotation(self, path, idx, screen_pos, lw, spacing=5):
+        """
+        Prepare for insertion of a label at index *idx* of *path*.
+
+        Parameters
+        ----------
+        path : Path
+            The path where the label will be inserted, in data space.
+        idx : int
+            The vertex index after which the label will be inserted.
+        screen_pos : (float, float)
+            The position where the label will be inserted, in screen space.
+        lw : float
+            The label width, in screen space.
+        spacing : float
+            Extra spacing around the label, in screen space.
+
+        Returns
+        -------
+        path : Path
+            The path, broken so that the label can be drawn over it.
+        angle : float
+            The rotation of the label.
+
+        Notes
+        -----
+        Both tasks are done together to avoid calculating path lengths multiple times,
+        which is relatively costly.
+
+        The method used here involves computing the path length along the contour in
+        pixel coordinates and then looking (label width / 2) away from central point to
+        determine rotation and then to break contour if desired.  The extra spacing is
+        taken into account when breaking the path, but not when computing the angle.
+        """
+        if hasattr(self, "_old_style_split_collections"):
+            del self._old_style_split_collections  # Invalidate them.
+
+        xys = path.vertices
+        codes = path.codes
+
+        # Insert a vertex at idx/pos (converting back to data space), if there isn't yet
+        # a vertex there.  With infinite precision one could also always insert the
+        # extra vertex (it will get masked out by the label below anyways), but floating
+        # point inaccuracies (the point can have undergone a data->screen->data
+        # transform loop) can slightly shift the point and e.g. shift the angle computed
+        # below from exactly zero to nonzero.
+        pos = self.get_transform().inverted().transform(screen_pos)
+        if not np.allclose(pos, xys[idx]):
+            xys = np.insert(xys, idx, pos, axis=0)
+            codes = np.insert(codes, idx, Path.LINETO)
+
+        # Find the connected component where the label will be inserted.  Note that a
+        # path always starts with a MOVETO, and we consider there's an implicit
+        # MOVETO (closing the last path) at the end.
+        movetos = (codes == Path.MOVETO).nonzero()[0]
+        start = movetos[movetos <= idx][-1]
+        try:
+            stop = movetos[movetos > idx][0]
+        except IndexError:
+            stop = len(codes)
+
+        # Restrict ourselves to the connected component.
+        cc_xys = xys[start:stop]
+        idx -= start
+
+        # If the path is closed, rotate it s.t. it starts at the label.
+        is_closed_path = codes[stop - 1] == Path.CLOSEPOLY
+        if is_closed_path:
+            cc_xys = np.concatenate([xys[idx:-1], xys[:idx+1]])
+            idx = 0
+
+        # Like np.interp, but additionally vectorized over fp.
+        def interp_vec(x, xp, fp): return [np.interp(x, xp, col) for col in fp.T]
+
+        # Use cumulative path lengths ("cpl") as curvilinear coordinate along contour.
+        screen_xys = self.get_transform().transform(cc_xys)
+        path_cpls = np.insert(
+            np.cumsum(np.hypot(*np.diff(screen_xys, axis=0).T)), 0, 0)
+        path_cpls -= path_cpls[idx]
+
+        # Use linear interpolation to get end coordinates of label.
+        target_cpls = np.array([-lw/2, lw/2])
+        if is_closed_path:  # For closed paths, target from the other end.
+            target_cpls[0] += (path_cpls[-1] - path_cpls[0])
+        (sx0, sx1), (sy0, sy1) = interp_vec(target_cpls, path_cpls, screen_xys)
+        angle = np.rad2deg(np.arctan2(sy1 - sy0, sx1 - sx0))  # Screen space.
+        if self.rightside_up:  # Fix angle so text is never upside-down
+            angle = (angle + 90) % 180 - 90
+
+        target_cpls += [-spacing, +spacing]  # Expand range by spacing.
+
+        # Get indices near points of interest; use -1 as out of bounds marker.
+        i0, i1 = np.interp(target_cpls, path_cpls, range(len(path_cpls)),
+                           left=-1, right=-1)
+        i0 = math.floor(i0)
+        i1 = math.ceil(i1)
+        (x0, x1), (y0, y1) = interp_vec(target_cpls, path_cpls, cc_xys)
+
+        # Actually break contours (dropping zero-len parts).
+        new_xy_blocks = []
+        new_code_blocks = []
+        if is_closed_path:
+            if i0 != -1 and i1 != -1:
+                new_xy_blocks.extend([[(x1, y1)], cc_xys[i1:i0+1], [(x0, y0)]])
+                new_code_blocks.extend([[Path.MOVETO], [Path.LINETO] * (i0 + 2 - i1)])
+        else:
+            if i0 != -1:
+                new_xy_blocks.extend([cc_xys[:i0 + 1], [(x0, y0)]])
+                new_code_blocks.extend([[Path.MOVETO], [Path.LINETO] * (i0 + 1)])
+            if i1 != -1:
+                new_xy_blocks.extend([[(x1, y1)], cc_xys[i1:]])
+                new_code_blocks.extend([
+                    [Path.MOVETO], [Path.LINETO] * (len(cc_xys) - i1)])
+
+        # Back to the full path.
+        xys = np.concatenate([xys[:start], *new_xy_blocks, xys[stop:]])
+        codes = np.concatenate([codes[:start], *new_code_blocks, codes[stop:]])
+
+        return angle, Path(xys, codes)
+
+    @_api.deprecated("3.8")
     def calc_label_rot_and_inline(self, slc, ind, lw, lc=None, spacing=5):
         """
         Calculate the appropriate label rotation given the linecontour
@@ -409,7 +522,7 @@ class ContourLabeler:
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep
             # original contour if this is the preferred behavior.
-            # if not len(nlc): nlc = [ lc ]
+            # if not len(nlc): nlc = [lc]
 
         return rotation, nlc
 
@@ -422,7 +535,7 @@ class ContourLabeler:
             rotation=rotation,
             horizontalalignment='center', verticalalignment='center',
             zorder=self._clabel_zorder,
-            color=self.labelMappable.to_rgba(cvalue, alpha=self.alpha),
+            color=self.labelMappable.to_rgba(cvalue, alpha=self.get_alpha()),
             fontproperties=self._label_font_props,
             clip_box=self.axes.bbox)
         self.labelTexts.append(t)
@@ -467,42 +580,18 @@ class ContourLabeler:
         if transform:
             x, y = transform.transform((x, y))
 
-        # find the nearest contour _in screen units_
-        conmin, segmin, imin, xmin, ymin = self.find_nearest_contour(
-            x, y, self.labelIndiceList)[:5]
-
-        # calc_label_rot_and_inline() requires that (xmin, ymin)
-        # be a vertex in the path. So, if it isn't, add a vertex here
-        paths = self.collections[conmin].get_paths()  # paths of correct coll.
-        lc = paths[segmin].vertices  # vertices of correct segment
-        # Where should the new vertex be added in data-units?
-        xcmin = self.axes.transData.inverted().transform([xmin, ymin])
-        if not np.allclose(xcmin, lc[imin]):
-            # No vertex is close enough, so add a new point in the vertices and
-            # replace the path by the new one.
-            lc = np.insert(lc, imin, xcmin, axis=0)
-            paths[segmin] = mpath.Path(lc)
-
-        # Get index of nearest level in subset of levels used for labeling
-        lmin = self.labelIndiceList.index(conmin)
-
-        # Get label width for rotating labels and breaking contours
-        lw = self._get_nth_label_width(lmin)
-
-        # Figure out label rotation.
-        rotation, nlc = self.calc_label_rot_and_inline(
-            self.axes.transData.transform(lc),  # to pixel space.
-            imin, lw, lc if inline else None, inline_spacing)
-
-        self.add_label(xmin, ymin, rotation, self.labelLevelList[lmin],
-                       self.labelCValueList[lmin])
+        idx_level_min, idx_vtx_min, proj = self._find_nearest_contour(
+            (x, y), self.labelIndiceList)
+        path = self._paths[idx_level_min]
+        level = self.labelIndiceList.index(idx_level_min)
+        label_width = self._get_nth_label_width(level)
+        rotation, path = self._split_path_and_get_label_rotation(
+            path, idx_vtx_min, proj, label_width, inline_spacing)
+        self.add_label(*proj, rotation, self.labelLevelList[idx_level_min],
+                       self.labelCValueList[idx_level_min])
 
         if inline:
-            # Remove old, not looping over paths so we can do this up front
-            paths.pop(segmin)
-
-            # Add paths if not empty or single point
-            paths.extend([mpath.Path(n) for n in nlc if len(n) > 1])
+            self._paths[idx_level_min] = path
 
     def pop_label(self, index=-1):
         """Defaults to removing last label, but any index can be supplied"""
@@ -522,41 +611,29 @@ class ContourLabeler:
                 self.labelLevelList,
                 self.labelCValueList,
         )):
-
-            con = self.collections[icon]
-            trans = con.get_transform()
-            lw = self._get_nth_label_width(idx)
+            trans = self.get_transform()
+            label_width = self._get_nth_label_width(idx)
             additions = []
-            paths = con.get_paths()
-            for segNum, linepath in enumerate(paths):
-                lc = linepath.vertices  # Line contour
-                slc = trans.transform(lc)  # Line contour in screen coords
-
+            for subpath in self._paths[icon]._iter_connected_components():
+                screen_xys = trans.transform(subpath.vertices)
                 # Check if long enough for a label
-                if self.print_label(slc, lw):
-                    x, y, ind = self.locate_label(slc, lw)
-
-                    rotation, new = self.calc_label_rot_and_inline(
-                        slc, ind, lw, lc if inline else None, inline_spacing)
-
-                    # Actually add the label
-                    add_label(x, y, rotation, lev, cvalue)
-
-                    # If inline, add new contours
-                    if inline:
-                        for n in new:
-                            # Add path if not empty or single point
-                            if len(n) > 1:
-                                additions.append(mpath.Path(n))
+                if self.print_label(screen_xys, label_width):
+                    x, y, idx = self.locate_label(screen_xys, label_width)
+                    rotation, path = self._split_path_and_get_label_rotation(
+                        subpath, idx, (x, y),
+                        label_width, inline_spacing)
+                    add_label(x, y, rotation, lev, cvalue)  # Really add label.
+                    if inline:  # If inline, add new contours
+                        additions.append(path)
                 else:  # If not adding label, keep old path
-                    additions.append(linepath)
-
-            # After looping over all segments on a contour, replace old paths
-            # by new ones if inlining.
+                    additions.append(subpath)
+            # After looping over all segments on a contour, replace old path by new one
+            # if inlining.
             if inline:
-                paths[:] = additions
+                self._paths[icon] = Path.make_compound_path(*additions)
 
     def remove(self):
+        super().remove()
         for text in self.labelTexts:
             text.remove()
 
@@ -626,7 +703,7 @@ layers : array
 
 
 @_docstring.dedent_interpd
-class ContourSet(cm.ScalarMappable, ContourLabeler):
+class ContourSet(ContourLabeler, mcoll.Collection):
     """
     Store a set of contour lines or filled regions.
 
@@ -634,7 +711,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     Parameters
     ----------
-    ax : `~.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
 
     levels : [level0, level1, ..., leveln]
         A list of floating point numbers indicating the contour levels.
@@ -674,7 +751,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                  hatches=(None,), alpha=None, origin=None, extent=None,
                  cmap=None, colors=None, norm=None, vmin=None, vmax=None,
                  extend='neither', antialiased=None, nchunk=0, locator=None,
-                 transform=None, negative_linestyles=None,
+                 transform=None, negative_linestyles=None, clip_path=None,
                  **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -686,7 +763,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Parameters
         ----------
-        ax : `~.axes.Axes`
+        ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` object to draw on.
 
         levels : [level0, level1, ..., leveln]
@@ -720,23 +797,25 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             Keyword arguments are as described in the docstring of
             `~.Axes.contour`.
         """
+        if antialiased is None and filled:
+            # Eliminate artifacts; we are not stroking the boundaries.
+            antialiased = False
+            # The default for line contours will be taken from the
+            # LineCollection default, which uses :rc:`lines.antialiased`.
+        super().__init__(
+            antialiaseds=antialiased,
+            alpha=alpha,
+            clip_path=clip_path,
+            transform=transform,
+        )
         self.axes = ax
         self.levels = levels
         self.filled = filled
-        self.linewidths = linewidths
-        self.linestyles = linestyles
         self.hatches = hatches
-        self.alpha = alpha
         self.origin = origin
         self.extent = extent
         self.colors = colors
         self.extend = extend
-        self.antialiased = antialiased
-        if self.antialiased is None and self.filled:
-            # Eliminate artifacts; we are not stroking the boundaries.
-            self.antialiased = False
-            # The default for line contours will be taken from the
-            # LineCollection default, which uses :rc:`lines.antialiased`.
 
         self.nchunk = nchunk
         self.locator = locator
@@ -757,8 +836,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.origin == 'image':
             self.origin = mpl.rcParams['image.origin']
 
-        self._transform = transform
-
+        self._orig_linestyles = linestyles  # Only kept for user access.
         self.negative_linestyles = negative_linestyles
         # If negative_linestyles was not defined as a keyword argument, define
         # negative_linestyles with rcParams
@@ -766,10 +844,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.negative_linestyles = \
                 mpl.rcParams['contour.negative_linestyle']
 
-        # The base class _process_args will update _allpaths, which gets picked
-        # up by _get_allpaths below.  OTOH the _process_args of subclasses
-        # leave _allpaths as None and instead set _contour_generator.
-        self._allpaths = None
         kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
 
@@ -806,71 +880,47 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if self._extend_max:
                     cmap.set_over(self.colors[-1])
 
-        self.collections = cbook.silent_list(None)
-
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
 
-        kw = {'cmap': cmap}
+        self.set_cmap(cmap)
         if norm is not None:
-            kw['norm'] = norm
-        # sets self.cmap, norm if needed;
-        cm.ScalarMappable.__init__(self, **kw)
+            self.set_norm(norm)
         if vmin is not None:
             self.norm.vmin = vmin
         if vmax is not None:
             self.norm.vmax = vmax
         self._process_colors()
 
-        allpaths = self._get_allpaths()
+        if self._paths is None:
+            self._paths = self._make_paths_from_contour_generator()
 
         if self.filled:
-            if self.linewidths is not None:
+            if linewidths is not None:
                 _api.warn_external('linewidths is ignored by contourf')
             # Lower and upper contour levels.
             lowers, uppers = self._get_lowers_and_uppers()
-            # Default zorder taken from Collection
-            self._contour_zorder = kwargs.pop('zorder', 1)
+            self.set(
+                edgecolor="none",
+                # Default zorder taken from Collection
+                zorder=kwargs.pop("zorder", 1),
+            )
 
-            self.collections[:] = [
-                mcoll.PathCollection(
-                    paths,
-                    antialiaseds=(self.antialiased,),
-                    edgecolors='none',
-                    alpha=self.alpha,
-                    transform=self.get_transform(),
-                    zorder=self._contour_zorder)
-                for level, level_upper, paths
-                in zip(lowers, uppers, allpaths)]
         else:
-            tlinewidths = self._process_linewidths()
-            tlinestyles = self._process_linestyles()
-            aa = self.antialiased
-            if aa is not None:
-                aa = (self.antialiased,)
-            # Default zorder taken from LineCollection, which is higher than
-            # for filled contours so that lines are displayed on top.
-            self._contour_zorder = kwargs.pop('zorder', 2)
+            self.set(
+                facecolor="none",
+                linewidths=self._process_linewidths(linewidths),
+                linestyle=self._process_linestyles(linestyles),
+                # Default zorder taken from LineCollection, which is higher
+                # than for filled contours so that lines are displayed on top.
+                zorder=kwargs.pop("zorder", 2),
+                label="_nolegend_",
+            )
 
-            self.collections[:] = [
-                mcoll.PathCollection(
-                    paths,
-                    facecolors="none",
-                    antialiaseds=aa,
-                    linewidths=width,
-                    linestyles=[lstyle],
-                    alpha=self.alpha,
-                    transform=self.get_transform(),
-                    zorder=self._contour_zorder,
-                    label='_nolegend_')
-                for level, width, lstyle, paths
-                in zip(self.levels, tlinewidths, tlinestyles, allpaths)]
-
-        for col in self.collections:
-            self.axes.add_collection(col, autolim=False)
-            col.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
-            col.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
+        self.axes.add_collection(self, autolim=False)
+        self.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
+        self.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
         self.axes.update_datalim([self._mins, self._maxs])
         self.axes.autoscale_view(tight=True)
 
@@ -888,8 +938,44 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         p.codes for c in self.collections for p in c.get_paths()]))
     tcolors = _api.deprecated("3.8")(property(lambda self: [
         (tuple(rgba),) for rgba in self.to_rgba(self.cvalues, self.alpha)]))
-    tlinewidths = _api.deprecated("3.8")(
-        property(lambda self: self._process_linewidths()))
+    tlinewidths = _api.deprecated("3.8")(property(lambda self: [
+        (w,) for w in self.get_linewidths()]))
+    alpha = property(lambda self: self.get_alpha())
+    linestyles = property(lambda self: self._orig_linestyles)
+
+    @_api.deprecated("3.8")
+    @property
+    def collections(self):
+        # On access, make oneself invisible and instead add the old-style collections
+        # (one PathCollection per level).  We do not try to further split contours into
+        # connected components as we already lost track of what pairs of contours need
+        # to be considered as single units to draw filled regions with holes.
+        if not hasattr(self, "_old_style_split_collections"):
+            self.set_visible(False)
+            fcs = self.get_facecolor()
+            ecs = self.get_edgecolor()
+            lws = self.get_linewidth()
+            lss = self.get_linestyle()
+            self._old_style_split_collections = []
+            for idx, path in enumerate(self._paths):
+                pc = mcoll.PathCollection(
+                    [path] if len(path.vertices) else [],
+                    alpha=self.get_alpha(),
+                    antialiaseds=self._antialiaseds[idx % len(self._antialiaseds)],
+                    transform=self.get_transform(),
+                    zorder=self.get_zorder(),
+                    label="_nolegend_",
+                    facecolor=fcs[idx] if len(fcs) else "none",
+                    edgecolor=ecs[idx] if len(ecs) else "none",
+                    linewidths=[lws[idx % len(lws)]],
+                    linestyles=[lss[idx % len(lss)]],
+                )
+                if self.filled:
+                    pc.set(hatch=self.hatches[idx % len(self.hatches)])
+                self._old_style_split_collections.append(pc)
+            for col in self._old_style_split_collections:
+                self.axes.add_collection(col)
+        return self._old_style_split_collections
 
     def get_transform(self):
         """Return the `.Transform` instance used by this ContourSet."""
@@ -935,36 +1021,30 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         if self.filled:
             lowers, uppers = self._get_lowers_and_uppers()
-            n_levels = len(self.collections)
-
-            for i, (collection, lower, upper) in enumerate(
-                    zip(self.collections, lowers, uppers)):
-                patch = mpatches.Rectangle(
+            n_levels = len(self._paths)
+            for idx in range(n_levels):
+                artists.append(mpatches.Rectangle(
                     (0, 0), 1, 1,
-                    facecolor=collection.get_facecolor()[0],
-                    hatch=collection.get_hatch(),
-                    alpha=collection.get_alpha())
-                artists.append(patch)
-
-                lower = str_format(lower)
-                upper = str_format(upper)
-
-                if i == 0 and self.extend in ('min', 'both'):
+                    facecolor=self.get_facecolor()[idx],
+                    hatch=self.hatches[idx % len(self.hatches)],
+                ))
+                lower = str_format(lowers[idx])
+                upper = str_format(uppers[idx])
+                if idx == 0 and self.extend in ('min', 'both'):
                     labels.append(fr'${variable_name} \leq {lower}s$')
-                elif i == n_levels - 1 and self.extend in ('max', 'both'):
+                elif idx == n_levels - 1 and self.extend in ('max', 'both'):
                     labels.append(fr'${variable_name} > {upper}s$')
                 else:
                     labels.append(fr'${lower} < {variable_name} \leq {upper}$')
         else:
-            for collection, level in zip(self.collections, self.levels):
-
-                patch = mcoll.LineCollection(None)
-                patch.update_from(collection)
-
-                artists.append(patch)
-                # format the level for insertion into the labels
-                level = str_format(level)
-                labels.append(fr'${variable_name} = {level}$')
+            for idx, level in enumerate(self.levels):
+                artists.append(Line2D(
+                    [], [],
+                    color=self.get_edgecolor()[idx],
+                    linewidth=self.get_linewidths()[idx],
+                    linestyle=self.get_linestyles()[idx],
+                ))
+                labels.append(fr'${variable_name} = {str_format(level)}$')
 
         return artists, labels
 
@@ -1002,33 +1082,36 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._mins = points.min(axis=0)
         self._maxs = points.max(axis=0)
 
-        # Each entry in (allsegs, allkinds) is a list of (segs, kinds) which
-        # specifies a list of Paths: segs is a list of (N, 2) arrays of xy
-        # coordinates, kinds is a list of arrays of corresponding pathcodes.
-        # However, kinds can also be None; in which case all paths in that list
-        # are codeless (this case is normalized above).
-        self._allpaths = [[*map(mpath.Path, segs, kinds)]
-                          for segs, kinds in zip(allsegs, allkinds)]
+        # Each entry in (allsegs, allkinds) is a list of (segs, kinds): segs is a list
+        # of (N, 2) arrays of xy coordinates, kinds is a list of arrays of corresponding
+        # pathcodes.  However, kinds can also be None; in which case all paths in that
+        # list are codeless (this case is normalized above).  These lists are used to
+        # construct paths, which then get concatenated.
+        self._paths = [Path.make_compound_path(*map(Path, segs, kinds))
+                       for segs, kinds in zip(allsegs, allkinds)]
 
         return kwargs
 
-    def _get_allpaths(self):
-        """Compute ``allpaths`` using C extension."""
-        if self._allpaths is not None:
-            return self._allpaths
-        allpaths = []
+    def _make_paths_from_contour_generator(self):
+        """Compute ``paths`` using C extension."""
+        if self._paths is not None:
+            return self._paths
+        paths = []
+        empty_path = Path(np.empty((0, 2)))
         if self.filled:
             lowers, uppers = self._get_lowers_and_uppers()
             for level, level_upper in zip(lowers, uppers):
                 vertices, kinds = \
                     self._contour_generator.create_filled_contour(
                         level, level_upper)
-                allpaths.append([*map(mpath.Path, vertices, kinds)])
+                paths.append(Path(np.concatenate(vertices), np.concatenate(kinds))
+                             if len(vertices) else empty_path)
         else:
             for level in self.levels:
                 vertices, kinds = self._contour_generator.create_contour(level)
-                allpaths.append([*map(mpath.Path, vertices, kinds)])
-        return allpaths
+                paths.append(Path(np.concatenate(vertices), np.concatenate(kinds))
+                             if len(vertices) else empty_path)
+        return paths
 
     def _get_lowers_and_uppers(self):
         """
@@ -1047,30 +1130,19 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     def changed(self):
         if not hasattr(self, "cvalues"):
-            # Just return after calling the super() changed function
-            cm.ScalarMappable.changed(self)
-            return
+            self._process_colors()  # Sets cvalues.
         # Force an autoscale immediately because self.to_rgba() calls
         # autoscale_None() internally with the data passed to it,
         # so if vmin/vmax are not set yet, this would override them with
         # content from *cvalues* rather than levels like we want
         self.norm.autoscale_None(self.levels)
-        tcolors = [(tuple(rgba),)
-                   for rgba in self.to_rgba(self.cvalues, alpha=self.alpha)]
-        hatches = self.hatches * len(tcolors)
-        for color, hatch, collection in zip(tcolors, hatches,
-                                            self.collections):
-            if self.filled:
-                collection.set_facecolor(color)
-                # update the collection's hatch (may be None)
-                collection.set_hatch(hatch)
-            else:
-                collection.set_edgecolor(color)
-        for label, cv in zip(self.labelTexts, self.labelCValues):
-            label.set_alpha(self.alpha)
+        self.set_array(self.cvalues)
+        self.update_scalarmappable()
+        alphas = np.broadcast_to(self.get_alpha(), len(self.cvalues))
+        for label, cv, alpha in zip(self.labelTexts, self.labelCValues, alphas):
+            label.set_alpha(alpha)
             label.set_color(self.labelMappable.to_rgba(cv))
-        # add label colors
-        cm.ScalarMappable.changed(self)
+        super().changed()
 
     def _autolev(self, N):
         """
@@ -1215,36 +1287,26 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.set_norm(mcolors.NoNorm())
         else:
             self.cvalues = self.layers
-        self.set_array(self.levels)
-        self.autoscale_None()
+        self.norm.autoscale_None(self.levels)
+        self.set_array(self.cvalues)
+        self.update_scalarmappable()
         if self.extend in ('both', 'max', 'min'):
             self.norm.clip = False
 
-        # self.tcolors are set by the "changed" method
-
-    def _process_linewidths(self):
-        linewidths = self.linewidths
+    def _process_linewidths(self, linewidths):
         Nlev = len(self.levels)
         if linewidths is None:
             default_linewidth = mpl.rcParams['contour.linewidth']
             if default_linewidth is None:
                 default_linewidth = mpl.rcParams['lines.linewidth']
-            tlinewidths = [(default_linewidth,)] * Nlev
+            return [default_linewidth] * Nlev
+        elif not np.iterable(linewidths):
+            return [linewidths] * Nlev
         else:
-            if not np.iterable(linewidths):
-                linewidths = [linewidths] * Nlev
-            else:
-                linewidths = list(linewidths)
-                if len(linewidths) < Nlev:
-                    nreps = int(np.ceil(Nlev / len(linewidths)))
-                    linewidths = linewidths * nreps
-                if len(linewidths) > Nlev:
-                    linewidths = linewidths[:Nlev]
-            tlinewidths = [(w,) for w in linewidths]
-        return tlinewidths
+            linewidths = list(linewidths)
+            return (linewidths * math.ceil(Nlev / len(linewidths)))[:Nlev]
 
-    def _process_linestyles(self):
-        linestyles = self.linestyles
+    def _process_linestyles(self, linestyles):
         Nlev = len(self.levels)
         if linestyles is None:
             tlinestyles = ['solid'] * Nlev
@@ -1267,18 +1329,57 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 raise ValueError("Unrecognized type for linestyles kwarg")
         return tlinestyles
 
-    def get_alpha(self):
-        """Return alpha to be applied to all ContourSet artists."""
-        return self.alpha
-
-    def set_alpha(self, alpha):
+    def _find_nearest_contour(self, xy, indices=None):
         """
-        Set the alpha blending value for all ContourSet artists.
-        *alpha* must be between 0 (transparent) and 1 (opaque).
-        """
-        self.alpha = alpha
-        self.changed()
+        Find the point in the unfilled contour plot that is closest (in screen
+        space) to point *xy*.
 
+        Parameters
+        ----------
+        xy : tuple[float, float]
+            The reference point (in screen space).
+        indices : list of int or None, default: None
+            Indices of contour levels to consider.  If None (the default), all levels
+            are considered.
+
+        Returns
+        -------
+        idx_level_min : int
+            The index of the contour level closest to *xy*.
+        idx_vtx_min : int
+            The index of the `.Path` segment closest to *xy* (at that level).
+        proj : (float, float)
+            The point in the contour plot closest to *xy*.
+        """
+
+        # Convert each contour segment to pixel coordinates and then compare the given
+        # point to those coordinates for each contour. This is fast enough in normal
+        # cases, but speedups may be possible.
+
+        if self.filled:
+            raise ValueError("Method does not support filled contours")
+
+        if indices is None:
+            indices = range(len(self._paths))
+
+        d2min = np.inf
+        idx_level_min = idx_vtx_min = proj_min = None
+
+        for idx_level in indices:
+            path = self._paths[idx_level]
+            if not len(path.vertices):
+                continue
+            lc = self.get_transform().transform(path.vertices)
+            d2, proj, leg = _find_closest_point_on_path(lc, xy)
+            if d2 < d2min:
+                d2min = d2
+                idx_level_min = idx_level
+                idx_vtx_min = leg[1]
+                proj_min = proj
+
+        return idx_level_min, idx_vtx_min, proj_min
+
+    @_api.deprecated("3.8")
     def find_nearest_contour(self, x, y, indices=None, pixel=True):
         """
         Find the point in the contour plot that is closest to ``(x, y)``.
@@ -1358,10 +1459,21 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         return (conmin, segmin, imin, xmin, ymin, d2min)
 
-    def remove(self):
-        super().remove()
-        for coll in self.collections:
-            coll.remove()
+    def draw(self, renderer):
+        paths = self._paths
+        n_paths = len(paths)
+        if not self.filled or all(hatch is None for hatch in self.hatches):
+            super().draw(renderer)
+            return
+        # In presence of hatching, draw contours one at a time.
+        for idx in range(n_paths):
+            with cbook._setattr_cm(self, _paths=[paths[idx]]), self._cm_set(
+                hatch=self.hatches[idx % len(self.hatches)],
+                array=[self.get_array()[idx]],
+                linewidths=[self.get_linewidths()[idx % len(self.get_linewidths())]],
+                linestyles=[self.get_linestyles()[idx % len(self.get_linestyles())]],
+            ):
+                super().draw(renderer)
 
 
 @_docstring.dedent_interpd
@@ -1758,6 +1870,11 @@ algorithm : {'mpl2005', 'mpl2014', 'serial', 'threaded'}, optional
     further information.
 
     The default is taken from :rc:`contour.algorithm`.
+
+clip_path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath`
+    Set the clip path.  See `~matplotlib.artist.Artist.set_clip_path`.
+
+    .. versionadded:: 3.8
 
 data : indexable object, optional
     DATA_PARAMETER_PLACEHOLDER

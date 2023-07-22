@@ -377,6 +377,23 @@ def test_twinx_cla():
 
 
 @pytest.mark.parametrize('twin', ('x', 'y'))
+def test_twin_units(twin):
+    axis_name = f'{twin}axis'
+    twin_func = f'twin{twin}'
+
+    a = ['0', '1']
+    b = ['a', 'b']
+
+    fig = Figure()
+    ax1 = fig.subplots()
+    ax1.plot(a, b)
+    assert getattr(ax1, axis_name).units is not None
+    ax2 = getattr(ax1, twin_func)()
+    assert getattr(ax2, axis_name).units is not None
+    assert getattr(ax2, axis_name).units is getattr(ax1, axis_name).units
+
+
+@pytest.mark.parametrize('twin', ('x', 'y'))
 @check_figures_equal(extensions=['png'], tol=0.19)
 def test_twin_logscale(fig_test, fig_ref, twin):
     twin_func = f'twin{twin}'  # test twinx or twiny
@@ -999,6 +1016,45 @@ def test_hexbin_log_clim():
     assert h.get_clim() == (2, 100)
 
 
+@check_figures_equal(extensions=['png'])
+def test_hexbin_mincnt_behavior_upon_C_parameter(fig_test, fig_ref):
+    # see: gh:12926
+    datapoints = [
+        # list of (x, y)
+        (0, 0),
+        (0, 0),
+        (6, 0),
+        (0, 6),
+    ]
+    X, Y = zip(*datapoints)
+    C = [1] * len(X)
+    extent = [-10., 10, -10., 10]
+    gridsize = (7, 7)
+
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    # without C parameter
+    ax_ref.hexbin(
+        X, Y,
+        extent=extent,
+        gridsize=gridsize,
+        mincnt=1,
+    )
+    ax_ref.set_facecolor("green")  # for contrast of background
+
+    # with C parameter
+    ax_test.hexbin(
+        X, Y,
+        C=[1] * len(X),
+        reduce_C_function=lambda v: sum(v),
+        mincnt=1,
+        extent=extent,
+        gridsize=gridsize,
+    )
+    ax_test.set_facecolor("green")
+
+
 def test_inverted_limits():
     # Test gh:1553
     # Calling invert_xaxis prior to plotting should not disable autoscaling
@@ -1093,11 +1149,7 @@ def test_imshow_clip():
     fig, ax = plt.subplots()
 
     c = ax.contour(r, [N/4])
-    x = c.collections[0]
-    clip_path = x.get_paths()[0]
-    clip_transform = x.get_transform()
-
-    clip_path = mtransforms.TransformedPath(clip_path, clip_transform)
+    clip_path = mtransforms.TransformedPath(c.get_paths()[0], c.get_transform())
 
     # Plot the image clipped by the contour
     ax.imshow(r, clip_path=clip_path)
@@ -1280,10 +1332,10 @@ def test_pcolormesh():
     # The color array can include masked values:
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
 
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
-    ax1.pcolormesh(Qx, Qz, Z[:-1, :-1], lw=0.5, edgecolors='k')
-    ax2.pcolormesh(Qx, Qz, Z[:-1, :-1], lw=2, edgecolors=['b', 'w'])
-    ax3.pcolormesh(Qx, Qz, Z, shading="gouraud")
+    _, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    ax1.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=0.5, edgecolors='k')
+    ax2.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=2, edgecolors=['b', 'w'])
+    ax3.pcolormesh(Qx, Qz, Zm, shading="gouraud")
 
 
 @image_comparison(['pcolormesh_small'], extensions=["eps"])
@@ -1298,11 +1350,16 @@ def test_pcolormesh_small():
     Z = np.hypot(X, Y) / 5
     Z = (Z - Z.min()) / Z.ptp()
     Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
+    Zm2 = ma.masked_where(Qz < -0.5 * np.max(Qz), Z)
 
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
     ax1.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=0.5, edgecolors='k')
     ax2.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=2, edgecolors=['b', 'w'])
+    # gouraud with Zm yields a blank plot; there are no unmasked triangles.
     ax3.pcolormesh(Qx, Qz, Zm, shading="gouraud")
+    # Reduce the masking to get a plot.
+    ax4.pcolormesh(Qx, Qz, Zm2, shading="gouraud")
+
     for ax in fig.axes:
         ax.set_axis_off()
 
@@ -1437,6 +1494,29 @@ def test_pcolorargs():
     with pytest.warns(UserWarning,
                       match='are not monotonically increasing or decreasing'):
         ax.pcolormesh(X, Y, Z, shading='auto')
+
+
+def test_pcolorargs_with_read_only():
+    x = np.arange(6).reshape(2, 3)
+    xmask = np.broadcast_to([False, True, False], x.shape)  # read-only array
+    assert xmask.flags.writeable is False
+    masked_x = np.ma.array(x, mask=xmask)
+    plt.pcolormesh(masked_x)
+
+    x = np.linspace(0, 1, 10)
+    y = np.linspace(0, 1, 10)
+    X, Y = np.meshgrid(x, y)
+    Z = np.sin(2 * np.pi * X) * np.cos(2 * np.pi * Y)
+    mask = np.zeros(10, dtype=bool)
+    mask[-1] = True
+    mask = np.broadcast_to(mask, Z.shape)
+    assert mask.flags.writeable is False
+    masked_Z = np.ma.array(Z, mask=mask)
+    plt.pcolormesh(X, Y, masked_Z)
+
+    masked_X = np.ma.array(X, mask=mask)
+    masked_Y = np.ma.array(Y, mask=mask)
+    plt.pcolor(masked_X, masked_Y, masked_Z)
 
 
 @check_figures_equal(extensions=["png"])
@@ -5561,7 +5641,7 @@ def test_shared_aspect_error():
                            "Unrecognized string 'foo' to axis; try 'on' or "
                            "'off'"),
                           (TypeError, ([1, 2], ), {},
-                           "the first argument to axis*"),
+                           "The first argument to axis*"),
                           (TypeError, tuple(), {'foo': None},
                            r"axis\(\) got an unexpected keyword argument "
                            "'foo'"),
@@ -5907,7 +5987,7 @@ def test_set_ticks_kwargs_raise_error_without_labels():
     """
     fig, ax = plt.subplots()
     ticks = [1, 2, 3]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Incorrect use of keyword argument 'alpha'"):
         ax.xaxis.set_ticks(ticks, alpha=0.5)
 
 
@@ -8704,3 +8784,13 @@ def test_tick_param_labelfont():
     plt.title('Title in sans-serif')
     for text in ax.get_xticklabels():
         assert text.get_fontfamily()[0] == 'monospace'
+
+
+def test_set_secondary_axis_color():
+    fig, ax = plt.subplots()
+    sax = ax.secondary_xaxis("top", color="red")
+    assert mcolors.same_color(sax.spines["bottom"].get_edgecolor(), "red")
+    assert mcolors.same_color(sax.spines["top"].get_edgecolor(), "red")
+    assert mcolors.same_color(sax.xaxis.get_tick_params()["color"], "red")
+    assert mcolors.same_color(sax.xaxis.get_tick_params()["labelcolor"], "red")
+    assert mcolors.same_color(sax.xaxis.label.get_color(), "red")

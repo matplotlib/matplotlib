@@ -2,7 +2,6 @@ from collections.abc import Iterable, Sequence
 from contextlib import ExitStack
 import functools
 import inspect
-import itertools
 import logging
 from numbers import Real
 from operator import attrgetter
@@ -219,27 +218,20 @@ class _process_plot_var_args:
 
     an arbitrary number of *x*, *y*, *fmt* are allowed
     """
-    def __init__(self, axes, command='plot'):
-        self.axes = axes
+
+    def __init__(self, command='plot'):
         self.command = command
-        self.set_prop_cycle(None)
-
-    def __getstate__(self):
-        # note: it is not possible to pickle a generator (and thus a cycler).
-        return {'axes': self.axes, 'command': self.command}
-
-    def __setstate__(self, state):
-        self.__dict__ = state.copy()
         self.set_prop_cycle(None)
 
     def set_prop_cycle(self, cycler):
         if cycler is None:
             cycler = mpl.rcParams['axes.prop_cycle']
-        self.prop_cycler = itertools.cycle(cycler)
+        self._idx = 0
+        self._cycler_items = [*cycler]
         self._prop_keys = cycler.keys  # This should make a copy
 
-    def __call__(self, *args, data=None, **kwargs):
-        self.axes._process_unit_info(kwargs=kwargs)
+    def __call__(self, axes, *args, data=None, **kwargs):
+        axes._process_unit_info(kwargs=kwargs)
 
         for pos_only in "xy":
             if pos_only in kwargs:
@@ -309,13 +301,15 @@ class _process_plot_var_args:
                 this += args[0],
                 args = args[1:]
             yield from self._plot_args(
-                this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
+                axes, this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
 
     def get_next_color(self):
         """Return the next color in the cycle."""
         if 'color' not in self._prop_keys:
             return 'k'
-        return next(self.prop_cycler)['color']
+        c = self._cycler_items[self._idx]['color']
+        self._idx = (self._idx + 1) % len(self._cycler_items)
+        return c
 
     def _getdefaults(self, ignore, kw):
         """
@@ -328,7 +322,8 @@ class _process_plot_var_args:
         if any(kw.get(k, None) is None for k in prop_keys):
             # Need to copy this dictionary or else the next time around
             # in the cycle, the dictionary could be missing entries.
-            default_dict = next(self.prop_cycler).copy()
+            default_dict = self._cycler_items[self._idx].copy()
+            self._idx = (self._idx + 1) % len(self._cycler_items)
             for p in ignore:
                 default_dict.pop(p, None)
         else:
@@ -344,17 +339,17 @@ class _process_plot_var_args:
             if kw.get(k, None) is None:
                 kw[k] = defaults[k]
 
-    def _makeline(self, x, y, kw, kwargs):
+    def _makeline(self, axes, x, y, kw, kwargs):
         kw = {**kw, **kwargs}  # Don't modify the original kw.
         default_dict = self._getdefaults(set(), kw)
         self._setdefaults(default_dict, kw)
         seg = mlines.Line2D(x, y, **kw)
         return seg, kw
 
-    def _makefill(self, x, y, kw, kwargs):
+    def _makefill(self, axes, x, y, kw, kwargs):
         # Polygon doesn't directly support unitized inputs.
-        x = self.axes.convert_xunits(x)
-        y = self.axes.convert_yunits(y)
+        x = axes.convert_xunits(x)
+        y = axes.convert_yunits(y)
 
         kw = kw.copy()  # Don't modify the original kw.
         kwargs = kwargs.copy()
@@ -403,7 +398,7 @@ class _process_plot_var_args:
         seg.set(**kwargs)
         return seg, kwargs
 
-    def _plot_args(self, tup, kwargs, *,
+    def _plot_args(self, axes, tup, kwargs, *,
                    return_kwargs=False, ambiguous_fmt_datakey=False):
         """
         Process the arguments of ``plot([x], y, [fmt], **kwargs)`` calls.
@@ -495,10 +490,10 @@ class _process_plot_var_args:
         else:
             x, y = index_of(xy[-1])
 
-        if self.axes.xaxis is not None:
-            self.axes.xaxis.update_units(x)
-        if self.axes.yaxis is not None:
-            self.axes.yaxis.update_units(y)
+        if axes.xaxis is not None:
+            axes.xaxis.update_units(x)
+        if axes.yaxis is not None:
+            axes.yaxis.update_units(y)
 
         if x.shape[0] != y.shape[0]:
             raise ValueError(f"x and y must have same first dimension, but "
@@ -534,7 +529,7 @@ class _process_plot_var_args:
         else:
             labels = [label] * n_datasets
 
-        result = (make_artist(x[:, j % ncx], y[:, j % ncy], kw,
+        result = (make_artist(axes, x[:, j % ncx], y[:, j % ncy], kw,
                               {**kwargs, 'label': label})
                   for j, label in enumerate(labels))
 
@@ -604,7 +599,7 @@ class _AxesBase(martist.Artist):
             being created.  Finally, ``*args`` can also directly be a
             `.SubplotSpec` instance.
 
-        sharex, sharey : `~.axes.Axes`, optional
+        sharex, sharey : `~matplotlib.axes.Axes`, optional
             The x- or y-`~.matplotlib.axis` is shared with the x- or y-axis in
             the input `~.axes.Axes`.
 
@@ -814,10 +809,10 @@ class _AxesBase(martist.Artist):
 
     def _init_axis(self):
         # This is moved out of __init__ because non-separable axes don't use it
-        self.xaxis = maxis.XAxis(self)
+        self.xaxis = maxis.XAxis(self, clear=False)
         self.spines.bottom.register_axis(self.xaxis)
         self.spines.top.register_axis(self.xaxis)
-        self.yaxis = maxis.YAxis(self)
+        self.yaxis = maxis.YAxis(self, clear=False)
         self.spines.left.register_axis(self.yaxis)
         self.spines.right.register_axis(self.yaxis)
 
@@ -1275,7 +1270,7 @@ class _AxesBase(martist.Artist):
         for axis in self._axis_map.values():
             axis.clear()  # Also resets the scale to linear.
         for spine in self.spines.values():
-            spine.clear()
+            spine._clear()  # Use _clear to not clear Axis again
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(
@@ -1292,8 +1287,8 @@ class _AxesBase(martist.Artist):
         self._tight = None
         self._use_sticky_edges = True
 
-        self._get_lines = _process_plot_var_args(self)
-        self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
+        self._get_lines = _process_plot_var_args()
+        self._get_patches_for_fill = _process_plot_var_args('fill')
 
         self._gridOn = mpl.rcParams['axes.grid']
         old_children, self._children = self._children, []
@@ -1374,7 +1369,10 @@ class _AxesBase(martist.Artist):
             if share is not None:
                 getattr(self, f"share{name}")(share)
             else:
-                axis._set_scale("linear")
+                # Although the scale was set to linear as part of clear,
+                # polar requires that _set_scale is called again
+                if self.name == "polar":
+                    axis._set_scale("linear")
                 axis._set_lim(0, 1, auto=True)
         self._update_transScale()
 
@@ -2056,6 +2054,11 @@ class _AxesBase(martist.Artist):
         --------
         matplotlib.axes.Axes.set_xlim
         matplotlib.axes.Axes.set_ylim
+
+        Notes
+        -----
+        For 3D axes, this method additionally takes *zmin*, *zmax* as
+        parameters and likewise returns them.
         """
         if isinstance(arg, (str, bool)):
             if arg is True:
@@ -2099,28 +2102,34 @@ class _AxesBase(martist.Artist):
                                  "try 'on' or 'off'")
         else:
             if arg is not None:
-                try:
-                    xmin, xmax, ymin, ymax = arg
-                except (TypeError, ValueError) as err:
-                    raise TypeError('the first argument to axis() must be an '
-                                    'iterable of the form '
-                                    '[xmin, xmax, ymin, ymax]') from err
+                if len(arg) != 2*len(self._axis_names):
+                    raise TypeError(
+                        "The first argument to axis() must be an iterable of the form "
+                        "[{}]".format(", ".join(
+                            f"{name}min, {name}max" for name in self._axis_names)))
+                limits = {
+                    name: arg[2*i:2*(i+1)]
+                    for i, name in enumerate(self._axis_names)
+                }
             else:
-                xmin = kwargs.pop('xmin', None)
-                xmax = kwargs.pop('xmax', None)
-                ymin = kwargs.pop('ymin', None)
-                ymax = kwargs.pop('ymax', None)
-            xauto = (None  # Keep autoscale state as is.
-                     if xmin is None and xmax is None
-                     else False)  # Turn off autoscale.
-            yauto = (None
-                     if ymin is None and ymax is None
-                     else False)
-            self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
-            self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
+                limits = {}
+                for name in self._axis_names:
+                    ax_min = kwargs.pop(f'{name}min', None)
+                    ax_max = kwargs.pop(f'{name}max', None)
+                    limits[name] = (ax_min, ax_max)
+            for name, (ax_min, ax_max) in limits.items():
+                ax_auto = (None  # Keep autoscale state as is.
+                           if ax_min is None and ax_max is None
+                           else False)  # Turn off autoscale.
+                set_ax_lim = getattr(self, f'set_{name}lim')
+                set_ax_lim(ax_min, ax_max, emit=emit, auto=ax_auto)
         if kwargs:
             raise _api.kwarg_error("axis", kwargs)
-        return (*self.get_xlim(), *self.get_ylim())
+        lims = ()
+        for name in self._axis_names:
+            get_ax_lim = getattr(self, f'get_{name}lim')
+            lims += get_ax_lim()
+        return lims
 
     def get_legend(self):
         """Return the `.Legend` instance, or None if no legend is defined."""
@@ -2171,15 +2180,9 @@ class _AxesBase(martist.Artist):
         ``pyplot.viridis``, and other functions such as `~.pyplot.clim`.  The
         current image is an attribute of the current Axes.
         """
-        _api.check_isinstance(
-            (mpl.contour.ContourSet, mcoll.Collection, mimage.AxesImage),
-            im=im)
-        if isinstance(im, mpl.contour.ContourSet):
-            if im.collections[0] not in self._children:
-                raise ValueError("ContourSet must be in current Axes")
-        elif im not in self._children:
-            raise ValueError("Argument must be an image, collection, or "
-                             "ContourSet in this Axes")
+        _api.check_isinstance((mcoll.Collection, mimage.AxesImage), im=im)
+        if im not in self._children:
+            raise ValueError("Argument must be an image or collection in this Axes")
         self._current_image = im
 
     def _gci(self):
@@ -2243,8 +2246,7 @@ class _AxesBase(martist.Artist):
         Add a `.Collection` to the Axes; return the collection.
         """
         _api.check_isinstance(mcoll.Collection, collection=collection)
-        label = collection.get_label()
-        if not label:
+        if not collection.get_label():
             collection.set_label(f'_child{len(self._children)}')
         self._children.append(collection)
         collection._remove_method = self._children.remove
@@ -3165,7 +3167,7 @@ class _AxesBase(martist.Artist):
         axis : {'both', 'x', 'y'}, optional
             The axis to apply the changes on.
 
-        **kwargs : `.Line2D` properties
+        **kwargs : `~matplotlib.lines.Line2D` properties
             Define the line properties of the grid, e.g.::
 
                 grid(color='r', linestyle='-', linewidth=2)
@@ -3433,7 +3435,7 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-        **kwargs : `.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
             `.Text` properties control the appearance of the label.
 
         See Also
@@ -3681,7 +3683,7 @@ class _AxesBase(martist.Artist):
 
         Other Parameters
         ----------------
-        **kwargs : `.Text` properties
+        **kwargs : `~matplotlib.text.Text` properties
             `.Text` properties control the appearance of the label.
 
         See Also
@@ -4447,6 +4449,7 @@ class _AxesBase(martist.Artist):
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
         ax2.patch.set_visible(False)
+        ax2.xaxis.units = self.xaxis.units
         return ax2
 
     def twiny(self):
@@ -4476,6 +4479,7 @@ class _AxesBase(martist.Artist):
         self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
         ax2.patch.set_visible(False)
+        ax2.yaxis.units = self.yaxis.units
         return ax2
 
     def get_shared_x_axes(self):

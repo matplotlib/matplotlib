@@ -1,4 +1,5 @@
 from itertools import product
+import io
 import platform
 
 import matplotlib as mpl
@@ -27,7 +28,6 @@ from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
     InsetPosition)
 import mpl_toolkits.axes_grid1.mpl_axes
-
 import pytest
 
 import numpy as np
@@ -89,6 +89,15 @@ def test_twin_axes_empty_and_removed():
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
                horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
+
+
+def test_twin_axes_both_with_units():
+    host = host_subplot(111)
+    host.plot_date([0, 1, 2], [0, 1, 2], xdate=False, ydate=True)
+    twin = host.twinx()
+    twin.plot(["a", "b", "c"])
+    assert host.get_yticklabels()[0].get_text() == "00:00:00"
+    assert twin.get_yticklabels()[0].get_text() == "a"
 
 
 def test_axesgrid_colorbar_log_smoketest():
@@ -245,6 +254,15 @@ def test_inset_axes_complete():
     with pytest.warns(UserWarning):
         ins = inset_axes(ax, width="40%", height="30%",
                          bbox_transform=ax.transAxes)
+
+
+def test_inset_axes_tight():
+    # gh-26287 found that inset_axes raised with bbox_inches=tight
+    fig, ax = plt.subplots()
+    inset_axes(ax, width=1.3, height=0.9)
+
+    f = io.BytesIO()
+    fig.savefig(f, bbox_inches="tight")
 
 
 @image_comparison(['fill_facecolor.png'], remove_text=True, style='mpl20')
@@ -691,7 +709,8 @@ def test_rgb_axes():
 def test_insetposition():
     fig, ax = plt.subplots(figsize=(2, 2))
     ax_ins = plt.axes([0, 0, 1, 1])
-    ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ip = InsetPosition(ax, [0.2, 0.25, 0.5, 0.4])
     ax_ins.set_axes_locator(ip)
 
 
@@ -771,3 +790,4 @@ def test_anchored_locator_base_call():
 
 def test_grid_with_axes_class_not_overriding_axis():
     Grid(plt.figure(), 111, (2, 2), axes_class=mpl.axes.Axes)
+    RGBAxes(plt.figure(), 111, axes_class=mpl.axes.Axes)

@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: 'If Matplotlib contributes to a project that leads to a scientific publication, please acknowledge this fact by citing J. D. Hunter, "Matplotlib: A 2D Graphics Environment", Computing in Science & Engineering, vol. 9, no. 3, pp. 90-95, 2007.'
+title: 'Matplotlib: Visualization with Python'
+authors:
+  - name: The Matplotlib Development Team
+    website: https://matplotlib.org/
+type: software
+url: 'https://matplotlib.org/'
+repository-code: 'https://github.com/matplotlib/matplotlib/'
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Hunter
+      given-names: John D.
+  title: "Matplotlib: A 2D graphics environment"
+  year: 2007
+  date-published: 2007-06-18
+  journal: Computing in Science & Engineering
+  volume: 9
+  issue: 3
+  start: 90
+  end: 95
+  doi: 10.1109/MCSE.2007.55
+  publisher:
+    name: IEEE Computer Society
+    website: 'https://www.computer.org/'
+  abstract: Matplotlib is a 2D graphics package used for Python for application development, interactive scripting, and publication-quality image generation across user interfaces and operating systems.

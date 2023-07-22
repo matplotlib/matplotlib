@@ -17,7 +17,7 @@ import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
-from matplotlib import rc_context
+from matplotlib import _api, rc_context
 from matplotlib.font_manager import FontProperties
 
 
@@ -144,8 +144,7 @@ def test_legend_label_with_leading_underscore():
     """
     fig, ax = plt.subplots()
     line, = ax.plot([0, 1], label='_foo')
-    with pytest.warns(UserWarning,
-                      match=r"starts with '_'.*excluded from the legend."):
+    with pytest.warns(_api.MatplotlibDeprecationWarning, match="with an underscore"):
         legend = ax.legend(handles=[line])
     assert len(legend.legend_handles) == 0
 
@@ -254,6 +253,7 @@ def test_legend_expand():
 
 @image_comparison(['hatching'], remove_text=True, style='default')
 def test_hatching():
+    # Remove legend texts when this image is regenerated.
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
 
@@ -453,17 +453,9 @@ class TestLegendFigureFunction:
     def test_legend_label_three_args(self):
         fig, ax = plt.subplots()
         lines = ax.plot(range(10))
-        with mock.patch('matplotlib.legend.Legend') as Legend:
+        with pytest.raises(TypeError, match="0-2"):
             fig.legend(lines, ['foobar'], 'right')
-        Legend.assert_called_with(fig, lines, ['foobar'], 'right',
-                                  bbox_transform=fig.transFigure)
-
-    def test_legend_label_three_args_pluskw(self):
-        # test that third argument and loc=  called together give
-        # Exception
-        fig, ax = plt.subplots()
-        lines = ax.plot(range(10))
-        with pytest.raises(Exception):
+        with pytest.raises(TypeError, match="0-2"):
             fig.legend(lines, ['foobar'], 'right', loc='left')
 
     def test_legend_kw_args(self):
@@ -663,6 +655,38 @@ def test_empty_bar_chart_with_legend():
     plt.legend()
 
 
+@image_comparison(['shadow_argument_types.png'], remove_text=True,
+                  style='mpl20')
+def test_shadow_argument_types():
+    # Test that different arguments for shadow work as expected
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], label='test')
+
+    # Test various shadow configurations
+    # as well as different ways of specifying colors
+    legs = (ax.legend(loc='upper left', shadow=True),    # True
+            ax.legend(loc='upper right', shadow=False),  # False
+            ax.legend(loc='center left',                 # string
+                      shadow={'color': 'red', 'alpha': 0.1}),
+            ax.legend(loc='center right',                # tuple
+                      shadow={'color': (0.1, 0.2, 0.5), 'oy': -5}),
+            ax.legend(loc='lower left',                   # tab
+                      shadow={'color': 'tab:cyan', 'ox': 10})
+            )
+    for l in legs:
+        ax.add_artist(l)
+    ax.legend(loc='lower right')  # default
+
+
+def test_shadow_invalid_argument():
+    # Test if invalid argument to legend shadow
+    # (i.e. not [color|bool]) raises ValueError
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], label='test')
+    with pytest.raises(ValueError, match="dict or bool"):
+        ax.legend(loc="upper left", shadow="aardvark")  # Bad argument
+
+
 def test_shadow_framealpha():
     # Test if framealpha is activated when shadow is True
     # and framealpha is not explicitly passed'''
@@ -753,6 +777,26 @@ def test_legend_alignment(alignment):
     leg = ax.legend(title="Aardvark", alignment=alignment)
     assert leg.get_children()[0].align == alignment
     assert leg.get_alignment() == alignment
+
+
+@pytest.mark.parametrize('loc', ('center', 'best',))
+def test_ax_legend_set_loc(loc):
+    fig, ax = plt.subplots()
+    ax.plot(range(10), label='test')
+    leg = ax.legend()
+    leg.set_loc(loc)
+    assert leg._get_loc() == mlegend.Legend.codes[loc]
+
+
+@pytest.mark.parametrize('loc', ('outside right', 'right',))
+def test_fig_legend_set_loc(loc):
+    fig, ax = plt.subplots()
+    ax.plot(range(10), label='test')
+    leg = fig.legend()
+    leg.set_loc(loc)
+
+    loc = loc.split()[1] if loc.startswith("outside") else loc
+    assert leg._get_loc() == mlegend.Legend.codes[loc]
 
 
 @pytest.mark.parametrize('alignment', ('center', 'left', 'right'))

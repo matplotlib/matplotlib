@@ -164,6 +164,7 @@ class Axes3D(Axes):
         # Enable drawing of axes by Axes3D class
         self.set_axis_on()
         self.M = None
+        self.invM = None
 
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
@@ -455,6 +456,7 @@ class Axes3D(Axes):
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
+        self.invM = np.linalg.inv(self.M)
 
         collections_and_patches = (
             artist for artist in self._children
@@ -1060,45 +1062,97 @@ class Axes3D(Axes):
             val = func(z)
             return val
 
-    def format_coord(self, xd, yd):
+    def format_coord(self, xv, yv, renderer=None):
         """
-        Given the 2D view coordinates attempt to guess a 3D coordinate.
-        Looks for the nearest edge to the point and then assumes that
-        the point is at the same z location as the nearest point on the edge.
+        Return a string giving the current view rotation angles, or the x, y, z
+        coordinates of the point on the nearest axis pane underneath the mouse
+        cursor, depending on the mouse button pressed.
         """
-
-        if self.M is None:
-            return ''
+        coords = ''
 
         if self.button_pressed in self._rotate_btn:
-            # ignore xd and yd and display angles instead
-            norm_elev = art3d._norm_angle(self.elev)
-            norm_azim = art3d._norm_angle(self.azim)
-            norm_roll = art3d._norm_angle(self.roll)
-            return (f"elevation={norm_elev:.0f}\N{DEGREE SIGN}, "
-                    f"azimuth={norm_azim:.0f}\N{DEGREE SIGN}, "
-                    f"roll={norm_roll:.0f}\N{DEGREE SIGN}"
-                    ).replace("-", "\N{MINUS SIGN}")
+            # ignore xv and yv and display angles instead
+            coords = self._rotation_coords()
 
-        # nearest edge
-        p0, p1 = min(self._tunit_edges(),
-                     key=lambda edge: proj3d._line2d_seg_dist(
-                         (xd, yd), edge[0][:2], edge[1][:2]))
+        elif self.M is not None:
+            coords = self._location_coords(xv, yv, renderer)
 
-        # scale the z value to match
-        x0, y0, z0 = p0
-        x1, y1, z1 = p1
-        d0 = np.hypot(x0-xd, y0-yd)
-        d1 = np.hypot(x1-xd, y1-yd)
-        dt = d0+d1
-        z = d1/dt * z0 + d0/dt * z1
+        return coords
 
-        x, y, z = proj3d.inv_transform(xd, yd, z, self.M)
+    def _rotation_coords(self):
+        """
+        Return the rotation angles as a string.
+        """
+        norm_elev = art3d._norm_angle(self.elev)
+        norm_azim = art3d._norm_angle(self.azim)
+        norm_roll = art3d._norm_angle(self.roll)
+        coords = (f"elevation={norm_elev:.0f}\N{DEGREE SIGN}, "
+                  f"azimuth={norm_azim:.0f}\N{DEGREE SIGN}, "
+                  f"roll={norm_roll:.0f}\N{DEGREE SIGN}"
+                  ).replace("-", "\N{MINUS SIGN}")
+        return coords
 
-        xs = self.format_xdata(x)
-        ys = self.format_ydata(y)
-        zs = self.format_zdata(z)
-        return f'x={xs}, y={ys}, z={zs}'
+    def _location_coords(self, xv, yv, renderer):
+        """
+        Return the location on the axis pane underneath the cursor as a string.
+        """
+        p1 = self._calc_coord(xv, yv, renderer)
+        xs = self.format_xdata(p1[0])
+        ys = self.format_ydata(p1[1])
+        zs = self.format_zdata(p1[2])
+        coords = f'x={xs}, y={ys}, z={zs}'
+        return coords
+
+    def _get_camera_loc(self):
+        """
+        Returns the current camera location in data coordinates.
+        """
+        cx, cy, cz, dx, dy, dz = self._get_w_centers_ranges()
+        c = np.array([cx, cy, cz])
+        r = np.array([dx, dy, dz])
+
+        if self._focal_length == np.inf:  # orthographic projection
+            focal_length = 1e9  # large enough to be effectively infinite
+        else:  # perspective projection
+            focal_length = self._focal_length
+        eye = c + self._view_w * self._dist * r / self._box_aspect * focal_length
+        return eye
+
+    def _calc_coord(self, xv, yv, renderer=None):
+        """
+        Given the 2D view coordinates, find the point on the nearest axis pane
+        that lies directly below those coordinates. Returns a 3D point in data
+        coordinates.
+        """
+        if self._focal_length == np.inf:  # orthographic projection
+            zv = 1
+        else:  # perspective projection
+            zv = -1 / self._focal_length
+
+        # Convert point on view plane to data coordinates
+        p1 = np.array(proj3d.inv_transform(xv, yv, zv, self.invM)).ravel()
+
+        # Get the vector from the camera to the point on the view plane
+        vec = self._get_camera_loc() - p1
+
+        # Get the pane locations for each of the axes
+        pane_locs = []
+        for axis in self._axis_map.values():
+            xys, loc = axis.active_pane(renderer)
+            pane_locs.append(loc)
+
+        # Find the distance to the nearest pane by projecting the view vector
+        scales = np.zeros(3)
+        for i in range(3):
+            if vec[i] == 0:
+                scales[i] = np.inf
+            else:
+                scales[i] = (p1[i] - pane_locs[i]) / vec[i]
+        scale = scales[np.argmin(abs(scales))]
+
+        # Calculate the point on the closest pane
+        p2 = p1 - scale*vec
+        return p2
 
     def _on_move(self, event):
         """
@@ -1143,6 +1197,7 @@ class Axes3D(Axes):
             self.view_init(elev=elev, azim=azim, roll=roll, share=True)
             self.stale = True
 
+        # Pan
         elif self.button_pressed in self._pan_btn:
             # Start the pan event with pixel coordinates
             px, py = self.transData.transform([self._sx, self._sy])
@@ -1321,21 +1376,27 @@ class Axes3D(Axes):
         scale_z : float
             Scale factor for the z data axis.
         """
-        # Get the axis limits and centers
+        # Get the axis centers and ranges
+        cx, cy, cz, dx, dy, dz = self._get_w_centers_ranges()
+
+        # Set the scaled axis limits
+        self.set_xlim3d(cx - dx*scale_x/2, cx + dx*scale_x/2)
+        self.set_ylim3d(cy - dy*scale_y/2, cy + dy*scale_y/2)
+        self.set_zlim3d(cz - dz*scale_z/2, cz + dz*scale_z/2)
+
+    def _get_w_centers_ranges(self):
+        """Get 3D world centers and axis ranges."""
+        # Calculate center of axis limits
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
         cx = (maxx + minx)/2
         cy = (maxy + miny)/2
         cz = (maxz + minz)/2
 
-        # Scale the data range
-        dx = (maxx - minx)*scale_x
-        dy = (maxy - miny)*scale_y
-        dz = (maxz - minz)*scale_z
-
-        # Set the scaled axis limits
-        self.set_xlim3d(cx - dx/2, cx + dx/2)
-        self.set_ylim3d(cy - dy/2, cy + dy/2)
-        self.set_zlim3d(cz - dz/2, cz + dz/2)
+        # Calculate range of axis limits
+        dx = (maxx - minx)
+        dy = (maxy - miny)
+        dz = (maxz - minz)
+        return cx, cy, cz, dx, dy, dz
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """
@@ -1916,47 +1977,28 @@ class Axes3D(Axes):
         Extend a contour in 3D by creating
         """
 
-        levels = cset.levels
-        colls = cset.collections
-        dz = (levels[1] - levels[0]) / 2
-
-        for z, linec in zip(levels, colls):
-            paths = linec.get_paths()
-            if not paths:
+        dz = (cset.levels[1] - cset.levels[0]) / 2
+        polyverts = []
+        colors = []
+        for idx, level in enumerate(cset.levels):
+            path = cset.get_paths()[idx]
+            subpaths = [*path._iter_connected_components()]
+            color = cset.get_edgecolor()[idx]
+            top = art3d._paths_to_3d_segments(subpaths, level - dz)
+            bot = art3d._paths_to_3d_segments(subpaths, level + dz)
+            if not len(top[0]):
                 continue
-            topverts = art3d._paths_to_3d_segments(paths, z - dz)
-            botverts = art3d._paths_to_3d_segments(paths, z + dz)
-
-            color = linec.get_edgecolor()[0]
-
-            nsteps = round(len(topverts[0]) / stride)
-            if nsteps <= 1:
-                if len(topverts[0]) > 1:
-                    nsteps = 2
-                else:
-                    continue
-
-            polyverts = []
-            stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
-            for i in range(round(nsteps) - 1):
-                i1 = round(i * stepsize)
-                i2 = round((i + 1) * stepsize)
-                polyverts.append([topverts[0][i1],
-                                  topverts[0][i2],
-                                  botverts[0][i2],
-                                  botverts[0][i1]])
-
-            # all polygons have 4 vertices, so vectorize
-            polyverts = np.array(polyverts)
-            polycol = art3d.Poly3DCollection(polyverts,
-                                             facecolors=color,
-                                             edgecolors=color,
-                                             shade=True)
-            polycol.set_sort_zpos(z)
-            self.add_collection3d(polycol)
-
-        for col in colls:
-            col.remove()
+            nsteps = max(round(len(top[0]) / stride), 2)
+            stepsize = (len(top[0]) - 1) / (nsteps - 1)
+            polyverts.extend([
+                (top[0][round(i * stepsize)], top[0][round((i + 1) * stepsize)],
+                 bot[0][round((i + 1) * stepsize)], bot[0][round(i * stepsize)])
+                for i in range(round(nsteps) - 1)])
+            colors.extend([color] * (round(nsteps) - 1))
+        self.add_collection3d(art3d.Poly3DCollection(
+            np.array(polyverts),  # All polygons have 4 vertices, so vectorize.
+            facecolors=colors, edgecolors=colors, shade=True))
+        cset.remove()
 
     def add_contour_set(
             self, cset, extend3d=False, stride=5, zdir='z', offset=None):
@@ -1964,10 +2006,8 @@ class Axes3D(Axes):
         if extend3d:
             self._3d_extend_contour(cset, stride)
         else:
-            for z, linec in zip(cset.levels, cset.collections):
-                if offset is not None:
-                    z = offset
-                art3d.line_collection_2d_to_3d(linec, z, zdir=zdir)
+            art3d.collection_2d_to_3d(
+                cset, zs=offset if offset is not None else cset.levels, zdir=zdir)
 
     def add_contourf_set(self, cset, zdir='z', offset=None):
         self._add_contourf_set(cset, zdir=zdir, offset=offset)
@@ -1990,11 +2030,8 @@ class Axes3D(Axes):
             max_level = cset.levels[-1] + np.diff(cset.levels[-2:]) / 2
             midpoints = np.append(midpoints, max_level)
 
-        for z, linec in zip(midpoints, cset.collections):
-            if offset is not None:
-                z = offset
-            art3d.poly_collection_2d_to_3d(linec, z, zdir=zdir)
-            linec.set_sort_zpos(z)
+        art3d.collection_2d_to_3d(
+            cset, zs=offset if offset is not None else midpoints, zdir=zdir)
         return midpoints
 
     @_preprocess_data()
@@ -2273,7 +2310,11 @@ class Axes3D(Axes):
             *[np.ravel(np.ma.filled(t, np.nan)) for t in [xs, ys, zs]])
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+        xs, ys, zs, s, c, color = cbook.delete_masked_points(
+            xs, ys, zs, s, c, kwargs.get('color', None)
+            )
+        if kwargs.get('color', None):
+            kwargs['color'] = color
 
         # For xs and ys, 2D scatter() will do the copying.
         if np.may_share_memory(zs_orig, zs):  # Avoid unnecessary copies.
@@ -3005,7 +3046,7 @@ class Axes3D(Axes):
         # that would call self._process_unit_info again, and do other indirect
         # data processing.
         (data_line, base_style), = self._get_lines._plot_args(
-            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+            self, (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
         art3d.line_2d_to_3d(data_line, zs=z)
 
         # Do this after creating `data_line` to avoid modifying `base_style`.

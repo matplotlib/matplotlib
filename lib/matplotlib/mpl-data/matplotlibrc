@@ -690,9 +690,8 @@
 #savefig.edgecolor: auto        # figure edge color when saving
 #savefig.format:    png         # {png, ps, pdf, svg}
 #savefig.bbox:      standard    # {tight, standard}
-                                # 'tight' is incompatible with pipe-based animation
-                                # backends (e.g. 'ffmpeg') but will work with those
-                                # based on temporary files (e.g. 'ffmpeg_file')
+                                # 'tight' is incompatible with generating frames
+                                # for animation
 #savefig.pad_inches:  0.1       # padding to be used, when bbox is set to 'tight'
 #savefig.directory:   ~         # default directory in savefig dialog, gets updated after
                                 # interactive saves, unless set to the empty string (i.e.
@@ -701,6 +700,10 @@
 #savefig.transparent: False     # whether figures are saved with a transparent
                                 # background by default
 #savefig.orientation: portrait  # orientation of saved figure, for PostScript output only
+
+### macosx backend params
+#macosx.window_mode : system   # How to open new figures (system, tab, window)
+                               # system uses the MacOS system preferences
 
 ### tk backend params
 #tk.window_focus:   False  # Maintain shell focus for TkAgg

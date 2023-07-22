@@ -213,9 +213,7 @@ def test_contour3d():
     ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
     ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
     ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
-    ax.set_xlim(-40, 40)
-    ax.set_ylim(-40, 40)
-    ax.set_zlim(-100, 100)
+    ax.axis(xmin=-40, xmax=40, ymin=-40, ymax=40, zmin=-100, zmax=100)
 
 
 @mpl3d_image_comparison(['contour3d_extend3d.png'], style='mpl20')
@@ -586,6 +584,21 @@ def test_surface3d():
                            lw=0, antialiased=False)
     ax.set_zlim(-1.01, 1.01)
     fig.colorbar(surf, shrink=0.5, aspect=5)
+
+
+@image_comparison(['surface3d_label_offset_tick_position.png'], style='mpl20')
+def test_surface3d_label_offset_tick_position():
+    ax = plt.figure().add_subplot(projection="3d")
+
+    x, y = np.mgrid[0:6 * np.pi:0.25, 0:4 * np.pi:0.25]
+    z = np.sqrt(np.abs(np.cos(x) + np.cos(y)))
+
+    ax.plot_surface(x * 1e5, y * 1e6, z * 1e8, cmap='autumn', cstride=2, rstride=2)
+    ax.set_xlabel("X label")
+    ax.set_ylabel("Y label")
+    ax.set_zlabel("Z label")
+
+    ax.figure.canvas.draw()
 
 
 @mpl3d_image_comparison(['surface3d_shaded.png'], style='mpl20')
@@ -1046,13 +1059,14 @@ def _test_proj_make_M():
 
 def test_proj_transform():
     M = _test_proj_make_M()
+    invM = np.linalg.inv(M)
 
     xs = np.array([0, 1, 1, 0, 0, 0, 1, 1, 0, 0]) * 300.0
     ys = np.array([0, 0, 1, 1, 0, 0, 0, 1, 1, 0]) * 300.0
     zs = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]) * 300.0
 
     txs, tys, tzs = proj3d.proj_transform(xs, ys, zs, M)
-    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, M)
+    ixs, iys, izs = proj3d.inv_transform(txs, tys, tzs, invM)
 
     np.testing.assert_almost_equal(ixs, xs)
     np.testing.assert_almost_equal(iys, ys)
@@ -1137,39 +1151,6 @@ def test_world():
                                 [0, 5e-3, 0, 5e-1],
                                 [0, 0, 1e1, -1],
                                 [0, 0, 0, 1]])
-
-
-@mpl3d_image_comparison(['proj3d_lines_dists.png'], style='mpl20')
-def test_lines_dists():
-    fig, ax = plt.subplots(figsize=(4, 6), subplot_kw=dict(aspect='equal'))
-
-    xs = (0, 30)
-    ys = (20, 150)
-    ax.plot(xs, ys)
-    p0, p1 = zip(xs, ys)
-
-    xs = (0, 0, 20, 30)
-    ys = (100, 150, 30, 200)
-    ax.scatter(xs, ys)
-
-    dist0 = proj3d._line2d_seg_dist((xs[0], ys[0]), p0, p1)
-    dist = proj3d._line2d_seg_dist(np.array((xs, ys)).T, p0, p1)
-    assert dist0 == dist[0]
-
-    for x, y, d in zip(xs, ys, dist):
-        c = Circle((x, y), d, fill=0)
-        ax.add_patch(c)
-
-    ax.set_xlim(-50, 150)
-    ax.set_ylim(0, 300)
-
-
-def test_lines_dists_nowarning():
-    # No RuntimeWarning must be emitted for degenerate segments, see GH#22624.
-    s0 = (10, 30, 50)
-    p = (20, 150, 180)
-    proj3d._line2d_seg_dist(p, s0, s0)
-    proj3d._line2d_seg_dist(np.array(p), s0, s0)
 
 
 def test_autoscale():
@@ -1948,16 +1929,30 @@ def test_format_coord():
     ax = fig.add_subplot(projection='3d')
     x = np.arange(10)
     ax.plot(x, np.sin(x))
+    xv = 0.1
+    yv = 0.1
     fig.canvas.draw()
-    assert ax.format_coord(0, 0) == 'x=1.8066, y=1.0367, z=−0.0553'
+    assert ax.format_coord(xv, yv) == 'x=10.5227, y=1.0417, z=0.1444'
+
     # Modify parameters
     ax.view_init(roll=30, vertical_axis="y")
     fig.canvas.draw()
-    assert ax.format_coord(0, 0) == 'x=9.1651, y=−0.9215, z=−0.0359'
+    assert ax.format_coord(xv, yv) == 'x=9.1875, y=0.9761, z=0.1291'
+
     # Reset parameters
     ax.view_init()
     fig.canvas.draw()
-    assert ax.format_coord(0, 0) == 'x=1.8066, y=1.0367, z=−0.0553'
+    assert ax.format_coord(xv, yv) == 'x=10.5227, y=1.0417, z=0.1444'
+
+    # Check orthographic projection
+    ax.set_proj_type('ortho')
+    fig.canvas.draw()
+    assert ax.format_coord(xv, yv) == 'x=10.8869, y=1.0417, z=0.1528'
+
+    # Check non-default perspective projection
+    ax.set_proj_type('persp', focal_length=0.1)
+    fig.canvas.draw()
+    assert ax.format_coord(xv, yv) == 'x=9.0620, y=1.0417, z=0.1110'
 
 
 def test_get_axis_position():
@@ -2211,3 +2206,29 @@ def test_mutating_input_arrays_y_and_z(fig_test, fig_ref):
     y = [0.0, 0.0, 0.0]
     z = [0.0, 0.0, 0.0]
     ax2.plot(x, y, z, 'o-')
+
+
+def test_scatter_masked_color():
+    """
+    Test color parameter usage with non-finite coordinate arrays.
+
+    GH#26236
+    """
+
+    x = [np.nan, 1, 2,  1]
+    y = [0, np.inf, 2,  1]
+    z = [0, 1, -np.inf, 1]
+    colors = [
+        [0.0, 0.0, 0.0, 1],
+        [0.0, 0.0, 0.0, 1],
+        [0.0, 0.0, 0.0, 1],
+        [0.0, 0.0, 0.0, 1]
+    ]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    path3d = ax.scatter(x, y, z, color=colors)
+
+    # Assert sizes' equality
+    assert len(path3d.get_offsets()) ==\
+           len(super(type(path3d), path3d).get_facecolors())
