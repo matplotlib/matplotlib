@@ -18,6 +18,7 @@ metrics for those fonts.
 import functools
 import logging
 
+import matplotlib as mpl
 from matplotlib import _api, _mathtext
 from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
@@ -74,6 +75,8 @@ class MathTextParser:
         # is mutable; key the cache using an internal copy (see
         # text._get_text_metrics_with_cache for a similar case).
         prop = prop.copy() if prop is not None else None
+        if antialiased is None:
+            antialiased = mpl.rcParams['text.antialiased']
         return self._parse_cached(s, dpi, prop, antialiased)
 
     @functools.lru_cache(50)
