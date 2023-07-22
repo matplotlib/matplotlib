@@ -8133,9 +8133,10 @@ def test_ylabel_ha_with_position(ha):
     assert ax.yaxis.get_label().get_ha() == ha
 
 
-@image_comparison(baseline_images=['axes_labels_position'], extensions=['png'])
+@image_comparison(baseline_images=['axes_labels_position.png'])
 def test_axes_labels_position():
     x, y = [-4, 4], [-0.2, 0.8]
+
     def do_plot(ax):
         ax.plot(x, y)
         ax.set_ylim(-0.4, 1.0)
