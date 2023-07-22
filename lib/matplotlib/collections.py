@@ -1795,6 +1795,18 @@ class EllipseCollection(Collection):
             m[:2, 2:] = 0
             self.set_transform(_affine(m))
 
+    def set_widths(self, widths):
+        self._widths = 0.5 * np.asarray(widths).ravel()
+        self.stale = True
+
+    def set_angles(self, angles):
+        self._angles = np.deg2rad(angles).ravel()
+        self.stale = True
+
+    def set_heights(self, heights):
+        self._heights = 0.5 * np.asarray(heights).ravel()
+        self.stale = True
+
     @artist.allow_rasterization
     def draw(self, renderer):
         self._set_transforms()
