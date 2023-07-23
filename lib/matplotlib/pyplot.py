@@ -1786,7 +1786,7 @@ def subfigure_mosaic(
     gridspec_kw: dict[str, Any] | None = None,
     per_subfigure_kw: dict[Hashable, dict[str, Any]] | None = None,
     **fig_kw
-) -> tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]:
+) -> tuple[Figure, dict[Hashable, matplotlib.figure.SubFigure]]:
     """
     Build a layout of SubFigures based on ASCII art or nested lists.
 
@@ -1890,14 +1890,14 @@ def subfigure_mosaic(
        total layout.
     """
     fig = figure(**fig_kw)
-    ax_dict = fig.subfigure_mosaic(
+    subfigs_dict = fig.subfigure_mosaic(
         mosaic,
         height_ratios=height_ratios, width_ratios=width_ratios,
         subfigure_kw=subfigure_kw, gridspec_kw=gridspec_kw,
         empty_sentinel=empty_sentinel,
         per_subfigure_kw=per_subfigure_kw,
     )
-    return fig, ax_dict
+    return fig, subfigs_dict
 
 
 @overload

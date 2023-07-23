@@ -2011,7 +2011,7 @@ default: %(va)s
                     out[j, k] = v
             return out
 
-        def _get_subfigs_from_nested(nested, parent, gridspec):
+        def _get_subfigs_from_nested(nested, parent_add_func, gridspec):
             subfigs_dict = {}
             for item in nested.keys():
                 # Getting the correct cell number for SubplotSpec
@@ -2019,7 +2019,7 @@ default: %(va)s
                 subplotspec = SubplotSpec(gridspec, cell)
                 # Adding an 'intermediate' SubFigure
                 # where the nested ones will be placed.
-                subfigs_dict[item] = parent.add_subfigure(subplotspec)
+                subfigs_dict[item] = parent_add_func(subplotspec)
             return subfigs_dict
 
         def _identify_keys_and_nested(mosaic):
@@ -2050,7 +2050,7 @@ default: %(va)s
 
             return tuple(unique_ids), nested
 
-        def _do_layout(gs, mosaic, unique_ids, nested, sub_add_func, parent_fig=None):
+        def _do_layout(gs, mosaic, unique_ids, nested, sub_add_func):
             """
             Recursively do the mosaic.
 
@@ -2066,8 +2066,6 @@ default: %(va)s
             sub_add_func : `.Figure.add_subplot` for `.Figure.subplot_mosaic` and
                         `.Figure.add_subfigure` for `.Figure.subfigure_mosaic`
                 The function that gets called for the mosaic creation.
-            parent_fig : None or 'figure.SubFigure'
-                The parent figure for nested layouts with `.Figure.subfigure_mosaic`.
 
             Returns
             -------
@@ -2090,8 +2088,7 @@ default: %(va)s
             # otherwise they will all create without nesting.
             subfigs_for_nested = {}
             if sub_add_func.__name__ == 'add_subfigure':
-                parent = parent_fig or self.figure
-                subfigs_for_nested = _get_subfigs_from_nested(nested, parent, gs)
+                subfigs_for_nested = _get_subfigs_from_nested(nested, sub_add_func, gs)
 
             # go through the unique keys,
             for name in unique_ids:
@@ -2127,17 +2124,7 @@ default: %(va)s
                     if name in output:
                         raise ValueError(f"There are duplicate keys {name} "
                                          f"in the layout\n{mosaic!r}")
-                    if parent_fig:
-                        # for nested subfigs
-                        ax = parent_fig.add_subfigure(
-                            gs[slc], **{
-                                'label': str(name),
-                                **subthing_kw,
-                                **per_subthing_kw.get(name, {})
-                            }
-                        )
-                    else:
-                        ax = sub_add_func(
+                    ax = sub_add_func(
                             gs[slc], **{
                                 'label': str(name),
                                 **subthing_kw,
@@ -2155,8 +2142,8 @@ default: %(va)s
                         gs[j, k].subgridspec(rows, cols),
                         nested_mosaic,
                         *_identify_keys_and_nested(nested_mosaic),
-                        sub_add_func,
-                        parent_fig=(subfigs_for_nested.get(key) or None)
+                        sub_add_func if not subfigs_for_nested.get(key)
+                        else subfigs_for_nested[key].add_subfigure
                     )
                     overlap = set(output) & set(nested_output)
                     if overlap:

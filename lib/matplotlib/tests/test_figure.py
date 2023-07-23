@@ -1143,7 +1143,6 @@ class TestSubfigureMosaic:
 
         gs = fig_ref.add_gridspec(1, 2)
         axA = fig_ref.add_subfigure(gs[0, 0], **subfigure_kw)
-
         axB = fig_ref.add_subfigure(gs[0, 1], **subfigure_kw)
 
     @check_figures_equal(extensions=["png"])
