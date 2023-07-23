@@ -428,6 +428,10 @@ def test_EllipseCollection_setter():
         offset_transform=ax.transData,
         )
 
+    assert_array_almost_equal(ec._widths, np.array(widths).ravel() * 0.5)
+    assert_array_almost_equal(ec._heights, np.array(heights).ravel() * 0.5)
+    assert_array_almost_equal(ec._angles, np.deg2rad(angles).ravel())
+
     ax.add_collection(ec)
     ax.set_xlim(-2, 12)
     ax.set_ylim(-2, 12)
@@ -437,6 +441,10 @@ def test_EllipseCollection_setter():
     new_angles = rng.random((10, 2)) * 180
 
     ec.set(widths=new_widths, heights=new_heights, angles=new_angles)
+
+    assert_array_almost_equal(ec._widths, np.array(new_widths).ravel() * 0.5)
+    assert_array_almost_equal(ec._heights, np.array(new_heights).ravel() * 0.5)
+    assert_array_almost_equal(ec._angles, np.deg2rad(new_angles).ravel())
 
 
 @image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
