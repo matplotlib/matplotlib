@@ -3180,6 +3180,7 @@ def hist2d(
     weights: ArrayLike | None = None,
     cmin: float | None = None,
     cmax: float | None = None,
+    adapt_lim: bool | str = False,
     *,
     data=None,
     **kwargs,
@@ -3193,6 +3194,7 @@ def hist2d(
         weights=weights,
         cmin=cmin,
         cmax=cmax,
+        adapt_lim=adapt_lim,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )

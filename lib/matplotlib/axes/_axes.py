@@ -7075,7 +7075,7 @@ such objects
     @_preprocess_data(replace_names=["x", "y", "weights"])
     @_docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
-               cmin=None, cmax=None, **kwargs):
+               cmin=None, cmax=None, adapt_lim=False, **kwargs):
         """
         Make a 2D histogram plot.
 
@@ -7173,9 +7173,30 @@ such objects
         if cmax is not None:
             h[h > cmax] = None
 
+        x_min, x_max = xedges[0], xedges[-1]
+        y_min, y_max = yedges[0], yedges[-1]
+        if adapt_lim.isinstance(str) or adapt_lim == True:
+            mask = ~np.isnan(h)
+            mask_flat_x = np.any(mask, axis=1)
+            mask_flat_y = np.any(mask, axis=0)
+
+            if adapt_lim == True or adapt_lim.lower() == 'x':
+                x_min = xedges[:-1][mask_flat_x].min()
+                x_max = xedges[1:][mask_flat_x].max()
+                x_pad = 0.01 * (x_max - x_min)
+                x_min -= x_pad
+                x_max += x_pad
+            
+            if adapt_lim == True or adapt_lim.lower() == 'y':
+                y_min = yedges[:-1][mask_flat_y].min()
+                y_max = yedges[1:][mask_flat_y].max()
+                y_pad = 0.01 * (y_max - y_min)
+                y_min -= y_pad
+                y_max += y_pad
+
         pc = self.pcolormesh(xedges, yedges, h.T, **kwargs)
-        self.set_xlim(xedges[0], xedges[-1])
-        self.set_ylim(yedges[0], yedges[-1])
+        self.set_xlim(x_min, x_max)
+        self.set_ylim(y_min, y_max)
 
         return h, xedges, yedges, pc
 
