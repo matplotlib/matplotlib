@@ -7175,19 +7175,19 @@ such objects
 
         x_min, x_max = xedges[0], xedges[-1]
         y_min, y_max = yedges[0], yedges[-1]
-        if adapt_lim.isinstance(str) or adapt_lim == True:
+        if adapt_lim.isinstance(str) or adapt_lim is True:
             mask = ~np.isnan(h)
             mask_flat_x = np.any(mask, axis=1)
             mask_flat_y = np.any(mask, axis=0)
 
-            if adapt_lim == True or adapt_lim.lower() == 'x':
+            if adapt_lim is True or adapt_lim.lower() == 'x':
                 x_min = xedges[:-1][mask_flat_x].min()
                 x_max = xedges[1:][mask_flat_x].max()
                 x_pad = 0.01 * (x_max - x_min)
                 x_min -= x_pad
                 x_max += x_pad
             
-            if adapt_lim == True or adapt_lim.lower() == 'y':
+            if adapt_lim is True or adapt_lim.lower() == 'y':
                 y_min = yedges[:-1][mask_flat_y].min()
                 y_max = yedges[1:][mask_flat_y].max()
                 y_pad = 0.01 * (y_max - y_min)
