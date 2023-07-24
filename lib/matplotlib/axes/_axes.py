@@ -7186,7 +7186,7 @@ such objects
                 x_pad = 0.01 * (x_max - x_min)
                 x_min -= x_pad
                 x_max += x_pad
-            
+
             if adapt_lim is True or adapt_lim.lower() == 'y':
                 y_min = yedges[:-1][mask_flat_y].min()
                 y_max = yedges[1:][mask_flat_y].max()
