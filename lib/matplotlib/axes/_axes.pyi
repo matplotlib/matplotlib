@@ -20,7 +20,7 @@ from matplotlib.legend import Legend
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D
 from matplotlib.mlab import GaussianKDE
-from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch
+from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch, Wedge
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
 from matplotlib.text import Annotation, Text
 from matplotlib.transforms import Transform, Bbox
@@ -318,7 +318,9 @@ class Axes(_AxesBase):
         normalize: bool = ...,
         hatch: str | Sequence[str] | None = ...,
         data=...,
-    ): ...
+    ) -> tuple[list[Wedge], list[Text]] | tuple[
+        list[Wedge], list[Text], list[Text]
+    ]: ...
     def errorbar(
         self,
         x: float | ArrayLike,

@@ -117,7 +117,7 @@ if TYPE_CHECKING:
     from matplotlib.legend import Legend
     from matplotlib.mlab import GaussianKDE
     from matplotlib.image import AxesImage, FigureImage
-    from matplotlib.patches import FancyArrow, StepPatch
+    from matplotlib.patches import FancyArrow, StepPatch, Wedge
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
     from matplotlib.transforms import Transform, Bbox
@@ -3474,7 +3474,7 @@ def pie(
     normalize: bool = True,
     hatch: str | Sequence[str] | None = None,
     data=None,
-):
+) -> tuple[list[Wedge], list[Text]] | tuple[list[Wedge], list[Text], list[Text]]:
     return gca().pie(
         x,
         explode=explode,
