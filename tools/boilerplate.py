@@ -73,13 +73,13 @@ def {name}{signature}:
 AXES_METHOD_TEMPLATE = AUTOGEN_MSG + """
 @_copy_docstring_and_deprecators(Axes.{called_name})
 def {name}{signature}:
-    return gca().{called_name}{call}
+    {return_statement}gca().{called_name}{call}
 """
 
 FIGURE_METHOD_TEMPLATE = AUTOGEN_MSG + """
 @_copy_docstring_and_deprecators(Figure.{called_name})
 def {name}{signature}:
-    return gcf().{called_name}{call}
+    {return_statement}gcf().{called_name}{call}
 """
 
 CMAP_TEMPLATE = '''
@@ -169,6 +169,7 @@ def generate_function(name, called_fullname, template, **kwargs):
 
     # Replace self argument.
     params = list(signature.parameters.values())[1:]
+    has_return_value = str(signature.return_annotation) != 'None'
     signature = str(signature.replace(parameters=[
         param.replace(default=value_formatter(param.default))
         if param.default is not param.empty else param
@@ -197,6 +198,7 @@ def generate_function(name, called_fullname, template, **kwargs):
            if param.kind is Parameter.VAR_KEYWORD else
            None).format(param.name)
        for param in params) + ')'
+    return_statement = 'return ' if has_return_value else ''
     # Bail out in case of name collision.
     for reserved in ('gca', 'gci', 'gcf', '__ret'):
         if reserved in params:
@@ -208,6 +210,7 @@ def generate_function(name, called_fullname, template, **kwargs):
         called_name=called_name,
         signature=signature,
         call=call,
+        return_statement=return_statement,
         **kwargs)
 
 

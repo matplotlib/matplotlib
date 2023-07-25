@@ -2304,7 +2304,7 @@ class FigureCanvasBase:
             # ... later
             canvas.mpl_disconnect(cid)
         """
-        return self.callbacks.disconnect(cid)
+        self.callbacks.disconnect(cid)
 
     # Internal subclasses can override _timer_cls instead of new_timer, though
     # this is not a public API for third-party subclasses.
