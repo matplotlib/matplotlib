@@ -583,6 +583,7 @@ class Axes(_AxesBase):
         weights: ArrayLike | None = ...,
         cmin: float | None = ...,
         cmax: float | None = ...,
+        adapt_lim: bool | str = ...,
         *,
         data=...,
         **kwargs
