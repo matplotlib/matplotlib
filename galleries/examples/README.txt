@@ -1,4 +1,4 @@
-For an overview of the plotting methods we provide, see :ref:`plot_types`
+
 .. _examples-index:
 
 .. _gallery:
@@ -6,6 +6,7 @@ For an overview of the plotting methods we provide, see :ref:`plot_types`
 ========
 Examples
 ========
+For an overview of the plotting methods we provide, see :ref:`plot_types`
 
 This page contains example plots. Click on any image to see the full image
 and source code.
