@@ -56,7 +56,8 @@ import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import _api
-from matplotlib import rcsetup, style
+from matplotlib import (  # Re-exported for typing.
+    cm as cm, get_backend as get_backend, rcParams as rcParams, style as style)
 from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
 from matplotlib import _docstring
@@ -64,18 +65,16 @@ from matplotlib.backend_bases import (
     FigureCanvasBase, FigureManagerBase, MouseButton)
 from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
-from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
-from matplotlib.rcsetup import interactive_bk as _interactive_bk
+from matplotlib import rcsetup, rcParamsDefault, rcParamsOrig
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes, Subplot  # type: ignore
 from matplotlib.projections import PolarAxes  # type: ignore
 from matplotlib import mlab  # for detrend_none, window_hanning
 from matplotlib.scale import get_scale_names
 
-from matplotlib import cm
-from matplotlib.cm import _colormaps as colormaps
+from matplotlib.cm import _colormaps
 from matplotlib.cm import register_cmap  # type: ignore
-from matplotlib.colors import _color_sequences as color_sequences
+from matplotlib.colors import _color_sequences
 
 import numpy as np
 
@@ -142,6 +141,11 @@ from .ticker import (
     LinearLocator, LogLocator, AutoLocator, MultipleLocator, MaxNLocator)
 
 _log = logging.getLogger(__name__)
+
+
+# Explicit rename instead of import-as for typing's sake.
+colormaps = _colormaps
+color_sequences = _color_sequences
 
 
 @overload
@@ -2407,7 +2411,7 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore
-            set(_interactive_bk) - {'WebAgg', 'nbAgg'})
+            set(rcsetup.interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):  # type: ignore
     rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
 
