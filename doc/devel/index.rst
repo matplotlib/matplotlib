@@ -1,8 +1,8 @@
 .. _developers-guide-index:
 
-##########
+**********
 Contribute
-##########
+**********
 
 .. ifconfig:: releaselevel != 'dev'
 
@@ -151,8 +151,9 @@ Policies and guidelines
          :maxdepth: 1
 
          document
-         style_guide
-         tag_guidelines
+         style guide <style_guide>
+         content guide <content_guide/index>
+         tagging guidelines <tag_guidelines>
 
    .. grid-item-card::
       :shadow: none
