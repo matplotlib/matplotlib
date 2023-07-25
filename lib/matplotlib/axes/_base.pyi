@@ -39,6 +39,7 @@ class _axis_method_wrapper:
 
 class _AxesBase(martist.Artist):
     name: str
+    patch: Patch
     spines: Spines
     fmt_xdata: Callable[[float], str] | None
     fmt_ydata: Callable[[float], str] | None

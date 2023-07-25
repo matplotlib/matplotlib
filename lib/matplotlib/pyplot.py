@@ -49,6 +49,7 @@ import re
 import sys
 import threading
 import time
+from typing import cast, overload
 
 from cycler import cycler
 import matplotlib
@@ -85,7 +86,8 @@ if TYPE_CHECKING:
     import datetime
     import pathlib
     import os
-    from typing import Any, BinaryIO, Literal
+    from typing import Any, BinaryIO, Literal, TypeVar
+    from typing_extensions import ParamSpec
 
     import PIL
     from numpy.typing import ArrayLike
@@ -122,6 +124,10 @@ if TYPE_CHECKING:
     from matplotlib.typing import ColorType, LineStyleType, MarkerType, HashableList
     from matplotlib.widgets import SubplotTool
 
+    _P = ParamSpec('_P')
+    _R = TypeVar('_R')
+
+
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
 from matplotlib.lines import Line2D
@@ -138,17 +144,35 @@ from .ticker import (
 _log = logging.getLogger(__name__)
 
 
-def _copy_docstring_and_deprecators(method, func=None):
+@overload
+def _copy_docstring_and_deprecators(
+    method: Any,
+    func: Literal[None] = None
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
+
+
+@overload
+def _copy_docstring_and_deprecators(
+    method: Any, func: Callable[_P, _R]) -> Callable[_P, _R]: ...
+
+
+def _copy_docstring_and_deprecators(
+    method: Any,
+    func: Callable[_P, _R] | None = None
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]] | Callable[_P, _R]:
     if func is None:
-        return functools.partial(_copy_docstring_and_deprecators, method)
-    decorators = [_docstring.copy(method)]
+        return cast('Callable[[Callable[_P, _R]], Callable[_P, _R]]',
+                    functools.partial(_copy_docstring_and_deprecators, method))
+    decorators: list[Callable[[Callable[_P, _R]], Callable[_P, _R]]] = [
+        _docstring.copy(method)
+    ]
     # Check whether the definition of *method* includes @_api.rename_parameter
     # or @_api.make_keyword_only decorators; if so, propagate them to the
     # pyplot wrapper as well.
-    while getattr(method, "__wrapped__", None) is not None:
-        decorator = _api.deprecation.DECORATORS.get(method)
-        if decorator:
-            decorators.append(decorator)
+    while hasattr(method, "__wrapped__"):
+        potential_decorator = _api.deprecation.DECORATORS.get(method)
+        if potential_decorator:
+            decorators.append(potential_decorator)
         method = method.__wrapped__
     for decorator in decorators[::-1]:
         func = decorator(func)
@@ -1941,6 +1965,7 @@ def xticks(
     """
     ax = gca()
 
+    locs: list[Tick] | np.ndarray
     if ticks is None:
         locs = ax.get_xticks(minor=minor)
         if labels is not None:
@@ -2011,6 +2036,7 @@ def yticks(
     """
     ax = gca()
 
+    locs: list[Tick] | np.ndarray
     if ticks is None:
         locs = ax.get_yticks(minor=minor)
         if labels is not None:
@@ -2831,8 +2857,8 @@ def contour(*args, data=None, **kwargs) -> QuadContourSet:
     __ret = gca().contour(
         *args, **({"data": data} if data is not None else {}), **kwargs
     )
-    if __ret._A is not None:
-        sci(__ret)  # noqa
+    if __ret._A is not None:  # type: ignore[attr-defined]
+        sci(__ret)
     return __ret
 
 
@@ -2842,8 +2868,8 @@ def contourf(*args, data=None, **kwargs) -> QuadContourSet:
     __ret = gca().contourf(
         *args, **({"data": data} if data is not None else {}), **kwargs
     )
-    if __ret._A is not None:
-        sci(__ret)  # noqa
+    if __ret._A is not None:  # type: ignore[attr-defined]
+        sci(__ret)
     return __ret
 
 
@@ -3153,7 +3179,7 @@ def stairs(
     edges: ArrayLike | None = None,
     *,
     orientation: Literal["vertical", "horizontal"] = "vertical",
-    baseline: float | ArrayLike = 0,
+    baseline: float | ArrayLike | None = 0,
     fill: bool = False,
     data=None,
     **kwargs,
@@ -3433,7 +3459,7 @@ def pie(
     autopct: str | Callable[[float], str] | None = None,
     pctdistance: float = 0.6,
     shadow: bool = False,
-    labeldistance: float = 1.1,
+    labeldistance: float | None = 1.1,
     startangle: float = 0,
     radius: float = 1,
     counterclock: bool = True,
@@ -3877,8 +3903,8 @@ def ticklabel_format(
 @_copy_docstring_and_deprecators(Axes.tricontour)
 def tricontour(*args, **kwargs):
     __ret = gca().tricontour(*args, **kwargs)
-    if __ret._A is not None:
-        sci(__ret)  # noqa
+    if __ret._A is not None:  # type: ignore[attr-defined]
+        sci(__ret)
     return __ret
 
 
@@ -3886,8 +3912,8 @@ def tricontour(*args, **kwargs):
 @_copy_docstring_and_deprecators(Axes.tricontourf)
 def tricontourf(*args, **kwargs):
     __ret = gca().tricontourf(*args, **kwargs)
-    if __ret._A is not None:
-        sci(__ret)  # noqa
+    if __ret._A is not None:  # type: ignore[attr-defined]
+        sci(__ret)
     return __ret
 
 

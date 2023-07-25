@@ -305,7 +305,7 @@ class Axes(_AxesBase):
         autopct: str | Callable[[float], str] | None = ...,
         pctdistance: float = ...,
         shadow: bool = ...,
-        labeldistance: float = ...,
+        labeldistance: float | None = ...,
         startangle: float = ...,
         radius: float = ...,
         counterclock: bool = ...,
@@ -564,7 +564,7 @@ class Axes(_AxesBase):
         edges: ArrayLike | None = ...,
         *,
         orientation: Literal["vertical", "horizontal"] = ...,
-        baseline: float | ArrayLike = ...,
+        baseline: float | ArrayLike | None = ...,
         fill: bool = ...,
         data=...,
         **kwargs

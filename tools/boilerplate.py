@@ -309,8 +309,14 @@ def boilerplate_gen():
     )
 
     cmappable = {
-        'contour': 'if __ret._A is not None: sci(__ret)  # noqa',
-        'contourf': 'if __ret._A is not None: sci(__ret)  # noqa',
+        'contour': (
+            'if __ret._A is not None:  # type: ignore[attr-defined]\n'
+            '        sci(__ret)'
+        ),
+        'contourf': (
+            'if __ret._A is not None:  # type: ignore[attr-defined]\n'
+            '        sci(__ret)'
+        ),
         'hexbin': 'sci(__ret)',
         'scatter': 'sci(__ret)',
         'pcolor': 'sci(__ret)',
@@ -321,8 +327,14 @@ def boilerplate_gen():
         'quiver': 'sci(__ret)',
         'specgram': 'sci(__ret[-1])',
         'streamplot': 'sci(__ret.lines)',
-        'tricontour': 'if __ret._A is not None: sci(__ret)  # noqa',
-        'tricontourf': 'if __ret._A is not None: sci(__ret)  # noqa',
+        'tricontour': (
+            'if __ret._A is not None:  # type: ignore[attr-defined]\n'
+            '        sci(__ret)'
+        ),
+        'tricontourf': (
+            'if __ret._A is not None:  # type: ignore[attr-defined]\n'
+            '        sci(__ret)'
+        ),
         'tripcolor': 'sci(__ret)',
     }
 
