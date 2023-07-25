@@ -3935,7 +3935,7 @@ def violinplot(
     showmeans: bool = False,
     showextrema: bool = True,
     showmedians: bool = False,
-    quantiles: Sequence[float] | None = None,
+    quantiles: Sequence[float | Sequence[float]] | None = None,
     points: int = 100,
     bw_method: Literal["scott", "silverman"]
     | float

@@ -736,7 +736,7 @@ class Axes(_AxesBase):
         showmeans: bool = ...,
         showextrema: bool = ...,
         showmedians: bool = ...,
-        quantiles: Sequence[float] | None = ...,
+        quantiles: Sequence[float | Sequence[float]] | None = ...,
         points: int = ...,
         bw_method: Literal["scott", "silverman"]
         | float
