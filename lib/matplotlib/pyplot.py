@@ -187,12 +187,12 @@ _ReplDisplayHook = Enum("_ReplDisplayHook", ["NONE", "PLAIN", "IPYTHON"])
 _REPL_DISPLAYHOOK = _ReplDisplayHook.NONE
 
 
-def _draw_all_if_interactive():
+def _draw_all_if_interactive() -> None:
     if matplotlib.is_interactive():
         draw_all()
 
 
-def install_repl_displayhook():
+def install_repl_displayhook() -> None:
     """
     Connect to the display hook of the current shell.
 
@@ -229,7 +229,7 @@ def install_repl_displayhook():
         ip.enable_gui(ipython_gui_name)
 
 
-def uninstall_repl_displayhook():
+def uninstall_repl_displayhook() -> None:
     """Disconnect from the display hook of the current shell."""
     global _REPL_DISPLAYHOOK
     if _REPL_DISPLAYHOOK is _ReplDisplayHook.IPYTHON:
@@ -259,10 +259,10 @@ def findobj(
     return o.findobj(match, include_self=include_self)
 
 
-_backend_mod = None
+_backend_mod: type[matplotlib.backend_bases._Backend] | None = None
 
 
-def _get_backend_mod():
+def _get_backend_mod() -> type[matplotlib.backend_bases._Backend]:
     """
     Ensure that a backend is selected and return it.
 
@@ -272,11 +272,11 @@ def _get_backend_mod():
         # Use rcParams._get("backend") to avoid going through the fallback
         # logic (which will (re)import pyplot and then call switch_backend if
         # we need to resolve the auto sentinel)
-        switch_backend(rcParams._get("backend"))
-    return _backend_mod
+        switch_backend(rcParams._get("backend"))  # type: ignore[attr-defined]
+    return cast(type[matplotlib.backend_bases._Backend], _backend_mod)
 
 
-def switch_backend(newbackend):
+def switch_backend(newbackend: str) -> None:
     """
     Set the pyplot backend.
 
@@ -307,9 +307,8 @@ def switch_backend(newbackend):
                    'macosx': 'macosx',
                    'headless': 'agg'}
 
-        best_guess = mapping.get(current_framework, None)
-        if best_guess is not None:
-            candidates = [best_guess]
+        if current_framework in mapping:
+            candidates = [mapping[current_framework]]
         else:
             candidates = []
         candidates += [
@@ -335,10 +334,9 @@ def switch_backend(newbackend):
     # have to escape the switch on access logic
     old_backend = dict.__getitem__(rcParams, 'backend')
 
-    backend_mod = importlib.import_module(
-        cbook._backend_module_name(newbackend))
+    module = importlib.import_module(cbook._backend_module_name(newbackend))
 
-    required_framework = backend_mod.FigureCanvas.required_interactive_framework
+    required_framework = module.FigureCanvas.required_interactive_framework
     if required_framework is not None:
         current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
@@ -352,15 +350,15 @@ def switch_backend(newbackend):
 
     # Classically, backends can directly export these functions.  This should
     # keep working for backcompat.
-    new_figure_manager = getattr(backend_mod, "new_figure_manager", None)
-    show = getattr(backend_mod, "show", None)
+    new_figure_manager = getattr(module, "new_figure_manager", None)
+    show = getattr(module, "show", None)
 
     # In that classical approach, backends are implemented as modules, but
     # "inherit" default method implementations from backend_bases._Backend.
     # This is achieved by creating a "class" that inherits from
     # backend_bases._Backend and whose body is filled with the module globals.
     class backend_mod(matplotlib.backend_bases._Backend):
-        locals().update(vars(backend_mod))
+        locals().update(vars(module))
 
     # However, the newer approach for defining new_figure_manager and
     # show is to derive them from canvas methods.  In that case, also
@@ -383,10 +381,12 @@ def switch_backend(newbackend):
                 if manager:
                     manager.canvas.draw_idle()
 
-        backend_mod.new_figure_manager_given_figure = \
-            new_figure_manager_given_figure
-        backend_mod.new_figure_manager = new_figure_manager
-        backend_mod.draw_if_interactive = draw_if_interactive
+        backend_mod.new_figure_manager_given_figure = (  # type: ignore[method-assign]
+            new_figure_manager_given_figure)
+        backend_mod.new_figure_manager = (  # type: ignore[method-assign]
+            new_figure_manager)
+        backend_mod.draw_if_interactive = (  # type: ignore[method-assign]
+            draw_if_interactive)
 
     # If the manager explicitly overrides pyplot_show, use it even if a global
     # show is already present, as the latter may be here for backcompat.
@@ -401,7 +401,8 @@ def switch_backend(newbackend):
     if (show is None
             or (manager_pyplot_show is not None
                 and manager_pyplot_show != base_pyplot_show)):
-        backend_mod.show = manager_class.pyplot_show
+        _pyplot_show = cast('Any', manager_class).pyplot_show
+        backend_mod.show = _pyplot_show  # type: ignore[method-assign]
 
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
@@ -414,7 +415,7 @@ def switch_backend(newbackend):
 
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
-    matplotlib.backends.backend = newbackend
+    matplotlib.backends.backend = newbackend  # type: ignore[attr-defined]
     if not cbook._str_equal(old_backend, newbackend):
         close("all")
 
@@ -423,9 +424,10 @@ def switch_backend(newbackend):
     install_repl_displayhook()
 
 
-def _warn_if_gui_out_of_main_thread():
+def _warn_if_gui_out_of_main_thread() -> None:
     warn = False
-    if _get_backend_mod().FigureCanvas.required_interactive_framework:
+    canvas_class = cast(type[FigureCanvasBase], _get_backend_mod().FigureCanvas)
+    if canvas_class.required_interactive_framework:
         if hasattr(threading, 'get_native_id'):
             # This compares native thread ids because even if Python-level
             # Thread objects match, the underlying OS thread (which is what
