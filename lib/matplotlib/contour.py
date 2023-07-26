@@ -1693,7 +1693,7 @@ xunits, yunits : registered units, optional
 
 antialiased : bool, optional
     Enable antialiasing, overriding the defaults.  For
-    filled contours, the default is *True*.  For line contours,
+    filled contours, the default is *False*.  For line contours,
     it is taken from :rc:`lines.antialiased`.
 
 nchunk : int >= 0, optional
