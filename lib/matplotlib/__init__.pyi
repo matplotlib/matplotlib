@@ -39,8 +39,6 @@ from packaging.version import Version
 from matplotlib._api import MatplotlibDeprecationWarning
 from typing import Any, NamedTuple
 
-__bibtex__: str
-
 class _VersionInfo(NamedTuple):
     major: int
     minor: int
@@ -48,9 +46,9 @@ class _VersionInfo(NamedTuple):
     releaselevel: str
     serial: int
 
-class __getattr__:
-    __version__: str
-    __version_info__: _VersionInfo
+__bibtex__: str
+__version__: str
+__version_info__: _VersionInfo
 
 def set_loglevel(level: str) -> None: ...
 
