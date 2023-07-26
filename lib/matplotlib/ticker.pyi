@@ -1,9 +1,10 @@
+from collections.abc import Callable, Sequence
+from typing import Any, Literal
+
 from matplotlib.axis import Axis
 from matplotlib.transforms import Transform
 from matplotlib.projections.polar import _AxisWrapper
 
-from collections.abc import Callable, Sequence
-from typing import Any, Literal
 import numpy as np
 
 class _DummyAxis:
