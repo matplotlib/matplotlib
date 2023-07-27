@@ -696,6 +696,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         return linewidths, dashes
 
+    def get_antialiased(self):
+        """
+        Get the antialiasing state for rendering.
+
+        Returns
+        -------
+        array of bools
+        """
+        return self._antialiaseds
+
     def set_antialiased(self, aa):
         """
         Set the antialiasing state for rendering.

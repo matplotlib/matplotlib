@@ -831,3 +831,9 @@ def test_deprecated_apis():
         assert_array_equal(cs.tcolors, [c.get_edgecolor() for c in colls])
     with pytest.warns(mpl.MatplotlibDeprecationWarning, match="tlinewidths"):
         assert cs.tlinewidths == [c.get_linewidth() for c in colls]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="antialiased"):
+        assert cs.antialiased
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="antialiased"):
+        cs.antialiased = False
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="antialiased"):
+        assert not cs.antialiased

@@ -94,7 +94,6 @@ class ContourSet(ContourLabeler, Collection):
     extent: tuple[float, float, float, float] | None
     colors: ColorType | Sequence[ColorType]
     extend: Literal["neither", "both", "min", "max"]
-    antialiased: bool | None
     nchunk: int
     locator: Locator | None
     logscale: bool
@@ -112,6 +111,10 @@ class ContourSet(ContourLabeler, Collection):
 
     @property
     def alpha(self) -> float | None: ...
+    @property
+    def antialiased(self) -> bool: ...
+    @antialiased.setter
+    def antialiased(self, aa: bool | Sequence[bool]) -> None: ...
     @property
     def collections(self) -> list[PathCollection]: ...
     @property
