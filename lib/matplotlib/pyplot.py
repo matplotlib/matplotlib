@@ -49,13 +49,15 @@ import re
 import sys
 import threading
 import time
+from typing import cast, overload
 
 from cycler import cycler
 import matplotlib
 import matplotlib.colorbar
 import matplotlib.image
 from matplotlib import _api
-from matplotlib import rcsetup, style
+from matplotlib import (  # Re-exported for typing.
+    cm as cm, get_backend as get_backend, rcParams as rcParams, style as style)
 from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
 from matplotlib import _docstring
@@ -63,18 +65,16 @@ from matplotlib.backend_bases import (
     FigureCanvasBase, FigureManagerBase, MouseButton)
 from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
-from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
-from matplotlib.rcsetup import interactive_bk as _interactive_bk
+from matplotlib import rcsetup, rcParamsDefault, rcParamsOrig
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes, Subplot  # type: ignore
 from matplotlib.projections import PolarAxes  # type: ignore
 from matplotlib import mlab  # for detrend_none, window_hanning
 from matplotlib.scale import get_scale_names
 
-from matplotlib import cm
-from matplotlib.cm import _colormaps as colormaps
+from matplotlib.cm import _colormaps
 from matplotlib.cm import register_cmap  # type: ignore
-from matplotlib.colors import _color_sequences as color_sequences
+from matplotlib.colors import _color_sequences
 
 import numpy as np
 
@@ -85,7 +85,8 @@ if TYPE_CHECKING:
     import datetime
     import pathlib
     import os
-    from typing import Any, BinaryIO, Literal
+    from typing import Any, BinaryIO, Literal, TypeVar
+    from typing_extensions import ParamSpec
 
     import PIL
     from numpy.typing import ArrayLike
@@ -115,12 +116,16 @@ if TYPE_CHECKING:
     from matplotlib.legend import Legend
     from matplotlib.mlab import GaussianKDE
     from matplotlib.image import AxesImage, FigureImage
-    from matplotlib.patches import FancyArrow, StepPatch
+    from matplotlib.patches import FancyArrow, StepPatch, Wedge
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
     from matplotlib.transforms import Transform, Bbox
     from matplotlib.typing import ColorType, LineStyleType, MarkerType, HashableList
     from matplotlib.widgets import SubplotTool
+
+    _P = ParamSpec('_P')
+    _R = TypeVar('_R')
+
 
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
@@ -138,17 +143,40 @@ from .ticker import (
 _log = logging.getLogger(__name__)
 
 
-def _copy_docstring_and_deprecators(method, func=None):
+# Explicit rename instead of import-as for typing's sake.
+colormaps = _colormaps
+color_sequences = _color_sequences
+
+
+@overload
+def _copy_docstring_and_deprecators(
+    method: Any,
+    func: Literal[None] = None
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
+
+
+@overload
+def _copy_docstring_and_deprecators(
+    method: Any, func: Callable[_P, _R]) -> Callable[_P, _R]: ...
+
+
+def _copy_docstring_and_deprecators(
+    method: Any,
+    func: Callable[_P, _R] | None = None
+) -> Callable[[Callable[_P, _R]], Callable[_P, _R]] | Callable[_P, _R]:
     if func is None:
-        return functools.partial(_copy_docstring_and_deprecators, method)
-    decorators = [_docstring.copy(method)]
+        return cast('Callable[[Callable[_P, _R]], Callable[_P, _R]]',
+                    functools.partial(_copy_docstring_and_deprecators, method))
+    decorators: list[Callable[[Callable[_P, _R]], Callable[_P, _R]]] = [
+        _docstring.copy(method)
+    ]
     # Check whether the definition of *method* includes @_api.rename_parameter
     # or @_api.make_keyword_only decorators; if so, propagate them to the
     # pyplot wrapper as well.
-    while getattr(method, "__wrapped__", None) is not None:
-        decorator = _api.deprecation.DECORATORS.get(method)
-        if decorator:
-            decorators.append(decorator)
+    while hasattr(method, "__wrapped__"):
+        potential_decorator = _api.deprecation.DECORATORS.get(method)
+        if potential_decorator:
+            decorators.append(potential_decorator)
         method = method.__wrapped__
     for decorator in decorators[::-1]:
         func = decorator(func)
@@ -163,12 +191,12 @@ _ReplDisplayHook = Enum("_ReplDisplayHook", ["NONE", "PLAIN", "IPYTHON"])
 _REPL_DISPLAYHOOK = _ReplDisplayHook.NONE
 
 
-def _draw_all_if_interactive():
+def _draw_all_if_interactive() -> None:
     if matplotlib.is_interactive():
         draw_all()
 
 
-def install_repl_displayhook():
+def install_repl_displayhook() -> None:
     """
     Connect to the display hook of the current shell.
 
@@ -205,7 +233,7 @@ def install_repl_displayhook():
         ip.enable_gui(ipython_gui_name)
 
 
-def uninstall_repl_displayhook():
+def uninstall_repl_displayhook() -> None:
     """Disconnect from the display hook of the current shell."""
     global _REPL_DISPLAYHOOK
     if _REPL_DISPLAYHOOK is _ReplDisplayHook.IPYTHON:
@@ -235,10 +263,10 @@ def findobj(
     return o.findobj(match, include_self=include_self)
 
 
-_backend_mod = None
+_backend_mod: type[matplotlib.backend_bases._Backend] | None = None
 
 
-def _get_backend_mod():
+def _get_backend_mod() -> type[matplotlib.backend_bases._Backend]:
     """
     Ensure that a backend is selected and return it.
 
@@ -248,11 +276,11 @@ def _get_backend_mod():
         # Use rcParams._get("backend") to avoid going through the fallback
         # logic (which will (re)import pyplot and then call switch_backend if
         # we need to resolve the auto sentinel)
-        switch_backend(rcParams._get("backend"))
-    return _backend_mod
+        switch_backend(rcParams._get("backend"))  # type: ignore[attr-defined]
+    return cast(type[matplotlib.backend_bases._Backend], _backend_mod)
 
 
-def switch_backend(newbackend):
+def switch_backend(newbackend: str) -> None:
     """
     Set the pyplot backend.
 
@@ -283,9 +311,8 @@ def switch_backend(newbackend):
                    'macosx': 'macosx',
                    'headless': 'agg'}
 
-        best_guess = mapping.get(current_framework, None)
-        if best_guess is not None:
-            candidates = [best_guess]
+        if current_framework in mapping:
+            candidates = [mapping[current_framework]]
         else:
             candidates = []
         candidates += [
@@ -311,10 +338,9 @@ def switch_backend(newbackend):
     # have to escape the switch on access logic
     old_backend = dict.__getitem__(rcParams, 'backend')
 
-    backend_mod = importlib.import_module(
-        cbook._backend_module_name(newbackend))
+    module = importlib.import_module(cbook._backend_module_name(newbackend))
 
-    required_framework = backend_mod.FigureCanvas.required_interactive_framework
+    required_framework = module.FigureCanvas.required_interactive_framework
     if required_framework is not None:
         current_framework = cbook._get_running_interactive_framework()
         if (current_framework and required_framework
@@ -328,15 +354,15 @@ def switch_backend(newbackend):
 
     # Classically, backends can directly export these functions.  This should
     # keep working for backcompat.
-    new_figure_manager = getattr(backend_mod, "new_figure_manager", None)
-    show = getattr(backend_mod, "show", None)
+    new_figure_manager = getattr(module, "new_figure_manager", None)
+    show = getattr(module, "show", None)
 
     # In that classical approach, backends are implemented as modules, but
     # "inherit" default method implementations from backend_bases._Backend.
     # This is achieved by creating a "class" that inherits from
     # backend_bases._Backend and whose body is filled with the module globals.
     class backend_mod(matplotlib.backend_bases._Backend):
-        locals().update(vars(backend_mod))
+        locals().update(vars(module))
 
     # However, the newer approach for defining new_figure_manager and
     # show is to derive them from canvas methods.  In that case, also
@@ -359,10 +385,12 @@ def switch_backend(newbackend):
                 if manager:
                     manager.canvas.draw_idle()
 
-        backend_mod.new_figure_manager_given_figure = \
-            new_figure_manager_given_figure
-        backend_mod.new_figure_manager = new_figure_manager
-        backend_mod.draw_if_interactive = draw_if_interactive
+        backend_mod.new_figure_manager_given_figure = (  # type: ignore[method-assign]
+            new_figure_manager_given_figure)
+        backend_mod.new_figure_manager = (  # type: ignore[method-assign]
+            new_figure_manager)
+        backend_mod.draw_if_interactive = (  # type: ignore[method-assign]
+            draw_if_interactive)
 
     # If the manager explicitly overrides pyplot_show, use it even if a global
     # show is already present, as the latter may be here for backcompat.
@@ -377,7 +405,8 @@ def switch_backend(newbackend):
     if (show is None
             or (manager_pyplot_show is not None
                 and manager_pyplot_show != base_pyplot_show)):
-        backend_mod.show = manager_class.pyplot_show
+        _pyplot_show = cast('Any', manager_class).pyplot_show
+        backend_mod.show = _pyplot_show  # type: ignore[method-assign]
 
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
@@ -390,7 +419,7 @@ def switch_backend(newbackend):
 
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
-    matplotlib.backends.backend = newbackend
+    matplotlib.backends.backend = newbackend  # type: ignore[attr-defined]
     if not cbook._str_equal(old_backend, newbackend):
         close("all")
 
@@ -399,9 +428,10 @@ def switch_backend(newbackend):
     install_repl_displayhook()
 
 
-def _warn_if_gui_out_of_main_thread():
+def _warn_if_gui_out_of_main_thread() -> None:
     warn = False
-    if _get_backend_mod().FigureCanvas.required_interactive_framework:
+    canvas_class = cast(type[FigureCanvasBase], _get_backend_mod().FigureCanvas)
+    if canvas_class.required_interactive_framework:
         if hasattr(threading, 'get_native_id'):
             # This compares native thread ids because even if Python-level
             # Thread objects match, the underlying OS thread (which is what
@@ -1003,7 +1033,7 @@ def connect(s: str, func: Callable[[Event], Any]) -> int:
 
 @_copy_docstring_and_deprecators(FigureCanvasBase.mpl_disconnect)
 def disconnect(cid: int) -> None:
-    return gcf().canvas.mpl_disconnect(cid)
+    gcf().canvas.mpl_disconnect(cid)
 
 
 def close(fig: None | int | str | Figure | Literal["all"] = None) -> None:
@@ -1941,6 +1971,7 @@ def xticks(
     """
     ax = gca()
 
+    locs: list[Tick] | np.ndarray
     if ticks is None:
         locs = ax.get_xticks(minor=minor)
         if labels is not None:
@@ -2011,6 +2042,7 @@ def yticks(
     """
     ax = gca()
 
+    locs: list[Tick] | np.ndarray
     if ticks is None:
         locs = ax.get_yticks(minor=minor)
         if labels is not None:
@@ -2297,7 +2329,7 @@ def imread(
 def imsave(
     fname: str | os.PathLike | BinaryIO, arr: ArrayLike, **kwargs
 ) -> None:
-    return matplotlib.image.imsave(fname, arr, **kwargs)
+    matplotlib.image.imsave(fname, arr, **kwargs)
 
 
 def matshow(A: ArrayLike, fignum: None | int = None, **kwargs) -> AxesImage:
@@ -2379,7 +2411,7 @@ def polar(*args, **kwargs) -> list[Line2D]:
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
         and rcParams._get_backend_or_none() in (  # type: ignore
-            set(_interactive_bk) - {'WebAgg', 'nbAgg'})
+            set(rcsetup.interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):  # type: ignore
     rcParams._set("backend", rcsetup._auto_backend_sentinel)  # type: ignore
 
@@ -2468,7 +2500,7 @@ def subplots_adjust(
     wspace: float | None = None,
     hspace: float | None = None,
 ) -> None:
-    return gcf().subplots_adjust(
+    gcf().subplots_adjust(
         left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace
     )
 
@@ -2488,7 +2520,7 @@ def tight_layout(
     w_pad: float | None = None,
     rect: tuple[float, float, float, float] | None = None,
 ) -> None:
-    return gcf().tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
+    gcf().tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2576,7 +2608,7 @@ def autoscale(
     axis: Literal["both", "x", "y"] = "both",
     tight: bool | None = None,
 ) -> None:
-    return gca().autoscale(enable=enable, axis=axis, tight=tight)
+    gca().autoscale(enable=enable, axis=axis, tight=tight)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2831,8 +2863,8 @@ def contour(*args, data=None, **kwargs) -> QuadContourSet:
     __ret = gca().contour(
         *args, **({"data": data} if data is not None else {}), **kwargs
     )
-    if __ret._A is not None:
-        sci(__ret)  # noqa
+    if __ret._A is not None:  # type: ignore[attr-defined]
+        sci(__ret)
     return __ret
 
 
@@ -2842,8 +2874,8 @@ def contourf(*args, data=None, **kwargs) -> QuadContourSet:
     __ret = gca().contourf(
         *args, **({"data": data} if data is not None else {}), **kwargs
     )
-    if __ret._A is not None:
-        sci(__ret)  # noqa
+    if __ret._A is not None:  # type: ignore[attr-defined]
+        sci(__ret)
     return __ret
 
 
@@ -3045,7 +3077,7 @@ def grid(
     axis: Literal["both", "x", "y"] = "both",
     **kwargs,
 ) -> None:
-    return gca().grid(visible=visible, which=which, axis=axis, **kwargs)
+    gca().grid(visible=visible, which=which, axis=axis, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -3153,7 +3185,7 @@ def stairs(
     edges: ArrayLike | None = None,
     *,
     orientation: Literal["vertical", "horizontal"] = "vertical",
-    baseline: float | ArrayLike = 0,
+    baseline: float | ArrayLike | None = 0,
     fill: bool = False,
     data=None,
     **kwargs,
@@ -3281,7 +3313,7 @@ def legend(*args, **kwargs) -> Legend:
 def locator_params(
     axis: Literal["both", "x", "y"] = "both", tight: bool | None = None, **kwargs
 ) -> None:
-    return gca().locator_params(axis=axis, tight=tight, **kwargs)
+    gca().locator_params(axis=axis, tight=tight, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -3331,13 +3363,13 @@ def margins(
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.minorticks_off)
 def minorticks_off() -> None:
-    return gca().minorticks_off()
+    gca().minorticks_off()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.minorticks_on)
 def minorticks_on() -> None:
-    return gca().minorticks_on()
+    gca().minorticks_on()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -3433,7 +3465,7 @@ def pie(
     autopct: str | Callable[[float], str] | None = None,
     pctdistance: float = 0.6,
     shadow: bool = False,
-    labeldistance: float = 1.1,
+    labeldistance: float | None = 1.1,
     startangle: float = 0,
     radius: float = 1,
     counterclock: bool = True,
@@ -3446,7 +3478,7 @@ def pie(
     normalize: bool = True,
     hatch: str | Sequence[str] | None = None,
     data=None,
-):
+) -> tuple[list[Wedge], list[Text]] | tuple[list[Wedge], list[Text], list[Text]]:
     return gca().pie(
         x,
         explode=explode,
@@ -3849,7 +3881,7 @@ def text(
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.tick_params)
 def tick_params(axis: Literal["both", "x", "y"] = "both", **kwargs) -> None:
-    return gca().tick_params(axis=axis, **kwargs)
+    gca().tick_params(axis=axis, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -3863,7 +3895,7 @@ def ticklabel_format(
     useLocale: bool | None = None,
     useMathText: bool | None = None,
 ) -> None:
-    return gca().ticklabel_format(
+    gca().ticklabel_format(
         axis=axis,
         style=style,
         scilimits=scilimits,
@@ -3877,8 +3909,8 @@ def ticklabel_format(
 @_copy_docstring_and_deprecators(Axes.tricontour)
 def tricontour(*args, **kwargs):
     __ret = gca().tricontour(*args, **kwargs)
-    if __ret._A is not None:
-        sci(__ret)  # noqa
+    if __ret._A is not None:  # type: ignore[attr-defined]
+        sci(__ret)
     return __ret
 
 
@@ -3886,8 +3918,8 @@ def tricontour(*args, **kwargs):
 @_copy_docstring_and_deprecators(Axes.tricontourf)
 def tricontourf(*args, **kwargs):
     __ret = gca().tricontourf(*args, **kwargs)
-    if __ret._A is not None:
-        sci(__ret)  # noqa
+    if __ret._A is not None:  # type: ignore[attr-defined]
+        sci(__ret)
     return __ret
 
 
@@ -3935,7 +3967,7 @@ def violinplot(
     showmeans: bool = False,
     showextrema: bool = True,
     showmedians: bool = False,
-    quantiles: Sequence[float] | None = None,
+    quantiles: Sequence[float | Sequence[float]] | None = None,
     points: int = 100,
     bw_method: Literal["scott", "silverman"]
     | float
@@ -4012,7 +4044,7 @@ def xcorr(
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes._sci)
 def sci(im: ScalarMappable) -> None:
-    return gca()._sci(im)
+    gca()._sci(im)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -4062,13 +4094,13 @@ def ylabel(
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.set_xscale)
 def xscale(value: str | ScaleBase, **kwargs) -> None:
-    return gca().set_xscale(value, **kwargs)
+    gca().set_xscale(value, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.set_yscale)
 def yscale(value: str | ScaleBase, **kwargs) -> None:
-    return gca().set_yscale(value, **kwargs)
+    gca().set_yscale(value, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.

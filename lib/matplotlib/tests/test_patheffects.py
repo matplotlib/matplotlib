@@ -81,7 +81,7 @@ def test_patheffects_stroked_text():
     ]
     font_size = 50
 
-    ax = plt.axes([0, 0, 1, 1])
+    ax = plt.axes((0, 0, 1, 1))
     for i, chunk in enumerate(text_chunks):
         text = ax.text(x=0.01, y=(0.9 - i * 0.13), s=chunk,
                        fontdict={'ha': 'left', 'va': 'center',
