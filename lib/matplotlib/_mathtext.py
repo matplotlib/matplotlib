@@ -18,7 +18,7 @@ from pyparsing import (
     Empty, Forward, Literal, NotAny, oneOf, OneOrMore, Optional,
     ParseBaseException, ParseException, ParseExpression, ParseFatalException,
     ParserElement, ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore,
-    pyparsing_common)
+    pyparsing_common, Group)
 
 import matplotlib as mpl
 from . import cbook
@@ -27,6 +27,11 @@ from ._mathtext_data import (
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import FT2Image, KERNING_DEFAULT
 
+from pyparsing import __version__ as pyparsing_version
+if tuple(int(x) for x in pyparsing_version.split(".")) < (3, 0, 0):
+    from pyparsing import nestedExpr as nested_expr
+else:
+    from pyparsing import nested_expr
 
 ParserElement.enablePackrat()
 _log = logging.getLogger("matplotlib.mathtext")
@@ -1865,7 +1870,7 @@ class Parser:
             + r"|\\(?:{})(?![A-Za-z])".format(
                 "|".join(map(re.escape, tex2uni)))
         )("sym").leaveWhitespace()
-        p.unknown_symbol = Regex(r"\\[A-Za-z]*")("name")
+        p.unknown_symbol = Regex(r"\\[A-Za-z]+")("name")
 
         p.font           = csnames("font", self._fontnames)
         p.start_group    = Optional(r"\math" + oneOf(self._fontnames)("font")) + "{"
@@ -1925,6 +1930,11 @@ class Parser:
 
         p.text = cmd(r"\text", QuotedString('{', '\\', endQuoteChar="}"))
 
+        p.substack = cmd(r"\substack",
+                           nested_expr(opener="{", closer="}",
+                                       content=Group(OneOrMore(p.token)) +
+                                       ZeroOrMore(Literal("\\\\").suppress()))("parts"))
+
         p.subsuper = (
             (Optional(p.placeable)("nucleus")
              + OneOrMore(oneOf(["_", "^"]) - p.placeable)("subsuper")
@@ -1963,6 +1973,7 @@ class Parser:
             | p.overline
             | p.text
             | p.boldsymbol
+            | p.substack
         )
 
         mdelim = r"\middle" - (p.delim("mdelim") | Error("Expected a delimiter"))
@@ -2648,3 +2659,25 @@ class Parser:
         self.pop_state()
 
         return Hlist(hlist)
+
+    def substack(self, s, loc, toks):
+        parts = toks["parts"]
+        state = self.get_state()
+        thickness = state.get_current_underline_thickness()
+        vlist = []
+
+        hlist = [Hlist(k) for k in parts[0]]
+        max_width = max(map(lambda c: c.width, hlist))
+
+        for sub in hlist:
+            cp = HCentered([sub])
+            cp.hpack(max_width, 'exactly')
+            vlist.append(cp)
+
+        vlist = [val for pair in zip(vlist,
+                                     [Vbox(0, thickness * 2)] *
+                                     len(vlist)) for val in pair]
+        del vlist[-1]
+        vlt = Vlist(vlist)
+        result = [Hlist([vlt])]
+        return result
