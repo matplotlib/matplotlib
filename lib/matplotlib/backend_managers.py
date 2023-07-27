@@ -36,7 +36,7 @@ class ToolManager:
 
     Attributes
     ----------
-    figure : `.Figure`
+    figure : `~matplotlib.figure.Figure`
     keypresslock : `~matplotlib.widgets.LockDraw`
         `.LockDraw` object to know if the `canvas` key_press_event is locked.
     messagelock : `~matplotlib.widgets.LockDraw`
@@ -81,7 +81,7 @@ class ToolManager:
 
         Parameters
         ----------
-        figure : `.Figure`
+        figure : `~matplotlib.figure.Figure`
         update_tools : bool, default: True
             Force tools to update figure.
         """

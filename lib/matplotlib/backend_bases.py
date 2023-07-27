@@ -1299,7 +1299,7 @@ class DrawEvent(Event):
 
     Attributes
     ----------
-    renderer : `RendererBase`
+    renderer : `~matplotlib.backend_bases.RendererBase` subclass
         The renderer for the draw event.
     """
     def __init__(self, name, canvas, renderer):

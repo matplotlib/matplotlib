@@ -202,7 +202,7 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     axes_list : list of Axes
     subplotspec_list : list of `.SubplotSpec`
         The subplotspecs of each axes.
-    renderer : renderer
+    renderer : `~matplotlib.backend_bases.RendererBase` subclass
     pad : float
         Padding between the figure edge and the edges of subplots, as a
         fraction of the font size.

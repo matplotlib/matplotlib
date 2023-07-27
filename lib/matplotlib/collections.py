@@ -126,7 +126,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             A vector by which to translate each patch after rendering (default
             is no translation). The translation is performed in screen (pixel)
             coordinates (i.e. after the Artist's transform is applied).
-        offset_transform : `~.Transform`, default: `.IdentityTransform`
+        offset_transform : `~matplotlib.transforms.Transform`, default: \
+`.IdentityTransform`
             A single transform which will be applied to each *offsets* vector
             before it is used.
         cmap, norm
@@ -229,7 +230,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        offset_transform : `.Transform`
+        offset_transform : `~matplotlib.transforms.Transform`
         """
         self._offset_transform = offset_transform
 

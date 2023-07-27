@@ -394,7 +394,7 @@ class ScalarMappable:
         """
         Parameters
         ----------
-        norm : `.Normalize` (or subclass thereof) or str or None
+        norm : `~matplotlib.colors.Normalize` (or subclass thereof) or str or None
             The normalizing object which scales data, typically into the
             interval ``[0, 1]``.
             If a `str`, a `.Normalize` subclass is dynamically generated based
@@ -640,7 +640,7 @@ class ScalarMappable:
 
         Parameters
         ----------
-        norm : `.Normalize` or str or None
+        norm : `~matplotlib.colors.Normalize` or str or None
 
         Notes
         -----

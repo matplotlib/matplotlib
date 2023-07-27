@@ -921,7 +921,7 @@ class Text(Artist):
 
         Parameters
         ----------
-        renderer : Renderer, optional
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass, optional
             A renderer is needed to compute the bounding box.  If the artist
             has already been drawn, the renderer is cached; thus, it is only
             necessary to pass this argument when calling `get_window_extent`
@@ -1420,7 +1420,7 @@ class OffsetFrom:
 
         Parameters
         ----------
-        renderer : `RendererBase`
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass
             The renderer to use to compute the offset
 
         Returns

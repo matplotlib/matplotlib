@@ -969,7 +969,7 @@ class PdfPages:
 
         Parameters
         ----------
-        figure : `.Figure` or int, default: the active figure
+        figure : `~matplotlib.figure.Figure` or int, default: the active figure
             The figure, or index of the figure, that is saved to the file.
         """
         if not isinstance(figure, Figure):

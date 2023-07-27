@@ -1732,7 +1732,7 @@ default: %(va)s
 
         Parameters
         ----------
-        renderer : `.RendererBase` subclass
+        renderer : `~matplotlib.backend_bases.RendererBase` subclass, optional
             Renderer that will be used to draw the figures (i.e.
             ``fig.canvas.get_renderer()``)
 
@@ -2167,7 +2167,7 @@ class SubFigure(FigureBase):
         """
         Parameters
         ----------
-        parent : `.Figure` or `.SubFigure`
+        parent : `~matplotlib.figure.Figure` or `.SubFigure`
             Figure or subfigure that contains the SubFigure.  SubFigures
             can be nested.
 
@@ -2480,7 +2480,7 @@ None}, default: None
 
         Other Parameters
         ----------------
-        **kwargs : `.Figure` properties, optional
+        **kwargs : `~matplotlib.figure.Figure` properties, optional
 
             %(Figure:kwdoc)s
         """
@@ -3420,11 +3420,14 @@ None}, default: None
             will never time out.
         show_clicks : bool, default: True
             If True, show a red cross at the location of each click.
-        mouse_add : `.MouseButton` or None, default: `.MouseButton.LEFT`
+        mouse_add : `~matplotlib.backend_bases.MouseButton` or None, default: \
+`.MouseButton.LEFT`
             Mouse button used to add points.
-        mouse_pop : `.MouseButton` or None, default: `.MouseButton.RIGHT`
+        mouse_pop : `~matplotlib.backend_bases.MouseButton` or None, default: \
+`.MouseButton.RIGHT`
             Mouse button used to remove the most recently added point.
-        mouse_stop : `.MouseButton` or None, default: `.MouseButton.MIDDLE`
+        mouse_stop : `~matplotlib.backend_bases.MouseButton` or None, default: \
+`.MouseButton.MIDDLE`
             Mouse button used to stop input.
 
         Returns

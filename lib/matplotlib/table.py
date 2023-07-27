@@ -284,7 +284,7 @@ class Table(Artist):
         loc : str
             The position of the cell with respect to *ax*. This must be one of
             the `~.Table.codes`.
-        bbox : `.Bbox` or [xmin, ymin, width, height], optional
+        bbox : `~matplotlib.transforms.Bbox` or [xmin, ymin, width, height], optional
             A bounding box to draw the table into. If this is not *None*, this
             overrides *loc*.
 
@@ -711,7 +711,7 @@ def table(ax,
         The position of the cell with respect to *ax*. This must be one of
         the `~.Table.codes`.
 
-    bbox : `.Bbox` or [xmin, ymin, width, height], optional
+    bbox : `~matplotlib.transforms.Bbox` or [xmin, ymin, width, height], optional
         A bounding box to draw the table into. If this is not *None*, this
         overrides *loc*.
 
