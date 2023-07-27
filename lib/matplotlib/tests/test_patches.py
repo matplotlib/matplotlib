@@ -213,8 +213,13 @@ def test_dash_offset_patch_draw(fig_test, fig_ref):
     # equivalent to (6, [6, 6]) but has 0 dash offset
     rect_ref2 = Rectangle(loc, width, height, linewidth=3, edgecolor='r',
                                             linestyle=(0, [0, 6, 6, 0]))
-    assert rect_ref.get_linestyle() == (0, [6, 6])
-    assert rect_ref2.get_linestyle() == (0, [0, 6, 6, 0])
+    assert rect_ref.get_dashes() == (0, [6, 6])
+    assert rect_ref2.get_dashes() == (0, [0, 6, 6, 0])
+
+    with pytest.warns(UserWarning, match="Patch.get_linestyle will"):
+        assert rect_ref.get_linestyle() == (0, [6, 6])
+    with pytest.warns(UserWarning, match="Patch.get_linestyle will"):
+        assert rect_ref2.get_linestyle() == (0, [0, 6, 6, 0])
 
     ax_ref.add_patch(rect_ref)
     ax_ref.add_patch(rect_ref2)
@@ -227,8 +232,12 @@ def test_dash_offset_patch_draw(fig_test, fig_ref):
                                                     linestyle=(0, [6, 6]))
     rect_test2 = Rectangle(loc, width, height, linewidth=3, edgecolor='r',
                                                     linestyle=(6, [6, 6]))
-    assert rect_test.get_linestyle() == (0, [6, 6])
-    assert rect_test2.get_linestyle() == (6, [6, 6])
+    assert rect_test.get_dashes() == (0, [6, 6])
+    assert rect_test2.get_dashes() == (6, [6, 6])
+    with pytest.warns(UserWarning, match="Patch.get_linestyle will"):
+        assert rect_test.get_linestyle() == (0, [6, 6])
+    with pytest.warns(UserWarning, match="Patch.get_linestyle will"):
+        assert rect_test2.get_linestyle() == (6, [6, 6])
 
     ax_test.add_patch(rect_test)
     ax_test.add_patch(rect_test2)
@@ -882,7 +891,8 @@ def test_default_linestyle():
     patch = Patch()
     patch.set_linestyle('--')
     patch.set_linestyle(None)
-    assert patch.get_linestyle() == 'solid'
+    with pytest.warns(UserWarning, match="Patch.get_linestyle will"):
+        assert patch.get_linestyle() == '-'
 
 
 def test_default_capstyle():

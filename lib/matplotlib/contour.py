@@ -955,7 +955,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             fcs = self.get_facecolor()
             ecs = self.get_edgecolor()
             lws = self.get_linewidth()
-            lss = self.get_linestyle()
+            lss = self.get_dashes()
             self._old_style_split_collections = []
             for idx, path in enumerate(self._paths):
                 pc = mcoll.PathCollection(
@@ -1042,7 +1042,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                     [], [],
                     color=self.get_edgecolor()[idx],
                     linewidth=self.get_linewidths()[idx],
-                    linestyle=self.get_linestyles()[idx],
+                    linestyle=self.get_dashes()[idx],
                 ))
                 labels.append(fr'${variable_name} = {str_format(level)}$')
 
@@ -1471,7 +1471,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                 hatch=self.hatches[idx % len(self.hatches)],
                 array=[self.get_array()[idx]],
                 linewidths=[self.get_linewidths()[idx % len(self.get_linewidths())]],
-                linestyles=[self.get_linestyles()[idx % len(self.get_linestyles())]],
+                dashes=[self.get_dashes()[idx % len(self.get_dashes())]],
             ):
                 super().draw(renderer)
 

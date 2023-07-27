@@ -84,7 +84,9 @@ def test__EventCollection__get_props():
     # check that the default lineoffset matches the input lineoffset
     assert props['lineoffset'] == coll.get_lineoffset()
     # check that the default linestyle matches the input linestyle
-    assert coll.get_linestyle() == [(0, None)]
+    with pytest.warns(UserWarning, match="Collection.get_linestyle will"):
+        assert coll.get_linestyle() == [(0, None)]
+    assert coll.get_dashes() == [(0, None)]
     # check that the default color matches the input color
     for color in [coll.get_color(), *coll.get_colors()]:
         np.testing.assert_array_equal(color, props['color'])
@@ -252,7 +254,11 @@ def test__EventCollection__set_prop():
     ]:
         splt, coll, _ = generate_EventCollection_plot()
         coll.set(**{prop: value})
-        assert plt.getp(coll, prop) == expected
+        if prop == 'linestyle':
+            with pytest.warns(UserWarning, match="Collection.get_linestyle will"):
+                assert plt.getp(coll, prop) == expected
+        else:
+            assert plt.getp(coll, prop) == expected
         splt.set_title(f'EventCollection: set_{prop}')
 
 
@@ -609,17 +615,17 @@ def test_lslw_bcast():
     col.set_linestyles(['-', '-'])
     col.set_linewidths([1, 2, 3])
 
-    assert col.get_linestyles() == [(0, None)] * 6
+    assert col.get_dashes() == [(0, None)] * 6
     assert col.get_linewidths() == [1, 2, 3] * 2
 
     col.set_linestyles(['-', '-', '-'])
-    assert col.get_linestyles() == [(0, None)] * 3
+    assert col.get_dashes() == [(0, None)] * 3
     assert (col.get_linewidths() == [1, 2, 3]).all()
 
 
 def test_set_wrong_linestyle():
     c = Collection()
-    with pytest.raises(ValueError, match="Do not know how to convert 'fuzzy'"):
+    with pytest.raises(ValueError, match="'fuzzy' is not a valid value for linestyle;"):
         c.set_linestyle('fuzzy')
 
 

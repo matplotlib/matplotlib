@@ -31,33 +31,58 @@ _log = logging.getLogger(__name__)
 
 
 def _get_dash_pattern(style):
-    """Convert linestyle to dash pattern."""
-    # go from short hand -> full strings
+    """
+    Convert line style to dash pattern and normalize line style.
+    """
+    orig_style = style  # keep copy for error message
     if isinstance(style, str):
-        style = ls_mapper.get(style, style)
+        # check valid string
+        _api.check_in_list([*Line2D._lineStyles, *ls_mapper_r],
+                           linestyle=style)
+        # go from full strings -> short
+        style = ls_mapper_r.get(style, style)
+        # normalize empty style
+        if style in ('', ' ', 'None'):
+            style = 'none'
+        ls = style
+    else:  # style is a dash tuple
+        ls = '--'
+
     # un-dashed styles
-    if style in ['solid', 'None']:
+    if style in ('-', 'none'):
         offset = 0
         dashes = None
     # dashed styles
-    elif style in ['dashed', 'dashdot', 'dotted']:
+    elif style in ('--', '-.', ':'):
         offset = 0
-        dashes = tuple(mpl.rcParams[f'lines.{style}_pattern'])
-    #
+        dashes = tuple(mpl.rcParams[f'lines.{ls_mapper[style]}_pattern'])
+    # dash tuple
     elif isinstance(style, tuple):
         offset, dashes = style
         if offset is None:
-            raise ValueError(f'Unrecognized linestyle: {style!r}')
+            raise ValueError(f'Unrecognized linestyle: {orig_style!r}')
+        if offset == 0 and dashes is None:
+            # Actually solid, not dashed
+            ls = '-'
     else:
-        raise ValueError(f'Unrecognized linestyle: {style!r}')
+        raise ValueError(f'Unrecognized linestyle: {orig_style!r}')
 
     # normalize offset to be positive and shorter than the dash cycle
     if dashes is not None:
+        try:
+            if any(dash < 0.0 for dash in dashes):
+                raise ValueError(
+                    "All values in the dash list must be non-negative")
+            if len(dashes) and not any(dash > 0.0 for dash in dashes):
+                raise ValueError(
+                    'At least one value in the dash list must be positive')
+        except TypeError:
+            raise ValueError(f'Unrecognized linestyle: {orig_style!r}')
         dsum = sum(dashes)
         if dsum:
             offset %= dsum
 
-    return offset, dashes
+    return (offset, dashes), ls
 
 
 def _get_inverse_dash_pattern(offset, dashes):
@@ -240,6 +265,7 @@ class Line2D(Artist):
         '-.':   '_draw_dash_dot',
         ':':    '_draw_dotted',
         'None': '_draw_nothing',
+        'none': '_draw_nothing',
         ' ':    '_draw_nothing',
         '':     '_draw_nothing',
     }
@@ -362,7 +388,7 @@ class Line2D(Artist):
         self.set_solid_capstyle(solid_capstyle)
         self.set_solid_joinstyle(solid_joinstyle)
 
-        self._linestyles = None
+        self._linestyle = None
         self._drawstyle = None
         self._linewidth = linewidth
         self._unscaled_dash_pattern = (0, None)  # offset, dash
@@ -1137,12 +1163,12 @@ class Line2D(Artist):
 
     def set_linestyle(self, ls):
         """
-        Set the linestyle of the line.
+        Set the line style of the line.
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
-            Possible values:
+        ls : str or tuple
+            The line style. Possible values:
 
             - A string:
 
@@ -1165,17 +1191,13 @@ class Line2D(Artist):
               in points. See also :meth:`set_dashes`.
 
             For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
+
+            The ``'dashed'``, ``'dashdot'``, and ``'dotted'`` line styles are
+            controlled by :rc:`lines.dashed_pattern`,
+            :rc:`lines.dashdot_pattern`, and :rc:`lines.dotted_pattern`,
+            respectively.
         """
-        if isinstance(ls, str):
-            if ls in [' ', '', 'none']:
-                ls = 'None'
-            _api.check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
-            if ls not in self._lineStyles:
-                ls = ls_mapper_r[ls]
-            self._linestyle = ls
-        else:
-            self._linestyle = '--'
-        self._unscaled_dash_pattern = _get_dash_pattern(ls)
+        self._unscaled_dash_pattern, self._linestyle = _get_dash_pattern(ls)
         self._dash_pattern = _scale_dashes(
             *self._unscaled_dash_pattern, self._linewidth)
         self.stale = True
@@ -1352,7 +1374,6 @@ class Line2D(Artist):
         self._solidcapstyle = other._solidcapstyle
         self._solidjoinstyle = other._solidjoinstyle
 
-        self._linestyle = other._linestyle
         self._marker = MarkerStyle(marker=other._marker)
         self._drawstyle = other._drawstyle
 
@@ -1462,6 +1483,14 @@ class Line2D(Artist):
         See also `~.Line2D.set_linestyle`.
         """
         return self._linestyle in ('--', '-.', ':')
+
+    def get_dashes(self):
+        """
+        Return the dash pattern.
+
+        .. versionadded:: 3.8
+        """
+        return self._dash_pattern
 
 
 class AxLine(Line2D):

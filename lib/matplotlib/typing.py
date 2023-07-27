@@ -37,7 +37,10 @@ RGBColourType = RGBColorType
 RGBAColourType = RGBAColorType
 ColourType = ColorType
 
-LineStyleType = Union[str, tuple[float, Sequence[float]]]
+LineStyleStringType = Literal["", " ", "None", "none", "solid", "-", "dashed", "--",
+                              "dashdot", "-.", "dotted", ":"]
+DashPatternType = tuple[float, Sequence[float]]
+LineStyleType = Union[LineStyleStringType, DashPatternType]
 DrawStyleType = Literal["default", "steps", "steps-pre", "steps-mid", "steps-post"]
 MarkEveryType = Union[
     None,

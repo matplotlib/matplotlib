@@ -8064,7 +8064,7 @@ such objects
             if 'linestyle' in kwargs:
                 raise _api.kwarg_error("spy", "linestyle")
             ret = mlines.Line2D(
-                x, y, linestyle='None', marker=marker, markersize=markersize,
+                x, y, linestyle='none', marker=marker, markersize=markersize,
                 **kwargs)
             self.add_line(ret)
             nr, nc = Z.shape

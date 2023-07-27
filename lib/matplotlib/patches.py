@@ -65,7 +65,7 @@ class Patch(artist.Artist):
         super().__init__()
 
         if linestyle is None:
-            linestyle = "solid"
+            linestyle = "-"
         if capstyle is None:
             capstyle = CapStyle.butt
         if joinstyle is None:
@@ -296,7 +296,21 @@ class Patch(artist.Artist):
 
     def get_linestyle(self):
         """Return the linestyle."""
+        if not isinstance(self._linestyle, str):
+            _api.warn_external(
+                "Patch.get_linestyle will change return type from exactly what was "
+                "passed to the string corresponding to the line style. This is "
+                "consistent with Line2D. To obtain the dash pattern, used get_dashes."
+            )
         return self._linestyle
+
+    def get_dashes(self):
+        """
+        Return the dash pattern.
+
+        .. versionadded:: 3.8
+        """
+        return self._dash_pattern
 
     def set_antialiased(self, aa):
         """
@@ -395,37 +409,50 @@ class Patch(artist.Artist):
 
     def set_linestyle(self, ls):
         """
-        Set the patch linestyle.
-
-        ==========================================  =================
-        linestyle                                   description
-        ==========================================  =================
-        ``'-'`` or ``'solid'``                      solid line
-        ``'--'`` or  ``'dashed'``                   dashed line
-        ``'-.'`` or  ``'dashdot'``                  dash-dotted line
-        ``':'`` or ``'dotted'``                     dotted line
-        ``'none'``, ``'None'``, ``' '``, or ``''``  draw nothing
-        ==========================================  =================
-
-        Alternatively a dash tuple of the following form can be provided::
-
-            (offset, onoffseq)
-
-        where ``onoffseq`` is an even length tuple of on and off ink in points.
+        Set the patch line style.
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
-            The line style.
+        ls : str or tuple
+            The line style. Possible values:
+
+            - A string:
+
+              ==========================================  =================
+              linestyle                                   description
+              ==========================================  =================
+              ``'-'`` or ``'solid'``                      solid line
+              ``'--'`` or  ``'dashed'``                   dashed line
+              ``'-.'`` or  ``'dashdot'``                  dash-dotted line
+              ``':'`` or ``'dotted'``                     dotted line
+              ``'none'``, ``'None'``, ``' '``, or ``''``  draw nothing
+              ==========================================  =================
+
+            - Alternatively a dash tuple of the following form can be
+              provided::
+
+                  (offset, onoffseq)
+
+              where ``onoffseq`` is an even length tuple of on and off ink
+              in points.
+
+            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
+
+            The ``'dashed'``, ``'dashdot'``, and ``'dotted'`` line styles are
+            controlled by :rc:`lines.dashed_pattern`,
+            :rc:`lines.dashdot_pattern`, and :rc:`lines.dotted_pattern`,
+            respectively.
         """
         if ls is None:
-            ls = "solid"
-        if ls in [' ', '', 'none']:
-            ls = 'None'
-        self._linestyle = ls
-        self._unscaled_dash_pattern = mlines._get_dash_pattern(ls)
+            ls = "-"
+        if ls in [' ', '', 'None']:
+            ls = 'none'
+        self._unscaled_dash_pattern, self._linestyle = (
+            mlines._get_dash_pattern(ls))
         self._dash_pattern = mlines._scale_dashes(
             *self._unscaled_dash_pattern, self._linewidth)
+        # Remove this when get_linestyle returns the linestyle string
+        self._linestyle = ls
         self.stale = True
 
     def set_fill(self, b):
@@ -544,7 +571,7 @@ class Patch(artist.Artist):
         gc.set_foreground(self._edgecolor, isRGBA=True)
 
         lw = self._linewidth
-        if self._edgecolor[3] == 0 or self._linestyle == 'None':
+        if self._edgecolor[3] == 0 or self._linestyle == 'none':
             lw = 0
         gc.set_linewidth(lw)
         gc.set_dashes(*self._dash_pattern)
