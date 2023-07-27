@@ -943,6 +943,16 @@ class ContourSet(ContourLabeler, mcoll.Collection):
     alpha = property(lambda self: self.get_alpha())
     linestyles = property(lambda self: self._orig_linestyles)
 
+    @_api.deprecated("3.8", alternative="set_antialiased or get_antialiased",
+                     addendum="Note that get_antialiased returns an array.")
+    @property
+    def antialiased(self):
+        return all(self.get_antialiased())
+
+    @antialiased.setter
+    def antialiased(self, aa):
+        self.set_antialiased(aa)
+
     @_api.deprecated("3.8")
     @property
     def collections(self):
