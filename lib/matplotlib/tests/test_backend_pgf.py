@@ -10,7 +10,8 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
-from matplotlib.testing.compare import compare_images, ImageComparisonFailure
+from matplotlib.testing.exceptions import ImageComparisonFailure
+from matplotlib.testing.compare import compare_images
 from matplotlib.backends.backend_pgf import PdfPages
 from matplotlib.testing.decorators import (
     _image_directories, check_figures_equal, image_comparison)

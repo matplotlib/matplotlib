@@ -130,7 +130,7 @@ convention = "numpy"
 
 [tool.mypy]
 exclude = [
-  ".*/matplotlib/(sphinxext|backends|testing)",
+  ".*/matplotlib/(sphinxext|backends|testing/jpl_units)",
   ".*/mpl_toolkits",
   # tinypages is used for testing the sphinx ext,
   # stubtest will import and run, opening a figure if not excluded

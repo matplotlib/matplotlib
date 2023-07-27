@@ -875,8 +875,8 @@ def test_span_selector_bound(direction):
     bound = x_bound if direction == 'horizontal' else y_bound
     assert tool._edge_handles.positions == list(bound)
 
-    press_data = [10.5, 11.5]
-    move_data = [11, 13]  # Updating selector is done in onmove
+    press_data = (10.5, 11.5)
+    move_data = (11, 13)  # Updating selector is done in onmove
     release_data = move_data
     click_and_drag(tool, start=press_data, end=move_data)
 
@@ -1053,20 +1053,20 @@ def test_check_radio_buttons_image():
     fig = ax.figure
     fig.subplots_adjust(left=0.3)
 
-    rax1 = fig.add_axes([0.05, 0.7, 0.2, 0.15])
+    rax1 = fig.add_axes((0.05, 0.7, 0.2, 0.15))
     rb1 = widgets.RadioButtons(rax1, ('Radio 1', 'Radio 2', 'Radio 3'))
     with pytest.warns(DeprecationWarning,
                       match='The circles attribute was deprecated'):
         rb1.circles  # Trigger the old-style elliptic radiobuttons.
 
-    rax2 = fig.add_axes([0.05, 0.5, 0.2, 0.15])
+    rax2 = fig.add_axes((0.05, 0.5, 0.2, 0.15))
     cb1 = widgets.CheckButtons(rax2, ('Check 1', 'Check 2', 'Check 3'),
                                (False, True, True))
     with pytest.warns(DeprecationWarning,
                       match='The rectangles attribute was deprecated'):
         cb1.rectangles  # Trigger old-style Rectangle check boxes
 
-    rax3 = fig.add_axes([0.05, 0.3, 0.2, 0.15])
+    rax3 = fig.add_axes((0.05, 0.3, 0.2, 0.15))
     rb3 = widgets.RadioButtons(
         rax3, ('Radio 1', 'Radio 2', 'Radio 3'),
         label_props={'fontsize': [8, 12, 16],
@@ -1074,7 +1074,7 @@ def test_check_radio_buttons_image():
         radio_props={'edgecolor': ['red', 'green', 'blue'],
                      'facecolor': ['mistyrose', 'palegreen', 'lightblue']})
 
-    rax4 = fig.add_axes([0.05, 0.1, 0.2, 0.15])
+    rax4 = fig.add_axes((0.05, 0.1, 0.2, 0.15))
     cb4 = widgets.CheckButtons(
         rax4, ('Check 1', 'Check 2', 'Check 3'), (False, True, True),
         label_props={'fontsize': [8, 12, 16],
