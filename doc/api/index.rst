@@ -80,12 +80,6 @@ Further reading:
 
 .. _api-index:
 
-The pylab API (discouraged)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: pylab
-   :no-members:
-
 Modules
 -------
 
@@ -162,3 +156,4 @@ Alphabetical list of modules:
    toolkits/mplot3d.rst
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
+   pylab.rst
