@@ -7175,7 +7175,7 @@ such objects
 
         x_min, x_max = xedges[0], xedges[-1]
         y_min, y_max = yedges[0], yedges[-1]
-        if adapt_lim.isinstance(str) or adapt_lim is True:
+        if adapt_lim is True or isinstance(adapt_lim, str):
             mask = ~np.isnan(h)
             mask_flat_x = np.any(mask, axis=1)
             mask_flat_y = np.any(mask, axis=0)
