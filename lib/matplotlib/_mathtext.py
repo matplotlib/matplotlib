@@ -127,10 +127,11 @@ class Output:
         # old approach and keeps baseline images backcompat.
         shifted = ship(self.box, (-xmin, -ymin))
 
+        antialiased = mpl.rcParams['text.antialiased']
         for ox, oy, info in shifted.glyphs:
             info.font.draw_glyph_to_bitmap(
                 image, ox, oy - info.metrics.iceberg, info.glyph,
-                antialiased=mpl.rcParams['text.antialiased'])
+                antialiased=antialiased)
         for x1, y1, x2, y2 in shifted.rects:
             height = max(int(y2 - y1) - 1, 0)
             if height == 0:

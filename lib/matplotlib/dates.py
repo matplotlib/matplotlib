@@ -222,10 +222,9 @@ def _get_tzinfo(tz=None):
     Generate `~datetime.tzinfo` from a string or return `~datetime.tzinfo`.
     If None, retrieve the preferred timezone from the rcParams dictionary.
     """
-    if tz is None:
-        tz = mpl.rcParams['timezone']
-        if tz == 'UTC':
-            return UTC
+    tz = mpl._val_or_rc(tz, 'timezone')
+    if tz == 'UTC':
+        return UTC
     if isinstance(tz, str):
         tzinfo = dateutil.tz.gettz(tz)
         if tzinfo is None:
@@ -316,8 +315,7 @@ def get_epoch():
     """
     global _epoch
 
-    if _epoch is None:
-        _epoch = mpl.rcParams['date.epoch']
+    _epoch = mpl._val_or_rc(_epoch, 'date.epoch')
     return _epoch
 
 
@@ -645,8 +643,7 @@ class DateFormatter(ticker.Formatter):
         """
         self.tz = _get_tzinfo(tz)
         self.fmt = fmt
-        self._usetex = (usetex if usetex is not None else
-                        mpl.rcParams['text.usetex'])
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
 
     def __call__(self, x, pos=0):
         result = num2date(x, self.tz).strftime(self.fmt)
@@ -783,8 +780,7 @@ class ConciseDateFormatter(ticker.Formatter):
                                    '%Y-%b-%d %H:%M']
         self.offset_string = ''
         self.show_offset = show_offset
-        self._usetex = (usetex if usetex is not None else
-                        mpl.rcParams['text.usetex'])
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
 
     def __call__(self, x, pos=None):
         formatter = DateFormatter(self.defaultfmt, self._tz,
@@ -961,8 +957,7 @@ class AutoDateFormatter(ticker.Formatter):
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
         rcParams = mpl.rcParams
-        self._usetex = (usetex if usetex is not None else
-                        mpl.rcParams['text.usetex'])
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
             DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
