@@ -162,7 +162,7 @@ class Animation:
     def save(
         self,
         filename: str | Path,
-        writer: MovieWriter | str | None = ...,
+        writer: AbstractMovieWriter | str | None = ...,
         fps: int | None = ...,
         dpi: float | None = ...,
         codec: str | None = ...,
