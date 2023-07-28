@@ -117,9 +117,8 @@ class Output:
                     *[x2 for x1, y1, x2, y2 in self.rects], 0]) + 1
         ymax = max([*[oy - info.metrics.ymin for ox, oy, info in self.glyphs],
                     *[y2 for x1, y1, x2, y2 in self.rects], 0]) + 1
-        w = xmax - xmin
-        h = ymax - ymin - self.box.depth
-        d = ymax - ymin - self.box.height
+        w, h, d = map(
+            np.ceil, [self.box.width, self.box.height, self.box.depth])
         image = FT2Image(np.ceil(w), np.ceil(h + max(d, 0)))
 
         # Ideally, we could just use self.glyphs and self.rects here, shifting
