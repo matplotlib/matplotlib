@@ -429,7 +429,7 @@ class NavigationToolbar2:
 
     class _PanInfo(NamedTuple):
         button: MouseButton
-        axes: Axes
+        axes: list[Axes]
         cid: int
     def press_pan(self, event: Event) -> None: ...
     def drag_pan(self, event: Event) -> None: ...
@@ -439,7 +439,7 @@ class NavigationToolbar2:
     class _ZoomInfo(NamedTuple):
         direction: Literal["in", "out"]
         start_xy: tuple[float, float]
-        axes: Axes
+        axes: list[Axes]
         cid: int
         cbar: Colorbar
     def press_zoom(self, event: Event) -> None: ...
