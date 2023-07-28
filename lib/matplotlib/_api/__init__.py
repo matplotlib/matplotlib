@@ -96,7 +96,7 @@ def check_isinstance(types, /, **kwargs):
                     type_name(type(v))))
 
 
-def check_in_list(values,  /, *, _print_supported_values=True, **kwargs):
+def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is in *values*;
     if not, raise an appropriate ValueError.
@@ -378,6 +378,6 @@ def warn_external(message, category=None):
                         frame.f_globals.get("__name__", "")):
             break
         frame = frame.f_back
-    # premetively break reference cycle between locals and the frame
+    # preemptively break reference cycle between locals and the frame
     del frame
     warnings.warn(message, category, stacklevel)
