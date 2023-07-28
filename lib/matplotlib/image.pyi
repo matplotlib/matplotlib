@@ -1,42 +1,56 @@
+from collections.abc import Callable, Sequence
 import os
 import pathlib
+from typing import Any, BinaryIO, Literal
 
-from matplotlib._image import *
+import numpy as np
+from numpy.typing import ArrayLike, NDArray
+import PIL  # type: ignore
+
 import matplotlib.artist as martist
 from matplotlib.axes import Axes
 from matplotlib import cm
 from matplotlib.backend_bases import RendererBase, MouseEvent
 from matplotlib.colors import Colormap, Normalize
 from matplotlib.figure import Figure
-from matplotlib.transforms import (
-    Affine2D,
-    BboxBase,
-)
+from matplotlib.transforms import Affine2D, BboxBase, Bbox, Transform
 
-from collections.abc import Sequence
-from typing import Any, BinaryIO, Literal
-import numpy as np
-from numpy.typing import ArrayLike
+#
+# These names are re-exported from matplotlib._image.
+#
 
-import PIL  # type: ignore
+BESSEL: int
+BICUBIC: int
+BILINEAR: int
+BLACKMAN: int
+CATROM: int
+GAUSSIAN: int
+HAMMING: int
+HANNING: int
+HERMITE: int
+KAISER: int
+LANCZOS: int
+MITCHELL: int
+NEAREST: int
+QUADRIC: int
+SINC: int
+SPLINE16: int
+SPLINE36: int
 
-BESSEL: int = ...
-BICUBIC: int = ...
-BILINEAR: int = ...
-BLACKMAN: int = ...
-CATROM: int = ...
-GAUSSIAN: int = ...
-HAMMING: int = ...
-HANNING: int = ...
-HERMITE: int = ...
-KAISER: int = ...
-LANCZOS: int = ...
-MITCHELL: int = ...
-NEAREST: int = ...
-QUADRIC: int = ...
-SINC: int = ...
-SPLINE16: int = ...
-SPLINE36: int = ...
+def resample(
+    input_array: NDArray[np.float32] | NDArray[np.float64] | NDArray[np.int8],
+    output_array: NDArray[np.float32] | NDArray[np.float64] | NDArray[np.int8],
+    transform: Transform,
+    interpolation: int = ...,
+    resample: bool = ...,
+    alpha: float = ...,
+    norm: bool = ...,
+    radius: float = ...,
+) -> None: ...
+
+#
+# END names re-exported from matplotlib._image.
+#
 
 interpolations_names: set[str]
 
@@ -156,7 +170,7 @@ class BboxImage(_ImageBase):
     bbox: BboxBase
     def __init__(
         self,
-        bbox: BboxBase,
+        bbox: BboxBase | Callable[[RendererBase | None], Bbox],
         *,
         cmap: str | Colormap | None = ...,
         norm: str | Normalize | None = ...,
@@ -167,10 +181,10 @@ class BboxImage(_ImageBase):
         resample: bool = ...,
         **kwargs
     ) -> None: ...
-    def get_window_extent(self, renderer: RendererBase | None = ...): ...
+    def get_window_extent(self, renderer: RendererBase | None = ...) -> Bbox: ...
 
 def imread(
-    fname: str | pathlib.Path |  BinaryIO, format: str | None = ...
+    fname: str | pathlib.Path | BinaryIO, format: str | None = ...
 ) -> np.ndarray: ...
 def imsave(
     fname: str | os.PathLike | BinaryIO,
