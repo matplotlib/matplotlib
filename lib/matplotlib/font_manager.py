@@ -40,6 +40,7 @@ import re
 import subprocess
 import sys
 import threading
+from typing import Union
 
 import matplotlib as mpl
 from matplotlib import _api, _afm, cbook, ft2font
@@ -315,7 +316,7 @@ FontEntry = dataclasses.make_dataclass(
         ('name', str, dataclasses.field(default='')),
         ('style', str, dataclasses.field(default='normal')),
         ('variant', str, dataclasses.field(default='normal')),
-        ('weight', str, dataclasses.field(default='normal')),
+        ('weight', Union[str, int], dataclasses.field(default='normal')),
         ('stretch', str, dataclasses.field(default='normal')),
         ('size', str, dataclasses.field(default='medium')),
     ],
@@ -464,6 +465,8 @@ def afmFontProperty(fontpath, font):
 
     Parameters
     ----------
+    fontpath : str
+        The filename corresponding to *font*.
     font : AFM
         The AFM font file from which information will be extracted.
 

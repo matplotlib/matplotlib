@@ -182,7 +182,7 @@ font_test_specs: list[tuple[None | list[str], Any]] = [
 font_tests: list[None | str] = []
 for fonts, chars in font_test_specs:
     if fonts is None:
-        font_tests.extend([None] * chars)  # type: ignore
+        font_tests.extend([None] * chars)
     else:
         wrapper = ''.join([
             ' '.join(fonts),
