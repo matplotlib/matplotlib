@@ -131,8 +131,8 @@ class _AxesBase(martist.Artist):
             self,
             axes: _AxesBase,
             prop_name: str,
-            valid_types: list[type] | None = ...,
-            invalid_types: tuple[type] | None = ...,
+            valid_types: type | Iterable[type] | None = ...,
+            invalid_types: type | Iterable[type] | None = ...,
         ) -> None: ...
         def __len__(self) -> int: ...
         def __iter__(self) -> Iterator[Artist]: ...
