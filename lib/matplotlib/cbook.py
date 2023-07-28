@@ -731,8 +731,7 @@ def safe_masked_invalid(x, copy=False):
         # copy with the byte order swapped.
         x = x.byteswap(inplace=copy).newbyteorder('N')  # Swap to native order.
     try:
-        xm = np.ma.masked_invalid(x, copy=False)
-        xm.shrink_mask()
+        xm = np.ma.masked_where(~(np.isfinite(x)), x, copy=False)
     except TypeError:
         return x
     return xm
