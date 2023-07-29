@@ -112,6 +112,9 @@ necessary to run the test suite, because different versions of FreeType
 rasterize characters differently) and of Qhull.  As an exception, Matplotlib
 defaults to the system version of FreeType on AIX.
 
+Use system libraries
+~~~~~~~~~~~~~~~~~~~~
+
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
 your system, create a :file:`mplsetup.cfg` file with the following contents:
 
@@ -121,7 +124,16 @@ your system, create a :file:`mplsetup.cfg` file with the following contents:
    system_freetype = true
    system_qhull = true
 
-before running ``python -m pip install .``.
+before running
+
+.. code-block:: sh
+
+   python -m pip install .
+
+
+You can also use the :envvar:`MPLSETUPCFG` to specify the path to a cfg file when
+installing from pypi.
+
 
 In this case, you need to install the FreeType and Qhull library and headers.
 This can be achieved using a package manager, e.g. for FreeType:
@@ -172,6 +184,23 @@ If you go this route but need to reset and rebuild to change your settings,
 remember to clear your artifacts before re-building::
 
   git clean -xfd
+
+
+Manual Download
+~~~~~~~~~~~~~~~
+
+
+If the automatic download does not work (for example on air-gapped systems) it
+is preferable to instead use system libraries.  However you can manually
+download and unpack the tarballs into::
+
+  build/freetype-2.6.1  # on all platforms but windows ARM64
+  build/freetype-2.11.1 # on windows ARM64
+  build/qhull-2020.2
+
+at the top level of the checkout repository.  The expected sha256 hashes of
+the downloaded tarballs is in :file:`setupext.py` if you wish to verify
+before unpacking.
 
 
 Minimum pip / manylinux support (linux)
