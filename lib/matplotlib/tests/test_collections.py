@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors
 import matplotlib.path as mpath
+import matplotlib.quiver as mquiver
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
@@ -355,6 +356,56 @@ def test_collection_log_datalim(fig_test, fig_ref):
     ax_ref.set_xscale('log')
     ax_ref.set_yscale('log')
     ax_ref.plot(x, y, marker="o", ls="")
+
+
+def test_quiver_offsets():
+    fig, ax = plt.subplots()
+    x = np.arange(-10, 10, 1)
+    y = np.arange(-10, 10, 1)
+    U, V = np.meshgrid(x, y)
+    X = U.ravel()
+    Y = V.ravel()
+    qc = mquiver.Quiver(ax, X, Y, U, V)
+    ax.add_collection(qc)
+    ax.autoscale_view()
+
+    expected_offsets = np.column_stack([X, Y])
+    np.testing.assert_allclose(expected_offsets, qc.get_offsets())
+
+    new_offsets = np.column_stack([(X + 10).ravel(), Y.ravel()])
+    qc.set_offsets(new_offsets)
+
+    np.testing.assert_allclose(qc.get_offsets(), new_offsets)
+
+
+def test_quiver_UVC():
+    fig, ax = plt.subplots()
+    X = np.arange(-10, 10, 1)
+    Y = np.arange(-10, 10, 1)
+    U, V = np.meshgrid(X, Y)
+    M = np.hypot(U, V)
+    qc = mquiver.Quiver(
+        ax, X, Y, U, V, M
+        )
+    ax.add_collection(qc)
+    ax.autoscale_view()
+
+    np.testing.assert_allclose(qc.U, U.ravel())
+    np.testing.assert_allclose(qc.V, V.ravel())
+    np.testing.assert_allclose(qc.get_array(), M.ravel())
+
+    qc.set_UVC(U/2, V/3)
+    np.testing.assert_allclose(qc.U, U.ravel() / 2)
+    np.testing.assert_allclose(qc.V, V.ravel() / 3)
+
+    qc.set_U(U/4)
+    np.testing.assert_allclose(qc.U, U.ravel() / 4)
+
+    qc.set_V(V/6)
+    np.testing.assert_allclose(qc.V, V.ravel() / 6)
+
+    qc.set_C(M/10)
+    np.testing.assert_allclose(qc.get_array(), M.ravel() / 10)
 
 
 def test_quiver_limits():

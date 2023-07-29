@@ -444,8 +444,8 @@ class Quiver(mcollections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
 
-    The only API method is set_UVC(), which can be used
-    to change the size, orientation, and color of the
+    The API methods are set_UVC(), set_U(), set_V() and set_C(), which
+    can be used to change the size, orientation, and color of the
     arrows; their locations are fixed when the class is
     instantiated.  Possibly this method will be useful
     in animations.
@@ -540,7 +540,59 @@ class Quiver(mcollections.PolyCollection):
         super().draw(renderer)
         self.stale = False
 
+    def set_U(self, U):
+        """
+        Set x direction components of the arrow vectors.
+
+        Parameters
+        ----------
+        U : array-like or None
+            The size must the same as the existing U, V or be one.
+        """
+        self.set_UVC(U, None, None)
+
+    def set_V(self, V):
+        """
+        Set y direction components of the arrow vectors.
+
+        Parameters
+        ----------
+        V : array-like or None
+            The size must the same as the existing U, V or be one.
+        """
+        self.set_UVC(None, V, None)
+
+    def set_C(self, C):
+        """
+        Set the arrow colors.
+
+        Parameters
+        ----------
+        C : array-like or None
+            The size must the same as the existing U, V or be one.
+        """
+        self.set_UVC(None, None, C)
+
     def set_UVC(self, U, V, C=None):
+        """
+        Set the U, V (x and y direction components of the arrow vectors) and
+        C (arrow colors) values of the arrows.
+
+        Parameters
+        ----------
+        U : array-like or None
+            The x direction components of the arrows. If None it is unchanged.
+            The size must the same as the existing U, V or be one.
+        V : array-like or None
+            The y direction components of the arrows. If None it is unchanged.
+            The size must the same as the existing U, V or be one.
+        C : array-like or None, optional
+            The arrow colors. The default is None.
+        """
+        if U is None:
+            U = self.U
+        if V is None:
+            V = self.V
         # We need to ensure we have a copy, not a reference
         # to an array that might change before draw().
         U = ma.masked_invalid(U, copy=True).ravel()
