@@ -18,6 +18,7 @@ class MathTextParser:
         s: str,
         dpi: float = ...,
         prop: FontProperties | None = ...,
+        *,
         antialiased: bool | None = ...
     ): ...
 

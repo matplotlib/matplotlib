@@ -59,7 +59,7 @@ class MathTextParser:
             {"path": "vector", "agg": "raster", "macosx": "raster"},
             output=output.lower())
 
-    def parse(self, s, dpi=72, prop=None, antialiased=None):
+    def parse(self, s, dpi=72, prop=None, *, antialiased=None):
         """
         Parse the given math expression *s* at the given *dpi*.  If *prop* is
         provided, it is a `.FontProperties` object specifying the "default"
