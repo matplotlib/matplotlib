@@ -622,7 +622,7 @@ class DviFont:
                        for char in range(nchars)]
 
     def __eq__(self, other):
-        return (type(self) == type(other)
+        return (type(self) is type(other)
                 and self.texname == other.texname and self.size == other.size)
 
     def __ne__(self, other):
