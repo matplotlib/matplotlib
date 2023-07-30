@@ -169,7 +169,8 @@ Verify the Installation
 
 1. Run the following command to make sure you have correctly installed matplotlib in editable mode. The command should be run when virtual environment is activate.
 
-       python -c "import matplotlib; print(matplotlib.__file__)"
+   .. code-block:: bash
+    python -c "import matplotlib; print(matplotlib.__file__)"
 
    This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
 2. Link to the running the tests page to verify that the code installed clean: 
