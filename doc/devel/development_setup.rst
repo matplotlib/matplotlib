@@ -167,9 +167,8 @@ also happen if you change branches) you will have to re-run
 Verify the Installation
 ==============================
 
-1. Run the following command to make sure you have correctly installed matplotlib in editable mode. The command should be run when virtual environment is activate.
-
-   .. code-block:: none
+1. Run the following command to make sure you have correctly installed matplotlib in editable mode. The command should be run when virtual environment is activate.::
+   
     python -c "import matplotlib; print(matplotlib.__file__)"
 
    This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
