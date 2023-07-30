@@ -187,9 +187,24 @@ nor the ````literal```` role:
 Referring to other documents and sections
 -----------------------------------------
 
-Sphinx_ allows internal references_ between documents.
+Sphinx_ supports internal references_:
 
-Documents can be linked with the ``:doc:`` directive:
+==========  ===============  ===========================================
+Role        Links target     Representation in rendered HTML
+==========  ===============  ===========================================
+|doc-dir|_  document         link to a page
+|ref-dir|_  reference label  link to an anchor associated with a heading
+==========  ===============  ===========================================
+
+.. The following is a hack to have a link with literal formatting
+   See https://stackoverflow.com/a/4836544
+
+.. |doc-dir| replace:: ``:doc:``
+.. _doc-dir: https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-doc
+.. |ref-dir| replace:: ``:ref:``
+.. _ref-dir: https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#role-ref
+
+Examples:
 
 .. code-block:: rst
 
@@ -207,7 +222,7 @@ will render as:
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
-Sections can also be given reference names.  For instance from the
+Sections can also be given reference labels.  For instance from the
 :doc:`/users/installing/index` link:
 
 .. code-block:: rst
