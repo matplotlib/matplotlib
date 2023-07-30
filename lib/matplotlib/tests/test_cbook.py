@@ -226,7 +226,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         # test that we don't add a second callback
@@ -251,7 +251,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         self.disconnect(cid1)
@@ -269,7 +269,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         self.disconnect("foo")
