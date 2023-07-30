@@ -29,6 +29,8 @@ annotations like x- and y-labels, titles, and legends.
     :maxdepth: 2
 
     axes_intro
+    axes_creation
+
 
 .. toctree::
     :maxdepth: 1
