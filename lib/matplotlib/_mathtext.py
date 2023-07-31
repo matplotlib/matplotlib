@@ -98,8 +98,9 @@ class Output:
         self.rects = []  # (x1, y1, x2, y2)
 
     def to_vector(self):
-        w, h, d = map(
-            np.ceil, [self.box.width, self.box.height, self.box.depth])
+        w = self.box.width
+        h = self.box.height
+        d = self.box.depth
         gs = [(info.font, info.fontsize, info.num, ox, h - oy + info.offset)
               for ox, oy, info in self.glyphs]
         rs = [(x1, h - y2, x2 - x1, y2 - y1)
@@ -116,10 +117,12 @@ class Output:
         xmax = max([*[ox + info.metrics.xmax for ox, oy, info in self.glyphs],
                     *[x2 for x1, y1, x2, y2 in self.rects], 0]) + 1
         ymax = max([*[oy - info.metrics.ymin for ox, oy, info in self.glyphs],
-                    *[y2 for x1, y1, x2, y2 in self.rects], 0]) + 1
-        w, h, d = map(
-            np.ceil, [self.box.width, self.box.height, self.box.depth])
-        image = FT2Image(np.ceil(w), np.ceil(h + max(d, 0)))
+                    *[y2 for x1, y1, x2, y2 in self.rects], 0]) + 1.5
+
+        w = self.box.width
+        h = ymax - ymin - self.box.depth
+        d = ymax - ymin - self.box.height
+        image = FT2Image(w, h + max(d, 0))
 
         # Ideally, we could just use self.glyphs and self.rects here, shifting
         # their coordinates by (-xmin, -ymin), but this yields slightly
@@ -2448,7 +2451,6 @@ class Parser:
         cnum.hpack(width, 'exactly')
         cden.hpack(width, 'exactly')
         vlist = Vlist([cnum,                      # numerator
-                       Vbox(0, thickness * 2.0),  # space
                        Hrule(state, rule),        # rule
                        Vbox(0, thickness * 2.0),  # space
                        cden                       # denominator
@@ -2461,7 +2463,7 @@ class Parser:
             '=', state.fontsize, state.dpi)
         shift = (cden.height -
                  ((metrics.ymax + metrics.ymin) / 2 -
-                  thickness * 3.0))
+                  thickness * 1.5))
         vlist.shift_amount = shift
 
         result = [Hlist([vlist, Hbox(thickness * 2.)])]
