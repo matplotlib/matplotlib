@@ -1713,7 +1713,7 @@ class Axes3D(Axes):
             # many elements as polys. In the former case new_colset results in
             # a list with None entries, that is discarded later.
             for p, col in itertools.zip_longest(polys, colset):
-                new_poly = p[np.isfinite(p).all(axis=1)].copy()
+                new_poly = np.array(p)[np.isfinite(p).all(axis=1)]
                 if len(new_poly):
                     new_polys.append(new_poly)
                     new_colset.append(col)
