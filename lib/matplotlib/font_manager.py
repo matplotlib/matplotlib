@@ -851,7 +851,7 @@ class FontProperties:
         pattern syntax for use here.
         """
         for key, val in parse_fontconfig_pattern(pattern).items():
-            if type(val) == list:
+            if type(val) is list:
                 getattr(self, "set_" + key)(val[0])
             else:
                 getattr(self, "set_" + key)(val)

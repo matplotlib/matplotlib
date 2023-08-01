@@ -2834,12 +2834,12 @@ def test_as_mpl_axes_api():
 
     # testing axes creation with plt.axes
     ax = plt.axes([0, 0, 1, 1], projection=prj)
-    assert type(ax) == PolarAxes
+    assert type(ax) is PolarAxes
     plt.close()
 
     # testing axes creation with subplot
     ax = plt.subplot(121, projection=prj)
-    assert type(ax) == PolarAxes
+    assert type(ax) is PolarAxes
     plt.close()
 
 
