@@ -9,12 +9,17 @@ from xml.etree import ElementTree as ET
 from typing import Any
 
 import numpy as np
+from packaging.version import parse as parse_version
+import pyparsing
 import pytest
+
 
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext, _mathtext
+
+pyparsing_version = parse_version(pyparsing.__version__)
 
 
 # If test is removed, use None as placeholder
@@ -279,6 +284,9 @@ def test_fontinfo():
     assert table['version'] == (1, 0)
 
 
+# See gh-26152 for more context on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect for this version")
 @pytest.mark.parametrize(
     'math, msg',
     [

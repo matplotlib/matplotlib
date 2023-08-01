@@ -4,6 +4,8 @@ import warnings
 
 import numpy as np
 from numpy.testing import assert_almost_equal
+from packaging.version import parse as parse_version
+import pyparsing
 import pytest
 
 import matplotlib as mpl
@@ -15,6 +17,8 @@ import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 from matplotlib.text import Text, Annotation
+
+pyparsing_version = parse_version(pyparsing.__version__)
 
 
 @image_comparison(['font_styles'])
@@ -818,6 +822,9 @@ def test_unsupported_script(recwarn):
          (r"Matplotlib currently does not support Bengali natively.",)])
 
 
+# See gh-26152 for more information on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect with pyparsing 3.1.0")
 def test_parse_math():
     fig, ax = plt.subplots()
     ax.text(0, 0, r"$ \wrong{math} $", parse_math=False)
@@ -828,6 +835,9 @@ def test_parse_math():
         fig.canvas.draw()
 
 
+# See gh-26152 for more information on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect with pyparsing 3.1.0")
 def test_parse_math_rcparams():
     # Default is True
     fig, ax = plt.subplots()
