@@ -34,7 +34,7 @@ dependencies:
   - packaging
   - pydata-sphinx-theme
   - pyyaml
-  - sphinx>=1.8.1,!=2.0.0
+  - sphinx>=7.1.1
   - sphinx-copybutton
   - sphinx-gallery>=0.12
   - sphinx-design
