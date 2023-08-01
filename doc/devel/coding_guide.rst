@@ -350,6 +350,8 @@ will run on all supported platforms and versions of Python.
 
   - If *Linting* fails, you have a code style issue, which will be listed
     as annotations on the pull request's diff.
+  - If *Mypy* or *Stubtest* fails, you have inconsistency in type hints, which
+    will be listed as annotations in the diff.
   - If a GitHub Actions or AppVeyor run fails, search the log for ``FAILURES``.
     The subsequent section will contain information on the failed tests.
   - If CircleCI fails, likely you have some reStructuredText style issue in

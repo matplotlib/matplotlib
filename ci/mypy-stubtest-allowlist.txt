@@ -54,26 +54,14 @@ matplotlib.cm.register_cmap
 matplotlib.cm.unregister_cmap
 matplotlib.collections.PolyCollection.span_where
 matplotlib.gridspec.GridSpecBase.get_grid_positions
-matplotlib.widgets.Lasso.__init__
-matplotlib.widgets.PolygonSelector.__init__
-matplotlib.widgets.Slider.__init__
-matplotlib.widgets.RangeSlider.__init__
-matplotlib.widgets.TextBox.__init__
-matplotlib.widgets.Cursor.__init__
-matplotlib.widgets.SpanSelector.__init__
-matplotlib.widgets.ToolLineHandles.__init__
-matplotlib.widgets.ToolHandles.__init__
-matplotlib.widgets.LassoSelector.__init__
 matplotlib.widgets.MultiCursor.needclear
 
 # 3.8 deprecations
-matplotlib.axes._base._AxesBase.get_tightbbox
 matplotlib.cbook.get_sample_data
 matplotlib.contour.ContourSet.allkinds
 matplotlib.contour.ContourSet.allsegs
 matplotlib.contour.ContourSet.tcolors
 matplotlib.contour.ContourSet.tlinewidths
-matplotlib.figure.FigureBase.get_tightbbox
 matplotlib.ticker.LogLocator.__init__
 matplotlib.ticker.LogLocator.set_params
 

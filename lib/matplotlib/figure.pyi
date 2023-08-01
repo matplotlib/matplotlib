@@ -223,6 +223,7 @@ class FigureBase(Artist):
     def get_tightbbox(
         self,
         renderer: RendererBase | None = ...,
+        *,
         bbox_extra_artists: Iterable[Artist] | None = ...,
     ) -> Bbox: ...
 
