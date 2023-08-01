@@ -86,6 +86,8 @@ sys.path.append('.')
 # General configuration
 # ---------------------
 
+maximum_signature_line_length = 88
+
 # Unless we catch the warning explicitly somewhere, a warning should cause the
 # docs build to fail. This is especially useful for getting rid of deprecated
 # usage in the gallery.
