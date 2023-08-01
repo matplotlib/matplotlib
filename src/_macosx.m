@@ -1903,20 +1903,26 @@ exit:
     }
 }
 
-static PyObject*
-Timer__timer_stop(Timer* self)
+static void
+Timer__timer_stop_impl(Timer* self)
 {
     if (self->timer) {
         [self->timer invalidate];
         self->timer = NULL;
     }
+}
+
+static PyObject*
+Timer__timer_stop(Timer* self)
+{
+    Timer__timer_stop_impl(self);
     Py_RETURN_NONE;
 }
 
 static void
 Timer_dealloc(Timer* self)
 {
-    Timer__timer_stop(self);
+    Timer__timer_stop_impl(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
