@@ -9,7 +9,8 @@ To use it to enclose the math in a substack command as shown:
 
     r'$\sum_{\substack{1\leq i\leq 3\\ 1\leq j\leq 5}}$'
 
-.. math::
+.. mathmpl::
+
     \sum_{\substack{1\leq i\leq 3\\ 1\leq j\leq 5}}
 
 
