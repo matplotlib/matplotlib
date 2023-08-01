@@ -27,5 +27,6 @@ To use the middle command enclose it in between the ``\left`` and
 
     r'$\left( \frac{a}{b} \middle| q \right)$'
 
-.. math::
+.. mathmpl::
+
     \left( \frac{a}{b} \middle| q \right)
