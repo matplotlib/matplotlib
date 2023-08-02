@@ -57,6 +57,18 @@ def test_invisible_ticks_axis():
         axis.line.set_visible(False)
 
 
+@mpl3d_image_comparison(['axis_positions.png'], remove_text=False, style='mpl20')
+def test_axis_positions():
+    positions = ['upper', 'lower', 'both', 'none']
+    fig, axs = plt.subplots(2, 2, subplot_kw={'projection': '3d'})
+    for ax, pos in zip(axs.flatten(), positions):
+        for axis in ax.xaxis, ax.yaxis, ax.zaxis:
+            axis.set_label_position(pos)
+            axis.set_ticks_position(pos)
+        title = f'{pos}'
+        ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
+
+
 @mpl3d_image_comparison(['aspects.png'], remove_text=False, style='mpl20')
 def test_aspects():
     aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz', 'equal')
@@ -2156,7 +2168,7 @@ def test_view_init_vertical_axis(
 
         # Assert ticks are correctly aligned:
         tickdir_expected = tickdirs_expected[i]
-        tickdir_actual = axis._get_tickdir()
+        tickdir_actual = axis._get_tickdir('default')
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
 
 
