@@ -972,3 +972,19 @@ def test_text_antialiased_on_default_vs_manual(fig_test, fig_ref):
 
     mpl.rcParams['text.antialiased'] = True
     fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
+
+
+@check_figures_equal()
+def test_text_math_antialiased_on_default_vs_manual(fig_test, fig_ref):
+    fig_test.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$", antialiased=True)
+
+    mpl.rcParams['text.antialiased'] = True
+    fig_ref.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$")
+
+
+@check_figures_equal()
+def test_text_math_antialiased_off_default_vs_manual(fig_test, fig_ref):
+    fig_test.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$", antialiased=False)
+
+    mpl.rcParams['text.antialiased'] = False
+    fig_ref.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$")
