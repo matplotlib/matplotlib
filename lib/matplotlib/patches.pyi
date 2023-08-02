@@ -328,7 +328,7 @@ class _Style:
     def register(cls, name: str, style: type) -> None: ...
 
 class BoxStyle(_Style):
-    class Square:
+    class Square(BoxStyle):
         pad: float
         def __init__(self, pad: float = ...) -> None: ...
         def __call__(
@@ -340,7 +340,7 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class Circle:
+    class Circle(BoxStyle):
         pad: float
         def __init__(self, pad: float = ...) -> None: ...
         def __call__(
@@ -352,7 +352,7 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class Ellipse:
+    class Ellipse(BoxStyle):
         pad: float
         def __init__(self, pad: float = ...) -> None: ...
         def __call__(
@@ -364,7 +364,7 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class LArrow:
+    class LArrow(BoxStyle):
         pad: float
         def __init__(self, pad: float = ...) -> None: ...
         def __call__(
@@ -386,7 +386,7 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class DArrow:
+    class DArrow(BoxStyle):
         pad: float
         def __init__(self, pad: float = ...) -> None: ...
         def __call__(
@@ -398,7 +398,7 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class Round:
+    class Round(BoxStyle):
         pad: float
         rounding_size: float | None
         def __init__(
@@ -413,7 +413,7 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class Round4:
+    class Round4(BoxStyle):
         pad: float
         rounding_size: float | None
         def __init__(
@@ -428,7 +428,7 @@ class BoxStyle(_Style):
             mutation_size: float,
         ) -> Path: ...
 
-    class Sawtooth:
+    class Sawtooth(BoxStyle):
         pad: float
         tooth_size: float | None
         def __init__(
@@ -454,7 +454,7 @@ class BoxStyle(_Style):
         ) -> Path: ...
 
 class ConnectionStyle(_Style):
-    class _Base:
+    class _Base(ConnectionStyle):
         class SimpleEvent:
             def __init__(self, xy: tuple[float, float]) -> None: ...
 
@@ -529,7 +529,7 @@ class ConnectionStyle(_Style):
         ) -> Path: ...
 
 class ArrowStyle(_Style):
-    class _Base:
+    class _Base(ArrowStyle):
         @staticmethod
         def ensure_quadratic_bezier(path: Path) -> list[float]: ...
         def transmute(
