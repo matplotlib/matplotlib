@@ -1461,6 +1461,6 @@ def test_str_norms(fig_test, fig_ref):
     axrs[3].imshow(t, norm=colors.SymLogNorm(linthresh=2, vmin=.3, vmax=.7))
     axrs[4].imshow(t, norm="logit", clim=(.3, .7))
 
-    assert type(axts[0].images[0].norm) == colors.LogNorm  # Exactly that class
+    assert type(axts[0].images[0].norm) is colors.LogNorm  # Exactly that class
     with pytest.raises(ValueError):
         axts[0].imshow(t, norm="foobar")
