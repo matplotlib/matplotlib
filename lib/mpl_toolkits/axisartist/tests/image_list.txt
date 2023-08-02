@@ -1,0 +1,16 @@
+test_axis_artist/axis_artist.png:0:0
+test_axis_artist/axis_artist_labelbase.png:0:0
+test_axis_artist/axis_artist_ticklabels.png:0:0
+test_axis_artist/axis_artist_ticks.png:0:0
+test_axislines/ParasiteAxesAuxTrans_meshplot.png:0:0
+test_axislines/Subplot.png:0:0
+test_axislines/SubplotZero.png:0:0
+test_axislines/axisline_style.png:0:0
+test_axislines/axisline_style_size_color.png:0:0
+test_axislines/axisline_style_tight.png:0:0
+test_axislines/subplotzero_ylabel.png:0:0
+test_floating_axes/curvelinear3.png:0:0
+test_floating_axes/curvelinear4.png:0:0
+test_grid_helper_curvelinear/axis_direction.png:0:0
+test_grid_helper_curvelinear/custom_transform.png:0:0
+test_grid_helper_curvelinear/polar_box.png:0:0

@@ -10,6 +10,8 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
+from matplotlib.backends.backend_agg import RendererAgg
+from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -972,3 +974,151 @@ def test_text_antialiased_on_default_vs_manual(fig_test, fig_ref):
 
     mpl.rcParams['text.antialiased'] = True
     fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
+
+
+@pytest.mark.xfail
+def test_text_annotation_get_window_extent():
+    figure = Figure(dpi=100)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Only text annotation
+    annotation = Annotation('test', xy=(0, 0))
+    annotation.set_figure(figure)
+
+    text = Text(text='test', x=0, y=0)
+    text.set_figure(figure)
+
+    bbox = annotation.get_window_extent(renderer=renderer)
+
+    text_bbox = text.get_window_extent(renderer=renderer)
+    assert bbox.width == text_bbox.width
+    assert bbox.height == text_bbox.height
+
+    _, _, d = renderer.get_text_width_height_descent(
+        'text', annotation._fontproperties, ismath=False)
+    _, _, lp_d = renderer.get_text_width_height_descent(
+        'lp', annotation._fontproperties, ismath=False)
+    below_line = max(d, lp_d)
+
+    # These numbers are specific to the current implementation of Text
+    points = bbox.get_points()
+    assert points[0, 0] == 0.0
+    assert points[1, 0] == text_bbox.width
+    assert points[0, 1] == -below_line
+    assert points[1, 1] == text_bbox.height - below_line
+
+
+def test_text_with_arrow_annotation_get_window_extent():
+    headwidth = 21
+    fig, ax = plt.subplots(dpi=100)
+    txt = ax.text(s='test', x=0, y=0)
+    ann = ax.annotate(
+        'test',
+        xy=(0.0, 50.0),
+        xytext=(50.0, 50.0), xycoords='figure pixels',
+        arrowprops={
+            'facecolor': 'black', 'width': 2,
+            'headwidth': headwidth, 'shrink': 0.0})
+
+    plt.draw()
+    renderer = fig.canvas.renderer
+    # bounding box of text
+    text_bbox = txt.get_window_extent(renderer=renderer)
+    # bounding box of annotation (text + arrow)
+    bbox = ann.get_window_extent(renderer=renderer)
+    # bounding box of arrow
+    arrow_bbox = ann.arrow_patch.get_window_extent(renderer)
+    # bounding box of annotation text
+    ann_txt_bbox = Text.get_window_extent(ann)
+
+    # make sure annotation width is 50 px wider than
+    # just the text
+    assert bbox.width == text_bbox.width + 50.0
+    # make sure the annotation text bounding box is same size
+    # as the bounding box of the same string as a Text object
+    assert ann_txt_bbox.height == text_bbox.height
+    assert ann_txt_bbox.width == text_bbox.width
+    # compute the expected bounding box of arrow + text
+    expected_bbox = mtransforms.Bbox.union([ann_txt_bbox, arrow_bbox])
+    assert_almost_equal(bbox.height, expected_bbox.height)
+
+
+def test_arrow_annotation_get_window_extent():
+    dpi = 100
+    dots_per_point = dpi / 72
+    figure = Figure(dpi=dpi)
+    figure.set_figwidth(2.0)
+    figure.set_figheight(2.0)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Text annotation with arrow; arrow dimensions are in points
+    annotation = Annotation(
+        '', xy=(0.0, 50.0), xytext=(50.0, 50.0), xycoords='figure pixels',
+        arrowprops={
+            'facecolor': 'black', 'width': 8, 'headwidth': 10, 'shrink': 0.0})
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent()
+    points = bbox.get_points()
+
+    assert bbox.width == 50.0
+    assert_almost_equal(bbox.height, 10.0 * dots_per_point)
+    assert points[0, 0] == 0.0
+    assert points[0, 1] == 50.0 - 5 * dots_per_point
+
+
+def test_empty_annotation_get_window_extent():
+    figure = Figure(dpi=100)
+    figure.set_figwidth(2.0)
+    figure.set_figheight(2.0)
+    renderer = RendererAgg(200, 200, 100)
+
+    # Text annotation with arrow
+    annotation = Annotation(
+        '', xy=(0.0, 50.0), xytext=(0.0, 50.0), xycoords='figure pixels')
+    annotation.set_figure(figure)
+    annotation.draw(renderer)
+
+    bbox = annotation.get_window_extent()
+    points = bbox.get_points()
+
+    assert points[0, 0] == 0.0
+    assert points[1, 0] == 0.0
+    assert points[1, 1] == 50.0
+    assert points[0, 1] == 50.0
+
+
+@image_comparison(baseline_images=['basictext_wrap'],
+                  extensions=['png'])
+def test_basic_wrap():
+    fig = plt.figure()
+    plt.axis([0, 10, 0, 10])
+    t = "This is a really long string that I'd rather have wrapped so that" \
+        " it doesn't go outside of the figure, but if it's long enough it" \
+        " will go off the top or bottom!"
+    plt.text(4, 1, t, ha='left', rotation=15, wrap=True)
+    plt.text(6, 5, t, ha='left', rotation=15, wrap=True)
+    plt.text(5, 5, t, ha='right', rotation=-15, wrap=True)
+    plt.text(5, 10, t, fontsize=18, style='oblique', ha='center',
+             va='top', wrap=True)
+    plt.text(3, 4, t, family='serif', style='italic', ha='right', wrap=True)
+    plt.text(-1, 0, t, ha='left', rotation=-15, wrap=True)
+
+
+@image_comparison(baseline_images=['fonttext_wrap'],
+                  extensions=['png'])
+def test_font_wrap():
+    fig = plt.figure()
+    plt.axis([0, 10, 0, 10])
+    t = "This is a really long string that I'd rather have wrapped so that" \
+        " it doesn't go outside of the figure, but if it's long enough it" \
+        " will go off the top or bottom!"
+    plt.text(4, -1, t, fontsize=18, family='serif', ha='left', rotation=15,
+             wrap=True)
+    plt.text(6, 5, t, family='sans serif', ha='left', rotation=15, wrap=True)
+    plt.text(5, 5, t, weight='light', ha='right', rotation=-15, wrap=True)
+    plt.text(5, 10, t, weight='heavy', ha='center', va='top', wrap=True)
+    plt.text(3, 4, t, family='monospace', ha='right', wrap=True)
+    plt.text(-1, 0, t, fontsize=14, style='italic', ha='left', rotation=-15,
+             wrap=True)

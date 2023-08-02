@@ -1,0 +1,16 @@
+test_axes_grid1/anchored_artists.png:0:0
+test_axes_grid1/anchored_direction_arrows.png:0:0
+test_axes_grid1/anchored_direction_arrows_many_args.png:0:0
+test_axes_grid1/anchored_locator_base_call.png:0:0
+test_axes_grid1/fill_facecolor.png:0:0
+test_axes_grid1/image_grid.png:0:0
+test_axes_grid1/image_grid_each_left_label_mode_all.png:0:0
+test_axes_grid1/image_grid_single_bottom_label_mode_1.png:0:0
+test_axes_grid1/imagegrid_cbar_mode.png:0:0
+test_axes_grid1/inset_axes.png:0:0
+test_axes_grid1/inset_locator.png:0:0
+test_axes_grid1/insetposition.png:0:0
+test_axes_grid1/inverted_zoomed_axes.png:0:0
+test_axes_grid1/rgb_axes.png:0:0
+test_axes_grid1/twin_axes_empty_and_removed.png:0:0
+test_axes_grid1/zoomed_axes.png:0:0

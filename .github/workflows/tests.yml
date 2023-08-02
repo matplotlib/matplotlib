@@ -305,11 +305,24 @@ jobs:
           rm -rf ~/.cache/matplotlib
         if: matrix.delete-font-cache
 
+      - name: extract baseline images
+        run: |
+          mkdir -p /tmp/test_images/matplotlib/tests
+          cp -r lib/matplotlib/tests/baseline_images /tmp/test_images/matplotlib/tests
+          mkdir -p /tmp/test_images/mpl_toolkits/axes_grid1/tests/
+          cp -r lib/mpl_toolkits/axes_grid1/tests/baseline_images /tmp/test_images/mpl_toolkits/axes_grid1/tests/
+          mkdir -p /tmp/test_images/mpl_toolkits/axisartist/tests/
+          cp -r lib/mpl_toolkits/axisartist/tests/baseline_images /tmp/test_images/mpl_toolkits/axisartist/tests/
+          mkdir -p /tmp/test_images/mpl_toolkits/mplot3d/tests/
+          cp -r lib/mpl_toolkits/mplot3d/tests/baseline_images /tmp/test_images/mpl_toolkits/mplot3d/tests/
+
       - name: Run pytest
         run: |
           python -mpytest -raR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+        env:
+          MPLTESTIMAGEPATH: /tmp/test_images/
 
       - name: Filter C coverage
         run: |

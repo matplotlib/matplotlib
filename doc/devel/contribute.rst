@@ -302,6 +302,8 @@ project that leads to a scientific publication, please follow the
 Coding guidelines
 =================
 
+.. _coding_guidelines-API_changes:
+
 API changes
 -----------
 

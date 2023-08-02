@@ -14,24 +14,30 @@ from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib.testing.compare import compare_images
 from matplotlib.backends.backend_pgf import PdfPages
 from matplotlib.testing.decorators import (
-    _image_directories, check_figures_equal, image_comparison)
+    _baseline_directory, _results_directory, check_figures_equal, image_comparison)
 from matplotlib.testing._markers import (
     needs_ghostscript, needs_pgf_lualatex, needs_pgf_pdflatex,
     needs_pgf_xelatex)
 
 
-baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
+root_dir, mod, image_list, md = _baseline_directory(
+    lambda: 'dummy func', os.environ.get("MPLTESTIMAGEPATH", None)
+)
+result_dir = _results_directory(lambda: 'dummy func')
+baseline_dir = str(root_dir / mod)
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
     actual = os.path.join(result_dir, fname)
     plt.savefig(actual, **savefig_kwargs)
 
-    expected = os.path.join(result_dir, "expected_%s" % fname)
-    shutil.copyfile(os.path.join(baseline_dir, fname), expected)
-    err = compare_images(expected, actual, tol=tol)
-    if err:
-        raise ImageComparisonFailure(err)
+    if os.environ.get("MPLGENERATEBASELINE"):
+        shutil.copyfile(actual, os.path.join(baseline_dir, fname))
+    else:
+        expected = os.path.join(result_dir, "expected_%s" % fname)
+        shutil.copyfile(os.path.join(baseline_dir, fname), expected)
+        if err := compare_images(expected, actual, tol=tol):
+            raise ImageComparisonFailure(err)
 
 
 @needs_pgf_xelatex

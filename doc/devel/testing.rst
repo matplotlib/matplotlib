@@ -96,8 +96,66 @@ and then use ``rng`` when generating the random numbers.
 
 The seed is John Hunter's birthday.
 
-Writing an image comparison test
---------------------------------
+Image Comparison tests
+----------------------
+
+As noted in :ref:`coding_guidelines-API_changes` we consider any changes to the
+visual output of Matplotlib to be an API change.  To ensure that our visual
+output is consistent we make heavy use of image comparison tests in the
+automated test suites.  By default, and with only a few exceptions, the tests
+compare the expected and test output with zero tolerance which means the output
+of Matplotlib is stable at the pixel level across time, platform, and
+architecture.
+
+For Agg, which directly produces raster output, we directly compare the output
+with saved png.  For vector outputs we use an external tool (inkscape for svg
+and ghostscript for eps/pdf) to convert both the baseline and test image to a
+raster that we can compare.  However, different versions of FreeType slightly
+shift the placement and size of the rendered text which in turn causes our
+tests to fail.  Thus, we have historically run the test suite with a fixed
+version of FreeType.
+
+In the past we stored a complete set of the test images, against a specific
+version of FreeType, in the main source repository.  While highly effective,
+this was not a sustainable over the long term as the pinned version of FreeType
+will eventually need to be updated.  Further, while our wheels are built with
+the pinned version of FreeType, most other down-stream packages (such as
+conda-forge and the Linux distributions) use what ever their currently
+supported Freetype is this many of our users are using a version of FreeType
+that we do not test.
+
+We now use a combination of testing for self-consistency with files generated
+on a developers computer and sets of canonical baseline images generated with
+every release.
+
+
+Generate local baseline images from upstream branch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Adding a test image
+^^^^^^^^^^^^^^^^^^^
+
+
+Update a test image
+^^^^^^^^^^^^^^^^^^^
+
+
+Build Matplotlib with a specific FreeType
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Fetch the baseline images for a Matplotlib Release and FreeType version
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+Generate the baseline images for a Matplotlib Release and FreeType version
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+Writing an image comparison test [TODO fix]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Writing an image-based test is only slightly more difficult than a simple
 test. The main consideration is that you must specify the "baseline", or
@@ -139,6 +197,7 @@ issues with font mismatch on different platforms.
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
 about their use.
+
 
 Creating a new module in matplotlib.tests
 -----------------------------------------

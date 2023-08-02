@@ -1,0 +1,82 @@
+{
+  "test_axis_artist/axis_artist.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axis_artist/axis_artist_labelbase.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axis_artist/axis_artist_ticklabels.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axis_artist/axis_artist_ticks.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axislines/ParasiteAxesAuxTrans_meshplot.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axislines/Subplot.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axislines/SubplotZero.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axislines/axisline_style.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axislines/axisline_style_size_color.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axislines/axisline_style_tight.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_axislines/subplotzero_ylabel.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_floating_axes/curvelinear3.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_floating_axes/curvelinear4.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_grid_helper_curvelinear/axis_direction.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_grid_helper_curvelinear/custom_transform.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  },
+  "test_grid_helper_curvelinear/polar_box.png": {
+    "mpl_version": "3.8.0.dev1357+g44ac541436",
+    "rev": 0,
+    "sha": "cf7a1f2d861a05c3c89a6f155072692316e30d07"
+  }
+}

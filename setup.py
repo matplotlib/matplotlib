@@ -283,6 +283,8 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
     author_email="matplotlib-users@python.org",
     url="https://matplotlib.org",
     download_url="https://matplotlib.org/stable/users/installing/index.html",
+    entry_points={"pytest11": ["generate_images_plugin = "
+                               "matplotlib.testing.generate_images_plugin"]},
     project_urls={
         'Documentation': 'https://matplotlib.org',
         'Source Code': 'https://github.com/matplotlib/matplotlib',
