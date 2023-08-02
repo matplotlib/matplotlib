@@ -335,7 +335,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "numpy>=1.21",
         "packaging>=20.0",
         "pillow>=6.2.0",
-        "pyparsing>=2.3.1,<3.1",
+        "pyparsing>=2.3.1",
         "python-dateutil>=2.7",
     ] + (
         # Installing from a git checkout that is not producing a wheel.

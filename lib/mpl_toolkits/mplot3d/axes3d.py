@@ -1096,11 +1096,16 @@ class Axes3D(Axes):
         """
         Return the location on the axis pane underneath the cursor as a string.
         """
-        p1 = self._calc_coord(xv, yv, renderer)
+        p1, pane_idx = self._calc_coord(xv, yv, renderer)
         xs = self.format_xdata(p1[0])
         ys = self.format_ydata(p1[1])
         zs = self.format_zdata(p1[2])
-        coords = f'x={xs}, y={ys}, z={zs}'
+        if pane_idx == 0:
+            coords = f'x pane={xs}, y={ys}, z={zs}'
+        elif pane_idx == 1:
+            coords = f'x={xs}, y pane={ys}, z={zs}'
+        elif pane_idx == 2:
+            coords = f'x={xs}, y={ys}, z pane={zs}'
         return coords
 
     def _get_camera_loc(self):
@@ -1148,11 +1153,12 @@ class Axes3D(Axes):
                 scales[i] = np.inf
             else:
                 scales[i] = (p1[i] - pane_locs[i]) / vec[i]
-        scale = scales[np.argmin(abs(scales))]
+        pane_idx = np.argmin(abs(scales))
+        scale = scales[pane_idx]
 
         # Calculate the point on the closest pane
         p2 = p1 - scale*vec
-        return p2
+        return p2, pane_idx
 
     def _on_move(self, event):
         """

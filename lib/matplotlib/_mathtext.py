@@ -27,8 +27,9 @@ from ._mathtext_data import (
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import FT2Image, KERNING_DEFAULT
 
+from packaging.version import parse as parse_version
 from pyparsing import __version__ as pyparsing_version
-if tuple(int(x) for x in pyparsing_version.split(".")) < (3, 0, 0):
+if parse_version(pyparsing_version).major < 3:
     from pyparsing import nestedExpr as nested_expr
 else:
     from pyparsing import nested_expr
