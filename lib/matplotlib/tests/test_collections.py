@@ -398,7 +398,31 @@ def test_EllipseCollection():
     ax.autoscale_view()
 
 
-def test_EllipseCollection_setter():
+@image_comparison(['RectangleCollection_test_image.png'], remove_text=True)
+def test_RectangleCollection():
+    # Test basic functionality
+    fig, ax = plt.subplots()
+    x = np.arange(4)
+    y = np.arange(3)
+    X, Y = np.meshgrid(x, y)
+    XY = np.vstack((X.ravel(), Y.ravel())).T
+
+    ww = X / x[-1]
+    hh = Y / y[-1]
+    aa = np.ones_like(ww) * 20  # first axis is 20 degrees CCW from x axis
+
+    ec = mcollections.RectangleCollection(
+        ww, hh, aa, units='x', offsets=XY, offset_transform=ax.transData,
+        facecolors='none')
+    ax.add_collection(ec)
+    ax.autoscale_view()
+
+
+@pytest.mark.parametrize(
+    'Class,scale',
+    [(mcollections.EllipseCollection, 0.5), (mcollections.RectangleCollection, 1)]
+    )
+def test_WidthHeightAngleCollection_setter(Class, scale):
     # Test widths, heights and angle setter
     rng = np.random.default_rng(0)
 
@@ -409,7 +433,7 @@ def test_EllipseCollection_setter():
 
     fig, ax = plt.subplots()
 
-    ec = mcollections.EllipseCollection(
+    ec = Class(
         widths=widths,
         heights=heights,
         angles=angles,
@@ -418,8 +442,8 @@ def test_EllipseCollection_setter():
         offset_transform=ax.transData,
         )
 
-    assert_array_almost_equal(ec._widths, np.array(widths).ravel() * 0.5)
-    assert_array_almost_equal(ec._heights, np.array(heights).ravel() * 0.5)
+    assert_array_almost_equal(ec._widths, np.array(widths).ravel() * scale)
+    assert_array_almost_equal(ec._heights, np.array(heights).ravel() * scale)
     assert_array_almost_equal(ec._angles, np.deg2rad(angles).ravel())
 
     ax.add_collection(ec)
@@ -432,8 +456,8 @@ def test_EllipseCollection_setter():
 
     ec.set(widths=new_widths, heights=new_heights, angles=new_angles)
 
-    assert_array_almost_equal(ec._widths, np.array(new_widths).ravel() * 0.5)
-    assert_array_almost_equal(ec._heights, np.array(new_heights).ravel() * 0.5)
+    assert_array_almost_equal(ec._widths, np.array(new_widths).ravel() * scale)
+    assert_array_almost_equal(ec._heights, np.array(new_heights).ravel() * scale)
     assert_array_almost_equal(ec._angles, np.deg2rad(new_angles).ravel())
 
 
