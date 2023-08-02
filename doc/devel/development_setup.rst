@@ -167,16 +167,17 @@ also happen if you change branches) you will have to re-run
 Verify the Installation
 ==============================
 
-1. Run the following command to make sure you have correctly installed matplotlib in editable mode. The command should be run when virtual environment is activate.
-   ::
+* Run the following command to make sure you have correctly installed matplotlib in editable mode. 
+  The command should be run in the development when the virtual environment is activate ::
+   
     python -c "import matplotlib; print(matplotlib.__file__)"
-
-   This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
-2. Link to the running the tests page to verify that the code installed clean: 
-   :ref:`testing`
-3. Link to the building the docs page to verify that the docs build clean:
-   :ref:`documenting-matplotlib`
   
+  This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
+
+* We would encourage you to run tests and build docs to verify that the code installed and docs build are clean respectively,
+  These two are recommended, so that when you make code or document related changes you are aware of the existing issues beforehand.
+  Please refer to :ref:`documenting-matplotlib` and :ref:`testing` for building docs and run test cases.
+ 
 Install pre-commit hooks (optional)
 ===================================
 `pre-commit <https://pre-commit.com/>`_ hooks automatically check flake8 and
