@@ -28,7 +28,6 @@ class _Unset: ...
 
 class Artist:
     zorder: float
-    def __init_subclass__(cls): ...
     stale_callback: Callable[[Artist, bool], None] | None
     figure: Figure | SubFigure | None
     clipbox: BboxBase | None
