@@ -433,7 +433,7 @@ class Axes(_AxesBase):
         alpha: float | None = ...,
         linewidths: float | None = ...,
         edgecolors: Literal["face", "none"] | ColorType = ...,
-        reduce_C_function: Callable[[np.ndarray], float] = ...,
+        reduce_C_function: Callable[[np.ndarray | list[float]], float] = ...,
         mincnt: int | None = ...,
         marginals: bool = ...,
         *,

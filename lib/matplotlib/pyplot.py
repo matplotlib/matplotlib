@@ -3101,7 +3101,7 @@ def hexbin(
     alpha: float | None = None,
     linewidths: float | None = None,
     edgecolors: Literal["face", "none"] | ColorType = "face",
-    reduce_C_function: Callable[[np.ndarray], float] = np.mean,
+    reduce_C_function: Callable[[np.ndarray | list[float]], float] = np.mean,
     mincnt: int | None = None,
     marginals: bool = False,
     *,
