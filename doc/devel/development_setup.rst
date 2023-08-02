@@ -174,8 +174,8 @@ Verify the Installation
   
   This command should return : ``<matplotlib_local_repo>\lib\matplotlib\__init__.py``
 
-* We would encourage you to run tests and build docs to verify that the code installed and docs build are clean respectively,
-  These two are recommended, so that when you make code or document related changes you are aware of the existing issues beforehand.
+* We encourage you to run tests and build docs to verify that the code installed and docs build are clean,
+  so that when you make code or document related changes you are aware of the existing issues beforehand.
   Please refer to :ref:`documenting-matplotlib` and :ref:`testing` for building docs and run test cases.
  
 Install pre-commit hooks (optional)
