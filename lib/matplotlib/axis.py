@@ -628,6 +628,18 @@ class Axis(martist.Artist):
         The acceptance radius for containment tests. See also `.Axis.contains`.
     majorTicks : list of `.Tick`
         The major ticks.
+
+        .. warning::
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that changes to individual ticks will not
+            survive if you work on the figure further (including also
+            panning/zooming on a displayed figure).
+
+            Working on the individual ticks is a method of last resort.
+            Use `.set_tick_params` instead if possible.
+
     minorTicks : list of `.Tick`
         The minor ticks.
     """
@@ -1593,7 +1605,20 @@ class Axis(martist.Artist):
         return self.minor.formatter
 
     def get_major_ticks(self, numticks=None):
-        r"""Return the list of major `.Tick`\s."""
+        r"""
+        Return the list of major `.Tick`\s.
+
+        .. warning::
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that changes to individual ticks will not
+            survive if you work on the figure further (including also
+            panning/zooming on a displayed figure).
+
+            Working on the individual ticks is a method of last resort.
+            Use `.set_tick_params` instead if possible.
+        """
         if numticks is None:
             numticks = len(self.get_majorticklocs())
 
@@ -1606,7 +1631,20 @@ class Axis(martist.Artist):
         return self.majorTicks[:numticks]
 
     def get_minor_ticks(self, numticks=None):
-        r"""Return the list of minor `.Tick`\s."""
+        r"""
+        Return the list of minor `.Tick`\s.
+
+        .. warning::
+
+            Ticks are not guaranteed to be persistent. Various operations
+            can create, delete and modify the Tick instances. There is an
+            imminent risk that changes to individual ticks will not
+            survive if you work on the figure further (including also
+            panning/zooming on a displayed figure).
+
+            Working on the individual ticks is a method of last resort.
+            Use `.set_tick_params` instead if possible.
+        """
         if numticks is None:
             numticks = len(self.get_minorticklocs())
 
@@ -1948,6 +1986,17 @@ class Axis(martist.Artist):
 
         **kwargs
             Text properties.
+
+            .. warning::
+
+                This only sets the properties of the current ticks.
+                Ticks are not guaranteed to be persistent. Various operations
+                can create, delete and modify the Tick instances. There is an
+                imminent risk that these settings can get lost if you work on
+                the figure further (including also panning/zooming on a
+                displayed figure).
+
+                Use `.set_tick_params` instead if possible.
 
         Returns
         -------

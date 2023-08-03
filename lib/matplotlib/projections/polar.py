@@ -1318,6 +1318,17 @@ class PolarAxes(Axes):
         **kwargs
             *kwargs* are optional `.Text` properties for the labels.
 
+            .. warning::
+
+                This only sets the properties of the current ticks.
+                Ticks are not guaranteed to be persistent. Various operations
+                can create, delete and modify the Tick instances. There is an
+                imminent risk that these settings can get lost if you work on
+                the figure further (including also panning/zooming on a
+                displayed figure).
+
+                Use `.set_tick_params` instead if possible.
+
         See Also
         --------
         .PolarAxes.set_rgrids
@@ -1369,6 +1380,17 @@ class PolarAxes(Axes):
         ----------------
         **kwargs
             *kwargs* are optional `.Text` properties for the labels.
+
+            .. warning::
+
+                This only sets the properties of the current ticks.
+                Ticks are not guaranteed to be persistent. Various operations
+                can create, delete and modify the Tick instances. There is an
+                imminent risk that these settings can get lost if you work on
+                the figure further (including also panning/zooming on a
+                displayed figure).
+
+                Use `.set_tick_params` instead if possible.
 
         See Also
         --------
