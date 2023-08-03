@@ -4840,7 +4840,12 @@ default: :rc:`scatter.edgecolors`
               the bins to be used.
 
         xscale : {'linear', 'log', 'symlog'}, default: 'linear'
-            Use a linear or log10 scale on the horizontal axis.
+            The scale used for the horizontal axis.
+
+            'symlog' creates a `.SymmetricalLogScale`, which has optional
+            parameters. If you want to modify them, pass a tuple
+            `('symlog', params_dict)` instead of the plain string 'symlog';
+            e.g. `hexbin(..., xscale=('symlog', {'base': 2, 'linthres': 3}))`.
 
         yscale : {'linear', 'log', 'symlog'}, default: 'linear'
             Use a linear or log10 scale on the vertical axis.
