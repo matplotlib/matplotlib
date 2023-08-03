@@ -6,6 +6,7 @@ import datetime
 import functools
 import logging
 from numbers import Real
+import warnings
 
 import numpy as np
 
@@ -1965,7 +1966,10 @@ class Axis(martist.Artist):
             raise TypeError(f"{labels:=} must be a sequence") from None
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
-        if isinstance(locator, mticker.FixedLocator):
+        if not labels:
+            # eg labels=[]:
+            formatter = mticker.NullFormatter()
+        elif isinstance(locator, mticker.FixedLocator):
             # Passing [] as a list of labels is often used as a way to
             # remove all tick labels, so only error for > 0 labels
             if len(locator.locs) != len(labels) and len(labels) != 0:
@@ -1978,16 +1982,23 @@ class Axis(martist.Artist):
             func = functools.partial(self._format_with_dict, tickd)
             formatter = mticker.FuncFormatter(func)
         else:
+            _api.warn_external(
+                 "set_ticklabels() should only be used with a fixed number of "
+                 "ticks, i.e. after set_ticks() or using a FixedLocator.")
             formatter = mticker.FixedFormatter(labels)
 
-        if minor:
-            self.set_minor_formatter(formatter)
-            locs = self.get_minorticklocs()
-            ticks = self.get_minor_ticks(len(locs))
-        else:
-            self.set_major_formatter(formatter)
-            locs = self.get_majorticklocs()
-            ticks = self.get_major_ticks(len(locs))
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="FixedFormatter should only be used together with FixedLocator")
+            if minor:
+                self.set_minor_formatter(formatter)
+                locs = self.get_minorticklocs()
+                ticks = self.get_minor_ticks(len(locs))
+            else:
+                self.set_major_formatter(formatter)
+                locs = self.get_majorticklocs()
+                ticks = self.get_major_ticks(len(locs))
 
         ret = []
         if fontdict is not None:
