@@ -300,7 +300,7 @@ Added support for QT in new ToolManager
 ---------------------------------------
 
 Now it is possible to use the ToolManager with Qt5
-For example
+For example::
 
   import matplotlib
 

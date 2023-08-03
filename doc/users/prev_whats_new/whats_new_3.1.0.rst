@@ -22,7 +22,7 @@ The automatic date formatter used by default can be quite verbose.  A new
 formatter can be accessed that tries to make the tick labels appropriately
 concise.
 
-  .. plot::
+.. plot::
 
     import datetime
     import matplotlib.pyplot as plt
