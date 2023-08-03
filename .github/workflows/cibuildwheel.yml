@@ -91,10 +91,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BEFORE_BUILD: >-
-        pip install certifi oldest-supported-numpy &&
+        pip install certifi numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_BEFORE_BUILD_WINDOWS: >-
-        pip install certifi delvewheel oldest-supported-numpy &&
+        pip install certifi delvewheel numpy>=1.25 &&
         rm -rf {package}/build
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >-
         delvewheel repair -w {dest_dir} {wheel}
