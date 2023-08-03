@@ -52,7 +52,7 @@ class Axes(_AxesBase):
     def get_legend_handles_labels(
         self, legend_handler_map: dict[type, HandlerBase] | None = ...
     ) -> tuple[list[Artist], list[Any]]: ...
-    legend_: Legend
+    legend_: Legend | None
 
     @overload
     def legend(self) -> Legend: ...
@@ -433,7 +433,7 @@ class Axes(_AxesBase):
         alpha: float | None = ...,
         linewidths: float | None = ...,
         edgecolors: Literal["face", "none"] | ColorType = ...,
-        reduce_C_function: Callable[[np.ndarray], float] = ...,
+        reduce_C_function: Callable[[np.ndarray | list[float]], float] = ...,
         mincnt: int | None = ...,
         marginals: bool = ...,
         *,

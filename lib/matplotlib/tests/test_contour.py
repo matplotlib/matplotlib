@@ -3,7 +3,7 @@ import platform
 import re
 from unittest import mock
 
-import contourpy  # type: ignore
+import contourpy
 import numpy as np
 from numpy.testing import (
     assert_array_almost_equal, assert_array_almost_equal_nulp, assert_array_equal)
