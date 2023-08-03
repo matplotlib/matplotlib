@@ -4957,7 +4957,7 @@ default: :rc:`scatter.edgecolors`
             ty = np.log10(ty)
 
         if xscale == 'symlog' or yscale == 'symlog':
-            symmlog_transform = mscale.SymmetricalLogTransform(
+            symlog_transform = mscale.SymmetricalLogTransform(
                 kwargs.get('base', 10),
                 kwargs.get('linthresh', 2),
                 kwargs.get('linscale', 1),
