@@ -4848,7 +4848,12 @@ default: :rc:`scatter.edgecolors`
             e.g. `hexbin(..., xscale=('symlog', {'base': 2, 'linthres': 3}))`.
 
         yscale : {'linear', 'log', 'symlog'}, default: 'linear'
-            Use a linear or log10 scale on the vertical axis.
+            The scale used for the vertical axis.
+
+            'symlog' creates a `.SymmetricalLogScale`, which has optional
+            parameters. If you want to modify them, pass a tuple
+            `('symlog', params_dict)` instead of the plain string 'symlog';
+            e.g. `hexbin(..., yscale=('symlog', {'base': 2, 'linthres': 3}))`.
 
         mincnt : int > 0, default: *None*
             If not *None*, only display cells with more than *mincnt*
@@ -4969,9 +4974,9 @@ default: :rc:`scatter.edgecolors`
             )
             inv_symlog_transform = symlog_transform.inverted()
         if xscale == 'symlog':
-            tx = symmlog_transform.transform_non_affine(tx)
+            tx = symlog_transform.transform_non_affine(tx)
         if yscale == 'symlog':
-            ty = symmlog_transform.transform_non_affine(ty)
+            ty = symlog_transform.transform_non_affine(ty)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
         else:
@@ -5072,24 +5077,21 @@ default: :rc:`scatter.edgecolors`
                 self.set_yscale(yscale)
 
             if xscale == 'symlog':
-                polygons[:, :, 0] = inv_symmlog_transform.transform_non_affine(
+                polygons[:, :, 0] = inv_symlog_transform.transform_non_affine(
                     polygons[:, :, 0]
                 )
-                xmin = inv_symmlog_transform.transform_non_affine(
-                    np.array([xmin])
-                )[0]
-                xmax = inv_symmlog_transform.transform_non_affine(
-                    np.array([xmax])
-                )[0]
+                xmin, xmax = inv_symlog_transform.transform_non_affine(
+                    np.array([xmin, xmax])
+                )
                 self.set_xscale(xscale, **kwargs)
             if yscale == 'symlog':
-                polygons[:, :, 1] = inv_symmlog_transform.transform_non_affine(
+                polygons[:, :, 1] = inv_symlog_transform.transform_non_affine(
                     polygons[:, :, 1]
                 )
-                ymin = inv_symmlog_transform.transform_non_affine(
+                ymin = inv_symlog_transform.transform_non_affine(
                     np.array([ymin])
                 )[0]
-                ymax = inv_symmlog_transform.transform_non_affine(
+                ymax = inv_symlog_transform.transform_non_affine(
                     np.array([ymax])
                 )[0]
                 self.set_yscale(yscale, **kwargs)
@@ -5158,14 +5160,11 @@ default: :rc:`scatter.edgecolors`
             if zscale == "log":
                 bin_edges = np.geomspace(zmin, zmax, nbins + 1)
             elif zscale == "symlog":
-                zmin = symmlog_transform.transform_non_affine(
-                    np.array([zmin])
-                )[0]
-                zmax = symmlog_transform.transform_non_affine(
-                    np.array([zmax])
-                )[0]
+                zmin, zmax = symlog_transform.transform_non_affine(
+                    np.array([zmin, zmax])
+                )
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
-                bin_edges = inv_symmlog_transform.transform_non_affine(
+                bin_edges = inv_symlog_transform.transform_non_affine(
                     bin_edges
                 )
 
