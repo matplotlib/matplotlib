@@ -4962,7 +4962,7 @@ default: :rc:`scatter.edgecolors`
                 kwargs.get('linthresh', 2),
                 kwargs.get('linscale', 1),
             )
-            inv_symmlog_transform = symmlog_transform.inverted()
+            inv_symlog_transform = symlog_transform.inverted()
         if xscale == 'symlog':
             tx = symmlog_transform.transform_non_affine(tx)
         if yscale == 'symlog':
