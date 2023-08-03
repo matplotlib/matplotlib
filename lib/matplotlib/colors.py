@@ -2095,9 +2095,13 @@ class NoNorm(Normalize):
     indices directly in a `~matplotlib.cm.ScalarMappable`.
     """
     def __call__(self, value, clip=None):
+        if np.iterable(value):
+            return np.ma.array(value)
         return value
 
     def inverse(self, value):
+        if np.iterable(value):
+            return np.ma.array(value)
         return value
 
 
