@@ -1236,6 +1236,9 @@ class Normalize:
             under colors in a colormap, so it is likely to lead to
             surprises; therefore the default is ``clip=False``.
 
+            *clip* does not have any effect if the range limits *vmin* and *vmax* are
+            not set.
+
         Notes
         -----
         Returns 0 if ``vmin == vmax``.
