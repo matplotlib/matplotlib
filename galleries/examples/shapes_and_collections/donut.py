@@ -1,9 +1,9 @@
 r"""
 =============
-Mmh Donuts!!!
+Draw Donuts with Path and PathPatch
 =============
 
-Draw donuts (miam!) using `~.path.Path`\s and `~.patches.PathPatch`\es.
+Mmh... draw donuts (miam!) using `~.path.Path`\s and `~.patches.PathPatch`\es.
 This example shows the effect of the path's orientations in a compound path.
 """
 

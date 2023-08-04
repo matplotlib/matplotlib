@@ -1,6 +1,6 @@
 """
 =======
-Firefox
+Firefox logo with path and patches
 =======
 
 This example shows how to create the Firefox logo with path and patches.
