@@ -21,12 +21,11 @@ import traceback
 import types
 import weakref
 
-from packaging.version import parse as parse_version
 import numpy as np
 
-if parse_version(np.__version__) >= parse_version("1.25.0"):
-    from numpy.exceptions import VisibleDeprecationWarning
-else:
+try:
+    from numpy.exceptions import VisibleDeprecationWarning  # numpy >= 1.25
+except ImportError:
     from numpy import VisibleDeprecationWarning
 
 import matplotlib
