@@ -2118,10 +2118,10 @@ default: %(va)s
         for ax in ret.values():
             if sharex:
                 ax.sharex(ax0)
-                ax._label_outer_xaxis(check_patch=True)
+                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
             if sharey:
                 ax.sharey(ax0)
-                ax._label_outer_yaxis(check_patch=True)
+                ax._label_outer_yaxis(skip_non_rectangular_axes=True)
         if extra := set(per_subplot_kw) - set(ret):
             raise ValueError(
                 f"The keys {extra} are in *per_subplot_kw* "

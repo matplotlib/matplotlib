@@ -4498,12 +4498,13 @@ class _AxesBase(martist.Artist):
         labels are on the top side); y-labels only for subplots on the first
         column (or last column, if labels are on the right side).
         """
-        self._label_outer_xaxis(check_patch=False)
-        self._label_outer_yaxis(check_patch=False)
+        self._label_outer_xaxis(skip_non_rectangular_axes=False)
+        self._label_outer_yaxis(skip_non_rectangular_axes=False)
 
-    def _label_outer_xaxis(self, *, check_patch):
+    def _label_outer_xaxis(self, *, skip_non_rectangular_axes):
         # see documentation in label_outer.
-        if check_patch and not isinstance(self.patch, mpl.patches.Rectangle):
+        if skip_non_rectangular_axes and not isinstance(self.patch,
+                                                        mpl.patches.Rectangle):
             return
         ss = self.get_subplotspec()
         if not ss:
@@ -4522,9 +4523,10 @@ class _AxesBase(martist.Artist):
             if self.xaxis.offsetText.get_position()[1] == 0:
                 self.xaxis.offsetText.set_visible(False)
 
-    def _label_outer_yaxis(self, *, check_patch):
+    def _label_outer_yaxis(self, *, skip_non_rectangular_axes):
         # see documentation in label_outer.
-        if check_patch and not isinstance(self.patch, mpl.patches.Rectangle):
+        if skip_non_rectangular_axes and not isinstance(self.patch,
+                                                        mpl.patches.Rectangle):
             return
         ss = self.get_subplotspec()
         if not ss:
