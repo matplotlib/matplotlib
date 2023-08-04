@@ -193,17 +193,19 @@ class Text(Artist):
 
     def update(self, kwargs):
         # docstring inherited
+        ret = []
         kwargs = cbook.normalize_kwargs(kwargs, Text)
         sentinel = object()  # bbox can be None, so use another sentinel.
         # Update fontproperties first, as it has lowest priority.
         fontproperties = kwargs.pop("fontproperties", sentinel)
         if fontproperties is not sentinel:
-            self.set_fontproperties(fontproperties)
+            ret.append(self.set_fontproperties(fontproperties))
         # Update bbox last, as it depends on font properties.
         bbox = kwargs.pop("bbox", sentinel)
-        super().update(kwargs)
+        ret.extend(super().update(kwargs))
         if bbox is not sentinel:
-            self.set_bbox(bbox)
+            ret.append(self.set_bbox(bbox))
+        return ret
 
     def __getstate__(self):
         d = super().__getstate__()
