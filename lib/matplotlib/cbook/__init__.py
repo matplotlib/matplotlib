@@ -26,6 +26,11 @@ import weakref
 
 import numpy as np
 
+try:
+    from numpy.exceptions import VisibleDeprecationWarning  # numpy >= 1.25
+except ImportError:
+    from numpy import VisibleDeprecationWarning
+
 import matplotlib
 from matplotlib import _api, _c_internal_utils
 
@@ -1065,7 +1070,7 @@ def _combine_masks(*args):
                 raise ValueError("Masked arrays must be 1-D")
             try:
                 x = np.asanyarray(x)
-            except (np.VisibleDeprecationWarning, ValueError):
+            except (VisibleDeprecationWarning, ValueError):
                 # NumPy 1.19 raises a warning about ragged arrays, but we want
                 # to accept basically anything here.
                 x = np.asanyarray(x, dtype=object)
@@ -1659,7 +1664,7 @@ def index_of(y):
         pass
     try:
         y = _check_1d(y)
-    except (np.VisibleDeprecationWarning, ValueError):
+    except (VisibleDeprecationWarning, ValueError):
         # NumPy 1.19 will warn on ragged input, and we can't actually use it.
         pass
     else:
