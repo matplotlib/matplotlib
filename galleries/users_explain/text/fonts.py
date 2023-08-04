@@ -196,6 +196,33 @@ constructs a single `.ft2font.FT2Font` object that is aware of all of the fonts.
 Each glyph of the string is rendered using the first font in the list that
 contains that glyph.
 
+Loading new fonts
+-----------------
+
+All fonts that are installed in your system will become available to the
+`.FontManager`, as well as the default fonts that ship with Matplotlib. The latter
+fonts are located in the directory ``'matplotlib\mpl-data\fonts\ttf'``.
+It is also possible to add fonts to this directory, or to `allocate a custom
+directory
+<https://matplotlib.org/stable/api/font_manager_api.html#matplotlib.font_manager.findSystemFonts>`_
+that contains any fonts you wish to add to the `.FontManager`.
+
+In either case, the `.FontManager` will only find the new fonts after the font cache
+has been rebuilt following their addition . You may need to rebuild the cache
+yourself if your new fonts cannot be found by Matplotlib.
+The cache can be rebuilt by using :func:`matplotlib.font_manager.load_fontmanager`::
+    import matplotlib as mpl
+    mpl.font_manager.load_fontmanager(try_read_cache=False)
+
+Alternatively, you can expose the location of your font cache using
+:func:`matplotlib.get_cachedir`::
+    import matplotlib as mpl
+    mpl.get_cachedir()
+    '/home/darren/.cache/matplotlib'
+
+You can then manually delete the cache file ``'fontlist<version>.json'``. The new fonts
+will be available the next time the script is run.
+
 A majority of this work was done by Aitik Gupta supported by Google Summer of
 Code 2021.
 """

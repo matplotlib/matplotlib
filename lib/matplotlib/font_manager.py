@@ -1456,10 +1456,10 @@ class FontManager:
             if rebuild_if_missing:
                 _log.info(
                     'findfont: Found a missing font file.  Rebuilding cache.')
-                new_fm = _load_fontmanager(try_read_cache=False)
+                new_fm = load_fontmanager(try_read_cache=False)
                 # Replace self by the new fontmanager, because users may have
                 # a reference to this specific instance.
-                # TODO: _load_fontmanager should really be (used by) a method
+                # TODO: load_fontmanager should really be (used by) a method
                 # modifying the instance in place.
                 vars(self).update(vars(new_fm))
                 return self.findfont(
@@ -1558,7 +1558,10 @@ def get_font(font_filepaths, hinting_factor=None):
     )
 
 
-def _load_fontmanager(*, try_read_cache=True):
+def load_fontmanager(*, try_read_cache=True):
+    """
+    Re-loads the font cache by generating a new `.FontManager` instance.
+    """
     fm_path = Path(
         mpl.get_cachedir(), f"fontlist-v{FontManager.__version__}.json")
     if try_read_cache:
@@ -1576,6 +1579,6 @@ def _load_fontmanager(*, try_read_cache=True):
     return fm
 
 
-fontManager = _load_fontmanager()
+fontManager = load_fontmanager()
 findfont = fontManager.findfont
 get_font_names = fontManager.get_font_names
