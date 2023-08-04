@@ -1399,6 +1399,19 @@ def test_pcolormesh_alpha():
     ax4.pcolormesh(Qx, Qy, Z, cmap=cmap, shading='gouraud', zorder=1)
 
 
+@check_figures_equal()
+def test_pcolormesh_gouraud(fig_test, fig_ref):
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+    x = np.arange(-4, 5)
+    y = np.arange(-6, 7)
+    xe = np.linspace(-4.5, 4.5, 10)
+    ye = np.linspace(-6.5, 6.5, 14)
+    c = np.exp(-0.5*0.125*(x.reshape(1, -1)**2 + y.reshape(-1, 1)**2))
+    ax_ref.pcolormesh(x, y, c, shading='gouraud')
+    ax_test.pcolormesh(xe, ye, c, shading='gouraud')
+
+
 @pytest.mark.parametrize("dims,alpha", [(3, 1), (4, 0.5)])
 @check_figures_equal(extensions=["png"])
 def test_pcolormesh_rgba(fig_test, fig_ref, dims, alpha):
@@ -1476,9 +1489,13 @@ def test_pcolorargs():
     with pytest.raises(TypeError):
         ax.pcolormesh(X, Y, Z.T)
     with pytest.raises(TypeError):
-        ax.pcolormesh(x, y, Z[:-1, :-1], shading="gouraud")
+        ax.pcolormesh(x, y, Z[:-2, :-2], shading="gouraud")
     with pytest.raises(TypeError):
-        ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
+        ax.pcolormesh(X, Y, Z[:-2, :-2], shading="gouraud")
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x[1:], y[1:], Z, shading="gouraud")
+    with pytest.raises(TypeError):
+        ax.pcolormesh(X[1:, 1:], Y[1:, 1:], Z, shading="gouraud")
     x[0] = np.NaN
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
