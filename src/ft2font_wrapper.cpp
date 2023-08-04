@@ -552,9 +552,9 @@ const char *PyFT2Font_get_kerning__doc__ =
     "--\n\n"
     "Get the kerning between *left* and *right* glyph indices.\n"
     "*mode* is a kerning mode constant:\n\n"
-    "    - KERNING_DEFAULT  - Return scaled and grid-fitted kerning distances\n"
-    "    - KERNING_UNFITTED - Return scaled but un-grid-fitted kerning distances\n"
-    "    - KERNING_UNSCALED - Return the kerning vector in original font units\n";
+    "- KERNING_DEFAULT  - Return scaled and grid-fitted kerning distances\n"
+    "- KERNING_UNFITTED - Return scaled but un-grid-fitted kerning distances\n"
+    "- KERNING_UNSCALED - Return the kerning vector in original font units\n";
 
 static PyObject *PyFT2Font_get_kerning(PyFT2Font *self, PyObject *args)
 {

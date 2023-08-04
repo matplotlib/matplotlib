@@ -355,13 +355,13 @@ class CubicTriInterpolator(TriInterpolator):
     curvature (implementation based on an algorithm from [2]_ - PCG sparse
     solver):
 
-        .. math::
+    .. math::
 
-            E(z) = \frac{1}{2} \int_{\Omega} \left(
-                \left( \frac{\partial^2{z}}{\partial{x}^2} \right)^2 +
-                \left( \frac{\partial^2{z}}{\partial{y}^2} \right)^2 +
-                2\left( \frac{\partial^2{z}}{\partial{y}\partial{x}} \right)^2
-            \right) dx\,dy
+        E(z) = \frac{1}{2} \int_{\Omega} \left(
+            \left( \frac{\partial^2{z}}{\partial{x}^2} \right)^2 +
+            \left( \frac{\partial^2{z}}{\partial{y}^2} \right)^2 +
+            2\left( \frac{\partial^2{z}}{\partial{y}\partial{x}} \right)^2
+        \right) dx\,dy
 
     If the case *kind* ='geom' is chosen by the user, a simple geometric
     approximation is used (weighted average of the triangle normal

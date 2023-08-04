@@ -388,10 +388,10 @@ There are three main pieces to the implementation:
 
 1) Rewriting the freetype wrapper, and removing ttconv.
 
- a) Once (1) is done, as a proof of concept, we can move to the
-    upstream STIX .otf fonts
+   a) Once (1) is done, as a proof of concept, we can move to the
+      upstream STIX .otf fonts
 
- b) Add support for web fonts loaded from a remote URL.  (Enabled by using freetype for font subsetting).
+   b) Add support for web fonts loaded from a remote URL.  (Enabled by using freetype for font subsetting).
 
 2) Refactoring the existing "builtin" and "usetex" code into separate text engines and to follow the API outlined above.
 

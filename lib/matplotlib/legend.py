@@ -277,21 +277,21 @@ loc : str or pair of floats, default: {default}
     be spelled ``'right'``, and each "string" location can also be given as a
     numeric value:
 
-        ==================   =============
-        Location String      Location Code
-        ==================   =============
-        'best' (Axes only)   0
-        'upper right'        1
-        'upper left'         2
-        'lower left'         3
-        'lower right'        4
-        'right'              5
-        'center left'        6
-        'center right'       7
-        'lower center'       8
-        'upper center'       9
-        'center'             10
-        ==================   =============
+    ==================   =============
+    Location String      Location Code
+    ==================   =============
+    'best' (Axes only)   0
+    'upper right'        1
+    'upper left'         2
+    'lower left'         3
+    'lower right'        4
+    'right'              5
+    'center left'        6
+    'center right'       7
+    'lower center'       8
+    'upper center'       9
+    'center'             10
+    ==================   =============
     {outside}"""
 
 _loc_doc_best = """

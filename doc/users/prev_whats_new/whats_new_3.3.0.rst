@@ -183,7 +183,7 @@ colorbar inherits the *extend* argument from the norm, so with
 ``extend='both'``, for example, the colorbar will have triangular extensions
 for out-of-range values with colors that differ from adjacent in-range colors.
 
-  .. plot::
+.. plot::
 
     import matplotlib.pyplot as plt
     from matplotlib.colors import BoundaryNorm

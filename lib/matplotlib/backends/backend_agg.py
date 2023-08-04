@@ -332,8 +332,9 @@ class RendererAgg(RendererBase):
 
     def stop_filter(self, post_processing):
         """
-        Save the plot in the current canvas as an image and apply
-        the *post_processing* function.
+        Save the current canvas as an image and apply post processing.
+
+        The *post_processing* function::
 
            def post_processing(image, dpi):
              # ny, nx, depth = image.shape

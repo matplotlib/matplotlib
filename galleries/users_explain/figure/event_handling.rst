@@ -216,12 +216,12 @@ Event attributes
 All Matplotlib events inherit from the base class
 `matplotlib.backend_bases.Event`, which stores the attributes:
 
-    ``name``
-        the event name
-    ``canvas``
-        the FigureCanvas instance generating the event
-    ``guiEvent``
-        the GUI event that triggered the Matplotlib event
+``name``
+    the event name
+``canvas``
+    the FigureCanvas instance generating the event
+``guiEvent``
+    the GUI event that triggered the Matplotlib event
 
 The most common events that are the bread and butter of event handling
 are key press/release events and mouse press/release and movement
@@ -229,13 +229,13 @@ events.  The `.KeyEvent` and `.MouseEvent` classes that handle
 these events are both derived from the LocationEvent, which has the
 following attributes
 
-    ``x``, ``y``
-        mouse x and y position in pixels from left and bottom of canvas
-    ``inaxes``
-        the `~.axes.Axes` instance over which the mouse is, if any; else None
-    ``xdata``, ``ydata``
-        mouse x and y position in data coordinates, if the mouse is over an
-        axes
+``x``, ``y``
+    mouse x and y position in pixels from left and bottom of canvas
+``inaxes``
+    the `~.axes.Axes` instance over which the mouse is, if any; else None
+``xdata``, ``ydata``
+    mouse x and y position in data coordinates, if the mouse is over an
+    axes
 
 Let's look a simple example of a canvas, where a simple line segment
 is created every time a mouse is pressed::
@@ -266,13 +266,13 @@ is created every time a mouse is pressed::
 
 The `.MouseEvent` that we just used is a `.LocationEvent`, so we have access to
 the data and pixel coordinates via ``(event.x, event.y)`` and ``(event.xdata,
-event.ydata)``.  In addition to the ``LocationEvent`` attributes, it also has
+event.ydata)``.  In addition to the ``LocationEvent`` attributes, it also has:
 
-    ``button``
-        the button pressed: None, `.MouseButton`, 'up', or 'down' (up and down are used for scroll events)
+``button``
+    the button pressed: None, `.MouseButton`, 'up', or 'down' (up and down are used for scroll events)
 
-    ``key``
-        the key pressed: None, any character, 'shift', 'win', or 'control'
+``key``
+    the key pressed: None, any character, 'shift', 'win', or 'control'
 
 Draggable rectangle exercise
 ----------------------------
@@ -523,18 +523,18 @@ as `.Line2D`, `.Text`, `.Patch`, `.Polygon`, `.AxesImage`, etc.)
 
 The ``picker`` property can be set using various types:
 
-    ``None``
-        Picking is disabled for this artist (default).
-    ``boolean``
-        If True, then picking will be enabled and the artist will fire a
-        pick event if the mouse event is over the artist.
-    ``callable``
-        If picker is a callable, it is a user supplied function which
-        determines whether the artist is hit by the mouse event.  The
-        signature is ``hit, props = picker(artist, mouseevent)`` to
-        determine the hit test.  If the mouse event is over the artist,
-        return ``hit = True``; ``props`` is a dictionary of properties that
-        become additional attributes on the `.PickEvent`.
+``None``
+    Picking is disabled for this artist (default).
+``boolean``
+    If True, then picking will be enabled and the artist will fire a
+    pick event if the mouse event is over the artist.
+``callable``
+    If picker is a callable, it is a user supplied function which
+    determines whether the artist is hit by the mouse event.  The
+    signature is ``hit, props = picker(artist, mouseevent)`` to
+    determine the hit test.  If the mouse event is over the artist,
+    return ``hit = True``; ``props`` is a dictionary of properties that
+    become additional attributes on the `.PickEvent`.
 
 The artist's ``pickradius`` property can additionally be set to a tolerance
 value in points (there are 72 points per inch) that determines how far the
@@ -551,11 +551,11 @@ pick callbacks on mouse press events.  The handler typically looks like ::
 
 The `.PickEvent` passed to your callback always has the following attributes:
 
-    ``mouseevent``
-        The `.MouseEvent` that generate the pick event.  See event-attributes_
-        for a list of useful attributes on the mouse event.
-    ``artist``
-        The `.Artist` that generated the pick event.
+``mouseevent``
+    The `.MouseEvent` that generate the pick event.  See event-attributes_
+    for a list of useful attributes on the mouse event.
+``artist``
+    The `.Artist` that generated the pick event.
 
 Additionally, certain artists like `.Line2D` and `.PatchCollection` may attach
 additional metadata, like the indices of the data that meet the

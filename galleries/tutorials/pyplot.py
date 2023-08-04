@@ -416,7 +416,7 @@ plt.show()
 #
 # :mod:`matplotlib.pyplot` supports not only linear axis scales, but also
 # logarithmic and logit scales. This is commonly used if data spans many orders
-# of magnitude. Changing the scale of an axis is easy:
+# of magnitude. Changing the scale of an axis is easy::
 #
 #     plt.xscale('log')
 #
