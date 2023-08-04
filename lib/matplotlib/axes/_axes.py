@@ -5108,7 +5108,7 @@ default: :rc:`scatter.edgecolors`
                 )
                 ymin, ymax = inv_symlog_trans['y'].transform_non_affine(
                     np.array([ymin, ymax])
-                )[0]
+                )
                 self.set_yscale(yscale, **kwargs)
 
             collection = mcoll.PolyCollection(
