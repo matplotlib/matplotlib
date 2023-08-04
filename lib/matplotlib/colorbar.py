@@ -924,7 +924,7 @@ class Colorbar:
             This keyword argument is ignored and will be removed.
             Deprecated
 
-         minor : bool
+        minor : bool
             If True, set minor ticks instead of major ticks.
 
         **kwargs

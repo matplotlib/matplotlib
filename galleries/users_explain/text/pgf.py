@@ -40,13 +40,13 @@ for all applications must be located on your :envvar:`PATH`.
 
 `.rcParams` that control the behavior of the pgf backend:
 
-    =================  =====================================================
-    Parameter          Documentation
-    =================  =====================================================
-    pgf.preamble       Lines to be included in the LaTeX preamble
-    pgf.rcfonts        Setup fonts from rc params using the fontspec package
-    pgf.texsystem      Either "xelatex" (default), "lualatex" or "pdflatex"
-    =================  =====================================================
+=================  =====================================================
+Parameter          Documentation
+=================  =====================================================
+pgf.preamble       Lines to be included in the LaTeX preamble
+pgf.rcfonts        Setup fonts from rc params using the fontspec package
+pgf.texsystem      Either "xelatex" (default), "lualatex" or "pdflatex"
+=================  =====================================================
 
 .. note::
 

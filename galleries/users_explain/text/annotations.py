@@ -223,22 +223,22 @@ t = ax.text(0.5, 0.5, "Direction",
 
 # %%
 # The arguments are the name of the box style with its attributes as
-# keyword arguments. Currently, following box styles are implemented.
+# keyword arguments. Currently, following box styles are implemented:
 #
-#   ==========   ==============   ==========================
-#   Class        Name             Attrs
-#   ==========   ==============   ==========================
-#   Circle       ``circle``       pad=0.3
-#   DArrow       ``darrow``       pad=0.3
-#   Ellipse      ``ellipse``      pad=0.3
-#   LArrow       ``larrow``       pad=0.3
-#   RArrow       ``rarrow``       pad=0.3
-#   Round        ``round``        pad=0.3,rounding_size=None
-#   Round4       ``round4``       pad=0.3,rounding_size=None
-#   Roundtooth   ``roundtooth``   pad=0.3,tooth_size=None
-#   Sawtooth     ``sawtooth``     pad=0.3,tooth_size=None
-#   Square       ``square``       pad=0.3
-#   ==========   ==============   ==========================
+# ==========   ==============   ==========================
+# Class        Name             Attrs
+# ==========   ==============   ==========================
+# Circle       ``circle``       pad=0.3
+# DArrow       ``darrow``       pad=0.3
+# Ellipse      ``ellipse``      pad=0.3
+# LArrow       ``larrow``       pad=0.3
+# RArrow       ``rarrow``       pad=0.3
+# Round        ``round``        pad=0.3,rounding_size=None
+# Round4       ``round4``       pad=0.3,rounding_size=None
+# Roundtooth   ``roundtooth``   pad=0.3,tooth_size=None
+# Sawtooth     ``sawtooth``     pad=0.3,tooth_size=None
+# Square       ``square``       pad=0.3
+# ==========   ==============   ==========================
 #
 # .. figure:: /gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
 #    :target: /gallery/shapes_and_collections/fancybox_demo.html
@@ -335,17 +335,17 @@ ax.annotate("",
 #    :align: center
 #
 # The creation of the connecting path between two points is controlled by
-# ``connectionstyle`` key and the following styles are available.
+# ``connectionstyle`` key and the following styles are available:
 #
-#    ==========   =============================================
-#    Name         Attrs
-#    ==========   =============================================
-#    ``angle``    angleA=90,angleB=0,rad=0.0
-#    ``angle3``   angleA=90,angleB=0
-#    ``arc``      angleA=0,angleB=0,armA=None,armB=None,rad=0.0
-#    ``arc3``     rad=0.0
-#    ``bar``      armA=0.0,armB=0.0,fraction=0.3,angle=None
-#    ==========   =============================================
+# ==========   =============================================
+# Name         Attrs
+# ==========   =============================================
+# ``angle``    angleA=90,angleB=0,rad=0.0
+# ``angle3``   angleA=90,angleB=0
+# ``arc``      angleA=0,angleB=0,armA=None,armB=None,rad=0.0
+# ``arc3``     rad=0.0
+# ``bar``      armA=0.0,armB=0.0,fraction=0.3,angle=None
+# ==========   =============================================
 #
 # Note that "3" in ``angle3`` and ``arc3`` is meant to indicate that the
 # resulting path is a quadratic spline segment (three control
@@ -361,24 +361,24 @@ ax.annotate("",
 #    :align: center
 #
 # The connecting path (after clipping and shrinking) is then mutated to
-# an arrow patch, according to the given ``arrowstyle``.
+# an arrow patch, according to the given ``arrowstyle``:
 #
-#     ==========   =============================================
-#     Name         Attrs
-#     ==========   =============================================
-#     ``-``        None
-#     ``->``       head_length=0.4,head_width=0.2
-#     ``-[``       widthB=1.0,lengthB=0.2,angleB=None
-#     ``|-|``      widthA=1.0,widthB=1.0
-#     ``-|>``      head_length=0.4,head_width=0.2
-#     ``<-``       head_length=0.4,head_width=0.2
-#     ``<->``      head_length=0.4,head_width=0.2
-#     ``<|-``      head_length=0.4,head_width=0.2
-#     ``<|-|>``    head_length=0.4,head_width=0.2
-#     ``fancy``    head_length=0.4,head_width=0.4,tail_width=0.4
-#     ``simple``   head_length=0.5,head_width=0.5,tail_width=0.2
-#     ``wedge``    tail_width=0.3,shrink_factor=0.5
-#     ==========   =============================================
+# ==========   =============================================
+# Name         Attrs
+# ==========   =============================================
+# ``-``        None
+# ``->``       head_length=0.4,head_width=0.2
+# ``-[``       widthB=1.0,lengthB=0.2,angleB=None
+# ``|-|``      widthA=1.0,widthB=1.0
+# ``-|>``      head_length=0.4,head_width=0.2
+# ``<-``       head_length=0.4,head_width=0.2
+# ``<->``      head_length=0.4,head_width=0.2
+# ``<|-``      head_length=0.4,head_width=0.2
+# ``<|-|>``    head_length=0.4,head_width=0.2
+# ``fancy``    head_length=0.4,head_width=0.4,tail_width=0.4
+# ``simple``   head_length=0.5,head_width=0.5,tail_width=0.2
+# ``wedge``    tail_width=0.3,shrink_factor=0.5
+# ==========   =============================================
 #
 # .. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_fancyarrow_demo_001.png
 #    :target: /gallery/text_labels_and_annotations/fancyarrow_demo.html

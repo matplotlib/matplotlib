@@ -202,14 +202,14 @@ command to add a little whitespace between them::
 
 The choices available with all fonts are:
 
-    ========================= ================================
-    Command                   Result
-    ========================= ================================
-    ``\mathrm{Roman}``        :mathmpl:`\mathrm{Roman}`
-    ``\mathit{Italic}``       :mathmpl:`\mathit{Italic}`
-    ``\mathtt{Typewriter}``   :mathmpl:`\mathtt{Typewriter}`
-    ``\mathcal{CALLIGRAPHY}`` :mathmpl:`\mathcal{CALLIGRAPHY}`
-    ========================= ================================
+========================= ================================
+Command                   Result
+========================= ================================
+``\mathrm{Roman}``        :mathmpl:`\mathrm{Roman}`
+``\mathit{Italic}``       :mathmpl:`\mathit{Italic}`
+``\mathtt{Typewriter}``   :mathmpl:`\mathtt{Typewriter}`
+``\mathcal{CALLIGRAPHY}`` :mathmpl:`\mathcal{CALLIGRAPHY}`
+========================= ================================
 
 .. role:: math-stix(mathmpl)
    :fontset: stix
@@ -217,51 +217,46 @@ The choices available with all fonts are:
 When using the `STIX <http://www.stixfonts.org/>`_ fonts, you also have the
 choice of:
 
-    ================================ =========================================
-    Command                          Result
-    ================================ =========================================
-    ``\mathbb{blackboard}``          :math-stix:`\mathbb{blackboard}`
-    ``\mathrm{\mathbb{blackboard}}`` :math-stix:`\mathrm{\mathbb{blackboard}}`
-    ``\mathfrak{Fraktur}``           :math-stix:`\mathfrak{Fraktur}`
-    ``\mathsf{sansserif}``           :math-stix:`\mathsf{sansserif}`
-    ``\mathrm{\mathsf{sansserif}}``  :math-stix:`\mathrm{\mathsf{sansserif}}`
-    ``\mathbfit{bolditalic}``        :math-stix:`\mathbfit{bolditalic}`
-    ================================ =========================================
+================================ =========================================
+Command                          Result
+================================ =========================================
+``\mathbb{blackboard}``          :math-stix:`\mathbb{blackboard}`
+``\mathrm{\mathbb{blackboard}}`` :math-stix:`\mathrm{\mathbb{blackboard}}`
+``\mathfrak{Fraktur}``           :math-stix:`\mathfrak{Fraktur}`
+``\mathsf{sansserif}``           :math-stix:`\mathsf{sansserif}`
+``\mathrm{\mathsf{sansserif}}``  :math-stix:`\mathrm{\mathsf{sansserif}}`
+``\mathbfit{bolditalic}``        :math-stix:`\mathbfit{bolditalic}`
+================================ =========================================
 
 There are also five global "font sets" to choose from, which are
 selected using the ``mathtext.fontset`` parameter in :ref:`matplotlibrc
 <matplotlibrc-sample>`.
 
 ``dejavusans``: DejaVu Sans
-
     .. mathmpl::
        :fontset: dejavusans
 
        \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
 ``dejavuserif``: DejaVu Serif
-
     .. mathmpl::
        :fontset: dejavuserif
 
        \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
 ``cm``: Computer Modern (TeX)
-
     .. mathmpl::
        :fontset: cm
 
        \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
 ``stix``: STIX (designed to blend well with Times)
-
     .. mathmpl::
        :fontset: stix
 
        \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
 ``stixsans``: STIX sans-serif
-
     .. mathmpl::
        :fontset: stixsans
 
@@ -285,17 +280,17 @@ patient users only.  By setting :rc:`mathtext.fontset` to ``custom``,
 you can then set the following parameters, which control which font file to use
 for a particular set of math characters.
 
-    ============================== =================================
-    Parameter                      Corresponds to
-    ============================== =================================
-    ``mathtext.it``                ``\mathit{}`` or default italic
-    ``mathtext.rm``                ``\mathrm{}`` Roman (upright)
-    ``mathtext.tt``                ``\mathtt{}`` Typewriter (monospace)
-    ``mathtext.bf``                ``\mathbf{}`` bold
-    ``mathtext.bfit``              ``\mathbfit{}`` bold italic
-    ``mathtext.cal``               ``\mathcal{}`` calligraphic
-    ``mathtext.sf``                ``\mathsf{}`` sans-serif
-    ============================== =================================
+============================== =================================
+Parameter                      Corresponds to
+============================== =================================
+``mathtext.it``                ``\mathit{}`` or default italic
+``mathtext.rm``                ``\mathrm{}`` Roman (upright)
+``mathtext.tt``                ``\mathtt{}`` Typewriter (monospace)
+``mathtext.bf``                ``\mathbf{}`` bold
+``mathtext.bfit``              ``\mathbfit{}`` bold italic
+``mathtext.cal``               ``\mathcal{}`` calligraphic
+``mathtext.sf``                ``\mathsf{}`` sans-serif
+============================== =================================
 
 Each parameter should be set to a fontconfig font descriptor (as defined in the
 yet-to-be-written font chapter).
@@ -318,32 +313,32 @@ Accents
 An accent command may precede any symbol to add an accent above it.  There are
 long and short forms for some of them.
 
-    ============================== =================================
-    Command                        Result
-    ============================== =================================
-    ``\acute a`` or ``\'a``        :mathmpl:`\acute a`
-    ``\bar a``                     :mathmpl:`\bar a`
-    ``\breve a``                   :mathmpl:`\breve a`
-    ``\dot a`` or ``\.a``          :mathmpl:`\dot a`
-    ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
-    ``\dddot a``                   :mathmpl:`\dddot a`
-    ``\ddddot a``                  :mathmpl:`\ddddot a`
-    ``\grave a`` or ``\`a``        :mathmpl:`\grave a`
-    ``\hat a`` or ``\^a``          :mathmpl:`\hat a`
-    ``\tilde a`` or ``\~a``        :mathmpl:`\tilde a`
-    ``\vec a``                     :mathmpl:`\vec a`
-    ``\overline{abc}``             :mathmpl:`\overline{abc}`
-    ============================== =================================
+============================== =================================
+Command                        Result
+============================== =================================
+``\acute a`` or ``\'a``        :mathmpl:`\acute a`
+``\bar a``                     :mathmpl:`\bar a`
+``\breve a``                   :mathmpl:`\breve a`
+``\dot a`` or ``\.a``          :mathmpl:`\dot a`
+``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
+``\dddot a``                   :mathmpl:`\dddot a`
+``\ddddot a``                  :mathmpl:`\ddddot a`
+``\grave a`` or ``\`a``        :mathmpl:`\grave a`
+``\hat a`` or ``\^a``          :mathmpl:`\hat a`
+``\tilde a`` or ``\~a``        :mathmpl:`\tilde a`
+``\vec a``                     :mathmpl:`\vec a`
+``\overline{abc}``             :mathmpl:`\overline{abc}`
+============================== =================================
 
 In addition, there are two special accents that automatically adjust to the
 width of the symbols below:
 
-    ============================== =================================
-    Command                        Result
-    ============================== =================================
-    ``\widehat{xyz}``              :mathmpl:`\widehat{xyz}`
-    ``\widetilde{xyz}``            :mathmpl:`\widetilde{xyz}`
-    ============================== =================================
+============================== =================================
+Command                        Result
+============================== =================================
+``\widehat{xyz}``              :mathmpl:`\widehat{xyz}`
+``\widetilde{xyz}``            :mathmpl:`\widetilde{xyz}`
+============================== =================================
 
 Care should be taken when putting accents on lower-case i's and j's.  Note that
 in the following ``\imath`` is used to avoid the extra dot over the i::

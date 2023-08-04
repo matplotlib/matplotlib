@@ -2789,18 +2789,18 @@ class NavigationToolbar2:
 
     They must also define
 
-      :meth:`save_figure`
-         save the current figure
+    :meth:`save_figure`
+        Save the current figure.
 
-      :meth:`draw_rubberband` (optional)
-         draw the zoom to rect "rubberband" rectangle
+    :meth:`draw_rubberband` (optional)
+        Draw the zoom to rect "rubberband" rectangle.
 
-      :meth:`set_message` (optional)
-         display message
+    :meth:`set_message` (optional)
+        Display message.
 
-      :meth:`set_history_buttons` (optional)
-         you can change the history back / forward buttons to
-         indicate disabled / enabled state.
+    :meth:`set_history_buttons` (optional)
+        You can change the history back / forward buttons to indicate disabled / enabled
+        state.
 
     and override ``__init__`` to set up the toolbar -- without forgetting to
     call the base-class init.  Typically, ``__init__`` needs to set up toolbar

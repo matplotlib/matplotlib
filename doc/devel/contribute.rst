@@ -359,19 +359,19 @@ Introducing
 3. Make appropriate changes to the type hints in the associated ``.pyi`` file.
    The general guideline is to match runtime reported behavior.
 
-  - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
-    are generally kept during the expiry period, and thus no changes are needed on
-    introduction.
-  - Items decorated with ``@_api.rename_parameter`` or ``@_api.make_keyword_only``
-    report the *new* (post deprecation) signature at runtime, and thus *should* be
-    updated on introduction.
-  - Items decorated with ``@_api.delete_parameter`` should include a default value hint
-    for the deleted parameter, even if it did not previously have one (e.g.
-    ``param: <type> = ...``). Even so, the decorator changes the default value to a
-    sentinel value which should not be included in the type stub. Thus, Mypy Stubtest
-    needs to be informed of the inconsistency by placing the method into
-    :file:`ci/mypy-stubtest-allowlist.txt` under a heading indicating the deprecation
-    version number.
+   - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
+     are generally kept during the expiry period, and thus no changes are needed on
+     introduction.
+   - Items decorated with ``@_api.rename_parameter`` or ``@_api.make_keyword_only``
+     report the *new* (post deprecation) signature at runtime, and thus *should* be
+     updated on introduction.
+   - Items decorated with ``@_api.delete_parameter`` should include a default value hint
+     for the deleted parameter, even if it did not previously have one (e.g.
+     ``param: <type> = ...``). Even so, the decorator changes the default value to a
+     sentinel value which should not be included in the type stub. Thus, Mypy Stubtest
+     needs to be informed of the inconsistency by placing the method into
+     :file:`ci/mypy-stubtest-allowlist.txt` under a heading indicating the deprecation
+     version number.
 
 Expiring
 ~~~~~~~~
@@ -386,17 +386,17 @@ Expiring
 2. Change the code functionality and remove any related deprecation warnings.
 3. Make appropriate changes to the type hints in the associated ``.pyi`` file.
 
-  - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
-    are to be removed on expiry.
-  - Items decorated with ``@_api.rename_parameter`` or ``@_api.make_keyword_only``
-    will have been updated at introduction, and require no change now.
-  - Items decorated with ``@_api.delete_parameter`` will need to be updated to the
-    final signature, in the same way as the ``.py`` file signature is updated.
-    The entry in :file:`ci/mypy-stubtest-allowlist.txt` should be removed.
-  - Any other entries in :file:`ci/mypy-stubtest-allowlist.txt` under a version's
-    deprecations should be double checked, as only ``delete_parameter`` should normally
-    require that mechanism for deprecation. For removed items that were not in the stub
-    file, only deleting from the allowlist is required.
+   - Items marked with ``@_api.deprecated`` or ``@_api.deprecate_privatize_attribute``
+     are to be removed on expiry.
+   - Items decorated with ``@_api.rename_parameter`` or ``@_api.make_keyword_only``
+     will have been updated at introduction, and require no change now.
+   - Items decorated with ``@_api.delete_parameter`` will need to be updated to the
+     final signature, in the same way as the ``.py`` file signature is updated.
+     The entry in :file:`ci/mypy-stubtest-allowlist.txt` should be removed.
+   - Any other entries in :file:`ci/mypy-stubtest-allowlist.txt` under a version's
+     deprecations should be double checked, as only ``delete_parameter`` should normally
+     require that mechanism for deprecation. For removed items that were not in the stub
+     file, only deleting from the allowlist is required.
 
 Adding new API
 --------------

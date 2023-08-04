@@ -115,18 +115,18 @@ def run(state_machine):
                       key=lambda sym: (render_symbol(sym, ignore_variant=True),
                                        sym.startswith(r"\var")),
                       reverse=(category == "Hebrew"))  # Hebrew is rtl
+        rendered_syms = [f"{render_symbol(sym)} ``{sym}``" for sym in syms]
         columns = min(columns, len(syms))
         lines.append("**%s**" % category)
         lines.append('')
-        max_width = max(map(len, syms)) * 2 + 16
-        header = "    " + (('=' * max_width) + ' ') * columns
-        lines.append(header)
-        for part in range(0, len(syms), columns):
+        max_width = max(map(len, rendered_syms))
+        header = (('=' * max_width) + ' ') * columns
+        lines.append(header.rstrip())
+        for part in range(0, len(rendered_syms), columns):
             row = " ".join(
-                f"{render_symbol(sym)} ``{sym}``".rjust(max_width)
-                for sym in syms[part:part + columns])
-            lines.append(f"    {row}")
-        lines.append(header)
+                sym.rjust(max_width) for sym in rendered_syms[part:part + columns])
+            lines.append(row)
+        lines.append(header.rstrip())
         lines.append('')
 
     state_machine.insert_input(lines, "Symbol table")
