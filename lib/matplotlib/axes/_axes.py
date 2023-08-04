@@ -4844,7 +4844,7 @@ default: :rc:`scatter.edgecolors`
 
             'symlog' creates a `.SymmetricalLogScale`, which has optional
             parameters. If you want to modify them, pass a tuple
-            `('symlog', params_dict)` instead of the plain string 'symlog';
+            ``('symlog', params_dict)`` instead of the plain string 'symlog';
             e.g. `hexbin(..., xscale=('symlog', {'base': 2, 'linthresh': 3}))`.
 
         yscale : {'linear', 'log', 'symlog'}, default: 'linear'
@@ -4852,7 +4852,7 @@ default: :rc:`scatter.edgecolors`
 
             'symlog' creates a `.SymmetricalLogScale`, which has optional
             parameters. If you want to modify them, pass a tuple
-            `('symlog', params_dict)` instead of the plain string 'symlog';
+            ``('symlog', params_dict)`` instead of the plain string 'symlog';
             e.g. `hexbin(..., yscale=('symlog', {'base': 2, 'linthresh': 3}))`.
 
         mincnt : int > 0, default: *None*
