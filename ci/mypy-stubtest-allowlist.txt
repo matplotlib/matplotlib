@@ -5,7 +5,7 @@ matplotlib.pylab.*
 matplotlib._.*
 matplotlib.rcsetup._listify_validator
 matplotlib.rcsetup._validate_linestyle
-matplotlib.ft2font.*
+matplotlib.ft2font.Glyph
 matplotlib.testing.jpl_units.*
 matplotlib.sphinxext.*
 

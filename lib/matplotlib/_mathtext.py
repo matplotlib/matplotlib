@@ -106,7 +106,7 @@ class Output:
               for x1, y1, x2, y2 in self.rects]
         return VectorParse(w, h + d, d, gs, rs)
 
-    def to_raster(self):
+    def to_raster(self, antialiased=None):
         # Metrics y's and mathtext y's are oriented in opposite directions,
         # hence the switch between ymin and ymax.
         xmin = min([*[ox + info.metrics.xmin for ox, oy, info in self.glyphs],
@@ -242,14 +242,6 @@ class Fonts:
         base unit for drawing lines such as in a fraction or radical.
         """
         raise NotImplementedError()
-
-    def get_used_characters(self):
-        """
-        Get the set of characters that were used in the math
-        expression.  Used by backends that need to subset fonts so
-        they know which glyphs to include.
-        """
-        return self.used_characters
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         """

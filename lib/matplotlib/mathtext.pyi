@@ -13,7 +13,14 @@ from matplotlib.typing import ColorType
 
 class MathTextParser:
     def __init__(self, output: Literal["path", "agg", "raster", "macosx"]) -> None: ...
-    def parse(self, s: str, dpi: float = ..., prop: FontProperties | None = ...): ...
+    def parse(
+        self,
+        s: str,
+        dpi: float = ...,
+        prop: FontProperties | None = ...,
+        *,
+        antialiased: bool | None = ...
+    ): ...
 
 def math_to_image(
     s: str,

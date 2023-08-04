@@ -1,6 +1,8 @@
 .. _array_plots:
 
-Plots of arrays and fields
---------------------------
+Gridded data:
+-------------
 
-Plotting for arrays of data ``Z(x, y)`` and fields ``U(x, y), V(x, y)``.
+Plots of arrays and images :math:`Z_{i, j}` and fields :math:`U_{i, j}, V_{i, j}`
+on `regular grids <https://en.wikipedia.org/wiki/Regular_grid>`_ and
+corresponding coordinate grids :math:`X_{i,j}, Y_{i,j}`.

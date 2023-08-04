@@ -175,7 +175,8 @@ class RendererAgg(RendererBase):
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
         ox, oy, width, height, descent, font_image = \
-            self.mathtext_parser.parse(s, self.dpi, prop)
+            self.mathtext_parser.parse(s, self.dpi, prop,
+                                       antialiased=gc.get_antialiased())
 
         xd = descent * sin(radians(angle))
         yd = descent * cos(radians(angle))
@@ -331,8 +332,9 @@ class RendererAgg(RendererBase):
 
     def stop_filter(self, post_processing):
         """
-        Save the plot in the current canvas as an image and apply
-        the *post_processing* function.
+        Save the current canvas as an image and apply post processing.
+
+        The *post_processing* function::
 
            def post_processing(image, dpi):
              # ny, nx, depth = image.shape

@@ -107,7 +107,7 @@ def _get_packed_offsets(widths, total, sep, mode="fixed"):
         Widths of boxes to be packed.
     total : float or None
         Intended total length. *None* if not used.
-    sep : float
+    sep : float or None
         Spacing between boxes.
     mode : {'fixed', 'expand', 'equal'}
         The packing mode.

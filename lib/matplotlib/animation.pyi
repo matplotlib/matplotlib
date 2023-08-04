@@ -162,7 +162,7 @@ class Animation:
     def save(
         self,
         filename: str | Path,
-        writer: MovieWriter | str | None = ...,
+        writer: AbstractMovieWriter | str | None = ...,
         fps: int | None = ...,
         dpi: float | None = ...,
         codec: str | None = ...,
@@ -183,6 +183,7 @@ class Animation:
         embed_frames: bool = ...,
         default_mode: str | None = ...,
     ) -> str: ...
+    def _repr_html_(self) -> str: ...
     def pause(self) -> None: ...
     def resume(self) -> None: ...
 

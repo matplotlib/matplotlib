@@ -8,7 +8,7 @@ from typing import Any
 class Triangulation:
     x: np.ndarray
     y: np.ndarray
-    mask: np.ndarray
+    mask: np.ndarray | None
     is_delaunay: bool
     triangles: np.ndarray
     def __init__(

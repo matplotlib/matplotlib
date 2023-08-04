@@ -180,11 +180,11 @@ AxisArtist
 AxisArtist can be considered as a container artist with following
 attributes which will draw ticks, labels, etc.
 
- * line
- * major_ticks, major_ticklabels
- * minor_ticks, minor_ticklabels
- * offsetText
- * label
+* line
+* major_ticks, major_ticklabels
+* minor_ticks, minor_ticklabels
+* offsetText
+* label
 
 line
 ----

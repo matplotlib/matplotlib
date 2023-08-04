@@ -2569,9 +2569,9 @@ class SpanSelector(_SelectorWidget):
 
     props : dict, optional
         Dictionary of `matplotlib.patches.Patch` properties.
-        Default:
+        Default::
 
-            ``dict(facecolor='red', alpha=0.5)``
+            dict(facecolor='red', alpha=0.5)
 
     onmove_callback : func(min, max), min/max are floats, default: None
         Called on mouse move while the span is being selected.
@@ -3858,9 +3858,9 @@ class PolygonSelector(_SelectorWidget):
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
         for valid properties.
-        Default:
+        Default::
 
-            ``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``
+            dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
 
     handle_props : dict, optional
         Artist properties for the markers drawn at the vertices of the polygon.

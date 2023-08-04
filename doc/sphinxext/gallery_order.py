@@ -38,8 +38,8 @@ tutorials_order = [
 
 plot_types_order = [
     '../galleries/plot_types/basic',
-    '../galleries/plot_types/arrays',
     '../galleries/plot_types/stats',
+    '../galleries/plot_types/arrays',
     '../galleries/plot_types/unstructured',
     '../galleries/plot_types/3D',
     UNSORTED

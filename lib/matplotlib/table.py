@@ -24,6 +24,8 @@ The cell (0, 0) is positioned at the top left.
 Thanks to John Gill for providing the class and table.
 """
 
+import numpy as np
+
 from . import _api, _docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
@@ -494,14 +496,15 @@ class Table(Artist):
         col : int or sequence of ints
             The indices of the columns to auto-scale.
         """
-        # check for col possibility on iteration
-        try:
-            iter(col)
-        except (TypeError, AttributeError):
-            self._autoColumns.append(col)
-        else:
-            for cell in col:
-                self._autoColumns.append(cell)
+        col1d = np.atleast_1d(col)
+        if not np.issubdtype(col1d.dtype, np.integer):
+            _api.warn_deprecated("3.8", name="col",
+                                 message="%(name)r must be an int or sequence of ints. "
+                                 "Passing other types is deprecated since %(since)s "
+                                 "and will be removed %(removal)s.")
+            return
+        for cell in col1d:
+            self._autoColumns.append(cell)
 
         self.stale = True
 
