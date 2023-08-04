@@ -25,8 +25,6 @@ reference.
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
-* `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
 * `importlib-resources <https://pypi.org/project/importlib-resources/>`_
   (>= 3.2.0; only required on Python < 3.10)
 
@@ -228,6 +226,9 @@ Setup dependencies
 - `certifi <https://pypi.org/project/certifi/>`_ (>= 2020.06.20).  Used while
   downloading the freetype and QHull source during build.  This is not a
   runtime dependency.
+- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.6). Used to connect C/C++ code
+  with Python.
+- `setuptools <https://pypi.org/project/setuptools/>`_ (>= 42).
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
