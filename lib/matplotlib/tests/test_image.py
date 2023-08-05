@@ -1376,7 +1376,7 @@ def test_rgba_antialias():
     aa[:, int(N/2):] = a[:, int(N/2):]
 
     # set some over/unders and NaNs
-    aa[20:50, 20:50] = np.NaN
+    aa[20:50, 20:50] = np.nan
     aa[70:90, 70:90] = 1e6
     aa[70:90, 20:30] = -1e6
     aa[70:90, 195:215] = 1e6
