@@ -2728,7 +2728,7 @@ def bar_label(
     label_type: Literal["center", "edge"] = "edge",
     padding: float = 0,
     **kwargs,
-) -> list[Text]:
+) -> list[Annotation]:
     return gca().bar_label(
         container,
         labels=labels,
