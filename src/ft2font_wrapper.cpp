@@ -69,10 +69,21 @@ static void PyFT2Image_dealloc(PyFT2Image *self)
 const char *PyFT2Image_draw_rect__doc__ =
     "draw_rect(self, x0, y0, x1, y1)\n"
     "--\n\n"
-    "Draw an empty rectangle to the image.\n";
+    "Draw an empty rectangle to the image.\n"
+    "\n"
+    ".. deprecated:: 3.8\n";
+;
 
 static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args)
 {
+    char const* msg =
+        "FT2Image.draw_rect is deprecated since Matplotlib 3.8 and will be removed "
+        "two minor releases later as it is not used in the library. If you rely on "
+        "it, please let us know.";
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
+        return NULL;
+    }
+
     double x0, y0, x1, y1;
 
     if (!PyArg_ParseTuple(args, "dddd:draw_rect", &x0, &y0, &x1, &y1)) {
@@ -320,46 +331,51 @@ const char *PyFT2Font_init__doc__ =
     "Parameters\n"
     "----------\n"
     "filename : str or file-like\n"
-    "    The source of the font data in a format (ttf or ttc) that FreeType can read\n\n"
+    "    The source of the font data in a format (ttf or ttc) that FreeType can read\n"
+    "\n"
     "hinting_factor : int, optional\n"
     "    Must be positive. Used to scale the hinting in the x-direction\n"
     "_fallback_list : list of FT2Font, optional\n"
-    "    A list of FT2Font objects used to find missing glyphs.\n\n"
-    "    .. warning ::\n"
-    "        This API is both private and provisional: do not use it directly\n\n"
+    "    A list of FT2Font objects used to find missing glyphs.\n"
+    "\n"
+    "    .. warning::\n"
+    "        This API is both private and provisional: do not use it directly\n"
+    "\n"
     "_kerning_factor : int, optional\n"
-    "    Used to adjust the degree of kerning.\n\n"
-    "    .. warning ::\n"
-    "        This API is private: do not use it directly\n\n"
+    "    Used to adjust the degree of kerning.\n"
+    "\n"
+    "    .. warning::\n"
+    "        This API is private: do not use it directly\n"
+    "\n"
     "Attributes\n"
     "----------\n"
-    "num_faces\n"
+    "num_faces : int\n"
     "    Number of faces in file.\n"
     "face_flags, style_flags : int\n"
     "    Face and style flags; see the ft2font constants.\n"
-    "num_glyphs\n"
+    "num_glyphs : int\n"
     "    Number of glyphs in the face.\n"
-    "family_name, style_name\n"
+    "family_name, style_name : str\n"
     "    Face family and style name.\n"
-    "num_fixed_sizes\n"
+    "num_fixed_sizes : int\n"
     "    Number of bitmap in the face.\n"
-    "scalable\n"
+    "scalable : bool\n"
     "    Whether face is scalable; attributes after this one are only\n"
     "    defined for scalable faces.\n"
-    "bbox\n"
+    "bbox : tuple[int, int, int, int]\n"
     "    Face global bounding box (xmin, ymin, xmax, ymax).\n"
-    "units_per_EM\n"
+    "units_per_EM : int\n"
     "    Number of font units covered by the EM.\n"
-    "ascender, descender\n"
+    "ascender, descender : int\n"
     "    Ascender and descender in 26.6 units.\n"
-    "height\n"
+    "height : int\n"
     "    Height in 26.6 units; used to compute a default line spacing\n"
     "    (baseline-to-baseline distance).\n"
-    "max_advance_width, max_advance_height\n"
+    "max_advance_width, max_advance_height : int\n"
     "    Maximum horizontal and vertical cursor advance for all glyphs.\n"
-    "underline_position, underline_thickness\n"
+    "underline_position, underline_thickness : int\n"
     "    Vertical position and thickness of the underline bar.\n"
-    "postscript_name\n"
+    "postscript_name : str\n"
     "    PostScript name of the font.\n";
 
 static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
@@ -536,9 +552,9 @@ const char *PyFT2Font_get_kerning__doc__ =
     "--\n\n"
     "Get the kerning between *left* and *right* glyph indices.\n"
     "*mode* is a kerning mode constant:\n\n"
-    "    - KERNING_DEFAULT  - Return scaled and grid-fitted kerning distances\n"
-    "    - KERNING_UNFITTED - Return scaled but un-grid-fitted kerning distances\n"
-    "    - KERNING_UNSCALED - Return the kerning vector in original font units\n";
+    "- KERNING_DEFAULT  - Return scaled and grid-fitted kerning distances\n"
+    "- KERNING_UNFITTED - Return scaled but un-grid-fitted kerning distances\n"
+    "- KERNING_UNSCALED - Return the kerning vector in original font units\n";
 
 static PyObject *PyFT2Font_get_kerning(PyFT2Font *self, PyObject *args)
 {
@@ -575,19 +591,9 @@ static PyObject *PyFT2Font_get_fontmap(PyFT2Font *self, PyObject *args, PyObject
 
     if (PyUnicode_Check(textobj)) {
         size = PyUnicode_GET_LENGTH(textobj);
-#if defined(PYPY_VERSION) && (PYPY_VERSION_NUM < 0x07040000)
-        // PyUnicode_ReadChar is available from PyPy 7.3.2, but wheels do not
-        // specify the micro-release version, so put the version bound at 7.4
-        // to prevent generating wheels unusable on PyPy 7.3.{0,1}.
-        Py_UNICODE *unistr = PyUnicode_AsUnicode(textobj);
-        for (size_t i = 0; i < size; ++i) {
-            codepoints.insert(unistr[i]);
-        }
-#else
         for (size_t i = 0; i < size; ++i) {
             codepoints.insert(PyUnicode_ReadChar(textobj, i));
         }
-#endif
     } else {
         PyErr_SetString(PyExc_TypeError, "string must be str");
         return NULL;
@@ -626,7 +632,7 @@ static PyObject *PyFT2Font_get_fontmap(PyFT2Font *self, PyObject *args, PyObject
 
 
 const char *PyFT2Font_set_text__doc__ =
-    "set_text(self, string, angle, flags=32)\n"
+    "set_text(self, string, angle=0.0, flags=32)\n"
     "--\n\n"
     "Set the text *string* and *angle*.\n"
     "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
@@ -656,19 +662,9 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
     if (PyUnicode_Check(textobj)) {
         size = PyUnicode_GET_LENGTH(textobj);
         codepoints.resize(size);
-#if defined(PYPY_VERSION) && (PYPY_VERSION_NUM < 0x07040000)
-        // PyUnicode_ReadChar is available from PyPy 7.3.2, but wheels do not
-        // specify the micro-release version, so put the version bound at 7.4
-        // to prevent generating wheels unusable on PyPy 7.3.{0,1}.
-        Py_UNICODE *unistr = PyUnicode_AsUnicode(textobj);
-        for (size_t i = 0; i < size; ++i) {
-            codepoints[i] = unistr[i];
-        }
-#else
         for (size_t i = 0; i < size; ++i) {
             codepoints[i] = PyUnicode_ReadChar(textobj, i);
         }
-#endif
     } else {
         PyErr_SetString(PyExc_TypeError, "set_text requires str-input.");
         return NULL;
@@ -840,10 +836,20 @@ static PyObject *PyFT2Font_draw_glyphs_to_bitmap(PyFT2Font *self, PyObject *args
 const char *PyFT2Font_get_xys__doc__ =
     "get_xys(self, antialiased=True)\n"
     "--\n\n"
-    "Get the xy locations of the current glyphs.\n";
+    "Get the xy locations of the current glyphs.\n"
+    "\n"
+    ".. deprecated:: 3.8\n";
 
 static PyObject *PyFT2Font_get_xys(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
+    char const* msg =
+        "FT2Font.get_xys is deprecated since Matplotlib 3.8 and will be removed two "
+        "minor releases later as it is not used in the library. If you rely on it, "
+        "please let us know.";
+    if (PyErr_WarnEx(PyExc_DeprecationWarning, msg, 1)) {
+        return NULL;
+    }
+
     bool antialiased = true;
     std::vector<double> xys;
     const char *names[] = { "antialiased", NULL };
@@ -1625,8 +1631,6 @@ static PyTypeObject *PyFT2Font_init_type()
 
 static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "ft2font" };
 
-#pragma GCC visibility push(default)
-
 PyMODINIT_FUNC PyInit_ft2font(void)
 {
     import_array();
@@ -1691,5 +1695,3 @@ PyMODINIT_FUNC PyInit_ft2font(void)
 
     return m;
 }
-
-#pragma GCC visibility pop

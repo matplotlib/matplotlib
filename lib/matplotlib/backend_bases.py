@@ -37,6 +37,7 @@ import logging
 import os
 import sys
 import time
+import weakref
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -48,6 +49,7 @@ from matplotlib import (
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
+from matplotlib.layout_engine import ConstrainedLayoutEngine
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
@@ -168,7 +170,6 @@ class RendererBase:
     * `draw_path_collection`
     * `draw_quad_mesh`
     """
-
     def __init__(self):
         super().__init__()
         self._texmanager = None
@@ -207,9 +208,9 @@ class RendererBase:
         ----------
         gc : `.GraphicsContextBase`
             The graphics context.
-        marker_trans : `matplotlib.transforms.Transform`
+        marker_trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the marker.
-        trans : `matplotlib.transforms.Transform`
+        trans : `~matplotlib.transforms.Transform`
             An affine transform applied to the path.
         """
         for vertices, codes in path.iter_segments(trans, simplify=False):
@@ -299,7 +300,7 @@ class RendererBase:
             Array of (x, y) points for the triangle.
         colors : (3, 4) array-like
             RGBA colors for each point of the triangle.
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
         raise NotImplementedError
@@ -311,11 +312,13 @@ class RendererBase:
 
         Parameters
         ----------
-        points : (N, 3, 2) array-like
+        gc : `.GraphicsContextBase`
+            The graphics context.
+        triangles_array : (N, 3, 2) array-like
             Array of *N* (x, y) points for the triangles.
-        colors : (N, 3, 4) array-like
+        colors_array : (N, 3, 4) array-like
             Array of *N* RGBA colors for each point of the triangles.
-        transform : `matplotlib.transforms.Transform`
+        transform : `~matplotlib.transforms.Transform`
             An affine transform to apply to the points.
         """
         raise NotImplementedError
@@ -469,10 +472,10 @@ class RendererBase:
             The distance in physical units (i.e., dots or pixels) from the
             bottom side of the canvas.
 
-        im : (N, M, 4) array-like of np.uint8
+        im : (N, M, 4) array of `numpy.uint8`
             An array of RGBA pixels.
 
-        transform : `matplotlib.transforms.Affine2DBase`
+        transform : `~matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
             `option_scale_image` returns ``True``, an affine transformation
             (i.e., an `.Affine2DBase`) *may* be passed to `draw_image`.  The
@@ -519,7 +522,7 @@ class RendererBase:
             The font properties.
         angle : float
             The rotation angle in degrees anti-clockwise.
-        mtext : `matplotlib.text.Text`
+        mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
@@ -544,7 +547,7 @@ class RendererBase:
             The rotation angle in degrees anti-clockwise.
         ismath : bool or "TeX"
             If True, use mathtext parser. If "TeX", use tex for rendering.
-        mtext : `matplotlib.text.Text`
+        mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
 
         Notes
@@ -609,6 +612,8 @@ class RendererBase:
 
         Parameters
         ----------
+        gc : `.GraphicsContextBase`
+            The graphics context.
         x : float
             The x location of the text in display coords.
         y : float
@@ -630,9 +635,10 @@ class RendererBase:
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
-        Get the width, height, and descent (offset from the bottom
-        to the baseline), in display coords, of the string *s* with
-        `.FontProperties` *prop*.
+        Get the width, height, and descent (offset from the bottom to the baseline), in
+        display coords, of the string *s* with `.FontProperties` *prop*.
+
+        Whitespace at the start and the end of *s* is included in the reported width.
         """
         fontsize = prop.get_size_in_points()
 
@@ -693,7 +699,6 @@ class RendererBase:
         Parameters
         ----------
         points : float or array-like
-            a float or a numpy array of float
 
         Returns
         -------
@@ -1158,7 +1163,8 @@ class TimerBase:
     def interval(self, interval):
         # Force to int since none of the backends actually support fractional
         # milliseconds, and some error or give warnings.
-        interval = int(interval)
+        # Some backends also fail when interval == 0, so ensure >= 1 msec
+        interval = max(int(interval), 1)
         self._interval = interval
         self._timer_set_interval()
 
@@ -1252,11 +1258,26 @@ class Event:
     def __init__(self, name, canvas, guiEvent=None):
         self.name = name
         self.canvas = canvas
-        self.guiEvent = guiEvent
+        self._guiEvent = guiEvent
+        self._guiEvent_deleted = False
 
     def _process(self):
-        """Generate an event with name ``self.name`` on ``self.canvas``."""
+        """Process this event on ``self.canvas``, then unset ``guiEvent``."""
         self.canvas.callbacks.process(self.name, self)
+        self._guiEvent_deleted = True
+
+    @property
+    def guiEvent(self):
+        # After deprecation elapses: remove _guiEvent_deleted; make guiEvent a plain
+        # attribute set to None by _process.
+        if self._guiEvent_deleted:
+            _api.warn_deprecated(
+                "3.8", message="Accessing guiEvent outside of the original GUI event "
+                "handler is unsafe and deprecated since %(since)s; in the future, the "
+                "attribute will be set to None after quitting the event handler.  You "
+                "may separately record the value of the guiEvent attribute at your own "
+                "risk.")
+        return self._guiEvent
 
 
 class DrawEvent(Event):
@@ -1321,7 +1342,7 @@ class LocationEvent(Event):
     ----------
     x, y : int or None
         Event location in pixels from bottom left of canvas.
-    inaxes : `~.axes.Axes` or None
+    inaxes : `~matplotlib.axes.Axes` or None
         The `~.axes.Axes` instance over which the mouse is, if any.
     xdata, ydata : float or None
         Data coordinates of the mouse within *inaxes*, or *None* if the mouse
@@ -1330,7 +1351,11 @@ class LocationEvent(Event):
         The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
-    lastevent = None  # The last event processed so far.
+    # Fully delete all occurrences of lastevent after deprecation elapses.
+    _lastevent = None
+    lastevent = _api.deprecated("3.8")(
+        _api.classproperty(lambda cls: cls._lastevent))
+    _last_axes_ref = None
 
     def __init__(self, name, canvas, x, y, guiEvent=None, *, modifiers=None):
         super().__init__(name, canvas, guiEvent=guiEvent)
@@ -1347,20 +1372,25 @@ class LocationEvent(Event):
             # cannot check if event was in Axes if no (x, y) info
             return
 
-        if self.canvas.mouse_grabber is None:
-            self.inaxes = self.canvas.inaxes((x, y))
-        else:
-            self.inaxes = self.canvas.mouse_grabber
+        self._set_inaxes(self.canvas.inaxes((x, y))
+                         if self.canvas.mouse_grabber is None else
+                         self.canvas.mouse_grabber,
+                         (x, y))
 
-        if self.inaxes is not None:
+    # Splitting _set_inaxes out is useful for the axes_leave_event handler: it
+    # needs to generate synthetic LocationEvents with manually-set inaxes.  In
+    # that latter case, xy has already been cast to int so it can directly be
+    # read from self.x, self.y; in the normal case, however, it is more
+    # accurate to pass the untruncated float x, y values passed to the ctor.
+
+    def _set_inaxes(self, inaxes, xy=None):
+        self.inaxes = inaxes
+        if inaxes is not None:
             try:
-                trans = self.inaxes.transData.inverted()
-                xdata, ydata = trans.transform((x, y))
+                self.xdata, self.ydata = inaxes.transData.inverted().transform(
+                    xy if xy is not None else (self.x, self.y))
             except ValueError:
                 pass
-            else:
-                self.xdata = xdata
-                self.ydata = ydata
 
 
 class MouseButton(IntEnum):
@@ -1461,7 +1491,7 @@ class PickEvent(Event):
     ----------
     mouseevent : `MouseEvent`
         The mouse event that generated the pick.
-    artist : `matplotlib.artist.Artist`
+    artist : `~matplotlib.artist.Artist`
         The picked artist.  Note that artists are not pickable by default
         (see `.Artist.set_picker`).
     other
@@ -1554,17 +1584,30 @@ def _mouse_handler(event):
         event.key = event.canvas._key
     # Emit axes_enter/axes_leave.
     if event.name == "motion_notify_event":
-        last = LocationEvent.lastevent
-        last_axes = last.inaxes if last is not None else None
+        last_ref = LocationEvent._last_axes_ref
+        last_axes = last_ref() if last_ref else None
         if last_axes != event.inaxes:
             if last_axes is not None:
+                # Create a synthetic LocationEvent for the axes_leave_event.
+                # Its inaxes attribute needs to be manually set (because the
+                # cursor is actually *out* of that axes at that point); this is
+                # done with the internal _set_inaxes method which ensures that
+                # the xdata and ydata attributes are also correct.
                 try:
-                    last.canvas.callbacks.process("axes_leave_event", last)
+                    leave_event = LocationEvent(
+                        "axes_leave_event", last_axes.figure.canvas,
+                        event.x, event.y, event.guiEvent,
+                        modifiers=event.modifiers)
+                    leave_event._set_inaxes(last_axes)
+                    last_axes.figure.canvas.callbacks.process(
+                        "axes_leave_event", leave_event)
                 except Exception:
                     pass  # The last canvas may already have been torn down.
             if event.inaxes is not None:
                 event.canvas.callbacks.process("axes_enter_event", event)
-        LocationEvent.lastevent = (
+        LocationEvent._last_axes_ref = (
+            weakref.ref(event.inaxes) if event.inaxes else None)
+        LocationEvent._lastevent = (
             None if event.name == "figure_leave_event" else event)
 
 
@@ -1626,7 +1669,7 @@ class FigureCanvasBase:
 
     Attributes
     ----------
-    figure : `matplotlib.figure.Figure`
+    figure : `~matplotlib.figure.Figure`
         A high-level figure instance.
     """
 
@@ -1681,7 +1724,6 @@ class FigureCanvasBase:
         self.widgetlock = widgets.LockDraw()
         self._button = None  # the button pressed
         self._key = None  # the key pressed
-        self._lastx, self._lasty = None, None
         self.mouse_grabber = None  # the Axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
@@ -1695,12 +1737,12 @@ class FigureCanvasBase:
     scroll_pick_id = property(lambda self: self.figure._scroll_pick_id)
 
     @classmethod
-    @functools.lru_cache()
+    @functools.cache
     def _fix_ipython_backend2gui(cls):
         # Fix hard-coded module -> toolkit mapping in IPython (used for
         # `ipython --auto`).  This cannot be done at import time due to
         # ordering issues, so we do it when creating a canvas, and should only
-        # be done once per class (hence the `lru_cache(1)`).
+        # be done once per class (hence the `cache`).
         if sys.modules.get("IPython") is None:
             return
         import IPython
@@ -1752,251 +1794,8 @@ class FigureCanvasBase:
         """
         return self._is_saving
 
-    @_api.deprecated("3.6", alternative="canvas.figure.pick")
-    def pick(self, mouseevent):
-        if not self.widgetlock.locked():
-            self.figure.pick(mouseevent)
-
     def blit(self, bbox=None):
         """Blit the canvas in bbox (default entire canvas)."""
-
-    def resize(self, w, h):
-        """
-        UNUSED: Set the canvas size in pixels.
-
-        Certain backends may implement a similar method internally, but this is
-        not a requirement of, nor is it used by, Matplotlib itself.
-        """
-        # The entire method is actually deprecated, but we allow pass-through
-        # to a parent class to support e.g. QWidget.resize.
-        if hasattr(super(), "resize"):
-            return super().resize(w, h)
-        else:
-            _api.warn_deprecated("3.6", name="resize", obj_type="method",
-                                 alternative="FigureManagerBase.resize")
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('draw_event', DrawEvent(...))"))
-    def draw_event(self, renderer):
-        """Pass a `DrawEvent` to all functions connected to ``draw_event``."""
-        s = 'draw_event'
-        event = DrawEvent(s, self, renderer)
-        self.callbacks.process(s, event)
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('resize_event', ResizeEvent(...))"))
-    def resize_event(self):
-        """
-        Pass a `ResizeEvent` to all functions connected to ``resize_event``.
-        """
-        s = 'resize_event'
-        event = ResizeEvent(s, self)
-        self.callbacks.process(s, event)
-        self.draw_idle()
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('close_event', CloseEvent(...))"))
-    def close_event(self, guiEvent=None):
-        """
-        Pass a `CloseEvent` to all functions connected to ``close_event``.
-        """
-        s = 'close_event'
-        try:
-            event = CloseEvent(s, self, guiEvent=guiEvent)
-            self.callbacks.process(s, event)
-        except (TypeError, AttributeError):
-            pass
-            # Suppress the TypeError when the python session is being killed.
-            # It may be that a better solution would be a mechanism to
-            # disconnect all callbacks upon shutdown.
-            # AttributeError occurs on OSX with qt4agg upon exiting
-            # with an open window; 'callbacks' attribute no longer exists.
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('key_press_event', KeyEvent(...))"))
-    def key_press_event(self, key, guiEvent=None):
-        """
-        Pass a `KeyEvent` to all functions connected to ``key_press_event``.
-        """
-        self._key = key
-        s = 'key_press_event'
-        event = KeyEvent(
-            s, self, key, self._lastx, self._lasty, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('key_release_event', KeyEvent(...))"))
-    def key_release_event(self, key, guiEvent=None):
-        """
-        Pass a `KeyEvent` to all functions connected to ``key_release_event``.
-        """
-        s = 'key_release_event'
-        event = KeyEvent(
-            s, self, key, self._lastx, self._lasty, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
-        self._key = None
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('pick_event', PickEvent(...))"))
-    def pick_event(self, mouseevent, artist, **kwargs):
-        """
-        Callback processing for pick events.
-
-        This method will be called by artists who are picked and will
-        fire off `PickEvent` callbacks registered listeners.
-
-        Note that artists are not pickable by default (see
-        `.Artist.set_picker`).
-        """
-        s = 'pick_event'
-        event = PickEvent(s, self, mouseevent, artist,
-                          guiEvent=mouseevent.guiEvent,
-                          **kwargs)
-        self.callbacks.process(s, event)
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('scroll_event', MouseEvent(...))"))
-    def scroll_event(self, x, y, step, guiEvent=None):
-        """
-        Callback processing for scroll events.
-
-        Backend derived classes should call this function on any
-        scroll wheel event.  (*x*, *y*) are the canvas coords ((0, 0) is lower
-        left).  button and key are as defined in `MouseEvent`.
-
-        This method will call all functions connected to the 'scroll_event'
-        with a `MouseEvent` instance.
-        """
-        if step >= 0:
-            self._button = 'up'
-        else:
-            self._button = 'down'
-        s = 'scroll_event'
-        mouseevent = MouseEvent(s, self, x, y, self._button, self._key,
-                                step=step, guiEvent=guiEvent)
-        self.callbacks.process(s, mouseevent)
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('button_press_event', MouseEvent(...))"))
-    def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
-        """
-        Callback processing for mouse button press events.
-
-        Backend derived classes should call this function on any mouse
-        button press.  (*x*, *y*) are the canvas coords ((0, 0) is lower left).
-        button and key are as defined in `MouseEvent`.
-
-        This method will call all functions connected to the
-        'button_press_event' with a `MouseEvent` instance.
-        """
-        self._button = button
-        s = 'button_press_event'
-        mouseevent = MouseEvent(s, self, x, y, button, self._key,
-                                dblclick=dblclick, guiEvent=guiEvent)
-        self.callbacks.process(s, mouseevent)
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('button_release_event', MouseEvent(...))"))
-    def button_release_event(self, x, y, button, guiEvent=None):
-        """
-        Callback processing for mouse button release events.
-
-        Backend derived classes should call this function on any mouse
-        button release.
-
-        This method will call all functions connected to the
-        'button_release_event' with a `MouseEvent` instance.
-
-        Parameters
-        ----------
-        x : float
-            The canvas coordinates where 0=left.
-        y : float
-            The canvas coordinates where 0=bottom.
-        guiEvent
-            The native UI event that generated the Matplotlib event.
-        """
-        s = 'button_release_event'
-        event = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
-        self._button = None
-
-    # Also remove _lastx, _lasty when this goes away.
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('motion_notify_event', MouseEvent(...))"))
-    def motion_notify_event(self, x, y, guiEvent=None):
-        """
-        Callback processing for mouse movement events.
-
-        Backend derived classes should call this function on any
-        motion-notify-event.
-
-        This method will call all functions connected to the
-        'motion_notify_event' with a `MouseEvent` instance.
-
-        Parameters
-        ----------
-        x : float
-            The canvas coordinates where 0=left.
-        y : float
-            The canvas coordinates where 0=bottom.
-        guiEvent
-            The native UI event that generated the Matplotlib event.
-        """
-        self._lastx, self._lasty = x, y
-        s = 'motion_notify_event'
-        event = MouseEvent(s, self, x, y, self._button, self._key,
-                           guiEvent=guiEvent)
-        self.callbacks.process(s, event)
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('leave_notify_event', LocationEvent(...))"))
-    def leave_notify_event(self, guiEvent=None):
-        """
-        Callback processing for the mouse cursor leaving the canvas.
-
-        Backend derived classes should call this function when leaving
-        canvas.
-
-        Parameters
-        ----------
-        guiEvent
-            The native UI event that generated the Matplotlib event.
-        """
-        self.callbacks.process('figure_leave_event', LocationEvent.lastevent)
-        LocationEvent.lastevent = None
-        self._lastx, self._lasty = None, None
-
-    @_api.deprecated("3.6", alternative=(
-        "callbacks.process('enter_notify_event', LocationEvent(...))"))
-    def enter_notify_event(self, guiEvent=None, xy=None):
-        """
-        Callback processing for the mouse cursor entering the canvas.
-
-        Backend derived classes should call this function when entering
-        canvas.
-
-        Parameters
-        ----------
-        guiEvent
-            The native UI event that generated the Matplotlib event.
-        xy : (float, float)
-            The coordinate location of the pointer when the canvas is entered.
-        """
-        if xy is not None:
-            x, y = xy
-            self._lastx, self._lasty = x, y
-        else:
-            x = None
-            y = None
-            _api.warn_deprecated(
-                '3.0', removal='3.5', name='enter_notify_event',
-                message='Since %(since)s, %(name)s expects a location but '
-                'your backend did not pass one. This will become an error '
-                '%(removal)s.')
-
-        event = LocationEvent('figure_enter_event', self, x, y, guiEvent)
-        self.callbacks.process('figure_enter_event', event)
 
     def inaxes(self, xy):
         """
@@ -2214,19 +2013,19 @@ class FigureCanvasBase:
             if not hasattr(canvas_class, f"print_{fmt}"):
                 raise ValueError(
                     f"The {backend!r} backend does not support {fmt} output")
+            canvas = canvas_class(self.figure)
         elif hasattr(self, f"print_{fmt}"):
             # Return the current canvas if it supports the requested format.
             canvas = self
-            canvas_class = None  # Skip call to switch_backends.
         else:
             # Return a default canvas for the requested format, if it exists.
             canvas_class = get_registered_canvas_class(fmt)
-        if canvas_class:
-            canvas = self.switch_backends(canvas_class)
-        if canvas is None:
-            raise ValueError(
-                "Format {!r} is not supported (supported formats: {})".format(
-                    fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            if canvas_class is None:
+                raise ValueError(
+                    "Format {!r} is not supported (supported formats: {})".format(
+                        fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            canvas = canvas_class(self.figure)
+        canvas._is_saving = self._is_saving
         meth = getattr(canvas, f"print_{fmt}")
         mod = (meth.func.__module__
                if hasattr(meth, "func")  # partialmethod, e.g. backend_wx.
@@ -2284,8 +2083,11 @@ class FigureCanvasBase:
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : float, default: :rc:`savefig.pad_inches`
-            Amount of padding around the figure when *bbox_inches* is 'tight'.
+        pad_inches : float or 'layout', default: :rc:`savefig.pad_inches`
+            Amount of padding in inches around the figure when bbox_inches is
+            'tight'. If 'layout' use the padding from the constrained or
+            compressed layout engine; ignored if one of those engines is not in
+            use.
 
         bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
             A list of extra artists that will be considered when the
@@ -2335,8 +2137,8 @@ class FigureCanvasBase:
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
 
-            if (self.figure.get_layout_engine() is not None or
-                    bbox_inches == "tight"):
+            layout_engine = self.figure.get_layout_engine()
+            if layout_engine is not None or bbox_inches == "tight":
                 # we need to trigger a draw before printing to make sure
                 # CL works.  "tight" also needs a draw to get the right
                 # locations:
@@ -2345,16 +2147,23 @@ class FigureCanvasBase:
                     functools.partial(
                         print_method, orientation=orientation)
                 )
+                # we do this instead of `self.figure.draw_without_rendering`
+                # so that we can inject the orientation
                 with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
-
             if bbox_inches:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(
                         renderer, bbox_extra_artists=bbox_extra_artists)
-                    if pad_inches is None:
-                        pad_inches = rcParams['savefig.pad_inches']
-                    bbox_inches = bbox_inches.padded(pad_inches)
+                    if (isinstance(layout_engine, ConstrainedLayoutEngine) and
+                            pad_inches == "layout"):
+                        h_pad = layout_engine.get()["h_pad"]
+                        w_pad = layout_engine.get()["w_pad"]
+                    else:
+                        if pad_inches in [None, "layout"]:
+                            pad_inches = rcParams['savefig.pad_inches']
+                        h_pad = w_pad = pad_inches
+                    bbox_inches = bbox_inches.padded(w_pad, h_pad)
 
                 # call adjust_bbox to save only the given area
                 restore_bbox = _tight_bbox.adjust_bbox(
@@ -2406,6 +2215,7 @@ class FigureCanvasBase:
         filename = basename + '.' + filetype
         return filename
 
+    @_api.deprecated("3.8")
     def switch_backends(self, FigureCanvasClass):
         """
         Instantiate an instance of FigureCanvasClass
@@ -2494,7 +2304,7 @@ class FigureCanvasBase:
             # ... later
             canvas.mpl_disconnect(cid)
         """
-        return self.callbacks.disconnect(cid)
+        self.callbacks.disconnect(cid)
 
     # Internal subclasses can override _timer_cls instead of new_timer, though
     # this is not a public API for third-party subclasses.
@@ -2905,8 +2715,8 @@ class FigureManagerBase:
             # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
             # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
             # set to False).
-            ipython_pylab = hasattr(
-                getattr(sys.modules.get("pyplot"), "show", None), "_needmain")
+            pyplot_show = getattr(sys.modules.get("matplotlib.pyplot"), "show", None)
+            ipython_pylab = hasattr(pyplot_show, "_needmain")
             block = not ipython_pylab and not is_interactive()
         if block:
             cls.start_main_loop()
@@ -2979,18 +2789,18 @@ class NavigationToolbar2:
 
     They must also define
 
-      :meth:`save_figure`
-         save the current figure
+    :meth:`save_figure`
+        Save the current figure.
 
-      :meth:`draw_rubberband` (optional)
-         draw the zoom to rect "rubberband" rectangle
+    :meth:`draw_rubberband` (optional)
+        Draw the zoom to rect "rubberband" rectangle.
 
-      :meth:`set_message` (optional)
-         display message
+    :meth:`set_message` (optional)
+        Display message.
 
-      :meth:`set_history_buttons` (optional)
-         you can change the history back / forward buttons to
-         indicate disabled / enabled state.
+    :meth:`set_history_buttons` (optional)
+        You can change the history back / forward buttons to indicate disabled / enabled
+        state.
 
     and override ``__init__`` to set up the toolbar -- without forgetting to
     call the base-class init.  Typically, ``__init__`` needs to set up toolbar
@@ -3026,7 +2836,7 @@ class NavigationToolbar2:
     def __init__(self, canvas):
         self.canvas = canvas
         canvas.toolbar = self
-        self._nav_stack = cbook.Stack()
+        self._nav_stack = cbook._Stack()
         # This cursor will be set after the initial draw.
         self._last_cursor = tools.Cursors.POINTER
 
@@ -3150,15 +2960,11 @@ class NavigationToolbar2:
                             if data_str:
                                 s = s + '\n' + data_str
                 return s
+        return ""
 
     def mouse_move(self, event):
         self._update_cursor(event)
-
-        s = self._mouse_event_to_message(event)
-        if s is not None:
-            self.set_message(s)
-        else:
-            self.set_message(self.mode)
+        self.set_message(self._mouse_event_to_message(event))
 
     def _zoom_pan_handler(self, event):
         if self.mode == _Mode.PAN:
@@ -3189,7 +2995,6 @@ class NavigationToolbar2:
             self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self.mode._navigate_mode)
-        self.set_message(self.mode)
 
     _PanInfo = namedtuple("_PanInfo", "button axes cid")
 
@@ -3245,7 +3050,6 @@ class NavigationToolbar2:
             self.canvas.widgetlock(self)
         for a in self.canvas.figure.get_axes():
             a.set_navigate_mode(self.mode._navigate_mode)
-        self.set_message(self.mode)
 
     _ZoomInfo = namedtuple("_ZoomInfo", "direction start_xy axes cid cbar")
 
@@ -3374,10 +3178,14 @@ class NavigationToolbar2:
         tool_fig = manager.canvas.figure
         tool_fig.subplots_adjust(top=0.9)
         self.subplot_tool = widgets.SubplotTool(self.canvas.figure, tool_fig)
-        tool_fig.canvas.mpl_connect(
-            "close_event", lambda e: delattr(self, "subplot_tool"))
-        self.canvas.mpl_connect(
+        cid = self.canvas.mpl_connect(
             "close_event", lambda e: manager.destroy())
+
+        def on_tool_fig_close(e):
+            self.canvas.mpl_disconnect(cid)
+            del self.subplot_tool
+
+        tool_fig.canvas.mpl_connect("close_event", on_tool_fig_close)
         manager.show()
         return self.subplot_tool
 
@@ -3622,8 +3430,8 @@ class _Backend:
             # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
             # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
             # set to False).
-            ipython_pylab = hasattr(
-                getattr(sys.modules.get("pyplot"), "show", None), "_needmain")
+            pyplot_show = getattr(sys.modules.get("matplotlib.pyplot"), "show", None)
+            ipython_pylab = hasattr(pyplot_show, "_needmain")
             block = not ipython_pylab and not is_interactive()
         if block:
             cls.mainloop()

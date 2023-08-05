@@ -1,3 +1,4 @@
+import gc
 import numpy as np
 import pytest
 
@@ -395,7 +396,7 @@ def test_constrained_layout23():
         fig = plt.figure(layout="constrained", clear=True, num="123")
         gs = fig.add_gridspec(1, 2)
         sub = gs[0].subgridspec(2, 2)
-        fig.suptitle("Suptitle{}".format(i))
+        fig.suptitle(f"Suptitle{i}")
 
 
 @image_comparison(['test_colorbar_location.png'],
@@ -667,3 +668,27 @@ def test_compressed1():
 def test_set_constrained_layout(arg, state):
     fig, ax = plt.subplots(constrained_layout=arg)
     assert fig.get_constrained_layout() is state
+
+
+def test_constrained_toggle():
+    fig, ax = plt.subplots()
+    with pytest.warns(PendingDeprecationWarning):
+        fig.set_constrained_layout(True)
+        assert fig.get_constrained_layout()
+        fig.set_constrained_layout(False)
+        assert not fig.get_constrained_layout()
+        fig.set_constrained_layout(True)
+        assert fig.get_constrained_layout()
+
+
+def test_layout_leak():
+    # Make sure there aren't any cyclic references when using LayoutGrid
+    # GH #25853
+    fig = plt.figure(constrained_layout=True, figsize=(10, 10))
+    fig.add_subplot()
+    fig.draw_without_rendering()
+    plt.close("all")
+    del fig
+    gc.collect()
+    assert not any(isinstance(obj, mpl._layoutgrid.LayoutGrid)
+                   for obj in gc.get_objects())

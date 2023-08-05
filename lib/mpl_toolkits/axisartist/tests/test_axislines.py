@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import IdentityTransform
 
-from mpl_toolkits.axisartist.axislines import SubplotZero, Subplot
+from mpl_toolkits.axisartist.axislines import AxesZero, SubplotZero, Subplot
 from mpl_toolkits.axisartist import Axes, SubplotHost
 
 
@@ -60,9 +60,6 @@ def test_Axes():
 @image_comparison(['ParasiteAxesAuxTrans_meshplot.png'],
                   remove_text=True, style='default', tol=0.075)
 def test_ParasiteAxesAuxTrans():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     data = np.ones((6, 6))
     data[2, 2] = 2
     data[0, :] = 0
@@ -90,3 +87,61 @@ def test_ParasiteAxesAuxTrans():
         ax1.set_ylim((0, 5))
 
     ax2.contour(xx, yy, data, colors='k')
+
+
+@image_comparison(['axisline_style.png'], remove_text=True, style='mpl20')
+def test_axisline_style():
+    fig = plt.figure(figsize=(2, 2))
+    ax = fig.add_subplot(axes_class=AxesZero)
+    ax.axis["xzero"].set_axisline_style("-|>")
+    ax.axis["xzero"].set_visible(True)
+    ax.axis["yzero"].set_axisline_style("->")
+    ax.axis["yzero"].set_visible(True)
+
+    for direction in ("left", "right", "bottom", "top"):
+        ax.axis[direction].set_visible(False)
+
+
+@image_comparison(['axisline_style_size_color.png'], remove_text=True,
+                  style='mpl20')
+def test_axisline_style_size_color():
+    fig = plt.figure(figsize=(2, 2))
+    ax = fig.add_subplot(axes_class=AxesZero)
+    ax.axis["xzero"].set_axisline_style("-|>", size=2.0, facecolor='r')
+    ax.axis["xzero"].set_visible(True)
+    ax.axis["yzero"].set_axisline_style("->, size=1.5")
+    ax.axis["yzero"].set_visible(True)
+
+    for direction in ("left", "right", "bottom", "top"):
+        ax.axis[direction].set_visible(False)
+
+
+@image_comparison(['axisline_style_tight.png'], remove_text=True,
+                  style='mpl20')
+def test_axisline_style_tight():
+    fig = plt.figure(figsize=(2, 2))
+    ax = fig.add_subplot(axes_class=AxesZero)
+    ax.axis["xzero"].set_axisline_style("-|>", size=5, facecolor='g')
+    ax.axis["xzero"].set_visible(True)
+    ax.axis["yzero"].set_axisline_style("->, size=8")
+    ax.axis["yzero"].set_visible(True)
+
+    for direction in ("left", "right", "bottom", "top"):
+        ax.axis[direction].set_visible(False)
+
+    fig.tight_layout()
+
+
+@image_comparison(['subplotzero_ylabel.png'], style='mpl20')
+def test_subplotzero_ylabel():
+    fig = plt.figure()
+    ax = fig.add_subplot(111, axes_class=SubplotZero)
+
+    ax.set(xlim=(-3, 7), ylim=(-3, 7), xlabel="x", ylabel="y")
+
+    zero_axis = ax.axis["xzero", "yzero"]
+    zero_axis.set_visible(True)  # they are hidden by default
+
+    ax.axis["left", "right", "bottom", "top"].set_visible(False)
+
+    zero_axis.set_axisline_style("->")

@@ -21,12 +21,12 @@ def temp_style(style_name, settings=None):
     """Context manager to create a style sheet in a temporary directory."""
     if not settings:
         settings = DUMMY_SETTINGS
-    temp_file = '%s.%s' % (style_name, STYLE_EXTENSION)
+    temp_file = f'{style_name}.{STYLE_EXTENSION}'
     try:
         with TemporaryDirectory() as tmpdir:
             # Write style settings to file in the tmpdir.
             Path(tmpdir, temp_file).write_text(
-                "\n".join("{}: {}".format(k, v) for k, v in settings.items()),
+                "\n".join(f"{k}: {v}" for k, v in settings.items()),
                 encoding="utf-8")
             # Add tmpdir to style path and reload so we can access this style.
             USER_LIBRARY_PATHS.append(tmpdir)
@@ -177,17 +177,6 @@ def test_xkcd_cm():
     assert mpl.rcParams["path.sketch"] is None
 
 
-def test_deprecated_seaborn_styles():
-    with mpl.style.context("seaborn-v0_8-bright"):
-        seaborn_bright = mpl.rcParams.copy()
-    assert mpl.rcParams != seaborn_bright
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        mpl.style.use("seaborn-bright")
-    assert mpl.rcParams == seaborn_bright
-    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
-        mpl.style.library["seaborn-bright"]
-
-
 def test_up_to_date_blacklist():
     assert mpl.style.core.STYLE_BLACKLIST <= {*mpl.rcsetup._validators}
 
@@ -204,4 +193,6 @@ def test_style_from_module(tmp_path, monkeypatch):
     mpl.style.use("mpl_test_style_pkg.test_style")
     assert mpl.rcParams["lines.linewidth"] == 42
     mpl.style.use("mpl_test_style_pkg.mplstyle")
+    assert mpl.rcParams["lines.linewidth"] == 84
+    mpl.style.use("./mpl_test_style_pkg.mplstyle")
     assert mpl.rcParams["lines.linewidth"] == 84

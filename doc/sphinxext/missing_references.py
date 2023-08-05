@@ -61,7 +61,7 @@ def record_missing_reference(app, record, node):
     target = node["reftarget"]
     location = get_location(node, app)
 
-    domain_type = "{}:{}".format(domain, typ)
+    domain_type = f"{domain}:{typ}"
 
     record[(domain_type, target)].add(location)
 
@@ -278,6 +278,10 @@ def prepare_missing_references_handler(app):
     # for use later. Otherwise, add all known missing references to
     # ``nitpick_ignore```
     if not app.config.missing_references_write_json:
+        # Since Sphinx v6.2, nitpick_ignore may be a list, set or tuple, and
+        # defaults to set.  Previously it was always a list.  Cast to list for
+        # consistency across versions.
+        app.config.nitpick_ignore = list(app.config.nitpick_ignore)
         app.config.nitpick_ignore.extend(ignored_references.keys())
 
 

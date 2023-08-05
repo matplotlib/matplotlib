@@ -1,3 +1,4 @@
+---
 name: Upload nightly wheels to Anaconda Cloud
 
 on:
@@ -16,11 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        shell: bash -l {0}
+        # The login shell is necessary for the setup-micromamba setup
+        # to work in subsequent jobs.
+        # https://github.com/mamba-org/setup-micromamba#about-login-shells
+        shell: bash -e -l {0}
     if: github.repository_owner == 'matplotlib'
 
     steps:
-      # c.f. https://github.com/actions/download-artifact/issues/3#issuecomment-1017141067
+      # https://github.com/actions/download-artifact/issues/3#issuecomment-1017141067
       - name: Download wheel artifacts from last build on 'main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,16 +37,20 @@ jobs:
           gh run --repo "${PROJECT_REPO}" \
              list --branch "${BRANCH}" \
                   --workflow "${WORKFLOW_NAME}" \
-                  --json event,status,databaseId > runs.json
-          # Filter on 'push' events to main (merged PRs) that have completed
-          jq --compact-output \
-            '[ .[] | select(.event == "push") | select(.status == "completed") ]' \
-            runs.json > pushes.json
-          # Get id of latest build of wheels
+                  --json event,status,conclusion,databaseId > runs.json
           RUN_ID=$(
             jq --compact-output \
-              'sort_by(.databaseId) | reverse | .[0].databaseId' pushes.json
+              '[
+                .[] |
+                # Filter on "push" events to main (merged PRs) ...
+                select(.event == "push") |
+                # that have completed successfully ...
+                select(.status == "completed" and .conclusion == "success")
+               ] |
+              # and get ID of latest build of wheels.
+              sort_by(.databaseId) | reverse | .[0].databaseId' runs.json
           )
+          gh run --repo "${PROJECT_REPO}" view "${RUN_ID}"
           gh run --repo "${PROJECT_REPO}" \
              download "${RUN_ID}" --name "${ARTIFACT_NAME}"
 
@@ -50,38 +58,8 @@ jobs:
           mv *.whl dist/
           ls -l dist/
 
-        # N.B. anaconda-client is only maintained on the main channel
-      - name: Install anaconda-client
-        uses: mamba-org/provision-with-micromamba@v14
-        with:
-          environment-file: false
-          environment-name: nightlies
-          extra-specs: anaconda-client=1.10.0
-          channels: main
-
       - name: Upload wheels to Anaconda Cloud as nightlies
-        run: |
-          anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} upload \
-            --user scipy-wheels-nightly \
-            --skip-existing \
-            dist/matplotlib-*.whl
-
-      - name: Remove old uploads to save space
-        run: |
-          N_LATEST_UPLOADS=5
-
-          # Remove all _but_ the last "${N_LATEST_UPLOADS}" package versions
-          # N.B.: `anaconda show` places the newest packages at the bottom of the output
-          # of the 'Versions' section and package versions are preceded with a '   + '.
-          anaconda show scipy-wheels-nightly/matplotlib &> >(grep '+') | \
-              sed 's/.* + //' | \
-              head --lines "-${N_LATEST_UPLOADS}" > remove-package-versions.txt
-
-          if [ -s remove-package-versions.txt ]; then
-              while LANG=C IFS= read -r package_version ; do
-                  echo "# Removing scipy-wheels-nightly/matplotlib/${package_version}"
-                  anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} remove \
-                    --force \
-                    "scipy-wheels-nightly/matplotlib/${package_version}"
-              done <remove-package-versions.txt
-          fi
+        uses: scientific-python/upload-nightly-action@8f0394fd2aa0c85d7364a9958652e8994e06b23c # 0.1.0
+        with:
+          artifacts_path: dist
+          anaconda_nightly_upload_token: ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }}

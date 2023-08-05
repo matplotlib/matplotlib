@@ -19,9 +19,11 @@ import subprocess
 import sys
 from urllib.parse import urlsplit, urlunsplit
 import warnings
+import yaml
 
 import matplotlib
 
+from datetime import timezone
 from datetime import datetime
 import time
 
@@ -34,10 +36,46 @@ is_release_build = tags.has('release')  # noqa
 # are we running circle CI?
 CIRCLECI = 'CIRCLECI' in os.environ
 
+
+def _parse_skip_subdirs_file():
+    """
+    Read .mpl_skip_subdirs.yaml for subdirectories to not
+    build if we do `make html-skip-subdirs`.  Subdirectories
+    are relative to the toplevel directory.  Note that you
+    cannot skip 'users' as it contains the table of contents,
+    but you can skip subdirectories of 'users'.  Doing this
+    can make partial builds very fast.
+    """
+    default_skip_subdirs = ['users/prev_whats_new/*', 'api/*', 'gallery/*',
+                            'tutorials/*', 'plot_types/*', 'devel/*']
+    try:
+        with open(".mpl_skip_subdirs.yaml", 'r') as fin:
+            print('Reading subdirectories to skip from',
+                  '.mpl_skip_subdirs.yaml')
+            out = yaml.full_load(fin)
+        return out['skip_subdirs']
+    except FileNotFoundError:
+        # make a default:
+        with open(".mpl_skip_subdirs.yaml", 'w') as fout:
+            yamldict = {'skip_subdirs': default_skip_subdirs,
+                        'comment': 'For use with make html-skip-subdirs'}
+            yaml.dump(yamldict, fout)
+        print('Skipping subdirectories, but .mpl_skip_subdirs.yaml',
+              'not found so creating a default one. Edit this file',
+              'to customize which directories are included in build.')
+
+        return default_skip_subdirs
+
+
+skip_subdirs = []
+# triggered via make html-skip-subdirs
+if 'skip_sub_dirs=1' in sys.argv:
+    skip_subdirs = _parse_skip_subdirs_file()
+
 # Parse year using SOURCE_DATE_EPOCH, falling back to current time.
 # https://reproducible-builds.org/specs/source-date-epoch/
-sourceyear = datetime.utcfromtimestamp(
-    int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))).year
+sourceyear = datetime.fromtimestamp(
+    int(os.environ.get('SOURCE_DATE_EPOCH', time.time())), timezone.utc).year
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -67,6 +105,7 @@ extensions = [
     'sphinx_gallery.gen_gallery',
     'matplotlib.sphinxext.mathmpl',
     'matplotlib.sphinxext.plot_directive',
+    'matplotlib.sphinxext.figmpl_directive',
     'sphinxcontrib.inkscapeconverter',
     'sphinxext.custom_roles',
     'sphinxext.github',
@@ -80,8 +119,10 @@ extensions = [
 ]
 
 exclude_patterns = [
-    'api/prev_api_changes/api_changes_*/*',
+    'api/prev_api_changes/api_changes_*/*'
 ]
+
+exclude_patterns += skip_subdirs
 
 
 def _check_dependencies():
@@ -102,7 +143,7 @@ def _check_dependencies():
     if missing:
         raise ImportError(
             "The following dependencies are missing to build the "
-            "documentation: {}".format(", ".join(missing)))
+            f"documentation: {', '.join(missing)}")
     if shutil.which('dot') is None:
         raise OSError(
             "No binary named dot - graphviz must be installed to build the "
@@ -123,6 +164,7 @@ from sphinx_gallery import gen_rst
 os.environ.pop("DISPLAY", None)
 
 autosummary_generate = True
+autodoc_typehints = "none"
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
@@ -174,15 +216,23 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
         gallery_conf['image_srcset'] = []
     return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
 
+gallery_dirs = [f'{ed}' for ed in
+                ['gallery', 'tutorials', 'plot_types', 'users/explain']
+                if f'{ed}/*' not in skip_subdirs]
+
+example_dirs = []
+for gd in gallery_dirs:
+    gd = gd.replace('gallery', 'examples').replace('users/explain', 'users_explain')
+    example_dirs += [f'../galleries/{gd}']
 
 sphinx_gallery_conf = {
     'backreferences_dir': Path('api') / Path('_as_gen'),
     # Compression is a significant effort that we skip for local and CI builds.
     'compress_images': ('thumbnails', 'images') if is_release_build else (),
     'doc_module': ('matplotlib', 'mpl_toolkits'),
-    'examples_dirs': ['../examples', '../tutorials', '../plot_types'],
+    'examples_dirs': example_dirs,
     'filename_pattern': '^((?!sgskip).)*$',
-    'gallery_dirs': ['gallery', 'tutorials', 'plot_types'],
+    'gallery_dirs': gallery_dirs,
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
@@ -200,6 +250,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order.subsectionorder,
     'capture_repr': (),
+    'copyfile_regex': r'.*\.rst',
 }
 
 if 'plot_gallery=0' in sys.argv:
@@ -208,8 +259,9 @@ if 'plot_gallery=0' in sys.argv:
 
     def gallery_image_warning_filter(record):
         msg = record.msg
-        for gallery_dir in sphinx_gallery_conf['gallery_dirs']:
-            if msg.startswith(f'image file not readable: {gallery_dir}'):
+        for pattern in (sphinx_gallery_conf['gallery_dirs'] +
+                        ['_static/constrained_layout']):
+            if msg.startswith(f'image file not readable: {pattern}'):
                 return False
 
         if msg == 'Could not obtain image size. :scale: option is ignored.':
@@ -240,7 +292,7 @@ gen_rst.EXAMPLE_HEADER = """
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download_{1}>`
+        :ref:`Go to the end <sphx_glr_download_{1}>`
         to download the full example code{2}
 
 .. rst-class:: sphx-glr-example-title
@@ -259,7 +311,7 @@ source_suffix = '.rst'
 source_encoding = "utf-8"
 
 # The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
-root_doc = master_doc = 'users/index'
+root_doc = master_doc = 'index'
 
 # General substitutions.
 try:
@@ -269,6 +321,11 @@ try:
 # version number instead
 except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__
+
+
+html_context = {
+    "doc_version": SHA,
+}
 
 project = 'Matplotlib'
 copyright = (
@@ -324,7 +381,8 @@ default_role = 'obj'
 formats = {'html': ('png', 100), 'latex': ('pdf', 100)}
 plot_formats = [formats[target] for target in ['html', 'latex']
                 if target in sys.argv] or list(formats.values())
-
+# make 2x images for srcset argument to <img>
+plot_srcset = ['2x']
 
 # GitHub extension
 
@@ -384,7 +442,6 @@ html_theme = "mpl_sphinx_theme"
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-html_logo = "_static/logo2.svg"
 html_theme_options = {
     "navbar_links": "internal",
     # collapse_navigation in pydata-sphinx-theme is slow, so skipped for local
@@ -392,18 +449,24 @@ html_theme_options = {
     "collapse_navigation": not is_release_build,
     "show_prev_next": False,
     "switcher": {
-        "json_url": "https://matplotlib.org/devdocs/_static/switcher.json",
+        # Add a unique query to the switcher.json url.  This will be ignored by
+        # the server, but will be used as part of the key for caching by browsers
+        # so when we do a new minor release the switcher will update "promptly" on
+        # the stable and devdocs.
+        "json_url": f"https://matplotlib.org/devdocs/_static/switcher.json?{SHA}",
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
             'stable' if matplotlib.__version_info__.releaselevel == 'final'
             else 'devdocs')
     },
-    "logo": {"link": "index",
-             "image_light": "images/logo2.svg",
-             "image_dark": "images/logo_dark.svg"},
     "navbar_end": ["theme-switcher", "version-switcher", "mpl_icon_links"],
     "secondary_sidebar_items": "page-toc.html",
+    "footer_start": ["copyright", "sphinx-version", "doc_version"],
+    # We override the announcement template from pydata-sphinx-theme, where
+    # this special value indicates the use of the unreleased banner. If we need
+    # an actual announcement, then just place the text here as usual.
+    "announcement": "unreleased" if not is_release_build else "",
 }
 include_analytics = is_release_build
 if include_analytics:
@@ -458,7 +521,7 @@ html_domain_index = False
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.
-html_use_opensearch = 'False'
+html_use_opensearch = 'https://matplotlib.org/stable'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Matplotlibdoc'
@@ -711,5 +774,7 @@ def setup(app):
         bld_type = 'dev'
     else:
         bld_type = 'rel'
+    app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
+    app.add_js_file('image-rotator.js')
     app.connect('html-page-context', add_html_cache_busting, priority=1000)

@@ -7,8 +7,9 @@ import sys
 
 import pytest
 
-from matplotlib.testing import subprocess_run_helper
 from matplotlib import _c_internal_utils
+from matplotlib.testing import subprocess_run_helper
+
 
 _test_timeout = 60  # A reasonably safe value for slower architectures.
 
@@ -36,6 +37,11 @@ def _isolated_tk_test(success_count, func=None):
     @pytest.mark.skipif(
         sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
         reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
+    )
+    @pytest.mark.xfail(  # https://github.com/actions/setup-python/issues/649
+        ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+        sys.platform == 'darwin' and sys.version_info[:2] < (3, 11),
+        reason='Tk version mismatch on Azure macOS CI'
     )
     @functools.wraps(func)
     def test_func():
@@ -71,7 +77,7 @@ def test_blit():
     import matplotlib.pyplot as plt
     import numpy as np
     import matplotlib.backends.backend_tkagg  # noqa
-    from matplotlib.backends import _tkagg
+    from matplotlib.backends import _backend_tk, _tkagg
 
     fig, ax = plt.subplots()
     photoimage = fig.canvas._tkphoto
@@ -92,6 +98,10 @@ def test_blit():
                 (0, 1, 2, 3), bad_box)
         except ValueError:
             print("success")
+
+    # Test blitting to a destroyed canvas.
+    plt.close(fig)
+    _backend_tk.blit(photoimage, data, (0, 1, 2, 3))
 
 
 @_isolated_tk_test(success_count=1)
@@ -148,7 +158,6 @@ def test_figuremanager_cleans_own_mainloop():
     thread.join()
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=0)
 def test_never_update():
@@ -189,7 +198,6 @@ def test_missing_back_button():
     print("success")
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=1)
 def test_canvas_focus():
     import tkinter as tk

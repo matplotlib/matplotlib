@@ -5,14 +5,13 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 
   :doc:`/gallery/color/colormap_reference` for a list of builtin colormaps.
 
-  :doc:`/tutorials/colors/colormap-manipulation` for examples of how to
-  make colormaps.
+  :ref:`colormap-manipulation` for examples of how to make
+  colormaps.
 
-  :doc:`/tutorials/colors/colormaps` an in-depth discussion of
-  choosing colormaps.
+  :ref:`colormaps` an in-depth discussion of choosing
+  colormaps.
 
-  :doc:`/tutorials/colors/colormapnorms` for more details about data
-  normalization.
+  :ref:`colormapnorms` for more details about data normalization.
 """
 
 from collections.abc import Mapping
@@ -43,6 +42,13 @@ def _gen_cmap_registry():
             colors.ListedColormap(spec['listed'], name)
             if 'listed' in spec else
             colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
+
+    # Register colormap aliases for gray and grey.
+    cmap_d['grey'] = cmap_d['gray']
+    cmap_d['gist_grey'] = cmap_d['gist_gray']
+    cmap_d['gist_yerg'] = cmap_d['gist_yarg']
+    cmap_d['Grays'] = cmap_d['Greys']
+
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
@@ -147,6 +153,11 @@ class ColormapRegistry(Mapping):
                                "that was already in the registry.")
 
         self._cmaps[name] = cmap.copy()
+        # Someone may set the extremes of a builtin colormap and want to register it
+        # with a different name for future lookups. The object would still have the
+        # builtin name, so we should update it to the registered name
+        if self._cmaps[name].name != name:
+            self._cmaps[name].name = name
 
     def unregister(self, name):
         """
@@ -220,11 +231,7 @@ _colormaps = ColormapRegistry(_gen_cmap_registry())
 globals().update(_colormaps)
 
 
-@_api.deprecated(
-    '3.6',
-    pending=True,
-    alternative="``matplotlib.colormaps.register(name)``"
-)
+@_api.deprecated("3.7", alternative="``matplotlib.colormaps.register(name)``")
 def register_cmap(name=None, cmap=None, *, override_builtin=False):
     """
     Add a colormap to the set recognized by :func:`get_cmap`.
@@ -274,7 +281,7 @@ def _get_cmap(name=None, lut=None):
 
     Parameters
     ----------
-    name : `matplotlib.colors.Colormap` or str or None, default: None
+    name : `~matplotlib.colors.Colormap` or str or None, default: None
         If a `.Colormap` instance, it will be returned. Otherwise, the name of
         a colormap known to Matplotlib, which will be resampled by *lut*. The
         default, None, means :rc:`image.cmap`.
@@ -299,9 +306,8 @@ def _get_cmap(name=None, lut=None):
 # do it in two steps like this so we can have an un-deprecated version in
 # pyplot.
 get_cmap = _api.deprecated(
-    '3.6',
+    '3.7',
     name='get_cmap',
-    pending=True,
     alternative=(
         "``matplotlib.colormaps[name]`` " +
         "or ``matplotlib.colormaps.get_cmap(obj)``"
@@ -309,11 +315,8 @@ get_cmap = _api.deprecated(
 )(_get_cmap)
 
 
-@_api.deprecated(
-    '3.6',
-    pending=True,
-    alternative="``matplotlib.colormaps.unregister(name)``"
-)
+@_api.deprecated("3.7",
+                 alternative="``matplotlib.colormaps.unregister(name)``")
 def unregister_cmap(name):
     """
     Remove a colormap recognized by :func:`get_cmap`.
@@ -434,29 +437,29 @@ class ScalarMappable:
 
     def to_rgba(self, x, alpha=None, bytes=False, norm=True):
         """
-        Return a normalized rgba array corresponding to *x*.
+        Return a normalized RGBA array corresponding to *x*.
 
         In the normal case, *x* is a 1D or 2D sequence of scalars, and
-        the corresponding ndarray of rgba values will be returned,
+        the corresponding `~numpy.ndarray` of RGBA values will be returned,
         based on the norm and colormap set for this ScalarMappable.
 
         There is one special case, for handling images that are already
-        rgb or rgba, such as might have been read from an image file.
-        If *x* is an ndarray with 3 dimensions,
+        RGB or RGBA, such as might have been read from an image file.
+        If *x* is an `~numpy.ndarray` with 3 dimensions,
         and the last dimension is either 3 or 4, then it will be
-        treated as an rgb or rgba array, and no mapping will be done.
-        The array can be uint8, or it can be floating point with
+        treated as an RGB or RGBA array, and no mapping will be done.
+        The array can be `~numpy.uint8`, or it can be floats with
         values in the 0-1 range; otherwise a ValueError will be raised.
-        If it is a masked array, the mask will be ignored.
+        If it is a masked array, any masked elements will be set to 0 alpha.
         If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
         will be used to fill in the transparency.  If the last dimension
         is 4, the *alpha* kwarg is ignored; it does not
         replace the preexisting alpha.  A ValueError will be raised
         if the third dimension is other than 3 or 4.
 
-        In either case, if *bytes* is *False* (default), the rgba
+        In either case, if *bytes* is *False* (default), the RGBA
         array will be floats in the 0-1 range; if it is *True*,
-        the returned rgba array will be uint8 in the 0 to 255 range.
+        the returned RGBA array will be `~numpy.uint8` in the 0 to 255 range.
 
         If norm is False, no normalization of the input data is
         performed, and it is assumed to be in the range (0-1).
@@ -490,6 +493,10 @@ class ScalarMappable:
                 else:
                     raise ValueError("Image RGB array must be uint8 or "
                                      "floating point; found %s" % xx.dtype)
+                # Account for any masked entries in the original array
+                # If any of R, G, B, or A are masked for an entry, we set alpha to 0
+                if np.ma.is_masked(x):
+                    xx[np.any(np.ma.getmaskarray(x), axis=2), 3] = 0
                 return xx
         except AttributeError:
             # e.g., x is not an ndarray; so try mapping it
@@ -609,7 +616,7 @@ class ScalarMappable:
             except KeyError:
                 raise ValueError(
                     "Invalid norm str name; the following values are "
-                    "supported: {}".format(", ".join(scale._scale_mapping))
+                    f"supported: {', '.join(scale._scale_mapping)}"
                 ) from None
             norm = _auto_norm_from_scale(scale_cls)()
 
@@ -689,7 +696,7 @@ norm : str or `~matplotlib.colors.Normalize`, optional
     If given, this can be one of the following:
 
     - An instance of `.Normalize` or one of its subclasses
-      (see :doc:`/tutorials/colors/colormapnorms`).
+      (see :ref:`colormapnorms`).
     - A scale name, i.e. one of "linear", "log", "symlog", "logit", etc.  For a
       list of available scales, call `matplotlib.scale.get_scale_names()`.
       In that case, a suitable `.Normalize` subclass is dynamically generated
@@ -728,5 +735,6 @@ def _ensure_cmap(cmap):
     cmap_name = cmap if cmap is not None else mpl.rcParams["image.cmap"]
     # use check_in_list to ensure type stability of the exception raised by
     # the internal usage of this (ValueError vs KeyError)
-    _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
+    if cmap_name not in _colormaps:
+        _api.check_in_list(sorted(_colormaps), cmap=cmap_name)
     return mpl.colormaps[cmap_name]

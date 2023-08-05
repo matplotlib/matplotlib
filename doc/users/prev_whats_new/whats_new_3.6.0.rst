@@ -13,7 +13,6 @@ the :ref:`github-stats`.
 
 Figure and Axes creation / management
 =====================================
-
 ``subplots``, ``subplot_mosaic`` accept *height_ratios* and *width_ratios* arguments
 ------------------------------------------------------------------------------------
 
@@ -22,6 +21,7 @@ The relative width and height of columns and rows in `~.Figure.subplots` and
 *width_ratios* keyword arguments to the methods:
 
 .. plot::
+    :alt: A figure with three subplots in three rows and one column. The height of the subplot in the first row is three times than the subplots in the 2nd and 3rd row.
     :include-source: true
 
     fig = plt.figure()
@@ -58,6 +58,7 @@ With ``layout='tight'`` or ``'constrained'``, Axes with a fixed aspect ratio
 can leave large gaps between each other:
 
 .. plot::
+    :alt: A figure labelled "fixed-aspect plots, layout=constrained". Figure has subplots displayed in 2 rows and 2 columns; Subplots have large gaps between each other.
 
     fig, axs = plt.subplots(2, 2, figsize=(5, 3),
                             sharex=True, sharey=True, layout="constrained")
@@ -69,6 +70,7 @@ Using the ``layout='compressed'`` layout reduces the space between the Axes,
 and adds the extra space to the outer margins:
 
 .. plot::
+    :alt: Four identical two by two heatmaps, each cell a different color: purple, blue, yellow, green going clockwise from upper left corner. The four heatmaps are laid out in a two by two grid with minimum white space between the heatmaps.
 
     fig, axs = plt.subplots(2, 2, figsize=(5, 3),
                             sharex=True, sharey=True, layout='compressed')
@@ -96,6 +98,7 @@ with the previous layout engine.
 may be returned.
 
 .. plot::
+    :alt: Plot of a straight line y=x, with a small inset axes in the lower right corner that shows a circle with radial grid lines and a line plotted in polar coordinates.
     :include-source: true
 
     fig, ax = plt.subplots()
@@ -147,6 +150,7 @@ The new *gapcolor* parameter to `~.Axes.plot` enables the creation of striped
 lines.
 
 .. plot::
+    :alt: Plot of x**3 where the line is an orange-blue striped line, achieved using the keywords linestyle='--', color='orange', gapcolor='blue'
     :include-source: true
 
     x = np.linspace(1., 3., 10)
@@ -164,6 +168,7 @@ The new *capwidths* parameter to `~.Axes.bxp` and `~.Axes.boxplot` allows
 controlling the widths of the caps in box and whisker plots.
 
 .. plot::
+    :alt: A box plot with capwidths 0.01 and 0.2 
     :include-source: true
 
     x = np.linspace(-7, 7, 140)
@@ -184,6 +189,7 @@ label entries, so this is best used when bars also differ in style (e.g., by
 passing a list to *color*, as below.)
 
 .. plot::
+    :alt: Bar chart: blue bar height 10, orange bar height 20, green bar height 15 legend with blue box labeled a, orange box labeled b, and green box labeled c
     :include-source: true
 
     x = ["a", "b", "c"]
@@ -214,6 +220,7 @@ The line style of negative contours may be set by passing the
 only be set globally via :rc:`contour.negative_linestyles`.
 
 .. plot::
+    :alt: Two contour plots, each showing two positive and two negative contours. The positive contours are shown in solid black lines in both plots. In one plot the negative contours are shown in dashed lines, which is the current styling. In the other plot they're shown in dotted lines, which is one of the new options.
     :include-source: true
 
     delta = 0.025
@@ -273,6 +280,7 @@ passed to `.Line2D`, rather than claiming that all keyword arguments are passed
 on.
 
 .. plot::
+    :alt: Graph with error bar showing ±0.2 error on the x-axis, and ±0.4 error on the y-axis. Error bar marker is a circle radius 20. Error bar face color is blue.
     :include-source: true
 
     x = np.arange(0.1, 4, 0.5)
@@ -293,7 +301,8 @@ streamlines. Previously streamlines would end to limit the number of lines
 within a single grid cell. See the difference between the plots below:
 
 .. plot::
-
+    :alt: A figure with two streamplots. First streamplot has broken streamlines. Second streamplot has continuous streamlines.
+    
     w = 3
     Y, X = np.mgrid[-w:w:100j, -w:w:100j]
     U = -1 - X**2 + Y
@@ -317,6 +326,7 @@ the scale. This is based on an arcsinh transformation that allows plotting both
 positive and negative values that span many orders of magnitude.
 
 .. plot::
+    :alt: Figure with 2 subplots. Subplot on the left uses symlog scale on the y axis. The transition at -2 is not smooth. Subplot on the right use asinh scale. The transition at -2 is smooth. 
 
     fig, (ax0, ax1) = plt.subplots(1, 2, sharex=True)
     x = np.linspace(-3, 6, 100)
@@ -361,6 +371,7 @@ The rotation point of the `~matplotlib.patches.Rectangle` can now be set to
 'xy', 'center' or a 2-tuple of numbers using the *rotation_point* argument.
 
 .. plot::
+    :alt: Blue square that isn't rotated. Green square rotated 45 degrees relative to center. Orange square rotated 45 degrees relative to lower right corner. Red square rotated 45 degrees relative to point in upper right quadrant.  
 
     fig, ax = plt.subplots()
 
@@ -437,6 +448,7 @@ It is now possible to set or get minor ticks using `.pyplot.xticks` and
 `.pyplot.yticks` by setting ``minor=True``.
 
 .. plot::
+    :alt: Plot showing a line from 1,2 to 3.5,-0.5. X axis showing the 1, 2 and 3 minor ticks on the x axis as One, Zwei, Trois. 
     :include-source: true
 
     plt.figure()
@@ -456,6 +468,7 @@ the keyword argument *alignment*. You can also use `.Legend.set_alignment` to
 control the alignment on existing Legends.
 
 .. plot::
+    :alt: Figure with 3 subplots. All the subplots are titled test. The three subplots have legends titled alignment='left', alignment='center', alignment='right'. The legend texts are respectively aligned left, center and right.
     :include-source: true
 
     fig, axs = plt.subplots(3, 1)
@@ -489,6 +502,7 @@ for the user to supply a transformation to be applied to the marker (e.g. a
 rotation).
 
 .. plot::
+    :alt: Three rows of markers, columns are blue, green, and purple. First row is y-shaped markers with different capstyles: butt, end is squared off at endpoint; projecting, end is squared off at short distance from endpoint; round, end is rounded. Second row is star-shaped markers with different join styles: miter, star points are sharp triangles; round, star points are rounded; bevel, star points are beveled. Last row shows stars rotated at different angles: small star rotated 0 degrees - top point vertical; medium star rotated 45 degrees - top point tilted right; large star rotated 90 degrees - top point tilted left.
     :include-source: true
 
     from matplotlib.markers import CapStyle, JoinStyle, MarkerStyle
@@ -544,10 +558,8 @@ them in order to locate a required glyph.
    fig = plt.figure(figsize=(4.75, 1.85))
 
    text = "There are 几个汉字 in between!"
-   fig.text(0.05, 0.85, text, family=["WenQuanYi Zen Hei"])
    fig.text(0.05, 0.65, text, family=["Noto Sans CJK JP"])
    fig.text(0.05, 0.45, text, family=["DejaVu Sans", "Noto Sans CJK JP"])
-   fig.text(0.05, 0.25, text, family=["DejaVu Sans", "WenQuanYi Zen Hei"])
 
 This currently works with the Agg (and all of the GUI embeddings), svg, pdf,
 ps, and inline backends.
@@ -593,6 +605,7 @@ weight can be set separately from the figure title using :rc:`figure.labelsize`
 and :rc:`figure.labelweight`.
 
 .. plot::
+    :alt: A figure with 4 plots organised in 2 rows and 2 columns. The title of the figure is suptitle in bold and 64 points. The x axis is labelled supxlabel, and y axis is labelled subylabel. Both labels are 32 points and bold.
     :include-source: true
 
     # Original (previously combined with below) rcParams:
@@ -660,6 +673,7 @@ The focal length can be calculated from a desired FOV via the equation:
     focal\_length = 1/\tan(FOV/2)
 
 .. plot::
+    :alt: A figure showing 3 basic 3D Wireframe plots. From left to right, the plots use focal length of 0.2, 1 and infinity. Focal length between 0.2 and 1 produce plot with depth while focal length between 1 and infinity show relatively flattened image.
     :include-source: true
 
     from mpl_toolkits.mplot3d import axes3d
@@ -685,6 +699,7 @@ programmatically. The default roll angle of 0 is backwards-compatible with
 existing 3D plots.
 
 .. plot::
+    :alt: View of a wireframe of a 3D contour that is somewhat a thickened s shape. Elevation and azimuth are 0 degrees so the shape is viewed straight on, but tilted because the roll is 30 degrees.
     :include-source: true
 
     from mpl_toolkits.mplot3d import axes3d
@@ -704,6 +719,7 @@ Users can set the aspect ratio for the X, Y, Z axes of a 3D plot to be 'equal',
 'equalxy', 'equalxz', or 'equalyz' rather than the default of 'auto'.
 
 .. plot::
+    :alt: Five plots, each showing a different aspect option for a rectangle that has height 4, depth 1, and width 1. auto: none of the dimensions have equal aspect, depth and width form a rectangular and height appears shrunken in proportion. equal: all the dimensions have equal aspect. equalxy: width and depth equal, height not so looks shrunken in proportion. equalyz: depth and height equal, width not so elongated. equalxz: width and height equal, depth not so elongated.
     :include-source: true
 
     from itertools import combinations, product

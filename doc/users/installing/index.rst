@@ -85,17 +85,17 @@ Installing a nightly build
 ==========================
 
 Matplotlib makes nightly development build wheels available on the
-`scipy-wheels-nightly Anaconda Cloud organization
-<https://anaconda.org/scipy-wheels-nightly>`_.
-These wheels can be installed with ``pip`` by specifying scipy-wheels-nightly
-as the package index to query:
+`scientific-python-nightly-wheels Anaconda Cloud organization
+<https://anaconda.org/scientific-python-nightly-wheels>`_.
+These wheels can be installed with ``pip`` by specifying
+scientific-python-nightly-wheels as the package index to query:
 
 .. code-block:: sh
 
   python -m pip install \
     --upgrade \
     --pre \
-    --index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+    --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
     --extra-index-url https://pypi.org/simple \
     matplotlib
 
@@ -219,7 +219,7 @@ example::
 
 This will give you additional information about which backends Matplotlib is
 loading, version information, and more. At this point you might want to make
-sure you understand Matplotlib's :doc:`configuration </tutorials/introductory/customizing>`
+sure you understand Matplotlib's :ref:`configuration <customizing>`
 process, governed by the :file:`matplotlibrc` configuration file which contains
 instructions within and the concept of the Matplotlib backend.
 

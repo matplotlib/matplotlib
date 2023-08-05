@@ -1,18 +1,19 @@
-[![PyPi](https://badge.fury.io/py/matplotlib.svg)](https://badge.fury.io/py/matplotlib)
-[![Downloads](https://pepy.tech/badge/matplotlib/month)](https://pepy.tech/project/matplotlib)
+[![PyPi](https://img.shields.io/pypi/v/matplotlib)](https://pypi.org/project/matplotlib/)
+[![Conda](https://img.shields.io/conda/vn/conda-forge/matplotlib)](https://anaconda.org/conda-forge/matplotlib)
+[![Downloads](https://img.shields.io/pypi/dm/matplotlib)](https://pypi.org/project/matplotlib)
 [![NUMFocus](https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A)](https://numfocus.org)
 
-[![DiscourseBadge](https://img.shields.io/badge/help_forum-discourse-blue.svg)](https://discourse.matplotlib.org)
+[![Discourse help forum](https://img.shields.io/badge/help_forum-discourse-blue.svg)](https://discourse.matplotlib.org)
 [![Gitter](https://badges.gitter.im/matplotlib/matplotlib.svg)](https://gitter.im/matplotlib/matplotlib)
-[![GitHubIssues](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/matplotlib/matplotlib/issues)
-[![GitTutorial](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project)
+[![GitHub issues](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/matplotlib/matplotlib/issues)
+[![Contributing](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://matplotlib.org/stable/devel/index.html)
 
-[![GitHubActions](https://github.com/matplotlib/matplotlib/workflows/Tests/badge.svg)](https://github.com/matplotlib/matplotlib/actions?query=workflow%3ATests)
-[![AzurePipelines](https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=main)](https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=main)
-[![AppVeyor](https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=main&svg=true)](https://ci.appveyor.com/project/matplotlib/matplotlib)
-[![Codecov](https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=main&service=github)](https://codecov.io/github/matplotlib/matplotlib?branch=main)
+[![GitHub actions status](https://github.com/matplotlib/matplotlib/workflows/Tests/badge.svg)](https://github.com/matplotlib/matplotlib/actions?query=workflow%3ATests)
+[![Azure pipelines status](https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=main)](https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=main)
+[![AppVeyor status](https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=main&svg=true)](https://ci.appveyor.com/project/matplotlib/matplotlib)
+[![Codecov status](https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=main&service=github)](https://app.codecov.io/gh/matplotlib/matplotlib)
 
-![image](https://matplotlib.org/_static/logo2.svg)
+![Matplotlib logotype](https://matplotlib.org/_static/logo2.svg)
 
 Matplotlib is a comprehensive library for creating static, animated, and
 interactive visualizations in Python.
@@ -34,12 +35,11 @@ which is generated from `/doc/users/installing/index.rst`
 
 ## Contribute
 
-You've discovered a bug or something else you want to change -
-excellent!
+You've discovered a bug or something else you want to change — excellent!
 
-You've worked out a way to fix it -- even better!
+You've worked out a way to fix it — even better!
 
-You want to tell us about it -- best of all!
+You want to tell us about it — best of all!
 
 Start at the [contributing
 guide](https://matplotlib.org/devdocs/devel/contributing.html)!

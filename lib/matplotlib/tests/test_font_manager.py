@@ -1,4 +1,5 @@
 from io import BytesIO, StringIO
+import gc
 import multiprocessing
 import os
 from pathlib import Path
@@ -14,9 +15,8 @@ import pytest
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
-    MSUserFontDirectories, _get_fontconfig_fonts, ft2font,
-    ttfFontProperty, cbook)
-from matplotlib import pyplot as plt, rc_context
+    MSUserFontDirectories, _get_fontconfig_fonts, ttfFontProperty)
+from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 
 has_fclist = shutil.which('fc-list') is not None
 
@@ -25,11 +25,11 @@ def test_font_priority():
     with rc_context(rc={
             'font.sans-serif':
             ['cmmi10', 'Bitstream Vera Sans']}):
-        font = findfont(FontProperties(family=["sans-serif"]))
-    assert Path(font).name == 'cmmi10.ttf'
+        fontfile = findfont(FontProperties(family=["sans-serif"]))
+    assert Path(fontfile).name == 'cmmi10.ttf'
 
     # Smoketest get_charmap, which isn't used internally anymore
-    font = get_font(font)
+    font = get_font(fontfile)
     cmap = font.get_charmap()
     assert len(cmap) == 131
     assert cmap[8729] == 30
@@ -148,7 +148,7 @@ def test_find_invalid(tmpdir):
     # Not really public, but get_font doesn't expose non-filename constructor.
     from matplotlib.ft2font import FT2Font
     with pytest.raises(TypeError, match='font file or a binary-mode file'):
-        FT2Font(StringIO())
+        FT2Font(StringIO())  # type: ignore[arg-type]
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
@@ -200,7 +200,7 @@ def test_user_fonts_win32():
         pytest.xfail("This test should only run on CI (appveyor or azure) "
                      "as the developer's font directory should remain "
                      "unchanged.")
-
+    pytest.xfail("We need to update the registry for this test to work")
     font_test_file = 'mpltest.ttf'
 
     # Precondition: the test font should not be available
@@ -317,10 +317,32 @@ def test_get_font_names():
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
             ttf_fonts.append(prop.name)
-        except:
+        except Exception:
             pass
     available_fonts = sorted(list(set(ttf_fonts)))
     mpl_font_names = sorted(fontManager.get_font_names())
     assert set(available_fonts) == set(mpl_font_names)
     assert len(available_fonts) == len(mpl_font_names)
     assert available_fonts == mpl_font_names
+
+
+def test_donot_cache_tracebacks():
+
+    class SomeObject:
+        pass
+
+    def inner():
+        x = SomeObject()
+        fig = mfigure.Figure()
+        ax = fig.subplots()
+        fig.text(.5, .5, 'aardvark', family='doesnotexist')
+        with BytesIO() as out:
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore')
+                fig.savefig(out, format='raw')
+
+    inner()
+
+    for obj in gc.get_objects():
+        if isinstance(obj, SomeObject):
+            pytest.fail("object from inner stack still alive")

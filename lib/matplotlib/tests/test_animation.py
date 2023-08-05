@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import platform
+import re
 import subprocess
 import sys
 import weakref
@@ -61,6 +62,8 @@ class NullMovieWriter(animation.AbstractMovieWriter):
         self._count = 0
 
     def grab_frame(self, **savefig_kwargs):
+        from matplotlib.animation import _validate_grabframe_kwargs
+        _validate_grabframe_kwargs(savefig_kwargs)
         self.savefig_kwargs = savefig_kwargs
         self._count += 1
 
@@ -87,7 +90,7 @@ def test_null_movie_writer(anim):
     # output to an opaque background
     for k, v in savefig_kwargs.items():
         assert writer.savefig_kwargs[k] == v
-    assert writer._count == anim.save_count
+    assert writer._count == anim._save_count
 
 
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
@@ -192,6 +195,38 @@ def test_save_animation_smoketest(tmpdir, writer, frame_format, output, anim):
     del anim
 
 
+@pytest.mark.parametrize('writer, frame_format, output', gen_writers())
+def test_grabframe(tmpdir, writer, frame_format, output):
+    WriterClass = animation.writers[writer]
+
+    if frame_format is not None:
+        plt.rcParams["animation.frame_format"] = frame_format
+
+    fig, ax = plt.subplots()
+
+    dpi = None
+    codec = None
+    if writer == 'ffmpeg':
+        # Issue #8253
+        fig.set_size_inches((10.85, 9.21))
+        dpi = 100.
+        codec = 'h264'
+
+    test_writer = WriterClass()
+    # Use temporary directory for the file-based writers, which produce a file
+    # per frame with known names.
+    with tmpdir.as_cwd():
+        with test_writer.saving(fig, output, dpi):
+            # smoke test it works
+            test_writer.grab_frame()
+            for k in {'dpi', 'bbox_inches', 'format'}:
+                with pytest.raises(
+                        TypeError,
+                        match=f"grab_frame got an unexpected keyword argument {k!r}"
+                ):
+                    test_writer.grab_frame(**{k: object()})
+
+
 @pytest.mark.parametrize('writer', [
     pytest.param(
         'ffmpeg', marks=pytest.mark.skipif(
@@ -233,8 +268,11 @@ def test_animation_repr_html(writer, html, want, anim):
         assert want in html
 
 
-@pytest.mark.parametrize('anim', [dict(frames=iter(range(5)))],
-                         indirect=['anim'])
+@pytest.mark.parametrize(
+    'anim',
+    [{'save_count': 10, 'frames': iter(range(5))}],
+    indirect=['anim']
+)
 def test_no_length_frames(anim):
     anim.save('unused.null', writer=NullMovieWriter())
 
@@ -330,9 +368,11 @@ def test_funcanimation_cache_frame_data(cache_frame_data):
 
             yield frame
 
+    MAX_FRAMES = 100
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                    frames=frames_generator,
-                                   cache_frame_data=cache_frame_data)
+                                   cache_frame_data=cache_frame_data,
+                                   save_count=MAX_FRAMES)
 
     writer = NullMovieWriter()
     anim.save('unused.null', writer=writer)
@@ -372,7 +412,9 @@ def test_draw_frame(return_value):
             return return_value
 
     with pytest.raises(RuntimeError):
-        animation.FuncAnimation(fig, animate, blit=True)
+        animation.FuncAnimation(
+            fig, animate, blit=True, cache_frame_data=False
+        )
 
 
 def test_exhausted_animation(tmpdir):
@@ -440,3 +482,71 @@ def test_animation_frame(tmpdir, fig_test, fig_ref):
 
     # 5th frame's data
     ax.plot(x, np.sin(x + 4 / 100))
+
+
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
+def test_save_count_override_warnings_has_length(anim):
+
+    save_count = 5
+    frames = list(range(2))
+    match_target = (
+        f'You passed in an explicit {save_count=} '
+        "which is being ignored in favor of "
+        f"{len(frames)=}."
+    )
+
+    with pytest.warns(UserWarning, match=re.escape(match_target)):
+        anim = animation.FuncAnimation(
+            **{**anim, 'frames': frames, 'save_count': save_count}
+        )
+    assert anim._save_count == len(frames)
+    anim._init_draw()
+
+
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
+def test_save_count_override_warnings_scaler(anim):
+    save_count = 5
+    frames = 7
+    match_target = (
+        f'You passed in an explicit {save_count=} ' +
+        "which is being ignored in favor of " +
+        f"{frames=}."
+    )
+
+    with pytest.warns(UserWarning, match=re.escape(match_target)):
+        anim = animation.FuncAnimation(
+            **{**anim, 'frames': frames, 'save_count': save_count}
+        )
+
+    assert anim._save_count == frames
+    anim._init_draw()
+
+
+@pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
+def test_disable_cache_warning(anim):
+    cache_frame_data = True
+    frames = iter(range(5))
+    match_target = (
+        f"{frames=!r} which we can infer the length of, "
+        "did not pass an explicit *save_count* "
+        f"and passed {cache_frame_data=}.  To avoid a possibly "
+        "unbounded cache, frame data caching has been disabled. "
+        "To suppress this warning either pass "
+        "`cache_frame_data=False` or `save_count=MAX_FRAMES`."
+    )
+    with pytest.warns(UserWarning, match=re.escape(match_target)):
+        anim = animation.FuncAnimation(
+            **{**anim, 'cache_frame_data': cache_frame_data, 'frames': frames}
+        )
+    assert anim._cache_frame_data is False
+    anim._init_draw()
+
+
+def test_movie_writer_invalid_path(anim):
+    if sys.platform == "win32":
+        match_str = re.escape("[WinError 3] The system cannot find the path specified:")
+    else:
+        match_str = re.escape("[Errno 2] No such file or directory: '/foo")
+    with pytest.raises(FileNotFoundError, match=match_str):
+        anim.save("/foo/bar/aardvark/thiscannotreallyexist.mp4",
+                  writer=animation.FFMpegFileWriter())

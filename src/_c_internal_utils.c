@@ -68,13 +68,7 @@ mpl_GetCurrentProcessExplicitAppUserModelID(PyObject* module)
     wchar_t* appid = NULL;
     HRESULT hr = GetCurrentProcessExplicitAppUserModelID(&appid);
     if (FAILED(hr)) {
-#if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x07030600
-        /* Remove when we require PyPy 7.3.6 */
-        PyErr_SetFromWindowsErr(hr);
-        return NULL;
-#else
         return PyErr_SetFromWindowsErr(hr);
-#endif
     }
     PyObject* py_appid = PyUnicode_FromWideChar(appid, -1);
     CoTaskMemFree(appid);
@@ -95,13 +89,7 @@ mpl_SetCurrentProcessExplicitAppUserModelID(PyObject* module, PyObject* arg)
     HRESULT hr = SetCurrentProcessExplicitAppUserModelID(appid);
     PyMem_Free(appid);
     if (FAILED(hr)) {
-#if defined(PYPY_VERSION_NUM) && PYPY_VERSION_NUM < 0x07030600
-        /* Remove when we require PyPy 7.3.6 */
-        PyErr_SetFromWindowsErr(hr);
-        return NULL;
-#else
         return PyErr_SetFromWindowsErr(hr);
-#endif
     }
     Py_RETURN_NONE;
 #else

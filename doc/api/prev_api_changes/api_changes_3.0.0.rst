@@ -225,7 +225,7 @@ looking automatic ticks in many instances.  The much nicer
 ``interval_multiples=True`` is the new default.  See below to get the
 old behavior back:
 
-  .. plot::
+.. plot::
 
     import matplotlib.pyplot as plt
     import datetime

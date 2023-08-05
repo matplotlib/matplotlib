@@ -6,8 +6,9 @@ Widget testing utilities
 See also :mod:`matplotlib.tests.test_widgets`.
 """
 
-import matplotlib.pyplot as plt
 from unittest import mock
+
+import matplotlib.pyplot as plt
 
 
 def get_ax():
@@ -32,11 +33,11 @@ def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
 
     Parameters
     ----------
-    ax : `matplotlib.axes.Axes`
+    ax : `~matplotlib.axes.Axes`
         The axes the event will be in.
-    xdata : int
+    xdata : float
         x coord of mouse in data coords.
-    ydata : int
+    ydata : float
         y coord of mouse in data coords.
     button : None or `MouseButton` or {'up', 'down'}
         The mouse button pressed in this event (see also `.MouseEvent`).
@@ -70,12 +71,12 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
 
     Parameters
     ----------
-    tool : matplotlib.widgets.RectangleSelector
+    tool : matplotlib.widgets.AxesWidget
     etype : str
         The event to trigger.
-    xdata : int
+    xdata : float
         x coord of mouse in data coords.
-    ydata : int
+    ydata : float
         y coord of mouse in data coords.
     button : None or `MouseButton` or {'up', 'down'}
         The mouse button pressed in this event (see also `.MouseEvent`).
@@ -95,7 +96,7 @@ def click_and_drag(tool, start, end, key=None):
 
     Parameters
     ----------
-    tool : `matplotlib.widgets.Widget`
+    tool : `~matplotlib.widgets.Widget`
     start : [float, float]
         Starting point in data coordinates.
     end : [float, float]

@@ -6,7 +6,6 @@ import logging
 import math
 import os
 import pathlib
-import re
 import shutil
 import subprocess
 from tempfile import TemporaryDirectory
@@ -15,7 +14,7 @@ import weakref
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, font_manager as fm
+from matplotlib import cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
@@ -33,31 +32,17 @@ _log = logging.getLogger(__name__)
 # %f/{:f} format rather than %s/{} to avoid triggering scientific notation,
 # which is not recognized by TeX.
 
-
-@_api.caching_module_getattr
-class __getattr__:
-    NO_ESCAPE = _api.deprecated("3.6", obj_type="")(
-        property(lambda self: _NO_ESCAPE))
-    re_mathsep = _api.deprecated("3.6", obj_type="")(
-        property(lambda self: _split_math.__self__))
-
-
-@_api.deprecated("3.6")
-def get_fontspec():
-    """Build fontspec preamble from rc."""
-    with mpl.rc_context({"pgf.preamble": ""}):
-        return _get_preamble()
-
-
-@_api.deprecated("3.6")
-def get_preamble():
-    """Get LaTeX preamble from rc."""
-    return mpl.rcParams["pgf.preamble"]
-
-
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
-    preamble = [mpl.rcParams["pgf.preamble"]]
+    preamble = [
+        # Remove Matplotlib's custom command \mathdefault.  (Not using
+        # \mathnormal instead since this looks odd with Computer Modern.)
+        r"\def\mathdefault#1{#1}",
+        # Use displaystyle for all math.
+        r"\everymath=\expandafter{\the\everymath\displaystyle}",
+        # Allow pgf.preamble to override the above definitions.
+        mpl.rcParams["pgf.preamble"],
+    ]
     if mpl.rcParams["pgf.texsystem"] != "pdflatex":
         preamble.append("\\usepackage{fontspec}")
         if mpl.rcParams["pgf.rcfonts"]:
@@ -82,52 +67,12 @@ mpl_pt_to_in = 1. / 72.
 mpl_in_to_pt = 1. / mpl_pt_to_in
 
 
-_NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
-_split_math = re.compile(_NO_ESCAPE + r"\$").split
-_replace_escapetext = functools.partial(
-    # When the next character is an unescaped % or ^, insert a backslash.
-    re.compile(_NO_ESCAPE + "(?=[%^])").sub, "\\\\")
-_replace_mathdefault = functools.partial(
-    # Replace \mathdefault (when not preceded by an escape) by empty string.
-    re.compile(_NO_ESCAPE + r"(\\mathdefault)").sub, "")
-
-
-@_api.deprecated("3.6")
-def common_texification(text):
-    return _tex_escape(text)
-
-
 def _tex_escape(text):
     r"""
     Do some necessary and/or useful substitutions for texts to be included in
     LaTeX documents.
-
-    This distinguishes text-mode and math-mode by replacing the math separator
-    ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
-    are ignored.
-
-    The following characters are escaped in text segments: ``^%``
     """
-    # Sometimes, matplotlib adds the unknown command \mathdefault.
-    # Not using \mathnormal instead since this looks odd for the latex cm font.
-    text = _replace_mathdefault(text)
-    text = text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
-    # split text into normaltext and inline math parts
-    parts = _split_math(text)
-    for i, s in enumerate(parts):
-        if not i % 2:
-            # textmode replacements
-            s = _replace_escapetext(s)
-        else:
-            # mathmode replacements
-            s = r"\(\displaystyle %s\)" % s
-        parts[i] = s
-    return "".join(parts)
-
-
-@_api.deprecated("3.6")
-def writeln(fh, line):
-    return _writeln(fh, line)
+    return text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
 
 
 def _writeln(fh, line):
@@ -167,7 +112,17 @@ def _escape_and_apply_props(s, prop):
         commands.append(r"\bfseries")
 
     commands.append(r"\selectfont")
-    return "".join(commands) + " " + _tex_escape(s)
+    return (
+        "{"
+        + "".join(commands)
+        + r"\catcode`\^=\active\def^{\ifmmode\sp\else\^{}\fi}"
+        # It should normally be enough to set the catcode of % to 12 ("normal
+        # character"); this works on TeXLive 2021 but not on 2018, so we just
+        # make it active too.
+        + r"\catcode`\%=\active\def%{\%}"
+        + _tex_escape(s)
+        + "}"
+    )
 
 
 def _metadata_to_str(key, value):
@@ -306,12 +261,7 @@ class LatexManager:
 
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
-        self._get_box_metrics = functools.lru_cache()(self._get_box_metrics)
-
-    texcommand = _api.deprecated("3.6")(
-        property(lambda self: mpl.rcParams["pgf.texsystem"]))
-    latex_header = _api.deprecated("3.6")(
-        property(lambda self: self._build_latex_header()))
+        self._get_box_metrics = functools.lru_cache(self._get_box_metrics)
 
     def _setup_latex_process(self, *, expect_reply=True):
         # Open LaTeX process for real work; register it for deletion.  On
@@ -349,7 +299,11 @@ class LatexManager:
         """
         # This method gets wrapped in __init__ for per-instance caching.
         self._stdin_writeln(  # Send textbox to TeX & request metrics typeout.
-            r"\sbox0{%s}\typeout{\the\wd0,\the\ht0,\the\dp0}" % tex)
+            # \sbox doesn't handle catcode assignments inside its argument,
+            # so repeat the assignment of the catcode of "^" and "%" outside.
+            r"{\catcode`\^=\active\catcode`\%%=\active\sbox0{%s}"
+            r"\typeout{\the\wd0,\the\ht0,\the\dp0}}"
+            % tex)
         try:
             answer = self._expect_prompt()
         except LatexError as err:
@@ -395,7 +349,7 @@ class RendererPgf(RendererBase):
 
         Attributes
         ----------
-        figure : `matplotlib.figure.Figure`
+        figure : `~matplotlib.figure.Figure`
             Matplotlib figure to initialize height, width and dpi from.
         fh : file-like
             File handle for the output of the drawing commands.
@@ -703,6 +657,7 @@ class RendererPgf(RendererBase):
         s = _escape_and_apply_props(s, prop)
 
         _writeln(self.fh, r"\begin{pgfscope}")
+        self._print_pgf_clip(gc)
 
         alpha = gc.get_alpha()
         if alpha != 1.0:
@@ -1023,13 +978,10 @@ class PdfPages:
             else:
                 manager = Gcf.get_fig_manager(figure)
             if manager is None:
-                raise ValueError("No figure {}".format(figure))
+                raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
 
-        try:
-            orig_canvas = figure.canvas
-            figure.canvas = FigureCanvasPgf(figure)
-
+        with cbook._setattr_cm(figure, canvas=FigureCanvasPgf(figure)):
             width, height = figure.get_size_inches()
             if self._n_figures == 0:
                 self._write_header(width, height)
@@ -1045,11 +997,8 @@ class PdfPages:
                     br'\else\pageheight\fi=%ain'
                     b'%%\n' % (width, height)
                 )
-
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
-        finally:
-            figure.canvas = orig_canvas
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""

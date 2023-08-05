@@ -45,6 +45,8 @@ static bool keyChangeControl = false;
 static bool keyChangeShift = false;
 static bool keyChangeOption = false;
 static bool keyChangeCapsLock = false;
+/* Keep track of the current mouse up/down state for open/closed cursor hand */
+static bool leftMouseGrabbing = false;
 
 /* -------------------------- Helper function ---------------------------- */
 
@@ -193,13 +195,11 @@ static int wait_for_stdin(void)
 - (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager;
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
 - (BOOL)closeButtonPressed;
-- (void)dealloc;
 @end
 
 @interface View : NSView <NSWindowDelegate>
 {   PyObject* canvas;
     NSRect rubberband;
-    NSTrackingRectTag tracking;
     @public double device_scale;
 }
 - (void)dealloc;
@@ -211,7 +211,6 @@ static int wait_for_stdin(void)
 - (void)setCanvas: (PyObject*)newCanvas;
 - (void)windowWillClose:(NSNotification*)notification;
 - (BOOL)windowShouldClose:(NSNotification*)notification;
-- (BOOL)isFlipped;
 - (void)mouseEntered:(NSEvent*)event;
 - (void)mouseExited:(NSEvent*)event;
 - (void)mouseDown:(NSEvent*)event;
@@ -285,11 +284,7 @@ static void lazy_init(void) {
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-#ifndef PYPY
-    /* TODO: remove ifndef after the new PyPy with the PyOS_InputHook implementation
-    get released: https://bitbucket.org/pypy/pypy/commits/caaf91a */
     PyOS_InputHook = wait_for_stdin;
-#endif
 
     WindowServerConnectionManager* connectionManager = [WindowServerConnectionManager sharedManager];
     NSWorkspace* workspace = [NSWorkspace sharedWorkspace];
@@ -464,7 +459,13 @@ FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
       case 1: [[NSCursor arrowCursor] set]; break;
       case 2: [[NSCursor pointingHandCursor] set]; break;
       case 3: [[NSCursor crosshairCursor] set]; break;
-      case 4: [[NSCursor openHandCursor] set]; break;
+      case 4:
+        if (leftMouseGrabbing) {
+            [[NSCursor closedHandCursor] set];
+        } else {
+            [[NSCursor openHandCursor] set];
+        }
+        break;
       /* OSX handles busy state itself so no need to set a cursor here */
       case 5: break;
       case 6: [[NSCursor resizeLeftRightCursor] set]; break;
@@ -689,6 +690,25 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject*
+FigureManager__set_window_mode(FigureManager* self, PyObject* args)
+{
+    const char* window_mode;
+    if (!PyArg_ParseTuple(args, "s", &window_mode) || !self->window) {
+        return NULL;
+    }
+
+    NSString* window_mode_str = [NSString stringWithUTF8String: window_mode];
+    if ([window_mode_str isEqualToString: @"tab"]) {
+        [self->window setTabbingMode: NSWindowTabbingModePreferred];
+    } else if ([window_mode_str isEqualToString: @"window"]) {
+        [self->window setTabbingMode: NSWindowTabbingModeDisallowed];
+    } else { // system settings
+        [self->window setTabbingMode: NSWindowTabbingModeAutomatic];
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 FigureManager_repr(FigureManager* self)
 {
     return PyUnicode_FromFormat("FigureManager object %p wrapping NSWindow %p",
@@ -831,6 +851,10 @@ static PyTypeObject FigureManagerType = {
         {"destroy",
          (PyCFunction)FigureManager_destroy,
          METH_NOARGS},
+        {"_set_window_mode",
+         (PyCFunction)FigureManager__set_window_mode,
+         METH_VARARGS,
+         "Set the window open mode (system, tab, window)"},
         {"set_icon",
          (PyCFunction)FigureManager_set_icon,
          METH_STATIC | METH_VARARGS,
@@ -869,7 +893,6 @@ static PyTypeObject FigureManagerType = {
 
 typedef struct {
     PyObject_HEAD
-    NSPopUpButton* menu;
     NSTextView* messagebox;
     NavigationToolbar2Handler* handler;
     int height;
@@ -1244,28 +1267,13 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     /* This is needed for show(), which should exit from [NSApp run]
      * after all windows are closed.
      */
-}
-
-- (void)dealloc
-{
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
+    // For each new window, we have incremented the manager reference, so
+    // we need to bring that down during close and not just dealloc.
     Py_DECREF(manager);
-    PyGILState_Release(gstate);
-    /* The reference count of the view that was added as a subview to the
-     * content view of this window was increased during the call to addSubview,
-     * and is decreased during the call to [super dealloc].
-     */
-    [super dealloc];
 }
 @end
 
 @implementation View
-- (BOOL)isFlipped
-{
-    return NO;
-}
-
 - (View*)initWithFrame:(NSRect)rect
 {
     self = [super initWithFrame: rect];
@@ -1526,8 +1534,10 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
              else
              {
                  button = 1;
-                 if ([NSCursor currentCursor]==[NSCursor openHandCursor])
+                 if ([NSCursor currentCursor]==[NSCursor openHandCursor]) {
+                     leftMouseGrabbing = true;
                      [[NSCursor closedHandCursor] set];
+                 }
              }
              break;
          }
@@ -1554,6 +1564,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     switch ([event type])
     {    case NSEventTypeLeftMouseUp:
+             leftMouseGrabbing = false;
              button = 1;
              if ([NSCursor currentCursor]==[NSCursor closedHandCursor])
                  [[NSCursor openHandCursor] set];
@@ -1834,7 +1845,8 @@ show(PyObject* self)
 
 typedef struct {
     PyObject_HEAD
-    CFRunLoopTimerRef timer;
+    NSTimer* timer;
+
 } Timer;
 
 static PyObject*
@@ -1842,7 +1854,9 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 {
     lazy_init();
     Timer* self = (Timer*)type->tp_alloc(type, 0);
-    if (!self) { return NULL; }
+    if (!self) {
+        return NULL;
+    }
     self->timer = NULL;
     return (PyObject*) self;
 }
@@ -1850,35 +1864,16 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 static PyObject*
 Timer_repr(Timer* self)
 {
-    return PyUnicode_FromFormat("Timer object %p wrapping CFRunLoopTimerRef %p",
+    return PyUnicode_FromFormat("Timer object %p wrapping NSTimer %p",
                                (void*) self, (void*)(self->timer));
-}
-
-static void timer_callback(CFRunLoopTimerRef timer, void* info)
-{
-    gil_call_method(info, "_on_timer");
-}
-
-static void context_cleanup(const void* info)
-{
-    Py_DECREF((PyObject*)info);
 }
 
 static PyObject*
 Timer__timer_start(Timer* self, PyObject* args)
 {
-    CFRunLoopRef runloop;
-    CFRunLoopTimerRef timer;
-    CFRunLoopTimerContext context;
-    CFAbsoluteTime firstFire;
-    CFTimeInterval interval;
+    NSTimeInterval interval;
     PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
     int single;
-    runloop = CFRunLoopGetCurrent();
-    if (!runloop) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to obtain run loop");
-        return NULL;
-    }
     if (!(py_interval = PyObject_GetAttrString((PyObject*)self, "_interval"))
         || ((interval = PyFloat_AsDouble(py_interval) / 1000.), PyErr_Occurred())
         || !(py_single = PyObject_GetAttrString((PyObject*)self, "_single"))
@@ -1886,41 +1881,17 @@ Timer__timer_start(Timer* self, PyObject* args)
         || !(py_on_timer = PyObject_GetAttrString((PyObject*)self, "_on_timer"))) {
         goto exit;
     }
-    // (current time + interval) is time of first fire.
-    firstFire = CFAbsoluteTimeGetCurrent() + interval;
-    if (single) {
-        interval = 0;
-    }
     if (!PyMethod_Check(py_on_timer)) {
         PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
         goto exit;
     }
-    Py_INCREF(self);
-    context.version = 0;
-    context.retain = NULL;
-    context.release = context_cleanup;
-    context.copyDescription = NULL;
-    context.info = self;
-    timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
-                                 firstFire,
-                                 interval,
-                                 0,
-                                 0,
-                                 timer_callback,
-                                 &context);
-    if (!timer) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to create timer");
-        goto exit;
-    }
-    if (self->timer) {
-        CFRunLoopTimerInvalidate(self->timer);
-        CFRelease(self->timer);
-    }
-    CFRunLoopAddTimer(runloop, timer, kCFRunLoopCommonModes);
-    /* Don't release the timer here, since the run loop may be destroyed and
-     * the timer lost before we have a chance to decrease the reference count
-     * of the attribute */
-    self->timer = timer;
+
+    // hold a reference to the timer so we can invalidate/stop it later
+    self->timer = [NSTimer scheduledTimerWithTimeInterval: interval
+                                            repeats: !single
+                                              block: ^(NSTimer *timer) {
+        gil_call_method((PyObject*)self, "_on_timer");
+    }];
 exit:
     Py_XDECREF(py_interval);
     Py_XDECREF(py_single);
@@ -1932,21 +1903,26 @@ exit:
     }
 }
 
+static void
+Timer__timer_stop_impl(Timer* self)
+{
+    if (self->timer) {
+        [self->timer invalidate];
+        self->timer = NULL;
+    }
+}
+
 static PyObject*
 Timer__timer_stop(Timer* self)
 {
-    if (self->timer) {
-        CFRunLoopTimerInvalidate(self->timer);
-        CFRelease(self->timer);
-        self->timer = NULL;
-    }
+    Timer__timer_stop_impl(self);
     Py_RETURN_NONE;
 }
 
 static void
 Timer_dealloc(Timer* self)
 {
-    Timer__timer_stop(self);
+    Timer__timer_stop_impl(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1958,7 +1934,7 @@ static PyTypeObject TimerType = {
     .tp_repr = (reprfunc)Timer_repr,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
     .tp_new = (newfunc)Timer_new,
-    .tp_doc = "A Timer object wraps a CFRunLoopTimerRef and can add it to the event loop.",
+    .tp_doc = "A Timer object that contains an NSTimer that gets added to the event loop when started.",
     .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
         {"_timer_start",
          (PyCFunction)Timer__timer_start,

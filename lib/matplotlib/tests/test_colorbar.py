@@ -1,7 +1,8 @@
+import platform
+
 import numpy as np
 import pytest
 
-from matplotlib import _api
 from matplotlib import cm
 import matplotlib.colors as mcolors
 import matplotlib as mpl
@@ -233,7 +234,9 @@ def test_colorbar_single_ax_panchor_east(constrained):
     assert ax.get_anchor() == 'E'
 
 
-@image_comparison(['contour_colorbar.png'], remove_text=True)
+@image_comparison(
+    ['contour_colorbar.png'], remove_text=True,
+    tol=0.01 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour_colorbar():
     fig, ax = plt.subplots(figsize=(4, 2))
     data = np.arange(1200).reshape(30, 40) - 500
@@ -318,11 +321,8 @@ def test_colorbarbase():
 
 
 def test_parentless_mappable():
-    pc = mpl.collections.PatchCollection([], cmap=plt.get_cmap('viridis'))
-    pc.set_array([])
-
-    with pytest.warns(_api.MatplotlibDeprecationWarning,
-                      match='Unable to determine Axes to steal'):
+    pc = mpl.collections.PatchCollection([], cmap=plt.get_cmap('viridis'), array=[])
+    with pytest.raises(ValueError, match='Unable to determine Axes to steal'):
         plt.colorbar(pc)
 
 
@@ -396,8 +396,8 @@ def test_colorbar_minorticks_on_off():
         cbar.minorticks_on()
         np.testing.assert_almost_equal(
             cbar.ax.yaxis.get_minorticklocs(),
-            [-1.1, -0.9, -0.8, -0.7, -0.6, -0.4, -0.3, -0.2, -0.1,
-             0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2, 1.3])
+            [-1.2, -1.1, -0.9, -0.8, -0.7, -0.6, -0.4, -0.3, -0.2, -0.1,
+             0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.1, 1.2])
 
     # tests for github issue #13257 and PR #13265
     data = np.random.uniform(low=1, high=10, size=(20, 20))
@@ -652,6 +652,12 @@ def test_colorbar_scale_reset():
     assert cbar.ax.yaxis.get_scale() == 'linear'
 
     assert cbar.outline.get_edgecolor() == mcolors.to_rgba('red')
+
+    # log scale with no vmin/vmax set should scale to the data if there
+    # is a mappable already associated with the colorbar, not (0, 1)
+    pcm.norm = LogNorm()
+    assert pcm.norm.vmin == z.min()
+    assert pcm.norm.vmax == z.max()
 
 
 def test_colorbar_get_ticks_2():
@@ -1211,3 +1217,16 @@ def test_colorbar_axes_parmeters():
     fig.colorbar(im, ax=(ax[0], ax[1]))
     fig.colorbar(im, ax={i: _ax for i, _ax in enumerate(ax)}.values())
     fig.draw_without_rendering()
+
+
+def test_colorbar_wrong_figure():
+    # If we decide in the future to disallow calling colorbar() on the "wrong" figure,
+    # just delete this test.
+    fig_tl = plt.figure(layout="tight")
+    fig_cl = plt.figure(layout="constrained")
+    im = fig_cl.add_subplot().imshow([[0, 1]])
+    # Make sure this doesn't try to setup a gridspec-controlled colorbar on fig_cl,
+    # which would crash CL.
+    fig_tl.colorbar(im)
+    fig_tl.draw_without_rendering()
+    fig_cl.draw_without_rendering()

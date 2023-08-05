@@ -4,6 +4,8 @@ import warnings
 
 import numpy as np
 from numpy.testing import assert_almost_equal
+from packaging.version import parse as parse_version
+import pyparsing
 import pytest
 
 import matplotlib as mpl
@@ -14,7 +16,9 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
-from matplotlib.text import Text
+from matplotlib.text import Text, Annotation
+
+pyparsing_version = parse_version(pyparsing.__version__)
 
 
 @image_comparison(['font_styles'])
@@ -248,10 +252,10 @@ def test_annotation_contains():
 
 
 @pytest.mark.parametrize('err, xycoords, match', (
-    (RuntimeError, print, "Unknown return type"),
-    (RuntimeError, [0, 0], r"Unknown coordinate type: \[0, 0\]"),
-    (ValueError, "foo", "'foo' is not a recognized coordinate"),
-    (ValueError, "foo bar", "'foo bar' is not a recognized coordinate"),
+    (TypeError, print, "xycoords callable must return a BboxBase or Transform, not a"),
+    (TypeError, [0, 0], r"'xycoords' must be an instance of str, tuple"),
+    (ValueError, "foo", "'foo' is not a valid coordinate"),
+    (ValueError, "foo bar", "'foo bar' is not a valid coordinate"),
     (ValueError, "offset foo", "xycoords cannot be an offset coordinate"),
     (ValueError, "axes foo", "'foo' is not a recognized unit"),
 ))
@@ -291,8 +295,8 @@ def test_alignment():
     ax.plot([0, 1], [0.5, 0.5])
     ax.plot([0, 1], [1.0, 1.0])
 
-    ax.set_xlim([0, 1])
-    ax.set_ylim([0, 1.5])
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1.5)
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -536,7 +540,7 @@ def test_font_scaling():
     ax.set_ylim(-10, 600)
 
     for i, fs in enumerate(range(4, 43, 2)):
-        ax.text(0.1, i*30, "{fs} pt font size".format(fs=fs), fontsize=fs)
+        ax.text(0.1, i*30, f"{fs} pt font size", fontsize=fs)
 
 
 @pytest.mark.parametrize('spacing1, spacing2', [(0.4, 2), (2, 0.4), (2, 2)])
@@ -690,15 +694,46 @@ def test_large_subscript_title():
     ax.set_xticklabels([])
 
 
-def test_wrap():
-    fig = plt.figure(figsize=(6, 4))
+@pytest.mark.parametrize(
+    "x, rotation, halign",
+    [(0.7, 0, 'left'),
+     (0.5, 95, 'left'),
+     (0.3, 0, 'right'),
+     (0.3, 185, 'left')])
+def test_wrap(x, rotation, halign):
+    fig = plt.figure(figsize=(6, 6))
     s = 'This is a very long text that should be wrapped multiple times.'
-    text = fig.text(0.7, 0.5, s, wrap=True)
+    text = fig.text(x, 0.7, s, wrap=True, rotation=rotation, ha=halign)
     fig.canvas.draw()
     assert text._get_wrapped_text() == ('This is a very long\n'
                                         'text that should be\n'
                                         'wrapped multiple\n'
                                         'times.')
+
+
+def test_mathwrap():
+    fig = plt.figure(figsize=(6, 4))
+    s = r'This is a very $\overline{\mathrm{long}}$ line of Mathtext.'
+    text = fig.text(0, 0.5, s, size=40, wrap=True)
+    fig.canvas.draw()
+    assert text._get_wrapped_text() == ('This is a very $\\overline{\\mathrm{long}}$\n'
+                                        'line of Mathtext.')
+
+
+def test_get_window_extent_wrapped():
+    # Test that a long title that wraps to two lines has the same vertical
+    # extent as an explicit two line title.
+
+    fig1 = plt.figure(figsize=(3, 3))
+    fig1.suptitle("suptitle that is clearly too long in this case", wrap=True)
+    window_extent_test = fig1._suptitle.get_window_extent()
+
+    fig2 = plt.figure(figsize=(3, 3))
+    fig2.suptitle("suptitle that is clearly\ntoo long in this case")
+    window_extent_ref = fig2._suptitle.get_window_extent()
+
+    assert window_extent_test.y0 == window_extent_ref.y0
+    assert window_extent_test.y1 == window_extent_ref.y1
 
 
 def test_long_word_wrap():
@@ -787,6 +822,9 @@ def test_unsupported_script(recwarn):
          (r"Matplotlib currently does not support Bengali natively.",)])
 
 
+# See gh-26152 for more information on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect with pyparsing 3.1.0")
 def test_parse_math():
     fig, ax = plt.subplots()
     ax.text(0, 0, r"$ \wrong{math} $", parse_math=False)
@@ -797,6 +835,9 @@ def test_parse_math():
         fig.canvas.draw()
 
 
+# See gh-26152 for more information on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect with pyparsing 3.1.0")
 def test_parse_math_rcparams():
     # Default is True
     fig, ax = plt.subplots()
@@ -855,3 +896,95 @@ def test_metrics_cache():
     # Every string gets a miss for the first layouting (extents), then a hit
     # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
     assert info.hits > info.misses
+
+
+def test_annotate_offset_fontsize():
+    # Test that offset_fontsize parameter works and uses accurate values
+    fig, ax = plt.subplots()
+    text_coords = ['offset points', 'offset fontsize']
+    # 10 points should be equal to 1 fontsize unit at fontsize=10
+    xy_text = [(10, 10), (1, 1)]
+    anns = [ax.annotate('test', xy=(0.5, 0.5),
+                        xytext=xy_text[i],
+                        fontsize='10',
+                        xycoords='data',
+                        textcoords=text_coords[i]) for i in range(2)]
+    points_coords, fontsize_coords = [ann.get_window_extent() for ann in anns]
+    fig.canvas.draw()
+    assert str(points_coords) == str(fontsize_coords)
+
+
+def test_set_antialiased():
+    txt = Text(.5, .5, "foo\nbar")
+    assert txt._antialiased == mpl.rcParams['text.antialiased']
+
+    txt.set_antialiased(True)
+    assert txt._antialiased is True
+
+    txt.set_antialiased(False)
+    assert txt._antialiased is False
+
+
+def test_get_antialiased():
+
+    txt2 = Text(.5, .5, "foo\nbar", antialiased=True)
+    assert txt2._antialiased is True
+    assert txt2.get_antialiased() == txt2._antialiased
+
+    txt3 = Text(.5, .5, "foo\nbar", antialiased=False)
+    assert txt3._antialiased is False
+    assert txt3.get_antialiased() == txt3._antialiased
+
+    txt4 = Text(.5, .5, "foo\nbar")
+    assert txt4.get_antialiased() == mpl.rcParams['text.antialiased']
+
+
+def test_annotation_antialiased():
+    annot = Annotation("foo\nbar", (.5, .5), antialiased=True)
+    assert annot._antialiased is True
+    assert annot.get_antialiased() == annot._antialiased
+
+    annot2 = Annotation("foo\nbar", (.5, .5), antialiased=False)
+    assert annot2._antialiased is False
+    assert annot2.get_antialiased() == annot2._antialiased
+
+    annot3 = Annotation("foo\nbar", (.5, .5), antialiased=False)
+    annot3.set_antialiased(True)
+    assert annot3.get_antialiased() is True
+    assert annot3._antialiased is True
+
+    annot4 = Annotation("foo\nbar", (.5, .5))
+    assert annot4._antialiased == mpl.rcParams['text.antialiased']
+
+
+@check_figures_equal()
+def test_text_antialiased_off_default_vs_manual(fig_test, fig_ref):
+    fig_test.text(0.5, 0.5, '6 inches x 2 inches',
+                             antialiased=False)
+
+    mpl.rcParams['text.antialiased'] = False
+    fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
+
+
+@check_figures_equal()
+def test_text_antialiased_on_default_vs_manual(fig_test, fig_ref):
+    fig_test.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)
+
+    mpl.rcParams['text.antialiased'] = True
+    fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
+
+
+@check_figures_equal()
+def test_text_math_antialiased_on_default_vs_manual(fig_test, fig_ref):
+    fig_test.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$", antialiased=True)
+
+    mpl.rcParams['text.antialiased'] = True
+    fig_ref.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$")
+
+
+@check_figures_equal()
+def test_text_math_antialiased_off_default_vs_manual(fig_test, fig_ref):
+    fig_test.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$", antialiased=False)
+
+    mpl.rcParams['text.antialiased'] = False
+    fig_ref.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$")

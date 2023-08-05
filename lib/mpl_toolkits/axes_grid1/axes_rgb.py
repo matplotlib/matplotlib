@@ -1,7 +1,9 @@
+from types import MethodType
+
 import numpy as np
 
 from .axes_divider import make_axes_locatable, Size
-from .mpl_axes import Axes
+from .mpl_axes import Axes, SimpleAxisArtist
 
 
 def make_rgb_axes(ax, pad=0.01, axes_class=None, **kwargs):
@@ -108,8 +110,17 @@ class RGBAxes:
             ax, pad=pad, axes_class=axes_class, **kwargs)
         # Set the line color and ticks for the axes.
         for ax1 in [self.RGB, self.R, self.G, self.B]:
-            ax1.axis[:].line.set_color("w")
-            ax1.axis[:].major_ticks.set_markeredgecolor("w")
+            if isinstance(ax1.axis, MethodType):
+                ad = Axes.AxisDict(self)
+                ad.update(
+                    bottom=SimpleAxisArtist(ax1.xaxis, 1, ax1.spines["bottom"]),
+                    top=SimpleAxisArtist(ax1.xaxis, 2, ax1.spines["top"]),
+                    left=SimpleAxisArtist(ax1.yaxis, 1, ax1.spines["left"]),
+                    right=SimpleAxisArtist(ax1.yaxis, 2, ax1.spines["right"]))
+            else:
+                ad = ax1.axis
+            ad[:].line.set_color("w")
+            ad[:].major_ticks.set_markeredgecolor("w")
 
     def imshow_rgb(self, r, g, b, **kwargs):
         """

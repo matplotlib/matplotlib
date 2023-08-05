@@ -91,98 +91,6 @@ static PyObject *Py_points_in_path(PyObject *self, PyObject *args)
     return results.pyobj();
 }
 
-const char *Py_point_on_path__doc__ =
-    "point_on_path(x, y, radius, path, trans)\n"
-    "--\n\n";
-
-static PyObject *Py_point_on_path(PyObject *self, PyObject *args)
-{
-    double x, y, r;
-    py::PathIterator path;
-    agg::trans_affine trans;
-    bool result;
-
-    if (!PyArg_ParseTuple(args,
-                          "dddO&O&:point_on_path",
-                          &x,
-                          &y,
-                          &r,
-                          &convert_path,
-                          &path,
-                          &convert_trans_affine,
-                          &trans)) {
-        return NULL;
-    }
-
-    CALL_CPP("point_on_path", (result = point_on_path(x, y, r, path, trans)));
-
-    if (result) {
-        Py_RETURN_TRUE;
-    } else {
-        Py_RETURN_FALSE;
-    }
-}
-
-const char *Py_points_on_path__doc__ =
-    "points_on_path(points, radius, path, trans)\n"
-    "--\n\n";
-
-static PyObject *Py_points_on_path(PyObject *self, PyObject *args)
-{
-    numpy::array_view<const double, 2> points;
-    double r;
-    py::PathIterator path;
-    agg::trans_affine trans;
-
-    if (!PyArg_ParseTuple(args,
-                          "O&dO&O&:points_on_path",
-                          &convert_points,
-                          &points,
-                          &r,
-                          &convert_path,
-                          &path,
-                          &convert_trans_affine,
-                          &trans)) {
-        return NULL;
-    }
-
-    npy_intp dims[] = { (npy_intp)points.size() };
-    numpy::array_view<uint8_t, 1> results(dims);
-
-    CALL_CPP("points_on_path", (points_on_path(points, r, path, trans, results)));
-
-    return results.pyobj();
-}
-
-const char *Py_get_path_extents__doc__ =
-    "get_path_extents(path, trans)\n"
-    "--\n\n";
-
-static PyObject *Py_get_path_extents(PyObject *self, PyObject *args)
-{
-    py::PathIterator path;
-    agg::trans_affine trans;
-
-    if (!PyArg_ParseTuple(
-             args, "O&O&:get_path_extents", &convert_path, &path, &convert_trans_affine, &trans)) {
-        return NULL;
-    }
-
-    extent_limits e;
-
-    CALL_CPP("get_path_extents", (reset_limits(e)));
-    CALL_CPP("get_path_extents", (update_path_extents(path, trans, e)));
-
-    npy_intp dims[] = { 2, 2 };
-    numpy::array_view<double, 2> extents(dims);
-    extents(0, 0) = e.x0;
-    extents(0, 1) = e.y0;
-    extents(1, 0) = e.x1;
-    extents(1, 1) = e.y1;
-
-    return extents.pyobj();
-}
-
 const char *Py_update_path_extents__doc__ =
     "update_path_extents(path, trans, rect, minpos, ignore)\n"
     "--\n\n";
@@ -781,14 +689,14 @@ static PyObject *Py_convert_to_string(PyObject *self, PyObject *args)
 }
 
 
-const char *Py_is_sorted__doc__ =
-    "is_sorted(array)\n"
+const char *Py_is_sorted_and_has_non_nan__doc__ =
+    "is_sorted_and_has_non_nan(array, /)\n"
     "--\n\n"
-    "Return whether the 1D *array* is monotonically increasing, ignoring NaNs.\n";
+    "Return whether the 1D *array* is monotonically increasing, ignoring NaNs,\n"
+    "and has at least one non-nan value.";
 
-static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
+static PyObject *Py_is_sorted_and_has_non_nan(PyObject *self, PyObject *obj)
 {
-    npy_intp size;
     bool result;
 
     PyArrayObject *array = (PyArrayObject *)PyArray_FromAny(
@@ -798,30 +706,22 @@ static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
         return NULL;
     }
 
-    size = PyArray_DIM(array, 0);
-
-    if (size < 2) {
-        Py_DECREF(array);
-        Py_RETURN_TRUE;
-    }
-
-    /* Handle just the most common types here, otherwise coerce to
-    double */
+    /* Handle just the most common types here, otherwise coerce to double */
     switch (PyArray_TYPE(array)) {
     case NPY_INT:
-        result = is_sorted<npy_int>(array);
+        result = is_sorted_and_has_non_nan<npy_int>(array);
         break;
     case NPY_LONG:
-        result = is_sorted<npy_long>(array);
+        result = is_sorted_and_has_non_nan<npy_long>(array);
         break;
     case NPY_LONGLONG:
-        result = is_sorted<npy_longlong>(array);
+        result = is_sorted_and_has_non_nan<npy_longlong>(array);
         break;
     case NPY_FLOAT:
-        result = is_sorted<npy_float>(array);
+        result = is_sorted_and_has_non_nan<npy_float>(array);
         break;
     case NPY_DOUBLE:
-        result = is_sorted<npy_double>(array);
+        result = is_sorted_and_has_non_nan<npy_double>(array);
         break;
     default:
         Py_DECREF(array);
@@ -829,7 +729,7 @@ static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
         if (array == NULL) {
             return NULL;
         }
-        result = is_sorted<npy_double>(array);
+        result = is_sorted_and_has_non_nan<npy_double>(array);
     }
 
     Py_DECREF(array);
@@ -845,9 +745,6 @@ static PyObject *Py_is_sorted(PyObject *self, PyObject *obj)
 static PyMethodDef module_functions[] = {
     {"point_in_path", (PyCFunction)Py_point_in_path, METH_VARARGS, Py_point_in_path__doc__},
     {"points_in_path", (PyCFunction)Py_points_in_path, METH_VARARGS, Py_points_in_path__doc__},
-    {"point_on_path", (PyCFunction)Py_point_on_path, METH_VARARGS, Py_point_on_path__doc__},
-    {"points_on_path", (PyCFunction)Py_points_on_path, METH_VARARGS, Py_points_on_path__doc__},
-    {"get_path_extents", (PyCFunction)Py_get_path_extents, METH_VARARGS, Py_get_path_extents__doc__},
     {"update_path_extents", (PyCFunction)Py_update_path_extents, METH_VARARGS, Py_update_path_extents__doc__},
     {"get_path_collection_extents", (PyCFunction)Py_get_path_collection_extents, METH_VARARGS, Py_get_path_collection_extents__doc__},
     {"point_in_path_collection", (PyCFunction)Py_point_in_path_collection, METH_VARARGS, Py_point_in_path_collection__doc__},
@@ -860,7 +757,7 @@ static PyMethodDef module_functions[] = {
     {"convert_path_to_polygons", (PyCFunction)Py_convert_path_to_polygons, METH_VARARGS|METH_KEYWORDS, Py_convert_path_to_polygons__doc__},
     {"cleanup_path", (PyCFunction)Py_cleanup_path, METH_VARARGS, Py_cleanup_path__doc__},
     {"convert_to_string", (PyCFunction)Py_convert_to_string, METH_VARARGS, Py_convert_to_string__doc__},
-    {"is_sorted", (PyCFunction)Py_is_sorted, METH_O, Py_is_sorted__doc__},
+    {"is_sorted_and_has_non_nan", (PyCFunction)Py_is_sorted_and_has_non_nan, METH_O, Py_is_sorted_and_has_non_nan__doc__},
     {NULL}
 };
 
@@ -868,12 +765,8 @@ static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT, "_path", NULL, 0, module_functions
 };
 
-#pragma GCC visibility push(default)
-
 PyMODINIT_FUNC PyInit__path(void)
 {
     import_array();
     return PyModule_Create(&moduledef);
 }
-
-#pragma GCC visibility pop

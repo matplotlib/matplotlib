@@ -13,7 +13,7 @@ from functools import lru_cache, partial
 import re
 
 from pyparsing import (
-    Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore)
+    Group, Optional, ParseException, Regex, StringEnd, Suppress, ZeroOrMore)
 
 from matplotlib import _api
 
@@ -59,12 +59,12 @@ def _make_fontconfig_parser():
     def comma_separated(elem):
         return elem + ZeroOrMore(Suppress(",") + elem)
 
-    family = Regex(r"([^%s]|(\\[%s]))*" % (_family_punc, _family_punc))
+    family = Regex(fr"([^{_family_punc}]|(\\[{_family_punc}]))*")
     size = Regex(r"([0-9]+\.?[0-9]*|\.[0-9]+)")
     name = Regex(r"[a-z]+")
-    value = Regex(r"([^%s]|(\\[%s]))*" % (_value_punc, _value_punc))
+    value = Regex(fr"([^{_value_punc}]|(\\[{_value_punc}]))*")
     # replace trailing `| name` by oneOf(_CONSTANTS) in mpl 3.9.
-    prop = (name + Suppress("=") + comma_separated(value)) | name
+    prop = Group((name + Suppress("=") + comma_separated(value)) | name)
     return (
         Optional(comma_separated(family)("families"))
         + Optional("-" + comma_separated(size)("sizes"))

@@ -97,11 +97,11 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
+            python -m pip install --user \
+                numpy<< parameters.numpy_version >> \
+                -r requirements/doc/doc-requirements.txt
             python -m pip install --no-deps --user \
                 git+https://github.com/matplotlib/mpl-sphinx-theme.git
-            python -m pip install --user \
-                numpy<< parameters.numpy_version >> codecov coverage \
-                -r requirements/doc/doc-requirements.txt
 
   mpl-install:
     steps:
@@ -205,9 +205,9 @@ commands:
 #
 
 jobs:
-  docs-python38:
+  docs-python39:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.9
     resource_class: large
     steps:
       - checkout
@@ -234,7 +234,8 @@ jobs:
 
       - add_ssh_keys:
           fingerprints:
-            - "6b:83:76:a5:7d:bd:ce:19:a4:e3:81:e0:80:16:a4:fe"
+            - "be:c3:c1:d8:fb:a1:0e:37:71:72:d7:a3:40:13:8f:14"
+
       - deploy:
           name: "Deploy new docs"
           command: ./.circleci/deploy-docs.sh
@@ -249,4 +250,4 @@ workflows:
     jobs:
       # NOTE: If you rename this job, then you must update the `if` condition
       # and `circleci-jobs` option in `.github/workflows/circleci.yml`.
-      - docs-python38
+      - docs-python39

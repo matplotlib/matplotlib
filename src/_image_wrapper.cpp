@@ -9,7 +9,7 @@
  * */
 
 const char* image_resample__doc__ =
-"resample(input_array, output_array, matrix, interpolation=NEAREST, alpha=1.0, norm=False, radius=1)\n"
+"resample(input_array, output_array, transform, interpolation=NEAREST, resample=False, alpha=1.0, norm=False, radius=1.0)\n"
 "--\n\n"
 
 "Resample input_array, blending it in-place into output_array, using an\n"
@@ -17,22 +17,21 @@ const char* image_resample__doc__ =
 
 "Parameters\n"
 "----------\n"
-"input_array : 2-d or 3-d Numpy array of float, double or uint8\n"
+"input_array : 2-d or 3-d NumPy array of float, double or `numpy.uint8`\n"
 "    If 2-d, the image is grayscale.  If 3-d, the image must be of size\n"
 "    4 in the last dimension and represents RGBA data.\n\n"
 
-"output_array : 2-d or 3-d Numpy array of float, double or uint8\n"
+"output_array : 2-d or 3-d NumPy array of float, double or `numpy.uint8`\n"
 "    The dtype and number of dimensions must match `input_array`.\n\n"
 
 "transform : matplotlib.transforms.Transform instance\n"
-"    The transformation from the input array to the output\n"
-"    array.\n\n"
+"    The transformation from the input array to the output array.\n\n"
 
-"interpolation : int, optional\n"
+"interpolation : int, default: NEAREST\n"
 "    The interpolation method.  Must be one of the following constants\n"
 "    defined in this module:\n\n"
 
-"      NEAREST (default), BILINEAR, BICUBIC, SPLINE16, SPLINE36,\n"
+"      NEAREST, BILINEAR, BICUBIC, SPLINE16, SPLINE36,\n"
 "      HANNING, HAMMING, HERMITE, KAISER, QUADRIC, CATROM, GAUSSIAN,\n"
 "      BESSEL, MITCHELL, SINC, LANCZOS, BLACKMAN\n\n"
 
@@ -40,16 +39,14 @@ const char* image_resample__doc__ =
 "    When `True`, use a full resampling method.  When `False`, only\n"
 "    resample when the output image is larger than the input image.\n\n"
 
-"alpha : float, optional\n"
-"    The level of transparency to apply.  1.0 is completely opaque.\n"
-"    0.0 is completely transparent.\n\n"
+"alpha : float, default: 1\n"
+"    The transparency level, from 0 (transparent) to 1 (opaque).\n\n"
 
-"norm : bool, optional\n"
-"    Whether to norm the interpolation function.  Default is `False`.\n\n"
+"norm : bool, default: False\n"
+"    Whether to norm the interpolation function.\n\n"
 
-"radius: float, optional\n"
-"    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n"
-"    Default is 1.\n";
+"radius: float, default: 1\n"
+"    The radius of the kernel, if method is SINC, LANCZOS or BLACKMAN.\n";
 
 
 static PyArrayObject *
@@ -105,30 +102,19 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
 }
 
 
-template<class T>
-static void
-resample(PyArrayObject* input, PyArrayObject* output, resample_params_t params)
-{
-    Py_BEGIN_ALLOW_THREADS
-    resample(
-        (T*)PyArray_DATA(input), PyArray_DIM(input, 1), PyArray_DIM(input, 0),
-        (T*)PyArray_DATA(output), PyArray_DIM(output, 1), PyArray_DIM(output, 0),
-        params);
-    Py_END_ALLOW_THREADS
-}
-
-
 static PyObject *
 image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 {
-    PyObject *py_input_array = NULL;
-    PyObject *py_output_array = NULL;
+    PyObject *py_input = NULL;
+    PyObject *py_output = NULL;
     PyObject *py_transform = NULL;
     resample_params_t params;
 
-    PyArrayObject *input_array = NULL;
-    PyArrayObject *output_array = NULL;
-    PyArrayObject *transform_mesh_array = NULL;
+    PyArrayObject *input = NULL;
+    PyArrayObject *output = NULL;
+    PyArrayObject *transform_mesh = NULL;
+    int ndim;
+    int type;
 
     params.interpolation = NEAREST;
     params.transform_mesh = NULL;
@@ -143,36 +129,53 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwargs, "OOO|iO&dO&d:resample", (char **)kwlist,
-            &py_input_array, &py_output_array, &py_transform,
+            &py_input, &py_output, &py_transform,
             &params.interpolation, &convert_bool, &params.resample,
             &params.alpha, &convert_bool, &params.norm, &params.radius)) {
         return NULL;
     }
 
     if (params.interpolation < 0 || params.interpolation >= _n_interpolation) {
-        PyErr_Format(PyExc_ValueError, "invalid interpolation value %d",
+        PyErr_Format(PyExc_ValueError, "Invalid interpolation value %d",
                      params.interpolation);
         goto error;
     }
 
-    input_array = (PyArrayObject *)PyArray_FromAny(
-        py_input_array, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);
-    if (input_array == NULL) {
+    input = (PyArrayObject *)PyArray_FromAny(
+        py_input, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);
+    if (!input) {
         goto error;
     }
+    ndim = PyArray_NDIM(input);
+    type = PyArray_TYPE(input);
 
-    if (!PyArray_Check(py_output_array)) {
-        PyErr_SetString(PyExc_ValueError, "output array must be a NumPy array");
+    if (!PyArray_Check(py_output)) {
+        PyErr_SetString(PyExc_ValueError, "Output array must be a NumPy array");
         goto error;
     }
-    output_array = (PyArrayObject *)py_output_array;
-    if (!PyArray_IS_C_CONTIGUOUS(output_array)) {
-        PyErr_SetString(PyExc_ValueError, "output array must be C-contiguous");
+    output = (PyArrayObject *)py_output;
+    if (PyArray_NDIM(output) != ndim) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "Input (%dD) and output (%dD) have different dimensionalities.",
+            ndim, PyArray_NDIM(output));
         goto error;
     }
-    if (PyArray_NDIM(output_array) < 2 || PyArray_NDIM(output_array) > 3) {
-        PyErr_SetString(PyExc_ValueError,
-                        "output array must be 2- or 3-dimensional");
+    // PyArray_FromAny above checks that input is 2D or 3D.
+    if (ndim == 3 && (PyArray_DIM(input, 2) != 4 || PyArray_DIM(output, 2) != 4)) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "If 3D, input and output arrays must be RGBA with shape (M, N, 4); "
+            "got trailing dimensions of %" NPY_INTP_FMT " and %" NPY_INTP_FMT
+            " respectively", PyArray_DIM(input, 2), PyArray_DIM(output, 2));
+        goto error;
+    }
+    if (PyArray_TYPE(output) != type) {
+        PyErr_SetString(PyExc_ValueError, "Mismatched types");
+        goto error;
+    }
+    if (!PyArray_IS_C_CONTIGUOUS(output)) {
+        PyErr_SetString(PyExc_ValueError, "Output array must be C-contiguous");
         goto error;
     }
 
@@ -182,7 +185,7 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         PyObject *py_is_affine;
         int py_is_affine2;
         py_is_affine = PyObject_GetAttrString(py_transform, "is_affine");
-        if (py_is_affine == NULL) {
+        if (!py_is_affine) {
             goto error;
         }
 
@@ -197,96 +200,53 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
             }
             params.is_affine = true;
         } else {
-            transform_mesh_array = _get_transform_mesh(
-                py_transform, PyArray_DIMS(output_array));
-            if (transform_mesh_array == NULL) {
+            transform_mesh = _get_transform_mesh(
+                py_transform, PyArray_DIMS(output));
+            if (!transform_mesh) {
                 goto error;
             }
-            params.transform_mesh = (double *)PyArray_DATA(transform_mesh_array);
+            params.transform_mesh = (double *)PyArray_DATA(transform_mesh);
             params.is_affine = false;
         }
     }
 
-    if (PyArray_NDIM(input_array) != PyArray_NDIM(output_array)) {
-        PyErr_Format(
+    if (auto resampler =
+            (ndim == 2) ? (
+                (type == NPY_UINT8) ? resample<agg::gray8> :
+                (type == NPY_INT8) ? resample<agg::gray8> :
+                (type == NPY_UINT16) ? resample<agg::gray16> :
+                (type == NPY_INT16) ? resample<agg::gray16> :
+                (type == NPY_FLOAT32) ? resample<agg::gray32> :
+                (type == NPY_FLOAT64) ? resample<agg::gray64> :
+                nullptr) : (
+            // ndim == 3
+                (type == NPY_UINT8) ? resample<agg::rgba8> :
+                (type == NPY_INT8) ? resample<agg::rgba8> :
+                (type == NPY_UINT16) ? resample<agg::rgba16> :
+                (type == NPY_INT16) ? resample<agg::rgba16> :
+                (type == NPY_FLOAT32) ? resample<agg::rgba32> :
+                (type == NPY_FLOAT64) ? resample<agg::rgba64> :
+                nullptr)) {
+        Py_BEGIN_ALLOW_THREADS
+        resampler(
+            PyArray_DATA(input), PyArray_DIM(input, 1), PyArray_DIM(input, 0),
+            PyArray_DATA(output), PyArray_DIM(output, 1), PyArray_DIM(output, 0),
+            params);
+        Py_END_ALLOW_THREADS
+    } else {
+        PyErr_SetString(
             PyExc_ValueError,
-            "Mismatched number of dimensions. Got %d and %d.",
-            PyArray_NDIM(input_array), PyArray_NDIM(output_array));
+            "arrays must be of dtype byte, short, float32 or float64");
         goto error;
     }
 
-    if (PyArray_TYPE(input_array) != PyArray_TYPE(output_array)) {
-        PyErr_SetString(PyExc_ValueError, "Mismatched types");
-        goto error;
-    }
-
-    if (PyArray_NDIM(input_array) == 3) {
-        if (PyArray_DIM(output_array, 2) != 4) {
-            PyErr_SetString(
-                PyExc_ValueError,
-                "Output array must be RGBA");
-            goto error;
-        }
-
-        if (PyArray_DIM(input_array, 2) == 4) {
-            switch (PyArray_TYPE(input_array)) {
-            case NPY_UINT8:
-            case NPY_INT8:
-                resample<agg::rgba8>(input_array, output_array, params);
-                break;
-            case NPY_UINT16:
-            case NPY_INT16:
-                resample<agg::rgba16>(input_array, output_array, params);
-                break;
-            case NPY_FLOAT32:
-                resample<agg::rgba32>(input_array, output_array, params);
-                break;
-            case NPY_FLOAT64:
-                resample<agg::rgba64>(input_array, output_array, params);
-                break;
-            default:
-                PyErr_SetString(
-                    PyExc_ValueError,
-                    "3-dimensional arrays must be of dtype unsigned byte, "
-                    "unsigned short, float32 or float64");
-                goto error;
-            }
-        } else {
-            PyErr_Format(
-                PyExc_ValueError,
-                "If 3-dimensional, array must be RGBA.  Got %" NPY_INTP_FMT " planes.",
-                PyArray_DIM(input_array, 2));
-            goto error;
-        }
-    } else { // NDIM == 2
-        switch (PyArray_TYPE(input_array)) {
-        case NPY_DOUBLE:
-            resample<double>(input_array, output_array, params);
-            break;
-        case NPY_FLOAT:
-            resample<float>(input_array, output_array, params);
-            break;
-        case NPY_UINT8:
-        case NPY_INT8:
-            resample<unsigned char>(input_array, output_array, params);
-            break;
-        case NPY_UINT16:
-        case NPY_INT16:
-            resample<unsigned short>(input_array, output_array, params);
-            break;
-        default:
-            PyErr_SetString(PyExc_ValueError, "Unsupported dtype");
-            goto error;
-        }
-    }
-
-    Py_DECREF(input_array);
-    Py_XDECREF(transform_mesh_array);
+    Py_DECREF(input);
+    Py_XDECREF(transform_mesh);
     Py_RETURN_NONE;
 
  error:
-    Py_XDECREF(input_array);
-    Py_XDECREF(transform_mesh_array);
+    Py_XDECREF(input);
+    Py_XDECREF(transform_mesh);
     return NULL;
 }
 
@@ -298,8 +258,6 @@ static PyMethodDef module_functions[] = {
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT, "_image", NULL, 0, module_functions,
 };
-
-#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__image(void)
 {
@@ -337,5 +295,3 @@ PyMODINIT_FUNC PyInit__image(void)
 
     return m;
 }
-
-#pragma GCC visibility pop

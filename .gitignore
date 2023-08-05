@@ -56,8 +56,8 @@ Thumbs.db
 
 # Things specific to this project #
 ###################################
-tutorials/intermediate/CL01.png
-tutorials/intermediate/CL02.png
+galleries/tutorials/intermediate/CL01.png
+galleries/tutorials/intermediate/CL02.png
 
 # Documentation generated files #
 #################################
@@ -71,17 +71,17 @@ doc/modules
 doc/plot_types
 doc/pyplots/tex_demo.png
 doc/tutorials
+doc/users/explain
 lib/dateutil
-examples/*/*.bmp
-examples/*/*.eps
-examples/*/*.pdf
-examples/*/*.png
-examples/*/*.svg
-examples/*/*.svgz
-examples/tests/*
-!examples/tests/backend_driver_sgskip.py
+galleries/examples/*/*.bmp
+galleries/examples/*/*.eps
+galleries/examples/*/*.pdf
+galleries/examples/*/*.png
+galleries/examples/*/*.svg
+galleries/examples/*/*.svgz
 result_images
 doc/_static/constrained_layout*.png
+doc/.mpl_skip_subdirs.yaml
 
 # Nose/Pytest generated files #
 ###############################

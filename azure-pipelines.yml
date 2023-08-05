@@ -11,6 +11,10 @@ pr:
   branches:
     exclude:
       - v*-doc
+  paths:
+    exclude:
+      - doc/**/*
+      - galleries/**/*
 
 stages:
 
@@ -27,7 +31,7 @@ stages:
         git_log=`git log --max-count=1 --skip=1 --pretty=format:"%B" | tr "\n" " "`
         echo "##vso[task.setvariable variable=log]$git_log"
     - bash: echo "##vso[task.setvariable variable=RET]false"
-      condition: or(contains(variables.log, '[skip azp]'), contains(variables.log, '[azp skip]'), contains(variables.log, '[skip ci]'), contains(variables.log, '[ci skip]'))
+      condition: or(contains(variables.log, '[skip azp]'), contains(variables.log, '[azp skip]'), contains(variables.log, '[skip ci]'), contains(variables.log, '[ci skip]'), contains(variables.log, '[ci doc]'))
     - bash: echo "##vso[task.setvariable variable=start_main;isOutput=true]$RET"
       name: result
 
@@ -38,33 +42,33 @@ stages:
     - job: Pytest
       strategy:
         matrix:
-          Linux_py38:
-            vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
-            python.version: '3.8'
           Linux_py39:
-            vmImage: 'ubuntu-latest'
+            vmImage: 'ubuntu-20.04'  # keep one job pinned to the oldest image
             python.version: '3.9'
           Linux_py310:
             vmImage: 'ubuntu-latest'
             python.version: '3.10'
-          macOS_py38:
-            vmImage: 'macOS-latest'
-            python.version: '3.8'
+          Linux_py311:
+            vmImage: 'ubuntu-latest'
+            python.version: '3.11'
           macOS_py39:
             vmImage: 'macOS-latest'
             python.version: '3.9'
           macOS_py310:
             vmImage: 'macOS-latest'
             python.version: '3.10'
-          Windows_py38:
-            vmImage: 'windows-2019'  # keep one job pinned to the oldest image
-            python.version: '3.8'
+          macOS_py311:
+            vmImage: 'macOS-latest'
+            python.version: '3.11'
           Windows_py39:
-            vmImage: 'windows-latest'
+            vmImage: 'windows-2019'  # keep one job pinned to the oldest image
             python.version: '3.9'
           Windows_py310:
             vmImage: 'windows-latest'
             python.version: '3.10'
+          Windows_py311:
+            vmImage: 'windows-latest'
+            python.version: '3.11'
         maxParallel: 4
       pool:
         vmImage: '$(vmImage)'
@@ -86,6 +90,7 @@ stages:
           set -e
           case "$(python -c 'import sys; print(sys.platform)')" in
           linux)
+            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt update
             sudo apt install \
               cm-super \
@@ -130,8 +135,7 @@ stages:
         displayName: 'Install dependencies with pip'
 
       - bash: |
-          # Due to https://github.com/pypa/setuptools/pull/2896
-          SETUPTOOLS_USE_DISTUTILS=stdlib python -m pip install -ve . ||
+          python -m pip install -ve . ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]
         displayName: "Install self"
 

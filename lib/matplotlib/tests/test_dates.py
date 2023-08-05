@@ -6,7 +6,8 @@ import functools
 import numpy as np
 import pytest
 
-from matplotlib import _api, rc_context, style
+import matplotlib as mpl
+from matplotlib import rc_context, style
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
@@ -636,6 +637,27 @@ def test_concise_formatter_show_offset(t_delta, expected):
     assert formatter.get_offset() == expected
 
 
+def test_concise_converter_stays():
+    # This test demonstrates problems introduced by gh-23417 (reverted in gh-25278)
+    # In particular, downstream libraries like Pandas had their designated converters
+    # overridden by actions like setting xlim (or plotting additional points using
+    # stdlib/numpy dates and string date representation, which otherwise work fine with
+    # their date converters)
+    # While this is a bit of a toy example that would be unusual to see it demonstrates
+    # the same ideas (namely having a valid converter already applied that is desired)
+    # without introducing additional subclasses.
+    # See also discussion at gh-25219 for how Pandas was affected
+    x = [datetime.datetime(2000, 1, 1), datetime.datetime(2020, 2, 20)]
+    y = [0, 1]
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
+    # Bypass Switchable date converter
+    ax.xaxis.converter = conv = mdates.ConciseDateConverter()
+    assert ax.xaxis.units is None
+    ax.set_xlim(*x)
+    assert ax.xaxis.converter == conv
+
+
 def test_offset_changes():
     fig, ax = plt.subplots()
 
@@ -1261,16 +1283,17 @@ def test_change_interval_multiples():
 
 
 def test_julian2num():
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
-        mdates._reset_epoch_test_example()
-        mdates.set_epoch('0000-12-31')
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('0000-12-31')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         # 2440587.5 is julian date for 1970-01-01T00:00:00
         # https://en.wikipedia.org/wiki/Julian_day
         assert mdates.julian2num(2440588.5) == 719164.0
         assert mdates.num2julian(719165.0) == 2440589.5
-        # set back to the default
-        mdates._reset_epoch_test_example()
-        mdates.set_epoch('1970-01-01T00:00:00')
+    # set back to the default
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('1970-01-01T00:00:00')
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         assert mdates.julian2num(2440588.5) == 1.0
         assert mdates.num2julian(2.0) == 2440589.5
 
@@ -1294,7 +1317,7 @@ def test_DateLocator():
     iceland_tz = dateutil.tz.gettz(tz_str)
     # Check not Iceland
     assert locator.tz != iceland_tz
-    # Set it to to Iceland
+    # Set it to Iceland
     locator.set_tzinfo('Iceland')
     # Check now it is Iceland
     assert locator.tz == iceland_tz
@@ -1348,19 +1371,6 @@ def test_concise_formatter_call():
     formatter = mdates.ConciseDateFormatter(locator)
     assert formatter(19002.0) == '2022'
     assert formatter.format_data_short(19002.0) == '2022-01-10 00:00:00'
-
-
-@pytest.mark.parametrize('span, expected_locator',
-                         ((0.02, mdates.MinuteLocator),
-                          (1, mdates.HourLocator),
-                          (19, mdates.DayLocator),
-                          (40, mdates.WeekdayLocator),
-                          (200, mdates.MonthLocator),
-                          (2000, mdates.YearLocator)))
-def test_date_ticker_factory(span, expected_locator):
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
-        locator, _ = mdates.date_ticker_factory(span)
-        assert isinstance(locator, expected_locator)
 
 
 def test_datetime_masked():

@@ -5,8 +5,8 @@ Default legend handlers.
 
     This is a low-level legend API, which most end users do not need.
 
-    We recommend that you are familiar with the :doc:`legend guide
-    </tutorials/intermediate/legend_guide>` before reading this documentation.
+    We recommend that you are familiar with the :ref:`legend guide
+    <legend_guide>` before reading this documentation.
 
 Legend handlers are expected to be a callable object with a following
 signature::
@@ -27,12 +27,11 @@ derived from the base class (HandlerBase) with the following method::
     def legend_artist(self, legend, orig_handle, fontsize, handlebox)
 """
 
-from collections.abc import Sequence
 from itertools import cycle
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import cbook
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
@@ -64,7 +63,6 @@ class HandlerBase:
         """
         Parameters
         ----------
-
         xpad : float, optional
             Padding in x-direction.
         ypad : float, optional
@@ -117,7 +115,7 @@ class HandlerBase:
         fontsize : int
             The fontsize in pixels. The artists being created should
             be scaled according to the given fontsize.
-        handlebox : `matplotlib.offsetbox.OffsetBox`
+        handlebox : `~matplotlib.offsetbox.OffsetBox`
             The box which has been created to hold this legend entry's
             artists. Artists created in the `legend_artist` method must
             be added to this handlebox inside this method.
@@ -131,9 +129,6 @@ class HandlerBase:
         artists = self.create_artists(legend, orig_handle,
                                       xdescent, ydescent, width, height,
                                       fontsize, handlebox.get_transform())
-
-        if isinstance(artists, _Line2DHandleList):
-            artists = [artists[0]]
 
         # create_artists will return a list of artists.
         for a in artists:
@@ -277,24 +272,6 @@ class HandlerLine2DCompound(HandlerNpoints):
         return [legline, legline_marker]
 
 
-class _Line2DHandleList(Sequence):
-    def __init__(self, legline):
-        self._legline = legline
-
-    def __len__(self):
-        return 2
-
-    def __getitem__(self, index):
-        if index != 0:
-            # Make HandlerLine2D return [self._legline] directly after
-            # deprecation elapses.
-            _api.warn_deprecated(
-                "3.5", message="Access to the second element returned by "
-                "HandlerLine2D is deprecated since %(since)s; it will be "
-                "removed %(removal)s.")
-        return [self._legline, self._legline][index]
-
-
 class HandlerLine2D(HandlerNpoints):
     """
     Handler for `.Line2D` instances.
@@ -331,7 +308,7 @@ class HandlerLine2D(HandlerNpoints):
 
         legline.set_transform(trans)
 
-        return _Line2DHandleList(legline)
+        return [legline]
 
 
 class HandlerPatch(HandlerBase):
@@ -494,7 +471,6 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         legend_handle.set_clip_box(None)
         legend_handle.set_clip_path(None)
 
-    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
     def create_collection(self, orig_handle, sizes, offsets, offset_transform):
         return type(orig_handle)(
             orig_handle.get_numsides(),
@@ -527,7 +503,6 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 class HandlerPathCollection(HandlerRegularPolyCollection):
     r"""Handler for `.PathCollection`\s, which are used by `~.Axes.scatter`."""
 
-    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
     def create_collection(self, orig_handle, sizes, offsets, offset_transform):
         return type(orig_handle)(
             [orig_handle.get_paths()[0]], sizes=sizes,
@@ -538,7 +513,6 @@ class HandlerPathCollection(HandlerRegularPolyCollection):
 class HandlerCircleCollection(HandlerRegularPolyCollection):
     r"""Handler for `.CircleCollection`\s."""
 
-    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
     def create_collection(self, orig_handle, sizes, offsets, offset_transform):
         return type(orig_handle)(
             sizes, offsets=offsets, offset_transform=offset_transform)
@@ -751,7 +725,7 @@ class HandlerTuple(HandlerBase):
         """
         Parameters
         ----------
-        ndivide : int, default: 1
+        ndivide : int or None, default: 1
             The number of sections to divide the legend area into.  If None,
             use the length of the input tuple.
         pad : float, default: :rc:`legend.borderpad`
@@ -790,8 +764,6 @@ class HandlerTuple(HandlerBase):
             _a_list = handler.create_artists(
                 legend, handle1,
                 next(xds_cycle), ydescent, width, height, fontsize, trans)
-            if isinstance(_a_list, _Line2DHandleList):
-                _a_list = [_a_list[0]]
             a_list.extend(_a_list)
 
         return a_list

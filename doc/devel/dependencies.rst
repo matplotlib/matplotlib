@@ -15,17 +15,15 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.8)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.9)
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
-* `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.1)
-* `NumPy <https://numpy.org>`_ (>= 1.19)
+* `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
+* `NumPy <https://numpy.org>`_ (>= 1.21)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
-* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
-* `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
-* `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
+* `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 8.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 2.3.1)
 * `importlib-resources <https://pypi.org/project/importlib-resources/>`_
   (>= 3.2.0; only required on Python < 3.10)
@@ -46,7 +44,7 @@ Matplotlib figures can be rendered to various user interfaces. See
 :ref:`what-is-a-backend` for more details on the optional Matplotlib backends
 and the capabilities they provide.
 
-* Tk_ (>= 8.4, != 8.6.0 or 8.6.1): for the Tk-based backends. Tk is part of
+* Tk_ (>= 8.5, != 8.6.0 or 8.6.1): for the Tk-based backends. Tk is part of
   most standard Python installations, but it's not part of Python itself and
   thus may not be present in rare cases.
 * PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
@@ -112,6 +110,9 @@ necessary to run the test suite, because different versions of FreeType
 rasterize characters differently) and of Qhull.  As an exception, Matplotlib
 defaults to the system version of FreeType on AIX.
 
+Use system libraries
+~~~~~~~~~~~~~~~~~~~~
+
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
 your system, create a :file:`mplsetup.cfg` file with the following contents:
 
@@ -121,7 +122,16 @@ your system, create a :file:`mplsetup.cfg` file with the following contents:
    system_freetype = true
    system_qhull = true
 
-before running ``python -m pip install .``.
+before running
+
+.. code-block:: sh
+
+   python -m pip install .
+
+
+You can also use the :envvar:`MPLSETUPCFG` to specify the path to a cfg file when
+installing from pypi.
+
 
 In this case, you need to install the FreeType and Qhull library and headers.
 This can be achieved using a package manager, e.g. for FreeType:
@@ -174,13 +184,29 @@ remember to clear your artifacts before re-building::
   git clean -xfd
 
 
+Manual Download
+~~~~~~~~~~~~~~~
+
+
+If the automatic download does not work (for example on air-gapped systems) it
+is preferable to instead use system libraries.  However you can manually
+download and unpack the tarballs into::
+
+  build/freetype-2.6.1  # on all platforms but windows ARM64
+  build/freetype-2.11.1 # on windows ARM64
+  build/qhull-2020.2
+
+at the top level of the checkout repository.  The expected sha256 hashes of
+the downloaded tarballs is in :file:`setupext.py` if you wish to verify
+before unpacking.
+
+
 Minimum pip / manylinux support (linux)
 ---------------------------------------
 
 Matplotlib publishes `manylinux wheels <https://github.com/pypa/manylinux>`_
 which have a minimum version of pip which will recognize the wheels
 
-- Python 3.8: ``manylinx2010`` / pip >= 19.0
 - Python 3.9+: ``manylinx2014`` / pip >= 19.3
 
 In all cases the required version of pip is embedded in the CPython source.
@@ -200,10 +226,13 @@ Setup dependencies
 - `certifi <https://pypi.org/project/certifi/>`_ (>= 2020.06.20).  Used while
   downloading the freetype and QHull source during build.  This is not a
   runtime dependency.
+- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.6). Used to connect C/C++ code
+  with Python.
+- `setuptools <https://pypi.org/project/setuptools/>`_ (>= 42).
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
-- `NumPy <https://numpy.org>`_ (>= 1.19).  Also a runtime dependency.
+- `NumPy <https://numpy.org>`_ (>= 1.21).  Also a runtime dependency.
 
 
 .. _compile-dependencies:
@@ -215,10 +244,13 @@ Matplotlib requires a C++ compiler that supports C++11.
 
 - `gcc 4.8.1 <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_ or higher.  For gcc <6.5 you will
   need to set ``$CFLAGS=-std=c++11`` to enable C++11 support.
-- `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_ or higher
+  `Installing GCC: Binaries <https://gcc.gnu.org/install/binaries.html>`_.
+- `clang 3.3 <https://clang.llvm.org/cxx_status.html>`_ or higher.
+  `LLVM Download Page <https://releases.llvm.org/download.html>`_.
 - `Visual Studio 2015
   <https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-140>`_
-  (aka VS 14.0) or higher
+  (aka VS 14.0) or higher. A free version of Build Tools for Visual Studio is available for
+  `download <https://visualstudio.microsoft.com/downloads/?q=build+tools>`_.
 
 
 .. _test-dependencies:
@@ -230,7 +262,7 @@ This section lists the additional software required for
 
 Required:
 
-- pytest_ (>= 3.6)
+- pytest_ (>= 7.0.0)
 
 Optional:
 
@@ -270,7 +302,7 @@ will be skipped by pytest.
 .. _nbformat: https://pypi.org/project/nbformat/
 .. _pandas: https://pypi.org/project/pandas/
 .. _pikepdf: https://pypi.org/project/pikepdf/
-.. _psutil: https://pypi.org/project/psuitl/
+.. _psutil: https://pypi.org/project/psutil/
 .. _pytz: https://fonts.google.com/noto/use#faq
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-flake8: https://pypi.org/project/pytest-flake8/
@@ -297,16 +329,17 @@ The additional Python packages required to build the
 
 The content of :file:`doc-requirements.txt` is also shown below:
 
-   .. include:: ../../requirements/doc/doc-requirements.txt
-      :literal:
+.. include:: ../../requirements/doc/doc-requirements.txt
+   :literal:
 
 Additional external dependencies
 --------------------------------
 Required:
 
-* a minimal working LaTeX distribution
+* a minimal working LaTeX distribution, e.g., `TeX Live <https://www.tug.org/texlive/>`_ or
+  `MikTeX <https://miktex.org/>`_
 * `Graphviz <http://www.graphviz.org/download>`_
-* the following LaTeX packages (if your OS bundles TeXLive, the
+* the following LaTeX packages (if your OS bundles TeX Live, the
   "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
   will often automatically include these packages):
 

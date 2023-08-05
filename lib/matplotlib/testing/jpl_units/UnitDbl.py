@@ -91,8 +91,6 @@ class UnitDbl:
 
     def _cmp(self, op, rhs):
         """Check that *self* and *rhs* share units; compare them using *op*."""
-        if rhs is None:
-            return NotImplemented
         self.checkSameUnits(rhs, "compare")
         return op(self._value, rhs._value)
 
@@ -120,11 +118,11 @@ class UnitDbl:
 
     def __str__(self):
         """Print the UnitDbl."""
-        return "%g *%s" % (self._value, self._units)
+        return f"{self._value:g} *{self._units}"
 
     def __repr__(self):
         """Print the UnitDbl."""
-        return "UnitDbl(%g, '%s')" % (self._value, self._units)
+        return f"UnitDbl({self._value:g}, '{self._units}')"
 
     def type(self):
         """Return the type of UnitDbl data."""

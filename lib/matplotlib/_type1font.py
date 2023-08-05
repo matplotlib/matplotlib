@@ -140,7 +140,7 @@ class _StringToken(_Token):
         except KeyError:
             return chr(int(group, 8))
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def value(self):
         if self.raw[0] == '(':
             return self._escapes_re.sub(self._escape, self.raw[1:-1])

@@ -29,6 +29,7 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 if "%1" == "html-noplot" goto html-noplot
+if "%1" == "html-skip-subdirs" goto html-skip-subdirs
 if "%1" == "show" goto show
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
@@ -51,6 +52,11 @@ goto end
 :html-noplot
 %SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O% -D plot_gallery=0
 goto end
+
+:html-skip-subdirs
+%SPHINXBUILD% -M html %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O% -D skip_sub_dirs=1
+goto end
+
 
 :show
 python -m webbrowser -t "%~dp0\build\html\index.html"

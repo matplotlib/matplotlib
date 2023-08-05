@@ -13,25 +13,28 @@ exclude: |
     )
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: check-added-large-files
       - id: check-docstring-first
+        exclude: lib/matplotlib/typing.py  # docstring used for attribute flagged by check
       - id: end-of-file-fixer
         exclude_types: [svg]
       - id: mixed-line-ending
       - id: name-tests-test
         args: ["--pytest-test-first"]
+      - id: no-commit-to-branch #default is master and main
       - id: trailing-whitespace
         exclude_types: [svg]
+
   - repo: https://github.com/pycqa/flake8
-    rev: 5.0.4
+    rev: 6.0.0
     hooks:
       - id: flake8
         additional_dependencies: [pydocstyle>5.1.0, flake8-docstrings>1.4.0, flake8-force]
         args: ["--docstring-convention=all"]
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.2
+    rev: v2.2.4
     hooks:
       - id: codespell
         files: ^.*\.(py|c|cpp|h|m|md|rst|yml)$
@@ -41,3 +44,10 @@ repos:
           "--skip",
           "doc/users/project/credits.rst"
           ]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        name: isort (python)
+        files: ^galleries/tutorials/|^galleries/examples/|^galleries/plot_types/

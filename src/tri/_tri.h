@@ -116,7 +116,6 @@ struct XYZ
     XYZ(const double& x_, const double& y_, const double& z_);
     XYZ cross(const XYZ& other) const;
     double dot(const XYZ& other) const;
-    double length_squared() const;
     XYZ operator-(const XYZ& other) const;
     friend std::ostream& operator<<(std::ostream& os, const XYZ& xyz);
 
@@ -137,14 +136,12 @@ public:
 };
 
 /* A single line of a contour, which may be a closed line loop or an open line
- * strip.  Identical adjacent points are avoided using insert_unique() and
- * push_back(), and a closed line loop should also not have identical first and
- * last points. */
+ * strip.  Identical adjacent points are avoided using push_back(), and a closed
+ * line loop should also not have identical first and last points. */
 class ContourLine : public std::vector<XY>
 {
 public:
     ContourLine();
-    void insert_unique(iterator pos, const XY& point);
     void push_back(const XY& point);
     void write() const;
 };

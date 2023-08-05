@@ -3,6 +3,7 @@ Tests specific to the lines module.
 """
 
 import itertools
+import platform
 import timeit
 from types import SimpleNamespace
 
@@ -13,6 +14,7 @@ import pytest
 
 import matplotlib
 import matplotlib as mpl
+from matplotlib import _path
 import matplotlib.lines as mlines
 from matplotlib.markers import MarkerStyle
 from matplotlib.path import Path
@@ -90,14 +92,19 @@ def test_invalid_line_data():
         mlines.Line2D([], 1)
 
     line = mlines.Line2D([], [])
-    with pytest.raises(RuntimeError, match='x must be'):
+    # when deprecation cycle is completed
+    # with pytest.raises(RuntimeError, match='x must be'):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         line.set_xdata(0)
-    with pytest.raises(RuntimeError, match='y must be'):
+    # with pytest.raises(RuntimeError, match='y must be'):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
         line.set_ydata(0)
 
 
-@image_comparison(['line_dashes'], remove_text=True)
+@image_comparison(['line_dashes'], remove_text=True, tol=0.002)
 def test_line_dashes():
+    # Tolerance introduced after reordering of floating-point operations
+    # Remove when regenerating the images
     fig, ax = plt.subplots()
 
     ax.plot(range(10), linestyle=(0, (3, 3)), lw=5)
@@ -178,7 +185,9 @@ def test_set_drawstyle():
     assert len(line.get_path().vertices) == len(x)
 
 
-@image_comparison(['line_collection_dashes'], remove_text=True, style='mpl20')
+@image_comparison(
+    ['line_collection_dashes'], remove_text=True, style='mpl20',
+    tol=0.65 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_set_line_coll_dash_image():
     fig, ax = plt.subplots()
     np.random.seed(0)
@@ -195,7 +204,11 @@ def test_marker_fill_styles():
     x = np.array([0, 9])
     fig, ax = plt.subplots()
 
-    for j, marker in enumerate(mlines.Line2D.filled_markers):
+    # This hard-coded list of markers correspond to an earlier iteration of
+    # MarkerStyle.filled_markers; the value of that attribute has changed but
+    # we kept the old value here to not regenerate the baseline image.
+    # Replace with mlines.Line2D.filled_markers when the image is regenerated.
+    for j, marker in enumerate("ov^<>8sp*hHDdPX"):
         for i, fs in enumerate(mlines.Line2D.fillStyles):
             color = next(colors)
             ax.plot(j * 10 + x, y + i + .5 * (j % 2),
@@ -232,11 +245,12 @@ def test_lw_scaling():
             ax.plot(th, j*np.ones(50) + .1 * lw, linestyle=ls, lw=lw, **sty)
 
 
-def test_nan_is_sorted():
-    line = mlines.Line2D([], [])
-    assert line._is_sorted(np.array([1, 2, 3]))
-    assert line._is_sorted(np.array([1, np.nan, 3]))
-    assert not line._is_sorted([3, 5] + [np.nan] * 100 + [0, 2])
+def test_is_sorted_and_has_non_nan():
+    assert _path.is_sorted_and_has_non_nan(np.array([1, 2, 3]))
+    assert _path.is_sorted_and_has_non_nan(np.array([1, np.nan, 3]))
+    assert not _path.is_sorted_and_has_non_nan([3, 5] + [np.nan] * 100 + [0, 2])
+    n = 2 * mlines.Line2D._subslice_optim_min_size
+    plt.plot([np.nan] * n, range(n))
 
 
 @check_figures_equal()
@@ -395,3 +409,30 @@ def test_markevery_prop_cycle(fig_test, fig_ref):
     ax = fig_test.add_subplot()
     for i, _ in enumerate(cases):
         ax.plot(y - i, 'o-')
+
+
+def test_axline_setters():
+    fig, ax = plt.subplots()
+    line1 = ax.axline((.1, .1), slope=0.6)
+    line2 = ax.axline((.1, .1), (.8, .4))
+    # Testing xy1, xy2 and slope setters.
+    # This should not produce an error.
+    line1.set_xy1(.2, .3)
+    line1.set_slope(2.4)
+    line2.set_xy1(.3, .2)
+    line2.set_xy2(.6, .8)
+    # Testing xy1, xy2 and slope getters.
+    # Should return the modified values.
+    assert line1.get_xy1() == (.2, .3)
+    assert line1.get_slope() == 2.4
+    assert line2.get_xy1() == (.3, .2)
+    assert line2.get_xy2() == (.6, .8)
+    # Testing setting xy2 and slope together.
+    # These test should raise a ValueError
+    with pytest.raises(ValueError,
+                       match="Cannot set an 'xy2' value while 'slope' is set"):
+        line1.set_xy2(.2, .3)
+
+    with pytest.raises(ValueError,
+                       match="Cannot set a 'slope' value while 'xy2' is set"):
+        line2.set_slope(3)

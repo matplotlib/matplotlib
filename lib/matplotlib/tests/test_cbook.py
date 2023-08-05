@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import itertools
 import pickle
 
-from weakref import ref
+from typing import Any
 from unittest.mock import patch, Mock
 
 from datetime import datetime, date, timedelta
@@ -13,7 +15,7 @@ import pytest
 
 from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
-from matplotlib.cbook import delete_masked_points
+from matplotlib.cbook import delete_masked_points, strip_math
 
 
 class Test_delete_masked_points:
@@ -207,6 +209,13 @@ class Test_callback_registry:
         assert self.callbacks._func_cid_map != {}
         assert self.callbacks.callbacks != {}
 
+    def test_cid_restore(self):
+        cb = cbook.CallbackRegistry()
+        cb.connect('a', lambda: None)
+        cb2 = pickle.loads(pickle.dumps(cb))
+        cid = cb2.connect('c', lambda: None)
+        assert cid == 1
+
     @pytest.mark.parametrize('pickle', [True, False])
     def test_callback_complete(self, pickle):
         # ensure we start with an empty registry
@@ -217,7 +226,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         # test that we don't add a second callback
@@ -242,7 +251,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         self.disconnect(cid1)
@@ -260,7 +269,7 @@ class Test_callback_registry:
 
         # test that we can add a callback
         cid1 = self.connect(self.signal, mini_me.dummy, pickle)
-        assert type(cid1) == int
+        assert type(cid1) is int
         self.is_not_empty()
 
         self.disconnect("foo")
@@ -441,12 +450,12 @@ def test_sanitize_sequence():
     assert k == cbook.sanitize_sequence(k)
 
 
-fail_mapping = (
+fail_mapping: tuple[tuple[dict, dict], ...] = (
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
 )
 
-pass_mapping = (
+pass_mapping: tuple[tuple[Any, dict, dict], ...] = (
     (None, {}, {}),
     ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
     ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
@@ -590,11 +599,11 @@ def test_grouper_private():
     mapping = g._mapping
 
     for o in objs:
-        assert ref(o) in mapping
+        assert o in mapping
 
-    base_set = mapping[ref(objs[0])]
+    base_set = mapping[objs[0]]
     for o in objs[1:]:
-        assert mapping[ref(o)] is base_set
+        assert mapping[o] is base_set
 
 
 def test_flatiter():
@@ -607,6 +616,18 @@ def test_flatiter():
 
     assert 0 == next(it)
     assert 1 == next(it)
+
+
+def test__safe_first_finite_all_nan():
+    arr = np.full(2, np.nan)
+    ret = cbook._safe_first_finite(arr)
+    assert np.isnan(ret)
+
+
+def test__safe_first_finite_all_inf():
+    arr = np.full(2, np.inf)
+    ret = cbook._safe_first_finite(arr)
+    assert np.isinf(ret)
 
 
 def test_reshape2d():
@@ -895,6 +916,12 @@ def test_safe_first_element_with_none():
     datetime_lst[0] = None
     actual = cbook._safe_first_finite(datetime_lst)
     assert actual is not None and actual == datetime_lst[1]
+
+
+def test_strip_math():
+    assert strip_math(r'1 \times 2') == r'1 \times 2'
+    assert strip_math(r'$1 \times 2$') == '1 x 2'
+    assert strip_math(r'$\rm{hi}$') == 'hi'
 
 
 @pytest.mark.parametrize('fmt, value, result', [

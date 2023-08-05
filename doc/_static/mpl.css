@@ -9,6 +9,29 @@
     margin: 0;
 }
 
+/* Make announcement an error colour for unreleased documentation, and sticky. */
+#unreleased-message.bd-header-announcement {
+    border-bottom: solid var(--pst-color-danger-highlight);
+    color: var(--pst-color-danger-text);
+    font-weight: var(--pst-admonition-font-weight-heading);
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+}
+
+#unreleased-message.bd-header-announcement:after {
+    background-color: var(--pst-color-danger);
+    opacity: 1;
+}
+
+#unreleased-message.bd-header-announcement a {
+    color: var(--pst-color-danger-text);
+}
+
+#unreleased-message.bd-header-announcement + .bd-navbar {
+    top: 3rem;  /* Minimum height of announcement header. */
+}
+
 /* multi column TOC */
 .contents ul {
     list-style-type: none;
@@ -62,12 +85,11 @@ html[data-theme="dark"] .sphx-glr-thumbcontainer {
     padding: 0;
 }
 
-/* hide note linking to the download section at the bottom of galleries
- * as suggested in https://github.com/sphinx-gallery/sphinx-gallery/issues/760
+/* hide download buttons in example headers
+ * https://sphinx-gallery.github.io/stable/advanced.html#hide-the-download-buttons-in-the-example-headers
  */
 div.sphx-glr-download-link-note {
-    height: 0px;
-    visibility: hidden;
+    display: none;
 }
 
 /* re-style the download button */
@@ -121,3 +143,16 @@ div.wide-table table th.stub {
     left: 0;
     position: sticky;
 }
+
+.imrot-img {
+    display: flex;
+    margin: auto;
+    max-width:15em;
+    align-self: center;
+  }
+
+  .imrot-cap {
+    text-align: center;
+    font-style: italic;
+    font-size:  large;
+  }

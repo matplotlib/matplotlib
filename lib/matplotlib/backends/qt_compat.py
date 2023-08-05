@@ -9,7 +9,6 @@ The selection logic is as follows:
 - otherwise, use whatever the rcParams indicate.
 """
 
-import functools
 import operator
 import os
 import platform
@@ -69,7 +68,7 @@ else:
 
 def _setup_pyqt5plus():
     global QtCore, QtGui, QtWidgets, __version__
-    global _getSaveFileName, _isdeleted, _to_int
+    global _isdeleted, _to_int
 
     if QT_API == QT_API_PYQT6:
         from PyQt6 import QtCore, QtGui, QtWidgets, sip
@@ -107,7 +106,6 @@ def _setup_pyqt5plus():
         _to_int = int
     else:
         raise AssertionError(f"Unexpected QT_API: {QT_API}")
-    _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
 
 
 if QT_API in [QT_API_PYQT6, QT_API_PYQT5, QT_API_PYSIDE6, QT_API_PYSIDE2]:
@@ -134,17 +132,18 @@ elif QT_API is None:  # See above re: dict.__getitem__.
     else:
         raise ImportError(
             "Failed to import any of the following Qt binding modules: {}"
-            .format(", ".join(_ETS.values())))
+            .format(", ".join([QT_API for _, QT_API in _candidates]))
+        )
 else:  # We should not get there.
     raise AssertionError(f"Unexpected QT_API: {QT_API}")
 _version_info = tuple(QtCore.QLibraryInfo.version().segments())
 
 
-if _version_info < (5, 10):
+if _version_info < (5, 12):
     raise ImportError(
         f"The Qt version imported is "
         f"{QtCore.QLibraryInfo.version().toString()} but Matplotlib requires "
-        f"Qt>=5.10")
+        f"Qt>=5.12")
 
 
 # Fixes issues with Big Sur
@@ -153,17 +152,6 @@ if (sys.platform == 'darwin' and
         parse_version(platform.mac_ver()[0]) >= parse_version("10.16") and
         _version_info < (5, 15, 2)):
     os.environ.setdefault("QT_MAC_WANTS_LAYER", "1")
-
-
-# PyQt6 enum compat helpers.
-
-
-@functools.lru_cache(None)
-def _enum(name):
-    # foo.bar.Enum.Entry (PyQt6) <=> foo.bar.Entry (non-PyQt6).
-    return operator.attrgetter(
-        name if QT_API == 'PyQt6' else name.rpartition(".")[0]
-    )(sys.modules[QtCore.__package__])
 
 
 # Backports.
@@ -208,7 +196,7 @@ def _maybe_allow_interrupt(qapp):
         wsock.setblocking(False)
         old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
         sn = QtCore.QSocketNotifier(
-            rsock.fileno(), _enum('QtCore.QSocketNotifier.Type').Read
+            rsock.fileno(), QtCore.QSocketNotifier.Type.Read
         )
 
         # We do not actually care about this value other than running some

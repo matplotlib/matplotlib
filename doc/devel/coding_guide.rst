@@ -30,14 +30,15 @@ rules before submitting a pull request:
   for more details.
 
 * Formatting should follow the recommendations of PEP8_, as enforced by
-  flake8_.  You can check flake8 compliance from the command line with ::
+  flake8_. Matplotlib modifies PEP8 to extend the maximum line length to 88
+  characters. You can check flake8 compliance from the command line with ::
 
     python -m pip install flake8
     flake8 /path/to/module.py
 
   or your editor may provide integration with it.  Note that Matplotlib
   intentionally does not use the black_ auto-formatter (1__), in particular due
-  to its unability to understand the semantics of mathematical expressions
+  to its inability to understand the semantics of mathematical expressions
   (2__, 3__).
 
   .. _PEP8: https://www.python.org/dev/peps/pep-0008/
@@ -80,6 +81,11 @@ rules before submitting a pull request:
   naming convention ``99999-ABC.rst`` where the pull request number is followed
   by the contributor's initials. (see :file:`doc/api/api_changes.rst` for more
   information)
+
+* If you add new public API or change public API, update or add the
+  corresponding type hints. Most often this is found in the corresponding
+  ``.pyi`` file for the ``.py`` file which was edited. Changes in ``pyplot.py``
+  are type hinted inline.
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
@@ -141,6 +147,8 @@ See also :ref:`contributing` for how to make a PR.
 Summary for pull request reviewers
 ==================================
 
+.. redirect-from:: /devel/maintainer_workflow
+
 .. note::
 
    * If you have commit rights, then you are trusted to use them.
@@ -156,6 +164,11 @@ Content topics:
 * Does the PR conform with the :ref:`coding_guidelines`?
 * Is the :ref:`documentation <pr-documentation>` (docstrings, examples,
   what's new, API changes) updated?
+* Is the change purely stylistic? Generally, such changes are discouraged when
+  not part of other non-stylistic work because it obscures the git history of
+  functional changes to the code. Reflowing a method or docstring as part of a
+  larger refactor/rewrite is acceptable.
+
 
 Organizational topics:
 
@@ -262,25 +275,28 @@ Labels
 Milestones
 ----------
 
-* Set the milestone according to these rules:
+Set the milestone according to these guidelines:
 
-  * *New features and API changes* are milestoned for the next minor release
-    ``v3.N.0``.
+* *New features and API changes* are milestoned for the next minor release
+  ``v3.N.0``.
 
-  * *Bugfixes, tests for released code, and docstring changes* are milestoned
-    for the next patch release ``v3.N.M``.
+* *Bugfixes, tests for released code, and docstring changes* may be milestoned
+  for the next patch release ``v3.N.M``.
 
-  * *Documentation changes* (all .rst files and examples) are milestoned
-    ``v3.N-doc``.
+* *Documentation changes* (only .rst files and examples) may be milestoned
+  ``v3.N-doc``.
 
-  If multiple rules apply, choose the first matching from the above list.
+If multiple rules apply, choose the first matching from the above list.  See
+:ref:`backport-strategy` for detailed guidance on what should or should not be
+backported.
 
-  Setting a milestone does not imply or guarantee that a PR will be merged for that
-  release, but if it were to be merged what release it would be in.
+The milestone marks the release a PR should go into.  It states intent, but can
+be changed because of release planning or re-evaluation of the PR scope and
+maturity.
 
-  All of these PRs should target the main branch. The milestone tag triggers
-  an :ref:`automatic backport <automated-backports>` for milestones which have
-  a corresponding branch.
+All Pull Requests should target the main branch. The milestone tag triggers
+an :ref:`automatic backport <automated-backports>` for milestones which have
+a corresponding branch.
 
 .. _pr-merging:
 
@@ -334,6 +350,8 @@ will run on all supported platforms and versions of Python.
 
   - If *Linting* fails, you have a code style issue, which will be listed
     as annotations on the pull request's diff.
+  - If *Mypy* or *Stubtest* fails, you have inconsistency in type hints, which
+    will be listed as annotations in the diff.
   - If a GitHub Actions or AppVeyor run fails, search the log for ``FAILURES``.
     The subsequent section will contain information on the failed tests.
   - If CircleCI fails, likely you have some reStructuredText style issue in
@@ -346,7 +364,7 @@ will run on all supported platforms and versions of Python.
     - On the overview page *artifacts* are listed in the section *Related*.
 
 
-* Codecov and LGTM are currently for information only. Their failure is not
+* Codecov and CodeQL are currently for information only. Their failure is not
   necessarily a blocker.
 
 * tox_ is not used in the automated testing. It is supported for testing
@@ -354,18 +372,22 @@ will run on all supported platforms and versions of Python.
 
   .. _tox: https://tox.readthedocs.io/
 
-* If you know your changes do not need to be tested (this is very rare!), all
-  CIs can be skipped for a given commit by including ``[ci skip]`` or
-  ``[skip ci]`` in the commit message. If you know only a subset of CIs need
-  to be run (e.g., if you are changing some block of plain reStructuredText and
-  want only CircleCI to run to render the result), individual CIs can be
-  skipped on individual commits as well by using the following substrings
-  in commit messages:
+* If you know only a subset of CIs need to be run, this can be controlled on
+  individual commits by including the following substrings in commit messages:
 
-  - GitHub Actions: ``[skip actions]``
-  - AppVeyor: ``[skip appveyor]`` (must be in the first line of the commit)
-  - Azure Pipelines: ``[skip azp]``
-  - CircleCI: ``[skip circle]``
+  - ``[ci doc]``: restrict the CI to documentation checks. For when you only
+    changed documentation (this skip is automatic if the changes are only under
+    ``doc/`` or ``galleries/``).
+  - ``[skip circle]``: skip the documentation build check. For when you didn't
+    change documentation.
+  - Unit tests can be turned off for individual platforms with
+
+    - ``[skip actions]``: GitHub Actions
+    - ``[skip appveyor]`` (must be in the first line of the commit): AppVeyor
+    - ``[skip azp]``: Azure Pipelines
+
+  - ``[skip ci]``: skip all CIs.  Use this only if you know your changes do not
+    need to be tested at all, which is very rare.
 
 .. _pr-squashing:
 
@@ -425,26 +447,34 @@ Other branches are fed through :ref:`automatic <automated-backports>` or
 targeting other branches is only rarely necessary for special maintenance
 work.
 
-.. backport_strategy:
+.. _backport-strategy:
 
 Backport strategy
 -----------------
 
-We will always backport to the patch release branch (*v3.N.x*):
+Backports to the patch release branch (*v3.N.x*) are the changes that will be
+included in the next patch (aka bug-fix) release.  The goal of the patch
+releases is to fix bugs without adding any new regressions or behavior changes.
+We will always attempt to backport:
 
 - critical bug fixes (segfault, failure to import, things that the
-  user can not work around)
-- fixes for regressions against the last two releases.
+  user cannot work around)
+- fixes for regressions introduced in the last two minor releases
 
-Everything else (regressions against older releases, bugs/api
-inconsistencies the user can work around in their code) are on a
-case-by-case basis, should be low-risk, and need someone to advocate
-for and shepherd through the backport.
+and may attempt to backport fixes for regressions introduced in older releases.
 
-The only changes to be backported to the documentation branch (*v3.N.M-doc*)
-are changes to :file:`doc`, :file:`examples`, or :file:`tutorials`.
-Any changes to :file:`lib` or :file:`src` including docstring-only changes
-should not be backported to this branch.
+In the case where the backport is not clean, for example if the bug fix is
+built on top of other code changes we do not want to backport, balance the
+effort and risk of re-implementing the bug fix vs the severity of the bug.
+When in doubt, err on the side of not backporting.
+
+When backporting a Pull Request fails or is declined, re-milestone the original
+PR to the next minor release and leave a comment explaining why.
+
+The only changes backported to the documentation branch (*v3.N.M-doc*)
+are changes to :file:`doc` or :file:`galleries`.  Any changes to :file:`lib`
+or :file:`src`, including docstring-only changes, must not be backported to
+this branch.
 
 
 .. _automated-backports:
@@ -452,19 +482,19 @@ should not be backported to this branch.
 Automated backports
 -------------------
 
-We use meeseeksdev bot to automatically backport merges to the correct
+We use MeeseeksDev bot to automatically backport merges to the correct
 maintenance branch base on the milestone.  To work properly the
 milestone must be set before merging.  If you have commit rights, the
 bot can also be manually triggered after a merge by leaving a message
 ``@meeseeksdev backport to BRANCH`` on the PR.  If there are conflicts
-meeseekdevs will inform you that the backport needs to be done
+MeeseeksDev will inform you that the backport needs to be done
 manually.
 
 The target branch is configured by putting ``on-merge: backport to
 TARGETBRANCH`` in the milestone description on it's own line.
 
 If the bot is not working as expected, please report issues to
-`Meeseeksdev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
+`MeeseeksDev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
 
 
 .. _manual-backports:
@@ -472,7 +502,7 @@ If the bot is not working as expected, please report issues to
 Manual backports
 ----------------
 
-When doing backports please copy the form used by meeseekdev,
+When doing backports please copy the form used by MeeseeksDev,
 ``Backport PR #XXXX: TITLE OF PR``.  If you need to manually resolve
 conflicts make note of them and how you resolved them in the commit
 message.

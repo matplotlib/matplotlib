@@ -75,16 +75,10 @@ programmatic plot generation.
 Further reading:
 
 - The `matplotlib.pyplot` function reference
-- :doc:`/tutorials/introductory/pyplot`
+- :ref:`pyplot_tutorial`
 - :ref:`Pyplot examples <pyplots_examples>`
 
 .. _api-index:
-
-The pylab API (discouraged)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: pylab
-   :no-members:
 
 Modules
 -------
@@ -141,6 +135,7 @@ Alphabetical list of modules:
    scale_api.rst
    sphinxext_mathmpl_api.rst
    sphinxext_plot_directive_api.rst
+   sphinxext_figmpl_directive_api.rst
    spines_api.rst
    style_api.rst
    table_api.rst
@@ -153,6 +148,7 @@ Alphabetical list of modules:
    transformations.rst
    tri_api.rst
    type1font.rst
+   typing_api.rst
    units_api.rst
    widgets_api.rst
    _api_api.rst
@@ -160,3 +156,4 @@ Alphabetical list of modules:
    toolkits/mplot3d.rst
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
+   pylab.rst

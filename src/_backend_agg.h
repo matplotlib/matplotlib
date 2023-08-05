@@ -745,7 +745,7 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
 
         agg::trans_affine mtx;
         mtx *= agg::trans_affine_translation(0, -image.dim(0));
-        mtx *= agg::trans_affine_rotation(-angle * agg::pi / 180.0);
+        mtx *= agg::trans_affine_rotation(-angle * (agg::pi / 180.0));
         mtx *= agg::trans_affine_translation(x, y);
 
         agg::path_storage rect;
@@ -773,24 +773,28 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
     } else {
         agg::rect_i fig, text;
 
+        int deltay = y - image.dim(0);
+
         fig.init(0, 0, width, height);
-        text.init(x, y - image.dim(0), x + image.dim(1), y);
+        text.init(x, deltay, x + image.dim(1), y);
         text.clip(fig);
 
         if (gc.cliprect.x1 != 0.0 || gc.cliprect.y1 != 0.0 || gc.cliprect.x2 != 0.0 || gc.cliprect.y2 != 0.0) {
             agg::rect_i clip;
 
-            clip.init(int(mpl_round(gc.cliprect.x1)),
-                      int(mpl_round(height - gc.cliprect.y2)),
-                      int(mpl_round(gc.cliprect.x2)),
-                      int(mpl_round(height - gc.cliprect.y1)));
+            clip.init(mpl_round_to_int(gc.cliprect.x1),
+                      mpl_round_to_int(height - gc.cliprect.y2),
+                      mpl_round_to_int(gc.cliprect.x2),
+                      mpl_round_to_int(height - gc.cliprect.y1));
             text.clip(clip);
         }
 
         if (text.x2 > text.x1) {
+            int deltax = text.x2 - text.x1;
+            int deltax2 = text.x1 - x;
             for (int yi = text.y1; yi < text.y2; ++yi) {
-                pixFmt.blend_solid_hspan(text.x1, yi, (text.x2 - text.x1), gc.color,
-                                         &image(yi - (y - image.dim(0)), text.x1 - x));
+                pixFmt.blend_solid_hspan(text.x1, yi, deltax, gc.color,
+                                         &image(yi - deltay, deltax2));
             }
         }
     }
@@ -945,6 +949,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     facepair_t face;
     face.first = Nfacecolors != 0;
     agg::trans_affine trans;
+    bool do_clip = !face.first && !gc.has_hatchpath();
 
     for (int i = 0; i < (int)N; ++i) {
         typename PathGenerator::path_iterator path = path_generator(i);
@@ -991,8 +996,6 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                 gc.dashes = linestyles[i % Nlinestyles];
             }
         }
-
-        bool do_clip = !face.first && !gc.has_hatchpath();
 
         if (check_snap) {
             gc.isaa = antialiaseds(i % Naa);

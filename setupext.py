@@ -43,7 +43,7 @@ def _get_hash(data):
     return hasher.hexdigest()
 
 
-@functools.lru_cache()
+@functools.cache
 def _get_ssl_context():
     import certifi
     import ssl
@@ -71,7 +71,7 @@ def get_from_cache_or_download(url, sha):
     if cache_dir is not None:  # Try to read from cache.
         try:
             data = (cache_dir / sha).read_bytes()
-        except IOError:
+        except OSError:
             pass
         else:
             if _get_hash(data) == sha:
@@ -96,7 +96,7 @@ def get_from_cache_or_download(url, sha):
             cache_dir.mkdir(parents=True, exist_ok=True)
             with open(cache_dir / sha, "xb") as fout:
                 fout.write(data)
-        except IOError:
+        except OSError:
             pass
 
     return BytesIO(data)
@@ -134,14 +134,14 @@ def get_and_extract_tarball(urls, sha, dirname):
             except Exception:
                 pass
         else:
-            raise IOError(
+            raise OSError(
                 f"Failed to download any of the following: {urls}.  "
                 f"Please download one of these urls and extract it into "
                 f"'build/' at the top-level of the source repository.")
-        print("Extracting {}".format(urllib.parse.urlparse(url).path))
+        print(f"Extracting {urllib.parse.urlparse(url).path}")
         with tarfile.open(fileobj=tar_contents, mode="r:gz") as tgz:
             if os.path.commonpath(tgz.getnames()) != dirname:
-                raise IOError(
+                raise OSError(
                     f"The downloaded tgz file was expected to have {dirname} "
                     f"as sole top-level directory, but that is not the case")
             tgz.extractall("build")
@@ -181,7 +181,8 @@ _freetype_hashes = {
 }
 # This is the version of FreeType to use when building a local version.  It
 # must match the value in lib/matplotlib.__init__.py, and the cache path in
-# `.circleci/config.yml`.
+# `.circleci/config.yml`. Also update the docs in
+# `docs/devel/dependencies.rst`.
 TESTING_VERSION_OF_FREETYPE = '2.6.1'
 if sys.platform.startswith('win') and platform.machine() == 'ARM64':
     # older versions of freetype are not supported for win/arm64
@@ -193,6 +194,7 @@ else:
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 # Also update the cache path in `.circleci/config.yml`.
+# Also update the docs in `docs/devel/dependencies.rst`.
 LOCAL_QHULL_VERSION = '2020.2'
 LOCAL_QHULL_HASH = (
     'b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e')
@@ -229,7 +231,7 @@ def print_status(package, status):
                             subsequent_indent=indent))
 
 
-@functools.lru_cache(1)  # We only need to compute this once.
+@functools.cache  # We only need to compute this once.
 def get_pkg_config():
     """
     Get path to pkg-config and set up the PKG_CONFIG environment variable.
@@ -468,15 +470,15 @@ class Matplotlib(SetupPackage):
             cxx_std=11)
         yield ext
         # ttconv
-        ext = Extension(
+        ext = Pybind11Extension(
             "matplotlib._ttconv", [
                 "src/_ttconv.cpp",
                 "extern/ttconv/pprdrv_tt.cpp",
                 "extern/ttconv/pprdrv_tt2.cpp",
                 "extern/ttconv/ttutil.cpp",
             ],
-            include_dirs=["extern"])
-        add_numpy_flags(ext)
+            include_dirs=["extern"],
+            cxx_std=11)
         yield ext
 
 
@@ -495,12 +497,12 @@ class Tests(OptionalPackage):
                 'tests/test_*.ipynb',
             ],
             'mpl_toolkits': [
-                *_pkg_data_helper('mpl_toolkits/axes_grid1',
-                                  'tests/baseline_images'),
-                *_pkg_data_helper('mpl_toolkits/axisartist'
-                                  'tests/baseline_images'),
-                *_pkg_data_helper('mpl_toolkits/mplot3d'
-                                  'tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits',
+                                  'axes_grid1/tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits',
+                                  'axisartist/tests/baseline_images'),
+                *_pkg_data_helper('mpl_toolkits',
+                                  'mplot3d/tests/baseline_images'),
             ]
         }
 
@@ -588,15 +590,15 @@ class FreeType(SetupPackage):
         else:
             src_path = Path('build', f'freetype-{LOCAL_FREETYPE_VERSION}')
             # Statically link to the locally-built freetype.
-            # This is certainly broken on Windows.
             ext.include_dirs.insert(0, str(src_path / 'include'))
-            if sys.platform == 'win32':
-                libfreetype = 'libfreetype.lib'
-            else:
-                libfreetype = 'libfreetype.a'
             ext.extra_objects.insert(
-                0, str(src_path / 'objs' / '.libs' / libfreetype))
+                0, str((src_path / 'objs/.libs/libfreetype').with_suffix(
+                    '.lib' if sys.platform == 'win32' else '.a')))
             ext.define_macros.append(('FREETYPE_BUILD_TYPE', 'local'))
+            if sys.platform == 'darwin':
+                name = ext.name.split('.')[-1]
+                ext.extra_link_args.append(
+                    f'-Wl,-exported_symbol,_PyInit_{name}')
 
     def do_custom_build(self, env):
         # We're using a system freetype
@@ -617,11 +619,9 @@ class FreeType(SetupPackage):
             dirname=f'freetype-{LOCAL_FREETYPE_VERSION}',
         )
 
-        if sys.platform == 'win32':
-            libfreetype = 'libfreetype.lib'
-        else:
-            libfreetype = 'libfreetype.a'
-        if (src_path / 'objs' / '.libs' / libfreetype).is_file():
+        libfreetype = (src_path / "objs/.libs/libfreetype").with_suffix(
+            ".lib" if sys.platform == "win32" else ".a")
+        if libfreetype.is_file():
             return  # Bail out because we have already built FreeType.
 
         print(f"Building freetype in {src_path}")
@@ -669,13 +669,6 @@ class FreeType(SetupPackage):
             subprocess.check_call([make], env=env, cwd=src_path)
         else:  # compilation on windows
             shutil.rmtree(src_path / "objs", ignore_errors=True)
-            is_x64 = platform.architecture()[0] == '64bit'
-            if platform.machine() == 'ARM64':
-                msbuild_platform = 'ARM64'
-            elif is_x64:
-                msbuild_platform = 'x64'
-            else:
-                msbuild_platform = 'Win32'
             base_path = Path(
                 f"build/freetype-{LOCAL_FREETYPE_VERSION}/builds/windows"
             )
@@ -726,6 +719,10 @@ class FreeType(SetupPackage):
                     str(dest),
                 ])
                 msbuild_path = dest.read_text()
+            msbuild_platform = (
+                "ARM64" if platform.machine() == "ARM64" else
+                "x64" if platform.architecture()[0] == "64bit" else
+                "Win32")
             # Freetype 2.10.0+ support static builds.
             msbuild_config = (
                 "Release Static"
@@ -738,7 +735,7 @@ class FreeType(SetupPackage):
                       f"/p:Configuration={msbuild_config};"
                       f"Platform={msbuild_platform}"])
             # Move to the corresponding Unix build path.
-            (src_path / "objs" / ".libs").mkdir()
+            libfreetype.parent.mkdir()
             # Be robust against change of FreeType version.
             lib_paths = Path(src_path / "objs").rglob('freetype*.lib')
             # Select FreeType library for required platform
@@ -746,10 +743,8 @@ class FreeType(SetupPackage):
                 p for p in lib_paths
                 if msbuild_platform in p.resolve().as_uri()
             ]
-            print(
-                f"Copying {lib_path} to {src_path}/objs/.libs/libfreetype.lib"
-            )
-            shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
+            print(f"Copying {lib_path} to {libfreetype}")
+            shutil.copy2(lib_path, libfreetype)
 
 
 class Qhull(SetupPackage):

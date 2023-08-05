@@ -27,73 +27,71 @@ and explicit interfaces.
 
 Modules include:
 
-    :mod:`matplotlib.axes`
-        The `~.axes.Axes` class.  Most pyplot functions are wrappers for
-        `~.axes.Axes` methods.  The axes module is the highest level of OO
-        access to the library.
+:mod:`matplotlib.axes`
+    The `~.axes.Axes` class.  Most pyplot functions are wrappers for
+    `~.axes.Axes` methods.  The axes module is the highest level of OO
+    access to the library.
 
-    :mod:`matplotlib.figure`
-        The `.Figure` class.
+:mod:`matplotlib.figure`
+    The `.Figure` class.
 
-    :mod:`matplotlib.artist`
-        The `.Artist` base class for all classes that draw things.
+:mod:`matplotlib.artist`
+    The `.Artist` base class for all classes that draw things.
 
-    :mod:`matplotlib.lines`
-        The `.Line2D` class for drawing lines and markers.
+:mod:`matplotlib.lines`
+    The `.Line2D` class for drawing lines and markers.
 
-    :mod:`matplotlib.patches`
-        Classes for drawing polygons.
+:mod:`matplotlib.patches`
+    Classes for drawing polygons.
 
-    :mod:`matplotlib.text`
-        The `.Text` and `.Annotation` classes.
+:mod:`matplotlib.text`
+    The `.Text` and `.Annotation` classes.
 
-    :mod:`matplotlib.image`
-        The `.AxesImage` and `.FigureImage` classes.
+:mod:`matplotlib.image`
+    The `.AxesImage` and `.FigureImage` classes.
 
-    :mod:`matplotlib.collections`
-        Classes for efficient drawing of groups of lines or polygons.
+:mod:`matplotlib.collections`
+    Classes for efficient drawing of groups of lines or polygons.
 
-    :mod:`matplotlib.colors`
-        Color specifications and making colormaps.
+:mod:`matplotlib.colors`
+    Color specifications and making colormaps.
 
-    :mod:`matplotlib.cm`
-        Colormaps, and the `.ScalarMappable` mixin class for providing color
-        mapping functionality to other classes.
+:mod:`matplotlib.cm`
+    Colormaps, and the `.ScalarMappable` mixin class for providing color
+    mapping functionality to other classes.
 
-    :mod:`matplotlib.ticker`
-        Calculation of tick mark locations and formatting of tick labels.
+:mod:`matplotlib.ticker`
+    Calculation of tick mark locations and formatting of tick labels.
 
-    :mod:`matplotlib.backends`
-        A subpackage with modules for various GUI libraries and output formats.
+:mod:`matplotlib.backends`
+    A subpackage with modules for various GUI libraries and output formats.
 
 The base matplotlib namespace includes:
 
-    `~matplotlib.rcParams`
-        Default configuration settings; their defaults may be overridden using
-        a :file:`matplotlibrc` file.
+`~matplotlib.rcParams`
+    Default configuration settings; their defaults may be overridden using
+    a :file:`matplotlibrc` file.
 
-    `~matplotlib.use`
-        Setting the Matplotlib backend.  This should be called before any
-        figure is created, because it is not possible to switch between
-        different GUI backends after that.
+`~matplotlib.use`
+    Setting the Matplotlib backend.  This should be called before any
+    figure is created, because it is not possible to switch between
+    different GUI backends after that.
 
-The following environment variables can be used to customize the behavior::
+The following environment variables can be used to customize the behavior:
 
-    .. envvar:: MPLBACKEND
+:envvar:`MPLBACKEND`
+    This optional variable can be set to choose the Matplotlib backend. See
+    :ref:`what-is-a-backend`.
 
-      This optional variable can be set to choose the Matplotlib backend. See
-      :ref:`what-is-a-backend`.
-
-    .. envvar:: MPLCONFIGDIR
-
-      This is the directory used to store user customizations to
-      Matplotlib, as well as some caches to improve performance. If
-      :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
-      and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
-      :file:`{HOME}/.matplotlib` on other platforms, if they are
-      writable. Otherwise, the Python standard library's `tempfile.gettempdir`
-      is used to find a base directory in which the :file:`matplotlib`
-      subdirectory is created.
+:envvar:`MPLCONFIGDIR`
+    This is the directory used to store user customizations to
+    Matplotlib, as well as some caches to improve performance. If
+    :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
+    and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+    :file:`{HOME}/.matplotlib` on other platforms, if they are
+    writable. Otherwise, the Python standard library's `tempfile.gettempdir`
+    is used to find a base directory in which the :file:`matplotlib`
+    subdirectory is created.
 
 Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
@@ -102,6 +100,38 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB®, a registered trademark of The MathWorks, Inc.
 
 """
+
+__all__ = [
+    "__bibtex__",
+    "__version__",
+    "__version_info__",
+    "set_loglevel",
+    "ExecutableNotFoundError",
+    "get_configdir",
+    "get_cachedir",
+    "get_data_path",
+    "matplotlib_fname",
+    "MatplotlibDeprecationWarning",
+    "RcParams",
+    "rc_params",
+    "rc_params_from_file",
+    "rcParamsDefault",
+    "rcParams",
+    "rcParamsOrig",
+    "defaultParams",
+    "rc",
+    "rcdefaults",
+    "rc_file_defaults",
+    "rc_file",
+    "rc_context",
+    "use",
+    "get_backend",
+    "interactive",
+    "is_interactive",
+    "colormaps",
+    "color_sequences",
+]
+
 
 import atexit
 from collections import namedtuple
@@ -217,7 +247,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.19"),
+            ("numpy", "1.21"),
             ("pyparsing", "2.3.1"),
     ]:
         module = importlib.import_module(modname)
@@ -231,7 +261,7 @@ _check_versions()
 
 # The decorator ensures this always returns the same handler (and it is only
 # attached once).
-@functools.lru_cache()
+@functools.cache
 def _ensure_handler():
     """
     The first time this function is called, attach a `StreamHandler` using the
@@ -247,11 +277,21 @@ def _ensure_handler():
 
 def set_loglevel(level):
     """
-    Set Matplotlib's root logger and root logger handler level, creating
-    the handler if it does not exist yet.
+    Configure Matplotlib's logging levels.
+
+    Matplotlib uses the standard library `logging` framework under the root
+    logger 'matplotlib'.  This is a helper function to:
+
+    - set Matplotlib's root logger level
+    - set the root logger handler's level, creating the handler
+      if it does not exist yet
 
     Typically, one should call ``set_loglevel("info")`` or
     ``set_loglevel("debug")`` to get additional debugging information.
+
+    Users or applications that are installing their own logging handlers
+    may want to directly manipulate ``logging.getLogger('matplotlib')`` rather
+    than use this function.
 
     Parameters
     ----------
@@ -263,6 +303,7 @@ def set_loglevel(level):
     The first time this function is called, an additional handler is attached
     to Matplotlib's root handler; this handler is reused every time and this
     function simply manipulates the logger and handler's level.
+
     """
     _log.setLevel(level.upper())
     _ensure_handler().setLevel(level.upper())
@@ -310,7 +351,7 @@ class ExecutableNotFoundError(FileNotFoundError):
     pass
 
 
-@functools.lru_cache()
+@functools.cache
 def _get_executable_info(name):
     """
     Get the version of some executable that Matplotlib optionally depends on.
@@ -353,7 +394,7 @@ def _get_executable_info(name):
         try:
             output = subprocess.check_output(
                 args, stderr=subprocess.STDOUT,
-                universal_newlines=True, errors="replace")
+                text=True, errors="replace")
         except subprocess.CalledProcessError as _cpe:
             if ignore_exit_code:
                 output = _cpe.output
@@ -448,27 +489,7 @@ def _get_executable_info(name):
                 f"version supported by Matplotlib is 3.0")
         return info
     else:
-        raise ValueError("Unknown executable: {!r}".format(name))
-
-
-@_api.deprecated("3.6", alternative="a vendored copy of this function")
-def checkdep_usetex(s):
-    if not s:
-        return False
-    if not shutil.which("tex"):
-        _log.warning("usetex mode requires TeX.")
-        return False
-    try:
-        _get_executable_info("dvipng")
-    except ExecutableNotFoundError:
-        _log.warning("usetex mode requires dvipng.")
-        return False
-    try:
-        _get_executable_info("gs")
-    except ExecutableNotFoundError:
-        _log.warning("usetex mode requires ghostscript.")
-        return False
-    return True
+        raise ValueError(f"Unknown executable: {name!r}")
 
 
 def _get_xdg_config_dir():
@@ -509,15 +530,21 @@ def _get_config_or_cache_dir(xdg_base_getter):
             return str(configdir)
     # If the config or cache directory cannot be created or is not a writable
     # directory, create a temporary one.
-    tmpdir = os.environ["MPLCONFIGDIR"] = \
-        tempfile.mkdtemp(prefix="matplotlib-")
+    try:
+        tmpdir = tempfile.mkdtemp(prefix="matplotlib-")
+    except OSError as exc:
+        raise OSError(
+            f"Matplotlib requires access to a writable cache directory, but the "
+            f"default path ({configdir}) is not a writable directory, and a temporary "
+            f"directory could not be created; set the MPLCONFIGDIR environment "
+            f"variable to a writable directory") from exc
+    os.environ["MPLCONFIGDIR"] = tmpdir
     atexit.register(shutil.rmtree, tmpdir)
     _log.warning(
-        "Matplotlib created a temporary config/cache directory at %s because "
-        "the default path (%s) is not a writable directory; it is highly "
-        "recommended to set the MPLCONFIGDIR environment variable to a "
-        "writable directory, in particular to speed up the import of "
-        "Matplotlib and to better support multiprocessing.",
+        "Matplotlib created a temporary cache directory at %s because the default path "
+        "(%s) is not a writable directory; it is highly recommended to set the "
+        "MPLCONFIGDIR environment variable to a writable directory, in particular to "
+        "speed up the import of Matplotlib and to better support multiprocessing.",
         tmpdir, configdir)
     return tmpdir
 
@@ -547,7 +574,7 @@ def get_cachedir():
     Return the string path of the cache directory.
 
     The procedure used to find the directory is the same as for
-    _get_config_dir, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
+    `get_configdir`, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
     """
     return _get_config_or_cache_dir(_get_xdg_cache_dir)
 
@@ -746,7 +773,7 @@ class RcParams(MutableMapping, dict):
             repr_split = pprint.pformat(dict(self), indent=1,
                                         width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
-        return '{}({})'.format(class_name, repr_indented)
+        return f'{class_name}({repr_indented})'
 
     def __str__(self):
         return '\n'.join(map('{0[0]}: {0[1]}'.format, sorted(self.items())))
@@ -788,7 +815,7 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
-@functools.lru_cache()
+@functools.cache
 def _get_ssl_context():
     try:
         import certifi
@@ -887,7 +914,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
             _log.warning("""
 Bad key %(key)s in file %(fname)s, line %(line_no)s (%(line)r)
 You probably need to get an updated matplotlibrc file from
-https://github.com/matplotlib/matplotlib/blob/%(version)s/matplotlibrc.template
+https://github.com/matplotlib/matplotlib/blob/%(version)s/lib/matplotlib/mpl-data/matplotlibrc
 or from the matplotlib source distribution""",
                          dict(key=key, fname=fname, line_no=line_no,
                               line=line.rstrip('\n'), version=version))
@@ -1030,7 +1057,7 @@ def rc(group, **kwargs):
     for g in group:
         for k, v in kwargs.items():
             name = aliases.get(k) or k
-            key = '%s.%s' % (g, name)
+            key = f'{g}.{name}'
             try:
                 rcParams[key] = v
             except KeyError as err:
@@ -1267,10 +1294,11 @@ def is_interactive():
     return rcParams['interactive']
 
 
-default_test_modules = [
-    'matplotlib.tests',
-    'mpl_toolkits.tests',
-]
+def _val_or_rc(val, rc_name):
+    """
+    If *val* is None, return ``mpl.rcParams[rc_name]``, otherwise return val.
+    """
+    return val if val is not None else rcParams[rc_name]
 
 
 def _init_tests():
@@ -1289,58 +1317,6 @@ def _init_tests():
             f"Found freetype version {ft2font.__freetype_version__}.  "
             "Freetype build type is {}local".format(
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
-
-
-@_api.deprecated("3.5", alternative='pytest')
-def test(verbosity=None, coverage=False, **kwargs):
-    """Run the matplotlib test suite."""
-
-    try:
-        import pytest
-    except ImportError:
-        print("matplotlib.test requires pytest to run.")
-        return -1
-
-    if not os.path.isdir(os.path.join(os.path.dirname(__file__), 'tests')):
-        print("Matplotlib test data is not installed")
-        return -1
-
-    old_backend = get_backend()
-    try:
-        use('agg')
-
-        args = kwargs.pop('argv', [])
-        provide_default_modules = True
-        use_pyargs = True
-        for arg in args:
-            if any(arg.startswith(module_path)
-                   for module_path in default_test_modules):
-                provide_default_modules = False
-                break
-            if os.path.exists(arg):
-                provide_default_modules = False
-                use_pyargs = False
-                break
-        if use_pyargs:
-            args += ['--pyargs']
-        if provide_default_modules:
-            args += default_test_modules
-
-        if coverage:
-            args += ['--cov']
-
-        if verbosity:
-            args += ['-' + 'v' * verbosity]
-
-        retcode = pytest.main(args, **kwargs)
-    finally:
-        if old_backend.lower() != 'agg':
-            use(old_backend)
-
-    return retcode
-
-
-test.__test__ = False  # pytest: this function is not a test
 
 
 def _replacer(data, value):
@@ -1477,11 +1453,11 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     arg_names = arg_names[1:]  # remove the first "ax" / self arg
 
     assert {*arg_names}.issuperset(replace_names or []) or varkwargs_name, (
-        "Matplotlib internal error: invalid replace_names ({!r}) for {!r}"
-        .format(replace_names, func.__name__))
+        "Matplotlib internal error: invalid replace_names "
+        f"({replace_names!r}) for {func.__name__!r}")
     assert label_namer is None or label_namer in arg_names, (
-        "Matplotlib internal error: invalid label_namer ({!r}) for {!r}"
-        .format(label_namer, func.__name__))
+        "Matplotlib internal error: invalid label_namer "
+        f"({label_namer!r}) for {func.__name__!r}")
 
     @functools.wraps(func)
     def inner(ax, *args, data=None, **kwargs):

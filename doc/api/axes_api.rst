@@ -110,11 +110,12 @@ Statistics
    :template: autosummary.rst
    :nosignatures:
 
+   Axes.ecdf
    Axes.boxplot
    Axes.violinplot
 
-   Axes.violin
    Axes.bxp
+   Axes.violin
 
 Binned
 ------
@@ -556,7 +557,6 @@ Drawing
    Axes.draw
    Axes.draw_artist
    Axes.redraw_in_frame
-   Axes.get_renderer_cache
 
    Axes.get_rasterization_zorder
    Axes.set_rasterization_zorder

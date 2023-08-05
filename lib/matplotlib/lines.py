@@ -42,7 +42,7 @@ def _get_dash_pattern(style):
     # dashed styles
     elif style in ['dashed', 'dashdot', 'dotted']:
         offset = 0
-        dashes = tuple(mpl.rcParams['lines.{}_pattern'.format(style)])
+        dashes = tuple(mpl.rcParams[f'lines.{style}_pattern'])
     #
     elif isinstance(style, tuple):
         offset, dashes = style
@@ -58,6 +58,18 @@ def _get_dash_pattern(style):
             offset %= dsum
 
     return offset, dashes
+
+
+def _get_inverse_dash_pattern(offset, dashes):
+    """Return the inverse of the given dash pattern, for filling the gaps."""
+    # Define the inverse pattern by moving the last gap to the start of the
+    # sequence.
+    gaps = dashes[-1:] + dashes[:-1]
+    # Set the offset so that this new first segment is skipped
+    # (see backend_bases.GraphicsContextBase.set_dashes for offset definition).
+    offset_gaps = offset + dashes[-1]
+
+    return offset_gaps, gaps
 
 
 def _scale_dashes(offset, dashes, lw):
@@ -133,7 +145,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
     if isinstance(markevery, tuple):
         if len(markevery) != 2:
             raise ValueError('`markevery` is a tuple but its len is not 2; '
-                             'markevery={}'.format(markevery))
+                             f'markevery={markevery}')
         start, step = markevery
         # if step is an int, old behavior
         if isinstance(step, Integral):
@@ -141,8 +153,8 @@ def _mark_every_path(markevery, tpath, affine, ax):
             if not isinstance(start, Integral):
                 raise ValueError(
                     '`markevery` is a tuple with len 2 and second element is '
-                    'an int, but the first element is not an int; markevery={}'
-                    .format(markevery))
+                    'an int, but the first element is not an int; '
+                    f'markevery={markevery}')
             # just return, we are done here
 
             return Path(verts[slice(start, None, step)],
@@ -153,7 +165,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
                 raise ValueError(
                     '`markevery` is a tuple with len 2 and second element is '
                     'a float, but the first element is not a float or an int; '
-                    'markevery={}'.format(markevery))
+                    f'markevery={markevery}')
             if ax is None:
                 raise ValueError(
                     "markevery is specified relative to the axes size, but "
@@ -256,21 +268,23 @@ class Line2D(Artist):
 
     zorder = 2
 
+    _subslice_optim_min_size = 1000
+
     def __str__(self):
         if self._label != "":
             return f"Line2D({self._label})"
         elif self._x is None:
             return "Line2D()"
         elif len(self._x) > 3:
-            return "Line2D((%g,%g),(%g,%g),...,(%g,%g))" % (
-                self._x[0], self._y[0], self._x[0],
-                self._y[0], self._x[-1], self._y[-1])
+            return "Line2D(({:g},{:g}),({:g},{:g}),...,({:g},{:g}))".format(
+                self._x[0], self._y[0],
+                self._x[1], self._y[1],
+                self._x[-1], self._y[-1])
         else:
             return "Line2D(%s)" % ",".join(
                 map("({:g},{:g})".format, self._x, self._y))
 
-    @_api.make_keyword_only("3.6", name="linewidth")
-    def __init__(self, xdata, ydata,
+    def __init__(self, xdata, ydata, *,
                  linewidth=None,  # all Nones default to rc
                  linestyle=None,
                  color=None,
@@ -391,7 +405,7 @@ class Line2D(Artist):
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
         self._internal_update(kwargs)
-        self._pickradius = pickradius
+        self.pickradius = pickradius
         self.ind_offset = 0
         if (isinstance(self._picker, Number) and
                 not isinstance(self._picker, bool)):
@@ -422,7 +436,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        mouseevent : `matplotlib.backend_bases.MouseEvent`
+        mouseevent : `~matplotlib.backend_bases.MouseEvent`
 
         Returns
         -------
@@ -435,9 +449,8 @@ class Line2D(Artist):
 
             TODO: sort returned indices by distance
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
 
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
@@ -489,7 +502,6 @@ class Line2D(Artist):
         """
         return self._pickradius
 
-    @_api.rename_parameter("3.6", "d", "pickradius")
     def set_pickradius(self, pickradius):
         """
         Set the pick radius used for containment tests.
@@ -501,7 +513,7 @@ class Line2D(Artist):
         pickradius : float
             Pick radius, in points.
         """
-        if not isinstance(pickradius, Number) or pickradius < 0:
+        if not isinstance(pickradius, Real) or pickradius < 0:
             raise ValueError("pick radius should be a distance")
         self._pickradius = pickradius
 
@@ -667,12 +679,14 @@ class Line2D(Artist):
         self._x, self._y = self._xy.T  # views
 
         self._subslice = False
-        if (self.axes and len(x) > 1000 and self._is_sorted(x) and
-                self.axes.name == 'rectilinear' and
-                self.axes.get_xscale() == 'linear' and
-                self._markevery is None and
-                self.get_clip_on() and
-                self.get_transform() == self.axes.transData):
+        if (self.axes
+                and len(x) > self._subslice_optim_min_size
+                and _path.is_sorted_and_has_non_nan(x)
+                and self.axes.name == 'rectilinear'
+                and self.axes.get_xscale() == 'linear'
+                and self._markevery is None
+                and self.get_clip_on()
+                and self.get_transform() == self.axes.transData):
             self._subslice = True
             nanmask = np.isnan(x)
             if nanmask.any():
@@ -720,11 +734,6 @@ class Line2D(Artist):
         self._invalidx = True
         self._invalidy = True
         super().set_transform(t)
-
-    def _is_sorted(self, x):
-        """Return whether x is sorted in ascending order."""
-        # We don't handle the monotonically decreasing case.
-        return _path.is_sorted(x)
 
     @allow_rasterization
     def draw(self, renderer):
@@ -779,14 +788,8 @@ class Line2D(Artist):
                     lc_rgba = mcolors.to_rgba(self._gapcolor, self._alpha)
                     gc.set_foreground(lc_rgba, isRGBA=True)
 
-                    # Define the inverse pattern by moving the last gap to the
-                    # start of the sequence.
-                    dashes = self._dash_pattern[1]
-                    gaps = dashes[-1:] + dashes[:-1]
-                    # Set the offset so that this new first segment is skipped
-                    # (see backend_bases.GraphicsContextBase.set_dashes for
-                    # offset definition).
-                    offset_gaps = self._dash_pattern[0] + dashes[-1]
+                    offset_gaps, gaps = _get_inverse_dash_pattern(
+                        *self._dash_pattern)
 
                     gc.set_dashes(offset_gaps, gaps)
                     renderer.draw_path(gc, tpath, affine.frozen())
@@ -1030,9 +1033,7 @@ class Line2D(Artist):
         return self._path
 
     def get_xydata(self):
-        """
-        Return the *xy* data as a Nx2 numpy array.
-        """
+        """Return the *xy* data as a (N, 2) array."""
         if self._invalidy or self._invalidx:
             self.recache()
         return self._xy
@@ -1275,7 +1276,14 @@ class Line2D(Artist):
         x : 1D array
         """
         if not np.iterable(x):
-            raise RuntimeError('x must be a sequence')
+            # When deprecation cycle is completed
+            # raise RuntimeError('x must be a sequence')
+            _api.warn_deprecated(
+                since="3.7",
+                message="Setting data with a non sequence type "
+                "is deprecated since %(since)s and will be "
+                "remove %(removal)s")
+            x = [x, ]
         self._xorig = copy.copy(x)
         self._invalidx = True
         self.stale = True
@@ -1289,7 +1297,14 @@ class Line2D(Artist):
         y : 1D array
         """
         if not np.iterable(y):
-            raise RuntimeError('y must be a sequence')
+            # When deprecation cycle is completed
+            # raise RuntimeError('y must be a sequence')
+            _api.warn_deprecated(
+                since="3.7",
+                message="Setting data with a non sequence type "
+                "is deprecated since %(since)s and will be "
+                "remove %(removal)s")
+            y = [y, ]
         self._yorig = copy.copy(y)
         self._invalidy = True
         self.stale = True
@@ -1449,13 +1464,24 @@ class Line2D(Artist):
         return self._linestyle in ('--', '-.', ':')
 
 
-class _AxLine(Line2D):
+class AxLine(Line2D):
     """
     A helper class that implements `~.Axes.axline`, by recomputing the artist
     transform at draw time.
     """
 
     def __init__(self, xy1, xy2, slope, **kwargs):
+        """
+        Parameters
+        ----------
+        xy1 : (float, float)
+            The first set of (x, y) coordinates for the line to pass through.
+        xy2 : (float, float) or None
+            The second set of (x, y) coordinates for the line to pass through.
+            Either *xy2* or *slope* has to be given.
+        slope : float or None
+            The slope of the line. Either *xy2* or *slope* has to be given.
+        """
         super().__init__([0, 1], [0, 1], **kwargs)
 
         if (xy2 is None and slope is None or
@@ -1512,6 +1538,65 @@ class _AxLine(Line2D):
         self._transformed_path = None  # Force regen.
         super().draw(renderer)
 
+    def get_xy1(self):
+        """
+        Return the *xy1* value of the line.
+        """
+        return self._xy1
+
+    def get_xy2(self):
+        """
+        Return the *xy2* value of the line.
+        """
+        return self._xy2
+
+    def get_slope(self):
+        """
+        Return the *slope* value of the line.
+        """
+        return self._slope
+
+    def set_xy1(self, x, y):
+        """
+        Set the *xy1* value of the line.
+
+        Parameters
+        ----------
+        x, y : float
+            Points for the line to pass through.
+        """
+        self._xy1 = x, y
+
+    def set_xy2(self, x, y):
+        """
+        Set the *xy2* value of the line.
+
+        Parameters
+        ----------
+        x, y : float
+            Points for the line to pass through.
+        """
+        if self._slope is None:
+            self._xy2 = x, y
+        else:
+            raise ValueError("Cannot set an 'xy2' value while 'slope' is set;"
+                             " they differ but their functionalities overlap")
+
+    def set_slope(self, slope):
+        """
+        Set the *slope* value of the line.
+
+        Parameters
+        ----------
+        slope : float
+            The slope of the line.
+        """
+        if self._xy2 is None:
+            self._slope = slope
+        else:
+            raise ValueError("Cannot set a 'slope' value while 'xy2' is set;"
+                             " they differ but their functionalities overlap")
+
 
 class VertexSelector:
     """
@@ -1546,7 +1631,7 @@ class VertexSelector:
         """
         Parameters
         ----------
-        line : `.Line2D`
+        line : `~matplotlib.lines.Line2D`
             The line must already have been added to an `~.axes.Axes` and must
             have its picker property set.
         """

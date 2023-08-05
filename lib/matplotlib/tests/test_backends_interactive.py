@@ -7,13 +7,17 @@ import platform
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
+
+from PIL import Image
 
 import pytest
 
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
+from matplotlib.backend_tools import ToolToggleBase
 from matplotlib.testing import subprocess_run_helper as _run_helper
 
 
@@ -47,7 +51,7 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
-            import gi
+            import gi  # type: ignore
             version = env["MPLBACKEND"][3]
             repo = gi.Repository.get_default()
             if f'{version}.0' not in repo.enumerate_versions('Gtk'):
@@ -59,6 +63,13 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
+        elif (env['MPLBACKEND'] == 'tkagg' and
+              ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+              sys.platform == 'darwin' and
+              sys.version_info[:2] < (3, 11)
+              ):
+            marks.append(  # https://github.com/actions/setup-python/issues/649
+                pytest.mark.xfail(reason='Tk version mismatch on Azure macOS CI'))
         envs.append(
             pytest.param(
                 {**env, 'BACKEND_DEPS': ','.join(deps)},
@@ -68,7 +79,47 @@ def _get_testable_interactive_backends():
     return envs
 
 
-_test_timeout = 60  # A reasonably safe value for slower architectures.
+def is_ci_environment():
+    # Common CI variables
+    ci_environment_variables = [
+        'CI',        # Generic CI environment variable
+        'CONTINUOUS_INTEGRATION',  # Generic CI environment variable
+        'TRAVIS',    # Travis CI
+        'CIRCLECI',  # CircleCI
+        'JENKINS',   # Jenkins
+        'GITLAB_CI',  # GitLab CI
+        'GITHUB_ACTIONS',  # GitHub Actions
+        'TEAMCITY_VERSION'  # TeamCity
+        # Add other CI environment variables as needed
+    ]
+
+    for env_var in ci_environment_variables:
+        if os.getenv(env_var):
+            return True
+
+    return False
+
+
+# Reasonable safe values for slower CI/Remote and local architectures.
+_test_timeout = 120 if is_ci_environment() else 20
+
+
+def _test_toolbar_button_la_mode_icon(fig):
+    # test a toolbar button icon using an image in LA mode (GH issue 25174)
+    # create an icon in LA mode
+    with tempfile.TemporaryDirectory() as tempdir:
+        img = Image.new("LA", (26, 26))
+        tmp_img_path = os.path.join(tempdir, "test_la_icon.png")
+        img.save(tmp_img_path)
+
+        class CustomTool(ToolToggleBase):
+            image = tmp_img_path
+            description = ""  # gtk3 backend does not allow None
+
+        toolmanager = fig.canvas.manager.toolmanager
+        toolbar = fig.canvas.manager.toolbar
+        toolmanager.add_tool("test", CustomTool)
+        toolbar.add_tool("test", "group")
 
 
 # The source of this function gets extracted and run in another process, so it
@@ -81,7 +132,8 @@ def _test_interactive_impl():
     import io
     import json
     import sys
-    from unittest import TestCase
+
+    import pytest
 
     import matplotlib as mpl
     from matplotlib import pyplot as plt
@@ -93,8 +145,6 @@ def _test_interactive_impl():
 
     mpl.rcParams.update(json.loads(sys.argv[1]))
     backend = plt.rcParams["backend"].lower()
-    assert_equal = TestCase().assertEqual
-    assert_raises = TestCase().assertRaises
 
     if backend.endswith("agg") and not backend.startswith(("gtk", "web")):
         # Force interactive framework setup.
@@ -109,26 +159,32 @@ def _test_interactive_impl():
         # uses no interactive framework).
 
         if backend != "tkagg":
-            with assert_raises(ImportError):
+            with pytest.raises(ImportError):
                 mpl.use("tkagg", force=True)
 
         def check_alt_backend(alt_backend):
             mpl.use(alt_backend, force=True)
             fig = plt.figure()
-            assert_equal(
-                type(fig.canvas).__module__,
-                "matplotlib.backends.backend_{}".format(alt_backend))
+            assert (type(fig.canvas).__module__ ==
+                    f"matplotlib.backends.backend_{alt_backend}")
 
         if importlib.util.find_spec("cairocffi"):
             check_alt_backend(backend[:-3] + "cairo")
         check_alt_backend("svg")
-
     mpl.use(backend, force=True)
 
     fig, ax = plt.subplots()
-    assert_equal(
-        type(fig.canvas).__module__,
-        "matplotlib.backends.backend_{}".format(backend))
+    assert type(fig.canvas).__module__ == f"matplotlib.backends.backend_{backend}"
+
+    assert fig.canvas.manager.get_window_title() == "Figure 1"
+
+    if mpl.rcParams["toolbar"] == "toolmanager":
+        # test toolbar button icon LA mode see GH issue 25174
+        _test_toolbar_button_la_mode_icon(fig)
+
+    if mpl.rcParams["toolbar"] == "toolmanager":
+        # test toolbar button icon LA mode see GH issue 25174
+        _test_toolbar_button_la_mode_icon(fig)
 
     ax.plot([0, 1], [2, 3])
     if fig.canvas.toolbar:  # i.e toolbar2.
@@ -156,7 +212,7 @@ def _test_interactive_impl():
     if not backend.startswith('qt5') and sys.platform == 'darwin':
         # FIXME: This should be enabled everywhere once Qt5 is fixed on macOS
         # to not resize incorrectly.
-        assert_equal(result.getvalue(), result_after.getvalue())
+        assert result.getvalue() == result_after.getvalue()
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
@@ -168,11 +224,17 @@ def test_interactive_backend(env, toolbar):
             pytest.skip("toolmanager is not implemented for macosx.")
     if env["MPLBACKEND"] == "wx":
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
-    proc = _run_helper(_test_interactive_impl,
-                       json.dumps({"toolbar": toolbar}),
-                       timeout=_test_timeout,
-                       extra_env=env)
-
+    try:
+        proc = _run_helper(
+            _test_interactive_impl,
+            json.dumps({"toolbar": toolbar}),
+            timeout=_test_timeout,
+            extra_env=env,
+        )
+    except subprocess.CalledProcessError as err:
+        pytest.fail(
+            "Subprocess failed to test intended behavior\n"
+            + str(err.stderr))
     assert proc.stdout.count("CloseEvent") == 1
 
 
@@ -202,7 +264,7 @@ def _test_thread_impl():
     future.result()  # Joins the thread; rethrows any exception.
     plt.close()  # backend is responsible for flushing any events here
     if plt.rcParams["backend"].startswith("WX"):
-        # TODO: debug why WX needs this only on py3.8
+        # TODO: debug why WX needs this only on py >= 3.8
         fig.canvas.flush_events()
 
 
@@ -236,6 +298,11 @@ for param in _thread_safe_backends:
                 reason='PyPy does not support Tkinter threading: '
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
+    elif (backend == 'tkagg' and
+          ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+          sys.platform == 'darwin' and sys.version_info[:2] < (3, 11)):
+        param.marks.append(  # https://github.com/actions/setup-python/issues/649
+            pytest.mark.xfail('Tk version mismatch on Azure macOS CI'))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
@@ -272,37 +339,23 @@ def _implqt5agg():
     assert 'pyside6' not in sys.modules
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
 
-    import matplotlib.backends.backend_qt5
-    with pytest.warns(DeprecationWarning,
-                      match="QtWidgets.QApplication.instance"):
-        matplotlib.backends.backend_qt5.qApp
-
 
 def _implcairo():
-    import matplotlib.backends.backend_qt5cairo # noqa
+    import matplotlib.backends.backend_qt5cairo  # noqa
     import sys
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
-
-    import matplotlib.backends.backend_qt5
-    with pytest.warns(DeprecationWarning,
-                      match="QtWidgets.QApplication.instance"):
-        matplotlib.backends.backend_qt5.qApp
 
 
 def _implcore():
-    import matplotlib.backends.backend_qt5
+    import matplotlib.backends.backend_qt5  # noqa
     import sys
 
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
-
-    with pytest.warns(DeprecationWarning,
-                      match="QtWidgets.QApplication.instance"):
-        matplotlib.backends.backend_qt5.qApp
 
 
 def test_qt5backends_uses_qt5():
@@ -320,6 +373,26 @@ def test_qt5backends_uses_qt5():
     if importlib.util.find_spec('pycairo') is not None:
         _run_helper(_implcairo, timeout=_test_timeout)
     _run_helper(_implcore, timeout=_test_timeout)
+
+
+def _impl_missing():
+    import sys
+    # Simulate uninstalled
+    sys.modules["PyQt6"] = None
+    sys.modules["PyQt5"] = None
+    sys.modules["PySide2"] = None
+    sys.modules["PySide6"] = None
+
+    import matplotlib.pyplot as plt
+    with pytest.raises(ImportError, match="Failed to import any of the following Qt"):
+        plt.switch_backend("qtagg")
+    # Specifically ensure that Pyside6/Pyqt6 are not in the error message for qt5agg
+    with pytest.raises(ImportError, match="^(?:(?!(PySide6|PyQt6)).)*$"):
+        plt.switch_backend("qt5agg")
+
+
+def test_qt_missing():
+    _run_helper(_impl_missing, timeout=_test_timeout)
 
 
 def _impl_test_cross_Qt_imports():
@@ -428,7 +501,7 @@ def _lazy_headless():
     try:
         plt.switch_backend(backend)
     except ImportError:
-        ...
+        pass
     else:
         sys.exit(1)
 
@@ -442,20 +515,6 @@ def test_lazy_linux_headless(env):
         timeout=_test_timeout,
         extra_env={**env, 'DISPLAY': '', 'WAYLAND_DISPLAY': ''}
     )
-
-
-def _qApp_warn_impl():
-    import matplotlib.backends.backend_qt
-    import pytest
-
-    with pytest.warns(
-            DeprecationWarning, match="QtWidgets.QApplication.instance"):
-        matplotlib.backends.backend_qt.qApp
-
-
-@pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_qApp_warn():
-    _run_helper(_qApp_warn_impl, timeout=_test_timeout)
 
 
 def _test_number_of_draws_script():
@@ -513,6 +572,14 @@ for param in _blit_backends:
     elif backend == "wx":
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))
+    elif (backend == 'tkagg' and
+          ('TF_BUILD' in os.environ or 'GITHUB_ACTION' in os.environ) and
+          sys.platform == 'darwin' and
+          sys.version_info[:2] < (3, 11)
+          ):
+        param.marks.append(  # https://github.com/actions/setup-python/issues/649
+            pytest.mark.xfail('Tk version mismatch on Azure macOS CI')
+        )
 
 
 @pytest.mark.parametrize("env", _blit_backends)
@@ -586,3 +653,48 @@ def test_figure_leak_20490(env, time_mem):
 
     growth = int(result.stdout)
     assert growth <= acceptable_memory_leakage
+
+
+def _impl_test_interactive_timers():
+    # A timer with <1 millisecond gets converted to int and therefore 0
+    # milliseconds, which the mac framework interprets as singleshot.
+    # We only want singleshot if we specify that ourselves, otherwise we want
+    # a repeating timer
+    import os
+    from unittest.mock import Mock
+    import matplotlib.pyplot as plt
+    # increase pause duration on CI to let things spin up
+    # particularly relevant for gtk3cairo
+    pause_time = 2 if os.getenv("CI") else 0.5
+    fig = plt.figure()
+    plt.pause(pause_time)
+    timer = fig.canvas.new_timer(0.1)
+    mock = Mock()
+    timer.add_callback(mock)
+    timer.start()
+    plt.pause(pause_time)
+    timer.stop()
+    assert mock.call_count > 1
+
+    # Now turn it into a single shot timer and verify only one gets triggered
+    mock.call_count = 0
+    timer.single_shot = True
+    timer.start()
+    plt.pause(pause_time)
+    assert mock.call_count == 1
+
+    # Make sure we can start the timer a second time
+    timer.start()
+    plt.pause(pause_time)
+    assert mock.call_count == 2
+    plt.close("all")
+
+
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+def test_interactive_timers(env):
+    if env["MPLBACKEND"] == "gtk3cairo" and os.getenv("CI"):
+        pytest.skip("gtk3cairo timers do not work in remote CI")
+    if env["MPLBACKEND"] == "wx":
+        pytest.skip("wx backend is deprecated; tests failed on appveyor")
+    _run_helper(_impl_test_interactive_timers,
+                timeout=_test_timeout, extra_env=env)

@@ -77,8 +77,6 @@ Appearance
    set_axis_off
    set_axis_on
    grid
-   get_frame_on
-   set_frame_on
 
 
 Axis
@@ -211,6 +209,7 @@ Sharing
    :nosignatures:
 
    sharez
+   shareview
 
 
 Interactive
@@ -270,9 +269,6 @@ Aliases and deprecated methods
     tunit_cube
     tunit_edges
     unit_cube
-    w_xaxis
-    w_yaxis
-    w_zaxis
 
 
 Other

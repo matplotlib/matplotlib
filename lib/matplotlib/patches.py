@@ -5,7 +5,7 @@ Patches are `.Artist`\s with a face color and an edge color.
 import functools
 import inspect
 import math
-from numbers import Number
+from numbers import Number, Real
 import textwrap
 from types import SimpleNamespace
 from collections import namedtuple
@@ -45,8 +45,7 @@ class Patch(artist.Artist):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @_api.make_keyword_only("3.6", name="edgecolor")
-    def __init__(self,
+    def __init__(self, *,
                  edgecolor=None,
                  facecolor=None,
                  color=None,
@@ -73,7 +72,7 @@ class Patch(artist.Artist):
             joinstyle = JoinStyle.miter
 
         self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
-        self._fill = True  # needed for set_facecolor call
+        self._fill = bool(fill)  # needed for set_facecolor call
         if color is not None:
             if edgecolor is not None or facecolor is not None:
                 _api.warn_external(
@@ -88,7 +87,6 @@ class Patch(artist.Artist):
         self._unscaled_dash_pattern = (0, None)  # offset, dash
         self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
 
-        self.set_fill(fill)
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
         self.set_antialiased(antialiased)
@@ -133,9 +131,8 @@ class Patch(artist.Artist):
         -------
         (bool, empty dict)
         """
-        inside, info = self._default_contains(mouseevent)
-        if inside is not None:
-            return inside, info
+        if self._different_canvas(mouseevent):
+            return False, {}
         radius = self._process_radius(radius)
         codes = self.get_path().codes
         if codes is not None:
@@ -615,20 +612,26 @@ class Shadow(Patch):
         return f"Shadow({self.patch})"
 
     @_docstring.dedent_interpd
-    def __init__(self, patch, ox, oy, **kwargs):
+    def __init__(self, patch, ox, oy, *, shade=0.7, **kwargs):
         """
         Create a shadow of the given *patch*.
 
         By default, the shadow will have the same face color as the *patch*,
-        but darkened.
+        but darkened. The darkness can be controlled by *shade*.
 
         Parameters
         ----------
-        patch : `.Patch`
+        patch : `~matplotlib.patches.Patch`
             The patch to create the shadow for.
         ox, oy : float
             The shift of the shadow in data coordinates, scaled by a factor
             of dpi/72.
+        shade : float, default: 0.7
+            How the darkness of the shadow relates to the original color. If 1, the
+            shadow is black, if 0, the shadow has the same color as the *patch*.
+
+            .. versionadded:: 3.8
+
         **kwargs
             Properties of the shadow patch. Supported keys are:
 
@@ -640,7 +643,9 @@ class Shadow(Patch):
         self._shadow_transform = transforms.Affine2D()
 
         self.update_from(self.patch)
-        color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
+        if not 0 <= shade <= 1:
+            raise ValueError("shade must be between 0 and 1.")
+        color = (1 - shade) * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
         self.update({'facecolor': color, 'edgecolor': color, 'alpha': 0.5,
                      # Place shadow patch directly behind the inherited patch.
                      'zorder': np.nextafter(self.patch.zorder, -np.inf),
@@ -687,9 +692,8 @@ class Rectangle(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0.0, *,
-                 rotation_point='xy', **kwargs):
+    def __init__(self, xy, width, height, *,
+                 angle=0.0, rotation_point='xy', **kwargs):
         """
         Parameters
         ----------
@@ -708,7 +712,7 @@ class Rectangle(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
@@ -769,7 +773,7 @@ class Rectangle(Patch):
     def rotation_point(self, value):
         if value in ['center', 'xy'] or (
                 isinstance(value, tuple) and len(value) == 2 and
-                isinstance(value[0], Number) and isinstance(value[1], Number)
+                isinstance(value[0], Real) and isinstance(value[1], Real)
                 ):
             self._rotation_point = value
         else:
@@ -875,8 +879,7 @@ class Rectangle(Patch):
 
     def get_bbox(self):
         """Return the `.Bbox`."""
-        x0, y0, x1, y1 = self._convert_units()
-        return transforms.Bbox.from_extents(x0, y0, x1, y1)
+        return transforms.Bbox.from_extents(*self._convert_units())
 
     xy = property(get_xy, set_xy)
 
@@ -890,9 +893,8 @@ class RegularPolygon(Patch):
                     self.orientation)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="radius")
-    def __init__(self, xy, numVertices, radius=5, orientation=0,
-                 **kwargs):
+    def __init__(self, xy, numVertices, *,
+                 radius=5, orientation=0, **kwargs):
         """
         Parameters
         ----------
@@ -1078,17 +1080,18 @@ class Polygon(Patch):
             return "Polygon0()"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="closed")
-    def __init__(self, xy, closed=True, **kwargs):
+    def __init__(self, xy, *, closed=True, **kwargs):
         """
-        *xy* is a numpy array with shape Nx2.
+        Parameters
+        ----------
+        xy : (N, 2) array
 
-        If *closed* is *True*, the polygon will be closed so the
-        starting and ending points are the same.
+        closed : bool, default: True
+            Whether the polygon is closed (i.e., has identical start and end
+            points).
 
-        Valid keyword arguments are:
-
-        %(Patch:kwdoc)s
+        **kwargs
+            %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self._closed = closed
@@ -1123,7 +1126,7 @@ class Polygon(Patch):
 
         Returns
         -------
-        (N, 2) numpy array
+        (N, 2) array
             The coordinates of the vertices.
         """
         return self._path.vertices
@@ -1162,7 +1165,7 @@ class Polygon(Patch):
         self.stale = True
 
     xy = property(get_xy, set_xy,
-                  doc='The vertices of the path as (N, 2) numpy array.')
+                  doc='The vertices of the path as a (N, 2) array.')
 
 
 class Wedge(Patch):
@@ -1175,8 +1178,7 @@ class Wedge(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
+    def __init__(self, center, r, theta1, theta2, *, width=None, **kwargs):
         """
         A wedge centered at *x*, *y* center with radius *r* that
         sweeps *theta1* to *theta2* (in degrees).  If *width* is given,
@@ -1264,8 +1266,7 @@ class Arrow(Patch):
         [0.8, 0.3], [0.8, 0.1]])
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, x, y, dx, dy, width=1.0, **kwargs):
+    def __init__(self, x, y, dx, dy, *, width=1.0, **kwargs):
         """
         Draws an arrow from (*x*, *y*) to (*x* + *dx*, *y* + *dy*).
         The width of the arrow is scaled by *width*.
@@ -1320,9 +1321,9 @@ class FancyArrow(Polygon):
         return "FancyArrow()"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="width")
-    def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False,
-                 head_width=None, head_length=None, shape='full', overhang=0,
+    def __init__(self, x, y, dx, dy, *,
+                 width=0.001, length_includes_head=False, head_width=None,
+                 head_length=None, shape='full', overhang=0,
                  head_starts_at_zero=False, **kwargs):
         """
         Parameters
@@ -1491,8 +1492,7 @@ class CirclePolygon(RegularPolygon):
         return s % (self.xy[0], self.xy[1], self.radius, self.numvertices)
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="resolution")
-    def __init__(self, xy, radius=5,
+    def __init__(self, xy, radius=5, *,
                  resolution=20,  # the number of vertices
                  ** kwargs):
         """
@@ -1519,8 +1519,7 @@ class Ellipse(Patch):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0, **kwargs):
+    def __init__(self, xy, width, height, *, angle=0, **kwargs):
         """
         Parameters
         ----------
@@ -1660,6 +1659,34 @@ class Ellipse(Patch):
         """
         return self.get_patch_transform().transform(
             [(-1, -1), (1, -1), (1, 1), (-1, 1)])
+
+    def get_vertices(self):
+        """
+        Return the vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        else:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        return [tuple(x) for x in ret]
+
+    def get_co_vertices(self):
+        """
+        Return the co-vertices coordinates of the ellipse.
+
+        The definition can be found `here <https://en.wikipedia.org/wiki/Ellipse>`_
+
+        .. versionadded:: 3.8
+        """
+        if self.width < self.height:
+            ret = self.get_patch_transform().transform([(1, 0), (-1, 0)])
+        else:
+            ret = self.get_patch_transform().transform([(0, 1), (0, -1)])
+        return [tuple(x) for x in ret]
 
 
 class Annulus(Patch):
@@ -1906,9 +1933,8 @@ class Arc(Ellipse):
         return fmt % pars
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="angle")
-    def __init__(self, xy, width, height, angle=0.0,
-                 theta1=0.0, theta2=360.0, **kwargs):
+    def __init__(self, xy, width, height, *,
+                 angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
         Parameters
         ----------
@@ -1936,7 +1962,7 @@ class Arc(Ellipse):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
             Most `.Patch` properties are supported as keyword arguments,
             except *fill* and *facecolor* because filling is not supported.
 
@@ -1944,7 +1970,7 @@ class Arc(Ellipse):
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
-            raise ValueError("Arc objects can not be filled")
+            raise ValueError("Arc objects cannot be filled")
 
         super().__init__(xy, width, height, angle=angle, **kwargs)
 
@@ -2251,8 +2277,7 @@ class _Style:
     def register(cls, name, style):
         """Register a new style."""
         if not issubclass(style, cls._Base):
-            raise ValueError("%s must be a subclass of %s" % (style,
-                                                              cls._Base))
+            raise ValueError(f"{style} must be a subclass of {cls._Base}")
         cls._style_list[name] = style
 
 
@@ -2588,9 +2613,7 @@ class BoxStyle(_Style):
             # the sizes of the vertical and horizontal sawtooth are
             # separately adjusted to fit the given box size.
             dsx_n = round((width - tooth_size) / (tooth_size * 2)) * 2
-            dsx = (width - tooth_size) / dsx_n
             dsy_n = round((height - tooth_size) / (tooth_size * 2)) * 2
-            dsy = (height - tooth_size) / dsy_n
 
             x0, y0 = x0 - pad + hsz, y0 - pad + hsz
             x1, y1 = x0 + width, y0 + height
@@ -3082,6 +3105,9 @@ class ArrowStyle(_Style):
 
     %(ArrowStyle:table)s
 
+    For an overview of the visual appearance, see
+    :doc:`/gallery/text_labels_and_annotations/fancyarrow_demo`.
+
     An instance of any arrow style class is a callable object,
     whose call signature is::
 
@@ -3196,29 +3222,18 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             head_length : float, default: 0.4
-                Length of the arrow head, relative to *mutation_scale*.
+                Length of the arrow head, relative to *mutation_size*.
             head_width : float, default: 0.2
-                Width of the arrow head, relative to *mutation_scale*.
-            widthA : float, default: 1.0
-                Width of the bracket at the beginning of the arrow
-            widthB : float, default: 1.0
-                Width of the bracket at the end of the arrow
-            lengthA : float, default: 0.2
-                Length of the bracket at the beginning of the arrow
-            lengthB : float, default: 0.2
-                Length of the bracket at the end of the arrow
-            angleA : float, default 0
-                Orientation of the bracket at the beginning, as a
-                counterclockwise angle. 0 degrees means perpendicular
-                to the line.
-            angleB : float, default 0
-                Orientation of the bracket at the beginning, as a
-                counterclockwise angle. 0 degrees means perpendicular
-                to the line.
-            scaleA : float, default *mutation_size*
-                The mutation_size for the beginning bracket
-            scaleB : float, default *mutation_size*
-                The mutation_size for the end bracket
+                Width of the arrow head, relative to *mutation_size*.
+            widthA, widthB : float, default: 1.0
+                Width of the bracket.
+            lengthA, lengthB : float, default: 0.2
+                Length of the bracket.
+            angleA, angleB : float, default: 0
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
+            scaleA, scaleB : float, default: *mutation_size*
+                The scale of the brackets.
             """
 
             self.head_length, self.head_width = head_length, head_width
@@ -3810,7 +3825,7 @@ class FancyBboxPatch(Patch):
         """
         Parameters
         ----------
-        xy : float, float
+        xy : (float, float)
           The lower left corner of the box.
 
         width : float
@@ -3819,7 +3834,7 @@ class FancyBboxPatch(Patch):
         height : float
             The height of the box.
 
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the fancy box. This can either be a `.BoxStyle`
             instance or a string of the style name and optionally comma
             separated attributes (e.g. "Round, pad=0.2"). This string is
@@ -3842,7 +3857,7 @@ class FancyBboxPatch(Patch):
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties
+        **kwargs : `~matplotlib.patches.Patch` properties
 
         %(Patch:kwdoc)s
         """
@@ -3868,7 +3883,7 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        boxstyle : str or `matplotlib.patches.BoxStyle`
+        boxstyle : str or `~matplotlib.patches.BoxStyle`
             The style of the box: either a `.BoxStyle` instance, or a string,
             which is the style name and optionally comma separated attributes
             (e.g. "Round,pad=0.2"). Such a string is used to construct a
@@ -4037,7 +4052,11 @@ class FancyBboxPatch(Patch):
 
 class FancyArrowPatch(Patch):
     """
-    A fancy arrow patch. It draws an arrow using the `ArrowStyle`.
+    A fancy arrow patch.
+
+    It draws an arrow using the `ArrowStyle`. It is primarily used by the
+    `~.axes.Axes.annotate` method.  For most purposes, use the annotate method for
+    drawing arrows.
 
     The head and tail positions are fixed at the specified start and end points
     of the arrow, but the size and shape (in display coordinates) of the arrow
@@ -4053,13 +4072,10 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="path")
-    def __init__(self, posA=None, posB=None, path=None,
-                 arrowstyle="simple", connectionstyle="arc3",
-                 patchA=None, patchB=None,
-                 shrinkA=2, shrinkB=2,
-                 mutation_scale=1, mutation_aspect=1,
-                 **kwargs):
+    def __init__(self, posA=None, posB=None, *,
+                 path=None, arrowstyle="simple", connectionstyle="arc3",
+                 patchA=None, patchB=None, shrinkA=2, shrinkB=2,
+                 mutation_scale=1, mutation_aspect=1, **kwargs):
         """
         There are two ways for defining an arrow:
 
@@ -4099,7 +4115,7 @@ default: 'arc3'
 
             %(ConnectionStyle:table)s
 
-        patchA, patchB : `.Patch`, default: None
+        patchA, patchB : `~matplotlib.patches.Patch`, default: None
             Head and tail patches, respectively.
 
         shrinkA, shrinkB : float, default: 2
@@ -4116,7 +4132,7 @@ default: 'arc3'
 
         Other Parameters
         ----------------
-        **kwargs : `.Patch` properties, optional
+        **kwargs : `~matplotlib.patches.Patch` properties, optional
             Here is a list of available `.Patch` properties:
 
         %(Patch:kwdoc)s
@@ -4206,7 +4222,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        connectionstyle : str or `matplotlib.patches.ConnectionStyle`
+        connectionstyle : str or `~matplotlib.patches.ConnectionStyle`
             The style of the connection: either a `.ConnectionStyle` instance,
             or a string, which is the style name and optionally comma separated
             attributes (e.g. "Arc,armA=30,rad=10"). Such a string is used to
@@ -4249,7 +4265,7 @@ default: 'arc3'
 
         Parameters
         ----------
-        arrowstyle : str or `matplotlib.patches.ArrowStyle`
+        arrowstyle : str or `~matplotlib.patches.ArrowStyle`
             The style of the arrow: either a `.ArrowStyle` instance, or a
             string, which is the style name and optionally comma separated
             attributes (e.g. "Fancy,head_length=0.2"). Such a string is used to
@@ -4382,8 +4398,7 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @_docstring.dedent_interpd
-    @_api.make_keyword_only("3.6", name="axesA")
-    def __init__(self, xyA, xyB, coordsA, coordsB=None,
+    def __init__(self, xyA, xyB, coordsA, coordsB=None, *,
                  axesA=None, axesB=None,
                  arrowstyle="-",
                  connectionstyle="arc3",
@@ -4451,8 +4466,8 @@ class ConnectionPatch(FancyArrowPatch):
         .. note::
 
            Using `ConnectionPatch` across two `~.axes.Axes` instances
-           is not directly compatible with :doc:`constrained layout
-           </tutorials/intermediate/constrainedlayout_guide>`. Add the artist
+           is not directly compatible with :ref:`constrained layout
+           <constrainedlayout_guide>`. Add the artist
            directly to the `.Figure` instead of adding it to a specific Axes,
            or exclude it from the layout using ``con.set_in_layout(False)``.
 

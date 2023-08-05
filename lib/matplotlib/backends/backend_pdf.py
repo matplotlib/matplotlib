@@ -5,6 +5,7 @@ Author: Jouni K Seppänen <jks@iki.fi> and others.
 """
 
 import codecs
+from datetime import timezone
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
@@ -92,11 +93,6 @@ _log = logging.getLogger(__name__)
 # * draw_quad_mesh
 
 
-@_api.deprecated("3.6", alternative="a vendored copy of _fill")
-def fill(strings, linelen=75):
-    return _fill(strings, linelen=linelen)
-
-
 def _fill(strings, linelen=75):
     """
     Make one string from sequence of strings, with whitespace in between.
@@ -153,7 +149,7 @@ def _create_pdf_info_dict(backend, metadata):
     # See https://reproducible-builds.org/specs/source-date-epoch/
     source_date_epoch = os.getenv("SOURCE_DATE_EPOCH")
     if source_date_epoch:
-        source_date = datetime.utcfromtimestamp(int(source_date_epoch))
+        source_date = datetime.fromtimestamp(int(source_date_epoch), timezone.utc)
         source_date = source_date.replace(tzinfo=UTC)
     else:
         source_date = datetime.today()
@@ -370,8 +366,8 @@ def pdfRepr(obj):
         return _fill([pdfRepr(val) for val in obj.bounds])
 
     else:
-        raise TypeError("Don't know a PDF representation for {} objects"
-                        .format(type(obj)))
+        raise TypeError(f"Don't know a PDF representation for {type(obj)} "
+                        "objects")
 
 
 def _font_supports_glyph(fonttype, glyph):
@@ -442,27 +438,8 @@ class Name:
     def __hash__(self):
         return hash(self.name)
 
-    @staticmethod
-    @_api.deprecated("3.6")
-    def hexify(match):
-        return '#%02x' % ord(match.group())
-
     def pdfRepr(self):
         return b'/' + self.name
-
-
-@_api.deprecated("3.6")
-class Operator:
-    __slots__ = ('op',)
-
-    def __init__(self, op):
-        self.op = op
-
-    def __repr__(self):
-        return '<Operator %s>' % self.op
-
-    def pdfRepr(self):
-        return self.op
 
 
 class Verbatim:
@@ -514,8 +491,6 @@ class Op(Enum):
     setlinewidth = b'w'
     clip = b'W'
     shading = b'sh'
-
-    op = _api.deprecated('3.6')(property(lambda self: self.value))
 
     def pdfRepr(self):
         return self.value
@@ -714,7 +689,7 @@ class PdfFile:
         if not opened:
             try:
                 self.tell_base = filename.tell()
-            except IOError:
+            except OSError:
                 fh = BytesIO()
                 self.original_file_like = filename
             else:
@@ -959,7 +934,7 @@ class PdfFile:
         if dvi_info is not None:
             return dvi_info.pdfname
 
-        tex_font_map = dviread.PsfontsMap(dviread._find_tex_file('pdftex.map'))
+        tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
         psfont = tex_font_map[dvifont.texname]
         if psfont.filename is None:
             raise ValueError(
@@ -1756,39 +1731,43 @@ end"""
                'Subtype': Name('Image'),
                'Width': width,
                'Height': height,
-               'ColorSpace': Name({1: 'DeviceGray',
-                                   3: 'DeviceRGB'}[color_channels]),
+               'ColorSpace': Name({1: 'DeviceGray', 3: 'DeviceRGB'}[color_channels]),
                'BitsPerComponent': 8}
         if smask:
             obj['SMask'] = smask
         if mpl.rcParams['pdf.compression']:
             if data.shape[-1] == 1:
                 data = data.squeeze(axis=-1)
+            png = {'Predictor': 10, 'Colors': color_channels, 'Columns': width}
             img = Image.fromarray(data)
             img_colors = img.getcolors(maxcolors=256)
             if color_channels == 3 and img_colors is not None:
-                # Convert to indexed color if there are 256 colors or fewer
-                # This can significantly reduce the file size
+                # Convert to indexed color if there are 256 colors or fewer. This can
+                # significantly reduce the file size.
                 num_colors = len(img_colors)
-                # These constants were converted to IntEnums and deprecated in
-                # Pillow 9.2
-                dither = getattr(Image, 'Dither', Image).NONE
-                pmode = getattr(Image, 'Palette', Image).ADAPTIVE
-                img = img.convert(
-                    mode='P', dither=dither, palette=pmode, colors=num_colors
-                )
+                palette = np.array([comp for _, color in img_colors for comp in color],
+                                   dtype=np.uint8)
+                palette24 = ((palette[0::3].astype(np.uint32) << 16) |
+                             (palette[1::3].astype(np.uint32) << 8) |
+                             palette[2::3])
+                rgb24 = ((data[:, :, 0].astype(np.uint32) << 16) |
+                         (data[:, :, 1].astype(np.uint32) << 8) |
+                         data[:, :, 2])
+                indices = np.argsort(palette24).astype(np.uint8)
+                rgb8 = indices[np.searchsorted(palette24, rgb24, sorter=indices)]
+                img = Image.fromarray(rgb8, mode='P')
+                img.putpalette(palette)
                 png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
-                palette = palette[:num_colors * 3]  # Trim padding
-                obj['ColorSpace'] = Verbatim(
-                    b'[/Indexed /DeviceRGB %d %s]'
-                    % (num_colors - 1, pdfRepr(palette)))
+                palette = palette[:num_colors * 3]  # Trim padding; remove for Pillow>=9
+                obj['ColorSpace'] = [Name('Indexed'), Name('DeviceRGB'),
+                                     num_colors - 1, palette]
                 obj['BitsPerComponent'] = bit_depth
-                color_channels = 1
+                png['Colors'] = 1
+                png['BitsPerComponent'] = bit_depth
             else:
                 png_data, _, _ = self._writePng(img)
-            png = {'Predictor': 10, 'Colors': color_channels, 'Columns': width}
         else:
             png = None
         self.beginStream(
@@ -2280,7 +2259,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # font. A text entry is ['text', x, y, glyphs, x+w] where x
         # and y are the starting coordinates, w is the width, and
         # glyphs is a list; in this phase it will always contain just
-        # one one-character string, but later it may have longer
+        # one single-character string, but later it may have longer
         # strings interspersed with kern amounts.
         oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
@@ -2763,15 +2742,11 @@ class PdfPages:
             else:
                 manager = Gcf.get_fig_manager(figure)
             if manager is None:
-                raise ValueError("No figure {}".format(figure))
+                raise ValueError(f"No figure {figure}")
             figure = manager.canvas.figure
         # Force use of pdf backend, as PdfPages is tightly coupled with it.
-        try:
-            orig_canvas = figure.canvas
-            figure.canvas = FigureCanvasPdf(figure)
+        with cbook._setattr_cm(figure, canvas=FigureCanvasPdf(figure)):
             figure.savefig(self, format="pdf", **kwargs)
-        finally:
-            figure.canvas = orig_canvas
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""

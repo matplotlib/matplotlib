@@ -104,8 +104,8 @@ defining property cycles. Adding cyclers together will be like you are
 You can even multiply cyclers, which is like using `itertools.product`
 on two or more property cycles.
 
-.. figure:: ../../tutorials/intermediate/images/sphx_glr_color_cycle_001.png
-   :target: ../../tutorials/intermediate/color_cycle.html
+.. figure:: /users/explain/artists/images/sphx_glr_color_cycle_001.png
+   :target: /users/explain/artists/color_cycle.html
    :align: center
    :scale: 50
 
@@ -728,6 +728,6 @@ Prefixed pkg-config for building
 Handling of pkg-config has been fixed in so far as it is now possible to set it
 using the environment variable ``PKG_CONFIG``. This is important if your
 toolchain is prefixed. This is done in a simpilar way as setting ``CC``
-or ``CXX`` before building. An example follows.
+or ``CXX`` before building. An example follows::
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config

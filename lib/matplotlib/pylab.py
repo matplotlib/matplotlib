@@ -1,14 +1,24 @@
 """
-.. warning::
-   Since heavily importing into the global namespace may result in unexpected
-   behavior, the use of pylab is strongly discouraged. Use `matplotlib.pyplot`
-   instead.
+`pylab` is a historic interface and its use is strongly discouraged. The equivalent
+replacement is `matplotlib.pyplot`.  See :ref:` api_interfaces` for a full overview
+of Matplotlib interfaces.
 
-`pylab` is a module that includes `matplotlib.pyplot`, `numpy`, `numpy.fft`,
-`numpy.linalg`, `numpy.random`, and some additional functions, all within
-a single namespace. Its original purpose was to mimic a MATLAB-like way
-of working by importing all functions into the global namespace. This is
-considered bad style nowadays.
+`pylab` was designed to support a MATLAB-like way of working with all plotting related
+functions directly available in the global namespace. This was achieved through a
+wildcard import (``from pylab import *``).
+
+.. warning::
+   The use of `pylab` is discouraged for the following reasons:
+
+   ``from pylab import *`` imports all the functions from `matplotlib.pyplot`, `numpy`,
+   `numpy.fft`, `numpy.linalg`, and `numpy.random`, and some additional functions into
+   the global namespace.
+
+   Such a pattern is nowadays considered bad practice, as it clutters the global
+   namespace. Even more severely, in the case of `pylab`, this will overwrite some
+   builtin functions (e.g. the builtin `sum` will be replaced by `numpy.sum`), which
+   can lead to unexpected behavior.
+
 """
 
 from matplotlib.cbook import flatten, silent_list
@@ -48,3 +58,7 @@ import datetime
 # This is needed, or bytes will be numpy.random.bytes from
 # "from numpy.random import *" above
 bytes = __import__("builtins").bytes
+# We also don't want the numpy version of these functions
+max = __import__("builtins").max
+min = __import__("builtins").min
+round = __import__("builtins").round

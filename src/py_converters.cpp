@@ -507,96 +507,52 @@ int convert_face(PyObject *color, GCAgg &gc, agg::rgba *rgba)
 int convert_points(PyObject *obj, void *pointsp)
 {
     numpy::array_view<double, 2> *points = (numpy::array_view<double, 2> *)pointsp;
-
     if (obj == NULL || obj == Py_None) {
         return 1;
     }
-
-    points->set(obj);
-
-    if (points->size() == 0) {
-        return 1;
-    }
-
-    if (points->dim(1) != 2) {
-        PyErr_Format(PyExc_ValueError,
-                     "Points must be Nx2 array, got %" NPY_INTP_FMT "x%" NPY_INTP_FMT,
-                     points->dim(0), points->dim(1));
+    if (!points->set(obj)
+        || (points->size() && !check_trailing_shape(*points, "points", 2))) {
         return 0;
     }
-
     return 1;
 }
 
 int convert_transforms(PyObject *obj, void *transp)
 {
     numpy::array_view<double, 3> *trans = (numpy::array_view<double, 3> *)transp;
-
     if (obj == NULL || obj == Py_None) {
         return 1;
     }
-
-    trans->set(obj);
-
-    if (trans->size() == 0) {
-        return 1;
-    }
-
-    if (trans->dim(1) != 3 || trans->dim(2) != 3) {
-        PyErr_Format(PyExc_ValueError,
-                     "Transforms must be Nx3x3 array, got %" NPY_INTP_FMT "x%" NPY_INTP_FMT "x%" NPY_INTP_FMT,
-                     trans->dim(0), trans->dim(1), trans->dim(2));
+    if (!trans->set(obj)
+        || (trans->size() && !check_trailing_shape(*trans, "transforms", 3, 3))) {
         return 0;
     }
-
     return 1;
 }
 
 int convert_bboxes(PyObject *obj, void *bboxp)
 {
     numpy::array_view<double, 3> *bbox = (numpy::array_view<double, 3> *)bboxp;
-
     if (obj == NULL || obj == Py_None) {
         return 1;
     }
-
-    bbox->set(obj);
-
-    if (bbox->size() == 0) {
-        return 1;
-    }
-
-    if (bbox->dim(1) != 2 || bbox->dim(2) != 2) {
-        PyErr_Format(PyExc_ValueError,
-                     "Bbox array must be Nx2x2 array, got %" NPY_INTP_FMT "x%" NPY_INTP_FMT "x%" NPY_INTP_FMT,
-                     bbox->dim(0), bbox->dim(1), bbox->dim(2));
+    if (!bbox->set(obj)
+        || (bbox->size() && !check_trailing_shape(*bbox, "bbox array", 2, 2))) {
         return 0;
     }
-
     return 1;
 }
 
 int convert_colors(PyObject *obj, void *colorsp)
 {
     numpy::array_view<double, 2> *colors = (numpy::array_view<double, 2> *)colorsp;
-
     if (obj == NULL || obj == Py_None) {
         return 1;
     }
-
-    colors->set(obj);
-
-    if (colors->size() == 0) {
-        return 1;
-    }
-
-    if (colors->dim(1) != 4) {
-        PyErr_Format(PyExc_ValueError,
-                     "Colors array must be Nx4 array, got %" NPY_INTP_FMT "x%" NPY_INTP_FMT,
-                     colors->dim(0), colors->dim(1));
+    if (!colors->set(obj)
+        || (colors->size() && !check_trailing_shape(*colors, "colors", 4))) {
         return 0;
     }
-
     return 1;
 }
 }

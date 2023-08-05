@@ -9,3 +9,6 @@ c1a33a481b9c2df605bcb9bef9c19fe65c3dac21
 
 # chore: fix spelling errors
 686c9e5a413e31c46bb049407d5eca285bcab76d
+
+# chore: pyupgrade --py39-plus
+4d306402bb66d6d4c694d8e3e14b91054417070e

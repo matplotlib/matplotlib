@@ -38,11 +38,11 @@ def run_memleak_test(bench, iterations, report):
         nobjs = len(gc.get_objects())
         garbage = len(gc.garbage)
         open_files = len(p.open_files())
-        print("{0: 4d}: pymalloc {1: 10d}, rss {2: 10d}, nobjs {3: 10d}, "
-              "garbage {4: 4d}, files: {5: 4d}".format(
-                  i, malloc, rss, nobjs, garbage, open_files))
+        print(f"{i: 4d}: pymalloc {malloc: 10d}, rss {rss: 10d}, "
+              f"nobjs {nobjs: 10d}, garbage {garbage: 4d}, "
+              f"files: {open_files: 4d}")
         if i == starti:
-            print('{:-^86s}'.format(' warmup done '))
+            print(f'{" warmup done ":-^86s}')
         malloc_arr[i] = malloc
         rss_arr[i] = rss
         if rss > rss_peak:

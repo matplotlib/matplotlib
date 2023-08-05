@@ -3,7 +3,7 @@ name: "CircleCI artifact handling"
 on: [status]
 jobs:
   circleci_artifacts_redirector_job:
-    if: "${{ github.event.context == 'ci/circleci: docs-python38' }}"
+    if: "${{ github.event.context == 'ci/circleci: docs-python39' }}"
     permissions:
       statuses: write
     runs-on: ubuntu-latest
@@ -13,12 +13,13 @@ jobs:
         uses: larsoner/circleci-artifacts-redirector-action@master
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          api-token: ${{ secrets.CIRCLECI_TOKEN }}
           artifact-path: 0/doc/build/html/index.html
-          circleci-jobs: docs-python38
+          circleci-jobs: docs-python39
           job-title: View the built docs
 
   post_warnings_as_review:
-    if: "${{ github.event.context == 'ci/circleci: docs-python38' }}"
+    if: "${{ github.event.context == 'ci/circleci: docs-python39' }}"
     permissions:
       contents: read
       checks: write

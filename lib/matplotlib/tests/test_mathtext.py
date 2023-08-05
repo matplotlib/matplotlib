@@ -1,16 +1,25 @@
+from __future__ import annotations
+
 import io
 from pathlib import Path
+import platform
 import re
 import shlex
 from xml.etree import ElementTree as ET
+from typing import Any
 
 import numpy as np
+from packaging.version import parse as parse_version
+import pyparsing
 import pytest
+
 
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
 from matplotlib import mathtext, _mathtext
+
+pyparsing_version = parse_version(pyparsing.__version__)
 
 
 # If test is removed, use None as placeholder
@@ -129,6 +138,11 @@ lightweight_math_tests = [
     r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
     r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
     r'$1.$ $2.$ $19680801.$ $a.$ $b.$ $mpl.$',
+    r'$\text{text}_{\text{sub}}^{\text{sup}} + \text{\$foo\$} + \frac{\text{num}}{\mathbf{\text{den}}}\text{with space, curly brackets \{\}, and dash -}$',
+    r'$\boldsymbol{abcde} \boldsymbol{+} \boldsymbol{\Gamma + \Omega} \boldsymbol{01234} \boldsymbol{\alpha * \beta}$',
+    r'$\left\lbrace\frac{\left\lbrack A^b_c\right\rbrace}{\left\leftbrace D^e_f \right\rbrack}\right\rightbrace\ \left\leftparen\max_{x} \left\lgroup \frac{A}{B}\right\rgroup \right\rightparen$',
+    r'$\left( a\middle. b \right)$ $\left( \frac{a}{b} \middle\vert x_i \in P^S \right)$ $\left[ 1 - \middle| a\middle| + \left( x  - \left\lfloor \dfrac{a}{b}\right\rfloor \right)  \right]$',
+    r'$\sum_{\substack{k = 1\\ k \neq \lfloor n/2\rfloor}}^{n}P(i,j) \sum_{\substack{i \neq 0\\ -1 \leq i \leq 3\\ 1 \leq j \leq 5}} F^i(x,y) \sum_{\substack{\left \lfloor \frac{n}{2} \right\rfloor}} F(n)$',
 ]
 
 digits = "0123456789"
@@ -145,7 +159,7 @@ all = [digits, uppercase, lowercase, uppergreek, lowergreek]
 # stub should be of the form (None, N) where N is the number of strings that
 # used to be tested
 # Add new tests at the end.
-font_test_specs = [
+font_test_specs: list[tuple[None | list[str], Any]] = [
     ([], all),
     (['mathrm'], all),
     (['mathbf'], all),
@@ -166,10 +180,11 @@ font_test_specs = [
     (['mathscr'], [uppercase, lowercase]),
     (['mathsf'], [digits, uppercase, lowercase]),
     (['mathrm', 'mathsf'], [digits, uppercase, lowercase]),
-    (['mathbf', 'mathsf'], [digits, uppercase, lowercase])
+    (['mathbf', 'mathsf'], [digits, uppercase, lowercase]),
+    (['mathbfit'], all),
     ]
 
-font_tests = []
+font_tests: list[None | str] = []
 for fonts, chars in font_test_specs:
     if fonts is None:
         font_tests.extend([None] * chars)
@@ -198,7 +213,8 @@ def baseline_images(request, fontset, index, text):
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
-@image_comparison(baseline_images=None)
+@image_comparison(baseline_images=None,
+                  tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
@@ -239,7 +255,8 @@ def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
-@image_comparison(baseline_images=None, extensions=['png'])
+@image_comparison(baseline_images=None, extensions=['png'],
+                  tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
@@ -267,6 +284,9 @@ def test_fontinfo():
     assert table['version'] == (1, 0)
 
 
+# See gh-26152 for more context on this xfail
+@pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
+                   reason="Error messages are incorrect for this version")
 @pytest.mark.parametrize(
     'math, msg',
     [
@@ -418,6 +438,7 @@ def test_mathtext_fallback(fallback, fontlist):
     mpl.rcParams['mathtext.rm'] = 'mpltest'
     mpl.rcParams['mathtext.it'] = 'mpltest:italic'
     mpl.rcParams['mathtext.bf'] = 'mpltest:bold'
+    mpl.rcParams['mathtext.bfit'] = 'mpltest:italic:bold'
     mpl.rcParams['mathtext.fallback'] = fallback
 
     test_str = r'a$A\AA\breve\gimel$'
@@ -500,3 +521,37 @@ def test_mathtext_cmr10_minus_sign():
     ax.plot(range(-1, 1), range(-1, 1))
     # draw to make sure we have no warnings
     fig.canvas.draw()
+
+
+def test_mathtext_operators():
+    test_str = r'''
+    \increment \smallin \notsmallowns
+    \smallowns \QED \rightangle
+    \smallintclockwise \smallvarointclockwise
+    \smallointctrcclockwise
+    \ratio \minuscolon \dotsminusdots
+    \sinewave \simneqq \nlesssim
+    \ngtrsim \nlessgtr \ngtrless
+    \cupleftarrow \oequal \rightassert
+    \rightModels \hermitmatrix \barvee
+    \measuredrightangle \varlrtriangle
+    \equalparallel \npreccurlyeq \nsucccurlyeq
+    \nsqsubseteq \nsqsupseteq \sqsubsetneq
+    \sqsupsetneq  \disin \varisins
+    \isins \isindot \varisinobar
+    \isinobar \isinvb \isinE
+    \nisd \varnis \nis
+    \varniobar \niobar \bagmember
+    \triangle'''.split()
+
+    fig = plt.figure()
+    for x, i in enumerate(test_str):
+        fig.text(0.5, (x + 0.5)/len(test_str), r'${%s}$' % i)
+
+    fig.draw_without_rendering()
+
+
+@check_figures_equal(extensions=["png"])
+def test_boldsymbol(fig_test, fig_ref):
+    fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")

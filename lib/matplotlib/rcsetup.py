@@ -9,13 +9,13 @@ and is referenced throughout Matplotlib.
 
 The default values of the rc settings are set in the default matplotlibrc file.
 Any additions or deletions to the parameter set listed here should also be
-propagated to the :file:`matplotlibrc.template` in Matplotlib's root source
-directory.
+propagated to the :file:`lib/matplotlib/mpl-data/matplotlibrc` in Matplotlib's
+root source directory.
 """
 
 import ast
 from functools import lru_cache, reduce
-from numbers import Number
+from numbers import Real
 import operator
 import os
 import re
@@ -82,7 +82,7 @@ class ValidateInStrings:
         raise ValueError(msg)
 
 
-@lru_cache()
+@lru_cache
 def _listify_validator(scalar_validator, allow_stringlist=False, *,
                        n=None, doc=None):
     def f(s):
@@ -115,9 +115,9 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *,
         return val
 
     try:
-        f.__name__ = "{}list".format(scalar_validator.__name__)
+        f.__name__ = f"{scalar_validator.__name__}list"
     except AttributeError:  # class instance.
-        f.__name__ = "{}List".format(type(scalar_validator).__name__)
+        f.__name__ = f"{type(scalar_validator).__name__}List"
     f.__qualname__ = f.__qualname__.rsplit(".", 1)[0] + "." + f.__name__
     f.__doc__ = doc if doc is not None else scalar_validator.__doc__
     return f
@@ -182,10 +182,7 @@ def _make_type_validator(cls, *, allow_none=False):
                 (s is None or isinstance(s, str) and s.lower() == "none")):
             return None
         if cls is str and not isinstance(s, str):
-            _api.warn_deprecated(
-                "3.5", message="Support for setting an rcParam that expects a "
-                "str value to a non-str value is deprecated since %(since)s "
-                "and support will be removed %(removal)s.")
+            raise ValueError(f'Could not convert {s!r} to str')
         try:
             return cls(s)
         except (TypeError, ValueError) as e:
@@ -218,7 +215,7 @@ def _validate_pathlike(s):
         # between "" (cwd) and "." (cwd, but gets updated by user selections).
         return os.fsdecode(s)
     else:
-        return validate_string(s)  # Emit deprecation warning.
+        return validate_string(s)
 
 
 def validate_fonttype(s):
@@ -478,9 +475,9 @@ def _validate_linestyle(ls):
             offset = 0
             onoff = ls
 
-        if (isinstance(offset, Number)
+        if (isinstance(offset, Real)
                 and len(onoff) % 2 == 0
-                and all(isinstance(elem, Number) for elem in onoff)):
+                and all(isinstance(elem, Real) for elem in onoff)):
             return (offset, onoff)
 
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
@@ -555,12 +552,12 @@ def validate_sketch(s):
         raise ValueError("Expected a (scale, length, randomness) triplet")
 
 
-def _validate_greaterequal0_lessthan1(s):
+def _validate_greaterthan_minushalf(s):
     s = validate_float(s)
-    if 0 <= s < 1:
+    if s > -0.5:
         return s
     else:
-        raise RuntimeError(f'Value must be >=0 and <1; got {s}')
+        raise RuntimeError(f'Value must be >-0.5; got {s}')
 
 
 def _validate_greaterequal0_lessequal1(s):
@@ -571,10 +568,12 @@ def _validate_greaterequal0_lessequal1(s):
         raise RuntimeError(f'Value must be >=0 and <=1; got {s}')
 
 
-_range_validators = {  # Slightly nicer (internal) API.
-    "0 <= x < 1": _validate_greaterequal0_lessthan1,
-    "0 <= x <= 1": _validate_greaterequal0_lessequal1,
-}
+def _validate_int_greaterequal0(s):
+    s = validate_int(s)
+    if s >= 0:
+        return s
+    else:
+        raise RuntimeError(f'Value must be >=0; got {s}')
 
 
 def validate_hatch(s):
@@ -594,6 +593,24 @@ def validate_hatch(s):
 
 validate_hatchlist = _listify_validator(validate_hatch)
 validate_dashlist = _listify_validator(validate_floatlist)
+
+
+def _validate_minor_tick_ndivs(n):
+    """
+    Validate ndiv parameter related to the minor ticks.
+    It controls the number of minor ticks to be placed between
+    two major ticks.
+    """
+
+    if isinstance(n, str) and n.lower() == 'auto':
+        return n
+    try:
+        n = _validate_int_greaterequal0(n)
+        return n
+    except (RuntimeError, ValueError):
+        pass
+
+    raise ValueError("'tick.minor.ndivs' must be 'auto' or non-negative int")
 
 
 _prop_validators = {
@@ -696,7 +713,7 @@ def cycler(*args, **kwargs):
     elif len(args) == 2:
         pairs = [(args[0], args[1])]
     elif len(args) > 2:
-        raise TypeError("No more than 2 positional arguments allowed")
+        raise _api.nargs_error('cycler', '0-2', len(args))
     else:
         pairs = kwargs.items()
 
@@ -719,6 +736,51 @@ class _DunderChecker(ast.NodeVisitor):
         if node.attr.startswith("__") and node.attr.endswith("__"):
             raise ValueError("cycler strings with dunders are forbidden")
         self.generic_visit(node)
+
+
+# A validator dedicated to the named legend loc
+_validate_named_legend_loc = ValidateInStrings(
+    'legend.loc',
+    [
+        "best",
+        "upper right", "upper left", "lower left", "lower right", "right",
+        "center left", "center right", "lower center", "upper center",
+        "center"],
+    ignorecase=True)
+
+
+def _validate_legend_loc(loc):
+    """
+    Confirm that loc is a type which rc.Params["legend.loc"] supports.
+
+    .. versionadded:: 3.8
+
+    Parameters
+    ----------
+    loc : str | int | (float, float) | str((float, float))
+        The location of the legend.
+
+    Returns
+    -------
+    loc : str | int | (float, float) or raise ValueError exception
+        The location of the legend.
+    """
+    if isinstance(loc, str):
+        try:
+            return _validate_named_legend_loc(loc)
+        except ValueError:
+            pass
+        try:
+            loc = ast.literal_eval(loc)
+        except (SyntaxError, ValueError):
+            pass
+    if isinstance(loc, int):
+        if 0 <= loc <= 10:
+            return loc
+    if isinstance(loc, tuple):
+        if len(loc) == 2 and all(isinstance(e, Real) for e in loc):
+            return loc
+    raise ValueError(f"{loc} is not a valid legend location.")
 
 
 def validate_cycler(s):
@@ -792,8 +854,8 @@ def validate_hist_bins(s):
         return validate_floatlist(s)
     except ValueError:
         pass
-    raise ValueError("'hist.bins' must be one of {}, an int or"
-                     " a sequence of floats".format(valid_strs))
+    raise ValueError(f"'hist.bins' must be one of {valid_strs}, an int or"
+                     " a sequence of floats")
 
 
 class _ignorecase(list):
@@ -811,8 +873,8 @@ def _convert_validator_spec(key, conv):
 # Mapping of rcParams to validators.
 # Converters given as lists or _ignorecase are converted to ValidateInStrings
 # immediately below.
-# The rcParams defaults are defined in matplotlibrc.template, which gets copied
-# to matplotlib/mpl-data/matplotlibrc by the setup script.
+# The rcParams defaults are defined in lib/matplotlib/mpl-data/matplotlibrc, which
+# gets copied to matplotlib/mpl-data/matplotlibrc by the setup script.
 _validators = {
     "backend":           validate_backend,
     "backend_fallback":  validate_bool,
@@ -940,10 +1002,11 @@ _validators = {
     "mathtext.tt":             validate_font_properties,
     "mathtext.it":             validate_font_properties,
     "mathtext.bf":             validate_font_properties,
+    "mathtext.bfit":           validate_font_properties,
     "mathtext.sf":             validate_font_properties,
     "mathtext.fontset":        ["dejavusans", "dejavuserif", "cm", "stix",
                                 "stixsans", "custom"],
-    "mathtext.default":        ["rm", "cal", "it", "tt", "sf", "bf", "default",
+    "mathtext.default":        ["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default",
                                 "bb", "frak", "scr", "regular"],
     "mathtext.fallback":       _validate_mathtext_fallback,
 
@@ -1014,9 +1077,9 @@ _validators = {
     # If "data", axes limits are set close to the data.
     # If "round_numbers" axes limits are set to the nearest round numbers.
     "axes.autolimit_mode": ["data", "round_numbers"],
-    "axes.xmargin": _range_validators["0 <= x <= 1"],  # margin added to xaxis
-    "axes.ymargin": _range_validators["0 <= x <= 1"],  # margin added to yaxis
-    'axes.zmargin': _range_validators["0 <= x <= 1"],  # margin added to zaxis
+    "axes.xmargin": _validate_greaterthan_minushalf,  # margin added to xaxis
+    "axes.ymargin": _validate_greaterthan_minushalf,  # margin added to yaxis
+    "axes.zmargin": _validate_greaterthan_minushalf,  # margin added to zaxis
 
     "polaraxes.grid": validate_bool,  # display polar grid or not
     "axes3d.grid":    validate_bool,  # display 3d grid
@@ -1044,11 +1107,7 @@ _validators = {
 
     # legend properties
     "legend.fancybox": validate_bool,
-    "legend.loc": _ignorecase([
-        "best",
-        "upper right", "upper left", "lower left", "lower right", "right",
-        "center left", "center right", "lower center", "upper center",
-        "center"]),
+    "legend.loc": _validate_legend_loc,
 
     # the number of points in the legend line
     "legend.numpoints":      validate_int,
@@ -1060,6 +1119,7 @@ _validators = {
     "legend.labelcolor":     _validate_color_or_linecolor,
     # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
+    # using dict in rcParams not yet supported, so make sure it is bool
     "legend.shadow":         validate_bool,
     # whether or not to draw a frame around legend
     "legend.frameon":        validate_bool,
@@ -1101,6 +1161,8 @@ _validators = {
     "xtick.minor.bottom":  validate_bool,      # draw bottom minor xticks
     "xtick.major.top":     validate_bool,      # draw top major xticks
     "xtick.major.bottom":  validate_bool,      # draw bottom major xticks
+    # number of minor xticks
+    "xtick.minor.ndivs":   _validate_minor_tick_ndivs,
     "xtick.labelsize":     validate_fontsize,  # fontsize of xtick labels
     "xtick.direction":     ["out", "in", "inout"],  # direction of xticks
     "xtick.alignment":     ["center", "right", "left"],
@@ -1122,6 +1184,8 @@ _validators = {
     "ytick.minor.right":   validate_bool,      # draw right minor yticks
     "ytick.major.left":    validate_bool,      # draw left major yticks
     "ytick.major.right":   validate_bool,      # draw right major yticks
+    # number of minor yticks
+    "ytick.minor.ndivs":   _validate_minor_tick_ndivs,
     "ytick.labelsize":     validate_fontsize,  # fontsize of ytick labels
     "ytick.direction":     ["out", "in", "inout"],  # direction of yticks
     "ytick.alignment":     [
@@ -1150,22 +1214,23 @@ _validators = {
     "figure.autolayout":       validate_bool,
     "figure.max_open_warning": validate_int,
     "figure.raise_window":     validate_bool,
+    "macosx.window_mode":      ["system", "tab", "window"],
 
-    "figure.subplot.left":   _range_validators["0 <= x <= 1"],
-    "figure.subplot.right":  _range_validators["0 <= x <= 1"],
-    "figure.subplot.bottom": _range_validators["0 <= x <= 1"],
-    "figure.subplot.top":    _range_validators["0 <= x <= 1"],
-    "figure.subplot.wspace": _range_validators["0 <= x < 1"],
-    "figure.subplot.hspace": _range_validators["0 <= x < 1"],
+    "figure.subplot.left":   validate_float,
+    "figure.subplot.right":  validate_float,
+    "figure.subplot.bottom": validate_float,
+    "figure.subplot.top":    validate_float,
+    "figure.subplot.wspace": validate_float,
+    "figure.subplot.hspace": validate_float,
 
     "figure.constrained_layout.use": validate_bool,  # run constrained_layout?
     # wspace and hspace are fraction of adjacent subplots to use for space.
     # Much smaller than above because we don't need room for the text.
-    "figure.constrained_layout.hspace": _range_validators["0 <= x < 1"],
-    "figure.constrained_layout.wspace": _range_validators["0 <= x < 1"],
+    "figure.constrained_layout.hspace": validate_float,
+    "figure.constrained_layout.wspace": validate_float,
     # buffer around the axes, in inches.
-    'figure.constrained_layout.h_pad': validate_float,
-    'figure.constrained_layout.w_pad': validate_float,
+    "figure.constrained_layout.h_pad": validate_float,
+    "figure.constrained_layout.w_pad": validate_float,
 
     ## Saving figure's properties
     'savefig.dpi':          validate_dpi,
@@ -1209,7 +1274,7 @@ _validators = {
     "docstring.hardcopy": validate_bool,
 
     "path.simplify":           validate_bool,
-    "path.simplify_threshold": _range_validators["0 <= x <= 1"],
+    "path.simplify_threshold": _validate_greaterequal0_lessequal1,
     "path.snap":               validate_bool,
     "path.sketch":             validate_sketch,
     "path.effects":            validate_anylist,
@@ -1258,7 +1323,8 @@ _validators = {
     # altogether.  For that use `matplotlib.style.use("classic")`.
     "_internal.classic_mode": validate_bool
 }
-_hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
+_hardcoded_defaults = {  # Defaults not inferred from
+    # lib/matplotlib/mpl-data/matplotlibrc...
     # ... because they are private:
     "_internal.classic_mode": False,
     # ... because they are deprecated:

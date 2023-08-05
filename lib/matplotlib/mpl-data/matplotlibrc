@@ -16,7 +16,7 @@
 ##         $HOME/.matplotlib/matplotlibrc
 ## and edit that copy.
 ##
-## See https://matplotlib.org/stable/tutorials/introductory/customizing.html#customizing-with-matplotlibrc-files
+## See https://matplotlib.org/stable/users/explain/customizing.html#customizing-with-matplotlibrc-files
 ## for more details on the paths which are checked for the configuration file.
 ##
 ## Blank lines, or lines starting with a comment symbol, are ignored, as are
@@ -111,7 +111,7 @@
 ## ***************************************************************************
 ## * LINES                                                                   *
 ## ***************************************************************************
-## See https://matplotlib.org/api/artist_api.html#module-matplotlib.lines
+## See https://matplotlib.org/stable/api/artist_api.html#module-matplotlib.lines
 ## for more information on line properties.
 #lines.linewidth: 1.5               # line width in points
 #lines.linestyle: -                 # solid line
@@ -144,7 +144,7 @@
 ## * PATCHES                                                                 *
 ## ***************************************************************************
 ## Patches are graphical objects that fill 2D space, like polygons or circles.
-## See https://matplotlib.org/api/artist_api.html#module-matplotlib.patches
+## See https://matplotlib.org/stable/api/artist_api.html#module-matplotlib.patches
 ## for more information on patch properties.
 #patch.linewidth:       1.0    # edge width in points.
 #patch.facecolor:       C0
@@ -212,7 +212,7 @@
 ## * FONT                                                                    *
 ## ***************************************************************************
 ## The font properties used by `text.Text`.
-## See https://matplotlib.org/api/font_manager_api.html for more information
+## See https://matplotlib.org/stable/api/font_manager_api.html for more information
 ## on font properties.  The 6 font properties used for font matching are
 ## given below with their default values.
 ##
@@ -237,7 +237,7 @@
 ##
 ## The font.variant property has two values: normal or small-caps.  For
 ## TrueType fonts, which are scalable fonts, small-caps is equivalent
-## to using a font size of 'smaller', or about 83%% of the current font
+## to using a font size of 'smaller', or about 83 % of the current font
 ## size.
 ##
 ## The font.weight property has effectively 13 values: normal, bold,
@@ -277,7 +277,7 @@
 ## * TEXT                                                                    *
 ## ***************************************************************************
 ## The text properties used by `text.Text`.
-## See https://matplotlib.org/api/artist_api.html#module-matplotlib.text
+## See https://matplotlib.org/stable/api/artist_api.html#module-matplotlib.text
 ## for more information on text properties
 #text.color: black
 
@@ -309,7 +309,7 @@
 ## * LaTeX                                                                   *
 ## ***************************************************************************
 ## For more information on LaTeX properties, see
-## https://matplotlib.org/tutorials/text/usetex.html
+## https://matplotlib.org/stable/users/explain/text/usetex.html
 #text.usetex: False  # use latex for all text handling. The following fonts
                      # are supported through the usual rc parameter settings:
                      # new century schoolbook, bookman, times, palatino,
@@ -335,19 +335,19 @@
 ## The following settings allow you to select the fonts in math mode.
 #mathtext.fontset: dejavusans  # Should be 'dejavusans' (default),
                                # 'dejavuserif', 'cm' (Computer Modern), 'stix',
-                               # 'stixsans' or 'custom' (unsupported, may go
-                               # away in the future)
+                               # 'stixsans' or 'custom'
 ## "mathtext.fontset: custom" is defined by the mathtext.bf, .cal, .it, ...
 ## settings which map a TeX font name to a fontconfig font pattern.  (These
 ## settings are not used for other font sets.)
 #mathtext.bf:  sans:bold
+#mathtext.bfit: sans:italic:bold
 #mathtext.cal: cursive
 #mathtext.it:  sans:italic
 #mathtext.rm:  sans
 #mathtext.sf:  sans
 #mathtext.tt:  monospace
 #mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'stix'
-                        # 'stixsans'] when a symbol can not be found in one of the
+                        # 'stixsans'] when a symbol cannot be found in one of the
                         # custom math fonts. Select 'None' to not perform fallback
                         # and replace the missing character by a dummy symbol.
 #mathtext.default: it  # The default font to use for math.
@@ -361,7 +361,7 @@
 ## ***************************************************************************
 ## Following are default face and edge colors, default tick sizes,
 ## default font sizes for tick labels, and so on.  See
-## https://matplotlib.org/api/axes_api.html#module-matplotlib.axes
+## https://matplotlib.org/stable/api/axes_api.html#module-matplotlib.axes
 #axes.facecolor:     white   # axes background color
 #axes.edgecolor:     black   # axes edge color
 #axes.linewidth:     0.8     # edge line width
@@ -417,7 +417,7 @@
                   # As opposed to all other parameters in this file, the color
                   # values must be enclosed in quotes for this parameter,
                   # e.g. '1f77b4', instead of 1f77b4.
-                  # See also https://matplotlib.org/tutorials/intermediate/color_cycle.html
+                  # See also https://matplotlib.org/stable/users/explain/artists/color_cycle.html
                   # for more details on prop_cycle usage.
 #axes.xmargin:   .05  # x margin.  See `axes.Axes.margins`
 #axes.ymargin:   .05  # y margin.  See `axes.Axes.margins`
@@ -445,9 +445,9 @@
 ## These control the default format strings used in AutoDateFormatter.
 ## Any valid format datetime format string can be used (see the python
 ## `datetime` for details).  For example, by using:
-##     - '%%x' will use the locale date representation
-##     - '%%X' will use the locale time representation
-##     - '%%c' will use the full locale datetime representation
+##     - '%x' will use the locale date representation
+##     - '%X' will use the locale time representation
+##     - '%c' will use the full locale datetime representation
 ## These values map to the scales:
 ##     {'year': 365, 'month': 30, 'day': 1, 'hour': 1/24, 'minute': 1 / (24 * 60)}
 
@@ -459,7 +459,7 @@
 #date.autoformatter.second:      %H:%M:%S
 #date.autoformatter.microsecond: %M:%S.%f
 ## The reference date for Matplotlib's internal date representation
-## See https://matplotlib.org/examples/ticks_and_spines/date_precision_and_epochs.py
+## See https://matplotlib.org/stable/gallery/ticks/date_precision_and_epochs.html
 #date.epoch: 1970-01-01T00:00:00
 ## 'auto', 'concise':
 #date.converter:                  auto
@@ -469,7 +469,7 @@
 ## ***************************************************************************
 ## * TICKS                                                                   *
 ## ***************************************************************************
-## See https://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
+## See https://matplotlib.org/stable/api/axis_api.html#matplotlib.axis.Tick
 #xtick.top:           False   # draw ticks on the top side
 #xtick.bottom:        True    # draw ticks on the bottom side
 #xtick.labeltop:      False   # draw label on the top
@@ -489,6 +489,7 @@
 #xtick.major.bottom:  True    # draw x axis bottom major ticks
 #xtick.minor.top:     True    # draw x axis top minor ticks
 #xtick.minor.bottom:  True    # draw x axis bottom minor ticks
+#xtick.minor.ndivs:   auto    # number of minor ticks between the major ticks on x-axis
 #xtick.alignment:     center  # alignment of xticks
 
 #ytick.left:          True    # draw ticks on the left side
@@ -510,6 +511,7 @@
 #ytick.major.right:   True    # draw y axis right major ticks
 #ytick.minor.left:    True    # draw y axis left minor ticks
 #ytick.minor.right:   True    # draw y axis right minor ticks
+#ytick.minor.ndivs:   auto    # number of minor ticks between the major ticks on y-axis
 #ytick.alignment:     center_baseline  # alignment of yticks
 
 
@@ -553,7 +555,7 @@
 ## ***************************************************************************
 ## * FIGURE                                                                  *
 ## ***************************************************************************
-## See https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
+## See https://matplotlib.org/stable/api/figure_api.html#matplotlib.figure.Figure
 #figure.titlesize:   large     # size of the figure title (``Figure.suptitle()``)
 #figure.titleweight: normal    # weight of the figure title
 #figure.labelsize:   large     # size of the figure label (``Figure.sup[x|y]label()``)
@@ -585,10 +587,14 @@
 #figure.constrained_layout.use: False  # When True, automatically make plot
                                        # elements fit on the figure. (Not
                                        # compatible with `autolayout`, above).
-#figure.constrained_layout.h_pad:  0.04167  # Padding around axes objects. Float representing
-#figure.constrained_layout.w_pad:  0.04167  # inches. Default is 3/72 inches (3 points)
-#figure.constrained_layout.hspace: 0.02     # Space between subplot groups. Float representing
-#figure.constrained_layout.wspace: 0.02     # a fraction of the subplot widths being separated.
+## Padding (in inches) around axes; defaults to 3/72 inches, i.e. 3 points.
+#figure.constrained_layout.h_pad:  0.04167
+#figure.constrained_layout.w_pad:  0.04167
+## Spacing between subplots, relative to the subplot sizes.  Much smaller than for
+## tight_layout (figure.subplot.hspace, figure.subplot.wspace) as constrained_layout
+## already takes surrounding texts (titles, labels, # ticklabels) into account.
+#figure.constrained_layout.hspace: 0.02
+#figure.constrained_layout.wspace: 0.02
 
 
 ## ***************************************************************************
@@ -684,9 +690,8 @@
 #savefig.edgecolor: auto        # figure edge color when saving
 #savefig.format:    png         # {png, ps, pdf, svg}
 #savefig.bbox:      standard    # {tight, standard}
-                                # 'tight' is incompatible with pipe-based animation
-                                # backends (e.g. 'ffmpeg') but will work with those
-                                # based on temporary files (e.g. 'ffmpeg_file')
+                                # 'tight' is incompatible with generating frames
+                                # for animation
 #savefig.pad_inches:  0.1       # padding to be used, when bbox is set to 'tight'
 #savefig.directory:   ~         # default directory in savefig dialog, gets updated after
                                 # interactive saves, unless set to the empty string (i.e.
@@ -695,6 +700,10 @@
 #savefig.transparent: False     # whether figures are saved with a transparent
                                 # background by default
 #savefig.orientation: portrait  # orientation of saved figure, for PostScript output only
+
+### macosx backend params
+#macosx.window_mode : system   # How to open new figures (system, tab, window)
+                               # system uses the MacOS system preferences
 
 ### tk backend params
 #tk.window_focus:   False  # Maintain shell focus for TkAgg
@@ -726,7 +735,7 @@
 #svg.hashsalt: None      # If not None, use this string as hash salt instead of uuid4
 
 ### pgf parameter
-## See https://matplotlib.org/tutorials/text/pgf.html for more information.
+## See https://matplotlib.org/stable/tutorials/text/pgf.html for more information.
 #pgf.rcfonts: True
 #pgf.preamble:  # See text.latex.preamble for documentation
 #pgf.texsystem: xelatex

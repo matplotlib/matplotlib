@@ -342,7 +342,7 @@ Issues (170):
 * :ghissue:`12626`: AttributeError: module 'matplotlib' has no attribute 'artist'
 * :ghissue:`11034`: Doc Typo:  matplotlib.axes.Axes.get_yticklabels  / Axis.get_ticklabels
 * :ghissue:`12624`: make_axes_locatable : Colorbar in the middle instead of bottom while saving a pdf, png.
-* :ghissue:`11094`: can not use GUI backends inside django request handlers
+* :ghissue:`11094`: cannot use GUI backends inside django request handlers
 * :ghissue:`12613`: transiently linked interactivity of unshared pair of axes generated with make_axes_locatable 
 * :ghissue:`12578`: macOS builds are broken
 * :ghissue:`12612`: gui backends do not work inside of flask request handlers

@@ -25,7 +25,7 @@
 
    3. PathClipper: Clips line segments to a given rectangle.  This is
       helpful for data reduction, and also to avoid a limitation in
-      Agg where coordinates can not be larger than 24-bit signed
+      Agg where coordinates cannot be larger than 24-bit signed
       integers.
 
    4. PathSnapper: Rounds the path to the nearest center-pixels.
@@ -257,7 +257,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 m_last_segment_valid = (std::isfinite(*x) && std::isfinite(*y));
                 queue_push(code, *x, *y);
 
-                /* Note: this test can not be short-circuited, since we need to
+                /* Note: this test cannot be short-circuited, since we need to
                    advance through the entire curve no matter what */
                 for (size_t i = 0; i < num_extra_points; ++i) {
                     m_source->vertex(x, y);
@@ -595,7 +595,7 @@ class PathSnapper
         m_snap = should_snap(source, snap_mode, total_vertices);
 
         if (m_snap) {
-            int is_odd = (int)mpl_round(stroke_width) % 2;
+            int is_odd = mpl_round_to_int(stroke_width) % 2;
             m_snap_value = (is_odd) ? 0.5 : 0.0;
         }
 
@@ -1018,6 +1018,9 @@ class Sketch
           m_rand(0)
     {
         rewind(0);
+        const double d_M_PI = 3.14159265358979323846;
+        m_p_scale = (2.0 * d_M_PI) / (m_length * m_randomness);
+        m_log_randomness = 2.0 * log(m_randomness);
     }
 
     unsigned vertex(double *x, double *y)
@@ -1037,9 +1040,20 @@ class Sketch
             // We want the "cursor" along the sine wave to move at a
             // random rate.
             double d_rand = m_rand.get_double();
-            double d_M_PI = 3.14159265358979323846;
-            m_p += pow(m_randomness, d_rand * 2.0 - 1.0);
-            double r = sin(m_p / (m_length / (d_M_PI * 2.0))) * m_scale;
+            // Original computation
+            // p += pow(k, 2*rand - 1)
+            // r = sin(p * c)
+            // x86 computes pow(a, b) as exp(b*log(a))
+            // First, move -1 out, so
+            // p' += pow(k, 2*rand)
+            // r = sin(p * c') where c' = c / k
+            // Next, use x86 logic (will not be worse on other platforms as
+            // the log is only computed once and pow and exp are, at worst,
+            // the same)
+            // So p+= exp(2*rand*log(k))
+            // lk = 2*log(k)
+            // p += exp(rand*lk)
+            m_p += exp(d_rand * m_log_randomness);
             double den = m_last_x - *x;
             double num = m_last_y - *y;
             double len = num * num + den * den;
@@ -1047,8 +1061,10 @@ class Sketch
             m_last_y = *y;
             if (len != 0) {
                 len = sqrt(len);
-                *x += r * num / len;
-                *y += r * -den / len;
+                double r = sin(m_p * m_p_scale) * m_scale;
+                double roverlen = r / len;
+                *x += roverlen * num;
+                *y -= roverlen * den;
             }
         } else {
             m_last_x = *x;
@@ -1083,6 +1099,8 @@ class Sketch
     bool m_has_last;
     double m_p;
     RandomNumberGenerator m_rand;
+    double m_p_scale;
+    double m_log_randomness;
 };
 
 #endif // MPL_PATH_CONVERTERS_H

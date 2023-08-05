@@ -1,5 +1,0 @@
-``matplotlib.pyplot.get_plot_commands``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-... is a pending deprecation. This is considered internal and no end-user
-should need it.

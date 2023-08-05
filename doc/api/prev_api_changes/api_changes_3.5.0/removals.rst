@@ -282,7 +282,7 @@ Arguments
 - The *dummy* parameter of `.RendererPgf` has been removed.
 - The *props* parameter of `.Shadow` has been removed; use keyword arguments
   instead.
-- The *recursionlimit* parameter of `matplotlib.test` has been removed.
+- The *recursionlimit* parameter of ``matplotlib.test`` has been removed.
 - The *label* parameter of `.Tick` has no effect and has been removed.
 - `~.ticker.MaxNLocator` no longer accepts a positional parameter and the
   keyword argument *nbins* simultaneously because they specify the same
@@ -351,7 +351,7 @@ rcParams
   - ``validate_orientation``
   - ``validate_pgf_texsystem``
   - ``validate_ps_papersize``
-  - ``validate_svg_fontset``
+  - ``validate_svg_fonttype``
   - ``validate_toolbar``
   - ``validate_webagg_address``
 

@@ -7,6 +7,8 @@ function returns the best TrueType (TTF) font file in the local or
 system font path that matches the specified `FontProperties`
 instance.  The `FontManager` also handles Adobe Font Metrics
 (AFM) font files for use by the PostScript backend.
+The `FontManager.addfont` function adds a custom font from a file without
+installing it into your operating system.
 
 The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
 font specification <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_.
@@ -24,6 +26,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - 'light' is an invalid weight value, remove it.
 
 from base64 import b64encode
+from collections import namedtuple
 import copy
 import dataclasses
 from functools import lru_cache
@@ -37,6 +40,7 @@ import re
 import subprocess
 import sys
 import threading
+from typing import Union
 
 import matplotlib as mpl
 from matplotlib import _api, _afm, cbook, ft2font
@@ -126,6 +130,7 @@ font_family_aliases = {
     'sans',
 }
 
+_ExceptionProxy = namedtuple('_ExceptionProxy', ['klass', 'message'])
 
 # OS Font paths
 try:
@@ -186,16 +191,11 @@ def list_fonts(directory, extensions):
     recursively under the directory.
     """
     extensions = ["." + ext for ext in extensions]
-    if sys.platform == 'win32' and directory == win32FontDirectory():
-        return [os.path.join(directory, filename)
-                for filename in os.listdir(directory)
-                if os.path.isfile(os.path.join(directory, filename))]
-    else:
-        return [os.path.join(dirpath, filename)
-                # os.walk ignores access errors, unlike Path.glob.
-                for dirpath, _, filenames in os.walk(directory)
-                for filename in filenames
-                if Path(filename).suffix.lower() in extensions]
+    return [os.path.join(dirpath, filename)
+            # os.walk ignores access errors, unlike Path.glob.
+            for dirpath, _, filenames in os.walk(directory)
+            for filename in filenames
+            if Path(filename).suffix.lower() in extensions]
 
 
 def win32FontDirectory():
@@ -247,7 +247,7 @@ def _get_win32_installed_fonts():
     return items
 
 
-@lru_cache()
+@lru_cache
 def _get_fontconfig_fonts():
     """Cache and list the font paths known to ``fc-list``."""
     try:
@@ -275,7 +275,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     if fontpaths is None:
         if sys.platform == 'win32':
             installed_fonts = _get_win32_installed_fonts()
-            fontpaths = MSUserFontDirectories + [win32FontDirectory()]
+            fontpaths = []
         else:
             installed_fonts = _get_fontconfig_fonts()
             if sys.platform == 'darwin':
@@ -316,7 +316,7 @@ FontEntry = dataclasses.make_dataclass(
         ('name', str, dataclasses.field(default='')),
         ('style', str, dataclasses.field(default='normal')),
         ('variant', str, dataclasses.field(default='normal')),
-        ('weight', str, dataclasses.field(default='normal')),
+        ('weight', Union[str, int], dataclasses.field(default='normal')),
         ('stretch', str, dataclasses.field(default='normal')),
         ('size', str, dataclasses.field(default='medium')),
     ],
@@ -465,6 +465,8 @@ def afmFontProperty(fontpath, font):
 
     Parameters
     ----------
+    fontpath : str
+        The filename corresponding to *font*.
     font : AFM
         The AFM font file from which information will be extracted.
 
@@ -622,10 +624,10 @@ class FontProperties:
         - a `str`: it is parsed as a fontconfig pattern;
         - a `dict`: it is passed as ``**kwargs`` to `.FontProperties`.
         """
-        if isinstance(arg, cls):
-            return arg
-        elif arg is None:
+        if arg is None:
             return cls()
+        elif isinstance(arg, cls):
+            return arg
         elif isinstance(arg, os.PathLike):
             return cls(fname=arg)
         elif isinstance(arg, str):
@@ -854,7 +856,7 @@ class FontProperties:
         pattern syntax for use here.
         """
         for key, val in parse_fontconfig_pattern(pattern).items():
-            if type(val) == list:
+            if type(val) is list:
                 getattr(self, "set_" + key)(val[0])
             else:
                 getattr(self, "set_" + key)(val)
@@ -879,8 +881,7 @@ class FontProperties:
             The name of the font family.
 
             Available font families are defined in the
-            matplotlibrc.template file
-            :ref:`here <customizing-with-matplotlibrc-files>`
+            :ref:`default matplotlibrc file <customizing-with-matplotlibrc-files>`.
 
         See Also
         --------
@@ -963,7 +964,7 @@ def json_dump(data, filename):
         try:
             json.dump(data, fh, cls=_JSONEncoder, indent=2)
         except OSError as e:
-            _log.warning('Could not save font_manager cache {}'.format(e))
+            _log.warning('Could not save font_manager cache %s', e)
 
 
 def json_load(filename):
@@ -985,6 +986,27 @@ class FontManager:
     method does a nearest neighbor search to find the font that most closely
     matches the specification.  If no good enough match is found, the default
     font is returned.
+
+    Fonts added with the `FontManager.addfont` method will not persist in the
+    cache; therefore, `addfont` will need to be called every time Matplotlib is
+    imported. This method should only be used if and when a font cannot be
+    installed on your operating system by other means.
+
+    Notes
+    -----
+    The `FontManager.addfont` method must be called on the global `FontManager`
+    instance.
+
+    Example usage::
+
+        import matplotlib.pyplot as plt
+        from matplotlib import font_manager
+
+        font_dirs = ["/resources/fonts"]  # The path to the custom font file.
+        font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+
+        for font_file in font_files:
+            font_manager.fontManager.addfont(font_file)
     """
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
@@ -1035,6 +1057,12 @@ class FontManager:
         Parameters
         ----------
         path : str or path-like
+
+        Notes
+        -----
+        This method is useful for adding a custom font without installing it in
+        your operating system. See the `FontManager` singleton instance for
+        usage and caveats about this function.
         """
         # Convert to string in case of a path as
         # afmFontProperty and FT2Font expect this
@@ -1264,13 +1292,13 @@ class FontManager:
         ret = self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
-        if isinstance(ret, Exception):
-            raise ret
+        if isinstance(ret, _ExceptionProxy):
+            raise ret.klass(ret.message)
         return ret
 
     def get_font_names(self):
         """Return the list of available fonts."""
-        return list(set([font.name for font in self.ttflist]))
+        return list({font.name for font in self.ttflist})
 
     def _find_fonts_by_props(self, prop, fontext='ttf', directory=None,
                              fallback_to_default=True, rebuild_if_missing=True):
@@ -1416,10 +1444,12 @@ class FontManager:
                                      fallback_to_default=False)
             else:
                 # This return instead of raise is intentional, as we wish to
-                # cache the resulting exception, which will not occur if it was
+                # cache that it was not found, which will not occur if it was
                 # actually raised.
-                return ValueError(f"Failed to find font {prop}, and fallback "
-                                  f"to the default font was disabled")
+                return _ExceptionProxy(
+                    ValueError,
+                    f"Failed to find font {prop}, and fallback to the default font was disabled"
+                )
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
                        prop, best_font.name, best_font.fname, best_score)
@@ -1439,19 +1469,19 @@ class FontManager:
                     prop, fontext, directory, rebuild_if_missing=False)
             else:
                 # This return instead of raise is intentional, as we wish to
-                # cache the resulting exception, which will not occur if it was
+                # cache that it was not found, which will not occur if it was
                 # actually raised.
-                return ValueError("No valid font could be found")
+                return _ExceptionProxy(ValueError, "No valid font could be found")
 
         return _cached_realpath(result)
 
 
-@lru_cache()
+@lru_cache
 def is_opentype_cff_font(filename):
     """
     Return whether the given font is a Postscript Compact Font Format Font
     embedded in an OpenType wrapper.  Used by the PostScript and PDF backends
-    that can not subset these fonts.
+    that cannot subset these fonts.
     """
     if os.path.splitext(filename)[1].lower() == '.otf':
         with open(filename, 'rb') as fd:
@@ -1492,7 +1522,6 @@ def _cached_realpath(path):
     return os.path.realpath(path)
 
 
-@_api.rename_parameter('3.6', "filepath", "font_filepaths")
 def get_font(font_filepaths, hinting_factor=None):
     """
     Get an `.ft2font.FT2Font` object given a list of file paths.

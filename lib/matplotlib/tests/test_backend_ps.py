@@ -8,13 +8,13 @@ import numpy as np
 import pytest
 
 from matplotlib import cbook, path, patheffects, font_manager as fm
-from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.figure import Figure
 from matplotlib.patches import Ellipse
 from matplotlib.testing._markers import needs_ghostscript, needs_usetex
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib as mpl
 import matplotlib.collections as mcollections
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 
 
@@ -59,7 +59,7 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
         if rcParams.get("text.usetex"):
             allowable_exceptions.append(RuntimeError)
         if rcParams.get("ps.useafm"):
-            allowable_exceptions.append(MatplotlibDeprecationWarning)
+            allowable_exceptions.append(mpl.MatplotlibDeprecationWarning)
         try:
             fig.savefig(s_buf, format=format, orientation=orientation)
             fig.savefig(b_buf, format=format, orientation=orientation)
@@ -327,3 +327,12 @@ def test_path_collection():
                                      facecolors='yellow', offsets=offsets)
     ax.add_collection(pc)
     ax.set_xlim(0, 1)
+
+
+@image_comparison(["colorbar_shift.eps"], savefig_kwarg={"bbox_inches": "tight"},
+                  style="mpl20")
+def test_colorbar_shift(tmp_path):
+    cmap = mcolors.ListedColormap(["r", "g", "b"])
+    norm = mcolors.BoundaryNorm([-1, -0.5, 0.5, 1], cmap.N)
+    plt.scatter([0, 1], [1, 1], c=[0, 1], cmap=cmap, norm=norm)
+    plt.colorbar()

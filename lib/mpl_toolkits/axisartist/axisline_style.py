@@ -1,10 +1,14 @@
+"""
+Provides classes to style the axis lines.
+"""
 import math
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib.patches import _Style, FancyArrowPatch
-from matplotlib.transforms import IdentityTransform
 from matplotlib.path import Path
+from matplotlib.transforms import IdentityTransform
 
 
 class _FancyAxislineStyle:
@@ -54,10 +58,10 @@ class _FancyAxislineStyle:
         def draw(self, renderer):
             """
             Draw the axis line.
-             1) transform the path to the display coordinate.
-             2) extend the path to make a room for arrow
-             3) update the path of the FancyArrowPatch.
-             4) draw
+             1) Transform the path to the display coordinate.
+             2) Extend the path to make a room for arrow.
+             3) Update the path of the FancyArrowPatch.
+             4) Draw.
             """
             path_in_disp = self._line_transform.transform_path(self._line_path)
             mutation_size = self.get_mutation_scale()  # line_mutation_scale()
@@ -66,9 +70,24 @@ class _FancyAxislineStyle:
             self._path_original = extended_path
             FancyArrowPatch.draw(self, renderer)
 
+        def get_window_extent(self, renderer=None):
+
+            path_in_disp = self._line_transform.transform_path(self._line_path)
+            mutation_size = self.get_mutation_scale()  # line_mutation_scale()
+            extended_path = self._extend_path(path_in_disp,
+                                              mutation_size=mutation_size)
+            self._path_original = extended_path
+            return FancyArrowPatch.get_window_extent(self, renderer)
+
     class FilledArrow(SimpleArrow):
-        """The artist class that will be returned for SimpleArrow style."""
+        """The artist class that will be returned for FilledArrow style."""
         _ARROW_STYLE = "-|>"
+
+        def __init__(self, axis_artist, line_path, transform,
+                     line_mutation_scale, facecolor):
+            super().__init__(axis_artist, line_path, transform,
+                             line_mutation_scale)
+            self.set_facecolor(facecolor)
 
 
 class AxislineStyle(_Style):
@@ -140,6 +159,35 @@ class AxislineStyle(_Style):
     _style_list["->"] = SimpleArrow
 
     class FilledArrow(SimpleArrow):
+        """
+        An arrow with a filled head.
+        """
+
         ArrowAxisClass = _FancyAxislineStyle.FilledArrow
+
+        def __init__(self, size=1, facecolor=None):
+            """
+            Parameters
+            ----------
+            size : float
+                Size of the arrow as a fraction of the ticklabel size.
+            facecolor : color, default: :rc:`axes.edgecolor`
+                Fill color.
+
+                .. versionadded:: 3.7
+            """
+
+            if facecolor is None:
+                facecolor = mpl.rcParams['axes.edgecolor']
+            self.size = size
+            self._facecolor = facecolor
+            super().__init__(size=size)
+
+        def new_line(self, axis_artist, transform):
+            linepath = Path([(0, 0), (0, 1)])
+            axisline = self.ArrowAxisClass(axis_artist, linepath, transform,
+                                           line_mutation_scale=self.size,
+                                           facecolor=self._facecolor)
+            return axisline
 
     _style_list["-|>"] = FilledArrow

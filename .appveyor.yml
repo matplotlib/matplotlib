@@ -9,6 +9,12 @@ branches:
     - /auto-backport-.*/
     - /^v\d+\.\d+\.[\dx]+-doc$/
 
+skip_commits:
+  message: /\[ci doc\]/
+  files:
+    - doc/
+    - galleries/
+
 clone_depth: 50
 
 image: Visual Studio 2017
@@ -22,10 +28,10 @@ environment:
                  --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
-    - PYTHON_VERSION: "3.8"
+    - PYTHON_VERSION: "3.9"
       CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
       TEST_ALL: "no"
-    - PYTHON_VERSION: "3.9"
+    - PYTHON_VERSION: "3.10"
       CONDA_INSTALL_LOCN: "C:\\Miniconda3-x64"
       TEST_ALL: "no"
 

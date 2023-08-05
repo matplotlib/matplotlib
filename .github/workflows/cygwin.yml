@@ -1,0 +1,253 @@
+---
+name: Cygwin Tests
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+      - v[0-9]+.[0-9]+.[0-9x]+
+    tags:
+      - v*
+    paths:
+      - 'src/**'
+      - '.github/workflows/cygwin.yml'
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+    branches-ignore:
+      - v[0-9]+.[0-9]+.[0-9x]+-doc
+    paths:
+      - 'src/**'
+      - '.github/workflows/cygwin.yml'
+  schedule:
+    # 5:47 UTC on Saturdays
+    - cron: "47 5 * * 6"
+  workflow_dispatch:
+    workflow: "*"
+
+permissions:
+  contents: read
+
+env:
+  NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
+  OPENBLAS_NUM_THREADS: 1
+  PYTHONFAULTHANDLER: 1
+  SHELLOPTS: igncr
+  CYGWIN_NOWINPATH: 1
+  CHERE_INVOKING: 1
+  TMP: /tmp
+  TEMP: /tmp
+
+jobs:
+
+  test-cygwin:
+    runs-on: windows-latest
+    name: Python 3.${{ matrix.python-minor-version }} on Cygwin
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
+      (
+        github.repository == 'matplotlib/matplotlib' &&
+        !contains(github.event.head_commit.message, '[ci skip]') &&
+        !contains(github.event.head_commit.message, '[skip ci]') &&
+        !contains(github.event.head_commit.message, '[skip github]') &&
+        !contains(github.event.head_commit.message, '[ci doc]') &&
+        (
+          github.event_name == 'push' ||
+          github.event_name == 'pull_request' &&
+          (
+            (
+              github.event.action == 'labeled' &&
+              github.event.label.name == 'CI: Run cygwin'
+            ) ||
+            contains(github.event.pull_request.labels.*.name, 'CI: Run cygwin')
+          )
+        )
+      )
+    strategy:
+      matrix:
+        python-minor-version: [9]
+
+    steps:
+      - name: Fix line endings
+        run: git config --global core.autocrlf input
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: cygwin/cygwin-install-action@v4
+        with:
+          packages: >-
+            ccache gcc-g++ gdb git graphviz libcairo-devel libffi-devel
+            libgeos-devel libQt5Core-devel pkgconf libglib2.0-devel
+            noto-cjk-fonts
+            python3${{ matrix.python-minor-version }}-devel
+            python3${{ matrix.python-minor-version }}-pip
+            python3${{ matrix.python-minor-version }}-wheel
+            python3${{ matrix.python-minor-version }}-setuptools
+            python3${{ matrix.python-minor-version }}-cycler
+            python3${{ matrix.python-minor-version }}-dateutil
+            python3${{ matrix.python-minor-version }}-fonttools
+            python3${{ matrix.python-minor-version }}-imaging
+            python3${{ matrix.python-minor-version }}-kiwisolver
+            python3${{ matrix.python-minor-version }}-numpy
+            python3${{ matrix.python-minor-version }}-packaging
+            python3${{ matrix.python-minor-version }}-pyparsing
+            python3${{ matrix.python-minor-version }}-sip
+            python3${{ matrix.python-minor-version }}-sphinx
+            python-cairo-devel
+            python3${{ matrix.python-minor-version }}-cairo
+            python3${{ matrix.python-minor-version }}-gi
+            python3${{ matrix.python-minor-version }}-matplotlib
+            xorg-server-extra libxcb-icccm4 libxcb-image0
+            libxcb-keysyms1 libxcb-randr0 libxcb-render-util0
+            libxcb-xinerama0
+            make autoconf autoconf2.5 automake automake1.10 libtool m4
+            libqhull-devel libfreetype-devel
+            libjpeg-devel libwebp-devel
+
+      - name: Set runner username to root and id to 0
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        # GitHub Actions runs everything as Administrator.  I don't
+        # know how to test for this, so set the uid for the CI job so
+        # that the existing unix root detection will work.
+        run: |
+           /bin/mkpasswd.exe -c | sed -e "s/$(id -u)/0/" >/etc/passwd
+
+      - name: Mark test repo safe
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          git.exe config --global --add safe.directory /proc/cygdrive/d/a/matplotlib/matplotlib
+          git config --global --add safe.directory /cygdrive/d/a/matplotlib/matplotlib
+          C:/cygwin/bin/git.exe config --global --add safe.directory D:/a/matplotlib/matplotlib
+          /usr/bin/git config --global --add safe.directory /cygdrive/d/a/matplotlib/matplotlib
+
+      - name: Use dash for /bin/sh
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          ls -l /bin/sh.exe /bin/bash.exe /bin/dash.exe
+          /bin/rm -f /bin/sh.exe || exit 1
+          cp -sf /bin/dash.exe /bin/sh.exe || exit 1
+          ls -l /bin/sh.exe /bin/bash.exe /bin/dash.exe
+        # FreeType build fails with bash, succeeds with dash
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: C:\cygwin\home\runneradmin\.cache\pip
+          key: Cygwin-py3.${{ matrix.python-minor-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-py3.${{ matrix.python-minor-version }}-pip-
+
+      - name: Cache ccache
+        uses: actions/cache@v3
+        with:
+          path: C:\cygwin\home\runneradmin\.ccache
+          key: Cygwin-py3.${{ matrix.python-minor-version }}-ccache-${{ hashFiles('src/*') }}
+          restore-keys: Cygwin-py3.${{ matrix.python-minor-version }}-ccache-
+
+      - name: Cache Matplotlib
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:\cygwin\home\runneradmin\.cache\matplotlib
+            !C:\cygwin\home\runneradmin\.cache\matplotlib\tex.cache
+            !C:\cygwin\home\runneradmin\.cache\matplotlib\test_cache
+          key: 1-Cygwin-py3.${{ matrix.python-minor-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            1-Cygwin-py3.${{ matrix.python-minor-version }}-mpl-${{ github.ref }}-
+            1-Cygwin-py3.${{ matrix.python-minor-version }}-mpl-
+
+      - name: Ensure correct Python version
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          /usr/sbin/alternatives --set python /usr/bin/python3.${{ matrix.python-minor-version }}
+          /usr/sbin/alternatives --set python3 /usr/bin/python3.${{ matrix.python-minor-version }}
+
+      - name: Install Python dependencies
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          python -m pip install --upgrade pip 'setuptools<60' wheel
+          python -m pip install kiwisolver 'numpy!=1.21.*' pillow importlib_resources
+          grep -v -F -e psutil requirements/testing/all.txt >requirements_test.txt
+          python -m pip install --upgrade 'contourpy>=1.0.1' cycler fonttools \
+              packaging pyparsing python-dateutil setuptools-scm \
+              -r requirements_test.txt sphinx ipython
+          python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
+             python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+             echo 'PyGObject is available' ||
+             echo 'PyGObject is not available'
+          python -m pip install --upgrade pyqt5  &&
+             python -c 'import PyQt5.QtCore' &&
+             echo 'PyQt5 is available' ||
+             echo 'PyQt5 is not available'
+          python -mpip install --upgrade pyside2 &&
+              python -c 'import PySide2.QtCore' &&
+              echo 'PySide2 is available' ||
+              echo 'PySide2 is not available'
+          python -m pip uninstall --yes wxpython || echo 'wxPython already uninstalled'
+
+      - name: Install Matplotlib
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        env:
+          AUTOCONF: /usr/bin/autoconf-2.69
+          MAKEFLAGS: dw
+        run: |
+          ccache -s
+          git describe
+          cat <<EOT >> mplsetup.cfg
+          [rc_options]
+          backend=Agg
+
+          [libs]
+          system_freetype = False
+          system_qhull = True
+          EOT
+          cat mplsetup.cfg
+          # All dependencies must have been pre-installed, so that the minver
+          # constraints are held.
+          python -m pip install --no-deps -ve .
+
+      - name: Find DLLs to rebase
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          find {/usr,/usr/local}/{bin,lib/python3.*/site-packages} /usr/lib/lapack . -name \*.exe -o -name \*.dll -print >files_to_rebase.txt
+
+      - name: Rebase DLL list
+        shell: ash.exe "{0}"
+        run: "rebase --database --filelist=files_to_rebase.txt"
+        # Inplace modification of DLLs to assign non-overlapping load
+        # addresses so fork() works as expected.  Ash is used as it
+        # does not link against any Cygwin DLLs that might need to be
+        # rebased.
+
+      - name: Check that Matplotlib imports
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          /usr/bin/python -c "import matplotlib as mpl; import matplotlib.pyplot as plt"
+
+      - name: Set ffmpeg path
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          oldmplrc=$(python -c "from matplotlib import matplotlib_fname as mplrc_file; print(mplrc_file())")
+          echo "${oldmplrc}"
+          mkdir -p ~/.matplotlib/
+          sed -E -e 's~#animation\.ffmpeg_path:.+~animation.ffmpeg_path: /usr/bin/ffmpeg.exe~' "${oldmplrc}" >~/.matplotlib/matplotlibrc
+
+      - name: Run pytest
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        id: cygwin-run-pytest
+        run: |
+          xvfb-run python -mpytest -raR -n auto \
+            --maxfail=50 --timeout=300 --durations=25 \
+            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v3

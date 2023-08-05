@@ -74,7 +74,7 @@ def make_auth_header():
     return {'Authorization': 'token ' + get_auth_token().replace("\n","")}
 
 def post_issue_comment(project, num, body):
-    url = 'https://api.github.com/repos/{project}/issues/{num}/comments'.format(project=project, num=num)
+    url = f'https://api.github.com/repos/{project}/issues/{num}/comments'
     payload = json.dumps({'body': body})
     requests.post(url, data=payload, headers=make_auth_header())
 
@@ -99,7 +99,7 @@ def post_gist(content, description='', filename='file', auth=False):
 def get_pull_request(project, num, auth=False):
     """get pull request info  by number
     """
-    url = "https://api.github.com/repos/{project}/pulls/{num}".format(project=project, num=num)
+    url = f"https://api.github.com/repos/{project}/pulls/{num}"
     if auth:
         header = make_auth_header()
     else:
@@ -111,7 +111,7 @@ def get_pull_request(project, num, auth=False):
 
 def get_pull_request_files(project, num, auth=False):
     """get list of files in a pull request"""
-    url = "https://api.github.com/repos/{project}/pulls/{num}/files".format(project=project, num=num)
+    url = f"https://api.github.com/repos/{project}/pulls/{num}/files"
     if auth:
         header = make_auth_header()
     else:
@@ -128,9 +128,9 @@ def get_paged_request(url, headers=None, **params):
     while True:
         if '?' in url:
             params = None
-            print("fetching %s" % url, file=sys.stderr)
+            print(f"fetching {url}", file=sys.stderr)
         else:
-            print("fetching %s with %s" % (url, params), file=sys.stderr)
+            print(f"fetching {url} with {params}", file=sys.stderr)
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
         results.extend(response.json())
@@ -143,7 +143,7 @@ def get_paged_request(url, headers=None, **params):
 def get_pulls_list(project, auth=False, **params):
     """get pull request list"""
     params.setdefault("state", "closed")
-    url = "https://api.github.com/repos/{project}/pulls".format(project=project)
+    url = f"https://api.github.com/repos/{project}/pulls"
     if auth:
         headers = make_auth_header()
     else:
@@ -154,7 +154,7 @@ def get_pulls_list(project, auth=False, **params):
 def get_issues_list(project, auth=False, **params):
     """get issues list"""
     params.setdefault("state", "closed")
-    url = "https://api.github.com/repos/{project}/issues".format(project=project)
+    url = f"https://api.github.com/repos/{project}/issues"
     if auth:
         headers = make_auth_header()
     else:
@@ -164,7 +164,7 @@ def get_issues_list(project, auth=False, **params):
 
 def get_milestones(project, auth=False, **params):
     params.setdefault('state', 'all')
-    url = "https://api.github.com/repos/{project}/milestones".format(project=project)
+    url = f"https://api.github.com/repos/{project}/milestones"
     if auth:
         headers = make_auth_header()
     else:
@@ -192,7 +192,7 @@ def get_authors(pr):
     authors = []
     for commit in commits:
         author = commit['commit']['author']
-        authors.append("%s <%s>" % (author['name'], author['email']))
+        authors.append(f"{author['name']} <{author['email']}>")
     return authors
 
 # encode_multipart_formdata is from urllib3.filepost
@@ -269,7 +269,7 @@ def post_download(project, filename, name=None, description=""):
     with open(filename, 'rb') as f:
         filedata = f.read()
 
-    url = "https://api.github.com/repos/{project}/downloads".format(project=project)
+    url = f"https://api.github.com/repos/{project}/downloads"
 
     payload = json.dumps(dict(name=name, size=len(filedata),
                     description=description))

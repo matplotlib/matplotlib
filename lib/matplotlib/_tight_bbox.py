@@ -17,15 +17,16 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     """
     origBbox = fig.bbox
     origBboxInches = fig.bbox_inches
-    orig_layout = fig.get_layout_engine()
-    fig.set_layout_engine(None)
     _boxout = fig.transFigure._boxout
 
     old_aspect = []
     locator_list = []
     sentinel = object()
     for ax in fig.axes:
-        locator_list.append(ax.get_axes_locator())
+        locator = ax.get_axes_locator()
+        if locator is not None:
+            ax.apply_aspect(locator(ax, None))
+        locator_list.append(locator)
         current_pos = ax.get_position(original=False).frozen()
         ax.set_axes_locator(lambda a, r, _pos=current_pos: _pos)
         # override the method that enforces the aspect ratio on the Axes
@@ -46,7 +47,6 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
 
         fig.bbox = origBbox
         fig.bbox_inches = origBboxInches
-        fig.set_layout_engine(orig_layout)
         fig.transFigure._boxout = _boxout
         fig.transFigure.invalidate()
         fig.patch.set_bounds(0, 0, 1, 1)

@@ -1,8 +1,10 @@
 import uuid
+import weakref
 from contextlib import contextmanager
 import logging
 import math
 import os.path
+import pathlib
 import sys
 import tkinter as tk
 import tkinter.filedialog
@@ -28,7 +30,7 @@ cursord = {
     cursors.MOVE: "fleur",
     cursors.HAND: "hand2",
     cursors.POINTER: "arrow",
-    cursors.SELECT_REGION: "tcross",
+    cursors.SELECT_REGION: "crosshair",
     cursors.WAIT: "watch",
     cursors.RESIZE_HORIZONTAL: "sb_h_double_arrow",
     cursors.RESIZE_VERTICAL: "sb_v_double_arrow",
@@ -61,6 +63,8 @@ def _blit(argsid):
     the ``_blit_args`` dict, since arguments cannot be passed directly.
     """
     photoimage, dataptr, offsets, bboxptr, comp_rule = _blit_args.pop(argsid)
+    if not photoimage.tk.call("info", "commands", photoimage):
+        return
     _tkagg.blit(photoimage.tk.interpaddr(), str(photoimage), dataptr,
                 comp_rule, offsets, bboxptr)
 
@@ -172,7 +176,8 @@ class FigureCanvasTk(FigureCanvasBase):
             width=w, height=h, borderwidth=0, highlightthickness=0)
         self._tkphoto = tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
-        self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
+        self._tkcanvas_image_region = self._tkcanvas.create_image(
+            w//2, h//2, image=self._tkphoto)
         self._tkcanvas.bind("<Configure>", self.resize)
         if sys.platform == 'win32':
             self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
@@ -198,14 +203,33 @@ class FigureCanvasTk(FigureCanvasBase):
         # event to the window containing the canvas instead.
         # See https://wiki.tcl-lang.org/3893 (mousewheel) for details
         root = self._tkcanvas.winfo_toplevel()
-        root.bind("<MouseWheel>", self.scroll_event_windows, "+")
+
+        # Prevent long-lived references via tkinter callback structure GH-24820
+        weakself = weakref.ref(self)
+        weakroot = weakref.ref(root)
+
+        def scroll_event_windows(event):
+            self = weakself()
+            if self is None:
+                root = weakroot()
+                if root is not None:
+                    root.unbind("<MouseWheel>", scroll_event_windows_id)
+                return
+            return self.scroll_event_windows(event)
+        scroll_event_windows_id = root.bind("<MouseWheel>", scroll_event_windows, "+")
 
         # Can't get destroy events by binding to _tkcanvas. Therefore, bind
         # to the window and filter.
         def filter_destroy(event):
+            self = weakself()
+            if self is None:
+                root = weakroot()
+                if root is not None:
+                    root.unbind("<Destroy>", filter_destroy_id)
+                return
             if event.widget is self._tkcanvas:
                 CloseEvent("close_event", self)._process()
-        root.bind("<Destroy>", filter_destroy, "+")
+        filter_destroy_id = root.bind("<Destroy>", filter_destroy, "+")
 
         self._tkcanvas.focus_set()
 
@@ -233,10 +257,9 @@ class FigureCanvasTk(FigureCanvasBase):
         hinch = height / dpival
         self.figure.set_size_inches(winch, hinch, forward=False)
 
-        self._tkcanvas.delete(self._tkphoto)
-        self._tkphoto = tk.PhotoImage(
-            master=self._tkcanvas, width=int(width), height=int(height))
-        self._tkcanvas.create_image(
+        self._tkcanvas.delete(self._tkcanvas_image_region)
+        self._tkphoto.configure(width=int(width), height=int(height))
+        self._tkcanvas_image_region = self._tkcanvas.create_image(
             int(width / 2), int(height / 2), image=self._tkphoto)
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
@@ -352,7 +375,7 @@ class FigureCanvasTk(FigureCanvasBase):
             ("ctrl", 1 << 2, "control"),
             ("alt", 1 << 4, "alt"),
             ("shift", 1 << 0, "shift"),
-            ("super", 1 << 3, "super"),
+            ("cmd", 1 << 3, "cmd"),
         ] if sys.platform == "darwin" else [
             ("ctrl", 1 << 2, "control"),
             ("alt", 1 << 3, "alt"),
@@ -477,11 +500,8 @@ class FigureManagerTk(FigureManagerBase):
                 'images/matplotlib_large.png'))
             icon_img_large = ImageTk.PhotoImage(
                 file=icon_fname_large, master=window)
-            try:
-                window.iconphoto(False, icon_img_large, icon_img)
-            except Exception as exc:
-                # log the failure (due e.g. to Tk version), but carry on
-                _log.info('Could not load matplotlib icon: %s', exc)
+
+            window.iconphoto(False, icon_img_large, icon_img)
 
             canvas = canvas_class(figure, master=window)
             manager = cls(canvas, num, window)
@@ -578,9 +598,6 @@ class FigureManagerTk(FigureManagerBase):
 
 
 class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
-    window = _api.deprecated("3.6", alternative="self.master")(
-        property(lambda self: self.master))
-
     def __init__(self, canvas, window=None, *, pack_toolbar=True):
         """
         Parameters
@@ -655,8 +672,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                     # Text-only button is handled by the font setting instead.
                     pass
             elif isinstance(widget, tk.Frame):
-                widget.configure(height='22p', pady='1p')
-                widget.pack_configure(padx='4p')
+                widget.configure(height='18p')
+                widget.pack_configure(padx='3p')
             elif isinstance(widget, tk.Label):
                 pass  # Text is handled by the font setting instead.
             else:
@@ -707,9 +724,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_black)
             self.canvas._rubberband_rect_black = None
 
-    lastrect = _api.deprecated("3.6")(
-        property(lambda self: self.canvas._rubberband_rect_black))
-
     def _set_image_for_button(self, button):
         """
         Set the image for a button based on its pixel size.
@@ -745,6 +759,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # Use the high-resolution (48x48 px) icon if it exists and is needed
         with Image.open(path_large if (size > 24 and path_large.exists())
                         else path_regular) as im:
+            # assure a RGBA image as foreground color is RGB
+            im = im.convert("RGBA")
             image = ImageTk.PhotoImage(im.resize((size, size)), master=self)
             button._ntimage = image
 
@@ -822,15 +838,15 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         return s
 
     def save_figure(self, *args):
-        filetypes = self.canvas.get_supported_filetypes().copy()
-        default_filetype = self.canvas.get_default_filetype()
+        filetypes = self.canvas.get_supported_filetypes_grouped()
+        tk_filetypes = [
+            (name, " ".join(f"*.{ext}" for ext in exts))
+            for name, exts in sorted(filetypes.items())
+        ]
 
-        # Tk doesn't provide a way to choose a default filetype,
-        # so we just have to put it first
-        default_filetype_name = filetypes.pop(default_filetype)
-        sorted_filetypes = ([(default_filetype, default_filetype_name)]
-                            + sorted(filetypes.items()))
-        tk_filetypes = [(name, '*.%s' % ext) for ext, name in sorted_filetypes]
+        default_extension = self.canvas.get_default_filetype()
+        default_filetype = self.canvas.get_supported_filetypes()[default_extension]
+        filetype_variable = tk.StringVar(self, default_filetype)
 
         # adding a default extension seems to break the
         # asksaveasfilename dialog when you choose various save types
@@ -839,7 +855,10 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # defaultextension = self.canvas.get_default_filetype()
         defaultextension = ''
         initialdir = os.path.expanduser(mpl.rcParams['savefig.directory'])
-        initialfile = self.canvas.get_default_filename()
+        # get_default_filename() contains the default extension. On some platforms,
+        # choosing a different extension from the dropdown does not overwrite it,
+        # so we need to remove it to make the dropdown functional.
+        initialfile = pathlib.Path(self.canvas.get_default_filename()).stem
         fname = tkinter.filedialog.asksaveasfilename(
             master=self.canvas.get_tk_widget().master,
             title='Save the figure',
@@ -847,6 +866,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             defaultextension=defaultextension,
             initialdir=initialdir,
             initialfile=initialfile,
+            typevariable=filetype_variable
             )
 
         if fname in ["", ()]:
@@ -855,16 +875,23 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if initialdir != "":
             mpl.rcParams['savefig.directory'] = (
                 os.path.dirname(str(fname)))
+
+        # If the filename contains an extension, let savefig() infer the file
+        # format from that. If it does not, use the selected dropdown option.
+        if pathlib.Path(fname).suffix[1:] != "":
+            extension = None
+        else:
+            extension = filetypes[filetype_variable.get()][0]
+
         try:
-            # This method will handle the delegation to the correct type
-            self.canvas.figure.savefig(fname)
+            self.canvas.figure.savefig(fname, format=extension)
         except Exception as e:
             tkinter.messagebox.showerror("Error saving file", str(e))
 
     def set_history_buttons(self):
         state_map = {True: tk.NORMAL, False: tk.DISABLED}
         can_back = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        can_forward = self._nav_stack._pos < len(self._nav_stack) - 1
 
         if "Back" in self._buttons:
             self._buttons['Back']['state'] = state_map[can_back]
@@ -933,9 +960,6 @@ class RubberbandTk(backend_tools.RubberbandBase):
         NavigationToolbar2Tk.remove_rubberband(
             self._make_classic_style_pseudo_toolbar())
 
-    lastrect = _api.deprecated("3.6")(
-        property(lambda self: self.figure.canvas._rubberband_rect_black))
-
 
 class ToolbarTk(ToolContainerBase, tk.Frame):
     def __init__(self, toolmanager, window=None):
@@ -948,6 +972,13 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
                           width=int(width), height=int(height),
                           borderwidth=2)
         self._label_font = tkinter.font.Font(size=10)
+        # This filler item ensures the toolbar is always at least two text
+        # lines high. Otherwise the canvas gets redrawn as the mouse hovers
+        # over images because those use two-line messages which resize the
+        # toolbar.
+        label = tk.Label(master=self, font=self._label_font,
+                         text='\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}')
+        label.pack(side=tk.RIGHT)
         self._message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, font=self._label_font,
                                        textvariable=self._message)

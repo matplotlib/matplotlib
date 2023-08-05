@@ -30,7 +30,7 @@ supplied.
     import matplotlib.pyplot as plt
     import numpy as np
 
-    fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(6, 2))
+    fig, ax = plt.subplots(1, 2, layout='constrained', figsize=(6, 2))
 
     ax[0].set_title('Ticks seem out of order / misplaced')
     x = ['5', '20', '1', '9']  # strings
@@ -89,15 +89,15 @@ way of defining empty, and checking the above is only rarely necessary.
 Usually the user or program handling the figure know if they have added
 something to the figure.
 
-Checking whether a figure would render empty cannot be reliably checked except
-by actually rendering the figure and investigating the rendered result.
+The only reliable way to check whether a figure would render empty is to
+actually perform such a rendering and inspect the result.
 
 .. _howto-findobj:
 
 Find all objects in a figure of a certain type
 ----------------------------------------------
 
-Every Matplotlib artist (see :doc:`/tutorials/intermediate/artists`) has a method
+Every Matplotlib artist (see :ref:`artists_tutorial`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
 recursively search the artist for any artists it may contain that meet
 some criteria (e.g., match all :class:`~matplotlib.lines.Line2D`
@@ -183,8 +183,8 @@ multiple ways to fix this:
   `.pyplot.subplots_adjust`.
 - Use one of the automatic layout mechanisms:
 
-  - constrained layout (:doc:`/tutorials/intermediate/constrainedlayout_guide`)
-  - tight layout (:doc:`/tutorials/intermediate/tight_layout_guide`)
+  - constrained layout (:ref:`constrainedlayout_guide`)
+  - tight layout (:ref:`tight_layout_guide`)
 
 - Calculate good values from the size of the plot elements yourself
   (:doc:`/gallery/subplots_axes_and_figures/auto_subplots_adjust`)

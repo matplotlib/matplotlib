@@ -155,15 +155,6 @@ class ToolBase:
         """
         pass
 
-    @_api.deprecated("3.6", alternative="tool_removed_event")
-    def destroy(self):
-        """
-        Destroy the tool.
-
-        This method is called by `.ToolManager.remove_tool`.
-        """
-        pass
-
 
 class ToolToggleBase(ToolBase):
     """
@@ -336,8 +327,6 @@ class ToolCursorPosition(ToolBase):
 
         from matplotlib.backend_bases import NavigationToolbar2
         message = NavigationToolbar2._mouse_event_to_message(event)
-        if message is None:
-            message = ' '
         self.toolmanager.message_event(message, self)
 
 
@@ -490,8 +479,8 @@ class ToolViewsPositions(ToolBase):
         """Add the current figure to the stack of views and positions."""
 
         if figure not in self.views:
-            self.views[figure] = cbook.Stack()
-            self.positions[figure] = cbook.Stack()
+            self.views[figure] = cbook._Stack()
+            self.positions[figure] = cbook._Stack()
             self.home_views[figure] = WeakKeyDictionary()
             # Define Home
             self.push_current(figure)

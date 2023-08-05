@@ -6,30 +6,52 @@ Paths are relative to the conf.py file.
 from sphinx_gallery.sorting import ExplicitOrder
 
 # Gallery sections shall be displayed in the following order.
-# Non-matching sections are appended.
-explicit_order_folders = [
-                          '../examples/lines_bars_and_markers',
-                          '../examples/images_contours_and_fields',
-                          '../examples/subplots_axes_and_figures',
-                          '../examples/statistics',
-                          '../examples/pie_and_polar_charts',
-                          '../examples/text_labels_and_annotations',
-                          '../examples/pyplots',
-                          '../examples/color',
-                          '../examples/shapes_and_collections',
-                          '../examples/style_sheets',
-                          '../examples/axes_grid1',
-                          '../examples/axisartist',
-                          '../examples/showcase',
-                          '../tutorials/introductory',
-                          '../tutorials/intermediate',
-                          '../tutorials/advanced',
-                          '../plot_types/basic',
-                          '../plot_types/arrays',
-                          '../plot_types/stats',
-                          '../plot_types/unstructured',
-                          '../plot_types/3D',
-                          ]
+# Non-matching sections are inserted at the unsorted position
+
+UNSORTED = "unsorted"
+
+examples_order = [
+    '../galleries/examples/lines_bars_and_markers',
+    '../galleries/examples/images_contours_and_fields',
+    '../galleries/examples/subplots_axes_and_figures',
+    '../galleries/examples/statistics',
+    '../galleries/examples/pie_and_polar_charts',
+    '../galleries/examples/text_labels_and_annotations',
+    '../galleries/examples/color',
+    '../galleries/examples/shapes_and_collections',
+    '../galleries/examples/style_sheets',
+    '../galleries/examples/pyplots',
+    '../galleries/examples/axes_grid1',
+    '../galleries/examples/axisartist',
+    '../galleries/examples/showcase',
+    UNSORTED,
+    '../galleries/examples/userdemo',
+]
+
+tutorials_order = [
+    '../galleries/tutorials/introductory',
+    '../galleries/tutorials/intermediate',
+    '../galleries/tutorials/advanced',
+    UNSORTED,
+    '../galleries/tutorials/provisional'
+]
+
+plot_types_order = [
+    '../galleries/plot_types/basic',
+    '../galleries/plot_types/stats',
+    '../galleries/plot_types/arrays',
+    '../galleries/plot_types/unstructured',
+    '../galleries/plot_types/3D',
+    UNSORTED
+]
+
+folder_lists = [examples_order, tutorials_order, plot_types_order]
+
+explicit_order_folders = [fd for folders in folder_lists
+                          for fd in folders[:folders.index(UNSORTED)]]
+explicit_order_folders.append(UNSORTED)
+explicit_order_folders.extend([fd for folders in folder_lists
+                               for fd in folders[folders.index(UNSORTED):]])
 
 
 class MplExplicitOrder(ExplicitOrder):
@@ -37,11 +59,9 @@ class MplExplicitOrder(ExplicitOrder):
     def __call__(self, item):
         """Return a string determining the sort order."""
         if item in self.ordered_list:
-            return "{:04d}".format(self.ordered_list.index(item))
+            return f"{self.ordered_list.index(item):04d}"
         else:
-            # ensure not explicitly listed items come last.
-            return "zzz" + item
-
+            return f"{self.ordered_list.index(UNSORTED):04d}{item}"
 
 # Subsection order:
 # Subsections are ordered by filename, unless they appear in the following
@@ -94,7 +114,7 @@ class MplExplicitSubOrder:
     def __call__(self, item):
         """Return a string determining the sort order."""
         if item in self.ordered_list:
-            return "{:04d}".format(self.ordered_list.index(item))
+            return f"{self.ordered_list.index(item):04d}"
         else:
             # ensure not explicitly listed items come last.
             return "zzz" + item

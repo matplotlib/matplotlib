@@ -7,8 +7,7 @@ the grid are referenced by `SubplotSpec`\s.
 
 Often, users need not access this module directly, and can use higher-level
 methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
-`~.Figure.subfigures`. See the tutorial
-:doc:`/tutorials/intermediate/arranging_axes` for a guide.
+`~.Figure.subfigures`. See the tutorial :ref:`arranging_axes` for a guide.
 """
 
 import copy
@@ -56,9 +55,9 @@ class GridSpecBase:
         self.set_width_ratios(width_ratios)
 
     def __repr__(self):
-        height_arg = (', height_ratios=%r' % (self._row_height_ratios,)
+        height_arg = (f', height_ratios={self._row_height_ratios!r}'
                       if len(set(self._row_height_ratios)) != 1 else '')
-        width_arg = (', width_ratios=%r' % (self._col_width_ratios,)
+        width_arg = (f', width_ratios={self._col_width_ratios!r}'
                      if len(set(self._col_width_ratios)) != 1 else '')
         return '{clsname}({nrows}, {ncols}{optionals})'.format(
             clsname=self.__class__.__name__,
@@ -419,6 +418,8 @@ class GridSpec(GridSpecBase):
         - non-*None* attributes of the GridSpec
         - the provided *figure*
         - :rc:`figure.subplot.*`
+
+        Note that the ``figure`` attribute of the GridSpec is always ignored.
         """
         if figure is None:
             kw = {k: mpl.rcParams["figure.subplot."+k]
@@ -447,6 +448,10 @@ class GridSpec(GridSpecBase):
 
         Parameters
         ----------
+        figure : `.Figure`
+            The figure.
+        renderer :  `.RendererBase` subclass, optional
+            The renderer to be used.
         pad : float
             Padding between the figure edge and the edges of subplots, as a
             fraction of the font-size.
