@@ -1350,7 +1350,7 @@ class Text(Artist):
 
     def set_fontname(self, fontname):
         """
-        Alias for `set_family`.
+        Alias for `set_fontfamily`.
 
         One-way alias only: the getter differs.
 
@@ -1364,7 +1364,7 @@ class Text(Artist):
         .font_manager.FontProperties.set_family
 
         """
-        return self.set_family(fontname)
+        self.set_fontfamily(fontname)
 
 
 class OffsetFrom:
