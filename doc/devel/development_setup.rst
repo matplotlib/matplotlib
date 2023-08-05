@@ -177,8 +177,9 @@ Verify the Installation
 * We encourage you to run tests and build docs to verify that the code installed and docs build are clean,
   so that when you make code or document related changes you are aware of the existing issues beforehand.
   Please refer to the following links shared to:
-   * Run test cases and verify installation - :ref:`testing`
-   * Verify documentation build - :ref:`documenting-matplotlib` 
+
+  * Run test cases and verify installation :ref:`testing`
+  * Verify documentation build :ref:`documenting-matplotlib`
  
 Install pre-commit hooks (optional)
 ===================================
