@@ -338,7 +338,7 @@ def test_BoundaryNorm():
 
     # Masked arrays
     boundaries = [0, 1.1, 2.2]
-    vals = np.ma.masked_invalid([-1., np.NaN, 0, 1.4, 9])
+    vals = np.ma.masked_invalid([-1., np.nan, 0, 1.4, 9])
 
     # Without interpolation
     ncolors = len(boundaries) - 1
@@ -352,9 +352,9 @@ def test_BoundaryNorm():
     assert_array_equal(bn(vals), expected)
 
     # Non-trivial masked arrays
-    vals = np.ma.masked_invalid([np.Inf, np.NaN])
+    vals = np.ma.masked_invalid([np.inf, np.nan])
     assert np.all(bn(vals).mask)
-    vals = np.ma.masked_invalid([np.Inf])
+    vals = np.ma.masked_invalid([np.inf])
     assert np.all(bn(vals).mask)
 
     # Incompatible extend and clip
