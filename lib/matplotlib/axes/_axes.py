@@ -5101,7 +5101,7 @@ default: :rc:`scatter.edgecolors`
                 xmin, xmax = inv_symlog_trans['x'].transform_non_affine(
                     np.array([xmin, xmax])
                 )
-                self.set_xscale(xscale, **kwargs)
+                self.set_xscale(xscale, **xscale_kwargs)
             if yscale == 'symlog':
                 polygons[:, :, 1] = inv_symlog_trans['y'].transform_non_affine(
                     polygons[:, :, 1]
@@ -5109,7 +5109,7 @@ default: :rc:`scatter.edgecolors`
                 ymin, ymax = inv_symlog_trans['y'].transform_non_affine(
                     np.array([ymin, ymax])
                 )
-                self.set_yscale(yscale, **kwargs)
+                self.set_yscale(yscale, **yscale_kwargs)
 
             collection = mcoll.PolyCollection(
                 polygons,
