@@ -4929,8 +4929,6 @@ default: :rc:`scatter.edgecolors`
             DATA_PARAMETER_PLACEHOLDER
 
         **kwargs : `~matplotlib.collections.PolyCollection` properties
-            If *xscale* or *yscale* is set to 'symlog',
-            additional `~matplotlib.scale.SymmetricalLogTransform` parameters.
             All other keyword arguments are passed on to `.PolyCollection`:
 
             %(PolyCollection:kwdoc)s
