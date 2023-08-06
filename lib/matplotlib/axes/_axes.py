@@ -57,7 +57,8 @@ class Axes(_AxesBase):
 
     The `Axes` instance supports callbacks through a callbacks attribute which
     is a `~.cbook.CallbackRegistry` instance.  The events you can connect to
-    are 'xlim_changed' and 'ylim_changed' and the callback will be called with
+    are 'xlim_changed', 'ylim_changed', 'zlim_changed', 'xscale_changed',
+    'yscale_changed' and 'zscale_changed' and the callback will be called with
     func(*ax*) where *ax* is the `Axes` instance.
 
     .. note::

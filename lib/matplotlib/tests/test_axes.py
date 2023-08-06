@@ -8774,6 +8774,38 @@ def test_ecdf_invalid():
         plt.ecdf(np.ma.array([1, 2], mask=[True, False]))
 
 
+def test_scale_changed_event():
+    xscale_changed = False
+    yscale_changed = False
+    zscale_changed = False
+
+    def on_xscale_change(event):
+        nonlocal xscale_changed
+        xscale_changed = True
+
+    def on_yscale_change(event):
+        nonlocal yscale_changed
+        yscale_changed = True
+
+    def on_zscale_change(event):
+        nonlocal zscale_changed
+        zscale_changed = True
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.callbacks.connect('xscale_changed', on_xscale_change)
+    ax.callbacks.connect('yscale_changed', on_yscale_change)
+    ax.callbacks.connect('zscale_changed', on_zscale_change)
+
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_zscale('log')
+
+    assert xscale_changed
+    assert yscale_changed
+    assert zscale_changed
+
+
 def test_fill_between_axes_limits():
     fig, ax = plt.subplots()
     x = np.arange(0, 4 * np.pi, 0.01)

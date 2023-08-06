@@ -1274,7 +1274,8 @@ class _AxesBase(martist.Artist):
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(
-            signals=["xlim_changed", "ylim_changed", "zlim_changed"])
+            signals=["xlim_changed", "ylim_changed", "zlim_changed",
+                     "xscale_changed", "yscale_changed", "zscale_changed"])
 
         # update the minor locator for x and y axis based on rcParams
         if mpl.rcParams['xtick.minor.visible']:
