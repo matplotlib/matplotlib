@@ -2820,6 +2820,10 @@ class SpanSelector(_SelectorWidget):
 
         return False
 
+    def on_changed(self, event):
+        """Callback for when the span is changed."""
+        self.onselect = event
+
     def _hover(self, event):
         """Update the canvas cursor if it's over a handle."""
         if self.ignore(event):
