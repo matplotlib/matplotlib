@@ -8154,11 +8154,11 @@ def test_bar_label_location_vertical():
     rects = ax.bar(xs, heights)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0])
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'bottom'
     assert labels[1].xy == (xs[1], heights[1])
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'top'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'top'
 
 
 def test_bar_label_location_vertical_yinverted():
@@ -8168,11 +8168,11 @@ def test_bar_label_location_vertical_yinverted():
     rects = ax.bar(xs, heights)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0])
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'top'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'top'
     assert labels[1].xy == (xs[1], heights[1])
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'bottom'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'bottom'
 
 
 def test_bar_label_location_horizontal():
@@ -8181,11 +8181,11 @@ def test_bar_label_location_horizontal():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'left'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'left'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'right'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'right'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_yinverted():
@@ -8195,11 +8195,11 @@ def test_bar_label_location_horizontal_yinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'left'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'left'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'right'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'right'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_xinverted():
@@ -8209,11 +8209,11 @@ def test_bar_label_location_horizontal_xinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'right'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'right'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'left'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'left'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_horizontal_xyinverted():
@@ -8224,11 +8224,11 @@ def test_bar_label_location_horizontal_xyinverted():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (widths[0], ys[0])
-    assert labels[0].get_ha() == 'right'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'right'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
-    assert labels[1].get_ha() == 'left'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'left'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 def test_bar_label_location_center():
@@ -8237,11 +8237,11 @@ def test_bar_label_location_center():
     rects = ax.barh(ys, widths)
     labels = ax.bar_label(rects, label_type='center')
     assert labels[0].xy == (0.5, 0.5)
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'center'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'center'
     assert labels[1].xy == (0.5, 0.5)
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'center'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'center'
 
 
 @image_comparison(['test_centered_bar_label_nonlinear.svg'])
@@ -8273,11 +8273,11 @@ def test_bar_label_location_errorbars():
     rects = ax.bar(xs, heights, yerr=1)
     labels = ax.bar_label(rects)
     assert labels[0].xy == (xs[0], heights[0] + 1)
-    assert labels[0].get_ha() == 'center'
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_horizontalalignment() == 'center'
+    assert labels[0].get_verticalalignment() == 'bottom'
     assert labels[1].xy == (xs[1], heights[1] - 1)
-    assert labels[1].get_ha() == 'center'
-    assert labels[1].get_va() == 'top'
+    assert labels[1].get_horizontalalignment() == 'center'
+    assert labels[1].get_verticalalignment() == 'top'
 
 
 @pytest.mark.parametrize('fmt', [
@@ -8312,7 +8312,7 @@ def test_bar_label_nan_ydata():
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1']
     assert labels[0].xy == (2, 0)
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_verticalalignment() == 'bottom'
 
 
 def test_bar_label_nan_ydata_inverted():
@@ -8322,7 +8322,7 @@ def test_bar_label_nan_ydata_inverted():
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1']
     assert labels[0].xy == (2, 0)
-    assert labels[0].get_va() == 'bottom'
+    assert labels[0].get_verticalalignment() == 'bottom'
 
 
 def test_nan_barlabels():

@@ -274,7 +274,7 @@ class Axes(_AxesBase):
         label_type: Literal["center", "edge"] = ...,
         padding: float = ...,
         **kwargs
-    ) -> list[Text]: ...
+    ) -> list[Annotation]: ...
     def broken_barh(
         self,
         xranges: Sequence[tuple[float, float]],

@@ -1,16 +1,18 @@
+from collections.abc import Callable, Iterable, Sequence
+from typing import Literal
+
+import numpy as np
+from numpy.typing import ArrayLike, NDArray
+
 from . import artist, cm, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
 from .colors import Normalize, Colormap
+from .lines import Line2D
 from .path import Path
 from .patches import Patch
 from .ticker import Locator, Formatter
 from .tri import Triangulation
-
-import numpy as np
-from numpy.typing import ArrayLike, NDArray
-from collections.abc import Callable, Iterable, Sequence
-from typing import Literal
 from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
 
 class Collection(artist.Artist, cm.ScalarMappable):
@@ -84,8 +86,8 @@ class PathCollection(_CollectionWithSizes):
         num: int | Literal["auto"] | ArrayLike | Locator = ...,
         fmt: str | Formatter | None = ...,
         func: Callable[[ArrayLike], ArrayLike] = ...,
-        **kwargs
-    ): ...
+        **kwargs,
+    ) -> tuple[list[Line2D], list[str]]: ...
 
 class PolyCollection(_CollectionWithSizes):
     def __init__(

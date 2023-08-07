@@ -2745,8 +2745,8 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `.Text`
-            A list of `.Text` instances for the labels.
+        list of `.Annotation`
+            A list of `.Annotation` instances for the labels.
         """
         for key in ['horizontalalignment', 'ha', 'verticalalignment', 'va']:
             if key in kwargs:

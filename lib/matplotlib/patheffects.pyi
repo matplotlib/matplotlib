@@ -1,9 +1,11 @@
+from collections.abc import Iterable, Sequence
+from typing import Any
+
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.path import Path
 from matplotlib.patches import Patch
 from matplotlib.transforms import Transform
 
-from collections.abc import Iterable, Sequence
 from matplotlib.typing import ColorType
 
 class AbstractPathEffect:
@@ -21,7 +23,7 @@ class PathEffectRenderer(RendererBase):
     def __init__(
         self, path_effects: Iterable[AbstractPathEffect], renderer: RendererBase
     ) -> None: ...
-    def copy_with_path_effect(self, path_effects: Iterable[AbstractPathEffect]): ...
+    def copy_with_path_effect(self, path_effects: Iterable[AbstractPathEffect]) -> PathEffectRenderer: ...
     def draw_path(
         self,
         gc: GraphicsContextBase,
@@ -46,7 +48,7 @@ class PathEffectRenderer(RendererBase):
         *args,
         **kwargs
     ) -> None: ...
-    def __getattribute__(self, name: str): ...
+    def __getattribute__(self, name: str) -> Any: ...
 
 class Normal(AbstractPathEffect): ...
 

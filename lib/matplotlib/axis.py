@@ -572,7 +572,7 @@ class _LazyTickList:
     def __init__(self, major):
         self._major = major
 
-    def __get__(self, instance, cls):
+    def __get__(self, instance, owner):
         if instance is None:
             return self
         else:
