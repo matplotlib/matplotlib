@@ -5,7 +5,9 @@ r"""
 .. redirect-from:: /gallery/userdemo/annotate_simple04
 .. redirect-from:: /gallery/userdemo/anchored_box04
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord01
+.. redirect-from:: /gallery/userdemo/annotate_simple_coord02
 .. redirect-from:: /gallery/userdemo/annotate_simple_coord03
+.. redirect-from:: /gallery/userdemo/connect_simple01
 .. redirect-from:: /tutorials/text/annotations
 
 .. _annotations:
@@ -85,7 +87,7 @@ ax.set_ylim(-2, 2)
 # .. _annotation-data:
 #
 # Annotating data
-# ~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^
 #
 # This example places the text coordinates in fractional axes coordinates:
 
@@ -104,7 +106,7 @@ ax.set_ylim(-2, 2)
 # %%
 #
 # Annotating an Artist
-# ~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^
 #
 # Annotations can be positioned relative to an `.Artist` instance by passing
 # that Artist in as *xycoords*. Then *xy* is interpreted as a fraction of the
@@ -131,7 +133,7 @@ ax.set(xlim=(1, 2), ylim=(1, 2))
 # .. _annotation-with-arrow:
 #
 # Annotating with arrows
-# ~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^
 #
 # You can enable drawing of an arrow from the text to the annotated point
 # by giving a dictionary of arrow properties in the optional keyword
@@ -181,7 +183,7 @@ ax.annotate('a polar annotation',
 # .. _annotations-offset-text:
 #
 # Placing text annotations relative to data
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # Annotations can be positioned at a relative offset to the *xy* input to
 # annotation by setting the *textcoords* keyword argument to ``'offset points'``
@@ -210,7 +212,7 @@ for xi, yi, text in zip(x, y, annotations):
 # and :func:`~matplotlib.pyplot.annotate` before reading this section.
 #
 # Annotating with boxed text
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # `~.Axes.text` takes a *bbox* keyword argument, which draws a box around the
 # text:
@@ -261,7 +263,7 @@ t = ax.text(0.5, 0.5, "Direction",
 #
 #
 # Defining custom box styles
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # You can use a custom box style. The value for the ``boxstyle`` can be a
 # callable object in the following forms:
@@ -307,7 +309,7 @@ ax.text(0.5, 0.5, "Test", size=30, va="center", ha="center", rotation=30,
 # .. _annotation_with_custom_arrow:
 #
 # Customizing annotation arrows
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # An arrow connecting *xy* to *xytext* can be optionally drawn by
 # specifying the *arrowprops* argument. To draw only an arrow, use
@@ -446,7 +448,7 @@ ann = ax.annotate("Test",
 
 # %%
 # Placing Artist at anchored Axes locations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # There are classes of artists that can be placed at an anchored
 # location in the Axes.  A common example is the legend.  This type
@@ -562,11 +564,15 @@ fig.subplots_adjust(top=0.8)
 # examples in :ref:`annotations-tutorial` used the ``data`` coordinate system;
 # Some others more advanced options are:
 #
-# 1. A `.Transform` instance. For more information on transforms, see the
-# :ref:`transforms_tutorial` For example, the
-# ``Axes.transAxes`` transform positions the annotation relative to the Axes
-# coordinates and using it is therefore identical to setting the
-# coordinate system to "axes fraction":
+# `.Transform` instance
+# ^^^^^^^^^^^^^^^^^^^^^
+#
+# Transforms map coordinates into different coordinate systems, usually the
+# display coordinate system. See :ref:`transforms_tutorial` for a detailed
+# explanation. Here Transform objects are used to identify the coordinate
+# system of the corresponding points. For example, the ``Axes.transAxes``
+# transform positions the annotation relative to the Axes coordinates; therefore
+# using it is identical to setting the coordinate system to "axes fraction":
 
 fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(6, 3))
 ax1.annotate("Test", xy=(0.2, 0.2), xycoords=ax1.transAxes)
@@ -592,8 +598,11 @@ ax2.annotate("",
 # %%
 # .. _artist_annotation_coord:
 #
-# 2. An `.Artist` instance. The *xy* value (or *xytext*) is interpreted as a
-# fractional coordinate of the bounding box (bbox) of the artist:
+# `.Artist` instance
+# ^^^^^^^^^^^^^^^^^^
+#
+# The *xy* value (or *xytext*) is interpreted as a fractional coordinate of the
+# bounding box (bbox) of the artist:
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(3, 3))
 an1 = ax.annotate("Test 1",
@@ -614,7 +623,10 @@ an2 = ax.annotate("Test 2",
 # that *an2* needs to be drawn after *an1*. The base class for all bounding
 # boxes is `.BboxBase`
 #
-# 3. A callable object that takes the renderer instance as single argument, and
+# Callable that returns `.Transform` of `.BboxBase`
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# A callable object that takes the renderer instance as single argument, and
 # returns either a `.Transform` or a `.BboxBase`. For example, the return
 # value of `.Artist.get_window_extent` is a bbox, so this method is identical
 # to (2) passing in the artist:
@@ -642,7 +654,10 @@ an1 = ax1.annotate("Test1", xy=(0.5, 0.5), xycoords="axes fraction")
 an2 = ax2.annotate("Test 2", xy=(0.5, 0.5), xycoords=ax2.get_window_extent)
 
 # %%
-# 4. A blended pair of coordinate specifications -- the first for the
+# Blended coordinate specification
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# A blended pair of coordinate specifications -- the first for the
 # x-coordinate, and the second is for the y-coordinate. For example, x=0.5 is
 # in data coordinates, and y=1 is in normalized axes coordinates:
 
@@ -652,7 +667,22 @@ ax.axvline(x=.5, color='lightgray')
 ax.set(xlim=(0, 2), ylim=(1, 2))
 
 # %%
-# 5. Sometimes, you want your annotation with some "offset points", not from the
+# Any of the supported coordinate systems can be used in a blended
+# specification. For example, the text "Anchored to 1 & 2" is positioned
+# relative to the two `.Text` Artists:
+
+fig, ax = plt.subplots(figsize=(3, 3))
+
+t1 = ax.text(0.05, .05, "Text 1", va='bottom', ha='left')
+t2 = ax.text(0.90, .90, "Text 2", ha='right')
+t3 = ax.annotate("Anchored to 1 & 2", xy=(0, 0), xycoords=(t1, t2),
+                 va='bottom', color='tab:orange',)
+
+# %%
+# `.text.OffsetFrom`
+# ^^^^^^^^^^^^^^^^^^
+#
+# Sometimes, you want your annotation with some "offset points", not from the
 # annotated point but from some other point or artist. `.text.OffsetFrom` is
 # a helper for such cases.
 
@@ -672,8 +702,13 @@ an2 = ax.annotate("Test 2", xy=(0.1, 0.1), xycoords="data",
                   arrowprops=dict(arrowstyle="->"))
 
 # %%
+# Non-text annotations
+# --------------------
+#
+# .. _using_connectionpatch:
+#
 # Using ConnectionPatch
-# ~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^
 #
 # `.ConnectionPatch` is like an annotation without text. While `~.Axes.annotate`
 # is sufficient in most situations, `.ConnectionPatch` is useful when you want
@@ -698,7 +733,7 @@ fig.add_artist(con)
 # for positioning the axes.
 #
 # Zoom effect between Axes
-# ~~~~~~~~~~~~~~~~~~~~~~~~
+# ^^^^^^^^^^^^^^^^^^^^^^^^
 #
 # `mpl_toolkits.axes_grid1.inset_locator` defines some patch classes useful for
 # interconnecting two axes.
