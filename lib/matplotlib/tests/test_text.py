@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
-from matplotlib.text import Text, Annotation
+from matplotlib.text import Text, Annotation, OffsetFrom
 
 pyparsing_version = parse_version(pyparsing.__version__)
 
@@ -988,3 +988,19 @@ def test_text_math_antialiased_off_default_vs_manual(fig_test, fig_ref):
 
     mpl.rcParams['text.antialiased'] = False
     fig_ref.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$")
+
+
+@check_figures_equal(extensions=["png"])
+def test_annotate_and_offsetfrom_copy_input(fig_test, fig_ref):
+    # Both approaches place the text (10, 0) pixels away from the center of the line.
+    ax = fig_test.add_subplot()
+    l, = ax.plot([0, 2], [0, 2])
+    of_xy = np.array([.5, .5])
+    ax.annotate("foo", textcoords=OffsetFrom(l, of_xy), xytext=(10, 0),
+                xy=(0, 0))  # xy is unused.
+    of_xy[:] = 1
+    ax = fig_ref.add_subplot()
+    l, = ax.plot([0, 2], [0, 2])
+    an_xy = np.array([.5, .5])
+    ax.annotate("foo", xy=an_xy, xycoords=l, xytext=(10, 0), textcoords="offset points")
+    an_xy[:] = 2
