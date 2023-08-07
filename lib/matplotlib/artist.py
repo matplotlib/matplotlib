@@ -193,6 +193,7 @@ class Artist:
         self._clipon = True
         self._label = ''
         self._picker = None
+        self._hover = None
         self._rasterized = False
         self._agg_filter = None
         # Normally, artist classes need to be queried for mouseover info if and
@@ -593,6 +594,90 @@ class Artist:
         set_picker, pickable, pick
         """
         return self._picker
+
+    def hoverable(self):
+        """
+        Return whether the artist is hoverable.
+
+        See Also
+        --------
+        set_hover, get_hover, hover
+        """
+        return self.figure is not None and self._hover is not None
+
+    def hover(self, mouseevent):
+        """
+        Process a hover event.
+
+        Each child artist will fire a hover event if *mouseevent* is over
+        the artist and the artist has hover set.
+
+        See Also
+        --------
+        set_hover, get_hover, hoverable
+        """
+        from .backend_bases import HoverEvent  # Circular import.
+        # Hover self
+        if self.hoverable():
+            hoverer = self.get_hover()
+            inside, prop = self.contains(mouseevent)
+            if inside:
+                HoverEvent("hover_event", self.figure.canvas,
+                           mouseevent, self, **prop)._process()
+
+        # Pick children
+        for a in self.get_children():
+            # make sure the event happened in the same Axes
+            ax = getattr(a, 'axes', None)
+            if (mouseevent.inaxes is None or ax is None
+                    or mouseevent.inaxes == ax):
+                a.hover(mouseevent)
+
+    def set_hover(self, hover):
+        """
+        Define the hover status of the artist.
+
+        Parameters
+        ----------
+        hover : None or bool or callable or list
+            This can be one of the following:
+
+            - *None*: Hover is disabled for this artist (default).
+
+            - A boolean: If *True* then hover will be enabled and the
+              artist will fire a hover event if the mouse event is hovering over
+              the artist.
+
+            - A function: If hover is callable, it is a user supplied
+              function which sets the hover message to be displayed.
+
+            - A list: If hover is a list of string literals, each string represents
+              an additional information assigned to each data point. These data labels
+              will appear as a tooltip in the bottom right hand corner
+              of the screen when the cursor is detected to be hovering over a data
+              point that corresponds with the data labels in the same order that
+              was passed in.
+
+            - A dictionary: If hover is a dictionary of key value paris, each key
+              represents a tuple of x and y coordinate and each value represnets
+              additional information assigned to each data point. These data labels
+              will appear as a tooltip in the bottom right hand corner of the
+              screen when the cursor is detected to be hovering over a data point
+              that corresponds with one of the data labels.
+        """
+        self._hover = hover
+
+    def get_hover(self):
+        """
+        Return the hover status of the artist.
+
+        The possible values are described in `.set_hover`.
+
+        See Also
+        --------
+        set_hover
+        """
+        return self._hover
 
     def get_url(self):
         """Return the url."""

@@ -328,6 +328,10 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         self.message.set_justify(Gtk.Justification.RIGHT)
         self.append(self.message)
 
+        self.hover_message = Gtk.Label()
+        self.hover_message.set_justify(Gtk.Justification.RIGHT)
+        self.append(self.hover_message)
+
         _NavigationToolbar2GTK.__init__(self, canvas)
 
     def save_figure(self, *args):
@@ -492,6 +496,9 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
 
     def set_message(self, s):
         self._message.set_label(s)
+
+    def set_hover_message(self, s):
+        self._hover_message.set_label(s)
 
 
 @backend_tools._register_tool_class(FigureCanvasGTK4)

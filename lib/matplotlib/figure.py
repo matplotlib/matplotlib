@@ -2532,6 +2532,7 @@ None}, default: None
         ]
         self._button_pick_id = connect('button_press_event', self.pick)
         self._scroll_pick_id = connect('scroll_event', self.pick)
+        self._hover_id = connect('motion_notify_event', self.hover)
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']
@@ -2578,6 +2579,10 @@ None}, default: None
     def pick(self, mouseevent):
         if not self.canvas.widgetlock.locked():
             super().pick(mouseevent)
+
+    def hover(self, mouseevent):
+        if not self.canvas.widgetlock.locked():
+            super().hover(mouseevent)
 
     def _check_layout_engines_compat(self, old, new):
         """

@@ -9,7 +9,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, MouseButton,
-    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent, HoverEvent)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from . import qt_compat
 from .qt_compat import (
@@ -302,6 +302,17 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
                        *self.mouseEventCoords(event), button,
                        modifiers=self._mpl_modifiers(),
                        guiEvent=event)._process()
+
+    def mouseOverEvent(self, event):
+        artist = event.artist
+        if not artist.get_hover:
+            thismouse = MouseEvent("motion_hover_event", self,
+                                   *self.mouseEventCoords(event),
+                                   modifiers=self._mpl_modifiers(),
+                                   guiEvent=event)
+            hovering = HoverEvent("motion_hover_event", self,
+                                  thismouse, artist, None)
+            hovering._process()
 
     def wheelEvent(self, event):
         # from QWheelEvent::pixelDelta doc: pixelDelta is sometimes not
@@ -663,9 +674,19 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 QtWidgets.QSizePolicy.Policy.Expanding,
                 QtWidgets.QSizePolicy.Policy.Ignored,
             ))
+            self.hover_message = QtWidgets.QLabel("", self)
+            self.hover_message.setAlignment(QtCore.Qt.AlignmentFlag(
+                _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignRight) |
+                _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignVCenter)))
+            self.hover_message.setSizePolicy(QtWidgets.QSizePolicy(
+                _enum("QtWidgets.QSizePolicy.Policy").Expanding,
+                _enum("QtWidgets.QSizePolicy.Policy").Ignored,
+            ))
+            labelActionHover = self.addWidget(self.hover_message)
+            labelActionHover.setVisible(True)
+
             labelAction = self.addWidget(self.locLabel)
             labelAction.setVisible(True)
-
         NavigationToolbar2.__init__(self, canvas)
 
     def _icon(self, name):
@@ -741,6 +762,11 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
+
+    def set_hover_message(self, s):
+        self.message.emit(s)
+        if self.coordinates:
+            self.hover_message.setText(s)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height

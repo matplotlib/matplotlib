@@ -1476,6 +1476,55 @@ class MouseEvent(LocationEvent):
                 f"inaxes={self.inaxes}")
 
 
+class HoverEvent(Event):
+    """
+    A hover event.
+
+    This event is fired when the mouse is moved on the canvas
+    sufficiently close to an artist that has been made hoverable with
+    `.Artist.set_hover`.
+
+    A HoverEvent has a number of special attributes in addition to those defined
+    by the parent `Event` class.
+
+    Attributes
+    ----------
+    mouseevent : `MouseEvent`
+        The mouse event that generated the hover.
+    artist : `matplotlib.artist.Artist`
+        The hovered artist.  Note that artists are not hoverable by default
+        (see `.Artist.set_hover`).
+    other
+        Additional attributes may be present depending on the type of the
+        hovered object; e.g., a `.Line2D` hover may define different extra
+        attributes than a `.PatchCollection` hover.
+
+    Examples
+    --------
+    Bind a function ``on_hover()`` to hover events, that prints the coordinates
+    of the hovered data point::
+
+        ax.plot(np.rand(100), 'o', picker=5)  # 5 points tolerance
+
+        def on_hover(event):
+            line = event.artist
+            xdata, ydata = line.get_data()
+            ind = event.ind
+            print(f'on hover line: {xdata[ind]:.3f}, {ydata[ind]:.3f}')
+
+        cid = fig.canvas.mpl_connect('motion_notify_event', on_hover)
+    """
+
+    def __init__(self, name, canvas, mouseevent, artist,
+                 guiEvent=None, **kwargs):
+        if guiEvent is None:
+            guiEvent = mouseevent.guiEvent
+        super().__init__(name, canvas, guiEvent)
+        self.mouseevent = mouseevent
+        self.artist = artist
+        self.__dict__.update(kwargs)
+
+
 class PickEvent(Event):
     """
     A pick event.
@@ -1698,7 +1747,8 @@ class FigureCanvasBase:
         'figure_leave_event',
         'axes_enter_event',
         'axes_leave_event',
-        'close_event'
+        'close_event',
+        'hover_event'
     ]
 
     fixed_dpi = None
@@ -2251,7 +2301,8 @@ class FigureCanvasBase:
             - 'figure_leave_event',
             - 'axes_enter_event',
             - 'axes_leave_event'
-            - 'close_event'.
+            - 'close_event'
+            - 'hover_event'
 
         func : callable
             The callback function to be executed, which must have the
@@ -2962,9 +3013,54 @@ class NavigationToolbar2:
                 return s
         return ""
 
+    def _nonrect(self, x):
+        from .patches import Rectangle
+        return not isinstance(x, Rectangle)
+
+    def _tooltip_list(self, event, hover):
+        lines = self.canvas.figure.gca().get_lines()[0]
+        coor_data = list(zip(lines.get_xdata(), lines.get_ydata()))
+
+        if len(coor_data) != len(hover):
+            raise ValueError("""Number of data points
+             does not match up with number of labels""")
+        else:
+            distances = []
+            for a in coor_data:
+                distances.append(((event.xdata - a[0])**2 +
+                                  (event.ydata - a[1])**2)**0.5)
+            if (min(distances) < 0.05):
+                return f"Data Label: {hover[distances.index(min(distances))]}"
+
+    def _tooltip_dict(self, event, hover):
+        distances = {}
+        for a in hover.keys():
+            distances[a] = ((event.xdata - a[0])**2 + (event.ydata - a[1])**2)**0.5
+        if (min(distances.values()) < 0.05):
+            return f"Data Label: {hover[min(distances, key=distances.get)]}"
+
     def mouse_move(self, event):
         self._update_cursor(event)
         self.set_message(self._mouse_event_to_message(event))
+
+        if callable(getattr(self, 'set_hover_message', None)):
+            for a in self.canvas.figure.findobj(match=self._nonrect,
+                                                include_self=False):
+                inside, prop = a.contains(event)
+                if inside:
+                    if a.hoverable():
+                        hover = a.get_hover()
+                        if callable(hover):
+                            self.set_hover_message(hover(event))
+                        elif type(hover) == list:
+                            self.set_hover_message(self._tooltip_list(event, hover))
+                        elif type(hover) == dict:
+                            self.set_hover_message(self._tooltip_dict(event, hover))
+                        else:
+                            self.set_hover_message(self._mouse_event_to_message(event))
+                else:
+                    self.set_hover_message("")
+                break
 
     def _zoom_pan_handler(self, event):
         if self.mode == _Mode.PAN:
