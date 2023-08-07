@@ -4095,7 +4095,7 @@ class Axes(_AxesBase):
 
         capwidths : float or array-like, default: None
           Either a scalar or a vector and sets the width of each cap.
-          The default is ``0.5*(with of the box)``, see *widths*.
+          The default is ``0.5*(wdith of the box)``, see *widths*.
 
         vert : bool, default: True
           If `True` (default), makes the boxes vertical.
