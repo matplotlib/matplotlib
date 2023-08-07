@@ -2669,18 +2669,19 @@ class PdfPages:
     In reality `PdfPages` is a thin wrapper around `PdfFile`, in order to avoid
     confusion when using `~.pyplot.savefig` and forgetting the format argument.
     """
-    __slots__ = ('_file', 'keep_empty')
 
-    def __init__(self, filename, keep_empty=True, metadata=None):
+    _UNSET = object()
+
+    def __init__(self, filename, keep_empty=_UNSET, metadata=None):
         """
         Create a new PdfPages object.
 
         Parameters
         ----------
         filename : str or path-like or file-like
-            Plots using `PdfPages.savefig` will be written to a file at this
-            location. The file is opened at once and any older file with the
-            same name is overwritten.
+            Plots using `PdfPages.savefig` will be written to a file at this location.
+            The file is opened when a figure is saved for the first time (overwriting
+            any older file with the same name).
 
         keep_empty : bool, optional
             If set to False, then empty pdf files will be deleted automatically
@@ -2696,8 +2697,16 @@ class PdfPages:
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
         """
-        self._file = PdfFile(filename, metadata=metadata)
-        self.keep_empty = keep_empty
+        self._filename = filename
+        self._metadata = metadata
+        self._file = None
+        if keep_empty and keep_empty is not self._UNSET:
+            _api.warn_deprecated("3.8", message=(
+                "Keeping empty pdf files is deprecated since %(since)s and support "
+                "will be removed %(removal)s."))
+        self._keep_empty = keep_empty
+
+    keep_empty = _api.deprecate_privatize_attribute("3.8")
 
     def __enter__(self):
         return self
@@ -2705,17 +2714,25 @@ class PdfPages:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    def _ensure_file(self):
+        if self._file is None:
+            self._file = PdfFile(self._filename, metadata=self._metadata)  # init.
+        return self._file
+
     def close(self):
         """
         Finalize this object, making the underlying file a complete
         PDF file.
         """
-        self._file.finalize()
-        self._file.close()
-        if (self.get_pagecount() == 0 and not self.keep_empty and
-                not self._file.passed_in_file_object):
-            os.remove(self._file.fh.name)
-        self._file = None
+        if self._file is not None:
+            self._file.finalize()
+            self._file.close()
+            self._file = None
+        elif self._keep_empty:  # True *or* UNSET.
+            _api.warn_deprecated("3.8", message=(
+                "Keeping empty pdf files is deprecated since %(since)s and support "
+                "will be removed %(removal)s."))
+            PdfFile(self._filename, metadata=self._metadata)  # touch the file.
 
     def infodict(self):
         """
@@ -2723,7 +2740,7 @@ class PdfPages:
         (see PDF reference section 10.2.1 'Document Information
         Dictionary').
         """
-        return self._file.infoDict
+        return self._ensure_file().infoDict
 
     def savefig(self, figure=None, **kwargs):
         """
@@ -2750,7 +2767,7 @@ class PdfPages:
 
     def get_pagecount(self):
         """Return the current number of pages in the multipage pdf file."""
-        return len(self._file.pageList)
+        return len(self._ensure_file().pageList)
 
     def attach_note(self, text, positionRect=[-100, -100, 0, 0]):
         """
@@ -2759,7 +2776,7 @@ class PdfPages:
         page. It is outside the page per default to make sure it is
         invisible on printouts.
         """
-        self._file.newTextnote(text, positionRect)
+        self._ensure_file().newTextnote(text, positionRect)
 
 
 class FigureCanvasPdf(FigureCanvasBase):
@@ -2778,7 +2795,7 @@ class FigureCanvasPdf(FigureCanvasBase):
         self.figure.dpi = 72  # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):
-            file = filename._file
+            file = filename._ensure_file()
         else:
             file = PdfFile(filename, metadata=metadata)
         try:

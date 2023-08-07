@@ -287,6 +287,47 @@ def test_pdf_pages_metadata_check(monkeypatch, system):
 
 
 @needs_pgf_xelatex
+def test_multipage_keep_empty(tmp_path):
+    os.chdir(tmp_path)
+
+    # test empty pdf files
+
+    # an empty pdf is left behind with keep_empty unset
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), PdfPages("a.pdf") as pdf:
+        pass
+    assert os.path.exists("a.pdf")
+
+    # an empty pdf is left behind with keep_empty=True
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages("b.pdf", keep_empty=True) as pdf:
+        pass
+    assert os.path.exists("b.pdf")
+
+    # an empty pdf deletes itself afterwards with keep_empty=False
+    with PdfPages("c.pdf", keep_empty=False) as pdf:
+        pass
+    assert not os.path.exists("c.pdf")
+
+    # test pdf files with content, they should never be deleted
+
+    # a non-empty pdf is left behind with keep_empty unset
+    with PdfPages("d.pdf") as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("d.pdf")
+
+    # a non-empty pdf is left behind with keep_empty=True
+    with pytest.warns(mpl.MatplotlibDeprecationWarning), \
+            PdfPages("e.pdf", keep_empty=True) as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("e.pdf")
+
+    # a non-empty pdf is left behind with keep_empty=False
+    with PdfPages("f.pdf", keep_empty=False) as pdf:
+        pdf.savefig(plt.figure())
+    assert os.path.exists("f.pdf")
+
+
+@needs_pgf_xelatex
 def test_tex_restart_after_error():
     fig = plt.figure()
     fig.suptitle(r"\oops")
