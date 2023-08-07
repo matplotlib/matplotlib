@@ -990,12 +990,14 @@ class PdfPages:
                 # luatex<0.85; they were renamed to \pagewidth and \pageheight
                 # on luatex>=0.85.
                 self._file.write(
-                    br'\newpage'
-                    br'\ifdefined\pdfpagewidth\pdfpagewidth'
-                    br'\else\pagewidth\fi=%ain'
-                    br'\ifdefined\pdfpageheight\pdfpageheight'
-                    br'\else\pageheight\fi=%ain'
-                    b'%%\n' % (width, height)
+                    (
+                        r'\newpage'
+                        r'\ifdefined\pdfpagewidth\pdfpagewidth'
+                        fr'\else\pagewidth\fi={width}in'
+                        r'\ifdefined\pdfpageheight\pdfpageheight'
+                        fr'\else\pageheight\fi={height}in'
+                        '%%\n'
+                    ).encode("ascii")
                 )
             figure.savefig(self._file, format="pgf", **kwargs)
             self._n_figures += 1
