@@ -188,9 +188,7 @@ class GridFinder:
                                                         lon_min, lon_max,
                                                         lat_min, lat_max)
 
-        ddx = (x2-x1)*1.e-10
-        ddy = (y2-y1)*1.e-10
-        bb = Bbox.from_extents(x1-ddx, y1-ddy, x2+ddx, y2+ddy)
+        bb = Bbox.from_extents(x1, y1, x2, y2).expanded(1 + 2e-10, 1 + 2e-10)
 
         grid_info = {
             "extremes": extremes,
