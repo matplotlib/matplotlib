@@ -102,6 +102,7 @@ jobs:
         twine check {wheel} &&
         python {package}/ci/check_wheel_licenses.py {wheel}
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+      CIBW_SKIP: "*-musllinux_aarch64"
       CIBW_TEST_COMMAND: >-
         python {package}/ci/check_version_number.py
       # Apple Silicon machines are not available for testing, so silence the
