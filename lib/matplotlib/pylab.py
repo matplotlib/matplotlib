@@ -1,6 +1,6 @@
 """
 `pylab` is a historic interface and its use is strongly discouraged. The equivalent
-replacement is `matplotlib.pyplot`.  See :ref:` api_interfaces` for a full overview
+replacement is `matplotlib.pyplot`.  See :ref:`api_interfaces` for a full overview
 of Matplotlib interfaces.
 
 `pylab` was designed to support a MATLAB-like way of working with all plotting related
@@ -14,7 +14,7 @@ wildcard import (``from pylab import *``).
    `numpy.fft`, `numpy.linalg`, and `numpy.random`, and some additional functions into
    the global namespace.
 
-   Such a pattern is nowadays considered bad practice, as it clutters the global
+   Such a pattern is considered bad practice in modern python, as it clutters the global
    namespace. Even more severely, in the case of `pylab`, this will overwrite some
    builtin functions (e.g. the builtin `sum` will be replaced by `numpy.sum`), which
    can lead to unexpected behavior.
