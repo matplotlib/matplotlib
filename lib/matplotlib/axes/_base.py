@@ -4490,18 +4490,28 @@ class _AxesBase(martist.Artist):
         """Return an immutable view on the shared y-axes Grouper."""
         return cbook.GrouperView(self._shared_axes["y"])
 
-    def label_outer(self):
+    def label_outer(self, remove_inner_ticks=False):
         """
         Only show "outer" labels and tick labels.
 
         x-labels are only kept for subplots on the last row (or first row, if
         labels are on the top side); y-labels only for subplots on the first
         column (or last column, if labels are on the right side).
-        """
-        self._label_outer_xaxis(skip_non_rectangular_axes=False)
-        self._label_outer_yaxis(skip_non_rectangular_axes=False)
 
-    def _label_outer_xaxis(self, *, skip_non_rectangular_axes):
+        Parameters
+        ----------
+        remove_inner_ticks : bool, default: False
+            If True, remove the inner ticks as well (not only tick labels).
+
+            .. versionadded:: 3.8
+        """
+        self._label_outer_xaxis(skip_non_rectangular_axes=False,
+                                remove_inner_ticks=remove_inner_ticks)
+        self._label_outer_yaxis(skip_non_rectangular_axes=False,
+                                remove_inner_ticks=remove_inner_ticks)
+
+    def _label_outer_xaxis(self, *, skip_non_rectangular_axes,
+                           remove_inner_ticks=False):
         # see documentation in label_outer.
         if skip_non_rectangular_axes and not isinstance(self.patch,
                                                         mpl.patches.Rectangle):
@@ -4513,17 +4523,22 @@ class _AxesBase(martist.Artist):
         if not ss.is_first_row():  # Remove top label/ticklabels/offsettext.
             if label_position == "top":
                 self.set_xlabel("")
-            self.xaxis.set_tick_params(which="both", labeltop=False)
+            top_kw = {'top': False} if remove_inner_ticks else {}
+            self.xaxis.set_tick_params(
+                which="both", labeltop=False, **top_kw)
             if self.xaxis.offsetText.get_position()[1] == 1:
                 self.xaxis.offsetText.set_visible(False)
         if not ss.is_last_row():  # Remove bottom label/ticklabels/offsettext.
             if label_position == "bottom":
                 self.set_xlabel("")
-            self.xaxis.set_tick_params(which="both", labelbottom=False)
+            bottom_kw = {'bottom': False} if remove_inner_ticks else {}
+            self.xaxis.set_tick_params(
+                which="both", labelbottom=False, **bottom_kw)
             if self.xaxis.offsetText.get_position()[1] == 0:
                 self.xaxis.offsetText.set_visible(False)
 
-    def _label_outer_yaxis(self, *, skip_non_rectangular_axes):
+    def _label_outer_yaxis(self, *, skip_non_rectangular_axes,
+                           remove_inner_ticks=False):
         # see documentation in label_outer.
         if skip_non_rectangular_axes and not isinstance(self.patch,
                                                         mpl.patches.Rectangle):
@@ -4535,13 +4550,17 @@ class _AxesBase(martist.Artist):
         if not ss.is_first_col():  # Remove left label/ticklabels/offsettext.
             if label_position == "left":
                 self.set_ylabel("")
-            self.yaxis.set_tick_params(which="both", labelleft=False)
+            left_kw = {'left': False} if remove_inner_ticks else {}
+            self.yaxis.set_tick_params(
+                which="both", labelleft=False, **left_kw)
             if self.yaxis.offsetText.get_position()[0] == 0:
                 self.yaxis.offsetText.set_visible(False)
         if not ss.is_last_col():  # Remove right label/ticklabels/offsettext.
             if label_position == "right":
                 self.set_ylabel("")
-            self.yaxis.set_tick_params(which="both", labelright=False)
+            right_kw = {'right': False} if remove_inner_ticks else {}
+            self.yaxis.set_tick_params(
+                which="both", labelright=False, **right_kw)
             if self.yaxis.offsetText.get_position()[0] == 1:
                 self.yaxis.offsetText.set_visible(False)
 
