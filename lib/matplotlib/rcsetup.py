@@ -441,13 +441,13 @@ def validate_ps_distiller(s):
 def _validate_papersize(s):
     # Re-inline this validator when the 'auto' deprecation expires.
     s = ValidateInStrings("ps.papersize",
-                          ["auto", "letter", "legal", "ledger",
+                          ["figure", "auto", "letter", "legal", "ledger",
                            *[f"{ab}{i}" for ab in "ab" for i in range(11)]],
                           ignorecase=True)(s)
     if s == "auto":
         _api.warn_deprecated("3.8", name="ps.papersize='auto'",
-                             addendum="Pass an explicit paper type, or omit the "
-                             "*ps.papersize* rcParam entirely.")
+                             addendum="Pass an explicit paper type, figure, or omit "
+                             "the *ps.papersize* rcParam entirely.")
     return s
 
 

@@ -841,7 +841,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
         papertype = papertype.lower()
-        _api.check_in_list(['auto', *papersize], papertype=papertype)
+        _api.check_in_list(['figure', 'auto', *papersize], papertype=papertype)
 
         orientation = _api.check_getitem(
             _Orientation, orientation=orientation.lower())
@@ -873,23 +873,15 @@ class FigureCanvasPS(FigureCanvasBase):
         width, height = self.figure.get_size_inches()
         if papertype == 'auto':
             _api.warn_deprecated("3.8", name="papertype='auto'",
-                                 addendum="Pass an explicit paper type, or omit the "
-                                 "*papertype* argument entirely.")
+                                 addendum="Pass an explicit paper type, 'figure', or "
+                                 "omit the *papertype* argument entirely.")
             papertype = _get_papertype(*orientation.swap_if_landscape((width, height)))
 
-        if is_eps:
+        if is_eps or papertype == 'figure':
             paper_width, paper_height = width, height
         else:
             paper_width, paper_height = orientation.swap_if_landscape(
                 papersize[papertype])
-
-            if mpl.rcParams['ps.usedistiller']:
-                # distillers improperly clip eps files if pagesize is too small
-                if width > paper_width or height > paper_height:
-                    papertype = _get_papertype(
-                        *orientation.swap_if_landscape((width, height)))
-                    paper_width, paper_height = orientation.swap_if_landscape(
-                        papersize[papertype])
 
         # center the figure on the paper
         xo = 72 * 0.5 * (paper_width - width)
@@ -921,10 +913,10 @@ class FigureCanvasPS(FigureCanvasBase):
             if is_eps:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else:
-                print(f"%!PS-Adobe-3.0\n"
-                      f"%%DocumentPaperSizes: {papertype}\n"
-                      f"%%Pages: 1\n",
-                      end="", file=fh)
+                print("%!PS-Adobe-3.0", file=fh)
+                if papertype != 'figure':
+                    print(f"%%DocumentPaperSizes: {papertype}", file=fh)
+                print("%%Pages: 1", file=fh)
             print(f"%%LanguageLevel: 3\n"
                   f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
@@ -1061,7 +1053,7 @@ showpage
             # set the paper size to the figure size if is_eps. The
             # resulting ps file has the given size with correct bounding
             # box so that there is no need to call 'pstoeps'
-            if is_eps:
+            if is_eps or papertype == 'figure':
                 paper_width, paper_height = orientation.swap_if_landscape(
                     self.figure.get_size_inches())
             else:
@@ -1160,9 +1152,14 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     """
 
     if eps:
-        paper_option = "-dEPSCrop"
+        paper_option = ["-dEPSCrop"]
+    elif ptype == "figure":
+        # The bbox will have its lower-left corner at (0, 0), so upper-right
+        # corner corresponds with paper size.
+        paper_option = [f"-dDEVICEWIDTHPOINTS={bbox[2]}",
+                        f"-dDEVICEHEIGHTPOINTS={bbox[3]}"]
     else:
-        paper_option = "-sPAPERSIZE=%s" % ptype
+        paper_option = [f"-sPAPERSIZE={ptype}"]
 
     psfile = tmpfile + '.ps'
     dpi = mpl.rcParams['ps.distiller.res']
@@ -1170,7 +1167,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     cbook._check_and_log_subprocess(
         [mpl._get_executable_info("gs").executable,
          "-dBATCH", "-dNOPAUSE", "-r%d" % dpi, "-sDEVICE=ps2write",
-         paper_option, "-sOutputFile=%s" % psfile, tmpfile],
+         *paper_option, f"-sOutputFile={psfile}", tmpfile],
         _log)
 
     os.remove(tmpfile)
@@ -1196,6 +1193,16 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     mpl._get_executable_info("gs")  # Effectively checks for ps2pdf.
     mpl._get_executable_info("pdftops")
 
+    if eps:
+        paper_option = ["-dEPSCrop"]
+    elif ptype == "figure":
+        # The bbox will have its lower-left corner at (0, 0), so upper-right
+        # corner corresponds with paper size.
+        paper_option = [f"-dDEVICEWIDTHPOINTS#{bbox[2]}",
+                        f"-dDEVICEHEIGHTPOINTS#{bbox[3]}"]
+    else:
+        paper_option = [f"-sPAPERSIZE#{ptype}"]
+
     with TemporaryDirectory() as tmpdir:
         tmppdf = pathlib.Path(tmpdir, "tmp.pdf")
         tmpps = pathlib.Path(tmpdir, "tmp.ps")
@@ -1208,7 +1215,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
              "-sAutoRotatePages#None",
              "-sGrayImageFilter#FlateEncode",
              "-sColorImageFilter#FlateEncode",
-             "-dEPSCrop" if eps else "-sPAPERSIZE#%s" % ptype,
+             *paper_option,
              tmpfile, tmppdf], _log)
         cbook._check_and_log_subprocess(
             ["pdftops", "-paper", "match", "-level3", tmppdf, tmpps], _log)
