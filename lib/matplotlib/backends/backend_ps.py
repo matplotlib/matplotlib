@@ -872,18 +872,24 @@ class FigureCanvasPS(FigureCanvasBase):
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
         if papertype == 'auto':
-            papertype = _get_papertype(
-                *orientation.swap_if_landscape((width, height)))
-        paper_width, paper_height = orientation.swap_if_landscape(
-            papersize[papertype])
+            _api.warn_deprecated("3.8", name="papertype='auto'",
+                                 addendum="Pass an explicit paper type, or omit the "
+                                 "*papertype* argument entirely.")
+            papertype = _get_papertype(*orientation.swap_if_landscape((width, height)))
 
-        if mpl.rcParams['ps.usedistiller']:
-            # distillers improperly clip eps files if pagesize is too small
-            if width > paper_width or height > paper_height:
-                papertype = _get_papertype(
-                    *orientation.swap_if_landscape((width, height)))
-                paper_width, paper_height = orientation.swap_if_landscape(
-                    papersize[papertype])
+        if is_eps:
+            paper_width, paper_height = width, height
+        else:
+            paper_width, paper_height = orientation.swap_if_landscape(
+                papersize[papertype])
+
+            if mpl.rcParams['ps.usedistiller']:
+                # distillers improperly clip eps files if pagesize is too small
+                if width > paper_width or height > paper_height:
+                    papertype = _get_papertype(
+                        *orientation.swap_if_landscape((width, height)))
+                    paper_width, paper_height = orientation.swap_if_landscape(
+                        papersize[papertype])
 
         # center the figure on the paper
         xo = 72 * 0.5 * (paper_width - width)
@@ -1060,6 +1066,9 @@ showpage
                     self.figure.get_size_inches())
             else:
                 if papertype == 'auto':
+                    _api.warn_deprecated("3.8", name="papertype='auto'",
+                                         addendum="Pass an explicit paper type, or "
+                                         "omit the *papertype* argument entirely.")
                     papertype = _get_papertype(width, height)
                 paper_width, paper_height = papersize[papertype]
 

@@ -438,6 +438,19 @@ def validate_ps_distiller(s):
         return ValidateInStrings('ps.usedistiller', ['ghostscript', 'xpdf'])(s)
 
 
+def _validate_papersize(s):
+    # Re-inline this validator when the 'auto' deprecation expires.
+    s = ValidateInStrings("ps.papersize",
+                          ["auto", "letter", "legal", "ledger",
+                           *[f"{ab}{i}" for ab in "ab" for i in range(11)]],
+                          ignorecase=True)(s)
+    if s == "auto":
+        _api.warn_deprecated("3.8", name="ps.papersize='auto'",
+                             addendum="Pass an explicit paper type, or omit the "
+                             "*ps.papersize* rcParam entirely.")
+    return s
+
+
 # A validator dedicated to the named line styles, based on the items in
 # ls_mapper, and a list of possible strings read from Line2D.set_linestyle
 _validate_named_linestyle = ValidateInStrings(
@@ -1247,9 +1260,7 @@ _validators = {
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
 
     # Set the papersize/type
-    "ps.papersize":       _ignorecase(["auto", "letter", "legal", "ledger",
-                                      *[f"{ab}{i}"
-                                        for ab in "ab" for i in range(11)]]),
+    "ps.papersize":       _validate_papersize,
     "ps.useafm":          validate_bool,
     # use ghostscript or xpdf to distill ps output
     "ps.usedistiller":    validate_ps_distiller,

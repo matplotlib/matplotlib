@@ -336,3 +336,12 @@ def test_colorbar_shift(tmp_path):
     norm = mcolors.BoundaryNorm([-1, -0.5, 0.5, 1], cmap.N)
     plt.scatter([0, 1], [1, 1], c=[0, 1], cmap=cmap, norm=norm)
     plt.colorbar()
+
+
+def test_auto_papersize_deprecation():
+    fig = plt.figure()
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        fig.savefig(io.BytesIO(), format='eps', papertype='auto')
+
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        mpl.rcParams['ps.papersize'] = 'auto'
