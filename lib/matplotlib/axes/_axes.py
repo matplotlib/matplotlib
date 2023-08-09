@@ -4839,23 +4839,14 @@ default: :rc:`scatter.edgecolors`
             - If a sequence of values, the values of the lower bound of
               the bins to be used.
 
-        xscale : {'linear', 'log', 'symlog'}, default: 'linear'
-            The scale used for the horizontal axis.
+        xscale, yscale : {'linear', 'log', 'symlog'}, default: 'linear'
+            The scale used for the horizontal / vertical axis.
 
             'symlog' creates a `.SymmetricalLogScale`, which has optional
             parameters. If you want to modify them, pass a tuple
             ``('symlog', params_dict)`` instead of the plain string 'symlog';
             e.g.
             ``hexbin(..., xscale=('symlog', {'base': 2, 'linthresh': 3}))``.
-
-        yscale : {'linear', 'log', 'symlog'}, default: 'linear'
-            The scale used for the vertical axis.
-
-            'symlog' creates a `.SymmetricalLogScale`, which has optional
-            parameters. If you want to modify them, pass a tuple
-            ``('symlog', params_dict)`` instead of the plain string 'symlog';
-            e.g.
-            ``hexbin(..., yscale=('symlog', {'base': 2, 'linthresh': 3}))``.
 
         mincnt : int > 0, default: *None*
             If not *None*, only display cells with more than *mincnt*
