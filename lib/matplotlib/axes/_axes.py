@@ -5169,9 +5169,7 @@ default: :rc:`scatter.edgecolors`
                     np.array([zmin, zmax])
                 )
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
-                bin_edges = inv_symlog_trans[zname].transform_non_affine(
-                    bin_edges
-                )
+                bin_edges = inv_symlog_trans[zname].transform_non_affine(bin_edges)
 
             else:
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
