@@ -4950,9 +4950,17 @@ default: :rc:`scatter.edgecolors`
         if isinstance(xscale, tuple):
             xscale, xscale_kwargs = xscale
 
+        xscale_kwargs.setdefault('base', 10)
+        xscale_kwargs.setdefault('linthresh', 2)
+        xscale_kwargs.setdefault('linscale', 1)
+
         yscale_kwargs = {}
         if isinstance(yscale, tuple):
             yscale, yscale_kwargs = yscale
+
+        yscale_kwargs.setdefault('base', 10)
+        yscale_kwargs.setdefault('linthresh', 2)
+        yscale_kwargs.setdefault('linscale', 1)
 
         if xscale == 'log':
             if np.any(x <= 0.0):
@@ -4967,16 +4975,8 @@ default: :rc:`scatter.edgecolors`
 
         if xscale == 'symlog' or yscale == 'symlog':
             symlog_transform = {
-                'x': mscale.SymmetricalLogTransform(
-                    xscale_kwargs.get('base', 10),
-                    xscale_kwargs.get('linthresh', 2),
-                    xscale_kwargs.get('linscale', 1),
-                ),
-                'y': mscale.SymmetricalLogTransform(
-                    yscale_kwargs.get('base', 10),
-                    yscale_kwargs.get('linthresh', 2),
-                    yscale_kwargs.get('linscale', 1),
-                )
+                'x': mscale.SymmetricalLogTransform(**xscale_kwargs),
+                'y': mscale.SymmetricalLogTransform(**yscale_kwargs)
             }
             inv_symlog_trans = {
                 'x': symlog_transform['x'].inverted(),
