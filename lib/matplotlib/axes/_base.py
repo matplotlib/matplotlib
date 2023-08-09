@@ -3540,8 +3540,8 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         .Axes.set_xlim
-        set_xbound, get_xbound
-        invert_xaxis, xaxis_inverted
+        .Axes.set_xbound, .Axes.get_xbound
+        .Axes.invert_xaxis, .Axes.xaxis_inverted
 
         Notes
         -----
@@ -3788,8 +3788,8 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         .Axes.set_ylim
-        set_ybound, get_ybound
-        invert_yaxis, yaxis_inverted
+        .Axes.set_ybound, .Axes.get_ybound
+        .Axes.invert_yaxis, .Axes.yaxis_inverted
 
         Notes
         -----

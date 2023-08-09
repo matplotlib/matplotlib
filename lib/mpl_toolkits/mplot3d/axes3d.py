@@ -719,7 +719,25 @@ class Axes3D(Axes):
         return tuple(self.xy_viewLim.intervaly)
 
     def get_zlim(self):
-        """Get 3D z limits."""
+        """
+        Return the 3D z-axis view limits.
+
+        Returns
+        -------
+        left, right : (float, float)
+            The current z-axis limits in data coordinates.
+
+        See Also
+        --------
+        set_zlim
+        set_zbound, get_zbound
+        invert_zaxis, zaxis_inverted
+
+        Notes
+        -----
+        The z-axis may be inverted, in which case the *left* value will
+        be greater than the *right* value.
+        """
         return tuple(self.zz_viewLim.intervalx)
 
     get_zscale = _axis_method_wrapper("zaxis", "get_scale")
@@ -1475,6 +1493,12 @@ class Axes3D(Axes):
     def invert_zaxis(self):
         """
         Invert the z-axis.
+
+        See Also
+        --------
+        zaxis_inverted
+        get_zlim, set_zlim
+        get_zbound, set_zbound
         """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom, auto=None)
@@ -1484,6 +1508,12 @@ class Axes3D(Axes):
     def get_zbound(self):
         """
         Return the lower and upper z-axis bounds, in increasing order.
+
+        See Also
+        --------
+        set_zbound
+        get_zlim, set_zlim
+        invert_zaxis, zaxis_inverted
         """
         bottom, top = self.get_zlim()
         if bottom < top:
@@ -1497,6 +1527,18 @@ class Axes3D(Axes):
 
         This method will honor axes inversion regardless of parameter order.
         It will not change the autoscaling setting (`.get_autoscalez_on()`).
+
+        Parameters
+        ----------
+        lower, upper : float or None
+            The lower and upper bounds. If *None*, the respective axis bound
+            is not modified.
+
+        See Also
+        --------
+        get_zbound
+        get_zlim, set_zlim
+        invert_zaxis, zaxis_inverted
         """
         if upper is None and np.iterable(lower):
             lower, upper = lower
@@ -1513,11 +1555,24 @@ class Axes3D(Axes):
 
     def text(self, x, y, z, s, zdir=None, **kwargs):
         """
-        Add text to the plot.
+        Add the text *s* to the 3D Axes at location *x*, *y*, *z* in data coordinates.
 
-        Keyword arguments will be passed on to `.Axes.text`, except for the
-        *zdir* keyword, which sets the direction to be used as the z
-        direction.
+        Parameters
+        ----------
+        x, y, z : float
+            The position to place the text.
+        s : str
+            The text.
+        zdir : {'x', 'y', 'z', 3-tuple}, optional
+            The direction to be used as the z-direction. Default: 'z'.
+            See `.get_dir_vector` for a description of the values.
+        **kwargs
+            Other arguments are forwarded to `matplotlib.axes.Axes.text`.
+
+        Returns
+        -------
+        `.Text3D`
+            The created `.Text3D` instance.
         """
         text = super().text(x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
