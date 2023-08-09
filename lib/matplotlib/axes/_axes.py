@@ -5080,8 +5080,7 @@ default: :rc:`scatter.edgecolors`
         if linewidths is None:
             linewidths = [mpl.rcParams['patch.linewidth']]
 
-        if (xscale == 'log' or yscale == 'log' or
-                xscale == 'symlog' or yscale == 'symlog'):
+        if xscale in ['log', 'symlog'] or yscale in ['log', 'symlog']:
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
             if xscale == 'log':
                 polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
