@@ -1825,7 +1825,7 @@ class Affine2DBase(AffineBase):
     affine transformation, use `Affine2D`.
 
     Subclasses of this class will generally only need to override a
-    constructor and :meth:`get_matrix` that generates a custom 3x3 matrix.
+    constructor and `~.Transform.get_matrix` that generates a custom 3x3 matrix.
     """
     input_dims = 2
     output_dims = 2
