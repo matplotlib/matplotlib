@@ -40,6 +40,18 @@ import matplotlib.pyplot as plt
     'eps with usetex'
 ])
 def test_savefig_to_stringio(format, use_log, rcParams, orientation, papersize):
+    if rcParams.get("ps.usedistiller") == "ghostscript":
+        try:
+            mpl._get_executable_info("gs")
+        except mpl.ExecutableNotFoundError as exc:
+            pytest.skip(str(exc))
+    elif rcParams.get("ps.userdistiller") == "xpdf":
+        try:
+            mpl._get_executable_info("gs")  # Effectively checks for ps2pdf.
+            mpl._get_executable_info("pdftops")
+        except mpl.ExecutableNotFoundError as exc:
+            pytest.skip(str(exc))
+
     mpl.rcParams.update(rcParams)
 
     fig, ax = plt.subplots()
@@ -55,8 +67,6 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation, papersize):
             title += " \N{MINUS SIGN}\N{EURO SIGN}"
         ax.set_title(title)
         allowable_exceptions = []
-        if rcParams.get("ps.usedistiller"):
-            allowable_exceptions.append(mpl.ExecutableNotFoundError)
         if rcParams.get("text.usetex"):
             allowable_exceptions.append(RuntimeError)
         if rcParams.get("ps.useafm"):
