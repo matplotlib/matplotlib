@@ -160,8 +160,9 @@ import sphinxext.gallery_order as gallery_order
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
-# On Linux, prevent plt.show() from emitting a non-GUI backend warning.
-os.environ.pop("DISPLAY", None)
+# Prevent plt.show() from emitting a non-GUI backend warning.
+warnings.filterwarnings('ignore', category=UserWarning,
+                        message=r'(\n|.)*is non-interactive, and thus cannot be shown')
 
 autosummary_generate = True
 autodoc_typehints = "none"
