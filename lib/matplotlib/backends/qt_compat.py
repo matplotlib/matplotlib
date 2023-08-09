@@ -186,48 +186,45 @@ def _maybe_allow_interrupt(qapp):
     that a non-python handler was installed, i.e. in Julia, and not SIG_IGN
     which means we should ignore the interrupts.
     """
+
     old_sigint_handler = signal.getsignal(signal.SIGINT)
-    handler_args = None
-    skip = False
     if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
-        skip = True
-    else:
-        wsock, rsock = socket.socketpair()
-        wsock.setblocking(False)
-        old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
-        sn = QtCore.QSocketNotifier(
-            rsock.fileno(), QtCore.QSocketNotifier.Type.Read
-        )
+        yield
+        return
 
-        # We do not actually care about this value other than running some
-        # Python code to ensure that the interpreter has a chance to handle the
-        # signal in Python land.  We also need to drain the socket because it
-        # will be written to as part of the wakeup!  There are some cases where
-        # this may fire too soon / more than once on Windows so we should be
-        # forgiving about reading an empty socket.
-        rsock.setblocking(False)
-        # Clear the socket to re-arm the notifier.
-        @sn.activated.connect
-        def _may_clear_sock(*args):
-            try:
-                rsock.recv(1)
-            except BlockingIOError:
-                pass
+    handler_args = None
+    wsock, rsock = socket.socketpair()
+    wsock.setblocking(False)
+    rsock.setblocking(False)
+    old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
+    sn = QtCore.QSocketNotifier(rsock.fileno(), QtCore.QSocketNotifier.Type.Read)
 
-        def handle(*args):
-            nonlocal handler_args
-            handler_args = args
-            qapp.quit()
+    # We do not actually care about this value other than running some Python code to
+    # ensure that the interpreter has a chance to handle the signal in Python land.  We
+    # also need to drain the socket because it will be written to as part of the wakeup!
+    # There are some cases where this may fire too soon / more than once on Windows so
+    # we should be forgiving about reading an empty socket.
+    # Clear the socket to re-arm the notifier.
+    @sn.activated.connect
+    def _may_clear_sock(*args):
+        try:
+            rsock.recv(1)
+        except BlockingIOError:
+            pass
 
-        signal.signal(signal.SIGINT, handle)
+    def handle(*args):
+        nonlocal handler_args
+        handler_args = args
+        qapp.quit()
+
+    signal.signal(signal.SIGINT, handle)
     try:
         yield
     finally:
-        if not skip:
-            wsock.close()
-            rsock.close()
-            sn.setEnabled(False)
-            signal.set_wakeup_fd(old_wakeup_fd)
-            signal.signal(signal.SIGINT, old_sigint_handler)
-            if handler_args is not None:
-                old_sigint_handler(*handler_args)
+        wsock.close()
+        rsock.close()
+        sn.setEnabled(False)
+        signal.set_wakeup_fd(old_wakeup_fd)
+        signal.signal(signal.SIGINT, old_sigint_handler)
+        if handler_args is not None:
+            old_sigint_handler(*handler_args)

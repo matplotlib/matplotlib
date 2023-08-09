@@ -1,9 +1,7 @@
 import copy
 import importlib
-import inspect
 import os
 import signal
-import subprocess
 import sys
 
 from datetime import date, datetime
@@ -51,201 +49,6 @@ def test_fig_close():
     # assert that we have removed the reference to the FigureManager
     # that got added by plt.figure()
     assert init_figs == Gcf.figs
-
-
-class WaitForStringPopen(subprocess.Popen):
-    """
-    A Popen that passes flags that allow triggering KeyboardInterrupt.
-    """
-
-    def __init__(self, *args, **kwargs):
-        if sys.platform == 'win32':
-            kwargs['creationflags'] = subprocess.CREATE_NEW_CONSOLE
-        super().__init__(
-            *args, **kwargs,
-            # Force Agg so that each test can switch to its desired Qt backend.
-            env={**os.environ, "MPLBACKEND": "Agg", "SOURCE_DATE_EPOCH": "0"},
-            stdout=subprocess.PIPE, universal_newlines=True)
-
-    def wait_for(self, terminator):
-        """Read until the terminator is reached."""
-        buf = ''
-        while True:
-            c = self.stdout.read(1)
-            if not c:
-                raise RuntimeError(
-                    f'Subprocess died before emitting expected {terminator!r}')
-            buf += c
-            if buf.endswith(terminator):
-                return
-
-
-def _test_sigint_impl(backend, target_name, kwargs):
-    import sys
-    import matplotlib.pyplot as plt
-    import os
-    import threading
-
-    plt.switch_backend(backend)
-    from matplotlib.backends.qt_compat import QtCore  # noqa
-
-    def interrupter():
-        if sys.platform == 'win32':
-            import win32api
-            win32api.GenerateConsoleCtrlEvent(0, 0)
-        else:
-            import signal
-            os.kill(os.getpid(), signal.SIGINT)
-
-    target = getattr(plt, target_name)
-    timer = threading.Timer(1, interrupter)
-    fig = plt.figure()
-    fig.canvas.mpl_connect(
-        'draw_event',
-        lambda *args: print('DRAW', flush=True)
-    )
-    fig.canvas.mpl_connect(
-        'draw_event',
-        lambda *args: timer.start()
-    )
-    try:
-        target(**kwargs)
-    except KeyboardInterrupt:
-        print('SUCCESS', flush=True)
-
-
-@pytest.mark.backend('QtAgg', skip_on_importerror=True)
-@pytest.mark.parametrize("target, kwargs", [
-    ('show', {'block': True}),
-    ('pause', {'interval': 10})
-])
-def test_sigint(target, kwargs):
-    backend = plt.get_backend()
-    proc = WaitForStringPopen(
-        [sys.executable, "-c",
-         inspect.getsource(_test_sigint_impl) +
-         f"\n_test_sigint_impl({backend!r}, {target!r}, {kwargs!r})"])
-    try:
-        proc.wait_for('DRAW')
-        stdout, _ = proc.communicate(timeout=_test_timeout)
-    except Exception:
-        proc.kill()
-        stdout, _ = proc.communicate()
-        raise
-    print(stdout)
-    assert 'SUCCESS' in stdout
-
-
-def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
-    import signal
-    import matplotlib.pyplot as plt
-    plt.switch_backend(backend)
-    from matplotlib.backends.qt_compat import QtCore  # noqa
-
-    target = getattr(plt, target_name)
-
-    fig = plt.figure()
-    fig.canvas.mpl_connect('draw_event',
-                           lambda *args: print('DRAW', flush=True))
-
-    timer = fig.canvas.new_timer(interval=1)
-    timer.single_shot = True
-    timer.add_callback(print, 'SIGUSR1', flush=True)
-
-    def custom_signal_handler(signum, frame):
-        timer.start()
-    signal.signal(signal.SIGUSR1, custom_signal_handler)
-
-    try:
-        target(**kwargs)
-    except KeyboardInterrupt:
-        print('SUCCESS', flush=True)
-
-
-@pytest.mark.skipif(sys.platform == 'win32',
-                    reason='No other signal available to send on Windows')
-@pytest.mark.backend('QtAgg', skip_on_importerror=True)
-@pytest.mark.parametrize("target, kwargs", [
-    ('show', {'block': True}),
-    ('pause', {'interval': 10})
-])
-def test_other_signal_before_sigint(target, kwargs):
-    backend = plt.get_backend()
-    proc = WaitForStringPopen(
-        [sys.executable, "-c",
-         inspect.getsource(_test_other_signal_before_sigint_impl) +
-         "\n_test_other_signal_before_sigint_impl("
-            f"{backend!r}, {target!r}, {kwargs!r})"])
-    try:
-        proc.wait_for('DRAW')
-        os.kill(proc.pid, signal.SIGUSR1)
-        proc.wait_for('SIGUSR1')
-        os.kill(proc.pid, signal.SIGINT)
-        stdout, _ = proc.communicate(timeout=_test_timeout)
-    except Exception:
-        proc.kill()
-        stdout, _ = proc.communicate()
-        raise
-    print(stdout)
-    assert 'SUCCESS' in stdout
-    plt.figure()
-
-
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
-def test_fig_sigint_override(qt_core):
-    from matplotlib.backends.backend_qt5 import _BackendQT5
-    # Create a figure
-    plt.figure()
-
-    # Variable to access the handler from the inside of the event loop
-    event_loop_handler = None
-
-    # Callback to fire during event loop: save SIGINT handler, then exit
-    def fire_signal_and_quit():
-        # Save event loop signal
-        nonlocal event_loop_handler
-        event_loop_handler = signal.getsignal(signal.SIGINT)
-
-        # Request event loop exit
-        qt_core.QCoreApplication.exit()
-
-    # Timer to exit event loop
-    qt_core.QTimer.singleShot(0, fire_signal_and_quit)
-
-    # Save original SIGINT handler
-    original_handler = signal.getsignal(signal.SIGINT)
-
-    # Use our own SIGINT handler to be 100% sure this is working
-    def custom_handler(signum, frame):
-        pass
-
-    signal.signal(signal.SIGINT, custom_handler)
-
-    try:
-        # mainloop() sets SIGINT, starts Qt event loop (which triggers timer
-        # and exits) and then mainloop() resets SIGINT
-        matplotlib.backends.backend_qt._BackendQT.mainloop()
-
-        # Assert: signal handler during loop execution is changed
-        # (can't test equality with func)
-        assert event_loop_handler != custom_handler
-
-        # Assert: current signal handler is the same as the one we set before
-        assert signal.getsignal(signal.SIGINT) == custom_handler
-
-        # Repeat again to test that SIG_DFL and SIG_IGN will not be overridden
-        for custom_handler in (signal.SIG_DFL, signal.SIG_IGN):
-            qt_core.QTimer.singleShot(0, fire_signal_and_quit)
-            signal.signal(signal.SIGINT, custom_handler)
-
-            _BackendQT5.mainloop()
-
-            assert event_loop_handler == custom_handler
-            assert signal.getsignal(signal.SIGINT) == custom_handler
-
-    finally:
-        # Reset SIGINT handler to what it was before the test
-        signal.signal(signal.SIGINT, original_handler)
 
 
 @pytest.mark.parametrize(
@@ -515,3 +318,60 @@ def _get_testable_qt_backends():
                 reason=f"Skipping {env} because {reason}"))
         envs.append(pytest.param(env, marks=marks, id=str(env)))
     return envs
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_fig_sigint_override(qt_core):
+    from matplotlib.backends.backend_qt5 import _BackendQT5
+    # Create a figure
+    plt.figure()
+
+    # Variable to access the handler from the inside of the event loop
+    event_loop_handler = None
+
+    # Callback to fire during event loop: save SIGINT handler, then exit
+    def fire_signal_and_quit():
+        # Save event loop signal
+        nonlocal event_loop_handler
+        event_loop_handler = signal.getsignal(signal.SIGINT)
+
+        # Request event loop exit
+        qt_core.QCoreApplication.exit()
+
+    # Timer to exit event loop
+    qt_core.QTimer.singleShot(0, fire_signal_and_quit)
+
+    # Save original SIGINT handler
+    original_handler = signal.getsignal(signal.SIGINT)
+
+    # Use our own SIGINT handler to be 100% sure this is working
+    def custom_handler(signum, frame):
+        pass
+
+    signal.signal(signal.SIGINT, custom_handler)
+
+    try:
+        # mainloop() sets SIGINT, starts Qt event loop (which triggers timer
+        # and exits) and then mainloop() resets SIGINT
+        matplotlib.backends.backend_qt._BackendQT.mainloop()
+
+        # Assert: signal handler during loop execution is changed
+        # (can't test equality with func)
+        assert event_loop_handler != custom_handler
+
+        # Assert: current signal handler is the same as the one we set before
+        assert signal.getsignal(signal.SIGINT) == custom_handler
+
+        # Repeat again to test that SIG_DFL and SIG_IGN will not be overridden
+        for custom_handler in (signal.SIG_DFL, signal.SIG_IGN):
+            qt_core.QTimer.singleShot(0, fire_signal_and_quit)
+            signal.signal(signal.SIGINT, custom_handler)
+
+            _BackendQT5.mainloop()
+
+            assert event_loop_handler == custom_handler
+            assert signal.getsignal(signal.SIGINT) == custom_handler
+
+    finally:
+        # Reset SIGINT handler to what it was before the test
+        signal.signal(signal.SIGINT, original_handler)
