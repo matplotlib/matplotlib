@@ -144,6 +144,14 @@ def _check_dependencies():
         raise ImportError(
             "The following dependencies are missing to build the "
             f"documentation: {', '.join(missing)}")
+
+    # debug sphinx-pydata-theme and mpl-theme-version
+    if 'mpl_sphinx_theme' not in missing:
+        import pydata_sphinx_theme
+        import mpl_sphinx_theme
+        print(f"pydata sphinx theme: {pydata_sphinx_theme.__version__}")
+        print(f"mpl sphinx theme: {mpl_sphinx_theme.__version__}")
+
     if shutil.which('dot') is None:
         raise OSError(
             "No binary named dot - graphviz must be installed to build the "
