@@ -1174,7 +1174,6 @@ class Legend(Artist):
                                            self.get_bbox_to_anchor(),
                                            renderer)
             legendBox = Bbox.from_bounds(l, b, width, height)
-            badness = 0
             # XXX TODO: If markers are present, it would be good to take them
             # into account when checking vertex overlaps in the next line.
             badness = (sum(legendBox.count_contains(line.vertices)
@@ -1183,10 +1182,10 @@ class Legend(Artist):
                        + legendBox.count_overlaps(bboxes)
                        + sum(line.intersects_bbox(legendBox, filled=False)
                              for line in lines))
-            if badness == 0:
-                return l, b
             # Include the index to favor lower codes in case of a tie.
             candidates.append((badness, idx, (l, b)))
+            if badness == 0:
+                break
 
         _, _, (l, b) = min(candidates)
 
