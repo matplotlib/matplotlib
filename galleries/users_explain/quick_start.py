@@ -119,17 +119,33 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
 # For an overview of the different types of plot you can create with Matplotlib,
 # see the :ref:`Plot types gallery <plot_types>`. If you don't find the plot
 # type you need, it may still be possible to create the visualization you want
-# by combining existing Artists and plot elements.
-#
-# * To manipulate and customize points, see :class:`~.markers.MarkerStyle`
-# * To manipulate and customize lines, see :class:`~.lines.Line2D` or
-#   :class:`~.collections.LineCollection`
-# * To manipulate and customize regions, see :mod:`matplotlib.patches`
-# * To manipulate and customize :mod:`images <matplotlib.image>`, see
-#   :class:`~.image.AxesImage`
-# * To manipulate and customize contours and (vector) fields, see
-#   `~.axes.Axes.contour` and `~.axes.Axes.quiver`, respectively.
-# * For anything else, see :ref:`artists_tutorial`.
+# by combining existing :ref:`Artists <users_artists>` and customizing plot
+# elements. For example, `~.matplotlib.axes.Axes.plot` returns a
+# :class:`~.lines.Line2D` object and `~.matplotlib.axes.Axes.scatter` returns a
+# :class:`~.collections.LineCollection`.
+from matplotlib.lines import Line2D
+from matplotlib.patches import Rectangle
+
+# Plot the data
+x = np.array([3, 4, 9, 8, 9, 8, 0, 8, 4, 8])
+fig, ax = plt.subplots()
+ax.plot(x, label='Data')
+
+# Computing the mean and standard deviation of the data
+mean = np.mean(x)
+std = np.std(x)
+
+# Adding a horizontal line for the mean, and a rectangle representing the
+# standard deviation of the data
+mean_line = Line2D([0, 10], [np.mean(x)]*2, color='red', label='Mean')
+std_patch = Rectangle([0, mean-std], 10, 2*std, alpha=0.1, label='$\sigma$')
+
+# Add Artists to Axes object
+ax.add_line(mean_line)
+ax.add_patch(std_patch)
+ax.legend()
+# %%
+# See also :ref:`artists_tutorial`.
 #
 # .. _input_types:
 #
