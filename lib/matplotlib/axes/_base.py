@@ -2616,6 +2616,11 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         xmargin : float
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_xmargin
+            for an explanation and example
         """
         return self._xmargin
 
@@ -2626,6 +2631,11 @@ class _AxesBase(martist.Artist):
         Returns
         -------
         ymargin : float
+
+        See Also
+        --------
+        matplotlib.axes.Axes.set_ymargin
+            for an explanation and example
         """
         return self._ymargin
 

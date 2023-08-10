@@ -520,6 +520,11 @@ class Axes3D(Axes):
         Returns
         -------
         zmargin : float
+
+        See Also
+        --------
+        mpl_toolkits.mplot3d.axes3d.Axes3D.set_zmargin
+            for an explanation and example
         """
         return self._zmargin
 
