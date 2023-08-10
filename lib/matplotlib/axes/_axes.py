@@ -4147,7 +4147,7 @@ class Axes(_AxesBase):
         --------
         .. plot:: gallery/statistics/bxp.py
         """
-
+        medianprops["solid_capstyle"] = "butt"  # Clamp median line to edge of box
         # lists of artists to be output
         whiskers = []
         caps = []

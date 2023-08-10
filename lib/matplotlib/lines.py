@@ -297,7 +297,7 @@ class Line2D(Artist):
                  markerfacecoloralt='none',
                  fillstyle=None,
                  antialiased=None,
-                 dash_capstyle="butt",
+                 dash_capstyle=None,
                  solid_capstyle=None,
                  dash_joinstyle=None,
                  solid_joinstyle=None,

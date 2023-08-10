@@ -3231,6 +3231,7 @@ def test_boxplot_median_bound_by_box(fig_test, fig_ref):
     fig_test.subplots().boxplot(data,  medianprops=medianprops_test)
     fig_ref.subplots().boxplot(data, medianprops=medianprops_ref)
 
+
 @image_comparison(['bxp_withnotch.png'],
                   remove_text=True,
                   savefig_kwarg={'dpi': 40},
