@@ -4948,7 +4948,8 @@ default: :rc:`scatter.edgecolors`
 
         xscale_kwargs = {}
         if isinstance(xscale, tuple):
-            xscale, xscale_kwargs = xscale
+            xscale, xscale_kwargs_ = xscale
+            xscale_kwargs = xscale_kwargs_.copy()
 
         xscale_kwargs.setdefault('base', 10)
         xscale_kwargs.setdefault('linthresh', 2)
@@ -4956,7 +4957,8 @@ default: :rc:`scatter.edgecolors`
 
         yscale_kwargs = {}
         if isinstance(yscale, tuple):
-            yscale, yscale_kwargs = yscale
+            yscale, yscale_kwargs_ = yscale
+            yscale_kwargs = yscale_kwargs_.copy()
 
         yscale_kwargs.setdefault('base', 10)
         yscale_kwargs.setdefault('linthresh', 2)
