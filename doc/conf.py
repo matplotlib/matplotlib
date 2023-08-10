@@ -777,5 +777,4 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
-    app.add_js_file('image-rotator.js')
     app.connect('html-page-context', add_html_cache_busting, priority=1000)
