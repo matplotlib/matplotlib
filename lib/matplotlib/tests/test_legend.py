@@ -1,5 +1,7 @@
 import collections
+import itertools
 import platform
+import time
 from unittest import mock
 import warnings
 
@@ -1109,29 +1111,43 @@ def test_usetex_no_warn(caplog):
     assert "Font family ['serif'] not found." not in caplog.text
 
 
-def test_warn_big_data_best_loc():
+def test_warn_big_data_best_loc(monkeypatch):
+    # Force _find_best_position to think it took a long time.
+    counter = itertools.count(0, step=1.5)
+    monkeypatch.setattr(time, 'perf_counter', lambda: next(counter))
+
     fig, ax = plt.subplots()
     fig.canvas.draw()  # So that we can call draw_artist later.
-    for idx in range(1000):
-        ax.plot(np.arange(5000), label=idx)
+
+    # Place line across all possible legend locations.
+    x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
+    y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
+    ax.plot(x, y, 'o-', label='line')
+
     with rc_context({'legend.loc': 'best'}):
         legend = ax.legend()
-    with pytest.warns(UserWarning) as records:
+    with pytest.warns(UserWarning,
+                      match='Creating legend with loc="best" can be slow with large '
+                      'amounts of data.') as records:
         fig.draw_artist(legend)  # Don't bother drawing the lines -- it's slow.
     # The _find_best_position method of Legend is called twice, duplicating
     # the warning message.
     assert len(records) == 2
-    for record in records:
-        assert str(record.message) == (
-            'Creating legend with loc="best" can be slow with large '
-            'amounts of data.')
 
 
-def test_no_warn_big_data_when_loc_specified():
+def test_no_warn_big_data_when_loc_specified(monkeypatch):
+    # Force _find_best_position to think it took a long time.
+    counter = itertools.count(0, step=1.5)
+    monkeypatch.setattr(time, 'perf_counter', lambda: next(counter))
+
     fig, ax = plt.subplots()
     fig.canvas.draw()
-    for idx in range(1000):
-        ax.plot(np.arange(5000), label=idx)
+
+    # Place line across all possible legend locations.
+    x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
+    y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
+    ax.plot(x, y, 'o-', label='line')
+
     legend = ax.legend('best')
     fig.draw_artist(legend)  # Check that no warning is emitted.
 
