@@ -289,7 +289,7 @@ Finally, go to the web page of your fork of the Matplotlib repo, and click
 For more detailed instructions on how to set up Matplotlib for development and
 best practices for contribution, see :ref:`installing_for_devs`.
 
-.. note:: GitHub Codespaces workflows
+.. admonition:: GitHub Codespaces workflows
 
   * If you need to open a GUI window with Matplotlib output on Codespaces, our
     configuration includes a `light-weight Fluxbox-based desktop
