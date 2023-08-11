@@ -1,7 +1,7 @@
 """
-==============
+================
 scatter(x, y, z)
-==============
+================
 
 See `~mpl_toolkits.mplot3d.axes3d.Axes3D.scatter`.
 """
