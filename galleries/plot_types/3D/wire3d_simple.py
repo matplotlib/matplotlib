@@ -1,7 +1,7 @@
 """
-=================
+=======================
 plot_wireframe(X, Y, Z)
-=================
+=======================
 
 See `~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_wireframe`.
 """
