@@ -138,7 +138,7 @@ std = np.std(x)
 # Adding a horizontal line for the mean, and a rectangle representing the
 # standard deviation of the data
 mean_line = Line2D([0, 10], [np.mean(x)]*2, color='red', label='Mean')
-std_patch = Rectangle([0, mean-std], 10, 2*std, alpha=0.1, label='$\sigma$')
+std_patch = Rectangle([0, mean-std], 10, 2*std, alpha=0.1, label=r'$\sigma$')
 
 # Add Artists to Axes object
 ax.add_line(mean_line)

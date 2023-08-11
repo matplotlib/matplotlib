@@ -60,6 +60,7 @@ per-file-ignores =
     galleries/users_explain/artists/transforms_tutorial.py: E402, E501
     galleries/users_explain/colors/colormaps.py: E501
     galleries/users_explain/colors/colors.py: E402
+    galleries/users_explain/quick_start.py: E402
     galleries/tutorials/artists.py: E402
     galleries/users_explain/axes/constrainedlayout_guide.py: E402
     galleries/users_explain/axes/legend_guide.py: E402
