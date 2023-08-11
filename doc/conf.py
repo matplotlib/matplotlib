@@ -471,7 +471,10 @@ html_theme_options = {
 }
 include_analytics = is_release_build
 if include_analytics:
-    html_theme_options["analytics"] = {"google_analytics_id": "UA-55954603-1"}
+    html_theme_options["analytics"] = {
+        "plausible_analytics_domain": "matplotlib.org",
+        "plausible_analytics_url": "https://views.scientific-python.org/js/script.js"
+    }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
