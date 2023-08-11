@@ -224,11 +224,11 @@ The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
 then submit a "pull request" (PR). You can do this by cloning a copy of the
 Maplotlib repository to your own computer, or alternatively using
-`GitHub Codespaces <https://docs.github.com/codespaces>`_ (a cloud-based
-in-browser development environment, that comes with the appropriated setup to
-contribute to Matplotlib).
+`GitHub Codespaces <https://docs.github.com/codespaces>`_, a cloud-based
+in-browser development environment that comes with the appropriated setup to
+contribute to Matplotlib.
 
-A brief overview of the workflows is as follows.
+A brief overview of the workflow is as follows.
 
 1. `Create an account <https://github.com/join>`_ on GitHub if you do not
    already have one.
@@ -247,22 +247,27 @@ A brief overview of the workflows is as follows.
 
     .. tab-item:: Using GitHub Codespaces
 
-        3. Open codespaces on your fork by clicking on the green "Code" button
-           on the GitHub web interface and selecting the "Codespaces" tab. Next,
-           click on "Open codespaces on <your branch name>". You will be able to
-           change branches later, so you can select the default ``main`` branch.
+        3. Check out the Matplotlib repository and activate your development
+           environment:
 
-           After the codespace is created, you will be taken to a new browser
-           tab where you can use the terminal to activate a pre-defined conda
-           environment called ``mpl-dev``::
+           a. Open codespaces on your fork by clicking on the green "Code"
+              button on the GitHub web interface and selecting the "Codespaces"
+              tab. Next, click on "Open codespaces on <your branch name>". You
+              will be able to change branches later, so you can select the
+              default ``main`` branch.
 
-            conda activate mpl-dev
+           b. After the codespace is created, you will be taken to a new browser
+              tab where you can use the terminal to activate a pre-defined conda
+              environment called ``mpl-dev``::
+
+                conda activate mpl-dev
+
 
 4. Install the local version of Matplotlib with::
 
      python -m pip install -e .
 
-   (See :ref:`installing_for_devs` for detailed instructions.)
+   See :ref:`installing_for_devs` for detailed instructions.
 
 5. Create a branch to hold your changes::
 
@@ -289,30 +294,29 @@ Finally, go to the web page of your fork of the Matplotlib repo, and click
 For more detailed instructions on how to set up Matplotlib for development and
 best practices for contribution, see :ref:`installing_for_devs`.
 
-.. admonition:: GitHub Codespaces workflows
+GitHub Codespaces workflows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  * If you need to open a GUI window with Matplotlib output on Codespaces, our
-    configuration includes a `light-weight Fluxbox-based desktop
-    <https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
-    You can use it by connecting to this desktop via your web browser. To do
-    this:
+* If you need to open a GUI window with Matplotlib output on Codespaces, our
+  configuration includes a `light-weight Fluxbox-based desktop
+  <https://github.com/devcontainers/features/tree/main/src/desktop-lite>`_.
+  You can use it by connecting to this desktop via your web browser. To do this:
 
-    1. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
-       ``Ports: Focus on Ports View`` in the VSCode session to bring it into
-       focus. Open the ports view in your tool, select the ``noVNC`` port, and
-       click the Globe icon.
-    2. In the browser that appears, click the Connect button and enter the desktop
-       password (``vscode`` by default).
+  1. Press ``F1`` or ``Ctrl/Cmd+Shift+P`` and select
+     ``Ports: Focus on Ports View`` in the VSCode session to bring it into
+     focus. Open the ports view in your tool, select the ``noVNC`` port, and
+     click the Globe icon.
+  2. In the browser that appears, click the Connect button and enter the desktop
+     password (``vscode`` by default).
 
-    Check the `GitHub instructions
-    <https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
-    for more details on connecting to the desktop.
+  Check the `GitHub instructions
+  <https://github.com/devcontainers/features/tree/main/src/desktop-lite#connecting-to-the-desktop>`_
+  for more details on connecting to the desktop.
 
-  * If you also built the documentation pages, you can view them using
-    Codespaces. Use the "Extensions" icon in the activity bar to install the
-    "Live Server" extension. Locate the ``doc/build/html`` folder in the
-    Explorer, right click the file you want to open and select "Open with Live
-    Server."
+* If you also built the documentation pages, you can view them using Codespaces.
+  Use the "Extensions" icon in the activity bar to install the "Live Server"
+  extension. Locate the ``doc/build/html`` folder in the Explorer, right click
+  the file you want to open and select "Open with Live Server."
 
 .. _contributing_documentation:
 
