@@ -1,5 +1,6 @@
 import functools
 import itertools
+import platform
 
 import pytest
 
@@ -217,7 +218,9 @@ def test_bar3d_lightsource():
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(['contour3d.png'], style='mpl20')
+@mpl3d_image_comparison(
+    ['contour3d.png'], style='mpl20',
+    tol=0.002 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
