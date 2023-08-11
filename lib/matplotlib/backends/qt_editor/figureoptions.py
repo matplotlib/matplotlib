@@ -164,6 +164,12 @@ def figure_edit(axes, parent=None):
             mappabledata.append((
                 'Interpolation',
                 [mappable.get_interpolation(), *interpolations]))
+
+            interpolation_stages = ['data', 'rgba']
+            mappabledata.append((
+                'Interpolation stage',
+                [mappable.get_interpolation_stage(), *interpolation_stages]))
+
         mappables.append([mappabledata, label, ""])
     # Is there a scalarmappable displayed?
     has_sm = bool(mappables)
@@ -227,9 +233,11 @@ def figure_edit(axes, parent=None):
         # Set ScalarMappables.
         for index, mappable_settings in enumerate(mappables):
             mappable = labeled_mappables[index][1]
-            if len(mappable_settings) == 5:
-                label, cmap, low, high, interpolation = mappable_settings
+            if len(mappable_settings) == 6:
+                label, cmap, low, high, interpolation, interpolation_stage = \
+                  mappable_settings
                 mappable.set_interpolation(interpolation)
+                mappable.set_interpolation_stage(interpolation_stage)
             elif len(mappable_settings) == 4:
                 label, cmap, low, high = mappable_settings
             mappable.set_label(label)
