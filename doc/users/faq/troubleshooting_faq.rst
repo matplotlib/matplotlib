@@ -196,4 +196,5 @@ name or edit the name of the Python file to a new name. This appears to be espec
 file name is ``matplotlib.py`` within the working directory.
 
 An example would be to change ``matplotlib.py`` to the new file name of ``new_matplotlib.py`` and 
-attempting to check the version once more.
+attempting to check the version once more. If the version number now prints the issue has likely been 
+resolved and PyCharm should now be working correctly with the Matplotlib library.
