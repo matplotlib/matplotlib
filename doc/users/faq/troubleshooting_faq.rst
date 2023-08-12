@@ -190,7 +190,9 @@ troubleshooting guide.
    >>> print(matplotlib.__version__)
    '3.7.2'
 
-If unsuccessful with seeing the version, please attempt the following as a potential solution.
-The Python file within the directory should either be deleted and created with a new name or
-edit the name of the file to a new name. An example would be to change matplotlib.py to the new
-file name of new_matplotlib.py and attempting to check the version once more.
+If unsuccessful with seeing the version, please attempt the following options as a potential 
+solution.
+* The Python file within the directory should either be deleted and created with a new name or
+edit the name of the file to a new name. 
+* An example would be to change matplotlib.py to the new file name of new_matplotlib.py and 
+attempting to check the version once more.
