@@ -176,5 +176,7 @@ Of course, you will want to clearly describe your problem, what you
 are expecting and what you are getting, but often a clean build and
 install will help.  See also :ref:`reporting-problems`.
 
+.. _pycharm-touble:
+
 PyCharm not recognizing Matplotlib after pip install
 ====================================================
