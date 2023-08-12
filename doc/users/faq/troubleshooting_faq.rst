@@ -187,8 +187,8 @@ can be verified checking the Matplotlib version as shown at the very beginning o
 troubleshooting guide.
 
    >>> import matplotlib
-   >>> matplotlib.__version__
-   '0.98.0'
+   >>> print(matplotlib.__version__)
+   '3.7.2'
 
 If unsuccessful with seeing the version, please attempt the following as a potential solution.
 The Python file within the directory should either be deleted and created with a new name or
