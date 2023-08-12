@@ -97,7 +97,7 @@ jobs:
           Linux)
             echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt-get update -yy
-            sudo apt-get install -yy \
+            sudo apt-get install -yy --no-install-recommends \
               ccache \
               cm-super \
               dvipng \
@@ -135,9 +135,10 @@ jobs:
               texlive-pictures \
               texlive-xetex
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
-              sudo apt-get install -yy libopengl0
+              sudo apt-get install -yy --no-install-recommends libopengl0
             else  # ubuntu-22.04
-              sudo apt-get install -yy gir1.2-gtk-4.0 libnotify4
+              sudo apt-get install -yy --no-install-recommends \
+                gir1.2-gtk-4.0 libnotify4
             fi
             ;;
           macOS)
@@ -178,10 +179,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            3-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
+            4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            4-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |

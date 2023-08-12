@@ -92,7 +92,7 @@ stages:
           linux)
             echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
             sudo apt update
-            sudo apt install \
+            sudo apt install --no-install-recommends \
               cm-super \
               dvipng \
               ffmpeg \
