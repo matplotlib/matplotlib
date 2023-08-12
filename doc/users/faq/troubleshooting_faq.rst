@@ -184,7 +184,7 @@ PyCharm not recognizing Matplotlib after pip install
 First, make sure you install Matplotlib using the PyCharm terminal within the IDE.
 The command ``pip install matplotlib`` should install the library within the terminal 
 and installation can be verified checking the current Matplotlib version as shown below 
-or the reference earlier at the beginning of the `troubleshooting guide 
+or the reference earlier in the beginning of the `troubleshooting guide 
 <https://github.com/nelsost3/matplotlib/blob/main/doc/users/faq/troubleshooting_faq.rst#obtaining-matplotlib-version>`_.
 
    >>> import matplotlib
