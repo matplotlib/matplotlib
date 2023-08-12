@@ -192,7 +192,8 @@ beginning of the `troubleshooting guide <https://github.com/nelsost3/matplotlib/
 
 If unsuccessful with seeing the version, please attempt the following options as a potential 
 solution. The Python file within the directory should either be deleted and recreated with a new 
-name or edit the name of the Python file to a new name. 
+name or edit the name of the Python file to a new name. This appears to be especially true if the
+file name is ``matplotlib.py`` within the working directory.
 
 An example would be to change ``matplotlib.py`` to the new file name of ``new_matplotlib.py`` and 
 attempting to check the version once more.
