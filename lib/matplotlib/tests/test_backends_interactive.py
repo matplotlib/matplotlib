@@ -816,12 +816,12 @@ def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
     ('show', {'block': True}),
     ('pause', {'interval': 10})
 ])
-def test_other_signal_before_sigint(env, target, kwargs):
+def test_other_signal_before_sigint(env, target, kwargs, request):
     backend = env.get("MPLBACKEND")
     if not backend.startswith(("qt", "macosx")):
         pytest.skip("SIGINT currently only tested on qt and macosx")
-    if backend == "macosx" and target == "show":
-        pytest.xfail("test currently failing for macosx + show()")
+    if backend == "macosx":
+        request.node.add_marker(pytest.mark.xfail(reason="macosx backend is buggy"))
     proc = _WaitForStringPopen(
         [sys.executable, "-c",
          inspect.getsource(_test_other_signal_before_sigint_impl) +
