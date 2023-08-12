@@ -185,3 +185,7 @@ First, make sure you have installed Matplotlib using the PyCharm terminal within
 The command pip install matplotlib should be used within the terminal and installation
 can be verified checking the Matplotlib version as shown at the very beginning of the
 troubleshooting guide.
+
+   >>> import matplotlib
+   >>> matplotlib.__version__
+   '0.98.0'
