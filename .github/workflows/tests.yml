@@ -102,7 +102,9 @@ jobs:
               cm-super \
               dvipng \
               ffmpeg \
+              fonts-freefont-otf \
               fonts-noto-cjk \
+              fonts-wqy-zenhei \
               gdb \
               gir1.2-gtk-3.0 \
               graphviz \
@@ -123,8 +125,6 @@ jobs:
               libxcb-render-util0 \
               libxcb-xinerama0 \
               lmodern \
-              fonts-freefont-otf \
-              texlive-pictures \
               pkg-config \
               qtbase5-dev \
               texlive-fonts-recommended \
@@ -132,8 +132,8 @@ jobs:
               texlive-latex-extra \
               texlive-latex-recommended \
               texlive-luatex \
-              texlive-xetex \
-              ttf-wqy-zenhei
+              texlive-pictures \
+              texlive-xetex
             if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
               sudo apt-get install -yy libopengl0
             else  # ubuntu-22.04
