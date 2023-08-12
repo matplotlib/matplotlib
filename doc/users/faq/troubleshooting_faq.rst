@@ -194,5 +194,5 @@ If unsuccessful with seeing the version, please attempt the following options as
 solution. The Python file within the directory should either be deleted and created with a new 
 name or edit the name of the file to a new name. 
 
-An example would be to change ''matplotlib.py'' to the new file name of ''new_matplotlib.py'' and 
+An example would be to change ``matplotlib.py`` to the new file name of ``new_matplotlib.py`` and 
 attempting to check the version once more.
