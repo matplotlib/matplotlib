@@ -3412,9 +3412,9 @@ class _Backend:
         """
         Show all figures.
 
-        `show` blocks by calling `mainloop` if *block* is ``True``, or if it
-        is ``None`` and we are neither in IPython's ``%pylab`` mode, nor in
-        `interactive` mode.
+        `show` blocks by calling `mainloop` if *block* is ``True``, or if it is
+        ``None`` and we are not in `interactive` mode and if IPython's
+        ``%matplotlib`` integration has not been activated.
         """
         managers = Gcf.get_all_fig_managers()
         if not managers:
@@ -3427,9 +3427,9 @@ class _Backend:
         if cls.mainloop is None:
             return
         if block is None:
-            # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
-            # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
-            # set to False).
+            # Hack: Is IPython's %matplotlib integration activated?  If so,
+            # IPython's activate_matplotlib (>= 0.10) tacks a _needmain
+            # attribute onto pyplot.show (always set to False).
             pyplot_show = getattr(sys.modules.get("matplotlib.pyplot"), "show", None)
             ipython_pylab = hasattr(pyplot_show, "_needmain")
             block = not ipython_pylab and not is_interactive()
