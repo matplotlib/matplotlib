@@ -4972,7 +4972,7 @@ default: :rc:`scatter.edgecolors`
                 'x': mscale.SymmetricalLogTransform(**xscale_kwargs),
                 'y': mscale.SymmetricalLogTransform(**yscale_kwargs)
             }
-            inv_symlog_trans = {
+            inv_symlog_trafo = {
                 'x': symlog_transform['x'].inverted(),
                 'y': symlog_transform['y'].inverted()
             }
@@ -5079,18 +5079,18 @@ default: :rc:`scatter.edgecolors`
                 self.set_yscale(yscale)
 
             if xscale == 'symlog':
-                polygons[:, :, 0] = inv_symlog_trans['x'].transform_non_affine(
+                polygons[:, :, 0] = inv_symlog_trafo['x'].transform_non_affine(
                     polygons[:, :, 0]
                 )
-                xmin, xmax = inv_symlog_trans['x'].transform_non_affine(
+                xmin, xmax = inv_symlog_trafo['x'].transform_non_affine(
                     np.array([xmin, xmax])
                 )
                 self.set_xscale(xscale, **xscale_kwargs)
             if yscale == 'symlog':
-                polygons[:, :, 1] = inv_symlog_trans['y'].transform_non_affine(
+                polygons[:, :, 1] = inv_symlog_trafo['y'].transform_non_affine(
                     polygons[:, :, 1]
                 )
-                ymin, ymax = inv_symlog_trans['y'].transform_non_affine(
+                ymin, ymax = inv_symlog_trafo['y'].transform_non_affine(
                     np.array([ymin, ymax])
                 )
                 self.set_yscale(yscale, **yscale_kwargs)
@@ -5163,7 +5163,7 @@ default: :rc:`scatter.edgecolors`
                     np.array([zmin, zmax])
                 )
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
-                bin_edges = inv_symlog_trans[zname].transform_non_affine(bin_edges)
+                bin_edges = inv_symlog_trafo[zname].transform_non_affine(bin_edges)
 
             else:
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
