@@ -30,7 +30,7 @@ import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 
 import datetime
-import PIL
+import PIL.Image
 from collections.abc import Callable, Sequence
 from typing import Any, Literal, overload
 import numpy as np

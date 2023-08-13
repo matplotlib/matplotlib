@@ -88,7 +88,7 @@ if TYPE_CHECKING:
     from typing import Any, BinaryIO, Literal, TypeVar
     from typing_extensions import ParamSpec
 
-    import PIL
+    import PIL.Image
     from numpy.typing import ArrayLike
 
     from matplotlib.axis import Tick
