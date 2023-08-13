@@ -7,7 +7,7 @@ from .lines import Line2D
 from .patches import Circle, Polygon, Rectangle
 from .text import Text
 
-import PIL
+import PIL.Image
 
 from collections.abc import Callable, Collection, Iterable, Sequence
 from typing import Any, Literal
