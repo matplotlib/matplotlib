@@ -191,7 +191,7 @@ or the reference earlier in the beginning of the `troubleshooting guide
    >>> print(matplotlib.__version__)
    '3.7.2'
 
-If unsuccessful with seeing the version, please attempt the following options as a potential 
+If unsuccessful with viewing the version, please attempt the following options as a potential 
 solution. The Python file within the directory should either be deleted and recreated with a new 
 name or edit the name of the Python file to a new name. This appears to be especially true if the
 file name is ``matplotlib.py`` within the working directory.
