@@ -558,7 +558,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     A = _rgb_to_rgba(A, alpha=self.get_alpha())
                 alpha = self._get_scalar_alpha()
                 output_alpha = _resample(  # resample alpha channel
-                    self, A[..., 3], out_shape, t, alpha=1.0)
+                    self, A[..., 3], out_shape, t, alpha=alpha)
                 output = _resample(  # resample rgb channels
                     self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
