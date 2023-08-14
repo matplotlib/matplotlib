@@ -250,17 +250,17 @@ A brief overview of the workflow is as follows.
         3. Check out the Matplotlib repository and activate your development
            environment:
 
-           a. Open codespaces on your fork by clicking on the green "Code"
-              button on the GitHub web interface and selecting the "Codespaces"
-              tab. Next, click on "Open codespaces on <your branch name>". You
-              will be able to change branches later, so you can select the
-              default ``main`` branch.
+           * Open codespaces on your fork by clicking on the green "Code" button
+             on the GitHub web interface and selecting the "Codespaces" tab.
+           * Next, click on "Open codespaces on <your branch name>". You will be
+             able to change branches later, so you can select the default
+             ``main`` branch.
+           * After the codespace is created, you will be taken to a new browser
+             tab where you can use the terminal to activate a pre-defined conda
+             environment called ``mpl-dev``::
 
-           b. After the codespace is created, you will be taken to a new browser
-              tab where you can use the terminal to activate a pre-defined conda
-              environment called ``mpl-dev``::
+               conda activate mpl-dev
 
-                conda activate mpl-dev
 
 
 4. Install the local version of Matplotlib with::
