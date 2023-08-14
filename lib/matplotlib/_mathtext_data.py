@@ -800,6 +800,8 @@ tex2uni = {
     'eta'                      : 951,
     'forall'                   : 8704,
     'eth'                      : 240,
+    'dh'                       : 240,
+    'DH'                       : 208,
     'colon'                    : 58,
     'sqcup'                    : 8852,
     'bigsqcup'                 : 10758,
@@ -908,7 +910,7 @@ tex2uni = {
     'O'                        : 216,
     'hookleftarrow'            : 8617,
     'trianglerighteq'          : 8885,
-    'nsime'                    : 8772,
+    'nsimeq'                   : 8772,
     'oe'                       : 339,
     'nwarrow'                  : 8598,
     'o'                        : 248,
@@ -1090,6 +1092,8 @@ tex2uni = {
     'bagmember'                : 8959,
     'triangle'                 : 9651,
     'iiiint'                   : 10764,
+    'amalg'                    : 10815,
+    'merge'                    : 10837,
 }
 
 # Each element is a 4-tuple of the form:
