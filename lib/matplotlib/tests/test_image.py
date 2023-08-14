@@ -268,6 +268,22 @@ def test_image_alpha():
     ax3.imshow(Z, alpha=0.5, interpolation='nearest')
 
 
+@image_comparison(['image_alpha_array'], remove_text=True)
+def test_image_alpha_array():
+    _, ax = plt.subplots()
+
+    # create a 2x2 grid. If alpha is applying correctly,
+    # the top half should not match the 0.5 valued pixel
+    # in the bottom half.
+    arr = np.array([[.5, .5], [.75, .5]])
+    cmap = plt.get_cmap('gray')
+    norm = colors.Normalize()
+    arr_rgb = cmap(norm(arr))[:, :, :3]
+    alpha = np.ones_like(arr)
+    alpha[:1] = 0.2
+    ax.imshow(arr, alpha=alpha, cmap='gray', interpolation='none')
+
+
 def test_cursor_data():
     from matplotlib.backend_bases import MouseEvent
 
