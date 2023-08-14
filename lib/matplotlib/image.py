@@ -214,17 +214,16 @@ def _resample(
     return out
 
 
-def _rgb_to_rgba(A):
+def _rgb_to_rgba(A, alpha=None):
     """
     Convert an RGB image to RGBA, as required by the image resample C++
     extension.
     """
     rgba = np.zeros((A.shape[0], A.shape[1], 4), dtype=A.dtype)
+    if alpha is None:
+        alpha = 255 if A.dtype == np.uint8 else 1.0
     rgba[:, :, :3] = A
-    if rgba.dtype == np.uint8:
-        rgba[:, :, 3] = 255
-    else:
-        rgba[:, :, 3] = 1.0
+    rgba[:, :, 3] = alpha
     return rgba
 
 
@@ -554,12 +553,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             else:
                 if A.ndim == 2:  # _interpolation_stage == 'rgba'
                     self.norm.autoscale_None(A)
-                    A = self.to_rgba(A)
-                if A.shape[2] == 3:
-                    A = _rgb_to_rgba(A)
+                    A = self.to_rgba(A, alpha=self.get_alpha())
+                elif A.shape[2] == 3:
+                    A = _rgb_to_rgba(A, alpha=self.get_alpha())
                 alpha = self._get_scalar_alpha()
                 output_alpha = _resample(  # resample alpha channel
-                    self, A[..., 3], out_shape, t, alpha=alpha)
+                    self, A[..., 3], out_shape, t, alpha=1.0)
                 output = _resample(  # resample rgb channels
                     self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
