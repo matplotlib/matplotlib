@@ -1076,6 +1076,8 @@ def test_respects_bbox():
     # Make the image invisible in axs[1], but visible in axs[0] if we pan
     # axs[1] up.
     im.set_clip_box(axs[0].bbox)
+    # and ndarray should also be okay
+    im.set_clip_box(np.array(axs[0].bbox))
     buf_before = io.BytesIO()
     fig.savefig(buf_before, format="rgba")
     assert {*buf_before.getvalue()} == {0xff}  # All white.
