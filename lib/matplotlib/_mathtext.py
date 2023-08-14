@@ -2070,18 +2070,18 @@ class Parser:
         """Push a new `State` onto the stack, copying the current state."""
         self._state_stack.append(self.get_state().copy())
 
-    def main(self, s, loc, toks):
+    def main(self, toks):
         return [Hlist(toks)]
 
-    def math_string(self, s, loc, toks):
+    def math_string(self, toks):
         return self._math_expression.parseString(toks[0][1:-1], parseAll=True)
 
-    def math(self, s, loc, toks):
+    def math(self, toks):
         hlist = Hlist(toks)
         self.pop_state()
         return [hlist]
 
-    def non_math(self, s, loc, toks):
+    def non_math(self, toks):
         s = toks[0].replace(r'\$', '$')
         symbols = [Char(c, self.get_state()) for c in s]
         hlist = Hlist(symbols)
@@ -2092,7 +2092,7 @@ class Parser:
 
     float_literal = staticmethod(pyparsing_common.convertToFloat)
 
-    def text(self, s, loc, toks):
+    def text(self, toks):
         self.push_state()
         state = self.get_state()
         state.font = 'rm'
@@ -2132,12 +2132,12 @@ class Parser:
         r'\!':         -0.16667,  # -3/18 em = -3 mu
     }
 
-    def space(self, s, loc, toks):
+    def space(self, toks):
         num = self._space_widths[toks["space"]]
         box = self._make_space(num)
         return [box]
 
-    def customspace(self, s, loc, toks):
+    def customspace(self, toks):
         return [self._make_space(toks["space"])]
 
     def symbol(self, s, loc, toks):
@@ -2215,7 +2215,7 @@ class Parser:
 
     _wide_accents = set(r"widehat widetilde widebar".split())
 
-    def accent(self, s, loc, toks):
+    def accent(self, toks):
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
         accent = toks["accent"]
@@ -2276,30 +2276,30 @@ class Parser:
 
         return Hlist(hlist_list)
 
-    def start_group(self, s, loc, toks):
+    def start_group(self, toks):
         self.push_state()
         # Deal with LaTeX-style font tokens
         if toks.get("font"):
             self.get_state().font = toks.get("font")
         return []
 
-    def group(self, s, loc, toks):
+    def group(self, toks):
         grp = Hlist(toks.get("group", []))
         return [grp]
 
-    def required_group(self, s, loc, toks):
+    def required_group(self, toks):
         return Hlist(toks.get("group", []))
 
     optional_group = required_group
 
-    def end_group(self, s, loc, toks):
+    def end_group(self):
         self.pop_state()
         return []
 
     def unclosed_group(self, s, loc, toks):
         raise ParseFatalException(s, len(s), "Expected '}'")
 
-    def font(self, s, loc, toks):
+    def font(self, toks):
         self.get_state().font = toks["font"]
         return []
 
@@ -2318,9 +2318,6 @@ class Parser:
     def is_slanted(self, nucleus):
         if isinstance(nucleus, Char):
             return nucleus.is_slanted()
-        return False
-
-    def is_between_brackets(self, s, loc):
         return False
 
     def subsuper(self, s, loc, toks):
@@ -2523,26 +2520,26 @@ class Parser:
             return self._auto_sized_delimiter(ldelim, result, rdelim)
         return result
 
-    def style_literal(self, s, loc, toks):
+    def style_literal(self, toks):
         return self._MathStyle(int(toks["style_literal"]))
 
-    def genfrac(self, s, loc, toks):
+    def genfrac(self, toks):
         return self._genfrac(
             toks.get("ldelim", ""), toks.get("rdelim", ""),
             toks["rulesize"], toks.get("style", self._MathStyle.TEXTSTYLE),
             toks["num"], toks["den"])
 
-    def frac(self, s, loc, toks):
+    def frac(self, toks):
         return self._genfrac(
             "", "", self.get_state().get_current_underline_thickness(),
             self._MathStyle.TEXTSTYLE, toks["num"], toks["den"])
 
-    def dfrac(self, s, loc, toks):
+    def dfrac(self, toks):
         return self._genfrac(
             "", "", self.get_state().get_current_underline_thickness(),
             self._MathStyle.DISPLAYSTYLE, toks["num"], toks["den"])
 
-    def binom(self, s, loc, toks):
+    def binom(self, toks):
         return self._genfrac(
             "(", ")", 0,
             self._MathStyle.TEXTSTYLE, toks["num"], toks["den"])
@@ -2579,7 +2576,7 @@ class Parser:
 
     overset = underset = _genset
 
-    def sqrt(self, s, loc, toks):
+    def sqrt(self, toks):
         root = toks.get("root")
         body = toks["value"]
         state = self.get_state()
@@ -2619,7 +2616,7 @@ class Parser:
                        rightside])               # Body
         return [hlist]
 
-    def overline(self, s, loc, toks):
+    def overline(self, toks):
         body = toks["body"]
 
         state = self.get_state()
@@ -2670,14 +2667,14 @@ class Parser:
         hlist = Hlist(parts)
         return hlist
 
-    def auto_delim(self, s, loc, toks):
+    def auto_delim(self, toks):
         return self._auto_sized_delimiter(
             toks["left"],
             # if "mid" in toks ... can be removed when requiring pyparsing 3.
             toks["mid"].asList() if "mid" in toks else [],
             toks["right"])
 
-    def boldsymbol(self, s, loc, toks):
+    def boldsymbol(self, toks):
         self.push_state()
         state = self.get_state()
         hlist = []
@@ -2703,7 +2700,7 @@ class Parser:
 
         return Hlist(hlist)
 
-    def substack(self, s, loc, toks):
+    def substack(self, toks):
         parts = toks["parts"]
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
