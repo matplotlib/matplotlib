@@ -2548,12 +2548,9 @@ class SpanSelector(_SelectorWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
 
-    onselect : callable
+    onselect : callable with signature ``func(min: float, max: float)``
         A callback function that is called after a release event and the
         selection is created, changed or removed.
-        It must have the signature::
-
-            def on_select(min: float, max: float) -> Any
 
     direction : {"horizontal", "vertical"}
         The direction along which to draw the span selector.
@@ -2564,21 +2561,13 @@ class SpanSelector(_SelectorWidget):
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
-        canvas updates. See the tutorial :ref:`blitting`
-        for details.
+        canvas updates. See the tutorial :ref:`blitting` for details.
 
-    props : dict, optional
+    props : dict, default: {'facecolor': 'red', 'alpha': 0.5}
         Dictionary of `matplotlib.patches.Patch` properties.
-        Default::
 
-            dict(facecolor='red', alpha=0.5)
-
-    onmove_callback : func(min, max), min/max are floats, default: None
+    onmove_callback : callable with signature ``func(min: float, max: float)``, optional
         Called on mouse move while the span is being selected.
-
-    span_stays : bool, default: False
-        If True, the span stays visible after the mouse is released.
-        Deprecated, use *interactive* instead.
 
     interactive : bool, default: False
         Whether to draw a set of handles that allow interaction with the
@@ -2593,8 +2582,7 @@ class SpanSelector(_SelectorWidget):
         properties.
 
     grab_range : float, default: 10
-        Distance in pixels within which the interactive tool handles can be
-        activated.
+        Distance in pixels within which the interactive tool handles can be activated.
 
     state_modifier_keys : dict, optional
         Keyboard modifiers which affect the widget's behavior.  Values
@@ -2603,12 +2591,10 @@ class SpanSelector(_SelectorWidget):
         - "clear": Clear the current shape, default: "escape".
 
     drag_from_anywhere : bool, default: False
-        If `True`, the widget can be moved by clicking anywhere within
-        its bounds.
+        If `True`, the widget can be moved by clicking anywhere within its bounds.
 
     ignore_event_outside : bool, default: False
-        If `True`, the event triggered outside the span selector will be
-        ignored.
+        If `True`, the event triggered outside the span selector will be ignored.
 
     snap_values : 1D array-like, optional
         Snap the selector edges to the given values.
