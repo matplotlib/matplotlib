@@ -1,4 +1,3 @@
-
 {
   "hostRequirements": {
     "memory": "8gb",
@@ -13,6 +12,12 @@
   },
   "onCreateCommand": ".devcontainer/setup.sh",
   "postCreateCommand": "",
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "desktop"
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [
@@ -22,11 +27,12 @@
         "ms-vscode.live-server"
       ],
       "settings": {}
+    },
+    "codespaces": {
+      "openFiles": [
+        "README.md",
+        "doc/devel/codespaces.md"
+      ]
     }
-},
-"portsAttributes": {
-	"6080": {
-		"label": "desktop"
-	}
-}
+  }
 }
