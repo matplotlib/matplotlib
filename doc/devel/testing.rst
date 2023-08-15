@@ -107,7 +107,7 @@ tests it::
 
    from matplotlib.testing.decorators import image_comparison
    import matplotlib.pyplot as plt
-
+   
    @image_comparison(baseline_images=['line_dashes'], remove_text=True,
                      extensions=['png'], style='mpl20')
    def test_line_dashes():
@@ -122,19 +122,29 @@ case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
 file under source code revision control (with ``git add``).  When rerunning
 the tests, they should now pass.
 
+It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
+figures and reflects the newer look of default Matplotlib plots. Also, if the
+texts (labels, tick labels, etc) are not really part of what is tested, use
+``remove_text=True`` as this will lead to smaller figures and reduce possible
+issues with font mismatch on different platforms.
+
 Baseline images take a lot of space in the Matplotlib repository.
 An alternative approach for image comparison tests is to use the
 `~matplotlib.testing.decorators.check_figures_equal` decorator, which should be
 used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
-then collect the drawn results and compare them.
+then collect the drawn results and compare them. For example, this test draws 
+the same circle on the figures with two different methods::
 
-It is preferred that new tests use ``style='mpl20'`` as this leads to smaller
-figures and reflects the newer look of default Matplotlib plots. Also, if the
-texts (labels, tick labels, etc) are not really part of what is tested, use
-``remove_text=True`` as this will lead to smaller figures and reduce possible
-issues with font mismatch on different platforms.
+   from matplotlib.testing.decorators import check_figures_equal
+   import matplotlib.pyplot as plt 
+   
+   @check_figures_equal(extensions=['png'], tol=100)
+   def test_plot(fig_test, fig_ref):
+       red_circle = plt.Circle((0, 0), 0.2, color='r', clip_on=False)
+       fig_ref.add_artist(red_circle)
+       fig_ref.subplots().plot([0,1,2], [3,4,5], color='red')  
 
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
