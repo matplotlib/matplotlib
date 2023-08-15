@@ -418,10 +418,10 @@ class BakomaFonts(TruetypeFonts):
                         ('ex', '\xbb'), ('ex', '\x26')],
         r'\rceil':     [('ex', '\xa8'), ('ex', '\x6d'),
                         ('ex', '\xbc'), ('ex', '\x27')],
-        r'\langle':    [('ex', '\xad'), ('ex', '\x44'),
-                        ('ex', '\xbf')],
-        r'\rangle':    [('ex', '\xae'), ('ex', '\x45'),
-                        ('ex', '\xc0')],
+        r'\langle':    [('ex', '\xad'), ('ex', '\x2a'),
+                        ('ex', '\xbf'), ('ex', '\x44')],
+        r'\rangle':    [('ex', '\xae'), ('ex', '\x2b'),
+                        ('ex', '\xc0'), ('ex', '\x45')],
         r'\__sqrt__':  [('ex', '\x70'), ('ex', '\x71'),
                         ('ex', '\x72'), ('ex', '\x73')],
         r'\backslash': [('ex', '\xb2'), ('ex', '\x2f'),
@@ -432,6 +432,8 @@ class BakomaFonts(TruetypeFonts):
                         ('ex', '\x64')],
         r'\widetilde': [('rm', '\x7e'), ('ex', '\x65'), ('ex', '\x66'),
                         ('ex', '\x67')],
+        r'<':          [('ex', '\x44')],
+        r'>':          [('ex', '\x45')]
         }
 
     for alias, target in [(r'\leftparen', '('),
@@ -440,8 +442,6 @@ class BakomaFonts(TruetypeFonts):
                           (r'\rightbrace', '}'),
                           (r'\leftbracket', '['),
                           (r'\rightbracket', ']'),
-                          (r'<', r'\langle'),
-                          (r'>', r'\rangle'),
                           (r'\{', '{'),
                           (r'\}', '}'),
                           (r'\[', '['),

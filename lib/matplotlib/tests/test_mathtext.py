@@ -557,3 +557,17 @@ def test_mathtext_operators():
 def test_boldsymbol(fig_test, fig_ref):
     fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")
+
+
+@image_comparison(baseline_images=['math_angle_brackets.png'])
+def test_math_angle_brackets():
+    fig = plt.figure(figsize=(5, 1))
+    tests = [
+            r'$\left< x \right>$',
+            r'$\left< ? \right>$',
+            r'$\left\langle \frac{1}{2}\right\rangle$',
+            r'$\left\langle \frac{\sum_{0}^{1}}{2}\right\rangle$',
+            r'$\left<\frac{\sum_{0}^{1}}{\sum_{0}^{1}}\right>$'
+            ]
+    for idx, text in enumerate(tests):
+        fig.text((idx + 0.3)/len(tests), 0.5, text, math_fontfamily='cm')
