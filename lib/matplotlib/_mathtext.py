@@ -1894,6 +1894,7 @@ class Parser:
         p.function = csnames("name", self._function_names)
 
         p.group = p.start_group + ZeroOrMore(p.token)("group") + p.end_group
+        p.unclosed_group = (p.start_group + ZeroOrMore(p.token)("group") + StringEnd())
 
         p.frac  = cmd(r"\frac", p.required_group("num") + p.required_group("den"))
         p.dfrac = cmd(r"\dfrac", p.required_group("num") + p.required_group("den"))
@@ -1942,6 +1943,7 @@ class Parser:
         p.token <<= (
             p.simple
             | p.auto_delim
+            | p.unclosed_group
             | p.unknown_symbol  # Must be last
         )
 
@@ -2250,6 +2252,9 @@ class Parser:
     def end_group(self, s, loc, toks):
         self.pop_state()
         return []
+
+    def unclosed_group(self, s, loc, toks):
+        raise ParseFatalException(s, len(s), "Expected '}'")
 
     def font(self, s, loc, toks):
         self.get_state().font = toks["font"]
