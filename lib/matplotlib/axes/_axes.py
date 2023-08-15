@@ -4150,7 +4150,7 @@ class Axes(_AxesBase):
         if medianprops is None:  # Clamp median line to edge of box
             medianprops = {"solid_capstyle": "butt"}
         else:
-            medianprops["solid_capstyle"] = "butt"
+            medianprops.setdefault("solid_capstyle", "butt")
 
         # lists of artists to be output
         whiskers = []
