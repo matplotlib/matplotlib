@@ -106,7 +106,7 @@ class Output:
               for x1, y1, x2, y2 in self.rects]
         return VectorParse(w, h + d, d, gs, rs)
 
-    def to_raster(self, antialiased=None):
+    def to_raster(self, *, antialiased):
         # Metrics y's and mathtext y's are oriented in opposite directions,
         # hence the switch between ymin and ymax.
         xmin = min([*[ox + info.metrics.xmin for ox, oy, info in self.glyphs],
@@ -128,7 +128,6 @@ class Output:
         # old approach and keeps baseline images backcompat.
         shifted = ship(self.box, (-xmin, -ymin))
 
-        antialiased = mpl.rcParams['text.antialiased']
         for ox, oy, info in shifted.glyphs:
             info.font.draw_glyph_to_bitmap(
                 image, ox, oy - info.metrics.iceberg, info.glyph,
