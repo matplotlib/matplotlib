@@ -763,10 +763,9 @@ class Artist:
             clipping for an artist added to an Axes.
 
         """
-        if clipbox != self.clipbox:
-            self.clipbox = clipbox
-            self.pchanged()
-            self.stale = True
+        self.clipbox = clipbox
+        self.pchanged()
+        self.stale = True
 
     def set_clip_path(self, path, transform=None):
         """
