@@ -2,6 +2,9 @@
 font data tables for truetype and afm computer modern fonts
 """
 
+from __future__ import annotations
+
+
 latex_to_bakoma = {
     '\\__sqrt__'                 : ('cmex10', 0x70),
     '\\bigcap'                   : ('cmex10', 0x5c),
@@ -1099,7 +1102,8 @@ tex2uni = {
 # Each element is a 4-tuple of the form:
 #   src_start, src_end, dst_font, dst_start
 #
-stix_virtual_fonts = {
+stix_virtual_fonts: dict[str, dict[str, list[tuple[int, int, str, int]]] |
+                              list[tuple[int, int, str, int]]] = {
     'bb':
         {
         'rm':
