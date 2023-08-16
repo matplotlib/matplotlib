@@ -249,4 +249,5 @@ class Glyph:
     vertBearingY: int
     vertAdvance: int
 
+    @property
     def bbox(self) -> tuple[int, int, int, int]: ...
