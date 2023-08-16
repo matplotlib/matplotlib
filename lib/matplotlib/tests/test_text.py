@@ -186,19 +186,23 @@ def test_multiline2():
     ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
 
 
-@image_comparison(['antialiased.png'])
+@image_comparison(['antialiased.png'], style='mpl20')
 def test_antialiasing():
-    mpl.rcParams['text.antialiased'] = True
+    mpl.rcParams['text.antialiased'] = False  # Passed arguments should override.
 
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.75, "antialiased", horizontalalignment='center',
-             verticalalignment='center')
-    fig.text(0.5, 0.25, r"$\sqrt{x}$", horizontalalignment='center',
-             verticalalignment='center')
-    # NOTE: We don't need to restore the rcParams here, because the
-    # test cleanup will do it for us.  In fact, if we do it here, it
-    # will turn antialiasing back off before the images are actually
-    # rendered.
+    fig.text(0.3, 0.75, "antialiased", horizontalalignment='center',
+             verticalalignment='center', antialiased=True)
+    fig.text(0.3, 0.25, r"$\sqrt{x}$", horizontalalignment='center',
+             verticalalignment='center', antialiased=True)
+
+    mpl.rcParams['text.antialiased'] = True  # Passed arguments should override.
+    fig.text(0.7, 0.75, "not antialiased", horizontalalignment='center',
+             verticalalignment='center', antialiased=False)
+    fig.text(0.7, 0.25, r"$\sqrt{x}$", horizontalalignment='center',
+             verticalalignment='center', antialiased=False)
+
+    mpl.rcParams['text.antialiased'] = False  # Should not affect existing text.
 
 
 def test_afm_kerning():
@@ -914,29 +918,18 @@ def test_annotate_offset_fontsize():
     assert str(points_coords) == str(fontsize_coords)
 
 
-def test_set_antialiased():
+def test_get_set_antialiased():
     txt = Text(.5, .5, "foo\nbar")
     assert txt._antialiased == mpl.rcParams['text.antialiased']
+    assert txt.get_antialiased() == mpl.rcParams['text.antialiased']
 
     txt.set_antialiased(True)
     assert txt._antialiased is True
+    assert txt.get_antialiased() == txt._antialiased
 
     txt.set_antialiased(False)
     assert txt._antialiased is False
-
-
-def test_get_antialiased():
-
-    txt2 = Text(.5, .5, "foo\nbar", antialiased=True)
-    assert txt2._antialiased is True
-    assert txt2.get_antialiased() == txt2._antialiased
-
-    txt3 = Text(.5, .5, "foo\nbar", antialiased=False)
-    assert txt3._antialiased is False
-    assert txt3.get_antialiased() == txt3._antialiased
-
-    txt4 = Text(.5, .5, "foo\nbar")
-    assert txt4.get_antialiased() == mpl.rcParams['text.antialiased']
+    assert txt.get_antialiased() == txt._antialiased
 
 
 def test_annotation_antialiased():
@@ -955,39 +948,6 @@ def test_annotation_antialiased():
 
     annot4 = Annotation("foo\nbar", (.5, .5))
     assert annot4._antialiased == mpl.rcParams['text.antialiased']
-
-
-@check_figures_equal()
-def test_text_antialiased_off_default_vs_manual(fig_test, fig_ref):
-    fig_test.text(0.5, 0.5, '6 inches x 2 inches',
-                             antialiased=False)
-
-    mpl.rcParams['text.antialiased'] = False
-    fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
-
-
-@check_figures_equal()
-def test_text_antialiased_on_default_vs_manual(fig_test, fig_ref):
-    fig_test.text(0.5, 0.5, '6 inches x 2 inches', antialiased=True)
-
-    mpl.rcParams['text.antialiased'] = True
-    fig_ref.text(0.5, 0.5, '6 inches x 2 inches')
-
-
-@check_figures_equal()
-def test_text_math_antialiased_on_default_vs_manual(fig_test, fig_ref):
-    fig_test.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$", antialiased=True)
-
-    mpl.rcParams['text.antialiased'] = True
-    fig_ref.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$")
-
-
-@check_figures_equal()
-def test_text_math_antialiased_off_default_vs_manual(fig_test, fig_ref):
-    fig_test.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$", antialiased=False)
-
-    mpl.rcParams['text.antialiased'] = False
-    fig_ref.text(0.5, 0.5, r"OutsideMath $I\'m \sqrt{2}$")
 
 
 @check_figures_equal(extensions=["png"])

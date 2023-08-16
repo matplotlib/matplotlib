@@ -75,8 +75,7 @@ class MathTextParser:
         # is mutable; key the cache using an internal copy (see
         # text._get_text_metrics_with_cache for a similar case).
         prop = prop.copy() if prop is not None else None
-        if antialiased is None:
-            antialiased = mpl.rcParams['text.antialiased']
+        antialiased = mpl._val_or_rc(antialiased, 'text.antialiased')
         return self._parse_cached(s, dpi, prop, antialiased)
 
     @functools.lru_cache(50)
