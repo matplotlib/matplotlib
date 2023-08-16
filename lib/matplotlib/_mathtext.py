@@ -768,21 +768,25 @@ class StixFonts(UnicodeFonts):
     def _map_virtual_font(self, fontname, font_class, uniindex):
         # Handle these "fonts" that are actually embedded in
         # other fonts.
-        mapping = stix_virtual_fonts.get(fontname)
-        if (self._sans and mapping is None
+        font_mapping = stix_virtual_fonts.get(fontname)
+        if (self._sans and font_mapping is None
                 and fontname not in ('regular', 'default')):
-            mapping = stix_virtual_fonts['sf']
+            font_mapping = stix_virtual_fonts['sf']
             doing_sans_conversion = True
         else:
             doing_sans_conversion = False
 
-        if mapping is not None:
-            if isinstance(mapping, dict):
-                try:
-                    mapping = mapping[font_class]
-                except KeyError:
-                    mapping = mapping['rm']
+        if isinstance(font_mapping, dict):
+            try:
+                mapping = font_mapping[font_class]
+            except KeyError:
+                mapping = font_mapping['rm']
+        elif isinstance(font_mapping, list):
+            mapping = font_mapping
+        else:
+            mapping = None
 
+        if mapping is not None:
             # Binary search for the source glyph
             lo = 0
             hi = len(mapping)
@@ -1965,11 +1969,14 @@ class Parser:
                     ends_with_alpha.append(name)
                 else:
                     ends_with_nonalpha.append(name)
-            return Regex(r"\\(?P<{}>(?:{})(?![A-Za-z]){})".format(
-                group,
-                "|".join(map(re.escape, ends_with_alpha)),
-                "".join(f"|{s}" for s in map(re.escape, ends_with_nonalpha)),
-            ))
+            return Regex(
+                r"\\(?P<{group}>(?:{alpha})(?![A-Za-z]){additional}{nonalpha})".format(
+                    group=group,
+                    alpha="|".join(map(re.escape, ends_with_alpha)),
+                    additional="|" if ends_with_nonalpha else "",
+                    nonalpha="|".join(map(re.escape, ends_with_nonalpha)),
+                )
+            )
 
         p.float_literal  = Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
         p.space          = oneOf(self._space_widths)("space")
@@ -2458,9 +2465,9 @@ class Parser:
                 hlist.hpack(width, 'exactly')
                 vlist.extend([Vbox(0, vgap), hlist])
                 shift = hlist.height + vgap + nucleus.depth
-            vlist = Vlist(vlist)
-            vlist.shift_amount = shift
-            result = Hlist([vlist])
+            vlt = Vlist(vlist)
+            vlt.shift_amount = shift
+            result = Hlist([vlt])
             return [result]
 
         # We remove kerning on the last character for consistency (otherwise
@@ -2781,20 +2788,20 @@ class Parser:
         parts = toks["parts"]
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
-        vlist = []
 
         hlist = [Hlist(k) for k in parts[0]]
         max_width = max(map(lambda c: c.width, hlist))
 
+        vlist = []
         for sub in hlist:
             cp = HCentered([sub])
             cp.hpack(max_width, 'exactly')
             vlist.append(cp)
 
-        vlist = [val for pair in zip(vlist,
-                                     [Vbox(0, thickness * 2)] *
-                                     len(vlist)) for val in pair]
-        del vlist[-1]
-        vlt = Vlist(vlist)
+        stack = [val
+                 for pair in zip(vlist, [Vbox(0, thickness * 2)] * len(vlist))
+                 for val in pair]
+        del stack[-1]
+        vlt = Vlist(stack)
         result = [Hlist([vlt])]
         return result
