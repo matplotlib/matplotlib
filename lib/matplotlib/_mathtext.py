@@ -2139,7 +2139,7 @@ class Parser:
         self._in_subscript_or_superscript = False
         # prevent operator spacing from leaking into a new expression
         self._em_width_cache = {}
-        self._expression.resetCache()
+        ParserElement.resetCache()
         return result[0]
 
     def get_state(self):
