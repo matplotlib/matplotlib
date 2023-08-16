@@ -4,6 +4,7 @@ Implementation details for :mod:`.mathtext`.
 
 from __future__ import annotations
 
+import abc
 import copy
 import enum
 import functools
@@ -216,7 +217,7 @@ class FontInfo(NamedTuple):
     offset: float
 
 
-class Fonts:
+class Fonts(abc.ABC):
     """
     An abstract base class for a system of fonts to use for mathtext.
 
@@ -247,6 +248,13 @@ class Fonts:
         See `~.Fonts.get_metrics` for a detailed description of the parameters.
         """
         return 0.
+
+    def _get_font(self, font: str) -> FT2Font:
+        raise NotImplementedError
+
+    def _get_info(self, font: str, font_class: str, sym: str, fontsize: float,
+                  dpi: float) -> FontInfo:
+        raise NotImplementedError
 
     def get_metrics(self, font, font_class, sym, fontsize, dpi):
         r"""
@@ -313,7 +321,7 @@ class Fonts:
         return [(fontname, sym)]
 
 
-class TruetypeFonts(Fonts):
+class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
     """
     A generic base class for all font setups that use Truetype fonts
     (through FT2Font).
@@ -324,6 +332,7 @@ class TruetypeFonts(Fonts):
         # Per-instance cache.
         self._get_info = functools.cache(self._get_info)
         self._fonts = {}
+        self.fontmap: dict[str | int, str] = {}
 
         filename = findfont(self.default_font_prop)
         default_font = get_font(filename)
@@ -347,6 +356,10 @@ class TruetypeFonts(Fonts):
         if font.postscript_name == 'Cmex10':
             return (glyph.height / 64 / 2) + (fontsize/3 * dpi/72)
         return 0.
+
+    def _get_glyph(self, fontname: str, font_class: str,
+                   sym: str) -> tuple[FT2Font, int, bool]:
+        raise NotImplementedError
 
     # The return value of _get_info is cached per-instance.
     def _get_info(self, fontname, font_class, sym, fontsize, dpi):
@@ -429,7 +442,6 @@ class BakomaFonts(TruetypeFonts):
         self._stix_fallback = StixFonts(*args, **kwargs)
 
         super().__init__(*args, **kwargs)
-        self.fontmap = {}
         for key, val in self._fontmap.items():
             fullpath = findfont(val)
             self.fontmap[key] = fullpath
@@ -543,7 +555,6 @@ class UnicodeFonts(TruetypeFonts):
         self._fallback_font = font_cls(*args, **kwargs) if font_cls else None
 
         super().__init__(*args, **kwargs)
-        self.fontmap = {}
         for texfont in "cal rm tt it bf sf bfit".split():
             prop = mpl.rcParams['mathtext.' + texfont]
             font = findfont(prop)
@@ -641,7 +652,8 @@ class UnicodeFonts(TruetypeFonts):
         return [(fontname, sym)]
 
 
-class DejaVuFonts(UnicodeFonts):
+class DejaVuFonts(UnicodeFonts, metaclass=abc.ABCMeta):
+    _fontmap: dict[str | int, str] = {}
 
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
@@ -651,7 +663,6 @@ class DejaVuFonts(UnicodeFonts):
             self._fallback_font = StixSansFonts(*args, **kwargs)
         self.bakoma = BakomaFonts(*args, **kwargs)
         TruetypeFonts.__init__(self, *args, **kwargs)
-        self.fontmap = {}
         # Include Stix sized alternatives for glyphs
         self._fontmap.update({
             1: 'STIXSizeOneSym',
@@ -749,7 +760,6 @@ class StixFonts(UnicodeFonts):
 
     def __init__(self, *args, **kwargs):
         TruetypeFonts.__init__(self, *args, **kwargs)
-        self.fontmap = {}
         for key, name in self._fontmap.items():
             fullpath = findfont(name)
             self.fontmap[key] = fullpath
