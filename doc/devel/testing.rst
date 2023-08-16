@@ -146,6 +146,11 @@ the same circle on the figures with two different methods::
        fig_ref.add_artist(red_circle)
        fig_ref.subplots().plot([0,1,2], [3,4,5], color='red')  
 
+In this example, one of the argument is ``tol=100`` where tol is used for the 
+determining the tolerance (a color value difference, where 255 is the maximal 
+difference). The test fails if the average pixel difference is greater than 
+this value.
+
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
 `~matplotlib.testing.decorators.check_figures_equal` for additional information
 about their use.
