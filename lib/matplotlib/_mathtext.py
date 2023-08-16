@@ -2,8 +2,9 @@
 Implementation details for :mod:`.mathtext`.
 """
 
+from __future__ import annotations
+
 import copy
-from collections import namedtuple
 import enum
 import functools
 import logging
@@ -12,6 +13,8 @@ import re
 import types
 import unicodedata
 import string
+import typing as T
+from typing import NamedTuple
 
 import numpy as np
 from pyparsing import (
@@ -33,6 +36,9 @@ if parse_version(pyparsing_version).major < 3:
     from pyparsing import nestedExpr as nested_expr
 else:
     from pyparsing import nested_expr
+
+if T.TYPE_CHECKING:
+    from .ft2font import FT2Font, Glyph
 
 ParserElement.enablePackrat()
 _log = logging.getLogger("matplotlib.mathtext")
@@ -64,24 +70,49 @@ def get_unicode_index(symbol):  # Publicly exported.
             ) from err
 
 
-VectorParse = namedtuple("VectorParse", "width height depth glyphs rects",
-                         module="matplotlib.mathtext")
-VectorParse.__doc__ = r"""
-The namedtuple type returned by ``MathTextParser("path").parse(...)``.
+class VectorParse(NamedTuple):
+    """
+    The namedtuple type returned by ``MathTextParser("path").parse(...)``.
 
-This tuple contains the global metrics (*width*, *height*, *depth*), a list of
-*glyphs* (including their positions) and of *rect*\angles.
-"""
+    Attributes
+    ----------
+    width, height, depth : float
+        The global metrics.
+    glyphs : list
+        The glyphs including their positions.
+    rect : list
+        The list of rectangles.
+    """
+    width: float
+    height: float
+    depth: float
+    glyphs: list[tuple[FT2Font, float, int, float, float]]
+    rects: list[tuple[float, float, float, float]]
+
+VectorParse.__module__ = "matplotlib.mathtext"
 
 
-RasterParse = namedtuple("RasterParse", "ox oy width height depth image",
-                         module="matplotlib.mathtext")
-RasterParse.__doc__ = r"""
-The namedtuple type returned by ``MathTextParser("agg").parse(...)``.
+class RasterParse(NamedTuple):
+    """
+    The namedtuple type returned by ``MathTextParser("agg").parse(...)``.
 
-This tuple contains the global metrics (*width*, *height*, *depth*), and a
-raster *image*.  The offsets *ox*, *oy* are always zero.
-"""
+    Attributes
+    ----------
+    ox, oy : float
+        The offsets are always zero.
+    width, height, depth : float
+        The global metrics.
+    image : FT2Image
+        A raster image.
+    """
+    ox: float
+    oy: float
+    width: float
+    height: float
+    depth: float
+    image: FT2Image
+
+RasterParse.__module__ = "matplotlib.mathtext"
 
 
 class Output:
@@ -143,6 +174,48 @@ class Output:
         return RasterParse(0, 0, w, h + d, d, image)
 
 
+class FontMetrics(NamedTuple):
+    """
+    Metrics of a font.
+
+    Attributes
+    ----------
+    advance : float
+        The advance distance (in points) of the glyph.
+    height : float
+        The height of the glyph in points.
+    width : float
+        The width of the glyph in points.
+    xmin, xmax, ymin, ymax : float
+        The ink rectangle of the glyph.
+    iceberg : float
+        The distance from the baseline to the top of the glyph. (This corresponds to
+        TeX's definition of "height".)
+    slanted : bool
+        Whether the glyph should be considered as "slanted" (currently used for kerning
+        sub/superscripts).
+    """
+    advance: float
+    height: float
+    width: float
+    xmin: float
+    xmax: float
+    ymin: float
+    ymax: float
+    iceberg: float
+    slanted: bool
+
+
+class FontInfo(NamedTuple):
+    font: FT2Font
+    fontsize: float
+    postscript_name: str
+    metrics: FontMetrics
+    num: int
+    glyph: Glyph
+    offset: float
+
+
 class Fonts:
     """
     An abstract base class for a system of fonts to use for mathtext.
@@ -197,19 +270,7 @@ class Fonts:
 
         Returns
         -------
-        object
-
-            The returned object has the following attributes (all floats,
-            except *slanted*):
-
-            - *advance*: The advance distance (in points) of the glyph.
-            - *height*: The height of the glyph in points.
-            - *width*: The width of the glyph in points.
-            - *xmin*, *xmax*, *ymin*, *ymax*: The ink rectangle of the glyph
-            - *iceberg*: The distance from the baseline to the top of the
-              glyph.  (This corresponds to TeX's definition of "height".)
-            - *slanted*: Whether the glyph should be considered as "slanted"
-              (currently used for kerning sub/superscripts).
+        FontMetrics
         """
         info = self._get_info(font, font_class, sym, fontsize, dpi)
         return info.metrics
@@ -295,7 +356,7 @@ class TruetypeFonts(Fonts):
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         offset = self._get_offset(font, glyph, fontsize, dpi)
-        metrics = types.SimpleNamespace(
+        metrics = FontMetrics(
             advance = glyph.linearHoriAdvance/65536.0,
             height  = glyph.height/64.0,
             width   = glyph.width/64.0,
@@ -308,7 +369,7 @@ class TruetypeFonts(Fonts):
             slanted = slanted
             )
 
-        return types.SimpleNamespace(
+        return FontInfo(
             font            = font,
             fontsize        = fontsize,
             postscript_name = font.postscript_name,
@@ -810,33 +871,33 @@ class FontConstantsBase:
     be reliably retrieved from the font metrics in the font itself.
     """
     # Percentage of x-height of additional horiz. space after sub/superscripts
-    script_space = 0.05
+    script_space: T.ClassVar[float] = 0.05
 
     # Percentage of x-height that sub/superscripts drop below the baseline
-    subdrop = 0.4
+    subdrop: T.ClassVar[float] = 0.4
 
     # Percentage of x-height that superscripts are raised from the baseline
-    sup1 = 0.7
+    sup1: T.ClassVar[float] = 0.7
 
     # Percentage of x-height that subscripts drop below the baseline
-    sub1 = 0.3
+    sub1: T.ClassVar[float] = 0.3
 
     # Percentage of x-height that subscripts drop below the baseline when a
     # superscript is present
-    sub2 = 0.5
+    sub2: T.ClassVar[float] = 0.5
 
     # Percentage of x-height that sub/superscripts are offset relative to the
     # nucleus edge for non-slanted nuclei
-    delta = 0.025
+    delta: T.ClassVar[float] = 0.025
 
     # Additional percentage of last character height above 2/3 of the
     # x-height that superscripts are offset relative to the subscript
     # for slanted nuclei
-    delta_slanted = 0.2
+    delta_slanted: T.ClassVar[float] = 0.2
 
     # Percentage of x-height that superscripts and subscripts are offset for
     # integrals
-    delta_integral = 0.1
+    delta_integral: T.ClassVar[float] = 0.1
 
 
 class ComputerModernFontConstants(FontConstantsBase):
@@ -1333,8 +1394,14 @@ class Vrule(Rule):
         super().__init__(thickness, np.inf, np.inf, state)
 
 
-_GlueSpec = namedtuple(
-    "_GlueSpec", "width stretch stretch_order shrink shrink_order")
+class _GlueSpec(NamedTuple):
+    width: float
+    stretch: float
+    stretch_order: int
+    shrink: float
+    shrink_order: int
+
+
 _GlueSpec._named = {  # type: ignore[attr-defined]
     'fil':         _GlueSpec(0., 1., 1, 0., 0),
     'fill':        _GlueSpec(0., 1., 2, 0., 0),
@@ -1358,7 +1425,7 @@ class Glue(Node):
     def __init__(self, glue_type):
         super().__init__()
         if isinstance(glue_type, str):
-            glue_spec = _GlueSpec._named[glue_type]
+            glue_spec = _GlueSpec._named[glue_type]  # type: ignore[attr-defined]
         elif isinstance(glue_type, _GlueSpec):
             glue_spec = glue_type
         else:
