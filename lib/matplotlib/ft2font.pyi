@@ -1,4 +1,4 @@
-from typing import BinaryIO, Literal
+from typing import BinaryIO, Literal, TypedDict, overload
 
 import numpy as np
 from numpy.typing import NDArray
@@ -41,6 +41,122 @@ MULTIPLE_MASTERS: int
 SCALABLE: int
 SFNT: int
 VERTICAL: int
+
+class _SfntHeadDict(TypedDict):
+    version: tuple[int, int]
+    fontRevision: tuple[int, int]
+    checkSumAdjustment: int
+    magicNumber: int
+    flags: int
+    unitsPerEm: int
+    created: tuple[int, int]
+    modified: tuple[int, int]
+    xMin: int
+    yMin: int
+    xMax: int
+    yMax: int
+    macStyle: int
+    lowestRecPPEM: int
+    fontDirectionHint: int
+    indexToLocFormat: int
+    glyphDataFormat: int
+
+class _SfntMaxpDict(TypedDict):
+    version: tuple[int, int]
+    numGlyphs: int
+    maxPoints: int
+    maxContours: int
+    maxComponentPoints: int
+    maxComponentContours: int
+    maxZones: int
+    maxTwilightPoints: int
+    maxStorage: int
+    maxFunctionDefs: int
+    maxInstructionDefs: int
+    maxStackElements: int
+    maxSizeOfInstructions: int
+    maxComponentElements: int
+    maxComponentDepth: int
+
+class _SfntOs2Dict(TypedDict):
+    version: int
+    xAvgCharWidth: int
+    usWeightClass: int
+    usWidthClass: int
+    fsType: int
+    ySubscriptXSize: int
+    ySubscriptYSize: int
+    ySubscriptXOffset: int
+    ySubscriptYOffset: int
+    ySuperscriptXSize: int
+    ySuperscriptYSize: int
+    ySuperscriptXOffset: int
+    ySuperscriptYOffset: int
+    yStrikeoutSize: int
+    yStrikeoutPosition: int
+    sFamilyClass: int
+    panose: bytes
+    ulCharRange: tuple[int, int, int, int]
+    achVendID: bytes
+    fsSelection: int
+    fsFirstCharIndex: int
+    fsLastCharIndex: int
+
+class _SfntHheaDict(TypedDict):
+    version: tuple[int, int]
+    ascent: int
+    descent: int
+    lineGap: int
+    advanceWidthMax: int
+    minLeftBearing: int
+    minRightBearing: int
+    xMaxExtent: int
+    caretSlopeRise: int
+    caretSlopeRun: int
+    caretOffset: int
+    metricDataFormat: int
+    numOfLongHorMetrics: int
+
+class _SfntVheaDict(TypedDict):
+    version: tuple[int, int]
+    vertTypoAscender: int
+    vertTypoDescender: int
+    vertTypoLineGap: int
+    advanceHeightMax: int
+    minTopSideBearing: int
+    minBottomSizeBearing: int
+    yMaxExtent: int
+    caretSlopeRise: int
+    caretSlopeRun: int
+    caretOffset: int
+    metricDataFormat: int
+    numOfLongVerMetrics: int
+
+class _SfntPostDict(TypedDict):
+    format: tuple[int, int]
+    italicAngle: tuple[int, int]
+    underlinePosition: int
+    underlineThickness: int
+    isFixedPitch: int
+    minMemType42: int
+    maxMemType42: int
+    minMemType1: int
+    maxMemType1: int
+
+class _SfntPcltDict(TypedDict):
+    version: tuple[int, int]
+    fontNumber: int
+    pitch: int
+    xHeight: int
+    style: int
+    typeFamily: int
+    capHeight: int
+    symbolSet: int
+    typeFace: bytes
+    characterComplement: bytes
+    strokeWeight: int
+    widthType: int
+    serifStyle: int
 
 class FT2Font:
     ascender: int
@@ -92,9 +208,20 @@ class FT2Font:
         self,
     ) -> tuple[str, str, str, str, str, int, int, int, int]: ...
     def get_sfnt(self) -> dict[tuple[int, int, int, int], bytes]: ...
-    def get_sfnt_table(
-        self, name: Literal["head", "maxp", "OS/2", "hhea", "vhea", "post", "pclt"]
-    ) -> dict[str, tuple[int, int, int, int] | tuple[int, int] | int | bytes]: ...
+    @overload
+    def get_sfnt_table(self, name: Literal["head"]) -> _SfntHeadDict | None: ...
+    @overload
+    def get_sfnt_table(self, name: Literal["maxp"]) -> _SfntMaxpDict | None: ...
+    @overload
+    def get_sfnt_table(self, name: Literal["OS/2"]) -> _SfntOs2Dict | None: ...
+    @overload
+    def get_sfnt_table(self, name: Literal["hhea"]) -> _SfntHheaDict | None: ...
+    @overload
+    def get_sfnt_table(self, name: Literal["vhea"]) -> _SfntVheaDict | None: ...
+    @overload
+    def get_sfnt_table(self, name: Literal["post"]) -> _SfntPostDict | None: ...
+    @overload
+    def get_sfnt_table(self, name: Literal["pclt"]) -> _SfntPcltDict | None: ...
     def get_width_height(self) -> tuple[int, int]: ...
     def get_xys(self, antialiased: bool = ...) -> NDArray[np.float64]: ...
     def load_char(self, charcode: int, flags: int = ...) -> Glyph: ...
