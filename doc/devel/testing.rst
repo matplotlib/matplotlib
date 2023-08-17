@@ -107,6 +107,7 @@ tests it::
 
    from matplotlib.testing.decorators import image_comparison
    import matplotlib.pyplot as plt
+
    @image_comparison(baseline_images=['line_dashes'], remove_text=True,
                      extensions=['png'], style='mpl20')
    def test_line_dashes():
@@ -142,7 +143,6 @@ vs plotting the circle using the parametric equation of a circle::
    from matplotlib.testing.decorators import check_figures_equal
    import matplotlib.pyplot as plt
    import numpy as np
-   import pytest 
    
    @check_figures_equal(extensions=['png'], tol=100)
    def test_plot(fig_test, fig_ref):
