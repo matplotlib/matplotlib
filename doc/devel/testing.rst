@@ -133,17 +133,25 @@ An alternative approach for image comparison tests is to use the
 used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
-then collect the drawn results and compare them. For example, this test draws 
-the same circle on the figures with two different methods::
+then collect the drawn results and compare them. 
+
+For example, this test compares two different methods to draw the same 
+circle, that are plotting a circle using circle patch (matplotlib.patches.Circle()) 
+vs plotting the circle using the parametric equation of a circle::
 
    from matplotlib.testing.decorators import check_figures_equal
-   import matplotlib.pyplot as plt 
+   import matplotlib.pyplot as plt
+   import numpy as np
+   import pytest 
    
    @check_figures_equal(extensions=['png'], tol=100)
    def test_plot(fig_test, fig_ref):
-       red_circle = plt.Circle((0, 0), 0.2, color='r', clip_on=False)
-       fig_ref.add_artist(red_circle)
-       fig_ref.subplots().plot([0,1,2], [3,4,5], color='red')  
+       red_circle_ref = plt.Circle((0, 0), 0.2, color='r', clip_on=False)
+       fig_ref.add_artist(red_circle_ref)
+       theta = np.linspace( 0 , 2 * np.pi , 150 )
+       radius = 0.4
+       fig_test.plot(radius * np.cos( theta ), radius * np.sin( theta ),
+       color='r') 
 
 In this example, one of the argument is ``tol=100`` where tol is used for the 
 determining the tolerance (a color value difference, where 255 is the maximal 
