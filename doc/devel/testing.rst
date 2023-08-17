@@ -134,10 +134,10 @@ An alternative approach for image comparison tests is to use the
 used to decorate a function taking two `.Figure` parameters and draws the same
 images on the figures using two different methods (the tested method and the
 baseline method).  The decorator will arrange for setting up the figures and
-then collect the drawn results and compare them. 
+then collect the drawn results and compare them.
 
-For example, this test compares two different methods to draw the same 
-circle: plotting a circle using circle patch (matplotlib.patches.Circle()) 
+For example, this test compares two different methods to draw the same
+circle: plotting a circle using circle patch (matplotlib.patches.Circle())
 vs plotting the circle using the parametric equation of a circle::
 
    from matplotlib.testing.decorators import check_figures_equal
@@ -145,17 +145,17 @@ vs plotting the circle using the parametric equation of a circle::
    import numpy as np
    
    @check_figures_equal(extensions=['png'], tol=100)
-   def test_plot(fig_test, fig_ref):
+   def test_parametric_circle_plot(fig_test, fig_ref):
        red_circle_ref = plt.Circle((0, 0), 0.2, color='r', clip_on=False)
        fig_ref.add_artist(red_circle_ref)
        theta = np.linspace( 0 , 2 * np.pi , 150 )
        radius = 0.4
        fig_test.plot(radius * np.cos( theta ), radius * np.sin( theta ),
-       color='r') 
+       color='r')
 
-In this example, one of the argument is ``tol=100`` where tol is used for the 
-determining the tolerance (a color value difference, where 255 is the maximal 
-difference). The test fails if the average pixel difference is greater than 
+In this example, one of the argument is ``tol=100`` where tol is used for the
+determining the tolerance (a color value difference, where 255 is the maximal
+difference). The test fails if the average pixel difference is greater than
 this value.
 
 See the documentation of `~matplotlib.testing.decorators.image_comparison` and
