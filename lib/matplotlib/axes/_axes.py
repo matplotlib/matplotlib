@@ -4954,7 +4954,7 @@ default: :rc:`scatter.edgecolors`
         yscale_kwargs = {'base': 10, 'linthresh': 2, 'linscale': 1}
         if isinstance(yscale, tuple):
             yscale, yscale_kwargs_ = yscale
-            yscale_kwargs = yscale_kwargs_.copy()
+            yscale_kwargs.update(yscale_kwargs_)
 
         if xscale == 'log':
             if np.any(x <= 0.0):
