@@ -107,7 +107,7 @@ tests it::
 
    from matplotlib.testing.decorators import image_comparison
    import matplotlib.pyplot as plt
-   
+
    @image_comparison(baseline_images=['line_dashes'], remove_text=True,
                      extensions=['png'], style='mpl20')
    def test_line_dashes():
@@ -143,14 +143,14 @@ vs plotting the circle using the parametric equation of a circle::
    from matplotlib.testing.decorators import check_figures_equal
    import matplotlib.pyplot as plt
    import numpy as np
-   
+
    @check_figures_equal(extensions=['png'], tol=100)
    def test_parametric_circle_plot(fig_test, fig_ref):
        red_circle_ref = plt.Circle((0, 0), 0.2, color='r', clip_on=False)
        fig_ref.add_artist(red_circle_ref)
        theta = np.linspace( 0 , 2 * np.pi , 150 )
        radius = 0.4
-       fig_test.plot(radius * np.cos( theta ), radius * np.sin( theta ),
+       fig_test.plot( radius * np.cos( theta ), radius * np.sin( theta ),
        color='r')
 
 In this example, one of the argument is ``tol=100`` where tol is used for the
