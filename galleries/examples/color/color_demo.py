@@ -5,7 +5,7 @@ Color Demo
 
 For more in-depth information on colors in matplotlib see
 
-* the :ref:`colors_def` tutorial;
+* :ref:`colors_def`;
 * the `matplotlib.colors` API;
 * the :doc:`/gallery/color/named_colors` example.
 """

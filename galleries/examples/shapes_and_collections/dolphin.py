@@ -1,7 +1,7 @@
 """
-========
+=================================
 Draw and manipulate dolphin shape
-========
+=================================
 
 This example shows how to draw and manipulate shapes, given vertices
 and nodes using the `~.path.Path`, `~.patches.PathPatch` and

@@ -1,7 +1,7 @@
 r"""
-=============
+===================================
 Draw Donuts with Path and PathPatch
-=============
+===================================
 
 Mmh... draw donuts (miam!) using `~.path.Path`\s and `~.patches.PathPatch`\es.
 This example shows the effect of the path's orientations in a compound path.
