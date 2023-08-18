@@ -880,7 +880,7 @@ class Poly3DCollection(PolyCollection):
                 kwargs['edgecolors'] = _shade_colors(
                     edgecolors, normals, lightsource
                 )
-            if facecolors is None and edgecolors in None:
+            if facecolors is None and edgecolors is None:
                 raise ValueError(
                     "You must provide facecolors, edgecolors, or both for "
                     "shade to work.")
