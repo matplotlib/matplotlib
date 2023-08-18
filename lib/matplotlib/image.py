@@ -220,7 +220,7 @@ def _rgb_to_rgba(A, alpha=None):
     extension.
     """
     rgba = np.zeros((A.shape[0], A.shape[1], 4), dtype=A.dtype)
-    if alpha is None:
+    if alpha is None or np.ndim(alpha) == 0:
         alpha = 255 if A.dtype == np.uint8 else 1.0
     rgba[:, :, :3] = A
     rgba[:, :, 3] = alpha
@@ -556,6 +556,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     A = self.to_rgba(A, alpha=self.get_alpha())
                 elif A.shape[2] == 3:
                     A = _rgb_to_rgba(A, alpha=self.get_alpha())
+                elif A.shape[2] == 4:
+                    array_alpha = self.get_alpha()
+                    if array_alpha is not None and np.ndim(array_alpha) != 0:
+                        A[:, :, 3] *= array_alpha  # blend alphas of image and param
                 alpha = self._get_scalar_alpha()
                 output_alpha = _resample(  # resample alpha channel
                     self, A[..., 3], out_shape, t, alpha=alpha)
