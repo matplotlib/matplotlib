@@ -349,7 +349,7 @@ def test_fontinfo():
         'double superscript',
         'double subscript',
         'super on sub without braces',
-        'unclosed group'
+        'unclosed group',
     ]
 )
 def test_mathtext_exceptions(math, msg):

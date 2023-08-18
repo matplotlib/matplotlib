@@ -2032,8 +2032,7 @@ class Parser:
         return [Hlist(toks)]
 
     def math_string(self, s, loc, toks):
-        return self._math_expression.parseString(toks[0][1:-1],
-                                                 parseAll=True)
+        return self._math_expression.parseString(toks[0][1:-1], parseAll=True)
 
     def math(self, s, loc, toks):
         hlist = Hlist(toks)
