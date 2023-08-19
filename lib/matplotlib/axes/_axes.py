@@ -4147,10 +4147,11 @@ class Axes(_AxesBase):
         --------
         .. plot:: gallery/statistics/bxp.py
         """
-        if medianprops is None:  # Clamp median line to edge of box
-            medianprops = {"solid_capstyle": "butt"}
-        else:
-            medianprops.setdefault("solid_capstyle", "butt")
+        # Clamp median line to edge of box by default.
+        medianprops = {
+            "solid_capstyle": "butt",
+            **(medianprops or {}),
+        }
 
         # lists of artists to be output
         whiskers = []
