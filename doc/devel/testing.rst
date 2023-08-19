@@ -148,10 +148,9 @@ vs plotting the circle using the parametric equation of a circle::
    def test_parametric_circle_plot(fig_test, fig_ref):
        red_circle_ref = plt.Circle((0, 0), 0.2, color='r', clip_on=False)
        fig_ref.add_artist(red_circle_ref)
-       theta = np.linspace( 0 , 2 * np.pi , 150 )
+       theta = np.linspace(0, 2 * np.pi, 150)
        radius = 0.4
-       fig_test.plot( radius * np.cos( theta ), radius * np.sin( theta ),
-       color='r')
+       fig_test.plot(radius * np.cos(theta), radius * np.sin(theta), color='r')
 
 In this example, one of the argument is ``tol=100`` where tol is used for the
 determining the tolerance (a color value difference, where 255 is the maximal
