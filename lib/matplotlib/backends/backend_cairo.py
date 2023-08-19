@@ -96,7 +96,7 @@ class RendererCairo(RendererBase):
             rect, *rest = ctx.copy_clip_rectangle_list()
             if rest:
                 raise TypeError("Cannot infer surface size")
-            size = rect.width, rect.height
+            _, _, *size = rect
             ctx.restore()
         self.gc.ctx = ctx
         self.width, self.height = size
