@@ -1,4 +1,3 @@
-import functools
 import io
 import os
 
@@ -301,7 +300,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
             image = Gtk.Image.new_from_gicon(
                 Gio.Icon.new_for_string(
                     str(cbook._get_data_path('images',
-                                             f'{image_file}-symbolic.svg'))))
+                                             f'{image_file}.png'))))
             self._gtk_ids[text] = button = (
                 Gtk.ToggleButton() if callback in ['zoom', 'pan'] else
                 Gtk.Button())
@@ -331,66 +330,65 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         _NavigationToolbar2GTK.__init__(self, canvas)
 
     def save_figure(self, *args):
-        dialog = Gtk.FileChooserNative(
+        dialog = Gtk.FileDialog(
             title='Save the figure',
-            transient_for=self.canvas.get_root(),
-            action=Gtk.FileChooserAction.SAVE,
             modal=True)
+
         self._save_dialog = dialog  # Must keep a reference.
+        filters = Gio.ListStore.new(Gtk.FileFilter)
 
         ff = Gtk.FileFilter()
         ff.set_name('All files')
         ff.add_pattern('*')
-        dialog.add_filter(ff)
-        dialog.set_filter(ff)
+        filters.append(ff)
 
-        formats = []
-        default_format = None
         for i, (name, fmts) in enumerate(
                 self.canvas.get_supported_filetypes_grouped().items()):
             ff = Gtk.FileFilter()
             ff.set_name(name)
             for fmt in fmts:
                 ff.add_pattern(f'*.{fmt}')
-            dialog.add_filter(ff)
-            formats.append(name)
+            filters.append(ff)
             if self.canvas.get_default_filetype() in fmts:
-                default_format = i
-        # Setting the choice doesn't always work, so make sure the default
-        # format is first.
-        formats = [formats[default_format], *formats[:default_format],
-                   *formats[default_format+1:]]
-        dialog.add_choice('format', 'File format', formats, formats)
-        dialog.set_choice('format', formats[default_format])
+                dialog.set_default_filter(ff)
 
-        dialog.set_current_folder(Gio.File.new_for_path(
+        dialog.set_filters(filters)
+
+        dialog.set_initial_folder(Gio.File.new_for_path(
             os.path.expanduser(mpl.rcParams['savefig.directory'])))
-        dialog.set_current_name(self.canvas.get_default_filename())
+        dialog.set_initial_name(self.canvas.get_default_filename())
 
-        @functools.partial(dialog.connect, 'response')
-        def on_response(dialog, response):
-            file = dialog.get_file()
-            fmt = dialog.get_choice('format')
-            fmt = self.canvas.get_supported_filetypes_grouped()[fmt][0]
-            dialog.destroy()
-            self._save_dialog = None
-            if response != Gtk.ResponseType.ACCEPT:
-                return
-            # Save dir for next time, unless empty str (which means use cwd).
-            if mpl.rcParams['savefig.directory']:
-                parent = file.get_parent()
-                mpl.rcParams['savefig.directory'] = parent.get_path()
+        def dialog_save_callback(dialog, result):
             try:
-                self.canvas.figure.savefig(file.get_path(), format=fmt)
-            except Exception as e:
-                msg = Gtk.MessageDialog(
-                    transient_for=self.canvas.get_root(),
-                    message_type=Gtk.MessageType.ERROR,
-                    buttons=Gtk.ButtonsType.OK, modal=True,
-                    text=str(e))
-                msg.show()
+                file = dialog.save_finish(result)
+                print(file)
+                if file is not None:
+                    # we only use file name to save the figure.
+                    # let savefig decide if the format extension isn't in the name
+                    print(f"File path is {file.get_path()}")
+                    # Save dir for next time, unless empty str (which means use cwd).
+                    if mpl.rcParams['savefig.directory']:
+                        parent = file.get_parent()
+                        mpl.rcParams['savefig.directory'] = parent.get_path()
+                    try:
+                        self.canvas.figure.savefig(file.get_path())
+                        print("save finished")
+                        self.canvas.draw()  # canvas may become blank after saving
 
-        dialog.show()
+                    except Exception as e:
+                        msg = Gtk.MessageDialog(
+                            transient_for=self.canvas.get_root(),
+                            message_type=Gtk.MessageType.ERROR,
+                            buttons=Gtk.ButtonsType.OK, modal=True,
+                            text=str(e))
+                        msg.show()
+
+            except GLib.Error as error:
+                print(f"Error opening file: {error.message}")
+
+            # self.canvas.draw_idle()
+
+        dialog.save(None, None, dialog_save_callback)
 
 
 class ToolbarGTK4(ToolContainerBase, Gtk.Box):
