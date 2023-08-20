@@ -4150,7 +4150,13 @@ class Axes(_AxesBase):
         # Clamp median line to edge of box by default.
         medianprops = {
             "solid_capstyle": "butt",
+            "dash_capstyle": "butt",
             **(medianprops or {}),
+        }
+        meanprops = {
+            "solid_capstyle": "butt",
+            "dash_capstyle": "butt",
+            **(meanprops or {}),
         }
 
         # lists of artists to be output
