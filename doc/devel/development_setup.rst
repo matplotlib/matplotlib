@@ -165,10 +165,10 @@ also happen if you change branches) you will have to re-run
 ``python -m pip install -ve .``
 
 Verify the Installation
-==============================
+=======================
 
 * Run the following command to make sure you have correctly installed matplotlib in editable mode. 
-  The command should be run in the development when the virtual environment is activate ::
+  The command should be run when the virtual environment is activated ::
    
     python -c "import matplotlib; print(matplotlib.__file__)"
   
