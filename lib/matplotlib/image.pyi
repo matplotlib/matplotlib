@@ -5,7 +5,7 @@ from typing import Any, BinaryIO, Literal
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
-import PIL  # type: ignore
+import PIL.Image
 
 import matplotlib.artist as martist
 from matplotlib.axes import Axes

@@ -151,12 +151,10 @@ def check_shape(shape, /, **kwargs):
         if (len(data_shape) != len(shape)
                 or any(s != t and t is not None for s, t in zip(data_shape, shape))):
             dim_labels = iter(itertools.chain(
-                'MNLIJKLH',
+                'NMLKJIH',
                 (f"D{i}" for i in itertools.count())))
-            text_shape = ", ".join(str(n)
-                                   if n is not None
-                                   else next(dim_labels)
-                                   for n in shape)
+            text_shape = ", ".join([str(n) if n is not None else next(dim_labels)
+                                    for n in shape[::-1]][::-1])
             if len(shape) == 1:
                 text_shape += ","
 

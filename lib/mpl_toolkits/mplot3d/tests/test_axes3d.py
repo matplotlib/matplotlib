@@ -1,5 +1,6 @@
 import functools
 import itertools
+import platform
 
 import pytest
 
@@ -217,7 +218,9 @@ def test_bar3d_lightsource():
     np.testing.assert_array_max_ulp(color, collection._facecolor3d[1::6], 4)
 
 
-@mpl3d_image_comparison(['contour3d.png'], style='mpl20')
+@mpl3d_image_comparison(
+    ['contour3d.png'], style='mpl20',
+    tol=0.002 if platform.machine() in ('aarch64', 'ppc64le', 's390x') else 0)
 def test_contour3d():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -2257,3 +2260,13 @@ def test_surface3d_zsort_inf():
 
     ax.plot_surface(x, y, z, cmap='jet')
     ax.view_init(elev=45, azim=145)
+
+
+def test_Poly3DCollection_init_value_error():
+    # smoke test to ensure the input check works
+    # GH#26420
+    with pytest.raises(ValueError,
+                       match='You must provide facecolors, edgecolors, '
+                        'or both for shade to work.'):
+        poly = np.array([[0, 0, 1], [0, 1, 1], [0, 0, 0]], float)
+        c = art3d.Poly3DCollection([poly], shade=True)

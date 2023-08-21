@@ -19,6 +19,8 @@ import subprocess
 import sys
 from urllib.parse import urlsplit, urlunsplit
 import warnings
+
+import sphinx
 import yaml
 
 import matplotlib
@@ -408,6 +410,9 @@ def add_html_cache_busting(app, pagename, templatename, context, doctree):
     This adds the Matplotlib version as a query to the link reference in the
     HTML, if the path is not absolute (i.e., it comes from the `_static`
     directory) and doesn't already have a query.
+
+    .. note:: Sphinx 7.1 provides asset checksums; so this hook only runs on
+              Sphinx 7.0 and earlier.
     """
     from sphinx.builders.html import Stylesheet, JavaScript
 
@@ -479,7 +484,10 @@ html_theme_options = {
 }
 include_analytics = is_release_build
 if include_analytics:
-    html_theme_options["analytics"] = {"google_analytics_id": "UA-55954603-1"}
+    html_theme_options["analytics"] = {
+        "plausible_analytics_domain": "matplotlib.org",
+        "plausible_analytics_url": "https://views.scientific-python.org/js/script.js"
+    }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -785,5 +793,5 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('skip_sub_dirs', 0, '')
     app.add_config_value('releaselevel', bld_type, 'env')
-    app.add_js_file('image-rotator.js')
-    app.connect('html-page-context', add_html_cache_busting, priority=1000)
+    if sphinx.version_info[:2] < (7, 1):
+        app.connect('html-page-context', add_html_cache_busting, priority=1000)

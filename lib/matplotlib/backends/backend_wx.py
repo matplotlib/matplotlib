@@ -15,7 +15,7 @@ import sys
 import weakref
 
 import numpy as np
-import PIL
+import PIL.Image
 
 import matplotlib as mpl
 from matplotlib.backend_bases import (

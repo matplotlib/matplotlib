@@ -1,7 +1,11 @@
+import re
 from docutils.parsers.rst import Directive
 
 from matplotlib import _mathtext, _mathtext_data
 
+bb_pattern = re.compile("Bbb[A-Z]")
+scr_pattern = re.compile("scr[a-zA-Z]")
+frak_pattern = re.compile("frak[A-Z]")
 
 symbols = [
     ["Lower-case Greek",
@@ -18,6 +22,9 @@ symbols = [
     ["Hebrew",
      6,
      (r"\aleph", r"\beth", r"\gimel", r"\daleth")],
+    ["Latin named characters",
+     6,
+     r"""\aa \AA \ae \AE \oe \OE \O \o \thorn \Thorn \ss \eth \dh \DH""".split()],
     ["Delimiters",
      5,
      _mathtext.Parser._delims],
@@ -27,85 +34,56 @@ symbols = [
     ["Standard function names",
      5,
      {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
-    ["Binary operation and relation symbols",
+    ["Binary operation symbols",
      4,
-     r"""\ast \pm \slash \cap \star \mp \cup \cdot \uplus
-     \triangleleft \circ \odot \sqcap \triangleright \bullet \ominus
-     \sqcup \bigcirc \oplus \wedge \diamond \oslash \vee
-     \bigtriangledown \times \otimes \dag \bigtriangleup \div \wr
-     \ddag \barwedge \veebar \boxplus \curlywedge \curlyvee \boxminus
-     \Cap \Cup \boxtimes \bot \top \dotplus \boxdot \intercal
-     \rightthreetimes \divideontimes \leftthreetimes \equiv \leq \geq
-     \perp \cong \prec \succ \mid \neq \preceq \succeq \parallel \sim
-     \ll \gg \bowtie \simeq \subset \supset \Join \approx \subseteq
-     \supseteq \ltimes \asymp \sqsubset \sqsupset \rtimes \doteq
-     \sqsubseteq \sqsupseteq \smile \propto \dashv \vdash \frown
-     \models \in \ni \notin \approxeq \leqq \geqq \lessgtr \leqslant
-     \geqslant \lesseqgtr \backsim \lessapprox \gtrapprox \lesseqqgtr
-     \backsimeq \lll \ggg \gtreqqless \triangleq \lessdot \gtrdot
-     \gtreqless \circeq \lesssim \gtrsim \gtrless \bumpeq \eqslantless
-     \eqslantgtr \backepsilon \Bumpeq \precsim \succsim \between
-     \doteqdot \precapprox \succapprox \pitchfork \Subset \Supset
-     \fallingdotseq \subseteqq \supseteqq \risingdotseq \sqsubset
-     \sqsupset \varpropto \preccurlyeq \succcurlyeq \Vdash \therefore
-     \curlyeqprec \curlyeqsucc \vDash \because \blacktriangleleft
-     \blacktriangleright \Vvdash \eqcirc \trianglelefteq
-     \trianglerighteq \neq \vartriangleleft \vartriangleright \ncong
-     \nleq \ngeq \nsubseteq \nmid \nsupseteq \nparallel \nless \ngtr
-     \nprec \nsucc \subsetneq \nsim \supsetneq \nVDash \precnapprox
-     \succnapprox \subsetneqq \nvDash \precnsim \succnsim \supsetneqq
-     \nvdash \lnapprox \gnapprox \ntriangleleft \ntrianglelefteq
-     \lneqq \gneqq \ntriangleright \lnsim \gnsim \ntrianglerighteq
-     \coloneq \eqsim \nequiv \napprox \nsupset \doublebarwedge \nVdash
-     \Doteq \nsubset \eqcolon \ne
-     """.split()],
+     _mathtext.Parser._binary_operators],
+    ["Relation symbols",
+     4,
+     _mathtext.Parser._relation_symbols],
     ["Arrow symbols",
      4,
-     r"""\leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
-     \Uparrow \rightarrow \longrightarrow \downarrow \Rightarrow
-     \Longrightarrow \Downarrow \leftrightarrow \updownarrow
-     \longleftrightarrow \updownarrow \Leftrightarrow
-     \Longleftrightarrow \Updownarrow \mapsto \longmapsto \nearrow
-     \hookleftarrow \hookrightarrow \searrow \leftharpoonup
-     \rightharpoonup \swarrow \leftharpoondown \rightharpoondown
-     \nwarrow \rightleftharpoons \leadsto \dashrightarrow
-     \dashleftarrow \leftleftarrows \leftrightarrows \Lleftarrow
-     \Rrightarrow \twoheadleftarrow \leftarrowtail \looparrowleft
-     \leftrightharpoons \curvearrowleft \circlearrowleft \Lsh
-     \upuparrows \upharpoonleft \downharpoonleft \multimap
-     \leftrightsquigarrow \rightrightarrows \rightleftarrows
-     \rightrightarrows \rightleftarrows \twoheadrightarrow
-     \rightarrowtail \looparrowright \rightleftharpoons
-     \curvearrowright \circlearrowright \Rsh \downdownarrows
-     \upharpoonright \downharpoonright \rightsquigarrow \nleftarrow
-     \nrightarrow \nLeftarrow \nRightarrow \nleftrightarrow
-     \nLeftrightarrow \to \Swarrow \Searrow \Nwarrow \Nearrow
-     \leftsquigarrow
-     """.split()],
+     _mathtext.Parser._arrow_symbols],
+    ["Dot symbols",
+     4,
+     r"""\cdots \vdots \ldots \ddots \adots \Colon \therefore \because""".split()],
+    ["Black-board characters",
+     6,
+     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
+      if re.match(bb_pattern, symbol)]],
+    ["Script characters",
+     6,
+     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
+      if re.match(scr_pattern, symbol)]],
+    ["Fraktur characters",
+     6,
+     [fr"\{symbol}" for symbol in _mathtext_data.tex2uni
+      if re.match(frak_pattern, symbol)]],
     ["Miscellaneous symbols",
      4,
      r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
-     \nexists \measuredangle \eth \emptyset \sphericalangle \clubsuit
+     \nexists \measuredangle \emptyset \sphericalangle \clubsuit
      \varnothing \complement \diamondsuit \imath \Finv \triangledown
-     \heartsuit \jmath \Game \spadesuit \ell \hbar \vartriangle \cdots
-     \hslash \vdots \blacksquare \ldots \blacktriangle \ddots \sharp
+     \heartsuit \jmath \Game \spadesuit \ell \hbar \vartriangle
+     \hslash \blacksquare \blacktriangle \sharp \increment
      \prime \blacktriangledown \Im \flat \backprime \Re \natural
-     \circledS \P \copyright \ss \circledR \S \yen \AA \checkmark \$
-     \cent \triangle \QED \sinewave \nabla \mho""".split()]
+     \circledS \P \copyright \circledR \S \yen \checkmark \$
+     \cent \triangle \QED \sinewave \dag \ddag \perthousand \ac
+     \lambdabar \L \l \degree \danger \maltese \clubsuitopen
+     \i \hermitmatrix \sterling \nabla \mho""".split()],
 ]
 
 
 def run(state_machine):
 
     def render_symbol(sym, ignore_variant=False):
-        if ignore_variant and sym != r"\varnothing":
+        if ignore_variant and sym not in (r"\varnothing", r"\varlrtriangle"):
             sym = sym.replace(r"\var", "\\")
         if sym.startswith("\\"):
             sym = sym.lstrip("\\")
             if sym not in (_mathtext.Parser._overunder_functions |
                            _mathtext.Parser._function_names):
                 sym = chr(_mathtext_data.tex2uni[sym])
-        return f'\\{sym}' if sym in ('\\', '|') else sym
+        return f'\\{sym}' if sym in ('\\', '|', '+', '-', '*') else sym
 
     lines = []
     for category, columns, syms in symbols:
@@ -165,7 +143,10 @@ if __name__ == "__main__":
                 if sym[1:] not in _mathtext_data.tex2uni:
                     print(sym)
 
+    # Add accents
+    all_symbols.update({v[1:]: k for k, v in _mathtext.Parser._accent_map.items()})
+    all_symbols.update({v: v for v in _mathtext.Parser._wide_accents})
     print("SYMBOLS NOT IN TABLE:")
-    for sym in _mathtext_data.tex2uni:
+    for sym, val in _mathtext_data.tex2uni.items():
         if sym not in all_symbols:
-            print(sym)
+            print(f"{sym} = {chr(val)}")
