@@ -106,7 +106,7 @@ class Output:
               for x1, y1, x2, y2 in self.rects]
         return VectorParse(w, h + d, d, gs, rs)
 
-    def to_raster(self, antialiased=None):
+    def to_raster(self, *, antialiased):
         # Metrics y's and mathtext y's are oriented in opposite directions,
         # hence the switch between ymin and ymax.
         xmin = min([*[ox + info.metrics.xmin for ox, oy, info in self.glyphs],
@@ -128,7 +128,6 @@ class Output:
         # old approach and keeps baseline images backcompat.
         shifted = ship(self.box, (-xmin, -ymin))
 
-        antialiased = mpl.rcParams['text.antialiased']
         for ox, oy, info in shifted.glyphs:
             info.font.draw_glyph_to_bitmap(
                 image, ox, oy - info.metrics.iceberg, info.glyph,
@@ -1733,7 +1732,17 @@ class Parser:
       \cap            \triangleleft            \dagger
       \cup            \triangleright           \ddagger
       \uplus          \lhd                     \amalg
-      \dotplus        \dotminus'''.split())
+      \dotplus        \dotminus                \Cap
+      \Cup            \barwedge                \boxdot
+      \boxminus       \boxplus                 \boxtimes
+      \curlyvee       \curlywedge              \divideontimes
+      \doublebarwedge \leftthreetimes          \rightthreetimes
+      \slash          \veebar                  \barvee
+      \cupdot         \intercal                \amalg
+      \circledcirc    \circleddash             \circledast
+      \boxbar         \obar                    \merge
+      \minuscolon     \dotsminusdots
+      '''.split())
 
     _relation_symbols = set(r'''
       = < > :
@@ -1768,20 +1777,53 @@ class Parser:
       \trianglelefteq    \ntrianglelefteq    \trianglerighteq
       \ntrianglerighteq  \blacktriangleleft  \blacktriangleright
       \equalparallel     \measuredrightangle \varlrtriangle
-      '''.split())
+      \Doteq        \Bumpeq       \Subset      \Supset
+      \backepsilon  \because      \therefore   \bot
+      \top          \bumpeq       \circeq      \coloneq
+      \curlyeqprec  \curlyeqsucc  \eqcirc      \eqcolon
+      \eqsim        \fallingdotseq \gtrdot     \gtrless
+      \ltimes       \rtimes       \lessdot     \ne
+      \ncong        \nequiv       \ngeq        \ngtr
+      \nleq         \nless        \nmid        \notin
+      \nprec        \nsubset      \nsubseteq   \nsucc
+      \nsupset      \nsupseteq    \pitchfork   \preccurlyeq
+      \risingdotseq \subsetneq    \succcurlyeq \supsetneq
+      \varpropto    \vartriangleleft \scurel
+      \vartriangleright \rightangle \equal     \backcong
+      \eqdef        \wedgeq       \questeq     \between
+      \veeeq        \disin        \varisins    \isins
+      \isindot      \varisinobar  \isinobar    \isinvb
+      \isinE        \nisd         \varnis      \nis
+      \varniobar    \niobar       \bagmember   \ratio
+      \Equiv        \stareq       \measeq      \arceq
+      \rightassert  \rightModels  \smallin     \smallowns
+      \notsmallowns \nsimeq'''.split())
 
-    _arrow_symbols = set(r'''
-      \leftarrow              \longleftarrow           \uparrow
-      \Leftarrow              \Longleftarrow           \Uparrow
-      \rightarrow             \longrightarrow          \downarrow
-      \Rightarrow             \Longrightarrow          \Downarrow
-      \leftrightarrow         \longleftrightarrow      \updownarrow
-      \Leftrightarrow         \Longleftrightarrow      \Updownarrow
-      \mapsto                 \longmapsto              \nearrow
-      \hookleftarrow          \hookrightarrow          \searrow
-      \leftharpoonup          \rightharpoonup          \swarrow
-      \leftharpoondown        \rightharpoondown        \nwarrow
-      \rightleftharpoons      \leadsto'''.split())
+    _arrow_symbols = set(r"""
+     \leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
+     \Uparrow \rightarrow \longrightarrow \downarrow \Rightarrow
+     \Longrightarrow \Downarrow \leftrightarrow \updownarrow
+     \longleftrightarrow \updownarrow \Leftrightarrow
+     \Longleftrightarrow \Updownarrow \mapsto \longmapsto \nearrow
+     \hookleftarrow \hookrightarrow \searrow \leftharpoonup
+     \rightharpoonup \swarrow \leftharpoondown \rightharpoondown
+     \nwarrow \rightleftharpoons \leadsto \dashrightarrow
+     \dashleftarrow \leftleftarrows \leftrightarrows \Lleftarrow
+     \Rrightarrow \twoheadleftarrow \leftarrowtail \looparrowleft
+     \leftrightharpoons \curvearrowleft \circlearrowleft \Lsh
+     \upuparrows \upharpoonleft \downharpoonleft \multimap
+     \leftrightsquigarrow \rightrightarrows \rightleftarrows
+     \rightrightarrows \rightleftarrows \twoheadrightarrow
+     \rightarrowtail \looparrowright \rightleftharpoons
+     \curvearrowright \circlearrowright \Rsh \downdownarrows
+     \upharpoonright \downharpoonright \rightsquigarrow \nleftarrow
+     \nrightarrow \nLeftarrow \nRightarrow \nleftrightarrow
+     \nLeftrightarrow \to \Swarrow \Searrow \Nwarrow \Nearrow
+     \leftsquigarrow \overleftarrow \overleftrightarrow \cwopencirclearrow
+     \downzigzagarrow \cupleftarrow \rightzigzagarrow \twoheaddownarrow
+     \updownarrowbar \twoheaduparrow \rightarrowbar \updownarrows
+     \barleftarrow \mapsfrom \mapsdown \mapsup \Ldsh \Rdsh
+     """.split())
 
     _spaced_symbols = _binary_operators | _relation_symbols | _arrow_symbols
 
@@ -2116,9 +2158,11 @@ class Parser:
             # such as ${ -2}$, $ -2$, or $   -2$.
             prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
             # Binary operators at start of string should not be spaced
-            if (c in self._binary_operators and
-                    (len(s[:loc].split()) == 0 or prev_char == '{' or
-                     prev_char in self._left_delims)):
+            # Also, operators in sub- or superscripts should not be spaced
+            if (self._in_subscript_or_superscript or (
+                    c in self._binary_operators and (
+                    len(s[:loc].split()) == 0 or prev_char == '{' or
+                    prev_char in self._left_delims))):
                 return [char]
             else:
                 return [Hlist([self._make_space(0.2),
