@@ -31,6 +31,7 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     cell_height = 22
     swatch_width = 48
     margin = 12
+    ncols = 4
 
     # Sort colors by hue, saturation, value and name.
     if sort_colors is True:
@@ -42,14 +43,14 @@ def plot_colortable(colors, *, ncols=4, sort_colors=True):
     n = len(names)
     nrows = math.ceil(n / ncols)
 
-    width = cell_width * 4 + 2 * margin
+    width = cell_width * ncols + 2 * margin
     height = cell_height * nrows + 2 * margin
     dpi = 72
 
     fig, ax = plt.subplots(figsize=(width / dpi, height / dpi), dpi=dpi)
     fig.subplots_adjust(margin/width, margin/height,
                         (width-margin)/width, (height-margin)/height)
-    ax.set_xlim(0, cell_width * 4)
+    ax.set_xlim(0, cell_width * ncols)
     ax.set_ylim(cell_height * (nrows-0.5), -cell_height/2.)
     ax.yaxis.set_visible(False)
     ax.xaxis.set_visible(False)
