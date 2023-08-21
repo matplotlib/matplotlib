@@ -86,7 +86,7 @@ jobs:
         with:
           packages: >-
             ccache gcc-g++ gdb git graphviz libcairo-devel libffi-devel
-            libgeos-devel libQt5Core-devel pkgconf libglib2.0-devel
+            libgeos-devel libQt5Core-devel pkgconf libglib2.0-devel ninja
             noto-cjk-fonts
             python3${{ matrix.python-minor-version }}-devel
             python3${{ matrix.python-minor-version }}-pip
@@ -177,7 +177,10 @@ jobs:
           python -m pip install --upgrade pip 'setuptools<60' wheel
           python -m pip install kiwisolver 'numpy!=1.21.*' pillow importlib_resources
           grep -v -F -e psutil requirements/testing/all.txt >requirements_test.txt
-          python -m pip install --upgrade 'contourpy>=1.0.1' cycler fonttools \
+          python -m pip install meson-python pybind11
+          export PATH="/usr/local/bin:$PATH"
+          python -m pip install --no-build-isolation 'contourpy>=1.0.1'
+          python -m pip install --upgrade cycler fonttools \
               packaging pyparsing python-dateutil setuptools-scm \
               -r requirements_test.txt sphinx ipython
           python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
