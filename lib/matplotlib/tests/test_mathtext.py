@@ -320,6 +320,7 @@ def test_fontinfo():
         (r'$a^2^2$', r'Double superscript'),
         (r'$a_2_2$', r'Double subscript'),
         (r'$a^2_a^2$', r'Double superscript'),
+        (r'$a = {b$', r"Expected '}'"),
     ],
     ids=[
         'hspace without value',
@@ -347,7 +348,8 @@ def test_fontinfo():
         'unknown symbol',
         'double superscript',
         'double subscript',
-        'super on sub without braces'
+        'super on sub without braces',
+        'unclosed group',
     ]
 )
 def test_mathtext_exceptions(math, msg):
