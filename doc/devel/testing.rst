@@ -146,7 +146,8 @@ vs plotting the `circle` using the parametric equation of a `circle`::
 
    @check_figures_equal(extensions=['png'], tol=100)
    def test_parametric_circle_plot(fig_test, fig_ref):
-       red_circle_ref = plt.Circle((0, 0), 0.2, color='r', clip_on=False)
+       import matplotlib.patches as mpatches
+       red_circle_ref = mpatches.Circle((0, 0), 0.2, color='r', clip_on=False)
        fig_ref.add_artist(red_circle_ref)
        theta = np.linspace(0, 2 * np.pi, 150)
        radius = 0.4
