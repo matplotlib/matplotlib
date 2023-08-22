@@ -92,6 +92,7 @@ doc/.mpl_skip_subdirs.yaml
 *.py,cover
 cover/
 .noseids
+__pycache__
 
 # Conda files #
 ###############
