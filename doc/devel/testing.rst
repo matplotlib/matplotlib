@@ -153,7 +153,7 @@ vs plotting the `circle` using the parametric equation of a `circle`::
        radius = 0.4
        fig_test.plot(radius * np.cos(theta), radius * np.sin(theta), color='r')
 
-In this example, one of the argument is ``tol=100`` where tol is used for the
+In this example, one of the arguments is ``tol=100`` where tol is used for the
 determining the tolerance (a color value difference, where 255 is the maximal
 difference). The test fails if the average pixel difference is greater than
 this value.
