@@ -12,53 +12,55 @@ and implementing new features, helping the community...
 New contributors
 ================
 
-.. card::
+.. grid:: 1 1 2 2
+   :class-row: sd-align-minor-center
 
-   .. grid:: 1 1 2 2
-      :class-row: sd-align-minor-center
+   .. grid-item::
+      :class: sd-fs-5
 
-      .. grid-item::
-         :class: sd-fs-5
+      :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
 
-         :octicon:`info;1em;sd-text-info` :ref:`Where should I start? <start-contributing>`
+      :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
 
-         :octicon:`question;1em;sd-text-info` :ref:`Where should I ask questions? <get_connected>`
+      :octicon:`issue-opened;1em;sd-text-info` :ref:`What are "good-first-issues"? <new_contributors>`
 
-         :octicon:`issue-opened;1em;sd-text-info` :ref:`What are "good-first-issues"? <new_contributors>`
+      :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
 
-         :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I claim an issue? <managing_issues_prs>`
+      :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-contribute>`
 
-         .. :octicon:`codespaces;1em;sd-text-info` placeholder for codespaces link
+   .. grid-item::
 
-      .. grid-item::
+      .. grid:: 1
+         :gutter: 1
+         :class-row: sd-fs-5
 
-         .. grid:: 1
-            :gutter: 1
-            :class-row: sd-fs-5
+         .. grid-item-card::
+            :link: request-a-new-feature
+            :link-type: ref
+            :shadow: none
 
-            .. grid-item-card::
-               :link: request-a-new-feature
-               :link-type: ref
+            :octicon:`light-bulb;1em;sd-text-info` Request new feature
 
-               :octicon:`light-bulb;1em;sd-text-info` Request new feature
+         .. grid-item-card::
+            :link: submitting-a-bug-report
+            :link-type: ref
+            :shadow: none
 
-            .. grid-item-card::
-               :link: submitting-a-bug-report
-               :link-type: ref
+            :octicon:`bug;1em;sd-text-info` Submit bug report
 
-               :octicon:`bug;1em;sd-text-info` Submit bug report
+         .. grid-item-card::
+            :link: contributing-code
+            :link-type: ref
+            :shadow: none
 
-            .. grid-item-card::
-               :link: contributing-code
-               :link-type: ref
+            :octicon:`code;1em;sd-text-info` Contribute code
 
-               :octicon:`code;1em;sd-text-info` Contribute code
+         .. grid-item-card::
+            :link: documenting-matplotlib
+            :link-type: ref
+            :shadow: none
 
-            .. grid-item-card::
-               :link: documenting-matplotlib
-               :link-type: ref
-
-               :octicon:`note;1em;sd-text-info` Write documentation
+            :octicon:`note;1em;sd-text-info` Write documentation
 
 If you are new to contributing, we recommend that you first read our
 :ref:`contributing guide<contributing>`. If you are contributing code or
