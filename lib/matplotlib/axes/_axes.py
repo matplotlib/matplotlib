@@ -2569,10 +2569,10 @@ class Axes(_AxesBase):
 
         return bar_container
 
-    # @_preprocess_data() # let 'bar' do the unpacking..
+    @_preprocess_data()
     @_docstring.dedent_interpd
     def barh(self, y, width, height=0.8, left=None, *, align="center",
-             data=None, **kwargs):
+             **kwargs):
         r"""
         Make a horizontal bar plot.
 
@@ -2616,6 +2616,15 @@ class Axes(_AxesBase):
 
             To align the bars on the top edge pass a negative *height* and
             ``align='edge'``.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
+        **kwargs : `.Rectangle` properties
+
+        %(Rectangle:kwdoc)s
+
+        **
 
         Returns
         -------
@@ -2693,7 +2702,7 @@ class Axes(_AxesBase):
         """
         kwargs.setdefault('orientation', 'horizontal')
         patches = self.bar(x=left, height=height, width=width, bottom=y,
-                           align=align, data=data, **kwargs)
+                           align=align, **kwargs)
         return patches
 
     def bar_label(self, container, labels=None, *, fmt="%g", label_type="edge",

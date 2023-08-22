@@ -1898,6 +1898,23 @@ def test_bar_decimal_center(fig_test, fig_ref):
 
 
 @check_figures_equal(extensions=["png"])
+def test_barh_data_unpacking(fig_ref, fig_test):
+    data = {'label': ['a', 'b', 'c'],
+            'value': [1, 2, 3],
+            'color': ['r', 'g', 'b']}
+    fig_ref.subplots().barh(data['label'], data['value'], color=data['color'])
+    fig_test.subplots().barh('label', 'value', color='color', data=data)
+
+
+@check_figures_equal(extensions=["png"])
+def test_barh_preprocess_composition(fig_ref, fig_test):
+    # test to prevent preprocess_data from getting deleted
+    data = {'a': 1, 'b': 2, 'c': 3}
+    fig_test.subplots().barh(data.keys(), data.values())
+    fig_ref.subplots().barh(list(data.keys()), data.values())
+
+
+@check_figures_equal(extensions=["png"])
 def test_barh_decimal_center(fig_test, fig_ref):
     ax = fig_test.subplots()
     x0 = [1.5, 8.4, 5.3, 4.2]
