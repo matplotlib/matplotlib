@@ -137,8 +137,8 @@ baseline method).  The decorator will arrange for setting up the figures and
 then collect the drawn results and compare them.
 
 For example, this test compares two different methods to draw the same
-circle: plotting a circle using circle patch (``matplotlib.patches.Circle()``)
-vs plotting the circle using the parametric equation of a circle::
+`circle`: plotting a `circle` using circle patch (`matplotlib.patches.Circle()`)
+vs plotting the `circle` using the parametric equation of a `circle`::
 
    from matplotlib.testing.decorators import check_figures_equal
    import matplotlib.pyplot as plt
