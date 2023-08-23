@@ -300,7 +300,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
             image = Gtk.Image.new_from_gicon(
                 Gio.Icon.new_for_string(
                     str(cbook._get_data_path('images',
-                                             f'{image_file}.png'))))
+                                             f'{image_file}-symbolic.svg'))))
             self._gtk_ids[text] = button = (
                 Gtk.ToggleButton() if callback in ['zoom', 'pan'] else
                 Gtk.Button())
@@ -330,6 +330,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         _NavigationToolbar2GTK.__init__(self, canvas)
 
     def save_figure(self, *args):
+        print(Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION)
         dialog = Gtk.FileDialog(
             title='Save the figure',
             modal=True)
@@ -372,7 +373,6 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
                         mpl.rcParams['savefig.directory'] = parent.get_path()
                     try:
                         self.canvas.figure.savefig(file.get_path())
-                        print("save finished")
                         self.canvas.draw()  # canvas may become blank after saving
 
                     except Exception as e:
