@@ -4202,7 +4202,8 @@ class Lasso(AxesWidget):
     """
 
     @_api.make_keyword_only("3.7", name="useblit")
-    def __init__(self, ax, xy, callback, useblit=True):
+    def __init__(self, ax, xy, callback,
+            linestyle='-', color='black', lw=2, useblit=True):
         super().__init__(ax)
 
         self.useblit = useblit and self.canvas.supports_blit
@@ -4211,7 +4212,7 @@ class Lasso(AxesWidget):
 
         x, y = xy
         self.verts = [(x, y)]
-        self.line = Line2D([x], [y], linestyle='-', color='black', lw=2)
+        self.line = Line2D([x], [y], linestyle=linestyle, color=color, lw=lw)
         self.ax.add_line(self.line)
         self.callback = callback
         self.connect_event('button_release_event', self.onrelease)
