@@ -5471,8 +5471,8 @@ default: :rc:`scatter.edgecolors`
         collection = mcoll.PolyCollection(polys, **kwargs)
 
         # now update the datalim and autoscale
-        pts = np.vstack([np.column_stack([ind[where], dep1[where]]),
-                         np.column_stack([ind[where], dep2[where]])])
+        pts = np.vstack([np.hstack([ind[where, None], dep1[where, None]]),
+                         np.hstack([ind[where, None], dep2[where, None]])])
         if ind_dir == "y":
             pts = pts[:, ::-1]
 
