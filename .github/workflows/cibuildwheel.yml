@@ -69,6 +69,30 @@ jobs:
           curl -Lo LICENSE/LICENSE_QHULL
           https://github.com/qhull/qhull/raw/2020.2/COPYING.txt
 
+      - name: Build wheels for CPython 3.12
+        uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
+        env:
+          CIBW_BUILD: "cp312-*"
+          CIBW_SKIP: "*-musllinux* *i686* *win32*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_I686_IMAGE: manylinux2014
+          MPL_DISABLE_FH4: "yes"
+          CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          # Remove this once NumPy with Python 3.12 wheels is not pre-release.
+          CIBW_BEFORE_BUILD: >-
+            pip install certifi "Cython>=0.29.34,<3.1" "pybind11>=2.6" "pyproject-metadata >= 0.7.1" "setuptools>=60" "setuptools_scm>=7" &&
+            pip install --pre "numpy>=1.25" &&
+            rm -rf {package}/build
+          CIBW_BEFORE_BUILD_WINDOWS: >-
+            pip install certifi colorama "Cython>=0.29.34,<3.1" delvewheel "pybind11>=2.6" "pyproject-metadata >= 0.7.1" "setuptools>=60" "setuptools_scm>=7" &&
+            pip install --pre "numpy>=1.25" &&
+            rm -rf {package}/build
+          CIBW_ENVIRONMENT: PIP_NO_BUILD_ISOLATION=0
+          # Remove this once contourpy has Python 3.12 wheels.
+          CIBW_BEFORE_TEST: >-
+            pip install "meson>=1.2.0" "meson-python>=0.13.1" "ninja" "pybind11>=2.10.4" &&
+            pip install --pre "numpy>=1.25"
+
       - name: Build wheels for CPython 3.11
         uses: pypa/cibuildwheel@39a63b5912f086dd459cf6fcb13dcdd3fe3bc24d # v2.15.0
         env:
