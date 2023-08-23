@@ -21,7 +21,7 @@ cube2 = (x >= 5) & (y >= 5) & (z >= 5)
 voxelarray = cube1 | cube2
 
 # Plot
-fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+ax = plt.figure().add_subplot(projection="3d")
 ax.voxels(voxelarray, edgecolor='k')
 
 ax.set(xticklabels=[],

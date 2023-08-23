@@ -110,7 +110,7 @@ ax.set(xlim=(-1, 5), ylim=(-3, 5))
 # The text in the example is placed in the fractional figure coordinate system.
 # Text keyword arguments like horizontal and vertical alignment are respected.
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='polar'), figsize=(3, 3))
+ax = plt.figure(figsize=(3, 3)).add_subplot(projection='polar')
 r = np.arange(0, 1, 0.001)
 theta = 2*2*np.pi*r
 line, = ax.plot(theta, r)

@@ -15,7 +15,7 @@ x = np.cos(theta - np.pi/2)
 y = np.sin(theta - np.pi/2)
 z = theta
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+ax = plt.figure().add_subplot(projection="3d")
 ax.stem(x, y, z)
 
 plt.show()
@@ -28,7 +28,7 @@ plt.show()
 # configurable via keyword arguments. For more advanced control adapt the line
 # objects returned by `~mpl_toolkits.mplot3d.axes3d.Axes3D.stem`.
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+ax = plt.figure().add_subplot(projection="3d")
 markerline, stemlines, baseline = ax.stem(
     x, y, z, linefmt='grey', markerfmt='D', bottom=np.pi)
 markerline.set_markerfacecolor('none')
@@ -44,7 +44,7 @@ plt.show()
 # For examples, by setting ``orientation='x'``, the stems are projected along
 # the *x*-direction, and the baseline is in the *yz*-plane.
 
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+ax = plt.figure().add_subplot(projection="3d")
 markerline, stemlines, baseline = ax.stem(x, y, z, bottom=-1, orientation='x')
 ax.set(xlabel='x', ylabel='y', zlabel='z')
 

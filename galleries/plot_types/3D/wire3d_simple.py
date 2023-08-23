@@ -15,7 +15,7 @@ plt.style.use('_mpl-gallery')
 X, Y, Z = axes3d.get_test_data(0.05)
 
 # Plot
-fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+ax = plt.figure().add_subplot(projection="3d")
 ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
 
 ax.set(xticklabels=[],

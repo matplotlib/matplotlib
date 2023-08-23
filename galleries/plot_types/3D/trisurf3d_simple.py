@@ -25,7 +25,7 @@ y = np.append(0, (radii*np.sin(angles)).flatten())
 z = np.sin(-x*y)
 
 # Plot
-fig, ax = plt.subplots(subplot_kw={'projection': '3d'})
+ax = plt.figure().add_subplot(projection="3d")
 ax.plot_trisurf(x, y, z, vmin=z.min() * 2, cmap=cm.Blues)
 
 ax.set(xticklabels=[],

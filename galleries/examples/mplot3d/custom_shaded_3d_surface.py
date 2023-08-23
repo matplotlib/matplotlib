@@ -24,7 +24,7 @@ region = np.s_[5:50, 5:50]
 x, y, z = x[region], y[region], z[region]
 
 # Set up plot
-fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
+ax = plt.figure().add_subplot(projection="3d")
 
 ls = LightSource(270, 45)
 # To use a custom hillshading mode, override the built-in shading and pass

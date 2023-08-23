@@ -11,7 +11,7 @@ import numpy as np
 r = np.arange(0, 2, 0.01)
 theta = 2 * np.pi * r
 
-fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+ax = plt.figure().add_subplot(projection="polar")
 ax.plot(theta, r)
 ax.set_rmax(2)
 ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks

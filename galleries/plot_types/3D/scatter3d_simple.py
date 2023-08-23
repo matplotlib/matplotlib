@@ -19,7 +19,7 @@ ys = rng.uniform(0, 100, n)
 zs = rng.uniform(-50, -25, n)
 
 # Plot
-fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+ax = plt.figure().add_subplot(projection="3d")
 ax.scatter(xs, ys, zs)
 
 ax.set(xticklabels=[],
