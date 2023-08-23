@@ -141,12 +141,12 @@ circle: plotting a circle using a `matplotlib.patches.Circle` patch
 vs plotting the circle using the parametric equation of a circle ::
 
    from matplotlib.testing.decorators import check_figures_equal
+   import matplotib.patches as mpatches
    import matplotlib.pyplot as plt
    import numpy as np
 
    @check_figures_equal(extensions=['png'], tol=100)
    def test_parametric_circle_plot(fig_test, fig_ref):
-       import matplotlib.patches as mpatches
        red_circle_ref = mpatches.Circle((0, 0), 0.2, color='r', clip_on=False)
        fig_ref.add_artist(red_circle_ref)
        theta = np.linspace(0, 2 * np.pi, 150)
