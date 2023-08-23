@@ -2613,6 +2613,8 @@ class _AxesBase(martist.Artist):
         """
         Retrieve autoscaling margin of the x-axis.
 
+        .. versionadded:: 3.7
+
         Returns
         -------
         xmargin : float
@@ -2620,13 +2622,14 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.axes.Axes.set_xmargin
-            for an explanation and example
         """
         return self._xmargin
 
     def get_ymargin(self):
         """
         Retrieve autoscaling margin of the y-axis.
+
+        .. versionadded:: 3.7
 
         Returns
         -------
@@ -2635,7 +2638,6 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         matplotlib.axes.Axes.set_ymargin
-            for an explanation and example
         """
         return self._ymargin
 

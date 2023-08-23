@@ -517,6 +517,8 @@ class Axes3D(Axes):
         """
         Retrieve autoscaling margin of the z-axis.
 
+        .. versionadded:: 3.7
+
         Returns
         -------
         zmargin : float
@@ -524,7 +526,6 @@ class Axes3D(Axes):
         See Also
         --------
         mpl_toolkits.mplot3d.axes3d.Axes3D.set_zmargin
-            for an explanation and example
         """
         return self._zmargin
 
